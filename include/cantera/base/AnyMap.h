@@ -26,7 +26,6 @@ namespace Cantera
 {
 
 class AnyMap;
-class InputFile;
 
 //! A wrapper for a variable whose type is determined at runtime
 /*!
@@ -74,9 +73,12 @@ public:
     //! messages.
     void setLoc(int line, int column);
 
-    //! Set information about the file used to create this value. Recursively
-    //! sets the information on any child elements.
-    void setFile(shared_ptr<InputFile>& file);
+    //! Get a value from the metadata applicable to the AnyMap tree containing
+    //! this AnyValue.
+    const AnyValue& getMetadata(const std::string& key) const;
+
+    //! Propagate metadata to any child elements
+    void propagateMetadata(shared_ptr<AnyMap>& file);
 
     //! Get the value of this key as the specified type.
     template<class T>
@@ -213,8 +215,9 @@ private:
     //! Column where this value occurs in the input file
     int m_column;
 
-    //! Information about the input file used to create this object
-    shared_ptr<InputFile> m_file;
+    //! Metadata relevant to an entire AnyMap tree, such as information about
+    // the input file used to create it
+    shared_ptr<AnyMap> m_metadata;
 
     //! Key of this value in a parent `AnyMap`
     std::string m_key;
@@ -387,18 +390,16 @@ public:
     //! error messages.
     void setLoc(int line, int column);
 
-    //! Set information about the file used to create this AnyMap. Recursively
-    //! sets the information on any child elements.
-    void setFile(shared_ptr<InputFile>& file);
+    //! Set a metadata value that applies to this AnyMap and its children.
+    //! Mainly for internal use in reading or writing from files.
+    void setMetadata(const std::string& key, const AnyValue& value);
 
-    //! Set the name of the file used to create this AnyMap. Recursively sets
-    //! the information on any child elements.
-    void setFileName(const std::string& filename);
+    //! Get a value from the metadata applicable to the AnyMap tree containing
+    //! this AnyMap.
+    const AnyValue& getMetadata(const std::string& key) const;
 
-    //! Set the contents of the file used to create this AnyMap. Used in the
-    //! case where the AnyMap is created from an input string rather than a
-    //! file. Recursively sets the information on any child elements.
-    void setFileContents(const std::string& contents);
+    //! Propagate metadata to any child elements
+    void propagateMetadata(shared_ptr<AnyMap>& file);
 
     //! If `key` exists, return it as a `bool`, otherwise return `default_`.
     bool getBool(const std::string& key, bool default_) const;
@@ -518,8 +519,9 @@ private:
     //! Starting column for this map in the input file
     int m_column;
 
-    //! Information about the file used to create this map
-    shared_ptr<InputFile> m_file;
+    //! Metadata relevant to an entire AnyMap tree, such as information about
+    // the input file used to create it
+    shared_ptr<AnyMap> m_metadata;
 
     //! Cache for previously-parsed input (YAML) files. The key is the full path
     //! to the file, and the second element of the value is the last-modified
@@ -553,7 +555,7 @@ public:
         : CanteraError(
             procedure,
             formatError(fmt::format(message, args...),
-                        node.m_line, node.m_column, node.m_file))
+                        node.m_line, node.m_column, node.m_metadata))
         {
         }
 
@@ -566,7 +568,7 @@ public:
         : CanteraError(
             procedure,
             formatError(fmt::format(message, args...),
-                        node.m_line, node.m_column, node.m_file))
+                        node.m_line, node.m_column, node.m_metadata))
         {
         }
 
@@ -576,7 +578,7 @@ public:
 protected:
     static std::string formatError(const std::string& message,
                                    int line, int column,
-                                   const shared_ptr<InputFile>& file);
+                                   const shared_ptr<AnyMap>& metadata);
 };
 
 }

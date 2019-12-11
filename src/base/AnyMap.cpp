@@ -137,6 +137,8 @@ Type elementTypes(const YAML::Node& node)
     return types;
 }
 
+Cantera::AnyValue Empty;
+
 } // end anonymous namespace
 
 namespace YAML { // YAML converters
@@ -253,13 +255,6 @@ struct convert<Cantera::AnyValue> {
 namespace Cantera
 {
 
-class InputFile
-{
-public:
-    std::string name;
-    std::string contents;
-};
-
 std::map<std::string, std::string> AnyValue::s_typenames = {
     {typeid(double).name(), "double"},
     {typeid(long int).name(), "long int"},
@@ -285,7 +280,7 @@ AnyValue::~AnyValue() = default;
 AnyValue::AnyValue(AnyValue const& other)
     : m_line(other.m_line)
     , m_column(other.m_column)
-    , m_file(other.m_file)
+    , m_metadata(other.m_metadata)
     , m_key(other.m_key)
     , m_value(new boost::any{*other.m_value})
     , m_equals(other.m_equals)
@@ -295,7 +290,7 @@ AnyValue::AnyValue(AnyValue const& other)
 AnyValue::AnyValue(AnyValue&& other)
     : m_line(other.m_line)
     , m_column(other.m_column)
-    , m_file(std::move(other.m_file))
+    , m_metadata(std::move(other.m_metadata))
     , m_key(std::move(other.m_key))
     , m_value(std::move(other.m_value))
     , m_equals(std::move(other.m_equals))
@@ -307,7 +302,7 @@ AnyValue& AnyValue::operator=(AnyValue const& other) {
         return *this;
     m_line = other.m_line;
     m_column = other.m_column;
-    m_file = other.m_file;
+    m_metadata = other.m_metadata;
     m_key = other.m_key;
     m_value.reset(new boost::any{*other.m_value});
     m_equals = other.m_equals;
@@ -319,7 +314,7 @@ AnyValue& AnyValue::operator=(AnyValue&& other) {
         return *this;
     m_line = other.m_line;
     m_column = other.m_column;
-    m_file = std::move(other.m_file);
+    m_metadata = std::move(other.m_metadata);
     m_key = std::move(other.m_key);
     m_value = std::move(other.m_value);
     m_equals = std::move(other.m_equals);
@@ -362,18 +357,27 @@ void AnyValue::setLoc(int line, int column)
     m_column = column;
 }
 
-void AnyValue::setFile(shared_ptr<InputFile>& file)
+const AnyValue& AnyValue::getMetadata(const std::string& key) const
 {
-    m_file = file;
+    if (m_metadata && m_metadata->hasKey(key)) {
+        return m_metadata->at(key);
+    } else {
+        return Empty;
+    }
+}
+
+void AnyValue::propagateMetadata(shared_ptr<AnyMap>& metadata)
+{
+    m_metadata = metadata;
     if (is<AnyMap>()) {
-        as<AnyMap>().setFile(m_file);
+        as<AnyMap>().propagateMetadata(m_metadata);
     } else if (is<std::vector<AnyValue>>()) {
         for (auto& item : asVector<AnyValue>()) {
-            item.setFile(m_file);
+            item.propagateMetadata(m_metadata);
         }
     } else if (is<std::vector<AnyMap>>()) {
         for (auto& item : asVector<AnyMap>()) {
-            item.setFile(m_file);
+            item.propagateMetadata(m_metadata);
         }
     }
 }
@@ -931,11 +935,11 @@ AnyValue& AnyMap::operator[](const std::string& key)
         // G++ 4.7 is dropped.
         AnyValue& value = m_data.insert({key, AnyValue()}).first->second;
         value.setKey(key);
-        if (m_file) {
+        if (m_metadata) {
             // Approximate location, useful mainly if this insertion is going to
             // immediately result in an error that needs to be reported.
             value.setLoc(m_line, m_column);
-            value.setFile(m_file);
+            value.propagateMetadata(m_metadata);
         }
         return value;
     } else {
@@ -1000,26 +1004,33 @@ void AnyMap::setLoc(int line, int column)
     m_column = column;
 }
 
-void AnyMap::setFile(shared_ptr<InputFile>& file)
+const AnyValue& AnyMap::getMetadata(const std::string& key) const
 {
-    m_file = file;
-    for (auto& item : m_data) {
-        item.second.setFile(m_file);
+    if (m_metadata && m_metadata->hasKey(key)) {
+        return m_metadata->at(key);
+    } else {
+        return Empty;
     }
 }
 
-void AnyMap::setFileName(const std::string& filename)
+void AnyMap::propagateMetadata(shared_ptr<AnyMap>& metadata)
 {
-    auto info = make_shared<InputFile>();
-    info->name = filename;
-    setFile(info);
+    m_metadata = metadata;
+    for (auto& item : m_data) {
+        item.second.propagateMetadata(m_metadata);
+    }
 }
 
-void AnyMap::setFileContents(const std::string& contents)
+void AnyMap::setMetadata(const std::string& key, const AnyValue& value)
 {
-    auto info = make_shared<InputFile>();
-    info->contents = contents;
-    setFile(info);
+    if (m_metadata) {
+        // Fork the metadata tree at this point to avoid affecting parent nodes
+        m_metadata = make_shared<AnyMap>(*m_metadata);
+    } else {
+        m_metadata = make_shared<AnyMap>();
+    }
+    (*m_metadata)[key] = value;
+    propagateMetadata(m_metadata);
 }
 
 bool AnyMap::getBool(const std::string& key, bool default_) const
@@ -1136,10 +1147,10 @@ AnyMap AnyMap::fromYamlString(const std::string& yaml) {
     } catch (YAML::Exception& err) {
         AnyMap fake;
         fake.setLoc(err.mark.line, err.mark.column);
-        fake.setFileContents(yaml);
+        fake.setMetadata("file-contents", AnyValue(yaml));
         throw InputFileError("AnyMap::fromYamlString", fake, err.msg);
     }
-    amap.setFileContents(yaml);
+    amap.setMetadata("file-contents", AnyValue(yaml));
     amap.applyUnits(UnitSystem());
     return amap;
 }
@@ -1181,13 +1192,13 @@ AnyMap AnyMap::fromYamlFile(const std::string& name,
     try {
         YAML::Node node = YAML::LoadFile(fullName);
         cache_item.first = node.as<AnyMap>();
-        cache_item.first.setFileName(fullName);
+        cache_item.first.setMetadata("filename", AnyValue(fullName));
         cache_item.first.applyUnits(UnitSystem());
     } catch (YAML::Exception& err) {
         s_cache.erase(fullName);
         AnyMap fake;
         fake.setLoc(err.mark.line, err.mark.column);
-        fake.setFileName(fullName);
+        fake.setMetadata("filename", AnyValue(fullName));
         throw InputFileError("AnyMap::fromYamlFile", fake, err.msg);
     } catch (CanteraError&) {
         s_cache.erase(fullName);
@@ -1213,30 +1224,31 @@ AnyMap::Iterator end(const AnyValue& v) {
 
 std::string InputFileError::formatError(const std::string& message,
                                         int lineno, int column,
-                                        const shared_ptr<InputFile>& file)
+                                        const shared_ptr<AnyMap>& metadata)
 {
-    if (!file) {
+    if (!metadata) {
         return message;
     }
+    std::string filename = metadata->getString("filename", "");
 
     fmt::memory_buffer b;
     format_to(b, "Error on line {} of", lineno+1);
-    if (file->name.empty()) {
+    if (filename.empty()) {
         format_to(b, " input string:\n");
     } else {
-        format_to(b, " {}:\n", file->name);
+        format_to(b, " {}:\n", filename);
     }
     format_to(b, "{}\n", message);
     format_to(b, "|  Line |\n");
-    if (file->contents.empty()) {
-        std::ifstream infile(findInputFile(file->name));
+    if (!metadata->hasKey("file-contents")) {
+        std::ifstream infile(findInputFile(filename));
         std::stringstream buffer;
         buffer << infile.rdbuf();
-        file->contents = buffer.str();
+        (*metadata)["file-contents"] = buffer.str();
     }
     std::string line;
     int i = 0;
-    std::stringstream contents(file->contents);
+    std::stringstream contents((*metadata)["file-contents"].asString());
     while (std::getline(contents, line)) {
         if (lineno == i) {
             format_to(b, "> {: 5d} > {}\n", i+1, line);
