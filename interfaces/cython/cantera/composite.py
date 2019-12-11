@@ -791,7 +791,7 @@ class SolutionArray:
             else:
                 expanded_cols.append(c)
 
-        expanded_cols = tuple(['density' if c is 'D' else c
+        expanded_cols = tuple(['density' if c == 'D' else c
                                for c in expanded_cols])
 
         species_names = set(self.species_names)
