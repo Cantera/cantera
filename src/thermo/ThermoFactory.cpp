@@ -130,20 +130,35 @@ ThermoPhase* newPhase(const std::string& infile, std::string id)
     if (extension == "yml" || extension == "yaml") {
         AnyMap root = AnyMap::fromYamlFile(infile);
         std::string name = id;
-        if (name=="gri30_mix" || name=="gri30_multi") {
-            name = "gri30";
-            warn_deprecated("newPhase",
-                "The phases 'gri30_mix' and 'gri30_multi' are no longer "
-                "defined in the input file 'gri30.yaml'. The YAML version uses "
-                "the 'Mix' transport manager by default instead, which can be "
-                "overridden by specifying a transport manager during "
-                "initialization. Support for transitional behavior will be "
-                "removed after Cantera 2.5.");
+        try {
+            AnyMap& phase = root["phases"].getMapWhere("name", name);
+            unique_ptr<ThermoPhase> t(newThermoPhase(phase["thermo"].asString()));
+            setupPhase(*t, phase, root);
+            return t.release();
+        } catch (CanteraError& err) {
+            if (name == "gri30_mix" || name == "gri30_multi") {
+                string input_file = root["__file__"].asString();
+                warn_deprecated("newPhase", fmt::format(
+                    "The phase named '{}' is not defined in the input file '{}'.\n"
+                    "Examples that use this phase name are deprecated. Instead, you should "
+                    "specify one of the following transport models:\n"
+                    " * 'Mix': Mixture-averaged transport\n"
+                    " * 'Multi': Multicomponent transport\n"
+                    " * 'None': No transport model, useful for 0-D simulations\n"
+                    "Examples:\n"
+                    " - MATLAB: Solution('gri30.yaml', 'gri30', 'None')\n"
+                    " - C++: newSolution(\"gri30.yaml\", \"gri30\", \"Mix\")\n"
+                    "This warning will convert to an error after Cantera 2.5.",
+                    name, input_file));
+                AnyMap& phase = root["phases"].getMapWhere("name", "");
+                unique_ptr<ThermoPhase> t(newThermoPhase(phase["thermo"].asString()));
+                setupPhase(*t, phase, root);
+                t->setName(name);
+                return t.release();
+            } else {
+                throw;
+            }
         }
-        AnyMap& phase = root["phases"].getMapWhere("name", name);
-        unique_ptr<ThermoPhase> t(newThermoPhase(phase["thermo"].asString()));
-        setupPhase(*t, phase, root);
-        return t.release();
     } else {
         XML_Node* root = get_XML_File(infile);
         XML_Node* xphase = get_XML_NameID("phase", "#"+id, root);

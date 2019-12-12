@@ -8,15 +8,13 @@ import cantera as ct
 from cantera import ck2cti, ck2yaml, cti2yaml, ctml2yaml
 
 
-import warnings
-
 class converterTestCommon:
-    def convert(self, inputFile, thermo=None, transport=None,
+    def convert(self, input_file, thermo=None, transport=None,
                 surface=None, output=None, quiet=True, permissive=None):
         if output is None:
-            output = inputFile[:-4]  # strip '.inp'
-        if inputFile is not None:
-            inputFile = pjoin(self.test_data_dir, inputFile)
+            output = input_file[:-4]  # strip '.inp'
+        if input_file is not None:
+            input_file = pjoin(self.test_data_dir, input_file)
         if thermo is not None:
             thermo = pjoin(self.test_data_dir, thermo)
         if transport is not None:
@@ -26,7 +24,7 @@ class converterTestCommon:
         output = pjoin(self.test_work_dir, output + self.ext)
         if os.path.exists(output):
             os.remove(output)
-        self._convert(inputFile, thermo=thermo, transport=transport,
+        self._convert(input_file, thermo=thermo, transport=transport,
             surface=surface, output=output, quiet=quiet, permissive=permissive)
 
     def checkConversion(self, refFile, testFile):
@@ -83,31 +81,6 @@ class converterTestCommon:
 
         ref, gas = self.checkConversion('gri30.xml', 'gri30_test')
         self.checkKinetics(ref, gas, [300, 1500], [5e3, 1e5, 2e6])
-
-    def test_gri30_phases(self):
-
-        # cause all warnings to always be triggered.
-        warnings.simplefilter("always")
-
-        with warnings.catch_warnings(record=True) as w:
-
-            gas = ct.Solution('gri30.yaml', 'gri30_mix')
-
-            self.assertEqual(gas.transport_model, 'Mix')
-            self.assertEqual(len(w), 1)
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertIn("be removed after Cantera 2.5.",
-                          str(w[-1].message))
-
-        with warnings.catch_warnings(record=True) as w:
-
-            gas = ct.Solution('gri30.yaml', 'gri30_multi')
-
-            self.assertEqual(gas.transport_model, 'Multi')
-            self.assertEqual(len(w), 1)
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertIn("be removed after Cantera 2.5.",
-                          str(w[-1].message))
 
     def test_soot(self):
         self.convert('soot.inp', thermo='soot-therm.dat', output='soot_test')
@@ -442,9 +415,9 @@ class ck2ctiTest(converterTestCommon, utilities.CanteraTest):
     ext = '.cti'
     InputError = ck2cti.InputParseError
 
-    def _convert(self, inputFile, *, thermo, transport, surface, output, quiet,
+    def _convert(self, input_file, *, thermo, transport, surface, output, quiet,
                  permissive):
-        ck2cti.convertMech(inputFile, thermoFile=thermo,
+        ck2cti.convertMech(input_file, thermoFile=thermo,
             transportFile=transport, surfaceFile=surface, outName=output,
             quiet=quiet, permissive=permissive)
 
@@ -457,11 +430,43 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
     ext = '.yaml'
     InputError = ck2yaml.InputError
 
-    def _convert(self, inputFile, *, thermo, transport, surface, output, quiet,
+    def _convert(self, input_file, *, thermo, transport, surface, output, quiet,
                  permissive):
-        ck2yaml.convert_mech(inputFile, thermo_file=thermo,
+        ck2yaml.convert_mech(input_file, thermo_file=thermo,
             transport_file=transport, surface_file=surface, out_name=output,
             quiet=quiet, permissive=permissive)
+
+    def test_gri30_phases(self):
+        yml_file = pjoin(self.cantera_data, "gri30.yaml")
+        with self.assertWarnsRegex(DeprecationWarning,
+                                   'error after Cantera 2.5.'):
+            gas = ct.Solution(yml_file, 'gri30_mix')
+            self.assertEqual(gas.transport_model, 'Mix')
+
+        with self.assertWarnsRegex(DeprecationWarning,
+                                   'error after Cantera 2.5.'):
+            gas = ct.Solution(yml_file, 'gri30_multi')
+            self.assertEqual(gas.transport_model, 'Multi')
+
+    def test_gri30_custom(self):
+        input_file = pjoin(self.test_data_dir, 'gri30.inp')
+        thermo = pjoin(self.test_data_dir, 'gri30_thermo.dat')
+        transport = pjoin(self.test_data_dir, 'gri30_tran.dat')
+        yml_file = pjoin(self.test_work_dir, 'gri30_test.yaml')
+        if os.path.exists(yml_file):
+            os.remove(yml_file)
+        self._convert(input_file, thermo=thermo, transport=transport,
+            surface=None, output=yml_file, quiet=True, permissive=None)
+
+        with self.assertWarnsRegex(DeprecationWarning,
+                                   'error after Cantera 2.5.'):
+            gas = ct.Solution(yml_file, 'gri30_mix')
+            self.assertEqual(gas.transport_model, 'Mix')
+
+        with self.assertWarnsRegex(DeprecationWarning,
+                                   'error after Cantera 2.5.'):
+            gas = ct.Solution(yml_file, 'gri30_multi')
+            self.assertEqual(gas.transport_model, 'Multi')
 
 
 class CtmlConverterTest(utilities.CanteraTest):

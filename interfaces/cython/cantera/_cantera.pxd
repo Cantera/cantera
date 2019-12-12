@@ -56,6 +56,7 @@ cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
         CxxAnyValue()
         unordered_map[string, CxxAnyMap*] asMap(string) except +translate_exception
         CxxAnyMap& getMapWhere(string, string) except +translate_exception
+        string asString()
 
     CxxAnyMap AnyMapFromYamlFile "Cantera::AnyMap::fromYamlFile" (string) except +translate_exception
     CxxAnyMap AnyMapFromYamlString "Cantera::AnyMap::fromYamlString" (string) except +translate_exception

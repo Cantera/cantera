@@ -2,6 +2,8 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from collections import defaultdict as _defaultdict
+from textwrap import dedent
+
 
 cdef class _SolutionBase:
     def __cinit__(self, infile='', name='', adjacent=(), origin=None,
@@ -109,21 +111,29 @@ cdef class _SolutionBase:
         elif source:
             root = AnyMapFromYamlString(stringify(source))
 
-        if name == 'gri30_mix' or name == 'gri30_multi':
-            # catch transitional behavior
-            warnings.warn(
-                "The phases 'gri30_mix' and 'gri30_multi' are no longer "
-                "defined in the input file 'gri30.yaml'. The YAML version uses "
-                "the 'Mix' transport manager by default instead, which can be "
-                "overridden by specifying a transport manager via the "
-                "`transport_model' keyword argument during initialization. "
-                "Support for transitional behavior will be removed after "
-                "Cantera 2.5.", DeprecationWarning)
-            phaseNode = root[stringify("phases")].getMapWhere(stringify("name"),
-                                                              stringify("gri30"))
-        else:
-            phaseNode = root[stringify("phases")].getMapWhere(stringify("name"),
-                                                              stringify(name))
+        try:
+            phaseNode = root[stringify("phases")].getMapWhere(
+                stringify("name"), stringify(name))
+        except CanteraError:
+            if name in ['gri30_mix', 'gri30_multi']:
+                input_file = pystr(root[stringify("__file__")].asString())
+                # catch transitional behavior
+                warnings.warn(dedent("""
+                    The phase named '{}' is not defined in the input file '{}'.
+                    Examples that use this phase name are deprecated. Instead, you should
+                    use one of the following options to choose a transport model:
+
+                    * ct.Solution("gri30.yaml")  # Mixture-averaged transport, default
+                    * ct.Solution("gri30.yaml", transport_model="Mix")  # Mixture-averaged transport
+                    * ct.Solution("gri30.yaml", transport_model=None)  # No transport model, useful for 0-D simulations
+                    * ct.Solution("gri30.yaml", transport_model="Multi")  # Multicomponent transport
+
+                    This warning will convert to an error after Cantera 2.5.
+                """.format(name, input_file)), DeprecationWarning)
+                phaseNode = root[stringify("phases")].getMapWhere(
+                    stringify("name"), stringify(''))
+            else:
+                raise
 
         # Thermo
         if isinstance(self, ThermoPhase):

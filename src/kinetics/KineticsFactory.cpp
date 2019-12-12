@@ -81,7 +81,7 @@ unique_ptr<Kinetics> newKinetics(std::vector<ThermoPhase*>& phases,
     if (extension == "yml" || extension == "yaml") {
         AnyMap root = AnyMap::fromYamlFile(filename);
         std::string name = phase_name;
-        if (name=="gri30_mix" || name=="gri30_multi") {
+        if (name == "gri30_mix" || name == "gri30_multi") {
             // handle deprecated phase names; warning is already issued
             name = "gri30";
         }

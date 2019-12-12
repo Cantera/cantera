@@ -5,7 +5,13 @@ classdef TestImport < TestCase
         end
 
         function testImportYAML(self)
-            gas = Solution('gri30.yaml', 'gri30', 'Mix');
+            gas = Solution('gri30.yaml');
+            dkm = mixDiffCoeffs(gas);
+            assertEqual(length(dkm), nSpecies(gas))
+        end
+
+        function testImportXML(self)
+            gas = Solution('gri30.xml', 'gri30_mix');
             dkm = mixDiffCoeffs(gas);
             assertEqual(length(dkm), nSpecies(gas))
         end

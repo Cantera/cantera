@@ -100,10 +100,10 @@ Transport* TransportFactory::newTransport(thermo_t* phase, int log_level)
     std::string transportModel = "None";
     XML_Node& phaseNode = phase->xml();
     AnyMap& input = phase->input();
-    if (phase->name()=="gri30_mix") {
+    if (phase->name() == "gri30_mix") {
         // handle deprecated 'gri30_mix' phase; warning is already issued
         transportModel = "Mix";
-    } else if (phase->name()=="gri30_multi") {
+    } else if (phase->name() == "gri30_multi") {
         // handle deprecated 'gri30_multi' phase; warning is already issued
         transportModel = "Multi";
     } else if (input.hasKey("transport")) {

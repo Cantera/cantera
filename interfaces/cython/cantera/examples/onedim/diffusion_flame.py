@@ -22,7 +22,7 @@ loglevel = 1  # amount of diagnostic output (0 to 5)
 
 # Create the gas object used to evaluate all thermodynamic, kinetic, and
 # transport properties.
-gas = ct.Solution('gri30.yaml', 'gri30')
+gas = ct.Solution('gri30.yaml')
 gas.TP = gas.T, p
 
 # Create an object representing the counterflow flame configuration,

@@ -52,7 +52,8 @@ k = Kinetics(t, src, id);
 s.kin = k;
 s.th = t;
 if nargin == 3
-    if strcmp(trans, 'default') || strcmp(trans, 'Mix') || strcmp(trans, 'Multi')
+    if strcmp(trans, 'default') || strcmp(trans, 'Mix') || ...
+            strcmp(trans, 'Multi') || strcmp(trans, 'None')
         tr = Transport(t, trans, 0);
     else
         error('Unknown transport modeling specified.')
