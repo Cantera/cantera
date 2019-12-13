@@ -16,6 +16,11 @@
 
 namespace Cantera {
 
+YamlWriter::YamlWriter()
+    : m_float_precision(15)
+{
+}
+
 void YamlWriter::addPhase(shared_ptr<Solution> soln) {
     for (auto& phase : m_phases) {
         if (phase->name() == soln->name()) {
@@ -140,6 +145,7 @@ std::string YamlWriter::toYamlString() const
         }
     }
 
+    output.setMetadata("precision", AnyValue(m_float_precision));
     return output.toYamlString();
 }
 

@@ -61,6 +61,7 @@ TEST(YamlWriter, reactions)
     auto original = newSolution("h2o2.yaml");
     YamlWriter writer;
     writer.addPhase(original);
+    writer.setPrecision(14);
     writer.toYamlFile("generated-h2o2.yaml");
     auto duplicate = newSolution("generated-h2o2.yaml");
 
@@ -72,11 +73,8 @@ TEST(YamlWriter, reactions)
     kin1->getFwdRateConstants(kf1.data());
     kin2->getFwdRateConstants(kf2.data());
     for (size_t i = 0; i < kin1->nReactions(); i++) {
-        EXPECT_DOUBLE_EQ(kf1[i], kf2[i]) << "for reaction i = " << i;
+        EXPECT_NEAR(kf1[i], kf2[i], 1e-13 * kf1[i]) << "for reaction i = " << i;
     }
-
-    AnyMap m = AnyMap::fromYamlFile("generated-h2o2.yaml");
-    auto& reactions = m["reactions"].asVector<AnyMap>();
 }
 
 TEST(YamlWriter, multipleReactionSections)
