@@ -23,6 +23,7 @@ namespace { // helper functions
 
 std::mutex yaml_cache_mutex;
 using std::vector;
+using std::string;
 
 bool isFloat(const std::string& val)
 {
@@ -139,6 +140,45 @@ Type elementTypes(const YAML::Node& node)
     return types;
 }
 
+string formatDouble(double x, const Cantera::AnyValue& precisionSource)
+{
+    long int precision = 15;
+    auto& userPrecision = precisionSource.getMetadata("precision");
+    if (userPrecision.is<long int>()) {
+        precision = userPrecision.asInt();
+    }
+    if (x == 0.0) {
+        return "0.0";
+    } else if (std::abs(x) >= 0.01 && std::abs(x) < 10000) {
+        string s = fmt::format("{:.{}f}", x, precision);
+        // Trim trailing zeros, keeping at least one digit to the right of
+        // the decimal point
+        size_t last = s.size() - 1;
+        for (; last != 0; last--) {
+            if (s[last] != '0' || s[last-1] == '.') {
+                break;
+            }
+        }
+        s.resize(last + 1);
+        return s;
+    } else {
+        string s = fmt::format("{:.{}e}", x, precision);
+        // Trim trailing zeros, keeping at least one digit to the right of
+        // the decimal point
+        size_t eloc = s.find('e');
+        size_t last = eloc - 1;
+        for (; last != 0; last--) {
+            if (s[last] != '0' || s[last-1] == '.') {
+                break;
+            }
+        }
+        if (last != eloc - 1) {
+            s = string(s, 0, last + 1) + string(s.begin() + eloc, s.end());
+        }
+        return s;
+    }
+}
+
 Cantera::AnyValue Empty;
 
 } // end anonymous namespace
@@ -194,7 +234,7 @@ struct convert<Cantera::AnyValue> {
             if (rhs.is<std::string>()) {
                 node = rhs.asString();
             } else if (rhs.is<double>()) {
-                node = rhs.asDouble();
+                node = formatDouble(rhs.asDouble(), rhs);
             } else if (rhs.is<long int>()) {
                 node = rhs.asInt();
             } else if (rhs.is<bool>()) {
@@ -208,7 +248,9 @@ struct convert<Cantera::AnyValue> {
         } else if (rhs.is<vector<Cantera::AnyMap>>()) {
             node = rhs.asVector<Cantera::AnyMap>();
         } else if (rhs.is<vector<double>>()) {
-            node = rhs.asVector<double>();
+            for (double x : rhs.asVector<double>()) {
+                node.push_back(formatDouble(x, rhs));
+            }
             node.SetStyle(YAML::EmitterStyle::Flow);
         } else if (rhs.is<vector<std::string>>()) {
             node = rhs.asVector<std::string>();
@@ -222,9 +264,14 @@ struct convert<Cantera::AnyValue> {
         } else if (rhs.is<vector<Cantera::AnyValue>>()) {
             node = rhs.asVector<Cantera::AnyValue>();
         } else if (rhs.is<vector<vector<double>>>()) {
-            node = rhs.asVector<vector<double>>();
-            for (size_t i = 0; i < node.size(); i++) {
-                node[i].SetStyle(YAML::EmitterStyle::Flow);
+            const auto& doubleVals = rhs.asVector<vector<double>>();
+            for (size_t i = 0; i < doubleVals.size(); i++) {
+                YAML::Node inner;
+                for (size_t j = 0; j < doubleVals[i].size(); j++) {
+                    inner.push_back(formatDouble(doubleVals[i][j], rhs));
+                }
+                inner.SetStyle(YAML::EmitterStyle::Flow);
+                node.push_back(inner);
             }
         } else if (rhs.is<vector<vector<std::string>>>()) {
             node = rhs.asVector<vector<std::string>>();
