@@ -924,7 +924,7 @@ cdef class PressureController(FlowDevice):
     A PressureController is designed to be used in conjunction with another
     'master' flow controller, typically a `MassFlowController`. The master
     flow controller is installed on the inlet of the reactor, and the
-    corresponding `PressureController` is installed on on outlet of the
+    corresponding `PressureController` is installed on the outlet of the
     reactor. The `PressureController` mass flow rate is equal to the master
     mass flow rate, plus a small correction dependent on the pressure
     difference:
