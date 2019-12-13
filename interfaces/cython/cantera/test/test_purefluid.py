@@ -4,8 +4,6 @@ import numpy as np
 import cantera as ct
 from . import utilities
 
-import warnings
-
 
 class TestPureFluid(utilities.CanteraTest):
     """ Test functionality of the PureFluid class """
@@ -171,78 +169,34 @@ class TestPureFluid(utilities.CanteraTest):
 
     def test_deprecated_X(self):
 
-        # cause all warnings to always be triggered.
-        warnings.simplefilter("always")
-
-        with warnings.catch_warnings(record=True) as w:
+        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'TQ'"):
             self.water.TX = 400, 0.8
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertIn("renamed to 'TQ'", str(w[-1].message))
-
-        with warnings.catch_warnings(record=True) as w:
+        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'Q'"):
             X = self.water.X
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertIn("renamed to 'Q'", str(w[-1].message))
-
-        with warnings.catch_warnings(record=True) as w:
+        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'Q'"):
             self.water.X = X
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertIn("renamed to 'Q'", str(w[-1].message))
-
-        with warnings.catch_warnings(record=True) as w:
+        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'TPQ'"):
             T, P, X = self.water.TPX
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertIn("renamed to 'TPQ'", str(w[-1].message))
-
-        with warnings.catch_warnings(record=True) as w:
+        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'TPQ'"):
             self.water.TPX = T, P, X
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertIn("renamed to 'TPQ'", str(w[-1].message))
-
-        with warnings.catch_warnings(record=True) as w:
+        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'TQ'"):
             T, X = self.water.TX
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertIn("renamed to 'TQ'", str(w[-1].message))
-
-        with warnings.catch_warnings(record=True) as w:
+        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'TQ'"):
             self.water.TX = T, X
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertIn("renamed to 'TQ'", str(w[-1].message))
-
-        with warnings.catch_warnings(record=True) as w:
+        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'PQ'"):
             P, X = self.water.PX
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertIn("renamed to 'PQ'", str(w[-1].message))
-
-        with warnings.catch_warnings(record=True) as w:
+        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'PQ'"):
             self.water.PX = P, X
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertIn("renamed to 'PQ'", str(w[-1].message))
-
-        with warnings.catch_warnings(record=True) as w:
+        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'TDQ'"):
             T, D, X = self.water.TDX
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertIn("renamed to 'TDQ'", str(w[-1].message))
-
-        with warnings.catch_warnings(record=True) as w:
+        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'UVQ'"):
             U, V, X = self.water.UVX
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertIn("renamed to 'UVQ'", str(w[-1].message))
-
-        with warnings.catch_warnings(record=True) as w:
+        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'HPQ'"):
             H, P, X = self.water.HPX
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertIn("renamed to 'HPQ'", str(w[-1].message))
-
-        with warnings.catch_warnings(record=True) as w:
+        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'SPQ'"):
             S, P, X = self.water.SPX
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertIn("renamed to 'SPQ'", str(w[-1].message))
-
-        with warnings.catch_warnings(record=True) as w:
+        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'SVQ'"):
             S, V, X = self.water.SVX
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertIn("renamed to 'SVQ'", str(w[-1].message))
 
 
 # To minimize errors when transcribing tabulated data, the input units here are:
