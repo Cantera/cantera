@@ -75,7 +75,7 @@ namespace Cantera
  * For any phase, the native definition of its thermodynamic state is defined
  * the method nativeState(), with the length of the state vector returned by
  * by stateSize(). In addition, methods isPure() and isCompressible() provide
- * information on on the implementation of a Phase object.
+ * information on the implementation of a Phase object.
  *
  * A species name is referred to via speciesName(), which is unique within a
  * given phase. Note that within multiphase mixtures (MultiPhase()), both a
