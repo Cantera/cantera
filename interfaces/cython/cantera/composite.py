@@ -491,7 +491,7 @@ class SolutionArray:
     _interface_passthrough = ['site_density']
     _interface_n_species = ['coverages']
 
-    _purefluid_n_species = ['Q']
+    _purefluid_scalar = ['Q']
 
     def __init__(self, phase, shape=(0,), states=None, extra=None):
         super().__setattr__('_setters', {})
@@ -542,6 +542,11 @@ class SolutionArray:
 
         # add properties dynamically for states not defined by ThermoPhase
         state_sets = set(phase._full_states.values()) | set(phase._partial_states.values())
+        if isinstance(self._phase, PureFluid):
+            # add deprecated setters
+            # @todo: remove .. deprecated:: 2.5
+            state_sets |= {s.replace('Q', 'X') for s in state_sets if 'Q' in s}
+
         state_sets = state_sets - set(self._all_states)
         for name in state_sets:
             ph = type(phase)
@@ -688,16 +693,13 @@ class SolutionArray:
         states = list(self._phase._full_states.values())
 
         # add partial and/or potentially non-unique state definitions
-        if isinstance(self._phase, PureFluid):
-            states += ['TPQ']
         states += list(self._phase._partial_states.values())
 
         # determine whether complete concentration is available (mass or mole)
-        # assumes that 'X', 'Y' or 'Q' is always in last place
-        # (for PureFluid, 'Q_H2O' is treated in a similar fashion)
+        # assumes that 'X' or 'Y' is always in last place
         mode = ''
         valid_species = {}
-        for prefix in ['X_', 'Y_', 'Q_']:
+        for prefix in ['X_', 'Y_']:
             if not any([prefix[0] in s for s in states]):
                 continue
             spc = ['{}{}'.format(prefix, s) for s in self.species_names]
@@ -712,8 +714,8 @@ class SolutionArray:
                 states = [v[:-1] for v in states if mode in v]
                 break
         if mode == '':
-            # concentration/quality specifier ('X', 'Y' or 'Q') is not used
-            states = [st.translate({ord(i): None for i in 'XYQ'})
+            # concentration/quality specifier ('X' or 'Y') is not used
+            states = [st.translate({ord(i): None for i in 'XY'})
                       for st in states]
         elif len(valid_species) != len(all_species):
             incompatible = list(set(valid_species) ^ set(all_species))
@@ -722,7 +724,7 @@ class SolutionArray:
 
         # determine suitable thermo properties for reconstruction
         basis = 'mass' if self.basis == 'mass' else 'mole'
-        prop = {'T': ('T'), 'P': ('P'),
+        prop = {'T': ('T'), 'P': ('P'), 'Q': ('Q'),
                 'D': ('density', 'density_{}'.format(basis)),
                 'U': ('u', 'int_energy_{}'.format(basis)),
                 'V': ('v', 'volume_{}'.format(basis)),
@@ -846,8 +848,8 @@ class SolutionArray:
             elif c in species_names:
                 single_species = True
                 collabels = ['{}_{}'.format(species, c)]
-            elif c in self._purefluid_n_species:
-                collabels = ['{}_{}'.format(c, s) for s in self.species_names]
+            elif c in self._purefluid_scalar:
+                collabels = [c]
             else:
                 raise CanteraError('property "{}" not supported'.format(c))
 
@@ -1090,8 +1092,8 @@ def _make_functions():
     for name in SolutionArray._interface_n_species:
         setattr(SolutionArray, name, make_prop(name, empty_species, Interface))
 
-    for name in SolutionArray._purefluid_n_species:
-        setattr(SolutionArray, name, make_prop(name, empty_species, PureFluid))
+    for name in SolutionArray._purefluid_scalar:
+        setattr(SolutionArray, name, make_prop(name, empty_scalar, PureFluid))
 
     for name in SolutionArray._n_total_species:
         setattr(SolutionArray, name,
