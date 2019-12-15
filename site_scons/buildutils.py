@@ -172,9 +172,12 @@ def regression_test(target, source, env):
             os.path.unlink(target[0].abspath)
 
         testResults.failed[env['active_test_name']] = 1
+        if env["fast_fail_tests"]:
+            sys.exit(1)
     else:
         print('PASSED')
-        open(target[0].path, 'w').write(time.asctime()+'\n')
+        with open(target[0].path, 'w') as passed_file:
+            passed_file.write(time.asctime()+'\n')
         testResults.passed[env['active_test_name']] = 1
 
 

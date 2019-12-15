@@ -651,7 +651,12 @@ config_options = [
            files in the subdirectory defined by 'prefix'. This layout is best
            with a prefix like '/opt/cantera'. 'debian' installs to the stage
            directory in a layout used for generating Debian packages.""",
-        defaults.fsLayout, ('standard','compact','debian'))
+        defaults.fsLayout, ('standard','compact','debian')),
+    BoolVariable(
+        "fast_fail_tests",
+        """If enabled, tests will exit at the first failure.""",
+        False,
+    )
 ]
 
 opts.AddVariables(*config_options)
