@@ -69,6 +69,12 @@ public:
         }
     }
 
+    /**
+     * Similar as update(double, double, double*) but with an extra argument
+     * (second argument) of electron temperature, and change logT to logTe.
+     * This is used for plasma reactions where the electrons have a different
+     * temperature.
+     */
     void update(double T, double Te, double logTe, double* values) {
         double recipT = 1.0/T;
         double recipTe = 1.0/Te;

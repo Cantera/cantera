@@ -92,6 +92,8 @@ public:
     bool allow_negative_pre_exponential_factor;
 };
 
+//! A reaction which depends on electron temperature, usually including
+//! electron as a reactant species.
 class ElectronReaction : public Reaction
 {
 public:

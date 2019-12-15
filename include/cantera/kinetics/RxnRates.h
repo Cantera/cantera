@@ -98,6 +98,14 @@ protected:
     doublereal m_logA, m_b, m_E, m_A;
 };
 
+//! An Arrhenius rate depends on gas and electron temperature
+/**
+ * A reaction rate coefficient of the following form.
+ *
+ *   \f[
+ *        k_f =  A Te^b \exp (-E1/RTg) \exp (-E2/RTe)
+ *   \f]
+ */
 class ElectronArrhenius
 {
 public:
@@ -113,8 +121,9 @@ public:
     /// @param A pre-exponential. The unit system is
     ///     (kmol, m, s). The actual units depend on the reaction
     ///     order and the dimensionality (surface or bulk).
-    /// @param b Temperature exponent. Non-dimensional.
-    /// @param E Activation energy in temperature units. Kelvin.
+    /// @param b Temperature exponent (electron temperature). Non-dimensional.
+    /// @param E1 Activation energy in temperature units for gas temperature. Kelvin.
+    /// @param E2 Activation energy in temperature units for electron temperature. Kelvin.
     ElectronArrhenius(double A, double b, double E1, double E2);
 
     //! Update concentration-dependent parts of the rate coefficient.
@@ -159,6 +168,8 @@ public:
         return m_E1;
     }
 
+    //! Return the activation electron energy divid by the gas constant
+    //! (i.e. the activation electron temperature) [K]
     double activationElectronEnergy_R() const {
         return m_E2;
     }
