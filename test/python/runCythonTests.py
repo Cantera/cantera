@@ -75,11 +75,19 @@ if __name__ == '__main__':
     print('* INFO: Git commit:', cantera.__git_commit__, '\n')
     sys.stdout.flush()
 
+    if len(sys.argv) > 1 and sys.argv[1] == "fast_fail":
+        fast_fail = True
+        subset_start = 2
+    else:
+        fast_fail = False
+        subset_start = 1
     loader = unittest.TestLoader()
-    runner = unittest.TextTestRunner(verbosity=2, resultclass=TestResult)
+    runner = unittest.TextTestRunner(
+        verbosity=2, resultclass=TestResult, failfast=fast_fail
+    )
     suite = unittest.TestSuite()
     subsets = []
-    for name in sys.argv[1:]:
+    for name in sys.argv[subset_start:]:
         subsets.append('cantera.test.test_' + name)
 
     if not subsets:

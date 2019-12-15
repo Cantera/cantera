@@ -24,7 +24,7 @@ if env['googletest'] == 'submodule':
 if env['googletest'] != 'none':
     localenv.Append(LIBS=['gtest', 'gmock'])
 
-# Turn of optimization to speed up compilation
+# Turn off optimization to speed up compilation
 ccflags = localenv['CCFLAGS']
 for optimize_flag in ('-O3', '-O2', '/O2'):
     if optimize_flag in ccflags:
@@ -58,13 +58,18 @@ def addTestProgram(subdir, progName, env_vars={}):
             os.mkdir(workDir)
         cmd = [program.abspath, '--gtest_output=xml:'+resultsFile]
         cmd.extend(env['gtest_flags'].split())
+        if env["fast_fail_tests"]:
+            env["ENV"]["GTEST_BREAK_ON_FAILURE"] = "1"
         code = subprocess.call(cmd, env=env['ENV'], cwd=workDir)
 
         if code:
             print("FAILED: Test '{0}' exited with code {1}".format(progName, code))
+            if env["fast_fail_tests"]:
+                sys.exit(1)
         else:
             # Test was successful
-            open(passedFile.path, 'w').write(time.asctime()+'\n')
+            with open(passedFile.path, 'w') as passed_file:
+                passed_file.write(time.asctime()+'\n')
 
         if os.path.exists(resultsFile):
             # Determine individual test status
@@ -123,11 +128,21 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
         for k,v in env_vars.items():
             print(k,v)
             environ[k] = v
-        code = subprocess.call([env.subst(interpreter), source[0].abspath] + args.split(),
-                               env=environ)
+
+        cmdargs = args.split()
+        if env["fast_fail_tests"]:
+            cmdargs.insert(0, "fast_fail")
+
+        code = subprocess.call(
+            [env.subst(interpreter), source[0].abspath] + cmdargs,
+            env=environ
+        )
         if not code:
             # Test was successful
-            open(target[0].path, 'w').write(time.asctime()+'\n')
+            with open(target[0].path, 'w') as passed_file:
+                passed_file.write(time.asctime()+'\n')
+        elif env["fast_fail_tests"]:
+            sys.exit(1)
 
         failures = 0
         if os.path.exists(outfile):
@@ -187,8 +202,11 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
         code = subprocess.call([pjoin(env['matlab_path'], 'bin', 'matlab')] +
                                matlabOptions + ['-r', runCommand],
                                env=environ, cwd=Dir('#test/matlab').abspath)
+        if code and env["fast_fail_tests"]:
+            sys.exit(1)
         try:
-            results = open(outfile).read()
+            with open(outfile, "r") as output_file:
+                results = output_file.read()
         except EnvironmentError: # TODO: replace with 'FileNotFoundError' after end of Python 2.7 support
             testResults.failed['Matlab' +
                 ' ***no results for entire test suite***'] = 100
