@@ -30,6 +30,12 @@ namespace Cantera
 doublereal linearInterp(doublereal x, const vector_fp& xpts,
                         const vector_fp& fpts);
 
+//! Calculate the quadrature of a discrete function by simpson's 1/3 rule.
+/*!
+ * @param x coordinate vector
+ * @param y function vector
+ * @returns the value of the quadrature.
+ */
 double simpsonQuadrature(const vector_fp& x, const vector_fp& y);
 }
 
