@@ -18,12 +18,12 @@
 #include <unordered_set>
 
 namespace ba = boost::algorithm;
+using std::vector;
+using std::string;
 
 namespace { // helper functions
 
 std::mutex yaml_cache_mutex;
-using std::vector;
-using std::string;
 
 bool isFloat(const std::string& val)
 {
@@ -140,16 +140,25 @@ Type elementTypes(const YAML::Node& node)
     return types;
 }
 
-string formatDouble(double x, const Cantera::AnyValue& precisionSource)
+long int getPrecision(const Cantera::AnyValue& precisionSource)
 {
     long int precision = 15;
     auto& userPrecision = precisionSource.getMetadata("precision");
     if (userPrecision.is<long int>()) {
         precision = userPrecision.asInt();
     }
+    return precision;
+}
+
+string formatDouble(double x, long int precision)
+{
+    int log10x = static_cast<int>(std::floor(std::log10(std::abs(x))));
     if (x == 0.0) {
         return "0.0";
-    } else if (std::abs(x) >= 0.01 && std::abs(x) < 10000) {
+    } else if (log10x >= -2 && log10x <= 3) {
+        // Adjust precision to account for leading zeros or digits left of the
+        // decimal point
+        precision -= log10x;
         string s = fmt::format("{:.{}f}", x, precision);
         // Trim trailing zeros, keeping at least one digit to the right of
         // the decimal point
@@ -190,11 +199,7 @@ using namespace Cantera;
 template<>
 struct convert<Cantera::AnyMap> {
     static Node encode(const Cantera::AnyMap& rhs) {
-        Node node;
-        for (const auto& item : rhs) {
-            node[item.first] = item.second;
-        }
-        return node;
+        throw NotImplementedError("AnyMap::encode");
     }
 
     static bool decode(const Node& node, Cantera::AnyMap& target) {
@@ -226,70 +231,124 @@ struct convert<Cantera::AnyMap> {
     }
 };
 
+YAML::Emitter& operator<<(YAML::Emitter& out, const AnyValue& rhs);
+
+YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
+{
+    out << YAML::BeginMap;
+    for (const auto& item : rhs) {
+        out << item.first;
+        out << item.second;
+    }
+    out << YAML::EndMap;
+    return out;
+}
+
+void emitFlowVector(YAML::Emitter& out, const vector<double>& v, double precision)
+{
+    out << YAML::Flow;
+    out << YAML::BeginSeq;
+    size_t width = 15; // wild guess, but no better value is available
+    for (auto& x : v) {
+        string xstr = formatDouble(x, precision);
+        if (width + xstr.size() > 79) {
+            out << YAML::Newline;
+            width = 15;
+        }
+        out << xstr;
+        width += xstr.size() + 2;
+    }
+    out << YAML::EndSeq;
+}
+
+template <typename T>
+void emitFlowVector(YAML::Emitter& out, const vector<T>& v)
+{
+    out << YAML::Flow;
+    out << YAML::BeginSeq;
+    size_t width = 15; // wild guess, but no better value is available
+    for (const auto& x : v) {
+        string xstr = fmt::format("{}", x);
+        if (width + xstr.size() > 79) {
+            out << YAML::Newline;
+            width = 15;
+        }
+        out << xstr;
+        width += xstr.size() + 2;
+    }
+    out << YAML::EndSeq;
+}
+
+YAML::Emitter& operator<<(YAML::Emitter& out, const AnyValue& rhs)
+{
+    if (rhs.isScalar()) {
+        if (rhs.is<string>()) {
+            out << rhs.asString();
+        } else if (rhs.is<double>()) {
+            out << formatDouble(rhs.asDouble(), getPrecision(rhs));
+        } else if (rhs.is<long int>()) {
+            out << rhs.asInt();
+        } else if (rhs.is<bool>()) {
+            out << rhs.asBool();
+        } else {
+            throw CanteraError("operator<<(YAML::Emitter&, AnyValue&)",
+                "Don't know how to encode value of type '{}'", rhs.type_str());
+        }
+    } else if (rhs.is<AnyMap>()) {
+        out << rhs.as<AnyMap>();
+    } else if (rhs.is<vector<AnyMap>>()) {
+        out << rhs.asVector<AnyMap>();
+    } else if (rhs.is<vector<double>>()) {
+        emitFlowVector(out, rhs.asVector<double>(), getPrecision(rhs));
+    } else if (rhs.is<vector<string>>()) {
+        emitFlowVector(out, rhs.asVector<string>());
+    } else if (rhs.is<vector<long int>>()) {
+        emitFlowVector(out, rhs.asVector<long int>());
+    } else if (rhs.is<vector<bool>>()) {
+        emitFlowVector(out, rhs.asVector<bool>());
+    } else if (rhs.is<vector<Cantera::AnyValue>>()) {
+        out << rhs.asVector<Cantera::AnyValue>();
+    } else if (rhs.is<vector<vector<double>>>()) {
+        const auto& v = rhs.asVector<vector<double>>();
+        long int precision = getPrecision(rhs);
+        out << YAML::BeginSeq;
+        for (const auto& u : v) {
+            emitFlowVector(out, u, precision);
+        }
+        out << YAML::EndSeq;
+    } else if (rhs.is<vector<vector<string>>>()) {
+        const auto& v = rhs.asVector<vector<string>>();
+        out << YAML::BeginSeq;
+        for (const auto& u : v) {
+            emitFlowVector(out, u);
+        }
+        out << YAML::EndSeq;
+    } else if (rhs.is<vector<vector<long int>>>()) {
+        const auto& v = rhs.asVector<vector<long int>>();
+        out << YAML::BeginSeq;
+        for (const auto& u : v) {
+            emitFlowVector(out, u);
+        }
+        out << YAML::EndSeq;
+    } else if (rhs.is<vector<vector<bool>>>()) {
+        const auto& v = rhs.asVector<vector<bool>>();
+        out << YAML::BeginSeq;
+        for (const auto& u : v) {
+            emitFlowVector(out, u);
+        }
+        out << YAML::EndSeq;
+    } else {
+        throw CanteraError("operator<<(YAML::Emitter&, AnyValue&)",
+            "Don't know how to encode value of type '{}'", rhs.type_str());
+    }
+    return out;
+}
+
+
 template<>
 struct convert<Cantera::AnyValue> {
     static Node encode(const Cantera::AnyValue& rhs) {
-        Node node;
-        if (rhs.isScalar()) {
-            if (rhs.is<std::string>()) {
-                node = rhs.asString();
-            } else if (rhs.is<double>()) {
-                node = formatDouble(rhs.asDouble(), rhs);
-            } else if (rhs.is<long int>()) {
-                node = rhs.asInt();
-            } else if (rhs.is<bool>()) {
-                node = rhs.asBool();
-            } else {
-                throw CanteraError("AnyValue::encode", "Don't know how to "
-                    "encode value of type '{}'", rhs.type_str());
-            }
-        } else if (rhs.is<Cantera::AnyMap>()) {
-            node = rhs.as<Cantera::AnyMap>();
-        } else if (rhs.is<vector<Cantera::AnyMap>>()) {
-            node = rhs.asVector<Cantera::AnyMap>();
-        } else if (rhs.is<vector<double>>()) {
-            for (double x : rhs.asVector<double>()) {
-                node.push_back(formatDouble(x, rhs));
-            }
-            node.SetStyle(YAML::EmitterStyle::Flow);
-        } else if (rhs.is<vector<std::string>>()) {
-            node = rhs.asVector<std::string>();
-            node.SetStyle(YAML::EmitterStyle::Flow);
-        } else if (rhs.is<vector<long int>>()) {
-            node = rhs.asVector<long int>();
-            node.SetStyle(YAML::EmitterStyle::Flow);
-        } else if (rhs.is<vector<bool>>()) {
-            node = rhs.asVector<bool>();
-            node.SetStyle(YAML::EmitterStyle::Flow);
-        } else if (rhs.is<vector<Cantera::AnyValue>>()) {
-            node = rhs.asVector<Cantera::AnyValue>();
-        } else if (rhs.is<vector<vector<double>>>()) {
-            const auto& doubleVals = rhs.asVector<vector<double>>();
-            for (size_t i = 0; i < doubleVals.size(); i++) {
-                YAML::Node inner;
-                for (size_t j = 0; j < doubleVals[i].size(); j++) {
-                    inner.push_back(formatDouble(doubleVals[i][j], rhs));
-                }
-                inner.SetStyle(YAML::EmitterStyle::Flow);
-                node.push_back(inner);
-            }
-        } else if (rhs.is<vector<vector<std::string>>>()) {
-            node = rhs.asVector<vector<std::string>>();
-            for (size_t i = 0; i < node.size(); i++) {
-                node[i].SetStyle(YAML::EmitterStyle::Flow);
-            }
-        } else if (rhs.is<vector<vector<long int>>>()) {
-            node = rhs.asVector<vector<long int>>();
-            for (size_t i = 0; i < node.size(); i++) {
-                node[i].SetStyle(YAML::EmitterStyle::Flow);
-            }
-        } else if (rhs.is<vector<vector<bool>>>()) {
-            node = rhs.asVector<vector<bool>>();
-        } else {
-            throw CanteraError("AnyValue::encode",
-                "Don't know how to encode value of type '{}'", rhs.type_str());
-        }
-        return node;
+        throw NotImplementedError("");
     }
 
     static bool decode(const Node& node, Cantera::AnyValue& target) {
@@ -1322,9 +1381,7 @@ AnyMap AnyMap::fromYamlFile(const std::string& name,
 std::string AnyMap::toYamlString() const
 {
     YAML::Emitter out;
-    YAML::Node node;
-    node = *this;
-    out << node;
+    out << *this;
     out << YAML::Newline;
     return out.c_str();
 }
