@@ -251,3 +251,55 @@ TEST(Kinetics, ElectrochemFromYaml)
     EXPECT_NEAR(ropf[0], 0.279762338, 1e-8);
     EXPECT_NEAR(ropr[0], 0.045559670, 1e-8);
 }
+
+TEST(KineticsFromYaml, NoKineticsModelOrReactionsField1)
+{
+    auto soln = newSolution("phase-reaction-spec1.yaml",
+                            "nokinetics-noreactions");
+    EXPECT_EQ(soln->kinetics()->kineticsType(), "Kinetics");
+    EXPECT_EQ(soln->kinetics()->nReactions(), (size_t) 0);
+}
+
+TEST(KineticsFromYaml, NoKineticsModelOrReactionsField2)
+{
+    auto soln = newSolution("phase-reaction-spec2.yaml",
+                            "nokinetics-noreactions");
+    EXPECT_EQ(soln->kinetics()->kineticsType(), "Kinetics");
+    EXPECT_EQ(soln->kinetics()->nReactions(), (size_t) 0);
+}
+
+TEST(KineticsFromYaml, KineticsModelWithoutReactionsSection1)
+{
+    EXPECT_THROW(newSolution("phase-reaction-spec1.yaml",
+                             "kinetics-no-reaction-section1"),
+                 InputFileError);
+}
+
+TEST(KineticsFromYaml, KineticsModelWithoutReactionsSection2)
+{
+    EXPECT_THROW(newSolution("phase-reaction-spec1.yaml",
+                             "kinetics-no-reaction-section2"),
+                 InputFileError);
+}
+
+TEST(KineticsFromYaml, KineticsModelWithoutReactionsField)
+{
+    auto soln = newSolution("phase-reaction-spec2.yaml",
+                            "kinetics-noreactions");
+    EXPECT_EQ(soln->kinetics()->kineticsType(), "Gas");
+    EXPECT_EQ(soln->kinetics()->nReactions(), (size_t) 1);
+}
+
+TEST(KineticsFromYaml, ReactionsFieldWithoutKineticsModel1)
+{
+    EXPECT_THROW(newSolution("phase-reaction-spec1.yaml",
+                             "nokinetics-reactions"),
+                 InputFileError);
+}
+
+TEST(KineticsFromYaml, ReactionsFieldWithoutKineticsModel2)
+{
+    EXPECT_THROW(newSolution("phase-reaction-spec2.yaml",
+                             "nokinetics-reactions"),
+                 InputFileError);
+}

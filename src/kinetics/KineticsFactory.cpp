@@ -62,9 +62,7 @@ unique_ptr<Kinetics> newKinetics(vector<ThermoPhase*>& phases,
         kin->addPhase(*phase);
     }
     kin->init();
-    if (kin->kineticsType() != "Kinetics") {
-        addReactions(*kin, phaseNode, rootNode);
-    }
+    addReactions(*kin, phaseNode, rootNode);
     return kin;
 }
 
@@ -103,12 +101,23 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
     vector<string> sections, rules;
 
     if (phaseNode.hasKey("reactions")) {
+        if (kin.kineticsType() == "Kinetics") {
+            throw InputFileError("addReactions", phaseNode["reactions"],
+                "Phase entry includes a 'reactions' field but does not "
+                "specify a kinetics model.");
+        }
         const auto& reactionsNode = phaseNode.at("reactions");
         if (reactionsNode.is<string>()) {
-            // Specification of the rule for adding species from the default
-            // 'reactions' section
-            sections.push_back("reactions");
-            rules.push_back(reactionsNode.asString());
+            if (rootNode.hasKey("reactions")) {
+                // Specification of the rule for adding species from the default
+                // 'reactions' section, if it exists
+                sections.push_back("reactions");
+                rules.push_back(reactionsNode.asString());
+            } else {
+                throw InputFileError("addReactions", reactionsNode,
+                    "Phase entry implies existence of 'reactions' section "
+                    "which does not exist in the current input file.");
+            }
         } else if (reactionsNode.is<vector<string>>()) {
             // List of sections from which all species should be added
             for (const auto& item : reactionsNode.as<vector<string>>()) {
@@ -123,10 +132,19 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
                 rules.push_back(item.begin()->second.asString());
             }
         }
-    } else {
-        // Default behavior is to add all reactions from the 'reactions' section
-        sections.push_back("reactions");
-        rules.push_back("all");
+    } else if (kin.kineticsType() != "Kinetics") {
+        if (rootNode.hasKey("reactions")) {
+            // Default behavior is to add all reactions from the 'reactions'
+            // section, if a 'kinetics' model has been specified
+            sections.push_back("reactions");
+            rules.push_back("all");
+        } else {
+            throw InputFileError("addReactions", phaseNode,
+                "Phase entry implies existence of 'reactions' section which "
+                "does not exist in the current input file. Add the field "
+                "'reactions: none' to the phase entry to specify a kinetics "
+                "model with no reactions.");
+        }
     }
 
     // Add reactions from each section
