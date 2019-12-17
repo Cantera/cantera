@@ -344,7 +344,9 @@ class species:
         if node.transport:
             out['transport'] = node.transport
         if node.comment:
-            out['note'] = node.comment
+            comment = node.comment.split("\n")
+            comment = " ".join(c.strip() for c in comment)
+            out['note'] = comment
         return representer.represent_dict(out)
 
 
