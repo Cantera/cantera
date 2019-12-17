@@ -1,3 +1,6 @@
+description: |-
+  Hydrogen-Oxygen submechanism extracted from GRI-Mech 3.0.
+
 generator: ck2yaml
 input-files: [h2o2.inp, gri30_tran.dat]
 cantera-version: 2.5.0a3

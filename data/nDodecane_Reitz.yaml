@@ -1,3 +1,17 @@
+description: |-
+  Real gas n-dodecane-PAH mechanism.
+
+  Mechanism reported in ‘Development of a reduced n-dodecane-PAH mechanism and its
+  Application for n-dodecane Soot Predictions’. Hu Wang, Youngchul Ra, Ming Jia
+  and Rolf. D. Reitz. Fuel 136 (2014), p 25-36. doi:10.1016/j.fuel.2014.07.028
+
+  100 species and 432 reactions
+
+  Redlich-Kwong coefficients are based on tabulated critical properties or
+  estimated according to the method of Joback and Reid, "Estimation of pure-
+  component properties from group-contributions," Chem. Eng. Comm. 57 (1987)
+  233-243
+
 generator: cti2yaml
 cantera-version: 2.5.0a3
 date: Wed, 11 Dec 2019 16:59:08 -0500

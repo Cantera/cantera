@@ -1,3 +1,11 @@
+description: |-
+  These two phases represent pure, condensed phases of water. They are
+  modeled as being incompressible. Note that the liquid water phase
+  defined here is very different from the phase "water" in
+  liquidvapor.yaml, which uses an accurate liquid/vapor equation of
+  state. That one, however, cannot be used as a part of a multi-phase
+  mixture, while this one can.
+
 generator: cti2yaml
 cantera-version: 2.5.0a3
 date: Wed, 11 Dec 2019 16:59:15 -0500

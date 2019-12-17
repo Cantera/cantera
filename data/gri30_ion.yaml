@@ -1,3 +1,10 @@
+description: |-
+  An extended version of GRI-Mech 3.0 that includes ion transport.
+  The values of polarizability of H2, O2, H2O, CH4, CO, CO2, and N2 are from
+  the supplementary material of Han, Jie, et al. "Numerical modelling of ion
+  transport in flames." Combustion Theory and Modelling 19.6 (2015): 744-772.
+  DOI: 10.1080/13647830.2015.1090018
+
 generator: cti2yaml
 cantera-version: 2.5.0a3
 date: Wed, 11 Dec 2019 16:59:06 -0500
@@ -44,10 +51,11 @@ species:
     well-depth: 38.0
     polarizability: 0.455
     rotational-relaxation: 280.0
-  note: "The value of polarizability is from the supplementary\n       \
-    \       material of Han, Jie, et al. \"Numerical modelling of ion\n\
-    \              transport in flames.\" Combustion Theory and Modelling\n\
-    \              19.6 (2015): 744-772. DOI: 10.1080/13647830.2015.1090018"
+  note: |-
+    The value of polarizability is from the supplementary material of
+    Han, Jie, et al. "Numerical modelling of ion transport in flames.
+    Combustion Theory and Modelling 19.6 (2015): 744-772.
+    DOI: 10.1080/13647830.2015.1090018
 - name: O2
   composition: {O: 2}
   thermo:
@@ -173,10 +181,10 @@ species:
     diameter: 3.59
     well-depth: 498.0
     polarizability: 1.356
-  note: "The polarizability is from Han, Jie, et al.\n              \"Numerical\
-    \ modelling of ion transport in flames.\"\n              ,and the rest\
-    \ of the parameters are from its neutral \n              counterpart\
-    \ HCO"
+  note: |-
+    The polarizability is from Han, Jie, et al. "Numerical modelling of
+    ion transport in flames.", and the rest of the parameters are from
+    its neutral counterpart HCO
 - name: H3O+
   composition: {H: 3, O: 1, E: -1}
   thermo:
@@ -194,8 +202,9 @@ species:
     well-depth: 106.2
     dipole: 1.417
     polarizability: 0.897
-  note: "The transport parameters are from Han, Jie, et al.\n          \
-    \     \"Numerical modelling of ion transport in flames.\""
+  note: |-
+    The transport parameters are from Han, Jie, et al.
+    "Numerical modelling of ion transport in flames."
 - name: E
   composition: {E: 1}
   thermo:

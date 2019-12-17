@@ -1,3 +1,52 @@
+description: |-
+  Cantera input file for an LCO/graphite lithium-ion battery
+
+  This file includes a full set of thermodynamic and kinetic parameters of a
+  lithium-ion battery, in particular:
+  - Active materials: LiCoO2 (LCO) and LiC6 (graphite)
+  - Organic electrolyte: EC/PC with 1M LiPF6
+  - Interfaces: LCO/electrolyte and LiC6/electrolyte
+  - Charge-transfer reactions at the two interfaces
+
+  We use Butler-Volmer kinetics by setting `exchange-current-density-formulation`
+  to `true`. The preexponential factors and activation energies are converted
+  from Guo et al., J. Electrochem. Soc. 158, A122 (2011)
+
+  A MATLAB example using this file for simulating a discharge curve is
+  samples/matlab/lithium_ion_battery.m
+
+  Reference:
+  M. Mayur, S. C. DeCaluwe, B. L. Kee, W. G. Bessler, “Modeling and simulation
+  of the thermodynamics of lithium-ion battery intercalation materials in the
+  open-source software Cantera,” Electrochim. Acta 323, 134797 (2019),
+  https://doi.org/10.1016/j.electacta.2019.134797
+
+  Bulk phases
+  ===========
+
+  Graphite (anode)
+  Thermodynamic data based on half-cell measurements by K. Kumaresan et al.,
+  J. Electrochem. Soc. 155, A164-A171 (2008)
+
+  Lithium cobalt oxide (cathode)
+  Thermodynamic data based on half-cell measurements by K. Kumaresan et al.,
+  J. Electrochem. Soc. 155, A164-A171 (2008)
+
+  Carbonate based electrolyte (electrolyte)
+  Solvent: Ethylene carbonate:Propylene carbonate (1:1 v/v)
+  Salt: 1M LiPF6
+
+  Interface phases
+  ================
+
+  Graphite/electrolyte interface (edge_anode_electrolyte)
+  Species and site density are dummy entries (as we do not consider surface-
+  adsorbed species)
+
+  LCO/electrolyte interface (edge_cathode_electrolyte)
+  Species and site density are dummy entries (as we do not consider surface-
+  adsorbed species)
+
 generator: cti2yaml
 cantera-version: 2.5.0a3
 date: Wed, 11 Dec 2019 16:59:07 -0500
@@ -121,6 +170,14 @@ species:
   equation-of-state:
     model: constant-volume
     molar-volume: 34.80484581497797 cm^3/mol
+  note: |-
+    Lithium intercalated in graphite, MW: 79.0070 g/mol.
+    Note this species includes the carbon host matrix.
+    Molar enthalpy and entropy are set to 0 because the values given in the
+    BinarySolidSolutionTabulatedThermo class are used.
+    Density of graphite: 2270 kg/m3 (W. M. Haynes et al, CRC Handbook of Chemistry
+    and Physics, 94th edition, CRC press, Boca Raton, London, New York, 2013)
+    (used to calculate species molar volume as molecular weight (MW)/density).
 - name: V[anode]
   composition: {C: 6}
   thermo:
@@ -130,6 +187,14 @@ species:
   equation-of-state:
     model: constant-volume
     molar-volume: 31.74713656387665 cm^3/mol
+  note: |-
+    Vacancy in graphite, MW: 72.0660 g/mol.
+    Note this species includes the carbon host matrix.
+    Molar enthalpy and entropy are set to 0 because this is the reference species
+    for this phase.
+    Density of graphite: 2270 kg/m3 (W. M. Haynes et al, CRC Handbook of Chemistry
+    and Physics, 94th edition, CRC press, Boca Raton, London, New York, 2013)
+    (used to calculate species molar volume as molecular weight (MW)/density).
 - name: Li[cathode]
   composition: {Li: 1, Co: 1, O: 2}
   thermo:
@@ -139,6 +204,13 @@ species:
   equation-of-state:
     model: constant-volume
     molar-volume: 20.432776617954072 cm^3/mol
+  note: |-
+    Lithium cobalt oxide, MW: 97.8730 g/mol.
+    Note this species includes the cobalt oxide host matrix.
+    Molar enthalpy and entropy are set to 0 because the values given in the
+    BinarySolidSolutionTabulatedThermo class are used.
+    Density of LCO: 4790 kg/m3 (E.J. Cheng et al., J. Asian Ceramic Soc. 5, 113,
+    2017) (used to calculate species molar volume as molecular weight/density).
 - name: V[cathode]
   composition: {Co: 1, O: 2}
   thermo:
@@ -148,6 +220,13 @@ species:
   equation-of-state:
     model: constant-volume
     molar-volume: 18.983716075156575 cm^3/mol
+  note: |-
+    Vacancy in the cobalt oxide, MW: 90.9320 g/mol.
+    Note this species includes the cobalt oxide host matrix.
+    Molar enthalpy and entropy are set to 0 because this is the reference species
+    for this phase.
+    Density of LCO: 4790 kg/m3 (E.J. Cheng et al., J. Asian Ceramic Soc. 5, 113,
+    2017) (used to calculate species molar volume as molecular weight/density).
 - name: C3H4O3[elyt]
   composition: {C: 3, H: 4, O: 3}
   thermo:
@@ -157,6 +236,12 @@ species:
   equation-of-state:
     model: constant-volume
     molar-volume: 69.89126984126985 cm^3/mol
+  note: |-
+    Ethylene carbonate, MW: 88.0630 g/mol
+    Density of electrolyte: 1260 kg/m3 (used to calculate species molar volume
+    as molecular weight (MW)/density)
+    Molar enthalpy and entropy set to zero (dummy entries as this species does
+    not participate in chemical reactions)
 - name: C4H6O3[elyt]
   composition: {C: 4, H: 6, O: 3}
   thermo:
@@ -166,6 +251,12 @@ species:
   equation-of-state:
     model: constant-volume
     molar-volume: 81.02365079365079 cm^3/mol
+  note: |-
+    Propylene carbonate, MW: 102.0898 g/mol
+    Density of electrolyte: 1260.0 kg/m3 (used to calculate species molar volume
+    as molecular weight (MW)/density)
+    Molar enthalpy and entropy set to zero (dummy entries as this species does
+    not participate in chemical reactions)
 - name: Li+[elyt]
   composition: {Li: 1, E: -1}
   thermo:
@@ -175,6 +266,12 @@ species:
   equation-of-state:
     model: constant-volume
     molar-volume: 5.508297619047619 cm^3/mol
+  note: |-
+    Lithium ion, MW: 6.940455 g/mol
+    Density of electrolyte: 1260.0 kg/m3 (used to calculate species molar volume
+    as molecular weight (MW)/density)
+    Molar enthalpy and entropy taken from Li+(aq) from P. Atkins "Physical
+    Chemistry", Wiley-VCH (2006)
 - name: PF6-[elyt]
   composition: {P: 1, F: 6, E: 1}
   thermo:
@@ -184,18 +281,29 @@ species:
   equation-of-state:
     model: constant-volume
     molar-volume: 115.05138492063492 cm^3/mol
+  note: |-
+    Hexafluorophosphate ion, MW: 144.964745 g/mol
+    Density of electrolyte: 1260.0 kg/m3 (used to calculate species molar volume
+    as molecular weight (MW)/density)
+    Molar enthalpy and entropy set to zero (dummy entries as this species does
+    not participate in chemical reactions)
 - name: electron
   composition: {E: 1}
   thermo:
     model: constant-cp
     h0: 0.0 kJ/mol
     s0: 0.0 J/mol/K
+  note: |-
+    Electron, MW: 0.000545 g/mol
+    Molar enthalpy and entropy set to zero (dummy entries because chemical
+    potential is set to zero for a "metal" phase)
 - name: (dummy)
   composition: {}
   thermo:
     model: constant-cp
     h0: 0.0 kJ/mol
     s0: 0.0 J/mol/K
+  note: Dummy species (needed for defining the interfaces)
 
 edge_anode_electrolyte-reactions:
 - equation: Li+[elyt] + V[anode] + electron <=> Li[anode]  # Reaction 1

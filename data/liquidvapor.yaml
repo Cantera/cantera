@@ -1,3 +1,16 @@
+description: |-
+  These phase definitions represent fluids with complete liquid/vapor
+  equations of state. Depending on conditions, they may represent a
+  single-phase fluid, either liquid or vapor, or a saturated
+  liquid/vapor mixture. They use equations of state in the 'TPX'
+  package, which in turn take most of the equations of state from the
+  compilation 'Thermodynamic Properties in SI', by W. C. Reynolds.
+
+  Note that the species definitions included in this file are used ONLY
+  to set the reference state values for the entropy and enthalpy at
+  298.15 K and to define the elemental composition. They are not used to
+  compute properties.
+
 generator: cti2yaml
 cantera-version: 2.5.0a3
 date: Wed, 11 Dec 2019 16:59:06 -0500
@@ -68,6 +81,11 @@ phases:
     T: 300.0
     P: 1.01325e+05
   pure-fluid-name: HFC134a
+
+# Note that these species definitions are used ONLY to set the
+# reference state values for the entropy and enthalpy at 298.15 K,
+# and to define the elemental composition. They are not used to
+# compute properties.
 
 species:
 - name: H2O
