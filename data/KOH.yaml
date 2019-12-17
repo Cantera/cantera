@@ -1,3 +1,7 @@
+description: |-
+  A collection of potassium, oxygen, and hydrogen phases. Includes
+  charged species in addition to neutral species.
+
 generator: cti2yaml
 cantera-version: 2.5.0a3
 date: Wed, 11 Dec 2019 16:59:04 -0500

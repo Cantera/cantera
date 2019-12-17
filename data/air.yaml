@@ -1,3 +1,7 @@
+description: |-
+  Ideal gas properties of air. Includes several reactions among
+  the included species.
+
 generator: ck2yaml
 input-files: [air.inp, gri30_tran.dat]
 cantera-version: 2.5.0a3

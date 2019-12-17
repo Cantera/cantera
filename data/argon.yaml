@@ -1,3 +1,7 @@
+description: >-
+  Pure argon phase. Thermo and transport properties are taken
+  from GRI-Mech 3.0.
+
 generator: cti2yaml
 cantera-version: 2.5.0a3
 date: Wed, 11 Dec 2019 16:59:05 -0500
@@ -10,12 +14,12 @@ phases:
   thermo: ideal-gas
   elements: [Ar]
   species: [AR]
-  kinetics: gas
-  reactions: all
   transport: mixture-averaged
   state:
     T: 300.0
     P: 1.01325e+05
+  kinetics: gas
+  reactions: none
 
 species:
 - name: AR

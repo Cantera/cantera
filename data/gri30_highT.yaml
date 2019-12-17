@@ -1,3 +1,16 @@
+description: |-
+  GRI-Mech Version 3.0 7/30/99  CHEMKIN-II format
+  See README30 file at anonymous FTP site unix.sri.com, directory gri;
+  WorldWideWeb home page http://www.me.berkeley.edu/gri_mech/ or
+  through http://www.gri.org , under 'Basic  Research',
+  for additional information, contacts, and disclaimer
+
+  Updated webpage at http://combustion.berkeley.edu/gri-mech/version30/text30.html
+
+  Modified to add high-temperature thermodynamic polynomials by Joseph
+  Shepherd at CalTech based on data from McBride et al. in NASA TM-4513
+  https://ntrs.nasa.gov/search.jsp?R=19940013151
+
 generator: cti2yaml
 cantera-version: 2.5.0a3
 date: Wed, 11 Dec 2019 16:59:05 -0500

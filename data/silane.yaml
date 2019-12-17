@@ -1,3 +1,7 @@
+description: |-
+  Source unknown. Data originially added by Dave Goodwin in an early
+  version of Cantera.
+
 generator: ck2yaml
 input-files: [silane.inp]
 cantera-version: 2.5.0a3

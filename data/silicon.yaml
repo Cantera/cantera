@@ -1,3 +1,17 @@
+description: |-
+  This file contains data for crystalline silicon from the NASA thermodynamic
+  database, which is available for download from
+  https://shepherd.caltech.edu/EDL/PublicResources/sdt/thermo.html. The
+  original sources are
+
+  S. Gordon and B.J. McBride, "Computer Program for Calculation of Complex
+  Chemical Equilibrium Composition, Rocket Performance, Incident and
+  Reflected Shocks and Chapman-Jouguet Detonations", NASA Report SP-273, 1971.
+
+  B.J. McBride, S. Gordon, and M.A. Reno, "Coefficients for Calculating
+  Thermodynamic and Transport Properties of Individual Species", NASA
+  Report TM-4513, October 1993.
+
 generator: cti2yaml
 cantera-version: 2.5.0a3
 date: Wed, 11 Dec 2019 16:59:14 -0500

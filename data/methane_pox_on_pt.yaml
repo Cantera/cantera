@@ -1,3 +1,30 @@
+description: |-
+  SURFACE MECHANISM OF POX of CH4 on PT wire gauze
+
+  ***********************************************************************
+  ****                                                                  *
+  ****     CH4-O2 SURFACE MECHANISM  ON PT                              *
+  ****                                                                  *
+  ****     Version 1.0   Spring 2005                                    *
+  ****                                                                  *
+  ****     Raul Quiceno, Olaf Deutschmann, IWR, Heidelberg University,  *
+  ****     Germany                                                     *
+  ****     Contact: mail@detchem.com (O. Deutschmann)                   *
+  ****                                                                  *
+  ****     Reference:                                                   *
+  ****     R. Quiceno, J. Perez-Ramyrez, J. Warnatz, O. Deutschmann.    *
+  ****     Appl. Catal. A: General (2006)                               *
+  ****     www.detchem.com/mechanisms                                   *
+  ****                                                                  *
+  ****                                                                  *
+  ****      The kinetic data of the backward reactions of               *
+  ****      reactions in Section 3 are calculated                       *
+  ****      from thermodynamics (k_b = k_f /K)                          *
+  ****                                                                  *
+  ****     Surface site density: 2.72E-9 mol/cm**2                      *
+  ****                                                                  *
+  -----------------------------------------------------------------------
+
 generator: cti2yaml
 cantera-version: 2.5.0a3
 date: Wed, 11 Dec 2019 16:59:07 -0500

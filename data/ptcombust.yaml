@@ -1,3 +1,27 @@
+description: |-
+  see https://www.detchem.com/mechanisms for
+  more about this mechanism
+
+  ---------------------------------------------------------------------!
+  ***********************************************************************
+  ****                                                                  *
+  ****     CH4-O2 SURFACE MECHANISM  ON PT                              *
+  ****                                                                  *
+  ****     Version 1.2   November  1995                                 *
+  ****                                                                  *
+  ****     O. Deutschmann, IWR, Heidelberg University, Germany          *
+  ****                                                                  *
+  ****     Kinetic data:                                                *
+  ****      k = A * T**b * exp (-Ea/RT)         A          b       Ea   *
+  ****                                       (cm,mol,s)    -      J/mol *
+  ****                                                                  *
+  ****                                                                  *
+  ***********************************************************************
+
+    Ref:- 1.) Deutschman et al., 26th Symp. (Intl.) on Combustion, 1996
+              pp. 1747-1754
+  -----------------------------------------------------------------------
+
 generator: cti2yaml
 cantera-version: 2.5.0a3
 date: Wed, 11 Dec 2019 16:59:14 -0500

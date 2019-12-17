@@ -1,7 +1,8 @@
-generator: cti2yaml
-cantera-version: 2.5.0a3
-date: Wed, 11 Dec 2019 16:59:05 -0500
-input-files: [diamond.cti]
+description: |-
+  Trough mechanism from 'S. J. Harris and D. G. Goodwin, 'Growth on
+  the reconstructed diamond (100) surface, 'J. Phys. Chem. vol. 97,
+  23-28 (1993). reactions a - t are taken directly from Table II,
+  with thermochemistry from Table IV. Reaction u is added here.
 
 units: {length: cm, quantity: mol, activation-energy: kcal/mol}
 

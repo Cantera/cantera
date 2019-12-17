@@ -5,6 +5,8 @@ description: |-
   through http://www.gri.org , under 'Basic  Research',
   for additional information, contacts, and disclaimer
 
+  Updated webpage at http://combustion.berkeley.edu/gri-mech/version30/text30.html
+
 generator: ck2yaml
 input-files: [gri30.inp, gri30_thermo.dat, gri30_tran.dat]
 cantera-version: 2.5.0a3
