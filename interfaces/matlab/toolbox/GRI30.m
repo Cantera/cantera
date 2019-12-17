@@ -24,7 +24,7 @@ function s = GRI30(tr)
 %     g3 = GRI30('Multi')  % miulticomponent transport properties
 %
 % :param tr:
-%     Transport modeling, ``'Mix'`` or ``'Multi'``
+%     Transport modeling, ``'None'``, ``'Mix'``, or ``'Multi'``
 % :return:
 %     Instance of class :mat:func:`Solution`
 %
@@ -32,12 +32,14 @@ function s = GRI30(tr)
 if nargin == 0
     s = Solution('gri30.xml', 'gri30');
 elseif nargin == 1
-    if strcmp(tr, 'Mix')
+    if strcmp(tr, 'None')
+        s = Solution('gri30.xml', 'gri30');
+    elseif strcmp(tr, 'Mix')
         s = Solution('gri30.xml', 'gri30_mix');
     elseif strcmp(tr, 'Multi')
         s = Solution('gri30.xml', 'gri30_multi');
     else
-        error('Unknown transport specified. "Mix" or "Multi" are supported.')
+        error('Unknown transport specified. "None", "Mix", or "Multi" are supported.')
     end
 else
     error('Wrong number of arguments.');

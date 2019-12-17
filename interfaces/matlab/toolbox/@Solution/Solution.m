@@ -18,7 +18,7 @@ function s = Solution(src, id, trans)
 % Transport model is included in ``input.xml``, it will be included
 % in the Solution instance with the default transport modeling as set
 % in the input file. To specify the transport modeling, set the input
-% argument ``trans`` to one of ``'default'``, ``'Mix'``, or ``'Multi'``.
+% argument ``trans`` to one of ``'default'``, ``'None'``, ``'Mix'``, or ``'Multi'``.
 % In this case, the phase name must be specified as well. Alternatively,
 % change the ``transport`` node in the CTML file, or ``transport``
 % property inthe CTI file before loading the phase. The transport
@@ -39,7 +39,7 @@ function s = Solution(src, id, trans)
 %     Optional unless ``trans`` is specified. ID of the phase to
 %     import as specified in the CTML or CTI file.
 % :param trans:
-%     String, transport modeling. Possible values are ``'default'``,
+%     String, transport modeling. Possible values are ``'default'``, ``'None'``,
 %     ``'Mix'``, or ``'Multi'``. If not specified, ``'default'`` is used.
 % :return:
 %     Instance of class :mat:func:`Solution`
@@ -52,7 +52,8 @@ k = Kinetics(t, src, id);
 s.kin = k;
 s.th = t;
 if nargin == 3
-    if strcmp(trans, 'default') || strcmp(trans, 'Mix') || strcmp(trans, 'Multi')
+    if (strcmp(trans, 'default') || strcmp(trans, 'None')...
+        || strcmp(trans, 'Mix') || strcmp(trans, 'Multi'))
         tr = Transport(t, trans, 0);
     else
         error('Unknown transport modeling specified.')
