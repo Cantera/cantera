@@ -12,7 +12,8 @@ function tr = Transport(th, model, loglevel)
 %     Instance of class :mat:func:`ThermoPhase`
 % :param model:
 %     String indicating the transport model to use. Possible values
-%     are ``'default'``, ``'Mix'``, and ``'Multi'``. Optional.
+%     are ``'default'``, ``'None'``, ``'Mix'``, and ``'Multi'``.
+%     Optional.
 % :param loglevel:
 %     Level of diagnostic logging. Default if not specified is 4.
 % :return:
