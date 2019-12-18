@@ -8,6 +8,9 @@ date: Wed, 11 Dec 2019 16:59:05 -0500
 input-files: [argon.cti]
 
 units: {length: cm, quantity: mol, activation-energy: cal/mol}
+deprecated: >-
+  The file 'argon.yaml' is deprecated and will be removed after Cantera 2.5.
+  A nearly equivalent phase can be obtained from 'air.yaml'.
 
 phases:
 - name: argon

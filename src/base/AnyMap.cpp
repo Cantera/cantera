@@ -867,6 +867,10 @@ AnyMap AnyMap::fromYamlFile(const std::string& name,
     }
     cache_item.first["__file__"] = fullName;
 
+    if (cache_item.first.hasKey("deprecated")) {
+        warn_deprecated(fullName, cache_item.first["deprecated"].asString());
+    }
+
     // Return a copy of the AnyMap
     return cache_item.first;
 }

@@ -451,6 +451,13 @@ void setupPhase(ThermoPhase& thermo, AnyMap& phaseNode, const AnyMap& rootNode)
         phaseNode["__file__"] = rootNode["__file__"];
     }
 
+    if (phaseNode.hasKey("deprecated")) {
+        string msg = phaseNode["deprecated"].asString();
+        string filename = phaseNode.getString("__file__", "unknown file");
+        string method = fmt::format("{}/{}", filename, phaseNode["name"].asString());
+        warn_deprecated(method, msg);
+    }
+
     // Add elements
     if (phaseNode.hasKey("elements")) {
         if (phaseNode.getBool("skip-undeclared-elements", false)) {

@@ -387,3 +387,11 @@ TEST(ThermoFromYaml, BinarySolutionTabulatedThermo)
     thermo->setMoleFractionsByName("Li[anode]: 0.55, V[anode]: 0.45");
     EXPECT_NEAR(thermo->gibbs_mass(), -87066.246182649265, 1e-9);
 }
+
+TEST(ThermoFromYaml, DeprecatedPhase)
+{
+    // The deprecation warning in this file is turned into an
+    // error by make_deprecation_warnings_fatal() called in main()
+    // for the test suite.
+    EXPECT_THROW(newThermo("gri30.yaml", "gri30_mix"), CanteraError);
+}
