@@ -1651,7 +1651,7 @@ cdef class PureFluid(ThermoPhase):
         a PureFluid.
         """
         def __get__(self):
-            return self.p, self.v
+            return self.P, self.v
         def __set__(self, values):
             P = values[0] if values[0] is not None else self.P
             V = values[1] if values[1] is not None else self.v

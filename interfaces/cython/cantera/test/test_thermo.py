@@ -1533,6 +1533,20 @@ class TestSolutionArray(utilities.CanteraTest):
         self.assertEqual(P.shape, (4,))
         self.assertEqual(Y.shape, (4, self.gas.n_species))
 
+    def test_idealgas_getters(self):
+        N = 11
+        states = ct.SolutionArray(self.gas, N)
+        getters = 'TDPUVHSXY'  # omit getters that contain Q
+
+        # obtain setters from thermo objects
+        all_getters = [k for k in dir(self.gas)
+                       if not set(k) - set(getters) and len(k)>1]
+
+        # ensure that getters do not raise attribute errors
+        for g in all_getters:
+            out = getattr(states, g)
+            self.assertEqual(len(out), len(g))
+
     def test_properties_onedim(self):
         N = 11
         states = ct.SolutionArray(self.gas, N)
@@ -1658,6 +1672,21 @@ class TestSolutionArray(utilities.CanteraTest):
 
         states.TP = np.linspace(400, 500, 5), 101325
         self.assertArrayNear(states.Q.squeeze(), np.ones(5))
+
+    def test_purefluid_getters(self):
+        N = 11
+        water = ct.Water()
+        states = ct.SolutionArray(water, N)
+        getters = 'TDPUVHSQ'  # omit getters that contain X or Y
+
+        # obtain setters from thermo objects
+        all_getters = [k for k in dir(water)
+                       if not set(k) - set(getters) and len(k)>1]
+
+        # ensure that getters do not raise attribute errors
+        for g in all_getters:
+            out = getattr(states, g)
+            self.assertEqual(len(out), len(g))
 
     def test_sort(self):
         np.random.seed(0)
