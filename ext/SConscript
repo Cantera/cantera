@@ -65,18 +65,19 @@ if env['system_sundials'] == 'n':
                                      ConfigBuilder(sundials_configh)))
 
     # Copy sundials header files into common include directory
-    for subdir in ('sundials', 'nvector', 'cvodes', 'ida', 'sunmatrix', 'sunlinsol'):
+    for subdir in ('sundials', 'nvector', 'cvodes', 'ida', 'sunmatrix',
+                   'sunlinsol', 'sunnonlinsol'):
         for header in mglob(env, 'sundials/include/'+subdir, 'h'):
             build(copyenv.Command('#include/cantera/ext/%s/%s' % (subdir, header.name),
                                   '#ext/sundials/include/%s/%s' % (subdir, header.name),
                                   Copy('$TARGET', '$SOURCE')))
 
     # Compile Sundials source files
-    subdirs = ['sundials', 'nvec_ser', 'cvodes', 'ida', 'sunmat_band',
-               'sunmat_dense', 'sunmat_sparse', 'sunlinsol_dense',
-               'sunlinsol_band','sunlinsol_spgmr']
+    subdirs = ['sundials', 'nvector/serial', 'cvodes', 'ida', 'sunmatrix/band',
+               'sunmatrix/dense', 'sunmatrix/sparse', 'sunlinsol/dense',
+               'sunlinsol/band','sunlinsol/spgmr', 'sunnonlinsol/newton']
     if env['use_lapack']:
-        subdirs.extend(('sunlinsol_lapackdense', 'sunlinsol_lapackband'))
+        subdirs.extend(('sunlinsol/lapackdense', 'sunlinsol/lapackband'))
 
     for subdir in subdirs:
         libraryTargets.extend(localenv.SharedObject(

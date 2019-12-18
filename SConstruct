@@ -1133,8 +1133,8 @@ if env['system_sundials'] == 'y':
         print('WARNING: External BLAS/LAPACK has been specified for Cantera '
               'but Sundials was built without this support.')
 else: # env['system_sundials'] == 'n'
-    print("""INFO: Using private installation of Sundials version 3.1.""")
-    env['sundials_version'] = '3.1'
+    print("""INFO: Using private installation of Sundials version 5.0.""")
+    env['sundials_version'] = '5.0'
     env['has_sundials_lapack'] = int(env['use_lapack'])
 
 
