@@ -205,3 +205,11 @@ TEST(AnyMap, loadYaml)
     EXPECT_EQ(coeffs[0].size(), (size_t) 7);
     EXPECT_DOUBLE_EQ(coeffs[1][2], -8.280690600E-07);
 }
+
+TEST(AnyMap, loadDeprecatedYaml)
+{
+    // The deprecation warning in this file is turned into an
+    // error by make_deprecation_warnings_fatal() called in main()
+    // for the test suite.
+    EXPECT_THROW(AnyMap::fromYamlFile("argon.yaml"), CanteraError);
+}
