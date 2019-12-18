@@ -59,7 +59,7 @@ setup(
     long_description=long_description,
     author="Raymond Speth",
     author_email="speth@mit.edu",
-    url="http://www.cantera.org",
+    url="https://cantera.org",
     packages = [
         'cantera',
         'cantera.data',
@@ -99,4 +99,5 @@ setup(
         'cantera': ["@py_extension@", '*.pxd'],
     },
     zip_safe=False,
+    python_requires=">=3.5",
 )
