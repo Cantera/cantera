@@ -36,7 +36,7 @@ class TestModels(utilities.CanteraTest):
                 self.assertEqual(sol.T, T0)
                 self.assertEqual(sol.P, p0)
 
-                if sol.thermo_model in ('PureFluid'):
+                if sol.thermo_model in ('PureFluid',):
                     self.assertTrue(sol.has_phase_transition)
                 else:
                     self.assertFalse(sol.has_phase_transition)

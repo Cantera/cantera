@@ -481,22 +481,12 @@ class SolutionArray:
         'transport_model',
     ]
 
-    _all_states = [
-        # all setter/getter combos defined by the ThermoPhase base class
-        'TD', 'TDX', 'TDY', 'TP', 'TPX', 'TPY', 'UV', 'UVX', 'UVY',
-        'DP', 'DPX', 'DPY', 'HP', 'HPX', 'HPY', 'SP', 'SPX', 'SPY',
-        'SV', 'SVX', 'SVY'
-    ]
-
     _interface_passthrough = ['site_density']
     _interface_n_species = ['coverages']
 
     _purefluid_scalar = ['Q']
 
     def __init__(self, phase, shape=(0,), states=None, extra=None):
-        super().__setattr__('_setters', {})
-        super().__setattr__('_getters', {})
-        super().__setattr__('_extra', {})
         self._phase = phase
 
         if isinstance(shape, int):
@@ -521,6 +511,7 @@ class SolutionArray:
             self._indices = list(np.ndindex(self._shape))
             self._output_dummy = self._states[..., 0]
 
+        self._extra = {}
         if isinstance(extra, dict):
             for name, v in extra.items():
                 if not np.shape(v):
@@ -540,45 +531,17 @@ class SolutionArray:
                 " supplied in a dict if the SolutionArray is not initially"
                 " empty")
 
-        # add properties dynamically for states not defined by ThermoPhase
-        state_sets = set(phase._full_states.values()) | set(phase._partial_states.values())
-        if isinstance(self._phase, PureFluid):
-            # add deprecated setters
-            # @todo: remove .. deprecated:: 2.5
-            state_sets |= {s.replace('Q', 'X') for s in state_sets if 'Q' in s}
-
-        state_sets = state_sets - set(self._all_states)
-        for name in state_sets:
-            ph = type(phase)
-            if len(name) == 2:
-                getter, setter = _state2_prop(name, ph)
-            elif len(name) == 3:
-                getter, setter = _state3_prop(name, ph)
-            else:
-                raise NotImplementedError("Failed adding property '{}' for "
-                                          "phase '{}'".format(name, phase))
-            self._getters[name] = getter
-            self._setters[name] = setter
-
     def __getitem__(self, index):
         states = self._states[index]
         shape = states.shape[:-1]
         return SolutionArray(self._phase, shape, states)
 
     def __getattr__(self, name):
-        if name in self._getters:
-            return self._getters[name](self)
-        elif name in self._extra:
+        if name in self._extra:
             return np.array(self._extra[name])
         else:
             raise AttributeError("'{}' object has no attribute '{}'".format(
                 self.__class__.__name__, name))
-
-    def __setattr__(self, name, value):
-        if name in self._setters:
-            self._setters[name](self, value)
-        else:
-            super().__setattr__(name, value)
 
     def __call__(self, *species):
         return SolutionArray(self._phase[species], states=self._states,
@@ -715,8 +678,7 @@ class SolutionArray:
                 break
         if mode == '':
             # concentration/quality specifier ('X' or 'Y') is not used
-            states = [st.translate({ord(i): None for i in 'XY'})
-                      for st in states]
+            states = [st.rstrip('XY') for st in states]
         elif len(valid_species) != len(all_species):
             incompatible = list(set(valid_species) ^ set(all_species))
             raise ValueError('incompatible species information for '
@@ -1009,13 +971,16 @@ def _state2_prop(name, doc_source):
     return getter, setter
 
 
-def _state3_prop(name, doc_source):
+def _state3_prop(name, doc_source, scalar=False):
     # Factory for creating properties which consist of a tuple of three
     # variables, e.g. 'TPY' or 'UVX'
     def getter(self):
         a = np.empty(self._shape)
         b = np.empty(self._shape)
-        c = np.empty(self._shape + (self._phase.n_selected_species,))
+        if scalar:
+            c = np.empty(self._shape)
+        else:
+            c = np.empty(self._shape + (self._phase.n_selected_species,))
         for index in self._indices:
             self._phase.state = self._states[index]
             a[index], b[index], c[index] = getattr(self._phase, name)
@@ -1045,15 +1010,33 @@ def _state3_prop(name, doc_source):
 def _make_functions():
     # this is wrapped in a function to avoid polluting the module namespace
 
-    # state setters
-    for name in SolutionArray._all_states:
-        if len(name) == 2:
-            getter, setter = _state2_prop(name, Solution)
-        elif len(name) == 3:
-            getter, setter = _state3_prop(name, Solution)
-        doc = getattr(Solution, name).__doc__
-        prop = property(getter, setter, doc=doc)
-        setattr(SolutionArray, name, prop)
+    names = []
+    for ph, ext in [(ThermoPhase, 'XY'), (PureFluid, 'Q')]:
+
+        # all state setters/getters are combination of letters
+        setters = 'TDPUVHS' + ext
+        scalar = ext == 'Q'
+
+        # add deprecated setters for PureFluid (e.g. PX/TX)
+        # @todo: remove .. deprecated:: 2.5
+        setters = setters.replace('Q', 'QX')
+
+        # obtain setters/getters from thermo objects
+        all_states = [k for k in ph.__dict__
+                      if not set(k) - set(setters) and len(k)>1]
+
+        # state setters (copy from ThermoPhase objects)
+        for name in all_states:
+            if name in names:
+                continue
+            names.append(name)
+            if len(name) == 2:
+                getter, setter = _state2_prop(name, ph)
+            elif len(name) == 3:
+                getter, setter = _state3_prop(name, ph, scalar)
+            doc = getattr(ph, name).__doc__
+            prop = property(getter, setter, doc=doc)
+            setattr(SolutionArray, name, prop)
 
     # Functions which define empty output arrays of an appropriate size for
     # different properties
