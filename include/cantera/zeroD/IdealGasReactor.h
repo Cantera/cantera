@@ -29,10 +29,10 @@ public:
      * @deprecated To be changed after Cantera 2.5.
      */
     virtual int type() const {
-        warn_deprecated("IdealGasReactor::type()",
+        warn_deprecated("IdealGasReactor::type",
                         "To be changed after Cantera 2.5. "
                         "Return string instead of magic number; use "
-                        "IdealGasReactor::typeStr() during transition");
+                        "IdealGasReactor::typeStr during transition");
         return IdealGasReactorType;
     }
 

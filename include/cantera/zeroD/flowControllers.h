@@ -131,7 +131,7 @@ public:
      */
     //! @deprecated To be removed after Cantera 2.5.
     void setPressureCoeff(double c) {
-        warn_deprecated("Valve::setParameters()",
+        warn_deprecated("Valve::setPressureCoeff",
                         "To be removed after Cantera 2.5. "
                         "Use Valve::setValveCoeff instead.");
         m_coeff = c;

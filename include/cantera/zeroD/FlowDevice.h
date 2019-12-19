@@ -46,10 +46,10 @@ public:
      * @deprecated To be changed after Cantera 2.5.
      */
     virtual int type() const {
-        warn_deprecated("FlowDevice::type()",
+        warn_deprecated("FlowDevice::type",
                         "To be changed after Cantera 2.5. "
                         "Return string instead of magic number; use "
-                        "FlowDevice::typeStr() during transition.");
+                        "FlowDevice::typeStr during transition.");
         return m_type;
     }
 
@@ -96,7 +96,7 @@ public:
     //! Set parameters. Generic function formerly used in the Matlab interface.
     //! @deprecated To be removed after Cantera 2.5.
     virtual void setParameters(int n, const double* coeffs) {
-        warn_deprecated("FlowDevice::setParameters()",
+        warn_deprecated("FlowDevice::setParameters",
                         "To be removed after Cantera 2.5. "
                         "Use device-specific functions (e.g. "
                         "Valve::setValveCoeff) instead.");
@@ -108,7 +108,7 @@ public:
     //! depends on the parameterization of the derived type.
     //! @deprecated To be removed after Cantera 2.5.
     void setFunction(Func1* f) {
-        warn_deprecated("FlowDevice::setFunction()",
+        warn_deprecated("FlowDevice::setFunction",
                         "To be removed after Cantera 2.5. "
                         "Use FlowDevice::setTimeFunction or "
                         "FlowDevice::setPressureFunction instead.");
@@ -132,9 +132,10 @@ public:
     //! Set the fixed mass flow rate (kg/s) through the flow device.
     //! @deprecated To be removed after Cantera 2.5.
     void setMassFlowRate(double mdot) {
-        warn_deprecated("FlowDevice::setMassFlowRate()",
+        warn_deprecated("FlowDevice::setMassFlowRate",
                         "To be removed after Cantera 2.5. "
                         "Use device-specific functions (e.g. "
+                        "MassFlowController::setMassFlowCoeff or "
                         "Valve::setValveCoeff) instead.");
         m_mdot = mdot;
     }
