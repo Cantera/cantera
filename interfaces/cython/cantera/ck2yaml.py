@@ -13,8 +13,11 @@ Usage:
             [--transport=<filename>]
             [--surface=<filename>]
             [--name=<name>]
+            [--extra=<filename>]
             [--output=<filename>]
             [--permissive]
+            [--quiet]
+            [--no-validate]
             [-d | --debug]
 
 Example:
@@ -34,6 +37,10 @@ specified as 'input' and the surface phase input file should be specified as
 The '--permissive' option allows certain recoverable parsing errors (e.g.
 duplicate transport data) to be ignored. The '--name=<name>' option
 is used to override default phase names (i.e. 'gas').
+
+The '--extra=<filename>' option takes a YAML file as input. This option can be
+used to specify an alternative file description, or to define custom fields that
+are included in the YAML output.
 """
 
 from collections import defaultdict, OrderedDict
@@ -742,7 +749,8 @@ class Parser:
         self.species_dict = {}  # bulk and surface species
         self.surfaces = []
         self.reactions = []
-        self.headerLines = []
+        self.header_lines = []
+        self.extra = {}  # for extra entries
         self.files = []  # input file names
 
     def warn(self, message):
@@ -1328,6 +1336,33 @@ class Parser:
 
         return reaction, revReaction
 
+    def load_extra_file(self, path):
+        """
+        Load YAML-formatted entries from ``path`` on disk.
+        """
+        with open(path, 'rt', encoding="utf-8") as stream:
+            yml = yaml.round_trip_load(stream)
+
+        # do not overwrite reserved field names
+        reserved = {'generator', 'input-files', 'cantera-version', 'date',
+                    'units', 'phases', 'species', 'reactions'}
+        reserved &= set(yml.keys())
+        if reserved:
+            raise InputError("The YAML file '{}' provided as '--extra' input "
+                "must not redefine reserved field name: "
+                "{}".format(path, reserved))
+
+        # replace header lines
+        if 'description' in yml:
+            if isinstance(yml['description'], str):
+                self.header_lines = yml.pop('description').split('\n')
+            else:
+                raise InputError("The alternate description provided in "
+                    "'{}' needs to be a string".format(path))
+
+        # remainder
+        self.extra = yml
+
     def load_chemkin_file(self, path, skip_undeclared_species=True, surface=False):
         """
         Load a Chemkin-format input file from ``path`` on disk.
@@ -1356,7 +1391,7 @@ class Parser:
             while line is not None:
                 tokens = line.split() or ['']
                 if inHeader and not line.strip():
-                    self.headerLines.append(comment.rstrip())
+                    self.header_lines.append(comment.rstrip())
 
                 if tokens[0].upper().startswith('ELEM'):
                     inHeader = False
@@ -1838,8 +1873,8 @@ class Parser:
                 if surf.reactions:
                     n_reacting_phases += 1
 
-            # header from original file
-            desc = '\n'.join(line.rstrip() for line in self.headerLines)
+            # Write header lines
+            desc = '\n'.join(line.rstrip() for line in self.header_lines)
             desc = desc.strip('\n')
             desc = textwrap.dedent(desc)
             if desc.strip():
@@ -1856,6 +1891,13 @@ class Parser:
             if desc.strip():
                 metadata.yaml_set_comment_before_after_key('generator', before='\n')
             emitter.dump(metadata, dest)
+
+            # Write extra entries
+            if self.extra:
+                extra = BlockMap(self.extra)
+                key = list(self.extra.keys())[0]
+                extra.yaml_set_comment_before_after_key(key, before='\n')
+                emitter.dump(extra, dest)
 
             units = FlowMap([('length', 'cm'), ('time', 's')])
             units['quantity'] = self.output_quantity_units
@@ -1946,8 +1988,8 @@ class Parser:
 
     @staticmethod
     def convert_mech(input_file, thermo_file=None, transport_file=None,
-                     surface_file=None, phase_name='gas', out_name=None,
-                     quiet=False, permissive=None):
+                     surface_file=None, phase_name='gas', extra_file=None,
+                     out_name=None, quiet=False, permissive=None):
 
         parser = Parser()
         if quiet:
@@ -2013,6 +2055,19 @@ class Parser:
                                 surface_file, parser.line_number, err))
                 raise
 
+        if extra_file:
+            parser.files.append(extra_file)
+            extra_file = os.path.expanduser(extra_file)
+            if not os.path.exists(extra_file):
+                raise IOError('Missing input file: {0!r}'.format(extra_file))
+            try:
+                # Read input mechanism files
+                parser.load_extra_file(extra_file)
+            except Exception as err:
+                logging.warning("\nERROR: Unable to parse '{0}':\n{1}\n".format(
+                                extra_file, err))
+                raise
+
         if out_name:
             out_name = os.path.expanduser(out_name)
         else:
@@ -2027,15 +2082,16 @@ class Parser:
         return surface_names
 
 
-def convert_mech(input_file, thermo_file=None, transport_file=None, surface_file=None,
-                 phase_name='gas', out_name=None, quiet=False, permissive=None):
+def convert_mech(input_file, thermo_file=None, transport_file=None,
+                 surface_file=None, phase_name='gas', extra_file=None,
+                 out_name=None, quiet=False, permissive=None):
     return Parser.convert_mech(input_file, thermo_file, transport_file, surface_file,
-                               phase_name, out_name, quiet, permissive)
+                               phase_name, extra_file, out_name, quiet, permissive)
 
 def main(argv):
 
     longOptions = ['input=', 'thermo=', 'transport=', 'surface=', 'name=',
-                   'output=', 'permissive', 'help', 'debug', 'quiet',
+                   'extra=', 'output=', 'permissive', 'help', 'debug', 'quiet',
                    'no-validate', 'id=']
 
     try:
@@ -2077,6 +2133,11 @@ def main(argv):
               ' must be provided.\nRun "ck2yaml.py --help" to see usage help.')
         sys.exit(1)
 
+    if '--extra' in options:
+        extra_file = options['--extra']
+    else:
+        extra_file = None
+
     if '--output' in options:
         out_name = options['--output']
         if not out_name.endswith('.yaml') and not out_name.endswith('.yml'):
@@ -2087,8 +2148,8 @@ def main(argv):
         out_name = os.path.splitext(thermo_file)[0] + '.yaml'
 
     surfaces = Parser.convert_mech(input_file, thermo_file, transport_file,
-                                   surface_file, phase_name, out_name,
-                                   quiet, permissive)
+                                   surface_file, phase_name, extra_file,
+                                   out_name, quiet, permissive)
 
     # Do full validation by importing the resulting mechanism
     if not input_file:
