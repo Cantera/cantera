@@ -45,6 +45,22 @@ public:
         return "IdealSolnGas";
     }
 
+    //! String indicating the mechanical phase of the matter in this Phase.
+    /*!
+     * Options for the string are:
+     *   * `gas`
+     *   * `undefined`
+     *
+     * If `m_idealGas` is true, returns `gas`. Otherwise, returns `undefined`.
+     */
+    virtual std::string phaseOfMatter() const {
+        if (m_idealGas) {
+            return "gas";
+        } else {
+            return "undefined";
+        }
+    }
+
     //! Set this phase to represent an ideal gas
     void setGasMode() { m_idealGas = true; }
 

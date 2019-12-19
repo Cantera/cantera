@@ -313,6 +313,14 @@ public:
         return "IdealGas";
     }
 
+    //! String indicating the mechanical phase of the matter in this Phase.
+    /*!
+     * For the `IdealGasPhase`, this string is always `gas`.
+     */
+    virtual std::string phaseOfMatter() const {
+        return "gas";
+    }
+
     //! @name Molar Thermodynamic Properties of the Solution
     //! @{
 

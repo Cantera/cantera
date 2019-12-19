@@ -288,6 +288,7 @@ TEST(ThermoFromYaml, HMWSoln)
         EXPECT_NEAR(moll[k], mollRef[k], 2e-4);
         EXPECT_NEAR(mu0[k]/1e6, mu0Ref[k], 2e-6);
     }
+    EXPECT_EQ("liquid", HMW->phaseOfMatter());
 }
 
 TEST(ThermoFromYaml, HMWSoln_HKFT)

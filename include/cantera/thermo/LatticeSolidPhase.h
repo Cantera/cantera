@@ -111,6 +111,14 @@ public:
         return "LatticeSolid";
     }
 
+    //! String indicating the mechanical phase of the matter in this Phase.
+    /*!
+     * `LatticeSolid` phases only represent solids.
+     */
+    virtual std::string phaseOfMatter() const {
+        return "solid";
+    }
+
     virtual bool isCompressible() const {
         return false;
     }
