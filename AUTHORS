@@ -4,42 +4,50 @@ partial, alphabetical list of developers and contributors to Cantera over the
 years. If you've been left off, please report the omission on the Github issue
 tracker.
 
-Emil Atz
+Rounak Agarwal (@agarwalrounak)
+Emil Atz (@EmilAtz)
 Philip Berndt
-Wolfgang Bessler, Offenburg University of Applied Science
+Wolfgang Bessler (@wbessler), Offenburg University of Applied Science
+Paul Blum (@paulblum)
 Tilman Bremer
-Victor Brunini, Sandia National Laboratory
-Bang-Shiuh Chen, Purdue University
+Victor Brunini (@vbrunini), Sandia National Laboratory
+Bang-Shiuh Chen (@BangShiuh), Purdue University
 Ryan Crisanti
-Nicholas Curtis
-Steven DeCaluwe, Colorado School of Mines
-Vishesh Devgan
-Thomas Fiala, Technische Universität München
+Nicholas Curtis (@arghdos)
+Steven DeCaluwe (@decaluwe), Colorado School of Mines
+Vishesh Devgan (@vdevgan)
+Thomas Fiala (@thomasfiala), Technische Universität München
 David Fronczek
 @g3bk47
-Matteo Giani
+Matteo Giani (@MarcDuQuesne)
 Dave Goodwin, California Institute of Technology
-John Hewson, Sandia National Laboratory
-Trevor Hickey
+John Hewson (@jchewson), Sandia National Laboratory
+Trevor Hickey (@luxe)
 Yuanjie Jiang
+Benjamin Kee (@lionkey)
 Jon Kristofer
-Kyle Linevitch, Jr.
+Samesh Lakothia (@sameshl)
+Kyle Linevitch, Jr. (@KyleLinevitchJr)
 Christopher Leuth
-Nicholas Malaya, University of Texas at Austin
-Thanasis Mattas, Aristotle University of Thessaloniki
+Nicholas Malaya (@nicholasmalaya), University of Texas at Austin
+Thanasis Mattas (@ThanasisMattas), Aristotle University of Thessaloniki
+Manik Mayur (@manikmayur)
 Evan McCorkle
-Ivan Mitrichev, Mendeleev University of Chemical Technology of Russia
-Harry Moffat, Sandia National Laboratory
-Christopher Neal
-Kyle Niemeyer, Oregon State University
-Paul Northrop
-Andreas Rücker
-Jeff Santner
-Satyam Saxena
-Ingmar Schoegl, Louisiana State University
-Santosh Shanbhogue, Massachusetts Institute of Technology
+Ivan Mitrichev (@imitrichev), Mendeleev University of Chemical Technology of Russia
+Harry Moffat (@hkmoffat), Sandia National Laboratory
+Christopher Neal (@wandadars)
+Kyle Niemeyer (@kyleniemeyer), Oregon State University
+Paul Northrop (@pwcnorthrop)
+Sebastian Pinnau (@spinnau)
+Andreas Rücker (@cannondale1492)
+Jeff Santner (@jsantner)
+Satyam Saxena (@CyberDrudge)
+Ingmar Schoegl (@ischoegl), Louisiana State University
+Santosh Shanbhogue (@santoshshanbhogue), Massachusetts Institute of Technology
 David Sondak
-Raymond Speth, Massachusetts Institute of Technology
-Sergey Torokhov
-Bryan Weber, University of Connecticut
-Armin Wehrfritz
+Raymond Speth (@speth), Massachusetts Institute of Technology
+Sergey Torokhov (@band-a-prend)
+Laurien Vandewalle (@lavdwall)
+Bryan Weber (@bryanwweber), University of Connecticut
+Armin Wehrfritz (@awehrfritz)
+Richard West (@rwest), Northeastern University
