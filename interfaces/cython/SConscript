@@ -26,6 +26,10 @@ testFiles = localenv.RecursiveInstall('#interfaces/cython/cantera/test/data',
                                       '#test/data')
 build(testFiles)
 
+ckFiles = localenv.RecursiveInstall('#interfaces/cython/cantera/examples/input',
+                                    '#build/chemkin')
+build(ckFiles)
+
 inputFiles = ['inputs/h2o2.inp', 'inputs/gri30.inp',
               'transport/gri30_tran.dat', 'thermo/gri30_thermo.dat']
 for f in inputFiles:
@@ -96,6 +100,7 @@ for f in (mglob(localenv, 'cantera', 'py') +
           mglob(localenv, 'cantera/examples/reactors', 'py') +
           mglob(localenv, 'cantera/examples/onedim', 'py') +
           mglob(localenv, 'cantera/examples/surface_chemistry', 'py') +
+          mglob(localenv, 'cantera/examples/input', 'py') +
           mglob(localenv, 'cantera/examples/misc', 'py')):
     localenv.Depends(mod, f)
 

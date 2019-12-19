@@ -1589,6 +1589,32 @@ for yaml in mglob(env, "data", "yaml"):
     dest = pjoin("build", "data", yaml.name)
     build(env.Command(dest, yaml.path, Copy("$TARGET", "$SOURCE")))
 
+# Copy Chemkin input files
+ck_sources = [
+    dict(input='data/inputs/gri30.inp',
+         thermo='data/thermo/gri30_thermo.dat',
+         transport='data/transport/gri30_tran.dat',
+         bibtex='data/bibtex/gri30.bib'),
+    dict(input='data/inputs/air.inp',
+         transport='data/transport/gri30_tran.dat'),
+    dict(input='data/inputs/argon.inp',
+         thermo='data/thermo/gri30_thermo.dat',
+         transport='data/transport/gri30_tran.dat'),
+    dict(input='data/inputs/airNASA9.inp',
+         thermo='data/thermo/airDataNASA9.dat',
+         bibtex='data/bibtex/nasa9.bib'),
+    dict(input='data/inputs/h2o2.inp',
+         transport='data/transport/gri30_tran.dat'),
+    dict(thermo='data/thermo/nasathermo.dat',
+         bibtex='data/bibtex/nasa7.bib')
+]
+
+for mech in ck_sources:
+    for key in ['input', 'thermo', 'transport', 'bibtex']:
+        if key in mech:
+            build(env.Command('build/chemkin/{}'.format(mech[key].split('/')[-1]),
+                              mech[key], Copy('$TARGET', '$SOURCE')))
+
 if addInstallActions:
     # Put headers in place
     headerBase = 'include/cantera'
