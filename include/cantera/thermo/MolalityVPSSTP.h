@@ -194,6 +194,14 @@ public:
     //! @name  Utilities
     //! @{
 
+    //! String indicating the mechanical phase of the matter in this Phase.
+    /*!
+     * All derived phases from `MolalityVPSSTP` always represent liquids.
+     */
+    virtual std::string phaseOfMatter() const {
+        return "liquid";
+    }
+
     //! Set the pH scale, which determines the scale for single-ion activity
     //! coefficients.
     /*!
