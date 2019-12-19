@@ -32,10 +32,10 @@ public:
      * @deprecated To be changed after Cantera 2.5.
      */
     virtual int type() const {
-        warn_deprecated("ConstPressureReactor::type()",
+        warn_deprecated("ConstPressureReactor::type",
                         "To be changed after Cantera 2.5. "
                         "Return string instead of magic number; use "
-                        "ConstPressureReactor::typeStr() during transition");
+                        "ConstPressureReactor::typeStr during transition");
         return ConstPressureReactorType;
     }
 

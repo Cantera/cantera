@@ -25,10 +25,10 @@ public:
      * @deprecated To be changed after Cantera 2.5.
      */
     virtual int type() const {
-        warn_deprecated("FlowReactor::type()",
+        warn_deprecated("FlowReactor::type",
                         "To be changed after Cantera 2.5. "
                         "Return string instead of magic number; use "
-                        "FlowReactor::typeStr() during transition");
+                        "FlowReactor::typeStr during transition");
         return FlowReactorType;
     }
 

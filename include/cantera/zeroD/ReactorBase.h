@@ -61,10 +61,10 @@ public:
     //! Return a constant indicating the type of this Reactor
     //! @deprecated To be changed after Cantera 2.5.
     virtual int type() const {
-        warn_deprecated("ReactorBase::type()",
+        warn_deprecated("ReactorBase::type",
                         "To be changed after Cantera 2.5. "
                         "Return string instead of magic number; use "
-                        "ReactorBase::typeStr() during transition");
+                        "ReactorBase::typeStr during transition");
         return 0;
     }
 

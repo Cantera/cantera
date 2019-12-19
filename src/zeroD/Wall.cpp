@@ -1,4 +1,4 @@
-//! @file WallBase.cpp
+//! @file Wall.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
@@ -12,7 +12,7 @@ namespace Cantera
 {
 
 WallBase::WallBase() : m_left(0), m_right(0), m_surf(2), m_area(1.0) {}
-  
+
 bool WallBase::install(ReactorBase& rleft, ReactorBase& rright)
 {
     // check if wall is already installed
@@ -39,7 +39,7 @@ Wall::Wall() : WallBase(), m_k(0.0), m_rrth(0.0), m_emiss(0.0), m_vf(0), m_qf(0)
 double Wall::vdot(double t)
 {
     double rate = m_k * m_area * (m_left->pressure() - m_right->pressure());
-    
+
     if (m_vf) {
         rate += m_area * m_vf->eval(t);
     }
@@ -55,11 +55,11 @@ double Wall::Q(double t)
         double tr = m_right->temperature();
         q1 += m_emiss * m_area * StefanBoltz * (tl*tl*tl*tl - tr*tr*tr*tr);
     }
-    
+
     if (m_qf) {
         q1 += m_area * m_qf->eval(t);
     }
     return q1;
 }
-  
+
 }
