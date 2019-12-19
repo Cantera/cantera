@@ -13,8 +13,11 @@ Usage:
             [--transport=<filename>]
             [--surface=<filename>]
             [--name=<name>]
+            [--bibtex=<filename>]
             [--output=<filename>]
             [--permissive]
+            [--quiet]
+            [--no-validate]
             [-d | --debug]
 
 Example:
@@ -32,8 +35,10 @@ specified as 'input' and the surface phase input file should be specified as
 'surface'.
 
 The '--permissive' option allows certain recoverable parsing errors (e.g.
-duplicate transport data) to be ignored. The '--name=<name>' option
-is used to override default phase names (i.e. 'gas').
+duplicate transport data) to be ignored. Further, the '--name=<name>' option
+is used to override default phase names (i.e. 'gas'). The '--bibtex=<filename>'
+option attaches references to the yaml output, where fields are based on BibTeX
+style input.
 """
 
 from collections import defaultdict, OrderedDict
@@ -742,7 +747,8 @@ class Parser:
         self.species_dict = {}  # bulk and surface species
         self.surfaces = []
         self.reactions = []
-        self.headerLines = []
+        self.header_lines = []
+        self.bibtex = {}  # for bibtex entries
         self.files = []  # input file names
 
     def warn(self, message):
@@ -1328,6 +1334,41 @@ class Parser:
 
         return reaction, revReaction
 
+    def load_bibtex_file(self, path):
+        """
+        Load and separate BibTeX-formatted entries from ``path`` on disk.
+        """
+        def readcitation(bib_file):
+            entry = []
+            count = 0
+            while not(entry) or count > 0:
+                line = strip_nonascii(bib_file.readline()).rstrip()
+                count += line.count('{') - line.count('}')
+                count -= line.count('\{') - line.count('\}')
+                entry.append(line)
+                if line == "":
+                    break
+
+            if entry[0]:
+                regex = r"^@+([a-zA-z]+){+(\w+)[ ,]"
+                bib = re.findall(regex, entry[0].strip())
+                if bib and entry[-1].rstrip()[-1] == '}' and count == 0:
+                    return bib[0][1], parsecitation(entry)
+                else:
+                    raise InputError("Encountered invalid syntax in "
+                        "BibTeX entry:\n{}".format('\n'.join(entry)))
+            else:
+                return None, None
+
+        with open(path, 'r', errors='ignore') as bib_file:
+
+            while True:
+                label, entry = readcitation(bib_file)
+                if label is not None:
+                    self.bibtex[label] = entry
+                else:
+                    break
+
     def load_chemkin_file(self, path, skip_undeclared_species=True, surface=False):
         """
         Load a Chemkin-format input file from ``path`` on disk.
@@ -1356,7 +1397,7 @@ class Parser:
             while line is not None:
                 tokens = line.split() or ['']
                 if inHeader and not line.strip():
-                    self.headerLines.append(comment.rstrip())
+                    self.header_lines.append(comment.rstrip())
 
                 if tokens[0].upper().startswith('ELEM'):
                     inHeader = False
@@ -1839,11 +1880,23 @@ class Parser:
                     n_reacting_phases += 1
 
             # header from original file
-            desc = '\n'.join(line.rstrip() for line in self.headerLines)
+            desc = '\n'.join(line.rstrip() for line in self.header_lines)
             desc = desc.strip('\n')
             desc = textwrap.dedent(desc)
             if desc.strip():
                 emitter.dump({'description': yaml.scalarstring.PreservedScalarString(desc)}, dest)
+
+            # bibtex entries
+            if self.bibtex:
+                entries = []
+                for key, val in self.bibtex.items():
+                    desc = '\n'.join(val)
+                    desc = yaml.scalarstring.PreservedScalarString(desc)
+                    entries.append((key, desc))
+                bib = BlockMap([('references', BlockMap(entries))])
+                if desc.strip():
+                    bib.yaml_set_comment_before_after_key('references', before='\n')
+                emitter.dump(bib, dest)
 
             # Additional information regarding conversion
             files = [os.path.basename(f) for f in self.files]
@@ -1853,7 +1906,7 @@ class Parser:
                 ('cantera-version', '2.5.0a3'),
                 ('date', formatdate(localtime=True)),
             ])
-            if desc.strip():
+            if desc.strip() or self.bibtex:
                 metadata.yaml_set_comment_before_after_key('generator', before='\n')
             emitter.dump(metadata, dest)
 
@@ -1946,8 +1999,8 @@ class Parser:
 
     @staticmethod
     def convert_mech(input_file, thermo_file=None, transport_file=None,
-                     surface_file=None, phase_name='gas', out_name=None,
-                     quiet=False, permissive=None):
+                     surface_file=None, phase_name='gas', bibtex_file=None,
+                     out_name=None, quiet=False, permissive=None):
 
         parser = Parser()
         if quiet:
@@ -2013,6 +2066,19 @@ class Parser:
                                 surface_file, parser.line_number, err))
                 raise
 
+        if bibtex_file:
+            parser.files.append(bibtex_file)
+            bibtex_file = os.path.expanduser(bibtex_file)
+            if not os.path.exists(bibtex_file):
+                raise IOError('Missing input file: {0!r}'.format(bibtex_file))
+            try:
+                # Read input mechanism files
+                parser.load_bibtex_file(bibtex_file)
+            except Exception as err:
+                logging.warning("\nERROR: Unable to parse '{0}':\n{1}\n".format(
+                                bibtex_file, err))
+                raise
+
         if out_name:
             out_name = os.path.expanduser(out_name)
         else:
@@ -2027,15 +2093,16 @@ class Parser:
         return surface_names
 
 
-def convert_mech(input_file, thermo_file=None, transport_file=None, surface_file=None,
-                 phase_name='gas', out_name=None, quiet=False, permissive=None):
+def convert_mech(input_file, thermo_file=None, transport_file=None,
+                 surface_file=None, phase_name='gas', bibtex_file=None,
+                 out_name=None, quiet=False, permissive=None):
     return Parser.convert_mech(input_file, thermo_file, transport_file, surface_file,
-                               phase_name, out_name, quiet, permissive)
+                               phase_name, bibtex_file, out_name, quiet, permissive)
 
 def main(argv):
 
     longOptions = ['input=', 'thermo=', 'transport=', 'surface=', 'name=',
-                   'output=', 'permissive', 'help', 'debug', 'quiet',
+                   'bibtex=', 'output=', 'permissive', 'help', 'debug', 'quiet',
                    'no-validate', 'id=']
 
     try:
@@ -2077,6 +2144,13 @@ def main(argv):
               ' must be provided.\nRun "ck2yaml.py --help" to see usage help.')
         sys.exit(1)
 
+    if '--bibtex' in options:
+        bibtex_file = options['--bibtex']
+        if not bibtex_file.endswith('.bib'):
+            bibtex_file += '.bib'
+    else:
+        bibtex_file = None
+
     if '--output' in options:
         out_name = options['--output']
         if not out_name.endswith('.yaml') and not out_name.endswith('.yml'):
@@ -2087,8 +2161,8 @@ def main(argv):
         out_name = os.path.splitext(thermo_file)[0] + '.yaml'
 
     surfaces = Parser.convert_mech(input_file, thermo_file, transport_file,
-                                   surface_file, phase_name, out_name,
-                                   quiet, permissive)
+                                   surface_file, phase_name, bibtex_file,
+                                   out_name, quiet, permissive)
 
     # Do full validation by importing the resulting mechanism
     if not input_file:
