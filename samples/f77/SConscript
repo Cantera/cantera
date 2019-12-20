@@ -21,7 +21,8 @@ for program_name, fortran_sources in samples:
                 fortran_sources + ftn_demo,
                 CPPPATH=['#build/src/fortran', '#include'],
                 LIBS=env['cantera_libs']+['cantera_fortran']+stdlib,
-                LIBPATH=[env['sundials_libdir'], '#build/lib'],
+                LIBPATH=[env['sundials_libdir'], localenv['blas_lapack_dir'],
+                         '#build/lib'],
                 LINK='$F77')
 
 # Generate SConstruct file to be installed
