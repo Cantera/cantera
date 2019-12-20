@@ -63,6 +63,8 @@ c     CTINDX: get the number of elements, species, and reactions
 
       subroutine ctindx(ickwrk, rckwrk, mm, kk, ii)
       implicit double precision (a-h,o-z)
+      integer ickwrk(*)
+      double precision rckwrk(*)
       mm = nElements()
       kk = nSpecies()
       ii = nReactions()
