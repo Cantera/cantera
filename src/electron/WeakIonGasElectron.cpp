@@ -413,7 +413,7 @@ double WeakIonGasElectron::inelasticPowerLoss()
             double y_up = 1.0 - y_low;
             sum += m_thresholds[k] * m_moleFractions[k] *
                    (y_low * rateCoefficient(k) -
-                    y_up * inverseRateCoefficient(k));
+                    y_up * reverseRateCoefficient(k));
         }
     }
     return sum * m_N;
@@ -432,7 +432,7 @@ double WeakIonGasElectron::rateCoefficient(size_t k)
     return sum;
 }
 
-double WeakIonGasElectron::inverseRateCoefficient(size_t k)
+double WeakIonGasElectron::reverseRateCoefficient(size_t k)
 {
     calculateDistributionFunction();
     vector_fp g = vector_g(m_f0);

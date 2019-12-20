@@ -93,9 +93,9 @@ public:
         throw NotImplementedError("Electron::rateCoefficient");
     }
 
-    //! inverse rate coefficient. [m^3/s]
-    virtual double inverseRateCoefficient(size_t k) {
-        throw NotImplementedError("Electron::inverseRateCoefficient");
+    //! reverse rate coefficient. [m^3/s]
+    virtual double reverseRateCoefficient(size_t k) {
+        throw NotImplementedError("Electron::reverseRateCoefficient");
     }
 
     //! net plasma production rates
