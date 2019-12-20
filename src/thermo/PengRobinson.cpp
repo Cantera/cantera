@@ -1,9 +1,9 @@
-//! @file PengRobinsonMFTP.cpp
+//! @file PengRobinson.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at http://www.cantera.org/license.txt for license and copyright information.
 
-#include "cantera/thermo/PengRobinsonMFTP.h"
+#include "cantera/thermo/PengRobinson.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
@@ -19,11 +19,11 @@ namespace bmt = boost::math::tools;
 namespace Cantera
 {
 
-const double PengRobinsonMFTP::omega_a = 4.5723552892138218E-01;
-const double PengRobinsonMFTP::omega_b = 7.77960739038885E-02;
-const double PengRobinsonMFTP::omega_vc = 3.07401308698703833E-01;
+const double PengRobinson::omega_a = 4.5723552892138218E-01;
+const double PengRobinson::omega_b = 7.77960739038885E-02;
+const double PengRobinson::omega_vc = 3.07401308698703833E-01;
 
-PengRobinsonMFTP::PengRobinsonMFTP() :
+PengRobinson::PengRobinson() :
     m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
@@ -35,7 +35,7 @@ PengRobinsonMFTP::PengRobinsonMFTP() :
     fill_n(Vroot_, 3, 0.0);
 }
 
-PengRobinsonMFTP::PengRobinsonMFTP(const std::string& infile, const std::string& id_) :
+PengRobinson::PengRobinson(const std::string& infile, const std::string& id_) :
     m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
@@ -48,7 +48,7 @@ PengRobinsonMFTP::PengRobinsonMFTP(const std::string& infile, const std::string&
     initThermoFile(infile, id_);
 }
 
-PengRobinsonMFTP::PengRobinsonMFTP(XML_Node& phaseRefRoot, const std::string& id_) :
+PengRobinson::PengRobinson(XML_Node& phaseRefRoot, const std::string& id_) :
     m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
@@ -61,11 +61,11 @@ PengRobinsonMFTP::PengRobinsonMFTP(XML_Node& phaseRefRoot, const std::string& id
     importPhase(phaseRefRoot, this);
 }
 
-void PengRobinsonMFTP::calculateAlpha(const std::string& species, double a, double b, double w)
+void PengRobinson::calculateAlpha(const std::string& species, double a, double b, double w)
 {
     size_t k = speciesIndex(species);
     if (k == npos) {
-        throw CanteraError("PengRobinsonMFTP::setSpeciesCoeffs",
+        throw CanteraError("PengRobinson::setSpeciesCoeffs",
             "Unknown species '{}'.", species);
     }
 
@@ -85,12 +85,12 @@ void PengRobinsonMFTP::calculateAlpha(const std::string& species, double a, doub
     alpha_vec_Curr_[k] = sqt_alpha*sqt_alpha;
 }
 
-void PengRobinsonMFTP::setSpeciesCoeffs(const std::string& species,
+void PengRobinson::setSpeciesCoeffs(const std::string& species,
                                         double a, double b, double w)
 {
     size_t k = speciesIndex(species);
     if (k == npos) {
-        throw CanteraError("PengRobinsonMFTP::setSpeciesCoeffs",
+        throw CanteraError("PengRobinson::setSpeciesCoeffs",
             "Unknown species '{}'.", species);
     }
     size_t counter = k + m_kk * k;
@@ -119,17 +119,17 @@ void PengRobinsonMFTP::setSpeciesCoeffs(const std::string& species,
     b_vec_Curr_[k] = b;
 }
 
-void PengRobinsonMFTP::setBinaryCoeffs(const std::string& species_i,
+void PengRobinson::setBinaryCoeffs(const std::string& species_i,
         const std::string& species_j, double a0, double alpha)
 {
     size_t ki = speciesIndex(species_i);
     if (ki == npos) {
-        throw CanteraError("PengRobinsonMFTP::setBinaryCoeffs",
+        throw CanteraError("PengRobinson::setBinaryCoeffs",
             "Unknown species '{}'.", species_i);
     }
     size_t kj = speciesIndex(species_j);
     if (kj == npos) {
-        throw CanteraError("PengRobinsonMFTP::setBinaryCoeffs",
+        throw CanteraError("PengRobinson::setBinaryCoeffs",
             "Unknown species '{}'.", species_j);
     }
 
@@ -143,7 +143,7 @@ void PengRobinsonMFTP::setBinaryCoeffs(const std::string& species_i,
 
 // ------------Molar Thermodynamic Properties -------------------------
 
-double PengRobinsonMFTP::enthalpy_mole() const
+double PengRobinson::enthalpy_mole() const
 {
     _updateReferenceStateThermo();
     double h_ideal = RT() * mean_X(m_h0_RT);
@@ -151,7 +151,7 @@ double PengRobinsonMFTP::enthalpy_mole() const
     return h_ideal + h_nonideal;
 }
 
-double PengRobinsonMFTP::entropy_mole() const
+double PengRobinson::entropy_mole() const
 {
     _updateReferenceStateThermo();
     double sr_ideal = GasConstant * (mean_X(m_s0_R) - sum_xlogx()
@@ -160,7 +160,7 @@ double PengRobinsonMFTP::entropy_mole() const
     return sr_ideal + sr_nonideal;
 }
 
-double PengRobinsonMFTP::cp_mole() const
+double PengRobinson::cp_mole() const
 {
     _updateReferenceStateThermo();
     double TKelvin = temperature();
@@ -174,7 +174,7 @@ double PengRobinsonMFTP::cp_mole() const
     return dHdT_V - (mv + TKelvin * dpdT_ / dpdV_) * dpdT_;
 }
 
-double PengRobinsonMFTP::cv_mole() const
+double PengRobinson::cv_mole() const
 {
     _updateReferenceStateThermo();
     double TKelvin = temperature();
@@ -182,7 +182,7 @@ double PengRobinsonMFTP::cv_mole() const
     return (cp_mole() + TKelvin* dpdT_* dpdT_ / dpdV_);
 }
 
-double PengRobinsonMFTP::pressure() const
+double PengRobinson::pressure() const
 {
     _updateReferenceStateThermo();
     //  Get a copy of the private variables stored in the State object
@@ -193,7 +193,7 @@ double PengRobinsonMFTP::pressure() const
     return pp;
 }
 
-void PengRobinsonMFTP::calcDensity()
+void PengRobinson::calcDensity()
 {
     // Calculate the molarVolume of the solution (m**3 kmol-1)
     const double* const dtmp = moleFractdivMMW();
@@ -205,20 +205,20 @@ void PengRobinsonMFTP::calcDensity()
     Phase::setDensity(1.0/invDens);
 }
 
-void PengRobinsonMFTP::setTemperature(const double temp)
+void PengRobinson::setTemperature(const double temp)
 {
     Phase::setTemperature(temp);
     _updateReferenceStateThermo();
     updateAB();
 }
 
-void PengRobinsonMFTP::compositionChanged()
+void PengRobinson::compositionChanged()
 {
     MixtureFugacityTP::compositionChanged();
     updateAB();
 }
 
-void PengRobinsonMFTP::getActivityConcentrations(double* c) const
+void PengRobinson::getActivityConcentrations(double* c) const
 {
     getActivityCoefficients(c);
     double p_RT = pressure() / RT();
@@ -227,13 +227,13 @@ void PengRobinsonMFTP::getActivityConcentrations(double* c) const
     }
 }
 
-double PengRobinsonMFTP::standardConcentration(size_t k) const
+double PengRobinson::standardConcentration(size_t k) const
 {
     getStandardVolumes(m_tmpV.data());
     return 1.0 / m_tmpV[k];
 }
 
-void PengRobinsonMFTP::getActivityCoefficients(double* ac) const
+void PengRobinson::getActivityCoefficients(double* ac) const
 {
     double mv = molarVolume();
     double T = temperature();
@@ -268,7 +268,7 @@ void PengRobinsonMFTP::getActivityCoefficients(double* ac) const
 
 // ---- Partial Molar Properties of the Solution -----------------
 
-void PengRobinsonMFTP::getChemPotentials_RT(double* muRT) const
+void PengRobinson::getChemPotentials_RT(double* muRT) const
 {
     getChemPotentials(muRT);
     double RTkelvin = RT();
@@ -277,7 +277,7 @@ void PengRobinsonMFTP::getChemPotentials_RT(double* muRT) const
     }
 }
 
-void PengRobinsonMFTP::getChemPotentials(double* mu) const
+void PengRobinson::getChemPotentials(double* mu) const
 {
     getGibbs_ref(mu);
     double RTkelvin = RT();
@@ -316,7 +316,7 @@ void PengRobinsonMFTP::getChemPotentials(double* mu) const
     }
 }
 
-void PengRobinsonMFTP::getPartialMolarEnthalpies(double* hbar) const
+void PengRobinson::getPartialMolarEnthalpies(double* hbar) const
 {
     // First we get the reference state contributions
     getEnthalpy_RT_ref(hbar);
@@ -359,7 +359,7 @@ void PengRobinsonMFTP::getPartialMolarEnthalpies(double* hbar) const
     }
 }
 
-void PengRobinsonMFTP::getPartialMolarEntropies(double* sbar) const
+void PengRobinson::getPartialMolarEntropies(double* sbar) const
 {
     getEntropy_R_ref(sbar);
     scale(sbar, sbar+m_kk, sbar, GasConstant);
@@ -404,19 +404,19 @@ void PengRobinsonMFTP::getPartialMolarEntropies(double* sbar) const
     }
 }
 
-void PengRobinsonMFTP::getPartialMolarIntEnergies(double* ubar) const
+void PengRobinson::getPartialMolarIntEnergies(double* ubar) const
 {
     getIntEnergy_RT(ubar);
     scale(ubar, ubar+m_kk, ubar, RT());
 }
 
-void PengRobinsonMFTP::getPartialMolarCp(double* cpbar) const
+void PengRobinson::getPartialMolarCp(double* cpbar) const
 {
     getCp_R(cpbar);
     scale(cpbar, cpbar+m_kk, cpbar, GasConstant);
 }
 
-void PengRobinsonMFTP::getPartialMolarVolumes(double* vbar) const
+void PengRobinson::getPartialMolarVolumes(double* vbar) const
 {
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
@@ -447,42 +447,42 @@ void PengRobinsonMFTP::getPartialMolarVolumes(double* vbar) const
     }
 }
 
-double PengRobinsonMFTP::speciesCritTemperature(double a, double b) const
+double PengRobinson::speciesCritTemperature(double a, double b) const
 {
     double pc, tc, vc;
     calcCriticalConditions(a, b, pc, tc, vc);
     return tc;
 }
 
-double PengRobinsonMFTP::critTemperature() const
+double PengRobinson::critTemperature() const
 {
     double pc, tc, vc;
     calcCriticalConditions(m_a_current, m_b_current, pc, tc, vc);
     return tc;
 }
 
-double PengRobinsonMFTP::critPressure() const
+double PengRobinson::critPressure() const
 {
     double pc, tc, vc;
     calcCriticalConditions(m_a_current, m_b_current, pc, tc, vc);
     return pc;
 }
 
-double PengRobinsonMFTP::critVolume() const
+double PengRobinson::critVolume() const
 {
     double pc, tc, vc;
     calcCriticalConditions(m_a_current, m_b_current, pc, tc, vc);
     return vc;
 }
 
-double PengRobinsonMFTP::critCompressibility() const
+double PengRobinson::critCompressibility() const
 {
     double pc, tc, vc;
     calcCriticalConditions(m_a_current, m_b_current, pc, tc, vc);
     return pc*vc/tc/GasConstant;
 }
 
-double PengRobinsonMFTP::critDensity() const
+double PengRobinson::critDensity() const
 {
     double pc, tc, vc;
     calcCriticalConditions(m_a_current, m_b_current, pc, tc, vc);
@@ -490,7 +490,7 @@ double PengRobinsonMFTP::critDensity() const
     return mmw / vc;
 }
 
-void PengRobinsonMFTP::setToEquilState(const double* mu_RT)
+void PengRobinson::setToEquilState(const double* mu_RT)
 {
     double tmp, tmp2;
     _updateReferenceStateThermo();
@@ -520,7 +520,7 @@ void PengRobinsonMFTP::setToEquilState(const double* mu_RT)
     setState_PX(pres, &m_pp[0]);
 }
 
-bool PengRobinsonMFTP::addSpecies(shared_ptr<Species> spec)
+bool PengRobinson::addSpecies(shared_ptr<Species> spec)
 {
     bool added = MixtureFugacityTP::addSpecies(spec);
     if (added) {
@@ -545,7 +545,7 @@ bool PengRobinsonMFTP::addSpecies(shared_ptr<Species> spec)
     return added;
 }
 
-vector<double> PengRobinsonMFTP::getCoeff(const std::string& iName)
+vector<double> PengRobinson::getCoeff(const std::string& iName)
 {
         vector_fp spCoeff{ NAN, NAN };
 
@@ -577,7 +577,7 @@ vector<double> PengRobinsonMFTP::getCoeff(const std::string& iName)
                         vParams = strSItoDbl(critTemp);
                     }
                     if (vParams <= 0.0) { //Assuming that Pc and Tc are non zero.
-                        throw CanteraError("PengRobinsonMFTP::getCoeff",
+                        throw CanteraError("PengRobinson::getCoeff",
                             "Critical Temperature must be positive ");
                     }
                     T_crit = vParams;
@@ -590,7 +590,7 @@ vector<double> PengRobinsonMFTP::getCoeff(const std::string& iName)
                         vParams = strSItoDbl(critPressure);
                     }
                     if (vParams <= 0.0) { //Assuming that Pc and Tc are non zero.
-                        throw CanteraError("PengRobinsonMFTP::getCoeff",
+                        throw CanteraError("PengRobinson::getCoeff",
                             "Critical Pressure must be positive ");
                     }
                     P_crit = vParams;
@@ -605,13 +605,13 @@ vector<double> PengRobinsonMFTP::getCoeff(const std::string& iName)
         return spCoeff;
 }
 
-void PengRobinsonMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void PengRobinson::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
         if (phaseNode.hasChild("thermo")) {
             XML_Node& thermoNode = phaseNode.child("thermo");
             std::string model = thermoNode["model"];
-            if (model != "PengRobinson" && model != "PengRobinsonMFTP") {
-                throw CanteraError("PengRobinsonMFTP::initThermoXML",
+            if (model != "PengRobinson" && model != "PengRobinson") {
+                throw CanteraError("PengRobinson::initThermoXML",
                     "Unknown thermo model : " + model);
             }
 
@@ -683,11 +683,11 @@ void PengRobinsonMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
         MixtureFugacityTP::initThermoXML(phaseNode, id);
 }
 
-void PengRobinsonMFTP::readXMLPureFluid(XML_Node& pureFluidParam)
+void PengRobinson::readXMLPureFluid(XML_Node& pureFluidParam)
 {
         string xname = pureFluidParam.name();
         if (xname != "pureFluidParameters") {
-            throw CanteraError("PengRobinsonMFTP::readXMLPureFluid",
+            throw CanteraError("PengRobinson::readXMLPureFluid",
                 "Incorrect name for processing this routine: " + xname);
         }
 
@@ -710,7 +710,7 @@ void PengRobinsonMFTP::readXMLPureFluid(XML_Node& pureFluidParam)
                     a0 = vParams[0];
                     a1 = vParams[1];
                 } else {
-                    throw CanteraError("PengRobinsonMFTP::readXMLPureFluid",
+                    throw CanteraError("PengRobinson::readXMLPureFluid",
                         "unknown model or incorrect number of parameters");
                 }
             } else if (nodeName == "b_coeff") {
@@ -723,11 +723,11 @@ void PengRobinsonMFTP::readXMLPureFluid(XML_Node& pureFluidParam)
         setSpeciesCoeffs(pureFluidParam.attrib("species"), a0, b, w);
 }
 
-void PengRobinsonMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
+void PengRobinson::readXMLCrossFluid(XML_Node& CrossFluidParam)
 {
         string xname = CrossFluidParam.name();
         if (xname != "crossFluidParameters") {
-            throw CanteraError("PengRobinsonMFTP::readXMLCrossFluid",
+            throw CanteraError("PengRobinson::readXMLCrossFluid",
                 "Incorrect name for processing this routine: " + xname);
         }
 
@@ -748,7 +748,7 @@ void PengRobinsonMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
                 } else if (iModel == "linear_a") {
                     setBinaryCoeffs(iName, jName, vParams[0], vParams[1]);
                 } else {
-                    throw CanteraError("PengRobinsonMFTP::readXMLCrossFluid",
+                    throw CanteraError("PengRobinson::readXMLCrossFluid",
                         "unknown model ({}) or wrong number of parameters ({})",
                         iModel, vParams.size());
                 }
@@ -756,12 +756,12 @@ void PengRobinsonMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
         }
 }
 
-void PengRobinsonMFTP::setParametersFromXML(const XML_Node& thermoNode)
+void PengRobinson::setParametersFromXML(const XML_Node& thermoNode)
 {
     MixtureFugacityTP::setParametersFromXML(thermoNode);
 }
 
-double PengRobinsonMFTP::sresid() const
+double PengRobinson::sresid() const
 {
     double molarV = molarVolume();
     double hh = m_b_current / molarV;
@@ -775,7 +775,7 @@ double PengRobinsonMFTP::sresid() const
     return GasConstant * sresid_mol_R;
 }
 
-double PengRobinsonMFTP::hresid() const
+double PengRobinson::hresid() const
 {
     double molarV = molarVolume();
     double zz = z();
@@ -787,7 +787,7 @@ double PengRobinsonMFTP::hresid() const
     return GasConstant * T * (zz - 1.0) + fac * log(vpb / vmb) *(T * aAlpha_1 - m_aAlpha_current);
 }
 
-double PengRobinsonMFTP::liquidVolEst(double TKelvin, double& presGuess) const
+double PengRobinson::liquidVolEst(double TKelvin, double& presGuess) const
 {
     double v = m_b_current * 1.1;
     double atmp;
@@ -820,7 +820,7 @@ double PengRobinsonMFTP::liquidVolEst(double TKelvin, double& presGuess) const
     return v;
 }
 
-double PengRobinsonMFTP::densityCalc(double TKelvin, double presPa, int phaseRequested, double rhoGuess)
+double PengRobinson::densityCalc(double TKelvin, double presPa, int phaseRequested, double rhoGuess)
 {
     // It's necessary to set the temperature so that m_aAlpha_current is set correctly.
     setTemperature(TKelvin);
@@ -881,7 +881,7 @@ double PengRobinsonMFTP::densityCalc(double TKelvin, double presPa, int phaseReq
     return mmw / molarVolLast;
 }
 
-double PengRobinsonMFTP::densSpinodalLiquid() const
+double PengRobinson::densSpinodalLiquid() const
 {
     double Vroot[3];
     double T = temperature();
@@ -903,7 +903,7 @@ double PengRobinsonMFTP::densSpinodalLiquid() const
     return mmw / (0.5 * (vv.first + vv.second));
 }
 
-double PengRobinsonMFTP::densSpinodalGas() const
+double PengRobinson::densSpinodalGas() const
 {
     double Vroot[3];
     double T = temperature();
@@ -925,14 +925,14 @@ double PengRobinsonMFTP::densSpinodalGas() const
     return mmw / (0.5 * (vv.first + vv.second));
 }
 
-double PengRobinsonMFTP::pressureCalc(double TKelvin, double molarVol) const
+double PengRobinson::pressureCalc(double TKelvin, double molarVol) const
 {
     double den = molarVol * molarVol + 2 * molarVol * m_b_current - m_b_current * m_b_current;
     double pres = GasConstant * TKelvin / (molarVol - m_b_current) - m_aAlpha_current / den;
     return pres;
 }
 
-double PengRobinsonMFTP::dpdVCalc(double TKelvin, double molarVol, double& presCalc) const
+double PengRobinson::dpdVCalc(double TKelvin, double molarVol, double& presCalc) const
 {
     double den = molarVol * molarVol + 2 * molarVol * m_b_current - m_b_current * m_b_current;
     presCalc = GasConstant * TKelvin / (molarVol - m_b_current) - m_aAlpha_current/ den;
@@ -943,7 +943,7 @@ double PengRobinsonMFTP::dpdVCalc(double TKelvin, double molarVol, double& presC
     return dpdv;
 }
 
-void PengRobinsonMFTP::pressureDerivatives() const
+void PengRobinson::pressureDerivatives() const
 {
     double TKelvin = temperature();
     double mv = molarVolume();
@@ -955,12 +955,12 @@ void PengRobinsonMFTP::pressureDerivatives() const
     dpdT_ = (GasConstant / vmb - daAlpha_dT() / den);
 }
 
-void PengRobinsonMFTP::updateMixingExpressions()
+void PengRobinson::updateMixingExpressions()
 {
     updateAB();
 }
 
-void PengRobinsonMFTP::updateAB()
+void PengRobinson::updateAB()
 {
     double temp = temperature();
     //Update aAlpha_i
@@ -996,7 +996,7 @@ void PengRobinsonMFTP::updateAB()
     }
 }
 
-void PengRobinsonMFTP::calculateAB(double temp, double& aCalc, double& bCalc, double& aAlphaCalc) const
+void PengRobinson::calculateAB(double temp, double& aCalc, double& bCalc, double& aAlphaCalc) const
 {
     bCalc = 0.0;
     aCalc = 0.0;
@@ -1012,7 +1012,7 @@ void PengRobinsonMFTP::calculateAB(double temp, double& aCalc, double& bCalc, do
     }
 }
 
-double PengRobinsonMFTP::daAlpha_dT() const
+double PengRobinson::daAlpha_dT() const
 {
     double daAlphadT = 0.0, temp, k, Tc = 0.0, sqtTr = 0.0;
     double coeff1, coeff2;
@@ -1039,7 +1039,7 @@ double PengRobinsonMFTP::daAlpha_dT() const
     return daAlphadT;
 }
 
-double PengRobinsonMFTP::d2aAlpha_dT2() const
+double PengRobinson::d2aAlpha_dT2() const
 {
     double daAlphadT = 0.0, temp, fac1, fac2, alphaij, alphai, alphaj, d2aAlphadT2 = 0.0, num;
     double k;
@@ -1072,7 +1072,7 @@ double PengRobinsonMFTP::d2aAlpha_dT2() const
     return d2aAlphadT2;
 }
 
-void PengRobinsonMFTP::calcCriticalConditions(double a, double b,
+void PengRobinson::calcCriticalConditions(double a, double b,
         double& pc, double& tc, double& vc) const
 {
     if (b <= 0.0) {
@@ -1092,13 +1092,13 @@ void PengRobinsonMFTP::calcCriticalConditions(double a, double b,
     vc = omega_vc * GasConstant * tc / pc;
 }
 
-int PengRobinsonMFTP::NicholsSolve(double TKelvin, double pres, double a, double b, double aAlpha,
+int PengRobinson::NicholsSolve(double TKelvin, double pres, double a, double b, double aAlpha,
                                    double Vroot[3]) const
 {
     double tmp;
     fill_n(Vroot, 3, 0.0);
     if (TKelvin <= 0.0) {
-        throw CanteraError("PengRobinsonMFTP::NicholsSolve()", "negative temperature T = {}", TKelvin);
+        throw CanteraError("PengRobinson::NicholsSolve()", "negative temperature T = {}", TKelvin);
     }
 
     // Derive the coefficients of the cubic polynomial (in terms of molar volume v) to solve.
@@ -1157,7 +1157,7 @@ int PengRobinsonMFTP::NicholsSolve(double TKelvin, double pres, double a, double
     //check if y = h
     if (fabs(fabs(h) - fabs(yN)) < 1.0E-10) {
         if (disc > 1e-10) {
-            throw CanteraError("PengRobinsonMFTP::NicholsSolve()", "value of yN and h are too high, unrealistic roots may be obtained");
+            throw CanteraError("PengRobinson::NicholsSolve()", "value of yN and h are too high, unrealistic roots may be obtained");
         } 
         disc = 0.0;
     }
@@ -1212,7 +1212,7 @@ int PengRobinsonMFTP::NicholsSolve(double TKelvin, double pres, double a, double
             if (fabs(tmp) > 1.0E-4) {
                 for (int j = 0; j < 3; j++) {
                     if (j != i && fabs(Vroot[i] - Vroot[j]) < 1.0E-4 * (fabs(Vroot[i]) + fabs(Vroot[j]))) {
-                        writelog("PengRobinsonMFTP::NicholsSolve(T = {}, p = {}):"
+                        writelog("PengRobinson::NicholsSolve(T = {}, p = {}):"
                                  " WARNING roots have merged: {}, {}\n",
                                  TKelvin, pres, Vroot[i], Vroot[j]);
                     }
@@ -1232,7 +1232,7 @@ int PengRobinsonMFTP::NicholsSolve(double TKelvin, double pres, double a, double
                 tmp = pow(yN/(2*an), 1./3.);
                 // In this case, tmp and delta must be equal. 
                 if (fabs(tmp - delta) > 1.0E-9) {
-                    throw CanteraError("PengRobinsonMFTP::NicholsSolve()", "Inconsistancy in cubic solver : solver is bad conditioned.");
+                    throw CanteraError("PengRobinson::NicholsSolve()", "Inconsistancy in cubic solver : solver is bad conditioned.");
                 }
                 Vroot[1] = xN + delta;
                 Vroot[0] = xN - 2.0*delta; // liquid phase root
@@ -1240,7 +1240,7 @@ int PengRobinsonMFTP::NicholsSolve(double TKelvin, double pres, double a, double
                 tmp = pow(yN/(2*an), 1./3.);
                 // In this case, tmp and delta must be equal. 
                 if (fabs(tmp - delta) > 1.0E-9) {
-                    throw CanteraError("PengRobinsonMFTP::NicholsSolve()", "Inconsistancy in cubic solver : solver is bad conditioned.");
+                    throw CanteraError("PengRobinson::NicholsSolve()", "Inconsistancy in cubic solver : solver is bad conditioned.");
                 }
                 delta = -delta;
                 Vroot[0] = xN + delta;
@@ -1272,7 +1272,7 @@ int PengRobinsonMFTP::NicholsSolve(double TKelvin, double pres, double a, double
             }
         }
         if ((fabs(res) > 1.0E-14) && (fabs(res) > 1.0E-14 * fabs(dresdV) * fabs(Vroot[i]))) {
-            writelog("PengRobinsonMFTP::NicholsSolve(T = {}, p = {}): "
+            writelog("PengRobinson::NicholsSolve(T = {}, p = {}): "
                 "WARNING root didn't converge V = {}", TKelvin, pres, Vroot[i]);
             writelogendl();
         }

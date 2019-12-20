@@ -23,7 +23,7 @@
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/thermo/PureFluidPhase.h"
 #include "cantera/thermo/RedlichKwongMFTP.h"
-#include "cantera/thermo/PengRobinsonMFTP.h"
+#include "cantera/thermo/PengRobinson.h"
 #include "cantera/thermo/ConstDensityThermo.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/EdgePhase.h"

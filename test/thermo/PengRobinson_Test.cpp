@@ -1,15 +1,15 @@
 #include "gtest/gtest.h"
-#include "cantera/thermo/PengRobinsonMFTP.h"
+#include "cantera/thermo/PengRobinson.h"
 #include "cantera/thermo/ThermoFactory.h"
 
 
 namespace Cantera
 {
 
-class PengRobinsonMFTP_Test : public testing::Test
+class PengRobinson_Test : public testing::Test
 {
 public:
-    PengRobinsonMFTP_Test() {
+    PengRobinson_Test() {
         test_phase.reset(newPhase("../data/co2_PR_example.cti"));
     }
 
@@ -24,13 +24,13 @@ public:
     std::unique_ptr<ThermoPhase> test_phase;
 };
 
-TEST_F(PengRobinsonMFTP_Test, construct_from_cti)
+TEST_F(PengRobinson_Test, construct_from_cti)
 {
-    PengRobinsonMFTP* peng_robinson_phase = dynamic_cast<PengRobinsonMFTP*>(test_phase.get());
+    PengRobinson* peng_robinson_phase = dynamic_cast<PengRobinson*>(test_phase.get());
     EXPECT_TRUE(peng_robinson_phase != NULL);
 }
 
-TEST_F(PengRobinsonMFTP_Test, chem_potentials)
+TEST_F(PengRobinson_Test, chem_potentials)
 {
     test_phase->setState_TP(298.15, 101325.);
     /* Chemical potential should increase with increasing co2 mole fraction:
@@ -63,7 +63,7 @@ TEST_F(PengRobinsonMFTP_Test, chem_potentials)
     }
 }
 
-TEST_F(PengRobinsonMFTP_Test, activityCoeffs)
+TEST_F(PengRobinson_Test, activityCoeffs)
 {
     test_phase->setState_TP(298., 1.);
 
@@ -89,13 +89,13 @@ TEST_F(PengRobinsonMFTP_Test, activityCoeffs)
     }
 }
 
-TEST_F(PengRobinsonMFTP_Test, standardConcentrations)
+TEST_F(PengRobinson_Test, standardConcentrations)
 {
     EXPECT_DOUBLE_EQ(test_phase->pressure()/(test_phase->temperature()*GasConstant), test_phase->standardConcentration(0));
     EXPECT_DOUBLE_EQ(test_phase->pressure()/(test_phase->temperature()*GasConstant), test_phase->standardConcentration(1));
 }
 
-TEST_F(PengRobinsonMFTP_Test, activityConcentrations)
+TEST_F(PengRobinson_Test, activityConcentrations)
 {
     // Check to make sure activityConcentration_i == standardConcentration_i * gamma_i * X_i
     vector_fp standardConcs(7);
@@ -120,7 +120,7 @@ TEST_F(PengRobinsonMFTP_Test, activityConcentrations)
     }
 }
 
-TEST_F(PengRobinsonMFTP_Test, setTP)
+TEST_F(PengRobinson_Test, setTP)
 {
     // Check to make sure that the phase diagram is accurately reproduced for a few select isobars
 
@@ -167,7 +167,7 @@ TEST_F(PengRobinsonMFTP_Test, setTP)
     }
 }
 
-TEST_F(PengRobinsonMFTP_Test, getPressure)
+TEST_F(PengRobinson_Test, getPressure)
 {
     // Check to make sure that the P-R equation is accurately reproduced for a few selected values
 

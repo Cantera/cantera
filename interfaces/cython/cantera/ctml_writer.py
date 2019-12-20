@@ -2401,7 +2401,7 @@ class RedlichKwongMFTP(phase):
             k = ph.addChild("kinetics")
             k['model'] = self._kin
 
-class PengRobinsonMFTP(phase):
+class PengRobinson(phase):
     """A multi-component fluid model for non-ideal gas fluids. """
 
     def __init__(self,
@@ -2426,7 +2426,7 @@ class PengRobinsonMFTP(phase):
     def build(self, p):
         ph = phase.build(self, p)
         e = ph.child("thermo")
-        e['model'] = 'PengRobinsonMFTP'
+        e['model'] = 'PengRobinson'
         if self._activityCoefficients:
             a = e.addChild("activityCoefficients")
             if isinstance(self._activityCoefficients, activityCoefficients):

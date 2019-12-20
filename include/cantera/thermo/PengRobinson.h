@@ -1,10 +1,10 @@
-//! @file PengRobinsonMFTP.h
+//! @file PengRobinson.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#ifndef CT_PENGROBINSONMFTP_H
-#define CT_PENGROBINSONMFTP_H
+#ifndef CT_PENGROBINSON_H
+#define CT_PENGROBINSON_H
 
 #include "MixtureFugacityTP.h"
 #include "cantera/base/Array.h"
@@ -16,16 +16,16 @@ namespace Cantera
  *
  * @ingroup thermoprops
  */
-class PengRobinsonMFTP : public MixtureFugacityTP
+class PengRobinson : public MixtureFugacityTP
 {
 public:
     //! @name Constructors and Duplicators
     //! @{
 
     //! Base constructor.
-    PengRobinsonMFTP();
+    PengRobinson();
 
-    //! Construct and initialize a PengRobinsonMFTP object directly from an
+    //! Construct and initialize a PengRobinson object directly from an
     //! ASCII input file
     /*!
      * @param infile    Name of the input file containing the phase XML data
@@ -33,16 +33,16 @@ public:
      * @param id        ID of the phase in the input file. Defaults to the empty
      *     string.
      */
-    PengRobinsonMFTP(const std::string& infile, const std::string& id="");
+    PengRobinson(const std::string& infile, const std::string& id="");
 
-    //! Construct and initialize a PengRobinsonMFTP object directly from an
+    //! Construct and initialize a PengRobinson object directly from an
     //! XML database
     /*!
      *  @param phaseRef XML phase node containing the description of the phase
      *  @param id       id attribute containing the name of the phase.  (default
      *      is the empty string)
      */
-    PengRobinsonMFTP(XML_Node& phaseRef, const std::string& id = "");
+    PengRobinson(XML_Node& phaseRef, const std::string& id = "");
 
     virtual std::string type() const {
         return "PengRobinson";
@@ -340,7 +340,7 @@ public:
      * Returns the number of solutions found. If it only finds the liquid
      * branch solution, it will return a -1 or a -2 instead of 1 or 2.  If it
      * returns 0, then there is an error.
-     * The cubic equation is solved using Nickall's method (Ref: The Mathematical Gazette(1993), 77(November), 354–359, https://www.jstor.org/stable/3619777)
+     * The cubic equation is solved using Nickall's method (Ref: The Mathematical Gazette(1993), 77(November), 354ï¿½359, https://www.jstor.org/stable/3619777)
      */
     int NicholsSolve(double TKelvin, double pres, double a, double b, double aAlpha,
                      double Vroot[3]) const;
