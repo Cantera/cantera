@@ -17,7 +17,8 @@ for programName, sources in samples:
     buildSample(localenv.Program, programName, sources,
                 F90PATH='#build/src/fortran',
                 LIBS=['cantera_fortran']+env['cantera_libs']+stdlib,
-                LIBPATH=[env['sundials_libdir'], '#build/lib'])
+                LIBPATH=[env['sundials_libdir'], env['blas_lapack_dir'],
+                         '#build/lib'])
 
     # Generate SConstruct files to be installed
     incdirs = [pjoin(localenv['ct_incroot'], 'cantera')] + localenv['extra_inc_dirs']
