@@ -171,7 +171,7 @@ TEST_F(PengRobinsonMFTP_Test, getPressure)
 {
     // Check to make sure that the P-R equation is accurately reproduced for a few selected values
 
-    /* This test uses CO2 as the only species.
+    /* This test uses CO2 as the only species (mole fraction 99.9%, balance H2).
     *  Values of a_coeff, b_coeff are calculated based on the the critical temperature and pressure values of CO2 as follows:
     *       a_coeff = 0.457235(RT_crit)^2/p_crit
     *       b_coeff = 0.077796(RT_crit)/p_crit
