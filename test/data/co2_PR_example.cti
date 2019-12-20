@@ -3,7 +3,7 @@
 units(length ="cm", time ="s", quantity ="mol", act_energy ="cal/mol")
 
 
-PengRobinsonMFTP(name ="carbondioxide",
+PengRobinson(name ="carbondioxide",
       elements ="C O H N",
       species ="""CO2  H2O H2 CO CH4 O2 N2""",
       activity_coefficients = (pureFluidParameters(species="CO2", a_coeff = [3.958134E+11, 0], b_coeff = 26.6275, acentric_factor = 0.228),
