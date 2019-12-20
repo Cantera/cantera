@@ -163,33 +163,33 @@ double PengRobinson::entropy_mole() const
 double PengRobinson::cp_mole() const
 {
     _updateReferenceStateThermo();
-    double TKelvin = temperature();
+    double T = temperature();
     double mv = molarVolume();
     double vpb = mv + (1 + M_SQRT2)*m_b_current;
     double vmb = mv + (1 - M_SQRT2)*m_b_current;
     pressureDerivatives();
     double cpref = GasConstant * mean_X(m_cp0_R);
     double dHdT_V = cpref + mv * dpdT_ - GasConstant
-                        + 1.0 / (2.0 * M_SQRT2 *m_b_current) * log(vpb / vmb) * TKelvin *d2aAlpha_dT2();
-    return dHdT_V - (mv + TKelvin * dpdT_ / dpdV_) * dpdT_;
+                        + 1.0 / (2.0 * M_SQRT2 *m_b_current) * log(vpb / vmb) * T *d2aAlpha_dT2();
+    return dHdT_V - (mv + T * dpdT_ / dpdV_) * dpdT_;
 }
 
 double PengRobinson::cv_mole() const
 {
     _updateReferenceStateThermo();
-    double TKelvin = temperature();
+    double T = temperature();
     pressureDerivatives();
-    return (cp_mole() + TKelvin* dpdT_* dpdT_ / dpdV_);
+    return (cp_mole() + T* dpdT_* dpdT_ / dpdV_);
 }
 
 double PengRobinson::pressure() const
 {
     _updateReferenceStateThermo();
     //  Get a copy of the private variables stored in the State object
-    double TKelvin = temperature();
+    double T = temperature();
     double mv = molarVolume();
     double denom = mv * mv + 2 * mv * m_b_current - m_b_current * m_b_current;
-    double pp = GasConstant * TKelvin / (mv - m_b_current) - m_aAlpha_current / denom;
+    double pp = GasConstant * T / (mv - m_b_current) - m_aAlpha_current / denom;
     return pp;
 }
 
@@ -236,7 +236,7 @@ double PengRobinson::standardConcentration(size_t k) const
 void PengRobinson::getActivityCoefficients(double* ac) const
 {
     double mv = molarVolume();
-    double T = temperature();
+    //double T = temperature();
     double vpb2 = mv + (1 + M_SQRT2)*m_b_current;
     double vmb2 = mv + (1 - M_SQRT2)*m_b_current;
     double vmb = mv - m_b_current;
@@ -323,7 +323,7 @@ void PengRobinson::getPartialMolarEnthalpies(double* hbar) const
     scale(hbar, hbar+m_kk, hbar, RT());
 
     // We calculate dpdni_
-    double TKelvin = temperature();
+    double T = temperature();
     double mv = molarVolume();
     double vmb = mv - m_b_current;
     double vpb2 = mv + (1 + M_SQRT2)*m_b_current;
@@ -346,10 +346,10 @@ void PengRobinson::getPartialMolarEnthalpies(double* hbar) const
     }
 
     double daAlphadT = daAlpha_dT();
-    double fac = TKelvin * daAlphadT - m_aAlpha_current;
+    double fac = T * daAlphadT - m_aAlpha_current;
 
     pressureDerivatives();
-    double fac2 = mv + TKelvin * dpdT_ / dpdV_;
+    double fac2 = mv + T * dpdT_ / dpdV_;
         double fac3 = 2 * M_SQRT2 * m_b_current *m_b_current;
     for (size_t k = 0; k < m_kk; k++) {
         double hE_v = mv * dpdni_[k] - RTkelvin + (2 * m_b_current - b_vec_Curr_[k]) / fac3  * log(vpb2 / vmb2)*fac
@@ -363,7 +363,7 @@ void PengRobinson::getPartialMolarEntropies(double* sbar) const
 {
     getEntropy_R_ref(sbar);
     scale(sbar, sbar+m_kk, sbar, GasConstant);
-    double TKelvin = temperature();
+    double T = temperature();
     double mv = molarVolume();
     double vmb = mv - m_b_current;
     double vpb2 = mv + (1 + M_SQRT2)*m_b_current;
@@ -390,7 +390,7 @@ void PengRobinson::getPartialMolarEntropies(double* sbar) const
 
     for (size_t k = 0; k < m_kk; k++) {
         coeff1 = m_b_current * (m_pp[k] + m_tmpV[k]) - daAlphadT * b_vec_Curr_[k];
-        sbar[k] += GasConstant * log(GasConstant * TKelvin / (refP * mv))
+        sbar[k] += GasConstant * log(GasConstant * T / (refP * mv))
                 + GasConstant
                 + GasConstant * log(mv / vmb)
                 + GasConstant * b_vec_Curr_[k] / vmb
@@ -567,7 +567,7 @@ vector<double> PengRobinson::getCoeff(const std::string& iName)
             if (iNameLower == dbName) {
                 // Read from database and calculate a and b coefficients
                 double vParams;
-                double T_crit, P_crit;
+                double T_crit, P_crit = 0.0;
 
                 if (acNodeDoc.hasChild("Tc")) {
                     vParams = 0.0;
@@ -767,7 +767,6 @@ double PengRobinson::sresid() const
     double hh = m_b_current / molarV;
     double zz = z();
     double alpha_1 = daAlpha_dT();
-    double T = temperature();
     double vpb = molarV + (1.0 + M_SQRT2) *m_b_current;
     double vmb = molarV + (1.0 - M_SQRT2) *m_b_current;
     double fac = alpha_1 / (2.0 * M_SQRT2 * m_b_current);
@@ -787,19 +786,19 @@ double PengRobinson::hresid() const
     return GasConstant * T * (zz - 1.0) + fac * log(vpb / vmb) *(T * aAlpha_1 - m_aAlpha_current);
 }
 
-double PengRobinson::liquidVolEst(double TKelvin, double& presGuess) const
+double PengRobinson::liquidVolEst(double T, double& presGuess) const
 {
     double v = m_b_current * 1.1;
     double atmp;
     double btmp;
     double aAlphatmp;
-    calculateAB(TKelvin, atmp, btmp, aAlphatmp);
-    double pres = std::max(psatEst(TKelvin), presGuess);
+    calculateAB(T, atmp, btmp, aAlphatmp);
+    double pres = std::max(psatEst(T), presGuess);
     double Vroot[3];
     bool foundLiq = false;
     int m = 0;
     while (m < 100 && !foundLiq) {
-                int nsol = NicholsSolve(TKelvin, pres, atmp, btmp, aAlphatmp, Vroot);
+                int nsol = NicholsSolve(T, pres, atmp, btmp, aAlphatmp, Vroot);
         if (nsol == 1 || nsol == 2) {
             double pc = critPressure();
             if (pres > pc) {
@@ -820,32 +819,32 @@ double PengRobinson::liquidVolEst(double TKelvin, double& presGuess) const
     return v;
 }
 
-double PengRobinson::densityCalc(double TKelvin, double presPa, int phaseRequested, double rhoGuess)
+double PengRobinson::densityCalc(double T, double presPa, int phaseRequested, double rhoGuess)
 {
     // It's necessary to set the temperature so that m_aAlpha_current is set correctly.
-    setTemperature(TKelvin);
+    setTemperature(T);
     double tcrit = critTemperature();
     double mmw = meanMolecularWeight();
     if (rhoGuess == -1.0) {
         if (phaseRequested != FLUID_GAS) {
-            if (TKelvin > tcrit) {
-                rhoGuess = presPa * mmw / (GasConstant * TKelvin);
+            if (T > tcrit) {
+                rhoGuess = presPa * mmw / (GasConstant * T);
             } else {
                 if (phaseRequested == FLUID_UNDEFINED || phaseRequested == FLUID_SUPERCRIT) {
-                    rhoGuess = presPa * mmw / (GasConstant * TKelvin);
+                    rhoGuess = presPa * mmw / (GasConstant * T);
                 } else if (phaseRequested >= FLUID_LIQUID_0) {
-                    double lqvol = liquidVolEst(TKelvin, presPa);
+                    double lqvol = liquidVolEst(T, presPa);
                     rhoGuess = mmw / lqvol;
                 }
             }
         } else {
             // Assume the Gas phase initial guess, if nothing is specified to the routine
-            rhoGuess = presPa * mmw / (GasConstant * TKelvin);
+            rhoGuess = presPa * mmw / (GasConstant * T);
         }
     }
 
     double volGuess = mmw / rhoGuess;
-    NSolns_ = NicholsSolve(TKelvin, presPa, m_a_current, m_b_current, m_aAlpha_current, Vroot_);
+    NSolns_ = NicholsSolve(T, presPa, m_a_current, m_b_current, m_aAlpha_current, Vroot_);
 
     double molarVolLast = Vroot_[0];
     if (NSolns_ >= 2) {
@@ -869,7 +868,7 @@ double PengRobinson::densityCalc(double TKelvin, double presPa, int phaseRequest
     } else if (NSolns_ == -1) {
         if (phaseRequested >= FLUID_LIQUID_0 || phaseRequested == FLUID_UNDEFINED || phaseRequested == FLUID_SUPERCRIT) {
             molarVolLast = Vroot_[0];
-        } else if (TKelvin > tcrit) {
+        } else if (T > tcrit) {
             molarVolLast = Vroot_[0];
         } else {
             return -2.0;
@@ -925,31 +924,31 @@ double PengRobinson::densSpinodalGas() const
     return mmw / (0.5 * (vv.first + vv.second));
 }
 
-double PengRobinson::pressureCalc(double TKelvin, double molarVol) const
+double PengRobinson::pressureCalc(double T, double molarVol) const
 {
     double den = molarVol * molarVol + 2 * molarVol * m_b_current - m_b_current * m_b_current;
-    double pres = GasConstant * TKelvin / (molarVol - m_b_current) - m_aAlpha_current / den;
+    double pres = GasConstant * T / (molarVol - m_b_current) - m_aAlpha_current / den;
     return pres;
 }
 
-double PengRobinson::dpdVCalc(double TKelvin, double molarVol, double& presCalc) const
+double PengRobinson::dpdVCalc(double T, double molarVol, double& presCalc) const
 {
     double den = molarVol * molarVol + 2 * molarVol * m_b_current - m_b_current * m_b_current;
-    presCalc = GasConstant * TKelvin / (molarVol - m_b_current) - m_aAlpha_current/ den;
+    presCalc = GasConstant * T / (molarVol - m_b_current) - m_aAlpha_current/ den;
 
     double vpb = molarVol + m_b_current;
     double vmb = molarVol - m_b_current;
-    double dpdv = -GasConstant * TKelvin / (vmb * vmb) + 2 *m_aAlpha_current * vpb / (den*den);
+    double dpdv = -GasConstant * T / (vmb * vmb) + 2 *m_aAlpha_current * vpb / (den*den);
     return dpdv;
 }
 
 void PengRobinson::pressureDerivatives() const
 {
-    double TKelvin = temperature();
+    double T = temperature();
     double mv = molarVolume();
     double pres;
 
-    dpdV_ = dpdVCalc(TKelvin, mv, pres);
+    dpdV_ = dpdVCalc(T, mv, pres);
     double vmb = mv - m_b_current;
     double den = mv * mv + 2 * mv * m_b_current - m_b_current * m_b_current;
     dpdT_ = (GasConstant / vmb - daAlpha_dT() / den);
@@ -1041,14 +1040,13 @@ double PengRobinson::daAlpha_dT() const
 
 double PengRobinson::d2aAlpha_dT2() const
 {
-    double daAlphadT = 0.0, temp, fac1, fac2, alphaij, alphai, alphaj, d2aAlphadT2 = 0.0, num;
+    double temp, fac1, fac2, alphaij, alphai, alphaj, d2aAlphadT2 = 0.0, num;
     double k;
     double sqt_Tr = sqrt(temperature() / critTemperature()); //we need species critical temperature
     double coeff1 = 1 / (critTemperature()*critTemperature()*sqt_Tr);
     double coeff2 = sqt_Tr - 1;
     for (size_t i = 0; i < m_kk; i++) {
         //  Calculate first and second derivatives of alpha for individual species
-        size_t counter = i + m_kk * i;
         k = kappa_vec_[i];
         dalphadT_vec_Curr_[i] = coeff1 *(k* k*coeff2 - k);
         d2alphadT2_[i] = (k*k + k) * coeff1 / (2 * sqt_Tr*sqt_Tr);
@@ -1092,18 +1090,18 @@ void PengRobinson::calcCriticalConditions(double a, double b,
     vc = omega_vc * GasConstant * tc / pc;
 }
 
-int PengRobinson::NicholsSolve(double TKelvin, double pres, double a, double b, double aAlpha,
+int PengRobinson::NicholsSolve(double T, double pres, double a, double b, double aAlpha,
                                    double Vroot[3]) const
 {
     double tmp;
     fill_n(Vroot, 3, 0.0);
-    if (TKelvin <= 0.0) {
-        throw CanteraError("PengRobinson::NicholsSolve()", "negative temperature T = {}", TKelvin);
+    if (T <= 0.0) {
+        throw CanteraError("PengRobinson::NicholsSolve()", "negative temperature T = {}", T);
     }
 
     // Derive the coefficients of the cubic polynomial (in terms of molar volume v) to solve.
     double bsqr = b * b;
-    double RT_p = GasConstant * TKelvin / pres;
+    double RT_p = GasConstant * T / pres;
     double aAlpha_p = aAlpha / pres;
     double an = 1.0;
     double bn = (b - RT_p);
@@ -1124,9 +1122,9 @@ int PengRobinson::NicholsSolve(double TKelvin, double pres, double a, double b, 
     // Calculate a couple of ratios
     // Cubic equation in z : z^3 - (1-B) z^2 + (A -2B -3B^2)z - (AB- B^2- B^3) = 0
     double ratio1 = 3.0 * an * cn / (bn * bn);
-    double ratio2 = pres * b / (GasConstant * TKelvin); // B
+    double ratio2 = pres * b / (GasConstant * T); // B
     if (fabs(ratio1) < 1.0E-7) {
-        double ratio3 = aAlpha / (GasConstant * TKelvin) * pres / (GasConstant * TKelvin); // A
+        double ratio3 = aAlpha / (GasConstant * T) * pres / (GasConstant * T); // A
         if (fabs(ratio2) < 1.0E-5 && fabs(ratio3) < 1.0E-5) {
             // A and B terms in cubic equation for z are almost zero, then z is near to 1
             double zz = 1.0;
@@ -1138,7 +1136,7 @@ int PengRobinson::NicholsSolve(double TKelvin, double pres, double a, double b, 
                     break;
                 }
             }
-            double v = zz * GasConstant * TKelvin / pres;
+            double v = zz * GasConstant * T / pres;
             Vroot[0] = v;
             return 1;
         }
@@ -1214,7 +1212,7 @@ int PengRobinson::NicholsSolve(double TKelvin, double pres, double a, double b, 
                     if (j != i && fabs(Vroot[i] - Vroot[j]) < 1.0E-4 * (fabs(Vroot[i]) + fabs(Vroot[j]))) {
                         writelog("PengRobinson::NicholsSolve(T = {}, p = {}):"
                                  " WARNING roots have merged: {}, {}\n",
-                                 TKelvin, pres, Vroot[i], Vroot[j]);
+                                 T, pres, Vroot[i], Vroot[j]);
                     }
                 }
             }
@@ -1273,13 +1271,13 @@ int PengRobinson::NicholsSolve(double TKelvin, double pres, double a, double b, 
         }
         if ((fabs(res) > 1.0E-14) && (fabs(res) > 1.0E-14 * fabs(dresdV) * fabs(Vroot[i]))) {
             writelog("PengRobinson::NicholsSolve(T = {}, p = {}): "
-                "WARNING root didn't converge V = {}", TKelvin, pres, Vroot[i]);
+                "WARNING root didn't converge V = {}", T, pres, Vroot[i]);
             writelogendl();
         }
     }
 
     if (nSolnValues == 1) {
-        if (TKelvin > tc) {
+        if (T > tc) {
             if (Vroot[0] < vc) {
                 // Liquid phase root
                 nSolnValues = -1;
