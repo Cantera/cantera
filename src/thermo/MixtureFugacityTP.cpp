@@ -44,6 +44,25 @@ int MixtureFugacityTP::reportSolnBranchActual() const
     return iState_;
 }
 
+// ---- Molar Thermodynamic Properties ---------------------------
+double MixtureFugacityTP::enthalpy_mole() const
+{
+   _updateReferenceStateThermo();
+   double h_ideal = RT() * mean_X(m_h0_RT);
+   double h_nonideal = hresid();
+   return h_ideal + h_nonideal;
+}
+
+
+double MixtureFugacityTP::entropy_mole() const
+{
+    _updateReferenceStateThermo();
+    double sr_ideal = GasConstant * (mean_X(m_s0_R) - sum_xlogx()
+                                                - std::log(pressure()/refPressure()));
+    double sr_nonideal = sresid();
+    return sr_ideal + sr_nonideal;
+}
+
 // ---- Partial Molar Properties of the Solution -----------------
 
 void MixtureFugacityTP::getChemPotentials_RT(doublereal* muRT) const
@@ -216,6 +235,7 @@ bool MixtureFugacityTP::addSpecies(shared_ptr<Species> spec)
         m_cp0_R.push_back(0.0);
         m_g0_RT.push_back(0.0);
         m_s0_R.push_back(0.0);
+        m_tmpV.push_back(0.0);
     }
     return added;
 }
@@ -237,6 +257,15 @@ void MixtureFugacityTP::compositionChanged()
     getMoleFractions(moleFractions_.data());
 }
 
+void MixtureFugacityTP::getActivityConcentrations(doublereal* c) const
+{
+    getActivityCoefficients(c);
+    double p_RT = pressure() / RT();
+    for (size_t k = 0; k < m_kk; k++) {
+        c[k] *= moleFraction(k)*p_RT;
+    }
+}
+
 void MixtureFugacityTP::setMoleFractions_NoState(const doublereal* const x)
 {
     Phase::setMoleFractions(x);
@@ -246,7 +275,14 @@ void MixtureFugacityTP::setMoleFractions_NoState(const doublereal* const x)
 
 void MixtureFugacityTP::calcDensity()
 {
-    throw NotImplementedError("MixtureFugacityTP::calcDensity");
+    // Calculate the molarVolume of the solution (m**3 kmol-1)
+    const double* const dtmp = moleFractdivMMW();
+    getPartialMolarVolumes(m_tmpV.data());
+    double invDens = dot(m_tmpV.begin(), m_tmpV.end(), dtmp);
+
+    // Set the density in the parent State object directly, by calling the
+    // Phase::setDensity() function.
+    Phase::setDensity(1.0/invDens);
 }
 
 void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
