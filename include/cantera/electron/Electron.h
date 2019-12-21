@@ -18,7 +18,17 @@
 namespace Cantera
 {
 /**
- * This class calculates the properties of electron in a gas.
+ * @defgroup electron
+ * This class calculates the electron energy distribution function (EEDF) in a gas
+ * by modeling collisions between electrons and other species represented by the
+ * class ElectronCrossSection. EEDF is used to calculate reaction rate coefficient 
+ * for plasma reaction and electron temperature for electron-temperature reaction
+ * used in kinetics, and diffusivity/mobility of electron in transport.
+ */
+
+/*!
+ * Class Electron is the base class which manages the grid and grid cache,
+ * cross-section data, and updating temperature and gas composition.
  * @ingroup electron
  */
 class Electron
@@ -32,7 +42,7 @@ public:
     Electron(const Electron&) = delete;
     Electron& operator=(const Electron&) = delete;
 
-    //! Add a electron corss section to this Electron. Returns `true` if the electron cross section was
+    //! Add an electron cross section to this Electron. Returns `true` if the electron cross section was
     //! successfully added, or `false` if the electron cross section was ignored.
     virtual bool addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs);
 
@@ -48,10 +58,11 @@ public:
 
     //! energy grid
     double grid(size_t i) const {
-        return m_gridC[i];
+        return m_gridCenter[i];
     }
 
-    //! Setup grid of electron energy.
+    //! Setup grid of electron energy. n is the dimension of grid.
+    //! eps is the vector of electron energy [eV].
     void setupGrid(size_t n, const double* eps);
 
     //! electron diffusivity
@@ -85,15 +96,15 @@ public:
 
     //! total collision frequency
     virtual double totalCollisionFreq() {
-        throw NotImplementedError("Electron::inelasticPowerLoss");
+        throw NotImplementedError("Electron::totalCollisionFreq");
     }
 
-    //! rate coefficient. [m^3/s]
+    //! rate coefficient for the electron collision process. [m^3/s]
     virtual double rateCoefficient(size_t k) {
         throw NotImplementedError("Electron::rateCoefficient");
     }
 
-    //! reverse rate coefficient. [m^3/s]
+    //! reverse rate coefficient for the electron collision process. [m^3/s]
     virtual double reverseRateCoefficient(size_t k) {
         throw NotImplementedError("Electron::reverseRateCoefficient");
     }
@@ -208,26 +219,14 @@ public:
         throw NotImplementedError("Electron::setChemionScatRate");
     }
 
-    //! Check that an array size is at least nSpecies()
-    //! Throws an exception if kk is less than nSpecies(). Used before calls
-    //! which take an array pointer.
-    void checkSpeciesArraySize(size_t k) const;
-
 protected:
-    //! Cached for saved calculations within each Electron.
-    /*!
-     *   For more information on how to use this, see examples within the source
-     *   code and documentation for this within ValueCache class itself.
-     */
-    mutable ValueCache m_cache;
-
     // set grid cache
     void setGridCache();
 
-    //! Update temperature
+    //! update temperature-dependent properties
     void update_T();
 
-    //! Update composition
+    //! update composition-dependent properties
     void update_C();
 
     //! Calculate elastic cross section
@@ -237,10 +236,10 @@ protected:
     size_t m_ncs;
 
     //! Grid of electron energy (cell center) [eV]
-    vector_fp m_gridC;
+    vector_fp m_gridCenter;
 
     //! Grid of electron energy (cell boundary i-1/2) [eV]
-    vector_fp m_gridB;
+    vector_fp m_gridEdge;
 
     //! number of points for energy grid
     size_t m_points;
@@ -260,24 +259,21 @@ protected:
     //! constant gamma
     double m_gamma;
 
-    //! mole fractions of target
+    //! Mole fractions of target species of each collision process
     vector_fp m_moleFractions;
 
     //! shift factor
     std::vector<int> m_shiftFactor;
     std::vector<int> m_inFactor;
 
-    //! list elastic
+    //! Indices of elastic collisions in m_crossSections
     std::vector<size_t> m_kElastic;
 
-    //! list inelastic
+    //! Indices of inelastic collisions in m_crossSections
     std::vector<size_t> m_kInelastic;
 
-    //! list effective
+    //! Indices of effective collisions in m_crossSections
     std::vector<size_t> m_kEffective;
-
-    //! list solo elastic
-    std::vector<size_t> m_kSoloElastic;
 
     //! flag of electron energy distribution function
     bool m_f0_ok;
@@ -285,13 +281,11 @@ protected:
     //! pointer to the object representing the phase
     thermo_t* m_thermo;
 
-    //! local gas composition
-    compositionMap m_gasComposition;
-
     //! Maximum number of iterations
     size_t m_maxn;
 
-    //! Relative tolerance
+    //! Relative tolerance of electron energy distribution function
+    //! for solving Boltzmann equation
     double m_rtol;
 
     //! Initial value of the iteration parameter
@@ -336,11 +330,16 @@ protected:
     //! list of thresholds of electron collision
     vector_fp m_thresholds;
 
-    //! cross sections
+    //! cross section data. m_crossSections[i][j][k] where i is the specific process,
+    //! j=0 is the vector of electron energy [eV], j=1 is the vector of cross section, and
+    // k is the index of vector.
     std::vector<std::vector<std::vector<double>>> m_crossSections;
 
-    //! list of target index
+    //! list of target species indices
     std::vector<size_t> m_kTargets;
+
+    //! Indices of species which has no cross-section data
+    std::vector<size_t> m_kOthers;
 
     //! list of product index
     std::vector<std::vector<size_t>> m_kProducts;

@@ -1,4 +1,4 @@
-//! @file Species.h Declaration for class Cantera::Species.
+//! @file ElectronCrossSection.h Declaration for class Cantera::Species.
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://www.cantera.org/license.txt for license and copyright information.
@@ -37,7 +37,8 @@ public:
     //! The product of electron collision
     std::string product;
 
-    //! Data
+    //! Data of cross section. data[i][j] where i is the index of a data point,
+    //! j=0 is the electron energy [eV], and j=1 is the cross section [m^2].
     std::vector<vector_fp> data;
 
     //! The mass ratio of molecule to electron

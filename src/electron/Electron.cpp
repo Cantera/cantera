@@ -27,14 +27,14 @@ Electron::Electron()
     , m_warn(true)
 {
     // default energy grid
-    m_gridC.resize(m_points);
-    m_gridB.resize(m_points + 1);
+    m_gridCenter.resize(m_points);
+    m_gridEdge.resize(m_points + 1);
     m_f0.resize(m_points);
     for (size_t j = 0; j < m_points; j++) {
-        m_gridC[j] = j / 20.0 + 1.0 / 40.0;
-        m_gridB[j] = j / 20.0;
+        m_gridCenter[j] = j / 20.0 + 1.0 / 40.0;
+        m_gridEdge[j] = j / 20.0;
     }
-    m_gridB[m_points] = 10.0;
+    m_gridEdge[m_points] = 10.0;
     m_gamma = pow(2.0 * ElectronCharge / ElectronMass, 0.5);
 }
 
@@ -53,6 +53,13 @@ void Electron::init(thermo_t* thermo)
     for (size_t k = 0; k < m_ncs; k++) {
         m_kTargets[k] = m_thermo->speciesIndex(m_targets[k]);
     }
+    // set up indices of species which has no cross-section data
+    for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
+        auto it = std::find(m_kTargets.begin(), m_kTargets.end(), k); 
+        if (it == m_kTargets.end()) {
+            m_kOthers.push_back(k);
+        }
+    }
     m_kProducts.clear();
     m_kProducts.resize(m_ncs);
     for (size_t k = 0; k < m_ncs; k++) {
@@ -70,6 +77,7 @@ void Electron::init(thermo_t* thermo)
             m_kProducts[k].push_back(9999);
         }
     }
+    m_moleFractions.resize(m_ncs, 0.0);
 }
 
 void Electron::setGridCache()
@@ -83,19 +91,18 @@ void Electron::setGridCache()
     m_i.clear();
     m_i.resize(m_ncs);
     for (size_t k = 0; k < m_ncs; k++) {
-        vector_fp x = m_crossSections[k][0];
-        vector_fp y = m_crossSections[k][1];
+        vector_fp& x = m_crossSections[k][0];
+        vector_fp& y = m_crossSections[k][1];
         vector_fp eps1(m_points + 1);
         for (size_t i = 0; i < m_points + 1; i++) {
-            eps1[i] = m_shiftFactor[k] * m_gridB[i] + m_thresholds[k];
-            eps1[i] = std::max(eps1[i], m_gridB[0] + 1e-9);
-            eps1[i] = std::min(eps1[i], m_gridB[m_points] - 1e-9);
+            eps1[i] = clip(m_shiftFactor[k] * m_gridEdge[i] + m_thresholds[k],
+                           m_gridEdge[0] + 1e-9, m_gridEdge[m_points] - 1e-9);
         }
 
         vector_fp nodes = eps1;
         for (size_t i = 0; i < m_points + 1; i++) {
-            if (m_gridB[i] >= eps1[0] && m_gridB[i] <= eps1[m_points]) {
-                nodes.push_back(m_gridB[i]);
+            if (m_gridEdge[i] >= eps1[0] && m_gridEdge[i] <= eps1[m_points]) {
+                nodes.push_back(m_gridEdge[i]);
             }
         }
         for (size_t i = 0; i < x.size(); i++) {
@@ -105,7 +112,7 @@ void Electron::setGridCache()
         }
 
         std::sort(nodes.begin(), nodes.end());
-        vector_fp::iterator last = std::unique(nodes.begin(), nodes.end());
+        auto last = std::unique(nodes.begin(), nodes.end());
         nodes.resize(std::distance(nodes.begin(), last));
         vector_fp sigma0(nodes.size());
         for (size_t i = 0; i < nodes.size(); i++) {
@@ -114,15 +121,13 @@ void Electron::setGridCache()
 
         // search position of cell j
         for (size_t i = 1; i < nodes.size(); i++) {
-            vector_fp::iterator low;
-            low = std::lower_bound(m_gridB.begin(), m_gridB.end(), nodes[i]);
-            m_j[k].push_back(low - m_gridB.begin() - 1);
+            auto low = std::lower_bound(m_gridEdge.begin(), m_gridEdge.end(), nodes[i]);
+            m_j[k].push_back(low - m_gridEdge.begin() - 1);
         }
 
         // search position of cell i
         for (size_t i = 1; i < nodes.size(); i++) {
-            vector_fp::iterator low;
-            low = std::lower_bound(eps1.begin(), eps1.end(), nodes[i]);
+            auto low = std::lower_bound(eps1.begin(), eps1.end(), nodes[i]);
             m_i[k].push_back(low - eps1.begin() - 1);
         }
 
@@ -156,27 +161,24 @@ void Electron::update_C()
 {
     // signal that concentration-dependent quantities will need to be recomputed
     // before use, and update the local mole fractions.
-    compositionMap gas_composition = m_thermo->getMoleFractionsByName(0.0);
-    m_moleFractions.resize(m_ncs, 0.0);
-    for (auto const& x : gas_composition) {
-        bool not_found = true;
-        for (size_t k = 0; k < m_ncs; k++) {
-            if (m_targets[k] == x.first) {
-                if (m_moleFractions[k] != x.second) {
-                    m_moleFractions[k] = x.second;
-                    m_f0_ok = false;
-                }
-                not_found = false;
-            }
+    vector_fp X(m_thermo->nSpecies());
+    m_thermo->getMoleFractions(&X[0]);
+    for (size_t k = 0; k < m_ncs; k++) {
+        size_t kk = m_kTargets[k];
+        if (m_moleFractions[k] != X[kk]) {
+            m_moleFractions[k] = X[kk];
+            m_f0_ok = false;
         }
-        if (not_found) {
-            if (x.second > 0.01 && m_warn) {
-                writelog("Cantera::Electron::update_C");
-                writelog("\n");
-                writelog("Warning: The mole fraction of species {} is more than 0.01", x.first);
-                writelog(" but it has no data of cross section.");
-                writelog("\n");
-            }
+    }
+    // warn that a specific species needs cross-section data.
+    for (size_t k : m_kOthers) {
+        if (X[k] > 0.01) {
+            writelog("Cantera::Electron::update_C");
+            writelog("\n");
+            writelog("Warning: The mole fraction of species {} is more than 0.01",
+                    m_thermo->speciesName(k));
+            writelog(" but it has no data of cross section.");
+            writelog("\n");
         }
     }
 }
@@ -191,7 +193,7 @@ bool Electron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
     m_thresholds.push_back(ecs->threshold);
 
     // transpose data
-    std::vector<std::vector<double>> transdata(2, std::vector<double>(ecs->data.size()));
+    std::vector<vector_fp> transdata(2, vector_fp(ecs->data.size()));
     for (size_t i = 0; i < ecs->data.size(); i++) {
         for (size_t j = 0; j < 2; j++) {
             transdata[j][i] = ecs->data[i][j];
@@ -245,8 +247,8 @@ void Electron::calculateElasticCrossSection()
             m_kinds[ke] = "ELASTIC";
             for (size_t k : m_kInelastic) {
                 if (m_targets[k] == m_targets[ke]) {
-                    vector_fp x = m_crossSections[k][0];
-                    vector_fp y = m_crossSections[k][1];
+                    vector_fp& x = m_crossSections[k][0];
+                    vector_fp& y = m_crossSections[k][1];
                     for (size_t i = 0; i < m_crossSections[ke][0].size(); i++) {
                         m_crossSections[ke][1][i] -= linearInterp(m_crossSections[ke][0][i], x, y);
                     }
@@ -263,23 +265,16 @@ void Electron::calculateElasticCrossSection()
 void Electron::setupGrid(size_t n, const double* eps)
 {
     m_points = n-1;
-    m_gridC.resize(n-1);
-    m_gridB.resize(n);
+    m_gridCenter.resize(n-1);
+    m_gridEdge.resize(n);
     m_f0.resize(m_points);
-    m_gridB[n-1] = eps[n-1];
+    m_gridEdge[n-1] = eps[n-1];
     for (size_t i = 0; i < m_points; i++) {
-        m_gridB[i] = eps[i];
-        m_gridC[i] = 0.5 * (eps[i] + eps[i+1]);
+        m_gridEdge[i] = eps[i];
+        m_gridCenter[i] = 0.5 * (eps[i] + eps[i+1]);
     }
     setGridCache();
     m_f0_ok = false;
-}
-
-void Electron::checkSpeciesArraySize(size_t k) const
-{
-    if (m_thermo->nSpecies() > k) {
-        throw ArraySizeError("checkSpeciesArraySize", k, m_thermo->nSpecies());
-    }
 }
 
 }
