@@ -115,23 +115,6 @@ void RedlichKwongMFTP::setBinaryCoeffs(const std::string& species_i,
 
 // ------------Molar Thermodynamic Properties -------------------------
 
-doublereal RedlichKwongMFTP::enthalpy_mole() const
-{
-    _updateReferenceStateThermo();
-    doublereal h_ideal = RT() * mean_X(m_h0_RT);
-    doublereal h_nonideal = hresid();
-    return h_ideal + h_nonideal;
-}
-
-doublereal RedlichKwongMFTP::entropy_mole() const
-{
-    _updateReferenceStateThermo();
-    doublereal sr_ideal = GasConstant * (mean_X(m_s0_R)
-                                          - sum_xlogx() - std::log(pressure()/refPressure()));
-    doublereal sr_nonideal = sresid();
-    return sr_ideal + sr_nonideal;
-}
-
 doublereal RedlichKwongMFTP::cp_mole() const
 {
     _updateReferenceStateThermo();
@@ -173,18 +156,6 @@ doublereal RedlichKwongMFTP::pressure() const
     return pp;
 }
 
-void RedlichKwongMFTP::calcDensity()
-{
-    // Calculate the molarVolume of the solution (m**3 kmol-1)
-    const doublereal* const dtmp = moleFractdivMMW();
-    getPartialMolarVolumes(m_tmpV.data());
-    double invDens = dot(m_tmpV.begin(), m_tmpV.end(), dtmp);
-
-    // Set the density in the parent State object directly, by calling the
-    // Phase::setDensity() function.
-    Phase::setDensity(1.0/invDens);
-}
-
 void RedlichKwongMFTP::setTemperature(const doublereal temp)
 {
     Phase::setTemperature(temp);
@@ -196,14 +167,6 @@ void RedlichKwongMFTP::compositionChanged()
 {
     MixtureFugacityTP::compositionChanged();
     updateAB();
-}
-
-void RedlichKwongMFTP::getActivityConcentrations(doublereal* c) const
-{
-    getActivityCoefficients(c);
-    for (size_t k = 0; k < m_kk; k++) {
-        c[k] *= moleFraction(k)*pressure()/RT();
-    }
 }
 
 doublereal RedlichKwongMFTP::standardConcentration(size_t k) const
