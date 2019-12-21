@@ -120,23 +120,6 @@ void PengRobinson::setBinaryCoeffs(const std::string& species_i,
 
 // ------------Molar Thermodynamic Properties -------------------------
 
-double PengRobinson::enthalpy_mole() const
-{
-    _updateReferenceStateThermo();
-    double h_ideal = RT() * mean_X(m_h0_RT);
-    double h_nonideal = hresid();
-    return h_ideal + h_nonideal;
-}
-
-double PengRobinson::entropy_mole() const
-{
-    _updateReferenceStateThermo();
-    double sr_ideal = GasConstant * (mean_X(m_s0_R) - sum_xlogx()
-                                                - std::log(pressure()/refPressure()));
-    double sr_nonideal = sresid();
-    return sr_ideal + sr_nonideal;
-}
-
 double PengRobinson::cp_mole() const
 {
     _updateReferenceStateThermo();
@@ -170,18 +153,6 @@ double PengRobinson::pressure() const
     return pp;
 }
 
-void PengRobinson::calcDensity()
-{
-    // Calculate the molarVolume of the solution (m**3 kmol-1)
-    const double* const dtmp = moleFractdivMMW();
-    getPartialMolarVolumes(m_tmpV.data());
-    double invDens = dot(m_tmpV.begin(), m_tmpV.end(), dtmp);
-
-    // Set the density in the parent State object directly, by calling the
-    // Phase::setDensity() function.
-    Phase::setDensity(1.0/invDens);
-}
-
 void PengRobinson::setTemperature(const double temp)
 {
     Phase::setTemperature(temp);
@@ -193,15 +164,6 @@ void PengRobinson::compositionChanged()
 {
     MixtureFugacityTP::compositionChanged();
     updateAB();
-}
-
-void PengRobinson::getActivityConcentrations(double* c) const
-{
-    getActivityCoefficients(c);
-    double p_RT = pressure() / RT();
-    for (size_t k = 0; k < m_kk; k++) {
-        c[k] *= moleFraction(k)* p_RT;
-    }
 }
 
 double PengRobinson::standardConcentration(size_t k) const
@@ -476,7 +438,6 @@ bool PengRobinson::addSpecies(shared_ptr<Species> spec)
         d2alphadT2_.push_back(0.0);
 
         m_pp.push_back(0.0);
-        m_tmpV.push_back(0.0);
         m_partialMolarVolumes.push_back(0.0);
         dpdni_.push_back(0.0);
     }
