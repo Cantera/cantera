@@ -119,6 +119,13 @@ public:
         throw NotImplementedError("MixtureFugacityTP::getdlnActCoeffdlnN_diag");
     }
 
+
+    //! @name Molar Thermodynamic properties
+    //! @{
+
+    virtual double enthalpy_mole() const;
+    virtual double entropy_mole() const;
+
     //@}
     /// @name  Partial Molar Properties of the Solution
     //@{
@@ -318,6 +325,9 @@ protected:
      *  -  m_s0_R;
      */
     virtual void _updateReferenceStateThermo() const;
+
+    //! Temporary storage - length = m_kk.
+    mutable vector_fp m_tmpV;
 public:
 
     /// @name Thermodynamic Values for the Species Reference States
@@ -509,6 +519,8 @@ public:
      * @return          The saturation pressure at the given temperature
      */
     virtual doublereal satPressure(doublereal TKelvin);
+
+    virtual void getActivityConcentrations(double* c) const;
 
 protected:
     //! Calculate the pressure given the temperature and the molar volume
