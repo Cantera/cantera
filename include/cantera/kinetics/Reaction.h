@@ -314,9 +314,6 @@ std::vector<shared_ptr<Reaction> > getReactions(const XML_Node& node);
 std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
                                                Kinetics& kinetics);
 
-//! Check whether reaction is an electrochemical reaction
-bool isElectrochemicalReaction(Reaction& R, const Kinetics& kin);
-
 //! Parse reaction equation
 void parseReactionEquation(Reaction& R, const AnyValue& equation,
                            const Kinetics& kin);
