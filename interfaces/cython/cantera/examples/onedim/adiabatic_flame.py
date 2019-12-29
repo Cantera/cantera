@@ -13,9 +13,9 @@ reactants = 'H2:1.1, O2:1, AR:5'  # premixed gas composition
 width = 0.03  # m
 loglevel = 1  # amount of diagnostic output (0 to 8)
 
-# IdealGasMix object used to compute mixture properties, set to the state of the
+# Solution object used to compute mixture properties, set to the state of the
 # upstream fuel-air mixture
-gas = ct.Solution('h2o2.xml')
+gas = ct.Solution('h2o2.yaml')
 gas.TPX = Tin, p, reactants
 
 # Set up flame object

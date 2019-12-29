@@ -18,4 +18,4 @@ function h = HFC134a()
 %     Instance of class :mat:func:`Solution`
 %
 
-h = Solution('liquidvapor.xml', 'hfc134a');
+h = Solution('liquidvapor.yaml', 'hfc134a');

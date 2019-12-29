@@ -16,8 +16,8 @@ T = 300.0
 P = 101325.0
 
 # phases
-gas = ct.Solution('gri30.xml')
-carbon = ct.Solution('graphite.xml')
+gas = ct.Solution('gri30.yaml')
+carbon = ct.Solution('graphite.yaml')
 
 # the phases that will be included in the calculation, and their initial moles
 mix_phases = [(gas, 1.0), (carbon, 0.0)]

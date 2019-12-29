@@ -11,7 +11,7 @@ reactants = 'CH4:1.0, O2:2.0, N2:7.52'  # premixed gas composition
 width = 0.5 # m
 loglevel = 1  # amount of diagnostic output (0 to 5)
 
-gas = ct.Solution('gri30_ion.cti')
+gas = ct.Solution('gri30_ion.yaml')
 gas.TPX = tburner, p, reactants
 mdot = 0.15 * gas.density
 

@@ -48,7 +48,7 @@ def equilSoundSpeeds(gas, rtol=1.0e-6, maxiter=5000):
 
 # test program
 if __name__ == "__main__":
-    gas = ct.Solution('gri30.xml')
+    gas = ct.Solution('gri30.yaml')
     gas.X = 'CH4:1.00, O2:2.0, N2:7.52'
     for n in range(27):
         T = 300.0 + 100.0 * n

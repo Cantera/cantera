@@ -14,7 +14,7 @@ loglevel = 1  # amount of diagnostic output (0 to 8)
 
 # IdealGasMix object used to compute mixture properties, set to the state of the
 # upstream fuel-air mixture
-gas = ct.Solution('gri30_ion.xml')
+gas = ct.Solution('gri30_ion.yaml')
 gas.TPX = Tin, p, reactants
 
 # Set up flame object

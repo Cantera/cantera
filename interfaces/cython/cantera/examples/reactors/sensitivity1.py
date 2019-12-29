@@ -7,7 +7,7 @@ import numpy as np
 
 import cantera as ct
 
-gas = ct.Solution('gri30.xml')
+gas = ct.Solution('gri30.yaml')
 temp = 1500.0
 pres = ct.one_atm
 

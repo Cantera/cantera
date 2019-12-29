@@ -15,8 +15,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cantera as ct
 
-# Use reaction mechanism GRI-Mech 3.0
-gas = ct.Solution('gri30.xml')
+# Use reaction mechanism GRI-Mech 3.0. For 0-D simulations,
+# no transport model is necessary.
+gas = ct.Solution('gri30.yaml')
 
 # Create a Reservoir for the inlet, set to a methane/air mixture at a specified
 # equivalence ratio

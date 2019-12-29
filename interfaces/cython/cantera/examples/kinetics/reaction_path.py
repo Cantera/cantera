@@ -14,7 +14,7 @@ import cantera as ct
 
 # these lines can be replaced by any commands that generate
 # an object of a class derived from class Kinetics in some state.
-gas = ct.Solution('gri30.xml')
+gas = ct.Solution('gri30.yaml')
 gas.TPX = 1300.0, ct.one_atm, 'CH4:0.4, O2:1, N2:3.76'
 r = ct.IdealGasReactor(gas)
 net = ct.ReactorNet([r])

@@ -9,7 +9,7 @@ void calc_potentials()
     suppress_deprecation_warnings();
     double Tk = 273.15 + 25.0;
 
-    std::string filename = "LiC6_electrodebulk.xml";
+    std::string filename = "LiC6_electrodebulk.yaml";
     std::string phasename = "LiC6_and_Vacancies";
     std::unique_ptr<ThermoPhase> electrodebulk(newPhase(filename,phasename));
     std::string intercalatingSpeciesName("Li(C6)");

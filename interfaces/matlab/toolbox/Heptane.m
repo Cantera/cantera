@@ -17,4 +17,4 @@ function h = Heptane()
 %     Instance of class :mat:func:`Solution`
 %
 
-h = Solution('liquidvapor.xml', 'heptane');
+h = Solution('liquidvapor.yaml', 'heptane');

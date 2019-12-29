@@ -57,20 +57,20 @@ refine_grid = 1;                    % 1 to enable refinement, 0 to
 % and transport properties
 %
 % The gas phase will be taken from the definition of phase 'gas' in
-% input file 'ptcombust.cti,' which is a stripped-down version of
+% input file 'ptcombust.yaml,' which is a stripped-down version of
 % GRI-Mech 3.0.
-gas = Solution('ptcombust.cti','gas');
+gas = Solution('ptcombust.yaml','gas',transport);
 set(gas,'T',tinlet,'P',p,'X',comp1);
 
 %%%%%%%%%%%%%%%% create the interface object %%%%%%%%%%%%%%%%%%
 %
 % This object will be used to evaluate all surface chemical production
 % rates. It will be created from the interface definition 'Pt_surf'
-% in input file 'ptcombust.cti,' which implements the reaction
+% in input file 'ptcombust.yaml,' which implements the reaction
 % mechanism of Deutschmann et al., 1995 for catalytic combustion on
 % platinum.
 %
-surf_phase = importInterface('ptcombust.cti','Pt_surf',gas);
+surf_phase = importInterface('ptcombust.yaml','Pt_surf',gas);
 setTemperature(surf_phase, tsurf);
 
 % integrate the coverage equations in time for 1 s, holding the gas

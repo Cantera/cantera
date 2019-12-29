@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 #########################################################################
 
 # reaction mechanism, kinetics type and compositions
-reaction_mechanism = 'nDodecane_Reitz.xml'
+reaction_mechanism = 'nDodecane_Reitz.yaml'
 phase_name = 'nDodecane_IG'
 comp_air = 'o2:1, n2:3.76'
 comp_fuel = 'c12h26:1'

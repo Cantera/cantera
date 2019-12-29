@@ -9,11 +9,10 @@ help equil;
 if nargin == 1
    gas = g;
 else
-   gas = IdealGasMix('gri30.cti');
+   gas = Solution('gri30.yaml');
 end
 
 nsp = nSpecies(gas);
-phi = [];
 
 % find methane, nitrogen, and oxygen indices
 ich4 = speciesIndex(gas,'CH4');

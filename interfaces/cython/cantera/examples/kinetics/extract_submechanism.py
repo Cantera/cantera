@@ -13,7 +13,7 @@ import cantera as ct
 import numpy as np
 import matplotlib.pyplot as plt
 
-all_species = ct.Species.listFromFile('gri30.xml')
+all_species = ct.Species.listFromFile('gri30.yaml')
 species = []
 
 # Filter species
@@ -35,7 +35,7 @@ species_names = {S.name for S in species}
 print('Species: {0}'.format(', '.join(S.name for S in species)))
 
 # Filter reactions, keeping only those that only involve the selected species
-all_reactions = ct.Reaction.listFromFile('gri30.xml')
+all_reactions = ct.Reaction.listFromFile('gri30.yaml')
 reactions = []
 
 print('\nReactions:')
@@ -50,7 +50,7 @@ for R in all_reactions:
     print(R.equation)
 print('\n')
 
-gas1 = ct.Solution('gri30.xml')
+gas1 = ct.Solution('gri30.yaml')
 gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                    species=species, reactions=reactions)
 

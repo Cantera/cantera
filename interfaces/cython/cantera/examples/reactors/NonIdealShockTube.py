@@ -68,7 +68,7 @@ reactorPressure = 40.0*101325.0 # Pascals
 # Real gas IDT calculation
 
 # Load the real gas mechanism:
-real_gas = ct.Solution('nDodecane_Reitz.cti','nDodecane_RK')
+real_gas = ct.Solution('nDodecane_Reitz.yaml', 'nDodecane_RK')
 
 # Set the state of the gas object:
 real_gas.TP = reactorTemperature, reactorPressure
@@ -109,7 +109,7 @@ print('Computed Real Gas Ignition Delay: {:.3e} seconds. Took {:3.2f}s to comput
 
 # Ideal gas IDT calculation
 # Create the ideal gas object:
-ideal_gas = ct.Solution('nDodecane_Reitz.cti','nDodecane_IG')
+ideal_gas = ct.Solution('nDodecane_Reitz.yaml', 'nDodecane_IG')
 
 # Set the state of the gas object:
 ideal_gas.TP = reactorTemperature, reactorPressure

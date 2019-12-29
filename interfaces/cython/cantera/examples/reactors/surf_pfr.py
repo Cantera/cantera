@@ -24,7 +24,7 @@ velocity = 40.0 * cm / minute  # gas velocity
 porosity = 0.3  # Catalyst bed porosity
 
 # input file containing the surface reaction mechanism
-cti_file = 'methane_pox_on_pt.cti'
+yaml_file = 'methane_pox_on_pt.yaml'
 
 output_filename = 'surf_pfr_output.csv'
 
@@ -37,11 +37,11 @@ dt = 1.0
 t = tc + 273.15  # convert to Kelvin
 
 # import the gas model and set the initial conditions
-gas = ct.Solution(cti_file, 'gas')
+gas = ct.Solution(yaml_file, 'gas')
 gas.TPX = t, ct.one_atm, 'CH4:1, O2:1.5, AR:0.1'
 
 # import the surface model
-surf = ct.Interface(cti_file,'Pt_surf', [gas])
+surf = ct.Interface(yaml_file, 'Pt_surf', [gas])
 surf.TP = t, ct.one_atm
 
 rlen = length/(NReactors-1)

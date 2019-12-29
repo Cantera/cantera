@@ -17,7 +17,7 @@ c
       write(*,*)
       write(*,*) '********   Fortran 77 Test Program   ********'
 
-      call newIdealGasMix('h2o2.cti','ohmech','Mix')
+      call newIdealGasMix('h2o2.yaml','ohmech','Mix')
       t = 1200.0
       p = 101325.0
       call setState_TPX_String(t, p,

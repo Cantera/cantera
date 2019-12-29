@@ -12,7 +12,7 @@ function periodic_cstr
 %  stops. After enough time has passed that the water is exhausted from
 %  the reactor, the mixture explodes again and the process
 %  repeats. This explanation can be verified by decreasing the rate for
-%  reaction 7 in file 'h2o2.cti' and re-running the example.
+%  reaction 7 in file 'h2o2.yaml' and re-running the example.
 %
 %  Acknowledgments: The idea for this example and an estimate of the
 %  conditions needed to see the oscillations came from Bob Kee,
@@ -23,7 +23,7 @@ function periodic_cstr
 help periodic_cstr
 
 % create the gas mixture
-gas = IdealGasMix('h2o2.cti');
+gas = Solution('h2o2.yaml');
 
 % pressure = 60 Torr, T = 770 K
 p = 60.0*133.3;

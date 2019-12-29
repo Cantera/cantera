@@ -17,4 +17,4 @@ function w = Water()
 %     Instance of class :mat:func:`Solution`
 %
 
-w = Solution('liquidvapor.xml', 'water');
+w = Solution('liquidvapor.yaml', 'water');

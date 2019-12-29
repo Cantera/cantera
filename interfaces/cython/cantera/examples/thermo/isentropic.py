@@ -24,7 +24,7 @@ def isentropic(gas=None):
     K, P0 = 10 atm.
     """
     if gas is None:
-        gas = ct.Solution('gri30.xml')
+        gas = ct.Solution('gri30.yaml')
         gas.TPX = 1200.0, 10.0*ct.one_atm, 'H2:1,N2:0.1'
 
     # get the stagnation state parameters

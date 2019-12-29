@@ -28,7 +28,7 @@ tsurf = 500.0
 # then that solution will be used for the next mdot
 mdot = [0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]  # kg/m^2/s
 
-rxnmech = 'h2o2.cti'  # reaction mechanism file
+rxnmech = 'h2o2.yaml'  # reaction mechanism file
 comp = 'H2:1.8, O2:1, AR:7'  # premixed gas composition
 
 # The solution domain is chosen to be 20 cm

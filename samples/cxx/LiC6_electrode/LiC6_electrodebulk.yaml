@@ -1,0 +1,36 @@
+generator: ctml2yaml
+cantera-version: 2.5.0a3
+date: Fri, 13 Dec 2019 20:48:20 -0500
+input-files: [LiC6_electrodebulk.xml]
+
+phases:
+- name: LiC6_and_Vacancies
+  elements: [Li, C]
+  species: [Li(C6), V(C6)]
+  thermo: Redlich-Kister
+  interactions:
+  - species: [Li(C6), V(C6)]
+    excess-enthalpy: [-3.268E6 J/kmol, 3.955E6 J/kmol, -4.573E6 J/kmol, 6.147E6 J/kmol,
+      -3.339E6 J/kmol, 1.117E7 J/kmol, 2.997E5 J/kmol, -4.866E7 J/kmol, 1.362E5 J/kmol,
+      1.373E8 J/kmol, -2.129E7 J/kmol, -1.722E8 J/kmol, 3.956E7 J/kmol, 9.302E7 J/kmol,
+      -3.280E7 J/kmol]
+    excess-entropy: [0.0 J/kmol/K]
+  state: {T: 298.15 K, P: 1.01325e+05 Pa, X: {Li(C6): 0.6, V(C6): 0.4}}
+
+species:
+- name: Li(C6)
+  composition: {C: 6.0, Li: 1.0}
+  thermo:
+    model: constant-cp
+    T0: 298.15 K
+    h0: -11.65 kJ/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+- name: V(C6)
+  composition: {C: 6.0}
+  thermo:
+    model: constant-cp
+    T0: 298.15 K
+    h0: 0.0 kJ/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
