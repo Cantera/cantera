@@ -12,8 +12,7 @@
 namespace Cantera {
 
 ElectronCrossSection::ElectronCrossSection()
-    : product("")
-    , mass_ratio(Undef)
+    : mass_ratio(Undef)
     , threshold(0.0)
 {
 }
@@ -25,10 +24,12 @@ ElectronCrossSection::~ElectronCrossSection()
 void ElectronCrossSection::validate()
 {
     if (kind == "EFFECTIVE") {
-        if (data[0][0] != 0.0) {
-            throw CanteraError("ElectronCrossSection::validate",
-                "Invalid energy value of type '{}' for '{}'. "
-                "Energy must starts at zero.", kind, target);
+        if (data.size() > 0 && data[0].size() > 0) {
+            if (data[0][0] != 0.0) {
+                throw CanteraError("ElectronCrossSection::validate",
+                    "Invalid energy value of type '{}' for '{}'. "
+                    "Energy must starts at zero.", kind, target);
+            }
         }
         if (mass_ratio >= 1.0 || mass_ratio < 0.0) {
             throw CanteraError("ElectronCrossSection::validate",
@@ -58,7 +59,7 @@ unique_ptr<ElectronCrossSection> newElectronCrossSection(const AnyMap& node)
 
     ecs->kind = node["kind"].asString();
     ecs->target = node["target"].asString();
-    ecs->data = node["data"].asVector<std::vector<double>>();
+    ecs->data = node["data"].asVector<vector_fp>();
     if (ecs->kind == "EFFECTIVE" || ecs->kind == "ELASTIC") {
         ecs->mass_ratio = node["mass_ratio"].asDouble();
     } else {
