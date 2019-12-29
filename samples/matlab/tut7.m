@@ -3,7 +3,7 @@
 help tut7
 
 % A variety of thermodynamic property methods are provided.
-gas = air
+gas = Air
 set(gas,'T',800,'P',oneatm)
 
 % temperature, pressure, density

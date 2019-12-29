@@ -1,5 +1,7 @@
 """
 Isentropic, adiabatic flow example - calculate area ratio vs. Mach number curve
+
+Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
 import cantera as ct
@@ -35,7 +37,7 @@ def isentropic(gas=None):
     mdot = 1  # arbitrary
     amin = 1.e14
 
-    data = np.zeros((200,4))
+    data = np.zeros((200, 4))
 
     # compute values for a range of pressure ratios
     for r in range(200):
@@ -48,19 +50,19 @@ def isentropic(gas=None):
         v = math.sqrt(v2)
         area = mdot/(gas.density*v)    # rho*v*A = constant
         amin = min(amin, area)
-        data[r,:] = [area, v/soundspeed(gas), gas.T, p/p0]
+        data[r, :] = [area, v/soundspeed(gas), gas.T, p/p0]
 
-    data[:,0] /= amin
+    data[:, 0] /= amin
 
     return data
 
 
 if __name__ == "__main__":
-    print(isentropic.__doc__)
+    print(__doc__)
     data = isentropic()
     try:
         import matplotlib.pyplot as plt
-        plt.plot(data[:,1], data[:,0])
+        plt.plot(data[:, 1], data[:, 0])
         plt.ylabel('Area Ratio')
         plt.xlabel('Mach Number')
         plt.title('Isentropic Flow: Area Ratio vs. Mach Number')

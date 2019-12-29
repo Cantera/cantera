@@ -6,6 +6,8 @@ is a simpler, steady-state version of the example ``reactors/mix1.py``.
 
 Since the goal is to simulate a continuous flow system, the mixing takes place
 at constant enthalpy and pressure.
+
+Requires: cantera >= 2.5.0
 """
 
 import cantera as ct

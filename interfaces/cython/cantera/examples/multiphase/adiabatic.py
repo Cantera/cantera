@@ -1,6 +1,8 @@
 """
 Adiabatic flame temperature and equilibrium composition for a fuel/air mixture
 as a function of equivalence ratio, including formation of solid carbon.
+
+Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
 import cantera as ct
@@ -35,7 +37,7 @@ mix = ct.Mixture(mix_phases)
 
 # create some arrays to hold the data
 tad = np.zeros(npoints)
-xeq = np.zeros((mix.n_species,npoints))
+xeq = np.zeros((mix.n_species, npoints))
 
 for i in range(npoints):
     # set the gas state
@@ -51,7 +53,7 @@ for i in range(npoints):
 
     tad[i] = mix.T
     print('At phi = {0:12.4g}, Tad = {1:12.4g}'.format(phi[i], tad[i]))
-    xeq[:,i] = mix.species_moles
+    xeq[:, i] = mix.species_moles
 
 # write output CSV file for importing into Excel
 csv_file = 'adiabatic.csv'

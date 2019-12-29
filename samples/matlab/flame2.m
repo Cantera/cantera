@@ -1,8 +1,6 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FLAME1 - An axisymmetric stagnation-point non-premixed flame
 %
-%  An axisymmetric stagnation-point non-premixed flame
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    This script simulates a stagnation-point ethane-air flame.
 
 t0 = cputime;  % record the starting time
 

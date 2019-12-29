@@ -7,6 +7,8 @@ passed between Python processes, it is necessary to set up the computation so
 that each process has its own copy of the relevant Cantera objects. One way to
 do this is by storing the objects in (module) global variables, which are
 initialized once per worker process.
+
+Requires: cantera >= 2.5.0
 """
 
 import multiprocessing
@@ -18,6 +20,7 @@ from time import time
 # Global storage for Cantera Solution objects
 gases = {}
 
+
 def init_process(mech):
     """
     This function is called once for each process in the Pool. We use it to
@@ -25,6 +28,7 @@ def init_process(mech):
     """
     gases[mech] = ct.Solution(mech)
     gases[mech].transport_model = 'Multi'
+
 
 def get_thermal_conductivity(args):
     # Pool.imap only permits a single argument, so we pack all of the needed
@@ -34,6 +38,7 @@ def get_thermal_conductivity(args):
     gas.TPX = T, P, X
     return gas.thermal_conductivity
 
+
 def get_viscosity(args):
     # Pool.imap only permits a single argument, so we pack all of the needed
     # arguments into the tuple 'args'
@@ -41,6 +46,7 @@ def get_viscosity(args):
     gas = gases[mech]
     gas.TPX = T, P, X
     return gas.viscosity
+
 
 def parallel(mech, predicate, nProcs, nTemps):
     """
@@ -60,6 +66,7 @@ def parallel(mech, predicate, nProcs, nTemps):
                      itertools.repeat(X)))
     return y
 
+
 def serial(mech, predicate, nTemps):
     P = ct.one_atm
     X = 'CH4:1.0, O2:1.0, N2:3.76'
@@ -70,6 +77,7 @@ def serial(mech, predicate, nTemps):
                      itertools.repeat(P),
                      itertools.repeat(X))))
     return y
+
 
 if __name__ == '__main__':
     nPoints = 5000

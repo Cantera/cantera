@@ -1,10 +1,11 @@
 """
 A freely-propagating, premixed hydrogen flat flame with multicomponent
 transport properties.
+
+Requires: cantera >= 2.5.0
 """
 
 import cantera as ct
-import numpy as np
 
 # Simulation parameters
 p = ct.one_atm  # pressure [Pa]
@@ -34,10 +35,10 @@ print('mixture-averaged flamespeed = {0:7f} m/s'.format(f.u[0]))
 
 # Solve with multi-component transport properties
 f.transport_model = 'Multi'
-f.solve(loglevel) # don't use 'auto' on subsequent solves
+f.solve(loglevel)  # don't use 'auto' on subsequent solves
 f.show_solution()
 print('multicomponent flamespeed = {0:7f} m/s'.format(f.u[0]))
-f.save('h2_adiabatic.xml','multi', 'solution with multicomponent transport')
+f.save('h2_adiabatic.xml', 'multi', 'solution with multicomponent transport')
 
 # write the velocity, temperature, density, and mole fractions to a CSV file
 f.write_csv('h2_adiabatic.csv', quiet=False)

@@ -9,7 +9,6 @@ if nargin == 0
 end
 
 mw = molecularWeights(gas);
-nsp = nSpecies(gas);
 set(gas,'T',1001.0,'P',oneatm,'X','H2:2,O2:1,N2:4');
 
 y0 = [temperature(gas)

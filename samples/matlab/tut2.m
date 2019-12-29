@@ -49,7 +49,7 @@ msg = sprintf('time to create gas1b: %f', cputime - t0)
 % reaction mechanisms. Under Windows, these files may be located in
 % 'C:\Program Files\Common Files\Cantera', or in 'C:\cantera\data',
 % depending on how you installed Cantera and the options you
-% specified.  On a unix/linux/Mac OSX machine, they are usually kept
+% specified. On a Unix/Linux/macOS machine, they are usually kept
 % in the 'data' subdirectory within the Cantera installation
 % directory.
 

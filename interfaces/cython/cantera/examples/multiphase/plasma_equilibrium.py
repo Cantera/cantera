@@ -1,6 +1,8 @@
 """
 An equilibrium example with charged species in the gas phase
 and multiple condensed phases.
+
+Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
 import cantera as ct
@@ -11,9 +13,9 @@ import csv
 # as incompressible stoichiometric substances. See file KOH.yaml for more
 # information.
 phases = ct.import_phases('KOH.yaml', ['K_solid', 'K_liquid', 'KOH_a', 'KOH_b',
-                                      'KOH_liquid', 'K2O2_solid', 'K2O_solid',
-                                      'KO2_solid', 'ice', 'liquid_water',
-                                      'KOH_plasma'])
+                                       'KOH_liquid', 'K2O2_solid', 'K2O_solid',
+                                       'KO2_solid', 'ice', 'liquid_water',
+                                       'KOH_plasma'])
 
 # create the Mixture object from the list of phases
 mix = ct.Mixture(phases)

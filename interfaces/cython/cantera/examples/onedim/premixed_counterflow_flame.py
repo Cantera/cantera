@@ -3,6 +3,8 @@ An opposed-flow premixed strained flame
 
 This script simulates a lean hydrogen-oxygen flame stabilized in a strained
 flowfield, with an opposed flow consisting of equilibrium products.
+
+Requires: cantera >= 2.5.0
 """
 
 import cantera as ct
@@ -15,7 +17,7 @@ mdot_products = 0.06  # kg/m^2/s
 rxnmech = 'h2o2.yaml'  # reaction mechanism file
 comp = 'H2:1.6, O2:1, AR:7'  # premixed gas composition
 
-width = 0.2 # m
+width = 0.2  # m
 loglevel = 1  # amount of diagnostic output (0 to 5)
 
 # Set up the problem

@@ -1,6 +1,8 @@
 """
 A burner-stabilized, premixed methane/air flat flame with multicomponent
 transport properties and a specified temperature profile.
+
+Requires: cantera >= 2.5.0
 """
 
 import cantera as ct
@@ -14,7 +16,7 @@ mdot = 0.04  # kg/m^2/s
 comp = 'CH4:0.65, O2:1, N2:3.76'  # premixed gas composition
 
 # The solution domain is chosen to be 1 cm
-width = 0.01 # m
+width = 0.01  # m
 
 loglevel = 1  # amount of diagnostic output (0 to 5)
 refine_grid = True  # 'True' to enable refinement

@@ -1,9 +1,10 @@
 """
 A freely-propagating, premixed methane-air flat flame with charged species.
+
+Requires: cantera >= 2.5.0
 """
 
 import cantera as ct
-import numpy as np
 
 # Simulation parameters
 p = ct.one_atm  # pressure [Pa]
@@ -12,7 +13,7 @@ reactants = 'CH4:1, O2:2, N2:7.52'  # premixed gas composition
 width = 0.05  # m
 loglevel = 1  # amount of diagnostic output (0 to 8)
 
-# IdealGasMix object used to compute mixture properties, set to the state of the
+# Solution object used to compute mixture properties, set to the state of the
 # upstream fuel-air mixture
 gas = ct.Solution('gri30_ion.yaml')
 gas.TPX = Tin, p, reactants

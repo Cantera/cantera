@@ -16,26 +16,26 @@ results.
 
 It is recommended that you read input file sofc.yaml before reading or running
 this script!
+
+Requires: cantera >= 2.5.0
 """
 
 import cantera as ct
 import math
 import csv
-import inspect
-import os
 
 ct.add_module_directory()
 
 # parameters
 T = 1073.15  # T in K
-P = ct.one_atm
+P = ct.one_atm  # One atm in Pa
 
 # gas compositions. Change as desired.
 anode_gas_X = 'H2:0.97, H2O:0.03'
 cathode_gas_X = 'O2:1.0, H2O:0.001'
 
 # time to integrate coverage eqs. to steady state in
-# 'advanceCoverages'. This should be more than enough time.
+# 'advance_coverages'. This should be more than enough time.
 tss = 50.0
 
 sigma = 2.0  # electrolyte conductivity [Siemens / m]
@@ -54,7 +54,7 @@ def show_coverages(s):
 
 def equil_OCV(gas1, gas2):
     return (-ct.gas_constant * gas1.T *
-        math.log(gas1['O2'].X / gas2['O2'].X) / (4.0*ct.faraday))
+            math.log(gas1['O2'].X / gas2['O2'].X) / (4.0*ct.faraday))
 
 
 def NewtonSolver(f, xstart, C=0.0):
@@ -84,14 +84,14 @@ def NewtonSolver(f, xstart, C=0.0):
         n += 1
     raise Exception('no root!')
 
+
 #####################################################################
 # Anode-side phases
 #####################################################################
 
 # import the anode-side bulk phases
 gas_a, anode_bulk, oxide_a = ct.import_phases(
-    'sofc.yaml', ['gas', 'metal', 'oxide_bulk'],
-)
+    'sofc.yaml', ['gas', 'metal', 'oxide_bulk'])
 
 # import the surfaces on the anode side
 anode_surf = ct.Interface('sofc.yaml', 'metal_surface', [gas_a])
@@ -140,25 +140,24 @@ def anode_curr(E):
 
 # import the cathode-side bulk phases
 gas_c, cathode_bulk, oxide_c = ct.import_phases(
-    'sofc.yaml', ['gas', 'metal', 'oxide_bulk']
-)
+    'sofc.yaml', ['gas', 'metal', 'oxide_bulk'])
 
 # import the surfaces on the cathode side
 cathode_surf = ct.Interface('sofc.yaml', 'metal_surface', [gas_c])
 oxide_surf_c = ct.Interface('sofc.yaml', 'oxide_surface', [gas_c, oxide_c])
 
 # import the cathode-side triple phase boundary
-tpb_c = ct.Interface(
-    'sofc.yaml', 'tpb', [cathode_bulk, cathode_surf, oxide_surf_c]
-)
+tpb_c = ct.Interface('sofc.yaml', 'tpb', [cathode_bulk, cathode_surf, oxide_surf_c])
 
 cathode_surf.name = 'cathode surface'
 oxide_surf_c.name = 'cathode-side oxide surface'
 
 
 def cathode_curr(E):
-    """Current to the cathode as a function of cathode
-    potential relative to electrolyte"""
+    """
+    Current to the cathode as a function of cathode
+    potential relative to electrolyte
+    """
 
     # due to ohmic losses, the cathode-side electrolyte potential is non-zero.
     # Therefore, we need to add this potential to E to get the cathode
@@ -176,8 +175,8 @@ def cathode_curr(E):
     # being drawn from the cathode (i.e, negative production rate).
     return -ct.faraday * w[0] * TPB_length_per_area
 
-# initialization
 
+# initialization
 # set the gas compositions, and temperatures of all phases
 
 gas_a.TPX = T, P, anode_gas_X
@@ -199,7 +198,6 @@ for p in phases:
 for s in [anode_surf, oxide_surf_a, cathode_surf, oxide_surf_c]:
     s.advance_coverages(tss)
     show_coverages(s)
-
 
 # find open circuit potentials by solving for the E values that give
 # zero current.

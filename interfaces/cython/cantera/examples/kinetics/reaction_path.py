@@ -3,8 +3,10 @@ Viewing a reaction path diagram.
 
 This script uses Graphviz to generate an image. You must have Graphviz installed
 and the program 'dot' must be on your path for this example to work.
-Graphviz can be obtained from http://www.graphviz.org/ or (possibly) installed
+Graphviz can be obtained from https://www.graphviz.org/ or (possibly) installed
 using your operating system's package manager.
+
+Requires: cantera >= 2.5.0
 """
 
 import os

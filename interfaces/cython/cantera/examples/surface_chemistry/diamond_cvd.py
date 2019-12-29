@@ -4,15 +4,16 @@ A CVD example simulating growth of a diamond film
 This example computes the growth rate of a diamond film according to a
 simplified version of a particular published growth mechanism (see file
 diamond.yaml for details). Only the surface coverage equations are solved here;
-the gas composition is fixed. (For an example of coupled gas- phase and
-surface, see catalytic_combustion.py.)  Atomic hydrogen plays an important
+the gas composition is fixed. (For an example of coupled gas-phase and
+surface, see catalytic_combustion.py.) Atomic hydrogen plays an important
 role in diamond CVD, and this example computes the growth rate and surface
 coverages as a function of [H] at the surface for fixed temperature and [CH3].
+
+Requires: cantera >= 2.5.0, pandas >= 0.21.0, matplotlib >= 2.0
 """
 
 import csv
 import cantera as ct
-import pandas as pd
 
 print('\n******  CVD Diamond Example  ******\n')
 
@@ -54,6 +55,7 @@ with open('diamond.csv', 'w', newline='') as f:
 
 try:
     import matplotlib.pyplot as plt
+    import pandas as pd
     data = pd.read_csv('diamond.csv')
 
     plt.figure()
@@ -64,7 +66,7 @@ try:
 
     plt.figure()
     for name in data:
-        if name.startswith('H mole') or name.startswith('Growth'):
+        if name.startswith(('H mole', 'Growth')):
             continue
         plt.plot(data['H mole Fraction'], data[name], label=name)
 
@@ -73,4 +75,4 @@ try:
     plt.ylabel('Coverage')
     plt.show()
 except ImportError:
-    print("Install matplotlib to plot the outputs")
+    print("Install matplotlib and pandas to plot the outputs")

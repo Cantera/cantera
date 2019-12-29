@@ -14,6 +14,8 @@ contain all species that might be present in any upstream reactor.
 
 Compare this approach for the transient problem to the method used for the
 steady-state problem in thermo/mixing.py.
+
+Requires: cantera >= 2.5.0
 """
 
 import cantera as ct

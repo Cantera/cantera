@@ -6,7 +6,7 @@ The simulation uses n-Dodecane as fuel, which is injected close to top dead
 center. Note that this example uses numerous simplifying assumptions and
 thus serves for illustration purposes only.
 
-Requires: Cantera >= 2.5.0, scipy >= 0.19, matplotlib >= 2.0
+Requires: cantera >= 2.5.0, scipy >= 0.19, matplotlib >= 2.0
 """
 
 import cantera as ct
@@ -77,13 +77,16 @@ V_oT = V_H / (epsilon - 1.)
 A_piston = .25 * np.pi * d_piston ** 2
 stroke = V_H / A_piston
 
+
 def crank_angle(t):
     """Convert time to crank angle"""
     return np.remainder(2 * np.pi * f * t, 4 * np.pi)
 
+
 def piston_speed(t):
     """Approximate piston speed with sinusoidal velocity profile"""
     return - stroke / 2 * 2 * np.pi * f * np.sin(crank_angle(t))
+
 
 #####################################################################
 # Set up Reactor Network
@@ -150,10 +153,10 @@ cyl.set_advance_limit('temperature', delta_T_max)
 #####################################################################
 
 # set up output data arrays
-states = ct.SolutionArray(cyl.thermo,
-                          extra=('t', 'ca', 'V', 'm',
-                                 'mdot_in', 'mdot_out',
-                                 'dWv_dt', 'heat_release_rate'))
+states = ct.SolutionArray(
+    cyl.thermo,
+    extra=('t', 'ca', 'V', 'm', 'mdot_in', 'mdot_out', 'dWv_dt', 'heat_release_rate'),
+)
 
 # simulate with a maximum resolution of 1 deg crank angle
 dt = 1. / (360 * f)
@@ -178,6 +181,7 @@ while sim.time < t_stop:
                   dWv_dt=dWv_dt,
                   heat_release_rate=heat_release_rate)
 
+
 #######################################################################
 # Plot Results in matplotlib
 #######################################################################
@@ -186,17 +190,18 @@ def ca_ticks(t):
     """Helper function converts time to rounded crank angle."""
     return np.round(crank_angle(t) * 180 / np.pi, decimals=1)
 
+
 t = states.t
 
 # pressure and temperature
 fig, ax = plt.subplots(nrows=2)
 ax[0].plot(t, states.P / 1.e5)
 ax[0].set_ylabel('$p$ [bar]')
-ax[0].set_xlabel('$\phi$ [deg]')
+ax[0].set_xlabel(r'$\phi$ [deg]')
 ax[0].set_xticklabels([])
 ax[1].plot(t, states.T)
 ax[1].set_ylabel('$T$ [K]')
-ax[1].set_xlabel('$\phi$ [deg]')
+ax[1].set_xlabel(r'$\phi$ [deg]')
 ax[1].set_xticklabels(ca_ticks(ax[1].get_xticks()))
 plt.show()
 
@@ -216,12 +221,12 @@ plt.show()
 
 # heat of reaction and expansion work
 fig, ax = plt.subplots()
-ax.plot(t, 1.e-3 * states.heat_release_rate, label='$\dot{Q}$')
-ax.plot(t, 1.e-3 * states.dWv_dt, label='$\dot{W}_v$')
+ax.plot(t, 1.e-3 * states.heat_release_rate, label=r'$\dot{Q}$')
+ax.plot(t, 1.e-3 * states.dWv_dt, label=r'$\dot{W}_v$')
 ax.set_ylim(-1e2, 1e3)
 ax.legend(loc=0)
 ax.set_ylabel('[kW]')
-ax.set_xlabel('$\phi$ [deg]')
+ax.set_xlabel(r'$\phi$ [deg]')
 ax.set_xticklabels(ca_ticks(ax.get_xticks()))
 plt.show()
 
@@ -233,7 +238,7 @@ ax.plot(t, states('co').X, label='CO')
 ax.plot(t, states('c12h26').X * 10, label='n-Dodecane x10')
 ax.legend(loc=0)
 ax.set_ylabel('$X_i$ [-]')
-ax.set_xlabel('$\phi$ [deg]')
+ax.set_xlabel(r'$\phi$ [deg]')
 ax.set_xticklabels(ca_ticks(ax.get_xticks()))
 plt.show()
 
