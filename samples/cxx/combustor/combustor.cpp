@@ -26,7 +26,7 @@ void runexample()
     fuel_in.insert(sol);
     double fuel_mw = gas->meanMolecularWeight();
 
-    auto air = newSolution("air.cti");
+    auto air = newSolution("air.yaml", "air", "None");
     double air_mw = air->thermo()->meanMolecularWeight();
 
     // create a reservoir for the air inlet

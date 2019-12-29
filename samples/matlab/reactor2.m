@@ -11,7 +11,7 @@ help reactor2
 if nargin == 1
    gas = g;
 else
-   gas = GRI30;
+   gas = GRI30('None');
 end
 
 nsp = nSpecies(gas);

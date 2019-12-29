@@ -11,7 +11,7 @@ termination reaction
 as soon as a significant amount of water is produced the reaction stops. After
 enough time has passed that the water is exhausted from the reactor, the mixture
 explodes again and the process repeats. This explanation can be verified by
-decreasing the rate for reaction 7 in file 'h2o2.cti' and re-running the
+decreasing the rate for reaction 7 in file h2o2.yaml and re-running the
 example.
 
 Acknowledgments: The idea for this example and an estimate of the conditions
@@ -22,7 +22,7 @@ import cantera as ct
 import numpy as np
 
 # create the gas mixture
-gas = ct.Solution('h2o2.cti')
+gas = ct.Solution('h2o2.yaml')
 
 # pressure = 60 Torr, T = 770 K
 p = 60.0*133.3

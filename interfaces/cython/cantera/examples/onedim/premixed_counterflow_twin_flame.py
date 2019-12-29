@@ -74,7 +74,7 @@ def solveOpposedFlame(oppFlame, massFlux=0.12, loglevel=1,
     return np.max(oppFlame.T), K, strainRatePoint
 
 # Select the reaction mechanism
-gas = ct.Solution('gri30.cti')
+gas = ct.Solution('gri30.yaml')
 
 # Create a CH4/Air premixed mixture with equivalence ratio=0.75, and at room
 # temperature and pressure.

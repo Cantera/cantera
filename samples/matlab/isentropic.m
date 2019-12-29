@@ -9,7 +9,7 @@ help isentropic
 if nargin == 1
    gas = g;
 else
-   gas = IdealGasMix('gri30.xml');
+   gas = Solution('gri30.yaml');
 end
 
 % set the stagnation state

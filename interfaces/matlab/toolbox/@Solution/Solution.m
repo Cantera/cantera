@@ -10,13 +10,13 @@ function s = Solution(src, id, trans)
 % of each species, which may be given as mole fractions or mass
 % fractions. ::
 %
-%     >> s = Solution('input.xml'[, phase_name[, transport_model]])
+%     >> s = Solution('input.yaml'[, phase_name[, transport_model]])
 %
-% constructs a Solution object from a specification contained in
-% file ``input.xml``. Optionally, the name of the phase to be imported
-% can be specified with ``phase_name``. If a
-% Transport model is included in ``input.xml``, it will be included
-% in the Solution instance with the default transport modeling as set
+% constructs a :mat:func:`Solution` object from a specification contained in
+% file ``input.yaml``. Optionally, the name of the phase to be imported
+% can be specified with ``phase_name``. If a :mat:func:`Transport` model is
+% included in ``input.yaml``, it will be included in the :mat:func:`Solution`
+% instance with the default transport modeling as set
 % in the input file. To specify the transport modeling, set the input
 % argument ``trans`` to one of ``'default'``, ``'None'``, ``'Mix'``, or ``'Multi'``.
 % In this case, the phase name must be specified as well. Alternatively,

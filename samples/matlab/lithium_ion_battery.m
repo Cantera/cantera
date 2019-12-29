@@ -28,7 +28,7 @@ T = 293; % [K] Temperature
 P = oneatm; % [Pa] Pressure
 
 % Cell properties
-inputCTI = 'lithium_ion_battery.cti'; % Cantera input file name
+inputFile = 'lithium_ion_battery.yaml'; % Cantera input file name
 R_elyt = 0.0384; % [Ohm] Electrolyte resistance
 S_ca = 1.1167; % [m^2] Cathode total active material surface area
 S_an = 0.7824; % [m^2] Anode total active material surface area
@@ -50,12 +50,12 @@ X_Li_an = (X_Li_an_1-X_Li_an_0)*SOC+X_Li_an_0; % anode balancing
 X_Li_ca = (X_Li_ca_0-X_Li_ca_1)*(1-SOC)+X_Li_ca_1; % cathode balancing
 
 % Import all Cantera phases
-anode = Solution(inputCTI, 'anode');
-cathode = Solution(inputCTI, 'cathode');
-elde = Solution(inputCTI, 'electron');
-elyt = Solution(inputCTI, 'electrolyte');
-anode_interface = Interface(inputCTI, 'edge_anode_electrolyte', anode, elde, elyt);
-cathode_interface = Interface(inputCTI, 'edge_cathode_electrolyte', cathode, elde, elyt);
+anode = Solution(inputFile, 'anode');
+cathode = Solution(inputFile, 'cathode');
+elde = Solution(inputFile, 'electron');
+elyt = Solution(inputFile, 'electrolyte');
+anode_interface = Interface(inputFile, 'edge_anode_electrolyte', anode, elde, elyt);
+cathode_interface = Interface(inputFile, 'edge_cathode_electrolyte', cathode, elde, elyt);
 
 % Set the temperatures and pressures of all phases
 set(anode,'T',T,'P',P);

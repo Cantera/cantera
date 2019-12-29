@@ -20,7 +20,7 @@ u_0 = .006  # inflow velocity [m/s]
 area = 1.e-4  # cross-sectional area [m**2]
 
 # input file containing the reaction mechanism
-reaction_mechanism = 'h2o2.xml'
+reaction_mechanism = 'h2o2.yaml'
 
 # Resolution: The PFR will be simulated by 'n_steps' time steps or by a chain
 # of 'n_steps' stirred reactors.

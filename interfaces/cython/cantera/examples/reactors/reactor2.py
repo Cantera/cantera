@@ -28,17 +28,17 @@ import cantera as ct
 #-----------------------------------------------------------------------
 
 # create an argon gas object and set its state
-ar = ct.Solution('argon.xml')
+ar = ct.Solution('argon.yaml')
 ar.TP = 1000.0, 20.0 * ct.one_atm
 
 # create a reactor to represent the side of the cylinder filled with argon
 r1 = ct.IdealGasReactor(ar)
 
 # create a reservoir for the environment, and fill it with air.
-env = ct.Reservoir(ct.Solution('air.xml'))
+env = ct.Reservoir(ct.Solution('air.yaml'))
 
 # use GRI-Mech 3.0 for the methane/air mixture, and set its initial state
-gas = ct.Solution('gri30.xml')
+gas = ct.Solution('gri30.yaml')
 gas.TP = 500.0, 0.2 * ct.one_atm
 gas.set_equivalence_ratio(1.1, 'CH4:1.0', 'O2:2, N2:7.52')
 

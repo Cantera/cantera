@@ -19,8 +19,8 @@ program main
 
   ! Read in a definition of the 'gas' phase.
   ! This will take the definition with name 'ohmech' from file
-  ! 'h2o2.cti', located in the Cantera data directory
-  gas = importPhase('h2o2.cti','ohmech')
+  ! 'h2o2.yaml', located in the Cantera data directory
+  gas = importPhase('h2o2.yaml','ohmech')
 
   t = 1200.0     ! K
   p = 101325.0   ! Pa

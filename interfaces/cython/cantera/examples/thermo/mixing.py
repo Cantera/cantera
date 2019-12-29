@@ -10,7 +10,7 @@ at constant enthalpy and pressure.
 
 import cantera as ct
 
-gas = ct.Solution('gri30.xml')
+gas = ct.Solution('gri30.yaml')
 
 # Stream A (air)
 A = ct.Quantity(gas, constant='HP')

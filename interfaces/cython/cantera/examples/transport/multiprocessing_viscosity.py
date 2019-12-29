@@ -79,12 +79,12 @@ if __name__ == '__main__':
     # significant speedup can be obtained using the multiprocessing module.
     print('Thermal conductivity')
     t1 = time()
-    parallel('gri30.xml', get_thermal_conductivity, nProcs, nPoints)
+    parallel('gri30.yaml', get_thermal_conductivity, nProcs, nPoints)
     t2 = time()
     print('Parallel: {0:.3f} seconds'.format(t2-t1))
 
     t1 = time()
-    serial('gri30.xml', get_thermal_conductivity, nPoints)
+    serial('gri30.yaml', get_thermal_conductivity, nPoints)
     t2 = time()
     print('Serial: {0:.3f} seconds'.format(t2-t1))
 
@@ -92,11 +92,11 @@ if __name__ == '__main__':
     # small, there may be no advantage to using multiprocessing.
     print('\nViscosity')
     t1 = time()
-    parallel('gri30.xml', get_viscosity, nProcs, nPoints)
+    parallel('gri30.yaml', get_viscosity, nProcs, nPoints)
     t2 = time()
     print('Parallel: {0:.3f} seconds'.format(t2-t1))
 
     t1 = time()
-    serial('gri30.xml', get_viscosity, nPoints)
+    serial('gri30.yaml', get_viscosity, nPoints)
     t2 = time()
     print('Serial: {0:.3f} seconds'.format(t2-t1))

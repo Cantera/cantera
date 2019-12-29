@@ -8,13 +8,13 @@ transfer. As this script will demonstrate, this approach allows computing the
 OCV (it does not need to be separately specified), as well as polarization
 curves.
 
-NOTE: The parameters here, and in the input file sofc.cti, are not to be
+NOTE: The parameters here, and in the input file sofc.yaml, are not to be
 relied upon for a real SOFC simulation! They are meant to illustrate only how
 to do such a calculation in Cantera. While some of the parameters may be close
 to real values, others are simply set arbitrarily to give reasonable-looking
 results.
 
-It is recommended that you read input file sofc.cti before reading or running
+It is recommended that you read input file sofc.yaml before reading or running
 this script!
 """
 
@@ -89,15 +89,16 @@ def NewtonSolver(f, xstart, C=0.0):
 #####################################################################
 
 # import the anode-side bulk phases
-gas_a, anode_bulk, oxide_a = ct.import_phases('sofc.cti',
-                                              ['gas', 'metal', 'oxide_bulk',])
+gas_a, anode_bulk, oxide_a = ct.import_phases(
+    'sofc.yaml', ['gas', 'metal', 'oxide_bulk'],
+)
 
 # import the surfaces on the anode side
-anode_surf = ct.Interface('sofc.cti', 'metal_surface', [gas_a])
-oxide_surf_a = ct.Interface('sofc.cti', 'oxide_surface', [gas_a, oxide_a])
+anode_surf = ct.Interface('sofc.yaml', 'metal_surface', [gas_a])
+oxide_surf_a = ct.Interface('sofc.yaml', 'oxide_surface', [gas_a, oxide_a])
 
 # import the anode-side triple phase boundary
-tpb_a = ct.Interface('sofc.cti', 'tpb', [anode_bulk, anode_surf, oxide_surf_a])
+tpb_a = ct.Interface('sofc.yaml', 'tpb', [anode_bulk, anode_surf, oxide_surf_a])
 
 anode_surf.name = 'anode surface'
 oxide_surf_a.name = 'anode-side oxide surface'
@@ -118,7 +119,7 @@ def anode_curr(E):
 
     # get the species net production rates due to the anode-side TPB reaction
     # mechanism. The production rate array has the values for the neighbor
-    # species in the order listed in the .cti file, followed by the tpb phase.
+    # species in the order listed in the .yaml file, followed by the tpb phase.
     # Since the first neighbor phase is the bulk metal, species 0 is the
     # electron.
     w = tpb_a.net_production_rates
@@ -138,16 +139,18 @@ def anode_curr(E):
 # models would be used for the cathode, with a different reaction mechanism.
 
 # import the cathode-side bulk phases
-gas_c, cathode_bulk, oxide_c = ct.import_phases('sofc.cti',
-                                                ['gas', 'metal', 'oxide_bulk'])
+gas_c, cathode_bulk, oxide_c = ct.import_phases(
+    'sofc.yaml', ['gas', 'metal', 'oxide_bulk']
+)
 
 # import the surfaces on the cathode side
-cathode_surf = ct.Interface('sofc.cti', 'metal_surface', [gas_c])
-oxide_surf_c = ct.Interface('sofc.cti', 'oxide_surface', [gas_c, oxide_c])
+cathode_surf = ct.Interface('sofc.yaml', 'metal_surface', [gas_c])
+oxide_surf_c = ct.Interface('sofc.yaml', 'oxide_surface', [gas_c, oxide_c])
 
 # import the cathode-side triple phase boundary
-tpb_c = ct.Interface('sofc.cti', 'tpb', [cathode_bulk, cathode_surf,
-                                         oxide_surf_c])
+tpb_c = ct.Interface(
+    'sofc.yaml', 'tpb', [cathode_bulk, cathode_surf, oxide_surf_c]
+)
 
 cathode_surf.name = 'cathode surface'
 oxide_surf_c.name = 'cathode-side oxide surface'
@@ -164,7 +167,7 @@ def cathode_curr(E):
 
     # get the species net production rates due to the cathode-side TPB
     # reaction mechanism. The production rate array has the values for the
-    # neighbor species in the order listed in the .cti file, followed by the
+    # neighbor species in the order listed in the .yaml file, followed by the
     # tpb phase. Since the first neighbor phase is the bulk metal, species 0
     # is the electron.
     w = tpb_c.net_production_rates

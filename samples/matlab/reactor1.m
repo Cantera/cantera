@@ -15,7 +15,7 @@ help reactor1
 if nargin == 1
    gas = g;
 else
-   gas = GRI30;
+   gas = GRI30('None');
 end
 
 nsp = nSpecies(gas);
@@ -28,7 +28,7 @@ set(gas,'T',1001.0,'P',P,'X','H2:2,O2:1,N2:4');
 r = IdealGasReactor(gas);
 
 % create a reservoir to represent the environment
-a = IdealGasMix('air.cti');
+a = Solution('air.yaml','air','None');
 set(a,'P',P)
 env = Reservoir(a);
 

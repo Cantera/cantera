@@ -17,7 +17,7 @@ import cantera as ct
 import numpy as np
 import matplotlib.pyplot as plt
 
-gas = ct.Solution('gri30.xml')
+gas = ct.Solution('gri30.yaml')
 initial_state = 1200, 5 * ct.one_atm, 'CH4:0.35, O2:1.0, N2:3.76'
 
 # Run a simulation with the full mechanism

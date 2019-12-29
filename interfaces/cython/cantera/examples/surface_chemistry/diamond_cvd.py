@@ -3,7 +3,7 @@ A CVD example simulating growth of a diamond film
 
 This example computes the growth rate of a diamond film according to a
 simplified version of a particular published growth mechanism (see file
-diamond.cti for details). Only the surface coverage equations are solved here;
+diamond.yaml for details). Only the surface coverage equations are solved here;
 the gas composition is fixed. (For an example of coupled gas- phase and
 surface, see catalytic_combustion.py.)  Atomic hydrogen plays an important
 role in diamond CVD, and this example computes the growth rate and surface
@@ -17,10 +17,10 @@ import pandas as pd
 print('\n******  CVD Diamond Example  ******\n')
 
 # import the models for the gas and bulk diamond
-g, dbulk = ct.import_phases('diamond.cti', ['gas', 'diamond'])
+g, dbulk = ct.import_phases('diamond.yaml', ['gas', 'diamond'])
 
 # import the model for the diamond (100) surface
-d = ct.Interface('diamond.cti', 'diamond_100', [g, dbulk])
+d = ct.Interface('diamond.yaml', 'diamond_100', [g, dbulk])
 
 mw = dbulk.molecular_weights[0]
 

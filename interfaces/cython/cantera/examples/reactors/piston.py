@@ -27,10 +27,10 @@ print('%10s  %10s  %10s  %10s  %10s  %10s %10s' % ('time [s]','T1 [K]','T2 [K]',
                                               'V1 [m^3]', 'V2 [m^3]',
                                               'V1+V2 [m^3]','X(CO)'))
 
-gas1 = ct.Solution('h2o2.cti')
+gas1 = ct.Solution('h2o2.yaml')
 gas1.TPX = 900.0, ct.one_atm, 'H2:2, O2:1, AR:20'
 
-gas2 = ct.Solution('gri30.xml')
+gas2 = ct.Solution('gri30.yaml')
 gas2.TPX = 900.0, ct.one_atm, 'CO:2, H2O:0.01, O2:5'
 
 r1 = ct.IdealGasReactor(gas1)

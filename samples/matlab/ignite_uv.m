@@ -5,7 +5,7 @@ function ignite_uv(gas)
 help ignite_uv
 
 if nargin == 0
-   gas = IdealGasMix('gri30.xml');
+   gas = Solution('gri30.yaml');
 end
 
 mw = molecularWeights(gas);

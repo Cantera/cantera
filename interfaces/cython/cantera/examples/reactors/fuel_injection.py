@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import cantera as ct
 
 # Use a reduced n-dodecane mechanism with PAH formation pathways
-gas = ct.Solution('nDodecane_Reitz.cti', 'nDodecane_IG')
+gas = ct.Solution('nDodecane_Reitz.yaml', 'nDodecane_IG')
 
 # Create a Reservoir for the fuel inlet, set to pure dodecane
 gas.TPX = 300, 20*ct.one_atm, 'c12h26:1.0'

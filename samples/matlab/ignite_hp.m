@@ -6,7 +6,7 @@ function ignite_hp(gas)
 help ignite_hp
 
 if nargin == 0
-   gas = IdealGasMix('gri30.xml');
+   gas = Solution('gri30.yaml');
 end
 
 mw = molecularWeights(gas);
