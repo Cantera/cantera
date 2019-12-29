@@ -35,16 +35,14 @@ double simpsonQuadrature(const vector_fp& x, const vector_fp& y)
                            "size of x is not equal to size of y");
     }
     size_t N = x.size();
-    vector_fp w(N, -1.0);
     size_t ns = (N - 1) / 2;
     size_t ms = (N - 1) % 2;
-    double sum = 0;
+    double sum = 0.0;
     for (size_t i = 0; i < ns; i++) {
-        vector_fp c;
-        c.resize(3);
-        vector_fp xs{x[2*i],x[2*i+1],x[2*i+2]};
-        vector_fp ys{y[2*i],y[2*i+1],y[2*i+2]};
-        polyfit(3, 2, xs.data(), ys.data(), w.data(), c.data());
+        double c[3];
+        double xs[3] = {x[2*i],x[2*i+1],x[2*i+2]};
+        double ys[3] = {y[2*i],y[2*i+1],y[2*i+2]};
+        polyfit(3, 2, xs, ys, nullptr, c);
         sum += c[0] * x[2*i+2] +
                c[1] * 0.5 * x[2*i+2] * x[2*i+2] +
                c[2] * 1./3. * x[2*i+2] * x[2*i+2] * x[2*i+2] -
