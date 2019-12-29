@@ -3,7 +3,7 @@
 %    This script simulates a burner-stablized lean hydrogen-oxygen flame
 %    at low pressure.
 
-help flame1;
+help flame1
 
 t0 = cputime;  % record the starting time
 

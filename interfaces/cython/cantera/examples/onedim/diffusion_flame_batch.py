@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
@@ -14,14 +12,18 @@ explanation. Also, please don't forget to cite it if you make use of it.
 
 This example can, for example, be used to iterate to a counterflow diffusion flame to an
 awkward  pressure and strain rate, or to create the basis for a flamelet table.
+
+Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
-import cantera as ct
 import numpy as np
 import os
 
+import cantera as ct
+import matplotlib.pyplot as plt
 
-class FlameExtinguished(Exception): 
+
+class FlameExtinguished(Exception):
     pass
 
 
@@ -37,7 +39,7 @@ if not os.path.exists(data_directory):
 
 reaction_mechanism = 'h2o2.yaml'
 gas = ct.Solution(reaction_mechanism)
-width = 18e-3 # 18mm wide
+width = 18e-3  # 18mm wide
 f = ct.CounterflowDiffusionFlame(gas, width=width)
 
 # Define the operating pressure and boundary conditions
@@ -186,12 +188,10 @@ while np.max(f.T) > temperature_limit_extinction:
 
 # PART 4: PLOT SOME FIGURES
 
-import matplotlib.pyplot as plt
-
 fig1 = plt.figure()
 fig2 = plt.figure()
-ax1 = fig1.add_subplot(1,1,1)
-ax2 = fig2.add_subplot(1,1,1)
+ax1 = fig1.add_subplot(1, 1, 1)
+ax2 = fig2.add_subplot(1, 1, 1)
 p_selected = p_range[::7]
 
 for p in p_selected:
@@ -218,8 +218,8 @@ fig2.savefig(data_directory + 'figure_u_p.png')
 
 fig3 = plt.figure()
 fig4 = plt.figure()
-ax3 = fig3.add_subplot(1,1,1)
-ax4 = fig4.add_subplot(1,1,1)
+ax3 = fig3.add_subplot(1, 1, 1)
+ax4 = fig4.add_subplot(1, 1, 1)
 n_selected = range(1, n, 5)
 for n in n_selected:
     file_name = 'strain_loop_{0:02d}.xml'.format(n)

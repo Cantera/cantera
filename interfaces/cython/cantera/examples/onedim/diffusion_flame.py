@@ -1,9 +1,10 @@
 """
 An opposed-flow ethane/air diffusion flame
+
+Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
 import cantera as ct
-import numpy as np
 import matplotlib.pyplot as plt
 
 # Input parameters
@@ -16,7 +17,7 @@ mdot_f = 0.24  # kg/m^2/s
 comp_o = 'O2:0.21, N2:0.78, AR:0.01'  # air composition
 comp_f = 'C2H6:1'  # fuel composition
 
-width = 0.02 # Distance between inlets is 2 cm
+width = 0.02  # Distance between inlets is 2 cm
 
 loglevel = 1  # amount of diagnostic output (0 to 5)
 

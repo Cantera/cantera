@@ -1,11 +1,10 @@
 """
 Constant-pressure, adiabatic kinetics simulation.
 
-Requires: Cantera >= 2.5.0
+Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
 import sys
-import numpy as np
 
 import cantera as ct
 
@@ -24,12 +23,13 @@ dt_max = 1.e-5
 t_end = 100 * dt_max
 states = ct.SolutionArray(gas, extra=['t'])
 
-print('{:10s} {:10s} {:10s} {:14s}'.format('t [s]','T [K]','P [Pa]','u [J/kg]'))
+print('{:10s} {:10s} {:10s} {:14s}'.format(
+    't [s]', 'T [K]', 'P [Pa]', 'u [J/kg]'))
 while sim.time < t_end:
     sim.advance(sim.time + dt_max)
     states.append(r.thermo.state, t=sim.time*1e3)
-    print('{:10.3e} {:10.3f} {:10.3f} {:14.6f}'.format(sim.time, r.T,
-                                                       r.thermo.P, r.thermo.u))
+    print('{:10.3e} {:10.3f} {:10.3f} {:14.6f}'.format(
+            sim.time, r.T, r.thermo.P, r.thermo.u))
 
 # Plot the results if matplotlib is installed.
 # See http://matplotlib.org/ to get it.
@@ -41,15 +41,15 @@ if '--plot' in sys.argv[1:]:
     plt.xlabel('Time (ms)')
     plt.ylabel('Temperature (K)')
     plt.subplot(2, 2, 2)
-    plt.plot(states.t, states.X[:,gas.species_index('OH')])
+    plt.plot(states.t, states.X[:, gas.species_index('OH')])
     plt.xlabel('Time (ms)')
     plt.ylabel('OH Mole Fraction')
     plt.subplot(2, 2, 3)
-    plt.plot(states.t, states.X[:,gas.species_index('H')])
+    plt.plot(states.t, states.X[:, gas.species_index('H')])
     plt.xlabel('Time (ms)')
     plt.ylabel('H Mole Fraction')
     plt.subplot(2, 2, 4)
-    plt.plot(states.t, states.X[:,gas.species_index('H2')])
+    plt.plot(states.t, states.X[:, gas.species_index('H2')])
     plt.xlabel('Time (ms)')
     plt.ylabel('H2 Mole Fraction')
     plt.tight_layout()

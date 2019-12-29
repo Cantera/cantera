@@ -2,6 +2,8 @@
 This example solves a plug flow reactor problem, where the chemistry is
 surface chemistry. The specific problem simulated is the partial oxidation of
 methane over a platinum catalyst in a packed bed reactor.
+
+Requires: cantera >= 2.5.0
 """
 
 import csv
@@ -106,10 +108,11 @@ for n in range(NReactors):
     upstream.syncState()
     sim.reinitialize()
     sim.advance_to_steady_state()
-    dist = n * rlen * 1.0e3   # distance in mm
+    dist = n * rlen * 1.0e3  # distance in mm
 
-    if not n % 10:
-        print('  {0:10f}  {1:10f}  {2:10f}  {3:10f}'.format(dist, *gas['CH4','H2','CO'].X))
+    if n % 10 == 0:
+        print('  {0:10f}  {1:10f}  {2:10f}  {3:10f}'.format(
+            dist, *gas['CH4', 'H2', 'CO'].X))
 
     # write the gas mole fractions and surface coverages vs. distance
     output_data.append(

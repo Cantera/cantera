@@ -16,11 +16,12 @@ example.
 
 Acknowledgments: The idea for this example and an estimate of the conditions
 needed to see the oscillations came from Bob Kee, Colorado School of Mines
+
+Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
 import cantera as ct
-import numpy as np
-
+import matplotlib.pyplot as plt
 # create the gas mixture
 gas = ct.Solution('h2o2.yaml')
 
@@ -56,8 +57,8 @@ w = ct.Wall(cstr, env, A=1.0, U=0.02)
 # Connect the upstream reservoir to the reactor with a mass flow controller
 # (constant mdot). Set the mass flow rate to 1.25 sccm.
 sccm = 1.25
-vdot = sccm * 1.0e-6/60.0 * ((ct.one_atm / gas.P) * ( gas.T / 273.15)) # m^3/s
-mdot = gas.density * vdot # kg/s
+vdot = sccm * 1.0e-6 / 60.0 * ((ct.one_atm / gas.P) * (gas.T / 273.15))  # m^3/s
+mdot = gas.density * vdot  # kg/s
 mfc = ct.MassFlowController(upstream, cstr, mdot=mdot)
 
 # now create a downstream reservoir to exhaust into.
@@ -73,7 +74,7 @@ network = ct.ReactorNet([cstr])
 
 # now integrate in time
 t = 0.0
-dt   = 0.1
+dt = 0.1
 
 states = ct.SolutionArray(gas, extra=['t'])
 while t < 300.0:
@@ -83,11 +84,7 @@ while t < 300.0:
 
 if __name__ == '__main__':
     print(__doc__)
-    try:
-        import matplotlib.pyplot as plt
-        plt.figure(1)
-        plt.plot(states.t, states('H2','O2','H2O').Y)
-        plt.title('Mass Fractions')
-        plt.show()
-    except ImportError:
-        print('Matplotlib not found. Unable to plot results.')
+    plt.figure(1)
+    plt.plot(states.t, states('H2', 'O2', 'H2O').Y)
+    plt.title('Mass Fractions')
+    plt.show()

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
@@ -10,11 +8,15 @@ A hydrogen-oxygen diffusion flame at 1 bar is studied.
 The tutorial makes use of the scaling rules derived by Fiala and Sattelmayer
 (doi:10.1155/2014/484372). Please refer to this publication for a detailed
 explanation. Also, please don't forget to cite it if you make use of it.
+
+Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
-import cantera as ct
 import numpy as np
 import os
+
+import cantera as ct
+import matplotlib.pyplot as plt
 
 # Create directory for output data files
 data_directory = 'diffusion_flame_extinction_data/'
@@ -28,7 +30,7 @@ if not os.path.exists(data_directory):
 
 reaction_mechanism = 'h2o2.yaml'
 gas = ct.Solution(reaction_mechanism)
-width = 18.e-3 # 18mm wide
+width = 18.e-3  # 18mm wide
 f = ct.CounterflowDiffusionFlame(gas, width=width)
 
 # Define the operating pressure and boundary conditions
@@ -133,8 +135,8 @@ while True:
             break
     else:
         # Procedure if flame extinguished but abortion criterion is not satisfied
-        print('Flame extinguished at n = {0}. Restoring n = {1} with alpha = {2}'.format(
-              n, n_last_burning, alpha[n_last_burning]))
+        print('Flame extinguished at n = {0}. Restoring n = {1} with '
+              'alpha = {2}'.format(n, n_last_burning, alpha[n_last_burning]))
         # Reduce relative strain rate increase
         delta_alpha = delta_alpha / delta_alpha_factor
         # Restore last burning solution
@@ -157,7 +159,6 @@ print('Axial strain rate at stoichiometric surface a_stoich={0:.2e} 1/s'.format(
       f.strain_rate('stoichiometric', fuel='H2')))
 
 # Plot the maximum temperature over the maximum axial velocity gradient
-import matplotlib.pyplot as plt
 plt.figure()
 plt.semilogx(a_max, T_max)
 plt.xlabel(r'$a_{max}$ [1/s]')

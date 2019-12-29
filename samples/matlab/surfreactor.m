@@ -19,6 +19,7 @@ surf = importInterface('ptcombust.yaml','Pt_surf', gas);
 setTemperature(surf, t);
 
 nsp = nSpecies(gas);
+nSurfSp = nSpecies(surf);
 
 % create a reactor, and insert the gas
 r = IdealGasReactor(gas);
@@ -50,13 +51,18 @@ setExpansionRateCoeff(w, 1.0);
 network = ReactorNet({r});
 % setTolerances(network, 1.0e-8, 1.0e-12);
 
+nSteps = 100;
+p0 = pressure(r);
+names = {'CH4','CO','CO2','H2O'};
+x = zeros([nSteps 4]);
+tim = zeros(nSteps);
+temp = zeros(nSteps);
+pres = zeros(nSteps);
+cov = zeros([nSteps nSurfSp]);
 t = 0;
 dt = 0.1;
 t0 = cputime;
-p0 = pressure(r);
-names = {'CH4','CO','CO2','H2O'};
-x = zeros([100 4]);
-for n = 1:100
+for n = 1:nSteps
   t = t + dt;
   advance(network, t);
   tim(n) = t;

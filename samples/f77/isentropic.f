@@ -58,6 +58,3 @@ c     stagnation state properties
      $     / meanMolarMass())
       return
       end
-
-
-

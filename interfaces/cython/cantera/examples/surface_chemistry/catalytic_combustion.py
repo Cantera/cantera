@@ -1,14 +1,16 @@
 """
-CATCOMB  -- Catalytic combustion of methane on platinum.
+CATCOMB -- Catalytic combustion of methane on platinum.
 
 This script solves a catalytic combustion problem. A stagnation flow is set
 up, with a gas inlet 10 cm from a platinum surface at 900 K. The lean,
-premixed methane/air mixture enters at ~ 6 cm/s (0.06 kg/m2/s), and burns
+premixed methane/air mixture enters at ~6 cm/s (0.06 kg/m2/s), and burns
 catalytically on the platinum surface. Gas-phase chemistry is included too,
 and has some effect very near the surface.
 
 The catalytic combustion mechanism is from Deutschman et al., 26th
 Symp. (Intl.) on Combustion,1996 pp. 1747-1754
+
+Requires: cantera >= 2.5.0
 """
 
 import numpy as np
@@ -31,7 +33,7 @@ comp1 = 'H2:0.05, O2:0.21, N2:0.78, AR:0.01'
 comp2 = 'CH4:0.095, O2:0.21, N2:0.78, AR:0.01'
 
 # The inlet/surface separation is 10 cm.
-width = 0.1 # m
+width = 0.1  # m
 
 loglevel = 1  # amount of diagnostic output (0 to 5)
 

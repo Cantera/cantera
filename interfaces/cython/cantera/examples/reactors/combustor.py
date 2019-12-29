@@ -9,6 +9,8 @@ Demonstrates the use of a MassFlowController where the mass flow rate function
 depends on variables other than time by capturing these variables from the
 enclosing scope. Also shows the use of a PressureController to create a constant
 pressure reactor with a fixed volume.
+
+Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
 import numpy as np
@@ -43,8 +45,10 @@ exhaust = ct.Reservoir(gas)
 # can access variables defined in the calling scope, including state variables
 # of the Reactor object (combustor) itself.
 
+
 def mdot(t):
     return combustor.mass / residence_time
+
 
 inlet_mfc = ct.MassFlowController(inlet, combustor, mdot=mdot)
 
@@ -73,7 +77,7 @@ while combustor.T > 500:
 Q = - np.sum(states.net_production_rates * states.partial_molar_enthalpies, axis=1)
 
 # Plot results
-f, ax1 = plt.subplots(1,1)
+f, ax1 = plt.subplots(1, 1)
 ax1.plot(states.tres, Q, '.-', color='C0')
 ax2 = ax1.twinx()
 ax2.plot(states.tres[:-1], states.T[:-1], '.-', color='C1')

@@ -5,6 +5,8 @@ soot precursors.
 Demonstrates the use of a user-supplied function for the mass flow rate through
 a MassFlowController, and the use of the SolutionArray class to store results
 during reactor network integration and use these results to generate plots.
+
+Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
 import numpy as np
@@ -25,13 +27,15 @@ gas.equilibrate('TP')
 r = ct.IdealGasReactor(gas)
 r.volume = 0.001  # 1 liter
 
-# Create an inlet for the fuel, supplied as a Gaussian pulse
+
 def fuel_mdot(t):
+    """Create an inlet for the fuel, supplied as a Gaussian pulse"""
     total = 3.0e-3  # mass of fuel [kg]
     width = 0.5  # width of the pulse [s]
     t0 = 2.0  # time of fuel pulse peak [s]
     amplitude = total / (width * np.sqrt(2*np.pi))
     return amplitude * np.exp(-(t-t0)**2 / (2*width**2))
+
 
 mfc = ct.MassFlowController(inlet, r, mdot=fuel_mdot)
 
@@ -73,7 +77,7 @@ labels = {
 
 # Plot the concentrations of some species of interest, including PAH species
 # which can be considered as precursors to soot formation.
-f, ax = plt.subplots(1,2)
+f, ax = plt.subplots(1, 2)
 
 for s in ['o2', 'h2o', 'co2', 'CO', 'h2', 'ch4']:
     ax[0].plot(states.t, states(s).X, label=labels.get(s, s))

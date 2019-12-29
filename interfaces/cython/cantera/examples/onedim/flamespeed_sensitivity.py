@@ -2,10 +2,11 @@
 Sensitivity analysis for a freely-propagating, premixed methane-air
 flame. Computes the sensitivity of the laminar flame speed with respect
 to each reaction rate constant.
+
+Requires: cantera >= 2.5.0
 """
 
 import cantera as ct
-import numpy as np
 
 # Simulation parameters
 p = ct.one_atm  # pressure [Pa]

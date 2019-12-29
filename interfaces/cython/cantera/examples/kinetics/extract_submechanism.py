@@ -6,11 +6,12 @@ oxidation reactions are extracted from the GRI 3.0 mechanism.
 To test the submechanism, a premixed CO/H2 flame is simulated using the original
 mechanism and the submechanism, which demonstrates that the submechanism
 contains all of the important species and reactions.
+
+Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
 from timeit import default_timer
 import cantera as ct
-import numpy as np
 import matplotlib.pyplot as plt
 
 all_species = ct.Species.listFromFile('gri30.yaml')
@@ -22,7 +23,7 @@ for S in all_species:
     if 'C' in comp and 'H' in comp:
         # Exclude all hydrocarbon species
         continue
-    if 'N' in comp and comp != {'N':2}:
+    if 'N' in comp and comp != {'N': 2}:
         # Exclude all nitrogen compounds except for N2
         continue
     if 'Ar' in comp:
@@ -54,18 +55,20 @@ gas1 = ct.Solution('gri30.yaml')
 gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                    species=species, reactions=reactions)
 
+
 def solve_flame(gas):
     gas.TPX = 373, 0.05*ct.one_atm, 'H2:0.4, CO:0.6, O2:1, N2:3.76'
 
     # Create the flame simulation object
     sim = ct.CounterflowPremixedFlame(gas=gas, width=0.2)
 
-    sim.reactants.mdot = 0.12 # kg/m^2/s
-    sim.products.mdot = 0.06 # kg/m^2/s
+    sim.reactants.mdot = 0.12  # kg/m^2/s
+    sim.products.mdot = 0.06  # kg/m^2/s
 
     sim.set_refine_criteria(ratio=3, slope=0.1, curve=0.2)
     sim.solve(0, auto=True)
     return sim
+
 
 t1 = default_timer()
 sim1 = solve_flame(gas1)

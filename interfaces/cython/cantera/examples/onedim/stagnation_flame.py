@@ -13,10 +13,11 @@ resolve the solution. This is important here, since the flamefront moves as
 the mass flowrate is increased. Without using 'prune', a large number of grid
 points would be concentrated upsteam of the flame, where the flamefront had
 been previously. (To see this, try setting prune to zero.)
+
+Requires: cantera >= 2.5.0
 """
 
 import cantera as ct
-import numpy as np
 import os
 
 # parameter values
@@ -32,7 +33,7 @@ rxnmech = 'h2o2.yaml'  # reaction mechanism file
 comp = 'H2:1.8, O2:1, AR:7'  # premixed gas composition
 
 # The solution domain is chosen to be 20 cm
-width = 0.2 # m
+width = 0.2  # m
 
 loglevel = 1  # amount of diagnostic output (0 to 5)
 
@@ -71,7 +72,7 @@ outfile = 'stflame1.xml'
 if os.path.exists(outfile):
     os.remove(outfile)
 
-for m,md in enumerate(mdot):
+for m, md in enumerate(mdot):
     sim.inlet.mdot = md
     sim.solve(loglevel)
     sim.save(outfile, 'mdot{0}'.format(m), 'mdot = {0} kg/m2/s'.format(md))

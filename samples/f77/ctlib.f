@@ -26,7 +26,7 @@ c     example driver program
 
 c     Read in the reaction mechanism. Since this is done differently
 c     than in Chemkin, this function does not correspond to any CKLIB
-c     subroutine. 
+c     subroutine.
       call newIdealGasMix('gri30.yaml','gri30','')
 
 c     get the number of elements, species, and reactions
@@ -39,7 +39,7 @@ c     get the number of elements, species, and reactions
 c     compute the net production rates in cgs units
       p = 1.0d6
       t = 2500.0d0
-      
+
       call ctwyp(p, t, y, ickwrk, rckwrk, wdot)
       do k = 1, kk
          write(*,*) k, y(k), wdot(k)
@@ -77,7 +77,7 @@ c     temperature, and array of mass fractions.
       implicit double precision (a-h,o-z)
       double precision y(*), rckwrk(*), wdot(*)
       integer ickwrk(*)
-      
+
 c     set the state
       psi = 0.1*p
       call setState_TPY(t, psi, y)
@@ -92,4 +92,3 @@ c     convert SI -> cgs
       end do
       return
       end
-
