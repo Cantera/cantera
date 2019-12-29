@@ -7,7 +7,7 @@ import copy
 
 class TestElectron(utilities.CanteraTest):
     def setUp(self):
-        self.gas = ct.Solution(infile='ch4_plasma.cti', efile='lxcat.yaml')
+        self.gas = ct.Plasma(infile='ch4_plasma.cti', efile='lxcat.yaml')
 
     def test_electron_properties(self):
         self.gas.TPX = 1000, ct.one_atm, 'O2:1.0, E:1e-10'
@@ -21,7 +21,7 @@ class TestElectron(utilities.CanteraTest):
         self.assertNear(self.gas.net_plasma_production_rates[24], 0.001877, 1e-3)
         self.assertNear(self.gas.electron_total_collision_frequency, 3.6957e11, 1e-3)
         self.assertNear(self.gas.electron_power_gain, 3.9811e9, 1e-3)
-        self.assertNear(self.gas.electron_elastic_power_loss, 2.8671e7, 1e-3)
+        self.assertNear(self.gas.electron_elastic_power_loss, 2.8744e7, 1e-3)
         self.assertNear(self.gas.mean_electron_energy, 1.9742, 1e-3)
         self.assertNear(self.gas.electric_field, 1e5, 1e-3)
 
