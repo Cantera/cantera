@@ -144,8 +144,8 @@ cdef class Transport(_SolutionBase):
                     model = 'None'
                 self.transport = newTransportMgr(stringify(model), self.thermo)
             self._transport.reset(self.transport)
-        if self.electron != NULL:
-            self.transport.initElectron(self.electron)
+        if self.plasmaElectron != NULL:
+            self.transport.initElectron(self.plasmaElectron)
         super().__init__(*args, **kwargs)
         self.base.setTransport(self._transport)
 

@@ -1,7 +1,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://www.cantera.org/license.txt for license and copyright information.
 
-#include "cantera/electron/Electron.h"
+#include "cantera/plasma/PlasmaElectron.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ctml.h"
@@ -12,7 +12,7 @@
 
 namespace Cantera {
 
-Electron::Electron()
+PlasmaElectron::PlasmaElectron()
     : m_ncs(0)
     , m_points(200)
     , m_kT(Undef)
@@ -38,11 +38,11 @@ Electron::Electron()
     m_gamma = pow(2.0 * ElectronCharge / ElectronMass, 0.5);
 }
 
-Electron::~Electron()
+PlasmaElectron::~PlasmaElectron()
 {
 }
 
-void Electron::init(thermo_t* thermo)
+void PlasmaElectron::init(thermo_t* thermo)
 {
     m_thermo = thermo;
     m_f0_ok = false;
@@ -80,7 +80,7 @@ void Electron::init(thermo_t* thermo)
     m_moleFractions.resize(m_ncs, 0.0);
 }
 
-void Electron::setGridCache()
+void PlasmaElectron::setGridCache()
 {
     m_sigma.clear();
     m_sigma.resize(m_ncs);
@@ -145,7 +145,7 @@ void Electron::setGridCache()
     }
 }
 
-void Electron::update_T()
+void PlasmaElectron::update_T()
 {
     // signal that temperature-dependent quantities will need to be recomputed
     // before use, and update the local temperature.
@@ -157,7 +157,7 @@ void Electron::update_T()
     }
 }
 
-void Electron::update_C()
+void PlasmaElectron::update_C()
 {
     // signal that concentration-dependent quantities will need to be recomputed
     // before use, and update the local mole fractions.
@@ -173,7 +173,7 @@ void Electron::update_C()
     // warn that a specific species needs cross-section data.
     for (size_t k : m_kOthers) {
         if (X[k] > 0.01) {
-            writelog("Cantera::Electron::update_C");
+            writelog("Cantera::PlasmaElectron::update_C");
             writelog("\n");
             writelog("Warning: The mole fraction of species {} is more than 0.01",
                     m_thermo->speciesName(k));
@@ -183,7 +183,7 @@ void Electron::update_C()
     }
 }
 
-bool Electron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
+bool PlasmaElectron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
 {
     ecs->validate();
     m_targets.push_back(ecs->target);
@@ -221,7 +221,7 @@ bool Electron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
         for (size_t k = 0; k < m_ncs; k++) {
             if (m_targets[k] == ecs->target)
                 if (m_kinds[k] == "ELASTIC" || m_kinds[k] == "EFFECTIVE") {
-                    throw CanteraError("Electron::addElectronCrossSection",
+                    throw CanteraError("PlasmaElectron::addElectronCrossSection",
                                        "Already contains a data of EFFECTIVE/ELASTIC cross section for '{}'.",
                                        ecs->target);
             }
@@ -239,7 +239,7 @@ bool Electron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
     return true;
 }
 
-void Electron::calculateElasticCrossSection()
+void PlasmaElectron::calculateElasticCrossSection()
 {
     for (size_t ke : m_kElastic) {
         if (m_kinds[ke] == "EFFECTIVE") {
@@ -262,7 +262,7 @@ void Electron::calculateElasticCrossSection()
     }
 }
 
-void Electron::setupGrid(size_t n, const double* eps)
+void PlasmaElectron::setupGrid(size_t n, const double* eps)
 {
     m_points = n-1;
     m_gridCenter.resize(n-1);

@@ -1,8 +1,8 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://www.cantera.org/license.txt for license and copyright information.
 
-#include "cantera/electron/WeakIonGasElectron.h"
-#include "cantera/electron/ElectronFactory.h"
+#include "cantera/plasma/WeakIonGasElectron.h"
+#include "cantera/plasma/PlasmaElectronFactory.h"
 #include "cantera/base/utilities.h"
 #include "cantera/numerics/funcs.h"
 #include <Eigen/SparseLU>

@@ -98,7 +98,7 @@ class Solution(ThermoPhase, Kinetics, Transport):
     __slots__ = ()
 
 
-class Plasma(ThermoPhase, Kinetics, Transport, Electron):
+class Plasma(ThermoPhase, Kinetics, Transport, PlasmaElectron):
     __slots__ = ()
 
 

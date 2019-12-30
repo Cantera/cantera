@@ -15,7 +15,7 @@
 #include "StoichManager.h"
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/base/global.h"
-#include "cantera/electron/Electron.h"
+#include "cantera/plasma/PlasmaElectron.h"
 
 namespace Cantera
 {
@@ -692,7 +692,7 @@ public:
 
     //! Add PlasmaElectron object for calculating electron temperature, and
     //! reaction rate coefficients of plasma reactions.
-    virtual void addElectron(Electron* electron);
+    virtual void addPlasmaElectron(PlasmaElectron* electron);
 
     /**
      * Prepare the class for the addition of reactions, after all phases have
@@ -908,8 +908,8 @@ protected:
      */
     std::vector<thermo_t*> m_thermo;
 
-    //! electron class
-    Electron* m_electron;
+    //! Plasmaelectron class
+    PlasmaElectron* m_electron;
 
     /**
      * m_start is a vector of integers specifying the beginning position for the

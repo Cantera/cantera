@@ -4,15 +4,15 @@
 import warnings
 import weakref
 
-cdef np.ndarray get_electron_1d(Electron elect, electronMethod1d method):
+cdef np.ndarray get_electron_1d(PlasmaElectron elect, plasmaElectronMethod1d method):
     cdef np.ndarray[np.double_t, ndim=1] data = np.empty(elect.thermo.nSpecies())
-    method(elect.electron, &data[0])
+    method(elect.plasmaElectron, &data[0])
     if elect._selected_species.size:
         return data[elect._selected_species]
     else:
         return data
 
-cdef class Electron(_SolutionBase):
+cdef class PlasmaElectron(_SolutionBase):
     """
     This class is used to compute electron properties for a phase of matter.
     """
@@ -23,56 +23,56 @@ cdef class Electron(_SolutionBase):
         """ Set the grid of cell boundary of electron energy [eV]"""
         cdef np.ndarray[np.double_t, ndim=1] data = \
             np.ascontiguousarray(grid, dtype=np.double)
-        self.electron.setupGrid(len(data), &data[0])
+        self.plasmaElectron.setupGrid(len(data), &data[0])
 
     property electron_temperature:
         """electron temperature"""
         def __get__(self):
-            return self.electron.electronTemperature()
+            return self.plasmaElectron.electronTemperature()
 
     property electron_mobility:
         """electron mobility [m^2/V/s)]"""
         def __get__(self):
-            return self.electron.electronMobility()
+            return self.plasmaElectron.electronMobility()
 
     property electron_diffusivity:
         """electron diffusivity [m^2/s]"""
         def __get__(self):
-            return self.electron.electronDiffusivity()
+            return self.plasmaElectron.electronDiffusivity()
 
     property electron_total_collision_frequency:
         """electron total collision frequency"""
         def __get__(self):
-            return self.electron.totalCollisionFreq()
+            return self.plasmaElectron.totalCollisionFreq()
 
     def electron_rate_coefficient(self, k):
         """rate coefficient of process k"""
-        return self.electron.rateCoefficient(k)
+        return self.plasmaElectron.rateCoefficient(k)
 
     def electron_reverse_rate_coefficient(self, k):
         """reverse rate coefficient of process k"""
-        return self.electron.reverseRateCoefficient(k)
+        return self.plasmaElectron.reverseRateCoefficient(k)
 
     property electron_power_gain:
         """
         Electron power gain. [eV/s]
         """
         def __get__(self):
-            return self.electron.powerGain()
+            return self.plasmaElectron.powerGain()
 
     property electron_elastic_power_loss:
         """
         Electron elastic power loss. [eV/s]
         """
         def __get__(self):
-            return self.electron.elasticPowerLoss()
+            return self.plasmaElectron.elasticPowerLoss()
 
     property electron_inelastic_power_loss:
         """
         Electron inelastic power loss. [eV/s]
         """
         def __get__(self):
-            return self.electron.inelasticPowerLoss()
+            return self.plasmaElectron.inelasticPowerLoss()
 
     property net_plasma_production_rates:
         """
@@ -84,43 +84,43 @@ cdef class Electron(_SolutionBase):
 
     def set_chemionization_scattering_rate(self, rate):
         """ Set chemionization scattering-in rate """
-        self.electron.setChemionScatRate(rate)
+        self.plasmaElectron.setChemionScatRate(rate)
 
     def set_boltzmann_solver(self, maxn=100, rtol=1e-5, delta0=1e14,
                              m=4.0, init_kTe=0.0, warn=True):
         """ Set boltzmann solver"""
-        self.electron.setBoltzmannSolver(maxn, rtol, delta0, m, init_kTe, <cbool>warn)
+        self.plasmaElectron.setBoltzmannSolver(maxn, rtol, delta0, m, init_kTe, <cbool>warn)
 
     property mean_electron_energy:
         """mean electron energy [eV]"""
         def __get__(self):
-            return self.electron.meanElectronEnergy()
+            return self.plasmaElectron.meanElectronEnergy()
 
     property electric_field:
         """reduced electric field strength [V-m2]"""
         def __get__(self):
-            return self.electron.electricField()
+            return self.plasmaElectron.electricField()
         def __set__(self, E):
-            self.electron.setElectricField(E)
+            self.plasmaElectron.setElectricField(E)
 
     property electric_field_freq:
         """electric field freq [Hz]"""
         def __get__(self):
-            return self.electron.electricFieldFreq()
+            return self.plasmaElectron.electricFieldFreq()
         def __set__(self, F):
-            self.electron.setElectricFieldFreq(F)
+            self.plasmaElectron.setElectricFieldFreq(F)
 
     def electron_collision_target(self, k):
-        return pystr(self.electron.target(k))
+        return pystr(self.plasmaElectron.target(k))
 
     def electron_collision_kind(self, k):
-        return pystr(self.electron.kind(k))
+        return pystr(self.plasmaElectron.kind(k))
 
     def electron_collision_product(self,k):
-        return pystr(self.electron.product(k))
+        return pystr(self.plasmaElectron.product(k))
 
     def electron_collision_threshold(self, k):
-        return self.electron.threshold(k)
+        return self.plasmaElectron.threshold(k)
 
 
 cdef class ElectronCrossSection:

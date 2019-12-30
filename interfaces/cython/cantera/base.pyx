@@ -6,7 +6,7 @@ from collections import defaultdict as _defaultdict
 cdef class _SolutionBase:
     def __cinit__(self, infile='', name='', adjacent=(), origin=None,
                   source=None, yaml=None, thermo=None, species=(),
-                  kinetics=None, reactions=(), electron=None,
+                  kinetics=None, reactions=(), plasma_electron=None,
                   electron_cross_sections=(), efile=None, **kwargs):
 
         if 'phaseid' in kwargs:
@@ -37,11 +37,11 @@ cdef class _SolutionBase:
             self.transport = other.transport
             self._base = other._base
             self._source = other._source
-            self.electron = other.electron
+            self.plasmaElectron = other.plasmaElectron
             self._thermo = other._thermo
             self._kinetics = other._kinetics
             self._transport = other._transport
-            self._electron = other._electron
+            self._plasmaElectron = other._plasmaElectron
 
             self.thermo_basis = other.thermo_basis
             self._selected_species = other._selected_species.copy()
@@ -69,12 +69,12 @@ cdef class _SolutionBase:
         self.base.setThermo(self._thermo)
         self.base.setKinetics(self._kinetics)
 
-        # Initiate electron
+        # Initiate plasma
         if efile:
             self._init_efile(efile)
 
         if electron_cross_sections:
-            self._init_electron(electron, electron_cross_sections)
+            self._init_electron(plasma_electron, electron_cross_sections)
 
         self._selected_species = np.ndarray(0, dtype=np.uint64)
 
@@ -235,32 +235,32 @@ cdef class _SolutionBase:
 
     def _init_efile(self, efile):
         """
-        Instantiate a new Electron object via a yaml file.
+        Instantiate a new PlasmaElectron object via a yaml file.
         """
         cdef CxxAnyMap root
         root = AnyMapFromYamlFile(stringify(efile))
 
-        if isinstance(self, Electron):
-            self._electron = newElectron(root, self.thermo)
-            self.electron = self._electron.get()
-            self.kinetics.addElectron(self.electron)
+        if isinstance(self, PlasmaElectron):
+            self._plasmaElectron = newPlasmaElectron(root, self.thermo)
+            self.plasmaElectron = self._plasmaElectron.get()
+            self.kinetics.addPlasmaElectron(self.plasmaElectron)
         else:
-            self.electron = NULL
+            self.plasmaElectron = NULL
 
-    def _init_electron(self, electron, electron_cross_sections):
+    def _init_electron(self, plasma_electron, electron_cross_sections):
         """
-        Instantiate a new Electron object.
+        Instantiate a new PlasmaElectron object.
         """
         cdef ElectronCrossSection ecs
-        if isinstance(self, Electron):
-            self.electron = newElectron(stringify(electron))
-            self._electron.reset(self.electron)
+        if isinstance(self, PlasmaElectron):
+            self.plasmaElectron = newPlasmaElectron(stringify(plasma_electron))
+            self._plasmaElectron.reset(self.plasmaElectron)
             for ecs in electron_cross_sections:
-                self.electron.addElectronCrossSection(ecs._electron_cross_section)
-            self.electron.init(self.thermo)
-            self.kinetics.addElectron(self.electron)
+                self.plasmaElectron.addElectronCrossSection(ecs._electron_cross_section)
+            self.plasmaElectron.init(self.thermo)
+            self.kinetics.addPlasmaElectron(self.plasmaElectron)
         else:
-            self.electron = NULL
+            self.plasmaElectron = NULL
 
     def __getitem__(self, selection):
         copy = self.__class__(origin=self)

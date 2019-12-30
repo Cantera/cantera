@@ -20,7 +20,7 @@
 #define CT_TRANSPORTBASE_H
 
 #include "cantera/thermo/ThermoPhase.h"
-#include "cantera/electron/Electron.h"
+#include "cantera/plasma/PlasmaElectron.h"
 
 namespace Cantera
 {
@@ -661,7 +661,7 @@ public:
     }
 
     //! initialize the Electron object. This method is overloaded in IonGasTtransport.
-    virtual void initElectron(Electron* electron) {}
+    virtual void initElectron(PlasmaElectron* electron) {}
 
     virtual void enableElectron(bool enable) {}
 

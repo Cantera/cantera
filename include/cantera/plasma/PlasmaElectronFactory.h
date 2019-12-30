@@ -1,32 +1,32 @@
 /**
- *  @file ElectronFactory.h
- *     Headers for the factory class that can create known Electron objects
+ *  @file PlasmaElectronFactory.h
+ *     Headers for the factory class that can create known PlasmaElectron objects
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://www.cantera.org/license.txt for license and copyright information.
 
-#ifndef ELECTRON_FACTORY_H
-#define ELECTRON_FACTORY_H
+#ifndef PLASMAELECTRON_FACTORY_H
+#define PLASMAELECTRON_FACTORY_H
 
-#include "cantera/electron/Electron.h"
+#include "cantera/plasma/PlasmaElectron.h"
 #include "cantera/base/FactoryBase.h"
 
 namespace Cantera
 {
-//! Factory class for electron data managers.
+//! Factory class for plasmaelectron data managers.
 /*!
- * This class keeps a list of the known Electron classes, and is
+ * This class keeps a list of the known PlasmaElectron classes, and is
  * used to create new instances of these classes.
  */
-class ElectronFactory : public Factory<Electron>
+class PlasmaElectronFactory : public Factory<PlasmaElectron>
 {
 public:
     //! Static function that creates a static instance of the factory.
-    static ElectronFactory* factory() {
+    static PlasmaElectronFactory* factory() {
         std::unique_lock<std::mutex> lock(electron_mutex);
         if (!s_factory) {
-            s_factory = new ElectronFactory;
+            s_factory = new PlasmaElectronFactory;
         }
         return s_factory;
     }
@@ -38,14 +38,14 @@ public:
         s_factory = 0;
     }
 
-    virtual Electron* newElectron(const std::string& model);
+    virtual PlasmaElectron* newPlasmaElectron(const std::string& model);
 
 private:
     //! static member of a single instance
-    static ElectronFactory* s_factory;
+    static PlasmaElectronFactory* s_factory;
 
     //! Private constructors prevents usage
-    ElectronFactory();
+    PlasmaElectronFactory();
 
     //! Decl for locking mutex for thermo factory singleton
     static std::mutex electron_mutex;
@@ -54,18 +54,18 @@ private:
 //! Create a new electron manager instance.
 /*!
  * @param model   String to look up the model against
- * @returns a pointer to a new Electron instance matching the model string.
+ * @returns a pointer to a new PlasmaElectron instance matching the model string.
  *   Returns NULL if something went wrong. Throws an exception
  *   UnknownThermoPhaseModel if the string wasn't matched.
  */
-inline Electron* newElectron(const std::string& model)
+inline PlasmaElectron* newPlasmaElectron(const std::string& model)
 {
-    return ElectronFactory::factory()->create(model);
+    return PlasmaElectronFactory::factory()->create(model);
 }
 
-unique_ptr<Electron> newElectron(const AnyMap& rootNode=AnyMap(), thermo_t* phase = 0);
+unique_ptr<PlasmaElectron> newPlasmaElectron(const AnyMap& rootNode=AnyMap(), thermo_t* phase = 0);
 
-void addElectronCrossSections(Electron& electron, const AnyValue& cross_section);
+void addElectronCrossSections(PlasmaElectron& electron, const AnyValue& cross_section);
 
 }
 

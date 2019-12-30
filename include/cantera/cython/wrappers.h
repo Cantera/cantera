@@ -5,7 +5,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/TransportBase.h"
 #include "cantera/kinetics/Kinetics.h"
-#include "cantera/electron/Electron.h"
+#include "cantera/plasma/PlasmaElectron.h"
 
 #include "Python.h"
 
@@ -65,7 +65,7 @@ void CxxArray2D_set(Cantera::Array2D& array, size_t i, size_t j, double value)
 #define KIN_1D(FUNC_NAME) ARRAY_FUNC(kin, Kinetics, FUNC_NAME)
 #define TRANSPORT_1D(FUNC_NAME) ARRAY_FUNC(tran, Transport, FUNC_NAME)
 #define TRANSPORT_2D(FUNC_NAME) ARRAY_FUNC2(tran, Transport, FUNC_NAME)
-#define ELECTRON_1D(FUNC_NAME) ARRAY_FUNC(elect, Electron, FUNC_NAME)
+#define ELECTRON_1D(FUNC_NAME) ARRAY_FUNC(elect, PlasmaElectron, FUNC_NAME)
 
 THERMO_1D(getMassFractions)
 THERMO_1D(setMassFractions)

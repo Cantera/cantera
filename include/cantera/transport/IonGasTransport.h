@@ -57,7 +57,7 @@ public:
 
     virtual void init(thermo_t* thermo, int mode, int log_level);
 
-    virtual void initElectron(Electron* electron);
+    virtual void initElectron(PlasmaElectron* electron);
 
     //! Viscosity of the mixture  (kg/m/s).
     //! Only Neutral species contribute to Viscosity.
@@ -126,7 +126,7 @@ protected:
     vector_fp m_om11_O2;
 
     //! electron class
-    Electron* m_electron;
+    PlasmaElectron* m_electron;
 
     double m_electronMobility;
 

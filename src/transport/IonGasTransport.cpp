@@ -87,7 +87,7 @@ void IonGasTransport::init(thermo_t* thermo, int mode, int log_level)
     }
 }
 
-void IonGasTransport::initElectron(Electron* electron)
+void IonGasTransport::initElectron(PlasmaElectron* electron)
 {
     m_electron = electron;
 }

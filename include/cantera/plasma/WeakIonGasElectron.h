@@ -9,7 +9,7 @@
 #ifndef CT_WEAKIONGASELECTRON_H
 #define CT_WEAKIONGASELECTRON_H
 
-#include "cantera/electron/Electron.h"
+#include "cantera/plasma/PlasmaElectron.h"
 #include <Eigen/Sparse>
 
 namespace Cantera
@@ -80,7 +80,7 @@ typedef Eigen::SparseMatrix<double> SparseMat;
  * doi: https://doi.org/10.1051/0004-6361/201220465
  * @ingroup electron
  */
-class WeakIonGasElectron: public Electron
+class WeakIonGasElectron: public PlasmaElectron
 {
 public:
     WeakIonGasElectron();

@@ -1,16 +1,16 @@
 /**
- * @file Electron.h
- * Header file for class Electron.
+ * @file PlasmaElectron.h
+ * Header file for class PlasmaElectron.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://www.cantera.org/license.txt for license and copyright information.
 
-#ifndef CT_ELECTRON_H
-#define CT_ELECTRON_H
+#ifndef CT_PLASMAELECTRON_H
+#define CT_PLASMAELECTRON_H
 
 #include "cantera/thermo/ThermoPhase.h"
-#include "cantera/electron/ElectronCrossSection.h"
+#include "cantera/plasma/ElectronCrossSection.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ValueCache.h"
 #include "cantera/numerics/eigen_dense.h"
@@ -27,20 +27,20 @@ namespace Cantera
  */
 
 /*!
- * Class Electron is the base class which manages the grid and grid cache,
+ * Class PlasmaElectron is the base class which manages the grid and grid cache,
  * cross-section data, and updating temperature and gas composition.
  * @ingroup electron
  */
-class Electron
+class PlasmaElectron
 {
 public:
-    Electron();
+    PlasmaElectron();
 
-    virtual ~Electron();
+    virtual ~PlasmaElectron();
 
     // Electron objects are not copyable or assignable
-    Electron(const Electron&) = delete;
-    Electron& operator=(const Electron&) = delete;
+    PlasmaElectron(const PlasmaElectron&) = delete;
+    PlasmaElectron& operator=(const PlasmaElectron&) = delete;
 
     //! Add an electron cross section to this Electron. Returns `true` if the electron cross section was
     //! successfully added, or `false` if the electron cross section was ignored.
@@ -67,54 +67,54 @@ public:
 
     //! electron diffusivity
     virtual double electronDiffusivity() {
-        throw NotImplementedError("Electron::electronDiffusivity");
+        throw NotImplementedError("PlasmaElectron::electronDiffusivity");
     }
 
     //! electron mobility
     virtual double electronMobility() {
-        throw NotImplementedError("Electron::electronMobility");
+        throw NotImplementedError("PlasmaElectron::electronMobility");
     }
 
     //! mean electron energy
     virtual double meanElectronEnergy() {
-        throw NotImplementedError("Electron::meanElectronEnergy");
+        throw NotImplementedError("PlasmaElectron::meanElectronEnergy");
     }
 
     virtual double powerGain() {
-        throw NotImplementedError("Electron::powerGain");
+        throw NotImplementedError("PlasmaElectron::powerGain");
     }
 
     //! elastic power loss
     virtual double elasticPowerLoss() {
-        throw NotImplementedError("Electron::elasticPowerLoss");
+        throw NotImplementedError("PlasmaElectron::elasticPowerLoss");
     }
 
     //! inelastic power loss
     virtual double inelasticPowerLoss() {
-        throw NotImplementedError("Electron::inelasticPowerLoss");
+        throw NotImplementedError("PlasmaElectron::inelasticPowerLoss");
     }
 
     //! total collision frequency
     virtual double totalCollisionFreq() {
-        throw NotImplementedError("Electron::totalCollisionFreq");
+        throw NotImplementedError("PlasmaElectron::totalCollisionFreq");
     }
 
     //! rate coefficient for the electron collision process. [m^3/s]
     virtual double rateCoefficient(size_t k) {
-        throw NotImplementedError("Electron::rateCoefficient");
+        throw NotImplementedError("PlasmaElectron::rateCoefficient");
     }
 
     //! reverse rate coefficient for the electron collision process. [m^3/s]
     virtual double reverseRateCoefficient(size_t k) {
-        throw NotImplementedError("Electron::reverseRateCoefficient");
+        throw NotImplementedError("PlasmaElectron::reverseRateCoefficient");
     }
 
     //! net plasma production rates
     virtual void getNetPlasmaProductionRates(double* wdot) {
-        throw NotImplementedError("Electron::getNetPlasmaProductionRates");
+        throw NotImplementedError("PlasmaElectron::getNetPlasmaProductionRates");
     }
 
-    //! initialize Electron. Need to be called after adding all cross sections.
+    //! initialize PlasmaElectron. Need to be called after adding all cross sections.
     void init(thermo_t* thermo);
 
     //! Reduced electric field
@@ -210,13 +210,13 @@ public:
 
     //! Return electron temperature
     virtual double electronTemperature() {
-        throw NotImplementedError("Electron::electronTemperature");
+        throw NotImplementedError("PlasmaElectron::electronTemperature");
     }
 
     //! Set chemionization scattering-in rate
     //! Equal to the reaction rate divided by gas and electron number density
     virtual void setChemionScatRate(double rate) {
-        throw NotImplementedError("Electron::setChemionScatRate");
+        throw NotImplementedError("PlasmaElectron::setChemionScatRate");
     }
 
 protected:
