@@ -545,6 +545,19 @@ protected:
 
     virtual void updateMixingExpressions();
 
+
+    //! Solve the cubic equation of state
+    /*!
+     *
+     * Returns the number of solutions found. If it only finds the liquid
+     * branch solution, it will return a -1 or a -2 instead of 1 or 2.  If it
+     * returns 0, then there is an error.
+     * The cubic equation is solved using Nickall's method (Ref: The Mathematical Gazette(1993), 77(November), 354�359, https://www.jstor.org/stable/3619777)
+     */
+    int NicholsSolve(double T, double pres, double a, double b,
+                                        double aAlpha, double Vroot[3], double an,
+                                        double bn, double cn, double dn, double tc) const;
+
     //@}
 
 protected:
@@ -583,6 +596,19 @@ protected:
 
     //! Temporary storage for dimensionless reference state entropies
     mutable vector_fp m_s0_R;
+
+public:
+    //! Omega constants: a0 (= omega_a) and b0 (= omega_b) values used in Peng-Robinson equation of state
+    /*!
+     *  These values are calculated by solving P-R cubic equation at the critical point.
+     */
+    static const double omega_a;
+
+    //! Omega constant for b
+    static const double omega_b;
+
+    //! Omega constant for the critical molar volume
+    static const double omega_vc;
 };
 }
 

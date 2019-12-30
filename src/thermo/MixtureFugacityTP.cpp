@@ -17,6 +17,10 @@ using namespace std;
 namespace Cantera
 {
 
+const double MixtureFugacityTP::omega_a = 0.;
+const double MixtureFugacityTP::omega_b = 0.;
+const double MixtureFugacityTP::omega_vc = 0.;
+
 MixtureFugacityTP::MixtureFugacityTP() :
     iState_(FLUID_GAS),
     forcedState_(FLUID_UNDEFINED),
@@ -850,6 +854,208 @@ void MixtureFugacityTP::invalidateCache()
 {
     ThermoPhase::invalidateCache();
     m_Tlast_ref += 0.001234;
+}
+
+int MixtureFugacityTP::NicholsSolve(double T, double pres, double a, double b,
+                                        double aAlpha, double Vroot[3], double an,
+                                        double bn, double cn, double dn, double tc) const
+{
+    double tmp;
+    fill_n(Vroot, 3, 0.0);
+    if (T <= 0.0) {
+        throw CanteraError("MixtureFugacityTP::NicholsSolve()", "negative temperature T = {}", T);
+    }
+
+    double pc = omega_b * GasConstant * tc / b;
+    double vc = omega_vc * GasConstant * tc / pc;
+
+    // Derive the center of the cubic, x_N
+    double xN = - bn /(3 * an);
+
+    // Derive the value of delta**2. This is a key quantity that determines the number of turning points
+    double delta2 = (bn * bn - 3 * an * cn) / (9 * an * an);
+    double delta = 0.0;
+
+    // Calculate a couple of ratios
+    // Cubic equation in z : z^3 - (1-B) z^2 + (A -2B -3B^2)z - (AB- B^2- B^3) = 0
+    double ratio1 = 3.0 * an * cn / (bn * bn);
+    double ratio2 = pres * b / (GasConstant * T); // B
+    if (fabs(ratio1) < 1.0E-7) {
+        double ratio3 = aAlpha / (GasConstant * T) * pres / (GasConstant * T); // A
+        if (fabs(ratio2) < 1.0E-5 && fabs(ratio3) < 1.0E-5) {
+            // A and B terms in cubic equation for z are almost zero, then z is near to 1
+            double zz = 1.0;
+            for (int i = 0; i < 10; i++) {
+                double znew = zz / (zz - ratio2) - ratio3 / (zz + ratio1);
+                double deltaz = znew - zz;
+                zz = znew;
+                if (fabs(deltaz) < 1.0E-14) {
+                    break;
+                }
+            }
+            double v = zz * GasConstant * T / pres;
+            Vroot[0] = v;
+            return 1;
+        }
+    }
+
+    int nSolnValues; // Represents number of solutions to the cubic equation
+    double h2 = 4. * an * an * delta2 * delta2 * delta2; // h^2
+    if (delta2 > 0.0) {
+        delta = sqrt(delta2);
+    }
+
+    double h = 2.0 * an * delta * delta2;
+    double yN = 2.0 * bn * bn * bn / (27.0 * an * an) - bn * cn / (3.0 * an) + dn; // y_N term
+    double disc = yN * yN - h2; // discriminant
+
+    //check if y = h
+    if (fabs(fabs(h) - fabs(yN)) < 1.0E-10) {
+        if (disc > 1e-10) {
+            throw CanteraError("PengRobinson::NicholsSolve()", "value of yN and h are too high, unrealistic roots may be obtained");
+        }
+        disc = 0.0;
+    }
+
+    if (disc < -1e-14) {
+        // disc<0 then we have three distinct roots.
+        nSolnValues = 3;
+    } else if (fabs(disc) < 1e-14) {
+        // disc=0 then we have two distinct roots (third one is repeated root)
+        nSolnValues = 2;
+        // We are here as p goes to zero.
+    } else if (disc > 1e-14) {
+        // disc> 0 then we have one real root.
+        nSolnValues = 1;
+    }
+
+    // One real root -> have to determine whether gas or liquid is the root
+    if (disc > 0.0) {
+        double tmpD = sqrt(disc);
+        double tmp1 = (- yN + tmpD) / (2.0 * an);
+        double sgn1 = 1.0;
+        if (tmp1 < 0.0) {
+            sgn1 = -1.0;
+            tmp1 = -tmp1;
+        }
+        double tmp2 = (- yN - tmpD) / (2.0 * an);
+        double sgn2 = 1.0;
+        if (tmp2 < 0.0) {
+            sgn2 = -1.0;
+            tmp2 = -tmp2;
+        }
+        double p1 = pow(tmp1, 1./3.);
+        double p2 = pow(tmp2, 1./3.);
+        double alpha = xN + sgn1 * p1 + sgn2 * p2;
+        Vroot[0] = alpha;
+        Vroot[1] = 0.0;
+        Vroot[2] = 0.0;
+    } else if (disc < 0.0) {
+        // Three real roots alpha, beta, gamma are obtained.
+        double val = acos(-yN / h);
+        double theta = val / 3.0;
+        double twoThirdPi = 2. * Pi / 3.;
+        double alpha = xN + 2. * delta * cos(theta);
+        double beta = xN + 2. * delta * cos(theta + twoThirdPi);
+        double gamma = xN + 2. * delta * cos(theta + 2.0 * twoThirdPi);
+        Vroot[0] = beta;
+        Vroot[1] = gamma;
+        Vroot[2] = alpha;
+
+        for (int i = 0; i < 3; i++) {
+            tmp = an * Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn * Vroot[i] + dn;
+            if (fabs(tmp) > 1.0E-4) {
+                for (int j = 0; j < 3; j++) {
+                    if (j != i && fabs(Vroot[i] - Vroot[j]) < 1.0E-4 * (fabs(Vroot[i]) + fabs(Vroot[j]))) {
+                        writelog("PengRobinson::NicholsSolve(T = {}, p = {}):"
+                                 " WARNING roots have merged: {}, {}\n",
+                                 T, pres, Vroot[i], Vroot[j]);
+                    }
+                }
+            }
+        }
+    } else if (disc == 0.0) {
+        //Three equal roots are obtained, i.e. alpha = beta = gamma
+        if (yN < 1e-18 && h < 1e-18) {
+            // yN = 0.0 and h = 0 i.e. disc = 0
+            Vroot[0] = xN;
+            Vroot[1] = xN;
+            Vroot[2] = xN;
+        } else {
+            // h and yN need to figure out whether delta^3 is positive or negative
+            if (yN > 0.0) {
+                tmp = pow(yN/(2*an), 1./3.);
+                // In this case, tmp and delta must be equal.
+                if (fabs(tmp - delta) > 1.0E-9) {
+                    throw CanteraError("PengRobinson::NicholsSolve()", "Inconsistancy in cubic solver : solver is bad conditioned.");
+                }
+                Vroot[1] = xN + delta;
+                Vroot[0] = xN - 2.0*delta; // liquid phase root
+            } else {
+                tmp = pow(yN/(2*an), 1./3.);
+                // In this case, tmp and delta must be equal.
+                if (fabs(tmp - delta) > 1.0E-9) {
+                    throw CanteraError("PengRobinson::NicholsSolve()", "Inconsistancy in cubic solver : solver is bad conditioned.");
+                }
+                delta = -delta;
+                Vroot[0] = xN + delta;
+                Vroot[1] = xN - 2.0*delta; // gas phase root
+            }
+        }
+    }
+
+    // Find an accurate root, since there might be a heavy amount of roundoff error due to bad conditioning in this solver.
+    double res, dresdV = 0.0;
+    for (int i = 0; i < nSolnValues; i++) {
+        for (int n = 0; n < 20; n++) {
+            res = an * Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn * Vroot[i] + dn;
+            if (fabs(res) < 1.0E-14) { // accurate root is obtained
+                break;
+            }
+            dresdV = 3.0 * an * Vroot[i] * Vroot[i] + 2.0 * bn * Vroot[i] + cn;     // derivative of the residual
+            double del = - res / dresdV;
+            Vroot[i] += del;
+            if (fabs(del) / (fabs(Vroot[i]) + fabs(del)) < 1.0E-14) {
+                break;
+            }
+            double res2 = an * Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn * Vroot[i] + dn;
+            if (fabs(res2) < fabs(res)) {
+                continue;
+            } else {
+                Vroot[i] -= del;        // Go back to previous value of Vroot.
+                Vroot[i] += 0.1 * del;  // under-relax by 0.1
+            }
+        }
+        if ((fabs(res) > 1.0E-14) && (fabs(res) > 1.0E-14 * fabs(dresdV) * fabs(Vroot[i]))) {
+            writelog("PengRobinson::NicholsSolve(T = {}, p = {}): "
+                "WARNING root didn't converge V = {}", T, pres, Vroot[i]);
+            writelogendl();
+        }
+    }
+
+    if (nSolnValues == 1) {
+        // Determine the phase of the single root.
+        // nSolnValues = 1 represents the gas phase by default.
+        if (T > tc) {
+            if (Vroot[0] < vc) {
+                // Supercritical phase
+                nSolnValues = -1;
+            }
+        } else {
+            if (Vroot[0] < xN) {
+                //Liquid phase
+                nSolnValues = -1;
+            }
+        }
+    } else {
+        // Determine if we have two distinct roots or three equal roots
+        // nSolnValues = 2 represents 2 equal roots by default.
+        if (nSolnValues == 2 && delta > 1e-14) {
+            //If delta > 0, we have two distinct roots (and one repeated root)
+            nSolnValues = -2;
+        }
+    }
+    return nSolnValues;
 }
 
 }
