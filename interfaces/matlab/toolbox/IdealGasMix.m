@@ -47,6 +47,9 @@ function s = IdealGasMix(infile, b, c)
 %     Instance of class :mat:func:`Solution`
 %
 
+warning(['The function IdealGasMix is deprecated and will be removed after ' ...
+         'Cantera 2.5. Please use Solution as a replacement.'])
+
 dotloc = strfind(infile, '.');
 if dotloc(end) > 1
     ext = infile(dotloc(end):end);
