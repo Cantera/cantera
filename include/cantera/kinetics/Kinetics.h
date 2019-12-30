@@ -690,6 +690,8 @@ public:
      */
     virtual void addPhase(thermo_t& thermo);
 
+    //! Add PlasmaElectron object for calculating electron temperature, and
+    //! reaction rate coefficients of plasma reactions.
     virtual void addElectron(Electron* electron);
 
     /**
@@ -822,11 +824,15 @@ public:
         m_root = root;
     }
 
-    //! enable kinetics to use class Electron
-    virtual void enableElectron(bool enable) {}
+    //! enable kinetics to use class PlasmaElectron
+    virtual void enableElectron(bool enable) {
+        throw NotImplementedError("Kinetics::enableElectron");
+    }
 
     //! set electron temperature
-    virtual void setElectronTemperature(double Te) {}
+    virtual void setElectronTemperature(double Te) {
+        throw NotImplementedError("Kinetics::setElectronTemperature");
+    }
 
 protected:
     //! Cache for saved calculations within each Kinetics object.
