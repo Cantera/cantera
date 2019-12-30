@@ -55,11 +55,11 @@ for i in range(npoints):
 
 # write output CSV file for importing into Excel
 csv_file = 'adiabatic.csv'
-with open(csv_file, 'w') as outfile:
+with open(csv_file, 'w', newline='') as outfile:
     writer = csv.writer(outfile)
-    writer.writerow(['phi','T (K)'] + mix.species_names)
+    writer.writerow(['phi', 'T (K)'] + mix.species_names)
     for i in range(npoints):
-        writer.writerow([phi[i], tad[i]] + list(xeq[:,i]))
+        writer.writerow([phi[i], tad[i]] + list(xeq[:, i]))
 print('Output written to {0}'.format(csv_file))
 
 if '--plot' in sys.argv:
