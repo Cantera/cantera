@@ -251,20 +251,9 @@ public:
 
     void calcCriticalConditions(double a, double b,double& pc, double& tc, double& vc) const;
 
-    //! Solve the cubic equation of state
-    /*!
-     * The P-R equation of state may be solved via the following formula:
-     *
-     *     V**3 - V**2(RT/P - b)  - V(2bRT/P - \alpha a/P + 3*b*b) - (a \alpha b/p - b*b RT/P - b*b*b) = 0
-     *
-     * Returns the number of solutions found. If it only finds the liquid
-     * branch solution, it will return a -1 or a -2 instead of 1 or 2.  If it
-     * returns 0, then there is an error.
-     * The cubic equation is solved using Nickall's method (Ref: The Mathematical Gazette(1993), 77(November), 354�359, https://www.jstor.org/stable/3619777)
-     */
-    int NicholsSolve(double TKelvin, double pres, double a, double b, double aAlpha,
+    //! Prepare variables and call the function to solve the cubic equation of state
+    int NicholsCall(double T, double pres, double a, double b, double aAlpha,
                      double Vroot[3]) const;
-
 protected:
     //! Value of b in the equation of state
     /*!
