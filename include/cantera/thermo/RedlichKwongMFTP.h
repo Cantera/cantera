@@ -223,7 +223,7 @@ protected:
 
 public:
     virtual doublereal liquidVolEst(doublereal TKelvin, doublereal& pres) const;
-    virtual doublereal densityCalc(doublereal TKelvin, doublereal pressure, int phase, doublereal rhoguess);
+    virtual doublereal densityCalc(doublereal T, doublereal pressure, int phase, doublereal rhoguess);
 
     virtual doublereal densSpinodalLiquid() const;
     virtual doublereal densSpinodalGas() const;
@@ -264,18 +264,8 @@ public:
     void calcCriticalConditions(doublereal a, doublereal b, doublereal a0_coeff, doublereal aT_coeff,
                                 doublereal& pc, doublereal& tc, doublereal& vc) const;
 
-    //! Solve the cubic equation of state
-    /*!
-     * The R-K equation of state may be solved via the following formula:
-     *
-     *     V**3 - V**2(RT/P)  - V(RTb/P - a/(P T**.5) + b*b) - (a b / (P T**.5)) = 0
-     *
-     * Returns the number of solutions found. If it only finds the liquid
-     * branch solution, it will return a -1 or a -2 instead of 1 or 2.  If it
-     * returns 0, then there is an error.
-     */
-    int NicholsSolve(double TKelvin, double pres, doublereal a, doublereal b,
-                     doublereal Vroot[3]) const;
+    //! Prepare variables and call the function to solve the cubic equation of state
+    int NicholsCall(double T, double pres, double a, double b, double Vroot[3]) const;
 
 protected:
     //! Form of the temperature parameterization
