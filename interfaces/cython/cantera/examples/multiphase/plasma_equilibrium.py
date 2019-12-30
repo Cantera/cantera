@@ -17,10 +17,7 @@ phases = ct.import_phases('KOH.yaml', ['K_solid', 'K_liquid', 'KOH_a', 'KOH_b',
 
 # create the Mixture object from the list of phases
 mix = ct.Mixture(phases)
-
-csvfile = open('equil_koh.csv', 'w')
-writer = csv.writer(csvfile)
-writer.writerow(['T'] + mix.species_names)
+equil_data = []
 
 # loop over temperature
 for n in range(100):
@@ -35,7 +32,11 @@ for n in range(100):
     # mix.equilibrate("TP",maxsteps=10000,loglevel=1)
     mix.equilibrate("TP", max_steps=10000, log_level=0)
 
-    # write out the moles of each species
-    writer.writerow([t] + list(mix.species_moles))
+    # store the moles of each species
+    equil_data.append([t] + list(mix.species_moles))
 
-csvfile.close()
+with open("equil_koh.csv", "w", newline="") as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(['T'] + mix.species_names)
+
+    writer.writerows(equil_data)

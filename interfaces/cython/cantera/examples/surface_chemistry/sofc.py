@@ -218,9 +218,7 @@ print()
 Ea_min = Ea0 - 0.25
 Ea_max = Ea0 + 0.25
 
-csvfile = open('sofc.csv', 'w')
-writer = csv.writer(csvfile)
-writer.writerow(['i (mA/cm2)', 'eta_a', 'eta_c', 'eta_ohmic', 'Eload'])
+output_data = []
 
 # vary the anode overpotential, from cathodic to anodic polarization
 for n in range(100):
@@ -255,10 +253,13 @@ for n in range(100):
 
     # write the current density, anode and cathode overpotentials, ohmic
     # overpotential, and load potential
-    writer.writerow([0.1*curr, Ea - Ea0, Ec - Ec0, delta_V,
-                     cathode_bulk.electric_potential -
-                     anode_bulk.electric_potential])
+    output_data.append([0.1*curr, Ea - Ea0, Ec - Ec0, delta_V,
+                        cathode_bulk.electric_potential -
+                        anode_bulk.electric_potential])
+
+with open("sofc.csv", "w", newline="") as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(['i (mA/cm2)', 'eta_a', 'eta_c', 'eta_ohmic', 'Eload'])
+    writer.writerows(output_data)
 
 print('polarization curve data written to file sofc.csv')
-
-csvfile.close()

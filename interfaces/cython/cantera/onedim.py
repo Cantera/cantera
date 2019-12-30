@@ -287,15 +287,15 @@ class FlameBase(Sim1D):
         u = self.u
         V = self.V
 
-        csvfile = open(filename, 'w')
-        writer = _csv.writer(csvfile)
-        writer.writerow(['z (m)', 'u (m/s)', 'V (1/s)',
-                         'T (K)', 'rho (kg/m3)'] + self.gas.species_names)
-        for n in range(self.flame.n_points):
-            self.set_gas_state(n)
-            writer.writerow([z[n], u[n], V[n], T[n], self.gas.density] +
-                            list(getattr(self.gas, species)))
-        csvfile.close()
+        with open(filename, 'w', newline='') as csvfile:
+            writer = _csv.writer(csvfile)
+            writer.writerow(['z (m)', 'u (m/s)', 'V (1/s)',
+                            'T (K)', 'rho (kg/m3)'] + self.gas.species_names)
+            for n in range(self.flame.n_points):
+                self.set_gas_state(n)
+                writer.writerow([z[n], u[n], V[n], T[n], self.gas.density] +
+                                list(getattr(self.gas, species)))
+
         if not quiet:
             print("Solution saved to '{0}'.".format(filename))
 
@@ -573,15 +573,15 @@ class IonFlameBase(FlameBase):
         V = self.V
         E = self.E
 
-        csvfile = open(filename, 'w')
-        writer = _csv.writer(csvfile)
-        writer.writerow(['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)',
-                         'E (V/m)', 'rho (kg/m3)'] + self.gas.species_names)
-        for n in range(self.flame.n_points):
-            self.set_gas_state(n)
-            writer.writerow([z[n], u[n], V[n], T[n], E[n], self.gas.density] +
-                            list(getattr(self.gas, species)))
-        csvfile.close()
+        with open(filename, 'w', newline='') as csvfile:
+            writer = _csv.writer(csvfile)
+            writer.writerow(['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)',
+                            'E (V/m)', 'rho (kg/m3)'] + self.gas.species_names)
+            for n in range(self.flame.n_points):
+                self.set_gas_state(n)
+                writer.writerow([z[n], u[n], V[n], T[n], E[n], self.gas.density] +
+                                list(getattr(self.gas, species)))
+
         if not quiet:
             print("Solution saved to '{0}'.".format(filename))
 

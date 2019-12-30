@@ -65,10 +65,7 @@ print('finished setup, begin solution...')
 
 time = 0.0
 n_steps = 300
-outfile = open('piston.csv', 'w')
-csvfile = csv.writer(outfile)
-csvfile.writerow(['time (s)','T1 (K)','P1 (Bar)','V1 (m3)',
-                  'T2 (K)','P2 (Bar)','V2 (m3)'])
+output_data = []
 states1 = ct.SolutionArray(ar, extra=['t', 'V'])
 states2 = ct.SolutionArray(gas, extra=['t', 'V'])
 
@@ -78,9 +75,19 @@ for n in range(n_steps):
     sim.advance(time)
     states1.append(r1.thermo.state, t=time, V=r1.volume)
     states2.append(r2.thermo.state, t=time, V=r2.volume)
-    csvfile.writerow([time, r1.thermo.T, r1.thermo.P, r1.volume,
-                      r2.thermo.T, r2.thermo.P, r2.volume])
-outfile.close()
+    output_data.append(
+        [time, r1.thermo.T, r1.thermo.P, r1.volume, r2.thermo.T,
+         r2.thermo.P, r2.volume]
+    )
+
+with open('piston.csv', 'w', newline="") as outfile:
+    csvfile = csv.writer(outfile)
+    csvfile.writerow(
+        ['time (s)', 'T1 (K)', 'P1 (Bar)', 'V1 (m3)', 'T2 (K)',
+         'P2 (Bar)', 'V2 (m3)']
+    )
+    csvfile.writerows(output_data)
+
 print('Output written to file piston.csv')
 print('Directory: '+os.getcwd())
 

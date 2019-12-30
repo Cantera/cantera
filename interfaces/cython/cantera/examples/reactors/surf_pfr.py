@@ -47,11 +47,6 @@ surf.TP = t, ct.one_atm
 rlen = length/(NReactors-1)
 rvol = area * rlen * porosity
 
-outfile = open(output_filename,'w')
-writer = csv.writer(outfile)
-writer.writerow(['Distance (mm)', 'T (C)', 'P (atm)'] +
-                gas.species_names + surf.species_names)
-
 # catalyst area in one reactor
 cat_area = cat_area_per_vol * rvol
 
@@ -103,6 +98,8 @@ sim.max_err_test_fails = 12
 sim.rtol = 1.0e-9
 sim.atol = 1.0e-21
 
+output_data = []
+
 for n in range(NReactors):
     # Set the state of the reservoir to match that of the previous reactor
     gas.TDY = r.thermo.TDY
@@ -115,8 +112,15 @@ for n in range(NReactors):
         print('  {0:10f}  {1:10f}  {2:10f}  {3:10f}'.format(dist, *gas['CH4','H2','CO'].X))
 
     # write the gas mole fractions and surface coverages vs. distance
-    writer.writerow([dist, r.T - 273.15, r.thermo.P/ct.one_atm] +
-                    list(gas.X) + list(surf.coverages))
+    output_data.append(
+        [dist, r.T - 273.15, r.thermo.P/ct.one_atm] + list(gas.X)
+        + list(surf.coverages)
+    )
 
-outfile.close()
+with open(output_filename, 'w', newline="") as outfile:
+    writer = csv.writer(outfile)
+    writer.writerow(['Distance (mm)', 'T (C)', 'P (atm)'] +
+                    gas.species_names + surf.species_names)
+    writer.writerows(output_data)
+
 print("Results saved to '{0}'".format(output_filename))
