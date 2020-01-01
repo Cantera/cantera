@@ -6,7 +6,7 @@ Copyright (c) 2009 Sandia Corporation. Under the terms of
 Contract AC04-94AL85000 with Sandia Corporation, the U.S. Government
 retains certain rights in this software.
 
-Copyright (c) 2011-2018, Cantera Developers.
+Copyright (c) 2011-2020, Cantera Developers.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
