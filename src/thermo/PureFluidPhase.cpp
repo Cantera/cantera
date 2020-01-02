@@ -23,7 +23,7 @@ namespace Cantera
 {
 
 PureFluidPhase::PureFluidPhase() :
-    m_subflag(0),
+    m_subflag(-1),
     m_mw(-1.0),
     m_verbose(false)
 {
@@ -40,10 +40,7 @@ void PureFluidPhase::initThermo()
     } else {
         m_sub.reset(tpx::GetSub(m_subflag));
     }
-    if (!m_sub) {
-        throw CanteraError("PureFluidPhase::initThermo",
-                           "could not create new substance object.");
-    }
+
     m_mw = m_sub->MolWt();
     setMolecularWeight(0,m_mw);
 
