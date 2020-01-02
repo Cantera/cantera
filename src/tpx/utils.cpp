@@ -61,7 +61,8 @@ Substance* GetSub(int isub)
     } else if (isub == 8) {
         return new Heptane;
     } else {
-        return 0;
+        throw Cantera::CanteraError("tpx::GetSub", "No substance definition "
+            "known for id '{}'.", isub);
     }
 }
 
