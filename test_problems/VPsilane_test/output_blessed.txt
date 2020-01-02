@@ -35,7 +35,7 @@ For species SI2, discontinuity in s/R detected at Tmid = 1000.0
           pressure   100 Pa
            density   1.8315e-05 kg/m^3
   mean mol. weight   2.2842 kg/kmol
-   phase of matter   unspecified
+   phase of matter   gas
 
                           1 kg             1 kmol
                      ---------------   ---------------

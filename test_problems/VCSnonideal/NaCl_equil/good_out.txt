@@ -349,7 +349,7 @@ Moles: 4.09717
           pressure   1.0132e+05 Pa
            density   1.1354 kg/m^3
   mean mol. weight   27.777 kg/kmol
-   phase of matter   unspecified
+   phase of matter   gas
 
                           1 kg             1 kmol     
                      ---------------   ---------------
