@@ -234,6 +234,11 @@ def compareTextFiles(env, file1, file2):
         if len(floats1) != len(floats2):
             continue
 
+        # if the lines don't have the same non-numeric text,
+        # we're not going to pass the diff comparison
+        if reFloat.sub('', line1).strip() != reFloat.sub('', line2).strip():
+            continue
+
         allMatch = True
         for j in range(len(floats1)):
             if floats1[j] == floats2[j]:
