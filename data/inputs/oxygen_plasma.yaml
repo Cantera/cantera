@@ -1,0 +1,44 @@
+units: {length: cm, quantity: mol, activation-energy: K}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [O, E]
+  species:
+  - species: [O2^+]
+  - gri30_ion.yaml/species: [O2, E]
+  - gri30.yaml/species: [O]
+
+  kinetics: gas
+  reactions: all
+  transport: mixture-averaged
+  state:
+    T: 300.0
+    P: 1.01325e+05
+  plasma: WeaklyIonizedGas
+  cross-sections:
+  - oxygen_cross_sections.yaml/cross-sections: [O2]
+
+species:
+- name: O2^+
+  composition: {O: 2, E: -1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.15, 1000.0, 6000.0]
+    data:
+    - [4.61017167, -6.35951952e-03, 1.42425624e-05, -1.20997923e-08, 3.70956878e-12,
+      1.39742229e+05, -0.201326874]
+    - [3.31675922, 1.11522244e-03, -3.83492556e-07, 5.72784687e-11, -2.77648381e-15,
+      1.39876823e+05, 5.44726476]
+  transport:
+    model: gas
+    geometry: linear
+    diameter: 2.750 # Casey
+    well-depth: 80.0 # Casey
+    polarizability: 0.847 # Method: B3LYP cc-pVTZ from NIST
+  note: Casey et al. (2016) doi.org/10.1016/j.proci.2016.08.083
+
+reactions:
+- equation: O2^+ + E => O + O  # Reaction 1
+  type: electron-temperature
+  rate-constant: {A: 6.0e-5, b: -1.0, E1: 0.0, E2: 0.0}
