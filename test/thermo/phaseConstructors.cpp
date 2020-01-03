@@ -344,8 +344,11 @@ TEST_F(ConstructFromScratch, RedlichKwongMFTP_missing_coeffs)
     EXPECT_THROW(p.setState_TP(300, 200e5), CanteraError);
 }
 
+//! @todo Remove after Cantera 2.5 - "gas" mode of IdealSolnGasVPSS is
+//!     deprecated
 TEST_F(ConstructFromScratch, IdealSolnGasVPSS_gas)
 {
+    suppress_deprecation_warnings();
     IdealSolnGasVPSS p;
     p.addSpecies(sH2O);
     p.addSpecies(sH2);
@@ -367,6 +370,7 @@ TEST_F(ConstructFromScratch, IdealSolnGasVPSS_gas)
     EXPECT_NEAR(p.temperature(), 479.929, 1e-3); // based on h2o2.cti
     EXPECT_NEAR(p.moleFraction("H2O"), 0.01, 1e-4);
     EXPECT_NEAR(p.moleFraction("H2"), 0.0, 1e-4);
+    make_deprecation_warnings_fatal();
 }
 
 TEST(PureFluidFromScratch, CarbonDioxide)

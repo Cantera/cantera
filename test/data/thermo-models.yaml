@@ -93,6 +93,8 @@ phases:
   species: [KCl(l)]
   thermo: Margules
 
+# todo: Remove after Cantera 2.5 - the "gas" moode of class IdealSolnGasVPSS is
+# deprecated.
 - name: IdealSolnGas-gas
   thermo: ideal-gas-VPSS
   species: [{gas-species: [H2O, H2, O2]}]

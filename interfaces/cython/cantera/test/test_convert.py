@@ -1187,7 +1187,9 @@ class ctml2yamlTest(utilities.CanteraTest):
             Path(self.test_data_dir).joinpath("pdss_hkft.xml"),
             Path(self.test_work_dir).joinpath("pdss_hkft.yaml"),
         )
-
+        # @todo Remove "gas" mode test after Cantera 2.5 - "gas" mode of class
+        #     IdealSolnGasVPSS is deprecated
+        ct.suppress_deprecation_warnings()
         for name in ["vpss_gas_pdss_hkft_phase", "vpss_soln_pdss_hkft_phase"]:
             ctmlPhase = ct.ThermoPhase("pdss_hkft.xml", name=name)
             yamlPhase = ct.ThermoPhase("pdss_hkft.yaml", name=name)
@@ -1200,6 +1202,7 @@ class ctml2yamlTest(utilities.CanteraTest):
             self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
             self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
             self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
+        ct.make_deprecation_warnings_fatal()
 
     def test_lattice_solid(self):
         ctml2yaml.convert(

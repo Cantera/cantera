@@ -538,6 +538,9 @@ The ideal gas model as
 The ideal gas model, using variable pressure standard state methods as
 `described here <https://cantera.org/documentation/dev/doxygen/html/dc/ddb/classCantera_1_1IdealSolnGasVPSS.html#details>`__.
 
+.. deprecated:: 2.5
+   Use the ``ideal-gas`` model instead.
+
 
 .. _sec-yaml-ideal-molal-solution:
 

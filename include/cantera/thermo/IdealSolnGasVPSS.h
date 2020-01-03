@@ -23,6 +23,9 @@ namespace Cantera
  *
  * An ideal solution or an ideal gas approximation of a phase. Uses variable
  * pressure standard state methods for calculating thermodynamic properties.
+ *
+ * @deprecated "Gas" mode to be removed after Cantera 2.5. Use IdealGasPhase for
+ *     ideal gas phases instead.
  */
 class IdealSolnGasVPSS : public VPStandardStateTP
 {
@@ -62,7 +65,11 @@ public:
     }
 
     //! Set this phase to represent an ideal gas
-    void setGasMode() { m_idealGas = true; }
+    void setGasMode() {
+        warn_deprecated("IdealSolnGasVPSS::setGasMode",
+            "To be removed after Cantera 2.5. Use class IdealGasPhase instead.");
+        m_idealGas = true;
+    }
 
     //! Set this phase to represent an ideal liquid or solid solution
     void setSolnMode() { m_idealGas = false; }
