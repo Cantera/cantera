@@ -1690,6 +1690,27 @@ class TestSolutionArray(utilities.CanteraTest):
             out = getattr(states, g)
             self.assertEqual(len(out), len(g))
 
+    def test_purefluid_yaml_state(self):
+        yaml = """
+        phases:
+        - name: water
+          thermo: pure-fluid
+          species: [{{liquidvapor.yaml/species: [H2O]}}]
+          state: {{T: {T}, P: 101325, Q: {Q}}}
+          pure-fluid-name: water
+        """
+        w = ct.PureFluid(yaml=yaml.format(T=373.177233, Q=0.5))
+        self.assertNear(w.Q, 0.5)
+
+        with self.assertRaisesRegex(ct.CanteraError, "setState"):
+            ct.PureFluid(yaml=yaml.format(T=373, Q=0.5))
+
+        w = ct.PureFluid(yaml=yaml.format(T=370, Q=0.0))
+        self.assertNear(w.P, 101325)
+
+        with self.assertRaisesRegex(ct.CanteraError, "setState"):
+            ct.PureFluid(yaml=yaml.format(T=370, Q=1.0))
+
     def test_sort(self):
         np.random.seed(0)
         t = np.random.random(101)
