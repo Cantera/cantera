@@ -234,9 +234,13 @@ TEST(ThermoFromYaml, IonsFromNeutral_fromString)
     EXPECT_NEAR(mu[1], -2.88157316e+06, 1e-1);
 }
 
+//! @todo Remove after Cantera 2.5 - "gas" mode of IdealSolnGasVPSS is
+//!     deprecated
 TEST(ThermoFromYaml, IdealSolnGas_gas)
 {
+    suppress_deprecation_warnings();
     auto thermo = newThermo("thermo-models.yaml", "IdealSolnGas-gas");
+    make_deprecation_warnings_fatal();
     thermo->equilibrate("HP");
     EXPECT_NEAR(thermo->temperature(), 479.929, 1e-3); // based on h2o2.cti
     EXPECT_NEAR(thermo->moleFraction("H2O"), 0.01, 1e-4);
