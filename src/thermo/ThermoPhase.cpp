@@ -235,6 +235,9 @@ void ThermoPhase::setState(const AnyMap& input_state)
     if (state.hasKey("density")) {
         state["D"] = state["density"];
     }
+    if (state.hasKey("vapor-fraction")) {
+        state["Q"] = state["vapor-fraction"];
+    }
 
     // Set composition
     if (state.hasKey("X")) {
@@ -252,11 +255,28 @@ void ThermoPhase::setState(const AnyMap& input_state)
         }
         state.erase("Y");
     }
-    // set thermodynamic state using whichever property pair is found
+    // set thermodynamic state using whichever property set is found
     if (state.size() == 0) {
         setState_TP(298.15, OneAtm);
     } else if (state.hasKey("T") && state.hasKey("P")) {
-        setState_TP(state.convert("T", "K"), state.convert("P", "Pa"));
+        double T = state.convert("T", "K");
+        double P = state.convert("P", "Pa");
+        if (state.hasKey("Q")) {
+            double Q = state["Q"].asDouble();
+            double Psat = satPressure(T);
+            if (std::abs(Psat / P - 1) < 1e-6) {
+                setState_Tsat(T, Q);
+            } else if ((Q == 0 && P >= Psat) || (Q == 1 && P <= Psat)) {
+                setState_TP(T, P);
+            } else {
+                throw InputFileError("ThermoPhase::setState", state,
+                    "Temperature ({}), pressure ({}) and vapor fraction ({}) "
+                    "are inconsistent.\nPsat at this T: {}",
+                    T, P, Q, satPressure(T));
+            }
+        } else {
+            setState_TP(T, P);
+        }
     } else if (state.hasKey("T") && state.hasKey("D")) {
         setState_TR(state.convert("T", "K"), state.convert("D", "kg/m^3"));
     } else if (state.hasKey("T") && state.hasKey("V")) {
@@ -283,6 +303,10 @@ void ThermoPhase::setState(const AnyMap& input_state)
         setState_SH(state.convert("S", "J/kg/K"), state.convert("H", "J/kg"));
     } else if (state.hasKey("D") && state.hasKey("P")) {
         setState_RP(state.convert("D", "kg/m^3"), state.convert("P", "Pa"));
+    } else if (state.hasKey("P") && state.hasKey("Q")) {
+        setState_Psat(state.convert("P", "Pa"), state["Q"].asDouble());
+    } else if (state.hasKey("T") && state.hasKey("Q")) {
+        setState_Tsat(state.convert("T", "K"), state["Q"].asDouble());
     } else if (state.hasKey("T")) {
         setState_TP(state.convert("T", "K"), OneAtm);
     } else if (state.hasKey("P")) {

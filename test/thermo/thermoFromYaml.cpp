@@ -357,6 +357,13 @@ TEST(ThermoFromYaml, PureFluid_nitrogen)
     EXPECT_NEAR(thermo->gibbs_mole(), -17654454.0912211, 1e-6);
 }
 
+TEST(ThermoFromYaml, PureFluid_CO2)
+{
+    auto thermo = newThermo("thermo-models.yaml", "CO2-purefluid");
+    EXPECT_NEAR(thermo->vaporFraction(), 0.1, 1e-6);
+    EXPECT_NEAR(thermo->density(), 513.27928388, 1e-6);
+}
+
 TEST(ThermoFromYaml, ConstDensityThermo)
 {
     suppress_deprecation_warnings();

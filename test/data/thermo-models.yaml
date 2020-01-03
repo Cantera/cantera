@@ -179,6 +179,12 @@ phases:
   thermo: pure-fluid
   pure-fluid-name: nitrogen
 
+- name: CO2-purefluid
+  species: [{rk-species: [CO2]}]
+  thermo: pure-fluid
+  pure-fluid-name: carbondioxide
+  state: {T: 275, vapor-fraction: 0.1}
+
 - name: const-density
   thermo: constant-density
   density: 0.7 g/cm^3
