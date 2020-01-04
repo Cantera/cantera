@@ -54,8 +54,8 @@ void GasKinetics::update_rates_T()
     }
 
     if (T != m_temp || Te != m_temp_e) {
-        if (m_electron_rates.nReactions()) {
-            m_electron_rates.update(T, Te, logTe, m_rfn.data());
+        if (m_electron_temperature_rates.nReactions()) {
+            m_electron_temperature_rates.update(T, Te, logTe, m_rfn.data());
             m_ROP_ok = false;
         }
     }
@@ -253,8 +253,8 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
     case ELEMENTARY_RXN:
         addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
         break;
-    case ELECTRON_RXN:
-        addElectronReaction(dynamic_cast<ElectronReaction&>(*r));
+    case ELECTRON_TEMPERATURE_RXN:
+        addElectronTemperatureReaction(dynamic_cast<ElectronTemperatureReaction&>(*r));
         break;
     case THREE_BODY_RXN:
         addThreeBodyReaction(dynamic_cast<ThreeBodyReaction&>(*r));
@@ -276,9 +276,9 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
     return true;
 }
 
-void GasKinetics::addElectronReaction(ElectronReaction& r)
+void GasKinetics::addElectronTemperatureReaction(ElectronTemperatureReaction& r)
 {
-    m_electron_rates.install(nReactions()-1, r.rate);
+    m_electron_temperature_rates.install(nReactions()-1, r.rate);
 }
 
 void GasKinetics::addFalloffReaction(FalloffReaction& r)
@@ -357,8 +357,8 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     case THREE_BODY_RXN:
         modifyThreeBodyReaction(i, dynamic_cast<ThreeBodyReaction&>(*rNew));
         break;
-    case ELECTRON_RXN:
-        modifyElectronReaction(i, dynamic_cast<ElectronReaction&>(*rNew));
+    case ELECTRON_TEMPERATURE_RXN:
+        modifyElectronTemperatureReaction(i, dynamic_cast<ElectronTemperatureReaction&>(*rNew));
         break;
     case FALLOFF_RXN:
     case CHEMACT_RXN:
@@ -382,9 +382,9 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     m_pres += 0.1234;
 }
 
-void GasKinetics::modifyElectronReaction(size_t i, ElectronReaction& r)
+void GasKinetics::modifyElectronTemperatureReaction(size_t i, ElectronTemperatureReaction& r)
 {
-    m_electron_rates.replace(i, r.rate);
+    m_electron_temperature_rates.replace(i, r.rate);
 }
 
 void GasKinetics::modifyThreeBodyReaction(size_t i, ThreeBodyReaction& r)

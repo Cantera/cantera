@@ -94,12 +94,12 @@ public:
 
 //! A reaction which depends on electron temperature, usually including
 //! electron as a reactant species.
-class ElectronReaction : public Reaction
+class ElectronTemperatureReaction : public Reaction
 {
 public:
-    ElectronReaction();
-    ElectronReaction(const Composition& reactants, const Composition products,
-                       const ElectronArrhenius& rate);
+    ElectronTemperatureReaction();
+    ElectronTemperatureReaction(const Composition& reactants, const Composition products,
+                                const ElectronArrhenius& rate);
     ElectronArrhenius rate;
 };
 

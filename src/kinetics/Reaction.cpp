@@ -128,16 +128,16 @@ void ElementaryReaction::validate()
     }
 }
 
-ElectronReaction::ElectronReaction(const Composition& reactants_,
-                                   const Composition products_,
-                                   const ElectronArrhenius& rate_)
-    : Reaction(ELECTRON_RXN, reactants_, products_)
+ElectronTemperatureReaction::ElectronTemperatureReaction(const Composition& reactants_,
+                                                         const Composition products_,
+                                                         const ElectronArrhenius& rate_)
+    : Reaction(ELECTRON_TEMPERATURE_RXN, reactants_, products_)
     , rate(rate_)
 {
 }
 
-ElectronReaction::ElectronReaction()
-    : Reaction(ELECTRON_RXN)
+ElectronTemperatureReaction::ElectronTemperatureReaction()
+    : Reaction(ELECTRON_TEMPERATURE_RXN)
 {
 }
 
@@ -297,14 +297,6 @@ ElectrochemicalReaction::ElectrochemicalReaction(const Composition& reactants_,
 {
 }
 
-ElectronArrhenius readElectronArrhenius(const XML_Node& arrhenius_node)
-{
-    return ElectronArrhenius(getFloat(arrhenius_node, "A", "toSI"),
-                     getFloat(arrhenius_node, "b"),
-                     getFloat(arrhenius_node, "E1", "actEnergy") / GasConstant,
-                     getFloat(arrhenius_node, "E2", "actEnergy") / GasConstant);
-}
-
 Arrhenius readArrhenius(const XML_Node& arrhenius_node)
 {
     return Arrhenius(getFloat(arrhenius_node, "A", "toSI"),
@@ -368,6 +360,28 @@ Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate,
         Ta = units.convertActivationEnergy(rate_vec[2], "K");
     }
     return Arrhenius(A, b, Ta);
+}
+
+ElectronArrhenius readElectronTemperatureArrhenius(const Reaction& R, const AnyValue& rate,
+                                        const Kinetics& kin, const UnitSystem& units,
+                                        int pressure_dependence=0)
+{
+    double A, b, T1, T2;
+    Units rc_units = rateCoeffUnits(R, kin, pressure_dependence);
+    if (rate.is<AnyMap>()) {
+        auto& rate_map = rate.as<AnyMap>();
+        A = units.convert(rate_map["A"], rc_units);
+        b = rate_map["b"].asDouble();
+        T1 = units.convertActivationEnergy(rate_map["E1"], "K");
+        T2 = units.convertActivationEnergy(rate_map["E2"], "K");
+    } else {
+        auto& rate_vec = rate.asVector<AnyValue>(4);
+        A = units.convert(rate_vec[0], rc_units);
+        b = rate_vec[1].asDouble();
+        T1 = units.convertActivationEnergy(rate_vec[2], "K");
+        T2 = units.convertActivationEnergy(rate_vec[3], "K");
+    }
+    return ElectronArrhenius(A, b, T1, T2);
 }
 
 //! Parse falloff parameters, given a rateCoeff node
@@ -599,15 +613,11 @@ void setupElementaryReaction(ElementaryReaction& R, const AnyMap& node,
     R.rate = readArrhenius(R, node["rate-constant"], kin, node.units());
 }
 
-void setupElectronReaction(ElectronReaction& R, const XML_Node& rxn_node)
+void setupElectronTemperatureReaction(ElectronTemperatureReaction& R, const AnyMap& node,
+                             const Kinetics& kin)
 {
-    XML_Node& rc_node = rxn_node.child("rateCoeff");
-    if (rc_node.hasChild("ElectronArrhenius")) {
-        R.rate = readElectronArrhenius(rc_node.child("ElectronArrhenius"));
-    } else {
-        throw CanteraError("setupElementaryReaction", "Couldn't find Arrhenius node");
-    }
-    setupReaction(R, rxn_node);
+    setupReaction(R, node, kin);
+    R.rate = readElectronTemperatureArrhenius(R, node["rate-constant"], kin, node.units());
 }
 
 void setupThreeBodyReaction(ThreeBodyReaction& R, const XML_Node& rxn_node)
@@ -1055,10 +1065,6 @@ shared_ptr<Reaction> newReaction(const XML_Node& rxn_node)
         auto R = make_shared<ElementaryReaction>();
         setupElementaryReaction(*R, rxn_node);
         return R;
-    } else if (type == "electron") {
-        auto R = make_shared<ElectronReaction>();
-        setupElectronReaction(*R, rxn_node);
-        return R;
     } else if (type == "threebody" || type == "three_body") {
         auto R = make_shared<ThreeBodyReaction>();
         setupThreeBodyReaction(*R, rxn_node);
@@ -1122,6 +1128,10 @@ unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin)
     if (type == "elementary") {
         unique_ptr<ElementaryReaction> R(new ElementaryReaction());
         setupElementaryReaction(*R, node, kin);
+        return unique_ptr<Reaction>(move(R));
+    } else if (type == "electron-temperature") {
+        unique_ptr<ElectronTemperatureReaction> R(new ElectronTemperatureReaction());
+        setupElectronTemperatureReaction(*R, node, kin);
         return unique_ptr<Reaction>(move(R));
     } else if (type == "three-body") {
         unique_ptr<ThreeBodyReaction> R(new ThreeBodyReaction());

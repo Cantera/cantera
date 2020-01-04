@@ -68,7 +68,7 @@ const int CHEMACT_RXN = 8;
 /**
  * A gas-phase reaction that depends on electron temperature.
  */
-const int ELECTRON_RXN = 9;
+const int ELECTRON_TEMPERATURE_RXN = 9;
 
 /**
  * A reaction occurring on a surface.
