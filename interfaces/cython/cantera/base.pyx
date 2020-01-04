@@ -69,10 +69,6 @@ cdef class _SolutionBase:
         self.base.setThermo(self._thermo)
         self.base.setKinetics(self._kinetics)
 
-        # Initiate plasma
-        if efile:
-            self._init_efile(efile)
-
         if electron_cross_sections:
             self._init_electron(plasma_electron, electron_cross_sections)
 
@@ -158,6 +154,14 @@ cdef class _SolutionBase:
         else:
             self.kinetics = NULL
 
+        # Plasma
+        if isinstance(self, PlasmaElectron):
+            self._plasmaElectron = newPlasmaElectron(phaseNode, root, self.thermo)
+            self.plasmaElectron = self._plasmaElectron.get()
+            self.kinetics.addPlasmaElectron(self.plasmaElectron)
+        else:
+            self.plasmaElectron = NULL
+
     def _init_cti_xml(self, infile, name, adjacent, source):
         """
         Instantiate a set of new Cantera C++ objects from a CTI or XML
@@ -232,20 +236,6 @@ cdef class _SolutionBase:
             self.kinetics.skipUndeclaredThirdBodies(True)
             for reaction in reactions:
                 self.kinetics.addReaction(reaction._reaction)
-
-    def _init_efile(self, efile):
-        """
-        Instantiate a new PlasmaElectron object via a yaml file.
-        """
-        cdef CxxAnyMap root
-        root = AnyMapFromYamlFile(stringify(efile))
-
-        if isinstance(self, PlasmaElectron):
-            self._plasmaElectron = newPlasmaElectron(root, self.thermo)
-            self.plasmaElectron = self._plasmaElectron.get()
-            self.kinetics.addPlasmaElectron(self.plasmaElectron)
-        else:
-            self.plasmaElectron = NULL
 
     def _init_electron(self, plasma_electron, electron_cross_sections):
         """

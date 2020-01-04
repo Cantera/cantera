@@ -746,7 +746,7 @@ cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef CxxThermoPhase* newThermoPhase(string) except +translate_exception
 
 cdef extern from "cantera/plasma/PlasmaElectronFactory.h" namespace "Cantera":
-    cdef shared_ptr[CxxPlasmaElectron] newPlasmaElectron(CxxAnyMap&, CxxThermoPhase*) except +translate_exception
+    cdef shared_ptr[CxxPlasmaElectron] newPlasmaElectron(CxxAnyMap&, CxxAnyMap&, CxxThermoPhase*) except +translate_exception
     cdef CxxPlasmaElectron* newPlasmaElectron(string) except +translate_exception
 
 cdef extern from "cantera/kinetics/KineticsFactory.h" namespace "Cantera":
