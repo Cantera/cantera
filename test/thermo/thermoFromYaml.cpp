@@ -120,13 +120,16 @@ TEST(ThermoFromYaml, WaterSSTP)
     EXPECT_NEAR(thermo->enthalpy_mass(), -15649685.52296013, 1e-6);
 }
 
+//! @todo Remove after Cantera 2.5 - class FixedChemPotSSTP is deprecated
 TEST(ThermoFromYaml, FixedChemPot)
 {
+    suppress_deprecation_warnings();
     auto thermo = newThermo("thermo-models.yaml", "Li-fixed");
     EXPECT_EQ(thermo->nSpecies(), (size_t) 1);
     double mu;
     thermo->getChemPotentials(&mu);
     EXPECT_DOUBLE_EQ(mu, -2.3e7);
+    make_deprecation_warnings_fatal();
 }
 
 TEST(ThermoFromYaml, Margules)

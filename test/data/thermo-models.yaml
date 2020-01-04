@@ -15,6 +15,7 @@ phases:
   transport: water
   species: [H2O(l)]
 
+# @todo Remove after Cantera 2.5 - class FixedChemPotSSTP is deprecated
 - name: Li-fixed
   thermo: fixed-chemical-potential
   species: [Li]

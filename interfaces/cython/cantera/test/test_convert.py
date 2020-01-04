@@ -1054,13 +1054,16 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
         self.checkKinetics(ctmlGas, yamlGas, [900, 1800], [2e5, 20e5])
 
+    # @todo Remove after Cantera 2.5 - class FixedChemPotSSTP is deprecated
     def test_fixed_chemical_potential_thermo(self):
+        ct.suppress_deprecation_warnings()
         ctml2yaml.convert(
             Path(self.test_data_dir).joinpath("LiFixed.xml"),
             Path(self.test_work_dir).joinpath("LiFixed.yaml"),
         )
         ctmlGas, yamlGas = self.checkConversion("LiFixed")
         self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
+        ct.make_deprecation_warnings_fatal()
 
     def test_water_IAPWS95_thermo(self):
         ctml2yaml.convert(

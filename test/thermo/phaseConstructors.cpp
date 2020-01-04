@@ -77,27 +77,31 @@ shared_ptr<Species> make_const_cp_species(const std::string& name,
     return species;
 }
 
-
+//! @todo Remove after Cantera 2.5 - class FixedChemPotSSTP is deprecated
 class FixedChemPotSstpConstructorTest : public testing::Test
 {
 };
 
 TEST_F(FixedChemPotSstpConstructorTest, fromXML)
 {
+    suppress_deprecation_warnings();
     std::unique_ptr<ThermoPhase> p(newPhase("../data/LiFixed.xml"));
     ASSERT_EQ((int) p->nSpecies(), 1);
     double mu;
     p->getChemPotentials(&mu);
     ASSERT_DOUBLE_EQ(-2.3e7, mu);
+    make_deprecation_warnings_fatal();
 }
 
 TEST_F(FixedChemPotSstpConstructorTest, SimpleConstructor)
 {
+    suppress_deprecation_warnings();
     FixedChemPotSSTP p("Li", -2.3e7);
     ASSERT_EQ((int) p.nSpecies(), 1);
     double mu;
     p.getChemPotentials(&mu);
     ASSERT_DOUBLE_EQ(-2.3e7, mu);
+    make_deprecation_warnings_fatal();
 }
 
 TEST(IonsFromNeutralConstructor, fromXML)
