@@ -29,18 +29,58 @@ PlasmaElectron* PlasmaElectronFactory::newPlasmaElectron(const std::string& mode
     return create(model);
 }
 
-unique_ptr<PlasmaElectron> newPlasmaElectron(const AnyMap& rootNode, thermo_t* phase)
+unique_ptr<PlasmaElectron> newPlasmaElectron(const AnyMap& phaseNode, const AnyMap& rootNode, thermo_t* phase)
 {
-    unique_ptr<PlasmaElectron> electron(newPlasmaElectron(rootNode["electron"].asString()));
-    addElectronCrossSections(*electron, rootNode["cross_section"]);
+    unique_ptr<PlasmaElectron> electron(newPlasmaElectron(phaseNode["plasma"].asString()));
+    if (phaseNode.hasKey("cross-sections")) {
+        if (phaseNode["cross-sections"].is<vector<AnyMap>>()) {
+            // Each item in 'cross-sections' is a map with one item, where the key is
+            // a section in another YAML file, and the value is a
+            // list of target species names to read from that section 
+            for (const auto& crossSectionsNode : phaseNode["cross-sections"].asVector<AnyMap>()) {
+                const string& source = crossSectionsNode.begin()->first;
+                const auto& names = crossSectionsNode.begin()->second;
+                const auto& slash = boost::ifind_last(source, "/");
+                if (slash) {
+                    // source is a different input file
+                    std::string fileName(source.begin(), slash.begin());
+                    std::string node(slash.end(), source.end());
+                    AnyMap crossSections = AnyMap::fromYamlFile(fileName);
+                    addElectronCrossSections(*electron, crossSections[node], names);
+                } else {
+                    throw InputFileError("newPlasmaElectron", crossSectionsNode,
+                        "Could not find species section named '{}'", source);
+                }
+            }
+        } else {
+            throw InputFileError("newPlasmaElectron", phaseNode["cross-sections"],
+                "Could not parse cross-sections declaration of type '{}'",
+                phaseNode["cross-sections"].type_str());
+        }
+    }
     electron->init(phase);
     return electron;
 }
 
-void addElectronCrossSections(PlasmaElectron& electron, const AnyValue& cross_section)
+void addElectronCrossSections(PlasmaElectron& electron, const AnyValue& crossSections, const AnyValue& names)
 {
-    for (const auto& item : cross_section.asVector<AnyMap>()) {
-        electron.addElectronCrossSection(newElectronCrossSection(item));
+    if (names.is<vector<string>>()) {
+        // 'names' is a list of target species names which should be found in 'cross-sections'
+        for (const auto& name : names.asVector<string>()) {
+            for (const auto& item : crossSections.asVector<AnyMap>()) {
+                if (item["target"].asString() == name) {
+                    electron.addElectronCrossSection(newElectronCrossSection(item));
+                }
+            }
+        }
+    } else if (names.is<string>() && names.asString() == "all") {
+        // The keyword 'all' means to add all cross-sections from this source
+        for (const auto& item : crossSections.asVector<AnyMap>()) {
+            electron.addElectronCrossSection(newElectronCrossSection(item));
+        }
+    } else {
+        throw InputFileError("addElectronCrossSections", names,
+            "Could not parse cross-sections declaration of type '{}'", names.type_str());
     }
 }
 

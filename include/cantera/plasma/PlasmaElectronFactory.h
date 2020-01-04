@@ -63,9 +63,11 @@ inline PlasmaElectron* newPlasmaElectron(const std::string& model)
     return PlasmaElectronFactory::factory()->create(model);
 }
 
-unique_ptr<PlasmaElectron> newPlasmaElectron(const AnyMap& rootNode=AnyMap(), thermo_t* phase = 0);
+unique_ptr<PlasmaElectron> newPlasmaElectron(const AnyMap& phaseNode=AnyMap(),
+                                             const AnyMap& rootNode=AnyMap(),
+                                             thermo_t* phase = 0);
 
-void addElectronCrossSections(PlasmaElectron& electron, const AnyValue& cross_section);
+void addElectronCrossSections(PlasmaElectron& electron, const AnyValue& cross_section, const AnyValue& names);
 
 }
 
