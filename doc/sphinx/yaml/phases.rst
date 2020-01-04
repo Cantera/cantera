@@ -378,6 +378,10 @@ Example::
 A phase defined by a fixed value of the chemical potential, as
 `described here <https://cantera.org/documentation/dev/doxygen/html/d6/db0/classCantera_1_1FixedChemPotSSTP.html#details>`__.
 
+.. deprecated:: 2.5
+   Use class StoichSubstance with a constant-cp species thermo model, with 'h0'
+   set to the desired chemical potential and 's0' set to 0.
+
 Additional fields:
 
 ``chemical-potential``

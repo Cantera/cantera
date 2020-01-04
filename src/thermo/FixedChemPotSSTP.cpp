@@ -23,22 +23,34 @@ namespace Cantera
 FixedChemPotSSTP::FixedChemPotSSTP() :
     chemPot_(0.0)
 {
+    warn_deprecated("class FixedChemPotSSTP", "To be removed after Cantera 2.5. "
+        "Use class StoichSubstance with a constant-cp species thermo model, "
+        "with 'h0' set to the desired chemical potential and 's0' set to 0.");
 }
 
 FixedChemPotSSTP::FixedChemPotSSTP(const std::string& infile, const std::string& id_) :
     chemPot_(0.0)
 {
+    warn_deprecated("class FixedChemPotSSTP", "To be removed after Cantera 2.5. "
+        "Use class StoichSubstance with a constant-cp species thermo model, "
+        "with 'h0' set to the desired chemical potential and 's0' set to 0.");
     initThermoFile(infile, id_);
 }
 FixedChemPotSSTP::FixedChemPotSSTP(XML_Node& xmlphase, const std::string& id_) :
     chemPot_(0.0)
 {
+    warn_deprecated("class FixedChemPotSSTP", "To be removed after Cantera 2.5. "
+        "Use class StoichSubstance with a constant-cp species thermo model, "
+        "with 'h0' set to the desired chemical potential and 's0' set to 0.");
     importPhase(xmlphase, this);
 }
 
 FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     chemPot_(0.0)
 {
+    warn_deprecated("class FixedChemPotSSTP", "To be removed after Cantera 2.5. "
+        "Use class StoichSubstance with a constant-cp species thermo model, "
+        "with 'h0' set to the desired chemical potential and 's0' set to 0.");
     std::string pname = Ename + "Fixed";
     setName(pname);
     setNDim(3);
