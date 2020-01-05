@@ -1710,7 +1710,8 @@ public:
                                const AnyMap& rootNode=AnyMap());
 
     //! Store the parameters of a ThermoPhase object such that an identical
-    //! one could be reconstructed using the newPhase(AnyMap&) function.
+    //! one could be reconstructed using the newPhase(AnyMap&) function. This
+    //! does not include user-defined fields available in input().
     virtual void getParameters(AnyMap& phaseNode) const;
 
     //! Access input data associated with the phase description

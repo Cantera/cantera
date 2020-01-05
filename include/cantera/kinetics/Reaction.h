@@ -61,7 +61,8 @@ public:
     }
 
     //! Store the parameters of a Reaction needed to reconstruct an identical
-    //! object using the newReaction(AnyMap&, Kinetics&) function.
+    //! object using the newReaction(AnyMap&, Kinetics&) function. Does not
+    //! include user-defined fields available in the #input map.
     virtual void getParameters(AnyMap& reactionNode) const;
 
     //! Type of the reaction. The valid types are listed in the file,

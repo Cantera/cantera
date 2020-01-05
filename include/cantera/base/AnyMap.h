@@ -38,10 +38,12 @@ public:
     const AnyValue& getMetadata(const std::string& key) const;
 
 protected:
-    //! Line where this node occurs in the input file
+    //! The line where this value occurs in the input file. Set to -1 for values
+    //! that weren't created from an input file.
     int m_line;
 
-    //! Column where this node occurs in the input file
+    //! If m_line >= 0, the column where this value occurs in the input file.
+    //! If m_line == -1, a value used for determining output ordering
     int m_column;
 
     //! Metadata relevant to an entire AnyMap tree, such as information about
@@ -217,6 +219,9 @@ public:
     //! Returns `true` when getMapWhere() would succeed
     bool hasMapWhere(const std::string& key, const std::string& value) const;
 
+    //! Return values used to determine the sort order when outputting to YAML
+    std::pair <int, int> order() const;
+
     //! @see AnyMap::applyUnits
     void applyUnits(const UnitSystem& units);
 
@@ -358,7 +363,7 @@ std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax);
 class AnyMap : public AnyBase
 {
 public:
-    AnyMap(): m_units() {};
+    AnyMap();
 
     //! Create an AnyMap from a YAML file.
     /*!

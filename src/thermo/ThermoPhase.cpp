@@ -1212,12 +1212,6 @@ void ThermoPhase::getParameters(AnyMap& phaseNode) const
     }
     state["Y"] = Y;
     phaseNode["state"] = state;
-
-    for (const auto& item : m_input) {
-        if (!phaseNode.hasKey(item.first)) {
-            phaseNode[item.first] = item.second;
-        }
-    }
 }
 
 const AnyMap& ThermoPhase::input() const

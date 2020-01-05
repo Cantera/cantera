@@ -8,6 +8,7 @@
 #include "cantera/base/yaml.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/global.h"
+#include "cantera/base/utilities.h"
 #ifdef CT_USE_DEMANGLE
   #include <boost/core/demangle.hpp>
 #endif
@@ -24,6 +25,7 @@ using std::string;
 namespace { // helper functions
 
 std::mutex yaml_cache_mutex;
+using namespace Cantera;
 
 bool isFloat(const std::string& val)
 {
@@ -235,48 +237,56 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyValue& rhs);
 
 YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
 {
+    vector<std::tuple<std::pair<int, int>, std::string, const AnyValue*>> ordered;
+    for (const auto& item : rhs) {
+        ordered.emplace_back(item.second.order(), item.first, &item.second);
+    }
+    std::sort(ordered.begin(), ordered.end());
+
     bool flow = rhs.getBool("__flow__", false);
     if (flow) {
         out << YAML::Flow;
         out << YAML::BeginMap;
         size_t width = 15;
-        for (const auto& item : rhs) {
-            string value;
+        for (const auto& item : ordered) {
+            const auto& name = std::get<1>(item);
+            const auto& value = *std::get<2>(item);
+            string valueStr;
             bool foundType = true;
-            if (item.second.is<double>()) {
-                value = formatDouble(item.second.asDouble(),
-                                     getPrecision(item.second));
-            } else if (item.second.is<string>()) {
-                value = item.second.asString();
-            } else if (item.second.is<long int>()) {
-                value = fmt::format("{}", item.second.asInt());
-            } else if (item.second.is<bool>()) {
-                value = fmt::format("{}", item.second.asBool());
+            if (value.is<double>()) {
+                valueStr = formatDouble(value.asDouble(),
+                                     getPrecision(value));
+            } else if (value.is<string>()) {
+                valueStr = value.asString();
+            } else if (value.is<long int>()) {
+                valueStr = fmt::format("{}", value.asInt());
+            } else if (value.is<bool>()) {
+                valueStr = fmt::format("{}", value.asBool());
             } else {
                 foundType = false;
             }
 
             if (foundType) {
-                if (width + item.first.size() + value.size() + 4 > 79) {
+                if (width + name.size() + valueStr.size() + 4 > 79) {
                     out << YAML::Newline;
                     width = 15;
                 }
-                out << item.first;
-                out << value;
-                width += item.first.size() + value.size() + 4;
+                out << name;
+                out << valueStr;
+                width += name.size() + valueStr.size() + 4;
             } else {
                 // Put items of an unknown (compound) type on a line alone
                 out << YAML::Newline;
-                out << item.first;
-                out << item.second;
+                out << name;
+                out << value;
                 width = 99; // Force newline after this item as well
             }
         }
     } else {
         out << YAML::BeginMap;
-        for (const auto& item : rhs) {
-            out << item.first;
-            out << item.second;
+        for (const auto& item : ordered) {
+            out << std::get<1>(item);
+            out << *std::get<2>(item);
         }
     }
     out << YAML::EndMap;
@@ -482,7 +492,7 @@ std::unordered_map<std::string, std::pair<AnyMap, int>> AnyMap::s_cache;
 
 AnyBase::AnyBase()
     : m_line(-1)
-    , m_column(-1)
+    , m_column(0)
 {}
 
 void AnyBase::setLoc(int line, int column)
@@ -950,6 +960,11 @@ bool AnyValue::hasMapWhere(const std::string& key, const std::string& value) con
     }
 }
 
+std::pair<int, int> AnyValue::order() const
+{
+    return {m_line, m_column};
+}
+
 void AnyValue::applyUnits(const UnitSystem& units)
 {
     if (is<AnyMap>()) {
@@ -1148,6 +1163,11 @@ std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax)
 
 // Methods of class AnyMap
 
+AnyMap::AnyMap()
+    : m_units()
+{
+}
+
 AnyValue& AnyMap::operator[](const std::string& key)
 {
     const auto& iter = m_data.find(key);
@@ -1158,11 +1178,21 @@ AnyValue& AnyMap::operator[](const std::string& key)
         AnyValue& value = m_data.insert({key, AnyValue()}).first->second;
         value.setKey(key);
         if (m_metadata) {
-            // Approximate location, useful mainly if this insertion is going to
-            // immediately result in an error that needs to be reported.
-            value.setLoc(m_line, m_column);
             value.propagateMetadata(m_metadata);
         }
+
+        // If the AnyMap is being created from an input file, this is an
+        // approximate location, useful mainly if this insertion is going to
+        // immediately result in an error that needs to be reported. Otherwise,
+        // this is the location used to set the ordering when outputting to
+        // YAML.
+        value.setLoc(m_line, m_column);
+
+        if (m_line == -1) {
+            // use m_column as a surrogate for ordering the next item added
+            m_column += 10;
+        }
+
         return value;
     } else {
         // Return an already-existing item

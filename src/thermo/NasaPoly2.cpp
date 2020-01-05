@@ -24,8 +24,8 @@ void NasaPoly2::setParameters(double Tmid, const vector_fp& low,
 
 void NasaPoly2::getParameters(AnyMap& thermo) const
 {
-    SpeciesThermoInterpType::getParameters(thermo);
     thermo["model"] = "NASA7";
+    SpeciesThermoInterpType::getParameters(thermo);
     vector_fp Tranges {m_lowT, m_midT, m_highT};
     thermo["temperature-ranges"] = Tranges;
     thermo["data"] = std::vector<vector_fp>();
