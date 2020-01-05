@@ -93,6 +93,7 @@ void Troe::getParameters(AnyMap& reactionNode) const
     if (std::abs(m_t2) > SmallNumber) {
         params["T2"] = m_t2;
     }
+    params.setFlowStyle();
     reactionNode["Troe"] = std::move(params);
 }
 
@@ -160,6 +161,7 @@ void SRI::getParameters(AnyMap& reactionNode) const
         params["D"] = m_d;
         params["E"] = m_e;
     }
+    params.setFlowStyle();
     reactionNode["SRI"] = std::move(params);
 }
 

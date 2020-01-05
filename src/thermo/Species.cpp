@@ -37,6 +37,7 @@ void Species::getParameters(AnyMap& speciesNode) const
 {
     speciesNode["name"] = name;
     speciesNode["composition"] = composition;
+    speciesNode["composition"].setFlowStyle();
 
     if (charge != 0) {
         speciesNode["charge"] = charge;

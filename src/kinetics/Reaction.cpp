@@ -237,6 +237,7 @@ void ThreeBodyReaction::getParameters(AnyMap& reactionNode) const
     ElementaryReaction::getParameters(reactionNode);
     reactionNode["type"] = "three-body";
     reactionNode["efficiencies"] = third_body.efficiencies;
+    reactionNode["efficiencies"].setFlowStyle();
     if (third_body.default_efficiency != 1.0) {
         reactionNode["default-efficiency"] = third_body.default_efficiency;
     }
@@ -311,6 +312,7 @@ void FalloffReaction::getParameters(AnyMap& reactionNode) const
     falloff->getParameters(reactionNode);
 
     reactionNode["efficiencies"] = third_body.efficiencies;
+    reactionNode["efficiencies"].setFlowStyle();
     if (third_body.default_efficiency != 1.0) {
         reactionNode["default-efficiency"] = third_body.default_efficiency;
     }

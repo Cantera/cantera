@@ -56,6 +56,7 @@ void Arrhenius::getParameters(AnyMap& rateNode) const
     rateNode["A"] = preExponentialFactor();
     rateNode["b"] = temperatureExponent();
     rateNode["Ea"] = activationEnergy_R() * GasConstant;
+    rateNode.setFlowStyle();
 }
 
 SurfaceArrhenius::SurfaceArrhenius()

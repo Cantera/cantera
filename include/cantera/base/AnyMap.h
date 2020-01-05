@@ -220,6 +220,9 @@ public:
     //! @see AnyMap::applyUnits
     void applyUnits(const UnitSystem& units);
 
+    //! @see AnyMap::setFlowStyle
+    void setFlowStyle(bool flow=true);
+
 private:
     std::string demangle(const std::type_info& type) const;
 
@@ -506,6 +509,9 @@ public:
      *     may be changed or removed without notice.
      */
     void applyUnits(const UnitSystem& units);
+
+    //! Use "flow" style when outputting this AnyMap to YAML
+    void setFlowStyle(bool flow=true);
 
 private:
     //! The stored data

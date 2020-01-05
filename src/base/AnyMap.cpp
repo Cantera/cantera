@@ -235,16 +235,55 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyValue& rhs);
 
 YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
 {
-    out << YAML::BeginMap;
-    for (const auto& item : rhs) {
-        out << item.first;
-        out << item.second;
+    bool flow = rhs.getBool("__flow__", false);
+    if (flow) {
+        out << YAML::Flow;
+        out << YAML::BeginMap;
+        size_t width = 15;
+        for (const auto& item : rhs) {
+            string value;
+            bool foundType = true;
+            if (item.second.is<double>()) {
+                value = formatDouble(item.second.asDouble(),
+                                     getPrecision(item.second));
+            } else if (item.second.is<string>()) {
+                value = item.second.asString();
+            } else if (item.second.is<long int>()) {
+                value = fmt::format("{}", item.second.asInt());
+            } else if (item.second.is<bool>()) {
+                value = fmt::format("{}", item.second.asBool());
+            } else {
+                foundType = false;
+            }
+
+            if (foundType) {
+                if (width + item.first.size() + value.size() + 4 > 79) {
+                    out << YAML::Newline;
+                    width = 15;
+                }
+                out << item.first;
+                out << value;
+                width += item.first.size() + value.size() + 4;
+            } else {
+                // Put items of an unknown (compound) type on a line alone
+                out << YAML::Newline;
+                out << item.first;
+                out << item.second;
+                width = 99; // Force newline after this item as well
+            }
+        }
+    } else {
+        out << YAML::BeginMap;
+        for (const auto& item : rhs) {
+            out << item.first;
+            out << item.second;
+        }
     }
     out << YAML::EndMap;
     return out;
 }
 
-void emitFlowVector(YAML::Emitter& out, const vector<double>& v, double precision)
+void emitFlowVector(YAML::Emitter& out, const vector<double>& v, long int precision)
 {
     out << YAML::Flow;
     out << YAML::BeginSeq;
@@ -946,7 +985,11 @@ void AnyValue::applyUnits(const UnitSystem& units)
             }
         }
     }
+}
 
+void AnyValue::setFlowStyle(bool flow)
+{
+    as<AnyMap>().setFlowStyle();
 }
 
 std::string AnyValue::demangle(const std::type_info& type) const
@@ -1301,6 +1344,10 @@ void AnyMap::applyUnits(const UnitSystem& units) {
     for (auto& item : m_data) {
         item.second.applyUnits(m_units);
     }
+}
+
+void AnyMap::setFlowStyle(bool flow) {
+    (*this)["__flow__"] = flow;
 }
 
 AnyMap AnyMap::fromYamlString(const std::string& yaml) {
