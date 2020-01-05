@@ -84,8 +84,8 @@ void ConstCpPoly::reportParameters(size_t& n, int& type,
 
 void ConstCpPoly::getParameters(AnyMap& thermo) const
 {
-    SpeciesThermoInterpType::getParameters(thermo);
     thermo["model"] = "constant-cp";
+    SpeciesThermoInterpType::getParameters(thermo);
     thermo["T0"] = m_t0;
     thermo["h0"] = m_h0_R * GasConstant;
     thermo["s0"] = m_s0_R * GasConstant;

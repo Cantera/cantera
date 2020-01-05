@@ -54,17 +54,10 @@ void Species::getParameters(AnyMap& speciesNode) const
         AnyMap transportNode;
         transport->getParameters(transportNode);
         speciesNode["transport"] = transportNode;
-    }
-
-    for (const auto& item : input) {
-        if (!speciesNode.hasKey(item.first)) {
-            speciesNode[item.first] = item.second;
-        }
-    }
-
-    for (const auto& item : extra) {
-        if (!speciesNode.hasKey(item.first)) {
-            speciesNode[item.first] = item.second;
+        for (const auto& item : transport->input) {
+            if (!transportNode.hasKey(item.first)) {
+                transportNode[item.first] = item.second;
+            }
         }
     }
 }

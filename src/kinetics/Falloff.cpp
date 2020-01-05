@@ -87,7 +87,7 @@ void Troe::getParameters(double* params) const {
 void Troe::getParameters(AnyMap& reactionNode) const
 {
     AnyMap params;
-    params["A"]= m_a;
+    params["A"] = m_a;
     params["T3"] = 1.0 / m_rt3;
     params["T1"] = 1.0 / m_rt1;
     if (std::abs(m_t2) > SmallNumber) {
@@ -154,7 +154,7 @@ void SRI::getParameters(double* params) const
 void SRI::getParameters(AnyMap& reactionNode) const
 {
     AnyMap params;
-    params["A"]= m_a;
+    params["A"] = m_a;
     params["B"] = m_b;
     params["C"] = m_c;
     if (m_d != 1.0 || m_e != 0.0) {

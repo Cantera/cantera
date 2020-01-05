@@ -4,6 +4,10 @@ phases:
 - name: simple
   thermo: ideal-gas
   elements: [N, O]
+  custom-field:
+    first: true
+    second: [3.0, 5.0]
+    last: [100, 200, 300]
   species: [O2, NO, N2]
   state: {T: 500.0, P: 10 atm, X: {O2: 0.21, N2: 0.79}}
 

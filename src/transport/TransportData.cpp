@@ -16,11 +16,6 @@ namespace Cantera
 
 void TransportData::getParameters(AnyMap &transportNode) const
 {
-    for (const auto& item : input) {
-        if (!transportNode.hasKey(item.first)) {
-            transportNode[item.first] = item.second;
-        }
-    }
 }
 
 GasTransportData::GasTransportData()

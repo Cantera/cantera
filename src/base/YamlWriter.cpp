@@ -56,6 +56,13 @@ std::string YamlWriter::toYamlString() const
         if (tran) {
             tran->getParameters(phaseDefs[i]);
         }
+
+        // user-defined fields
+        for (const auto& item : m_phases[i]->thermo()->input()) {
+            if (!phaseDefs[i].hasKey(item.first)) {
+                phaseDefs[i][item.first] = item.second;
+            }
+        }
     }
     output["phases"] = phaseDefs;
 
@@ -68,6 +75,14 @@ std::string YamlWriter::toYamlString() const
             const auto& species = phase->thermo()->species(name);
             AnyMap speciesDef;
             species->getParameters(speciesDef);
+
+            // user-defined fields
+            for (const auto& item : species->input) {
+                if (!speciesDef.hasKey(item.first)) {
+                    speciesDef[item.first] = item.second;
+                }
+            }
+
             if (speciesDefIndex.count(name) == 0) {
                 speciesDefs.emplace_back(speciesDef);
                 speciesDefIndex[name] = speciesDefs.size() - 1;
@@ -94,6 +109,14 @@ std::string YamlWriter::toYamlString() const
             const auto reaction = kin->reaction(i);
             AnyMap reactionDef;
             reaction->getParameters(reactionDef);
+
+            // user-defined fields
+            for (const auto& item : reaction->input) {
+                if (!reactionDef.hasKey(item.first)) {
+                    reactionDef[item.first] = item.second;
+                }
+            }
+
             reactions.push_back(std::move(reactionDef));
         }
         allReactions[phase->name()] = std::move(reactions);

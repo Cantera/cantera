@@ -24,7 +24,8 @@ public:
 
     virtual void validate(const Species& species) {}
 
-    //! Store the parameters needed to reconstruct a TransportData object
+    //! Store the parameters needed to reconstruct a TransportData object. Does
+    //! not include user-defined fields available in #input.
     virtual void getParameters(AnyMap& transportNode) const;
 
     //! Input data used for specific models

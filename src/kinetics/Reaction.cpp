@@ -101,6 +101,7 @@ void Reaction::validate()
 void Reaction::getParameters(AnyMap& reactionNode) const
 {
     reactionNode["equation"] = equation();
+
     if (duplicate) {
         reactionNode["duplicate"] = true;
     }
@@ -112,12 +113,6 @@ void Reaction::getParameters(AnyMap& reactionNode) const
     }
     if (allow_nonreactant_orders) {
         reactionNode["nonreactant-orders"] = true;
-    }
-
-    for (const auto& item : input) {
-        if (!reactionNode.hasKey(item.first)) {
-            reactionNode[item.first] = item.second;
-        }
     }
 }
 

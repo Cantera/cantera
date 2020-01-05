@@ -191,8 +191,8 @@ void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
 
 void Nasa9PolyMultiTempRegion::getParameters(AnyMap& thermo) const
 {
-    SpeciesThermoInterpType::getParameters(thermo);
     thermo["model"] = "NASA9";
+    SpeciesThermoInterpType::getParameters(thermo);
     auto T_ranges = m_lowerTempBounds;
     T_ranges.push_back(m_highT);
     thermo["temperature-ranges"] = T_ranges;
