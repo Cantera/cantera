@@ -120,7 +120,7 @@ template<class T>
 std::map<std::string, T> AnyValue::asMap() const
 {
     std::map<std::string, T> dest;
-    for (const auto& item : as<AnyMap>().m_data) {
+    for (const auto& item : as<AnyMap>()) {
         dest[item.first] = item.second.as<T>();
     }
     return dest;

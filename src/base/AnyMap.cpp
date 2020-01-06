@@ -899,6 +899,30 @@ vector_fp AnyMap::convertVector(const std::string& key, const std::string& dest,
     return units().convert(at(key).asVector<AnyValue>(nMin, nMax), dest);
 }
 
+AnyMap::Iterator::Iterator(
+    const std::unordered_map<std::string, AnyValue>::const_iterator& start,
+    const std::unordered_map<std::string, AnyValue>::const_iterator& stop)
+{
+    m_iter = start;
+    m_stop = stop;
+    while (m_iter != m_stop
+           && ba::starts_with(m_iter->first, "__")
+           && ba::ends_with(m_iter->first, "__")) {
+        ++m_iter;
+    }
+}
+
+AnyMap::Iterator& AnyMap::Iterator::operator++()
+{
+    ++m_iter;
+    while (m_iter != m_stop
+           && ba::starts_with(m_iter->first, "__")
+           && ba::ends_with(m_iter->first, "__")) {
+        ++m_iter;
+    }
+    return *this;
+}
+
 void AnyMap::applyUnits(const UnitSystem& units) {
     m_units = units;
 
@@ -986,11 +1010,11 @@ AnyMap AnyMap::fromYamlFile(const std::string& name,
     return cache_item.first;
 }
 
-AnyMap::const_iterator begin(const AnyValue& v) {
+AnyMap::Iterator begin(const AnyValue& v) {
     return v.as<AnyMap>().begin();
 }
 
-AnyMap::const_iterator end(const AnyValue& v) {
+AnyMap::Iterator end(const AnyValue& v) {
     return v.as<AnyMap>().end();
 }
 
