@@ -404,16 +404,37 @@ public:
     vector_fp convertVector(const std::string& key, const std::string& units,
                             size_t nMin=npos, size_t nMax=npos) const;
 
-    using const_iterator = std::unordered_map<std::string, AnyValue>::const_iterator;
+    //! Defined to allow use with range-based for loops. Iteration automatically
+    //! skips over keys that start and end with double underscores.
+    class Iterator {
+    public:
+        Iterator(const std::unordered_map<std::string, AnyValue>::const_iterator& start,
+                 const std::unordered_map<std::string, AnyValue>::const_iterator& stop);
+
+        const std::pair<const std::string, AnyValue>& operator*() const {
+            return *m_iter;
+        }
+        const std::pair<const std::string, AnyValue>* operator->() const {
+            return &*m_iter;
+        }
+        bool operator!=(const Iterator& right) const {
+            return m_iter != right.m_iter;
+        }
+        Iterator& operator++();
+
+    private:
+        std::unordered_map<std::string, AnyValue>::const_iterator m_iter;
+        std::unordered_map<std::string, AnyValue>::const_iterator m_stop;
+    };
 
     //! Defined to allow use with range-based for loops
-    const_iterator begin() const {
-        return m_data.begin();
+    Iterator begin() const {
+        return Iterator(m_data.begin(), m_data.end());
     }
 
     //! Defined to allow use with range-based for loops
-    const_iterator end() const {
-        return m_data.end();
+    Iterator end() const {
+        return Iterator(m_data.end(), m_data.end());
     }
 
     //! Returns the number of elements in this map
@@ -465,8 +486,8 @@ private:
 };
 
 // Define begin() and end() to allow use with range-based for loops
-AnyMap::const_iterator begin(const AnyValue& v);
-AnyMap::const_iterator end(const AnyValue& v);
+AnyMap::Iterator begin(const AnyValue& v);
+AnyMap::Iterator end(const AnyValue& v);
 
 //! Error thrown for problems processing information contained in an AnyMap or
 //! AnyValue.
