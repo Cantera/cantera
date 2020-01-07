@@ -454,7 +454,7 @@ class TestReactor(utilities.CanteraTest):
         reservoir = ct.Reservoir(gas2)
 
         mfc = ct.MassFlowController(reservoir, self.r1)
-        mfc.set_mass_flow_rate(lambda t: 0.1 if 0.2 <= t < 1.2 else 0.0)
+        mfc.mass_flow_rate = lambda t: 0.1 if 0.2 <= t < 1.2 else 0.0
         self.assertEqual(mfc.mass_flow_coeff, 1.)
 
         self.assertEqual(mfc.type, type(mfc).__name__)
@@ -487,7 +487,7 @@ class TestReactor(utilities.CanteraTest):
         # Make sure Python error message actually gets displayed
         self.make_reactors(n_reactors=2)
         mfc = ct.MassFlowController(self.r1, self.r2)
-        mfc.set_mass_flow_rate(lambda t: eggs)
+        mfc.mass_flow_rate = lambda t: eggs
 
         with self.assertRaisesRegex(Exception, 'eggs'):
             self.net.step()
@@ -849,9 +849,9 @@ class TestWellStirredReactorIgnition(utilities.CanteraTest):
 
         # connect the reactor to the reservoirs
         self.fuel_mfc = ct.MassFlowController(self.fuel_in, self.combustor)
-        self.fuel_mfc.set_mass_flow_rate(mdot_fuel)
+        self.fuel_mfc.mass_flow_rate = mdot_fuel
         self.oxidizer_mfc = ct.MassFlowController(self.oxidizer_in, self.combustor)
-        self.oxidizer_mfc.set_mass_flow_rate(mdot_ox)
+        self.oxidizer_mfc.mass_flow_rate = mdot_ox
         self.valve = ct.Valve(self.combustor, self.exhaust)
         self.valve.valve_coeff = 1.0
 
@@ -1595,7 +1595,7 @@ class CombustorTestImplementation:
             # integration
             self.igniter.density
             return amplitude * math.exp(-(t-t0)**2 * 4 * math.log(2) / fwhm**2)
-        self.m3.set_mass_flow_rate(igniter_mdot)
+        self.m3.mass_flow_rate = igniter_mdot
 
         self.data = []
         for t in np.linspace(0, 0.25, 101)[1:]:

@@ -764,13 +764,13 @@ cdef class MassFlowController(FlowDevice):
     where :math:`\dot m_0` is a constant value and :math:`g(t)` is a function of
     time. Both :math:`\dot m_0` and :math:`g(t)` can be set individually by
     the property `mass_flow_coeff` and the method `set_time_function`,
-    respectively. The method `set_mass_flow_rate` combines the former
-    into a single function. Note that if :math:`\dot m_0*g(t) < 0`, the mass flow
+    respectively. The property `mass_flow_rate` combines the former
+    into a single interface. Note that if :math:`\dot m_0*g(t) < 0`, the mass flow
     rate will be set to zero, since reversal of the flow direction is not allowed.
 
     Unlike a real mass flow controller, a MassFlowController object will
     maintain the flow even if the downstream pressure is greater than the
-    upstream pressure.  This allows simple implementation of loops, in which
+    upstream pressure. This allows simple implementation of loops, in which
     exhaust gas from a reactor is fed back into it through an inlet. But note
     that this capability should be used with caution, since no account is
     taken of the work required to do this.
@@ -780,11 +780,7 @@ cdef class MassFlowController(FlowDevice):
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None, mdot=1.):
         super().__init__(upstream, downstream, name=name)
-        if isinstance(mdot, _numbers.Real):
-            self.mass_flow_coeff = mdot
-        else:
-            self.mass_flow_coeff = 1.
-            self.set_time_function(mdot)
+        self.mass_flow_rate = mdot
 
     property mass_flow_coeff:
         r"""Set the mass flow rate [kg/s] through the mass flow controller
@@ -800,6 +796,24 @@ cdef class MassFlowController(FlowDevice):
         def __set__(self, double value):
             (<CxxMassFlowController*>self.dev).setMassFlowCoeff(value)
 
+    property mass_flow_rate:
+        r"""
+        Set the mass flow rate [kg/s] through this controller to be either
+        a constant or an arbitrary function of time. See `Func1`.
+
+        Note that depending on the argument type, this method either changes
+        the property `mass_flow_coeff` or calls the `set_time_function` method.
+
+        >>> mfc.mass_flow_rate = 0.3
+        >>> mfc.mass_flow_rate = lambda t: 2.5 * exp(-10 * (t - 0.5)**2)
+        """
+        def __set__(self, m):
+            if isinstance(m, _numbers.Real):
+                (<CxxMassFlowController*>self.dev).setMassFlowRate(m)
+            else:
+                self.mass_flow_coeff = 1.
+                self.set_time_function(m)
+
     def set_mass_flow_rate(self, m):
         r"""
         Set the mass flow rate [kg/s] through this controller to be either
@@ -810,12 +824,16 @@ cdef class MassFlowController(FlowDevice):
 
         >>> mfc.set_mass_flow_rate(0.3)
         >>> mfc.set_mass_flow_rate(lambda t: 2.5 * exp(-10 * (t - 0.5)**2))
+
+        .. deprecated:: 2.5
+
+             To be deprecated with version 2.5, and removed thereafter.
+             Replaced by property `mass_flow_rate`.
         """
-        if isinstance(m, _numbers.Real):
-            self.mass_flow_coeff = m
-        else:
-            self.mass_flow_coeff = 1.
-            self.set_time_function(m)
+        warnings.warn("To be removed after Cantera 2.5. "
+                      "Replaced by property 'mass_flow_rate'", DeprecationWarning)
+
+        self.mass_flow_rate = m
 
 
 cdef class Valve(FlowDevice):

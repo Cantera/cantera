@@ -611,6 +611,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
 
     cdef cppclass CxxMassFlowController "Cantera::MassFlowController" (CxxFlowDevice):
         CxxMassFlowController()
+        void setMassFlowRate(double)
         void setMassFlowCoeff(double)
         double getMassFlowCoeff()
 
