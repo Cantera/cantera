@@ -90,6 +90,7 @@ public:
     void setNeutralSpeciesMultiplier(const std::string& species, double mult);
     void setSpecialSpecies(bool special=true);
     void setParametersFromXML(const XML_Node& speciesNode);
+    virtual void getParameters(AnyMap& eosNode) const;
     virtual void initThermo();
     //@}
 

@@ -250,6 +250,8 @@ public:
     //@{
 
     virtual void initThermo();
+    virtual void getSpeciesParameters(const std::string& name,
+                                      AnyMap& speciesNode) const;
 
     using Phase::addSpecies;
     virtual bool addSpecies(shared_ptr<Species> spec);

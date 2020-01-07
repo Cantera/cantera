@@ -164,6 +164,15 @@ void VPStandardStateTP::initThermo()
     }
 }
 
+void VPStandardStateTP::getSpeciesParameters(const std::string& name,
+                                             AnyMap& speciesNode) const
+{
+    AnyMap eos;
+    providePDSS(speciesIndex(name))->getParameters(eos);
+    speciesNode["equation-of-state"].getMapWhere(
+        "model", eos.getString("model", ""), true) = std::move(eos);
+}
+
 bool VPStandardStateTP::addSpecies(shared_ptr<Species> spec)
 {
     // Specifically skip ThermoPhase::addSpecies since the Species object
