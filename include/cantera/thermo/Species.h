@@ -35,7 +35,7 @@ public:
     Species& operator=(const Species& other) = delete;
     ~Species();
 
-    void getParameters(AnyMap& speciesNode) const;
+    void getParameters(AnyMap& speciesNode, bool withInput=true) const;
 
     //! The name of the species
     std::string name;
