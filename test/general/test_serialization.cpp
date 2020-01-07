@@ -27,6 +27,24 @@ TEST(YamlWriter, thermoDef)
     EXPECT_DOUBLE_EQ(thermo1->enthalpy_mole(), thermo2->enthalpy_mole());
 }
 
+TEST(YamlWriter, userDefinedFields)
+{
+    auto original = newSolution("ideal-gas.yaml", "simple");
+    YamlWriter writer;
+    writer.addPhase(original);
+
+    AnyMap input1 = AnyMap::fromYamlString(writer.toYamlString());
+    auto thermo1 = newPhase(input1["phases"].getMapWhere("name", "simple"),
+                            input1);
+
+    // user-defined fields should be in place
+    EXPECT_TRUE(thermo1->input()["custom-field"]["second"].is<vector_fp>());
+    auto spec1 = thermo1->species("NO");
+    EXPECT_EQ(spec1->input["extra-field"], "blue");
+    EXPECT_EQ(spec1->thermo->input()["bonus-field"], "green");
+    EXPECT_EQ(spec1->transport->input["bogus-field"], "red");
+}
+
 TEST(YamlWriter, sharedSpecies)
 {
     auto original1 = newSolution("ideal-gas.yaml", "simple");

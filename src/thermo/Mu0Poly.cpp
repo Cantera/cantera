@@ -163,8 +163,16 @@ void Mu0Poly::getParameters(AnyMap& thermo) const
     thermo["model"] = "piecewise-Gibbs";
     thermo["h0"] = m_H298 * GasConstant;
     map<std::string, double> data;
+    bool dimensionless = m_input.getBool("dimensionless", false);
+    if (dimensionless) {
+        thermo["dimensionless"] = true;
+    }
     for (size_t i = 0; i < m_numIntervals+1; i++) {
-        data[fmt::format("{}", m_t0_int[i])] = m_mu0_R_int[i] * GasConstant;
+        if (dimensionless) {
+            data[fmt::format("{}", m_t0_int[i])] = m_mu0_R_int[i] / m_t0_int[i];
+        } else {
+            data[fmt::format("{}", m_t0_int[i])] = m_mu0_R_int[i] * GasConstant;
+        }
     }
     thermo["data"] = data;
 }

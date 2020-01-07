@@ -302,14 +302,14 @@ TEST(SpeciesThermo, PiecewiseGibbsToYaml) {
     auto original = soln->thermo()->species("OH-")->thermo;
     AnyMap oh_data;
     original->getParameters(oh_data);
-    auto duplicate = newSpeciesThermo(oh_data);
+    auto duplicate = newSpeciesThermo(AnyMap::fromYamlString(oh_data.toYamlString()));
     double cp1, cp2, h1, h2, s1, s2;
     for (double T : {274, 300, 330, 340}) {
         original->updatePropertiesTemp(T, &cp1, &h1, &s1);
         duplicate->updatePropertiesTemp(T, &cp2, &h2, &s2);
-        EXPECT_DOUBLE_EQ(cp1, cp2);
-        EXPECT_DOUBLE_EQ(h1, h2);
-        EXPECT_DOUBLE_EQ(s1, s2);
+        EXPECT_DOUBLE_EQ(cp1, cp2) << T;
+        EXPECT_DOUBLE_EQ(h1, h2) << T;
+        EXPECT_DOUBLE_EQ(s1, s2) << T;
     }
     EXPECT_EQ(original->refPressure(), duplicate->refPressure());
 }

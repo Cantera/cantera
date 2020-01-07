@@ -149,6 +149,7 @@ void setupSpeciesThermo(SpeciesThermoInterpType& thermo,
 {
     double Pref = node.convert("reference-pressure", "Pa", OneAtm);
     thermo.setRefPressure(Pref);
+    thermo.input() = node;
 }
 
 void setupNasaPoly(NasaPoly2& thermo, const AnyMap& node)

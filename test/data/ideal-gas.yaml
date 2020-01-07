@@ -99,6 +99,7 @@ species:
   composition: {N: 1, O: 1}
   thermo:
     model: NASA7
+    bonus-field: green
     temperature-ranges: [200.00, 1000.00, 6000.00]
     data:
     - [4.218476300E+00, -4.638976000E-03, 1.104102200E-05, -9.336135400E-09,
@@ -106,6 +107,15 @@ species:
     - [3.260605600E+00, 1.191104300E-03, -4.291704800E-07, 6.945766900E-11,
        -4.033609900E-15, 9.920974600E+03, 6.369302700E+00]
     note: "RUS 78"
+  extra-field: blue
+  transport:
+    model: gas
+    geometry: linear
+    well-depth: 97.53
+    diameter: 3.621
+    polarizability: 1.76
+    rotational-relaxation: 4.0
+    bogus-field: red
 
 - name: N2
   composition: {N: 2}
