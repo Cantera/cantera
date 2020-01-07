@@ -14,10 +14,22 @@ public:
         // added by the overrides of getParameters.
         thermo->input().clear();
         thermo->getParameters(data);
+
+        speciesData.resize(thermo->nSpecies());
+        eosData.resize(thermo->nSpecies());
+        for (size_t k = 0; k < thermo->nSpecies(); k++) {
+            thermo->getSpeciesParameters(thermo->speciesName(k), speciesData[k]);
+            if (speciesData[k].hasKey("equation-of-state")) {
+                // Get the first EOS node, for convenience
+                eosData[k] = speciesData[k]["equation-of-state"].asVector<AnyMap>()[0];
+            }
+        }
     }
 
     shared_ptr<ThermoPhase> thermo;
     AnyMap data;
+    std::vector<AnyMap> speciesData;
+    std::vector<AnyMap> eosData;
 };
 
 TEST_F(ThermoToYaml, simpleIdealGas)
@@ -38,6 +50,9 @@ TEST_F(ThermoToYaml, IdealSolidSoln)
     EXPECT_EQ(data["name"], "IdealSolidSolnPhase2");
     EXPECT_EQ(data["species"].asVector<std::string>().size(), thermo->nSpecies());
     EXPECT_EQ(data["standard-concentration-basis"], "solvent-molar-volume");
+
+    EXPECT_DOUBLE_EQ(eosData[0]["molar-volume"].asDouble(), 1.5);
+    EXPECT_DOUBLE_EQ(eosData[2]["molar-volume"].asDouble(), 0.1);
 }
 
 TEST_F(ThermoToYaml, BinarySolutionTabulated)
