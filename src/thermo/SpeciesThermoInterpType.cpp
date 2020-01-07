@@ -70,4 +70,14 @@ void SpeciesThermoInterpType::modifyOneHf298(const size_t k,
     throw NotImplementedError("SpeciesThermoInterpType::modifyOneHf298");
 }
 
+const AnyMap& SpeciesThermoInterpType::input() const
+{
+    return m_input;
+}
+
+AnyMap& SpeciesThermoInterpType::input()
+{
+    return m_input;
+}
+
 }

@@ -48,7 +48,12 @@ void Species::getParameters(AnyMap& speciesNode) const
 
     AnyMap thermoNode;
     thermo->getParameters(thermoNode);
-    speciesNode["thermo"] = thermoNode;
+    for (const auto& item : thermo->input()) {
+        if (!thermoNode.hasKey(item.first)) {
+            thermoNode[item.first] = item.second;
+        }
+    }
+    speciesNode["thermo"] = std::move(thermoNode);
 
     if (transport) {
         AnyMap transportNode;
@@ -139,7 +144,7 @@ unique_ptr<Species> newSpecies(const AnyMap& node)
     // Store input parameters in the "input" map, unless they are stored in a
     // child object
     const static std::set<std::string> known_keys{
-        "transport"
+        "thermo", "transport"
     };
     s->input.applyUnits(node.units());
     for (const auto& item : node) {

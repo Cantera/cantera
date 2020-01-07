@@ -14,12 +14,12 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
 
 class PDSS;
-class AnyMap;
 
 /**
   * @defgroup spthermo Species Reference-State Thermodynamic Properties
@@ -268,6 +268,10 @@ public:
         throw NotImplementedError("SpeciesThermoInterpType::resetHf298");
     }
 
+    //! Access input data associated with the species thermo definition
+    const AnyMap& input() const;
+    AnyMap& input();
+
 protected:
     //!  lowest valid temperature
     doublereal m_lowT;
@@ -275,6 +279,8 @@ protected:
     doublereal m_highT;
     //! Reference state pressure
     doublereal m_Pref;
+
+    AnyMap m_input;
 };
 
 }
