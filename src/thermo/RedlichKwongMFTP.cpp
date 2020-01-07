@@ -520,6 +520,7 @@ bool RedlichKwongMFTP::addSpecies(shared_ptr<Species> spec)
         a_coeff_vec.resize(2, m_kk * m_kk, NAN);
 
         m_pp.push_back(0.0);
+        m_coeffs_from_db.push_back(false);
         m_tmpV.push_back(0.0);
         m_partialMolarVolumes.push_back(0.0);
         dpdni_.push_back(0.0);
@@ -591,6 +592,7 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
                 if (!isnan(coeffArray[0])) {
                     //Assuming no temperature dependence (i,e a1 = 0)
                     setSpeciesCoeffs(iName, coeffArray[0], 0.0, coeffArray[1]);
+                    m_coeffs_from_db[i] = true;
                 }
             }
         }
@@ -617,6 +619,7 @@ void RedlichKwongMFTP::initThermo()
             }
             double b = eos.convert("b", "m^3/kmol");
             setSpeciesCoeffs(item.first, a0, a1, b);
+            m_coeffs_from_db[speciesIndex(item.first)] = false;
             if (eos.hasKey("binary-a")) {
                 AnyMap& binary_a = eos["binary-a"].as<AnyMap>();
                 const UnitSystem& units = binary_a.units();
@@ -646,11 +649,37 @@ void RedlichKwongMFTP::initThermo()
                 if (!isnan(coeffs[0])) {
                     // Assuming no temperature dependence (i.e. a1 = 0)
                     setSpeciesCoeffs(item.first, coeffs[0], 0.0, coeffs[1]);
+                    m_coeffs_from_db[k] = true;
                 }
             }
         }
     }
 }
+
+void RedlichKwongMFTP::getSpeciesParameters(const std::string& name,
+                                            AnyMap& speciesNode) const
+{
+    MixtureFugacityTP::getSpeciesParameters(name, speciesNode);
+    size_t k = speciesIndex(name);
+    checkSpeciesIndex(k);
+    if (m_coeffs_from_db[k]) {
+        // No equation-of-state node is needed, since the coefficients will be
+        // determined from the critical properties database
+        return;
+    }
+
+    auto& eosNode = speciesNode["equation-of-state"].getMapWhere(
+        "model", "Redlich-Kwong", true);
+
+    size_t counter = k + m_kk * k;
+    if (a_coeff_vec(1, counter) != 0.0) {
+        eosNode["a"] = vector_fp{a_coeff_vec(0, counter), a_coeff_vec(1, counter)};
+    } else {
+        eosNode["a"] = a_coeff_vec(0, counter);
+    }
+    eosNode["b"] = b_vec_Curr_[k];
+}
+
 
 vector<double> RedlichKwongMFTP::getCoeff(const std::string& iName)
 {
@@ -759,6 +788,7 @@ void RedlichKwongMFTP::readXMLPureFluid(XML_Node& pureFluidParam)
         }
     }
     setSpeciesCoeffs(pureFluidParam.attrib("species"), a0, a1, b);
+    m_coeffs_from_db[speciesIndex(pureFluidParam.attrib("species"))] = false;
 }
 
 void RedlichKwongMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
