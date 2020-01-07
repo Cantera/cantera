@@ -428,6 +428,29 @@ void IdealSolidSolnPhase::getParameters(AnyMap& phaseNode) const
     }
 }
 
+void IdealSolidSolnPhase::getSpeciesParameters(const std::string &name,
+                                               AnyMap& speciesNode) const
+{
+    ThermoPhase::getSpeciesParameters(name, speciesNode);
+    size_t k = speciesIndex(name);
+    const auto S = species(k);
+    auto& eosNode = speciesNode["equation-of-state"].getMapWhere(
+        "model", "constant-volume", true);
+    // Output volume information in a form consistent with the input
+    if (S->input.hasKey("equation-of-state")) {
+        auto& eosIn = S->input["equation-of-state"];
+        if (eosIn.hasKey("density")) {
+            eosNode["density"] = molecularWeight(k) / m_speciesMolarVolume[k];
+        } else if (eosIn.hasKey("molar-density")) {
+            eosNode["molar-density"] = 1.0 / m_speciesMolarVolume[k];
+        } else {
+            eosNode["molar-volume"] = m_speciesMolarVolume[k];
+        }
+    } else {
+        eosNode["molar-volume"] = m_speciesMolarVolume[k];
+    }
+}
+
 void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     if (id_.size() > 0 && phaseNode.id() != id_) {
