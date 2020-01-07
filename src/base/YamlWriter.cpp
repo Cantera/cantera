@@ -73,10 +73,27 @@ std::string YamlWriter::toYamlString() const
     speciesDefs.reserve(nspecies_total);
     std::unordered_map<std::string, size_t> speciesDefIndex;
     for (const auto& phase : m_phases) {
-        for (const auto& name : phase->thermo()->speciesNames()) {
-            const auto& species = phase->thermo()->species(name);
+        const auto thermo = phase->thermo();
+        for (const auto& name : thermo->speciesNames()) {
+            const auto& species = thermo->species(name);
             AnyMap speciesDef;
             species->getParameters(speciesDef, !m_skip_user_defined);
+
+            thermo->getSpeciesParameters(name, speciesDef);
+            if (!m_skip_user_defined
+                && species->input.hasKey("equation-of-state")) {
+                auto& eosIn = species->input["equation-of-state"].asVector<AnyMap>();
+                for (const auto& eos : eosIn) {
+                    auto& out = speciesDef["equation-of-state"].getMapWhere(
+                        "model", eos["model"].asString(), true);
+                    for (const auto& item : eos) {
+                        if (!out.hasKey(item.first)) {
+                            out[item.first] = item.second;
+                        }
+                    }
+                }
+            }
+
             if (!m_skip_user_defined) {
                 for (const auto& item : species->input) {
                     if (!speciesDef.hasKey(item.first)) {
