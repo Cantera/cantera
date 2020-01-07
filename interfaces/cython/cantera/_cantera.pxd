@@ -388,8 +388,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         Composition efficiencies
         double default_efficiency
 
-    cdef cppclass CxxElectronReaction "Cantera::ElectronReaction" (CxxElementaryReaction):
-        CxxElectronReaction()
+    cdef cppclass CxxElectronTemperatureReaction "Cantera::ElectronTemperatureReaction" (CxxElementaryReaction):
+        CxxElectronTemperatureReaction()
 
     cdef cppclass CxxThreeBodyReaction "Cantera::ThreeBodyReaction" (CxxElementaryReaction):
         CxxThreeBodyReaction()
