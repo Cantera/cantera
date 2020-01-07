@@ -336,6 +336,19 @@ void LatticeSolidPhase::getParameters(AnyMap& phaseNode) const
     phaseNode["elements"] = elements;
 }
 
+void LatticeSolidPhase::getSpeciesParameters(const std::string& name,
+                                             AnyMap& speciesNode) const
+{
+    // Use child lattice phases to determine species parameters so that these
+    // are set consistently
+    for (const auto& phase : m_lattice) {
+        if (phase->speciesIndex(name) != npos) {
+            phase->getSpeciesParameters(name, speciesNode);
+            break;
+        }
+    }
+}
+
 bool LatticeSolidPhase::addSpecies(shared_ptr<Species> spec)
 {
     // Species are added from component phases in addLattice()
