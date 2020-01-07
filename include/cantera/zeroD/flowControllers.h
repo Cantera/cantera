@@ -29,6 +29,9 @@ public:
         return FlowDevice::ready() && m_mdot >= 0.0;
     }
 
+    //! Set the fixed mass flow rate (kg/s) through the mass flow controller.
+    void setMassFlowRate(double mdot);
+
     //! Set the mass flow coefficient.
     /*!
      * *m* has units of kg/s. The mass flow rate is computed as:

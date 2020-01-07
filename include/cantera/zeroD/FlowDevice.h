@@ -135,7 +135,7 @@ public:
         warn_deprecated("FlowDevice::setMassFlowRate",
                         "To be removed after Cantera 2.5. "
                         "Use device-specific functions (e.g. "
-                        "MassFlowController::setMassFlowCoeff or "
+                        "MassFlowController::setMassFlowRate or "
                         "Valve::setValveCoeff) instead.");
         m_mdot = mdot;
     }
