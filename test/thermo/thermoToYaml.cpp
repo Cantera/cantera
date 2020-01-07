@@ -181,6 +181,10 @@ TEST_F(ThermoToYaml, DebyeHuckel_B_dot_ak)
     EXPECT_DOUBLE_EQ(ac["default-ionic-radius"].asDouble(), 4e-10);
     EXPECT_FALSE(ac.as<AnyMap>().hasKey("A_Debye"));
     EXPECT_FALSE(ac.as<AnyMap>().hasKey("B_Debye"));
+
+    EXPECT_EQ(eosData[0]["model"], "liquid-water-IAPWS95");
+    EXPECT_EQ(eosData[1]["model"], "constant-volume");
+    EXPECT_DOUBLE_EQ(eosData[1]["molar-volume"].asDouble(), 1.3);
 }
 
 TEST_F(ThermoToYaml, DebyeHuckel_beta_ij)
@@ -235,6 +239,9 @@ TEST_F(ThermoToYaml, HMWSoln1)
             FAIL(); // unexpected set of species
         }
     }
+    EXPECT_EQ(eosData[0]["model"], "liquid-water-IAPWS95");
+    EXPECT_EQ(eosData[1]["model"], "constant-volume");
+    EXPECT_DOUBLE_EQ(eosData[2]["molar-volume"].asDouble(), 1.3);
 }
 
 TEST_F(ThermoToYaml, HMWSoln2)
@@ -270,4 +277,7 @@ TEST_F(ThermoToYaml, IdealMolalSolution)
     EXPECT_EQ(cutoff["model"], "polyexp");
     EXPECT_EQ(cutoff.as<AnyMap>().size(), (size_t) 2); // other values are defaults
     EXPECT_DOUBLE_EQ(cutoff["gamma_o"].asDouble(), 0.0001);
+
+    EXPECT_EQ(eosData[2]["model"], "constant-volume");
+    EXPECT_DOUBLE_EQ(eosData[2]["molar-volume"].asDouble(), 0.1);
 }
