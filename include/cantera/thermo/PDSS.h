@@ -432,6 +432,9 @@ public:
         m_input = node;
     }
 
+    //! Store the parameters needed to reconstruct a copy of this PDSS object
+    virtual void getParameters(AnyMap& eosNode) const {}
+
     //! Initialization routine for the PDSS object based on the speciesNode
     /*!
      * This is a cascading call, where each level should call the the parent

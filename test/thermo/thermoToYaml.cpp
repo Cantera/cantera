@@ -138,6 +138,11 @@ TEST_F(ThermoToYaml, IonsFromNeutral)
 {
     setup("thermo-models.yaml", "ions-from-neutral-molecule");
     EXPECT_EQ(data["neutral-phase"], "KCl-neutral");
+    EXPECT_FALSE(eosData[0].hasKey("special-species"));
+    EXPECT_TRUE(eosData[1]["special-species"].asBool());
+    auto multipliers = eosData[1]["multipliers"].asMap<double>();
+    EXPECT_EQ(multipliers.size(), (size_t) 1);
+    EXPECT_DOUBLE_EQ(multipliers["KCl(l)"], 1.5);
 }
 
 TEST_F(ThermoToYaml, Margules)
