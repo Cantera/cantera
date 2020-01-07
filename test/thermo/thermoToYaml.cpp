@@ -111,6 +111,15 @@ TEST_F(ThermoToYaml, PureFluid)
     EXPECT_EQ(data["pure-fluid-name"], "nitrogen");
 }
 
+TEST_F(ThermoToYaml, RedlichKwong)
+{
+    setup("thermo-models.yaml", "CO2-RK");
+    auto a = eosData[0]["a"].asVector<double>();
+    EXPECT_DOUBLE_EQ(a[0], 7.54e6);
+    EXPECT_DOUBLE_EQ(a[1], -4.13e3);
+    EXPECT_DOUBLE_EQ(eosData[0]["b"].asDouble(), 27.80e-3);
+}
+
 TEST_F(ThermoToYaml, Surface)
 {
     setup("surface-phases.yaml", "Pt-surf");

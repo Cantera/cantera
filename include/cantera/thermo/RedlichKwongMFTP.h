@@ -174,6 +174,8 @@ public:
     virtual void setParametersFromXML(const XML_Node& thermoNode);
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
     virtual void initThermo();
+    virtual void getSpeciesParameters(const std::string& name,
+                                      AnyMap& speciesNode) const;
 
     //! Retrieve a and b coefficients by looking up tabulated critical parameters
     /*!
@@ -323,6 +325,10 @@ protected:
     vector_fp b_vec_Curr_;
 
     Array2D a_coeff_vec;
+
+    //! For each species, true if the a and b coefficients were determined from
+    //! the critical properties database
+    std::vector<bool> m_coeffs_from_db;
 
     int NSolns_;
 
