@@ -50,6 +50,7 @@ public:
     //! @{
 
     virtual void initThermo();
+    virtual void getParameters(AnyMap& eosNode) const;
     //@}
 };
 }

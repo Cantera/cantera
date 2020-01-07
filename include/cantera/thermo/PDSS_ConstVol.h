@@ -54,6 +54,7 @@ public:
 
     virtual void initThermo();
     virtual void setParametersFromXML(const XML_Node& speciesNode);
+    virtual void getParameters(AnyMap& eosNode) const;
 
     //! Set the (constant) molar volume [m3/kmol] of the species. Must be called before
     //! initThermo().
