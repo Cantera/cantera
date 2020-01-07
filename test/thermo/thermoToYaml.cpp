@@ -72,6 +72,8 @@ TEST_F(ThermoToYaml, Lattice)
 {
     setup("thermo-models.yaml", "Li7Si3-interstitial");
     EXPECT_DOUBLE_EQ(data["site-density"].asDouble(), 1.046344e+01);
+    EXPECT_DOUBLE_EQ(eosData[0]["molar-volume"].asDouble(), 0.2);
+    EXPECT_EQ(eosData[1].size(), (size_t) 0);
 }
 
 TEST_F(ThermoToYaml, LatticeSolid)

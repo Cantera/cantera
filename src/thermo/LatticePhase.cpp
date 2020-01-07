@@ -303,6 +303,40 @@ void LatticePhase::getParameters(AnyMap& phaseNode) const
     phaseNode["site-density"] = m_site_density;
 }
 
+void LatticePhase::getSpeciesParameters(const std::string& name,
+                                        AnyMap& speciesNode) const
+{
+    ThermoPhase::getSpeciesParameters(name, speciesNode);
+    size_t k = speciesIndex(name);
+    // Output volume information in a form consistent with the input
+    const auto S = species(k);
+    if (S->input.hasKey("equation-of-state")) {
+        auto& eosIn = S->input["equation-of-state"].getMapWhere(
+            "model", "constant-volume");
+        auto& eosOut = speciesNode["equation-of-state"].getMapWhere(
+            "model", "constant-volume", true);
+
+        if (eosIn.hasKey("density")) {
+            eosOut["model"] = "constant-volume";
+            eosOut["density"] = molecularWeight(k) / m_speciesMolarVolume[k];
+        } else if (eosIn.hasKey("molar-density")) {
+            eosOut["model"] = "constant-volume";
+            eosOut["molar-density"] = 1.0 / m_speciesMolarVolume[k];
+        } else if (eosIn.hasKey("molar-volume")) {
+            eosOut["model"] = "constant-volume";
+            eosOut["molar-volume"] = m_speciesMolarVolume[k];
+        }
+    } else if (S->input.hasKey("molar_volume")) {
+        // Species came from XML
+        auto& eosOut = speciesNode["equation-of-state"].getMapWhere(
+            "model", "constant-volume", true);
+        eosOut["model"] = "constant-volume";
+        eosOut["molar-volume"] = m_speciesMolarVolume[k];
+    }
+    // Otherwise, species volume is determined by the phase-level site density
+}
+
+
 void LatticePhase::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model", "Lattice");
