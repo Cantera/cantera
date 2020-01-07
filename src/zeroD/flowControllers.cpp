@@ -14,6 +14,14 @@ MassFlowController::MassFlowController() : FlowDevice() {
     m_type = MFC_Type;
 }
 
+void MassFlowController::setMassFlowRate(double mdot)
+{
+    if (m_tfunc) {
+        delete m_tfunc;
+    }
+    m_coeff = mdot;
+}
+
 void MassFlowController::updateMassFlowRate(double time)
 {
     if (!ready()) {
