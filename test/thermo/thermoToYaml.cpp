@@ -68,6 +68,20 @@ TEST_F(ThermoToYaml, BinarySolutionTabulated)
     EXPECT_DOUBLE_EQ(s[2], 1.27000e4);
 }
 
+TEST_F(ThermoToYaml, StoichSubstance1)
+{
+    setup("thermo-models.yaml", "NaCl(s)");
+    EXPECT_EQ(eosData[0]["model"], "constant-volume");
+    EXPECT_DOUBLE_EQ(eosData[0]["density"].asDouble(), 2165.0);
+}
+
+TEST_F(ThermoToYaml, StoichSubstance2)
+{
+    setup("thermo-models.yaml", "KCl(s)");
+    EXPECT_EQ(eosData[0]["model"], "constant-volume");
+    EXPECT_DOUBLE_EQ(eosData[0]["molar-volume"].asDouble(), 0.0376521717);
+}
+
 TEST_F(ThermoToYaml, Lattice)
 {
     setup("thermo-models.yaml", "Li7Si3-interstitial");

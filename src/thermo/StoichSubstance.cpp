@@ -156,6 +156,29 @@ void StoichSubstance::initThermo()
     SingleSpeciesTP::initThermo();
 }
 
+void StoichSubstance::getSpeciesParameters(const std::string& name,
+                                           AnyMap& speciesNode) const
+{
+    SingleSpeciesTP::getSpeciesParameters(name, speciesNode);
+    size_t k = speciesIndex(name);
+    const auto S = species(k);
+    auto& eosNode = speciesNode["equation-of-state"].getMapWhere(
+        "model", "constant-volume", true);
+    // Output volume information in a form consistent with the input
+    if (S->input.hasKey("equation-of-state")) {
+        auto& eosIn = S->input["equation-of-state"];
+        if (eosIn.hasKey("density")) {
+            eosNode["density"] = density();
+        } else if (eosIn.hasKey("molar-density")) {
+            eosNode["molar-density"] = density() / meanMolecularWeight();
+        } else {
+            eosNode["molar-volume"] = meanMolecularWeight() / density();
+        }
+    } else {
+        eosNode["molar-volume"] = meanMolecularWeight() / density();
+    }
+}
+
 void StoichSubstance::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     // Find the Thermo XML node
