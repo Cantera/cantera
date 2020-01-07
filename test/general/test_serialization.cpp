@@ -6,6 +6,7 @@
 #include "cantera/thermo.h"
 #include "cantera/base/Solution.h"
 #include "cantera/kinetics.h"
+#include "cantera/transport/TransportData.h"
 
 using namespace Cantera;
 
@@ -43,6 +44,17 @@ TEST(YamlWriter, userDefinedFields)
     EXPECT_EQ(spec1->input["extra-field"], "blue");
     EXPECT_EQ(spec1->thermo->input()["bonus-field"], "green");
     EXPECT_EQ(spec1->transport->input["bogus-field"], "red");
+
+    writer.skipUserDefined();
+    AnyMap input2 = AnyMap::fromYamlString(writer.toYamlString());
+    auto thermo2 = newPhase(input2["phases"].getMapWhere("name", "simple"),
+                            input2);
+    // user-defined fields should have been removed
+    EXPECT_FALSE(thermo2->input().hasKey("custom-field"));
+    auto spec2 = thermo2->species("NO");
+    EXPECT_FALSE(spec2->input.hasKey("extra-field"));
+    EXPECT_FALSE(spec2->thermo->input().hasKey("bonus-field"));
+    EXPECT_FALSE(spec2->transport->input.hasKey("bogus-field"));
 }
 
 TEST(YamlWriter, sharedSpecies)

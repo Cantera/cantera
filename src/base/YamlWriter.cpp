@@ -18,6 +18,7 @@ namespace Cantera {
 
 YamlWriter::YamlWriter()
     : m_float_precision(15)
+    , m_skip_user_defined(false)
 {
 }
 
@@ -57,10 +58,11 @@ std::string YamlWriter::toYamlString() const
             tran->getParameters(phaseDefs[i]);
         }
 
-        // user-defined fields
-        for (const auto& item : m_phases[i]->thermo()->input()) {
-            if (!phaseDefs[i].hasKey(item.first)) {
-                phaseDefs[i][item.first] = item.second;
+        if (!m_skip_user_defined) {
+            for (const auto& item : m_phases[i]->thermo()->input()) {
+                if (!phaseDefs[i].hasKey(item.first)) {
+                    phaseDefs[i][item.first] = item.second;
+                }
             }
         }
     }
@@ -74,12 +76,12 @@ std::string YamlWriter::toYamlString() const
         for (const auto& name : phase->thermo()->speciesNames()) {
             const auto& species = phase->thermo()->species(name);
             AnyMap speciesDef;
-            species->getParameters(speciesDef);
-
-            // user-defined fields
-            for (const auto& item : species->input) {
-                if (!speciesDef.hasKey(item.first)) {
-                    speciesDef[item.first] = item.second;
+            species->getParameters(speciesDef, !m_skip_user_defined);
+            if (!m_skip_user_defined) {
+                for (const auto& item : species->input) {
+                    if (!speciesDef.hasKey(item.first)) {
+                        speciesDef[item.first] = item.second;
+                    }
                 }
             }
 
@@ -109,11 +111,11 @@ std::string YamlWriter::toYamlString() const
             const auto reaction = kin->reaction(i);
             AnyMap reactionDef;
             reaction->getParameters(reactionDef);
-
-            // user-defined fields
-            for (const auto& item : reaction->input) {
-                if (!reactionDef.hasKey(item.first)) {
-                    reactionDef[item.first] = item.second;
+            if (!m_skip_user_defined) {
+                for (const auto& item : reaction->input) {
+                    if (!reactionDef.hasKey(item.first)) {
+                        reactionDef[item.first] = item.second;
+                    }
                 }
             }
 

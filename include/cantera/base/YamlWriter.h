@@ -31,10 +31,21 @@ public:
         m_float_precision = n;
     }
 
+    //! By default user-defined data present in the input is preserved on
+    //! output. This method can be used to skip output of user-defined data
+    //! fields which are not directly used by Cantera.
+    void skipUserDefined(bool skip=true) {
+        m_skip_user_defined = skip;
+    }
+
 protected:
     std::vector<shared_ptr<Solution>> m_phases;
 
+    //! @see setPrecision()
     long int m_float_precision;
+
+    //! @see skipUserDefined()
+    bool m_skip_user_defined;
 };
 
 }

@@ -33,7 +33,7 @@ Species::~Species()
 {
 }
 
-void Species::getParameters(AnyMap& speciesNode) const
+void Species::getParameters(AnyMap& speciesNode, bool withInput) const
 {
     speciesNode["name"] = name;
     speciesNode["composition"] = composition;
@@ -48,9 +48,11 @@ void Species::getParameters(AnyMap& speciesNode) const
 
     AnyMap thermoNode;
     thermo->getParameters(thermoNode);
-    for (const auto& item : thermo->input()) {
-        if (!thermoNode.hasKey(item.first)) {
-            thermoNode[item.first] = item.second;
+    if (withInput) {
+        for (const auto& item : thermo->input()) {
+            if (!thermoNode.hasKey(item.first)) {
+                thermoNode[item.first] = item.second;
+            }
         }
     }
     speciesNode["thermo"] = std::move(thermoNode);
@@ -58,12 +60,14 @@ void Species::getParameters(AnyMap& speciesNode) const
     if (transport) {
         AnyMap transportNode;
         transport->getParameters(transportNode);
-        speciesNode["transport"] = transportNode;
-        for (const auto& item : transport->input) {
-            if (!transportNode.hasKey(item.first)) {
-                transportNode[item.first] = item.second;
+        if (withInput) {
+            for (const auto& item : transport->input) {
+                if (!transportNode.hasKey(item.first)) {
+                    transportNode[item.first] = item.second;
+                }
             }
         }
+        speciesNode["transport"] = std::move(transportNode);
     }
 }
 
