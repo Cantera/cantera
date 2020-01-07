@@ -1714,6 +1714,15 @@ public:
     //! does not include user-defined fields available in input().
     virtual void getParameters(AnyMap& phaseNode) const;
 
+    //! Get phase-specific parameters of a Species object such that an
+    //! identical one could be reconstructed and added to this phase.
+    /*!
+     * @param name     Name of the species
+     * @param eosNode  Mapping to be populated with parameters
+     */
+    virtual void getSpeciesParameters(const std::string& name,
+                                      AnyMap& speciesNode) const {}
+
     //! Access input data associated with the phase description
     const AnyMap& input() const;
     AnyMap& input();
