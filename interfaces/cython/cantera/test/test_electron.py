@@ -7,22 +7,22 @@ import copy
 
 class TestElectron(utilities.CanteraTest):
     def setUp(self):
-        self.gas = ct.Plasma(infile='ch4_plasma.cti', efile='lxcat.yaml')
+        self.gas = ct.Plasma(infile='oxygen_plasma.yaml')
 
     def test_electron_properties(self):
         self.gas.TPX = 1000, ct.one_atm, 'O2:1.0, E:1e-10'
         self.gas.electric_field = 1e5
         self.gas.electric_field_freq = 0.0
-        self.assertNear(self.gas.electron_temperature, 15273, 1e-3)
-        self.assertNear(self.gas.electron_mobility, 0.3981, 1e-4)
-        self.assertNear(self.gas.electron_diffusivity, 0.5652, 1e-4)
-        rate = self.gas.electron_rate_coefficient(19)
-        self.assertNear(self.gas.net_plasma_production_rates[24] * 1e-10, rate, 1e-4)
-        self.assertNear(self.gas.net_plasma_production_rates[24], 0.001877, 1e-3)
-        self.assertNear(self.gas.electron_total_collision_frequency, 3.6957e11, 1e-3)
+        self.assertNear(self.gas.electron_temperature, 13113, 1e-3)
+        self.assertNear(self.gas.electron_mobility, 0.3985, 1e-4)
+        self.assertNear(self.gas.electron_diffusivity, 0.5268, 1e-4)
+        #rate = self.gas.electron_rate_coefficient(19)
+        # self.assertNear(self.gas.net_plasma_production_rates[24] * 1e-10, rate, 1e-4)
+        # self.assertNear(self.gas.net_plasma_production_rates[24], 0.001877, 1e-3)
+        self.assertNear(self.gas.electron_total_collision_frequency, 3.433e11, 1e-3)
         self.assertNear(self.gas.electron_power_gain, 3.9811e9, 1e-3)
-        self.assertNear(self.gas.electron_elastic_power_loss, 2.8744e7, 1e-3)
-        self.assertNear(self.gas.mean_electron_energy, 1.9742, 1e-3)
+        self.assertNear(self.gas.electron_elastic_power_loss, 2.4114e7, 1e-3)
+        self.assertNear(self.gas.mean_electron_energy, 1.6949, 1e-3)
         self.assertNear(self.gas.electric_field, 1e5, 1e-3)
 
     def test_change_electric_field_freq(self):
