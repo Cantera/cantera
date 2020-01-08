@@ -1772,24 +1772,7 @@ cdef class PureFluid(ThermoPhase):
             T = values[0] if values[0] is not None else self.T
             P = values[1] if values[1] is not None else self.P
             Q = values[2] if values[2] is not None else self.Q
-            if not isinstance(Q, (np.ndarray, _numbers.Number)):
-                raise ValueError(
-                    'a numeric value is required to quantify '
-                    'the vapor fraction (Q)'
-                )
-            if np.isclose(P, self.thermo.satPressure(T)):
-                self.TQ = T, Q
-            elif np.isclose(Q, 0.) or np.isclose(Q, 1.):
-                self.TP = T, P
-            else:
-                raise ValueError(
-                    'invalid thermodynamic state: the TPQ setter '
-                    'received a combination of property values that '
-                    'do not represent a valid state. As an alternative, '
-                    'specify the state using two fully independent '
-                    'properties (e.g. TD) instead of: '
-                    'T={}, P={}, Q={}'.format(T, P, Q)
-                )
+            self.thermo.setState_TPQ(T, P, Q)
 
     property UVX:
         """
