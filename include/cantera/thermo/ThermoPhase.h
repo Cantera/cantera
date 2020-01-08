@@ -1344,6 +1344,18 @@ public:
         throw NotImplementedError("ThermoPhase::setState_Psat");
     }
 
+    //! Set the temperature, pressure, and vapor fraction (quality).
+    /*!
+     * An exception is thrown if the thermodynamic state is not consistent. That
+     * is, if the vapor fraction is not 0 or 1, the pressure and temperature
+     * must fall on the saturation line.
+     *
+     * @param T    Temperature (K)
+     * @param P    Pressure (Pa)
+     * @param Q    vapor fraction
+     */
+    void setState_TPQ(double T, double P, double Q);
+
     //@}
 
     //! @name Initialization Methods - For Internal Use (ThermoPhase)

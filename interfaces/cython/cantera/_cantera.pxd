@@ -261,6 +261,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
 
         void setState_Tsat(double T, double x) except +translate_exception
         void setState_Psat(double P, double x) except +translate_exception
+        void setState_TPQ(double T, double P, double Q) except +translate_exception
 
 
 cdef extern from "cantera/thermo/IdealGasPhase.h":

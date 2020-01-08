@@ -262,18 +262,7 @@ void ThermoPhase::setState(const AnyMap& input_state)
         double T = state.convert("T", "K");
         double P = state.convert("P", "Pa");
         if (state.hasKey("Q")) {
-            double Q = state["Q"].asDouble();
-            double Psat = satPressure(T);
-            if (std::abs(Psat / P - 1) < 1e-6) {
-                setState_Tsat(T, Q);
-            } else if ((Q == 0 && P >= Psat) || (Q == 1 && P <= Psat)) {
-                setState_TP(T, P);
-            } else {
-                throw InputFileError("ThermoPhase::setState", state,
-                    "Temperature ({}), pressure ({}) and vapor fraction ({}) "
-                    "are inconsistent.\nPsat at this T: {}",
-                    T, P, Q, satPressure(T));
-            }
+            setState_TPQ(T, P, state["Q"].asDouble());
         } else {
             setState_TP(T, P);
         }
@@ -744,6 +733,23 @@ void ThermoPhase::initThermo()
     if (!m_spthermo.ready(m_kk)) {
         throw CanteraError("ThermoPhase::initThermo()",
                            "Missing species thermo data");
+    }
+}
+
+void ThermoPhase::setState_TPQ(double T, double P, double Q)
+{
+    double Psat = satPressure(T);
+    if (std::abs(Psat / P - 1) < 1e-6) {
+        setState_Tsat(T, Q);
+    } else if ((Q == 0 && P >= Psat) || (Q == 1 && P <= Psat)) {
+        setState_TP(T, P);
+    } else {
+        throw CanteraError("ThermoPhase::setState_TPQ",
+            "Temperature ({}), pressure ({}) and vapor fraction ({}) "
+            "are inconsistent.\nPsat at this T: {}\n"
+            "Consider specifying the state using two fully independent "
+            "properties (e.g. temperature and density)",
+            T, P, Q, Psat);
     }
 }
 

@@ -160,11 +160,11 @@ class TestPureFluid(utilities.CanteraTest):
 
         self.water.TPQ = T, P, Q
         self.assertNear(Q, 0.8)
-        with self.assertRaisesRegex(ValueError, 'invalid thermodynamic'):
+        with self.assertRaisesRegex(ct.CanteraError, 'inconsistent'):
             self.water.TPQ = T, .999*P, Q
-        with self.assertRaisesRegex(ValueError, 'invalid thermodynamic'):
+        with self.assertRaisesRegex(ct.CanteraError, 'inconsistent'):
             self.water.TPQ = T, 1.001*P, Q
-        with self.assertRaisesRegex(ValueError, 'numeric value is required'):
+        with self.assertRaises(TypeError):
             self.water.TPQ = T, P, 'spam'
 
     def test_deprecated_X(self):
