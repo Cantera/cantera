@@ -687,34 +687,6 @@ class reaction:
             out['nonreactant-orders'] = True
 
 
-class electron_reaction(reaction):
-    """
-    A electron reaction.
-    """
-    def __init__(self, equation, kf, id='', order='', options=()):
-        r"""
-        :param equation:
-            A string specifying the chemical equation.
-        :param kf:
-            The rate coefficient for the forward direction. If a sequence of
-            three numbers is given, these will be interpreted as [A, b, E1, E2] in
-            the modified Arrhenius function :math:`A T^b exp(-E1/\hat{R}T) exp(-E2/\hat{R}Te)`.
-        :param id:
-            An optional identification string.
-        :param order:
-            Override the default reaction orders implied by the reactant
-            stoichiometric coefficients. Given as a string of key:value pairs,
-            e.g., ``"CH4:0.25 O2:1.5"``.
-        :param options:
-            Processing options, as described in
-            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
-            May be one or more (as a list) of the following: ``'duplicate'``,
-            ``'negative_A'``,`` 'negative_orders'``, ``'nonreactant_orders'``.
-        """
-        super().__init__(equation, kf, id, '', options)
-        self.type = 'electron'
-
-
 class three_body_reaction(reaction):
     """
     A three-body reaction.
