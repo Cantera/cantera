@@ -33,7 +33,15 @@ unique_ptr<PlasmaElectron> newPlasmaElectron(const AnyMap& phaseNode, const AnyM
 {
     unique_ptr<PlasmaElectron> electron(newPlasmaElectron(phaseNode["plasma"].asString()));
     if (phaseNode.hasKey("cross-sections")) {
-        if (phaseNode["cross-sections"].is<vector<AnyMap>>()) {
+        if (phaseNode["cross-sections"].is<vector<string>>()) {
+            // 'cross-sections' is a list of target species names to be added from the current
+            // file's 'cross-sections' section
+            addElectronCrossSections(*electron, phaseNode["cross-sections"], rootNode["cross-sections"]);
+        } else if (phaseNode["cross-sections"].is<string>()) {
+            // 'cross-sections' is a keyword applicable to the current file's 'cross-sections'
+            // section
+            addElectronCrossSections(*electron, phaseNode["cross-sections"], rootNode["cross-sections"]);
+        } else if (phaseNode["cross-sections"].is<vector<AnyMap>>()) {
             // Each item in 'cross-sections' is a map with one item, where the key is
             // a section in another YAML file, and the value is a
             // list of target species names to read from that section 
@@ -57,6 +65,9 @@ unique_ptr<PlasmaElectron> newPlasmaElectron(const AnyMap& phaseNode, const AnyM
                 "Could not parse cross-sections declaration of type '{}'",
                 phaseNode["cross-sections"].type_str());
         }
+    } else if (rootNode.hasKey("cross-sections")) {
+        // By default, add all cross sections from the 'cross-sections' section
+        addElectronCrossSections(*electron, AnyValue("all"), rootNode["cross-sections"]);
     }
     electron->init(phase);
     return electron;
