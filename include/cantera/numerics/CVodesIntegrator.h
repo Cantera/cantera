@@ -94,7 +94,6 @@ private:
     int m_type;
     int m_itol;
     int m_method;
-    int m_iter;
     int m_maxord;
     double m_reltol;
     double m_abstols;
