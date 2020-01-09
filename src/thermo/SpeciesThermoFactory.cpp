@@ -464,7 +464,7 @@ unique_ptr<SpeciesThermoInterpType> newSpeciesThermo(const AnyMap& node)
         return unique_ptr<SpeciesThermoInterpType>(move(thermo));
     } else {
         throw CanteraError("newSpeciesThermo",
-            "Uknown thermo model '{}'", model);
+            "Unknown thermo model '{}'", model);
     }
 }
 

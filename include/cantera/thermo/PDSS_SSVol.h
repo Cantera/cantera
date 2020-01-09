@@ -31,7 +31,7 @@ namespace Cantera
  * single species in a phase at its standard states, for a range of temperatures
  * and pressures. This particular class assumes that the calculation of the
  * thermodynamics functions can be separated into a temperature polynomial
- * representation for thermo functions that can be handled bey a SimpleThermo
+ * representation for thermo functions that can be handled by a SimpleThermo
  * object and a separate calculation for the standard state volume. The Models
  * include a cubic polynomial in temperature for either the standard state
  * volume or the standard state density. The manager uses a SimpleThermo object

@@ -449,7 +449,7 @@ cdef class _FlowBase(Domain1D):
         whenever the energy equation is disabled.
 
         :param pos:
-            arrray of relative positions from 0 to 1
+            array of relative positions from 0 to 1
         :param temp:
             array of temperature values
 
@@ -537,7 +537,7 @@ cdef class IonFlow(_FlowBase):
     """
     An ion flow domain.
 
-    In an ion flow dommain, the electric drift is added to the diffusion flux
+    In an ion flow domain, the electric drift is added to the diffusion flux
     """
     def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
         gas = getIdealGasPhase(thermo)
@@ -1018,7 +1018,7 @@ cdef class Sim1D:
             set_soret(True)
 
         if have_user_tolerances:
-            log('Solving with user-specifed tolerances')
+            log('Solving with user-specified tolerances')
             for i in range(len(self.domains)):
                 self.domains[i].set_steady_tolerances(abs=atol_ss_final[i],
                                                       rel=rtol_ss_final[i])

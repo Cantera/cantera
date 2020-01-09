@@ -175,7 +175,7 @@ public:
     //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
     //! on the reaction order) accounting coverage dependence.
     /*!
-     *  Returns reaction prexponent accounting for both *a* and *m*.
+     *  Returns reaction pre-exponent accounting for both *a* and *m*.
      */
     doublereal preExponentialFactor() const {
         return m_A * std::exp(std::log(10.0)*m_acov + m_mcov);

@@ -165,7 +165,7 @@ static struct atomicWeightData atomicWeightTable[] = {
     {"Cm", "curium",         -1.0},
     {"Bk", "berkelium",      -1.0},
     {"Cf", "californium",    -1.0},
-    {"Es", "einstiunium",    -1.0},
+    {"Es", "einsteinium",    -1.0},
     {"Fm", "fermium",        -1.0},
     {"Md", "mendelevium",    -1.0},
     {"No", "nobelium",       -1.0},

@@ -226,7 +226,7 @@ protected:
      *  This function will set the surface site factions in the underlying
      *  SurfPhase objects to the current value of the solution vector.
      *
-     * @param y Current value of the solution vector. The lenth is equal to
+     * @param y Current value of the solution vector. The length is equal to
      *     the sum of the number of surface sites in all the surface phases.
      */
     void updateState(doublereal* y);

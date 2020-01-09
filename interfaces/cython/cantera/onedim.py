@@ -518,7 +518,7 @@ class FreeFlame(FlameBase):
             except DomainTooNarrow:
                 self.flame.grid *= 2
                 if loglevel > 0:
-                    print('Expanding domain to accomodate flame thickness. '
+                    print('Expanding domain to accommodate flame thickness. '
                           'New width: {} m'.format(
                           self.flame.grid[-1] - self.flame.grid[0]))
                 if refine_grid:
@@ -560,7 +560,7 @@ class IonFlameBase(FlameBase):
     def write_csv(self, filename, species='X', quiet=True):
         """
         Write the velocity, temperature, density, electric potential,
-        , electric field stregth, and species profiles to a CSV file.
+        electric field strength, and species profiles to a CSV file.
         :param filename:
             Output file name
         :param species:

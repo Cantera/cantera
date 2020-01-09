@@ -1660,7 +1660,7 @@ class surface_reaction(reaction):
             Charge transfer coefficient: A number between 0 and 1 which, for a
             charge transfer reaction, determines how much of the electric
             potential difference between two phases is applied to the
-            activiation energy of the fwd reaction.  The remainder is applied to
+            activation energy of the fwd reaction.  The remainder is applied to
             the reverse reaction.
         :param rate_coeff_type:
             Form of the rate coefficient given.  If none given, assumed that the

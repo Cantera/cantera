@@ -1551,7 +1551,7 @@ cdef class PureFluid(ThermoPhase):
 
         .. deprecated:: 2.5
 
-             Behavior changes after version 2.5, when `X` will refer to mole 
+             Behavior changes after version 2.5, when `X` will refer to mole
              fraction. Renamed to `Q`.
         """
         def __get__(self):
@@ -1678,7 +1678,7 @@ cdef class PureFluid(ThermoPhase):
 
     property VH:
         """
-        Get/Set the specfic volume [m^3/kg] and the specific
+        Get/Set the specific volume [m^3/kg] and the specific
         enthalpy [J/kg] of a PureFluid.
         """
         def __get__(self):
@@ -1719,7 +1719,7 @@ cdef class PureFluid(ThermoPhase):
 
         .. deprecated:: 2.5
 
-             Behavior changes after version 2.5, when `X` will refer to mole 
+             Behavior changes after version 2.5, when `X` will refer to mole
              fraction. Renamed to `TDQ`.
         """
         def __get__(self):
@@ -1745,7 +1745,7 @@ cdef class PureFluid(ThermoPhase):
 
         .. deprecated:: 2.5
 
-             Behavior changes after version 2.5, when `X` will refer to mole 
+             Behavior changes after version 2.5, when `X` will refer to mole
              fraction. Renamed to `TPQ`.
         """
         def __get__(self):
@@ -1774,7 +1774,7 @@ cdef class PureFluid(ThermoPhase):
             Q = values[2] if values[2] is not None else self.Q
             if not isinstance(Q, (np.ndarray, _numbers.Number)):
                 raise ValueError(
-                    'a numeric value is required to quanitify '
+                    'a numeric value is required to quantify '
                     'the vapor fraction (Q)'
                 )
             if np.isclose(P, self.thermo.satPressure(T)):
@@ -1798,7 +1798,7 @@ cdef class PureFluid(ThermoPhase):
 
         .. deprecated:: 2.5
 
-             Behavior changes after version 2.5, when `X` will refer to mole 
+             Behavior changes after version 2.5, when `X` will refer to mole
              fraction. Renamed to `UVQ`.
         """
         def __get__(self):
@@ -1820,7 +1820,7 @@ cdef class PureFluid(ThermoPhase):
 
         .. deprecated:: 2.5
 
-             Behavior changes after version 2.5, when `X` will refer to mole 
+             Behavior changes after version 2.5, when `X` will refer to mole
              fraction. Renamed to `DPQ`.
         """
         def __get__(self):
@@ -1840,7 +1840,7 @@ cdef class PureFluid(ThermoPhase):
 
         .. deprecated:: 2.5
 
-             Behavior changes after version 2.5, when `X` will refer to mole 
+             Behavior changes after version 2.5, when `X` will refer to mole
              fraction. Renamed to `HPQ`.
         """
         def __get__(self):
@@ -1862,7 +1862,7 @@ cdef class PureFluid(ThermoPhase):
 
         .. deprecated:: 2.5
 
-             Behavior changes after version 2.5, when `X` will refer to mole 
+             Behavior changes after version 2.5, when `X` will refer to mole
              fraction. Renamed to `SPQ`.
         """
         def __get__(self):
@@ -1885,7 +1885,7 @@ cdef class PureFluid(ThermoPhase):
 
         .. deprecated:: 2.5
 
-             Behavior changes after version 2.5, when `X` will refer to mole 
+             Behavior changes after version 2.5, when `X` will refer to mole
              fraction. Renamed to `SVQ`.
         """
         def __get__(self):

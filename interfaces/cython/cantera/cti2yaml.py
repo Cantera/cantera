@@ -946,7 +946,7 @@ class state:
             A string specifying the species coverages. Unspecified species are
             set to zero. Can only be specified for interfaces.
         :param solute_molalities:
-            A string specifying the solute molaities. Unspecified molalities
+            A string specifying the solute molalities. Unspecified molalities
             are set to zero. Only applies to molality-based thermodynamic
             models.
         """

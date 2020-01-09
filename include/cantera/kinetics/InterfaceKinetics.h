@@ -167,7 +167,7 @@ public:
 
     //! Return effective temperature exponent for the specified reaction
     /*!
-     *  Returns effective temperature exponenty, accounting for surface coverage
+     *  Returns effective temperature exponent, accounting for surface coverage
      *  dependencies. Current parameterization in SurfaceArrhenius does not
      *  change this parameter with the change in surface coverages.
      *

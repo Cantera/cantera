@@ -103,7 +103,7 @@ class TestThermoPhase(utilities.CanteraTest):
             self.phase.elemental_mole_fraction(5)
 
     def test_elemental_mass_mole_fraction(self):
-        # expected relationship between elmental mass and mole fractions
+        # expected relationship between elemental mass and mole fractions
         comps = ['H2O:0.5, O2:0.5', 'H2:0.1, O2:0.4, H2O2:0.3, AR:0.2',
                  'O2:0.1, H2:0.9']
         for comp in comps:
