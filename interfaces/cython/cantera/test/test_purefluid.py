@@ -207,7 +207,7 @@ class TestPureFluid(utilities.CanteraTest):
         self.assertEqual(self.water.phase_of_matter, "supercritical")
         self.water.TP = 300, self.water.critical_pressure*2
         self.assertEqual(self.water.phase_of_matter, "supercritical")
-        self.water.TX = 300, 0.4
+        self.water.TQ = 300, 0.4
         self.assertEqual(self.water.phase_of_matter, "liquid-gas-mix")
 
 
