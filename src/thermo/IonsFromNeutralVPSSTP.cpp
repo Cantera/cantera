@@ -114,7 +114,7 @@ void IonsFromNeutralVPSSTP::getChemPotentials(doublereal* mu) const
     size_t icat, jNeut;
     doublereal xx, fact2;
 
-    // Get the standard chemical potentials of netural molecules
+    // Get the standard chemical potentials of neutral molecules
     neutralMoleculePhase_->getStandardChemPotentials(muNeutralMolecule_.data());
 
     switch (ionSolnType_) {
@@ -660,7 +660,7 @@ void IonsFromNeutralVPSSTP::setParametersFromXML(const XML_Node& thermoNode)
 void IonsFromNeutralVPSSTP::s_update_lnActCoeff() const
 {
     size_t icat, jNeut;
-    // Get the activity coefficiens of the neutral molecules
+    // Get the activity coefficients of the neutral molecules
     neutralMoleculePhase_->getLnActivityCoefficients(lnActCoeff_NeutralMolecule_.data());
 
     switch (ionSolnType_) {

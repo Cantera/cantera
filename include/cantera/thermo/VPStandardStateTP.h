@@ -20,7 +20,7 @@ namespace Cantera
 /**
  * @ingroup thermoprops
  *
- * This is a filter class for ThermoPhase that implements some prepatory steps
+ * This is a filter class for ThermoPhase that implements some preparatory steps
  * for efficiently handling a variable pressure standard state for species.
  *
  * Several concepts are introduced. The first concept is there are temporary
@@ -274,8 +274,8 @@ protected:
     //! The maximum temperature at which data for all species is valid
     double m_maxTemp;
 
-    //! The last temperature at which the standard statethermodynamic properties
-    //! were calculated at.
+    //! The last temperature at which the standard state thermodynamic
+    //! properties were calculated at.
     mutable doublereal m_Tlast_ss;
 
     //! The last pressure at which the Standard State thermodynamic properties

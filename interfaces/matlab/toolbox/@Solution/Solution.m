@@ -21,7 +21,7 @@ function s = Solution(src, id, trans)
 % argument ``trans`` to one of ``'default'``, ``'None'``, ``'Mix'``, or ``'Multi'``.
 % In this case, the phase name must be specified as well. Alternatively,
 % change the ``transport`` node in the CTML file, or ``transport``
-% property inthe CTI file before loading the phase. The transport
+% property in the CTI file before loading the phase. The transport
 % modeling cannot be changed once the phase is loaded.
 %
 % Class :mat:func:`Solution` derives from three more basic classes, and most of

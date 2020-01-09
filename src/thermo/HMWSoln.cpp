@@ -1225,7 +1225,7 @@ void HMWSoln::s_update_lnMolalityActCoeff() const
     // coefficient calculations.
     calcMolalitiesCropped();
 
-    // Update the temperature dependence of the pitzer coefficients and their
+    // Update the temperature dependence of the Pitzer coefficients and their
     // derivatives
     s_updatePitzer_CoeffWRTemp();
 
@@ -2012,7 +2012,7 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     // Molality based ionic strength of the solution
     double Is = 0.0;
 
-    // Molarcharge of the solution: In Pitzer's notation, this is his variable
+    // Molar charge of the solution: In Pitzer's notation, this is his variable
     // called "Z".
     double molarcharge = 0.0;
 
@@ -2543,7 +2543,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     // Molality based ionic strength of the solution
     double Is = 0.0;
 
-    // Molarcharge of the solution: In Pitzer's notation, this is his variable
+    // Molar charge of the solution: In Pitzer's notation, this is his variable
     // called "Z".
     double molarcharge = 0.0;
 
@@ -3057,7 +3057,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     // Molality based ionic strength of the solution
     double Is = 0.0;
 
-    // Molarcharge of the solution: In Pitzer's notation, this is his variable
+    // Molar charge of the solution: In Pitzer's notation, this is his variable
     // called "Z".
     double molarcharge = 0.0;
 
@@ -3564,7 +3564,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     // Molality based ionic strength of the solution
     double Is = 0.0;
 
-    // Molarcharge of the solution: In Pitzer's notation, this is his variable
+    // Molar charge of the solution: In Pitzer's notation, this is his variable
     // called "Z".
     double molarcharge = 0.0;
 

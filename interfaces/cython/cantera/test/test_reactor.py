@@ -332,7 +332,7 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(T2a, T2b)
 
     def test_equilibrium_UV(self):
-        # Adiabatic, constant volume combustion should proceed to equilibrum
+        # Adiabatic, constant volume combustion should proceed to equilibrium
         # at constant internal energy and volume.
 
         P0 = 10 * ct.one_atm
@@ -352,7 +352,7 @@ class TestReactor(utilities.CanteraTest):
         self.assertArrayNear(self.r1.thermo.X, gas.X)
 
     def test_equilibrium_HP(self):
-        # Adiabatic, constant pressure combustion should proceed to equilibrum
+        # Adiabatic, constant pressure combustion should proceed to equilibrium
         # at constant enthalpy and pressure.
 
         P0 = 10 * ct.one_atm

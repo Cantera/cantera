@@ -732,7 +732,7 @@ class Phase:
     def redlich_kister(
         self, activity_coeffs: etree.Element
     ) -> List[Dict[str, List[Union[str, "QUANTITY"]]]]:
-        """Process activity coefficents for a Redlich-Kister phase-thermo type.
+        """Process activity coefficients for a Redlich-Kister phase-thermo type.
 
         :param activity_coeffs:
             XML ``activityCoefficients`` node. For the ``RedlichKister`` phase-thermo

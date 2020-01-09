@@ -123,7 +123,7 @@ Units::Units(double factor, double mass, double length, double time,
     } else if (mass != 0 && length == 2 * mass && time == -2 * mass
                && temperature == 0 && current == 0 && quantity == 0)
     {
-        // Dimesion looks like J^n
+        // Dimension looks like J^n
         m_energy_dim = mass;
     }
 }

@@ -22,7 +22,7 @@ namespace Cantera
 {
 ////////////////////// exceptions ////////////////////////////
 
-//! Classs representing a generic XML error condition
+//! Class representing a generic XML error condition
 class XML_Error : public CanteraError
 {
 protected:

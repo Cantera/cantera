@@ -157,7 +157,7 @@ void IdealMolalSoln::setMolarDensity(const doublereal conc)
         "Error will be thrown by Phase::setMolarDensity instead");
     if (conc != Phase::molarDensity()) {
         throw CanteraError("IdealMolalSoln::setMolarDensity",
-                           "molarDensity/denisty is not an independent variable");
+                           "molarDensity/density is not an independent variable");
     }
 }
 

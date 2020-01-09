@@ -13,7 +13,7 @@ The piston allows heat transfer between the reactors and some heat is lost
 through the outer cylinder walls to the environment.
 
 Note that this simulation, being zero-dimensional, takes no account of shock
-wave propagation. It is somewhat artifical, but nevertheless instructive.
+wave propagation. It is somewhat artificial, but nevertheless instructive.
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """

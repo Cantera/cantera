@@ -266,7 +266,7 @@ void IonGasTransport::setupN64()
                     m_epsilon(i,j) = epsilon;
                 }
 
-                // Calculate dipersion coefficient and quadrupole polarizability
+                // Calculate dispersion coefficient and quadrupole polarizability
                 // from curve fitting if not available.
                 // Neutrals
                 if (m_disp[j] == 0.0) {
