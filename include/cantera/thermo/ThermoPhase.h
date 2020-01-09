@@ -1346,9 +1346,15 @@ public:
 
     //! Set the temperature, pressure, and vapor fraction (quality).
     /*!
-     * An exception is thrown if the thermodynamic state is not consistent. That
-     * is, if the vapor fraction is not 0 or 1, the pressure and temperature
-     * must fall on the saturation line.
+     * An exception is thrown if the thermodynamic state is not consistent.
+     *
+     * For temperatures below the critical temperature, if the vapor fraction is
+     * not 0 or 1, the pressure and temperature must fall on the saturation
+     * line.
+     *
+     * Above the critical temperature, the vapor fraction must be 1 if the
+     * pressure is less than the critical pressure. Above the critical pressure,
+     * the vapor fraction is not defined, and its value is ignored.
      *
      * @param T    Temperature (K)
      * @param P    Pressure (Pa)
