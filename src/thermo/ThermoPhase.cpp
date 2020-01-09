@@ -738,6 +738,18 @@ void ThermoPhase::initThermo()
 
 void ThermoPhase::setState_TPQ(double T, double P, double Q)
 {
+    if (T > critTemperature()) {
+        if (P > critPressure() || Q == 1) {
+            setState_TP(T, P);
+            return;
+        } else {
+            throw CanteraError("ThermoPhase::setState_TPQ",
+                "Temperature ({}), pressure ({}) and vapor fraction ({}) "
+                "are inconsistent, above the critical temperature.",
+                T, P, Q);
+        }
+    }
+
     double Psat = satPressure(T);
     if (std::abs(Psat / P - 1) < 1e-6) {
         setState_Tsat(T, Q);

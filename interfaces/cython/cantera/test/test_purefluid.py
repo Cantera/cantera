@@ -179,14 +179,26 @@ class TestPureFluid(utilities.CanteraTest):
         self.assertNear(T, 400)
         self.assertNear(Q, 0.8)
 
+        # a supercritical state
+        self.water.TPQ = 800, 3e7, 1
+        self.assertNear(self.water.T, 800)
+        self.assertNear(self.water.P, 3e7)
+
         self.water.TPQ = T, P, Q
-        self.assertNear(Q, 0.8)
+        self.assertNear(self.water.Q, 0.8)
         with self.assertRaisesRegex(ct.CanteraError, 'inconsistent'):
             self.water.TPQ = T, .999*P, Q
         with self.assertRaisesRegex(ct.CanteraError, 'inconsistent'):
             self.water.TPQ = T, 1.001*P, Q
         with self.assertRaises(TypeError):
             self.water.TPQ = T, P, 'spam'
+
+        self.water.TPQ = 500, 1e5, 1  # superheated steam
+        self.assertNear(self.water.P, 1e5)
+        with self.assertRaisesRegex(ct.CanteraError, 'inconsistent'):
+            self.water.TPQ = 500, 1e5, 0  # vapor fraction should be 1 (T < Tc)
+        with self.assertRaisesRegex(ct.CanteraError, 'inconsistent'):
+            self.water.TPQ = 700, 1e5, 0  # vapor fraction should be 1 (T > Tc)
 
     def test_deprecated_X(self):
 
