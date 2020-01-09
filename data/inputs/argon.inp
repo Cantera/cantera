@@ -1,3 +1,5 @@
+! Pure argon phase. Thermo and transport properties are taken
+! from GRI-Mech 3.0.
 ELEMENTS
 AR
 END

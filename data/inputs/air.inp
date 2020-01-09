@@ -1,3 +1,5 @@
+! Ideal gas properties of air. Includes several reactions among
+! the included species.
 ELEMENTS
 O  N  AR
 END
