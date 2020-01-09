@@ -12,6 +12,7 @@ addons:
       - python3-numpy
       - python3-setuptools
       - scons
+      - python-numpy
       - gfortran
       - libsundials-serial-dev
       - liblapack-dev
