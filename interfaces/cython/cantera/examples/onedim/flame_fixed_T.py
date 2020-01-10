@@ -24,9 +24,7 @@ refine_grid = True  # 'True' to enable refinement
 ################ create the gas object ########################
 #
 # This object will be used to evaluate all thermodynamic, kinetic, and
-# transport properties. It is created with two transport managers, to enable
-# switching from mixture-averaged to multicomponent transport on the last
-# solution.
+# transport properties
 gas = ct.Solution('gri30.yaml')
 
 # set its state to that of the unburned gas at the burner
