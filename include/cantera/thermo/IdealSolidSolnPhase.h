@@ -571,12 +571,18 @@ public:
         return m_cp0_R;
     }
 
+    //! @deprecated To be removed after Cantera 2.5
     virtual void setPotentialEnergy(int k, doublereal pe) {
+        warn_deprecated("IdealSolidSolnPhase::setPotentialEnergy",
+            "To be removed after Cantera 2.5");
         m_pe[k] = pe;
         _updateThermo();
     }
 
+    //! @deprecated To be removed after Cantera 2.5
     virtual doublereal potentialEnergy(int k) const {
+        warn_deprecated("IdealSolidSolnPhase::potentialEnergy",
+            "To be removed after Cantera 2.5");
         return m_pe[k];
     }
 
@@ -677,6 +683,7 @@ protected:
     mutable vector_fp m_expg0_RT;
 
     //! Vector of potential energies for the species.
+    //! @deprecated To be removed after Cantera 2.5
     mutable vector_fp m_pe;
 
     //! Temporary array used in equilibrium calculations
