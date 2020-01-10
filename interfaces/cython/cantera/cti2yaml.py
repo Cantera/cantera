@@ -1541,7 +1541,7 @@ def convert(filename=None, output_name=None, text=None):
 
     if filename is None and text is None:
         raise ValueError("One of filename or text must be specified")
-    elif (filename is not None and text is not None):
+    elif filename is not None and text is not None:
         raise ValueError("Only one of filename or text should be specified")
 
     if filename is not None:

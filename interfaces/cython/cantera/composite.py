@@ -263,10 +263,10 @@ class Quantity:
         return Quantity(self.phase, mass=self.mass * other, constant=self.constant)
 
     def __iadd__(self, other):
-        if (self._id != other._id):
+        if self._id != other._id:
             raise ValueError('Cannot add Quantities with different phase '
                 'definitions.')
-        assert(self.constant == other.constant)
+        assert self.constant == other.constant
         a1,b1 = getattr(self.phase, self.constant)
         a2,b2 = getattr(other.phase, self.constant)
         m = self.mass + other.mass
