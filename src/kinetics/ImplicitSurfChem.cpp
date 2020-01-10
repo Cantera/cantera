@@ -126,13 +126,13 @@ void ImplicitSurfChem::setTolerances(double rtol, double atol)
 void ImplicitSurfChem::setMaxSteps(size_t maxsteps)
 {
     m_nmax = maxsteps;
-    m_integ->setMaxSteps(m_nmax);
+    m_integ->setMaxSteps(static_cast<int>(m_nmax));
 }
 
 void ImplicitSurfChem::setMaxErrTestFails(size_t maxErrTestFails)
 {
     m_maxErrTestFails = maxErrTestFails;
-    m_integ->setMaxErrTestFails(m_maxErrTestFails);
+    m_integ->setMaxErrTestFails(static_cast<int>(m_maxErrTestFails));
 }
 
 void ImplicitSurfChem::initialize(doublereal t0)

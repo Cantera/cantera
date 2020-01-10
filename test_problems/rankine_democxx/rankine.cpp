@@ -20,9 +20,7 @@ void saveState(F& fluid, std::string name)
 
 void printStates()
 {
-    int nStates = states.size();
-    for (int n = 0; n < nStates; n++) {
-        std::string name = states[n];
+    for (auto& name : states) {
         writelog(" {:5s} {:10.6g} {:10.6g} {:12.6g} {:12.6g} {:5.2g}\n",
                  name, T[name], P[name], h[name], s[name], x[name]);
     }
