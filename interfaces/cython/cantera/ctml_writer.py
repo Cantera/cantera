@@ -2104,47 +2104,6 @@ class metal(phase):
         k = ph.addChild("kinetics")
         k['model'] = 'none'
 
-class semiconductor(phase):
-    """A semiconductor."""
-    def __init__(self,
-                 name = '',
-                 elements = '',
-                 species = '',
-                 note = '',
-                 density = -1.0,
-                 bandgap = 1.0 * eV,
-                 effectiveMass_e = 1.0 * ElectronMass,
-                 effectiveMass_h = 1.0 * ElectronMass,
-                 transport = 'None',
-                 initial_state = None,
-                 options = []):
-
-        phase.__init__(self, name, 3, elements, species, note, 'none',
-                       initial_state, options)
-        self._dens = density
-        self._pure = 0
-        self._tr = transport
-        self._emass = effectiveMass_e
-        self._hmass = effectiveMass_h
-        self._bandgap = bandgap
-
-    def conc_dim(self):
-        return (1,-3)
-
-    def build(self, p):
-        ph = phase.build(self, p)
-        e = ph.child("thermo")
-        e['model'] = 'Semiconductor'
-        addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
-        addFloat(e, 'effectiveMass_e', self._emass, defunits = _umass)
-        addFloat(e, 'effectiveMass_h', self._hmass, defunits = _umass)
-        addFloat(e, 'bandgap', self._bandgap, defunits = 'eV')
-        if self._tr:
-            t = ph.addChild('transport')
-            t['model'] = self._tr
-        k = ph.addChild("kinetics")
-        k['model'] = 'none'
-
 
 class incompressible_solid(phase):
     """An incompressible solid.
