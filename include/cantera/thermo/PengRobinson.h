@@ -195,6 +195,7 @@ public:
     virtual void setParametersFromXML(const XML_Node& thermoNode);
     virtual void setToEquilState(const double* lambda_RT);
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
+    virtual void initThermo();
 
     //! Retrieve a and b coefficients by looking up tabulated critical parameters
     /*!
@@ -225,7 +226,7 @@ public:
      *  @param alpha     dimensionless function of T_r and \omega
      *  @param omega     acentric factor
      */
-    void setSpeciesCoeffs(const std::string& species, double a, double b,
+    void setSpeciesCoeffs(const std::string& species, double a0, double b,
                               double w);
 
     //! Set values for the interaction parameter between two species

@@ -911,7 +911,7 @@ int MixtureFugacityTP::NicholsSolve(double T, double pres, double a, double b,
     //check if y = h
     if (fabs(fabs(h) - fabs(yN)) < 1.0E-10) {
         if (disc > 1e-10) {
-            throw CanteraError("PengRobinson::NicholsSolve()", "value of yN and h are too high, unrealistic roots may be obtained");
+            throw CanteraError("MixtureFugacityTP::NicholsSolve()", "value of yN and h are too high, unrealistic roots may be obtained");
         } 
         disc = 0.0;
     }

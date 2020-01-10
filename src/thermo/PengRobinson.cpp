@@ -65,22 +65,24 @@ void PengRobinson::calculateAlpha(const std::string& species, double a, double b
 {
     size_t k = speciesIndex(species);
     if (k == npos) {
-        throw CanteraError("PengRobinson::setSpeciesCoeffs",
+        throw CanteraError("PengRobinson::calculateAlpha",
             "Unknown species '{}'.", species);
     }
 
     // Calculate value of kappa (independent of temperature)
     // w is an acentric factor of species and must be specified in the CTI file
-
-    if (w <= 0.491) {
+    if (isnan(w)){
+        throw CanteraError("PengRobinson::calculateALpha",
+            "No acentric factor loaded.");
+    } else if (w <= 0.491) {
         kappa_vec_[k] = 0.37464 + 1.54226*w - 0.26992*w*w;
     } else {
         kappa_vec_[k] = 0.374642 + 1.487503*w - 0.164423*w*w + 0.016666*w*w*w;
     }
 
     //Calculate alpha (temperature dependent interaction parameter)
-    double criTemp = speciesCritTemperature(a, b); // critical temperature of individual species
-    double sqt_T_r = sqrt(temperature() / criTemp);
+    double critTemp = speciesCritTemperature(a, b); // critical temperature of individual species
+    double sqt_T_r = sqrt(temperature() / critTemp);
     double sqt_alpha = 1 + kappa_vec_[k] * (1 - sqt_T_r);
     alpha_vec_Curr_[k] = sqt_alpha*sqt_alpha;
 }
@@ -645,6 +647,67 @@ void PengRobinson::initThermoXML(XML_Node& phaseNode, const std::string& id)
         MixtureFugacityTP::initThermoXML(phaseNode, id);
 }
 
+void PengRobinson::initThermo()
+{
+    for (auto& item : m_species) {
+        // Read a and b coefficients and acentric factor w_ac from species 'input'
+        // information (i.e. as specified in a YAML input file)
+        if (item.second->input.hasKey("equation-of-state")) {
+            auto eos = item.second->input["equation-of-state"].as<AnyMap>();
+            if (eos.getString("model", "") != "Peng-Robinson") {
+                throw InputFileError("PengRobinson::initThermo", eos,
+                    "Expected species equation of state to be 'Peng-Robinson', "
+                    "but got '{}' instead", eos.getString("model", ""));
+            }
+            double a0 = 0, a1 = 0;
+            if (eos["a"].isScalar()) {
+                a0 = eos.convert("a", "Pa*m^6/kmol^2");
+            } else {
+                auto avec = eos["a"].asVector<AnyValue>(2);
+                a0 = eos.units().convert(avec[0], "Pa*m^6/kmol^2");
+                a1 = eos.units().convert(avec[1], "Pa*m^6/kmol^2/K");
+            }
+            double b = eos.convert("b", "m^3/kmol");
+            // unitless acentric factor:
+            double w = eos.getDouble("w_ac",NAN);
+
+            calculateAlpha(item.first, a0, b, w);
+            setSpeciesCoeffs(item.first, a0, b, w);
+            if (eos.hasKey("binary-a")) {
+                AnyMap& binary_a = eos["binary-a"].as<AnyMap>();
+                const UnitSystem& units = binary_a.units();
+                for (auto& item2 : binary_a) {
+                    double a0 = 0, a1 = 0;
+                    if (item2.second.isScalar()) {
+                        a0 = units.convert(item2.second, "Pa*m^6/kmol^2");
+                    } else {
+                        auto avec = item2.second.asVector<AnyValue>(2);
+                        a0 = units.convert(avec[0], "Pa*m^6/kmol^2");
+                        a1 = units.convert(avec[1], "Pa*m^6/kmol^2/K");
+                    }
+                    setBinaryCoeffs(item.first, item2.first, a0, a1);
+                }
+            }
+        } else {
+            // Check if a and b are already populated for this species (only the
+            // diagonal elements of a). If not, then search 'critProperties.xml'
+            // to find critical temperature and pressure to calculate a and b.
+            size_t k = speciesIndex(item.first);
+            if (isnan(a_coeff_vec(0, k + m_kk * k))) {
+                // coeffs[0] = a0, coeffs[1] = b;
+                vector<double> coeffs = getCoeff(item.first);
+
+                // Check if species was found in the database of critical
+                // properties, and assign the results
+                if (!isnan(coeffs[0])) {
+                    // Assuming no temperature dependence (i.e. a1 = 0)
+                    setSpeciesCoeffs(item.first, coeffs[0], 0.0, coeffs[1]);
+                }
+            }
+        }
+    }
+}
+
 void PengRobinson::readXMLPureFluid(XML_Node& pureFluidParam)
 {
         string xname = pureFluidParam.name();
@@ -918,8 +981,8 @@ void PengRobinson::updateAB()
     double temp = temperature();
     //Update aAlpha_i
     double sqt_alpha;
-    double criTemp = critTemperature();
-    double sqt_T_reduced = sqrt(temp / criTemp);
+    double critTemp = critTemperature();
+    double sqt_T_reduced = sqrt(temp / critTemp);
 
     // Update indiviual alpha
     for (size_t j = 0; j < m_kk; j++) {

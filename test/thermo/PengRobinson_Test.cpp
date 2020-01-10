@@ -10,7 +10,7 @@ class PengRobinson_Test : public testing::Test
 {
 public:
     PengRobinson_Test() {
-        test_phase.reset(newPhase("../data/co2_PR_example.cti"));
+        test_phase.reset(newPhase("../data/co2_PR_example.yaml"));
     }
 
     //vary the composition of a co2-h2 mixture:
