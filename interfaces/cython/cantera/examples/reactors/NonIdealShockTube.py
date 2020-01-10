@@ -92,7 +92,7 @@ estimatedIgnitionDelayTime = 0.005
 t = 0
 
 counter = 1
-while(t < estimatedIgnitionDelayTime):
+while t < estimatedIgnitionDelayTime:
     t = reactorNetwork.step()
     if counter % 20 == 0:
         # We will save only every 20th value. Otherwise, this takes too long
@@ -130,7 +130,7 @@ t0 = time.time()
 t = 0
 
 counter = 1
-while(t < estimatedIgnitionDelayTime):
+while t < estimatedIgnitionDelayTime:
     t = reactorNetwork.step()
     if counter % 20 == 0:
         # We will save only every 20th value. Otherwise, this takes too long
