@@ -225,7 +225,7 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
                 Tnew = 0.5*Tnow;
             }
             m_mix->setTemperature(Tnew);
-        } catch (const CanteraError& err) {
+        } catch (const CanteraError&) {
             if (!estimateEquil) {
                 strt = -1;
             } else {
@@ -351,7 +351,7 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
                 Tnew = 0.5*Tnow;
             }
             m_mix->setTemperature(Tnew);
-        } catch (const CanteraError& err) {
+        } catch (const CanteraError&) {
             if (!estimateEquil) {
                 strt = -1;
             } else {

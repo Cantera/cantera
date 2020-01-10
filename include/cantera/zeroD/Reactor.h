@@ -153,7 +153,7 @@ public:
     //! Check whether Reactor object uses advance limits
     //! @returns           True if at least one limit is set, False otherwise
     bool hasAdvanceLimits() {
-        return m_advancelimits.size();
+        return !m_advancelimits.empty();
     }
 
     //! Retrieve absolute step size limits during advance

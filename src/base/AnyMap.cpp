@@ -672,7 +672,7 @@ const AnyValue& AnyMap::operator[](const std::string& key) const
 {
     try {
         return m_data.at(key);
-    } catch (std::out_of_range& err) {
+    } catch (std::out_of_range&) {
         throw InputFileError("AnyMap::operator[]", *this,
             "Key '{}' not found.\nExisting keys: {}", key, keys_str());
     }
@@ -682,7 +682,7 @@ const AnyValue& AnyMap::at(const std::string& key) const
 {
     try {
         return m_data.at(key);
-    } catch (std::out_of_range& err) {
+    } catch (std::out_of_range&) {
         throw InputFileError("AnyMap::at", *this,
             "Key '{}' not found.\nExisting keys: {}", key, keys_str());
     }
@@ -861,7 +861,7 @@ AnyMap AnyMap::fromYamlFile(const std::string& name,
         fake.setLoc(err.mark.line, err.mark.column);
         fake.setFileName(fullName);
         throw InputFileError("AnyMap::fromYamlFile", fake, err.msg);
-    } catch (CanteraError& err) {
+    } catch (CanteraError&) {
         s_cache.erase(fullName);
         throw;
     }
