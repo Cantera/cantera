@@ -28,21 +28,12 @@ public:
     //! Construct and initialize a PengRobinson object directly from an
     //! ASCII input file
     /*!
-     * @param infile    Name of the input file containing the phase XML data
+     * @param infile    Name of the input file containing the phase YAML data
      *                  to set up the object
      * @param id        ID of the phase in the input file. Defaults to the empty
      *     string.
      */
     PengRobinson(const std::string& infile, const std::string& id="");
-
-    //! Construct and initialize a PengRobinson object directly from an
-    //! XML database
-    /*!
-     *  @param phaseRef XML phase node containing the description of the phase
-     *  @param id       id attribute containing the name of the phase.  (default
-     *      is the empty string)
-     */
-    PengRobinson(XML_Node& phaseRef, const std::string& id = "");
 
     virtual std::string type() const {
         return "PengRobinson";
@@ -192,9 +183,7 @@ public:
     //@{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
-    virtual void setParametersFromXML(const XML_Node& thermoNode);
     virtual void setToEquilState(const double* lambda_RT);
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
     virtual void initThermo();
 
     //! Retrieve a and b coefficients by looking up tabulated critical parameters
@@ -246,21 +235,6 @@ public:
      */
     void setBinaryCoeffs(const std::string& species_i,
                          const std::string& species_j, double a0, double a1);
-
-private:
-    //! Read the pure species PengRobinson input parameters
-    /*!
-     *  @param pureFluidParam   XML_Node for the pure fluid parameters
-     */
-    void readXMLPureFluid(XML_Node& pureFluidParam);
-
-    //! Read the cross species PengRobinson input parameters
-    /*!
-     *  @param crossFluidParam   XML_Node for the cross fluid parameters
-     */
-    void readXMLCrossFluid(XML_Node& crossFluidParam);
-
-    // @}
 
 protected:
     // Special functions inherited from MixtureFugacityTP

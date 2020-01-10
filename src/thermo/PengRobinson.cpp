@@ -48,7 +48,7 @@ PengRobinson::PengRobinson(const std::string& infile, const std::string& id_) :
     initThermoFile(infile, id_);
 }
 
-PengRobinson::PengRobinson(XML_Node& phaseRefRoot, const std::string& id_) :
+/*PengRobinson::PengRobinson(XML_Node& phaseRefRoot, const std::string& id_) :
     m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
@@ -60,7 +60,7 @@ PengRobinson::PengRobinson(XML_Node& phaseRefRoot, const std::string& id_) :
     fill_n(Vroot_, 3, 0.0);
     importPhase(phaseRefRoot, this);
 }
-
+*/
 void PengRobinson::calculateAlpha(const std::string& species, double a, double b, double w)
 {
     size_t k = speciesIndex(species);
@@ -569,7 +569,7 @@ vector<double> PengRobinson::getCoeff(const std::string& iName)
         return spCoeff;
 }
 
-void PengRobinson::initThermoXML(XML_Node& phaseNode, const std::string& id)
+/* void PengRobinson::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
         if (phaseNode.hasChild("thermo")) {
             XML_Node& thermoNode = phaseNode.child("thermo");
@@ -646,7 +646,7 @@ void PengRobinson::initThermoXML(XML_Node& phaseNode, const std::string& id)
 
         MixtureFugacityTP::initThermoXML(phaseNode, id);
 }
-
+*/
 void PengRobinson::initThermo()
 {
     for (auto& item : m_species) {
@@ -708,7 +708,7 @@ void PengRobinson::initThermo()
     }
 }
 
-void PengRobinson::readXMLPureFluid(XML_Node& pureFluidParam)
+/*void PengRobinson::readXMLPureFluid(XML_Node& pureFluidParam)
 {
         string xname = pureFluidParam.name();
         if (xname != "pureFluidParameters") {
@@ -785,7 +785,7 @@ void PengRobinson::setParametersFromXML(const XML_Node& thermoNode)
 {
     MixtureFugacityTP::setParametersFromXML(thermoNode);
 }
-
+*/
 double PengRobinson::sresid() const
 {
     double molarV = molarVolume();
