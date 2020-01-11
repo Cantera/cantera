@@ -244,12 +244,8 @@ bool LatticePhase::addSpecies(shared_ptr<Species> spec)
         m_s0_R.push_back(0.0);
         double mv = 1.0 / m_site_density;
         if (spec->input.hasKey("equation-of-state")) {
-            auto& eos = spec->input["equation-of-state"].as<AnyMap>();
-            if (eos.getString("model", "") != "constant-volume") {
-                throw CanteraError("LatticePhase::addSpecies",
-                    "lattice model requires constant-volume species model "
-                    "for species '{}'", spec->name);
-            }
+            auto& eos = spec->input["equation-of-state"].getMapWhere(
+                "model", "constant-volume");
             if (eos.hasKey("density")) {
                 mv = molecularWeight(m_kk-1) / eos.convert("density", "kg/m^3");
             } else if (eos.hasKey("molar-density")) {
@@ -273,7 +269,8 @@ void LatticePhase::setSiteDensity(double sitedens)
         if (species(k)->extra.hasKey("molar_volume")) {
             continue;
         } else if (species(k)->input.hasKey("equation-of-state")) {
-            auto& eos = species(k)->input["equation-of-state"];
+            auto& eos = species(k)->input["equation-of-state"].getMapWhere(
+                "model", "constant-volume");
             if (eos.hasKey("molar-volume") || eos.hasKey("density")
                 || eos.hasKey("molar-density")) {
                 continue;

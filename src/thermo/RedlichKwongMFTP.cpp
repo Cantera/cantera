@@ -645,12 +645,8 @@ void RedlichKwongMFTP::initThermo()
         // Read a and b coefficients from species 'input' information (i.e. as
         // specified in a YAML input file)
         if (item.second->input.hasKey("equation-of-state")) {
-            auto eos = item.second->input["equation-of-state"].as<AnyMap>();
-            if (eos.getString("model", "") != "Redlich-Kwong") {
-                throw InputFileError("RedlichKwongMFTP::initThermo", eos,
-                    "Expected species equation of state to be 'Redlich-Kwong', "
-                    "but got '{}' instead", eos.getString("model", ""));
-            }
+            auto eos = item.second->input["equation-of-state"].getMapWhere(
+                "model", "Redlich-Kwong");
             double a0 = 0, a1 = 0;
             if (eos["a"].isScalar()) {
                 a0 = eos.convert("a", "Pa*m^6/kmol^2*K^0.5");

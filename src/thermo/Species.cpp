@@ -75,7 +75,9 @@ shared_ptr<Species> newSpecies(const XML_Node& species_node)
     const XML_Node* thermo = species_node.findByName("thermo");
     if (thermo && thermo->attrib("model") == "IonFromNeutral") {
         if (thermo->hasChild("specialSpecies")) {
-            s->input["equation-of-state"]["special-species"] = true;
+            auto& eos = s->input["equation-of-state"].getMapWhere(
+                "model", "ions-from-neutral-molecule", true);
+            eos["special-species"] = true;
         }
     }
 
