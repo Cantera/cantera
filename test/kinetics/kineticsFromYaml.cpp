@@ -268,6 +268,22 @@ TEST(KineticsFromYaml, NoKineticsModelOrReactionsField2)
     EXPECT_EQ(soln->kinetics()->nReactions(), (size_t) 0);
 }
 
+TEST(KineticsFromYaml, KineticsModelWithReactionsNone1)
+{
+    auto soln = newSolution("phase-reaction-spec1.yaml",
+                            "kinetics-reactions-none");
+    EXPECT_EQ(soln->kinetics()->kineticsType(), "Gas");
+    EXPECT_EQ(soln->kinetics()->nReactions(), (size_t) 0);
+}
+
+TEST(KineticsFromYaml, KineticsModelWithReactionsNone2)
+{
+    auto soln = newSolution("phase-reaction-spec2.yaml",
+                            "kinetics-reactions-none");
+    EXPECT_EQ(soln->kinetics()->kineticsType(), "Gas");
+    EXPECT_EQ(soln->kinetics()->nReactions(), (size_t) 0);
+}
+
 TEST(KineticsFromYaml, KineticsModelWithoutReactionsSection1)
 {
     EXPECT_THROW(newSolution("phase-reaction-spec1.yaml",

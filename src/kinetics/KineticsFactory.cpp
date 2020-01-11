@@ -113,7 +113,7 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
                 // 'reactions' section, if it exists
                 sections.push_back("reactions");
                 rules.push_back(reactionsNode.asString());
-            } else {
+            } else if (reactionsNode.asString() != "none") {
                 throw InputFileError("addReactions", reactionsNode,
                     "Phase entry implies existence of 'reactions' section "
                     "which does not exist in the current input file.");
@@ -153,7 +153,9 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
             kin.skipUndeclaredSpecies(false);
         } else if (rules[i] == "declared-species") {
             kin.skipUndeclaredSpecies(true);
-        } else if (rules[i] != "none") {
+        } else if (rules[i] == "none") {
+            continue;
+        } else {
             throw InputFileError("addReactions", phaseNode.at("reactions"),
                 "Unknown rule '{}' for adding species from the '{}' section.",
                 rules[i], sections[i]);
