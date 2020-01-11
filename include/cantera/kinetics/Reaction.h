@@ -84,7 +84,7 @@ class ElementaryReaction : public Reaction
 {
 public:
     ElementaryReaction();
-    ElementaryReaction(const Composition& reactants, const Composition products,
+    ElementaryReaction(const Composition& reactants, const Composition& products,
                        const Arrhenius& rate);
     virtual void validate();
 
@@ -98,9 +98,20 @@ class ElectronTemperatureReaction : public Reaction
 {
 public:
     ElectronTemperatureReaction();
-    ElectronTemperatureReaction(const Composition& reactants, const Composition products,
+    ElectronTemperatureReaction(const Composition& reactants, const Composition& products,
                                 const ElectronArrhenius& rate);
     ElectronArrhenius rate;
+};
+
+//! A reaction which depends on electron energy distribustion function and electron
+//! collision cross section.
+class PlasmaReaction : public Reaction
+{
+public:
+    PlasmaReaction();
+    PlasmaReaction(const Composition& reactants, const Composition& products,
+                   const PlasmaRate& rate);
+    PlasmaRate rate;
 };
 
 //! A class for managing third-body efficiencies, including default values

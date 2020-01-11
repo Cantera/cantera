@@ -103,7 +103,7 @@ std::string Reaction::equation() const
 }
 
 ElementaryReaction::ElementaryReaction(const Composition& reactants_,
-                                       const Composition products_,
+                                       const Composition& products_,
                                        const Arrhenius& rate_)
     : Reaction(ELEMENTARY_RXN, reactants_, products_)
     , rate(rate_)
@@ -129,7 +129,7 @@ void ElementaryReaction::validate()
 }
 
 ElectronTemperatureReaction::ElectronTemperatureReaction(const Composition& reactants_,
-                                                         const Composition products_,
+                                                         const Composition& products_,
                                                          const ElectronArrhenius& rate_)
     : Reaction(ELECTRON_TEMPERATURE_RXN, reactants_, products_)
     , rate(rate_)
@@ -138,6 +138,19 @@ ElectronTemperatureReaction::ElectronTemperatureReaction(const Composition& reac
 
 ElectronTemperatureReaction::ElectronTemperatureReaction()
     : Reaction(ELECTRON_TEMPERATURE_RXN)
+{
+}
+
+PlasmaReaction::PlasmaReaction(const Composition& reactants_,
+                               const Composition& products_,
+                               const PlasmaRate& rate_)
+    : Reaction(PLASMA_RXN, reactants_, products_)
+    , rate(rate_)
+{
+}
+
+PlasmaReaction::PlasmaReaction()
+    : Reaction(PLASMA_RXN)
 {
 }
 
@@ -618,6 +631,12 @@ void setupElectronTemperatureReaction(ElectronTemperatureReaction& R, const AnyM
 {
     setupReaction(R, node, kin);
     R.rate = readElectronTemperatureArrhenius(R, node["rate-constant"], kin, node.units());
+}
+
+void setupPlasmaReaction(PlasmaReaction& R, const AnyMap& node,
+                         const Kinetics& kin)
+{
+    setupReaction(R, node, kin);
 }
 
 void setupThreeBodyReaction(ThreeBodyReaction& R, const XML_Node& rxn_node)
@@ -1132,6 +1151,10 @@ unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin)
     } else if (type == "electron-temperature") {
         unique_ptr<ElectronTemperatureReaction> R(new ElectronTemperatureReaction());
         setupElectronTemperatureReaction(*R, node, kin);
+        return unique_ptr<Reaction>(move(R));
+    } else if (type == "plasma") {
+        unique_ptr<PlasmaReaction> R(new PlasmaReaction());
+        setupPlasmaReaction(*R, node, kin);
         return unique_ptr<Reaction>(move(R));
     } else if (type == "three-body") {
         unique_ptr<ThreeBodyReaction> R(new ThreeBodyReaction());

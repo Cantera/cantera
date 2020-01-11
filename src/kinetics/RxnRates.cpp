@@ -50,6 +50,10 @@ ElectronArrhenius::ElectronArrhenius(double A, double b, double E1, double E2)
     }
 }
 
+PlasmaRate::PlasmaRate()
+{
+}
+
 SurfaceArrhenius::SurfaceArrhenius()
     : m_b(0.0)
     , m_E(0.0)

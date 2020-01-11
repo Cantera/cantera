@@ -97,6 +97,9 @@ protected:
     //! Rate expressions for electron reactions
     Rate1<ElectronArrhenius> m_electron_temperature_rates;
 
+    //! Rate expressions for plasma reactions
+    Rate1<PlasmaRate> m_plasma_rates;
+
     FalloffMgr m_falloffn;
 
     ThirdBodyCalc m_3b_concm;
@@ -129,14 +132,17 @@ protected:
     double m_Te_fix;
 
     void processFalloffReactions();
+    void processPlasmaReactions();
 
     void addElectronTemperatureReaction(ElectronTemperatureReaction& r);
+    void addPlasmaReaction(PlasmaReaction& r);
     void addThreeBodyReaction(ThreeBodyReaction& r);
     void addFalloffReaction(FalloffReaction& r);
     void addPlogReaction(PlogReaction& r);
     void addChebyshevReaction(ChebyshevReaction& r);
 
     void modifyElectronTemperatureReaction(size_t i, ElectronTemperatureReaction& r);
+    void modifyPlasmaReaction(size_t i, PlasmaReaction& r);
     void modifyThreeBodyReaction(size_t i, ThreeBodyReaction& r);
     void modifyFalloffReaction(size_t i, FalloffReaction& r);
     void modifyPlogReaction(size_t i, PlogReaction& r);

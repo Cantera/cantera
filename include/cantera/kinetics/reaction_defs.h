@@ -71,6 +71,12 @@ const int CHEMACT_RXN = 8;
 const int ELECTRON_TEMPERATURE_RXN = 9;
 
 /**
+ * A plasma reaction that depends on electron energy distribution function and 
+ * electron collision cross section.
+ */
+const int PLASMA_RXN = 10;
+
+/**
  * A reaction occurring on a surface.
  *  NOTE: This is a bit ambiguous, and will be taken out in the future
  *        The dimensionality of the interface is a separate concept from the type

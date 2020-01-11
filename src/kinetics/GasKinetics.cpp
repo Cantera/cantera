@@ -169,6 +169,14 @@ void GasKinetics::processFalloffReactions()
     }
 }
 
+void GasKinetics::processPlasmaReactions()
+{
+    for (size_t i = 0; i < m_plasma_rates.nReactions(); i++) {
+        // m_ropf[m_plasmaIndx[i]] = ;
+        // m_rpor[m_plasmaIndx[i]] = ;
+    }
+}
+
 void GasKinetics::updateROP()
 {
     update_rates_C();
@@ -187,6 +195,10 @@ void GasKinetics::updateROP()
 
     if (m_falloff_high_rates.nReactions()) {
         processFalloffReactions();
+    }
+
+    if (m_plasma_rates.nReactions()) {
+        processPlasmaReactions();
     }
 
     for (size_t i = 0; i < nReactions(); i++) {
@@ -256,6 +268,9 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
     case ELECTRON_TEMPERATURE_RXN:
         addElectronTemperatureReaction(dynamic_cast<ElectronTemperatureReaction&>(*r));
         break;
+    case PLASMA_RXN:
+        addPlasmaReaction(dynamic_cast<PlasmaReaction&>(*r));
+        break;
     case THREE_BODY_RXN:
         addThreeBodyReaction(dynamic_cast<ThreeBodyReaction&>(*r));
         break;
@@ -279,6 +294,11 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
 void GasKinetics::addElectronTemperatureReaction(ElectronTemperatureReaction& r)
 {
     m_electron_temperature_rates.install(nReactions()-1, r.rate);
+}
+
+void GasKinetics::addPlasmaReaction(PlasmaReaction& r)
+{
+    m_plasma_rates.install(nReactions()-1, r.rate);
 }
 
 void GasKinetics::addFalloffReaction(FalloffReaction& r)
@@ -360,6 +380,9 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     case ELECTRON_TEMPERATURE_RXN:
         modifyElectronTemperatureReaction(i, dynamic_cast<ElectronTemperatureReaction&>(*rNew));
         break;
+    case PLASMA_RXN:
+        modifyPlasmaReaction(i, dynamic_cast<PlasmaReaction&>(*rNew));
+        break;
     case FALLOFF_RXN:
     case CHEMACT_RXN:
         modifyFalloffReaction(i, dynamic_cast<FalloffReaction&>(*rNew));
@@ -385,6 +408,11 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
 void GasKinetics::modifyElectronTemperatureReaction(size_t i, ElectronTemperatureReaction& r)
 {
     m_electron_temperature_rates.replace(i, r.rate);
+}
+
+void GasKinetics::modifyPlasmaReaction(size_t i, PlasmaReaction& r)
+{
+    m_plasma_rates.replace(i, r.rate);
 }
 
 void GasKinetics::modifyThreeBodyReaction(size_t i, ThreeBodyReaction& r)
