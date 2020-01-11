@@ -161,10 +161,22 @@ public:
     std::unordered_map<std::string, const AnyMap*> asMap(const std::string& name) const;
     std::unordered_map<std::string, AnyMap*> asMap(const std::string& name);
 
-    //! For objects of type `vector<AnyMap>`, return the item where the given
-    //! key has the specified value. If value is the empty string, returns the
-    //! first item in the list.
-    AnyMap& getMapWhere(const std::string& key, const std::string& value);
+    //! Treating the value as `vector<AnyMap>`, return the item where the given
+    //! key has the specified value.
+    /*!
+     * If value is the empty string, returns the first item in the list.
+     *
+     * If the contained type is just `AnyMap` rather than `vector<AnyMap>`, it
+     * will be treated as a vector of length 1.
+     *
+     * If the value does not exist but the `create` flag is set to true, a new
+     * map with that key and value will be created and returned.
+     */
+    AnyMap& getMapWhere(const std::string& key, const std::string& value, bool create=false);
+    const AnyMap& getMapWhere(const std::string& key, const std::string& value) const;
+
+    //! Returns `true` when getMapWhere() would succeed
+    bool hasMapWhere(const std::string& key, const std::string& value) const;
 
     //! @see AnyMap::applyUnits
     void applyUnits(const UnitSystem& units);
@@ -218,6 +230,13 @@ const std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t 
 template<>
 std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t nMax);
 
+//! Implicit conversion of AnyMap to a vector<AnyMap> of length 1, or an empty
+//! vector<AnyValue> an empty vector<AnyMap>
+template<>
+const std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax) const;
+
+template<>
+std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax);
 
 //! A map of string keys to values whose type can vary at runtime
 /*!

@@ -472,18 +472,100 @@ std::unordered_map<std::string, AnyMap*> AnyValue::asMap(const std::string& name
     return mapped;
 }
 
-AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& value)
+const AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& value) const
 {
-    if (value == "") {
-        return asVector<AnyMap>().at(0);
-    }
-    for (auto& item : asVector<AnyMap>()) {
-        if (item.hasKey(key) && item[key].asString() == value) {
-            return item;
+    if (is<std::vector<AnyMap>>()) {
+        if (value == "") {
+            return asVector<AnyMap>().at(0);
         }
+        for (auto& item : asVector<AnyMap>()) {
+            if (item.hasKey(key) && item[key].asString() == value) {
+                return item;
+            }
+        }
+        throw InputFileError("AnyValue::getMapWhere", *this,
+            "List does not contain a map where '{}' = '{}'", key, value);
+    } else if (is<AnyMap>()) {
+        if (value == "" || (hasKey(key) && as<AnyMap>()[key].asString() == value)) {
+            return as<AnyMap>();
+        } else {
+            throw InputFileError("AnyValue::getMapWhere", *this,
+                "Map does not contain a key where '{}' = '{}'", key, value);
+        }
+    } else {
+        throw InputFileError("AnyValue::getMapWhere", *this,
+            "Element is not a mapping or list of mappings");
     }
-    throw InputFileError("AnyValue::getMapWhere", *this,
-        "List does not contain a map where '{}' = '{}'", key, value);
+}
+
+AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& value,
+                              bool create)
+{
+    if (is<std::vector<AnyMap>>()) {
+        if (value == "") {
+            return asVector<AnyMap>().at(0);
+        }
+        for (auto& item : asVector<AnyMap>()) {
+            if (item.hasKey(key) && item[key].asString() == value) {
+                return item;
+            }
+        }
+        if (create) {
+            // If the map wasn't found, insert it
+            auto& vec = asVector<AnyMap>();
+            AnyMap child;
+            child[key] = value;
+            vec.push_back(std::move(child));
+            return vec.back();
+        } else {
+            throw InputFileError("AnyValue::getMapWhere", *this,
+                "List does not contain a map where '{}' = '{}'", key, value);
+        }
+    } else if (is<AnyMap>()) {
+        if (value == "" || (hasKey(key) && as<AnyMap>()[key].asString() == value)) {
+            return as<AnyMap>();
+        } else if (create) {
+            AnyMap newChild;
+            newChild[key] = value;
+            std::vector<AnyMap> nodes{std::move(as<AnyMap>()), std::move(newChild)};
+            operator=(std::move(nodes));
+            return asVector<AnyMap>().back();
+        } else {
+            throw InputFileError("AnyValue::getMapWhere", *this,
+                "Map does not contain a key where '{}' = '{}'", key, value);
+        }
+    } else if (is<void>() && create) {
+        AnyMap child;
+        child[key] = value;
+        operator=(std::move(child));
+        return as<AnyMap>();
+    } else {
+        throw InputFileError("AnyValue::getMapWhere", *this,
+            "Element is not a mapping or list of mappings");
+    }
+}
+
+bool AnyValue::hasMapWhere(const std::string& key, const std::string& value) const
+{
+    if (is<std::vector<AnyMap>>()) {
+        if (value == "") {
+            return true;
+        }
+        for (auto& item : asVector<AnyMap>()) {
+            if (item.hasKey(key) && item[key].asString() == value) {
+                return true;
+            }
+        }
+        return false;
+    } else if (is<AnyMap>()) {
+        if (value == "" || (hasKey(key) && as<AnyMap>()[key].asString() == value)) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
 }
 
 void AnyValue::applyUnits(const UnitSystem& units)
@@ -643,6 +725,35 @@ std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t nMax)
     return vv;
 }
 
+template<>
+const std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax) const
+{
+    if (is<AnyMap>()) {
+        std::vector<AnyMap> v;
+        v.push_back(std::move(as<AnyMap>()));
+        *m_value = std::move(v);
+    } else if (is<std::vector<AnyValue>>() && asVector<AnyValue>().empty()) {
+        *m_value = std::vector<AnyMap>();
+    }
+    const auto& vv = as<std::vector<AnyMap>>();
+    checkSize(vv, nMin, nMax);
+    return vv;
+}
+
+template<>
+std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax)
+{
+    if (is<AnyMap>()) {
+        std::vector<AnyMap> v;
+        v.push_back(std::move(as<AnyMap>()));
+        *m_value = std::move(v);
+    } else if (is<std::vector<AnyValue>>() && asVector<AnyValue>().empty()) {
+        *m_value = std::vector<AnyMap>();
+    }
+    auto& vv = as<std::vector<AnyMap>>();
+    checkSize(vv, nMin, nMax);
+    return vv;
+}
 
 // Methods of class AnyMap
 

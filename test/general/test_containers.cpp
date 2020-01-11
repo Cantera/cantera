@@ -24,6 +24,47 @@ TEST(AnyValue, is_moveable) {
     EXPECT_EQ(value2.asString(), "1");
 }
 
+TEST(AnyValue, getMapWhere_initial_list)
+{
+    AnyMap m = AnyMap::fromYamlString(
+        "data: [{a: foo, x: 2}, {a: bar, x: 3}]");
+
+    EXPECT_TRUE(m["data"].hasMapWhere("a", "foo"));
+    EXPECT_EQ(m["data"].getMapWhere("a", "bar")["x"].asInt(), 3);
+
+    EXPECT_THROW(m["data"].getMapWhere("a", "baz"), CanteraError);
+    auto& newChild = m["data"].getMapWhere("a", "baz", true);
+    EXPECT_EQ(newChild.size(), (size_t) 1);
+    newChild["x"] = 4;
+    EXPECT_EQ(m["data"].getMapWhere("a", "baz")["x"].asInt(), 4);
+}
+
+TEST(AnyValue, getMapWhere_initial_map)
+{
+    AnyMap m = AnyMap::fromYamlString(
+        "data: {a: foo, x: 2}");
+
+    EXPECT_TRUE(m["data"].hasMapWhere("a", "foo"));
+    EXPECT_EQ(m["data"].getMapWhere("a", "foo")["x"].asInt(), 2);
+
+    EXPECT_THROW(m["data"].getMapWhere("a", "baz"), CanteraError);
+    auto& newChild = m["data"].getMapWhere("a", "baz", true);
+    EXPECT_EQ(newChild.size(), (size_t) 1);
+    newChild["x"] = 4;
+    EXPECT_EQ(m["data"].getMapWhere("a", "baz")["x"].asInt(), 4);
+    EXPECT_EQ(m["data"].getMapWhere("a", "foo")["x"].asInt(), 2);
+}
+
+TEST(AnyValue, convert_vectorAnyMap)
+{
+    AnyMap m = AnyMap::fromYamlString(
+        "data: {a: foo, x: 2}");
+
+    auto& v = m["data"].asVector<AnyMap>();
+    EXPECT_EQ(v.size(), (size_t) 1);
+    EXPECT_EQ(v[0]["a"].asString(), "foo");
+}
+
 TEST(AnyMap, paths) {
     AnyMap m;
     m["simple"] = "qux";
