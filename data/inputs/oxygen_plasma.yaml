@@ -41,4 +41,8 @@ species:
 reactions:
 - equation: O2^+ + E => O + O  # Reaction 1
   type: electron-temperature
-  rate-constant: {A: 6.0e-5, b: -1.0, E1: 0.0, E2: 0.0}
+  rate-constant: {A: 6.0e-5, b: -1.0, Ea-T: 0.0, Ea-Te: 0.0}
+
+- equation: E + O2 => 2 E + O2^+
+  type: plasma
+  process: {kind: ionization, target: O2, product: O2^+}
