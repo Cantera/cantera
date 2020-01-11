@@ -234,9 +234,6 @@ void VPStandardStateTP::installPDSS(size_t k, unique_ptr<PDSS>&& pdss)
         pdss->setReferenceThermo(spec.thermo);
         spec.thermo->validate(spec.name);
     }
-    if (spec.input.hasKey("equation-of-state")) {
-        pdss->setParameters(spec.input["equation-of-state"].as<AnyMap>());
-    }
     m_minTemp = std::max(m_minTemp, pdss->minTemp());
     m_maxTemp = std::min(m_maxTemp, pdss->maxTemp());
 

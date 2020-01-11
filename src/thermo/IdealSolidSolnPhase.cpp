@@ -376,12 +376,7 @@ bool IdealSolidSolnPhase::addSpecies(shared_ptr<Species> spec)
         m_pe.push_back(0.0);;
         m_pp.push_back(0.0);
         if (spec->input.hasKey("equation-of-state")) {
-            auto& eos = spec->input["equation-of-state"].as<AnyMap>();
-            if (eos.getString("model", "") != "constant-volume") {
-                throw CanteraError("IdealSolidSolnPhase::addSpecies",
-                    "ideal-condensed model requires constant-volume "
-                    "species model for species '{}'", spec->name);
-            }
+            auto& eos = spec->input["equation-of-state"].getMapWhere("model", "constant-volume");
             double mv;
             if (eos.hasKey("density")) {
                 mv = molecularWeight(m_kk-1) / eos.convert("density", "kg/m^3");

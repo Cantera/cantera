@@ -629,7 +629,8 @@ bool IonsFromNeutralVPSSTP::addSpecies(shared_ptr<Species> spec)
         }
 
         if (spec->input.hasKey("equation-of-state")) {
-            auto& ss = spec->input["equation-of-state"].as<AnyMap>();
+            auto& ss = spec->input["equation-of-state"].getMapWhere(
+                "model", "ions-from-neutral-molecule");
             if (ss.getBool("special-species", false)) {
                 indexSpecialSpecies_ = m_kk - 1;
             }

@@ -95,6 +95,11 @@ public:
         m_creators[name] = f;
     }
 
+    //! Returns true if `name` is registered with this factory
+    bool exists(const std::string& name) const {
+        return m_creators.count(name) || m_synonyms.count(name);
+    }
+
 protected:
     std::unordered_map<std::string, std::function<T*(Args...)>> m_creators;
 

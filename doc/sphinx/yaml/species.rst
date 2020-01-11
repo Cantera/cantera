@@ -20,10 +20,11 @@ The fields of a ``species`` entry are:
     and parameters. See :ref:`sec-yaml-species-thermo`.
 
 ``equation-of-state``
-    Mapping containing the equation of state model specification for the
-    species, any parameters for that model, and any parameters for interactions
-    with other species. :ref:`sec-yaml-species-eos`. If this field is absent,
-    the ``ideal-gas`` model is assumed.
+    A mapping or list of mappings. Each mapping contains an equation of state
+    model specification for the species, any parameters for that model, and any
+    parameters for interactions with other species. :ref:`sec-yaml-species-eos`.
+    If this field is absent and a model is required, the ``ideal-gas`` model is
+    assumed.
 
 ``transport``
     Mapping containing the species transport model specification and
