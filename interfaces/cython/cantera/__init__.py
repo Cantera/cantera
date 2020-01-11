@@ -11,6 +11,7 @@ from .utils import *
 import os
 import sys
 add_directory(os.path.join(os.path.dirname(__file__), 'data'))
+add_directory('.')  # Move current working directory to the front of the path
 
 # Python interpreter used for converting mechanisms
 if 'PYTHON_CMD' not in os.environ:
