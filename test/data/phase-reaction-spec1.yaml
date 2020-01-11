@@ -4,6 +4,13 @@ phases:
   species: [{gri30.yaml/species: [O2, H2, H2O]}]
   thermo: ideal-gas
 
+  # should work fine (kinetics model with no reactions)
+- name: kinetics-reactions-none
+  species: [{gri30.yaml/species: [O2, H2, H2O]}]
+  thermo: ideal-gas
+  kinetics: gas
+  reactions: none
+
   # should be an error
 - name: kinetics-no-reaction-section1
   species: [{gri30.yaml/species: [O2, H2, H2O]}]
