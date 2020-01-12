@@ -73,7 +73,7 @@ Code of Conduct
     :target: https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
 
 In order to have a more open and welcoming community, Cantera adheres to a
-`code of conduct <CODE_OF_CONDUCT.md>`_ adapted from the `Contributor Covenent
+`code of conduct <CODE_OF_CONDUCT.md>`_ adapted from the `Contributor Covenant
 code of conduct <https://contributor-covenant.org/>`_.
 
 Please adhere to this code of conduct in any interactions you have in the
