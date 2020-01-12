@@ -65,6 +65,17 @@ void PDSS_SSVol::setDensityPolynomial(double* coeffs) {
     volumeModel_ = SSVolume_Model::density_tpoly;
 }
 
+void PDSS_SSVol::getParameters(AnyMap& eosNode) const
+{
+    PDSS::getParameters(eosNode);
+    if (volumeModel_ == SSVolume_Model::density_tpoly) {
+        eosNode["model"] = "density-temperature-polynomial";
+    } else {
+        eosNode["model"] = "molar-volume-temperature-polynomial";
+    }
+    eosNode["data"] = TCoeff_;
+}
+
 void PDSS_SSVol::initThermo()
 {
     PDSS::initThermo();
