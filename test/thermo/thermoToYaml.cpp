@@ -270,6 +270,16 @@ TEST_F(ThermoToYaml, HMWSoln2)
     EXPECT_DOUBLE_EQ(crop["ln_gamma_k_max"].asDouble(), 20);
 }
 
+TEST_F(ThermoToYaml, HMWSoln_HKFT)
+{
+    setup("thermo-models.yaml", "HMW-NaCl-HKFT");
+    EXPECT_DOUBLE_EQ(eosData[1]["h0"].asDouble(), -57433 * 4184);
+    EXPECT_DOUBLE_EQ(eosData[1]["s0"].asDouble(), 13.96 * 4184);
+    EXPECT_DOUBLE_EQ(eosData[2]["a"].asVector<double>()[2], 5.563 * 4184 / 1e5);
+    EXPECT_DOUBLE_EQ(eosData[4]["c"].asVector<double>()[1], -103460 * 4184);
+    EXPECT_DOUBLE_EQ(eosData[4]["omega"].asDouble(), 172460 * 4184);
+}
+
 TEST_F(ThermoToYaml, IdealMolalSolution)
 {
     setup("thermo-models.yaml", "ideal-molal-aqueous");
