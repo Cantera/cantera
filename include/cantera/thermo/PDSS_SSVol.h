@@ -176,6 +176,8 @@ public:
     void setDensityPolynomial(double* coeffs);
 
     virtual void setParametersFromXML(const XML_Node& speciesNode);
+    virtual void getParameters(AnyMap& eosNode) const;
+
     //@}
 
 private:
