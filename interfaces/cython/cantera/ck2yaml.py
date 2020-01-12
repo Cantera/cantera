@@ -16,8 +16,6 @@ Usage:
             [--bibtex=<filename>]
             [--output=<filename>]
             [--permissive]
-            [--quiet]
-            [--no-validate]
             [-d | --debug]
 
 Example:
@@ -1338,7 +1336,52 @@ class Parser:
         """
         Load and separate BibTeX-formatted entries from ``path`` on disk.
         """
-        def readcitation(bib_file):
+        def text_strip(text):
+            text = text.strip()
+            if text[0] == '"' and text[-1] == '"':
+                return text.strip('"')
+            elif text[0] == '{' and text[-1] == '}':
+                return text.strip('{}')
+            elif text.isdigit():
+                return text
+            else:
+                raise NotImplementedError(
+                    "Cannot parse '{}': this minimal BibTeX parser does not "
+                    "support @string definitions and otherwise adheres to the "
+                    "BibTeX format as described in "
+                    "http://www.bibtex.org/Format/".format(text))
+            
+        def parse_citation(entry):
+            # split entry into tagged key/value blocks and retrieve entry type
+            blocks = '\n'.join([e.strip() for e in entry[1:]])
+            blocks = blocks.rstrip('}').rstrip(',\n ').split(',\n')
+            out = {'entry_type': entry[0].split('{')[0].strip(' ').lower()}
+
+            for block in blocks:
+                # retrieve key
+                parts = block.split('=')
+                key = parts[0].strip().lower()
+                block = '='.join(parts[1:])
+
+                # build value
+                try:
+                    value = ''.join([text_strip(b)
+                                    for b in block.replace('\n', ' ').split('#')])
+                except NotImplementedError as err:
+                    raise InputError("Encountered invalid syntax in "
+                        "BibTeX entry:\n{}".format('\n'.join(entry))) from err
+
+                # reformat author list
+                if key == 'author':
+                    authors = [a.strip().replace('{', '').replace('}', '')
+                              for a in value.split(' and ')]
+                    if len(authors) > 1:
+                        value = ', '.join(authors[:-1]) + ' and ' + authors[-1]
+
+                out[key] = value if len(value) > 1 else value[0]
+            return out
+
+        def read_citation(bib_file):
             entry = []
             count = 0
             while not(entry) or count > 0:
@@ -1350,10 +1393,10 @@ class Parser:
                     break
 
             if entry[0]:
-                regex = r"^@+([a-zA-z]+){+(\w+)[ ,]"
+                regex = r"^@+([a-zA-z]+){+([ A-Za-z0-9_-]+)[ ,]"
                 bib = re.findall(regex, entry[0].strip())
                 if bib and entry[-1].rstrip()[-1] == '}' and count == 0:
-                    return bib[0][1], parsecitation(entry)
+                    return bib[0][1].strip(), parse_citation(entry)
                 else:
                     raise InputError("Encountered invalid syntax in "
                         "BibTeX entry:\n{}".format('\n'.join(entry)))
@@ -1363,7 +1406,7 @@ class Parser:
         with open(path, 'r', errors='ignore') as bib_file:
 
             while True:
-                label, entry = readcitation(bib_file)
+                label, entry = read_citation(bib_file)
                 if label is not None:
                     self.bibtex[label] = entry
                 else:
@@ -1888,12 +1931,21 @@ class Parser:
 
             # bibtex entries
             if self.bibtex:
-                entries = []
+                entries = BlockMap()
                 for key, val in self.bibtex.items():
-                    desc = '\n'.join(val)
-                    desc = yaml.scalarstring.PreservedScalarString(desc)
-                    entries.append((key, desc))
-                bib = BlockMap([('references', BlockMap(entries))])
+                    tags = []
+                    comment = val.pop('entry_type')
+                    for k, v in val.items():
+                        if v.isdigit():
+                            out = int(v)
+                        elif not v.count(" ") and len(v) > 50:
+                            out = yaml.scalarstring.PreservedScalarString(v)
+                        else:
+                            out = v
+                        tags.append((k, out))
+                    entries[key] = BlockMap(tags)
+                    entries.yaml_add_eol_comment(comment, key)
+                bib = BlockMap([('references', entries)])
                 if desc.strip():
                     bib.yaml_set_comment_before_after_key('references', before='\n')
                 emitter.dump(bib, dest)
