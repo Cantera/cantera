@@ -1,5 +1,7 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/SurfPhase.h"
+#include "cantera/base/YamlWriter.h"
 
 using namespace Cantera;
 typedef std::vector<std::string> strvec;
@@ -295,4 +297,158 @@ TEST_F(ThermoToYaml, IdealMolalSolution)
 
     EXPECT_EQ(eosData[2]["model"], "constant-volume");
     EXPECT_DOUBLE_EQ(eosData[2]["molar-volume"].asDouble(), 0.1);
+}
+
+
+class ThermoYamlRoundTrip : public testing::Test
+{
+public:
+    void roundtrip(const std::string& fileName, const std::string& phaseName="",
+        const std::vector<std::string> extraPhases={}) {
+        original.reset(newPhase(fileName, phaseName));
+        YamlWriter writer;
+        writer.addPhase(original);
+        for (const auto& name : extraPhases) {
+            shared_ptr<ThermoPhase> p(newPhase(fileName, name));
+            writer.addPhase(p);
+        }
+        writer.skipUserDefined();
+        AnyMap input1 = AnyMap::fromYamlString(writer.toYamlString());
+        duplicate = newPhase(input1["phases"].getMapWhere("name", phaseName),
+                             input1);
+        skip_cp = false;
+        skip_activities = false;
+        rtol = 1e-14;
+    }
+
+    void compareThermo(double T, double P, const std::string& X="") {
+        size_t kk = original->nSpecies();
+        ASSERT_EQ(original->nSpecies(), duplicate->nSpecies());
+
+        if (X.empty()) {
+            original->setState_TP(T, P);
+            duplicate->setState_TP(T, P);
+        } else {
+            original->setState_TPX(T, P, X);
+            duplicate->setState_TPX(T, P, X);
+        }
+
+        EXPECT_NEAR(original->density(), duplicate->density(),
+                    rtol * original->density());
+        if (!skip_cp) {
+            EXPECT_NEAR(original->cp_mass(), duplicate->cp_mass(),
+                        rtol * original->cp_mass());
+        }
+        EXPECT_NEAR(original->entropy_mass(), duplicate->entropy_mass(),
+                    rtol * fabs(original->entropy_mass()));
+        EXPECT_NEAR(original->enthalpy_mole(), duplicate->enthalpy_mole(),
+                    rtol * fabs(original->enthalpy_mole()));
+
+        vector_fp Y1(kk), Y2(kk), h1(kk), h2(kk), s1(kk), s2(kk);
+        vector_fp mu1(kk), mu2(kk), v1(kk), v2(kk), a1(kk), a2(kk);
+        original->getMassFractions(Y1.data());
+        duplicate->getMassFractions(Y2.data());
+        original->getPartialMolarEnthalpies(h1.data());
+        duplicate->getPartialMolarEnthalpies(h2.data());
+        original->getPartialMolarEntropies(s1.data());
+        duplicate->getPartialMolarEntropies(s2.data());
+        original->getChemPotentials(mu1.data());
+        duplicate->getChemPotentials(mu2.data());
+        original->getPartialMolarVolumes(v1.data());
+        duplicate->getPartialMolarVolumes(v2.data());
+        if (!skip_activities) {
+            original->getActivityCoefficients(a1.data());
+            duplicate->getActivityCoefficients(a2.data());
+        }
+
+        for (size_t k = 0; k < kk; k++) {
+            EXPECT_NEAR(Y1[k], Y2[k], 1e-20 + rtol*fabs(Y1[k])) << k;
+            EXPECT_NEAR(h1[k], h2[k], 1e-20 + rtol*fabs(h1[k])) << k;
+            EXPECT_NEAR(s1[k], s2[k], 1e-20 + rtol*fabs(s1[k])) << k;
+            EXPECT_NEAR(mu1[k], mu2[k], 1e-20 + rtol*fabs(mu1[k])) << k;
+            EXPECT_NEAR(v1[k], v2[k], 1e-20 + rtol*fabs(v1[k])) << k;
+            EXPECT_NEAR(a1[k], a2[k], 1e-20 + rtol*fabs(a1[k])) << k;
+        }
+    }
+
+    shared_ptr<ThermoPhase> original;
+    shared_ptr<ThermoPhase> duplicate;
+    bool skip_cp;
+    bool skip_activities;
+    double rtol;
+};
+
+TEST_F(ThermoYamlRoundTrip, RedlichKwong)
+{
+    roundtrip("nDodecane_Reitz.xml", "nDodecane_RK");
+    compareThermo(500, 6e5, "c12h26: 0.2, o2: 0.1, co2: 0.4, c2h2: 0.3");
+}
+
+TEST_F(ThermoYamlRoundTrip, BinarySolutionTabulated)
+{
+    roundtrip("lithium_ion_battery.xml", "cathode");
+    compareThermo(310, 2e5, "Li[cathode]:0.4, V[cathode]:0.6");
+}
+
+TEST_F(ThermoYamlRoundTrip, Margules)
+{
+    roundtrip("LiKCl_liquid.xml", "MoltenSalt_electrolyte");
+    compareThermo(920, 3e5, "KCl(L):0.35, LiCl(L):0.65");
+}
+
+TEST_F(ThermoYamlRoundTrip, DebyeHuckel)
+{
+    roundtrip("thermo-models.yaml", "debye-huckel-B-dot-ak");
+    compareThermo(305, 2e5);
+}
+
+TEST_F(ThermoYamlRoundTrip, IdealMolalSolution)
+{
+    roundtrip("thermo-models.yaml", "ideal-molal-aqueous");
+    compareThermo(308, 1.1e5, "H2O(l): 0.95, H2S(aq): 0.01, CO2(aq): 0.04");
+}
+
+TEST_F(ThermoYamlRoundTrip, IonsFromNeutral)
+{
+    roundtrip("thermo-models.yaml", "ions-from-neutral-molecule",
+              {"KCl-neutral"});
+    skip_cp = true; // Not implemented for IonsFromNeutral
+    compareThermo(500, 3e5);
+}
+
+TEST_F(ThermoYamlRoundTrip, LatticeSolid)
+{
+    roundtrip("thermo-models.yaml", "Li7Si3_and_interstitials",
+              {"Li7Si3(s)", "Li7Si3-interstitial"});
+    compareThermo(710, 10e5);
+}
+
+TEST_F(ThermoYamlRoundTrip, HMWSoln)
+{
+    roundtrip("thermo-models.yaml", "HMW-NaCl-electrolyte");
+    rtol = 1e-10; // @TODO: Determine why more stringent tolerances can't be met
+    compareThermo(350.15, 101325,
+                  "H2O(L): 0.8198, Na+:0.09, Cl-:0.09, H+:4.4e-6, OH-:4.4e-6");
+}
+
+TEST_F(ThermoYamlRoundTrip, PureFluid_Nitrogen)
+{
+    roundtrip("thermo-models.yaml", "nitrogen");
+    compareThermo(90, 19e5);
+}
+
+TEST_F(ThermoYamlRoundTrip, RedlichKister)
+{
+    roundtrip("thermo-models.yaml", "Redlich-Kister-LiC6");
+    compareThermo(310, 2e5);
+}
+
+TEST_F(ThermoYamlRoundTrip, Surface)
+{
+    roundtrip("surface-phases.yaml", "Pt-surf");
+    skip_activities = true;
+    compareThermo(800, 2*OneAtm);
+    auto origSurf = std::dynamic_pointer_cast<SurfPhase>(original);
+    auto duplSurf = std::dynamic_pointer_cast<SurfPhase>(duplicate);
+    EXPECT_DOUBLE_EQ(origSurf->siteDensity(), duplSurf->siteDensity());
 }
