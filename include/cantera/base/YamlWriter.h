@@ -12,6 +12,9 @@ namespace Cantera
 {
 
 class Solution;
+class ThermoPhase;
+class Kinetics;
+class Transport;
 
 //! A class for generating full YAML input files from multiple data sources
 class YamlWriter
@@ -21,6 +24,11 @@ public:
 
     //! Include a phase definition for the specified Solution object
     void addPhase(shared_ptr<Solution> soln);
+
+    //! Include a phase definition using the specified ThermoPhase, (optional)
+    //! Kinetics, and (optional) Transport objects
+    void addPhase(shared_ptr<ThermoPhase> thermo, shared_ptr<Kinetics> kin={},
+                  shared_ptr<Transport> tran={});
 
     std::string toYamlString() const;
     void toYamlFile(const std::string& filename) const;
