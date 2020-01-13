@@ -7,10 +7,16 @@ from . import utilities
 import cantera as ct
 from cantera import ck2cti, ck2yaml, cti2yaml, ctml2yaml
 
+try:
+    import ruamel_yaml as yaml
+except ImportError:
+    from ruamel import yaml
+
 
 class converterTestCommon:
     def convert(self, inputFile, thermo=None, transport=None,
-                surface=None, output=None, quiet=True, permissive=None):
+                surface=None, output=None, bibtex=None,
+                quiet=True, permissive=None):
         if output is None:
             output = inputFile[:-4]  # strip '.inp'
         if inputFile is not None:
@@ -21,11 +27,14 @@ class converterTestCommon:
             transport = pjoin(self.test_data_dir, transport)
         if surface is not None:
             surface = pjoin(self.test_data_dir, surface)
+        if bibtex is not None:
+            bibtex = pjoin(self.test_data_dir, bibtex)
         output = pjoin(self.test_work_dir, output + self.ext)
         if os.path.exists(output):
             os.remove(output)
         self._convert(inputFile, thermo=thermo, transport=transport,
-            surface=surface, output=output, quiet=quiet, permissive=permissive)
+            surface=surface, output=output, bibtex=bibtex,
+            quiet=quiet, permissive=permissive)
 
     def checkConversion(self, refFile, testFile):
         ref = ct.Solution(refFile)
@@ -415,8 +424,8 @@ class ck2ctiTest(converterTestCommon, utilities.CanteraTest):
     ext = '.cti'
     InputError = ck2cti.InputParseError
 
-    def _convert(self, inputFile, *, thermo, transport, surface, output, quiet,
-                 permissive):
+    def _convert(self, inputFile, *, thermo, transport, surface, output, bibtex,
+                 quiet, permissive):
         ck2cti.convertMech(inputFile, thermoFile=thermo,
             transportFile=transport, surfaceFile=surface, outName=output,
             quiet=quiet, permissive=permissive)
@@ -430,11 +439,27 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
     ext = '.yaml'
     InputError = ck2yaml.InputError
 
-    def _convert(self, inputFile, *, thermo, transport, surface, output, quiet,
-                 permissive):
+    def _convert(self, inputFile, *, thermo, transport, surface, output, bibtex,
+                 quiet, permissive):
         ck2yaml.convert_mech(inputFile, thermo_file=thermo,
             transport_file=transport, surface_file=surface, out_name=output,
-            quiet=quiet, permissive=permissive)
+            bibtex_file=bibtex, quiet=quiet, permissive=permissive)
+
+    def test_bibtex(self):
+        self.convert('gri30.inp', thermo='gri30_thermo.dat',
+                     transport='gri30_tran.dat', output='gri30_bibtest',
+                     bibtex='test.bib')
+
+        output = pjoin(self.test_work_dir, 'gri30_bibtest' + self.ext)
+        with open(output, 'rt', encoding="utf-8") as stream:
+            yml = yaml.safe_load(stream)
+
+        refs = yml['references']
+        for bib in ['mrx05', 'xy06', 'xyz_2006', 'patashnik-bibtexing']:
+            self.assertIn(bib, refs.keys())
+        self.assertEqual(refs['mrx05']['publisher'], 'nobody')
+        self.assertEqual(refs['xyz_2006']['year'], 2006)
+        self.assertEqual(refs['patashnik-bibtexing']['year'], 1988)
 
 
 class CtmlConverterTest(utilities.CanteraTest):
