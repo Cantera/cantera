@@ -56,13 +56,15 @@ shared_ptr<Species> newSpecies(const XML_Node& species_node)
         s->transport->validate(*s);
     }
 
-    // Extra data used for some electrolyte species
+    // Extra data used for electrolyte species in Debye-Huckel model
     if (species_node.hasChild("stoichIsMods")) {
-        s->input["weak-acid-charge"] = getFloat(species_node, "stoichIsMods");
+        s->input["Debye-Huckel"]["weak-acid-charge"] =
+            getFloat(species_node, "stoichIsMods");
     }
 
     if (species_node.hasChild("electrolyteSpeciesType")) {
-        s->input["electrolyte-species-type"] = species_node.child("electrolyteSpeciesType").value();
+        s->input["Debye-Huckel"]["electrolyte-species-type"] =
+            species_node.child("electrolyteSpeciesType").value();
     }
 
     // Extra data optionally used by LatticePhase

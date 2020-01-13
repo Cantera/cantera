@@ -33,18 +33,9 @@ The fields of a ``species`` entry are:
 ``sites``
     The number of sites occupied by a surface or edge species. Default is 1.
 
-``ionic-radius``
-    Size of the species. Used in the Debye-Hückel model.
-
-``electrolyte-species-type``
-    One of ``solvent``, ``charged-species``, ``weak-acid-associated``,
-    ``strong-acid-associated``, ``polar-neutral``, or ``nonpolar-neutral``.
-    The types ``solvent``, ``charged-species``, and ``nonpolar-neutral`` can be
-    inferred automatically. Used in the Debye-Hückel model.
-
-``weak-acid-charge``
-    Charge to use for species can break apart into charged species. Used in the
-    Debye-Hückel model.
+``Debye-Huckel``
+    Additional model parameters used in the Debye-Hückel model. See
+    :ref:`sec-yaml-Debye-Huckel` for more information.
 
 
 .. _sec-yaml-species-thermo:
