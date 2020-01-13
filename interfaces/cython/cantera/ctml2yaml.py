@@ -1399,13 +1399,14 @@ class Phase:
                 name = spec.attribs["name"]
                 if name not in species_names:
                     continue
+                debye_huckel = spec.attribs.get("Debye-Huckel", {})
                 if name in species_ionic_radii:
-                    spec.attribs["ionic-radius"] = species_ionic_radii[name]
+                    debye_huckel["ionic-radius"] = species_ionic_radii[name]
                 if name in is_mods:
-                    if "weak-acid-charge" not in spec.attribs:
-                        spec.attribs["weak-acid-charge"] = is_mods[name]
+                    if "weak-acid-charge" not in debye_huckel:
+                        debye_huckel["weak-acid-charge"] = is_mods[name]
                     else:
-                        if is_mods[name] != spec.attribs["weak-acid-charge"]:
+                        if is_mods[name] != debye_huckel["weak-acid-charge"]:
                             warnings.warn(
                                 "The stoichIsMods node was specified at the phase and "
                                 "species level for species '{}'. The value specified "
@@ -1413,16 +1414,18 @@ class Phase:
                             )
                 if name in etype_mods:
                     etype = spec.electrolyte_species_type_mapping[etype_mods[name]]
-                    if "electrolyte-species-type" not in spec.attribs:
-                        spec.attribs["electrolyte-species-type"] = etype
+                    if "electrolyte-species-type" not in debye_huckel:
+                        debye_huckel["electrolyte-species-type"] = etype
                     else:
-                        if spec.attribs["electrolyte-species-type"] != etype:
+                        if debye_huckel["electrolyte-species-type"] != etype:
                             warnings.warn(
                                 "The electrolyteSpeciesType node was specified at the "
                                 "phase and species level for species '{}'. The value "
                                 "specified in the species node will be "
                                 "used".format(name)
                             )
+                if debye_huckel:
+                    spec.attribs["Debye-Huckel"] = debye_huckel
 
         return activity_data
 
@@ -1781,13 +1784,16 @@ class Species:
         self.process_standard_state_node(species_node)
 
         electrolyte = species_node.findtext("electrolyteSpeciesType")
+        debye_huckel = {}
         if electrolyte is not None:
             electrolyte = self.electrolyte_species_type_mapping[electrolyte.strip()]
-            self.attribs["electrolyte-species-type"] = electrolyte
+            debye_huckel["electrolyte-species-type"] = electrolyte
 
         weak_acid_charge = species_node.find("stoichIsMods")
         if weak_acid_charge is not None:
-            self.attribs["weak-acid-charge"] = get_float_or_quantity(weak_acid_charge)
+            debye_huckel["weak-acid-charge"] = get_float_or_quantity(weak_acid_charge)
+        if debye_huckel:
+            self.attribs["Debye-Huckel"] = debye_huckel
 
     def hkft(self, species_node: etree.Element) -> Dict[str, "HKFT_THERMO_TYPE"]:
         """Process a species with HKFT thermo type.

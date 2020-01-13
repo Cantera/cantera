@@ -747,7 +747,7 @@ bool DebyeHuckel::addSpecies(shared_ptr<Species> spec)
         m_tmpV.push_back(0.0);
 
         // NAN will be replaced with default value
-        m_Aionic.push_back(spec->input.convert("ionic-radius", "m", NAN));
+        double Aionic = NAN;
 
         // Guess electrolyte species type based on charge properties
         int est = cEST_nonpolarNeutral;
@@ -755,22 +755,28 @@ bool DebyeHuckel::addSpecies(shared_ptr<Species> spec)
         if (fabs(spec->charge) > 0.0001) {
             est = cEST_chargedSpecies;
         }
-        if (spec->input.hasKey("weak-acid-charge")) {
-            stoichCharge = spec->input["weak-acid-charge"].asDouble();
-            if (fabs(stoichCharge - spec->charge) > 0.0001) {
-                est = cEST_weakAcidAssociated;
+
+        if (spec->input.hasKey("Debye-Huckel")) {
+            auto& dhNode = spec->input["Debye-Huckel"].as<AnyMap>();
+            Aionic = dhNode.convert("ionic-radius", "m", NAN);
+            if (dhNode.hasKey("weak-acid-charge")) {
+                stoichCharge = dhNode["weak-acid-charge"].asDouble();
+                if (fabs(stoichCharge - spec->charge) > 0.0001) {
+                    est = cEST_weakAcidAssociated;
+                }
+            }
+            // Apply override of the electrolyte species type
+            if (dhNode.hasKey("electrolyte-species-type")) {
+                est = interp_est(dhNode["electrolyte-species-type"].asString());
             }
         }
-        m_speciesCharge_Stoich.push_back(stoichCharge);
 
         if (m_electrolyteSpeciesType.size() == 0) {
             est = cEST_solvent; // species 0 is the solvent
         }
 
-        // Apply override of the electrolyte species type
-        if (spec->input.hasKey("electrolyte-species-type")) {
-            est = interp_est(spec->input["electrolyte-species-type"].asString());
-        }
+        m_Aionic.push_back(Aionic);
+        m_speciesCharge_Stoich.push_back(stoichCharge);
         m_electrolyteSpeciesType.push_back(est);
     }
     return added;

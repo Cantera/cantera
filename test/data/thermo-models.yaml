@@ -423,7 +423,8 @@ dh-electrolyte-species:
   equation-of-state:
     model: constant-volume
     molar-volume: 1.3
-  ionic-radius: 4 Å
+  Debye-Huckel:
+    ionic-radius: 4 Å
 - name: Cl-
   composition: {Cl: 1, E: 1}
   thermo:
@@ -434,7 +435,8 @@ dh-electrolyte-species:
   equation-of-state:
     model: constant-volume
     molar-volume: 1.3
-  ionic-radius: 3.0 angstrom
+  Debye-Huckel:
+    ionic-radius: 3.0 angstrom
 - name: H+
   composition: {H: 1, E: -1}
   thermo:
@@ -445,7 +447,8 @@ dh-electrolyte-species:
   equation-of-state:
     model: constant-volume
     molar-volume: 0.0
-  ionic-radius: 9e-10 m
+  Debye-Huckel:
+    ionic-radius: 9e-10 m
 - name: OH-
   composition: {O: 1, H: 1, E: 1}
   thermo:
@@ -456,7 +459,8 @@ dh-electrolyte-species:
   equation-of-state:
     model: constant-volume
     molar-volume: 1.3
-  ionic-radius: 3.5 angstrom
+  Debye-Huckel:
+    ionic-radius: 3.5 angstrom
 - name: NaCl(aq)
   composition: {Na: 1, Cl: 1}
   thermo:
@@ -467,8 +471,9 @@ dh-electrolyte-species:
   equation-of-state:
     model: constant-volume
     molar-volume: 1.3
-  electrolyte-species-type: weak-acid-associated
-  weak-acid-charge: -1.0
+  Debye-Huckel:
+    electrolyte-species-type: weak-acid-associated
+    weak-acid-charge: -1.0
 
 ions-from-neutral-species:
 - name: K+

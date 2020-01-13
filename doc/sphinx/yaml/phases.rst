@@ -316,6 +316,39 @@ Example::
       - species: [Na+, OH-]
         beta: 0.06
 
+In addition, the Debye-Hückel model uses several species-specific properties
+which may be defined in the ``Debye-Huckel`` field of the *species* entry. These
+properties are:
+
+``ionic-radius``
+    Size of the species.
+
+``electrolyte-species-type``
+    One of ``solvent``, ``charged-species``, ``weak-acid-associated``,
+    ``strong-acid-associated``, ``polar-neutral``, or ``nonpolar-neutral``.
+    The types ``solvent``, ``charged-species``, and ``nonpolar-neutral`` can be
+    inferred automatically.
+
+``weak-acid-charge``
+    Charge to use for species can break apart into charged species.
+
+Example::
+
+    name: NaCl(aq)
+    composition: {Na: 1, Cl: 1}
+    thermo:
+      model: piecewise-Gibbs
+      h0: -96.03E3 cal/mol
+      dimensionless: true
+      data: {298.15: -174.5057463, 333.15: -174.5057463}
+    equation-of-state:
+      model: constant-volume
+      molar-volume: 1.3
+    Debye-Huckel:
+      ionic-radius: 4 angstrom
+      electrolyte-species-type: weak-acid-associated
+      weak-acid-charge: -1.0
+
 
 .. _sec-yaml-edge:
 
