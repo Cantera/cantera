@@ -665,6 +665,64 @@ void DebyeHuckel::getParameters(AnyMap& phaseNode) const
     phaseNode["activity-data"] = std::move(activityNode);
 }
 
+void DebyeHuckel::getSpeciesParameters(const std::string& name,
+                                       AnyMap& speciesNode) const
+{
+    MolalityVPSSTP::getSpeciesParameters(name, speciesNode);
+    size_t k = speciesIndex(name);
+    checkSpeciesIndex(k);
+    AnyMap dhNode;
+    if (m_Aionic[k] != m_Aionic_default) {
+        dhNode["ionic-radius"] = m_Aionic[k];
+    }
+
+    int estDefault = cEST_nonpolarNeutral;
+    if (k == 0) {
+        estDefault = cEST_solvent;
+    }
+
+    if (m_speciesCharge_Stoich[k] != charge(k)) {
+        dhNode["weak-acid-charge"] = m_speciesCharge_Stoich[k];
+        estDefault = cEST_weakAcidAssociated;
+    } else if (fabs(charge(k)) > 0.0001) {
+        estDefault = cEST_chargedSpecies;
+    }
+
+    if (m_electrolyteSpeciesType[k] != estDefault) {
+        string estType;
+        switch (m_electrolyteSpeciesType[k]) {
+        case cEST_solvent:
+            estType = "solvent";
+            break;
+        case cEST_chargedSpecies:
+            estType = "charged-species";
+            break;
+        case cEST_weakAcidAssociated:
+            estType = "weak-acid-associated";
+            break;
+        case cEST_strongAcidAssociated:
+            estType = "strong-acid-associated";
+            break;
+        case cEST_polarNeutral:
+            estType = "polar-neutral";
+            break;
+        case cEST_nonpolarNeutral:
+            estType = "nonpolar-neutral";
+            break;
+        default:
+            throw CanteraError("DebyeHuckel::getSpeciesParameters",
+                "Unknown electrolyte species type ({}) for species '{}'",
+                m_electrolyteSpeciesType[k], name);
+        }
+        dhNode["electrolyte-species-type"] = estType;
+    }
+
+    if (dhNode.size()) {
+        speciesNode["Debye-Huckel"] = std::move(dhNode);
+    }
+}
+
+
 double DebyeHuckel::A_Debye_TP(double tempArg, double presArg) const
 {
     double T = temperature();
