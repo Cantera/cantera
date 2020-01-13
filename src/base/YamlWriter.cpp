@@ -32,6 +32,16 @@ void YamlWriter::addPhase(shared_ptr<Solution> soln) {
     m_phases.push_back(soln);
 }
 
+void YamlWriter::addPhase(shared_ptr<ThermoPhase> thermo,
+                          shared_ptr<Kinetics> kin,
+                          shared_ptr<Transport> tran) {
+    auto soln = Solution::create();
+    soln->setThermo(thermo);
+    soln->setKinetics(kin);
+    soln->setTransport(tran);
+    addPhase(soln);
+}
+
 std::string YamlWriter::toYamlString() const
 {
     AnyMap output;
