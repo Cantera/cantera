@@ -47,15 +47,19 @@ void Species::getParameters(AnyMap& speciesNode, bool withInput) const
     }
 
     AnyMap thermoNode;
-    thermo->getParameters(thermoNode);
-    if (withInput) {
+    if (thermo && thermo->reportType() != 0) {
+        thermo->getParameters(thermoNode);
+    }
+    if (thermo && withInput) {
         for (const auto& item : thermo->input()) {
             if (!thermoNode.hasKey(item.first)) {
                 thermoNode[item.first] = item.second;
             }
         }
     }
-    speciesNode["thermo"] = std::move(thermoNode);
+    if (thermoNode.size()) {
+        speciesNode["thermo"] = std::move(thermoNode);
+    }
 
     if (transport) {
         AnyMap transportNode;
