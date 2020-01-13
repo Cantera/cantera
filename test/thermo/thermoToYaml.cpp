@@ -185,6 +185,11 @@ TEST_F(ThermoToYaml, DebyeHuckel_B_dot_ak)
     EXPECT_EQ(eosData[0]["model"], "liquid-water-IAPWS95");
     EXPECT_EQ(eosData[1]["model"], "constant-volume");
     EXPECT_DOUBLE_EQ(eosData[1]["molar-volume"].asDouble(), 1.3);
+
+    EXPECT_FALSE(speciesData[0].hasKey("Debye-Huckel"));
+    EXPECT_FALSE(speciesData[1].hasKey("Debye-Huckel")); // defaults are ok
+    EXPECT_DOUBLE_EQ(speciesData[2]["Debye-Huckel"]["ionic-radius"].asDouble(), 3e-10);
+    EXPECT_DOUBLE_EQ(speciesData[5]["Debye-Huckel"]["weak-acid-charge"].asDouble(), -1);
 }
 
 TEST_F(ThermoToYaml, DebyeHuckel_beta_ij)

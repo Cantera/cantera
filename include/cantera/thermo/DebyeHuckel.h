@@ -779,6 +779,8 @@ public:
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
+    virtual void getSpeciesParameters(const std::string& name,
+                                  AnyMap& speciesNode) const;
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Return the Debye Huckel constant as a function of temperature
