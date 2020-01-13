@@ -7,10 +7,16 @@ from . import utilities
 import cantera as ct
 from cantera import ck2cti, ck2yaml, cti2yaml, ctml2yaml
 
+try:
+    import ruamel_yaml as yaml
+except ImportError:
+    from ruamel import yaml
+
 
 class converterTestCommon:
     def convert(self, inputFile, thermo=None, transport=None,
-                surface=None, output=None, quiet=True, permissive=None):
+                surface=None, output=None, extra=None,
+                quiet=True, permissive=None):
         if output is None:
             output = inputFile[:-4]  # strip '.inp'
         if inputFile is not None:
@@ -21,11 +27,14 @@ class converterTestCommon:
             transport = pjoin(self.test_data_dir, transport)
         if surface is not None:
             surface = pjoin(self.test_data_dir, surface)
+        if extra is not None:
+            extra = pjoin(self.test_data_dir, extra)
         output = pjoin(self.test_work_dir, output + self.ext)
         if os.path.exists(output):
             os.remove(output)
         self._convert(inputFile, thermo=thermo, transport=transport,
-            surface=surface, output=output, quiet=quiet, permissive=permissive)
+            surface=surface, output=output, extra=extra,
+            quiet=quiet, permissive=permissive)
 
     def checkConversion(self, refFile, testFile):
         ref = ct.Solution(refFile)
@@ -415,8 +424,8 @@ class ck2ctiTest(converterTestCommon, utilities.CanteraTest):
     ext = '.cti'
     InputError = ck2cti.InputParseError
 
-    def _convert(self, inputFile, *, thermo, transport, surface, output, quiet,
-                 permissive):
+    def _convert(self, inputFile, *, thermo, transport, surface, output, extra,
+                 quiet, permissive):
         ck2cti.convertMech(inputFile, thermoFile=thermo,
             transportFile=transport, surfaceFile=surface, outName=output,
             quiet=quiet, permissive=permissive)
@@ -430,11 +439,26 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
     ext = '.yaml'
     InputError = ck2yaml.InputError
 
-    def _convert(self, inputFile, *, thermo, transport, surface, output, quiet,
-                 permissive):
+    def _convert(self, inputFile, *, thermo, transport, surface, output, extra,
+                 quiet, permissive):
         ck2yaml.convert_mech(inputFile, thermo_file=thermo,
             transport_file=transport, surface_file=surface, out_name=output,
-            quiet=quiet, permissive=permissive)
+            extra_file=extra, quiet=quiet, permissive=permissive)
+
+    def test_extra(self):
+        self.convert('gri30.inp', thermo='gri30_thermo.dat',
+                     transport='gri30_tran.dat', output='gri30_extra',
+                     extra='extra.yaml')
+
+        output = pjoin(self.test_work_dir, 'gri30_extra' + self.ext)
+        with open(output, 'rt', encoding="utf-8") as stream:
+            yml = yaml.safe_load(stream)
+
+        desc = yml['description']
+        self.assertEqual(yml['description'],
+                         'This is an alternative description.')
+        for key in ['foo', 'bar']:
+            self.assertIn(key, yml.keys())
 
 
 class CtmlConverterTest(utilities.CanteraTest):
