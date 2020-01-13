@@ -1200,18 +1200,41 @@ void ThermoPhase::getParameters(AnyMap& phaseNode) const
     phaseNode["elements"] = elementNames;
     phaseNode["species"] = speciesNames();
 
-    // @TODO: Update pending resolution of PR #720
-    map<string, AnyValue> state;
-    state["T"] = temperature();
-    state["density"] = density();
-    map<string, double> Y;
-    for (size_t k = 0; k < m_kk; k++) {
-        if (massFraction(k) > 0) {
-            Y[speciesName(k)] = massFraction(k);
-        }
+    AnyMap state;
+    auto stateVars = nativeState();
+    if (stateVars.count("T")) {
+        state["T"] = temperature();
     }
-    state["Y"] = Y;
-    phaseNode["state"] = state;
+
+    if (stateVars.count("D")) {
+        state["density"] = density();
+    } else if (stateVars.count("P")) {
+        state["P"] = pressure();
+    }
+
+    if (stateVars.count("Y")) {
+        map<string, double> Y;
+        for (size_t k = 0; k < m_kk; k++) {
+            double Yk = massFraction(k);
+            if (Yk > 0) {
+                Y[speciesName(k)] = Yk;
+            }
+        }
+        state["Y"] = Y;
+        state["Y"].setFlowStyle();
+    } else if (stateVars.count("X")) {
+        map<string, double> X;
+        for (size_t k = 0; k < m_kk; k++) {
+            double Xk = moleFraction(k);
+            if (Xk > 0) {
+                X[speciesName(k)] = Xk;
+            }
+        }
+        state["X"] = X;
+        state["X"].setFlowStyle();
+    }
+
+    phaseNode["state"] = std::move(state);
 }
 
 const AnyMap& ThermoPhase::input() const
