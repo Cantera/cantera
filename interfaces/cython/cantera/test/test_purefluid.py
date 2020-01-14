@@ -89,21 +89,30 @@ class TestPureFluid(utilities.CanteraTest):
     def check_fd_properties(self, T1, P1, T2, P2, tol):
         # Properties which are computed as finite differences
         self.water.TP = T1, P1
+        h1a = self.water.enthalpy_mass
         cp1 = self.water.cp_mass
         cv1 = self.water.cv_mass
         k1 = self.water.isothermal_compressibility
         alpha1 = self.water.thermal_expansion_coeff
+        h1b = self.water.enthalpy_mass
 
         self.water.TP = T2, P2
+        h2a = self.water.enthalpy_mass
         cp2 = self.water.cp_mass
         cv2 = self.water.cv_mass
         k2 = self.water.isothermal_compressibility
         alpha2 = self.water.thermal_expansion_coeff
+        h2b = self.water.enthalpy_mass
 
         self.assertNear(cp1, cp2, tol)
         self.assertNear(cv1, cv2, tol)
         self.assertNear(k1, k2, tol)
         self.assertNear(alpha1, alpha2, tol)
+
+        # calculating these finite difference properties should not perturbe the
+        # state of the object
+        self.assertEqual(h1a, h1b)
+        self.assertEqual(h2a, h2b)
 
     def test_properties_near_min(self):
         self.check_fd_properties(self.water.min_temp*(1+1e-5), 101325,
