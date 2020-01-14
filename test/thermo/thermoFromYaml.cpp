@@ -4,6 +4,7 @@
 #include "cantera/thermo/MolalityVPSSTP.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/SurfPhase.h"
+#include <fstream>
 
 using namespace Cantera;
 
@@ -200,6 +201,28 @@ TEST(ThermoFromYaml, DebyeHuckel_beta_ij)
 TEST(ThermoFromYaml, IonsFromNeutral)
 {
     auto thermo = newThermo("thermo-models.yaml", "ions-from-neutral-molecule");
+    ASSERT_EQ((int) thermo->nSpecies(), 2);
+    vector_fp mu(thermo->nSpecies());
+    thermo->getChemPotentials(mu.data());
+
+    // Values for regression testing only -- same as "fromScratch" test
+    EXPECT_NEAR(thermo->density(), 1984.2507319669949, 1e-6);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -14738312.44316336, 1e-6);
+    EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
+    EXPECT_NEAR(mu[1], -2.88157316e+06, 1e-1);
+}
+
+TEST(ThermoFromYaml, IonsFromNeutral_fromString)
+{
+    // A little different because we can't re-read the input file to get the
+    // phase definition for the neutral phase
+    std::ifstream infile("../data/thermo-models.yaml");
+    std::stringstream buffer;
+    buffer << infile.rdbuf();
+    AnyMap input = AnyMap::fromYamlString(buffer.str());
+    auto thermo = newPhase(
+        input["phases"].getMapWhere("name", "ions-from-neutral-molecule"),
+        input);
     ASSERT_EQ((int) thermo->nSpecies(), 2);
     vector_fp mu(thermo->nSpecies());
     thermo->getChemPotentials(mu.data());
