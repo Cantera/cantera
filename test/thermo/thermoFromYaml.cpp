@@ -364,6 +364,19 @@ TEST(ThermoFromYaml, PureFluid_CO2)
     EXPECT_NEAR(thermo->density(), 513.27928388, 1e-6);
 }
 
+TEST(ThermoFromYaml, PureFluid_Unknown)
+{
+    AnyMap root = AnyMap::fromYamlString(
+        "phases:\n"
+        "- name: unknown-purefluid\n"
+        "  species: [N2]\n"
+        "  thermo: pure-fluid\n"
+        "  pure-fluid-name: unknown-purefluid\n"
+    );
+    AnyMap& phase = root["phases"].getMapWhere("name", "unknown-purefluid");
+    EXPECT_THROW(newPhase(phase, root), CanteraError);
+}
+
 TEST(ThermoFromYaml, ConstDensityThermo)
 {
     suppress_deprecation_warnings();
