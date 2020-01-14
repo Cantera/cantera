@@ -485,16 +485,23 @@ void IonsFromNeutralVPSSTP::initThermo()
         AnyMap infile;
         if (slash) {
             string fileName(neutralName.begin(), slash.begin());
-            string node(slash.end(), neutralName.end());
+            neutralName = string(slash.end(), neutralName.end());
             infile = AnyMap::fromYamlFile(fileName,
                         m_input.getString("__file__", ""));
-            AnyMap& phaseNode = infile["phases"].getMapWhere("name", node);
-            setNeutralMoleculePhase(newPhase(phaseNode, infile));
-        } else {
+        } else if (m_input.hasKey("__file__")) {
             infile = AnyMap::fromYamlFile(m_input["__file__"].asString());
-            AnyMap& phaseNode = infile["phases"].getMapWhere("name", neutralName);
-            setNeutralMoleculePhase(newPhase(phaseNode, infile));
+        } else {
+            auto& text = m_input.getMetadata("file-contents");
+            if (text.is<string>()) {
+                infile = AnyMap::fromYamlString(text.asString());
+            } else {
+                throw InputFileError("IonsFromNeutralVPSSTP::initThermo",
+                    m_input["neutral-phase"],
+                    "Unable to locate phase definition for neutral phase");
+            }
         }
+        AnyMap& phaseNode = infile["phases"].getMapWhere("name", neutralName);
+        setNeutralMoleculePhase(newPhase(phaseNode, infile));
     }
 
     if (!neutralMoleculePhase_) {
