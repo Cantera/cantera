@@ -457,6 +457,7 @@ public:
     //! skips over keys that start and end with double underscores.
     class Iterator {
     public:
+        Iterator() {}
         Iterator(const std::unordered_map<std::string, AnyValue>::const_iterator& start,
                  const std::unordered_map<std::string, AnyValue>::const_iterator& stop);
 
