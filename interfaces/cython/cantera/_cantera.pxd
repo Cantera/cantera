@@ -53,14 +53,26 @@ cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
     cdef cppclass CxxAnyValue "Cantera::AnyValue"
 
     cdef cppclass CxxAnyMap "Cantera::AnyMap":
+        cppclass Iterator:
+            pair[string, CxxAnyValue]& operator*()
+            Iterator& operator++()
+            cbool operator!=(Iterator&)
+
         CxxAnyMap()
+        Iterator begin()
+        Iterator end()
         CxxAnyValue& operator[](string) except +translate_exception
+        cbool hasKey(string)
         string keys_str()
 
     cdef cppclass CxxAnyValue "Cantera::AnyValue":
         CxxAnyValue()
         unordered_map[string, CxxAnyMap*] asMap(string) except +translate_exception
         CxxAnyMap& getMapWhere(string, string) except +translate_exception
+        T& asType "as" [T]() except +translate_exception
+        cbool isType "is" [T]()
+        cbool isScalar()
+        pair[int, int] order()
 
     CxxAnyMap AnyMapFromYamlFile "Cantera::AnyMap::fromYamlFile" (string) except +translate_exception
     CxxAnyMap AnyMapFromYamlString "Cantera::AnyMap::fromYamlString" (string) except +translate_exception

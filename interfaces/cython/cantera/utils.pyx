@@ -72,3 +72,76 @@ class CanteraError(RuntimeError):
     pass
 
 cdef public PyObject* pyCanteraError = <PyObject*>CanteraError
+
+cdef anyvalueToPython(string name, CxxAnyValue& v):
+    cdef CxxAnyMap a
+    cdef CxxAnyValue b
+    if v.isScalar():
+        if v.isType[string]():
+            return pystr(v.asType[string]())
+        elif v.isType[double]():
+            return v.asType[double]()
+        elif v.isType[long]():
+            return v.asType[long]()
+        elif v.isType[cbool]():
+            return v.asType[cbool]()
+    elif v.isType[CxxAnyMap]():
+        return anymapToPython(v.asType[CxxAnyMap]())
+    elif v.isType[vector[CxxAnyMap]]():
+        return [anymapToPython(a) for a in v.asType[vector[CxxAnyMap]]()]
+    elif v.isType[vector[double]]():
+        return v.asType[vector[double]]()
+    elif v.isType[vector[string]]():
+        return [pystr(s) for s in v.asType[vector[string]]()]
+    elif v.isType[vector[long]]():
+        return v.asType[vector[long]]()
+    elif v.isType[vector[cbool]]():
+        return v.asType[vector[cbool]]()
+    elif v.isType[vector[CxxAnyValue]]():
+        return [anyvalueToPython(name, b)
+                for b in v.asType[vector[CxxAnyValue]]()]
+    elif v.isType[vector[vector[double]]]():
+        return v.asType[vector[vector[double]]]()
+    elif v.isType[vector[vector[string]]]():
+        return [[pystr(s) for s in row]
+                for row in v.asType[vector[vector[string]]]()]
+    elif v.isType[vector[vector[long]]]():
+        return v.asType[vector[vector[long]]]()
+    elif v.isType[vector[vector[cbool]]]():
+        return v.asType[vector[vector[cbool]]]()
+    else:
+        raise TypeError("Unable to convert value with key '{}' "
+                        "from AnyValue".format(pystr(name)))
+
+
+cdef anymapToPython(CxxAnyMap& m):
+    py_items = []
+    for item in m:
+        py_items.append((item.second.order(),
+                         pystr(item.first),
+                         anyvalueToPython(item.first, item.second)))
+    py_items.sort()
+    return {key: value for (_, key, value) in py_items}
+
+
+cdef mergeAnyMap(CxxAnyMap& primary, CxxAnyMap& extra):
+    """
+    Combine two AnyMaps into a single Python dict. Items from the second map
+    are included only if there is no corresponding key in the first map.
+
+    Used to combine generated data representing the current state of the object
+    (primary) with user-supplied fields (extra) not directly used by Cantera.
+    """
+    py_items = []
+    for item in primary:
+        py_items.append((item.second.order(),
+                         pystr(item.first),
+                         anyvalueToPython(item.first, item.second)))
+    for item in extra:
+        if not primary.hasKey(item.first):
+            py_items.append((item.second.order(),
+                             pystr(item.first),
+                             anyvalueToPython(item.first, item.second)))
+
+    py_items.sort()
+    return {key: value for (_, key, value) in py_items}
