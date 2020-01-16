@@ -159,19 +159,6 @@ doublereal RedlichKwongMFTP::pressure() const
     return pp;
 }
 
-void RedlichKwongMFTP::setTemperature(const doublereal temp)
-{
-    Phase::setTemperature(temp);
-    _updateReferenceStateThermo();
-    updateAB();
-}
-
-void RedlichKwongMFTP::compositionChanged()
-{
-    MixtureFugacityTP::compositionChanged();
-    updateAB();
-}
-
 doublereal RedlichKwongMFTP::standardConcentration(size_t k) const
 {
     getStandardVolumes(m_tmpV.data());
@@ -1011,11 +998,6 @@ void RedlichKwongMFTP::pressureDerivatives() const
 
 void RedlichKwongMFTP::updateMixingExpressions()
 {
-    updateAB();
-}
-
-void RedlichKwongMFTP::updateAB()
-{
     double temp = temperature();
     if (m_formTempParam == 1) {
         for (size_t i = 0; i < m_kk; i++) {
@@ -1046,7 +1028,7 @@ void RedlichKwongMFTP::updateAB()
                 }
             }
         }
-        throw CanteraError("RedlichKwongMFTP::updateAB",
+        throw CanteraError("RedlichKwongMFTP::updateMixingExpressions",
             "Missing Redlich-Kwong coefficients for species: {}", to_string(b));
     }
 }

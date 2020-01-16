@@ -280,36 +280,8 @@ public:
     virtual void setPressure(doublereal p);
 
 protected:
-    /**
-     * Calculate the density of the mixture using the partial molar volumes and
-     * mole fractions as input
-     *
-     * The formula for this is
-     *
-     * \f[
-     *     \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
-     * \f]
-     *
-     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are the molecular
-     * weights, and \f$V_k\f$ are the pure species molar volumes.
-     *
-     * Note, the basis behind this formula is that in an ideal solution the
-     * partial molar volumes are equal to the pure species molar volumes. We
-     * have additionally specified in this class that the pure species molar
-     * volumes are independent of temperature and pressure.
-     */
-    virtual void calcDensity();
-
-public:
-    virtual void setState_TP(doublereal T, doublereal pres);
-    virtual void setState_TR(doublereal T, doublereal rho);
-    virtual void setState_TPX(doublereal t, doublereal p, const doublereal* x);
-
-protected:
     virtual void compositionChanged();
-    void setMoleFractions_NoState(const doublereal* const x);
 
-protected:
     //! Updates the reference state thermodynamic functions at the current T of
     //! the solution.
     /*!
@@ -561,8 +533,6 @@ protected:
     //@}
 
 protected:
-    virtual void invalidateCache();
-
     //! Storage for the current values of the mole fractions of the species
     /*!
      * This vector is kept up-to-date when some the setState functions are called.
@@ -580,10 +550,6 @@ protected:
 
     //! Force the system to be on a particular side of the spinodal curve
     int forcedState_;
-
-    //! The last temperature at which the reference state thermodynamic
-    //! properties were calculated at.
-    mutable doublereal m_Tlast_ref;
 
     //! Temporary storage for dimensionless reference state enthalpies
     mutable vector_fp m_h0_RT;
