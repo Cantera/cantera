@@ -93,11 +93,6 @@ public:
 
     // @}
 
-protected:
-
-    virtual void setTemperature(const double temp);
-    virtual void compositionChanged();
-
 public:
 
     //! Returns the standard concentration \f$ C^0_k \f$, which is used to
@@ -256,15 +251,13 @@ public:
      */
     void pressureDerivatives() const;
 
-    virtual void updateMixingExpressions();
-
     //! Update the a and b parameters
     /*!
      *  The a and the b parameters depend on the mole fraction and the
      *  temperature. This function updates the internal numbers based on the
      *  state of the object.
      */
-    void updateAB();
+    virtual void updateMixingExpressions();
 
     //! Calculate the a and the b parameters given the temperature
     /*!

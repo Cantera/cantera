@@ -165,19 +165,6 @@ double PengRobinson::pressure() const
     return pp;
 }
 
-void PengRobinson::setTemperature(const double temp)
-{
-    Phase::setTemperature(temp);
-    _updateReferenceStateThermo();
-    updateAB();
-}
-
-void PengRobinson::compositionChanged()
-{
-    MixtureFugacityTP::compositionChanged();
-    updateAB();
-}
-
 double PengRobinson::standardConcentration(size_t k) const
 {
     getStandardVolumes(m_tmpV.data());
@@ -803,11 +790,6 @@ void PengRobinson::pressureDerivatives() const
 }
 
 void PengRobinson::updateMixingExpressions()
-{
-    updateAB();
-}
-
-void PengRobinson::updateAB()
 {
     double temp = temperature();
     //Update aAlpha_i
