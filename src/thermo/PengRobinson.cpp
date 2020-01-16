@@ -48,19 +48,6 @@ PengRobinson::PengRobinson(const std::string& infile, const std::string& id_) :
     initThermoFile(infile, id_);
 }
 
-/*PengRobinson::PengRobinson(XML_Node& phaseRefRoot, const std::string& id_) :
-    m_formTempParam(0),
-    m_b_current(0.0),
-    m_a_current(0.0),
-    m_aAlpha_current(0.0),
-    NSolns_(0),
-    dpdV_(0.0),
-    dpdT_(0.0)
-{
-    fill_n(Vroot_, 3, 0.0);
-    importPhase(phaseRefRoot, this);
-}
-*/
 void PengRobinson::calculateAlpha(const std::string& species, double a, double b, double w)
 {
     size_t k = speciesIndex(species);
