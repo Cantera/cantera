@@ -569,84 +569,6 @@ vector<double> PengRobinson::getCoeff(const std::string& iName)
         return spCoeff;
 }
 
-/* void PengRobinson::initThermoXML(XML_Node& phaseNode, const std::string& id)
-{
-        if (phaseNode.hasChild("thermo")) {
-            XML_Node& thermoNode = phaseNode.child("thermo");
-            std::string model = thermoNode["model"];
-            if (model != "PengRobinson" && model != "PengRobinson") {
-                throw CanteraError("PengRobinson::initThermoXML",
-                    "Unknown thermo model : " + model);
-            }
-
-            // Go get all of the coefficients and factors in the
-            // activityCoefficients XML block
-            if (thermoNode.hasChild("activityCoefficients")) {
-                XML_Node& acNode = thermoNode.child("activityCoefficients");
-
-                // Count the number of species with parameters provided in the
-                //    input file:
-                size_t nParams = 0;
-
-                // Loop through the children and read out fluid parameters.  Process
-                //   all the pureFluidParameters, first:
-                for (size_t i = 0; i < acNode.nChildren(); i++) {
-                    XML_Node& xmlACChild = acNode.child(i);
-                    if (caseInsensitiveEquals(xmlACChild.name(), "purefluidparameters")) {
-                        readXMLPureFluid(xmlACChild);
-                        nParams += 1;
-                    }
-                }
-
-                // If any species exist which have undefined pureFluidParameters,
-                // search the database in 'critProperties.xml' to find critical
-                // temperature and pressure to calculate a and b.
-
-                // Loop through all species in the CTI file
-                size_t iSpecies = 0;
-
-                for (size_t i = 0; i < m_kk; i++) {
-                    string iName = speciesName(i);
-
-                    // Get the index of the species
-                    iSpecies = speciesIndex(iName);
-
-                    // Check if a and b are already populated (only the diagonal elements of a).
-                    size_t counter = iSpecies + m_kk * iSpecies;
-
-                    // If not, then search the database:
-                    if (isnan(a_coeff_vec(0, counter))) {
-
-                        vector<double> coeffArray;
-
-                        // Search the database for the species name and calculate
-                        // coefficients a and b, from critical properties:
-                        // coeffArray[0] = a0, coeffArray[1] = b, coeffArray[2] = w;
-                        coeffArray = getCoeff(iName);
-
-                        // Check if species was found in the database of critical properties,
-                        // and assign the results
-                        if (!isnan(coeffArray[0])) {
-                                //Assuming no temperature dependence (i,e a1 = 0)
-                                setSpeciesCoeffs(iName, coeffArray[0], 0.0, coeffArray[1]);
-                        }
-                    }
-                }
-
-                // Loop back through the "activityCoefficients" children and process the
-                // crossFluidParameters in the XML tree:
-                for (size_t i = 0; i < acNode.nChildren(); i++) {
-                    XML_Node& xmlACChild = acNode.child(i);
-                    if (caseInsensitiveEquals(xmlACChild.name(), "crossfluidparameters")) {
-                        readXMLCrossFluid(xmlACChild);
-                    }
-                }
-            }
-        }
-
-        MixtureFugacityTP::initThermoXML(phaseNode, id);
-}
-*/
 void PengRobinson::initThermo()
 {
     for (auto& item : m_species) {
@@ -708,84 +630,6 @@ void PengRobinson::initThermo()
     }
 }
 
-/*void PengRobinson::readXMLPureFluid(XML_Node& pureFluidParam)
-{
-        string xname = pureFluidParam.name();
-        if (xname != "pureFluidParameters") {
-            throw CanteraError("PengRobinson::readXMLPureFluid",
-                "Incorrect name for processing this routine: " + xname);
-        }
-
-        double a0 = 0.0;
-        double a1 = 0.0;
-        double b = 0.0;
-        double w = 0.0;
-        for (size_t iChild = 0; iChild < pureFluidParam.nChildren(); iChild++) {
-            XML_Node& xmlChild = pureFluidParam.child(iChild);
-            string nodeName = toLowerCopy(xmlChild.name());
-
-            if (nodeName == "a_coeff") {
-                vector_fp vParams;
-                string iModel = toLowerCopy(xmlChild.attrib("model"));
-                getFloatArray(xmlChild, vParams, true, "Pascal-m6/kmol2", "a_coeff");
-
-                if (vParams.size() == 1) {
-                    a0 = vParams[0];
-                } else if (vParams.size() == 2) {
-                    a0 = vParams[0];
-                    a1 = vParams[1];
-                } else {
-                    throw CanteraError("PengRobinson::readXMLPureFluid",
-                        "unknown model or incorrect number of parameters");
-                }
-            } else if (nodeName == "b_coeff") {
-                b = getFloatCurrent(xmlChild, "toSI");
-            } else if (nodeName == "acentric_factor") {
-                w = getFloatCurrent(xmlChild);
-            }
-        }
-        calculateAlpha(pureFluidParam.attrib("species"), a0, b, w);
-        setSpeciesCoeffs(pureFluidParam.attrib("species"), a0, b, w);
-}
-
-void PengRobinson::readXMLCrossFluid(XML_Node& CrossFluidParam)
-{
-        string xname = CrossFluidParam.name();
-        if (xname != "crossFluidParameters") {
-            throw CanteraError("PengRobinson::readXMLCrossFluid",
-                "Incorrect name for processing this routine: " + xname);
-        }
-
-        string iName = CrossFluidParam.attrib("species1");
-        string jName = CrossFluidParam.attrib("species2");
-
-        size_t num = CrossFluidParam.nChildren();
-        for (size_t iChild = 0; iChild < num; iChild++) {
-            XML_Node& xmlChild = CrossFluidParam.child(iChild);
-            string nodeName = toLowerCopy(xmlChild.name());
-
-            if (nodeName == "a_coeff") {
-                vector_fp vParams;
-                getFloatArray(xmlChild, vParams, true, "Pascal-m6/kmol2", "a_coeff");
-                string iModel = toLowerCopy(xmlChild.attrib("model"));
-                if (iModel == "constant" && vParams.size() == 1) {
-                    setBinaryCoeffs(iName, jName, vParams[0], 0.0);
-                } else if (iModel == "linear_a") {
-                    setBinaryCoeffs(iName, jName, vParams[0], vParams[1]);
-                } else {
-                    throw CanteraError("PengRobinson::readXMLCrossFluid",
-                        "unknown model ({}) or wrong number of parameters ({})",
-                        iModel, vParams.size());
-                }
-            }
-        }
-}
-
-void PengRobinson::setParametersFromXML(const XML_Node& thermoNode)
-{
-    MixtureFugacityTP::setParametersFromXML(thermoNode);
-}
-*/
 double PengRobinson::sresid() const
 {
     double molarV = molarVolume();
@@ -981,12 +825,12 @@ void PengRobinson::updateAB()
     double temp = temperature();
     //Update aAlpha_i
     double sqt_alpha;
-    double critTemp = critTemperature();
-    double sqt_T_reduced = sqrt(temp / critTemp);
 
     // Update indiviual alpha
     for (size_t j = 0; j < m_kk; j++) {
-        sqt_alpha = 1 + kappa_vec_[j] * (1 - sqt_T_reduced);
+        size_t counter = j * m_kk + j;
+        double critTemp_j = speciesCritTemperature(a_vec_Curr_[counter],b_vec_Curr_[j]);
+        sqt_alpha = 1 + kappa_vec_[j] * (1 - sqrt(temp / critTemp_j));
         alpha_vec_Curr_[j] = sqt_alpha*sqt_alpha;
     }
 
@@ -1059,10 +903,12 @@ double PengRobinson::d2aAlpha_dT2() const
 {
     double temp, fac1, fac2, alphaij, alphai, alphaj, d2aAlphadT2 = 0.0, num;
     double k;
-    double sqt_Tr = sqrt(temperature() / critTemperature()); //we need species critical temperature
-    double coeff1 = 1 / (critTemperature()*critTemperature()*sqt_Tr);
-    double coeff2 = sqt_Tr - 1;
     for (size_t i = 0; i < m_kk; i++) {
+        size_t counter = i + m_kk * i;
+        double Tcrit_i = speciesCritTemperature(a_vec_Curr_[counter], b_vec_Curr_[i]);
+        double sqt_Tr = sqrt(temperature() / Tcrit_i); //we need species critical temperature
+        double coeff1 = 1 / (Tcrit_i*Tcrit_i*sqt_Tr);
+        double coeff2 = sqt_Tr - 1;
         //  Calculate first and second derivatives of alpha for individual species
         k = kappa_vec_[i];
         dalphadT_vec_Curr_[i] = coeff1 *(k* k*coeff2 - k);
