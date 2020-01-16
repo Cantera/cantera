@@ -189,7 +189,7 @@ public:
     //! Retrieve a and b coefficients by looking up tabulated critical parameters
     /*!
     *  If pureFluidParameters are not provided for any species in the phase,
-    *  consult the critical properties tabulated in build/data/thermo/critProperties.xml.
+    *  consult the critical properties tabulated in data/inputs/critProperties.xml.
     *  If the species is found there, calculate pure fluid parameters a_k and b_k as:
     *  \f[ a_k = 0.4278*R**2*T_c^2/P_c \f]
     *
