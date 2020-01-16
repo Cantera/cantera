@@ -73,8 +73,6 @@ class TestModels(utilities.CanteraTest):
             self.assertArrayNear(a.P, b.P)
             self.assertArrayNear(a.X, b.X)
 
-        warnings.simplefilter("always")
-
         for ph in self.yml['phases']:
 
             skipped = ['pure-fluid']

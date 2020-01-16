@@ -3,6 +3,7 @@
 
 import sys
 import os
+import warnings
 from cpython.ref cimport PyObject
 
 cdef CxxPythonLogger* _logger = new CxxPythonLogger()
@@ -38,9 +39,17 @@ def appdelete():
     CxxAppdelete()
 
 def make_deprecation_warnings_fatal():
+    warnings.filterwarnings('error', category=DeprecationWarning,
+                            module='cantera')  # for warnings in Python code
+    warnings.filterwarnings('error', category=DeprecationWarning,
+                            message='.*Cantera.*')  # for warnings in Cython code
     Cxx_make_deprecation_warnings_fatal()
 
 def suppress_deprecation_warnings():
+    warnings.filterwarnings('ignore', category=DeprecationWarning,
+                            module='cantera')  # for warnings in Python code
+    warnings.filterwarnings('ignore', category=DeprecationWarning,
+                            message='.*Cantera.*')  # for warnings in Cython code
     Cxx_suppress_deprecation_warnings()
 
 def suppress_thermo_warnings(pybool suppress=True):

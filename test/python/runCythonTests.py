@@ -20,9 +20,7 @@ a single test:
 
 import sys
 import os
-import warnings
 
-warnings.simplefilter('default')
 cantera_root = os.path.relpath(__file__).split(os.sep)[:-1] + ['..', '..']
 module_path = os.path.abspath(os.sep.join(cantera_root + ['build']))
 
