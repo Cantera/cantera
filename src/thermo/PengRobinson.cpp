@@ -59,7 +59,7 @@ void PengRobinson::calculateAlpha(const std::string& species, double a, double b
     // Calculate value of kappa (independent of temperature)
     // w is an acentric factor of species and must be specified in the CTI file
     if (isnan(w)){
-        throw CanteraError("PengRobinson::calculateALpha",
+        throw CanteraError("PengRobinson::calculateAlpha",
             "No acentric factor loaded.");
     } else if (w <= 0.491) {
         kappa_vec_[k] = 0.37464 + 1.54226*w - 0.26992*w*w;
