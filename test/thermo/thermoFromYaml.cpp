@@ -332,6 +332,20 @@ TEST(ThermoFromYaml, RedlichKwong_CO2)
     EXPECT_NEAR(thermo->cp_mass(), 3358.492543261, 1e-8);
 }
 
+
+TEST(ThermoFromYaml, PengRobinson_CO2)
+{
+    auto thermo = newThermo("thermo-models.yaml", "CO2-PR");
+    EXPECT_NEAR(thermo->density(), 924.3096421928459, 1e-8);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -9206196.3008209914, 1e-6);
+    EXPECT_NEAR(thermo->cp_mass(), 2203.2135196672034, 1e-8);
+
+    thermo->setState_TPX(350, 180*OneAtm, "CO2:0.6, H2O:0.02, H2:0.38");
+    EXPECT_NEAR(thermo->density(), 606.92307568968181, 1e-8);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -9067591.6182085164, 1e-6);
+    EXPECT_NEAR(thermo->cp_mass(), 3065.022259252295, 1e-8);
+}
+
 TEST(ThermoFromYaml, PureFluid_nitrogen)
 {
     auto thermo = newThermo("thermo-models.yaml", "nitrogen");
