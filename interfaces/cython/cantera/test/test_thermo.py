@@ -329,9 +329,9 @@ class TestThermoPhase(utilities.CanteraTest):
 
     def test_phase(self):
         self.assertEqual(self.phase.name, 'ohmech')
-        warnings.simplefilter("always")
 
         with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
             self.assertEqual(self.phase.ID, 'ohmech')
             self.assertEqual(len(w), 1)
             self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
@@ -339,6 +339,7 @@ class TestThermoPhase(utilities.CanteraTest):
                           str(w[-1].message))
 
         with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
             self.phase.ID = 'something'
             self.assertEqual(self.phase.name, 'something')
             self.assertEqual(len(w), 1)
@@ -347,6 +348,7 @@ class TestThermoPhase(utilities.CanteraTest):
                           str(w[-1].message))
 
         with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
             gas = ct.Solution('h2o2.cti', phaseid='ohmech')
             self.assertEqual(len(w), 1)
             self.assertTrue(issubclass(w[-1].category, FutureWarning))

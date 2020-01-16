@@ -10,6 +10,9 @@ from .utils import *
 
 import os
 import sys
+import warnings
+
+warnings.filterwarnings('default', module='cantera')
 add_directory(os.path.join(os.path.dirname(__file__), 'data'))
 
 # Python interpreter used for converting mechanisms
