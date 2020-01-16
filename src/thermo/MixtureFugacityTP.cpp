@@ -23,8 +23,7 @@ const double MixtureFugacityTP::omega_vc = 0.;
 
 MixtureFugacityTP::MixtureFugacityTP() :
     iState_(FLUID_GAS),
-    forcedState_(FLUID_UNDEFINED),
-    m_Tlast_ref(-1.0)
+    forcedState_(FLUID_UNDEFINED)
 {
 }
 
@@ -221,7 +220,7 @@ void MixtureFugacityTP::setStateFromXML(const XML_Node& state)
         double rho = getFloat(state, "density", "density");
         setState_TR(t, rho);
     } else if (doTP) {
-        double rho = Phase::density();
+        double rho = density();
         setState_TR(t, rho);
     }
 }
@@ -246,19 +245,76 @@ bool MixtureFugacityTP::addSpecies(shared_ptr<Species> spec)
 
 void MixtureFugacityTP::setTemperature(const doublereal temp)
 {
+    Phase::setTemperature(temp);
     _updateReferenceStateThermo();
-    setState_TR(temperature(), density());
+    // depends on mole fraction and temperature
+    updateMixingExpressions();
+    iState_ = phaseState(true);
 }
 
 void MixtureFugacityTP::setPressure(doublereal p)
 {
-    setState_TP(temperature(), p);
- }
+    // A pretty tricky algorithm is needed here, due to problems involving
+    // standard states of real fluids. For those cases you need to combine the T
+    // and P specification for the standard state, or else you may venture into
+    // the forbidden zone, especially when nearing the triple point. Therefore,
+    // we need to do the standard state thermo calc with the (t, pres) combo.
+
+    double t = temperature();
+    double rhoNow = density();
+    if (forcedState_ == FLUID_UNDEFINED) {
+        double rho = densityCalc(t, p, iState_, rhoNow);
+        if (rho > 0.0) {
+            setDensity(rho);
+            iState_ = phaseState(true);
+        } else {
+            if (rho < -1.5) {
+                rho = densityCalc(t, p, FLUID_UNDEFINED , rhoNow);
+                if (rho > 0.0) {
+                    setDensity(rho);
+                    iState_ = phaseState(true);
+                } else {
+                    throw CanteraError("MixtureFugacityTP::setPressure", "neg rho");
+                }
+            } else {
+                throw CanteraError("MixtureFugacityTP::setPressure", "neg rho");
+            }
+        }
+    } else if (forcedState_ == FLUID_GAS) {
+        // Normal density calculation
+        if (iState_ < FLUID_LIQUID_0) {
+            double rho = densityCalc(t, p, iState_, rhoNow);
+            if (rho > 0.0) {
+                setDensity(rho);
+                iState_ = phaseState(true);
+                if (iState_ >= FLUID_LIQUID_0) {
+                    throw CanteraError("MixtureFugacityTP::setPressure", "wrong state");
+                }
+            } else {
+                throw CanteraError("MixtureFugacityTP::setPressure", "neg rho");
+            }
+        }
+    } else if (forcedState_ > FLUID_LIQUID_0) {
+        if (iState_ >= FLUID_LIQUID_0) {
+            double rho = densityCalc(t, p, iState_, rhoNow);
+            if (rho > 0.0) {
+                setDensity(rho);
+                iState_ = phaseState(true);
+                if (iState_ == FLUID_GAS) {
+                    throw CanteraError("MixtureFugacityTP::setPressure", "wrong state");
+                }
+            } else {
+                throw CanteraError("MixtureFugacityTP::setPressure", "neg rho");
+            }
+        }
+    }
+}
 
 void MixtureFugacityTP::compositionChanged()
 {
     Phase::compositionChanged();
     getMoleFractions(moleFractions_.data());
+    updateMixingExpressions();
 }
 
 void MixtureFugacityTP::getActivityConcentrations(doublereal* c) const
@@ -268,107 +324,6 @@ void MixtureFugacityTP::getActivityConcentrations(doublereal* c) const
     for (size_t k = 0; k < m_kk; k++) {
         c[k] *= moleFraction(k)*p_RT;
     }
-}
-
-void MixtureFugacityTP::setMoleFractions_NoState(const doublereal* const x)
-{
-    Phase::setMoleFractions(x);
-    getMoleFractions(moleFractions_.data());
-    updateMixingExpressions();
-}
-
-void MixtureFugacityTP::calcDensity()
-{
-    // Calculate the molarVolume of the solution (m**3 kmol-1)
-    const double* const dtmp = moleFractdivMMW();
-    getPartialMolarVolumes(m_tmpV.data());
-    double invDens = dot(m_tmpV.begin(), m_tmpV.end(), dtmp);
-
-    // Set the density in the parent State object directly, by calling the
-    // Phase::setDensity() function.
-    Phase::setDensity(1.0/invDens);
-}
-
-void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
-{
-    // A pretty tricky algorithm is needed here, due to problems involving
-    // standard states of real fluids. For those cases you need to combine the T
-    // and P specification for the standard state, or else you may venture into
-    // the forbidden zone, especially when nearing the triple point. Therefore,
-    // we need to do the standard state thermo calc with the (t, pres) combo.
-    getMoleFractions(moleFractions_.data());
-
-    Phase::setTemperature(t);
-    _updateReferenceStateThermo();
-    // Depends on the mole fractions and the temperature
-    updateMixingExpressions();
-
-    if (forcedState_ == FLUID_UNDEFINED) {
-        double rhoNow = Phase::density();
-        double rho = densityCalc(t, pres, iState_, rhoNow);
-        if (rho > 0.0) {
-            Phase::setDensity(rho);
-            iState_ = phaseState(true);
-        } else {
-            if (rho < -1.5) {
-                rho = densityCalc(t, pres, FLUID_UNDEFINED , rhoNow);
-                if (rho > 0.0) {
-                    Phase::setDensity(rho);
-                    iState_ = phaseState(true);
-                } else {
-                    throw CanteraError("MixtureFugacityTP::setState_TP", "neg rho");
-                }
-            } else {
-                throw CanteraError("MixtureFugacityTP::setState_TP", "neg rho");
-            }
-        }
-    } else if (forcedState_ == FLUID_GAS) {
-        // Normal density calculation
-        if (iState_ < FLUID_LIQUID_0) {
-            double rhoNow = Phase::density();
-            double rho = densityCalc(t, pres, iState_, rhoNow);
-            if (rho > 0.0) {
-                Phase::setDensity(rho);
-                iState_ = phaseState(true);
-                if (iState_ >= FLUID_LIQUID_0) {
-                    throw CanteraError("MixtureFugacityTP::setState_TP", "wrong state");
-                }
-            } else {
-                throw CanteraError("MixtureFugacityTP::setState_TP", "neg rho");
-            }
-        }
-    } else if (forcedState_ > FLUID_LIQUID_0) {
-        if (iState_ >= FLUID_LIQUID_0) {
-            double rhoNow = Phase::density();
-            double rho = densityCalc(t, pres, iState_, rhoNow);
-            if (rho > 0.0) {
-                Phase::setDensity(rho);
-                iState_ = phaseState(true);
-                if (iState_ == FLUID_GAS) {
-                    throw CanteraError("MixtureFugacityTP::setState_TP", "wrong state");
-                }
-            } else {
-                throw CanteraError("MixtureFugacityTP::setState_TP", "neg rho");
-            }
-        }
-    }
-}
-
-void MixtureFugacityTP::setState_TR(doublereal T, doublereal rho)
-{
-    getMoleFractions(moleFractions_.data());
-    Phase::setTemperature(T);
-    _updateReferenceStateThermo();
-    Phase::setDensity(rho);
-    // depends on mole fraction and temperature
-    updateMixingExpressions();
-    iState_ = phaseState(true);
-}
-
-void MixtureFugacityTP::setState_TPX(doublereal t, doublereal p, const doublereal* x)
-{
-    setMoleFractions_NoState(x);
-    setState_TP(t,p);
 }
 
 doublereal MixtureFugacityTP::z() const
@@ -835,9 +790,9 @@ void MixtureFugacityTP::_updateReferenceStateThermo() const
 
     // If the temperature has changed since the last time these
     // properties were computed, recompute them.
-    if (m_Tlast_ref != Tnow) {
+    if (m_tlast != Tnow) {
         m_spthermo.update(Tnow, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
-        m_Tlast_ref = Tnow;
+        m_tlast = Tnow;
 
         // update the species Gibbs functions
         for (size_t k = 0; k < m_kk; k++) {
@@ -848,12 +803,6 @@ void MixtureFugacityTP::_updateReferenceStateThermo() const
             throw CanteraError("MixtureFugacityTP::_updateReferenceStateThermo", "neg ref pressure");
         }
     }
-}
-
-void MixtureFugacityTP::invalidateCache()
-{
-    ThermoPhase::invalidateCache();
-    m_Tlast_ref += 0.001234;
 }
 
 int MixtureFugacityTP::NicholsSolve(double T, double pres, double a, double b,
