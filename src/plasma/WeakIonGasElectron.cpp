@@ -454,32 +454,4 @@ double WeakIonGasElectron::electronTemperature(Eigen::VectorXd f0)
     return 2./3. * 0.4 * sum / Boltzmann * ElectronCharge;
 }
 
-void WeakIonGasElectron::getNetPlasmaProductionRates(double* wdot)
-{
-    calculateDistributionFunction();
-    for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
-        wdot[k] = 0.0;
-    }
-    size_t k_E = m_thermo->speciesIndex("E");
-    if (k_E == npos) {
-        return;
-    }
-    double X_E = m_thermo->moleFraction("E");
-    for (size_t k : m_kInelastic) {
-        size_t kr = m_thermo->speciesIndex(m_targets[k]);
-        size_t kp0 = m_kProducts[k][0];
-        size_t kp1 = m_kProducts[k][1];
-        if (kr != npos && kp0 != npos && kp1 != npos) {
-            double rate = m_N * m_N * m_moleFractions[k] * X_E *
-                          rateCoefficient(k) / Avogadro;
-            wdot[kp0] += rate;
-            if (kp1 != 9999) {
-                wdot[kp1] += rate;
-            }
-            wdot[kr] -= rate;
-            wdot[k_E] += (m_inFactor[k] - 1) * rate;
-        }
-    }
-}
-
 }

@@ -109,11 +109,6 @@ public:
         throw NotImplementedError("PlasmaElectron::reverseRateCoefficient");
     }
 
-    //! net plasma production rates
-    virtual void getNetPlasmaProductionRates(double* wdot) {
-        throw NotImplementedError("PlasmaElectron::getNetPlasmaProductionRates");
-    }
-
     //! initialize PlasmaElectron. Need to be called after adding all cross sections.
     void init(thermo_t* thermo);
 
