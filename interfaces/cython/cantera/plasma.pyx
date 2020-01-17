@@ -4,14 +4,6 @@
 import warnings
 import weakref
 
-cdef np.ndarray get_electron_1d(PlasmaElectron elect, plasmaElectronMethod1d method):
-    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(elect.thermo.nSpecies())
-    method(elect.plasmaElectron, &data[0])
-    if elect._selected_species.size:
-        return data[elect._selected_species]
-    else:
-        return data
-
 cdef class PlasmaElectron(_SolutionBase):
     """
     This class is used to compute electron properties for a phase of matter.
@@ -73,14 +65,6 @@ cdef class PlasmaElectron(_SolutionBase):
         """
         def __get__(self):
             return self.plasmaElectron.inelasticPowerLoss()
-
-    property net_plasma_production_rates:
-        """
-        Net plasma production rates for each species. [kmol/m^3/s] for bulk phases or
-        [kmol/m^2/s] for surface phases.
-        """
-        def __get__(self):
-            return get_electron_1d(self, elect_getNetPlasmaProductionRates)
 
     def set_chemionization_scattering_rate(self, rate):
         """ Set chemionization scattering-in rate """
