@@ -913,6 +913,9 @@ class TestThermo(utilities.CanteraTest):
         self.assertNear(np.dot(g.standard_gibbs_RT, g.X) - Smix_R,
                         g.gibbs_mole / (R*g.T))
 
+class TestPengRobinsonPhase(utilities.CanteraTest):
+    def setup(self):
+        self.gas = ct.Solution('co2_PR_exampl.yaml','CO2-PR')
 
 class TestInterfacePhase(utilities.CanteraTest):
     def setUp(self):
