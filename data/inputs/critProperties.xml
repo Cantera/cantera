@@ -76,7 +76,7 @@
     <Pc value="7.39e+06"/>
     <Vc value="0.0948"/>
     <Zc value="0.275"/>
-    <omega value="0.239"/>
+    <omega value="0.228"/>
   </species>
   <species name="COS">
     <ChemName name="carbonyl-sulfide"/>

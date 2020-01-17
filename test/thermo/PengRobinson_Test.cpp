@@ -24,7 +24,7 @@ public:
     std::unique_ptr<ThermoPhase> test_phase;
 };
 
-TEST_F(PengRobinson_Test, construct_from_cti)
+TEST_F(PengRobinson_Test, construct_from_yaml)
 {
     PengRobinson* peng_robinson_phase = dynamic_cast<PengRobinson*>(test_phase.get());
     EXPECT_TRUE(peng_robinson_phase != NULL);
@@ -39,15 +39,15 @@ TEST_F(PengRobinson_Test, chem_potentials)
     *  calculated using the model.
     */
     const double expected_result[9] = {
-        -4.5736172836328608e+008,
-        -4.5735067964144629e+008,
-        -4.5734081696030951e+008,
-        -4.5733195900446898e+008,
-        -4.5732395963640761e+008,
-        -4.5731669975736719e+008,
-        -4.5731008132866347e+008,
-        -4.5730402291258186e+008,
-        -4.5729845630046815e+008
+        -457361607.71983075,
+        -457350560.54839599,
+        -457340699.25698096,
+        -457331842.5539279,
+        -457323844.32100844,
+        -457316585.4752928,
+        -457309967.99120748,
+        -457303910.44199038,
+        -457298344.62820804
     };
 
     double xmin = 0.6;
@@ -60,6 +60,30 @@ TEST_F(PengRobinson_Test, chem_potentials)
         set_r(xmin + i*dx);
         test_phase->getChemPotentials(&chemPotentials[0]);
         EXPECT_NEAR(expected_result[i], chemPotentials[0], 1.e-6);
+    }
+}
+
+TEST_F(PengRobinson_Test, chemPotentials_RT)
+{
+    test_phase->setState_TP(298., 1.);
+
+    // Test that chemPotentials_RT*RT = chemPotentials
+    const double RT = GasConstant * 298.;
+    vector_fp mu(7);
+    vector_fp mu_RT(7);
+    double xmin = 0.6;
+    double xmax = 0.9;
+    int numSteps = 9;
+    double dx = (xmax-xmin)/(numSteps-1);
+
+    for(int i=0; i < numSteps; ++i)
+    {
+        const double r = xmin + i*dx;
+        set_r(r);
+        test_phase->getChemPotentials(&mu[0]);
+        test_phase->getChemPotentials_RT(&mu_RT[0]);
+        EXPECT_NEAR(mu[0], mu_RT[0]*RT, 1.e-6);
+        EXPECT_NEAR(mu[2], mu_RT[2]*RT, 1.e-6);
     }
 }
 
@@ -126,30 +150,30 @@ TEST_F(PengRobinson_Test, setTP)
 
     // All sub-cooled liquid:
     const double p1[6] = {
-        1.7504058222993714e+002,
-        1.6824762614489907e+002,
-        1.6248354709581241e+002,
-        1.5746729362032696e+002,
-        1.5302217175386241e+002,
-        1.4902908974486667e+002
+        1.7084253549322079e+002,
+        1.6543121742659784e+002,
+        1.6066148681014121e+002,
+        1.5639259178086871e+002,
+        1.525268502259365e+002,
+        1.4899341020317422e+002
     };
     // Phase change between temperatures 4 & 5:
     const double p2[6] = {
-        7.5732259810273172e+002,
-        7.2766981078381912e+002,
-        6.935475475396446e+002,
-        6.5227027102964917e+002,
-        5.9657442842753153e+002,
-        3.9966973266966875e+002
+        7.3025772038910179e+002,
+        7.0307777665949902e+002,
+        6.7179381832541878e+002,
+        6.3389192023192868e+002,
+        5.8250166044528487e+002,
+        3.8226318921022073e+002
     };
     // Supercritical; no discontinuity in rho values:
     const double p3[6] = {
-        8.0601205067780199e+002,
-        7.8427655940884574e+002,
-        7.6105347579146576e+002,
-        7.3605202492828505e+002,
-        7.0887891410210011e+002,
-        6.7898591969734434e+002
+        7.8626284773748239e+002,
+        7.6743023689871097e+002,
+        7.4747463917603955e+002,
+        7.2620055080831412e+002,
+        7.0335270498118734e+002,
+        6.7859003092723128e+002
     };
 
     for(int i=0; i<6; ++i)
@@ -180,12 +204,11 @@ TEST_F(PengRobinson_Test, getPressure)
     *  kappa is a function calulated based on the accentric factor.
     */
 
-    double a_coeff = 3.958134E+5;
-    double b_coeff = 26.6275/1000;
+    double a_coeff = 3.958095109E+5;
+    double b_coeff = 26.62616317/1000;
     double acc_factor = 0.228;
     double pres_theoretical, kappa, alpha, mv;
     const double rho = 1.0737; 
-    const double Tcrit = test_phase->critTemperature();
 
     //Calculate kappa value 
     kappa = 0.37464 + 1.54226*acc_factor - 0.26992*acc_factor*acc_factor;
@@ -193,13 +216,14 @@ TEST_F(PengRobinson_Test, getPressure)
     for (int i = 0; i<10; i++)
     {
         const double temp = 296 + i * 2;
-        set_r(0.999);        
-        test_phase->setState_TR(temp, 1.0737);
+        set_r(1.0);        
+        test_phase->setState_TR(temp, rho);
+        const double Tcrit = test_phase->critTemperature();
         mv = 1 / rho * test_phase->meanMolecularWeight();
         //Calculate pressure using Peng-Robinson EoS
-        alpha = pow(1 + kappa*(1 - sqrt(temp / Tcrit)), 2);
+        alpha = pow(1 + kappa*(1 - sqrt(temp / Tcrit)), 2.0);
         pres_theoretical = GasConstant*temp / (mv - b_coeff) - a_coeff*alpha / (mv*mv + 2*b_coeff*mv - b_coeff*b_coeff);
-        EXPECT_NEAR(test_phase->pressure(), pres_theoretical, 2);
+        EXPECT_NEAR(test_phase->pressure(), pres_theoretical, 3);
     }
 }
 };
