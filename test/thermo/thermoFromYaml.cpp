@@ -344,6 +344,7 @@ TEST(ThermoFromYaml, PengRobinson_CO2)
     EXPECT_NEAR(thermo->density(), 606.92307568968181, 1e-8);
     EXPECT_NEAR(thermo->enthalpy_mass(), -9067591.6182085164, 1e-6);
     EXPECT_NEAR(thermo->cp_mass(), 3065.022259252295, 1e-8);
+    EXPECT_NEAR(thermo->cv_mole(), 32221.352497580105, 1e-8);
 }
 
 TEST(ThermoFromYaml, PureFluid_nitrogen)
