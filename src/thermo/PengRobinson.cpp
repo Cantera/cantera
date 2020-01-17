@@ -433,7 +433,7 @@ bool PengRobinson::addSpecies(shared_ptr<Species> spec)
 
 vector<double> PengRobinson::getCoeff(const std::string& iName)
 {
-        vector_fp spCoeff{ NAN, NAN };
+        vector_fp spCoeff{ NAN, NAN, NAN };
 
         // Get number of species in the database
         // open xml file critProperties.xml
@@ -453,7 +453,7 @@ vector<double> PengRobinson::getCoeff(const std::string& iName)
             if (iNameLower == dbName) {
                 // Read from database and calculate a and b coefficients
                 double vParams;
-                double T_crit, P_crit = 0.0;
+                double T_crit = 0.0, P_crit = 0.0, w_ac = 0.0;
 
                 if (acNodeDoc.hasChild("Tc")) {
                     vParams = 0.0;
@@ -481,10 +481,21 @@ vector<double> PengRobinson::getCoeff(const std::string& iName)
                     }
                     P_crit = vParams;
                 }
+                if (acNodeDoc.hasChild("omega")) {
+                    vParams = 0.0;
+                    XML_Node& xmlChildCoeff = acNodeDoc.child("omega");
+                    if (xmlChildCoeff.hasChild("value")) {
+                        std::string acentric_factor = xmlChildCoeff.attrib("value");
+                        vParams = strSItoDbl(acentric_factor);
+                    }
+                    w_ac = vParams;
+
+                }
 
                 //Assuming no temperature dependence
                 spCoeff[0] = omega_a * (GasConstant* GasConstant) * (T_crit* T_crit) / P_crit; //coeff a
                 spCoeff[1] = omega_b * GasConstant * T_crit / P_crit; // coeff b
+                spCoeff[2] = w_ac; // acentric factor
                 break;
             }
         }
@@ -525,14 +536,15 @@ void PengRobinson::initThermo()
             // diagonal elements of a). If not, then search 'critProperties.xml'
             // to find critical temperature and pressure to calculate a and b.
             size_t k = speciesIndex(item.first);
-            if (isnan(a_coeff_vec(0, k + m_kk * k))) {
+            if (a_coeff_vec(0, k + m_kk * k) == 0.0) {
                 vector<double> coeffs = getCoeff(item.first);
 
                 // Check if species was found in the database of critical
                 // properties, and assign the results
                 if (!isnan(coeffs[0])) {
                     // Assuming no temperature dependence (i.e. a1 = 0)
-                    setSpeciesCoeffs(item.first, coeffs[0], 0.0, coeffs[1]);
+                    calculateAlpha(item.first, coeffs[0], coeffs[1], coeffs[2]);
+                    setSpeciesCoeffs(item.first, coeffs[0], coeffs[1], coeffs[2]);
                 }
             }
         }
