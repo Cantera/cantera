@@ -820,7 +820,7 @@ void PengRobinson::updateMixingExpressions()
         m_b_current += moleFractions_[i] * b_vec_Curr_[i];
         for (size_t j = 0; j < m_kk; j++) {
             m_a_current += a_vec_Curr_[i * m_kk + j] * moleFractions_[i] * moleFractions_[j];
-                        m_aAlpha_current += aAlpha_vec_Curr_[i * m_kk + j] * moleFractions_[i] * moleFractions_[j];
+            m_aAlpha_current += aAlpha_vec_Curr_[i * m_kk + j] * moleFractions_[i] * moleFractions_[j];
         }
     }
 }
