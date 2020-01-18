@@ -69,6 +69,12 @@ unique_ptr<PlasmaElectron> newPlasmaElectron(const AnyMap& phaseNode=AnyMap(),
 
 void addElectronCrossSections(PlasmaElectron& electron, const AnyValue& cross_section, const AnyValue& names);
 
+//! Create a new ElectronCrossSection object from an AnyMap specification
+unique_ptr<ElectronCrossSection> newElectronCrossSection(const AnyMap& node);
+
+//! Generate ElectronCrossSection objects for each item (an AnyMap) in `items`.
+std::vector<shared_ptr<ElectronCrossSection>> getElectronCrossSection(const AnyValue& items);
+
 }
 
 #endif

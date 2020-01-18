@@ -1,4 +1,4 @@
-//! @file ElectronCrossSection.h Declaration for class Cantera::Species.
+//! @file ElectronCrossSection.h Declaration for class Cantera::ElectronCrossSection.
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://www.cantera.org/license.txt for license and copyright information.
@@ -50,12 +50,6 @@ public:
     //! Extra data used for specific models
     AnyMap extra;
 };
-
-//! Create a new ElectronCrossSection object from an AnyMap specification
-unique_ptr<ElectronCrossSection> newElectronCrossSection(const AnyMap& node);
-
-//! Generate ElectronCrossSection objects for each item (an AnyMap) in `items`.
-std::vector<shared_ptr<ElectronCrossSection>> getElectronCrossSection(const AnyValue& items);
 
 }
 

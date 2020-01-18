@@ -2,12 +2,6 @@
 // at https://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/electron/ElectronCrossSection.h"
-#include "cantera/base/stringUtils.h"
-#include "cantera/base/ctexceptions.h"
-#include "cantera/base/ctml.h"
-#include <iostream>
-#include <limits>
-#include <set>
 
 namespace Cantera {
 
@@ -51,43 +45,6 @@ void ElectronCrossSection::validate()
         throw CanteraError("ElectronCrossSection::validate",
             "'{}' is an unknown type of cross section data.", kind);
     }
-}
-
-unique_ptr<ElectronCrossSection> newElectronCrossSection(const AnyMap& node)
-{
-    unique_ptr<ElectronCrossSection> ecs(new ElectronCrossSection());
-
-    ecs->kind = node["kind"].asString();
-    ecs->target = node["target"].asString();
-    ecs->data = node["data"].asVector<vector_fp>();
-    if (ecs->kind == "EFFECTIVE" || ecs->kind == "ELASTIC") {
-        ecs->mass_ratio = node["mass_ratio"].asDouble();
-    } else {
-        ecs->threshold = node["threshold"].asDouble();
-        ecs->product = node["product"].asString();
-    }
-
-    // Store all unparsed keys in the "extra" map
-    const static std::set<std::string> known_keys{
-        "kind", "target", "product", "data", "mass_ratio", "threshold"
-    };
-
-    for (const auto& item : node) {
-        if (known_keys.count(item.first) == 0) {
-            ecs->extra[item.first] = item.second;
-        }
-    }
-
-    return ecs;
-}
-
-std::vector<shared_ptr<ElectronCrossSection>> getElectronCrossSection(const AnyValue& items)
-{
-    std::vector<shared_ptr<ElectronCrossSection> > all_cross_sections;
-    for (const auto& node : items.asVector<AnyMap>()) {
-        all_cross_sections.emplace_back(newElectronCrossSection(node));
-    }
-    return all_cross_sections;
 }
 
 }
