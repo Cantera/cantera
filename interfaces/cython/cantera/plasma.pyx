@@ -180,6 +180,6 @@ cdef class ElectronCrossSection:
             return self.target + " => " + self.product
 
     property data:
-        """ The mass ratio of electron to molecule. """
+        """ The data of electron collision cross section. """
         def __get__(self):
             return self.electron_cross_section.data
