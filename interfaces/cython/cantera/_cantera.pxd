@@ -169,7 +169,6 @@ cdef extern from "cantera/plasma/PlasmaElectron.h" namespace "Cantera":
         void setElectricField(double)
         void setElectricFieldFreq(double)
         double electronTemperature()
-        void setChemionScatRate(double)
         void setBoltzmannSolver(size_t, double, double, double, double, cbool)
         string target(size_t)
         string kind(size_t)

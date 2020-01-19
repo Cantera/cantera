@@ -103,12 +103,6 @@ public:
     //! from EEDF.
     virtual double electronTemperature();
 
-    //! Set chemionization scattering-in rate
-    virtual void setChemionScatRate(double rate) {
-        m_chemionScatRate = rate;
-        m_f0_ok = false;
-    }
-
 protected:
     //! Calculate distribution function by solving Boltzmann equation
     //! with two-term approximate method.
@@ -190,8 +184,6 @@ protected:
     //! Reduced net production frequency. Equation (10) of ref. [1]
     //! divided by N.
     //! @param f0 EEDF
-    //! @param chem_rate Chemionization rate. This is an optional source of
-    //!        electron.
     double netProductionFreq(Eigen::VectorXd& f0);
 
     //! electron temperature. For internal use only. This function is used to evaluate EEDF by

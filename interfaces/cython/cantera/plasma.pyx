@@ -66,10 +66,6 @@ cdef class PlasmaElectron(_SolutionBase):
         def __get__(self):
             return self.plasmaElectron.inelasticPowerLoss()
 
-    def set_chemionization_scattering_rate(self, rate):
-        """ Set chemionization scattering-in rate """
-        self.plasmaElectron.setChemionScatRate(rate)
-
     def set_boltzmann_solver(self, maxn=100, rtol=1e-5, delta0=1e14,
                              m=4.0, init_kTe=0.0, warn=True):
         """ Set boltzmann solver"""
