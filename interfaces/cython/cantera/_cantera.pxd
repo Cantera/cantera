@@ -142,16 +142,11 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
 cdef extern from "cantera/plasma/ElectronCrossSection.h" namespace "Cantera":
     cdef cppclass CxxElectronCrossSection "Cantera::ElectronCrossSection":
         CxxElectronCrossSection()
-        CxxElectronCrossSection(string, string, double, vector[double])
 
         string kind
         string target
-        double mass_ratio
         string product
         vector[vector[double]] data
-
-    cdef shared_ptr[CxxElectronCrossSection] CxxNewElectronCrossSection "newElectronCrossSection" (CxxAnyMap&) except +translate_exception
-    cdef vector[shared_ptr[CxxElectronCrossSection]] CxxGetElectronCrossSection "getElectronCrossSection" (CxxAnyValue&) except +translate_exception
 
 cdef extern from "cantera/plasma/PlasmaElectron.h" namespace "Cantera":
     cdef cppclass CxxPlasmaElectron "Cantera::PlasmaElectron":
@@ -751,6 +746,8 @@ cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
 cdef extern from "cantera/plasma/PlasmaElectronFactory.h" namespace "Cantera":
     cdef shared_ptr[CxxPlasmaElectron] newPlasmaElectron(CxxAnyMap&, CxxAnyMap&, CxxThermoPhase*) except +translate_exception
     cdef CxxPlasmaElectron* newPlasmaElectron(string) except +translate_exception
+    cdef shared_ptr[CxxElectronCrossSection] CxxNewElectronCrossSection "newElectronCrossSection" (CxxAnyMap&) except +translate_exception
+    cdef vector[shared_ptr[CxxElectronCrossSection]] CxxGetElectronCrossSection "getElectronCrossSection" (CxxAnyValue&) except +translate_exception
 
 cdef extern from "cantera/kinetics/KineticsFactory.h" namespace "Cantera":
     cdef CxxKinetics* newKineticsMgr(XML_Node&, vector[CxxThermoPhase*]) except +translate_exception

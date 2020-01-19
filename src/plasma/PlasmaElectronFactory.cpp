@@ -102,16 +102,14 @@ unique_ptr<ElectronCrossSection> newElectronCrossSection(const AnyMap& node)
     ecs->kind = node["kind"].asString();
     ecs->target = node["target"].asString();
     ecs->data = node["data"].asVector<vector_fp>();
-    if (ecs->kind == "EFFECTIVE" || ecs->kind == "ELASTIC") {
-        ecs->mass_ratio = node["mass_ratio"].asDouble();
-    } else {
+    if (ecs->kind != "EFFECTIVE" && ecs->kind != "ELASTIC") {
         ecs->threshold = node["threshold"].asDouble();
         ecs->product = node["product"].asString();
     }
 
     // Store all unparsed keys in the "extra" map
     const static std::set<std::string> known_keys{
-        "kind", "target", "product", "data", "mass_ratio", "threshold"
+        "kind", "target", "product", "data", "threshold"
     };
 
     for (const auto& item : node) {

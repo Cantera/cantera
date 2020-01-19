@@ -115,8 +115,6 @@ cdef class ElectronCrossSection:
         A string giving the kind of the collision, e.g. ``'EFFECTIVE'``
     :param target:
         A string giving the target of the collision, e.g. ``'N2'``
-    :param mass_ratio:
-        The mass ratio of electron to molecule.
     :param init:
         Used internally when wrapping :ct:`ElectronCrossSection` objects returned from C++
 
@@ -127,7 +125,7 @@ cdef class ElectronCrossSection:
         self._electron_cross_section.reset(new CxxElectronCrossSection())
         self.electron_cross_section = self._electron_cross_section.get()
 
-    def __init__(self, kind=None, target=None, mass_ratio=None, data=None,
+    def __init__(self, kind=None, target=None, data=None,
                  *args, init=True, **kwargs):
         if not init:
             return
@@ -137,9 +135,6 @@ cdef class ElectronCrossSection:
 
         if target is not None:
             self.electron_cross_section.target = stringify(target)
-
-        if mass_ratio is not None:
-            self.electron_cross_section.mass_ratio = mass_ratio
 
         if data is not None:
             self.electron_cross_section.data = data
@@ -177,11 +172,6 @@ cdef class ElectronCrossSection:
         """ The target of the collision. """
         def __get__(self):
             return pystr(self.electron_cross_section.target)
-
-    property mass_ratio:
-        """ The mass ratio of electron to molecule. """
-        def __get__(self):
-            return self.electron_cross_section.mass_ratio
 
     property product:
         """ The product of the collision. """

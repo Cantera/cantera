@@ -6,8 +6,7 @@
 namespace Cantera {
 
 ElectronCrossSection::ElectronCrossSection()
-    : mass_ratio(Undef)
-    , threshold(0.0)
+    : threshold(0.0)
 {
 }
 
@@ -25,21 +24,11 @@ void ElectronCrossSection::validate()
                     "Energy must starts at zero.", kind, target);
             }
         }
-        if (mass_ratio >= 1.0 || mass_ratio < 0.0) {
-            throw CanteraError("ElectronCrossSection::validate",
-                "Invalid mass ratio of type '{}' for '{}'. "
-                "Mass ratio of electron to target must be in the range of 0 to 1.", kind, target);
-        }
     } else if (kind == "ELASTIC") {
         if (data[0][0] != 0.0) {
             throw CanteraError("ElectronCrossSection::validate",
                 "Invalid energy value of type '{}' for '{}'. "
                 "Energy must starts at zero.", kind, target);
-        }
-        if (mass_ratio >= 1.0 || mass_ratio < 0.0) {
-            throw CanteraError("ElectronCrossSection::validate",
-                "Invalid mass ratio of type '{}' for '{}'. "
-                "Mass ratio of electron to target must be in the range of 0 to 1.", kind, target);
         }
     } else if (kind != "IONIZATION" && kind != "ATTACHMENT" && kind != "EXCITATION"){
         throw CanteraError("ElectronCrossSection::validate",
