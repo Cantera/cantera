@@ -163,6 +163,8 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         # miscellaneous
         string type()
         string phaseOfMatter() except +translate_exception
+        CxxAnyMap& input()
+        void getParameters(CxxAnyMap&) except +translate_exception
         string report(cbool, double) except +translate_exception
         cbool hasPhaseTransition()
         cbool isPure()
@@ -470,6 +472,7 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         void addReaction(shared_ptr[CxxReaction]) except +translate_exception
         void modifyReaction(int, shared_ptr[CxxReaction]) except +translate_exception
         void invalidateCache() except +translate_exception
+        void getParameters(CxxAnyMap&) except +translate_exception
 
         shared_ptr[CxxReaction] reaction(size_t) except +translate_exception
         cbool isReversible(int) except +translate_exception
@@ -495,6 +498,7 @@ cdef extern from "cantera/transport/TransportBase.h" namespace "Cantera":
     cdef cppclass CxxTransport "Cantera::Transport":
         CxxTransport(CxxThermoPhase*)
         string transportType()
+        void getParameters(CxxAnyMap&) except +translate_exception
         double viscosity() except +translate_exception
         double thermalConductivity() except +translate_exception
         double electricalConductivity() except +translate_exception
