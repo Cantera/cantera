@@ -223,6 +223,17 @@ cdef class _SolutionBase:
             for reaction in reactions:
                 self.kinetics.addReaction(reaction._reaction)
 
+    property input_data:
+        def __get__(self):
+            cdef CxxAnyMap params
+            if self.thermo:
+                self.thermo.getParameters(params)
+            if self.kinetics:
+                self.kinetics.getParameters(params)
+            if self.transport:
+                self.transport.getParameters(params)
+            return mergeAnyMap(params, self.thermo.input())
+
     def __getitem__(self, selection):
         copy = self.__class__(origin=self)
         if isinstance(selection, slice):

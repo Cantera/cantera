@@ -422,3 +422,40 @@ class TestRestorePureFluid(utilities.CanteraTest):
         b = ct.SolutionArray(self.water)
         b.restore_data(data)
         check(a, b)
+
+
+class TestSolutionSerialization(utilities.CanteraTest):
+    def test_input_data_simple(self):
+        gas = ct.Solution('h2o2.yaml')
+        data = gas.input_data
+        self.assertEqual(data['name'], 'ohmech')
+        self.assertEqual(data['thermo'], 'ideal-gas')
+        self.assertEqual(data['kinetics'], 'gas')
+        self.assertEqual(data['transport'], 'mixture-averaged')
+
+    def test_input_data_state(self):
+        gas = ct.Solution('h2o2.yaml')
+        data = gas.input_data
+        self.assertEqual(gas.T, data['state']['T'])
+        self.assertEqual(gas.density, data['state']['density'])
+
+        gas.TP = 500, 3.14e5
+        data = gas.input_data
+        self.assertEqual(gas.T, data['state']['T'])
+        self.assertEqual(gas.density, data['state']['density'])
+
+    def test_input_data_custom(self):
+        gas = ct.Solution('ideal-gas.yaml')
+        data = gas.input_data
+        self.assertEqual(data['custom-field']['first'], True)
+        self.assertEqual(data['custom-field']['last'], [100, 200, 300])
+
+    def test_input_data_debye_huckel(self):
+        soln = ct.Solution('thermo-models.yaml', 'debye-huckel-B-dot-ak')
+        data = soln.input_data
+        self.assertEqual(data['thermo'], 'Debye-Huckel')
+        act_data = data['activity-data']
+        self.assertEqual(act_data['model'], 'B-dot-with-variable-a')
+        self.assertEqual(act_data['default-ionic-radius'], 4e-10)
+        self.assertNotIn('kinetics', data)
+        self.assertNotIn('transport', data)
