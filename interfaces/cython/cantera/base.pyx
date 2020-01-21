@@ -224,6 +224,11 @@ cdef class _SolutionBase:
                 self.kinetics.addReaction(reaction._reaction)
 
     property input_data:
+        """
+        Get input data corresponding to the current state of this Solution,
+        along with any user-specified data provided with its input (YAML)
+        definition.
+        """
         def __get__(self):
             cdef CxxAnyMap params
             if self.thermo:

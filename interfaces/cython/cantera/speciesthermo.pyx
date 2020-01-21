@@ -80,11 +80,17 @@ cdef class SpeciesThermo:
             return data
 
     def _check_n_coeffs(self, n):
-        """ 
-        Check whether number of coefficients is compatible with a given 
+        """
+        Check whether number of coefficients is compatible with a given
         parameterization prior to instantiation of the underlying C++ object.
         """
         raise NotImplementedError('Needs to be overloaded')
+
+    property input_data:
+        def __get__(self):
+            cdef CxxAnyMap params
+            self.spthermo.getParameters(params)
+            return mergeAnyMap(params, self.spthermo.input())
 
     def cp(self, T):
         """
