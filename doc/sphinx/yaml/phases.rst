@@ -326,11 +326,12 @@ properties are:
 ``electrolyte-species-type``
     One of ``solvent``, ``charged-species``, ``weak-acid-associated``,
     ``strong-acid-associated``, ``polar-neutral``, or ``nonpolar-neutral``.
-    The types ``solvent``, ``charged-species``, and ``nonpolar-neutral`` can be
-    inferred automatically.
+    The type ``solvent`` is the default for the first species in the phase. The
+    type ``charged-species`` is the default for species with a net charge.
+    Otherwise, the default is and ``nonpolar-neutral``.
 
 ``weak-acid-charge``
-    Charge to use for species can break apart into charged species.
+    Charge to use for species that can break apart into charged species.
 
 Example::
 
