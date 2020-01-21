@@ -213,6 +213,52 @@ Func1& Pow1::derivative() const
     return *r;
 }
 
+/******************************************************************************/
+
+double Tabulated1::eval(double t) const {
+    size_t siz = m_tvec.size();
+    if (siz) {
+        if (t <= m_tvec[0]) {
+            return m_fvec[0];
+        } else if (t >= m_tvec[siz-1]) {
+            return m_fvec[siz-1];
+        } else {
+            size_t ix = 0;
+            while (t > m_tvec[ix+1]) {
+                ix++;
+            }
+            double df = m_fvec[ix+1] - m_fvec[ix];
+            df /= m_tvec[ix+1] - m_tvec[ix];
+            df *= t - m_tvec[ix];
+            return m_fvec[ix] + df;
+        }
+    } else {
+        return 0.;
+    }
+}
+
+Func1& Tabulated1::derivative() const {
+    std::vector<double> tvec;
+    std::vector<double> dvec;
+    size_t siz = m_tvec.size();
+    if (siz>1) {
+        for (size_t i=1; i<siz; i++) {
+            double d = (m_fvec[i] - m_fvec[i-1]) /
+                (m_tvec[i] - m_tvec[i-1]);
+            tvec.push_back(m_tvec[i-1]);
+            dvec.push_back(d);
+            tvec.push_back(m_tvec[i]);
+            dvec.push_back(d);
+        }
+    } else {
+        tvec.push_back(m_tvec[siz-1]);
+        dvec.push_back(0.);
+    }
+    return *(new Tabulated1(tvec, dvec));
+}
+
+/******************************************************************************/
+
 string Func1::write(const std::string& arg) const
 {
     return fmt::format("<unknown {}>({})", ID(), arg);
@@ -231,6 +277,11 @@ string Pow1::write(const std::string& arg) const
     } else {
         return arg;
     }
+}
+
+string Tabulated1::write(const std::string& arg) const
+{
+    return fmt::format("\\mathrm{{Tabulated}}({})", arg);
 }
 
 string Const1::write(const std::string& arg) const

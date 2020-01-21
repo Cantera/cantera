@@ -9,6 +9,7 @@
 #define CT_FUNC1_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/ctexceptions.h"
 
 #include <iostream>
 
@@ -32,6 +33,7 @@ const int CosFuncType = 102;
 const int ExpFuncType = 104;
 const int PowFuncType = 106;
 const int ConstFuncType = 110;
+const int TabulatedFuncType = 120;
 
 class TimesConstant1;
 
@@ -123,6 +125,7 @@ Func1& newCompositeFunction(Func1& f1, Func1& f2);
 Func1& newTimesConstFunction(Func1& f1, doublereal c);
 Func1& newPlusConstFunction(Func1& f1, doublereal c);
 
+
 //! implements the sin() function
 /*!
  * The argument to sin() is in radians
@@ -165,7 +168,11 @@ public:
     virtual Func1& derivative() const;
 };
 
-/// cos
+
+//! implements the cos() function
+/*!
+ * The argument to cos() is in radians
+ */
 class Cos1 : public Func1
 {
 public:
@@ -200,7 +207,8 @@ public:
     virtual Func1& derivative() const;
 };
 
-/// exp
+
+//! implements the exponential function
 class Exp1 : public Func1
 {
 public:
@@ -233,7 +241,8 @@ public:
     virtual Func1& derivative() const;
 };
 
-/// pow
+
+//! implements the power function (pow)
 class Pow1 : public Func1
 {
 public:
@@ -264,6 +273,53 @@ public:
     }
     virtual Func1& derivative() const;
 };
+
+
+//! implements a tabulated function
+class Tabulated1 : public Func1
+{
+public:
+    Tabulated1(const std::vector<double>& tvec, const std::vector<double>& fvec) :
+        Func1() {
+        if (tvec.size() != fvec.size()) {
+            throw CanteraError("Tabulated1::Tabulated1",
+                               "sizes of vectors do not match ({} vs {}).",
+                               tvec.size(), fvec.size());
+        } else if (tvec.empty()) {
+            throw CanteraError("Tabulated1::Tabulated1",
+                               "vectors must not be empty.");
+        }
+        m_tvec = tvec;
+        m_fvec = fvec;
+    }
+
+    Tabulated1(const Tabulated1& b) :
+        Func1(b) {
+    }
+
+    Tabulated1& operator=(const Tabulated1& right) {
+        if (&right == this) {
+            return *this;
+        }
+        Func1::operator=(right);
+        return *this;
+    }
+
+    virtual std::string write(const std::string& arg) const;
+    virtual int ID() const {
+        return TabulatedFuncType;
+    }
+    virtual double eval(double t) const;
+    virtual Func1& duplicate() const {
+        return *(new Tabulated1(m_tvec, m_fvec));
+    }
+
+    virtual Func1& derivative() const;
+private:
+    std::vector<double> m_tvec;
+    std::vector<double> m_fvec;
+};
+
 
 /**
  * Constant.
