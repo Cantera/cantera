@@ -114,6 +114,8 @@ cdef extern from "cantera/thermo/SpeciesThermoInterpType.h":
         double refPressure()
         void reportParameters(size_t&, int&, double&, double&, double&, double* const) except +translate_exception
         int nCoeffs() except +translate_exception
+        void getParameters(CxxAnyMap&) except +translate_exception
+        CxxAnyMap& input()
 
 cdef extern from "cantera/thermo/SpeciesThermoFactory.h":
     cdef CxxSpeciesThermo* CxxNewSpeciesThermo "Cantera::newSpeciesThermoInterpType"\
@@ -132,6 +134,8 @@ cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
         Composition composition
         double charge
         double size
+        void getParameters(CxxAnyMap&) except +translate_exception
+        CxxAnyMap input
 
     cdef shared_ptr[CxxSpecies] CxxNewSpecies "newSpecies" (XML_Node&)
     cdef vector[shared_ptr[CxxSpecies]] CxxGetSpecies "getSpecies" (XML_Node&)
@@ -165,6 +169,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         string phaseOfMatter() except +translate_exception
         CxxAnyMap& input()
         void getParameters(CxxAnyMap&) except +translate_exception
+        void getSpeciesParameters(string, CxxAnyMap&) except +translate_exception
         string report(cbool, double) except +translate_exception
         cbool hasPhaseTransition()
         cbool isPure()
@@ -518,6 +523,8 @@ cdef extern from "cantera/transport/DustyGasTransport.h" namespace "Cantera":
 cdef extern from "cantera/transport/TransportData.h" namespace "Cantera":
     cdef cppclass CxxTransportData "Cantera::TransportData":
         CxxTransportData()
+        CxxAnyMap input
+        void getParameters(CxxAnyMap&) except +translate_exception
 
     cdef cppclass CxxGasTransportData "Cantera::GasTransportData" (CxxTransportData):
         CxxGasTransportData()
@@ -1009,12 +1016,6 @@ ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +trans
 ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +translate_exception
 
 # classes
-cdef class Species:
-    cdef shared_ptr[CxxSpecies] _species
-    cdef CxxSpecies* species
-
-    cdef _assign(self, shared_ptr[CxxSpecies] other)
-
 cdef class SpeciesThermo:
     cdef shared_ptr[CxxSpeciesThermo] _spthermo
     cdef CxxSpeciesThermo* spthermo
@@ -1038,6 +1039,13 @@ cdef class _SolutionBase:
     cdef int thermo_basis
     cdef np.ndarray _selected_species
     cdef object parent
+
+cdef class Species:
+    cdef shared_ptr[CxxSpecies] _species
+    cdef CxxSpecies* species
+    cdef _SolutionBase _phase
+
+    cdef _assign(self, shared_ptr[CxxSpecies] other)
 
 cdef class ThermoPhase(_SolutionBase):
     cdef double _mass_factor(self)

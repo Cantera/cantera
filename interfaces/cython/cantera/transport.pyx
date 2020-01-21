@@ -56,6 +56,12 @@ cdef class GasTransportData:
             dipole, polarizability, rotational_relaxation, acentric_factor,
             dispersion_coefficient, quadrupole_polarizability)
 
+    property input_data:
+        def __get__(self):
+            cdef CxxAnyMap params
+            self.data.getParameters(params)
+            return mergeAnyMap(params, self.data.input)
+
     property geometry:
         """
         Get/Set the string specifying the molecular geometry. One of `atom`,

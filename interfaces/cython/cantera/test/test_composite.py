@@ -459,3 +459,25 @@ class TestSolutionSerialization(utilities.CanteraTest):
         self.assertEqual(act_data['default-ionic-radius'], 4e-10)
         self.assertNotIn('kinetics', data)
         self.assertNotIn('transport', data)
+
+
+class TestSpeciesSerialization(utilities.CanteraTest):
+    def test_species_simple(self):
+        gas = ct.Solution('h2o2.yaml')
+        data = gas.species('H2O').input_data
+        self.assertEqual(data['name'], 'H2O')
+        self.assertEqual(data['composition'], {'H': 2, 'O': 1})
+
+    def test_species_thermo(self):
+        gas = ct.Solution('h2o2.yaml')
+        data = gas.species('H2O').input_data['thermo']
+        self.assertEqual(data['model'], 'NASA7')
+        self.assertEqual(data['temperature-ranges'], [200, 1000, 3500])
+        self.assertEqual(data['note'], 'L8/89')
+
+    def test_species_transport(self):
+        gas = ct.Solution('h2o2.yaml')
+        data = gas.species('H2O').input_data['transport']
+        self.assertEqual(data['model'], 'gas')
+        self.assertEqual(data['geometry'], 'nonlinear')
+        self.assertNear(data['dipole'], 1.844)
