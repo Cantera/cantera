@@ -883,7 +883,8 @@ const AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& v
             "Key '{}' not found", m_key);
     } else {
         throw InputFileError("AnyValue::getMapWhere", *this,
-            "Element is not a mapping or list of mappings");
+            "Element is not a mapping or list of mappings.\n"
+            "Looking for a mapping with key '{}' = '{}'", key, value);
     }
 }
 
@@ -933,7 +934,8 @@ AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& value,
             "Key '{}' not found", m_key);
     } else {
         throw InputFileError("AnyValue::getMapWhere", *this,
-            "Element is not a mapping or list of mappings");
+            "Element is not a mapping or list of mappings.\n"
+            "Looking for a mapping with key '{}' = '{}'", key, value);
     }
 }
 
