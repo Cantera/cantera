@@ -842,6 +842,24 @@ class TestReaction(utilities.CanteraTest):
         self.assertIn('HO2', R[2].products)
         self.assertEqual(R[0].rate.temperature_exponent, 2.7)
 
+    def test_input_data_from_file(self):
+        R = self.gas.reaction(0)
+        data = R.input_data
+        self.assertEqual(data['type'], 'three-body')
+        self.assertEqual(data['efficiencies'],
+                         {'H2': 2.4, 'H2O': 15.4, 'AR': 0.83})
+        self.assertEqual(data['equation'], R.equation)
+
+    def test_input_data_from_scratch(self):
+        r = ct.ElementaryReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
+        r.rate = ct.Arrhenius(3.87e1, 2.7, 2.6e7)
+        data = r.input_data
+        self.assertEqual(data['rate-constant'],
+                         {'A': 3.87e1, 'b': 2.7, 'Ea': 2.6e7})
+        terms = data['equation'].split()
+        self.assertIn('O', terms)
+        self.assertIn('OH', terms)
+
     def test_elementary(self):
         r = ct.ElementaryReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
         r.rate = ct.Arrhenius(3.87e1, 2.7, 6260*1000*4.184)

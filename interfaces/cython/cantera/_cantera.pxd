@@ -358,6 +358,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         string equation()
         string type()
         void validate() except +translate_exception
+        void getParameters(CxxAnyMap&) except +translate_exception
+        int reaction_type
         Composition reactants
         Composition products
         Composition orders
@@ -366,6 +368,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool duplicate
         cbool allow_nonreactant_orders
         cbool allow_negative_orders
+        CxxAnyMap input
 
     cdef cppclass CxxReaction2 "Cantera::Reaction2" (CxxReaction):
         CxxReaction2()
