@@ -936,7 +936,7 @@ int MixtureFugacityTP::NicholsSolve(double T, double pres, double a, double b,
                 tmp = pow(yN/(2*an), 1./3.);
                 // In this case, tmp and delta must be equal.
                 if (fabs(tmp - delta) > 1.0E-9) {
-                    throw CanteraError("PengRobinson::NicholsSolve()", "Inconsistancy in cubic solver : solver is bad conditioned.");
+                    throw CanteraError("PengRobinson::NicholsSolve()", "Inconsistancy in cubic solver : solver is poorly conditioned.");
                 }
                 Vroot[1] = xN + delta;
                 Vroot[0] = xN - 2.0*delta; // liquid phase root
@@ -944,7 +944,7 @@ int MixtureFugacityTP::NicholsSolve(double T, double pres, double a, double b,
                 tmp = pow(yN/(2*an), 1./3.);
                 // In this case, tmp and delta must be equal.
                 if (fabs(tmp - delta) > 1.0E-9) {
-                    throw CanteraError("PengRobinson::NicholsSolve()", "Inconsistancy in cubic solver : solver is bad conditioned.");
+                    throw CanteraError("PengRobinson::NicholsSolve()", "Inconsistancy in cubic solver : solver is poorly conditioned.");
                 }
                 delta = -delta;
                 Vroot[0] = xN + delta;
