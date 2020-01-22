@@ -70,3 +70,44 @@ class TestFunc1(utilities.CanteraTest):
         f = ct.Func1(np.sin)
         with self.assertRaises(NotImplementedError):
             copy.copy(f)
+
+    def test_tabulated1(self):
+        arr = np.array([[0, 2], [1, 1], [2, 0]])
+        time = arr[:, 0]
+        fval = arr[:, 1]
+        fcn = ct.Func1(time, fval)
+        for t, f in zip(time, fval):
+            self.assertNear(f, fcn(t))
+
+    def test_tabulated2(self):
+        time = [0, 1, 2]
+        fval = [2, 1, 0]
+        fcn = ct.Func1(time, fval)
+        for t, f in zip(time, fval):
+            self.assertNear(f, fcn(t))
+
+    def test_tabulated3(self):
+        time = np.array([0, 1, 2])
+        fval = np.array([2, 1, 0])
+        fcn = ct.Func1(time, fval)
+        tt = .5*(time[1:] + time[:-1])
+        ff = .5*(fval[1:] + fval[:-1])
+        for t, f in zip(tt, ff):
+            self.assertNear(f, fcn(t))
+
+    def test_tabulated4(self):
+        time = 0, 1, 2,
+        fval = 2, 1, 0,
+        fcn = ct.Func1(time, fval)
+        self.assertNear(fcn(-1), fval[0])
+        self.assertNear(fcn(3), fval[-1])
+
+    def test_failures(self):
+        with self.assertRaisesRegex(ValueError, 'Invalid number of arguments'):
+            ct.Func1(1, 2, 3)
+        with self.assertRaisesRegex(ValueError, 'Invalid dimensions'):
+            ct.Func1(np.zeros((3, 3)))
+        with self.assertRaisesRegex(ct.CanteraError, 'do not match'):
+            ct.Func1(range(2), range(3))
+        with self.assertRaisesRegex(ct.CanteraError, 'must not be empty'):
+            ct.Func1([], [])
