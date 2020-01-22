@@ -140,13 +140,15 @@ public:
                    const std::string& dest) const;
     double convert(double value, const Units& src, const Units& dest) const;
 
-    //! Convert `value` from this unit system (defined by `setDefaults`) to the
-    //! specified units.
-    //!
-    //! @warning This function is an experimental part of the %Cantera API and
-    //!    may be changed or removed without notice.
-    double convert(double value, const std::string& dest) const;
-    double convert(double value, const Units& dest) const;
+    //! Convert `value` to the specified `dest` units from the appropriate units
+    //! for this unit system (defined by `setDefaults`)
+    double convertTo(double value, const std::string& dest) const;
+    double convertTo(double value, const Units& dest) const;
+
+    //! Convert `value` from the specified `src` units to units appropriate for
+    //! this unit system (defined by `setDefaults`)
+    double convertFrom(double value, const std::string& src) const;
+    double convertFrom(double value, const Units& src) const;
 
     //! Convert a generic AnyValue node to the units specified in `dest`. If the
     //! input is a double, convert it using the default units. If the input is a
@@ -168,12 +170,13 @@ public:
     double convertActivationEnergy(double value, const std::string& src,
                                    const std::string& dest) const;
 
-    //! Convert `value` from the default activation energy units to the
-    //! specified units
-    //!
-    //! @warning This function is an experimental part of the %Cantera API and
-    //!    may be changed or removed without notice.
-    double convertActivationEnergy(double value, const std::string& dest) const;
+    //! Convert `value` to the units specified by `dest` from the default
+    //! activation energy units
+    double convertActivationEnergyTo(double value, const std::string& dest) const;
+
+    //! Convert `value` from the units specified by `src` to the default
+    //! activation energy units
+    double convertActivationEnergyFrom(double value, const std::string& src) const;
 
     //! Convert a generic AnyValue node to the units specified in `dest`. If the
     //! input is a double, convert it using the default units. If the input is a

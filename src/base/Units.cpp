@@ -335,12 +335,12 @@ double UnitSystem::convert(double value, const Units& src,
     return value * src.factor() / dest.factor();
 }
 
-double UnitSystem::convert(double value, const std::string& dest) const
+double UnitSystem::convertTo(double value, const std::string& dest) const
 {
-    return convert(value, Units(dest));
+    return convertTo(value, Units(dest));
 }
 
-double UnitSystem::convert(double value, const Units& dest) const
+double UnitSystem::convertTo(double value, const Units& dest) const
 {
     return value / dest.factor()
         * pow(m_mass_factor, dest.m_mass_dim - dest.m_pressure_dim - dest.m_energy_dim)
@@ -349,6 +349,22 @@ double UnitSystem::convert(double value, const Units& dest) const
         * pow(m_quantity_factor, dest.m_quantity_dim)
         * pow(m_pressure_factor, dest.m_pressure_dim)
         * pow(m_energy_factor, dest.m_energy_dim);
+}
+
+double UnitSystem::convertFrom(double value, const std::string& dest) const
+{
+    return convertFrom(value, Units(dest));
+}
+
+double UnitSystem::convertFrom(double value, const Units& src) const
+{
+    return value * src.factor()
+        * pow(m_mass_factor, -src.m_mass_dim + src.m_pressure_dim + src.m_energy_dim)
+        * pow(m_length_factor, -src.m_length_dim - src.m_pressure_dim + 2*src.m_energy_dim)
+        * pow(m_time_factor, -src.m_time_dim - 2*src.m_pressure_dim - 2*src.m_energy_dim)
+        * pow(m_quantity_factor, -src.m_quantity_dim)
+        * pow(m_pressure_factor, -src.m_pressure_dim)
+        * pow(m_energy_factor, -src.m_energy_dim);
 }
 
 static std::pair<double, std::string> split_unit(const AnyValue& v) {
@@ -379,7 +395,7 @@ double UnitSystem::convert(const AnyValue& v, const Units& dest) const
     auto val_units = split_unit(v);
     if (val_units.second.empty()) {
         // Just a value, so convert using default units
-        return convert(val_units.first, dest);
+        return convertTo(val_units.first, dest);
     } else {
         // Both source and destination units are explicit
         return convert(val_units.first, Units(val_units.second), dest);
@@ -434,8 +450,8 @@ double UnitSystem::convertActivationEnergy(double value, const std::string& src,
     return value;
 }
 
-double UnitSystem::convertActivationEnergy(double value,
-                                           const std::string& dest) const
+double UnitSystem::convertActivationEnergyTo(double value,
+                                             const std::string& dest) const
 {
     Units udest(dest);
     if (udest.convertible(Units("J/kmol"))) {
@@ -445,8 +461,24 @@ double UnitSystem::convertActivationEnergy(double value,
     } else if (udest.convertible(knownUnits.at("eV"))) {
         return value * m_activation_energy_factor / (Avogadro * udest.factor());
     } else {
-        throw CanteraError("UnitSystem::convertActivationEnergy",
+        throw CanteraError("UnitSystem::convertActivationEnergyTo",
             "'{}' is not a unit of activation energy", dest);
+    }
+}
+
+double UnitSystem::convertActivationEnergyFrom(double value,
+                                               const std::string& src) const
+{
+    Units usrc(src);
+    if (usrc.convertible(Units("J/kmol"))) {
+        return value * usrc.factor() / m_activation_energy_factor;
+    } else if (usrc.convertible(knownUnits.at("K"))) {
+        return value * GasConstant / m_activation_energy_factor;
+    } else if (usrc.convertible(knownUnits.at("eV"))) {
+        return value * Avogadro * usrc.factor() / m_activation_energy_factor;
+    } else {
+        throw CanteraError("UnitSystem::convertActivationEnergyFrom",
+            "'{}' is not a unit of activation energy", src);
     }
 }
 
@@ -456,7 +488,7 @@ double UnitSystem::convertActivationEnergy(const AnyValue& v,
     auto val_units = split_unit(v);
     if (val_units.second.empty()) {
         // Just a value, so convert using default units
-        return convertActivationEnergy(val_units.first, dest);
+        return convertActivationEnergyTo(val_units.first, dest);
     } else {
         // Both source and destination units are explicit
         return convertActivationEnergy(val_units.first, val_units.second, dest);

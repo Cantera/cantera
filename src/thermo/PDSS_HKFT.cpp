@@ -460,23 +460,23 @@ void PDSS_HKFT::getParameters(AnyMap& eosNode) const
     eosNode["model"] = "HKFT";
     UnitSystem U;
     U.setDefaults({"cal", "gmol", "bar"});
-    eosNode["h0"] = U.convert(m_deltaH_formation_tr_pr, "J/kmol");
-    eosNode["g0"] = U.convert(m_deltaG_formation_tr_pr, "J/kmol");
-    eosNode["s0"] = U.convert(m_Entrop_tr_pr, "J/kmol/K");
+    eosNode["h0"] = U.convertTo(m_deltaH_formation_tr_pr, "J/kmol");
+    eosNode["g0"] = U.convertTo(m_deltaG_formation_tr_pr, "J/kmol");
+    eosNode["s0"] = U.convertTo(m_Entrop_tr_pr, "J/kmol/K");
 
     eosNode["a"] = vector_fp{
-        U.convert(m_a1, "J/kmol/Pa"),
-        U.convert(m_a2, "J/kmol"),
-        U.convert(m_a3, "J*K/kmol/Pa"),
-        U.convert(m_a4, "J*K/kmol")
+        U.convertTo(m_a1, "J/kmol/Pa"),
+        U.convertTo(m_a2, "J/kmol"),
+        U.convertTo(m_a3, "J*K/kmol/Pa"),
+        U.convertTo(m_a4, "J*K/kmol")
     };
 
     eosNode["c"] = vector_fp{
-        U.convert(m_c1, "J/kmol/K"),
-        U.convert(m_c2, "J*K/kmol")
+        U.convertTo(m_c1, "J/kmol/K"),
+        U.convertTo(m_c2, "J*K/kmol")
     };
 
-    eosNode["omega"] = U.convert(m_omega_pr_tr, "J/kmol");
+    eosNode["omega"] = U.convertTo(m_omega_pr_tr, "J/kmol");
 }
 
 doublereal PDSS_HKFT::deltaH() const

@@ -1009,7 +1009,7 @@ void setupChebyshevReaction(ChebyshevReaction&R, const AnyMap& node,
     }
     const UnitSystem& units = node.units();
     Units rcUnits = rateCoeffUnits(R, kin);
-    coeffs(0, 0) += std::log10(units.convert(1.0, rcUnits));
+    coeffs(0, 0) += std::log10(units.convertTo(1.0, rcUnits));
     R.rate = ChebyshevRate(units.convert(T_range[0], "K"),
                            units.convert(T_range[1], "K"),
                            units.convert(P_range[0], "Pa"),
