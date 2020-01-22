@@ -320,6 +320,17 @@ cdef class Reaction:
         def __set__(self, allow):
             self.reaction.allow_negative_orders = allow
 
+    property input_data:
+        """
+        Get input data for this reaction with its current parameter values,
+        along with any user-specified data provided with its input (YAML)
+        definition.
+        """
+        def __get__(self):
+            cdef CxxAnyMap params
+            self.reaction.getParameters(params)
+            return mergeAnyMap(params, self.reaction.input)
+
     def __repr__(self):
         return '<{}: {}>'.format(self.__class__.__name__, self.equation)
 
