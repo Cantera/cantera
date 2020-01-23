@@ -87,24 +87,24 @@ cdef class Func1:
             c = args[0]
             if hasattr(c, '__call__'):
                 # callback function
-                self.__set_callback(c)
+                self._set_callback(c)
             else:
                 arr = np.array(c)
                 try:
                     if arr.ndim == 0:
                         # handle constants or unsized numpy arrays
                         k = float(c)
-                        self.__set_callback(lambda t: k)
+                        self._set_const(k)
                     elif arr.size == 1:
                         # handle lists, tuples or numpy arrays with a single element
                         k = float(c[0])
-                        self.__set_callback(lambda t: k)
+                        self._set_const(k)
                     elif arr.ndim == 2:
                         # tabulated function (single argument)
                         if arr.shape[1] == 2:
                             time = arr[:, 0]
                             fval = arr[:, 1]
-                            self.__set_tables(time, fval)
+                            self._set_tables(time, fval)
                         else:
                             raise ValueError(
                                 "Invalid dimensions: specification of "
@@ -121,17 +121,20 @@ cdef class Func1:
         elif len(args) == 2:
             # tabulated function (two arguments mimic C++ interface)
             time, fval = args
-            self.__set_tables(time, fval)
+            self._set_tables(time, fval)
 
         else:
             raise ValueError("Invalid number of arguments")
 
 
-    cpdef void __set_callback(self, c) except *:
+    cpdef void _set_callback(self, c) except *:
         self.callable = c
         self.func = new CxxFunc1(func_callback, <void*>self)
 
-    cpdef void __set_tables(self, time, fval) except *:
+    cpdef void _set_const(self, double c) except *:
+        self.func = <CxxFunc1*>(new CxxConst1(c))
+
+    cpdef void _set_tables(self, time, fval) except *:
         cdef vector[double] tvec, fvec
         for t in time:
             tvec.push_back(t)

@@ -43,6 +43,10 @@ cdef extern from "cantera/numerics/Func1.h":
         CxxTabulated1(vector[double]&, vector[double]&) except +translate_exception
         double eval(double) except +translate_exception
 
+    cdef cppclass CxxConst1 "Cantera::Const1":
+        CxxConst1(double) except +translate_exception
+        double eval(double) except +translate_exception
+
 cdef extern from "cantera/base/xml.h" namespace "Cantera":
     cdef cppclass XML_Node:
         XML_Node* findByName(string)
@@ -1022,8 +1026,9 @@ cdef class Func1:
     cdef CxxFunc1* func
     cdef object callable
     cdef object exception
-    cpdef void __set_callback(self, object) except *
-    cpdef void __set_tables(self, object, object) except *
+    cpdef void _set_callback(self, object) except *
+    cpdef void _set_const(self, double) except *
+    cpdef void _set_tables(self, object, object) except *
 
 cdef class ReactorBase:
     cdef CxxReactorBase* rbase
