@@ -977,16 +977,35 @@ void AnyValue::applyUnits(const UnitSystem& units)
         if (list.size() && list[0].hasKey("units") && list[0].size() == 1) {
             // First item in the list is a units declaration, which applies to
             // the items in the list
-            UnitSystem newUnits = units;
-            newUnits.setDefaults(list[0]["units"].asMap<std::string>());
+            auto deltaUnits = list[0]["units"];
             list[0].m_data.erase("units");
             for (auto& item : list) {
-                // Any additional units declarations are errors
-                if (item.size() == 1 && item.hasKey("units")) {
-                    throw InputFileError("AnyValue::applyUnits", item,
-                        "Found units entry as not the first item in a list.");
+                if (item.hasKey("units")) {
+                    if (item.size() == 1) {
+                        // Any additional units declarations are errors
+                        throw InputFileError("AnyValue::applyUnits", item,
+                            "Found units entry as not the first item in a list.");
+                    } else {
+                        // Merge with a child units declaration
+                        auto& childUnits = item["units"].as<AnyMap>();
+                        for (auto& jtem : deltaUnits) {
+                            if (!childUnits.hasKey(jtem.first)) {
+                                childUnits[jtem.first] = jtem.second;
+                            }
+                        }
+                    }
+                } else if (item.hasKey("__units__")) {
+                    // Merge with a child units declaration
+                    auto& childUnits = item["__units__"].as<AnyMap>();
+                    for (auto& jtem : deltaUnits) {
+                        if (!childUnits.hasKey(jtem.first)) {
+                            childUnits[jtem.first] = jtem.second;
+                        }
+                    }
+                } else {
+                    item["__units__"] = deltaUnits;
                 }
-                item.applyUnits(newUnits);
+                item.applyUnits(units);
             }
             // Remove the "units" map after it has been applied
             list.erase(list.begin());
@@ -1370,8 +1389,11 @@ void AnyMap::applyUnits(const UnitSystem& units) {
     m_units = units;
 
     if (hasKey("units")) {
-        m_units.setDefaults(at("units").asMap<std::string>());
+        m_data["__units__"] = std::move(m_data["units"]);
         m_data.erase("units");
+    }
+    if (hasKey("__units__")) {
+        m_units.setDefaults(m_data["__units__"].asMap<std::string>());
     }
     for (auto& item : m_data) {
         item.second.applyUnits(m_units);
