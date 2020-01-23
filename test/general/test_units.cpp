@@ -152,6 +152,11 @@ TEST(Units, from_anymap) {
     auto k1 = m["k1"].asVector<AnyValue>();
     EXPECT_DOUBLE_EQ(U.convert(k1[0], "m^3/kmol"), 1e-9*5e2);
     EXPECT_DOUBLE_EQ(U.convertActivationEnergy(k1[2], "J/kmol"), 29000);
+
+    // calling applyUnits again should not affect results
+    m.applyUnits(U);
+    EXPECT_DOUBLE_EQ(m.convert("p", "Pa"), 12e5);
+    EXPECT_DOUBLE_EQ(U.convert(k1[0], "m^3/kmol"), 1e-9*5e2);
 }
 
 TEST(Units, from_anymap_default) {
