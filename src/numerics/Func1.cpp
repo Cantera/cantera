@@ -227,10 +227,14 @@ double Tabulated1::eval(double t) const {
             while (t > m_tvec[ix+1]) {
                 ix++;
             }
-            double df = m_fvec[ix+1] - m_fvec[ix];
-            df /= m_tvec[ix+1] - m_tvec[ix];
-            df *= t - m_tvec[ix];
-            return m_fvec[ix] + df;
+            if (m_isLinear) {
+                double df = m_fvec[ix+1] - m_fvec[ix];
+                df /= m_tvec[ix+1] - m_tvec[ix];
+                df *= t - m_tvec[ix];
+                return m_fvec[ix] + df;
+            } else {
+                return m_fvec[ix];
+            }
         }
     } else {
         return 0.;
@@ -241,20 +245,26 @@ Func1& Tabulated1::derivative() const {
     std::vector<double> tvec;
     std::vector<double> dvec;
     size_t siz = m_tvec.size();
-    if (siz>1) {
-        for (size_t i=1; i<siz; i++) {
-            double d = (m_fvec[i] - m_fvec[i-1]) /
-                (m_tvec[i] - m_tvec[i-1]);
-            tvec.push_back(m_tvec[i-1]);
-            dvec.push_back(d);
-            tvec.push_back(m_tvec[i]);
-            dvec.push_back(d);
+    if (m_isLinear) {
+        // piece-wise continuous derivative
+        if (siz>1) {
+            for (size_t i=1; i<siz; i++) {
+                double d = (m_fvec[i] - m_fvec[i-1]) /
+                  (m_tvec[i] - m_tvec[i-1]);
+                tvec.push_back(m_tvec[i-1]);
+                dvec.push_back(d);
+            }
         }
-    } else {
         tvec.push_back(m_tvec[siz-1]);
         dvec.push_back(0.);
+    } else {
+        // derivative is zero (ignoring discontinuities)
+        tvec.push_back(m_tvec[0]);
+        tvec.push_back(m_tvec[siz-1]);
+        dvec.push_back(0.);
+        dvec.push_back(0.);
     }
-    return *(new Tabulated1(tvec, dvec));
+    return *(new Tabulated1(tvec, dvec, "previous"));
 }
 
 /******************************************************************************/
