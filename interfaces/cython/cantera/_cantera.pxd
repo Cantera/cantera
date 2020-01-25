@@ -40,7 +40,7 @@ cdef extern from "cantera/cython/funcWrapper.h":
 
 cdef extern from "cantera/numerics/Func1.h":
     cdef cppclass CxxTabulated1 "Cantera::Tabulated1":
-        CxxTabulated1(vector[double]&, vector[double]&) except +translate_exception
+        CxxTabulated1(vector[double]&, vector[double]&, string) except +translate_exception
         double eval(double) except +translate_exception
 
     cdef cppclass CxxConst1 "Cantera::Const1":
@@ -1028,7 +1028,7 @@ cdef class Func1:
     cdef object exception
     cpdef void _set_callback(self, object) except *
     cpdef void _set_const(self, double) except *
-    cpdef void _set_tables(self, object, object) except *
+    cpdef void _set_tables(self, object, object, string) except *
 
 cdef class ReactorBase:
     cdef CxxReactorBase* rbase

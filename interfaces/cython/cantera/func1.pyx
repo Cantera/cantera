@@ -58,20 +58,27 @@ cdef class Func1:
     points and corresponding function values. Inputs are specified either by
     two iterable objects containing sample point location and function values,
     or a single array that concatenates those inputs in two columns. Between
-    sample points, values are evaluated using a linear interpolation, whereas
-    outside the sample interval, the value at the closest end point is returned.
+    sample points, values are evaluated based on the keyword argument
+    'interpolation'; options are 'linear' (linear interpolation, default) or
+    'previous' (nearest previous value). Outside the sample interval, the value
+    at the closest end point is returned.
+
     Examples for tabulated `Func1` object are::
 
         >>> t1 = Func1([[0, 2], [1, 1], [2, 0]])
         >>> [t1(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
         [2.0, 2.0, 1.5, 0.5, 0.0, 0.0]
 
-        >>> t2 = Func1([0, 1, 2], [2, 1, 0])
+        >>> t2 = Func1([[0, 2], [1, 1], [2, 0]], interpolation='previous')
         >>> [t2(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
+        [2.0, 2.0, 2.0, 1.0, 0.0, 0.0]
+
+        >>> t3 = Func1([0, 1, 2], [2, 1, 0])
+        >>> [t3(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
         [2.0, 2.0, 1.5, 0.5, 0.0, 0.0]
 
-        >>> t3 = Func1(np.array([0, 1, 2]), (2, 1, 0))
-        >>> [t3(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
+        >>> t4 = Func1(np.array([0, 1, 2]), (2, 1, 0))
+        >>> [t4(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
         [2.0, 2.0, 1.5, 0.5, 0.0, 0.0]
 
     Note that all methods which accept `Func1` objects will also accept the
@@ -82,7 +89,7 @@ cdef class Func1:
         self.exception = None
         self.callable = None
 
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
         if len(args) == 1:
             c = args[0]
             if hasattr(c, '__call__'):
@@ -104,7 +111,8 @@ cdef class Func1:
                         if arr.shape[1] == 2:
                             time = arr[:, 0]
                             fval = arr[:, 1]
-                            self._set_tables(time, fval)
+                            method = kwargs.get('interpolation', 'linear')
+                            self._set_tables(time, fval, stringify(method))
                         else:
                             raise ValueError(
                                 "Invalid dimensions: specification of "
@@ -121,7 +129,8 @@ cdef class Func1:
         elif len(args) == 2:
             # tabulated function (two arguments mimic C++ interface)
             time, fval = args
-            self._set_tables(time, fval)
+            method = kwargs.get('interpolation', 'linear')
+            self._set_tables(time, fval, stringify(method))
 
         else:
             raise ValueError("Invalid number of arguments")
@@ -134,13 +143,13 @@ cdef class Func1:
     cpdef void _set_const(self, double c) except *:
         self.func = <CxxFunc1*>(new CxxConst1(c))
 
-    cpdef void _set_tables(self, time, fval) except *:
+    cpdef void _set_tables(self, time, fval, string method) except *:
         cdef vector[double] tvec, fvec
         for t in time:
             tvec.push_back(t)
         for f in fval:
             fvec.push_back(f)
-        self.func = <CxxFunc1*>(new CxxTabulated1(tvec, fvec))
+        self.func = <CxxFunc1*>(new CxxTabulated1(tvec, fvec, method))
 
     def __dealloc__(self):
         del self.func

@@ -279,7 +279,8 @@ public:
 class Tabulated1 : public Func1
 {
 public:
-    Tabulated1(const std::vector<double>& tvec, const std::vector<double>& fvec) :
+    Tabulated1(const std::vector<double>& tvec, const std::vector<double>& fvec,
+               const std::string& method = "linear") :
         Func1() {
         if (tvec.size() != fvec.size()) {
             throw CanteraError("Tabulated1::Tabulated1",
@@ -291,6 +292,15 @@ public:
         }
         m_tvec = tvec;
         m_fvec = fvec;
+        if (method == "linear") {
+            m_isLinear = true;
+        } else if (method == "previous") {
+            m_isLinear = false;
+        } else {
+            throw CanteraError("Tabulated1::Tabulated1",
+                               "interpolation method '{}' is not implemented",
+                               method);
+        }
     }
 
     Tabulated1(const Tabulated1& b) :
@@ -311,13 +321,18 @@ public:
     }
     virtual double eval(double t) const;
     virtual Func1& duplicate() const {
-        return *(new Tabulated1(m_tvec, m_fvec));
+        if (m_isLinear) {
+            return *(new Tabulated1(m_tvec, m_fvec, "linear"));
+        } else {
+            return *(new Tabulated1(m_tvec, m_fvec, "previous"));
+        }
     }
 
     virtual Func1& derivative() const;
 private:
     std::vector<double> m_tvec;
     std::vector<double> m_fvec;
+    bool m_isLinear;
 };
 
 
