@@ -21,8 +21,8 @@ ReactionFactory::ReactionFactory()
 {
     // register elementary reactions
     reg("elementary", []() { return new ElementaryReaction(); });
-    m_synonyms["arrhenius"] = "elementary";
-    m_synonyms[""] = "elementary";
+    addAlias("elementary", "arrhenius");
+    addAlias("elementary", "");
     reg_XML("elementary",
             [](Reaction* R, const XML_Node& node) {
                 setupElementaryReaction(*(ElementaryReaction*)R, node);
@@ -34,8 +34,8 @@ ReactionFactory::ReactionFactory()
 
     // register three-body reactions
     reg("three-body", []() { return new ThreeBodyReaction(); });
-    m_synonyms["threebody"] = "three-body";
-    m_synonyms["three_body"] = "three-body";
+    addAlias("three-body", "threebody");
+    addAlias("three-body", "three_body");
     reg_XML("three-body",
             [](Reaction* R, const XML_Node& node) {
                 setupThreeBodyReaction(*(ThreeBodyReaction*)R, node);
@@ -58,8 +58,8 @@ ReactionFactory::ReactionFactory()
 
     // register falloff reactions
     reg("chemically-activated", []() { return new ChemicallyActivatedReaction(); });
-    m_synonyms["chemact"] = "chemically-activated";
-    m_synonyms["chemically_activated"] = "chemically-activated";
+    addAlias("chemically-activated", "chemact");
+    addAlias("chemically-activated", "chemically_activated");
     reg_XML("chemically-activated",
             [](Reaction* R, const XML_Node& node) {
                 setupChemicallyActivatedReaction(*(ChemicallyActivatedReaction*)R, node);
@@ -71,8 +71,8 @@ ReactionFactory::ReactionFactory()
 
     // register pressure-depdendent-Arrhenius reactions
     reg("pressure-dependent-Arrhenius", []() { return new PlogReaction(); });
-    m_synonyms["plog"] = "pressure-dependent-Arrhenius";
-    m_synonyms["pdep_arrhenius"] = "pressure-dependent-Arrhenius";
+    addAlias("pressure-dependent-Arrhenius", "plog");
+    addAlias("pressure-dependent-Arrhenius", "pdep_arrhenius");
     reg_XML("pressure-dependent-Arrhenius",
             [](Reaction* R, const XML_Node& node) {
                 setupPlogReaction(*(PlogReaction*)R, node);
@@ -84,7 +84,7 @@ ReactionFactory::ReactionFactory()
 
     // register Chebyshev reactions
     reg("Chebyshev", []() { return new ChebyshevReaction(); });
-    m_synonyms["chebyshev"] = "Chebyshev";
+    addAlias("Chebyshev", "chebyshev");
     reg_XML("Chebyshev",
             [](Reaction* R, const XML_Node& node) {
                 setupChebyshevReaction(*(ChebyshevReaction*)R, node);
@@ -96,9 +96,9 @@ ReactionFactory::ReactionFactory()
 
     // register interface reactions
     reg("interface", []() { return new InterfaceReaction(); });
-    m_synonyms["surface"] = "interface";
-    m_synonyms["edge"] = "interface";
-    m_synonyms["global"] = "interface";
+    addAlias("interface", "surface");
+    addAlias("interface", "edge");
+    addAlias("interface", "global");
     reg_XML("interface",
             [](Reaction* R, const XML_Node& node) {
                 setupInterfaceReaction(*(InterfaceReaction*)R, node);
@@ -110,9 +110,9 @@ ReactionFactory::ReactionFactory()
 
     // register electrochemical reactions
     reg("electrochemical", []() { return new ElectrochemicalReaction(); });
-    m_synonyms["butlervolmer_noactivitycoeffs"] = "electrochemical";
-    m_synonyms["butlervolmer"] = "electrochemical";
-    m_synonyms["surfaceaffinity"] = "electrochemical";
+    addAlias("electrochemical", "butlervolmer_noactivitycoeffs");
+    addAlias("electrochemical", "butlervolmer");
+    addAlias("electrochemical", "surfaceaffinity");
     reg_XML("electrochemical",
             [](Reaction* R, const XML_Node& node) {
                 setupElectrochemicalReaction(*(ElectrochemicalReaction*)R, node);
