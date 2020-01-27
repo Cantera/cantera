@@ -283,7 +283,6 @@ TEST_F(PengRobinson_Test, getPressure)
     for (int i = 0; i<10; i++)
     {
         const double temp = 296 + i * 2;
-<<<<<<< HEAD
         set_r(1.0);        
         test_phase->setState_TR(temp, rho);
         const double Tcrit = test_phase->critTemperature();
@@ -292,15 +291,6 @@ TEST_F(PengRobinson_Test, getPressure)
         alpha = pow(1 + kappa*(1 - sqrt(temp / Tcrit)), 2.0);
         pres_theoretical = GasConstant*temp / (mv - b_coeff) - a_coeff*alpha / (mv*mv + 2*b_coeff*mv - b_coeff*b_coeff);
         EXPECT_NEAR(test_phase->pressure(), pres_theoretical, 3);
-=======
-        set_r(0.999);        
-        test_phase->setState_TR(temp, 1.0737);
-        mv = 1 / rho * test_phase->meanMolecularWeight();
-        //Calculate pressure using Peng-Robinson EoS
-        alpha = pow(1 + kappa*(1 - sqrt(temp / Tcrit)), 2);
-        pres_theoretical = GasConstant*temp / (mv - b_coeff) - a_coeff*alpha / (mv*mv + 2*b_coeff*mv - b_coeff*b_coeff);
-        EXPECT_NEAR(test_phase->pressure(), pres_theoretical, 2);
->>>>>>> Removing MFTP suffix from PengRobinson class
     }
 }
 };
