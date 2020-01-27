@@ -90,12 +90,9 @@ ThermoFactory::ThermoFactory()
     addAlias("liquid-water-IAPWS95", "PureLiquidWater");
     reg("binary-solution-tabulated", []() { return new BinarySolutionTabulatedThermo(); });
     addAlias("binary-solution-tabulated", "BinarySolutionTabulatedThermo");
-<<<<<<< HEAD
-=======
     reg("PengRobinson", []() { return new PengRobinsonMFTP(); });
     addAlias["PengRobinsonMFTP"] = "PengRobinson";
     addAlias["Peng-Robinson"] = "PengRobinson";
->>>>>>> Add functions for factory alias management
 }
 
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
