@@ -226,4 +226,88 @@ TEST_F(PengRobinson_Test, getPressure)
         EXPECT_NEAR(test_phase->pressure(), pres_theoretical, 3);
     }
 }
+
+TEST_F(PengRobinson_Test, gibbsEnergy)
+{
+    // Test that g == h - T*s 
+    const double T = 298.;
+    double xmin = 0.6;
+    double xmax = 0.9;
+    int numSteps = 9;
+    double dx = (xmax - xmin) / (numSteps - 1);
+    double gibbs_theoretical;
+
+    for (int i = 0; i < numSteps; ++i)
+    {
+        const double r = xmin + i * dx;
+        test_phase->setState_TP(T, 1e5);
+        set_r(r);
+        gibbs_theoretical = test_phase->enthalpy_mole() - T * (test_phase->entropy_mole());
+        EXPECT_NEAR(test_phase->gibbs_mole(), gibbs_theoretical, 1.e-6);
+    }
+}
+
+TEST_F(PengRobinson_Test, totalEnthalpy)
+{
+    // Test that hbar = \sum (h_k*x_k)
+    double hbar, sum = 0.0;
+    const double RT = GasConstant * 298;
+    vector_fp partialEnthalpies(7);
+    vector_fp moleFractions(7);
+    double xmin = 0.6;
+    double xmax = 0.9;
+    int numSteps = 9;
+    double dx = (xmax - xmin) / (numSteps - 1);
+
+    for (int i = 0; i < numSteps; ++i)
+    {
+        sum = 0.0;
+        const double r = xmin + i * dx;
+        test_phase->setState_TP(298., 1e5);
+        set_r(r);
+        hbar = test_phase->enthalpy_mole();
+        test_phase->getMoleFractions(&moleFractions[0]);
+        test_phase->getPartialMolarEnthalpies(&partialEnthalpies[0]);
+        for (int k = 0; k < 7; k++)
+        {
+            sum += moleFractions[k] * partialEnthalpies[k];
+        }
+        EXPECT_NEAR(hbar, sum, 1.e-6);
+    }
+}
+
+TEST_F(PengRobinson_Test, cpValidate)
+{
+    // Test that cp = dH/dT at constant pressure using finite difference method
+
+    double p = 1e5;
+    double Tmin = 298;
+    int numSteps = 1001;
+    double dT = 1e-5;
+    double r = 1.0;
+    vector_fp hbar(numSteps);
+    vector_fp cp(numSteps);
+    double dh_dT;
+
+    test_phase->setState_TP(Tmin, p);
+    set_r(r);
+    hbar[0] = test_phase->enthalpy_mole();  // J/kmol
+    cp[0] = test_phase->cp_mole();          // unit is J/kmol/K
+
+    for (int i = 0; i < numSteps; ++i)
+    {
+        const double T = Tmin + i * dT;
+        test_phase->setState_TP(T, p);
+        set_r(r);
+        hbar[i] = test_phase->enthalpy_mole();  // J/kmol
+        cp[i] = test_phase->cp_mole();          // unit is J/kmol/K
+
+        if (i > 0)
+        {
+            dh_dT = (hbar[i] - hbar[i - 1]) / dT;
+            EXPECT_NEAR((cp[i] / dh_dT), 1.0, 1e-5);
+        }
+    }
+}
+
 };
