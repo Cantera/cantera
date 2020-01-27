@@ -91,8 +91,8 @@ ThermoFactory::ThermoFactory()
     reg("binary-solution-tabulated", []() { return new BinarySolutionTabulatedThermo(); });
     addAlias("binary-solution-tabulated", "BinarySolutionTabulatedThermo");
     reg("PengRobinson", []() { return new PengRobinsonMFTP(); });
-    addAlias["PengRobinsonMFTP"] = "PengRobinson";
-    addAlias["Peng-Robinson"] = "PengRobinson";
+    addAlias("PengRobinsonMFTP", "PengRobinson");
+    addAlias("Peng-Robinson", "PengRobinson");
 }
 
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
