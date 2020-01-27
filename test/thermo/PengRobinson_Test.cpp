@@ -10,11 +10,7 @@ class PengRobinson_Test : public testing::Test
 {
 public:
     PengRobinson_Test() {
-<<<<<<< HEAD
         test_phase.reset(newPhase("../data/co2_PR_example.yaml"));
-=======
-        test_phase.reset(newPhase("../data/co2_PR_example.cti"));
->>>>>>> Removing MFTP suffix from PengRobinson class
     }
 
     //vary the composition of a co2-h2 mixture:
@@ -28,11 +24,7 @@ public:
     std::unique_ptr<ThermoPhase> test_phase;
 };
 
-<<<<<<< HEAD
 TEST_F(PengRobinson_Test, construct_from_yaml)
-=======
-TEST_F(PengRobinson_Test, construct_from_cti)
->>>>>>> Removing MFTP suffix from PengRobinson class
 {
     PengRobinson* peng_robinson_phase = dynamic_cast<PengRobinson*>(test_phase.get());
     EXPECT_TRUE(peng_robinson_phase != NULL);
@@ -47,7 +39,6 @@ TEST_F(PengRobinson_Test, chem_potentials)
     *  calculated using the model.
     */
     const double expected_result[9] = {
-<<<<<<< HEAD
         -457361607.71983075,
         -457350560.54839599,
         -457340699.25698096,
@@ -57,17 +48,6 @@ TEST_F(PengRobinson_Test, chem_potentials)
         -457309967.99120748,
         -457303910.44199038,
         -457298344.62820804
-=======
-        -4.5736182681761962e+008,
-        -4.5733771904416579e+008,
-        -4.5732943831449223e+008,
-        -4.5732206687414169e+008,
-        -4.5731546826955432e+008,
-        -4.5730953161186475e+008,
-        -4.5730416590547645e+008,
-        -4.5729929581635743e+008,
-        -4.5729485847173005e+008
->>>>>>> Removing MFTP suffix from PengRobinson class
     };
 
     double xmin = 0.6;
@@ -83,7 +63,6 @@ TEST_F(PengRobinson_Test, chem_potentials)
     }
 }
 
-<<<<<<< HEAD
 TEST_F(PengRobinson_Test, chemPotentials_RT)
 {
     test_phase->setState_TP(298., 1.);
@@ -108,8 +87,6 @@ TEST_F(PengRobinson_Test, chemPotentials_RT)
     }
 }
 
-=======
->>>>>>> Removing MFTP suffix from PengRobinson class
 TEST_F(PengRobinson_Test, activityCoeffs)
 {
     test_phase->setState_TP(298., 1.);
@@ -173,7 +150,6 @@ TEST_F(PengRobinson_Test, setTP)
 
     // All sub-cooled liquid:
     const double p1[6] = {
-<<<<<<< HEAD
         1.7084253549322079e+002,
         1.6543121742659784e+002,
         1.6066148681014121e+002,
@@ -198,32 +174,6 @@ TEST_F(PengRobinson_Test, setTP)
         7.2620055080831412e+002,
         7.0335270498118734e+002,
         6.7859003092723128e+002
-=======
-        1.7474528924963985e+002,
-        1.6800540828415956e+002,
-        1.62278413743154e+002,
-        1.5728963799103039e+002,
-        1.5286573762819748e+002,
-        1.4888956030449546e+002
-    };
-    // Phase change between temperatures 4 & 5:
-    const double p2[6] = {
-        7.5565889855724288e+002,
-        7.2577747673480337e+002,
-        6.913183942651284e+002,
-        6.494661249672663e+002,
-        5.9240469307757724e+002,
-        3.645826047440932e+002
-    };
-    // Supercritical; no discontinuity in rho values:
-    const double p3[6] = {
-        8.047430802847415e+002,
-        7.8291565113595595e+002,
-        7.5958477920749681e+002,
-        7.3445460137134626e+002,
-        7.0712433093853724e+002,
-        6.77034438769492e+002
->>>>>>> Removing MFTP suffix from PengRobinson class
     };
 
     for(int i=0; i<6; ++i)
@@ -233,11 +183,7 @@ TEST_F(PengRobinson_Test, setTP)
         test_phase->setState_TP(temp, 5542027.5);
         EXPECT_NEAR(test_phase->density(),p1[i],1.e-8);
 
-<<<<<<< HEAD
         test_phase->setState_TP(temp, 7388370.);
-=======
-        test_phase->setState_TP(temp, 7389370.);
->>>>>>> Removing MFTP suffix from PengRobinson class
         EXPECT_NEAR(test_phase->density(),p2[i],1.e-8);
 
         test_phase->setState_TP(temp, 9236712.5);
@@ -249,11 +195,7 @@ TEST_F(PengRobinson_Test, getPressure)
 {
     // Check to make sure that the P-R equation is accurately reproduced for a few selected values
 
-<<<<<<< HEAD
     /* This test uses CO2 as the only species (mole fraction 99.9%, balance H2).
-=======
-    /* This test uses CO2 as the only species.
->>>>>>> Removing MFTP suffix from PengRobinson class
     *  Values of a_coeff, b_coeff are calculated based on the the critical temperature and pressure values of CO2 as follows:
     *       a_coeff = 0.457235(RT_crit)^2/p_crit
     *       b_coeff = 0.077796(RT_crit)/p_crit
@@ -262,20 +204,11 @@ TEST_F(PengRobinson_Test, getPressure)
     *  kappa is a function calulated based on the accentric factor.
     */
 
-<<<<<<< HEAD
     double a_coeff = 3.958095109E+5;
     double b_coeff = 26.62616317/1000;
     double acc_factor = 0.228;
     double pres_theoretical, kappa, alpha, mv;
     const double rho = 1.0737; 
-=======
-    double a_coeff = 3.958134E+5;
-    double b_coeff = 26.6275/1000;
-    double acc_factor = 0.228;
-    double pres_theoretical, kappa, alpha, mv;
-    const double rho = 1.0737; 
-    const double Tcrit = test_phase->critTemperature();
->>>>>>> Removing MFTP suffix from PengRobinson class
 
     //Calculate kappa value 
     kappa = 0.37464 + 1.54226*acc_factor - 0.26992*acc_factor*acc_factor;
