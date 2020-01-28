@@ -26,12 +26,6 @@ testFiles = localenv.RecursiveInstall('#interfaces/cython/cantera/test/data',
                                       '#test/data')
 build(testFiles)
 
-inputFiles = ['inputs/h2o2.inp', 'inputs/gri30.inp',
-              'transport/gri30_tran.dat', 'thermo/gri30_thermo.dat']
-for f in inputFiles:
-    inp = build(localenv.Install('#interfaces/cython/cantera/test/data/', '#data/' + f))
-    testFiles.append(inp)
-
 # Get information needed to build the Python module
 script = '\n'.join(("from distutils.sysconfig import *",
                     "import numpy",
