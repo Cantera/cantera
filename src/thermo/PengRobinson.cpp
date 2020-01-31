@@ -811,7 +811,6 @@ double PengRobinson::daAlpha_dT() const
 double PengRobinson::d2aAlpha_dT2() const
 {
     double temp, fac1, fac2, alphaij, alphai, alphaj, d2aAlphadT2 = 0.0, num;
-    double k;
     for (size_t i = 0; i < m_kk; i++) {
         size_t counter = i + m_kk * i;
         double Tcrit_i = speciesCritTemperature(a_vec_Curr_[counter], b_vec_Curr_[i]);
@@ -819,7 +818,7 @@ double PengRobinson::d2aAlpha_dT2() const
         double coeff1 = 1 / (Tcrit_i*Tcrit_i*sqt_Tr);
         double coeff2 = sqt_Tr - 1;
         //  Calculate first and second derivatives of alpha for individual species
-        k = kappa_vec_[i];
+        double k = kappa_vec_[i];
         dalphadT_vec_Curr_[i] = coeff1 *(k* k*coeff2 - k);
         d2alphadT2_[i] = (k*k + k) * coeff1 / (2 * sqt_Tr*sqt_Tr);
     }
@@ -835,8 +834,8 @@ double PengRobinson::d2aAlpha_dT2() const
             temp = 0.5 * sqrt((a_vec_Curr_[counter1] * a_vec_Curr_[counter2]) / (alphaij));
             num = (dalphadT_vec_Curr_[j] * alphai + dalphadT_vec_Curr_[i] * alphaj);
             fac1 = -(0.5 / alphaij)*num*num;
-            fac2 = alphaj * d2alphadT2_[counter1] + alphai *d2alphadT2_[counter2] + 2 * dalphadT_vec_Curr_[i] * dalphadT_vec_Curr_[j];
-            d2aAlphadT2 += moleFractions_[i] * moleFractions_[j] * temp *(fac1 + fac2);
+            fac2 = alphaj * d2alphadT2_[i] + alphai *d2alphadT2_[j] + 2. * dalphadT_vec_Curr_[i] * dalphadT_vec_Curr_[j];
+            d2aAlphadT2 += moleFractions_[i] * moleFractions_[j] * temp *(fac1 + fac2); //d2alphadT2_[counter1]; //
         }
     }
     return d2aAlphadT2;
