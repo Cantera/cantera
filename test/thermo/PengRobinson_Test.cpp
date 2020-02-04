@@ -251,7 +251,6 @@ TEST_F(PengRobinson_Test, totalEnthalpy)
 {
     // Test that hbar = \sum (h_k*x_k)
     double hbar, sum = 0.0;
-    const double RT = GasConstant * 298;
     vector_fp partialEnthalpies(7);
     vector_fp moleFractions(7);
     double xmin = 0.6;
