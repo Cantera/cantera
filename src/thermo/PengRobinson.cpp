@@ -647,7 +647,7 @@ double PengRobinson::liquidVolEst(double T, double& presGuess) const
     double atmp;
     double btmp;
     double aAlphatmp;
-    calculateAB(T, atmp, btmp, aAlphatmp);
+    calculateAB(atmp, btmp, aAlphatmp);
     double pres = std::max(psatEst(T), presGuess);
     double Vroot[3];
     bool foundLiq = false;
@@ -828,16 +828,10 @@ void PengRobinson::updateMixingExpressions()
     m_a_current = 0.0;
     m_aAlpha_current = 0.0;
 
-    for (size_t i = 0; i < m_kk; i++) {
-        m_b_current += moleFractions_[i] * b_vec_Curr_[i];
-        for (size_t j = 0; j < m_kk; j++) {
-            m_a_current += a_vec_Curr_[i * m_kk + j] * moleFractions_[i] * moleFractions_[j];
-            m_aAlpha_current += aAlpha_vec_Curr_[i * m_kk + j] * moleFractions_[i] * moleFractions_[j];
-        }
-    }
+    calculateAB(m_a_current,m_b_current,m_aAlpha_current);
 }
 
-void PengRobinson::calculateAB(double temp, double& aCalc, double& bCalc, double& aAlphaCalc) const
+void PengRobinson::calculateAB(double& aCalc, double& bCalc, double& aAlphaCalc) const
 {
     bCalc = 0.0;
     aCalc = 0.0;
