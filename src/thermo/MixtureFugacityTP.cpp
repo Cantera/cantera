@@ -805,14 +805,14 @@ void MixtureFugacityTP::_updateReferenceStateThermo() const
     }
 }
 
-int MixtureFugacityTP::NicholsSolve(double T, double pres, double a, double b,
+int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
                                         double aAlpha, double Vroot[3], double an,
                                         double bn, double cn, double dn, double tc) const
 {
     double tmp;
     fill_n(Vroot, 3, 0.0);
     if (T <= 0.0) {
-        throw CanteraError("MixtureFugacityTP::NicholsSolve()", "negative temperature T = {}", T);
+        throw CanteraError("MixtureFugacityTP::CubicSolve()", "negative temperature T = {}", T);
     }
 
     double pc = omega_b * GasConstant * tc / b;
@@ -861,7 +861,7 @@ int MixtureFugacityTP::NicholsSolve(double T, double pres, double a, double b,
     //check if y = h
     if (fabs(fabs(h) - fabs(yN)) < 1.0E-10) {
         if (disc > 1e-10) {
-            throw CanteraError("PengRobinson::NicholsSolve()", "value of yN and h are too high, unrealistic roots may be obtained");
+            throw CanteraError("MixtureFugacityTP::CubicSolve()", "value of yN and h are too high, unrealistic roots may be obtained");
         }
         disc = 0.0;
     }
@@ -916,7 +916,7 @@ int MixtureFugacityTP::NicholsSolve(double T, double pres, double a, double b,
             if (fabs(tmp) > 1.0E-4) {
                 for (int j = 0; j < 3; j++) {
                     if (j != i && fabs(Vroot[i] - Vroot[j]) < 1.0E-4 * (fabs(Vroot[i]) + fabs(Vroot[j]))) {
-                        writelog("PengRobinson::NicholsSolve(T = {}, p = {}):"
+                        writelog("PengRobinson::CubicSolve(T = {}, p = {}):"
                                  " WARNING roots have merged: {}, {}\n",
                                  T, pres, Vroot[i], Vroot[j]);
                     }
@@ -936,7 +936,7 @@ int MixtureFugacityTP::NicholsSolve(double T, double pres, double a, double b,
                 tmp = pow(yN/(2*an), 1./3.);
                 // In this case, tmp and delta must be equal.
                 if (fabs(tmp - delta) > 1.0E-9) {
-                    throw CanteraError("PengRobinson::NicholsSolve()", "Inconsistancy in cubic solver : solver is poorly conditioned.");
+                    throw CanteraError("PengRobinson::CubicSolve()", "Inconsistancy in cubic solver : solver is poorly conditioned.");
                 }
                 Vroot[1] = xN + delta;
                 Vroot[0] = xN - 2.0*delta; // liquid phase root
@@ -944,7 +944,7 @@ int MixtureFugacityTP::NicholsSolve(double T, double pres, double a, double b,
                 tmp = pow(yN/(2*an), 1./3.);
                 // In this case, tmp and delta must be equal.
                 if (fabs(tmp - delta) > 1.0E-9) {
-                    throw CanteraError("PengRobinson::NicholsSolve()", "Inconsistancy in cubic solver : solver is poorly conditioned.");
+                    throw CanteraError("PengRobinson::CubicSolve()", "Inconsistancy in cubic solver : solver is poorly conditioned.");
                 }
                 delta = -delta;
                 Vroot[0] = xN + delta;
@@ -976,7 +976,7 @@ int MixtureFugacityTP::NicholsSolve(double T, double pres, double a, double b,
             }
         }
         if ((fabs(res) > 1.0E-14) && (fabs(res) > 1.0E-14 * fabs(dresdV) * fabs(Vroot[i]))) {
-            writelog("PengRobinson::NicholsSolve(T = {}, p = {}): "
+            writelog("PengRobinson::CubicSolve(T = {}, p = {}): "
                 "WARNING root didn't converge V = {}", T, pres, Vroot[i]);
             writelogendl();
         }
