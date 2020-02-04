@@ -653,7 +653,7 @@ double PengRobinson::liquidVolEst(double T, double& presGuess) const
     bool foundLiq = false;
     int m = 0;
     while (m < 100 && !foundLiq) {
-                int nsol = NicholsCall(T, pres, atmp, btmp, aAlphatmp, Vroot);
+                int nsol = solveCubic(T, pres, atmp, btmp, aAlphatmp, Vroot);
         if (nsol == 1 || nsol == 2) {
             double pc = critPressure();
             if (pres > pc) {
@@ -691,7 +691,7 @@ double PengRobinson::densityCalc(double T, double presPa, int phaseRequested, do
     }
 
     double volGuess = mmw / rhoGuess;
-    NSolns_ = NicholsCall(T, presPa, m_a_current, m_b_current, m_aAlpha_current, Vroot_);
+    NSolns_ = solveCubic(T, presPa, m_a_current, m_b_current, m_aAlpha_current, Vroot_);
 
     double molarVolLast = Vroot_[0];
     if (NSolns_ >= 2) {
@@ -731,7 +731,7 @@ double PengRobinson::densSpinodalLiquid() const
 {
     double Vroot[3];
     double T = temperature();
-    int nsol = NicholsCall(T, pressure(), m_a_current, m_b_current, m_aAlpha_current, Vroot);
+    int nsol = solveCubic(T, pressure(), m_a_current, m_b_current, m_aAlpha_current, Vroot);
     if (nsol != 3) {
         return critDensity();
     }
@@ -753,7 +753,7 @@ double PengRobinson::densSpinodalGas() const
 {
     double Vroot[3];
     double T = temperature();
-    int nsol = NicholsCall(T, pressure(), m_a_current, m_b_current, m_aAlpha_current, Vroot);
+    int nsol = solveCubic(T, pressure(), m_a_current, m_b_current, m_aAlpha_current, Vroot);
     if (nsol != 3) {
         return critDensity();
     }
@@ -927,7 +927,7 @@ void PengRobinson::calcCriticalConditions(double a, double b,
     vc = omega_vc * GasConstant * tc / pc;
 }
 
-int PengRobinson::NicholsCall(double T, double pres, double a, double b, double aAlpha, double Vroot[3]) const
+int PengRobinson::solveCubic(double T, double pres, double a, double b, double aAlpha, double Vroot[3]) const
 {
     // Derive the coefficients of the cubic polynomial (in terms of molar volume v) to solve.
     double bsqr = b * b;
@@ -940,7 +940,7 @@ int PengRobinson::NicholsCall(double T, double pres, double a, double b, double 
 
     double tc = a * omega_b / (b * omega_a * GasConstant);
 
-    int nSolnValues = NicholsSolve(T, pres, a, b, aAlpha, Vroot, an, bn, cn, dn, tc);
+    int nSolnValues = MixtureFugacityTP::solveCubic(T, pres, a, b, aAlpha, Vroot, an, bn, cn, dn, tc);
 
     return nSolnValues;
 }

@@ -278,7 +278,7 @@ public:
     void calcCriticalConditions(double a, double b,double& pc, double& tc, double& vc) const;
 
     //! Prepare variables and call the function to solve the cubic equation of state
-    int NicholsCall(double T, double pres, double a, double b, double aAlpha,
+    int solveCubic(double T, double pres, double a, double b, double aAlpha,
                      double Vroot[3]) const;
 protected:
     //! Form of the temperature parameterization
