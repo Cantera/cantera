@@ -526,7 +526,7 @@ protected:
      * returns 0, then there is an error.
      * The cubic equation is solved using Nickall's method (Ref: The Mathematical Gazette(1993), 77(November), 354�359, https://www.jstor.org/stable/3619777)
      */
-    int NicholsSolve(double T, double pres, double a, double b,
+    int solveCubic(double T, double pres, double a, double b,
                                         double aAlpha, double Vroot[3], double an,
                                         double bn, double cn, double dn, double tc) const;
 

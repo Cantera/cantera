@@ -260,7 +260,7 @@ public:
                                 doublereal& pc, doublereal& tc, doublereal& vc) const;
 
     //! Prepare variables and call the function to solve the cubic equation of state
-    int NicholsCall(double T, double pres, double a, double b, double Vroot[3]) const;
+    int solveCubic(double T, double pres, double a, double b, double Vroot[3]) const;
 
 protected:
     //! Form of the temperature parameterization
