@@ -235,7 +235,7 @@ public:
      * @param bCalc (output)  Returns the b value.
      * @param aAlpha (output) Returns the (a*alpha) value.
      */
-    void calculateAB(double temp, double& aCalc, double& bCalc, double& aAlpha) const;
+    void calculateAB(double& aCalc, double& bCalc, double& aAlpha) const;
 
     // Special functions not inherited from MixtureFugacityTP
 
