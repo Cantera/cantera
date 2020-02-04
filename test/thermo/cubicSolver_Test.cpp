@@ -55,7 +55,7 @@ TEST_F(cubicSolver_Test, solve_cubic)
     //calculate alpha
     alpha = pow(1 + kappa * (1 - sqrt(temp / Tcrit)), 2);
     //Find cubic roots
-    nSolnValues = peng_robinson_phase->NicholsCall(temp, pres, a_coeff, b_coeff, alpha * a_coeff, Vroot);
+    nSolnValues = peng_robinson_phase->solveCubic(temp, pres, a_coeff, b_coeff, alpha * a_coeff, Vroot);
     EXPECT_NEAR(expected_result[0], Vroot[0], 1.e-6);
     EXPECT_NEAR(nSolnValues, 1 , 1.e-6);
 
@@ -65,7 +65,7 @@ TEST_F(cubicSolver_Test, solve_cubic)
     //calculate alpha
     alpha = pow(1 + kappa * (1 - sqrt(temp / Tcrit)), 2);
     //Find cubic roots
-    nSolnValues = peng_robinson_phase->NicholsCall(temp, pres, a_coeff, b_coeff, alpha * a_coeff, Vroot);
+    nSolnValues = peng_robinson_phase->solveCubic(temp, pres, a_coeff, b_coeff, alpha * a_coeff, Vroot);
     EXPECT_NEAR(expected_result[1], Vroot[0], 1.e-6);
     EXPECT_NEAR(nSolnValues, -1, 1.e-6);
 
@@ -74,7 +74,7 @@ TEST_F(cubicSolver_Test, solve_cubic)
     //calculate alpha
     alpha = pow(1 + kappa * (1 - sqrt(temp / Tcrit)), 2);
     //Find cubic roots
-    nSolnValues = peng_robinson_phase->NicholsCall(Tcrit, pCrit, a_coeff, b_coeff, alpha * a_coeff, Vroot);
+    nSolnValues = peng_robinson_phase->solveCubic(Tcrit, pCrit, a_coeff, b_coeff, alpha * a_coeff, Vroot);
     EXPECT_NEAR(expected_result[2], Vroot[0], 1.e-6);
     EXPECT_NEAR(nSolnValues, -1, 1.e-6);
 }
