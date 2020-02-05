@@ -982,18 +982,24 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
     }
 
     if (nSolnValues == 1) {
+	// Determine the phase of the single root. 
+	// nSolnValues = 1 represents the gas phase by default. 
         if (T > tc) {
             if (Vroot[0] < vc) {
-                // Liquid phase root
+                // Supercritical phase
                 nSolnValues = -1;
             }
         } else {
             if (Vroot[0] < xN) {
+		//Liquid phase
                 nSolnValues = -1;
             }
         }
     } else {
+	// Determine if we have two distinct roots or three equal roots
+	// nSolnValues = 2 represents 2 equal roots by default.
         if (nSolnValues == 2 && delta > 1e-14) {
+	    //If delta > 0, we have two distinct roots (and one repeated root)
             nSolnValues = -2;
         }
     }
