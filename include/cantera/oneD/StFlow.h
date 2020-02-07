@@ -264,10 +264,11 @@ public:
         return m_kExcessRight;
     }
 
-protected:
     doublereal wdot(size_t k, size_t j) const {
         return m_wdot(k,j);
     }
+
+protected:
 
     //! Write the net production rates at point `j` into array `m_wdot`
     void getWdot(doublereal* x, size_t j) {

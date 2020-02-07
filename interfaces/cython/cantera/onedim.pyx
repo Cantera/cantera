@@ -531,6 +531,8 @@ cdef class IdealGasFlow(_FlowBase):
     def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
         gas = getIdealGasPhase(thermo)
         self.flow = new CxxStFlow(gas, thermo.n_species, 2)
+    def wdot(self, species, point):
+        return self.flow.wdot(species, point)
 
 
 cdef class IonFlow(_FlowBase):
