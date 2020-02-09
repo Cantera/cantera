@@ -90,7 +90,7 @@ std::string PureFluidPhase::phaseOfMatter() const
         return "supercritical";
     } else if (m_sub->TwoPhase() == 1) {
         return "liquid-gas-mix";
-    } else if (temperature() > satTemperature(pressure())) {
+    } else if (pressure() < m_sub->Ps()) {
         return "gas";
     } else {
         return "liquid";

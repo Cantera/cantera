@@ -243,6 +243,14 @@ class TestPureFluid(utilities.CanteraTest):
         self.water.TQ = 300, 0.4
         self.assertEqual(self.water.phase_of_matter, "liquid-gas-mix")
 
+        # These cases work after fixing GH-786
+        n2 = ct.Nitrogen()
+        n2.TP = 100, 1000
+        self.assertEqual(n2.phase_of_matter, "gas")
+
+        co2 = ct.CarbonDioxide()
+        self.assertEqual(co2.phase_of_matter, "gas")
+
 
 # To minimize errors when transcribing tabulated data, the input units here are:
 # T: K, P: MPa, rho: kg/m3, v: m3/kg, (u,h): kJ/kg, s: kJ/kg-K
@@ -296,7 +304,7 @@ class PureFluidTestCases:
 
     def test_has_phase_transition(self):
         self.assertTrue(self.fluid.has_phase_transition)
-    
+
     def test_consistency_temperature(self):
         for state in self.states:
             dT = 2e-5 * state.T
