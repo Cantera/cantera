@@ -735,11 +735,6 @@ print()
 # *** Configure system-specific properties ***
 # ********************************************
 
-# Prevent setting prefix for Cantera installation to source directory
-if os.path.abspath(env['prefix']) == Dir('.').abspath:
-    print('ERROR: cannot install Cantera into source directory.')
-    exit(1)
-
 # Copy in external environment variables
 if env['env_vars'] == 'all':
     env['ENV'].update(os.environ)
@@ -1441,6 +1436,11 @@ if env['stage_dir']:
         env['python_prefix'] = pjoin(os.getcwd(), env['stage_dir'])
 else:
     instRoot = env['prefix']
+
+# Prevent setting Cantera installation path to source directory
+if os.path.abspath(instRoot) == Dir('.').abspath:
+    print('ERROR: cannot install Cantera into source directory.')
+    exit(1)
 
 if env['layout'] == 'debian':
     base = pjoin(os.getcwd(), 'debian')
