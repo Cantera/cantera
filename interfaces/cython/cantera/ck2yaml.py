@@ -39,8 +39,8 @@ duplicate transport data) to be ignored. The '--name=<name>' option
 is used to override default phase names (i.e. 'gas').
 
 The '--extra=<filename>' option takes a YAML file as input. This option can be
-used to specify an alternative file description, or to define custom fields that
-are included in the YAML output.
+used to add to the file description, or to define custom fields that are 
+included in the YAML output.
 """
 
 from collections import defaultdict, OrderedDict
@@ -1355,7 +1355,9 @@ class Parser:
         # replace header lines
         if 'description' in yml:
             if isinstance(yml['description'], str):
-                self.header_lines = yml.pop('description').split('\n')
+                if self.header_lines:
+                    self.header_lines += ['']
+                self.header_lines += yml.pop('description').split('\n')
             else:
                 raise InputError("The alternate description provided in "
                     "'{}' needs to be a string".format(path))
