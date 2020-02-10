@@ -1388,10 +1388,13 @@ class Parser:
             line, comment = readline()
             advance = True
             inHeader = True
+            header = []
+            indent = 80
             while line is not None:
                 tokens = line.split() or ['']
                 if inHeader and not line.strip():
-                    self.header_lines.append(comment.rstrip())
+                    header.append(comment.rstrip())
+                    indent = min(indent, re.search('[^ ]', comment).start())
 
                 if tokens[0].upper().startswith('ELEM'):
                     inHeader = False
@@ -1773,6 +1776,9 @@ class Parser:
                 else:
                     advance = True
 
+        for h in header:
+            self.header_lines.append(h[indent:])
+            
         self.check_duplicate_reactions()
 
         for index, reaction in enumerate(self.reactions):
