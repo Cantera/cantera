@@ -107,8 +107,14 @@ class converterTestCommon:
 
     def test_species_only(self):
         self.convert(None, thermo='dummy-thermo.dat', output='dummy-thermo')
-        cti = "ideal_gas(elements='C H', species='dummy-thermo:R1A R1B P1')"
-        gas = ct.Solution(source=cti)
+        if self.ext == ".cti":
+            cti = "ideal_gas(elements='C H', species='dummy-thermo:R1A R1B P1')"
+            gas = ct.Solution(source=cti)
+        elif self.ext == ".yaml":
+            yaml = ("{phases: [{name: gas, species: "
+                    "[{dummy-thermo.yaml/species: [R1A, R1B, P1]}], "
+                    "thermo: ideal-gas}]}")
+            gas = ct.Solution(yaml=yaml)
         self.assertEqual(gas.n_species, 3)
         self.assertEqual(gas.n_reactions, 0)
 
