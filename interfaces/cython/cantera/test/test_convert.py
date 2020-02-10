@@ -454,9 +454,8 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
         with open(output, 'rt', encoding="utf-8") as stream:
             yml = yaml.safe_load(stream)
 
-        desc = yml['description']
-        self.assertEqual(yml['description'],
-                         'This is an alternative description.')
+        desc = yml['description'].split('\n')[-1]
+        self.assertEqual(desc, 'This is an alternative description.')
         for key in ['foo', 'bar']:
             self.assertIn(key, yml.keys())
 
