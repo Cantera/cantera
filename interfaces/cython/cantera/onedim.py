@@ -3,7 +3,7 @@
 
 import numpy as np
 from ._cantera import *
-from .composite import Solution
+from .composite import Solution, SolutionArray
 import csv as _csv
 from math import erf
 
@@ -278,6 +278,29 @@ class FlameBase(Sim1D):
 
         if not quiet:
             print("Solution saved to '{0}'.".format(filename))
+
+    def to_solution_array(self):
+        """Return the solution vector as a Cantera SolutionArray object.
+
+        The SolutionArray has the following ``extra`` entries:
+         * grid: z (m)
+         * normal_velocity: u (m/s)
+         * tangential_velocity_gradient: V (1/s)
+        """
+        # create solution array object
+        extra = {'grid': self.grid,
+                 'normal_velocity': self.u,
+                 'tangential_velocity_gradient': self.V}
+        arr = SolutionArray(self.gas, self.flame.n_points, extra=extra)
+
+        # retrieve species concentrations and set states
+        X = []
+        for n in range(self.flame.n_points):
+            self.set_gas_state(n)
+            X.append(self.gas.X)
+        arr.TPX = self.T, self.gas.P, np.vstack(X)
+
+        return arr
 
 
 def _trim(docstring):
