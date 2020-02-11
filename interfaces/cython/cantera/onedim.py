@@ -302,6 +302,32 @@ class FlameBase(Sim1D):
 
         return arr
 
+    def from_solution_array(self, arr):
+        """Restore the solution vector from a Cantera SolutionArray object.
+
+        The SolutionArray requires the following ``extra`` entries:
+         * grid: z (m)
+         * normal_velocity: u (m/s)
+         * tangential_velocity_gradient: V (1/s)
+        """
+        # restore grid
+        self.domains[1].grid = arr.grid
+        self._get_initial_solution()
+        xi = (arr.grid - arr.grid[0]) / (arr.grid[-1] - arr.grid[0])
+
+        # restore temperature and velocity profiles
+        self.set_profile('T', xi, arr.T)
+        self.set_profile('u', xi, arr.normal_velocity)
+        self.set_profile('V', xi, arr.tangential_velocity_gradient)
+
+        # restore species profiles
+        X = arr.X
+        for i, spc in enumerate(self.gas.species_names):
+            self.set_profile(spc, xi, X[:, i])
+
+        # restore pressure
+        self.P = arr.P[0]
+
 
 def _trim(docstring):
     """Remove block indentation from a docstring."""
