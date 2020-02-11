@@ -328,6 +328,58 @@ class FlameBase(Sim1D):
         # restore pressure
         self.P = arr.P[0]
 
+    def to_pandas(self):
+        """Return the solution vector as a pandas DataFrame.
+
+        This method requires a working pandas installation. Use pip or conda to
+        install `pandas` to enable this method.
+        """
+        cols = ('extra', 'T', 'D', 'X')
+        return self.to_solution_array().to_pandas(cols=cols)
+
+    def from_pandas(self, df):
+        """Return the solution vector as a pandas DataFrame.
+
+        This method is intendend for loading of data that were previously
+        exported by `to_pandas`. The method requires a working pandas
+        installation. The package 'pandas' can be installed using pip or conda.
+        """
+        extra = ('grid', 'normal_velocity', 'tangential_velocity_gradient')
+        arr = SolutionArray(self.gas, extra=extra)
+        self.from_solution_array(arr.from_pandas(df))
+
+    def write_hdf(self, filename, key='df',
+                  mode=None, append=None, complevel=None):
+        """
+        Write the solution vector to a HDF container file named *filename*.
+        Note that it is possible to write multiple data entries to a single HDF
+        container file, where *key* is used to differentiate data.
+
+        The method exports data using `SolutionArray.write_hdf` and requires
+        working installations of pandas and PyTables. These packages can be
+        installed using pip (`pandas` and `tables`) or conda (`pandas` and
+        `pytables`).
+        """
+        cols = ('extra', 'T', 'D', 'X')
+        self.to_solution_array().write_hdf(filename, cols=cols, key=key,
+                                           mode=mode, append=append,
+                                           complevel=complevel)
+
+    def read_hdf(self, filename, key=None):
+        """
+        Read a dataset identified by *key* from a HDF file named *filename*
+        to restore the solution vector. This method allows for recreation of
+        data previously exported by `write_hdf`.
+
+        The method imports data using `SolutionArray.read_hdf` and requires
+        working installations of pandas and PyTables. These packages can be
+        installed using pip (`pandas` and `tables`) or conda (`pandas` and
+        `pytables`).
+        """
+        extra = ('grid', 'normal_velocity', 'tangential_velocity_gradient')
+        arr = SolutionArray(self.gas, extra=extra)
+        self.from_solution_array(arr.read_hdf(filename, key=key))
+
 
 def _trim(docstring):
     """Remove block indentation from a docstring."""
