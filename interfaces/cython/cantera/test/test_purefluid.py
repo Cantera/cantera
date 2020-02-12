@@ -84,7 +84,7 @@ class TestPureFluid(utilities.CanteraTest):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             X = self.water.X
-            self.water.TPX = 300, 101325, 1
+            self.water.TX = 300, 1
 
             self.assertEqual(len(w), 2)
             for warning in w:
