@@ -11,6 +11,7 @@ from math import erf
 class FlameBase(Sim1D):
     """ Base class for flames with a single flow domain """
     __slots__ = ('gas',)
+    _extra = ()
 
     def __init__(self, domains, gas, grid=None):
         """
@@ -283,14 +284,26 @@ class FlameBase(Sim1D):
         """Return the solution vector as a Cantera SolutionArray object.
 
         The SolutionArray has the following ``extra`` entries:
-         * grid: z (m)
-         * normal_velocity: u (m/s)
-         * tangential_velocity_gradient: V (1/s)
+         * `grid`: grid point positions along the flame [m]
+         * `velocity`: normal velocity [m/s]
+         * `gradient`: tangential velocity gradient [1/s] (if applicable)
+         * `lambda`: radial pressure gradient [N/m^4] (if applicable)
+         * `eField`: electric field strength (if applicable)
         """
+        # create extra columns
+        dom = self.domains[1]
+        extra = {}
+        for e in self._extra:
+            if e == 'grid':
+                extra[e] = self.grid
+            elif e == 'velocity':
+                extra[e] = self.profile(dom, 'u')
+            elif e == 'gradient':
+                extra[e] = self.profile(dom, 'V')
+            else:
+                extra[e] = self.profile(dom, e)
+
         # create solution array object
-        extra = {'grid': self.grid,
-                 'normal_velocity': self.u,
-                 'tangential_velocity_gradient': self.V}
         arr = SolutionArray(self.gas, self.flame.n_points, extra=extra)
 
         # retrieve species concentrations and set states
@@ -306,19 +319,27 @@ class FlameBase(Sim1D):
         """Restore the solution vector from a Cantera SolutionArray object.
 
         The SolutionArray requires the following ``extra`` entries:
-         * grid: z (m)
-         * normal_velocity: u (m/s)
-         * tangential_velocity_gradient: V (1/s)
+         * `grid`: grid point positions along the flame [m]
+         * `velocity`: normal velocity [m/s]
+         * `gradient`: tangential velocity gradient [1/s] (if applicable)
+         * `lambda`: radial pressure gradient [N/m^4] (if applicable)
+         * `eField`: electric field strength (if applicable)
         """
         # restore grid
         self.domains[1].grid = arr.grid
         self._get_initial_solution()
         xi = (arr.grid - arr.grid[0]) / (arr.grid[-1] - arr.grid[0])
 
-        # restore temperature and velocity profiles
+        # restore temperature and 'extra' profiles
         self.set_profile('T', xi, arr.T)
-        self.set_profile('u', xi, arr.normal_velocity)
-        self.set_profile('V', xi, arr.tangential_velocity_gradient)
+        for e in self._extra[1:]:
+            val = getattr(arr, e)
+            if e == 'velocity':
+                self.set_profile('u', xi, val)
+            elif e == 'gradient':
+                self.set_profile('V', xi, val)
+            else:
+                self.set_profile(e, xi, val)
 
         # restore species profiles
         X = arr.X
@@ -331,8 +352,9 @@ class FlameBase(Sim1D):
     def to_pandas(self):
         """Return the solution vector as a pandas DataFrame.
 
-        This method requires a working pandas installation. Use pip or conda to
-        install `pandas` to enable this method.
+        This method uses `to_solution_array` and requires a working pandas
+        installation. Use pip or conda to install `pandas` to enable this
+        method.
         """
         cols = ('extra', 'T', 'D', 'X')
         return self.to_solution_array().to_pandas(cols=cols)
@@ -341,12 +363,13 @@ class FlameBase(Sim1D):
         """Return the solution vector as a pandas DataFrame.
 
         This method is intendend for loading of data that were previously
-        exported by `to_pandas`. The method requires a working pandas
-        installation. The package 'pandas' can be installed using pip or conda.
+        exported by `to_pandas`. The method uses `from_solution_array` and
+        requires a working pandas installation. The package 'pandas' can be
+        installed using pip or conda.
         """
-        extra = ('grid', 'normal_velocity', 'tangential_velocity_gradient')
-        arr = SolutionArray(self.gas, extra=extra)
-        self.from_solution_array(arr.from_pandas(df))
+        arr = SolutionArray(self.gas, extra=self._extra)
+        arr.from_pandas(df)
+        self.from_solution_array(arr)
 
     def write_hdf(self, filename, key='df',
                   mode=None, append=None, complevel=None):
@@ -355,10 +378,10 @@ class FlameBase(Sim1D):
         Note that it is possible to write multiple data entries to a single HDF
         container file, where *key* is used to differentiate data.
 
-        The method exports data using `SolutionArray.write_hdf` and requires
-        working installations of pandas and PyTables. These packages can be
-        installed using pip (`pandas` and `tables`) or conda (`pandas` and
-        `pytables`).
+        The method exports data using `SolutionArray.write_hdf` via
+        `to_solution_array` and requires working installations of pandas and
+        PyTables. These packages can be installed using pip (`pandas` and
+        `tables`) or conda (`pandas` and `pytables`).
         """
         cols = ('extra', 'T', 'D', 'X')
         self.to_solution_array().write_hdf(filename, cols=cols, key=key,
@@ -371,14 +394,14 @@ class FlameBase(Sim1D):
         to restore the solution vector. This method allows for recreation of
         data previously exported by `write_hdf`.
 
-        The method imports data using `SolutionArray.read_hdf` and requires
-        working installations of pandas and PyTables. These packages can be
-        installed using pip (`pandas` and `tables`) or conda (`pandas` and
-        `pytables`).
+        The method imports data using `SolutionArray.read_hdf` via
+        `from_solution_array` and requires working installations of pandas and
+        PyTables. These packages can be installed using pip (`pandas` and
+        `tables`) or conda (`pandas` and `pytables`).
         """
-        extra = ('grid', 'normal_velocity', 'tangential_velocity_gradient')
-        arr = SolutionArray(self.gas, extra=extra)
-        self.from_solution_array(arr.read_hdf(filename, key=key))
+        arr = SolutionArray(self.gas, extra=self._extra)
+        arr.read_hdf(filename, key=key)
+        self.from_solution_array(arr)
 
 
 def _trim(docstring):
@@ -465,6 +488,7 @@ for _attr in ['forward_rates_of_progress', 'reverse_rates_of_progress', 'net_rat
 class FreeFlame(FlameBase):
     """A freely-propagating flat flame."""
     __slots__ = ('inlet', 'outlet', 'flame')
+    _extra = ('grid', 'velocity')
 
     def __init__(self, gas, grid=None, width=None):
         """
@@ -694,6 +718,7 @@ class IonFlameBase(FlameBase):
 class IonFreeFlame(IonFlameBase, FreeFlame):
     """A freely-propagating flame with ionized gas."""
     __slots__ = ('inlet', 'outlet', 'flame')
+    _extra = ('grid', 'velocity', 'eField')
 
     def __init__(self, gas, grid=None, width=None):
         if not hasattr(self, 'flame'):
@@ -707,6 +732,7 @@ class IonFreeFlame(IonFlameBase, FreeFlame):
 class BurnerFlame(FlameBase):
     """A burner-stabilized flat flame."""
     __slots__ = ('burner', 'flame', 'outlet')
+    _extra = ('grid', 'velocity')
 
     def __init__(self, gas, grid=None, width=None):
         """
@@ -832,6 +858,7 @@ class BurnerFlame(FlameBase):
 class IonBurnerFlame(IonFlameBase, BurnerFlame):
     """A burner-stabilized flat flame with ionized gas."""
     __slots__ = ('burner', 'flame', 'outlet')
+    _extra = ('grid', 'velocity', 'eField')
 
     def __init__(self, gas, grid=None, width=None):
         if not hasattr(self, 'flame'):
@@ -845,6 +872,7 @@ class IonBurnerFlame(IonFlameBase, BurnerFlame):
 class CounterflowDiffusionFlame(FlameBase):
     """ A counterflow diffusion flame """
     __slots__ = ('fuel_inlet', 'flame', 'oxidizer_inlet')
+    _extra = ('grid', 'velocity', 'gradient', 'lambda')
 
     def __init__(self, gas, grid=None, width=None):
         """
@@ -1123,6 +1151,7 @@ class CounterflowDiffusionFlame(FlameBase):
 class ImpingingJet(FlameBase):
     """An axisymmetric flow impinging on a surface at normal incidence."""
     __slots__ = ('inlet', 'flame', 'surface')
+    _extra = ('grid', 'velocity', 'gradient', 'lambda')
 
     def __init__(self, gas, grid=None, width=None, surface=None):
         """
@@ -1203,6 +1232,7 @@ class ImpingingJet(FlameBase):
 class CounterflowPremixedFlame(FlameBase):
     """ A premixed counterflow flame """
     __slots__ = ('reactants', 'flame', 'products')
+    _extra = ('grid', 'velocity', 'gradient', 'lambda')
 
     def __init__(self, gas, grid=None, width=None):
         """
@@ -1296,6 +1326,7 @@ class CounterflowTwinPremixedFlame(FlameBase):
     shooting into each other.
     """
     __slots__ = ('reactants', 'flame', 'products')
+    _extra = ('grid', 'velocity', 'gradient', 'lambda')
 
     def __init__(self, gas, grid=None, width=None):
         """
