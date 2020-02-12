@@ -731,12 +731,16 @@ class SolutionArray:
                 if s in valid_species:
                     state_data[-1][:, i] = data[:, valid_species[s]]
 
-        # labels may include calculated properties that must not be restored
-        calculated = self._scalar + self._n_species + self._n_reactions
-        exclude = [l for l in labels
-                   if any([v in l for v in calculated])]
-        extra = {l: list(data[:, i]) for i, l in enumerate(labels)
-                 if l not in exclude}
+        # labels may include calculated properties that must not be restored:
+        # compare column labels to names that are reserved for SolutionArray
+        # attributes (see `SolutionArray.collect_data`), i.e. scalar values,
+        # arrays with number of species, and arrays with number of reactions.
+        exclude = [lab for lab in labels
+                   if any([lab in self._scalar,
+                           '_'.join(lab.split('_')[:-1]) in self._n_species,
+                           lab.split(' ')[0] in self._n_reactions])]
+        extra = {lab: list(data[:, i]) for i, lab in enumerate(labels)
+                 if lab not in exclude}
         if len(self._extra):
             extra_lists = {k: extra[k] for k in self._extra}
         else:
