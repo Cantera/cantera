@@ -246,6 +246,20 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertArrayNear(self.sim.grid, f2.grid)
         self.assertArrayNear(self.sim.T, f2.T)
 
+    def test_restart(self):
+        self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
+        arr = self.sim.to_solution_array()
+
+        reactants = {'H2': 0.9, 'O2': 0.5, 'AR': 2}
+        self.create_sim(1.1 * ct.one_atm, 500, reactants, 2.0)
+        self.sim.set_initial_guess(data=arr)
+        self.solve_mix(refine=False)
+
+        # Check continuity
+        rhou = self.sim.inlet.mdot
+        for rhou_j in self.sim.density * self.sim.u:
+            self.assertNear(rhou_j, rhou, 1e-4)
+
     def test_mixture_averaged_case1(self):
         self.run_mix(phi=0.65, T=300, width=0.03, p=1.0, refine=True)
 
