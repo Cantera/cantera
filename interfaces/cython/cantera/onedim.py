@@ -403,6 +403,24 @@ class FlameBase(Sim1D):
         arr.read_hdf(filename, key=key)
         self.from_solution_array(arr)
 
+    def _load_restart_data(self, source, **kwargs):
+        """
+        Load data for restart (called by set_initial_guess)
+        """
+        if isinstance(source, SolutionArray):
+            # already a solution array
+            return source
+        elif isinstance(source, str):
+            # source identifies a HDF file
+            arr = SolutionArray(self.gas, extra=self._extra)
+            arr.read_hdf(source, **kwargs)
+            return arr
+        else:
+            # source is a pandas DataFrame
+            arr = SolutionArray(self.gas, extra=self._extra)
+            arr.from_pandas(source)
+            return arr
+
 
 def _trim(docstring):
     """Remove block indentation from a docstring."""
@@ -520,18 +538,40 @@ class FreeFlame(FlameBase):
         self.inlet.T = gas.T
         self.inlet.X = gas.X
 
-    def set_initial_guess(self, locs=[0.0, 0.3, 0.5, 1.0]):
+    def set_initial_guess(self, locs=[0.0, 0.3, 0.5, 1.0], data=None, key=None):
         """
         Set the initial guess for the solution. The adiabatic flame
         temperature and equilibrium composition are computed for the inlet gas
         composition.
 
         :param locs:
-            A list of four locations to define the temperature and mass fraction profiles.
-            Profiles rise linearly between the second and third location.
-            Locations are given as a fraction of the entire domain
+            A list of four locations to define the temperature and mass fraction
+            profiles. Profiles rise linearly between the second and third
+            location. Locations are given as a fraction of the entire domain
+        :param data:
+            Restart data, which are typically based on an earlier simulation
+            result. Restart data may be specified using a SolutionArray,
+            pandas' DataFrame, or a saved HDF container file. DataFrame and HDF
+            input require working installations of pandas and PyTables. These
+            packages can be installed using pip (`pandas` and `tables`) or conda
+            (`pandas` and `pytables`).
+        :param key:
+            Group identifier within a HDF container file (only used in
+            combination with HDF restart data).
         """
         super().set_initial_guess()
+        if data:
+            data = self._load_restart_data(data, key=key)
+            data.TP = data.T + self.inlet.T - data.T[0], self.P
+            self.from_solution_array(data)
+
+            # set fixed temperature
+            Tmid = .75 * data.T[0] + .25 * data.T[-1]
+            i = np.flatnonzero(data.T < Tmid)[-1]
+            self.set_fixed_temperature(data.T[i])
+
+            return
+
         self.gas.TPY = self.inlet.T, self.P, self.inlet.Y
 
         if not self.inlet.mdot:
