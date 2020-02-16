@@ -39,7 +39,7 @@ duplicate transport data) to be ignored. The '--name=<name>' option
 is used to override default phase names (i.e. 'gas').
 
 The '--extra=<filename>' option takes a YAML file as input. This option can be
-used to add to the file description, or to define custom fields that are 
+used to add to the file description, or to define custom fields that are
 included in the YAML output.
 """
 
@@ -1350,7 +1350,7 @@ class Parser:
         if reserved:
             raise InputError("The YAML file '{}' provided as '--extra' input "
                 "must not redefine reserved field name: "
-                "{}".format(path, reserved))
+                "'{}'".format(path, reserved))
 
         # replace header lines
         if 'description' in yml:
@@ -1780,7 +1780,7 @@ class Parser:
 
         for h in header:
             self.header_lines.append(h[indent:])
-            
+
         self.check_duplicate_reactions()
 
         for index, reaction in enumerate(self.reactions):
@@ -2132,7 +2132,7 @@ def main(argv):
     if '--id' in options:
         phase_name = options.get('--id', 'gas')
         logging.warning("\nFutureWarning: "
-                        "option '--id=...' is superseded by '--name=...'")
+                        "Option '--id=...' will be replaced by '--name=...'")
     else:
         phase_name = options.get('--name', 'gas')
 
@@ -2141,10 +2141,7 @@ def main(argv):
               ' must be provided.\nRun "ck2yaml.py --help" to see usage help.')
         sys.exit(1)
 
-    if '--extra' in options:
-        extra_file = options['--extra']
-    else:
-        extra_file = None
+    extra_file = options.get('--extra')
 
     if '--output' in options:
         out_name = options['--output']
