@@ -3,6 +3,9 @@
  * Definitions for Lowest level of the classes which support a real water
  * model (see class \link Cantera::WaterPropsIAPWS WaterPropsIAPWS\endlink and
  * class \link Cantera::WaterPropsIAPWSphi WaterPropsIAPWSphi \endlink).
+ *
+ * This is a helper class for WaterSSTP class and is not instantiable on its own.
+ * (see \ref thermoprops and class \link Cantera::WaterSSTP WaterSSTP\endlink) 
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
