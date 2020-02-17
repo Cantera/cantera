@@ -430,6 +430,8 @@ class SolutionArray:
         'critical_temperature', 'critical_pressure', 'critical_density',
         'P_sat', 'T_sat', 'isothermal_compressibility',
         'thermal_expansion_coeff', 'electric_potential',
+        # From Kinetics
+        'heat_release_rate',
         # From Transport
         'viscosity', 'electrical_conductivity', 'thermal_conductivity',
     ]
@@ -459,7 +461,7 @@ class SolutionArray:
         'forward_rate_constants', 'reverse_rate_constants',
         'delta_enthalpy', 'delta_gibbs', 'delta_entropy',
         'delta_standard_enthalpy', 'delta_standard_gibbs',
-        'delta_standard_entropy'
+        'delta_standard_entropy', 'heat_production_rates',
     ]
     _call_scalar = ['elemental_mass_fraction', 'elemental_mole_fraction']
 
