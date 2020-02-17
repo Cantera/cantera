@@ -119,6 +119,11 @@ class TestKinetics(utilities.CanteraTest):
         self.assertArrayNear(self.phase.forward_rates_of_progress - self.phase.reverse_rates_of_progress,
                              self.phase.net_rates_of_progress)
 
+    def test_heat_release(self):
+        hrr = - self.phase.partial_molar_enthalpies.dot(self.phase.net_production_rates)
+        self.assertNear(hrr, self.phase.heat_release_rate)
+        self.assertNear(hrr, sum(self.phase.heat_production_rates))
+
     def test_rate_constants(self):
         self.assertEqual(len(self.phase.forward_rate_constants), self.phase.n_reactions)
         self.assertArrayNear(self.phase.forward_rate_constants / self.phase.reverse_rate_constants,
