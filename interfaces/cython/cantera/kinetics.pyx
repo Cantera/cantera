@@ -365,6 +365,26 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_reaction_array(self, kin_getDeltaSSEntropy)
 
+    property heat_release_rate:
+        """
+        Get the total volumetric heat release rate [W/m^3].
+        """
+        def __get__(self):
+            return - np.sum(self.partial_molar_enthalpies *
+                            self.net_production_rates, 0)
+
+    property heat_production_rates:
+        """
+        Get the volumetric heat production rates [W/m^3] on a per-reaction
+        basis. The sum over all reactions results in the total volumetric heat
+        release rate.
+        Example: C. K. Law: Combustion Physics (2006), Fig. 7.8.6
+
+        >>> gas.heat_production_rates[1]  # heat production rate of the 2nd reaction
+        """
+        def __get__(self):
+            return - self.net_rates_of_progress * self.delta_enthalpy
+
 
 cdef class InterfaceKinetics(Kinetics):
     """

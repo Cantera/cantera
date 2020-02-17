@@ -250,26 +250,6 @@ class FlameBase(Sim1D):
         self.gas.set_unnormalized_mass_fractions(Y)
         self.gas.TP = self.value(self.flame, 'T', point), self.P
 
-    @property
-    def heat_release_rate(self):
-        """
-        Get the total volumetric heat release rate [W/m^3].
-        """
-        return - np.sum(self.partial_molar_enthalpies *
-                        self.net_production_rates, 0)
-
-    @property
-    def heat_production_rates(self):
-        """
-        Get the volumetric heat production rates [W/m^3] on a per-reaction
-        basis. The sum over all reactions results in the total volumetric heat
-        release rate.
-        Example: C. K. Law: Combustion Physics (2006), Fig. 7.8.6
-
-        >>> f.heat_production_rates[2]  # heat production rate of the 2nd reaction
-        """
-        return - self.net_rates_of_progress * self.delta_standard_enthalpy
-
     def write_csv(self, filename, species='X', quiet=True):
         """
         Write the velocity, temperature, density, and species profiles
@@ -356,7 +336,7 @@ for _attr in ['density', 'density_mass', 'density_mole', 'volume_mass',
               'entropy_mass', 'g', 'gibbs_mole', 'gibbs_mass', 'cv',
               'cv_mole', 'cv_mass', 'cp', 'cp_mole', 'cp_mass',
               'isothermal_compressibility', 'thermal_expansion_coeff',
-              'viscosity', 'thermal_conductivity']:
+              'viscosity', 'thermal_conductivity', 'heat_release_rate']:
     setattr(FlameBase, _attr, _array_property(_attr))
 FlameBase.volume = _array_property('v') # avoid confusion with velocity gradient 'V'
 FlameBase.int_energy = _array_property('u') # avoid collision with velocity 'u'
@@ -377,7 +357,7 @@ for _attr in ['forward_rates_of_progress', 'reverse_rates_of_progress', 'net_rat
               'equilibrium_constants', 'forward_rate_constants', 'reverse_rate_constants',
               'delta_enthalpy', 'delta_gibbs', 'delta_entropy',
               'delta_standard_enthalpy', 'delta_standard_gibbs',
-              'delta_standard_entropy']:
+              'delta_standard_entropy', 'heat_production_rates']:
     setattr(FlameBase, _attr, _array_property(_attr, 'n_reactions'))
 
 
