@@ -414,6 +414,20 @@ cdef class _FlowBase(Domain1D):
         def __set__(self, P):
             self.flow.setPressure(P)
 
+    property tFuel:
+        """ Fuel side internal boundary temperature [K] """
+        def __get__(self):
+            return self.flow.fuelSideTemperature()
+        def __set__(self, T):
+            self.flow.setFuelSideTemperature(T)
+
+    property tOxid:
+        """ Oxidizer side internal boundary temperature [K] """
+        def __get__(self):
+            return self.flow.oxidSideTemperature()
+        def __set__(self, T):
+            self.flow.setOxidSideTemperature(T)
+
     def set_transport(self, _SolutionBase phase):
         """
         Set the `Solution` object used for calculating transport properties.
@@ -433,6 +447,20 @@ cdef class _FlowBase(Domain1D):
             return self.flow.withSoret()
         def __set__(self, enable):
             self.flow.enableSoret(<cbool>enable)
+
+    property onePointControl_enabled:
+        """ Determines whether or not to enable one point flame control"""
+        def __get__(self):
+            return self.flow.onePointControlEnabled()
+        def __set__(self, enable):
+                self.flow.enableOnePointControl(<cbool>enable)
+
+    property twoPointControl_enabled:
+        """ Determines whether or not to enable two point flame control"""
+        def __get__(self):
+            return self.flow.twoPointControlEnabled()
+        def __set__(self, enable):
+                self.flow.enableTwoPointControl(<cbool>enable)
 
     property energy_enabled:
         """ Determines whether or not to solve the energy equation."""
@@ -1126,6 +1154,18 @@ cdef class Sim1D:
         propagating flame.
         """
         self.sim.setFixedTemperature(T)
+
+    def set_fuel_side_boundary(self, T):
+        """
+        Set the fuel side internal boundary with approximate temperature.
+        """
+        self.sim.setFuelSideBoundary(T)
+
+    def set_oxid_side_boundary(self, T):
+        """
+        Set the xoidizer side internal boundary with approximate temperature.
+        """
+        self.sim.setOxidSideBoundary(T)
 
     def save(self, filename='soln.xml', name='solution', description='none',
              loglevel=1):

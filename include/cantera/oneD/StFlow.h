@@ -23,8 +23,9 @@ const size_t c_offset_U = 0; // axial velocity
 const size_t c_offset_V = 1; // strain rate
 const size_t c_offset_T = 2; // temperature
 const size_t c_offset_L = 3; // (1/r)dP/dr
-const size_t c_offset_E = 4; // electric poisson's equation
-const size_t c_offset_Y = 5; // mass fractions
+const size_t c_offset_Uo = 4; // oxidizer axial velocity
+const size_t c_offset_E = 5; // electric poisson's equation
+const size_t c_offset_Y = 6; // mass fractions
 
 class Transport;
 
@@ -131,6 +132,34 @@ public:
         return m_fixedtemp[j];
     }
 
+    //! The current fuel side internal boundary temperature
+    doublereal fuelSideTemperature() const {
+        if ((m_onePntCtrl || m_twoPntCtrl) && (m_zFuel != Undef)) {
+            return m_tFuel;
+        }
+    }
+
+    //! Set the temperature in the fuel side internal boundary
+    void setFuelSideTemperature(doublereal tFuel) {
+        if ((m_onePntCtrl || m_twoPntCtrl) && (m_zFuel != Undef)) {
+            m_tFuel = tFuel;
+        }
+    }
+
+    //! The current oxidizer side internal boundary temperature
+    doublereal oxidSideTemperature() const {
+        if (m_twoPntCtrl && (m_zOxid != Undef)) {
+            return m_tOxid;
+        }
+    }
+
+    //! Set the temperature in the oxidizer side internal boundary
+    void setOxidSideTemperature(doublereal tOxid) {
+        if (m_twoPntCtrl && (m_zOxid != Undef)) {
+            m_tOxid = tOxid;
+        }
+    }
+
     // @}
 
     virtual std::string componentName(size_t n) const;
@@ -229,7 +258,7 @@ public:
     }
 
     virtual bool fixed_mdot() {
-        return (domainType() != cFreeFlow);
+        return (domainType() != cFreeFlow && !m_onePntCtrl && !m_twoPntCtrl);
     }
     void setViscosityFlag(bool dovisc) {
         m_dovisc = dovisc;
@@ -262,6 +291,36 @@ public:
     //! Index of the species on the right boundary with the largest mass fraction
     size_t rightExcessSpecies() const {
         return m_kExcessRight;
+    }
+
+    //! Set the status of one point flame control
+    void enableOnePointControl(bool onePntCtrl) {
+        if (m_twoPntCtrl && onePntCtrl) {
+            throw CanteraError("StFlow::enableOnePointControl",
+                               "Two different point control technique couldn't set simutaniously");
+        } else {
+            m_onePntCtrl = onePntCtrl;
+        }
+    }
+
+    //! Set the status of two point flame control
+    void enableTwoPointControl(bool twoPntCtrl) {
+        if (m_onePntCtrl && twoPntCtrl) {
+            throw CanteraError("StFlow::enableTwoPointControl",
+                               "Two different point control technique couldn't set simutaniously");
+        } else {
+            m_twoPntCtrl = twoPntCtrl;
+        }
+    }
+
+    //! Get the status of one point flame control
+    bool onePointControlEnabled() {
+        return m_onePntCtrl;
+    }
+
+    //! Get the status of two point flame control
+    bool twoPointControlEnabled() {
+        return m_twoPntCtrl;
     }
 
 protected:
@@ -328,6 +387,10 @@ protected:
 
     doublereal lambda(const doublereal* x, size_t j) const {
         return x[index(c_offset_L, j)];
+    }
+
+    doublereal Uo(const doublereal* x, size_t j) const {
+        return x[index(c_offset_Uo, j)];
     }
 
     doublereal Y(const doublereal* x, size_t k, size_t j) const {
@@ -460,12 +523,30 @@ protected:
     //! to `j1`, based on solution `x`.
     virtual void updateTransport(doublereal* x, size_t j0, size_t j1);
 
+    //! Flag for one point flame control
+    bool m_onePntCtrl;
+
+    //! Flag for two point flame control
+    bool m_twoPntCtrl;
+
 public:
     //! Location of the point where temperature is fixed
     double m_zfixed;
 
     //! Temperature at the point used to fix the flame location
     double m_tfixed;
+
+    //! The location of the internal boundary at fuel side
+    double m_zFuel;
+
+    //! The fixed temperature at the fuel side internal boundary
+    double m_tFuel;
+
+    //! The location of the internal boundary at oxidizer side
+    double m_zOxid;
+
+    //! The fixed temperature at the oxidizer side internal boundary
+    double m_tOxid;
 
 private:
     vector_fp m_ybar;
