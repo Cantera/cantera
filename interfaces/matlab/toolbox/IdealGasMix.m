@@ -1,6 +1,8 @@
 function s = IdealGasMix(infile, b, c)
 % IDEALGASMIX  Create a mixture of ideal gases.
 % s = IdealGasMix(infile, b, c)
+% This function is deprecated and will be removed after Cantera 2.5. Please
+% use :mat:func:`Solution` as a replacement.
 % Create a :mat:func:`Solution` instance representing an ideal gas mixture. ::
 %
 %     gas1 = IdealGasMix('yaml_file'[,'phase_name'[,'transport_model']])
@@ -46,6 +48,9 @@ function s = IdealGasMix(infile, b, c)
 % :return:
 %     Instance of class :mat:func:`Solution`
 %
+
+warning(['The function IdealGasMix is deprecated and will be removed after ' ...
+         'Cantera 2.5. Please use Solution as a replacement.'])
 
 dotloc = strfind(infile, '.');
 if dotloc(end) > 1
