@@ -11,7 +11,7 @@ from math import erf
 class FlameBase(Sim1D):
     """ Base class for flames with a single flow domain """
     __slots__ = ('gas',)
-    _extra = ()
+    _extra = () # extra columns used for saving/restoring of simulation data
 
     def __init__(self, domains, gas, grid=None):
         """
@@ -281,52 +281,51 @@ class FlameBase(Sim1D):
             print("Solution saved to '{0}'.".format(filename))
 
     def to_solution_array(self):
-        """Return the solution vector as a Cantera SolutionArray object.
+        """
+        Return the solution vector as a Cantera `SolutionArray` object.
 
-        The SolutionArray has the following ``extra`` entries:
-         * `grid`: grid point positions along the flame [m]
-         * `velocity`: normal velocity [m/s]
-         * `gradient`: tangential velocity gradient [1/s] (if applicable)
-         * `lambda`: radial pressure gradient [N/m^4] (if applicable)
-         * `eField`: electric field strength (if applicable)
+        The `SolutionArray` has the following ``extra`` entries:
+         * ``grid``: grid point positions along the flame [m]
+         * ``velocity``: normal velocity [m/s]
+         * ``gradient``: tangential velocity gradient [1/s] (if applicable)
+         * ``lambda``: radial pressure gradient [N/m^4] (if applicable)
+         * ``eField``: electric field strength (if applicable)
         """
         # create extra columns
-        dom = self.domains[1]
         extra = {}
         for e in self._extra:
             if e == 'grid':
                 extra[e] = self.grid
             elif e == 'velocity':
-                extra[e] = self.profile(dom, 'u')
+                extra[e] = self.profile(self.flame, 'u')
             elif e == 'gradient':
-                extra[e] = self.profile(dom, 'V')
+                extra[e] = self.profile(self.flame, 'V')
             else:
-                extra[e] = self.profile(dom, e)
+                extra[e] = self.profile(self.flame, e)
 
         # create solution array object
         arr = SolutionArray(self.gas, self.flame.n_points, extra=extra)
 
         # retrieve species concentrations and set states
-        X = []
         for n in range(self.flame.n_points):
             self.set_gas_state(n)
-            X.append(self.gas.X)
-        arr.TPX = self.T, self.gas.P, np.vstack(X)
+            arr[n].TPY = self.gas.T, self.gas.P, self.gas.Y
 
         return arr
 
     def from_solution_array(self, arr):
-        """Restore the solution vector from a Cantera SolutionArray object.
+        """
+        Restore the solution vector from a Cantera `SolutionArray` object.
 
-        The SolutionArray requires the following ``extra`` entries:
-         * `grid`: grid point positions along the flame [m]
-         * `velocity`: normal velocity [m/s]
-         * `gradient`: tangential velocity gradient [1/s] (if applicable)
-         * `lambda`: radial pressure gradient [N/m^4] (if applicable)
-         * `eField`: electric field strength (if applicable)
+        The `SolutionArray` requires the following ``extra`` entries:
+         * ``grid``: grid point positions along the flame [m]
+         * ``velocity``: normal velocity [m/s]
+         * ``gradient``: tangential velocity gradient [1/s] (if applicable)
+         * ``lambda``: radial pressure gradient [N/m^4] (if applicable)
+         * ``eField``: electric field strength (if applicable)
         """
         # restore grid
-        self.domains[1].grid = arr.grid
+        self.flame.grid = arr.grid
         self._get_initial_solution()
         xi = (arr.grid - arr.grid[0]) / (arr.grid[-1] - arr.grid[0])
 
@@ -350,7 +349,8 @@ class FlameBase(Sim1D):
         self.P = arr.P[0]
 
     def to_pandas(self):
-        """Return the solution vector as a pandas DataFrame.
+        """
+        Return the solution vector as a `pandas.DataFrame`.
 
         This method uses `to_solution_array` and requires a working pandas
         installation. Use pip or conda to install `pandas` to enable this
@@ -360,7 +360,8 @@ class FlameBase(Sim1D):
         return self.to_solution_array().to_pandas(cols=cols)
 
     def from_pandas(self, df):
-        """Return the solution vector as a pandas DataFrame.
+        """
+        Return the solution vector as a `pandas.DataFrame`.
 
         This method is intendend for loading of data that were previously
         exported by `to_pandas`. The method uses `from_solution_array` and
