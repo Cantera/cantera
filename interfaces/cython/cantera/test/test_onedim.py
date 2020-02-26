@@ -236,8 +236,9 @@ class TestFreeFlame(utilities.CanteraTest):
     def test_solution_array_output(self):
         self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
         arr = self.sim.to_solution_array()
-        self.assertArrayNear(self.sim.grid, arr.grid)
-        self.assertArrayNear(self.sim.T, arr.T)
+        ix = np.isfinite(arr.grid)
+        self.assertArrayNear(self.sim.grid, arr.grid[ix])
+        self.assertArrayNear(self.sim.T, arr.T[ix])
         for k in arr._extra.keys():
             self.assertIn(k, self.sim._extra)
 
@@ -245,6 +246,9 @@ class TestFreeFlame(utilities.CanteraTest):
         f2.from_solution_array(arr)
         self.assertArrayNear(self.sim.grid, f2.grid)
         self.assertArrayNear(self.sim.T, f2.T)
+        self.assertNear(self.sim.inlet.T, f2.inlet.T)
+        self.assertNear(self.sim.inlet.mdot, f2.inlet.mdot)
+        self.assertArrayNear(self.sim.inlet.Y, f2.inlet.Y)
 
     def test_restart(self):
         self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
