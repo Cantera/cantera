@@ -275,6 +275,22 @@ class TestFreeFlame(utilities.CanteraTest):
         for rhou_j in self.sim.density * self.sim.velocity:
             self.assertNear(rhou_j, rhou, 1e-4)
 
+    def test_settings(self):
+        self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
+        settings = self.sim.settings
+
+        keys = ['type', 'transport_model',
+                'energy_enabled', 'soret_enabled', 'radiation_enabled',
+                'emissivity_left', 'emissivity_right',
+                'fixed_temperature',
+                'ratio', 'slope', 'curve', 'prune',
+                'max_time_step_count',
+                'max_grid_points',
+                'steady_abstol', 'steady_reltol',
+                'transient_abstol', 'transient_reltol']
+        for k in keys:
+            self.assertIn(k, settings)
+
     def test_mixture_averaged_case1(self):
         self.run_mix(phi=0.65, T=300, width=0.03, p=1.0, refine=True)
 
