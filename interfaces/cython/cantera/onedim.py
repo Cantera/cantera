@@ -6,6 +6,7 @@ from ._cantera import *
 from .composite import Solution, SolutionArray
 import csv as _csv
 from math import erf
+from email.utils import formatdate
 
 # avoid explicit dependence of cantera on pandas
 try:
@@ -481,6 +482,7 @@ class FlameBase(Sim1D):
         # convert simulation settings to tabular format
         df = _pandas.DataFrame()
         df['key'] = [key]
+        df['date'] = formatdate(localtime=True)
         for key, val in self.settings.items():
             df[key] = [val]
         df.set_index('key')
