@@ -576,7 +576,7 @@ string StFlow::componentName(size_t n) const
     case 0:
         return "velocity";
     case 1:
-        return "V";
+        return "vGradient";
     case 2:
         return "T";
     case 3:
@@ -602,6 +602,11 @@ size_t StFlow::componentIndex(const std::string& name) const
     } else if (name=="velocity") {
         return 0;
     } else if (name=="V") {
+        warn_deprecated("StFlow::componentIndex",
+                        "To be changed after Cantera 2.5. "
+                        "Solution component 'V' renamed to 'vGradient'");
+        return 1;
+    } else if (name=="vGradient") {
         return 1;
     } else if (name=="T") {
         return 2;
