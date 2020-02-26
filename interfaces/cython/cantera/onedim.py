@@ -520,6 +520,7 @@ class FlameBase(Sim1D):
         epsilon = self.flame.boundary_emissivities
         out['emissivity_left'] = epsilon[0]
         out['emissivity_right'] = epsilon[1]
+        out['fixed_temperature'] = self.fixed_temperature
         out.update(self.get_refine_criteria())
         out['max_time_step_count'] = self.max_time_step_count
         out['max_grid_points'] = self.get_max_grid_points(self.flame)
@@ -707,7 +708,7 @@ class FreeFlame(FlameBase):
             # set fixed temperature
             Tmid = .75 * data.T[0] + .25 * data.T[-1]
             i = np.flatnonzero(data.T < Tmid)[-1]
-            self.set_fixed_temperature(data.T[i])
+            self.fixed_temperature = data.T[i]
 
             return
 
@@ -736,11 +737,11 @@ class FreeFlame(FlameBase):
         Tmid = 0.75 * T0 + 0.25 * Teq
         i = np.flatnonzero(T < Tmid)[-1] # last point less than Tmid
         if Tmid - T[i] < 0.2 * (Tmid - T0):
-            self.set_fixed_temperature(T[i])
+            self.fixed_temperature = T[i]
         elif T[i+1] - Tmid < 0.2 * (Teq - Tmid):
-            self.set_fixed_temperature(T[i+1])
+            self.fixed_temperature = T[i+1]
         else:
-            self.set_fixed_temperature(Tmid)
+            self.fixed_temperature = Tmid
 
         for n in range(self.gas.n_species):
             self.set_profile(self.gas.species_name(n),

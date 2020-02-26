@@ -157,6 +157,17 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.assertEqual(self.sim.transport_model, 'Multi')
 
+    def test_fixed_temperature(self):
+        # test setting of fixed temperature
+        Tin = 300
+        p = ct.one_atm
+        reactants = 'H2:0.65, O2:0.5, AR:2'
+        self.create_sim(p, Tin, reactants, width=0.0001)
+        self.sim.set_initial_guess()
+        tfixed = 800.
+        self.sim.fixed_temperature = tfixed
+        self.assertEqual(self.sim.fixed_temperature, tfixed)
+
     def test_auto_width(self):
         Tin = 300
         p = ct.one_atm
