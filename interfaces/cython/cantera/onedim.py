@@ -342,7 +342,13 @@ class FlameBase(Sim1D):
         """
         Restore the solution vector from a Cantera `SolutionArray` object.
 
-        The `SolutionArray` ``arr`` requires the following ``extra`` entries:
+        :param arr:
+            SolutionArray to be restored
+        :param restore_boundaries:
+            Boolean flag to indicate whether boundaries should be restored
+            (default is ``True``)
+
+        The `SolutionArray` requires the following ``extra`` entries:
          * ``grid``: grid point positions along the flame [m]
          * ``velocity``: normal velocity [m/s]
          * ``gradient``: tangential velocity gradient [1/s] (if applicable)
@@ -395,20 +401,30 @@ class FlameBase(Sim1D):
                 right.Y = arr[-1].Y
                 right.mdot = -arr.velocity[-1] * arr[-1].density
 
-    def to_pandas(self):
+    def to_pandas(self, species='X'):
         """
         Return the solution vector as a `pandas.DataFrame`.
+
+        :param species:
+            Attribute to use obtaining species profiles, e.g. ``X`` for
+            mole fractions or ``Y`` for mass fractions.
 
         This method uses `to_solution_array` and requires a working pandas
         installation. Use pip or conda to install `pandas` to enable this
         method.
         """
-        cols = ('extra', 'T', 'D', 'X')
+        cols = ('extra', 'T', 'D', species)
         return self.to_solution_array().to_pandas(cols=cols)
 
-    def from_pandas(self, df, **kwargs):
+    def from_pandas(self, df, restore_boundaries=True):
         """
-        Return the solution vector as a `pandas.DataFrame`.
+        Restore the solution vector from a `pandas.DataFrame`.
+
+        :param df:
+            `pandas.DataFrame` containing data to be restored
+        :param restore_boundaries:
+            Boolean flag to indicate whether boundaries should be restored
+            (default is ``True``)
 
         This method is intendend for loading of data that were previously
         exported by `to_pandas`. The method uses `from_solution_array` and
@@ -417,30 +433,46 @@ class FlameBase(Sim1D):
         """
         arr = SolutionArray(self.gas, extra=self._extra)
         arr.from_pandas(df)
-        self.from_solution_array(arr, **kwargs)
+        self.from_solution_array(arr, restore_boundaries=restore_boundaries)
 
-    def write_hdf(self, filename, key='df',
-                  mode=None, append=None, complevel=None):
+    def write_hdf(self, filename, key='df', species='X',
+                  mode=None, complevel=None):
         """
-        Write the solution vector to a HDF container file named *filename*.
-        Note that it is possible to write multiple data entries to a single HDF
-        container file, where *key* is used to differentiate data.
+        Write the solution vector to a HDF container file. Note that it is
+        possible to write multiple data entries to a single HDF container file.
+
+        :param filename:
+            HDF container file containing data to be restored
+        :param key:
+            String identifying the HDF group containing the data
+        :param species:
+            Attribute to use obtaining species profiles, e.g. ``X`` for
+            mole fractions or ``Y`` for mass fractions.
+        :param mode:
+            Mode to open file (see `pandas.DataFrame.to_hdf`)
+        :param complevel:
+            Compression level (see `pandas.DataFrame.to_hdf`)
 
         The method exports data using `SolutionArray.write_hdf` via
         `to_solution_array` and requires working installations of pandas and
         PyTables. These packages can be installed using pip (`pandas` and
         `tables`) or conda (`pandas` and `pytables`).
         """
-        cols = ('extra', 'T', 'D', 'X')
+        cols = ('extra', 'T', 'D', species)
         self.to_solution_array().write_hdf(filename, cols=cols, key=key,
-                                           mode=mode, append=append,
-                                           complevel=complevel)
+                                           mode=mode, complevel=complevel)
 
-    def read_hdf(self, filename, key=None, **kwargs):
+    def read_hdf(self, filename, key=None, restore_boundaries=True):
         """
-        Read a dataset identified by *key* from a HDF file named *filename*
-        to restore the solution vector. This method allows for recreation of
-        data previously exported by `write_hdf`.
+        Restore the solution vector from a HDF container file.
+
+        :param filename:
+            HDF container file containing data to be restored
+        :param key:
+            String identifying the HDF group containing the data
+        :param restore_boundaries:
+            Boolean flag to indicate whether boundaries should be restored
+            (default is ``True``)
 
         The method imports data using `SolutionArray.read_hdf` via
         `from_solution_array` and requires working installations of pandas and
@@ -449,12 +481,10 @@ class FlameBase(Sim1D):
         """
         arr = SolutionArray(self.gas, extra=self._extra)
         arr.read_hdf(filename, key=key)
-        self.from_solution_array(arr, **kwargs)
+        self.from_solution_array(arr, restore_boundaries=restore_boundaries)
 
     def _load_restart_data(self, source, **kwargs):
-        """
-        Load data for restart (called by set_initial_guess)
-        """
+        """ Load data for restart (called by set_initial_guess) """
         if isinstance(source, SolutionArray):
             # already a solution array
             return source
