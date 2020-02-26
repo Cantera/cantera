@@ -736,7 +736,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.assertFalse(self.sim.radiation_enabled)
         self.sim.radiation_enabled = True
         self.assertTrue(self.sim.radiation_enabled)
-        self.sim.set_boundary_emissivities(0.25,0.15)
+        self.sim.flame.boundary_emissivities = 0.25, 0.15
 
         self.solve_mix()
         data = np.empty((self.sim.flame.n_points, self.gas.n_species + 4))

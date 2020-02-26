@@ -198,13 +198,24 @@ public:
         return m_do_radiation;
     }
 
+    //! Return radiative heat loss at grid point j
+    double radiativeHeatLoss(size_t j) const {
+        return m_qdotRadiation[j];
+    }
+
     //! Set the emissivities for the boundary values
     /*!
      * Reads the emissivities for the left and right boundary values in the
      * radiative term and writes them into the variables, which are used for the
      * calculation.
      */
-    void setBoundaryEmissivities(doublereal e_left, doublereal e_right);
+    void setBoundaryEmissivities(double e_left, double e_right);
+
+    //! Return emissivitiy at left boundary
+    double getLeftEmissivity() const { return m_epsilon_left; }
+
+    //! Return emissivitiy at right boundary
+    double getRightEmissivity() const { return m_epsilon_right; }
 
     void fixTemperature(size_t j=npos);
 
@@ -215,7 +226,14 @@ public:
     //! Change the grid size. Called after grid refinement.
     virtual void resize(size_t components, size_t points);
 
-    virtual void setFixedPoint(int j0, doublereal t0) {}
+    /*!
+     * @deprecated To be removed after Cantera 2.5.
+     */
+    virtual void setFixedPoint(int j0, doublereal t0) {
+        // this does nothing and does not appear to be overloaded
+        warn_deprecated("StFlow::setFixedPoint",
+                        "To be removed after Cantera 2.5.");
+    }
 
     //! Set the gas object state to be consistent with the solution at point j.
     void setGas(const doublereal* x, size_t j);
