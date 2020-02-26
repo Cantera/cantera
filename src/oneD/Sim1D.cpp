@@ -424,7 +424,7 @@ int Sim1D::refine(int loglevel)
     return np;
 }
 
-int Sim1D::setFixedTemperature(doublereal t)
+int Sim1D::setFixedTemperature(double t)
 {
     int np = 0;
     vector_fp znew, xnew;
@@ -511,8 +511,34 @@ int Sim1D::setFixedTemperature(doublereal t)
     return np;
 }
 
-void Sim1D::setRefineCriteria(int dom, doublereal ratio,
-                              doublereal slope, doublereal curve, doublereal prune)
+double Sim1D::getFixedTemperature()
+{
+    double t_fixed = -1.;
+    for (size_t n = 0; n < nDomains(); n++) {
+        StFlow* d = dynamic_cast<StFlow*>(&domain(n));
+        if (d && d->domainType() == cFreeFlow && d->m_tfixed > 0) {
+            t_fixed = d->m_tfixed;
+            break;
+        }
+    }
+    return t_fixed;
+}
+
+double Sim1D::getFixedTemperatureLocation()
+{
+    double z_fixed = -1.;
+    for (size_t n = 0; n < nDomains(); n++) {
+        StFlow* d = dynamic_cast<StFlow*>(&domain(n));
+        if (d && d->domainType() == cFreeFlow && d->m_tfixed > 0) {
+            z_fixed = d->m_zfixed;
+            break;
+        }
+    }
+    return z_fixed;
+}
+
+void Sim1D::setRefineCriteria(int dom, double ratio,
+                              double slope, double curve, double prune)
 {
     if (dom >= 0) {
         Refiner& r = domain(dom).refiner();

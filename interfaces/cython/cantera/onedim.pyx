@@ -1153,8 +1153,34 @@ cdef class Sim1D:
         """
         Set the temperature used to fix the spatial location of a freely
         propagating flame.
+
+        .. deprecated:: 2.5
+
+             To be deprecated with version 2.5, and removed thereafter.
+             Replaced by property `fixed_temperature`.
         """
-        self.sim.setFixedTemperature(T)
+        warnings.warn("To be removed after Cantera 2.5. "
+                      "Replaced by property 'fixed_temperature'",
+                      DeprecationWarning)
+        self.fixed_temperature = T
+
+    property fixed_temperature:
+        """
+        Set the temperature used to fix the spatial location of a freely
+        propagating flame.
+        """
+        def __get__(self):
+            return self.sim.getFixedTemperature()
+        def __set__(self, T):
+            self.sim.setFixedTemperature(T)
+
+    property fixed_temperature_location:
+        """
+        Return the location of the point where temperature is fixed for a freely
+        propagating flame.
+        """
+        def __get__(self):
+            return self.sim.getFixedTemperatureLocation()
 
     def save(self, filename='soln.xml', name='solution', description='none',
              loglevel=1):

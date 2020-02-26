@@ -28,7 +28,7 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     m_kExcessLeft(0),
     m_kExcessRight(0),
     m_zfixed(Undef),
-    m_tfixed(Undef)
+    m_tfixed(-1.)
 {
     if (ph->type() == "IdealGas") {
         m_thermo = static_cast<IdealGasPhase*>(ph);
