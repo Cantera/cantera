@@ -7,6 +7,12 @@ from .composite import Solution, SolutionArray
 import csv as _csv
 from math import erf
 
+# avoid explicit dependence of cantera on pandas
+try:
+    import pandas as _pandas
+except ImportError as err:
+    _pandas = err
+
 
 class FlameBase(Sim1D):
     """ Base class for flames with a single flow domain """
@@ -435,16 +441,19 @@ class FlameBase(Sim1D):
         arr.from_pandas(df)
         self.from_solution_array(arr, restore_boundaries=restore_boundaries)
 
-    def write_hdf(self, filename, key='df', species='X',
+    def write_hdf(self, filename, key=None, species='X',
                   mode=None, complevel=None):
         """
         Write the solution vector to a HDF container file. Note that it is
         possible to write multiple data entries to a single HDF container file.
+        Simulation settings are stored in tabular form as a separate HDF group
+        named ``settings``.
 
         :param filename:
             HDF container file containing data to be restored
         :param key:
-            String identifying the HDF group containing the data
+            String identifying the HDF group containing the data. The default
+            is the name of the simulated configuration, e.g. ``FreeFlame``.
         :param species:
             Attribute to use obtaining species profiles, e.g. ``X`` for
             mole fractions or ``Y`` for mass fractions.
@@ -458,9 +467,23 @@ class FlameBase(Sim1D):
         PyTables. These packages can be installed using pip (`pandas` and
         `tables`) or conda (`pandas` and `pytables`).
         """
+        if not key:
+            key = type(self).__name__
+
+        # save data
         cols = ('extra', 'T', 'D', species)
         self.to_solution_array().write_hdf(filename, cols=cols, key=key,
                                            mode=mode, complevel=complevel)
+
+        # convert simulation settings to tabular format
+        df = _pandas.DataFrame()
+        df['key'] = [key]
+        for key, val in self.settings.items():
+            df[key] = [val]
+        df.set_index('key')
+
+        # store settings to HDF container file as a separate group
+        df.to_hdf(filename, key='settings', append=True)
 
     def read_hdf(self, filename, key=None, restore_boundaries=True):
         """
@@ -482,6 +505,37 @@ class FlameBase(Sim1D):
         arr = SolutionArray(self.gas, extra=self._extra)
         arr.read_hdf(filename, key=key)
         self.from_solution_array(arr, restore_boundaries=restore_boundaries)
+
+    @property
+    def settings(self):
+        """ Return a dictionary listing simulation settings """
+        out = {'type': type(self).__name__}
+        out['transport_model'] = self.transport_model
+        out['energy_enabled'] = self.energy_enabled
+        out['soret_enabled'] = self.soret_enabled
+        out['radiation_enabled'] = self.radiation_enabled
+        out.update(self.get_refine_criteria())
+        out['max_time_step_count'] = self.max_time_step_count
+        out['max_grid_points'] = self.get_max_grid_points(self.flame)
+
+        # add tolerance settings
+        tols = {'steady_abstol': self.flame.steady_abstol(),
+                'steady_reltol': self.flame.steady_reltol(),
+                'transient_abstol': self.flame.transient_abstol(),
+                'transient_reltol': self.flame.transient_reltol()}
+        comp = np.array(self.flame.component_names)
+        for tname, tol in tols.items():
+            # add mode (most frequent tolerance setting)
+            values, counts = np.unique(tol, return_counts=True)
+            ix = np.argmax(counts)
+            out.update({tname: values[ix]})
+
+            # add values deviating from mode
+            ix = np.logical_not(np.isclose(tol, values[ix]))
+            out.update({'{}_{}'.format(tname, c)
+                        for c, t in zip(comp[ix], tol[ix])})
+
+        return out
 
     def _load_restart_data(self, source, **kwargs):
         """ Load data for restart (called by set_initial_guess) """
