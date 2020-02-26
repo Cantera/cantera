@@ -295,45 +295,76 @@ class FlameBase(Sim1D):
         extra = {}
         for e in self._extra:
             if e == 'grid':
-                extra[e] = self.grid
+                val = self.grid
             elif e == 'velocity':
-                extra[e] = self.profile(self.flame, 'u')
+                val = self.profile(self.flame, 'u')
             elif e == 'gradient':
-                extra[e] = self.profile(self.flame, 'V')
+                val = self.profile(self.flame, 'V')
             else:
-                extra[e] = self.profile(self.flame, e)
+                val = self.profile(self.flame, e)
+            extra[e] = np.hstack([np.nan, val, np.nan])
+
+        # consider inlet boundaries
+        left = self.domains[0]  # left boundary is always an inlet
+        if isinstance(self.domains[2], Inlet1D):
+            right = self.domains[2]
+            n_arr = self.flame.n_points + 2
+        else:
+            right = None
+            n_arr = self.flame.n_points + 1
+            for e in extra:
+                extra[e] = extra[e][:-1]
 
         # create solution array object
-        arr = SolutionArray(self.gas, self.flame.n_points, extra=extra)
+        arr = SolutionArray(self.gas, n_arr, extra=extra)
+
+        # add left boundary
+        self.gas.TPY = left.T, self.P, left.Y
+        arr[0].TPY = self.gas.TPY
+        arr._extra['grid'][0] = -np.inf
+        arr._extra['velocity'][0] = left.mdot/self.gas.density
 
         # retrieve species concentrations and set states
         for n in range(self.flame.n_points):
             self.set_gas_state(n)
-            arr[n].TPY = self.gas.T, self.gas.P, self.gas.Y
+            arr[n + 1].TPY = self.gas.T, self.P, self.gas.Y
+
+        # add right boundary
+        if right:
+            self.gas.TPY = right.T, self.P, right.Y
+            arr[-1].TPY = self.gas.TPY
+            arr._extra['grid'][-1] = np.inf
+            arr._extra['velocity'][-1] = -right.mdot/self.gas.density
 
         return arr
 
-    def from_solution_array(self, arr):
+    def from_solution_array(self, arr, restore_boundaries=True):
         """
         Restore the solution vector from a Cantera `SolutionArray` object.
 
-        The `SolutionArray` requires the following ``extra`` entries:
+        The `SolutionArray` ``arr`` requires the following ``extra`` entries:
          * ``grid``: grid point positions along the flame [m]
          * ``velocity``: normal velocity [m/s]
          * ``gradient``: tangential velocity gradient [1/s] (if applicable)
          * ``lambda``: radial pressure gradient [N/m^4] (if applicable)
          * ``eField``: electric field strength (if applicable)
         """
+        # extent (indices) of flame domain
+        idx = np.isfinite(arr.grid)
+        grid = arr.grid[idx]
+
         # restore grid
-        self.flame.grid = arr.grid
+        self.flame.grid = grid
         self._get_initial_solution()
-        xi = (arr.grid - arr.grid[0]) / (arr.grid[-1] - arr.grid[0])
+        xi = (grid - grid[0]) / (grid[-1] - grid[0])
 
         # restore temperature and 'extra' profiles
-        self.set_profile('T', xi, arr.T)
-        for e in self._extra[1:]:
-            val = getattr(arr, e)
-            if e == 'velocity':
+        self.set_profile('T', xi, arr.T[idx])
+        for e in self._extra:
+            val = getattr(arr, e)[idx]
+            if e == 'grid':
+                pass
+            elif e == 'velocity':
                 self.set_profile('u', xi, val)
             elif e == 'gradient':
                 self.set_profile('V', xi, val)
@@ -341,12 +372,28 @@ class FlameBase(Sim1D):
                 self.set_profile(e, xi, val)
 
         # restore species profiles
-        X = arr.X
+        X = arr.X[idx, :]
         for i, spc in enumerate(self.gas.species_names):
             self.set_profile(spc, xi, X[:, i])
 
         # restore pressure
         self.P = arr.P[0]
+
+        # restore boundaries
+        if restore_boundaries:
+
+            # left boundary
+            left = self.domains[0]
+            left.T = arr[0].T
+            left.Y = arr[0].Y
+            left.mdot = arr.velocity[0] * arr[0].density
+
+            # right boundary
+            if np.isinf(arr.grid[-1]):
+                right = self.domains[2]
+                right.T = arr[-1].T
+                right.Y = arr[-1].Y
+                right.mdot = -arr.velocity[-1] * arr[-1].density
 
     def to_pandas(self):
         """
@@ -359,7 +406,7 @@ class FlameBase(Sim1D):
         cols = ('extra', 'T', 'D', 'X')
         return self.to_solution_array().to_pandas(cols=cols)
 
-    def from_pandas(self, df):
+    def from_pandas(self, df, **kwargs):
         """
         Return the solution vector as a `pandas.DataFrame`.
 
@@ -370,7 +417,7 @@ class FlameBase(Sim1D):
         """
         arr = SolutionArray(self.gas, extra=self._extra)
         arr.from_pandas(df)
-        self.from_solution_array(arr)
+        self.from_solution_array(arr, **kwargs)
 
     def write_hdf(self, filename, key='df',
                   mode=None, append=None, complevel=None):
@@ -389,7 +436,7 @@ class FlameBase(Sim1D):
                                            mode=mode, append=append,
                                            complevel=complevel)
 
-    def read_hdf(self, filename, key=None):
+    def read_hdf(self, filename, key=None, **kwargs):
         """
         Read a dataset identified by *key* from a HDF file named *filename*
         to restore the solution vector. This method allows for recreation of
@@ -402,7 +449,7 @@ class FlameBase(Sim1D):
         """
         arr = SolutionArray(self.gas, extra=self._extra)
         arr.read_hdf(filename, key=key)
-        self.from_solution_array(arr)
+        self.from_solution_array(arr, **kwargs)
 
     def _load_restart_data(self, source, **kwargs):
         """
@@ -552,9 +599,10 @@ class FreeFlame(FlameBase):
         :param data:
             Restart data, which are typically based on an earlier simulation
             result. Restart data may be specified using a SolutionArray,
-            pandas' DataFrame, or a saved HDF container file. DataFrame and HDF
-            input require working installations of pandas and PyTables. These
-            packages can be installed using pip (`pandas` and `tables`) or conda
+            pandas' DataFrame, or a saved HDF container file. Note that restart
+            data do not overwrite boundary conditions. DataFrame and HDF input
+            require working installations of pandas and PyTables. These packages
+            can be installed using pip (`pandas` and `tables`) or conda
             (`pandas` and `pytables`).
         :param key:
             Group identifier within a HDF container file (only used in
@@ -564,7 +612,7 @@ class FreeFlame(FlameBase):
         if data:
             data = self._load_restart_data(data, key=key)
             data.TP = data.T + self.inlet.T - data.T[0], self.P
-            self.from_solution_array(data)
+            self.from_solution_array(data, restore_boundaries=False)
 
             # set fixed temperature
             Tmid = .75 * data.T[0] + .25 * data.T[-1]
