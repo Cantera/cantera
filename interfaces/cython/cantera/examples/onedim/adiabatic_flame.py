@@ -31,13 +31,13 @@ f.solve(loglevel=loglevel, auto=True)
 # Solve with the energy equation enabled
 f.save('h2_adiabatic.xml', 'mix', 'solution with mixture-averaged transport')
 f.show_solution()
-print('mixture-averaged flamespeed = {0:7f} m/s'.format(f.u[0]))
+print('mixture-averaged flamespeed = {0:7f} m/s'.format(f.velocity[0]))
 
 # Solve with multi-component transport properties
 f.transport_model = 'Multi'
 f.solve(loglevel)  # don't use 'auto' on subsequent solves
 f.show_solution()
-print('multicomponent flamespeed = {0:7f} m/s'.format(f.u[0]))
+print('multicomponent flamespeed = {0:7f} m/s'.format(f.velocity[0]))
 f.save('h2_adiabatic.xml', 'multi', 'solution with multicomponent transport')
 
 # write the velocity, temperature, density, and mole fractions to a CSV file

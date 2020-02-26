@@ -101,7 +101,7 @@ int flamespeed(double phi)
 
         double uout = inlet.mdot()/rho_out;
         value = {uin, uin, uout, uout};
-        flame.setInitialGuess("u",locs,value);
+        flame.setInitialGuess("velocity",locs,value);
         value = {temp, temp, Tad, Tad};
         flame.setInitialGuess("T",locs,value);
 
@@ -135,21 +135,24 @@ int flamespeed(double phi)
         bool refine_grid = true;
 
         flame.solve(loglevel,refine_grid);
-        double flameSpeed_mix = flame.value(flowdomain,flow.componentIndex("u"),0);
+        double flameSpeed_mix = flame.value(flowdomain,
+                                            flow.componentIndex("velocity"),0);
         print("Flame speed with mixture-averaged transport: {} m/s\n",
               flameSpeed_mix);
 
         // now switch to multicomponent transport
         flow.setTransport(*trmulti);
         flame.solve(loglevel, refine_grid);
-        double flameSpeed_multi = flame.value(flowdomain,flow.componentIndex("u"),0);
+        double flameSpeed_multi = flame.value(flowdomain,
+                                              flow.componentIndex("velocity"),0);
         print("Flame speed with multicomponent transport: {} m/s\n",
               flameSpeed_multi);
 
         // now enable Soret diffusion
         flow.enableSoret(true);
         flame.solve(loglevel, refine_grid);
-        double flameSpeed_full = flame.value(flowdomain,flow.componentIndex("u"),0);
+        double flameSpeed_full = flame.value(flowdomain,
+                                             flow.componentIndex("velocity"),0);
         print("Flame speed with multicomponent transport + Soret: {} m/s\n",
               flameSpeed_full);
 
@@ -159,9 +162,12 @@ int flamespeed(double phi)
               "z (m)", "T (K)", "U (m/s)", "Y(CO)");
         for (size_t n = 0; n < flow.nPoints(); n++) {
             Tvec.push_back(flame.value(flowdomain,flow.componentIndex("T"),n));
-            COvec.push_back(flame.value(flowdomain,flow.componentIndex("CO"),n));
-            CO2vec.push_back(flame.value(flowdomain,flow.componentIndex("CO2"),n));
-            Uvec.push_back(flame.value(flowdomain,flow.componentIndex("u"),n));
+            COvec.push_back(flame.value(flowdomain,
+                                        flow.componentIndex("CO"),n));
+            CO2vec.push_back(flame.value(flowdomain,
+                                         flow.componentIndex("CO2"),n));
+            Uvec.push_back(flame.value(flowdomain,
+                                       flow.componentIndex("velocity"),n));
             zvec.push_back(flow.grid(n));
             print("{:9.6f}\t{:8.3f}\t{:5.3f}\t{:7.5f}\n",
                   flow.grid(n), Tvec[n], Uvec[n], COvec[n]);

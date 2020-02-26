@@ -194,7 +194,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.sim.set_refine_criteria(ratio=4, slope=0.8, curve=0.8)
         self.sim.solve(refine_grid=True, auto=True, loglevel=0)
-        self.assertNear(self.sim.u[0], 17.02, 1e-1)
+        self.assertNear(self.sim.velocity[0], 17.02, 1e-1)
         self.assertLess(self.sim.grid[-1], 2.0) # grid should not be too wide
 
 
@@ -241,7 +241,7 @@ class TestFreeFlame(utilities.CanteraTest):
         rhou = self.sim.inlet.mdot
 
         # Check continuity
-        for rhou_j in self.sim.density * self.sim.u:
+        for rhou_j in self.sim.density * self.sim.velocity:
             self.assertNear(rhou_j, rhou, 1e-4)
 
     def test_solution_array_output(self):
@@ -272,7 +272,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
         # Check continuity
         rhou = self.sim.inlet.mdot
-        for rhou_j in self.sim.density * self.sim.u:
+        for rhou_j in self.sim.density * self.sim.velocity:
             self.assertNear(rhou_j, rhou, 1e-4)
 
     def test_mixture_averaged_case1(self):
@@ -309,15 +309,15 @@ class TestFreeFlame(utilities.CanteraTest):
 
         # Forward sensitivities
         dk = 1e-4
-        Su0 = self.sim.u[0]
+        Su0 = self.sim.velocity[0]
         for m in range(self.gas.n_reactions):
             self.gas.set_multiplier(1.0) # reset all multipliers
             self.gas.set_multiplier(1+dk, m) # perturb reaction m
             self.sim.solve(loglevel=0, refine_grid=False)
-            Suplus = self.sim.u[0]
+            Suplus = self.sim.velocity[0]
             self.gas.set_multiplier(1-dk, m) # perturb reaction m
             self.sim.solve(loglevel=0, refine_grid=False)
-            Suminus = self.sim.u[0]
+            Suminus = self.sim.velocity[0]
             fwd = (Suplus-Suminus)/(2*Su0*dk)
             self.assertNear(fwd, dSdk_adj[m], 5e-3)
 
@@ -330,12 +330,12 @@ class TestFreeFlame(utilities.CanteraTest):
         self.create_sim(p, Tin, reactants)
         self.solve_fixed_T()
         self.solve_mix(ratio=5, slope=0.5, curve=0.3)
-        Su_mix = self.sim.u[0]
+        Su_mix = self.sim.velocity[0]
 
         # Multicomponent flame speed should be similar but not identical to
         # the mixture-averaged flame speed.
         self.solve_multi()
-        Su_multi = self.sim.u[0]
+        Su_multi = self.sim.velocity[0]
         self.assertFalse(self.sim.soret_enabled)
 
         self.assertNear(Su_mix, Su_multi, 5e-2)
@@ -346,7 +346,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.sim.soret_enabled = True
         self.sim.solve(loglevel=0, refine_grid=True)
         self.assertTrue(self.sim.soret_enabled)
-        Su_soret = self.sim.u[0]
+        Su_soret = self.sim.velocity[0]
 
         self.assertNear(Su_multi, Su_soret, 2e-1)
         self.assertNotEqual(Su_multi, Su_soret)
@@ -429,7 +429,7 @@ class TestFreeFlame(utilities.CanteraTest):
             os.remove(filename)
 
         Y1 = self.sim.Y
-        u1 = self.sim.u
+        u1 = self.sim.velocity
         V1 = self.sim.V
         P1 = self.sim.P
 
@@ -455,7 +455,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertNear(P1, P2a)
 
         Y2 = self.sim.Y
-        u2 = self.sim.u
+        u2 = self.sim.velocity
         V2 = self.sim.V
 
         self.assertArrayNear(Y1, Y2)
@@ -464,7 +464,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.solve_fixed_T()
         Y3 = self.sim.Y
-        u3 = self.sim.u
+        u3 = self.sim.velocity
         V3 = self.sim.V
 
         # TODO: These tolereances seem too loose, but the tests fail on some
@@ -478,7 +478,12 @@ class TestFreeFlame(utilities.CanteraTest):
 
         for attr in ct.FlameBase.__dict__:
             if isinstance(ct.FlameBase.__dict__[attr], property):
-                getattr(self.sim, attr)
+                if attr == 'u':
+                    msg = "Replaced by property 'velocity'"
+                    with self.assertWarnsRegex(DeprecationWarning, msg):
+                        getattr(self.sim, attr)
+                else:
+                    getattr(self.sim, attr)
 
     def test_save_restore_add_species(self):
         reactants = 'H2:1.1, O2:1, AR:5'
@@ -571,7 +576,7 @@ class TestFreeFlame(utilities.CanteraTest):
     def test_replace_grid(self):
         self.create_sim(ct.one_atm, 300.0, 'H2:1.1, O2:1, AR:5')
         self.solve_fixed_T()
-        ub = self.sim.u[-1]
+        ub = self.sim.velocity[-1]
 
         # add some points to the grid
         grid = list(self.sim.grid)
@@ -581,7 +586,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.sim.set_initial_guess()
 
         self.solve_fixed_T()
-        self.assertNear(self.sim.u[-1], ub, 1e-2)
+        self.assertNear(self.sim.velocity[-1], ub, 1e-2)
 
     def test_exceed_max_grid_points(self):
         self.create_sim(ct.one_atm, 400.0, 'H2:1.1, O2:1, AR:5')
@@ -657,7 +662,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.solve_mix()
         data = np.empty((self.sim.flame.n_points, self.gas.n_species + 4))
         data[:,0] = self.sim.grid
-        data[:,1] = self.sim.u
+        data[:,1] = self.sim.velocity
         data[:,2] = self.sim.V
         data[:,3] = self.sim.T
         data[:,4:] = self.sim.Y.T
@@ -696,7 +701,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
 
         data = np.empty((self.sim.flame.n_points, self.gas.n_species + 4))
         data[:,0] = self.sim.grid
-        data[:,1] = self.sim.u
+        data[:,1] = self.sim.velocity
         data[:,2] = self.sim.V
         data[:,3] = self.sim.T
         data[:,4:] = self.sim.Y.T
@@ -752,7 +757,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.solve_mix()
         data = np.empty((self.sim.flame.n_points, self.gas.n_species + 4))
         data[:,0] = self.sim.grid
-        data[:,1] = self.sim.u
+        data[:,1] = self.sim.velocity
         data[:,2] = self.sim.V
         data[:,3] = self.sim.T
         data[:,4:] = self.sim.Y.T
@@ -838,7 +843,7 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
 
         data = np.empty((sim.flame.n_points, gas.n_species + 4))
         data[:,0] = sim.grid
-        data[:,1] = sim.u
+        data[:,1] = sim.velocity
         data[:,2] = sim.V
         data[:,3] = sim.T
         data[:,4:] = sim.Y.T
@@ -927,7 +932,7 @@ class TestBurnerFlame(utilities.CanteraTest):
         sim.solve(loglevel=0, auto=True)
         # nonreacting solution
         self.assertNear(sim.T[-1], sim.T[0], 1e-6)
-        self.assertNear(sim.u[-1], sim.u[0], 1e-6)
+        self.assertNear(sim.velocity[-1], sim.velocity[0], 1e-6)
         self.assertArrayNear(sim.Y[:,0], sim.Y[:,-1], 1e-6, atol=1e-6)
 
 

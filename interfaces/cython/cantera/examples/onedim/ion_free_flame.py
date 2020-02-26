@@ -31,7 +31,7 @@ f.solve(loglevel=loglevel, stage=2, enable_energy=True)
 
 f.save('CH4_adiabatic.xml', 'ion', 'solution with ionized gas transport')
 f.show_solution()
-print('mixture-averaged flamespeed = {0:7f} m/s'.format(f.u[0]))
+print('mixture-averaged flamespeed = {0:7f} m/s'.format(f.velocity[0]))
 
 # write the velocity, temperature, density, and mole fractions to a CSV file
 f.write_csv('CH4_adiabatic.csv', quiet=False)

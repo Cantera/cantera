@@ -170,8 +170,23 @@ class FlameBase(Sim1D):
     def u(self):
         """
         Array containing the velocity [m/s] normal to the flame at each point.
+
+        .. deprecated:: 2.5
+
+             To be deprecated with version 2.5, and removed thereafter.
+             Replaced by property `velocity`.
         """
-        return self.profile(self.flame, 'u')
+        warnings.warn("To be removed after Cantera 2.5. "
+                      "Replaced by property 'velocity'",
+                      DeprecationWarning)
+        return self.profile(self.flame, 'velocity')
+
+    @property
+    def velocity(self):
+        """
+        Array containing the velocity [m/s] normal to the flame at each point.
+        """
+        return self.profile(self.flame, 'velocity')
 
     @property
     def V(self):
@@ -272,7 +287,7 @@ class FlameBase(Sim1D):
 
         z = self.grid
         T = self.T
-        u = self.u
+        u = self.velocity
         V = self.V
 
         with open(filename, 'w', newline='') as csvfile:
@@ -303,8 +318,6 @@ class FlameBase(Sim1D):
         for e in self._extra:
             if e == 'grid':
                 val = self.grid
-            elif e == 'velocity':
-                val = self.profile(self.flame, 'u')
             elif e == 'gradient':
                 val = self.profile(self.flame, 'V')
             else:
@@ -380,8 +393,6 @@ class FlameBase(Sim1D):
             val = getattr(arr, e)[idx]
             if e in ['grid', 'qdot']:
                 pass
-            elif e == 'velocity':
-                self.set_profile('u', xi, val)
             elif e == 'gradient':
                 self.set_profile('V', xi, val)
             else:
@@ -730,7 +741,7 @@ class FreeFlame(FlameBase):
         Yeq = self.gas.Y
         u1 = self.inlet.mdot/self.gas.density
 
-        self.set_profile('u', locs, [u0, u0, u1, u1])
+        self.set_profile('velocity', locs, [u0, u0, u1, u1])
         self.set_profile('T', locs, [T0, T0, Teq, Teq])
 
         # Pick the location of the fixed temperature point, using an existing
@@ -824,12 +835,12 @@ class FreeFlame(FlameBase):
         """
 
         def g(sim):
-            return sim.u[0]
+            return sim.velocity[0]
 
         Nvars = sum(D.n_components * D.n_points for D in self.domains)
 
         # Index of u[0] in the global solution vector
-        i_Su = self.inlet.n_components + self.flame.component_index('u')
+        i_Su = self.inlet.n_components + self.flame.component_index('velocity')
 
         dgdx = np.zeros(Nvars)
         dgdx[i_Su] = 1
@@ -856,13 +867,13 @@ class IonFlameBase(FlameBase):
         """
         z = self.grid
         T = self.T
-        u = self.u
+        u = self.velocity
         V = self.V
         E = self.E
 
         with open(filename, 'w', newline='') as csvfile:
             writer = _csv.writer(csvfile)
-            writer.writerow(['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)',
+            writer.writerow(['z (m)', 'velocity (m/s)', 'V (1/s)', 'T (K)',
                             'E (V/m)', 'rho (kg/m3)'] + self.gas.species_names)
             for n in range(self.flame.n_points):
                 self.set_gas_state(n)
@@ -972,7 +983,7 @@ class BurnerFlame(FlameBase):
         u1 = self.burner.mdot/self.gas.density
 
         locs = [0.0, 0.2, 1.0]
-        self.set_profile('u', locs, [u0, u1, u1])
+        self.set_profile('velocity', locs, [u0, u1, u1])
         self.set_profile('T', locs, [T0, Teq, Teq])
         for n in range(self.gas.n_species):
             self.set_profile(self.gas.species_name(n),
@@ -1162,7 +1173,7 @@ class CounterflowDiffusionFlame(FlameBase):
         T[-1] = T0o
         zrel = (zz - zz[0])/dz
 
-        self.set_profile('u', [0.0, 1.0], [u0f, -u0o])
+        self.set_profile('velocity', [0.0, 1.0], [u0f, -u0o])
         self.set_profile('V', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
         self.set_profile('T', zrel, T)
         for k,spec in enumerate(self.gas.species_names):
@@ -1273,10 +1284,10 @@ class CounterflowDiffusionFlame(FlameBase):
             .. math:: a_{o} = \sqrt{-\frac{\Lambda}{\rho_{o}}}
         """
         if definition == 'mean':
-            return - (self.u[-1] - self.u[0]) / self.grid[-1]
+            return - (self.velocity[-1] - self.velocity[0]) / self.grid[-1]
 
         elif definition == 'max':
-            return np.max(np.abs(np.gradient(self.u) / np.gradient(self.grid)))
+            return np.max(np.abs(np.gradient(self.velocity) / np.gradient(self.grid)))
 
         elif definition == 'stoichiometric':
             if fuel is None:
@@ -1292,7 +1303,7 @@ class CounterflowDiffusionFlame(FlameBase):
                 if 'C' in self.gas.element_names:
                     stoich += self.gas.n_atoms(fuel, 'C')
 
-            d_u_d_z = np.gradient(self.u) / np.gradient(self.grid)
+            d_u_d_z = np.gradient(self.velocity) / np.gradient(self.grid)
             phi = (self.X[self.gas.species_index(fuel)] * stoich /
                    np.maximum(self.X[self.gas.species_index(oxidizer)], 1e-20))
             z_stoich = np.interp(-1., -phi, self.grid)
@@ -1407,7 +1418,7 @@ class ImpingingJet(FlameBase):
                                  [Y0[k], Y0[k]])
 
         locs = np.array([0.0, 1.0])
-        self.set_profile('u', locs, [u0, 0.0])
+        self.set_profile('velocity', locs, [u0, 0.0])
         self.set_profile('V', locs, [0.0, 0.0])
 
 
@@ -1498,7 +1509,7 @@ class CounterflowPremixedFlame(FlameBase):
         # estimate stagnation point
         x0 = rhou*uu * dz / (rhou*uu + rhob*ub)
 
-        self.set_profile('u', [0.0, 1.0], [uu, -ub])
+        self.set_profile('velocity', [0.0, 1.0], [uu, -ub])
         self.set_profile('V', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
 
 
@@ -1571,5 +1582,5 @@ class CounterflowTwinPremixedFlame(FlameBase):
         dz = zz[-1] - zz[0]
         a = 2 * uu / dz
 
-        self.set_profile('u', [0.0, 1.0], [uu, 0])
+        self.set_profile('velocity', [0.0, 1.0], [uu, 0])
         self.set_profile('V', [0.0, 1.0], [0.0, a])

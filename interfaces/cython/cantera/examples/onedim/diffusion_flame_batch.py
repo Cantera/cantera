@@ -111,8 +111,8 @@ for p in p_range:
     f.fuel_inlet.mdot *= rel_pressure_increase ** exp_mdot_p
     f.oxidizer_inlet.mdot *= rel_pressure_increase ** exp_mdot_p
     # Update velocities
-    f.set_profile('u', normalized_grid,
-                  f.u * rel_pressure_increase ** exp_u_p)
+    f.set_profile('velocity', normalized_grid,
+                  f.velocity * rel_pressure_increase ** exp_u_p)
     f.set_profile('V', normalized_grid,
                   f.V * rel_pressure_increase ** exp_V_p)
     # Update pressure curvature
@@ -167,7 +167,7 @@ while np.max(f.T) > temperature_limit_extinction:
     f.fuel_inlet.mdot *= strain_factor ** exp_mdot_a
     f.oxidizer_inlet.mdot *= strain_factor ** exp_mdot_a
     # Update velocities
-    f.set_profile('u', normalized_grid, f.u * strain_factor ** exp_u_a)
+    f.set_profile('velocity', normalized_grid, f.velocity * strain_factor ** exp_u_a)
     f.set_profile('V', normalized_grid, f.V * strain_factor ** exp_V_a)
     # Update pressure curvature
     f.set_profile('lambda', normalized_grid, f.L * strain_factor ** exp_lam_a)
@@ -203,7 +203,7 @@ for p in p_selected:
 
     # Plot the axial velocity profiles (normalized by the fuel inlet velocity)
     # for selected pressures
-    ax2.plot(f.grid / f.grid[-1], f.u / f.u[0],
+    ax2.plot(f.grid / f.grid[-1], f.velocity / f.velocity[0],
              label='{0:05.1f} bar'.format(p))
 
 ax1.legend(loc=0)
@@ -231,7 +231,7 @@ for n in n_selected:
 
     # Plot the axial velocity profiles (normalized by the fuel inlet velocity)
     # for the strain rate loop (selected)
-    ax4.plot(f.grid / f.grid[-1], f.u / f.u[0],
+    ax4.plot(f.grid / f.grid[-1], f.velocity / f.velocity[0],
              label=format(a_max, '.2e') + ' 1/s')
 
 ax3.legend(loc=0)
