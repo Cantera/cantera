@@ -88,7 +88,7 @@ n_last_burning = 0
 # List of peak temperatures
 T_max = [np.max(f.T)]
 # List of maximum axial velocity gradients
-a_max = [np.max(np.abs(np.gradient(f.u) / np.gradient(f.grid)))]
+a_max = [np.max(np.abs(np.gradient(f.velocity) / np.gradient(f.grid)))]
 
 # Simulate counterflow flames at increasing strain rates until the flame is
 # extinguished. To achieve a fast simulation, an initial coarse strain rate
@@ -109,7 +109,7 @@ while True:
     f.fuel_inlet.mdot *= strain_factor ** exp_mdot_a
     f.oxidizer_inlet.mdot *= strain_factor ** exp_mdot_a
     # Update velocities
-    f.set_profile('u', normalized_grid, f.u * strain_factor ** exp_u_a)
+    f.set_profile('velocity', normalized_grid, f.velocity * strain_factor ** exp_u_a)
     f.set_profile('V', normalized_grid, f.V * strain_factor ** exp_V_a)
     # Update pressure curvature
     f.set_profile('lambda', normalized_grid, f.L * strain_factor ** exp_lam_a)
@@ -125,7 +125,7 @@ while True:
                description='Cantera version ' + ct.__version__ +
                ', reaction mechanism ' + reaction_mechanism)
         T_max.append(np.max(f.T))
-        a_max.append(np.max(np.abs(np.gradient(f.u) / np.gradient(f.grid))))
+        a_max.append(np.max(np.abs(np.gradient(f.velocity) / np.gradient(f.grid))))
         # If the temperature difference is too small and the minimum relative
         # strain rate increase is reached, abort
         if ((T_max[-2] - T_max[-1] < delta_T_min) &

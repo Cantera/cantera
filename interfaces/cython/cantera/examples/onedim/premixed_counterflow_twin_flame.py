@@ -29,12 +29,12 @@ def derivative(x, y):
 
 def computeStrainRates(oppFlame):
     # Compute the derivative of axial velocity to obtain normal strain rate
-    strainRates = derivative(oppFlame.grid, oppFlame.u)
+    strainRates = derivative(oppFlame.grid, oppFlame.velocity)
 
     # Obtain the location of the max. strain rate upstream of the pre-heat zone.
     # This is the characteristic strain rate
     maxStrLocation = abs(strainRates).argmax()
-    minVelocityPoint = oppFlame.u[:maxStrLocation].argmin()
+    minVelocityPoint = oppFlame.velocity[:maxStrLocation].argmin()
 
     # Characteristic Strain Rate = K
     strainRatePoint = abs(strainRates[:minVelocityPoint]).argmax()
@@ -130,15 +130,17 @@ if '--plot' in sys.argv:
 
     # Axial Velocity Plot
     plt.subplot(1, 2, 1)
-    plt.plot(oppFlame.grid, oppFlame.u, 'r', lw=2)
+    plt.plot(oppFlame.grid, oppFlame.velocity, 'r', lw=2)
     plt.xlim(oppFlame.grid[0], oppFlame.grid[-1])
     plt.xlabel('Distance (m)')
     plt.ylabel('Axial Velocity (m/s)')
 
     # Identify the point where the strain rate is calculated
-    plt.plot(oppFlame.grid[strainRatePoint], oppFlame.u[strainRatePoint], 'gs')
+    plt.plot(oppFlame.grid[strainRatePoint],
+             oppFlame.velocity[strainRatePoint], 'gs')
     plt.annotate('Strain-Rate point',
-                 xy=(oppFlame.grid[strainRatePoint], oppFlame.u[strainRatePoint]),
+                 xy=(oppFlame.grid[strainRatePoint],
+                     oppFlame.velocity[strainRatePoint]),
                  xytext=(0.001, 0.1),
                  arrowprops={'arrowstyle': '->'})
 
