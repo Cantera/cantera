@@ -309,6 +309,9 @@ class FlameBase(Sim1D):
             else:
                 val = self.profile(self.flame, e)
             extra[e] = np.hstack([np.nan, val, np.nan])
+        if self.radiation_enabled:
+            qdot = self.flame.radiative_heat_loss()
+            extra['qdot'] = np.hstack([np.nan, qdot, np.nan])
 
         # consider inlet boundaries
         left = self.domains[0]  # left boundary is always an inlet
@@ -374,7 +377,7 @@ class FlameBase(Sim1D):
         self.set_profile('T', xi, arr.T[idx])
         for e in self._extra:
             val = getattr(arr, e)[idx]
-            if e == 'grid':
+            if e in ['grid', 'qdot']:
                 pass
             elif e == 'velocity':
                 self.set_profile('u', xi, val)
@@ -514,6 +517,9 @@ class FlameBase(Sim1D):
         out['energy_enabled'] = self.energy_enabled
         out['soret_enabled'] = self.soret_enabled
         out['radiation_enabled'] = self.radiation_enabled
+        epsilon = self.flame.boundary_emissivities
+        out['emissivity_left'] = epsilon[0]
+        out['emissivity_right'] = epsilon[1]
         out.update(self.get_refine_criteria())
         out['max_time_step_count'] = self.max_time_step_count
         out['max_grid_points'] = self.get_max_grid_points(self.flame)

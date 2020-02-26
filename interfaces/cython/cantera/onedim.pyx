@@ -467,7 +467,26 @@ cdef class _FlowBase(Domain1D):
         del self.flow
 
     def set_boundary_emissivities(self, e_left, e_right):
-        self.flow.setBoundaryEmissivities(e_left, e_right)
+        """
+        .. deprecated:: 2.5
+
+             To be deprecated with version 2.5, and removed thereafter.
+             Replaced by property `boundary_emissivities`.
+        """
+        warnings.warn("To be removed after Cantera 2.5. "
+                      "Replaced by property 'boundary_emissivities'",
+                      DeprecationWarning)
+        self.boundary_emissivities = e_left, e_right
+
+    property boundary_emissivities:
+        """ Set/get boundary emissivities. """
+        def __get__(self):
+            return self.flow.getLeftEmissivity(), self.flow.getRightEmissivity()
+        def __set__(self, tuple epsilon):
+            if len(epsilon) == 2:
+                self.flow.setBoundaryEmissivities(epsilon[0], epsilon[1])
+            else:
+                raise ValueError("Setter requires tuple of length 2.")
 
     property radiation_enabled:
         """ Determines whether or not to include radiative heat transfer """
@@ -475,6 +494,16 @@ cdef class _FlowBase(Domain1D):
             return self.flow.radiationEnabled()
         def __set__(self, do_radiation):
             self.flow.enableRadiation(<cbool>do_radiation)
+
+    def radiative_heat_loss(self):
+        """
+        Return radiative heat loss (only non-zero if radiation is enabled).
+        """
+        cdef int j
+        cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_points)
+        for j in range(self.n_points):
+            data[j] = self.flow.radiativeHeatLoss(j)
+        return data
 
     def set_free_flow(self):
         """
