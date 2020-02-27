@@ -495,15 +495,16 @@ cdef class _FlowBase(Domain1D):
         def __set__(self, do_radiation):
             self.flow.enableRadiation(<cbool>do_radiation)
 
-    def radiative_heat_loss(self):
+    property radiative_heat_loss:
         """
         Return radiative heat loss (only non-zero if radiation is enabled).
         """
-        cdef int j
-        cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_points)
-        for j in range(self.n_points):
-            data[j] = self.flow.radiativeHeatLoss(j)
-        return data
+        def __get__(self):
+            cdef int j
+            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_points)
+            for j in range(self.n_points):
+                data[j] = self.flow.radiativeHeatLoss(j)
+            return data
 
     def set_free_flow(self):
         """
@@ -536,9 +537,9 @@ cdef class IdealGasFlow(_FlowBase):
     equations for the flow in a finite-height gap of infinite radial extent.
     The solution variables are:
 
-    *u*
+    *velocity*
         axial velocity
-    *V*
+    *tangential_velocity_gradient*
         radial velocity divided by radius
     *T*
         temperature
@@ -560,6 +561,10 @@ cdef class IdealGasFlow(_FlowBase):
     def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
         gas = getIdealGasPhase(thermo)
         self.flow = new CxxStFlow(gas, thermo.n_species, 2)
+
+    def component_index(self, str name):
+        """Index of the component with name 'name'"""
+        return self.flow.componentIndex(stringify(name))
 
 
 cdef class IonFlow(_FlowBase):

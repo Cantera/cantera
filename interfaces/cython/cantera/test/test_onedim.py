@@ -164,9 +164,29 @@ class TestFreeFlame(utilities.CanteraTest):
         reactants = 'H2:0.65, O2:0.5, AR:2'
         self.create_sim(p, Tin, reactants, width=0.0001)
         self.sim.set_initial_guess()
-        tfixed = 800.
+        zvec = self.sim.grid
+        tvec = self.sim.T
+        tfixed = 900.
         self.sim.fixed_temperature = tfixed
-        self.assertEqual(self.sim.fixed_temperature, tfixed)
+        zfixed = np.interp(tfixed, tvec, zvec)
+        self.assertNear(self.sim.fixed_temperature, tfixed)
+        self.assertNear(self.sim.fixed_temperature_location, zfixed)
+
+    def test_deprecated(self):
+        Tin = 300
+        p = ct.one_atm
+        reactants = 'H2:0.65, O2:0.5, AR:2'
+        self.create_sim(p, Tin, reactants, width=0.0001)
+        with self.assertWarnsRegex(DeprecationWarning, "Replaced by property"):
+            self.sim.flame.set_boundary_emissivities(0.5, 0.5)
+        with self.assertWarnsRegex(DeprecationWarning, "property 'velocity"):
+            self.sim.u
+        with self.assertWarnsRegex(DeprecationWarning, "property 'tangential"):
+            self.sim.V
+        with self.assertRaisesRegex(ct.CanteraError, "renamed to 'velocity"):
+            self.sim.flame.component_index('u')
+        with self.assertRaisesRegex(ct.CanteraError, "renamed to 'vGradient"):
+            self.sim.flame.component_index('V')
 
     def test_auto_width(self):
         Tin = 300
@@ -279,7 +299,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
         settings = self.sim.settings
 
-        keys = ['type', 'transport_model',
+        keys = ['configuration', 'transport_model',
                 'energy_enabled', 'soret_enabled', 'radiation_enabled',
                 'emissivity_left', 'emissivity_right',
                 'fixed_temperature',
@@ -777,6 +797,9 @@ class TestDiffusionFlame(utilities.CanteraTest):
         data[:,2] = self.sim.tangential_velocity_gradient
         data[:,3] = self.sim.T
         data[:,4:] = self.sim.Y.T
+
+        qdot = self.sim.flame.radiative_heat_loss
+        self.assertEqual(len(qdot), self.sim.flame.n_points)
 
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')

@@ -337,7 +337,7 @@ class FlameBase(Sim1D):
                 val = self.profile(self.flame, e)
             extra[e] = np.hstack([np.nan, val, np.nan])
         if self.radiation_enabled:
-            qdot = self.flame.radiative_heat_loss()
+            qdot = self.flame.radiative_heat_loss
             extra['qdot'] = np.hstack([np.nan, qdot, np.nan])
 
         # consider inlet boundaries
@@ -510,7 +510,7 @@ class FlameBase(Sim1D):
         df.set_index('key')
 
         # store settings to HDF container file as a separate group
-        df.to_hdf(filename, key='settings', append=True)
+        df.to_hdf(filename, key='settings', format='table', append=True)
 
     def read_hdf(self, filename, key=None, restore_boundaries=True):
         """
@@ -536,7 +536,7 @@ class FlameBase(Sim1D):
     @property
     def settings(self):
         """ Return a dictionary listing simulation settings """
-        out = {'type': type(self).__name__}
+        out = {'configuration': type(self).__name__}
         out['transport_model'] = self.transport_model
         out['energy_enabled'] = self.energy_enabled
         out['soret_enabled'] = self.soret_enabled
