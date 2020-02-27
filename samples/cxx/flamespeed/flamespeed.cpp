@@ -4,7 +4,7 @@
  */
 
 #include "cantera/oneD/Sim1D.h"
-#include "cantera/oneD/Inlet1D.h"
+#include "cantera/oneD/Boundary1D.h"
 #include "cantera/oneD/StFlow.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/transport.h"

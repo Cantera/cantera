@@ -11,7 +11,7 @@
 
 // Cantera includes
 #include "cantera/oneD/Sim1D.h"
-#include "cantera/oneD/Inlet1D.h"
+#include "cantera/oneD/Boundary1D.h"
 #include "cantera/transport/TransportBase.h"
 #include "Cabinet.h"
 
@@ -278,7 +278,7 @@ extern "C" {
     int bdry_setMdot(int i, double mdot)
     {
         try {
-            DomainCabinet::get<Bdry1D>(i).setMdot(mdot);
+            DomainCabinet::get<Boundary1D>(i).setMdot(mdot);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -288,7 +288,7 @@ extern "C" {
     int bdry_setTemperature(int i, double t)
     {
         try {
-            DomainCabinet::get<Bdry1D>(i).setTemperature(t);
+            DomainCabinet::get<Boundary1D>(i).setTemperature(t);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -298,7 +298,7 @@ extern "C" {
     int bdry_setMoleFractions(int i, const char* x)
     {
         try {
-            DomainCabinet::get<Bdry1D>(i).setMoleFractions(x);
+            DomainCabinet::get<Boundary1D>(i).setMoleFractions(x);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -308,7 +308,7 @@ extern "C" {
     double bdry_temperature(int i)
     {
         try {
-            return DomainCabinet::get<Bdry1D>(i).temperature();
+            return DomainCabinet::get<Boundary1D>(i).temperature();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -317,7 +317,7 @@ extern "C" {
     double bdry_massFraction(int i, int k)
     {
         try {
-            return DomainCabinet::get<Bdry1D>(i).massFraction(k);
+            return DomainCabinet::get<Boundary1D>(i).massFraction(k);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -326,7 +326,7 @@ extern "C" {
     double bdry_mdot(int i)
     {
         try {
-            return DomainCabinet::get<Bdry1D>(i).mdot();
+            return DomainCabinet::get<Boundary1D>(i).mdot();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }

@@ -310,7 +310,7 @@ cdef class Inlet1D(Boundary1D):
     """
     def __cinit__(self, *args, **kwargs):
         self.inlet = new CxxInlet1D()
-        self.boundary = <CxxBdry1D*>(self.inlet)
+        self.boundary = <CxxBoundary1D*>(self.inlet)
 
     def __dealloc__(self):
         del self.inlet
@@ -332,7 +332,7 @@ cdef class Outlet1D(Boundary1D):
     """
     def __cinit__(self, *args, **kwargs):
         self.outlet = new CxxOutlet1D()
-        self.boundary = <CxxBdry1D*>(self.outlet)
+        self.boundary = <CxxBoundary1D*>(self.outlet)
 
     def __dealloc__(self):
         del self.outlet
@@ -344,7 +344,7 @@ cdef class OutletReservoir1D(Boundary1D):
     """
     def __cinit__(self, *args, **kwargs):
         self.outlet = new CxxOutletRes1D()
-        self.boundary = <CxxBdry1D*>(self.outlet)
+        self.boundary = <CxxBoundary1D*>(self.outlet)
 
     def __dealloc__(self):
         del self.outlet
@@ -354,7 +354,7 @@ cdef class SymmetryPlane1D(Boundary1D):
     """A symmetry plane."""
     def __cinit__(self, *args, **kwargs):
         self.symm = new CxxSymm1D()
-        self.boundary = <CxxBdry1D*>(self.symm)
+        self.boundary = <CxxBoundary1D*>(self.symm)
 
     def __dealloc__(self):
         del self.symm
@@ -364,7 +364,7 @@ cdef class Surface1D(Boundary1D):
     """A solid surface."""
     def __cinit__(self, *args, **kwargs):
         self.surf = new CxxSurf1D()
-        self.boundary = <CxxBdry1D*>(self.surf)
+        self.boundary = <CxxBoundary1D*>(self.surf)
 
     def __dealloc__(self):
         del self.surf
@@ -374,7 +374,7 @@ cdef class ReactingSurface1D(Boundary1D):
     """A reacting solid surface."""
     def __cinit__(self, *args, **kwargs):
         self.surf = new CxxReactingSurf1D()
-        self.boundary = <CxxBdry1D*>(self.surf)
+        self.boundary = <CxxBoundary1D*>(self.surf)
 
     def __dealloc__(self):
         del self.surf

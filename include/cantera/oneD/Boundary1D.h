@@ -1,5 +1,5 @@
 /**
- * @file Inlet1D.h
+ * @file Boundary1D.h
  *
  * Boundary objects for one-dimensional simulations.
  */
@@ -7,8 +7,8 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#ifndef CT_BDRY1D_H
-#define CT_BDRY1D_H
+#ifndef CT_BOUNDARY1D_H
+#define CT_BOUNDARY1D_H
 
 #include "Domain1D.h"
 #include "cantera/thermo/SurfPhase.h"
@@ -32,10 +32,10 @@ const int RightInlet = -1;
  * exceptions.
  * @ingroup onedim
  */
-class Bdry1D : public Domain1D
+class Boundary1D : public Domain1D
 {
 public:
-    Bdry1D();
+    Boundary1D();
 
     virtual void init() {
         _init(1);
@@ -57,17 +57,17 @@ public:
 
     /// Set the mole fractions by specifying a std::string.
     virtual void setMoleFractions(const std::string& xin) {
-        throw NotImplementedError("Bdry1D::setMoleFractions");
+        throw NotImplementedError("Boundary1D::setMoleFractions");
     }
 
     /// Set the mole fractions by specifying an array.
     virtual void setMoleFractions(const doublereal* xin) {
-        throw NotImplementedError("Bdry1D::setMoleFractions");
+        throw NotImplementedError("Boundary1D::setMoleFractions");
     }
 
     /// Mass fraction of species k.
     virtual doublereal massFraction(size_t k) {
-        throw NotImplementedError("Bdry1D::massFraction");
+        throw NotImplementedError("Boundary1D::massFraction");
     }
 
     /// Set the total mass flow rate.
@@ -101,7 +101,7 @@ protected:
  * An inlet.
  * @ingroup onedim
  */
-class Inlet1D : public Bdry1D
+class Inlet1D : public Boundary1D
 {
 public:
     Inlet1D();
@@ -147,10 +147,10 @@ protected:
  * A terminator that does nothing.
  * @ingroup onedim
  */
-class Empty1D : public Bdry1D
+class Empty1D : public Boundary1D
 {
 public:
-    Empty1D() : Bdry1D() {
+    Empty1D() : Boundary1D() {
         m_type = cEmptyType;
     }
 
@@ -170,10 +170,10 @@ public:
  * zero axial gradients.
  * @ingroup onedim
  */
-class Symm1D : public Bdry1D
+class Symm1D : public Boundary1D
 {
 public:
-    Symm1D() : Bdry1D() {
+    Symm1D() : Boundary1D() {
         m_type = cSymmType;
     }
 
@@ -191,10 +191,10 @@ public:
  * An outlet.
  * @ingroup onedim
  */
-class Outlet1D : public Bdry1D
+class Outlet1D : public Boundary1D
 {
 public:
-    Outlet1D() : Bdry1D() {
+    Outlet1D() : Boundary1D() {
         m_type = cOutletType;
     }
 
@@ -212,7 +212,7 @@ public:
  * An outlet with specified composition.
  * @ingroup onedim
  */
-class OutletRes1D : public Bdry1D
+class OutletRes1D : public Boundary1D
 {
 public:
     OutletRes1D();
@@ -247,10 +247,10 @@ protected:
  * condition is imposed for the species.
  * @ingroup onedim
  */
-class Surf1D : public Bdry1D
+class Surf1D : public Boundary1D
 {
 public:
-    Surf1D() : Bdry1D() {
+    Surf1D() : Boundary1D() {
         m_type = cSurfType;
     }
 
@@ -273,7 +273,7 @@ public:
  * A reacting surface.
  * @ingroup onedim
  */
-class ReactingSurf1D : public Bdry1D
+class ReactingSurf1D : public Boundary1D
 {
 public:
     ReactingSurf1D();
