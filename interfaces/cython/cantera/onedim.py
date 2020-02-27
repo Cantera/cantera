@@ -550,10 +550,10 @@ class FlameBase(Sim1D):
         out['max_grid_points'] = self.get_max_grid_points(self.flame)
 
         # add tolerance settings
-        tols = {'steady_abstol': self.flame.steady_abstol(),
-                'steady_reltol': self.flame.steady_reltol(),
-                'transient_abstol': self.flame.transient_abstol(),
-                'transient_reltol': self.flame.transient_reltol()}
+        tols = {'steady_reltol': self.flame.steady_reltol(),
+                'steady_abstol': self.flame.steady_abstol(),
+                'transient_reltol': self.flame.transient_reltol(),
+                'transient_abstol': self.flame.transient_abstol()}
         comp = np.array(self.flame.component_names)
         for tname, tol in tols.items():
             # add mode (most frequent tolerance setting)
@@ -567,6 +567,48 @@ class FlameBase(Sim1D):
                         for c, t in zip(comp[ix], tol[ix])})
 
         return out
+
+    @settings.setter
+    def settings(self, s):
+        # simple setters
+        attr = {'transport_model',
+                'energy_enabled', 'soret_enabled', 'radiation_enabled',
+                'fixed_temperature',
+                'max_time_step_count', 'max_grid_points'}
+        attr = attr & set(s.keys())
+        for key in attr:
+            self.__setattr__(key, s[key])
+
+        # boundary emissivities
+        if 'emissivity_left' in s or 'emissivity_right' in s:
+            epsilon = self.flame.boundary_emissivities
+            epsilon = (s.get('emissivity_left', epsilon[0]),
+                       s.get('emissivity_right', epsilon[1]))
+            self.flame.boundary_emissivities = epsilon
+
+        # refine criteria
+        refine = {k: v for k, v in s.items()
+                  if k in ['ratio', 'slope', 'curve', 'prune']}
+        if refine:
+            self.set_refine_criteria(**refine)
+
+        # tolerances
+        tols = ['steady_reltol', 'steady_abstol',
+                'transient_reltol', 'transient_abstol']
+        tols = [t for t in tols if t in s]
+        comp = np.array(self.flame.component_names)
+        for tname in tols:
+            mode = tname.split('_')
+            tol = s[tname] * np.ones(len(comp))
+            for i, c in enumerate(comp):
+                key = '{}_{}'.format(tname, c)
+                if key in s:
+                    tol[i] = s[key]
+            tol = {mode[1][:3]: tol}
+            if mode[0] == 'steady':
+                self.flame.set_steady_tolerances(**tol)
+            else:
+                self.flame.set_transient_tolerances(**tol)
 
     def _load_restart_data(self, source, **kwargs):
         """ Load data for restart (called by set_initial_guess) """

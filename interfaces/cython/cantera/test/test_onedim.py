@@ -311,6 +311,17 @@ class TestFreeFlame(utilities.CanteraTest):
         for k in keys:
             self.assertIn(k, settings)
 
+        changed = {'fixed_temperature': 900,
+                   'max_time_step_count': 100,
+                   'energy_enabled': False,
+                   'radiation_enabled': True,
+                   'transport_model': 'Multi'}
+        settings.update(changed)
+
+        self.sim.settings = settings
+        for k, v in changed.items():
+            self.assertEqual(getattr(self.sim, k), v)
+
     def test_mixture_averaged_case1(self):
         self.run_mix(phi=0.65, T=300, width=0.03, p=1.0, refine=True)
 
