@@ -13,7 +13,7 @@
 
 #include "oneD/Sim1D.h"
 #include "oneD/Domain1D.h"
-#include "oneD/Inlet1D.h"
+#include "oneD/Boundary1D.h"
 #include "oneD/StFlow.h"
 
 #endif

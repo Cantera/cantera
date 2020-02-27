@@ -1,9 +1,9 @@
-//! @file boundaries1D.cpp
+//! @file Boundary1D.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/oneD/Inlet1D.h"
+#include "cantera/oneD/Boundary1D.h"
 #include "cantera/oneD/OneDim.h"
 #include "cantera/base/ctml.h"
 #include "cantera/oneD/StFlow.h"
@@ -13,7 +13,7 @@ using namespace std;
 namespace Cantera
 {
 
-Bdry1D::Bdry1D() : Domain1D(1, 1, 0.0),
+Boundary1D::Boundary1D() : Domain1D(1, 1, 0.0),
     m_flow_left(0), m_flow_right(0),
     m_ilr(0), m_left_nv(0), m_right_nv(0),
     m_left_loc(0), m_right_loc(0),
@@ -26,10 +26,10 @@ Bdry1D::Bdry1D() : Domain1D(1, 1, 0.0),
     m_type = cConnectorType;
 }
 
-void Bdry1D::_init(size_t n)
+void Boundary1D::_init(size_t n)
 {
     if (m_index == npos) {
-        throw CanteraError("Bdry1D::_init",
+        throw CanteraError("Boundary1D::_init",
                            "install in container before calling init.");
     }
 
@@ -50,7 +50,7 @@ void Bdry1D::_init(size_t n)
             m_left_nsp = m_left_nv - c_offset_Y;
             m_phase_left = &m_flow_left->phase();
         } else {
-            throw CanteraError("Bdry1D::_init",
+            throw CanteraError("Boundary1D::_init",
                 "Boundary domains can only be connected on the left to flow "
                 "domains, not type {} domains.", r.domainType());
         }
@@ -66,7 +66,7 @@ void Bdry1D::_init(size_t n)
             m_right_nsp = m_right_nv - c_offset_Y;
             m_phase_right = &m_flow_right->phase();
         } else {
-            throw CanteraError("Bdry1D::_init",
+            throw CanteraError("Boundary1D::_init",
                 "Boundary domains can only be connected on the right to flow "
                 "domains, not type {} domains.", r.domainType());
         }
