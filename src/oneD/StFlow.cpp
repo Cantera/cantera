@@ -620,6 +620,8 @@ size_t StFlow::componentIndex(const std::string& name) const
                 return n;
             }
         }
+        throw CanteraError("StFlow1D::componentIndex",
+                           "no component named " + name);
     }
     return npos;
 }
