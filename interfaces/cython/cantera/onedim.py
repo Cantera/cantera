@@ -6,6 +6,7 @@ from ._cantera import *
 from .composite import Solution, SolutionArray
 import csv as _csv
 from math import erf
+from os import path
 from email.utils import formatdate
 
 # avoid explicit dependence of cantera on pandas
@@ -374,7 +375,8 @@ class FlameBase(Sim1D):
 
         return arr
 
-    def from_solution_array(self, arr, restore_boundaries=True):
+    def from_solution_array(self, arr, restore_boundaries=True,
+                            settings=None):
         """
         Restore the solution vector from a Cantera `SolutionArray` object.
 
@@ -383,6 +385,9 @@ class FlameBase(Sim1D):
         :param restore_boundaries:
             Boolean flag to indicate whether boundaries should be restored
             (default is ``True``)
+        :param settings:
+            dictionary containing simulation settings
+            (see `FlameBase.settings`)
 
         The `SolutionArray` requires the following ``extra`` entries:
          * ``grid``: grid point positions along the flame [m]
@@ -433,6 +438,9 @@ class FlameBase(Sim1D):
                 right.Y = arr[-1].Y
                 right.mdot = -arr.velocity[-1] * arr[-1].density
 
+        if settings:
+            self.settings = settings
+
     def to_pandas(self, species='X'):
         """
         Return the solution vector as a `pandas.DataFrame`.
@@ -448,7 +456,7 @@ class FlameBase(Sim1D):
         cols = ('extra', 'T', 'D', species)
         return self.to_solution_array().to_pandas(cols=cols)
 
-    def from_pandas(self, df, restore_boundaries=True):
+    def from_pandas(self, df, restore_boundaries=True, settings=None):
         """
         Restore the solution vector from a `pandas.DataFrame`.
 
@@ -457,6 +465,9 @@ class FlameBase(Sim1D):
         :param restore_boundaries:
             Boolean flag to indicate whether boundaries should be restored
             (default is ``True``)
+        :param settings:
+            dictionary containing simulation settings
+            (see `FlameBase.settings`)
 
         This method is intendend for loading of data that were previously
         exported by `to_pandas`. The method uses `from_solution_array` and
@@ -465,7 +476,8 @@ class FlameBase(Sim1D):
         """
         arr = SolutionArray(self.gas, extra=self._extra)
         arr.from_pandas(df)
-        self.from_solution_array(arr, restore_boundaries=restore_boundaries)
+        self.from_solution_array(arr, restore_boundaries=restore_boundaries,
+                                 settings=settings)
 
     def write_hdf(self, filename, key=None, species='X',
                   mode=None, complevel=None):
@@ -493,8 +505,18 @@ class FlameBase(Sim1D):
         PyTables. These packages can be installed using pip (`pandas` and
         `tables`) or conda (`pandas` and `pytables`).
         """
+        # ensure key identifying HDF group within container is unique
         if not key:
-            key = type(self).__name__
+            key = 'data'
+        if path.exists(filename) and mode != 'w':
+            with _pandas.HDFStore(filename) as hdf:
+                 keys = hdf.keys()
+            count = sum([k.startswith(key, 1) for k in keys])
+            if count:
+                key = '{}_{}'.format(key, count)
+            row = len(keys) - 1
+        else:
+            row = 0
 
         # save data
         cols = ('extra', 'T', 'D', species)
@@ -507,12 +529,14 @@ class FlameBase(Sim1D):
         df['date'] = formatdate(localtime=True)
         for key, val in self.settings.items():
             df[key] = [val]
-        df.set_index('key')
+        df.index = _pandas.RangeIndex(start=row, stop=row+1, step=1)
 
         # store settings to HDF container file as a separate group
-        df.to_hdf(filename, key='settings', format='table', append=True)
+        df.to_hdf(filename, key='settings', format='table',
+                  append=True)
 
-    def read_hdf(self, filename, key=None, restore_boundaries=True):
+    def read_hdf(self, filename, key=None,
+                 restore_boundaries=True, restore_settings=True):
         """
         Restore the solution vector from a HDF container file.
 
@@ -523,15 +547,37 @@ class FlameBase(Sim1D):
         :param restore_boundaries:
             Boolean flag to indicate whether boundaries should be restored
             (default is ``True``)
+        :param restore_settings:
+            Boolean flag to indicate whether simulation settings should be
+            restored (default is ``True``)
 
         The method imports data using `SolutionArray.read_hdf` via
         `from_solution_array` and requires working installations of pandas and
         PyTables. These packages can be installed using pip (`pandas` and
         `tables`) or conda (`pandas` and `pytables`).
         """
+        if key is None:
+            with _pandas.HDFStore(filename) as hdf:
+                 keys = hdf.keys()
+            key = [k.lstrip('/') for k in keys
+                   if k != '/settings'][0]
+
+        # retrieve data
         arr = SolutionArray(self.gas, extra=self._extra)
         arr.read_hdf(filename, key=key)
-        self.from_solution_array(arr, restore_boundaries=restore_boundaries)
+
+        # retrieve settings
+        if restore_settings:
+            df = _pandas.read_hdf(filename, key='settings')
+            df = df.set_index('key')
+            series = df.loc[key]
+            settings = {k: v for k, v in series.items()
+                        if k not in ['key', 'date']}
+        else:
+            settings = None
+
+        self.from_solution_array(arr, restore_boundaries=restore_boundaries,
+                                 settings=settings)
 
     @property
     def settings(self):
