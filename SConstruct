@@ -1108,7 +1108,7 @@ if env['system_sundials'] == 'y':
 
     # Ignore the minor version, e.g. 2.4.x -> 2.4
     env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
-    if env['sundials_version'] not in ('2.4','2.5','2.6','2.7','3.0','3.1','3.2','4.0','4.1','5.0'):
+    if env['sundials_version'] not in ('2.4','2.5','2.6','2.7','3.0','3.1','3.2','4.0','4.1','5.0','5.1'):
         print("""ERROR: Sundials version %r is not supported.""" % env['sundials_version'])
         sys.exit(1)
     print("""INFO: Using system installation of Sundials version %s.""" % sundials_version)
