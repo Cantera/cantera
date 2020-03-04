@@ -1798,3 +1798,8 @@ class TestSolutionArray(utilities.CanteraTest):
         except ImportError as err:
             # pandas is not installed and correct exception is raised
             pass
+
+    def test_slice_SolutionArray(self):
+        soln = ct.SolutionArray(self.gas, 10)
+        arr = soln[2:9:3]
+        self.assertEqual(len(arr.T), 3)

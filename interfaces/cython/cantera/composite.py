@@ -545,8 +545,13 @@ class SolutionArray:
 
     def __getitem__(self, index):
         states = self._states[index]
-        shape = states.shape[:-1]
-        return SolutionArray(self._phase, shape, states)
+        if(isinstance(states, list)):
+            num_rows = len(states)
+            return SolutionArray(self._phase, num_rows, states)
+        else:
+            shape = states.shape[:-1]
+            return SolutionArray(self._phase, shape, states)
+
 
     def __getattr__(self, name):
         if name in self._extra:
