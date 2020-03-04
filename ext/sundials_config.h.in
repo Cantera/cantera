@@ -1,7 +1,7 @@
 /* Minimal set of SUNDIALS configuration variables */
-#define SUNDIALS_VERSION "5.0.0"
+#define SUNDIALS_VERSION "5.1.0"
 #define SUNDIALS_VERSION_MAJOR 5
-#define SUNDIALS_VERSION_MINOR 0
+#define SUNDIALS_VERSION_MINOR 1
 #define SUNDIALS_VERSION_PATCH 0
 #define SUNDIALS_VERSION_LABEL ""
 #define SUNDIALS_F77_FUNC(name,NAME) name ## _
