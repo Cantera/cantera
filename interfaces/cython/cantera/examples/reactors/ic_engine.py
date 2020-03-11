@@ -155,7 +155,7 @@ cyl.set_advance_limit('temperature', delta_T_max)
 # set up output data arrays
 states = ct.SolutionArray(
     cyl.thermo,
-    extra=('t', 'ca', 'V', 'm', 'mdot_in', 'mdot_out', 'dWv_dt', 'heat_release_rate'),
+    extra=('t', 'ca', 'V', 'm', 'mdot_in', 'mdot_out', 'dWv_dt'),
 )
 
 # simulate with a maximum resolution of 1 deg crank angle
@@ -169,8 +169,6 @@ while sim.time < t_stop:
     # calculate results to be stored
     dWv_dt = - (cyl.thermo.P - ambient_air.thermo.P) * A_piston * \
         piston_speed(sim.time)
-    heat_release_rate = - cyl.volume * ct.gas_constant * cyl.T * \
-        np.sum(gas.standard_enthalpies_RT * cyl.thermo.net_production_rates, 0)
 
     # append output data
     states.append(cyl.thermo.state,
@@ -178,8 +176,7 @@ while sim.time < t_stop:
                   V=cyl.volume, m=cyl.mass,
                   mdot_in=inlet_valve.mdot(sim.time),
                   mdot_out=outlet_valve.mdot(sim.time),
-                  dWv_dt=dWv_dt,
-                  heat_release_rate=heat_release_rate)
+                  dWv_dt=dWv_dt)
 
 
 #######################################################################
@@ -221,7 +218,7 @@ plt.show()
 
 # heat of reaction and expansion work
 fig, ax = plt.subplots()
-ax.plot(t, 1.e-3 * states.heat_release_rate, label=r'$\dot{Q}$')
+ax.plot(t, 1.e-3 * states.heat_release_rate * states.V, label=r'$\dot{Q}$')
 ax.plot(t, 1.e-3 * states.dWv_dt, label=r'$\dot{W}_v$')
 ax.set_ylim(-1e2, 1e3)
 ax.legend(loc=0)
@@ -247,7 +244,7 @@ plt.show()
 ######################################################################
 
 # heat release
-Q = trapz(states.heat_release_rate, t)
+Q = trapz(states.heat_release_rate * states.V, t)
 print('{:45s}{:>4.1f} kW'.format('Heat release rate per cylinder (estimate):',
                                  Q / t[-1] / 1000.))
 
