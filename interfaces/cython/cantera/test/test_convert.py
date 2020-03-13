@@ -264,6 +264,13 @@ class converterTestCommon:
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6],
                            tol=2e-7)
 
+    def test_negative_A_factor(self):
+        self.convert('negative-rate.inp', thermo='dummy-thermo.dat')
+        gas = ct.Solution('negative-rate.cti')  # Validate the mechanism
+        self.assertLess(gas.reaction(4).rate.pre_exponential_factor, 0)
+        self.assertLess(gas.reaction(1).rate.pre_exponential_factor, 0)
+        self.assertLess(gas.reaction(2).rate.pre_exponential_factor, 0)
+
     def test_bad_troe_value(self):
         with self.assertRaises(ValueError):
             self.convert('bad-troe.inp', thermo='dummy-thermo.dat')

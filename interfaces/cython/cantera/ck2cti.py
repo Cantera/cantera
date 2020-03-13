@@ -669,6 +669,12 @@ class ThirdBody(KineticsModel):
         lines[-1] = lines[-1][:-1] + ')'
         return '\n'.join(lines)
 
+    def options(self):
+        if self.arrheniusHigh.A[0] < 0:
+            return ['negative_A']
+        else:
+            return []
+
 
 class Falloff(ThirdBody):
     """
