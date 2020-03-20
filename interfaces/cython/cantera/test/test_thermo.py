@@ -1641,6 +1641,10 @@ class TestSolutionArray(utilities.CanteraTest):
         self.assertArrayNear(col3.T, 900*np.ones(2))
         self.assertArrayNear(row2.T, 900*np.ones(5))
 
+    def test_extra(self):
+        with self.assertRaises(ValueError):
+            states = ct.SolutionArray(self.gas, extra=['creation_rates'])
+        
     def test_append(self):
         states = ct.SolutionArray(self.gas, 5)
         states.TPX = np.linspace(500, 1000, 5), 2e5, 'H2:0.5, O2:0.4'
