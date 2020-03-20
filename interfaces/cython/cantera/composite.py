@@ -513,9 +513,15 @@ class SolutionArray:
             self._indices = list(np.ndindex(self._shape))
             self._output_dummy = self._states[..., 0]
 
+        reserved = self.__dir__()
+
         self._extra = {}
         if isinstance(extra, dict):
             for name, v in extra.items():
+                if name in reserved:
+                    raise ValueError(
+                        "Unable to create extra column '{}': name is already "
+                        "used by SolutionArray objects.".format(name))
                 if not np.shape(v):
                     self._extra[name] = [v]*self._shape[0]
                 elif len(v) == self._shape[0]:
@@ -526,6 +532,10 @@ class SolutionArray:
 
         elif extra and self._shape == (0,):
             for name in extra:
+                if name in reserved:
+                    raise ValueError(
+                        "Unable to create extra column '{}': name is already "
+                        "used by SolutionArray objects.".format(name))
                 self._extra[name] = []
 
         elif extra:
