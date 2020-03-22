@@ -109,7 +109,7 @@ elif localenv['python_prefix']:
     elif localenv['libdirname'] != 'lib':
         # 64-bit RHEL / Fedora etc. or e.g. x32 Gentoo profile
         extra = localenv.subst(
-            ' --prefix=${python_prefix}'
+            ' --prefix=${{python_prefix}}'
             ' --install-lib=${{python_prefix}}/${{libdirname}}/python{}/site-packages'.format(py_version))
     else:
         extra = '--user'
