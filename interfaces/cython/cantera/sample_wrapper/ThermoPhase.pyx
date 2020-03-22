@@ -2,7 +2,7 @@
 # I have made this wrapper assuming we would pass a third parameter (datatype = string) in the function containing which units we want, which by default would be SI unit(Pascal(Pa) in this case).
 # Right now I have added support for only for one Method/Function. I will extend to other Methods, Classes and Units once this sample is approved
 
-from pint import UnitRegistry
+from pint import UnitRegistry       # make sure you have pint library installed before running this code
 
 ureg = UnitRegistry()
 
