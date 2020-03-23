@@ -8,6 +8,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
+#include <boost/python.hpp>     //This inclusion will include <python.h>
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -1148,4 +1149,12 @@ void ThermoPhase::getCsvReportData(std::vector<std::string>& names,
     getPartialMolarVolumes(&data[9][0]);
 }
 
+}
+
+BOOST_PYTHON_MODULE(thermophase)
+{
+    using namespace boost::python;      //Just a convention
+    
+    class_<ThermoPhase> ("ThermoPhase",init<>())        //Exposing the class ThermoPhase
+        .def("setstate_PX", &ThermoPhase::setstate_PX);
 }
