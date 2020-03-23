@@ -157,8 +157,8 @@ development of Cantera through NumFOCUS.
     :width: 675px
     :align: middle
 
-.. |travisci| image:: https://travis-ci.org/Cantera/cantera.svg?branch=master
-    :target: https://travis-ci.org/Cantera/cantera
+.. |travisci| image:: https://travis-ci.com/Cantera/cantera.svg?branch=master
+    :target: https://travis-ci.com/Cantera/cantera
 
 .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/auhd35qn9cdmkpoj?svg=true
     :target: https://ci.appveyor.com/project/Cantera/cantera
