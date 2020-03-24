@@ -197,19 +197,19 @@ class FlameBase(Sim1D):
         .. deprecated:: 2.5
 
              To be deprecated with version 2.5, and removed thereafter.
-             Replaced by property `tangential_velocity_gradient`.
+             Replaced by property `spread_rate`.
         """
         warnings.warn("Property 'V' to be removed after Cantera 2.5. "
-                      "Replaced by property 'tangential_velocity_gradient'",
+                      "Replaced by property 'spread_rate'",
                       DeprecationWarning)
-        return self.profile(self.flame, 'vGradient')
+        return self.profile(self.flame, 'spread_rate')
 
     @property
-    def tangential_velocity_gradient(self):
+    def spread_rate(self):
         """
-        Array containing the tangential velocity gradient [1/s] at each point.
+        Array containing the radial velocity divided by radius [1/s] at each point.
         """
-        return self.profile(self.flame, 'vGradient')
+        return self.profile(self.flame, 'spread_rate')
 
     @property
     def L(self):
@@ -304,7 +304,7 @@ class FlameBase(Sim1D):
         z = self.grid
         T = self.T
         u = self.velocity
-        V = self.tangential_velocity_gradient
+        V = self.spread_rate
 
         with open(filename, 'w', newline='') as csvfile:
             writer = _csv.writer(csvfile)
@@ -325,7 +325,7 @@ class FlameBase(Sim1D):
         The `SolutionArray` has the following ``extra`` entries:
          * ``grid``: grid point positions along the flame [m]
          * ``velocity``: normal velocity [m/s]
-         * ``vGradient``: tangential velocity gradient [1/s] (if applicable)
+         * ``spread_rate``: tangential velocity gradient [1/s] (if applicable)
          * ``lambda``: radial pressure gradient [N/m^4] (if applicable)
          * ``eField``: electric field strength (if applicable)
         """
@@ -392,7 +392,7 @@ class FlameBase(Sim1D):
         The `SolutionArray` requires the following ``extra`` entries:
          * ``grid``: grid point positions along the flame [m]
          * ``velocity``: normal velocity [m/s]
-         * ``vGradient``: tangential velocity gradient [1/s] (if applicable)
+         * ``spread_rate``: tangential velocity gradient [1/s] (if applicable)
          * ``lambda``: radial pressure gradient [N/m^4] (if applicable)
          * ``eField``: electric field strength (if applicable)
         """
@@ -967,7 +967,7 @@ class IonFlameBase(FlameBase):
         z = self.grid
         T = self.T
         u = self.velocity
-        V = self.tangential_velocity_gradient
+        V = self.spread_rate
         E = self.E
 
         with open(filename, 'w', newline='') as csvfile:
@@ -1164,7 +1164,7 @@ class IonBurnerFlame(IonFlameBase, BurnerFlame):
 class CounterflowDiffusionFlame(FlameBase):
     """ A counterflow diffusion flame """
     __slots__ = ('fuel_inlet', 'flame', 'oxidizer_inlet')
-    _extra = ('grid', 'velocity', 'gradient', 'lambda')
+    _extra = ('grid', 'velocity', 'spread_rate', 'lambda')
 
     def __init__(self, gas, grid=None, width=None):
         """
@@ -1273,7 +1273,7 @@ class CounterflowDiffusionFlame(FlameBase):
         zrel = (zz - zz[0])/dz
 
         self.set_profile('velocity', [0.0, 1.0], [u0f, -u0o])
-        self.set_profile('vGradient', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
+        self.set_profile('spread_rate', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
         self.set_profile('T', zrel, T)
         for k,spec in enumerate(self.gas.species_names):
             self.set_profile(spec, zrel, Y[:,k])
@@ -1443,7 +1443,7 @@ class CounterflowDiffusionFlame(FlameBase):
 class ImpingingJet(FlameBase):
     """An axisymmetric flow impinging on a surface at normal incidence."""
     __slots__ = ('inlet', 'flame', 'surface')
-    _extra = ('grid', 'velocity', 'gradient', 'lambda')
+    _extra = ('grid', 'velocity', 'spread_rate', 'lambda')
 
     def __init__(self, gas, grid=None, width=None, surface=None):
         """
@@ -1518,13 +1518,13 @@ class ImpingingJet(FlameBase):
 
         locs = np.array([0.0, 1.0])
         self.set_profile('velocity', locs, [u0, 0.0])
-        self.set_profile('vGradient', locs, [0.0, 0.0])
+        self.set_profile('spread_rate', locs, [0.0, 0.0])
 
 
 class CounterflowPremixedFlame(FlameBase):
     """ A premixed counterflow flame """
     __slots__ = ('reactants', 'flame', 'products')
-    _extra = ('grid', 'velocity', 'gradient', 'lambda')
+    _extra = ('grid', 'velocity', 'spread_rate', 'lambda')
 
     def __init__(self, gas, grid=None, width=None):
         """
@@ -1609,7 +1609,7 @@ class CounterflowPremixedFlame(FlameBase):
         x0 = rhou*uu * dz / (rhou*uu + rhob*ub)
 
         self.set_profile('velocity', [0.0, 1.0], [uu, -ub])
-        self.set_profile('vGradient', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
+        self.set_profile('spread_rate', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
 
 
 class CounterflowTwinPremixedFlame(FlameBase):
@@ -1618,7 +1618,7 @@ class CounterflowTwinPremixedFlame(FlameBase):
     shooting into each other.
     """
     __slots__ = ('reactants', 'flame', 'products')
-    _extra = ('grid', 'velocity', 'gradient', 'lambda')
+    _extra = ('grid', 'velocity', 'spread_rate', 'lambda')
 
     def __init__(self, gas, grid=None, width=None):
         """
@@ -1682,4 +1682,4 @@ class CounterflowTwinPremixedFlame(FlameBase):
         a = 2 * uu / dz
 
         self.set_profile('velocity', [0.0, 1.0], [uu, 0])
-        self.set_profile('vGradient', [0.0, 1.0], [0.0, a])
+        self.set_profile('spread_rate', [0.0, 1.0], [0.0, a])

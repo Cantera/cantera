@@ -111,8 +111,8 @@ while True:
     # Update velocities
     f.set_profile('velocity', normalized_grid,
                   f.velocity * strain_factor ** exp_u_a)
-    f.set_profile('vGradient', normalized_grid,
-                  f.tangential_velocity_gradient * strain_factor ** exp_V_a)
+    f.set_profile('spread_rate', normalized_grid,
+                  f.spread_rate * strain_factor ** exp_V_a)
     # Update pressure curvature
     f.set_profile('lambda', normalized_grid, f.L * strain_factor ** exp_lam_a)
     try:
