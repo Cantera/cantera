@@ -181,11 +181,11 @@ class TestFreeFlame(utilities.CanteraTest):
             self.sim.flame.set_boundary_emissivities(0.5, 0.5)
         with self.assertWarnsRegex(DeprecationWarning, "property 'velocity"):
             self.sim.u
-        with self.assertWarnsRegex(DeprecationWarning, "property 'tangential"):
+        with self.assertWarnsRegex(DeprecationWarning, "property 'spread"):
             self.sim.V
         with self.assertRaisesRegex(ct.CanteraError, "renamed to 'velocity"):
             self.sim.flame.component_index('u')
-        with self.assertRaisesRegex(ct.CanteraError, "renamed to 'vGradient"):
+        with self.assertRaisesRegex(ct.CanteraError, "renamed to 'spread_rate"):
             self.sim.flame.component_index('V')
 
     def test_auto_width(self):
@@ -477,7 +477,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
         Y1 = self.sim.Y
         u1 = self.sim.velocity
-        V1 = self.sim.tangential_velocity_gradient
+        V1 = self.sim.spread_rate
         P1 = self.sim.P
 
         self.sim.save(filename, 'test', loglevel=0)
@@ -503,7 +503,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
         Y2 = self.sim.Y
         u2 = self.sim.velocity
-        V2 = self.sim.tangential_velocity_gradient
+        V2 = self.sim.spread_rate
 
         self.assertArrayNear(Y1, Y2)
         self.assertArrayNear(u1, u2)
@@ -512,7 +512,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.solve_fixed_T()
         Y3 = self.sim.Y
         u3 = self.sim.velocity
-        V3 = self.sim.tangential_velocity_gradient
+        V3 = self.sim.spread_rate
 
         # TODO: These tolereances seem too loose, but the tests fail on some
         # systems with tighter tolerances.
@@ -710,7 +710,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         data = np.empty((self.sim.flame.n_points, self.gas.n_species + 4))
         data[:,0] = self.sim.grid
         data[:,1] = self.sim.velocity
-        data[:,2] = self.sim.tangential_velocity_gradient
+        data[:,2] = self.sim.spread_rate
         data[:,3] = self.sim.T
         data[:,4:] = self.sim.Y.T
 
@@ -749,7 +749,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         data = np.empty((self.sim.flame.n_points, self.gas.n_species + 4))
         data[:,0] = self.sim.grid
         data[:,1] = self.sim.velocity
-        data[:,2] = self.sim.tangential_velocity_gradient
+        data[:,2] = self.sim.spread_rate
         data[:,3] = self.sim.T
         data[:,4:] = self.sim.Y.T
 
@@ -805,7 +805,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         data = np.empty((self.sim.flame.n_points, self.gas.n_species + 4))
         data[:,0] = self.sim.grid
         data[:,1] = self.sim.velocity
-        data[:,2] = self.sim.tangential_velocity_gradient
+        data[:,2] = self.sim.spread_rate
         data[:,3] = self.sim.T
         data[:,4:] = self.sim.Y.T
 
@@ -894,7 +894,7 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
         data = np.empty((sim.flame.n_points, gas.n_species + 4))
         data[:,0] = sim.grid
         data[:,1] = sim.velocity
-        data[:,2] = sim.tangential_velocity_gradient
+        data[:,2] = sim.spread_rate
         data[:,3] = sim.T
         data[:,4:] = sim.Y.T
 
@@ -915,7 +915,7 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
         sim.set_refine_criteria(ratio=6, slope=0.7, curve=0.8, prune=0.4)
         sim.solve(loglevel=0, auto=True)
         self.assertTrue(all(sim.T >= T - 1e-3))
-        self.assertTrue(all(sim.tangential_velocity_gradient >= -1e-9))
+        self.assertTrue(all(sim.spread_rate >= -1e-9))
         return sim
 
     def test_solve_case1(self):

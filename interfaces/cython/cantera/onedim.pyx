@@ -539,7 +539,7 @@ cdef class IdealGasFlow(_FlowBase):
 
     *velocity*
         axial velocity
-    *tangential_velocity_gradient*
+    *spread_rate*
         radial velocity divided by radius
     *T*
         temperature
