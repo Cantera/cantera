@@ -481,7 +481,7 @@ cdef class _FlowBase(Domain1D):
     property boundary_emissivities:
         """ Set/get boundary emissivities. """
         def __get__(self):
-            return self.flow.getLeftEmissivity(), self.flow.getRightEmissivity()
+            return self.flow.leftEmissivity(), self.flow.rightEmissivity()
         def __set__(self, tuple epsilon):
             if len(epsilon) == 2:
                 self.flow.setBoundaryEmissivities(epsilon[0], epsilon[1])
@@ -561,10 +561,6 @@ cdef class IdealGasFlow(_FlowBase):
     def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
         gas = getIdealGasPhase(thermo)
         self.flow = new CxxStFlow(gas, thermo.n_species, 2)
-
-    def component_index(self, str name):
-        """Index of the component with name 'name'"""
-        return self.flow.componentIndex(stringify(name))
 
 
 cdef class IonFlow(_FlowBase):
@@ -1175,7 +1171,7 @@ cdef class Sim1D:
         propagating flame.
         """
         def __get__(self):
-            return self.sim.getFixedTemperature()
+            return self.sim.fixedTemperature()
         def __set__(self, T):
             self.sim.setFixedTemperature(T)
 
@@ -1185,7 +1181,7 @@ cdef class Sim1D:
         propagating flame.
         """
         def __get__(self):
-            return self.sim.getFixedTemperatureLocation()
+            return self.sim.fixedTemperatureLocation()
 
     def save(self, filename='soln.xml', name='solution', description='none',
              loglevel=1):

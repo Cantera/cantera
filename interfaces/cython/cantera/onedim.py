@@ -177,7 +177,7 @@ class FlameBase(Sim1D):
              To be deprecated with version 2.5, and removed thereafter.
              Replaced by property `velocity`.
         """
-        warnings.warn("To be removed after Cantera 2.5. "
+        warnings.warn("Property 'u' to be removed after Cantera 2.5. "
                       "Replaced by property 'velocity'",
                       DeprecationWarning)
         return self.profile(self.flame, 'velocity')
@@ -199,7 +199,7 @@ class FlameBase(Sim1D):
              To be deprecated with version 2.5, and removed thereafter.
              Replaced by property `tangential_velocity_gradient`.
         """
-        warnings.warn("To be removed after Cantera 2.5. "
+        warnings.warn("Property 'V' to be removed after Cantera 2.5. "
                       "Replaced by property 'tangential_velocity_gradient'",
                       DeprecationWarning)
         return self.profile(self.flame, 'vGradient')
