@@ -182,7 +182,7 @@ public:
     }
 
     //! index of component with name \a name.
-    size_t componentIndex(const std::string& name) const;
+    virtual size_t componentIndex(const std::string& name) const;
 
     void setBounds(size_t n, doublereal lower, doublereal upper) {
         m_min[n] = lower;

@@ -212,10 +212,10 @@ public:
     void setBoundaryEmissivities(double e_left, double e_right);
 
     //! Return emissivitiy at left boundary
-    double getLeftEmissivity() const { return m_epsilon_left; }
+    double leftEmissivity() const { return m_epsilon_left; }
 
     //! Return emissivitiy at right boundary
-    double getRightEmissivity() const { return m_epsilon_right; }
+    double rightEmissivity() const { return m_epsilon_right; }
 
     void fixTemperature(size_t j=npos);
 

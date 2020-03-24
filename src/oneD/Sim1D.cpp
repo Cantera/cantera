@@ -511,7 +511,7 @@ int Sim1D::setFixedTemperature(double t)
     return np;
 }
 
-double Sim1D::getFixedTemperature()
+double Sim1D::fixedTemperature()
 {
     double t_fixed = -1.;
     for (size_t n = 0; n < nDomains(); n++) {
@@ -524,7 +524,7 @@ double Sim1D::getFixedTemperature()
     return t_fixed;
 }
 
-double Sim1D::getFixedTemperatureLocation()
+double Sim1D::fixedTemperatureLocation()
 {
     double z_fixed = -1.;
     for (size_t n = 0; n < nDomains(); n++) {

@@ -623,7 +623,6 @@ size_t StFlow::componentIndex(const std::string& name) const
         throw CanteraError("StFlow1D::componentIndex",
                            "no component named " + name);
     }
-    return npos;
 }
 
 void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)

@@ -132,10 +132,10 @@ public:
     int setFixedTemperature(double t);
 
     //! Return temperature at the point used to fix the flame location
-    double getFixedTemperature();
+    double fixedTemperature();
 
     //! Return location of the point where temperature is fixed
-    double getFixedTemperatureLocation();
+    double fixedTemperatureLocation();
 
     /**
      * Set grid refinement criteria. If dom >= 0, then the settings
