@@ -521,6 +521,14 @@ cdef class _FlowBase(Domain1D):
         """
         self.flow.setAxisymmetricFlow()
 
+    property flow_type:
+        """
+        Return the type of flow domain being represented, either "Free Flame" or
+        "Axisymmetric Stagnation".
+        """
+        def __get__(self):
+            return pystr(self.flow.flowType())
+
 
 cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *:
     if pystr(phase.thermo.type()) != "IdealGas":

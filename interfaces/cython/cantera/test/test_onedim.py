@@ -157,6 +157,14 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.assertEqual(self.sim.transport_model, 'Multi')
 
+    def test_flow_type(self):
+        # Solve with the energy equation disabled
+        Tin = 300
+        p = ct.one_atm
+        reactants = 'H2:0.65, O2:0.5, AR:2'
+        self.create_sim(p, Tin, reactants, width=0.0001)
+        self.assertEqual(self.sim.flame.flow_type, 'Free Flame')
+
     def test_fixed_temperature(self):
         # test setting of fixed temperature
         Tin = 300

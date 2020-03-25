@@ -763,6 +763,7 @@ cdef extern from "cantera/oneD/StFlow.h":
         cbool withSoret()
         void setFreeFlow()
         void setAxisymmetricFlow()
+        string flowType()
 
 
 cdef extern from "cantera/oneD/IonFlow.h":
