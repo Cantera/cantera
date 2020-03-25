@@ -412,7 +412,7 @@ config_options = [
     PathVariable(
         'FORTRAN',
         """The Fortran (90) compiler. If unspecified, the builder will look for
-           a compatible compiler (gfortran, ifort, g95) in the 'PATH' environment
+           a compatible compiler (pgfortran, gfortran, ifort, g95) in the 'PATH' environment
            variable. Used only for compiling the Fortran 90 interface.""",
         '', PathVariable.PathAccept),
     ('FORTRANFLAGS',
@@ -1171,7 +1171,7 @@ if env['f90_interface'] in ('y','default'):
     if env['FORTRAN']:
         foundF90 = check_fortran(env['FORTRAN'], True)
 
-    for compiler in ('gfortran', 'ifort', 'g95'):
+    for compiler in ('pgfortran', 'gfortran', 'ifort', 'g95'):
         if foundF90:
             break
         foundF90 = check_fortran(compiler)
@@ -1188,7 +1188,9 @@ if env['f90_interface'] in ('y','default'):
             env['FORTRAN'] = ''
             print("INFO: Skipping compilation of the Fortran 90 interface.")
 
-if 'gfortran' in env['FORTRAN']:
+if 'pgfortran' in env['FORTRAN']:
+    env['FORTRANMODDIRPREFIX'] = '-module '
+elif 'gfortran' in env['FORTRAN']:
     env['FORTRANMODDIRPREFIX'] = '-J'
 elif 'g95' in env['FORTRAN']:
     env['FORTRANMODDIRPREFIX'] = '-fmod='
