@@ -795,6 +795,22 @@ class TestDiffusionFlame(utilities.CanteraTest):
     def test_extinction_case7(self):
         self.run_extinction(mdot_fuel=0.2, mdot_ox=2.0, T_ox=600, width=0.2, P=0.05)
 
+    def test_restart(self):
+        self.run_extinction(mdot_fuel=0.5, mdot_ox=3.0, T_ox=300, width=0.018, P=1.0)
+
+        arr = self.sim.to_solution_array()
+
+        self.create_sim(mdot_fuel=5.5, mdot_ox=3.3, T_ox=400, width=0.018,
+                        p=ct.one_atm*1.1)
+        self.sim.set_initial_guess(data=arr)
+        self.sim.solve(loglevel=0, auto=True)
+
+        # Check inlet
+        mdot = self.sim.density * self.sim.velocity
+        self.assertNear(mdot[0], self.sim.fuel_inlet.mdot, 1e-4)
+        self.assertNear(self.sim.T[0], self.sim.fuel_inlet.T, 1e-4)
+        self.assertNear(mdot[-1], -self.sim.oxidizer_inlet.mdot, 1e-4)
+
     def test_mixture_averaged_rad(self, saveReference=False):
         referenceFile = pjoin(self.test_data_dir, 'DiffusionFlameTest-h2-mix-rad.csv')
         self.create_sim(p=ct.one_atm)
@@ -941,6 +957,20 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
     def test_solve_case5(self):
         self.run_case(phi=2.0, T=300, width=0.2, P=0.2)
 
+    def test_restart(self):
+        sim = self.run_case(phi=2.0, T=300, width=0.2, P=0.2)
+
+        arr = sim.to_solution_array()
+        sim.reactants.mdot *= 1.1
+        sim.products.mdot *= 1.1
+        sim.set_initial_guess(data=arr)
+        sim.solve(loglevel=0, auto=True)
+
+        # Check inlet / outlet
+        mdot = sim.density * sim.velocity
+        self.assertNear(mdot[0], sim.reactants.mdot, 1e-4)
+        self.assertNear(mdot[-1], -sim.products.mdot, 1e-4)
+
 
 class TestBurnerFlame(utilities.CanteraTest):
     def solve(self, phi, T, width, P):
@@ -993,6 +1023,24 @@ class TestBurnerFlame(utilities.CanteraTest):
         self.assertNear(sim.velocity[-1], sim.velocity[0], 1e-6)
         self.assertArrayNear(sim.Y[:,0], sim.Y[:,-1], 1e-6, atol=1e-6)
 
+    def test_restart(self):
+        gas = ct.Solution('h2o2.cti')
+        gas.set_equivalence_ratio(0.4, 'H2', 'O2:1.0, AR:5')
+        gas.TP = 300, ct.one_atm
+        sim = ct.BurnerFlame(gas=gas, width=0.1)
+        sim.burner.mdot = 1.2
+        sim.set_refine_criteria(ratio=3, slope=0.3, curve=0.5, prune=0)
+        sim.solve(loglevel=0, auto=True)
+
+        arr = sim.to_solution_array()
+        sim.burner.mdot = 1.1
+        sim.set_initial_guess(data=arr)
+        sim.solve(loglevel=0, auto=True)
+
+        # Check continuity
+        rhou = sim.burner.mdot
+        for rhou_j in sim.density * sim.velocity:
+            self.assertNear(rhou_j, rhou, 1e-4)
 
 class TestImpingingJet(utilities.CanteraTest):
     def run_reacting_surface(self, xch4, tsurf, mdot, width):
@@ -1045,9 +1093,25 @@ class TestTwinFlame(utilities.CanteraTest):
         sim.reactants.mdot = gas.density * axial_velocity
         sim.solve(loglevel=0, auto=True)
         self.assertGreater(sim.T[-1], T + 100)
+        return sim
 
     def test_case1(self):
         self.solve(phi=0.4, T=300, width=0.05, P=0.1)
+
+    def test_restart(self):
+        sim = self.solve(phi=0.4, T=300, width=0.05, P=0.1)
+
+        arr = sim.to_solution_array()
+        axial_velocity = 2.2
+        sim.reactants.mdot *= 1.1
+        sim.reactants.T = sim.reactants.T + 100
+        sim.set_initial_guess(data=arr)
+        sim.solve(loglevel=0, auto=True)
+
+        # Check inlet
+        mdot = sim.density * sim.velocity
+        self.assertNear(mdot[0], sim.reactants.mdot, 1e-4)
+        self.assertNear(sim.T[0], sim.reactants.T, 1e-4)
 
 
 class TestIonFreeFlame(utilities.CanteraTest):
