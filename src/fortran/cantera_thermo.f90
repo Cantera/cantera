@@ -376,6 +376,28 @@ contains
       call ctthermo_setPressure(self, p)
     end subroutine ctstring_setState_TPX
 
+    subroutine ctthermo_setState_TRX(self, t, rho, x)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(in) :: t
+      double precision, intent(in) :: rho
+      double precision, intent(in) :: x(*)
+      call ctthermo_setTemperature(self, t)
+      call ctthermo_setMoleFractions(self, x)
+      call ctthermo_setDensity(self, rho)
+    end subroutine ctthermo_setState_TRX
+
+    subroutine ctstring_setState_TRX(self, t, rho, x)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(in) :: t
+      double precision, intent(in) :: rho
+      character*(*), intent(in) :: x
+      call ctthermo_setTemperature(self, t)
+      call ctthermo_setMoleFractionsByName(self, x)
+      call ctthermo_setDensity(self, rho)
+    end subroutine ctstring_setState_TRX
+
     subroutine ctthermo_setState_TRY(self, t, rho, y)
       implicit none
       type(phase_t), intent(inout) :: self
@@ -397,6 +419,28 @@ contains
       call ctthermo_setMassFractionsByName(self, y)
       call ctthermo_setDensity(self, rho)
     end subroutine ctstring_setState_TRY
+
+    subroutine ctthermo_setState_TPY(self, t, p, y)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(in) :: t
+      double precision, intent(in) :: p
+      double precision, intent(in) :: y(*)
+      call ctthermo_setTemperature(self, t)
+      call ctthermo_setMassFractions(self, y)
+      call ctthermo_setPressure(self, p)
+    end subroutine ctthermo_setState_TPY
+
+    subroutine ctstring_setState_TPY(self, t, p, y)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(in) :: t
+      double precision, intent(in) :: p
+      character*(*), intent(in) :: y
+      call ctthermo_setTemperature(self, t)
+      call ctthermo_setMassFractionsByName(self, y)
+      call ctthermo_setPressure(self, p)
+    end subroutine ctstring_setState_TPY
 
 
     subroutine ctthermo_setState_HP(self, h, p)
@@ -479,5 +523,12 @@ contains
       double precision, intent(out) :: cp_r(self%nsp)
       self%err = th_getcp_r(self%thermo_id, lenm, cp_r)
     end subroutine ctthermo_getcp_r
+
+    subroutine ctthermo_getPartialMolarIntEnerg_R(self, ie)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(out) :: ie(self%nsp)
+      self%err = th_getpartialmolarintenergies_r(self%thermo_id, ie)
+    end subroutine ctthermo_getPartialMolarIntEnerg_R
 
 end module cantera_thermo

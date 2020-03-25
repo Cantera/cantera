@@ -258,6 +258,11 @@ interface
         double precision, intent(out) :: cp_r(*)
     end function th_getcp_r
 
+    integer function th_getpartialmolarintenergies_r(n, ie)
+        integer, intent(in) :: n
+        double precision, intent(out) :: ie(*)
+    end function th_getpartialmolarintenergies_r
+
     integer function kin_newfromfile(filename, id, reactingPhase, neighbor1, neighbor2, neighbor3, neighbor4)
         character*(*), intent(in) :: filename
         character*(*), intent(in) :: id
