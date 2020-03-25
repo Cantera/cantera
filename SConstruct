@@ -1108,13 +1108,14 @@ if env['system_sundials'] == 'y':
 
     # Ignore the minor version, e.g. 2.4.x -> 2.4
     env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
-    if env['sundials_version'] not in ('2.4','2.5','2.6','2.7','3.0','3.1','3.2','4.0','4.1','5.0','5.1'):
+    sundials_ver = LooseVersion(env['sundials_version'])
+    if sundials_ver < LooseVersion('2.4') or sundials_ver >= LooseVersion('6.0'):
         print("""ERROR: Sundials version %r is not supported.""" % env['sundials_version'])
         sys.exit(1)
     print("""INFO: Using system installation of Sundials version %s.""" % sundials_version)
 
     #Determine whether or not Sundials was built with BLAS/LAPACK
-    if LooseVersion(env['sundials_version']) < LooseVersion('2.6'):
+    if sundials_ver < LooseVersion('2.6'):
         # In Sundials 2.4 / 2.5, SUNDIALS_BLAS_LAPACK is either 0 or 1
         sundials_blas_lapack = get_expression_value(['"sundials/sundials_config.h"'],
                                                        'SUNDIALS_BLAS_LAPACK')
@@ -1606,7 +1607,7 @@ linkSharedLibs = ['cantera_shared']
 
 if env['system_sundials'] == 'y':
     env['sundials_libs'] = ['sundials_cvodes', 'sundials_ida', 'sundials_nvecserial']
-    if env['use_lapack'] and LooseVersion(env['sundials_version']) >= LooseVersion('3.0'):
+    if env['use_lapack'] and sundials_ver >= LooseVersion('3.0'):
         if env.get('has_sundials_lapack'):
             env['sundials_libs'].extend(('sundials_sunlinsollapackdense',
                                          'sundials_sunlinsollapackband'))
