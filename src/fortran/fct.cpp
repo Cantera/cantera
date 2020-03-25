@@ -635,6 +635,17 @@ extern "C" {
         return 0;
     }
 
+    status_t th_getpartialmolarintenergies_r_(const integer* n, doublereal* ie)
+    {
+        try {
+            thermo_t* thrm = _fth(n);
+            thrm->getPartialMolarIntEnergies(ie);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+        return 0;
+    }
+
     //-------------- Kinetics ------------------//
 
     integer kin_newfromfile_(const char* filename, const char* phasename,
