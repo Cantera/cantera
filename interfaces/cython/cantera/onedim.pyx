@@ -868,11 +868,9 @@ cdef class Sim1D:
         def __set__(self, nmax):
             self.sim.setMaxTimeStepCount(nmax)
 
-    def set_initial_guess(self, *args, **kwargs):
+    def _set_initial_guess(self, *args, **kwargs):
         """
-        Set the initial guess for the solution. Derived classes extend this
-        function to set approximations for the temperature and composition
-        profiles.
+        Store arguments for initial guess and prepare storage for solution.
         """
         self._initial_guess_args = args
         self._initial_guess_kwargs = kwargs
@@ -958,7 +956,13 @@ cdef class Sim1D:
         flow_domains = [D for D in self.domains if isinstance(D, _FlowBase)]
         zmin = [D.grid[0] for D in flow_domains]
         zmax = [D.grid[-1] for D in flow_domains]
-        nPoints = [len(flow_domains[0].grid), 12, 24, 48]
+
+        # 'data' entry is used for restart
+        data = self._initial_guess_kwargs.get('data')
+        if data:
+           nPoints = [len(flow_domains[0].grid)]
+        else:
+           nPoints = [len(flow_domains[0].grid), 12, 24, 48]
 
         for N in nPoints:
             for i,D in enumerate(flow_domains):
@@ -968,8 +972,9 @@ cdef class Sim1D:
                 if N != len(D.grid):
                     D.grid = np.linspace(zmin[i], zmax[i], N)
 
-            self.set_initial_guess(*self._initial_guess_args,
-                                   **self._initial_guess_kwargs)
+            if not data:
+                self.set_initial_guess(*self._initial_guess_args,
+                                       **self._initial_guess_kwargs)
 
             # Try solving with energy enabled, which usually works
             log('Solving on {} point grid with energy equation enabled', N)
