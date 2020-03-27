@@ -865,7 +865,7 @@ class SolutionArray:
         only with 1D `SolutionArray` objects.
         """
         data, labels = self.collect_data(cols=cols, *args, **kwargs)
-        with open(filename, 'w') as outfile:
+        with open(filename, 'w', newline='') as outfile:
             writer = _csv.writer(outfile)
             writer.writerow(labels)
             for row in data:
