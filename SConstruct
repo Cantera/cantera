@@ -1112,6 +1112,9 @@ if env['system_sundials'] == 'y':
     if sundials_ver < LooseVersion('2.4') or sundials_ver >= LooseVersion('6.0'):
         print("""ERROR: Sundials version %r is not supported.""" % env['sundials_version'])
         sys.exit(1)
+    elif sundials_ver > LooseVersion('5.1'):
+        print("WARNING: Sundials version %r has not been tested." % env['sundials_version'])
+
     print("""INFO: Using system installation of Sundials version %s.""" % sundials_version)
 
     #Determine whether or not Sundials was built with BLAS/LAPACK
