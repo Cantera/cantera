@@ -603,11 +603,12 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.create_sim(2e5, 350, 'H2:1.0, O2:2.0', mech='h2o2.xml')
         self.sim.write_csv(filename)
-        data = np.genfromtxt(filename, delimiter=',', skip_header=1)
-        self.assertArrayNear(data[:,0], self.sim.grid)
-        self.assertArrayNear(data[:,3], self.sim.T)
+        data = ct.SolutionArray(self.gas)
+        data.read_csv(filename)
+        self.assertArrayNear(data.grid[1:], self.sim.grid)
+        self.assertArrayNear(data.T[1:], self.sim.T)
         k = self.gas.species_index('H2')
-        self.assertArrayNear(data[:,5+k], self.sim.X[k,:])
+        self.assertArrayNear(data.X[1:,k], self.sim.X[k,:])
 
     def test_refine_criteria_boundscheck(self):
         self.create_sim(ct.one_atm, 300.0, 'H2:1.1, O2:1, AR:5')

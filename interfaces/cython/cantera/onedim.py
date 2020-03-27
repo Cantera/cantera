@@ -4,7 +4,6 @@
 import numpy as np
 from ._cantera import *
 from .composite import Solution, SolutionArray
-import csv as _csv
 from math import erf
 from os import path
 from email.utils import formatdate
@@ -363,19 +362,9 @@ class FlameBase(Sim1D):
             mole fractions or ``Y`` for mass fractions.
         """
 
-        z = self.grid
-        T = self.T
-        u = self.velocity
-        V = self.spread_rate
-
-        with open(filename, 'w', newline='') as csvfile:
-            writer = _csv.writer(csvfile)
-            writer.writerow(['z (m)', 'u (m/s)', 'V (1/s)',
-                            'T (K)', 'rho (kg/m3)'] + self.gas.species_names)
-            for n in range(self.flame.n_points):
-                self.set_gas_state(n)
-                writer.writerow([z[n], u[n], V[n], T[n], self.gas.density] +
-                                list(getattr(self.gas, species)))
+        # save data
+        cols = ('extra', 'T', 'D', species)
+        self.to_solution_array().write_csv(filename, cols=cols)
 
         if not quiet:
             print("Solution saved to '{0}'.".format(filename))
@@ -542,7 +531,7 @@ class FlameBase(Sim1D):
                                  settings=settings)
 
     def write_hdf(self, filename, key=None, species='X',
-                  mode=None, complevel=None):
+                  mode=None, complevel=None, quiet=True):
         """
         Write the solution vector to a HDF container file. Note that it is
         possible to write multiple data entries to a single HDF container file.
@@ -596,6 +585,9 @@ class FlameBase(Sim1D):
         # store settings to HDF container file as a separate group
         df.to_hdf(filename, key='settings', format='table',
                   append=True)
+
+        if not quiet:
+            print("Solution saved to '{0}'.".format(filename))
 
     def read_hdf(self, filename, key=None,
                  restore_boundaries=True, restore_settings=True):
@@ -996,34 +988,6 @@ class FreeFlame(FlameBase):
 
 
 class IonFlameBase(FlameBase):
-
-    def write_csv(self, filename, species='X', quiet=True):
-        """
-        Write the velocity, temperature, density, electric potential,
-        electric field strength, and species profiles to a CSV file.
-        :param filename:
-            Output file name
-        :param species:
-            Attribute to use obtaining species profiles, e.g. ``X`` for
-            mole fractions or ``Y`` for mass fractions.
-        """
-        z = self.grid
-        T = self.T
-        u = self.velocity
-        V = self.spread_rate
-        E = self.E
-
-        with open(filename, 'w', newline='') as csvfile:
-            writer = _csv.writer(csvfile)
-            writer.writerow(['z (m)', 'velocity (m/s)', 'V (1/s)', 'T (K)',
-                            'E (V/m)', 'rho (kg/m3)'] + self.gas.species_names)
-            for n in range(self.flame.n_points):
-                self.set_gas_state(n)
-                writer.writerow([z[n], u[n], V[n], T[n], E[n], self.gas.density] +
-                                list(getattr(self.gas, species)))
-
-        if not quiet:
-            print("Solution saved to '{0}'.".format(filename))
 
     @property
     def electric_field_enabled(self):
