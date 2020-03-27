@@ -8,6 +8,7 @@ Requires: cantera >= 2.5.0
 import cantera as ct
 try:
     import pandas as pd
+    import tables
 except:
     pd = None
 
