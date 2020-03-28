@@ -668,13 +668,17 @@ class cti2yamlTest(utilities.CanteraTest):
         self.checkKinetics(cti_tpb, yaml_tpb, [900, 1000, 1100], [1e5])
 
     def test_liquidvapor(self):
+        output_file = Path(self.test_work_dir).joinpath('liquidvapor.yaml')
         cti2yaml.convert(Path(self.cantera_data).joinpath('liquidvapor.cti'),
-                         Path(self.test_work_dir).joinpath('liquidvapor.yaml'))
+                         output_file)
         for name in ['water', 'nitrogen', 'methane', 'hydrogen', 'oxygen',
                      'hfc134a', 'carbondioxide', 'heptane']:
             ctiPhase, yamlPhase = self.checkConversion('liquidvapor', name=name)
             self.checkThermo(ctiPhase, yamlPhase,
                              [1.3 * ctiPhase.min_temp, 0.7 * ctiPhase.max_temp])
+        # The output file must be removed after this test because it shadows
+        # a file distributed with Cantera that is used in other tests.
+        output_file.unlink()
 
     def test_Redlich_Kwong_CO2(self):
         cti2yaml.convert(Path(self.test_data_dir).joinpath('co2_RK_example.cti'),
@@ -894,15 +898,18 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.checkKinetics(ctml_tpb, yaml_tpb, [900, 1000, 1100], [1e5])
 
     def test_liquidvapor(self):
+        output_file = Path(self.test_work_dir).joinpath('liquidvapor.yaml')
         ctml2yaml.convert(
-            Path(self.cantera_data).joinpath('liquidvapor.xml'),
-            Path(self.test_work_dir).joinpath('liquidvapor.yaml'),
+            Path(self.cantera_data).joinpath('liquidvapor.xml'), output_file,
         )
         for name in ['water', 'nitrogen', 'methane', 'hydrogen', 'oxygen',
                      'hfc134a', 'carbondioxide', 'heptane']:
             ctmlPhase, yamlPhase = self.checkConversion('liquidvapor', name=name)
             self.checkThermo(ctmlPhase, yamlPhase,
                              [1.3 * ctmlPhase.min_temp, 0.7 * ctmlPhase.max_temp])
+        # The output file must be removed after this test because it shadows
+        # a file distributed with Cantera that is used in other tests.
+        output_file.unlink()
 
     def test_Redlich_Kwong_CO2(self):
         ctml2yaml.convert(
