@@ -4,6 +4,7 @@
 import numpy as np
 from ._cantera import *
 from .composite import Solution, SolutionArray
+from collections import OrderedDict
 from math import erf
 from os import path
 from email.utils import formatdate
@@ -401,7 +402,7 @@ class FlameBase(Sim1D):
          * ``eField``: electric field strength (if applicable)
         """
         # create extra columns
-        extra = {}
+        extra = OrderedDict()
         for e in self._extra:
             if e == 'grid':
                 val = self.grid

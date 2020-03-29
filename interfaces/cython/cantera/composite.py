@@ -3,6 +3,7 @@
 
 from ._cantera import *
 import numpy as np
+from collections import OrderedDict
 import csv as _csv
 
 # avoid explicit dependence of cantera on pandas
@@ -515,7 +516,7 @@ class SolutionArray:
 
         reserved = self.__dir__()
 
-        self._extra = {}
+        self._extra = OrderedDict()
         if isinstance(extra, dict):
             for name, v in extra.items():
                 if name in reserved:
