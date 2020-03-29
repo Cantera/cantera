@@ -12,6 +12,7 @@
 #include "cantera/numerics/funcs.h"
 #include "cantera/base/xml.h"
 #include "cantera/numerics/Func1.h"
+#include <limits>
 
 using namespace std;
 
@@ -513,7 +514,7 @@ int Sim1D::setFixedTemperature(double t)
 
 double Sim1D::fixedTemperature()
 {
-    double t_fixed = -1.;
+    double t_fixed = std::numeric_limits<double>::quiet_NaN();
     for (size_t n = 0; n < nDomains(); n++) {
         StFlow* d = dynamic_cast<StFlow*>(&domain(n));
         if (d && d->domainType() == cFreeFlow && d->m_tfixed > 0) {
@@ -526,7 +527,7 @@ double Sim1D::fixedTemperature()
 
 double Sim1D::fixedTemperatureLocation()
 {
-    double z_fixed = -1.;
+    double z_fixed = std::numeric_limits<double>::quiet_NaN();
     for (size_t n = 0; n < nDomains(); n++) {
         StFlow* d = dynamic_cast<StFlow*>(&domain(n));
         if (d && d->domainType() == cFreeFlow && d->m_tfixed > 0) {
