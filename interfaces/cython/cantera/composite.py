@@ -509,6 +509,9 @@ class SolutionArray:
         if len(self._shape) == 1:
             self._indices = list(range(self._shape[0]))
             self._output_dummy = self._indices
+        elif len(self._shape) == 0:
+            self._indices = []
+            self._output_dummy = self._indices
         else:
             self._indices = list(np.ndindex(self._shape))
             self._output_dummy = self._states[..., 0]
