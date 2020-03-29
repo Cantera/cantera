@@ -71,67 +71,86 @@ class FlameBase(Sim1D):
         """
         return super().get_refine_criteria(self.flame)
 
-    def set_initial_guess(self, *args, **kwargs):
+    def set_initial_guess(self, *args, data=None, key=None, **kwargs):
         """
         Set the initial guess for the solution, and load restart data if
         provided. Derived classes extend this function to set approximations
         for the temperature and composition profiles.
+
+        :param data:
+            Restart data, which are typically based on an earlier simulation
+            result. Restart data may be specified using a `SolutionArray`,
+            pandas' DataFrame, or previously saved CSV or HDF container files. 
+            Note that restart data do not overwrite boundary conditions. 
+            DataFrame and HDF input require working installations of pandas and 
+            PyTables. These packages can be installed using pip (`pandas` and 
+            `tables`) or conda (`pandas` and `pytables`).
+        :param key:
+            Group identifier within a HDF container file (only used in
+            combination with HDF restart data).
         """
-        self._set_initial_guess(*args, **kwargs)
-        data = kwargs.get('data')
-        if data:
-            # load restart data into SolutionArray
-            if isinstance(data, SolutionArray):
-                # already a solution array
-                arr = data
-            elif isinstance(data, str):
+        super().set_initial_guess(*args, data=data, key=key, **kwargs)
+        if not data:
+            return
+
+        # load restart data into SolutionArray
+        if isinstance(data, SolutionArray):
+            # already a solution array
+            arr = data
+        elif isinstance(data, str):
+            if data.endswith('.hdf5') or data.endswith('.h5'):
                 # data source identifies a HDF file
                 arr = SolutionArray(self.gas, extra=self._extra)
-                key = kwargs.get('key')
                 arr.read_hdf(data, key=key)
-            else:
-                # data source is a pandas DataFrame
+            elif data.endswith('.csv'):
+                # data source identifies a CSV file
                 arr = SolutionArray(self.gas, extra=self._extra)
-                arr.from_pandas(data)
-
-            # get left and right boundaries
-            left = self.domains[0]
-            right = self.domains[2]
-
-            if isinstance(left, Inlet1D) and isinstance(right, Inlet1D):
-                # find stagnation plane
-                i = np.flatnonzero(self.velocity > 0)[-1]
-
-                # adjust temperatures
-                T = arr.T
-                xi = arr.grid[1:-1]
-                T[1:-1] += (left.T - T[0]) * (1 - xi) + (right.T - T[-1]) * xi
-                arr.TP = T, self.P
-
-                # adjust velocities
-                u = arr.velocity
-
-                self.gas.TPY = left.T, self.P, left.Y
-                u[:i] = u[:i] * left.mdot / self.gas.density / u[0]
-
-                self.gas.TPY = right.T, self.P, right.Y
-                u[i:] = - u[i:] * right.mdot / self.gas.density / u[-1]
-
-                arr.velocity = u
-
-            elif isinstance(left, Inlet1D):
-                # adjust temperatures
-                arr.TP = arr.T + left.T - arr.T[0], self.P
-
-                # adjust velocities
-                if self.flame.flow_type != "Free Flame":
-                    self.gas.TPY = left.T, self.P, left.Y
-                    u0 = left.mdot/self.gas.density
-                    arr.velocity *= u0 / arr.velocity[0]
-
-            self.from_solution_array(arr, restore_boundaries=False)
+                arr.read_csv(data)
+            else:
+                raise ValueError(
+                    "'{}' does not identify CSV or HDF file.".format(data)
+                )
         else:
-            return None
+            # data source is a pandas DataFrame
+            arr = SolutionArray(self.gas, extra=self._extra)
+            arr.from_pandas(data)
+
+        # get left and right boundaries
+        left = self.domains[0]
+        right = self.domains[2]
+
+        if isinstance(left, Inlet1D) and isinstance(right, Inlet1D):
+            # find stagnation plane
+            i = np.flatnonzero(self.velocity > 0)[-1]
+
+            # adjust temperatures
+            T = arr.T
+            xi = arr.grid[1:-1]
+            T[1:-1] += (left.T - T[0]) * (1 - xi) + (right.T - T[-1]) * xi
+            arr.TP = T, self.P
+
+            # adjust velocities
+            u = arr.velocity
+
+            self.gas.TPY = left.T, self.P, left.Y
+            u[:i] = u[:i] * left.mdot / self.gas.density / u[0]
+
+            self.gas.TPY = right.T, self.P, right.Y
+            u[i:] = - u[i:] * right.mdot / self.gas.density / u[-1]
+
+            arr.velocity = u
+
+        elif isinstance(left, Inlet1D):
+            # adjust temperatures
+            arr.TP = arr.T + left.T - arr.T[0], self.P
+
+            # adjust velocities
+            if self.flame.flow_type != "Free Flame":
+                self.gas.TPY = left.T, self.P, left.Y
+                u0 = left.mdot/self.gas.density
+                arr.velocity *= u0 / arr.velocity[0]
+
+        self.from_solution_array(arr, restore_boundaries=False)
 
     def set_profile(self, component, locations, values):
         """
@@ -268,7 +287,8 @@ class FlameBase(Sim1D):
     @property
     def spread_rate(self):
         """
-        Array containing the radial velocity divided by radius [1/s] at each point.
+        Array containing the tangential velocity gradient [1/s] (e.g. radial
+        velocity divided by radius) at each point.
         """
         return self.profile(self.flame, 'spread_rate')
 
@@ -663,7 +683,7 @@ class FlameBase(Sim1D):
 
             # add values deviating from mode
             ix = np.logical_not(np.isclose(tol, values[ix]))
-            out.update({'{}_{}'.format(tname, c)
+            out.update({'{}_{}'.format(tname, c): t
                         for c, t in zip(comp[ix], tol[ix])})
 
         return out
@@ -677,7 +697,7 @@ class FlameBase(Sim1D):
                 'max_time_step_count', 'max_grid_points'}
         attr = attr & set(s.keys())
         for key in attr:
-            self.__setattr__(key, s[key])
+            setattr(self, key, s[key])
 
         # boundary emissivities
         if 'emissivity_left' in s or 'emissivity_right' in s:
@@ -832,23 +852,13 @@ class FreeFlame(FlameBase):
         Set the initial guess for the solution. By default, the adiabatic flame
         temperature and equilibrium composition are computed for the inlet gas
         composition. Alternatively, a previously calculated result can be
-        supplied as an initial guess.
+        supplied as an initial guess via 'data' and 'key' inputs (see
+        `FlameBase.set_initial_guess`).
 
         :param locs:
             A list of four locations to define the temperature and mass fraction
             profiles. Profiles rise linearly between the second and third
             location. Locations are given as a fraction of the entire domain
-        :param data:
-            Restart data, which are typically based on an earlier simulation
-            result. Restart data may be specified using a SolutionArray,
-            pandas' DataFrame, or a saved HDF container file. Note that restart
-            data do not overwrite boundary conditions. DataFrame and HDF input
-            require working installations of pandas and PyTables. These packages
-            can be installed using pip (`pandas` and `tables`) or conda
-            (`pandas` and `pytables`).
-        :param key:
-            Group identifier within a HDF container file (only used in
-            combination with HDF restart data).
         """
         super().set_initial_guess(data=data, key=key)
         if data:
@@ -1074,19 +1084,8 @@ class BurnerFlame(FlameBase):
         gas composition. The temperature profile rises linearly in the first
         20% of the flame to Tad, then is flat. The mass fraction profiles are
         set similarly. Alternatively, a previously calculated result can be
-        supplied as an initial guess.
-
-        :param data:
-            Restart data, which are typically based on an earlier simulation
-            result. Restart data may be specified using a SolutionArray,
-            pandas' DataFrame, or a saved HDF container file. Note that restart
-            data do not overwrite boundary conditions. DataFrame and HDF input
-            require working installations of pandas and PyTables. These packages
-            can be installed using pip (`pandas` and `tables`) or conda
-            (`pandas` and `pytables`).
-        :param key:
-            Group identifier within a HDF container file (only used in
-            combination with HDF restart data).
+        supplied as an initial guess  via 'data' and 'key' inputs (see
+        `FlameBase.set_initial_guess`).
         """
         super().set_initial_guess(data=data, key=key)
         if data:
@@ -1222,21 +1221,10 @@ class CounterflowDiffusionFlame(FlameBase):
 
     def set_initial_guess(self, data=None, key=None):
         """
-        Set the initial guess for the solution. By default, the initial guess is
-        generated by assuming infinitely-fast chemistry. Alternatively, a
-        previously calculated result can be supplied as an initial guess.
-
-        :param data:
-            Restart data, which are typically based on an earlier simulation
-            result. Restart data may be specified using a SolutionArray,
-            pandas' DataFrame, or a saved HDF container file. Note that restart
-            data do not overwrite boundary conditions. DataFrame and HDF input
-            require working installations of pandas and PyTables. These packages
-            can be installed using pip (`pandas` and `tables`) or conda
-            (`pandas` and `pytables`).
-        :param key:
-            Group identifier within a HDF container file (only used in
-            combination with HDF restart data).
+        Set the initial guess for the solution. By default, the initial guess
+        is generated by assuming infinitely-fast chemistry. Alternatively, a
+        previously calculated result can be supplied as an initial guess via
+        'data' and 'key' inputs (see `FlameBase.set_initial_guess`).
         """
         super().set_initial_guess(data=data, key=key)
         if data:
@@ -1528,19 +1516,8 @@ class ImpingingJet(FlameBase):
         the equilibrium composition at the adiabatic flame temperature will be
         used to form the initial guess. Otherwise the inlet composition will
         be used. Alternatively, a previously calculated result can be supplied
-        as an initial guess.
-
-        :param data:
-            Restart data, which are typically based on an earlier simulation
-            result. Restart data may be specified using a SolutionArray,
-            pandas' DataFrame, or a saved HDF container file. Note that restart
-            data do not overwrite boundary conditions. DataFrame and HDF input
-            require working installations of pandas and PyTables. These packages
-            can be installed using pip (`pandas` and `tables`) or conda
-            (`pandas` and `pytables`).
-        :param key:
-            Group identifier within a HDF container file (only used in
-            combination with HDF restart data).
+        as an initial guess via 'data' and 'key' inputs (see
+        `FlameBase.set_initial_guess`).
         """
         super().set_initial_guess(data=data, key=key, products=products)
         if data:
@@ -1619,19 +1596,8 @@ class CounterflowPremixedFlame(FlameBase):
         If `equilibrate` is True, then the products composition and temperature
         will be set to the equilibrium state of the reactants mixture.
         Alternatively, a previously calculated result can be supplied as an
-        initial guess.
-
-        :param data:
-            Restart data, which are typically based on an earlier simulation
-            result. Restart data may be specified using a SolutionArray,
-            pandas' DataFrame, or a saved HDF container file. Note that restart
-            data do not overwrite boundary conditions. DataFrame and HDF input
-            require working installations of pandas and PyTables. These packages
-            can be installed using pip (`pandas` and `tables`) or conda
-            (`pandas` and `pytables`).
-        :param key:
-            Group identifier within a HDF container file (only used in
-            combination with HDF restart data).
+        initial guess via 'data' and 'key' inputs (see
+        `FlameBase.set_initial_guess`).
         """
         super().set_initial_guess(data=data, key=key, equilibrate=equilibrate)
         if data:
@@ -1725,19 +1691,8 @@ class CounterflowTwinPremixedFlame(FlameBase):
         """
         Set the initial guess for the solution based on an equiibrium solution.
         Alternatively, a previously calculated result can be supplied as an
-        initial guess.
-
-        :param data:
-            Restart data, which are typically based on an earlier simulation
-            result. Restart data may be specified using a SolutionArray,
-            pandas' DataFrame, or a saved HDF container file. Note that restart
-            data do not overwrite boundary conditions. DataFrame and HDF input
-            require working installations of pandas and PyTables. These packages
-            can be installed using pip (`pandas` and `tables`) or conda
-            (`pandas` and `pytables`).
-        :param key:
-            Group identifier within a HDF container file (only used in
-            combination with HDF restart data).
+        initial guess via 'data' and 'key' inputs (see
+        `FlameBase.set_initial_guess`).
         """
         super().set_initial_guess(data=data, key=key)
 

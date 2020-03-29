@@ -473,9 +473,9 @@ cdef class _FlowBase(Domain1D):
              To be deprecated with version 2.5, and removed thereafter.
              Replaced by property `boundary_emissivities`.
         """
-        warnings.warn("To be removed after Cantera 2.5. "
-                      "Replaced by property 'boundary_emissivities'",
-                      DeprecationWarning)
+        warnings.warn("Method 'set_boundary_emissivities' to be removed after "
+                      "Cantera 2.5. Replaced by property "
+                      "'boundary_emissivities'", DeprecationWarning)
         self.boundary_emissivities = e_left, e_right
 
     property boundary_emissivities:
@@ -868,7 +868,7 @@ cdef class Sim1D:
         def __set__(self, nmax):
             self.sim.setMaxTimeStepCount(nmax)
 
-    def _set_initial_guess(self, *args, **kwargs):
+    def set_initial_guess(self, *args, **kwargs):
         """
         Store arguments for initial guess and prepare storage for solution.
         """
@@ -1173,8 +1173,8 @@ cdef class Sim1D:
              To be deprecated with version 2.5, and removed thereafter.
              Replaced by property `fixed_temperature`.
         """
-        warnings.warn("To be removed after Cantera 2.5. "
-                      "Replaced by property 'fixed_temperature'",
+        warnings.warn("Method 'set_fixed_temperature' to be removed after "
+                      "Cantera 2.5. Replaced by property 'fixed_temperature'",
                       DeprecationWarning)
         self.fixed_temperature = T
 
