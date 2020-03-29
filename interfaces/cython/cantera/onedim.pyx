@@ -97,18 +97,23 @@ cdef class Domain1D:
         if default is not None:
             self.domain.setSteadyTolerances(default[0], default[1])
 
-        if abs is not None and rel is not None:
+        if abs is not None or rel is not None:
+            if rel is None:
+                rel = self.steady_reltol()
+            if abs is None:
+                abs = self.steady_abstol()
             assert len(abs) == len(rel) == self.n_components
-            for n,(r,a) in enumerate(zip(rel,abs)):
-                self.domain.setSteadyTolerances(r,a,n)
+            for n, (r, a) in enumerate(zip(rel, abs)):
+                self.domain.setSteadyTolerances(r, a, n)
 
         if Y is not None:
             k0 = self.component_index(self.gas.species_name(0))
             for n in range(k0, k0 + self.gas.n_species):
                 self.domain.setSteadyTolerances(Y[0], Y[1], n)
 
-        for name,(lower,upper) in kwargs.items():
-            self.domain.setSteadyTolerances(lower, upper, self.component_index(name))
+        for name, (rtol, atol) in kwargs.items():
+            self.domain.setSteadyTolerances(rtol, atol,
+                                            self.component_index(name))
 
     def set_transient_tolerances(self, *, default=None, Y=None, abs=None,
                                  rel=None, **kwargs):
@@ -127,18 +132,23 @@ cdef class Domain1D:
         if default is not None:
             self.domain.setTransientTolerances(default[0], default[1])
 
-        if abs is not None and rel is not None:
+        if abs is not None or rel is not None:
+            if rel is None:
+                rel = self.transient_reltol()
+            if abs is None:
+                abs = self.transient_abstol()
             assert len(abs) == len(rel) == self.n_components
-            for n,(r,a) in enumerate(zip(rel,abs)):
-                self.domain.setTransientTolerances(r,a,n)
+            for n, (r, a) in enumerate(zip(rel, abs)):
+                self.domain.setTransientTolerances(r, a, n)
 
         if Y is not None:
             k0 = self.component_index(self.gas.species_name(0))
             for n in range(k0, k0 + self.gas.n_species):
                 self.domain.setTransientTolerances(Y[0], Y[1], n)
 
-        for name,(lower,upper) in kwargs.items():
-            self.domain.setTransientTolerances(lower, upper, self.component_index(name))
+        for name, (rtol, atol) in kwargs.items():
+            self.domain.setTransientTolerances(rtol, atol,
+                                               self.component_index(name))
 
     def set_default_tolerances(self):
         """
