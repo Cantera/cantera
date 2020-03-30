@@ -509,7 +509,7 @@ class SolutionArray:
         if len(self._shape) == 1:
             self._indices = list(range(self._shape[0]))
             self._output_dummy = self._indices
-        elif(len(self._shape)==0 and len(states)==0):
+        elif( len(self._shape) == 0 and len(states) == 0):
             self._indices = list()
             self._output_dummy = list()
         else:
