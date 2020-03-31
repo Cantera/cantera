@@ -1,5 +1,6 @@
 from os.path import join as pjoin
 from pathlib import Path
+from collections import OrderedDict
 import os
 import numpy as np
 import gc
@@ -1642,6 +1643,12 @@ class TestSolutionArray(utilities.CanteraTest):
         self.assertArrayNear(row2.T, 900*np.ones(5))
 
     def test_extra(self):
+        extra = OrderedDict([('grid', np.arange(10)),
+                             ('velocity', np.random.rand(10))])
+        states = ct.SolutionArray(self.gas, 10, extra=extra)
+        keys = list(states._extra.keys())
+        self.assertEqual(keys[0], 'grid')
+        
         with self.assertRaises(ValueError):
             states = ct.SolutionArray(self.gas, extra=['creation_rates'])
         
