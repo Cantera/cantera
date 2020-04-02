@@ -275,45 +275,18 @@ public:
 };
 
 
-//! implements a tabulated function
+//! The Tabulated1 class implements a tabulated function
 class Tabulated1 : public Func1
 {
 public:
-    Tabulated1(const std::vector<double>& tvec, const std::vector<double>& fvec,
-               const std::string& method = "linear") :
-        Func1() {
-        if (tvec.size() != fvec.size()) {
-            throw CanteraError("Tabulated1::Tabulated1",
-                               "sizes of vectors do not match ({} vs {}).",
-                               tvec.size(), fvec.size());
-        } else if (tvec.empty()) {
-            throw CanteraError("Tabulated1::Tabulated1",
-                               "vectors must not be empty.");
-        }
-        m_tvec = tvec;
-        m_fvec = fvec;
-        if (method == "linear") {
-            m_isLinear = true;
-        } else if (method == "previous") {
-            m_isLinear = false;
-        } else {
-            throw CanteraError("Tabulated1::Tabulated1",
-                               "interpolation method '{}' is not implemented",
-                               method);
-        }
-    }
-
-    Tabulated1(const Tabulated1& b) :
-        Func1(b) {
-    }
-
-    Tabulated1& operator=(const Tabulated1& right) {
-        if (&right == this) {
-            return *this;
-        }
-        Func1::operator=(right);
-        return *this;
-    }
+    //! Constructor.
+    /*!
+     * @param tvec   Vector of time values
+     * @param fvec   Vector of values
+     * @param method Interpolation method ('linear' or 'previous')
+     */
+    Tabulated1(const vector_fp& tvec, const vector_fp& fvec,
+               const std::string& method = "linear");
 
     virtual std::string write(const std::string& arg) const;
     virtual int ID() const {
@@ -330,19 +303,21 @@ public:
 
     virtual Func1& derivative() const;
 private:
-    std::vector<double> m_tvec;
-    std::vector<double> m_fvec;
-    bool m_isLinear;
+    vector_fp m_tvec; //!< Vector of time values
+    vector_fp m_fvec; //!< Vector of function values
+    bool m_isLinear; //!< Boolean indicating interpolation method
 };
 
 
-/**
- * Constant.
- */
+//! The Const1 class implements a constant
 class Const1 : public Func1
 {
 public:
-    Const1(doublereal A) :
+    //! Constructor.
+    /*!
+     * @param A   Constant
+     */
+    Const1(double A) :
         Func1() {
         m_c = A;
     }

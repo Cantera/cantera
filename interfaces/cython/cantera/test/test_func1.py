@@ -102,6 +102,12 @@ class TestFunc1(utilities.CanteraTest):
         self.assertNear(fcn(-1), fval[0])
         self.assertNear(fcn(3), fval[-1])
 
+    def test_tabulated5(self):
+        time = 0, 1, 0.5, 2
+        fval = 2, 1, 1, 0
+        with self.assertRaisesRegex(ct.CanteraError, 'monotonically'):
+            ct.Func1(time, fval)
+
     def test_failures(self):
         with self.assertRaisesRegex(ValueError, 'Invalid number of arguments'):
             ct.Func1(1, 2, 3)
