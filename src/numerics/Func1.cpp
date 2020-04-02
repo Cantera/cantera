@@ -215,6 +215,36 @@ Func1& Pow1::derivative() const
 
 /******************************************************************************/
 
+Tabulated1::Tabulated1(const vector_fp& tvec, const vector_fp& fvec,
+                       const std::string& method) :
+    Func1() {
+    if (tvec.size() != fvec.size()) {
+        throw CanteraError("Tabulated1::Tabulated1",
+                           "sizes of vectors do not match ({} vs {}).",
+                           tvec.size(), fvec.size());
+    } else if (tvec.empty()) {
+        throw CanteraError("Tabulated1::Tabulated1",
+                           "vectors must not be empty.");
+    }
+    for (auto it = std::begin(tvec) + 1; it != std::end(tvec); it++) {
+        if (*(it - 1) > *it) {
+            throw CanteraError("Tabulated1::Tabulated1",
+                               "time values are not increasing monotonically.");
+        }
+    }
+    m_tvec = tvec;
+    m_fvec = fvec;
+    if (method == "linear") {
+        m_isLinear = true;
+    } else if (method == "previous") {
+        m_isLinear = false;
+    } else {
+        throw CanteraError("Tabulated1::Tabulated1",
+                           "interpolation method '{}' is not implemented",
+                           method);
+    }
+}
+
 double Tabulated1::eval(double t) const {
     size_t siz = m_tvec.size();
     if (siz) {
@@ -242,8 +272,8 @@ double Tabulated1::eval(double t) const {
 }
 
 Func1& Tabulated1::derivative() const {
-    std::vector<double> tvec;
-    std::vector<double> dvec;
+    vector_fp tvec;
+    vector_fp dvec;
     size_t siz = m_tvec.size();
     if (m_isLinear) {
         // piece-wise continuous derivative
