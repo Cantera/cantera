@@ -247,27 +247,24 @@ Tabulated1::Tabulated1(const vector_fp& tvec, const vector_fp& fvec,
 
 double Tabulated1::eval(double t) const {
     size_t siz = m_tvec.size();
-    if (siz) {
-        if (t <= m_tvec[0]) {
-            return m_fvec[0];
-        } else if (t >= m_tvec[siz-1]) {
-            return m_fvec[siz-1];
-        } else {
-            size_t ix = 0;
-            while (t > m_tvec[ix+1]) {
-                ix++;
-            }
-            if (m_isLinear) {
-                double df = m_fvec[ix+1] - m_fvec[ix];
-                df /= m_tvec[ix+1] - m_tvec[ix];
-                df *= t - m_tvec[ix];
-                return m_fvec[ix] + df;
-            } else {
-                return m_fvec[ix];
-            }
-        }
+    // constructor ensures that siz > 0
+    if (t <= m_tvec[0]) {
+        return m_fvec[0];
+    } else if (t >= m_tvec[siz-1]) {
+        return m_fvec[siz-1];
     } else {
-        return 0.;
+        size_t ix = 0;
+        while (t > m_tvec[ix+1]) {
+            ix++;
+        }
+        if (m_isLinear) {
+            double df = m_fvec[ix+1] - m_fvec[ix];
+            df /= m_tvec[ix+1] - m_tvec[ix];
+            df *= t - m_tvec[ix];
+            return m_fvec[ix] + df;
+        } else {
+            return m_fvec[ix];
+        }
     }
 }
 

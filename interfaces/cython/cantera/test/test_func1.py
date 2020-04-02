@@ -103,10 +103,9 @@ class TestFunc1(utilities.CanteraTest):
         self.assertNear(fcn(3), fval[-1])
 
     def test_tabulated5(self):
-        time = 0, 1, 0.5, 2
-        fval = 2, 1, 1, 0
-        with self.assertRaisesRegex(ct.CanteraError, 'monotonically'):
-            ct.Func1(time, fval)
+        fcn = ct.Func1([[0, 2], [1, 1], [2, 0]], interpolation='previous')
+        val = np.array([fcn(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]])
+        self.assertArrayNear(val, np.array([2.0, 2.0, 2.0, 1.0, 0.0, 0.0]))
 
     def test_failures(self):
         with self.assertRaisesRegex(ValueError, 'Invalid number of arguments'):
@@ -117,3 +116,10 @@ class TestFunc1(utilities.CanteraTest):
             ct.Func1(range(2), range(3))
         with self.assertRaisesRegex(ct.CanteraError, 'must not be empty'):
             ct.Func1([], [])
+        with self.assertRaisesRegex(ct.CanteraError, 'monotonically'):
+            ct.Func1((0, 1, 0.5, 2), (2, 1, 1, 0))
+        with self.assertRaisesRegex(ct.CanteraError, 'not implemented'):
+            ct.Func1((0, 1, 1, 2), (2, 1, 1, 0), interpolation='quadratic')
+        with self.assertRaisesRegex(ct.CanteraError, 'not be empty'):
+            fcn = ct.Func1([], [])
+        
