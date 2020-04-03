@@ -144,12 +144,19 @@ cdef class Func1:
         self.func = <CxxFunc1*>(new CxxConst1(c))
 
     cpdef void _set_tables(self, time, fval, string method) except *:
-        cdef vector[double] tvec, fvec
-        for t in time:
-            tvec.push_back(t)
-        for f in fval:
-            fvec.push_back(f)
-        self.func = <CxxFunc1*>(new CxxTabulated1(tvec, fvec, method))
+        tsiz = np.asarray(time).size
+        fsiz = np.asarray(fval).size
+        if tsiz != fsiz:
+            raise ValueError("Sizes of arrays do not match "
+                             "({} vs {}).".format(tsiz, fsiz))
+        elif tsiz == 0:
+            raise ValueError("Arrays must not be empty.")
+        cdef np.ndarray[np.double_t, ndim=1] tvec = np.asarray(time,
+                                                               dtype=np.double)
+        cdef np.ndarray[np.double_t, ndim=1] fvec = np.asarray(fval,
+                                                               dtype=np.double)
+        self.func = <CxxFunc1*>(new CxxTabulated1(tsiz, &tvec[0], &fvec[0],
+                                                  method))
 
     def __dealloc__(self):
         del self.func

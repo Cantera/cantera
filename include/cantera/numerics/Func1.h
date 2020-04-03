@@ -281,11 +281,12 @@ class Tabulated1 : public Func1
 public:
     //! Constructor.
     /*!
-     * @param tvec   Vector of time values
-     * @param fvec   Vector of values
+     * @param n      Size of tabulated value arrays
+     * @param tvals   Pointer to time value array
+     * @param fvals   Pointer to function value array
      * @param method Interpolation method ('linear' or 'previous')
      */
-    Tabulated1(const vector_fp& tvec, const vector_fp& fvec,
+    Tabulated1(size_t n, const double* tvals, const double* fvals,
                const std::string& method = "linear");
 
     virtual std::string write(const std::string& arg) const;
@@ -295,9 +296,11 @@ public:
     virtual double eval(double t) const;
     virtual Func1& duplicate() const {
         if (m_isLinear) {
-            return *(new Tabulated1(m_tvec, m_fvec, "linear"));
+            return *(new Tabulated1(m_tvec.size(), &m_tvec[0], &m_fvec[0],
+                                    "linear"));
         } else {
-            return *(new Tabulated1(m_tvec, m_fvec, "previous"));
+            return *(new Tabulated1(m_tvec.size(), &m_tvec[0], &m_fvec[0],
+                                    "previous"));
         }
     }
 
