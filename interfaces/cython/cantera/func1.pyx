@@ -110,25 +110,32 @@ cdef class TabulatedFunction(Func1):
     by two iterable objects containing sample point location and function
     values, or a single array that concatenates those inputs in two rows or
     columns. Between sample points, values are evaluated based on the optional
-    keyword argument 'method'; options are 'linear' (linear interpolation,
-    default) or 'previous' (nearest previous value). Outside the sample
-    interval, the value at the closest end point is returned.
+    argument ``method``, which has to be supplied as a keyword; options are 
+    ``'linear'`` (linear interpolation, default) or ``'previous'`` (nearest 
+    previous value). Outside the sample interval, the value at the closest end 
+    point is returned.
 
-    Examples for `TabulatedFunction` objects are::
+    Examples for `TabulatedFunction` objects using a single (two-dimensional)
+    array as input are::
 
         >>> t1 = TabulatedFunction([[0, 2], [1, 1], [2, 0]])
         >>> [t1(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
         [2.0, 2.0, 1.5, 0.5, 0.0, 0.0]
 
-        >>> t2 = TabulatedFunction([[0, 2], [1, 1], [2, 0]], method='previous')
+        >>> t2 = TabulatedFunction(np.array([0, 1, 2]), (2, 1, 0))
         >>> [t2(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
-        [2.0, 2.0, 2.0, 1.0, 0.0, 0.0]
-
-        >>> t3 = TabulatedFunction([0, 1, 2], [2, 1, 0])
-        >>> [t3(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
         [2.0, 2.0, 1.5, 0.5, 0.0, 0.0]
 
-        >>> t4 = TabulatedFunction(np.array([0, 1, 2]), (2, 1, 0))
+    where the optional ``method`` keyword argument changes the type of
+    interpolation from the ``'linear'`` default to ``'previous'``::
+
+        >>> t3 = TabulatedFunction([[0, 2], [1, 1], [2, 0]], method='previous')
+        >>> [t3(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
+        [2.0, 2.0, 2.0, 1.0, 0.0, 0.0]
+
+    Alternatively, a `TabulatedFunction` can be defined using two input arrays::
+
+        >>> t4 = TabulatedFunction([0, 1, 2], [2, 1, 0])
         >>> [t4(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
         [2.0, 2.0, 1.5, 0.5, 0.0, 0.0]
     """
@@ -150,9 +157,8 @@ cdef class TabulatedFunction(Func1):
                                      "requires two rows or columns")
                 self._set_tables(time, fval, stringify(method))
             else:
-                raise TypeError(
-                    "'TabulatedFunction' must be constructed from "
-                    "a numeric array with two columns")
+                raise TypeError("'TabulatedFunction' must be constructed from "
+                                "a numeric array with two dimensions")
 
         elif len(args) == 2:
             # tabulated function (two arrays mimic C++ interface)
