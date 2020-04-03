@@ -75,21 +75,21 @@ class TestFunc1(utilities.CanteraTest):
         arr = np.array([[0, 2], [1, 1], [2, 0]])
         time = arr[:, 0]
         fval = arr[:, 1]
-        fcn = ct.Func1(time, fval)
+        fcn = ct.TabulatedFunction(time, fval)
         for t, f in zip(time, fval):
             self.assertNear(f, fcn(t))
 
     def test_tabulated2(self):
         time = [0, 1, 2]
         fval = [2, 1, 0]
-        fcn = ct.Func1(time, fval)
+        fcn = ct.TabulatedFunction(time, fval)
         for t, f in zip(time, fval):
             self.assertNear(f, fcn(t))
 
     def test_tabulated3(self):
         time = np.array([0, 1, 2])
         fval = np.array([2, 1, 0])
-        fcn = ct.Func1(time, fval)
+        fcn = ct.TabulatedFunction(time, fval)
         tt = .5*(time[1:] + time[:-1])
         ff = .5*(fval[1:] + fval[:-1])
         for t, f in zip(tt, ff):
@@ -98,25 +98,25 @@ class TestFunc1(utilities.CanteraTest):
     def test_tabulated4(self):
         time = 0, 1, 2,
         fval = 2, 1, 0,
-        fcn = ct.Func1(time, fval)
+        fcn = ct.TabulatedFunction(time, fval)
         self.assertNear(fcn(-1), fval[0])
         self.assertNear(fcn(3), fval[-1])
 
     def test_tabulated5(self):
-        fcn = ct.Func1([[0, 2], [1, 1], [2, 0]], interpolation='previous')
+        fcn = ct.TabulatedFunction([[0, 2], [1, 1], [2, 0]], method='previous')
         val = np.array([fcn(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]])
         self.assertArrayNear(val, np.array([2.0, 2.0, 2.0, 1.0, 0.0, 0.0]))
 
     def test_tabulated_failures(self):
         with self.assertRaisesRegex(ValueError, 'Invalid number of arguments'):
-            ct.Func1(1, 2, 3)
+            ct.TabulatedFunction(1, 2, 3)
         with self.assertRaisesRegex(ValueError, 'Invalid dimensions'):
-            ct.Func1(np.zeros((3, 3)))
+            ct.TabulatedFunction(np.zeros((3, 3)))
         with self.assertRaisesRegex(ValueError, 'do not match'):
-            ct.Func1(range(2), range(3))
+            ct.TabulatedFunction(range(2), range(3))
         with self.assertRaisesRegex(ValueError, 'must not be empty'):
-            ct.Func1([], [])
+            ct.TabulatedFunction([], [])
         with self.assertRaisesRegex(ct.CanteraError, 'monotonically'):
-            ct.Func1((0, 1, 0.5, 2), (2, 1, 1, 0))
+            ct.TabulatedFunction((0, 1, 0.5, 2), (2, 1, 1, 0))
         with self.assertRaisesRegex(ct.CanteraError, 'not implemented'):
-            ct.Func1((0, 1, 1, 2), (2, 1, 1, 0), interpolation='quadratic')
+            ct.TabulatedFunction((0, 1, 1, 2), (2, 1, 1, 0), method='quadratic')
