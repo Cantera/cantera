@@ -814,7 +814,7 @@ for _attr in ['forward_rates_of_progress', 'reverse_rates_of_progress', 'net_rat
 
 class FreeFlame(FlameBase):
     """A freely-propagating flat flame."""
-    __slots__ = ('inlet', 'outlet', 'flame')
+    __slots__ = ('inlet', 'flame', 'outlet')
     _extra = ('grid', 'velocity')
 
     def __init__(self, gas, grid=None, width=None):
@@ -1026,7 +1026,7 @@ class IonFlameBase(FlameBase):
 
 class IonFreeFlame(IonFlameBase, FreeFlame):
     """A freely-propagating flame with ionized gas."""
-    __slots__ = ('inlet', 'outlet', 'flame')
+    __slots__ = ('inlet', 'flame', 'outlet')
     _extra = ('grid', 'velocity', 'eField')
 
     def __init__(self, gas, grid=None, width=None):

@@ -921,10 +921,10 @@ class SolutionArray:
 
         self.restore_data(data, labels)
 
-    def to_hdf(self, filename, cols=None, key=None,
-               mode=None, append=False,
+    def to_hdf(self, filename, *args, cols=None, key=None, attrs={},
+               source='SolutionArray', mode='a', append=False,
                compression=None, compression_opts=None,
-               *args, **kwargs):
+               **kwargs):
         """
         Writer for new HDF structure (will replace write_hdf).
         """
@@ -937,9 +937,9 @@ class SolutionArray:
         hdf_kwargs = {'compression': compression,
                       'compression_opts': compression_opts}
         hdf_kwargs = {k: v for k, v in hdf_kwargs.items() if v is not None}
-        
-        # save to container file (in append mode)
-        with _h5py.File(filename, 'a') as hdf:
+
+        # save to container file
+        with _h5py.File(filename, mode) as hdf:
 
             # check existence of tagged item
             msg = "HDF group with key '{}' exists in '{}': {}"
@@ -962,11 +962,15 @@ class SolutionArray:
                     del root[sub]
                 count = 0
 
+            # save attributes
+            for attr, value in attrs.items():
+                root.attrs[attr] = value
+
             # add subgroup containing data
             sub_name = 'd{}'.format(count)
             sub = root.create_group(sub_name)
-            sub.attrs['type'] = 'SolutionArray'
-            sub.attrs['phase'] = self.name
+            sub.attrs['source'] = source
+            sub.attrs['name'] = self.name
             for header, col in zip(labels, data.T):
                 sub.create_dataset(header, data=col, **hdf_kwargs)
 
@@ -989,11 +993,12 @@ class SolutionArray:
                 msg = "HDF file does not contain group '{}'"
                 raise IOError(msg.format(key))
 
-            # load root
+            # load root and attributes
             root = hdf[key]
+            attrs = {attr: value for attr, value in root.attrs.items()}
 
             # identify subgroup
-            sub_names = ['d{}'.format(i) for i in range(len(root.keys()))]
+            sub_names = ['d{}'.format(i) for i, key in enumerate(root.keys())]
             if not len(sub_names):
                 msg = "HDF group '{}' does not contain valid data"
                 raise IOError(msg.format(key))
@@ -1004,8 +1009,8 @@ class SolutionArray:
             sub = root[sub_names[item]]
 
             # ensure that mechanisms are matching
-            sub_type = sub.attrs['type']
-            sub_name = sub.attrs['phase']
+            sub_type = sub.attrs['source']
+            sub_name = sub.attrs['name']
             if sub_name != self.name:
                 raise IOError("Names of thermodynamic phases do not match: "
                               "'{}' vs '{}'".format(sub_name, self.name))
@@ -1019,7 +1024,7 @@ class SolutionArray:
 
         self.restore_data(np.vstack(data).T, labels)
 
-        return sub_type
+        return sub_type, attrs
 
     def write_hdf(self, filename, cols=None,
                   key='df', mode=None, append=None, complevel=None,
