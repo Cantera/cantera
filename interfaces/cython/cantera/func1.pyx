@@ -2,7 +2,6 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 import sys
-from numbers import Real as _real
 
 cdef double func_callback(double t, void* obj, void** err):
     """
@@ -54,109 +53,40 @@ cdef class Func1:
         >>> f4(0.1)
         2.5
 
-    A `Func1` object representing a tabulated function is defined by sample
-    points and corresponding function values. Inputs are specified either by
-    two iterable objects containing sample point location and function values,
-    or a single array that concatenates those inputs in two columns. Between
-    sample points, values are evaluated based on the keyword argument
-    'interpolation'; options are 'linear' (linear interpolation, default) or
-    'previous' (nearest previous value). Outside the sample interval, the value
-    at the closest end point is returned.
-
-    Examples for tabulated `Func1` object are::
-
-        >>> t1 = Func1([[0, 2], [1, 1], [2, 0]])
-        >>> [t1(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
-        [2.0, 2.0, 1.5, 0.5, 0.0, 0.0]
-
-        >>> t2 = Func1([[0, 2], [1, 1], [2, 0]], interpolation='previous')
-        >>> [t2(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
-        [2.0, 2.0, 2.0, 1.0, 0.0, 0.0]
-
-        >>> t3 = Func1([0, 1, 2], [2, 1, 0])
-        >>> [t3(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
-        [2.0, 2.0, 1.5, 0.5, 0.0, 0.0]
-
-        >>> t4 = Func1(np.array([0, 1, 2]), (2, 1, 0))
-        >>> [t4(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
-        [2.0, 2.0, 1.5, 0.5, 0.0, 0.0]
-
     Note that all methods which accept `Func1` objects will also accept the
-    callable object and create the wrapper on their own, so it is generally
-    unnecessary to explicitly create a `Func1` object.
+    callable object and create the wrapper on their own, so it is often not
+    necessary to explicitly create a `Func1` object.
     """
     def __cinit__(self, *args, **kwargs):
         self.exception = None
         self.callable = None
 
-    def __init__(self, *args, **kwargs):
-        if len(args) == 1:
-            c = args[0]
-            if hasattr(c, '__call__'):
-                # callback function
-                self._set_callback(c)
-            else:
-                arr = np.array(c)
-                try:
-                    if arr.ndim == 0:
-                        # handle constants or unsized numpy arrays
-                        k = float(c)
-                        self._set_const(k)
-                    elif arr.size == 1:
-                        # handle lists, tuples or numpy arrays with a single element
-                        k = float(c[0])
-                        self._set_const(k)
-                    elif arr.ndim == 2:
-                        # tabulated function (single argument)
-                        if arr.shape[1] == 2:
-                            time = arr[:, 0]
-                            fval = arr[:, 1]
-                            method = kwargs.get('interpolation', 'linear')
-                            self._set_tables(time, fval, stringify(method))
-                        else:
-                            raise ValueError(
-                                "Invalid dimensions: specification of "
-                                "tabulated function with a single array "
-                                "requires two columns")
-                    else:
-                        raise TypeError
-
-                except TypeError:
-                    raise TypeError(
-                        "Func1 must be constructed from a callable object, "
-                        "a number or a numeric array with two columns")
-
-        elif len(args) == 2:
-            # tabulated function (two arguments mimic C++ interface)
-            time, fval = args
-            method = kwargs.get('interpolation', 'linear')
-            self._set_tables(time, fval, stringify(method))
-
+    def __init__(self, c):
+        if hasattr(c, '__call__'):
+            # callback function
+            self._set_callback(c)
         else:
-            raise ValueError("Invalid number of arguments")
+            arr = np.array(c)
+            try:
+                if arr.ndim == 0:
+                    # handle constants or unsized numpy arrays
+                    k = float(c)
+                    self._set_callback(lambda t: k)
+                elif arr.size == 1:
+                    # handle lists, tuples or numpy arrays with a single element
+                    k = float(c[0])
+                    self._set_callback(lambda t: k)
+                else:
+                    raise TypeError
 
+            except TypeError:
+                raise TypeError(
+                    "'Func1' objects must be constructed from a number or "
+                    "a callable object") from None
 
     cpdef void _set_callback(self, c) except *:
         self.callable = c
         self.func = new CxxFunc1(func_callback, <void*>self)
-
-    cpdef void _set_const(self, double c) except *:
-        self.func = <CxxFunc1*>(new CxxConst1(c))
-
-    cpdef void _set_tables(self, time, fval, string method) except *:
-        tsiz = np.asarray(time).size
-        fsiz = np.asarray(fval).size
-        if tsiz != fsiz:
-            raise ValueError("Sizes of arrays do not match "
-                             "({} vs {}).".format(tsiz, fsiz))
-        elif tsiz == 0:
-            raise ValueError("Arrays must not be empty.")
-        cdef np.ndarray[np.double_t, ndim=1] tvec = np.asarray(time,
-                                                               dtype=np.double)
-        cdef np.ndarray[np.double_t, ndim=1] fvec = np.asarray(fval,
-                                                               dtype=np.double)
-        self.func = <CxxFunc1*>(new CxxTabulated1(tsiz, &tvec[0], &fvec[0],
-                                                  method))
 
     def __dealloc__(self):
         del self.func
@@ -165,7 +95,83 @@ cdef class Func1:
         return self.func.eval(t)
 
     def __reduce__(self):
-        raise NotImplementedError('Func1 object is not picklable')
+        msg = "'{}' objects are not picklable".format(type(self).__name__)
+        raise NotImplementedError(msg)
 
     def __copy__(self):
-        raise NotImplementedError('Func1 object is not copyable')
+        msg = "'{}' objects are not copyable".format(type(self).__name__)
+        raise NotImplementedError(msg)
+
+
+cdef class TabulatedFunction(Func1):
+    """
+    A `TabulatedFunction` object representing a tabulated function is defined by
+    sample points and corresponding function values. Inputs are specified either
+    by two iterable objects containing sample point location and function
+    values, or a single array that concatenates those inputs in two rows or
+    columns. Between sample points, values are evaluated based on the optional
+    keyword argument 'method'; options are 'linear' (linear interpolation,
+    default) or 'previous' (nearest previous value). Outside the sample
+    interval, the value at the closest end point is returned.
+
+    Examples for `TabulatedFunction` objects are::
+
+        >>> t1 = TabulatedFunction([[0, 2], [1, 1], [2, 0]])
+        >>> [t1(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
+        [2.0, 2.0, 1.5, 0.5, 0.0, 0.0]
+
+        >>> t2 = TabulatedFunction([[0, 2], [1, 1], [2, 0]], method='previous')
+        >>> [t2(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
+        [2.0, 2.0, 2.0, 1.0, 0.0, 0.0]
+
+        >>> t3 = TabulatedFunction([0, 1, 2], [2, 1, 0])
+        >>> [t3(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
+        [2.0, 2.0, 1.5, 0.5, 0.0, 0.0]
+
+        >>> t4 = TabulatedFunction(np.array([0, 1, 2]), (2, 1, 0))
+        >>> [t4(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
+        [2.0, 2.0, 1.5, 0.5, 0.0, 0.0]
+    """
+
+    def __init__(self, *args, method='linear'):
+        if len(args) == 1:
+            # tabulated function (single argument)
+            arr = np.array(args[0])
+            if arr.ndim == 2:
+                if arr.shape[1] == 2:
+                    time = arr[:, 0]
+                    fval = arr[:, 1]
+                elif arr.shape[0] == 2:
+                    time = arr[0, :]
+                    fval = arr[1, :]
+                else:
+                    raise ValueError("Invalid dimensions: specification of "
+                                     "tabulated function with a single array "
+                                     "requires two rows or columns")
+                self._set_tables(time, fval, stringify(method))
+            else:
+                raise TypeError(
+                    "'TabulatedFunction' must be constructed from "
+                    "a numeric array with two columns")
+
+        elif len(args) == 2:
+            # tabulated function (two arrays mimic C++ interface)
+            time, fval = args
+            self._set_tables(time, fval, stringify(method))
+
+        else:
+            raise ValueError("Invalid number of arguments (one or two "
+                             "arguments containing tabulated values)")
+
+    cpdef void _set_tables(self, time, fval, string method) except *:
+        tt = np.asarray(time, dtype=np.double)
+        ff = np.asarray(fval, dtype=np.double)
+        if tt.size != ff.size:
+            raise ValueError("Sizes of arrays do not match "
+                             "({} vs {})".format(tt.size, ff.size))
+        elif tt.size == 0:
+            raise ValueError("Arrays must not be empty.")
+        cdef np.ndarray[np.double_t, ndim=1] tvec = tt
+        cdef np.ndarray[np.double_t, ndim=1] fvec = ff
+        self.func = <CxxFunc1*>(new CxxTabulated1(tt.size, &tvec[0], &fvec[0],
+                                                  method))
