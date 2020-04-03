@@ -5,6 +5,15 @@ from ._cantera import *
 import numpy as np
 import csv as _csv
 
+import pkg_resources
+
+try:
+    pkg_resources.get_distribution('h5py')
+except pkg_resources.DistributionNotFound:
+    _h5py = ImportError('Method requires a working h5py installation.')
+else:
+    import h5py as _h5py
+
 # avoid explicit dependence of cantera on pandas
 try:
     import pandas as _pandas
@@ -911,6 +920,106 @@ class SolutionArray:
         labels = list(df.columns)
 
         self.restore_data(data, labels)
+
+    def to_hdf(self, filename, cols=None, key=None,
+               mode=None, append=False,
+               compression=None, compression_opts=None,
+               *args, **kwargs):
+        """
+        Writer for new HDF structure (will replace write_hdf).
+        """
+        if isinstance(_h5py, ImportError):
+            raise _h5py
+
+        # collect data
+        data, labels = self.collect_data(cols=cols, *args, **kwargs)
+
+        hdf_kwargs = {'compression': compression,
+                      'compression_opts': compression_opts}
+        hdf_kwargs = {k: v for k, v in hdf_kwargs.items() if v is not None}
+        
+        # save to container file (in append mode)
+        with _h5py.File(filename, 'a') as hdf:
+
+            # check existence of tagged item
+            msg = "HDF group with key '{}' exists in '{}': {}"
+            if not key:
+                # add group with default name
+                root = hdf.create_group('group{}'.format(len(hdf.keys())))
+                count = 0
+            elif key not in hdf.keys():
+                # add group with custom name
+                root = hdf.create_group(key)
+                count = 0
+            elif append:
+                # append data within existing group
+                root = hdf[key]
+                count = len(root.keys())
+            else:
+                # reset data in existing group
+                root = hdf[key]
+                for sub in root.keys():
+                    del root[sub]
+                count = 0
+
+            # add subgroup containing data
+            sub_name = 'd{}'.format(count)
+            sub = root.create_group(sub_name)
+            sub.attrs['type'] = 'SolutionArray'
+            sub.attrs['phase'] = self.name
+            for header, col in zip(labels, data.T):
+                sub.create_dataset(header, data=col, **hdf_kwargs)
+
+    def from_hdf(self, filename, key=None, item=None):
+        """
+        Reader for new HDF structure (will replace read_hdf).
+        """
+        if isinstance(_h5py, ImportError):
+            raise _h5py
+
+        with _h5py.File(filename, 'r') as hdf:
+
+            groups = list(hdf.keys())
+            if not len(groups):
+                key = ''
+            elif key is None:
+                key = groups[0]
+
+            if not (key in hdf.keys()):
+                msg = "HDF file does not contain group '{}'"
+                raise IOError(msg.format(key))
+
+            # load root
+            root = hdf[key]
+
+            # identify subgroup
+            sub_names = ['d{}'.format(i) for i in range(len(root.keys()))]
+            if not len(sub_names):
+                msg = "HDF group '{}' does not contain valid data"
+                raise IOError(msg.format(key))
+            elif item is None:
+                # `SolutionArray` data: index '0' (only entry)
+                # `FlameBase` derived data: index '1' (Domain1D)
+                item = int(len(sub_names) > 1)
+            sub = root[sub_names[item]]
+
+            # ensure that mechanisms are matching
+            sub_type = sub.attrs['type']
+            sub_name = sub.attrs['phase']
+            if sub_name != self.name:
+                raise IOError("Names of thermodynamic phases do not match: "
+                              "'{}' vs '{}'".format(sub_name, self.name))
+
+            # load data
+            data = []
+            labels = []
+            for name, value in sub.items():
+                labels += [name]
+                data += [np.array(value)]
+
+        self.restore_data(np.vstack(data).T, labels)
+
+        return sub_type
 
     def write_hdf(self, filename, cols=None,
                   key='df', mode=None, append=None, complevel=None,
