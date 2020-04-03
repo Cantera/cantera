@@ -215,25 +215,19 @@ Func1& Pow1::derivative() const
 
 /******************************************************************************/
 
-Tabulated1::Tabulated1(const vector_fp& tvec, const vector_fp& fvec,
+Tabulated1::Tabulated1(size_t n, const double* tvals, const double* fvals,
                        const std::string& method) :
     Func1() {
-    if (tvec.size() != fvec.size()) {
-        throw CanteraError("Tabulated1::Tabulated1",
-                           "sizes of vectors do not match ({} vs {}).",
-                           tvec.size(), fvec.size());
-    } else if (tvec.empty()) {
-        throw CanteraError("Tabulated1::Tabulated1",
-                           "vectors must not be empty.");
-    }
-    for (auto it = std::begin(tvec) + 1; it != std::end(tvec); it++) {
+    m_tvec.resize(n);
+    std::copy(tvals, tvals + n, m_tvec.begin());
+    for (auto it = std::begin(m_tvec) + 1; it != std::end(m_tvec); it++) {
         if (*(it - 1) > *it) {
             throw CanteraError("Tabulated1::Tabulated1",
                                "time values are not increasing monotonically.");
         }
     }
-    m_tvec = tvec;
-    m_fvec = fvec;
+    m_fvec.resize(n);
+    std::copy(fvals, fvals + n, m_fvec.begin());
     if (method == "linear") {
         m_isLinear = true;
     } else if (method == "previous") {
@@ -291,7 +285,7 @@ Func1& Tabulated1::derivative() const {
         dvec.push_back(0.);
         dvec.push_back(0.);
     }
-    return *(new Tabulated1(tvec, dvec, "previous"));
+    return *(new Tabulated1(tvec.size(), &tvec[0], &dvec[0], "previous"));
 }
 
 /******************************************************************************/
