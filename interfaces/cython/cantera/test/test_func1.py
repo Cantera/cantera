@@ -119,4 +119,4 @@ class TestFunc1(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, 'monotonically'):
             ct.TabulatedFunction((0, 1, 0.5, 2), (2, 1, 1, 0))
         with self.assertRaisesRegex(ct.CanteraError, 'not implemented'):
-            ct.TabulatedFunction((0, 1, 1, 2), (2, 1, 1, 0), method='quadratic')
+            ct.TabulatedFunction((0, 1, 1, 2), (2, 1, 1, 0), method='not implemented')
