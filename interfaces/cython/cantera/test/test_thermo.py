@@ -13,6 +13,9 @@ class TestThermoPhase(utilities.CanteraTest):
     def setUp(self):
         self.phase = ct.Solution('h2o2.xml')
 
+    def test_source(self):
+        self.assertEqual(self.phase.source, 'h2o2.xml')
+
     def test_base_attributes(self):
         self.assertIsInstance(self.phase.name, str)
         self.assertIsInstance(self.phase.phase_of_matter, str)
@@ -1644,7 +1647,7 @@ class TestSolutionArray(utilities.CanteraTest):
     def test_extra(self):
         with self.assertRaises(ValueError):
             states = ct.SolutionArray(self.gas, extra=['creation_rates'])
-        
+
     def test_append(self):
         states = ct.SolutionArray(self.gas, 5)
         states.TPX = np.linspace(500, 1000, 5), 2e5, 'H2:0.5, O2:0.4'

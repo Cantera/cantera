@@ -85,6 +85,13 @@ cdef class _SolutionBase:
         def __set__(self, name):
             self.base.setName(stringify(name))
 
+    property source:
+        """
+        The source of this object (e.g. a file name)
+        """
+        def __get__(self):
+            return pystr(self.base.source())
+
     property composite:
         """
         Returns tuple of thermo/kinetics/transport models associated with
@@ -108,8 +115,10 @@ cdef class _SolutionBase:
         cdef CxxAnyMap root
         if infile:
             root = AnyMapFromYamlFile(stringify(infile))
+            self.base.setSource(stringify(infile))
         elif source:
             root = AnyMapFromYamlString(stringify(source))
+            self.base.setSource(stringify('custom YAML'))
 
         phaseNode = root[stringify("phases")].getMapWhere(stringify("name"),
                                                           stringify(name))
@@ -144,8 +153,10 @@ cdef class _SolutionBase:
         """
         if infile:
             rootNode = CxxGetXmlFile(stringify(infile))
+            self.base.setSource(stringify(infile))
         elif source:
             rootNode = CxxGetXmlFromString(stringify(source))
+            self.base.setSource(stringify('custom CTI/XML'))
 
         # Get XML data
         cdef XML_Node* phaseNode
@@ -184,6 +195,7 @@ cdef class _SolutionBase:
         Instantiate a set of new Cantera C++ objects based on a string defining
         the model type and a list of Species objects.
         """
+        self.base.setSource(stringify('custom parts'))
         self.thermo = newThermoPhase(stringify(thermo))
         self._thermo.reset(self.thermo)
         self.thermo.addUndefinedElements()

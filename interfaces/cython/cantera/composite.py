@@ -476,7 +476,7 @@ class SolutionArray:
 
     _passthrough = [
         # from ThermoPhase
-        'name', 'ID', 'basis', 'n_elements', 'element_index',
+        'name', 'ID', 'source', 'basis', 'n_elements', 'element_index',
         'element_name', 'element_names', 'atomic_weight', 'atomic_weights',
         'n_species', 'species_name', 'species_names', 'species_index',
         'species', 'n_atoms', 'molecular_weights', 'min_temp', 'max_temp',
@@ -969,8 +969,9 @@ class SolutionArray:
             # add subgroup containing data
             sub_name = 'd{}'.format(count)
             sub = root.create_group(sub_name)
-            sub.attrs['source'] = source
-            sub.attrs['name'] = self.name
+            sub.attrs['data_source'] = source
+            sub.attrs['solution_name'] = self.name
+            sub.attrs['solution_source'] = self.source
             for header, col in zip(labels, data.T):
                 sub.create_dataset(header, data=col, **hdf_kwargs)
 
@@ -995,7 +996,7 @@ class SolutionArray:
 
             # load root and attributes
             root = hdf[key]
-            attrs = {attr: value for attr, value in root.attrs.items()}
+            root_attrs = {attr: value for attr, value in root.attrs.items()}
 
             # identify subgroup
             sub_names = ['d{}'.format(i) for i, key in enumerate(root.keys())]
@@ -1009,8 +1010,8 @@ class SolutionArray:
             sub = root[sub_names[item]]
 
             # ensure that mechanisms are matching
-            sub_type = sub.attrs['source']
-            sub_name = sub.attrs['name']
+            sub_attrs = {attr: value for attr, value in sub.attrs.items()}
+            sub_name = sub_attrs['solution_name']
             if sub_name != self.name:
                 raise IOError("Names of thermodynamic phases do not match: "
                               "'{}' vs '{}'".format(sub_name, self.name))
@@ -1024,7 +1025,7 @@ class SolutionArray:
 
         self.restore_data(np.vstack(data).T, labels)
 
-        return sub_type, attrs
+        return root_attrs, sub_attrs
 
     def write_hdf(self, filename, cols=None,
                   key='df', mode=None, append=None, complevel=None,
