@@ -37,6 +37,12 @@ public:
     //! Set the name of this Solution object
     void setName(const std::string& name);
 
+    //! Return the source of this Solution object
+    std::string source() const { return m_source; }
+
+    //! Set the source of this Solution object
+    void setSource(const std::string& source) { m_source = source; }
+
     //! Set the ThermoPhase object
     void setThermo(shared_ptr<ThermoPhase> thermo);
 
@@ -62,6 +68,8 @@ public:
     }
 
 protected:
+    std::string m_source; //!< Source of Solution (e.g. file name)
+
     shared_ptr<ThermoPhase> m_thermo;  //!< ThermoPhase manager
     shared_ptr<Kinetics> m_kinetics;  //!< Kinetics manager
     shared_ptr<Transport> m_transport;  //!< Transport manager
