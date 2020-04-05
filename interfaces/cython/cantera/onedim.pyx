@@ -3,6 +3,9 @@
 
 from .interrupts import no_op
 import warnings
+from collections import OrderedDict
+
+from .composite import SolutionArray
 
 # Need a pure-python class to store weakrefs to
 class _WeakrefProxy:
@@ -625,6 +628,7 @@ cdef class Sim1D:
 
     Domains are ordered left-to-right, with domain number 0 at the left.
     """
+
     def __cinit__(self, *args, **kwargs):
         self.sim = NULL
 
@@ -846,6 +850,59 @@ cdef class Sim1D:
         """
         dom, comp = self._get_indices(domain, component)
         self.sim.setFlatProfile(dom, comp, value)
+
+    def collect_data(self, domain, extra):
+        """
+        SolutionArray collector (will replace to_solution_array).
+        """
+
+        idom = self.domain_index(domain)
+        dom = self.domains[idom]
+
+        extra_cols = OrderedDict()
+
+        if isinstance(dom, _FlowBase):
+            n_points = dom.n_points
+
+            # retrieve gas state
+            T = self.profile(self.flame, 'T')
+            P = dom.P
+            k0 = self.flame.component_index(self.gas.species_name(0))
+            Y = [self.profile(self.flame, k)
+                 for k in range(k0, k0 + self.gas.n_species)]
+
+            # create extra columns
+            for e in extra:
+               if e == 'grid':
+                   extra_cols[e] = self.grid
+               else:
+                   extra_cols[e] = self.profile(self.flame, e)
+            if self.radiation_enabled:
+                extra_cols['qdot'] = self.radiative_heat_loss
+
+            arr = SolutionArray(self.gas, n_points, extra=extra_cols)
+            arr.TPY = T, P, np.vstack(Y).T
+
+        elif isinstance(dom, Inlet1D):
+
+            self.gas.TPY = dom.T, self.P, dom.Y
+
+            # create extra columns
+            for e in extra:
+               if e == 'velocity':
+                   extra_cols[e] = dom.mdot/self.gas.density
+
+            arr = SolutionArray(self.gas, 1, extra=extra_cols)
+
+        elif isinstance(dom, ReactingSurface1D):
+
+            raise NotImplementedError("@todo")
+
+        elif isinstance(dom, Boundary1D):
+
+            arr = SolutionArray(self.gas)
+
+        return arr
 
     def show_solution(self):
         """ print the current solution. """
