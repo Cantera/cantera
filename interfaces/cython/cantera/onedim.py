@@ -80,10 +80,10 @@ class FlameBase(Sim1D):
         :param data:
             Restart data, which are typically based on an earlier simulation
             result. Restart data may be specified using a `SolutionArray`,
-            pandas' DataFrame, or previously saved CSV or HDF container files. 
-            Note that restart data do not overwrite boundary conditions. 
-            DataFrame and HDF input require working installations of pandas and 
-            PyTables. These packages can be installed using pip (`pandas` and 
+            pandas' DataFrame, or previously saved CSV or HDF container files.
+            Note that restart data do not overwrite boundary conditions.
+            DataFrame and HDF input require working installations of pandas and
+            PyTables. These packages can be installed using pip (`pandas` and
             `tables`) or conda (`pandas` and `pytables`).
         :param key:
             Group identifier within a HDF container file (only used in
@@ -388,6 +388,10 @@ class FlameBase(Sim1D):
 
         if not quiet:
             print("Solution saved to '{0}'.".format(filename))
+
+    def collect_data(self, domain):
+
+        return super().collect_data(domain, self._extra)
 
     def to_solution_array(self):
         """
