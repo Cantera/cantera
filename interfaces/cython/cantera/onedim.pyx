@@ -252,6 +252,64 @@ cdef class Domain1D:
     def __copy__(self):
         raise NotImplementedError('Domain1D object is not copyable')
 
+    property settings:
+        """
+        Metadata
+        """
+        def __get__(self):
+            epsilon = self.boundary_emissivities
+            out = {
+                'name': self.name,
+                'source': type(self).__name__,
+                'emissivity_left': epsilon[0],
+                'emissivity_right': epsilon[1]}
+
+            # add tolerance settings
+            tols = {'steady_reltol': self.steady_reltol(),
+                    'steady_abstol': self.steady_abstol(),
+                    'transient_reltol': self.transient_reltol(),
+                    'transient_abstol': self.transient_abstol()}
+            comp = np.array(self.component_names)
+            for tname, tol in tols.items():
+                # add mode (most frequent tolerance setting)
+                values, counts = np.unique(tol, return_counts=True)
+                ix = np.argmax(counts)
+                out.update({tname: values[ix]})
+
+                # add values deviating from mode
+                ix = np.logical_not(np.isclose(tol, values[ix]))
+                out.update({'{}_{}'.format(tname, c): t
+                            for c, t in zip(comp[ix], tol[ix])})
+
+            return out
+
+        def __set__(self, meta):
+            # boundary emissivities
+            if 'emissivity_left' in meta or 'emissivity_right' in meta:
+                epsilon = self.boundary_emissivities
+                epsilon = (meta.get('emissivity_left', epsilon[0]),
+                           meta.get('emissivity_right', epsilon[1]))
+                self.boundary_emissivities = epsilon
+
+            # tolerances
+            tols = ['steady_reltol', 'steady_abstol',
+                    'transient_reltol', 'transient_abstol']
+            tols = [t for t in tols if t in meta]
+            comp = np.array(self.component_names)
+            for tname in tols:
+                mode = tname.split('_')
+                tol = meta[tname] * np.ones(len(comp))
+                for i, c in enumerate(comp):
+                    key = '{}_{}'.format(tname, c)
+                    if key in meta:
+                        tol[i] = meta[key]
+                tol = {mode[1][:3]: tol}
+                if mode[0] == 'steady':
+                    self.set_steady_tolerances(**tol)
+                else:
+                    self.set_transient_tolerances(**tol)
+
+
 cdef class Boundary1D(Domain1D):
     """
     Base class for boundary domains.
@@ -860,6 +918,7 @@ cdef class Sim1D:
         dom = self.domains[idom]
 
         extra_cols = OrderedDict()
+        meta = dom.settings
 
         if isinstance(dom, _FlowBase):
             n_points = dom.n_points
@@ -880,7 +939,7 @@ cdef class Sim1D:
             if self.radiation_enabled:
                 extra_cols['qdot'] = self.radiative_heat_loss
 
-            arr = SolutionArray(self.gas, n_points, extra=extra_cols)
+            arr = SolutionArray(self.gas, n_points, extra=extra_cols, meta=meta)
             arr.TPY = T, P, np.vstack(Y).T
 
         elif isinstance(dom, Inlet1D):
@@ -892,7 +951,7 @@ cdef class Sim1D:
                if e == 'velocity':
                    extra_cols[e] = dom.mdot/self.gas.density
 
-            arr = SolutionArray(self.gas, 1, extra=extra_cols)
+            arr = SolutionArray(self.gas, 1, extra=extra_cols, meta=meta)
 
         elif isinstance(dom, ReactingSurface1D):
 
@@ -900,7 +959,7 @@ cdef class Sim1D:
 
         elif isinstance(dom, Boundary1D):
 
-            arr = SolutionArray(self.gas)
+            arr = SolutionArray(self.gas, meta=meta)
 
         return arr
 

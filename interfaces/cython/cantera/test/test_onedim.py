@@ -303,7 +303,30 @@ class TestFreeFlame(utilities.CanteraTest):
             self.assertNear(rhou_j, rhou, 1e-4)
 
     def test_settings(self):
-        self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
+        reactants = {'H2': 1., 'O2': 0.5, 'AR': 2}
+        self.create_sim(ct.one_atm, 300, reactants, 2.0)
+        self.sim.set_initial_guess()
+
+        # FlowBase specific settings
+        flame_settings = self.sim.flame.settings
+        keys = ['emissivity_left', 'emissivity_right',
+                'steady_abstol', 'steady_reltol',
+                'transient_abstol', 'transient_reltol']
+        for k in keys:
+            self.assertIn(k, flame_settings)
+
+        changed = {'emissivity_left': .12,
+                   'emissivity_right': .21,
+                   'steady_abstol': 2.53e-9,
+                   'steady_reltol_H2': 1.3e-8}
+        flame_settings.update(changed)
+
+        self.sim.flame.settings = flame_settings
+        changed_settings = self.sim.flame.settings
+        for key, val in changed.items():
+            self.assertEqual(changed_settings[key], val)
+
+        # Sim1D specific settings
         settings = self.sim.settings
 
         keys = ['configuration', 'transport_model',
