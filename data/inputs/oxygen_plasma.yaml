@@ -15,7 +15,7 @@ phases:
   state:
     T: 300.0
     P: 1.01325e+05
-  plasma: WeaklyIonizedGas
+  plasma: weakly-ionized-gas
   cross-sections:
   - oxygen_cross_sections.yaml/cross-sections: [O2]
 

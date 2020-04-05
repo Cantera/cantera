@@ -21,7 +21,7 @@ std::mutex PlasmaElectronFactory::electron_mutex;
 
 PlasmaElectronFactory::PlasmaElectronFactory()
 {
-    reg("WeaklyIonizedGas", []() { return new WeakIonGasElectron(); });
+    reg("weakly-ionized-gas", []() { return new WeakIonGasElectron(); });
 }
 
 PlasmaElectron* PlasmaElectronFactory::newPlasmaElectron(const std::string& model)
