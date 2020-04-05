@@ -87,6 +87,13 @@ class TestFunc1(utilities.CanteraTest):
             self.assertNear(f, fcn(t))
 
     def test_tabulated3(self):
+        time = 0, 1, 2,
+        fval = 2, 1, 0,
+        fcn = ct.TabulatedFunction(time, fval)
+        self.assertNear(fcn(-1), fval[0])
+        self.assertNear(fcn(3), fval[-1])
+
+    def test_tabulated4(self):
         time = np.array([0, 1, 2])
         fval = np.array([2, 1, 0])
         fcn = ct.TabulatedFunction(time, fval)
@@ -95,23 +102,14 @@ class TestFunc1(utilities.CanteraTest):
         for t, f in zip(tt, ff):
             self.assertNear(f, fcn(t))
 
-    def test_tabulated4(self):
-        time = 0, 1, 2,
-        fval = 2, 1, 0,
-        fcn = ct.TabulatedFunction(time, fval)
-        self.assertNear(fcn(-1), fval[0])
-        self.assertNear(fcn(3), fval[-1])
-
     def test_tabulated5(self):
-        fcn = ct.TabulatedFunction([[0, 2], [1, 1], [2, 0]], method='previous')
+        time = [0, 1, 2]
+        fval = [2, 1, 0]
+        fcn = ct.TabulatedFunction(time, fval, method='previous')
         val = np.array([fcn(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]])
         self.assertArrayNear(val, np.array([2.0, 2.0, 2.0, 1.0, 0.0, 0.0]))
 
     def test_tabulated_failures(self):
-        with self.assertRaisesRegex(ValueError, 'Invalid number of arguments'):
-            ct.TabulatedFunction(1, 2, 3)
-        with self.assertRaisesRegex(ValueError, 'Invalid dimensions'):
-            ct.TabulatedFunction(np.zeros((3, 3)))
         with self.assertRaisesRegex(ValueError, 'do not match'):
             ct.TabulatedFunction(range(2), range(3))
         with self.assertRaisesRegex(ValueError, 'must not be empty'):
