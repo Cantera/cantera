@@ -1,7 +1,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://www.cantera.org/license.txt for license and copyright information.
 
-#include "cantera/electron/ElectronCrossSection.h"
+#include "cantera/plasma/ElectronCrossSection.h"
 
 namespace Cantera {
 
