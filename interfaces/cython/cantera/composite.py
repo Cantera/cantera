@@ -498,7 +498,7 @@ class SolutionArray:
 
     _purefluid_scalar = ['Q']
 
-    def __init__(self, phase, shape=(0,), states=None, extra=None):
+    def __init__(self, phase, shape=(0,), states=None, extra=None, meta={}):
         self._phase = phase
 
         if isinstance(shape, int):
@@ -553,6 +553,8 @@ class SolutionArray:
                 " supplied in a dict if the SolutionArray is not initially"
                 " empty")
 
+        self._meta = meta
+
     def __getitem__(self, index):
         states = self._states[index]
         if(isinstance(states, list)):
@@ -561,7 +563,6 @@ class SolutionArray:
         else:
             shape = states.shape[:-1]
             return SolutionArray(self._phase, shape, states)
-
 
     def __getattr__(self, name):
         if name in self._extra:
@@ -622,6 +623,13 @@ class SolutionArray:
         self._states.append(self._phase.state)
         self._indices.append(len(self._indices))
         self._shape = (len(self._indices),)
+
+    @property
+    def meta(self):
+        """
+        Metadata
+        """
+        return self._meta
 
     def sort(self, col, reverse=False):
         """
@@ -923,7 +931,7 @@ class SolutionArray:
         self.restore_data(data, labels)
 
     def to_hdf(self, filename, *args, cols=None, key=None, attrs={},
-               source='SolutionArray', mode='a', append=False,
+               mode='a', append=False,
                compression=None, compression_opts=None,
                **kwargs):
         """
@@ -970,11 +978,15 @@ class SolutionArray:
             # add subgroup containing data
             sub_name = 'd{}'.format(count)
             sub = root.create_group(sub_name)
-            sub.attrs['data_source'] = source
-            sub.attrs['solution_name'] = self.name
-            sub.attrs['solution_source'] = self.source
+            for key, val in self._meta.items():
+                sub.attrs[key] = val
             for header, col in zip(labels, data.T):
                 sub.create_dataset(header, data=col, **hdf_kwargs)
+
+            # add subgroup containing information on gas
+            gas = sub.create_group('gas')
+            gas.attrs['name'] = self.name
+            gas.attrs['source'] = self.source
 
     def from_hdf(self, filename, key=None, item=None):
         """
@@ -1011,22 +1023,25 @@ class SolutionArray:
             sub = root[sub_names[item]]
 
             # ensure that mechanisms are matching
-            sub_attrs = {attr: value for attr, value in sub.attrs.items()}
-            sub_name = sub_attrs['solution_name']
-            if sub_name != self.name:
+            gas_name = sub['gas'].attrs['name']
+            if gas_name != self.name:
                 raise IOError("Names of thermodynamic phases do not match: "
-                              "'{}' vs '{}'".format(sub_name, self.name))
+                              "'{}' vs '{}'".format(gas_name, self.name))
+
+            # load metadata
+            self._meta = {attr: value for attr, value in sub.attrs.items()}
 
             # load data
             data = []
             labels = []
             for name, value in sub.items():
-                labels += [name]
-                data += [np.array(value)]
+                if name != 'gas':
+                    labels += [name]
+                    data += [np.array(value)]
 
         self.restore_data(np.vstack(data).T, labels)
 
-        return root_attrs, sub_attrs
+        return root_attrs
 
     def write_hdf(self, filename, cols=None,
                   key='df', mode=None, append=None, complevel=None,

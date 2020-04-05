@@ -1529,6 +1529,12 @@ class TestSolutionArray(utilities.CanteraTest):
         self.assertEqual(states.reaction_equation(10),
                          self.gas.reaction_equation(10))
 
+    def test_meta(self):
+        meta = {'foo': 'bar', 'spam': 'eggs'}
+        states = ct.SolutionArray(self.gas, 3, meta=meta)
+        self.assertEqual(states.meta['foo'], 'bar')
+        self.assertEqual(states.meta['spam'], 'eggs')
+
     def test_get_state(self):
         states = ct.SolutionArray(self.gas, 4)
         H, P = states.HP
