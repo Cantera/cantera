@@ -595,8 +595,10 @@ class FlameBase(Sim1D):
 
         # save data
         cols = ('extra', 'T', 'D', species)
-        self.to_solution_array().write_hdf(filename, cols=cols, key=key,
-                                           mode=mode, complevel=complevel)
+        data = self.to_solution_array().to_pandas(cols=cols)
+        pd_kwargs = {'mode': mode, 'append': append, 'complevel': complevel}
+        pd_kwargs = {k: v for k, v in pd_kwargs.items() if v is not None}
+        data.to_hdf(filename, key, **pd_kwargs)
 
         # convert simulation settings to tabular format
         df = _pandas.DataFrame()
@@ -634,6 +636,9 @@ class FlameBase(Sim1D):
         PyTables. These packages can be installed using pip (`pandas` and
         `tables`) or conda (`pandas` and `pytables`).
         """
+        if isinstance(_pandas, ImportError):
+            raise _pandas
+
         if key is None:
             with _pandas.HDFStore(filename) as hdf:
                  keys = hdf.keys()
@@ -642,7 +647,9 @@ class FlameBase(Sim1D):
 
         # retrieve data
         arr = SolutionArray(self.gas, extra=self._extra)
-        arr.read_hdf(filename, key=key)
+        pd_kwargs = {'key': key} if key else {}
+        data = _pandas.read_hdf(filename, **pd_kwargs)
+        self.from_pandas(data)
 
         # retrieve settings
         if restore_settings:
