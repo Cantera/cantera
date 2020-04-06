@@ -8,12 +8,6 @@ from math import erf
 from os import path
 from email.utils import formatdate
 
-# avoid explicit dependence of cantera on pandas
-try:
-    import pandas as _pandas
-except ImportError as err:
-    _pandas = err
-
 
 class FlameBase(Sim1D):
     """ Base class for flames with a single flow domain """
@@ -95,9 +89,9 @@ class FlameBase(Sim1D):
             result. Restart data may be specified using a `SolutionArray`,
             pandas' DataFrame, or previously saved CSV or HDF container files.
             Note that restart data do not overwrite boundary conditions.
-            DataFrame and HDF input require working installations of pandas and
-            PyTables. These packages can be installed using pip (`pandas` and
-            `tables`) or conda (`pandas` and `pytables`).
+            DataFrame input requires a working installation of pandas, whereas
+            HDF input requires an installation of h5py. These packages can be
+            installed using pip or conda (`pandas` and `h5py`, respectively).
         :param key:
             Group identifier within a HDF container file (only used in
             combination with HDF restart data).
@@ -440,7 +434,7 @@ class FlameBase(Sim1D):
             extra = self.extra
 
         states = arr.TPY
-        extra_cols = {e: getattr(arr,e) for e in extra
+        extra_cols = {e: getattr(arr, e) for e in extra
                       if e in arr._extra}
         meta = arr.meta
         super().restore_data(domain, states, extra_cols, meta)
@@ -483,8 +477,8 @@ class FlameBase(Sim1D):
         self.from_solution_array(arr, restore_boundaries=restore_boundaries,
                                  settings=settings)
 
-    def write_hdf(self, filename, key=None, species='X',
-                  mode=None, complevel=None, quiet=True):
+    def write_hdf(self, filename, group=None, species='X', mode='a',
+                  compression=None, compression_opts=None, quiet=True):
         """
         Write the solution vector to a HDF container file. Note that it is
         possible to write multiple data entries to a single HDF container file.
@@ -493,105 +487,73 @@ class FlameBase(Sim1D):
 
         :param filename:
             HDF container file containing data to be restored
-        :param key:
-            String identifying the HDF group containing the data. The default
-            is the name of the simulated configuration, e.g. ``FreeFlame``.
+        :param group:
+            Identifier for the group in the container file. A group may contain
+            multiple `SolutionArray` objects.
         :param species:
             Attribute to use obtaining species profiles, e.g. ``X`` for
             mole fractions or ``Y`` for mass fractions.
         :param mode:
-            Mode to open file (see `pandas.DataFrame.to_hdf`)
-        :param complevel:
-            Compression level (see `pandas.DataFrame.to_hdf`)
+            Mode to open the file {'a' (default), 'w', 'r+}.
+        :param compression:
+            Pre-defined h5py compression filters {None, 'gzip', 'lzf', 'szip'}
+            used for data compression.
+        :param compression_opts:
+            Options for the h5py compression filter; for 'gzip', this
+            corresponds to the compression level {None, 0-9}.
 
         The method exports data using `SolutionArray.write_hdf` via
-        `to_solution_array` and requires working installations of pandas and
-        PyTables. These packages can be installed using pip (`pandas` and
-        `tables`) or conda (`pandas` and `pytables`).
+        `to_solution_array` and requires a working installation of h5py
+        (`h5py` can be installed using pip or conda).
         """
-        # ensure key identifying HDF group within container is unique
-        if not key:
-            key = 'data'
-        if path.exists(filename) and mode != 'w':
-            with _pandas.HDFStore(filename) as hdf:
-                 keys = hdf.keys()
-            count = sum([k.startswith(key, 1) for k in keys])
-            if count:
-                key = '{}_{}'.format(key, count)
-            row = len(keys) - 1
-        else:
-            row = 0
-
-        # save data
         cols = ('extra', 'T', 'D', species)
-        data = self.to_solution_array().to_pandas(cols=cols)
-        pd_kwargs = {'mode': mode, 'append': append, 'complevel': complevel}
-        pd_kwargs = {k: v for k, v in pd_kwargs.items() if v is not None}
-        data.to_hdf(filename, key, **pd_kwargs)
-
-        # convert simulation settings to tabular format
-        df = _pandas.DataFrame()
-        df['key'] = [key]
-        df['date'] = formatdate(localtime=True)
-        for key, val in self.settings.items():
-            df[key] = [val]
-        df.index = _pandas.RangeIndex(start=row, stop=row+1, step=1)
-
-        # store settings to HDF container file as a separate group
-        df.to_hdf(filename, key='settings', format='table',
-                  append=True)
+        meta = self.settings
+        meta['date'] = formatdate(localtime=True)
+        for i in range(3):
+            arr = self.to_solution_array(domain=self.domains[i])
+            group, sub = arr.write_hdf(filename, group=group, cols=cols,
+                                       attrs=meta, mode=mode, append=(i > 0),
+                                       compression=compression,
+                                       compression_opts=compression_opts)
+            meta = {}
+            mode = 'a'
 
         if not quiet:
-            print("Solution saved to '{0}'.".format(filename))
+            msg = "Solution saved to '{0}' as group '{1}'."
+            print(msg.format(filename, group))
 
-    def read_hdf(self, filename, key=None,
-                 restore_boundaries=True, restore_settings=True):
+    def read_hdf(self, filename, group=None, restore_boundaries=True):
         """
         Restore the solution vector from a HDF container file.
 
         :param filename:
             HDF container file containing data to be restored
-        :param key:
+        :param group:
             String identifying the HDF group containing the data
         :param restore_boundaries:
             Boolean flag to indicate whether boundaries should be restored
             (default is ``True``)
-        :param restore_settings:
-            Boolean flag to indicate whether simulation settings should be
-            restored (default is ``True``)
 
         The method imports data using `SolutionArray.read_hdf` via
-        `from_solution_array` and requires working installations of pandas and
-        PyTables. These packages can be installed using pip (`pandas` and
-        `tables`) or conda (`pandas` and `pytables`).
+        `from_solution_array` and requires a working installation of h5py
+        (`h5py` can be installed using pip or conda).
         """
-        if isinstance(_pandas, ImportError):
-            raise _pandas
-
-        if key is None:
-            with _pandas.HDFStore(filename) as hdf:
-                 keys = hdf.keys()
-            key = [k.lstrip('/') for k in keys
-                   if k != '/settings'][0]
-
-        # retrieve data
-        arr = SolutionArray(self.gas, extra=self.extra)
-        pd_kwargs = {'key': key} if key else {}
-        data = _pandas.read_hdf(filename, **pd_kwargs)
-        self.from_pandas(data)
-
-        # retrieve settings
-        if restore_settings:
-            df = _pandas.read_hdf(filename, key='settings')
-            df = df.set_index('key')
-            series = df.loc[key]
-            settings = {k: v for k, v in series.items()
-                        if k not in ['key', 'date']}
+        if restore_boundaries:
+            doms = range(3)
         else:
-            settings = None
+            doms = [1]
 
-        self.from_solution_array(arr, restore_boundaries=restore_boundaries,
-                                 settings=settings)
+        for dom in doms:
+            extra = self.extra
+            if dom == 0:
+                extra = tuple([e for e in extra if e != 'grid'])
+            if dom == 2:
+                extra = ()
+            arr = SolutionArray(self.gas, extra=extra)
+            meta = arr.read_hdf(filename, group=group, index=dom)
+            self.from_solution_array(arr, domain=self.domains[dom])
+
+        self.settings = meta
 
     @property
     def settings(self):

@@ -969,7 +969,7 @@ cdef class Sim1D:
             raise NotImplementedError("@todo")
 
         elif isinstance(dom, Boundary1D):
-            return self.gas.TPY, extra_cols, meta
+            return ([], [], []), extra_cols, meta
 
         else:
             msg = ("Export of '{}' is not implemented")
