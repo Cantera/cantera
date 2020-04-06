@@ -5,8 +5,6 @@ from .interrupts import no_op
 import warnings
 from collections import OrderedDict
 
-from .composite import SolutionArray
-
 # Need a pure-python class to store weakrefs to
 class _WeakrefProxy:
     pass
@@ -257,57 +255,11 @@ cdef class Domain1D:
         Metadata
         """
         def __get__(self):
-            epsilon = self.boundary_emissivities
             out = {
                 'name': self.name,
-                'source': type(self).__name__,
-                'emissivity_left': epsilon[0],
-                'emissivity_right': epsilon[1]}
-
-            # add tolerance settings
-            tols = {'steady_reltol': self.steady_reltol(),
-                    'steady_abstol': self.steady_abstol(),
-                    'transient_reltol': self.transient_reltol(),
-                    'transient_abstol': self.transient_abstol()}
-            comp = np.array(self.component_names)
-            for tname, tol in tols.items():
-                # add mode (most frequent tolerance setting)
-                values, counts = np.unique(tol, return_counts=True)
-                ix = np.argmax(counts)
-                out.update({tname: values[ix]})
-
-                # add values deviating from mode
-                ix = np.logical_not(np.isclose(tol, values[ix]))
-                out.update({'{}_{}'.format(tname, c): t
-                            for c, t in zip(comp[ix], tol[ix])})
+                'source': type(self).__name__}
 
             return out
-
-        def __set__(self, meta):
-            # boundary emissivities
-            if 'emissivity_left' in meta or 'emissivity_right' in meta:
-                epsilon = self.boundary_emissivities
-                epsilon = (meta.get('emissivity_left', epsilon[0]),
-                           meta.get('emissivity_right', epsilon[1]))
-                self.boundary_emissivities = epsilon
-
-            # tolerances
-            tols = ['steady_reltol', 'steady_abstol',
-                    'transient_reltol', 'transient_abstol']
-            tols = [t for t in tols if t in meta]
-            comp = np.array(self.component_names)
-            for tname in tols:
-                mode = tname.split('_')
-                tol = meta[tname] * np.ones(len(comp))
-                for i, c in enumerate(comp):
-                    key = '{}_{}'.format(tname, c)
-                    if key in meta:
-                        tol[i] = meta[key]
-                tol = {mode[1][:3]: tol}
-                if mode[0] == 'steady':
-                    self.set_steady_tolerances(**tol)
-                else:
-                    self.set_transient_tolerances(**tol)
 
 
 cdef class Boundary1D(Domain1D):
@@ -536,6 +488,62 @@ cdef class _FlowBase(Domain1D):
 
     def __dealloc__(self):
         del self.flow
+
+    property settings:
+        """
+        Metadata
+        """
+        def __get__(self):
+            out = super().settings
+
+            epsilon = self.boundary_emissivities
+            out.update({'emissivity_left': epsilon[0],
+                        'emissivity_right': epsilon[1]})
+
+            # add tolerance settings
+            tols = {'steady_reltol': self.steady_reltol(),
+                    'steady_abstol': self.steady_abstol(),
+                    'transient_reltol': self.transient_reltol(),
+                    'transient_abstol': self.transient_abstol()}
+            comp = np.array(self.component_names)
+            for tname, tol in tols.items():
+                # add mode (most frequent tolerance setting)
+                values, counts = np.unique(tol, return_counts=True)
+                ix = np.argmax(counts)
+                out.update({tname: values[ix]})
+
+                # add values deviating from mode
+                ix = np.logical_not(np.isclose(tol, values[ix]))
+                out.update({'{}_{}'.format(tname, c): t
+                            for c, t in zip(comp[ix], tol[ix])})
+
+            return out
+
+        def __set__(self, meta):
+            # boundary emissivities
+            if 'emissivity_left' in meta or 'emissivity_right' in meta:
+                epsilon = self.boundary_emissivities
+                epsilon = (meta.get('emissivity_left', epsilon[0]),
+                           meta.get('emissivity_right', epsilon[1]))
+                self.boundary_emissivities = epsilon
+
+            # tolerances
+            tols = ['steady_reltol', 'steady_abstol',
+                    'transient_reltol', 'transient_abstol']
+            tols = [t for t in tols if t in meta]
+            comp = np.array(self.component_names)
+            for tname in tols:
+                mode = tname.split('_')
+                tol = meta[tname] * np.ones(len(comp))
+                for i, c in enumerate(comp):
+                    key = '{}_{}'.format(tname, c)
+                    if key in meta:
+                        tol[i] = meta[key]
+                tol = {mode[1][:3]: tol}
+                if mode[0] == 'steady':
+                    self.set_steady_tolerances(**tol)
+                else:
+                    self.set_transient_tolerances(**tol)
 
     def set_boundary_emissivities(self, e_left, e_right):
         """
@@ -911,9 +919,14 @@ cdef class Sim1D:
 
     def collect_data(self, domain, extra):
         """
-        SolutionArray collector (will replace to_solution_array).
-        """
+        Return data vector of domain *domain* as `SolutionArray` object
 
+        Derived classes set default values for *domain* and *extra*, where
+        defaults describe flow domain and essential non-thermodynamic solution
+        components of the configuration, respectively. An alternative *domain*
+        (e.g. inlet, outlet, etc.), can be specified either by name or the
+        corresponding Domain1D object itself.
+        """
         idom = self.domain_index(domain)
         dom = self.domains[idom]
 
@@ -935,15 +948,14 @@ cdef class Sim1D:
                if e == 'grid':
                    extra_cols[e] = self.grid
                else:
-                   extra_cols[e] = self.profile(self.flame, e)
+                   extra_cols[e] = self.profile(dom, e)
             if self.radiation_enabled:
                 extra_cols['qdot'] = self.radiative_heat_loss
 
-            arr = SolutionArray(self.gas, n_points, extra=extra_cols, meta=meta)
-            arr.TPY = T, P, np.vstack(Y).T
+            states = T, P, np.vstack(Y).T
+            return states, extra_cols, meta
 
         elif isinstance(dom, Inlet1D):
-
             self.gas.TPY = dom.T, self.P, dom.Y
 
             # create extra columns
@@ -951,17 +963,72 @@ cdef class Sim1D:
                if e == 'velocity':
                    extra_cols[e] = dom.mdot/self.gas.density
 
-            arr = SolutionArray(self.gas, 1, extra=extra_cols, meta=meta)
+            return self.gas.TPY, extra_cols, meta
 
         elif isinstance(dom, ReactingSurface1D):
-
             raise NotImplementedError("@todo")
 
         elif isinstance(dom, Boundary1D):
+            return self.gas.TPY, extra_cols, meta
 
-            arr = SolutionArray(self.gas, meta=meta)
+        else:
+            msg = ("Export of '{}' is not implemented")
+            raise NotImplementedError(msg.format(type(self).__name__))
 
-        return arr
+    def restore_data(self, domain, states, extra_cols, meta):
+        """
+        Restore data vector of domain *domain* from `SolutionArray` *arr*.
+
+        Derived classes set default values for *domain* and *extra*, where
+        defaults describe flow domain and essential non-thermodynamic solution
+        components of the configuration, respectively. An alternative *domain*
+        (e.g. inlet, outlet, etc.), can be specified either by name or the
+        corresponding Domain1D object itself.
+        """
+        idom = self.domain_index(domain)
+        dom = self.domains[idom]
+        T, P, Y = states
+
+        if isinstance(dom, _FlowBase):
+            grid = extra_cols['grid']
+            dom.grid = grid
+            xi = (grid - grid[0]) / (grid[-1] - grid[0])
+            self._get_initial_solution()
+
+            # restore temperature and 'extra' profiles
+            self.set_profile('T', xi, T)
+            for key, val in extra_cols.items():
+                if key in ['grid', 'qdot']:
+                    pass
+                elif key in dom.component_names:
+                    self.set_profile(key, xi, val)
+
+            # restore species profiles
+            for i, spc in enumerate(self.gas.species_names):
+                self.set_profile(spc, xi, Y[:, i])
+
+            # restore pressure
+            self.P = P[0]
+
+            # restore settings
+            dom.settings = meta
+
+        elif isinstance(dom, Inlet1D):
+            self.gas.TPY = T, P, Y
+            dom.T = T
+            self.P = P
+            dom.Y = Y
+            dom.mdot = extra_cols['velocity'] * self.gas.density
+
+        elif isinstance(dom, ReactingSurface1D):
+            raise NotImplementedError("@todo")
+
+        elif isinstance(dom, Boundary1D):
+            pass
+
+        else:
+            msg = ("Export of '{}' is not implemented")
+            raise NotImplementedError(msg.format(type(self).__name__))
 
     def show_solution(self):
         """ print the current solution. """

@@ -18,7 +18,7 @@ except ImportError as err:
 class FlameBase(Sim1D):
     """ Base class for flames with a single flow domain """
     __slots__ = ('gas',)
-    _extra = () # extra columns used for saving/restoring of simulation data
+    _extra = ()
 
     def __init__(self, domains, gas, grid=None):
         """
@@ -33,6 +33,19 @@ class FlameBase(Sim1D):
         super().__init__(domains)
         self.gas = gas
         self.flame.P = gas.P
+
+    @property
+    def extra(self):
+        """
+        Extra columns used for saving/restoring of simulation data that are
+        specific to a class derived from `FlameBase`. Entries may include:
+         * ``grid``: grid point positions along the flame [m]
+         * ``velocity``: normal velocity [m/s]
+         * ``spread_rate``: tangential velocity gradient [1/s]
+         * ``lambda``: radial pressure gradient [N/m^4]
+         * ``eField``: electric field strength
+        """
+        return self._extra
 
     def set_refine_criteria(self, ratio=10.0, slope=0.8, curve=0.8, prune=0.0):
         """
@@ -71,7 +84,7 @@ class FlameBase(Sim1D):
         """
         return super().get_refine_criteria(self.flame)
 
-    def set_initial_guess(self, *args, data=None, key=None, **kwargs):
+    def set_initial_guess(self, *args, data=None, group=None, **kwargs):
         """
         Set the initial guess for the solution, and load restart data if
         provided. Derived classes extend this function to set approximations
@@ -89,7 +102,7 @@ class FlameBase(Sim1D):
             Group identifier within a HDF container file (only used in
             combination with HDF restart data).
         """
-        super().set_initial_guess(*args, data=data, key=key, **kwargs)
+        super().set_initial_guess(*args, data=data, group=group, **kwargs)
         if not data:
             return
 
@@ -97,22 +110,25 @@ class FlameBase(Sim1D):
         if isinstance(data, SolutionArray):
             # already a solution array
             arr = data
+
         elif isinstance(data, str):
             if data.endswith('.hdf5') or data.endswith('.h5'):
                 # data source identifies a HDF file
-                arr = SolutionArray(self.gas, extra=self._extra)
-                arr.read_hdf(data, key=key)
+                arr = SolutionArray(self.gas, extra=self.extra)
+                arr.read_hdf(data, group=group)
+
             elif data.endswith('.csv'):
                 # data source identifies a CSV file
-                arr = SolutionArray(self.gas, extra=self._extra)
+                arr = SolutionArray(self.gas, extra=self.extra)
                 arr.read_csv(data)
+
             else:
                 raise ValueError(
                     "'{}' does not identify CSV or HDF file.".format(data)
                 )
         else:
             # data source is a pandas DataFrame
-            arr = SolutionArray(self.gas, extra=self._extra)
+            arr = SolutionArray(self.gas, extra=self.extra)
             arr.from_pandas(data)
 
         # get left and right boundaries
@@ -124,9 +140,10 @@ class FlameBase(Sim1D):
             i = np.flatnonzero(self.velocity > 0)[-1]
 
             # adjust temperatures
+            grid = arr.grid
+            xi = (grid - grid[0]) / (grid[-1] - grid[0])
             T = arr.T
-            xi = arr.grid[1:-1]
-            T[1:-1] += (left.T - T[0]) * (1 - xi) + (right.T - T[-1]) * xi
+            T += (left.T - T[0]) * (1 - xi) + (right.T - T[-1]) * xi
             arr.TP = T, self.P
 
             # adjust velocities
@@ -142,7 +159,8 @@ class FlameBase(Sim1D):
 
         elif isinstance(left, Inlet1D):
             # adjust temperatures
-            arr.TP = arr.T + left.T - arr.T[0], self.P
+            T = arr.T
+            arr.TP = T + left.T - T[0], self.P
 
             # adjust velocities
             if self.flame.flow_type != "Free Flame":
@@ -150,9 +168,9 @@ class FlameBase(Sim1D):
                 u0 = left.mdot/self.gas.density
                 arr.velocity *= u0 / arr.velocity[0]
 
-        self.from_solution_array(arr, restore_boundaries=False)
+        self.from_solution_array(arr)
 
-    def set_profile(self, component, locations, values):
+    def set_profile(self, component, positions, values):
         """
         Set an initial estimate for a profile of one component.
 
@@ -165,7 +183,7 @@ class FlameBase(Sim1D):
 
         >>> f.set_profile('T', [0.0, 0.2, 1.0], [400.0, 800.0, 1500.0])
         """
-        super().set_profile(self.flame, component, locations, values)
+        super().set_profile(self.flame, component, positions, values)
 
     @property
     def max_grid_points(self):
@@ -389,132 +407,43 @@ class FlameBase(Sim1D):
         if not quiet:
             print("Solution saved to '{0}'.".format(filename))
 
-    def collect_data(self, domain):
-
-        return super().collect_data(domain, self._extra)
-
-    def to_solution_array(self):
+    def to_solution_array(self, domain=None, extra=None):
         """
-        Return the solution vector as a Cantera `SolutionArray` object.
+        Return the solution vector as a `SolutionArray` object.
 
-        The `SolutionArray` has the following ``extra`` entries:
-         * ``grid``: grid point positions along the flame [m]
-         * ``velocity``: normal velocity [m/s]
-         * ``spread_rate``: tangential velocity gradient [1/s] (if applicable)
-         * ``lambda``: radial pressure gradient [N/m^4] (if applicable)
-         * ``eField``: electric field strength (if applicable)
+        Derived classes define default values for *extra*.
         """
-        # create extra columns
-        extra = {}
-        for e in self._extra:
-            if e == 'grid':
-                val = self.grid
-            else:
-                val = self.profile(self.flame, e)
-            extra[e] = np.hstack([np.nan, val, np.nan])
-        if self.radiation_enabled:
-            qdot = self.flame.radiative_heat_loss
-            extra['qdot'] = np.hstack([np.nan, qdot, np.nan])
+        if not domain:
+            domain = self.flame
+        if not extra:
+            extra = self.extra
 
-        # consider inlet boundaries
-        left = self.domains[0]  # left boundary is always an inlet
-        if isinstance(self.domains[2], Inlet1D):
-            right = self.domains[2]
-            n_arr = self.flame.n_points + 2
+        states, extra_cols, meta = super().collect_data(domain, extra)
+        n_points = np.array(states[0]).size
+        if n_points:
+            arr = SolutionArray(self.gas, n_points,
+                                extra=extra_cols, meta=meta)
+            arr.TPY = states
+            return arr
         else:
-            right = None
-            n_arr = self.flame.n_points + 1
-            for e in extra:
-                extra[e] = extra[e][:-1]
+            return SolutionArray(self.gas, meta=meta)
 
-        # create solution array object
-        arr = SolutionArray(self.gas, n_arr, extra=extra)
-
-        # add left boundary
-        self.gas.TPY = left.T, self.P, left.Y
-        arr[0].TPY = self.gas.TPY
-        arr._extra['grid'][0] = -np.inf
-        arr._extra['velocity'][0] = left.mdot/self.gas.density
-
-        # retrieve species concentrations and set states
-        for n in range(self.flame.n_points):
-            self.set_gas_state(n)
-            arr[n + 1].TPY = self.gas.T, self.P, self.gas.Y
-
-        # add right boundary
-        if right:
-            self.gas.TPY = right.T, self.P, right.Y
-            arr[-1].TPY = self.gas.TPY
-            arr._extra['grid'][-1] = np.inf
-            arr._extra['velocity'][-1] = -right.mdot/self.gas.density
-
-        return arr
-
-    def from_solution_array(self, arr, restore_boundaries=True,
-                            settings=None):
+    def from_solution_array(self, arr, domain=None, extra=None):
         """
-        Restore the solution vector from a Cantera `SolutionArray` object.
+        Restore the solution vector from a `SolutionArray` object.
 
-        :param arr:
-            SolutionArray to be restored
-        :param restore_boundaries:
-            Boolean flag to indicate whether boundaries should be restored
-            (default is ``True``)
-        :param settings:
-            dictionary containing simulation settings
-            (see `FlameBase.settings`)
-
-        The `SolutionArray` requires the following ``extra`` entries:
-         * ``grid``: grid point positions along the flame [m]
-         * ``velocity``: normal velocity [m/s]
-         * ``spread_rate``: tangential velocity gradient [1/s] (if applicable)
-         * ``lambda``: radial pressure gradient [N/m^4] (if applicable)
-         * ``eField``: electric field strength (if applicable)
+        Derived classes define default values for *extra*.
         """
-        # extent (indices) of flame domain
-        idx = np.isfinite(arr.grid)
-        grid = arr.grid[idx]
+        if not domain:
+            domain = self.flame
+        if not extra:
+            extra = self.extra
 
-        # restore grid
-        self.flame.grid = grid
-        self._get_initial_solution()
-        xi = (grid - grid[0]) / (grid[-1] - grid[0])
-
-        # restore temperature and 'extra' profiles
-        self.set_profile('T', xi, arr.T[idx])
-        for e in self._extra:
-            val = getattr(arr, e)[idx]
-            if e in ['grid', 'qdot']:
-                pass
-            else:
-                self.set_profile(e, xi, val)
-
-        # restore species profiles
-        X = arr.X[idx, :]
-        for i, spc in enumerate(self.gas.species_names):
-            self.set_profile(spc, xi, X[:, i])
-
-        # restore pressure
-        self.P = arr.P[0]
-
-        # restore boundaries
-        if restore_boundaries:
-
-            # left boundary
-            left = self.domains[0]
-            left.T = arr[0].T
-            left.Y = arr[0].Y
-            left.mdot = arr.velocity[0] * arr[0].density
-
-            # right boundary
-            if np.isinf(arr.grid[-1]):
-                right = self.domains[2]
-                right.T = arr[-1].T
-                right.Y = arr[-1].Y
-                right.mdot = -arr.velocity[-1] * arr[-1].density
-
-        if settings:
-            self.settings = settings
+        states = arr.TPY
+        extra_cols = {e: getattr(arr,e) for e in extra
+                      if e in arr._extra}
+        meta = arr.meta
+        super().restore_data(domain, states, extra_cols, meta)
 
     def to_pandas(self, species='X'):
         """
@@ -549,7 +478,7 @@ class FlameBase(Sim1D):
         requires a working pandas installation. The package 'pandas' can be
         installed using pip or conda.
         """
-        arr = SolutionArray(self.gas, extra=self._extra)
+        arr = SolutionArray(self.gas, extra=self.extra)
         arr.from_pandas(df)
         self.from_solution_array(arr, restore_boundaries=restore_boundaries,
                                  settings=settings)
@@ -646,7 +575,7 @@ class FlameBase(Sim1D):
                    if k != '/settings'][0]
 
         # retrieve data
-        arr = SolutionArray(self.gas, extra=self._extra)
+        arr = SolutionArray(self.gas, extra=self.extra)
         pd_kwargs = {'key': key} if key else {}
         data = _pandas.read_hdf(filename, **pd_kwargs)
         self.from_pandas(data)
@@ -813,7 +742,7 @@ class FreeFlame(FlameBase):
         self.inlet.T = gas.T
         self.inlet.X = gas.X
 
-    def set_initial_guess(self, locs=[0.0, 0.3, 0.5, 1.0], data=None, key=None):
+    def set_initial_guess(self, locs=[0.0, 0.3, 0.5, 1.0], data=None, group=None):
         """
         Set the initial guess for the solution. By default, the adiabatic flame
         temperature and equilibrium composition are computed for the inlet gas
@@ -826,7 +755,7 @@ class FreeFlame(FlameBase):
             profiles. Profiles rise linearly between the second and third
             location. Locations are given as a fraction of the entire domain
         """
-        super().set_initial_guess(data=data, key=key)
+        super().set_initial_guess(data=data, group=group)
         if data:
             # set fixed temperature
             Tmid = .75 * self.T[0] + .25 * self.T[-1]
@@ -1043,7 +972,7 @@ class BurnerFlame(FlameBase):
         self.burner.T = gas.T
         self.burner.X = gas.X
 
-    def set_initial_guess(self, data=None, key=None):
+    def set_initial_guess(self, data=None, group=None):
         """
         Set the initial guess for the solution. By default, the adiabatic flame
         temperature and equilibrium composition are computed for the burner
@@ -1053,7 +982,7 @@ class BurnerFlame(FlameBase):
         supplied as an initial guess  via 'data' and 'key' inputs (see
         `FlameBase.set_initial_guess`).
         """
-        super().set_initial_guess(data=data, key=key)
+        super().set_initial_guess(data=data, group=group)
         if data:
             return
 
@@ -1185,14 +1114,14 @@ class CounterflowDiffusionFlame(FlameBase):
 
         super().__init__((self.fuel_inlet, self.flame, self.oxidizer_inlet), gas, grid)
 
-    def set_initial_guess(self, data=None, key=None):
+    def set_initial_guess(self, data=None, group=None):
         """
         Set the initial guess for the solution. By default, the initial guess
         is generated by assuming infinitely-fast chemistry. Alternatively, a
         previously calculated result can be supplied as an initial guess via
         'data' and 'key' inputs (see `FlameBase.set_initial_guess`).
         """
-        super().set_initial_guess(data=data, key=key)
+        super().set_initial_guess(data=data, group=group)
         if data:
             return
 
@@ -1476,7 +1405,7 @@ class ImpingingJet(FlameBase):
         self.inlet.T = gas.T
         self.inlet.X = gas.X
 
-    def set_initial_guess(self, products='inlet', data=None, key=None):
+    def set_initial_guess(self, products='inlet', data=None, group=None):
         """
         Set the initial guess for the solution. If products = 'equil', then
         the equilibrium composition at the adiabatic flame temperature will be
@@ -1485,7 +1414,7 @@ class ImpingingJet(FlameBase):
         as an initial guess via 'data' and 'key' inputs (see
         `FlameBase.set_initial_guess`).
         """
-        super().set_initial_guess(data=data, key=key, products=products)
+        super().set_initial_guess(data=data, group=group, products=products)
         if data:
             return
 
@@ -1555,7 +1484,7 @@ class CounterflowPremixedFlame(FlameBase):
         # Setting X needs to be deferred until linked to the flow domain
         self.reactants.X = gas.X
 
-    def set_initial_guess(self, equilibrate=True, data=None, key=None):
+    def set_initial_guess(self, equilibrate=True, data=None, group=None):
         """
         Set the initial guess for the solution.
 
@@ -1565,7 +1494,7 @@ class CounterflowPremixedFlame(FlameBase):
         initial guess via 'data' and 'key' inputs (see
         `FlameBase.set_initial_guess`).
         """
-        super().set_initial_guess(data=data, key=key, equilibrate=equilibrate)
+        super().set_initial_guess(data=data, group=group, equilibrate=equilibrate)
         if data:
             return
 
@@ -1653,14 +1582,14 @@ class CounterflowTwinPremixedFlame(FlameBase):
         # Setting X needs to be deferred until linked to the flow domain
         self.reactants.X = gas.X
 
-    def set_initial_guess(self, data=None, key=None):
+    def set_initial_guess(self, data=None, group=None):
         """
         Set the initial guess for the solution based on an equiibrium solution.
         Alternatively, a previously calculated result can be supplied as an
         initial guess via 'data' and 'key' inputs (see
         `FlameBase.set_initial_guess`).
         """
-        super().set_initial_guess(data=data, key=key)
+        super().set_initial_guess(data=data, group=group)
 
         Yu = self.reactants.Y
         Tu = self.reactants.T
