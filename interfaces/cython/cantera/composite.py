@@ -551,9 +551,9 @@ class SolutionArray:
                 self._extra[name] = []
 
         elif extra:
-            raise ValueError("Initial values for extra properties must be"
-                " supplied in a dict if the SolutionArray is not initially"
-                " empty")
+            raise ValueError("Initial values for extra properties must be "
+                             "supplied in a dict if the SolutionArray is not "
+                             "initially empty")
 
         self._meta = meta
 
@@ -940,20 +940,28 @@ class SolutionArray:
         Note that it is possible to write multiple data entries to a single HDF
         container file, where *group* is used to differentiate data.
 
-        :param filename: name of the HDF container file; typical file extensions
-            are `.hdf`, `.hdf5` or `.h5`.
-        :param cols: A list of any properties of the solution being exported.
-        :param group: Identifier for the group in the container file. A group
-            may contain multiple `SolutionArray` objects.
-        :param attrs: Dictionary of user-defined group attributes.
-        :param mode: Mode to open the file {'a' (default), 'w', 'r+}.
-        :param append: If False, the content of a pre-existing group is deleted
-            before writing the `SolutionArray` in the first position. If True,
-            the current `SolutionArray` objects is appended to the group.
-        :param compression: pre-defined h5py compression filters {None, 'gzip',
-            'lzf', 'szip'} used for data compression.
-        :param compression_opts: Options for the h5py compression filter; for
-            'gzip', this corresponds to the compression level {None, 0-9}.
+        :param filename:
+            Name of the HDF container file; typical file extensions are `.hdf`,
+            `.hdf5` or `.h5`.
+        :param cols:
+            A list of any properties of the solution being exported.
+        :param group:
+            Identifier for the group in the container file. A group may contain
+            multiple `SolutionArray` objects.
+        :param attrs:
+            Dictionary of user-defined group attributes.
+        :param mode:
+            Mode to open the file {'a' (default), 'w', 'r+}.
+        :param append:
+            If False, the content of a pre-existing group is deleted before
+            writing the `SolutionArray` in the first position. If True, the
+            current `SolutionArray` objects is appended to the group.
+        :param compression:
+            Pre-defined h5py compression filters {None, 'gzip', 'lzf', 'szip'}
+            used for data compression.
+        :param compression_opts:
+            Options for the h5py compression filter; for 'gzip', this
+            corresponds to the compression level {None, 0-9}.
 
         Arguments *compression*, and *compression_opts* are mapped to parameters
         for `h5py.create_dataset`; in both cases, the choices of `None` results
@@ -981,7 +989,8 @@ class SolutionArray:
             msg = "HDF group with group identifier '{}' exists in '{}': {}"
             if not group:
                 # add group with default name
-                root = hdf.create_group('group{}'.format(len(hdf.keys())))
+                group = 'group{}'.format(len(hdf.keys()))
+                root = hdf.create_group(group)
                 count = 0
             elif group not in hdf.keys():
                 # add group with custom name
@@ -1014,6 +1023,8 @@ class SolutionArray:
             sol = sub.create_group('solution')
             sol.attrs['name'] = self.name
             sol.attrs['source'] = self.source
+
+        return group, sub_name
 
     def read_hdf(self, filename, group=None, index=0, force=False):
         """
@@ -1060,7 +1071,7 @@ class SolutionArray:
             if not len(sub_names):
                 msg = "HDF group '{}' does not contain valid data"
                 raise IOError(msg.format(group))
-            elif index  > len(sub_names) - 1:
+            elif index > len(sub_names) - 1:
                 msg = ("Index '{}' exceeds the number of data sets stored "
                        "within HDF group '{}' ('{}')")
                 raise IOError(msg.format(index, group, len(sub_names)))

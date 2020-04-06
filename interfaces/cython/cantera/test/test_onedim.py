@@ -4,6 +4,16 @@ import numpy as np
 import os
 from os.path import join as pjoin
 
+import pkg_resources
+
+# avoid explicit dependence of cantera on h5py
+try:
+    pkg_resources.get_distribution('h5py')
+except pkg_resources.DistributionNotFound:
+    _h5py = ImportError('Method requires a working h5py installation.')
+else:
+    import h5py as _h5py
+
 
 class TestOnedim(utilities.CanteraTest):
     def test_instantiate(self):
@@ -630,7 +640,33 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertArrayNear(data.grid, self.sim.grid)
         self.assertArrayNear(data.T, self.sim.T)
         k = self.gas.species_index('H2')
-        self.assertArrayNear(data.X[:,k], self.sim.X[k,:])
+        self.assertArrayNear(data.X[:, k], self.sim.X[k, :])
+
+    def test_write_hdf(self):
+        filename = pjoin(self.test_work_dir, 'onedim-write_hdf.h5')
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        self.run_mix(phi=1.1, T=350, width=2.0, p=2.0, refine=False)
+        self.sim.write_hdf(filename)
+
+        f = ct.FreeFlame(self.gas)
+        f.read_hdf(filename)
+        self.assertArrayNear(f.grid, self.sim.grid)
+        self.assertArrayNear(f.T, self.sim.T)
+        k = self.gas.species_index('H2')
+        self.assertArrayNear(f.X[k, :], self.sim.X[k, :])
+        self.assertArrayNear(f.inlet.X, self.sim.inlet.X)
+
+        settings = self.sim.settings
+        for k, v in f.settings.items():
+            self.assertIn(k, settings)
+            self.assertEqual(settings[k], v)
+
+        settings = self.sim.flame.settings
+        for k, v in f.flame.settings.items():
+            self.assertIn(k, settings)
+            self.assertEqual(settings[k], v)
 
     def test_refine_criteria_boundscheck(self):
         self.create_sim(ct.one_atm, 300.0, 'H2:1.1, O2:1, AR:5')
