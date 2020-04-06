@@ -8,6 +8,7 @@ import csv as _csv
 
 import pkg_resources
 
+# avoid explicit dependence of cantera on h5py
 try:
     pkg_resources.get_distribution('h5py')
 except pkg_resources.DistributionNotFound:
@@ -17,9 +18,11 @@ else:
 
 # avoid explicit dependence of cantera on pandas
 try:
+    pkg_resources.get_distribution('pandas')
+except pkg_resources.DistributionNotFound:
+    _pandas = ImportError('Method requires a working pandas installation.')
+else:
     import pandas as _pandas
-except ImportError as err:
-    _pandas = err
 
 
 class Solution(ThermoPhase, Kinetics, Transport):
@@ -405,21 +408,20 @@ class SolutionArray:
         >>> states.read_csv('somefile.csv')
 
     As an alternative to comma separated export and import, data extracted from
-    `SolutionArray` objects can also be saved to and restored from a pandas compatible
-    HDF container file using the `write_hdf`::
+    `SolutionArray` objects can also be saved to and restored from a HDF
+    container file using the `write_hdf`::
 
-        >>> states.write_hdf('somefile.h5', cols=('T', 'P', 'X'), key='some_key')
+        >>> states.write_hdf('somefile.h5', cols=('T', 'P', 'X'), group='some_key')
 
     and `read_hdf` methods::
 
         >>> states = ct.SolutionArray(gas)
         >>> states.read_hdf('somefile.h5', key='some_key')
 
-    For HDF export and import, the (optional) key argument *key* allows for saving
-    and accessing of multiple solutions in a single container file. Note that
-    `write_hdf` and `read_hdf` require working installations of pandas and
-    PyTables. These packages can be installed using pip (`pandas` and `tables`)
-    or conda (`pandas` and `pytables`).
+    For HDF export and import, the (optional) keyword argument *group* allows
+    for saving and accessing of multiple solutions in a single container file.
+    Note that `write_hdf` and `read_hdf` require a working installation of h5py.
+    The package `h5py` can be installed using pip or conda.
 
     :param phase: The `Solution` object used to compute the thermodynamic,
         kinetic, and transport properties
@@ -930,12 +932,37 @@ class SolutionArray:
 
         self.restore_data(data, labels)
 
-    def to_hdf(self, filename, *args, cols=None, key=None, attrs={},
-               mode='a', append=False,
-               compression=None, compression_opts=None,
-               **kwargs):
+    def write_hdf(self, filename, *args, cols=None, group=None, attrs={},
+                  mode='a', append=False,
+                  compression=None, compression_opts=None, **kwargs):
         """
-        Writer for new HDF structure (will replace write_hdf).
+        Write data specified by *cols* to a HDF container file named *filename*.
+        Note that it is possible to write multiple data entries to a single HDF
+        container file, where *group* is used to differentiate data.
+
+        :param filename: name of the HDF container file; typical file extensions
+            are `.hdf`, `.hdf5` or `.h5`.
+        :param cols: A list of any properties of the solution being exported.
+        :param group: Identifier for the group in the container file. A group
+            may contain multiple `SolutionArray` objects.
+        :param attrs: Dictionary of user-defined group attributes.
+        :param mode: Mode to open the file {'a' (default), 'w', 'r+}.
+        :param append: If False, the content of a pre-existing group is deleted
+            before writing the `SolutionArray` in the first position. If True,
+            the current `SolutionArray` objects is appended to the group.
+        :param compression: pre-defined h5py compression filters {None, 'gzip',
+            'lzf', 'szip'} used for data compression.
+        :param compression_opts: Options for the h5py compression filter; for
+            'gzip', this corresponds to the compression level {None, 0-9}.
+
+        Arguments *compression*, and *compression_opts* are mapped to parameters
+        for `h5py.create_dataset`; in both cases, the choices of `None` results
+        in default values set by h5py.
+
+        Additional arguments (i.e. *args* and *kwargs*) are passed on to
+        `collect_data`; see `collect_data` for further information. This method
+        works only with 1D `SolutionArray` objects and requires a working
+        installation of h5py (`h5py` can be installed using pip or conda).
         """
         if isinstance(_h5py, ImportError):
             raise _h5py
@@ -951,22 +978,22 @@ class SolutionArray:
         with _h5py.File(filename, mode) as hdf:
 
             # check existence of tagged item
-            msg = "HDF group with key '{}' exists in '{}': {}"
-            if not key:
+            msg = "HDF group with group identifier '{}' exists in '{}': {}"
+            if not group:
                 # add group with default name
                 root = hdf.create_group('group{}'.format(len(hdf.keys())))
                 count = 0
-            elif key not in hdf.keys():
+            elif group not in hdf.keys():
                 # add group with custom name
-                root = hdf.create_group(key)
+                root = hdf.create_group(group)
                 count = 0
             elif append:
                 # append data within existing group
-                root = hdf[key]
+                root = hdf[group]
                 count = len(root.keys())
             else:
                 # reset data in existing group
-                root = hdf[key]
+                root = hdf[group]
                 for sub in root.keys():
                     del root[sub]
                 count = 0
@@ -984,13 +1011,30 @@ class SolutionArray:
                 sub.create_dataset(header, data=col, **hdf_kwargs)
 
             # add subgroup containing information on gas
-            gas = sub.create_group('gas')
-            gas.attrs['name'] = self.name
-            gas.attrs['source'] = self.source
+            sol = sub.create_group('solution')
+            sol.attrs['name'] = self.name
+            sol.attrs['source'] = self.source
 
-    def from_hdf(self, filename, key=None, item=None):
+    def read_hdf(self, filename, group=None, index=0, force=False):
         """
-        Reader for new HDF structure (will replace read_hdf).
+        Read a dataset from a HDF container file and restore data to the
+        `SolutionArray` object. This method allows for recreation of data
+        previously exported by `write_hdf`.
+
+        :param filename: name of the HDF container file; typical file extensions
+            are `.hdf`, `.hdf5` or `.h5`.
+        :param group: Identifier for the group in the container file. A group
+            may contain multiple `SolutionArray` objects.
+        :param index: If data was previously written using the `append` option,
+            the option *index* specifies the location within the group.
+        :param force: If False, matching `SolutionArray` source identifiers are
+            enforced (e.g. input file used for the creation of the underlying
+            `Solution` object), with an error being raised if the current source
+            does not match the original source. If True, the error is
+            suppressed.
+
+        The method imports data using `restore_data` and requires a working
+        installation of h5py (`h5py` can be installed using pip or conda).
         """
         if isinstance(_h5py, ImportError):
             raise _h5py
@@ -999,34 +1043,45 @@ class SolutionArray:
 
             groups = list(hdf.keys())
             if not len(groups):
-                key = ''
-            elif key is None:
-                key = groups[0]
+                group = ''
+            elif group is None:
+                group = groups[0]
 
-            if not (key in hdf.keys()):
+            if not (group in hdf.keys()):
                 msg = "HDF file does not contain group '{}'"
-                raise IOError(msg.format(key))
+                raise IOError(msg.format(group))
 
             # load root and attributes
-            root = hdf[key]
+            root = hdf[group]
             root_attrs = {attr: value for attr, value in root.attrs.items()}
 
             # identify subgroup
             sub_names = ['d{}'.format(i) for i, key in enumerate(root.keys())]
             if not len(sub_names):
                 msg = "HDF group '{}' does not contain valid data"
-                raise IOError(msg.format(key))
-            elif item is None:
-                # `SolutionArray` data: index '0' (only entry)
-                # `FlameBase` derived data: index '1' (Domain1D)
-                item = int(len(sub_names) > 1)
-            sub = root[sub_names[item]]
+                raise IOError(msg.format(group))
+            elif index  > len(sub_names) - 1:
+                msg = ("Index '{}' exceeds the number of data sets stored "
+                       "within HDF group '{}' ('{}')")
+                raise IOError(msg.format(index, group, len(sub_names)))
+            sub = root[sub_names[index]]
+
+            def strip_ext(source):
+                """Strip extension if source identifies a file name"""
+                out = source
+                for ext in ['.yml', '.yaml', '.xml', '.cti']:
+                    if source.endswith(ext):
+                        out = '.'.join(source.split('.')[:-1])
+                        break
+                return out
 
             # ensure that mechanisms are matching
-            gas_name = sub['gas'].attrs['name']
-            if gas_name != self.name:
-                raise IOError("Names of thermodynamic phases do not match: "
-                              "'{}' vs '{}'".format(gas_name, self.name))
+            sol_source = strip_ext(sub['solution'].attrs['source'])
+            source = strip_ext(self.source)
+            if sol_source != source and not force:
+                msg = ("Sources of thermodynamic phases do not match: '{}' vs "
+                       "'{}'; use option 'force' to override this error.")
+                raise IOError(msg.format(sol_source, source))
 
             # load metadata
             self._meta = {attr: value for attr, value in sub.attrs.items()}
@@ -1035,70 +1090,13 @@ class SolutionArray:
             data = []
             labels = []
             for name, value in sub.items():
-                if name != 'gas':
+                if name != 'solution':
                     labels += [name]
                     data += [np.array(value)]
 
         self.restore_data(np.vstack(data).T, labels)
 
         return root_attrs
-
-    def write_hdf(self, filename, cols=None,
-                  key='df', mode=None, append=None, complevel=None,
-                  *args, **kwargs):
-        """
-        Write data specified by *cols* to a HDF container file named *filename*.
-        Note that it is possible to write multiple data entries to a single HDF
-        container file, where *key* is used to differentiate data.
-
-        Internally, every HDF data entry is a `pandas.DataFrame` generated by
-        the `to_pandas` method.
-
-        :param filename: name of the HDF container file; typical file extensions
-            are `.hdf`, `.hdf5` or `.h5`.
-        :param cols: A list of any properties of the solution being exported.
-        :param key: Identifier for the group in the container file.
-        :param mode: Mode to open the file {None, 'a', 'w', 'r+}.
-        :param append: If True, a less efficient structure is used that makes
-            HDF entries appendable {None, True, False}.
-        :param complevel: Specifies a compression level for data {None, 0-9}.
-            A value of 0 disables compression.
-
-        Arguments *key*, *mode*, *append*, and *complevel* are mapped to
-        parameters for `pandas.DataFrame.to_hdf`; the choice `None` for *mode*,
-        *append*, and *complevel* results in default values set by pandas.
-
-        Additional arguments (i.e. *args* and *kwargs*) are passed on to
-        `collect_data` via `to_pandas`; see `collect_data` for further
-        information. This method works only with 1D `SolutionArray` objects
-        and requires working installations of pandas and PyTables. These
-        packages can be installed using pip (`pandas` and `tables`) or conda
-        (`pandas` and `pytables`).
-        """
-
-        # create pandas DataFame and write to file
-        df = self.to_pandas(cols=cols, *args, **kwargs)
-        pd_kwargs = {'mode': mode, 'append': append, 'complevel': complevel}
-        pd_kwargs = {k: v for k, v in pd_kwargs.items() if v is not None}
-        df.to_hdf(filename, key, **pd_kwargs)
-
-    def read_hdf(self, filename, key=None):
-        """
-        Read a dataset identified by *key* from a HDF file named *filename*
-        and restore data to the `SolutionArray` object. This method allows for
-        recreation of data previously exported by `write_hdf`.
-
-        The method imports data using `restore_data` via `from_pandas` and
-        requires working installations of pandas and PyTables. These
-        packages can be installed using pip (`pandas` and `tables`) or conda
-        (`pandas` and `pytables`).
-        """
-
-        if isinstance(_pandas, ImportError):
-            raise _pandas
-
-        pd_kwargs = {'key': key} if key else {}
-        self.from_pandas(_pandas.read_hdf(filename, **pd_kwargs))
 
 
 def _state2_prop(name, doc_source):

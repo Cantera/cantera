@@ -9,6 +9,24 @@ try:
 except ImportError:
     from ruamel import yaml
 
+import pkg_resources
+
+# avoid explicit dependence of cantera on h5py
+try:
+    pkg_resources.get_distribution('h5py')
+except pkg_resources.DistributionNotFound:
+    _h5py = ImportError('Method requires a working h5py installation.')
+else:
+    import h5py as _h5py
+
+# avoid explicit dependence of cantera on pandas
+try:
+    pkg_resources.get_distribution('pandas')
+except pkg_resources.DistributionNotFound:
+    _pandas = ImportError('Method requires a working pandas installation.')
+else:
+    import pandas as _pandas
+
 import cantera as ct
 from . import utilities
 
@@ -117,6 +135,90 @@ class TestModels(utilities.CanteraTest):
                            "TPX = {}")
                     msg = msg.format(ph['name'], ph['thermo'], sol.TPX)
                     raise TypeError(msg) from inst
+
+
+class TestSolutionArrayIO(utilities.CanteraTest):
+    """ Test SolutionArray file IO """
+    @classmethod
+    def setUpClass(cls):
+        utilities.CanteraTest.setUpClass()
+        cls.gas = ct.Solution('h2o2.yaml')
+
+    def test_write_csv(self):
+        states = ct.SolutionArray(self.gas, 7)
+        states.TPX = np.linspace(300, 1000, 7), 2e5, 'H2:0.5, O2:0.4'
+        states.equilibrate('HP')
+
+        outfile = pjoin(self.test_work_dir, 'solutionarray.csv')
+        states.write_csv(outfile)
+
+        data = np.genfromtxt(outfile, names=True, delimiter=',')
+        self.assertEqual(len(data), 7)
+        self.assertEqual(len(data.dtype), self.gas.n_species + 2)
+        self.assertIn('Y_H2', data.dtype.fields)
+
+        b = ct.SolutionArray(self.gas)
+        b.read_csv(outfile)
+        self.assertTrue(np.allclose(states.T, b.T))
+        self.assertTrue(np.allclose(states.P, b.P))
+        self.assertTrue(np.allclose(states.X, b.X))
+
+    def test_to_pandas(self):
+        if isinstance(_pandas, ImportError):
+            return
+
+        states = ct.SolutionArray(self.gas, 7)
+        states.TPX = np.linspace(300, 1000, 7), 2e5, 'H2:0.5, O2:0.4'
+        try:
+            # this will run through if pandas is installed
+            df = states.to_pandas()
+            self.assertTrue(df.shape[0]==7)
+        except ImportError as err:
+            # pandas is not installed and correct exception is raised
+            pass
+
+    def test_write_hdf(self):
+        if isinstance(_h5py, ImportError):
+            return
+
+        outfile = pjoin(self.test_work_dir, 'solutionarray.h5')
+        if os.path.exists(outfile):
+            os.remove(outfile)
+
+        extra = {'foo': range(7), 'bar': range(7)}
+        meta = {'spam': 'eggs', 'hello': 'world'}
+        states = ct.SolutionArray(self.gas, 7, extra=extra, meta=meta)
+        states.TPX = np.linspace(300, 1000, 7), 2e5, 'H2:0.5, O2:0.4'
+        states.equilibrate('HP')
+
+        states.write_hdf(outfile, attrs={'foobar': 'spam and eggs'})
+
+        b = ct.SolutionArray(self.gas)
+        attr = b.read_hdf(outfile)
+        self.assertTrue(np.allclose(states.T, b.T))
+        self.assertTrue(np.allclose(states.P, b.P))
+        self.assertTrue(np.allclose(states.X, b.X))
+        self.assertTrue(np.allclose(states.foo, b.foo))
+        self.assertTrue(np.allclose(states.bar, b.bar))
+        self.assertEqual(b.meta['spam'], 'eggs')
+        self.assertEqual(b.meta['hello'], 'world')
+        self.assertEqual(attr['foobar'], 'spam and eggs')
+
+        gas = ct.Solution('gri30.yaml')
+        ct.SolutionArray(gas, 10).write_hdf(outfile)
+
+        with _h5py.File(outfile, 'a') as hdf:
+            hdf.create_group('spam')
+
+        c = ct.SolutionArray(self.gas)
+        with self.assertRaisesRegex(IOError, 'does not contain valid data'):
+            c.read_hdf(outfile, group='spam')
+        with self.assertRaisesRegex(IOError, 'does not contain group'):
+            c.read_hdf(outfile, group='eggs')
+        with self.assertRaisesRegex(IOError, 'phases do not match'):
+            c.read_hdf(outfile, group='group1')
+        with self.assertRaisesRegex(IOError, 'exceeds the number'):
+            c.read_hdf(outfile, index=1)
 
 
 class TestRestoreIdealGas(utilities.CanteraTest):
@@ -245,7 +347,7 @@ class TestRestorePureFluid(utilities.CanteraTest):
             self.assertArrayNear(a.Q, b.Q)
 
         self.assertTrue(self.water.has_phase_transition)
-            
+
         # benchmark
         a = ct.SolutionArray(self.water, 10)
         a.TQ = 373.15, np.linspace(0., 1., 10)

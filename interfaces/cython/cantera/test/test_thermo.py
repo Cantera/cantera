@@ -1778,36 +1778,6 @@ class TestSolutionArray(utilities.CanteraTest):
         self.assertArrayNear(states('OH','O').partial_molar_cp,
                              states.partial_molar_cp[...,kk])
 
-    def test_write_csv(self):
-        states = ct.SolutionArray(self.gas, 7)
-        states.TPX = np.linspace(300, 1000, 7), 2e5, 'H2:0.5, O2:0.4'
-        states.equilibrate('HP')
-
-        outfile = pjoin(self.test_work_dir, 'solutionarray.csv')
-        states.write_csv(outfile)
-
-        data = np.genfromtxt(outfile, names=True, delimiter=',')
-        self.assertEqual(len(data), 7)
-        self.assertEqual(len(data.dtype), self.gas.n_species + 2)
-        self.assertIn('Y_H2', data.dtype.fields)
-
-        b = ct.SolutionArray(self.gas)
-        b.read_csv(outfile)
-        self.assertTrue(np.allclose(states.T, b.T))
-        self.assertTrue(np.allclose(states.P, b.P))
-        self.assertTrue(np.allclose(states.X, b.X))
-
-    def test_pandas(self):
-        states = ct.SolutionArray(self.gas, 7)
-        states.TPX = np.linspace(300, 1000, 7), 2e5, 'H2:0.5, O2:0.4'
-        try:
-            # this will run through if pandas is installed
-            df = states.to_pandas()
-            self.assertTrue(df.shape[0]==7)
-        except ImportError as err:
-            # pandas is not installed and correct exception is raised
-            pass
-
     def test_slice_SolutionArray(self):
         soln = ct.SolutionArray(self.gas, 10)
         arr = soln[2:9:3]
