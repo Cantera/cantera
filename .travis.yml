@@ -36,13 +36,14 @@ before_script: |
       bash miniconda.sh -b -p $HOME/miniconda
       source $HOME/miniconda/etc/profile.d/conda.sh && conda activate
       conda config --set always_yes yes --set changeps1 no
-      conda install -q numpy cython scons boost ruamel_yaml
+      conda install -q numpy cython scons boost ruamel_yaml h5py
       conda install -q -c conda-forge openmp
   else
       pip3 install --user --upgrade pip
       pip3 install --user --upgrade setuptools wheel
       pip3 install --user cython
       pip3 install --user ruamel.yaml==0.15.94  # Need a version compatible with Python 3.4
+      pip3 install --user h5py
 
       # Install packages for the documentation
       pip3 install --user sphinx sphinxcontrib-matlabdomain sphinxcontrib-doxylink
