@@ -331,13 +331,9 @@ class TestFreeFlame(utilities.CanteraTest):
 
         keys = ['configuration', 'transport_model',
                 'energy_enabled', 'soret_enabled', 'radiation_enabled',
-                'emissivity_left', 'emissivity_right',
                 'fixed_temperature',
                 'ratio', 'slope', 'curve', 'prune',
-                'max_time_step_count',
-                'max_grid_points',
-                'steady_abstol', 'steady_reltol',
-                'transient_abstol', 'transient_reltol']
+                'max_time_step_count', 'max_grid_points']
         for k in keys:
             self.assertIn(k, settings)
 
@@ -349,8 +345,8 @@ class TestFreeFlame(utilities.CanteraTest):
         settings.update(changed)
 
         self.sim.settings = settings
-        for k, v in changed.items():
-            self.assertEqual(getattr(self.sim, k), v)
+        for key, val in changed.items():
+            self.assertEqual(getattr(self.sim, key), val)
 
     def test_mixture_averaged_case1(self):
         self.run_mix(phi=0.65, T=300, width=0.03, p=1.0, refine=True)

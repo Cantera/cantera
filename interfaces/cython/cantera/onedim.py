@@ -672,30 +672,10 @@ class FlameBase(Sim1D):
         out['energy_enabled'] = self.energy_enabled
         out['soret_enabled'] = self.soret_enabled
         out['radiation_enabled'] = self.radiation_enabled
-        epsilon = self.flame.boundary_emissivities
-        out['emissivity_left'] = epsilon[0]
-        out['emissivity_right'] = epsilon[1]
         out['fixed_temperature'] = self.fixed_temperature
         out.update(self.get_refine_criteria())
         out['max_time_step_count'] = self.max_time_step_count
         out['max_grid_points'] = self.get_max_grid_points(self.flame)
-
-        # add tolerance settings
-        tols = {'steady_reltol': self.flame.steady_reltol(),
-                'steady_abstol': self.flame.steady_abstol(),
-                'transient_reltol': self.flame.transient_reltol(),
-                'transient_abstol': self.flame.transient_abstol()}
-        comp = np.array(self.flame.component_names)
-        for tname, tol in tols.items():
-            # add mode (most frequent tolerance setting)
-            values, counts = np.unique(tol, return_counts=True)
-            ix = np.argmax(counts)
-            out.update({tname: values[ix]})
-
-            # add values deviating from mode
-            ix = np.logical_not(np.isclose(tol, values[ix]))
-            out.update({'{}_{}'.format(tname, c): t
-                        for c, t in zip(comp[ix], tol[ix])})
 
         return out
 
@@ -710,36 +690,11 @@ class FlameBase(Sim1D):
         for key in attr:
             setattr(self, key, s[key])
 
-        # boundary emissivities
-        if 'emissivity_left' in s or 'emissivity_right' in s:
-            epsilon = self.flame.boundary_emissivities
-            epsilon = (s.get('emissivity_left', epsilon[0]),
-                       s.get('emissivity_right', epsilon[1]))
-            self.flame.boundary_emissivities = epsilon
-
         # refine criteria
         refine = {k: v for k, v in s.items()
                   if k in ['ratio', 'slope', 'curve', 'prune']}
         if refine:
             self.set_refine_criteria(**refine)
-
-        # tolerances
-        tols = ['steady_reltol', 'steady_abstol',
-                'transient_reltol', 'transient_abstol']
-        tols = [t for t in tols if t in s]
-        comp = np.array(self.flame.component_names)
-        for tname in tols:
-            mode = tname.split('_')
-            tol = s[tname] * np.ones(len(comp))
-            for i, c in enumerate(comp):
-                key = '{}_{}'.format(tname, c)
-                if key in s:
-                    tol[i] = s[key]
-            tol = {mode[1][:3]: tol}
-            if mode[0] == 'steady':
-                self.flame.set_steady_tolerances(**tol)
-            else:
-                self.flame.set_transient_tolerances(**tol)
 
 
 def _trim(docstring):
