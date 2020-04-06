@@ -172,7 +172,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         try:
             # this will run through if pandas is installed
             df = states.to_pandas()
-            self.assertTrue(df.shape[0]==7)
+            self.assertEqual(df.shape[0], 7)
         except ImportError as err:
             # pandas is not installed and correct exception is raised
             pass

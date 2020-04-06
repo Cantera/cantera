@@ -273,17 +273,20 @@ class TestFreeFlame(utilities.CanteraTest):
 
     def test_solution_array_output(self):
         self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
-        arr = self.sim.to_solution_array()
-        ix = np.isfinite(arr.grid)
-        self.assertArrayNear(self.sim.grid, arr.grid[ix])
-        self.assertArrayNear(self.sim.T, arr.T[ix])
-        for k in arr._extra.keys():
+
+        flow = self.sim.to_solution_array()
+        self.assertArrayNear(self.sim.grid, flow.grid)
+        self.assertArrayNear(self.sim.T, flow.T)
+        for k in flow._extra.keys():
             self.assertIn(k, self.sim._extra)
 
         f2 = ct.FreeFlame(self.gas)
-        f2.from_solution_array(arr)
+        f2.from_solution_array(flow)
         self.assertArrayNear(self.sim.grid, f2.grid)
         self.assertArrayNear(self.sim.T, f2.T)
+
+        inlet = self.sim.to_solution_array(self.sim.inlet)
+        f2.from_solution_array(inlet, f2.inlet)
         self.assertNear(self.sim.inlet.T, f2.inlet.T)
         self.assertNear(self.sim.inlet.mdot, f2.inlet.mdot)
         self.assertArrayNear(self.sim.inlet.Y, f2.inlet.Y)
@@ -303,12 +306,13 @@ class TestFreeFlame(utilities.CanteraTest):
             self.assertNear(rhou_j, rhou, 1e-4)
 
     def test_settings(self):
-        reactants = {'H2': 1., 'O2': 0.5, 'AR': 2}
-        self.create_sim(ct.one_atm, 300, reactants, 2.0)
+        self.create_sim(p=ct.one_atm, Tin=400, reactants='H2:0.8, O2:0.5',
+                        width=0.1)
         self.sim.set_initial_guess()
+        sim = self.sim
 
         # FlowBase specific settings
-        flame_settings = self.sim.flame.settings
+        flame_settings = sim.flame.settings
         keys = ['emissivity_left', 'emissivity_right',
                 'steady_abstol', 'steady_reltol',
                 'transient_abstol', 'transient_reltol']
@@ -321,13 +325,13 @@ class TestFreeFlame(utilities.CanteraTest):
                    'steady_reltol_H2': 1.3e-8}
         flame_settings.update(changed)
 
-        self.sim.flame.settings = flame_settings
-        changed_settings = self.sim.flame.settings
+        sim.flame.settings = flame_settings
+        changed_settings = sim.flame.settings
         for key, val in changed.items():
             self.assertEqual(changed_settings[key], val)
 
         # Sim1D specific settings
-        settings = self.sim.settings
+        settings = sim.settings
 
         keys = ['configuration', 'transport_model',
                 'energy_enabled', 'soret_enabled', 'radiation_enabled',
@@ -344,9 +348,9 @@ class TestFreeFlame(utilities.CanteraTest):
                    'transport_model': 'Multi'}
         settings.update(changed)
 
-        self.sim.settings = settings
+        sim.settings = settings
         for key, val in changed.items():
-            self.assertEqual(getattr(self.sim, key), val)
+            self.assertEqual(getattr(sim, key), val)
 
     def test_mixture_averaged_case1(self):
         self.run_mix(phi=0.65, T=300, width=0.03, p=1.0, refine=True)
@@ -623,10 +627,10 @@ class TestFreeFlame(utilities.CanteraTest):
         self.sim.write_csv(filename)
         data = ct.SolutionArray(self.gas)
         data.read_csv(filename)
-        self.assertArrayNear(data.grid[1:], self.sim.grid)
-        self.assertArrayNear(data.T[1:], self.sim.T)
+        self.assertArrayNear(data.grid, self.sim.grid)
+        self.assertArrayNear(data.T, self.sim.T)
         k = self.gas.species_index('H2')
-        self.assertArrayNear(data.X[1:,k], self.sim.X[k,:])
+        self.assertArrayNear(data.X[:,k], self.sim.X[k,:])
 
     def test_refine_criteria_boundscheck(self):
         self.create_sim(ct.one_atm, 300.0, 'H2:1.1, O2:1, AR:5')
@@ -1044,7 +1048,7 @@ class TestBurnerFlame(utilities.CanteraTest):
 
     def test_restart(self):
         gas = ct.Solution('h2o2.cti')
-        gas.set_equivalence_ratio(0.4, 'H2', 'O2:1.0, AR:5')
+        gas.set_equivalence_ratio(0.8, 'H2', 'O2:1.0, AR:5')
         gas.TP = 300, ct.one_atm
         sim = ct.BurnerFlame(gas=gas, width=0.1)
         sim.burner.mdot = 1.2
@@ -1113,9 +1117,6 @@ class TestTwinFlame(utilities.CanteraTest):
         sim.solve(loglevel=0, auto=True)
         self.assertGreater(sim.T[-1], T + 100)
         return sim
-
-    def test_case1(self):
-        self.solve(phi=0.4, T=300, width=0.05, P=0.1)
 
     def test_restart(self):
         sim = self.solve(phi=0.4, T=300, width=0.05, P=0.1)
