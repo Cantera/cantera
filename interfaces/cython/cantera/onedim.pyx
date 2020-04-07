@@ -399,6 +399,11 @@ cdef class ReactingSurface1D(Boundary1D):
         self.surf = new CxxReactingSurf1D()
         self.boundary = <CxxBoundary1D*>(self.surf)
 
+    def __init__(self, *args, **kwargs):
+        self._weakref_proxy2 = _WeakrefProxy()
+        super().__init__(*args, **kwargs)
+        self._surface = None
+
     def __dealloc__(self):
         del self.surf
 
@@ -408,11 +413,17 @@ cdef class ReactingSurface1D(Boundary1D):
             raise TypeError('Kinetics object must be derived from '
                             'InterfaceKinetics.')
         self.surf.setKineticsMgr(<CxxInterfaceKinetics*>kin.kinetics)
+        self._surface = kin
+        self._surface._references[self._weakref_proxy2] = True
 
     property coverage_enabled:
         """Controls whether or not to solve the surface coverage equations."""
         def __set__(self, value):
             self.surf.enableCoverageEquations(<cbool>value)
+
+    property surface:
+        def __get__(self):
+            return self._surface
 
 
 cdef class _FlowBase(Domain1D):
@@ -962,11 +973,13 @@ cdef class Sim1D:
             for e in extra:
                if e == 'velocity':
                    extra_cols[e] = dom.mdot/self.gas.density
+               elif e not in {'lambda'}:
+                   extra_cols[e] = getattr(dom, e)
 
             return self.gas.TPY, extra_cols, meta
 
         elif isinstance(dom, ReactingSurface1D):
-            raise NotImplementedError("@todo")
+            return dom.surface.TPY, extra_cols, meta
 
         elif isinstance(dom, Boundary1D):
             return ([], [], []), extra_cols, meta
@@ -1021,7 +1034,7 @@ cdef class Sim1D:
             dom.mdot = extra_cols['velocity'] * self.gas.density
 
         elif isinstance(dom, ReactingSurface1D):
-            raise NotImplementedError("@todo")
+            dom.surface.TPY = T, P, Y
 
         elif isinstance(dom, Boundary1D):
             pass

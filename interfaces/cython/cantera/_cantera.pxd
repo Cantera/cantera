@@ -1126,6 +1126,8 @@ cdef class Surface1D(Boundary1D):
 
 cdef class ReactingSurface1D(Boundary1D):
     cdef CxxReactingSurf1D* surf
+    cdef Kinetics _surface
+    cdef object _weakref_proxy2
 
 cdef class _FlowBase(Domain1D):
     cdef CxxStFlow* flow
