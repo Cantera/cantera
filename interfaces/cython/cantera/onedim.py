@@ -28,8 +28,7 @@ class FlameBase(Sim1D):
         self.gas = gas
         self.flame.P = gas.P
 
-    @property
-    def extra(self):
+    def extra(self, domain=None):
         """
         Extra columns used for saving/restoring of simulation data that are
         specific to a class derived from `FlameBase`. Entries may include:
@@ -39,7 +38,30 @@ class FlameBase(Sim1D):
          * ``lambda``: radial pressure gradient [N/m^4]
          * ``eField``: electric field strength
         """
-        return self._extra
+        if domain is None:
+            return self._extra
+
+        dom = self.domains[self.domain_index(domain)]
+        if isinstance(dom, Inlet1D):
+            return tuple([e for e in self._extra
+                          if e not in {'grid', 'lambda', 'eField'}])
+        elif isinstance(dom, IdealGasFlow):
+            return self._extra
+        else:
+            return ()
+
+    def phase(self, domain=None):
+        """
+        Return phase describing the domain (i.e. gas phase or surface phase).
+        """
+        if domain is None:
+            return self.gas
+
+        dom = self.domains[self.domain_index(domain)]
+        if isinstance(dom, ReactingSurface1D):
+            return dom.surface
+        else:
+            return self.gas
 
     def set_refine_criteria(self, ratio=10.0, slope=0.8, curve=0.8, prune=0.0):
         """
@@ -108,12 +130,12 @@ class FlameBase(Sim1D):
         elif isinstance(data, str):
             if data.endswith('.hdf5') or data.endswith('.h5'):
                 # data source identifies a HDF file
-                arr = SolutionArray(self.gas, extra=self.extra)
+                arr = SolutionArray(self.gas, extra=self.extra())
                 arr.read_hdf(data, group=group)
 
             elif data.endswith('.csv'):
                 # data source identifies a CSV file
-                arr = SolutionArray(self.gas, extra=self.extra)
+                arr = SolutionArray(self.gas, extra=self.extra())
                 arr.read_csv(data)
 
             else:
@@ -122,7 +144,7 @@ class FlameBase(Sim1D):
                 )
         else:
             # data source is a pandas DataFrame
-            arr = SolutionArray(self.gas, extra=self.extra)
+            arr = SolutionArray(self.gas, extra=self.extra())
             arr.from_pandas(data)
 
         # get left and right boundaries
@@ -401,42 +423,39 @@ class FlameBase(Sim1D):
         if not quiet:
             print("Solution saved to '{0}'.".format(filename))
 
-    def to_solution_array(self, domain=None, extra=None):
+    def to_solution_array(self, domain=None):
         """
         Return the solution vector as a `SolutionArray` object.
 
         Derived classes define default values for *extra*.
         """
-        if not domain:
+        if domain is None:
             domain = self.flame
-        if not extra:
-            extra = self.extra
-
-        if isinstance(domain, ReactingSurface1D):
-            phase = domain.surface
         else:
-            phase = self.gas
+            domain = self.domains[self.domain_index(domain)]
+        extra = self.extra(domain)
 
         states, extra_cols, meta = super().collect_data(domain, extra)
         n_points = np.array(states[0]).size
         if n_points:
-            arr = SolutionArray(phase, n_points,
+            arr = SolutionArray(self.phase(domain), n_points,
                                 extra=extra_cols, meta=meta)
             arr.TPY = states
             return arr
         else:
-            return SolutionArray(phase, meta=meta)
+            return SolutionArray(self.phase(domain), meta=meta)
 
-    def from_solution_array(self, arr, domain=None, extra=None):
+    def from_solution_array(self, arr, domain=None):
         """
         Restore the solution vector from a `SolutionArray` object.
 
         Derived classes define default values for *extra*.
         """
-        if not domain:
+        if domain is None:
             domain = self.flame
-        if not extra:
-            extra = self.extra
+        else:
+            domain = self.domains[self.domain_index(domain)]
+        extra = self.extra(domain)
 
         states = arr.TPY
         extra_cols = {e: getattr(arr, e) for e in extra
@@ -477,7 +496,7 @@ class FlameBase(Sim1D):
         requires a working pandas installation. The package 'pandas' can be
         installed using pip or conda.
         """
-        arr = SolutionArray(self.gas, extra=self.extra)
+        arr = SolutionArray(self.gas, extra=self.extra())
         arr.from_pandas(df)
         self.from_solution_array(arr, restore_boundaries=restore_boundaries,
                                  settings=settings)
@@ -544,28 +563,14 @@ class FlameBase(Sim1D):
         (`h5py` can be installed using pip or conda).
         """
         if restore_boundaries:
-            doms = range(3)
+            domains = range(3)
         else:
-            doms = [1]
+            domains = [1]
 
-        for dom in doms:
-            domain = self.domains[dom]
-            if isinstance(domain, Inlet1D):
-                extra = tuple([e for e in self.extra
-                               if e not in {'grid', 'lambda', 'eField'}])
-            elif isinstance(domain, IdealGasFlow):
-                extra = self.extra
-            else:
-                extra = ()
-
-            if isinstance(domain, ReactingSurface1D):
-                phase = domain.surface
-            else:
-                phase = self.gas
-
-            arr = SolutionArray(phase, extra=extra)
-            meta = arr.read_hdf(filename, group=group, index=dom)
-            self.from_solution_array(arr, domain=domain)
+        for d in domains:
+            arr = SolutionArray(self.phase(d), extra=self.extra(d))
+            meta = arr.read_hdf(filename, group=group, index=d)
+            self.from_solution_array(arr, domain=d)
 
         self.settings = meta
 
