@@ -602,6 +602,14 @@ public:
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void setToEquilState(const doublereal* lambda_RT);
 
+    virtual double electronMobility() {
+        return Undef;
+    }
+
+    virtual double electronDiffusivity() {
+        return Undef;
+    }
+
 protected:
     //! Reference state pressure
     /*!

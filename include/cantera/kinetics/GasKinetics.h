@@ -67,15 +67,8 @@ public:
     //! reactions.
     virtual void update_rates_C();
 
-    //! enable kinetics to use class PlasmaElectron
-    virtual void enableElectron(bool enable) {
-        m_do_electron = enable;
-    }
-
     //! Set the value of electron temperature in Kelvin. The electron temperature is equal
     //! to gas temperature by default, and can be set manually to a different temperature.
-    //! However, if m_do_electron is set to true, class PlasmaElectron is used to calculate
-    //! the value of electron temperature.
     virtual void setElectronTemperature(double Te) {
         m_Te_fix = Te;
     }
@@ -124,9 +117,6 @@ protected:
 
     //! Electron temperature for electron-temperature reactions
     double m_temp_e;
-
-    //! flag of enabling electrons
-    bool m_do_electron;
 
     //! fixed value of electron temperature
     double m_Te_fix;

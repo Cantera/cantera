@@ -51,6 +51,10 @@ public:
     AnyMap extra;
 };
 
+unique_ptr<ElectronCrossSection> newElectronCrossSection(const AnyMap& node);
+
+std::vector<shared_ptr<ElectronCrossSection>> getElectronCrossSection(const AnyValue& items);
+
 }
 
 #endif

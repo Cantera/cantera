@@ -7,7 +7,7 @@ import copy
 
 class TestElectron(utilities.CanteraTest):
     def setUp(self):
-        self.gas = ct.Plasma(infile='oxygen_plasma.yaml')
+        self.gas = ct.PlasmaPhase(infile='oxygen_plasma.yaml')
 
     def test_electron_properties(self):
         self.gas.TPX = 1000, ct.one_atm, 'O2:1.0, E:1e-10'

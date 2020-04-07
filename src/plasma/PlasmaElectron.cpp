@@ -38,43 +38,59 @@ PlasmaElectron::PlasmaElectron()
     m_gamma = pow(2.0 * ElectronCharge / ElectronMass, 0.5);
 }
 
-PlasmaElectron::~PlasmaElectron()
+void PlasmaElectron::initPlasma(const AnyMap& phaseNode, const AnyMap& rootNode)
 {
-}
+    if (phaseNode.hasKey("cross-sections")) {
+        if (phaseNode["cross-sections"].is<std::vector<std::string>>()) {
+            // 'cross-sections' is a list of target species names to be added from the current
+            // file's 'cross-sections' section
+            addElectronCrossSections(phaseNode["cross-sections"], rootNode["cross-sections"]);
+        } else if (phaseNode["cross-sections"].is<std::string>()) {
+            // 'cross-sections' is a keyword applicable to the current file's 'cross-sections'
+            // section
+            addElectronCrossSections(phaseNode["cross-sections"], rootNode["cross-sections"]);
+        } else if (phaseNode["cross-sections"].is<std::vector<AnyMap>>()) {
+            // Each item in 'cross-sections' is a map with one item, where the key is
+            // a section in another YAML file, and the value is a
+            // list of target species names to read from that section 
+            for (const auto& crossSectionsNode : phaseNode["cross-sections"].asVector<AnyMap>()) {
+                const std::string& source = crossSectionsNode.begin()->first;
+                const auto& names = crossSectionsNode.begin()->second;
+                const auto& slash = boost::ifind_last(source, "/");
+                if (slash) {
+                    // source is a different input file
+                    std::string fileName(source.begin(), slash.begin());
+                    std::string node(slash.end(), source.end());
+                    AnyMap crossSections = AnyMap::fromYamlFile(fileName);
+                    addElectronCrossSections(crossSections[node], names);
+                } else {
+                    throw InputFileError("newPlasmaElectron", crossSectionsNode,
+                        "Could not find species section named '{}'", source);
+                }
+            }
+        } else {
+            throw InputFileError("newPlasmaElectron", phaseNode["cross-sections"],
+                "Could not parse cross-sections declaration of type '{}'",
+                phaseNode["cross-sections"].type_str());
+        }
+    } else if (rootNode.hasKey("cross-sections")) {
+        // By default, add all cross sections from the 'cross-sections' section
+        addElectronCrossSections(AnyValue("all"), rootNode["cross-sections"]);
+    }
 
-void PlasmaElectron::init(thermo_t* thermo)
-{
-    m_thermo = thermo;
     m_f0_ok = false;
     calculateElasticCrossSection();
     setGridCache();
     // set up target index
     m_kTargets.resize(m_ncs);
     for (size_t k = 0; k < m_ncs; k++) {
-        m_kTargets[k] = m_thermo->speciesIndex(m_targets[k]);
+        m_kTargets[k] = speciesIndex(m_targets[k]);
     }
     // set up indices of species which has no cross-section data
-    for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
+    for (size_t k = 0; k < nSpecies(); k++) {
         auto it = std::find(m_kTargets.begin(), m_kTargets.end(), k); 
         if (it == m_kTargets.end()) {
             m_kOthers.push_back(k);
-        }
-    }
-    m_kProducts.clear();
-    m_kProducts.resize(m_ncs);
-    for (size_t k = 0; k < m_ncs; k++) {
-        std::string prdct = m_products[k];
-        size_t dp = prdct.find(" + ");
-        if (dp != npos) {
-            size_t kp0 = m_thermo->speciesIndex(prdct.substr(0, dp));
-            prdct.erase(0, dp + 3);
-            size_t kp1 = m_thermo->speciesIndex(prdct);
-            m_kProducts[k].push_back(kp0);
-            m_kProducts[k].push_back(kp1);
-        } else {
-            size_t kp0 = m_thermo->speciesIndex(prdct);
-            m_kProducts[k].push_back(kp0);
-            m_kProducts[k].push_back(9999);
         }
     }
     m_moleFractions.resize(m_ncs, 0.0);
@@ -149,10 +165,10 @@ void PlasmaElectron::update_T()
 {
     // signal that temperature-dependent quantities will need to be recomputed
     // before use, and update the local temperature.
-    double kT = Boltzmann * m_thermo->temperature() / ElectronCharge;
+    double kT = Boltzmann * temperature() / ElectronCharge;
     if (m_kT != kT) {
         m_kT = kT;
-        m_N = m_thermo->pressure() / Boltzmann / m_thermo->temperature();
+        m_N = pressure() / Boltzmann / temperature();
         m_f0_ok = false;
     }
 }
@@ -161,8 +177,8 @@ void PlasmaElectron::update_C()
 {
     // signal that concentration-dependent quantities will need to be recomputed
     // before use, and update the local mole fractions.
-    vector_fp X(m_thermo->nSpecies());
-    m_thermo->getMoleFractions(&X[0]);
+    vector_fp X(nSpecies());
+    getMoleFractions(&X[0]);
     for (size_t k = 0; k < m_ncs; k++) {
         size_t kk = m_kTargets[k];
         if (m_moleFractions[k] != X[kk]) {
@@ -176,7 +192,7 @@ void PlasmaElectron::update_C()
             writelog("Cantera::PlasmaElectron::update_C");
             writelog("\n");
             writelog("Warning: The mole fraction of species {} is more than 0.01",
-                    m_thermo->speciesName(k));
+                    speciesName(k));
             writelog(" but it has no data of cross section.");
             writelog("\n");
         }
@@ -236,6 +252,28 @@ bool PlasmaElectron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ec
     m_f0_ok = false;
 
     return true;
+}
+
+void PlasmaElectron::addElectronCrossSections(const AnyValue& crossSections, const AnyValue& names)
+{
+    if (names.is<std::vector<std::string>>()) {
+        // 'names' is a list of target species names which should be found in 'cross-sections'
+        for (const auto& name : names.asVector<std::string>()) {
+            for (const auto& item : crossSections.asVector<AnyMap>()) {
+                if (item["target"].asString() == name) {
+                    addElectronCrossSection(newElectronCrossSection(item));
+                }
+            }
+        }
+    } else if (names.is<std::string>() && names.asString() == "all") {
+        // The keyword 'all' means to add all cross-sections from this source
+        for (const auto& item : crossSections.asVector<AnyMap>()) {
+            addElectronCrossSection(newElectronCrossSection(item));
+        }
+    } else {
+        throw InputFileError("addElectronCrossSections", names,
+            "Could not parse cross-sections declaration of type '{}'", names.type_str());
+    }
 }
 
 void PlasmaElectron::calculateElasticCrossSection()

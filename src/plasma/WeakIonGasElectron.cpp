@@ -50,7 +50,7 @@ void WeakIonGasElectron::calculateTotalElasticCrossSection()
         vector_fp& x = m_crossSections[k][0];
         vector_fp& y = m_crossSections[k][1];
         for (size_t i = 0; i < m_points; i++) {
-            double mass_ratio = ElectronMass / (Dalton * m_thermo->molecularWeight(m_kTargets[k]));
+            double mass_ratio = ElectronMass / (Dalton * molecularWeight(m_kTargets[k]));
             m_sigmaElastic[i] += 2.0 * mass_ratio * m_moleFractions[k] *
                                  linearInterp(m_gridEdge[i], x, y);
         }
@@ -84,7 +84,7 @@ void WeakIonGasElectron::calculateDistributionFunction()
         double Te = electronTemperature(m_f0);
         // Evaluate the EEDF by comparing electron temperature to gas temperature,
         // and replace the EEDF with a Maxwellian distribution at gas temperature.
-        if (Te < m_thermo->temperature()) {
+        if (Te < temperature()) {
             for (size_t j = 0; j < m_points; j++) {
                 m_f0(j) = 2.0 * pow(1.0/Pi, 0.5) * pow(m_kT, -3./2.) *
                           std::exp(-m_gridCenter[j]/m_kT);
@@ -438,8 +438,8 @@ double WeakIonGasElectron::meanElectronEnergy()
 double WeakIonGasElectron::electronTemperature()
 {
     double Te = 2./3. * meanElectronEnergy() / Boltzmann * ElectronCharge;
-    if (Te < m_thermo->temperature()) {
-        return m_thermo->temperature();
+    if (Te < temperature()) {
+        return temperature();
     } else {
         return Te;
     }

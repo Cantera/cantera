@@ -148,37 +148,8 @@ cdef extern from "cantera/plasma/ElectronCrossSection.h" namespace "Cantera":
         string product
         vector[vector[double]] data
 
-cdef extern from "cantera/plasma/PlasmaElectron.h" namespace "Cantera":
-    cdef cppclass CxxPlasmaElectron "Cantera::PlasmaElectron":
-        CxxPlasmaElectron()
-
-        #Properties
-        double grid(size_t)
-        size_t nPoints()
-        double electronMobility()
-        double electronDiffusivity()
-        double meanElectronEnergy()
-        double totalCollisionFreq()
-        double rateCoefficient(size_t)
-        double reverseRateCoefficient(size_t)
-        double powerGain()
-        double elasticPowerLoss()
-        double inelasticPowerLoss()
-        double electricField()
-        double electricFieldFreq()
-        void setElectricField(double)
-        void setElectricFieldFreq(double)
-        double electronTemperature()
-        void setBoltzmannSolver(size_t, double, double, double, double, cbool)
-        string target(size_t)
-        string kind(size_t)
-        string product(size_t)
-        double threshold(size_t)
-
-        # initialization
-        cbool addElectronCrossSection(shared_ptr[CxxElectronCrossSection]) except +translate_exception
-        void setupGrid(size_t, double*) except +translate_exception
-        void init(CxxThermoPhase*) except +translate_exception
+    cdef shared_ptr[CxxElectronCrossSection] CxxNewElectronCrossSection "newElectronCrossSection" (CxxAnyMap&) except +translate_exception
+    cdef vector[shared_ptr[CxxElectronCrossSection]] CxxGetElectronCrossSection "getElectronCrossSection" (CxxAnyValue&) except +translate_exception
 
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     ctypedef enum ThermoBasis:
@@ -214,6 +185,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         void modifySpecies(size_t, shared_ptr[CxxSpecies]) except +translate_exception
         void initThermo() except +translate_exception
         void invalidateCache() except +translate_exception
+        void initPlasma(CxxAnyMap&, CxxAnyMap&) except +translate_exception
 
         # basic thermodynamic properties
         double temperature() except +translate_exception
@@ -322,7 +294,40 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         double stoichAirFuelRatio(const double* fuelComp, const double* oxComp, ThermoBasis basis) except +translate_exception
 
 cdef extern from "cantera/thermo/IdealGasPhase.h":
-    cdef cppclass CxxIdealGasPhase "Cantera::IdealGasPhase"
+    cdef cppclass CxxIdealGasPhase "Cantera::IdealGasPhase":
+        CxxIdealGasPhase()
+
+
+cdef extern from "cantera/plasma/PlasmaElectron.h":
+    cdef cppclass CxxPlasmaElectron "Cantera::PlasmaElectron":
+        CxxPlasmaElectron()
+
+        #Properties
+        double grid(size_t)
+        size_t nPoints()
+        double electronMobility()
+        double electronDiffusivity()
+        double meanElectronEnergy()
+        double totalCollisionFreq()
+        double rateCoefficient(size_t)
+        double reverseRateCoefficient(size_t)
+        double powerGain()
+        double elasticPowerLoss()
+        double inelasticPowerLoss()
+        double electricField()
+        double electricFieldFreq()
+        void setElectricField(double)
+        void setElectricFieldFreq(double)
+        double electronTemperature()
+        void setBoltzmannSolver(size_t, double, double, double, double, cbool)
+        string target(size_t)
+        string kind(size_t)
+        string product(size_t)
+        double threshold(size_t)
+
+        # initialization
+        cbool addElectronCrossSection(shared_ptr[CxxElectronCrossSection]) except +translate_exception
+        void setupGrid(size_t, double*) except +translate_exception
 
 
 cdef extern from "cantera/thermo/SurfPhase.h":
@@ -469,7 +474,6 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         CxxThermoPhase& thermo(int)
 
         void addPhase(CxxThermoPhase&) except +translate_exception
-        void addPlasmaElectron(CxxPlasmaElectron*) except +translate_exception
         void init() except +translate_exception
         void skipUndeclaredThirdBodies(cbool)
         void addReaction(shared_ptr[CxxReaction]) except +translate_exception
@@ -488,7 +492,6 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         double multiplier(int)
         void setMultiplier(int, double)
         void setElectronTemperature(double)
-        void enableElectron(cbool) except +translate_exception
 
 
 cdef extern from "cantera/kinetics/InterfaceKinetics.h":
@@ -505,8 +508,6 @@ cdef extern from "cantera/transport/TransportBase.h" namespace "Cantera":
         double thermalConductivity() except +translate_exception
         double electricalConductivity() except +translate_exception
         void getSpeciesViscosities(double*) except +translate_exception
-        void initElectron(CxxPlasmaElectron*) except +translate_exception
-        void enableElectron(cbool) except +translate_exception
 
 
 cdef extern from "cantera/transport/DustyGasTransport.h" namespace "Cantera":
@@ -741,12 +742,6 @@ cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef CxxThermoPhase* newPhase(XML_Node&) except +translate_exception
     cdef shared_ptr[CxxThermoPhase] newPhase(CxxAnyMap&, CxxAnyMap&) except +translate_exception
     cdef CxxThermoPhase* newThermoPhase(string) except +translate_exception
-
-cdef extern from "cantera/plasma/PlasmaElectronFactory.h" namespace "Cantera":
-    cdef shared_ptr[CxxPlasmaElectron] newPlasmaElectron(CxxAnyMap&, CxxAnyMap&, CxxThermoPhase*) except +translate_exception
-    cdef CxxPlasmaElectron* newPlasmaElectron(string) except +translate_exception
-    cdef shared_ptr[CxxElectronCrossSection] CxxNewElectronCrossSection "newElectronCrossSection" (CxxAnyMap&) except +translate_exception
-    cdef vector[shared_ptr[CxxElectronCrossSection]] CxxGetElectronCrossSection "getElectronCrossSection" (CxxAnyValue&) except +translate_exception
 
 cdef extern from "cantera/kinetics/KineticsFactory.h" namespace "Cantera":
     cdef CxxKinetics* newKineticsMgr(XML_Node&, vector[CxxThermoPhase*]) except +translate_exception
@@ -1001,9 +996,6 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void kin_getDestructionRates(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getNetProductionRates(CxxKinetics*, double*) except +translate_exception
 
-    # PlasmaElectron
-    cdef void elect_getNetPlasmaProductionRates(CxxPlasmaElectron*, double*) except +translate_exception
-
     # Transport properties
     cdef void tran_getMixDiffCoeffs(CxxTransport*, double*) except +translate_exception
     cdef void tran_getMixDiffCoeffsMass(CxxTransport*, double*) except +translate_exception
@@ -1020,7 +1012,6 @@ ctypedef void (*thermoMethod1d)(CxxThermoPhase*, double*) except +translate_exce
 ctypedef void (*transportMethod1d)(CxxTransport*, double*) except +translate_exception
 ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +translate_exception
 ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +translate_exception
-ctypedef void (*plasmaElectronMethod1d)(CxxPlasmaElectron*, double*) except +translate_exception
 
 # classes
 cdef class ElectronCrossSection:
@@ -1055,8 +1046,6 @@ cdef class _SolutionBase:
     cdef CxxKinetics* kinetics
     cdef shared_ptr[CxxTransport] _transport
     cdef CxxTransport* transport
-    cdef shared_ptr[CxxPlasmaElectron] _plasmaElectron
-    cdef CxxPlasmaElectron* plasmaElectron
     cdef int thermo_basis
     cdef np.ndarray _selected_species
     cdef object parent
@@ -1073,6 +1062,9 @@ cdef class ThermoPhase(_SolutionBase):
 cdef class InterfacePhase(ThermoPhase):
     cdef CxxSurfPhase* surf
 
+cdef class PlasmaPhase(ThermoPhase):
+    cdef CxxPlasmaElectron* plasma
+
 cdef class Reaction:
     cdef shared_ptr[CxxReaction] _reaction
     cdef CxxReaction* reaction
@@ -1087,9 +1079,6 @@ cdef class Falloff:
     cdef CxxFalloff* falloff
 
 cdef class Kinetics(_SolutionBase):
-    pass
-
-cdef class PlasmaElectron(_SolutionBase):
     pass
 
 cdef class InterfaceKinetics(Kinetics):

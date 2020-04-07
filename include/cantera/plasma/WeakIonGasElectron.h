@@ -85,6 +85,10 @@ class WeakIonGasElectron: public PlasmaElectron
 public:
     WeakIonGasElectron();
 
+    virtual std::string type() const {
+        return "WeakIonizedGas";
+    }
+
     virtual double electronDiffusivity();
     virtual double electronMobility();
     virtual double meanElectronEnergy();

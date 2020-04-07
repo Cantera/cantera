@@ -659,8 +659,20 @@ public:
         m_ndim = ndim;
     }
 
-    //! @name Thermodynamic Properties
-    //!@{
+    //! Electron temperature (K)
+    virtual double electronTemperature() {
+        return m_electron_temp;
+    }
+
+    //! Electron mobility
+    virtual double electronMobility() {
+        return Undef;
+    }
+
+    //! Electron diffusivity
+    virtual double electronDiffusivity() {
+        return Undef;
+    }
 
     //! Temperature (K).
     //!     @return The temperature of the phase
@@ -717,6 +729,17 @@ public:
      */
     virtual void setPressure(double p) {
         throw NotImplementedError("Phase::setPressure");
+    }
+
+    //! Set the internally stored electron temperature of the phase (K).
+    //!     @param temp Temperature in Kelvin
+    virtual void setElectronTemperature(const double e_temp) {
+        if (e_temp > 0) {
+            m_electron_temp = e_temp;
+        } else {
+            throw CanteraError("Phase::setElectronTemperature",
+                               "temperature must be positive. T = {}", e_temp);
+        }
     }
 
     //! Set the internally stored temperature of the phase (K).
@@ -985,6 +1008,9 @@ private:
     //! assignDensity() method. For compressible substances, the pressure is
     //! determined from this variable rather than other way round.
     doublereal m_dens;
+
+    //! Electron temperature (K).
+    double m_electron_temp;
 
     doublereal m_mmw; //!< mean molecular weight of the mixture (kg kmol-1)
 

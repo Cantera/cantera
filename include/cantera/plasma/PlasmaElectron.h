@@ -9,7 +9,7 @@
 #ifndef CT_PLASMAELECTRON_H
 #define CT_PLASMAELECTRON_H
 
-#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/plasma/ElectronCrossSection.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ValueCache.h"
@@ -17,6 +17,7 @@
 
 namespace Cantera
 {
+unique_ptr<ElectronCrossSection> newElectronCrossSection(const AnyMap& node);
 /**
  * @defgroup electron
  * This class calculates the electron energy distribution function (EEDF) in a gas
@@ -31,16 +32,13 @@ namespace Cantera
  * cross-section data, and updating temperature and gas composition.
  * @ingroup electron
  */
-class PlasmaElectron
+class PlasmaElectron: public IdealGasPhase
 {
 public:
     PlasmaElectron();
 
-    virtual ~PlasmaElectron();
-
-    // Electron objects are not copyable or assignable
-    PlasmaElectron(const PlasmaElectron&) = delete;
-    PlasmaElectron& operator=(const PlasmaElectron&) = delete;
+    void addElectronCrossSections(const AnyValue& crossSections,
+                                  const AnyValue& names);
 
     //! Add an electron cross section to this Electron. Returns `true` if the electron cross section was
     //! successfully added, or `false` if the electron cross section was ignored.
@@ -109,8 +107,8 @@ public:
         throw NotImplementedError("PlasmaElectron::reverseRateCoefficient");
     }
 
-    //! initialize PlasmaElectron. Need to be called after adding all cross sections.
-    void init(thermo_t* thermo);
+    //! initialize PlasmaElectron.
+    virtual void initPlasma(const AnyMap& phaseNode, const AnyMap& rootNode);
 
     //! Reduced electric field
     double electricField() const {
