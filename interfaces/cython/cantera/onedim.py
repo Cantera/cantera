@@ -412,15 +412,20 @@ class FlameBase(Sim1D):
         if not extra:
             extra = self.extra
 
+        if isinstance(domain, ReactingSurface1D):
+            phase = domain.surface
+        else:
+            phase = self.gas
+
         states, extra_cols, meta = super().collect_data(domain, extra)
         n_points = np.array(states[0]).size
         if n_points:
-            arr = SolutionArray(self.gas, n_points,
+            arr = SolutionArray(phase, n_points,
                                 extra=extra_cols, meta=meta)
             arr.TPY = states
             return arr
         else:
-            return SolutionArray(self.gas, meta=meta)
+            return SolutionArray(phase, meta=meta)
 
     def from_solution_array(self, arr, domain=None, extra=None):
         """
@@ -544,14 +549,23 @@ class FlameBase(Sim1D):
             doms = [1]
 
         for dom in doms:
-            extra = self.extra
-            if dom == 0:
-                extra = tuple([e for e in extra if e != 'grid'])
-            if dom == 2:
+            domain = self.domains[dom]
+            if isinstance(domain, Inlet1D):
+                extra = tuple([e for e in self.extra
+                               if e not in {'grid', 'lambda', 'eField'}])
+            elif isinstance(domain, IdealGasFlow):
+                extra = self.extra
+            else:
                 extra = ()
-            arr = SolutionArray(self.gas, extra=extra)
+
+            if isinstance(domain, ReactingSurface1D):
+                phase = domain.surface
+            else:
+                phase = self.gas
+
+            arr = SolutionArray(phase, extra=extra)
             meta = arr.read_hdf(filename, group=group, index=dom)
-            self.from_solution_array(arr, domain=self.domains[dom])
+            self.from_solution_array(arr, domain=domain)
 
         self.settings = meta
 

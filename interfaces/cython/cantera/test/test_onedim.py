@@ -1102,14 +1102,11 @@ class TestBurnerFlame(utilities.CanteraTest):
             self.assertNear(rhou_j, rhou, 1e-4)
 
 class TestImpingingJet(utilities.CanteraTest):
-    def run_reacting_surface(self, xch4, tsurf, mdot, width):
-        # Simplified version of the example 'catalytic_combustion.py'
+    def create_reacting_surface(self, comp, tsurf, tinlet, width):
         gas = ct.Solution('ptcombust-simple.cti', 'gas')
         surf_phase = ct.Interface('ptcombust-simple.cti',
                                   'Pt_surf', [gas])
 
-        tinlet = 300.0  # inlet temperature
-        comp = {'CH4': xch4, 'O2':0.21, 'N2':0.79}
         gas.TPX = tinlet, ct.one_atm, comp
         surf_phase.TP = tsurf, ct.one_atm
 
@@ -1117,7 +1114,13 @@ class TestImpingingJet(utilities.CanteraTest):
         # to generate a good starting estimate for the coverages.
         surf_phase.advance_coverages(1.)
 
-        sim = ct.ImpingingJet(gas=gas, width=width, surface=surf_phase)
+        return ct.ImpingingJet(gas=gas, width=width, surface=surf_phase)
+
+    def run_reacting_surface(self, xch4, tsurf, mdot, width):
+        # Simplified version of the example 'catalytic_combustion.py'
+        tinlet = 300.0  # inlet temperature
+        comp = {'CH4': xch4, 'O2':0.21, 'N2':0.79}
+        sim = self.create_reacting_surface(comp, tsurf, tinlet, width)
         sim.set_refine_criteria(10.0, 0.3, 0.4, 0.0)
 
         sim.inlet.mdot = mdot
@@ -1128,17 +1131,44 @@ class TestImpingingJet(utilities.CanteraTest):
         sim.solve(loglevel=0, auto=True)
 
         self.assertTrue(all(np.diff(sim.T) > 0))
-        self.assertTrue(all(np.diff(sim.Y[gas.species_index('CH4')]) < 0))
-        self.assertTrue(all(np.diff(sim.Y[gas.species_index('CO2')]) > 0))
+        self.assertTrue(all(np.diff(sim.Y[sim.gas.species_index('CH4')]) < 0))
+        self.assertTrue(all(np.diff(sim.Y[sim.gas.species_index('CO2')]) > 0))
+        self.sim = sim
 
     def test_reacting_surface_case1(self):
         self.run_reacting_surface(xch4=0.095, tsurf=900.0, mdot=0.06, width=0.1)
+
 
     def test_reacting_surface_case2(self):
         self.run_reacting_surface(xch4=0.07, tsurf=1200.0, mdot=0.2, width=0.05)
 
     def test_reacting_surface_case3(self):
         self.run_reacting_surface(xch4=0.2, tsurf=800.0, mdot=0.1, width=0.2)
+
+    def test_write_hdf(self):
+        filename = pjoin(self.test_work_dir, 'impingingjet-write_hdf.h5')
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        self.run_reacting_surface(xch4=0.095, tsurf=900.0, mdot=0.06, width=0.1)
+        self.sim.write_hdf(filename)
+
+        tinlet = 300.0  # inlet temperature
+        comp = {'CH4': .1, 'O2':0.21, 'N2':0.79}
+        jet = self.create_reacting_surface(comp, 700.0, 500., width=0.2)
+
+        jet.read_hdf(filename)
+        self.assertArrayNear(jet.grid, self.sim.grid)
+        self.assertArrayNear(jet.T, self.sim.T)
+        k = self.sim.gas.species_index('H2')
+        self.assertArrayNear(jet.X[k, :], self.sim.X[k, :])
+        self.assertArrayNear(jet.surface.surface.X, self.sim.surface.surface.X)
+
+        settings = self.sim.settings
+        for k, v in jet.settings.items():
+            self.assertIn(k, settings)
+            if k != 'fixed_temperature':
+                self.assertEqual(settings[k], v)
 
 
 class TestTwinFlame(utilities.CanteraTest):
