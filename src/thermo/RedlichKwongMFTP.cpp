@@ -1127,8 +1127,10 @@ int RedlichKwongMFTP::solveCubic(double T, double pres, double a, double b, doub
     double tmp = a * omega_b / (b * omega_a * GasConstant);
     double pp = 2./3.;
     double tc = pow(tmp, pp);
+    double pc = omega_b * GasConstant * tc / b;
+    double vc = omega_vc * GasConstant * tc / pc;
 
-    int nSolnValues = MixtureFugacityTP::solveCubic(T, pres, a, b, a, Vroot, an, bn, cn, dn, tc);
+    int nSolnValues = MixtureFugacityTP::solveCubic(T, pres, a, b, a, Vroot, an, bn, cn, dn, tc, pc);
 
     return nSolnValues;
 }
