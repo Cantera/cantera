@@ -657,14 +657,13 @@ class SolutionArray:
             self._phase.equilibrate(*args, **kwargs)
             self._states[index][:] = self._phase.state
 
-    def restore_data(self, data, labels):
+    def restore_data(self, data):
         """
-        Restores a `SolutionArray` based on *data* specified in a single
-        2D Numpy array and a list of corresponding column *labels*. Thus,
-        this method allows to restore data exported by `collect_data`.
+        Restores a `SolutionArray` based on *data* specified in an ordered
+        dictionary. Thus, this method allows to restore data exported by
+        `collect_data`.
 
-        :param data: a 2D Numpy array holding data to be restored.
-        :param labels: a list of labels corresponding to `SolutionArray` entries.
+        :param data: dictionary holding data to be restored.
 
         The receiving `SolutionArray` either has to be empty or should have
         matching dimensions. Essential state properties and extra entries
@@ -673,6 +672,9 @@ class SolutionArray:
         entries already specified, only those will be imported; if *labels*
         does not contain those entries, an error is raised.
         """
+
+        labels = list(data.keys())
+        data = np.hstack([d[:, np.newaxis] for d in data.values()])
 
         # check arguments
         if not isinstance(data, np.ndarray) or data.ndim != 2:
@@ -798,8 +800,8 @@ class SolutionArray:
 
     def collect_data(self, cols=None, threshold=0, species='Y'):
         """
-        Returns the data specified by *cols* in a single 2D Numpy array, along
-        with a list of column labels.
+        Returns the data specified by *cols* in an ordered dictionary, where
+        keys correspond to column labels.
 
         :param cols: A list of any properties of the solution that are scalars
             or which have a value for each species or reaction. If species names
@@ -817,8 +819,7 @@ class SolutionArray:
         """
         if len(self._shape) != 1:
             raise TypeError("collect_data only works for 1D SolutionArray")
-        data = []
-        labels = []
+        out = OrderedDict()
 
         # Create default columns (including complete state information)
         if cols is None:
@@ -871,10 +872,10 @@ class SolutionArray:
                 d = d[:, keep]
                 collabels = [label for label, k in zip(collabels, keep) if k]
 
-            data.append(d)
-            labels.extend(collabels)
+            for i, label in enumerate(collabels):
+                out[label] = d[:, i]
 
-        return np.hstack(data), labels
+        return out
 
     def write_csv(self, filename, cols=None, *args, **kwargs):
         """
@@ -884,7 +885,9 @@ class SolutionArray:
         Additional arguments are passed on to `collect_data`. This method works
         only with 1D `SolutionArray` objects.
         """
-        data, labels = self.collect_data(cols=cols, *args, **kwargs)
+        data_dict = self.collect_data(cols=cols, *args, **kwargs)
+        data = np.hstack([d[:, np.newaxis] for d in data_dict.values()])
+        labels = list(data_dict.keys())
         with open(filename, 'w', newline='') as outfile:
             writer = _csv.writer(outfile)
             writer.writerow(labels)
@@ -901,7 +904,11 @@ class SolutionArray:
         data = np.genfromtxt(filename, skip_header=1, delimiter=',')
         labels = np.genfromtxt(filename, max_rows=1, delimiter=',', dtype=str)
 
-        self.restore_data(data, list(labels))
+        data_dict = OrderedDict()
+        for i, label in enumerate(labels):
+            data_dict[label] = data[:, i]
+
+        self.restore_data(data_dict)
 
     def to_pandas(self, cols=None, *args, **kwargs):
         """
@@ -915,7 +922,9 @@ class SolutionArray:
         if isinstance(_pandas, ImportError):
             raise _pandas
 
-        data, labels = self.collect_data(cols=cols, *args, **kwargs)
+        data_dict = self.collect_data(cols=cols, *args, **kwargs)
+        data = np.hstack([d[:, np.newaxis] for d in data_dict.values()])
+        labels = list(data_dict.keys())
         return _pandas.DataFrame(data=data, columns=labels)
 
     def from_pandas(self, df):
@@ -930,7 +939,10 @@ class SolutionArray:
         data = df.to_numpy(dtype=float)
         labels = list(df.columns)
 
-        self.restore_data(data, labels)
+        data_dict = OrderedDict()
+        for i, label in enumerate(labels):
+            data_dict[label] = data[:, i]
+        self.restore_data(data_dict)
 
     def write_hdf(self, filename, *args, cols=None, group=None, attrs={},
                   mode='a', append=False,
@@ -976,7 +988,7 @@ class SolutionArray:
             raise _h5py
 
         # collect data
-        data, labels = self.collect_data(cols=cols, *args, **kwargs)
+        data = self.collect_data(cols=cols, *args, **kwargs)
 
         hdf_kwargs = {'compression': compression,
                       'compression_opts': compression_opts}
@@ -1016,7 +1028,7 @@ class SolutionArray:
             sub = root.create_group(sub_name)
             for key, val in self._meta.items():
                 sub.attrs[key] = val
-            for header, col in zip(labels, data.T):
+            for header, col in data.items():
                 sub.create_dataset(header, data=col, **hdf_kwargs)
 
             # add subgroup containing information on gas
@@ -1098,14 +1110,12 @@ class SolutionArray:
             self._meta = {attr: value for attr, value in sub.attrs.items()}
 
             # load data
-            data = []
-            labels = []
+            data = OrderedDict()
             for name, value in sub.items():
                 if name != 'solution':
-                    labels += [name]
-                    data += [np.array(value)]
+                    data[name] = np.array(value)
 
-        self.restore_data(np.vstack(data).T, labels)
+        self.restore_data(data)
 
         return root_attrs
 
