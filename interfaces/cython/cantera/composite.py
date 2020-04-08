@@ -798,10 +798,10 @@ class SolutionArray:
             self._phase.set_equivalence_ratio(phi[index], *args, **kwargs)
             self._states[index][:] = self._phase.state
 
-    def collect_data(self, cols=None, threshold=0, species='Y'):
+    def collect_data(self, cols=None, tabular=True, threshold=0, species='Y'):
         """
         Returns the data specified by *cols* in an ordered dictionary, where
-        keys correspond to column labels.
+        keys correspond to SolutionArray attributes to be exported.
 
         :param cols: A list of any properties of the solution that are scalars
             or which have a value for each species or reaction. If species names
@@ -810,15 +810,18 @@ class SolutionArray:
             include any arrays which were specified as 'extra' variables when
             defining the `SolutionArray` object. The special value 'extra' can
             be used to include all 'extra' variables.
-        :param threshold: Relative tolerance for including a particular column.
-            The tolerance is applied by comparing the maximum absolute value for
-            a particular column to the maximum absolute value in all columns for
-            the same variable (e.g. mass fraction).
+        :param tabular: Split 2D data into 1D columns
+        :param threshold: Relative tolerance for including a particular column
+            if tabular output is enabled. The tolerance is applied by comparing
+            the maximum absolute value for a particular column to the maximum
+            absolute value in all columns for the same variable (e.g. mass
+            fraction).
         :param species: Specifies whether to use mass ('Y') or mole ('X')
             fractions for individual species specified in 'cols'
         """
-        if len(self._shape) != 1:
-            raise TypeError("collect_data only works for 1D SolutionArray")
+        if tabular and len(self._shape) != 1:
+            raise AttributeError("Tabular output of collect_data only works "
+                                 "for 1D SolutionArray")
         out = OrderedDict()
 
         # Create default columns (including complete state information)
@@ -836,46 +839,50 @@ class SolutionArray:
         expanded_cols = tuple(['density' if c == 'D' else c
                                for c in expanded_cols])
 
-        species_names = set(self.species_names)
-        for c in expanded_cols:
+        def split(c, d):
+            """ Split attribute arrays into columns for tabular output """
             single_species = False
             # Determine labels for the items in the current group of columns
-            if c in self._extra:
-                collabels = [c]
-            elif c in self._scalar:
-                collabels = [c]
-            elif c in self._n_species:
+            if c in self._n_species:
                 collabels = ['{}_{}'.format(c, s) for s in self.species_names]
             elif c in self._n_reactions:
                 collabels = ['{} {}'.format(c, r)
                              for r in self.reaction_equations()]
             elif c in species_names:
-                single_species = True
                 collabels = ['{}_{}'.format(species, c)]
-            elif c in self._purefluid_scalar:
+            else:
                 collabels = [c]
+
+            if d.ndim > 1:
+                if threshold:
+                    # Determine threshold value and select columns to keep
+                    maxval = abs(d).max()
+                    keep = (abs(d) > threshold * maxval).any(axis=0)
+                    d = d[:, keep]
+                    collabels = [label for label, k in zip(collabels, keep) if k]
+
+                return [(cl, d[:, i]) for i, cl in enumerate(collabels)]
+            else:
+                return [(collabels[0], d)]
+
+        data = []
+        attrs = self.__dir__() + list(self._extra.keys())
+        species_names = set(self.species_names)
+        for c in expanded_cols:
+            if c in species_names:
+                d = getattr(self(c), species)
+            elif c in attrs:
+                d = getattr(self, c)
             else:
                 raise CanteraError('property "{}" not supported'.format(c))
 
-            # Get the data for the current group of columns
-            if single_species:
-                d = getattr(self(c), species)
+            if tabular:
+                data += split(c, d)
+
             else:
-                d = getattr(self, c)
+                data += [(c, d)]
 
-            if d.ndim == 1:
-                d = d[:, np.newaxis]
-            elif threshold:
-                # Determine threshold value and select columns to keep
-                maxval = abs(d).max()
-                keep = (abs(d) > threshold * maxval).any(axis=0)
-                d = d[:, keep]
-                collabels = [label for label, k in zip(collabels, keep) if k]
-
-            for i, label in enumerate(collabels):
-                out[label] = d[:, i]
-
-        return out
+        return OrderedDict(data)
 
     def write_csv(self, filename, cols=None, *args, **kwargs):
         """
@@ -885,7 +892,7 @@ class SolutionArray:
         Additional arguments are passed on to `collect_data`. This method works
         only with 1D `SolutionArray` objects.
         """
-        data_dict = self.collect_data(cols=cols, *args, **kwargs)
+        data_dict = self.collect_data(*args, cols=cols, tabular=True, **kwargs)
         data = np.hstack([d[:, np.newaxis] for d in data_dict.values()])
         labels = list(data_dict.keys())
         with open(filename, 'w', newline='') as outfile:
@@ -922,7 +929,7 @@ class SolutionArray:
         if isinstance(_pandas, ImportError):
             raise _pandas
 
-        data_dict = self.collect_data(cols=cols, *args, **kwargs)
+        data_dict = self.collect_data(*args, cols=cols, tabular=True, **kwargs)
         data = np.hstack([d[:, np.newaxis] for d in data_dict.values()])
         labels = list(data_dict.keys())
         return _pandas.DataFrame(data=data, columns=labels)
@@ -988,7 +995,7 @@ class SolutionArray:
             raise _h5py
 
         # collect data
-        data = self.collect_data(cols=cols, *args, **kwargs)
+        data = self.collect_data(*args, cols=cols, **kwargs)
 
         hdf_kwargs = {'compression': compression,
                       'compression_opts': compression_opts}
