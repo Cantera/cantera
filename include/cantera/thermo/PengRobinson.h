@@ -274,7 +274,6 @@ protected:
     vector_fp m_aAlpha_vec_Curr;
 
     Array2D a_coeff_vec;
-    Array2D aAlpha_coeff_vec;
 
     int m_NSolns;
 
