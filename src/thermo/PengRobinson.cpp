@@ -123,7 +123,6 @@ void PengRobinson::setBinaryCoeffs(const std::string& species_i,
     size_t counter1 = ki + m_kk * kj;
     size_t counter2 = kj + m_kk * ki;
     a_coeff_vec(0, counter1) = a_coeff_vec(0, counter2) = a0;
-    //aAlpha_coeff_vec(0, counter1) = aAlpha_coeff_vec(0, counter2) = a0*alpha;
     m_a_vec_Curr[counter1] = m_a_vec_Curr[counter2] = a0;
     m_aAlpha_vec_Curr[counter1] = m_aAlpha_vec_Curr[counter2] = a0*alpha;
 }
@@ -203,15 +202,6 @@ void PengRobinson::getActivityCoefficients(double* ac) const
 }
 
 // ---- Partial Molar Properties of the Solution -----------------
-
-void PengRobinson::getChemPotentials_RT(double* muRT) const
-{
-    getChemPotentials(muRT);
-    double RTkelvin = RT();
-    for (size_t k = 0; k < m_kk; k++) {
-        muRT[k] *= 1.0 / RTkelvin;
-    }
-}
 
 void PengRobinson::getChemPotentials(double* mu) const
 {
@@ -439,7 +429,6 @@ bool PengRobinson::addSpecies(shared_ptr<Species> spec)
 
         m_alpha_vec_Curr.push_back(0.0);
         a_coeff_vec.resize(1, m_kk * m_kk, 0.0);
-        //aAlpha_coeff_vec.resize(1, m_kk * m_kk, 0.0);
         m_dalphadT_vec_Curr.push_back(0.0);
         m_d2alphadT2.push_back(0.0);
 

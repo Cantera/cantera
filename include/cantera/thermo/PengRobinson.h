@@ -138,8 +138,7 @@ public:
      * @param mu    Output vector of non-dimensional species chemical potentials
      *              Length: m_kk.
      */
-    virtual void getChemPotentials_RT(double* mu) const;
-
+    
     virtual void getChemPotentials(double* mu) const;
     virtual void getPartialMolarEnthalpies(double* hbar) const;
     virtual void getPartialMolarEntropies(double* sbar) const;
