@@ -132,6 +132,7 @@ public:
     *       \alpha = [1 + \kappa(1 - sqrt{T/T_crit}]^2
     *  kappa is a function calulated based on the accentric factor.
     *  Units: unitless
+        * a and b are species-specific coefficients used in P-R EoS, w is the acentric factor.
     */
     virtual void calculateAlpha(const std::string& species, double a, double b, double w);
     //@}
@@ -262,20 +263,22 @@ protected:
     double m_aAlpha_current;
 
     // Vectors required to store a_coeff, b_coeff, alpha, kappa and other values for every species. Length = m_kk
-    vector_fp a_vec_Curr_;
-    vector_fp b_vec_Curr_;
-    vector_fp aAlpha_vec_Curr_;
-    vector_fp alpha_vec_Curr_;
-    vector_fp kappa_vec_;
-    mutable vector_fp dalphadT_vec_Curr_;
-    mutable vector_fp d2alphadT2_;
+    vector_fp m_b_vec_Curr;
+    vector_fp m_kappa_vec;
+    mutable vector_fp m_dalphadT_vec_Curr;
+    mutable vector_fp m_d2alphadT2;
+    vector_fp m_alpha_vec_Curr;
+
+    //Matrices for Binary coefficients a_{i,j} and {a*alpha}_{i.j} are saved in a vector form. Length =  m_kk * m_kk
+    vector_fp m_a_vec_Curr;
+    vector_fp m_aAlpha_vec_Curr;
 
     Array2D a_coeff_vec;
     Array2D aAlpha_coeff_vec;
 
-    int NSolns_;
+    int m_NSolns;
 
-    double Vroot_[3];
+    double m_Vroot[3];
 
     //! Temporary storage - length = m_kk.
     mutable vector_fp m_pp;
@@ -288,21 +291,21 @@ protected:
      * Calculated at the current conditions. temperature and mole number kept
      * constant
      */
-    mutable double dpdV_;
+    mutable double m_dpdV;
 
     //! The derivative of the pressure with respect to the temperature
     /*!
      *  Calculated at the current conditions. Total volume and mole number kept
      *  constant
      */
-    mutable double dpdT_;
+    mutable double m_dpdT;
 
     //! Vector of derivatives of pressure with respect to mole number
     /*!
      *  Calculated at the current conditions. Total volume, temperature and
      *  other mole number kept constant
      */
-    mutable vector_fp dpdni_;
+    mutable vector_fp m_dpdni;
 
 public:
     //! Omega constants: a0 (= omega_a) and b0 (= omega_b) values used in Peng-Robinson equation of state
