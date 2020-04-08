@@ -673,16 +673,23 @@ class SolutionArray:
         does not contain those entries, an error is raised.
         """
 
-        labels = list(data.keys())
-        data = np.hstack([d[:, np.newaxis] for d in data.values()])
-
         # check arguments
-        if not isinstance(data, np.ndarray) or data.ndim != 2:
-            raise TypeError("restore_data only works for 2D ndarrays")
-        elif len(labels) != data.shape[1]:
-            raise ValueError("inconsistent data and label dimensions "
-                             "({} vs. {})".format(len(labels), data.shape[1]))
-        rows = data.shape[0]
+        if not isinstance(data, dict) or len(data) == 0:
+            raise ValueError("'SolutionArray.restore_data' requires a "
+                             "non-empty data dictionary")
+        labels = list(data.keys())
+
+        for col in data.values():
+            if not isinstance(col, np.ndarray):
+                raise TypeError("'SolutionArray.restore_data' only works for "
+                                "dictionaries that contain ndarrays")
+
+            rows = data[labels[0]].shape[0]
+            if col.shape[0] != rows:
+                raise ValueError("'SolutionArray.restore_data' requires "
+                                 "all data entries to have a consistent "
+                                 "first dimenstion")
+
         if self._shape != (0,) and self._shape != (rows,):
             raise ValueError(
                 "incompatible dimensions ({} vs. {}): the receiving "
@@ -697,31 +704,58 @@ class SolutionArray:
         # add partial and/or potentially non-unique state definitions
         states += list(self._phase._partial_states.values())
 
-        # determine whether complete concentration is available (mass or mole)
-        # assumes that 'X' or 'Y' is always in last place
-        mode = ''
-        valid_species = {}
-        for prefix in ['X_', 'Y_']:
-            if not any([prefix[0] in s for s in states]):
-                continue
+        def join(species):
+            """ Join tabular species composition data if present """
+            prefix = '{}_'.format(species)
             spc = ['{}{}'.format(prefix, s) for s in self.species_names]
+
             # solution species names also found in labels
             valid_species = {s[2:]: labels.index(s) for s in spc
                              if s in labels}
+
             # labels that start with prefix (indicating concentration)
             all_species = [l for l in labels if l.startswith(prefix)]
             if valid_species:
+
+                if len(valid_species) != len(all_species):
+                    incompatible = list(set(valid_species) ^ set(all_species))
+                    raise ValueError('incompatible species information for '
+                                    '{}'.format(incompatible))
+
+                state_comp = np.zeros((rows, self.n_species))
+                for i, s in enumerate(self.species_names):
+                    if s in valid_species:
+                        col = data['{}{}'.format(prefix, s)]
+                        if col.ndim > 1:
+                            raise ValueError("Invalid format: tabular input "
+                                             "for 'SolutionArray.restore_data "
+                                             "requires 1D ndarrays")
+                        state_comp[:, i] = col
+                return state_comp
+            else:
+                return None
+
+        # determine whether complete concentration is available (mass or mole)
+        # assumes that 'X' or 'Y' is always in last place
+        mode = ''
+        state_comp = None
+        for species in ['X', 'Y']:
+            if not any([species in s for s in states]):
+                continue
+            elif species in labels:
+                state_comp = data[species]
+            else:
+                state_comp = join(species)
+
+            if state_comp is not None:
                 # save species mode and remaining full_state candidates
-                mode = prefix[0]
+                mode = species
                 states = [v[:-1] for v in states if mode in v]
                 break
+
         if mode == '':
             # concentration/quality specifier ('X' or 'Y') is not used
             states = [st.rstrip('XY') for st in states]
-        elif len(valid_species) != len(all_species):
-            incompatible = list(set(valid_species) ^ set(all_species))
-            raise ValueError('incompatible species information for '
-                             '{}'.format(incompatible))
 
         # determine suitable thermo properties for reconstruction
         basis = 'mass' if self.basis == 'mass' else 'mole'
@@ -733,11 +767,12 @@ class SolutionArray:
                 'S': ('s', 'entropy_{}'.format(basis))}
         for st in states:
             # identify property specifiers
-            state = [{st[i]: labels.index(p) for p in prop[st[i]] if p in labels}
+            state = [{st[i]: p for p in prop[st[i]] if p in labels}
                      for i in range(len(st))]
             if all(state):
                 # all property identifiers match
                 mode = st + mode
+                state = [list(st.values())[0] for st in state]
                 break
         if len(mode) == 1:
             raise ValueError(
@@ -746,12 +781,9 @@ class SolutionArray:
             )
 
         # assemble and restore state information
-        state_data = tuple([data[:, state[i][mode[i]]] for i in range(len(state))])
-        if valid_species:
-            state_data += (np.zeros((rows, self.n_species)),)
-            for i, s in enumerate(self.species_names):
-                if s in valid_species:
-                    state_data[-1][:, i] = data[:, valid_species[s]]
+        state_data = tuple([data[s] for s in state])
+        if state_comp is not None:
+            state_data += (state_comp,)
 
         # labels may include calculated properties that must not be restored:
         # compare column labels to names that are reserved for SolutionArray
@@ -761,7 +793,8 @@ class SolutionArray:
                    if any([lab in self._scalar,
                            '_'.join(lab.split('_')[:-1]) in self._n_species,
                            lab.split(' ')[0] in self._n_reactions])]
-        extra = {lab: list(data[:, i]) for i, lab in enumerate(labels)
+        exclude += ['X', 'Y']
+        extra = {lab: data[lab] for lab in labels
                  if lab not in exclude}
         if len(self._extra):
             extra_lists = {k: extra[k] for k in self._extra}
@@ -798,7 +831,7 @@ class SolutionArray:
             self._phase.set_equivalence_ratio(phi[index], *args, **kwargs)
             self._states[index][:] = self._phase.state
 
-    def collect_data(self, cols=None, tabular=True, threshold=0, species='Y'):
+    def collect_data(self, cols=None, tabular=False, threshold=0, species='Y'):
         """
         Returns the data specified by *cols* in an ordered dictionary, where
         keys correspond to SolutionArray attributes to be exported.

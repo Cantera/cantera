@@ -268,7 +268,7 @@ class TestRestoreIdealGas(utilities.CanteraTest):
 
         # wrong data shape
         b = ct.SolutionArray(self.gas)
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValueError):
             b.restore_data(OrderedDict([(k, v[np.newaxis, :])
                                         for k, v in data.items()]))
 
@@ -310,6 +310,7 @@ class TestRestoreIdealGas(utilities.CanteraTest):
             b.restore_data(data)
 
         # inconsistent species
+        data_mod = a.collect_data(tabular=True)
         val = data_mod.pop('Y_AR')
         data_mod['Y_invalid'] = val
         b = ct.SolutionArray(self.gas)
