@@ -56,10 +56,10 @@ double MixtureFugacityTP::enthalpy_mole() const
 double MixtureFugacityTP::entropy_mole() const
 {
     _updateReferenceStateThermo();
-    double sr_ideal = GasConstant * (mean_X(m_s0_R) - sum_xlogx()
-                                                - std::log(pressure()/refPressure()));
-    double sr_nonideal = sresid();
-    return sr_ideal + sr_nonideal;
+    double s_ideal = GasConstant * (mean_X(m_s0_R) - sum_xlogx()
+        - std::log(pressure()/refPressure()));
+    double s_nonideal = sresid();
+    return s_ideal + s_nonideal;
 }
 
 // ---- Partial Molar Properties of the Solution -----------------
@@ -805,10 +805,9 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
                                         double aAlpha, double Vroot[3], double an,
                                         double bn, double cn, double dn, double tc, double vc) const
 {
-    double tmp;
     fill_n(Vroot, 3, 0.0);
     if (T <= 0.0) {
-        throw CanteraError("MixtureFugacityTP::CubicSolve()", "negative temperature T = {}", T);
+        throw CanteraError("MixtureFugacityTP::CubicSolve", "negative temperature T = {}", T);
     }
 
     // Derive the center of the cubic, x_N
@@ -854,7 +853,7 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
     //check if y = h
     if (fabs(fabs(h) - fabs(yN)) < 1.0E-10) {
         if (disc > 1e-10) {
-            throw CanteraError("MixtureFugacityTP::CubicSolve()", "value of yN and h are too high, unrealistic roots may be obtained");
+            throw CanteraError("MixtureFugacityTP::CubicSolve", "value of yN and h are too high, unrealistic roots may be obtained");
         }
         disc = 0.0;
     }
@@ -871,6 +870,7 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
         nSolnValues = 1;
     }
 
+    double tmp;
     // One real root -> have to determine whether gas or liquid is the root
     if (disc > 0.0) {
         double tmpD = sqrt(disc);
@@ -909,7 +909,7 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
             if (fabs(tmp) > 1.0E-4) {
                 for (int j = 0; j < 3; j++) {
                     if (j != i && fabs(Vroot[i] - Vroot[j]) < 1.0E-4 * (fabs(Vroot[i]) + fabs(Vroot[j]))) {
-                        writelog("PengRobinson::CubicSolve(T = {}, p = {}):"
+                        writelog("MixtureFugacityTP::CubicSolve(T = {}, p = {}):"
                                  " WARNING roots have merged: {}, {}\n",
                                  T, pres, Vroot[i], Vroot[j]);
                     }
@@ -929,7 +929,7 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
                 tmp = pow(yN/(2*an), 1./3.);
                 // In this case, tmp and delta must be equal.
                 if (fabs(tmp - delta) > 1.0E-9) {
-                    throw CanteraError("PengRobinson::CubicSolve()", "Inconsistancy in cubic solver : solver is poorly conditioned.");
+                    throw CanteraError("MixtureFugacityTP::CubicSolve", "Inconsistancy in cubic solver : solver is poorly conditioned.");
                 }
                 Vroot[1] = xN + delta;
                 Vroot[0] = xN - 2.0*delta; // liquid phase root
@@ -937,7 +937,7 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
                 tmp = pow(yN/(2*an), 1./3.);
                 // In this case, tmp and delta must be equal.
                 if (fabs(tmp - delta) > 1.0E-9) {
-                    throw CanteraError("PengRobinson::CubicSolve()", "Inconsistancy in cubic solver : solver is poorly conditioned.");
+                    throw CanteraError("MixtureFugacityTP::CubicSolve", "Inconsistancy in cubic solver : solver is poorly conditioned.");
                 }
                 delta = -delta;
                 Vroot[0] = xN + delta;
@@ -969,7 +969,7 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
             }
         }
         if ((fabs(res) > 1.0E-14) && (fabs(res) > 1.0E-14 * fabs(dresdV) * fabs(Vroot[i]))) {
-            writelog("PengRobinson::CubicSolve(T = {}, p = {}): "
+            writelog("MixtureFugacityTP::CubicSolve(T = {}, p = {}): "
                 "WARNING root didn't converge V = {}", T, pres, Vroot[i]);
             writelogendl();
         }
