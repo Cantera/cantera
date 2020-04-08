@@ -311,7 +311,6 @@ protected:
     mutable vector_fp m_d2alphadT2;
 
     Array2D a_coeff_vec;
-    Array2D aAlpha_coeff_vec;
     
     int m_NSolns;
 
