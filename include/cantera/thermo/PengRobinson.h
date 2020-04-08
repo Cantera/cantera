@@ -205,13 +205,19 @@ protected:
     virtual double sresid() const;
     virtual double hresid() const;
 
-public:
     virtual double liquidVolEst(double TKelvin, double& pres) const;
     virtual double densityCalc(double TKelvin, double pressure, int phase, double rhoguess);
 
     virtual double densSpinodalLiquid() const;
     virtual double densSpinodalGas() const;
     virtual double dpdVCalc(double TKelvin, double molarVol, double& presCalc) const;
+
+    // Special functions not inherited from MixtureFugacityTP
+
+    double daAlpha_dT() const;
+    double d2aAlpha_dT2() const;
+
+public:
 
     //! Calculate dpdV and dpdT at the current conditions
     /*!
@@ -237,11 +243,6 @@ public:
      * @param aAlpha (output) Returns the (a*alpha) value.
      */
     void calculateAB(double& aCalc, double& bCalc, double& aAlpha) const;
-
-    // Special functions not inherited from MixtureFugacityTP
-
-    double daAlpha_dT() const;
-    double d2aAlpha_dT2() const;
 
     void calcCriticalConditions(double a, double b,double& pc, double& tc, double& vc) const;
 
