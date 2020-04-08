@@ -2,6 +2,7 @@ from os.path import join as pjoin
 import os
 
 import numpy as np
+from collections import OrderedDict
 import warnings
 
 try:
@@ -119,9 +120,9 @@ class TestModels(utilities.CanteraTest):
                     a.TPX = T, P, X
 
                 # default columns
-                data, labels = a.collect_data()
+                data = a.collect_data()
                 b = ct.SolutionArray(sol)
-                b.restore_data(data, labels)
+                b.restore_data(data)
                 check(a, b)
 
             except Exception as inst:
@@ -250,16 +251,17 @@ class TestRestoreIdealGas(utilities.CanteraTest):
             X /= X.sum()
             a.append(T=T, P=P, X=X)
 
-        data, labels = a.collect_data()
+        data = a.collect_data()
 
         # basic restore
         b = ct.SolutionArray(self.gas)
-        b.restore_data(data, labels)
+        b.restore_data(data)
         check(a, b)
 
         # skip concentrations
         b = ct.SolutionArray(self.gas)
-        b.restore_data(data[:, :2], labels[:2])
+        b.restore_data(OrderedDict([tup for i, tup in enumerate(data.items())
+                                    if i < 2]))
         self.assertTrue(np.allclose(a.T, b.T))
         self.assertTrue(np.allclose(a.density, b.density))
         self.assertFalse(np.allclose(a.X, b.X))
@@ -267,67 +269,67 @@ class TestRestoreIdealGas(utilities.CanteraTest):
         # wrong data shape
         b = ct.SolutionArray(self.gas)
         with self.assertRaises(TypeError):
-            b.restore_data(data.ravel(), labels)
-
-        # inconsistent data
-        b = ct.SolutionArray(self.gas)
-        with self.assertRaises(ValueError):
-            b.restore_data(data, labels[:-2])
+            b.restore_data(OrderedDict([(k, v[np.newaxis, :])
+                                        for k, v in data.items()]))
 
         # inconsistent shape of receiving SolutionArray
         b = ct.SolutionArray(self.gas, 9)
         with self.assertRaises(ValueError):
-            b.restore_data(data, labels)
+            b.restore_data(data)
 
         # incomplete state
         b = ct.SolutionArray(self.gas)
         with self.assertRaises(ValueError):
-            b.restore_data(data[:,1:], labels[1:])
+            b.restore_data(OrderedDict([tup for i, tup in enumerate(data.items())
+                                        if i]))
 
         # add extra column
-        t = np.arange(10, dtype=float)[:, np.newaxis]
+        t = np.arange(10, dtype=float)
 
         # auto-detection of extra
         b = ct.SolutionArray(self.gas)
-        b.restore_data(np.hstack([t, data]), ['time'] + labels)
+        data_mod = OrderedDict(data)
+        data_mod['time'] = t
+        b.restore_data(data_mod)
         check(a, b)
 
         # explicit extra
         b = ct.SolutionArray(self.gas, extra=('time',))
-        b.restore_data(np.hstack([t, data]), ['time'] + labels)
+        b.restore_data(data_mod)
         check(a, b)
-        self.assertTrue((b.time == t.ravel()).all())
+        self.assertArrayNear(b.time, t)
 
         # wrong extra
         b = ct.SolutionArray(self.gas, extra=('xyz',))
         with self.assertRaises(KeyError):
-            b.restore_data(np.hstack([t, data]), ['time'] + labels)
+            b.restore_data(data_mod)
 
         # missing extra
         b = ct.SolutionArray(self.gas, extra=('time'))
         with self.assertRaises(KeyError):
-            b.restore_data(data, labels)
+            b.restore_data(data)
 
         # inconsistent species
-        labels[-1] = 'Y_invalid'
+        val = data_mod.pop('Y_AR')
+        data_mod['Y_invalid'] = val
         b = ct.SolutionArray(self.gas)
         with self.assertRaises(ValueError):
-            b.restore_data(data, labels)
+            b.restore_data(data_mod)
 
         # incomplete species info (using threshold)
-        data, labels = a.collect_data(threshold=1e-6)
+        data = a.collect_data(threshold=1e-6)
 
         # basic restore
         b = ct.SolutionArray(self.gas)
-        b.restore_data(data, labels)
+        b.restore_data(data)
         check(a, b, atol=1e-6)
 
         # skip calculated properties
         cols = ('T', 'P', 'X', 'gibbs_mass', 'forward_rates_of_progress')
-        data, labels = a.collect_data(cols=cols, threshold=1e-6)
+        data = a.collect_data(cols=cols, threshold=1e-6)
 
         b = ct.SolutionArray(self.gas)
-        b.restore_data(data, labels)
+        b.restore_data(data)
         check(a, b)
         self.assertTrue(len(b._extra) == 0)
 
@@ -354,28 +356,28 @@ class TestRestorePureFluid(utilities.CanteraTest):
 
         # complete data
         cols = ('T', 'P', 'Q')
-        data, labels = a.collect_data(cols=cols)
+        data = a.collect_data(cols=cols)
         b = ct.SolutionArray(self.water)
-        b.restore_data(data, labels)
+        b.restore_data(data)
         check(a, b)
 
         # partial data
         cols = ('T', 'Q')
-        data, labels = a.collect_data(cols=cols)
+        data = a.collect_data(cols=cols)
         b = ct.SolutionArray(self.water)
-        b.restore_data(data, labels)
+        b.restore_data(data)
         check(a, b)
 
         # default columns
-        data, labels = a.collect_data()
-        self.assertEqual(labels, ['T', 'density'])
+        data = a.collect_data()
+        self.assertEqual(list(data.keys()), ['T', 'density'])
         b = ct.SolutionArray(self.water)
-        b.restore_data(data, labels)
+        b.restore_data(data)
         check(a, b)
 
         # default state plus Y
         cols = ('T', 'D', 'Y')
-        data, labels = a.collect_data(cols=cols)
+        data = a.collect_data(cols=cols)
         b = ct.SolutionArray(self.water)
-        b.restore_data(data, labels)
+        b.restore_data(data)
         check(a, b)
