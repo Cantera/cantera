@@ -17,10 +17,6 @@ using namespace std;
 namespace Cantera
 {
 
-const double MixtureFugacityTP::omega_a = 0.;
-const double MixtureFugacityTP::omega_b = 0.;
-const double MixtureFugacityTP::omega_vc = 0.;
-
 MixtureFugacityTP::MixtureFugacityTP() :
     iState_(FLUID_GAS),
     forcedState_(FLUID_UNDEFINED)
@@ -838,16 +834,13 @@ void MixtureFugacityTP::_updateReferenceStateThermo() const
 
 int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b, 
                                         double aAlpha, double Vroot[3], double an,
-                                        double bn, double cn, double dn, double tc) const
+                                        double bn, double cn, double dn, double tc, double vc) const
 {   
     double tmp;
     fill_n(Vroot, 3, 0.0);
     if (T <= 0.0) {
         throw CanteraError("MixtureFugacityTP::CubicSolve()", "negative temperature T = {}", T);
     }
-
-    double pc = omega_b * GasConstant * tc / b;
-    double vc = omega_vc * GasConstant * tc / pc;
 
     // Derive the center of the cubic, x_N
     double xN = - bn /(3 * an);

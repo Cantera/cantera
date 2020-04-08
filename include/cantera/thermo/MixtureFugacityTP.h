@@ -528,7 +528,7 @@ protected:
      */
     int solveCubic(double T, double pres, double a, double b, 
                                         double aAlpha, double Vroot[3], double an,
-                                        double bn, double cn, double dn, double tc) const;
+                                        double bn, double cn, double dn, double tc, double vc) const;
 
     //@}
 
@@ -564,18 +564,6 @@ protected:
     mutable vector_fp m_s0_R;
 
 public:
-    //! Omega constants: a0 (= omega_a) and b0 (= omega_b) values used in Peng-Robinson equation of state
-    /*!
-     *  These values are calculated by solving P-R cubic equation at the critical point.
-     */
-    static const double omega_a;
-
-    //! Omega constant for b
-    static const double omega_b;
-
-    //! Omega constant for the critical molar volume
-    static const double omega_vc;
-
 	//! Temporary storage - length = m_kk.
 	mutable vector_fp m_pp;
 };

@@ -909,8 +909,10 @@ int PengRobinson::solveCubic(double T, double pres, double a, double b, double a
     double dn = (bsqr * RT_p + bsqr * b - aAlpha_p * b);
 
     double tc = a * omega_b / (b * omega_a * GasConstant);
+	double pc = omega_b * GasConstant * tc / b;
+	double vc = omega_vc * GasConstant * tc / pc;
 
-    int nSolnValues = MixtureFugacityTP::solveCubic(T, pres, a, b, aAlpha, Vroot, an, bn, cn, dn, tc);
+    int nSolnValues = MixtureFugacityTP::solveCubic(T, pres, a, b, aAlpha, Vroot, an, bn, cn, dn, tc, vc);
 
     return nSolnValues;
 }
