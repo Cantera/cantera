@@ -491,7 +491,7 @@ public:
      * @return          The saturation pressure at the given temperature
      */
     virtual doublereal satPressure(doublereal TKelvin);
-    
+	virtual void setToEquilState(const doublereal* lambda_RT);
     virtual void getActivityConcentrations(double* c) const;
 
 protected:
@@ -575,6 +575,9 @@ public:
 
     //! Omega constant for the critical molar volume
     static const double omega_vc;
+
+	//! Temporary storage - length = m_kk.
+	mutable vector_fp m_pp;
 };
 }
 

@@ -178,7 +178,6 @@ public:
     //@{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
-    virtual void setToEquilState(const double* lambda_RT);
     virtual void initThermo();
 
     //! Retrieve a and b coefficients by looking up tabulated critical parameters
@@ -318,7 +317,7 @@ protected:
     double Vroot_[3];
 
     //! Temporary storage - length = m_kk.
-    mutable vector_fp m_pp;
+    //mutable vector_fp m_pp;
 
     //! Temporary storage - length = m_kk.
     mutable vector_fp m_tmpV;
