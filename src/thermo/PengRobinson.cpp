@@ -70,7 +70,7 @@ void PengRobinson::setSpeciesCoeffs(const std::string& species, double a, double
             "Unknown species '{}'.", species);
     }
     size_t counter = k + m_kk * k;
-    a_coeff_vec(0, counter) = a;
+        m_a_vec_Curr[counter] = a;
     // we store this locally because it is used below to calculate a_Alpha:
     double aAlpha_k = a*m_alpha_vec_Curr[k];
     m_aAlpha_vec_Curr[counter] = aAlpha_k;
@@ -80,17 +80,16 @@ void PengRobinson::setSpeciesCoeffs(const std::string& species, double a, double
         if (k == j) {
             continue;
         }
-        double a0kj = sqrt(a_coeff_vec(0, j + m_kk * j) * a);
+        double a0kj = sqrt(m_a_vec_Curr[j + m_kk * j] * a);
         double aAlpha_j = a*m_alpha_vec_Curr[j];
         double a_Alpha = sqrt(aAlpha_j*aAlpha_k);
-        if (a_coeff_vec(0, j + m_kk * k) == 0) {
-            a_coeff_vec(0, j + m_kk * k) = a0kj;
+        if (m_a_vec_Curr[j + m_kk * k] == 0) {
+                        m_a_vec_Curr[j + m_kk * k] = a0kj;
                         m_aAlpha_vec_Curr[j + m_kk * k] = a_Alpha;
-            a_coeff_vec(0, k + m_kk * j) = a0kj;
+                        m_a_vec_Curr[k + m_kk * j] = a0kj;
                         m_aAlpha_vec_Curr[k + m_kk * j] = a_Alpha;
         }
     }
-    a_coeff_vec.getRow(0, m_a_vec_Curr.data());
     m_b_vec_Curr[k] = b;
 }
 
@@ -110,8 +109,7 @@ void PengRobinson::setBinaryCoeffs(const std::string& species_i,
 
     size_t counter1 = ki + m_kk * kj;
     size_t counter2 = kj + m_kk * ki;
-    a_coeff_vec(0, counter1) = a_coeff_vec(0, counter2) = a0;
-    m_a_vec_Curr[counter1] = m_a_vec_Curr[counter2] = a0;
+        m_a_vec_Curr[counter1] = m_a_vec_Curr[counter2] = a0;
     m_aAlpha_vec_Curr[counter1] = m_aAlpha_vec_Curr[counter2] = a0*alpha;
 }
 
@@ -296,7 +294,7 @@ void PengRobinson::getPartialMolarEntropies(double* sbar) const
         for (size_t i = 0; i < m_kk; i++) {
             size_t counter = k + m_kk*i;
             m_pp[k] += moleFractions_[i] * m_aAlpha_vec_Curr[counter];
-                        m_tmpV[k] += moleFractions_[i] * a_coeff_vec(1, counter) *(m_dalphadT_vec_Curr[i] / m_alpha_vec_Curr[i]);
+                        m_tmpV[k] += moleFractions_[i] * m_aAlpha_vec_Curr[counter] *(m_dalphadT_vec_Curr[i] / m_alpha_vec_Curr[i]);
         }
         m_pp[k] = m_pp[k] * m_dalphadT_vec_Curr[k] / m_alpha_vec_Curr[k];
     }
@@ -416,7 +414,6 @@ bool PengRobinson::addSpecies(shared_ptr<Species> spec)
         m_kappa_vec.push_back(0.0);
 
         m_alpha_vec_Curr.push_back(0.0);
-        a_coeff_vec.resize(1, m_kk * m_kk, 0.0);
         m_dalphadT_vec_Curr.push_back(0.0);
         m_d2alphadT2.push_back(0.0);
 
@@ -532,7 +529,7 @@ void PengRobinson::initThermo()
             // diagonal elements of a). If not, then search 'critProperties.xml'
             // to find critical temperature and pressure to calculate a and b.
             size_t k = speciesIndex(item.first);
-            if (a_coeff_vec(0, k + m_kk * k) == 0.0) {
+            if (m_a_vec_Curr[k + m_kk * k] == 0.0) {
                 vector<double> coeffs = getCoeff(item.first);
 
                 // Check if species was found in the database of critical
@@ -743,8 +740,7 @@ void PengRobinson::updateMixingExpressions()
     for (size_t i = 0; i < m_kk; i++) {
         for (size_t j = 0; j < m_kk; j++) {
             size_t counter = i * m_kk + j;
-            m_a_vec_Curr[counter] = a_coeff_vec(0, counter);
-            m_aAlpha_vec_Curr[counter] = sqrt(m_alpha_vec_Curr[i] * m_alpha_vec_Curr[j]) * a_coeff_vec(0, counter);
+            m_aAlpha_vec_Curr[counter] = sqrt(m_alpha_vec_Curr[i] * m_alpha_vec_Curr[j]) * m_a_vec_Curr[counter];
         }
     }
 
@@ -764,7 +760,7 @@ void PengRobinson::calculateAB(double& aCalc, double& bCalc, double& aAlphaCalc)
         bCalc += moleFractions_[i] * m_b_vec_Curr[i];
         for (size_t j = 0; j < m_kk; j++) {
             size_t counter = i * m_kk + j;
-            double a_vec_Curr = a_coeff_vec(0, counter);
+            double a_vec_Curr = m_a_vec_Curr[counter];
             aCalc += a_vec_Curr * moleFractions_[i] * moleFractions_[j];
             aAlphaCalc += m_aAlpha_vec_Curr[counter] * moleFractions_[i] * moleFractions_[j];
         }
