@@ -310,8 +310,6 @@ protected:
     mutable vector_fp m_dalphadT_vec_Curr;
     mutable vector_fp m_d2alphadT2;
 
-    Array2D a_coeff_vec;
-    
     int m_NSolns;
 
     double m_Vroot[3];
