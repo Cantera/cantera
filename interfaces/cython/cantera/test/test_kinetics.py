@@ -1215,3 +1215,29 @@ class TestReaction(utilities.CanteraTest):
 
         # M&W toggled on (locally) for reaction 9
         self.assertNear(2.0 * k1[9], k2[9]) # sticking coefficient = 1.0
+
+class TestButlerVolmer(utilities.CanteraTest):
+
+    def test_pressure_dependence(self):
+        infile = 'butler-volmer-test.yaml'
+        
+        gas = ct.Solution(infile,'gas')
+        Pt = ct.Solution(infile,'metal')
+        Naf = ct.Solution(infile,'electrolyte')
+        tpb = ct.Interface(infile,'tpb',[gas,Pt,Naf])
+        phases = {gas,Pt,Naf,tpb}
+
+        TP1 = 300, ct.one_atm
+        for ph in phases:
+            ph.TP = TP1
+
+        k1 = tpb.forward_rate_constants[0]
+
+        TP2 = 300., 10*ct.one_atm
+        for ph in phases:
+            ph.TP = TP2
+        
+        k2 = tpb.forward_rate_constants[0]
+
+        self.assertNear(k1,k2)
+

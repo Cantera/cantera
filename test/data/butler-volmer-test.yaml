@@ -1,0 +1,81 @@
+
+units: {length: cm, time: s, quantity: mol, activation-energy: J/mol}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [H, O]
+  species:
+  - gri30.yaml/species: [H2, H2O]
+  transport: mixture-averaged
+  state:
+    T: 300.
+    P: 1.01325e+05
+    X: {H2: 0.95, H2O: 0.05}
+- name: metal
+  thermo: electron-cloud
+  elements: [E]
+  species: [electron]
+  state:
+    T: 300.
+    X: {electron: 1.0}
+  density: 9.0 kg/m^3
+- name: electrolyte
+  thermo: ideal-condensed
+  elements: [H, E]
+  species: [H(elyte), Vac(elyte)]
+  state:
+    T: 300.
+    P: 1.01325e+05
+    X: {H(elyte): 1.0, Vac(elyte): 1e-5}
+- name: tpb
+  thermo: edge
+  elements: [H]
+  species: [(tpb)]
+  kinetics: edge
+  reactions: [tpb-reactions]
+  state:
+    T: 300.
+    coverages: {(tpb): 1.0}
+  site-density: 2.7e-9
+
+species:
+- name: electron
+  composition: {E: 1}
+  thermo:
+    model: constant-cp
+    h0: 0.0 kcal/mol
+- name: Vac(elyte)
+  composition: {}
+  thermo:
+    model: constant-cp
+    h0: 0.0 kJ/mol
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 88.063 cm^3/mol
+  note: A bulk electrolyte vacancy
+- name: H(elyte)
+  composition: {H: 1, E: -1}
+  thermo:
+    model: constant-cp
+    h0: -50.0 kJ/mol
+    s0: 0.0 J/K/mol
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 88.063 cm^3/mol
+  note: A bulk electrolyte proton
+- name: (tpb)
+  composition: {}
+  thermo:
+    model: constant-cp
+  note: dummy species
+
+# In this global reaction, two electrons from the bulk Oxide species are
+# transferred to the metal, while the oxygen reacts with H2 in the gas
+# phase to creata a gas phase H2O molecule.
+tpb-reactions:
+- equation: H2 + 2 Vac(elyte) <=> 2 H(elyte) + 2 electron 
+  id: edge-f1
+  rate-constant: {A: 2.0e+10, b: 0.0, Ea: 0.0 kJ/mol}
+  exchange-current-density-formulation: true
+  beta: 0.5

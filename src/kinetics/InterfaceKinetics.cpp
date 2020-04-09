@@ -269,7 +269,7 @@ void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* con
                 //  Calculate the term and modify the forward reaction
                 double tmp = exp(- m_beta[i] * m_deltaG0[irxn]
                                  / thermo(reactionPhaseIndex()).RT());
-                tmp *= 1.0 / m_ProdStanConcReac[irxn] / Faraday;
+                tmp *= 1.0 / pow(m_ProdStanConcReac[irxn],m_beta[i]) / Faraday;
                 kfwd[irxn] *= tmp;
             }
             //  If BVform is nonzero we don't need to do anything.
@@ -284,8 +284,8 @@ void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* con
                 // constant so that it's in the exchange current density
                 // formulation format
                 double tmp = exp(m_beta[i] * m_deltaG0[irxn]
-                                 * thermo(reactionPhaseIndex()).RT());
-                tmp *= Faraday * m_ProdStanConcReac[irxn];
+                                 / thermo(reactionPhaseIndex()).RT());
+                tmp *= Faraday * pow(m_ProdStanConcReac[irxn],m_beta[i]);
                 kfwd[irxn] *= tmp;
             }
         }
