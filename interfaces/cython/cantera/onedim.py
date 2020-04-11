@@ -502,6 +502,7 @@ class FlameBase(Sim1D):
                                  settings=settings)
 
     def write_hdf(self, filename, group=None, species='X', mode='a',
+                  description=None,
                   compression=None, compression_opts=None, quiet=True):
         """
         Write the solution vector to a HDF container file. Note that it is
@@ -519,6 +520,8 @@ class FlameBase(Sim1D):
             mole fractions or ``Y`` for mass fractions.
         :param mode:
             Mode to open the file {'a' (default), 'w', 'r+}.
+        :param description:
+            Custom comment describing the dataset to be stored.
         :param compression:
             Pre-defined h5py compression filters {None, 'gzip', 'lzf', 'szip'}
             used for data compression.
@@ -533,6 +536,8 @@ class FlameBase(Sim1D):
         cols = ('extra', 'T', 'D', species)
         meta = self.settings
         meta['date'] = formatdate(localtime=True)
+        if description is not None:
+            meta['description'] = description
         for i in range(3):
             arr = self.to_solution_array(domain=self.domains[i])
             group, sub = arr.write_hdf(filename, group=group, cols=cols,
@@ -576,10 +581,12 @@ class FlameBase(Sim1D):
 
         self.settings = meta
 
+        return meta
+
     @property
     def settings(self):
         """ Return a dictionary listing simulation settings """
-        out = {'configuration': type(self).__name__}
+        out = {'Sim1D_type': type(self).__name__}
         out['transport_model'] = self.transport_model
         out['energy_enabled'] = self.energy_enabled
         out['soret_enabled'] = self.soret_enabled

@@ -323,7 +323,8 @@ class TestFreeFlame(utilities.CanteraTest):
 
         # FlowBase specific settings
         flame_settings = sim.flame.settings
-        keys = ['emissivity_left', 'emissivity_right',
+        keys = ['Domain1D_type',
+                'emissivity_left', 'emissivity_right',
                 'steady_abstol', 'steady_reltol',
                 'transient_abstol', 'transient_reltol']
         for k in keys:
@@ -343,7 +344,7 @@ class TestFreeFlame(utilities.CanteraTest):
         # Sim1D specific settings
         settings = sim.settings
 
-        keys = ['configuration', 'transport_model',
+        keys = ['Sim1D_type', 'transport_model',
                 'energy_enabled', 'soret_enabled', 'radiation_enabled',
                 'fixed_temperature',
                 'ratio', 'slope', 'curve', 'prune',
@@ -648,12 +649,14 @@ class TestFreeFlame(utilities.CanteraTest):
             os.remove(filename)
 
         self.run_mix(phi=1.1, T=350, width=2.0, p=2.0, refine=False)
-        self.sim.write_hdf(filename)
+        desc = 'mixture-averaged simulation'
+        self.sim.write_hdf(filename, description=desc)
 
         f = ct.FreeFlame(self.gas)
-        f.read_hdf(filename)
+        meta = f.read_hdf(filename)
         self.assertArrayNear(f.grid, self.sim.grid)
         self.assertArrayNear(f.T, self.sim.T)
+        self.assertEqual(meta['description'], desc)
         k = self.gas.species_index('H2')
         self.assertArrayNear(f.X[k, :], self.sim.X[k, :])
         self.assertArrayNear(f.inlet.X, self.sim.inlet.X)

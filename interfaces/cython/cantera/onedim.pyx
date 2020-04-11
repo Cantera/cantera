@@ -256,8 +256,8 @@ cdef class Domain1D:
         """
         def __get__(self):
             out = {
-                'name': self.name,
-                'source': type(self).__name__}
+                'Domain1D_type': type(self).__name__,
+                'name': self.name}
 
             return out
 
