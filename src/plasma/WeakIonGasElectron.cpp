@@ -286,8 +286,8 @@ double WeakIonGasElectron::netProductionFreq(Eigen::VectorXd& f0)
     vector_fp g = vector_g(f0);
 
     for (size_t k = 0; k < m_ncs; k++) {
-        if (m_kinds[k] == "IONIZATION" ||
-            m_kinds[k] == "ATTACHMENT") {
+        if (kind(k) == "IONIZATION" ||
+            kind(k) == "ATTACHMENT") {
             SparseMat PQ = (matrix_Q(g, k) - matrix_P(g, k)) * m_moleFractions[k];
             Eigen::VectorXd s = PQ * f0;
             for (size_t i = 0; i < m_points; i++) {
@@ -380,7 +380,7 @@ double WeakIonGasElectron::totalCollisionFreq()
 
 double WeakIonGasElectron::biMaxwellFraction(size_t k)
 {
-    return 1.0 / (1 + exp(-m_thresholds[k] / m_kT));
+    return 1.0 / (1 + exp(-threshold(k) / m_kT));
 }
 
 double WeakIonGasElectron::inelasticPowerLoss()
@@ -388,10 +388,10 @@ double WeakIonGasElectron::inelasticPowerLoss()
     calculateDistributionFunction();
     double sum = 0.0;
     for (size_t k : m_kInelastic) {
-        if (m_kinds[k] == "EXCITATION") {
+        if (kind(k) == "EXCITATION") {
             double y_low = biMaxwellFraction(k);
             double y_up = 1.0 - y_low;
-            sum += m_thresholds[k] * m_moleFractions[k] *
+            sum += threshold(k) * m_moleFractions[k] *
                    (y_low * rateCoefficient(k) -
                     y_up * reverseRateCoefficient(k));
         }

@@ -84,7 +84,7 @@ void PlasmaElectron::initPlasma(const AnyMap& phaseNode, const AnyMap& rootNode)
     // set up target index
     m_kTargets.resize(m_ncs);
     for (size_t k = 0; k < m_ncs; k++) {
-        m_kTargets[k] = speciesIndex(m_targets[k]);
+        m_kTargets[k] = speciesIndex(target(k));
     }
     // set up indices of species which has no cross-section data
     for (size_t k = 0; k < nSpecies(); k++) {
@@ -111,7 +111,7 @@ void PlasmaElectron::setGridCache()
         vector_fp& y = m_crossSections[k][1];
         vector_fp eps1(m_points + 1);
         for (size_t i = 0; i < m_points + 1; i++) {
-            eps1[i] = clip(m_shiftFactor[k] * m_gridEdge[i] + m_thresholds[k],
+            eps1[i] = clip(m_shiftFactor[k] * m_gridEdge[i] + threshold(k),
                            m_gridEdge[0] + 1e-9, m_gridEdge[m_points] - 1e-9);
         }
 
@@ -202,10 +202,7 @@ void PlasmaElectron::update_C()
 bool PlasmaElectron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
 {
     ecs->validate();
-    m_targets.push_back(ecs->target);
-    m_kinds.push_back(ecs->kind);
-    m_products.push_back(ecs->product);
-    m_thresholds.push_back(ecs->threshold);
+    m_ecss.push_back(ecs);
 
     // transpose data
     std::vector<vector_fp> transdata(2, vector_fp(ecs->data.size()));
@@ -234,8 +231,8 @@ bool PlasmaElectron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ec
 
     if (ecs->kind == "EFFECTIVE" || ecs->kind == "ELASTIC") {
         for (size_t k = 0; k < m_ncs; k++) {
-            if (m_targets[k] == ecs->target)
-                if (m_kinds[k] == "ELASTIC" || m_kinds[k] == "EFFECTIVE") {
+            if (target(k) == ecs->target)
+                if (kind(k) == "ELASTIC" || kind(k) == "EFFECTIVE") {
                     throw CanteraError("PlasmaElectron::addElectronCrossSection",
                                        "Already contains a data of EFFECTIVE/ELASTIC cross section for '{}'.",
                                        ecs->target);
@@ -279,11 +276,10 @@ void PlasmaElectron::addElectronCrossSections(const AnyValue& crossSections, con
 void PlasmaElectron::calculateElasticCrossSection()
 {
     for (size_t ke : m_kElastic) {
-        if (m_kinds[ke] == "EFFECTIVE") {
-            // replace effective with elastic
-            m_kinds[ke] = "ELASTIC";
+        if (kind(ke) == "EFFECTIVE") {
+            // substract inelastic from effective
             for (size_t k : m_kInelastic) {
-                if (m_targets[k] == m_targets[ke]) {
+                if (target(k) == target(ke)) {
                     vector_fp& x = m_crossSections[k][0];
                     vector_fp& y = m_crossSections[k][1];
                     for (size_t i = 0; i < m_crossSections[ke][0].size(); i++) {

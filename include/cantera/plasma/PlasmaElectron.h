@@ -138,7 +138,7 @@ public:
 
     //! target of a specific process
     std::string target(size_t k) {
-        return m_targets[k];
+        return m_ecss[k]->target;
     }
 
     //! index of target
@@ -148,27 +148,17 @@ public:
 
     //! kind of a specific process
     std::string kind(size_t k) {
-        return m_kinds[k];
+        return m_ecss[k]->kind;
     }
 
     //! product of a specific process
     std::string product(size_t k) {
-        return m_products[k];
-    }
-
-    //! index of the first product
-    size_t firstProductIndex(size_t k) {
-        return m_kProducts[k][0];
-    }
-
-    //! index of the second product
-    size_t secondProductIndex(size_t k) {
-        return m_kProducts[k][1];
+        return m_ecss[k]->product;
     }
 
     //! threshold of a specific process
     double threshold(size_t k) {
-        return m_thresholds[k];
+        return m_ecss[k]->threshold;
     }
 
     //! scattering-in factor
@@ -228,6 +218,9 @@ protected:
     //! number of cross section sets
     size_t m_ncs;
 
+    //! array of cross-section object
+    std::vector<shared_ptr<ElectronCrossSection>> m_ecss;
+
     //! Grid of electron energy (cell center) [eV]
     vector_fp m_gridCenter;
 
@@ -271,9 +264,6 @@ protected:
     //! flag of electron energy distribution function
     bool m_f0_ok;
 
-    //! pointer to the object representing the phase
-    thermo_t* m_thermo;
-
     //! Maximum number of iterations
     size_t m_maxn;
 
@@ -307,21 +297,6 @@ protected:
 
     //! The energy boundaries of the overlap of cell i and j
     std::vector<std::vector<vector_fp>> m_eps;
-
-    //! list of targets of electron collision
-    std::vector<std::string> m_targets;
-
-    //! list of kinds of electron collision
-    std::vector<std::string> m_kinds;
-
-    //! list of products of electron collision
-    std::vector<std::string> m_products;
-
-    //! list of mass ratio of electron to target species
-    vector_fp m_massRatios;
-
-    //! list of thresholds of electron collision
-    vector_fp m_thresholds;
 
     //! cross section data. m_crossSections[i][j][k] where i is the specific process,
     //! j=0 is the vector of electron energy [eV], j=1 is the vector of cross section, and
