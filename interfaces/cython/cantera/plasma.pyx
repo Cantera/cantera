@@ -175,7 +175,10 @@ cdef class ElectronCrossSection:
             return pystr(self.electron_cross_section.product)
 
     property process:
-        """ The process of the collision. """
+        """ The process of the collision. 
+            Ex. "O2 => O2^+" (ionization)
+                "O2 => O + O" (dissociation)
+                "O2 => O2(a1)" (exitation)"""
         def __get__(self):
             return self.target + " => " + self.product
 
