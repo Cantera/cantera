@@ -984,8 +984,8 @@ class SolutionArray:
             data_dict[label] = data[:, i]
         self.restore_data(data_dict)
 
-    def write_hdf(self, filename, *args, cols=None, group=None, attrs={},
-                  mode='a', append=False,
+    def write_hdf(self, filename, *args, cols=None, group=None, name=None,
+                  attrs={}, mode='a', append=False,
                   compression=None, compression_opts=None, **kwargs):
         """
         Write data specified by *cols* to a HDF container file named *filename*.
@@ -999,7 +999,13 @@ class SolutionArray:
             A list of any properties of the solution being exported.
         :param group:
             Identifier for the group in the container file. A group may contain
-            multiple `SolutionArray` objects.
+            multiple `SolutionArray` objects. If 'None', group names default
+            to 'groupN', with N being the number of pre-existing groups within
+            the HDF container file.
+        :param name:
+            Name identifier for a subgroup representing the `SolutionArray`
+            object to be added. If 'None', subgroup names default to 'arrM'
+            with M being the number of pre-existing subgroups within the group.
         :param attrs:
             Dictionary of user-defined group attributes.
         :param mode:
@@ -1064,21 +1070,22 @@ class SolutionArray:
                 root.attrs[attr] = value
 
             # add subgroup containing data
-            sub_name = 'd{}'.format(count)
-            sub = root.create_group(sub_name)
+            if name is None:
+                name = 'arr{}'.format(count)
+            sub = root.create_group(name)
             for key, val in self._meta.items():
                 sub.attrs[key] = val
             for header, col in data.items():
                 sub.create_dataset(header, data=col, **hdf_kwargs)
 
             # add subgroup containing information on gas
-            sol = sub.create_group('solution')
+            sol = sub.create_group('phase')
             sol.attrs['name'] = self.name
             sol.attrs['source'] = self.source
 
-        return group, sub_name
+        return group, name
 
-    def read_hdf(self, filename, group=None, index=0, force=False):
+    def read_hdf(self, filename, group=None, name=None, force=False):
         """
         Read a dataset from a HDF container file and restore data to the
         `SolutionArray` object. This method allows for recreation of data
@@ -1088,8 +1095,9 @@ class SolutionArray:
             are `.hdf`, `.hdf5` or `.h5`.
         :param group: Identifier for the group in the container file. A group
             may contain multiple `SolutionArray` objects.
-        :param index: If data was previously written using the `append` option,
-            the option *index* specifies the location within the group.
+        :param name:
+            Name identifier for a subgroup representing the `SolutionArray`
+            object to be read. If 'None', the first subgroup added.
         :param force: If False, matching `SolutionArray` source identifiers are
             enforced (e.g. input file used for the creation of the underlying
             `Solution` object), with an error being raised if the current source
@@ -1111,23 +1119,26 @@ class SolutionArray:
                 group = groups[0]
 
             if not (group in hdf.keys()):
-                msg = "HDF file does not contain group '{}'"
-                raise IOError(msg.format(group))
+                msg = ("HDF file does not contain group '{}'; "
+                       "available groups are: {}")
+                raise IOError(msg.format(group, list(hdf.keys())))
 
             # load root and attributes
             root = hdf[group]
             root_attrs = {attr: value for attr, value in root.attrs.items()}
 
             # identify subgroup
-            sub_names = ['d{}'.format(i) for i, key in enumerate(root.keys())]
+            sub_names = list(root.keys())
             if not len(sub_names):
                 msg = "HDF group '{}' does not contain valid data"
                 raise IOError(msg.format(group))
-            elif index > len(sub_names) - 1:
-                msg = ("Index '{}' exceeds the number of data sets stored "
-                       "within HDF group '{}' ('{}')")
-                raise IOError(msg.format(index, group, len(sub_names)))
-            sub = root[sub_names[index]]
+            elif name is None:
+                name = sub_names[0]
+            elif name not in sub_names:
+                msg = ("HDF file does not contain data set '{}' within "
+                       "group '{}'; available data sets are: {}")
+                raise IOError(msg.format(name, group, sub_names))
+            sub = root[name]
 
             def strip_ext(source):
                 """Strip extension if source identifies a file name"""
@@ -1139,7 +1150,7 @@ class SolutionArray:
                 return out
 
             # ensure that mechanisms are matching
-            sol_source = strip_ext(sub['solution'].attrs['source'])
+            sol_source = strip_ext(sub['phase'].attrs['source'])
             source = strip_ext(self.source)
             if sol_source != source and not force:
                 msg = ("Sources of thermodynamic phases do not match: '{}' vs "
@@ -1152,7 +1163,7 @@ class SolutionArray:
             # load data
             data = OrderedDict()
             for name, value in sub.items():
-                if name != 'solution':
+                if name != 'phase':
                     data[name] = np.array(value)
 
         self.restore_data(data)

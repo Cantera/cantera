@@ -218,8 +218,8 @@ class TestSolutionArrayIO(utilities.CanteraTest):
             c.read_hdf(outfile, group='eggs')
         with self.assertRaisesRegex(IOError, 'phases do not match'):
             c.read_hdf(outfile, group='group1')
-        with self.assertRaisesRegex(IOError, 'exceeds the number'):
-            c.read_hdf(outfile, index=1)
+        with self.assertRaisesRegex(IOError, 'does not contain data'):
+            c.read_hdf(outfile, name='foo')
 
 
 class TestRestoreIdealGas(utilities.CanteraTest):
