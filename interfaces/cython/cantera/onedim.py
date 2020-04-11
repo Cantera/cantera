@@ -536,6 +536,7 @@ class FlameBase(Sim1D):
         for i in range(3):
             arr = self.to_solution_array(domain=self.domains[i])
             group, sub = arr.write_hdf(filename, group=group, cols=cols,
+                                       name=self.domains[i].name,
                                        attrs=meta, mode=mode, append=(i > 0),
                                        compression=compression,
                                        compression_opts=compression_opts)
@@ -569,7 +570,8 @@ class FlameBase(Sim1D):
 
         for d in domains:
             arr = SolutionArray(self.phase(d), extra=self.extra(d))
-            meta = arr.read_hdf(filename, group=group, index=d)
+            meta = arr.read_hdf(filename, group=group,
+                                name=self.domains[d].name)
             self.from_solution_array(arr, domain=d)
 
         self.settings = meta
