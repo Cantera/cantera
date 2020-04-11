@@ -408,7 +408,8 @@ cdef class ElementaryReaction(Reaction):
 
 cdef class ElectronTemperatureReaction(ElementaryReaction):
     """
-    A reaction with electron as reactant
+    A reaction which the rate coefficient depends on electron temperature.
+    This type of reaction is used in a plasma.
     """
     reaction_type = ELECTRON_TEMPERATURE_RXN
 
@@ -418,7 +419,7 @@ cdef class ElectronTemperatureReaction(ElementaryReaction):
 
 cdef class PlasmaReaction(ElementaryReaction):
     """
-    A reaction with electron as reactant
+    A reaction which the rate coefficient is obtained by a plasma model.
     """
     reaction_type = PLASMA_RXN
 
