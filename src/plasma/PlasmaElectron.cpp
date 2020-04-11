@@ -214,27 +214,27 @@ bool PlasmaElectron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ec
     m_crossSections.push_back(transdata);
 
     // shift factor
-    if (ecs->kind == "IONIZATION") {
+    if (ecs->kind == "ionization") {
         m_shiftFactor.push_back(2);
     } else {
         m_shiftFactor.push_back(1);
     }
 
     // scattering-in factor
-    if (ecs->kind == "IONIZATION") {
+    if (ecs->kind == "ionization") {
         m_inFactor.push_back(2);
-    } else if (ecs->kind == "ATTACHMENT") {
+    } else if (ecs->kind == "attachment") {
         m_inFactor.push_back(0);
     } else {
         m_inFactor.push_back(1);
     }
 
-    if (ecs->kind == "EFFECTIVE" || ecs->kind == "ELASTIC") {
+    if (ecs->kind == "effective" || ecs->kind == "elastic") {
         for (size_t k = 0; k < m_ncs; k++) {
             if (target(k) == ecs->target)
-                if (kind(k) == "ELASTIC" || kind(k) == "EFFECTIVE") {
+                if (kind(k) == "elastic" || kind(k) == "effective") {
                     throw CanteraError("PlasmaElectron::addElectronCrossSection",
-                                       "Already contains a data of EFFECTIVE/ELASTIC cross section for '{}'.",
+                                       "Already contains a data of effective/ELASTIC cross section for '{}'.",
                                        ecs->target);
             }
         }
@@ -276,7 +276,7 @@ void PlasmaElectron::addElectronCrossSections(const AnyValue& crossSections, con
 void PlasmaElectron::calculateElasticCrossSection()
 {
     for (size_t ke : m_kElastic) {
-        if (kind(ke) == "EFFECTIVE") {
+        if (kind(ke) == "effective") {
             // substract inelastic from effective
             for (size_t k : m_kInelastic) {
                 if (target(k) == target(ke)) {

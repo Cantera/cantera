@@ -1,7 +1,7 @@
 # Ref.: Itikawa, Y., 2009. Cross sections for electron collisions with oxygen molecules. Journal of Physical and Chemical Reference Data, 38(1), pp.1-20.
 cross-sections:
 - comment: Total Scattering - Table 1 of Itikawa (2009)
-  kind: EFFECTIVE
+  kind: effective
   target: O2
   mass_ratio: 1.71e-05
   data:
@@ -69,7 +69,7 @@ cross-sections:
   - [1000.0, 2.08e-20]
 - comment: Vibrational Excitation - Table 4 & 5 of Itikawa (2009)
   equation: E + O2 => E + O2(v1)
-  kind: EXCITATION
+  kind: excitation
   product: O2(v1)
   target: O2
   threshold: 0.19
@@ -96,7 +96,7 @@ cross-sections:
   - [15.0, 5.70e-22]
 - comment: Vibrational Excitation - Table 4 of Itikawa (2009)
   equation: E + O2 => E + O2(v2)
-  kind: EXCITATION
+  kind: excitation
   product: O2(v2)
   target: O2
   threshold: 0.38
@@ -117,7 +117,7 @@ cross-sections:
   - [15.0, 1.50e-22]
 - comment: Vibrational Excitation - Table 4 of Itikawa (2009)
   equation: E + O2 => E + O2(v3)
-  kind: EXCITATION
+  kind: excitation
   product: O2(v3)
   target: O2
   threshold: 0.6
@@ -131,7 +131,7 @@ cross-sections:
   - [15.0, 6.50e-23]
 - comment: Excitation of Electronic States - Table 7 of Itikawa (2009)
   equation: E + O2 => E + O2(a1)
-  kind: EXCITATION
+  kind: excitation
   product: O2(a1)
   target: O2
   threshold: 0.977
@@ -144,7 +144,7 @@ cross-sections:
   - [20.0, 2.30e-22]
 - comment: Excitation of Electronic States - Table 7 of Itikawa (2009)
   equation: E + O2 => E + O2(a1)
-  kind: EXCITATION
+  kind: excitation
   product: O2(a1)
   target: O2
   threshold: 0.977
@@ -157,7 +157,7 @@ cross-sections:
   - [20.0, 2.30e-22]
 - comment: Excitation of Electronic States - Table 7 of Itikawa (2009)
   equation: E + O2 => E + O2(b1)
-  kind: EXCITATION
+  kind: excitation
   product: O2(b1)
   target: O2
   threshold: 1.627
@@ -170,7 +170,7 @@ cross-sections:
   - [20.0, 5.50e-23]
 - comment: Excitation of Electronic States - Table 8 of Itikawa (2009)
   equation: E + O2 => E + O2(A3)
-  kind: EXCITATION
+  kind: excitation
   product: O2(A3)
   target: O2
   threshold: 4.34
@@ -182,7 +182,7 @@ cross-sections:
   - [30.0, 1.30e-22]
 - comment: Excitation of Electronic States - Table 8 of Itikawa (2009)
   equation: E + O2 => E + O2(AP)
-  kind: EXCITATION
+  kind: excitation
   product: O2(AP)
   target: O2
   threshold: 4.262
@@ -194,7 +194,7 @@ cross-sections:
   - [30.0, 1.30e-22]
 - comment: Excitation of Electronic States - Table 8 of Itikawa (2009)
   equation: E + O2 => E + O2(c1)
-  kind: EXCITATION
+  kind: excitation
   product: O2(c1)
   target: O2
   threshold: 4.050
@@ -206,7 +206,7 @@ cross-sections:
   - [30.0, 1.30e-22]
 - comment: Excitation of Electronic States - Table 9 of Itikawa (2009)
   equation: E + O2 => E + O2(B3)
-  kind: EXCITATION
+  kind: excitation
   product: O2(B3)
   target: O2
   threshold: 6.12
@@ -218,7 +218,7 @@ cross-sections:
   - [50.0, 2.764e-21]
 - comment: Dissociative Attachment - Table 13 of Itikawa (2009)
   equation: E + O2 => O^- + O
-  kind: ATTACHMENT
+  kind: attachment
   product: O^- + O
   target: O2
   threshold: 0.0
@@ -281,7 +281,7 @@ cross-sections:
   - [9.9, 3.52e-24]
 - comment: Total Dissociation for Neutral Products - Table 10 of Itikawa (2009)
   equation: E + O2 => E + 2 O
-  kind: EXCITATION
+  kind: excitation
   product: O + O
   target: O2
   threshold: 5.58
@@ -302,7 +302,7 @@ cross-sections:
   - [198.5, 2.91e-21]
 - comment: Ionization - Table 11 of Itikawa (2009)
   equation: E + O2 => 2 E + O2^+
-  kind: IONIZATION
+  kind: ionization
   product: O2^+
   target: O2
   threshold: 12.1
@@ -353,7 +353,7 @@ cross-sections:
   - [998.0, 5.97e-21]
 - comment: Ionization - Table 11 of Itikawa (2009)
   equation: E + O2 => 2 E + O + O^+
-  kind: IONIZATION
+  kind: ionization
   product: O + O^+
   target: O2
   threshold: 19.5

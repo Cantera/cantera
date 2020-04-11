@@ -16,7 +16,7 @@ ElectronCrossSection::~ElectronCrossSection()
 
 void ElectronCrossSection::validate()
 {
-    if (kind == "EFFECTIVE") {
+    if (kind == "effective") {
         if (data.size() > 0 && data[0].size() > 0) {
             if (data[0][0] != 0.0) {
                 throw CanteraError("ElectronCrossSection::validate",
@@ -24,13 +24,13 @@ void ElectronCrossSection::validate()
                     "Energy must starts at zero.", kind, target);
             }
         }
-    } else if (kind == "ELASTIC") {
+    } else if (kind == "elastic") {
         if (data[0][0] != 0.0) {
             throw CanteraError("ElectronCrossSection::validate",
                 "Invalid energy value of type '{}' for '{}'. "
                 "Energy must starts at zero.", kind, target);
         }
-    } else if (kind != "IONIZATION" && kind != "ATTACHMENT" && kind != "EXCITATION"){
+    } else if (kind != "ionization" && kind != "attachment" && kind != "excitation"){
         throw CanteraError("ElectronCrossSection::validate",
             "'{}' is an unknown type of cross section data.", kind);
     }
@@ -43,7 +43,7 @@ unique_ptr<ElectronCrossSection> newElectronCrossSection(const AnyMap& node)
     ecs->kind = node["kind"].asString();
     ecs->target = node["target"].asString();
     ecs->data = node["data"].asVector<vector_fp>();
-    if (ecs->kind != "EFFECTIVE" && ecs->kind != "ELASTIC") {
+    if (ecs->kind != "effective" && ecs->kind != "elastic") {
         ecs->threshold = node["threshold"].asDouble();
         ecs->product = node["product"].asString();
     }

@@ -286,8 +286,8 @@ double WeakIonGasElectron::netProductionFreq(Eigen::VectorXd& f0)
     vector_fp g = vector_g(f0);
 
     for (size_t k = 0; k < m_ncs; k++) {
-        if (kind(k) == "IONIZATION" ||
-            kind(k) == "ATTACHMENT") {
+        if (kind(k) == "ionization" ||
+            kind(k) == "attachment") {
             SparseMat PQ = (matrix_Q(g, k) - matrix_P(g, k)) * m_moleFractions[k];
             Eigen::VectorXd s = PQ * f0;
             for (size_t i = 0; i < m_points; i++) {
@@ -388,7 +388,7 @@ double WeakIonGasElectron::inelasticPowerLoss()
     calculateDistributionFunction();
     double sum = 0.0;
     for (size_t k : m_kInelastic) {
-        if (kind(k) == "EXCITATION") {
+        if (kind(k) == "excitation") {
             double y_low = biMaxwellFraction(k);
             double y_up = 1.0 - y_low;
             sum += threshold(k) * m_moleFractions[k] *
