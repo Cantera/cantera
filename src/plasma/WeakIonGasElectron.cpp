@@ -34,10 +34,12 @@ void WeakIonGasElectron::calculateTotalCrossSection()
         vector_fp& x = m_crossSections[k][0];
         vector_fp& y = m_crossSections[k][1];
         for (size_t i = 0; i < m_points; i++) {
-            m_totalCrossSectionCenter[i] += m_moleFractions[k] * linearInterp(m_gridCenter[i], x, y);
+            m_totalCrossSectionCenter[i] += moleFraction(m_kTargets[k]) *
+                                            linearInterp(m_gridCenter[i], x, y);
         }
         for (size_t i = 0; i < m_points + 1; i++) {
-            m_totalCrossSectionEdge[i] += m_moleFractions[k] * linearInterp(m_gridEdge[i], x, y);
+            m_totalCrossSectionEdge[i] += moleFraction(m_kTargets[k]) *
+                                          linearInterp(m_gridEdge[i], x, y);
         }
     }
 }
@@ -51,7 +53,7 @@ void WeakIonGasElectron::calculateTotalElasticCrossSection()
         vector_fp& y = m_crossSections[k][1];
         for (size_t i = 0; i < m_points; i++) {
             double mass_ratio = ElectronMass / (Dalton * molecularWeight(m_kTargets[k]));
-            m_sigmaElastic[i] += 2.0 * mass_ratio * m_moleFractions[k] *
+            m_sigmaElastic[i] += 2.0 * mass_ratio * moleFraction(m_kTargets[k]) *
                                  linearInterp(m_gridEdge[i], x, y);
         }
     }
@@ -59,17 +61,29 @@ void WeakIonGasElectron::calculateTotalElasticCrossSection()
 
 void WeakIonGasElectron::calculateDistributionFunction()
 {
-    // check if T or C is changed
-    update_T();
-    update_C();
-    if (m_f0_ok) {
+    // Check temperature and update temperature-dependent variables.
+    double kT = Boltzmann * temperature() / ElectronCharge;
+    if (m_kT != kT) {
+        m_kT = kT;
+        m_f0_ok = false;
+    }
+    // Check density and update density-dependent properties
+    double N = molarDensity() * Avogadro;
+    if (m_N != N) {
+        m_N = N;
+        m_f0_ok = false;
+    }
+
+    // Skip the calculation if the independent variables did not change.
+    // Note gas composition is automatically checked with compositionChanged().
+    if (m_f0_ok == true) {
         return;
     }
 
     calculateTotalCrossSection();
     calculateTotalElasticCrossSection();
 
-    double kT = m_kT;
+    //! Use kTe for initial f0
     if (m_init_kTe != 0.0) {
         kT = m_init_kTe;
     }
@@ -232,7 +246,7 @@ Eigen::VectorXd WeakIonGasElectron::iterate(Eigen::VectorXd& f0, double delta)
     SparseMat PQ(m_points, m_points);
     vector_fp g = vector_g(f0);
     for (size_t k : m_kInelastic) {
-        PQ += (matrix_Q(g, k) - matrix_P(g, k)) * m_moleFractions[k];
+        PQ += (matrix_Q(g, k) - matrix_P(g, k)) * moleFraction(m_kTargets[k]);
     }
 
     SparseMat A = matrix_A(f0);
@@ -288,7 +302,8 @@ double WeakIonGasElectron::netProductionFreq(Eigen::VectorXd& f0)
     for (size_t k = 0; k < m_ncs; k++) {
         if (kind(k) == "ionization" ||
             kind(k) == "attachment") {
-            SparseMat PQ = (matrix_Q(g, k) - matrix_P(g, k)) * m_moleFractions[k];
+            SparseMat PQ = (matrix_Q(g, k) - matrix_P(g, k)) *
+                           moleFraction(m_kTargets[k]);
             Eigen::VectorXd s = PQ * f0;
             for (size_t i = 0; i < m_points; i++) {
                 nu += s[i];
@@ -373,7 +388,7 @@ double WeakIonGasElectron::totalCollisionFreq()
 {
     double sum = 0.0;
     for (size_t k = 0; k < m_ncs; k++) {
-        sum += m_moleFractions[k] * rateCoefficient(k);
+        sum += moleFraction(m_kTargets[k]) * rateCoefficient(k);
     }
     return sum * m_N;
 }
@@ -391,7 +406,7 @@ double WeakIonGasElectron::inelasticPowerLoss()
         if (kind(k) == "excitation") {
             double y_low = biMaxwellFraction(k);
             double y_up = 1.0 - y_low;
-            sum += threshold(k) * m_moleFractions[k] *
+            sum += threshold(k) * moleFraction(m_kTargets[k]) *
                    (y_low * rateCoefficient(k) -
                     y_up * reverseRateCoefficient(k));
         }

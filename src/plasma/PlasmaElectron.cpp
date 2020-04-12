@@ -93,7 +93,6 @@ void PlasmaElectron::initPlasma(const AnyMap& phaseNode, const AnyMap& rootNode)
             m_kOthers.push_back(k);
         }
     }
-    m_moleFractions.resize(m_ncs, 0.0);
 }
 
 void PlasmaElectron::setGridCache()
@@ -161,34 +160,19 @@ void PlasmaElectron::setGridCache()
     }
 }
 
-void PlasmaElectron::update_T()
+void PlasmaElectron::setTemperature(const double temp)
 {
-    // signal that temperature-dependent quantities will need to be recomputed
-    // before use, and update the local temperature.
-    double kT = Boltzmann * temperature() / ElectronCharge;
-    if (m_kT != kT) {
-        m_kT = kT;
-        m_N = pressure() / Boltzmann / temperature();
-        m_f0_ok = false;
-    }
+    Phase::setTemperature(temp);
+    m_f0_ok = false;
 }
 
-void PlasmaElectron::update_C()
+void PlasmaElectron::compositionChanged()
 {
-    // signal that concentration-dependent quantities will need to be recomputed
-    // before use, and update the local mole fractions.
-    vector_fp X(nSpecies());
-    getMoleFractions(&X[0]);
-    for (size_t k = 0; k < m_ncs; k++) {
-        size_t kk = m_kTargets[k];
-        if (m_moleFractions[k] != X[kk]) {
-            m_moleFractions[k] = X[kk];
-            m_f0_ok = false;
-        }
-    }
+    Phase::compositionChanged();
+    m_f0_ok = false;
     // warn that a specific species needs cross-section data.
     for (size_t k : m_kOthers) {
-        if (X[k] > 0.01) {
+        if (moleFraction(k) > 0.01) {
             writelog("Cantera::PlasmaElectron::update_C");
             writelog("\n");
             writelog("Warning: The mole fraction of species {} is more than 0.01",

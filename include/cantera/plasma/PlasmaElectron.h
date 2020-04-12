@@ -202,15 +202,17 @@ public:
         throw NotImplementedError("PlasmaElectron::setChemionScatRate");
     }
 
+    //! Overload to signal updating electron energy density function.
+    virtual void setTemperature(const double temp);
+
 protected:
     // set grid cache
     void setGridCache();
 
-    //! update temperature-dependent properties
-    void update_T();
-
-    //! update composition-dependent properties
-    void update_C();
+    //! Signal updating electron energy density function and
+    //! check gas comsition for any substantial species without
+    //! the cross-section data.
+    virtual void compositionChanged();
 
     //! Calculate elastic cross section
     void calculateElasticCrossSection();
