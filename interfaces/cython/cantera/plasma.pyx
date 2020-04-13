@@ -148,9 +148,11 @@ cdef class ElectronCrossSection:
         Directories on Cantera's input file path will be searched for the
         specified file.
         """
-        if filename.lower().split('.')[-1] in ('yml', 'yaml'):
+        if filename.endswith('.yml') or filename.endswith('.yaml'):
             root = AnyMapFromYamlFile(stringify(filename))
             cxx_electron_cross_section = CxxGetElectronCrossSection(root[stringify(section)])
+        else:
+            raise ValueError("The file type must be yml or yaml")
 
         cross_section = []
         for a in cxx_electron_cross_section:
