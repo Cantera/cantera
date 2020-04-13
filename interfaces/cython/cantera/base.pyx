@@ -119,7 +119,9 @@ cdef class _SolutionBase:
             self._thermo = newPhase(phaseNode, root)
             self.thermo = self._thermo.get()
         else:
-            self.thermo = NULL
+            msg = ("Cannot instantiate a standalone '{}' object; use "
+                   "'Solution' instead").format(type(self).__name__)
+            raise NotImplementedError(msg)
 
         # Kinetics
         cdef vector[CxxThermoPhase*] v
@@ -159,7 +161,9 @@ cdef class _SolutionBase:
             self.thermo = newPhase(deref(phaseNode))
             self._thermo.reset(self.thermo)
         else:
-            self.thermo = NULL
+            msg = ("Cannot instantiate a standalone '{}' object; use "
+                   "'Solution' instead").format(type(self).__name__)
+            raise NotImplementedError(msg)
 
         # Kinetics
         cdef vector[CxxThermoPhase*] v
