@@ -1,7 +1,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://www.cantera.org/license.txt for license and copyright information.
 
-#include "cantera/plasma/PlasmaElectron.h"
+#include "cantera/plasma/PlasmaPhase.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ctml.h"
@@ -12,7 +12,7 @@
 
 namespace Cantera {
 
-PlasmaElectron::PlasmaElectron()
+PlasmaPhase::PlasmaPhase()
     : m_ncs(0)
     , m_points(200)
     , m_kT(Undef)
@@ -38,7 +38,7 @@ PlasmaElectron::PlasmaElectron()
     m_gamma = pow(2.0 * ElectronCharge / ElectronMass, 0.5);
 }
 
-void PlasmaElectron::initPlasma(const AnyMap& phaseNode, const AnyMap& rootNode)
+void PlasmaPhase::initPlasma(const AnyMap& phaseNode, const AnyMap& rootNode)
 {
     if (phaseNode.hasKey("cross-sections")) {
         if (phaseNode["cross-sections"].is<std::vector<std::string>>()) {
@@ -64,12 +64,12 @@ void PlasmaElectron::initPlasma(const AnyMap& phaseNode, const AnyMap& rootNode)
                     AnyMap crossSections = AnyMap::fromYamlFile(fileName);
                     addElectronCrossSections(crossSections[node], names);
                 } else {
-                    throw InputFileError("newPlasmaElectron", crossSectionsNode,
+                    throw InputFileError("newPlasma", crossSectionsNode,
                         "Could not find species section named '{}'", source);
                 }
             }
         } else {
-            throw InputFileError("newPlasmaElectron", phaseNode["cross-sections"],
+            throw InputFileError("newPlasma", phaseNode["cross-sections"],
                 "Could not parse cross-sections declaration of type '{}'",
                 phaseNode["cross-sections"].type_str());
         }
@@ -95,7 +95,7 @@ void PlasmaElectron::initPlasma(const AnyMap& phaseNode, const AnyMap& rootNode)
     }
 }
 
-void PlasmaElectron::setGridCache()
+void PlasmaPhase::setGridCache()
 {
     m_sigma.clear();
     m_sigma.resize(m_ncs);
@@ -160,20 +160,20 @@ void PlasmaElectron::setGridCache()
     }
 }
 
-void PlasmaElectron::setTemperature(const double temp)
+void PlasmaPhase::setTemperature(const double temp)
 {
     Phase::setTemperature(temp);
     m_f0_ok = false;
 }
 
-void PlasmaElectron::compositionChanged()
+void PlasmaPhase::compositionChanged()
 {
     Phase::compositionChanged();
     m_f0_ok = false;
     // warn that a specific species needs cross-section data.
     for (size_t k : m_kOthers) {
         if (moleFraction(k) > 0.01) {
-            writelog("Cantera::PlasmaElectron::update_C");
+            writelog("Cantera::PlasmaPhase::update_C");
             writelog("\n");
             writelog("Warning: The mole fraction of species {} is more than 0.01",
                     speciesName(k));
@@ -183,7 +183,7 @@ void PlasmaElectron::compositionChanged()
     }
 }
 
-bool PlasmaElectron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
+bool PlasmaPhase::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
 {
     ecs->validate();
     m_ecss.push_back(ecs);
@@ -217,7 +217,7 @@ bool PlasmaElectron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ec
         for (size_t k = 0; k < m_ncs; k++) {
             if (target(k) == ecs->target)
                 if (kind(k) == "elastic" || kind(k) == "effective") {
-                    throw CanteraError("PlasmaElectron::addElectronCrossSection",
+                    throw CanteraError("PlasmaPhase::addElectronCrossSection",
                                        "Already contains a data of effective/ELASTIC cross section for '{}'.",
                                        ecs->target);
             }
@@ -235,7 +235,7 @@ bool PlasmaElectron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ec
     return true;
 }
 
-void PlasmaElectron::addElectronCrossSections(const AnyValue& crossSections, const AnyValue& names)
+void PlasmaPhase::addElectronCrossSections(const AnyValue& crossSections, const AnyValue& names)
 {
     if (names.is<std::vector<std::string>>()) {
         // 'names' is a list of target species names which should be found in 'cross-sections'
@@ -257,7 +257,7 @@ void PlasmaElectron::addElectronCrossSections(const AnyValue& crossSections, con
     }
 }
 
-void PlasmaElectron::calculateElasticCrossSection()
+void PlasmaPhase::calculateElasticCrossSection()
 {
     for (size_t ke : m_kElastic) {
         if (kind(ke) == "effective") {
@@ -279,7 +279,7 @@ void PlasmaElectron::calculateElasticCrossSection()
     }
 }
 
-void PlasmaElectron::setupGrid(size_t n, const double* eps)
+void PlasmaPhase::setupGrid(size_t n, const double* eps)
 {
     m_points = n-1;
     m_gridCenter.resize(n-1);

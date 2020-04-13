@@ -1,8 +1,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://www.cantera.org/license.txt for license and copyright information.
 
-#include "cantera/plasma/WeakIonGasElectron.h"
-#include "cantera/plasma/PlasmaElectronFactory.h"
+#include "cantera/plasma/WeaklyIonizedGas.h"
 #include "cantera/base/utilities.h"
 #include "cantera/numerics/funcs.h"
 #include <Eigen/SparseLU>
@@ -21,12 +20,12 @@ double norm(const Eigen::VectorXd& f, const vector_fp& grid)
     return simpsonQuadrature(grid, p);
 }
 
-WeakIonGasElectron::WeakIonGasElectron()
+WeaklyIonizedGas::WeaklyIonizedGas()
     : m_chemionScatRate(0.0)
 {
 }
 
-void WeakIonGasElectron::calculateTotalCrossSection()
+void WeaklyIonizedGas::calculateTotalCrossSection()
 {
     m_totalCrossSectionCenter.assign(m_points, 0.0);
     m_totalCrossSectionEdge.assign(m_points + 1, 0.0);
@@ -44,7 +43,7 @@ void WeakIonGasElectron::calculateTotalCrossSection()
     }
 }
 
-void WeakIonGasElectron::calculateTotalElasticCrossSection()
+void WeaklyIonizedGas::calculateTotalElasticCrossSection()
 {
     m_sigmaElastic.clear();
     m_sigmaElastic.resize(m_points, 0.0);
@@ -59,7 +58,7 @@ void WeakIonGasElectron::calculateTotalElasticCrossSection()
     }
 }
 
-void WeakIonGasElectron::calculateDistributionFunction()
+void WeaklyIonizedGas::calculateDistributionFunction()
 {
     // Check temperature and update temperature-dependent variables.
     double kT = Boltzmann * temperature() / ElectronCharge;
@@ -108,7 +107,7 @@ void WeakIonGasElectron::calculateDistributionFunction()
     m_f0_ok = true;
 }
 
-double WeakIonGasElectron::integralPQ(double a, double b, double u0, double u1,
+double WeaklyIonizedGas::integralPQ(double a, double b, double u0, double u1,
                                       double g, double x0)
 {
     double A1;
@@ -135,7 +134,7 @@ double WeakIonGasElectron::integralPQ(double a, double b, double u0, double u1,
     return c0 * A1 + c1 * A2;
 }
 
-vector_fp WeakIonGasElectron::vector_g(Eigen::VectorXd& f0)
+vector_fp WeaklyIonizedGas::vector_g(Eigen::VectorXd& f0)
 {
     vector_fp g(m_points, 0.0);
     g[0] = std::log(f0(1)/f0(0)) / (m_gridCenter[1] - m_gridCenter[0]);
@@ -147,7 +146,7 @@ vector_fp WeakIonGasElectron::vector_g(Eigen::VectorXd& f0)
     return g;
 }
 
-SparseMat WeakIonGasElectron::matrix_P(vector_fp& g, size_t k)
+SparseMat WeaklyIonizedGas::matrix_P(vector_fp& g, size_t k)
 {
     std::vector<Triplet> tripletList;
     for (size_t n = 0; n < m_eps[k].size(); n++) {
@@ -165,7 +164,7 @@ SparseMat WeakIonGasElectron::matrix_P(vector_fp& g, size_t k)
     return P;
 }
 
-SparseMat WeakIonGasElectron::matrix_Q(vector_fp& g, size_t k)
+SparseMat WeaklyIonizedGas::matrix_Q(vector_fp& g, size_t k)
 {
     std::vector<Triplet> tripletList;
     for (size_t n = 0; n < m_eps[k].size(); n++) {
@@ -184,7 +183,7 @@ SparseMat WeakIonGasElectron::matrix_Q(vector_fp& g, size_t k)
     return Q;
 }
 
-SparseMat WeakIonGasElectron::matrix_A(Eigen::VectorXd& f0)
+SparseMat WeaklyIonizedGas::matrix_A(Eigen::VectorXd& f0)
 {
     vector_fp a0(m_points + 1);
     vector_fp a1(m_points + 1);
@@ -241,7 +240,7 @@ SparseMat WeakIonGasElectron::matrix_A(Eigen::VectorXd& f0)
     return A + G;
 }
 
-Eigen::VectorXd WeakIonGasElectron::iterate(Eigen::VectorXd& f0, double delta)
+Eigen::VectorXd WeaklyIonizedGas::iterate(Eigen::VectorXd& f0, double delta)
 {
     SparseMat PQ(m_points, m_points);
     vector_fp g = vector_g(f0);
@@ -269,7 +268,7 @@ Eigen::VectorXd WeakIonGasElectron::iterate(Eigen::VectorXd& f0, double delta)
     return f1;
 }
 
-Eigen::VectorXd WeakIonGasElectron::converge(Eigen::VectorXd& f0)
+Eigen::VectorXd WeaklyIonizedGas::converge(Eigen::VectorXd& f0)
 {
     double err0 = 0.0;
     double err1 = 0.0;
@@ -291,10 +290,10 @@ Eigen::VectorXd WeakIonGasElectron::converge(Eigen::VectorXd& f0)
         }
         f0 = f1;
     }
-    throw CanteraError("WeakIonGasElectron::converge", "Convergence failed");
+    throw CanteraError("WeaklyIonizedGas::converge", "Convergence failed");
 }
 
-double WeakIonGasElectron::netProductionFreq(Eigen::VectorXd& f0)
+double WeaklyIonizedGas::netProductionFreq(Eigen::VectorXd& f0)
 {
     double nu = m_chemionScatRate;
     vector_fp g = vector_g(f0);
@@ -313,7 +312,7 @@ double WeakIonGasElectron::netProductionFreq(Eigen::VectorXd& f0)
     return nu;
 }
 
-double WeakIonGasElectron::electronDiffusivity()
+double WeaklyIonizedGas::electronDiffusivity()
 {
     calculateDistributionFunction();
     vector_fp y(m_points, 0.0);
@@ -327,7 +326,7 @@ double WeakIonGasElectron::electronDiffusivity()
     return 1./3. * m_gamma * simpsonQuadrature(m_gridCenter, y) / m_N;
 }
 
-double WeakIonGasElectron::electronMobility()
+double WeaklyIonizedGas::electronMobility()
 {
     calculateDistributionFunction();
     double nu = netProductionFreq(m_f0);
@@ -343,7 +342,7 @@ double WeakIonGasElectron::electronMobility()
     return -1./3. * m_gamma * simpsonQuadrature(m_gridEdge, y) / m_N;
 }
 
-double WeakIonGasElectron::realMobility()
+double WeaklyIonizedGas::realMobility()
 {
     calculateDistributionFunction();
     double nu = netProductionFreq(m_f0);
@@ -360,7 +359,7 @@ double WeakIonGasElectron::realMobility()
     return -1./3. * m_gamma * simpsonQuadrature(m_gridEdge, y) / m_N;
 }
 
-double WeakIonGasElectron::powerGain()
+double WeaklyIonizedGas::powerGain()
 {
     if (m_F != 0.0) {
         return m_E * m_E * electronMobility();
@@ -369,7 +368,7 @@ double WeakIonGasElectron::powerGain()
     }
 }
 
-double WeakIonGasElectron::elasticPowerLoss()
+double WeaklyIonizedGas::elasticPowerLoss()
 {
     calculateDistributionFunction();
     double sum = 0.0;
@@ -384,7 +383,7 @@ double WeakIonGasElectron::elasticPowerLoss()
     return sum * m_N;
 }
 
-double WeakIonGasElectron::totalCollisionFreq()
+double WeaklyIonizedGas::totalCollisionFreq()
 {
     double sum = 0.0;
     for (size_t k = 0; k < m_ncs; k++) {
@@ -393,12 +392,12 @@ double WeakIonGasElectron::totalCollisionFreq()
     return sum * m_N;
 }
 
-double WeakIonGasElectron::biMaxwellFraction(size_t k)
+double WeaklyIonizedGas::biMaxwellFraction(size_t k)
 {
     return 1.0 / (1 + exp(-threshold(k) / m_kT));
 }
 
-double WeakIonGasElectron::inelasticPowerLoss()
+double WeaklyIonizedGas::inelasticPowerLoss()
 {
     calculateDistributionFunction();
     double sum = 0.0;
@@ -414,7 +413,7 @@ double WeakIonGasElectron::inelasticPowerLoss()
     return sum * m_N;
 }
 
-double WeakIonGasElectron::rateCoefficient(size_t k)
+double WeaklyIonizedGas::rateCoefficient(size_t k)
 {
     calculateDistributionFunction();
     vector_fp g = vector_g(m_f0);
@@ -427,7 +426,7 @@ double WeakIonGasElectron::rateCoefficient(size_t k)
     return sum;
 }
 
-double WeakIonGasElectron::reverseRateCoefficient(size_t k)
+double WeaklyIonizedGas::reverseRateCoefficient(size_t k)
 {
     calculateDistributionFunction();
     vector_fp g = vector_g(m_f0);
@@ -440,7 +439,7 @@ double WeakIonGasElectron::reverseRateCoefficient(size_t k)
     return sum;
 }
 
-double WeakIonGasElectron::meanElectronEnergy()
+double WeaklyIonizedGas::meanElectronEnergy()
 {
     calculateDistributionFunction();
     double sum = 0;
@@ -450,7 +449,7 @@ double WeakIonGasElectron::meanElectronEnergy()
     return 0.4 * sum;
 }
 
-double WeakIonGasElectron::electronTemperature()
+double WeaklyIonizedGas::electronTemperature()
 {
     double Te = 2./3. * meanElectronEnergy() / Boltzmann * ElectronCharge;
     if (Te < temperature()) {
@@ -460,7 +459,7 @@ double WeakIonGasElectron::electronTemperature()
     }
 }
 
-double WeakIonGasElectron::electronTemperature(Eigen::VectorXd f0)
+double WeaklyIonizedGas::electronTemperature(Eigen::VectorXd f0)
 {
     double sum = 0;
     for (size_t i = 0; i < m_points - 1; i++) {

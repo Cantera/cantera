@@ -1,13 +1,13 @@
 /**
- * @file PlasmaElectron.h
- * Header file for class PlasmaElectron.
+ * @file PlasmaPhase.h
+ * Header file for class PlasmaPhase.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://www.cantera.org/license.txt for license and copyright information.
 
-#ifndef CT_PLASMAELECTRON_H
-#define CT_PLASMAELECTRON_H
+#ifndef CT_PLASMAPHASE_H
+#define CT_PLASMAPHASE_H
 
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/plasma/ElectronCrossSection.h"
@@ -28,14 +28,14 @@ unique_ptr<ElectronCrossSection> newElectronCrossSection(const AnyMap& node);
  */
 
 /*!
- * Class PlasmaElectron is the base class which manages the grid and grid cache,
+ * Class Plasma is the base class which manages the grid and grid cache,
  * cross-section data, and updating temperature and gas composition.
  * @ingroup electron
  */
-class PlasmaElectron: public IdealGasPhase
+class PlasmaPhase: public IdealGasPhase
 {
 public:
-    PlasmaElectron();
+    PlasmaPhase();
 
     void addElectronCrossSections(const AnyValue& crossSections,
                                   const AnyValue& names);
@@ -65,49 +65,49 @@ public:
 
     //! electron diffusivity
     virtual double electronDiffusivity() {
-        throw NotImplementedError("PlasmaElectron::electronDiffusivity");
+        throw NotImplementedError("PlasmaPhase::electronDiffusivity");
     }
 
     //! electron mobility
     virtual double electronMobility() {
-        throw NotImplementedError("PlasmaElectron::electronMobility");
+        throw NotImplementedError("PlasmaPhase::electronMobility");
     }
 
     //! mean electron energy
     virtual double meanElectronEnergy() {
-        throw NotImplementedError("PlasmaElectron::meanElectronEnergy");
+        throw NotImplementedError("PlasmaPhase::meanElectronEnergy");
     }
 
     virtual double powerGain() {
-        throw NotImplementedError("PlasmaElectron::powerGain");
+        throw NotImplementedError("PlasmaPhase::powerGain");
     }
 
     //! elastic power loss
     virtual double elasticPowerLoss() {
-        throw NotImplementedError("PlasmaElectron::elasticPowerLoss");
+        throw NotImplementedError("PlasmaPhase::elasticPowerLoss");
     }
 
     //! inelastic power loss
     virtual double inelasticPowerLoss() {
-        throw NotImplementedError("PlasmaElectron::inelasticPowerLoss");
+        throw NotImplementedError("PlasmaPhase::inelasticPowerLoss");
     }
 
     //! total collision frequency
     virtual double totalCollisionFreq() {
-        throw NotImplementedError("PlasmaElectron::totalCollisionFreq");
+        throw NotImplementedError("PlasmaPhase::totalCollisionFreq");
     }
 
     //! rate coefficient for the electron collision process. [m^3/s]
     virtual double rateCoefficient(size_t k) {
-        throw NotImplementedError("PlasmaElectron::rateCoefficient");
+        throw NotImplementedError("PlasmaPhase::rateCoefficient");
     }
 
     //! reverse rate coefficient for the electron collision process. [m^3/s]
     virtual double reverseRateCoefficient(size_t k) {
-        throw NotImplementedError("PlasmaElectron::reverseRateCoefficient");
+        throw NotImplementedError("PlasmaPhase::reverseRateCoefficient");
     }
 
-    //! initialize PlasmaElectron.
+    //! initialize Plasma.
     virtual void initPlasma(const AnyMap& phaseNode, const AnyMap& rootNode);
 
     //! Reduced electric field
@@ -193,13 +193,13 @@ public:
 
     //! Return electron temperature
     virtual double electronTemperature() {
-        throw NotImplementedError("PlasmaElectron::electronTemperature");
+        throw NotImplementedError("PlasmaPhase::electronTemperature");
     }
 
     //! Set chemionization scattering-in rate
     //! Equal to the reaction rate divided by gas and electron number density
     virtual void setChemionScatRate(double rate) {
-        throw NotImplementedError("PlasmaElectron::setChemionScatRate");
+        throw NotImplementedError("PlasmaPhase::setChemionScatRate");
     }
 
     //! Overload to signal updating electron energy density function.

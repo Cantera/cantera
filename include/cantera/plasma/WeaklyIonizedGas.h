@@ -1,15 +1,15 @@
 /**
- * @file WeakIonGasElectron.h
- * Header file for class WeakIonGasElectron.
+ * @file WeaklyIonizedGas.h
+ * Header file for class WeaklyIonizedGas.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://www.cantera.org/license.txt for license and copyright information.
 
-#ifndef CT_WEAKIONGASELECTRON_H
-#define CT_WEAKIONGASELECTRON_H
+#ifndef CT_WEAKLYIONIZEDGAS_H
+#define CT_WEAKLYIONIZEDGAS_H
 
-#include "cantera/plasma/PlasmaElectron.h"
+#include "cantera/plasma/PlasmaPhase.h"
 #include <Eigen/Sparse>
 
 namespace Cantera
@@ -80,10 +80,10 @@ typedef Eigen::SparseMatrix<double> SparseMat;
  * doi: https://doi.org/10.1051/0004-6361/201220465
  * @ingroup electron
  */
-class WeakIonGasElectron: public PlasmaElectron
+class WeaklyIonizedGas: public PlasmaPhase
 {
 public:
-    WeakIonGasElectron();
+    WeaklyIonizedGas();
 
     virtual std::string type() const {
         return "WeakIonizedGas";

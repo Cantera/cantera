@@ -9,7 +9,7 @@ cdef class PlasmaPhase(ThermoPhase):
     def __cinit__(self, *args, **kwargs):
         if pystr(self.thermo.type()) not in ("WeakIonizedGas"):
             raise TypeError('Underlying ThermoPhase object is of the wrong type.')
-        self.plasma = <CxxPlasmaElectron*>(self.thermo)
+        self.plasma = <CxxPlasmaPhase*>(self.thermo)
 
     def set_electron_energy_grid(self, grid):
         """ Set the grid of cell boundary of electron energy [eV]"""

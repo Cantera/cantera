@@ -2,7 +2,7 @@ units: {length: cm, quantity: mol, activation-energy: K}
 
 phases:
 - name: gas
-  thermo: weak-ionized-gas
+  thermo: weakly-ionized-gas
   elements: [O, E]
   species:
   - species: [O2^+]
