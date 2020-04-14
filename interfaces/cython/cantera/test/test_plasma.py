@@ -5,7 +5,7 @@ from . import utilities
 import copy
 
 
-class TestElectron(utilities.CanteraTest):
+class TestPlasma(utilities.CanteraTest):
     def setUp(self):
         self.gas = ct.PlasmaPhase(infile='oxygen_plasma.yaml')
 
