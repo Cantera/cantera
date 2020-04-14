@@ -24,7 +24,7 @@ PlasmaPhase::PlasmaPhase()
     , m_delta0(1e14)
     , m_factorM(4.0)
     , m_init_kTe(0.0)
-    , m_warn(true)
+    , m_moleFractionThreshold(0.01)
 {
     // default energy grid
     m_gridCenter.resize(m_points);
@@ -172,7 +172,7 @@ void PlasmaPhase::compositionChanged()
     m_f0_ok = false;
     // warn that a specific species needs cross-section data.
     for (size_t k : m_kOthers) {
-        if (moleFraction(k) > 0.01) {
+        if (moleFraction(k) > m_moleFractionThreshold) {
             writelog("Cantera::PlasmaPhase::update_C");
             writelog("\n");
             writelog("Warning: The mole fraction of species {} is more than 0.01",

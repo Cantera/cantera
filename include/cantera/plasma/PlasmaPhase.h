@@ -177,18 +177,31 @@ public:
      *        to reduce the error by a factor of m in each iteration. Larger m
      *        means faster convergence but also has higher risk of encountering
      *        numerical instabilities.
-     * @param init_kTe Initial electron mean energy in [eV]. Assume
-     *        initial EEDF to be Maxwell-Boltzmann distribution at init_kTe.
-     * @param warn Flag of showing warning of insufficient cross section data.
      */
-    void setBoltzmannSolver(size_t maxn, double rtol, double delta0,
-                            double m, double init_kTe, bool warn) {
+    void setupBoltzmannSolver(size_t maxn, double rtol,
+                              double delta0, double m) {
         m_maxn = maxn;
         m_rtol = rtol;
         m_delta0 = delta0;
         m_factorM = m;
+    }
+
+    /**
+     * Set the threshold of mole fraction for showing warning of
+     * insufficient cross-section data. The warning will show if
+     * any substantial species whose mole fraction is higher than
+     * the threshold lack the cross-section data.
+     */
+    void setMoleFractionThreshold(double fraction) {
+        m_moleFractionThreshold = fraction;
+    }
+
+    /**
+     * Set initial mean electron energy in [eV]. Assume initial
+     * EEDF to be Maxwell-Boltzmann distribution at init_kTe.
+     */
+    void setInitialMeanElectronEnergy(double init_kTe) {
         m_init_kTe = init_kTe;
-        m_warn = warn;
     }
 
     //! Return electron temperature
@@ -282,8 +295,9 @@ protected:
     //! Initial electron mean energy
     double  m_init_kTe;
 
-    //! Flag of warning of insufficient cross section data
-    bool m_warn;
+    //! The threshold of mole fraction for showing warning of
+    //! insufficient cross-section data.
+    double m_moleFractionThreshold;
 
     //! Gas number density
     double m_N;

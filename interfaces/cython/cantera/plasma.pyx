@@ -66,10 +66,28 @@ cdef class PlasmaPhase(ThermoPhase):
         def __get__(self):
             return self.plasma.inelasticPowerLoss()
 
-    def set_boltzmann_solver(self, maxn=100, rtol=1e-5, delta0=1e14,
-                             m=4.0, init_kTe=0.0, warn=True):
-        """ Set boltzmann solver"""
-        self.plasma.setBoltzmannSolver(maxn, rtol, delta0, m, init_kTe, <cbool>warn)
+    def setup_boltzmann_solver(self, maxn=100, rtol=1e-5,
+                               delta0=1e14, m=4.0):
+        """ 
+        Setup Boltzmann Equation solver.
+        :param maxn:
+            Maximum number of iterations
+        :param rtol:
+            Relative tolerance
+        :param delta0:
+            Initial value of the iteration parameter
+        :param m:
+            Reduction factor of error
+        """
+        self.plasma.setupBoltzmannSolver(maxn, rtol, delta0, m)
+
+    def set_mole_fraction_threshold(self, fraction):
+        """ Set mole fraction threshold. """
+        self.plasma.setMoleFractionThreshold(fraction)
+
+    def set_initial_mean_electron_energy(self, init_kTe):
+        """ Set initial mean electron energy. [eV]"""
+        self.plasma.setInitialMeanElectronEnergy(init_kTe)
 
     property mean_electron_energy:
         """mean electron energy [eV]"""
