@@ -32,7 +32,7 @@ before_script: |
   echo TRAVIS_OS_NAME: $TRAVIS_OS_NAME
   if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       export CONDA_ARCH="${TRAVIS_OS_NAME}_${BUILD_ARCH}"
-      curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o miniconda.sh;
+      curl -S -L https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o miniconda.sh;
       bash miniconda.sh -b -p $HOME/miniconda
       source $HOME/miniconda/etc/profile.d/conda.sh && conda activate
       conda config --set always_yes yes --set changeps1 no
