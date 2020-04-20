@@ -37,11 +37,11 @@ cdef class PlasmaPhase(ThermoPhase):
         def __get__(self):
             return self.plasma.totalCollisionFreq()
 
-    def electron_rate_coefficient(self, k):
+    def plasma_process_rate_coefficient(self, k):
         """rate coefficient of process k"""
         return self.plasma.rateCoefficient(k)
 
-    def electron_reverse_rate_coefficient(self, k):
+    def plasma_process_reverse_rate_coefficient(self, k):
         """reverse rate coefficient of process k"""
         return self.plasma.reverseRateCoefficient(k)
 
