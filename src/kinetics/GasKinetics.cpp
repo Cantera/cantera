@@ -16,21 +16,13 @@ GasKinetics::GasKinetics(thermo_t* thermo) :
     m_logp_ref(0.0),
     m_logc_ref(0.0),
     m_logStandConc(0.0),
-    m_pres(0.0),
-    m_Te_fix(Undef)
+    m_pres(0.0)
 {
 }
 
 void GasKinetics::update_rates_T()
 {
     doublereal T = thermo().temperature();
-    double Te = T;
-    if (m_Te_fix != Undef) {
-        Te = m_Te_fix;
-    } else if (thermo().electronTemperature() != Undef) {
-        Te = thermo().electronTemperature();
-    }
-    double logTe = log(Te);
     doublereal P = thermo().pressure();
     m_logStandConc = log(thermo().standardConcentration());
     doublereal logT = log(T);
@@ -51,13 +43,6 @@ void GasKinetics::update_rates_T()
         m_ROP_ok = false;
     }
 
-    if (T != m_temp || Te != m_temp_e) {
-        if (m_electron_temperature_rates.nReactions()) {
-            m_electron_temperature_rates.update(T, Te, logTe, m_rfn.data());
-            m_ROP_ok = false;
-        }
-    }
-
     if (T != m_temp || P != m_pres) {
         if (m_plog_rates.nReactions()) {
             m_plog_rates.update(T, logT, m_rfn.data());
@@ -69,9 +54,20 @@ void GasKinetics::update_rates_T()
             m_ROP_ok = false;
         }
     }
+
+    double Te = thermo().electronTemperature();
+    double logTe = log(Te);
+
+    if (T != m_temp || Te != m_temp_e) {
+        if (m_electron_temperature_rates.nReactions()) {
+            m_electron_temperature_rates.update(T, Te, logTe, m_rfn.data());
+            m_ROP_ok = false;
+        }
+    }
+
+    m_temp_e = Te;
     m_pres = P;
     m_temp = T;
-    m_temp_e = Te;
 }
 
 void GasKinetics::update_rates_C()
@@ -141,7 +137,6 @@ void GasKinetics::getEquilibriumConstants(doublereal* kc)
     // force an update of T-dependent properties, so that m_rkcn will
     // be updated before it is used next.
     m_temp = 0.0;
-    m_temp_e = 0.0;
 }
 
 void GasKinetics::processFalloffReactions()
@@ -167,14 +162,6 @@ void GasKinetics::processFalloffReactions()
     }
 }
 
-void GasKinetics::processPlasmaReactions()
-{
-    for (size_t i = 0; i < m_plasma_rates.nReactions(); i++) {
-        // m_ropf[m_plasmaIndx[i]] = ;
-        // m_rpor[m_plasmaIndx[i]] = ;
-    }
-}
-
 void GasKinetics::updateROP()
 {
     update_rates_C();
@@ -193,10 +180,6 @@ void GasKinetics::updateROP()
 
     if (m_falloff_high_rates.nReactions()) {
         processFalloffReactions();
-    }
-
-    if (m_plasma_rates.nReactions()) {
-        processPlasmaReactions();
     }
 
     for (size_t i = 0; i < nReactions(); i++) {
@@ -294,11 +277,6 @@ void GasKinetics::addElectronTemperatureReaction(ElectronTemperatureReaction& r)
     m_electron_temperature_rates.install(nReactions()-1, r.rate);
 }
 
-void GasKinetics::addPlasmaReaction(PlasmaReaction& r)
-{
-    m_plasma_rates.install(nReactions()-1, r.rate);
-}
-
 void GasKinetics::addFalloffReaction(FalloffReaction& r)
 {
     // install high and low rate coeff calculators and extend the high and low
@@ -379,7 +357,8 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
         modifyElectronTemperatureReaction(i, dynamic_cast<ElectronTemperatureReaction&>(*rNew));
         break;
     case PLASMA_RXN:
-        modifyPlasmaReaction(i, dynamic_cast<PlasmaReaction&>(*rNew));
+        throw CanteraError("GasKinetics::modifyReaction",
+            "{} reaction type cannot be modified", rNew->reaction_type);
         break;
     case FALLOFF_RXN:
     case CHEMACT_RXN:
@@ -399,18 +378,13 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     // invalidate all cached data
     m_ROP_ok = false;
     m_temp += 0.1234;
-    m_temp_e += 0.1234;
     m_pres += 0.1234;
+    m_temp_e += 0.1234;
 }
 
 void GasKinetics::modifyElectronTemperatureReaction(size_t i, ElectronTemperatureReaction& r)
 {
     m_electron_temperature_rates.replace(i, r.rate);
-}
-
-void GasKinetics::modifyPlasmaReaction(size_t i, PlasmaReaction& r)
-{
-    m_plasma_rates.replace(i, r.rate);
 }
 
 void GasKinetics::modifyThreeBodyReaction(size_t i, ThreeBodyReaction& r)
@@ -446,6 +420,7 @@ void GasKinetics::invalidateCache()
 {
     BulkKinetics::invalidateCache();
     m_pres += 0.13579;
+    m_temp_e += 0.13579;
 }
 
 }

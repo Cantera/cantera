@@ -143,9 +143,9 @@ ElectronTemperatureReaction::ElectronTemperatureReaction()
 
 PlasmaReaction::PlasmaReaction(const Composition& reactants_,
                                const Composition& products_,
-                               const PlasmaRate& rate_)
+                               const std::map<std::string, std::string>& process_)
     : Reaction(PLASMA_RXN, reactants_, products_)
-    , rate(rate_)
+    , process(process_)
 {
 }
 
@@ -385,8 +385,8 @@ ElectronArrhenius readElectronTemperatureArrhenius(const Reaction& R, const AnyV
         auto& rate_map = rate.as<AnyMap>();
         A = units.convert(rate_map["A"], rc_units);
         b = rate_map["b"].asDouble();
-        T1 = units.convertActivationEnergy(rate_map["E1"], "K");
-        T2 = units.convertActivationEnergy(rate_map["E2"], "K");
+        T1 = units.convertActivationEnergy(rate_map["Ea-T"], "K");
+        T2 = units.convertActivationEnergy(rate_map["Ea-Te"], "K");
     } else {
         auto& rate_vec = rate.asVector<AnyValue>(4);
         A = units.convert(rate_vec[0], rc_units);
@@ -637,6 +637,18 @@ void setupPlasmaReaction(PlasmaReaction& R, const AnyMap& node,
                          const Kinetics& kin)
 {
     setupReaction(R, node, kin);
+    std::string kind, target, product;
+    if (node["process"].is<AnyMap>()) {
+        auto& process_map = node["process"].as<AnyMap>();
+        R.process["kind"] = process_map["kind"].asString();
+        R.process["target"] = process_map["target"].asString();
+        R.process["product"] = process_map["product"].asString();
+    } else {
+        auto& process_vec = node["process"].asVector<AnyValue>(3);
+        R.process["kind"] = process_vec[0].asString();
+        R.process["target"] = process_vec[1].asString();
+        R.process["product"] = process_vec[2].asString();
+    }
 }
 
 void setupThreeBodyReaction(ThreeBodyReaction& R, const XML_Node& rxn_node)

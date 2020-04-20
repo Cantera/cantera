@@ -126,14 +126,6 @@ public:
     /// @param E2 Activation energy in temperature units for electron temperature. Kelvin.
     ElectronArrhenius(double A, double b, double E1, double E2);
 
-    //! Update concentration-dependent parts of the rate coefficient.
-    /*!
-     *   For this class, there are no concentration-dependent parts, so this
-     *   method does nothing.
-     */
-    void update_C(const double* c) {
-    }
-
     /**
      * Update the value of the natural logarithm of the rate constant.
      */
@@ -176,62 +168,6 @@ public:
 
 protected:
     double m_logA, m_b, m_E1, m_E2, m_A;
-};
-
-class PlasmaRate
-{
-public:
-    PlasmaRate();
-
-    //! Update concentration-dependent parts of the rate coefficient.
-    /*!
-     *   For this class, there are no concentration-dependent parts, so this
-     *   method does nothing.
-     */
-    void update_C(const double* c) {
-    }
-
-    /**
-     * Update the value the rate constant.
-     *
-     * This function returns the actual value of the rate constant. It can be
-     * safely called for negative values of the pre-exponential factor.
-     *
-     * For this class, the rate constant is calculated from class PlasmaElectron
-     * instead of 
-     */
-    double updateRC(double logT, double recipT) const {
-        return NAN;
-    }
-
-    //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
-    //! on the reaction order)
-    /*!
-     *   For this class, there are no pre-exponential factor parts, so this
-     *   method return nan.
-     */
-    double preExponentialFactor() const {
-        return NAN;
-    }
-
-    //! Return the temperature exponent *b*
-    /*!
-     *   For this class, there are no temperature exponent parts, so this
-     *   method return nan.
-     */
-    double temperatureExponent() const {
-        return NAN;
-    }
-
-    //! Return the activation energy divided by the gas constant (i.e. the
-    //! activation temperature) [K]
-    /*!
-     *   For this class, there are no activation energy parts, so this
-     *   method return nan.
-     */
-    double activationEnergy_R() const {
-        return NAN;
-    }
 };
 
 /**

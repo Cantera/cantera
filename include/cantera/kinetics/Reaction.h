@@ -110,8 +110,8 @@ class PlasmaReaction : public Reaction
 public:
     PlasmaReaction();
     PlasmaReaction(const Composition& reactants, const Composition& products,
-                   const PlasmaRate& rate);
-    PlasmaRate rate;
+                   const std::map<std::string, std::string>& process);
+    std::map<std::string, std::string> process;
 };
 
 //! A class for managing third-body efficiencies, including default values

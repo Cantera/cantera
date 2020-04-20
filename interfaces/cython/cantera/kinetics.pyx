@@ -253,10 +253,6 @@ cdef class Kinetics(_SolutionBase):
                 data[k,i] = self.kinetics.productStoichCoeff(k,i)
         return data
 
-    def set_electron_temperature(self, Te):
-        self.kinetics.setElectronTemperature(Te)
-
-
     property forward_rates_of_progress:
         """
         Forward rates of progress for the reactions. [kmol/m^3/s] for bulk

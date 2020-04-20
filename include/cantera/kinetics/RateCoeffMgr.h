@@ -70,7 +70,7 @@ public:
     }
 
     /**
-     * Similar as update(double, double, double*) but with an extra argument
+     * Similar to update(T, logT, values) but with an extra argument
      * (second argument) of electron temperature, and change logT to logTe.
      * This is used for plasma reactions where the electrons have a different
      * temperature.

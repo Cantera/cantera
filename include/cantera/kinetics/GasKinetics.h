@@ -67,12 +67,6 @@ public:
     //! reactions.
     virtual void update_rates_C();
 
-    //! Set the value of electron temperature in Kelvin. The electron temperature is equal
-    //! to gas temperature by default, and can be set manually to a different temperature.
-    virtual void setElectronTemperature(double Te) {
-        m_Te_fix = Te;
-    }
-
 protected:
     //! Reaction index of each falloff reaction
     std::vector<size_t> m_fallindx;
@@ -87,12 +81,6 @@ protected:
     //! Rate expressions for falloff reactions at the high-pressure limit
     Rate1<Arrhenius> m_falloff_high_rates;
 
-    //! Rate expressions for electron reactions
-    Rate1<ElectronArrhenius> m_electron_temperature_rates;
-
-    //! Rate expressions for plasma reactions
-    Rate1<PlasmaRate> m_plasma_rates;
-
     FalloffMgr m_falloffn;
 
     ThirdBodyCalc m_3b_concm;
@@ -100,6 +88,9 @@ protected:
 
     Rate1<Plog> m_plog_rates;
     Rate1<ChebyshevRate> m_cheb_rates;
+
+    //! Rate expressions for electron reactions
+    Rate1<ElectronArrhenius> m_electron_temperature_rates;
 
     //! @name Reaction rate data
     //!@{
@@ -118,21 +109,17 @@ protected:
     //! Electron temperature for electron-temperature reactions
     double m_temp_e;
 
-    //! fixed value of electron temperature
-    double m_Te_fix;
-
     void processFalloffReactions();
-    void processPlasmaReactions();
 
     void addElectronTemperatureReaction(ElectronTemperatureReaction& r);
-    void addPlasmaReaction(PlasmaReaction& r);
+    virtual void addPlasmaReaction(PlasmaReaction& r) {
+        throw NotImplementedError("GasKinetics::addPlasmaReaction");
+    }
     void addThreeBodyReaction(ThreeBodyReaction& r);
     void addFalloffReaction(FalloffReaction& r);
     void addPlogReaction(PlogReaction& r);
     void addChebyshevReaction(ChebyshevReaction& r);
-
     void modifyElectronTemperatureReaction(size_t i, ElectronTemperatureReaction& r);
-    void modifyPlasmaReaction(size_t i, PlasmaReaction& r);
     void modifyThreeBodyReaction(size_t i, ThreeBodyReaction& r);
     void modifyFalloffReaction(size_t i, FalloffReaction& r);
     void modifyPlogReaction(size_t i, PlogReaction& r);
