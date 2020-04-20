@@ -222,10 +222,12 @@ protected:
     // set grid cache
     void setGridCache();
 
-    //! Signal updating electron energy density function and
+    //! Signal updating electron energy density function
+    virtual void compositionChanged();
+
     //! check gas comsition for any substantial species without
     //! the cross-section data.
-    virtual void compositionChanged();
+    void checkSpeciesNoCrossSection();
 
     //! Calculate elastic cross section
     void calculateElasticCrossSection();

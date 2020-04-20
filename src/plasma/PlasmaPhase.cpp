@@ -170,10 +170,14 @@ void PlasmaPhase::compositionChanged()
 {
     Phase::compositionChanged();
     m_f0_ok = false;
+}
+
+void PlasmaPhase::checkSpeciesNoCrossSection()
+{
     // warn that a specific species needs cross-section data.
     for (size_t k : m_kOthers) {
         if (moleFraction(k) > m_moleFractionThreshold) {
-            writelog("Cantera::PlasmaPhase::update_C");
+            writelog("Cantera::PlasmaPhase::checkMinorSpeciesMoleFraction");
             writelog("\n");
             writelog("Warning: The mole fraction of species {} is more than 0.01",
                     speciesName(k));

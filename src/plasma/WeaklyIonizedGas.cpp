@@ -79,6 +79,7 @@ void WeaklyIonizedGas::calculateDistributionFunction()
         return;
     }
 
+    checkSpeciesNoCrossSection();
     calculateTotalCrossSection();
     calculateTotalElasticCrossSection();
 
