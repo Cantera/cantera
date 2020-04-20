@@ -9,7 +9,7 @@ phases:
   - gri30_ion.yaml/species: [O2, E]
   - gri30.yaml/species: [O]
 
-  kinetics: gas
+  kinetics: plasma
   reactions: all
   transport: mixture-averaged
   state:
