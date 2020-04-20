@@ -14,7 +14,7 @@ namespace Cantera {
 
 PlasmaPhase::PlasmaPhase()
     : m_ncs(0)
-    , m_points(200)
+    , m_points(500)
     , m_kT(Undef)
     , m_E(0.0)
     , m_F(0.0)
@@ -31,8 +31,8 @@ PlasmaPhase::PlasmaPhase()
     m_gridEdge.resize(m_points + 1);
     m_f0.resize(m_points);
     for (size_t j = 0; j < m_points; j++) {
-        m_gridCenter[j] = j / 20.0 + 1.0 / 40.0;
-        m_gridEdge[j] = j / 20.0;
+        m_gridCenter[j] = j / 10.0 + 1.0 / 20.0;
+        m_gridEdge[j] = j / 10.0;
     }
     m_gridEdge[m_points] = 10.0;
     m_gamma = pow(2.0 * ElectronCharge / ElectronMass, 0.5);
