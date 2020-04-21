@@ -204,11 +204,6 @@ public:
         m_init_kTe = init_kTe;
     }
 
-    //! Return electron temperature
-    virtual double electronTemperature() {
-        throw NotImplementedError("PlasmaPhase::electronTemperature");
-    }
-
     //! Set chemionization scattering-in rate
     //! Equal to the reaction rate divided by gas and electron number density
     virtual void setChemionScatRate(double rate) {

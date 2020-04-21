@@ -25,6 +25,7 @@ Phase::Phase() :
     m_xml(new XML_Node("phase")),
     m_id("<phase>"),
     m_temp(0.001),
+    m_electron_temp(0.001),
     m_dens(0.001),
     m_mmw(0.0),
     m_stateNum(-1),
