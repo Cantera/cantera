@@ -1636,6 +1636,13 @@ cdef class ThermoPhase(_SolutionBase):
         def __set__(self, double value):
             self.thermo.setElectricPotential(value)
 
+    property electron_temperature:
+        """Get/Set the electron temperature [K] for this phase."""
+        def __get__(self):
+            return self.thermo.electronTemperature()
+        def __set__(self, double value):
+            self.thermo.setElectronTemperature(value)
+
 
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface or edge phase"""

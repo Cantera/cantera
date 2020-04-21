@@ -293,6 +293,11 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         double equivalenceRatio() except +translate_exception
         double stoichAirFuelRatio(const double* fuelComp, const double* oxComp, ThermoBasis basis) except +translate_exception
 
+        # non-equilibrium properties
+        double electronTemperature() except +translate_exception
+        void setElectronTemperature(double) except +translate_exception
+
+
 cdef extern from "cantera/thermo/IdealGasPhase.h":
     cdef cppclass CxxIdealGasPhase "Cantera::IdealGasPhase":
         CxxIdealGasPhase()
