@@ -327,6 +327,7 @@ cdef extern from "cantera/plasma/PlasmaPhase.h":
         void setupBoltzmannSolver(size_t, double, double, double)
         void setMoleFractionThreshold(double)
         void setInitialMeanElectronEnergy(double)
+        void setReuseEEDF(cbool)
         string target(size_t)
         string kind(size_t)
         string product(size_t)

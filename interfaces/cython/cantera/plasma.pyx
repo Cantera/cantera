@@ -89,6 +89,10 @@ cdef class PlasmaPhase(ThermoPhase):
         """ Set initial mean electron energy. [eV]"""
         self.plasma.setInitialMeanElectronEnergy(init_kTe)
 
+    def set_reuse_EEDF(self, reuse):
+        """ Set flag of reusing old EEDF as initial EEDF"""
+        self.plasma.setReuseEEDF(<cbool>reuse)
+
     property mean_electron_energy:
         """mean electron energy [eV]"""
         def __get__(self):

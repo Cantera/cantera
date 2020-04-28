@@ -78,14 +78,17 @@ void WeaklyIonizedGas::calculateDistributionFunction()
     calculateTotalElasticCrossSection();
 
     double kTe = m_kT;
-    //! Use kTe for initial f0
+    // Use kTe for initial f0
     if (m_init_kTe != 0.0) {
         kTe = m_init_kTe;
     }
 
-    for (size_t j = 0; j < m_points; j++) {
-        m_f0(j) = 2.0 * pow(1.0/Pi, 0.5) * pow(kTe, -3./2.) *
-                  std::exp(-m_gridCenter[j]/kTe);
+    // Use old EEDF
+    if (!m_reuse_EEDF || m_f0(m_points-1) == 0.0) {
+        for (size_t j = 0; j < m_points; j++) {
+            m_f0(j) = 2.0 * pow(1.0/Pi, 0.5) * pow(kTe, -3./2.) *
+                      std::exp(-m_gridCenter[j]/kTe);
+        }
     }
 
     if (m_E != 0.0) {

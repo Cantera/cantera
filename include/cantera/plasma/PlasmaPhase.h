@@ -204,6 +204,11 @@ public:
         m_init_kTe = init_kTe;
     }
 
+    //! Set flag for reusing old EEDF
+    void setReuseEEDF(bool reuse) {
+        m_reuse_EEDF = reuse;
+    }
+
     //! Set chemionization scattering-in rate
     //! Equal to the reaction rate divided by gas and electron number density
     virtual void setChemionScatRate(double rate) {
@@ -291,6 +296,9 @@ protected:
 
     //! Initial electron mean energy
     double  m_init_kTe;
+
+    //! flag of using old EEDF as initial EEDF
+    bool m_reuse_EEDF;
 
     //! The threshold of mole fraction for showing warning of
     //! insufficient cross-section data.

@@ -24,6 +24,7 @@ PlasmaPhase::PlasmaPhase()
     , m_delta0(1e14)
     , m_factorM(4.0)
     , m_init_kTe(0.0)
+    , m_reuse_EEDF(false)
     , m_moleFractionThreshold(0.01)
 {
     // default energy grid
@@ -286,6 +287,9 @@ void PlasmaPhase::calculateElasticCrossSection()
 
 void PlasmaPhase::setupGrid(size_t n, const double* eps)
 {
+    // save old grid and EEDF
+    vector_fp grid_old = m_gridCenter;
+    vector_fp f0_old(m_f0.data(), m_f0.data() + m_f0.size());
     m_points = n-1;
     m_gridCenter.resize(n-1);
     m_gridEdge.resize(n);
@@ -295,6 +299,11 @@ void PlasmaPhase::setupGrid(size_t n, const double* eps)
         m_gridEdge[i] = eps[i];
         m_gridCenter[i] = 0.5 * (eps[i] + eps[i+1]);
     }
+    // interpolate EEDF to the new grid
+    for (size_t i = 0; i < m_points; i++) {
+        m_f0(i) = linearInterp(m_gridCenter[i], grid_old, f0_old);
+    }
+
     setGridCache();
     m_f0_ok = false;
 }
