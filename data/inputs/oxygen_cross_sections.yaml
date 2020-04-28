@@ -3,9 +3,7 @@ cross-sections:
 - comment: Total Scattering - Table 1 of Itikawa (2009)
   kind: effective
   target: O2
-  mass_ratio: 1.71e-05
   data:
-  - [0.00, 3.83e-20]
   - [0.10, 3.83e-20]
   - [0.12, 4.02e-20]
   - [0.15, 4.22e-20]
@@ -68,7 +66,6 @@ cross-sections:
   - [900.0, 2.26e-20]
   - [1000.0, 2.08e-20]
 - comment: Vibrational Excitation - Table 4 & 5 of Itikawa (2009)
-  equation: E + O2 => E + O2(v1)
   kind: excitation
   product: O2(v1)
   target: O2
@@ -95,7 +92,6 @@ cross-sections:
   - [10.0, 4.4e-21]
   - [15.0, 5.70e-22]
 - comment: Vibrational Excitation - Table 4 of Itikawa (2009)
-  equation: E + O2 => E + O2(v2)
   kind: excitation
   product: O2(v2)
   target: O2
@@ -116,7 +112,6 @@ cross-sections:
   - [10.0, 1.65e-21]
   - [15.0, 1.50e-22]
 - comment: Vibrational Excitation - Table 4 of Itikawa (2009)
-  equation: E + O2 => E + O2(v3)
   kind: excitation
   product: O2(v3)
   target: O2
@@ -130,7 +125,6 @@ cross-sections:
   - [10.0, 7.50e-22]
   - [15.0, 6.50e-23]
 - comment: Excitation of Electronic States - Table 7 of Itikawa (2009)
-  equation: E + O2 => E + O2(a1)
   kind: excitation
   product: O2(a1)
   target: O2
@@ -143,7 +137,6 @@ cross-sections:
   - [15.0, 4.20e-22]
   - [20.0, 2.30e-22]
 - comment: Excitation of Electronic States - Table 7 of Itikawa (2009)
-  equation: E + O2 => E + O2(a1)
   kind: excitation
   product: O2(a1)
   target: O2
@@ -156,7 +149,6 @@ cross-sections:
   - [15.0, 4.20e-22]
   - [20.0, 2.30e-22]
 - comment: Excitation of Electronic States - Table 7 of Itikawa (2009)
-  equation: E + O2 => E + O2(b1)
   kind: excitation
   product: O2(b1)
   target: O2
@@ -169,7 +161,6 @@ cross-sections:
   - [15.0, 7.80e-23]
   - [20.0, 5.50e-23]
 - comment: Excitation of Electronic States - Table 8 of Itikawa (2009)
-  equation: E + O2 => E + O2(A3)
   kind: excitation
   product: O2(A3)
   target: O2
@@ -181,7 +172,6 @@ cross-sections:
   - [20.0, 3.90e-22]
   - [30.0, 1.30e-22]
 - comment: Excitation of Electronic States - Table 8 of Itikawa (2009)
-  equation: E + O2 => E + O2(AP)
   kind: excitation
   product: O2(AP)
   target: O2
@@ -193,7 +183,6 @@ cross-sections:
   - [20.0, 3.90e-22]
   - [30.0, 1.30e-22]
 - comment: Excitation of Electronic States - Table 8 of Itikawa (2009)
-  equation: E + O2 => E + O2(c1)
   kind: excitation
   product: O2(c1)
   target: O2
@@ -205,7 +194,6 @@ cross-sections:
   - [20.0, 3.90e-22]
   - [30.0, 1.30e-22]
 - comment: Excitation of Electronic States - Table 9 of Itikawa (2009)
-  equation: E + O2 => E + O2(B3)
   kind: excitation
   product: O2(B3)
   target: O2
@@ -217,7 +205,6 @@ cross-sections:
   - [30.0, 5.98e-21]
   - [50.0, 2.764e-21]
 - comment: Dissociative Attachment - Table 13 of Itikawa (2009)
-  equation: E + O2 => O^- + O
   kind: attachment
   product: O^- + O
   target: O2
@@ -280,7 +267,6 @@ cross-sections:
   - [9.8, 3.52e-24]
   - [9.9, 3.52e-24]
 - comment: Total Dissociation for Neutral Products - Table 10 of Itikawa (2009)
-  equation: E + O2 => E + 2 O
   kind: excitation
   product: O + O
   target: O2
@@ -301,7 +287,6 @@ cross-sections:
   - [148.5, 2.96e-21]
   - [198.5, 2.91e-21]
 - comment: Ionization - Table 11 of Itikawa (2009)
-  equation: E + O2 => 2 E + O2^+
   kind: ionization
   product: O2^+
   target: O2
@@ -352,7 +337,6 @@ cross-sections:
   - [948.0, 6.17e-21]
   - [998.0, 5.97e-21]
 - comment: Ionization - Table 11 of Itikawa (2009)
-  equation: E + O2 => 2 E + O + O^+
   kind: ionization
   product: O + O^+
   target: O2
