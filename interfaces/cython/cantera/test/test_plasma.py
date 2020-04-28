@@ -8,12 +8,12 @@ import copy
 class TestPlasma(utilities.CanteraTest):
     def setUp(self):
         self.gas = ct.PlasmaPhase(infile='oxygen_plasma.yaml')
+        self.gas.TPX = 1000, ct.one_atm, 'O2:1.0'
+        self.gas.electric_field = 1e5
         self.gas.set_electron_energy_grid(np.linspace(0, 9.95, 200))
+        self.gas.set_initial_mean_electron_energy(0.5)
 
     def test_electron_properties(self):
-        self.gas.TPX = 1000, ct.one_atm, 'O2:1.0, E:1e-10'
-        self.gas.electric_field = 1e5
-        self.gas.electric_field_freq = 0.0
         self.assertNear(self.gas.electron_temperature, 13113, 1e-3)
         self.assertNear(self.gas.electron_mobility, 0.3985, 1e-4)
         self.assertNear(self.gas.electron_diffusivity, 0.5268, 1e-4)
@@ -25,10 +25,8 @@ class TestPlasma(utilities.CanteraTest):
         self.assertNear(self.gas.electric_field, 1e5, 1e-3)
 
     def test_change_electric_field_freq(self):
-        self.gas.TPX = 1000, ct.one_atm, 'O2:1.0'
-        self.gas.electric_field = 1e5
-        self.gas.electric_field_freq = 0.0
         Te0 = self.gas.electron_temperature
+        self.gas.set_reuse_EEDF(True)
         self.gas.electric_field_freq = 1e9
         Te = self.gas.electron_temperature
         self.gas.electric_field_freq = 2e9
@@ -36,11 +34,10 @@ class TestPlasma(utilities.CanteraTest):
         self.assertLess(self.gas.electron_temperature, Te)
         self.assertNear(Te, Te0, 1e-3)
         self.assertNear(self.gas.electron_temperature, Te, 1e-3)
+        self.gas.electric_field_freq = 0.0
+        self.gas.set_reuse_EEDF(False)
 
     def test_change_gas_temperature(self):
-        self.gas.TPX = 1000, ct.one_atm, 'O2:1.0'
-        self.gas.electric_field = 1e5
-        self.gas.electric_field_freq = 0.0
         Te0 = self.gas.electron_temperature
         self.gas.TP = 1100, ct.one_atm * 1.1
         # The gas temperature is important only when E/N is small
@@ -50,15 +47,15 @@ class TestPlasma(utilities.CanteraTest):
         Te = self.gas.electron_temperature
         self.gas.TP = 1000, ct.one_atm
         self.assertLess(0.05, abs(self.gas.electron_temperature - Te) / Te)
+        # set conditions back
         self.gas.electric_field = 1e5
+        self.gas.TPX = 1000, ct.one_atm, 'O2:1.0'
 
     def test_change_electric_field_strength(self):
-        self.gas.TPX = 1000, ct.one_atm, 'O2:1.0'
-        self.gas.electric_field = 1e5
-        self.gas.electric_field_freq = 0.0
         grid = np.linspace(0.0, 2.0, num=1000)
         self.gas.set_electron_energy_grid(grid)
         self.gas.electric_field = 1.0
         # The electron temperature approach gas temperature when E is small
         self.assertNear(self.gas.electron_temperature, self.gas.T, 1e-3)
-
+        # set conditions back
+        self.gas.electric_field = 1e5

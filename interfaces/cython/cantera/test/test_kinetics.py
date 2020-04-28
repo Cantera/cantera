@@ -1084,7 +1084,7 @@ class TestReaction(utilities.CanteraTest):
         gas.set_electron_energy_grid(np.linspace(0, 50, 200))
         gas.electric_field = 1e6
         self.assertNear(gas.forward_rate_constants[1],
-                        gas.plasma_process_rate_coefficient(13))
+                        gas.plasma_process_rate_coefficient(13) * ct.avogadro)
 
     def test_modify_invalid(self):
         # different reaction type
