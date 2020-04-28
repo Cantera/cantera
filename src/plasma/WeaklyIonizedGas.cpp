@@ -60,12 +60,6 @@ void WeaklyIonizedGas::calculateTotalElasticCrossSection()
 
 void WeaklyIonizedGas::calculateDistributionFunction()
 {
-    // Check temperature and update temperature-dependent variables.
-    double kT = Boltzmann * temperature() / ElectronCharge;
-    if (m_kT != kT) {
-        m_kT = kT;
-        m_f0_ok = false;
-    }
     // Check density and update density-dependent properties
     double N = molarDensity() * Avogadro;
     if (m_N != N) {
@@ -83,14 +77,15 @@ void WeaklyIonizedGas::calculateDistributionFunction()
     calculateTotalCrossSection();
     calculateTotalElasticCrossSection();
 
+    double kTe = m_kT;
     //! Use kTe for initial f0
     if (m_init_kTe != 0.0) {
-        kT = m_init_kTe;
+        kTe = m_init_kTe;
     }
 
     for (size_t j = 0; j < m_points; j++) {
-        m_f0(j) = 2.0 * pow(1.0/Pi, 0.5) * pow(kT, -3./2.) *
-                  std::exp(-m_gridCenter[j]/kT);
+        m_f0(j) = 2.0 * pow(1.0/Pi, 0.5) * pow(kTe, -3./2.) *
+                  std::exp(-m_gridCenter[j]/kTe);
     }
 
     if (m_E != 0.0) {

@@ -163,6 +163,7 @@ void PlasmaPhase::setGridCache()
 void PlasmaPhase::setTemperature(const double temp)
 {
     Phase::setTemperature(temp);
+    m_kT = Boltzmann * temp / ElectronCharge;
     m_f0_ok = false;
 }
 
