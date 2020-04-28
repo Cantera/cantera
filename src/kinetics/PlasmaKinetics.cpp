@@ -22,6 +22,10 @@ void PlasmaKinetics::update_rates_T()
     auto i = 0;
     for (auto k : m_plasmaProcessIndx) {
         m_rfn[m_plasmaIndx[i]] = m_plasma->rateCoefficient(k);
+        if (m_rkcn[m_plasmaIndx[i]] != 0.0) {
+            m_rkcn[m_plasmaIndx[i]] = m_plasma->reverseRateCoefficient(k) /
+                                      m_rfn[m_plasmaIndx[i]];
+        }
         i++;
     }
     if (i != 0) {
