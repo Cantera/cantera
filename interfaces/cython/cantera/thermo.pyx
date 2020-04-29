@@ -1061,13 +1061,14 @@ cdef class ThermoPhase(_SolutionBase):
         X = self.thermo.getMoleFractionsByName(threshold)
         return {pystr(item.first):item.second for item in X}
 
-    def number_density(self, value):
-        if isinstance(value, str):
-            return self.thermo.numberDensity(<string>value)
-        elif isinstance(value, int):
-            return self.thermo.numberDensity(<size_t>value)
+    def number_density(self, species):
+        if isinstance(species, (str, bytes)):
+            return self.thermo.numberDensity(stringify(species))
+        elif isinstance(species, (int, float)):
+            return self.thermo.numberDensity(<int>species)
         else:
-            return None
+            raise TypeError("'species' must be a string or a number."
+                            " Got {!r}.".format(species))
 
     ######## Read-only thermodynamic properties ########
 
