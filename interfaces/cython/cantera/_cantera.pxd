@@ -236,6 +236,8 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         Composition getMoleFractionsByName(double)
         double moleFraction(size_t) except +translate_exception
         double moleFraction(string) except +translate_exception
+        double numberDensity(size_t) except +translate_exception
+        double numberDensity(string) except +translate_exception
 
         double concentration(size_t) except +translate_exception
         double elementalMassFraction(size_t) except +translate_exception

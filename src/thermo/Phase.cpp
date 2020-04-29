@@ -575,6 +575,16 @@ void Phase::getMoleFractions(double* const x) const
     scale(m_ym.begin(), m_ym.end(), x, m_mmw);
 }
 
+double Phase::numberDensity(size_t k) const
+{
+    return moleFraction(k) * molarDensity() * Avogadro;
+}
+
+double Phase::numberDensity(const std::string& nameSpec) const
+{
+    return moleFraction(nameSpec) * molarDensity() * Avogadro;
+}
+
 double Phase::moleFraction(size_t k) const
 {
     checkSpeciesIndex(k);

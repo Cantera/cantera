@@ -490,6 +490,16 @@ public:
     //!     @return Map of species names to mole fractions
     compositionMap getMoleFractionsByName(double threshold=0.0) const;
 
+    //! Return the number density of a single species
+    //!     @param  k  species index
+    //!     @return Number density of the species
+    double numberDensity(size_t k) const;
+
+    //! Return the number density of a single species
+    //!     @param  name  String name of the species
+    //!     @return Number density of the species
+    double numberDensity(const std::string& name) const;
+
     //! Return the mole fraction of a single species
     //!     @param  k  species index
     //!     @return Mole fraction of the species
