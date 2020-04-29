@@ -37,6 +37,10 @@ class PlasmaPhase: public IdealGasPhase
 public:
     PlasmaPhase();
 
+    virtual std::string type() const {
+        return "Plasma";
+    }
+
     void addElectronCrossSections(const AnyValue& crossSections,
                                   const AnyValue& names);
 
