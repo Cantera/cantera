@@ -54,17 +54,25 @@ cdef class PlasmaPhase(ThermoPhase):
 
     property electron_elastic_power_loss:
         """
-        Electron elastic power loss. [eV/s]
+        The elastic power loss of one electron. [eV/s]
         """
         def __get__(self):
             return self.plasma.elasticPowerLoss()
 
     property electron_inelastic_power_loss:
         """
-        Electron inelastic power loss. [eV/s]
+        The inelastic power loss of one electron. [eV/s]
         """
         def __get__(self):
             return self.plasma.inelasticPowerLoss()
+
+    property electron_total_power_loss:
+        """
+        The total power loss of one electron. [eV/s]
+        """
+        def __get__(self):
+            return (self.electron_elastic_power_loss +
+                    self.electron_inelastic_power_loss)
 
     def setup_boltzmann_solver(self, maxn=100, rtol=1e-5,
                                delta0=1e14, m=4.0):
