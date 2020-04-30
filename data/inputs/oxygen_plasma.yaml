@@ -5,13 +5,13 @@ phases:
   thermo: weakly-ionized-gas
   elements: [O, E]
   species:
-  - species: [O2^+]
+  - species: [O2^+, O2^-]
   - gri30_ion.yaml/species: [O2, E]
   - gri30.yaml/species: [O]
 
   kinetics: plasma
   reactions: all
-  transport: mixture-averaged
+  transport: Ion
   state:
     T: 300.0
     P: 1.01325e+05
@@ -36,12 +36,47 @@ species:
     well-depth: 80.0 # Casey
     polarizability: 0.847 # Method: B3LYP cc-pVTZ from NIST
   note: Casey et al. (2016) doi.org/10.1016/j.proci.2016.08.083
+- name: O2^-
+  composition: {O: 2, E: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.15, 1000.0, 6000.0]
+    data:
+    - [3.66442522, -9.28741138e-04, 6.45477082e-06, -7.7470338e-09, 2.93332662e-12,
+      -6870.76983, 4.35140681]
+    - [3.95666294, 5.98141823e-04, -2.12133905e-07, 3.63267581e-11, -2.24989228e-15,
+      -7062.87229, 2.27871017]
+  transport:
+    model: gas
+    geometry: linear
+    diameter: 3.33
+    well-depth: 136.5
+    polarizability: 1.424
+  note: L4/89
 
 reactions:
-- equation: O2^+ + E => O + O  # Reaction 1
+# Kossyi et al. (1992) doi.org/10.1088/0963-0252/1/3/011
+# Kossyi (40)
+- equation: O2^+ + E => O + O
   type: electron-temperature
   rate-constant: {A: 6.0e-5, b: -1.0, Ea-T: 0.0, Ea-Te: 0.0}
-
+# Kossyi (21)
 - equation: E + O2 => 2 E + O2^+
   type: plasma
   process: {kind: ionization, target: O2, product: O2^+}
+# Kossyi (92)
+- equation: O + O + O2 <=> O2 + O2
+  rate-constant: {A: 2.45e-31, b: -0.63, Ea: 0.0}
+# Kossyi (45)
+- equation: E + O2 + O2 => O2^- + O2
+  type: electron-temperature
+  rate-constant: {A: 4.2e-27, b: -1.0, Ea-T: -100, Ea-Te: 700}
+# Kossyi 2.7 Recombination of positive and negative ions (type 2)
+- equation: O2^- + O2^+ <=> O2 + O + O
+  rate-constant: {A: 1.0e-07, b: 0.0, Ea: 0.0}
+# Kossyi 2.7 Recombination of positive and negative ions (type 1)
+- equation: O2^- + O2^+ <=> O2 + O2
+  rate-constant: {A: 3.464e-06, b: -0.5, Ea: 0.0}
+# Kossyi 2.7 Recombination of positive and negative ions (type 5)
+- equation: O2^- + O2^+ + O2 <=> O2 + O2 + O2
+  rate-constant: {A: 3.118e-19, b: -2.5, Ea: 0.0}
