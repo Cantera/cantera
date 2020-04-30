@@ -84,7 +84,7 @@ void WeaklyIonizedGas::calculateDistributionFunction()
     }
 
     // Use old EEDF
-    if (!m_reuse_EEDF || m_f0(m_points-1) == 0.0) {
+    if (!m_reuse_EEDF || !m_has_EEDF) {
         for (size_t j = 0; j < m_points; j++) {
             m_f0(j) = 2.0 * pow(1.0/Pi, 0.5) * pow(kTe, -3./2.) *
                       std::exp(-m_gridCenter[j]/kTe);
@@ -103,6 +103,7 @@ void WeaklyIonizedGas::calculateDistributionFunction()
             }
         }
     }
+    m_has_EEDF = true;
     m_f0_ok = true;
 }
 

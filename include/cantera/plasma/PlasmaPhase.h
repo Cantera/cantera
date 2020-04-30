@@ -304,6 +304,9 @@ protected:
     //! flag of using old EEDF as initial EEDF
     bool m_reuse_EEDF;
 
+    //! flag of having an EEDF
+    bool m_has_EEDF;
+
     //! The threshold of mole fraction for showing warning of
     //! insufficient cross-section data.
     double m_moleFractionThreshold;

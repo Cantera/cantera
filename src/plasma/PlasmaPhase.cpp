@@ -25,6 +25,7 @@ PlasmaPhase::PlasmaPhase()
     , m_factorM(4.0)
     , m_init_kTe(0.0)
     , m_reuse_EEDF(false)
+    , m_has_EEDF(false)
     , m_moleFractionThreshold(0.01)
 {
     // default energy grid
