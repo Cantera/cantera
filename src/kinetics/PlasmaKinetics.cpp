@@ -26,6 +26,8 @@ void PlasmaKinetics::update_rates_T()
             m_rkcn[m_plasmaIndx[i]] = m_plasma->reverseRateCoefficient(k) /
                                       m_rfn[m_plasmaIndx[i]];
         }
+        // convert to kmol base
+        m_rfn[m_plasmaIndx[i]] *= Avogadro;
         i++;
     }
     if (i != 0) {
