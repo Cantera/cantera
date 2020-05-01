@@ -16,21 +16,14 @@ ElectronCrossSection::~ElectronCrossSection()
 
 void ElectronCrossSection::validate()
 {
-    if (kind == "effective") {
-        if (data.size() > 0 && data[0].size() > 0) {
-            if (data[0][0] != 0.0) {
-                throw CanteraError("ElectronCrossSection::validate",
-                    "Invalid energy value of type '{}' for '{}'. "
-                    "Energy must starts at zero.", kind, target);
-            }
-        }
-    } else if (kind == "elastic") {
-        if (data[0][0] != 0.0) {
+    if (kind == "ionization" || kind == "attachment" || kind == "excitation") {
+        if (threshold < 0.0) {
             throw CanteraError("ElectronCrossSection::validate",
-                "Invalid energy value of type '{}' for '{}'. "
-                "Energy must starts at zero.", kind, target);
+                               "The threshold of the process",
+                               "(kind = '{}', target = '{}', product = '{}')",
+                               "cannot be negative", kind, target, product);
         }
-    } else if (kind != "ionization" && kind != "attachment" && kind != "excitation"){
+    } else if (kind != "effective" && kind != "elastic") {
         throw CanteraError("ElectronCrossSection::validate",
             "'{}' is an unknown type of cross section data.", kind);
     }
