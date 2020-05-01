@@ -146,6 +146,7 @@ cdef extern from "cantera/plasma/ElectronCrossSection.h" namespace "Cantera":
         string kind
         string target
         string product
+        double threshold
         vector[vector[double]] data
 
     cdef shared_ptr[CxxElectronCrossSection] CxxNewElectronCrossSection "newElectronCrossSection" (CxxAnyMap&) except +translate_exception

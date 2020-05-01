@@ -119,6 +119,7 @@ protected:
     //! polynomial of the collision integral for O2/O2-
     vector_fp m_om11_O2;
 
+    //! electron mobility which can be manually set to a value.
     double m_electronMobility;
 };
 

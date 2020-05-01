@@ -669,21 +669,23 @@ public:
         m_ndim = ndim;
     }
 
-    //! Electron temperature (K)
+    //! Electron temperature [K]
     virtual double electronTemperature() {
         return m_electron_temp;
     }
 
-    //! Electron mobility
+    //! Electron mobility [m^2/V/s]
     virtual double electronMobility() {
         return Undef;
     }
 
-    //! Electron diffusivity
+    //! Electron diffusivity [m^2/s]
     virtual double electronDiffusivity() {
         return Undef;
     }
 
+    //! @name Thermodynamic Properties
+    //!@{
     //! Temperature (K).
     //!     @return The temperature of the phase
     doublereal temperature() const {

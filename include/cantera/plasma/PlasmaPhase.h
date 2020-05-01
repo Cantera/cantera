@@ -19,7 +19,7 @@ namespace Cantera
 {
 unique_ptr<ElectronCrossSection> newElectronCrossSection(const AnyMap& node);
 /**
- * @defgroup electron
+ * @defgroup plasma
  * This class calculates the electron energy distribution function (EEDF) in a gas
  * by modeling collisions between electrons and other species represented by the
  * class ElectronCrossSection. EEDF is used to calculate reaction rate coefficient 
@@ -41,10 +41,11 @@ public:
         return "Plasma";
     }
 
+    //! add electron cross-section data from yaml input file.
     void addElectronCrossSections(const AnyValue& crossSections,
                                   const AnyValue& names);
 
-    //! Add an electron cross section to this Electron. Returns `true` if the electron cross section was
+    //! Add an electron cross section. Returns `true` if the electron cross section was
     //! successfully added, or `false` if the electron cross section was ignored.
     virtual bool addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs);
 
@@ -58,7 +59,7 @@ public:
         return m_points;
     }
 
-    //! energy grid
+    //! energy grid [eV]
     double grid(size_t i) const {
         return m_gridCenter[i];
     }
@@ -67,36 +68,37 @@ public:
     //! eps is the vector of electron energy [eV].
     void setupGrid(size_t n, const double* eps);
 
-    //! electron diffusivity
+    //! electron diffusivity [m^2/s]
     virtual double electronDiffusivity() {
         throw NotImplementedError("PlasmaPhase::electronDiffusivity");
     }
 
-    //! electron mobility
+    //! electron mobility [m^2/V/s]
     virtual double electronMobility() {
         throw NotImplementedError("PlasmaPhase::electronMobility");
     }
 
-    //! mean electron energy
+    //! mean electron energy [eV]
     virtual double meanElectronEnergy() {
         throw NotImplementedError("PlasmaPhase::meanElectronEnergy");
     }
 
+    //! electron power gain of one electron [eV/s]
     virtual double powerGain() {
         throw NotImplementedError("PlasmaPhase::powerGain");
     }
 
-    //! elastic power loss
+    //! elastic power loss of one electron [eV/s]
     virtual double elasticPowerLoss() {
         throw NotImplementedError("PlasmaPhase::elasticPowerLoss");
     }
 
-    //! inelastic power loss
+    //! inelastic power loss of one electron [eV/s]
     virtual double inelasticPowerLoss() {
         throw NotImplementedError("PlasmaPhase::inelasticPowerLoss");
     }
 
-    //! total collision frequency
+    //! total collision frequency [Hz]
     virtual double totalCollisionFreq() {
         throw NotImplementedError("PlasmaPhase::totalCollisionFreq");
     }
@@ -114,12 +116,12 @@ public:
     //! initialize Plasma.
     virtual void initPlasma(const AnyMap& phaseNode, const AnyMap& rootNode);
 
-    //! Reduced electric field
+    //! electric field [V/m]
     double electricField() const {
         return m_E;
     }
 
-    //! Set reduced electric field
+    //! Set electric field in [V/m]
     void setElectricField(double E) {
         if (m_E != E) {
             m_E = E;
@@ -127,12 +129,12 @@ public:
         }
     }
 
-    //! Electric field frequency
+    //! Electric field frequency [Hz]
     double electricFieldFreq() const {
         return m_F;
     }
 
-    //! Set electric field frequency
+    //! Set electric field frequency in [Hz]
     void setElectricFieldFreq(double F) {
         if (m_F != F) {
             m_F = F;
@@ -251,13 +253,13 @@ protected:
     //! number of points for energy grid
     size_t m_points;
 
-    //! Boltzmann constant times gas temperature
+    //! Boltzmann constant times gas temperature [eV]
     double m_kT;
 
-    //! reduced electric field
+    //! electric field [V/m]
     double m_E;
 
-    //! electric field freq
+    //! electric field freq [Hz]
     double m_F;
 
     //! normalized electron energy distribution function
@@ -269,8 +271,11 @@ protected:
     //! Mole fractions of target species of each collision process
     vector_fp m_moleFractions;
 
-    //! shift factor
+    //! shift factor. This is used for calculating the collision term.
     std::vector<int> m_shiftFactor;
+
+    //! in factor. This is used for calculating the Q matrix of
+    //! scattering-in processes.
     std::vector<int> m_inFactor;
 
     //! Indices of elastic collisions in m_crossSections

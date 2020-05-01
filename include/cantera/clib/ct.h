@@ -157,8 +157,6 @@ extern "C" {
     CANTERA_CAPI int trans_getMassFluxes(int n, const double* state1,
                                          const double* state2, double delta, double* fluxes);
 
-    CANTERA_CAPI int elect_getNetPlasmaProductionRates(int n, size_t len, double* wdot);
-
     CANTERA_CAPI int ct_getCanteraError(int buflen, char* buf);
     CANTERA_CAPI int ct_setLogWriter(void* logger);
     CANTERA_CAPI int ct_addCanteraDirectory(size_t buflen, const char* buf);

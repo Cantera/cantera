@@ -5,7 +5,6 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/TransportBase.h"
 #include "cantera/kinetics/Kinetics.h"
-#include "cantera/plasma/PlasmaElectron.h"
 
 #include "Python.h"
 

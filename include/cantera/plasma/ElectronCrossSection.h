@@ -26,6 +26,7 @@ public:
     ElectronCrossSection& operator=(const ElectronCrossSection& other) = delete;
     ~ElectronCrossSection();
 
+    //! Validate the cross-section data.
     void validate();
 
     //! The name of the kind of electron collision
@@ -41,9 +42,6 @@ public:
     //! j=0 is the electron energy [eV], and j=1 is the cross section [m^2].
     std::vector<vector_fp> data;
 
-    //! The mass ratio of molecule to electron
-    double mass_ratio;
-
     //! The threshold of a process
     double threshold;
 
@@ -51,8 +49,10 @@ public:
     AnyMap extra;
 };
 
+//! create an ElectronCrossSection object to store data.
 unique_ptr<ElectronCrossSection> newElectronCrossSection(const AnyMap& node);
 
+//! Get a vector of ElectronCrossSection objects to access the data.
 std::vector<shared_ptr<ElectronCrossSection>> getElectronCrossSection(const AnyValue& items);
 
 }

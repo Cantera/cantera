@@ -23,7 +23,7 @@ cdef class PlasmaPhase(ThermoPhase):
             return self.plasma.electronTemperature()
 
     property electron_mobility:
-        """electron mobility [m^2/V/s)]"""
+        """electron mobility [m^2/V/s]"""
         def __get__(self):
             return self.plasma.electronMobility()
 
@@ -38,11 +38,17 @@ cdef class PlasmaPhase(ThermoPhase):
             return self.plasma.totalCollisionFreq()
 
     def plasma_process_rate_coefficient(self, k):
-        """rate coefficient of process k"""
+        """
+        rate coefficient of process k in inverse
+        number density [m^3/s].
+        """
         return self.plasma.rateCoefficient(k)
 
     def plasma_process_reverse_rate_coefficient(self, k):
-        """reverse rate coefficient of process k"""
+        """
+        reverse rate coefficient of process k in inverse
+        number density [m^3/s].
+        """
         return self.plasma.reverseRateCoefficient(k)
 
     property electron_power_gain:
@@ -121,15 +127,19 @@ cdef class PlasmaPhase(ThermoPhase):
             self.plasma.setElectricFieldFreq(F)
 
     def electron_collision_target(self, k):
+        """ The target of the collision process. """
         return pystr(self.plasma.target(k))
 
     def electron_collision_kind(self, k):
+        """ The kind of the collision process. """
         return pystr(self.plasma.kind(k))
 
     def electron_collision_product(self,k):
+        """ The product of the collision. process """
         return pystr(self.plasma.product(k))
 
     def electron_collision_threshold(self, k):
+        """ The threhols of the collision process. """
         return self.plasma.threshold(k)
 
 
@@ -192,19 +202,24 @@ cdef class ElectronCrossSection:
         return cross_section
 
     property kind:
-        """ The kind of the collision. """
+        """ The kind of the collision process. """
         def __get__(self):
             return pystr(self.electron_cross_section.kind)
 
     property target:
-        """ The target of the collision. """
+        """ The target of the collision process. """
         def __get__(self):
             return pystr(self.electron_cross_section.target)
 
     property product:
-        """ The product of the collision. """
+        """ The product of the collision process. """
         def __get__(self):
             return pystr(self.electron_cross_section.product)
+
+    property threshold:
+        """ The threhols of the collision process. """
+        def __get__(self):
+            return self.electron_cross_section.threshold
 
     property process:
         """ The process of the collision. 
