@@ -17,7 +17,11 @@ namespace Cantera
 typedef Eigen::SparseMatrix<double> SparseMat;
 
 /**
- * This class calculates the properties of electron in a weakly ionized gas.
+ * This class calculates the electron energy distribution function (EEDF) in a weakly
+ * ionized gas by modeling collisions between electrons and other species represented
+ * by the class ElectronCrossSection. EEDF is used to calculate reaction rate coefficient
+ * for plasma reaction and electron temperature for electron-temperature reaction
+ * used in kinetics, and diffusivity/mobility of electron in transport.
  * Only electron-neutral collisions are considered for calculating the
  * electron energy distribution function (EEDF). Equation of EEDF becomes,
  * \f[
@@ -78,7 +82,7 @@ typedef Eigen::SparseMatrix<double> SparseMat;
  * "The umist database for astrochemistry 2012,"
  * Astronomy & Astrophysics 550 (2013) A36.
  * doi: https://doi.org/10.1051/0004-6361/201220465
- * @ingroup electron
+ * @ingroup plasma
  */
 class WeaklyIonizedGas: public PlasmaPhase
 {
@@ -86,7 +90,7 @@ public:
     WeaklyIonizedGas();
 
     virtual std::string type() const {
-        return "WeakIonizedGas";
+        return "WeaklyIonizedGas";
     }
 
     virtual double electronDiffusivity();

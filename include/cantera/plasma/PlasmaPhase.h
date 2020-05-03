@@ -18,19 +18,16 @@
 namespace Cantera
 {
 unique_ptr<ElectronCrossSection> newElectronCrossSection(const AnyMap& node);
-/**
- * @defgroup plasma
- * This class calculates the electron energy distribution function (EEDF) in a gas
- * by modeling collisions between electrons and other species represented by the
- * class ElectronCrossSection. EEDF is used to calculate reaction rate coefficient 
- * for plasma reaction and electron temperature for electron-temperature reaction
- * used in kinetics, and diffusivity/mobility of electron in transport.
- */
 
-/*!
+/**
+ * Base class for a phase with plasma properties. This class manages the
+ * computational grid, grid cache, cross-section data, and updating
+ * independent variables such as gas temperature and pressure.
+ * variables
+
  * Class Plasma is the base class which manages the grid and grid cache,
  * cross-section data, and updating temperature and gas composition.
- * @ingroup electron
+ * @ingroup phase
  */
 class PlasmaPhase: public IdealGasPhase
 {
