@@ -180,12 +180,9 @@ void PlasmaPhase::checkSpeciesNoCrossSection()
     // warn that a specific species needs cross-section data.
     for (size_t k : m_kOthers) {
         if (moleFraction(k) > m_moleFractionThreshold) {
-            writelog("Cantera::PlasmaPhase::checkMinorSpeciesMoleFraction");
-            writelog("\n");
-            writelog("Warning: The mole fraction of species {} is more than 0.01",
-                    speciesName(k));
-            writelog(" but it has no data of cross section.");
-            writelog("\n");
+            warn_user("Cantera::PlasmaPhase::checkSpeciesNoCrossSection",
+                      "Warning: The mole fraction of species {} is more than 0.01 "
+                      "but it has no cross-section data", speciesName(k));
         }
     }
 }
