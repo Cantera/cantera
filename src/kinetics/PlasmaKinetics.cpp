@@ -52,7 +52,7 @@ void PlasmaKinetics::addPlasmaReaction(PlasmaReaction& r)
     }
     if (!found) {
         throw CanteraError("PlasmaKinetics::addPlasmaReaction",
-                           "Cannot find corresponding electron ",
+                           "Cannot find corresponding electron "
                            "collision process for {}", r.equation());
     }
 }
