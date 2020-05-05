@@ -226,6 +226,11 @@ bool PlasmaPhase::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
                                        ecs->target);
             }
         }
+        // add (0, 0) to m_crossSection
+        if (m_crossSections[m_ncs][0][0] != 0.0) {
+            m_crossSections[m_ncs][0].insert(m_crossSections[m_ncs][0].begin(), 0.0);
+            m_crossSections[m_ncs][1].insert(m_crossSections[m_ncs][1].begin(), 0.0);
+        }
         m_kElastic.push_back(m_ncs);
     } else {
         m_kInelastic.push_back(m_ncs);
