@@ -15,9 +15,9 @@ class TestPlasma(utilities.CanteraTest):
 
     def test_electron_properties(self):
         self.assertNear(self.gas.electron_temperature, 13113, 1e-3)
-        self.assertNear(self.gas.electron_mobility, 0.3985, 1e-4)
-        self.assertNear(self.gas.electron_diffusivity, 0.5268, 1e-4)
-        self.assertNear(self.gas.plasma_process_rate_coefficient(5), 1.55e-16, 1e-4)
+        self.assertNear(self.gas.electron_mobility, 0.3985, 1e-3)
+        self.assertNear(self.gas.electron_diffusivity, 0.5279, 1e-3)
+        self.assertNear(self.gas.plasma_process_rate_coefficient(5), 1.55e-16, 1e-3)
         self.assertNear(self.gas.electron_total_collision_frequency, 3.433e11, 1e-3)
         self.assertNear(self.gas.electron_power_gain, 3.9811e9, 1e-3)
         self.assertNear(self.gas.electron_elastic_power_loss, 2.4114e7, 1e-3)

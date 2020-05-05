@@ -1,4 +1,4 @@
-units: {length: cm, quantity: mol, activation-energy: K}
+units: {length: cm, quantity: molec, activation-energy: K}
 
 phases:
 - name: gas
