@@ -221,14 +221,9 @@ bool PlasmaPhase::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
         for (size_t k = 0; k < m_ncs; k++) {
             if (target(k) == ecs->target)
                 if (kind(k) == "elastic" || kind(k) == "effective") {
-                    throw CanteraError("PlasmaPhase::addElectronCrossSection",
+                    throw CanteraError("PlasmaPhase::addElectronCrossSection"
                                        "Already contains a data of effective/ELASTIC cross section for '{}'.",
                                        ecs->target);
-            }
-            // add (0, 0) to m_crossSection
-            if (m_crossSections[k][0][0] != 0.0) {
-                m_crossSections[k][0].insert(m_crossSections[k][0].begin(), 0.0);
-                m_crossSections[k][1].insert(m_crossSections[k][0].begin(), 0.0);
             }
         }
         m_kElastic.push_back(m_ncs);
