@@ -1401,6 +1401,8 @@ public:
      * @internal
      */
     virtual MultiSpeciesThermo& speciesThermo(int k = -1);
+    
+    virtual const MultiSpeciesThermo& speciesThermo(int k = -1) const;
 
     /**
      * @internal
