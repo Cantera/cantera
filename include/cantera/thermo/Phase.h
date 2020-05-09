@@ -877,6 +877,12 @@ public:
         m_root = root;
     }
 
+    //! Converts a compositionMap to a vector with entries for each species 
+    //! Species that are not specified are set to zero in the vector
+    //!     @param[in] compositionMap containing the mixture composition
+    //!     @return vector with length m_kk
+    vector_fp getCompositionFromMap(const compositionMap& comp) const;
+
 protected:
     //! Ensure that phase is compressible.
     //! An error is raised if the state is incompressible
