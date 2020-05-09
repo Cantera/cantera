@@ -267,6 +267,18 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         void setState_Tsat(double T, double x) except +translate_exception
         void setState_Psat(double P, double x) except +translate_exception
         void setState_TPQ(double T, double P, double Q) except +translate_exception
+        
+        void setMixtureFraction_X(double mixFrac, const double* fuelComp, const double* oxComp) except +translate_exception
+        void setMixtureFraction_Y(double mixFrac, const double* fuelComp, const double* oxComp)except +translate_exception
+        double getMixtureFraction_X(const double* fuelComp, const double* oxComp) except +translate_exception
+        double getMixtureFraction_Y(const double* fuelComp, const double* oxComp) except +translate_exception
+        void setEquivalenceRatio_X(double phi, const double* fuelComp, const double* oxComp) except +translate_exception
+        void setEquivalenceRatio_Y(double phi, const double* fuelComp, const double* oxComp) except +translate_exception
+        double getEquivalenceRatio_X(const double* fuelComp, const double* oxComp) except +translate_exception
+        double getEquivalenceRatio_Y(const double* fuelComp, const double* oxComp) except +translate_exception
+        double getEquivalenceRatio() except +translate_exception
+        double getStoichAirFuelRatio_X(const double* fuelComp, const double* oxComp) except +translate_exception
+        double getStoichAirFuelRatio_Y(const double* fuelComp, const double* oxComp) except +translate_exception
 
 
 cdef extern from "cantera/thermo/IdealGasPhase.h":

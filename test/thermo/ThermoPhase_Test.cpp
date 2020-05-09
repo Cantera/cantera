@@ -109,4 +109,80 @@ TEST_F(TestThermoMethods, setState_AnyMap)
     EXPECT_NEAR(thermo->temperature(), 298.15, 1e-6);
 }
 
+TEST(TestMixtureMethods, getSet_EquilRatio_MixtureFraction)
+{
+    auto sol = newSolution("gri30.yaml", "gri30", "None");
+    auto pgas = sol->thermo();
+    auto& gas = *pgas;
+
+    // start with some fuel and oxidizer compositions
+    compositionMap fuel;
+    compositionMap ox;
+    fuel["CH4"] = 0.2;
+    fuel["O2"] = 0.02;
+    fuel["N2"] = 0.1;
+    fuel["CO"] = 0.05;
+    fuel["CO2"] = 0.02;
+    ox["O2"] = 0.21;
+    ox["N2"] = 0.79;
+    ox["CO"] = 0.04;
+    ox["CH4"] = 0.01;
+    ox["CO2"] = 0.03;
+
+    // set equivalence ratio to 1.3
+    gas.setEquivalenceRatio_X(1.3, fuel, ox);
+
+    // set mixture to  burnt state to make sure that equivalence ratio and
+    // mixture fraction are indipendent of reaction progress
+    gas.equilibrate("HP");
+
+    auto phi = gas.getEquivalenceRatio_X(fuel, ox);
+    auto phi_loc = gas.getEquivalenceRatio();
+    auto mf = gas.getMixtureFraction_X(fuel, ox);
+    auto l = gas.getStoichAirFuelRatio_X(fuel, ox);
+
+    // set mixture according to mixture fraction
+    gas.setMixtureFraction_X(mf, fuel, ox);
+    auto phi2 = gas.getEquivalenceRatio_X(fuel, ox);
+
+    EXPECT_NEAR(phi, 1.3, 1e-4);
+    EXPECT_NEAR(phi2, 1.3, 1e-4);
+    EXPECT_NEAR(phi_loc, 1.1726068608, 1e-4);
+    EXPECT_NEAR(mf, 0.13415725911, 1e-4);
+    EXPECT_NEAR(l, 6.5972850678733, 1e-4);
+
+    // do the same for *_Y functions
+
+    // convert fuel and oxdizer compositions to mass fractions
+    gas.setState_TPX(300, 1e5, fuel);
+    fuel.clear();
+    for (size_t i=0; i!=gas.nSpecies(); ++i)
+        fuel[gas.speciesName(i)] = gas.massFraction(i);
+
+    gas.setState_TPX(300, 1e5, ox);
+    ox.clear();
+    for (size_t i=0; i!=gas.nSpecies(); ++i)
+        ox[gas.speciesName(i)] = gas.massFraction(i);
+
+    gas.setEquivalenceRatio_Y(1.3, fuel, ox);
+
+    gas.equilibrate("HP");
+
+    phi = gas.getEquivalenceRatio_Y(fuel, ox);
+    phi_loc = gas.getEquivalenceRatio();
+    mf = gas.getMixtureFraction_Y(fuel, ox);
+    l = gas.getStoichAirFuelRatio_Y(fuel, ox);
+
+    gas.setMixtureFraction_Y(mf, fuel, ox);
+    phi2 = gas.getEquivalenceRatio_Y(fuel, ox);
+    auto p = gas.pressure(); // make sure the pressure has not been altered
+
+    EXPECT_NEAR(phi, 1.3, 1e-4);
+    EXPECT_NEAR(phi2, 1.3, 1e-4);
+    EXPECT_NEAR(phi_loc, 1.1726068608, 1e-4);
+    EXPECT_NEAR(mf, 0.13415725911, 1e-4);
+    EXPECT_NEAR(l, 6.5972850678733, 1e-4);
+    EXPECT_NEAR(p, 1e5, 1e-4);
+}
+
 }

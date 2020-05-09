@@ -1047,4 +1047,18 @@ void Phase::compositionChanged() {
     m_stateNum++;
 }
 
+vector_fp Phase::getCompositionFromMap(const compositionMap& comp) const
+{
+    vector_fp X(m_kk);
+    for (const auto& sp : comp)
+    {
+        auto loc = speciesIndex(sp.first);
+        if (loc == npos)
+            throw CanteraError("Phase::getCompositionFromMap",
+                               "Unknown species '{}'", sp.first);
+        X[loc] = sp.second;
+    }
+    return X;
+}
+
 } // namespace Cantera
