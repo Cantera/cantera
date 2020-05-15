@@ -21,7 +21,6 @@ double norm(const Eigen::VectorXd& f, const vector_fp& grid)
 }
 
 WeaklyIonizedGas::WeaklyIonizedGas()
-    : m_chemionScatRate(0.0)
 {
 }
 
@@ -257,9 +256,6 @@ Eigen::VectorXd WeaklyIonizedGas::iterate(Eigen::VectorXd& f0, double delta)
     A *= delta;
     A += I;
 
-    // add chemionization scattering-in rate at the first grid
-    f0(0) += m_chemionScatRate;
-
     // solve f0
     Eigen::SparseLU<SparseMat> solver(A);
     Eigen::VectorXd f1 = solver.solve(f0);
@@ -295,7 +291,7 @@ Eigen::VectorXd WeaklyIonizedGas::converge(Eigen::VectorXd& f0)
 
 double WeaklyIonizedGas::netProductionFreq(Eigen::VectorXd& f0)
 {
-    double nu = m_chemionScatRate;
+    double nu = 0.0;
     vector_fp g = vector_g(f0);
 
     for (size_t k = 0; k < m_ncs; k++) {

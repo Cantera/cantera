@@ -211,9 +211,6 @@ protected:
 
     //! vector of total elastic cross section weighted with mass ratio
     vector_fp m_sigmaElastic;
-
-    //! Set chemionization scattering-in rate
-    double m_chemionScatRate;
 };
 
 }
