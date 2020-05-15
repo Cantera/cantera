@@ -51,7 +51,7 @@ void WeaklyIonizedGas::calculateTotalElasticCrossSection()
         vector_fp& x = m_crossSections[k][0];
         vector_fp& y = m_crossSections[k][1];
         for (size_t i = 0; i < m_points; i++) {
-            double mass_ratio = ElectronMass / (Dalton * molecularWeight(m_kTargets[k]));
+            double mass_ratio = ElectronMass / (molecularWeight(m_kTargets[k]) / Avogadro);
             m_sigmaElastic[i] += 2.0 * mass_ratio * moleFraction(m_kTargets[k]) *
                                  linearInterp(m_gridEdge[i], x, y);
         }
