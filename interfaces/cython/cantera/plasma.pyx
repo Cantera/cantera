@@ -7,7 +7,7 @@ import weakref
 cdef class PlasmaPhase(ThermoPhase):
     """ A class representing a plasma phase"""
     def __cinit__(self, *args, **kwargs):
-        if pystr(self.thermo.type()) not in ("WeaklyIonizedGas"):
+        if pystr(self.thermo.type()) != "WeaklyIonizedGas":
             raise TypeError('Underlying ThermoPhase object is of the wrong type.')
         self.plasma = <CxxPlasmaPhase*>(self.thermo)
 
