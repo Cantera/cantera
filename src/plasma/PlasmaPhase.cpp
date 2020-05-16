@@ -101,6 +101,8 @@ void PlasmaPhase::setGridCache()
 {
     m_sigma.clear();
     m_sigma.resize(m_ncs);
+    m_sigma_offset.clear();
+    m_sigma_offset.resize(m_ncs);
     m_eps.clear();
     m_eps.resize(m_ncs);
     m_j.clear();
@@ -158,6 +160,15 @@ void PlasmaPhase::setGridCache()
         for (size_t i = 0; i < nodes.size() - 1; i++) {
             vector_fp eps{nodes[i], nodes[i+1]};
             m_eps[k].push_back(eps);
+        }
+
+        // construct sigma_offset
+        vector_fp x_offset = m_crossSections[k][0];
+        for (auto& element : x_offset) {
+            element -= threshold(k);
+        }
+        for (size_t i = 0; i < m_points; i++) {
+            m_sigma_offset[k].push_back(linearInterp(m_gridCenter[i], x_offset, y));
         }
     }
 }

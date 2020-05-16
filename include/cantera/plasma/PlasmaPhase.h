@@ -328,6 +328,9 @@ protected:
     //! The energy boundaries of the overlap of cell i and j
     std::vector<std::vector<vector_fp>> m_eps;
 
+    //! The cross section at the center of a cell
+    std::vector<vector_fp> m_sigma_offset;
+
     //! cross section data. m_crossSections[i][j][k] where i is the specific process,
     //! j=0 is the vector of electron energy [eV], j=1 is the vector of cross section, and
     // k is the index of vector.

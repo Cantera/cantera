@@ -425,14 +425,11 @@ double WeaklyIonizedGas::rateCoefficient(size_t k)
 double WeaklyIonizedGas::reverseRateCoefficient(size_t k)
 {
     calculateDistributionFunction();
-    vector_fp g = vector_g(m_f0);
-    SparseMat Q = matrix_Q(g, k);
-    Eigen::VectorXd s = Q * m_f0;
-    double sum = 0.0;
+    vector_fp y(m_points, 0.0);
     for (size_t i = 0; i < m_points; i++) {
-        sum += s(i);
+        y[i] = (m_gridCenter[i] + threshold(k)) * m_sigma_offset[k][i] * m_f0(i);
     }
-    return sum;
+    return m_gamma * simpsonQuadrature(m_gridCenter, y);
 }
 
 double WeaklyIonizedGas::meanElectronEnergy()
