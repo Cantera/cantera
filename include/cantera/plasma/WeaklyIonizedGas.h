@@ -47,41 +47,49 @@ typedef Eigen::SparseMatrix<double> SparseMat;
  * \f$ \tilde{C}_{0,k} \f$ represents the rate of change in EEDF due to collisions,
  * and \f$ F_0 \f$ is the normalized EEDF.
  * 
- * The collision terms are,
+ * The inelastic collision terms are,
  * \f[
- *     \tilde{C}_{0,k=elastic} = \gamma X_k \frac{2 m}{M_k} \frac{d}{d \epsilon}
- *         \left[\epsilon^2 \sigma_k \left( F_0 + \frac{k_B T}{e} \frac{d F_0}{\epsilon} \right) \right],
- * \f]
- * \f[
- *     \tilde{C}_{0,k=inelastic} = -\gamma X_k \epsilon \sigma_k F_0
- *                                 \big|^{\epsilon=\epsilon}_{\epsilon=\epsilon + u_k}
+ *     \tilde{C}_{0,k=excitation} = -\gamma X_k \epsilon \sigma_k F_0
+ *                                 \big|^{\epsilon=\epsilon}_{\epsilon=\epsilon + u_k},
  * \f]
  * \f[
  *     \tilde{C}_{0,k=ionization} = -\gamma X_k \epsilon \sigma_k F_0
- *                                  \big|^{\epsilon=\epsilon}_{\epsilon=2\epsilon + u_k}
+ *                                  \big|^{\epsilon=\epsilon}_{\epsilon=2\epsilon + u_k},
  * \f]
  * \f[
- *     \tilde{C}_{0,k=attachment} = -\gamma X_k \epsilon \sigma_k F_0
+ *     \tilde{C}_{0,k=attachment} = -\gamma X_k \epsilon \sigma_k F_0.
  * \f]
- * For exponential temporal growth model,
+ * The exponential temporal growth model is used to calculate G.
  * \f[
  *     G = \left[ \int_0^\infty \left(\sum_{k=ionization} X_k \sigma_k - \sum_{k=attachment} X_k \sigma_k \right)
- *         \epsilon F_0 d \epsilon \right] \epsilon^{1/2} F_0
+ *         \epsilon F_0 d \epsilon \right] \epsilon^{1/2} F_0,
  * \f]
  * where \f$ X_k \f$ is the mole fraction of the target species, and \f$ \sigma_k \f$ is the cross section.
  *
- * Reference:
+ * <B> The numerical method: \n </B>
+ * For each cell i,
+ * \f[
+ *     \left[ \tilde{W} F_0 - \tilde{D} \frac{d F_0}{d \epsilon} \right]_{i+1/2} -
+ *     \left[ \tilde{W} F_0 - \tilde{D} \frac{d F_0}{d \epsilon} \right]_{i-1/2} =
+ *     \int_{\epsilon-1/2}^{\epsilon+1/2}\tilde{S}d\epsilon.
+ * \f]
+ * The left-hand side is discretized as shown in matrix_A(), and the right-hand side is discritized as,
+ * \f[
+ *     \int_{\epsilon - 1/2}^{\epsilon + 1/2} \tilde{S} d\epsilon =
+ *     -\sum_{k=inelastic} X_k P_{i,k} F_{0,i} + \sum_{k=inelastic} X_k \sum_j Q_{i,j,k} F_{0,j},
+ * \f]
+ * where \f$ P_{i,k} \f$ and \f$ Q_{i,j,k} \f$ are defined in matrix_P() and matrix_Q(), respectively. \n
+ * Note that references [1] and [2] are used as the blueprint of this class. Reference [1] provides the physics and
+ * the methametical model (govening equations), and reference [2] provides the implementation of the numerical scheme.
+ *
+ * Reference: \n
  * [1] G. J. M. Hagelaar and L. C. Pitchford
  * "Solving the Boltzmann equation to obtain electron transport
  * coefficients and rate coefficients for fluid models."
  * Plasma Sources Science and Technology 14.4 (2005): 722.
- * doi: https://doi.org/10.1088/0963-0252/14/4/011
+ * doi: https://doi.org/10.1088/0963-0252/14/4/011 \n
  * [2] A. Luque, "BOLOS: An open source solver for the Boltzmann equation,"
  * https://github.com/aluque/bolos.
- * [3] D. McElroy, C. Walsh, A. Markwick, M. Cordiner, K. Smith, T. Millar,
- * "The umist database for astrochemistry 2012,"
- * Astronomy & Astrophysics 550 (2013) A36.
- * doi: https://doi.org/10.1051/0004-6361/201220465
  * @ingroup plasma
  */
 class WeaklyIonizedGas: public PlasmaPhase
@@ -93,20 +101,111 @@ public:
         return "WeaklyIonizedGas";
     }
 
+    //! Electron diffusivity \f$ D_e \f$ in [m<SUP>2</SUP>/s].
+    /**
+     * \f[
+     *     D_e = \frac{\gamma}{3 N} \int_0^{\infty} \frac{\epsilon}
+     *     {\sigma_m + \bar{\nu}_i / N \gamma \epsilon^{1/2}} f_0 d\epsilon,
+     * \f]
+     * where \f$ \sigma_m \f$ is the total cross section (#m_totalCrossSectionCenter) calculated by
+     * calculateTotalCrossSection() and \f$ \bar{\nu}_i/N \f$ is the reduced net production frequency
+     * calculated by netProductionFreq().
+     */
     virtual double electronDiffusivity();
+
+    //! Electron mobility \f$ \mu_e \f$ in [m<SUP>2</SUP>/V/s].
+    /**
+     * \f[
+     *     \mu_e = -\frac{\gamma}{3 N} \int_0^{\infty} \frac{\epsilon}
+     *     {\sigma_m + \bar{\nu}_i / N \gamma \epsilon^{1/2}} \frac{df_0}{d\epsilon} d\epsilon,
+     * \f]
+     * where \f$ \sigma_m \f$ is the total cross section (#m_totalCrossSectionEdge) calculated by
+     * calculateTotalCrossSection() and \f$ \bar{\nu}_i/N \f$ is the reduced net production frequency
+     * calculated by netProductionFreq().
+     */
     virtual double electronMobility();
+
+    //! Mean electron energy in [eV].
+    /**
+     * \f[
+     *     <\epsilon> = \int_0^{\infty} \epsilon^{3/2} f_0 d\epsilon,
+     * \f]
+     */
     virtual double meanElectronEnergy();
+
+    //! Electron power gain of one electron in [eV/s].
+    /**
+     * DC electric field (#m_F = 0.0):
+     * \f[
+     *     P_e = E^2 \mu_e,
+     * \f]
+     * where E is electric field strength (#m_E) and \f$ \mu_{e} \f$ is calculated by electronMobility().
+     * AC electric field:
+     * \f[
+     *    P_e = E^2 \mu_{e, real},
+     * \f]
+     * where \f$ \mu_{e, real} \f$ is calculated by realMobility().
+     */
     virtual double powerGain();
+
+    //! Elastic power loss of one electron to the gas in [eV/s].
+    /**
+     * \f[
+     *     P_{elastic loss} = N \sum_{k=elastic} \gamma X_k \frac{2m_e}{M_k} \int_0^\infty
+     *                        \sigma_k \left(\epsilon^2 f_0 + \frac{k_B T}{e} \frac{df_0}{\epsilon} \right) d\epsilon,
+     * \f]
+     * where \f$ \frac{m_e}{M_k} \f$ is the mass ratio of electron to the molecule, \f$ \frac{k_B T}{e} \f$ is
+     * the gas temperature in eV (#m_kT).
+     */
     virtual double elasticPowerLoss();
+
+    //! Inelastic power loss of one electron to the gas in [eV/s].
+    /**
+     * \f[
+     *     P_{inelastic loss} = N \sum_{k=inelastic} U_k X_k \left( y_k^{low} \text{k}_k - y_k^{up} \text{k}^{rev}_k \right) 
+     * \f]
+     * where \f$ U_k \f$ is the threshold energy, \f$ y_k^{up/low} \f$ is the fractional populations of the upper and lower states from bi-Maxwellian
+     * Boltzmann factors, and \f$ \text{k}^{rev} \f$ is the reverse rate coefficient.
+     */
     virtual double inelasticPowerLoss();
+
+    //! 
     virtual double totalCollisionFreq();
+
+    //! Reverse rate coefficient for the electron collision process k in [m<SUP>3</SUP>/s].
+    /**
+     * \f[
+     *     \text{k}_{rev} = \gamma \int_0^{\infty} (\epsilon + U_k) \sigma_k(\epsilon + U_k) f_0(\epsilon) d\epsilon,
+     * \f]
+     * which can be calculated by interpolating the cross-section data on the energy grid with the offset equal
+     * to the threshold energy.
+     */
     virtual double reverseRateCoefficient(size_t k);
+
+    //! Rate coefficient for the electron collision process k in [m<SUP>3</SUP>/s].
+    /**
+     * \f[
+     *     \text{k} = \gamma \int_0^{\infty} \epsilon \sigma_k(\epsilon) f_0(\epsilon) d\epsilon,
+     * \f]
+     * which can be calculated using matrix_P() and EEDF.
+     */
     virtual double rateCoefficient(size_t k);
 
-    //! The real part of the mobility. This is used in power gain for case of AC.
+    //! The real part of the mobility \f$ \mu_{e,real} \f$. This is used in power gain for case of AC.
+    /**
+     * \f[
+     *     \mu_{e,real} = -\frac{\gamma}{3 N} \int_0^{\infty} \frac{Q \epsilon}{Q^2 + q^2}
+     *      \frac{df_0}{d\epsilon} d\epsilon, \\
+     *     Q = \sigma_m + \frac{\bar{\nu}_i}{N \gamma \epsilon^{1/2}}, \\
+     *     q = \frac{\omega}{N \gamma \epsilon^{1/2}},
+     * \f]
+     * where \f$ \sigma_m \f$ is the total cross section (#m_totalCrossSectionEdge) calculated by
+     * calculateTotalCrossSection(), \f$ \bar{\nu}_i/N \f$ is the reduced net production frequency
+     * calculated by netProductionFreq(), and \f$ \omega \f$ is the angular frequency (\f$ 2 \pi \f$ #m_F).
+     */
     double realMobility();
 
-    //! electron temperature
+    //! Electron temperature in Kelvin.
     //! If the reduced electric field is set, electron temperature is calculated
     //! from EEDF.
     virtual double electronTemperature();
@@ -135,7 +234,7 @@ protected:
     double integralPQ(double a, double b, double u0, double u1,
                        double g, double x0);
 
-    //! Vector g is used by matrix_PQ.
+    //! Vector g is used by matrix_P() and matrix_Q().
     /**
      * \f[
      * g_i = \frac{1}{\epsilon_{i+1} - \epsilon_{i-1}} \ln(\frac{F_{0, i+1}}{F_{0, i-1}})
@@ -146,7 +245,7 @@ protected:
     //! The matrix of scattering-out.
     /**
      * \f[
-     * P_i = \sum_{k=inelastic} \gamma X_k \int_{\epsilon_i - 1/2}^{\epsilon_i + 1/2}
+     * P_{i,k} = \gamma \int_{\epsilon_i - 1/2}^{\epsilon_i + 1/2}
      * \epsilon \sigma_k exp[(\epsilon_i - \epsilon)g_i] d \epsilon
      * \f]
      */
@@ -155,12 +254,12 @@ protected:
     //! The matrix of scattering-in
     /**
      * \f[
-     * Q_{i,j} = \sum_{k=inelastic} \gamma X_k \int_{\epsilon_1}^{\epsilon_2}
+     * Q_{i,j,k} = \gamma \int_{\epsilon_1}^{\epsilon_2}
      * \epsilon \sigma_k exp[(\epsilon_j - \epsilon)g_j] d \epsilon
      * \f]
      */
     //! where the interval \f$[\epsilon_1, \epsilon_2]\f$ is the overlap of cell j,
-    //! and cell i shifted by the threshold energy u_k:
+    //! and cell i shifted by the threshold energy:
     /**
      * \f[
      * \epsilon_1 = \min(\max(\epsilon_{i-1/2}+u_k, \epsilon_{j-1/2}),\epsilon_{j+1/2}),
