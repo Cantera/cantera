@@ -111,6 +111,7 @@ public:
     PlasmaReaction();
     PlasmaReaction(const Composition& reactants, const Composition& products,
                    const std::map<std::string, std::string>& process);
+    virtual void validate();
     std::map<std::string, std::string> process;
 };
 

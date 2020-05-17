@@ -154,6 +154,52 @@ PlasmaReaction::PlasmaReaction()
 {
 }
 
+void PlasmaReaction::validate()
+{
+    Reaction::validate();
+    bool reactants_ok = false;
+    bool found_electron = false;
+    if (reactants.size() == 2) {
+        double sum = 0.0;
+        for (auto species : reactants) {
+            if (species.first == "E") {
+                found_electron = true;
+            }
+            sum += species.second;
+        }
+        if (sum == 2.0 && found_electron) {
+            reactants_ok = true;
+        }
+    }
+    if (reactants_ok == false) {
+        throw CanteraError("PlasmaReaction::validate",
+                           "The type of the reaction {} is not suitable to be plasma."
+                           "The reactants have to be one electron plus one molecule", equation());
+    }
+
+    bool products_ok = false;
+    found_electron = false;
+    if (reversible) {
+        if (products.size() == 2) {
+            double sum = 0.0;
+            for (auto species : products) {
+                if (species.first == "E") {
+                    found_electron = true;
+                }
+                sum += species.second;
+            }
+            if (sum == 2.0 && found_electron) {
+                products_ok = true;
+            }
+        }
+        if (products_ok == false) {
+            throw CanteraError("PlasmaReaction::validate",
+                               "The reaction {} is not suitable to be reversible."
+                               "The products have to be one electron plus one molecule", equation());
+        }
+    }
+}
+
 ThirdBody::ThirdBody(double default_eff)
     : default_efficiency(default_eff)
 {
