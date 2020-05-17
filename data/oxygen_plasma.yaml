@@ -5,7 +5,7 @@ phases:
   thermo: weakly-ionized-gas
   elements: [O, E]
   species:
-  - species: [O2^+, O2^-]
+  - species: [O2^+, O2^-, O2(a1)]
   - gri30_ion.yaml/species: [O2, E]
   - gri30.yaml/species: [O]
 
@@ -53,9 +53,31 @@ species:
     well-depth: 136.5
     polarizability: 1.424
   note: L4/89
+- name: O2(a1)
+  composition: {O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.78535371, -3.2192854e-03, 1.12323443e-05, -1.17254068e-08, 4.17659585e-12,
+      1.02922572e+04, 3.27320239]
+    - [3.45852381, 1.04045351e-03, -2.79664041e-07, 3.11439672e-11, -8.55656058e-16,
+      1.02229063e+04, 4.15264119]
+  transport:
+    model: gas
+    geometry: linear
+    diameter: 2.769
+    well-depth: 1836.0
+    polarizability: 1.434
+    rotational-relaxation: 3.8
+  note: singletATcT
 
 reactions:
 # Kossyi et al. (1992) doi.org/10.1088/0963-0252/1/3/011
+# Kossyi (5)
+- equation: E + O2 <=> E + O2(a1)
+  type: plasma
+  process: {kind: excitation, target: O2, product: O2(a1)}
 # Kossyi (40)
 - equation: O2^+ + E => O + O
   type: electron-temperature
