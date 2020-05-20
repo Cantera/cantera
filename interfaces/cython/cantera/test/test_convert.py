@@ -263,8 +263,8 @@ class converterTestCommon:
     def test_negative_order_permissive(self):
         self.convert('negative-order.inp', thermo='dummy-thermo.dat',
             permissive=True)
-        ref, gas = self.checkConversion('explicit-forward-order.xml',
-                                        'explicit-forward-order')
+        ref, gas = self.checkConversion('negative-order.cti',
+                                        'negative-order')
         # pre-exponential factor in XML is truncated to 7 sig figs, limiting accuracy
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6],
                            tol=2e-7)
