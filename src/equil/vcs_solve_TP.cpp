@@ -7,6 +7,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/equil/vcs_solve.h"
+#include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/clockWC.h"
