@@ -11,6 +11,12 @@
 //! static libfmt.a
 #define FMT_HEADER_ONLY
 
+//! Versions 6.2.0 and 6.2.1 of fmtlib do not include this define before they
+//! include windows.h, breaking builds on Windows. As of May 23, 2020 the fix
+//! is committed to the master branch of fmtlib but hasn't been released.
+#ifdef _WIN32
+#define NOMINMAX
+#endif
 #if CT_USE_SYSTEM_FMT
   #include "fmt/format.h"
   #if defined(FMT_VERSION) && FMT_VERSION >= 40000
