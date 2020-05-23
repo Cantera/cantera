@@ -9,7 +9,7 @@
 	url = https://github.com/LLNL/sundials
 [submodule "ext/eigen"]
 	path = ext/eigen
-	url = https://github.com/eigenteam/eigen-git-mirror
+	url = https://gitlab.com/libeigen/eigen.git/
 [submodule "ext/yaml-cpp"]
 	path = ext/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp.git
