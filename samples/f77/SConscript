@@ -15,7 +15,7 @@ samples = [('ctlib', ['ctlib.f']),
            ('isentropic', ['isentropic.f'])]
 
 ftn_demo = localenv.Object('demo_ftnlib.cpp',
-                           CPPPATH=['#include'])
+                           CPPPATH=['#include', localenv['boost_inc_dir']])
 for program_name, fortran_sources in samples:
     buildSample(localenv.Program, program_name,
                 fortran_sources + ftn_demo,
