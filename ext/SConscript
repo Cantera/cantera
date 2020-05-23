@@ -51,7 +51,8 @@ if not env['system_fmt']:
 
 if env['system_sundials'] == 'n':
     localenv = prep_default(env)
-    localenv.Prepend(CPPPATH=Dir('#include/cantera/ext'))
+    localenv.Prepend(CPPPATH=[Dir('#include/cantera/ext'),
+                              Dir('#ext/sundials/src/sundials')])
     license_files.append(('Sundials', 'sundials/LICENSE'))
 
     # Generate sundials_config.h
