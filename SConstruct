@@ -1107,7 +1107,7 @@ if env['system_sundials'] == 'y':
     if sundials_ver < LooseVersion('2.4') or sundials_ver >= LooseVersion('6.0'):
         print("""ERROR: Sundials version %r is not supported.""" % env['sundials_version'])
         sys.exit(1)
-    elif sundials_ver > LooseVersion('5.1'):
+    elif sundials_ver > LooseVersion('5.3'):
         print("WARNING: Sundials version %r has not been tested." % env['sundials_version'])
 
     print("""INFO: Using system installation of Sundials version %s.""" % sundials_version)
@@ -1132,8 +1132,8 @@ if env['system_sundials'] == 'y':
         print('WARNING: External BLAS/LAPACK has been specified for Cantera '
               'but Sundials was built without this support.')
 else: # env['system_sundials'] == 'n'
-    print("""INFO: Using private installation of Sundials version 5.1.""")
-    env['sundials_version'] = '5.1'
+    print("""INFO: Using private installation of Sundials version 5.3.""")
+    env['sundials_version'] = '5.3'
     env['has_sundials_lapack'] = int(env['use_lapack'])
 
 
