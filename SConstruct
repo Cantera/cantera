@@ -71,7 +71,9 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeFile('config.log')
     removeDirectory('doc/sphinx/matlab/examples')
     removeFile('doc/sphinx/matlab/examples.rst')
-    removeDirectory('doc/sphinx/matlab/code-docs')
+    for name in os.listdir('doc/sphinx/matlab/'):
+        if name.endswith('.rst') and name != 'index.rst':
+            removeFile('doc/sphinx/matlab/' + name)
     removeDirectory('doc/sphinx/cython/examples')
     removeFile('doc/sphinx/cython/examples.rst')
     removeDirectory('interfaces/cython/Cantera.egg-info')
