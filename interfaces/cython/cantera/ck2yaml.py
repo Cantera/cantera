@@ -1281,8 +1281,8 @@ class Parser:
         tests = [cheb_coeffs, pdep_arrhenius, low_rate, high_rate, third_body,
                  surface]
         if sum(bool(t) for t in tests) > 1:
-            raise InputError('Reaction entry contains parameters for more than '
-                'one reaction type.')
+            raise InputError('Reaction {} contains parameters for more than '
+                'one reaction type.', original_reaction)
 
         if cheb_coeffs:
             if Tmin is None or Tmax is None:
@@ -1804,8 +1804,14 @@ class Parser:
 
         for reactions in possible_duplicates.values():
             for r1,r2 in itertools.combinations(reactions, 2):
+                duplicate_reaction_error = False
                 if r1.duplicate and r2.duplicate:
                     pass  # marked duplicate reaction
+                elif None in [r1.third_body, r2.third_body]:
+                    if None not in [r1.third_body, r2.third_body]:
+                        duplicate_reaction_error = True
+                    else:   # if mixture of third-body and falloff allow
+                        pass
                 elif (r1.third_body.upper() == 'M' and
                       r1.kinetics.efficiencies.get(r2.third_body) == 0):
                     pass  # explicit zero efficiency
@@ -1815,6 +1821,9 @@ class Parser:
                 elif r1.third_body != r2.third_body:
                     pass  # distinct third bodies
                 else:
+                    duplicate_reaction_error = True
+                    
+                if duplicate_reaction_error:
                     raise InputError(
                         'Encountered unmarked duplicate reaction {} '
                         '(See lines {} and {} of the input file.).',
