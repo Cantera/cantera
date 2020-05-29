@@ -1051,29 +1051,30 @@ class Parser:
                             parser=self)
 
         def parse_expression(expression, dest):
-            falloff3b = None
+            third_body_name = None
             third_body = False  # simple third body reaction (non-falloff)
             photon = False
             for stoichiometry, species, kind in expression:
                 if kind == 'third-body':
                     third_body = True
+                    third_body_name = 'M'
                 elif kind == 'falloff3b':
-                    falloff3b = 'M'
+                    third_body_name = 'M'
                 elif kind.startswith('falloff3b:'):
-                    falloff3b = kind.split()[1]
+                    third_body_name = kind.split()[1]
                 elif kind == 'photon':
                     photon = True
                 else:
                     dest.append((stoichiometry, self.species_dict[species]))
 
-            return falloff3b, third_body, photon
+            return third_body_name, third_body, photon
 
-        falloff_3b_r, third_body, photon_r = parse_expression(reactants, reaction.reactants)
-        falloff_3b_p, third_body, photon_p = parse_expression(products, reaction.products)
+        third_body_name_r, third_body, photon_r = parse_expression(reactants, reaction.reactants)
+        third_body_name_p, third_body, photon_p = parse_expression(products, reaction.products)
 
-        if falloff_3b_r != falloff_3b_p:
+        if third_body_name_r != third_body_name_p:
             raise InputError('Third bodies do not match: "{}" and "{}" in'
-                ' reaction entry:\n\n{}', falloff_3b_r, falloff_3b_p, entry)
+                ' reaction entry:\n\n{}', third_body_name_r, third_body_name_p, entry)
 
         if photon_r:
             raise InputError('Reactant photon not supported. '
@@ -1085,7 +1086,7 @@ class Parser:
                 'removed.'.format(entry.strip()))
             reaction.reversible = False
 
-        reaction.third_body = falloff_3b_r
+        reaction.third_body = third_body_name_r
 
         # Determine the appropriate units for k(T) and k(T,P) based on the number of reactants
         # This assumes elementary kinetics for all reactions
@@ -1281,8 +1282,8 @@ class Parser:
         tests = [cheb_coeffs, pdep_arrhenius, low_rate, high_rate, third_body,
                  surface]
         if sum(bool(t) for t in tests) > 1:
-            raise InputError('Reaction entry contains parameters for more than '
-                'one reaction type.')
+            raise InputError('Reaction {} contains parameters for more than '
+                'one reaction type.', original_reaction)
 
         if cheb_coeffs:
             if Tmin is None or Tmax is None:
@@ -1396,7 +1397,8 @@ class Parser:
                 tokens = line.split() or ['']
                 if inHeader and not line.strip():
                     header.append(comment.rstrip())
-                    indent = min(indent, re.search('[^ ]', comment).start())
+                    if comment.strip() != '': # skip indent calculation if empty
+                        indent = min(indent, re.search('[^ ]', comment).start())
 
                 if tokens[0].upper().startswith('ELEM'):
                     inHeader = False
@@ -1806,6 +1808,12 @@ class Parser:
             for r1,r2 in itertools.combinations(reactions, 2):
                 if r1.duplicate and r2.duplicate:
                     pass  # marked duplicate reaction
+                elif (type(r1.kinetics) == ThreeBody and
+                      type(r2.kinetics) != ThreeBody):
+                    pass
+                elif (type(r1.kinetics) != ThreeBody and
+                      type(r2.kinetics) == ThreeBody):
+                    pass
                 elif (r1.third_body.upper() == 'M' and
                       r1.kinetics.efficiencies.get(r2.third_body) == 0):
                     pass  # explicit zero efficiency
