@@ -419,6 +419,16 @@ class converterTestCommon:
         self.assertEqual(gas.n_reactions, 0)
         self.assertEqual(surf.n_reactions, 15)
 
+    def test_third_body_plus_falloff_reactions(self):
+        self.convert('third_body_plus_falloff_reaction.inp')
+        gas = ct.Solution('third_body_plus_falloff_reaction' + self.ext)
+        self.assertEqual(gas.n_reactions, 2)
+
+    def test_blank_line_in_header(self):
+        self.convert('blank_line_in_header.inp')
+        gas = ct.Solution('blank_line_in_header' + self.ext)
+        self.assertEqual(gas.n_reactions, 1)
+
 
 class ck2ctiTest(converterTestCommon, utilities.CanteraTest):
     ext = '.cti'
