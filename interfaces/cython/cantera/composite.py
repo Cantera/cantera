@@ -668,7 +668,7 @@ class SolutionArray:
         `collect_data`.
 
         :param data: Dictionary holding data to be restored, where keys
-            refer to thermodynamic states (e.g. ``T``, ``P``) or extra
+            refer to thermodynamic states (e.g. ``T``, ``density``) or extra
             entries, and values contain corresponding data.
 
         The receiving `SolutionArray` either has to be empty or should have
@@ -694,7 +694,7 @@ class SolutionArray:
             if col.shape[0] != rows:
                 raise ValueError("'SolutionArray.restore_data' requires "
                                  "all data entries to have a consistent "
-                                 "first dimenstion")
+                                 "first dimension")
 
         if self._shape != (0,) and self._shape != (rows,):
             raise ValueError(
@@ -997,7 +997,7 @@ class SolutionArray:
             data_dict[label] = data[:, i]
         self.restore_data(data_dict)
 
-    def write_hdf(self, filename, *args, cols=None, group=None, name=None,
+    def write_hdf(self, filename, *args, cols=None, group=None, subgroup=None,
                   attrs={}, mode='a', append=False,
                   compression=None, compression_opts=None, **kwargs):
         """
@@ -1005,24 +1005,42 @@ class SolutionArray:
         Note that it is possible to write multiple data entries to a single HDF
         container file, where *group* is used to differentiate data.
 
+        An example for the default HDF file structure is:::
+
+            /                        Group
+            /group0                  Group
+            /group0/some_attr        Attribute
+            ...
+            /group0/T                Dataset
+            ...
+            /group0/phase            Group
+            /group0/phase/name       Attribute
+            /group0/phase/source     Attribute
+
+        where ``group0`` is the default name for the top level HDF entry. In
+        addition to datasets, information stored in `SolutionArray.meta` is
+        saved in form of HDF attributes. An additional intermediate layer may
+        be created using the *subgroup* argument.
+
         :param filename:
-            Name of the HDF container file; typical file extensions are `.hdf`,
-            `.hdf5` or `.h5`.
+            Name of the HDF container file; typical file extensions are
+            ``.hdf``, ``.hdf5`` or ``.h5``.
         :param cols:
             A list of any properties of the solution being exported.
         :param group:
-            Identifier for the group in the container file. A group may contain
-            multiple `SolutionArray` objects. If 'None', group names default
-            to 'groupN', with N being the number of pre-existing groups within
-            the HDF container file.
-        :param name:
-            Name identifier for a subgroup representing the `SolutionArray`
-            object to be added. If 'None', subgroup names default to 'arrM'
-            with M being the number of pre-existing subgroups within the group.
+            Identifier for the group in the container file. If no subgroup is
+            specified, a group represents a `SolutionArray`. If 'None', group
+            names default to 'groupN', with N being the number of pre-existing
+            groups within the HDF container file.
+        :param subgroup:
+            Name identifier for an optional subgroup, with subgroups
+            representing individual `SolutionArray` objects. If 'None', no
+            subgroup is created.
         :param attrs:
-            Dictionary of user-defined group attributes.
+            Dictionary of user-defined attributes added at the group level
+            (typically used in conjunction with a subgroup argument).
         :param mode:
-            Mode to open the file {'a' (default), 'w', 'r+'}.
+            Mode used by h5py to open the file {'a' (default), 'w', 'r+'}.
         :param append:
             If False, the content of a pre-existing group is deleted before
             writing the `SolutionArray` in the first position. If True, the
@@ -1034,7 +1052,7 @@ class SolutionArray:
             Options for the h5py compression filter; for 'gzip', this
             corresponds to the compression level {None, 0-9}.
         :return:
-            Identifiers for group and name used for storing HDF data.
+            Group identifier used for storing HDF data.
 
         Arguments *compression*, and *compression_opts* are mapped to parameters
         for `h5py.create_dataset`; in both cases, the choices of `None` results
@@ -1042,8 +1060,8 @@ class SolutionArray:
 
         Additional arguments (i.e. *args* and *kwargs*) are passed on to
         `collect_data`; see `collect_data` for further information. This method
-        works only with 1D `SolutionArray` objects and requires a working
-        installation of h5py (`h5py` can be installed using pip or conda).
+        requires a working installation of h5py (`h5py` can be installed using
+        pip or conda).
         """
         if isinstance(_h5py, ImportError):
             raise _h5py
@@ -1063,55 +1081,54 @@ class SolutionArray:
                 # add group with default name
                 group = 'group{}'.format(len(hdf.keys()))
                 root = hdf.create_group(group)
-                count = 0
             elif group not in hdf.keys():
                 # add group with custom name
                 root = hdf.create_group(group)
-                count = 0
-            elif append:
-                # append data within existing group
+            elif append and subgroup is not None:
+                # add subgroup to existing subgroup(s)
                 root = hdf[group]
-                count = len(root.keys())
             else:
                 # reset data in existing group
                 root = hdf[group]
                 for sub in root.keys():
                     del root[sub]
-                count = 0
 
             # save attributes
             for attr, value in attrs.items():
                 root.attrs[attr] = value
 
-            # add subgroup containing data
-            if name is None:
-                name = 'arr{}'.format(count)
-            sub = root.create_group(name)
-            for key, val in self._meta.items():
-                sub.attrs[key] = val
-            for header, col in data.items():
-                sub.create_dataset(header, data=col, **hdf_kwargs)
+            # add subgroup if specified
+            if subgroup is not None:
+                dgroup = root.create_group(subgroup)
+            else:
+                dgroup = root
 
             # add subgroup containing information on gas
-            sol = sub.create_group('phase')
+            sol = dgroup.create_group('phase')
             sol.attrs['name'] = self.name
             sol.attrs['source'] = self.source
 
-        return group, name
+            # store SolutionArray data
+            for key, val in self._meta.items():
+                dgroup.attrs[key] = val
+            for header, col in data.items():
+                dgroup.create_dataset(header, data=col, **hdf_kwargs)
 
-    def read_hdf(self, filename, group=None, name=None, force=False):
+        return group
+
+    def read_hdf(self, filename, group=None, subgroup=None, force=False):
         """
         Read a dataset from a HDF container file and restore data to the
         `SolutionArray` object. This method allows for recreation of data
         previously exported by `write_hdf`.
 
         :param filename: name of the HDF container file; typical file extensions
-            are `.hdf`, `.hdf5` or `.h5`.
+            are ``.hdf``, ``.hdf5`` or ``.h5``.
         :param group: Identifier for the group in the container file. A group
-            may contain multiple `SolutionArray` objects.
-        :param name:
-            Name identifier for a subgroup representing the `SolutionArray`
-            object to be read. If 'None', the first subgroup added.
+            may contain a `SolutionArray` object or additional subgroups.
+        :param subgroup:
+            Optional name identifier for a subgroup representing a `SolutionArray`
+            object to be read. If 'None', no subgroup is assumed to exist.
         :param force: If False, matching `SolutionArray` source identifiers are
             enforced (e.g. input file used for the creation of the underlying
             `Solution` object), with an error being raised if the current source
@@ -1141,20 +1158,24 @@ class SolutionArray:
 
             # load root and attributes
             root = hdf[group]
-            root_attrs = {attr: value for attr, value in root.attrs.items()}
 
             # identify subgroup
-            sub_names = list(root.keys())
+            sub_names = [key for key, value in root.items()
+                         if isinstance(value, _h5py.Group)]
             if not len(sub_names):
                 msg = "HDF group '{}' does not contain valid data"
                 raise IOError(msg.format(group))
-            elif name is None:
-                name = sub_names[0]
-            elif name not in sub_names:
-                msg = ("HDF file does not contain data set '{}' within "
-                       "group '{}'; available data sets are: {}")
-                raise IOError(msg.format(name, group, sub_names))
-            sub = root[name]
+
+            if subgroup is not None:
+                if subgroup not in sub_names:
+                    msg = ("HDF file does not contain data set '{}' within "
+                           "group '{}'; available data sets are: {}")
+                    raise IOError(msg.format(subgroup, group, sub_names))
+                dgroup = root[subgroup]
+            else:
+                dgroup = root
+
+            root_attrs = dict(root.attrs.items())
 
             def strip_ext(source):
                 """Strip extension if source identifies a file name"""
@@ -1166,7 +1187,7 @@ class SolutionArray:
                 return out
 
             # ensure that mechanisms are matching
-            sol_source = strip_ext(sub['phase'].attrs['source'])
+            sol_source = strip_ext(dgroup['phase'].attrs['source'])
             source = strip_ext(self.source)
             if sol_source != source and not force:
                 msg = ("Sources of thermodynamic phases do not match: '{}' vs "
@@ -1174,11 +1195,11 @@ class SolutionArray:
                 raise IOError(msg.format(sol_source, source))
 
             # load metadata
-            self._meta = {attr: value for attr, value in sub.attrs.items()}
+            self._meta = dict(dgroup.attrs.items())
 
             # load data
             data = OrderedDict()
-            for name, value in sub.items():
+            for name, value in dgroup.items():
                 if name != 'phase':
                     data[name] = np.array(value)
 

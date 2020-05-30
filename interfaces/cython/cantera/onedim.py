@@ -496,10 +496,42 @@ class FlameBase(Sim1D):
                   description=None, compression=None, compression_opts=None,
                   quiet=True, **kwargs):
         """
-        Write the solution vector to a HDF container file. Note that it is
-        possible to write multiple data entries to a single HDF container file.
-        Simulation settings are stored in tabular form as a separate HDF group
-        named ``settings``.
+        Write the solution vector to a HDF container file.
+
+        The `write_hdf` method preserves the stucture of a `FlameBase`-derived
+        object (i.e. `FreeFlame`, etc.). Each simulation is saved as a *group*,
+        whereas individual domains are saved as subgroups. In addition to
+        datasets, information on `Sim1D.settings` and `Domain1D.settings` is
+        saved in form of HDF attributes. The internal HDF file structure is
+        illustrated for a `FreeFlame` output as:::
+
+            /                                Group
+            /group0                          Group
+            /group0/Sim1D_type               Attribute
+            ...
+            /group0/flame                    Group
+            /group0/flame/Domain1D_type      Attribute
+            ...
+            /group0/flame/T                  Dataset
+            ...
+            /group0/flame/phase              Group
+            /group0/products                 Group
+            /group0/products/Domain1D_type   Attribute
+            ...
+            /group0/products/T               Dataset
+            ...
+            /group0/products/phase           Group
+            /group0/reactants                Group
+            /group0/reactants/Domain1D_type  Attribute
+            ...
+            /group0/reactants/T              Dataset
+            ...
+            /group0/reactants/phase          Group
+
+        where ``group0`` is the default name for the top level HDF entry, and
+        ``reactants``, ``flame`` and ``reactants`` correspond to domain names.
+        Note that it is possible to save multiple solutions to a single HDF
+        container file.
 
         :param filename:
             HDF container file containing data to be restored
@@ -510,7 +542,7 @@ class FlameBase(Sim1D):
             Attribute to use obtaining species profiles, e.g. ``X`` for
             mole fractions or ``Y`` for mass fractions.
         :param mode:
-            Mode to open the file {'a' (default), 'w', 'r+'}.
+            Mode h5py uses to open the output file {'a' (default), 'w', 'r+'}.
         :param description:
             Custom comment describing the dataset to be stored.
         :param compression:
@@ -534,12 +566,12 @@ class FlameBase(Sim1D):
             meta['description'] = description
         for i in range(3):
             arr = self.to_solution_array(domain=self.domains[i])
-            group, sub = arr.write_hdf(filename, *args, group=group, cols=cols,
-                                       name=self.domains[i].name,
-                                       attrs=meta, mode=mode, append=(i > 0),
-                                       compression=compression,
-                                       compression_opts=compression_opts,
-                                       **kwargs)
+            group = arr.write_hdf(filename, *args, group=group, cols=cols,
+                                  subgroup=self.domains[i].name,
+                                  attrs=meta, mode=mode, append=(i > 0),
+                                  compression=compression,
+                                  compression_opts=compression_opts,
+                                  **kwargs)
             meta = {}
             mode = 'a'
 
@@ -571,7 +603,7 @@ class FlameBase(Sim1D):
         for d in domains:
             arr = SolutionArray(self.phase(d), extra=self.extra(d))
             meta = arr.read_hdf(filename, group=group,
-                                name=self.domains[d].name)
+                                subgroup=self.domains[d].name)
             self.from_solution_array(arr, domain=d)
 
         self.settings = meta
