@@ -4,15 +4,7 @@ import numpy as np
 import os
 from os.path import join as pjoin
 
-import pkg_resources
-
-# avoid explicit dependence of cantera on h5py
-try:
-    pkg_resources.get_distribution('h5py')
-except pkg_resources.DistributionNotFound:
-    _h5py = ImportError('Method requires a working h5py installation.')
-else:
-    import h5py as _h5py
+from cantera.composite import _h5py
 
 
 class TestOnedim(utilities.CanteraTest):
@@ -643,6 +635,7 @@ class TestFreeFlame(utilities.CanteraTest):
         k = self.gas.species_index('H2')
         self.assertArrayNear(data.X[:, k], self.sim.X[k, :])
 
+    @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_write_hdf(self):
         filename = pjoin(self.test_work_dir, 'onedim-write_hdf.h5')
         if os.path.exists(filename):
@@ -1122,7 +1115,7 @@ class TestImpingingJet(utilities.CanteraTest):
     def run_reacting_surface(self, xch4, tsurf, mdot, width):
         # Simplified version of the example 'catalytic_combustion.py'
         tinlet = 300.0  # inlet temperature
-        comp = {'CH4': xch4, 'O2':0.21, 'N2':0.79}
+        comp = {'CH4': xch4, 'O2': 0.21, 'N2': 0.79}
         sim = self.create_reacting_surface(comp, tsurf, tinlet, width)
         sim.set_refine_criteria(10.0, 0.3, 0.4, 0.0)
 
@@ -1141,13 +1134,13 @@ class TestImpingingJet(utilities.CanteraTest):
     def test_reacting_surface_case1(self):
         self.run_reacting_surface(xch4=0.095, tsurf=900.0, mdot=0.06, width=0.1)
 
-
     def test_reacting_surface_case2(self):
         self.run_reacting_surface(xch4=0.07, tsurf=1200.0, mdot=0.2, width=0.05)
 
     def test_reacting_surface_case3(self):
         self.run_reacting_surface(xch4=0.2, tsurf=800.0, mdot=0.1, width=0.2)
 
+    @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_write_hdf(self):
         filename = pjoin(self.test_work_dir, 'impingingjet-write_hdf.h5')
         if os.path.exists(filename):

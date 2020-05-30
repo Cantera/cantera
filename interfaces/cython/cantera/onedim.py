@@ -31,12 +31,16 @@ class FlameBase(Sim1D):
     def extra(self, domain=None):
         """
         Extra columns used for saving/restoring of simulation data that are
-        specific to a class derived from `FlameBase`. Entries may include:
+        specific to a class derived from `FlameBase` or a specific *domain*
+        within the `FlameBase` simulation object. Entries may include:
          * ``grid``: grid point positions along the flame [m]
          * ``velocity``: normal velocity [m/s]
          * ``spread_rate``: tangential velocity gradient [1/s]
          * ``lambda``: radial pressure gradient [N/m^4]
          * ``eField``: electric field strength
+
+        :param domain: Index of a specific domain within the `Sim1D.domains`
+            list. The default is to return extra columns of the `Sim1D` object.
         """
         if domain is None:
             return self._extra
@@ -49,19 +53,6 @@ class FlameBase(Sim1D):
             return self._extra
         else:
             return ()
-
-    def phase(self, domain=None):
-        """
-        Return phase describing the domain (i.e. gas phase or surface phase).
-        """
-        if domain is None:
-            return self.gas
-
-        dom = self.domains[self.domain_index(domain)]
-        if isinstance(dom, ReactingSurface1D):
-            return dom.surface
-        else:
-            return self.gas
 
     def set_refine_criteria(self, ratio=10.0, slope=0.8, curve=0.8, prune=0.0):
         """
@@ -181,7 +172,7 @@ class FlameBase(Sim1D):
             # adjust velocities
             if self.flame.flow_type != "Free Flame":
                 self.gas.TPY = left.T, self.P, left.Y
-                u0 = left.mdot/self.gas.density
+                u0 = left.mdot / self.gas.density
                 arr.velocity *= u0 / arr.velocity[0]
 
         self.from_solution_array(arr)
@@ -501,9 +492,9 @@ class FlameBase(Sim1D):
         self.from_solution_array(arr, restore_boundaries=restore_boundaries,
                                  settings=settings)
 
-    def write_hdf(self, filename, group=None, species='X', mode='a',
-                  description=None,
-                  compression=None, compression_opts=None, quiet=True):
+    def write_hdf(self, filename, *args, group=None, species='X', mode='a',
+                  description=None, compression=None, compression_opts=None,
+                  quiet=True, **kwargs):
         """
         Write the solution vector to a HDF container file. Note that it is
         possible to write multiple data entries to a single HDF container file.
@@ -519,7 +510,7 @@ class FlameBase(Sim1D):
             Attribute to use obtaining species profiles, e.g. ``X`` for
             mole fractions or ``Y`` for mass fractions.
         :param mode:
-            Mode to open the file {'a' (default), 'w', 'r+}.
+            Mode to open the file {'a' (default), 'w', 'r+'}.
         :param description:
             Custom comment describing the dataset to be stored.
         :param compression:
@@ -528,10 +519,13 @@ class FlameBase(Sim1D):
         :param compression_opts:
             Options for the h5py compression filter; for 'gzip', this
             corresponds to the compression level {None, 0-9}.
+        :param quiet:
+            Suppress message confirming successful file output.
 
-        The method exports data using `SolutionArray.write_hdf` via
-        `to_solution_array` and requires a working installation of h5py
-        (`h5py` can be installed using pip or conda).
+        Additional arguments (i.e. *args* and *kwargs*) are passed on to
+        `SolutionArray.collect_data`. The method exports data using
+        `SolutionArray.write_hdf` via `to_solution_array` and requires a working
+        installation of h5py (`h5py` can be installed using pip or conda).
         """
         cols = ('extra', 'T', 'D', species)
         meta = self.settings
@@ -540,11 +534,12 @@ class FlameBase(Sim1D):
             meta['description'] = description
         for i in range(3):
             arr = self.to_solution_array(domain=self.domains[i])
-            group, sub = arr.write_hdf(filename, group=group, cols=cols,
+            group, sub = arr.write_hdf(filename, *args, group=group, cols=cols,
                                        name=self.domains[i].name,
                                        attrs=meta, mode=mode, append=(i > 0),
                                        compression=compression,
-                                       compression_opts=compression_opts)
+                                       compression_opts=compression_opts,
+                                       **kwargs)
             meta = {}
             mode = 'a'
 
@@ -761,14 +756,14 @@ class FreeFlame(FlameBase):
             self.inlet.mdot = 1.0 * self.gas.density
 
         Y0 = self.inlet.Y
-        u0 = self.inlet.mdot/self.gas.density
+        u0 = self.inlet.mdot / self.gas.density
         T0 = self.inlet.T
 
         # get adiabatic flame temperature and composition
         self.gas.equilibrate('HP')
         Teq = self.gas.T
         Yeq = self.gas.Y
-        u1 = self.inlet.mdot/self.gas.density
+        u1 = self.inlet.mdot / self.gas.density
 
         self.set_profile('velocity', locs, [u0, u0, u1, u1])
         self.set_profile('T', locs, [T0, T0, Teq, Teq])
@@ -978,14 +973,14 @@ class BurnerFlame(FlameBase):
 
         self.gas.TPY = self.burner.T, self.P, self.burner.Y
         Y0 = self.burner.Y
-        u0 = self.burner.mdot/self.gas.density
+        u0 = self.burner.mdot / self.gas.density
         T0 = self.burner.T
 
         # get adiabatic flame temperature and composition
         self.gas.equilibrate('HP')
         Teq = self.gas.T
         Yeq = self.gas.Y
-        u1 = self.burner.mdot/self.gas.density
+        u1 = self.burner.mdot / self.gas.density
 
         locs = [0.0, 0.2, 1.0]
         self.set_profile('velocity', locs, [u0, u1, u1])

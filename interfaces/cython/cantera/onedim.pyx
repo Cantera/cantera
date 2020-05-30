@@ -26,6 +26,13 @@ cdef class Domain1D:
         self.gas._references[self._weakref_proxy] = True
         self.set_default_tolerances()
 
+    property phase:
+        """
+        Phase describing the domain (i.e. gas phase or surface phase).
+        """
+        def __get__(self):
+            return self.gas
+
     property index:
         """
         Index of this domain in a stack. Returns -1 if this domain is not part
@@ -252,7 +259,8 @@ cdef class Domain1D:
 
     property settings:
         """
-        Metadata
+        Return comprehensive dictionary describing type, name, and simulation
+        settings that are specific to domain types.
         """
         def __get__(self):
             out = {
@@ -400,12 +408,16 @@ cdef class ReactingSurface1D(Boundary1D):
         self.boundary = <CxxBoundary1D*>(self.surf)
 
     def __init__(self, *args, **kwargs):
-        self._weakref_proxy2 = _WeakrefProxy()
+        self._weakref_proxy = _WeakrefProxy()
         super().__init__(*args, **kwargs)
-        self._surface = None
+        self.surface = None
 
     def __dealloc__(self):
         del self.surf
+
+    property phase:
+        def __get__(self):
+            return self.surface
 
     def set_kinetics(self, Kinetics kin):
         """Set the kinetics manager (surface reaction mechanism object)."""
@@ -413,17 +425,13 @@ cdef class ReactingSurface1D(Boundary1D):
             raise TypeError('Kinetics object must be derived from '
                             'InterfaceKinetics.')
         self.surf.setKineticsMgr(<CxxInterfaceKinetics*>kin.kinetics)
-        self._surface = kin
-        self._surface._references[self._weakref_proxy2] = True
+        self.surface = kin
+        self.surface._references[self._weakref_proxy] = True
 
     property coverage_enabled:
         """Controls whether or not to solve the surface coverage equations."""
         def __set__(self, value):
             self.surf.enableCoverageEquations(<cbool>value)
-
-    property surface:
-        def __get__(self):
-            return self._surface
 
 
 cdef class _FlowBase(Domain1D):
@@ -501,9 +509,6 @@ cdef class _FlowBase(Domain1D):
         del self.flow
 
     property settings:
-        """
-        Metadata
-        """
         def __get__(self):
             out = super().settings
 
@@ -722,6 +727,19 @@ cdef class Sim1D:
         self._initialized = False
         self._initial_guess_args = ()
         self._initial_guess_kwargs = {}
+
+    def phase(self, domain=None):
+        """
+        Return phase describing a domain (i.e. gas phase or surface phase).
+
+        :param domain: Index of domain within `Sim1D.domains` list; the default
+            is to return the phase of the parent `Sim1D` object.
+        """
+        if domain is None:
+            return self.gas
+
+        dom = self.domains[self.domain_index(domain)]
+        return dom.phase
 
     def set_interrupt(self, f):
         """
@@ -948,11 +966,7 @@ cdef class Sim1D:
             n_points = dom.n_points
 
             # retrieve gas state
-            T = self.profile(self.flame, 'T')
-            P = dom.P
-            k0 = self.flame.component_index(self.gas.species_name(0))
-            Y = [self.profile(self.flame, k)
-                 for k in range(k0, k0 + self.gas.n_species)]
+            states = self.T, self.P, self.Y.T
 
             # create extra columns
             for e in extra:
@@ -963,7 +977,6 @@ cdef class Sim1D:
             if self.radiation_enabled:
                 extra_cols['qdot'] = self.radiative_heat_loss
 
-            states = T, P, np.vstack(Y).T
             return states, extra_cols, meta
 
         elif isinstance(dom, Inlet1D):
@@ -972,7 +985,7 @@ cdef class Sim1D:
             # create extra columns
             for e in extra:
                if e == 'velocity':
-                   extra_cols[e] = dom.mdot/self.gas.density
+                   extra_cols[e] = dom.mdot / self.gas.density
                elif e not in {'lambda'}:
                    extra_cols[e] = getattr(dom, e)
 
@@ -990,7 +1003,7 @@ cdef class Sim1D:
 
     def restore_data(self, domain, states, extra_cols, meta):
         """
-        Restore data vector of domain *domain* from `SolutionArray` *arr*.
+        Restore data vector of domain *domain* from `SolutionArray` *states*.
 
         Derived classes set default values for *domain* and *extra*, where
         defaults describe flow domain and essential non-thermodynamic solution
@@ -1033,14 +1046,15 @@ cdef class Sim1D:
             dom.Y = Y
             dom.mdot = extra_cols['velocity'] * self.gas.density
 
+        elif isinstance(dom, (Outlet1D, OutletReservoir1D,
+                              SymmetryPlane1D, Surface1D)):
+            pass
+
         elif isinstance(dom, ReactingSurface1D):
             dom.surface.TPY = T, P, Y
 
-        elif isinstance(dom, Boundary1D):
-            pass
-
         else:
-            msg = ("Export of '{}' is not implemented")
+            msg = ("Import of '{}' is not implemented")
             raise NotImplementedError(msg.format(type(self).__name__))
 
     def show_solution(self):
