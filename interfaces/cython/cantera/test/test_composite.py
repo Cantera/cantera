@@ -213,8 +213,11 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         with self.assertRaisesRegex(IOError, 'phases do not match'):
             c.read_hdf(outfile, group='group1')
         with self.assertRaisesRegex(IOError, 'does not contain data'):
-            c.read_hdf(outfile, name='foo')
+            c.read_hdf(outfile, subgroup='foo')
 
+        states.write_hdf(outfile, group='foo/bar/baz')
+        c.read_hdf(outfile, group='foo/bar/baz')
+        self.assertTrue(np.allclose(states.T, c.T))
 
 class TestRestoreIdealGas(utilities.CanteraTest):
     """ Test restoring of the IdealGas class """
