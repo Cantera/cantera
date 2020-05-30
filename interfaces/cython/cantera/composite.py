@@ -500,7 +500,7 @@ class SolutionArray:
 
     _purefluid_scalar = ['Q']
 
-    def __init__(self, phase, shape=(0,), states=None, extra=None, meta={}):
+    def __init__(self, phase, shape=(0,), states=None, extra=None, meta=None):
         self._phase = phase
 
         if isinstance(shape, int):
@@ -555,7 +555,10 @@ class SolutionArray:
                              "supplied in a dict if the SolutionArray is not "
                              "initially empty")
 
-        self._meta = meta
+        if meta is None:
+            self._meta = {}
+        else:
+            self._meta = meta
 
     def __getitem__(self, index):
         states = self._states[index]
@@ -629,7 +632,8 @@ class SolutionArray:
     @property
     def meta(self):
         """
-        Metadata
+        Dictionary holding information describing the `SolutionArray`. Metadata
+        should be provided for the creation of `SolutionArray` objects.
         """
         return self._meta
 
@@ -663,7 +667,9 @@ class SolutionArray:
         dictionary. Thus, this method allows to restore data exported by
         `collect_data`.
 
-        :param data: dictionary holding data to be restored.
+        :param data: Dictionary holding data to be restored, where keys
+            refer to thermodynamic states (e.g. ``T``, ``P``) or extra
+            entries, and values contain corresponding data.
 
         The receiving `SolutionArray` either has to be empty or should have
         matching dimensions. Essential state properties and extra entries
@@ -831,7 +837,7 @@ class SolutionArray:
             self._phase.set_equivalence_ratio(phi[index], *args, **kwargs)
             self._states[index][:] = self._phase.state
 
-    def collect_data(self, cols=None, tabular=False, threshold=0, species='Y'):
+    def collect_data(self, cols=None, tabular=False, threshold=0, species=None):
         """
         Returns the data specified by *cols* in an ordered dictionary, where
         keys correspond to SolutionArray attributes to be exported.
@@ -843,7 +849,8 @@ class SolutionArray:
             include any arrays which were specified as 'extra' variables when
             defining the `SolutionArray` object. The special value 'extra' can
             be used to include all 'extra' variables.
-        :param tabular: Split 2D data into 1D columns
+        :param tabular: Split 2D data into separate 1D columns for each
+            species / reaction
         :param threshold: Relative tolerance for including a particular column
             if tabular output is enabled. The tolerance is applied by comparing
             the maximum absolute value for a particular column to the maximum
@@ -860,6 +867,11 @@ class SolutionArray:
         # Create default columns (including complete state information)
         if cols is None:
             cols = ('extra',) + self._phase._native_state
+
+        if species is None:
+            species = cols[-1]
+        else:
+            cols = cols[:-1] + (species,)
 
         # Expand cols to include the individual items in 'extra'
         expanded_cols = []
@@ -887,7 +899,7 @@ class SolutionArray:
                 collabels = [c]
 
             if d.ndim > 1:
-                if threshold:
+                if threshold and d.size:
                     # Determine threshold value and select columns to keep
                     maxval = abs(d).max()
                     keep = (abs(d) > threshold * maxval).any(axis=0)
@@ -903,6 +915,7 @@ class SolutionArray:
         species_names = set(self.species_names)
         for c in expanded_cols:
             if c in species_names:
+
                 d = getattr(self(c), species)
             elif c in attrs:
                 d = getattr(self, c)
@@ -1009,7 +1022,7 @@ class SolutionArray:
         :param attrs:
             Dictionary of user-defined group attributes.
         :param mode:
-            Mode to open the file {'a' (default), 'w', 'r+}.
+            Mode to open the file {'a' (default), 'w', 'r+'}.
         :param append:
             If False, the content of a pre-existing group is deleted before
             writing the `SolutionArray` in the first position. If True, the
@@ -1020,6 +1033,8 @@ class SolutionArray:
         :param compression_opts:
             Options for the h5py compression filter; for 'gzip', this
             corresponds to the compression level {None, 0-9}.
+        :return:
+            Identifiers for group and name used for storing HDF data.
 
         Arguments *compression*, and *compression_opts* are mapped to parameters
         for `h5py.create_dataset`; in both cases, the choices of `None` results
@@ -1044,7 +1059,6 @@ class SolutionArray:
         with _h5py.File(filename, mode) as hdf:
 
             # check existence of tagged item
-            msg = "HDF group with group identifier '{}' exists in '{}': {}"
             if not group:
                 # add group with default name
                 group = 'group{}'.format(len(hdf.keys()))
@@ -1103,6 +1117,8 @@ class SolutionArray:
             `Solution` object), with an error being raised if the current source
             does not match the original source. If True, the error is
             suppressed.
+        :return: User-defined attributes provided to describe the group holding
+            the `SolutionArray` information.
 
         The method imports data using `restore_data` and requires a working
         installation of h5py (`h5py` can be installed using pip or conda).

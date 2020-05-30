@@ -10,25 +10,9 @@ try:
 except ImportError:
     from ruamel import yaml
 
-import pkg_resources
-
-# avoid explicit dependence of cantera on h5py
-try:
-    pkg_resources.get_distribution('h5py')
-except pkg_resources.DistributionNotFound:
-    _h5py = ImportError('Method requires a working h5py installation.')
-else:
-    import h5py as _h5py
-
-# avoid explicit dependence of cantera on pandas
-try:
-    pkg_resources.get_distribution('pandas')
-except pkg_resources.DistributionNotFound:
-    _pandas = ImportError('Method requires a working pandas installation.')
-else:
-    import pandas as _pandas
 
 import cantera as ct
+from cantera.composite import _h5py, _pandas
 from . import utilities
 
 
@@ -145,6 +129,18 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         utilities.CanteraTest.setUpClass()
         cls.gas = ct.Solution('h2o2.yaml')
 
+    def test_collect_data(self):
+        states = ct.SolutionArray(self.gas)
+        collected = states.collect_data(tabular=True)
+        self.assertIsInstance(collected, dict)
+        self.assertIn('Y_H2', collected)
+        self.assertEqual(len(collected['Y_H2']), 0)
+
+        states = ct.SolutionArray(self.gas)
+        collected = states.collect_data(tabular=False, species='X')
+        self.assertIn('X', collected)
+        self.assertEqual(collected['X'].shape, (0, self.gas.n_species))
+
     def test_write_csv(self):
         states = ct.SolutionArray(self.gas, 7)
         states.TPX = np.linspace(300, 1000, 7), 2e5, 'H2:0.5, O2:0.4'
@@ -164,9 +160,8 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         self.assertTrue(np.allclose(states.P, b.P))
         self.assertTrue(np.allclose(states.X, b.X))
 
+    @utilities.unittest.skipIf(isinstance(_pandas, ImportError), "pandas is not installed")
     def test_to_pandas(self):
-        if isinstance(_pandas, ImportError):
-            return
 
         states = ct.SolutionArray(self.gas, 7)
         states.TPX = np.linspace(300, 1000, 7), 2e5, 'H2:0.5, O2:0.4'
@@ -178,9 +173,8 @@ class TestSolutionArrayIO(utilities.CanteraTest):
             # pandas is not installed and correct exception is raised
             pass
 
+    @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_write_hdf(self):
-        if isinstance(_h5py, ImportError):
-            return
 
         outfile = pjoin(self.test_work_dir, 'solutionarray.h5')
         if os.path.exists(outfile):
