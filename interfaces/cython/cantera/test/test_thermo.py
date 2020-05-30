@@ -1804,7 +1804,7 @@ class TestSolutionArray(utilities.CanteraTest):
         arr = soln[2:9:3]
         self.assertEqual(len(arr.T), 3)
 
-        #tests for edge cases in sliced solutionArray
+    def test_zero_length_slice_SolutionArray(self):
         states = ct.SolutionArray(self.gas, 4)
         arr1 = states[3:3]
         self.assertEqual(len(arr1.T), 0)
