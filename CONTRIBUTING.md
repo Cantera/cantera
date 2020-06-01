@@ -1,8 +1,8 @@
 # Contributing to Cantera
 
-* For significant changes, consider starting a discussion on the Cantera
-  Users' Group or create an issue on the `Cantera/enhancements` repository
-  on GitHub, to plan your modifications so that they can be implemented
+* For significant changes, please start a discussion on the Cantera
+  Users' Group or create an issue on the [Cantera/enhancements](https://github.com/Cantera/enhancements/issues/new/choose) repository
+  on GitHub to plan your modifications so that they can be implemented
   efficiently and in a way that doesn't conflict with any other planned
   future development
 * Fork the `Cantera/cantera` repository on Github
