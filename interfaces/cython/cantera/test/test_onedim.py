@@ -280,7 +280,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertArrayNear(self.sim.grid, flow.grid)
         self.assertArrayNear(self.sim.T, flow.T)
         for k in flow._extra.keys():
-            self.assertIn(k, self.sim._extra)
+            self.assertIn(k, self.sim._other)
 
         f2 = ct.FreeFlame(self.gas)
         f2.from_solution_array(flow)
