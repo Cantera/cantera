@@ -946,20 +946,20 @@ cdef class Sim1D:
         dom, comp = self._get_indices(domain, component)
         self.sim.setFlatProfile(dom, comp, value)
 
-    def collect_data(self, domain, extra):
+    def collect_data(self, domain, other):
         """
         Return data vector of domain *domain* as `SolutionArray` object
 
-        Derived classes set default values for *domain* and *extra*, where
+        Derived classes set default values for *domain* and *other*, where
         defaults describe flow domain and essential non-thermodynamic solution
         components of the configuration, respectively. An alternative *domain*
         (e.g. inlet, outlet, etc.), can be specified either by name or the
-        corresponding Domain1D object itself.
+        corresponding `Domain1D` object itself.
         """
         idom = self.domain_index(domain)
         dom = self.domains[idom]
 
-        extra_cols = OrderedDict()
+        other_cols = OrderedDict()
         meta = dom.settings
 
         if isinstance(dom, _FlowBase):
@@ -968,44 +968,44 @@ cdef class Sim1D:
             # retrieve gas state
             states = self.T, self.P, self.Y.T
 
-            # create extra columns
-            for e in extra:
+            # create other columns
+            for e in other:
                if e == 'grid':
-                   extra_cols[e] = self.grid
+                   other_cols[e] = self.grid
                else:
-                   extra_cols[e] = self.profile(dom, e)
+                   other_cols[e] = self.profile(dom, e)
             if self.radiation_enabled:
-                extra_cols['qdot'] = self.radiative_heat_loss
+                other_cols['qdot'] = self.radiative_heat_loss
 
-            return states, extra_cols, meta
+            return states, other_cols, meta
 
         elif isinstance(dom, Inlet1D):
             self.gas.TPY = dom.T, self.P, dom.Y
 
-            # create extra columns
-            for e in extra:
+            # create other columns
+            for e in other:
                if e == 'velocity':
-                   extra_cols[e] = dom.mdot / self.gas.density
+                   other_cols[e] = dom.mdot / self.gas.density
                elif e not in {'lambda'}:
-                   extra_cols[e] = getattr(dom, e)
+                   other_cols[e] = getattr(dom, e)
 
-            return self.gas.TPY, extra_cols, meta
+            return self.gas.TPY, other_cols, meta
 
         elif isinstance(dom, ReactingSurface1D):
-            return dom.surface.TPY, extra_cols, meta
+            return dom.surface.TPY, other_cols, meta
 
         elif isinstance(dom, Boundary1D):
-            return ([], [], []), extra_cols, meta
+            return ([], [], []), other_cols, meta
 
         else:
             msg = ("Export of '{}' is not implemented")
             raise NotImplementedError(msg.format(type(self).__name__))
 
-    def restore_data(self, domain, states, extra_cols, meta):
+    def restore_data(self, domain, states, other_cols, meta):
         """
         Restore data vector of domain *domain* from `SolutionArray` *states*.
 
-        Derived classes set default values for *domain* and *extra*, where
+        Derived classes set default values for *domain* and *other*, where
         defaults describe flow domain and essential non-thermodynamic solution
         components of the configuration, respectively. An alternative *domain*
         (e.g. inlet, outlet, etc.), can be specified either by name or the
@@ -1016,14 +1016,14 @@ cdef class Sim1D:
         T, P, Y = states
 
         if isinstance(dom, _FlowBase):
-            grid = extra_cols['grid']
+            grid = other_cols['grid']
             dom.grid = grid
             xi = (grid - grid[0]) / (grid[-1] - grid[0])
             self._get_initial_solution()
 
-            # restore temperature and 'extra' profiles
+            # restore temperature and 'other' profiles
             self.set_profile('T', xi, T)
-            for key, val in extra_cols.items():
+            for key, val in other_cols.items():
                 if key in ['grid', 'qdot']:
                     pass
                 elif key in dom.component_names:
@@ -1044,7 +1044,7 @@ cdef class Sim1D:
             dom.T = T
             self.P = P
             dom.Y = Y
-            dom.mdot = extra_cols['velocity'] * self.gas.density
+            dom.mdot = other_cols['velocity'] * self.gas.density
 
         elif isinstance(dom, (Outlet1D, OutletReservoir1D,
                               SymmetryPlane1D, Surface1D)):

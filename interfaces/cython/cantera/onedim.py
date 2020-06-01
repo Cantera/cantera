@@ -12,7 +12,7 @@ from email.utils import formatdate
 class FlameBase(Sim1D):
     """ Base class for flames with a single flow domain """
     __slots__ = ('gas',)
-    _extra = ()
+    _other = ()
 
     def __init__(self, domains, gas, grid=None):
         """
@@ -28,11 +28,11 @@ class FlameBase(Sim1D):
         self.gas = gas
         self.flame.P = gas.P
 
-    def extra(self, domain=None):
+    def other_components(self, domain=None):
         """
-        Extra columns used for saving/restoring of simulation data that are
-        specific to a class derived from `FlameBase` or a specific *domain*
-        within the `FlameBase` simulation object. Entries may include:
+        The method returns simulation components that are specific to a class
+        derived from `FlameBase` or a specific *domain* within the `FlameBase`
+        simulation object. Entries may include:
          * ``grid``: grid point positions along the flame [m]
          * ``velocity``: normal velocity [m/s]
          * ``spread_rate``: tangential velocity gradient [1/s]
@@ -40,17 +40,17 @@ class FlameBase(Sim1D):
          * ``eField``: electric field strength
 
         :param domain: Index of a specific domain within the `Sim1D.domains`
-            list. The default is to return extra columns of the `Sim1D` object.
+            list. The default is to return other columns of the `Sim1D` object.
         """
         if domain is None:
-            return self._extra
+            return self._other
 
         dom = self.domains[self.domain_index(domain)]
         if isinstance(dom, Inlet1D):
-            return tuple([e for e in self._extra
+            return tuple([e for e in self._other
                           if e not in {'grid', 'lambda', 'eField'}])
         elif isinstance(dom, IdealGasFlow):
-            return self._extra
+            return self._other
         else:
             return ()
 
@@ -121,12 +121,12 @@ class FlameBase(Sim1D):
         elif isinstance(data, str):
             if data.endswith('.hdf5') or data.endswith('.h5'):
                 # data source identifies a HDF file
-                arr = SolutionArray(self.gas, extra=self.extra())
+                arr = SolutionArray(self.gas, extra=self.other_components())
                 arr.read_hdf(data, group=group)
 
             elif data.endswith('.csv'):
                 # data source identifies a CSV file
-                arr = SolutionArray(self.gas, extra=self.extra())
+                arr = SolutionArray(self.gas, extra=self.other_components())
                 arr.read_csv(data)
 
             else:
@@ -135,7 +135,7 @@ class FlameBase(Sim1D):
                 )
         else:
             # data source is a pandas DataFrame
-            arr = SolutionArray(self.gas, extra=self.extra())
+            arr = SolutionArray(self.gas, extra=self.other_components())
             arr.from_pandas(data)
 
         # get left and right boundaries
@@ -418,19 +418,19 @@ class FlameBase(Sim1D):
         """
         Return the solution vector as a `SolutionArray` object.
 
-        Derived classes define default values for *extra*.
+        Derived classes define default values for *other*.
         """
         if domain is None:
             domain = self.flame
         else:
             domain = self.domains[self.domain_index(domain)]
-        extra = self.extra(domain)
+        other = self.other_components(domain)
 
-        states, extra_cols, meta = super().collect_data(domain, extra)
+        states, other_cols, meta = super().collect_data(domain, other)
         n_points = np.array(states[0]).size
         if n_points:
             arr = SolutionArray(self.phase(domain), n_points,
-                                extra=extra_cols, meta=meta)
+                                extra=other_cols, meta=meta)
             arr.TPY = states
             return arr
         else:
@@ -440,19 +440,19 @@ class FlameBase(Sim1D):
         """
         Restore the solution vector from a `SolutionArray` object.
 
-        Derived classes define default values for *extra*.
+        Derived classes define default values for *other*.
         """
         if domain is None:
             domain = self.flame
         else:
             domain = self.domains[self.domain_index(domain)]
-        extra = self.extra(domain)
+        other = self.other_components(domain)
 
         states = arr.TPY
-        extra_cols = {e: getattr(arr, e) for e in extra
+        other_cols = {e: getattr(arr, e) for e in other
                       if e in arr._extra}
         meta = arr.meta
-        super().restore_data(domain, states, extra_cols, meta)
+        super().restore_data(domain, states, other_cols, meta)
 
     def to_pandas(self, species='X'):
         """
@@ -487,7 +487,7 @@ class FlameBase(Sim1D):
         requires a working pandas installation. The package 'pandas' can be
         installed using pip or conda.
         """
-        arr = SolutionArray(self.gas, extra=self.extra())
+        arr = SolutionArray(self.gas, extra=self.other_components())
         arr.from_pandas(df)
         self.from_solution_array(arr, restore_boundaries=restore_boundaries,
                                  settings=settings)
@@ -499,7 +499,7 @@ class FlameBase(Sim1D):
         Write the solution vector to a HDF container file.
 
         The `write_hdf` method preserves the stucture of a `FlameBase`-derived
-        object (i.e. `FreeFlame`, etc.). Each simulation is saved as a *group*,
+        object (such as `FreeFlame`). Each simulation is saved as a *group*,
         whereas individual domains are saved as subgroups. In addition to
         datasets, information on `Sim1D.settings` and `Domain1D.settings` is
         saved in form of HDF attributes. The internal HDF file structure is
@@ -529,7 +529,7 @@ class FlameBase(Sim1D):
             /group0/reactants/phase          Group
 
         where ``group0`` is the default name for the top level HDF entry, and
-        ``reactants``, ``flame`` and ``reactants`` correspond to domain names.
+        ``reactants``, ``flame`` and ``products`` correspond to domain names.
         Note that it is possible to save multiple solutions to a single HDF
         container file.
 
@@ -542,7 +542,9 @@ class FlameBase(Sim1D):
             Attribute to use obtaining species profiles, e.g. ``X`` for
             mole fractions or ``Y`` for mass fractions.
         :param mode:
-            Mode h5py uses to open the output file {'a' (default), 'w', 'r+'}.
+            Mode h5py uses to open the output file {'a' to read/write if file
+            exists, create otherwise (default); 'w' to create file, truncate if
+            exists; 'r+' to read/write, file must exist}.
         :param description:
             Custom comment describing the dataset to be stored.
         :param compression:
@@ -601,7 +603,7 @@ class FlameBase(Sim1D):
             domains = [1]
 
         for d in domains:
-            arr = SolutionArray(self.phase(d), extra=self.extra(d))
+            arr = SolutionArray(self.phase(d), extra=self.other_components(d))
             meta = arr.read_hdf(filename, group=group,
                                 subgroup=self.domains[d].name)
             self.from_solution_array(arr, domain=d)
@@ -727,7 +729,7 @@ for _attr in ['forward_rates_of_progress', 'reverse_rates_of_progress', 'net_rat
 class FreeFlame(FlameBase):
     """A freely-propagating flat flame."""
     __slots__ = ('inlet', 'flame', 'outlet')
-    _extra = ('grid', 'velocity')
+    _other = ('grid', 'velocity')
 
     def __init__(self, gas, grid=None, width=None):
         """
@@ -939,7 +941,7 @@ class IonFlameBase(FlameBase):
 class IonFreeFlame(IonFlameBase, FreeFlame):
     """A freely-propagating flame with ionized gas."""
     __slots__ = ('inlet', 'flame', 'outlet')
-    _extra = ('grid', 'velocity', 'eField')
+    _other = ('grid', 'velocity', 'eField')
 
     def __init__(self, gas, grid=None, width=None):
         if not hasattr(self, 'flame'):
@@ -953,7 +955,7 @@ class IonFreeFlame(IonFlameBase, FreeFlame):
 class BurnerFlame(FlameBase):
     """A burner-stabilized flat flame."""
     __slots__ = ('burner', 'flame', 'outlet')
-    _extra = ('grid', 'velocity')
+    _other = ('grid', 'velocity')
 
     def __init__(self, gas, grid=None, width=None):
         """
@@ -1083,7 +1085,7 @@ class BurnerFlame(FlameBase):
 class IonBurnerFlame(IonFlameBase, BurnerFlame):
     """A burner-stabilized flat flame with ionized gas."""
     __slots__ = ('burner', 'flame', 'outlet')
-    _extra = ('grid', 'velocity', 'eField')
+    _other = ('grid', 'velocity', 'eField')
 
     def __init__(self, gas, grid=None, width=None):
         if not hasattr(self, 'flame'):
@@ -1097,7 +1099,7 @@ class IonBurnerFlame(IonFlameBase, BurnerFlame):
 class CounterflowDiffusionFlame(FlameBase):
     """ A counterflow diffusion flame """
     __slots__ = ('fuel_inlet', 'flame', 'oxidizer_inlet')
-    _extra = ('grid', 'velocity', 'spread_rate', 'lambda')
+    _other = ('grid', 'velocity', 'spread_rate', 'lambda')
 
     def __init__(self, gas, grid=None, width=None):
         """
@@ -1379,7 +1381,7 @@ class CounterflowDiffusionFlame(FlameBase):
 class ImpingingJet(FlameBase):
     """An axisymmetric flow impinging on a surface at normal incidence."""
     __slots__ = ('inlet', 'flame', 'surface')
-    _extra = ('grid', 'velocity', 'spread_rate', 'lambda')
+    _other = ('grid', 'velocity', 'spread_rate', 'lambda')
 
     def __init__(self, gas, grid=None, width=None, surface=None):
         """
@@ -1464,7 +1466,7 @@ class ImpingingJet(FlameBase):
 class CounterflowPremixedFlame(FlameBase):
     """ A premixed counterflow flame """
     __slots__ = ('reactants', 'flame', 'products')
-    _extra = ('grid', 'velocity', 'spread_rate', 'lambda')
+    _other = ('grid', 'velocity', 'spread_rate', 'lambda')
 
     def __init__(self, gas, grid=None, width=None):
         """
@@ -1562,7 +1564,7 @@ class CounterflowTwinPremixedFlame(FlameBase):
     shooting into each other.
     """
     __slots__ = ('reactants', 'flame', 'products')
-    _extra = ('grid', 'velocity', 'spread_rate', 'lambda')
+    _other = ('grid', 'velocity', 'spread_rate', 'lambda')
 
     def __init__(self, gas, grid=None, width=None):
         """

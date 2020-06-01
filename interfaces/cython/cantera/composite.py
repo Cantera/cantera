@@ -1040,7 +1040,9 @@ class SolutionArray:
             Dictionary of user-defined attributes added at the group level
             (typically used in conjunction with a subgroup argument).
         :param mode:
-            Mode used by h5py to open the file {'a' (default), 'w', 'r+'}.
+            Mode h5py uses to open the output file {'a' to read/write if file
+            exists, create otherwise (default); 'w' to create file, truncate if
+            exists; 'r+' to read/write, file must exist}.
         :param append:
             If False, the content of a pre-existing group is deleted before
             writing the `SolutionArray` in the first position. If True, the

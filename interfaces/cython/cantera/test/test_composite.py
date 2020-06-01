@@ -257,8 +257,7 @@ class TestRestoreIdealGas(utilities.CanteraTest):
 
         # skip concentrations
         b = ct.SolutionArray(self.gas)
-        b.restore_data(OrderedDict([tup for i, tup in enumerate(data.items())
-                                    if i < 2]))
+        b.restore_data({'T': data['T'], 'density': data['density']})
         self.assertTrue(np.allclose(a.T, b.T))
         self.assertTrue(np.allclose(a.density, b.density))
         self.assertFalse(np.allclose(a.X, b.X))
