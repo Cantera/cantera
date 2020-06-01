@@ -1,7 +1,8 @@
 # Contributing to Cantera
 
-* For significant changes, consider starting a discussion on the Cantera
-  Users' Group to plan your modifications so that they can be implemented
+* For significant changes, please start a discussion on the Cantera
+  Users' Group or create an issue on the [Cantera/enhancements](https://github.com/Cantera/enhancements/issues/new/choose) repository
+  on GitHub to plan your modifications so that they can be implemented
   efficiently and in a way that doesn't conflict with any other planned
   future development
 * Fork the `Cantera/cantera` repository on Github
@@ -29,9 +30,12 @@
     onto the most recent `HEAD` commit of `master`.
   * Periodically run the test suite (`scons test`) to make sure that your
     changes are not causing any test failures.
-* Submit a Pull Request on Github. Check the results of the continuous-
-  integration tests run using Travis and AppVeyor and resolve any issues that
-  arise.
+* Push the changes on your new feature branch to your forked copy of the
+  `Cantera/cantera` repository on GitHub.
+
+* Submit a Pull Request on Github, from your forked copy. Check the results 
+  of the continuous-integration tests run using Travis and AppVeyor and resolve 
+  any issues that arise.
 * Additional discussion of good Git & Github workflow is provided at
   http://matplotlib.org/devel/gitwash/development_workflow.html and
   https://docs.scipy.org/doc/numpy-1.15.0/dev/gitwash/development_workflow.html
