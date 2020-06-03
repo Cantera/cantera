@@ -886,15 +886,18 @@ class Parser:
         if not composition:
             raise InputError("Error parsing elemental composition for "
                              "species '{}'", species)
-        else:
-            for symbol in composition.keys():
 
-                # check if self.parse_composition parses composition correctly
-                if any(map(str.isdigit, symbol)) and symbol not in self.elements:
-                    raise InputError("Error parsing elemental composition for "
-                                     "species thermo entry\n{}"
-                                     "\n the first line has an incorrect format", "".join(lines))
-                                     
+        for symbol in composition.keys():
+            # Some CHEMKIN input files may have quantities of elements with
+            # more than 3 digits. This violates the column-based input format
+            # standard, so the entry cannot be read and we need to raise a
+            # more useful error message.
+            if any(map(str.isdigit, symbol)) and symbol not in self.elements:
+                raise InputError("Error parsing elemental composition for "
+                                 "species thermo entry:\n{}\nElement amounts"
+                                 "can have no more than 3 digits",
+                                 "".join(lines))
+
         # Extract the NASA polynomial coefficients
         # Remember that the high-T polynomial comes first!
         Tmin = fortFloat(lines[0][45:55])
