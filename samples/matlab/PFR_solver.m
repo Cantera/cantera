@@ -20,16 +20,15 @@ else
     A = A_in+k*dAdx*x;
 end
 
+% the gas is set to the corresponding properties during each iteration of the ode loop
+set(gas,'Temperature',T,'Density',rho,'MassFractions',Y);
+
 MW_mix = meanMolecularWeight(gas);
 Ru = gasconstant();
 R = Ru/MW_mix;
 nsp = nSpecies(gas);
 vx = mdot/(rho*A);
 P = rho*R*T;
-
-% the gas is set to the corresponding properties during each iteration of the ode loop
-set(gas,'Temperature',T,'Density',rho,'MassFractions',Y);
-
 
 MW = molecularWeights(gas);
 h = enthalpies_RT(gas).*R.*T;
