@@ -1,8 +1,15 @@
-function [F] = PFR_solver(x,init,gas,mdot,A_in,dAdx,k)
+function [F] = PFR_solver(x,soln_vector,gas,mdot,A_in,dAdx,k)
 
-rho = init(1);
-T = init(2);
-Y = init(3:end);
+% This function defines the spatial derivatives for an ideal gas plug-flow 
+% reactor, where the cross-sectional area and pressure are allowed to vary, 
+% axially.  The model is set up by the example file 'Plug_Flow_Reactor.m', 
+% which points the integrator to this function.  The integrator integrates the 
+% derivatives spatially, to solve the density, temperature, and species mass 
+% fraction profiles as a function of distance x.
+
+rho = soln_vector(1);
+T = soln_vector(2);
+Y = soln_vector(3:end);
 
 if k==1
     A = A_in+k*dAdx*x;
