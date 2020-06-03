@@ -132,8 +132,6 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
         CxxSolution()
         string name()
         void setName(string)
-        string source()
-        void setSource(string)
         void setThermo(shared_ptr[CxxThermoPhase])
         void setKinetics(shared_ptr[CxxKinetics])
         void setTransport(shared_ptr[CxxTransport])
@@ -967,6 +965,7 @@ cdef class GasTransportData:
 cdef class _SolutionBase:
     cdef shared_ptr[CxxSolution] _base
     cdef CxxSolution* base
+    cdef str _source
     cdef shared_ptr[CxxThermoPhase] _thermo
     cdef CxxThermoPhase* thermo
     cdef shared_ptr[CxxKinetics] _kinetics
