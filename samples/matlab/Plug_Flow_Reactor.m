@@ -12,8 +12,13 @@
 %    *S.R Turns, An Introduction to Combustion - Concepts and Applications,
 %    McGraw Hill Education, India, 2012, 206-210.*
 %
-%    The current example is written for methane combustion, but can be readily 
+%    The current example is written for methane combustion, but can be readily
 %    adapted for other chemistries.
+%
+%    Developed by Ashwin Kumar/Dr.Joseph Meadows (mgak@vt.edu/jwm84@vt.edu) on 3-June-2020
+%    Research Assistant/Assistant Professor
+%    Advanced Propulsion and Power Laboratory
+%    Virginia Tech
 
 %% Clear all variables, close all figures, clear the command line:
 clear all
@@ -80,7 +85,7 @@ nsp = nSpecies(gas_calc);
 
 % Initialize arrays for T, Y, and rho at each location:
 T_calc = zeros(length(x_calc),1);
-Y_calc = zeros(length(x_calc), nsp);
+Y_calc = zeros(length(x_calc),nsp);
 rho_calc = zeros(length(x_calc),1);
 
 T_calc(1) = temperature(gas_calc);
