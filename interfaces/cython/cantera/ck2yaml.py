@@ -886,7 +886,15 @@ class Parser:
         if not composition:
             raise InputError("Error parsing elemental composition for "
                              "species '{}'", species)
+        else:
+            for symbol in composition.keys():
 
+                # check if self.parse_composition parses composition correctly
+                if any(map(str.isdigit, symbol)) and symbol not in self.elements:
+                    raise InputError("Error parsing elemental composition for "
+                                     "species thermo entry\n{}"
+                                     "\n the first line has an incorrect format", "".join(lines))
+                                     
         # Extract the NASA polynomial coefficients
         # Remember that the high-T polynomial comes first!
         Tmin = fortFloat(lines[0][45:55])
