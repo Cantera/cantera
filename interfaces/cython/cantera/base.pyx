@@ -35,6 +35,7 @@ cdef class _SolutionBase:
             self.kinetics = other.kinetics
             self.transport = other.transport
             self._base = other._base
+            self._source = other._source
             self._thermo = other._thermo
             self._kinetics = other._kinetics
             self._transport = other._transport
@@ -45,6 +46,7 @@ cdef class _SolutionBase:
 
         # Assign base and set managers to NULL
         self._base = CxxNewSolution()
+        self._source = None
         self.base = self._base.get()
         self.thermo = NULL
         self.kinetics = NULL
@@ -87,10 +89,10 @@ cdef class _SolutionBase:
 
     property source:
         """
-        The source of this object (e.g. a file name)
+        The source of this object (such as a file name).
         """
         def __get__(self):
-            return pystr(self.base.source())
+            return self._source
 
     property composite:
         """
@@ -115,10 +117,10 @@ cdef class _SolutionBase:
         cdef CxxAnyMap root
         if infile:
             root = AnyMapFromYamlFile(stringify(infile))
-            self.base.setSource(stringify(infile))
+            self._source = infile
         elif source:
             root = AnyMapFromYamlString(stringify(source))
-            self.base.setSource(stringify('custom YAML'))
+            self._source = 'custom YAML'
 
         phaseNode = root[stringify("phases")].getMapWhere(stringify("name"),
                                                           stringify(name))
@@ -153,10 +155,10 @@ cdef class _SolutionBase:
         """
         if infile:
             rootNode = CxxGetXmlFile(stringify(infile))
-            self.base.setSource(stringify(infile))
+            self._source = infile
         elif source:
             rootNode = CxxGetXmlFromString(stringify(source))
-            self.base.setSource(stringify('custom CTI/XML'))
+            self._source = 'custom CTI/XML'
 
         # Get XML data
         cdef XML_Node* phaseNode
@@ -195,7 +197,7 @@ cdef class _SolutionBase:
         Instantiate a set of new Cantera C++ objects based on a string defining
         the model type and a list of Species objects.
         """
-        self.base.setSource(stringify('custom parts'))
+        self._source = 'custom parts'
         self.thermo = newThermoPhase(stringify(thermo))
         self._thermo.reset(self.thermo)
         self.thermo.addUndefinedElements()
