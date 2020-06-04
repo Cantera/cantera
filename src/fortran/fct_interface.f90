@@ -223,9 +223,15 @@ interface
         double precision, intent(in) :: v2
     end function th_set_sp
 
-    integer function th_equil(n, XY)
+    integer function th_equil(n, XY, solver, rtol, max_steps, max_iter, estimate_equil, log_level)
         integer, intent(in) :: n
         character*(*), intent(in) :: XY
+        character*(*), intent(in) :: solver
+        double precision, intent(in) :: rtol
+        integer, intent(in) :: max_steps
+        integer, intent(in) :: max_iter
+        integer, intent(in) :: estimate_equil
+        integer, intent(in) :: log_level
     end function th_equil
 
     double precision function th_refpressure(n)

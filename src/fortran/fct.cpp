@@ -565,10 +565,10 @@ extern "C" {
         return 0;
     }
 
-    status_t th_equil_(const integer* n, char* XY, ftnlen lenxy)
+    status_t th_equil_(const integer* n, char* XY, char* solver, double rtol, int max_steps, int max_iter, int estimate_equil, int log_level, ftnlen lensolver, ftnlen lenxy)
     {
         try {
-            _fth(n)->equilibrate(f2string(XY,lenxy));
+            _fth(n)->equilibrate(f2string(XY,lenxy), f2string(solver,lensolver), rtol, max_steps, max_iter, estimate_equil, log_level);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
