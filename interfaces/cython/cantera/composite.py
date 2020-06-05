@@ -564,6 +564,8 @@ class SolutionArray:
         states = self._states[index]
         if(isinstance(states, list)):
             num_rows = len(states)
+            if num_rows == 0:
+                states = None
             return SolutionArray(self._phase, num_rows, states)
         else:
             shape = states.shape[:-1]

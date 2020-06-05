@@ -1789,3 +1789,14 @@ class TestSolutionArray(utilities.CanteraTest):
         soln = ct.SolutionArray(self.gas, 10)
         arr = soln[2:9:3]
         self.assertEqual(len(arr.T), 3)
+
+    def test_zero_length_slice_SolutionArray(self):
+        states = ct.SolutionArray(self.gas, 4)
+        arr1 = states[3:3]
+        self.assertEqual(len(arr1.T), 0)
+        self.assertEqual(arr1.X.shape, (0,9))
+        self.assertEqual(arr1.n_reactions, 28)
+
+        states.TP = [100,300,900,323.23], ct.one_atm
+        arr2 = states[slice(0)]
+        self.assertEqual(len(arr2.T), 0)
