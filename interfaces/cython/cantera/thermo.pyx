@@ -604,17 +604,20 @@ cdef class ThermoPhase(_SolutionBase):
 
     def find_isomers(self, comp):
         """
-        Find species/isomers matching a composition specified by *comp*.
+        Find species/isomers matching a composition specified by *comp*;
+        returns a dictionary of species names and indices.
+
+        >>> phase.find_isomers('C:1, H:2')
+        {'CH2': 10, 'CH2(S)': 11}
         """
-
         if isinstance(comp, dict):
-            iso = self.thermo.findIsomers(comp_map(comp))
-        elif isinstance(comp, (str, bytes)):
-            iso = self.thermo.findIsomers(stringify(comp))
-        else:
-            raise CanteraError('Invalid composition')
+            return {pystr(item.first): item.second
+                    for item in self.thermo.findIsomers(comp_map(comp))}
+        if isinstance(comp, (str, bytes)):
+            return {pystr(item.first): item.second
+                    for item in self.thermo.findIsomers(stringify(comp))}
 
-        return [pystr(b) for b in iso]
+        raise CanteraError('Invalid composition')
 
     def n_atoms(self, species, element):
         """

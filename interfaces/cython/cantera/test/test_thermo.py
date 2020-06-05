@@ -1158,15 +1158,27 @@ class TestSpecies(utilities.CanteraTest):
             self.gas.add_species_alias('spam', 'eggs')
 
     def test_isomers(self):
+        def check(iso):
+            self.assertIsInstance(iso, dict)
+            for name, index in iso.items():
+                self.assertIn(name, gas.species_names)
+                self.assertEqual(gas.species_index(name), index)
+
         gas = ct.Solution('nDodecane_Reitz.yaml')
         iso = gas.find_isomers({'C':4, 'H':9, 'O':2})
+        check(iso)
         self.assertTrue(len(iso) == 2)
         iso = gas.find_isomers('C:4, H:9, O:2')
         self.assertTrue(len(iso) == 2)
+        check(iso)
         iso = gas.find_isomers({'C':7, 'H':15})
         self.assertTrue(len(iso) == 1)
+        check(iso)
         iso = gas.find_isomers({'C':7, 'H':16})
         self.assertTrue(len(iso) == 0)
+        check(iso)
+        with self.assertRaisesRegex(ct.CanteraError, 'Invalid'):
+            gas.find_isomers(3)
 
 
 class TestSpeciesThermo(utilities.CanteraTest):
@@ -1644,7 +1656,7 @@ class TestSolutionArray(utilities.CanteraTest):
     def test_extra(self):
         with self.assertRaises(ValueError):
             states = ct.SolutionArray(self.gas, extra=['creation_rates'])
-        
+
     def test_append(self):
         states = ct.SolutionArray(self.gas, 5)
         states.TPX = np.linspace(500, 1000, 5), 2e5, 'H2:0.5, O2:0.4'

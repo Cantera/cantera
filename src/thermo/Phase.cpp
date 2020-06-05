@@ -973,20 +973,20 @@ void Phase::addSpeciesAlias(const std::string& name, const std::string& alias)
     }
 }
 
-vector<std::string> Phase::findIsomers(const compositionMap& compMap) const
+map<std::string, size_t> Phase::findIsomers(const compositionMap& compMap) const
 {
-    vector<std::string> isomerNames;
+    map<std::string, size_t> isomers;
 
     for (const auto& k : m_species) {
         if (k.second->composition == compMap) {
-            isomerNames.emplace_back(k.first);
+            isomers.emplace(k.first, m_speciesIndices.find(k.first)->second);
         }
     }
 
-    return isomerNames;
+    return isomers;
 }
 
-vector<std::string> Phase::findIsomers(const std::string& comp) const
+map<std::string, size_t> Phase::findIsomers(const std::string& comp) const
 {
     return findIsomers(parseCompString(comp));
 }
