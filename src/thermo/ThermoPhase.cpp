@@ -695,6 +695,12 @@ MultiSpeciesThermo& ThermoPhase::speciesThermo(int k)
     return m_spthermo;
 }
 
+const MultiSpeciesThermo& ThermoPhase::speciesThermo(int k) const
+{
+    return m_spthermo;
+}
+
+
 void ThermoPhase::initThermoFile(const std::string& inputFile,
                                  const std::string& id)
 {
