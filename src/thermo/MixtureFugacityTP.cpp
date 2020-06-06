@@ -56,7 +56,7 @@ double MixtureFugacityTP::enthalpy_mole() const
 double MixtureFugacityTP::entropy_mole() const
 {
     _updateReferenceStateThermo();
-    double s_ideal = GasConstant * (mean_X(m_s0_R) - sum_xlogx() 
+    double s_ideal = GasConstant * (mean_X(m_s0_R) - sum_xlogx()
 		- std::log(pressure()/refPressure()));
     double s_nonideal = sresid();
     return s_ideal + s_nonideal;
@@ -958,7 +958,7 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
             // h and yN need to figure out whether delta^3 is positive or negative
             if (yN > 0.0) {
                 tmp = pow(yN/(2*an), 1./3.);
-                // In this case, tmp and delta must be equal. 
+                // In this case, tmp and delta must be equal.
                 if (fabs(tmp - delta) > 1.0E-9) {
                     throw CanteraError("MixtureFugacityTP::CubicSolve", "Inconsistancy in cubic solver : solver is poorly conditioned.");
                 }
@@ -1008,7 +1008,7 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
 
     if (nSolnValues == 1) {
 	// Determine the phase of the single root. 
-	// nSolnValues = 1 represents the gas phase by default. 
+	// nSolnValues = 1 represents the gas phase by default.
         if (T > tc) {
             if (Vroot[0] < vc) {
                 // Supercritical phase

@@ -491,7 +491,7 @@ public:
      * @return          The saturation pressure at the given temperature
      */
     virtual doublereal satPressure(doublereal TKelvin);
-	virtual void setToEquilState(const doublereal* lambda_RT);
+    virtual void setToEquilState(const doublereal* lambda_RT);
     virtual void getActivityConcentrations(double* c) const;
 
 protected:
@@ -522,13 +522,15 @@ protected:
     /*!
      * 
      * Returns the number of solutions found. If it only finds the liquid
-     * branch solution, it will return a -1 or a -2 instead of 1 or 2.  If it
-     * returns 0, then there is an error.
-     * The cubic equation is solved using Nickall's method (Ref: The Mathematical Gazette(1993), 77(November), 354�359, https://www.jstor.org/stable/3619777)
+     * branch solution, it will return -1 or -2 instead of 1 or 2.
+     * If it returns 0, then there is an error.
+     * The cubic equation is solved using Nickall's method
+     * (Ref: The Mathematical Gazette(1993), 77(November), 354--359,
+     *  https://www.jstor.org/stable/3619777)
      */
     int solveCubic(double T, double pres, double a, double b, 
-                                        double aAlpha, double Vroot[3], double an,
-                                        double bn, double cn, double dn, double tc, double vc) const;
+                   double aAlpha, double Vroot[3], double an,
+                   double bn, double cn, double dn, double tc, double vc) const;
 
     //@}
 
@@ -564,8 +566,8 @@ protected:
     mutable vector_fp m_s0_R;
 
 public:
-	//! Temporary storage - length = m_kk.
-	mutable vector_fp m_pp;
+    //! Temporary storage - length = m_kk.
+    mutable vector_fp m_pp;
 };
 }
 

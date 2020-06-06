@@ -1,7 +1,7 @@
 //! @file PengRobinson.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/PengRobinson.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -82,7 +82,7 @@ void PengRobinson::setSpeciesCoeffs(const std::string& species, double a, double
             "Unknown species '{}'.", species);
     }
     size_t counter = k + m_kk * k;
-	m_a_vec_Curr[counter] = a;
+    m_a_vec_Curr[counter] = a;
     // we store this locally because it is used below to calculate a_Alpha:
     double aAlpha_k = a*m_alpha_vec_Curr[k];
     m_aAlpha_vec_Curr[counter] = aAlpha_k;
@@ -96,10 +96,10 @@ void PengRobinson::setSpeciesCoeffs(const std::string& species, double a, double
         double aAlpha_j = a*m_alpha_vec_Curr[j];
         double a_Alpha = sqrt(aAlpha_j*aAlpha_k);
         if (m_a_vec_Curr[j + m_kk * k] == 0) {
-			m_a_vec_Curr[j + m_kk * k] = a0kj;
-			m_aAlpha_vec_Curr[j + m_kk * k] = a_Alpha;
-			m_a_vec_Curr[k + m_kk * j] = a0kj;
-			m_aAlpha_vec_Curr[k + m_kk * j] = a_Alpha;
+            m_a_vec_Curr[j + m_kk * k] = a0kj;
+            m_aAlpha_vec_Curr[j + m_kk * k] = a_Alpha;
+            m_a_vec_Curr[k + m_kk * j] = a0kj;
+            m_aAlpha_vec_Curr[k + m_kk * j] = a_Alpha;
         }
     }
     m_b_vec_Curr[k] = b;
@@ -121,7 +121,7 @@ void PengRobinson::setBinaryCoeffs(const std::string& species_i,
 
     size_t counter1 = ki + m_kk * kj;
     size_t counter2 = kj + m_kk * ki;
-	m_a_vec_Curr[counter1] = m_a_vec_Curr[counter2] = a0;
+    m_a_vec_Curr[counter1] = m_a_vec_Curr[counter2] = a0;
     m_aAlpha_vec_Curr[counter1] = m_aAlpha_vec_Curr[counter2] = a0*alpha;
 }
 
@@ -306,7 +306,7 @@ void PengRobinson::getPartialMolarEntropies(double* sbar) const
         for (size_t i = 0; i < m_kk; i++) {
             size_t counter = k + m_kk*i;
             m_pp[k] += moleFractions_[i] * m_aAlpha_vec_Curr[counter];
-                        m_tmpV[k] += moleFractions_[i] * m_aAlpha_vec_Curr[counter] *(m_dalphadT_vec_Curr[i] / m_alpha_vec_Curr[i]);
+            m_tmpV[k] += moleFractions_[i] * m_aAlpha_vec_Curr[counter] *(m_dalphadT_vec_Curr[i] / m_alpha_vec_Curr[i]);
         }
         m_pp[k] = m_pp[k] * m_dalphadT_vec_Curr[k] / m_alpha_vec_Curr[k];
     }
@@ -315,11 +315,11 @@ void PengRobinson::getPartialMolarEntropies(double* sbar) const
     for (size_t k = 0; k < m_kk; k++) {
         coeff1 = m_b_current * (m_pp[k] + m_tmpV[k]) - daAlphadT * m_b_vec_Curr[k];
         sbar[k] += GasConstant * log(GasConstant * T / (refP * mv))
-                + GasConstant
-                + GasConstant * log(mv / vmb)
-                + GasConstant * m_b_vec_Curr[k] / vmb
-                - coeff1* log(vpb2 / vmb2) / den1
-                - m_b_vec_Curr[k] * mv * daAlphadT / den2 / m_b_current;
+                    + GasConstant
+                    + GasConstant * log(mv / vmb)
+                    + GasConstant * m_b_vec_Curr[k] / vmb
+                    - coeff1* log(vpb2 / vmb2) / den1
+                    - m_b_vec_Curr[k] * mv * daAlphadT / den2 / m_b_current;
     }
     pressureDerivatives();
     getPartialMolarVolumes(m_partialMolarVolumes.data());
@@ -359,14 +359,14 @@ void PengRobinson::getPartialMolarVolumes(double* vbar) const
 
     for (size_t k = 0; k < m_kk; k++) {
         double num = (RTkelvin + RTkelvin * m_b_current/ vmb + RTkelvin * m_b_vec_Curr[k] / vmb
-                          + RTkelvin * m_b_current * m_b_vec_Curr[k] /(vmb * vmb)
-                          - 2 * mv * m_pp[k] / fac
-                          + 2 * mv * vmb * m_aAlpha_current * m_b_vec_Curr[k] / fac2
-                         );
+                      + RTkelvin * m_b_current * m_b_vec_Curr[k] /(vmb * vmb)
+                      - 2 * mv * m_pp[k] / fac
+                      + 2 * mv * vmb * m_aAlpha_current * m_b_vec_Curr[k] / fac2
+                     );
         double denom = (pressure() + RTkelvin * m_b_current / (vmb * vmb)
-                            + m_aAlpha_current/fac
-                            - 2 * mv* vpb *m_aAlpha_current / fac2
-                         );
+                        + m_aAlpha_current/fac
+                        - 2 * mv* vpb *m_aAlpha_current / fac2
+                       );
         vbar[k] = num / denom;
     }
 }
@@ -470,7 +470,7 @@ vector<double> PengRobinson::getCoeff(const std::string& iName)
                     }
                     if (vParams <= 0.0) { //Assuming that Pc and Tc are non zero.
                         throw CanteraError("PengRobinson::getCoeff",
-                            "Critical Temperature must be positive ");
+                            "Critical Temperature must be positive");
                     }
                     T_crit = vParams;
                 }
@@ -483,7 +483,7 @@ vector<double> PengRobinson::getCoeff(const std::string& iName)
                     }
                     if (vParams <= 0.0) { //Assuming that Pc and Tc are non zero.
                         throw CanteraError("PengRobinson::getCoeff",
-                            "Critical Pressure must be positive ");
+                            "Critical Pressure must be positive");
                     }
                     P_crit = vParams;
                 }
@@ -854,7 +854,7 @@ double PengRobinson::d2aAlpha_dT2() const
             num = (m_dalphadT_vec_Curr[j] * alphai + m_dalphadT_vec_Curr[i] * alphaj);
             fac1 = -(0.5 / alphaij)*num*num;
             fac2 = alphaj * m_d2alphadT2[i] + alphai *m_d2alphadT2[j] + 2. * m_dalphadT_vec_Curr[i] * m_dalphadT_vec_Curr[j];
-            d2aAlphadT2 += moleFractions_[i] * moleFractions_[j] * temp *(fac1 + fac2); //m_d2alphadT2[counter1]; //
+            d2aAlphadT2 += moleFractions_[i] * moleFractions_[j] * temp *(fac1 + fac2);
         }
     }
     return d2aAlphadT2;
@@ -892,8 +892,8 @@ int PengRobinson::solveCubic(double T, double pres, double a, double b, double a
     double dn = (bsqr * RT_p + bsqr * b - aAlpha_p * b);
 
     double tc = a * omega_b / (b * omega_a * GasConstant);
-	double pc = omega_b * GasConstant * tc / b;
-	double vc = omega_vc * GasConstant * tc / pc;
+    double pc = omega_b * GasConstant * tc / b;
+    double vc = omega_vc * GasConstant * tc / pc;
 
     int nSolnValues = MixtureFugacityTP::solveCubic(T, pres, a, b, aAlpha, Vroot, an, bn, cn, dn, tc, vc);
 

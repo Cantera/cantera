@@ -1,4 +1,3 @@
-# Transport data from file ../transport/gri30_tran.dat.
 
 units(length ="cm", time ="s", quantity ="mol", act_energy ="cal/mol")
 

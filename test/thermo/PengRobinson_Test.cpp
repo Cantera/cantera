@@ -115,8 +115,10 @@ TEST_F(PengRobinson_Test, activityCoeffs)
 
 TEST_F(PengRobinson_Test, standardConcentrations)
 {
-    EXPECT_DOUBLE_EQ(test_phase->pressure()/(test_phase->temperature()*GasConstant), test_phase->standardConcentration(0));
-    EXPECT_DOUBLE_EQ(test_phase->pressure()/(test_phase->temperature()*GasConstant), test_phase->standardConcentration(1));
+    EXPECT_DOUBLE_EQ(test_phase->pressure()/(test_phase->temperature()*GasConstant),
+                     test_phase->standardConcentration(0));
+    EXPECT_DOUBLE_EQ(test_phase->pressure()/(test_phase->temperature()*GasConstant),
+                     test_phase->standardConcentration(1));
 }
 
 TEST_F(PengRobinson_Test, activityConcentrations)
@@ -196,7 +198,8 @@ TEST_F(PengRobinson_Test, getPressure)
     // Check to make sure that the P-R equation is accurately reproduced for a few selected values
 
     /* This test uses CO2 as the only species (mole fraction 99.9%, balance H2).
-    *  Values of a_coeff, b_coeff are calculated based on the the critical temperature and pressure values of CO2 as follows:
+    *  Values of a_coeff, b_coeff are calculated based on the the critical temperature
+    *  and pressure values of CO2 as follows:
     *       a_coeff = 0.457235(RT_crit)^2/p_crit
     *       b_coeff = 0.077796(RT_crit)/p_crit
     *  The temperature dependent parameter in P-R EoS is calculated as
@@ -222,7 +225,8 @@ TEST_F(PengRobinson_Test, getPressure)
         mv = 1 / rho * test_phase->meanMolecularWeight();
         //Calculate pressure using Peng-Robinson EoS
         alpha = pow(1 + kappa*(1 - sqrt(temp / Tcrit)), 2.0);
-        pres_theoretical = GasConstant*temp / (mv - b_coeff) - a_coeff*alpha / (mv*mv + 2*b_coeff*mv - b_coeff*b_coeff);
+        pres_theoretical = GasConstant*temp / (mv - b_coeff)
+                          - a_coeff*alpha / (mv*mv + 2*b_coeff*mv - b_coeff*b_coeff);
         EXPECT_NEAR(test_phase->pressure(), pres_theoretical, 3);
     }
 }
