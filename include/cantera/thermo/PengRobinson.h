@@ -21,7 +21,7 @@ class PengRobinson : public MixtureFugacityTP
 public:
 
     //! Construct and initialize a PengRobinson object directly from an
-    //! ASCII input file
+    //! input file
     /*!
      * @param infile    Name of the input file containing the phase YAML data.
      *                  If blank, an empty phase will be created.
@@ -47,15 +47,15 @@ public:
 
     //! Return the thermodynamic pressure (Pa).
     /*!
-     *  Since the mass density, temperature, and mass fractions are stored,
-     *  this method uses these values to implement the
-     *  mechanical equation of state \f$ P(T, \rho, Y_1, \dots, Y_K) \f$.
+     * Since the mass density, temperature, and mass fractions are stored,
+     * this method uses these values to implement the
+     * mechanical equation of state \f$ P(T, \rho, Y_1, \dots, Y_K) \f$.
      *
      * \f[
-     *    P = \frac{RT}{v-b_{mix}} - \frac{\left(\alpha a\right)_{mix}}{v^2 + 2b_{mix}v - b_{mix}^2 }
+     *    P = \frac{RT}{v-b_{mix}} - \frac{\left(\alpha a\right)_{mix}}{v^2 + 2b_{mix}v - b_{mix}^2}
      * \f]
      *
-     *  where:
+     * where:
      *
      * \f[
      *    \alpha = \left[ 1 + \kappa \left(1-T_r^{0.5}\right)\right]^2
@@ -68,19 +68,20 @@ public:
      *    \kappa = \left(0.379642 + 1.487503\omega - 0.164423\omega^2 +  0.016667\omega^3 \right)      for omega > 0.491
      * \f]
      *
-     *Coefficients a_mix, b_mix and (a \alpha)_{mix} are caclulated as
+     * Coefficients \f$ a_mix, b_mix \f$ and \f$(a \alpha)_{mix}\f$ are calculated as
      *
-     *\f[
-     *a_{mix} = \sum_i \sum_j X_i X_j a_{i, j} = \sum_i \sum_j X_i X_j sqrt{a_i a_j}
-     *\f]
+     * \f[
+     *    a_{mix} = \sum_i \sum_j X_i X_j a_{i, j} = \sum_i \sum_j X_i X_j sqrt{a_i a_j}
+     * \f]
      *
-     *\f[
-     *   b_{mix} = \sum_i X_i b_i
-     *\f]
+     * \f[
+     *    b_{mix} = \sum_i X_i b_i
+     * \f]
      *
-     *\f[
+     * \f[
      *   {a \alpha}_{mix} = \sum_i \sum_j X_i X_j {a \alpha}_{i, j} = \sum_i \sum_j X_i X_j sqrt{a_i a_j} sqrt{\alpha_i \alpha_j}
      *\f]
+     * \f]
      */
     virtual double pressure() const;
 
@@ -95,13 +96,13 @@ public:
      * concentration is normalized to produce the activity. In many cases, this
      * quantity will be the same for all species in a phase.
      * The ideal gas mixture is considered as the standard or reference state here.
-     * Since the activity for an ideal gas mixture is simply the mole fraction, for an ideal gas
-     * \f$ C^0_k = P/\hat R T \f$.
+     * Since the activity for an ideal gas mixture is simply the mole fraction,
+     * for an ideal gas,  \f$ C^0_k = P/\hat R T \f$.
      *
      * @param k Optional parameter indicating the species. The default is to
      *          assume this refers to species 0.
      * @return
-     *   Returns the standard Concentration in units of m3 kmol-1.
+     *   Returns the standard Concentration in units of m^3 / kmol.
      */
     virtual double standardConcentration(size_t k=0) const;
 
@@ -127,13 +128,17 @@ public:
     virtual void getPartialMolarVolumes(double* vbar) const;
 
     //! Calculate the temperature dependent interaction parameter alpha needed for P-R EoS
-    /*
-    *  The temperature dependent parameter in P-R EoS is calculated as
-    *       \alpha = [1 + \kappa(1 - sqrt{T/T_crit}]^2
-    *  kappa is a function calulated based on the accentric factor.
-    *  Units: unitless
-        * a and b are species-specific coefficients used in P-R EoS, w is the acentric factor.
-    */
+    /*!
+     *  The temperature dependent parameter in P-R EoS is calculated as
+     *       \f$ \alpha = [1 + \kappa(1 - sqrt{T/T_crit})]^2  \f$
+     *  kappa is a function calculated based on the acentric factor.
+     *  Units: unitless
+     *
+     * @param a    species-specific coefficients used in P-R EoS
+     * @param b    species-specific coefficients used in P-R EoS
+     * @param w    the acentric factor
+     */
+
     virtual void calculateAlpha(const std::string& species, double a, double b, double w);
     //@}
     /// @name Critical State Properties.
@@ -165,10 +170,10 @@ public:
     *  If pureFluidParameters are not provided for any species in the phase,
     *  consult the critical properties tabulated in data/inputs/critProperties.xml.
     *  If the species is found there, calculate pure fluid parameters a_k and b_k as:
-    *  \f[ a_k = 0.4278*R**2*T_c^2/P_c \f]
+    *  \f[ a_k = 0.4278 R^2 T_c^2 / P_c \f]
     *
     *  and:
-    *  \f[ b_k = 0.08664*R*T_c/P_c \f]
+    *  \f[ b_k = 0.08664 R T_c/ P_c \f]
     *
     *  @param iName    Name of the species
     */
@@ -189,7 +194,7 @@ public:
     /*!
      *  The "a" parameter for interactions between species *i* and *j* is
      *  assumed by default to be computed as:
-     *  \f[ a_{ij} = \sqrt(a_{i, 0} a_{j, 0}) + \sqrt(a_{i, 1} a_{j, 1}) T \f]
+     *  \f[ a_{ij} = \sqrt{a_{i, 0} a_{j, 0}} + \sqrt{a_{i, 1} a_{j, 1}} T \f]
      *
      *
      *  @param species_i   Name of one species
@@ -248,7 +253,7 @@ public:
 
     //! Prepare variables and call the function to solve the cubic equation of state
     int solveCubic(double T, double pres, double a, double b, double aAlpha,
-                     double Vroot[3]) const;
+                   double Vroot[3]) const;
 protected:
     //! Value of b in the equation of state
     /*!
