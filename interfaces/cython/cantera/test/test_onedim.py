@@ -653,6 +653,8 @@ class TestFreeFlame(utilities.CanteraTest):
         k = self.gas.species_index('H2')
         self.assertArrayNear(f.X[k, :], self.sim.X[k, :])
         self.assertArrayNear(f.inlet.X, self.sim.inlet.X)
+        self.assertEqual(meta['cantera_version'], ct.__version__)
+        self.assertEqual(meta['git_commit'], ct.__git_commit__)
 
         settings = self.sim.settings
         for k, v in f.settings.items():

@@ -1,12 +1,14 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-import numpy as np
-from ._cantera import *
-from .composite import Solution, SolutionArray
 from math import erf
 from os import path
 from email.utils import formatdate
+import numpy as np
+
+from ._cantera import *
+from .composite import Solution, SolutionArray
+from . import __version__, __git_commit__
 
 
 class FlameBase(Sim1D):
@@ -564,6 +566,8 @@ class FlameBase(Sim1D):
         cols = ('extra', 'T', 'D', species)
         meta = self.settings
         meta['date'] = formatdate(localtime=True)
+        meta['cantera_version'] = __version__
+        meta['git_commit'] = __git_commit__
         if description is not None:
             meta['description'] = description
         for i in range(3):
