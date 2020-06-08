@@ -134,6 +134,15 @@ class TestThermoPhase(utilities.CanteraTest):
                 test_weight += aw * self.phase.n_atoms(i,j)
             self.assertNear(test_weight, mw)
 
+    def test_charges(self):
+        gas = ct.Solution('ch4_ion.yaml')
+        charges = gas.electrical_charges
+        test = {'E': -1., 'N2': 0., 'H3O+': 1.}
+        for species, charge in test.items():
+            self.assertIn(species, gas.species_names)
+            index = gas.species_index(species)
+            self.assertEqual(charges[index], charge)
+
     def test_setComposition(self):
         X = np.zeros(self.phase.n_species)
         X[2] = 1.0
@@ -1657,7 +1666,7 @@ class TestSolutionArray(utilities.CanteraTest):
         states = ct.SolutionArray(self.gas, 10, extra=extra)
         keys = list(states._extra.keys())
         self.assertEqual(keys[0], 'grid')
-        
+
         with self.assertRaises(ValueError):
             states = ct.SolutionArray(self.gas, extra=['creation_rates'])
 
