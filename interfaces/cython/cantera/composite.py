@@ -482,8 +482,8 @@ class SolutionArray:
         'name', 'ID', 'source', 'basis', 'n_elements', 'element_index',
         'element_name', 'element_names', 'atomic_weight', 'atomic_weights',
         'n_species', 'species_name', 'species_names', 'species_index',
-        'species', 'n_atoms', 'molecular_weights', 'electrical_charges',
-        'min_temp', 'max_temp', 'reference_pressure',
+        'species', 'n_atoms', 'molecular_weights', 'min_temp', 'max_temp',
+        'reference_pressure', 'species_charges',
         # From Kinetics
         'n_total_species', 'n_reactions', 'n_phases', 'reaction_phase_index',
         'kinetics_species_index', 'reaction', 'reactions', 'modify_reaction',
