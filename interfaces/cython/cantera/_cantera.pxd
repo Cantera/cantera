@@ -907,6 +907,7 @@ cdef extern from "cantera/cython/wrappers.h":
 
     # other ThermoPhase methods
     cdef void thermo_getMolecularWeights(CxxThermoPhase*, double*) except +translate_exception
+    cdef void thermo_getSpeciesCharges(CxxThermoPhase*, double*) except +translate_exception
 
     # Kinetics per-reaction properties
     cdef void kin_getFwdRatesOfProgress(CxxKinetics*, double*) except +translate_exception

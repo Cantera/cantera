@@ -477,6 +477,23 @@ public:
     //! units = kg / kmol
     const vector_fp& molecularWeights() const;
 
+    //! Charge of species \c k.
+    //!     @param k index of species \c k
+    //!     @returns the charge of species \c k.
+    doublereal speciesCharge(size_t k) const;
+
+    //! Copy the vector of species charges into vector charges.
+    //!     @param charges Output vector of species charges (-)
+    void getSpeciesCharges(vector_fp& charges) const;
+
+    //! Copy the vector of species charges into array weights.
+    //!     @param weights Output array of species charges (-)
+    void getSpeciesCharges(doublereal* charges) const;
+
+    //! Return a const reference to the internal vector of molecular weights.
+    //! units = (-)
+    const vector_fp& speciesCharges() const;
+
     /// @name Composition
     //@{
 
