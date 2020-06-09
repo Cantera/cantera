@@ -126,19 +126,21 @@ class CompileAndTest(Test):
                  **kwargs):
         self.extensions = kwargs.get('extensions') or ('cpp',)
         self.libs = list(libs)
+        self.sources = mglob(env, subdir, *self.extensions)
         Test.__init__(self, testName, subdir, programName, blessedName, **kwargs)
 
     def run(self, env):
         prog = env.Program(pjoin(self.subdir, self.programName),
-                           mglob(env, self.subdir, *self.extensions),
+                           self.sources,
                            LIBS=self.libs or cantera_libs)
         source = [prog]
         return Test.run(self, env, *source)
 
     def clean(self, env):
-        files = [self.programName + ext
-                 for ext in ['', '.o', '.exe', '.exe.manifest', '.ilk',
-                             '.obj', '.pdb']]
+        basenames = [os.path.splitext(f.name)[0] for f in self.sources]
+        basenames.append(self.programName)
+        exts = ['', '.o', '.exe', '.exe.manifest', '.ilk', '.obj', '.pdb', '.obj.pdb']
+        files = [name + ext for name in basenames for ext in exts]
         return Test.clean(self, env, files=files)
 
 
