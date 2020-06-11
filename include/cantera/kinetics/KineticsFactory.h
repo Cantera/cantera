@@ -61,6 +61,9 @@ public:
      *              the reactions occur, and the subsequent phases (if any)
      *              are e.g. bulk phases adjacent to a reacting surface.
      * @return Pointer to the new kinetics manager.
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual Kinetics* newKinetics(XML_Node& phase, std::vector<ThermoPhase*> th);
 
@@ -77,6 +80,9 @@ private:
 
 /**
  *  Create a new kinetics manager.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 inline Kinetics* newKineticsMgr(XML_Node& phase, std::vector<ThermoPhase*> th)
 {

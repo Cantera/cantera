@@ -23,6 +23,9 @@ namespace Cantera
 //!  Class XML_Reader reads an XML file into an XML_Node object.
 /*!
  *   Class XML_Reader is designed for internal use.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 class XML_Reader
 {
@@ -93,6 +96,9 @@ public:
 /*!
  * There are routines for adding to the tree, querying and searching the tree,
  * and for writing the tree out to an output file.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 class XML_Node
 {
@@ -703,6 +709,9 @@ protected:
  *  @param phaseId      id of the phase to search for
  *  @returns the XML_Node pointer if the phase is found. If the phase is not
  *           found, it returns 0
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 XML_Node* findXMLPhase(XML_Node* root, const std::string& phaseId);
 

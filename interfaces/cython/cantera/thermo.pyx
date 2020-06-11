@@ -82,6 +82,10 @@ cdef class Species:
     def fromCti(text):
         """
         Create a Species object from its CTI string representation.
+
+        .. deprecated:: 2.5
+
+            The CTI input format is deprecated and will be removed in Cantera 3.0.
         """
         cxx_species = CxxGetSpecies(deref(CxxGetXmlFromString(stringify(text))))
         assert cxx_species.size() == 1, cxx_species.size()
@@ -93,6 +97,10 @@ cdef class Species:
     def fromXml(text):
         """
         Create a Species object from its XML string representation.
+
+        .. deprecated:: 2.5
+
+            The XML input format is deprecated and will be removed in Cantera 3.0.
         """
         cxx_species = CxxNewSpecies(deref(CxxGetXmlFromString(stringify(text))))
         species = Species(init=False)
@@ -122,6 +130,11 @@ cdef class Species:
         In the case of an XML file, the ``<species>`` nodes are assumed to be
         children of the ``<speciesData>`` node in a document with a ``<ctml>``
         root node, as in the XML files produced by conversion from CTI files.
+
+        .. deprecated:: 2.5
+
+            The CTI and XML input formats are deprecated and will be removed in
+            Cantera 3.0.
         """
         if filename.lower().split('.')[-1] in ('yml', 'yaml'):
             root = AnyMapFromYamlFile(stringify(filename))
@@ -143,6 +156,10 @@ cdef class Species:
         string. The ``<species>`` nodes are assumed to be children of the
         ``<speciesData>`` node in a document with a ``<ctml>`` root node, as in
         the XML files produced by conversion from CTI files.
+
+        .. deprecated:: 2.5
+
+            The XML input format is deprecated and will be removed in Cantera 3.0.
         """
         cxx_species = CxxGetSpecies(deref(CxxGetXmlFromString(stringify(text))))
         species = []
@@ -157,6 +174,10 @@ cdef class Species:
         """
         Create a list of Species objects from all the species defined in a CTI
         string.
+
+        .. deprecated:: 2.5
+
+            The CTI input format is deprecated and will be removed in Cantera 3.0.
         """
         # Currently identical to listFromXml since get_XML_from_string is able
         # to distinguish between CTI and XML.

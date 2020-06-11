@@ -133,6 +133,9 @@ public:
     /*!
      * @param phaseRef  XML node referencing the water phase.
      * @param id        string id of the phase name
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     explicit WaterSSTP(XML_Node& phaseRef, const std::string& id = "");
 

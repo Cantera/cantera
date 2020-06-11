@@ -63,6 +63,9 @@ public:
 };
 
 //! Create a new Species object from a 'species' XML_Node.
+//!
+//! @deprecated The XML input format is deprecated and will be removed in
+//!     Cantera 3.0.
 shared_ptr<Species> newSpecies(const XML_Node& species_node);
 
 //! Create a new Species object from an AnyMap specification
@@ -77,6 +80,9 @@ unique_ptr<Species> newSpecies(const AnyMap& node);
 //! This function can be used in combination with get_XML_File and
 //! get_XML_from_string to get Species objects from either a file or a string,
 //! respectively, where the string or file is formatted as either CTI or XML.
+//!
+//! @deprecated The XML input format is deprecated and will be removed in
+//!     Cantera 3.0.
 std::vector<shared_ptr<Species> > getSpecies(const XML_Node& node);
 
 //! Generate Species objects for each item (an AnyMap) in `items`.

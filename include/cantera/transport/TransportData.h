@@ -89,6 +89,9 @@ public:
 };
 
 //! Create a new TransportData object from a 'transport' XML_Node.
+//!
+//! @deprecated The XML input format is deprecated and will be removed in
+//!     Cantera 3.0.
 shared_ptr<TransportData> newTransportData(const XML_Node& transport_node);
 
 //! Create a new TransportData object from an AnyMap specification

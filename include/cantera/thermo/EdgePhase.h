@@ -57,6 +57,9 @@ public:
      *       <site_density units="mol/cm"> 3e-15 </site_density>
      *    </thermo>
      * @endcode
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual void setParametersFromXML(const XML_Node& thermoData);
 };

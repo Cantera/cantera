@@ -100,6 +100,9 @@ public:
      *  @param phaseRef    reference for an XML_Node tree that contains
      *                     the information necessary to initialize the phase.
      *  @param id          id of the phase within the input file
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     IdealMolalSoln(XML_Node& phaseRef, const std::string& id = "");
 

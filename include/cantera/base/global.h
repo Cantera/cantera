@@ -257,6 +257,9 @@ void close_XML_File(const std::string& file);
  * @param root    If the file string is empty, searches for the XML element with
  *                matching ID attribute are carried out from this XML node.
  * @returns the XML_Node, if found. Returns null if not found.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root);
 
@@ -279,6 +282,9 @@ XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root);
  * @param root    If the file string is empty, searches for the XML element with
  *                matching ID attribute are carried out from this XML node.
  * @returns the XML_Node, if found. Returns null if not found.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 XML_Node* get_XML_NameID(const std::string& nameTarget,
                          const std::string& file_ID,

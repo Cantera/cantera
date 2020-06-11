@@ -436,6 +436,9 @@ public:
     /*!
      * This is a cascading call, where each level should call the the parent
      * level. This function is called before initThermo()
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual void setParametersFromXML(const XML_Node& speciesNode) {}
 

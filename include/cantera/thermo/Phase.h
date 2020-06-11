@@ -112,6 +112,9 @@ public:
     /*!
      *  The XML_Node for the phase contains all of the input data used to set up
      *  the model for the phase during its initialization.
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     XML_Node& xml() const;
 
@@ -123,6 +126,9 @@ public:
      *  construction operations.
      *
      *  @param xmlPhase Reference to the XML node corresponding to the phase
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     void setXMLdata(XML_Node& xmlPhase);
 

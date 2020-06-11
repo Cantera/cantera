@@ -48,6 +48,9 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const std::string& type,
  *  @param thermoNode 'thermo' XML_Node (child of the 'species' node) with child
  *      nodes representing parameterizations for one or more temperature ranges
  *  @returns the pointer to the newly allocated SpeciesThermoInterpType object
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermoNode);
 

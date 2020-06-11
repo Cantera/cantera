@@ -116,6 +116,9 @@ inline ThermoPhase* newThermoPhase(const std::string& model)
  * @return  A pointer to the completed and initialized ThermoPhase object.
  *
  * @ingroup inputfiles
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 ThermoPhase* newPhase(XML_Node& phase);
 
@@ -195,6 +198,9 @@ ThermoPhase* newPhase(const std::string& infile, std::string id="");
  *              ThermoPhase object here, especially for those objects which are
  *              part of the Cantera Kernel.
  * @ingroup thermoprops
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 void importPhase(XML_Node& phase, ThermoPhase* th);
 
@@ -211,6 +217,9 @@ void setupPhase(ThermoPhase& phase, AnyMap& phaseNode,
                 const AnyMap& rootNode=AnyMap());
 
 //! Add the elements given in an XML_Node tree to the specified phase
+//!
+//! @deprecated The XML input format is deprecated and will be removed in
+//!     Cantera 3.0.
 void installElements(Phase& th, const XML_Node& phaseNode);
 
 //!  Search an XML tree for species data.
@@ -222,6 +231,9 @@ void installElements(Phase& th, const XML_Node& phaseNode);
  * @param kname String containing the name of the species.
  * @param phaseSpeciesData   Pointer to the XML speciesData element
  *              containing the species data for that phase.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 const XML_Node* speciesXML_Node(const std::string& kname,
                                 const XML_Node* phaseSpeciesData);

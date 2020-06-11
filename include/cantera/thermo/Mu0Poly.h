@@ -170,6 +170,9 @@ protected:
  * @param Mu0Node Pointer to the XML element containing the Mu0 information.
  *
  * @ingroup spthermo
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 Mu0Poly* newMu0ThermoFromXML(const XML_Node& Mu0Node);
 }
