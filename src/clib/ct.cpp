@@ -289,8 +289,7 @@ extern "C" {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
             p.checkSpeciesArraySize(lenm);
-            const vector_fp& ch = p.speciesCharges();
-            copy(ch.begin(), ch.end(), sc);
+            const vector_fp& ch = p.getSpeciesCharges(sc);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
