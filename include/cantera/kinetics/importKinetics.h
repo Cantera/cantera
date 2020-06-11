@@ -38,6 +38,9 @@ namespace Cantera
  *    On return, if reaction instantiation goes correctly, return true.
  *    If there is a problem, return false.
  *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
+ *
  * @ingroup kineticsmgr
  */
 bool installReactionArrays(const XML_Node& p, Kinetics& kin,
@@ -74,6 +77,9 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
  *              initialized with the kinetics mechanism. Inherited Kinetics
  *              classes should be used here.
  *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
+ *
  * @ingroup kineticsmgr
  */
 bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
@@ -105,6 +111,9 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
  *        ok =  buildSolutionFromXML(root, "gri30_mix", "phase", th, kin)
  * @endcode
  *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
+ *
  * @ingroup inputfiles
  * @see importKinetics()
  */
@@ -126,7 +135,10 @@ bool buildSolutionFromXML(XML_Node& root, const std::string& id,
  * @param kin   This is a pointer to a kinetics manager class.
  * @param r     This is the reaction node that is being evaluated
  * @return      The function always returns true.
-*/
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
+ */
 bool checkElectrochemReaction(const XML_Node& p, Kinetics& kin, const XML_Node& r);
 
 

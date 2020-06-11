@@ -78,6 +78,9 @@ public:
      * @param id     The name of this phase. This is used to look up
      *               the phase in the XML datafile.
      * @param formCG This parameter initializes the #m_formGC variable.
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     IdealSolidSolnPhase(XML_Node& root, const std::string& id="", int formCG=0);
 

@@ -1386,11 +1386,17 @@ public:
      * @param k      Species index
      * @param data   Pointer to the XML_Node data containing
      *               information about the species in the phase.
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     void saveSpeciesData(const size_t k, const XML_Node* const data);
 
     //!  Return a pointer to the vector of XML nodes containing the species
     //!  data for this phase.
+    //!
+    //! @deprecated The XML input format is deprecated and will be removed in
+    //!     Cantera 3.0.
     const std::vector<const XML_Node*> & speciesData() const;
 
     //! Return a changeable reference to the calculation manager for species
@@ -1441,6 +1447,9 @@ public:
      *     phase.
      * @param id   ID of the phase. If nonnull, a check is done to see if
      *             phaseNode is pointing to the phase with the correct id.
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
@@ -1503,6 +1512,9 @@ public:
      *
      * @param eosdata An XML_Node object corresponding to
      *                the "thermo" entry for this phase in the input file.
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual void setParametersFromXML(const XML_Node& eosdata) {}
 
@@ -1514,6 +1526,9 @@ public:
      *
      * @param state AN XML_Node object corresponding to the "state" entry for
      *              this phase in the input file.
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual void setStateFromXML(const XML_Node& state);
 
@@ -1654,6 +1669,9 @@ protected:
      * This is used to access data needed to construct the transport manager and
      * other properties later in the initialization process. We create a copy of
      * the XML_Node data read in here. Therefore, we own this data.
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     std::vector<const XML_Node*> m_speciesData;
 

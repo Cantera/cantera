@@ -244,6 +244,9 @@ public:
     /*!
      * @param phaseRef  XML node referencing the lattice phase.
      * @param id        string id of the phase name
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     LatticePhase(XML_Node& phaseRef, const std::string& id = "");
 

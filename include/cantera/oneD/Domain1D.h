@@ -320,6 +320,9 @@ public:
      *             out which part of the solution vector pertains to this
      *             object.
      * @return     XML_Node created to represent this domain
+     *
+     * @deprecated The XML output format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual XML_Node& save(XML_Node& o, const doublereal* const sol);
 
@@ -333,6 +336,9 @@ public:
      * @param soln Current value of the solution vector, local to this object.
      * @param loglevel 0 to suppress all output; 1 to show warnings; 2 for
      *      verbose output
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
 

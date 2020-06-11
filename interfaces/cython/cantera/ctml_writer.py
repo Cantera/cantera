@@ -15,6 +15,13 @@
 # python ctml_writer.py infile.cti
 #
 # This will produce CTML file 'infile.xml'
+#
+# .. deprecated:: 2.5
+#
+#    The CTI and XML input file formats are deprecated and will be removed in
+#    Cantera 3.0. Use `cti2yaml.py` to convert CTI input files to the YAML
+#    format.
+#
 
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.

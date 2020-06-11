@@ -464,6 +464,9 @@ public:
      *
      * @param state An XML_Node object corresponding to the "state" entry for
      *              this phase in the input file.
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual void setStateFromXML(const XML_Node& state);
 

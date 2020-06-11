@@ -61,6 +61,10 @@ cdef class Reaction:
     def fromCti(text):
         """
         Create a Reaction object from its CTI string representation.
+
+        .. deprecated:: 2.5
+
+            The CTI input format is deprecated and will be removed in Cantera 3.0.
         """
         cxx_reactions = CxxGetReactions(deref(CxxGetXmlFromString(stringify(text))))
         assert cxx_reactions.size() == 1, cxx_reactions.size()
@@ -70,6 +74,10 @@ cdef class Reaction:
     def fromXml(text):
         """
         Create a Reaction object from its XML string representation.
+
+        .. deprecated:: 2.5
+
+            The XML input format is deprecated and will be removed in Cantera 3.0.
         """
         cxx_reaction = CxxNewReaction(deref(CxxGetXmlFromString(stringify(text))))
         return wrapReaction(cxx_reaction)
@@ -104,6 +112,11 @@ cdef class Reaction:
         In the case of an XML file, the ``<reactions>`` nodes are assumed to be
         children of the ``<reactionsData>`` node in a document with a ``<ctml>``
         root node, as in the XML files produced by conversion from CTI files.
+
+        .. deprecated:: 2.5
+
+            The CTI and XML input formats are deprecated and will be removed in
+            Cantera 3.0.
         """
         if filename.lower().split('.')[-1] in ('yml', 'yaml'):
             if kinetics is None:
@@ -122,6 +135,10 @@ cdef class Reaction:
         XML string. The ``<reaction>`` nodes are assumed to be children of the
         ``<reactionData>`` node in a document with a ``<ctml>`` root node, as in
         the XML files produced by conversion from CTI files.
+
+        .. deprecated:: 2.5
+
+            The XML input format is deprecated and will be removed in Cantera 3.0.
         """
         cxx_reactions = CxxGetReactions(deref(CxxGetXmlFromString(stringify(text))))
         return [wrapReaction(r) for r in cxx_reactions]
@@ -131,6 +148,10 @@ cdef class Reaction:
         """
         Create a list of `Reaction` objects from all the reactions defined in a
         CTI string.
+
+        .. deprecated:: 2.5
+
+            The CTI input format is deprecated and will be removed in Cantera 3.0.
         """
         # Currently identical to listFromXml since get_XML_from_string is able
         # to distinguish between CTI and XML.

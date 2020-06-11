@@ -1061,6 +1061,9 @@ public:
      *  @param phaseRef XML phase node containing the description of the phase
      *  @param id     id attribute containing the name of the phase.
      *                (default is the empty string)
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     HMWSoln(XML_Node& phaseRef, const std::string& id = "");
 
@@ -1518,6 +1521,9 @@ public:
      *             describe the species in the phase.
      * @param id   ID of the phase. If nonnull, a check is done to see if
      *             phaseNode is pointing to the phase with the correct id.
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 

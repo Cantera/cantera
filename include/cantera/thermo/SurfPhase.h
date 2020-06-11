@@ -162,6 +162,9 @@ public:
     //! XML database
     /*!
      *  @param xmlphase XML node pointing to a SurfPhase description
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     SurfPhase(XML_Node& xmlphase);
 
@@ -282,6 +285,9 @@ public:
      *       <site_density units="mol/cm2"> 3e-09 </site_density>
      *    </thermo>
      * @endcode
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual void setParametersFromXML(const XML_Node& thermoData);
     virtual void initThermo();
@@ -303,6 +309,9 @@ public:
      *      <coverages>c6H*:0.1, c6HH:0.9</coverages>
      *   </state>
      * @endcode
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual void setStateFromXML(const XML_Node& state);
 

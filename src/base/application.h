@@ -291,6 +291,9 @@ public:
      *
      * @param file String containing the relative or absolute file name
      * @param debug Debug flag
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     XML_Node* get_XML_File(const std::string& file, int debug=0);
 
@@ -302,6 +305,9 @@ public:
      * stored in the cache.
      * @param text    CTI or CTML string
      * @return        Root of the corresponding XML tree
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     XML_Node* get_XML_from_string(const std::string& text);
 
@@ -411,6 +417,9 @@ protected:
     //! Current vector of XML file trees that have been previously parsed
     //! The second element of the value is used to store the last-modified time
     //! for the file, to enable change detection.
+    //!
+    //! @deprecated The XML input format is deprecated and will be removed in
+    //!     Cantera 3.0.
     std::map<std::string, std::pair<XML_Node*, int> > xmlfiles;
     //! Vector of deprecation warnings that have been emitted (to suppress
     //! duplicates)

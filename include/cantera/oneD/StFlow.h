@@ -146,6 +146,9 @@ public:
      *  @param sol  Current value of the solution vector. The object will pick
      *              out which part of the solution vector pertains to this
      *              object.
+     *
+     * @deprecated The XML output format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual XML_Node& save(XML_Node& o, const doublereal* const sol);
 

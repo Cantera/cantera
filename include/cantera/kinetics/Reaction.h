@@ -260,6 +260,9 @@ public:
 };
 
 //! Create a new Reaction object for the reaction defined in `rxn_node`
+//!
+//! @deprecated The XML input format is deprecated and will be removed in
+//!     Cantera 3.0.
 shared_ptr<Reaction> newReaction(const XML_Node& rxn_node);
 
 //! Create a new Reaction object using the specified parameters
@@ -283,6 +286,9 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin);
 //!   - The rate constants are expressed in (kmol, meter, second) units
 //!   - A `units` directive is included **and** all reactions take place in
 //!     bulk (e.g. gas) phases
+//!
+//! @deprecated The XML input format is deprecated and will be removed in
+//!     Cantera 3.0.
 std::vector<shared_ptr<Reaction> > getReactions(const XML_Node& node);
 
 //! Create Reaction objects for each item (an AnyMap) in `items`. The species

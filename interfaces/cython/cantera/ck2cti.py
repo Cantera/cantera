@@ -28,6 +28,11 @@
 """
 This module contains functions for converting Chemkin-format input files to
 Cantera input files (CTI).
+
+.. deprecated:: 2.5
+
+    The CTI input file format is deprecated and will be removed in Cantera 3.0.
+    Use `ck2yaml.py` to convert Chemkin-format input files to the YAML format.
 """
 
 from __future__ import print_function
