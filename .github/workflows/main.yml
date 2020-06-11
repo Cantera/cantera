@@ -74,22 +74,17 @@ jobs:
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools
     - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons numpy cython gcovr h5py
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py
     - name: Build Cantera
       run: |
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
         optimize=n -j2
     - name: Test Cantera
       run: python3 `which scons` test
-    - name: Run Samples
-      run: python3 `which scons` samples
-    - name: Run Coverage report
-      run: gcovr -r . -j 2 --xml coverage.xml --print-summary
     - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./coverage.xml
+      run: bash <(curl -s https://codecov.io/bash)
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   ubuntu-1604-py2:
     # Ubuntu 16.04 using Python 2 to run SCons and the system Python 3 for the interface
