@@ -142,6 +142,9 @@ public:
 
     //! Convert `value` from this unit system (defined by `setDefaults`) to the
     //! specified units.
+    //!
+    //! @warning This function is an experimental part of the %Cantera API and
+    //!    may be changed or removed without notice.
     double convert(double value, const std::string& dest) const;
     double convert(double value, const Units& dest) const;
 
@@ -167,6 +170,9 @@ public:
 
     //! Convert `value` from the default activation energy units to the
     //! specified units
+    //!
+    //! @warning This function is an experimental part of the %Cantera API and
+    //!    may be changed or removed without notice.
     double convertActivationEnergy(double value, const std::string& dest) const;
 
     //! Convert a generic AnyValue node to the units specified in `dest`. If the

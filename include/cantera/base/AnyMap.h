@@ -503,6 +503,9 @@ public:
      * After being processed, the `units` nodes are removed, so this function
      * should be called only once, on the root AnyMap. This function is called
      * automatically by the fromYamlFile() and fromYamlString() constructors.
+     *
+     * @warning This function is an experimental part of the %Cantera API and
+     *     may be changed or removed without notice.
      */
     void applyUnits(const UnitSystem& units);
 
