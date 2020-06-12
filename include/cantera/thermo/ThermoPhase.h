@@ -1469,7 +1469,7 @@ public:
      * initThermoXML(), which is called from importPhase(), just prior to
      * returning from function importPhase().
      *
-     * When importing from an AnyMap phase desciption (or from a YAML file),
+     * When importing from an AnyMap phase description (or from a YAML file),
      * this method is responsible for setting model parameters from the data
      * stored in #m_input.
      */
