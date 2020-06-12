@@ -1419,11 +1419,11 @@ class lattice(phase):
         self.site_density = site_density
 
         if name == '':
-            raise CTI_Error('sublattice name must be specified')
+            raise InputError('sublattice name must be specified')
         if species == '':
-            raise CTI_Error('sublattice species must be specified')
+            raise InputError('sublattice species must be specified')
         if site_density is None:
-            raise CTI_Error('sublattice '+name
+            raise InputError('sublattice '+name
                             +' site density must be specified')
 
     def get_yaml(self, out):
