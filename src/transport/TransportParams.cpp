@@ -25,6 +25,8 @@ TransportParams::TransportParams() :
     mode_(0),
     log_level(-1)
 {
+    warn_deprecated("class TransportParams",
+                    "Unused. To be removed after Cantera 2.5");
 }
 
 } // End of namespace Cantera
