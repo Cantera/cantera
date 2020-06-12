@@ -565,7 +565,7 @@ public:
 
     //! Full constructor for creating the phase.
     /*!
-     *  @param inputFile  File name containing the XML description of the phase
+     *  @param inputFile  File name containing the definition of the phase
      *  @param id         id attribute containing the name of the phase.
      */
     DebyeHuckel(const std::string& inputFile, const std::string& id = "");

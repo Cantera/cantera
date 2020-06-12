@@ -117,14 +117,14 @@ public:
     BinarySolutionTabulatedThermo();
 
     //! Construct and initialize an BinarySolutionTabulatedThermo ThermoPhase object
-    //! directly from an ASCII input file
+    //! directly from an input file
     /*!
      * This constructor will also fully initialize the object.
      *
-     * @param infile File name for the XML datafile containing information
+     * @param infile File name for the input file containing information
      *               for this phase
      * @param id     The name of this phase. This is used to look up
-     *               the phase in the XML datafile.
+     *               the phase in the input file.
      */
     BinarySolutionTabulatedThermo(const std::string& infile, const std::string& id="");
 

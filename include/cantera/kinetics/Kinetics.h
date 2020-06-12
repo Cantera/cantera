@@ -900,10 +900,10 @@ protected:
     std::vector<size_t> m_start;
 
     /**
-     * Mapping of the phase id, i.e., the id attribute in the XML phase element
-     * to the position of the phase within the kinetics object. Positions start
-     * with the value of 1. The member function, phaseIndex() decrements by one
-     * before returning the index value, so that missing phases return -1.
+     * Mapping of the phase name to the position of the phase within the
+     * kinetics object. Positions start with the value of 1. The member
+     * function, phaseIndex() decrements by one before returning the index
+     * value, so that missing phases return -1.
      */
     std::map<std::string, size_t> m_phaseindex;
 

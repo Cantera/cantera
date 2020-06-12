@@ -25,13 +25,11 @@ public:
     //! Base constructor.
     RedlichKwongMFTP();
 
-    //! Construct and initialize a RedlichKwongMFTP object directly from an
-    //! ASCII input file
+    //! Construct a RedlichKwongMFTP object from an input file
     /*!
-     * @param infile    Name of the input file containing the phase XML data
-     *                  to set up the object
-     * @param id        ID of the phase in the input file. Defaults to the empty
-     *     string.
+     * @param inputFile Name of the input file containing the phase definition
+     * @param id        name (ID) of the phase in the input file. If empty, the
+     *                  first phase definition in the input file will be used.
      */
     RedlichKwongMFTP(const std::string& infile, const std::string& id="");
 

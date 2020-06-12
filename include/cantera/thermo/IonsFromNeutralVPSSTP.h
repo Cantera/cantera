@@ -75,16 +75,11 @@ public:
      */
     IonsFromNeutralVPSSTP();
 
-    //! Construct and initialize an IonsFromNeutralVPSSTP object directly from
-    //! an ASCII input file
+    //! Construct an IonsFromNeutralVPSSTP object from an input file
     /*!
-     * This constructor is a shell around the routine initThermo(), with a
-     * reference to the XML database to get the info for the phase.
-     *
-     * @param inputFile Name of the input file containing the phase XML data
-     *     to set up the object
-     * @param id        ID of the phase in the input file. Defaults to the
-     *     empty string.
+     * @param inputFile Name of the input file containing the phase definition
+     * @param id        name (ID) of the phase in the input file. If empty, the
+     *                  first phase definition in the input file will be used.
      */
     IonsFromNeutralVPSSTP(const std::string& inputFile,
                           const std::string& id = "");

@@ -1412,14 +1412,14 @@ public:
 
     /**
      * @internal
-     * Initialize a ThermoPhase object using a ctml file.
+     * Initialize a ThermoPhase object using an input file.
      *
      * Used to implement constructors for derived classes which take a
-     * a CTML filename and phase name as arguments.
+     * file name and phase name as arguments.
      *
-     * @param inputFile XML file containing the description of the phase
+     * @param inputFile Input file containing the description of the phase
      * @param id  Optional parameter identifying the name of the phase. If
-     *            blank, the first XML phase element encountered will be used.
+     *            blank, the first phase definition encountered will be used.
      */
     virtual void initThermoFile(const std::string& inputFile,
                                 const std::string& id);

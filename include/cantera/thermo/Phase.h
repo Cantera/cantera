@@ -951,8 +951,9 @@ private:
     std::string m_id;
 
     //! Name of the phase.
-    //! Initially, this is the value of the ID attribute of the XML phase node.
-    //! It may be changed to another value during the course of a calculation.
+    //! Initially, this is the name specified in the YAML or CTI input file, or
+    //! the value of the ID attribute of the XML phase node. It may be changed
+    //! to another value during the course of a calculation.
     std::string m_name;
 
     doublereal m_temp; //!< Temperature (K). This is an independent variable

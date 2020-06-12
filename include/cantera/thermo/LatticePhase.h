@@ -643,6 +643,9 @@ public:
      *   </thermo>
      * </phase>
      * @endcode
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
     //@}

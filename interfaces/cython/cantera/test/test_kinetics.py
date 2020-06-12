@@ -154,7 +154,7 @@ class TestKinetics(utilities.CanteraTest):
 class KineticsFromReactions(utilities.CanteraTest):
     """
     Test for Kinetics objects which are constructed directly from Reaction
-    objects instead of from CTI/XML files.
+    objects instead of from input files.
     """
     def test_idealgas(self):
         gas1 = ct.Solution('h2o2.xml')

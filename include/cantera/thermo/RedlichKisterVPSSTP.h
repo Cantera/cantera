@@ -222,13 +222,11 @@ public:
      */
     RedlichKisterVPSSTP();
 
-    //! Construct and initialize a RedlichKisterVPSSTP ThermoPhase object
-    //! directly from an XML input file
+    //! Construct a RedlichKisterVPSSTP object from an input file
     /*!
-     * @param inputFile Name of the input file containing the phase XML data
-     *                  to set up the object
-     * @param id        ID of the phase in the input file. Defaults to the
-     *                  empty string.
+     * @param inputFile Name of the input file containing the phase definition
+     * @param id        name (ID) of the phase in the input file. If empty, the
+     *                  first phase definition in the input file will be used.
      */
     RedlichKisterVPSSTP(const std::string& inputFile, const std::string& id = "");
 
