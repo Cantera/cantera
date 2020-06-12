@@ -20,6 +20,8 @@ namespace Cantera
 //! Base structure to hold transport model parameters.
 /*!
  * This structure is used by TransportFactory.
+ *
+ * @deprecated Unused. To be removed after Cantera 2.5.
  */
 class TransportParams
 {
