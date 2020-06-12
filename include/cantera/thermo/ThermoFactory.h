@@ -133,14 +133,17 @@ ThermoPhase* newPhase(XML_Node& phase);
 unique_ptr<ThermoPhase> newPhase(AnyMap& phaseNode,
                                  const AnyMap& rootNode=AnyMap());
 
-//! Create and Initialize a ThermoPhase object from an XML input file.
+//! Create and Initialize a ThermoPhase object from an input file.
 /*!
- * This routine is a wrapper around the newPhase(XML_Node) routine which does
- * the work. The wrapper locates the input phase XML_Node in a file, and then
- * instantiates the object, returning the pointer to the ThermoPhase object.
+ * For YAML input files, this function uses AnyMap::fromYamlFile() to read the
+ * input file, newThermoPhase() to create an empty ThermoPhase of the
+ * appropriate type, and setupPhase() to initialize the phase.
+ *
+ * For CTI and XML input files, this function uses get_XML_File() to read the
+ * input file and newPhase(XML_Node) to create and initialize the phase.
  *
  * @param infile name of the input file
- * @param id     name of the phase id in the file.
+ * @param id     name (id) of the phase in the file.
  *               If this is blank, the first phase in the file is used.
  * @returns an initialized ThermoPhase object.
  */

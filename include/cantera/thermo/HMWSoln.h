@@ -1046,9 +1046,9 @@ public:
     //! directly from an ASCII input file
     /*!
      *  This constructor is a shell that calls the routine initThermo(), with
-     *  a reference to the XML database to get the info for the phase.
+     *  a reference to the parsed input file to get the info for the phase.
      *
-     * @param inputFile Name of the input file containing the phase XML data
+     * @param inputFile Name of the input file containing the phase definition
      *                  to set up the object
      * @param id        ID of the phase in the input file. Defaults to the
      *                  empty string.

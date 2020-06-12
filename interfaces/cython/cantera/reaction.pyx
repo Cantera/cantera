@@ -21,20 +21,39 @@ cdef class Reaction:
     :param products:
         Value used to set `products`
 
-    The static methods `listFromFile`, `listFromCti`, and `listFromXml` can be
-    used to create lists of `Reaction` objects from existing definitions in the
-    CTI or XML format. All of the following will produce a list of the 325
-    reactions which make up the GRI 3.0 mechanism::
+    The static methods `listFromFile`, `listFromYaml`, `listFromCti`, and
+    `listFromXml` can be used to create lists of `Reaction` objects from
+    existing definitions in the YAML, CTI, or XML formats. All of the following
+    will produce a list of the 325 reactions which make up the GRI 3.0
+    mechanism::
 
-        R = ct.Reaction.listFromFile('gri30.cti')
+        R = ct.Reaction.listFromFile('gri30.yaml', gas)
         R = ct.Reaction.listFromCti(open('path/to/gri30.cti').read())
         R = ct.Reaction.listFromXml(open('path/to/gri30.xml').read())
 
-    The methods `fromCti` and `fromXml` can be used to create individual
-    `Reaction` objects from definitions in these formats. In the case of using
-    CTI definitions, it is important to verify that either the pre-exponential
-    factor and activation energy are supplied in SI units, or that they have
-    their units specified::
+    where `gas` is a `Solution` object with the appropriate thermodynamic model,
+    which is the `ideal-gas` model in this case.
+
+    The static method `listFromYaml` can be used to create lists of `Reaction`
+    objects from a YAML list::
+
+        rxns = '''
+          - equation: O + H2 <=> H + OH
+            rate-constant: {A: 3.87e+04, b: 2.7, Ea: 6260.0}
+          - equation: O + HO2 <=> OH + O2
+            rate-constant: {A: 2.0e+13, b: 0.0, Ea: 0.0}
+        '''
+        R = ct.Reaction.listFromYaml(rxns, gas)
+
+    The methods `fromYaml`, `fromCti`, and `fromXml` can be used to create
+    individual `Reaction` objects from definitions in these formats. In the case
+    of using YAML or CTI definitions, it is important to verify that either the
+    pre-exponential factor and activation energy are supplied in SI units, or
+    that they have their units specified::
+
+        R = ct.Reaction.fromYaml('''{equation: O + H2 <=> H + OH,
+                rate-constant: {A: 3.87e+04 cm^3/mol/s, b: 2.7, Ea: 6260 cal/mol}}''',
+                gas)
 
         R = ct.Reaction.fromCti('''reaction('O + H2 <=> H + OH',
                 [3.87e1, 2.7, 2.619184e7])''')

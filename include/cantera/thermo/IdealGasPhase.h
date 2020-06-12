@@ -293,7 +293,7 @@ public:
     //! Construct and initialize an IdealGasPhase ThermoPhase object
     //! directly from an ASCII input file
     /*!
-     * @param inputFile Name of the input file containing the phase XML data
+     * @param inputFile Name of the input file containing the phase definition
      *                  to set up the object
      * @param id        ID of the phase in the input file. Defaults to the
      *                  empty string.

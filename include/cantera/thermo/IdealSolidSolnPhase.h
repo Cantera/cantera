@@ -30,7 +30,7 @@ namespace Cantera
  *
  * The generalized concentrations can have three different forms depending on
  * the value of the member attribute #m_formGC, which is supplied in the
- * constructor and in the XML file. The value and form of the generalized
+ * constructor and in the input file. The value and form of the generalized
  * concentration will affect reaction rate constants involving species in this
  * phase.
  *
@@ -43,7 +43,7 @@ public:
      * Constructor for IdealSolidSolnPhase.
      * The generalized concentrations can have three different forms
      * depending on the value of the member attribute #m_formGC, which
-     * is supplied in the constructor or read from the XML data file.
+     * is supplied in the constructor or read from the input file.
      *
      * @param formCG This parameter initializes the #m_formGC variable.
      */
@@ -55,12 +55,12 @@ public:
      * This constructor will also fully initialize the object.
      * The generalized concentrations can have three different forms
      * depending on the value of the member attribute #m_formGC, which
-     * is supplied in the constructor or read from the XML data file.
+     * is supplied in the constructor or read from the input file.
      *
-     * @param infile File name for the XML datafile containing information
+     * @param infile File name for the input file containing information
      *               for this phase
      * @param id     The name of this phase. This is used to look up
-     *               the phase in the XML datafile.
+     *               the phase in the input file.
      * @param formCG This parameter initializes the #m_formGC variable.
      */
     IdealSolidSolnPhase(const std::string& infile, const std::string& id="", int formCG=0);

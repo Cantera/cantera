@@ -37,7 +37,7 @@ public:
 
     IdealSolnGasVPSS();
 
-    /// Create an object from an XML input file
+    /// Create an object from an input file
     IdealSolnGasVPSS(const std::string& infile, std::string id="");
 
     //@}
