@@ -322,8 +322,8 @@ std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax);
  *     breakfast["waffle"].asDouble();
  * } except (std::exception& err) {
  *     // Exception will be thrown.
- *     // 'breakfast' will have an empty key named "waffle" unless `breakfast`
- *     // is a `const AnyMap`.
+ *     // 'breakfast' will have an empty key named 'waffle' unless 'breakfast'
+ *     // is a 'const AnyMap'.
  * }
  *
  * try {
