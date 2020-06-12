@@ -75,7 +75,7 @@ class Solution(ThermoPhase, Kinetics, Transport):
     Types of underlying models that form the composite `Solution` object are
     queried using the ``thermo_model``, ``kinetics_model`` and
     ``transport_model`` attributes; further, the ``composite`` attribute is a
-    shorthand returning a tuple containing the types of the three contitutive
+    shorthand returning a tuple containing the types of the three constitutive
     models.
 
     For non-trivial uses cases of this functionality, see the examples

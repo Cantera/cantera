@@ -69,7 +69,7 @@ namespace Cantera
  * operate on a state vector, which by default uses the first two entries for
  * temperature and density (compressible substances) or temperature and
  * pressure (incompressible substances). If the substance is not pure in a
- * thermodyanmic sense (i.e. it may contain multiple species), the state also
+ * thermodynamic sense (that is, it may contain multiple species), the state also
  * contains nSpecies() entries that specify the composition by corresponding
  * mass fractions. Default definitions can be overloaded by derived classes.
  * For any phase, the native definition of its thermodynamic state is defined

@@ -189,7 +189,7 @@ public:
     bool ready(size_t nSpecies);
 
 private:
-    //! Provide the SpeciesthermoInterpType object
+    //! Provide the SpeciesThermoInterpType object
     /*!
      * @param k  species index
      * @return pointer to the SpeciesThermoInterpType object.
