@@ -142,6 +142,10 @@ namespace Cantera
  * identifies the phase as being a FixedChemPotSSTP object.
  *
  * @ingroup thermoprops
+ *
+ * @deprecated To be removed after Cantera 2.5. Use the `fixed-stoichiometry`
+ *     thermo model (class StoichSubstance) with a `constant-cp` species thermo
+ *     model, `h0` set to the desired chemical potential, and `s0` set to 0.
  */
 class FixedChemPotSSTP : public SingleSpeciesTP
 {
