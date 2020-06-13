@@ -28,7 +28,7 @@ jobs:
       name: Checkout the repository
       with:
         submodules: recursive
-    - name: Setup python
+    - name: Setup Python
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
@@ -85,6 +85,30 @@ jobs:
       run: bash <(curl -s https://codecov.io/bash)
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  docs:
+    name: Build docs and upload to website
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout the repository
+        with:
+          submodules: recursive
+      - name: Setup Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.8'
+          architecture: x64
+      - name: Install Apt dependencies
+        run: sudo apt-get install libboost-dev doxygen graphviz
+      - name: Upgrade pip
+        run: python3 -m pip install -U pip setuptools
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install ruamel.yaml scons numpy cython sphinx \
+          sphinxcontrib-katex sphinxcontrib-matlabdomain sphinxcontrib-doxylink
+      - name: Build Cantera with documentation
+        run: python3 `which scons` build doxygen_docs=y sphinx_docs=y
 
   ubuntu-1604-py2:
     # Ubuntu 16.04 using Python 2 to run SCons and the system Python 3 for the interface
