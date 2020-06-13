@@ -43,8 +43,6 @@ extensions = [
               'sphinx.ext.intersphinx',
               ]
 
-katex_version = '0.11.1'
-
 autodoc_default_flags = ['members','show-inheritance','undoc-members']
 
 autoclass_content = 'both'
