@@ -140,9 +140,9 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
 
 
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
-    ctypedef enum ThermoBasisType:
-        mass "Cantera::ThermoBasisType::mass",
-        molar "Cantera::ThermoBasisType::molar"
+    ctypedef enum ThermoBasis:
+        mass "Cantera::ThermoBasis::mass",
+        molar "Cantera::ThermoBasis::molar"
 
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase":
@@ -273,12 +273,12 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         void setState_Psat(double P, double x) except +translate_exception
         void setState_TPQ(double T, double P, double Q) except +translate_exception
 
-        void setMixtureFraction(double mixFrac, const double* fuelComp, const double* oxComp, ThermoBasisType basis) except +translate_exception
-        double getMixtureFraction(const double* fuelComp, const double* oxComp, ThermoBasisType basis, string element) except +translate_exception
-        void setEquivalenceRatio(double phi, const double* fuelComp, const double* oxComp, ThermoBasisType basis) except +translate_exception
-        double getEquivalenceRatio(const double* fuelComp, const double* oxComp, ThermoBasisType basis) except +translate_exception
-        double getEquivalenceRatio() except +translate_exception
-        double getStoichAirFuelRatio(const double* fuelComp, const double* oxComp, ThermoBasisType basis) except +translate_exception
+        void setMixtureFraction(double mixFrac, const double* fuelComp, const double* oxComp, ThermoBasis basis) except +translate_exception
+        double mixtureFraction(const double* fuelComp, const double* oxComp, ThermoBasis basis, string element) except +translate_exception
+        void setEquivalenceRatio(double phi, const double* fuelComp, const double* oxComp, ThermoBasis basis) except +translate_exception
+        double equivalenceRatio(const double* fuelComp, const double* oxComp, ThermoBasis basis) except +translate_exception
+        double equivalenceRatio() except +translate_exception
+        double stoichAirFuelRatio(const double* fuelComp, const double* oxComp, ThermoBasis basis) except +translate_exception
 
 cdef extern from "cantera/thermo/IdealGasPhase.h":
     cdef cppclass CxxIdealGasPhase "Cantera::IdealGasPhase"

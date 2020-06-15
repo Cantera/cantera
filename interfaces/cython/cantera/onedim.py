@@ -1399,7 +1399,7 @@ class CounterflowDiffusionFlame(FlameBase):
         vals = np.empty(self.flame.n_points)
         for i in range(self.flame.n_points):
             self.set_gas_state(i)
-            vals[i] = self.gas.get_mixture_fraction(Yf, Yo, 'mass', m)
+            vals[i] = self.gas.mixture_fraction(Yf, Yo, 'mass', m)
         return vals
 
 class ImpingingJet(FlameBase):
