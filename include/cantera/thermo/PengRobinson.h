@@ -68,14 +68,14 @@ public:
      *  and
      *
      * \f[
-     *    \kappa = \left(0.37464 + 1.54226\omega - 0.26992\omega^2\right)                              for omega <= 0.491
-     *    \kappa = \left(0.379642 + 1.487503\omega - 0.164423\omega^2 +  0.016667\omega^3 \right)      for omega > 0.491
+     *    \kappa = \left(0.37464 + 1.54226\omega - 0.26992\omega^2\right), \qquad \qquad \text{For } \omega <= 0.491 \\
+     *    \kappa = \left(0.379642 + 1.487503\omega - 0.164423\omega^2 +  0.016667\omega^3 \right), \qquad \text{For } \omega > 0.491
      * \f]
      *
      * Coefficients \f$ a_mix, b_mix \f$ and \f$(a \alpha)_{mix}\f$ are calculated as
      *
      * \f[
-     *    a_{mix} = \sum_i \sum_j X_i X_j a_{i, j} = \sum_i \sum_j X_i X_j sqrt{a_i a_j}
+     *    a_{mix} = \sum_i \sum_j X_i X_j a_{i, j} = \sum_i \sum_j X_i X_j \sqrt{a_i a_j}
      * \f]
      *
      * \f[
@@ -83,7 +83,7 @@ public:
      * \f]
      *
      * \f[
-     *   {a \alpha}_{mix} = \sum_i \sum_j X_i X_j {a \alpha}_{i, j} = \sum_i \sum_j X_i X_j sqrt{a_i a_j} sqrt{\alpha_i \alpha_j}
+     *   {a \alpha}_{mix} = \sum_i \sum_j X_i X_j {a \alpha}_{i, j} = \sum_i \sum_j X_i X_j \sqrt{a_i a_j} \sqrt{\alpha_i \alpha_j}
      * \f]
      *
      *
@@ -144,10 +144,10 @@ public:
     virtual void getPartialMolarCp(double* cpbar) const;
     virtual void getPartialMolarVolumes(double* vbar) const;
 
-    //! Calculate the temperature dependent interaction parameter alpha needed for P-R EoS
+    //! Calculate the temperature dependent interaction parameter \f$\alpha\f$ needed for P-R EoS
     /*!
      *  The temperature dependent parameter in P-R EoS is calculated as
-     *       \f$ \alpha = [1 + \kappa(1 - sqrt{T/T_crit})]^2  \f$
+     *       \f$ \alpha = [1 + \kappa(1 - \sqrt{T/T_{crit}})]^2  \f$
      *  kappa is a function calulated based on the acentric factor.
      *  Units: unitless
      * 
@@ -286,7 +286,7 @@ protected:
     //! Form of the temperature parameterization
     /*!
      *  - 0 = There is no temperature parameterization of a
-     *  - 1 = The a_ij parameter is a linear function of the temperature
+     *  - 1 = The \f$a_{ij} \f$ parameter is a linear function of the temperature
      */
     int m_formTempParam;
 

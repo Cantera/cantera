@@ -838,7 +838,7 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
 {   
     fill_n(Vroot, 3, 0.0);
     if (T <= 0.0) {
-        throw CanteraError("MixtureFugacityTP::CubicSolve", "negative temperature T = {}", T);
+        throw CanteraError("MixtureFugacityTP::solveCubic", "negative temperature T = {}", T);
     }
 
     // Derive the center of the cubic, x_N
@@ -884,7 +884,7 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
     //check if y = h
     if (fabs(fabs(h) - fabs(yN)) < 1.0E-10) {
         if (disc > 1e-10) {
-            throw CanteraError("MixtureFugacityTP::CubicSolve", "value of yN and h are too high, unrealistic roots may be obtained");
+            throw CanteraError("MixtureFugacityTP::solveCubic", "value of yN and h are too high, unrealistic roots may be obtained");
         } 
         disc = 0.0;
     }
@@ -940,7 +940,7 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
             if (fabs(tmp) > 1.0E-4) {
                 for (int j = 0; j < 3; j++) {
                     if (j != i && fabs(Vroot[i] - Vroot[j]) < 1.0E-4 * (fabs(Vroot[i]) + fabs(Vroot[j]))) {
-                        writelog("MixtureFugacityTP::CubicSolve(T = {}, p = {}):"
+                        writelog("MixtureFugacityTP::solveCubic(T = {}, p = {}):"
                                  " WARNING roots have merged: {}, {}\n",
                                  T, pres, Vroot[i], Vroot[j]);
                     }
@@ -960,7 +960,7 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
                 tmp = pow(yN/(2*an), 1./3.);
                 // In this case, tmp and delta must be equal.
                 if (fabs(tmp - delta) > 1.0E-9) {
-                    throw CanteraError("MixtureFugacityTP::CubicSolve", "Inconsistancy in cubic solver : solver is poorly conditioned.");
+                    throw CanteraError("MixtureFugacityTP::solveCubic", "Inconsistancy in cubic solver : solver is poorly conditioned.");
                 }
                 Vroot[1] = xN + delta;
                 Vroot[0] = xN - 2.0*delta; // liquid phase root
@@ -968,7 +968,7 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
                 tmp = pow(yN/(2*an), 1./3.);
                 // In this case, tmp and delta must be equal. 
                 if (fabs(tmp - delta) > 1.0E-9) {
-                    throw CanteraError("MixtureFugacityTP::CubicSolve", "Inconsistancy in cubic solver : solver is poorly conditioned.");
+                    throw CanteraError("MixtureFugacityTP::solveCubic", "Inconsistancy in cubic solver : solver is poorly conditioned.");
                 }
                 delta = -delta;
                 Vroot[0] = xN + delta;
@@ -1000,7 +1000,7 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
             }
         }
         if ((fabs(res) > 1.0E-14) && (fabs(res) > 1.0E-14 * fabs(dresdV) * fabs(Vroot[i]))) {
-            writelog("MixtureFugacityTP::CubicSolve(T = {}, p = {}): "
+            writelog("MixtureFugacityTP::solveCubic(T = {}, p = {}): "
                 "WARNING root didn't converge V = {}", T, pres, Vroot[i]);
             writelogendl();
         }

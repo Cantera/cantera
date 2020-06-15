@@ -137,7 +137,7 @@ double PengRobinson::cp_mole() const
     pressureDerivatives();
     double cpref = GasConstant * mean_X(m_cp0_R);
     double dHdT_V = cpref + mv * m_dpdT - GasConstant
-                        + 1.0 / (2.0 * M_SQRT2 *m_b_current) * log(vpb / vmb) * T *d2aAlpha_dT2();
+                    + 1.0 / (2.0 * M_SQRT2 *m_b_current) * log(vpb / vmb) * T *d2aAlpha_dT2();
     return dHdT_V - (mv + T * m_dpdT / m_dpdV) * m_dpdT;
 }
 
@@ -277,7 +277,7 @@ void PengRobinson::getPartialMolarEnthalpies(double* hbar) const
     double fac3 = 2 * M_SQRT2 * m_b_current *m_b_current;
     for (size_t k = 0; k < m_kk; k++) {
         double hE_v = mv * m_dpdni[k] - RTkelvin + (2 * m_b_current - m_b_vec_Curr[k]) / fac3  * log(vpb2 / vmb2)*fac
-                    + (mv * m_b_vec_Curr[k]) /(m_b_current*den) * fac;
+                     + (mv * m_b_vec_Curr[k]) /(m_b_current*den) * fac;
         hbar[k] = hbar[k] + hE_v;
         hbar[k] -= fac2 * m_dpdni[k];
     }
@@ -315,11 +315,11 @@ void PengRobinson::getPartialMolarEntropies(double* sbar) const
     for (size_t k = 0; k < m_kk; k++) {
         coeff1 = m_b_current * (m_pp[k] + m_tmpV[k]) - daAlphadT * m_b_vec_Curr[k];
         sbar[k] += GasConstant * log(GasConstant * T / (refP * mv))
-                    + GasConstant
-                    + GasConstant * log(mv / vmb)
-                    + GasConstant * m_b_vec_Curr[k] / vmb
-                    - coeff1* log(vpb2 / vmb2) / den1
-                    - m_b_vec_Curr[k] * mv * daAlphadT / den2 / m_b_current;
+                   + GasConstant
+                   + GasConstant * log(mv / vmb)
+                   + GasConstant * m_b_vec_Curr[k] / vmb
+                   - coeff1* log(vpb2 / vmb2) / den1
+                   - m_b_vec_Curr[k] * mv * daAlphadT / den2 / m_b_current;
     }
     pressureDerivatives();
     getPartialMolarVolumes(m_partialMolarVolumes.data());
