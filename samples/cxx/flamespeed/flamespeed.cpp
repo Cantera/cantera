@@ -26,7 +26,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         size_t nsp = gas->nSpecies();
         vector_fp x(nsp, 0.0);
 
-        gas->setEquivalenceRatio_X(phi, "CH4", "O2:0.21,N2:0.79");
+        gas->setEquivalenceRatio(phi, "CH4", "O2:0.21,N2:0.79");
         gas->setState_TP(temp, pressure);
         gas->getMoleFractions(x.data());
 

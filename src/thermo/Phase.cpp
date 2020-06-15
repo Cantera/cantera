@@ -408,18 +408,8 @@ void Phase::setMoleFractions_NoNorm(const double* const x)
 
 void Phase::setMoleFractionsByName(const compositionMap& xMap)
 {
-    vector_fp mf(m_kk, 0.0);
-
-    for (const auto& sp : xMap) {
-        size_t loc = speciesIndex(sp.first);
-        if (loc != npos) {
-            mf[loc] = sp.second;
-        } else {
-            throw CanteraError("Phase::setMoleFractionsByName",
-                               "Unknown species '{}'", sp.first);
-        }
-    }
-    setMoleFractions(&mf[0]);
+    vector_fp mf = getCompositionFromMap(xMap);
+    setMoleFractions(mf.data());
 }
 
 void Phase::setMoleFractionsByName(const std::string& x)
@@ -454,17 +444,8 @@ void Phase::setMassFractions_NoNorm(const double* const y)
 
 void Phase::setMassFractionsByName(const compositionMap& yMap)
 {
-    vector_fp mf(m_kk, 0.0);
-    for (const auto& sp : yMap) {
-        size_t loc = speciesIndex(sp.first);
-        if (loc != npos) {
-            mf[loc] = sp.second;
-        } else {
-            throw CanteraError("Phase::setMassFractionsByName",
-                               "Unknown species '{}'", sp.first);
-        }
-    }
-    setMassFractions(&mf[0]);
+    vector_fp mf = getCompositionFromMap(yMap);
+    setMassFractions(mf.data());
 }
 
 void Phase::setMassFractionsByName(const std::string& y)
@@ -1050,15 +1031,43 @@ void Phase::compositionChanged() {
 vector_fp Phase::getCompositionFromMap(const compositionMap& comp) const
 {
     vector_fp X(m_kk);
-    for (const auto& sp : comp)
-    {
-        auto loc = speciesIndex(sp.first);
-        if (loc == npos)
+    for (const auto& sp : comp) {
+        size_t loc = speciesIndex(sp.first);
+        if (loc == npos) {
             throw CanteraError("Phase::getCompositionFromMap",
                                "Unknown species '{}'", sp.first);
+        }
         X[loc] = sp.second;
     }
     return X;
+}
+
+void Phase::massFractionsToMoleFractions(const double* Y, double* X) const
+{
+    double rmmw = 0.0;
+    for (size_t k = 0; k != m_kk; ++k) {
+        rmmw += Y[k]/m_molwts[k];
+    }
+    if (rmmw == 0.0) {
+        throw CanteraError("Phase::massFractionsToMoleFractions",
+                           "no input composition given");
+    }
+    for (size_t k = 0; k != m_kk; ++k) {
+        X[k] = Y[k]/(rmmw*m_molwts[k]);
+    }
+}
+
+void Phase::moleFractionsToMassFractions(const double* X, double* Y) const
+{
+    double mmw = dot(X, X+m_kk, m_molwts.data());
+    if (mmw == 0.0) {
+        throw CanteraError("Phase::moleFractionsToMassFractions",
+                           "no input composition given");
+    }
+    double rmmw = 1.0/mmw;
+    for (size_t k = 0; k != m_kk; ++k) {
+        Y[k] = X[k]*m_molwts[k]*rmmw;
+    }
 }
 
 } // namespace Cantera
