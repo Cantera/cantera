@@ -1361,7 +1361,8 @@ class CounterflowDiffusionFlame(FlameBase):
 
     def mixture_fraction(self, m):
         r"""
-        Compute the mixture fraction based on element *m*
+        Compute the mixture fraction based on element *m* or from the
+        Bilger mixture fraction (m="Bilger")
 
         The mixture fraction is computed from the elemental mass fraction of
         element *m*, normalized by its values on the fuel and oxidizer
@@ -1372,15 +1373,34 @@ class CounterflowDiffusionFlame(FlameBase):
                            {Z_{\mathrm{mass},m}(z_\mathrm{fuel}) -
                             Z_{\mathrm{mass},m}(z_\mathrm{oxidizer})}
 
+        or from the Bilger mixture fraction:
+
+        .. math:: Z = \frac{\beta-\beta_{\mathrm{oxidizer}}}
+                           {\beta_{\mathrm{fuel}}-\beta_{\mathrm{oxidizer}}}
+
+        with
+
+        .. math:: \beta = 2\frac{Z_C}{M_C}+2\frac{Z_S}{M_S}
+                          +\frac{1}{2}\frac{Z_H}{M_H}-\frac{Z_O}{M_O}
+
         :param m:
             The element based on which the mixture fraction is computed,
-            may be specified by name or by index
+            may be specified by name or by index, or "Bilger" for the
+            Bilger mixture fraction, which considers the elements C,
+            H, S, and O
 
         >>> f.mixture_fraction('H')
+        >>> f.mixture_fraction('Bilger')
         """
-        emf = self.elemental_mass_fraction(m)
-        return (emf - emf[-1]) / (emf[0] - emf[-1])
 
+        Yf = [self.solution(k, 0) for k in self.gas.species_names]
+        Yo = [self.solution(k, self.flame.n_points-1) for k in self.gas.species_names]
+
+        vals = np.empty(self.flame.n_points)
+        for i in range(self.flame.n_points):
+            self.set_gas_state(i)
+            vals[i] = self.gas.get_mixture_fraction(Yf, Yo, 'mass', m)
+        return vals
 
 class ImpingingJet(FlameBase):
     """An axisymmetric flow impinging on a surface at normal incidence."""

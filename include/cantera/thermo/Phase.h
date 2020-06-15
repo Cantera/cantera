@@ -879,9 +879,21 @@ public:
 
     //! Converts a compositionMap to a vector with entries for each species 
     //! Species that are not specified are set to zero in the vector
-    //!     @param[in] compositionMap containing the mixture composition
-    //!     @return vector with length m_kk
+    /*!
+     * @param[in] comp compositionMap containing the mixture composition
+     * @return vector with length m_kk
+     */
     vector_fp getCompositionFromMap(const compositionMap& comp) const;
+
+    //! Converts a mixture composition from mole fractions to mass fractions 
+    //!     @param[in] Y mixture composition in mass fractions (length m_kk)
+    //!     @param[out] X mixture composition in mole fractions (length m_kk)
+    void massFractionsToMoleFractions(const double* Y, double* X) const;
+
+    //! Converts a mixture composition from mass fractions to mole fractions 
+    //!     @param[in] X mixture composition in mole fractions (length m_kk)
+    //!     @param[out] Y mixture composition in mass fractions (length m_kk)
+    void moleFractionsToMassFractions(const double* X, double* Y) const;
 
 protected:
     //! Ensure that phase is compressible.

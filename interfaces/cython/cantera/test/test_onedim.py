@@ -934,7 +934,11 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.assertNear(Z[-1], 0.0)
         self.assertTrue(all(Z >= 0))
         self.assertTrue(all(Z <= 1.0))
-
+        Z = self.sim.mixture_fraction('Bilger')
+        self.assertNear(Z[0], 1.0)
+        self.assertNear(Z[-1], 0.0)
+        self.assertTrue(all(Z >= 0))
+        self.assertTrue(all(Z <= 1.0))
 
 class TestCounterflowPremixedFlame(utilities.CanteraTest):
     # Note: to re-create the reference file:
