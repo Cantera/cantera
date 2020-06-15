@@ -40,17 +40,12 @@ const int cSS_CONVENTION_VPSS = 1;
 const int cSS_CONVENTION_SLAVE = 2;
 //@}
 
-/*!
- * @name CONSTANTS - Specification of the input mixture composition 
- */
-//@{
 //! Differentiate between mole fractions and mass fractions for input mixture composition
-enum class ThermoBasisType : int
+enum class ThermoBasis
 {
     mass,
     molar
 };
-
 //@}
 
 //! Base class for a phase with thermodynamic properties.
@@ -1193,24 +1188,24 @@ public:
     /*!
      * Fuel and oxidizer compositions are given either as
      * mole fractions or mass fractions (specified by `basis`)
-     * and do not need to be normalized. Pressure is kept constant.
-     * Elements C, S, H and O are considered for the oxidation.
+     * and do not need to be normalized. Pressure and temperature are
+     * kept constant. Elements C, S, H and O are considered for the oxidation.
      *
      * @param mixFrac    mixture fraction (between 0 and 1)
      * @param fuelComp   composition of the fuel
-     * @param oxComp     composition of the oxidizer 
-     * @param basis      either ThermoPhase::molar or ThermoPhase::mass
-     *                   fuel and oxidizer composition are interpreted
-     *                   as mole or mass fractions (default: mole)
+     * @param oxComp     composition of the oxidizer
+     * @param basis      either ThermoPhase::molar or ThermoPhase::mass.
+     *                   Fuel and oxidizer composition are interpreted
+     *                   as mole or mass fractions (default: molar)
      */
     void setMixtureFraction(double mixFrac, const double* fuelComp, const double* oxComp,
-                            ThermoBasisType basis = ThermoBasisType::molar);
-    //! @copydoc ThermoPhase::setMixtureFraction(double mixFrac, const double* fuelComp, const double* oxComp, ThermoBasisType basis = ThermoBasisType::molar)
+                            ThermoBasis basis = ThermoBasis::molar);
+    //! @copydoc ThermoPhase::setMixtureFraction
     void setMixtureFraction(double mixFrac, const std::string& fuelComp, const std::string& oxComp,
-                            ThermoBasisType basis = ThermoBasisType::molar);
-    //! @copydoc ThermoPhase::setMixtureFraction(double mixFrac, const double* fuelComp, const double* oxComp, ThermoBasisType basis = ThermoBasisType::molar)
+                            ThermoBasis basis = ThermoBasis::molar);
+    //! @copydoc ThermoPhase::setMixtureFraction
     void setMixtureFraction(double mixFrac, const compositionMap& fuelComp, const compositionMap& oxComp,
-                            ThermoBasisType basis = ThermoBasisType::molar);
+                            ThermoBasis basis = ThermoBasis::molar);
     //@}
 
     //! @name Compute Mixture Fraction
@@ -1238,24 +1233,24 @@ public:
      * and \f$ M_m \f$ the atomic weight of element \f$ m \f$.
      *
      * @param fuelComp   composition of the fuel
-     * @param oxComp     composition of the oxidizer 
-     * @param returns    mixture fraction
-     * @param basis      either ThermoPhase::mole or ThermoPhase::mass
-     *                   fuel and oxidizer composition are interpreted
-     *                   as mole or mass fractions (default: mole)
+     * @param oxComp     composition of the oxidizer
+     * @param basis      either ThermoPhase::mole or ThermoPhase::mass.
+     *                   Fuel and oxidizer composition are interpreted
+     *                   as mole or mass fractions (default: molar)
      * @param element    either "Bilger" to compute the mixture fraction
-     *                   in terms of the Bilger mixture fraction, or 
+     *                   in terms of the Bilger mixture fraction, or
      *                   an element name, to compute the mixture fraction
      *                   bsaed on a single element (default: "Bilger")
+     * @returns          mixture fraction (kg fuel / kg mixture)
      */
-    double getMixtureFraction(const double* fuelComp, const double* oxComp,
-                              ThermoBasisType basis = ThermoBasisType::molar, const std::string& element = "Bilger") const;
-    //! @copydoc ThermoPhase::getMixtureFraction_X(const double* fuelComp, const double* oxComp, ThermoBasisType basis = ThermoBasisType::molar, const std::string& element = "Bilger")
-    double getMixtureFraction(const std::string& fuelComp, const std::string& oxComp,
-                              ThermoBasisType basis = ThermoBasisType::molar, const std::string& element = "Bilger") const;
-    //! @copydoc ThermoPhase::getMixtureFraction_X(const double* fuelComp, const double* oxComp, ThermoBasisType basis = ThermoBasisType::molar, const std::string& element = "Bilger")
-    double getMixtureFraction(const compositionMap& fuelComp, const compositionMap& oxComp,
-                              ThermoBasisType basis = ThermoBasisType::molar, const std::string& element = "Bilger") const;
+    double mixtureFraction(const double* fuelComp, const double* oxComp,
+                              ThermoBasis basis = ThermoBasis::molar, const std::string& element = "Bilger") const;
+    //! @copydoc ThermoPhase::mixtureFraction
+    double mixtureFraction(const std::string& fuelComp, const std::string& oxComp,
+                              ThermoBasis basis = ThermoBasis::molar, const std::string& element = "Bilger") const;
+    //! @copydoc ThermoPhase::mixtureFraction
+    double mixtureFraction(const compositionMap& fuelComp, const compositionMap& oxComp,
+                              ThermoBasis basis = ThermoBasis::molar, const std::string& element = "Bilger") const;
     //@}
 
     //! @name Set Mixture Composition by Equivalence Ratio
@@ -1265,22 +1260,21 @@ public:
     /*!
      * Fuel and oxidizer compositions are given either as
      * mole fractions or mass fractions (specified by `basis`)
-     * and do not need to be normalized. Pressure is kept constant.
-     * Elements C, S, H and O are considered for the oxidation.
+     * and do not need to be normalized. Pressure and temperature are
+     * kept constant. Elements C, S, H and O are considered for the oxidation.
      *
      * @param phi        equivalence ratio
      * @param fuelComp   composition of the fuel
-     * @param oxComp     composition of the oxidizer 
-     * @param basis      either ThermoPhase::mole or ThermoPhase::mass
-     *                   fuel and oxidizer composition are interpreted
-     *                   as mole or mass fractions (default: mole)
-     * @param returns    mixture fraction
+     * @param oxComp     composition of the oxidizer
+     * @param basis      either ThermoPhase::mole or ThermoPhase::mass.
+     *                   Fuel and oxidizer composition are interpreted
+     *                   as mole or mass fractions (default: molar)
      */
-    void setEquivalenceRatio(double phi, const double* fuelComp, const double* oxComp, ThermoBasisType basis = ThermoBasisType::molar);
-    //! @copydoc ThermoPhase::setEquivalenceRatio(double phi, const double* fuelComp, const double* oxComp, ThermoBasisType basis = ThermoBasisType::molar)
-    void setEquivalenceRatio(double phi, const std::string& fuelComp, const std::string& oxComp, ThermoBasisType basis = ThermoBasisType::molar);
-    //! @copydoc ThermoPhase::setEquivalenceRatio(double phi, const double* fuelComp, const double* oxComp, ThermoBasisType basis = ThermoBasisType::molar) 
-    void setEquivalenceRatio(double phi, const compositionMap& fuelComp, const compositionMap& oxComp, ThermoBasisType basis = ThermoBasisType::molar);
+    void setEquivalenceRatio(double phi, const double* fuelComp, const double* oxComp, ThermoBasis basis = ThermoBasis::molar);
+    //! @copydoc ThermoPhase::setEquivalenceRatio
+    void setEquivalenceRatio(double phi, const std::string& fuelComp, const std::string& oxComp, ThermoBasis basis = ThermoBasis::molar);
+    //! @copydoc ThermoPhase::setEquivalenceRatio
+    void setEquivalenceRatio(double phi, const compositionMap& fuelComp, const compositionMap& oxComp, ThermoBasis basis = ThermoBasis::molar);
     //@}
 
     //! @name Compute Equivalence Ratio
@@ -1292,68 +1286,80 @@ public:
      * The equivalence ratio \f$ \phi \f$ is computed from
      * \f[ \phi = \frac{Z}{1-Z}\frac{1-Z_{\mathrm{st}}}{Z_{\mathrm{st}}} \f]
      * where \f$ Z \f$ is the Bilger mixture fraction of the mixture
-     * given the specified fuel and oxidizer compositions and 
+     * given the specified fuel and oxidizer compositions
      * \f$ Z_{\mathrm{st}} \f$ is the mixture fraction at stoichiometric
      * conditions. Fuel and oxidizer compositions are given either as
      * mole fractions or mass fractions (specified by `basis`)
      * and do not need to be normalized.
      * Elements C, S, H and O are considered for the oxidation.
+     * If fuel and oxidizer composition are unknown or not specified,
+     * use the version that takes no arguments.
      *
      * @param fuelComp   composition of the fuel
-     * @param oxComp     composition of the oxidizer 
-     * @param basis      either ThermoPhase::mole or ThermoPhase::mass
-     *                   fuel and oxidizer composition are interpreted
-     *                   as mole or mass fractions (default: mole)
-     * @param returns    equivalence ratio 
+     * @param oxComp     composition of the oxidizer
+     * @param basis      either ThermoPhase::mole or ThermoPhase::mass.
+     *                   Fuel and oxidizer composition are interpreted
+     *                   as mole or mass fractions (default: molar)
+     * @returns          equivalence ratio
+     * @see mixtureFraction for the definition of the Bilger mixture fraction
+     * @see equivalenceRatio() for the computation of \f$ \phi \f$ without arguments
      */
-    double getEquivalenceRatio(const double* fuelComp, const double* oxComp, ThermoBasisType basis = ThermoBasisType::molar) const;
-    //! @copydoc ThermoPhase::getEquivalenceRatio(const double* fuelComp, const double* oxComp, ThermoBasisType basis = ThermoBasisType::molar) 
-    double getEquivalenceRatio(const std::string& fuelComp, const std::string& oxComp, ThermoBasisType basis = ThermoBasisType::molar) const;
-    //! @copydoc ThermoPhase::getEquivalenceRatio(const double* fuelComp, const double* oxComp, ThermoBasisType basis = ThermoBasisType::molar) 
-    double getEquivalenceRatio(const compositionMap& fuelComp, const compositionMap& oxComp, ThermoBasisType basis = ThermoBasisType::molar) const;
+    double equivalenceRatio(const double* fuelComp, const double* oxComp, ThermoBasis basis = ThermoBasis::molar) const;
+    //! @copydoc ThermoPhase::equivalenceRatio
+    double equivalenceRatio(const std::string& fuelComp, const std::string& oxComp, ThermoBasis basis = ThermoBasis::molar) const;
+    //! @copydoc ThermoPhase::equivalenceRatio
+    double equivalenceRatio(const compositionMap& fuelComp, const compositionMap& oxComp, ThermoBasis basis = ThermoBasis::molar) const;
+    //@}
 
     //! Compute the equivalence ratio for the current mixture
     //! from available oxygen and required oxygen
     /*!
-     * Computes the equivalence ratio \f$ \phi \f$ from 
+     * Computes the equivalence ratio \f$ \phi \f$ from
      * \f[ \phi = \frac{Z_{\mathrm{mole},C} + Z_{\mathrm{mole},S} + \frac{1}{4}Z_{\mathrm{mole},H}}
      * {\frac{1}{2}Z_{\mathrm{mole},O}} \f]
      * where \f$ Z_{\mathrm{mole},m} \f$ is the elemental mole fraction
      * of element \f$ m \f$. In this special case, the equivalence ratio
-     * is independent of a fuel or oxidizer composition  because it only
+     * is independent of a fuel or oxidizer composition because it only
      * considers the locally available oxygen compared to the required oxygen
      * for complete oxidation. It is the same as assuming that the oxidizer
-     * only contains O(and inert elements) and the fuel contains only
-     * H, C and S (and inert elements)
+     * only contains O (and inert elements) and the fuel contains only
+     * H, C and S (and inert elements). If either of these conditions is
+     * not met, use the version of this functions which takes the fuel and
+     * oxidizer compositions as input
      *
-     * @param returns    equivalence ratio 
+     * @returns                equivalence ratio
+     * @see equivalenceRatio   compute the equivalence ratio from specific
+     *                         fuel and oxidizer compositions
      */
-    double getEquivalenceRatio() const;
-    //@}
+    double equivalenceRatio() const;
 
     //! @name Compute Stoichiometric Air to Fuel Ratio
     //! @{
 
-    //! Compute the stoichiometric air to fuel ratio (kmol oxidizer to kmol fuel)
+    //! Compute the stoichiometric air to fuel ratio (kg oxidizer / kg fuel)
     //! given fuel and oxidizer compositions.
     /*!
      * Fuel and oxidizer compositions are given either as
      * mole fractions or mass fractions (specified by `basis`)
      * and do not need to be normalized.
      * Elements C, S, H and O are considered for the oxidation.
+     * Note that the stoichiometric air to fuel ratio \f$ \mathit{AFR}_{\mathrm{st}} \f$
+     * does not depend on the current mixture composition. The current
+     * air to fuel ratio can be computed from \f$ \mathit{AFR} = \mathit{AFR}_{\mathrm{st}}/\phi \f$
+     * where \f$ \phi \f$ is the equivalence ratio of the current mixture
      *
      * @param fuelComp   composition of the fuel
-     * @param oxComp     composition of the oxidizer 
-     * @param basis      either ThermoPhase::mole or ThermoPhase::mass
-     *                   fuel and oxidizer composition are interpreted
-     *                   as mole or mass fractions (default: mole)
-     * @param returns    Stoichiometric Air to Fuel Ratio (kmol oxidizer / kmol fuel) 
+     * @param oxComp     composition of the oxidizer
+     * @param basis      either ThermoPhase::mole or ThermoPhase::mass.
+     *                   Fuel and oxidizer composition are interpreted
+     *                   as mole or mass fractions (default: molar)
+     * @returns          Stoichiometric Air to Fuel Ratio (kg oxidizer / kg fuel)
      */
-    double getStoichAirFuelRatio(const double* fuelComp, const double* oxComp, ThermoBasisType basis = ThermoBasisType::molar) const;
-    //! @copydoc ThermoPhase::getStoichAirFuelRatio(const double* fuelComp, const double* oxComp, ThermoBasisType basis = ThermoBasisType::molar) 
-    double getStoichAirFuelRatio(const std::string& fuelComp, const std::string& oxComp, ThermoBasisType basis = ThermoBasisType::molar) const;
-    //! @copydoc ThermoPhase::getStoichAirFuelRatio(const double* fuelComp, const double* oxComp, ThermoBasisType basis = ThermoBasisType::molar) 
-    double getStoichAirFuelRatio(const compositionMap& fuelComp, const compositionMap& oxComp, ThermoBasisType basis = ThermoBasisType::molar) const;
+    double stoichAirFuelRatio(const double* fuelComp, const double* oxComp, ThermoBasis basis = ThermoBasis::molar) const;
+    //! @copydoc ThermoPhase::stoichAirFuelRatio
+    double stoichAirFuelRatio(const std::string& fuelComp, const std::string& oxComp, ThermoBasis basis = ThermoBasis::molar) const;
+    //! @copydoc ThermoPhase::stoichAirFuelRatio
+    double stoichAirFuelRatio(const compositionMap& fuelComp, const compositionMap& oxComp, ThermoBasis basis = ThermoBasis::molar) const;
     //@}
 
 private:
@@ -1384,6 +1390,21 @@ private:
     //! Helper function used by setState_HPorUV and setState_SPorSV.
     //! Sets the temperature and (if set_p is true) the pressure.
     void setState_conditional_TP(doublereal t, doublereal p, bool set_p);
+
+    //! Helper function for computing the amount of oxygen required for complete oxidation.
+    /*!
+     * @param y       array of (possibly non-normalized) mass fractions (length m_kk)
+     * @returns       amount of required oxygen in kmol O / kg mixture
+     */
+    double o2Required(const double* y) const;
+
+    //! Helper function for computing the amount of oxygen
+    //! available in the current mixture.
+    /*!
+     * @param y       array of (possibly non-normalized) mass fractions (length m_kk)
+     * @returns       amount of O in kmol O / kg mixture
+     */
+    double o2Present(const double* y) const;
 
 public:
     /**
