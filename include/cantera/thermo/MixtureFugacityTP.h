@@ -412,7 +412,6 @@ public:
      * setState_TP() routines. Infinite loops would result if it were not
      * protected.
      *
-     *  -> why is this not const?
      *
      * @param TKelvin   Temperature in Kelvin
      * @param pressure  Pressure in Pascals (Newton/m**2)

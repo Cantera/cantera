@@ -71,7 +71,6 @@ public:
 
 public:
 
-    //! Returns the standard concentration \f$ C^0_k \f$, which is used to
     //! normalize the generalized concentration.
     /*!
      * This is defined as the concentration by which the generalized
