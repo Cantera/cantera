@@ -121,4 +121,4 @@ species:
 
 reactions:
 - equation: CO2 + H2 <=> CO + H2O  # Reaction 1
-  rate-constant: {A: 1.2E+3, b: 0, Ea: 0}
+  rate-constant: {A: 1.2E+3, b: 0, Ea: 0} 
