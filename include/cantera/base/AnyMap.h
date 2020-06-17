@@ -25,6 +25,36 @@ class any;
 namespace Cantera
 {
 
+//! Base class defining common data possessed by both AnyMap and AnyValue
+//! objects.
+class AnyBase {
+public:
+    AnyBase();
+    virtual ~AnyBase() {};
+
+    //! For values which are derived from an input file, set the line and column
+    //! of this value in that file. Used for providing context for some error
+    //! messages.
+    void setLoc(int line, int column);
+
+    //! Get a value from the metadata applicable to the AnyMap tree containing
+    //! this node.
+    const AnyValue& getMetadata(const std::string& key) const;
+
+protected:
+    //! Line where this node occurs in the input file
+    int m_line;
+
+    //! Column where this node occurs in the input file
+    int m_column;
+
+    //! Metadata relevant to an entire AnyMap tree, such as information about
+    // the input file used to create it
+    shared_ptr<AnyMap> m_metadata;
+
+    friend class InputFileError;
+};
+
 class AnyMap;
 
 //! A wrapper for a variable whose type is determined at runtime
@@ -43,7 +73,7 @@ class AnyMap;
  * - `std::string`
  * - `std::vector` of any of the above
  */
-class AnyValue
+class AnyValue : public AnyBase
 {
 public:
     AnyValue();
@@ -67,15 +97,6 @@ public:
     //! Set the name of the key storing this value in an AnyMap. Used for
     //! providing informative error messages in class InputFileError.
     void setKey(const std::string& key);
-
-    //! For values which are derived from an input file, set the line and column
-    //! of this value in that file. Used for providing context for some error
-    //! messages.
-    void setLoc(int line, int column);
-
-    //! Get a value from the metadata applicable to the AnyMap tree containing
-    //! this AnyValue.
-    const AnyValue& getMetadata(const std::string& key) const;
 
     //! Propagate metadata to any child elements
     void propagateMetadata(shared_ptr<AnyMap>& file);
@@ -209,16 +230,6 @@ private:
     template<class T>
     void checkSize(const std::vector<T>& v, size_t nMin, size_t nMax) const;
 
-    //! Line where this value occurs in the input file
-    int m_line;
-
-    //! Column where this value occurs in the input file
-    int m_column;
-
-    //! Metadata relevant to an entire AnyMap tree, such as information about
-    // the input file used to create it
-    shared_ptr<AnyMap> m_metadata;
-
     //! Key of this value in a parent `AnyMap`
     std::string m_key;
 
@@ -247,8 +258,6 @@ private:
     static bool vector2_eq(const boost::any& lhs, const boost::any& rhs);
 
     mutable Comparer m_equals;
-
-    friend class InputFileError;
 };
 
 //! Implicit conversion to vector<AnyValue>
@@ -347,7 +356,7 @@ std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax);
  * }
  * ```
  */
-class AnyMap
+class AnyMap : public AnyBase
 {
 public:
     AnyMap(): m_units() {};
@@ -385,18 +394,9 @@ public:
     //! messages
     std::string keys_str() const;
 
-    //! For AnyMaps which are derived from an input file, set the line and
-    //! column of this AnyMap in that file. Used for providing context for some
-    //! error messages.
-    void setLoc(int line, int column);
-
     //! Set a metadata value that applies to this AnyMap and its children.
     //! Mainly for internal use in reading or writing from files.
     void setMetadata(const std::string& key, const AnyValue& value);
-
-    //! Get a value from the metadata applicable to the AnyMap tree containing
-    //! this AnyMap.
-    const AnyValue& getMetadata(const std::string& key) const;
 
     //! Propagate metadata to any child elements
     void propagateMetadata(shared_ptr<AnyMap>& file);
@@ -516,23 +516,12 @@ private:
     //! The default units that are used to convert stored values
     UnitSystem m_units;
 
-    //! Starting line for this map in the input file
-    int m_line;
-
-    //! Starting column for this map in the input file
-    int m_column;
-
-    //! Metadata relevant to an entire AnyMap tree, such as information about
-    // the input file used to create it
-    shared_ptr<AnyMap> m_metadata;
-
     //! Cache for previously-parsed input (YAML) files. The key is the full path
     //! to the file, and the second element of the value is the last-modified
     //! time for the file, which is used to enable change detection.
     static std::unordered_map<std::string, std::pair<AnyMap, int>> s_cache;
 
     friend class AnyValue;
-    friend class InputFileError;
 };
 
 // Define begin() and end() to allow use with range-based for loops
@@ -553,20 +542,7 @@ public:
     //! `node`. The `message` and `args` are processed as in the CanteraError
     //! class.
     template <typename... Args>
-    InputFileError(const std::string& procedure, const AnyValue& node,
-                   const std::string& message, const Args&... args)
-        : CanteraError(
-            procedure,
-            formatError(fmt::format(message, args...),
-                        node.m_line, node.m_column, node.m_metadata))
-        {
-        }
-
-    //! Indicate an error occurring in `procedure` while using information from
-    //! `node`. The `message` and `args` are processed as in the CanteraError
-    //! class.
-    template <typename... Args>
-    InputFileError(const std::string& procedure, const AnyMap& node,
+    InputFileError(const std::string& procedure, const AnyBase& node,
                    const std::string& message, const Args&... args)
         : CanteraError(
             procedure,
