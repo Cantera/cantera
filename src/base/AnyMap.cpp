@@ -265,12 +265,32 @@ std::map<std::string, std::string> AnyValue::s_typenames = {
 
 std::unordered_map<std::string, std::pair<AnyMap, int>> AnyMap::s_cache;
 
+// Methods of class AnyBase
+
+AnyBase::AnyBase()
+    : m_line(-1)
+    , m_column(-1)
+{}
+
+void AnyBase::setLoc(int line, int column)
+{
+    m_line = line;
+    m_column = column;
+}
+
+const AnyValue& AnyBase::getMetadata(const std::string& key) const
+{
+    if (m_metadata && m_metadata->hasKey(key)) {
+        return m_metadata->at(key);
+    } else {
+        return Empty;
+    }
+}
+
 // Methods of class AnyValue
 
 AnyValue::AnyValue()
-  : m_line(-1)
-  , m_column(-1)
-  , m_key()
+  : m_key()
   , m_value(new boost::any{})
   , m_equals(eq_comparer<size_t>)
 {}
@@ -278,9 +298,7 @@ AnyValue::AnyValue()
 AnyValue::~AnyValue() = default;
 
 AnyValue::AnyValue(AnyValue const& other)
-    : m_line(other.m_line)
-    , m_column(other.m_column)
-    , m_metadata(other.m_metadata)
+    : AnyBase(other)
     , m_key(other.m_key)
     , m_value(new boost::any{*other.m_value})
     , m_equals(other.m_equals)
@@ -288,9 +306,7 @@ AnyValue::AnyValue(AnyValue const& other)
 }
 
 AnyValue::AnyValue(AnyValue&& other)
-    : m_line(other.m_line)
-    , m_column(other.m_column)
-    , m_metadata(std::move(other.m_metadata))
+    : AnyBase(std::move(other))
     , m_key(std::move(other.m_key))
     , m_value(std::move(other.m_value))
     , m_equals(std::move(other.m_equals))
@@ -298,11 +314,10 @@ AnyValue::AnyValue(AnyValue&& other)
 }
 
 AnyValue& AnyValue::operator=(AnyValue const& other) {
-    if (this == &other)
+    if (this == &other) {
         return *this;
-    m_line = other.m_line;
-    m_column = other.m_column;
-    m_metadata = other.m_metadata;
+    }
+    AnyBase::operator=(*this);
     m_key = other.m_key;
     m_value.reset(new boost::any{*other.m_value});
     m_equals = other.m_equals;
@@ -310,11 +325,10 @@ AnyValue& AnyValue::operator=(AnyValue const& other) {
 }
 
 AnyValue& AnyValue::operator=(AnyValue&& other) {
-    if (this == &other)
+    if (this == &other) {
         return *this;
-    m_line = other.m_line;
-    m_column = other.m_column;
-    m_metadata = std::move(other.m_metadata);
+    }
+    AnyBase::operator=(std::move(other));
     m_key = std::move(other.m_key);
     m_value = std::move(other.m_value);
     m_equals = std::move(other.m_equals);
@@ -349,21 +363,6 @@ void AnyValue::setKey(const std::string &key) { m_key = key; }
 
 const std::type_info &AnyValue::type() const {
     return m_value->type();
-}
-
-void AnyValue::setLoc(int line, int column)
-{
-    m_line = line;
-    m_column = column;
-}
-
-const AnyValue& AnyValue::getMetadata(const std::string& key) const
-{
-    if (m_metadata && m_metadata->hasKey(key)) {
-        return m_metadata->at(key);
-    } else {
-        return Empty;
-    }
 }
 
 void AnyValue::propagateMetadata(shared_ptr<AnyMap>& metadata)
@@ -996,21 +995,6 @@ std::string AnyMap::keys_str() const
         ++iter;
     }
     return to_string(b);
-}
-
-void AnyMap::setLoc(int line, int column)
-{
-    m_line = line;
-    m_column = column;
-}
-
-const AnyValue& AnyMap::getMetadata(const std::string& key) const
-{
-    if (m_metadata && m_metadata->hasKey(key)) {
-        return m_metadata->at(key);
-    } else {
-        return Empty;
-    }
 }
 
 void AnyMap::propagateMetadata(shared_ptr<AnyMap>& metadata)
