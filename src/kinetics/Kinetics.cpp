@@ -156,7 +156,8 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                 }
             }
             if (throw_err) {
-                throw CanteraError("Kinetics::checkDuplicates",
+                throw InputFileError("Kinetics::checkDuplicates",
+                        R.input, other.input,
                         "Undeclared duplicate reactions detected:\n"
                         "Reaction {}: {}\nReaction {}: {}\n",
                         i+1, other.equation(), m+1, R.equation());
@@ -169,7 +170,8 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
     if (unmatched_duplicates.size()) {
         size_t i = *unmatched_duplicates.begin();
         if (throw_err) {
-            throw CanteraError("Kinetics::checkDuplicates",
+            throw InputFileError("Kinetics::checkDuplicates",
+                m_reactions[i]->input,
                 "No duplicate found for declared duplicate reaction number {}"
                 " ({})", i, m_reactions[i]->equation());
         } else {
@@ -258,9 +260,10 @@ void Kinetics::checkReactionBalance(const Reaction& R)
         }
     }
     if (!ok) {
-        msg = "The following reaction is unbalanced: " + R.equation() + "\n" +
-              "  Element    Reactants    Products\n" + msg;
-        throw CanteraError("Kinetics::checkReactionBalance", msg);
+        throw InputFileError("Kinetics::checkReactionBalance", R.input,
+            "The following reaction is unbalanced: {}\n"
+            "  Element    Reactants    Products\n{}",
+            R.equation(), msg);
     }
 }
 
@@ -483,8 +486,8 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
     // is not reversible, since computing the reverse rate from thermochemistry
     // only works for elementary reactions.
     if (r->reversible && !r->orders.empty()) {
-        throw CanteraError("Kinetics::addReaction", "Reaction orders may only "
-            "be given for irreversible reactions");
+        throw InputFileError("Kinetics::addReaction", r->input,
+            "Reaction orders may only be given for irreversible reactions");
     }
 
     // Check for undeclared species
@@ -493,9 +496,9 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
             if (m_skipUndeclaredSpecies) {
                 return false;
             } else {
-                throw CanteraError("Kinetics::addReaction", "Reaction '" +
-                    r->equation() + "' contains the undeclared species '" +
-                    sp.first + "'");
+                throw InputFileError("Kinetics::addReaction", r->input,
+                    "Reaction '{}' contains the undeclared species '{}'",
+                    r->equation(), sp.first);
             }
         }
     }
@@ -504,9 +507,9 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
             if (m_skipUndeclaredSpecies) {
                 return false;
             } else {
-                throw CanteraError("Kinetics::addReaction", "Reaction '" +
-                    r->equation() + "' contains the undeclared species '" +
-                    sp.first + "'");
+                throw InputFileError("Kinetics::addReaction", r->input,
+                    "Reaction '{}' contains the undeclared species '{}'",
+                    r->equation(), sp.first);
             }
         }
     }
@@ -515,8 +518,9 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
             if (m_skipUndeclaredSpecies) {
                 return false;
             } else {
-                throw CanteraError("Kinetics::addReaction", "Reaction '{}' has "
-                    "a reaction order specified for the undeclared species '{}'",
+                throw InputFileError("Kinetics::addReaction", r->input,
+                    "Reaction '{}' has a reaction order specified for the "
+                    "undeclared species '{}'",
                     r->equation(), sp.first);
             }
         }
