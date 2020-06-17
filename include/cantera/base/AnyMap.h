@@ -551,6 +551,22 @@ public:
         {
         }
 
+    //! Indicate an error occurring in `procedure` while using information from
+    //! `node1` and `node2`. The `message` and `args` are processed as in the
+    //! CanteraError class.
+    template <typename... Args>
+    InputFileError(const std::string& procedure, const AnyBase& node1,
+                   const AnyBase& node2, const std::string& message,
+                   const Args&... args)
+        : CanteraError(
+            procedure,
+            formatError2(fmt::format(message, args...),
+                         node1.m_line, node1.m_column, node1.m_metadata,
+                         node2.m_line, node2.m_column, node2.m_metadata))
+        {
+        }
+
+
     virtual std::string getClass() const {
         return "InputFileError";
     }
@@ -558,6 +574,9 @@ protected:
     static std::string formatError(const std::string& message,
                                    int line, int column,
                                    const shared_ptr<AnyMap>& metadata);
+    static std::string formatError2(const std::string& message,
+        int line1, int column1, const shared_ptr<AnyMap>& metadata1,
+        int line2, int column2, const shared_ptr<AnyMap>& metadata2);
 };
 
 }

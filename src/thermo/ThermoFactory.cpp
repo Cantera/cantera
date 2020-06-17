@@ -429,7 +429,7 @@ void addSpecies(ThermoPhase& thermo, const AnyValue& names, const AnyValue& spec
             if (species_nodes.count(name)) {
                 thermo.addSpecies(newSpecies(*species_nodes.at(name)));
             } else {
-                throw InputFileError("addSpecies", species,
+                throw InputFileError("addSpecies", names, species,
                     "Could not find a species named '{}'.", name);
             }
         }
