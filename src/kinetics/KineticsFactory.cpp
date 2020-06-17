@@ -177,6 +177,8 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
             }
         }
     }
+
+    kin.checkDuplicates();
 }
 
 }
