@@ -1801,8 +1801,27 @@ class Parser:
         """
         possible_duplicates = defaultdict(list)
         for r in self.reactions:
-            k = (tuple(r.reactants), tuple(r.products), r.kinetics.pressure_dependent)
-            possible_duplicates[k].append(r)
+            # sort reactants by name, so disordered duplicate will be caught
+            reactants = r.reactants
+            reactant_names = [s[1].label for s in reactants]
+            reactants = [s for _, s in sorted(zip(reactant_names, reactants))]
+
+            # sort products by name, so disordered duplicate will be caught
+            products = r.products
+            product_names = [s[1].label for s in products]
+            products = [s for _, s in sorted(zip(product_names, products))]
+
+            k = (tuple(reactants), tuple(products), r.kinetics.pressure_dependent)
+            k_rev = (tuple(products), tuple(reactants), r.kinetics.pressure_dependent)
+
+            # check for undeclared duplicate written in opposite direction
+            if (k_rev in possible_duplicates and
+                (r.reversible or
+                any([rxn.reversible for rxn in possible_duplicates[k_rev]]))):
+
+                possible_duplicates[k_rev].append(r)
+            else:
+                possible_duplicates[k].append(r)
 
         for reactions in possible_duplicates.values():
             for r1,r2 in itertools.combinations(reactions, 2):
@@ -1814,10 +1833,12 @@ class Parser:
                 elif (type(r1.kinetics) != ThreeBody and
                       type(r2.kinetics) == ThreeBody):
                     pass
-                elif (r1.third_body.upper() == 'M' and
+                elif (hasattr(r1.third_body, 'upper') and 
+                      r1.third_body.upper() == 'M' and
                       r1.kinetics.efficiencies.get(r2.third_body) == 0):
                     pass  # explicit zero efficiency
-                elif (r2.third_body.upper() == 'M' and
+                elif (hasattr(r2.third_body, 'upper') and
+                      r2.third_body.upper() == 'M' and
                       r2.kinetics.efficiencies.get(r1.third_body) == 0):
                     pass  # explicit zero efficiency
                 elif r1.third_body != r2.third_body:
