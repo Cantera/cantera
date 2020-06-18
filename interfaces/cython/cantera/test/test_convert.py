@@ -2,6 +2,9 @@ import os
 from os.path import join as pjoin
 import itertools
 from pathlib import Path
+import logging
+import io
+import sys
 
 from . import utilities
 import cantera as ct
@@ -474,6 +477,36 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
         self.assertEqual(desc, 'This is an alternative description.')
         for key in ['foo', 'bar']:
             self.assertIn(key, yml.keys())
+
+    def test_duplicate_reactions(self):
+        # Running a test this way instead of using the convertMech function
+        # tests the behavior of the ck2yaml.main function and the mechanism
+        # validation step.
+
+        # clear global handler created by logging.basicConfig() in ck2cti
+        logging.getLogger().handlers.clear()
+
+        # Replace the ck2yaml logger with our own in order to capture the output
+        log_stream = io.StringIO()
+        logger = logging.getLogger('cantera.ck2yaml')
+        original_handler = logger.handlers.pop()
+        logformatter = logging.Formatter('%(message)s')
+        handler = logging.StreamHandler(log_stream)
+        handler.setFormatter(logformatter)
+        logger.addHandler(handler)
+
+        with self.assertRaises(SystemExit):
+            ck2yaml.main([
+                '--input={}/undeclared-duplicate-reactions.inp'.format(self.test_data_dir),
+                '--thermo={}/dummy-thermo.dat'.format(self.test_data_dir)])
+
+        # Put the original logger back in place
+        logger.handlers.clear()
+        logger.addHandler(original_handler)
+
+        message = log_stream.getvalue()
+        for token in ('FAILED', 'lines 12 and 14', 'R1A', 'R1B'):
+            self.assertIn(token, message)
 
 
 class CtmlConverterTest(utilities.CanteraTest):

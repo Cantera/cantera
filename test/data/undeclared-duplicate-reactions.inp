@@ -1,0 +1,15 @@
+ELEMENTS
+H  C
+END
+
+SPECIES
+H
+R1A R1B P1 R3 P3A P3B
+END
+
+REACTIONS
+R3+H <=> P3A+P3B             1.0e19    0.0     5000.0
+R1A+R1B <=> P1+H                1.0e19    0.0     5000.0
+R1A+R1B+M <=> P1+H+M            1.0e-2    0.0     5000.0
+P1+H => R1A+R1B                       1.0e19    0.0     5000.0
+END
