@@ -47,7 +47,7 @@ jobs:
       run: python3 `which scons` build -j2
     - name: Test Cantera
       run: python3 `which scons` test
-    - name: Run Samples
+    - name: Build Samples
       run: python3 `which scons` samples
 
   # Coverage is its own job because macOS builds of the samples
@@ -87,7 +87,7 @@ jobs:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   docs:
-    name: Build docs and upload to website
+    name: Build docs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -109,6 +109,25 @@ jobs:
           sphinxcontrib-katex sphinxcontrib-matlabdomain sphinxcontrib-doxylink
       - name: Build Cantera with documentation
         run: python3 `which scons` build doxygen_docs=y sphinx_docs=y
+      # The known_hosts key is generated with `ssh -F cantera.org` from a
+      # machine that has previously logged in to cantera.org and trusts
+      # that it logged in to the right machine
+      - name: Set up SSH key and host for deploy
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.CTDEPLOY_KEY }}
+          known_hosts: ${{ secrets.CTDEPLOY_HOST }}
+      - name: Upload the docs
+        if: github.event_name == 'push' && github.repository_owner == 'Cantera' && github.ref == 'master'
+        env:
+          RSYNC_USER: "ctdeploy"
+          RSYNC_SERVER: "cantera.org"
+          RSYNC_DEST: "cantera/documentation/dev"
+          DOCS_OUTPUT_DIR: "./build/docs/"
+        run: |
+          rsync -avzP --checksum --exclude='*.map' --exclude='*.md5' \
+          --exclude='/doxygen/xml' --delete --delete-excluded \
+          "${DOCS_OUTPUT_DIR}" ${RSYNC_USER}@${RSYNC_SERVER}:${RSYNC_DEST}
 
   ubuntu-1604-py2:
     # Ubuntu 16.04 using Python 2 to run SCons and the system Python 3 for the interface
@@ -133,7 +152,7 @@ jobs:
         run: scons test
       - name: Run Test Problems
         run: scons test_problems
-      - name: Run Samples
+      - name: Build Samples
         run: scons samples
 
   multiple-sundials:
@@ -169,7 +188,7 @@ jobs:
       - name: Test Cantera
         run: scons test
         shell: bash -l {0}
-      - name: Run Samples
+      - name: Build Samples
         run: scons samples
         shell: bash -l {0}
 
@@ -196,7 +215,7 @@ jobs:
       run: python3 `which scons` build f90_interface=n python_package='full' -j2
     - name: Test Cantera
       run: python3 `which scons` test
-    - name: Run Samples
+    - name: Build Samples
       run: python3 `which scons` samples
 
   windows:
@@ -244,5 +263,5 @@ jobs:
         shell: cmd
       - name: Test Cantera
         run: scons test
-      - name: Run Samples
+      - name: Build Samples
         run: scons samples
