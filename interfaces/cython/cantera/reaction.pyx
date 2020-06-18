@@ -588,6 +588,18 @@ cdef class FalloffReaction(Reaction):
         def __set__(self, default_eff):
             self.frxn().third_body.default_efficiency = default_eff
 
+    property allow_negative_pre_exponential_factor:
+        """
+        Get/Set whether the rate coefficient is allowed to have a negative
+        pre-exponential factor.
+        """
+        def __get__(self):
+            cdef CxxFalloffReaction* r = <CxxFalloffReaction*>self.reaction
+            return r.allow_negative_pre_exponential_factor
+        def __set__(self, allow):
+            cdef CxxFalloffReaction* r = <CxxFalloffReaction*>self.reaction
+            r.allow_negative_pre_exponential_factor = allow
+
     def efficiency(self, species):
         """
         Get the efficiency of the third body named *species* considering both

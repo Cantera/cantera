@@ -152,6 +152,8 @@ public:
     //! Falloff function which determines how low_rate and high_rate are
     //! combined to determine the rate constant for the reaction.
     shared_ptr<Falloff> falloff;
+
+    bool allow_negative_pre_exponential_factor;
 };
 
 //! A reaction where the rate decreases as pressure increases due to collisional

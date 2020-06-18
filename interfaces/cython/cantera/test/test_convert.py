@@ -270,6 +270,7 @@ class converterTestCommon:
         self.assertLess(gas.reaction(4).rate.pre_exponential_factor, 0)
         self.assertLess(gas.reaction(1).rate.pre_exponential_factor, 0)
         self.assertLess(gas.reaction(2).rate.pre_exponential_factor, 0)
+        self.assertLess(gas.forward_rate_constants[5], 0)
 
     def test_bad_troe_value(self):
         with self.assertRaises(ValueError):

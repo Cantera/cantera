@@ -857,6 +857,27 @@ class TestReaction(utilities.CanteraTest):
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                           species=species, reactions=[r])
 
+    def test_negative_A_falloff(self):
+        species = ct.Species.listFromFile('gri30.yaml')
+        r = ct.FalloffReaction('NH:1, NO:1', 'N2O:1, H:1')
+        r.low_rate = ct.Arrhenius(2.16e13, -0.23, 0)
+        r.high_rate = ct.Arrhenius(-8.16e12, -0.5, 0)
+        self.assertFalse(r.allow_negative_pre_exponential_factor)
+
+        with self.assertRaisesRegex(ct.CanteraError, 'pre-exponential'):
+            gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                              species=species, reactions=[r])
+
+        r.allow_negative_pre_exponential_factor = True
+        # Should still fail because of mixed positive and negative A factors
+        with self.assertRaisesRegex(ct.CanteraError, 'pre-exponential'):
+            gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                              species=species, reactions=[r])
+
+        r.low_rate = ct.Arrhenius(-2.16e13, -0.23, 0)
+        gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                          species=species, reactions=[r])
+        self.assertLess(gas.forward_rate_constants, 0)
 
     def test_threebody(self):
         r = ct.ThreeBodyReaction()
