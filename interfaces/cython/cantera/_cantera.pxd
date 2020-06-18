@@ -351,6 +351,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxArrhenius high_rate
         CxxThirdBody third_body
         shared_ptr[CxxFalloff] falloff
+        cbool allow_negative_pre_exponential_factor
 
     cdef cppclass CxxChemicallyActivatedReaction "Cantera::ChemicallyActivatedReaction" (CxxFalloffReaction):
         CxxChemicallyActivatedReaction()

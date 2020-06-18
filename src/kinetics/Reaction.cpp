@@ -159,6 +159,7 @@ std::string ThreeBodyReaction::productString() const {
 FalloffReaction::FalloffReaction()
     : Reaction(FALLOFF_RXN)
     , falloff(new Falloff())
+    , allow_negative_pre_exponential_factor(false)
 {
 }
 
@@ -196,10 +197,16 @@ std::string FalloffReaction::productString() const {
 
 void FalloffReaction::validate() {
     Reaction::validate();
-    if (low_rate.preExponentialFactor() < 0 ||
-        high_rate.preExponentialFactor() < 0) {
+    if (!allow_negative_pre_exponential_factor &&
+        (low_rate.preExponentialFactor() < 0 ||
+         high_rate.preExponentialFactor() < 0)) {
         throw CanteraError("FalloffReaction::validate", "Negative "
             "pre-exponential factor found for reaction '" + equation() + "'");
+    }
+    if (low_rate.preExponentialFactor() * high_rate.preExponentialFactor() < 0) {
+        throw CanteraError("FalloffReaction::validate", "High and "
+            "low rate pre-exponential factors must have the same sign."
+            "Reaction: '{}'", equation());
     }
 }
 
@@ -614,6 +621,9 @@ void setupFalloffReaction(FalloffReaction& R, const XML_Node& rxn_node)
         throw CanteraError("setupFalloffReaction", "Did not find the correct "
             "number of Arrhenius rate expressions");
     }
+    if (rxn_node["negative_A"] == "yes") {
+        R.allow_negative_pre_exponential_factor = true;
+    }
     readFalloff(R, rc_node);
     readEfficiencies(R.third_body, rc_node);
     setupReaction(R, rxn_node);
@@ -648,6 +658,7 @@ void setupFalloffReaction(FalloffReaction& R, const AnyMap& node,
     R.reactants.erase(third_body);
     R.products.erase(third_body);
 
+    R.allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
     if (third_body == "(+M)") {
         readEfficiencies(R.third_body, node);
     } else {
