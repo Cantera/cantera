@@ -45,7 +45,6 @@ c     compute the net production rates in cgs units
          write(*,*) k, y(k), wdot(k)
       end do
 
-      stop
       end
 
 c----------------------------------------------------------------------
