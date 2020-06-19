@@ -14,14 +14,19 @@ Requires: cantera >= 2.5.0, matplotlib >= 2.0
 
 import numpy as np
 import os
+from importlib.util import find_spec
 
 import cantera as ct
 import matplotlib.pyplot as plt
 
-# Create directory for output data files
-data_directory = 'diffusion_flame_extinction_data/'
-if not os.path.exists(data_directory):
-    os.makedirs(data_directory)
+hdf_output = find_spec('h5py') is not None
+
+if not hdf_output:
+    # Create directory for output data files
+    data_directory = 'diffusion_flame_extinction_data/'
+    if not os.path.exists(data_directory):
+        os.makedirs(data_directory)
+
 
 # PART 1: INITIALIZATION
 
@@ -53,11 +58,16 @@ temperature_limit_extinction = 500  # K
 print('Creating the initial solution')
 f.solve(loglevel=0, auto=True)
 
-# Save to data directory
-file_name = 'initial_solution.xml'
-f.save(data_directory + file_name, name='solution',
-       description='Cantera version ' + ct.__version__ +
-       ', reaction mechanism ' + reaction_mechanism)
+if hdf_output:
+    file_name = 'diffusion_flame_extinction.h5'
+    f.write_hdf(file_name, group='initial_solution', mode='w',
+                description=('Initial solution'))
+else:
+    # Save to data directory
+    file_name = 'initial_solution.xml'
+    f.save(data_directory + file_name, name='solution',
+           description='Cantera version ' + ct.__version__ +
+           ', reaction mechanism ' + reaction_mechanism)
 
 
 # PART 2: COMPUTE EXTINCTION STRAIN
@@ -122,10 +132,15 @@ while True:
     if np.max(f.T) > temperature_limit_extinction:
         # Flame is still burning, so proceed to next strain rate
         n_last_burning = n
-        file_name = 'extinction_{0:04d}.xml'.format(n)
-        f.save(data_directory + file_name, name='solution', loglevel=0,
-               description='Cantera version ' + ct.__version__ +
-               ', reaction mechanism ' + reaction_mechanism)
+        if hdf_output:
+            group = 'extinction_{0:04d}'.format(n)
+            f.write_hdf(file_name, group=group,
+                        description='extinction iteration'.format(n))
+        else:
+            file_name = 'extinction_{0:04d}.xml'.format(n)
+            f.save(data_directory + file_name, name='solution', loglevel=0,
+                   description='Cantera version ' + ct.__version__ +
+                   ', reaction mechanism ' + reaction_mechanism)
         T_max.append(np.max(f.T))
         a_max.append(np.max(np.abs(np.gradient(f.velocity) / np.gradient(f.grid))))
         # If the temperature difference is too small and the minimum relative
@@ -142,8 +157,12 @@ while True:
         # Reduce relative strain rate increase
         delta_alpha = delta_alpha / delta_alpha_factor
         # Restore last burning solution
-        file_name = 'extinction_{0:04d}.xml'.format(n_last_burning)
-        f.restore(data_directory + file_name, name='solution', loglevel=0)
+        if hdf_output:
+            group = 'extinction_{0:04d}'.format(n_last_burning)
+            f.read_hdf(file_name, group=group)
+        else:
+            file_name = 'extinction_{0:04d}.xml'.format(n_last_burning)
+            f.restore(data_directory + file_name, name='solution', loglevel=0)
 
 
 # Print some parameters at the extinction point
@@ -165,4 +184,7 @@ plt.figure()
 plt.semilogx(a_max, T_max)
 plt.xlabel(r'$a_{max}$ [1/s]')
 plt.ylabel(r'$T_{max}$ [K]')
-plt.savefig(data_directory + 'figure_T_max_a_max.png')
+if hdf_output:
+    plt.savefig('diffusion_flame_extinction_T_max_a_max.png')
+else:
+    plt.savefig(data_directory + 'figure_T_max_a_max.png')
