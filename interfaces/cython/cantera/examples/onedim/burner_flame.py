@@ -23,11 +23,20 @@ f.show_solution()
 
 f.transport_model = 'Mix'
 f.solve(loglevel, auto=True)
-f.save('h2_burner_flame.xml', 'mix', 'solution with mixture-averaged transport')
+try:
+    # save to HDF container file if h5py is installed
+    f.write_hdf('burner_flame.h5', group='mix', mode='w',
+                description='solution with mixture-averaged transport')
+except:
+    f.save('burner_flame.xml', 'mix', 'solution with mixture-averaged transport')
 
 f.transport_model = 'Multi'
 f.solve(loglevel)  # don't use 'auto' on subsequent solves
 f.show_solution()
-f.save('h2_burner_flame.xml', 'multi', 'solution with multicomponent transport')
+try:
+    f.write_hdf('burner_flame.h5', group='multi',
+                description='solution with multicomponent transport')
+except:
+    f.save('burner_flame.xml', 'multi', 'solution with multicomponent transport')
 
-f.write_csv('h2_burner_flame.csv', quiet=False)
+f.write_csv('burner_flame.csv', quiet=False)

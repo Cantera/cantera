@@ -50,10 +50,14 @@ f.set_refine_criteria(ratio=4, slope=0.2, curve=0.3, prune=0.04)
 # Solve the problem
 f.solve(loglevel, auto=True)
 f.show_solution()
-f.save('c2h6_diffusion.xml')
+try:
+    # save to HDF container file if h5py is installed
+    f.write_hdf('diffusion_flame.h5', mode='w')
+except:
+    f.save('diffusion_flame.xml')
 
 # write the velocity, temperature, and mole fractions to a CSV file
-f.write_csv('c2h6_diffusion.csv', quiet=False)
+f.write_csv('diffusion_flame.csv', quiet=False)
 
 f.show_stats(0)
 
@@ -73,4 +77,4 @@ f.show_solution()
 plt.plot(f.flame.grid, f.T, label='Temperature with radiation')
 plt.legend()
 plt.legend(loc=2)
-plt.savefig('./c2h6_diffusion.pdf')
+plt.savefig('./diffusion_flame.pdf')

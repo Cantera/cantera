@@ -55,16 +55,25 @@ f.transport_model = 'Mix'
 f.set_refine_criteria(ratio=3.0, slope=0.3, curve=1)
 
 f.solve(loglevel, refine_grid)
-f.save('ch4_flame_fixed_T.xml','mixav',
-       'solution with mixture-averaged transport')
+try:
+    # save to HDF container file if h5py is installed
+    f.write_hdf('flame_fixed_T.h5', group='mix', mode='w',
+                description='solution with mixture-averaged transport')
+except:    
+    f.save('flame_fixed_T.xml','mixav',
+           'solution with mixture-averaged transport')
 
 print('\n\n switching to multicomponent transport...\n\n')
 f.transport_model = 'Multi'
 
 f.set_refine_criteria(ratio=3.0, slope=0.1, curve=0.2)
 f.solve(loglevel, refine_grid)
-f.save('ch4_flame_fixed_T.xml','multi',
-       'solution with  multicomponent transport')
+try:
+    f.write_hdf('flame_fixed_T.h5', group='multi',
+                description='solution with multicomponent transport')
+except:
+    f.save('flame_fixed_T.xml','multi',
+           'solution with  multicomponent transport')
 
 # write the velocity, temperature, density, and mole fractions to a CSV file
 f.write_csv('flame_fixed_T.csv', quiet=False)
