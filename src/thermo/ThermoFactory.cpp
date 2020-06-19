@@ -580,7 +580,7 @@ void setupPhase(ThermoPhase& thermo, AnyMap& phaseNode, const AnyMap& rootNode)
         }
     }
 
-    thermo.setParameters(phaseNode);
+    thermo.setParameters(phaseNode, rootNode);
     thermo.initThermo();
 
     if (phaseNode.hasKey("state")) {

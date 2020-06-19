@@ -291,26 +291,20 @@ void LatticeSolidPhase::getGibbs_ref(doublereal* g) const
     }
 }
 
+void LatticeSolidPhase::setParameters(const AnyMap& phaseNode,
+                                      const AnyMap& rootNode)
+{
+    ThermoPhase::setParameters(phaseNode, rootNode);
+    m_rootNode = rootNode;
+}
+
 void LatticeSolidPhase::initThermo()
 {
     if (m_input.hasKey("composition")) {
-        AnyMap infile;
-        if (m_input.hasKey("__file__")) {
-            infile = AnyMap::fromYamlFile(m_input["__file__"].asString());
-        } else {
-            auto& text = m_input.getMetadata("file-contents");
-            if (text.is<std::string>()) {
-                infile = AnyMap::fromYamlString(text.asString());
-            } else {
-                throw InputFileError("LatticeSolidPhase::initThermo",
-                    m_input["composition"],
-                    "Unable to locate phase definitions for component phases");
-            }
-        }
         compositionMap composition = m_input["composition"].asMap<double>();
         for (auto& item : composition) {
-            AnyMap& node = infile["phases"].getMapWhere("name", item.first);
-            addLattice(newPhase(node, infile));
+            AnyMap& node = m_rootNode["phases"].getMapWhere("name", item.first);
+            addLattice(newPhase(node, m_rootNode));
         }
         setLatticeStoichiometry(composition);
     }

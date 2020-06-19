@@ -431,6 +431,8 @@ public:
     //! Set the lattice stoichiometric coefficients, \f$ \theta_i \f$
     void setLatticeStoichiometry(const compositionMap& comp);
 
+    virtual void setParameters(const AnyMap& phaseNode,
+                               const AnyMap& rootNode=AnyMap());
     virtual void initThermo();
 
     virtual void setParametersFromXML(const XML_Node& eosdata);
@@ -470,6 +472,10 @@ protected:
     mutable vector_fp tmpV_;
 
     std::vector<size_t> lkstart_;
+
+    //! Root node of the AnyMap which contains this phase definition.
+    //! Used to look up the phase definitions for the constituent phases.
+    AnyMap m_rootNode;
 
 private:
     //! Update the reference thermodynamic functions

@@ -273,6 +273,8 @@ public:
     void setNeutralMoleculePhase(shared_ptr<ThermoPhase> neutral);
     shared_ptr<ThermoPhase> getNeutralMoleculePhase();
 
+    virtual void setParameters(const AnyMap& phaseNode,
+                               const AnyMap& rootNode=AnyMap());
     virtual void initThermo();
     virtual void setParametersFromXML(const XML_Node& thermoNode);
 
@@ -398,6 +400,10 @@ protected:
 
     //! This is a pointer to the neutral Molecule Phase
     shared_ptr<ThermoPhase> neutralMoleculePhase_;
+
+    //! Root node of the AnyMap which contains this phase definition.
+    //! Used to look up the phase definition for the embedded neutral phase.
+    AnyMap m_rootNode;
 
 private:
     GibbsExcessVPSSTP* geThermo;
