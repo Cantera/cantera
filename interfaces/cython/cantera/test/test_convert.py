@@ -265,8 +265,8 @@ class converterTestCommon:
                            tol=2e-7)
 
     def test_negative_A_factor(self):
-        self.convert('negative-rate.inp', thermo='dummy-thermo.dat')
-        gas = ct.Solution('negative-rate.cti')  # Validate the mechanism
+        output = self.convert('negative-rate.inp', thermo='dummy-thermo.dat')
+        gas = ct.Solution(output)  # Validate the mechanism
         self.assertLess(gas.reaction(4).rate.pre_exponential_factor, 0)
         self.assertLess(gas.reaction(1).rate.pre_exponential_factor, 0)
         self.assertLess(gas.reaction(2).rate.pre_exponential_factor, 0)
