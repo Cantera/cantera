@@ -63,6 +63,8 @@ class Test(object):
                 pjoin(self.subdir, self.programName), source_files,
                 LIBS=self.libs or cantera_libs)
         else:
+            if isinstance(self.programName, str):
+                self.programName += '$PROGSUFFIX'
             self.program = [self.programName]
         command = self.program + [pjoin(self.subdir, arg) for arg in arguments]
 
@@ -227,6 +229,12 @@ CompileAndTest('VPsilane_test')
 
 CompileAndTest('clib', 'clib_test', 'clib_test',
                extensions=['^clib_test.c'], libs=['cantera_shared'])
+
+if env['f90_interface'] == 'y':
+    Test('f90-demo', 'fortran', '#build/samples/f90/demo', 'f90_demo_blessed.txt')
+    Test('f77-isentropic', 'fortran', '#build/samples/f77/isentropic',
+         'f77_isentropic_blessed.txt')
+    Test('f77-ctlib', 'fortran', '#build/samples/f77/ctlib', 'f77_ctlib_blessed.txt')
 
 # Force explicitly-named tests to run even if SCons thinks they're up to date
 for command in COMMAND_LINE_TARGETS:

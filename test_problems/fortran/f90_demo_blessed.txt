@@ -1,0 +1,67 @@
+ 
+ ********   Fortran 90 Test Program   ********
+ Initial state properties:
+
+
+Temperature:       1200.0     K
+Pressure:         0.10133E+06 Pa
+Density:          0.28921     kg/m3
+Molar Enthalpy:   0.23514E+08 J/kmol
+Molar Entropy:    0.20594E+06 J/kmol-K
+Molar cp:          27056.     J/kmol-K
+
+
+ Equilibrium state properties:
+
+
+Temperature:       2800.9     K
+Pressure:         0.10133E+06 Pa
+Density:          0.13658     kg/m3
+Molar Enthalpy:   0.25920E+08 J/kmol
+Molar Entropy:    0.24314E+06 J/kmol-K
+Molar cp:          32363.     J/kmol-K
+
+
+2 O + M <=> O2 + M            0.56821E-02   0.56821E-02   0.78063E-17 kmol/m3/s
+H + O + M <=> OH + M          0.56583E-02   0.56583E-02   0.95410E-17 kmol/m3/s
+H2 + O <=> H + OH             0.13445E+03   0.13445E+03   0.56843E-12 kmol/m3/s
+HO2 + O <=> O2 + OH           0.22106E+00   0.22106E+00   0.19151E-14 kmol/m3/s
+H2O2 + O <=> HO2 + OH         0.14203E-01   0.14203E-01  -0.90206E-16 kmol/m3/s
+H + O2 + M <=> HO2 + M        0.27607E-01   0.27607E-01  -0.31225E-16 kmol/m3/s
+H + 2 O2 <=> HO2 + O2         0.14337E-01   0.14337E-01  -0.86736E-16 kmol/m3/s
+H + H2O + O2 <=> H2O + HO2    0.64778E+00   0.64778E+00   0.26645E-14 kmol/m3/s
+AR + H + O2 <=> AR + HO2      0.69116E-01   0.69116E-01   0.27756E-15 kmol/m3/s
+H + O2 <=> O + OH             0.14255E+03   0.14255E+03   0.31264E-12 kmol/m3/s
+2 H + M <=> H2 + M            0.15624E-02   0.15624E-02   0.26021E-17 kmol/m3/s
+2 H + H2 <=> 2 H2             0.88217E-04   0.88217E-04   0.32526E-18 kmol/m3/s
+2 H + H2O <=> H2 + H2O        0.54975E-02   0.54975E-02   0.18215E-16 kmol/m3/s
+H + OH + M <=> H2O + M        0.13038E+00   0.13038E+00  -0.44409E-15 kmol/m3/s
+H + HO2 <=> H2O + O           0.19776E-01   0.19776E-01  -0.69389E-16 kmol/m3/s
+H + HO2 <=> H2 + O2           0.20780E+00   0.20780E+00  -0.11935E-14 kmol/m3/s
+H + HO2 <=> 2 OH              0.42115E+00   0.42115E+00   0.21649E-14 kmol/m3/s
+H + H2O2 <=> H2 + HO2         0.73139E-02   0.73139E-02  -0.40766E-16 kmol/m3/s
+H + H2O2 <=> H2O + OH         0.10271E-02   0.10271E-02  -0.56379E-17 kmol/m3/s
+H2 + OH <=> H + H2O           0.22906E+03   0.22906E+03  -0.13927E-11 kmol/m3/s
+2 OH (+M) <=> H2O2 (+M)       0.54038E+00   0.54038E+00  -0.13323E-14 kmol/m3/s
+2 OH <=> H2O + O              0.37533E+03   0.37533E+03  -0.38085E-11 kmol/m3/s
+HO2 + OH <=> H2O + O2         0.40738E+00   0.40738E+00  -0.77716E-15 kmol/m3/s
+H2O2 + OH <=> H2O + HO2       0.16600E-02   0.16600E-02  -0.10192E-16 kmol/m3/s
+H2O2 + OH <=> H2O + HO2       0.77286E+01   0.77286E+01  -0.47073E-13 kmol/m3/s
+2 HO2 <=> H2O2 + O2           0.29976E-05   0.29976E-05   0.15247E-19 kmol/m3/s
+2 HO2 <=> H2O2 + O2           0.83671E-03   0.83671E-03   0.41200E-17 kmol/m3/s
+HO2 + OH <=> H2O + O2         0.57067E+01   0.57067E+01  -0.11546E-13 kmol/m3/s
+
+
+Viscosity:                0.10415E-03  Pa-s
+Thermal conductivity:     0.16396      W/m/K
+
+ Species Diffusion Coefficient
+ H2                     0.36495E-02 m2/s
+ H                      0.61986E-02 m2/s
+ O                      0.15513E-02 m2/s
+ O2                     0.99488E-03 m2/s
+ OH                     0.15280E-02 m2/s
+ H2O                    0.14315E-02 m2/s
+ HO2                    0.97725E-03 m2/s
+ H2O2                   0.97012E-03 m2/s
+ AR                     0.75972E-03 m2/s
