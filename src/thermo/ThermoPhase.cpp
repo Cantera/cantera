@@ -818,7 +818,7 @@ const std::vector<const XML_Node*> & ThermoPhase::speciesData() const
     return m_speciesData;
 }
 
-void ThermoPhase::setParameters(const AnyMap& phaseNode)
+void ThermoPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
 {
     m_input = phaseNode;
 }

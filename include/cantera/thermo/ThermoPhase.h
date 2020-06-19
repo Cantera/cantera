@@ -1495,8 +1495,11 @@ public:
     virtual void getParameters(int& n, doublereal* const c) const {
     }
 
-    //! Set equation of state parameters from an AnyMap phase description
-    void setParameters(const AnyMap& phaseNode);
+    //! Set equation of state parameters from an AnyMap phase description.
+    //! Phases that need additional parameters from the root node should
+    //! override this method.
+    virtual void setParameters(const AnyMap& phaseNode,
+                               const AnyMap& rootNode=AnyMap());
 
     //! Access input data associated with the phase description
     const AnyMap& input() const;

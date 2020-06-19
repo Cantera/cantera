@@ -477,31 +477,29 @@ static double factorOverlap(const std::vector<std::string>& elnamesVN ,
     return fMax;
 }
 
+void IonsFromNeutralVPSSTP::setParameters(const AnyMap& phaseNode,
+                                          const AnyMap& rootNode)
+{
+    ThermoPhase::setParameters(phaseNode, rootNode);
+    m_rootNode = rootNode;
+}
+
 void IonsFromNeutralVPSSTP::initThermo()
 {
     if (m_input.hasKey("neutral-phase")) {
         string neutralName = m_input["neutral-phase"].asString();
         const auto& slash = boost::ifind_last(neutralName, "/");
-        AnyMap infile;
         if (slash) {
             string fileName(neutralName.begin(), slash.begin());
             neutralName = string(slash.end(), neutralName.end());
-            infile = AnyMap::fromYamlFile(fileName,
+            AnyMap infile = AnyMap::fromYamlFile(fileName,
                         m_input.getString("__file__", ""));
-        } else if (m_input.hasKey("__file__")) {
-            infile = AnyMap::fromYamlFile(m_input["__file__"].asString());
+            AnyMap& phaseNode = infile["phases"].getMapWhere("name", neutralName);
+            setNeutralMoleculePhase(newPhase(phaseNode, infile));
         } else {
-            auto& text = m_input.getMetadata("file-contents");
-            if (text.is<string>()) {
-                infile = AnyMap::fromYamlString(text.asString());
-            } else {
-                throw InputFileError("IonsFromNeutralVPSSTP::initThermo",
-                    m_input["neutral-phase"],
-                    "Unable to locate phase definition for neutral phase");
-            }
+            AnyMap& phaseNode = m_rootNode["phases"].getMapWhere("name", neutralName);
+            setNeutralMoleculePhase(newPhase(phaseNode, m_rootNode));
         }
-        AnyMap& phaseNode = infile["phases"].getMapWhere("name", neutralName);
-        setNeutralMoleculePhase(newPhase(phaseNode, infile));
     }
 
     if (!neutralMoleculePhase_) {
