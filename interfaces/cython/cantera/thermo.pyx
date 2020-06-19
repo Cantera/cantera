@@ -681,10 +681,10 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self._getArray1(thermo_getMolecularWeights)
 
-    property species_charges:
-        """Array of species charges [-]."""
+    property charges:
+        """Array of species charges [elem. charge]."""
         def __get__(self):
-            return self._getArray1(thermo_getSpeciesCharges)
+            return self._getArray1(thermo_getCharges)
 
     property mean_molecular_weight:
         """The mean molecular weight (molar mass) [kg/kmol]."""

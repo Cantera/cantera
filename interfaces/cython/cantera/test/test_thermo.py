@@ -136,7 +136,7 @@ class TestThermoPhase(utilities.CanteraTest):
 
     def test_charges(self):
         gas = ct.Solution('ch4_ion.yaml')
-        charges = gas.species_charges
+        charges = gas.charges
         test = {'E': -1., 'N2': 0., 'H3O+': 1.}
         for species, charge in test.items():
             self.assertIn(species, gas.species_names)

@@ -284,12 +284,12 @@ extern "C" {
         }
     }
 
-    int thermo_getSpeciesCharges(int n, size_t lenm, double* sc)
+    int thermo_getCharges(int n, size_t lenm, double* sc)
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
             p.checkSpeciesArraySize(lenm);
-            const vector_fp& ch = p.getSpeciesCharges(sc);
+            p.getCharges(sc);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

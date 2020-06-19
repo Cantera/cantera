@@ -479,7 +479,7 @@ public:
 
     //! Copy the vector of species charges into array charges.
     //!     @param charges Output array of species charges (elem. charge)
-    const vector_fp& getSpeciesCharges(double* charges) const;
+    void getCharges(double* charges) const;
 
     /// @name Composition
     //@{
