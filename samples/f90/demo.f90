@@ -34,8 +34,6 @@ program main
 
   call demo(gas, nsp, nrxns)
 
-  stop
-
 end program main
 
 

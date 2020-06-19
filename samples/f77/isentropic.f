@@ -45,7 +45,6 @@ c     stagnation state properties
          write(*,30) a(n), dmach(n), t(n), ratio(n)
  30      format(4e16.5)
       end do
-      stop
       end
 
 
