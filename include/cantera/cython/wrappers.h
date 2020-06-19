@@ -73,7 +73,7 @@ THERMO_1D(getConcentrations)
 THERMO_1D(setConcentrations)
 
 THERMO_1D(getMolecularWeights)
-THERMO_1D(getSpeciesCharges)
+THERMO_1D(getCharges)
 THERMO_1D(getChemPotentials)
 THERMO_1D(getElectrochemPotentials)
 THERMO_1D(getPartialMolarEnthalpies)

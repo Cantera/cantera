@@ -197,7 +197,7 @@ void phasemethods(int nlhs, mxArray* plhs[],
             iok = thermo_getMolecularWeights(ph,nsp, &x[0]);
             break;
         case 23:
-            iok = thermo_getSpeciesCharges(ph, nsp, &x[0]);
+            iok = thermo_getCharges(ph, nsp, &x[0]);
             break;
         default:
             mexErrMsgTxt("Unknown job number");

@@ -559,11 +559,9 @@ const vector_fp& Phase::molecularWeights() const
     return m_molwts;
 }
 
-const vector_fp& Phase::getSpeciesCharges(double* charges) const
+void Phase::getCharges(double* charges) const
 {
-    const vector_fp& ch = m_speciesCharge;
-    copy(ch.begin(), ch.end(), charges);
-    return m_speciesCharge;
+    copy(m_speciesCharge.begin(), m_speciesCharge.end(), charges);
 }
 
 compositionMap Phase::getMoleFractionsByName(double threshold) const
