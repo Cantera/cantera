@@ -24,6 +24,11 @@ f.show_solution()
 f.transport_model = 'Ion'
 f.solve(loglevel, auto=True)
 f.solve(loglevel=loglevel, stage=2, enable_energy=True)
-f.save('CH4_burner_flame.xml', 'mix', 'solution with mixture-averaged transport')
+try:
+    # save to HDF container file if h5py is installed
+    f.write_hdf('ion_burner_flame.h5', group='ion', mode='w',
+                description='solution with ionized gas transport')
+except:
+    f.save('ion_burner_flame.xml', 'mix', 'solution with mixture-averaged transport')
 
-f.write_csv('CH4_burner_flame.csv', quiet=False)
+f.write_csv('ion_burner_flame.csv', quiet=False)

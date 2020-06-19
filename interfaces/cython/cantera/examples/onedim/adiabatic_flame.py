@@ -6,10 +6,6 @@ Requires: cantera >= 2.5.0
 """
 
 import cantera as ct
-try:
-    import h5py as h5
-except:
-    h5 = None
 
 # Simulation parameters
 p = ct.one_atm  # pressure [Pa]
@@ -33,11 +29,12 @@ f.transport_model = 'Mix'
 f.solve(loglevel=loglevel, auto=True)
 
 # Solve with the energy equation enabled
-if h5:
-    f.write_hdf('h2_adiabatic.h5', group='mix', mode='w',
+try:
+    # save to HDF container file if h5py is installed
+    f.write_hdf('adiabatic_flame.h5', group='mix', mode='w',
                 description='solution with mixture-averaged transport')
-else:
-    f.save('h2_adiabatic.xml', 'mix',
+except:
+    f.save('adiabatic_flame.xml', 'mix',
            'solution with mixture-averaged transport')
 
 f.show_solution()
@@ -48,12 +45,12 @@ f.transport_model = 'Multi'
 f.solve(loglevel)  # don't use 'auto' on subsequent solves
 f.show_solution()
 print('multicomponent flamespeed = {0:7f} m/s'.format(f.velocity[0]))
-if h5:
-    f.write_hdf('h2_adiabatic.h5', group='multi',
+try:
+    f.write_hdf('adiabatic_flame.h5', group='multi',
                 description='solution with multicomponent transport')
-else:
-    f.save('h2_adiabatic.xml', 'multi',
+except:
+    f.save('adiabatic_flame.xml', 'multi',
            'solution with multicomponent transport')
 
 # write the velocity, temperature, density, and mole fractions to a CSV file
-f.write_csv('h2_adiabatic.csv', quiet=False)
+f.write_csv('adiabatic_flame.csv', quiet=False)
