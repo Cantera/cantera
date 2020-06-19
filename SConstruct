@@ -1679,24 +1679,24 @@ if env['matlab_toolbox'] == 'y':
 if env['doxygen_docs'] or env['sphinx_docs']:
     SConscript('doc/SConscript')
 
-if 'samples' in COMMAND_LINE_TARGETS or addInstallActions:
-    VariantDir('build/samples', 'samples', duplicate=0)
-    sampledir_excludes = ['\\.o$', '^~$', '\\.in', 'SConscript']
-    SConscript('build/samples/cxx/SConscript')
+# Sample programs (also used from test_problems/SConscript)
+VariantDir('build/samples', 'samples', duplicate=0)
+sampledir_excludes = ['\\.o$', '^~$', '\\.in', 'SConscript']
+SConscript('build/samples/cxx/SConscript')
 
-    # Install C++ samples
-    install(env.RecursiveInstall, '$inst_sampledir/cxx',
-            'samples/cxx', exclude=sampledir_excludes)
+# Install C++ samples
+install(env.RecursiveInstall, '$inst_sampledir/cxx',
+        'samples/cxx', exclude=sampledir_excludes)
 
-    if env['f90_interface'] == 'y':
-        SConscript('build/samples/f77/SConscript')
-        SConscript('build/samples/f90/SConscript')
+if env['f90_interface'] == 'y':
+    SConscript('build/samples/f77/SConscript')
+    SConscript('build/samples/f90/SConscript')
 
-        # install F90 / F77 samples
-        install(env.RecursiveInstall, '$inst_sampledir/f77',
-                'samples/f77', sampledir_excludes)
-        install(env.RecursiveInstall, '$inst_sampledir/f90',
-                'samples/f90', sampledir_excludes)
+    # install F90 / F77 samples
+    install(env.RecursiveInstall, '$inst_sampledir/f77',
+            'samples/f77', sampledir_excludes)
+    install(env.RecursiveInstall, '$inst_sampledir/f90',
+            'samples/f90', sampledir_excludes)
 
 ### Meta-targets ###
 build_samples = Alias('samples', sampleTargets)
