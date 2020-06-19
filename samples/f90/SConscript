@@ -18,7 +18,8 @@ for programName, sources in samples:
                 F90PATH='#build/src/fortran',
                 LIBS=['cantera_fortran']+env['cantera_libs']+stdlib,
                 LIBPATH=[env['sundials_libdir'], env['blas_lapack_dir'],
-                         env['extra_lib_dirs'], '#build/lib'])
+                         env['extra_lib_dirs'], '#build/lib'],
+                LINK='$FORTRAN_LINK')
 
     # Generate SConstruct files to be installed
     incdirs = [pjoin(localenv['ct_incroot'], 'cantera')] + localenv['extra_inc_dirs']

@@ -15,9 +15,9 @@ env.Append(FFLAGS='-g',
 ctlib = env.Object('demo_ftnlib.cpp')
 
 demo = env.Program('demo', [ctlib, 'demo.f'],
-                   LINK='$F77')
+                   LINK='@FORTRAN_LINK@')
 isentropic = env.Program('isentropic', [ctlib, 'isentropic.f'],
-                         LINK='$F77')
+                         LINK='@FORTRAN_LINK@')
 
 Default(demo)
 Default(isentropic)
