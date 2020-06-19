@@ -770,6 +770,9 @@ if env['CC'] == 'cl':
                       'if exist ${TARGET}.manifest mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;1']
     env['SHLINKCOM'] = [env['SHLINKCOM'],
                         'if exist ${TARGET}.manifest mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;2']
+    env['FORTRAN_LINK'] = 'link'
+else:
+    env['FORTRAN_LINK'] = '$FORTRAN'
 
 if env['boost_inc_dir']:
     env.Append(CPPPATH=env['boost_inc_dir'])
