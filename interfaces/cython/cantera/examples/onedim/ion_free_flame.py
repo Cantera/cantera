@@ -33,7 +33,7 @@ try:
     # save to HDF container file if h5py is installed
     f.write_hdf('ion_free_flame.h5', group='ion', mode='w',
                 description='solution with ionized gas transport')
-except:
+except ImportError:
     f.save('ion_free_flame.xml', 'ion', 'solution with ionized gas transport')
 
 f.show_solution()

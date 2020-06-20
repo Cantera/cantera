@@ -59,7 +59,7 @@ try:
     # save to HDF container file if h5py is installed
     f.write_hdf('flame_fixed_T.h5', group='mix', mode='w',
                 description='solution with mixture-averaged transport')
-except:    
+except ImportError:
     f.save('flame_fixed_T.xml','mixav',
            'solution with mixture-averaged transport')
 
@@ -71,7 +71,7 @@ f.solve(loglevel, refine_grid)
 try:
     f.write_hdf('flame_fixed_T.h5', group='multi',
                 description='solution with multicomponent transport')
-except:
+except ImportError:
     f.save('flame_fixed_T.xml','multi',
            'solution with  multicomponent transport')
 

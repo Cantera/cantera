@@ -116,7 +116,7 @@ sim.show_solution()
 try:
     sim.write_hdf('catalytic_combustion.h5', group='soln1', mode='w',
                   description='catalytic combustion example')
-except:
+except ImportError:
     sim.save("catalytic_combustion.xml", "soln1")
 
 # save selected solution components in a CSV file for plotting in

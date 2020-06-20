@@ -12,18 +12,19 @@ explanation. Also, please don't forget to cite it if you make use of it.
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
-import numpy as np
 import os
-from importlib.util import find_spec
-
-import cantera as ct
+import importlib
+import numpy as np
 import matplotlib.pyplot as plt
 
-hdf_output = find_spec('h5py') is not None
+import cantera as ct
+
+
+hdf_output = importlib.util.find_spec('h5py') is not None
 
 if not hdf_output:
     # Create directory for output data files
-    data_directory = 'diffusion_flame_extinction_data/'
+    data_directory = 'diffusion_flame_extinction_data'
     if not os.path.exists(data_directory):
         os.makedirs(data_directory)
 
@@ -60,12 +61,12 @@ f.solve(loglevel=0, auto=True)
 
 if hdf_output:
     file_name = 'diffusion_flame_extinction.h5'
-    f.write_hdf(file_name, group='initial_solution', mode='w',
+    f.write_hdf(file_name, group='initial_solution', mode='w', quiet=False,
                 description=('Initial solution'))
 else:
     # Save to data directory
     file_name = 'initial_solution.xml'
-    f.save(data_directory + file_name, name='solution',
+    f.save(os.path.join(data_directory, file_name), name='solution',
            description='Cantera version ' + ct.__version__ +
            ', reaction mechanism ' + reaction_mechanism)
 
@@ -133,12 +134,13 @@ while True:
         # Flame is still burning, so proceed to next strain rate
         n_last_burning = n
         if hdf_output:
-            group = 'extinction_{0:04d}'.format(n)
-            f.write_hdf(file_name, group=group,
+            group = 'extinction/{0:04d}'.format(n)
+            f.write_hdf(file_name, group=group, quiet=False,
                         description='extinction iteration'.format(n))
         else:
             file_name = 'extinction_{0:04d}.xml'.format(n)
-            f.save(data_directory + file_name, name='solution', loglevel=0,
+            f.save(os.path.join(data_directory, file_name),
+                   name='solution', loglevel=0,
                    description='Cantera version ' + ct.__version__ +
                    ', reaction mechanism ' + reaction_mechanism)
         T_max.append(np.max(f.T))
@@ -158,11 +160,12 @@ while True:
         delta_alpha = delta_alpha / delta_alpha_factor
         # Restore last burning solution
         if hdf_output:
-            group = 'extinction_{0:04d}'.format(n_last_burning)
+            group = 'extinction/{0:04d}'.format(n_last_burning)
             f.read_hdf(file_name, group=group)
         else:
             file_name = 'extinction_{0:04d}.xml'.format(n_last_burning)
-            f.restore(data_directory + file_name, name='solution', loglevel=0)
+            f.restore(os.path.join(data_directory, file_name),
+                      name='solution', loglevel=0)
 
 
 # Print some parameters at the extinction point
@@ -187,4 +190,4 @@ plt.ylabel(r'$T_{max}$ [K]')
 if hdf_output:
     plt.savefig('diffusion_flame_extinction_T_max_a_max.png')
 else:
-    plt.savefig(data_directory + 'figure_T_max_a_max.png')
+    plt.savefig(os.path.join(data_directory, 'figure_T_max_a_max.png'))

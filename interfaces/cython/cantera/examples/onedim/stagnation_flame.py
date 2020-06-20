@@ -17,12 +17,13 @@ been previously. (To see this, try setting prune to zero.)
 Requires: cantera >= 2.5.0
 """
 
-import cantera as ct
 import os
-from importlib.util import find_spec
+import importlib
+
+import cantera as ct
 
 
-hdf_output = find_spec('h5py') is not None
+hdf_output = importlib.util.find_spec('h5py') is not None
 
 # parameter values
 p = 0.05 * ct.one_atm  # pressure
