@@ -16,26 +16,26 @@ awkward pressure and strain rate, or to create the basis for a flamelet table.
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
-import numpy as np
 import os
-from importlib.util import find_spec
+import importlib
+import numpy as np
+import matplotlib.pyplot as plt
 
 import cantera as ct
-import matplotlib.pyplot as plt
 
 
 class FlameExtinguished(Exception):
     pass
 
 
-hdf_output = find_spec('h5py') is not None
+hdf_output = importlib.util.find_spec('h5py') is not None
 
 if not hdf_output:
     # Create directory for output data files
-    data_directory = 'diffusion_flame_batch_data/'
+    data_directory = 'diffusion_flame_batch_data'
     if not os.path.exists(data_directory):
         os.makedirs(data_directory)
-    fig_name = '{}figure_{{0}}.png'.format(data_directory)
+    fig_name = os.path.join(data_directory, 'figure_{0}.png')
 else:
     fig_name = 'diffusion_flame_batch_{0}.png'
 
@@ -84,12 +84,12 @@ f.solve(loglevel=0, auto=True)
 if hdf_output:
     # save to HDF container file if h5py is installed
     file_name = 'diffusion_flame_batch.h5'
-    f.write_hdf(file_name, group='initial_solution', mode='w',
+    f.write_hdf(file_name, group='initial_solution', mode='w', quiet=False,
                 description=('Initial hydrogen-oxygen counterflow flame '
                              'at 1 bar and low strain rate'))
 else:
     file_name = 'initial_solution.xml'
-    f.save(data_directory + file_name, name='solution',
+    f.save(os.path.join(data_directory, file_name), name='solution',
            description='Cantera version ' + ct.__version__ +
            ', reaction mechanism ' + reaction_mechanism)
 
@@ -138,12 +138,12 @@ for p in p_range:
         # Try solving the flame
         f.solve(loglevel=0)
         if hdf_output:
-            group = 'pressure_loop_{:05.1f}'.format(p)
-            f.write_hdf(file_name, group=group,
+            group = 'pressure_loop/{:05.1f}'.format(p)
+            f.write_hdf(file_name, group=group, quiet=False,
                         description='pressure = {0} bar'.format(p))
         else:
             file_name = 'pressure_loop_' + format(p, '05.1f') + '.xml'
-            f.save(data_directory + file_name, name='solution', loglevel=1,
+            f.save(os.path.join(data_directory, file_name), name='solution', loglevel=1,
                    description='Cantera version ' + ct.__version__ +
                    ', reaction mechanism ' + reaction_mechanism)
         p_previous = p
@@ -153,7 +153,7 @@ for p in p_range:
         if hdf_output:
             f.read_hdf(file_name, group=group)
         else:
-            f.restore(filename=data_directory + file_name, name='solution',
+            f.restore(filename=os.path.join(data_directory, file_name), name='solution',
                       loglevel=0)
 
 
@@ -177,7 +177,7 @@ if hdf_output:
     f.read_hdf(file_name, group='initial_solution')
 else:
     file_name = 'initial_solution.xml'
-    f.restore(filename=data_directory + file_name, name='solution', loglevel=0)
+    f.restore(filename=os.path.join(data_directory, file_name), name='solution', loglevel=0)
 
 # Counter to identify the loop
 n = 0
@@ -203,12 +203,12 @@ while np.max(f.T) > temperature_limit_extinction:
         # Try solving the flame
         f.solve(loglevel=0)
         if hdf_output:
-            group = 'strain_loop_{:02d}'.format(n)
-            f.write_hdf(file_name, group=group,
+            group = 'strain_loop/{:02d}'.format(n)
+            f.write_hdf(file_name, group=group, quiet=False,
                         description='strain rate iteration {}'.format(n))
         else:
             file_name = 'strain_loop_' + format(n, '02d') + '.xml'
-            f.save(data_directory + file_name, name='solution', loglevel=1,
+            f.save(os.path.join(data_directory, file_name), name='solution', loglevel=1,
                    description='Cantera version ' + ct.__version__ +
                    ', reaction mechanism ' + reaction_mechanism)
     except FlameExtinguished:
@@ -229,11 +229,11 @@ p_selected = p_range[::7]
 
 for p in p_selected:
     if hdf_output:
-        group = 'pressure_loop_{0:05.1f}'.format(p)
+        group = 'pressure_loop/{0:05.1f}'.format(p)
         f.read_hdf(file_name, group=group)
     else:
         file_name = 'pressure_loop_{0:05.1f}.xml'.format(p)
-        f.restore(filename=data_directory + file_name, name='solution', loglevel=0)
+        f.restore(filename=os.path.join(data_directory, file_name), name='solution', loglevel=0)
 
     # Plot the temperature profiles for selected pressures
     ax1.plot(f.grid / f.grid[-1], f.T, label='{0:05.1f} bar'.format(p))
@@ -260,11 +260,12 @@ ax4 = fig4.add_subplot(1, 1, 1)
 n_selected = range(1, n, 5)
 for n in n_selected:
     if hdf_output:
-        group = 'strain_loop_{0:02d}'.format(n)
+        group = 'strain_loop/{0:02d}'.format(n)
         f.read_hdf(file_name, group=group)
     else:
         file_name = 'strain_loop_{0:02d}.xml'.format(n)
-        f.restore(filename=data_directory + file_name, name='solution', loglevel=0)
+        f.restore(filename=os.path.join(data_directory, file_name),
+                  name='solution', loglevel=0)
     a_max = f.strain_rate('max')  # the maximum axial strain rate
 
     # Plot the temperature profiles for the strain rate loop (selected)

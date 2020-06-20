@@ -33,7 +33,7 @@ try:
     # save to HDF container file if h5py is installed
     f.write_hdf('adiabatic_flame.h5', group='mix', mode='w',
                 description='solution with mixture-averaged transport')
-except:
+except ImportError:
     f.save('adiabatic_flame.xml', 'mix',
            'solution with mixture-averaged transport')
 
@@ -48,7 +48,7 @@ print('multicomponent flamespeed = {0:7f} m/s'.format(f.velocity[0]))
 try:
     f.write_hdf('adiabatic_flame.h5', group='multi',
                 description='solution with multicomponent transport')
-except:
+except ImportError:
     f.save('adiabatic_flame.xml', 'multi',
            'solution with multicomponent transport')
 

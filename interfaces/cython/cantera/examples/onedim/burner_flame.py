@@ -27,7 +27,7 @@ try:
     # save to HDF container file if h5py is installed
     f.write_hdf('burner_flame.h5', group='mix', mode='w',
                 description='solution with mixture-averaged transport')
-except:
+except ImportError:
     f.save('burner_flame.xml', 'mix', 'solution with mixture-averaged transport')
 
 f.transport_model = 'Multi'
@@ -36,7 +36,7 @@ f.show_solution()
 try:
     f.write_hdf('burner_flame.h5', group='multi',
                 description='solution with multicomponent transport')
-except:
+except ImportError:
     f.save('burner_flame.xml', 'multi', 'solution with multicomponent transport')
 
 f.write_csv('burner_flame.csv', quiet=False)
