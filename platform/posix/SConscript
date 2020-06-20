@@ -42,12 +42,7 @@ pc_incdirs.extend(localenv['extra_inc_dirs'])
 localenv['mak_extra_libdirs'] = ' '.join('-L%s' % s for s in localenv['extra_lib_dirs'])
 pc_libdirs.extend(localenv['extra_lib_dirs'])
 
-if env['HAS_GLIBCXX']:
-    localenv['mak_stdlib'] = '-lstdc++'
-elif env['HAS_LIBCPP']:
-    localenv['mak_stdlib'] = '-lc++'
-else:
-    localenv['mak_stdlib'] = ''
+localenv['mak_stdlib'] = ''.join('-l' + lib for lib in env['cxx_stdlib'])
 
 if localenv['system_sundials']:
     # Add links to the sundials environment

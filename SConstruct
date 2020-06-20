@@ -1031,8 +1031,12 @@ print('INFO: Found Eigen version {}'.format(env['EIGEN_LIB_VERSION']))
 
 # Determine which standard library to link to when using Fortran to
 # compile code that links to Cantera
-env['HAS_GLIBCXX'] = conf.CheckDeclaration('__GLIBCXX__', '#include <iostream>', 'C++')
-env['HAS_LIBCPP'] = conf.CheckDeclaration('_LIBCPP_VERSION', '#include <iostream>', 'C++')
+if conf.CheckDeclaration('__GLIBCXX__', '#include <iostream>', 'C++'):
+    env['cxx_stdlib'] = ['stdc++']
+elif conf.CheckDeclaration('_LIBCPP_VERSION', '#include <iostream>', 'C++'):
+    env['cxx_stdlib'] = ['c++']
+else:
+    env['cxx_stdlib'] = []
 
 env['HAS_CLANG'] = conf.CheckDeclaration('__clang__', '', 'C++')
 
