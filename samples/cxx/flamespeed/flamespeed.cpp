@@ -1,6 +1,7 @@
 /*!
  * @file flamespeed.cpp
  * C++ demo program to compute flame speeds using GRI-Mech.
+ * Usage: flamespeed [equivalence_ratio] [refine_grid] [loglevel]
  */
 
 #include "cantera/oneD/Sim1D.h"
@@ -13,7 +14,7 @@
 using namespace Cantera;
 using fmt::print;
 
-int flamespeed(double phi)
+int flamespeed(double phi, bool refine_grid, int loglevel)
 {
     try {
         auto sol = newSolution("gri30.yaml", "gri30", "None");
@@ -123,8 +124,6 @@ int flamespeed(double phi)
 
         flame.setRefineCriteria(flowdomain,ratio,slope,curve);
 
-        int loglevel=1;
-
         // Solve freely propagating flame
 
         // Linearly interpolate to find location where this temperature would
@@ -132,7 +131,6 @@ int flamespeed(double phi)
         // remainder of calculation.
         flame.setFixedTemperature(0.5 * (temp + Tad));
         flow.solveEnergyEqn();
-        bool refine_grid = true;
 
         flame.solve(loglevel,refine_grid);
         double flameSpeed_mix = flame.value(flowdomain,
@@ -190,10 +188,22 @@ int flamespeed(double phi)
     return 0;
 }
 
-int main()
+int main(int argc, char** argv)
 {
     double phi;
-    print("Enter phi: ");
-    std::cin >> phi;
-    return flamespeed(phi);
+    int loglevel = 1;
+    bool refine_grid = true;
+    if (argc >= 2) {
+        phi = fpValue(argv[1]);
+    } else {
+        print("Enter phi: ");
+        std::cin >> phi;
+    }
+    if (argc >= 3) {
+        refine_grid = bool(intValue(argv[2]));
+    }
+    if (argc >= 4) {
+        loglevel = intValue(argv[3]);
+    }
+    return flamespeed(phi, refine_grid, loglevel);
 }
