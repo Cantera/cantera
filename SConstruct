@@ -594,11 +594,13 @@ config_options = [
         defaults.warningFlags),
     (
         'extra_inc_dirs',
-        """Additional directories to search for header files (colon-separated list).""",
+        """Additional directories to search for header files, with multiple
+        directories separated by colons (*nix, macOS) or semicolons (Windows)""",
         ''),
     (
         'extra_lib_dirs',
-        """Additional directories to search for libraries (colon-separated list).""",
+        """Additional directories to search for libraries, with multiple
+        directories separated by colons (*nix, macOS) or semicolons (Windows)""",
         ''),
     PathVariable(
         'boost_inc_dir',
@@ -755,8 +757,17 @@ elif env['env_vars']:
             print('WARNING: failed to propagate environment variable', repr(name))
             print('         Edit cantera.conf or the build command line to fix this.')
 
-env['extra_inc_dirs'] = [d for d in env['extra_inc_dirs'].split(':') if d]
-env['extra_lib_dirs'] = [d for d in env['extra_lib_dirs'].split(':') if d]
+# @todo: Remove this Warning after Cantera 2.5
+if os.pathsep == ';':
+    for dirs in (env['extra_inc_dirs'], env['extra_lib_dirs']):
+        if re.search(r':\w:', dirs):
+            print('ERROR: Multiple entries in "extra_inc_dirs" and "extra_lib_dirs" '
+                  'should be separated by semicolons (;) on Windows. Use of OS-specific '
+                  'path separator introduced in Cantera 2.5.')
+            sys.exit(1)
+
+env['extra_inc_dirs'] = [d for d in env['extra_inc_dirs'].split(os.pathsep) if d]
+env['extra_lib_dirs'] = [d for d in env['extra_lib_dirs'].split(os.pathsep) if d]
 
 env.Append(CPPPATH=env['extra_inc_dirs'],
            LIBPATH=env['extra_lib_dirs'])
