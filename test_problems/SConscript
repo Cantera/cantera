@@ -230,6 +230,12 @@ CompileAndTest('VPsilane_test')
 CompileAndTest('clib', 'clib_test', 'clib_test',
                extensions=['^clib_test.c'], libs=['cantera_shared'])
 
+# C++ Samples
+Test('cxx-flamespeed', 'cxx_samples', '#build/samples/cxx/flamespeed/flamespeed',
+     'cxx_flamespeed_blessed.txt',
+     comparisons=[('flamespeed_blessed.csv', 'flamespeed.csv')],
+     options='0.9 0 0')
+
 if env['f90_interface'] == 'y':
     Test('f90-demo', 'fortran', '#build/samples/f90/demo', 'f90_demo_blessed.txt',
          threshold=1e-10)
