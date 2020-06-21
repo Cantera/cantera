@@ -66,7 +66,7 @@ cdef class _SolutionBase:
         self.base.setThermo(self._thermo)
         self.base.setKinetics(self._kinetics)
 
-        self._selected_species = np.ndarray(0, dtype=np.integer)
+        self._selected_species = np.ndarray(0, dtype=np.uint64)
 
     def __init__(self, *args, **kwargs):
         if isinstance(self, Transport):
