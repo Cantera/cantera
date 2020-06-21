@@ -73,12 +73,9 @@ while combustor.T > 500:
     states.append(combustor.thermo.state, tres=residence_time)
     residence_time *= 0.9  # decrease the residence time for the next iteration
 
-# Heat release rate [W/m^3]
-Q = - np.sum(states.net_production_rates * states.partial_molar_enthalpies, axis=1)
-
 # Plot results
 f, ax1 = plt.subplots(1, 1)
-ax1.plot(states.tres, Q, '.-', color='C0')
+ax1.plot(states.tres, states.heat_release_rate, '.-', color='C0')
 ax2 = ax1.twinx()
 ax2.plot(states.tres[:-1], states.T[:-1], '.-', color='C1')
 ax1.set_xlabel('residence time [s]')
