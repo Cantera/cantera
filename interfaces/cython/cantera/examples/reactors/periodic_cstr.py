@@ -82,9 +82,16 @@ while t < 300.0:
     network.advance(t)
     states.append(cstr.thermo.state, t=t)
 
+aliases = {'H2': 'H$_2$', 'O2': 'O$_2$', 'H2O': 'H$_2$O'}
+for name, alias in aliases.items():
+    gas.add_species_alias(name, alias)
+
 if __name__ == '__main__':
     print(__doc__)
     plt.figure(1)
-    plt.plot(states.t, states('H2', 'O2', 'H2O').Y)
-    plt.title('Mass Fractions')
+    for spc in aliases.values():
+        plt.plot(states.t, states(spc).Y, label=spc)
+    plt.legend(loc='upper right')
+    plt.xlabel('time [s]')
+    plt.ylabel('mass fraction')
     plt.show()
