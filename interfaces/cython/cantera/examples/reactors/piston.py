@@ -53,8 +53,8 @@ w = ct.Wall(r1, r2, velocity=v)
 
 net = ct.ReactorNet([r1, r2])
 
-states1 = ct.SolutionArray(r1.thermo, extra=['t', 'v'])
-states2 = ct.SolutionArray(r2.thermo, extra=['t', 'v'])
+states1 = ct.SolutionArray(r1.thermo, extra=['t', 'volume'])
+states2 = ct.SolutionArray(r2.thermo, extra=['t', 'volume'])
 
 for n in range(200):
     time = (n+1)*0.001
@@ -63,8 +63,8 @@ for n in range(200):
         print(fmt.format(time, r1.T, r2.T, r1.volume, r2.volume,
                          r1.volume + r2.volume, r2.thermo['CO'].X[0]))
 
-    states1.append(r1.thermo.state, t=1000*time, v=r1.volume)
-    states2.append(r2.thermo.state, t=1000*time, v=r2.volume)
+    states1.append(r1.thermo.state, t=1000*time, volume=r1.volume)
+    states2.append(r2.thermo.state, t=1000*time, volume=r2.volume)
 
 # plot the results if matplotlib is installed.
 if '--plot' in sys.argv:
@@ -74,8 +74,8 @@ if '--plot' in sys.argv:
     plt.xlabel('Time (ms)')
     plt.ylabel('Temperature (K)')
     plt.subplot(2, 2, 2)
-    plt.plot(states1.t, states1.v, '-', states2.t, states2.v, 'r-',
-             states1.t, states1.v + states2.v, 'g-')
+    plt.plot(states1.t, states1.volume, '-', states2.t, states2.volume, 'r-',
+             states1.t, states1.volume + states2.volume, 'g-')
     plt.xlabel('Time (ms)')
     plt.ylabel('Volume (m3)')
     plt.subplot(2, 2, 3)
