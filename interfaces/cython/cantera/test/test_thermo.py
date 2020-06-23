@@ -915,7 +915,44 @@ class TestThermo(utilities.CanteraTest):
 
 class TestPengRobinsonPhase(utilities.CanteraTest):
     def setup(self):
-        self.gas = ct.Solution('co2_PR_exampl.yaml','CO2-PR')
+        self.gas = ct.Solution('co2_PR_example.yaml','CO2-PR')
+
+    def test_setSV(self):
+        """
+        Set state in terms of (s,v) 
+        """
+        self.gas = ct.Solution('co2_PR_example.yaml','CO2-PR')
+        self.gas.TPX = 450, 1e5, 'CO2:1.0'
+        s1, v1 = self.gas.SV
+        self.gas.SV = s1, 2 * v1
+
+        self.assertNear(self.gas.s, s1)
+        self.assertNear(self.gas.v, 2 * v1)  
+
+    def test_setHP(self):
+        """
+        Set state in terms of (H,p) 
+        """
+        self.gas = ct.Solution('co2_PR_example.yaml','CO2-PR')
+        self.gas.TPX = 450, 1e5, 'CO2:1.0'
+        deltaH = 1.25e5
+        h1, p1 = self.gas.HP
+        self.gas.HP = h1 - deltaH, None
+
+        self.assertNear(self.gas.h, h1 - deltaH)
+        self.assertNear(self.gas.P, p1)
+
+    def test_energy(self):
+        self.gas = ct.Solution('co2_PR_example.yaml','CO2-PR')
+        g = self.gas
+        mmw = g.mean_molecular_weight
+        self.assertNear(g.enthalpy_mass, g.enthalpy_mole / mmw)
+        self.assertNear(g.int_energy_mass, g.int_energy_mole / mmw)
+        self.assertNear(g.gibbs_mass, g.gibbs_mole / mmw)
+        self.assertNear(g.entropy_mass, g.entropy_mole / mmw)
+
+        self.assertNear(g.cv_mass, g.cv_mole / mmw)
+        self.assertNear(g.cp_mass, g.cp_mole / mmw)
 
 class TestInterfacePhase(utilities.CanteraTest):
     def setUp(self):

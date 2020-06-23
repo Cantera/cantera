@@ -292,7 +292,7 @@ protected:
 
     //! Value of b in the equation of state
     /*!
-     *  m_b_current is a function of the temperature and the mole fractions.
+     *  m_b_current is a function the mole fractions and species-specific b values.
      */
     double m_b_current;
 
