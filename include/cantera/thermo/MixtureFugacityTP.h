@@ -518,8 +518,9 @@ protected:
     //! Solve the cubic equation of state
     /*!
      *
-     * Returns the number of solutions found. If it only finds the liquid
-     * branch solution, it will return -1 or -2 instead of 1 or 2.
+     * Returns the number of solutions found. For the gas phase solution, it returns
+     * a positive number (1 or 2). If it only finds the liquid branch solution,
+     * it will return -1 or -2 instead of 1 or 2.
      * If it returns 0, then there is an error.
      * The cubic equation is solved using Nickall's method
      * (Ref: The Mathematical Gazette(1993), 77(November), 354--359,
