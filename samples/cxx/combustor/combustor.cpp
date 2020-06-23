@@ -31,8 +31,7 @@ void runexample()
 
     // create a reservoir for the air inlet
     Reservoir air_in;
-    gas->setState_TPX(300.0, OneAtm, "N2:0.78, O2:0.21, AR:0.01");
-    air_in.insert(sol);
+    air_in.insert(air);
 
     // to ignite the fuel/air mixture, we'll introduce a pulse of radicals.
     // The steady-state behavior is independent of how we do this, so we'll
