@@ -6,12 +6,8 @@
 using namespace Cantera;
 using namespace std;
 
-#define NUM_EXAMPLES 5
+#define NUM_EXAMPLES 1
 
-int kinetics_example1(int job);
-int kinetics_example3(int job);
-int transport_example1(int job);
-int transport_example2(int job);
 int equil_example1(int job);
 int rxnpath_example1(int job);
 
@@ -24,9 +20,7 @@ int run_example(int n, exfun f, int job = 2)
 }
 
 // array of example functions
-exfun fex[] = {kinetics_example1, kinetics_example3,
-               equil_example1,
-               transport_example1, transport_example2
+exfun fex[] = {equil_example1,
               }; //, rxnpath_example1};
 
 

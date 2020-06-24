@@ -9,34 +9,6 @@
 >>>>>  example 1
 
 Description:
-Ignition simulation using class IdealGasPhase with file gri30.yaml.
-Constant-pressure ignition of a hydrogen/oxygen/nitrogen mixture
-beginning at T = 1001 K and P = 1 atm.
- Tfinal = 2663.78
-Output files:
-  kin1.csv    (Excel CSV file)
-  kin1.dat    (Tecplot data file)
-
-
-
-
->>>>>  example 2
-
-Description:
-Ignition simulation using class IdealGasPhase with file gri30.yaml.
-Constant-pressure ignition of a hydrogen/oxygen/nitrogen mixture
-beginning at T = 1001 K and P = 1 atm.
- Tfinal = 2663.78
-Output files:
-  kin3.csv    (Excel CSV file)
-  kin3.dat    (Tecplot data file)
-
-
-
-
->>>>>  example 3
-
-Description:
 Chemical equilibrium.
 Equilibrium composition and pressure for a range of temperatures at constant density.
 
@@ -77,7 +49,7 @@ Output files:
 
 
 
->>>>>  example 4
+>>>>>  example 2
 
 Description:
 Mixture-averaged transport properties.
@@ -90,7 +62,7 @@ Output files:
 
 
 
->>>>>  example 5
+>>>>>  example 3
 
 Description:
 Multicomponent transport properties.
