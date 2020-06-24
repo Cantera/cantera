@@ -184,13 +184,11 @@ CompileAndTest('ChemEquil_ionizedGas',
 #CompileAndTest('CpJump', 'CpJump', 'CpJump', 'output_blessed.txt')
 CompileAndTest('cxx_ex',
                comparisons=[('eq1_blessed.csv', 'eq1.csv'),
-                            ('kin1_blessed.csv', 'kin1.csv'),
                             ('tr1_blessed.csv', 'tr1.csv'),
                             ('tr2_blessed.csv', 'tr2.csv')],
                tolerance=3e-3,
                threshold=1e-7,
-               artifacts=['eq1.dat', 'kin1.dat', 'kin2.dat', 'kin3.csv',
-                          'kin3.dat', 'tr1.dat', 'tr2.dat'])
+               artifacts=['eq1.dat', 'tr1.dat', 'tr2.dat'])
 
 diamond = CompileAndTest('diamondSurf-xml', 'diamondSurf', 'diamondSurf',
     'runDiamond_blessed.out', options='diamond_blessed.xml')
@@ -238,6 +236,9 @@ Test('cxx-flamespeed', 'cxx_samples', '#build/samples/cxx/flamespeed/flamespeed'
      'cxx_flamespeed_blessed.txt',
      comparisons=[('flamespeed_blessed.csv', 'flamespeed.csv')],
      options='0.9 0 0')
+Test('cxx-kinetics1', 'cxx_samples', '#build/samples/cxx/kinetics1/kinetics1', None,
+     comparisons=[('kin1_blessed.csv', 'kin1.csv')],
+     artifacts=['kin1.dat'])
 
 if env['f90_interface'] == 'y':
     Test('f90-demo', 'fortran', '#build/samples/f90/demo', 'f90_demo_blessed.txt',
