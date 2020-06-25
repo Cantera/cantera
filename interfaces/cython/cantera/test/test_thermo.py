@@ -17,6 +17,22 @@ class TestThermoPhase(utilities.CanteraTest):
     def test_source(self):
         self.assertEqual(self.phase.source, 'h2o2.xml')
 
+    def test_missing_phases_key(self):
+        yaml = '''
+        species:
+        - name: H
+          composition: {H: 1}
+          thermo:
+            model: NASA7
+            temperature-ranges: [200.0, 1000.0, 6000.0]
+            data:
+            - [2.5, 0.0, 0.0, 0.0, 0.0, 2.547366e+04, -0.44668285]
+            - [2.5, 0.0, 0.0, 0.0, 0.0, 2.547366e+04, -0.44668285]
+            note: L6/94
+        '''
+        with self.assertRaisesRegex(ct.CanteraError, "Key 'phases' not found"):
+            _ = ct.Solution(yaml=yaml)
+
     def test_base_attributes(self):
         self.assertIsInstance(self.phase.name, str)
         self.assertIsInstance(self.phase.phase_of_matter, str)
