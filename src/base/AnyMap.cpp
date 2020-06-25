@@ -656,6 +656,9 @@ const AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& v
             throw InputFileError("AnyValue::getMapWhere", *this,
                 "Map does not contain a key where '{}' = '{}'", key, value);
         }
+    } else if (is<void>()) {
+        throw InputFileError("AnyValue::getMapWhere", *this,
+            "Key '{}' not found", m_key);
     } else {
         throw InputFileError("AnyValue::getMapWhere", *this,
             "Element is not a mapping or list of mappings");
@@ -703,6 +706,9 @@ AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& value,
         child[key] = value;
         operator=(std::move(child));
         return as<AnyMap>();
+    } else if (is<void>()) {
+        throw InputFileError("AnyValue::getMapWhere", *this,
+            "Key '{}' not found", m_key);
     } else {
         throw InputFileError("AnyValue::getMapWhere", *this,
             "Element is not a mapping or list of mappings");

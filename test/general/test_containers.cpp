@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 #include "cantera/base/AnyMap.h"
 
 using namespace Cantera;
@@ -320,6 +321,26 @@ TEST(AnyMap, loadYaml)
     EXPECT_EQ(coeffs.size(), (size_t) 2);
     EXPECT_EQ(coeffs[0].size(), (size_t) 7);
     EXPECT_DOUBLE_EQ(coeffs[1][2], -8.280690600E-07);
+}
+
+TEST(AnyMap, missingKey)
+{
+    AnyMap root = AnyMap::fromYamlFile("ideal-gas.yaml");
+    try {
+        root["spam"].getMapWhere("name", "unknown");
+    } catch (std::exception& ex) {
+        EXPECT_THAT(ex.what(), ::testing::HasSubstr("Key 'spam' not found"));
+    }
+}
+
+TEST(AnyMap, missingKeyAt)
+{
+    AnyMap root = AnyMap::fromYamlFile("ideal-gas.yaml");
+    try {
+        root.at("spam").getMapWhere("name", "unknown");
+    } catch (std::exception& ex) {
+        EXPECT_THAT(ex.what(), ::testing::HasSubstr("Key 'spam' not found"));
+    }
 }
 
 TEST(AnyMap, loadDeprecatedYaml)
