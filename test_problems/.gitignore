@@ -47,14 +47,12 @@ clib_test/clib_test
 cxx_ex/cxx_examples
 cxx_ex/eq1.csv
 cxx_ex/eq1.dat
-cxx_ex/tr1.csv
-cxx_ex/tr1.dat
-cxx_ex/tr2.csv
-cxx_ex/tr2.dat
 cxx_samples/kin1.dat
 cxx_samples/kin1.csv
 cxx_samples/flamespeed.csv
 cxx_samples/combustor_cxx.csv
+cxx_samples/transport_mix.csv
+cxx_samples/transport_multi.csv
 diamondSurf/diamond.xml
 diamondSurf/runDiamond
 fracCoeff/fracCoeff
