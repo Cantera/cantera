@@ -45,29 +45,3 @@ For species SI2, discontinuity in s/R detected at Tmid = 1000
 Output files:
   eq1.csv    (Excel CSV file)
   eq1.dat    (Tecplot data file)
-
-
-
-
->>>>>  example 2
-
-Description:
-Mixture-averaged transport properties.
-Viscosity, thermal conductivity, and mixture-averaged
-diffusion coefficients at 2 atm for a range of temperatures
-Output files:
-  tr1.csv    (Excel CSV file)
-  tr1.dat    (Tecplot data file)
-
-
-
-
->>>>>  example 3
-
-Description:
-Multicomponent transport properties.
-Viscosity, thermal conductivity, and thermal diffusion
- coefficients at 2 atm for a range of temperatures
-Output files:
-  tr2.csv    (Excel CSV file)
-  tr2.dat    (Tecplot data file)
