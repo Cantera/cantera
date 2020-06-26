@@ -60,7 +60,9 @@ void outputExcel(std::ostream& s, const std::string& title,
                  const std::vector<std::string>& names,
                  const Array2D& data)
 {
-    s << title + "," << endl;
+    if (!title.empty()) {
+        s << title + "," << endl;
+    }
     for (size_t i = 0; i < data.nRows(); i++) {
         s << names[i];
         if (i != data.nRows()-1) {
