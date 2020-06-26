@@ -1236,6 +1236,14 @@ class TestSpecies(utilities.CanteraTest):
         iso = gas.find_isomers({'C':7, 'H':16})
         self.assertEqual(len(iso), 0)
 
+    def test_species_note(self):
+        gas = ct.Solution('nDodecane_Reitz.yaml')
+        self.assertEqual(gas.species('c12h26').note, '-therm')
+
+        self.assertEqual(gas.species('c6h12').note, '')
+        gas.species('c6h12').note = 'spam'
+        self.assertEqual(gas.species('c6h12').note, 'spam')
+
 
 class TestSpeciesThermo(utilities.CanteraTest):
     h2o_coeffs = [

@@ -142,6 +142,8 @@ cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
         shared_ptr[CxxTransportData] transport
 
         string name
+        string note()
+        void setNote(string)
         Composition composition
         double charge
         double size

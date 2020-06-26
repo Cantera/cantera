@@ -213,6 +213,13 @@ cdef class Species:
         def __get__(self):
             return pystr(self.species.name)
 
+    property note:
+        """ Annotation string describing the species. """
+        def __get__(self):
+            return pystr(self.species.note())
+        def __set__(self, note):
+            self.species.setNote(stringify(note))
+
     property composition:
         """
         A dict containing the elemental composition of the species. Keys are
