@@ -75,6 +75,7 @@ cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
         cbool hasKey(string)
         string keys_str()
         void applyUnits()
+        string getString(string, string) except +translate_exception
 
     cdef cppclass CxxAnyValue "Cantera::AnyValue":
         CxxAnyValue()
@@ -157,6 +158,8 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
         CxxSolution()
         string name()
         void setName(string)
+        string description()
+        void setDescription(string)
         void setThermo(shared_ptr[CxxThermoPhase])
         void setKinetics(shared_ptr[CxxKinetics])
         void setTransport(shared_ptr[CxxTransport])
