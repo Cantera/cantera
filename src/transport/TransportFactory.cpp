@@ -78,6 +78,10 @@ void TransportFactory::deleteFactory()
 Transport* TransportFactory::newTransport(const std::string& transportModel,
         thermo_t* phase, int log_level, int ndim)
 {
+    if (ndim != -99) {
+        warn_deprecated("TransportFactory::newTransport", "The 'ndim' parameter"
+                        " is unused and will be removed after Cantera 2.5.");
+    }
     vector_fp state;
     Transport* tr = 0;
     phase->saveState(state);

@@ -61,8 +61,11 @@ public:
      *  @param thermo    ThermoPhase object
      *  @param log_level log level
      *  @param ndim      Number of dimensions for fluxes
+     *
+     * @deprecated The `ndim` parameter is unused and will be removed after
+     *     Cantera 2.5.
      */
-    virtual Transport* newTransport(const std::string& model, thermo_t* thermo, int log_level=0, int ndim=1);
+    virtual Transport* newTransport(const std::string& model, thermo_t* thermo, int log_level=0, int ndim=-99);
 
     //! Build a new transport manager using the default transport manager
     //! in the phase description and return a base class pointer to it
@@ -93,8 +96,9 @@ private:
     std::map<std::string, bool> m_CK_mode;
 };
 
+//! @copydoc TransportFactory::newTransport(const std::string&, thermo_t*, int, int)
 Transport* newTransportMgr(const std::string& transportModel = "",
-                           thermo_t* thermo = 0, int loglevel = 0, int ndim=1);
+                           thermo_t* thermo = 0, int loglevel = 0, int ndim=-99);
 
 //!  Create a new transport manager instance.
 /*!
