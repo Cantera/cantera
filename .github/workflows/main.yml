@@ -35,7 +35,7 @@ jobs:
     - name: Install Apt dependencies
       run: sudo apt-get install libboost-dev gfortran
     - name: Upgrade pip
-      run: python3 -m pip install -U pip setuptools
+      run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: python3 -m pip install ruamel.yaml scons numpy cython h5py
     - name: Build Cantera
@@ -65,7 +65,7 @@ jobs:
     - name: Install Brew dependencies
       run: brew install boost libomp
     - name: Upgrade pip
-      run: python3 -m pip install -U pip setuptools
+      run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: python3 -m pip install ruamel.yaml scons numpy cython h5py
     - name: Build Cantera
@@ -97,7 +97,7 @@ jobs:
       run: |
         sudo apt-get install libboost-dev gfortran liblapack-dev libblas-dev
     - name: Upgrade pip
-      run: python3 -m pip install -U pip setuptools
+      run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: python3 -m pip install ruamel.yaml scons numpy cython h5py
     - name: Build Cantera
@@ -127,7 +127,7 @@ jobs:
       - name: Install Apt dependencies
         run: sudo apt-get install libboost-dev doxygen graphviz
       - name: Upgrade pip
-        run: python3 -m pip install -U pip setuptools
+        run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
           python3 -m pip install ruamel.yaml scons numpy cython sphinx \
@@ -229,13 +229,15 @@ jobs:
         python-version: '3.8'
         architecture: x64
     - name: Install Apt dependencies
-      run: sudo apt-get install libboost-dev
+      run: sudo apt-get install libboost-dev liblapack-dev libblas-dev
+    - name: Upgrade pip
+      run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: |
         python3 -m pip install ruamel.yaml scons numpy h5py;
         python3 -m pip install https://github.com/cython/cython/archive/master.zip --install-option='--no-cython-compile';
     - name: Build Cantera
-      run: python3 `which scons` build f90_interface=n python_package='full' -j2
+      run: python3 `which scons` build blas_lapack_libs=lapack,blas python_package='full' -j2
     - name: Test Cantera
       run: python3 `which scons` test
     - name: Build Samples
