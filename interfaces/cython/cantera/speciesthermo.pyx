@@ -79,6 +79,13 @@ cdef class SpeciesThermo:
                                            T_high, P_ref, &data[0])
             return data
 
+    property note:
+        """ Annotation string describing the parameterization. """
+        def __get__(self):
+            return pystr(self.spthermo.note())
+        def __set__(self, note):
+            self.spthermo.setNote(stringify(note))
+
     def _check_n_coeffs(self, n):
         """
         Check whether number of coefficients is compatible with a given

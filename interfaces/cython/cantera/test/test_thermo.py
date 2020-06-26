@@ -33,6 +33,14 @@ class TestThermoPhase(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, "Key 'phases' not found"):
             _ = ct.Solution(yaml=yaml)
 
+    def test_speciesthermo_note(self):
+        spc = self.phase.species('H2')
+        self.assertEqual(spc.thermo.note, 'TPIS78')
+
+        spc = self.phase.species('O2')
+        spc.thermo.note = 'oxygen'
+        self.assertEqual(spc.thermo.note, 'oxygen')
+
     def test_base_attributes(self):
         self.assertIsInstance(self.phase.name, str)
         self.assertIsInstance(self.phase.phase_of_matter, str)

@@ -90,4 +90,18 @@ AnyMap& SpeciesThermoInterpType::input()
     return m_input;
 }
 
+std::string SpeciesThermoInterpType::note() const
+{
+    return input().getString("note", "");
+}
+
+void SpeciesThermoInterpType::setNote(const std::string& note)
+{
+    if (note == "") {
+        input().erase("note");
+    } else {
+        input()["note"] = note;
+    }
+}
+
 }
