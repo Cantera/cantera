@@ -182,11 +182,6 @@ CompileAndTest('ISSPTester2', 'cathermo/VPissp')
 CompileAndTest('ChemEquil_ionizedGas',
                comparisons=[('table_blessed.csv', 'table.csv')])
 #CompileAndTest('CpJump', 'CpJump', 'CpJump', 'output_blessed.txt')
-CompileAndTest('cxx_ex',
-               comparisons=[('eq1_blessed.csv', 'eq1.csv')],
-               tolerance=3e-3,
-               threshold=1e-7,
-               artifacts=['eq1.dat'])
 
 diamond = CompileAndTest('diamondSurf-xml', 'diamondSurf', 'diamondSurf',
     'runDiamond_blessed.out', options='diamond_blessed.xml')
