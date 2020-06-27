@@ -44,6 +44,7 @@ cathermo/testWaterPDSS/testWaterPDSS
 cathermo/testWaterTP/testWaterSSTP
 cathermo/wtWater/wtWater
 clib_test/clib_test
+cxx_samples/blasius.csv
 cxx_samples/kin1.dat
 cxx_samples/kin1.csv
 cxx_samples/flamespeed.csv

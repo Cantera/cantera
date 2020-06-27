@@ -110,7 +110,7 @@ int main()
         // Solve the equations, refining the grid as needed
         eqs.solve(1);
         // write the solution to a CSV file.
-        eqs.writeCSV();
+        eqs.writeCSV("blasius.csv");
         return 0;
     } catch (Cantera::CanteraError& err) {
         std::cerr << err.what() << std::endl;
