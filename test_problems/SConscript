@@ -196,7 +196,6 @@ CompileAndTest('mixGasTransport')
 CompileAndTest('multiGasTransport')
 
 CompileAndTest('pureFluid', 'pureFluidTest')
-CompileAndTest('rankine_democxx')
 CompileAndTest('silane_equil')
 CompileAndTest('stoichSolidKinetics')
 CompileAndTest('surfkin')
@@ -243,6 +242,8 @@ Test('cxx-gas-transport', 'cxx_samples',
      '#build/samples/cxx/gas_transport/gas_transport', None,
      comparisons=[('transport_mix_blessed.csv', 'transport_mix.csv'),
                   ('transport_multi_blessed.csv', 'transport_multi.csv')])
+Test('cxx-rankine', 'cxx_samples', '#build/samples/cxx/rankine/rankine',
+     'rankine_blessed.txt')
 
 if env['f90_interface'] == 'y':
     Test('f90-demo', 'fortran', '#build/samples/f90/demo', 'f90_demo_blessed.txt',
