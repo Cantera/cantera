@@ -8,7 +8,6 @@ samples = [
     ('flamespeed', 'flamespeed', ['cpp'], False),
     ('kinetics1', 'kinetics1', ['cpp'], False),
     ('gas_transport', 'gas_transport', ['cpp'], False),
-    ('NASA_coeffs', 'NASA_coeffs', ['cpp'], False),
     ('rankine', 'rankine', ['cpp'], False),
     ('LiC6_electrode', 'LiC6_electrode', ['cpp'], False),
     ('openmp_ignition', 'openmp_ignition', ['cpp'], True),
