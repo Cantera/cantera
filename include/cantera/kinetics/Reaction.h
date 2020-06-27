@@ -75,6 +75,12 @@ public:
         m_valid = valid;
     }
 
+    //! Return annotation string describing the reaction
+    std::string note() const;
+
+    //! Set annotation string describing the reaction
+    void setNote(const std::string& note);
+
     //! Type of the reaction. The valid types are listed in the file,
     //! reaction_defs.h, with constants ending in `RXN`.
     /*!
