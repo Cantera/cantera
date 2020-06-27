@@ -190,7 +190,12 @@ struct convert<Cantera::AnyValue> {
         if (node.IsScalar()) {
             // Scalar nodes are int, doubles, or strings
             std::string nodestr = node.as<std::string>();
-            if (isInt(nodestr)) {
+            if (node.Tag() == "!") {
+                // Prevent quoted strings from being implicitly converted to
+                // numeric types, e.g. the quoted YAML string '12345' should not
+                // be interpreted as an integer
+                target = nodestr;
+            } else if (isInt(nodestr)) {
                 try {
                     target = node.as<long int>();
                 } catch (YAML::BadConversion&) {
