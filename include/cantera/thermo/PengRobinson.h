@@ -194,7 +194,7 @@ public:
     *
     *  @param iName    Name of the species
     */
-    virtual std::vector<double> getCoeff(const std::string& iName);
+    virtual vector_fp getCoeff(const std::string& iName);
 
     //! Set the pure fluid interaction parameters for a species
     /*!
