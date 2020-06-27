@@ -1729,6 +1729,12 @@ public:
     const AnyMap& input() const;
     AnyMap& input();
 
+    //! Return annotation string describing the phase
+    std::string note() const;
+
+    //! Set annotation string describing the phase
+    void setNote(const std::string& note);
+
     //! Set equation of state parameter values from XML entries.
     /*!
      * This method is called by function importPhase() when processing a phase

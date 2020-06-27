@@ -303,6 +303,13 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return pystr(self.thermo.type())
 
+    property note:
+        """ Annotation string describing the thermo phase. """
+        def __get__(self):
+            return pystr(self.thermo.note())
+        def __set__(self, note):
+            self.thermo.setNote(stringify(note))
+
     property phase_of_matter:
         """
         Get the thermodynamic phase (gas, liquid, etc.) at the current conditions.

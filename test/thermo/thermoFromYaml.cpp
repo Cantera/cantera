@@ -47,6 +47,7 @@ TEST(ThermoFromYaml, elementOverride)
     EXPECT_DOUBLE_EQ(thermo->atomicWeight(0), getElementWeight("N"));
     EXPECT_DOUBLE_EQ(thermo->atomicWeight(1), getElementWeight("O"));
     EXPECT_DOUBLE_EQ(thermo->atomicWeight(2), 36);
+    EXPECT_EQ(thermo->note(), "replace Argon with custom element");
 }
 
 TEST(ThermoFromYaml, elementFromDifferentFile)

@@ -17,6 +17,13 @@ class TestThermoPhase(utilities.CanteraTest):
     def test_source(self):
         self.assertEqual(self.phase.source, 'h2o2.yaml')
 
+    def test_thermo_note(self):
+        self.assertEqual(self.phase.note, "")
+        self.phase.note = "something"
+        self.assertEqual(self.phase.note, "something")
+        self.phase.note = ""
+        self.assertEqual(self.phase.note, "")
+
     def test_missing_phases_key(self):
         yaml = '''
         species:
@@ -34,12 +41,14 @@ class TestThermoPhase(utilities.CanteraTest):
             _ = ct.Solution(yaml=yaml)
 
     def test_speciesthermo_note(self):
-        spc = self.phase.species('H2')
-        self.assertEqual(spc.thermo.note, 'TPIS78')
+        spc = self.phase.species("H2")
+        self.assertEqual(spc.thermo.note, "TPIS78")
 
-        spc = self.phase.species('O2')
-        spc.thermo.note = 'oxygen'
-        self.assertEqual(spc.thermo.note, 'oxygen')
+        spc = self.phase.species("O2")
+        spc.thermo.note = "oxygen"
+        self.assertEqual(spc.thermo.note, "oxygen")
+        spc.thermo.note = ""
+        self.assertEqual(spc.thermo.note, "")
 
     def test_base_attributes(self):
         self.assertIsInstance(self.phase.name, str)
@@ -1245,12 +1254,14 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual(len(iso), 0)
 
     def test_species_note(self):
-        gas = ct.Solution('nDodecane_Reitz.yaml')
-        self.assertEqual(gas.species('c12h26').note, '-therm')
+        gas = ct.Solution("nDodecane_Reitz.yaml")
+        self.assertEqual(gas.species("c12h26").note, "-therm")
 
-        self.assertEqual(gas.species('c6h12').note, '')
-        gas.species('c6h12').note = 'spam'
-        self.assertEqual(gas.species('c6h12').note, 'spam')
+        self.assertEqual(gas.species("c6h12").note, "")
+        gas.species("c6h12").note = "spam"
+        self.assertEqual(gas.species("c6h12").note, "spam")
+        gas.species("c6h12").note = ""
+        self.assertEqual(gas.species("c6h12").note, "")
 
 
 class TestSpeciesThermo(utilities.CanteraTest):

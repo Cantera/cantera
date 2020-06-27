@@ -1262,6 +1262,20 @@ AnyMap& ThermoPhase::input()
     return m_input;
 }
 
+std::string ThermoPhase::note() const
+{
+    return input().getString("note", "");
+}
+
+void ThermoPhase::setNote(const std::string& note)
+{
+    if (note == "") {
+        input().erase("note");
+    } else {
+        input()["note"] = note;
+    }
+}
+
 void ThermoPhase::setStateFromXML(const XML_Node& state)
 {
     string comp = getChildValue(state,"moleFractions");

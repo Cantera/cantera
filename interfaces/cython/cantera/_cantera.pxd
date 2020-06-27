@@ -168,6 +168,8 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
         void setKinetics(shared_ptr[CxxKinetics])
         void setTransport(shared_ptr[CxxTransport])
         CxxAnyMap parameters(cbool) except +translate_exception
+        string note()
+        void setNote(string)
 
     cdef shared_ptr[CxxSolution] CxxNewSolution "Cantera::Solution::create" ()
 
@@ -183,6 +185,8 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
 
         # miscellaneous
         string type()
+        string note()
+        void setNote(string)
         string phaseOfMatter() except +translate_exception
         void getSpeciesParameters(string, CxxAnyMap&) except +translate_exception
         string report(cbool, double) except +translate_exception
