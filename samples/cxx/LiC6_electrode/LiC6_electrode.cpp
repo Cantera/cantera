@@ -16,8 +16,8 @@ void calc_potentials()
     size_t intercalatingSpeciesIdx = electrodebulk->speciesIndex(intercalatingSpeciesName);
     size_t nsp_tot = electrodebulk->nSpecies();
 
-    std::ofstream fout("potentials_output.dat", std::ofstream::out);
-    fout << "x[LiC6] ChemPotential[LiC6] ChemPotential[C6] Uref ActCoeff[LiC6] ActCoeff[C6] dlnActCoeffdx[LiC6] dlnActCoeffdx[C6]" << std::endl;
+    std::ofstream fout("LiC6_electrode_output.csv", std::ofstream::out);
+    fout << "x[LiC6], ChemPotential[LiC6], ChemPotential[C6], Uref ActCoeff[LiC6], ActCoeff[C6], dlnActCoeffdx[LiC6], dlnActCoeffdx[C6]" << std::endl;
 
     vector_fp spvals(nsp_tot);
     vector_fp actCoeff(nsp_tot);
@@ -54,7 +54,7 @@ void calc_potentials()
         electrodebulk->getdlnActCoeffdlnX_diag(dlnActCoeffdlnX_diag.data());
         electrodebulk->getActivityCoefficients(actCoeff.data());
 
-        fout << fmt::format("{} {} {} {} {} {} {} {}\n",
+        fout << fmt::format("{}, {}, {}, {}, {}, {}, {}, {}\n",
             xv[0], spvals[0], spvals[1], Uref, actCoeff[0],
             actCoeff[1], dlnActCoeffdlnX_diag[0], dlnActCoeffdlnX_diag[1]);
     }
