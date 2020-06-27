@@ -37,7 +37,8 @@ PASSED_FILES = {}
 class Test(object):
     def __init__(self, testName, subdir=None, programName=None,
                  blessedName='output_blessed.txt', arguments=(), options='',
-                 artifacts=(), comparisons=(), tolerance=1e-5, threshold=1e-14,
+                 artifacts=(), comparisons=(), profiles=(),
+                 tolerance=1e-5, threshold=1e-14,
                  dependencies=(), source_files=()):
         self.subdir = subdir or testName
         self.programName = programName or testName
@@ -48,6 +49,7 @@ class Test(object):
         if isinstance(self.artifacts, str):
             self.artifacts = [self.artifacts]
         self.comparisons = comparisons
+        self.profiles = profiles
         self.tolerance = tolerance  # error tolerance for CSV comparison
         self.threshold = threshold  # error threshold for CSV comparison
         self.source_files = source_files
@@ -71,8 +73,9 @@ class Test(object):
         run = localenv.RegressionTest(pjoin(self.subdir, self.passedFile),
             command, active_test_name=testName,
             test_blessed_file=blessedName, test_command_options=options,
-            test_comparisons=comparisons, test_csv_threshold=threshold,
-            test_csv_tolerance=tolerance, test_ignoreLines=())
+            test_comparisons=comparisons, test_profiles=profiles,
+            test_csv_threshold=threshold, test_csv_tolerance=tolerance,
+            test_ignoreLines=())
 
         localenv.Depends(env['test_results'], run)
         localenv.Depends(run, env['build_targets'])
@@ -105,6 +108,7 @@ class Test(object):
         files += [self.passedFile, outName]
         files += list(self.artifacts)
         files += [comp[1] for comp in self.comparisons]
+        files += [comp[1] for comp in self.profiles]
         files = [pjoin(os.getcwd(), self.subdir, name) for name in files]
 
         uniqueName = 'clean-%s-' % self.testName
