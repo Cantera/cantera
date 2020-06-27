@@ -226,6 +226,9 @@ CompileAndTest('clib', 'clib_test', 'clib_test',
                extensions=['^clib_test.c'], libs=['cantera_shared'])
 
 # C++ Samples
+Test('cxx-bvp', 'cxx_samples', '#build/samples/cxx/bvp/blasius', None,
+     profiles=[('blasius_blessed.csv', 'blasius.csv')],
+     tolerance=1e-4)
 Test('cxx-combustor', 'cxx_samples', '#build/samples/cxx/combustor/combustor', None,
      comparisons=[('combustor_cxx_blessed.csv', 'combustor_cxx.csv')],
      threshold=1e-10, tolerance=2e-4)

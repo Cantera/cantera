@@ -162,14 +162,20 @@ public:
         if (dotitles) {
             f << ztitle << ", ";
             for (m = 0; m < nc; m++) {
-                f << componentName(m) << ", ";
+                f << componentName(m);
+                if (m != nc - 1) {
+                    f << ", ";
+                }
             }
             f << std::endl;
         }
         for (n = 0; n < np; n++) {
             f << z(n) << ", ";
             for (m = 0; m < nc; m++) {
-                f << m_sim->value(1, m, n) << ", ";
+                f << m_sim->value(1, m, n);
+                if (m != nc - 1) {
+                    f << ", ";
+                }
             }
             f << std::endl;
         }
