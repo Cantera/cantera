@@ -541,6 +541,8 @@ cdef extern from "cantera/transport/TransportData.h" namespace "Cantera":
     cdef cppclass CxxTransportData "Cantera::TransportData":
         CxxTransportData()
         CxxAnyMap parameters(cbool) except +translate_exception
+        string note()
+        void setNote(string)
 
     cdef cppclass CxxGasTransportData "Cantera::GasTransportData" (CxxTransportData):
         CxxGasTransportData()

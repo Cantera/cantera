@@ -28,6 +28,20 @@ void TransportData::getParameters(AnyMap &transportNode) const
 {
 }
 
+std::string TransportData::note() const
+{
+    return input.getString("note", "");
+}
+
+void TransportData::setNote(const std::string& note)
+{
+    if (note == "") {
+        input.erase("note");
+    } else {
+        input["note"] = note;
+    }
+}
+
 GasTransportData::GasTransportData()
     : diameter(0.0)
     , well_depth(0.0)

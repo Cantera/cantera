@@ -32,6 +32,12 @@ public:
     //!   stored in the #input attribute.
     AnyMap parameters(bool withInput) const;
 
+    //! Return annotation string describing transport data
+    std::string note() const;
+
+    //! Set annotation string describing transport data
+    void setNote(const std::string& note);
+
     //! Input data used for specific models
     AnyMap input;
 
