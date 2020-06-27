@@ -79,7 +79,9 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeDirectory('interfaces/cython/Cantera.egg-info')
     removeDirectory('interfaces/python_minimal/Cantera_minimal.egg-info')
     for name in os.listdir('interfaces/cython/cantera/data/'):
-        if name != '__init__.py':
+        if os.path.isdir('interfaces/cython/cantera/data/' + name):
+            removeDirectory('interfaces/cython/cantera/data/' + name)
+        elif name != '__init__.py':
             removeFile('interfaces/cython/cantera/data/' + name)
     removeDirectory('interfaces/cython/cantera/test/data/test_subdir')
     for name in os.listdir('interfaces/cython/cantera/test/data/'):
@@ -1614,6 +1616,14 @@ for xml in mglob(env, 'data/inputs', 'xml'):
 for yaml in mglob(env, "data", "yaml"):
     dest = pjoin("build", "data", yaml.name)
     build(env.Command(dest, yaml.path, Copy("$TARGET", "$SOURCE")))
+for subdir in os.listdir('data'):
+    if os.path.isdir(pjoin('data', subdir)):
+        for yaml in mglob(env, pjoin("data", subdir), "yaml"):
+            dest = pjoin("build", "data", subdir, yaml.name)
+            if not os.path.exists(pjoin("build", "data", subdir)):
+                os.makedirs(pjoin("build", "data", subdir))
+            build(env.Command(dest, yaml.path, Copy("$TARGET", "$SOURCE")))
+
 
 if addInstallActions:
     # Put headers in place
@@ -1621,7 +1631,7 @@ if addInstallActions:
     install(env.RecursiveInstall, '$inst_incdir', 'include/cantera')
 
     # Data files
-    install('$inst_datadir', mglob(env, 'build/data', 'cti', 'xml', 'yaml'))
+    install(env.RecursiveInstall, '$inst_datadir', 'build/data')
 
 
 ### List of libraries needed to link to Cantera ###

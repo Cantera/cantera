@@ -247,23 +247,20 @@ public:
     /*!
      * This routine will search for a file in the default locations specified
      * for the application. See the routine setDefaultDirectories() listed
-     * above.
+     * above. The first directory searched is usually the current working
+     * directory.
      *
-     * The default set of directories specified for the application will be
-     * searched if a '/' or an '\\' is not found in the name. If either is found
-     * then a relative path name is presumed, and the default directories are
-     * not searched.
+     * The default set of directories will not be searched if an absolute path
+     * (for example, one starting with `/` or `C:\`) or a path relative to the
+     * user's home directory (for example, starting with `~/`) is specified.
      *
      * The presence of the file is determined by whether the file can be
      * opened for reading by the current user.
      *
      * @param name Name of the input file to be searched for
-     * @return  The absolute path name of the first matching file is
-     *     returned. If a relative path name is indicated, the relative path
-     *     name is returned.
+     * @return  The absolute path name of the first matching file
      *
-     * If the file is not found, a message is written to stdout and a
-     * CanteraError exception is thrown.
+     * If the file is not found a CanteraError exception is thrown.
      *
      * @ingroup inputfiles
      */

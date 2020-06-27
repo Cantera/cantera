@@ -93,7 +93,7 @@ setup(
         'Topic :: Scientific/Engineering :: Chemistry',
     ],
     package_data = {
-        'cantera.data': ['*.*'],
+        'cantera.data': ['*.*', '*/*.*'],
         'cantera.test.data': ['*.*', '*/*.*'],
         'cantera.examples': ['*/*.*'],
         'cantera': ["@py_extension@", '*.pxd'],
