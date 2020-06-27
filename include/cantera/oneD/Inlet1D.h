@@ -14,23 +14,4 @@
 
 #include "Boundary1D.h"
 
-namespace Cantera
-{
-
-/*!
- * Renamed base class for boundaries between one-dimensional spatial domains.
- * @deprecated To be removed after Cantera 2.5.
- */
-class Bdry1D : public Boundary1D
-{
-public:
-    Bdry1D() : Boundary1D() {
-        warn_deprecated("Bdry1D::Bdry1D()",
-                        "To be removed after Cantera 2.5. "
-                        "Class renamed to Boundary1D.");
-    }
-};
-
-}
-
 #endif
