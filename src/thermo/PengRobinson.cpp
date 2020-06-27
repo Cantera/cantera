@@ -229,13 +229,13 @@ void PengRobinson::getChemPotentials(double* mu) const
     double den2 = m_b_current*(mv * mv + 2 * mv * m_b_current - m_b_current * m_b_current);
 
     for (size_t k = 0; k < m_kk; k++) {
-        num = 2 * m_b_current * m_pp[k] - m_aAlpha_current* m_b_vec_Curr[k];
+        num = 2 * m_b_current * m_pp[k] - m_aAlpha_current * m_b_vec_Curr[k];
 
         mu[k] += (RTkelvin * log(pres/refP) - RTkelvin * log(pres * mv / RTkelvin)
                   + RTkelvin * log(mv / vmb)
                   + RTkelvin * m_b_vec_Curr[k] / vmb
                   - (num /den) * log(vpb2/vmb2)
-                  - m_aAlpha_current* m_b_vec_Curr[k] * mv/den2
+                  - m_aAlpha_current * m_b_vec_Curr[k] * mv/den2
                  );
     }
 }
