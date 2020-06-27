@@ -242,6 +242,9 @@ Test('cxx-gas-transport', 'cxx_samples',
      '#build/samples/cxx/gas_transport/gas_transport', None,
      comparisons=[('transport_mix_blessed.csv', 'transport_mix.csv'),
                   ('transport_multi_blessed.csv', 'transport_multi.csv')])
+Test('cxx-LiC6-electrode', 'cxx_samples',
+     '#build/samples/cxx/LiC6_electrode/LiC6_electrode', None,
+     comparisons=[('LiC6_electrode_blessed.csv', 'LiC6_electrode_output.csv')])
 Test('cxx-rankine', 'cxx_samples', '#build/samples/cxx/rankine/rankine',
      'rankine_blessed.txt')
 
