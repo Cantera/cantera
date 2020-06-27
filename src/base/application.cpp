@@ -412,6 +412,7 @@ std::string Application::findInputFile(const std::string& name)
     std::unique_lock<std::mutex> dirLock(dir_mutex);
     string::size_type islash = name.find('/');
     string::size_type ibslash = name.find('\\');
+    string::size_type icolon = name.find(':');
     std::vector<string>& dirs = inputDirs;
 
     // Expand "~/" to user's home directory, if possible
@@ -421,36 +422,54 @@ std::string Application::findInputFile(const std::string& name)
             home = getenv("USERPROFILE"); // Windows systems
         }
         if (home) {
-            return home + name.substr(1, npos);
-        }
-    }
-
-    if (islash == string::npos && ibslash == string::npos) {
-        size_t nd = dirs.size();
-        for (size_t i = 0; i < nd; i++) {
-            string inname = dirs[i] + "/" + name;
-            std::ifstream fin(inname);
+            string full_name = home + name.substr(1, npos);
+            std::ifstream fin(full_name);
             if (fin) {
-                return inname;
+                return full_name;
+            } else {
+                throw CanteraError("Application::findInputFile",
+                                   "Input file '{}' not found", name);
             }
         }
-        string msg = "\nInput file " + name + " not found in director";
-        msg += (nd == 1 ? "y " : "ies ");
-        for (size_t i = 0; i < nd; i++) {
-            msg += "\n'" + dirs[i] + "'";
-            if (i+1 < nd) {
-                msg += ", ";
-            }
-        }
-        msg += "\n\n";
-        msg += "To fix this problem, either:\n";
-        msg += "    a) move the missing files into the local directory;\n";
-        msg += "    b) define environment variable CANTERA_DATA to\n";
-        msg += "         point to the directory containing the file.";
-        throw CanteraError("Application::findInputFile", msg);
     }
 
-    return name;
+    // If this is an absolute path, just look for the file there
+    if (islash == 0 || ibslash == 0
+        || (icolon == 1 && (ibslash == 2 || islash == 2)))
+    {
+        std::ifstream fin(name);
+        if (fin) {
+            return name;
+        } else {
+            throw CanteraError("Application::findInputFile",
+                               "Input file '{}' not found", name);
+        }
+    }
+
+    // Search the Cantera data directories for the input file, and return
+    // the full path if a match is found
+    size_t nd = dirs.size();
+    for (size_t i = 0; i < nd; i++) {
+        string full_name = dirs[i] + "/" + name;
+        std::ifstream fin(full_name);
+        if (fin) {
+            return full_name;
+        }
+    }
+    string msg = "\nInput file " + name + " not found in director";
+    msg += (nd == 1 ? "y " : "ies ");
+    for (size_t i = 0; i < nd; i++) {
+        msg += "\n'" + dirs[i] + "'";
+        if (i+1 < nd) {
+            msg += ", ";
+        }
+    }
+    msg += "\n\n";
+    msg += "To fix this problem, either:\n";
+    msg += "    a) move the missing files into the local directory;\n";
+    msg += "    b) define environment variable CANTERA_DATA to\n";
+    msg += "         point to the directory containing the file.";
+    throw CanteraError("Application::findInputFile", msg);
 }
 
 Application* Application::s_app = 0;
