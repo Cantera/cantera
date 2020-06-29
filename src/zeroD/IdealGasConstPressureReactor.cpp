@@ -5,6 +5,7 @@
 
 #include "cantera/zeroD/IdealGasConstPressureReactor.h"
 #include "cantera/zeroD/FlowDevice.h"
+#include "cantera/zeroD/ReactorNet.h"
 
 using namespace std;
 
@@ -60,11 +61,7 @@ void IdealGasConstPressureReactor::updateState(doublereal* y)
     m_thermo->setState_TP(y[1], m_pressure);
     m_vol = m_mass / m_thermo->density();
     updateSurfaceState(y + m_nsp + 2);
-
-    // save parameters needed by other connected reactors
-    m_enthalpy = m_thermo->enthalpy_mass();
-    m_intEnergy = m_thermo->intEnergy_mass();
-    m_thermo->saveState(m_state);
+    updateConnected(false);
 }
 
 void IdealGasConstPressureReactor::evalEqs(doublereal time, doublereal* y,
