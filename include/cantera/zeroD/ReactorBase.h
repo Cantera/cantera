@@ -269,12 +269,6 @@ protected:
     vector_fp m_state;
     std::vector<FlowDevice*> m_inlet, m_outlet;
 
-    //! Temporary storage for mass flow rates from each inlet FlowDevice
-    vector_fp m_mdot_in;
-
-    //! Temporary storage for mass flow rates from each outlet FlowDevice
-    vector_fp m_mdot_out;
-
     std::vector<WallBase*> m_wall;
     std::vector<ReactorSurface*> m_surfaces;
     vector_int m_lr;
