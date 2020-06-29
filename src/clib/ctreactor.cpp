@@ -413,7 +413,19 @@ extern "C" {
     double flowdev_massFlowRate(int i, double time)
     {
         try {
+            warn_deprecated("flowdev_massFlowRate(int i, double time)",
+                "To be changed after Cantera 2.5. 'time' argument will be "
+                "removed. Use flowdev_massFlowRate2(int i) during transition.");
             return FlowDeviceCabinet::item(i).massFlowRate(time);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
+    double flowdev_massFlowRate2(int i)
+    {
+        try {
+            return FlowDeviceCabinet::item(i).massFlowRate();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }

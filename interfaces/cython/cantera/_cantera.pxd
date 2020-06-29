@@ -613,6 +613,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxFlowDevice "Cantera::FlowDevice":
         CxxFlowDevice()
         string typeStr()
+        double massFlowRate() except +translate_exception
         double massFlowRate(double) except +translate_exception
         cbool install(CxxReactorBase&, CxxReactorBase&) except +translate_exception
         void setPressureFunction(CxxFunc1*) except +translate_exception

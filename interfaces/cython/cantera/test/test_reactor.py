@@ -468,13 +468,18 @@ class TestReactor(utilities.CanteraTest):
         ma = self.r1.volume * self.r1.density
         Ya = self.r1.Y
 
-        self.assertNear(mfc.mdot(0.1), 0.)
-        self.assertNear(mfc.mdot(0.2), 0.1)
-        self.assertNear(mfc.mdot(1.1), 0.1)
-        self.assertNear(mfc.mdot(1.2), 0.)
-
         self.net.rtol = 1e-11
         self.net.max_time_step = 0.05
+
+        self.net.advance(0.1)
+        self.assertNear(mfc.mass_flow_rate, 0.)
+        self.net.advance(0.2)
+        self.assertNear(mfc.mass_flow_rate, 0.1)
+        self.net.advance(1.1)
+        self.assertNear(mfc.mass_flow_rate, 0.1)
+        self.net.advance(1.2)
+        self.assertNear(mfc.mass_flow_rate, 0.)
+
         self.net.advance(2.5)
 
         mb = self.r1.volume * self.r1.density
@@ -506,8 +511,9 @@ class TestReactor(utilities.CanteraTest):
         self.assertEqual(valve.valve_coeff, k)
         self.assertTrue(self.r1.energy_enabled)
         self.assertTrue(self.r2.energy_enabled)
+        self.net.initialize()
         self.assertNear((self.r1.thermo.P - self.r2.thermo.P) * k,
-                        valve.mdot(0))
+                        valve.mass_flow_rate)
 
         m1a = self.r1.thermo.density * self.r1.volume
         m2a = self.r2.thermo.density * self.r2.volume
@@ -520,7 +526,7 @@ class TestReactor(utilities.CanteraTest):
         m2b = self.r2.thermo.density * self.r2.volume
 
         self.assertNear((self.r1.thermo.P - self.r2.thermo.P) * k,
-                        valve.mdot(0.1))
+                        valve.mass_flow_rate)
         self.assertNear(m1a+m2a, m1b+m2b)
         Y1b = self.r1.thermo.Y
         Y2b = self.r2.thermo.Y
@@ -586,7 +592,7 @@ class TestReactor(utilities.CanteraTest):
             t = self.net.step()
             p1 = self.r1.thermo.P
             p2 = self.r2.thermo.P
-            self.assertNear(mdot(p1-p2), valve.mdot(t))
+            self.assertNear(mdot(p1-p2), valve.mass_flow_rate)
             self.assertArrayNear(Y1, self.r1.Y)
             self.assertNear(speciesMass(kAr), mAr)
             self.assertNear(speciesMass(kO2), mO2)
@@ -600,11 +606,15 @@ class TestReactor(utilities.CanteraTest):
         valve.valve_coeff = k
         valve.set_time_function(lambda t: t>.01)
 
-        mdot = valve.valve_coeff * (self.r1.thermo.P - self.r2.thermo.P)
-        self.assertTrue(valve.mdot(0.0)==0.)
-        self.assertTrue(valve.mdot(0.01)==0.)
-        self.assertTrue(valve.mdot(0.01 + 1e-9)==mdot)
-        self.assertTrue(valve.mdot(0.02)==mdot)
+        mdot = lambda: valve.valve_coeff * (self.r1.thermo.P - self.r2.thermo.P)
+        self.net.initialize()
+        self.assertEqual(valve.mass_flow_rate, 0.0)
+        self.net.advance(0.01)
+        self.assertEqual(valve.mass_flow_rate, 0.0)
+        self.net.advance(0.01 + 1e-9)
+        self.assertNear(valve.mass_flow_rate, mdot())
+        self.net.advance(0.02)
+        self.assertNear(valve.mass_flow_rate, mdot())
 
     def test_valve_deprecations(self):
         # Make sure Python deprecation warnings actually get displayed
@@ -669,9 +679,9 @@ class TestReactor(utilities.CanteraTest):
         t = 0
         while t < 1.0:
             t = self.net.step()
-            self.assertNear(mdot(t), mfc.mdot(t))
+            self.assertNear(mdot(t), mfc.mass_flow_rate)
             dP = self.r1.thermo.P - outlet_reservoir.thermo.P
-            self.assertNear(mdot(t) + 1e-5 * dP, pc.mdot(t))
+            self.assertNear(mdot(t) + 1e-5 * dP, pc.mass_flow_rate)
 
     def test_pressure_controller2(self):
         self.make_reactors(n_reactors=1)
@@ -695,9 +705,9 @@ class TestReactor(utilities.CanteraTest):
         t = 0
         while t < 1.0:
             t = self.net.step()
-            self.assertNear(mdot(t), mfc.mdot(t))
+            self.assertNear(mdot(t), mfc.mass_flow_rate)
             dP = self.r1.thermo.P - outlet_reservoir.thermo.P
-            self.assertNear(mdot(t) + pfunc(dP), pc.mdot(t))
+            self.assertNear(mdot(t) + pfunc(dP), pc.mass_flow_rate)
 
     def test_pressure_controller_deprecations(self):
         # Make sure Python deprecation warnings actually get displayed
@@ -726,13 +736,13 @@ class TestReactor(utilities.CanteraTest):
 
         p = ct.PressureController(self.r1, self.r2, master=mfc, K=0.5)
 
-        with self.assertRaisesRegex(ct.CanteraError, 'Device is not ready'):
+        with self.assertRaisesRegex(ct.CanteraError, 'is not ready'):
             p = ct.PressureController(self.r1, self.r2, K=0.5)
-            p.mdot(0.0)
+            p.mass_flow_rate
 
-        with self.assertRaisesRegex(ct.CanteraError, 'Device is not ready'):
+        with self.assertRaisesRegex(ct.CanteraError, 'is not ready'):
             p = ct.PressureController(self.r1, self.r2)
-            p.mdot(0.0)
+            p.mass_flow_rate
 
         with self.assertRaisesRegex(ct.CanteraError, 'NotImplementedError'):
             p = ct.PressureController(self.r1, self.r2)

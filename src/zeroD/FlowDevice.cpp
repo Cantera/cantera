@@ -10,7 +10,7 @@
 namespace Cantera
 {
 
-FlowDevice::FlowDevice() : m_mdot(0.0), m_pfunc(0), m_tfunc(0),
+FlowDevice::FlowDevice() : m_mdot(Undef), m_pfunc(0), m_tfunc(0),
                            m_coeff(1.0), m_type(0),
                            m_nspin(0), m_nspout(0),
                            m_in(0), m_out(0) {}

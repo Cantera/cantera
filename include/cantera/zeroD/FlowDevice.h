@@ -9,6 +9,7 @@
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/global.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {
@@ -54,11 +55,22 @@ public:
     }
 
     //! Mass flow rate (kg/s).
+    //! @deprecated The 'time' argument will be removed after Cantera 2.5.
+    //!     Evaluating the mass flow rate at times other than the current time
+    //!     for the reactor network may lead to subtly incorrect results.
     double massFlowRate(double time = -999.0) {
         if (time != -999.0) {
+            warn_deprecated("FlowDevice::massFlowRate", "The 'time' argument"
+                " is deprecated and will be removed after Cantera 2.5.");
             updateMassFlowRate(time);
         }
-        return m_mdot;
+
+        if (m_mdot == Undef) {
+            throw CanteraError("FlowDevice::massFlowRate",
+                               "Flow device is not ready. Try initializing the reactor network.");
+        } else {
+            return m_mdot;
+        }
     }
 
     //! Update the mass flow rate at time 'time'. This must be overloaded in
