@@ -185,11 +185,11 @@ void Reactor::updateConnected(bool updatePressure) {
 
     // Update the mass flow rate of connected flow devices
     double time = m_net->time();
-    for (auto device : m_inlet) {
-        device->updateMassFlowRate(time);
+    for (size_t i = 0; i < m_outlet.size(); i++) {
+        m_outlet[i]->updateMassFlowRate(time);
     }
-    for (auto device : m_outlet) {
-        device->updateMassFlowRate(time);
+    for (size_t i = 0; i < m_inlet.size(); i++) {
+        m_inlet[i]->updateMassFlowRate(time);
     }
 }
 
@@ -199,7 +199,6 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
     double dmdt = 0.0; // dm/dt (gas phase)
     double* dYdt = ydot + 3;
 
-    evalFlowDevices(time);
     evalWalls(time);
     applySensitivity(params);
     m_thermo->restoreState(m_state);
@@ -234,23 +233,25 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
     }
 
     // add terms for outlets
-    for (size_t i = 0; i < m_outlet.size(); i++) {
-        dmdt -= m_mdot_out[i]; // mass flow out of system
+    for (auto outlet : m_outlet) {
+        double mdot = outlet->massFlowRate();
+        dmdt -= mdot; // mass flow out of system
         if (m_energy) {
-            ydot[2] -= m_mdot_out[i] * m_enthalpy;
+            ydot[2] -= mdot * m_enthalpy;
         }
     }
 
     // add terms for inlets
-    for (size_t i = 0; i < m_inlet.size(); i++) {
-        dmdt += m_mdot_in[i]; // mass flow into system
+    for (auto inlet : m_inlet) {
+        double mdot = inlet->massFlowRate();
+        dmdt += mdot; // mass flow into system
         for (size_t n = 0; n < m_nsp; n++) {
-            double mdot_spec = m_inlet[i]->outletSpeciesMassFlowRate(n);
+            double mdot_spec = inlet->outletSpeciesMassFlowRate(n);
             // flow of species into system and dilution by other species
-            dYdt[n] += (mdot_spec - m_mdot_in[i] * Y[n]) / m_mass;
+            dYdt[n] += (mdot_spec - mdot * Y[n]) / m_mass;
         }
         if (m_energy) {
-            ydot[2] += m_mdot_in[i] * m_inlet[i]->enthalpy_mass();
+            ydot[2] += mdot * inlet->enthalpy_mass();
         }
     }
 
@@ -266,18 +267,6 @@ void Reactor::evalWalls(double t)
         int lr = 1 - 2*m_lr[i];
         m_vdot += lr*m_wall[i]->vdot(t);
         m_Q += lr*m_wall[i]->Q(t);
-    }
-}
-
-void Reactor::evalFlowDevices(double t)
-{
-    for (size_t i = 0; i < m_outlet.size(); i++) {
-        m_outlet[i]->updateMassFlowRate(t);
-        m_mdot_out[i] = m_outlet[i]->massFlowRate();
-    }
-    for (size_t i = 0; i < m_inlet.size(); i++) {
-        m_inlet[i]->updateMassFlowRate(t);
-        m_mdot_in[i] = m_inlet[i]->massFlowRate();
     }
 }
 

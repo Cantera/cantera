@@ -75,7 +75,6 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
     double mcvdTdt = 0.0; // m * c_v * dT/dt
     double* dYdt = ydot + 3;
 
-    evalFlowDevices(time);
     evalWalls(time);
     applySensitivity(params);
     m_thermo->restoreState(m_state);
@@ -104,21 +103,21 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
     }
 
     // add terms for outlets
-    for (size_t i = 0; i < m_outlet.size(); i++) {
-        // double mdot_out = m_outlet[i]->massFlowRate(time);
-        dmdt -= m_mdot_out[i]; // mass flow out of system
-        mcvdTdt -= m_mdot_out[i] * m_pressure * m_vol / m_mass; // flow work
+    for (auto outlet : m_outlet) {
+        double mdot = outlet->massFlowRate();
+        dmdt -= mdot; // mass flow out of system
+        mcvdTdt -= mdot * m_pressure * m_vol / m_mass; // flow work
     }
 
     // add terms for inlets
-    for (size_t i = 0; i < m_inlet.size(); i++) {
-        // double mdot_in = m_inlet[i]->massFlowRate(time);
-        dmdt += m_mdot_in[i]; // mass flow into system
-        mcvdTdt += m_inlet[i]->enthalpy_mass() * m_mdot_in[i];
+    for (auto inlet : m_inlet) {
+        double mdot = inlet->massFlowRate();
+        dmdt += mdot; // mass flow into system
+        mcvdTdt += inlet->enthalpy_mass() * mdot;
         for (size_t n = 0; n < m_nsp; n++) {
-            double mdot_spec = m_inlet[i]->outletSpeciesMassFlowRate(n);
+            double mdot_spec = inlet->outletSpeciesMassFlowRate(n);
             // flow of species into system and dilution by other species
-            dYdt[n] += (mdot_spec - m_mdot_in[i] * Y[n]) / m_mass;
+            dYdt[n] += (mdot_spec - mdot * Y[n]) / m_mass;
 
             // In combination with h_in*mdot_in, flow work plus thermal
             // energy carried with the species

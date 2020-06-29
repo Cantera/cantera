@@ -233,6 +233,7 @@ void ReactorNet::addReactor(Reactor& r)
 void ReactorNet::eval(doublereal t, doublereal* y,
                       doublereal* ydot, doublereal* p)
 {
+    m_time = t; // This will be replaced at the end of the timestep
     updateState(y);
     for (size_t n = 0; n < m_reactors.size(); n++) {
         m_reactors[n]->evalEqs(t, y + m_start[n], ydot + m_start[n], p);
