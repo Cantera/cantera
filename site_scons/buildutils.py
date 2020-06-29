@@ -443,13 +443,13 @@ def compareCsvFiles(env, file1, file2):
     if maxerror > tol: # Threshold based on printing 6 digits in the CSV file
         print("Files differ. %i / %i elements above specified tolerance (%f)" %
               (np.sum(relerror > tol), relerror.size, tol))
-        print('  row   col   reference     test          rel. error')
-        print('  ----  ----  ------------  ------------  ----------')
+        print('  row   col   reference       test            rel. error')
+        print('  ----  ----  --------------  --------------  ----------')
         for i,j in itertools.product(*map(range, relerror.shape)):
             if relerror[i,j] > tol:
                 row = i + headerRows + 1
                 col = j + 1
-                print('  % 4i  % 4i  % 12f  % 12f  % 10f' %
+                print('  % 4i  % 4i  % 14.7e  % 14.7e  % 10.4e' %
                       (row, col, data1[i,j], data2[i,j], relerror[i,j]))
         return 1
     else:
