@@ -65,12 +65,7 @@ void IdealGasReactor::updateState(doublereal* y)
     m_thermo->setMassFractions_NoNorm(y+3);
     m_thermo->setState_TR(y[2], m_mass / m_vol);
     updateSurfaceState(y + m_nsp + 3);
-
-    // save parameters needed by other connected reactors
-    m_enthalpy = m_thermo->enthalpy_mass();
-    m_pressure = m_thermo->pressure();
-    m_intEnergy = m_thermo->intEnergy_mass();
-    m_thermo->saveState(m_state);
+    updateConnected(true);
 }
 
 void IdealGasReactor::evalEqs(doublereal time, doublereal* y,

@@ -55,11 +55,7 @@ void ConstPressureReactor::updateState(doublereal* y)
     }
     m_vol = m_mass / m_thermo->density();
     updateSurfaceState(y + m_nsp + 2);
-
-    // save parameters needed by other connected reactors
-    m_enthalpy = m_thermo->enthalpy_mass();
-    m_intEnergy = m_thermo->intEnergy_mass();
-    m_thermo->saveState(m_state);
+    updateConnected(false);
 }
 
 void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,

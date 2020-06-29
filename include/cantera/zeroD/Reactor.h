@@ -200,6 +200,14 @@ protected:
     //! Update the state of SurfPhase objects attached to this reactor
     virtual void updateSurfaceState(double* y);
 
+    //! Update the state information needed by connected reactors and flow
+    //! devices. Called from updateState().
+    //! @param updatePressure  Indicates whether to update #m_pressure. Should
+    //!     `true` for reactors where the pressure is a dependent property,
+    //!     calculated from the state, and `false` when the pressure is constant
+    //!     or an independent variable.
+    virtual void updateConnected(bool updatePressure);
+
     //! Get initial conditions for SurfPhase objects attached to this reactor
     virtual void getSurfaceInitialConditions(double* y);
 
