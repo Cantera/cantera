@@ -53,7 +53,8 @@ extern "C" {
     CANTERA_CAPI int flowdev_del(int i);
     CANTERA_CAPI int flowdev_install(int i, int n, int m);
     CANTERA_CAPI int flowdev_setMaster(int i, int n);
-    CANTERA_CAPI double flowdev_massFlowRate(int i, double time);
+    CANTERA_CAPI double flowdev_massFlowRate2(int i);
+    CANTERA_CAPI double flowdev_massFlowRate(int i, double time); //!< @deprecated To be changed after Cantera 2.5.
     CANTERA_CAPI int flowdev_setMassFlowRate(int i, double mdot);
     CANTERA_CAPI int flowdev_setParameters(int i, int n, const double* v);  //!< @deprecated To be removed after Cantera 2.5.
     CANTERA_CAPI int flowdev_setMassFlowCoeff(int i, double v);

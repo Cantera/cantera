@@ -707,10 +707,26 @@ cdef class FlowDevice:
         self._upstream = upstream
         self._downstream = downstream
 
-    def mdot(self, double t):
+    property mass_flow_rate:
+        def __get__(self):
+            """
+            The mass flow rate [kg/s] through this device at the current reactor
+            network time.
+            """
+            return self.dev.massFlowRate()
+
+    def mdot(self, double t=-999):
         """
         The mass flow rate [kg/s] through this device at time *t* [s].
+
+        .. deprecated:: 2.5
+
+             To be removed after Cantera 2.5. Replaced with the
+             `mass_flow_rate` property.
         """
+        warnings.warn("To be removed after Cantera 2.5. "
+                "Replaced by property 'mass_flow_rate'", DeprecationWarning)
+
         return self.dev.massFlowRate(t)
 
     def set_pressure_function(self, k):
@@ -799,7 +815,8 @@ cdef class MassFlowController(FlowDevice):
     property mass_flow_rate:
         r"""
         Set the mass flow rate [kg/s] through this controller to be either
-        a constant or an arbitrary function of time. See `Func1`.
+        a constant or an arbitrary function of time. See `Func1`, or get its
+        current value.
 
         Note that depending on the argument type, this method either changes
         the property `mass_flow_coeff` or calls the `set_time_function` method.
@@ -807,6 +824,9 @@ cdef class MassFlowController(FlowDevice):
         >>> mfc.mass_flow_rate = 0.3
         >>> mfc.mass_flow_rate = lambda t: 2.5 * exp(-10 * (t - 0.5)**2)
         """
+        def __get__(self):
+            return self.dev.massFlowRate()
+
         def __set__(self, m):
             if isinstance(m, _numbers.Real):
                 (<CxxMassFlowController*>self.dev).setMassFlowRate(m)

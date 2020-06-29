@@ -174,8 +174,8 @@ while sim.time < t_stop:
     states.append(cyl.thermo.state,
                   t=sim.time, ca=crank_angle(sim.time),
                   V=cyl.volume, m=cyl.mass,
-                  mdot_in=inlet_valve.mdot(sim.time),
-                  mdot_out=outlet_valve.mdot(sim.time),
+                  mdot_in=inlet_valve.mass_flow_rate,
+                  mdot_out=outlet_valve.mass_flow_rate,
                   dWv_dt=dWv_dt)
 
 

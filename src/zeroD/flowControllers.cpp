@@ -52,7 +52,8 @@ void PressureController::updateMassFlowRate(double time)
     } else {
         mdot *= delta_P;
     }
-    mdot += m_master->massFlowRate(time);
+    m_master->updateMassFlowRate(time);
+    mdot += m_master->massFlowRate();
     m_mdot = std::max(mdot, 0.0);
 }
 

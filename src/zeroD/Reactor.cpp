@@ -272,10 +272,12 @@ void Reactor::evalWalls(double t)
 void Reactor::evalFlowDevices(double t)
 {
     for (size_t i = 0; i < m_outlet.size(); i++) {
-        m_mdot_out[i] = m_outlet[i]->massFlowRate(t);
+        m_outlet[i]->updateMassFlowRate(t);
+        m_mdot_out[i] = m_outlet[i]->massFlowRate();
     }
     for (size_t i = 0; i < m_inlet.size(); i++) {
-        m_mdot_in[i] = m_inlet[i]->massFlowRate(t);
+        m_inlet[i]->updateMassFlowRate(t);
+        m_mdot_in[i] = m_inlet[i]->massFlowRate();
     }
 }
 
