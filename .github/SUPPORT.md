@@ -1,6 +1,6 @@
 # How to get support
 
-> This project has a [Code of Conduct](https://github.com/Cantera/cantera/blob/master/CODE_OF_CONDUCT.md).
+> This project has a [Code of Conduct](https://github.com/Cantera/cantera/blob/main/CODE_OF_CONDUCT.md).
 > By interacting with this repository, organisation, or community you agree to
 > abide by its terms.
 
@@ -35,4 +35,4 @@ Cantera](https://cantera.org/documentation/dev-docs.html) is also available.
 
 ## Contributions
 
-See [`CONTRIBUTING.md`](https://github.com/Cantera/cantera/blob/master/CONTRIBUTING.md) on how to contribute.
+See [`CONTRIBUTING.md`](https://github.com/Cantera/cantera/blob/main/CONTRIBUTING.md) on how to contribute.

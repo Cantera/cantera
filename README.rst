@@ -158,8 +158,8 @@ development of Cantera through NumFOCUS.
 .. |doi| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.170284.svg
    :target: https://doi.org/10.5281/zenodo.1174508
 
-.. |codecov| image:: https://img.shields.io/codecov/c/github/Cantera/cantera/master.svg
-   :target: https://codecov.io/gh/Cantera/cantera?branch=master
+.. |codecov| image:: https://img.shields.io/codecov/c/github/Cantera/cantera/main.svg
+   :target: https://codecov.io/gh/Cantera/cantera?branch=main
 
 .. |release| image:: https://img.shields.io/github/release/cantera/cantera.svg
    :target: https://github.com/Cantera/cantera/releases

@@ -7,7 +7,7 @@
   future development
 * Fork the `Cantera/cantera` repository on Github
 * Clone your new repository or add it as a remote to an existing repository
-* Check out the existing `master` branch, then start a new feature branch for
+* Check out the existing `main` branch, then start a new feature branch for
   your work
 * When making changes, write code that is consistent with the surrounding code
   (see the [style guidelines](#style-guidelines) below)
@@ -26,8 +26,8 @@
   * Use Git's history-rewriting features (i.e., `git rebase -i`; see
     https://help.github.com/articles/about-git-rebase/) to organize your commits
     and squash "fixup" commits and reversions.
-  * Do not merge your branch with `master`. If needed, you should rebase your branch
-    onto the most recent `HEAD` commit of `master`.
+  * Do not merge your branch with `main`. If needed, you should rebase your branch
+    onto the most recent `HEAD` commit of `main`.
   * Periodically run the test suite (`scons test`) to make sure that your
     changes are not causing any test failures.
 * Push the changes on your new feature branch to your forked copy of the
@@ -40,7 +40,7 @@
   http://matplotlib.org/devel/gitwash/development_workflow.html and
   https://docs.scipy.org/doc/numpy-1.15.0/dev/gitwash/development_workflow.html
 * Cantera is licensed under a [BSD
-  license](https://github.com/Cantera/cantera/blob/master/License.txt) which
+  license](https://github.com/Cantera/cantera/blob/main/License.txt) which
   allows others to freely modify the code, and if your Pull Request is accepted,
   then that code will be release under this license as well. The copyright for
   Cantera is held collectively by the contributors. If you have made a
