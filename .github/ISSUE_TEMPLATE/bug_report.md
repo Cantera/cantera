@@ -8,27 +8,27 @@ assignees: ''
 
 <!-- Please fill in the following information to report a problem with Cantera. If you have a question about using Cantera, please post it on our Google Users' Group (https://groups.google.com/forum/#!forum/cantera-users). Feature enhancements should be discussed in the dedicated Cantera enhancements repository (https://github.com/Cantera/enhancements/new/choose) -->
 
-**System information**
-
-- Cantera version: [e.g. 2.4]
-- OS: [e.g. Windows 10]
-- Python/MATLAB version:
-
-**Expected behavior**
-
-<!-- A clear and concise description of what you expected to happen. -->
-
-**Actual behavior**
+**Problem description**
 
 <!-- A clear and concise description of what the bug is. -->
 
-**To Reproduce**
+**Steps to reproduce**
 
-Steps to reproduce the behavior:
+<!-- A minimal, complete, and reproducible example demonstrating the problem. See https://stackoverflow.com/help/minimal-reproducible-example for additional suggestions on how to create such an example. -->
 
 1. Open '...'
 2. Run '....'
 3. See error '....'
+
+**Behavior**
+
+<!-- Describe the result of executing the above steps, and how this differs from what you expect to happen. -->
+
+**System information**
+
+- Cantera version: [for example, 2.5.0 or the git commit hash]
+- OS: [for example, Windows 10]
+- Python/MATLAB/other software versions:
 
 **Attachments**
 
