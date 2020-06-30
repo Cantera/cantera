@@ -1,4 +1,4 @@
-<!-- Thanks for contributing code! Please include a description of your change and check your PR against the list below. For further questions, refer to the contributing guide (https://github.com/Cantera/cantera/blob/master/CONTRIBUTING.md). -->
+<!-- Thanks for contributing code! Please include a description of your change and check your PR against the list below. For further questions, refer to the contributing guide (https://github.com/Cantera/cantera/blob/main/CONTRIBUTING.md). -->
 
 **Checklist**
 

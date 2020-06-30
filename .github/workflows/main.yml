@@ -5,14 +5,14 @@ on:
     # Build on tags that look like releases
     tags:
       - v*
-    # Build when master or testing is pushed to
+    # Build when main or testing is pushed to
     branches:
-      - master
+      - main
       - testing
   pull_request:
-    # Build when a pull request targets master
+    # Build when a pull request targets main
     branches:
-      - master
+      - main
 
 jobs:
   ubuntu-multiple-pythons:
@@ -138,13 +138,13 @@ jobs:
       # machine that has previously logged in to cantera.org and trusts
       # that it logged in to the right machine
       - name: Set up SSH key and host for deploy
-        if: github.event_name == 'push' && github.repository_owner == 'Cantera' && github.ref == 'master'
+        if: github.event_name == 'push' && github.repository_owner == 'Cantera' && github.ref == 'main'
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.CTDEPLOY_KEY }}
           known_hosts: ${{ secrets.CTDEPLOY_HOST }}
       - name: Upload the docs
-        if: github.event_name == 'push' && github.repository_owner == 'Cantera' && github.ref == 'master'
+        if: github.event_name == 'push' && github.repository_owner == 'Cantera' && github.ref == 'main'
         env:
           RSYNC_USER: "ctdeploy"
           RSYNC_SERVER: "cantera.org"
