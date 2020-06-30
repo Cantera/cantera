@@ -9,14 +9,6 @@ doc/ctdeploy_key
 *.exe.manifest
 build/
 test/work/
-test_problems/ChemEquil_ionizedGas/ChemEquil_ionizedGas
-test_problems/cathermo/testWaterPDSS/WaterPDSS
-test_problems/cathermo/testWaterTP/WaterSSTP
-test_problems/cxx_ex/cxx_ex
-test_problems/diamondSurf/diamondSurf
-test_problems/pureFluidTest/pureFluid
-test_problems/rankine_democxx/rankine_democxx
-test_problems/surfkin/surfkin
 interfaces/cython/cantera/_cantera.h
 include/cantera/base/config.h
 include/cantera/base/config.h.build
@@ -50,11 +42,16 @@ config.log
 *.gch
 coverage/
 coverage.info
-doc/sphinx/matlab/data.rst
-doc/sphinx/matlab/importing.rst
-doc/sphinx/matlab/kinetics.rst
-doc/sphinx/matlab/one-dim.rst
-doc/sphinx/matlab/thermodynamics.rst
-doc/sphinx/matlab/transport.rst
-doc/sphinx/matlab/utilities.rst
-doc/sphinx/matlab/zero-dim.rst
+
+# MATLAB Sphinx documentation
+doc/sphinx/matlab/*.rst
+!doc/sphinx/matlab/index.rst
+
+# test_problems folder
+test_problems/
+!test_problems/*.cpp
+!test_problems/*.cti
+!test_problems/*.xml
+!test_problems/*blessed.*
+!test_problems/SConscript
+!test_problems/README*
