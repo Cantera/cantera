@@ -2,7 +2,7 @@
 
 |cantera|
 
-|doi| |codecov| |travisci| |appveyor| |release|
+|doi| |codecov| |ci| |release|
 
 
 What is Cantera?
@@ -130,12 +130,7 @@ Chat
 Continuous Integration Status
 =============================
 
-==============  ============  ===================
-Platform        Site          Status
-==============  ============  ===================
-Linux & OS X    Travis CI     |travisci|
-Windows x64     Appveyor      |appveyor|
-==============  ============  ===================
+|ci|
 
 
 NumFOCUS
@@ -157,11 +152,8 @@ development of Cantera through NumFOCUS.
     :width: 675px
     :align: middle
 
-.. |travisci| image:: https://travis-ci.com/Cantera/cantera.svg?branch=master
-    :target: https://travis-ci.com/Cantera/cantera
-
-.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/auhd35qn9cdmkpoj?svg=true
-    :target: https://ci.appveyor.com/project/Cantera/cantera
+.. |ci| image:: https://github.com/Cantera/cantera/workflows/CI/badge.svg
+    :target: https://github.com/Cantera/cantera/actions?query=workflow%3ACI+event%3Apush
 
 .. |doi| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.170284.svg
    :target: https://doi.org/10.5281/zenodo.1174508
