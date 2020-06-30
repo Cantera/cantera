@@ -14,8 +14,6 @@ include/cantera/base/config.h
 include/cantera/base/config.h.build
 include/cantera/base/system.h.gch
 include/cantera/ext/
-interfaces/matlab/ctpath.m
-interfaces/matlab/Contents.m
 stage/
 .sconsign.dblite
 .sconf_temp
@@ -43,15 +41,42 @@ config.log
 coverage/
 coverage.info
 
-# MATLAB Sphinx documentation
+# MATLAB
+src/matlab/*.m
 doc/sphinx/matlab/*.rst
 !doc/sphinx/matlab/index.rst
+interfaces/matlab/ctpath.m
+interfaces/matlab/Contents.m
 
 # test_problems folder
 test_problems/
+!test_problems/*.c
 !test_problems/*.cpp
 !test_problems/*.cti
 !test_problems/*.xml
 !test_problems/*blessed.*
 !test_problems/SConscript
 !test_problems/README*
+
+# interfaces folder
+interfaces/**/dist
+interfaces/**/setup*.py
+interfaces/**/*.egg-info
+interfaces/**/scripts/
+
+# cython folder
+interfaces/cython/cantera/*.c
+interfaces/cython/cantera/*.cpp
+interfaces/cython/cantera/**/*.cti
+interfaces/cython/cantera/**/*.xml
+interfaces/cython/cantera/**/*.inp
+interfaces/cython/cantera/**/*.dat
+interfaces/cython/cantera/**/*.csv
+interfaces/cython/cantera/**/*.yaml
+interfaces/cython/cantera/**/*.yml
+interfaces/cython/cantera/test/data/test_subdir
+
+# python_minimal folder
+interfaces/python_minimal/build
+interfaces/python_minimal/cantera/*.py
+!interfaces/python_minimal/cantera/__init__.py
