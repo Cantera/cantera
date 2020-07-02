@@ -670,7 +670,7 @@ class SolutionArray:
             indices = indices[::-1]
         self._states = [self._states[ix] for ix in indices]
         for k, v in self._extra.items():
-            self._extra[k] = np.array(v)[indices]
+            self._extra[k] = v[indices]
 
     def equilibrate(self, *args, **kwargs):
         """ See `ThermoPhase.equilibrate` """
