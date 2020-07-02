@@ -43,13 +43,11 @@ used to add to the file description, or to define custom fields that are
 included in the YAML output.
 """
 
-from collections import defaultdict, OrderedDict
 import logging
 import os.path
 import sys
 import numpy as np
 import re
-import itertools
 import getopt
 import textwrap
 from email.utils import formatdate
@@ -58,6 +56,21 @@ try:
     import ruamel_yaml as yaml
 except ImportError:
     from ruamel import yaml
+
+# yaml.version_info is a tuple with the three parts of the version
+yaml_version = yaml.version_info
+# We choose ruamel.yaml 0.15.34 as the minimum version
+# since it is the highest version available in the Ubuntu
+# 18.04 repositories and seems to work. Older versions such as
+# 0.13.14 on CentOS7 and 0.10.23 on Ubuntu 16.04 raise an exception
+# that they are missing the RoundTripRepresenter
+yaml_min_version = (0, 15, 34)
+if yaml_version < yaml_min_version:
+    raise RuntimeError(
+        "The minimum supported version of ruamel.yaml is 0.15.34. If you "
+        "installed ruamel.yaml from your operating system's package manager, "
+        "please install an updated version using pip or conda."
+    )
 
 BlockMap = yaml.comments.CommentedMap
 
