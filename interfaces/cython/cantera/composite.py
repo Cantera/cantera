@@ -574,7 +574,7 @@ class SolutionArray:
 
     def __getattr__(self, name):
         if name in self._extra:
-            return np.array(self._extra[name])
+            return self._extra[name]
         else:
             raise AttributeError("'{}' object has no attribute '{}'".format(
                 self.__class__.__name__, name))
