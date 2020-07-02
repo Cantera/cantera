@@ -544,21 +544,21 @@ class SolutionArray:
                 elif len(v) == self._shape or np.array(v).shape == self._shape:
                     self._extra[name] = np.array(v)
                 else:
-                    raise ValueError("Unable to map extra SolutionArray"
+                    raise ValueError("Unable to map extra SolutionArray "
                                      "input for named {!r}".format(name))
 
         elif extra is not None:
             try:
-                iterator = iter(extra)
+                iter_extra = iter(extra)
             except TypeError :
                 raise ValueError(
-                    "Extra properties can be created by passing an iterable"
-                    " of names for the properties, if the SolutionArray is not initially"
-                    " empty. If you want to supply initial values for the properties, use"
-                    " a dictionary whose keys are the names of the properties and values "
-                    " are the initial values.") from None
+                    "Extra properties can be created by passing an iterable "
+                    "of names for the properties, if the SolutionArray is not initially "
+                    "empty. If you want to supply initial values for the properties, use "
+                    "a dictionary whose keys are the names of the properties and values "
+                    "are the initial values.") from None
 
-            for name in extra:
+            for name in iter_extra:
                 if isinstance(name, str):
                     if name in reserved:
                         raise ValueError(
@@ -567,7 +567,7 @@ class SolutionArray:
                     self._extra[name] = np.empty(self._shape)
 
                 else:
-                    raise ValueError(
+                    raise TypeError(
                         "Unable to create extra column, passed value {}: "
                         "is not a string".format(name))
 
