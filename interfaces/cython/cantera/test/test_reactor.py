@@ -1451,6 +1451,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
         gas.set_equivalence_ratio(0.4, 'H2', 'O2:1.0, AR:4.0')
         r = ct.IdealGasReactor(gas)
         net = ct.ReactorNet([r])
+        net.rtol_sensitivity = 1e-5
         return gas, r, net
 
     def calc_tig(self, species, dH):
