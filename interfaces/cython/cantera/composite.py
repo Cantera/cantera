@@ -529,6 +529,10 @@ class SolutionArray:
         reserved = self.__dir__()
 
         self._extra = OrderedDict()
+
+        if isinstance(extra, str):
+            extra = [extra]
+
         if isinstance(extra, dict):
             for name, v in extra.items():
                 if name in reserved:
@@ -536,25 +540,36 @@ class SolutionArray:
                         "Unable to create extra column '{}': name is already "
                         "used by SolutionArray objects.".format(name))
                 if not np.shape(v):
-                    self._extra[name] = [v]*self._shape[0]
-                elif len(v) == self._shape[0]:
-                    self._extra[name] = list(v)
+                    self._extra[name] = np.array([v]).reshape(self._shape)
+                elif len(v) == self._shape or np.array(v).shape == self._shape:
+                    self._extra[name] = np.array(v)
                 else:
                     raise ValueError("Unable to map extra SolutionArray"
                                      "input for named {!r}".format(name))
 
-        elif extra and self._shape == (0,):
-            for name in extra:
-                if name in reserved:
-                    raise ValueError(
-                        "Unable to create extra column '{}': name is already "
-                        "used by SolutionArray objects.".format(name))
-                self._extra[name] = []
+        elif extra is not None:
+            try:
+                iterator = iter(extra)
+            except TypeError :
+                raise ValueError(
+                    "Extra properties can be created by passing an iterable"
+                    " of names for the properties, if the SolutionArray is not initially"
+                    " empty. If you want to supply initial values for the properties, use"
+                    " a dictionary whose keys are the names of the properties and values "
+                    " are the initial values.") from None
 
-        elif extra:
-            raise ValueError("Initial values for extra properties must be "
-                             "supplied in a dict if the SolutionArray is not "
-                             "initially empty")
+            for name in extra:
+                if isinstance(name, str):
+                    if name in reserved:
+                        raise ValueError(
+                            "Unable to create extra column '{}': name is already "
+                            "used by SolutionArray objects.".format(name))
+                    self._extra[name] = np.empty(self._shape)
+
+                else:
+                    raise ValueError(
+                        "Unable to create extra column, passed value {}: "
+                        "is not a string".format(name))
 
         if meta is None:
             self._meta = {}
@@ -609,7 +624,7 @@ class SolutionArray:
             raise IndexError("Can only append to 1D SolutionArray")
 
         for name, value in self._extra.items():
-            value.append(kwargs.pop(name))
+            np.append(value, kwargs.pop(name))
 
         if state is not None:
             self._phase.state = state
@@ -655,7 +670,7 @@ class SolutionArray:
             indices = indices[::-1]
         self._states = [self._states[ix] for ix in indices]
         for k, v in self._extra.items():
-            self._extra[k] = list(np.array(v)[indices])
+            self._extra[k] = np.array(v)[indices]
 
     def equilibrate(self, *args, **kwargs):
         """ See `ThermoPhase.equilibrate` """

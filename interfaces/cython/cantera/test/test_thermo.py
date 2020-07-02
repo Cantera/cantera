@@ -1734,6 +1734,36 @@ class TestSolutionArray(utilities.CanteraTest):
 
         with self.assertRaises(ValueError):
             states = ct.SolutionArray(self.gas, extra=['creation_rates'])
+        states = ct.SolutionArray(self.gas, shape=(0, 0), extra=("prop1"))
+        self.assertEqual(states.prop1.shape, (0, 0))
+
+    def test_extra1(self):
+        states = ct.SolutionArray(self.gas, 7, extra={'prop': range(7)})
+        array = np.array(range(7))
+        self.assertArrayNear(states.prop, array)
+        states.prop[1] = -5
+        states.prop[3:5] = [0, 1]
+        array_mod = np.array([0, -5,  2,  0,  1,  5,  6])
+        self.assertArrayNear(states.prop, array_mod)
+
+    def test_extra2(self):
+        states = ct.SolutionArray(self.gas, shape=(5, 9), extra=["prop1", "prop2"])
+        self.assertEqual(states.prop1.shape, (5, 9))
+        states1 = ct.SolutionArray(self.gas, shape=(0, 0, 0), extra="prop1")
+        self.assertEqual(states1.prop1.shape, (0, 0, 0))
+
+    def test_extra3(self):
+        states2 = ct.SolutionArray(self.gas, shape=(2, 6, 9), extra="prop1")
+        self.assertEqual(states2.prop1.shape, (2, 6, 9))
+
+    def test_extra4(self):
+        states3 = ct.SolutionArray(self.gas, shape=(2, 6, 9), extra=("prop1", "prop2", "prop3"))
+        self.assertEqual(states3.prop3.shape, (2, 6, 9))
+
+    def test_extra5(self):
+        properties_array = np.array(["prop1", "prop2", "prop3"])
+        states4 = ct.SolutionArray(self.gas, shape=(2, 6, 9), extra=properties_array)
+        self.assertEqual(states4.prop2.shape, (2, 6, 9))
 
     def test_append(self):
         states = ct.SolutionArray(self.gas, 5)
