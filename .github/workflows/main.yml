@@ -37,7 +37,7 @@ jobs:
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons numpy cython h5py
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas
     - name: Build Cantera
       run: python3 `which scons` build -j2
     - name: Test Cantera
@@ -65,7 +65,7 @@ jobs:
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons numpy cython h5py
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas
     - name: Build Cantera
       run: python3 `which scons` build -j2
     - name: Test Cantera
@@ -95,7 +95,7 @@ jobs:
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons numpy cython h5py
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas
     - name: Build Cantera
       run: |
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
@@ -166,6 +166,7 @@ jobs:
           python3-pip python3-setuptools libsundials-serial-dev liblapack-dev \
           libblas-dev
       - name: Install Python dependencies
+        # Don't include Pandas here due to install errors
         run: |
           sudo -H /usr/bin/python3 -m pip install ruamel.yaml cython h5py
       - name: Build Cantera
@@ -196,7 +197,7 @@ jobs:
         shell: bash -l {0}
         run: |
           conda install -q sundials=${{ matrix.sundials-ver}} scons numpy ruamel_yaml \
-          cython libboost fmt eigen yaml-cpp h5py
+          cython libboost fmt eigen yaml-cpp h5py pandas
       - name: Build Cantera
         run: |
           scons build extra_inc_dirs=$CONDA_PREFIX/include:$CONDA_PREFIX/include/eigen3 \
@@ -226,7 +227,7 @@ jobs:
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: |
-        python3 -m pip install ruamel.yaml scons numpy h5py;
+        python3 -m pip install ruamel.yaml scons numpy h5py pandas;
         python3 -m pip install https://github.com/cython/cython/archive/master.zip --install-option='--no-cython-compile';
     - name: Build Cantera
       run: python3 `which scons` build blas_lapack_libs=lapack,blas python_package='full' -j2
@@ -270,7 +271,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install -U pip setuptools
-          python -m pip install scons pypiwin32 numpy ruamel.yaml cython h5py
+          python -m pip install scons pypiwin32 numpy ruamel.yaml cython h5py pandas
       - name: Build Cantera
         run: |
           scons build -j2 boost_inc_dir=%BOOST_ROOT_1_69_0% debug=n VERBOSE=y python_package=full ^
