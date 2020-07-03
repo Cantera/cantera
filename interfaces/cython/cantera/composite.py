@@ -624,7 +624,9 @@ class SolutionArray:
             raise IndexError("Can only append to 1D SolutionArray")
 
         for name, value in self._extra.items():
-            np.append(value, kwargs.pop(name))
+            value = list(value)
+            value.append(kwargs.pop(name))
+            value = np.array(value)
 
         if state is not None:
             self._phase.state = state
