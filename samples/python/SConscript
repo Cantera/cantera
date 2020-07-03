@@ -1,0 +1,47 @@
+from buildutils import *
+
+Import('env', 'checkExample')
+
+localenv = env.Clone()
+localenv.PrependENVPath('LD_LIBRARY_PATH', Dir('#build/lib').abspath)
+localenv.PrependENVPath('PYTHONPATH', Dir('#build/python').abspath)
+localenv['ENV']['CANTERA_DATA'] = (Dir('#build/data').abspath)
+#localenv['ENV']['HOME'] = (Dir('#').abspath)
+#localenv['ENV']['XDG_CONFIG_HOME'] = (Dir('#').abspath)
+
+subdirs = [
+    'kinetics',
+    'multiphase',
+    'onedim',
+    'reactors',
+    'surface_chemistry',
+    'thermo',
+    'transport',
+]
+
+broken = [
+    'extract_submechanism.py', # issue #821
+    'diffusion_flame_extinction.py', # issue #872
+    'catalytic_combustion.py', # issue #873
+    'piston.py', # issue #875
+    'surf_pfr.py', # issue #877
+    'ion_burner_flame.py', # poor convergence
+]
+
+dependencies=(env['python_module'] + env['python_extension'])
+
+if localenv['python_package'] == 'full':
+
+    for subdir in subdirs:
+        sub = Dir('#build/python/cantera/examples/{}'.format(subdir)).abspath
+        sample_files = mglob(localenv, sub, 'py')
+        for f in sample_files:
+            if f.name in broken:
+                print("Skipping broken Python example '{}'".format(f.name))
+                continue
+            target = localenv.Command("${SOURCE.name.replace('.py', '.run')}", f,
+                                      "cd {}; ${{python_cmd}} ${{SOURCE.name}}".format(sub))
+            localenv.Install(target)
+            for dep in dependencies:
+                localenv.Depends(target, dep)
+            checkExample(target)

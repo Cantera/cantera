@@ -46,7 +46,8 @@ if not COMMAND_LINE_TARGETS:
     sys.exit(0)
 
 valid_commands = ('build','clean','install','uninstall',
-                  'help','msi','samples','sphinx','doxygen','dump')
+                  'help','msi','samples','sphinx','doxygen','dump',
+                  'check-examples')
 
 for command in COMMAND_LINE_TARGETS:
     if command not in valid_commands and not command.startswith('test'):
@@ -1567,6 +1568,7 @@ env['build_targets'] = buildTargets
 libraryTargets = [] # objects that go in the Cantera library
 installTargets = []
 sampleTargets = []
+checkTargets = []
 
 def build(targets):
     """ Wrapper to add target to list of build targets """
@@ -1577,6 +1579,11 @@ def buildSample(*args, **kwargs):
     """ Wrapper to add target to list of samples """
     targets = args[0](*args[1:], **kwargs)
     sampleTargets.extend(targets)
+    return targets
+
+def checkExample(targets):
+    """ Wrapper to add target to list of sample checks """
+    checkTargets.extend(targets)
     return targets
 
 def install(*args, **kwargs):
@@ -1671,7 +1678,7 @@ if not env['renamed_shared_libraries']:
     env['cantera_shared_libs'] = linkLibs
 
 # Add targets from the SConscript files in the various subdirectories
-Export('env', 'build', 'libraryTargets', 'install', 'buildSample')
+Export('env', 'build', 'libraryTargets', 'install', 'buildSample', 'checkExample')
 
 # ext needs to come before src so that libraryTargets is fully populated
 VariantDir('build/ext', 'ext', duplicate=0)
@@ -1704,6 +1711,7 @@ if env['doxygen_docs'] or env['sphinx_docs']:
 VariantDir('build/samples', 'samples', duplicate=0)
 sampledir_excludes = ['\\.o$', '^~$', '\\.in', 'SConscript']
 SConscript('build/samples/cxx/SConscript')
+SConscript('build/samples/python/SConscript')
 
 # Install C++ samples
 install(env.RecursiveInstall, '$inst_sampledir/cxx',
@@ -1721,6 +1729,7 @@ if env['f90_interface'] == 'y':
 
 ### Meta-targets ###
 build_samples = Alias('samples', sampleTargets)
+check_samples = Alias('check-examples', checkTargets)
 
 def postBuildMessage(target, source, env):
     print("*******************************************************")
