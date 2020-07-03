@@ -42,8 +42,6 @@ jobs:
       run: python3 `which scons` build -j2
     - name: Test Cantera
       run: python3 `which scons` test
-    - name: Build Samples
-      run: python3 `which scons` samples
 
   macos-multiple-pythons:
     name: macOS with Python ${{ matrix.python-version }}
@@ -72,8 +70,6 @@ jobs:
       run: python3 `which scons` build -j2
     - name: Test Cantera
       run: python3 `which scons` test
-    - name: Build Samples
-      run: python3 `which scons` samples
 
   # Coverage is its own job because macOS builds of the samples
   # use Homebrew gfortran which is not compatible for coverage
@@ -176,8 +172,6 @@ jobs:
         run: scons build python_cmd=/usr/bin/python3 blas_lapack_libs=lapack,blas -j2
       - name: Test Cantera
         run: scons test
-      - name: Build Samples
-        run: scons samples
 
   multiple-sundials:
     name: Sundials ${{ matrix.sundials-ver }}
@@ -212,9 +206,6 @@ jobs:
       - name: Test Cantera
         run: scons test
         shell: bash -l {0}
-      - name: Build Samples
-        run: scons samples
-        shell: bash -l {0}
 
   cython-latest:
     name: Test pre-release version of Cython
@@ -241,8 +232,6 @@ jobs:
       run: python3 `which scons` build blas_lapack_libs=lapack,blas python_package='full' -j2
     - name: Test Cantera
       run: python3 `which scons` test
-    - name: Build Samples
-      run: python3 `which scons` samples
 
   windows:
     name: ${{ matrix.os }}, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}
@@ -289,5 +278,3 @@ jobs:
         shell: cmd
       - name: Test Cantera
         run: scons test
-      - name: Build Samples
-        run: scons samples
