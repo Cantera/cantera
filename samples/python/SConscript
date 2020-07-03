@@ -6,8 +6,6 @@ localenv = env.Clone()
 localenv.PrependENVPath('LD_LIBRARY_PATH', Dir('#build/lib').abspath)
 localenv.PrependENVPath('PYTHONPATH', Dir('#build/python').abspath)
 localenv['ENV']['CANTERA_DATA'] = (Dir('#build/data').abspath)
-#localenv['ENV']['HOME'] = (Dir('#').abspath)
-#localenv['ENV']['XDG_CONFIG_HOME'] = (Dir('#').abspath)
 
 subdirs = [
     'kinetics',

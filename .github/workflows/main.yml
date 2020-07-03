@@ -278,3 +278,34 @@ jobs:
         shell: cmd
       - name: Test Cantera
         run: scons test
+
+  # Running of Python examples separated due to significant run time.
+  # Windows requires user interaction on matplotlib (or Agg backend)
+  # Additional installation dependencies exist on OSX and systems
+  # with older numpy versions.
+  python-examples-ubuntu:
+    name: Python Examples on Ubuntu 18.04 with Python 3.8
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    - name: Setup python
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.8'
+        architecture: x64
+    - name: Install Apt dependencies
+      run: sudo apt-get install libboost-dev gfortran
+    - name: Upgrade pip
+      run: python3 -m pip install -U pip setuptools wheel
+    - name: Install Python dependencies
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas matplotlib scipy
+    - name: Build Cantera
+      run: python3 `which scons` build -j2
+    - name: Test Cantera
+      run: python3 `which scons` test
+    - name: Run Python examples
+      run: python3 `which scons` check-examples
