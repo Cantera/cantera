@@ -1461,6 +1461,7 @@ env['debian'] = any(name.endswith('dist-packages') for name in sys.path)
 
 # Directories where things will be after actually being installed. These
 # variables are the ones that are used to populate header files, scripts, etc.
+env['prefix'] = os.path.normpath(env['prefix'])
 env['ct_installroot'] = env['prefix']
 env['ct_libdir'] = pjoin(env['prefix'], env['libdirname'])
 env['ct_bindir'] = pjoin(env['prefix'], 'bin')
@@ -1832,15 +1833,18 @@ def postInstallMessage(target, source, env):
         """.format(**env_dict))
 
     if os.name != 'nt':
+        env['setup_cantera'] = pjoin(env['ct_bindir'], 'setup_cantera')
+        env['setup_cantera_csh'] = pjoin(env['ct_bindir'], 'setup_cantera.csh')
         install_message += textwrap.dedent("""
+
             Setup scripts to configure the environment for Cantera are at:
 
-              setup script (bash)         {ct_bindir!s}/setup_cantera
-              setup script (csh/tcsh)     {ct_bindir!s}/setup_cantera.csh
+              setup script (bash)         {setup_cantera!s}
+              setup script (csh/tcsh)     {setup_cantera_csh!s}
 
             It is recommended that you run the script for your shell by typing:
 
-              source {ct_bindir!s}/setup_cantera
+              source {setup_cantera!s}
 
             before using Cantera, or else include its contents in your shell login script.
         """.format(**env_dict))
