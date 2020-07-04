@@ -6,6 +6,9 @@ localenv = env.Clone()
 localenv.PrependENVPath('LD_LIBRARY_PATH', Dir('#build/lib').abspath)
 localenv.PrependENVPath('PYTHONPATH', Dir('#build/python').abspath)
 localenv['ENV']['CANTERA_DATA'] = (Dir('#build/data').abspath)
+localenv['ENV']['MPLBACKEND'] = 'Agg'
+if localenv['OS'] == 'Windows':
+    localenv['ENV']['HOMEPATH'] = os.environ['HOMEPATH']
 
 subdirs = [
     'kinetics',
@@ -38,7 +41,7 @@ if localenv['python_package'] == 'full':
                 print("Skipping broken Python example '{}'".format(f.name))
                 continue
             target = localenv.Command("${SOURCE.name.replace('.py', '.run')}", f,
-                                      "cd {}; ${{python_cmd}} ${{SOURCE.name}}".format(sub))
+                                      "cd {} && ${{python_cmd}} ${{SOURCE.name}}".format(sub))
             localenv.Install(target)
             for dep in dependencies:
                 localenv.Depends(target, dep)
