@@ -31,6 +31,12 @@ broken = [
 
 dependencies=(env['python_module'] + env['python_extension'])
 
+warning_filters = [r'-W error::DeprecationWarning:']
+if localenv['OS'] == 'Windows':
+    # add exception as pywintypes imports a deprecated module;
+    # text containing whitespaces needs to be enclosed by double quotes
+    warning_filters.append(r'-W ignore:"the imp module is deprecated":')
+
 if localenv['python_package'] == 'full':
 
     for subdir in subdirs:
@@ -41,7 +47,9 @@ if localenv['python_package'] == 'full':
                 print("Skipping broken Python example '{}'".format(f.name))
                 continue
             target = localenv.Command("${SOURCE.name.replace('.py', '.run')}", f,
-                                      "cd {} && ${{python_cmd}} ${{SOURCE.name}}".format(sub))
+                                      "cd {} && ${{python_cmd}} {} "
+                                      "${{SOURCE.name}}".format(sub,
+                                      " ".join(warning_filters)))
             localenv.Install(target)
             for dep in dependencies:
                 localenv.Depends(target, dep)
