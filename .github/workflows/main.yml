@@ -280,10 +280,9 @@ jobs:
         run: scons test
 
   # Running of Python examples separated due to significant run time.
-  # Additional installation dependencies exist on OSX and systems
-  # with older numpy versions.
+  # Installation restrictions exist on systems with older numpy versions.
   python-examples-ubuntu:
-    name: Python Examples on Ubuntu 18.04 with Python 3.8
+    name: Python Examples on Ubuntu with Python 3.8
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -310,8 +309,8 @@ jobs:
       run: python3 `which scons` check-examples
 
   python-examples-windows:
-    name: Python Examples on windows-2019, Python 3.8
-    runs-on: 'windows-2019'
+    name: Python Examples on Windows with Python 3.8
+    runs-on: windows-latest
     timeout-minutes: 90
     steps:
     - uses: actions/checkout@v2
@@ -336,3 +335,30 @@ jobs:
       run: scons test
     - name: Run Python examples
       run: scons check-examples
+
+  python-examples-macos:
+    name: Python Examples on macOS with Python 3.8
+    runs-on: macos-latest
+    timeout-minutes: 90
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    - name: Setup Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
+        architecture: x64
+    - name: Install Brew dependencies
+      run: brew install boost libomp
+    - name: Upgrade pip
+      run: python3 -m pip install -U pip setuptools wheel
+    - name: Install Python dependencies
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py matplotlib scipy
+    - name: Build Cantera
+      run: python3 `which scons` build -j2
+    - name: Test Cantera
+      run: python3 `which scons` test
+    - name: Run Python examples
+      run: python3 `which scons` check-examples
