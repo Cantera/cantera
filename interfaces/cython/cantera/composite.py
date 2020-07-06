@@ -540,13 +540,12 @@ class SolutionArray:
                         "Unable to create extra column '{}': name is already "
                         "used by SolutionArray objects.".format(name))
                 if not np.shape(v):
-                    self._extra[name] = np.array([v]).reshape(self._shape)
-                elif len(v) == self._shape or np.array(v).shape == self._shape:
+                    self._extra[name] = np.full(self._shape, v)
+                elif np.array(v).shape == self._shape:
                     self._extra[name] = np.array(v)
                 else:
                     raise ValueError("Unable to map extra SolutionArray "
-                                     "input for named {!r}".format(name))
-
+                                     "input named {!r}".format(name))
         elif extra is not None:
             try:
                 iter_extra = iter(extra)
