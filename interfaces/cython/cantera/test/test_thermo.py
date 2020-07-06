@@ -1737,13 +1737,13 @@ class TestSolutionArray(utilities.CanteraTest):
         states = ct.SolutionArray(self.gas, shape=(0, 0), extra=("prop1"))
         self.assertEqual(states.prop1.shape, (0, 0))
 
-    def test_extra1(self):
+    def test_assign_to_slice(self):
         states = ct.SolutionArray(self.gas, 7, extra={'prop': range(7)})
-        array = np.array(range(7))
+        array = np.arange(7)
         self.assertArrayNear(states.prop, array)
         states.prop[1] = -5
         states.prop[3:5] = [0, 1]
-        array_mod = np.array([0, -5,  2,  0,  1,  5,  6])
+        array_mod = np.array([0, -5, 2, 0, 1, 5, 6])
         self.assertArrayNear(states.prop, array_mod)
 
     def test_extra2(self):
