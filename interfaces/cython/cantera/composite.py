@@ -530,9 +530,6 @@ class SolutionArray:
 
         self._extra = OrderedDict()
 
-        if isinstance(extra, str):
-            extra = [extra]
-
         if isinstance(extra, dict):
             for name, v in extra.items():
                 if name in reserved:
@@ -547,28 +544,31 @@ class SolutionArray:
                     raise ValueError("Unable to map extra SolutionArray "
                                      "input named {!r}".format(name))
         elif extra is not None:
+            if isinstance(extra, np.ndarray):
+                extra = extra.flatten()
+            elif isinstance(extra, str):
+                extra = [extra]
+
             try:
                 iter_extra = iter(extra)
             except TypeError :
                 raise ValueError(
                     "Extra properties can be created by passing an iterable "
-                    "of names for the properties, if the SolutionArray is not initially "
-                    "empty. If you want to supply initial values for the properties, use "
-                    "a dictionary whose keys are the names of the properties and values "
-                    "are the initial values.") from None
+                    "of names for the properties. If you want to supply initial "
+                    "values for the properties, use a dictionary whose keys are "
+                    "the names of the properties and values are the initial "
+                    "values.") from None
 
             for name in iter_extra:
-                if isinstance(name, str):
-                    if name in reserved:
-                        raise ValueError(
-                            "Unable to create extra column '{}': name is already "
-                            "used by SolutionArray objects.".format(name))
-                    self._extra[name] = np.empty(self._shape)
-
-                else:
+                if not isinstance(name, str):
                     raise TypeError(
-                        "Unable to create extra column, passed value {}: "
+                        "Unable to create extra column, passed value '{!r}' "
                         "is not a string".format(name))
+                if name in reserved:
+                    raise ValueError(
+                        "Unable to create extra column '{}': name is already "
+                        "used by SolutionArray objects.".format(name))
+                self._extra[name] = np.empty(self._shape)
 
         if meta is None:
             self._meta = {}
