@@ -1725,17 +1725,49 @@ class TestSolutionArray(utilities.CanteraTest):
         self.assertArrayNear(col3.T, 900*np.ones(2))
         self.assertArrayNear(row2.T, 900*np.ones(5))
 
-    def test_extra(self):
+    def test_extra_create_by_dict(self):
         extra = OrderedDict([('grid', np.arange(10)),
                              ('velocity', np.random.rand(10))])
         states = ct.SolutionArray(self.gas, 10, extra=extra)
         keys = list(states._extra.keys())
         self.assertEqual(keys[0], 'grid')
+        self.assertArrayNear(states.grid, np.arange(10))
 
-        with self.assertRaises(ValueError):
-            states = ct.SolutionArray(self.gas, extra=['creation_rates'])
-        states = ct.SolutionArray(self.gas, shape=(0, 0), extra=("prop1"))
-        self.assertEqual(states.prop1.shape, (0, 0))
+    def test_extra_no_shape(self):
+        # The shape of the value for "prop" here is (), which is falsey
+        # and causes the use of np.full()
+        states = ct.SolutionArray(self.gas, 3, extra={"prop": 1})
+        self.assertEqual(states.prop.shape, (3,))
+        self.assertArrayNear(states.prop, np.array((1, 1, 1)))
+
+        # Check a multidimensional SolutionArray
+        states = ct.SolutionArray(self.gas, (2, 2), extra={"prop": 3})
+        self.assertEqual(states.prop.shape, (2, 2))
+        self.assertArrayNear(states.prop, np.array(((3, 3), (3, 3))))
+
+    def test_extra_wrong_shape(self):
+        with self.assertRaisesRegex(ValueError, "Unable to map"):
+            ct.SolutionArray(self.gas, (3, 3), extra={"prop": np.arange(3)})
+
+    def test_extra_create_by_iterable(self):
+        states = ct.SolutionArray(self.gas, extra=("prop1"))
+        self.assertEqual(states.prop1.shape, (0,))
+
+        # An integer is not an iterable, and only bare strings are
+        # turned into iterables
+        with self.assertRaisesRegex(ValueError, "Extra properties"):
+            ct.SolutionArray(self.gas, extra=2)
+
+    def test_extra_not_string(self):
+        with self.assertRaisesRegex(TypeError, "is not a string"):
+            ct.SolutionArray(self.gas, extra=[1])
+
+    def test_extra_reserved_names(self):
+        with self.assertRaisesRegex(ValueError, "name is already used"):
+            ct.SolutionArray(self.gas, extra=["creation_rates"])
+
+        with self.assertRaisesRegex(ValueError, "name is already used"):
+            ct.SolutionArray(self.gas, extra={"creation_rates": 0})
 
     def test_assign_to_slice(self):
         states = ct.SolutionArray(self.gas, 7, extra={'prop': range(7)})
