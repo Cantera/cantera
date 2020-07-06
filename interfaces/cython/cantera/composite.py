@@ -905,7 +905,6 @@ class SolutionArray:
         if tabular and len(self._shape) != 1:
             raise AttributeError("Tabular output of collect_data only works "
                                  "for 1D SolutionArray")
-        out = OrderedDict()
 
         # Create default columns (including complete state information)
         if cols is None:
@@ -929,7 +928,6 @@ class SolutionArray:
 
         def split(c, d):
             """ Split attribute arrays into columns for tabular output """
-            single_species = False
             # Determine labels for the items in the current group of columns
             if c in self._n_species:
                 collabels = ['{}_{}'.format(c, s) for s in self.species_names]
