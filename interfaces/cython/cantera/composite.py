@@ -623,10 +623,14 @@ class SolutionArray:
         if len(self._shape) != 1:
             raise IndexError("Can only append to 1D SolutionArray")
 
-        for name, value in self._extra.items():
-            value = list(value)
-            value.append(kwargs.pop(name))
-            value = np.array(value)
+        # This check must go before we start appending to any arrays so that
+        # array lengths don't get out of sync.
+        missing_extra_kwargs = self._extra.keys() - kwargs.keys()
+        if missing_extra_kwargs:
+            raise TypeError(
+                "Missing keyword arguments for extra values: "
+                "'{}'".format(", ".join(missing_extra_kwargs))
+            )
 
         if state is not None:
             self._phase.state = state
