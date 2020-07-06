@@ -632,6 +632,16 @@ class SolutionArray:
                 "'{}'".format(", ".join(missing_extra_kwargs))
             )
 
+        # For the checks of the state below, the kwargs dictionary can
+        # only contain keywords that match properties of the state. Here
+        # we pop any kwargs that have to do with the extra items so they
+        # aren't included in that check. They are put into a temporary
+        # storage so that appending can be done at the end of the function
+        # all at once.
+        extra_temp = {}
+        for name in self._extra:
+            extra_temp[name] = kwargs.pop(name)
+
         if state is not None:
             self._phase.state = state
 
@@ -655,6 +665,12 @@ class SolutionArray:
 
         self._states.append(self._phase.state)
         self._indices.append(len(self._indices))
+        for name, value in self._extra.items():
+            # Casting to a list before appending is ~5x faster than using
+            # np.append when appending a single item.
+            v = value.tolist()
+            v.append(extra_temp.pop(name))
+            self._extra[name] = np.array(v)
         self._shape = (len(self._indices),)
 
     @property

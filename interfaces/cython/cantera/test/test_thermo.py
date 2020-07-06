@@ -1789,6 +1789,18 @@ class TestSolutionArray(utilities.CanteraTest):
         self.assertNear(states.P[-1], 1e4)
         self.assertNear(states.T[-1], 300)
 
+    def test_append_with_extra(self):
+        states = ct.SolutionArray(self.gas, 5, extra={"prop": "value"})
+        states.TPX = np.linspace(500, 1000, 5), 2e5, 'H2:0.5, O2:0.4'
+        self.assertEqual(states._shape, (5,))
+        states.append(T=1100, P=3e5, X="AR:1.0", prop="value2")
+        self.assertEqual(states.prop[-1], "value2")
+        self.assertEqual(states.prop.shape, (6,))
+        states.append(T=1100, P=3e5, X="AR:1.0", prop=100)
+        # NumPy converts to the existing type of the array
+        self.assertEqual(states.prop[-1], "100")
+        self.assertEqual(states.prop.shape, (7,))
+
     def test_append_failures(self):
         states = ct.SolutionArray(self.gas, 5, extra={"prop": "value"})
         states.TPX = np.linspace(500, 1000, 5), 2e5, 'H2:0.5, O2:0.4'
