@@ -634,15 +634,19 @@ class SolutionArray:
         elif len(kwargs) == 1:
             attr, value = next(iter(kwargs.items()))
             if frozenset(attr) not in self._phase._full_states:
-                raise KeyError("{} does not specify a full thermodynamic state")
+                raise KeyError(
+                    "'{}' does not specify a full thermodynamic state".format(attr)
+                )
             setattr(self._phase, attr, value)
 
         else:
             try:
                 attr = self._phase._full_states[frozenset(kwargs)]
             except KeyError:
-                raise KeyError("{} is not a valid combination of properties "
-                    "for setting the thermodynamic state".format(tuple(kwargs)))
+                raise KeyError(
+                    "{} is not a valid combination of properties for setting "
+                    "the thermodynamic state".format(tuple(kwargs))
+                ) from None
             setattr(self._phase, attr, [kwargs[a] for a in attr])
 
         self._states.append(self._phase.state)
