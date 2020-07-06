@@ -1769,6 +1769,10 @@ class TestSolutionArray(utilities.CanteraTest):
         with self.assertRaisesRegex(ValueError, "name is already used"):
             ct.SolutionArray(self.gas, extra={"creation_rates": 0})
 
+    def test_extra_create_by_string(self):
+        states = ct.SolutionArray(self.gas, extra="prop")
+        self.assertEqual(states.prop.shape, (0,))
+
     def test_assign_to_slice(self):
         states = ct.SolutionArray(self.gas, 7, extra={'prop': range(7)})
         array = np.arange(7)
@@ -1778,24 +1782,17 @@ class TestSolutionArray(utilities.CanteraTest):
         array_mod = np.array([0, -5, 2, 0, 1, 5, 6])
         self.assertArrayNear(states.prop, array_mod)
 
-    def test_extra2(self):
-        states = ct.SolutionArray(self.gas, shape=(5, 9), extra=["prop1", "prop2"])
-        self.assertEqual(states.prop1.shape, (5, 9))
-        states1 = ct.SolutionArray(self.gas, shape=(0, 0, 0), extra="prop1")
-        self.assertEqual(states1.prop1.shape, (0, 0, 0))
-
-    def test_extra3(self):
-        states2 = ct.SolutionArray(self.gas, shape=(2, 6, 9), extra="prop1")
-        self.assertEqual(states2.prop1.shape, (2, 6, 9))
-
-    def test_extra4(self):
-        states3 = ct.SolutionArray(self.gas, shape=(2, 6, 9), extra=("prop1", "prop2", "prop3"))
-        self.assertEqual(states3.prop3.shape, (2, 6, 9))
-
-    def test_extra5(self):
+    def test_extra_create_by_ndarray(self):
         properties_array = np.array(["prop1", "prop2", "prop3"])
-        states4 = ct.SolutionArray(self.gas, shape=(2, 6, 9), extra=properties_array)
-        self.assertEqual(states4.prop2.shape, (2, 6, 9))
+        states = ct.SolutionArray(self.gas, shape=(2, 6, 9), extra=properties_array)
+        self.assertEqual(states.prop1.shape, (2, 6, 9))
+        self.assertEqual(states.prop2.shape, (2, 6, 9))
+        self.assertEqual(states.prop3.shape, (2, 6, 9))
+        # Ensure that a 2-dimensional array is flattened
+        properties_array = np.array((["prop1"], ["prop2"]))
+        states = ct.SolutionArray(self.gas, extra=properties_array)
+        self.assertEqual(states.prop1.shape, (0,))
+        self.assertEqual(states.prop2.shape, (0,))
 
     def test_append(self):
         states = ct.SolutionArray(self.gas, 5)
@@ -1815,7 +1812,7 @@ class TestSolutionArray(utilities.CanteraTest):
 
         self.gas.TPX = 300, 1e4, 'O2:0.5, AR:0.5'
         HPY = self.gas.HPY
-        self.gas.TPX = 1200, 5e5, 'O2:0.3, AR:0.7' # to make sure it gets changed
+        self.gas.TPX = 1200, 5e5, 'O2:0.3, AR:0.7'  # to make sure it gets changed
         states.append(HPY=HPY)
         self.assertEqual(states.cp_mass.shape, (8,))
         self.assertNear(states.P[-1], 1e4)
