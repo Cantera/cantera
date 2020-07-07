@@ -1345,6 +1345,11 @@ if env['python_package'] != 'none':
                         ruamel_yaml_version, ruamel_min_version))
                 sys.exit(1)
 
+        if len(info) > expected_output_lines:
+            print("WARNING: Unexpected output while checking Python "
+                  "dependency versions:")
+            print('| ' + '\n| '.join(info[expected_output_lines:]))
+
     if warn_no_python:
         if env['python_package'] == 'default':
             print('WARNING: Not building the Python package because the Python '
@@ -1354,21 +1359,18 @@ if env['python_package'] != 'none':
             print('ERROR: Could not execute the Python interpreter {!r}'.format(
                 env['python_cmd']))
             sys.exit(1)
-    elif env['python_package'] == 'minimal':
-        print('INFO: Building the minimal Python package for Python {}'.format(python_version))
+    elif python_version < python_min_version:
+        msg = ("{}: Python version is incompatible. Found {} but {} "
+               "or newer is required")
+        if env["python_package"] in ("minimal", "full"):
+            print(msg.format("ERROR", python_version, python_min_version))
+            sys.exit(1)
+        elif env["python_package"] == "default":
+            print(msg.format("WARNING", python_version, python_min_version))
+            env["python_package"] = "none"
     else:
         warn_no_full_package = False
-        if len(info) > expected_output_lines:
-            print("WARNING: Unexpected output while checking Python "
-                  "dependency versions:")
-            print('| ' + '\n| '.join(info[expected_output_lines:]))
-
-        if python_version < python_min_version:
-            print("WARNING: Python version is incompatible with the full Python module: "
-                "Found {0} but {1} or newer is required".format(
-                python_version, python_min_version))
-            warn_no_full_package = True
-        elif python_version >= LooseVersion("3.8"):
+        if python_version >= LooseVersion("3.8"):
             # Reset the minimum Cython version if the Python version is 3.8 or higher
             # Due to internal changes in the CPython API, more recent versions of
             # Cython are necessary to build for Python 3.8. There is nothing Cantera
@@ -1400,14 +1402,14 @@ if env['python_package'] != 'none':
             print('INFO: Using Cython version {0}.'.format(cython_version))
 
         if warn_no_full_package:
+            msg = ('{}: Unable to build the full Python package because compatible '
+                   'versions of Python, Numpy, and Cython could not be found.')
             if env['python_package'] == 'default':
-                print('WARNING: Unable to build the full Python package because compatible '
-                    'versions of Python, Numpy, and Cython could not be found.')
+                print(msg.format("WARNING"))
                 print('INFO: Building the minimal Python package for Python {}'.format(python_version))
                 env['python_package'] = 'minimal'
             else:
-                print('ERROR: Unable to build the full Python package because compatible '
-                    'versions of Python, Numpy, and Cython could not be found.')
+                print(msg.format("ERROR"))
                 sys.exit(1)
         else:
             print('INFO: Building the full Python package for Python {0}'.format(python_version))
