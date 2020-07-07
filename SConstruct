@@ -1233,6 +1233,21 @@ python_min_version = LooseVersion('3.5')
 cython_min_version = LooseVersion('0.23')
 numpy_min_test_version = LooseVersion('1.8.1')
 
+# We choose ruamel.yaml 0.15.34 as the minimum version
+# since it is the highest version available in the Ubuntu
+# 18.04 repositories and seems to work. Older versions such as
+# 0.13.14 on CentOS7 and 0.10.23 on Ubuntu 16.04 raise an exception
+# that they are missing the RoundTripRepresenter
+ruamel_min_version = LooseVersion('0.15.34')
+
+# Check for the minimum ruamel.yaml version, 0.15.34, at install and test
+# time. The check happens at install and test time because ruamel.yaml is
+# only required to run the Python interface, not to build it.
+check_for_ruamel_yaml = any(
+    target in COMMAND_LINE_TARGETS
+    for target in ["install", "test", "test-python-convert"]
+)
+
 # Handle the version-specific Python package options
 python_options = (('package', 'default'),
                   ('cmd', sys.executable),
@@ -1281,6 +1296,25 @@ if env['python_package'] != 'none':
         if err:
             print(err)
     """)
+    expected_output_lines = 3
+    if check_for_ruamel_yaml:
+        ru_script = textwrap.dedent("""\
+            try:
+                import ruamel_yaml as yaml
+                print(yaml.__version__)
+            except ImportError as ru_err:
+                try:
+                    from ruamel import yaml
+                    print(yaml.__version__)
+                except ImportError as ru_err_2:
+                    print('0.0.0')
+                    err += str(ru_err) + '\\n'
+                    err += str(ru_err_2) + '\\n'
+        """).splitlines()
+        s = script.splitlines()
+        s[-2:-2] = ru_script
+        script = "\n".join(s)
+        expected_output_lines = 4
 
     try:
         info = getCommandOutput(env['python_cmd'], '-c', script).splitlines()
@@ -1299,6 +1333,17 @@ if env['python_package'] != 'none':
         python_version = LooseVersion(info[0])
         numpy_version = LooseVersion(info[1])
         cython_version = LooseVersion(info[2])
+        if check_for_ruamel_yaml:
+            ruamel_yaml_version = LooseVersion(info[3])
+            if ruamel_yaml_version == LooseVersion("0.0.0"):
+                print("ERROR: ruamel.yaml was not found. {} or newer is "
+                    "required".format(ruamel_min_version))
+                sys.exit(1)
+            elif ruamel_yaml_version < ruamel_min_version:
+                print("ERROR: ruamel.yaml is an incompatible version: Found "
+                    "{}, but {} or newer is required.".format(
+                        ruamel_yaml_version, ruamel_min_version))
+                sys.exit(1)
 
     if warn_no_python:
         if env['python_package'] == 'default':
@@ -1313,9 +1358,10 @@ if env['python_package'] != 'none':
         print('INFO: Building the minimal Python package for Python {}'.format(python_version))
     else:
         warn_no_full_package = False
-        if len(info) > 3:
-            print("WARNING: Unexpected output while checking Python / Numpy / Cython versions:")
-            print('| ' + '\n| '.join(info[3:]))
+        if len(info) > expected_output_lines:
+            print("WARNING: Unexpected output while checking Python "
+                  "dependency versions:")
+            print('| ' + '\n| '.join(info[expected_output_lines:]))
 
         if python_version < python_min_version:
             print("WARNING: Python version is incompatible with the full Python module: "
