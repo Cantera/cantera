@@ -1457,10 +1457,10 @@ public:
      * temperature is unchanged.  Any phase (ideal or not) that
      * implements this method can be equilibrated by ChemEquil.
      *
-     * @param lambda_RT Input vector of dimensionless element potentials
-     *                  The length is equal to nElements().
+     * @param mu_RT Input vector of dimensionless chemical potentials
+     *                  The length is equal to nSpecies().
      */
-    virtual void setToEquilState(const doublereal* lambda_RT) {
+    virtual void setToEquilState(const doublereal* mu_RT) {
         throw NotImplementedError("ThermoPhase::setToEquilState");
     }
 
