@@ -26,7 +26,7 @@ const T &AnyValue::as() const {
         if (m_value->type() == typeid(void)) {
             // Values that have not been set are of type 'void'
             throw InputFileError("AnyValue::as", *this,
-                "Key '{}' not found", m_key);
+                "Key '{}' not found or contains no value", m_key);
         } else {
             throw InputFileError("AnyValue::as", *this,
                 "Key '{}' contains a '{}',\nnot a '{}'",
@@ -48,7 +48,7 @@ T &AnyValue::as() {
         if (m_value->type() == typeid(void)) {
             // Values that have not been set are of type 'void'
             throw InputFileError("AnyValue::as", *this,
-                "Key '{}' not found", m_key);
+                "Key '{}' not found or contains no value", m_key);
         } else {
             throw InputFileError("AnyValue::as", *this,
                 "Key '{}' contains a '{}',\nnot a '{}'",
