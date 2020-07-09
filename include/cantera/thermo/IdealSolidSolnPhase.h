@@ -596,7 +596,7 @@ public:
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
-    virtual void setToEquilState(const doublereal* lambda_RT);
+    virtual void setToEquilState(const doublereal* mu_RT);
 
     //! Set the form for the standard and generalized concentrations
     /*!

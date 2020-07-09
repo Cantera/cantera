@@ -216,3 +216,13 @@ class TestEquil_GasCarbon(utilities.CanteraTest):
 
     def test_vcs_est(self):
         self.solve('vcs', estimate_equil=-1)
+
+
+class Test_IdealSolidSolnPhase_Equil(utilities.CanteraTest):
+    def test_equil(self):
+        gas = ct.ThermoPhase('IdealSolidSolnPhaseExample.xml')
+        gas.TPX = 500, ct.one_atm, 'C2H2-graph: 1.0'
+
+        gas.equilibrate('TP', solver='element_potential')
+        self.assertNear(gas['C-graph'].X[0], 2.0 / 3.0)
+        self.assertNear(gas['H2-solute'].X[0], 1.0 / 3.0)
