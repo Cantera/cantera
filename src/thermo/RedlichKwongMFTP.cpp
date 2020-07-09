@@ -518,36 +518,6 @@ doublereal RedlichKwongMFTP::critDensity() const
     return mmw / vc;
 }
 
-void RedlichKwongMFTP::setToEquilState(const doublereal* mu_RT)
-{
-    double tmp, tmp2;
-    _updateReferenceStateThermo();
-    getGibbs_RT_ref(m_tmpV.data());
-
-    // Within the method, we protect against inf results if the exponent is too
-    // high.
-    //
-    // If it is too low, we set the partial pressure to zero. This capability is
-    // needed by the elemental potential method.
-    doublereal pres = 0.0;
-    double m_p0 = refPressure();
-    for (size_t k = 0; k < m_kk; k++) {
-        tmp = -m_tmpV[k] + mu_RT[k];
-        if (tmp < -600.) {
-            m_pp[k] = 0.0;
-        } else if (tmp > 500.0) {
-            tmp2 = tmp / 500.;
-            tmp2 *= tmp2;
-            m_pp[k] = m_p0 * exp(500.) * tmp2;
-        } else {
-            m_pp[k] = m_p0 * exp(tmp);
-        }
-        pres += m_pp[k];
-    }
-    // set state
-    setState_PX(pres, &m_pp[0]);
-}
-
 bool RedlichKwongMFTP::addSpecies(shared_ptr<Species> spec)
 {
     bool added = MixtureFugacityTP::addSpecies(spec);
