@@ -447,21 +447,28 @@ void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& 
     ThermoPhase::initThermoXML(phaseNode, id_);
 }
 
-void IdealSolidSolnPhase::setToEquilState(const doublereal* lambda_RT)
+void IdealSolidSolnPhase::setToEquilState(const doublereal* mu_RT)
 {
     const vector_fp& grt = gibbs_RT_ref();
 
-    // set the pressure and composition to be consistent with the temperature
     doublereal pres = 0.0;
+    double m_p0 = refPressure();
     for (size_t k = 0; k < m_kk; k++) {
-        m_pp[k] = -grt[k];
-        for (size_t m = 0; m < nElements(); m++) {
-            m_pp[k] += nAtoms(k,m)*lambda_RT[m];
+        double tmp = -grt[k] + mu_RT[k];
+        if (tmp < -600.) {
+            m_pp[k] = 0.0;
+        } else if (tmp > 500.0) {
+            // Protect against inf results if the exponent is too high
+            double tmp2 = tmp / 500.;
+            tmp2 *= tmp2;
+            m_pp[k] = m_p0 * exp(500.) * tmp2;
+        } else {
+            m_pp[k] = m_p0 * exp(tmp);
         }
-        m_pp[k] = m_Pref * exp(m_pp[k]);
         pres += m_pp[k];
     }
-    setState_PX(pres, &m_pp[0]);
+    // set state
+    setState_PX(pres, m_pp.data());
 }
 
 void IdealSolidSolnPhase::setStandardConcentrationModel(const std::string& model)
