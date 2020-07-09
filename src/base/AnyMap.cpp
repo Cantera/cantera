@@ -245,6 +245,9 @@ struct convert<Cantera::AnyValue> {
         } else if (node.IsMap()) {
             target = node.as<AnyMap>();
             return true;
+        } else if (node.IsNull()) {
+            target = Empty;
+            return true;
         }
         return false;
     }

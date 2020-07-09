@@ -292,6 +292,23 @@ TEST(AnyMap, iterators)
     EXPECT_TRUE(std::find(keys.begin(), keys.end(), "bar") != keys.end());
 }
 
+TEST(AnyMap, null_values)
+{
+    AnyMap m = AnyMap::fromYamlString(
+        "{a: 1, b: ~, c: , d: 5}"
+    );
+    EXPECT_EQ(m.size(), (size_t) 4);
+    EXPECT_TRUE(m.at("c").is<void>());
+
+    try {
+        m.at("b").asString();
+        FAIL();
+    } catch (CanteraError& err) {
+        EXPECT_THAT(err.what(),
+                    testing::HasSubstr("Key 'b' not found or contains no value"));
+    }
+}
+
 TEST(AnyMap, loadYaml)
 {
     AnyMap m = AnyMap::fromYamlString(
