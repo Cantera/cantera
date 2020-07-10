@@ -168,7 +168,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
 
         b = ct.SolutionArray(self.gas, extra={'spam'})
         b.read_csv(outfile)
-        self.assertTrue((states.spam == b.spam).all)
+        self.assertTrue((states.spam == b.spam).all())
 
     @utilities.unittest.skipIf(isinstance(_pandas, ImportError), "pandas is not installed")
     def test_to_pandas(self):
@@ -228,6 +228,17 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         states.write_hdf(outfile, group='foo/bar/baz')
         c.read_hdf(outfile, group='foo/bar/baz')
         self.assertTrue(np.allclose(states.T, c.T))
+
+    def test_write_hdf_str_column(self):
+        states = ct.SolutionArray(self.gas, 3, extra={'spam': 'eggs'})
+
+        outfile = pjoin(self.test_work_dir, 'solutionarray.h5')
+        states.write_hdf(outfile, mode='w')
+
+        b = ct.SolutionArray(self.gas, extra={'spam'})
+        b.read_hdf(outfile)
+        self.assertTrue((states.spam == b.spam).all())
+
 
 class TestRestoreIdealGas(utilities.CanteraTest):
     """ Test restoring of the IdealGas class """
