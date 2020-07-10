@@ -1787,6 +1787,16 @@ class TestSolutionArray(utilities.CanteraTest):
         states.TP = np.linspace(400, 500, 5), 101325
         self.assertArrayNear(states.Q.squeeze(), np.ones(5))
 
+    def test_phase_of_matter(self):
+        water = ct.Water()
+        states = ct.SolutionArray(water, 5)
+        T = [300, 500, water.critical_temperature*2, 300]
+        P = [101325, 101325, 101325, water.critical_pressure*2]
+        states[:4].TP = T, P
+        states[4].TQ = 300, .4
+        pom = np.array(['liquid', 'gas', 'supercritical', 'supercritical', 'liquid-gas-mix'])
+        self.assertTrue((states.phase_of_matter == pom).all())
+
     def test_purefluid_getters(self):
         N = 11
         water = ct.Water()
