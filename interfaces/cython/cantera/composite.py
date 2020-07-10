@@ -963,8 +963,7 @@ class SolutionArray:
             data_dict = OrderedDict()
             for label in data.dtype.names:
                 if data[label].dtype.type == np.bytes_:
-                    dtype = '{}'.format(data[label].dtype)
-                    dtype = dtype.replace('S', 'U').replace('|', '<')
+                    dtype = '<U' + data[label].dtype.__str__()[2:]
                     data_dict[label] = data[label].astype(dtype)
                 else:
                     data_dict[label] = data[label]
@@ -973,7 +972,7 @@ class SolutionArray:
             data = np.genfromtxt(filename, delimiter=',',
                                  dtype=None, names=True, encoding=None)
             data_dict = OrderedDict({label: data[label]
-                                    for label in data.dtype.names})
+                                     for label in data.dtype.names})
         self.restore_data(data_dict)
 
     def to_pandas(self, cols=None, *args, **kwargs):
@@ -1126,8 +1125,13 @@ class SolutionArray:
             # store SolutionArray data
             for key, val in self._meta.items():
                 dgroup.attrs[key] = val
-            for header, col in data.items():
-                dgroup.create_dataset(header, data=col, **hdf_kwargs)
+            for header, value in data.items():
+                if value.dtype.type == np.str_:
+                    dtype = '|S' + value.dtype.__str__()[2:]
+                    dgroup.create_dataset(header, data=value.astype(dtype),
+                                          **hdf_kwargs)
+                else:
+                    dgroup.create_dataset(header, data=value, **hdf_kwargs)
 
         return group
 
@@ -1215,7 +1219,12 @@ class SolutionArray:
             # load data
             data = OrderedDict()
             for name, value in dgroup.items():
-                if name != 'phase':
+                if name == 'phase':
+                    pass
+                elif value.dtype.type == np.bytes_:
+                    dtype = '<U' + value.dtype.__str__()[2:]
+                    data[name] = np.array(value).astype(dtype)
+                else:
                     data[name] = np.array(value)
 
         self.restore_data(data)
