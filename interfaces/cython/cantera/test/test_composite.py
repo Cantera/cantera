@@ -160,6 +160,16 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         self.assertTrue(np.allclose(states.P, b.P))
         self.assertTrue(np.allclose(states.X, b.X))
 
+    def test_write_csv_str_column(self):
+        states = ct.SolutionArray(self.gas, 3, extra={'spam': 'eggs'})
+
+        outfile = pjoin(self.test_work_dir, 'solutionarray.csv')
+        states.write_csv(outfile)
+
+        b = ct.SolutionArray(self.gas, extra={'spam'})
+        b.read_csv(outfile)
+        self.assertTrue((states.spam == b.spam).all)
+
     @utilities.unittest.skipIf(isinstance(_pandas, ImportError), "pandas is not installed")
     def test_to_pandas(self):
 

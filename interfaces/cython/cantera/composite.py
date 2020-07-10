@@ -4,6 +4,7 @@
 from ._cantera import *
 import numpy as np
 from collections import OrderedDict
+from distutils import version
 import csv as _csv
 
 import pkg_resources
@@ -955,14 +956,24 @@ class SolutionArray:
         using `restore_data`. This method allows for recreation of data
         previously exported by `write_csv`.
         """
-        # read data block and header separately
-        data = np.genfromtxt(filename, skip_header=1, delimiter=',')
-        labels = np.genfromtxt(filename, max_rows=1, delimiter=',', dtype=str)
-
-        data_dict = OrderedDict()
-        for i, label in enumerate(labels):
-            data_dict[label] = data[:, i]
-
+        if version.LooseVersion(np.__version__) < version.LooseVersion("1.14"):
+            # bytestring needs to be converted for columns containing strings
+            data = np.genfromtxt(filename, delimiter=',',
+                                 dtype=None, names=True)
+            data_dict = OrderedDict()
+            for label in data.dtype.names:
+                if data[label].dtype.type == np.bytes_:
+                    dtype = '{}'.format(data[label].dtype)
+                    dtype = dtype.replace('S', 'U').replace('|', '<')
+                    data_dict[label] = data[label].astype(dtype)
+                else:
+                    data_dict[label] = data[label]
+        else:
+            # the 'encoding' parameter introduced with NumPy 1.14 simplifies import
+            data = np.genfromtxt(filename, delimiter=',',
+                                 dtype=None, names=True, encoding=None)
+            data_dict = OrderedDict({label: data[label]
+                                    for label in data.dtype.names})
         self.restore_data(data_dict)
 
     def to_pandas(self, cols=None, *args, **kwargs):
