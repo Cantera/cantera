@@ -85,7 +85,7 @@ species:
     rotational-relaxation: 4.00
     dispersion-coefficient: 2.995
     quadrupole-polarizability: 3.602
-    note: 121286
+  note: '121286'
 
 - name: H3O+
   composition: {H: 3, O: 1, E: -1}
