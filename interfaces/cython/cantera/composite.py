@@ -448,6 +448,7 @@ class SolutionArray:
         # From Transport
         'viscosity', 'electrical_conductivity', 'thermal_conductivity',
     ]
+    _strings = ['phase_of_matter']
     _n_species = [
         # from ThermoPhase
         'Y', 'X', 'concentrations', 'partial_molar_enthalpies',
@@ -1326,6 +1327,9 @@ def _make_functions():
     def empty_scalar(self):
         return np.empty(self._shape)
 
+    def empty_strings(self):
+        return np.empty(self._shape, dtype='<U14')
+
     def empty_species(self):
         return np.empty(self._shape + (self._phase.n_selected_species,))
 
@@ -1351,6 +1355,9 @@ def _make_functions():
 
     for name in SolutionArray._scalar:
         setattr(SolutionArray, name, make_prop(name, empty_scalar, Solution))
+
+    for name in SolutionArray._strings:
+        setattr(SolutionArray, name, make_prop(name, empty_strings, Solution))
 
     for name in SolutionArray._n_species:
         setattr(SolutionArray, name, make_prop(name, empty_species, Solution))
