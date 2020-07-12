@@ -148,6 +148,7 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
     }
 
     // Add reactions from each section
+    fmt::memory_buffer add_rxn_err;
     for (size_t i = 0; i < sections.size(); i++) {
         if (rules[i] == "all") {
             kin.skipUndeclaredSpecies(false);
@@ -168,17 +169,28 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
             AnyMap reactions = AnyMap::fromYamlFile(fileName,
                 rootNode.getString("__file__", ""));
             for (const auto& R : reactions[node].asVector<AnyMap>()) {
-                kin.addReaction(newReaction(R, kin));
+                try {
+                    kin.addReaction(newReaction(R, kin));
+                } catch (CanteraError& err) {
+                    format_to(add_rxn_err, "{}", err.what());
+                }
             }
         } else {
             // specified section is in the current file
             for (const auto& R : rootNode.at(sections[i]).asVector<AnyMap>()) {
-                kin.addReaction(newReaction(R, kin));
+                try {
+                    kin.addReaction(newReaction(R, kin));
+                } catch (CanteraError& err) {
+                    format_to(add_rxn_err, "{}", err.what());
+                }
             }
         }
     }
 
     kin.checkDuplicates();
+    if (add_rxn_err.size()) {
+        throw CanteraError("addReactions", to_string(add_rxn_err));
+    }
 }
 
 }

@@ -405,6 +405,23 @@ class KineticsRepeatability(utilities.CanteraTest):
                 # Rate should be the same if reaction does not involve OH
                 self.assertAlmostEqual(w2[i] / w1[i], 1.0)
 
+    def test_pdep_err(self):
+        err_msg = ("Invalid rate coefficient for reaction 'CH2CHOO <=> CH3O + CO'",
+                   "at P = 32019, T = 500.0",
+                   "at P = 32019, T = 1000.0",
+                   "at P = 1.0132e+05, T = 500.0",
+                   "at P = 1.0132e+05, T = 1000.0",
+                   "Invalid rate coefficient for reaction 'CH2CHOO <=> CH3 + CO2'",
+                   "at P = 1.0132e+05, T = 500.0",
+                   "InputFileError thrown by Kinetics::checkReactionBalance:",
+                   "The following reaction is unbalanced: H2O2 + OH <=> 2 H2O + HO2")
+        try:
+            ct.Solution('addReactions_err_test.yaml')
+            self.fail('CanteraError not raised')
+        except ct.CanteraError as e:
+            err_msg_list = str(e).splitlines()
+            for msg in err_msg:
+                self.assertIn(msg, err_msg_list)
 
 class TestEmptyKinetics(utilities.CanteraTest):
     def test_empty(self):
