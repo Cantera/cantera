@@ -1229,6 +1229,8 @@ env['python_cmd_esc'] = quoted(env['python_cmd'])
 
 # Python Package Settings
 python_min_version = LooseVersion('3.5')
+# The string is used to set python_requires in setup.py.in
+env['py_min_ver_str'] = str(python_min_version)
 # Note: cython_min_version is redefined below if the Python version is 3.8 or higher
 cython_min_version = LooseVersion('0.23')
 numpy_min_version = LooseVersion('1.12.0')
