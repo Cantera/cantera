@@ -60,7 +60,7 @@ setup(
     author="Raymond Speth",
     author_email="speth@mit.edu",
     url="https://cantera.org",
-    packages = [
+    packages=[
         'cantera',
         'cantera.data',
         'cantera.test',
@@ -92,12 +92,12 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Topic :: Scientific/Engineering :: Chemistry',
     ],
-    package_data = {
+    package_data={
         'cantera.data': ['*.*', '*/*.*'],
         'cantera.test.data': ['*.*', '*/*.*'],
         'cantera.examples': ['*/*.*'],
         'cantera': ["@py_extension@", '*.pxd'],
     },
     zip_safe=False,
-    python_requires=">=3.5",
+    python_requires=">=@py_min_ver_str@",
 )
