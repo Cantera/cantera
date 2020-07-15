@@ -151,10 +151,10 @@ jobs:
           --exclude='/doxygen/xml' --delete --delete-excluded \
           "${DOCS_OUTPUT_DIR}" ${RSYNC_USER}@${RSYNC_SERVER}:${RSYNC_DEST}
 
-  ubuntu-1604-py2:
-    # Ubuntu 16.04 using Python 2 to run SCons and the system Python 3 for the interface
-    name: Python 2 running SCons on Ubuntu 16.04
-    runs-on: ubuntu-16.04
+  ubuntu-1804-py2:
+    # Ubuntu 18.04 using Python 2 to run SCons and the system Python 3 for the interface
+    name: Python 2 running SCons on Ubuntu 18.04
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
         name: Checkout the repository
@@ -163,12 +163,9 @@ jobs:
       - name: Install Apt dependencies
         run: |
           sudo apt-get install libboost-dev gfortran scons python3-numpy \
-          python3-pip python3-setuptools libsundials-serial-dev liblapack-dev \
+          python3-pip python3-setuptools python3-h5py python3-pandas \
+          python3-ruamel.yaml cython libsundials-dev liblapack-dev \
           libblas-dev
-      - name: Install Python dependencies
-        # Don't include Pandas here due to install errors
-        run: |
-          sudo -H /usr/bin/python3 -m pip install ruamel.yaml cython h5py
       - name: Build Cantera
         run: scons build python_cmd=/usr/bin/python3 blas_lapack_libs=lapack,blas -j2
       - name: Test Cantera
