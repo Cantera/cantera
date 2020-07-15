@@ -1231,7 +1231,7 @@ env['python_cmd_esc'] = quoted(env['python_cmd'])
 python_min_version = LooseVersion('3.5')
 # Note: cython_min_version is redefined below if the Python version is 3.8 or higher
 cython_min_version = LooseVersion('0.23')
-numpy_min_test_version = LooseVersion('1.8.1')
+numpy_min_version = LooseVersion('1.12.0')
 
 # We choose ruamel.yaml 0.15.34 as the minimum version
 # since it is the highest version available in the Ubuntu
@@ -1383,10 +1383,11 @@ if env['python_package'] != 'none':
         if numpy_version == LooseVersion('0.0.0'):
             print("NumPy not found.")
             warn_no_full_package = True
-        elif numpy_version < numpy_min_test_version:
-            print("WARNING: The installed version of Numpy is not tested and "
-                  "support is not guaranteed. Found {0} but {1} or newer is preferred".format(
-                  numpy_version, numpy_min_test_version))
+        elif numpy_version < numpy_min_version:
+            print("WARNING: NumPy is an incompatible version: "
+                  "Found {0} but {1} or newer is required".format(
+                  numpy_version, numpy_min_version))
+            warn_no_full_package = True
         else:
             print('INFO: Using NumPy version {0}.'.format(numpy_version))
 
@@ -1396,7 +1397,7 @@ if env['python_package'] != 'none':
         elif cython_version < cython_min_version:
             print("WARNING: Cython is an incompatible version: "
                   "Found {0} but {1} or newer is required.".format(
-                    cython_version, cython_min_version))
+                  cython_version, cython_min_version))
             warn_no_full_package = True
         else:
             print('INFO: Using Cython version {0}.'.format(cython_version))
