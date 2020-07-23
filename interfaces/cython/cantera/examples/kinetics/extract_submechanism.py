@@ -14,7 +14,8 @@ from timeit import default_timer
 import cantera as ct
 import matplotlib.pyplot as plt
 
-all_species = ct.Species.listFromFile('gri30.yaml')
+input_file = 'gri30.yaml'
+all_species = ct.Species.listFromFile(input_file)
 species = []
 
 # Filter species
@@ -36,7 +37,8 @@ species_names = {S.name for S in species}
 print('Species: {0}'.format(', '.join(S.name for S in species)))
 
 # Filter reactions, keeping only those that only involve the selected species
-all_reactions = ct.Reaction.listFromFile('gri30.yaml')
+ref_phase = ct.Solution(thermo='ideal-gas', kinetics='gas', species=all_species)
+all_reactions = ct.Reaction.listFromFile(input_file, ref_phase)
 reactions = []
 
 print('\nReactions:')
@@ -51,8 +53,8 @@ for R in all_reactions:
     print(R.equation)
 print('\n')
 
-gas1 = ct.Solution('gri30.yaml')
-gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+gas1 = ct.Solution(input_file)
+gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                    species=species, reactions=reactions)
 
 
