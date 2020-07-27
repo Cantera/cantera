@@ -130,13 +130,12 @@ while True:
         f.solve(loglevel=0)
     except ct.CanteraError as e:
         print('Error: Did not converge at n =', n, e)
-    if np.max(f.T) > temperature_limit_extinction:
+    if not np.isclose(np.max(f.T), temperature_limit_extinction):
         # Flame is still burning, so proceed to next strain rate
         n_last_burning = n
         if hdf_output:
             group = 'extinction/{0:04d}'.format(n)
-            f.write_hdf(file_name, group=group, quiet=False,
-                        description='extinction iteration'.format(n))
+            f.write_hdf(file_name, group=group, quiet=True)
         else:
             file_name = 'extinction_{0:04d}.xml'.format(n)
             f.save(os.path.join(data_directory, file_name),
@@ -145,19 +144,32 @@ while True:
                    ', reaction mechanism ' + reaction_mechanism)
         T_max.append(np.max(f.T))
         a_max.append(np.max(np.abs(np.gradient(f.velocity) / np.gradient(f.grid))))
+        print('Flame burning at alpha = {:8.4F}. Proceeding to the next iteration, '
+              'with delta_alpha = {}'.format(alpha[-1], delta_alpha))
+    elif ((T_max[-2] - T_max[-1] < delta_T_min) and (delta_alpha < delta_alpha_min)):
         # If the temperature difference is too small and the minimum relative
-        # strain rate increase is reached, abort
-        if ((T_max[-2] - T_max[-1] < delta_T_min) &
-                (delta_alpha < delta_alpha_min)):
-            print('Flame extinguished at n = {0}.'.format(n),
-                  'Abortion criterion satisfied.')
-            break
+        # strain rate increase is reached, save the last, non-burning, solution
+        # to the output file and break the loop
+        T_max.append(np.max(f.T))
+        a_max.append(np.max(np.abs(np.gradient(f.velocity) / np.gradient(f.grid))))
+        if hdf_output:
+            group = 'extinction/{0:04d}'.format(n)
+            f.write_hdf(file_name, group=group, quiet=True)
+        else:
+            file_name = 'extinction_{0:04d}.xml'.format(n)
+            f.save(os.path.join(data_directory, file_name), name='solution', loglevel=0)
+        print('Flame extinguished at alpha = {0:8.4F}.'.format(alpha[-1]),
+              'Abortion criterion satisfied.')
+        break
     else:
         # Procedure if flame extinguished but abortion criterion is not satisfied
-        print('Flame extinguished at n = {0}. Restoring n = {1} with '
-              'alpha = {2}'.format(n, n_last_burning, alpha[n_last_burning]))
         # Reduce relative strain rate increase
         delta_alpha = delta_alpha / delta_alpha_factor
+
+        print('Flame extinguished at alpha = {0:8.4F}. Restoring alpha = {1:8.4F} and '
+              'trying delta_alpha = {2}'.format(
+                  alpha[-1], alpha[n_last_burning], delta_alpha))
+
         # Restore last burning solution
         if hdf_output:
             group = 'extinction/{0:04d}'.format(n_last_burning)
@@ -168,7 +180,15 @@ while True:
                       name='solution', loglevel=0)
 
 
-# Print some parameters at the extinction point
+# Print some parameters at the extinction point, after restoring the last burning
+# solution
+if hdf_output:
+    group = 'extinction/{0:04d}'.format(n_last_burning)
+    f.read_hdf(file_name, group=group)
+else:
+    file_name = 'extinction_{0:04d}.xml'.format(n_last_burning)
+    f.restore(os.path.join(data_directory, file_name),
+              name='solution', loglevel=0)
 print('----------------------------------------------------------------------')
 print('Parameters at the extinction point:')
 print('Pressure p={0} bar'.format(f.P / 1e5))
