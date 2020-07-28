@@ -41,7 +41,7 @@ f.oxidizer_inlet.X = comp_o
 f.oxidizer_inlet.T = tin_o
 
 # Set the boundary emissivities
-f.set_boundary_emissivities(0.0, 0.0)
+f.boundary_emissivities = 0.0, 0.0
 # Turn radiation off
 f.radiation_enabled = False
 
