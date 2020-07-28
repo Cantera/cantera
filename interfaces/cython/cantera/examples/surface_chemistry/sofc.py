@@ -1,7 +1,7 @@
 """
 A simple model of a solid oxide fuel cell.
 
-Unlike most SOFC models, this model does not use semi-empirical Butler- Volmer
+Unlike most SOFC models, this model does not use semi-empirical Butler-Volmer
 kinetics for the charge transfer reactions, but uses elementary, reversible
 reactions obeying mass-action kinetics for all reactions, including charge
 transfer. As this script will demonstrate, this approach allows computing the
@@ -125,7 +125,7 @@ def anode_curr(E):
     w = tpb_a.net_production_rates
 
     # the sign convention is that the current is positive when
-    # electrons are being delivered to the anode - i.e. it is positive
+    # electrons are being delivered to the anode - that is, it is positive
     # for fuel cell operation.
     return ct.faraday * w[0] * TPB_length_per_area
 
@@ -172,7 +172,7 @@ def cathode_curr(E):
     w = tpb_c.net_production_rates
 
     # the sign convention is that the current is positive when electrons are
-    # being drawn from the cathode (i.e, negative production rate).
+    # being drawn from the cathode (that is, negative production rate).
     return -ct.faraday * w[0] * TPB_length_per_area
 
 

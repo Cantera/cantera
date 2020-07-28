@@ -22,8 +22,8 @@ namespace Cantera
  * thermodynamic object.
  *
  * All of the equations and formulations carry through from SurfPhase to this
- * EdgePhase object. It should be noted however, that dimensional object with
- * length dimensions, have their dimensions reduced by one.
+ * EdgePhase object. It should be noted that dimensional quantities with
+ * dimensions including a length have their dimensions reduced by one.
  *
  * @ingroup thermoprops
  */

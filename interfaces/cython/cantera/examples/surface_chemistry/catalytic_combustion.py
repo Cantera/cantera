@@ -64,7 +64,7 @@ surf_phase.advance_coverages(1.0)
 # grid
 sim = ct.ImpingingJet(gas=gas, width=width, surface=surf_phase)
 
-# Objects of class StagnationFlow have members that represent the gas inlet
+# Objects of class ImpingingJet have members that represent the gas inlet
 # ('inlet') and the surface ('surface'). Set some parameters of these objects.
 sim.inlet.mdot = mdot
 sim.inlet.T = tinlet
@@ -74,7 +74,7 @@ sim.surface.T = tsurf
 # Show the initial solution estimate
 sim.show_solution()
 
-# Solving problems with stiff chemistry coulpled to flow can require a
+# Solving problems with stiff chemistry coupled to flow can require a
 # sequential approach where solutions are first obtained for simpler problems
 # and used as the initial guess for more difficult problems.
 

@@ -43,10 +43,10 @@ public:
 
     /**
      * Update the concentration-dependent parts of the rate coefficient, if any.
-     * Used by class SurfaceArrhenius to compute coverage-dependent *
+     * Used by class SurfaceArrhenius to compute coverage-dependent
      * modifications to the Arrhenius parameters. The array c should contain
      * whatever data the particular rate coefficient class needs to update its
-     * rates.  Note that this method does not return anything. To get the
+     * rates. Note that this method does not return anything. To get the
      * updated rates, method update must be called after the call to update_C.
      */
     void update_C(const doublereal* c) {

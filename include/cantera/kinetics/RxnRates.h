@@ -162,7 +162,7 @@ public:
     }
 
     /**
-     * Update the value the rate constant.
+     * Update the value of the rate constant.
      *
      * This function returns the actual value of the rate constant. It can be
      * safely called for negative values of the pre-exponential factor.
