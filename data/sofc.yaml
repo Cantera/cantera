@@ -5,7 +5,7 @@ description: |-
   species thermochemistry ARE NOT REAL VALUES - they are chosen only
   for the purposes of this example.
 
-  Defines bulk (i.e., 3D) phases - a gas, a metal, and an oxide.
+  Defines bulk (that is, 3D) phases - a gas, a metal, and an oxide.
   The gas contains only the minimum number of species needed to model
   operation on hydrogen. The species definitions are imported from
   gri30.yaml. The initial composition is set to hydrogen + 5% water, but
@@ -26,14 +26,14 @@ description: |-
   charge balances on the metal, then we would require a more complex
   model. Note that there is no work function for this metal.
 
-  Note: the "const_cp" species thermo model is used throughout this
+  Note: the 'const_cp' species thermo model is used throughout this
   file (with the exception of the gaseous species, which use NASA
-  polynomials imported from gri30.cti). The const_cp model assumes a
+  polynomials imported from gri30.yaml). The const_cp model assumes a
   constant specific heat, which by default is zero. Parameters that
-  can be specified are cp0, t0, h0, and s0. If omitted, t0 = 300 K, h0
-  = 0, and s0 = 0. The thermo properties are computed as follows: h =
-  h0 + cp0*(t - t0), s = s0 + cp0*ln(t/t0). For work at a single
-  temperature, it is sufficient to specify only h0.
+  can be specified are cp0, t0, h0, and s0. If omitted, t0 = 300 K,
+  h0 = 0, and s0 = 0. The thermo properties are computed as follows:
+  h = h0 + cp0*(t - t0), s = s0 + cp0*ln(t/t0).
+  For work at a single temperature, it is sufficient to specify only h0.
 
   The 'oxide_bulk' phase is a very simple model for the bulk phase. We only
   consider the oxygen sublattice. The only species we define are a
@@ -41,7 +41,7 @@ description: |-
   required input, but is not used here, so may be set arbitrarily.
 
   The vacancy will be modeled as truly vacant - it contains no atoms,
-  has no charge, and has zero enthalpy and entropy.  This is different
+  has no charge, and has zero enthalpy and entropy. This is different
   from the usual convention in which the vacancy properties are are
   expressed relative to the perfect crystal lattice. For example, in
   the usual convention, an oxygen vacancy has charge +2. But the
@@ -65,7 +65,7 @@ description: |-
   'mol' and 'cm' were specified in the units directive below as the
   units for quantity and length, respectively.
   2. The 'reactions' field specifies that all reaction entries in this file
-  that have are in the 'metal_surface-reactions' field are reactions belonging
+  that are in the 'metal_surface-reactions' field are reactions belonging
   to this surface mechanism.
 
   On the oxide surface, we consider four species:
@@ -74,11 +74,11 @@ description: |-
       3. OH'(ox)  - a surface hydroxyl with charge -1
       4. H2O(ox)  - physisorbed neutral water
 
-  The 'tpb' phase is th etriple phase boundary between the metal, oxide, and gas. A
-  single species is specified, but it is not used, since all reactions
-  only involve species on either side of the tpb. Note that the site
-  density is in mol/cm. But since no reactions involve TPB species,
-  this parameter is unused.
+  The triple phase boundary (TPB) between the metal, oxide, and gas is
+  specified in the 'tpb' phase. A single species is specified, but it
+  is not used, since all reactions only involve species on either side
+  of the TPB. Note that the site density is in mol/cm. But since no
+  reactions involve TPB species, this parameter is unused.
 
 generator: cti2yaml
 cantera-version: 2.5.0a3
