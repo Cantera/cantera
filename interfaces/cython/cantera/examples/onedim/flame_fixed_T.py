@@ -7,6 +7,7 @@ Requires: cantera >= 2.5.0
 
 import cantera as ct
 import numpy as np
+from pathlib import Path
 
 ################################################################
 # parameter values
@@ -38,7 +39,9 @@ f.burner.mdot = mdot
 
 # read temperature vs. position data from a file.
 # The file is assumed to have one z, T pair per line, separated by a comma.
-zloc, tvalues = np.genfromtxt('tdata.dat', delimiter=',', comments='#').T
+# The data file must be stored in the same folder as this script.
+data_file = Path(__file__).parent.joinpath('tdata.dat')
+zloc, tvalues = np.genfromtxt(str(data_file), delimiter=',', comments='#').T
 zloc /= max(zloc)
 
 # set the temperature profile to the values read in
