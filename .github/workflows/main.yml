@@ -174,6 +174,44 @@ jobs:
       - name: Test Cantera
         run: scons test
 
+  run-examples:
+    name: Run the Python examples using bash
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout the repository
+        with:
+          submodules: recursive
+      - name: Setup Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.8'
+          architecture: x64
+      - name: Install Apt dependencies
+        run: sudo apt-get install libboost-dev gfortran graphviz liblapack-dev libblas-dev
+      - name: Upgrade pip
+        run: python3 -m pip install -U pip setuptools wheel
+      - name: Install Python dependencies
+        run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas matplotlib scipy
+      - name: Build Cantera
+        run: python3 `which scons` build -j2
+      - name: Run the examples
+        # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part
+        run: |
+          find interfaces/cython/cantera/examples -type f -iname "*.py" \
+          -exec sh -c 'for n; do echo "$n" | tee -a results.txt && python3 "$n" >> results.txt || exit 1; done' sh {} +
+        env:
+          PYTHONPATH: build/python
+          PYTHONWARNINGS: error
+          MPLBACKEND: Agg
+      - name: Save the results file for inspection
+        uses: actions/upload-artifact@v2
+        with:
+          path: results.txt
+        # Run this step if the job was successful or failed, but not if it was cancelled
+        # Using always() would run this step if the job was cancelled as well.
+        if: failure() || success()
+
   multiple-sundials:
     name: Sundials ${{ matrix.sundials-ver }}
     runs-on: ubuntu-latest
