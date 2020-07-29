@@ -27,8 +27,8 @@ import cantera as ct
 # First create each gas needed, and a reactor or reservoir for each one.
 
 # create an argon gas object and set its state
-ar = ct.Solution('argon.yaml')
-ar.TP = 1000.0, 20.0 * ct.one_atm
+ar = ct.Solution('air.yaml')
+ar.TPX = 1000.0, 20.0 * ct.one_atm, "AR:1"
 
 # create a reactor to represent the side of the cylinder filled with argon
 r1 = ct.IdealGasReactor(ar)
@@ -113,4 +113,4 @@ if '--plot' in sys.argv:
     plt.tight_layout()
     plt.show()
 else:
-    print("""To view a plot of these results, run this script with the option -plot""")
+    print("To view a plot of these results, run this script with the option --plot")
