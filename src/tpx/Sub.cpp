@@ -370,14 +370,15 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
                x0, y0, TolAbsS, TolAbsH, TolRel, TolRel);
         break;
     case PropertyPair::PX:
-        temp = Tsat(x0);
         if (y0 > 1.0 || y0 < 0.0) {
             throw CanteraError("Substance::Set",
                                "Invalid vapor fraction, {}", y0);
-        } else if (temp >= Tcrit()) {
+        } else if (x0 >= Pcrit()) {
             throw CanteraError("Substance::Set",
-                               "Can't set vapor fraction above the critical point");
+                               "Vapor fraction can only be set below the "
+                               "critical point");
         } else {
+            temp = Tsat(x0);
             set_T(temp);
             update_sat();
             Rho = 1.0/((1.0 - y0)/Rhf + y0/Rhv);
@@ -389,7 +390,8 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
                                "Invalid vapor fraction, {}", y0);
         } else if (x0 >= Tcrit()) {
             throw CanteraError("Substance::Set",
-                               "Can't set vapor fraction above the critical point");
+                               "Vapor fraction can only be set below the "
+                               "critical point");
         } else {
             set_T(x0);
             update_sat();
