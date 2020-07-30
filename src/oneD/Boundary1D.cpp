@@ -679,12 +679,10 @@ void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
     size_t ioffset = m_kin->kineticsSpeciesIndex(0, m_surfindex);
 
     if (m_enabled) {
-        double maxx = -1.0;
         for (size_t k = 0; k < m_nsp; k++) {
             r[k] = m_work[k + ioffset] * m_sphase->size(k) * rs0;
             r[k] -= rdt*(x[k] - prevSoln(k,0));
             diag[k] = 1;
-            maxx = std::max(x[k], maxx);
         }
         r[0] = 1.0 - sum;
         diag[0] = 0;
@@ -707,9 +705,17 @@ void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
         double* xb = x - nc;
         rb[c_offset_T] = xb[c_offset_T] - m_temp; // specified T
         size_t nSkip = m_flow_left->rightExcessSpecies();
+        size_t l_offset = 0;
+        ThermoPhase* left_thermo = &m_flow_left->phase();
+        for (size_t nth = 0; nth < m_kin->nPhases(); nth++) {
+            if (&m_kin->thermo(nth) == left_thermo) {
+                l_offset = m_kin->kineticsSpeciesIndex(0, nth);
+                break;
+            }
+        }
         for (size_t nl = 0; nl < m_left_nsp; nl++) {
             if (nl != nSkip) {
-                rb[c_offset_Y+nl] += m_work[nl]*mwleft[nl];
+                rb[c_offset_Y+nl] += m_work[nl + l_offset]*mwleft[nl];
             }
         }
     }

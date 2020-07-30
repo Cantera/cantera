@@ -296,9 +296,10 @@ double Reactor::evalSurfaces(double t, double* ydot)
         ydot[loc] = sum;
         loc += nk;
 
+        size_t bulkloc = kin->kineticsSpeciesIndex(m_thermo->speciesName(0));
         double wallarea = S->area();
         for (size_t k = 0; k < m_nsp; k++) {
-            m_sdot[k] += m_work[k]*wallarea;
+            m_sdot[k] += m_work[bulkloc + k] * wallarea;
             mdot_surf += m_sdot[k] * mw[k];
         }
     }
