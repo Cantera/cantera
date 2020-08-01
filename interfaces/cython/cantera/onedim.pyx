@@ -432,6 +432,8 @@ cdef class ReactingSurface1D(Boundary1D):
         """Controls whether or not to solve the surface coverage equations."""
         def __set__(self, value):
             self.surf.enableCoverageEquations(<cbool>value)
+        def __get__(self):
+            return self.surf.coverageEnabled()
 
 
 cdef class _FlowBase(Domain1D):

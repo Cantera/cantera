@@ -757,6 +757,7 @@ cdef extern from "cantera/oneD/Boundary1D.h":
         CxxRreactingSurf1D()
         void setKineticsMgr(CxxInterfaceKinetics*) except +translate_exception
         void enableCoverageEquations(cbool) except +translate_exception
+        cbool coverageEnabled()
 
 
 cdef extern from "cantera/oneD/StFlow.h":

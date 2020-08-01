@@ -299,6 +299,10 @@ public:
         m_enabled = docov;
     }
 
+    bool coverageEnabled() {
+        return m_enabled;
+    }
+
     virtual std::string componentName(size_t n) const;
 
     virtual void init();
