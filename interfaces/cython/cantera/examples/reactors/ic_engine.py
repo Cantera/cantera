@@ -191,6 +191,7 @@ def ca_ticks(t):
 t = states.t
 
 # pressure and temperature
+xticks = np.arange(0, 0.18, 0.02)
 fig, ax = plt.subplots(nrows=2)
 ax[0].plot(t, states.P / 1.e5)
 ax[0].set_ylabel('$p$ [bar]')
@@ -199,7 +200,8 @@ ax[0].set_xticklabels([])
 ax[1].plot(t, states.T)
 ax[1].set_ylabel('$T$ [K]')
 ax[1].set_xlabel(r'$\phi$ [deg]')
-ax[1].set_xticklabels(ca_ticks(ax[1].get_xticks()))
+ax[1].set_xticks(xticks)
+ax[1].set_xticklabels(ca_ticks(xticks))
 plt.show()
 
 # p-V diagram
@@ -224,7 +226,8 @@ ax.set_ylim(-1e2, 1e3)
 ax.legend(loc=0)
 ax.set_ylabel('[kW]')
 ax.set_xlabel(r'$\phi$ [deg]')
-ax.set_xticklabels(ca_ticks(ax.get_xticks()))
+ax.set_xticks(xticks)
+ax.set_xticklabels(ca_ticks(xticks))
 plt.show()
 
 # gas composition
@@ -236,7 +239,8 @@ ax.plot(t, states('c12h26').X * 10, label='n-Dodecane x10')
 ax.legend(loc=0)
 ax.set_ylabel('$X_i$ [-]')
 ax.set_xlabel(r'$\phi$ [deg]')
-ax.set_xticklabels(ca_ticks(ax.get_xticks()))
+ax.set_xticks(xticks)
+ax.set_xticklabels(ca_ticks(xticks))
 plt.show()
 
 ######################################################################
@@ -245,22 +249,21 @@ plt.show()
 
 # heat release
 Q = trapz(states.heat_release_rate * states.V, t)
-print('{:45s}{:>4.1f} kW'.format('Heat release rate per cylinder (estimate):',
-                                 Q / t[-1] / 1000.))
+output_str = '{:45s}{:>4.1f} {}'
+print(output_str.format('Heat release rate per cylinder (estimate):',
+                        Q / t[-1] / 1000., 'kW'))
 
 # expansion power
 W = trapz(states.dWv_dt, t)
-print('{:45s}{:>4.1f} kW'.format('Expansion power per cylinder (estimate):',
-                                 W / t[-1] / 1000.))
+print(output_str.format('Expansion power per cylinder (estimate):',
+                        W / t[-1] / 1000., 'kW'))
 
 # efficiency
 eta = W / Q
-print('{:45s}{:>4.1f} %'.format('Efficiency (estimate):',
-                                eta * 100.))
+print(output_str.format('Efficiency (estimate):', eta * 100., '%'))
 
 # CO emissions
 MW = states.mean_molecular_weight
 CO_emission = trapz(MW * states.mdot_out * states('CO').X[:, 0], t)
 CO_emission /= trapz(MW * states.mdot_out, t)
-print('{:45s}{:>4.1f} ppm'.format('CO emission (estimate):',
-                                  CO_emission * 1.e6))
+print(output_str.format('CO emission (estimate):', CO_emission * 1.e6, 'ppm'))
