@@ -9,7 +9,7 @@ surface, see catalytic_combustion.py.) Atomic hydrogen plays an important
 role in diamond CVD, and this example computes the growth rate and surface
 coverages as a function of [H] at the surface for fixed temperature and [CH3].
 
-Requires: cantera >= 2.5.0, pandas >= 0.21.0, matplotlib >= 2.0
+Requires: cantera >= 2.5.0, pandas >= 0.25.0, matplotlib >= 2.0
 """
 
 import csv
@@ -58,19 +58,13 @@ try:
     import pandas as pd
     data = pd.read_csv('diamond.csv')
 
-    plt.figure()
-    plt.plot(data['H mole Fraction'], data['Growth Rate (microns/hour)'])
+    data.plot(x="H mole Fraction", y="Growth Rate (microns/hour)", legend=False)
     plt.xlabel('H Mole Fraction')
     plt.ylabel('Growth Rate (microns/hr)')
     plt.show()
 
-    plt.figure()
-    for name in data:
-        if name.startswith(('H mole', 'Growth')):
-            continue
-        plt.plot(data['H mole Fraction'], data[name], label=name)
-
-    plt.legend()
+    names = [name for name in data.columns if not name.startswith(('H mole', 'Growth'))]
+    data.plot(x='H mole Fraction', y=names, legend=True)
     plt.xlabel('H Mole Fraction')
     plt.ylabel('Coverage')
     plt.show()
