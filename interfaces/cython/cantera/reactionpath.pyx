@@ -1,6 +1,8 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+from pathlib import Path
+
 cdef class ReactionPathDiagram:
     def __cinit__(self, *args, **kwargs):
         self._log = new CxxStringStream()
@@ -158,7 +160,7 @@ cdef class ReactionPathDiagram:
         Write the reaction path diagram formatted for use by Graphviz's 'dot'
         program to the file named *filename*.
         """
-        open(filename, 'wb').write(self.get_dot().encode('utf-8'))
+        Path(filename).write_text(self.get_dot())
 
     def get_data(self):
         """
