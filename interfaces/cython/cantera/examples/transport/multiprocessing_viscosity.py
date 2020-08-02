@@ -55,15 +55,14 @@ def parallel(mech, predicate, nProcs, nTemps):
     """
     P = ct.one_atm
     X = 'CH4:1.0, O2:1.0, N2:3.76'
-    pool = multiprocessing.Pool(processes=nProcs,
-                                initializer=init_process,
-                                initargs=(mech,))
-
-    y = pool.map(predicate,
-                 zip(itertools.repeat(mech),
-                     np.linspace(300, 900, nTemps),
-                     itertools.repeat(P),
-                     itertools.repeat(X)))
+    with multiprocessing.Pool(
+        processes=nProcs, initializer=init_process, initargs=(mech,)
+    ) as pool:
+        y = pool.map(predicate,
+                     zip(itertools.repeat(mech),
+                         np.linspace(300, 900, nTemps),
+                         itertools.repeat(P),
+                         itertools.repeat(X)))
     return y
 
 
