@@ -9,8 +9,9 @@ using your operating system's package manager.
 Requires: cantera >= 2.5.0
 """
 
-import os
+from subprocess import run
 import sys
+from pathlib import Path
 
 import cantera as ct
 
@@ -33,14 +34,14 @@ diagram.label_threshold = 0.01
 
 dot_file = 'rxnpath.dot'
 img_file = 'rxnpath.png'
-img_path = os.path.join(os.getcwd(), img_file)
+img_path = Path.cwd().joinpath(img_file)
 
 diagram.write_dot(dot_file)
 print(diagram.get_data())
 
-print("Wrote graphviz input file to '{0}'.".format(os.path.join(os.getcwd(), dot_file)))
+print("Wrote graphviz input file to '{0}'.".format(Path.cwd().joinpath(dot_file)))
 
-os.system('dot {0} -Tpng -o{1} -Gdpi=200'.format(dot_file, img_file))
+run('dot {0} -Tpng -o{1} -Gdpi=200'.format(dot_file, img_file).split())
 print("Wrote graphviz output file to '{0}'.".format(img_path))
 
 if "-view" in sys.argv:
