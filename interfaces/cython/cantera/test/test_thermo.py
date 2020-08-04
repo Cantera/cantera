@@ -1794,8 +1794,8 @@ class TestSolutionArray(utilities.CanteraTest):
         P = [101325, 101325, 101325, water.critical_pressure*2]
         states[:4].TP = T, P
         states[4].TQ = 300, .4
-        pom = np.array(['liquid', 'gas', 'supercritical', 'supercritical', 'liquid-gas-mix'])
-        self.assertTrue((states.phase_of_matter == pom).all())
+        pom = ['liquid', 'gas', 'supercritical', 'supercritical', 'liquid-gas-mix']
+        self.assertEqual(list(states.phase_of_matter), pom)
 
     def test_purefluid_getters(self):
         N = 11
