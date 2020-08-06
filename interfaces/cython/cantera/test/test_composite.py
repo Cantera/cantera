@@ -168,7 +168,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
 
         b = ct.SolutionArray(self.gas, extra={'spam'})
         b.read_csv(outfile)
-        self.assertTrue((states.spam == b.spam).all())
+        self.assertEqual(list(states.spam), list(b.spam))
 
     @utilities.unittest.skipIf(isinstance(_pandas, ImportError), "pandas is not installed")
     def test_to_pandas(self):
@@ -237,7 +237,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
 
         b = ct.SolutionArray(self.gas, extra={'spam'})
         b.read_hdf(outfile)
-        self.assertTrue((states.spam == b.spam).all())
+        self.assertEqual(list(states.spam), list(b.spam))
 
 
 class TestRestoreIdealGas(utilities.CanteraTest):
