@@ -963,8 +963,7 @@ class SolutionArray:
             data_dict = OrderedDict()
             for label in data.dtype.names:
                 if data[label].dtype.type == np.bytes_:
-                    dtype = '<U' + str(data[label].dtype)[2:]
-                    data_dict[label] = data[label].astype(dtype)
+                    data_dict[label] = data[label].astype('U')
                 else:
                     data_dict[label] = data[label]
         else:
@@ -1127,8 +1126,7 @@ class SolutionArray:
                 dgroup.attrs[key] = val
             for header, value in data.items():
                 if value.dtype.type == np.str_:
-                    dtype = '|S' + str(value.dtype)[2:]
-                    dgroup.create_dataset(header, data=value.astype(dtype),
+                    dgroup.create_dataset(header, data=value.astype('S'),
                                           **hdf_kwargs)
                 else:
                     dgroup.create_dataset(header, data=value, **hdf_kwargs)
@@ -1222,8 +1220,7 @@ class SolutionArray:
                 if name == 'phase':
                     continue
                 elif value.dtype.type == np.bytes_:
-                    dtype = '<U' + str(value.dtype)[2:]
-                    data[name] = np.array(value).astype(dtype)
+                    data[name] = np.array(value).astype('U')
                 else:
                     data[name] = np.array(value)
 
@@ -1327,7 +1324,10 @@ def _make_functions():
         return np.empty(self._shape)
 
     def empty_strings(self):
-        return np.empty(self._shape, dtype='<U50')
+        # The maximum length of strings assigned by built-in methods is
+        # currently limited to 50 characters; an attempt to assign longer
+        # character arrays will result in truncated strings.
+        return np.empty(self._shape, dtype='U50')
 
     def empty_species(self):
         return np.empty(self._shape + (self._phase.n_selected_species,))
