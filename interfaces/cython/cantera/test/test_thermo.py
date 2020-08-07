@@ -423,31 +423,15 @@ class TestThermoPhase(utilities.CanteraTest):
 
     def test_phase(self):
         self.assertEqual(self.phase.name, 'ohmech')
-
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
+        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
             self.assertEqual(self.phase.ID, 'ohmech')
-            self.assertEqual(len(w), 1)
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertIn("To be removed after Cantera 2.5. ",
-                          str(w[-1].message))
 
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
+        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
             self.phase.ID = 'something'
-            self.assertEqual(self.phase.name, 'something')
-            self.assertEqual(len(w), 1)
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertIn("To be removed after Cantera 2.5. ",
-                          str(w[-1].message))
+        self.assertEqual(self.phase.name, 'something')
 
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
+        with self.assertWarnsRegex(FutureWarning, "Keyword 'name' replaces 'phaseid'"):
             gas = ct.Solution('h2o2.cti', phaseid='ohmech')
-            self.assertEqual(len(w), 1)
-            self.assertTrue(issubclass(w[-1].category, FutureWarning))
-            self.assertIn("Keyword 'name' replaces 'phaseid'",
-                          str(w[-1].message))
 
     def test_badLength(self):
         X = np.zeros(5)

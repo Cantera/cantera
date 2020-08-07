@@ -81,15 +81,10 @@ class TestPureFluid(utilities.CanteraTest):
             self.water.Q = 0.3
 
     def test_X_deprecated(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
+        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
             X = self.water.X
+        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
             self.water.TX = 300, 1
-
-            self.assertEqual(len(w), 2)
-            for warning in w:
-                self.assertTrue(issubclass(warning.category, DeprecationWarning))
-                self.assertIn("after Cantera 2.5", str(warning.message))
 
     def test_set_minmax(self):
         self.water.TP = self.water.min_temp, 101325
