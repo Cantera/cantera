@@ -1850,7 +1850,7 @@ class TestSolutionArray(utilities.CanteraTest):
         states.sort('T')
         self.assertFalse((states.t[1:] - states.t[:-1] > 0).all())
         self.assertTrue((states.T[1:] - states.T[:-1] > 0).all())
-        self.assertTrue(np.allclose(states.P, P))
+        self.assertArrayNear(states.P, P)
 
         states.sort('T', reverse=True)
         self.assertTrue((states.T[1:] - states.T[:-1] < 0).all())
