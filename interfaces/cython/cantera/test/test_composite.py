@@ -156,9 +156,9 @@ class TestSolutionArrayIO(utilities.CanteraTest):
 
         b = ct.SolutionArray(self.gas)
         b.read_csv(outfile)
-        self.assertTrue(np.allclose(states.T, b.T))
-        self.assertTrue(np.allclose(states.P, b.P))
-        self.assertTrue(np.allclose(states.X, b.X))
+        self.assertArrayNear(states.T, b.T)
+        self.assertArrayNear(states.P, b.P)
+        self.assertArrayNear(states.X, b.X)
 
     def test_write_csv_str_column(self):
         states = ct.SolutionArray(self.gas, 3, extra={'spam': 'eggs'})
@@ -200,11 +200,11 @@ class TestSolutionArrayIO(utilities.CanteraTest):
 
         b = ct.SolutionArray(self.gas)
         attr = b.read_hdf(outfile)
-        self.assertTrue(np.allclose(states.T, b.T))
-        self.assertTrue(np.allclose(states.P, b.P))
-        self.assertTrue(np.allclose(states.X, b.X))
-        self.assertTrue(np.allclose(states.foo, b.foo))
-        self.assertTrue(np.allclose(states.bar, b.bar))
+        self.assertArrayNear(states.T, b.T)
+        self.assertArrayNear(states.P, b.P)
+        self.assertArrayNear(states.X, b.X)
+        self.assertArrayNear(states.foo, b.foo)
+        self.assertArrayNear(states.bar, b.bar)
         self.assertEqual(b.meta['spam'], 'eggs')
         self.assertEqual(b.meta['hello'], 'world')
         self.assertEqual(attr['foobar'], 'spam and eggs')
@@ -227,7 +227,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
 
         states.write_hdf(outfile, group='foo/bar/baz')
         c.read_hdf(outfile, group='foo/bar/baz')
-        self.assertTrue(np.allclose(states.T, c.T))
+        self.assertArrayNear(states.T, c.T)
 
     def test_write_hdf_str_column(self):
         states = ct.SolutionArray(self.gas, 3, extra={'spam': 'eggs'})
@@ -279,8 +279,8 @@ class TestRestoreIdealGas(utilities.CanteraTest):
         # skip concentrations
         b = ct.SolutionArray(self.gas)
         b.restore_data({'T': data['T'], 'density': data['density']})
-        self.assertTrue(np.allclose(a.T, b.T))
-        self.assertTrue(np.allclose(a.density, b.density))
+        self.assertArrayNear(a.T, b.T)
+        self.assertArrayNear(a.density, b.density)
         self.assertFalse(np.allclose(a.X, b.X))
 
         # wrong data shape
