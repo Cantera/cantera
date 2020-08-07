@@ -1243,7 +1243,7 @@ class TestSpecies(utilities.CanteraTest):
 
     def test_alias(self):
         self.gas.add_species_alias('H2', 'hydrogen')
-        self.assertTrue(self.gas.species_index('hydrogen') == 0)
+        self.assertEqual(self.gas.species_index('hydrogen'), 0)
         self.gas.X = 'hydrogen:.5, O2:.5'
         self.assertNear(self.gas.X[0], 0.5)
         with self.assertRaisesRegex(ct.CanteraError, 'Invalid alias'):
@@ -1254,13 +1254,13 @@ class TestSpecies(utilities.CanteraTest):
     def test_isomers(self):
         gas = ct.Solution('nDodecane_Reitz.yaml')
         iso = gas.find_isomers({'C':4, 'H':9, 'O':2})
-        self.assertTrue(len(iso) == 2)
+        self.assertEqual(len(iso), 2)
         iso = gas.find_isomers('C:4, H:9, O:2')
-        self.assertTrue(len(iso) == 2)
+        self.assertEqual(len(iso), 2)
         iso = gas.find_isomers({'C':7, 'H':15})
-        self.assertTrue(len(iso) == 1)
+        self.assertEqual(len(iso), 1)
         iso = gas.find_isomers({'C':7, 'H':16})
-        self.assertTrue(len(iso) == 0)
+        self.assertEqual(len(iso), 0)
 
 
 class TestSpeciesThermo(utilities.CanteraTest):
@@ -1306,7 +1306,7 @@ class TestSpeciesThermo(utilities.CanteraTest):
         self.assertEqual(st.max_temp, 3500)
         self.assertEqual(st.reference_pressure, 101325)
         self.assertArrayNear(self.h2o_coeffs, st.coeffs)
-        self.assertTrue(st.n_coeffs == len(st.coeffs))
+        self.assertEqual(st.n_coeffs, len(st.coeffs))
         self.assertTrue(st._check_n_coeffs(st.n_coeffs))
 
     def test_nasa9_load(self):
@@ -1502,7 +1502,7 @@ class TestMisc(utilities.CanteraTest):
     def test_case_sensitive_names(self):
         gas = ct.Solution('h2o2.xml')
         self.assertFalse(gas.case_sensitive_species_names)
-        self.assertTrue(gas.species_index('h2') == 0)
+        self.assertEqual(gas.species_index('h2'), 0)
         gas.X = 'h2:.5, o2:.5'
         self.assertNear(gas.X[0], 0.5)
         gas.Y = 'h2:.5, o2:.5'
