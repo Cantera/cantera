@@ -291,10 +291,10 @@ class TestReactor(utilities.CanteraTest):
         n_advance_negative = integrate(-1.0)
         n_advance_override = integrate(.001, False)
 
-        self.assertTrue(n_advance_coarse > n_baseline)
-        self.assertTrue(n_advance_fine > n_advance_coarse)
-        self.assertTrue(n_advance_negative == n_baseline)
-        self.assertTrue(n_advance_override == n_baseline)
+        self.assertGreater(n_advance_coarse, n_baseline)
+        self.assertGreater(n_advance_fine, n_advance_coarse)
+        self.assertEqual(n_advance_negative, n_baseline)
+        self.assertEqual(n_advance_override, n_baseline)
 
     def test_heat_transfer1(self):
         # Connected reactors reach thermal equilibrium after some time
@@ -629,7 +629,7 @@ class TestReactor(utilities.CanteraTest):
             warnings.simplefilter("always")
             valve.set_valve_coeff(k)
 
-            self.assertTrue(len(w) == 1)
+            self.assertEqual(len(w), 1)
             self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
             self.assertTrue("To be removed after Cantera 2.5. "
                             in str(w[-1].message))
@@ -640,7 +640,7 @@ class TestReactor(utilities.CanteraTest):
             warnings.simplefilter("always")
             valve.set_valve_function(lambda t: t>.01)
 
-            self.assertTrue(len(w) == 1)
+            self.assertEqual(len(w), 1)
             self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
             self.assertTrue("To be removed after Cantera 2.5. "
                             in str(w[-1].message))
@@ -724,7 +724,7 @@ class TestReactor(utilities.CanteraTest):
             warnings.simplefilter("always")
             p.set_pressure_coeff(2.)
 
-            self.assertTrue(len(w) == 1)
+            self.assertEqual(len(w), 1)
             self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
             self.assertTrue("To be removed after Cantera 2.5. "
                             in str(w[-1].message))

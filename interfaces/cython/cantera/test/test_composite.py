@@ -349,7 +349,7 @@ class TestRestoreIdealGas(utilities.CanteraTest):
         b = ct.SolutionArray(self.gas)
         b.restore_data(data)
         check(a, b)
-        self.assertTrue(len(b._extra) == 0)
+        self.assertEqual(len(b._extra), 0)
 
 
 class TestRestorePureFluid(utilities.CanteraTest):
