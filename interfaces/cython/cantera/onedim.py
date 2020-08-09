@@ -938,7 +938,7 @@ class IonFlameBase(FlameBase):
         if stage == 1:
             super().solve(loglevel, refine_grid, auto)
         if stage == 2:
-            self.poisson_enabled = True
+            self.electric_field_enabled = True
             super().solve(loglevel, refine_grid, auto)
 
 
