@@ -51,7 +51,7 @@ class FlameBase(Sim1D):
         if isinstance(dom, Inlet1D):
             return tuple([e for e in self._other
                           if e not in {'grid', 'lambda', 'eField'}])
-        elif isinstance(dom, IdealGasFlow):
+        elif isinstance(dom, (IdealGasFlow, IonFlow)):
             return self._other
         else:
             return ()
