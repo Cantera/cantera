@@ -206,11 +206,10 @@ double Substance::dPsdT()
     if (T + DeltaT < Tcrit()) {
         T += DeltaT;
         dpdt = (Ps() - ps1)/DeltaT;
-    } else if (T - DeltaT > Tmin()) {
-        T -= DeltaT;
-        dpdt = (ps1 - Ps())/DeltaT;
     } else {
-        throw CanteraError("Substance::dPsdT", "Illegal temperature value: {}", T);
+        T -= DeltaT;
+        // Ps() will fail for illegal temperature
+        dpdt = (ps1 - Ps())/DeltaT;
     }
     T = tsave;
     return dpdt;
@@ -245,12 +244,17 @@ double Substance::x()
 
 double Substance::Tsat(double p)
 {
-    if (p <= 0.0 || p > Pcrit()) {
-        throw CanteraError("Substance::Tsat", "Illegal pressure value: {}", p);
+    double Tsave = T;
+    T = Tmin();
+    if (p < Ps() || p > Pcrit()) {
+        throw CanteraError("Substance::Tsat",
+                           "Illegal pressure value: {}", p);
     }
+    T = Tsave;
+    Tsave = T;
+
     int LoopCount = 0;
     double tol = 1.e-6*p;
-    double Tsave = T;
     if (T < Tmin()) {
         T = 0.5*(Tcrit() - Tmin());
     }
@@ -453,14 +457,9 @@ double Substance::Ps()
 
 void Substance::update_sat()
 {
-    if (T < Tmin() || T > Tcrit()) {
-        // prevent silent failures
-        throw CanteraError("Substance::update_sat",
-                           "Temperature value '{}' is outside of valid range: "
-                           "{} < T < {}", T, Tmin(), Tcrit());
-    } else if (T != Tslast) {
+    if (T != Tslast) {
         double Rho_save = Rho;
-        double pp = Psat();
+        double pp = Psat(); // illegal temperatures are caught by Psat()
         double lps = log(pp);
         // trial value = Psat from correlation
         int i;
@@ -489,7 +488,7 @@ void Substance::update_sat()
                 dg = - dg;
             }
 
-            if (fabs(dg) < 0.001 && Rhf > Rhv) {
+            if (fabs(dg) < 0.001) {
                 break;
             }
             double dp = dg/(1.0/Rhv - 1.0/Rhf);
@@ -508,10 +507,6 @@ void Substance::update_sat()
                 pp = psold/2.0;
                 lps = log(pp);
             }
-        }
-        if (Rhf <= Rhv) {
-            throw CanteraError("Substance::update_sat",
-                "Wrong root found for sat. liquid or vapor at P = {}", pp);
         }
 
         if (i >= 20) {
