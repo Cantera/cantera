@@ -202,8 +202,16 @@ double Substance::dPsdT()
 {
     double tsave = T;
     double ps1 = Ps();
-    T += DeltaT;
-    double dpdt = (Ps() - ps1)/DeltaT;
+    double dpdt;
+    if (T + DeltaT < Tcrit()) {
+        T += DeltaT;
+        dpdt = (Ps() - ps1)/DeltaT;
+    } else if (T - DeltaT > Tmin()) {
+        T -= DeltaT;
+        dpdt = (ps1 - Ps())/DeltaT;
+    } else {
+        throw CanteraError("Substance::dPsdT", "Illegal temperature value");
+    }
     T = tsave;
     return dpdt;
 }
@@ -445,7 +453,7 @@ double Substance::Ps()
 
 void Substance::update_sat()
 {
-    if ((T != Tslast) && (T < Tcrit())) {
+    if ((T != Tslast) && (T <= Tcrit())) {
         double Rho_save = Rho;
         double pp = Psat();
         double lps = log(pp);
