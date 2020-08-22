@@ -176,7 +176,7 @@ double water::ldens()
 {
     double sum=0;
     int i;
-    if ((T < Tmn) || (T >= Tc)) {
+    if ((T < Tmn) || (T > Tc)) {
         throw CanteraError("water::ldens",
                            "Temperature out of range. T = {}", T);
     }
