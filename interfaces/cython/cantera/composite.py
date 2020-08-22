@@ -544,6 +544,10 @@ class SolutionArray:
                     raise ValueError("Unable to map extra SolutionArray "
                                      "input named {!r}".format(name))
         elif extra is not None:
+            if self._shape != (0,):
+                raise ValueError("Initial values for extra properties must be "
+                                 "supplied in a dictionary if the SolutionArray "
+                                 "is not initially empty.")
             if isinstance(extra, np.ndarray):
                 extra = extra.flatten()
             elif isinstance(extra, str):
@@ -551,7 +555,7 @@ class SolutionArray:
 
             try:
                 iter_extra = iter(extra)
-            except TypeError :
+            except TypeError:
                 raise ValueError(
                     "Extra properties can be created by passing an iterable "
                     "of names for the properties. If you want to supply initial "
@@ -568,7 +572,7 @@ class SolutionArray:
                     raise ValueError(
                         "Unable to create extra column '{}': name is already "
                         "used by SolutionArray objects.".format(name))
-                self._extra[name] = np.empty(self._shape)
+                self._extra[name] = np.empty(shape=(0,))
 
         if meta is None:
             self._meta = {}

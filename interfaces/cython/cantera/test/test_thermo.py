@@ -1745,6 +1745,15 @@ class TestSolutionArray(utilities.CanteraTest):
         self.assertEqual(states.prop.shape, (2, 2))
         self.assertArrayNear(states.prop, np.array(((3, 3), (3, 3))))
 
+    def test_extra_not_empty(self):
+        """Test that a non-empty SolutionArray raises a ValueError if
+           initial values for properties are not supplied.
+        """
+        with self.assertRaisesRegex(ValueError, "Initial values for extra properties"):
+            ct.SolutionArray(self.gas, 3, extra=["prop"])
+        with self.assertRaisesRegex(ValueError, "Initial values for extra properties"):
+            ct.SolutionArray(self.gas, 3, extra=np.array(["prop", "prop2"]))
+
     def test_extra_wrong_shape(self):
         with self.assertRaisesRegex(ValueError, "Unable to map"):
             ct.SolutionArray(self.gas, (3, 3), extra={"prop": np.arange(3)})
@@ -1784,10 +1793,10 @@ class TestSolutionArray(utilities.CanteraTest):
 
     def test_extra_create_by_ndarray(self):
         properties_array = np.array(["prop1", "prop2", "prop3"])
-        states = ct.SolutionArray(self.gas, shape=(2, 6, 9), extra=properties_array)
-        self.assertEqual(states.prop1.shape, (2, 6, 9))
-        self.assertEqual(states.prop2.shape, (2, 6, 9))
-        self.assertEqual(states.prop3.shape, (2, 6, 9))
+        states = ct.SolutionArray(self.gas, shape=(0,), extra=properties_array)
+        self.assertEqual(states.prop1.shape, (0,))
+        self.assertEqual(states.prop2.shape, (0,))
+        self.assertEqual(states.prop3.shape, (0,))
         # Ensure that a 2-dimensional array is flattened
         properties_array = np.array((["prop1"], ["prop2"]))
         states = ct.SolutionArray(self.gas, extra=properties_array)
