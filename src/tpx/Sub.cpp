@@ -210,7 +210,7 @@ double Substance::dPsdT()
         T -= DeltaT;
         dpdt = (ps1 - Ps())/DeltaT;
     } else {
-        throw CanteraError("Substance::dPsdT", "Illegal temperature value");
+        throw CanteraError("Substance::dPsdT", "Illegal temperature value: {}", T);
     }
     T = tsave;
     return dpdt;
@@ -246,7 +246,7 @@ double Substance::x()
 double Substance::Tsat(double p)
 {
     if (p <= 0.0 || p > Pcrit()) {
-        throw CanteraError("Substance::Tsat", "illegal pressure value");
+        throw CanteraError("Substance::Tsat", "Illegal pressure value: {}", p);
     }
     int LoopCount = 0;
     double tol = 1.e-6*p;
@@ -427,7 +427,7 @@ void Substance::set_T(double t0)
     if ((t0 >= Tmin()) && (t0 <= Tmax())) {
         T = t0;
     } else {
-        throw CanteraError("Substance::set_T", "illegal temperature: {}", t0);
+        throw CanteraError("Substance::set_T", "Illegal temperature: {}", t0);
     }
 }
 
@@ -437,7 +437,7 @@ void Substance::set_v(double v0)
         Rho = 1.0/v0;
     } else {
         throw CanteraError("Substance::set_v",
-                           "negative specific volume: {}", v0);
+                           "Negative specific volume: {}", v0);
     }
 }
 
@@ -445,7 +445,7 @@ double Substance::Ps()
 {
     if (T < Tmin() || T > Tcrit()) {
         throw CanteraError("Substance::Ps",
-                           "illegal temperature value {}", T);
+                           "Illegal temperature value: {}", T);
     }
     update_sat();
     return Pst;
@@ -453,7 +453,12 @@ double Substance::Ps()
 
 void Substance::update_sat()
 {
-    if ((T != Tslast) && (T <= Tcrit())) {
+    if (T < Tmin() || T > Tcrit()) {
+        // prevent silent failures
+        throw CanteraError("Substance::update_sat",
+                           "Temperature value '{}' is outside of valid range: "
+                           "{} < T < {}", T, Tmin(), Tcrit());
+    } else if (T != Tslast) {
         double Rho_save = Rho;
         double pp = Psat();
         double lps = log(pp);
@@ -506,11 +511,11 @@ void Substance::update_sat()
         }
         if (Rhf <= Rhv) {
             throw CanteraError("Substance::update_sat",
-                "wrong root found for sat. liquid or vapor at P = {}", pp);
+                "Wrong root found for sat. liquid or vapor at P = {}", pp);
         }
 
         if (i >= 20) {
-            throw CanteraError("Substance::update_sat", "no convergence");
+            throw CanteraError("Substance::update_sat", "No convergence");
         } else {
             Pst = pp;
             Tslast = T;
@@ -533,7 +538,7 @@ double Substance::vprop(propertyFlag::type ijob)
     case propertyFlag::P:
         return Pp();
     default:
-        throw CanteraError("Substance::vprop", "invalid job index");
+        throw CanteraError("Substance::vprop", "Invalid job index");
     }
 }
 
@@ -562,7 +567,7 @@ int Substance::Lever(int itp, double sat, double val, propertyFlag::type ifunc)
             return 0;
         }
     } else {
-        throw CanteraError("Substance::Lever","general error");
+        throw CanteraError("Substance::Lever", "General error");
     }
     Set(PropertyPair::TX, T, 1.0);
     double Valg = vprop(ifunc);
@@ -771,7 +776,7 @@ void Substance::set_TPp(double Temp, double Pressure)
                     Pmax = P_here;
                 }
                 if (Vmin >= Vmax) {
-                    throw CanteraError("Substance::set_TPp","Vmin >= Vmax");
+                    throw CanteraError("Substance::set_TPp", "Vmin >= Vmax");
                 } else if ((Vmin > 0.0) && (Vmax < Big)) {
                     kbr = 1;
                 }
@@ -803,14 +808,14 @@ void Substance::set_TPp(double Temp, double Pressure)
         }
         v_here += dv;
         if (dv == 0.0) {
-            throw CanteraError("Substance::set_TPp","dv = 0 and no convergence");
+            throw CanteraError("Substance::set_TPp", "dv = 0 and no convergence");
         }
         Set(PropertyPair::TV, Temp, v_here);
         LoopCount++;
         if (LoopCount > 100) {
             Set(PropertyPair::TV, Temp, v_save);
             throw CanteraError("Substance::set_TPp",
-                               "no convergence for P* = {}, V* = {}",
+                               "No convergence for P* = {}, V* = {}",
                                Pressure/Pcrit(), v_save/Vcrit());
         }
     }
