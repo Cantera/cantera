@@ -168,6 +168,56 @@ class TestPureFluid(utilities.CanteraTest):
         self.assertEqual(self.water.isothermal_compressibility, np.inf)
         self.assertEqual(self.water.thermal_expansion_coeff, np.inf)
 
+    def test_quality_exceptions(self):
+        # Critical point
+        self.water.TP = 300, ct.one_atm
+        self.water.TQ = self.water.critical_temperature, .5
+        self.assertNear(self.water.P, self.water.critical_pressure)
+        self.water.TP = 300, ct.one_atm
+        self.water.PQ = self.water.critical_pressure, .5
+        self.assertNear(self.water.T, self.water.critical_temperature)
+
+        # Supercritical
+        with self.assertRaisesRegex(ct.CanteraError, 'above the critical point'):
+            self.water.TQ = 1.001 * self.water.critical_temperature, 0.
+        with self.assertRaisesRegex(ct.CanteraError, 'above the critical point'):
+            self.water.PQ = 1.001 * self.water.critical_pressure, 0.
+
+        # Q negative
+        with self.assertRaisesRegex(ct.CanteraError, 'Invalid vapor fraction'):
+            self.water.TQ = 373.15, -.001
+        with self.assertRaisesRegex(ct.CanteraError, 'Invalid vapor fraction'):
+            self.water.PQ = ct.one_atm, -.001
+
+        # Q larger than one
+        with self.assertRaisesRegex(ct.CanteraError, 'Invalid vapor fraction'):
+            self.water.TQ = 373.15, 1.001
+        with self.assertRaisesRegex(ct.CanteraError, 'Invalid vapor fraction'):
+            self.water.PQ = ct.one_atm, 1.001
+
+    def test_saturation_near_limits(self):
+        # low temperature limit (triple point)
+        self.water.TP = 300, ct.one_atm
+        self.water.P_sat # ensure that solver buffers sufficiently different values
+        self.water.TP = self.water.min_temp, ct.one_atm
+        psat = self.water.P_sat
+        self.water.TP = 300, ct.one_atm
+        self.water.P_sat # ensure that solver buffers sufficiently different values
+        self.water.TP = 300, psat
+        self.assertNear(self.water.T_sat, self.water.min_temp)
+
+        # high temperature limit (critical point) - saturation temperature
+        self.water.TP = 300, ct.one_atm
+        self.water.P_sat # ensure that solver buffers sufficiently different values
+        self.water.TP = self.water.critical_temperature, self.water.critical_pressure
+        self.assertNear(self.water.T_sat, self.water.critical_temperature)
+
+        # high temperature limit (critical point) - saturation pressure
+        self.water.TP = 300, ct.one_atm
+        self.water.P_sat # ensure that solver buffers sufficiently different values
+        self.water.TP = self.water.critical_temperature, self.water.critical_pressure
+        self.assertNear(self.water.P_sat, self.water.critical_pressure)
+
     def test_TPQ(self):
         self.water.TQ = 400, 0.8
         T, P, Q = self.water.TPQ
