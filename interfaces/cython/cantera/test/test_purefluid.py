@@ -34,6 +34,8 @@ class TestPureFluid(utilities.CanteraTest):
         self.water.TV = 400, 1.45
         self.assertNear(self.water.T, 400)
         self.assertNear(self.water.v, 1.45)
+        with self.assertRaisesRegex(ct.CanteraError, 'Negative specific volume'):
+            self.water.TV = 300, -1.
 
         self.water.PV = 101325, 1.45
         self.assertNear(self.water.P, 101325)
@@ -196,7 +198,7 @@ class TestPureFluid(utilities.CanteraTest):
             self.water.PQ = ct.one_atm, 1.001
 
     def test_saturation_near_limits(self):
-        # low temperature limit (triple point)
+        # Low temperature limit (triple point)
         self.water.TP = 300, ct.one_atm
         self.water.P_sat # ensure that solver buffers sufficiently different values
         self.water.TP = self.water.min_temp, ct.one_atm
@@ -206,17 +208,33 @@ class TestPureFluid(utilities.CanteraTest):
         self.water.TP = 300, psat
         self.assertNear(self.water.T_sat, self.water.min_temp)
 
-        # high temperature limit (critical point) - saturation temperature
+        # High temperature limit (critical point) - saturation temperature
         self.water.TP = 300, ct.one_atm
         self.water.P_sat # ensure that solver buffers sufficiently different values
         self.water.TP = self.water.critical_temperature, self.water.critical_pressure
         self.assertNear(self.water.T_sat, self.water.critical_temperature)
 
-        # high temperature limit (critical point) - saturation pressure
+        # High temperature limit (critical point) - saturation pressure
         self.water.TP = 300, ct.one_atm
         self.water.P_sat # ensure that solver buffers sufficiently different values
         self.water.TP = self.water.critical_temperature, self.water.critical_pressure
         self.assertNear(self.water.P_sat, self.water.critical_pressure)
+
+        # Supercricital
+        with self.assertRaisesRegex(ct.CanteraError, 'Illegal temperature value'):
+            self.water.TP = 1.001 * self.water.critical_temperature, self.water.critical_pressure
+            self.water.P_sat
+        with self.assertRaisesRegex(ct.CanteraError, 'Illegal pressure value'):
+            self.water.TP = self.water.critical_temperature, 1.001 * self.water.critical_pressure
+            self.water.T_sat
+
+        # Below triple point
+        with self.assertRaisesRegex(ct.CanteraError, 'Illegal temperature'):
+            self.water.TP = .999 * self.water.min_temp, ct.one_atm
+            self.water.P_sat
+        with self.assertRaisesRegex(ct.CanteraError, 'Illegal pressure value'):
+            self.water.TP = 300, .999 * psat
+            self.water.T_sat
 
     def test_TPQ(self):
         self.water.TQ = 400, 0.8
