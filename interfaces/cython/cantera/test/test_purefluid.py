@@ -180,9 +180,9 @@ class TestPureFluid(utilities.CanteraTest):
         self.assertNear(self.water.T, self.water.critical_temperature)
 
         # Supercritical
-        with self.assertRaisesRegex(ct.CanteraError, 'above the critical point'):
+        with self.assertRaisesRegex(ct.CanteraError, 'supercritical'):
             self.water.TQ = 1.001 * self.water.critical_temperature, 0.
-        with self.assertRaisesRegex(ct.CanteraError, 'above the critical point'):
+        with self.assertRaisesRegex(ct.CanteraError, 'supercritical'):
             self.water.PQ = 1.001 * self.water.critical_pressure, 0.
 
         # Q negative
@@ -201,6 +201,27 @@ class TestPureFluid(utilities.CanteraTest):
         self.water.TP = 300, ct.one_atm
         with self.assertRaisesRegex(ct.CanteraError, 'Saturated mixture detected'):
             self.water.TP = 300, self.water.P_sat
+
+        # Saturated vapor
+        self.water.TQ = 373.15, 1.
+        self.assertEqual(self.water.phase_of_matter, 'gas')
+        self.assertFalse(np.isinf(self.water.cp_mass))
+        self.assertFalse(np.isinf(self.water.thermal_expansion_coeff))
+        self.assertFalse(np.isinf(self.water.isothermal_compressibility))
+
+        # Saturated mixture
+        self.water.TQ = 373.15, .5
+        self.assertEqual(self.water.phase_of_matter, 'liquid-gas-mix')
+        self.assertTrue(np.isinf(self.water.cp_mass))
+        self.assertTrue(np.isinf(self.water.thermal_expansion_coeff))
+        self.assertTrue(np.isinf(self.water.isothermal_compressibility))
+
+        # Saturated liquid
+        self.water.TQ = 373.15, 0.
+        self.assertEqual(self.water.phase_of_matter, 'liquid')
+        self.assertFalse(np.isinf(self.water.cp_mass))
+        self.assertFalse(np.isinf(self.water.thermal_expansion_coeff))
+        self.assertFalse(np.isinf(self.water.isothermal_compressibility))
 
     def test_saturation_near_limits(self):
         # Low temperature limit (triple point)
