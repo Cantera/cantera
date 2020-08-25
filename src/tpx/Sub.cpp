@@ -327,15 +327,17 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
                x0, y0, TolAbsP, TolAbsV, TolRel, TolRel);
         break;
     case PropertyPair::TP:
+        set_T(x0);
         if (x0 < Tcrit()) {
-            set_T(x0);
-            if (y0 < Ps()) {
+            if (fabs(y0 - Ps()) / y0 < TolRel) {
+                throw CanteraError("Substance::Set",
+                                   "Saturated mixture detected: use vapor "
+                                   "fraction to specify state instead");
+            } else if (y0 < Ps()) {
                 Set(PropertyPair::TX, x0, 1.0);
             } else {
                 Set(PropertyPair::TX, x0, 0.0);
             }
-        } else {
-            set_T(x0);
         }
         set_xy(propertyFlag::T, propertyFlag::P,
                x0, y0, TolAbsT, TolAbsP, TolRel, TolRel);
