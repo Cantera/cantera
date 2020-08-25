@@ -255,20 +255,13 @@ double Substance::Tsat(double p)
 
     int LoopCount = 0;
     double tol = 1.e-6*p;
-    if (T < Tmin()) {
-        T = 0.5*(Tcrit() - Tmin());
-    }
-    if (T >= Tcrit()) {
+    if (T < Tmin() || T > Tcrit()) {
         T = 0.5*(Tcrit() - Tmin());
     }
     double dp = 10*tol;
     while (fabs(dp) > tol) {
-        if (T > Tcrit()) {
-            T = Tcrit() - 0.001;
-        }
-        if (T < Tmin()) {
-            T = Tmin() + 0.001;
-        }
+        T = std::min(T, Tcrit());
+        T = std::max(T, Tmin());
         dp = p - Ps();
         double dt = dp/dPsdT();
         double dta = fabs(dt);
@@ -280,7 +273,7 @@ double Substance::Tsat(double p)
         LoopCount++;
         if (LoopCount > 100) {
             T = Tsave;
-            throw CanteraError("Substance::Tsat", "No convergence");
+            throw CanteraError("Substance::Tsat", "No convergence: p = {}", p);
         }
     }
     double tsat = T;
@@ -385,9 +378,9 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
         if (y0 > 1.0 || y0 < 0.0) {
             throw CanteraError("Substance::Set",
                                "Invalid vapor fraction, {}", y0);
-        } else if (x0 >= Pcrit()) {
+        } else if (x0 > Pcrit()) {
             throw CanteraError("Substance::Set",
-                               "Vapor fraction can only be set below the "
+                               "Vapor fraction cannot be set above the "
                                "critical point");
         } else {
             temp = Tsat(x0);
@@ -400,9 +393,9 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
         if (y0 > 1.0 || y0 < 0.0) {
             throw CanteraError("Substance::Set",
                                "Invalid vapor fraction, {}", y0);
-        } else if (x0 >= Tcrit()) {
+        } else if (x0 > Tcrit()) {
             throw CanteraError("Substance::Set",
-                               "Vapor fraction can only be set below the "
+                               "Vapor fraction cannot be set above the "
                                "critical point");
         } else {
             set_T(x0);
