@@ -85,117 +85,155 @@ double Substance::cv()
 
 double Substance::cp()
 {
-    double Tsave = T, dt = 1.e-4*T;
-    double RhoSave = Rho;
-    double T1 = std::max(Tmin(), Tsave - dt);
-    double T2 = std::min(Tmax(), Tsave + dt);
-    double p0 = P();
-    double x0 = x();
     if (TwoPhase()) {
         // In the two-phase region, cp is infinite
         return std::numeric_limits<double>::infinity();
     }
 
-    Set(PropertyPair::TP, T1, p0);
-    double x1 = x();
-    if (x1 != x0) {
-        // If the initial state was pure liquid or pure vapor, and the state at
-        // T-dT is not, just take a one-sided difference
-        T1 = Tsave;
-        Set(PropertyPair::TP, T1, p0);
-    }
-    double s1 = s();
+    double Tsave = T, dt = 1.e-4 * T;
+    double RhoSave = Rho;
+    double T1, T2, s1, s2;
+    double p0 = P();
 
-    Set(PropertyPair::TP, T2, p0);
-    double x2 = x();
-    if (x2 != x0) {
-        // If the initial state was pure liquid or pure vapor, and the state at
-        // T+dT is not, just take a one-sided difference
-        T2 = Tsave;
+    if (Rho >= Rhf) {
+        // initial state is pure liquid
+        T1 = std::max(Tmin(), Tsave - dt);
+        Set(PropertyPair::TP, T1, p0);
+        s1 = s();
+        try {
+            T2 = std::min(Tsat(p0), Tsave + dt);
+        } catch (CanteraError&) {
+            // Tsat does not exist beyond two-phase region
+            T2 = Tsave + dt;
+        }
+        if (T2 < Tsave + dt) {
+            Set(PropertyPair::TX, T2, 0.);
+        } else {
+            Set(PropertyPair::TP, T2, p0);
+        }
+        s2 = s();
+    } else {
+        // initial state is pure vapor
+        try {
+            T1 = std::max(Tsat(p0), Tsave - dt);
+        } catch (CanteraError&) {
+            // Tsat does not exist beyond two-phase region
+            T1 = Tsave - dt;
+        }
+        if (T1 > Tsave - dt) {
+            Set(PropertyPair::TX, T1, 1.);
+        } else {
+            Set(PropertyPair::TP, T1, p0);
+        }
+        s1 = s();
+        T2 = std::min(Tmax(), Tsave + dt);
         Set(PropertyPair::TP, T2, p0);
+        s2 = s();
     }
-    double s2 = s();
 
     Set(PropertyPair::TV, Tsave, 1.0 / RhoSave);
-    return T*(s2 - s1)/(T2-T1);
+    return T * (s2 - s1) / (T2 - T1);
 }
 
 double Substance::thermalExpansionCoeff()
 {
-    double Tsave = T, dt = 1.e-4*T;
-    double RhoSave = Rho;
-    double T1 = std::max(Tmin(), Tsave - dt);
-    double T2 = std::min(Tmax(), Tsave + dt);
-    double p0 = P();
-    double x0 = x();
-
     if (TwoPhase()) {
         // In the two-phase region, the thermal expansion coefficient is
         // infinite
         return std::numeric_limits<double>::infinity();
     }
 
-    Set(PropertyPair::TP, T1, p0);
-    double x1 = x();
-    if (x1 != x0) {
-        // If the initial state was pure liquid or pure vapor, and the state at
-        // T-dT is not, just take a one-sided difference
-        T1 = Tsave;
-        Set(PropertyPair::TP, T1, p0);
-    }
-    double v1 = v();
+    double Tsave = T, dt = 1.e-4 * T;
+    double RhoSave = Rho;
+    double T1, T2, v1, v2;
+    double p0 = P();
 
-    Set(PropertyPair::TP, T2, p0);
-    double x2 = x();
-    if (x2 != x0) {
-        // If the initial state was pure liquid or pure vapor, and the state at
-        // T+dT is not, just take a one-sided difference
-        T2 = Tsave;
+    if (Rho >= Rhf) {
+        // initial state is pure liquid
+        T1 = std::max(Tmin(), Tsave - dt);
+        Set(PropertyPair::TP, T1, p0);
+        v1 = v();
+        try {
+            T2 = std::min(Tsat(p0), Tsave + dt);
+        } catch (CanteraError&) {
+            // Tsat does not exist beyond two-phase region
+            T2 = Tsave + dt;
+        }
+        if (T2 < Tsave + dt) {
+            Set(PropertyPair::TX, T2, 0.);
+        } else {
+            Set(PropertyPair::TP, T2, p0);
+        }
+        v2 = v();
+    } else {
+        // initial state is pure vapor
+        try {
+            T1 = std::max(Tsat(p0), Tsave - dt);
+        } catch (CanteraError&) {
+            // Tsat does not exist beyond two-phase region
+            T1 = Tsave - dt;
+        }
+        if (T1 > Tsave - dt) {
+            Set(PropertyPair::TX, T1, 1.);
+        } else {
+            Set(PropertyPair::TP, T1, p0);
+        }
+        v1 = v();
+        T2 = std::min(Tmax(), Tsave + dt);
         Set(PropertyPair::TP, T2, p0);
+        v2 = v();
     }
-    double v2 = v();
 
     Set(PropertyPair::TV, Tsave, 1.0 / RhoSave);
-    return 2.0*(v2 - v1)/((v2 + v1)*(T2-T1));
+    return 2.0 * (v2 - v1) / ((v2 + v1) * (T2 - T1));
 }
 
 double Substance::isothermalCompressibility()
 {
-    double Psave = P(), dp = 1.e-4*Psave;
-    double RhoSave = Rho;
-    double x0 = x();
-
     if (TwoPhase()) {
         // In the two-phase region, the isothermal compressibility is infinite
         return std::numeric_limits<double>::infinity();
     }
 
+    double Psave = P(), dp = 1.e-4 * Psave;
+    double RhoSave = Rho;
+    double P1, P2, v1, v2;
     double v0 = v();
-    double P1 = Psave - dp;
-    double P2 = Psave + dp;
 
-    Set(PropertyPair::TP, T, P1);
-    double x1 = x();
-    if (x1 != x0) {
-        // If the initial state was pure liquid or pure vapor, and the state at
-        // P-dP is not, just take a one-sided difference
-        P1 = Psave;
-        Set(PropertyPair::TP, T, P1);
-    }
-    double v1 = v();
-
-    Set(PropertyPair::TP, T, P2);
-    double x2 = x();
-    if (x2 != x0) {
-        // If the initial state was pure liquid or pure vapor, and the state at
-        // P+dP is not, just take a one-sided difference
-        P2 = Psave;
+    if (Rho >= Rhf) {
+        // initial state is pure liquid
+        P1 = Psave - dp;
+        if (T > Tmin() && T <= Tcrit()) {
+            P1 = std::max(Ps(), P1);
+        }
+        if (P1 > Psave - dp) {
+            Set(PropertyPair::PX, P1, 0.);
+        } else {
+            Set(PropertyPair::TP, T, P1);
+        }
+        v1 = v();
+        P2 = Psave + dp;
         Set(PropertyPair::TP, T, P2);
+        v2 = v();
+    } else {
+        // initial state is pure vapor
+        P1 = std::max(1.e-7, Psave - dp);
+        Set(PropertyPair::TP, T, P1);
+        v1 = v();
+        P2 = Psave + dp;
+        if (T > Tmin() && T <= Tcrit()) {
+            P2 = std::min(Ps(), P2);
+        }
+        if (P2 < Psave + dp) {
+            Set(PropertyPair::PX, P2, 1.);
+        } else {
+            Set(PropertyPair::TP, T, P2);
+        }
+        v2 = v();
     }
-    double v2 = v();
 
     Set(PropertyPair::TV, T, 1.0 / RhoSave);
-    return -(v2 - v1)/(v0*(P2-P1));
+    return -(v2 - v1) / (v0 * (P2 - P1));
 }
 
 double Substance::dPsdT()
@@ -377,13 +415,14 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
                x0, y0, TolAbsS, TolAbsH, TolRel, TolRel);
         break;
     case PropertyPair::PX:
+        temp = Tmin();
         if (y0 > 1.0 || y0 < 0.0) {
             throw CanteraError("Substance::Set",
                                "Invalid vapor fraction, {}", y0);
-        } else if (x0 > Pcrit()) {
+        } else if (x0 < Ps() || x0 > Pcrit()) {
             throw CanteraError("Substance::Set",
-                               "Vapor fraction cannot be set above the "
-                               "critical point");
+                               "Illegal pressure value: {} (supercritical "
+                               "or below triple line)", x0);
         } else {
             temp = Tsat(x0);
             set_T(temp);
@@ -395,10 +434,10 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
         if (y0 > 1.0 || y0 < 0.0) {
             throw CanteraError("Substance::Set",
                                "Invalid vapor fraction, {}", y0);
-        } else if (x0 > Tcrit()) {
+        } else if (x0 < Tmin() || x0 > Tcrit()) {
             throw CanteraError("Substance::Set",
-                               "Vapor fraction cannot be set above the "
-                               "critical point");
+                               "Illegal temperature value: {} "
+                               "(supercritical of below triple line)", x0);
         } else {
             set_T(x0);
             update_sat();
@@ -802,10 +841,11 @@ void Substance::set_TPp(double Temp, double Pressure)
         }
         Set(PropertyPair::TV, Temp, v_here);
         LoopCount++;
-        if (LoopCount > 100) {
+        if (LoopCount > 200) {
             Set(PropertyPair::TV, Temp, v_save);
             throw CanteraError("Substance::set_TPp",
-                               "No convergence for P* = {}, V* = {}",
+                               "No convergence for P = {}, T = {}\n"
+                               "(P* = {}, V* = {})", Pressure, Temp,
                                Pressure/Pcrit(), v_save/Vcrit());
         }
     }
