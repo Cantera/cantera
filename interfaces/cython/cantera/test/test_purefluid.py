@@ -197,6 +197,11 @@ class TestPureFluid(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, 'Invalid vapor fraction'):
             self.water.PQ = ct.one_atm, 1.001
 
+    def test_saturated_mixture(self):
+        self.water.TP = 300, ct.one_atm
+        with self.assertRaisesRegex(ct.CanteraError, 'Saturated mixture detected'):
+            self.water.TP = 300, self.water.P_sat
+
     def test_saturation_near_limits(self):
         # Low temperature limit (triple point)
         self.water.TP = 300, ct.one_atm
