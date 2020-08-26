@@ -164,12 +164,6 @@ class TestPureFluid(utilities.CanteraTest):
             self.water.TD = T, 0.1
             self.assertNear(T * self.water.thermal_expansion_coeff, 1.0, 1e-2)
 
-    def test_fd_properties_twophase(self):
-        self.water.TQ = 400, 0.1
-        self.assertEqual(self.water.cp, np.inf)
-        self.assertEqual(self.water.isothermal_compressibility, np.inf)
-        self.assertEqual(self.water.thermal_expansion_coeff, np.inf)
-
     def test_quality_exceptions(self):
         # Critical point
         self.water.TP = 300, ct.one_atm
@@ -202,26 +196,33 @@ class TestPureFluid(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, 'Saturated mixture detected'):
             self.water.TP = 300, self.water.P_sat
 
+        w = ct.Water()
+
         # Saturated vapor
         self.water.TQ = 373.15, 1.
         self.assertEqual(self.water.phase_of_matter, 'gas')
-        self.assertFalse(np.isinf(self.water.cp_mass))
-        self.assertFalse(np.isinf(self.water.thermal_expansion_coeff))
-        self.assertFalse(np.isinf(self.water.isothermal_compressibility))
+        w.TP = self.water.T, .999 * self.water.P_sat
+        self.assertNear(self.water.cp, w.cp, 1.e-3)
+        self.assertNear(self.water.cv, w.cv, 1.e-3)
+        self.assertNear(self.water.thermal_expansion_coeff, w.thermal_expansion_coeff, 1.e-3)
+        self.assertNear(self.water.isothermal_compressibility, w.isothermal_compressibility, 1.e-3)
 
         # Saturated mixture
         self.water.TQ = 373.15, .5
         self.assertEqual(self.water.phase_of_matter, 'liquid-gas-mix')
-        self.assertTrue(np.isinf(self.water.cp_mass))
-        self.assertTrue(np.isinf(self.water.thermal_expansion_coeff))
-        self.assertTrue(np.isinf(self.water.isothermal_compressibility))
+        self.assertEqual(self.water.cp, np.inf)
+        self.assertTrue(np.isnan(self.water.cv))
+        self.assertEqual(self.water.isothermal_compressibility, np.inf)
+        self.assertEqual(self.water.thermal_expansion_coeff, np.inf)
 
         # Saturated liquid
         self.water.TQ = 373.15, 0.
         self.assertEqual(self.water.phase_of_matter, 'liquid')
-        self.assertFalse(np.isinf(self.water.cp_mass))
-        self.assertFalse(np.isinf(self.water.thermal_expansion_coeff))
-        self.assertFalse(np.isinf(self.water.isothermal_compressibility))
+        w.TP = self.water.T, 1.001 * self.water.P_sat
+        self.assertNear(self.water.cp, w.cp, 1.e-3)
+        self.assertNear(self.water.cv, w.cv, 1.e-3)
+        self.assertNear(self.water.thermal_expansion_coeff, w.thermal_expansion_coeff, 1.e-3)
+        self.assertNear(self.water.isothermal_compressibility, w.isothermal_compressibility, 1.e-3)
 
     def test_saturation_near_limits(self):
         # Low temperature limit (triple point)
