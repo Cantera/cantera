@@ -54,6 +54,13 @@ const double DeltaT = 0.000001;
 
 double Substance::cv()
 {
+    if (TwoPhase()) {
+        // While cv can be calculated for the two-phase region (the state can
+        // always be continuously varied along an isochor on a T-v diagram),
+        // this calculation is currently not implemented
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
     double Tsave = T, dt = 1.e-4*T;
     double x0 = x();
     double T1 = std::max(Tmin(), Tsave - dt);
