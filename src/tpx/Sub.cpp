@@ -290,8 +290,13 @@ double Substance::x()
 double Substance::Tsat(double p)
 {
     double Tsave = T;
-    T = Tmin();
-    if (p < Ps() || p > Pcrit()) {
+    if (p <= 0. || p > Pcrit()) {
+        // TODO: this check should also fail below the triple point pressure
+        // (calculated as Ps() for Tmin() as it is not available as a numerical
+        // parameter). A bug causing low-temperature TP setters to fail for
+        // Heptane (GitHub issue #605) prevents this at the moment.
+        // Without this check, a calculation attempt fails with the less
+        // meaningful error "No convergence" below.
         throw CanteraError("Substance::Tsat",
                            "Illegal pressure value: {}", p);
     }
