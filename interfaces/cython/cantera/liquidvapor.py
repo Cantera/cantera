@@ -15,6 +15,19 @@ def Water():
     return WaterWithTransport('liquidvapor.yaml', 'water', transport_model='Water')
 
 
+def LiquidWater():
+    """
+    Create a `PureFluid` object using the IAPWS Formulation 1995 for
+    thermodynamic properties and the `WaterTransport` class for viscosity
+    and thermal conductivity.
+    """
+    class WaterWithTransport(PureFluid, _cantera.Transport):
+        __slots__ = ()
+
+    return WaterWithTransport('liquidvapor.yaml', 'liquid-water',
+                              transport_model='Water')
+
+
 def Nitrogen():
     """Create a `PureFluid` object using the equation of state for nitrogen."""
     return PureFluid('liquidvapor.yaml', 'nitrogen')
