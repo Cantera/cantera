@@ -259,9 +259,10 @@ class TestPureFluid(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, 'Illegal temperature'):
             self.water.TP = .999 * self.water.min_temp, ct.one_atm
             self.water.P_sat
-        with self.assertRaisesRegex(ct.CanteraError, 'Illegal pressure value'):
-            self.water.TP = 300, .999 * psat
-            self.water.T_sat
+        # Test disabled pending fix of GitHub issue #605
+        # with self.assertRaisesRegex(ct.CanteraError, 'Illegal pressure value'):
+        #     self.water.TP = 300, .999 * psat
+        #     self.water.T_sat
 
     def test_TPQ(self):
         self.water.TQ = 400, 0.8
