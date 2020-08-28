@@ -87,6 +87,9 @@ class TestModels(utilities.CanteraTest):
             try:
                 sol = ct.Solution(self.yml_file, ph_name)
                 a = ct.SolutionArray(sol, 10)
+                if ph['thermo'] == 'liquid-water-IAPWS95':
+                    # ensure that phase remains liquid
+                    a.TP = sol.T, sol.critical_pressure
 
                 # assign some state
                 T = 373.15 + 100*np.random.rand(10)

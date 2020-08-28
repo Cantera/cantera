@@ -357,6 +357,31 @@ class TestPureFluid(utilities.CanteraTest):
         co2 = ct.CarbonDioxide()
         self.assertEqual(co2.phase_of_matter, "gas")
 
+    def test_liquidwater(self):
+        w = ct.LiquidWater()
+        self.assertNear(w.critical_density, 322.)
+        self.assertNear(w.critical_temperature, 647.096)
+        self.assertNear(w.critical_pressure, 22064000.0)
+
+        # test internal TP setters (setters update temperature at constant
+        # density before updating pressure)
+        w.TP = 300, ct.one_atm
+        dens = w.density
+        w.TP = 2000, ct.one_atm # supercricial
+        w.TP = 300, ct.one_atm # state goes from supercritical -> gas -> liquid
+        self.assertNear(w.density, dens)
+
+        # test setters for critical conditions
+        w.TP = w.critical_temperature, w.critical_pressure
+        self.assertNear(w.density, 322.)
+        w.TP = 2000, ct.one_atm # uses current density as initial guess
+        w.TP = 273.16, ct.one_atm # uses fixed density as initial guess
+        self.assertNear(w.density, 999.84376)
+        with self.assertRaisesRegex(ct.CanteraError, "violates model assumptions"):
+            w.TP = 273.1599999, ct.one_atm
+        with self.assertRaisesRegex(ct.CanteraError, "violates model assumptions"):
+            w.TP = 500, ct.one_atm
+
 
 # To minimize errors when transcribing tabulated data, the input units here are:
 # T: K, P: MPa, rho: kg/m3, v: m3/kg, (u,h): kJ/kg, s: kJ/kg-K
