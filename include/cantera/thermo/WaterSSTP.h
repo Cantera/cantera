@@ -20,7 +20,7 @@ namespace Cantera
 class WaterPropsIAPWS;
 class WaterProps;
 //! Class for single-component water. This is designed to cover just the liquid
-//! part of water.
+//! and supercritical phases of water.
 /*!
  * The reference is W. Wagner, A. Pruss, "The IAPWS Formulation 1995 for the
  * Thermodynamic Properties of Ordinary Water Substance for General and
@@ -142,6 +142,8 @@ public:
     virtual std::string type() const {
         return "Water";
     }
+
+    virtual std::string phaseOfMatter() const;
 
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
@@ -281,8 +283,8 @@ private:
     bool m_ready;
 
     /**
-     *  Since this phase represents a liquid phase, it's an error to
-     *  return a gas-phase answer. However, if the below is true, then
+     *  Since this phase represents a liquid (or supercritical) phase, it is an
+     *  error to return a gas-phase answer. However, if the below is true, then
      *  a gas-phase answer is allowed. This is used to check the thermodynamic
      *  consistency with ideal-gas thermo functions for example.
      */

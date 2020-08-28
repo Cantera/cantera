@@ -367,9 +367,11 @@ class TestPureFluid(utilities.CanteraTest):
         # density before updating pressure)
         w.TP = 300, ct.one_atm
         dens = w.density
-        w.TP = 2000, ct.one_atm # supercricial
+        w.TP = 2000, ct.one_atm # supercritical
+        self.assertEqual(w.phase_of_matter, "supercritical")
         w.TP = 300, ct.one_atm # state goes from supercritical -> gas -> liquid
         self.assertNear(w.density, dens)
+        self.assertEqual(w.phase_of_matter, "liquid")
 
         # test setters for critical conditions
         w.TP = w.critical_temperature, w.critical_pressure
@@ -377,6 +379,9 @@ class TestPureFluid(utilities.CanteraTest):
         w.TP = 2000, ct.one_atm # uses current density as initial guess
         w.TP = 273.16, ct.one_atm # uses fixed density as initial guess
         self.assertNear(w.density, 999.84376)
+        self.assertEqual(w.phase_of_matter, "liquid")
+        w.TP = w.T, w.P_sat
+        self.assertEqual(w.phase_of_matter, "liquid")
         with self.assertRaisesRegex(ct.CanteraError, "violates model assumptions"):
             w.TP = 273.1599999, ct.one_atm
         with self.assertRaisesRegex(ct.CanteraError, "violates model assumptions"):
