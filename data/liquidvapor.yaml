@@ -29,13 +29,12 @@ phases:
   elements: [O, H]
   species: [H2O]
   thermo: liquid-water-IAPWS95
-  transport: water
   state:
     T: 300.0
     P: 1.01325e+05
-  note: |-
-    Phase definition based on "The IAPWS Formulation 1995 for the
-    Thermodynamic Properties of Ordinary Water Substance for General and
+  note: >-
+    Phase definition based on W. Wagner, A. Pruss, "The IAPWS Formulation 1995
+    for the Thermodynamic Properties of Ordinary Water Substance for General and
     Scientific Use," J. Phys. Chem. Ref. Dat, 31, 387, 2002.
 - name: nitrogen
   thermo: pure-fluid
@@ -104,6 +103,12 @@ phases:
     T: 300.0
     P: 1.01325e+05
   pure-fluid-name: HFC-134a
+  note: >-
+    Phase definition based on R. Tillner-Roth and H. D. Baehr, "An International
+    Standard Formulation for The Thermodynamic Properties of
+    1,1,1,2-Tetrafluoroethane (HFC-134a) for Temperatures From 170 K to 455 K
+    and Pressures up to 70 MPa". J. Phys. Chem. Ref. Data, Vol. 23, No. 5, 1994.
+    pp. 657--729.
 - name: hfc134a
   thermo: pure-fluid
   elements: [C, F, H]
