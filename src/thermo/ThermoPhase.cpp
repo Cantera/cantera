@@ -135,8 +135,15 @@ void ThermoPhase::setState_TPY(doublereal t, doublereal p, const std::string& y)
 
 void ThermoPhase::setState_TP(doublereal t, doublereal p)
 {
-    setTemperature(t);
-    setPressure(p);
+    double tsave = temperature();
+    double dsave = density();
+    try {
+        setTemperature(t);
+        setPressure(p);
+    } catch (CanteraError&) {
+        setState_TR(tsave, dsave);
+        throw;
+    }
 }
 
 void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const doublereal* x)

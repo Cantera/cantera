@@ -266,15 +266,27 @@ doublereal WaterSSTP::pressure() const
 void WaterSSTP::setPressure(doublereal p)
 {
     double T = temperature();
-    double dens = density();
-    int waterState = WATER_GAS;
-    double rc = m_sub.Rhocrit();
-    if (dens > rc) {
-        waterState = WATER_LIQUID;
+    double dens = 1.;
+    double pp = m_sub.psat(T);
+    int waterState = WATER_SUPERCRIT;
+    if (T < m_sub.Tcrit()) {
+        if (p >= pp) {
+            waterState = WATER_LIQUID;
+            dens = 1000.;
+        } else {
+            throw CanteraError("WaterSSTP::setPressure",
+                               "Pressure p = {} lies below the saturation "
+                               "pressure\n(P_sat = {}), which violates model "
+                               "assumptions.", p, pp);
+        }
     }
-    doublereal dd = m_sub.density(T, p, waterState, dens);
+
+    double dd = m_sub.density(T, p, waterState, dens);
     if (dd <= 0.0) {
-        throw CanteraError("WaterSSTP::setPressure", "error");
+        throw CanteraError("WaterSSTP::setPressure",
+                           "error: T = {}, p = {}, psat = {}\n"
+                           "density_guess = {}, density_fail = {}",
+                           T, p, pp, dens, dd);
     }
     setDensity(dd);
 }
@@ -323,6 +335,12 @@ doublereal WaterSSTP::critDensity() const
 
 void WaterSSTP::setTemperature(const doublereal temp)
 {
+    if (temp < 273.16) {
+        throw CanteraError("WaterSSTP::setTemperature",
+                           "Temperature T = {} lies below the triple point "
+                           "temperature,\nwhich violates model assumptions.",
+                           temp);
+    }
     Phase::setTemperature(temp);
     m_sub.setState_TR(temp, density());
 }
