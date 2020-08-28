@@ -44,6 +44,13 @@ WaterSSTP::WaterSSTP(XML_Node& phaseRoot, const std::string& id) :
     importPhase(phaseRoot, this);
 }
 
+std::string WaterSSTP::phaseOfMatter() const {
+    const vector<std::string> phases = {
+        "gas", "liquid", "supercritical", "unstable-liquid", "unstable-gas"
+    };
+    return phases[m_sub.phaseState()];
+}
+
 void WaterSSTP::initThermo()
 {
     SingleSpeciesTP::initThermo();
