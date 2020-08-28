@@ -238,6 +238,9 @@ public:
         return m_waterProps.get();
     }
 
+    //! Switch that enables calculations in the gas phase
+    void allowGasPhase(bool flag) { m_allowGasPhase = flag; }
+
 protected:
     /**
      * @internal This internal routine must be overridden because it is not

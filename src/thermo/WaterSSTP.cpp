@@ -266,14 +266,14 @@ doublereal WaterSSTP::pressure() const
 void WaterSSTP::setPressure(doublereal p)
 {
     double T = temperature();
-    double dens = 1.;
+    double dens = density();
     double pp = m_sub.psat(T);
     int waterState = WATER_SUPERCRIT;
     if (T < m_sub.Tcrit()) {
         if (p >= pp) {
             waterState = WATER_LIQUID;
             dens = 1000.;
-        } else {
+        } else if (!m_allowGasPhase) {
             throw CanteraError("WaterSSTP::setPressure",
                                "Pressure p = {} lies below the saturation "
                                "pressure\n(P_sat = {}), which violates model "
