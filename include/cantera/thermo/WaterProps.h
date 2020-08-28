@@ -83,6 +83,9 @@ class PDSS_Water;
 //! The WaterProps class is used to house several approximation routines for
 //! properties of water.
 /*!
+ * This is a helper class for WaterSSTP and is not instantiable on its own
+ * (see \ref thermoprops and class \link Cantera::WaterSSTP WaterSSTP\endlink).
+ *
  * The class is also a wrapper around the WaterPropsIAPWS class which provides
  * the calculations for the equation of state properties for water.
  *
