@@ -20,6 +20,9 @@ namespace Cantera
 
 //! Low level class for the real description of water.
 /*!
+ * This is a helper class for WaterSSTP and is not instantiable on its own
+ * (see \ref thermoprops and class \link Cantera::WaterSSTP WaterSSTP\endlink).
+ *
  * The reference is W. Wagner, A. Pruss, "The IAPWS Formulation 1995 for the
  * Thermodynamic Properties of Ordinary Water Substance for General and
  * Scientific Use," J. Phys. Chem. Ref. Dat, 31, 387, 2002.
