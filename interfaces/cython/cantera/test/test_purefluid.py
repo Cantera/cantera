@@ -357,8 +357,17 @@ class TestPureFluid(utilities.CanteraTest):
         co2 = ct.CarbonDioxide()
         self.assertEqual(co2.phase_of_matter, "gas")
 
-    def test_liquidwater(self):
-        w = ct.LiquidWater()
+    def test_water_backends(self):
+        w = ct.Water(backend='default')
+        self.assertEqual(w.thermo_model, 'PureFluid')
+        w = ct.Water(backend='iapws95')
+        self.assertEqual(w.thermo_model, 'Water')
+        with self.assertRaisesRegex(KeyError, 'Unknown backend'):
+            ct.Water('foobar')
+
+
+    def test_water_iapws(self):
+        w = ct.Water(backend='iapws95')
         self.assertNear(w.critical_density, 322.)
         self.assertNear(w.critical_temperature, 647.096)
         self.assertNear(w.critical_pressure, 22064000.0)
@@ -382,9 +391,9 @@ class TestPureFluid(utilities.CanteraTest):
         self.assertEqual(w.phase_of_matter, "liquid")
         w.TP = w.T, w.P_sat
         self.assertEqual(w.phase_of_matter, "liquid")
-        with self.assertRaisesRegex(ct.CanteraError, "violates model assumptions"):
+        with self.assertRaisesRegex(ct.CanteraError, "Not implemented"):
             w.TP = 273.1599999, ct.one_atm
-        with self.assertRaisesRegex(ct.CanteraError, "violates model assumptions"):
+        with self.assertRaisesRegex(ct.CanteraError, "Not implemented"):
             w.TP = 500, ct.one_atm
 
 

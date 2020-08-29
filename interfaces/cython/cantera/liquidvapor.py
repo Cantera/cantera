@@ -4,64 +4,48 @@
 from . import PureFluid, _cantera
 
 
-def Water():
+def Water(backend='default'):
     """
     Create a `PureFluid` object using the equation of state for water and the
     `WaterTransport` class for viscosity and thermal conductivity.
 
-    The object returned by this method implements an accurate equation of
-    state for water that can be used in the liquid, vapor, saturated
-    liquid/vapor, and supercritical regions of the phase diagram. The
-    equation of state is taken from
+    The object returned by this method implements an accurate equation of state
+    for water, where implementations are selected using the *backend* switch.
 
-    W. C. Reynolds, *Thermodynamic Properties in SI: graphs, tables, and
-    computational equations for forty substances.* Stanford: Stanford
-    University, 1979. Print.
+    For the ``default`` backend, the equation of state is taken from
 
-    whereas formulas for transport are taken from
+        W. C. Reynolds, *Thermodynamic Properties in SI: graphs, tables, and
+        computational equations for forty substances.* Stanford: Stanford
+        University, 1979. Print.
 
-    J. V. Sengers, J. T. R. Watson, *Improved International Formulations for
-    the Viscosity and Thermal Conductivity of Water Substance,* J. Phys. Chem.
-    Ref. Data, 15, 1291, 1986.
+    which can be used in the liquid, vapor, saturated liquid/vapor, and
+    supercritical regions of the phase diagram.
 
-    For more details, see classes Cantera::PureFluid, tpx::water and
-    Cantera::WaterTransport in the Cantera C++ source code documentation.
+    The ``iapws95`` backend implements an IAPWS (International Association for
+    the Properties of Water and Steam) formulation for thermodynamic properties
+    taken from
+
+        J. V. Sengers, J. T. R. Watson, *Improved International Formulations for
+        the Viscosity and Thermal Conductivity of Water Substance,* J. Phys.
+        Chem. Ref. Data, 15, 1291, 1986.
+
+    which currently only implements liquid and supercritical regions.
+
+    For more details, see classes Cantera::PureFluid, tpx::water,
+    Cantera::WaterSSTP and Cantera::WaterTransport in the Cantera C++ source
+    code documentation.
     """
     class WaterWithTransport(PureFluid, _cantera.Transport):
         __slots__ = ()
 
-    return WaterWithTransport('liquidvapor.yaml', 'water',
-                              transport_model='Water')
+    if backend == 'default':
+        return WaterWithTransport('liquidvapor.yaml', 'water',
+                                  transport_model='Water')
+    if backend == 'iapws95':
+        return WaterWithTransport('liquidvapor.yaml', 'water-iapws95',
+                                  transport_model='Water')
 
-
-def LiquidWater():
-    """
-    Create a `PureFluid` object using the IAPWS Formulation 1995 for
-    thermodynamic properties and the `WaterTransport` class for viscosity
-    and thermal conductivity.
-
-    The object returned by this method implements an accurate equation of
-    state for water that can be used in the liquid and supercritical regions
-    of the phase diagram. The equation of state is taken from
-
-    W. Wagner, A. Pruss, *The IAPWS Formulation 1995 for the Thermodynamic
-    Properties of Ordinary Water Substance for General and Scientific Use,*
-    J. Phys. Chem. Ref. Dat, 31, 387, 2002.
-
-    whereas formulas for transport are taken from
-
-    J. V. Sengers, J. T. R. Watson, *Improved International Formulations for
-    the Viscosity and Thermal Conductivity of Water Substance,* J. Phys. Chem.
-    Ref. Data, 15, 1291, 1986.
-
-    For more details, see classes Cantera::PureFluid, Cantera::WaterSSTP and
-    Cantera::WaterTransport in the Cantera C++ source code documentation.
-    """
-    class WaterWithTransport(PureFluid, _cantera.Transport):
-        __slots__ = ()
-
-    return WaterWithTransport('liquidvapor.yaml', 'liquid-water',
-                              transport_model='Water')
+    raise KeyError("Unknown backend '{}'".format(backend))
 
 
 def Nitrogen():
@@ -73,9 +57,9 @@ def Nitrogen():
     liquid/vapor, and supercritical regions of the phase diagram. The
     equation of state is taken from
 
-    W. C. Reynolds, *Thermodynamic Properties in SI: graphs, tables, and
-    computational equations for forty substances* Stanford: Stanford
-    University, 1979. Print.
+        W. C. Reynolds, *Thermodynamic Properties in SI: graphs, tables, and
+        computational equations for forty substances* Stanford: Stanford
+        University, 1979. Print.
 
     For more details, see classes Cantera::PureFluid and tpx::nitrogen in the
     Cantera C++ source code documentation.
@@ -92,9 +76,9 @@ def Methane():
     liquid/vapor, and supercritical regions of the phase diagram.  The
     equation of state is taken from
 
-    W. C. Reynolds, *Thermodynamic Properties in SI: graphs, tables, and
-    computational equations for forty substances* Stanford: Stanford
-    University, 1979. Print.
+        W. C. Reynolds, *Thermodynamic Properties in SI: graphs, tables, and
+        computational equations for forty substances* Stanford: Stanford
+        University, 1979. Print.
 
     For more details, see classes Cantera::PureFluid and tpx::methane in the
     Cantera C++ source code documentation.
@@ -111,9 +95,9 @@ def Hydrogen():
     liquid/vapor, and supercritical regions of the phase diagram. The
     equation of state is taken from
 
-    W. C. Reynolds, *Thermodynamic Properties in SI: graphs, tables, and
-    computational equations for forty substances* Stanford: Stanford
-    University, 1979. Print.
+        W. C. Reynolds, *Thermodynamic Properties in SI: graphs, tables, and
+        computational equations for forty substances* Stanford: Stanford
+        University, 1979. Print.
 
     For more details, see classes Cantera::PureFluid and tpx::hydrogen in the
     Cantera C++ source code documentation.
@@ -130,9 +114,9 @@ def Oxygen():
     liquid/vapor, and supercritical regions of the phase diagram.  The
     equation of state is taken from
 
-    W. C. Reynolds, *Thermodynamic Properties in SI: graphs, tables, and
-    computational equations for forty substances* Stanford: Stanford
-    University, 1979. Print.
+        W. C. Reynolds, *Thermodynamic Properties in SI: graphs, tables, and
+        computational equations for forty substances* Stanford: Stanford
+        University, 1979. Print.
 
     For more details, see classes Cantera::PureFluid and tpx::oxygen in the
     Cantera C++ source code documentation.
@@ -149,11 +133,11 @@ def Hfc134a():
     vapor, saturated liquid/vapor, and supercritical regions of the phase
     diagram. Implements the equation of state given in:
 
-    R. Tillner-Roth and H. D. Baehr. *An International Standard Formulation for
-    The Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane (HFC-134a) for
-    Temperatures From 170 K to 455 K and Pressures up to 70 MPa.* J. Phys.
-    Chem. Ref. Data, Vol. 23, No. 5, 1994. pp. 657--729.
-    http://dx.doi.org/10.1063/1.555958
+        R. Tillner-Roth, H. D. Baehr. *An International Standard Formulation for
+        The Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane (HFC-134a) for
+        Temperatures From 170 K to 455 K and Pressures up to 70 MPa.* J. Phys.
+        Chem. Ref. Data, Vol. 23, No. 5, 1994. pp. 657--729.
+        http://dx.doi.org/10.1063/1.555958
 
     For more details, see classes Cantera::PureFluid and tpx::HFC134a in the
     Cantera C++ source code documentation.
@@ -170,9 +154,9 @@ def CarbonDioxide():
     liquid/vapor, and supercritical regions of the phase diagram. The
     equation of state is taken from
 
-    W. C. Reynolds, *Thermodynamic Properties in SI: graphs, tables, and
-    computational equations for forty substances.* Stanford: Stanford
-    University, 1979. Print.
+        W. C. Reynolds, *Thermodynamic Properties in SI: graphs, tables, and
+        computational equations for forty substances.* Stanford: Stanford
+        University, 1979. Print.
 
     For more details, see classes Cantera::PureFluid and tpx::CarbonDioxide in
     the Cantera C++ source code documentation.
@@ -189,9 +173,9 @@ def Heptane():
     liquid/vapor, and supercritical regions of the phase diagram. The
     equation of state is taken from
 
-    W. C. Reynolds, *Thermodynamic Properties in SI: graphs, tables, and
-    computational equations for forty substances.* Stanford: Stanford
-    University, 1979. Print.
+        W. C. Reynolds, *Thermodynamic Properties in SI: graphs, tables, and
+        computational equations for forty substances.* Stanford: Stanford
+        University, 1979. Print.
 
     For more details, see classes Cantera::PureFluid and tpx::Heptane in the
     Cantera C++ source code documentation.
