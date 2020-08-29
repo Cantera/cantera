@@ -25,7 +25,7 @@ phases:
     T: 300.0
     P: 1.01325e+05
   pure-fluid-name: water
-- name: liquid-water
+- name: water-iapws95
   elements: [O, H]
   species: [H2O]
   thermo: liquid-water-IAPWS95
