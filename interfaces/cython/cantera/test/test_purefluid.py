@@ -361,10 +361,9 @@ class TestPureFluid(utilities.CanteraTest):
         w = ct.Water(backend='default')
         self.assertEqual(w.thermo_model, 'PureFluid')
         w = ct.Water(backend='iapws95')
-        self.assertEqual(w.thermo_model, 'Water')
+        self.assertEqual(w.thermo_model, 'WaterSSTP')
         with self.assertRaisesRegex(KeyError, 'Unknown backend'):
             ct.Water('foobar')
-
 
     def test_water_iapws(self):
         w = ct.Water(backend='iapws95')

@@ -140,7 +140,7 @@ public:
     explicit WaterSSTP(XML_Node& phaseRef, const std::string& id = "");
 
     virtual std::string type() const {
-        return "Water";
+        return "WaterSSTP";
     }
 
     virtual std::string phaseOfMatter() const;
