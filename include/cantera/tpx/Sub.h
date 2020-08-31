@@ -146,8 +146,10 @@ public:
     //! is returned if v > Vcrit.
     double x();
 
-    //! Returns 1 if the current state is a liquid/vapor mixture, 0 otherwise
-    int TwoPhase();
+    //! Returns 1 if the current state is a liquid/vapor mixture, 0 otherwise.
+    //! By default, saturated vapor and saturated liquid are included; setting
+    //! the flag *strict* to true will exclude the boundaries.
+    int TwoPhase(bool strict=false);
     //! @}
 
     virtual double Pp()=0;

@@ -200,7 +200,7 @@ class TestPureFluid(utilities.CanteraTest):
 
         # Saturated vapor
         self.water.TQ = 373.15, 1.
-        self.assertEqual(self.water.phase_of_matter, 'gas')
+        self.assertEqual(self.water.phase_of_matter, 'liquid-gas-mix')
         w.TP = self.water.T, .999 * self.water.P_sat
         self.assertNear(self.water.cp, w.cp, 1.e-3)
         self.assertNear(self.water.cv, w.cv, 1.e-3)
@@ -217,7 +217,7 @@ class TestPureFluid(utilities.CanteraTest):
 
         # Saturated liquid
         self.water.TQ = 373.15, 0.
-        self.assertEqual(self.water.phase_of_matter, 'liquid')
+        self.assertEqual(self.water.phase_of_matter, 'liquid-gas-mix')
         w.TP = self.water.T, 1.001 * self.water.P_sat
         self.assertNear(self.water.cp, w.cp, 1.e-3)
         self.assertNear(self.water.cv, w.cv, 1.e-3)
