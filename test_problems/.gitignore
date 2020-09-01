@@ -48,6 +48,7 @@ cxx_samples/kin1.dat
 cxx_samples/kin1.csv
 cxx_samples/flamespeed.csv
 cxx_samples/combustor_cxx.csv
+cxx_samples/custom_cxx.csv
 cxx_samples/transport_mix.csv
 cxx_samples/transport_multi.csv
 diamondSurf/diamond.xml
