@@ -5,6 +5,7 @@ Import('env', 'build', 'install', 'buildSample')
 # (subdir, program name, [source extensions], openmp_flag)
 samples = [
     ('combustor', 'combustor', ['cpp'], False),
+    ('custom', 'custom', ['cpp'], False),
     ('demo', 'demo', ['cpp'], False),
     ('flamespeed', 'flamespeed', ['cpp'], False),
     ('kinetics1', 'kinetics1', ['cpp'], False),
