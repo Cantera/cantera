@@ -140,7 +140,7 @@ public:
     explicit WaterSSTP(XML_Node& phaseRef, const std::string& id = "");
 
     virtual std::string type() const {
-        return "WaterSSTP";
+        return "liquid-water-IAPWS95";
     }
 
     virtual std::string phaseOfMatter() const;
@@ -241,6 +241,12 @@ public:
     }
 
     //! Switch that enables calculations in the gas phase
+    /**
+     *  Since this phase represents a liquid (or supercritical) phase, it is an
+     *  error to return a gas-phase answer. The sole intended use for this
+     *  member function is to check the thermodynamic consistency of the
+     *  underlying WaterProps class with ideal-gas thermo functions.
+     */
     void allowGasPhase(bool flag) { m_allowGasPhase = flag; }
 
 protected:

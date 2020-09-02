@@ -25,7 +25,7 @@ phases:
     T: 300.0
     P: 1.01325e+05
   pure-fluid-name: water
-- name: water-iapws95
+- name: liquid-water-IAPWS95
   elements: [O, H]
   species: [H2O]
   thermo: liquid-water-IAPWS95
@@ -33,9 +33,10 @@ phases:
     T: 300.0
     P: 1.01325e+05
   note: >-
-    Phase definition based on W. Wagner, A. Pruss, "The IAPWS Formulation 1995
-    for the Thermodynamic Properties of Ordinary Water Substance for General and
-    Scientific Use," J. Phys. Chem. Ref. Dat, 31, 387, 2002.
+    Equation of state is based on W. Wagner, A. Pruss, "The IAPWS Formulation
+    1995 for the Thermodynamic Properties of Ordinary Water Substance for
+    General and Scientific Use," J. Phys. Chem. Ref. Dat, 31, 387, 2002.
+    Important: Only liquid and supercritical states are currently implemented
 - name: nitrogen
   thermo: pure-fluid
   elements: [N]
@@ -104,8 +105,8 @@ phases:
     P: 1.01325e+05
   pure-fluid-name: HFC-134a
   note: >-
-    Phase definition based on R. Tillner-Roth and H. D. Baehr, "An International
-    Standard Formulation for The Thermodynamic Properties of
+    Equation of state is based on R. Tillner-Roth and H. D. Baehr, "An
+    International Standard Formulation for The Thermodynamic Properties of
     1,1,1,2-Tetrafluoroethane (HFC-134a) for Temperatures From 170 K to 455 K
     and Pressures up to 70 MPa". J. Phys. Chem. Ref. Data, Vol. 23, No. 5, 1994.
     pp. 657--729.

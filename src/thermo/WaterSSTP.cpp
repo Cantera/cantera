@@ -282,8 +282,8 @@ void WaterSSTP::setPressure(doublereal p)
             dens = 1000.;
         } else if (!m_allowGasPhase) {
             throw CanteraError("WaterSSTP::setPressure",
-                               "Not implemented: pressure p = {} lies below\n"
-                               "the saturation pressure (P_sat = {}).", p, pp);
+                "Model assumes liquid phase; pressure p = {} lies below\n"
+                "the saturation pressure (P_sat = {}).", p, pp);
         }
     }
 
@@ -340,9 +340,8 @@ void WaterSSTP::setTemperature(const doublereal temp)
 {
     if (temp < 273.16) {
         throw CanteraError("WaterSSTP::setTemperature",
-                           "Not implemented: temperature T = {} lies below\n"
-                           "the triple point temperature (T_triple = 273.16).",
-                           temp);
+            "Model assumes liquid phase; temperature T = {} lies below\n"
+            "the triple point temperature (T_triple = 273.16).", temp);
     }
     Phase::setTemperature(temp);
     m_sub.setState_TR(temp, density());
