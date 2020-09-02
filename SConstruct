@@ -1347,11 +1347,6 @@ if env['python_package'] != 'none':
                         ruamel_yaml_version, ruamel_min_version))
                 sys.exit(1)
 
-        if len(info) > expected_output_lines:
-            print("WARNING: Unexpected output while checking Python "
-                  "dependency versions:")
-            print('| ' + '\n| '.join(info[expected_output_lines:]))
-
     if warn_no_python:
         if env['python_package'] == 'default':
             print('WARNING: Not building the Python package because the Python '
@@ -1370,7 +1365,17 @@ if env['python_package'] != 'none':
         elif env["python_package"] == "default":
             print(msg.format("WARNING", python_version, python_min_version))
             env["python_package"] = "none"
+    elif env['python_package'] == 'minimal':
+        # If the minimal package was specified, no further checking
+        # needs to be done
+        print('INFO: Building the minimal Python package for Python {}'.format(python_version))
     else:
+
+        if len(info) > expected_output_lines:
+            print("WARNING: Unexpected output while checking Python "
+                  "dependency versions:")
+            print('| ' + '\n| '.join(info[expected_output_lines:]))
+
         warn_no_full_package = False
         if python_version >= LooseVersion("3.8"):
             # Reset the minimum Cython version if the Python version is 3.8 or higher
