@@ -4,7 +4,7 @@
 from . import PureFluid, _cantera
 
 
-def Water(backend='default'):
+def Water(backend='Reynolds'):
     """
     Create a `PureFluid` object using the equation of state for water and the
     `WaterTransport` class for viscosity and thermal conductivity.
@@ -12,7 +12,7 @@ def Water(backend='default'):
     The object returned by this method implements an accurate equation of state
     for water, where implementations are selected using the *backend* switch.
 
-    For the ``default`` backend, the equation of state is taken from
+    For the ``Reynolds`` backend, the equation of state is taken from
 
         W. C. Reynolds, *Thermodynamic Properties in SI: graphs, tables, and
         computational equations for forty substances.* Stanford: Stanford
@@ -21,28 +21,34 @@ def Water(backend='default'):
     which can be used in the liquid, vapor, saturated liquid/vapor, and
     supercritical regions of the phase diagram.
 
-    The ``iapws95`` backend implements an IAPWS (International Association for
+    The ``IAPWS95`` backend implements an IAPWS (International Association for
     the Properties of Water and Steam) formulation for thermodynamic properties
     taken from
+
+        W. Wagner, A. Pruss, *The IAPWS Formulation 1995 for the Thermodynamic
+        Properties of Ordinary Water Substance for General and Scientific Use,*
+        J. Phys. Chem. Ref. Dat, 31, 387, 2002.
+
+    which currently only implements liquid and supercritical regions.
+
+    In both cases, formulas for transport are taken from
 
         J. V. Sengers, J. T. R. Watson, *Improved International Formulations for
         the Viscosity and Thermal Conductivity of Water Substance,* J. Phys.
         Chem. Ref. Data, 15, 1291, 1986.
 
-    which currently only implements liquid and supercritical regions.
-
-    For more details, see classes Cantera::PureFluid, tpx::water,
-    Cantera::WaterSSTP and Cantera::WaterTransport in the Cantera C++ source
+    For more details, see classes :ct:PureFluid, tpx::water,
+    :ct:WaterSSTP and :ct:WaterTransport in the Cantera C++ source
     code documentation.
     """
     class WaterWithTransport(PureFluid, _cantera.Transport):
         __slots__ = ()
 
-    if backend == 'default':
+    if backend == 'Reynolds':
         return WaterWithTransport('liquidvapor.yaml', 'water',
                                   transport_model='Water')
-    if backend == 'iapws95':
-        return WaterWithTransport('liquidvapor.yaml', 'water-iapws95',
+    if backend == 'IAPWS95':
+        return WaterWithTransport('liquidvapor.yaml', 'liquid-water-IAPWS95',
                                   transport_model='Water')
 
     raise KeyError("Unknown backend '{}'".format(backend))
@@ -61,7 +67,7 @@ def Nitrogen():
         computational equations for forty substances* Stanford: Stanford
         University, 1979. Print.
 
-    For more details, see classes Cantera::PureFluid and tpx::nitrogen in the
+    For more details, see classes :ct:PureFluid and tpx::nitrogen in the
     Cantera C++ source code documentation.
     """
     return PureFluid('liquidvapor.yaml', 'nitrogen')
@@ -80,7 +86,7 @@ def Methane():
         computational equations for forty substances* Stanford: Stanford
         University, 1979. Print.
 
-    For more details, see classes Cantera::PureFluid and tpx::methane in the
+    For more details, see classes :ct:PureFluid and tpx::methane in the
     Cantera C++ source code documentation.
     """
     return PureFluid('liquidvapor.yaml', 'methane')
@@ -99,7 +105,7 @@ def Hydrogen():
         computational equations for forty substances* Stanford: Stanford
         University, 1979. Print.
 
-    For more details, see classes Cantera::PureFluid and tpx::hydrogen in the
+    For more details, see classes :ct:PureFluid and tpx::hydrogen in the
     Cantera C++ source code documentation.
     """
     return PureFluid('liquidvapor.yaml', 'hydrogen')
@@ -118,7 +124,7 @@ def Oxygen():
         computational equations for forty substances* Stanford: Stanford
         University, 1979. Print.
 
-    For more details, see classes Cantera::PureFluid and tpx::oxygen in the
+    For more details, see classes :ct:PureFluid and tpx::oxygen in the
     Cantera C++ source code documentation.
     """
     return PureFluid('liquidvapor.yaml', 'oxygen')
@@ -139,7 +145,7 @@ def Hfc134a():
         Chem. Ref. Data, Vol. 23, No. 5, 1994. pp. 657--729.
         http://dx.doi.org/10.1063/1.555958
 
-    For more details, see classes Cantera::PureFluid and tpx::HFC134a in the
+    For more details, see classes :ct:PureFluid and tpx::HFC134a in the
     Cantera C++ source code documentation.
     """
     return PureFluid('liquidvapor.yaml', 'HFC-134a')
@@ -158,7 +164,7 @@ def CarbonDioxide():
         computational equations for forty substances.* Stanford: Stanford
         University, 1979. Print.
 
-    For more details, see classes Cantera::PureFluid and tpx::CarbonDioxide in
+    For more details, see classes :ct:PureFluid and tpx::CarbonDioxide in
     the Cantera C++ source code documentation.
     """
     return PureFluid('liquidvapor.yaml', 'carbon-dioxide')
@@ -177,7 +183,7 @@ def Heptane():
         computational equations for forty substances.* Stanford: Stanford
         University, 1979. Print.
 
-    For more details, see classes Cantera::PureFluid and tpx::Heptane in the
+    For more details, see classes :ct:PureFluid and tpx::Heptane in the
     Cantera C++ source code documentation.
     """
     return PureFluid('liquidvapor.yaml', 'heptane')

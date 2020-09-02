@@ -21,7 +21,7 @@ int main()
 #endif
     double pres;
     try {
-        ThermoPhase* w = newPhase("liquidvapor.yaml", "water-iapws95");
+        ThermoPhase* w = newPhase("liquidvapor.yaml", "liquid-water-IAPWS95");
         (dynamic_cast<WaterSSTP*>(w))->allowGasPhase(true);
 
         /*

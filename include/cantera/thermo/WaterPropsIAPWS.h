@@ -37,8 +37,10 @@ namespace Cantera
 
 //! Class for calculating the equation of state of water.
 /*!
- * This is a helper class for WaterSSTP and is not instantiable on its own
- * (see \ref thermoprops and class \link Cantera::WaterSSTP WaterSSTP\endlink).
+ * This is a helper class for WaterSSTP and PDSS_Water and does not constitute
+ * a complete implementation of a thermo phase by itself (see \ref thermoprops
+ * and classes \link Cantera::WaterSSTP WaterSSTP\endlink and
+ * \link Cantera::PDSS_Water PDSS_Water\endlink).
  *
  * The reference is W. Wagner, A. Pruss, "The IAPWS Formulation 1995 for the
  * Thermodynamic Properties of Ordinary Water Substance for General and
