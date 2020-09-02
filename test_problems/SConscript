@@ -231,6 +231,9 @@ Test('cxx-bvp', 'cxx_samples', '#build/samples/cxx/bvp/blasius', None,
 Test('cxx-combustor', 'cxx_samples', '#build/samples/cxx/combustor/combustor', None,
      comparisons=[('combustor_cxx_blessed.csv', 'combustor_cxx.csv')],
      threshold=1e-10, tolerance=2e-4)
+Test('cxx-demo', 'cxx_samples', '#build/samples/cxx/demo/demo',
+     'cxx_demo_blessed.txt',
+     threshold=1e-10, tolerance=2e-4)
 Test('cxx-flamespeed', 'cxx_samples', '#build/samples/cxx/flamespeed/flamespeed',
      'cxx_flamespeed_blessed.txt',
      comparisons=[('flamespeed_blessed.csv', 'flamespeed.csv')],

@@ -90,7 +90,7 @@ void demoprog()
 
     // create a transport manager for the gas that computes
     // mixture-averaged properties
-    std::unique_ptr<Transport> tr(newTransportMgr("Mix", &gas, 0));
+    std::unique_ptr<Transport> tr(newTransportMgr("Mix", sol->thermo().get()));
 
     // print the viscosity, thermal conductivity, and diffusion
     // coefficients
@@ -101,9 +101,9 @@ void demoprog()
     vector_fp diff(nsp);
     tr->getMixDiffCoeffs(&diff[0]);
     int k;
-    writelog("\n\n{:20s}  {:26s}\n", "Species", "Diffusion Coefficient");
+    writelog("\n\n{:20s}  {:21s}\n", "Species", "Diffusion Coefficient");
     for (k = 0; k < nsp; k++) {
-        writelog("{:20s}  {:14.5g} m2/s \n", gas->speciesName(k), diff[k]);
+        writelog("{:20s}  {:14.5g} m2/s\n", gas->speciesName(k), diff[k]);
     }
 }
 
