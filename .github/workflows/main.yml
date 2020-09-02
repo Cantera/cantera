@@ -164,7 +164,7 @@ jobs:
         run: |
           sudo apt-get install libboost-dev gfortran scons python3-numpy \
           python3-pip python3-setuptools python3-h5py python3-pandas \
-          python3-ruamel.yaml cython libsundials-dev liblapack-dev \
+          python3-ruamel.yaml python-numpy cython3 libsundials-dev liblapack-dev \
           libblas-dev
       - name: Build Cantera
         run: scons build python_cmd=/usr/bin/python3 blas_lapack_libs=lapack,blas -j2
