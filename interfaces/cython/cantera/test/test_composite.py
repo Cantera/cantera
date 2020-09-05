@@ -170,22 +170,26 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         b.read_csv(outfile)
         self.assertEqual(list(states.spam), list(b.spam))
 
+    def test_write_csv_multidim_column(self):
+        states = ct.SolutionArray(self.gas, 3, extra={'spam': np.zeros((3, 5,))})
+
+        outfile = pjoin(self.test_work_dir, 'solutionarray.csv')
+        with self.assertRaisesRegex(NotImplementedError, 'not supported'):
+            states.write_csv(outfile)
+
     @utilities.unittest.skipIf(isinstance(_pandas, ImportError), "pandas is not installed")
     def test_to_pandas(self):
-
-        states = ct.SolutionArray(self.gas, 7)
+        states = ct.SolutionArray(self.gas, 7, extra={"props": range(7)})
         states.TPX = np.linspace(300, 1000, 7), 2e5, 'H2:0.5, O2:0.4'
-        try:
-            # this will run through if pandas is installed
-            df = states.to_pandas()
-            self.assertEqual(df.shape[0], 7)
-        except ImportError as err:
-            # pandas is not installed and correct exception is raised
-            pass
+        df = states.to_pandas()
+        self.assertEqual(df.shape[0], 7)
+
+        states.props = np.zeros((7,2,))
+        with self.assertRaisesRegex(NotImplementedError, 'not supported'):
+            states.to_pandas()
 
     @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_write_hdf(self):
-
         outfile = pjoin(self.test_work_dir, 'solutionarray.h5')
         if os.path.exists(outfile):
             os.remove(outfile)
@@ -229,15 +233,31 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         c.read_hdf(outfile, group='foo/bar/baz')
         self.assertArrayNear(states.T, c.T)
 
+    @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_write_hdf_str_column(self):
-        states = ct.SolutionArray(self.gas, 3, extra={'spam': 'eggs'})
-
         outfile = pjoin(self.test_work_dir, 'solutionarray.h5')
+        if os.path.exists(outfile):
+            os.remove(outfile)
+
+        states = ct.SolutionArray(self.gas, 3, extra={'spam': 'eggs'})
         states.write_hdf(outfile, mode='w')
 
         b = ct.SolutionArray(self.gas, extra={'spam'})
         b.read_hdf(outfile)
         self.assertEqual(list(states.spam), list(b.spam))
+
+    @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
+    def test_write_hdf_multidim_column(self):
+        outfile = pjoin(self.test_work_dir, 'solutionarray.h5')
+        if os.path.exists(outfile):
+            os.remove(outfile)
+
+        states = ct.SolutionArray(self.gas, 3, extra={'spam': [[1, 2], [3, 4], [5, 6]]})
+        states.write_hdf(outfile, mode='w')
+
+        b = ct.SolutionArray(self.gas, extra={'spam'})
+        b.read_hdf(outfile)
+        self.assertArrayNear(states.spam, b.spam)
 
 
 class TestRestoreIdealGas(utilities.CanteraTest):
