@@ -502,6 +502,7 @@ class SolutionArray:
     _purefluid_scalar = ['Q']
 
     def __init__(self, phase, shape=(0,), states=None, extra=None, meta=None):
+        self.__dict__['_extra'] = OrderedDict()
         self._phase = phase
 
         if isinstance(shape, int):
@@ -528,8 +529,6 @@ class SolutionArray:
 
         reserved = self.__dir__()
 
-        self._extra = OrderedDict()
-
         if isinstance(extra, dict):
             for name, v in extra.items():
                 if name in reserved:
@@ -538,8 +537,16 @@ class SolutionArray:
                         "used by SolutionArray objects.".format(name))
                 if not np.shape(v):
                     self._extra[name] = np.full(self._shape, v)
-                elif np.array(v).shape == self._shape:
-                    self._extra[name] = np.array(v)
+                elif (self._shape[0] == 1
+                      or np.array(v).shape[:len(self._shape)] == self._shape):
+                    arr = np.array(v)
+                    if arr.dtype == np.object:
+                        raise ValueError(
+                            "Unable to create extra column '{}': data type "
+                            "'np.object' is not supported.".format(name))
+                    if self._shape[0] == 1 and len(arr) > 1:
+                        arr = arr[np.newaxis, :]
+                    self._extra[name] = arr
                 else:
                     raise ValueError("Unable to map extra SolutionArray "
                                      "input named {!r}".format(name))
@@ -591,11 +598,28 @@ class SolutionArray:
             return SolutionArray(self._phase, shape, states)
 
     def __getattr__(self, name):
-        if name in self._extra:
-            return self._extra[name]
+        if name in self.__dict__['_extra']:
+            return self.__dict__['_extra'][name]
+        elif name in self.__dict__:
+            super().__getattr__(name)
         else:
             raise AttributeError("'{}' object has no attribute '{}'".format(
                 self.__class__.__name__, name))
+
+    def __setattr__(self, name, value):
+        if name in self.__dict__['_extra']:
+            new = np.array(value)
+            if not new.shape:
+                # maintain shape of extra entry
+                new = np.full(self.__dict__['_extra'][name].shape, value)
+            elif new.shape[:len(self._shape)] != self._shape:
+                raise ValueError(
+                    "Incompatible shapes for extra column '{}': cannot assign "
+                    "value with shape {} to SolutionArray with shape {}"
+                    "".format(name, new.shape, self._shape))
+            super().__setattr__(name, new)
+        else:
+            super().__setattr__(name, value)
 
     def __call__(self, *species):
         return SolutionArray(self._phase[species], states=self._states,
@@ -666,14 +690,30 @@ class SolutionArray:
                 ) from None
             setattr(self._phase, attr, [kwargs[a] for a in attr])
 
-        self._states.append(self._phase.state)
-        self._indices.append(len(self._indices))
+        extra = self._extra
         for name, value in self._extra.items():
+            new = extra_temp.pop(name)
+            if len(value):
+                if (value.ndim == 1 and hasattr(new, '__len__') and
+                    not isinstance(new, str)):
+                    # revert changes to extra before raising error
+                    self._extra = extra
+                    raise ValueError(
+                        "Encountered incompatible value '{}' for extra column '{}'."
+                        "".format(new, name))
+                elif value.ndim > 1 and value.shape[1:] != np.array(new).shape:
+                    # revert changes to extra before raising error
+                    self._extra = extra
+                    raise ValueError(
+                        "Shape of new element does not match existing extra "
+                        "column '{}'".format(name))
             # Casting to a list before appending is ~5x faster than using
             # np.append when appending a single item.
             v = value.tolist()
-            v.append(extra_temp.pop(name))
+            v.append(new)
             self._extra[name] = np.array(v)
+        self._states.append(self._phase.state)
+        self._indices.append(len(self._indices))
         self._shape = (len(self._indices),)
 
     @property
@@ -940,6 +980,10 @@ class SolutionArray:
                              for r in self.reaction_equations()]
             elif c in species_names:
                 collabels = ['{}_{}'.format(species, c)]
+            elif c in self._extra and d.ndim > 1:
+                raise NotImplementedError(
+                    "Detected multi-dimensional extra column '{}': "
+                    "tabular output is not supported.".format(c))
             else:
                 collabels = [c]
 
