@@ -83,9 +83,6 @@ doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
         // Catch critical point, as no solution is found otherwise
         setState_TR(temperature, Rho_c);
         return Rho_c;
-    } else if (fabs(rhoguess - Rho_c) / Rho_c < 1.e-8) {
-        // Starting a search with the critical density would fail
-        rhoguess *= .9;
     }
     doublereal deltaGuess = 0.0;
     if (rhoguess == -1.0) {
@@ -117,6 +114,11 @@ doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
     deltaGuess = rhoguess / Rho_c;
     setState_TR(temperature, rhoguess);
     doublereal delta_retn = m_phi.dfind(p_red, tau, deltaGuess);
+    if (delta_retn <= 0) {
+        // No solution found for first initial guess; perturb initial guess once
+        // to avoid spurious failures (band-aid fix)
+        delta_retn = m_phi.dfind(p_red, tau, 0.9 * deltaGuess);
+    }
     doublereal density_retn;
     if (delta_retn > 0.0) {
         delta = delta_retn;
