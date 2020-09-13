@@ -435,7 +435,7 @@ int Sim1D::setFixedTemperature(double t)
     std::vector<size_t> dsize;
 
     for (size_t n = 0; n < nDomains(); n++) {
-        bool addnewpt=false;
+        bool addnewpt = false;
         Domain1D& d = domain(n);
         size_t comp = d.nComponents();
 
@@ -445,14 +445,21 @@ int Sim1D::setFixedTemperature(double t)
         size_t npnow = d.nPoints();
         size_t nstart = znew.size();
         if (d_free && d_free->domainType() == cFreeFlow) {
+            double ttol = 1.e-3; // avoid new point too close to existing point
             for (size_t m = 0; m < npnow-1; m++) {
-                if (value(n,2,m) == t) {
+                if (fabs(t - value(n, 2, m)) <= ttol * t) {
                     zfixed = d.grid(m);
                     d_free->m_zfixed = zfixed;
                     d_free->m_tfixed = t;
                     addnewpt = false;
                     break;
-                } else if ((value(n,2,m)<t) && (value(n,2,m+1)>t)) {
+                } else if (fabs(value(n, 2, m + 1) - t) <= ttol * t) {
+                    zfixed = d.grid(m + 1);
+                    d_free->m_zfixed = zfixed;
+                    d_free->m_tfixed = t;
+                    addnewpt = false;
+                    break;
+                } else if ((value(n, 2, m) - t) * (value(n, 2, m + 1) - t) < 0.) {
                     z1 = d.grid(m);
                     m1 = m;
                     z2 = d.grid(m+1);
