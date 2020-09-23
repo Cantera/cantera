@@ -69,5 +69,7 @@ if __name__ == "__main__":
         plt.show()
 
     except ImportError:
+        print('Matplotlib not found. Unable to plot results.')
+    except:  # noqa
         print('area ratio,   Mach number,   temperature,   pressure ratio')
         print(data)
