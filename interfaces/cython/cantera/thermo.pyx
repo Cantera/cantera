@@ -1144,7 +1144,7 @@ cdef class ThermoPhase(_SolutionBase):
             return self.thermo.entropy_mole()
 
     property entropy_mass:
-        """Specific entropy [J/kg]."""
+        """Specific entropy [J/kg/K]."""
         def __get__(self):
             return self.thermo.entropy_mass()
 
