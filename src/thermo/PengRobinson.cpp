@@ -514,19 +514,14 @@ void PengRobinson::initThermo()
         // Read a and b coefficients and acentric factor w_ac from species 'input'
         // information (i.e. as specified in a YAML input file)
         if (item.second->input.hasKey("equation-of-state")) {
-            auto eos = item.second->input["equation-of-state"].as<AnyMap>();
-            if (eos.getString("model", "") != "Peng-Robinson") {
-                throw InputFileError("PengRobinson::initThermo", eos,
-                    "Expected species equation of state to be 'Peng-Robinson', "
-                    "but got '{}' instead", eos.getString("model", ""));
-            }
+            auto eos = item.second->input["equation-of-state"].getMapWhere(
+                "model", "Peng-Robinson");
             double a0 = 0, a1 = 0;
             if (eos["a"].isScalar()) {
                 a0 = eos.convert("a", "Pa*m^6/kmol^2");
             } else {
                 auto avec = eos["a"].asVector<AnyValue>(2);
                 a0 = eos.units().convert(avec[0], "Pa*m^6/kmol^2");
-                a1 = eos.units().convert(avec[1], "Pa*m^6/kmol^2/K");
             }
             double b = eos.convert("b", "m^3/kmol");
             // unitless acentric factor:
