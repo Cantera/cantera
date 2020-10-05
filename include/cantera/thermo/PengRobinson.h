@@ -237,22 +237,22 @@ public:
      */
     void pressureDerivatives() const;
 
-    //! Update the a and b parameters
+    //! Update the a, b and alpha parameters
     /*!
      *  The a and the b parameters depend on the mole fraction and the
-     *  temperature. This function updates the internal numbers based on the
-     *  state of the object.
+     *  parameter alpha depends on the temperature. This function updates 
+     *  the internal numbers based on the state of the object.
      */
     virtual void updateMixingExpressions();
 
-    //! Calculate the a and the b parameters given the temperature
+    //! Calculate the a, b and the alpha parameters given the temperature
     /*!
      * This function doesn't change the internal state of the object, so it is a
      * const function.  It does use the stored mole fractions in the object.
      *
-     * @param temp  Temperature (TKelvin)
      * @param aCalc (output)  Returns the a value
      * @param bCalc (output)  Returns the b value.
+     * @param aAlpha (output) Returns the (a*alpha) value.
      */
     void calculateAB(double& aCalc, double& bCalc, double& aAlpha) const;
 
