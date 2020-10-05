@@ -57,7 +57,7 @@ double MixtureFugacityTP::entropy_mole() const
 {
     _updateReferenceStateThermo();
     double s_ideal = GasConstant * (mean_X(m_s0_R) - sum_xlogx()
-		- std::log(pressure()/refPressure()));
+        - std::log(pressure()/refPressure()));
     double s_nonideal = sresid();
     return s_ideal + s_nonideal;
 }
@@ -490,34 +490,34 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
 
 void MixtureFugacityTP::setToEquilState(const doublereal* mu_RT)
 {
-	double tmp, tmp2;
-	_updateReferenceStateThermo();
-	getGibbs_RT_ref(m_tmpV.data());
+    double tmp, tmp2;
+    _updateReferenceStateThermo();
+    getGibbs_RT_ref(m_tmpV.data());
 
-	// Within the method, we protect against inf results if the exponent is too
-	// high.
-	//
-	// If it is too low, we set the partial pressure to zero. This capability is
-	// needed by the elemental potential method.
-	doublereal pres = 0.0;
-	double m_p0 = refPressure();
-	for (size_t k = 0; k < m_kk; k++) {
-		tmp = -m_tmpV[k] + mu_RT[k];
-		if (tmp < -600.) {
-			m_pp[k] = 0.0;
-		}
-		else if (tmp > 500.0) {
-			tmp2 = tmp / 500.;
-			tmp2 *= tmp2;
-			m_pp[k] = m_p0 * exp(500.) * tmp2;
-		}
-		else {
-			m_pp[k] = m_p0 * exp(tmp);
-		}
-		pres += m_pp[k];
-	}
-	// set state
-	setState_PX(pres, &m_pp[0]);
+    // Within the method, we protect against inf results if the exponent is too
+    // high.
+    //
+    // If it is too low, we set the partial pressure to zero. This capability is
+    // needed by the elemental potential method.
+    doublereal pres = 0.0;
+    double m_p0 = refPressure();
+    for (size_t k = 0; k < m_kk; k++) {
+        tmp = -m_tmpV[k] + mu_RT[k];
+        if (tmp < -600.) {
+            m_pp[k] = 0.0;
+        }
+        else if (tmp > 500.0) {
+            tmp2 = tmp / 500.;
+            tmp2 *= tmp2;
+            m_pp[k] = m_p0 * exp(500.) * tmp2;
+        }
+        else {
+            m_pp[k] = m_p0 * exp(tmp);
+        }
+        pres += m_pp[k];
+    }
+    // set state
+    setState_PX(pres, &m_pp[0]);
 }
 
 void MixtureFugacityTP::updateMixingExpressions()
@@ -901,7 +901,7 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
         nSolnValues = 1;
     }
 
-	double tmp;
+    double tmp;
     // One real root -> have to determine whether gas or liquid is the root
     if (disc > 0.0) {
         double tmpD = sqrt(disc);
@@ -1007,8 +1007,8 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
     }
 
     if (nSolnValues == 1) {
-	// Determine the phase of the single root. 
-	// nSolnValues = 1 represents the gas phase by default.
+    // Determine the phase of the single root. 
+    // nSolnValues = 1 represents the gas phase by default.
         if (T > tc) {
             if (Vroot[0] < vc) {
                 // Supercritical phase
@@ -1016,15 +1016,15 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
             }
         } else {
             if (Vroot[0] < xN) {
-		//Liquid phase
+        //Liquid phase
                 nSolnValues = -1;
             }
         }
     } else {
-	// Determine if we have two distinct roots or three equal roots
-	// nSolnValues = 2 represents 2 equal roots by default.
+    // Determine if we have two distinct roots or three equal roots
+    // nSolnValues = 2 represents 2 equal roots by default.
         if (nSolnValues == 2 && delta > 1e-14) {
-	    //If delta > 0, we have two distinct roots (and one repeated root)
+        //If delta > 0, we have two distinct roots (and one repeated root)
             nSolnValues = -2;
         }
     }
