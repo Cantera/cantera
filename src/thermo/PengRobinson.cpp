@@ -132,7 +132,7 @@ double PengRobinson::cp_mole() const
     double mv = molarVolume();
     double vpb = mv + (1 + M_SQRT2)*m_b_current;
     double vmb = mv + (1 - M_SQRT2)*m_b_current;
-    pressureDerivatives();
+    calculatePressureDerivatives();
     double cpref = GasConstant * mean_X(m_cp0_R);
     double dHdT_V = cpref + mv * m_dpdT - GasConstant
                     + 1.0 / (2.0 * M_SQRT2 *m_b_current) * log(vpb / vmb) * T *d2aAlpha_dT2();
@@ -143,7 +143,7 @@ double PengRobinson::cv_mole() const
 {
     _updateReferenceStateThermo();
     double T = temperature();
-    pressureDerivatives();
+    calculatePressureDerivatives();
     return (cp_mole() + T* m_dpdT* m_dpdT / m_dpdV);
 }
 
@@ -222,12 +222,11 @@ void PengRobinson::getChemPotentials(double* mu) const
     }
     double pres = pressure();
     double refP = refPressure();
-    double num = 0;
     double den = 2 * M_SQRT2 * m_b_current * m_b_current;
     double den2 = m_b_current*(mv * mv + 2 * mv * m_b_current - m_b_current * m_b_current);
 
     for (size_t k = 0; k < m_kk; k++) {
-        num = 2 * m_b_current * m_pp[k] - m_aAlpha_current * m_b_vec_Curr[k];
+        double num = 2 * m_b_current * m_pp[k] - m_aAlpha_current * m_b_vec_Curr[k];
 
         mu[k] += (RTkelvin * log(pres/refP) - RTkelvin * log(pres * mv / RTkelvin)
                   + RTkelvin * log(mv / vmb)
@@ -270,7 +269,7 @@ void PengRobinson::getPartialMolarEnthalpies(double* hbar) const
     double daAlphadT = daAlpha_dT();
     double fac = T * daAlphadT - m_aAlpha_current;
 
-    pressureDerivatives();
+    calculatePressureDerivatives();
     double fac2 = mv + T * m_dpdT / m_dpdV;
     double fac3 = 2 * M_SQRT2 * m_b_current *m_b_current;
     for (size_t k = 0; k < m_kk; k++) {
@@ -319,7 +318,7 @@ void PengRobinson::getPartialMolarEntropies(double* sbar) const
                    - coeff1* log(vpb2 / vmb2) / den1
                    - m_b_vec_Curr[k] * mv * daAlphadT / den2 / m_b_current;
     }
-    pressureDerivatives();
+    calculatePressureDerivatives();
     getPartialMolarVolumes(m_partialMolarVolumes.data());
     for (size_t k = 0; k < m_kk; k++) {
         sbar[k] -= m_partialMolarVolumes[k] * m_dpdT;
@@ -741,7 +740,7 @@ double PengRobinson::dpdVCalc(double T, double molarVol, double& presCalc) const
     return dpdv;
 }
 
-void PengRobinson::pressureDerivatives() const
+void PengRobinson::calculatePressureDerivatives() const
 {
     double T = temperature();
     double mv = molarVolume();

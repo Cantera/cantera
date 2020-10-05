@@ -235,7 +235,7 @@ public:
     /*!
      *  These are stored internally.
      */
-    void pressureDerivatives() const;
+    void calculatePressureDerivatives() const;
 
     //! Update the a, b and alpha parameters
     /*!
