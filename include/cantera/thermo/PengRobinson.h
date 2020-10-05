@@ -202,16 +202,14 @@ public:
      *  assumed by default to be computed as:
      *  \f[ a_{ij} = \sqrt{a_{i, 0} a_{j, 0}} + \sqrt{a_{i, 1} a_{j, 1}} T \f]
      *
-     *  This function overrides the defaults with the specified parameters:
-     *  \f[ a_{ij} = a_{ij, 0} + a_{ij, 1} T \f]
      *
      *  @param species_i   Name of one species
      *  @param species_j   Name of the other species
-     *  @param a0          constant term in the "a" expression [Pa-m^6/kmol^2]
+     *  @param a           constant term in the "a" expression [Pa-m^6/kmol^2]
      *  @param alpha       dimensionless function of T_r and \omega
      */
     void setBinaryCoeffs(const std::string& species_i,
-                         const std::string& species_j, double a0, double alpha);
+                         const std::string& species_j, double a, double alpha);
 
 protected:
     // Special functions inherited from MixtureFugacityTP
