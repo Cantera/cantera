@@ -187,20 +187,13 @@ public:
 
     //! Set the pure fluid interaction parameters for a species
     /*!
-     *  The *a* parameter for species *i* in the Peng-Robinson model is assumed
-     *  to be a linear function of temperature:
-     *  \f[ a = a_0 + a_1 T \f]
      *
      *  @param species   Name of the species
-     *  @param a0        constant term in the expression for the "a" parameter
-     *                   of the specified species [Pa-m^6/kmol^2]
-     *  @param a1        temperature-proportional term in the expression for the
-     *                   "a" parameter of the specified species [Pa-m^6/kmol^2/K]
+     *  @param a         "a" parameter in the Peng-Robinson model [Pa-m^6/kmol^2]
      *  @param b         "b" parameter in the Peng-Robinson model [m^3/kmol]
-     *  @param alpha     dimensionless function of T_r and \omega
-     *  @param omega     acentric factor
+     *  @param w         acentric factor
      */
-    void setSpeciesCoeffs(const std::string& species, double a0, double b,
+    void setSpeciesCoeffs(const std::string& species, double a, double b,
                           double w);
 
     //! Set values for the interaction parameter between two species
@@ -215,11 +208,10 @@ public:
      *  @param species_i   Name of one species
      *  @param species_j   Name of the other species
      *  @param a0          constant term in the "a" expression [Pa-m^6/kmol^2]
-     *  @param a1          temperature-proportional term in the "a" expression
-     *                     [Pa-m^6/kmol^2/K]
+     *  @param alpha       dimensionless function of T_r and \omega
      */
     void setBinaryCoeffs(const std::string& species_i,
-                         const std::string& species_j, double a0, double a1);
+                         const std::string& species_j, double a0, double alpha);
 
 protected:
     // Special functions inherited from MixtureFugacityTP
