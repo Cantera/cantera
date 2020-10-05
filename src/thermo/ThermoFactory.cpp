@@ -91,7 +91,6 @@ ThermoFactory::ThermoFactory()
     reg("binary-solution-tabulated", []() { return new BinarySolutionTabulatedThermo(); });
     addAlias("binary-solution-tabulated", "BinarySolutionTabulatedThermo");
     reg("PengRobinson", []() { return new PengRobinson(); });
-    addAlias("PengRobinson", "PengRobinsonMFTP");
     addAlias("PengRobinson", "Peng-Robinson");
 }
 
