@@ -842,13 +842,12 @@ class pureFluidParameters(activityCoefficients):
     """
     """
 
-    def __init__(self, species = None, a_coeff = [], b_coeff = 0, acentric_factor = None):
+    def __init__(self, species = None, a_coeff = [], b_coeff = 0):
         """
         """
         self._species = species
         self._acoeff = a_coeff
         self._bcoeff = b_coeff
-        self._w_ac = acentric_factor
 
     def build(self,a):
         f= a.addChild("pureFluidParameters")
@@ -860,9 +859,6 @@ class pureFluidParameters(activityCoefficients):
         s = '%.10g\n' % self._bcoeff
         bc = f.addChild("b_coeff", s)
         bc["units"] = _ulen+'3/'+_umol
-        if self._w_ac:
-            s = '%.10g\n' % self._w_ac
-            cc = f.addChild("acentric_factor", s)
 
 
 class crossFluidParameters(activityCoefficients):
