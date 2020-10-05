@@ -276,13 +276,15 @@ protected:
     double m_aAlpha_current;
 
     // Vectors required to store a_coeff, b_coeff, alpha, kappa and other values for every species. Length = m_kk
-    vector_fp m_a_vec_Curr;
     vector_fp m_b_vec_Curr;
-    vector_fp m_aAlpha_vec_Curr;
-    vector_fp m_alpha_vec_Curr;
     vector_fp m_kappa_vec;
     mutable vector_fp m_dalphadT_vec_Curr;
     mutable vector_fp m_d2alphadT2;
+    vector_fp m_alpha_vec_Curr;    
+
+    //Matrices for Binary coefficients a_{i,j} and {a*alpha}_{i.j} are saved in a vector form. Length =  m_kk * m_kk
+    vector_fp m_a_vec_Curr;   
+    vector_fp m_aAlpha_vec_Curr;    
 
     int m_NSolns;
 
