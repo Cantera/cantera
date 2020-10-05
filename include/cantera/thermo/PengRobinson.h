@@ -283,13 +283,6 @@ public:
     int solveCubic(double T, double pres, double a, double b, double aAlpha,
                    double Vroot[3]) const;
 protected:
-    //! Form of the temperature parameterization
-    /*!
-     *  - 0 = There is no temperature parameterization of a
-     *  - 1 = The \f$a_{ij} \f$ parameter is a linear function of the temperature
-     */
-    int m_formTempParam;
-
     //! Value of b in the equation of state
     /*!
      *  m_b_current is a function the mole fractions and species-specific b values.

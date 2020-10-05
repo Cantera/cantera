@@ -24,7 +24,6 @@ const double PengRobinson::omega_b = 7.77960739038885E-02;
 const double PengRobinson::omega_vc = 3.07401308698703833E-01;
 
 PengRobinson::PengRobinson() :
-    m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
     m_aAlpha_current(0.0),
@@ -36,7 +35,6 @@ PengRobinson::PengRobinson() :
 }
 
 PengRobinson::PengRobinson(const std::string& infile, const std::string& id_) :
-    m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
     m_aAlpha_current(0.0),
