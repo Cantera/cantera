@@ -124,7 +124,7 @@ public:
     //! @{
 
     virtual double enthalpy_mole() const;
-    virtual doublereal entropy_mole() const;
+    virtual double entropy_mole() const;
 
     //@}
     /// @name  Partial Molar Properties of the Solution
