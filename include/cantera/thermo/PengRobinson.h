@@ -126,17 +126,6 @@ public:
     /// @name  Partial Molar Properties of the Solution
     //@{
 
-    //! Get the array of non-dimensional species chemical potentials.
-    //! These are partial molar Gibbs free energies.
-    /*!
-     * \f$ \mu_k / \hat R T \f$.
-     * Units: unitless
-     *
-     *
-     * @param mu    Output vector of non-dimensional species chemical potentials
-     *              Length: m_kk.
-     */
-    
     virtual void getChemPotentials(double* mu) const;
     virtual void getPartialMolarEnthalpies(double* hbar) const;
     virtual void getPartialMolarEntropies(double* sbar) const;
