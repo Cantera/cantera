@@ -64,6 +64,9 @@ void PengRobinson::calculateAlpha(const std::string& species, double a, double b
 
 void PengRobinson::setSpeciesCoeffs(const std::string& species, double a, double b, double w)
 {
+    //Calculate alpha for the given species
+    calculateAlpha(species, a, b, w);
+
     size_t k = speciesIndex(species);
     if (k == npos) {
         throw CanteraError("PengRobinson::setSpeciesCoeffs",
@@ -510,7 +513,6 @@ void PengRobinson::initThermo()
             // unitless acentric factor:
             double w = eos.getDouble("w_ac",NAN);
 
-            calculateAlpha(item.first, a0, b, w);
             setSpeciesCoeffs(item.first, a0, b, w);
             if (eos.hasKey("binary-a")) {
                 AnyMap& binary_a = eos["binary-a"].as<AnyMap>();
@@ -535,7 +537,6 @@ void PengRobinson::initThermo()
                 // properties, and assign the results
                 if (!isnan(coeffs[0])) {
                     // Assuming no temperature dependence (i.e. a1 = 0)
-                    calculateAlpha(item.first, coeffs[0], coeffs[1], coeffs[2]);
                     setSpeciesCoeffs(item.first, coeffs[0], coeffs[1], coeffs[2]);
                 }
             }
