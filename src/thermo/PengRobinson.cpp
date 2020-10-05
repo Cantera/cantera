@@ -549,7 +549,6 @@ void PengRobinson::initThermo()
             // to find critical temperature and pressure to calculate a and b.
             size_t k = speciesIndex(item.first);
             if (m_a_vec_Curr[k + m_kk * k] == 0.0) {
-                // coeffs[0] = a0, coeffs[1] = b;
                 vector<double> coeffs = getCoeff(item.first);
 
                 // Check if species was found in the database of critical
