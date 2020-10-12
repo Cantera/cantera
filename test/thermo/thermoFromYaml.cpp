@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "gtest/gtest.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/Elements.h"
@@ -449,6 +450,8 @@ TEST(ThermoFromYaml, BinarySolutionTabulatedThermo)
     EXPECT_NEAR(thermo->gibbs_mass(), -87066.246182649265, 1e-9);
 }
 =======
+=======
+>>>>>>> 886e956d3... Correcting CRLF Line endings.
 #include "gtest/gtest.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/Elements.h"
@@ -938,4 +941,7 @@ TEST(ThermoFromYaml, DeprecatedPhase)
     // for the test suite.
     EXPECT_THROW(newThermo("gri30.yaml", "gri30_mix"), CanteraError);
 }
+<<<<<<< HEAD
 >>>>>>> ea38f153e... Modifying pengRobinson test from thermoFromYAML
+=======
+>>>>>>> 886e956d3... Correcting CRLF Line endings.
