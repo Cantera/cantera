@@ -477,7 +477,18 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
         self.assertEqual(desc, 'This is an alternative description.')
         for key in ['foo', 'bar']:
             self.assertIn(key, yml.keys())
-
+        # This test tests it can convert the SRI parameters when D or E equal to 0
+   
+    def test_sri_zero(self):
+        self.convert('sri_convert_test.txt')
+        output = pjoin(self.test_work_dir, 'sri_convert_test' + self.ext)
+        with open(output, 'r') as f:
+            mech = yaml.safe_load(f)
+        D = mech['reactions'][0]['SRI']['D']
+        E = mech['reactions'][0]['SRI']['E']
+        self.assertEqual(D, 0)
+        self.assertEqual(E, 0)
+        
     def test_duplicate_reactions(self):
         # Running a test this way instead of using the convertMech function
         # tests the behavior of the ck2yaml.main function and the mechanism
