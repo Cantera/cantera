@@ -670,7 +670,7 @@ class Sri:
 
     def reduce(self, output):
         sri = FlowMap([('A', self.A), ('B', self.B), ('C', self.C)])
-        if self.D != None:
+        if self.D is not None:
             sri['D'] = self.D
         if self.E != None:
             sri['E'] = self.E
