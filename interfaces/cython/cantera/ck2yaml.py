@@ -672,7 +672,7 @@ class Sri:
         sri = FlowMap([('A', self.A), ('B', self.B), ('C', self.C)])
         if self.D is not None:
             sri['D'] = self.D
-        if self.E != None:
+        if self.E is not None:
             sri['E'] = self.E
 
         output['SRI'] = sri
