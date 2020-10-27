@@ -940,17 +940,6 @@ class TestPengRobinsonPhase(utilities.CanteraTest):
         self.assertNear(self.gas.h, h1 - deltaH)
         self.assertNear(self.gas.P, p1)
 
-    def test_energy(self):
-        g = self.gas
-        mmw = g.mean_molecular_weight
-        self.assertNear(g.enthalpy_mass, g.enthalpy_mole / mmw)
-        self.assertNear(g.int_energy_mass, g.int_energy_mole / mmw)
-        self.assertNear(g.gibbs_mass, g.gibbs_mole / mmw)
-        self.assertNear(g.entropy_mass, g.entropy_mole / mmw)
-
-        self.assertNear(g.cv_mass, g.cv_mole / mmw)
-        self.assertNear(g.cp_mass, g.cp_mole / mmw)
-
 class TestInterfacePhase(utilities.CanteraTest):
     def setUp(self):
         self.gas = ct.Solution('diamond.xml', 'gas')
