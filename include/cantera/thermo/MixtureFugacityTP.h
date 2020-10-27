@@ -490,7 +490,6 @@ public:
      * @return          The saturation pressure at the given temperature
      */
     virtual doublereal satPressure(doublereal TKelvin);
-    virtual void setToEquilState(const doublereal* lambda_RT);
     virtual void getActivityConcentrations(double* c) const;
 
 protected:
