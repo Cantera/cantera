@@ -921,7 +921,7 @@ class TestPengRobinsonPhase(utilities.CanteraTest):
         """
         Set state in terms of (s,v) 
         """
-        self.gas.TPX = 450, 1e5, 'CO2:1.0'
+        self.gas.TPX = 350, 20e5, 'CO2:2.0, H2O:1.0'
         s1, v1 = self.gas.SV
         self.gas.SV = s1, 2 * v1
 
@@ -932,7 +932,7 @@ class TestPengRobinsonPhase(utilities.CanteraTest):
         """
         Set state in terms of (H,p) 
         """
-        self.gas.TPX = 450, 1e5, 'CO2:1.0'
+        self.gas.TPX = 350, 20e5, 'CO2:2.0, H2O:1.0'
         deltaH = 1.25e5
         h1, p1 = self.gas.HP
         self.gas.HP = h1 - deltaH, None
