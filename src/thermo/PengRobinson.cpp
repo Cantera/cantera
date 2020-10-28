@@ -368,45 +368,13 @@ void PengRobinson::getPartialMolarVolumes(double* vbar) const
 
 double PengRobinson::speciesCritTemperature(double a, double b) const
 {
-    double pc, tc, vc;
-    calcCriticalConditions(a, b, pc, tc, vc);
-    return tc;
-}
-
-double PengRobinson::critTemperature() const
-{
-    double pc, tc, vc;
-    calcCriticalConditions(m_a_current, m_b_current, pc, tc, vc);
-    return tc;
-}
-
-double PengRobinson::critPressure() const
-{
-    double pc, tc, vc;
-    calcCriticalConditions(m_a_current, m_b_current, pc, tc, vc);
-    return pc;
-}
-
-double PengRobinson::critVolume() const
-{
-    double pc, tc, vc;
-    calcCriticalConditions(m_a_current, m_b_current, pc, tc, vc);
-    return vc;
-}
-
-double PengRobinson::critCompressibility() const
-{
-    double pc, tc, vc;
-    calcCriticalConditions(m_a_current, m_b_current, pc, tc, vc);
-    return pc*vc/tc/GasConstant;
-}
-
-double PengRobinson::critDensity() const
-{
-    double pc, tc, vc;
-    calcCriticalConditions(m_a_current, m_b_current, pc, tc, vc);
-    double mmw = meanMolecularWeight();
-    return mmw / vc;
+    if (b <= 0.0) {
+        return 1000000.;
+    } else if (a <= 0.0) {
+        return 0.0;
+    } else {
+        return a * omega_b / (b * omega_a * GasConstant);
+    }
 }
 
 bool PengRobinson::addSpecies(shared_ptr<Species> spec)
@@ -832,23 +800,22 @@ double PengRobinson::d2aAlpha_dT2() const
     return d2aAlphadT2;
 }
 
-void PengRobinson::calcCriticalConditions(double a, double b,
-        double& pc, double& tc, double& vc) const
+void PengRobinson::calcCriticalConditions(double& pc, double& tc, double& vc) const
 {
-    if (b <= 0.0) {
+    if (m_b_current <= 0.0) {
         tc = 1000000.;
         pc = 1.0E13;
         vc = omega_vc * GasConstant * tc / pc;
         return;
     }
-    if (a <= 0.0) {
+    if (m_a_current <= 0.0) {
         tc = 0.0;
         pc = 0.0;
-        vc = 2.0 * b;
+        vc = 2.0 * m_b_current;
         return;
     }
-    tc = a * omega_b / (b * omega_a * GasConstant);
-    pc = omega_b * GasConstant * tc / b;
+    tc = m_a_current * omega_b / (m_b_current * omega_a * GasConstant);
+    pc = omega_b * GasConstant * tc / m_b_current;
     vc = omega_vc * GasConstant * tc / pc;
 }
 
