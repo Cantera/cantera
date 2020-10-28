@@ -514,6 +514,16 @@ protected:
 
     virtual void updateMixingExpressions();
 
+    //@}
+    /// @name Critical State Properties.
+    //@{
+
+    virtual double critTemperature() const;
+    virtual double critPressure() const;
+    virtual double critVolume() const;
+    virtual double critCompressibility() const;
+    virtual double critDensity() const;
+    virtual void calcCriticalConditions(double& pc, double& tc, double& vc) const;
 
     //! Solve the cubic equation of state
     /*!
