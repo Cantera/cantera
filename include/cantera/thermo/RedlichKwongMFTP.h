@@ -121,16 +121,6 @@ public:
     virtual void getPartialMolarCp(doublereal* cpbar) const;
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
-    //@}
-    /// @name Critical State Properties.
-    //@{
-
-    virtual doublereal critTemperature() const;
-    virtual doublereal critPressure() const;
-    virtual doublereal critVolume() const;
-    virtual doublereal critCompressibility() const;
-    virtual doublereal critDensity() const;
-
 public:
     //@}
     //! @name Initialization Methods - For Internal use
@@ -253,8 +243,7 @@ public:
 
     doublereal da_dt() const;
 
-    void calcCriticalConditions(doublereal a, doublereal b, doublereal a0_coeff, doublereal aT_coeff,
-                                doublereal& pc, doublereal& tc, doublereal& vc) const;
+    void calcCriticalConditions(doublereal& pc, doublereal& tc, doublereal& vc) const;
 
     //! Prepare variables and call the function to solve the cubic equation of state
     int CubicCall(double T, double pres, double a, double b, double Vroot[3]) const;

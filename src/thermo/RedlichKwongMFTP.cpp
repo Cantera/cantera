@@ -377,87 +377,6 @@ void RedlichKwongMFTP::getPartialMolarVolumes(doublereal* vbar) const
     }
 }
 
-doublereal RedlichKwongMFTP::critTemperature() const
-{
-    double pc, tc, vc;
-    double a0 = 0.0;
-    double aT = 0.0;
-    for (size_t i = 0; i < m_kk; i++) {
-        for (size_t j = 0; j <m_kk; j++) {
-            size_t counter = i + m_kk * j;
-            a0 += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(0, counter);
-            aT += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(1, counter);
-        }
-    }
-    calcCriticalConditions(m_a_current, m_b_current, a0, aT, pc, tc, vc);
-    return tc;
-}
-
-doublereal RedlichKwongMFTP::critPressure() const
-{
-    double pc, tc, vc;
-    double a0 = 0.0;
-    double aT = 0.0;
-    for (size_t i = 0; i < m_kk; i++) {
-        for (size_t j = 0; j <m_kk; j++) {
-            size_t counter = i + m_kk * j;
-            a0 += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(0, counter);
-            aT += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(1, counter);
-        }
-    }
-    calcCriticalConditions(m_a_current, m_b_current, a0, aT, pc, tc, vc);
-    return pc;
-}
-
-doublereal RedlichKwongMFTP::critVolume() const
-{
-    double pc, tc, vc;
-    double a0 = 0.0;
-    double aT = 0.0;
-    for (size_t i = 0; i < m_kk; i++) {
-        for (size_t j = 0; j <m_kk; j++) {
-            size_t counter = i + m_kk * j;
-            a0 += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(0, counter);
-            aT += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(1, counter);
-        }
-    }
-    calcCriticalConditions(m_a_current, m_b_current, a0, aT, pc, tc, vc);
-    return vc;
-}
-
-doublereal RedlichKwongMFTP::critCompressibility() const
-{
-    double pc, tc, vc;
-    double a0 = 0.0;
-    double aT = 0.0;
-    for (size_t i = 0; i < m_kk; i++) {
-        for (size_t j = 0; j <m_kk; j++) {
-            size_t counter = i + m_kk * j;
-            a0 += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(0, counter);
-            aT += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(1, counter);
-        }
-    }
-    calcCriticalConditions(m_a_current, m_b_current, a0, aT, pc, tc, vc);
-    return pc*vc/tc/GasConstant;
-}
-
-doublereal RedlichKwongMFTP::critDensity() const
-{
-    double pc, tc, vc;
-    double a0 = 0.0;
-    double aT = 0.0;
-    for (size_t i = 0; i < m_kk; i++) {
-        for (size_t j = 0; j <m_kk; j++) {
-            size_t counter = i + m_kk * j;
-            a0 += moleFractions_[i] * moleFractions_[j] *a_coeff_vec(0, counter);
-            aT += moleFractions_[i] * moleFractions_[j] *a_coeff_vec(1, counter);
-        }
-    }
-    calcCriticalConditions(m_a_current, m_b_current, a0, aT, pc, tc, vc);
-    double mmw = meanMolecularWeight();
-    return mmw / vc;
-}
-
 bool RedlichKwongMFTP::addSpecies(shared_ptr<Species> spec)
 {
     bool added = MixtureFugacityTP::addSpecies(spec);
@@ -1023,11 +942,21 @@ doublereal RedlichKwongMFTP::da_dt() const
     return dadT;
 }
 
-void RedlichKwongMFTP::calcCriticalConditions(doublereal a, doublereal b, doublereal a0_coeff, doublereal aT_coeff,
-        doublereal& pc, doublereal& tc, doublereal& vc) const
+void RedlichKwongMFTP::calcCriticalConditions(doublereal& pc, doublereal& tc, doublereal& vc) const
 {
+    double a0 = 0.0;
+    double aT = 0.0;
+    for (size_t i = 0; i < m_kk; i++) {
+        for (size_t j = 0; j <m_kk; j++) {
+            size_t counter = i + m_kk * j;
+            a0 += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(0, counter);
+            aT += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(1, counter);
+        }
+    }
+    double a = m_a_current;
+    double b = m_b_current;
     if (m_formTempParam != 0) {
-        a = a0_coeff;
+        a = a0;
     }
     if (b <= 0.0) {
         tc = 1000000.;
@@ -1051,8 +980,8 @@ void RedlichKwongMFTP::calcCriticalConditions(doublereal a, doublereal b, double
         tc = pow(tmp, pp);
         for (int j = 0; j < 10; j++) {
             sqrttc = sqrt(tc);
-            f = omega_a * b * GasConstant * tc * sqrttc / omega_b - aT_coeff * tc - a0_coeff;
-            dfdt = 1.5 * omega_a * b * GasConstant * sqrttc / omega_b - aT_coeff;
+            f = omega_a * b * GasConstant * tc * sqrttc / omega_b - aT * tc - a0;
+            dfdt = 1.5 * omega_a * b * GasConstant * sqrttc / omega_b - aT;
             deltatc = - f / dfdt;
             tc += deltatc;
         }

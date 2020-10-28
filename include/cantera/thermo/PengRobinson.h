@@ -146,15 +146,7 @@ public:
      */
 
     virtual void calculateAlpha(const std::string& species, double a, double b, double w);
-    //@}
-    /// @name Critical State Properties.
-    //@{
-
-    virtual double critTemperature() const;
-    virtual double critPressure() const;
-    virtual double critVolume() const;
-    virtual double critCompressibility() const;
-    virtual double critDensity() const;
+    
     virtual double speciesCritTemperature(double a, double b) const;
 
 public:
@@ -256,7 +248,7 @@ public:
      */
     void calculateAB(double& aCalc, double& bCalc, double& aAlpha) const;
 
-    void calcCriticalConditions(double a, double b,double& pc, double& tc, double& vc) const;
+    void calcCriticalConditions(double& pc, double& tc, double& vc) const;
 
     //! Prepare variables and call the function to solve the cubic equation of state
     int solveCubic(double T, double pres, double a, double b, double aAlpha,

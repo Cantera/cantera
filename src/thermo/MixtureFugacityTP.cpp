@@ -800,6 +800,47 @@ void MixtureFugacityTP::_updateReferenceStateThermo() const
     }
 }
 
+double MixtureFugacityTP::critTemperature() const
+{
+    double pc, tc, vc;
+    calcCriticalConditions(pc, tc, vc);
+    return tc;
+}
+
+double MixtureFugacityTP::critPressure() const
+{
+    double pc, tc, vc;
+    calcCriticalConditions(pc, tc, vc);
+    return pc;
+}
+
+double MixtureFugacityTP::critVolume() const
+{
+    double pc, tc, vc;
+    calcCriticalConditions(pc, tc, vc);
+    return vc;
+}
+
+double MixtureFugacityTP::critCompressibility() const
+{
+    double pc, tc, vc;
+    calcCriticalConditions(pc, tc, vc);
+    return pc*vc/tc/GasConstant;
+}
+
+double MixtureFugacityTP::critDensity() const
+{
+    double pc, tc, vc;
+    calcCriticalConditions(pc, tc, vc);
+    double mmw = meanMolecularWeight();
+    return mmw / vc;
+}
+
+void MixtureFugacityTP::calcCriticalConditions(double& pc, double& tc, double& vc) const
+{
+    throw NotImplementedError("MixtureFugacityTP::calcCriticalConditions");
+}
+
 int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b, 
                                         double aAlpha, double Vroot[3], double an,
                                         double bn, double cn, double dn, double tc, double vc) const
