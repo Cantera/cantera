@@ -488,10 +488,7 @@ void PengRobinson::initThermo()
             double a0 = 0, a1 = 0;
             if (eos["a"].isScalar()) {
                 a0 = eos.convert("a", "Pa*m^6/kmol^2");
-            } else {
-                auto avec = eos["a"].asVector<AnyValue>(2);
-                a0 = eos.units().convert(avec[0], "Pa*m^6/kmol^2");
-            }
+            } 
             double b = eos.convert("b", "m^3/kmol");
             // unitless acentric factor:
             double w = eos.getDouble("w_ac",NAN);
@@ -504,10 +501,6 @@ void PengRobinson::initThermo()
                     double a0 = 0, a1 = 0;
                     if (item2.second.isScalar()) {
                         a0 = units.convert(item2.second, "Pa*m^6/kmol^2");
-                    } else {
-                        auto avec = item2.second.asVector<AnyValue>(2);
-                        a0 = units.convert(avec[0], "Pa*m^6/kmol^2");
-                        a1 = units.convert(avec[1], "Pa*m^6/kmol^2/K");
                     }
                     setBinaryCoeffs(item.first, item2.first, a0, a1);
                 }
