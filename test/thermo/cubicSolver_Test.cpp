@@ -44,9 +44,9 @@ TEST_F(cubicSolver_Test, solve_cubic)
     double Vroot[3];
    
     const double expected_result[3] = {
-        24.810673386441,
-        0.0658516543054, 
-        0.0728171459395
+        24.810677442023493,
+        0.065859466219402446,
+        0.072816004568591469
     };
 
     //Vapor phase -> nSolnValues = 1 
