@@ -83,24 +83,24 @@ void PengRobinson::setSpeciesCoeffs(const std::string& species, double a, double
             "Unknown species '{}'.", species);
     }
     size_t counter = k + m_kk * k;
-    m_a_vec_Curr[counter] = a;
+    m_a_vec_Curr(k,k) = a;
     // we store this locally because it is used below to calculate a_Alpha:
     double aAlpha_k = a*m_alpha_vec_Curr[k];
-    m_aAlpha_vec_Curr[counter] = aAlpha_k;
+    m_aAlpha_vec_Curr(k,k) = aAlpha_k;
 
     // standard mixing rule for cross-species interaction term
     for (size_t j = 0; j < m_kk; j++) {
         if (k == j) {
             continue;
         }
-        double a0kj = sqrt(m_a_vec_Curr[j + m_kk * j] * a);
+        double a0kj = sqrt(m_a_vec_Curr(j,j) * a);
         double aAlpha_j = a*m_alpha_vec_Curr[j];
         double a_Alpha = sqrt(aAlpha_j*aAlpha_k);
-        if (m_a_vec_Curr[j + m_kk * k] == 0) {
-            m_a_vec_Curr[j + m_kk * k] = a0kj;
-            m_aAlpha_vec_Curr[j + m_kk * k] = a_Alpha;
-            m_a_vec_Curr[k + m_kk * j] = a0kj;
-            m_aAlpha_vec_Curr[k + m_kk * j] = a_Alpha;
+        if (m_a_vec_Curr(j, k) == 0) {
+            m_a_vec_Curr(j, k) = a0kj;
+            m_aAlpha_vec_Curr(j, k) = a_Alpha;
+            m_a_vec_Curr(k, j) = a0kj;
+            m_aAlpha_vec_Curr(k, j) = a_Alpha;
         }
     }
     m_b_vec_Curr[k] = b;
@@ -120,10 +120,8 @@ void PengRobinson::setBinaryCoeffs(const std::string& species_i,
             "Unknown species '{}'.", species_j);
     }
 
-    size_t counter1 = ki + m_kk * kj;
-    size_t counter2 = kj + m_kk * ki;
-    m_a_vec_Curr[counter1] = m_a_vec_Curr[counter2] = a0;
-    m_aAlpha_vec_Curr[counter1] = m_aAlpha_vec_Curr[counter2] = a0*alpha;
+    m_a_vec_Curr(ki, kj) = m_a_vec_Curr(kj, ki) = a0;
+    m_aAlpha_vec_Curr(ki, kj) = m_aAlpha_vec_Curr(kj, ki) = a0*alpha;
 }
 
 // ------------Molar Thermodynamic Properties -------------------------
@@ -179,8 +177,7 @@ void PengRobinson::getActivityCoefficients(double* ac) const
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
         for (size_t i = 0; i < m_kk; i++) {
-            size_t counter = k + m_kk*i;
-            m_pp[k] += moleFractions_[i] * m_aAlpha_vec_Curr[counter];
+            m_pp[k] += moleFractions_[i] * m_aAlpha_vec_Curr(k, i);
         }
     }
     double num = 0;
@@ -219,8 +216,7 @@ void PengRobinson::getChemPotentials(double* mu) const
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
         for (size_t i = 0; i < m_kk; i++) {
-            size_t counter = k + m_kk*i;
-            m_pp[k] += moleFractions_[i] * m_aAlpha_vec_Curr[counter];
+            m_pp[k] += moleFractions_[i] * m_aAlpha_vec_Curr(k, i);
         }
     }
     double pres = pressure();
@@ -256,8 +252,7 @@ void PengRobinson::getPartialMolarEnthalpies(double* hbar) const
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
         for (size_t i = 0; i < m_kk; i++) {
-            size_t counter = k + m_kk*i;
-            m_pp[k] += moleFractions_[i] * m_aAlpha_vec_Curr[counter];
+            m_pp[k] += moleFractions_[i] * m_aAlpha_vec_Curr(k, i);
         }
     }
 
@@ -304,9 +299,8 @@ void PengRobinson::getPartialMolarEntropies(double* sbar) const
         m_pp[k] = 0.0;
         m_tmpV[k] = 0;
         for (size_t i = 0; i < m_kk; i++) {
-            size_t counter = k + m_kk*i;
-            m_pp[k] += moleFractions_[i] * m_aAlpha_vec_Curr[counter];
-            m_tmpV[k] += moleFractions_[i] * m_aAlpha_vec_Curr[counter] *(m_dalphadT_vec_Curr[i] / m_alpha_vec_Curr[i]);
+            m_pp[k] += moleFractions_[i] * m_aAlpha_vec_Curr(k, i);
+            m_tmpV[k] += moleFractions_[i] * m_aAlpha_vec_Curr(k, i) *(m_dalphadT_vec_Curr[i] / m_alpha_vec_Curr[i]);
         }
         m_pp[k] = m_pp[k] * m_dalphadT_vec_Curr[k] / m_alpha_vec_Curr[k];
     }
@@ -351,8 +345,7 @@ void PengRobinson::getPartialMolarVolumes(double* vbar) const
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
         for (size_t i = 0; i < m_kk; i++) {
-            size_t counter = k + m_kk*i;
-            m_pp[k] += moleFractions_[i] * m_aAlpha_vec_Curr[counter];
+            m_pp[k] += moleFractions_[i] * m_aAlpha_vec_Curr(k, i);
         }
     }
 
@@ -396,11 +389,9 @@ bool PengRobinson::addSpecies(shared_ptr<Species> spec)
 {
     bool added = MixtureFugacityTP::addSpecies(spec);
     if (added) {
-        m_a_vec_Curr.resize(m_kk * m_kk, 0.0);
+        m_a_vec_Curr.resize(m_kk, m_kk, 0.0);
         m_b_vec_Curr.push_back(0.0);
-        m_a_vec_Curr.push_back(0.0);
-        m_aAlpha_vec_Curr.resize(m_kk * m_kk, 0.0);
-        m_aAlpha_vec_Curr.push_back(0.0);
+        m_aAlpha_vec_Curr.resize(m_kk, m_kk, 0.0);
         m_kappa_vec.push_back(0.0);
 
         m_alpha_vec_Curr.push_back(0.0);
@@ -526,7 +517,7 @@ void PengRobinson::initThermo()
             // diagonal elements of a). If not, then search 'critProperties.xml'
             // to find critical temperature and pressure to calculate a and b.
             size_t k = speciesIndex(item.first);
-            if (m_a_vec_Curr[k + m_kk * k] == 0.0) {
+            if (m_a_vec_Curr(k, k) == 0.0) {
                 vector<double> coeffs = getCoeff(item.first);
 
                 // Check if species was found in the database of critical
@@ -733,8 +724,7 @@ void PengRobinson::updateMixingExpressions()
 
     // Update indiviual alpha
     for (size_t j = 0; j < m_kk; j++) {
-        size_t counter = j * m_kk + j;
-        double critTemp_j = speciesCritTemperature(m_a_vec_Curr[counter],m_b_vec_Curr[j]);
+        double critTemp_j = speciesCritTemperature(m_a_vec_Curr(j,j), m_b_vec_Curr[j]);
         sqt_alpha = 1 + m_kappa_vec[j] * (1 - sqrt(temp / critTemp_j));
         m_alpha_vec_Curr[j] = sqt_alpha*sqt_alpha;
     }
@@ -742,8 +732,7 @@ void PengRobinson::updateMixingExpressions()
     //Update aAlpha_i, j
     for (size_t i = 0; i < m_kk; i++) {
         for (size_t j = 0; j < m_kk; j++) {
-            size_t counter = i * m_kk + j;
-            m_aAlpha_vec_Curr[counter] = sqrt(m_alpha_vec_Curr[i] * m_alpha_vec_Curr[j]) * m_a_vec_Curr[counter];
+            m_aAlpha_vec_Curr(i, j) = sqrt(m_alpha_vec_Curr[i] * m_alpha_vec_Curr[j]) * m_a_vec_Curr(i,j);
         }
     }
 
@@ -762,10 +751,9 @@ void PengRobinson::calculateAB(double& aCalc, double& bCalc, double& aAlphaCalc)
     for (size_t i = 0; i < m_kk; i++) {
         bCalc += moleFractions_[i] * m_b_vec_Curr[i];
         for (size_t j = 0; j < m_kk; j++) {
-            size_t counter = i * m_kk + j;
-            double a_vec_Curr = m_a_vec_Curr[counter];
+            double a_vec_Curr = m_a_vec_Curr(i, j);
             aCalc += a_vec_Curr * moleFractions_[i] * moleFractions_[j];
-            aAlphaCalc += m_aAlpha_vec_Curr[counter] * moleFractions_[i] * moleFractions_[j];
+            aAlphaCalc += m_aAlpha_vec_Curr(i, j) * moleFractions_[i] * moleFractions_[j];
         }
     }
 }
@@ -775,9 +763,8 @@ double PengRobinson::daAlpha_dT() const
     double daAlphadT = 0.0, temp, k, Tc = 0.0, sqtTr = 0.0;
     double coeff1, coeff2;
     for (size_t i = 0; i < m_kk; i++) {
-        size_t counter = i + m_kk * i;
         // Calculate first derivative of alpha for individual species
-        Tc = speciesCritTemperature(m_a_vec_Curr[counter], m_b_vec_Curr[i]);
+        Tc = speciesCritTemperature(m_a_vec_Curr(i,i), m_b_vec_Curr[i]);
         sqtTr = sqrt(temperature() / Tc); //we need species critical temperature
         coeff1 = 1 / (Tc*sqtTr);
         coeff2 = sqtTr - 1;
@@ -786,10 +773,8 @@ double PengRobinson::daAlpha_dT() const
     }
     //Calculate mixture derivative
     for (size_t i = 0; i < m_kk; i++) {
-        size_t counter1 = i + m_kk * i;
         for (size_t j = 0; j < m_kk; j++) {
-            size_t counter2 = j * m_kk + j;
-            temp = 0.5 * sqrt((m_a_vec_Curr[counter1] * m_a_vec_Curr[counter2]) / (m_alpha_vec_Curr[i] * m_alpha_vec_Curr[j]));
+            temp = 0.5 * sqrt((m_a_vec_Curr(i, i) * m_a_vec_Curr(j, j)) / (m_alpha_vec_Curr[i] * m_alpha_vec_Curr[j]));
             daAlphadT += moleFractions_[i] * moleFractions_[j] * temp
                         * (m_dalphadT_vec_Curr[j] * m_alpha_vec_Curr[i] + m_dalphadT_vec_Curr[i] * m_alpha_vec_Curr[j]);
         }
@@ -801,8 +786,7 @@ double PengRobinson::d2aAlpha_dT2() const
 {
     double temp, fac1, fac2, alphaij, alphai, alphaj, d2aAlphadT2 = 0.0, num;
     for (size_t i = 0; i < m_kk; i++) {
-        size_t counter = i + m_kk * i;
-        double Tcrit_i = speciesCritTemperature(m_a_vec_Curr[counter], m_b_vec_Curr[i]);
+        double Tcrit_i = speciesCritTemperature(m_a_vec_Curr(i, i), m_b_vec_Curr[i]);
         double sqt_Tr = sqrt(temperature() / Tcrit_i); //we need species critical temperature
         double coeff1 = 1 / (Tcrit_i*Tcrit_i*sqt_Tr);
         double coeff2 = sqt_Tr - 1;
@@ -814,13 +798,11 @@ double PengRobinson::d2aAlpha_dT2() const
 
     //Calculate mixture derivative
     for (size_t i = 0; i < m_kk; i++) {
-        size_t counter1 = i + m_kk * i;
         alphai = m_alpha_vec_Curr[i];
         for (size_t j = 0; j < m_kk; j++) {
-            size_t counter2 = j + m_kk * j;
             alphaj = m_alpha_vec_Curr[j];
             alphaij = alphai * alphaj;
-            temp = 0.5 * sqrt((m_a_vec_Curr[counter1] * m_a_vec_Curr[counter2]) / (alphaij));
+            temp = 0.5 * sqrt((m_a_vec_Curr(i, i) * m_a_vec_Curr(j, j)) / (alphaij));
             num = (m_dalphadT_vec_Curr[j] * alphai + m_dalphadT_vec_Curr[i] * alphaj);
             fac1 = -(0.5 / alphaij)*num*num;
             fac2 = alphaj * m_d2alphadT2[i] + alphai *m_d2alphadT2[j] + 2. * m_dalphadT_vec_Curr[i] * m_dalphadT_vec_Curr[j];
