@@ -266,9 +266,9 @@ protected:
     mutable vector_fp m_d2alphadT2;
     vector_fp m_alpha_vec_Curr;
 
-    //Matrices for Binary coefficients a_{i,j} and {a*alpha}_{i.j} are saved in a vector form. Length =  m_kk * m_kk
-    vector_fp m_a_vec_Curr;
-    vector_fp m_aAlpha_vec_Curr;
+    //Matrices for Binary coefficients a_{i,j} and {a*alpha}_{i.j} are saved in an Array form. Length =  (m_kk, m_kk)
+    Array2D m_a_vec_Curr;
+    Array2D m_aAlpha_vec_Curr;
 
     int m_NSolns;
 
