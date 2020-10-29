@@ -46,10 +46,7 @@ void PengRobinson::calculateAlpha(const std::string& species, double a, double b
 
     // Calculate value of kappa (independent of temperature)
     // w is an acentric factor of species and must be specified in the CTI file
-    if (isnan(w)) {
-        throw CanteraError("PengRobinson::calculateAlpha",
-            "No acentric factor loaded.");
-    } else if (w <= 0.491) {
+    if (w <= 0.491) {
         m_kappa_vec[k] = 0.37464 + 1.54226*w - 0.26992*w*w;
     } else {
         m_kappa_vec[k] = 0.374642 + 1.487503*w - 0.164423*w*w + 0.016666*w*w*w;
@@ -474,7 +471,7 @@ void PengRobinson::initThermo()
             }
             double b = eos.convert("b", "m^3/kmol");
             // unitless acentric factor:
-            double w = eos.getDouble("w_ac",NAN);
+            double w = eos["w_ac"].asDouble();
 
             setSpeciesCoeffs(item.first, a0, b, w);
             if (eos.hasKey("binary-a")) {
