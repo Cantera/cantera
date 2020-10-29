@@ -21,6 +21,11 @@ species:
     - [3.85746029, 4.41437026e-03, -2.21481404e-06, 5.23490188e-10, -4.72084164e-14,
       -4.8759166e+04, 2.27163806]
     note: L7/88
+  equation-of-state:
+    model: Peng-Robinson
+    a: 3.958134E+11
+    b: 26.6275
+    w_ac: 0.228
 - name: H2O
   composition: {H: 2, O: 1}
   thermo:
