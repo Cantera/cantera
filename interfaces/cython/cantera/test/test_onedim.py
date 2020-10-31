@@ -273,6 +273,18 @@ class TestFreeFlame(utilities.CanteraTest):
         for rhou_j in self.sim.density * self.sim.velocity:
             self.assertNear(rhou_j, rhou, 1e-4)
 
+    def test_collect_restore(self):
+        self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
+
+        states, other, meta = self.sim.collect_data('flame', ['grid'])
+        self.assertArrayNear(self.sim.grid, other['grid'])
+        self.assertArrayNear(self.sim.T, states[0])
+
+        f2 = ct.FreeFlame(self.gas)
+        f2.restore_data('flame', states, other, meta)
+        self.assertArrayNear(self.sim.grid, f2.grid)
+        self.assertArrayNear(self.sim.T, f2.T)
+
     def test_solution_array_output(self):
         self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
 
