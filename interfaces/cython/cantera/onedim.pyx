@@ -950,7 +950,8 @@ cdef class Sim1D:
 
     def collect_data(self, domain, other):
         """
-        Return data vector of domain *domain* as `SolutionArray` object
+        Return underlying data specifying a *domain*. Method is used as
+        a service function for export via `FlameBase.to_solution_array`.
 
         Derived classes set default values for *domain* and *other*, where
         defaults describe flow domain and essential non-thermodynamic solution
@@ -1005,7 +1006,8 @@ cdef class Sim1D:
 
     def restore_data(self, domain, states, other_cols, meta):
         """
-        Restore data vector of domain *domain* from `SolutionArray` *states*.
+        Restore a *domain* from underlying data. Method is used as
+        a service function for import via `FlameBase.from_solution_array`.
 
         Derived classes set default values for *domain* and *other*, where
         defaults describe flow domain and essential non-thermodynamic solution
@@ -1016,6 +1018,8 @@ cdef class Sim1D:
         idom = self.domain_index(domain)
         dom = self.domains[idom]
         T, P, Y = states
+        if isinstance(P, np.ndarray) and P.size:
+            P = P[0]
 
         if isinstance(dom, _FlowBase):
             grid = other_cols['grid']
@@ -1036,7 +1040,7 @@ cdef class Sim1D:
                 self.set_profile(spc, xi, Y[:, i])
 
             # restore pressure
-            self.P = P[0]
+            self.P = P
 
             # restore settings
             dom.settings = meta
