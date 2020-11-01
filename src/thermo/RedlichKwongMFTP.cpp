@@ -1016,7 +1016,3 @@ int RedlichKwongMFTP::CubicCall(double T, double pres, double a, double b, doubl
 }
 
 }
-<<<<<<< HEAD
->>>>>>> a27b14695... Fixing indentation and white spaces
-=======
->>>>>>> 3ea126da1... Replacing line endings with LF instead of CRLF
