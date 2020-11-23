@@ -46,7 +46,6 @@ int MixtureFugacityTP::reportSolnBranchActual() const
 // ---- Molar Thermodynamic Properties ---------------------------
 double MixtureFugacityTP::enthalpy_mole() const
 {
-   _updateReferenceStateThermo();
    double h_ideal = RT() * mean_X(m_h0_RT);
    double h_nonideal = hresid();
    return h_ideal + h_nonideal;
@@ -55,7 +54,6 @@ double MixtureFugacityTP::enthalpy_mole() const
 
 double MixtureFugacityTP::entropy_mole() const
 {
-    _updateReferenceStateThermo();
     double s_ideal = GasConstant * (mean_X(m_s0_R) - sum_xlogx()
         - std::log(pressure()/refPressure()));
     double s_nonideal = sresid();
@@ -76,7 +74,6 @@ void MixtureFugacityTP::getChemPotentials_RT(doublereal* muRT) const
 
 void MixtureFugacityTP::getStandardChemPotentials(doublereal* g) const
 {
-    _updateReferenceStateThermo();
     copy(m_g0_RT.begin(), m_g0_RT.end(), g);
     double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
@@ -91,7 +88,6 @@ void MixtureFugacityTP::getEnthalpy_RT(doublereal* hrt) const
 
 void MixtureFugacityTP::getEntropy_R(doublereal* sr) const
 {
-    _updateReferenceStateThermo();
     copy(m_s0_R.begin(), m_s0_R.end(), sr);
     double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
@@ -101,7 +97,6 @@ void MixtureFugacityTP::getEntropy_R(doublereal* sr) const
 
 void MixtureFugacityTP::getGibbs_RT(doublereal* grt) const
 {
-    _updateReferenceStateThermo();
     copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
     double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
@@ -111,7 +106,6 @@ void MixtureFugacityTP::getGibbs_RT(doublereal* grt) const
 
 void MixtureFugacityTP::getPureGibbs(doublereal* g) const
 {
-    _updateReferenceStateThermo();
     scale(m_g0_RT.begin(), m_g0_RT.end(), g, RT());
     double tmp = log(pressure() / refPressure()) * RT();
     for (size_t k = 0; k < m_kk; k++) {
@@ -121,7 +115,6 @@ void MixtureFugacityTP::getPureGibbs(doublereal* g) const
 
 void MixtureFugacityTP::getIntEnergy_RT(doublereal* urt) const
 {
-    _updateReferenceStateThermo();
     copy(m_h0_RT.begin(), m_h0_RT.end(), urt);
     for (size_t i = 0; i < m_kk; i++) {
         urt[i] -= 1.0;
@@ -130,13 +123,11 @@ void MixtureFugacityTP::getIntEnergy_RT(doublereal* urt) const
 
 void MixtureFugacityTP::getCp_R(doublereal* cpr) const
 {
-    _updateReferenceStateThermo();
     copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
 }
 
 void MixtureFugacityTP::getStandardVolumes(doublereal* vol) const
 {
-    _updateReferenceStateThermo();
     for (size_t i = 0; i < m_kk; i++) {
         vol[i] = RT() / pressure();
     }
@@ -146,13 +137,11 @@ void MixtureFugacityTP::getStandardVolumes(doublereal* vol) const
 
 void MixtureFugacityTP::getEnthalpy_RT_ref(doublereal* hrt) const
 {
-    _updateReferenceStateThermo();
     copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
 }
 
 void MixtureFugacityTP::getGibbs_RT_ref(doublereal* grt) const
 {
-    _updateReferenceStateThermo();
     copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
 }
 
@@ -164,25 +153,21 @@ void MixtureFugacityTP::getGibbs_ref(doublereal* g) const
 
 const vector_fp& MixtureFugacityTP::gibbs_RT_ref() const
 {
-    _updateReferenceStateThermo();
     return m_g0_RT;
 }
 
 void MixtureFugacityTP::getEntropy_R_ref(doublereal* er) const
 {
-    _updateReferenceStateThermo();
     copy(m_s0_R.begin(), m_s0_R.end(), er);
 }
 
 void MixtureFugacityTP::getCp_R_ref(doublereal* cpr) const
 {
-    _updateReferenceStateThermo();
     copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
 }
 
 void MixtureFugacityTP::getStandardVolumes_ref(doublereal* vol) const
 {
-    _updateReferenceStateThermo();
     for (size_t i = 0; i < m_kk; i++) {
         vol[i]= RT() / refPressure();
     }
