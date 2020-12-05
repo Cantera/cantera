@@ -103,7 +103,7 @@ void Plog::validate(const std::string& equation)
             if (k < 0) {
                 format_to(err_reactions,
                           "\nInvalid rate coefficient for reaction '{}'\n"
-                          "at P = {:.5g}, T = {}\n",
+                          "at P = {:.5g}, T = {:.1f}\n",
                           equation, std::exp(iter->first), T[i]);
             }
         }
