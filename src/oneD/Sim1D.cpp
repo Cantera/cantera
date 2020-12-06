@@ -429,53 +429,49 @@ int Sim1D::setFixedTemperature(double t)
 {
     int np = 0;
     vector_fp znew, xnew;
-    doublereal zfixed = 0.0;
-    doublereal z1 = 0.0, z2 = 0.0, t1,t2;
-    size_t m1 = 0;
+    double zfixed = 0.0;
+    double z1 = 0.0, z2 = 0.0;
     std::vector<size_t> dsize;
 
     for (size_t n = 0; n < nDomains(); n++) {
-        bool addnewpt = false;
         Domain1D& d = domain(n);
         size_t comp = d.nComponents();
+        size_t mfixed = npos;
 
-        // loop over points in the current grid to determine where new point is
-        // needed.
+        // loop over current grid to determine where new point is needed
         StFlow* d_free = dynamic_cast<StFlow*>(&domain(n));
         size_t npnow = d.nPoints();
         size_t nstart = znew.size();
         if (d_free && d_free->domainType() == cFreeFlow) {
-            double ttol = 1.e-3; // avoid new point too close to existing point
-            for (size_t m = 0; m < npnow-1; m++) {
-                if (fabs(t - value(n, 2, m)) <= ttol * t) {
-                    zfixed = d.grid(m);
-                    d_free->m_zfixed = zfixed;
-                    d_free->m_tfixed = t;
-                    addnewpt = false;
-                    break;
-                } else if (fabs(value(n, 2, m + 1) - t) <= ttol * t) {
-                    zfixed = d.grid(m + 1);
-                    d_free->m_zfixed = zfixed;
-                    d_free->m_tfixed = t;
-                    addnewpt = false;
-                    break;
-                } else if ((value(n, 2, m) - t) * (value(n, 2, m + 1) - t) < 0.) {
-                    z1 = d.grid(m);
-                    m1 = m;
-                    z2 = d.grid(m+1);
-                    t1 = value(n,2,m);
-                    t2 = value(n,2,m+1);
+            for (size_t m = 0; m < npnow - 1; m++) {
+                bool fixedpt = false;
+                double t1 = value(n, 2, m);
+                double t2 = value(n, 2, m + 1);
+                // threshold to avoid adding new point too close to existing point
+                double thresh = min(1., 1.e-1 * (t2 - t1));
+                z1 = d.grid(m);
+                z2 = d.grid(m + 1);
+                if (fabs(t - t1) <= thresh) {
+                    zfixed = z1;
+                    fixedpt = true;
+                } else if (fabs(t2 - t) <= thresh) {
+                    zfixed = z2;
+                    fixedpt = true;
+                } else if ((t1 < t) && (t < t2)) {
+                    mfixed = m;
+                    zfixed = (z1 - z2) / (t1 - t2) * (t - t2) + z2;
+                    fixedpt = true;
+                }
 
-                    zfixed = (z1-z2)/(t1-t2)*(t-t2)+z2;
+                if (fixedpt) {
                     d_free->m_zfixed = zfixed;
                     d_free->m_tfixed = t;
-                    addnewpt = true;
                     break;
-                    //copy solution domain and push back values
                 }
             }
         }
 
+        // copy solution domain and push back values
         for (size_t m = 0; m < npnow; m++) {
             // add the current grid point to the new grid
             znew.push_back(d.grid(m));
@@ -484,11 +480,11 @@ int Sim1D::setFixedTemperature(double t)
             for (size_t i = 0; i < comp; i++) {
                 xnew.push_back(value(n, i, m));
             }
-            if (m==m1 && addnewpt) {
-                //add new point at zfixed
+            if (m == mfixed) {
+                // add new point at zfixed (mfixed is not npos)
                 znew.push_back(zfixed);
                 np++;
-                double interp_factor = (zfixed-z2) / (z1-z2);
+                double interp_factor = (zfixed - z2) / (z1 - z2);
                 // for each component, linearly interpolate
                 // the solution to this point
                 for (size_t i = 0; i < comp; i++) {
