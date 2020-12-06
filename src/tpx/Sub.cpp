@@ -431,33 +431,34 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
         break;
     case PropertyPair::PX:
         temp = Tmin();
+        set_T(temp);
         if (y0 > 1.0 || y0 < 0.0) {
             throw CanteraError("Substance::Set",
                                "Invalid vapor fraction, {}", y0);
-        } else if (x0 < Ps() || x0 > Pcrit()) {
+        }
+        if (x0 < Ps() || x0 > Pcrit()) {
             throw CanteraError("Substance::Set",
                                "Illegal pressure value: {} (supercritical "
-                               "or below triple line)", x0);
-        } else {
-            temp = Tsat(x0);
-            set_T(temp);
-            update_sat();
-            Rho = 1.0/((1.0 - y0)/Rhf + y0/Rhv);
+                               "or below triple point)", x0);
         }
+        temp = Tsat(x0);
+        set_T(temp);
+        update_sat();
+        Rho = 1.0/((1.0 - y0)/Rhf + y0/Rhv);
         break;
     case PropertyPair::TX:
         if (y0 > 1.0 || y0 < 0.0) {
             throw CanteraError("Substance::Set",
                                "Invalid vapor fraction, {}", y0);
-        } else if (x0 < Tmin() || x0 > Tcrit()) {
+        }
+        if (x0 < Tmin() || x0 > Tcrit()) {
             throw CanteraError("Substance::Set",
                                "Illegal temperature value: {} "
-                               "(supercritical of below triple line)", x0);
-        } else {
-            set_T(x0);
-            update_sat();
-            Rho = 1.0/((1.0 - y0)/Rhf + y0/Rhv);
+                               "(supercritical or below triple point)", x0);
         }
+        set_T(x0);
+        update_sat();
+        Rho = 1.0/((1.0 - y0)/Rhf + y0/Rhv);
         break;
     default:
         throw CanteraError("Substance::Set", "Invalid input.");
