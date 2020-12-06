@@ -118,10 +118,10 @@ class TestPureFluid(utilities.CanteraTest):
         self.assertNear(k1, k2, tol)
         self.assertNear(alpha1, alpha2, tol)
 
-        # calculating these finite difference properties should not perturbe the
-        # state of the object
-        self.assertEqual(h1a, h1b)
-        self.assertEqual(h2a, h2b)
+        # calculating these finite difference properties should not perturb the
+        # state of the object (except for checks on edge cases)
+        self.assertNear(h1a, h1b, 1e-9)
+        self.assertNear(h2a, h2b, 1e-9)
 
     def test_properties_near_min(self):
         self.check_fd_properties(self.water.min_temp*(1+1e-5), 101325,
@@ -163,6 +163,21 @@ class TestPureFluid(utilities.CanteraTest):
         for T in [440, 550, 660]:
             self.water.TD = T, 0.1
             self.assertNear(T * self.water.thermal_expansion_coeff, 1.0, 1e-2)
+
+    def test_pq_setter_triple_check(self):
+        self.water.PQ = 101325, .2
+        T = self.water.T
+        # change T such that it would result in a Psat larger than P
+        self.water.TP = 400, 101325
+        # ensure that correct triple point pressure is recalculated
+        # (necessary as this value is not stored by the C++ base class)
+        self.water.PQ = 101325, .2
+        self.assertNear(T, self.water.T, 1e-9)
+        with self.assertRaisesRegex(ct.CanteraError, 'below triple point'):
+            # min_temp is triple point temperature
+            self.water.TP = self.water.min_temp, 101325
+            P = self.water.P_sat # triple-point pressure
+            self.water.PQ = .999*P, .2
 
     def test_quality_exceptions(self):
         # Critical point
