@@ -598,8 +598,8 @@ class SolutionArray:
             return SolutionArray(self._phase, shape, states)
 
     def __getattr__(self, name):
-        if name in self.__dict__['_extra']:
-            return self.__dict__['_extra'][name]
+        if name in self._extra:
+            return self._extra[name]
         elif name in self.__dict__:
             super().__getattr__(name)
         else:
@@ -607,11 +607,11 @@ class SolutionArray:
                 self.__class__.__name__, name))
 
     def __setattr__(self, name, value):
-        if name in self.__dict__['_extra']:
+        if name in self._extra:
             new = np.array(value)
             if not new.shape:
                 # maintain shape of extra entry
-                new = np.full(self.__dict__['_extra'][name].shape, value)
+                new = np.full(self._extra[name].shape, value)
             elif new.shape[:len(self._shape)] != self._shape:
                 raise ValueError(
                     "Incompatible shapes for extra column '{}': cannot assign "
@@ -690,20 +690,15 @@ class SolutionArray:
                 ) from None
             setattr(self._phase, attr, [kwargs[a] for a in attr])
 
-        extra = self._extra
         for name, value in self._extra.items():
-            new = extra_temp.pop(name)
+            new = extra_temp[name]
             if len(value):
                 if (value.ndim == 1 and hasattr(new, '__len__') and
                     not isinstance(new, str)):
-                    # revert changes to extra before raising error
-                    self._extra = extra
                     raise ValueError(
                         "Encountered incompatible value '{}' for extra column '{}'."
                         "".format(new, name))
                 elif value.ndim > 1 and value.shape[1:] != np.array(new).shape:
-                    # revert changes to extra before raising error
-                    self._extra = extra
                     raise ValueError(
                         "Shape of new element does not match existing extra "
                         "column '{}'".format(name))
@@ -711,7 +706,11 @@ class SolutionArray:
             # np.append when appending a single item.
             v = value.tolist()
             v.append(new)
-            self._extra[name] = np.array(v)
+            extra_temp[name] = np.array(v)
+
+        for name, value in extra_temp.items():
+            self._extra[name] = value
+
         self._states.append(self._phase.state)
         self._indices.append(len(self._indices))
         self._shape = (len(self._indices),)
