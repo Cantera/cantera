@@ -990,6 +990,7 @@ shared_ptr<Species> Phase::species(const std::string& name) const
 
 shared_ptr<Species> Phase::species(size_t k) const
 {
+    checkSpeciesIndex(k);
     return m_species.at(m_speciesNames[k]);
 }
 
