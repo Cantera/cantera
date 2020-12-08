@@ -65,6 +65,8 @@ class TestThermoPhase(utilities.CanteraTest):
             self.assertEqual(name, self.phase.species_name(i))
             self.assertEqual(i, self.phase.species_index(name))
             self.assertEqual(i, self.phase.species_index(i))
+        with self.assertRaisesRegex(ct.CanteraError, 'IndexError thrown by Phase::checkSpeciesIndex'):
+            self.phase.species(self.phase.n_species)
 
     def test_elements(self):
         self.assertEqual(self.phase.n_elements, 3)
