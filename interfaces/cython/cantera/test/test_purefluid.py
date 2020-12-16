@@ -325,7 +325,7 @@ class PureFluidTestCases:
             a2 = self.a(state.T, 1/(V+0.5*dV))
 
             # dP/drho is high for liquids, so relax tolerances
-            tol = 100*self.tol.dAdV if state.phase == 'liquid' else self.tol.dAdV
+            tol = 300*self.tol.dAdV if state.phase == 'liquid' else self.tol.dAdV
 
             # At constant temperature, dA = - p dV
             msg = 'At state: T=%s, rho=%s' % (state.T, state.rho)
