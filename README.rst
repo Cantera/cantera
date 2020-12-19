@@ -61,6 +61,8 @@ offers a number of starting points:
   <https://cantera.org/tutorials/input-files.html>`_
 - `Information about the Cantera community
   <https://cantera.org/community.html>`_
+- `Affiliated packages
+  <https://cantera.org/affiliated-packages.html>`_
 
 `Documentation for the development version of Cantera
 <https://cantera.org/documentation/dev-docs.html>`_ is also available.
