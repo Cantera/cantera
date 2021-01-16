@@ -112,6 +112,8 @@ jobs:
   docs:
     name: Build docs
     runs-on: ubuntu-latest
+    env:
+      DEPLOY: ${{ github.event_name == 'push' && github.repository_owner == 'Cantera' && endsWith(github.ref, 'main') }}
     steps:
       - uses: actions/checkout@v2
         name: Checkout the repository
@@ -132,17 +134,17 @@ jobs:
           sphinxcontrib-katex sphinxcontrib-matlabdomain sphinxcontrib-doxylink
       - name: Build Cantera with documentation
         run: python3 `which scons` build doxygen_docs=y sphinx_docs=y
-      # The known_hosts key is generated with `ssh -F cantera.org` from a
+      # The known_hosts key is generated with `ssh-keygen -F cantera.org` from a
       # machine that has previously logged in to cantera.org and trusts
       # that it logged in to the right machine
       - name: Set up SSH key and host for deploy
-        if: github.event_name == 'push' && github.repository_owner == 'Cantera' && github.ref == 'main'
+        if: env.DEPLOY == 'true'
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.CTDEPLOY_KEY }}
           known_hosts: ${{ secrets.CTDEPLOY_HOST }}
       - name: Upload the docs
-        if: github.event_name == 'push' && github.repository_owner == 'Cantera' && github.ref == 'main'
+        if: env.DEPLOY == 'true'
         env:
           RSYNC_USER: "ctdeploy"
           RSYNC_SERVER: "cantera.org"
