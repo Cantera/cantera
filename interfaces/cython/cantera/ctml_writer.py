@@ -1322,8 +1322,6 @@ class reaction(object):
             if self._beta is not None:
                 electro = kfnode.addChild('electrochem')
                 electro['beta'] = repr(self._beta)
-            else:
-                self._beta = 0.0
 
         for kf in self._kf:
             if isinstance(kf, rate_expression):
