@@ -1319,7 +1319,7 @@ class reaction(object):
             self._kf = []
 
         if self._type == 'edge' or self._type == 'surface':
-            if self._beta > 0:
+            if self._beta is not None:
                 electro = kfnode.addChild('electrochem')
                 electro['beta'] = repr(self._beta)
 
@@ -1640,7 +1640,7 @@ class surface_reaction(reaction):
                  kf=None,
                  id='',
                  order='',
-                 beta = 0.0,
+                 beta = None,
                  options=[],
                  rate_coeff_type = ''):
         """
@@ -1686,7 +1686,7 @@ class edge_reaction(reaction):
                  kf = None,
                  id = '',
                  order = '',
-                 beta = 0.0,
+                 beta = None,
                  options = [],
                  rate_coeff_type = ''):
         reaction.__init__(self, equation, kf, id, order, options)
