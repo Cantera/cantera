@@ -133,7 +133,7 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
     resize();
     m_xlast_ts.clear();
     for (size_t m = 0; m < nDomains(); m++) {
-        domain(m).restore(*xd[m], &m_x[domain(m).loc()], loglevel);
+        domain(m).restore(*xd[m], &m_x[start(m)], loglevel);
     }
     finalize();
 }

@@ -83,7 +83,13 @@ public:
 
     /// The index of the start of domain i in the solution vector.
     size_t start(size_t i) const {
-        return m_dom[i]->loc();
+        if (m_dom[i]->nComponents()) {
+            return m_dom[i]->loc();
+        } else {
+            // Special case for domains with no solution components to avoid
+            // spurious out-of-bounds memory access
+            return 0;
+        }
     }
 
     /// Total solution vector length;
