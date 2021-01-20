@@ -113,10 +113,10 @@ XML_Node& Domain1D::save(XML_Node& o, const doublereal* const sol)
     d.addAttribute("points", nPoints());
     d.addAttribute("components", nComponents());
     d.addAttribute("id", id());
-    addFloatArray(d, "abstol_transient", nComponents(), &m_atol_ts[0]);
-    addFloatArray(d, "reltol_transient", nComponents(), &m_rtol_ts[0]);
-    addFloatArray(d, "abstol_steady", nComponents(), &m_atol_ss[0]);
-    addFloatArray(d, "reltol_steady", nComponents(), &m_rtol_ss[0]);
+    addFloatArray(d, "abstol_transient", nComponents(), m_atol_ts.data());
+    addFloatArray(d, "reltol_transient", nComponents(), m_rtol_ts.data());
+    addFloatArray(d, "abstol_steady", nComponents(), m_atol_ss.data());
+    addFloatArray(d, "reltol_steady", nComponents(), m_rtol_ss.data());
     return d;
 }
 
