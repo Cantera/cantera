@@ -1787,6 +1787,9 @@ class Parser:
                             revReaction.line_number = line_number
                             reactions.append(revReaction)
 
+                    for index, reaction in enumerate(reactions):
+                        reaction.index = index + 1
+
                 elif tokens[0].upper().startswith('TRAN'):
                     inHeader = False
                     line, comment = readline()
@@ -1818,9 +1821,6 @@ class Parser:
 
         for h in header:
             self.header_lines.append(h[indent:])
-
-        for index, reaction in enumerate(self.reactions):
-            reaction.index = index + 1
 
         if transportLines:
             self.parse_transport_data(transportLines, path, transport_start_line)
