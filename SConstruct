@@ -315,7 +315,7 @@ else:
 # InstallVersionedLib only fully functional in SCons >= 2.4.0
 # SHLIBVERSION fails with MinGW: http://scons.tigris.org/issues/show_bug.cgi?id=3035
 if (env['toolchain'] == 'mingw'
-    or StrictVersion(SCons.__version__) < StrictVersion('2.4.0')):
+    or parse_version(SCons.__version__) < parse_version('2.4.0')):
     defaults.versionedSharedLibrary = False
 else:
     defaults.versionedSharedLibrary = True
@@ -719,12 +719,10 @@ for arg in ARGUMENTS:
         print('Encountered unexpected command line argument: %r' % arg)
         sys.exit(1)
 
-# Require a StrictVersion-compatible version
 env['cantera_version'] = "2.5.0b1"
-ctversion = StrictVersion(env['cantera_version'])
 # For use where pre-release tags are not permitted (MSI, sonames)
-env['cantera_pure_version'] = '.'.join(str(x) for x in ctversion.version)
-env['cantera_short_version'] = '.'.join(str(x) for x in ctversion.version[:2])
+env['cantera_pure_version'] = re.match(r'(\d+\.\d+\.\d+)', env['cantera_version']).group(0)
+env['cantera_short_version'] = re.match(r'(\d+\.\d+)', env['cantera_version']).group(0)
 
 try:
     env['git_commit'] = getCommandOutput('git', 'rev-parse', '--short', 'HEAD')
@@ -1125,17 +1123,17 @@ if env['system_sundials'] == 'y':
 
     # Ignore the minor version, e.g. 2.4.x -> 2.4
     env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
-    sundials_ver = LooseVersion(env['sundials_version'])
-    if sundials_ver < LooseVersion('2.4') or sundials_ver >= LooseVersion('6.0'):
+    sundials_ver = parse_version(env['sundials_version'])
+    if sundials_ver < parse_version('2.4') or sundials_ver >= parse_version('6.0'):
         print("""ERROR: Sundials version %r is not supported.""" % env['sundials_version'])
         sys.exit(1)
-    elif sundials_ver > LooseVersion('5.3'):
+    elif sundials_ver > parse_version('5.3'):
         print("WARNING: Sundials version %r has not been tested." % env['sundials_version'])
 
     print("""INFO: Using system installation of Sundials version %s.""" % sundials_version)
 
     #Determine whether or not Sundials was built with BLAS/LAPACK
-    if sundials_ver < LooseVersion('2.6'):
+    if sundials_ver < parse_version('2.6'):
         # In Sundials 2.4 / 2.5, SUNDIALS_BLAS_LAPACK is either 0 or 1
         sundials_blas_lapack = get_expression_value(['"sundials/sundials_config.h"'],
                                                        'SUNDIALS_BLAS_LAPACK')
@@ -1228,19 +1226,19 @@ if env['VERBOSE']:
 env['python_cmd_esc'] = quoted(env['python_cmd'])
 
 # Python Package Settings
-python_min_version = LooseVersion('3.5')
+python_min_version = parse_version('3.5')
 # The string is used to set python_requires in setup.py.in
 env['py_min_ver_str'] = str(python_min_version)
 # Note: cython_min_version is redefined below if the Python version is 3.8 or higher
-cython_min_version = LooseVersion('0.23')
-numpy_min_version = LooseVersion('1.12.0')
+cython_min_version = parse_version('0.23')
+numpy_min_version = parse_version('1.12.0')
 
 # We choose ruamel.yaml 0.15.34 as the minimum version
 # since it is the highest version available in the Ubuntu
 # 18.04 repositories and seems to work. Older versions such as
 # 0.13.14 on CentOS7 and 0.10.23 on Ubuntu 16.04 raise an exception
 # that they are missing the RoundTripRepresenter
-ruamel_min_version = LooseVersion('0.15.34')
+ruamel_min_version = parse_version('0.15.34')
 
 # Check for the minimum ruamel.yaml version, 0.15.34, at install and test
 # time. The check happens at install and test time because ruamel.yaml is
@@ -1332,12 +1330,12 @@ if env['python_package'] != 'none':
         warn_no_python = True
     else:
         warn_no_python = False
-        python_version = LooseVersion(info[0])
-        numpy_version = LooseVersion(info[1])
-        cython_version = LooseVersion(info[2])
+        python_version = parse_version(info[0])
+        numpy_version = parse_version(info[1])
+        cython_version = parse_version(info[2])
         if check_for_ruamel_yaml:
-            ruamel_yaml_version = LooseVersion(info[3])
-            if ruamel_yaml_version == LooseVersion("0.0.0"):
+            ruamel_yaml_version = parse_version(info[3])
+            if ruamel_yaml_version == parse_version("0.0.0"):
                 print("ERROR: ruamel.yaml was not found. {} or newer is "
                     "required".format(ruamel_min_version))
                 sys.exit(1)
@@ -1377,7 +1375,7 @@ if env['python_package'] != 'none':
             print('| ' + '\n| '.join(info[expected_output_lines:]))
 
         warn_no_full_package = False
-        if python_version >= LooseVersion("3.8"):
+        if python_version >= parse_version("3.8"):
             # Reset the minimum Cython version if the Python version is 3.8 or higher
             # Due to internal changes in the CPython API, more recent versions of
             # Cython are necessary to build for Python 3.8. There is nothing Cantera
@@ -1385,9 +1383,9 @@ if env['python_package'] != 'none':
             # version bump is used to produce a more useful/actionable error message
             # for users than the compilation errors that result from using
             # Cython < 0.29.12.
-            cython_min_version = LooseVersion("0.29.12")
+            cython_min_version = parse_version("0.29.12")
 
-        if numpy_version == LooseVersion('0.0.0'):
+        if numpy_version == parse_version('0.0.0'):
             print("NumPy not found.")
             warn_no_full_package = True
         elif numpy_version < numpy_min_version:
@@ -1398,7 +1396,7 @@ if env['python_package'] != 'none':
         else:
             print('INFO: Using NumPy version {0}.'.format(numpy_version))
 
-        if cython_version == LooseVersion('0.0.0'):
+        if cython_version == parse_version('0.0.0'):
             print("Cython not found.")
             warn_no_full_package = True
         elif cython_version < cython_min_version:
@@ -1699,7 +1697,7 @@ linkSharedLibs = ['cantera_shared']
 
 if env['system_sundials'] == 'y':
     env['sundials_libs'] = ['sundials_cvodes', 'sundials_ida', 'sundials_nvecserial']
-    if env['use_lapack'] and sundials_ver >= LooseVersion('3.0'):
+    if env['use_lapack'] and sundials_ver >= parse_version('3.0'):
         if env.get('has_sundials_lapack'):
             env['sundials_libs'].extend(('sundials_sunlinsollapackdense',
                                          'sundials_sunlinsollapackband'))

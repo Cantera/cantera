@@ -16,7 +16,7 @@ import itertools
 import SCons.Errors
 import SCons
 import SCons.Node.FS
-from distutils.version import LooseVersion, StrictVersion
+from pkg_resources import parse_version
 import distutils.sysconfig
 
 try:

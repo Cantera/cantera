@@ -48,7 +48,7 @@ if localenv['OS'] == 'Darwin':
     # and causes the warnings to appear will be removed in Python 3.9 so no
     # further warnings should be issued. Cython has already implemented a fix
     # in versions higher than 0.29.14.
-    if py_version == LooseVersion("3.8"):
+    if py_version == parse_version("3.8"):
         localenv.Append(CXXFLAGS='-Wno-deprecated-declarations')
 elif localenv['OS'] == 'Windows':
     localenv.Append(LIBPATH=prefix+'/libs')
