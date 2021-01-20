@@ -462,7 +462,7 @@ class SurfaceRate(KineticsModel):
                 # base reaction
                 if self.rate.Ea[1] != self.rate.parser.output_energy_units:
                     E = '{} {}'.format(E, self.rate.Ea[1])
-                    covdeps[species] = FlowList([A, m, E])
+                covdeps[species] = FlowList([A, m, E])
             output['coverage-dependencies'] = covdeps
 
 

@@ -428,6 +428,12 @@ class converterTestCommon:
         self.assertEqual(gas.n_reactions, 0)
         self.assertEqual(surf.n_reactions, 15)
 
+        # Coverage dependencies
+        covdeps = surf.reaction(1).coverage_deps
+        self.assertIn('H_Pt', covdeps)
+        self.assertEqual(covdeps['OH_Pt'][1], 1.0)
+        self.assertNear(covdeps['H_Pt'][2], -6e6)
+
     def test_third_body_plus_falloff_reactions(self):
         self.convert('third_body_plus_falloff_reaction.inp')
         gas = ct.Solution('third_body_plus_falloff_reaction' + self.ext)
