@@ -36,8 +36,11 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
     localenv.Append(LIBS=env['cantera_libs'])
     localenv.Prepend(CPPPATH=['#include'])
 
-    buildSample(localenv.Program, pjoin(subdir, name),
-                mglob(localenv, subdir, *extensions))
+    if openmp and not env['HAS_OPENMP']:
+        print("INFO: Skipping sample {} because 'omp.h' was not found.".format(name))
+    else:
+        buildSample(localenv.Program, pjoin(subdir, name),
+                    mglob(localenv, subdir, *extensions))
 
     # Note: These Makefiles and SConstruct files are automatically installed
     # by the "RecursiveInstall" that grabs everything in the cxx directory.

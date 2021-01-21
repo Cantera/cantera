@@ -1052,6 +1052,7 @@ else:
     env['cxx_stdlib'] = []
 
 env['HAS_CLANG'] = conf.CheckDeclaration('__clang__', '', 'C++')
+env['HAS_OPENMP'] = conf.CheckCXXHeader('omp.h', '""')
 
 boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
 retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')

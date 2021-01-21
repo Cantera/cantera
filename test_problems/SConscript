@@ -248,10 +248,11 @@ Test('cxx-gas-transport', 'cxx_samples',
 Test('cxx-LiC6-electrode', 'cxx_samples',
      '#build/samples/cxx/LiC6_electrode/LiC6_electrode', None,
      comparisons=[('LiC6_electrode_blessed.csv', 'LiC6_electrode_output.csv')])
-Test('cxx-openmp-ignition', 'cxx_samples',
-     '#build/samples/cxx/openmp_ignition/openmp_ignition',
-     'opmenmp_ignition_blessed.txt',
-     ignoreLines=['Running on'])
+if env['HAS_OPENMP']:
+    Test('cxx-openmp-ignition', 'cxx_samples',
+        '#build/samples/cxx/openmp_ignition/openmp_ignition',
+        'opmenmp_ignition_blessed.txt',
+        ignoreLines=['Running on'])
 Test('cxx-rankine', 'cxx_samples', '#build/samples/cxx/rankine/rankine',
      'rankine_blessed.txt')
 
