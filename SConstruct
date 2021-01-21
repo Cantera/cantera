@@ -265,7 +265,7 @@ env['using_apple_clang'] = False
 # Check if this is actually Apple's clang on macOS
 if env['OS'] == 'Darwin':
     result = subprocess.check_output([env.subst('$CC'), '--version']).decode('utf-8')
-    if 'clang' in result.lower() and 'Xcode' in result:
+    if 'clang' in result.lower() and ('Xcode' in result or 'Apple' in result):
         env['using_apple_clang'] = True
         env['openmp_flag'].insert(0, '-Xpreprocessor')
 
