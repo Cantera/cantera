@@ -1251,15 +1251,12 @@ class TestIonBurnerFlame(utilities.CanteraTest):
         self.gas = ct.Solution('ch4_ion.cti')
         self.gas.TPX = Tburner, p, reactants
         self.sim = ct.IonBurnerFlame(self.gas, width=width)
-        self.sim.set_refine_criteria(ratio=4, slope=0.4, curve=0.6)
+        self.sim.set_refine_criteria(ratio=4, slope=0.1, curve=0.1)
         self.sim.burner.mdot = self.gas.density * 0.15
         self.sim.transport_model = 'Ion'
 
-        # stage one
-        self.sim.solve(loglevel=0, auto=True)
-
-        #stage two
-        self.sim.solve(loglevel=0, stage=2, enable_energy=True)
+        self.sim.solve(loglevel=0, stage=2, auto=True)
 
         # Regression test
-        self.assertNear(max(self.sim.E), 552.33, 1e-2)
+        self.assertNear(max(self.sim.E), 591.76, 1e-2)
+        self.assertNear(max(self.sim.X[self.gas.species_index('E')]), 8.024e-9, 1e-2)
