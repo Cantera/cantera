@@ -446,7 +446,7 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             }
             
             // absorption coefficient for OH
-            if (m_kRadiating[3] != npos) {
+            if (m_kRadiating[4] != npos) {
                 double k_P_OH = 0;
                 for (int k = 0; k < OPL_table_size; k++) {
                 	if (T(x, j) < TemperatureOPL[k]) {
