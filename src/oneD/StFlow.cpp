@@ -347,8 +347,10 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
         // calculation of the two boundary values
         double boundary_Rad_left = m_epsilon_left * StefanBoltz * pow(T(x, 0), 4);
         double boundary_Rad_right = m_epsilon_right * StefanBoltz * pow(T(x, m_points - 1), 4);
+	    
+	double coef;
 
-        // loop over all grid points
+	// loop over all grid points
         for (size_t j = jmin; j < jmax; j++) {
             // helping variable for the calculation
             double radiative_heat_loss = 0;
