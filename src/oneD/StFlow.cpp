@@ -316,41 +316,57 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
     if (m_do_radiation) {
         // variable definitions for the Planck absorption coefficient and the
         // radiation calculation:
-        doublereal k_P_ref = 1.0*OneAtm;
+        double k_P_ref = 1.0*OneAtm;
 
         // Temperatures for Planck optical path length evaluation, K
         const int OPL_table_size = 28;
-        const doublereal TemperatureOPL[OPL_table_size] = {300.0,400.0,500.0,600.0,700.0,800.0,900.0,1000.0,1100.0,1200.0,1300.0,1400.0,1500.0,1600.0,1700.0,1800.0,1900.0,2000.0,2100.0,2200.0,2300.0,2400.0,2500.0,2600.0,2700.0,2800.0,2900.0,3000.0};
+        const double TemperatureOPL[OPL_table_size] = {300.0,400.0,500.0,600.0,
+            700.0,800.0,900.0,1000.0,1100.0,1200.0,1300.0,1400.0,1500.0,1600.0,
+            1700.0,1800.0,1900.0,2000.0,2100.0,2200.0,2300.0,2400.0,2500.0,2600.0,
+            2700.0,2800.0,2900.0,3000.0};
         
         // Planck optical path length, m        
-        const doublereal PlanckOPL_CO2[OPL_table_size] = {0.0385,0.039, 0.033, 0.0303, 0.0307, 0.0335, 0.0381, 0.0447, 0.0533, 0.0645, 0.0787, 0.0966, 0.119, 0.147, 0.183, 0.227, 0.281, 0.348, 0.431, 0.532, 0.655, 0.803, 0.983, 1.198, 1.455, 1.761, 2.123, 2.55};
-        const doublereal PlanckOPL_H2O[OPL_table_size] = {0.0194, 0.0349, 0.0523, 0.0728, 0.097, 0.125, 0.158, 0.196, 0.24, 0.29, 0.352, 0.424, 0.51, 0.614, 0.737, 0.885, 1.06, 1.27, 1.52, 1.82, 2.18, 2.6, 3.1, 3.69, 4.38, 5.2,6.15, 7.28};
-        const doublereal PlanckOPL_CH4[OPL_table_size] = {0.00936, 0.0128, 0.0189, 0.029, 0.0458, 0.0729, 0.1166, 0.186, 0.296, 0.467, 0.732, 1.136, 1.746, 2.655, 3.999, 5.96, 8.8, 12.87, 18.64, 26.75, 38.07, 53.71, 75.17, 104.37, 143.83, 196.8, 267.3, 360.8};
-        const doublereal PlanckOPL_CO[OPL_table_size] = {0.0139, 0.024, 0.0439, 0.0785, 0.134, 0.22, 0.346, 0.53, 0.799, 1.189, 1.75, 2.57, 3.728, 5.372, 7.68, 10.87, 15.24, 21.15, 29.05, 39.46, 53.03, 70.49, 92.71, 120.67, 155.48, 198.39, 250.77, 314.1};
-        const doublereal PlanckOPL_OH[OPL_table_size] = {0.00794, 0.0113, .01624, 0.024, 0.03635, 0.05585, 0.08625, 0.133, 0.2042, 0.3108, 0.4687, 0.6994, 1.0324, 1.507, 2.177, 3.111, 4.401,6.163, 8.55, 11.75, 16.0,21.62, 28.98, 38.54, 50.88, 66.69, 86.85, 112.37};
+        const double PlanckOPL_CO2[OPL_table_size] = {0.0385, 0.039, 0.033, 0.0303,
+            0.0307, 0.0335, 0.0381, 0.0447, 0.0533, 0.0645, 0.0787, 0.0966, 0.119,
+            0.147, 0.183, 0.227, 0.281, 0.348, 0.431, 0.532, 0.655, 0.803, 0.983,
+            1.198, 1.455, 1.761, 2.123, 2.55};
+        const double PlanckOPL_H2O[OPL_table_size] = {0.0194, 0.0349, 0.0523, 0.0728,
+            0.097, 0.125, 0.158, 0.196, 0.24, 0.29, 0.352, 0.424, 0.51, 0.614, 0.737,
+            0.885, 1.06, 1.27, 1.52, 1.82, 2.18, 2.6, 3.1, 3.69, 4.38, 5.2, 6.15, 7.28};
+        const double PlanckOPL_CH4[OPL_table_size] = {0.00936, 0.0128, 0.0189, 0.029,
+            0.0458, 0.0729, 0.1166, 0.186, 0.296, 0.467, 0.732, 1.136, 1.746, 2.655,
+            3.999, 5.96, 8.8, 12.87, 18.64, 26.75, 38.07, 53.71, 75.17, 104.37,
+            143.83, 196.8, 267.3, 360.8};
+        const double PlanckOPL_CO[OPL_table_size] = {0.0139, 0.024, 0.0439, 0.0785,
+            0.134, 0.22, 0.346, 0.53, 0.799, 1.189, 1.75, 2.57, 3.728, 5.372, 7.68,
+            10.87, 15.24, 21.15, 29.05, 39.46, 53.03, 70.49, 92.71, 120.67, 155.48,
+            198.39, 250.77, 314.1};
+        const double PlanckOPL_OH[OPL_table_size] = {0.00794, 0.0113, 0.01624, 0.024,
+            0.03635, 0.05585, 0.08625, 0.133, 0.2042, 0.3108, 0.4687, 0.6994, 1.0324,
+            1.507, 2.177, 3.111, 4.401, 6.163, 8.55, 11.75, 16.0, 21.62, 28.98, 38.54,
+            50.88, 66.69, 86.85, 112.37};
         
         // natural logarithms of reversed optical path lengths for linear interpolation in logarithm scale
-        doublereal OPL_log_CO2[OPL_table_size];
-        doublereal OPL_log_H2O[OPL_table_size];
-        doublereal OPL_log_CH4[OPL_table_size];
-        doublereal OPL_log_CO[OPL_table_size];
-        doublereal OPL_log_OH[OPL_table_size];
+        double OPL_log_CO2[OPL_table_size];
+        double OPL_log_H2O[OPL_table_size];
+        double OPL_log_CH4[OPL_table_size];
+        double OPL_log_CO[OPL_table_size];
+        double OPL_log_OH[OPL_table_size];
         
         for (int j = 0; j < OPL_table_size; j++) {
-			OPL_log_CO2[j] = log(1.0/PlanckOPL_CO2[j]);
-			OPL_log_H2O[j] = log(1.0/PlanckOPL_H2O[j]);
-			OPL_log_CH4[j] = log(1.0/PlanckOPL_CH4[j]);
-			OPL_log_CO[j] = log(1.0/PlanckOPL_CO[j]);
-			OPL_log_OH[j] = log(1.0/PlanckOPL_OH[j]);
-		}
+            OPL_log_CO2[j] = log(1.0/PlanckOPL_CO2[j]);
+            OPL_log_H2O[j] = log(1.0/PlanckOPL_H2O[j]);
+            OPL_log_CH4[j] = log(1.0/PlanckOPL_CH4[j]);
+            OPL_log_CO[j] = log(1.0/PlanckOPL_CO[j]);
+            OPL_log_OH[j] = log(1.0/PlanckOPL_OH[j]);
+        }
         
         // calculation of the two boundary values
         double boundary_Rad_left = m_epsilon_left * StefanBoltz * pow(T(x, 0), 4);
         double boundary_Rad_right = m_epsilon_right * StefanBoltz * pow(T(x, m_points - 1), 4);
 	    
-	double coef;
-
-	// loop over all grid points
+        double coef;
+        // loop over all grid points
         for (size_t j = jmin; j < jmax; j++) {
             // helping variable for the calculation
             double radiative_heat_loss = 0;
@@ -361,21 +377,22 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             if (m_kRadiating[1] != npos) {
                 double k_P_H2O = 0;
                 for (int k = 0; k < OPL_table_size; k++) {
-                	if (T(x, j) < TemperatureOPL[k]) {
-                		if (T(x, j) < TemperatureOPL[0]) {
-							coef=OPL_log_H2O[0];
-						}
-						else {
-							coef=OPL_log_H2O[k-1]+(OPL_log_H2O[k]-OPL_log_H2O[k-1])*(T(x, j)-TemperatureOPL[k-1])/(TemperatureOPL[k]-TemperatureOPL[k-1]);
-						}
-						break;
-					}
-					else {
-						coef=OPL_log_H2O[OPL_table_size-1];
-					}
-				}
-				k_P_H2O = exp(coef);
-	
+                    if (T(x, j) < TemperatureOPL[k]) {
+                        if (T(x, j) < TemperatureOPL[0]) {
+                            coef=OPL_log_H2O[0];
+                        }
+                        else {
+                            coef=OPL_log_H2O[k-1]+(OPL_log_H2O[k]-OPL_log_H2O[k-1])*
+                                (T(x, j)-TemperatureOPL[k-1])/
+                                (TemperatureOPL[k]-TemperatureOPL[k-1]);
+                        }
+                        break;
+                    }
+                    else {
+                        coef=OPL_log_H2O[OPL_table_size-1];
+                    }
+                }
+                k_P_H2O = exp(coef);
                 k_P_H2O /= k_P_ref;
                 k_P += m_press * X(x, m_kRadiating[1], j) * k_P_H2O;
             }
@@ -384,21 +401,22 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                 double k_P_CO2 = 0;
                 
                 for (int k = 0; k < OPL_table_size; k++) {
-                	if (T(x, j) < TemperatureOPL[k]) {
-                		if (T(x, j) < TemperatureOPL[0]) {
-							coef=OPL_log_CO2[0];
-						}
-						else {
-							coef=OPL_log_CO2[k-1]+(OPL_log_CO2[k]-OPL_log_CO2[k-1])*(T(x, j)-TemperatureOPL[k-1])/(TemperatureOPL[k]-TemperatureOPL[k-1]);
-						}
-						break;
-					}
-					else {
-						coef=OPL_log_CO2[OPL_table_size-1];
-					}
-				}
-				k_P_CO2 = exp(coef);
-				
+                    if (T(x, j) < TemperatureOPL[k]) {
+                        if (T(x, j) < TemperatureOPL[0]) {
+                            coef=OPL_log_CO2[0];
+                        }
+                        else {
+                            coef=OPL_log_CO2[k-1]+(OPL_log_CO2[k]-OPL_log_CO2[k-1])*
+                                (T(x, j)-TemperatureOPL[k-1])/
+                                (TemperatureOPL[k]-TemperatureOPL[k-1]);
+                        }
+                        break;
+                    }
+                    else {
+                        coef=OPL_log_CO2[OPL_table_size-1];
+                    }
+                }
+                k_P_CO2 = exp(coef);
                 k_P_CO2 /= k_P_ref;
                 k_P += m_press * X(x, m_kRadiating[0], j) * k_P_CO2;
             }
@@ -406,21 +424,22 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             if (m_kRadiating[2] != npos) {
                 double k_P_CO = 0;
                 for (int k = 0; k < OPL_table_size; k++) {
-                	if (T(x, j) < TemperatureOPL[k]) {
-                		if (T(x, j) < TemperatureOPL[0]) {
-							coef=OPL_log_CO[0];
-						}
-						else {
-							coef=OPL_log_CO[k-1]+(OPL_log_CO[k]-OPL_log_CO[k-1])*(T(x, j)-TemperatureOPL[k-1])/(TemperatureOPL[k]-TemperatureOPL[k-1]);
-						}
-						break;
-					}
-					else {
-						coef=OPL_log_CO[OPL_table_size-1];
-					}
-				}
-				k_P_CO = exp(coef);
-                
+                    if (T(x, j) < TemperatureOPL[k]) {
+                        if (T(x, j) < TemperatureOPL[0]) {
+                            coef=OPL_log_CO[0];
+                        }
+                        else {
+                            coef=OPL_log_CO[k-1]+(OPL_log_CO[k]-OPL_log_CO[k-1])*
+                                (T(x, j)-TemperatureOPL[k-1])/
+                                (TemperatureOPL[k]-TemperatureOPL[k-1]);
+                        }
+                        break;
+                    }
+                    else {
+                        coef=OPL_log_CO[OPL_table_size-1];
+                    }
+                }
+                k_P_CO = exp(coef);                
                 k_P_CO /= k_P_ref;
                 k_P += m_press * X(x, m_kRadiating[2], j) * k_P_CO;
             }
@@ -428,48 +447,48 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             if (m_kRadiating[3] != npos) {
                 double k_P_CH4 = 0;
                 for (int k = 0; k < OPL_table_size; k++) {
-                	if (T(x, j) < TemperatureOPL[k]) {
-                		if (T(x, j) < TemperatureOPL[0]) {
-							coef=OPL_log_CH4[0];
-						}
-						else {
-							coef=OPL_log_CH4[k-1]+(OPL_log_CH4[k]-OPL_log_CH4[k-1])*(T(x, j)-TemperatureOPL[k-1])/(TemperatureOPL[k]-TemperatureOPL[k-1]);
-						}
-						break;
-					}
-					else {
-						coef=OPL_log_CH4[OPL_table_size-1];
-					}
-				}
-				k_P_CH4 = exp(coef);
-                
+                    if (T(x, j) < TemperatureOPL[k]) {
+                        if (T(x, j) < TemperatureOPL[0]) {
+                            coef=OPL_log_CH4[0];
+                        }
+                        else {
+                            coef=OPL_log_CH4[k-1]+(OPL_log_CH4[k]-OPL_log_CH4[k-1])*
+                                (T(x, j)-TemperatureOPL[k-1])/
+                                (TemperatureOPL[k]-TemperatureOPL[k-1]);
+                        }
+                        break;
+                    }
+                    else {
+                        coef=OPL_log_CH4[OPL_table_size-1];
+                    }
+                }
+                k_P_CH4 = exp(coef);
                 k_P_CH4 /= k_P_ref;
                 k_P += m_press * X(x, m_kRadiating[3], j) * k_P_CH4;
-            }
-            
+            }            
             // absorption coefficient for OH
             if (m_kRadiating[4] != npos) {
                 double k_P_OH = 0;
                 for (int k = 0; k < OPL_table_size; k++) {
-                	if (T(x, j) < TemperatureOPL[k]) {
-                		if (T(x, j) < TemperatureOPL[0]) {
-							coef=OPL_log_OH[0];
-						}
-						else {
-							coef=OPL_log_OH[k-1]+(OPL_log_OH[k]-OPL_log_OH[k-1])*(T(x, j)-TemperatureOPL[k-1])/(TemperatureOPL[k]-TemperatureOPL[k-1]);
-						}
-						break;
-					}
-					else {
-						coef=OPL_log_OH[OPL_table_size-1];
-					}
-				}
-				k_P_OH = exp(coef);
-                
+                    if (T(x, j) < TemperatureOPL[k]) {
+                        if (T(x, j) < TemperatureOPL[0]) {
+                            coef=OPL_log_OH[0];
+                        }
+                        else {
+                            coef=OPL_log_OH[k-1]+(OPL_log_OH[k]-OPL_log_OH[k-1])*
+                                (T(x, j)-TemperatureOPL[k-1])/
+                                (TemperatureOPL[k]-TemperatureOPL[k-1]);
+                        }
+                        break;
+                    }
+                    else {
+                        coef=OPL_log_OH[OPL_table_size-1];
+                    }
+                }
+                k_P_OH = exp(coef);
                 k_P_OH /= k_P_ref;
                 k_P += m_press * X(x, m_kRadiating[4], j) * k_P_OH;
             }
-
             // calculation of the radiative heat loss term
             radiative_heat_loss = 2 * k_P *(2 * StefanBoltz * pow(T(x, j), 4)
             - boundary_Rad_left - boundary_Rad_right);
