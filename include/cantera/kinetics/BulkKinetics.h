@@ -62,7 +62,12 @@ protected:
     //! valued stoichiometries.
     vector_fp m_dn;
 
-    vector_fp m_conc;
+    //! Activity concentrations, as calculated by
+    //! ThermoPhase::getActivityConcentrations
+    vector_fp m_act_conc;
+
+    //! Physical concentrations, as calculated by ThermoPhase::getConcentrations
+    vector_fp m_phys_conc;
     vector_fp m_grt;
 
     bool m_ROP_ok;
