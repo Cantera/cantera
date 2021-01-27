@@ -178,7 +178,8 @@ void BulkKinetics::modifyElementaryReaction(size_t i, ElementaryReaction& rNew)
 void BulkKinetics::resizeSpecies()
 {
     Kinetics::resizeSpecies();
-    m_conc.resize(m_kk);
+    m_act_conc.resize(m_kk);
+    m_phys_conc.resize(m_kk);
     m_grt.resize(m_kk);
 }
 

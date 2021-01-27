@@ -68,17 +68,18 @@ void GasKinetics::update_rates_T()
 
 void GasKinetics::update_rates_C()
 {
-    thermo().getActivityConcentrations(m_conc.data());
+    thermo().getActivityConcentrations(m_act_conc.data());
+    thermo().getConcentrations(m_phys_conc.data());
     doublereal ctot = thermo().molarDensity();
 
     // 3-body reactions
     if (!concm_3b_values.empty()) {
-        m_3b_concm.update(m_conc, ctot, concm_3b_values.data());
+        m_3b_concm.update(m_phys_conc, ctot, concm_3b_values.data());
     }
 
     // Falloff reactions
     if (!concm_falloff_values.empty()) {
-        m_falloff_concm.update(m_conc, ctot, concm_falloff_values.data());
+        m_falloff_concm.update(m_phys_conc, ctot, concm_falloff_values.data());
     }
 
     // P-log reactions
@@ -187,10 +188,10 @@ void GasKinetics::updateROP()
     }
 
     // multiply ropf by concentration products
-    m_reactantStoich.multiply(m_conc.data(), m_ropf.data());
+    m_reactantStoich.multiply(m_act_conc.data(), m_ropf.data());
 
     // for reversible reactions, multiply ropr by concentration products
-    m_revProductStoich.multiply(m_conc.data(), m_ropr.data());
+    m_revProductStoich.multiply(m_act_conc.data(), m_ropr.data());
 
     for (size_t j = 0; j != nReactions(); ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];

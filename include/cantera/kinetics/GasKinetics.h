@@ -101,6 +101,7 @@ protected:
     vector_fp falloff_work;
     vector_fp concm_3b_values;
     vector_fp concm_falloff_values;
+
     //!@}
 
     void processFalloffReactions();
