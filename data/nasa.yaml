@@ -16,6 +16,11 @@ cantera-version: 2.5.0a3
 date: Wed, 11 Dec 2019 16:59:09 -0500
 input-files: [nasa.cti]
 
+deprecated: >-
+  The file 'nasa.yaml' is deprecated and will be removed after Cantera 2.5.
+  All of the same data is available in the more specific nasa_gas.yaml and
+  nasa_condensed.yaml files.
+
 species:
 - name: Electron
   composition: {E: 1}
