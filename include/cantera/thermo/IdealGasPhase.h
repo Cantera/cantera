@@ -600,7 +600,7 @@ public:
     //@}
 
     virtual bool addSpecies(shared_ptr<Species> spec);
-    virtual void setToEquilState(const doublereal* lambda_RT);
+    virtual void setToEquilState(const doublereal* mu_RT);
 
 protected:
     //! Reference state pressure
