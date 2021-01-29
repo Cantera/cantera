@@ -295,6 +295,12 @@ static SpeciesThermoInterpType* newConstCpThermoFromXML(XML_Node& f)
 void setupConstCp(ConstCpPoly& thermo, const AnyMap& node)
 {
     setupSpeciesThermo(thermo, node);
+    if (node.hasKey("T-min")) {
+        thermo.setMinTemp(node.convert("T-min", "K"));
+    }
+    if (node.hasKey("T-max")) {
+        thermo.setMaxTemp(node.convert("T-max", "K"));
+    }
     double T0 = node.convert("T0", "K", 298.15);
     double h0 = node.convert("h0", "J/kmol", 0.0);
     double s0 = node.convert("s0", "J/kmol/K", 0.0);
@@ -370,6 +376,12 @@ void setupNasa9Poly(Nasa9PolyMultiTempRegion& thermo, const AnyMap& node)
 void setupMu0(Mu0Poly& thermo, const AnyMap& node)
 {
     setupSpeciesThermo(thermo, node);
+    if (node.hasKey("T-min")) {
+        thermo.setMinTemp(node.convert("T-min", "K"));
+    }
+    if (node.hasKey("T-max")) {
+        thermo.setMaxTemp(node.convert("T-max", "K"));
+    }
     bool dimensionless = node.getBool("dimensionless", false);
     double h0 = node.convert("h0", "J/kmol", 0.0);
     map<double, double> T_mu;

@@ -181,6 +181,14 @@ Additional fields of a ``constant-cp`` thermo entry are:
 ``cp0``
     The heat capacity at constant pressure. Defaults to 0.0.
 
+``T-min``
+    The minimum temperature at which this thermo data should be used.
+    Defaults to 0.0.
+
+``T-max``
+    The maximum temperature at which this thermo data should be used.
+    Defaults to infinity.
+
 Example::
 
     thermo:
@@ -213,6 +221,14 @@ Additional fields of a ``piecewise-Gibbs`` entry are:
     energy can be either in molar units (if ``dimensionless`` is ``false``) or
     nondimensionalized by the corresponding temperature (if ``dimensionless`` is
     ``true``). A value must be provided at :math:`T^\circ = 298.15` K.
+
+``T-min``
+    The minimum temperature at which this thermo data should be used.
+    Defaults to 0.0.
+
+``T-max``
+    The maximum temperature at which this thermo data should be used.
+    Defaults to infinity.
 
 Example::
 
