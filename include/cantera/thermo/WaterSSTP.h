@@ -247,7 +247,7 @@ public:
      *  member function is to check the thermodynamic consistency of the
      *  underlying WaterProps class with ideal-gas thermo functions.
      */
-    void allowGasPhase(bool flag) { m_allowGasPhase = flag; }
+    void _allowGasPhase(bool flag) { m_allowGasPhase = flag; }
 
 protected:
     /**

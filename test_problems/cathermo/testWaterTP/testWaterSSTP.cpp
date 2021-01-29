@@ -22,7 +22,7 @@ int main()
     double pres;
     try {
         ThermoPhase* w = newPhase("liquidvapor.yaml", "liquid-water-IAPWS95");
-        (dynamic_cast<WaterSSTP*>(w))->allowGasPhase(true);
+        (dynamic_cast<WaterSSTP*>(w))->_allowGasPhase(true);
 
         /*
          * Print out the triple point conditions
