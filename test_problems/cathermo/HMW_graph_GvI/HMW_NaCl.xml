@@ -191,7 +191,7 @@
           <molarVolume> 0.0 </molarVolume>
       </standardState>
       <thermo>
-        <Mu0 Pref="100000.0" Tmax="625.15." Tmin="273.15">
+        <Mu0 Pref="100000.0" Tmax="625.15" Tmin="273.15">
          <H298 units="cal/mol"> 0.0  </H298>
          <numPoints> 3            </numPoints>
          <floatArray size="3" title="Mu0Values" units="Dimensionless">
