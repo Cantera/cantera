@@ -18,7 +18,8 @@ using namespace std;
 namespace Cantera
 {
 Mu0Poly::Mu0Poly()
-    : m_numIntervals(0)
+    : SpeciesThermoInterpType(0.0, std::numeric_limits<double>::infinity(), 0.0)
+    , m_numIntervals(0)
     , m_H298(0.0)
 {
 }
