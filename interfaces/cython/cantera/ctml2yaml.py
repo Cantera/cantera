@@ -1585,6 +1585,13 @@ class SpeciesThermo:
                 tag = "T0"
             thermo_attribs[tag] = get_float_or_quantity(node)
 
+        tmin = const_cp_node.get('Tmin')
+        if tmin is not None and tmin != '100.0':
+            thermo_attribs['T-min'] = float(tmin)
+        tmax = const_cp_node.get('Tmax')
+        if tmax is not None and tmin != '5000.0':
+            thermo_attribs['T-max'] = float(tmax)
+
         return thermo_attribs
 
     def Mu0(
@@ -1612,6 +1619,12 @@ class SpeciesThermo:
                 "The 'Mu0' node must contain an 'H298' node.", Mu0_node
             )
         thermo_attribs["h0"] = get_float_or_quantity(H298_node)
+        tmin = Mu0_node.get('Tmin')
+        if tmin is not None:
+            thermo_attribs['T-min'] = float(tmin)
+        tmax = Mu0_node.get('Tmax')
+        if tmax is not None:
+            thermo_attribs['T-max'] = float(tmax)
         for float_node in Mu0_node.iterfind("floatArray"):
             title = float_node.get("title")
             if title == "Mu0Values":

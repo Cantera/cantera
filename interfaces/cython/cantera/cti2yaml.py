@@ -487,6 +487,8 @@ class const_cp(thermo):
         self.h0 = h0
         self.s0 = s0
         self.cp0 = cp0
+        self.tmin = tmin
+        self.tmax = tmax
 
     def get_yaml(self, out):
         super().get_yaml(out)
@@ -498,6 +500,10 @@ class const_cp(thermo):
             out['s0'] = applyUnits(self.s0)
         if self.cp0 is not None:
             out['cp0'] = applyUnits(self.cp0)
+        if self.tmin is not None:
+            out['T-min'] = applyUnits(self.tmin)
+        if self.tmax is not None:
+            out['T-max'] = applyUnits(self.tmax)
 
 
 class gas_transport:
