@@ -1468,6 +1468,7 @@ public:
         double ln_gamma_o_min, double ln_gamma_o_max);
 
     virtual void initThermo();
+    virtual void getParameters(AnyMap& phaseNode) const;
 
     //! Initialize the phase parameters from an XML file.
     /*!

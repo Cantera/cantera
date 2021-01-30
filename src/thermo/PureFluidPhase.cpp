@@ -62,6 +62,12 @@ void PureFluidPhase::initThermo()
              +name()+"\n", m_verbose);
 }
 
+void PureFluidPhase::getParameters(AnyMap& phaseNode) const
+{
+    ThermoPhase::getParameters(phaseNode);
+    phaseNode["pure-fluid-name"] = m_sub->name();
+}
+
 void PureFluidPhase::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model","PureFluid");

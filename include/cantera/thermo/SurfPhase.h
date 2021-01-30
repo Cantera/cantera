@@ -293,6 +293,7 @@ public:
      */
     virtual void setParametersFromXML(const XML_Node& thermoData);
     virtual void initThermo();
+    virtual void getParameters(AnyMap& phaseNode) const;
 
     virtual bool addSpecies(shared_ptr<Species> spec);
 

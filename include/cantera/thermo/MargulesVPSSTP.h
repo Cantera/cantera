@@ -349,6 +349,7 @@ public:
     /// @{
 
     virtual void initThermo();
+    virtual void getParameters(AnyMap& phaseNode) const;
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Add a binary species interaction with the specified parameters

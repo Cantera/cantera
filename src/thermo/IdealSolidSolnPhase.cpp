@@ -418,6 +418,16 @@ void IdealSolidSolnPhase::initThermo()
     ThermoPhase::initThermo();
 }
 
+void IdealSolidSolnPhase::getParameters(AnyMap& phaseNode) const
+{
+    ThermoPhase::getParameters(phaseNode);
+    if (m_formGC == 1) {
+        phaseNode["standard-concentration-basis"] = "species-molar-volume";
+    } else if (m_formGC == 2) {
+        phaseNode["standard-concentration-basis"] = "solvent-molar-volume";
+    }
+}
+
 void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     if (id_.size() > 0 && phaseNode.id() != id_) {

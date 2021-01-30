@@ -778,6 +778,7 @@ public:
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
+    virtual void getParameters(AnyMap& phaseNode) const;
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Return the Debye Huckel constant as a function of temperature
@@ -965,6 +966,9 @@ protected:
 
     //! a_k = Size of the ionic species in the DH formulation. units = meters
     vector_fp m_Aionic;
+
+    //! Default ionic radius for species where it is not specified
+    double m_Aionic_default;
 
     //! Current value of the ionic strength on the molality scale
     mutable double m_IionicMolality;

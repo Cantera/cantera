@@ -27,16 +27,23 @@ using namespace std;
 namespace Cantera
 {
 
+namespace {
+double A_Debye_default = 1.172576; // units = sqrt(kg/gmol)
+double B_Debye_default = 3.28640E9; // units = sqrt(kg/gmol) / m
+double maxIionicStrength_default = 30.0;
+}
+
 DebyeHuckel::DebyeHuckel(const std::string& inputFile,
                          const std::string& id_) :
     m_formDH(DHFORM_DILUTE_LIMIT),
+    m_Aionic_default(NAN),
     m_IionicMolality(0.0),
-    m_maxIionicStrength(30.0),
+    m_maxIionicStrength(maxIionicStrength_default),
     m_useHelgesonFixedForm(false),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_CONST),
-    m_A_Debye(1.172576), // units = sqrt(kg/gmol)
-    m_B_Debye(3.28640E9), // units = sqrt(kg/gmol) / m
+    m_A_Debye(A_Debye_default),
+    m_B_Debye(B_Debye_default),
     m_waterSS(0),
     m_densWaterSS(1000.)
 {
@@ -45,13 +52,14 @@ DebyeHuckel::DebyeHuckel(const std::string& inputFile,
 
 DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, const std::string& id_) :
     m_formDH(DHFORM_DILUTE_LIMIT),
+    m_Aionic_default(NAN),
     m_IionicMolality(0.0),
-    m_maxIionicStrength(3.0),
+    m_maxIionicStrength(maxIionicStrength_default),
     m_useHelgesonFixedForm(false),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_CONST),
-    m_A_Debye(1.172576), // units = sqrt(kg/gmol)
-    m_B_Debye(3.28640E9), // units = sqrt(kg/gmol) / m
+    m_A_Debye(A_Debye_default),
+    m_B_Debye(B_Debye_default),
     m_waterSS(0),
     m_densWaterSS(1000.)
 {
@@ -350,6 +358,7 @@ void DebyeHuckel::setB_dot(double bdot)
 
 void DebyeHuckel::setDefaultIonicRadius(double value)
 {
+    m_Aionic_default = value;
     for (size_t k = 0; k < m_kk; k++) {
         if (std::isnan(m_Aionic[k])) {
             m_Aionic[k] = value;
@@ -589,6 +598,71 @@ void DebyeHuckel::initThermo()
                 " state model must be constant_incompressible.");
         }
     }
+}
+
+void DebyeHuckel::getParameters(AnyMap& phaseNode) const
+{
+    MolalityVPSSTP::getParameters(phaseNode);
+    AnyMap activityNode;
+
+    switch (m_formDH) {
+    case DHFORM_DILUTE_LIMIT:
+        activityNode["model"] = "dilute-limit";
+        break;
+    case DHFORM_BDOT_AK:
+        activityNode["model"] = "B-dot-with-variable-a";
+        break;
+    case DHFORM_BDOT_ACOMMON:
+        activityNode["model"] = "B-dot-with-common-a";
+        break;
+    case DHFORM_BETAIJ:
+        activityNode["model"] = "beta_ij";
+        break;
+    case DHFORM_PITZER_BETAIJ:
+        activityNode["model"] = "Pitzer-with-beta_ij";
+        break;
+    }
+
+    if (m_form_A_Debye == A_DEBYE_WATER) {
+        activityNode["A_Debye"] = "variable";
+    } else if (m_A_Debye != A_Debye_default) {
+        activityNode["A_Debye"] = fmt::format("{} kg^0.5/gmol^0.5", m_A_Debye);
+    }
+
+    if (m_B_Debye != B_Debye_default) {
+        activityNode["B_Debye"] = fmt::format("{} kg^0.5/gmol^0.5/m", m_B_Debye);
+    }
+    if (m_maxIionicStrength != maxIionicStrength_default) {
+        activityNode["max-ionic-strength"] = m_maxIionicStrength;
+    }
+    if (m_useHelgesonFixedForm) {
+        activityNode["use-Helgeson-fixed-form"] = true;
+    }
+    if (!isnan(m_Aionic_default)) {
+        activityNode["default-ionic-radius"] = m_Aionic_default;
+    }
+    for (double B_dot : m_B_Dot) {
+        if (B_dot != 0.0) {
+            activityNode["B-dot"] = B_dot;
+            break;
+        }
+    }
+    if (m_Beta_ij.nRows() && m_Beta_ij.nColumns()) {
+        std::vector<AnyMap> beta;
+        for (size_t i = 0; i < m_kk; i++) {
+            for (size_t j = i; j < m_kk; j++) {
+                if (m_Beta_ij(i, j) != 0) {
+                    AnyMap entry;
+                    entry["species"] = vector<std::string>{
+                        speciesName(i), speciesName(j)};
+                    entry["beta"] = m_Beta_ij(i, j);
+                    beta.push_back(std::move(entry));
+                }
+            }
+        }
+        activityNode["beta"] = std::move(beta);
+    }
+    phaseNode["activity-data"] = std::move(activityNode);
 }
 
 double DebyeHuckel::A_Debye_TP(double tempArg, double presArg) const

@@ -17,7 +17,10 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/utilities.h"
 
+#include <boost/algorithm/string.hpp>
+
 using namespace std;
+namespace ba = boost::algorithm;
 
 namespace Cantera
 {
@@ -311,6 +314,26 @@ void LatticeSolidPhase::initThermo()
 
     setMoleFractions(m_x.data());
     ThermoPhase::initThermo();
+}
+
+void LatticeSolidPhase::getParameters(AnyMap& phaseNode) const
+{
+    ThermoPhase::getParameters(phaseNode);
+    AnyMap composition;
+    for (size_t i = 0; i < m_lattice.size(); i++) {
+        composition[m_lattice[i]->name()] = theta_[i];
+    }
+    phaseNode["composition"] = std::move(composition);
+
+    // Remove fields not used in this model
+    phaseNode.erase("species");
+    vector<std::string> elements;
+    for (auto& el : phaseNode["elements"].asVector<std::string>()) {
+        if (!ba::starts_with(el, "LC_")) {
+            elements.push_back(el);
+        }
+    }
+    phaseNode["elements"] = elements;
 }
 
 bool LatticeSolidPhase::addSpecies(shared_ptr<Species> spec)

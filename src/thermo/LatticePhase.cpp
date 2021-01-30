@@ -297,6 +297,12 @@ void LatticePhase::initThermo()
     }
 }
 
+void LatticePhase::getParameters(AnyMap& phaseNode) const
+{
+    ThermoPhase::getParameters(phaseNode);
+    phaseNode["site-density"] = m_site_density;
+}
+
 void LatticePhase::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model", "Lattice");

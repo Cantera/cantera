@@ -581,6 +581,14 @@ void IonsFromNeutralVPSSTP::initThermo()
     GibbsExcessVPSSTP::initThermo();
 }
 
+void IonsFromNeutralVPSSTP::getParameters(AnyMap& phaseNode) const
+{
+    ThermoPhase::getParameters(phaseNode);
+    if (neutralMoleculePhase_) {
+        phaseNode["neutral-phase"] = neutralMoleculePhase_->name();
+    }
+}
+
 void IonsFromNeutralVPSSTP::setNeutralMoleculePhase(shared_ptr<ThermoPhase> neutral)
 {
     neutralMoleculePhase_ = neutral;

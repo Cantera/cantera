@@ -343,6 +343,12 @@ void SurfPhase::initThermo()
     }
 }
 
+void SurfPhase::getParameters(AnyMap& phaseNode) const
+{
+    ThermoPhase::getParameters(phaseNode);
+    phaseNode["site-density"] = m_n0;
+}
+
 void SurfPhase::setStateFromXML(const XML_Node& state)
 {
     double t;

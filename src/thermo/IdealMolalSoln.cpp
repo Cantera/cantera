@@ -21,6 +21,17 @@
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 
+#include <iostream>
+
+namespace {
+double X_o_cutoff_default = 0.20;
+double gamma_o_min_default = 0.00001;
+double gamma_k_min_default = 10.0;
+double slopefCut_default = 0.6;
+double slopegCut_default = 0.0;
+double cCut_default = .05;
+}
+
 namespace Cantera
 {
 
@@ -29,12 +40,12 @@ IdealMolalSoln::IdealMolalSoln(const std::string& inputFile,
     MolalityVPSSTP(),
     m_formGC(2),
     IMS_typeCutoff_(0),
-    IMS_X_o_cutoff_(0.2),
-    IMS_gamma_o_min_(0.00001),
-    IMS_gamma_k_min_(10.0),
-    IMS_slopefCut_(0.6),
-    IMS_slopegCut_(0.0),
-    IMS_cCut_(.05),
+    IMS_X_o_cutoff_(X_o_cutoff_default),
+    IMS_gamma_o_min_(gamma_o_min_default),
+    IMS_gamma_k_min_(gamma_k_min_default),
+    IMS_slopefCut_(slopefCut_default),
+    IMS_slopegCut_(slopegCut_default),
+    IMS_cCut_(cCut_default),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
     IMS_afCut_(0.0),
@@ -51,12 +62,12 @@ IdealMolalSoln::IdealMolalSoln(XML_Node& root, const std::string& id_) :
     MolalityVPSSTP(),
     m_formGC(2),
     IMS_typeCutoff_(0),
-    IMS_X_o_cutoff_(0.2),
-    IMS_gamma_o_min_(0.00001),
-    IMS_gamma_k_min_(10.0),
-    IMS_slopefCut_(0.6),
-    IMS_slopegCut_(0.0),
-    IMS_cCut_(.05),
+    IMS_X_o_cutoff_(X_o_cutoff_default),
+    IMS_gamma_o_min_(gamma_o_min_default),
+    IMS_gamma_k_min_(gamma_k_min_default),
+    IMS_slopefCut_(slopefCut_default),
+    IMS_slopegCut_(slopegCut_default),
+    IMS_cCut_(cCut_default),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
     IMS_afCut_(0.0),
@@ -386,24 +397,12 @@ void IdealMolalSoln::initThermo()
     if (m_input.hasKey("cutoff")) {
         auto& cutoff = m_input["cutoff"].as<AnyMap>();
         setCutoffModel(cutoff.getString("model", "none"));
-        if (cutoff.hasKey("gamma_o")) {
-            IMS_gamma_o_min_ = cutoff["gamma_o"].asDouble();
-        }
-        if (cutoff.hasKey("gamma_k")) {
-            IMS_gamma_k_min_ = cutoff["gamma_k"].asDouble();
-        }
-        if (cutoff.hasKey("X_o")) {
-            IMS_X_o_cutoff_ = cutoff["X_o"].asDouble();
-        }
-        if (cutoff.hasKey("c_0")) {
-            IMS_cCut_ = cutoff["c_0"].asDouble();
-        }
-        if (cutoff.hasKey("slope_f")) {
-            IMS_slopefCut_ = cutoff["slope_f"].asDouble();
-        }
-        if (cutoff.hasKey("slope_g")) {
-            IMS_slopegCut_ = cutoff["slope_g"].asDouble();
-        }
+        IMS_gamma_o_min_ = cutoff.getDouble("gamma_o", gamma_o_min_default);
+        IMS_gamma_k_min_ = cutoff.getDouble("gamma_k", gamma_k_min_default);
+        IMS_X_o_cutoff_ = cutoff.getDouble("X_o", X_o_cutoff_default);
+        IMS_cCut_ = cutoff.getDouble("c_0", cCut_default);
+        IMS_slopefCut_ = cutoff.getDouble("slope_f", slopefCut_default);
+        IMS_slopegCut_ = cutoff.getDouble("slope_g", slopegCut_default);
     }
 
     for (size_t k = 0; k < nSpecies(); k++) {
@@ -413,6 +412,48 @@ void IdealMolalSoln::initThermo()
         calcIMSCutoffParams_();
     }
     setMoleFSolventMin(1.0E-5);
+}
+
+void IdealMolalSoln::getParameters(AnyMap& phaseNode) const
+{
+    MolalityVPSSTP::getParameters(phaseNode);
+
+    // "solvent-molar-volume" (m_formGC == 2) is the default, and can be omitted
+    if (m_formGC == 0) {
+        phaseNode["standard-concentration-basis"] = "unity";
+    } else if (m_formGC == 1) {
+        phaseNode["standard-concentration-basis"] = "species-molar-volume";
+    }
+
+    AnyMap cutoff;
+    if (IMS_typeCutoff_ == 1) {
+        cutoff["model"] = "poly";
+    } else if (IMS_typeCutoff_ == 2) {
+        cutoff["model"] = "polyexp";
+    }
+
+    if (IMS_gamma_o_min_ != gamma_o_min_default) {
+        cutoff["gamma_o"] = IMS_gamma_o_min_;
+    }
+    if (IMS_gamma_k_min_ != gamma_k_min_default) {
+        cutoff["gamma_k"] = IMS_gamma_k_min_;
+    }
+    if (IMS_X_o_cutoff_ != X_o_cutoff_default) {
+        cutoff["X_o"] = IMS_X_o_cutoff_;
+    }
+    if (IMS_cCut_ != cCut_default) {
+        cutoff["c_0"] = IMS_cCut_;
+    }
+    if (IMS_slopefCut_ != slopefCut_default) {
+        cutoff["slope_f"] = IMS_slopefCut_;
+    }
+    if (IMS_slopegCut_ != slopegCut_default) {
+        cutoff["slope_g"] = IMS_slopegCut_;
+    }
+
+    if (cutoff.size()) {
+        phaseNode["cutoff"] = std::move(cutoff);
+    }
 }
 
 void IdealMolalSoln::setStandardConcentrationModel(const std::string& model)

@@ -35,12 +35,12 @@ public:
     //@{
 
     virtual std::string type() const {
-        return "IdealSolnGas";
+        return "ideal-solution-VPSS";
     }
 
     //! Set the standard concentration model
     /*
-     * Must be one of 'unity', 'molar_volume', or 'solvent_volume'.
+     * Must be one of 'unity', 'species-molar-volume', or 'solvent-molar-volume'.
      */
     void setStandardConcentrationModel(const std::string& model);
 
@@ -130,6 +130,7 @@ public:
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
+    virtual void getParameters(AnyMap& phaseNode) const;
     virtual void setToEquilState(const doublereal* lambda_RT);
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 

@@ -618,6 +618,7 @@ public:
     void setSiteDensity(double sitedens);
 
     virtual void initThermo();
+    virtual void getParameters(AnyMap& phaseNode) const;
 
     //! Set equation of state parameter values from XML entries.
     /*!

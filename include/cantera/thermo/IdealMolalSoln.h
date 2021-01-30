@@ -388,6 +388,8 @@ public:
 
     virtual void initThermo();
 
+    virtual void getParameters(AnyMap& phaseNode) const;
+
     //! Set the standard concentration model.
     /*!
      * Must be one of 'unity', 'molar_volume', or 'solvent_volume'.
