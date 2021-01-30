@@ -168,6 +168,12 @@ void MaskellSolidSolnPhase::initThermo()
     VPStandardStateTP::initThermo();
 }
 
+void MaskellSolidSolnPhase::getParameters(AnyMap& phaseNode) const
+{
+    VPStandardStateTP::getParameters(phaseNode);
+    phaseNode["excess-enthalpy"] = h_mixing;
+    phaseNode["product-species"] = speciesName(product_species_index);
+}
 
 void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {

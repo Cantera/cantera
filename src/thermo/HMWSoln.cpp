@@ -27,6 +27,15 @@ using namespace std;
 namespace Cantera
 {
 
+namespace {
+double A_Debye_default = 1.172576; // units = sqrt(kg/gmol)
+double maxIionicStrength_default = 100.0;
+double crop_ln_gamma_o_min_default = -6.0;
+double crop_ln_gamma_o_max_default = 3.0;
+double crop_ln_gamma_k_min_default = -5.0;
+double crop_ln_gamma_k_max_default = 15.0;
+}
+
 HMWSoln::~HMWSoln()
 {
 }
@@ -34,10 +43,10 @@ HMWSoln::~HMWSoln()
 HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
     m_IionicMolality(0.0),
-    m_maxIionicStrength(100.0),
+    m_maxIionicStrength(maxIionicStrength_default),
     m_TempPitzerRef(298.15),
     m_form_A_Debye(A_DEBYE_CONST),
-    m_A_Debye(1.172576), // units = sqrt(kg/gmol)
+    m_A_Debye(A_Debye_default),
     m_waterSS(0),
     m_molalitiesAreCropped(false),
     IMS_X_o_cutoff_(0.2),
@@ -57,10 +66,10 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     MC_apCut_(0.0),
     MC_bpCut_(0.0),
     MC_cpCut_(0.0),
-    CROP_ln_gamma_o_min(-6.0),
-    CROP_ln_gamma_o_max(3.0),
-    CROP_ln_gamma_k_min(-5.0),
-    CROP_ln_gamma_k_max(15.0),
+    CROP_ln_gamma_o_min(crop_ln_gamma_o_min_default),
+    CROP_ln_gamma_o_max(crop_ln_gamma_o_max_default),
+    CROP_ln_gamma_k_min(crop_ln_gamma_k_min_default),
+    CROP_ln_gamma_k_max(crop_ln_gamma_k_max_default),
     m_last_is(-1.0)
 {
     initThermoFile(inputFile, id_);
@@ -69,10 +78,10 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
 HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
     m_IionicMolality(0.0),
-    m_maxIionicStrength(100.0),
+    m_maxIionicStrength(maxIionicStrength_default),
     m_TempPitzerRef(298.15),
     m_form_A_Debye(A_DEBYE_CONST),
-    m_A_Debye(1.172576), // units = sqrt(kg/gmol)
+    m_A_Debye(A_Debye_default),
     m_waterSS(0),
     m_molalitiesAreCropped(false),
     IMS_X_o_cutoff_(0.2),
@@ -92,10 +101,10 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     MC_apCut_(0.0),
     MC_bpCut_(0.0),
     MC_cpCut_(0.0),
-    CROP_ln_gamma_o_min(-6.0),
-    CROP_ln_gamma_o_max(3.0),
-    CROP_ln_gamma_k_min(-5.0),
-    CROP_ln_gamma_k_max(15.0),
+    CROP_ln_gamma_o_min(crop_ln_gamma_o_min_default),
+    CROP_ln_gamma_o_max(crop_ln_gamma_o_max_default),
+    CROP_ln_gamma_k_min(crop_ln_gamma_k_min_default),
+    CROP_ln_gamma_k_max(crop_ln_gamma_k_max_default),
     m_last_is(-1.0)
 {
     importPhase(phaseRoot, this);
@@ -701,10 +710,10 @@ void HMWSoln::initThermo()
         if (actData.hasKey("cropping-coefficients")) {
             auto& crop = actData["cropping-coefficients"].as<AnyMap>();
             setCroppingCoefficients(
-                crop.getDouble("ln_gamma_k_min", -5.0),
-                crop.getDouble("ln_gamma_k_max", 15.0),
-                crop.getDouble("ln_gamma_o_min", -6.0),
-                crop.getDouble("ln_gamma_o_max", 3.0));
+                crop.getDouble("ln_gamma_k_min", crop_ln_gamma_k_min_default),
+                crop.getDouble("ln_gamma_k_max", crop_ln_gamma_k_max_default),
+                crop.getDouble("ln_gamma_o_min", crop_ln_gamma_o_min_default),
+                crop.getDouble("ln_gamma_o_max", crop_ln_gamma_o_max_default));
         }
     } else {
         initLengths();
@@ -789,6 +798,247 @@ void HMWSoln::initThermo()
     calcIMSCutoffParams_();
     calcMCCutoffParams_();
     setMoleFSolventMin(1.0E-5);
+}
+
+void assignTrimmed(AnyMap& interaction, const std::string& key, vector_fp& values) {
+    while (values.size() > 1 && values.back() == 0) {
+        values.pop_back();
+    }
+    if (values.size() == 1) {
+        interaction[key] = values[0];
+    } else {
+        interaction[key] = values;
+    }
+}
+
+void HMWSoln::getParameters(AnyMap& phaseNode) const
+{
+    MolalityVPSSTP::getParameters(phaseNode);
+    AnyMap activityNode;
+    size_t nParams = 1;
+    if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+        activityNode["temperature-model"] = "linear";
+        nParams = 2;
+    } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+        activityNode["temperature-model"] = "complex";
+        nParams = 5;
+    }
+
+    if (m_form_A_Debye == A_DEBYE_WATER) {
+        activityNode["A_Debye"] = "variable";
+    } else if (m_A_Debye != A_Debye_default) {
+        activityNode["A_Debye"] = fmt::format("{} kg^0.5/gmol^0.5", m_A_Debye);
+    }
+    if (m_maxIionicStrength != maxIionicStrength_default) {
+        activityNode["max-ionic-strength"] = m_maxIionicStrength;
+    }
+
+    vector<AnyMap> interactions;
+
+    // Binary interactions
+    for (size_t i = 1; i < m_kk; i++) {
+        for (size_t j = 1; j < m_kk; j++) {
+            size_t c = i*m_kk + j;
+            // lambda: neutral-charged / neutral-neutral interactions
+            bool lambda_found = false;
+            for (size_t n = 0; n < nParams; n++) {
+                if (m_Lambda_nj_coeff(n, c)) {
+                    lambda_found = true;
+                    break;
+                }
+            }
+            if (lambda_found) {
+                AnyMap interaction;
+                interaction["species"] = vector<std::string>{
+                    speciesName(i), speciesName(j)};
+                vector_fp lambda(nParams);
+                for (size_t n = 0; n < nParams; n++) {
+                    lambda[n] = m_Lambda_nj_coeff(n, c);
+                }
+                assignTrimmed(interaction, "lambda", lambda);
+                interactions.push_back(std::move(interaction));
+                continue;
+            }
+
+            c = static_cast<size_t>(m_CounterIJ[m_kk * i + j]);
+            if (c == 0 || i > j) {
+                continue;
+            }
+
+            // beta: opposite charged interactions
+            bool salt_found = false;
+            for (size_t n = 0; n < nParams; n++) {
+                if (m_Beta0MX_ij_coeff(n, c) || m_Beta1MX_ij_coeff(n, c) ||
+                    m_Beta2MX_ij_coeff(n, c) || m_CphiMX_ij_coeff(n, c))
+                {
+                    salt_found = true;
+                    break;
+                }
+            }
+            if (salt_found) {
+                AnyMap interaction;
+                interaction["species"] = vector<std::string>{
+                    speciesName(i), speciesName(j)};
+                vector_fp beta0(nParams), beta1(nParams), beta2(nParams), Cphi(nParams);
+                size_t last_nonzero = 0;
+                for (size_t n = 0; n < nParams; n++) {
+                    beta0[n] = m_Beta0MX_ij_coeff(n, c);
+                    beta1[n] = m_Beta1MX_ij_coeff(n, c);
+                    beta2[n] = m_Beta2MX_ij_coeff(n, c);
+                    Cphi[n] = m_CphiMX_ij_coeff(n, c);
+                    if (beta0[n] || beta1[n] || beta2[n] || Cphi[n]) {
+                        last_nonzero = n;
+                    }
+                }
+                if (last_nonzero == 0) {
+                    interaction["beta0"] = beta0[0];
+                    interaction["beta1"] = beta1[0];
+                    interaction["beta2"] = beta2[0];
+                    interaction["Cphi"] = Cphi[0];
+                } else {
+                    beta0.resize(1 + last_nonzero);
+                    beta1.resize(1 + last_nonzero);
+                    beta2.resize(1 + last_nonzero);
+                    Cphi.resize(1 + last_nonzero);
+                    interaction["beta0"] = beta0;
+                    interaction["beta1"] = beta1;
+                    interaction["beta2"] = beta2;
+                    interaction["Cphi"] = Cphi;
+                }
+                interaction["alpha1"] = m_Alpha1MX_ij[c];
+                if (m_Alpha2MX_ij[c]) {
+                    interaction["alpha2"] = m_Alpha2MX_ij[c];
+                }
+                interactions.push_back(std::move(interaction));
+                continue;
+            }
+
+            // theta: like-charge interactions
+            bool theta_found = false;
+            for (size_t n = 0; n < nParams; n++) {
+                if (m_Theta_ij_coeff(n, c)) {
+                    theta_found = true;
+                    break;
+                }
+            }
+            if (theta_found) {
+                AnyMap interaction;
+                interaction["species"] = vector<std::string>{
+                    speciesName(i), speciesName(j)};
+                vector_fp theta(nParams);
+                for (size_t n = 0; n < nParams; n++) {
+                    theta[n] = m_Theta_ij_coeff(n, c);
+                }
+                assignTrimmed(interaction, "theta", theta);
+                interactions.push_back(std::move(interaction));
+                continue;
+            }
+        }
+    }
+
+    // psi: ternary charged species interactions
+    // Need to check species charges because both psi and zeta parameters
+    // are stored in m_Psi_ijk_coeff
+    for (size_t i = 1; i < m_kk; i++) {
+        if (charge(i) == 0) {
+            continue;
+        }
+        for (size_t j = i + 1; j < m_kk; j++) {
+            if (charge(j) == 0) {
+                continue;
+            }
+            for (size_t k = j + 1; k < m_kk; k++) {
+                if (charge(k) == 0) {
+                    continue;
+                }
+                size_t c = i*m_kk*m_kk + j*m_kk + k;
+                for (size_t n = 0; n < nParams; n++) {
+                    if (m_Psi_ijk_coeff(n, c) != 0) {
+                        AnyMap interaction;
+                        interaction["species"] = vector<std::string>{
+                            speciesName(i), speciesName(j), speciesName(k)};
+                        vector_fp psi(nParams);
+                        for (size_t m = 0; m < nParams; m++) {
+                            psi[m] = m_Psi_ijk_coeff(m, c);
+                        }
+                        assignTrimmed(interaction, "psi", psi);
+                        interactions.push_back(std::move(interaction));
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // zeta: neutral-cation-anion interactions
+    for (size_t i = 1; i < m_kk; i++) {
+        if (charge(i) != 0) {
+            continue; // first species must be neutral
+        }
+        for (size_t j = 1; j < m_kk; j++) {
+            if (charge(j) <= 0) {
+                continue; // second species must be cation
+            }
+            for (size_t k = 1; k < m_kk; k++) {
+                if (charge(k) >= 0) {
+                    continue; // third species must be anion
+                }
+                size_t c = i*m_kk*m_kk + j*m_kk + k;
+                for (size_t n = 0; n < nParams; n++) {
+                    if (m_Psi_ijk_coeff(n, c) != 0) {
+                        AnyMap interaction;
+                        interaction["species"] = vector<std::string>{
+                            speciesName(i), speciesName(j), speciesName(k)};
+                        vector_fp zeta(nParams);
+                        for (size_t m = 0; m < nParams; m++) {
+                            zeta[m] = m_Psi_ijk_coeff(m, c);
+                        }
+                        assignTrimmed(interaction, "zeta", zeta);
+                        interactions.push_back(std::move(interaction));
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // mu: neutral self-interaction
+    for (size_t i = 1; i < m_kk; i++) {
+        for (size_t n = 0; n < nParams; n++) {
+            if (m_Mu_nnn_coeff(n, i) != 0) {
+                AnyMap interaction;
+                interaction["species"] = vector<std::string>{speciesName(i)};
+                vector_fp mu(nParams);
+                for (size_t m = 0; m < nParams; m++) {
+                    mu[m] = m_Mu_nnn_coeff(m, i);
+                }
+                assignTrimmed(interaction, "mu", mu);
+                interactions.push_back(std::move(interaction));
+                break;
+            }
+        }
+    }
+
+    activityNode["interactions"] = std::move(interactions);
+
+    AnyMap croppingCoeffs;
+    if (CROP_ln_gamma_k_min != crop_ln_gamma_k_min_default) {
+        croppingCoeffs["ln_gamma_k_min"] = CROP_ln_gamma_k_min;
+    }
+    if (CROP_ln_gamma_k_max != crop_ln_gamma_k_max_default) {
+        croppingCoeffs["ln_gamma_k_max"] = CROP_ln_gamma_k_max;
+    }
+    if (CROP_ln_gamma_o_min != crop_ln_gamma_o_min_default) {
+        croppingCoeffs["ln_gamma_o_min"] = CROP_ln_gamma_o_min;
+    }
+    if (CROP_ln_gamma_o_max != crop_ln_gamma_o_max_default) {
+        croppingCoeffs["ln_gamma_o_max"] = CROP_ln_gamma_o_max;
+    }
+    if (croppingCoeffs.size()) {
+        activityNode["cropping-coefficients"] = std::move(croppingCoeffs);
+    }
+
+    phaseNode["activity-data"] = std::move(activityNode);
 }
 
 void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)

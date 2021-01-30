@@ -102,6 +102,7 @@ public:
     //@{
 
     virtual void initThermo();
+    virtual void getParameters(AnyMap& phaseNode) const;
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     void set_h_mix(const doublereal hmix) { h_mixing = hmix; }

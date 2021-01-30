@@ -226,6 +226,17 @@ void IdealSolnGasVPSS::initThermo()
     }
 }
 
+void IdealSolnGasVPSS::getParameters(AnyMap& phaseNode) const
+{
+    VPStandardStateTP::getParameters(phaseNode);
+    // "unity" (m_formGC == 0) is the default, and can be omitted
+    if (m_formGC == 1) {
+        phaseNode["standard-concentration-basis"] = "species-molar-volume";
+    } else if (m_formGC == 2) {
+        phaseNode["standard-concentration-basis"] = "solvent-molar-volume";
+    }
+}
+
 void IdealSolnGasVPSS::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     // Form of the standard concentrations. Must have one of:

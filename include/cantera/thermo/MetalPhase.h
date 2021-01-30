@@ -113,6 +113,11 @@ public:
         }
     }
 
+    virtual void getParameters(AnyMap& phaseNode) const {
+        ThermoPhase::getParameters(phaseNode);
+        phaseNode["density"] = density();
+    }
+
     virtual void setParametersFromXML(const XML_Node& eosdata) {
         eosdata._require("model","Metal");
         doublereal rho = getFloat(eosdata, "density", "density");

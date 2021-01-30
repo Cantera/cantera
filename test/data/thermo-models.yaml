@@ -120,7 +120,7 @@ phases:
   activity-data:
     temperature-model: complex # "constant" or "linear" are the other options
     A_Debye: 1.175930 kg^0.5/gmol^0.5
-    interactions: &hmw-ineractions
+    interactions: &hmw-interactions
     - species: [Na+, Cl-]
       beta0: [0.0765, 0.008946, -3.3158E-6, -777.03, -4.4706]
       beta1: [0.2664, 6.1608E-5, 1.0715E-6, 0.0, 0.0]
@@ -157,7 +157,31 @@ phases:
   activity-data:
     temperature-model: complex # "constant" or "linear" are the other options
     A_Debye: variable
-    interactions: *hmw-ineractions
+    interactions: *hmw-interactions
+
+- name: HMW-bogus
+  species:
+  - {HMW-species: [H2O(L), Cl-, H+, Na+, OH-]}
+  - {dh-electrolyte-species: [NaCl(aq)]}
+  thermo: HMW-electrolyte
+  state:
+    T: 423.15
+    P: 101325
+    molalities: {Na+: 6.0997, Cl-: 6.0997, H+: 2.16e-9, OH-: 2.16e-9}
+  activity-data:
+    temperature-model: linear
+    interactions:
+    - species: [NaCl(aq), Cl-]
+      lambda: [0.3, 0.01]
+    - species: [NaCl(aq), Na+]
+      lambda: [0.2, 0.02]
+    - species: [NaCl(aq), Na+, OH-]
+      zeta: [0.5, 0.2]
+    - species: [NaCl(aq)]
+      mu: [0.0, 0.3]
+    cropping-coefficients:
+      ln_gamma_k_min: -8.0
+      ln_gamma_k_max: 20
 
 - name: CO2-RK
   species: [{rk-species: [CO2, H2O, H2]}]
@@ -178,6 +202,12 @@ phases:
 - name: IdealSolidSolnPhase
   thermo: ideal-condensed
   standard-concentration-basis: unity
+  species: [{ISSP-species: all}]
+  state: {T: 500, P: 2 bar, X: {sp1: 0.1, sp2: 0.89, sp3: 0.01}}
+
+- name: IdealSolidSolnPhase2
+  thermo: ideal-condensed
+  standard-concentration-basis: solvent-molar-volume
   species: [{ISSP-species: all}]
   state: {T: 500, P: 2 bar, X: {sp1: 0.1, sp2: 0.89, sp3: 0.01}}
 

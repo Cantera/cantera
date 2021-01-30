@@ -216,6 +216,35 @@ void MargulesVPSSTP::initThermo()
     GibbsExcessVPSSTP::initThermo();
 }
 
+void MargulesVPSSTP::getParameters(AnyMap& phaseNode) const
+{
+    GibbsExcessVPSSTP::getParameters(phaseNode);
+    vector<AnyMap> interactions;
+    for (size_t n = 0; n < m_pSpecies_A_ij.size(); n++) {
+        AnyMap interaction;
+        interaction["species"] = vector<std::string>{
+            speciesName(m_pSpecies_A_ij[n]), speciesName(m_pSpecies_B_ij[n])};
+        if (m_HE_b_ij[n] != 0 || m_HE_c_ij[n] != 0) {
+            interaction["excess-enthalpy"] =
+                vector_fp{m_HE_b_ij[n], m_HE_c_ij[n]};
+        }
+        if (m_SE_b_ij[n] != 0 || m_SE_c_ij[n] != 0) {
+            interaction["excess-entropy"] =
+                vector_fp{m_SE_b_ij[n], m_SE_c_ij[n]};
+        }
+        if (m_VHE_b_ij[n] != 0 || m_VHE_c_ij[n] != 0) {
+            interaction["excess-volume-enthalpy"] =
+                vector_fp{m_VHE_b_ij[n], m_VHE_c_ij[n]};
+        }
+        if (m_VSE_b_ij[n] != 0 || m_VSE_c_ij[n] != 0) {
+            interaction["excess-volume-entropy"] =
+                vector_fp{m_VSE_b_ij[n], m_VSE_c_ij[n]};
+        }
+        interactions.push_back(std::move(interaction));
+    }
+    phaseNode["interactions"] = std::move(interactions);
+}
+
 void MargulesVPSSTP::initLengths()
 {
     dlnActCoeffdlnN_.resize(m_kk, m_kk);

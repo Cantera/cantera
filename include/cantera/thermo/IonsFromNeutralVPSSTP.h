@@ -272,6 +272,7 @@ public:
     virtual void setParameters(const AnyMap& phaseNode,
                                const AnyMap& rootNode=AnyMap());
     virtual void initThermo();
+    virtual void getParameters(AnyMap& phaseNode) const;
     virtual void setParametersFromXML(const XML_Node& thermoNode);
 
 private:

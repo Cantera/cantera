@@ -186,6 +186,28 @@ void RedlichKisterVPSSTP::initThermo()
     GibbsExcessVPSSTP::initThermo();
 }
 
+void RedlichKisterVPSSTP::getParameters(AnyMap& phaseNode) const
+{
+    GibbsExcessVPSSTP::getParameters(phaseNode);
+    vector<AnyMap> interactions;
+    for (size_t n = 0; n < m_pSpecies_A_ij.size(); n++) {
+        AnyMap interaction;
+        interaction["species"] = vector<std::string>{
+            speciesName(m_pSpecies_A_ij[n]), speciesName(m_pSpecies_B_ij[n])};
+        vector_fp h = m_HE_m_ij[n];
+        vector_fp s = m_SE_m_ij[n];
+        while (h.size() > 1 && h.back() == 0) {
+            h.pop_back();
+        }
+        while (s.size() > 1 && s.back() == 0) {
+            s.pop_back();
+        }
+        interaction["excess-enthalpy"] = std::move(h);
+        interaction["excess-entropy"] = std::move(s);
+        interactions.push_back(std::move(interaction));
+    }
+    phaseNode["interactions"] = std::move(interactions);}
+
 void RedlichKisterVPSSTP::initLengths()
 {
     dlnActCoeffdlnN_.resize(m_kk, m_kk);

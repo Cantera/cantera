@@ -113,6 +113,17 @@ void BinarySolutionTabulatedThermo::initThermo()
     IdealSolidSolnPhase::initThermo();
 }
 
+void BinarySolutionTabulatedThermo::getParameters(AnyMap& phaseNode) const
+{
+    IdealSolidSolnPhase::getParameters(phaseNode);
+    phaseNode["tabulated-species"] = speciesName(m_kk_tab);
+    AnyMap tabThermo;
+    tabThermo["mole-fractions"] = m_molefrac_tab;
+    tabThermo["enthalpy"] = m_enthalpy_tab;
+    tabThermo["entropy"] = m_entropy_tab;
+    phaseNode["tabulated-thermo"] = std::move(tabThermo);
+}
+
 void BinarySolutionTabulatedThermo::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     vector_fp x, h, s;

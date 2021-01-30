@@ -191,6 +191,7 @@ public:
     //@}
 
     virtual void initThermo();
+    virtual void getParameters(AnyMap& phaseNode) const;
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
     virtual std::string report(bool show_thermo=true,
