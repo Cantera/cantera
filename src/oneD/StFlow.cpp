@@ -308,13 +308,16 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
     // This model uses the optically thin limit and the gray-gas approximation
     // to simply calculate a volume specified heat flux out of the Planck
     // absorption coefficients, the boundary emissivities and the temperature.
-    // The model considers only CO2 and H2O as radiating species. Polynomial
-    // lines calculate the species Planck coefficients for H2O and CO2. The data
-    // for the lines is taken from the RADCAL program [Grosshandler, W. L.,
-    // RADCAL: A Narrow-Band Model for Radiation Calculations in a Combustion
-    // Environment, NIST technical note 1402, 1993]. The coefficients for the
-    // polynomials are taken from [http://www.sandia.gov/TNF/radiation.html].
-
+    //
+    // Spectra for molecules are downloaded with HAPI library from // https://hitran.org/hapi/
+    // [R.V. Kochanov, I.E. Gordon, L.S. Rothman, P. Wcislo, C. Hill, J.S. Wilzewski,
+    // HITRAN Application Programming Interface (HAPI): A comprehensive approach
+    // to working with spectroscopic data, J. Quant. Spectrosc. Radiat. Transfer 177,
+    // 15-30 (2016), https://doi.org/10.1016/j.jqsrt.2016.03.005].
+    // 
+    // Planck mean optical path lengths are evaluated at temperature range 200 - 3500 K
+    // and are tabulated.
+    
     if (m_do_radiation) {
         // variable definitions for the Planck absorption coefficient and the
         // radiation calculation:
