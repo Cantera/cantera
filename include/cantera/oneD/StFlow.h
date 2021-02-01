@@ -450,7 +450,9 @@ protected:
 
     //! Indices within the ThermoPhase of the radiating species. First index is
     //! for CO2, second is for H2O.
-    std::vector<size_t> m_kRadiating;
+    std::map<std::string, int> AbsorptionSpeciesMap;
+    std::vector<std::string> AbsorptionSpeciesList;
+
 
     // flags
     std::vector<bool> m_do_energy;
