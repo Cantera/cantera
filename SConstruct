@@ -373,7 +373,7 @@ config_options = [
            Python is running SCons if the required prerequisites (NumPy and
            Cython) are installed. Note: ``y`` is a synonym for ``full`` and ``n``
            is a synonym for ``none``.""",
-        'default', ('full', 'minimal', 'none', 'n', 'y', 'default')),
+        'default', ('full', 'minimal', 'none', 'n', 'y', 'sdist', 'default')),
     PathVariable(
         'python_cmd',
         """Cantera needs to know where to find the Python interpreter. If
@@ -1228,7 +1228,7 @@ if env['VERBOSE']:
 env['python_cmd_esc'] = quoted(env['python_cmd'])
 
 # Python Package Settings
-python_min_version = parse_version('3.5')
+python_min_version = parse_version("3.6")
 # The string is used to set python_requires in setup.py.in
 env['py_min_ver_str'] = str(python_min_version)
 # Note: cython_min_version is redefined below if the Python version is 3.8 or higher
@@ -1350,6 +1350,8 @@ if env['python_package'] != 'none':
         # If the minimal package was specified, no further checking
         # needs to be done
         print('INFO: Building the minimal Python package for Python {}'.format(python_version))
+    elif env["python_package"] == "sdist":
+        logger.info("Building the source distribution for PyPI")
     else:
 
         if len(info) > expected_output_lines:
@@ -1738,6 +1740,8 @@ if env['python_package'] == 'full':
     SConscript('interfaces/cython/SConscript')
 elif env['python_package'] == 'minimal':
     SConscript('interfaces/python_minimal/SConscript')
+elif env["python_package"] == "sdist":
+    SConscript("interfaces/python_sdist/SConscript")
 
 if env['CC'] != 'cl':
     VariantDir('build/platform', 'platform/posix', duplicate=0)
