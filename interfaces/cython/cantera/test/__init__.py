@@ -15,5 +15,5 @@ from .test_thermo import *
 from .test_transport import *
 from .test_utils import *
 
-cantera.add_directory(Path(__file__) / "data")
+cantera.add_directory(Path(__file__).parent / "data")
 cantera.add_directory(Path(__file__).parents[1] / "examples" / "surface_chemistry")

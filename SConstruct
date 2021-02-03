@@ -88,7 +88,8 @@ if os.name not in ["nt", "posix"]:
     sys.exit(1)
 
 valid_commands = ("build", "clean", "install", "uninstall",
-                  "help", "msi", "samples", "sphinx", "doxygen", "dump")
+                  "help", "msi", "samples", "sphinx", "doxygen", "dump",
+                  "sdist")
 
 for command in COMMAND_LINE_TARGETS:
     if command not in valid_commands and not command.startswith('test'):
@@ -239,6 +240,10 @@ config_options = [
            Cython) are installed. Note: 'y' is a synonym for 'full' and 'n'
            is a synonym for 'none'.""",
         "default", ("full", "minimal", "none", "n", "y", "default")),
+    BoolOption(
+        "python_sdist",
+        """Setting this option to True builds the Python sdist.""",
+        False),
     PathOption(
         "python_cmd",
         """Cantera needs to know where to find the Python interpreter. If
@@ -817,6 +822,8 @@ if 'doxygen' in COMMAND_LINE_TARGETS:
     env['doxygen_docs'] = True
 if 'sphinx' in COMMAND_LINE_TARGETS:
     env['sphinx_docs'] = True
+if "sdist" in COMMAND_LINE_TARGETS:
+    env["python_sdist"] = True
 
 for arg in ARGUMENTS:
     if arg not in config:
@@ -1349,7 +1356,7 @@ if env['VERBOSE']:
 env['python_cmd_esc'] = quoted(env['python_cmd'])
 
 # Python Package Settings
-python_min_version = parse_version('3.5')
+python_min_version = parse_version("3.6")
 # The string is used to set python_requires in setup.py.in
 env['py_min_ver_str'] = str(python_min_version)
 # Note: cython_min_version is redefined below if the Python version is 3.8 or higher
@@ -1868,6 +1875,10 @@ if env['matlab_toolbox'] == 'y':
 if env['doxygen_docs'] or env['sphinx_docs']:
     SConscript('doc/SConscript')
 
+if env["python_sdist"]:
+    VariantDir("build/python_sdist", "interfaces/python_sdist", duplicate=1)
+    SConscript("interfaces/python_sdist/SConscript", variant_dir="build/python_sdist")
+
 # Sample programs (also used from test_problems/SConscript)
 VariantDir('build/samples', 'samples', duplicate=0)
 sampledir_excludes = ['\\.o$', '^~$', '\\.in', 'SConscript']
@@ -1896,12 +1907,10 @@ def postBuildMessage(target, source, env):
     print("- To run the test suite, type 'scons test'.")
     print("- To list available tests, type 'scons test-help'.")
     if env['googletest'] == 'none':
-        print("  WARNING: You set the 'googletest' to 'none' and all it's tests will be skipped.")
+        print("  WARNING: You set the 'googletest' to 'none' and all its tests will be skipped.")
+    print("- To install, type 'scons install'.")
     if os.name == 'nt':
-        print("- To install, type 'scons install'.")
         print("- To create a Windows MSI installer, type 'scons msi'.")
-    else:
-        print("- To install, type 'scons install'.")
     print("*******************************************************")
 
 finish_build = env.Command('finish_build', [], postBuildMessage)
