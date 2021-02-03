@@ -25,6 +25,7 @@ using std::string;
 namespace { // helper functions
 
 std::mutex yaml_cache_mutex;
+std::mutex yaml_field_order_mutex;
 using namespace Cantera;
 
 bool isFloat(const std::string& val)
@@ -221,12 +222,12 @@ struct convert<Cantera::AnyMap> {
         for (const auto& child : node) {
             std::string key = child.first.as<std::string>();
             const auto& loc = child.second.Mark();
-            target[key].setLoc(loc.line, loc.column);
+            AnyValue& value = target.createForYaml(key, loc.line, loc.column);
             if (child.second.IsMap()) {
-                target[key] = child.second.as<AnyMap>();
+                value = child.second.as<AnyMap>();
             } else {
-                target[key] = child.second.as<AnyValue>();
-                target[key].setKey(key);
+                value = child.second.as<AnyValue>();
+                value.setKey(key);
             }
         }
         return true;
@@ -237,11 +238,61 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyValue& rhs);
 
 YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
 {
+    // Initial sort based on the order in which items are added
     vector<std::tuple<std::pair<int, int>, std::string, const AnyValue*>> ordered;
+    int head = 0; // sort key of the first programmatically-added item
+    int tail = 0; // sort key of the last programmatically-added item
     for (const auto& item : rhs) {
-        ordered.emplace_back(item.second.order(), item.first, &item.second);
+        const auto& order = item.second.order();
+        if (order.first == -1) { // Item is not from an input file
+            head = std::min(head, order.second);
+            tail = std::max(tail, order.second);
+        }
+        ordered.emplace_back(order, item.first, &item.second);
     }
     std::sort(ordered.begin(), ordered.end());
+
+    // Adjust sort keys for items that should moved to the beginning or end of
+    // the list
+    if (rhs.hasKey("__type__")) {
+        bool order_changed = false;
+        const auto& itemType = rhs["__type__"].asString();
+        std::unique_lock<std::mutex> lock(yaml_field_order_mutex);
+        if (AnyMap::s_headFields.count(itemType)) {
+            for (const auto& key : AnyMap::s_headFields[itemType]) {
+                for (auto& item : ordered) {
+                    if (std::get<0>(item).first >= 0) {
+                        // This and following items come from an input file and
+                        // should not be re-ordered
+                        break;
+                    }
+                    if (std::get<1>(item) == key) {
+                        std::get<0>(item).second = --head;
+                        order_changed = true;
+                    }
+                }
+            }
+        }
+        if (AnyMap::s_tailFields.count(itemType)) {
+            for (const auto& key : AnyMap::s_tailFields[itemType]) {
+                for (auto& item : ordered) {
+                    if (std::get<0>(item).first >= 0) {
+                        // This and following items come from an input file and
+                        // should not be re-ordered
+                        break;
+                    }
+                    if (std::get<1>(item) == key) {
+                        std::get<0>(item).second = ++tail;
+                        order_changed = true;
+                    }
+                }
+            }
+        }
+
+        if (order_changed) {
+            std::sort(ordered.begin(), ordered.end());
+        }
+    }
 
     bool flow = rhs.getBool("__flow__", false);
     if (flow) {
@@ -487,6 +538,9 @@ std::map<std::string, std::string> AnyValue::s_typenames = {
 };
 
 std::unordered_map<std::string, std::pair<AnyMap, int>> AnyMap::s_cache;
+
+std::unordered_map<std::string, std::vector<std::string>> AnyMap::s_headFields;
+std::unordered_map<std::string, std::vector<std::string>> AnyMap::s_tailFields;
 
 // Methods of class AnyBase
 
@@ -1193,7 +1247,7 @@ AnyValue& AnyMap::operator[](const std::string& key)
 {
     const auto& iter = m_data.find(key);
     if (iter == m_data.end()) {
-        // Create a new key return it
+        // Create a new key to return
         // NOTE: 'insert' can be replaced with 'emplace' after support for
         // G++ 4.7 is dropped.
         AnyValue& value = m_data.insert({key, AnyValue()}).first->second;
@@ -1202,17 +1256,11 @@ AnyValue& AnyMap::operator[](const std::string& key)
             value.propagateMetadata(m_metadata);
         }
 
-        // If the AnyMap is being created from an input file, this is an
-        // approximate location, useful mainly if this insertion is going to
-        // immediately result in an error that needs to be reported. Otherwise,
-        // this is the location used to set the ordering when outputting to
-        // YAML.
-        value.setLoc(m_line, m_column);
-
-        if (m_line == -1) {
-            // use m_column as a surrogate for ordering the next item added
-            m_column += 10;
-        }
+        // A pseudo-location used to set the ordering when outputting to
+        // YAML so nodes added this way will come before nodes from YAML,
+        // with insertion order preserved.
+        value.setLoc(-1, m_column);
+        m_column += 10;
 
         return value;
     } else {
@@ -1229,6 +1277,20 @@ const AnyValue& AnyMap::operator[](const std::string& key) const
         throw InputFileError("AnyMap::operator[]", *this,
             "Key '{}' not found.\nExisting keys: {}", key, keys_str());
     }
+}
+
+AnyValue& AnyMap::createForYaml(const std::string& key, int line, int column)
+{
+    // NOTE: 'insert' can be replaced with 'emplace' after support for
+    // G++ 4.7 is dropped.
+    AnyValue& value = m_data.insert({key, AnyValue()}).first->second;
+    value.setKey(key);
+    if (m_metadata) {
+        value.propagateMetadata(m_metadata);
+    }
+
+    value.setLoc(line, column);
+    return value;
 }
 
 const AnyValue& AnyMap::at(const std::string& key) const
@@ -1402,6 +1464,23 @@ void AnyMap::applyUnits(const UnitSystem& units) {
 
 void AnyMap::setFlowStyle(bool flow) {
     (*this)["__flow__"] = flow;
+}
+
+bool AnyMap::addOrderingRules(const string& objectType,
+                             const vector<vector<string>>& specs)
+{
+    std::unique_lock<std::mutex> lock(yaml_field_order_mutex);
+    for (const auto& spec : specs) {
+        if (spec.at(0) == "head") {
+            s_headFields[objectType].push_back(spec.at(1));
+        } else if (spec.at(0) == "tail") {
+            s_tailFields[objectType].push_back(spec.at(1));
+        } else {
+            throw CanteraError("AnyMap::addOrderingRules",
+                "Unknown ordering rule '{}'", spec.at(0));
+        }
+    }
+    return true;
 }
 
 AnyMap AnyMap::fromYamlString(const std::string& yaml) {
