@@ -540,10 +540,10 @@ class SolutionArray:
                 elif (self._shape[0] == 1
                       or np.array(v).shape[:len(self._shape)] == self._shape):
                     arr = np.array(v)
-                    if arr.dtype == np.object:
+                    if arr.dtype == object:
                         raise ValueError(
                             "Unable to create extra column '{}': data type "
-                            "'np.object' is not supported.".format(name))
+                            "'object' is not supported.".format(name))
                     if self._shape[0] == 1 and len(arr) > 1:
                         arr = arr[np.newaxis, :]
                     self._extra[name] = arr
