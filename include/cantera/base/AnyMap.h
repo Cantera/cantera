@@ -18,6 +18,12 @@ namespace boost
 class any;
 }
 
+namespace YAML
+{
+class Emitter;
+Emitter& operator<<(Emitter& out, const Cantera::AnyMap& rhs);
+}
+
 namespace Cantera
 {
 
@@ -383,6 +389,11 @@ public:
     AnyValue& operator[](const std::string& key);
     const AnyValue& operator[](const std::string& key) const;
 
+    //! Used to create a new item which will be populated from a YAML input
+    //! string, where the item with `key` occurs at the specified line and
+    //! column within the string.
+    AnyValue& createForYaml(const std::string& key, int line, int column);
+
     //! Get the value of the item stored in `key`. Raises an exception if the
     //! value does not exist.
     const AnyValue& at(const std::string& key) const;
@@ -519,6 +530,38 @@ public:
     //! Use "flow" style when outputting this AnyMap to YAML
     void setFlowStyle(bool flow=true);
 
+    //! Add global rules for setting the order of elements when outputting
+    //! AnyMap objects to YAML
+    /*!
+     * Enables specifying keys that should appear at either the beginning
+     * or end of the generated YAML mapping. Only programmatically-added keys
+     * are rearranged. Keys which come from YAML input retain their existing
+     * ordering, and are output after programmatically-added keys.
+     *
+     * This function should be called exactly once for any given spec that
+     * is to be added. To facilitate this, the method returns a bool so that
+     * it can be called as part of initializing a static variable. To avoid
+     * spurious compiler warnings about unused variables, the following
+     * structure can be used:
+     *
+     * ```
+     * static bool reg = AnyMap::addOrderingRules("Reaction",
+     *         {{"head", "equation"}, {"tail", "duplicate"}});
+     * if (reg) {
+     *     reactionMap["__type__"] = "Reaction";
+     * }
+     * ```
+     *
+     * @param objectType  Apply rules to maps where the hidden `__type__` key
+     *     has the corresponding value.
+     * @param specs       A list of rule specifications. Each rule consists of
+     *     two strings. The first string is either "head" or "tail", and the
+     *     second string is the name of a key
+     * @returns  ``true``, to facilitate static initialization
+     */
+    static bool addOrderingRules(const std::string& objectType,
+                                 const std::vector<std::vector<std::string>>& specs);
+
 private:
     //! The stored data
     std::unordered_map<std::string, AnyValue> m_data;
@@ -531,7 +574,18 @@ private:
     //! time for the file, which is used to enable change detection.
     static std::unordered_map<std::string, std::pair<AnyMap, int>> s_cache;
 
+    //! Information about fields that should appear first when outputting to
+    //! YAML. Keys in this map are matched to `__type__` keys in AnyMap
+    //! objects, and values are a list of field names.
+    static std::unordered_map<std::string, std::vector<std::string>> s_headFields;
+
+    //! Information about fields that should appear last when outputting to
+    //! YAML. Keys in this map are matched to `__type__` keys in AnyMap
+    //! objects, and values are a list of field names.
+    static std::unordered_map<std::string, std::vector<std::string>> s_tailFields;
+
     friend class AnyValue;
+    friend YAML::Emitter& YAML::operator<<(YAML::Emitter& out, const AnyMap& rhs);
 };
 
 // Define begin() and end() to allow use with range-based for loops

@@ -114,6 +114,18 @@ void Reaction::getParameters(AnyMap& reactionNode) const
     if (allow_nonreactant_orders) {
         reactionNode["nonreactant-orders"] = true;
     }
+
+    static bool reg = AnyMap::addOrderingRules("Reaction",
+        {{"head", "type"},
+         {"head", "equation"},
+         {"tail", "duplicate"},
+         {"tail", "orders"},
+         {"tail", "negative-orders"},
+         {"tail", "nonreactant-orders"}
+        });
+    if (reg) {
+        reactionNode["__type__"] = "Reaction";
+    }
 }
 
 std::string Reaction::reactantString() const
@@ -354,8 +366,8 @@ void PlogReaction::getParameters(AnyMap& reactionNode) const
     std::vector<AnyMap> rateList;
     for (const auto& r : rate.rates()) {
         AnyMap rateNode;
-        r.second.getParameters(rateNode);
         rateNode["P"] = r.first;
+        r.second.getParameters(rateNode);
         rateList.push_back(std::move(rateNode));
     }
     reactionNode["rate-constants"] = std::move(rateList);

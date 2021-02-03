@@ -384,3 +384,29 @@ TEST(AnyMap, dumpYamlString)
     EXPECT_EQ(original["species"].getMapWhere("name", "OH")["thermo"]["data"].asVector<vector_fp>(),
         generated["species"].getMapWhere("name", "OH")["thermo"]["data"].asVector<vector_fp>());
 }
+
+TEST(AnyMap, definedKeyOrdering)
+{
+    AnyMap m = AnyMap::fromYamlString("{zero: 1, half: 2}");
+    m["one"] = 1;
+    m["two"] = 2;
+    m["three"] = 3;
+    m["four"] = 4;
+    m["__type__"] = "Test";
+
+    AnyMap::addOrderingRules("Test", {
+        {"head", "three"},
+        {"tail", "one"}
+    });
+
+    std::string result = m.toYamlString();
+    std::unordered_map<std::string, size_t> loc;
+    for (auto& item : m) {
+        loc[item.first] = result.find(item.first);
+    }
+    EXPECT_LT(loc["three"], loc["one"]);
+    EXPECT_LT(loc["three"], loc["half"]);
+    EXPECT_LT(loc["four"], loc["one"]);
+    EXPECT_LT(loc["one"], loc["half"]);
+    EXPECT_LT(loc["zero"], loc["half"]);
+}

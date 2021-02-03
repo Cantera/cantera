@@ -1235,6 +1235,11 @@ void ThermoPhase::getParameters(AnyMap& phaseNode) const
     }
 
     phaseNode["state"] = std::move(state);
+
+    static bool reg = AnyMap::addOrderingRules("Phase", {{"tail", "state"}});
+    if (reg) {
+        phaseNode["__type__"] = "Phase";
+    }
 }
 
 const AnyMap& ThermoPhase::input() const
