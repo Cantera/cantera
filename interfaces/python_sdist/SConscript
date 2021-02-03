@@ -1,0 +1,147 @@
+"""SDist of the Python Module"""
+from pathlib import Path
+import re
+import shutil
+from textwrap import dedent
+
+from build import ProjectBuilder
+from build.env import IsolatedEnvBuilder
+
+from buildutils import logger
+
+Import("env")
+
+localenv = env.Clone()
+
+sdist_targets = []
+
+
+def sdist(targets):
+    sdist_targets.extend(targets)
+    return targets
+
+
+def copy_ext_src(target, source, env):
+    target_ext = Path(target[0].abspath)
+    source_ext = Path(source[0].abspath)
+    if target_ext.is_dir():
+        shutil.rmtree(target_ext)
+
+    # fmt library
+    FMT_ROOT = target_ext / "fmt"
+    FMT_ROOT.mkdir(parents=True)  # Needed to be able to use copy2
+    for cc_file in (source_ext / "fmt" / "src").glob("*.cc"):
+        shutil.copy2(cc_file, FMT_ROOT)
+    shutil.copytree(source_ext / "fmt" / "include" / "fmt", FMT_ROOT / "fmt")
+
+    # libexecstream
+    EXECSTREAM_ROOT = target_ext / "libexecstream"
+    EXECSTREAM_ROOT.mkdir(parents=True)  # Needed to be able to use copy2
+    shutil.copy2(source_ext / "libexecstream" / "exec-stream.cpp", EXECSTREAM_ROOT)
+    shutil.copy2(source_ext / "libexecstream" / "exec-stream.h", EXECSTREAM_ROOT)
+    shutil.copytree(source_ext / "libexecstream" / "win", EXECSTREAM_ROOT / "win")
+    shutil.copytree(source_ext / "libexecstream" / "posix", EXECSTREAM_ROOT / "posix")
+
+    # yaml-cpp library
+    YAML_ROOT = target_ext / "yaml-cpp"
+    shutil.copytree(source_ext / "yaml-cpp" / "src", YAML_ROOT)
+    shutil.copytree(source_ext / "yaml-cpp" / "include" / "yaml-cpp",
+                    YAML_ROOT / "yaml-cpp")
+
+    # SUNDIALS library
+    SUNDIALS_ROOT = target_ext / "sundials"
+    subdirs = ["sundials", "nvector/serial", "cvodes", "ida", "sunmatrix/band",
+               "sunmatrix/dense", "sunmatrix/sparse", "sunlinsol/dense",
+               "sunlinsol/band", "sunlinsol/spgmr", "sunnonlinsol/newton"]
+    ignores = shutil.ignore_patterns("fsun*", "CMake*", "fmod", "fcmix")
+    for subdir in subdirs:
+        shutil.copytree(
+            source_ext / "sundials" / "src" / subdir,
+            SUNDIALS_ROOT / subdir,
+            ignore=ignores,
+        )
+
+
+def replace_git_hash(target, source, env):
+    # Avoid having to set a C preprocessor define at compile time, since
+    # the git commit is unknown from the sdist
+    target = Path(target[0].abspath)
+    source = Path(source[0].abspath)
+    git_commit_replaced = re.sub("#ifdef GIT_COMMIT.*?#endif",
+                                 f"""    return "{env['git_commit']}";""",
+                                 source.read_text(),
+                                 flags=re.DOTALL)
+    target.write_text(git_commit_replaced)
+
+
+# Use RecursiveInstall to be able to exclude files and folders.
+sdist(localenv.RecursiveInstall(
+    "src",
+    "#src",
+    exclude=["fortran", "matlab", r"global\.cpp", "SCons.*"],
+))
+
+sdist(localenv.Command("src/base/global.cpp", "#src/base/global.cpp",
+                       replace_git_hash))
+
+include_target = sdist(localenv.Command("include", "#include",
+                                        Copy("$TARGET", "$SOURCE")))
+localenv.Depends(include_target, env["config_h_target"])
+localenv.Depends(include_target, env["ext_include_copies_target"])
+
+sdist(localenv.Command("ext", "#ext", copy_ext_src))
+
+# Use RecursiveInstall to make sure that files are not overwritten during the copy.
+# A normal Copy Action would fail because of the existing directories.
+sdist(localenv.RecursiveInstall("cantera",
+                                "#interfaces/cython/cantera",
+                                exclude=["__pycache__"]))
+sdist(localenv.RecursiveInstall("cantera/data",
+                                "#build/data"))
+sdist(localenv.RecursiveInstall("cantera/test/data",
+                                "#test/data"))
+
+# Copy the minimal Sundials configuration template into the sdist so that
+# it can be filled in at compile time on the user's machine
+sdist(localenv.Command("sundials_config.h.in", "#ext/sundials_config.h.in",
+                       Copy("$TARGET", "$SOURCE")))
+
+license = sdist(localenv.Command("LICENSE.txt", "#build/ext/LICENSE.txt",
+                                 Copy("$TARGET", "$SOURCE")))
+localenv.Depends(license, localenv["license_target"])
+
+sdist(localenv.SubstFile("setup.cfg", "setup.cfg.in"))
+sdist(localenv.Command("README.rst", "#README.rst", Copy("$TARGET", "$SOURCE")))
+
+
+def build_sdist(target, source, env):
+    build_dir = Path(source[0].abspath).parent
+    builder = ProjectBuilder(str(build_dir))
+    with IsolatedEnvBuilder() as build_env:
+        builder.python_executable = build_env.executable
+        builder.scripts_dir = build_env.scripts_dir
+        # first install the build dependencies
+        build_env.install(builder.build_system_requires)
+        # then get the extra required dependencies from the backend
+        build_env.install(builder.get_requires_for_build("sdist"))
+        builder.build("sdist", str(build_dir / "dist"), {})
+
+
+def finish_sdist_message(target, source, env):
+    sdist = Path(source[0].path).name
+    message = dedent(f"""
+        *******************************************************
+        Python sdist '{sdist}' created successfully.
+        The sdist file is in the 'build/python_sdist/dist'
+        directory.
+        *******************************************************
+    """)
+    logger.info(message, print_level=False)
+
+
+sdist_target = f"dist/Cantera-{env['cantera_version']}.tar.gz"
+sdist_sources = ("setup.py", "pyproject.toml", "MANIFEST.in")
+built_sdist = localenv.Command(sdist_target, sdist_sources, build_sdist)
+finish_sdist = localenv.Command("finish_sdist", sdist_target, finish_sdist_message)
+localenv.Depends(built_sdist, sdist_targets)
+env.Alias("sdist", finish_sdist)
