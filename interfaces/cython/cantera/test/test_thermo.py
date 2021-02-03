@@ -1787,7 +1787,7 @@ class TestSolutionArray(utilities.CanteraTest):
 
     def test_extra_no_objects(self):
         with self.assertRaisesRegex(ValueError, "not supported"):
-            prop = np.array([0, [1, 2], (3, 4)], dtype=np.object)
+            prop = np.array([0, [1, 2], (3, 4)], dtype=object)
             states = ct.SolutionArray(self.gas, 3, extra={"prop": prop})
 
     def test_extra_reserved_names(self):
