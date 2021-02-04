@@ -2620,7 +2620,7 @@ def convert(
     metadata = BlockMap(
         {
             "generator": "ctml2yaml",
-            "cantera-version": "2.5.0b1",
+            "cantera-version": "2.5.0rc1",
             "date": formatdate(localtime=True),
         }
     )
