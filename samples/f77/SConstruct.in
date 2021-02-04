@@ -12,7 +12,7 @@ env.Append(FFLAGS='-g',
            LINKFLAGS=@tmpl_cantera_linkflags@,
            FRAMEWORKS=@tmpl_cantera_frameworks@)
 
-ctlib = env.Object('demo_ftnlib.cpp')
+ctlib = env.SharedObject('demo_ftnlib.cpp')
 
 demo = env.Program('demo', [ctlib, 'demo.f'],
                    LINK='@FORTRAN_LINK@')
