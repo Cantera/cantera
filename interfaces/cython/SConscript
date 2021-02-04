@@ -39,17 +39,16 @@ info = getCommandOutput(localenv['python_cmd'], '-c', script)
 module_ext, inc, pylib, prefix, py_version, numpy_include = info.splitlines()[-6:]
 localenv.Prepend(CPPPATH=[Dir('#include'), inc, numpy_include])
 localenv.Prepend(LIBS=localenv['cantera_libs'])
+
+# Don't print deprecation warnings for internal Python changes.
+# Only applies to Python 3.8. The field that is deprecated in Python 3.8
+# and causes the warnings to appear will be removed in Python 3.9 so no
+# further warnings should be issued.
+if localenv['HAS_CLANG'] and parse_version(py_version) == parse_version('3.8'):
+    localenv.Append(CXXFLAGS='-Wno-deprecated-declarations')
+
 if localenv['OS'] == 'Darwin':
     localenv.Append(LINKFLAGS='-undefined dynamic_lookup')
-
-    # Don't print deprecation warnings for internal Python changes.
-    # It seems that only clang on macOS prints these deprecation warnings.
-    # Only applies to Python 3.8. The field that is deprecated in Python 3.8
-    # and causes the warnings to appear will be removed in Python 3.9 so no
-    # further warnings should be issued. Cython has already implemented a fix
-    # in versions higher than 0.29.14.
-    if py_version == parse_version("3.8"):
-        localenv.Append(CXXFLAGS='-Wno-deprecated-declarations')
 elif localenv['OS'] == 'Windows':
     localenv.Append(LIBPATH=prefix+'/libs')
     if localenv['toolchain'] == 'mingw':
