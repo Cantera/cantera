@@ -73,7 +73,8 @@ if env['system_sundials'] == 'n':
                                   '#ext/sundials/include/%s/%s' % (subdir, header.name),
                                   Copy('$TARGET', '$SOURCE')))
 
-    # Compile Sundials source files
+    # Compile Sundials source files. Skip files related to the Sundials Fortran
+    # interface, which start with 'fsun'.
     subdirs = ['sundials', 'nvector/serial', 'cvodes', 'ida', 'sunmatrix/band',
                'sunmatrix/dense', 'sunmatrix/sparse', 'sunlinsol/dense',
                'sunlinsol/band','sunlinsol/spgmr', 'sunnonlinsol/newton']
@@ -82,7 +83,8 @@ if env['system_sundials'] == 'n':
 
     for subdir in subdirs:
         libraryTargets.extend(localenv.SharedObject(
-            [f for f in mglob(localenv, 'sundials/src/'+subdir, 'c')]))
+            [f for f in mglob(localenv, 'sundials/src/'+subdir, 'c')
+             if not f.name.startswith('fsun')]))
 
 if not env['system_yamlcpp']:
     localenv = prep_default(env)
