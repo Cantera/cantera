@@ -33,6 +33,9 @@ binary: build
 	chmod a+x debian/cantera-common/usr/bin/*
 	rm -f debian/cantera-python3/usr/bin/*
 
+	mkdir -p debian/cantera-dev/usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig
+	mv debian/cantera-dev/usr/lib/pkgconfig/cantera.pc debian/cantera-dev/usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/
+
 	dh_strip
 	dh_shlibdeps
 	dh_compress
