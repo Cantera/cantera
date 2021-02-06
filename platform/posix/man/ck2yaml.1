@@ -1,0 +1,89 @@
+.TH "ck2yaml" 1 "6 Feb 2021" "ck2yaml" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+ck2yaml \- convert Chemkin-II-format mechanisms to Cantera YAML input files
+
+.SH SYNOPSIS
+.B ck2yaml
+[--input=<filename>]
+[--thermo=<filename>]
+[--transport=<filename>]
+[--surface=<filename>]
+[--name=<name>]
+[--extra=<filename>]
+[--output=<filename>]
+[--permissive]
+[--quiet]
+[--no-validate]
+[-d | --debug]
+
+.SH DESCRIPTION
+
+.I ck2yaml
+converts a Chemkin-II-format reaction mechanism file to Cantera input
+format.  The resulting Cantera input file contains phase definitions,
+species definitions, and reaction definitions, depending on the inputs
+provided. The Cantera-format mechanism is written to the file named by
+\fIoutput\fR.
+
+The parameters are as follows:
+.TP
+.B --input=\fIfilename\fR
+Chemkin-II gas-phase reaction mechanism file to be converted. This file
+contains the declarations of the elements and species, as
+well as the reactions (if any). It may also contain the thermodynamic
+and transport data.
+.TP
+.B --thermo=\fIfilename\fR
+Thermodynamic property database. If the input file does not have a
+THERMO section, or does not have entries for one or more species, this
+file will be searched for the required thermo data. A YAML file
+containing only species definitions (which can be referenced from
+phase definitions in other input files) can be created by specifying
+a \fIthermo\fR file with no \fIinput\fR file.
+.TP
+.B --transport=\fIfilename\fR
+Transport property database. If this file name is supplied, transport
+property parameters will be taken from this file and included in the
+output Cantera-format file. If this parameter is omitted, and no
+TRANSPORT section was included in the main input file, no transport
+property parameters will be included in the output.
+.TP
+.B --surface=\fIfilename\fR
+Surface phase definition. If this file name is supplied, an additional
+phase entry for a surface phase will be read from this file, and a
+\fIreactions\fR section will be created for any surface reactions
+defined in this file.
+.TP
+.B --name=\fIname\fR
+Optional identification string, used to set the \fIname\fR of the
+\fIideal-gas\fR phase in the Cantera-format output. If this parameter
+is omitted, it will be set to \fBgas\fR.
+.TP
+.B --extra=\fIfilename\fR
+This option takes a YAML file as input. It can be used to add to the
+file description, or to define custom fields that are included in the
+YAML output.
+.TP
+.B --output=\fIfilename\fR
+If the output file name is not given, an output file will be created
+with the same name as the input file, with the extension changed to
+\fB.yaml\fR.
+.TP
+.B --permissive
+Allows certain recoverable parsing errors (e.g. duplicate transport
+data) to be ignored.
+.TP
+.B --quiet
+Disables all non-error output, for use in batch processing.
+.TP
+.B --no-validate
+Disables validation of the converted mechanism by importing it from
+the Cantera Python module.
+.TP
+.B -d | --debug
+Enables additional debugging output.
+
+.SH EXAMPLE
+ck2yaml --input=chem.inp --thermo=therm.dat --transport=tran.dat
