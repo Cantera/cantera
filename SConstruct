@@ -1128,7 +1128,7 @@ if env['system_sundials'] == 'y':
     if sundials_ver < parse_version('2.4') or sundials_ver >= parse_version('6.0'):
         print("""ERROR: Sundials version %r is not supported.""" % env['sundials_version'])
         sys.exit(1)
-    elif sundials_ver > parse_version('5.3'):
+    elif sundials_ver > parse_version('5.7'):
         print("WARNING: Sundials version %r has not been tested." % env['sundials_version'])
 
     print("""INFO: Using system installation of Sundials version %s.""" % sundials_version)
