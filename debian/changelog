@@ -1,3 +1,9 @@
+cantera (2.5.0rc1-1+focal2) focal; urgency=low
+
+  * Testing release candidate for new upstream release
+
+ -- Raymond Speth <speth@mit.edu>  Sat, 06 Feb 2021 14:00:21 -0500
+
 cantera (2.5.0rc1-1+focal1) focal; urgency=low
 
   * Testing release candidate for new upstream release
