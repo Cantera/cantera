@@ -3,13 +3,12 @@ Upstream-Name: cantera
 Source: https://github.com/cantera/cantera
 
 Files: *
-Copyright: 2001-2012 California Institute of Technology
-           2009-2012 Sandia Corporation
-License: New BSD
- Under the terms of Contract AC04-94AL85000 with Sandia Corporation,
- the U.S. Government retains certain rights to certain parts of this
- software. All rights reserved.
- .
+Copyright: 2001-2009 California Institute of Technology
+           2009 Sandia Corporation. Under the terms of Contract
+               AC04-94AL85000 with Sandia Corporation, the U.S. Government
+               retains certain rights in this software.
+           2011-2021 Cantera Developers
+License: BSD-3-Clause
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are
  met:
