@@ -2,7 +2,7 @@ Source: cantera
 Section: science
 Priority: optional
 Maintainer: Raymond Speth <speth@mit.edu>
-Build-Depends: debhelper (>= 11.0.0), scons, cython (>= 0.23.0), gfortran, libsundials-dev, liblapack.so, libblas-dev, python3-dev (>= 3.5.0), python3-numpy (>= 1.12.0), python3-setuptools, libeigen3-dev, libgtest-dev, libboost-dev, libfmt-dev (>= 3.0.1), libyaml-cpp-dev (>= 0.6.0)
+Build-Depends: debhelper (>= 11.0.0), scons, cython (>= 0.23.0), gfortran, libsundials-dev, liblapack.so, libblas-dev, python3-dev (>= 3.5.0), python3-numpy (>= 1.12.0), python3-setuptools, libeigen3-dev, libgtest-dev, libgmock-dev, libboost-dev, libfmt-dev (>= 3.0.1), libyaml-cpp-dev (>= 0.6.0)
 Standards-Version: 4.1.4
 Homepage: https://www.cantera.org
 
