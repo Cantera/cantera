@@ -8,6 +8,7 @@ clean:
 
 	rm -f site_scons/*.pyc
 	rm -f site_scons/site_tools/*.pyc
+	rm -rf site_scons/__pycache__
 	rm -f cantera.conf
 	rm -f config.log
 	rm -f debian/substvars
