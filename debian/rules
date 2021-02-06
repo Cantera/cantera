@@ -32,6 +32,7 @@ binary: build
 	sed 's|#\!/usr/bin/env python$$|#\!/usr/bin/env python3|' interfaces/cython/cantera/cti2yaml.py > debian/cantera-common/usr/bin/cti2yaml
 	chmod a+x debian/cantera-common/usr/bin/*
 	rm -f debian/cantera-python3/usr/bin/*
+	rm -rf debian/cantera-python3/usr/lib/python3/dist-packages/cantera/data
 
 	mkdir -p debian/cantera-dev/usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig
 	mv debian/cantera-dev/usr/lib/pkgconfig/cantera.pc debian/cantera-dev/usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/
