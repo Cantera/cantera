@@ -1,0 +1,26 @@
+.TH "cti2yaml" 1 "6 Feb 2021" "cti2yaml" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+cti2yaml \- convert legacy CTI-format mechanisms to Cantera YAML input files
+
+.SH SYNOPSIS
+\fBcti2yaml\fR \fIinput\fR [\fIoutput\fR] [-h | --help]
+
+.SH DESCRIPTION
+
+The parameters are as follows:
+.TP
+.I input
+The CTI file to be converted.
+.TP
+[\fIoutput\fR]
+The name of the output file. By default, an output file will be
+created with the same name as the input file, with the extension
+changed to \fB.yaml\fR.
+.TP
+.B -h | --help
+Show a help message and exit.
+
+.SH EXAMPLE
+cti2yaml mymech.cti
