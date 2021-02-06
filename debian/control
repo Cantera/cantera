@@ -8,7 +8,7 @@ Homepage: https://www.cantera.org
 
 Package: cantera-common
 Architecture: any
-Depends: python3, python3-numpy, python3-ruamel.yaml (>= 0.15.34), ${shlibs:Depends}, ${misc:Depends}
+Depends: python3, python3-numpy, python3-ruamel.yaml (>= 0.15.34), ${misc:Depends}
 Description: Common files needed for all Cantera interfaces
  Cantera is a suite of object-oriented software tools for solving problems
  involving chemical kinetics, thermodynamics, and/or transport processes.
