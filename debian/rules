@@ -25,11 +25,13 @@ binary: build
 	scons install
 
 	mkdir -p debian/cantera-common/usr/bin
-	cp interfaces/cython/cantera/ctml_writer.py debian/cantera-common/usr/bin/ctml_writer
-	cp interfaces/cython/cantera/ck2cti.py debian/cantera-common/usr/bin/ck2cti
-	chmod a+x debian/cantera-common/usr/bin/ctml_writer debian/cantera-common/usr/bin/ck2cti
-	rm -f debian/cantera-python/usr/bin/ctml_writer
-	rm -f debian/cantera-python/usr/bin/ck2cti
+	sed 's|#\!/usr/bin/env python$$|#\!/usr/bin/env python3|' interfaces/cython/cantera/ctml_writer.py > debian/cantera-common/usr/bin/ctml_writer
+	sed 's|#\!/usr/bin/env python$$|#\!/usr/bin/env python3|' interfaces/cython/cantera/ck2cti.py > debian/cantera-common/usr/bin/ck2cti
+	sed 's|#\!/usr/bin/env python$$|#\!/usr/bin/env python3|' interfaces/cython/cantera/ck2yaml.py > debian/cantera-common/usr/bin/ck2yaml
+	sed 's|#\!/usr/bin/env python$$|#\!/usr/bin/env python3|' interfaces/cython/cantera/ctml2yaml.py > debian/cantera-common/usr/bin/ctml2yaml
+	sed 's|#\!/usr/bin/env python$$|#\!/usr/bin/env python3|' interfaces/cython/cantera/cti2yaml.py > debian/cantera-common/usr/bin/cti2yaml
+	chmod a+x debian/cantera-common/usr/bin/*
+	rm -f debian/cantera-python3/usr/bin/*
 
 	dh_strip
 	dh_shlibdeps
