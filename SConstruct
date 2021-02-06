@@ -1823,6 +1823,9 @@ def postInstallMessage(target, source, env):
         install_message += indent(textwrap.dedent("""
             Python package (cantera)    {python_module_loc!s}
             Python samples              {python_example_loc!s}""".format(**env_dict)), '  ')
+    elif env['python_package'] == 'minimal':
+        install_message += indent(textwrap.dedent("""
+            minimal Python module       {python_module_loc!s}""".format(**env_dict)), '  ')
 
     if env['matlab_toolbox'] == 'y':
         env['matlab_sample_loc'] = pjoin(env['ct_sampledir'], 'matlab')
