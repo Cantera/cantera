@@ -8,7 +8,7 @@
 // turned off, the system approaches the steady burning solution."""
 
 #include "cantera/zerodim.h"
-#include "cantera/IdealGasMix.h"
+#include "cantera/thermo/IdealGasPhase.h"
 
 #include <fstream>
 
@@ -17,40 +17,41 @@ using namespace Cantera;
 void runexample()
 {
     // use reaction mechanism GRI-Mech 3.0
-    IdealGasMix gas("gri30.cti", "gri30");
+    auto sol = newSolution("gri30.yaml", "gri30", "None");
+    auto gas = sol->thermo();
 
     // create a reservoir for the fuel inlet, and set to pure methane.
     Reservoir fuel_in;
-    gas.setState_TPX(300.0, OneAtm, "CH4:1.0");
-    fuel_in.insert(gas);
-    double fuel_mw = gas.meanMolecularWeight();
+    gas->setState_TPX(300.0, OneAtm, "CH4:1.0");
+    fuel_in.insert(sol);
+    double fuel_mw = gas->meanMolecularWeight();
+
+    auto air = newSolution("air.yaml", "air", "None");
+    double air_mw = air->thermo()->meanMolecularWeight();
 
     // create a reservoir for the air inlet
     Reservoir air_in;
-    IdealGasMix air("air.cti");
-    gas.setState_TPX(300.0, OneAtm, "N2:0.78, O2:0.21, AR:0.01");
-    double air_mw = air.meanMolecularWeight();
-    air_in.insert(gas);
+    air_in.insert(air);
 
     // to ignite the fuel/air mixture, we'll introduce a pulse of radicals.
     // The steady-state behavior is independent of how we do this, so we'll
     // just use a stream of pure atomic hydrogen.
-    gas.setState_TPX(300.0, OneAtm, "H:1.0");
+    gas->setState_TPX(300.0, OneAtm, "H:1.0");
     Reservoir igniter;
-    igniter.insert(gas);
+    igniter.insert(sol);
 
 
     // create the combustor, and fill it in initially with N2
-    gas.setState_TPX(300.0, OneAtm, "N2:1.0");
+    gas->setState_TPX(300.0, OneAtm, "N2:1.0");
     Reactor combustor;
-    combustor.insert(gas);
+    combustor.insert(sol);
     combustor.setInitialVolume(1.0);
 
 
     // create a reservoir for the exhaust. The initial composition
     // doesn't matter.
     Reservoir exhaust;
-    exhaust.insert(gas);
+    exhaust.insert(sol);
 
 
     // lean combustion, phi = 0.5
@@ -86,13 +87,13 @@ void runexample()
 
     MassFlowController m3;
     m3.install(igniter, combustor);
-    m3.setFunction(&igniter_mdot);
+    m3.setTimeFunction(&igniter_mdot);
 
     // put a valve on the exhaust line to regulate the pressure
     Valve v;
     v.install(combustor, exhaust);
     double Kv = 1.0;
-    v.setPressureCoeff(Kv);
+    v.setValveCoeff(Kv);
 
     // the simulation only contains one reactor
     ReactorNet sim;
@@ -106,14 +107,14 @@ void runexample()
 
     std::ofstream f("combustor_cxx.csv");
     std::vector<size_t> k_out {
-        gas.speciesIndex("CH4"),
-        gas.speciesIndex("O2"),
-        gas.speciesIndex("CO2"),
-        gas.speciesIndex("H2O"),
-        gas.speciesIndex("CO"),
-        gas.speciesIndex("OH"),
-        gas.speciesIndex("H"),
-        gas.speciesIndex("C2H6")
+        gas->speciesIndex("CH4"),
+        gas->speciesIndex("O2"),
+        gas->speciesIndex("CO2"),
+        gas->speciesIndex("H2O"),
+        gas->speciesIndex("CO"),
+        gas->speciesIndex("OH"),
+        gas->speciesIndex("H"),
+        gas->speciesIndex("C2H6")
     };
 
     while (tnow < tfinal) {

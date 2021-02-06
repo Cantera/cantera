@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #define CANTERA_USE_INTERNAL
 #include "cantera/clib/ctmultiphase.h"
@@ -157,7 +157,7 @@ extern "C" {
             MultiPhase& mix = mixCabinet::item(i);
             mix.checkPhaseIndex(n);
             if (v < 0.0) {
-                throw CanteraError("setPhaseMoles",
+                throw CanteraError("mix_setPhaseMoles",
                                    "Mole number must be non-negative.");
             }
             mix.setPhaseMoles(n, v);
@@ -194,7 +194,7 @@ extern "C" {
     {
         try {
             if (t < 0.0) {
-                throw CanteraError("setTemperature",
+                throw CanteraError("mix_setTemperature",
                                    "Temperature must be positive.");
             }
             mixCabinet::item(i).setTemperature(t);
@@ -255,7 +255,7 @@ extern "C" {
     {
         try {
             if (p < 0.0) {
-                throw CanteraError("setPressure",
+                throw CanteraError("mix_setPressure",
                                    "Pressure must be positive.");
             }
             mixCabinet::item(i).setPressure(p);

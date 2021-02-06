@@ -16,8 +16,13 @@ import itertools
 import SCons.Errors
 import SCons
 import SCons.Node.FS
-from distutils.version import LooseVersion, StrictVersion
+from pkg_resources import parse_version
 import distutils.sysconfig
+
+try:
+    import numpy as np
+except ImportError:
+    np = None
 
 class DefineDict(object):
     """
@@ -165,6 +170,13 @@ def regression_test(target, source, env):
             print('FAILED')
         diff |= d
 
+    for blessed,output in env['test_profiles']:
+        print("Comparing '{}' with '{}'".format(blessed, output))
+        d = compareProfiles(env, pjoin(dir, blessed), pjoin(dir, output))
+        if d:
+            print('FAILED')
+        diff |= d
+
     del testResults.tests[env['active_test_name']]
 
     if diff or code:
@@ -172,9 +184,12 @@ def regression_test(target, source, env):
             os.path.unlink(target[0].abspath)
 
         testResults.failed[env['active_test_name']] = 1
+        if env["fast_fail_tests"]:
+            sys.exit(1)
     else:
         print('PASSED')
-        open(target[0].path, 'w').write(time.asctime()+'\n')
+        with open(target[0].path, 'w') as passed_file:
+            passed_file.write(time.asctime()+'\n')
         testResults.passed[env['active_test_name']] = 1
 
 
@@ -231,6 +246,11 @@ def compareTextFiles(env, file1, file2):
         if len(floats1) != len(floats2):
             continue
 
+        # if the lines don't have the same non-numeric text,
+        # we're not going to pass the diff comparison
+        if reFloat.sub('', line1).strip() != reFloat.sub('', line2).strip():
+            continue
+
         allMatch = True
         for j in range(len(floats1)):
             if floats1[j] == floats2[j]:
@@ -267,6 +287,81 @@ def compareTextFiles(env, file1, file2):
         return 1
 
     return 0
+
+
+def compareProfiles(env, ref_file, sample_file):
+    """
+    Compare two 2D arrays of spatial or time profiles. Each data set should
+    contain the time or space coordinate in the first column and data series
+    to be compared in successive columns.
+
+    The coordinates in each data set do not need to be the same: The data from
+    the second data set will be interpolated onto the coordinates in the first
+    data set before being compared. This means that the range of the "sample"
+    data set should be at least as long as the "reference" data set.
+
+    After interpolation, each data point must satisfy a combined relative and absolute
+    error criterion specified by `rtol` and `atol`.
+    """
+    atol = env['test_csv_threshold']
+    rtol = env['test_csv_tolerance']
+    xtol = env['test_csv_tolerance']
+
+    if not np:
+        print('WARNING: skipping profile comparison because numpy is not available')
+        return 0
+
+    reference = np.genfromtxt(ref_file, delimiter=',').T
+    sample = np.genfromtxt(sample_file, delimiter=',').T
+    assert reference.shape[0] == sample.shape[0]
+
+    # trim header rows if present
+    if np.isnan(sample[0,0]) and np.isnan(reference[0,0]):
+        reference = reference[:, 1:]
+        sample = sample[:, 1:]
+    assert not np.isnan(reference).any()
+    assert not np.isnan(sample).any()
+
+    nVars = reference.shape[0]
+    nTimes = reference.shape[1]
+
+    bad = []
+    template = '{0:9.4e}  {1: 3d}   {2:14.7e}  {3:14.7e}  {4:9.3e}  {5:9.3e}  {6:9.3e}'
+    for i in range(1, nVars):
+        scale = max(max(abs(reference[i])), reference[i].ptp(),
+                    max(abs(sample[i])), sample[i].ptp())
+        slope = np.zeros(nTimes)
+        slope[1:] = np.diff(reference[i]) / np.diff(reference[0]) * reference[0].ptp()
+
+        comp = np.interp(reference[0], sample[0], sample[i])
+        for j in range(nTimes):
+            a = reference[i,j]
+            b = comp[j]
+            abserr = abs(a-b)
+            relerr = abs(a-b) / (scale + atol)
+
+            # error that can be accounted for by shifting the profile along
+            # the time / spatial coordinate
+            xerr = abserr / (abs(slope[j]) + atol)
+
+            if abserr > atol and relerr > rtol and xerr > xtol:
+                bad.append((reference[0][j], i, a, b, abserr, relerr, xerr))
+
+    footer = []
+    maxrows = 10
+    if len(bad) > maxrows:
+        bad.sort(key=lambda row: -row[5])
+        footer += ['Plus {0} more points exceeding error thresholds.'.format(len(bad)-maxrows)]
+        bad = bad[:maxrows]
+
+    if bad:
+        header = ['Failed series comparisons:',
+                  'coordinate  comp.  reference val    test value    abs. err   rel. err    pos. err',
+                  '----------  ---   --------------  --------------  ---------  ---------  ---------']
+        print('\n'.join(header + [template.format(*row) for row in bad] + footer))
+        return 1
+    else:
+        return 0
 
 
 def getPrecision(x):
@@ -348,13 +443,13 @@ def compareCsvFiles(env, file1, file2):
     if maxerror > tol: # Threshold based on printing 6 digits in the CSV file
         print("Files differ. %i / %i elements above specified tolerance (%f)" %
               (np.sum(relerror > tol), relerror.size, tol))
-        print('  row   col   reference     test          rel. error')
-        print('  ----  ----  ------------  ------------  ----------')
+        print('  row   col   reference       test            rel. error')
+        print('  ----  ----  --------------  --------------  ----------')
         for i,j in itertools.product(*map(range, relerror.shape)):
             if relerror[i,j] > tol:
                 row = i + headerRows + 1
                 col = j + 1
-                print('  % 4i  % 4i  % 12f  % 12f  % 10f' %
+                print('  % 4i  % 4i  % 14.7e  % 14.7e  % 10.4e' %
                       (row, col, data1[i,j], data2[i,j], relerror[i,j]))
         return 1
     else:

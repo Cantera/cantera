@@ -3,6 +3,8 @@
 
 #include "BoundaryValueProblem.h"
 
+using Cantera::npos;
+
 /**
  * This class solves the Blasius boundary value problem on the domain (0,L):
  * \f[
@@ -59,27 +61,32 @@ public:
         }
     }
 
-    // Specify the residual. This is where the ODE system and boundary
+    // Specify the residual function. This is where the ODE system and boundary
     // conditions are specified. The solver will attempt to find a solution
-    // x so that this function returns 0 for all n and j.
-    virtual doublereal residual(doublereal* x, size_t n, size_t j) {
-        // if n = 0, return the residual for the first ODE
-        if (n == 0) {
-            if (isLeft(j)) { // here we specify zeta(0) = 0
-                return zeta(x,j);
+    // x so that rsd is zero.
+    void eval(size_t jg, double* x, double* rsd, int* diag, double rdt) {
+        size_t jpt = jg - firstPoint();
+        size_t jmin, jmax;
+        if (jg == npos) {  // evaluate all points
+            jmin = 0;
+            jmax = m_points - 1;
+        } else {  // evaluate points for Jacobian
+            jmin = std::max<size_t>(jpt, 1) - 1;
+            jmax = std::min(jpt+1,m_points-1);
+        }
+
+        for (size_t j = jmin; j <= jmax; j++) {
+            if (j == 0) {
+                rsd[index(0,j)] = zeta(x,j);
+                rsd[index(1,j)] = u(x,j);
+            } else if (j == m_points - 1) {
+                rsd[index(0,j)] = leftFirstDeriv(x,0,j) - u(x,j);
+                rsd[index(1,j)] = u(x,j) - 1.0;
             } else {
-                // this implements d(zeta)/dz = u
-                return (zeta(x,j) - zeta(x,j-1))/(z(j)-z(j-1)) - u(x,j);
-            }
-        } else {
-            // if n = 1, then return the residual for the second ODE
-            if (isLeft(j)) { // here we specify u(0) = 0
-                return u(x,j);
-            } else if (isRight(j)) { // and here we specify u(L) = 1
-                return u(x,j) - 1.0;
-            } else {
-                // this implements the 2nd ODE
-                return cdif2(x,1,j) + 0.5*zeta(x,j)*centralFirstDeriv(x,1,j);
+                rsd[index(0,j)] = leftFirstDeriv(x,0,j) - u(x,j);
+                rsd[index(1,j)] = cdif2(x,1,j) + 0.5*zeta(x,j)*centralFirstDeriv(x,1,j)
+                                  - rdt*(value(x,1,j) - prevSoln(1,j));
+                diag[index(1,j)] = 1;
             }
         }
     }
@@ -100,10 +107,10 @@ int main()
         // Specify a problem on (0,10), with an initial uniform grid of
         // 6 points.
         Blasius eqs(6, 10.0);
-        // Solve the equations, refining the grid as needed, and print lots of diagnostic output (loglevel = 4)
-        eqs.solve(4);
+        // Solve the equations, refining the grid as needed
+        eqs.solve(1);
         // write the solution to a CSV file.
-        eqs.writeCSV();
+        eqs.writeCSV("blasius.csv");
         return 0;
     } catch (Cantera::CanteraError& err) {
         std::cerr << err.what() << std::endl;

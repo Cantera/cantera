@@ -16,14 +16,12 @@ t0 = cputime;
 % GRI-Mech 3.0. Another way to do this is shown here, with statements
 % added to measure how long this takes:
 
-gas1 = Solution('gri30.cti', 'gri30');
+gas1 = Solution('gri30.yaml', 'gas', 'Mix');
 msg = sprintf('time to create gas1: %f', cputime - t0)
 
 % Function 'Solution' constructs an object representing a phase of
 % matter by reading in attributes of the phase from a file, which in
-% this case is 'gri30.cti'. This file contains several phase
-% spcifications; the one we want here is 'gri30', which is specified
-% by the second argument.  This file contains a complete specification
+% this case is 'gri30.yaml'. This file contains a complete specification
 % of the GRI-Mech 3.0 reaction mechanism, including element data
 % (name, atomic weight), species data (name, elemental composition,
 % coefficients to compute thermodynamic and transport properties), and
@@ -31,18 +29,16 @@ msg = sprintf('time to create gas1: %f', cputime - t0)
 % is written in a format understood by Cantera, which is described in
 % the document "Defining Phases and Interfaces."
 
-% On some systems, processing long CTI files like gri30.cti can be a
-% little slow. For example, using a typical laptop computer running
-% Windows 2000, the statement above takes more than 4 s, while on a
-% Mac Powerbook G4 of similar CPU speed it takes only 0.3 s. In any
-% case, running it again takes much less time, because Cantera
-% 'remembers' files it has already processed and doesn't need to read
-% them in again:
+% On some systems, processing long files can be a little slow. Loading
+% a file again takes much less time, because Cantera 'remembers' files
+% it has already processed and doesn't need to read them in again:
 
 t0 = cputime;
-gas1b = Solution('gri30.cti', 'gri30');
+gas1b = Solution('gri30.yaml', 'gas', 'None');
 msg = sprintf('time to create gas1b: %f', cputime - t0)
 
+% Since GRI-Mech is a rather small mechanism, there might not be much
+% difference in these times.
 
 % CTI files distributed with Cantera
 %-----------------------------------
@@ -53,7 +49,7 @@ msg = sprintf('time to create gas1b: %f', cputime - t0)
 % reaction mechanisms. Under Windows, these files may be located in
 % 'C:\Program Files\Common Files\Cantera', or in 'C:\cantera\data',
 % depending on how you installed Cantera and the options you
-% specified.  On a unix/linux/Mac OSX machine, they are usually kept
+% specified. On a Unix/Linux/macOS machine, they are usually kept
 % in the 'data' subdirectory within the Cantera installation
 % directory.
 
@@ -74,35 +70,17 @@ adddir('/usr/local/cantera/my_data_files');
 % A Cantera input file may contain more than one phase specification,
 % or may contain specifications of interfaces (surfaces). Here we
 % import definitions of two bulk phases and the interface between them
-% from file diamond.cti:
+% from file diamond.yaml:
 
-gas2 = Solution('diamond.cti', 'gas');        % a gas
+gas2 = Solution('diamond.yaml', 'gas');        % a gas
 
-diamond = Solution('diamond.cti','diamond');  % bulk diamond
+diamond = Solution('diamond.yaml','diamond');  % bulk diamond
 
-diamonnd_surf = importInterface('diamond.cti','diamond_100',...
+diamonnd_surf = importInterface('diamond.yaml','diamond_100',...
                                 gas2, diamond);
 
 % Note that the bulk (i.e., 3D) phases that participate in the surface
 % reactions must also be passed as arguments to importInterface.
-
-
-% CTML files
-% ----------
-
-% Note that when Cantera reads a .cti input file, wherever it is
-% located, it always writes a file of the same name but with extension
-% .xml *in the local directory*. If you happen to have some other file
-% by that name, it will be overwritten. Once the XML file is created,
-% you can use it instead of the .cti file, which will result in
-% somewhat faster startup.
-
-gas4 = Solution('gri30.xml','gri30');
-
-% Interfaces can be imported from XML files too.
-diamonnd_surf2 = importInterface('diamond.xml','diamond_100',...
-                                 gas2, diamond);
-
 
 % Converting CK-format files
 % --------------------------
@@ -112,16 +90,14 @@ diamonnd_surf2 = importInterface('diamond.xml','diamond_100',...
 % software package. [See R. J. Kee, F. M. Rupley, and J. A. Miller,
 % Sandia National Laboratories Report SAND89-8009 (1989).]
 
-% Cantera comes with a converter utility program 'ck2cti' (or
-% 'ck2cti.exe') that converts CK format into Cantera format. This
+% Cantera comes with a converter utility program 'ck2yaml' (or
+% 'ck2yaml.exe') that converts CK format into YAML format. This
 % program should be run from the command line first to convert any CK
-% files you plan to use into Cantera format. This utility program can
-% also be downloaded from the Cantera User's Group web site.
+% files you plan to use into YAML format.
 %
 % Here's an example of how to use it:
 %
-% ck2cti -i mech.inp -t therm.dat -tr tran.dat -id mymech
-%
+% ck2yaml --input=mech.inp --thermo=therm.dat --transport=tran.dat --name=mymech
 
 clear all
 cleanup

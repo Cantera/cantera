@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_FIXEDCHEMPOTSSTP_H
 #define CT_FIXEDCHEMPOTSSTP_H
@@ -142,6 +142,10 @@ namespace Cantera
  * identifies the phase as being a FixedChemPotSSTP object.
  *
  * @ingroup thermoprops
+ *
+ * @deprecated To be removed after Cantera 2.5. Use the `fixed-stoichiometry`
+ *     thermo model (class StoichSubstance) with a `constant-cp` species thermo
+ *     model, `h0` set to the desired chemical potential, and `s0` set to 0.
  */
 class FixedChemPotSSTP : public SingleSpeciesTP
 {
@@ -182,6 +186,10 @@ public:
         return "FixedChemPot";
     }
 
+    virtual bool isCompressible() const {
+        return false;
+    }
+
     //! @}
     //! @name Mechanical Equation of State
     //! @{
@@ -215,8 +223,10 @@ public:
      * @{
      */
 
+    virtual Units standardConcentrationUnits() const;
+
     //! @copydoc ThermoPhase::getActivityConcentrations
-    /*! 
+    /*!
      * For a stoichiometric substance, there is only one species, and the
      * generalized concentration is 1.0.
      */
@@ -317,6 +327,8 @@ public:
     //@}
 
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
+
+    virtual void initThermo();
 
     //! Set the equation of state parameters
     /*!

@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/ConstDensityThermo.h"
 #include "cantera/base/ctml.h"
@@ -105,11 +105,19 @@ void ConstDensityThermo::_updateThermo() const
     }
 }
 
+void ConstDensityThermo::initThermo()
+{
+    if (m_input.hasKey("density")) {
+        assignDensity(m_input.convert("density", "kg/m^3"));
+    }
+    ThermoPhase::initThermo();
+}
+
 void ConstDensityThermo::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model","Incompressible");
     doublereal rho = getFloat(eosdata, "density", "toSI");
-    setDensity(rho);
+    assignDensity(rho);
 }
 
 }

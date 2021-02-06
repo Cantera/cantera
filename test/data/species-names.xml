@@ -1,0 +1,402 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate species="yes" reactions="yes"/>
+
+  <!-- phase gas     -->
+  <phase id="gas" dim="3">
+    <elementArray datasrc="elements.xml">H C</elementArray>
+    <speciesArray datasrc="#species_data">
+      (Parens)      @#$%^-2       co:lons:      [xy2]*{.}
+      plus+         eq=uals       plus          trans_butene
+      co amp&ersand</speciesArray>
+    <reactionArray datasrc="#reaction_data"/>
+    <state>
+      <temperature units="K">300.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="None"/>
+  </phase>
+
+  <!-- species definitions     -->
+  <speciesData id="species_data">
+
+    <!-- species (Parens)    -->
+    <species name="(Parens)">
+      <atomArray>C:1 H:4 </atomArray>
+      <thermo>
+        <NASA Tmin="200.0" Tmax="1000.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08, 
+             1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmin="1000.0" Tmax="3500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09, 
+             -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species @#$%^-2    -->
+    <species name="@#$%^-2">
+      <atomArray>C:1 H:4 </atomArray>
+      <thermo>
+        <NASA Tmin="200.0" Tmax="1000.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08, 
+             1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmin="1000.0" Tmax="3500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09, 
+             -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species co:lons:    -->
+    <species name="co:lons:">
+      <atomArray>C:1 H:4 </atomArray>
+      <thermo>
+        <NASA Tmin="200.0" Tmax="1000.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08, 
+             1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmin="1000.0" Tmax="3500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09, 
+             -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species [xy2]*{.}    -->
+    <species name="[xy2]*{.}">
+      <atomArray>C:1 H:4 </atomArray>
+      <thermo>
+        <NASA Tmin="200.0" Tmax="1000.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08, 
+             1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmin="1000.0" Tmax="3500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09, 
+             -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species plus+    -->
+    <species name="plus+">
+      <atomArray>C:1 H:4 </atomArray>
+      <note>nottheend</note>
+      <thermo>
+        <NASA Tmin="200.0" Tmax="1000.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08, 
+             1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmin="1000.0" Tmax="3500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09, 
+             -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species eq=uals    -->
+    <species name="eq=uals">
+      <atomArray>C:1 H:4 </atomArray>
+      <thermo>
+        <NASA Tmin="200.0" Tmax="1000.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08, 
+             1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmin="1000.0" Tmax="3500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09, 
+             -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species plus    -->
+    <species name="plus">
+      <atomArray>C:1 H:4 </atomArray>
+      <thermo>
+        <NASA Tmin="200.0" Tmax="1000.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08, 
+             1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmin="1000.0" Tmax="3500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09, 
+             -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species trans_butene    -->
+    <species name="trans_butene">
+      <atomArray>C:1 H:4 </atomArray>
+      <thermo>
+        <NASA Tmin="200.0" Tmax="1000.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08, 
+             1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmin="1000.0" Tmax="3500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09, 
+             -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species co    -->
+    <species name="co">
+      <atomArray>C:1 H:4 </atomArray>
+      <thermo>
+        <NASA Tmin="200.0" Tmax="1000.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08, 
+             1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmin="1000.0" Tmax="3500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09, 
+             -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species amp&ersand    -->
+    <species name="amp&ersand">
+      <atomArray>C:1 H:4 </atomArray>
+      <note>Contains a raw & character</note>
+      <thermo>
+        <NASA Tmin="200.0" Tmax="1000.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08, 
+             1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmin="1000.0" Tmax="3500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09, 
+             -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+  </speciesData>
+  <reactionData id="reaction_data">
+
+    <!-- reaction 0001    -->
+    <reaction id="0001" reversible="yes">
+      <equation>(Parens) + @#$%^-2 [=] 2 [xy2]*{.}</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.234500E+09</A>
+           <b>1.0</b>
+           <E units="cal/mol">200.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>(Parens):1.0 @#$%^-2:1</reactants>
+      <products>[xy2]*{.}:2.0</products>
+    </reaction>
+
+    <!-- reaction 0002    -->
+    <reaction id="0002" reversible="yes">
+      <equation>2 (Parens) + [xy2]*{.} [=] 3 @#$%^-2</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>5.432100E+04</A>
+           <b>1.0</b>
+           <E units="cal/mol">500.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>(Parens):2.0 [xy2]*{.}:1</reactants>
+      <products>@#$%^-2:3.0</products>
+    </reaction>
+
+    <!-- reaction 0003    -->
+    <reaction id="0003" reversible="yes">
+      <equation>plus+ + (Parens) [=] 2 plus+</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>9.999000E+06</A>
+           <b>9.9</b>
+           <E units="cal/mol">999.900000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>plus+:1.0 (Parens):1</reactants>
+      <products>plus+:2.0</products>
+    </reaction>
+
+    <!-- reaction 0004    -->
+    <reaction id="0004" reversible="yes">
+      <equation>2 plus+ + eq=uals [=] 3 (Parens)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>9.999000E+03</A>
+           <b>9.9</b>
+           <E units="cal/mol">999.900000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>plus+:2.0 eq=uals:1</reactants>
+      <products>(Parens):3.0</products>
+    </reaction>
+
+    <!-- reaction 0005    -->
+    <reaction id="0005" reversible="yes">
+      <equation>plus + plus+ [=] 2 (Parens)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>9.999000E+06</A>
+           <b>9.9</b>
+           <E units="cal/mol">999.900000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>plus:1.0 plus+:1</reactants>
+      <products>(Parens):2.0</products>
+    </reaction>
+
+    <!-- reaction 0006    -->
+    <reaction id="0006" reversible="yes">
+      <equation>plus + eq=uals [=] plus+ + (Parens)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>9.999000E+06</A>
+           <b>9.9</b>
+           <E units="cal/mol">999.900000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>plus:1.0 eq=uals:1</reactants>
+      <products>plus+:1.0 (Parens):1</products>
+    </reaction>
+
+    <!-- reaction 0007    -->
+    <reaction id="0007" reversible="yes">
+      <equation>co:lons: + eq=uals [=] 2 (Parens)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>9.999000E+06</A>
+           <b>9.9</b>
+           <E units="cal/mol">999.900000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>co:lons::1.0 eq=uals:1</reactants>
+      <products>(Parens):2.0</products>
+    </reaction>
+
+    <!-- reaction 0008    -->
+    <reaction id="0008" reversible="yes" type="falloff">
+      <equation>plus+ (+ plus) [=] eq=uals (+ plus)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>9.999000E+09</A>
+           <b>9.9</b>
+           <E units="cal/mol">999.900000</E>
+        </Arrhenius>
+        <Arrhenius name="k0">
+           <A>8.888000E+05</A>
+           <b>8.8</b>
+           <E units="cal/mol">888.800000</E>
+        </Arrhenius>
+        <efficiencies default="0.0">plus:1.0</efficiencies>
+        <falloff type="Lindemann"/>
+      </rateCoeff>
+      <reactants>plus+:1.0</reactants>
+      <products>eq=uals:1.0</products>
+    </reaction>
+
+    <!-- reaction 0009    -->
+    <reaction id="0009" reversible="yes" type="falloff">
+      <equation>plus+ (+ (Parens)) [=] eq=uals (+ (Parens))</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>9.999000E+09</A>
+           <b>9.9</b>
+           <E units="cal/mol">999.900000</E>
+        </Arrhenius>
+        <Arrhenius name="k0">
+           <A>8.888000E+05</A>
+           <b>8.8</b>
+           <E units="cal/mol">888.800000</E>
+        </Arrhenius>
+        <efficiencies default="0.0">(Parens):1.0</efficiencies>
+        <falloff type="Lindemann"/>
+      </rateCoeff>
+      <reactants>plus+:1.0</reactants>
+      <products>eq=uals:1.0</products>
+    </reaction>
+
+    <!-- reaction 0010    -->
+    <reaction id="0010" reversible="yes" type="falloff">
+      <equation>plus+ (+ plus+) [=] eq=uals (+ plus+)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>9.999000E+09</A>
+           <b>9.9</b>
+           <E units="cal/mol">999.900000</E>
+        </Arrhenius>
+        <Arrhenius name="k0">
+           <A>8.888000E+05</A>
+           <b>8.8</b>
+           <E units="cal/mol">888.800000</E>
+        </Arrhenius>
+        <efficiencies default="0.0">plus+:1.0</efficiencies>
+        <falloff type="Lindemann"/>
+      </rateCoeff>
+      <reactants>plus+:1.0</reactants>
+      <products>eq=uals:1.0</products>
+    </reaction>
+
+    <!-- reaction 0011    -->
+    <reaction id="0011" reversible="yes">
+      <equation>trans_butene + co:lons: [=] 2 plus+</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>9.999000E+06</A>
+           <b>9.9</b>
+           <E units="cal/mol">999.900000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>trans_butene:1.0 co:lons::1</reactants>
+      <products>plus+:2.0</products>
+    </reaction>
+
+    <!-- reaction 0012    -->
+    <reaction id="0012" reversible="yes">
+      <equation>co + co:lons: [=] 2 plus+</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>9.999000E+06</A>
+           <b>9.9</b>
+           <E units="cal/mol">999.900000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>co:1.0 co:lons::1</reactants>
+      <products>plus+:2.0</products>
+    </reaction>
+
+    <!-- reaction 0013    -->
+    <reaction id="0013" reversible="yes">
+      <equation>amp&ersand [=] plus+</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>9.999000E+06</A>
+           <b>9.9</b>
+           <E units="cal/mol">999.900000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>amp&ersand:1.0</reactants>
+      <products>plus+:1.0</products>
+    </reaction>
+  </reactionData>
+</ctml>

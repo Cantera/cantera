@@ -12,7 +12,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/ctexceptions.h"
 #include "cantera/thermo/Nasa9PolyMultiTempRegion.h"
@@ -21,6 +21,11 @@ using namespace std;
 
 namespace Cantera
 {
+
+Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion()
+    : m_currRegion(0)
+{
+}
 
 Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*>& regionPts) :
     m_currRegion(0)
@@ -50,6 +55,52 @@ Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*>& regionPt
             }
         }
     }
+}
+
+Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(double tlow, double thigh, double pref,
+                                                   const double* coeffs)
+    : SpeciesThermoInterpType(tlow, thigh, pref)
+{
+    size_t regions = static_cast<size_t>(coeffs[0]);
+
+    for (size_t i=0; i<regions; i++) {
+        Nasa9Poly1* poly = new Nasa9Poly1(coeffs[11*i+1], coeffs[11*i+2],
+                                          pref, coeffs + 11*i + 3);
+        m_regionPts.emplace_back(poly);
+    }
+
+    m_lowerTempBounds.resize(regions);
+    for (size_t i = 0; i < m_regionPts.size(); i++) {
+        m_lowerTempBounds[i] = m_regionPts[i]->minTemp();
+        if (i > 0) {
+            if (m_lowerTempBounds[i-1] >= m_lowerTempBounds[i]) {
+                throw CanteraError("Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion",
+                                   "minTemp bounds inconsistency");
+            }
+            if (fabs(m_regionPts[i-1]->maxTemp() - m_lowerTempBounds[i]) > 0.0001) {
+                throw CanteraError("Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion",
+                                   "Temp bounds inconsistency");
+            }
+        }
+    }
+}
+
+void Nasa9PolyMultiTempRegion::setParameters(const std::map<double, vector_fp>& regions)
+{
+    m_regionPts.clear();
+    m_lowerTempBounds.clear();
+    for (const auto& region : regions) {
+        m_lowerTempBounds.push_back(region.first);
+        Nasa9Poly1* poly = new Nasa9Poly1;
+        poly->setRefPressure(refPressure());
+        poly->setMinTemp(region.first);
+        poly->setParameters(region.second);
+        if (!m_regionPts.empty()) {
+            m_regionPts.back()->setMaxTemp(region.first);
+        }
+        m_regionPts.emplace_back(poly);
+    }
+    m_regionPts.back()->setMaxTemp(maxTemp());
 }
 
 Nasa9PolyMultiTempRegion::~Nasa9PolyMultiTempRegion()
@@ -102,6 +153,11 @@ void Nasa9PolyMultiTempRegion::updatePropertiesTemp(const doublereal temp,
     }
 
     m_regionPts[m_currRegion]->updatePropertiesTemp(temp, cp_R, h_RT, s_R);
+}
+
+size_t Nasa9PolyMultiTempRegion::nCoeffs() const
+{
+    return 11*m_regionPts.size() + 1;
 }
 
 void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,

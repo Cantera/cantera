@@ -5,16 +5,20 @@ The Dusty Gas model is a multicomponent transport model for gas transport
 through the pores of a stationary porous medium. This example shows how to
 create a transport manager that implements the Dusty Gas model and use it to
 compute the multicomponent diffusion coefficients.
+
+Requires:  cantera >= 2.5.0
 """
 
 import cantera as ct
 
 # create a gas-phase object to represent the gas in the pores, with a
 # dusty gas transport manager
-g = ct.DustyGas('h2o2.cti')
+g = ct.DustyGas('h2o2.yaml')
 
 # set the gas state
-g.TPX = 500.0, ct.one_atm, "OH:1, H:2, O2:3, O:1.0E-8, H2:1.0E-8, H2O:1.0E-8, H2O2:1.0E-8, HO2:1.0E-8, AR:1.0E-8"
+composition = {"OH": 1, "H": 2, "O2": 3, "O": 1.0E-8, "H2": 1.0E-8, "H2O": 1.0E-8,
+               "H2O2": 1.0E-8, "HO2": 1.0E-8, "AR": 1.0E-8}
+g.TPX = 500.0, ct.one_atm, composition
 
 # set its parameters
 g.porosity = 0.2

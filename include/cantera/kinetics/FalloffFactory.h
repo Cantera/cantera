@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_NEWFALLOFF_H
 #define CT_NEWFALLOFF_H
@@ -58,8 +58,22 @@ public:
      * @param c    input vector of doubles which populates the falloff
      *             parameterization.
      * @returns    a pointer to a new Falloff class.
+     *
+     * @deprecated To be removed after Cantera 2.5.
      */
     virtual Falloff* newFalloff(int type, const vector_fp& c);
+
+    //! Return a pointer to a new falloff function calculator.
+    /*!
+     * @param type String identifier specifying the type of falloff function.
+     *             The standard types match class names defined in Falloff.h.
+     *             A factory class derived from FalloffFactory may define
+     *             other types as well.
+     * @param c    input vector of doubles which populates the falloff
+     *             parameterization.
+     * @returns    a pointer to a new Falloff class.
+     */
+    virtual Falloff* newFalloff(const std::string& type, const vector_fp& c);
 
 private:
     //! Pointer to the single instance of the factory
@@ -73,7 +87,13 @@ private:
 };
 
 //! @copydoc FalloffFactory::newFalloff
+/*!
+ * @deprecated To be removed after Cantera 2.5.
+ */
 shared_ptr<Falloff> newFalloff(int type, const vector_fp& c);
+
+//! @copydoc FalloffFactory::newFalloff
+shared_ptr<Falloff> newFalloff(const std::string& type, const vector_fp& c);
 
 }
 #endif

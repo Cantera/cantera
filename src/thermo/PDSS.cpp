@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/PDSS.h"
@@ -26,87 +26,87 @@ PDSS::PDSS() :
 
 doublereal PDSS::enthalpy_mole() const
 {
-    throw NotImplementedError("PDSS::enthalpy_mole()");
+    throw NotImplementedError("PDSS::enthalpy_mole");
 }
 
 doublereal PDSS::enthalpy_RT() const
 {
-    throw NotImplementedError("PDSS::enthalpy_RT()");
+    throw NotImplementedError("PDSS::enthalpy_RT");
 }
 
 doublereal PDSS::intEnergy_mole() const
 {
-    throw NotImplementedError("PDSS::intEnergy_mole()");
+    throw NotImplementedError("PDSS::intEnergy_mole");
 }
 
 doublereal PDSS::entropy_mole() const
 {
-    throw NotImplementedError("PDSS::entropy_mole()");
+    throw NotImplementedError("PDSS::entropy_mole");
 }
 
 doublereal PDSS::entropy_R() const
 {
-    throw NotImplementedError("PDSS::entropy_R()");
+    throw NotImplementedError("PDSS::entropy_R");
 }
 
 doublereal PDSS::gibbs_mole() const
 {
-    throw NotImplementedError("PDSS::gibbs_mole()");
+    throw NotImplementedError("PDSS::gibbs_mole");
 }
 
 doublereal PDSS::gibbs_RT() const
 {
-    throw NotImplementedError("PDSS::gibbs_RT()");
+    throw NotImplementedError("PDSS::gibbs_RT");
 }
 
 doublereal PDSS::cp_mole() const
 {
-    throw NotImplementedError("PDSS::cp_mole()");
+    throw NotImplementedError("PDSS::cp_mole");
 }
 
 doublereal PDSS::cp_R() const
 {
-    throw NotImplementedError("PDSS::cp_R()");
+    throw NotImplementedError("PDSS::cp_R");
 }
 
 doublereal PDSS::molarVolume() const
 {
-    throw NotImplementedError("PDSS::molarVolume()");
+    throw NotImplementedError("PDSS::molarVolume");
 }
 
 doublereal PDSS::density() const
 {
-    throw NotImplementedError("PDSS::density()");
+    throw NotImplementedError("PDSS::density");
 }
 
 doublereal PDSS::cv_mole() const
 {
-    throw NotImplementedError("PDSS::cv_mole()");
+    throw NotImplementedError("PDSS::cv_mole");
 }
 
 doublereal PDSS::gibbs_RT_ref() const
 {
-    throw NotImplementedError("PDSS::gibbs_RT_ref()");
+    throw NotImplementedError("PDSS::gibbs_RT_ref");
 }
 
 doublereal PDSS::enthalpy_RT_ref() const
 {
-    throw NotImplementedError("PDSS::enthalpy_RT_ref()");
+    throw NotImplementedError("PDSS::enthalpy_RT_ref");
 }
 
 doublereal PDSS::entropy_R_ref() const
 {
-    throw NotImplementedError("PDSS::entropy_RT_ref()");
+    throw NotImplementedError("PDSS::entropy_RT_ref");
 }
 
 doublereal PDSS::cp_R_ref() const
 {
-    throw NotImplementedError("PDSS::entropy_RT_ref()");
+    throw NotImplementedError("PDSS::entropy_RT_ref");
 }
 
 doublereal PDSS::molarVolume_ref() const
 {
-    throw NotImplementedError("PDSS::molarVolume_ref()");
+    throw NotImplementedError("PDSS::molarVolume_ref");
 }
 
 doublereal PDSS::enthalpyDelp_mole() const
@@ -136,22 +136,22 @@ doublereal PDSS::pressure() const
 
 doublereal PDSS::thermalExpansionCoeff() const
 {
-    throw NotImplementedError("PDSS::thermalExpansionCoeff()");
+    throw NotImplementedError("PDSS::thermalExpansionCoeff");
 }
 
 doublereal PDSS::critTemperature() const
 {
-    throw NotImplementedError("PDSS::critTemperature()");
+    throw NotImplementedError("PDSS::critTemperature");
 }
 
 doublereal PDSS::critPressure() const
 {
-    throw NotImplementedError("PDSS::critPressure()");
+    throw NotImplementedError("PDSS::critPressure");
 }
 
 doublereal PDSS::critDensity() const
 {
-    throw NotImplementedError("PDSS::critDensity()");
+    throw NotImplementedError("PDSS::critDensity");
 }
 
 void PDSS::setPressure(doublereal pres)
@@ -180,17 +180,17 @@ void PDSS::setMolecularWeight(doublereal mw)
 
 void PDSS::setState_TP(doublereal temp, doublereal pres)
 {
-    throw NotImplementedError("PDSS::setState_TP()");
+    throw NotImplementedError("PDSS::setState_TP");
 }
 
 void PDSS::setState_TR(doublereal temp, doublereal rho)
 {
-    throw NotImplementedError("PDSS::setState_TR()");
+    throw NotImplementedError("PDSS::setState_TR");
 }
 
 doublereal PDSS::satPressure(doublereal t)
 {
-    throw NotImplementedError("PDSS::satPressure()");
+    throw NotImplementedError("PDSS::satPressure");
 }
 
 void PDSS::reportParams(size_t& kindex, int& type,

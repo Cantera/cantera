@@ -1,6 +1,9 @@
-#include "cantera/IdealGasMix.h"
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
 
-#include <cstdio>
+#include "cantera/thermo/IdealGasPhase.h"
+
+#include <iostream>
 
 using namespace std;
 using namespace Cantera;
@@ -11,8 +14,8 @@ int main(int argc, char** argv)
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     try {
-        suppress_deprecation_warnings();
-        IdealGasPhase* gas = new IdealGasMix("air_below6000K.cti","air_below6000K");
+        auto sol = newSolution("air_below6000K.cti", "air_below6000K");
+        auto gas = sol->thermo();
 
         vector_fp IndVar2(6, 0.0);
         IndVar2[0] = 1.5E5;
@@ -79,7 +82,6 @@ int main(int argc, char** argv)
                 fprintf(FF,"\n");
             }
         }
-        delete gas;
         fclose(FF);
     } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;

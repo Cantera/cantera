@@ -21,14 +21,11 @@ t = [];
 xo2 = [];
 io2 = speciesIndex(gas,'O2');
 ih2 = speciesIndex(gas,'H2');
-ih = speciesIndex(gas,'H');
-ih2o = speciesIndex(gas,'H2O');
 
 minT = minTemp(gas);
 maxT = maxTemp(gas);
 dT = (maxT - minT)/30.0;
 
-atm = oneatm;
 t0 = cputime;
 for i = 1:31
    t(i) = minT + dT*(i-1);

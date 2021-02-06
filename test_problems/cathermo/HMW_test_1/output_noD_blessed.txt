@@ -1,11 +1,11 @@
 Index  Name                  MoleF   MolalityCropped  Charge
- 0     H2O(L)            8.1992706e-01  5.5508435e+01   0.0 
- 1     Cl-               9.0036447e-02  6.0953986e+00  -1.0 
- 2     H+                3.1947189e-11  2.1628000e-09   1.0 
- 3     Na+               9.0036468e-02  6.0954000e+00   1.0 
- 4     OH-               2.0645728e-08  1.3977000e-06  -1.0 
+ 0     H2O(L)            8.1992936e-01  5.5509298e+01   0.0 
+ 1     Cl-               9.0035300e-02  6.0953986e+00  -1.0 
+ 2     H+                3.1946778e-11  2.1628000e-09   1.0 
+ 3     Na+               9.0035320e-02  6.0954000e+00   1.0 
+ 4     OH-               2.0645465e-08  1.3977000e-06  -1.0 
 
- Species          Species            beta0MX  beta1MX   beta2MX   CphiMX    alphaMX thetaij    
+ Species          Species            beta0MX  beta1MX   beta2MX   CphiMX    alphaMX thetaij
  Cl-              H+                 0.17750   0.29450   0.00000   0.00080   2.00000   0.00000 
  Cl-              Na+                0.07650   0.26640   0.00000   0.00127   2.00000   0.00000 
  Cl-              OH-                0.00000   0.00000   0.00000   0.00000   2.00000  -0.05000 
@@ -27,30 +27,30 @@ Index  Name                  MoleF   MolalityCropped  Charge
  OH-              Cl-              Na+               -0.00600 
  OH-              Na+              Cl-               -0.00600 
             Name      Activity  ActCoeffMolal    MoleFract      Molality
-          H2O(L)        0.7546        0.9204        0.8198       55.5084
+          H2O(L)        0.7546        0.9204        0.8198       55.5093
              Cl-        6.0958        0.9994        0.0901        6.0997
               H+        0.0000        4.6240        0.0000        0.0000
              Na+        6.0958        0.9994        0.0901        6.0997
              OH-        0.0000        0.5437        0.0000        0.0000
            Species   Standard chemical potentials (kJ/gmol) 
 ------------------------------------------------------------
-          H2O(L)      -306.685728
-             Cl-      -131.064694
+          H2O(L)      -306.685731
+             Cl-      -131.064702
               H+        0.0017225
-             Na+      -311.160167
-             OH-      -226.879848
+             Na+      -311.160186
+             OH-      -226.879862
 ------------------------------------------------------------
  Some DeltaSS values:               Delta(mu_0)
- NaCl(S): Na+ + Cl- -> NaCl(S):       9.594461 kJ/gmol 
-                                :       3.870358 (dimensionless) 
-                                :       1.680875 (dimensionless/ln10) 
+ NaCl(S): Na+ + Cl- -> NaCl(S):       9.594488 kJ/gmol 
+                                :       3.870369 (dimensionless) 
+                                :        1.68088 (dimensionless/ln10) 
             G0(NaCl(S)) =      -432.6304 (fixed)
             G0(Na+)     =      -311.1602
             G0(Cl-)     =      -131.0647
- OH-: H2O(L) - H+ -> OH-:        79.8076 kJ/gmol 
-                                :       32.19399 (dimensionless) 
+ OH-: H2O(L) - H+ -> OH-:       79.80759 kJ/gmol 
+                                :       32.19398 (dimensionless) 
                                 :       13.98167 (dimensionless/ln10) 
-            G0(OH-)    =      -226.8798
+            G0(OH-)    =      -226.8799
             G0(H+)     =      0.0017225
             G0(H2O(L)) =      -306.6857
 ------------------------------------------------------------

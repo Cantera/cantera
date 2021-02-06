@@ -1,7 +1,7 @@
 //! @file RxnRates.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/RxnRates.h"
 #include "cantera/base/Array.h"
@@ -90,20 +90,26 @@ Plog::Plog(const std::multimap<double, Arrhenius>& rates)
 
 void Plog::validate(const std::string& equation)
 {
+    fmt::memory_buffer err_reactions;
     double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
-    for (auto iter = pressures_.begin(); iter->first < 1000; iter++) {
+
+    for (auto iter = ++pressures_.begin(); iter->first < 1000; iter++) {
         update_C(&iter->first);
         for (size_t i=0; i < 6; i++) {
-            double k = updateRC(log(T[i]), 1.0/T[i]);
-            if (!(k >= 0)) {
-                // k is NaN. Increment the iterator so that the error
-                // message will correctly indicate that the problematic rate
-                // expression is at the higher of the adjacent pressures.
-                throw CanteraError("Plog::validate",
-                    "Invalid rate coefficient for reaction '{}'\nat P = {}, T = {}",
-                    equation, std::exp((++iter)->first), T[i]);
+            double k = 0;
+            for (size_t p = ilow1_; p < ilow2_; p++) {
+                k += rates_[p].updateRC(log(T[i]), 1.0/T[i]);
+            }
+            if (k < 0) {
+                format_to(err_reactions,
+                          "\nInvalid rate coefficient for reaction '{}'\n"
+                          "at P = {:.5g}, T = {:.1f}\n",
+                          equation, std::exp(iter->first), T[i]);
             }
         }
+    }
+    if (err_reactions.size()) {
+        throw CanteraError("Plog::validate", to_string(err_reactions));
     }
 }
 

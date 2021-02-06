@@ -7,7 +7,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_WATERPROPS_H
 #define CT_WATERPROPS_H
@@ -83,6 +83,11 @@ class PDSS_Water;
 //! The WaterProps class is used to house several approximation routines for
 //! properties of water.
 /*!
+ * This is a helper class for WaterSSTP and PDSS_Water and does not constitute
+ * a complete implementation of a thermo phase by itself (see \ref thermoprops
+ * and classes \link Cantera::WaterSSTP WaterSSTP\endlink and
+ * \link Cantera::PDSS_Water PDSS_Water\endlink).
+ *
  * The class is also a wrapper around the WaterPropsIAPWS class which provides
  * the calculations for the equation of state properties for water.
  *
@@ -235,40 +240,6 @@ public:
      * @param P  pressure in pascal
      */
     doublereal isothermalCompressibility_IAPWS(doublereal T, doublereal P);
-
-    //! Returns the viscosity of water at the current conditions
-    //! (kg/m/s)
-    /*!
-     * This function calculates the value of the viscosity of pure water at the
-     * current T and P.
-     *
-     * The formulas used are from the paper: J. V. Sengers, J. T. R. Watson,
-     * "Improved International Formulations for the Viscosity and Thermal
-     * Conductivity of Water Substance", J. Phys. Chem. Ref. Data, 15, 1291
-     * (1986).
-     *
-     * The formulation is accurate for all temperatures and pressures, for steam
-     * and for water, even near the critical point. Pressures above 500 MPa and
-     * temperature above 900 C are suspect.
-     */
-    doublereal viscosityWater() const;
-
-    //! Returns the thermal conductivity of water at the current conditions
-    //! (W/m/K)
-    /*!
-     * This function calculates the value of the thermal conductivity of
-     * water at the current T and P.
-     *
-     * The formulas used are from the paper: J. V. Sengers, J. T. R. Watson,
-     * "Improved International Formulations for the Viscosity and Thermal
-     * Conductivity of Water Substance", J. Phys. Chem. Ref. Data, 15, 1291
-     * (1986).
-     *
-     * The formulation is accurate for all temperatures and pressures, for steam
-     * and for water, even near the critical point. Pressures above 500 MPa and
-     * temperature above 900 C are suspect.
-     */
-    doublereal thermalConductivityWater() const;
 
 protected:
     //! Pointer to the WaterPropsIAPWS object

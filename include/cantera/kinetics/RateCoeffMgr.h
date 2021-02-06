@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_RATECOEFF_MGR_H
 #define CT_RATECOEFF_MGR_H
@@ -43,10 +43,10 @@ public:
 
     /**
      * Update the concentration-dependent parts of the rate coefficient, if any.
-     * Used by class SurfaceArrhenius to compute coverage-dependent *
+     * Used by class SurfaceArrhenius to compute coverage-dependent
      * modifications to the Arrhenius parameters. The array c should contain
      * whatever data the particular rate coefficient class needs to update its
-     * rates.  Note that this method does not return anything. To get the
+     * rates. Note that this method does not return anything. To get the
      * updated rates, method update must be called after the call to update_C.
      */
     void update_C(const doublereal* c) {

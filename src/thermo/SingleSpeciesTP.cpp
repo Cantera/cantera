@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/SingleSpeciesTP.h"
 #include "cantera/base/stringUtils.h"
@@ -187,7 +187,8 @@ void SingleSpeciesTP::setState_HP(doublereal h, doublereal p,
             return;
         }
     }
-    throw CanteraError("setState_HP","no convergence. dt = {}", dt);
+    throw CanteraError("SingleSpeciesTP::setState_HP",
+                       "no convergence. dt = {}", dt);
 }
 
 void SingleSpeciesTP::setState_UV(doublereal u, doublereal v,
@@ -206,8 +207,8 @@ void SingleSpeciesTP::setState_UV(doublereal u, doublereal v,
             return;
         }
     }
-    throw CanteraError("setState_UV", "no convergence. dt = {}\n"
-                       "u = {} v = {}\n", dt, u, v);
+    throw CanteraError("SingleSpeciesTP::setState_UV",
+                       "no convergence. dt = {}\nu = {} v = {}", dt, u, v);
 }
 
 void SingleSpeciesTP::setState_SP(doublereal s, doublereal p,
@@ -222,7 +223,8 @@ void SingleSpeciesTP::setState_SP(doublereal s, doublereal p,
             return;
         }
     }
-    throw CanteraError("setState_SP","no convergence. dt = {}", dt);
+    throw CanteraError("SingleSpeciesTP::setState_SP",
+                       "no convergence. dt = {}", dt);
 }
 
 void SingleSpeciesTP::setState_SV(doublereal s, doublereal v,
@@ -241,7 +243,8 @@ void SingleSpeciesTP::setState_SV(doublereal s, doublereal v,
             return;
         }
     }
-    throw CanteraError("setState_SV","no convergence. dt = {}", dt);
+    throw CanteraError("SingleSpeciesTP::setState_SV",
+                       "no convergence. dt = {}", dt);
 }
 
 bool SingleSpeciesTP::addSpecies(shared_ptr<Species> spec)
@@ -250,12 +253,7 @@ bool SingleSpeciesTP::addSpecies(shared_ptr<Species> spec)
         throw CanteraError("SingleSpeciesTP::addSpecies",
             "Stoichiometric substances may only contain one species.");
     }
-    bool added = ThermoPhase::addSpecies(spec);
-    if (added) {
-        double x = 1.0;
-        ThermoPhase::setMoleFractions(&x);
-    }
-    return added;
+    return ThermoPhase::addSpecies(spec);
 }
 
 void SingleSpeciesTP::_updateThermo() const

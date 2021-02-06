@@ -7,7 +7,7 @@ import math
 
 from cython.operator cimport dereference as deref, preincrement as inc
 
-from _cantera cimport *
+from ._cantera cimport *
 
 include "utils.pyx"
 include "constants.pyx"

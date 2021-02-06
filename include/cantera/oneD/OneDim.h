@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_ONEDIM_H
 #define CT_ONEDIM_H
@@ -66,7 +66,8 @@ public:
     //! Throws an exception if n is greater than nDomains()-1
     void checkDomainIndex(size_t n) const {
         if (n >= m_dom.size()) {
-            throw IndexError("checkDomainIndex", "domains", n, m_dom.size()-1);
+            throw IndexError("OneDim::checkDomainIndex", "domains", n,
+                             m_dom.size()-1);
         }
     }
 
@@ -75,13 +76,20 @@ public:
     //! which take an array pointer.
     void checkDomainArraySize(size_t nn) const {
         if (m_dom.size() > nn) {
-            throw ArraySizeError("checkDomainArraySize", nn, m_dom.size());
+            throw ArraySizeError("OneDim::checkDomainArraySize", nn,
+                                 m_dom.size());
         }
     }
 
     /// The index of the start of domain i in the solution vector.
     size_t start(size_t i) const {
-        return m_dom[i]->loc();
+        if (m_dom[i]->nComponents()) {
+            return m_dom[i]->loc();
+        } else {
+            // Special case for domains with no solution components to avoid
+            // spurious out-of-bounds memory access
+            return 0;
+        }
     }
 
     /// Total solution vector length;

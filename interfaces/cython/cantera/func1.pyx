@@ -1,5 +1,5 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
-# at http://www.cantera.org/license.txt for license and copyright information.
+# at https://cantera.org/license.txt for license and copyright information.
 
 import sys
 
@@ -37,7 +37,7 @@ cdef class Func1:
         >>> f2(3)
         10
 
-        >>> class Multiplier(object):
+        >>> class Multiplier:
         ...     def __init__(self, factor):
         ...         self.factor = factor
         ...     def __call__(self, t):
@@ -46,7 +46,7 @@ cdef class Func1:
         >>> f3(6)
         30.0
 
-    For simplicity, constant functions can be defined by passing the constant
+    For simplicity, constant functions can be defined by passing a constant
     value directly::
 
         >>> f4 = Func1(2.5)
@@ -54,26 +54,38 @@ cdef class Func1:
         2.5
 
     Note that all methods which accept `Func1` objects will also accept the
-    callable object and create the wrapper on their own, so it is generally
-    unnecessary to explicitly create a `Func1` object.
+    callable object and create the wrapper on their own, so it is often not
+    necessary to explicitly create a `Func1` object.
     """
-    def __cinit__(self, c):
+    def __cinit__(self, *args, **kwargs):
         self.exception = None
-        if hasattr(c, '__call__'):
-            self.callable = c
-        else:
-            try:
-                # calling float() converts numpy arrays of size 1 to scalars
-                k = float(c)
-            except TypeError:
-                if hasattr(c, '__len__') and len(c) == 1:
-                    # Handle lists or tuples with a single element
-                    k = float(c[0])
-                else:
-                    raise TypeError('Func1 must be constructed from a number or'
-                                    ' a callable object')
-            self.callable = lambda t: k
+        self.callable = None
 
+    def __init__(self, c):
+        if hasattr(c, '__call__'):
+            # callback function
+            self._set_callback(c)
+        else:
+            arr = np.array(c)
+            try:
+                if arr.ndim == 0:
+                    # handle constants or unsized numpy arrays
+                    k = float(c)
+                    self._set_callback(lambda t: k)
+                elif arr.size == 1:
+                    # handle lists, tuples or numpy arrays with a single element
+                    k = float(c[0])
+                    self._set_callback(lambda t: k)
+                else:
+                    raise TypeError
+
+            except TypeError:
+                raise TypeError(
+                    "'Func1' objects must be constructed from a number or "
+                    "a callable object") from None
+
+    cpdef void _set_callback(self, c) except *:
+        self.callable = c
         self.func = new CxxFunc1(func_callback, <void*>self)
 
     def __dealloc__(self):
@@ -83,7 +95,54 @@ cdef class Func1:
         return self.func.eval(t)
 
     def __reduce__(self):
-        raise NotImplementedError('Func1 object is not picklable')
+        msg = "'{}' objects are not picklable".format(type(self).__name__)
+        raise NotImplementedError(msg)
 
     def __copy__(self):
-        raise NotImplementedError('Func1 object is not copyable')
+        msg = "'{}' objects are not copyable".format(type(self).__name__)
+        raise NotImplementedError(msg)
+
+
+cdef class TabulatedFunction(Func1):
+    """
+    A `TabulatedFunction` object representing a tabulated function is defined by
+    sample points and corresponding function values. Inputs are specified by
+    two iterable objects containing sample point location and function values.
+    Between sample points, values are evaluated based on the optional argument
+    ``method``; options are ``'linear'`` (linear interpolation, default) or
+    ``'previous'`` (nearest previous value). Outside the sample interval, the
+    value at the closest end point is returned.
+
+    Examples for `TabulatedFunction` objects are::
+
+        >>> t1 = TabulatedFunction([0, 1, 2], [2, 1, 0])
+        >>> [t1(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
+        [2.0, 2.0, 1.5, 0.5, 0.0, 0.0]
+
+        >>> t2 = TabulatedFunction(np.array([0, 1, 2]), np.array([2, 1, 0]))
+        >>> [t2(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
+        [2.0, 2.0, 1.5, 0.5, 0.0, 0.0]
+
+    The optional ``method`` keyword argument changes the type of interpolation
+    from the ``'linear'`` default to ``'previous'``::
+
+        >>> t3 = TabulatedFunction([0, 1, 2], [2, 1, 0], method='previous')
+        >>> [t3(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
+        [2.0, 2.0, 2.0, 1.0, 0.0, 0.0]
+    """
+
+    def __init__(self, time, fval, method='linear'):
+        self._set_tables(time, fval, stringify(method))
+
+    cpdef void _set_tables(self, time, fval, string method) except *:
+        tt = np.asarray(time, dtype=np.double)
+        ff = np.asarray(fval, dtype=np.double)
+        if tt.size != ff.size:
+            raise ValueError("Sizes of arrays do not match "
+                             "({} vs {})".format(tt.size, ff.size))
+        elif tt.size == 0:
+            raise ValueError("Arrays must not be empty.")
+        cdef np.ndarray[np.double_t, ndim=1] tvec = tt
+        cdef np.ndarray[np.double_t, ndim=1] fvec = ff
+        self.func = <CxxFunc1*>(new CxxTabulated1(tt.size, &tvec[0], &fvec[0],
+                                                  method))

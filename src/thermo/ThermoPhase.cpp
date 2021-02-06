@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
@@ -27,7 +27,6 @@ namespace Cantera
 ThermoPhase::ThermoPhase() :
     m_speciesData(0),
     m_phi(0.0),
-    m_hasElementPotentials(false),
     m_chargeNeutralityNecessary(false),
     m_ssConvention(cSS_CONVENTION_TEMPERATURE),
     m_tlast(0.0)
@@ -60,6 +59,12 @@ int ThermoPhase::activityConvention() const
 int ThermoPhase::standardStateConvention() const
 {
     return m_ssConvention;
+}
+
+Units ThermoPhase::standardConcentrationUnits() const
+{
+    // kmol/m^3 for bulk phases, kmol/m^2 for surface phases, etc.
+    return Units(1.0, 0, -static_cast<double>(nDim()), 0, 0, 0, 1);
 }
 
 doublereal ThermoPhase::logStandardConc(size_t k) const
@@ -130,8 +135,15 @@ void ThermoPhase::setState_TPY(doublereal t, doublereal p, const std::string& y)
 
 void ThermoPhase::setState_TP(doublereal t, doublereal p)
 {
-    setTemperature(t);
-    setPressure(p);
+    double tsave = temperature();
+    double dsave = density();
+    try {
+        setTemperature(t);
+        setPressure(p);
+    } catch (CanteraError&) {
+        setState_TR(tsave, dsave);
+        throw;
+    }
 }
 
 void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const doublereal* x)
@@ -189,7 +201,117 @@ void ThermoPhase::setState_HP(double Htarget, double p, double rtol)
 
 void ThermoPhase::setState_UV(double u, double v, double rtol)
 {
+    assertCompressible("setState_UV");
     setState_HPorUV(u, v, rtol, true);
+}
+
+void ThermoPhase::setState(const AnyMap& input_state)
+{
+    AnyMap state = input_state;
+
+    // Remap allowable synonyms
+    if (state.hasKey("mass-fractions")) {
+        state["Y"] = state["mass-fractions"];
+        state.erase("mass-fractions");
+    }
+    if (state.hasKey("mole-fractions")) {
+        state["X"] = state["mole-fractions"];
+        state.erase("mole-fractions");
+    }
+    if (state.hasKey("temperature")) {
+        state["T"] = state["temperature"];
+    }
+    if (state.hasKey("pressure")) {
+        state["P"] = state["pressure"];
+    }
+    if (state.hasKey("enthalpy")) {
+        state["H"] = state["enthalpy"];
+    }
+    if (state.hasKey("int-energy")) {
+        state["U"] = state["int-energy"];
+    }
+    if (state.hasKey("internal-energy")) {
+        state["U"] = state["internal-energy"];
+    }
+    if (state.hasKey("specific-volume")) {
+        state["V"] = state["specific-volume"];
+    }
+    if (state.hasKey("entropy")) {
+        state["S"] = state["entropy"];
+    }
+    if (state.hasKey("density")) {
+        state["D"] = state["density"];
+    }
+    if (state.hasKey("vapor-fraction")) {
+        state["Q"] = state["vapor-fraction"];
+    }
+
+    // Set composition
+    if (state.hasKey("X")) {
+        if (state["X"].is<string>()) {
+            setMoleFractionsByName(state["X"].asString());
+        } else {
+            setMoleFractionsByName(state["X"].asMap<double>());
+        }
+        state.erase("X");
+    } else if (state.hasKey("Y")) {
+        if (state["Y"].is<string>()) {
+            setMassFractionsByName(state["Y"].asString());
+        } else {
+            setMassFractionsByName(state["Y"].asMap<double>());
+        }
+        state.erase("Y");
+    }
+    // set thermodynamic state using whichever property set is found
+    if (state.size() == 0) {
+        setState_TP(298.15, OneAtm);
+    } else if (state.hasKey("T") && state.hasKey("P")) {
+        double T = state.convert("T", "K");
+        double P = state.convert("P", "Pa");
+        if (state.hasKey("Q")) {
+            setState_TPQ(T, P, state["Q"].asDouble());
+        } else {
+            setState_TP(T, P);
+        }
+    } else if (state.hasKey("T") && state.hasKey("D")) {
+        setState_TR(state.convert("T", "K"), state.convert("D", "kg/m^3"));
+    } else if (state.hasKey("T") && state.hasKey("V")) {
+        setState_TV(state.convert("T", "K"), state.convert("V", "m^3/kg"));
+    } else if (state.hasKey("H") && state.hasKey("P")) {
+        setState_HP(state.convert("H", "J/kg"), state.convert("P", "Pa"));
+    } else if (state.hasKey("U") && state.hasKey("V")) {
+        setState_UV(state.convert("U", "J/kg"), state.convert("V", "m^3/kg"));
+    } else if (state.hasKey("S") && state.hasKey("P")) {
+        setState_SP(state.convert("S", "J/kg/K"), state.convert("P", "Pa"));
+    } else if (state.hasKey("S") && state.hasKey("V")) {
+        setState_SV(state.convert("S", "J/kg/K"), state.convert("V", "m^3/kg"));
+    } else if (state.hasKey("S") && state.hasKey("T")) {
+        setState_ST(state.convert("S", "J/kg/K"), state.convert("T", "K"));
+    } else if (state.hasKey("P") && state.hasKey("V")) {
+        setState_PV(state.convert("P", "Pa"), state.convert("V", "m^3/kg"));
+    } else if (state.hasKey("U") && state.hasKey("P")) {
+        setState_UP(state.convert("U", "J/kg"), state.convert("P", "Pa"));
+    } else if (state.hasKey("V") && state.hasKey("H")) {
+        setState_VH(state.convert("V", "m^3/kg"), state.convert("H", "J/kg"));
+    } else if (state.hasKey("T") && state.hasKey("H")) {
+        setState_TH(state.convert("T", "K"), state.convert("H", "J/kg"));
+    } else if (state.hasKey("S") && state.hasKey("H")) {
+        setState_SH(state.convert("S", "J/kg/K"), state.convert("H", "J/kg"));
+    } else if (state.hasKey("D") && state.hasKey("P")) {
+        setState_RP(state.convert("D", "kg/m^3"), state.convert("P", "Pa"));
+    } else if (state.hasKey("P") && state.hasKey("Q")) {
+        setState_Psat(state.convert("P", "Pa"), state["Q"].asDouble());
+    } else if (state.hasKey("T") && state.hasKey("Q")) {
+        setState_Tsat(state.convert("T", "K"), state["Q"].asDouble());
+    } else if (state.hasKey("T")) {
+        setState_TP(state.convert("T", "K"), OneAtm);
+    } else if (state.hasKey("P")) {
+        setState_TP(298.15, state.convert("P", "Pa"));
+    } else {
+        throw CanteraError("ThermoPhase::setState",
+            "'state' did not specify a recognized set of properties.\n"
+            "Keys provided were: {}", input_state.keys_str());
+    }
 }
 
 void ThermoPhase::setState_conditional_TP(doublereal t, doublereal p, bool set_p)
@@ -210,13 +332,13 @@ void ThermoPhase::setState_HPorUV(double Htarget, double p,
     if (doUV) {
         doublereal v = p;
         if (v < 1.0E-300) {
-            throw CanteraError("setState_HPorUV (UV)",
+            throw CanteraError("ThermoPhase::setState_HPorUV (UV)",
                                "Input specific volume is too small or negative. v = {}", v);
         }
         setDensity(1.0/v);
     } else {
         if (p < 1.0E-300) {
-            throw CanteraError("setState_HPorUV (HP)",
+            throw CanteraError("ThermoPhase::setState_HPorUV (HP)",
                                "Input pressure is too small or negative. p = {}", p);
         }
         setPressure(p);
@@ -385,9 +507,9 @@ void ThermoPhase::setState_HPorUV(double Htarget, double p,
             Tunstable);
     }
     if (doUV) {
-        throw CanteraError("setState_HPorUV (UV)", ErrString);
+        throw CanteraError("ThermoPhase::setState_HPorUV (UV)", ErrString);
     } else {
-        throw CanteraError("setState_HPorUV (HP)", ErrString);
+        throw CanteraError("ThermoPhase::setState_HPorUV (HP)", ErrString);
     }
 }
 
@@ -398,6 +520,7 @@ void ThermoPhase::setState_SP(double Starget, double p, double rtol)
 
 void ThermoPhase::setState_SV(double Starget, double v, double rtol)
 {
+    assertCompressible("setState_SV");
     setState_SPorSV(Starget, v, rtol, true);
 }
 
@@ -409,13 +532,13 @@ void ThermoPhase::setState_SPorSV(double Starget, double p,
     if (doSV) {
         v = p;
         if (v < 1.0E-300) {
-            throw CanteraError("setState_SPorSV (SV)",
+            throw CanteraError("ThermoPhase::setState_SPorSV (SV)",
                 "Input specific volume is too small or negative. v = {}", v);
         }
         setDensity(1.0/v);
     } else {
         if (p < 1.0E-300) {
-            throw CanteraError("setState_SPorSV (SP)",
+            throw CanteraError("ThermoPhase::setState_SPorSV (SP)",
                 "Input pressure is too small or negative. p = {}", p);
         }
         setPressure(p);
@@ -568,9 +691,362 @@ void ThermoPhase::setState_SPorSV(double Starget, double p,
                      Tunstable);
     }
     if (doSV) {
-        throw CanteraError("setState_SPorSV (SV)", ErrString);
+        throw CanteraError("ThermoPhase::setState_SPorSV (SV)", ErrString);
     } else {
-        throw CanteraError("setState_SPorSV (SP)", ErrString);
+        throw CanteraError("ThermoPhase::setState_SPorSV (SP)", ErrString);
+    }
+}
+
+double ThermoPhase::o2Required(const double* y) const
+{
+    // indices of fuel elements
+    size_t iC = elementIndex("C");
+    size_t iS = elementIndex("S");
+    size_t iH = elementIndex("H");
+
+    double o2req = 0.0;
+    double sum = 0.0;
+    for (size_t k = 0; k != m_kk; ++k) {
+        sum += y[k];
+        double x = y[k] / molecularWeights()[k];
+        if (iC != npos) {
+            o2req += x * nAtoms(k, iC);
+        }
+        if (iS != npos) {
+            o2req += x * nAtoms(k, iS);
+        }
+        if (iH != npos) {
+            o2req += x * 0.25 * nAtoms(k, iH);
+        }
+    }
+    if (sum == 0.0) {
+        throw CanteraError("ThermoPhase::o2Required",
+                           "No composition specified");
+    }
+    return o2req/sum;
+}
+
+double ThermoPhase::o2Present(const double* y) const
+{
+    size_t iO = elementIndex("O");
+    double o2pres = 0.0;
+    double sum = 0.0;
+    for (size_t k = 0; k != m_kk; ++k) {
+        sum += y[k];
+        o2pres += y[k] / molecularWeights()[k] * nAtoms(k, iO);
+    }
+    if (sum == 0.0) {
+        throw CanteraError("ThermoPhase::o2Present",
+                           "No composition specified");
+    }
+    return 0.5 * o2pres / sum;
+}
+
+double ThermoPhase::stoichAirFuelRatio(const compositionMap& fuelComp,
+                                          const compositionMap& oxComp,
+                                          ThermoBasis basis) const
+{
+    vector_fp fuel(getCompositionFromMap(fuelComp));
+    vector_fp ox(getCompositionFromMap(oxComp));
+    return stoichAirFuelRatio(fuel.data(), ox.data(), basis);
+}
+
+double ThermoPhase::stoichAirFuelRatio(const std::string& fuelComp,
+                                          const std::string& oxComp,
+                                          ThermoBasis basis) const
+{
+    return stoichAirFuelRatio(
+            parseCompString(fuelComp.find(":") != std::string::npos ? fuelComp : fuelComp+":1.0"),
+            parseCompString(oxComp.find(":") != std::string::npos ? oxComp : oxComp+":1.0"),
+            basis);
+}
+
+double ThermoPhase::stoichAirFuelRatio(const double* fuelComp,
+                                          const double* oxComp,
+                                          ThermoBasis basis) const
+{
+    vector_fp fuel, ox;
+    if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
+        fuel.resize(m_kk);
+        ox.resize(m_kk);
+        moleFractionsToMassFractions(fuelComp, fuel.data());
+        moleFractionsToMassFractions(oxComp, ox.data());
+        fuelComp = fuel.data();
+        oxComp = ox.data();
+    }
+
+    double o2_required_fuel = o2Required(fuelComp) - o2Present(fuelComp);
+    double o2_required_ox = o2Required(oxComp) - o2Present(oxComp);
+
+    if (o2_required_fuel < 0.0 || o2_required_ox > 0.0) {
+        throw CanteraError("ThermoPhase::stoichAirFuelRatio",
+                           "Fuel composition contains too much oxygen or "
+                           "oxidizer contains not enough oxygen. "
+                           "Fuel and oxidizer composition mixed up?");
+    }
+
+    if (o2_required_ox == 0.0) {
+        return std::numeric_limits<double>::infinity();
+    }
+
+    return o2_required_fuel / (-o2_required_ox);
+}
+
+void ThermoPhase::setEquivalenceRatio(double phi, const double* fuelComp,
+                                      const double* oxComp, ThermoBasis basis)
+{
+    if (phi < 0.0) {
+        throw CanteraError("ThermoPhase::setEquivalenceRatio",
+                           "Equivalence ratio phi must be >= 0");
+    }
+
+    double p = pressure();
+
+    vector_fp fuel, ox;
+    if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
+        fuel.resize(m_kk);
+        ox.resize(m_kk);
+        moleFractionsToMassFractions(fuelComp, fuel.data());
+        moleFractionsToMassFractions(oxComp, ox.data());
+        fuelComp = fuel.data();
+        oxComp = ox.data();
+    }
+
+    double AFR_st = stoichAirFuelRatio(fuelComp, oxComp, ThermoBasis::mass);
+
+    double sum_f = std::accumulate(fuelComp, fuelComp+m_kk, 0.0);
+    double sum_o = std::accumulate(oxComp, oxComp+m_kk, 0.0);
+
+    vector_fp y(m_kk);
+    for (size_t k = 0; k != m_kk; ++k) {
+        y[k] = phi * fuelComp[k]/sum_f + AFR_st * oxComp[k]/sum_o;
+    }
+
+    setMassFractions(y.data());
+    setPressure(p);
+}
+
+void ThermoPhase::setEquivalenceRatio(double phi, const std::string& fuelComp,
+                                        const std::string& oxComp, ThermoBasis basis)
+{
+    setEquivalenceRatio(phi,
+            parseCompString(fuelComp.find(":") != std::string::npos ? fuelComp : fuelComp+":1.0"),
+            parseCompString(oxComp.find(":") != std::string::npos ? oxComp : oxComp+":1.0"),
+            basis);
+}
+
+void ThermoPhase::setEquivalenceRatio(double phi, const compositionMap& fuelComp,
+                                        const compositionMap& oxComp, ThermoBasis basis)
+{
+    vector_fp fuel = getCompositionFromMap(fuelComp);
+    vector_fp ox = getCompositionFromMap(oxComp);
+    setEquivalenceRatio(phi, fuel.data(), ox.data(), basis);
+}
+
+double ThermoPhase::equivalenceRatio() const
+{
+    double o2_required = o2Required(massFractions());
+    double o2_present  = o2Present(massFractions());
+
+    if (o2_present == 0.0) { // pure fuel
+        return std::numeric_limits<double>::infinity();
+    }
+
+    return o2_required / o2_present;
+}
+
+double ThermoPhase::equivalenceRatio(const compositionMap& fuelComp,
+                                        const compositionMap& oxComp,
+                                        ThermoBasis basis) const
+{
+    vector_fp fuel(getCompositionFromMap(fuelComp));
+    vector_fp ox(getCompositionFromMap(oxComp));
+    return equivalenceRatio(fuel.data(), ox.data(), basis);
+}
+
+double ThermoPhase::equivalenceRatio(const std::string& fuelComp,
+                                        const std::string& oxComp,
+                                        ThermoBasis basis) const
+{
+    return equivalenceRatio(
+        parseCompString(fuelComp.find(":") != std::string::npos ? fuelComp : fuelComp+":1.0"),
+        parseCompString(oxComp.find(":") != std::string::npos ? oxComp : oxComp+":1.0"),
+        basis);
+}
+
+double ThermoPhase::equivalenceRatio(const double* fuelComp,
+                                        const double* oxComp,
+                                        ThermoBasis basis) const
+{
+    double Z = mixtureFraction(fuelComp, oxComp, basis);
+
+    if (Z == 0.0) {
+        return 0.0; // pure oxidizer
+    }
+
+    if (Z == 1.0) {
+        return std::numeric_limits<double>::infinity(); // pure fuel
+    }
+
+    vector_fp fuel, ox;
+    if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
+        fuel.resize(m_kk);
+        ox.resize(m_kk);
+        moleFractionsToMassFractions(fuelComp, fuel.data());
+        moleFractionsToMassFractions(oxComp, ox.data());
+        fuelComp = fuel.data();
+        oxComp = ox.data();
+    }
+
+    double AFR_st = stoichAirFuelRatio(fuelComp, oxComp, ThermoBasis::mass);
+
+    return std::max(Z / (1.0 - Z) * AFR_st, 0.0);
+}
+
+void ThermoPhase::setMixtureFraction(double mixFrac, const compositionMap& fuelComp,
+                                     const compositionMap& oxComp, ThermoBasis basis)
+{
+    vector_fp fuel(getCompositionFromMap(fuelComp));
+    vector_fp ox(getCompositionFromMap(oxComp));
+    setMixtureFraction(mixFrac, fuel.data(), ox.data(), basis);
+}
+
+void ThermoPhase::setMixtureFraction(double mixFrac, const std::string& fuelComp,
+                                     const std::string& oxComp, ThermoBasis basis)
+{
+    setMixtureFraction(mixFrac,
+        parseCompString(fuelComp.find(":") != std::string::npos ? fuelComp : fuelComp+":1.0"),
+        parseCompString(oxComp.find(":") != std::string::npos ? oxComp : oxComp+":1.0"),
+        basis);
+}
+
+void ThermoPhase::setMixtureFraction(double mixFrac, const double* fuelComp,
+                                       const double* oxComp, ThermoBasis basis)
+{
+    if (mixFrac < 0.0 || mixFrac > 1.0) {
+        throw CanteraError("ThermoPhase::setMixtureFraction",
+                           "Mixture fraction must be between 0 and 1");
+    }
+
+    vector_fp fuel, ox;
+    if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
+        fuel.resize(m_kk);
+        ox.resize(m_kk);
+        moleFractionsToMassFractions(fuelComp, fuel.data());
+        moleFractionsToMassFractions(oxComp, ox.data());
+        fuelComp = fuel.data();
+        oxComp = ox.data();
+    }
+
+    double sum_yf = std::accumulate(fuelComp, fuelComp+m_kk, 0.0);
+    double sum_yo = std::accumulate(oxComp, oxComp+m_kk, 0.0);
+
+    if (sum_yf == 0.0 || sum_yo == 0.0) {
+        throw CanteraError("ThermoPhase::setMixtureFraction",
+                           "No fuel and/or oxidizer composition specified");
+    }
+
+    double p = pressure();
+
+    vector_fp y(m_kk);
+
+    for (size_t k = 0; k != m_kk; ++k) {
+        y[k] = mixFrac * fuelComp[k]/sum_yf + (1.0-mixFrac) * oxComp[k]/sum_yo;
+    }
+
+    setMassFractions_NoNorm(y.data());
+    setPressure(p);
+}
+
+double ThermoPhase::mixtureFraction(const compositionMap& fuelComp,
+                                       const compositionMap& oxComp,
+                                       ThermoBasis basis,
+                                       const std::string& element) const
+{
+    vector_fp fuel(getCompositionFromMap(fuelComp));
+    vector_fp ox(getCompositionFromMap(oxComp));
+    return mixtureFraction(fuel.data(), ox.data(), basis, element);
+}
+
+double ThermoPhase::mixtureFraction(const std::string& fuelComp,
+                                       const std::string& oxComp,
+                                       ThermoBasis basis,
+                                       const std::string& element) const
+{
+    return mixtureFraction(
+            parseCompString(fuelComp.find(":") != std::string::npos ? fuelComp : fuelComp+":1.0"),
+            parseCompString(oxComp.find(":") != std::string::npos ? oxComp : oxComp+":1.0"),
+            basis, element);
+}
+
+double ThermoPhase::mixtureFraction(const double* fuelComp,
+                                       const double* oxComp,
+                                       ThermoBasis basis,
+                                       const std::string& element) const
+{
+    vector_fp fuel, ox;
+    if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
+        fuel.resize(m_kk);
+        ox.resize(m_kk);
+        moleFractionsToMassFractions(fuelComp, fuel.data());
+        moleFractionsToMassFractions(oxComp, ox.data());
+        fuelComp = fuel.data();
+        oxComp = ox.data();
+    }
+
+    if (element == "Bilger") // compute the mixture fraction based on the Bilger mixture fraction
+    {
+        double o2_required_fuel = o2Required(fuelComp) - o2Present(fuelComp);
+        double o2_required_ox   = o2Required(oxComp) - o2Present(oxComp);
+        double o2_required_mix  = o2Required(massFractions()) - o2Present(massFractions());
+
+        if (o2_required_fuel < 0.0 || o2_required_ox > 0.0) {
+            throw CanteraError("ThermoPhase::mixtureFraction",
+                               "Fuel composition contains too much oxygen or "
+                               "oxidizer contains not enough oxygen. "
+                               "Fuel and oxidizer composition mixed up?");
+        }
+
+        double denominator = o2_required_fuel - o2_required_ox;
+
+        if (denominator == 0.0) {
+            throw CanteraError("ThermoPhase::mixtureFraction",
+                               "Fuel and oxidizer have the same composition");
+        }
+
+        double Z = (o2_required_mix - o2_required_ox) / denominator;
+
+        return std::min(std::max(Z, 0.0), 1.0);
+    } else {
+        // compute the mixture fraction from a single element
+        double sum_yf = std::accumulate(fuelComp, fuelComp+m_kk, 0.0);
+        double sum_yo = std::accumulate(oxComp, oxComp+m_kk, 0.0);
+
+        if (sum_yf == 0.0 || sum_yo == 0.0) {
+            throw CanteraError("ThermoPhase::mixtureFraction",
+                               "No fuel and/or oxidizer composition specified");
+        }
+
+        auto elementalFraction = [this](size_t m, const double* y) {
+            double Z_m = 0.0;
+            for (size_t k = 0; k != m_kk; ++k) {
+                Z_m += y[k] / molecularWeight(k) * nAtoms(k, m);
+            }
+            return Z_m;
+        };
+
+        size_t m = elementIndex(element);
+        double Z_m_fuel = elementalFraction(m, fuelComp)/sum_yf;
+        double Z_m_ox   = elementalFraction(m, oxComp)/sum_yo;
+        double Z_m_mix  = elementalFraction(m, massFractions());
+
+        if (Z_m_fuel == Z_m_ox) {
+            throw CanteraError("ThermoPhase::mixtureFraction",
+                               "Fuel and oxidizer have the same composition for element {}",
+                               element);
+        }
+        double Z = (Z_m_mix - Z_m_ox) / (Z_m_fuel - Z_m_ox);
+        return std::min(std::max(Z, 0.0), 1.0);
     }
 }
 
@@ -579,17 +1055,35 @@ MultiSpeciesThermo& ThermoPhase::speciesThermo(int k)
     return m_spthermo;
 }
 
+const MultiSpeciesThermo& ThermoPhase::speciesThermo(int k) const
+{
+    return m_spthermo;
+}
+
+
 void ThermoPhase::initThermoFile(const std::string& inputFile,
                                  const std::string& id)
 {
-    XML_Node* fxml = get_XML_File(inputFile);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("ThermoPhase::initThermoFile",
-                           "ERROR: Can not find phase named {} in file"
-                           " named {}", id, inputFile);
+    size_t dot = inputFile.find_last_of(".");
+    string extension;
+    if (dot != npos) {
+        extension = inputFile.substr(dot+1);
     }
-    importPhase(*fxml_phase, this);
+
+    if (extension == "yml" || extension == "yaml") {
+        AnyMap root = AnyMap::fromYamlFile(inputFile);
+        auto& phase = root["phases"].getMapWhere("name", id);
+        setupPhase(*this, phase, root);
+    } else {
+        XML_Node* fxml = get_XML_File(inputFile);
+        XML_Node* fxml_phase = findXMLPhase(fxml, id);
+        if (!fxml_phase) {
+            throw CanteraError("ThermoPhase::initThermoFile",
+                               "ERROR: Can not find phase named {} in file"
+                               " named {}", id, inputFile);
+        }
+        importPhase(*fxml_phase, this);
+    }
 }
 
 void ThermoPhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
@@ -605,6 +1099,35 @@ void ThermoPhase::initThermo()
     if (!m_spthermo.ready(m_kk)) {
         throw CanteraError("ThermoPhase::initThermo()",
                            "Missing species thermo data");
+    }
+}
+
+void ThermoPhase::setState_TPQ(double T, double P, double Q)
+{
+    if (T > critTemperature()) {
+        if (P > critPressure() || Q == 1) {
+            setState_TP(T, P);
+            return;
+        } else {
+            throw CanteraError("ThermoPhase::setState_TPQ",
+                "Temperature ({}), pressure ({}) and vapor fraction ({}) "
+                "are inconsistent, above the critical temperature.",
+                T, P, Q);
+        }
+    }
+
+    double Psat = satPressure(T);
+    if (std::abs(Psat / P - 1) < 1e-6) {
+        setState_Tsat(T, Q);
+    } else if ((Q == 0 && P >= Psat) || (Q == 1 && P <= Psat)) {
+        setState_TP(T, P);
+    } else {
+        throw CanteraError("ThermoPhase::setState_TPQ",
+            "Temperature ({}), pressure ({}) and vapor fraction ({}) "
+            "are inconsistent.\nPsat at this T: {}\n"
+            "Consider specifying the state using two fully independent "
+            "properties (e.g. temperature and density)",
+            T, P, Q, Psat);
     }
 }
 
@@ -655,6 +1178,21 @@ const std::vector<const XML_Node*> & ThermoPhase::speciesData() const
     return m_speciesData;
 }
 
+void ThermoPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
+{
+    m_input = phaseNode;
+}
+
+const AnyMap& ThermoPhase::input() const
+{
+    return m_input;
+}
+
+AnyMap& ThermoPhase::input()
+{
+    return m_input;
+}
+
 void ThermoPhase::setStateFromXML(const XML_Node& state)
 {
     string comp = getChildValue(state,"moleFractions");
@@ -702,11 +1240,6 @@ void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
                 throw CanteraError("ThermoPhase::equilibrate",
                     "ChemEquil solver failed. Return code: {}", ret);
             }
-            m_lambdaRRT.resize(nElements());
-            for (size_t m = 0; m < nElements(); m++) {
-                m_lambdaRRT[m] = E.elementPotentials()[m] / RT();
-            }
-            m_hasElementPotentials = true;
             debuglog("ChemEquil solver succeeded\n", log_level);
             return;
         } catch (std::exception& err) {
@@ -733,31 +1266,6 @@ void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
         throw CanteraError("ThermoPhase::equilibrate",
                            "Invalid solver specified: '{}'", solver);
     }
-}
-
-void ThermoPhase::setElementPotentials(const vector_fp& lambda)
-{
-    warn_deprecated("ThermoPhase::setElementPotentials",
-        "To be removed after Cantera 2.4");
-    size_t mm = nElements();
-    if (lambda.size() < mm) {
-        throw CanteraError("setElementPotentials", "lambda too small");
-    }
-    if (!m_hasElementPotentials) {
-        m_lambdaRRT.resize(mm);
-    }
-    scale(lambda.begin(), lambda.end(), m_lambdaRRT.begin(), 1.0/RT());
-    m_hasElementPotentials = true;
-}
-
-bool ThermoPhase::getElementPotentials(doublereal* lambda) const
-{
-    warn_deprecated("ThermoPhase::getElementPotentials",
-        "To be removed after Cantera 2.4");
-    if (m_hasElementPotentials) {
-        scale(m_lambdaRRT.begin(), m_lambdaRRT.end(), lambda, RT());
-    }
-    return m_hasElementPotentials;
 }
 
 void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN)
@@ -827,39 +1335,64 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
 std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
 {
     fmt::memory_buffer b;
+    // This is the width of the first column of names in the report.
+    int name_width = 18;
+
+    string blank_leader = fmt::format("{:{}}", "", name_width);
+
+    string one_property = "{:>{}}   {:<.5g} {}\n";
+
+    string two_prop_header = "{}   {:^15}   {:^15}\n";
+    string kg_kmol_header = fmt::format(
+        two_prop_header, blank_leader, "1 kg", "1 kmol"
+    );
+    string Y_X_header = fmt::format(
+        two_prop_header, blank_leader, "mass frac. Y", "mole frac. X"
+    );
+    string two_prop_sep = fmt::format(
+        "{}   {:-^15}   {:-^15}\n", blank_leader, "", ""
+    );
+    string two_property = "{:>{}}   {:15.5g}   {:15.5g}  {}\n";
+
+    string three_prop_header = fmt::format(
+        "{}   {:^15}   {:^15}   {:^15}\n", blank_leader, "mass frac. Y",
+        "mole frac. X", "chem. pot. / RT"
+    );
+    string three_prop_sep = fmt::format(
+        "{}   {:-^15}   {:-^15}   {:-^15}\n", blank_leader, "", "", ""
+    );
+    string three_property = "{:>{}}   {:15.5g}   {:15.5g}   {:15.5g}\n";
+
     try {
         if (name() != "") {
             format_to(b, "\n  {}:\n", name());
         }
         format_to(b, "\n");
-        format_to(b, "       temperature    {:12.6g}  K\n", temperature());
-        format_to(b, "          pressure    {:12.6g}  Pa\n", pressure());
-        format_to(b, "           density    {:12.6g}  kg/m^3\n", density());
-        format_to(b, "  mean mol. weight    {:12.6g}  amu\n", meanMolecularWeight());
+        format_to(b, one_property, "temperature", name_width, temperature(), "K");
+        format_to(b, one_property, "pressure", name_width, pressure(), "Pa");
+        format_to(b, one_property, "density", name_width, density(), "kg/m^3");
+        format_to(b, one_property, "mean mol. weight", name_width, meanMolecularWeight(), "kg/kmol");
 
-        doublereal phi = electricPotential();
+        double phi = electricPotential();
         if (phi != 0.0) {
-            format_to(b, "         potential    {:12.6g}  V\n", phi);
+            format_to(b, one_property, "potential", name_width, phi, "V");
         }
+
+        format_to(b, "{:>{}}   {}\n", "phase of matter", name_width, phaseOfMatter());
+
         if (show_thermo) {
             format_to(b, "\n");
-            format_to(b, "                          1 kg            1 kmol\n");
-            format_to(b, "                       -----------      ------------\n");
-            format_to(b, "          enthalpy    {:12.5g}     {:12.4g}     J\n",
-                    enthalpy_mass(), enthalpy_mole());
-            format_to(b, "   internal energy    {:12.5g}     {:12.4g}     J\n",
-                    intEnergy_mass(), intEnergy_mole());
-            format_to(b, "           entropy    {:12.5g}     {:12.4g}     J/K\n",
-                    entropy_mass(), entropy_mole());
-            format_to(b, "    Gibbs function    {:12.5g}     {:12.4g}     J\n",
-                    gibbs_mass(), gibbs_mole());
-            format_to(b, " heat capacity c_p    {:12.5g}     {:12.4g}     J/K\n",
-                    cp_mass(), cp_mole());
+            format_to(b, kg_kmol_header);
+            format_to(b, two_prop_sep);
+            format_to(b, two_property, "enthalpy", name_width, enthalpy_mass(), enthalpy_mole(), "J");
+            format_to(b, two_property, "internal energy", name_width, intEnergy_mass(), intEnergy_mole(), "J");
+            format_to(b, two_property, "entropy", name_width, entropy_mass(), entropy_mole(), "J/K");
+            format_to(b, two_property, "Gibbs function", name_width, gibbs_mass(), gibbs_mole(), "J");
+            format_to(b, two_property, "heat capacity c_p", name_width, cp_mass(), cp_mole(), "J/K");
             try {
-                format_to(b, " heat capacity c_v    {:12.5g}     {:12.4g}     J/K\n",
-                        cv_mass(), cv_mole());
+                format_to(b, two_property, "heat capacity c_v", name_width, cv_mass(), cv_mole(), "J/K");
             } catch (NotImplementedError&) {
-                format_to(b, " heat capacity c_v    <not implemented>       \n");
+                format_to(b, "{:>{}}   <not implemented>       \n", "heat capacity c_v", name_width);
             }
         }
 
@@ -870,22 +1403,18 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
         getMassFractions(&y[0]);
         getChemPotentials(&mu[0]);
         int nMinor = 0;
-        doublereal xMinor = 0.0;
-        doublereal yMinor = 0.0;
+        double xMinor = 0.0;
+        double yMinor = 0.0;
         format_to(b, "\n");
         if (show_thermo) {
-            format_to(b, "                           X     "
-                    "            Y          Chem. Pot. / RT\n");
-            format_to(b, "                     -------------     "
-                    "------------     ------------\n");
+            format_to(b, three_prop_header);
+            format_to(b, three_prop_sep);
             for (size_t k = 0; k < m_kk; k++) {
                 if (abs(x[k]) >= threshold) {
                     if (abs(x[k]) > SmallNumber) {
-                        format_to(b, "{:>18s}   {:12.6g}     {:12.6g}     {:12.6g}\n",
-                                speciesName(k), x[k], y[k], mu[k]/RT());
+                        format_to(b, three_property, speciesName(k), name_width, y[k], x[k], mu[k]/RT());
                     } else {
-                        format_to(b, "{:>18s}   {:12.6g}     {:12.6g}\n",
-                                speciesName(k), x[k], y[k]);
+                        format_to(b, two_property, speciesName(k), name_width, y[k], x[k], "");
                     }
                 } else {
                     nMinor++;
@@ -894,12 +1423,11 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
                 }
             }
         } else {
-            format_to(b, "                           X                 Y\n");
-            format_to(b, "                     -------------     ------------\n");
+            format_to(b, Y_X_header);
+            format_to(b, two_prop_sep);
             for (size_t k = 0; k < m_kk; k++) {
                 if (abs(x[k]) >= threshold) {
-                    format_to(b, "{:>18s}   {:12.6g}     {:12.6g}\n",
-                            speciesName(k), x[k], y[k]);
+                    format_to(b, two_property, speciesName(k), name_width, y[k], x[k], "");
                 } else {
                     nMinor++;
                     xMinor += x[k];
@@ -908,8 +1436,8 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
             }
         }
         if (nMinor) {
-            format_to(b, "     [{:+5d} minor]   {:12.6g}     {:12.6g}\n",
-                    nMinor, xMinor, yMinor);
+            string minor = fmt::format("[{:+5d} minor]", nMinor);
+            format_to(b, two_property, minor, name_width, yMinor, xMinor, "");
         }
     } catch (CanteraError& err) {
         return to_string(b) + err.what();

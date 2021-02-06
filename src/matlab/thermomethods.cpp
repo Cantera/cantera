@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/clib/ct.h"
 #include "ctmatutils.h"
@@ -119,12 +119,24 @@ static void thermoget(int nlhs, mxArray* plhs[],
     int n = getInt(prhs[1]);
     int job = getInt(prhs[2]);
 
-    if (job < 30) {
+    if (job == 0) {
+        checkNArgs(5, nrhs);
+        std::string fileName = getString(prhs[3]);
+        std::string phaseName = getString(prhs[4]);
+        if (phaseName == "-") {
+            phaseName = "";
+        }
+        vv = (double) thermo_newFromFile(fileName.c_str(), phaseName.c_str());
+        if (vv == DERR) {
+            reportError();
+        }
+        plhs[0] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
+        double* h = mxGetPr(plhs[0]);
+        *h = vv;
+        return;
+    } else if (job < 30) {
         bool ok = true;
         switch (job) {
-        case 0:
-            vv = (double) thermo_newFromXML(n);
-            break;
         case 2:
             vv = thermo_enthalpy_mole(n);
             break;

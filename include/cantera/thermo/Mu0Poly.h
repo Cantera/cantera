@@ -7,7 +7,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_MU0POLY_H
 #define CT_MU0POLY_H
@@ -73,11 +73,10 @@ class XML_Node;
 class Mu0Poly: public SpeciesThermoInterpType
 {
 public:
-    //! Normal constructor
+    Mu0Poly();
+
+    //! Constructor with all input data
     /*!
-     * In the constructor, we calculate and store the piecewise linear
-     * approximation to the thermodynamic functions.
-     *
      * @param tlow    Minimum temperature
      * @param thigh   Maximum temperature
      * @param pref    reference pressure (Pa).
@@ -98,6 +97,18 @@ public:
      */
     Mu0Poly(double tlow, double thigh, double pref, const double* coeffs);
 
+    //! Set parameters for \f$ \mu^o(T) \f$
+    /*!
+     * Calculates and stores the piecewise linear approximation to the
+     * thermodynamic functions.
+     *
+     *  @param h0    Enthalpy at the reference temperature of 298.15 K [J/kmol]
+     *  @param T_mu  Map with temperature [K] as the keys and the Gibbs free
+     *               energy [J/kmol] as the values. Must contain one point at
+     *               298.15 K.
+     */
+    void setParameters(double h0, const std::map<double, double>& T_mu);
+
     virtual int reportType() const {
         return MU0_INTERP;
     }
@@ -116,6 +127,9 @@ public:
                                       doublereal* cp_R,
                                       doublereal* h_RT,
                                       doublereal* s_R) const;
+
+    virtual size_t nCoeffs() const;
+
     virtual void reportParameters(size_t& n, int& type,
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,
@@ -145,25 +159,6 @@ protected:
 
     //! Heat capacity at the points
     vector_fp m_cp0_R_int;
-
-private:
-    //! process the coefficients
-    /*!
-     * In the constructor, we calculate and store the piecewise linear
-     * approximation to the thermodynamic functions.
-     *
-     * @param coeffs coefficients. These are defined as follows:
-     *   - coeffs[0] = number of points (integer)
-     *   - coeffs[1] = \f$ h^o(298.15 K) \f$ (J/kmol)
-     *   - coeffs[2] = \f$ T_1 \f$  (Kelvin)
-     *   - coeffs[3] = \f$ \mu^o(T_1) \f$ (J/kmol)
-     *   - coeffs[4] = \f$ T_2 \f$  (Kelvin)
-     *   - coeffs[5] = \f$ \mu^o(T_2) \f$ (J/kmol)
-     *   - coeffs[6] = \f$ T_3 \f$  (Kelvin)
-     *   - coeffs[7] = \f$ \mu^o(T_3) \f$ (J/kmol)
-     *   - ........
-     */
-    void processCoeffs(const doublereal* coeffs);
 };
 
 //! Install a Mu0 polynomial thermodynamic reference state
@@ -175,6 +170,9 @@ private:
  * @param Mu0Node Pointer to the XML element containing the Mu0 information.
  *
  * @ingroup spthermo
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 Mu0Poly* newMu0ThermoFromXML(const XML_Node& Mu0Node);
 }

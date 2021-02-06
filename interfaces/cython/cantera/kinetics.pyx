@@ -1,5 +1,5 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
-# at http://www.cantera.org/license.txt for license and copyright information.
+# at https://cantera.org/license.txt for license and copyright information.
 
 # NOTE: These cdef functions cannot be members of Kinetics because they would
 # cause "layout conflicts" when creating derived classes with multiple bases,
@@ -25,6 +25,13 @@ cdef class Kinetics(_SolutionBase):
     of progress, species production rates, and other quantities pertaining to
     a reaction mechanism.
     """
+
+    property kinetics_model:
+        """
+        Return type of kinetics.
+        """
+        def __get__(self):
+            return pystr(self.kinetics.kineticsType())
 
     property n_total_species:
         """
@@ -68,13 +75,29 @@ cdef class Kinetics(_SolutionBase):
         argument is unused.
         """
         cdef int k
-        if isinstance(species, (str, unicode, bytes)):
+        if isinstance(species, (str, bytes)):
             return self.kinetics.kineticsSpeciesIndex(stringify(species))
         else:
             k = species
             self._check_kinetics_species_index(k)
             self._check_phase_index(k)
             return self.kinetics.kineticsSpeciesIndex(k, phase)
+
+    def kinetics_species_name(self, k):
+        """
+        Name of the species with index *k* in the arrays returned by methods
+        of class `Kinetics`.
+        """
+        return pystr(self.kinetics.kineticsSpeciesName(k))
+
+    property kinetics_species_names:
+        """
+        A list of all species names, corresponding to the arrays returned by
+        methods of class `Kinetics`.
+        """
+        def __get__(self):
+            return [self.kinetics_species_name(k)
+                    for k in range(self.n_total_species)]
 
     def reaction(self, int i_reaction):
         """
@@ -178,7 +201,7 @@ cdef class Kinetics(_SolutionBase):
         reaction *i_reaction*.
         """
         cdef int k
-        if isinstance(k_spec, (str, unicode, bytes)):
+        if isinstance(k_spec, (str, bytes)):
             k = self.kinetics_species_index(k_spec)
         else:
             k = k_spec
@@ -193,7 +216,7 @@ cdef class Kinetics(_SolutionBase):
         reaction *i_reaction*.
         """
         cdef int k
-        if isinstance(k_spec, (str, unicode, bytes)):
+        if isinstance(k_spec, (str, bytes)):
             k = self.kinetics_species_index(k_spec)
         else:
             k = k_spec
@@ -342,30 +365,59 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_reaction_array(self, kin_getDeltaSSEntropy)
 
+    property heat_release_rate:
+        """
+        Get the total volumetric heat release rate [W/m^3].
+        """
+        def __get__(self):
+            return - np.sum(self.partial_molar_enthalpies *
+                            self.net_production_rates, 0)
+
+    property heat_production_rates:
+        """
+        Get the volumetric heat production rates [W/m^3] on a per-reaction
+        basis. The sum over all reactions results in the total volumetric heat
+        release rate.
+        Example: C. K. Law: Combustion Physics (2006), Fig. 7.8.6
+
+        >>> gas.heat_production_rates[1]  # heat production rate of the 2nd reaction
+        """
+        def __get__(self):
+            return - self.net_rates_of_progress * self.delta_enthalpy
+
 
 cdef class InterfaceKinetics(Kinetics):
     """
     A kinetics manager for heterogeneous reaction mechanisms. The
     reactions are assumed to occur at an interface between bulk phases.
     """
-    def __init__(self, infile='', phaseid='', phases=(), *args, **kwargs):
-        super().__init__(infile, phaseid, phases, *args, **kwargs)
+    def __init__(self, infile='', name='', adjacent=(), *args, **kwargs):
+        super().__init__(infile, name, adjacent, *args, **kwargs)
         if pystr(self.kinetics.kineticsType()) not in ("Surf", "Edge"):
             raise TypeError("Underlying Kinetics class is not of the correct type.")
 
         self._phase_indices = {}
-        for phase in [self] + list(phases):
+        for phase in [self] + list(adjacent):
             i = self.kinetics.phaseIndex(stringify(phase.name))
             self._phase_indices[phase] = i
             self._phase_indices[phase.name] = i
             self._phase_indices[i] = i
 
-    def advance_coverages(self, double dt):
+    def advance_coverages(self, double dt, double rtol=1e-7, double atol=1e-14,
+                          double max_step_size=0, int max_steps=20000,
+                          int max_error_test_failures=7):
         """
         This method carries out a time-accurate advancement of the surface
         coverages for a specified amount of time.
         """
-        (<CxxInterfaceKinetics*>self.kinetics).advanceCoverages(dt)
+        (<CxxInterfaceKinetics*>self.kinetics).advanceCoverages(
+            dt, rtol, atol, max_step_size, max_steps, max_error_test_failures)
+
+    def advance_coverages_to_steady_state(self):
+        """
+        This method advances the surface coverages to steady state.
+        """
+        (<CxxInterfaceKinetics*>self.kinetics).solvePseudoSteadyStateProblem()
 
     def phase_index(self, phase):
         """

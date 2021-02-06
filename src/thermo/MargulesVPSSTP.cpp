@@ -7,7 +7,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/MargulesVPSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -200,6 +200,26 @@ void MargulesVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 void MargulesVPSSTP::initThermo()
 {
     initLengths();
+    if (m_input.hasKey("interactions")) {
+        for (auto& item : m_input["interactions"].asVector<AnyMap>()) {
+            auto& species = item["species"].asVector<string>(2);
+            vector_fp h(2), s(2), vh(2), vs(2);
+            if (item.hasKey("excess-enthalpy")) {
+                h = item.convertVector("excess-enthalpy", "J/kmol", 2);
+            }
+            if (item.hasKey("excess-entropy")) {
+                s = item.convertVector("excess-entropy", "J/kmol/K", 2);
+            }
+            if (item.hasKey("excess-volume-enthalpy")) {
+                vh = item.convertVector("excess-volume-enthalpy", "m^3/kmol/K", 2);
+            }
+            if (item.hasKey("excess-volume-entropy")) {
+                vs = item.convertVector("excess-volume-entropy", "m^3/kmol/K", 2);
+            }
+            addBinaryInteraction(species[0], species[1],
+                h[0], h[1], s[0], s[1], vh[0], vh[1], vs[0], vs[1]);
+        }
+    }
     GibbsExcessVPSSTP::initThermo();
 }
 

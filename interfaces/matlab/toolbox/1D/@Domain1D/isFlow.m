@@ -8,7 +8,9 @@ function a = isFlow(d)
 %
 
 t = domainType(d);
-if t == 50
+
+% See Domain1D.h for definitions of constants
+if t < 100
     a = 1;
 else
     a = 0;

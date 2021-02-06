@@ -7,7 +7,7 @@
 help surfreactor
 
 t = 870.0;
-gas = Solution('ptcombust.cti','gas');
+gas = Solution('ptcombust.yaml','gas');
 
 % set the initial conditions
 set(gas,'T',t,'P',oneatm,'X','CH4:0.01, O2:0.21, N2:0.78');
@@ -15,17 +15,18 @@ set(gas,'T',t,'P',oneatm,'X','CH4:0.01, O2:0.21, N2:0.78');
 % The surface reaction mechanism describes catalytic combustion of
 % methane on platinum, and is from Deutschman et al., 26th
 % Symp. (Intl.) on Combustion,1996, pp. 1747-1754
-surf = importInterface('ptcombust.cti','Pt_surf', gas);
+surf = importInterface('ptcombust.yaml','Pt_surf', gas);
 setTemperature(surf, t);
 
 nsp = nSpecies(gas);
+nSurfSp = nSpecies(surf);
 
 % create a reactor, and insert the gas
 r = IdealGasReactor(gas);
 setInitialVolume(r, 1.0e-6)
 
 % create a reservoir to represent the environment
-a = IdealGasMix('air.cti');
+a = Solution('air.yaml','air','None');
 set(a,'T',t,'P',oneatm);
 env = Reservoir(a);
 
@@ -50,13 +51,18 @@ setExpansionRateCoeff(w, 1.0);
 network = ReactorNet({r});
 % setTolerances(network, 1.0e-8, 1.0e-12);
 
+nSteps = 100;
+p0 = pressure(r);
+names = {'CH4','CO','CO2','H2O'};
+x = zeros([nSteps 4]);
+tim = zeros(nSteps);
+temp = zeros(nSteps);
+pres = zeros(nSteps);
+cov = zeros([nSteps nSurfSp]);
 t = 0;
 dt = 0.1;
 t0 = cputime;
-p0 = pressure(r);
-names = {'CH4','CO','CO2','H2O'};
-x = zeros([100 4]);
-for n = 1:100
+for n = 1:nSteps
   t = t + dt;
   advance(network, t);
   tim(n) = t;

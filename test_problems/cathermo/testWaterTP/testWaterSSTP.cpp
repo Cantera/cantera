@@ -1,3 +1,4 @@
+#include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/WaterSSTP.h"
 #include <iostream>
 
@@ -20,7 +21,8 @@ int main()
 #endif
     double pres;
     try {
-        WaterSSTP* w = new WaterSSTP("waterTPphase.xml", "water");
+        ThermoPhase* w = newPhase("liquidvapor.yaml", "liquid-water-IAPWS95");
+        (dynamic_cast<WaterSSTP*>(w))->_allowGasPhase(true);
 
         /*
          * Print out the triple point conditions

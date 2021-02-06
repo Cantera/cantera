@@ -1,0 +1,81 @@
+description: |-
+  A collection of potassium, oxygen, and hydrogen phases. Includes
+  charged species in addition to neutral species.
+
+generator: cti2yaml
+cantera-version: 2.5.0a3
+date: Wed, 11 Dec 2019 16:59:04 -0500
+input-files: [KOH.cti]
+
+units: {length: cm, quantity: mol, activation-energy: cal/mol}
+
+phases:
+- name: KOH_plasma
+  thermo: ideal-gas
+  elements: [K, O, H, E]
+  species:
+  - nasa_gas.yaml/species: all
+  skip-undeclared-elements: true
+  state:
+    T: 300.0
+    P: 1.01325e+05
+- name: K_solid
+  thermo: fixed-stoichiometry
+  elements: [K]
+  species:
+  - nasa_condensed.yaml/species: [K(cr)]
+  density: 0.86 g/cm^3
+- name: K_liquid
+  thermo: fixed-stoichiometry
+  elements: [K]
+  species:
+  - nasa_condensed.yaml/species: [K(L)]
+  density: 1.0 g/cm^3
+- name: KOH_a
+  thermo: fixed-stoichiometry
+  elements: [K, O, H]
+  species:
+  - nasa_condensed.yaml/species: [KOH(a)]
+  density: 2.04 g/cm^3
+- name: KOH_b
+  thermo: fixed-stoichiometry
+  elements: [K, O, H]
+  species:
+  - nasa_condensed.yaml/species: [KOH(b)]
+  density: 1.0 g/cm^3
+- name: KOH_liquid
+  thermo: fixed-stoichiometry
+  elements: [K, O, H]
+  species:
+  - nasa_condensed.yaml/species: [KOH(L)]
+  density: 1.0 g/cm^3
+- name: K2O2_solid
+  thermo: fixed-stoichiometry
+  elements: [K, O]
+  species:
+  - nasa_condensed.yaml/species: [K2O2(s)]
+  density: 1.0 g/cm^3
+- name: K2O_solid
+  thermo: fixed-stoichiometry
+  elements: [K, O]
+  species:
+  - nasa_condensed.yaml/species: [K2O(s)]
+  density: 1.0 g/cm^3
+- name: KO2_solid
+  thermo: fixed-stoichiometry
+  elements: [K, O]
+  species:
+  - nasa_condensed.yaml/species: [KO2(s)]
+  density: 1.0 g/cm^3
+- name: ice
+  thermo: fixed-stoichiometry
+  elements: [H, O]
+  species:
+  - nasa_condensed.yaml/species: [H2O(s)]
+  density: 0.917 g/cm^3
+- name: liquid_water
+  thermo: fixed-stoichiometry
+  elements: [H, O]
+  species:
+  - nasa_condensed.yaml/species: [H2O(L)]
+  density: 1.0 g/cm^3

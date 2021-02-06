@@ -5,6 +5,8 @@ soot precursors.
 Demonstrates the use of a user-supplied function for the mass flow rate through
 a MassFlowController, and the use of the SolutionArray class to store results
 during reactor network integration and use these results to generate plots.
+
+Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
 import numpy as np
@@ -12,7 +14,8 @@ import matplotlib.pyplot as plt
 import cantera as ct
 
 # Use a reduced n-dodecane mechanism with PAH formation pathways
-gas = ct.Solution('nDodecane_Reitz.cti', 'nDodecane_IG')
+gas = ct.Solution('nDodecane_Reitz.yaml', 'nDodecane_IG')
+gas.case_sensitive_species_names = True
 
 # Create a Reservoir for the fuel inlet, set to pure dodecane
 gas.TPX = 300, 20*ct.one_atm, 'c12h26:1.0'
@@ -25,13 +28,15 @@ gas.equilibrate('TP')
 r = ct.IdealGasReactor(gas)
 r.volume = 0.001  # 1 liter
 
-# Create an inlet for the fuel, supplied as a Gaussian pulse
+
 def fuel_mdot(t):
+    """Create an inlet for the fuel, supplied as a Gaussian pulse"""
     total = 3.0e-3  # mass of fuel [kg]
     width = 0.5  # width of the pulse [s]
     t0 = 2.0  # time of fuel pulse peak [s]
     amplitude = total / (width * np.sqrt(2*np.pi))
     return amplitude * np.exp(-(t-t0)**2 / (2*width**2))
+
 
 mfc = ct.MassFlowController(inlet, r, mdot=fuel_mdot)
 
@@ -55,31 +60,40 @@ while tnow < tfinal:
         tprev = tnow
         states.append(r.thermo.state, t=tnow)
 
-# nice names for species
-labels = {
+# nice names for species, including PAH species that can be considered
+# as precursors to soot formation
+species_aliases = {
+    'o2': 'O$_2$',
+    'h2o': 'H$_2$O',
+    'co': 'CO',
+    'co2': 'CO$_2$',
+    'h2': 'H$_2$',
+    'ch4': 'CH$_4$'
+}
+for name, alias in species_aliases.items():
+    gas.add_species_alias(name, alias)
+
+pah_aliases = {
     'A1c2h': 'phenylacetylene',
     'A1c2h3': 'styrene',
     'A1': 'benzene',
     'A2': 'naphthalene',
     'A2r5': 'acenaphthylene',
     'A3': 'phenanthrene',
-    'A4': 'pyrene',
-    'o2': 'O$_2$',
-    'h2o': 'H$_2$O',
-    'co2': 'CO$_2$',
-    'h2': 'H$_2$',
-    'ch4': 'CH$_4$'
+    'A4': 'pyrene'
 }
+for name, alias in pah_aliases.items():
+    gas.add_species_alias(name, alias)
 
-# Plot the concentrations of some species of interest, including PAH species
-# which can be considered as precursors to soot formation.
-f, ax = plt.subplots(1,2)
+# Plot the concentrations of species of interest
+f, ax = plt.subplots(1, 2)
 
-for s in ['o2', 'h2o', 'co2', 'CO', 'h2', 'ch4']:
-    ax[0].plot(states.t, states(s).X, label=labels.get(s, s))
+for s in species_aliases.values():
+    ax[0].plot(states.t, states(s).X, label=s)
 
-for s in ['A1c2h', 'A1c2h3', 'A2r5', 'A1', 'A2', 'A3', 'A4']:
-    ax[1].plot(states.t, states(s).X, label=labels[s])
+for s in pah_aliases.values():
+    ax[1].plot(states.t, states(s).X, label=s)
+
 for a in ax:
     a.legend(loc='best')
     a.set_xlabel('time [s]')

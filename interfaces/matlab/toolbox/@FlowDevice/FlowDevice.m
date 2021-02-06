@@ -13,21 +13,29 @@ function x = FlowDevice(typ)
 % See also: :mat:func:`MassFlowController`, :mat:func:`Valve`
 %
 % :param typ:
-%     Type of :mat:func:`FlowDevice` to be created. ``typ=1`` for
-%     :mat:func:`MassFlowController` and ``typ=3`` for
+%     Type of :mat:func:`FlowDevice` to be created. ``typ='MassFlowController'``
+%     for :mat:func:`MassFlowController`,  ``typ='PressureController'`` for
+%     :mat:func:`PressureController` and ``typ='Valve'`` for
 %     :mat:func:`Valve`
 % :return:
 %     Instance of class :mat:func:`FlowDevice`
 %
 
 if nargin == 0
-    typ = 1;
+    typ = 'MassFlowController';
 end
-x.index = flowdevicemethods(0, typ);
+
+if isa(typ, 'double')
+    warning('Definition via integer type to be deprecated after Cantera 2.5')
+    device_types = {'MassFlowController', 'PressureController', 'Valve'};
+    typ = device_types(typ);
+end
+
+x.type = char(typ);
+x.index = flowdevicemethods(0, x.type);
 if x.index < 0
     error(geterr);
 end
-x.type = typ;
 x.upstream = -1;
 x.downstream = -1;
 x = class(x, 'FlowDevice');

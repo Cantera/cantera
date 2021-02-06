@@ -4,10 +4,12 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CXX_INTERFACE
 #define CXX_INTERFACE
+
+#pragma message("warning: Interface.h is deprecated and will be removed after Cantera 2.5.")
 
 #include "thermo.h"
 #include "kinetics.h"
@@ -22,6 +24,9 @@ namespace Cantera
  * and InterfaceKinetics. It therefore represents a surface phase, and also acts
  * as the kinetics manager to manage reactions occurring on the surface,
  * possibly involving species from other phases.
+ *
+ * @deprecated To be removed after Cantera 2.5.
+ *             Replaceable with Solution and/or SurfPhase/InterfaceKinetics.
  */
 class Interface :
     public SurfPhase,
@@ -42,6 +47,10 @@ public:
               std::vector<ThermoPhase*> otherPhases) :
         m_ok(false),
         m_r(0) {
+        warn_deprecated("class Interface",
+            "To be removed after Cantera 2.5. "
+            "Replaceable with Solution and/or SurfPhase/InterfaceKinetics.");
+
         m_r = get_XML_File(infile);
         if (id == "-") {
             id = "";
@@ -79,11 +88,15 @@ protected:
 //! Import an instance of class Interface from a specification in an input file.
 /*!
  *  This is the preferred method to create an Interface instance.
+ *
+ * @deprecated To be removed after Cantera 2.5. Replaceable with Solution.
  */
 inline Interface* importInterface(const std::string& infile,
                                   const std::string& id,
                                   std::vector<ThermoPhase*> phases)
 {
+    warn_deprecated("importInterface", "To be removed after Cantera 2.5. "
+                    "Replaceable with Solution.");
     return new Interface(infile, id, phases);
 }
 

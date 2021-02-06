@@ -4,7 +4,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/transport/TransportBase.h"
 
@@ -34,14 +34,14 @@ void Transport::setNDim(const int ndim)
 void Transport::checkSpeciesIndex(size_t k) const
 {
     if (k >= m_nsp) {
-        throw IndexError("checkSpeciesIndex", "species", k, m_nsp-1);
+        throw IndexError("Transport::checkSpeciesIndex", "species", k, m_nsp-1);
     }
 }
 
 void Transport::checkSpeciesArraySize(size_t kk) const
 {
     if (m_nsp > kk) {
-        throw ArraySizeError("checkSpeciesArraySize", kk, m_nsp);
+        throw ArraySizeError("Transport::checkSpeciesArraySize", kk, m_nsp);
     }
 }
 

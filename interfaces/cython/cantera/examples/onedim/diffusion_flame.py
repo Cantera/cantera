@@ -1,9 +1,10 @@
 """
 An opposed-flow ethane/air diffusion flame
+
+Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
 import cantera as ct
-import numpy as np
 import matplotlib.pyplot as plt
 
 # Input parameters
@@ -16,13 +17,13 @@ mdot_f = 0.24  # kg/m^2/s
 comp_o = 'O2:0.21, N2:0.78, AR:0.01'  # air composition
 comp_f = 'C2H6:1'  # fuel composition
 
-width = 0.02 # Distance between inlets is 2 cm
+width = 0.02  # Distance between inlets is 2 cm
 
 loglevel = 1  # amount of diagnostic output (0 to 5)
 
 # Create the gas object used to evaluate all thermodynamic, kinetic, and
 # transport properties.
-gas = ct.Solution('gri30.xml', 'gri30_mix')
+gas = ct.Solution('gri30.yaml')
 gas.TP = gas.T, p
 
 # Create an object representing the counterflow flame configuration,
@@ -40,7 +41,7 @@ f.oxidizer_inlet.X = comp_o
 f.oxidizer_inlet.T = tin_o
 
 # Set the boundary emissivities
-f.set_boundary_emissivities(0.0, 0.0)
+f.boundary_emissivities = 0.0, 0.0
 # Turn radiation off
 f.radiation_enabled = False
 
@@ -49,10 +50,14 @@ f.set_refine_criteria(ratio=4, slope=0.2, curve=0.3, prune=0.04)
 # Solve the problem
 f.solve(loglevel, auto=True)
 f.show_solution()
-f.save('c2h6_diffusion.xml')
+try:
+    # save to HDF container file if h5py is installed
+    f.write_hdf('diffusion_flame.h5', mode='w')
+except ImportError:
+    f.save('diffusion_flame.xml')
 
 # write the velocity, temperature, and mole fractions to a CSV file
-f.write_csv('c2h6_diffusion.csv', quiet=False)
+f.write_csv('diffusion_flame.csv', quiet=False)
 
 f.show_stats(0)
 
@@ -72,4 +77,4 @@ f.show_solution()
 plt.plot(f.flame.grid, f.T, label='Temperature with radiation')
 plt.legend()
 plt.legend(loc=2)
-plt.savefig('./c2h6_diffusion.pdf')
+plt.savefig('./diffusion_flame.pdf')

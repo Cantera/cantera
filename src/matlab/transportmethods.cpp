@@ -1,5 +1,5 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include <fstream>
 
@@ -23,6 +23,19 @@ void transportmethods(int nlhs, mxArray* plhs[],
         int loglevel = getInt(prhs[4]);
         int m = -2;
         m = (int) trans_new(model, n, loglevel);
+        if (m < 0) {
+            reportError();
+        }
+
+        // Create matrix for the return argument.
+        plhs[0] = mxCreateDoubleMatrix(1,1, mxREAL);
+        double* x = mxGetPr(plhs[0]);
+        *x = m;
+        return;
+    } else if (job == -2) {
+        int loglevel = getInt(prhs[3]);
+        int m = -2;
+        m = (int) trans_newDefault(n, loglevel);
         if (m < 0) {
             reportError();
         }

@@ -13,7 +13,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -126,7 +126,7 @@ void IdealMolalSoln::calcDensity()
 {
     getPartialMolarVolumes(m_tmpV.data());
     doublereal dd = meanMolecularWeight() / mean_X(m_tmpV);
-    Phase::setDensity(dd);
+    Phase::assignDensity(dd);
 }
 
 doublereal IdealMolalSoln::isothermalCompressibility() const
@@ -141,21 +141,37 @@ doublereal IdealMolalSoln::thermalExpansionCoeff() const
 
 void IdealMolalSoln::setDensity(const doublereal rho)
 {
+    warn_deprecated("IdealMolalSoln::setDensity",
+        "Overloaded function to be removed after Cantera 2.5. "
+        "Error will be thrown by Phase::setDensity instead");
     if (rho != density()) {
-        throw CanteraError("Idea;MolalSoln::setDensity",
+        throw CanteraError("IdealMolalSoln::setDensity",
                            "Density is not an independent variable");
     }
 }
 
 void IdealMolalSoln::setMolarDensity(const doublereal conc)
 {
+    warn_deprecated("IdealMolalSoln::setMolarDensity",
+        "Overloaded function to be removed after Cantera 2.5. "
+        "Error will be thrown by Phase::setMolarDensity instead");
     if (conc != Phase::molarDensity()) {
         throw CanteraError("IdealMolalSoln::setMolarDensity",
-                           "molarDensity/denisty is not an independent variable");
+                           "molarDensity/density is not an independent variable");
     }
 }
 
 // ------- Activities and Activity Concentrations
+
+Units IdealMolalSoln::standardConcentrationUnits() const
+{
+    if (m_formGC == 0) {
+        return Units(1.0); // dimensionless
+    } else {
+        // kmol/m^3 for bulk phases
+        return Units(1.0, 0, -static_cast<double>(nDim()), 0, 0, 0, 1);
+    }
+}
 
 void IdealMolalSoln::getActivityConcentrations(doublereal* c) const
 {
@@ -176,18 +192,18 @@ void IdealMolalSoln::getActivityConcentrations(doublereal* c) const
 
 doublereal IdealMolalSoln::standardConcentration(size_t k) const
 {
-    double c0 = 1.0;
     switch (m_formGC) {
     case 0:
-        break;
+        return 1.0;
     case 1:
-        return c0 = 1.0 /m_speciesMolarVolume[0];
-        break;
+        return 1.0 / m_speciesMolarVolume[k];
     case 2:
-        c0 = 1.0 / m_speciesMolarVolume[0];
-        break;
+        return 1.0 / m_speciesMolarVolume[0];
+    default:
+        throw CanteraError("IdealMolalSoln::standardConcentration",
+                       "m_formGC is set to an incorrect value. \
+                       Allowed values are 0, 1, and 2");
     }
-    return c0;
 }
 
 void IdealMolalSoln::getActivities(doublereal* ac) const
@@ -349,13 +365,13 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     MolalityVPSSTP::initThermoXML(phaseNode, id_);
 
     if (id_.size() > 0 && phaseNode.id() != id_) {
-        throw CanteraError("IdealMolalSoln::initThermo",
+        throw CanteraError("IdealMolalSoln::initThermoXML",
                            "phasenode and Id are incompatible");
     }
 
     // Find the Thermo XML node
     if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("IdealMolalSoln::initThermo",
+        throw CanteraError("IdealMolalSoln::initThermoXML",
                            "no thermo XML node");
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
@@ -406,6 +422,33 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 void IdealMolalSoln::initThermo()
 {
     MolalityVPSSTP::initThermo();
+
+    if (m_input.hasKey("standard-concentration-basis")) {
+        setStandardConcentrationModel(m_input["standard-concentration-basis"].asString());
+    }
+    if (m_input.hasKey("cutoff")) {
+        auto& cutoff = m_input["cutoff"].as<AnyMap>();
+        setCutoffModel(cutoff.getString("model", "none"));
+        if (cutoff.hasKey("gamma_o")) {
+            IMS_gamma_o_min_ = cutoff["gamma_o"].asDouble();
+        }
+        if (cutoff.hasKey("gamma_k")) {
+            IMS_gamma_k_min_ = cutoff["gamma_k"].asDouble();
+        }
+        if (cutoff.hasKey("X_o")) {
+            IMS_X_o_cutoff_ = cutoff["X_o"].asDouble();
+        }
+        if (cutoff.hasKey("c_0")) {
+            IMS_cCut_ = cutoff["c_0"].asDouble();
+        }
+        if (cutoff.hasKey("slope_f")) {
+            IMS_slopefCut_ = cutoff["slope_f"].asDouble();
+        }
+        if (cutoff.hasKey("slope_g")) {
+            IMS_slopegCut_ = cutoff["slope_g"].asDouble();
+        }
+    }
+
     for (size_t k = 0; k < nSpecies(); k++) {
         m_speciesMolarVolume[k] = providePDSS(k)->molarVolume();
     }
@@ -419,12 +462,14 @@ void IdealMolalSoln::setStandardConcentrationModel(const std::string& model)
 {
     if (caseInsensitiveEquals(model, "unity")) {
         m_formGC = 0;
-    } else if (caseInsensitiveEquals(model, "molar_volume")) {
+    } else if (caseInsensitiveEquals(model, "species-molar-volume")
+               || caseInsensitiveEquals(model, "molar_volume")) {
         m_formGC = 1;
-    } else if (caseInsensitiveEquals(model, "solvent_volume")) {
+    } else if (caseInsensitiveEquals(model, "solvent-molar-volume")
+               || caseInsensitiveEquals(model, "solvent_volume")) {
         m_formGC = 2;
     } else {
-        throw CanteraError("IdealSolnGasVPSS::setStandardConcentrationModel",
+        throw CanteraError("IdealMolalSoln::setStandardConcentrationModel",
                            "Unknown standard concentration model '{}'", model);
     }
 }
@@ -566,8 +611,8 @@ void IdealMolalSoln::calcIMSCutoffParams_()
         }
     }
     if (!converged) {
-        throw CanteraError(" IdealMolalSoln::calcCutoffParams_()",
-                           " failed to converge on the f polynomial");
+        throw CanteraError("IdealMolalSoln::calcCutoffParams_",
+                           "failed to converge on the f polynomial");
     }
     converged = false;
     double f_0 = IMS_afCut_ + IMS_efCut_;
@@ -589,8 +634,8 @@ void IdealMolalSoln::calcIMSCutoffParams_()
         }
     }
     if (!converged) {
-        throw CanteraError(" IdealMolalSoln::calcCutoffParams_()",
-                           " failed to converge on the g polynomial");
+        throw CanteraError("IdealMolalSoln::calcCutoffParams_",
+                           "failed to converge on the g polynomial");
     }
 }
 

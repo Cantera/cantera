@@ -1,0 +1,30 @@
+ELEMENTS
+H  C   AR
+END
+
+SPECIES
+H
+AR
+R1A R1B P1 R6
+END
+
+REACTIONS
+
+R1A+R1B=>H+P1              1e12  0.0   20000.0
+  DUPLICATE
+
+H+P1=>R1A+R1B             -5e13 -2.0 5000.0
+
+R1A+R1B=>H+P1              -1e11  0.0   20000.0
+  DUPLICATE
+
+R1A+R1B+M=>R6+M              2e11  0.0   20000.0
+  DUPLICATE
+
+R1A+R1B+M=>R6+M              -1e11  0.0   20000.0
+  DUPLICATE
+
+R1A+R1A(+M)<=>H+P1(+M)             -2e11  0.0   20000.0
+  LOW/ -6.020E+14     .000    3000.00/
+
+END

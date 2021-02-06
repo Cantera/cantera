@@ -1,6 +1,7 @@
 /*!
       A simple Fortran 77 interface
 
+
  This file is an example of how to write an interface to use Cantera
  in Fortran 77 programs. The basic idea is to store pointers to
  Cantera objects in global storage, and then create Fortran-callable
@@ -8,7 +9,7 @@
 
  This particular example defines functions that return thermodynamic
  properties, transport properties, and kinetic rates for reacting
- ideal gas mixtures. Only a single pointer to an IdealGasMix object is
+ ideal gas mixtures. Only a single pointer to an IdealGasPhase object is
  stored, so only one reaction mechanism may be used at any one time in
  the application.  Of course, it is a simple modification to store
  multiple objects if it is desired to use multiple reaction
@@ -26,25 +27,36 @@
  */
 
 // add any other Cantera header files you need here
-#include "cantera/IdealGasMix.h"
+#include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/kinetics/GasKinetics.h"
+#include "cantera/transport.h"
+
+#include <iostream>
 
 using namespace Cantera;
 using std::string;
 
-// store a pointer to an IdealGasMix object
-static IdealGasMix* _gas = 0;
-
+// store a pointer to a Solution object
 // provides access to the pointers for functions in other libraries
-IdealGasMix* _gasptr()
+static shared_ptr<Solution> _sol = NULL;
+
+// store a pointer to the thermophase object
+static shared_ptr<ThermoPhase> _gas = NULL;
+shared_ptr<ThermoPhase> _gasptr()
 {
     return _gas;
 }
 
-#include "cantera/transport.h"
+// store a pointer to the kinetics object
+static shared_ptr<Kinetics> _kin = NULL;
+shared_ptr<Kinetics> _kinptr()
+{
+    return _kin;
+}
 
 // store a pointer to a transport manager
-static Transport* _trans = 0;
-Transport* _transptr()
+static shared_ptr<Transport> _trans = NULL;
+shared_ptr<Transport> _transptr()
 {
     return _trans;
 }
@@ -68,10 +80,10 @@ extern "C" {
 #endif
 
     /**
-     * Read in a reaction mechanism file and create an IdealGasMix
-     * object. The file may be in Cantera input format or in CTML. (If
+     * Read in a reaction mechanism file and create a Solution
+     * object. The file may be in Cantera input format or in YAML. (If
      * you have a file in Chemkin-compatible format, use utility
-     * program ck2cti first to convert it into Cantera format.)
+     * program ck2yaml first to convert it into Cantera format.)
      */
     void newidealgasmix_(char* file, char* id, char* transport,
                          ftnlen lenfile, ftnlen lenid, ftnlen lentr)
@@ -81,16 +93,12 @@ extern "C" {
             string fin = string(file, lenfile);
             string fth = string(id, lenid);
             trmodel = string(transport, lentr);
-            delete _gas;
-            _gas = new IdealGasMix(fin, fth);
+            _sol = newSolution(fin, fth, trmodel);
+            _gas = _sol->thermo();
+            _kin = _sol->kinetics();
+            _trans = _sol->transport();
         } catch (CanteraError& err) {
             handleError(err);
-        }
-        try {
-            delete _trans;
-            _trans = newTransportMgr(trmodel,_gas,0);
-        } catch (CanteraError& err) {
-            _trans = newTransportMgr("",_gas,0);
         }
     }
 
@@ -109,7 +117,7 @@ extern "C" {
     /// integer function nReactions()
     integer nreactions_()
     {
-        return _gas->nReactions();
+        return _kin->nReactions();
     }
 
     void getspeciesname_(integer* k, char* name, ftnlen n)
@@ -125,7 +133,7 @@ extern "C" {
     //-------------- setting the state ----------------------------
 
     /// subroutine setState_TPX(T, P, X)
-    void setstate_tpx_(doublereal* T, doublereal* P, doublereal* X)
+    void setstate_tpx_(double* T, double* P, double* X)
     {
         try {
             _gas->setState_TPX(*T, *P, X);
@@ -135,7 +143,7 @@ extern "C" {
     }
 
     /// subroutine setState_TPX_String(T, P, X)
-    void setstate_tpx_string_(doublereal* T, doublereal* P,
+    void setstate_tpx_string_(double* T, double* P,
                               char* X, ftnlen lenx)
     {
         try {
@@ -145,7 +153,7 @@ extern "C" {
         }
     }
 
-    void setstate_try_(doublereal* T, doublereal* rho, doublereal* Y)
+    void setstate_try_(double* T, double* rho, double* Y)
     {
         try {
             _gas->setState_TRY(*T, *rho, Y);
@@ -154,7 +162,7 @@ extern "C" {
         }
     }
 
-    void setstate_tpy_(doublereal* T, doublereal* p, doublereal* Y)
+    void setstate_tpy_(double* T, double* p, double* Y)
     {
         try {
             _gas->setState_TPY(*T, *p, Y);
@@ -163,7 +171,7 @@ extern "C" {
         }
     }
 
-    void setstate_sp_(doublereal* s, doublereal* p)
+    void setstate_sp_(double* s, double* p)
     {
         try {
             _gas->setState_SP(*s, *p);
@@ -175,95 +183,95 @@ extern "C" {
     //-------------- thermodynamic properties ----------------------
 
     /// Temperature (K)
-    doublereal temperature_()
+    double temperature_()
     {
         return _gas->temperature();
     }
 
     /// Pressure (Pa)
-    doublereal pressure_()
+    double pressure_()
     {
         return _gas->pressure();
     }
 
     /// Density (kg/m^3)
-    doublereal density_()
+    double density_()
     {
         return _gas->density();
     }
 
     /// Mean molar mass (kg/kmol).
-    doublereal meanmolarmass_()
+    double meanmolarmass_()
     {
         return _gas->meanMolecularWeight();
     }
 
     /// Molar enthalpy (J/kmol)
-    doublereal enthalpy_mole_()
+    double enthalpy_mole_()
     {
         return _gas->enthalpy_mole();
     }
 
     /// Molar internal energy (J/kmol)
-    doublereal intenergy_mole_()
+    double intenergy_mole_()
     {
         return _gas->intEnergy_mole();
     }
 
     /// Molar entropy (J/kmol-K)
-    doublereal entropy_mole_()
+    double entropy_mole_()
     {
         return _gas->entropy_mole();
     }
 
     /// Molar heat capacity at constant P (J/kmol-K)
-    doublereal cp_mole_()
+    double cp_mole_()
     {
         return _gas->cp_mole();
     }
 
     /// Molar Gibbs function (J/kmol)
-    doublereal gibbs_mole_()
+    double gibbs_mole_()
     {
         return _gas->gibbs_mole();
     }
 
-    doublereal enthalpy_mass_()
+    double enthalpy_mass_()
     {
         return _gas->enthalpy_mass();
     }
 
-    doublereal intenergy_mass_()
+    double intenergy_mass_()
     {
         return _gas->intEnergy_mass();
     }
 
-    doublereal entropy_mass_()
+    double entropy_mass_()
     {
         return _gas->entropy_mass();
     }
 
-    doublereal cp_mass_()
+    double cp_mass_()
     {
         return _gas->cp_mass();
     }
 
-    doublereal cv_mass_()
+    double cv_mass_()
     {
         return _gas->cv_mass();
     }
 
-    doublereal gibbs_mass_()
+    double gibbs_mass_()
     {
         return _gas->gibbs_mass();
     }
 
-    void gotmolefractions_(doublereal* x)
+    void gotmolefractions_(double* x)
     {
         _gas->getMoleFractions(x);
     }
 
-    void gotmassfractions_(doublereal* y)
+    void gotmassfractions_(double* y)
     {
         _gas->getMassFractions(y);
     }
@@ -288,40 +296,40 @@ extern "C" {
     {
         int irxn = *i - 1;
         std::fill(eqn, eqn + n, ' ');
-        string e = _gas->reactionString(irxn);
+        string e = _kin->reactionString(irxn);
         int ns = e.size();
         unsigned int nmx = (ns > n ? n : ns);
         copy(e.begin(), e.begin()+nmx, eqn);
     }
 
-    void getnetproductionrates_(doublereal* wdot)
+    void getnetproductionrates_(double* wdot)
     {
-        _gas->getNetProductionRates(wdot);
+        _kin->getNetProductionRates(wdot);
     }
 
-    void getcreationrates_(doublereal* cdot)
+    void getcreationrates_(double* cdot)
     {
-        _gas->getCreationRates(cdot);
+        _kin->getCreationRates(cdot);
     }
 
-    void getdestructionrates_(doublereal* ddot)
+    void getdestructionrates_(double* ddot)
     {
-        _gas->getDestructionRates(ddot);
+        _kin->getDestructionRates(ddot);
     }
 
-    void getnetratesofprogress_(doublereal* q)
+    void getnetratesofprogress_(double* q)
     {
-        _gas->getNetRatesOfProgress(q);
+        _kin->getNetRatesOfProgress(q);
     }
 
-    void getfwdratesofprogress_(doublereal* q)
+    void getfwdratesofprogress_(double* q)
     {
-        _gas->getFwdRatesOfProgress(q);
+        _kin->getFwdRatesOfProgress(q);
     }
 
-    void getrevratesofprogress_(doublereal* q)
+    void getrevratesofprogress_(double* q)
     {
-        _gas->getRevRatesOfProgress(q);
+        _kin->getRevRatesOfProgress(q);
     }
 
     //-------------------- transport properties --------------------

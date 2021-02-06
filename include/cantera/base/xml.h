@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_XML_H
 #define CT_XML_H
@@ -23,6 +23,9 @@ namespace Cantera
 //!  Class XML_Reader reads an XML file into an XML_Node object.
 /*!
  *   Class XML_Reader is designed for internal use.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 class XML_Reader
 {
@@ -93,6 +96,9 @@ public:
 /*!
  * There are routines for adding to the tree, querying and searching the tree,
  * and for writing the tree out to an output file.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 class XML_Node
 {
@@ -109,13 +115,12 @@ public:
     XML_Node& operator=(const XML_Node& right);
     virtual ~XML_Node();
 
-    //! Add a child node to the current node containing a comment
+    //! Clear the current node and everything under it
     /*!
-     *  Child node will have the name, comment.
-     *
-     *  @param comment    Content of the comment
+     * The value, attributes and children are all zeroed. The name and the
+     * parent information is kept.
      */
-    void addComment(const std::string& comment);
+    void clear();
 
     //! Merge an existing node as a child node to the current node
     /*!
@@ -190,6 +195,14 @@ public:
      *               isn't modified in any way.
      */
     void removeChild(const XML_Node* const node);
+    
+    //! Add a child node to the current node containing a comment
+    /*!
+     *  Child node will have the name, comment.
+     *
+     *  @param comment    Content of the comment
+     */
+    void addComment(const std::string& comment);
 
     //! Modify the value for the current node
     /*!
@@ -306,17 +319,9 @@ public:
      *
      * @param attr  String containing the attribute to be searched for.
      * @return  If a match is found, the attribute value is returned as a
-     *                  string. If no match is found, the empty string is
-     *                  returned.
+     *          string. If no match is found, the empty string is returned.
      */
     std::string attrib(const std::string& attr) const;
-
-    //! Clear the current node and everything under it
-    /*!
-     * The value, attributes and children are all zeroed. The name and the
-     * parent information is kept.
-     */
-    void clear();
 
 private:
     //! Returns a changeable value of the attributes map for the current node
@@ -364,9 +369,6 @@ public:
     bool hasAttrib(const std::string& a) const;
 
     //! Returns the name of the XML node
-    /*!
-     * The name is the XML node is the XML node name
-     */
     std::string name() const {
         return m_name;
     }
@@ -393,7 +395,7 @@ public:
 
     //! Return an unchangeable reference to the vector of children of the current node
     /*!
-     * Each of the individual XML_Node child pointers, however, is to a
+     * Each of the individual XML_Node child pointers, however, is pointing to a
      * changeable XML node object.
      */
     const std::vector<XML_Node*>& children() const;
@@ -408,9 +410,9 @@ public:
     //!  Boolean function indicating whether a comment
     bool isComment() const;
 
-    //! Require that the current XML node have an attribute named by the first
-    //! argument, a, and that this attribute have the the string value listed
-    //! in the second argument, v.
+    //! Require that the current XML node has an attribute named by the first
+    //! argument, a, and that this attribute has the string value listed in
+    //! the second argument, v.
     /*!
      * @param a  attribute name
      * @param v  required value of the attribute
@@ -440,15 +442,15 @@ public:
     XML_Node* findNameID(const std::string& nameTarget,
                          const std::string& idTarget) const;
 
-    //! This routine carries out a search for an XML node based
-    //! on both the XML element name and the attribute ID and an integer index.
+    //! This routine carries out a search for an XML node based on the XML
+    //! element name, the attribute ID and an integer index.
     /*!
      * If exact matches are found for all fields, the pointer
      * to the matching XML Node is returned. The search is only carried out on
      * the current element and the child elements of the current element.
      *
      * The "id" attribute may be defaulted by setting it to "". In this case the
-     * pointer to the first XML element matching the name only is returned.
+     * pointer to the first XML element matching the name and the Index is returned.
      *
      * @param nameTarget  Name of the XML Node that is being searched for
      * @param idTarget    "id" attribute of the XML Node that the routine
@@ -461,13 +463,10 @@ public:
                               const std::string& idTarget, const int index) const;
 
     //! This routine carries out a recursive search for an XML node based
-    //! on the XML element attribute, "id"
+    //! on the XML element attribute "id"
     /*!
      * If exact match is found, the pointer to the matching XML Node is
      * returned. If not, 0 is returned.
-     *
-     * The ID attribute may be defaulted by setting it to "". In this case the
-     * pointer to the first XML element matching the name only is returned.
      *
      * @param id       "id" attribute of the XML Node that the routine looks for
      * @param depth    Depth of the search.
@@ -704,14 +703,17 @@ protected:
 
 //! Search an XML_Node tree for a named phase XML_Node
 /*!
- *  Search for a phase Node matching a name.
+ *  Search for a phase Node matching an id.
  *
  *  @param root         Starting XML_Node* pointer for the search
- *  @param phaseName    Name of the phase to search for
+ *  @param phaseId      id of the phase to search for
  *  @returns the XML_Node pointer if the phase is found. If the phase is not
- *          found, it returns 0
+ *           found, it returns 0
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
-XML_Node* findXMLPhase(XML_Node* root, const std::string& phaseName);
+XML_Node* findXMLPhase(XML_Node* root, const std::string& phaseId);
 
 }
 

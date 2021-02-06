@@ -1,7 +1,7 @@
 //! @file IdealGasReactor.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_IDEALGASREACTOR_H
 #define CT_IDEALGASREACTOR_H
@@ -21,7 +21,18 @@ class IdealGasReactor : public Reactor
 public:
     IdealGasReactor() {}
 
+    virtual std::string typeStr() const {
+        return "IdealGasReactor";
+    }
+
+    /*!
+     * @deprecated To be changed after Cantera 2.5.
+     */
     virtual int type() const {
+        warn_deprecated("IdealGasReactor::type",
+                        "To be changed after Cantera 2.5. "
+                        "Return string instead of magic number; use "
+                        "IdealGasReactor::typeStr during transition");
         return IdealGasReactorType;
     }
 

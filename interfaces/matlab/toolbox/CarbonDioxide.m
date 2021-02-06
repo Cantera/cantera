@@ -17,4 +17,4 @@ function c = CarbonDioxide()
 %     Instance of class :mat:func:`Solution`
 %
 
-c = Solution('liquidvapor.xml', 'carbondioxide');
+c = Solution('liquidvapor.yaml', 'carbon-dioxide');

@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_RXNRATES_H
 #define CT_RXNRATES_H
@@ -11,6 +11,7 @@
 #include "cantera/kinetics/reaction_defs.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 #include <iostream>
 
@@ -31,7 +32,12 @@ class Arrhenius
 {
 public:
     //! return the rate coefficient type.
+    /*!
+     * @deprecated To be removed after Cantera 2.5.
+     */
     static int type() {
+        warn_deprecated("Arrhenius::type()",
+            "To be removed after Cantera 2.5.");
         return ARRHENIUS_REACTION_RATECOEFF_TYPE;
     }
 
@@ -119,17 +125,21 @@ class SurfaceArrhenius
 {
 
 public:
+    /*!
+     * @deprecated To be removed after Cantera 2.5.
+     */
     static int type() {
+        warn_deprecated("SurfaceArrhenius::type()",
+            "To be removed after Cantera 2.5.");
         return SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE;
     }
 
     SurfaceArrhenius();
     explicit SurfaceArrhenius(double A, double b, double Ta);
 
-    //! Add a coverage dependency for species *k*, with pre-exponential
-    //! dependence *a*, rate constant exponential dependency *m*, and activation
-    //! energy dependence *e*, where *e* is in Kelvin, i.e. energy divided by
-    //! the molar gas constant.
+    //! Add a coverage dependency for species *k*, with exponential dependence
+    //! *a*, power-law exponent *m*, and activation energy dependence *e*,
+    //! where *e* is in Kelvin, i.e. energy divided by the molar gas constant.
     void addCoverageDependence(size_t k, doublereal a,
                                doublereal m, doublereal e);
 
@@ -152,7 +162,7 @@ public:
     }
 
     /**
-     * Update the value the rate constant.
+     * Update the value of the rate constant.
      *
      * This function returns the actual value of the rate constant. It can be
      * safely called for negative values of the pre-exponential factor.
@@ -165,7 +175,7 @@ public:
     //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
     //! on the reaction order) accounting coverage dependence.
     /*!
-     *  Returns reaction prexponent accounting for both *a* and *m*.
+     *  Returns reaction pre-exponent accounting for both *a* and *m*.
      */
     doublereal preExponentialFactor() const {
         return m_A * std::exp(std::log(10.0)*m_acov + m_mcov);
@@ -195,8 +205,8 @@ protected:
 /*!
  * Given two rate expressions at two specific pressures:
  *
- *   * \f$ P_1: k_1(T) = A_1 T^{b_1} e^{E_1 / RT} \f$
- *   * \f$ P_2: k_2(T) = A_2 T^{b_2} e^{E_2 / RT} \f$
+ *   * \f$ P_1: k_1(T) = A_1 T^{b_1} e^{-E_1 / RT} \f$
+ *   * \f$ P_2: k_2(T) = A_2 T^{b_2} e^{-E_2 / RT} \f$
  *
  * The rate at an intermediate pressure \f$ P_1 < P < P_2 \f$ is computed as
  * \f[
@@ -212,7 +222,12 @@ class Plog
 {
 public:
     //! return the rate coefficient type.
+    /*!
+     * @deprecated To be removed after Cantera 2.5.
+     */
     static int type() {
+        warn_deprecated("Plog::type()",
+            "To be removed after Cantera 2.5.");
         return PLOG_REACTION_RATECOEFF_TYPE;
     }
 
@@ -341,7 +356,12 @@ class ChebyshevRate
 {
 public:
     //! return the rate coefficient type.
+    /*!
+     * @deprecated To be removed after Cantera 2.5.
+     */
     static int type() {
+        warn_deprecated("ChebyshevRate::type()",
+            "To be removed after Cantera 2.5.");
         return CHEBYSHEV_REACTION_RATECOEFF_TYPE;
     }
 
@@ -365,13 +385,13 @@ public:
     //! @param c base-10 logarithm of the pressure in Pa
     void update_C(const doublereal* c) {
         double Pr = (2 * c[0] + PrNum_) * PrDen_;
-        double Cnm1 = 1;
-        double Cn = Pr;
+        double Cnm1 = Pr;
+        double Cn = 1;
         double Cnp1;
         for (size_t j = 0; j < nT_; j++) {
-            dotProd_[j] = chebCoeffs_[nP_*j] + Pr * chebCoeffs_[nP_*j+1];
+            dotProd_[j] = chebCoeffs_[nP_*j];
         }
-        for (size_t i = 2; i < nP_; i++) {
+        for (size_t i = 1; i < nP_; i++) {
             Cnp1 = 2 * Pr * Cn - Cnm1;
             for (size_t j = 0; j < nT_; j++) {
                 dotProd_[j] += Cnp1 * chebCoeffs_[nP_*j + i];
@@ -388,11 +408,11 @@ public:
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
         double Tr = (2 * recipT + TrNum_) * TrDen_;
-        double Cnm1 = 1;
-        double Cn = Tr;
+        double Cnm1 = Tr;
+        double Cn = 1;
         double Cnp1;
-        double logk = dotProd_[0] + Tr * dotProd_[1];
-        for (size_t i = 2; i < nT_; i++) {
+        double logk = dotProd_[0];
+        for (size_t i = 1; i < nT_; i++) {
             Cnp1 = 2 * Tr * Cn - Cnm1;
             logk += Cnp1 * dotProd_[i];
             Cnm1 = Cn;

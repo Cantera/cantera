@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/StoichSubstance.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -50,6 +50,11 @@ doublereal StoichSubstance::thermalExpansionCoeff() const
 }
 
 // ---- Chemical Potentials and Activities ----
+
+Units StoichSubstance::standardConcentrationUnits() const
+{
+    return Units(1.0);
+}
 
 void StoichSubstance::getActivityConcentrations(doublereal* c) const
 {
@@ -118,8 +123,29 @@ void StoichSubstance::initThermo()
 {
     // Make sure there is one and only one species in this phase.
     if (m_kk != 1) {
-        throw CanteraError("initThermo",
+        throw CanteraError("StoichSubstance::initThermo",
                            "stoichiometric substances may only contain one species.");
+    }
+
+    if (species(0)->input.hasKey("equation-of-state")) {
+        auto& eos = species(0)->input["equation-of-state"].getMapWhere(
+            "model", "constant-volume");
+        if (eos.hasKey("density")) {
+            assignDensity(eos.convert("density", "kg/m^3"));
+        } else if (eos.hasKey("molar-density")) {
+            assignDensity(meanMolecularWeight() *
+                            eos.convert("molar-density", "kmol/m^3"));
+        } else if (eos.hasKey("molar-volume")) {
+            assignDensity(meanMolecularWeight() /
+                            eos.convert("molar-volume", "m^3/kmol"));
+        } else {
+            throw InputFileError("StoichSubstance::initThermo", eos,
+                "equation-of-state entry for species '{}' is missing 'density',"
+                " 'molar-volume' or 'molar-density' specification",
+                speciesName(0));
+        }
+    } else if (m_input.hasKey("density")) {
+        assignDensity(m_input.convert("density", "kg/m^3"));
     }
 
     // Store the reference pressure in the variables for the class.
@@ -143,13 +169,13 @@ void StoichSubstance::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                            "thermo model attribute must be StoichSubstance");
     }
     double dens = getFloat(tnode, "density", "toSI");
-    setDensity(dens);
+    assignDensity(dens);
     SingleSpeciesTP::initThermoXML(phaseNode, id_);
 }
 
 void StoichSubstance::setParameters(int n, doublereal* const c)
 {
-    setDensity(c[0]);
+    assignDensity(c[0]);
 }
 
 void StoichSubstance::getParameters(int& n, doublereal* const c) const
@@ -165,7 +191,7 @@ void StoichSubstance::setParametersFromXML(const XML_Node& eosdata)
         throw CanteraError("StoichSubstance::setParametersFromXML",
                            "thermo model attribute must be StoichSubstance");
     }
-    setDensity(getFloat(eosdata, "density", "toSI"));
+    assignDensity(getFloat(eosdata, "density", "toSI"));
 }
 
 }

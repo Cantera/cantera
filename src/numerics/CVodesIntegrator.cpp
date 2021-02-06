@@ -1,7 +1,7 @@
 //! @file CVodesIntegrator.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/numerics/CVodesIntegrator.h"
 #include "cantera/base/stringUtils.h"
@@ -85,10 +85,10 @@ CVodesIntegrator::CVodesIntegrator() :
     m_t0(0.0),
     m_y(0),
     m_abstol(0),
+    m_dky(0),
     m_type(DENSE+NOJAC),
     m_itol(CV_SS),
     m_method(CV_BDF),
-    m_iter(CV_NEWTON),
     m_maxord(0),
     m_reltol(1.e-9),
     m_abstols(1.e-15),
@@ -125,6 +125,9 @@ CVodesIntegrator::~CVodesIntegrator()
     }
     if (m_abstol) {
         N_VDestroy_Serial(m_abstol);
+    }
+    if (m_dky) {
+        N_VDestroy_Serial(m_dky);
     }
     if (m_yS) {
         N_VDestroyVectorArray_Serial(m_yS, static_cast<sd_size_t>(m_np));
@@ -210,22 +213,16 @@ void CVodesIntegrator::setMaxSteps(int nmax)
     }
 }
 
+int CVodesIntegrator::maxSteps()
+{
+    return m_maxsteps;
+}
+
 void CVodesIntegrator::setMaxErrTestFails(int n)
 {
     m_maxErrTestFails = n;
     if (m_cvode_mem) {
         CVodeSetMaxErrTestFails(m_cvode_mem, n);
-    }
-}
-
-void CVodesIntegrator::setIterator(IterType t)
-{
-    if (t == Newton_Iter) {
-        m_iter = CV_NEWTON;
-    } else if (t == Functional_Iter) {
-        m_iter = CV_FUNCTIONAL;
-    } else {
-        throw CanteraError("CVodesIntegrator::setIterator", "unknown iterator");
     }
 }
 
@@ -269,6 +266,11 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     }
     m_y = N_VNew_Serial(static_cast<sd_size_t>(m_neq)); // allocate solution vector
     N_VConst(0.0, m_y);
+    if (m_dky) {
+        N_VDestroy_Serial(m_dky); // free derivative vector if already allocated
+    }
+    m_dky = N_VNew_Serial(static_cast<sd_size_t>(m_neq)); // allocate derivative vector
+    N_VConst(0.0, m_dky);
     // check abs tolerance array size
     if (m_itol == CV_SV && m_nabs < m_neq) {
         throw CanteraError("CVodesIntegrator::initialize",
@@ -284,7 +286,11 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     //! Specify the method and the iteration type. Cantera Defaults:
     //!        CV_BDF  - Use BDF methods
     //!        CV_NEWTON - use Newton's method
-    m_cvode_mem = CVodeCreate(m_method, m_iter);
+    #if CT_SUNDIALS_VERSION < 40
+        m_cvode_mem = CVodeCreate(m_method, CV_NEWTON);
+    #else
+        m_cvode_mem = CVodeCreate(m_method);
+    #endif
     if (!m_cvode_mem) {
         throw CanteraError("CVodesIntegrator::initialize",
                            "CVodeCreate failed.");
@@ -364,6 +370,10 @@ void CVodesIntegrator::applyOptions()
             SUNLinSolFree((SUNLinearSolver) m_linsol);
             SUNMatDestroy((SUNMatrix) m_linsol_matrix);
             m_linsol_matrix = SUNDenseMatrix(N, N);
+            if (m_linsol_matrix == nullptr) {
+                throw CanteraError("CVodesIntegrator::applyOptions",
+                    "Unable to create SUNDenseMatrix of size {0} x {0}", N);
+            }
             #if CT_SUNDIALS_USE_LAPACK
                 m_linsol = SUNLapackDense(m_y, (SUNMatrix) m_linsol_matrix);
             #else
@@ -394,7 +404,16 @@ void CVodesIntegrator::applyOptions()
         #if CT_SUNDIALS_VERSION >= 30
             SUNLinSolFree((SUNLinearSolver) m_linsol);
             SUNMatDestroy((SUNMatrix) m_linsol_matrix);
-            m_linsol_matrix = SUNBandMatrix(N, nu, nl, nu+nl);
+            #if CT_SUNDIALS_VERSION < 40
+                m_linsol_matrix = SUNBandMatrix(N, nu, nl, nu+nl);
+            #else
+                m_linsol_matrix = SUNBandMatrix(N, nu, nl);
+            #endif
+            if (m_linsol_matrix == nullptr) {
+                throw CanteraError("CVodesIntegrator::applyOptions",
+                    "Unable to create SUNBandMatrix of size {} with bandwidths "
+                    "{} and {}", N, nu, nl);
+            }
             #if CT_SUNDIALS_USE_LAPACK
                 m_linsol = SUNLapackBand(m_y, (SUNMatrix) m_linsol_matrix);
             #else
@@ -468,6 +487,29 @@ double CVodesIntegrator::step(double tout)
     }
     m_sens_ok = false;
     return m_time;
+}
+
+double* CVodesIntegrator::derivative(double tout, int n)
+{
+    int flag = CVodeGetDky(m_cvode_mem, tout, n, m_dky);
+    if (flag != CV_SUCCESS) {
+        string f_errs = m_func->getErrors();
+        if (!f_errs.empty()) {
+            f_errs = "Exceptions caught evaluating derivative:\n" + f_errs;
+        }
+        throw CanteraError("CVodesIntegrator::derivative",
+            "CVodes error encountered. Error code: {}\n{}\n"
+            "{}",
+            flag, m_error_message, f_errs);
+    }
+    return NV_DATA_S(m_dky);
+}
+
+int CVodesIntegrator::lastOrder() const
+{
+    int ord;
+    CVodeGetLastOrder(m_cvode_mem, &ord);
+    return ord;
 }
 
 int CVodesIntegrator::nEvals() const

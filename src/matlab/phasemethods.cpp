@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "ctmatutils.h"
 #include "cantera/clib/ct.h"
@@ -195,6 +195,9 @@ void phasemethods(int nlhs, mxArray* plhs[],
             break;
         case 22:
             iok = thermo_getMolecularWeights(ph,nsp, &x[0]);
+            break;
+        case 23:
+            iok = thermo_getCharges(ph, nsp, &x[0]);
             break;
         default:
             mexErrMsgTxt("Unknown job number");

@@ -1,10 +1,12 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
-# at http://www.cantera.org/license.txt for license and copyright information.
+# at https://cantera.org/license.txt for license and copyright information.
 
 cdef extern from "cantera/thermo/speciesThermoTypes.h" namespace "Cantera":
     cdef int SPECIES_THERMO_CONSTANT_CP "CONSTANT_CP"
     cdef int SPECIES_THERMO_NASA2 "NASA2"
     cdef int SPECIES_THERMO_SHOMATE2 "SHOMATE2"
+    cdef int SPECIES_THERMO_NASA9MULTITEMP "NASA9MULTITEMP"
+    cdef int SPECIES_THERMO_MU0_INTERP "MU0_INTERP"
 
 
 cdef class SpeciesThermo:
@@ -30,7 +32,7 @@ cdef class SpeciesThermo:
         if not init:
             return
 
-        if len(coeffs) != self.n_coeffs:
+        if not self._check_n_coeffs(len(coeffs)):
             raise ValueError("Coefficient array has incorrect length")
         cdef np.ndarray[np.double_t, ndim=1] data = np.ascontiguousarray(
             coeffs, dtype=np.double)
@@ -57,6 +59,11 @@ cdef class SpeciesThermo:
         def __get__(self):
             return self.spthermo.refPressure()
 
+    property n_coeffs:
+        """ Number of parameters for the parameterization."""
+        def __get__(self):
+            return self.spthermo.nCoeffs()
+
     property coeffs:
         """
         Array of coefficients for the parameterization. The length of this
@@ -71,6 +78,13 @@ cdef class SpeciesThermo:
             self.spthermo.reportParameters(index, thermo_type, T_low,
                                            T_high, P_ref, &data[0])
             return data
+
+    def _check_n_coeffs(self, n):
+        """ 
+        Check whether number of coefficients is compatible with a given 
+        parameterization prior to instantiation of the underlying C++ object.
+        """
+        raise NotImplementedError('Needs to be overloaded')
 
     def cp(self, T):
         """
@@ -107,7 +121,32 @@ cdef class ConstantCp(SpeciesThermo):
              - `coeffs[3]` = :math:`c_p^o(T_0, p_{ref})` [J/kmol-K]
     """
     derived_type = SPECIES_THERMO_CONSTANT_CP
-    n_coeffs = 4
+
+    def _check_n_coeffs(self, n):
+        return n == 4
+
+
+cdef class Mu0Poly(SpeciesThermo):
+    """
+    Thermodynamic properties for a species which is parameterized using an
+    interpolation of the Gibbs free energy based on a piecewise constant heat
+    capacity approximation. This is a wrapper for the C++ class :ct:`Mu0Poly`.
+
+    :param coeffs:
+        An array of 2+2*npoints elements, in the following order:
+
+            - `coeffs[0]`: number of points (integer)
+            - `coeffs[1]`: h^o(298.15 K) [J/kmol]
+            - `coeffs[2]`: T_1 [Kelvin]
+            - `coeffs[3]`: \mu^o(T_1) [J/kmol]
+            - `coeffs[4]`: T_2 [Kelvin]
+            - `coeffs[5]`: \mu^o(T_2) [J/kmol]
+            - ...
+    """
+    derived_type = SPECIES_THERMO_MU0_INTERP
+
+    def _check_n_coeffs(self, n):
+        return n > 3 and n % 2 == 0
 
 
 cdef class NasaPoly2(SpeciesThermo):
@@ -130,7 +169,31 @@ cdef class NasaPoly2(SpeciesThermo):
         input files.
     """
     derived_type = SPECIES_THERMO_NASA2
-    n_coeffs = 15
+
+    def _check_n_coeffs(self, n):
+        return n == 15
+
+
+cdef class Nasa9PolyMultiTempRegion(SpeciesThermo):
+    """
+    Thermodynamic properties for a species which is parameterized using the
+    9-coefficient NASA polynomial form encompassing multiple temperature ranges.
+    This is a wrapper for the C++ class :ct:`Nasa9PolyMultiTempRegion`.
+
+    :param coeffs:
+        An array of 1 + 11*`nzones` elements, in the following order:
+
+            - `coeffs[0]`: Number of zones (`nzones`)
+            - `coeffs[1 + 11*zone]`: minimum temperature within zone
+            - `coeffs[2 + 11*zone]`: maximum temperature within zone
+            - `coeffs[3:11 + 11*zone]`: 9 coefficients of the parameterization
+
+        where `zone` runs from zero to `nzones`-1.
+    """
+    derived_type = SPECIES_THERMO_NASA9MULTITEMP
+
+    def _check_n_coeffs(self, n):
+        return n > 11 and ((n - 1) % 11) == 0
 
 
 cdef class ShomatePoly2(SpeciesThermo):
@@ -154,7 +217,9 @@ cdef class ShomatePoly2(SpeciesThermo):
         as in the NIST Chemistry WebBook).
     """
     derived_type = SPECIES_THERMO_SHOMATE2
-    n_coeffs = 15
+
+    def _check_n_coeffs(self, n):
+        return n == 15
 
 
 cdef wrapSpeciesThermo(shared_ptr[CxxSpeciesThermo] spthermo):
@@ -166,8 +231,12 @@ cdef wrapSpeciesThermo(shared_ptr[CxxSpeciesThermo] spthermo):
 
     if thermo_type == SPECIES_THERMO_NASA2:
         st = NasaPoly2(init=False)
+    elif thermo_type == SPECIES_THERMO_NASA9MULTITEMP:
+        st = Nasa9PolyMultiTempRegion(init=False)
     elif thermo_type == SPECIES_THERMO_CONSTANT_CP:
         st = ConstantCp(init=False)
+    elif thermo_type == SPECIES_THERMO_MU0_INTERP:
+        st = Mu0Poly(init=False)
     elif thermo_type == SPECIES_THERMO_SHOMATE2:
         st = ShomatePoly2(init=False)
     else:

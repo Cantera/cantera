@@ -9,7 +9,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_NASA9POLY1_H
 #define CT_NASA9POLY1_H
@@ -61,7 +61,9 @@ namespace Cantera
 class Nasa9Poly1 : public SpeciesThermoInterpType
 {
 public:
-    //! Normal constructor
+    Nasa9Poly1();
+
+    //! Constructor with all input data
     /*!
      * @param tlow         Minimum temperature
      * @param thigh        Maximum temperature
@@ -70,6 +72,9 @@ public:
      *                     parameters for the standard state.
      */
     Nasa9Poly1(double tlow, double thigh, double pref, const double* coeffs);
+
+    //! Set the array of 9 polynomial coefficients
+    void setParameters(const vector_fp& coeffs);
 
     virtual int reportType() const;
 

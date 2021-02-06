@@ -4,7 +4,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_MARGULESVPSSTP_H
 #define CT_MARGULESVPSSTP_H
@@ -200,7 +200,7 @@ namespace Cantera
  * \f]
  *
  * where we can use the concept of microscopic reversibility to write the
- * reverse rate constant in terms of the forward reate constant and the
+ * reverse rate constant in terms of the forward rate constant and the
  * concentration equilibrium constant, \f$ K_c \f$.
  *
  * \f[
@@ -216,19 +216,11 @@ class MargulesVPSSTP : public GibbsExcessVPSSTP
 public:
     MargulesVPSSTP();
 
-    //! Construct and initialize a MargulesVPSSTP ThermoPhase object directly
-    //! from an XML input file
+    //! Construct a MargulesVPSSTP object from an input file
     /*!
-     * Working constructors
-     *
-     * The two constructors below are the normal way the phase initializes
-     * itself. They are shells that call the routine initThermo(), with a
-     * reference to the XML database to get the info for the phase.
-     *
-     * @param inputFile Name of the input file containing the phase XML data
-     *                  to set up the object
-     * @param id        ID of the phase in the input file. Defaults to the
-     *                  empty string.
+     * @param inputFile Name of the input file containing the phase definition
+     * @param id        name (ID) of the phase in the input file. If empty, the
+     *                  first phase definition in the input file will be used.
      */
     MargulesVPSSTP(const std::string& inputFile, const std::string& id = "");
 
@@ -238,6 +230,9 @@ public:
      *  @param phaseRef XML phase node containing the description of the phase
      *  @param id     id attribute containing the name of the phase.
      *                (default is the empty string)
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     MargulesVPSSTP(XML_Node& phaseRef, const std::string& id = "");
 
@@ -358,16 +353,16 @@ public:
 
     //! Add a binary species interaction with the specified parameters
     /*!
-     * @param speciesA    name of the first species
-     * @param speciesB    name of the second species
-     * @param h0         first excess enthalpy coefficient
-     * @param h1         second excess enthalpy coefficient
-     * @param s0         first excess entropy coefficient
-     * @param s1         second excess entropy coefficient
-     * @param vh0        first enthalpy coefficient for excess volume
-     * @param vh1        second enthalpy coefficient for excess volume
-     * @param vs0        first entropy coefficient for excess volume
-     * @param vs1        second entropy coefficient for excess volume
+     * @param speciesA   name of the first species
+     * @param speciesB   name of the second species
+     * @param h0         first excess enthalpy coefficient [J/kmol]
+     * @param h1         second excess enthalpy coefficient [J/kmol]
+     * @param s0         first excess entropy coefficient [J/kmol/K]
+     * @param s1         second excess entropy coefficient [J/kmol/K]
+     * @param vh0        first enthalpy coefficient for excess volume [m^3/kmol]
+     * @param vh1        second enthalpy coefficient for excess volume [m^3/kmol]
+     * @param vs0        first entropy coefficient for excess volume [m^3/kmol/K]
+     * @param vs1        second entropy coefficient for excess volume [m^3/kmol/K]
      */
     void addBinaryInteraction(const std::string& speciesA,
         const std::string& speciesB, double h0, double h1, double s0, double s1,

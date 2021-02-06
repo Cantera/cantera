@@ -1,7 +1,7 @@
 //! @file ReactorBase.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_REACTORBASE_H
 #define CT_REACTORBASE_H
@@ -12,10 +12,13 @@
 namespace Cantera
 {
 class FlowDevice;
-class Wall;
+class WallBase;
 class ReactorNet;
 class ReactorSurface;
+class Kinetics;
 
+//! Magic numbers
+//! @deprecated To be removed after Cantera 2.5.
 const int ReservoirType = 1;
 const int ReactorType = 2;
 const int FlowReactorType = 3;
@@ -49,8 +52,19 @@ public:
     ReactorBase(const ReactorBase&) = delete;
     ReactorBase& operator=(const ReactorBase&) = delete;
 
+    //! String indicating the reactor model implemented. Usually
+    //! corresponds to the name of the derived class.
+    virtual std::string typeStr() const {
+        return "ReactorBase";
+    }
+
     //! Return a constant indicating the type of this Reactor
+    //! @deprecated To be changed after Cantera 2.5.
     virtual int type() const {
+        warn_deprecated("ReactorBase::type",
+                        "To be changed after Cantera 2.5. "
+                        "Return string instead of magic number; use "
+                        "ReactorBase::typeStr during transition");
         return 0;
     }
 
@@ -76,6 +90,21 @@ public:
     //! this substance is stored, and as the integration proceeds, the state of
     //! the substance is modified.
     virtual void setThermoMgr(thermo_t& thermo);
+
+    //! Specify chemical kinetics governing the reactor.
+    virtual void setKineticsMgr(Kinetics& kin) {
+        throw NotImplementedError("ReactorBase::setKineticsMgr");
+    }
+
+    //! Enable or disable changes in reactor composition due to chemical reactions.
+    virtual void setChemistry(bool cflag = true) {
+        throw NotImplementedError("ReactorBase::setChemistry");
+    }
+
+    //! Set the energy equation on or off.
+    virtual void setEnergy(int eflag = 1) {
+        throw NotImplementedError("ReactorBase::setEnergy");
+    }
 
     //! Connect an inlet FlowDevice to this reactor
     void addInlet(FlowDevice& inlet);
@@ -111,12 +140,12 @@ public:
     /*!
      *  `lr` = 0 if this reactor is to the left of the wall and `lr` = 1 if
      *  this reactor is to the right of the wall. This method is called
-     *  automatically for both the left and right reactors by Wall::install.
+     *  automatically for both the left and right reactors by WallBase::install.
      */
-    void addWall(Wall& w, int lr);
+    void addWall(WallBase& w, int lr);
 
     //! Return a reference to the *n*-th Wall connected to this reactor.
-    Wall& wall(size_t n);
+    WallBase& wall(size_t n);
 
     void addSurface(ReactorSurface* surf);
 
@@ -239,7 +268,8 @@ protected:
     doublereal m_pressure;
     vector_fp m_state;
     std::vector<FlowDevice*> m_inlet, m_outlet;
-    std::vector<Wall*> m_wall;
+
+    std::vector<WallBase*> m_wall;
     std::vector<ReactorSurface*> m_surfaces;
     vector_int m_lr;
     std::string m_name;

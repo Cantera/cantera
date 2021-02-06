@@ -7,7 +7,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/LatticePhase.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -59,7 +59,7 @@ doublereal LatticePhase::cv_mole() const
 
 doublereal LatticePhase::calcDensity()
 {
-    setMolarDensity(m_site_density);
+    assignDensity(std::max(meanMolecularWeight() * m_site_density, SmallNumber));
     return meanMolecularWeight() * m_site_density;
 }
 
@@ -73,6 +73,11 @@ void LatticePhase::compositionChanged()
 {
     Phase::compositionChanged();
     calcDensity();
+}
+
+Units LatticePhase::standardConcentrationUnits() const
+{
+    return Units(1.0);
 }
 
 void LatticePhase::getActivityConcentrations(doublereal* c) const
@@ -237,11 +242,22 @@ bool LatticePhase::addSpecies(shared_ptr<Species> spec)
         m_g0_RT.push_back(0.0);
         m_cp0_R.push_back(0.0);
         m_s0_R.push_back(0.0);
-        if (spec->extra.hasKey("molar_volume")) {
-            m_speciesMolarVolume.push_back(spec->extra["molar_volume"].asDouble());
-        } else {
-            m_speciesMolarVolume.push_back(1.0 / m_site_density);
+        double mv = 1.0 / m_site_density;
+        if (spec->input.hasKey("equation-of-state")) {
+            auto& eos = spec->input["equation-of-state"].getMapWhere(
+                "model", "constant-volume");
+            if (eos.hasKey("density")) {
+                mv = molecularWeight(m_kk-1) / eos.convert("density", "kg/m^3");
+            } else if (eos.hasKey("molar-density")) {
+                mv = 1.0 / eos.convert("molar-density", "kmol/m^3");
+            } else if (eos.hasKey("molar-volume")) {
+                mv = eos.convert("molar-volume", "m^3/kmol");
+            }
+        } else if (spec->extra.hasKey("molar_volume")) {
+            // from XML
+            mv = spec->extra["molar_volume"].asDouble();
         }
+        m_speciesMolarVolume.push_back(mv);
     }
     return added;
 }
@@ -249,6 +265,19 @@ bool LatticePhase::addSpecies(shared_ptr<Species> spec)
 void LatticePhase::setSiteDensity(double sitedens)
 {
     m_site_density = sitedens;
+    for (size_t k = 0; k < m_kk; k++) {
+        if (species(k)->extra.hasKey("molar_volume")) {
+            continue;
+        } else if (species(k)->input.hasKey("equation-of-state")) {
+            auto& eos = species(k)->input["equation-of-state"].getMapWhere(
+                "model", "constant-volume");
+            if (eos.hasKey("molar-volume") || eos.hasKey("density")
+                || eos.hasKey("molar-density")) {
+                continue;
+            }
+        }
+        m_speciesMolarVolume[k] = 1.0 / m_site_density;
+    }
 }
 
 void LatticePhase::_updateThermo() const
@@ -264,20 +293,11 @@ void LatticePhase::_updateThermo() const
     }
 }
 
-void LatticePhase::setParameters(int n, doublereal* const c)
+void LatticePhase::initThermo()
 {
-    warn_deprecated("LatticePhase::setParameters",
-                    "To be removed after Cantera 2.4.");
-    m_site_density = c[0];
-    setMolarDensity(m_site_density);
-}
-
-void LatticePhase::getParameters(int& n, doublereal* const c) const
-{
-    warn_deprecated("LatticePhase::getParameters",
-                    "To be removed after Cantera 2.4.");
-    c[0] = molarDensity();
-    n = 1;
+    if (m_input.hasKey("site-density")) {
+        setSiteDensity(m_input.convert("site-density", "kmol/m^3"));
+    }
 }
 
 void LatticePhase::setParametersFromXML(const XML_Node& eosdata)

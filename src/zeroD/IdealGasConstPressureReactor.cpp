@@ -1,10 +1,11 @@
 //! @file ConstPressureReactor.cpp A constant pressure zero-dimensional reactor
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/IdealGasConstPressureReactor.h"
 #include "cantera/zeroD/FlowDevice.h"
+#include "cantera/zeroD/ReactorNet.h"
 
 using namespace std;
 
@@ -16,7 +17,7 @@ void IdealGasConstPressureReactor::setThermoMgr(ThermoPhase& thermo)
     //! @TODO: Add a method to ThermoPhase that indicates whether a given
     //! subclass is compatible with this reactor model
     if (thermo.type() != "IdealGas") {
-        throw CanteraError("IdealGasReactor::setThermoMgr",
+        throw CanteraError("IdealGasConstPressureReactor::setThermoMgr",
                            "Incompatible phase type provided");
     }
     Reactor::setThermoMgr(thermo);
@@ -25,7 +26,7 @@ void IdealGasConstPressureReactor::setThermoMgr(ThermoPhase& thermo)
 void IdealGasConstPressureReactor::getState(double* y)
 {
     if (m_thermo == 0) {
-        throw CanteraError("getState",
+        throw CanteraError("IdealGasConstPressureReactor::getState",
                            "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);
@@ -60,11 +61,7 @@ void IdealGasConstPressureReactor::updateState(doublereal* y)
     m_thermo->setState_TP(y[1], m_pressure);
     m_vol = m_mass / m_thermo->density();
     updateSurfaceState(y + m_nsp + 2);
-
-    // save parameters needed by other connected reactors
-    m_enthalpy = m_thermo->enthalpy_mass();
-    m_intEnergy = m_thermo->intEnergy_mass();
-    m_thermo->saveState(m_state);
+    updateConnected(false);
 }
 
 void IdealGasConstPressureReactor::evalEqs(doublereal time, doublereal* y,
@@ -74,9 +71,10 @@ void IdealGasConstPressureReactor::evalEqs(doublereal time, doublereal* y,
     double mcpdTdt = 0.0; // m * c_p * dT/dt
     double* dYdt = ydot + 2;
 
-    m_thermo->restoreState(m_state);
     applySensitivity(params);
     evalWalls(time);
+
+    m_thermo->restoreState(m_state);
     double mdot_surf = evalSurfaces(time, ydot + m_nsp + 2);
     dmdt += mdot_surf;
 
@@ -102,19 +100,19 @@ void IdealGasConstPressureReactor::evalEqs(doublereal time, doublereal* y,
     }
 
     // add terms for outlets
-    for (size_t i = 0; i < m_outlet.size(); i++) {
-        dmdt -= m_outlet[i]->massFlowRate(time); // mass flow out of system
+    for (auto outlet : m_outlet) {
+        dmdt -= outlet->massFlowRate(); // mass flow out of system
     }
 
     // add terms for inlets
-    for (size_t i = 0; i < m_inlet.size(); i++) {
-        double mdot_in = m_inlet[i]->massFlowRate(time);
-        dmdt += mdot_in; // mass flow into system
-        mcpdTdt += m_inlet[i]->enthalpy_mass() * mdot_in;
+    for (auto inlet : m_inlet) {
+        double mdot = inlet->massFlowRate();
+        dmdt += mdot; // mass flow into system
+        mcpdTdt += inlet->enthalpy_mass() * mdot;
         for (size_t n = 0; n < m_nsp; n++) {
-            double mdot_spec = m_inlet[i]->outletSpeciesMassFlowRate(n);
+            double mdot_spec = inlet->outletSpeciesMassFlowRate(n);
             // flow of species into system and dilution by other species
-            dYdt[n] += (mdot_spec - mdot_in * Y[n]) / m_mass;
+            dYdt[n] += (mdot_spec - mdot * Y[n]) / m_mass;
             mcpdTdt -= m_hk[n] / mw[n] * mdot_spec;
         }
     }

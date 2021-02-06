@@ -1,10 +1,12 @@
 //! @file PureFluid.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CXX_PUREFLUID
 #define CXX_PUREFLUID
+
+#pragma message("warning: PureFluid.h is deprecated and will be removed after Cantera 2.5.0.")
 
 #include "thermo/PureFluidPhase.h"
 #include "kinetics.h"
@@ -13,12 +15,20 @@ namespace Cantera
 {
 
 //! Wrapper for PureFluidPhase with constructor from file
+/*!
+ * @deprecated To be removed after Cantera 2.5.0. Replaceable with PureFluidPhase.
+ */
 class PureFluid : public PureFluidPhase
 {
 public:
-    PureFluid() : m_ok(false), m_r(0) {}
+    PureFluid() : m_ok(false), m_r(0) {
+        warn_deprecated("class PureFluid", "To be removed after Cantera 2.5.0. "
+            "Replaceable with PureFluidPhase.");
+    }
 
     PureFluid(const std::string& infile, std::string id="") : m_ok(false), m_r(0) {
+        warn_deprecated("class PureFluid", "To be removed after Cantera 2.5.0. "
+            "Replaceable with PureFluidPhase::initThermoFile.");
         m_r = get_XML_File(infile);
         if (id == "-") {
             id = "";
@@ -51,10 +61,18 @@ protected:
     XML_Node* m_r;
 };
 
+
+//! Water definition from liquidvapor input file
+/*!
+ * @deprecated To be removed after Cantera 2.5.0. Replaceable with PureFluidPhase.
+ */
 class Water : public PureFluid
 {
 public:
-    Water() : PureFluid(std::string("liquidvapor.cti"),std::string("water")) {}
+    Water() : PureFluid(std::string("liquidvapor.cti"),std::string("water")) {
+        warn_deprecated("class Water", "To be removed after Cantera 2.5.0. "
+        "Replaceable with PureFluidPhase.");
+    }
     virtual ~Water() {}
 };
 

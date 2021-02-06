@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 /**
  * @defgroup tranprops Transport Properties for Species in Phases
@@ -23,9 +23,6 @@
 
 namespace Cantera
 {
-
-class LiquidTransportParams;
-class SolidTransportData;
 
 /*!
  * \addtogroup tranprops
@@ -268,47 +265,6 @@ public:
      */
     virtual void getSpeciesMobilityRatio(double** mobRat) {
         throw NotImplementedError("Transport::getSpeciesMobilityRatio");
-    }
-
-    //! Returns the self diffusion coefficients of the species in the phase
-    /*!
-     * The self diffusion coefficient is the diffusion coefficient of a tracer
-     * species at the current temperature and composition of the species.
-     * Therefore, the dilute limit of transport is assumed for the tracer
-     * species. The effective formula may be calculated from the Stefan-Maxwell
-     * formulation by adding another row for the tracer species, assigning all
-     * D's to be equal to the respective species D's, and then taking the limit
-     * as the tracer species mole fraction goes to zero. The corresponding flux
-     * equation for the tracer species k in units of kmol m-2 s-1 is.
-     *
-     * \f[
-     *     J_k = - D^{sd}_k \frac{C_k}{R T}  \nabla \mu_k
-     * \f]
-     *
-     * The derivative is taken at constant T and P.
-     *
-     * The self diffusion calculation is handled by subclasses of
-     * LiquidTranInteraction as specified in the input file. These in turn
-     * employ subclasses of LTPspecies to determine the individual species self
-     * diffusion coeffs.
-     *
-     * @param selfDiff Vector of self-diffusion coefficients. Length = number
-     *                 of species in phase. units = m**2 s-1.
-     */
-    virtual void selfDiffusion(doublereal* const selfDiff) {
-        throw NotImplementedError("Transport::selfDiffusion");
-    }
-
-    //! Returns the pure species self diffusion in solution of each species
-    /*!
-     * The pure species molar volumes are evaluated using the appropriate
-     * subclasses of LTPspecies as specified in the input file.
-     *
-     * @param selfDiff  array of length "number of species"
-     *              to hold returned self diffusion coeffs.
-     */
-    virtual void getSpeciesSelfDiffusion(double** selfDiff) {
-        throw NotImplementedError("Transport::getSpeciesSelfDiffusion");
     }
 
     //! Returns the mixture thermal conductivity in W/m/K.
@@ -683,30 +639,6 @@ public:
      */
     virtual void init(thermo_t* thermo, int mode=0, int log_level=0) {}
 
-    //! Called by TransportFactory to set parameters.
-    /*!
-     * This is called by classes that use the liquid phase parameter list to
-     * initialize themselves.
-     *
-     * @param tr Reference to the parameter list that will be used to initialize
-     *           the class
-     */
-    virtual bool initLiquid(LiquidTransportParams& tr) {
-        throw NotImplementedError("Transport::initLiquid");
-    }
-
-    //! Called by TransportFactory to set parameters.
-    /*!
-     * This is called by classes that use the solid phase parameter list to
-     * initialize themselves.
-     *
-     * @param tr Reference to the parameter list that will be used to initialize
-     *           the class
-     */
-    virtual bool initSolid(SolidTransportData& tr) {
-        throw NotImplementedError("Transport::initSolid");
-    }
-
     //! Specifies the ThermoPhase object.
     /*!
      * We have relaxed this operation so that it will succeed when the
@@ -721,6 +653,11 @@ public:
      *                  object will use
      */
     virtual void setThermo(thermo_t& thermo);
+
+    //! Set root Solution holding all phase information
+    virtual void setRoot(std::shared_ptr<Solution> root) {
+        m_root = root;
+    }
 
 protected:
     //! Enable the transport object for use.
@@ -748,6 +685,9 @@ protected:
     //! Velocity basis from which diffusion velocities are computed.
     //! Defaults to the mass averaged basis = -2
     int m_velocityBasis;
+
+    //! reference to Solution
+    std::weak_ptr<Solution> m_root;
 };
 
 }

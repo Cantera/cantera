@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_BANDMATRIX_H
 #define CT_BANDMATRIX_H
@@ -279,7 +279,7 @@ protected:
     //! value of zero
     doublereal m_zero;
 
-    class PivData; // pImpl wrapper class
+    struct PivData; // pImpl wrapper class
 
     //! Pivot vector
     std::unique_ptr<PivData> m_ipiv;

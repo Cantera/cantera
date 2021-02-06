@@ -7,7 +7,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_SPECIESTHERMOINTERPTYPE_H
 #define CT_SPECIESTHERMOINTERPTYPE_H
@@ -88,12 +88,6 @@ class PDSS;
   *      - This is a multiple zone model, consisting of the 9
   *        coefficient NASA Polynomial format in each zone.
   *      .
-  *   - STITbyPDSS          in file SpeciesThermoInterpType.h
-  *      - This is an object that calculates reference state thermodynamic
-  *        functions by relying on a pressure dependent
-  *        standard state object (i.e., a PDSS object) to calculate
-  *        the thermodynamic functions.
-  *
   * The most important member function for the SpeciesThermoInterpType class is
   * the member function SpeciesThermoInterpType::updatePropertiesTemp(). The
   * function calculates the values of Cp, H, and S for the specific species
@@ -135,10 +129,20 @@ public:
         return m_lowT;
     }
 
+    //! Set the minimum temperature at which the thermo parameterization is valid
+    virtual void setMinTemp(double Tmin) {
+        m_lowT = Tmin;
+    }
+
     //! Returns the maximum temperature that the thermo parameterization is
     //! valid
     virtual doublereal maxTemp() const {
         return m_highT;
+    }
+
+    //! Set the maximum temperature at which the thermo parameterization is valid
+    virtual void setMaxTemp(double Tmax) {
+        m_highT = Tmax;
     }
 
     //! Returns the reference pressure (Pa)
@@ -146,12 +150,17 @@ public:
         return m_Pref;
     }
 
+    //! Set the reference pressure [Pa]
+    virtual void setRefPressure(double Pref) {
+        m_Pref = Pref;
+    }
+
     //! Check for problems with the parameterization, and generate warnings or
     //! throw and exception if any are found.
     virtual void validate(const std::string& name) {}
 
     //! Returns an integer representing the type of parameterization
-    virtual int reportType() const = 0;
+    virtual int reportType() const { return 0; };
 
     //! Number of terms in the temperature polynomial for this parameterization
     virtual size_t temperaturePolySize() const { return 1; }
@@ -195,9 +204,13 @@ public:
     virtual void updatePropertiesTemp(const doublereal temp,
                                       doublereal* cp_R,
                                       doublereal* h_RT,
-                                      doublereal* s_R) const = 0;
+                                      doublereal* s_R) const;
 
-    //! This utility function reports back the type of parameterization and all
+    //! This utility function returns the number of coefficients
+    //! for a given type of species parameterization
+    virtual size_t nCoeffs() const;
+
+    //! This utility function returns the type of parameterization and all
     //! of the parameters for the species.
     /*!
      * All parameters are output variables
@@ -213,7 +226,7 @@ public:
     virtual void reportParameters(size_t& index, int& type,
                                   doublereal& minTemp, doublereal& maxTemp,
                                   doublereal& refPressure,
-                                  doublereal* const coeffs) const = 0;
+                                  doublereal* const coeffs) const;
 
     //! Report the 298 K Heat of Formation of the standard state of one species
     //! (J kmol-1)
@@ -248,8 +261,7 @@ public:
      *  Resets changes made by modifyOneHf298().
      */
     virtual void resetHf298() {
-        throw CanteraError("SpeciesThermoInterpType::resetHf298",
-                           "Not implemented");
+        throw NotImplementedError("SpeciesThermoInterpType::resetHf298");
     }
 
 protected:
@@ -259,56 +271,6 @@ protected:
     doublereal m_highT;
     //! Reference state pressure
     doublereal m_Pref;
-};
-
-//! Class for the thermodynamic manager for an individual species' reference
-//! state which uses the PDSS base class to satisfy the requests.
-/*!
- * This class is a pass-through class for handling thermodynamics calls for
- * reference state thermo to an pressure dependent standard state (PDSS) class.
- * For some situations, it makes no sense to have a reference state at all. One
- * example of this is the real water standard state.
- *
- * What this class does is just to pass through the calls for thermo at (T, p0)
- * to the PDSS class, which evaluates the calls at (T, p0).
- *
- * @ingroup spthermo
- */
-class STITbyPDSS : public SpeciesThermoInterpType
-{
-public:
-    //! Main Constructor
-    /*!
-     * @param PDSS_ptr     Pointer to the PDSS object that handles calls for
-     *     this object
-     */
-    explicit STITbyPDSS(PDSS* PDSS_ptr);
-
-    virtual doublereal minTemp() const;
-    virtual doublereal maxTemp() const;
-    virtual doublereal refPressure() const;
-    virtual int reportType() const;
-
-    virtual void updateProperties(const doublereal* tempPoly,
-                                  doublereal* cp_R, doublereal* h_RT,
-                                  doublereal* s_R) const;
-
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R,
-                                      doublereal* h_RT,
-                                      doublereal* s_R) const;
-
-    virtual void reportParameters(size_t& index, int& type,
-                                  doublereal& minTemp, doublereal& maxTemp,
-                                  doublereal& refPressure,
-                                  doublereal* const coeffs) const;
-
-private:
-    //! Pointer to the PDSS object that handles calls for this object
-    /*!
-     * This object is not owned by the current one.
-     */
-    PDSS* m_PDSS_ptr;
 };
 
 }

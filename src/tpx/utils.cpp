@@ -1,7 +1,7 @@
 //! @file utils.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/tpx/utils.h"
 #include "cantera/base/stringUtils.h"
@@ -30,9 +30,9 @@ Substance* newSubstance(const std::string& name)
         return new hydrogen;
     } else if (lcname == "oxygen") {
         return new oxygen;
-    } else if (lcname == "hfc134a") {
+    } else if (lcname == "hfc-134a" || lcname == "hfc134a") {
         return new HFC134a;
-    } else if (lcname == "carbondioxide") {
+    } else if (lcname == "carbon-dioxide" || lcname == "carbondioxide") {
         return new CarbonDioxide;
     } else if (lcname == "heptane") {
         return new Heptane;
@@ -61,7 +61,8 @@ Substance* GetSub(int isub)
     } else if (isub == 8) {
         return new Heptane;
     } else {
-        return 0;
+        throw Cantera::CanteraError("tpx::GetSub", "No substance definition "
+            "known for id '{}'.", isub);
     }
 }
 

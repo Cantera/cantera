@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate reaction="yes" species="yes"/>
+  <!-- Clearly, using an IdealGas-type phase is not appropriate
+       for a liquid water solvent. However, it seems to load
+       correctly and I needed a place to test the conversion of
+       these phase thermo types so \shrug
+  -->
+  <phase dim="3" id="vpss_gas_pdss_hkft_phase">
+    <elementArray datasrc="elements.xml">
+      Na Cl H O
+    </elementArray>
+    <speciesArray datasrc="#species_data">
+      H2O(L) Na+ Cl- H+ OH-
+    </speciesArray>
+    <thermo model="IdealGasVPSS"/>
+    <transport model="None"/>
+    <kinetics model="none"/>
+  </phase>
+
+  <phase dim="3" id="vpss_soln_pdss_hkft_phase">
+    <elementArray datasrc="elements.xml">
+      Na Cl H O
+    </elementArray>
+    <speciesArray datasrc="#species_data">
+      H2O(L) Na+ Cl- H+ OH-
+    </speciesArray>
+    <thermo model="IdealSolnVPSS"/>
+    <transport model="None"/>
+    <kinetics model="none"/>
+    <standardConc model="solvent_volume"/>
+  </phase>
+
+  <speciesData id="species_data">
+    <species name="H2O(L)">
+      <!-- H2O(L) liquid standard state -> pure H2O
+           The origin of the NASA polynomial is a bit murky. It does
+           fit the vapor pressure curve at 298K adequately.
+        -->
+      <atomArray>H:2 O:1 </atomArray>
+      <thermo>
+        <NASA Tmax="600.0" Tmin="273.14999999999998" P0="100000.0">
+          <floatArray name="coeffs" size="7">
+             7.255750050E+01,  -6.624454020E-01,   2.561987460E-03,  -4.365919230E-06,
+             2.781789810E-09,  -4.188654990E+04,  -2.882801370E+02
+          </floatArray>
+        </NASA>
+      </thermo>
+      <standardState model="waterIAPWS"/>
+    </species>
+    <species name="Na+">
+      <atomArray> Na:1 </atomArray>
+      <charge> 1 </charge>
+      <standardState model="HKFT">
+        <a1 units="cal/gmol/bar"> 0.1839 </a1>
+        <a2 units="cal/gmol"> -228.5 </a2>
+        <a3 units="cal-K/gmol/bar"> 3.256 </a3>
+        <a4 units="cal-K/gmol"> -27260. </a4>
+        <c1 units="cal/gmol/K"> 18.18 </c1>
+        <c2 units="cal-K/gmol"> -29810. </c2>
+        <omega_Pr_Tr units="cal/gmol"> 33060 </omega_Pr_Tr>
+      </standardState>
+      <thermo model="HKFT">
+        <HKFT pref="101325" Tmin="300" Tmax="500">
+          <DH0_f_Pr_Tr units="cal/gmol"> -57433. </DH0_f_Pr_Tr>
+          <S0_Pr_Tr units="cal/gmol/K"> 13.96 </S0_Pr_Tr>
+        </HKFT>
+      </thermo>
+    </species>
+
+    <species name="Cl-">
+      <atomArray> Cl:1 </atomArray>
+      <charge> -1 </charge>
+      <standardState model="HKFT">
+        <a1 units="cal/gmol/bar"> 0.4032 </a1>
+        <a2 units="cal/gmol"> 480.1 </a2>
+        <a3 units="cal-K/gmol/bar"> 5.563 </a3>
+        <a4 units="cal-K/gmol"> -28470. </a4>
+        <c1 units="cal/gmol/K"> -4.4 </c1>
+        <c2 units="cal-K/gmol"> -57140. </c2>
+        <omega_Pr_Tr units="cal/gmol"> 145600. </omega_Pr_Tr>
+      </standardState>
+      <thermo model="HKFT">
+        <HKFT pref="101325" Tmin="300" Tmax="500">
+          <DG0_f_Pr_Tr units="cal/gmol"> -31379 </DG0_f_Pr_Tr>
+          <S0_Pr_Tr units="cal/gmol/K"> 13.56 </S0_Pr_Tr>
+        </HKFT>
+      </thermo>
+    </species>
+
+    <species name="H+">
+      <atomArray> H:1 </atomArray>
+      <charge> 1 </charge>
+      <standardState model="HKFT">
+        <a1 units="cal/gmol/bar"> 0 </a1>
+        <a2 units="cal/gmol"> 0 </a2>
+        <a3 units="cal-K/gmol/bar"> 0 </a3>
+        <a4 units="cal-K/gmol"> 0 </a4>
+        <c1 units="cal/gmol/K"> 0 </c1>
+        <c2 units="cal-K/gmol"> 0 </c2>
+        <omega_Pr_Tr units="cal/gmol"> 0 </omega_Pr_Tr>
+      </standardState>
+      <thermo model="HKFT">
+        <HKFT pref="101325" Tmin="300" Tmax="500">
+          <DG0_f_Pr_Tr units="cal/gmol"> 0 </DG0_f_Pr_Tr>
+          <S0_Pr_Tr units="cal/gmol/K"> 0 </S0_Pr_Tr>
+        </HKFT>
+      </thermo>
+    </species>
+
+    <species name="OH-">
+      <atomArray> O:1 H:1 </atomArray>
+      <charge> -1 </charge>
+      <standardState model="HKFT">
+        <a1 units="cal/gmol/bar"> 0.12527 </a1>
+        <a2 units="cal/gmol"> 7.38 </a2>
+        <a3 units="cal-K/gmol/bar"> 1.8423 </a3>
+        <a4 units="cal-K/gmol"> -27821 </a4>
+        <c1 units="cal/gmol/K"> 4.15 </c1>
+        <c2 units="cal-K/gmol"> -103460. </c2>
+        <omega_Pr_Tr units="cal/gmol"> 172460. </omega_Pr_Tr>
+      </standardState>
+      <thermo model="HKFT">
+        <HKFT pref="101325" Tmin="300" Tmax="500">
+          <DG0_f_Pr_Tr units="cal/gmol"> -37595. </DG0_f_Pr_Tr>
+          <DH0_f_Pr_Tr units="cal/gmol"> -54977. </DH0_f_Pr_Tr>
+          <S0_Pr_Tr units="cal/gmol/K"> -2.56 </S0_Pr_Tr>
+        </HKFT>
+      </thermo>
+    </species>
+  </speciesData>
+</ctml>

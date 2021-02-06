@@ -1,7 +1,7 @@
 //! @file ResidEval.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_RESIDEVAL_H
 #define CT_RESIDEVAL_H
@@ -83,7 +83,7 @@ public:
     virtual int eval(const doublereal t, const doublereal* const y,
                      const doublereal* const ydot,
                      doublereal* const r) {
-        throw CanteraError("ResidEval::eval()", "base class called");
+        throw NotImplementedError("ResidEval::eval");
     }
 
     virtual int evalSS(const doublereal t, const doublereal* const y,
@@ -117,7 +117,7 @@ public:
     virtual int getInitialConditions(const doublereal t0, doublereal* const y,
                                      doublereal* const ydot) {
         initSizes();
-        throw CanteraError("ResidEval::GetInitialConditions()", "base class called");
+        throw NotImplementedError("ResidEval::GetInitialConditions");
         return 1;
     }
 

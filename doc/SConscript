@@ -100,8 +100,8 @@ if localenv['doxygen_docs']:
                       mglob(env, '#src/cantera/*', 'h', 'cpp'))
 
     env.Alias('doxygen', docs)
-    install('$inst_docdir/doxygen/html',
-            mglob(localenv, '#/build/docs/doxygen/html', 'html', 'svg', 'css', 'png'))
+    install(localenv.RecursiveInstall, '$inst_docdir/doxygen/html',
+            '#/build/docs/doxygen/html', exclude=['\\.map', '\\.md5'])
 
 if localenv['sphinx_docs']:
     localenv['SPHINXBUILD'] = Dir('#build/docs/sphinx')
@@ -144,8 +144,7 @@ if localenv['sphinx_docs']:
         '1D/@Domain1D': ['1D/AxiStagnFlow.m', '1D/AxisymmetricFlow.m',
                          '1D/Inlet.m', '1D/Outlet.m', '1D/OutletRes.m',
                          '1D/Surface.m', '1D/SymmPlane.m'],
-        '1D/@Stack': ['1D/FreeFlame.m', '1D/npflame_init.m',
-                      '1D/CounterFlowDiffusionFlame.m'],
+        '1D/@Stack': ['1D/FreeFlame.m', '1D/CounterFlowDiffusionFlame.m'],
         '@Interface': ['importEdge.m', 'importInterface.m'],
         '@Data': ['gasconstant.m', 'oneatm.m'],
         '@Utilities': ['adddir.m', 'ck2cti.m', 'cleanup.m', 'geterr.m',
@@ -206,3 +205,5 @@ if localenv['sphinx_docs']:
         localenv.Depends(sphinxdocs, c)
 
     localenv.AlwaysBuild(sphinxdocs)
+    install(localenv.RecursiveInstall, '$inst_docdir/sphinx/html',
+            '#/build/docs/sphinx/html')

@@ -77,27 +77,31 @@ shared_ptr<Species> make_const_cp_species(const std::string& name,
     return species;
 }
 
-
+//! @todo Remove after Cantera 2.5 - class FixedChemPotSSTP is deprecated
 class FixedChemPotSstpConstructorTest : public testing::Test
 {
 };
 
 TEST_F(FixedChemPotSstpConstructorTest, fromXML)
 {
+    suppress_deprecation_warnings();
     std::unique_ptr<ThermoPhase> p(newPhase("../data/LiFixed.xml"));
     ASSERT_EQ((int) p->nSpecies(), 1);
     double mu;
     p->getChemPotentials(&mu);
     ASSERT_DOUBLE_EQ(-2.3e7, mu);
+    make_deprecation_warnings_fatal();
 }
 
 TEST_F(FixedChemPotSstpConstructorTest, SimpleConstructor)
 {
+    suppress_deprecation_warnings();
     FixedChemPotSSTP p("Li", -2.3e7);
     ASSERT_EQ((int) p.nSpecies(), 1);
     double mu;
     p.getChemPotentials(&mu);
     ASSERT_DOUBLE_EQ(-2.3e7, mu);
+    make_deprecation_warnings_fatal();
 }
 
 TEST(IonsFromNeutralConstructor, fromXML)
@@ -110,10 +114,10 @@ TEST(IonsFromNeutralConstructor, fromXML)
     p->getChemPotentials(mu.data());
 
     // Values for regression testing only -- no reference values known for comparison
-    EXPECT_NEAR(p->density(), 1984.3225978174073, 1e-6);
-    EXPECT_NEAR(p->enthalpy_mass(), -8035317241137.971, 1e-1);
+    EXPECT_NEAR(p->density(), 1984.2507319669949, 1e-6);
+    EXPECT_NEAR(p->enthalpy_mass(), -14738312.44316336, 1e-6);
     EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
-    EXPECT_NEAR(mu[1], -2.88157298e+06, 1e-1);
+    EXPECT_NEAR(mu[1], -2.88157316e+06, 1e-1);
 }
 
 TEST(IonsFromNeutralConstructor, fromScratch)
@@ -131,7 +135,8 @@ TEST(IonsFromNeutralConstructor, fromScratch)
 
     auto sKp = make_shared<Species>("K+", parseCompString("K:1"), 1);
     auto sClm = make_shared<Species>("Cl-", parseCompString("Cl:1"), -1);
-    sClm->extra["special_species"] = true;
+    sClm->input["equation-of-state"]["special-species"] = true;
+    sClm->input["equation-of-state"]["model"] = "ions-from-neutral-molecule";
     p.addSpecies(sKp);
     p.addSpecies(sClm);
     std::unique_ptr<PDSS_IonsFromNeutral> ssKp(new PDSS_IonsFromNeutral());
@@ -149,17 +154,17 @@ TEST(IonsFromNeutralConstructor, fromScratch)
     p.getChemPotentials(mu.data());
 
     // Values for regression testing only -- same as XML test
-    EXPECT_NEAR(p.density(), 1984.3225978174073, 1e-6);
-    EXPECT_NEAR(p.enthalpy_mass(), -8035317241137.971, 1e-1);
+    EXPECT_NEAR(p.density(), 1984.2507319669949, 1e-6);
+    EXPECT_NEAR(p.enthalpy_mass(), -14738312.44316336, 1e-6);
     EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
-    EXPECT_NEAR(mu[1], -2.88157298e+06, 1e-1);
+    EXPECT_NEAR(mu[1], -2.88157316e+06, 1e-1);
 }
 
 class CtiConversionTest : public testing::Test
 {
 public:
     CtiConversionTest() {
-        appdelete();
+        close_XML_File("all");
     }
 
     std::unique_ptr<ThermoPhase> p1;
@@ -321,12 +326,33 @@ TEST_F(ConstructFromScratch, RedlichKwongMFTP)
     p.setState_TP(300, 200 * OneAtm);
     EXPECT_NEAR(p.pressure(), 200 * OneAtm, 1e-5);
     // Arbitrary regression test values
-    EXPECT_NEAR(p.density(), 892.421, 2e-3);
-    EXPECT_NEAR(p.enthalpy_mole(), -404848642.3797, 1e-3);
+    EXPECT_NEAR(p.density(), 892.405, 2e-3);
+    EXPECT_NEAR(p.enthalpy_mole(), -404848641.9409, 1e-3);
+
+    p.setMoleFractionsByName("CO2:.6, H2O:0.02, H2:0.38");
+    p.setState_TP(350, 180*OneAtm);
+    EXPECT_NEAR(p.density(), 181.565, 2e-3);
+    EXPECT_NEAR(p.gibbs_mass(), -1.0607e7, 2e3);
 }
 
+TEST_F(ConstructFromScratch, RedlichKwongMFTP_missing_coeffs)
+{
+    RedlichKwongMFTP p;
+    p.addSpecies(sH2O);
+    p.addSpecies(sCO2);
+    p.addSpecies(sH2);
+    double fa = toSI("bar-cm6/mol2");
+    double fb = toSI("cm3/mol");
+    p.setSpeciesCoeffs("H2O", 1.7458e8 * fa, -8e4 * fa, 18.18 * fb);
+    p.setSpeciesCoeffs("H2", 30e7 * fa, -330e4 * fa, 31 * fb);
+    EXPECT_THROW(p.setState_TP(300, 200e5), CanteraError);
+}
+
+//! @todo Remove after Cantera 2.5 - "gas" mode of IdealSolnGasVPSS is
+//!     deprecated
 TEST_F(ConstructFromScratch, IdealSolnGasVPSS_gas)
 {
+    suppress_deprecation_warnings();
     IdealSolnGasVPSS p;
     p.addSpecies(sH2O);
     p.addSpecies(sH2);
@@ -348,6 +374,7 @@ TEST_F(ConstructFromScratch, IdealSolnGasVPSS_gas)
     EXPECT_NEAR(p.temperature(), 479.929, 1e-3); // based on h2o2.cti
     EXPECT_NEAR(p.moleFraction("H2O"), 0.01, 1e-4);
     EXPECT_NEAR(p.moleFraction("H2"), 0.0, 1e-4);
+    make_deprecation_warnings_fatal();
 }
 
 TEST(PureFluidFromScratch, CarbonDioxide)
@@ -356,7 +383,7 @@ TEST(PureFluidFromScratch, CarbonDioxide)
     auto sCO2 = make_shared<Species>("CO2", parseCompString("C:1 O:2"));
     sCO2->thermo.reset(new ShomatePoly2(200, 6000, 101325, co2_shomate_coeffs));
     p.addSpecies(sCO2);
-    p.setSubstance("carbondioxide");
+    p.setSubstance("carbon-dioxide");
     p.initThermo();
     p.setState_Tsat(280, 0.5);
     EXPECT_NEAR(p.pressure(), 4160236.987, 1e-2);
@@ -408,29 +435,29 @@ TEST(DebyeHuckel, fromScratch)
     auto sNa = make_species("Na+", "Na:1, E:-1", -240.34e6,
                               298.15, -103.98186, 333.15, -103.98186);
     sNa->charge = 1;
-    sNa->extra["ionic_radius"] = 4.0e-10;
+    sNa->input["Debye-Huckel"]["ionic-radius"] = 4.0e-10;
     auto sCl = make_species("Cl-", "Cl:1, E:1", -167.08e6,
                               298.15, -74.20664, 333.15, -74.20664);
     sCl->charge = -1;
-    sCl->extra["ionic_radius"] = 3.0e-10;
+    sCl->input["Debye-Huckel"]["ionic-radius"] = 3.0e-10;
     auto sH = make_species("H+", "H:1, E:-1", 0.0, 298.15, 0.0, 333.15, 0.0);
     sH->charge = 1;
-    sH->extra["ionic_radius"] = 9.0e-10;
+    sH->input["Debye-Huckel"]["ionic-radius"] = 9.0e-10;
     auto sOH = make_species("OH-", "O:1, H:1, E:1", -230.015e6,
                               298.15, -91.50963, 333.15, -85);
     sOH->charge = -1;
-    sOH->extra["ionic_radius"] = 3.5e-10;
+    sOH->input["Debye-Huckel"]["ionic-radius"] = 3.5e-10;
     auto sNaCl = make_species("NaCl(aq)", "Na:1, Cl:1", -96.03e6*4.184,
                               298.15, -174.5057463, 333.15, -174.5057463);
-    sNaCl->extra["weak_acid_charge"] = -1.0;
-    sNaCl->extra["electrolyte_species_type"] = "weakAcidAssociated";
+    sNaCl->input["Debye-Huckel"]["weak-acid-charge"] = -1.0;
+    sNaCl->input["Debye-Huckel"]["electrolyte-species-type"] = "weakAcidAssociated";
     for (auto& s : {sH2O, sNa, sCl, sH, sOH, sNaCl}) {
         p.addSpecies(s);
     }
     std::unique_ptr<PDSS_Water> ss(new PDSS_Water());
     p.installPDSS(0, std::move(ss));
     size_t k = 1;
-    for (double v : {0.0, 1.3, 1.3, 1.3, 1.3}) {
+    for (double v : {1.3, 1.3, 0.0, 1.3, 1.3}) {
         std::unique_ptr<PDSS_ConstVol> ss(new PDSS_ConstVol());
         ss->setMolarVolume(v);
         p.installPDSS(k++, std::move(ss));
@@ -446,11 +473,19 @@ TEST(DebyeHuckel, fromScratch)
         "OH-:1.3765E-6,NaCl(aq):0.98492");
 
     // Regression test based on XML input file
+    EXPECT_NEAR(p.density(), 60.296, 1e-2);
+    EXPECT_NEAR(p.cp_mass(), 1.58216e5, 2e0);
+    EXPECT_NEAR(p.entropy_mass(), 4.01279e3, 2e-2);
     vector_fp actcoeff(p.nSpecies());
+    vector_fp mu_ss(p.nSpecies());
     p.getMolalityActivityCoefficients(actcoeff.data());
+    p.getStandardChemPotentials(mu_ss.data());
     double act_ref[] = {1.21762, 0.538061, 0.472329, 0.717707, 0.507258, 1.0};
+    double mu_ss_ref[] = {-3.06816e+08, -2.57956e+08, -1.84117e+08, 0.0,
+        -2.26855e+08, -4.3292e+08};
     for (size_t k = 0; k < p.nSpecies(); k++) {
         EXPECT_NEAR(actcoeff[k], act_ref[k], 1e-5);
+        EXPECT_NEAR(mu_ss[k], mu_ss_ref[k], 1e3);
     }
 }
 
@@ -473,16 +508,17 @@ TEST(MargulesVPSSTP, fromScratch)
         -1.757e7, -3.77e5, -7.627e3, 4.958e3, 0.0, 0.0, 0.0, 0.0);
 
     // Regression test based on LiKCl_liquid.xml
-    EXPECT_NEAR(p.density(), 2042.1165603245981, 1e-9);
-    EXPECT_NEAR(p.gibbs_mass(), -9682981.421693124, 1e-5);
-    EXPECT_NEAR(p.cp_mole(), 67478.48085733457, 1e-8);
+    EXPECT_NEAR(p.density(), 2041.9831422315356, 1e-9);
+    EXPECT_NEAR(p.gibbs_mass(), -9683614.0890585743, 1e-5);
+    EXPECT_NEAR(p.cp_mole(), 67478.48085733457, 1e-9);
 }
 
 TEST(LatticeSolidPhase, fromScratch)
 {
     auto base = make_shared<StoichSubstance>();
     base->setName("Li7Si3(S)");
-    base->setDensity(1390.0);
+    double rho = 1390.0;
+    base->setParameters(1, &rho);
     auto sLi7Si3 = make_shomate2_species("Li7Si3(S)", "Li:7 Si:3", li7si3_shomate_coeffs);
     base->addSpecies(sLi7Si3);
     base->initThermo();
@@ -506,9 +542,9 @@ TEST(LatticeSolidPhase, fromScratch)
     p.setState_TP(725, 10 * OneAtm);
 
     // Regression test based on modified version of Li7Si3_ls.xml
-    EXPECT_NEAR(p.enthalpy_mass(), -2077821.9295456698, 1e-6);
+    EXPECT_NEAR(p.enthalpy_mass(), -2077955.0584538165, 1e-6);
     double mu_ref[] = {-4.62717474e+08, -4.64248485e+07, 1.16370186e+05};
-    double vol_ref[] = {0.09557086, 0.2, 0.09557086};
+    double vol_ref[] = {0.095564748201438857, 0.2, 0.095570863884152812};
     vector_fp mu(p.nSpecies());
     vector_fp vol(p.nSpecies());
     p.getChemPotentials(mu.data());
@@ -534,9 +570,9 @@ TEST(IdealSolidSolnPhase, fromScratch)
         p.addSpecies(s);
     }
     p.setState_TPX(500, 2e5, "sp1:0.1, sp2:0.89, sp3:0.01");
-    EXPECT_NEAR(p.density(), 10.1786978, 1e-6);
-    EXPECT_NEAR(p.enthalpy_mass(), -15642803.3884617, 1e-4);
-    EXPECT_NEAR(p.gibbs_mole(), -313642293.1654253, 1e-4);
+    EXPECT_NEAR(p.density(), 10.1787080, 1e-6);
+    EXPECT_NEAR(p.enthalpy_mass(), -15642788.8547624, 1e-4);
+    EXPECT_NEAR(p.gibbs_mole(), -313642312.7114608, 1e-4);
 }
 
 static void set_hmw_interactions(HMWSoln& p) {
@@ -617,8 +653,8 @@ TEST(HMWSoln, fromScratch)
     double acMolRef[] = {0.9341, 1.0191, 3.9637, 1.0191, 0.4660};
     double mfRef[] = {0.8198, 0.0901, 0.0000, 0.0901, 0.0000};
     double activitiesRef[] = {0.7658, 6.2164, 0.0000, 6.2164, 0.0000};
-    double mollRef[] = {55.5084, 6.0997, 0.0000, 6.0997, 0.0000};
-    double mu0Ref[] = {-317.175788, -186.014558, 0.0017225, -441.615429, -322.000412}; // kJ/gmol
+    double mollRef[] = {55.5093, 6.0997, 0.0000, 6.0997, 0.0000};
+    double mu0Ref[] = {-317.175791, -186.014570, 0.0017225, -441.615456, -322.000432}; // kJ/gmol
 
     for (size_t k = 0 ; k < N; k++) {
         EXPECT_NEAR(acMol[k], acMolRef[k], 2e-4);
@@ -725,11 +761,34 @@ TEST(PDSS_SSVol, fromScratch)
     EXPECT_NEAR(p.gibbs_mole(), -7801634.1184443515, 2e-8);
     p.setState_TP(400, 2*OneAtm);
     EXPECT_NEAR(p.density(), 495.06986080, 2e-8);
-    EXPECT_NEAR(p.molarVolume(), 0.01402024350418708, 2e-12);
+    EXPECT_NEAR(p.molarVolume(), 0.014018223587243668, 2e-12);
     p.setState_TP(500, 2*OneAtm);
     EXPECT_NEAR(p.density(), 484.66590, 2e-8);
-    EXPECT_NEAR(p.enthalpy_mass(), 1236522.9439646902, 2e-8);
-    EXPECT_NEAR(p.entropy_mole(), 49848.48843237689, 2e-8);
+    EXPECT_NEAR(p.enthalpy_mass(), 1236701.0904197122, 2e-8);
+    EXPECT_NEAR(p.entropy_mole(), 49848.488477407751, 2e-8);
+}
+
+TEST(Species, fromYaml)
+{
+    AnyMap spec = AnyMap::fromYamlString(
+        "name: NO2\n"
+        "composition: {N: 1, O: 2}\n"
+        "units: {length: cm, quantity: mol}\n"
+        "molar-volume: 0.536\n"
+        "thermo:\n"
+        "  model: NASA7\n"
+        "  temperature-ranges: [200, 1000, 6000]\n"
+        "  data:\n"
+        "  - [3.944031200E+00, -1.585429000E-03, 1.665781200E-05, -2.047542600E-08,\n"
+        "     7.835056400E-12, 2.896617900E+03, 6.311991700E+00]\n"
+        "  - [4.884754200E+00, 2.172395600E-03, -8.280690600E-07, 1.574751000E-10,\n"
+        "     -1.051089500E-14, 2.316498300E+03, -1.174169500E-01]\n");
+
+    auto S = newSpecies(spec);
+    EXPECT_DOUBLE_EQ(S->thermo->minTemp(), 200);
+    EXPECT_EQ(S->composition.at("N"), 1);
+    // Check that units directive gets propagated to `input`
+    EXPECT_DOUBLE_EQ(S->input.convert("molar-volume", "m^3/kmol"), 0.000536);
 }
 
 } // namespace Cantera

@@ -57,11 +57,11 @@ function x = Wall(left, right, area, k, u, q, v)
 % :return:
 %     Instance of class :mat:func:`Wall`
 
-% This is a dummy argument, it is not actually used by wall_new in ctreactor.cpp
-typ = 1;
+% At the moment, only one wall type is implemented
+typ = 'Wall';
 
-x.index = wallmethods(0, typ);
-
+x.type = char(typ);
+x.index = wallmethods(0, x.type);
 if x.index < 0
     error(geterr);
 end

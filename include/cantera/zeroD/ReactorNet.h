@@ -1,7 +1,7 @@
 //! @file ReactorNet.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_REACTORNET_H
 #define CT_REACTORNET_H
@@ -34,6 +34,11 @@ public:
     //! Set initial time. Default = 0.0 s. Restarts integration from this time
     //! using the current mixture state as the initial condition.
     void setInitialTime(double time);
+
+    //! Get the maximum time step.
+    double maxTimeStep() {
+        return m_maxstep;
+    }
 
     //! Set the maximum time step.
     void setMaxTimeStep(double maxstep);
@@ -80,6 +85,17 @@ public:
      * @param time Time to advance to (s).
      */
     void advance(doublereal time);
+
+    /**
+     * Advance the state of all reactors in time. Take as many internal
+     * timesteps as necessary towards *time*. If *applylimit* is true,
+     * the advance step will be automatically reduced if needed to
+     * stay within limits (set by setAdvanceLimit).
+     * Returns the time at the end of integration.
+     * @param time Time to advance to (s).
+     * @param applylimit Limit advance step (boolean).
+     */
+    double advance(double time, bool applylimit);
 
     //! Advance the state of all reactors in time.
     double step();
@@ -164,6 +180,9 @@ public:
 
     virtual void getState(doublereal* y);
 
+    //! Return k-th derivative at the current time
+    virtual void getDerivative(int k, double* dky);
+
     virtual size_t nparams() {
         return m_sens_params.size();
     }
@@ -195,6 +214,10 @@ public:
         return m_paramNames.at(p);
     }
 
+    //! Initialize the reactor network. Called automatically the first time
+    //! advance or step is called.
+    void initialize();
+
     //! Reinitialize the integrator. Used to solve a new problem (different
     //! initial conditions) but with the same configuration of the reactor
     //! network. Can be called manually, or automatically after calling
@@ -207,10 +230,43 @@ public:
         m_integrator_init = false;
     }
 
+    //! Set the maximum number of internal integration time-steps the
+    //! integrator will take before reaching the next output time
+    //! @param nmax The maximum number of steps, setting this value
+    //!             to zero disables this option.
+    virtual void setMaxSteps(int nmax) {
+        m_integ->setMaxSteps(nmax);
+    }
+
+    //! Returns the maximum number of internal integration time-steps the
+    //!  integrator will take before reaching the next output time
+    //!
+    virtual int maxSteps() {
+        return m_integ->maxSteps();
+    }
+
+    //! Set absolute step size limits during advance
+    void setAdvanceLimits(const double* limits);
+
+    //! Check whether ReactorNet object uses advance limits
+    bool hasAdvanceLimits();
+
+    //! Retrieve absolute step size limits during advance
+    bool getAdvanceLimits(double* limits);
+
 protected:
-    //! Initialize the reactor network. Called automatically the first time
-    //! advance or step is called.
-    void initialize();
+
+    //! Estimate a future state based on current derivatives.
+    //! The function is intended for internal use by ReactorNet::advance
+    //! and deliberately not exposed in external interfaces.
+    virtual void getEstimate(double time, int k, double* yest);
+
+    //! Returns the order used for last solution step of the ODE integrator
+    //! The function is intended for internal use by ReactorNet::advance
+    //! and deliberately not exposed in external interfaces.
+    virtual int lastOrder() {
+        return m_integ->lastOrder();
+    }
 
     std::vector<Reactor*> m_reactors;
     std::unique_ptr<Integrator> m_integ;
@@ -236,6 +292,8 @@ protected:
     std::vector<std::string> m_paramNames;
 
     vector_fp m_ydot;
+    vector_fp m_yest;
+    vector_fp m_advancelimits;
 };
 }
 

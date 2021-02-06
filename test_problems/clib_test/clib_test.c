@@ -15,15 +15,9 @@
 int main(int argc, char** argv)
 {
     int ret;
-    int xml_file = xml_get_XML_File("gri30.xml", 0);
-    assert(xml_file > 0);
-
-    int phase_node = xml_findID(xml_file, "gri30_mix");
-    assert(phase_node > 0);
-
-    int thermo = thermo_newFromXML(phase_node);
+    int thermo = thermo_newFromFile("gri30.xml", "gri30_mix");
     assert(thermo > 0);
-    int nsp = thermo_nSpecies(thermo);
+    size_t nsp = thermo_nSpecies(thermo);
     assert(nsp == 53);
 
     ret = thermo_setTemperature(thermo, 500);
@@ -41,7 +35,7 @@ int main(int argc, char** argv)
     ret = thermo_print(thermo, 1, 0);
     assert(ret == 0);
 
-    int kin = kin_newFromXML(phase_node, thermo, 0, 0, 0, 0);
+    int kin = kin_newFromFile("gri30.xml", "gri30_mix", thermo, 0, 0, 0, 0);
     assert(kin > 0);
 
     size_t nr = kin_nReactions(kin);
@@ -54,14 +48,14 @@ int main(int argc, char** argv)
     double ropf[325];
     printf("\n                   Reaction           Forward ROP\n");
     kin_getFwdRatesOfProgress(kin, 325, ropf);
-    size_t n; // declare this here for C89 compatibility
+    int n; // declare this here for C89 compatibility
     for (n = 0; n < nr; n++) {
         kin_getReactionString(kin, n, 1000, buf);
         printf("%35s   %8.6e\n", buf, ropf[n]);
     }
 
     printf("\n  Species    Mix diff coeff\n");
-    int tran = trans_new("Mix", thermo, 0);
+    int tran = trans_newDefault(thermo, 0);
     double dkm[53];
     trans_getMixDiffCoeffs(tran, 53, dkm);
     int k; // declare this here for C89 compatibility
@@ -78,7 +72,7 @@ int main(int argc, char** argv)
     assert(ret == 0);
 
     printf("\ntime       Temperature\n");
-    int reactor = reactor_new(5);
+    int reactor = reactor_new2("IdealGasReactor");
     int net = reactornet_new();
     ret = reactor_setThermoMgr(reactor, thermo);
     assert(ret == 0);

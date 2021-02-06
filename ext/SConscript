@@ -51,7 +51,8 @@ if not env['system_fmt']:
 
 if env['system_sundials'] == 'n':
     localenv = prep_default(env)
-    localenv.Prepend(CPPPATH=Dir('#include/cantera/ext'))
+    localenv.Prepend(CPPPATH=[Dir('#include/cantera/ext'),
+                              Dir('#ext/sundials/src/sundials')])
     license_files.append(('Sundials', 'sundials/LICENSE'))
 
     # Generate sundials_config.h
@@ -65,27 +66,49 @@ if env['system_sundials'] == 'n':
                                      ConfigBuilder(sundials_configh)))
 
     # Copy sundials header files into common include directory
-    for subdir in ('sundials', 'nvector', 'cvodes', 'ida', 'sunmatrix', 'sunlinsol'):
+    for subdir in ('sundials', 'nvector', 'cvodes', 'ida', 'sunmatrix',
+                   'sunlinsol', 'sunnonlinsol'):
         for header in mglob(env, 'sundials/include/'+subdir, 'h'):
             build(copyenv.Command('#include/cantera/ext/%s/%s' % (subdir, header.name),
                                   '#ext/sundials/include/%s/%s' % (subdir, header.name),
                                   Copy('$TARGET', '$SOURCE')))
 
-    # Compile Sundials source files
-    subdirs = ['sundials', 'nvec_ser', 'cvodes', 'ida', 'sunmat_band',
-               'sunmat_dense', 'sunmat_sparse', 'sunlinsol_dense',
-               'sunlinsol_band','sunlinsol_spgmr']
+    # Compile Sundials source files. Skip files related to the Sundials Fortran
+    # interface, which start with 'fsun'.
+    subdirs = ['sundials', 'nvector/serial', 'cvodes', 'ida', 'sunmatrix/band',
+               'sunmatrix/dense', 'sunmatrix/sparse', 'sunlinsol/dense',
+               'sunlinsol/band','sunlinsol/spgmr', 'sunnonlinsol/newton']
     if env['use_lapack']:
-        subdirs.extend(('sunlinsol_lapackdense', 'sunlinsol_lapackband'))
+        subdirs.extend(('sunlinsol/lapackdense', 'sunlinsol/lapackband'))
 
     for subdir in subdirs:
         libraryTargets.extend(localenv.SharedObject(
-            [f for f in mglob(localenv, 'sundials/src/'+subdir, 'c')]))
+            [f for f in mglob(localenv, 'sundials/src/'+subdir, 'c')
+             if not f.name.startswith('fsun')]))
+
+if not env['system_yamlcpp']:
+    localenv = prep_default(env)
+    localenv.Prepend(CPPPATH=Dir('#include/cantera/ext'))
+    license_files.append(('YAML-CPP', 'yaml-cpp/LICENSE'))
+
+    # Copy header files into common include directory
+    for subdir in ('', 'contrib', 'node', 'node/detail'):
+        for header in mglob(env, 'yaml-cpp/include/yaml-cpp/'+subdir, 'h'):
+            h = build(localenv.Command('#include/cantera/ext/yaml-cpp/{}/{}'.format(subdir, header.name),
+                                       '#ext/yaml-cpp/include/yaml-cpp/{}/{}'.format(subdir, header.name),
+                                       Copy('$TARGET', '$SOURCE')))
+
+    # Compile yaml-cpp source files
+    for subdir in ('', 'contrib'):
+        libraryTargets.extend(localenv.SharedObject(
+            [f for f in mglob(localenv, 'yaml-cpp/src/'+subdir, 'cpp')]))
+
 
 if not env['system_eigen']:
     license_files.append(('Eigen', 'eigen/COPYING.MPL2'))
-    build(copyenv.Command('#include/cantera/ext/Eigen', '#ext/eigen/Eigen',
-                          Copy('$TARGET', '$SOURCE')))
+    h = build(copyenv.Command('#include/cantera/ext/Eigen', '#ext/eigen/Eigen',
+                              Copy('$TARGET', '$SOURCE')))
+    copyenv.Depends(copyenv['config_h_target'], h)
 
 # Google Test: Used internally for Cantera unit tests.
 if env['googletest'] == 'submodule':

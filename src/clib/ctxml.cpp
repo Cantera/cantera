@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #define CANTERA_USE_INTERNAL
 #include "cantera/clib/ctxml.h"
@@ -105,7 +105,7 @@ extern "C" {
         try {
             XML_Node& node = XmlCabinet::item(i);
             if (node.hasAttrib(key)) {
-                return copyString(node[key], value, lenval);
+                return static_cast<int>(copyString(node[key], value, lenval));
             } else {
                 throw CanteraError("xml_attrib","node "
                                    " has no attribute '"+string(key)+"'");
@@ -138,7 +138,7 @@ extern "C" {
     int xml_tag(int i, size_t lentag, char* tag)
     {
         try {
-            return copyString(XmlCabinet::item(i).name(), tag, lentag);
+            return static_cast<int>(copyString(XmlCabinet::item(i).name(), tag, lentag));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -147,7 +147,7 @@ extern "C" {
     int xml_value(int i, size_t lenval, char* value)
     {
         try {
-            return copyString(XmlCabinet::item(i).value(), value, lenval);
+            return static_cast<int>(copyString(XmlCabinet::item(i).value(), value, lenval));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -182,7 +182,7 @@ extern "C" {
             if (c) {
                 return XmlCabinet::add(c);
             } else {
-                throw CanteraError("xml_find_id","id not found: "+string(id));
+                throw CanteraError("xml_findID", "id not found: '{}'", id);
             }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -197,8 +197,7 @@ extern "C" {
             if (c) {
                 return XmlCabinet::add(c);
             } else {
-                throw CanteraError("xml_findByName","name "+string(nm)
-                                   +" not found");
+                throw CanteraError("xml_findByName", "name '{}' not found", nm);
             }
         } catch (...) {
             return handleAllExceptions(-1, ERR);

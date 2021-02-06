@@ -24,7 +24,7 @@ if env['googletest'] == 'submodule':
 if env['googletest'] != 'none':
     localenv.Append(LIBS=['gtest', 'gmock'])
 
-# Turn of optimization to speed up compilation
+# Turn off optimization to speed up compilation
 ccflags = localenv['CCFLAGS']
 for optimize_flag in ('-O3', '-O2', '/O2'):
     if optimize_flag in ccflags:
@@ -58,13 +58,18 @@ def addTestProgram(subdir, progName, env_vars={}):
             os.mkdir(workDir)
         cmd = [program.abspath, '--gtest_output=xml:'+resultsFile]
         cmd.extend(env['gtest_flags'].split())
+        if env["fast_fail_tests"]:
+            env["ENV"]["GTEST_BREAK_ON_FAILURE"] = "1"
         code = subprocess.call(cmd, env=env['ENV'], cwd=workDir)
 
         if code:
             print("FAILED: Test '{0}' exited with code {1}".format(progName, code))
+            if env["fast_fail_tests"]:
+                sys.exit(1)
         else:
             # Test was successful
-            open(passedFile.path, 'w').write(time.asctime()+'\n')
+            with open(passedFile.path, 'w') as passed_file:
+                passed_file.write(time.asctime()+'\n')
 
         if os.path.exists(resultsFile):
             # Determine individual test status
@@ -123,11 +128,21 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
         for k,v in env_vars.items():
             print(k,v)
             environ[k] = v
-        code = subprocess.call([env.subst(interpreter), source[0].abspath] + args.split(),
-                               env=environ)
+
+        cmdargs = args.split()
+        if env["fast_fail_tests"]:
+            cmdargs.insert(0, "fast_fail")
+
+        code = subprocess.call(
+            [env.subst(interpreter), source[0].abspath] + cmdargs,
+            env=environ
+        )
         if not code:
             # Test was successful
-            open(target[0].path, 'w').write(time.asctime()+'\n')
+            with open(target[0].path, 'w') as passed_file:
+                passed_file.write(time.asctime()+'\n')
+        elif env["fast_fail_tests"]:
+            sys.exit(1)
 
         failures = 0
         if os.path.exists(outfile):
@@ -187,8 +202,11 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
         code = subprocess.call([pjoin(env['matlab_path'], 'bin', 'matlab')] +
                                matlabOptions + ['-r', runCommand],
                                env=environ, cwd=Dir('#test/matlab').abspath)
+        if code and env["fast_fail_tests"]:
+            sys.exit(1)
         try:
-            results = open(outfile).read()
+            with open(outfile, "r") as output_file:
+                results = output_file.read()
         except EnvironmentError: # TODO: replace with 'FileNotFoundError' after end of Python 2.7 support
             testResults.failed['Matlab' +
                 ' ***no results for entire test suite***'] = 100
@@ -238,58 +256,38 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
 
     return run_program
 
-if localenv['python2_package'] in ('full', 'minimal'):
-    python_env_vars = {'PYTHONPATH': localenv['pythonpath_build2'],
-                       'PYTHON_CMD': localenv.subst('$python2_cmd')}
-elif localenv['python3_package'] in ('full', 'minimal'):
-    python_env_vars = {'PYTHONPATH': localenv['pythonpath_build3'],
-                       'PYTHON_CMD': localenv.subst('$python3_cmd')}
-else:
-    python_env_vars = {'PYTHONPATH': '../../build/python_minimal',
-                       'PYTHON_CMD': localenv.subst('$python_cmd')}
-
-
 # Instantiate tests
-addTestProgram('general', 'general', env_vars=python_env_vars)
-addTestProgram('thermo', 'thermo', env_vars=python_env_vars)
-addTestProgram('equil', 'equil', env_vars=python_env_vars)
-addTestProgram('kinetics', 'kinetics', env_vars=python_env_vars)
-addTestProgram('transport', 'transport', env_vars=python_env_vars)
+addTestProgram('general', 'general')
+addTestProgram('thermo', 'thermo')
+addTestProgram('equil', 'equil')
+addTestProgram('kinetics', 'kinetics')
+addTestProgram('transport', 'transport')
 
 python_subtests = ['']
 test_root = '#interfaces/cython/cantera/test'
 for f in mglob(localenv, test_root, '^test_*.py'):
     python_subtests.append(f.name[5:-3])
 
-def make_python_tests(version):
-    # Create test aliases for individual test modules (e.g. test-python2-thermo;
+if localenv['python_package'] == 'full':
+    # Create test aliases for individual test modules (e.g. test-python-thermo;
     # not run as part of the main suite) and a single test runner with all the
-    # tests (test-python2) for the main suite.
+    # tests (test-python) for the main suite.
     for subset in python_subtests:
-        name = 'python%i-' %version + subset if subset else 'python%i' % version
+        name = 'python-' + subset if subset else 'python'
         pyTest = addPythonTest(
             name, 'python', 'runCythonTests.py',
             args=subset,
-            interpreter='$python{}_cmd'.format(version),
-            outfile=File('#test/work/python%d-results.txt' % version).abspath,
-            dependencies=(localenv['python%i_module' % version] +
-                          localenv['python%i_extension' % version] +
+            interpreter='$python_cmd',
+            outfile=File('#test/work/python-results.txt').abspath,
+            dependencies=(localenv['python_module'] + localenv['python_extension'] +
                           mglob(localenv, test_root, 'py')),
-            env_vars={'PYTHONPATH': localenv['pythonpath_build%s' % version]},
             optional=bool(subset))
         localenv.Alias('test-' + name, pyTest)
         env['testNames'].append(name)
 
-if localenv['python2_package'] == 'full':
-    make_python_tests(2)
-
-if localenv['python3_package'] == 'full':
-    make_python_tests(3)
-
 if localenv['matlab_toolbox'] == 'y':
     matlabTest = addMatlabTest('runCanteraTests.m', 'matlab',
-                               dependencies=mglob(localenv, 'matlab', 'm'),
-                               env_vars=python_env_vars)
+                               dependencies=mglob(localenv, 'matlab', 'm'))
     localenv.Alias('test-matlab', matlabTest)
     env['testNames'].append('matlab')
 

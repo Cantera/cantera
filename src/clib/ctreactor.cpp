@@ -3,18 +3,14 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #define CANTERA_USE_INTERNAL
 #include "cantera/clib/ctreactor.h"
 
 // Cantera includes
-#include "cantera/zeroD/Reactor.h"
-#include "cantera/zeroD/FlowReactor.h"
-#include "cantera/zeroD/ReactorNet.h"
-#include "cantera/zeroD/ReactorFactory.h"
-#include "cantera/zeroD/Wall.h"
-#include "cantera/zeroD/flowControllers.h"
+#include "cantera/numerics/Func1.h"
+#include "cantera/zerodim.h"
 #include "Cabinet.h"
 
 using namespace Cantera;
@@ -23,7 +19,7 @@ using namespace std;
 typedef Cabinet<ReactorBase> ReactorCabinet;
 typedef Cabinet<ReactorNet> NetworkCabinet;
 typedef Cabinet<FlowDevice> FlowDeviceCabinet;
-typedef Cabinet<Wall> WallCabinet;
+typedef Cabinet<WallBase> WallCabinet;
 typedef Cabinet<Func1> FuncCabinet;
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
@@ -39,7 +35,22 @@ extern "C" {
 
     // reactor
 
+    //! @deprecated To be changed after Cantera 2.5.
     int reactor_new(int type)
+    {
+        warn_deprecated("reactor_new(int)",
+                        "To be changed after Cantera 2.5. "
+                        "Argument changed to string instead of int; use"
+                        "reactor_new2(char*) during transition.");
+        try {
+            ReactorBase* r = ReactorFactory::factory()->newReactor(type);
+            return ReactorCabinet::add(r);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int reactor_new2(const char* type)
     {
         try {
             ReactorBase* r = ReactorFactory::factory()->newReactor(type);
@@ -82,10 +93,7 @@ extern "C" {
     int reactor_setKineticsMgr(int i, int n)
     {
         try {
-            // @todo This should not fail silently
-            if (ReactorCabinet::item(i).type() >= ReactorType) {
-                ReactorCabinet::get<Reactor>(i).setKineticsMgr(KineticsCabinet::item(n));
-            }
+            ReactorCabinet::item(i).setKineticsMgr(KineticsCabinet::item(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -167,10 +175,7 @@ extern "C" {
     int reactor_setChemistry(int i, int cflag)
     {
         try {
-            // @todo This should not fail silently
-            if (ReactorCabinet::item(i).type() >= ReactorType) {
-                ReactorCabinet::get<Reactor>(i).setChemistry(cflag);
-            }
+            ReactorCabinet::get<Reactor>(i).setChemistry(cflag != 0);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -180,10 +185,7 @@ extern "C" {
     int reactor_setEnergy(int i, int eflag)
     {
         try {
-            // @todo This should not fail silently
-            if (ReactorCabinet::item(i).type() >= ReactorType) {
-                ReactorCabinet::get<Reactor>(i).setEnergy(eflag);
-            }
+            ReactorCabinet::get<Reactor>(i).setEnergy(eflag);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -350,22 +352,23 @@ extern "C" {
 
     int flowdev_new(int type)
     {
+        warn_deprecated("flowdev_new(int)",
+                        "To be changed after Cantera 2.5. "
+                        "Argument changed to string instead of int; use"
+                        "flowdev_new2(char*) during transition.");
         try {
-            FlowDevice* r;
-            switch (type) {
-            case MFC_Type:
-                r = new MassFlowController();
-                break;
-            case PressureController_Type:
-                r = new PressureController();
-                break;
-            case Valve_Type:
-                r = new Valve();
-                break;
-            default:
-                r = new FlowDevice();
-            }
-            return FlowDeviceCabinet::add(r);
+            FlowDevice* f = FlowDeviceFactory::factory()->newFlowDevice(type);
+            return FlowDeviceCabinet::add(f);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int flowdev_new2(const char* type)
+    {
+        try {
+            FlowDevice* f = FlowDeviceFactory::factory()->newFlowDevice(type);
+            return FlowDeviceCabinet::add(f);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -387,7 +390,8 @@ extern "C" {
             bool ok = FlowDeviceCabinet::item(i).install(ReactorCabinet::item(n),
                       ReactorCabinet::item(m));
             if (!ok) {
-                throw CanteraError("install","Could not install flow device.");
+                throw CanteraError("flowdev_install",
+                                   "Could not install flow device.");
             }
             return 0;
         } catch (...) {
@@ -409,7 +413,19 @@ extern "C" {
     double flowdev_massFlowRate(int i, double time)
     {
         try {
+            warn_deprecated("flowdev_massFlowRate(int i, double time)",
+                "To be changed after Cantera 2.5. 'time' argument will be "
+                "removed. Use flowdev_massFlowRate2(int i) during transition.");
             return FlowDeviceCabinet::item(i).massFlowRate(time);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
+    double flowdev_massFlowRate2(int i)
+    {
+        try {
+            return FlowDeviceCabinet::item(i).massFlowRate();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -417,6 +433,7 @@ extern "C" {
 
     int flowdev_setMassFlowRate(int i, double mdot)
     {
+        /* @deprecated To be removed after Cantera 2.5. */
         try {
             FlowDeviceCabinet::item(i).setMassFlowRate(mdot);
             return 0;
@@ -427,6 +444,7 @@ extern "C" {
 
     int flowdev_setParameters(int i, int n, const double* v)
     {
+        /* @deprecated To be removed after Cantera 2.5. */
         try {
             FlowDeviceCabinet::item(i).setParameters(n, v);
             return 0;
@@ -435,10 +453,61 @@ extern "C" {
         }
     }
 
-    int flowdev_setFunction(int i, int n)
+    int flowdev_setMassFlowCoeff(int i, double v)
     {
         try {
+            FlowDeviceCabinet::get<MassFlowController>(i).setMassFlowCoeff(v);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int flowdev_setValveCoeff(int i, double v)
+    {
+        try {
+            FlowDeviceCabinet::get<Valve>(i).setValveCoeff(v);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int flowdev_setPressureCoeff(int i, double v)
+    {
+        try {
+            FlowDeviceCabinet::get<PressureController>(i).setPressureCoeff(v);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int flowdev_setFunction(int i, int n)
+    {
+        /* @deprecated To be removed after Cantera 2.5. */
+        try {
             FlowDeviceCabinet::item(i).setFunction(&FuncCabinet::item(n));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int flowdev_setPressureFunction(int i, int n)
+    {
+        try {
+            FlowDeviceCabinet::item(i).setPressureFunction(&FuncCabinet::item(n));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int flowdev_setTimeFunction(int i, int n)
+    {
+        try {
+            FlowDeviceCabinet::item(i).setTimeFunction(&FuncCabinet::item(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -449,8 +518,23 @@ extern "C" {
 
     int wall_new(int type)
     {
+        warn_deprecated("wall_new(int)",
+                        "To be changed after Cantera 2.5. "
+                        "Argument changed to string instead of int; use"
+                        "wall_new2(char*) during transition.");
         try {
-            return WallCabinet::add(new Wall());
+            WallBase* w = WallFactory::factory()->newWall(type);
+            return WallCabinet::add(w);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int wall_new2(const char* type)
+    {
+        try {
+            WallBase* w = WallFactory::factory()->newWall(type);
+            return WallCabinet::add(w);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -517,7 +601,7 @@ extern "C" {
     int wall_setThermalResistance(int i, double rth)
     {
         try {
-            WallCabinet::item(i).setThermalResistance(rth);
+            WallCabinet::get<Wall>(i).setThermalResistance(rth);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -527,7 +611,7 @@ extern "C" {
     int wall_setHeatTransferCoeff(int i, double u)
     {
         try {
-            WallCabinet::item(i).setHeatTransferCoeff(u);
+            WallCabinet::get<Wall>(i).setHeatTransferCoeff(u);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -537,7 +621,7 @@ extern "C" {
     int wall_setHeatFlux(int i, int n)
     {
         try {
-            WallCabinet::item(i).setHeatFlux(&FuncCabinet::item(n));
+            WallCabinet::get<Wall>(i).setHeatFlux(&FuncCabinet::item(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -547,7 +631,7 @@ extern "C" {
     int wall_setExpansionRateCoeff(int i, double k)
     {
         try {
-            WallCabinet::item(i).setExpansionRateCoeff(k);
+            WallCabinet::get<Wall>(i).setExpansionRateCoeff(k);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -557,7 +641,7 @@ extern "C" {
     int wall_setVelocity(int i, int n)
     {
         try {
-            WallCabinet::item(i).setVelocity(&FuncCabinet::item(n));
+            WallCabinet::get<Wall>(i).setVelocity(&FuncCabinet::item(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -567,7 +651,7 @@ extern "C" {
     int wall_setEmissivity(int i, double epsilon)
     {
         try {
-            WallCabinet::item(i).setEmissivity(epsilon);
+            WallCabinet::get<Wall>(i).setEmissivity(epsilon);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

@@ -5,7 +5,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_MULTISPECIESTHERMO_H
 #define CT_MULTISPECIESTHERMO_H
@@ -71,20 +71,6 @@ public:
      */
     virtual void modifySpecies(size_t index,
                                shared_ptr<SpeciesThermoInterpType> spec);
-
-    //! Like update(), but only updates the single species k.
-    /*!
-     * @param k       species index
-     * @param T       Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
-     * @deprecated    Use update_single() instead.
-     *                To be removed after Cantera 2.4.
-     */
-    virtual void update_one(size_t k, doublereal T, doublereal* cp_R,
-                            doublereal* h_RT,
-                            doublereal* s_R) const;
 
     //! Like update_one, but without applying offsets to the output pointers
     /*!
@@ -203,7 +189,7 @@ public:
     bool ready(size_t nSpecies);
 
 private:
-    //! Provide the SpeciesthermoInterpType object
+    //! Provide the SpeciesThermoInterpType object
     /*!
      * @param k  species index
      * @return pointer to the SpeciesThermoInterpType object.

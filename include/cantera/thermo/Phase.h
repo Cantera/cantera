@@ -4,12 +4,13 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_PHASE_H
 #define CT_PHASE_H
 
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/Solution.h"
 #include "cantera/thermo/Elements.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/base/ValueCache.h"
@@ -31,7 +32,8 @@ namespace Cantera
 
 //! Class Phase is the base class for phases of matter, managing the species and
 //! elements in a phase, as well as the independent variables of temperature,
-//! mass density, species mass/mole fraction, and other generalized forces and
+//! mass density (compressible substances) or pressure (incompressible
+//! substances), species mass/mole fraction, and other generalized forces and
 //! intrinsic properties (such as electric potential) that define the
 //! thermodynamic state.
 /*!
@@ -48,38 +50,40 @@ namespace Cantera
  *
  * Class Phase is not usually used directly. Its primary use is as a base class
  * for class ThermoPhase. It is not generally necessary to overloaded any of
- * class Phase's methods, with the exception of incompressible phases. In that
- * case, the density must be replaced by the pressure as the independent
- * variable and functions such as setMassFraction within class Phase must
- * actually now calculate the density (at constant T and P) instead of leaving
- * it alone as befits an independent variable. This also applies for nearly-
- * incompressible phases or phases which utilize standard states based on a
- * T and P, in which case they need to overload these functions too.
+ * class Phase's methods, which handles both compressible and incompressible
+ * phases. For incompressible phases, the density is replaced by the pressure
+ * as the independent variable, and can no longer be set directly. In this case,
+ * the density needs to be calculated from a suitable equation of state, and
+ * assigned to the object using the assignDensity() method. This also applies
+ * for nearly-incompressible phases or phases which utilize standard states
+ * based on a T and P, in which case they need to overload these functions too.
  *
  * Class Phase contains a number of utility functions that will set the state
  * of the phase in its entirety, by first setting the composition, then the
- * temperature and then the density. An example of this is the function
+ * temperature and then density (or pressure for incompressible substances)
+ * An example of this is the function
  * Phase::setState_TRY(double t, double dens, const double* y).
  *
- * Class Phase contains method for saving and restoring the full internal states
- * of each phase. These are saveState() and restoreState(). These functions
- * operate on a state vector, which is in general of length (2 + nSpecies()).
- * The first two entries of the state vector are temperature and density.
+ * Class Phase contains methods for saving and restoring the full internal state
+ * of a given phase. These are saveState() and restoreState(). These functions
+ * operate on a state vector, which by default uses the first two entries for
+ * temperature and density (compressible substances) or temperature and
+ * pressure (incompressible substances). If the substance is not pure in a
+ * thermodynamic sense (that is, it may contain multiple species), the state also
+ * contains nSpecies() entries that specify the composition by corresponding
+ * mass fractions. Default definitions can be overloaded by derived classes.
+ * For any phase, the native definition of its thermodynamic state is defined
+ * the method nativeState(), with the length of the state vector returned by
+ * by stateSize(). In addition, methods isPure() and isCompressible() provide
+ * information on the implementation of a Phase object.
  *
- * A species name may be referred to via three methods:
- *
- *    -   "speciesName"
- *    -   "PhaseId:speciesName"
- *    -   "phaseName:speciesName"
- *    .
- *
- * The first two methods of naming may not yield a unique species within
- * complicated assemblies of %Cantera Phases.
+ * A species name is referred to via speciesName(), which is unique within a
+ * given phase. Note that within multiphase mixtures (MultiPhase()), both a
+ * phase name/index as well as species name are required to access information
+ * about a species in a particular phase. For surfaces, the species names are
+ * unique among the phases.
  *
  * @todo
- *   - Make the concept of saving state vectors more general, so that it can
- *     handle other cases where there are additional internal state variables,
- *     such as the voltage, a potential energy, or a strain field.
  *   - Specify that the input mole, mass, and volume fraction vectors must sum
  *     to one on entry to the set state routines. Non-conforming mole/mass
  *     fraction vectors are not thermodynamically consistent. Moreover, unless
@@ -108,6 +112,9 @@ public:
     /*!
      *  The XML_Node for the phase contains all of the input data used to set up
      *  the model for the phase during its initialization.
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     XML_Node& xml() const;
 
@@ -119,33 +126,37 @@ public:
      *  construction operations.
      *
      *  @param xmlPhase Reference to the XML node corresponding to the phase
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     void setXMLdata(XML_Node& xmlPhase);
 
-    /*! @name Name and ID
-     * Class Phase contains two strings that identify a phase. The ID is the
-     * value of the ID attribute of the XML phase node that is used to
-     * initialize a phase when it is read. The name field is also initialized
-     * to the value of the ID attribute of the XML phase node.
+    /*! @name Name
+     * Class Phase uses the string name to identify a phase. The name is the
+     * value of the corresponding key in the phase map (in YAML), name (in
+     * CTI), or id (in XML) that is used to initialize a phase when it is read.
      *
      * However, the name field may be changed to another value during the
-     * course of a calculation. For example, if a phase is located in two
-     * places, but has the same constitutive input, the IDs of the two phases
-     * will be the same, but the names of the two phases may be different.
-     *
-     * It is an error to have two phases in a single problem with the same name
-     * and ID (or the name from one phase being the same as the id of
-     * another phase). Thus, it is expected that there is a 1-1 correspondence
-     * between names and unique phases within a Cantera problem.
+     * course of a calculation. For example, if duplicates of a phase object
+     * are instantiated and used in multiple places (e.g. a ReactorNet), they
+     * will have the same constitutive input, i.e. the names of the phases will
+     * be the same. Note that this is not a problem for Cantera internally;
+     * however, a user may want to rename phase objects in order to clarify.
      */
     //!@{
 
     //! Return the string id for the phase.
+    /*!
+     * @deprecated To be removed after Cantera 2.5.
+     */
     std::string id() const;
 
     //! Set the string id for the phase.
     /*!
      *    @param id String id of the phase
+     *
+     * @deprecated To be removed after Cantera 2.5.
      */
     void setID(const std::string& id);
 
@@ -158,7 +169,15 @@ public:
     //! Sets the string name for the phase.
     //!     @param nm String name of the phase
     void setName(const std::string& nm);
-    //!@} end group Name and ID
+
+    //! String indicating the thermodynamic model implemented. Usually
+    //! corresponds to the name of the derived class, less any suffixes such as
+    //! "Phase", TP", "VPSS", etc.
+    virtual std::string type() const {
+        return "Phase";
+    }
+
+    //!@} end group Name
 
     //! @name Element and Species Information
     //!@{
@@ -278,16 +297,68 @@ public:
 
     //!@} end group Element and Species Information
 
+    //! Return whether phase represents a pure (single species) substance
+    virtual bool isPure() const {
+        return false;
+    }
+
+    //! Return whether phase represents a substance with phase transitions
+    virtual bool hasPhaseTransition() const {
+        return false;
+    }
+
+    //! Return whether phase represents a compressible substance
+    virtual bool isCompressible() const {
+        return true;
+    }
+
+    //! Return a map of properties defining the native state of a substance.
+    //! By default, entries include "T", "D", "Y" for a compressible substance
+    //! and "T", "P", "Y" for an incompressible substance, with offsets 0, 1 and
+    //! 2, respectively. Mass fractions "Y" are omitted for pure species.
+    //! In all cases, offsets into the state vector are used by saveState()
+    //! and restoreState().
+    virtual std::map<std::string, size_t> nativeState() const;
+
+    //! Return a vector containing full states defining a phase.
+    //! Full states list combinations of properties that allow for the
+    //! specification of a thermodynamic state based on user input.
+    //! Properties and states are represented by single letter acronyms, and
+    //! combinations of letters, respectively (e.g. "TDY", "TPX", "SVX").
+    //! Supported property acronyms are:
+    //!    "T": temperature
+    //!    "P": pressure
+    //!    "D": density
+    //!    "X": mole fractions
+    //!    "Y": mass fractions
+    //!    "T": temperature
+    //!    "U": specific internal energy
+    //!    "V": specific volume
+    //!    "H": specific enthalpy
+    //!    "S": specific entropy
+    //!    "Q": vapor fraction
+    virtual std::vector<std::string> fullStates() const;
+
+    //! Return a vector of settable partial property sets within a phase.
+    //! Partial states encompass all valid combinations of properties that allow
+    //! for the specification of a state while ignoring species concentrations
+    //! (e.g. "TD", "TP", "SV").
+    virtual std::vector<std::string> partialStates() const;
+
+    //! Return size of vector defining internal state of the phase.
+    //! Used by saveState() and restoreState().
+    virtual size_t stateSize() const;
+
     //! Save the current internal state of the phase.
     //! Write to vector 'state' the current internal state.
-    //!     @param state output vector. Will be resized to nSpecies() + 2.
+    //!     @param state output vector. Will be resized to stateSize().
     void saveState(vector_fp& state) const;
 
     //! Write to array 'state' the current internal state.
-    //!     @param lenstate length of the state array. Must be >= nSpecies()+2
-    //!     @param state    output vector. Must be of length nSpecies() + 2 or
+    //!     @param lenstate length of the state array. Must be >= stateSize()
+    //!     @param state    output vector. Must be of length stateSizes() or
     //!                     greater.
-    void saveState(size_t lenstate, doublereal* state) const;
+    virtual void saveState(size_t lenstate, doublereal* state) const;
 
     //! Restore a state saved on a previous call to saveState.
     //!     @param state State vector containing the previously saved state.
@@ -296,7 +367,7 @@ public:
     //! Restore the state of the phase from a previously saved state vector.
     //!     @param lenstate   Length of the state vector
     //!     @param state      Vector of state conditions.
-    void restoreState(size_t lenstate, const doublereal* state);
+    virtual void restoreState(size_t lenstate, const doublereal* state);
 
     /*! @name Set thermodynamic state
      * Set the internal thermodynamic state by setting the internally stored
@@ -406,14 +477,9 @@ public:
     //! units = kg / kmol
     const vector_fp& molecularWeights() const;
 
-    //! @deprecated To be removed after Cantera 2.4
-    //! @see SurfPhase::size
-    virtual double size(size_t k) const {
-        warn_deprecated("Phase::size", "Unused except for SurfPhase. "
-            "To be removed from class Phase after Cantera 2.4. "
-            "Cast object as SurfPhase to resolve this warning.");
-        return 1.0;
-    }
+    //! Copy the vector of species charges into array charges.
+    //!     @param charges Output array of species charges (elem. charge)
+    void getCharges(double* charges) const;
 
     /// @name Composition
     //@{
@@ -427,12 +493,12 @@ public:
     //! Return the mole fraction of a single species
     //!     @param  k  species index
     //!     @return Mole fraction of the species
-    doublereal moleFraction(size_t k) const;
+    double moleFraction(size_t k) const;
 
     //! Return the mole fraction of a single species
     //!     @param  name  String name of the species
     //!     @return Mole fraction of the species
-    doublereal moleFraction(const std::string& name) const;
+    double moleFraction(const std::string& name) const;
 
     //! Get the mass fractions by name.
     //!     @param threshold   Exclude species with mass fractions less than or
@@ -443,17 +509,17 @@ public:
     //! Return the mass fraction of a single species
     //!     @param  k species index
     //!     @return Mass fraction of the species
-    doublereal massFraction(size_t k) const;
+    double massFraction(size_t k) const;
 
     //! Return the mass fraction of a single species
     //!     @param  name  String name of the species
     //!     @return Mass Fraction of the species
-    doublereal massFraction(const std::string& name) const;
+    double massFraction(const std::string& name) const;
 
     //! Get the species mole fraction vector.
     //!     @param x On return, x contains the mole fractions. Must have a
     //!          length greater than or equal to the number of species.
-    void getMoleFractions(doublereal* const x) const;
+    void getMoleFractions(double* const x) const;
 
     //! Set the mole fractions to the specified values.
     //! There is no restriction on the sum of the mole fraction vector.
@@ -461,21 +527,21 @@ public:
     //! its contents.
     //!     @param x Array of unnormalized mole fraction values (input). Must
     //! have a length greater than or equal to the number of species, m_kk.
-    virtual void setMoleFractions(const doublereal* const x);
+    virtual void setMoleFractions(const double* const x);
 
     //! Set the mole fractions to the specified values without normalizing.
     //! This is useful when the normalization condition is being handled by
     //! some other means, for example by a constraint equation as part of a
     //! larger set of equations.
     //!     @param x  Input vector of mole fractions. Length is m_kk.
-    virtual void setMoleFractions_NoNorm(const doublereal* const x);
+    virtual void setMoleFractions_NoNorm(const double* const x);
 
     //! Get the species mass fractions.
     //!     @param[out] y Array of mass fractions, length nSpecies()
-    void getMassFractions(doublereal* const y) const;
+    void getMassFractions(double* const y) const;
 
     //! Return a const pointer to the mass fraction array
-    const doublereal* massFractions() const {
+    const double* massFractions() const {
         return &m_y[0];
     }
 
@@ -484,14 +550,14 @@ public:
     //!                  must be greater than or equal to the number of
     //!                  species. The Phase object will normalize this vector
     //!                  before storing its contents.
-    virtual void setMassFractions(const doublereal* const y);
+    virtual void setMassFractions(const double* const y);
 
     //! Set the mass fractions to the specified values without normalizing.
     //! This is useful when the normalization condition is being handled by
     //! some other means, for example by a constraint equation as part of a
     //! larger set of equations.
     //!     @param y  Input vector of mass fractions. Length is m_kk.
-    virtual void setMassFractions_NoNorm(const doublereal* const y);
+    virtual void setMassFractions_NoNorm(const double* const y);
 
     //! Get the species concentrations (kmol/m^3).
     /*!
@@ -499,7 +565,7 @@ public:
      *                  kmol/m^3. The length of the vector must be greater than
      *                  or equal to the number of species within the phase.
      */
-    void getConcentrations(doublereal* const c) const;
+    void getConcentrations(double* const c) const;
 
     //! Concentration of species k.
     //! If k is outside the valid range, an exception will be thrown.
@@ -508,7 +574,7 @@ public:
      *
      *    @returns the concentration of species k (kmol m-3).
      */
-    doublereal concentration(const size_t k) const;
+    double concentration(const size_t k) const;
 
     //! Set the concentrations to the specified values within the phase.
     //! We set the concentrations here and therefore we set the overall density
@@ -520,7 +586,7 @@ public:
     //!                     species in kmol/m3. For surface phases, c[k] is the
     //!                     concentration in kmol/m2. The length of the vector
     //!                     is the number of species in the phase.
-    virtual void setConcentrations(const doublereal* const conc);
+    virtual void setConcentrations(const double* const conc);
 
     //! Set the concentrations without ignoring negative concentrations
     virtual void setConcentrationsNoNorm(const double* const conc);
@@ -567,7 +633,7 @@ public:
     //! Returns a const pointer to the start of the moleFraction/MW array.
     //! This array is the array of mole fractions, each divided by the mean
     //! molecular weight.
-    const doublereal* moleFractdivMMW() const;
+    const double* moleFractdivMMW() const;
 
     //@}
 
@@ -602,35 +668,56 @@ public:
         return m_temp;
     }
 
+    //! Return the thermodynamic pressure (Pa).
+    /*!
+     *  This method must be overloaded in derived classes. Within %Cantera, the
+     *  independent variable is either density or pressure. If the state is
+     *  defined by temperature, density, and mass fractions, this method should
+     *  use these values to implement the mechanical equation of state \f$ P(T,
+     *  \rho, Y_1, \dots, Y_K) \f$. Alternatively, it returns a stored value.
+     */
+    virtual double pressure() const {
+        throw NotImplementedError("Phase::pressure");
+    }
+
     //! Density (kg/m^3).
     //!     @return The density of the phase
-    virtual doublereal density() const {
+    virtual double density() const {
         return m_dens;
     }
 
     //! Molar density (kmol/m^3).
     //!     @return The molar density of the phase
-    doublereal molarDensity() const;
+    double molarDensity() const;
 
     //! Molar volume (m^3/kmol).
     //!     @return The molar volume of the phase
-    doublereal molarVolume() const;
+    double molarVolume() const;
 
     //! Set the internally stored density (kg/m^3) of the phase.
     //! Note the density of a phase is an independent variable.
     //!     @param[in] density_ density (kg/m^3).
-    virtual void setDensity(const doublereal density_) {
-        if (density_ > 0.0) {
-            m_dens = density_;
-        } else {
-            throw CanteraError("Phase::setDensity()",
-                "density must be positive. density = {}", density_);
-        }
-    }
+    virtual void setDensity(const double density_);
 
     //! Set the internally stored molar density (kmol/m^3) of the phase.
     //!     @param[in] molarDensity Input molar density (kmol/m^3).
-    virtual void setMolarDensity(const doublereal molarDensity);
+    virtual void setMolarDensity(const double molarDensity);
+
+    //! Set the internally stored pressure (Pa) at constant temperature and
+    //! composition
+    /*!
+     *  This method must be reimplemented in derived classes, where it may
+     *  involve the solution of a nonlinear equation. Within %Cantera, the
+     *  independent variable is either density or pressure. Therefore, this
+     *  function may either solve for the density that will yield the desired
+     *  input pressure or set an independent variable. The temperature
+     *  and composition are held constant during this process.
+     *
+     *  @param p input Pressure (Pa)
+     */
+    virtual void setPressure(double p) {
+        throw NotImplementedError("Phase::setPressure");
+    }
 
     //! Set the internally stored temperature of the phase (K).
     //!     @param temp Temperature in Kelvin
@@ -713,6 +800,24 @@ public:
      */
     virtual void modifySpecies(size_t k, shared_ptr<Species> spec);
 
+    //! Add a species alias (i.e. user-defined alternative species name).
+    //! Aliases are case-sensitive.
+    //!     @param name original species name std::string.
+    //!     @param alias alternate name std::string.
+    //!     @return `true` if the alias was successfully added
+    //!             (i.e. the original species name is found)
+    void addSpeciesAlias(const std::string& name, const std::string& alias);
+
+    //! Return a vector with isomers names matching a given composition map
+    //!     @param compMap compositionMap of the species.
+    //!     @return A vector of species names for matching species.
+    virtual std::vector<std::string> findIsomers(const compositionMap& compMap) const;
+
+    //! Return a vector with isomers names matching a given composition string
+    //!     @param comp String containing a composition map
+    //!     @return A vector of species names for matching species.
+    virtual std::vector<std::string> findIsomers(const std::string& comp) const;
+
     //! Return the Species object for the named species. Changes to this object
     //! do not affect the ThermoPhase object until the #modifySpecies function
     //! is called.
@@ -756,7 +861,59 @@ public:
     //! change in state is detected
     virtual void invalidateCache();
 
+    //! Returns `true` if case sensitive species names are enforced
+    bool caseSensitiveSpecies() const {
+        return m_caseSensitiveSpecies;
+    }
+
+    //! Set flag that determines whether case sensitive species are enforced
+    //! in look-up operations, e.g. speciesIndex
+    void setCaseSensitiveSpecies(bool cflag = true) {
+        m_caseSensitiveSpecies = cflag;
+    }
+
+    //! Set root Solution holding all phase information
+    virtual void setRoot(std::shared_ptr<Solution> root) {
+        m_root = root;
+    }
+
+    //! Converts a compositionMap to a vector with entries for each species
+    //! Species that are not specified are set to zero in the vector
+    /*!
+     * @param[in] comp compositionMap containing the mixture composition
+     * @return vector with length m_kk
+     */
+    vector_fp getCompositionFromMap(const compositionMap& comp) const;
+
+    //! Converts a mixture composition from mole fractions to mass fractions
+    //!     @param[in] Y mixture composition in mass fractions (length m_kk)
+    //!     @param[out] X mixture composition in mole fractions (length m_kk)
+    void massFractionsToMoleFractions(const double* Y, double* X) const;
+
+    //! Converts a mixture composition from mass fractions to mole fractions
+    //!     @param[in] X mixture composition in mole fractions (length m_kk)
+    //!     @param[out] Y mixture composition in mass fractions (length m_kk)
+    void moleFractionsToMassFractions(const double* X, double* Y) const;
+
 protected:
+    //! Ensure that phase is compressible.
+    //! An error is raised if the state is incompressible
+    //!     @param setter  name of setter (used for exception handling)
+    void assertCompressible(const std::string& setter) const {
+        if (!isCompressible()) {
+            throw CanteraError("Phase::assertCompressible",
+                               "Setter '{}' is not available. Density is not an "
+                               "independent \nvariable for "
+                               "'{}' ('{}')", setter, name(), type());
+        }
+    }
+
+    //! Set the internally stored constant density (kg/m^3) of the phase.
+    //! Used for incompressible phases where the density is not an independent
+    //! variable, e.g. density does not affect pressure in state calculations.
+    //!     @param[in] density_ density (kg/m^3).
+    void assignDensity(const double density_);
+
     //! Cached for saved calculations within each ThermoPhase.
     /*!
      *   For more information on how to use this, see examples within the source
@@ -771,10 +928,7 @@ protected:
     //! value computed from the chemical formula.
     //!     @param k       id of the species
     //!     @param mw      Molecular Weight (kg kmol-1)
-    void setMolecularWeight(const int k, const double mw) {
-        m_molwts[k] = mw;
-        m_rmolwts[k] = 1.0/mw;
-    }
+    void setMolecularWeight(const int k, const double mw);
 
     //! Apply changes to the state which are needed after the composition
     //! changes. This function is called after any call to setMassFractions(),
@@ -803,7 +957,15 @@ protected:
     //! Flag determining behavior when adding species with an undefined element
     UndefElement::behavior m_undefinedElementBehavior;
 
+    //! Flag determining whether case sensitive species names are enforced
+    bool m_caseSensitiveSpecies;
+
 private:
+    //! Find lowercase species name in m_speciesIndices when case sensitive
+    //! species names are not enforced and a user specifies a non-canonical
+    //! species name. Raise exception if lowercase name is not unique.
+    size_t findSpeciesLower(const std::string& nameStr) const;
+
     XML_Node* m_xml; //!< XML node containing the XML info for this phase
 
     //! ID of the phase. This is the value of the ID attribute of the XML
@@ -811,15 +973,17 @@ private:
     std::string m_id;
 
     //! Name of the phase.
-    //! Initially, this is the value of the ID attribute of the XML phase node.
-    //! It may be changed to another value during the course of a calculation.
+    //! Initially, this is the name specified in the YAML or CTI input file, or
+    //! the value of the ID attribute of the XML phase node. It may be changed
+    //! to another value during the course of a calculation.
     std::string m_name;
 
     doublereal m_temp; //!< Temperature (K). This is an independent variable
 
-    //! Density (kg m-3). This is an independent variable except in the
-    //! incompressible degenerate case. Thus, the pressure is determined from
-    //! this variable rather than other way round.
+    //! Density (kg m-3). This is an independent variable except in the case
+    //! of incompressible phases, where it has to be changed using the
+    //! assignDensity() method. For compressible substances, the pressure is
+    //! determined from this variable rather than other way round.
     doublereal m_dens;
 
     doublereal m_mmw; //!< mean molecular weight of the mixture (kg kmol-1)
@@ -849,6 +1013,9 @@ private:
     //! Map of species names to indices
     std::map<std::string, size_t> m_speciesIndices;
 
+    //! Map of lower-case species names to indices
+    std::map<std::string, size_t> m_speciesLower;
+
     size_t m_mm; //!< Number of elements.
     vector_fp m_atomicWeights; //!< element atomic weights (kg kmol-1)
     vector_int m_atomicNumbers; //!< element atomic numbers
@@ -857,6 +1024,9 @@ private:
 
     //! Entropy at 298.15 K and 1 bar of stable state pure elements (J kmol-1)
     vector_fp m_entropy298;
+
+    //! reference to Solution
+    std::weak_ptr<Solution> m_root;
 };
 
 }

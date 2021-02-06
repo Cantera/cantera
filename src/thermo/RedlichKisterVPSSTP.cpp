@@ -7,7 +7,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/RedlichKisterVPSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -179,6 +179,16 @@ void RedlichKisterVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 
 void RedlichKisterVPSSTP::initThermo()
 {
+    if (m_input.hasKey("interactions")) {
+        for (const auto& item : m_input["interactions"].asVector<AnyMap>()) {
+            auto& species = item["species"].asVector<string>(2);
+            vector_fp h_excess = item.convertVector("excess-enthalpy", "J/kmol");
+            vector_fp s_excess = item.convertVector("excess-entropy", "J/kmol/K");
+            addBinaryInteraction(species[0], species[1],
+                                 h_excess.data(), h_excess.size(),
+                                 s_excess.data(), s_excess.size());
+        }
+    }
     initLengths();
     GibbsExcessVPSSTP::initThermo();
 }

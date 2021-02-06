@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_SIM1D_H
 #define CT_SIM1D_H
@@ -129,15 +129,22 @@ public:
     int refine(int loglevel=0);
 
     //! Add node for fixed temperature point of freely propagating flame
-    int setFixedTemperature(doublereal t);
+    int setFixedTemperature(double t);
+
+    //! Return temperature at the point used to fix the flame location
+    double fixedTemperature();
+
+    //! Return location of the point where temperature is fixed
+    double fixedTemperatureLocation();
 
     /**
      * Set grid refinement criteria. If dom >= 0, then the settings
      * apply only to the specified domain.  If dom < 0, the settings
      * are applied to each domain.  @see Refiner::setCriteria.
      */
-    void setRefineCriteria(int dom = -1, doublereal ratio = 10.0,
-                           doublereal slope = 0.8, doublereal curve = 0.8, doublereal prune = -0.1);
+    void setRefineCriteria(int dom = -1, double ratio = 10.0,
+                           double slope = 0.8, double curve = 0.8,
+                           double prune = -0.1);
 
     /**
      * Get the grid refinement criteria. dom must be greater than

@@ -8,13 +8,16 @@ Cantera is used for evaluating thermodynamic properties and kinetic rates while
 an external ODE solver is used to integrate the resulting equations. In this
 case, the SciPy wrapper for VODE is used, which uses the same variable-order BDF
 methods as the Sundials CVODES solver used by Cantera.
+
+Requires: cantera >= 2.5.0, scipy >= 0.19, matplotlib >= 2.0
 """
 
 import cantera as ct
 import numpy as np
 import scipy.integrate
 
-class ReactorOde(object):
+
+class ReactorOde:
     def __init__(self, gas):
         # Parameters of the ODE system and auxiliary data are stored in the
         # ReactorOde object.
@@ -37,7 +40,7 @@ class ReactorOde(object):
         return np.hstack((dTdt, dYdt))
 
 
-gas = ct.Solution('gri30.xml')
+gas = ct.Solution('gri30.yaml')
 
 # Initial condition
 P = ct.one_atm

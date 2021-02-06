@@ -3,10 +3,13 @@
 This example solves a plug-flow reactor problem of hydrogen-oxygen combustion.
 The PFR is computed by two approaches: The simulation of a Lagrangian fluid
 particle, and the simulation of a chain of reactors.
+
+Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
 import cantera as ct
 import numpy as np
+import matplotlib.pyplot as plt
 
 #######################################################################
 # Input Parameters
@@ -20,7 +23,7 @@ u_0 = .006  # inflow velocity [m/s]
 area = 1.e-4  # cross-sectional area [m**2]
 
 # input file containing the reaction mechanism
-reaction_mechanism = 'h2o2.xml'
+reaction_mechanism = 'h2o2.yaml'
 
 # Resolution: The PFR will be simulated by 'n_steps' time steps or by a chain
 # of 'n_steps' stirred reactors.
@@ -136,8 +139,6 @@ for n in range(n_steps):
 #####################################################################
 # Compare Results in matplotlib
 #####################################################################
-
-import matplotlib.pyplot as plt
 
 plt.figure()
 plt.plot(z1, states1.T, label='Lagrangian Particle')

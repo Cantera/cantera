@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_CHEM_EQUIL_H
 #define CT_CHEM_EQUIL_H
@@ -123,11 +123,6 @@ public:
      */
     int equilibrate(thermo_t& s, const char* XY, vector_fp& elMoles,
                     int loglevel = 0);
-
-    //! @deprecated To be removed after Cantera 2.4.
-    const vector_fp& elementPotentials() const {
-        return m_lambda;
-    }
 
     /**
      * Options controlling how the calculation is carried out.
@@ -266,10 +261,6 @@ protected:
 
     //! Current value of the mole fractions in the single phase. length = #m_kk.
     vector_fp m_molefractions;
-
-    //! Current value of the dimensional element potentials. length = #m_mm
-    //! @deprecated To be removed after Cantera 2.4.
-    vector_fp m_lambda;
 
     //! Current value of the sum of the element abundances given the current
     //! element potentials.

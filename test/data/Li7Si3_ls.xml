@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+  <phase dim="3" id="Li7Si3_and_Interstitials(S)">
+    <elementArray datasrc="elements.xml">
+             Li  Si
+    </elementArray>
+    <kinetics model="None"/>
+    <thermo model="LatticeSolid">
+
+
+      <LatticeArray>
+
+        <!-- phase Li7Si3(S)    -->
+        <phase dim="3" id="Li7Si3(S)">
+          <elementArray datasrc="elements.xml">
+            Li  Si
+          </elementArray>
+          <speciesArray datasrc="#species_LiSi(S)"> Li7Si3(S) </speciesArray>
+          <thermo model="StoichSubstance">
+            <density units="g/cm3"> 1.39 </density>
+          </thermo>
+          <transport model="None"/>
+          <kinetics model="none"/>
+        </phase>
+
+        <!-- phase Li7Si3_Interstitial  -->
+
+        <phase dim="3" id="Li7Si3_Interstitial">
+          <elementArray datasrc="elements.xml">
+             Li  Si
+          </elementArray>
+          <speciesArray datasrc="#species_LiSi(S)"> Li(i) V(i) </speciesArray>
+          <thermo model="Lattice">
+            <site_density units="gmol/cm3"> 1.046344E-2 </site_density>
+          </thermo>
+          <transport model="None"/>
+          <kinetics model="none"/>
+          <state>
+            <temperature units="K"> 725.0 </temperature>
+            <pressure units="atm"> 1.0 </pressure>
+            <moleFractions> Li(i):0.01 V(i):0.99 </moleFractions>
+          </state>
+        </phase>
+
+      </LatticeArray>
+
+      <LatticeStoichiometry>
+          Li7Si3(S):1.0
+          Li7Si3_Interstitial:1.0
+      </LatticeStoichiometry>
+
+    </thermo>
+  </phase>
+
+
+  <!-- species definitions     -->
+  <speciesData id="species_LiSi(S)">
+
+    <!-- species Li7Si3(S)   -->
+    <!--      melting temperature = 861 K (phase diagram in Guidotti, Masset)) -->
+    <species name="Li7Si3(S)">
+      <atomArray> Li:7 Si:3  </atomArray>
+      <thermo>
+        <Shomate Pref="1 bar" Tmax="700.0" Tmin="250.0">
+          <floatArray size="7">
+               295.73961  ,
+               -6.753295  ,
+               -44.538551 ,
+               29.738846  ,
+               -1.022387  ,
+               -348.88919 ,
+               554.35647
+          </floatArray>
+        </Shomate>
+        <Shomate Pref="1 bar" Tmax="2700.0" Tmin="700.0">
+          <floatArray size="7">
+               250.51429  ,
+               51.125155  ,
+               -28.341244 ,
+               6.242135   ,
+               1.346861   ,
+               -328.46578 ,
+               498.84106
+          </floatArray>
+        </Shomate>
+      </thermo>
+      <density units="g/cm3"> 1.39 </density>
+    </species>
+
+    <!-- species Li7d3Si(S)   -->
+    <!--      meltingZtemperature = 861 K (phase diagram in Guidotti, Masset)) -->
+    <species name="Li7d3Si(S)">
+      <atomArray> Li:2.3333333333333  Si:1.0  </atomArray>
+      <thermo>
+        <Shomate Pref="1 bar" Tmax="700.0" Tmin="250.0">
+          <floatArray size="7">
+               98.57987   ,
+               -2.2510983 ,
+               -14.846184 ,
+               9.9129487  ,
+               -0.34079567,
+               -116.2964  ,
+               184.78549
+          </floatArray>
+        </Shomate>
+        <Shomate Pref="1 bar" Tmax="2700.0" Tmin="700.0">
+          <floatArray size="7">
+               83.504763  ,
+               17.041718  ,
+               -9.4470813 ,
+               2.0807117  ,
+               0.44895367 ,
+               -109.48859 ,
+               166.28035
+          </floatArray>
+        </Shomate>
+      </thermo>
+      <density units="g/cm3"> 1.39 </density>
+    </species>
+
+
+    <!-- species Li(i)  -->
+    <species name="Li(i)">
+      <atomArray> Li:1 </atomArray>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+          <t0 units="K">298.14999999999998</t0>
+          <h0 units="J/gmol"> 0.0E5 </h0>
+          <s0 units="J/mol/K">20.0 </s0>
+          <cp0 units="J/mol/K">20.0 </cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species V(i)  -->
+    <species name="V(i)">
+      <atomArray></atomArray>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+          <t0 units="K">298.14999999999998</t0>
+          <h0 units="J/mol"> 89.8 </h0>
+          <s0 units="J/mol/K"> 0.0 </s0>
+          <cp0 units="J/mol/K"> 0.0 </cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+
+
+  </speciesData>
+
+</ctml>

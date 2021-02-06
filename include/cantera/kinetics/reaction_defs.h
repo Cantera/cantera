@@ -4,7 +4,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_RXN_DEFS_H
 #define CT_RXN_DEFS_H
@@ -14,6 +14,7 @@
 namespace Cantera
 {
 
+const int INVALID_RXN = 0;
 const int NONE = 0;
 
 /// @name Reaction Types
@@ -78,18 +79,21 @@ const int INTERFACE_RXN = 20;
 //!  This is a surface reaction that is formulated using the Butler-Volmer
 //!  formulation and using concentrations instead of activity concentrations
 //!  for its exchange current density formula.
+//!  @deprecated To be removed after Cantera 2.5.
 const int BUTLERVOLMER_NOACTIVITYCOEFFS_RXN = 25;
 
 //!  This is a surface reaction that is formulated using the Butler-Volmer
 //!  formulation. Note the B-V equations can be derived from the forward
 //!  and reverse rate constants for a single step reaction. However, there
 //!  are some advantages to using the formulation directly.
+//!  @deprecated To be removed after Cantera 2.5.
 const int BUTLERVOLMER_RXN = 26;
 
 //!  This is a surface reaction that is formulated using the affinity
 //!  representation, common in the geochemistry community.
 //!  This is generally a global non-mass action reaction with an additional functional
 //!  form dependence on delta G of reaction.
+//!  @deprecated To be removed after Cantera 2.5.
 const int SURFACEAFFINITY_RXN = 27;
 
 /**
@@ -103,6 +107,7 @@ const int EDGE_RXN = 22;
 /**
  * A global reaction. These may have non-mass action reaction orders,
  * and are not allowed to be reversible.
+ * @deprecated To be removed after Cantera 2.5.
  */
 const int GLOBAL_RXN = 30;
 
@@ -115,6 +120,9 @@ const int GLOBAL_RXN = 30;
  *
  * Note that not all of these are currently implemented!
  * @todo Finish implementing reaction rate types.
+ *
+ * Magic numbers
+ * @deprecated To be removed after Cantera 2.5.
  */
 //@{
 
@@ -130,6 +138,9 @@ const int CHEBYSHEV_REACTION_RATECOEFF_TYPE = 8;
 //@}
 
 /** @name Falloff Function Types
+ *
+ * Magic numbers
+ * @deprecated To be removed after Cantera 2.5.
  */
 //@{
 const int SIMPLE_FALLOFF = 100;

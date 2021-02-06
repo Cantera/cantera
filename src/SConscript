@@ -84,8 +84,9 @@ if (localenv['system_sundials'] == 'y'):
 if localenv['blas_lapack_libs']:
     localenv.Append(LIBS=localenv['blas_lapack_libs'],
                     LIBPATH=localenv['blas_lapack_dir'])
-if localenv['system_fmt']:
-    localenv.Append(LIBS='fmt')
+
+if localenv['system_yamlcpp']:
+    localenv.Append(LIBS=['yaml-cpp'])
 
 # Build the Cantera shared library
 if localenv['layout'] != 'debian':

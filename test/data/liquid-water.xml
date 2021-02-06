@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+
+  <!-- phase water     -->
+  <phase dim="3" id="water">
+    <elementArray datasrc="elements.xml">O  H </elementArray>
+    <speciesArray datasrc="#species_data">H2O</speciesArray>
+    <state>
+      <temperature units="K">300.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
+    <thermo model="PureLiquidWater"/>
+    <kinetics model="none"/>
+    <transport model="Water"/>
+  </phase>
+
+
+
+  <!-- species definitions     -->
+  <speciesData id="species_data">
+
+    <!-- species H2O    -->
+    <species name="H2O">
+      <atomArray>H:2 O:1 </atomArray>
+    </species>
+  </speciesData>
+</ctml>

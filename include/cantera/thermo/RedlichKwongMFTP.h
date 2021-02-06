@@ -1,7 +1,7 @@
 //! @file RedlichKwongMFTP.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_REDLICHKWONGMFTP_H
 #define CT_REDLICHKWONGMFTP_H
@@ -14,14 +14,6 @@ namespace Cantera
 /**
  * Implementation of a multi-species Redlich-Kwong equation of state
  *
- * @attention This class currently does not have any test cases or examples. Its
- *     implementation may be incomplete, and future changes to Cantera may
- *     unexpectedly cause this class to stop working. If you use this class,
- *     please consider contributing examples or test cases. In the absence of
- *     new tests or examples, this class may be deprecated and removed in a
- *     future version of Cantera. See
- *     https://github.com/Cantera/cantera/issues/267 for additional information.
- *
  * @ingroup thermoprops
  */
 class RedlichKwongMFTP : public MixtureFugacityTP
@@ -33,13 +25,11 @@ public:
     //! Base constructor.
     RedlichKwongMFTP();
 
-    //! Construct and initialize a RedlichKwongMFTP object directly from an
-    //! ASCII input file
+    //! Construct a RedlichKwongMFTP object from an input file
     /*!
-     * @param infile    Name of the input file containing the phase XML data
-     *                  to set up the object
-     * @param id        ID of the phase in the input file. Defaults to the empty
-     *     string.
+     * @param inputFile Name of the input file containing the phase definition
+     * @param id        name (ID) of the phase in the input file. If empty, the
+     *                  first phase definition in the input file will be used.
      */
     RedlichKwongMFTP(const std::string& infile, const std::string& id="");
 
@@ -49,6 +39,9 @@ public:
      *  @param phaseRef XML phase node containing the description of the phase
      *  @param id       id attribute containing the name of the phase.  (default
      *      is the empty string)
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     RedlichKwongMFTP(XML_Node& phaseRef, const std::string& id = "");
 
@@ -183,8 +176,22 @@ public:
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void setParametersFromXML(const XML_Node& thermoNode);
-    virtual void setToEquilState(const doublereal* lambda_RT);
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
+    virtual void initThermo();
+
+    //! Retrieve a and b coefficients by looking up tabulated critical parameters
+    /*!
+     *  If pureFluidParameters are not provided for any species in the phase,
+     *  consult the critical properties tabulated in /thermo/critProperties.xml.
+     *  If the species is found there, calculate pure fluid parameters a_k and b_k as:
+     *  \f[ a_k = 0.4278*R**2*T_c^2.5/P_c \f]
+     *
+     *  and:
+     *  \f[ b_k = 0.08664*R*T_c/P_c \f]
+     *
+     *  @param iName    Name of the species
+     */
+    virtual std::vector<double> getCoeff(const std::string& iName);
 
     //! Set the pure fluid interaction parameters for a species
     /*!

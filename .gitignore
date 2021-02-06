@@ -1,5 +1,6 @@
 doc/ctdeploy_key
 *~
+*#
 *.o
 *.so
 *.os
@@ -8,6 +9,14 @@ doc/ctdeploy_key
 *.exe.manifest
 build/
 test/work/
+test_problems/ChemEquil_ionizedGas/ChemEquil_ionizedGas
+test_problems/cathermo/testWaterPDSS/WaterPDSS
+test_problems/cathermo/testWaterTP/WaterSSTP
+test_problems/cxx_ex/cxx_ex
+test_problems/diamondSurf/diamondSurf
+test_problems/pureFluidTest/pureFluid
+test_problems/rankine_democxx/rankine_democxx
+test_problems/surfkin/surfkin
 interfaces/cython/cantera/_cantera.h
 include/cantera/base/config.h
 include/cantera/base/config.h.build

@@ -43,7 +43,7 @@ void testProblem()
     XML_Node* xc = get_XML_File("ReactionSurf.xml");
     XML_Node* xg = xc->findNameID("phase", "reaction_surface");
     if (!xg) {
-        throw CanteraError("couldn't find file", "");
+        throw CanteraError("testProblem", "couldn't find file");
     }
     unique_ptr<ThermoPhase> surfTP(newPhase(*xg));
     unique_ptr<ThermoPhase> gasTP(newPhase("gas.xml"));

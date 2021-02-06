@@ -4,7 +4,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_VolPhase.h"
@@ -191,7 +191,7 @@ int VCS_SOLVE::vcs_prep(int printLvl)
 
     // Check to see if the current problem is well posed.
     double sum = 0.0;
-    for (size_t e = 0; e < m_nelem; e++) {
+    for (size_t e = 0; e < m_mix->nElements(); e++) {
         sum += m_mix->elementMoles(e);
     }
     if (sum < 1.0E-20) {

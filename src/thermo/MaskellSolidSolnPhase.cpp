@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/MaskellSolidSolnPhase.h"
 #include "cantera/base/stringUtils.h"
@@ -19,10 +19,6 @@ namespace Cantera
 
 MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
     m_Pcurrent(OneAtm),
-    m_h0_RT(2),
-    m_cp0_R(2),
-    m_g0_RT(2),
-    m_s0_R(2),
     h_mixing(0.0),
     product_species_index(-1),
     reactant_species_index(-1)
@@ -41,7 +37,6 @@ void MaskellSolidSolnPhase::getActivityConcentrations(doublereal* c) const
 
 doublereal MaskellSolidSolnPhase::enthalpy_mole() const
 {
-    _updateThermo();
     const doublereal h0 = RT() * mean_X(m_h0_RT);
     const doublereal r = moleFraction(product_species_index);
     const doublereal fmval = fm(r);
@@ -55,7 +50,6 @@ doublereal xlogx(doublereal x)
 
 doublereal MaskellSolidSolnPhase::entropy_mole() const
 {
-    _updateThermo();
     const doublereal s0 = GasConstant * mean_X(m_s0_R);
     const doublereal r = moleFraction(product_species_index);
     const doublereal fmval = fm(r);
@@ -70,6 +64,9 @@ void MaskellSolidSolnPhase::setDensity(const doublereal rho)
     // Unless the input density is exactly equal to the density calculated and
     // stored in the State object, we throw an exception. This is because the
     // density is NOT an independent variable.
+    warn_deprecated("MaskellSolidSolnPhase::setDensity",
+        "Overloaded function to be removed after Cantera 2.5. "
+        "Error will be thrown by Phase::setDensity instead");
     double dens = density();
     if (rho != dens) {
         throw CanteraError("MaskellSolidSolnPhase::setDensity",
@@ -87,7 +84,7 @@ void MaskellSolidSolnPhase::calcDensity()
     for (size_t i = 0; i < m_kk; i++) {
         vtotal += vbar[i] * moleFracs[i];
     }
-    Phase::setDensity(meanMolecularWeight() / vtotal);
+    Phase::assignDensity(meanMolecularWeight() / vtotal);
 }
 
 void MaskellSolidSolnPhase::setPressure(doublereal p)
@@ -97,6 +94,9 @@ void MaskellSolidSolnPhase::setPressure(doublereal p)
 
 void MaskellSolidSolnPhase::setMolarDensity(const doublereal n)
 {
+    warn_deprecated("MaskellSolidSolnPhase::setMolarDensity",
+        "Overloaded function to be removed after Cantera 2.5. "
+        "Error will be thrown by Phase::setMolarDensity instead");
     throw CanteraError("MaskellSolidSolnPhase::setMolarDensity",
                        "Density is not an independent variable");
 }
@@ -105,7 +105,6 @@ void MaskellSolidSolnPhase::setMolarDensity(const doublereal n)
 
 void MaskellSolidSolnPhase::getActivityCoefficients(doublereal* ac) const
 {
-    _updateThermo();
     static const int cacheId = m_cache.getId();
     CachedArray cached = m_cache.getArray(cacheId);
     if (!cached.validate(temperature(), pressure(), stateMFNumber())) {
@@ -125,7 +124,6 @@ void MaskellSolidSolnPhase::getActivityCoefficients(doublereal* ac) const
 
 void MaskellSolidSolnPhase::getChemPotentials(doublereal* mu) const
 {
-    _updateThermo();
     const doublereal r = moleFraction(product_species_index);
     const doublereal pval = p(r);
     const doublereal rfm = r * fm(r);
@@ -149,17 +147,17 @@ void MaskellSolidSolnPhase::getChemPotentials_RT(doublereal* mu) const
 
 void MaskellSolidSolnPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
-    throw CanteraError("MaskellSolidSolnPhase::getPartialMolarEnthalpies()", "Not yet implemented.");
+    throw NotImplementedError("MaskellSolidSolnPhase::getPartialMolarEnthalpies");
 }
 
 void MaskellSolidSolnPhase::getPartialMolarEntropies(doublereal* sbar) const
 {
-    throw CanteraError("MaskellSolidSolnPhase::getPartialMolarEntropies()", "Not yet implemented.");
+    throw NotImplementedError("MaskellSolidSolnPhase::getPartialMolarEntropies");
 }
 
 void MaskellSolidSolnPhase::getPartialMolarCp(doublereal* cpbar) const
 {
-    throw CanteraError("MaskellSolidSolnPhase::getPartialMolarCp()", "Not yet implemented.");
+    throw NotImplementedError("MaskellSolidSolnPhase::getPartialMolarCp");
 }
 
 void MaskellSolidSolnPhase::getPartialMolarVolumes(doublereal* vbar) const
@@ -169,7 +167,6 @@ void MaskellSolidSolnPhase::getPartialMolarVolumes(doublereal* vbar) const
 
 void MaskellSolidSolnPhase::getPureGibbs(doublereal* gpure) const
 {
-    _updateThermo();
     for (size_t sp=0; sp < m_kk; ++sp) {
         gpure[sp] = RT() * m_g0_RT[sp];
     }
@@ -183,6 +180,18 @@ void MaskellSolidSolnPhase::getStandardChemPotentials(doublereal* mu) const
 }
 
 // Utility Functions
+
+void MaskellSolidSolnPhase::initThermo()
+{
+    if (m_input.hasKey("excess-enthalpy")) {
+        set_h_mix(m_input.convert("excess-enthalpy", "J/kmol"));
+    }
+    if (m_input.hasKey("product-species")) {
+        setProductSpecies(m_input["product-species"].asString());
+    }
+    VPStandardStateTP::initThermo();
+}
+
 
 void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
@@ -236,22 +245,6 @@ void MaskellSolidSolnPhase::setProductSpecies(const std::string& name)
                            "Species '{}' not found", name);
     }
     reactant_species_index = (product_species_index == 0) ? 1 : 0;
-}
-
-void MaskellSolidSolnPhase::_updateThermo() const
-{
-    assert(m_kk == 2);
-    static const int cacheId = m_cache.getId();
-    CachedScalar cached = m_cache.getScalar(cacheId);
-
-    // Update the thermodynamic functions of the reference state.
-    doublereal tnow = temperature();
-    if (!cached.validate(tnow)) {
-        m_spthermo.update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
-        for (size_t k = 0; k < m_kk; k++) {
-            m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
-        }
-    }
 }
 
 doublereal MaskellSolidSolnPhase::s() const

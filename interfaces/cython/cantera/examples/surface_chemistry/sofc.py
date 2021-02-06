@@ -1,41 +1,41 @@
 """
 A simple model of a solid oxide fuel cell.
 
-Unlike most SOFC models, this model does not use semi-empirical Butler- Volmer
+Unlike most SOFC models, this model does not use semi-empirical Butler-Volmer
 kinetics for the charge transfer reactions, but uses elementary, reversible
 reactions obeying mass-action kinetics for all reactions, including charge
 transfer. As this script will demonstrate, this approach allows computing the
 OCV (it does not need to be separately specified), as well as polarization
 curves.
 
-NOTE: The parameters here, and in the input file sofc.cti, are not to be
+NOTE: The parameters here, and in the input file sofc.yaml, are not to be
 relied upon for a real SOFC simulation! They are meant to illustrate only how
 to do such a calculation in Cantera. While some of the parameters may be close
 to real values, others are simply set arbitrarily to give reasonable-looking
 results.
 
-It is recommended that you read input file sofc.cti before reading or running
+It is recommended that you read input file sofc.yaml before reading or running
 this script!
+
+Requires: cantera >= 2.5.0
 """
 
 import cantera as ct
 import math
 import csv
-import inspect
-import os
 
 ct.add_module_directory()
 
 # parameters
 T = 1073.15  # T in K
-P = ct.one_atm
+P = ct.one_atm  # One atm in Pa
 
 # gas compositions. Change as desired.
 anode_gas_X = 'H2:0.97, H2O:0.03'
 cathode_gas_X = 'O2:1.0, H2O:0.001'
 
 # time to integrate coverage eqs. to steady state in
-# 'advanceCoverages'. This should be more than enough time.
+# 'advance_coverages'. This should be more than enough time.
 tss = 50.0
 
 sigma = 2.0  # electrolyte conductivity [Siemens / m]
@@ -54,7 +54,7 @@ def show_coverages(s):
 
 def equil_OCV(gas1, gas2):
     return (-ct.gas_constant * gas1.T *
-        math.log(gas1['O2'].X / gas2['O2'].X) / (4.0*ct.faraday))
+            math.log(gas1['O2'].X / gas2['O2'].X) / (4.0*ct.faraday))
 
 
 def NewtonSolver(f, xstart, C=0.0):
@@ -84,20 +84,21 @@ def NewtonSolver(f, xstart, C=0.0):
         n += 1
     raise Exception('no root!')
 
+
 #####################################################################
 # Anode-side phases
 #####################################################################
 
 # import the anode-side bulk phases
-gas_a, anode_bulk, oxide_a = ct.import_phases('sofc.cti',
-                                              ['gas', 'metal', 'oxide_bulk',])
+gas_a, anode_bulk, oxide_a = ct.import_phases(
+    'sofc.yaml', ['gas', 'metal', 'oxide_bulk'])
 
 # import the surfaces on the anode side
-anode_surf = ct.Interface('sofc.cti', 'metal_surface', [gas_a])
-oxide_surf_a = ct.Interface('sofc.cti', 'oxide_surface', [gas_a, oxide_a])
+anode_surf = ct.Interface('sofc.yaml', 'metal_surface', [gas_a])
+oxide_surf_a = ct.Interface('sofc.yaml', 'oxide_surface', [gas_a, oxide_a])
 
 # import the anode-side triple phase boundary
-tpb_a = ct.Interface('sofc.cti', 'tpb', [anode_bulk, anode_surf, oxide_surf_a])
+tpb_a = ct.Interface('sofc.yaml', 'tpb', [anode_bulk, anode_surf, oxide_surf_a])
 
 anode_surf.name = 'anode surface'
 oxide_surf_a.name = 'anode-side oxide surface'
@@ -118,15 +119,17 @@ def anode_curr(E):
 
     # get the species net production rates due to the anode-side TPB reaction
     # mechanism. The production rate array has the values for the neighbor
-    # species in the order listed in the .cti file, followed by the tpb phase.
-    # Since the first neighbor phase is the bulk metal, species 0 is the
-    # electron.
+    # species in the order listed in the .yaml file, followed by the tpb phase.
+    # The kinetics_species_index method finds the index of the species,
+    # accounting for the possibility of species being in different orders in the
+    # arrays.
     w = tpb_a.net_production_rates
+    electron_index = tpb_a.kinetics_species_index('electron')
 
     # the sign convention is that the current is positive when
-    # electrons are being delivered to the anode - i.e. it is positive
+    # electrons are being delivered to the anode - that is, it is positive
     # for fuel cell operation.
-    return ct.faraday * w[0] * TPB_length_per_area
+    return ct.faraday * w[electron_index] * TPB_length_per_area
 
 
 #####################################################################
@@ -138,24 +141,25 @@ def anode_curr(E):
 # models would be used for the cathode, with a different reaction mechanism.
 
 # import the cathode-side bulk phases
-gas_c, cathode_bulk, oxide_c = ct.import_phases('sofc.cti',
-                                                ['gas', 'metal', 'oxide_bulk'])
+gas_c, cathode_bulk, oxide_c = ct.import_phases(
+    'sofc.yaml', ['gas', 'metal', 'oxide_bulk'])
 
 # import the surfaces on the cathode side
-cathode_surf = ct.Interface('sofc.cti', 'metal_surface', [gas_c])
-oxide_surf_c = ct.Interface('sofc.cti', 'oxide_surface', [gas_c, oxide_c])
+cathode_surf = ct.Interface('sofc.yaml', 'metal_surface', [gas_c])
+oxide_surf_c = ct.Interface('sofc.yaml', 'oxide_surface', [gas_c, oxide_c])
 
 # import the cathode-side triple phase boundary
-tpb_c = ct.Interface('sofc.cti', 'tpb', [cathode_bulk, cathode_surf,
-                                         oxide_surf_c])
+tpb_c = ct.Interface('sofc.yaml', 'tpb', [cathode_bulk, cathode_surf, oxide_surf_c])
 
 cathode_surf.name = 'cathode surface'
 oxide_surf_c.name = 'cathode-side oxide surface'
 
 
 def cathode_curr(E):
-    """Current to the cathode as a function of cathode
-    potential relative to electrolyte"""
+    """
+    Current to the cathode as a function of cathode
+    potential relative to electrolyte
+    """
 
     # due to ohmic losses, the cathode-side electrolyte potential is non-zero.
     # Therefore, we need to add this potential to E to get the cathode
@@ -164,17 +168,19 @@ def cathode_curr(E):
 
     # get the species net production rates due to the cathode-side TPB
     # reaction mechanism. The production rate array has the values for the
-    # neighbor species in the order listed in the .cti file, followed by the
-    # tpb phase. Since the first neighbor phase is the bulk metal, species 0
-    # is the electron.
+    # neighbor species in the order listed in the .yaml file, followed by the
+    # tpb phase. The kinetics_species_index method finds the index of the species,
+    # accounting for the possibility of species being in different orders in the
+    # arrays.
     w = tpb_c.net_production_rates
+    electron_index = tpb_c.kinetics_species_index('electron')
 
     # the sign convention is that the current is positive when electrons are
-    # being drawn from the cathode (i.e, negative production rate).
-    return -ct.faraday * w[0] * TPB_length_per_area
+    # being drawn from the cathode (that is, negative production rate).
+    return -ct.faraday * w[electron_index] * TPB_length_per_area
+
 
 # initialization
-
 # set the gas compositions, and temperatures of all phases
 
 gas_a.TPX = T, P, anode_gas_X
@@ -197,7 +203,6 @@ for s in [anode_surf, oxide_surf_a, cathode_surf, oxide_surf_c]:
     s.advance_coverages(tss)
     show_coverages(s)
 
-
 # find open circuit potentials by solving for the E values that give
 # zero current.
 Ea0 = NewtonSolver(anode_curr, xstart=-0.51)
@@ -215,9 +220,7 @@ print()
 Ea_min = Ea0 - 0.25
 Ea_max = Ea0 + 0.25
 
-csvfile = open('sofc.csv', 'w')
-writer = csv.writer(csvfile)
-writer.writerow(['i (mA/cm2)', 'eta_a', 'eta_c', 'eta_ohmic', 'Eload'])
+output_data = []
 
 # vary the anode overpotential, from cathodic to anodic polarization
 for n in range(100):
@@ -252,10 +255,13 @@ for n in range(100):
 
     # write the current density, anode and cathode overpotentials, ohmic
     # overpotential, and load potential
-    writer.writerow([0.1*curr, Ea - Ea0, Ec - Ec0, delta_V,
-                     cathode_bulk.electric_potential -
-                     anode_bulk.electric_potential])
+    output_data.append([0.1*curr, Ea - Ea0, Ec - Ec0, delta_V,
+                        cathode_bulk.electric_potential -
+                        anode_bulk.electric_potential])
+
+with open("sofc.csv", "w", newline="") as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(['i (mA/cm2)', 'eta_a', 'eta_c', 'eta_ohmic', 'Eload'])
+    writer.writerows(output_data)
 
 print('polarization curve data written to file sofc.csv')
-
-csvfile.close()

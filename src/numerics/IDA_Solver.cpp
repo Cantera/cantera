@@ -1,7 +1,7 @@
 //! @file IDA_Solver.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/numerics/IDA_Solver.h"
 #include "cantera/base/stringUtils.h"
@@ -122,7 +122,7 @@ extern "C" {
         } else if (SUNMatGetID(Jac) == SUNMATRIX_BAND) {
             cols = SM_COLS_B(Jac);
         } else {
-            throw Cantera::CanteraError("ida_jacobian", "Unknown SUNMatrix type");
+            return 1; // Unknown SUNMatrix type
         }
         f->evalJacobianDP(t, delta_t, c_j, NV_DATA_S(y), NV_DATA_S(yp),
                           cols, NV_DATA_S(r));
@@ -422,6 +422,10 @@ void IDA_Solver::init(doublereal t0)
             SUNLinSolFree((SUNLinearSolver) m_linsol);
             SUNMatDestroy((SUNMatrix) m_linsol_matrix);
             m_linsol_matrix = SUNDenseMatrix(N, N);
+            if (m_linsol_matrix == nullptr) {
+                throw CanteraError("IDA_Solver::init",
+                    "Unable to create SUNDenseMatrix of size {0} x {0}", N);
+            }
             #if CT_SUNDIALS_USE_LAPACK
                 m_linsol = SUNLapackDense(m_y, (SUNMatrix) m_linsol_matrix);
             #else
@@ -442,7 +446,16 @@ void IDA_Solver::init(doublereal t0)
         #if CT_SUNDIALS_VERSION >= 30
             SUNLinSolFree((SUNLinearSolver) m_linsol);
             SUNMatDestroy((SUNMatrix) m_linsol_matrix);
-            m_linsol_matrix = SUNBandMatrix(N, nu, nl, nu+nl);
+            #if CT_SUNDIALS_VERSION < 40
+                m_linsol_matrix = SUNBandMatrix(N, nu, nl, nu+nl);
+            #else
+                m_linsol_matrix = SUNBandMatrix(N, nu, nl);
+            #endif
+            if (m_linsol_matrix == nullptr) {
+                throw CanteraError("IDA_Solver::init",
+                    "Unable to create SUNBandMatrix of size {} with bandwidths "
+                    "{} and {}", N, nu, nl);
+            }
             #if CT_SUNDIALS_USE_LAPACK
                 m_linsol = SUNLapackBand(m_y, (SUNMatrix) m_linsol_matrix);
             #else

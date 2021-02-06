@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_CTEXCEPTIONS_H
 #define CT_CTEXCEPTIONS_H
@@ -30,11 +30,6 @@ namespace Cantera
  *
  * Any exceptions which are not caught cause a fatal error exit from the
  * program.
- *
- * Below is an example of how to catch errors that throw the CanteraError class.
- * In general, all Cantera C++ programs will have this basic structure.
- *
- * \include demo1a.cpp
  *
  * A group of defines may be used during debugging to assert conditions which
  * should be true. These are named AssertTrace(), AssertThrow(), and
@@ -67,8 +62,12 @@ class CanteraError : public std::exception
 public:
     //! Normal Constructor for the CanteraError base class
     /*!
-     * @param procedure String name for the function within which the error was
-     *             generated.
+     * @param procedure Name of the function within which the error was
+     *             generated. For member functions, this should be written as
+     *             `ClassName::functionName`. For constructors, this should be
+     *             `ClassName::ClassName`. Arguments can be specified to
+     *             disambiguate overloaded functions, e.g.
+     *             `ClassName::functionName(int, int)`.
      * @param msg  Descriptive string describing the type of error message. This
      *     can be a fmt-style format string (i.e. using curly braces to indicate
      *     fields), which will be used with additional arguments to generate a
@@ -187,6 +186,8 @@ private:
 class NotImplementedError : public CanteraError
 {
 public:
+    //! @param func Name of the unimplemented function, e.g.
+    //!     `ClassName::functionName`
     NotImplementedError(const std::string& func) :
         CanteraError(func, "Not implemented.") {}
 

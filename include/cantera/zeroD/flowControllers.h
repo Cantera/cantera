@@ -1,17 +1,17 @@
 //! @file flowControllers.h Some flow devices derived from class FlowDevice.
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_FLOWCONTR_H
 #define CT_FLOWCONTR_H
 
 #include "FlowDevice.h"
-#include "ReactorBase.h"
-#include "cantera/numerics/Func1.h"
+#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {
+
 /**
  * A class for mass flow controllers. The mass flow rate is constant or
  * specified as a function of time..
@@ -19,23 +19,40 @@ namespace Cantera
 class MassFlowController : public FlowDevice
 {
 public:
-    MassFlowController() : FlowDevice() {
-        m_type = MFC_Type;
+    MassFlowController();
+
+    virtual std::string typeStr() const {
+        return "MassFlowController";
     }
 
-    virtual bool ready() {
-        return FlowDevice::ready() && m_mdot >= 0.0;
+    //! Set the fixed mass flow rate (kg/s) through the mass flow controller.
+    void setMassFlowRate(double mdot);
+
+    //! Set the mass flow coefficient.
+    /*!
+     * *m* has units of kg/s. The mass flow rate is computed as:
+     * \f[\dot{m} = m g(t) \f]
+     * where *g* is a function of time that is set by `setTimeFunction`.
+     * If no function is specified, the mass flow rate defaults to:
+     * \f[\dot{m} = m \f]
+     */
+    void setMassFlowCoeff(double m) {
+        m_coeff = m;
+    }
+
+    //! Get the mass flow coefficient.
+    double getMassFlowCoeff() {
+        return m_coeff;
+    }
+
+    virtual void setPressureFunction(Func1* f) {
+        throw NotImplementedError("MassFlowController::setPressureFunction");
     }
 
     /// If a function of time has been specified for mdot, then update the
     /// stored mass flow rate. Otherwise, mdot is a constant, and does not
     /// need updating.
-    virtual void updateMassFlowRate(doublereal time) {
-        if (m_func) {
-            m_mdot = m_func->eval(time);
-        }
-        m_mdot = std::max(m_mdot, 0.0);
-    }
+    virtual void updateMassFlowRate(double time);
 };
 
 /**
@@ -46,37 +63,44 @@ public:
 class PressureController : public FlowDevice
 {
 public:
-    PressureController() : FlowDevice(), m_master(0) {
-        m_type = PressureController_Type;
+    PressureController();
+
+    virtual std::string typeStr() const {
+        return "PressureController";
     }
 
     virtual bool ready() {
-        return FlowDevice::ready() && m_master != 0 && m_coeffs.size() == 1;
+        return FlowDevice::ready() && m_master != 0;
     }
 
     void setMaster(FlowDevice* master) {
         m_master = master;
     }
 
+    virtual void setTimeFunction(Func1* g) {
+        throw NotImplementedError("PressureController::setTimeFunction");
+    }
+
     //! Set the proportionality constant between pressure drop and mass flow
     //! rate
     /*!
      * *c* has units of kg/s/Pa. The mass flow rate is computed as:
+     * \f[\dot{m} = \dot{m}_{master} + c f(\Delta P) \f]
+     * where *f* is a functions of pressure drop that is set by
+     * `setPressureFunction`. If no functions is specified, the mass flow
+     * rate defaults to:
      * \f[\dot{m} = \dot{m}_{master} + c \Delta P \f]
      */
     void setPressureCoeff(double c) {
-        m_coeffs = {c};
+        m_coeff = c;
     }
 
-    virtual void updateMassFlowRate(doublereal time) {
-        if (!ready()) {
-            throw CanteraError("PressureController::updateMassFlowRate",
-                "Device is not ready; some parameters have not been set.");
-        }
-        m_mdot = m_master->massFlowRate(time)
-                 + m_coeffs[0]*(in().pressure() - out().pressure());
-        m_mdot = std::max(m_mdot, 0.0);
+    //! Get the pressure coefficient.
+    double getPressureCoeff() {
+        return m_coeff;
     }
+
+    virtual void updateMassFlowRate(double time);
 
 protected:
     FlowDevice* m_master;
@@ -92,12 +116,10 @@ protected:
 class Valve : public FlowDevice
 {
 public:
-    Valve() : FlowDevice() {
-        m_type = Valve_Type;
-    }
+    Valve();
 
-    virtual bool ready() {
-        return FlowDevice::ready() && (m_coeffs.size() == 1 || m_func);
+    virtual std::string typeStr() const {
+        return "Valve";
     }
 
     //! Set the proportionality constant between pressure drop and mass flow
@@ -106,24 +128,35 @@ public:
      * *c* has units of kg/s/Pa. The mass flow rate is computed as:
      * \f[\dot{m} = c \Delta P \f]
      */
+    //! @deprecated To be removed after Cantera 2.5.
     void setPressureCoeff(double c) {
-        m_coeffs = {c};
+        warn_deprecated("Valve::setPressureCoeff",
+                        "To be removed after Cantera 2.5. "
+                        "Use Valve::setValveCoeff instead.");
+        m_coeff = c;
+    }
+
+    //! Set the proportionality constant between pressure drop and mass flow
+    //! rate
+    /*!
+     * *c* has units of kg/s/Pa. The mass flow rate is computed as:
+     * \f[\dot{m} = c g(t) f(\Delta P) \f]
+     * where *g* and *f* are functions of time and pressure drop that are set
+     * by `setTimeFunction` and `setPressureFunction`, respectively. If no functions are
+     * specified, the mass flow rate defaults to:
+     * \f[\dot{m} = c \Delta P \f]
+     */
+    void setValveCoeff(double c) {
+        m_coeff = c;
+    }
+
+    //! Get the valve coefficient.
+    double getValveCoeff() {
+        return m_coeff;
     }
 
     /// Compute the currrent mass flow rate, based on the pressure difference.
-    virtual void updateMassFlowRate(doublereal time) {
-        if (!ready()) {
-            throw CanteraError("Valve::updateMassFlowRate",
-                "Device is not ready; some parameters have not been set.");
-        }
-        double delta_P = in().pressure() - out().pressure();
-        if (m_func) {
-            m_mdot = m_func->eval(delta_P);
-        } else {
-            m_mdot = m_coeffs[0]*delta_P;
-        }
-        m_mdot = std::max(m_mdot, 0.0);
-    }
+    virtual void updateMassFlowRate(double time);
 };
 
 }

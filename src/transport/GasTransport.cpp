@@ -1,7 +1,7 @@
 //! @file GasTransport.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/transport/GasTransport.h"
 #include "MMCollisionInt.h"
@@ -167,7 +167,7 @@ void GasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
         updateDiff_T();
     }
     if (ld < m_nsp) {
-        throw CanteraError(" MixTransport::getBinaryDiffCoeffs()", "ld is too small");
+        throw CanteraError("GasTransport::getBinaryDiffCoeffs", "ld is too small");
     }
     doublereal rp = 1.0/m_thermo->pressure();
     for (size_t i = 0; i < m_nsp; i++) {
@@ -395,7 +395,7 @@ void GasTransport::setupCollisionIntegral()
 void GasTransport::getTransportData()
 {
     for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
-        shared_ptr<Species> s = m_thermo->species(m_thermo->speciesName(k));
+        shared_ptr<Species> s = m_thermo->species(k);
         const GasTransportData* sptran =
             dynamic_cast<GasTransportData*>(s->transport.get());
         if (!sptran) {

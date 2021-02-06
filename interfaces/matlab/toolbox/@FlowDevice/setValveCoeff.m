@@ -16,7 +16,7 @@ function setValveCoeff(f, k)
 %     Value of the valve coefficient. Units: kg/Pa-s
 %
 
-if f.type ~= 3
+if ~strcmp(f.type, 'Valve')
     error('Valve coefficient can only be set for valves')
 end
 ok = flowdevicemethods(4, f.index, k);

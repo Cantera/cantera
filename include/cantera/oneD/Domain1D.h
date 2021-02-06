@@ -1,7 +1,7 @@
  //! @file Domain1D.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_DOMAIN1D_H
 #define CT_DOMAIN1D_H
@@ -139,7 +139,7 @@ public:
     //! Throws an exception if n is greater than nComponents()-1
     void checkComponentIndex(size_t n) const {
         if (n >= m_nv) {
-            throw IndexError("checkComponentIndex", "points", n, m_nv-1);
+            throw IndexError("Domain1D::checkComponentIndex", "points", n, m_nv-1);
         }
     }
 
@@ -148,7 +148,7 @@ public:
     //! which take an array pointer.
     void checkComponentArraySize(size_t nn) const {
         if (m_nv > nn) {
-            throw ArraySizeError("checkComponentArraySize", nn, m_nv);
+            throw ArraySizeError("Domain1D::checkComponentArraySize", nn, m_nv);
         }
     }
 
@@ -161,7 +161,7 @@ public:
     //! Throws an exception if n is greater than nPoints()-1
     void checkPointIndex(size_t n) const {
         if (n >= m_points) {
-            throw IndexError("checkPointIndex", "points", n, m_points-1);
+            throw IndexError("Domain1D::checkPointIndex", "points", n, m_points-1);
         }
     }
 
@@ -170,7 +170,7 @@ public:
     //! which take an array pointer.
     void checkPointArraySize(size_t nn) const {
         if (m_points > nn) {
-            throw ArraySizeError("checkPointArraySize", nn, m_points);
+            throw ArraySizeError("Domain1D::checkPointArraySize", nn, m_points);
         }
     }
 
@@ -182,7 +182,7 @@ public:
     }
 
     //! index of component with name \a name.
-    size_t componentIndex(const std::string& name) const;
+    virtual size_t componentIndex(const std::string& name) const;
 
     void setBounds(size_t n, doublereal lower, doublereal upper) {
         m_min[n] = lower;
@@ -320,6 +320,9 @@ public:
      *             out which part of the solution vector pertains to this
      *             object.
      * @return     XML_Node created to represent this domain
+     *
+     * @deprecated The XML output format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual XML_Node& save(XML_Node& o, const doublereal* const sol);
 
@@ -333,6 +336,9 @@ public:
      * @param soln Current value of the solution vector, local to this object.
      * @param loglevel 0 to suppress all output; 1 to show warnings; 2 for
      *      verbose output
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
 

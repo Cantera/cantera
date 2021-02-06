@@ -5,7 +5,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/PDSS_IonsFromNeutral.h"
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
@@ -44,18 +44,19 @@ void PDSS_IonsFromNeutral::setParametersFromXML(const XML_Node& speciesNode)
     PDSS::setParametersFromXML(speciesNode);
     const XML_Node* tn = speciesNode.findByName("thermo");
     if (!tn) {
-        throw CanteraError("PDSS_IonsFromNeutral::constructPDSSXML",
-                           "no thermo Node for species " + speciesNode.name());
+        throw CanteraError("PDSS_IonsFromNeutral::setParametersFromXML",
+                           "no 'thermo' Node for species '{}'", speciesNode.name());
     }
     if (!caseInsensitiveEquals(tn->attrib("model"), "ionfromneutral")) {
-        throw CanteraError("PDSS_IonsFromNeutral::constructPDSSXML",
-                           "thermo model for species isn't IonsFromNeutral: "
-                           + speciesNode.name());
+        throw CanteraError("PDSS_IonsFromNeutral::setParametersFromXML",
+                           "thermo model for species '{}' isn't 'IonsFromNeutral'",
+                           speciesNode.name());
     }
     const XML_Node* nsm = tn->findByName("neutralSpeciesMultipliers");
     if (!nsm) {
-        throw CanteraError("PDSS_IonsFromNeutral::constructPDSSXML",
-                           "no Thermo::neutralSpeciesMultipliers Node for species " + speciesNode.name());
+        throw CanteraError("PDSS_IonsFromNeutral::setParametersFromXML",
+                           "no 'Thermo::neutralSpeciesMultipliers' Node for species '{}'",
+                           speciesNode.name());
     }
 
     for (auto& species_mult : parseCompString(nsm->value())) {
@@ -70,6 +71,15 @@ void PDSS_IonsFromNeutral::setParametersFromXML(const XML_Node& speciesNode)
 void PDSS_IonsFromNeutral::initThermo()
 {
     PDSS::initThermo();
+    if (m_input.getBool("special-species", false)) {
+        setSpecialSpecies();
+    }
+    if (m_input.hasKey("multipliers")) {
+        for (const auto& item : m_input["multipliers"].asMap<double>()) {
+            setNeutralSpeciesMultiplier(item.first, item.second);
+        }
+    }
+
     m_p0 = neutralMoleculePhase_->refPressure();
     m_minTemp = neutralMoleculePhase_->minTemp();
     m_maxTemp = neutralMoleculePhase_->maxTemp();
@@ -214,12 +224,9 @@ doublereal PDSS_IonsFromNeutral::molarVolume_ref() const
 
 void PDSS_IonsFromNeutral::setState_TP(doublereal temp, doublereal pres)
 {
+    neutralMoleculePhase_->setState_TP(temp, pres);
     m_pres = pres;
     m_temp = temp;
-}
-
-void PDSS_IonsFromNeutral::setState_TR(doublereal temp, doublereal rho)
-{
 }
 
 }

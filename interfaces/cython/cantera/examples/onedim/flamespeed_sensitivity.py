@@ -2,12 +2,11 @@
 Sensitivity analysis for a freely-propagating, premixed methane-air
 flame. Computes the sensitivity of the laminar flame speed with respect
 to each reaction rate constant.
+
+Requires: cantera >= 2.5.0
 """
 
-from __future__ import print_function
-
 import cantera as ct
-import numpy as np
 
 # Simulation parameters
 p = ct.one_atm  # pressure [Pa]
@@ -16,8 +15,8 @@ reactants = 'CH4:0.45, O2:1.0, N2:3.76'
 
 width = 0.03  # m
 
-# IdealGasMix object used to compute mixture properties
-gas = ct.Solution('gri30.xml', 'gri30_mix')
+# Solution object used to compute mixture properties
+gas = ct.Solution('gri30.yaml')
 gas.TPX = Tin, p, reactants
 
 # Flame object
@@ -25,7 +24,7 @@ f = ct.FreeFlame(gas, width=width)
 f.set_refine_criteria(ratio=3, slope=0.07, curve=0.14)
 
 f.solve(loglevel=1, auto=True)
-print('\nmixture-averaged flamespeed = {:7f} m/s\n'.format(f.u[0]))
+print('\nmixture-averaged flamespeed = {:7f} m/s\n'.format(f.velocity[0]))
 
 # Use the adjoint method to calculate sensitivities
 sens = f.get_flame_speed_reaction_sensitivities()

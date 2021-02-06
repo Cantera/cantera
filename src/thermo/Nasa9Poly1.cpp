@@ -10,18 +10,32 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/Nasa9Poly1.h"
 
 namespace Cantera
 {
 
+Nasa9Poly1::Nasa9Poly1()
+    : m_coeff(9)
+{
+}
+
 Nasa9Poly1::Nasa9Poly1(double tlow, double thigh, double pref,
                        const double* coeffs) :
     SpeciesThermoInterpType(tlow, thigh, pref),
     m_coeff(coeffs, coeffs + 9)
 {
+}
+
+void Nasa9Poly1::setParameters(const vector_fp &coeffs)
+{
+    if (coeffs.size() != 9) {
+        throw CanteraError("Nasa9Poly1::setParameters", "Array must contain "
+            "9 coefficients, but {} were given.", coeffs.size());
+    }
+    m_coeff = coeffs;
 }
 
 int Nasa9Poly1::reportType() const

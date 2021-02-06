@@ -1,0 +1,131 @@
+description: |-
+  Trough mechanism from 'S. J. Harris and D. G. Goodwin, 'Growth on
+  the reconstructed diamond (100) surface, 'J. Phys. Chem. vol. 97,
+  23-28 (1993). reactions a - t are taken directly from Table II,
+  with thermochemistry from Table IV. Reaction u is added here.
+
+units: {length: cm, quantity: mol, activation-energy: kcal/mol}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [H, C]
+  species:
+  - gri30.yaml/species: [H, H2, CH3, CH4]
+  state:
+    T: 1200.0
+    P: 2666.4473684210525
+    X: {H: 2.0e-03, H2: 0.988, CH3: 2.0e-04, CH4: 0.01}
+- name: diamond
+  thermo: fixed-stoichiometry
+  elements: [C]
+  species: [C(d)]
+- name: diamond_100
+  thermo: ideal-surface
+  elements: [H, C]
+  species: [c6HH, c6H*, c6*H, c6**, c6HM, c6HM*, c6*M, c6B]
+  kinetics: surface
+  reactions: all
+  state:
+    T: 1200.0
+    coverages: {c6H*: 0.1, c6HH: 0.9}
+  site-density: 3.0e-09 mol/cm^2
+
+species:
+- name: C(d)
+  composition: {C: 1}
+  thermo:
+    model: constant-cp
+  equation-of-state:
+    model: constant-volume
+    density: 3.52 g/cm^3
+- name: c6H*
+  composition: {H: 1}
+  thermo:
+    model: constant-cp
+    h0: 51.7 kcal/mol
+    s0: 19.5 cal/mol/K
+- name: c6*H
+  composition: {H: 1}
+  thermo:
+    model: constant-cp
+    h0: 46.1 kcal/mol
+    s0: 19.9 cal/mol/K
+- name: c6HH
+  composition: {H: 2}
+  thermo:
+    model: constant-cp
+    h0: 11.4 kcal/mol
+    s0: 21.0 cal/mol/K
+- name: c6HM
+  composition: {C: 1, H: 4}
+  thermo:
+    model: constant-cp
+    h0: 26.9 kcal/mol
+    s0: 40.3 cal/mol/K
+- name: c6HM*
+  composition: {C: 1, H: 3}
+  thermo:
+    model: constant-cp
+    h0: 65.8 kcal/mol
+    s0: 40.1 cal/mol/K
+- name: c6*M
+  composition: {C: 1, H: 3}
+  thermo:
+    model: constant-cp
+    h0: 53.3 kcal/mol
+    s0: 38.9 cal/mol/K
+- name: c6**
+  composition: {C: 0}
+  thermo:
+    model: constant-cp
+    h0: 90.0 kcal/mol
+    s0: 18.4 cal/mol/K
+- name: c6B
+  composition: {H: 2, C: 1}
+  thermo:
+    model: constant-cp
+    h0: 40.9 kcal/mol
+    s0: 26.9 cal/mol/K
+
+reactions:
+- equation: c6HH + H   <=> c6H* + H2  # Reaction 1
+  rate-constant: {A: 1.3e+14, b: 0.0, Ea: 7.3}
+- equation: c6H* + H   <=> c6HH  # Reaction 2
+  rate-constant: {A: 1.0e+13, b: 0.0, Ea: 0.0}
+- equation: c6H* + CH3 <=> c6HM  # Reaction 3
+  rate-constant: {A: 5.0e+12, b: 0.0, Ea: 0.0}
+- equation: c6HM + H   <=> c6*M + H2  # Reaction 4
+  rate-constant: {A: 1.3e+14, b: 0.0, Ea: 7.3}
+- equation: c6*M + H   <=> c6HM  # Reaction 5
+  rate-constant: {A: 1.0e+13, b: 0.0, Ea: 0.0}
+- equation: c6HM + H   <=> c6HM* + H2  # Reaction 6
+  rate-constant: {A: 2.8e+07, b: 2.0, Ea: 7.7}
+- equation: c6HM* + H  <=> c6HM  # Reaction 7
+  rate-constant: {A: 1.0e+13, b: 0.0, Ea: 0.0}
+- equation: c6HM*      <=> c6*M  # Reaction 8
+  rate-constant: {A: 1.0e+08, b: 0.0, Ea: 0.0}
+- equation: c6HM* + H  <=> c6H* + CH3  # Reaction 9
+  rate-constant: {A: 3.0e+13, b: 0.0, Ea: 0.0}
+- equation: c6HM* + H  <=> c6B + H2  # Reaction 10
+  rate-constant: {A: 1.3e+14, b: 0.0, Ea: 7.3}
+- equation: c6*M + H   <=> c6B + H2  # Reaction 11
+  rate-constant: {A: 2.8e+07, b: 2.0, Ea: 7.7}
+- equation: c6HH + H   <=> c6*H + H2  # Reaction 12
+  rate-constant: {A: 1.3e+14, b: 0.0, Ea: 7.3}
+- equation: c6*H + H   <=> c6HH  # Reaction 13
+  rate-constant: {A: 1.0e+13, b: 0.0, Ea: 0.0}
+- equation: c6H* + H   <=> c6** + H2  # Reaction 14
+  rate-constant: {A: 1.3e+14, b: 0.0, Ea: 7.3}
+- equation: c6** + H   <=> c6H*  # Reaction 15
+  rate-constant: {A: 1.0e+13, b: 0.0, Ea: 0.0}
+- equation: c6*H + H   <=> c6** + H2  # Reaction 16
+  rate-constant: {A: 4.5e+06, b: 2.0, Ea: 5.0}
+- equation: c6** + H   <=> c6*H  # Reaction 17
+  rate-constant: {A: 1.0e+13, b: 0.0, Ea: 0.0}
+- equation: c6** + CH3 <=> c6*M  # Reaction 18
+  rate-constant: {A: 5.0e+12, b: 0.0, Ea: 0.0}
+- equation: c6H*       <=> c6*H  # Reaction 19
+  rate-constant: {A: 1.0e+08, b: 0.0, Ea: 0.0}
+- equation: c6B         => c6HH + C(d)  # Reaction 20
+  rate-constant: {A: 1.0e+09, b: 0.0, Ea: 0.0}

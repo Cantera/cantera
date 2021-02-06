@@ -1,0 +1,161 @@
+units: {length: cm, time: s, quantity: mol, energy: cal}
+
+phases:
+- name: simple
+  thermo: ideal-gas
+  elements: [N, O]
+  species: [O2, NO, N2]
+  state: {T: 500.0, P: 10 atm, X: {O2: 0.21, N2: 0.79}}
+
+- name: duplicate-species
+  thermo: ideal-gas
+  elements: [N, O]
+  species: [O2, NO, N2, NO]
+  state: {T: 300.0, P: 1 atm, X: {O2: 0.21, N2: 0.79}}
+
+- name: element-override
+  thermo: ideal-gas
+  elements: [N, O, Ar]
+  species: [O2, NO, N2, AR]
+  note: replace Argon with custom element
+  state: {T: 900.0, P: 5 atm, Y: {O2: 0.4, N2: 0.4, AR: 0.2}}
+
+- name: element-remote
+  thermo: ideal-gas
+  elements:
+  - default: [N, O]
+  - test_subdir/species-elements.yaml/isotopes: [Ar]
+  species: [O2, NO, N2, AR]
+  note: replace Argon with custom element from a different file
+  state: {T: 900.0, P: 5 atm, Y: {O2: 0.4, N2: 0.4, AR: 0.2}}
+
+- name: species-remote
+  thermo: ideal-gas
+  species:
+  - species: [O2, N2]
+  - test_subdir/species-elements.yaml/species: [NO2, N2O]
+  state: {T: 300.0, P: 1 atm, X: "N2O:0.3, O2:0.7"}
+
+- name: species-all
+  thermo: ideal-gas
+  state: {T: 300.0, P: 1 atm, X: {AR: 0.2, O2: 0.7, N2: 0.1}}
+
+- name: simple-kinetics
+  thermo: ideal-gas
+  kinetics: gas
+  state: {T: 300.0, P: 1 atm, X: {AR: 0.2, O2: 0.7, N2: 0.1}}
+
+- name: remote-kinetics
+  thermo: ideal-gas
+  kinetics: gas
+  species:
+  - species: all
+  - test_subdir/species-elements.yaml/species: all
+  reactions: [reactions, test_subdir/species-elements.yaml/nox-reactions]
+  state: {T: 300.0, P: 1 atm, X: {AR: 0.2, O2: 0.7, N2: 0.1}}
+
+- name: efficiency-error
+  thermo: ideal-gas
+  kinetics: gas
+  species:
+  - species: [N2, O]
+  - test_subdir/species-elements.yaml/species: [N2O]
+  reactions: [test_subdir/species-elements.yaml/nox-reactions]
+  state: {T: 300.0, P: 1 atm, X: {N2: 1.0}}
+
+- name: efficiency-skip
+  thermo: ideal-gas
+  kinetics: gas
+  skip-undeclared-third-bodies: true
+  species:
+  - species: [N2, O]
+  - test_subdir/species-elements.yaml/species: [N2O]
+  reactions: [test_subdir/species-elements.yaml/nox-reactions]
+  state: {T: 300.0, P: 1 atm, X: {N2: 1.0}}
+
+elements:
+- symbol: Ar
+  atomic-weight: 36
+
+
+species:
+- name: O2
+  composition: {O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.00, 1000.00, 3500.00]
+    data:
+    - [3.782456360E+00, -2.996734160E-03, 9.847302010E-06, -9.681295090E-09,
+       3.243728370E-12, -1.063943560E+03, 3.657675730E+00]
+    - [3.282537840E+00, 1.483087540E-03, -7.579666690E-07, 2.094705550E-10,
+       -2.167177940E-14, -1.088457720E+03, 5.453231290E+00]
+    note: "TPIS89"
+
+- name: NO
+  composition: {N: 1, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.00, 1000.00, 6000.00]
+    data:
+    - [4.218476300E+00, -4.638976000E-03, 1.104102200E-05, -9.336135400E-09,
+       2.803577000E-12, 9.844623000E+03, 2.280846400E+00]
+    - [3.260605600E+00, 1.191104300E-03, -4.291704800E-07, 6.945766900E-11,
+       -4.033609900E-15, 9.920974600E+03, 6.369302700E+00]
+    note: "RUS 78"
+
+- name: N2
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.00, 1000.00, 5000.00]
+    data:
+    - [3.298677000E+00, 1.408240400E-03, -3.963222000E-06, 5.641515000E-09,
+       -2.444854000E-12, -1.020899900E+03, 3.950372000E+00]
+    - [2.926640000E+00, 1.487976800E-03, -5.684760000E-07, 1.009703800E-10,
+       -6.753351000E-15, -9.227977000E+02, 5.980528000E+00]
+    note: "121286"
+
+- name: AR
+  composition: {Ar: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.00, 1000.00, 5000.00]
+    data:
+    - [2.500000000E+00, 0.000000000E+00, 0.000000000E+00, 0.000000000E+00,
+       0.000000000E+00, -7.453750000E+02, 4.366000000E+00]
+    - [2.500000000E+00, 0.000000000E+00, 0.000000000E+00, 0.000000000E+00,
+       0.000000000E+00, -7.453750000E+02, 4.366000000E+00]
+    note: "120186"
+
+- name: O
+  composition: {O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200, 1000, 3500]
+    data:
+    - [3.168267100E+00, -3.279318840E-03, 6.643063960E-06, -6.128066240E-09,
+        2.112659710E-12, 2.912225920E+04, 2.051933460E+00]
+    - [2.569420780E+00, -8.597411370E-05, 4.194845890E-08, -1.001777990E-11,
+       1.228336910E-15, 2.921757910E+04, 4.784338640E+00]
+    note: "L 1/90"
+
+- name: N
+  composition: {N: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.00, 1000.00, 6000.00]
+    data:
+    - [2.500000000E+00, 0.000000000E+00, 0.000000000E+00, 0.000000000E+00,
+       0.000000000E+00, 5.610463700E+04, 4.193908700E+00]
+    - [2.415942900E+00, 1.748906500E-04, -1.190236900E-07, 3.022624500E-11,
+       -2.036098200E-15, 5.613377300E+04, 4.649609600E+00]
+    note: "L 6/88"
+
+
+reactions:
+- equation: N + NO <=> N2 + O
+  rate-constant: [2.70000E+13, 0, 355]
+  id: NOx-R1
+
+- equation: N + O2 <=> NO + O
+  rate-constant: [9.00000E+09, 1, 6500]

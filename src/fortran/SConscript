@@ -7,7 +7,7 @@ localenv.Prepend(CPPPATH=['#include', '#src'])
 
 f90_src = mglob(localenv, '.', 'f90', 'cpp')
 
-artifacts = localenv.Object(f90_src,
+artifacts = localenv.SharedObject(f90_src,
                             F90PATH=['#build/src/fortran'])
 mods = [o for o in artifacts if o.path.endswith('.mod')]
 objects = [o for o in artifacts if not o.path.endswith('.mod')]
@@ -18,6 +18,25 @@ lib = build(localenv.Library(target='../../lib/cantera_fortran',
 
 install('$inst_libdir', lib)
 install('$inst_incdir', mods)
-#
-#  We are only building the static fortran library here. This is probably ok
-#
+
+# Build the Cantera Fortran interface shared library
+if localenv['layout'] != 'debian':
+    if localenv['renamed_shared_libraries']:
+        sharedName = '../../lib/cantera_fortran_shared'
+    else:
+        sharedName = '../../lib/cantera_fortran'
+
+    if localenv['versioned_shared_library']:
+        shlib = build(localenv.SharedLibrary(target=sharedName, source=objects,
+                                             SPAWN=getSpawn(localenv),
+                                             SHLIBVERSION=localenv['cantera_pure_version'],
+                                             LIBS=list(env['cantera_libs'] + env['cxx_stdlib']),
+                                             LINK='$FORTRAN_LINK'))
+        install(localenv.InstallVersionedLib, '$inst_libdir', shlib)
+    else:
+        shlib = build(localenv.SharedLibrary(target=sharedName, source=objects,
+                                             SPAWN=getSpawn(localenv),
+                                             LIBS=list(env['cantera_libs'] + env['cxx_stdlib']),
+                                             LINK='$FORTRAN_LINK'))
+        install('$inst_libdir', shlib)
+    localenv.Depends(shlib, localenv['config_h_target'])

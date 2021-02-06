@@ -1,0 +1,42 @@
+description: |-
+  This file contains data for silicon carbide from the NASA thermodynamic
+  database, which is available for download from
+  https://shepherd.caltech.edu/EDL/PublicResources/sdt/thermo.html. The
+  original sources are
+
+  S. Gordon and B.J. McBride, "Computer Program for Calculation of Complex
+  Chemical Equilibrium Composition, Rocket Performance, Incident and
+  Reflected Shocks and Chapman-Jouguet Detonations", NASA Report SP-273, 1971.
+
+  B.J. McBride, S. Gordon, and M.A. Reno, "Coefficients for Calculating
+  Thermodynamic and Transport Properties of Individual Species", NASA
+  Report TM-4513, October 1993.
+
+generator: cti2yaml
+cantera-version: 2.5.0a3
+date: Wed, 11 Dec 2019 16:59:14 -0500
+input-files: [silicon_carbide.cti]
+
+phases:
+- name: silicon_carbide
+  thermo: fixed-stoichiometry
+  elements: [Si, C]
+  species: [SiC(b)]
+  state:
+    T: 1600.0
+    P: 1.01325e+05
+
+species:
+- name: SiC(b)
+  composition: {Si: 1, C: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 4000.0]
+    data:
+    - [-2.4715907, 0.030693783, -4.9263085e-05, 3.8626389e-08, -1.1761621e-11,
+      -9069.126, 8.8009214]
+    - [3.7974809, 3.1872886e-03, -1.4502334e-06, 3.1549744e-10, -2.6158991e-14,
+      -1.0291937e+04, -21.067791]
+  equation-of-state:
+    model: constant-volume
+    density: 1.0 g/cm^3

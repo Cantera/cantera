@@ -1,0 +1,23 @@
+description: This definition extracts the O/H/N submechanism from GRI-Mech 3.0
+
+generator: cti2yaml
+cantera-version: 2.5.0a3
+date: Wed, 11 Dec 2019 16:59:14 -0500
+input-files: [ohn.cti]
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [O, H, N]
+  species:
+  - gri30.yaml/species: all
+  skip-undeclared-elements: true
+  skip-undeclared-third-bodies: true
+  kinetics: gas
+  reactions:
+  - gri30.yaml/reactions: declared-species
+  transport: mixture-averaged
+  state:
+    T: 300.0
+    P: 1.01325e+05
+    X: {H2: 2, O2: 1, N2: 3.76}

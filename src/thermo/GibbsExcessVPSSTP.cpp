@@ -11,7 +11,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/GibbsExcessVPSSTP.h"
 #include "cantera/base/stringUtils.h"
@@ -37,10 +37,16 @@ void GibbsExcessVPSSTP::calcDensity()
         vtotal += vbar[i] * moleFractions_[i];
     }
     doublereal dd = meanMolecularWeight() / vtotal;
-    Phase::setDensity(dd);
+    Phase::assignDensity(dd);
 }
 
 // - Activities, Standard States, Activity Concentrations -----------
+
+Units GibbsExcessVPSSTP::standardConcentrationUnits() const
+{
+    return Units(1.0); // dimensionless
+}
+
 void GibbsExcessVPSSTP::getActivityConcentrations(doublereal* c) const
 {
     getActivities(c);

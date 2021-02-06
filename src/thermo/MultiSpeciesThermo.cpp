@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/MultiSpeciesThermo.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
@@ -76,17 +76,6 @@ void MultiSpeciesThermo::modifySpecies(size_t index,
     }
 
     m_sp[type][m_speciesLoc[index].second] = {index, spthermo};
-}
-
-void MultiSpeciesThermo::update_one(size_t k, doublereal t, doublereal* cp_R,
-                                      doublereal* h_RT, doublereal* s_R) const
-{
-    warn_deprecated("MultiSpeciesThermo::update_one",
-                    "Use update_single instead. To be removed after Cantera 2.4");
-    const SpeciesThermoInterpType* sp_ptr = provideSTIT(k);
-    if (sp_ptr) {
-        sp_ptr->updatePropertiesTemp(t, cp_R+k, h_RT+k, s_R+k);
-    }
 }
 
 void MultiSpeciesThermo::update_single(size_t k, double t, double* cp_R,

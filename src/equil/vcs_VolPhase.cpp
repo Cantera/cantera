@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/equil/vcs_species_thermo.h"
@@ -587,7 +587,8 @@ void vcs_VolPhase::setPtrThermoPhase(ThermoPhase* tp_ptr)
     size_t nelem = TP_ptr->nElements();
     if (nsp != m_numSpecies) {
         if (m_numSpecies != 0) {
-            plogf("Warning Nsp != NVolSpeces: %d %d \n", nsp, m_numSpecies);
+            warn_user("vcs_VolPhase::setPtrThermoPhase",
+                "Nsp != NVolSpeces: {} {}", nsp, m_numSpecies);
         }
         resize(VP_ID_, nsp, nelem, PhaseName.c_str());
     }
@@ -602,7 +603,7 @@ void vcs_VolPhase::setPtrThermoPhase(ThermoPhase* tp_ptr)
         std::string eos = TP_ptr->type();
         if (eos == "IdealGas" || eos == "ConstDensity" || eos == "Surf"
             || eos == "Metal" || eos == "StoichSubstance"
-            || eos == "Semiconductor" || eos == "LatticeSolid"
+            || eos == "LatticeSolid"
             || eos == "Lattice" || eos == "Edge" || eos == "IdealSolidSoln") {
             m_isIdealSoln = true;
         } else {

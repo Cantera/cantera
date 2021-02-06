@@ -1,6 +1,8 @@
 """
 Adiabatic flame temperature and equilibrium composition for a fuel/air mixture
 as a function of equivalence ratio, including formation of solid carbon.
+
+Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
 import cantera as ct
@@ -16,8 +18,8 @@ T = 300.0
 P = 101325.0
 
 # phases
-gas = ct.Solution('gri30.xml')
-carbon = ct.Solution('graphite.xml')
+gas = ct.Solution('gri30.yaml')
+carbon = ct.Solution('graphite.yaml')
 
 # the phases that will be included in the calculation, and their initial moles
 mix_phases = [(gas, 1.0), (carbon, 0.0)]
@@ -35,7 +37,7 @@ mix = ct.Mixture(mix_phases)
 
 # create some arrays to hold the data
 tad = np.zeros(npoints)
-xeq = np.zeros((mix.n_species,npoints))
+xeq = np.zeros((mix.n_species, npoints))
 
 for i in range(npoints):
     # set the gas state
@@ -51,15 +53,15 @@ for i in range(npoints):
 
     tad[i] = mix.T
     print('At phi = {0:12.4g}, Tad = {1:12.4g}'.format(phi[i], tad[i]))
-    xeq[:,i] = mix.species_moles
+    xeq[:, i] = mix.species_moles
 
 # write output CSV file for importing into Excel
 csv_file = 'adiabatic.csv'
-with open(csv_file, 'w') as outfile:
+with open(csv_file, 'w', newline='') as outfile:
     writer = csv.writer(outfile)
-    writer.writerow(['phi','T (K)'] + mix.species_names)
+    writer.writerow(['phi', 'T (K)'] + mix.species_names)
     for i in range(npoints):
-        writer.writerow([phi[i], tad[i]] + list(xeq[:,i]))
+        writer.writerow([phi[i], tad[i]] + list(xeq[:, i]))
 print('Output written to {0}'.format(csv_file))
 
 if '--plot' in sys.argv:

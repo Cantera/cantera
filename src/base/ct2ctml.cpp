@@ -5,7 +5,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
@@ -138,7 +138,7 @@ static std::string call_ctml_writer(const std::string& text, bool isfile)
         message << "Error executing python while converting input file:\n";
         message << "Python command was: '" << pypath() << "'\n";
         message << err.what() << std::endl;
-        throw CanteraError("ct2ctml_string", message.str());
+        throw CanteraError("call_ctml_writer", message.str());
     }
 
     if (python_exit_code != 0) {
@@ -154,7 +154,7 @@ static std::string call_ctml_writer(const std::string& text, bool isfile)
         } else {
             message << "The command did not produce any output." << endl;
         }
-        throw CanteraError("ct2ctml_string", message.str());
+        throw CanteraError("call_ctml_writer", message.str());
     }
 
     if (error_output.size() > 0) {
@@ -228,7 +228,7 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
         message << "Error executing python while converting input file:\n";
         message << "Python command was: '" << pypath() << "'\n";
         message << err.what() << std::endl;
-        throw CanteraError("ct2ctml", message.str());
+        throw CanteraError("ck2cti", message.str());
     }
 
     if (python_exit_code != 0) {

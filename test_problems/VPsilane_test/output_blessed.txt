@@ -1,70 +1,65 @@
+CanteraWarning: NasaPoly2::validate:
+For species SI2H6, discontinuity in h/RT detected at Tmid = 1000.0
+	Value computed using low-temperature polynomial:  19.832788750000002
+	Value computed using high-temperature polynomial: 19.905538027666665
+
+CanteraWarning: NasaPoly2::validate:
+For species SI2H6, discontinuity in s/R detected at Tmid = 1000.0
+	Value computed using low-temperature polynomial:  49.54934633430382
+	Value computed using high-temperature polynomial: 49.72144349849784
+
+CanteraWarning: NasaPoly2::validate:
+For species SI3H8, discontinuity in h/RT detected at Tmid = 1000.0
+	Value computed using low-temperature polynomial:  29.302814743333336
+	Value computed using high-temperature polynomial: 29.429734298666666
+
+CanteraWarning: NasaPoly2::validate:
+For species SI3H8, discontinuity in s/R detected at Tmid = 1000.0
+	Value computed using low-temperature polynomial:  65.97306778810605
+	Value computed using high-temperature polynomial: 66.2781011692102
+
+CanteraWarning: NasaPoly2::validate:
+For species SI2, discontinuity in h/RT detected at Tmid = 1000.0
+	Value computed using low-temperature polynomial:  74.01147672
+	Value computed using high-temperature polynomial: 74.0386547703
+
+CanteraWarning: NasaPoly2::validate:
+For species SI2, discontinuity in s/R detected at Tmid = 1000.0
+	Value computed using low-temperature polynomial:  32.881299760183126
+	Value computed using high-temperature polynomial: 32.94888061232226
 
 
-**** WARNING ****
-For species SI2H6, discontinuity in h/RT detected at Tmid = 1000
-	Value computed using low-temperature polynomial:  19.8328
-	Value computed using high-temperature polynomial: 19.9055
-
-
-**** WARNING ****
-For species SI2H6, discontinuity in s/R detected at Tmid = 1000
-	Value computed using low-temperature polynomial:  49.5493
-	Value computed using high-temperature polynomial: 49.7214
-
-
-**** WARNING ****
-For species SI3H8, discontinuity in h/RT detected at Tmid = 1000
-	Value computed using low-temperature polynomial:  29.3028
-	Value computed using high-temperature polynomial: 29.4297
-
-
-**** WARNING ****
-For species SI3H8, discontinuity in s/R detected at Tmid = 1000
-	Value computed using low-temperature polynomial:  65.9731
-	Value computed using high-temperature polynomial: 66.2781
-
-
-**** WARNING ****
-For species SI2, discontinuity in h/RT detected at Tmid = 1000
-	Value computed using low-temperature polynomial:  74.0115
-	Value computed using high-temperature polynomial: 74.0387
-
-
-**** WARNING ****
-For species SI2, discontinuity in s/R detected at Tmid = 1000
-	Value computed using low-temperature polynomial:  32.8813
-	Value computed using high-temperature polynomial: 32.9489
- 
   silane:
- 
-       temperature            1500  K
-          pressure             100  Pa
-           density     1.83141e-05  kg/m^3
-  mean mol. weight         2.28407  amu
- 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy      1.7017e+07        3.887e+07     J
-   internal energy      1.1557e+07         2.64e+07     J
-           entropy      1.0387e+05        2.372e+05     J/K
-    Gibbs function     -1.3878e+08        -3.17e+08     J
- heat capacity c_p           14162        3.235e+04     J/K
- heat capacity c_v           10522        2.403e+04     J/K
- 
-                           X                 Y          Chem. Pot. / RT    
-                     -------------     ------------     ------------
-                H2       0.995395         0.878516         -25.5277
-                 H    0.000559189      0.000246765         -12.7639
-                HE              0                0     
-              SIH4    1.05394e-07      1.48198e-06         -50.9842
-                SI     0.00105469        0.0129687        0.0713036
-               SIH     1.2607e-05      0.000160581         -12.6926
-              SIH2     1.1852e-05      0.000156195         -25.4564
-              SIH3    1.18896e-07      1.61938e-06         -38.2203
-           H3SISIH    6.98628e-12      1.84142e-10         -50.9129
-             SI2H6    1.66065e-14      4.52364e-13         -76.4406
-          H2SISIH2    1.78387e-10      4.70187e-09         -50.9129
-             SI3H8    6.98199e-21      2.82205e-19         -101.897
-               SI2    0.000120384       0.00296054         0.142607
-               SI3     0.00284607         0.104988         0.213911
+
+       temperature   1500 K
+          pressure   100 Pa
+           density   1.8315e-05 kg/m^3
+  mean mol. weight   2.2842 kg/kmol
+   phase of matter   gas
+
+                          1 kg             1 kmol
+                     ---------------   ---------------
+          enthalpy        1.7016e+07        3.8868e+07  J
+   internal energy        1.1556e+07        2.6397e+07  J
+           entropy        1.0386e+05        2.3724e+05  J/K
+    Gibbs function       -1.3878e+08       -3.1699e+08  J
+ heat capacity c_p             14161             32347  J/K
+ heat capacity c_v             10521             24032  J/K
+
+                      mass frac. Y      mole frac. X     chem. pot. / RT
+                     ---------------   ---------------   ---------------
+                H2           0.87852           0.99539           -25.528
+                 H        0.00024677        0.00055919           -12.764
+                HE                 0                 0
+              SIH4        1.4819e-06        1.0539e-07           -50.984
+                SI          0.012968         0.0010547          0.071304
+               SIH        0.00016057        1.2607e-05           -12.693
+              SIH2        0.00015619        1.1852e-05           -25.456
+              SIH3        1.6193e-06         1.189e-07            -38.22
+           H3SISIH        1.8413e-10        6.9864e-12           -50.913
+             SI2H6        4.5234e-13        1.6606e-14           -76.441
+          H2SISIH2        4.7016e-09        1.7839e-10           -50.913
+             SI3H8        2.8219e-19         6.982e-21            -101.9
+               SI2         0.0029603        0.00012038           0.14261
+               SI3           0.10498         0.0028461           0.21391
 

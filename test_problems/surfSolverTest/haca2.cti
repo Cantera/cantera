@@ -15,7 +15,7 @@ units(length = 'cm', quantity = 'mol', act_energy = 'kcal/mol')
 ideal_gas(name = 'gas',
           elements = 'O H C N Ar',
           species = 'gri30: H N2 CH3 CH4 C2H2 H2 OH H2O CO O2',
-          initial_state = state(temperature = 1400.0,
+          initial_state = state(temperature = 1100.0,
                                 pressure = OneAtm,
                     mole_fractions = 'H:0.01, N2:0.8899, H2:0.04, CH4:0.01 C2H2:0.01 \
                                       OH:0.0001 H2O:0.04 O2:0.001'))
@@ -53,7 +53,7 @@ ideal_interface(name = 'soot_interface',
                 reactions = 'all',
                 phases = 'gas soot',
                 site_density = (3.8E-9, 'mol/cm2'),
-                initial_state = state(temperature= 1000.0,
+                initial_state = state(temperature= 1400.0,
                                       coverages = 'Csoot-*:0.1, Csoot-H:0.9'))
 
 # HKM -> Note, thermo from the following source:

@@ -1,5 +1,5 @@
 ! This file is part of Cantera. See License.txt in the top-level directory or
-! at http://www.cantera.org/license.txt for license and copyright information.
+! at https://cantera.org/license.txt for license and copyright information.
 
 module cantera_funcs
 
@@ -18,25 +18,20 @@ module cantera_funcs
       integer, intent(in), optional :: loglevel
 
       character(20) :: model
-      type(XML_Node) root, s, str
       type(phase_t) self
 
-      root = new_XML_Node(src = src)
       if (present(id)) then
-         s = ctxml_child(root, id = id)
+         self = ctthermo_newFromFile(src, id)
       else
-         s = ctxml_child(root, 'phase')
+         self = ctthermo_newFromFile(src)
       end if
 
-      self = newThermoPhase(s)
-      call newKinetics(s, self)
+      call ctkin_newFromFile(self, src, id)
 
-      str = ctxml_child(s, 'transport')
-      call ctxml_getAttrib(str, 'model', model)
       if (present(loglevel)) then
-         self%tran_id = newTransport(model, self%thermo_id, loglevel)
+         self%tran_id = trans_newdefault(self%thermo_id, loglevel)
       else
-         self%tran_id = newTransport(model, self%thermo_id, 0)
+         self%tran_id = trans_newdefault(self%thermo_id, 0)
       end if
 
       ctfunc_importPhase = self

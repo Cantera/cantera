@@ -162,14 +162,20 @@ public:
         if (dotitles) {
             f << ztitle << ", ";
             for (m = 0; m < nc; m++) {
-                f << componentName(m) << ", ";
+                f << componentName(m);
+                if (m != nc - 1) {
+                    f << ", ";
+                }
             }
             f << std::endl;
         }
         for (n = 0; n < np; n++) {
             f << z(n) << ", ";
             for (m = 0; m < nc; m++) {
-                f << m_sim->value(1, m, n) << ", ";
+                f << m_sim->value(1, m, n);
+                if (m != nc - 1) {
+                    f << ", ";
+                }
             }
             f << std::endl;
         }
@@ -185,35 +191,10 @@ public:
         return 0.0;
     }
 
-    /**
-     * Value of component \a m at point \a j. This method is used
-     * to access solution values once a converged solution has been
-     * attained.
-     */
-    double v(int m, int j) const {
-        return m_sim->value(1,m,j);
-    }
-
 protected:
     Cantera::Domain1D* m_left; ///< dummy terminator
     Cantera::Domain1D* m_right; ///< dummy terminator
     Cantera::Sim1D* m_sim; ///< controller for solution
-
-    /**
-     * True if n is the index of the left-most grid point (zero),
-     * false otherwise.
-     */
-    bool isLeft(size_t n) const {
-        return (n == 0);
-    }
-
-    /**
-     * True if \a n is the index of the right-most grid point, false
-     * otherwise.
-     */
-    bool isRight(size_t n) const {
-        return (n == nPoints() - 1);
-    }
 
     /**
      * Set up the problem. Creates the solver instance, and sets
@@ -311,65 +292,6 @@ protected:
         return c1/(z(j+1) - z(j-1));
     }
 
-    /**
-     * This method is provided for use in method residual when
-     * central-differenced second derivatives are needed.
-     * @param x The current trial solution vector.
-     * @param n Component index.
-     * @param j Grid point number.
-     */
-    doublereal central_secondDeriv(const doublereal* x,
-                                   int n, int j) const {
-        doublereal c1 = leftFirstDeriv(x, n, j);
-        doublereal c2 = rightFirstDeriv(x, n, j);
-        return 2.0*(c2 - c1)/(z(j+1) - z(j-1));
-    }
-
-    /**
-     * This method is provided for use in method residual when
-     * central-differenced evaluation of terms like
-     * \f[
-     * \frac{d}{dz}\left(g \frac{df}{dz}\right)
-     * \f]
-     * is required.
-     * @param x The current trial solution vector.
-     * @param g The array of g values at the grid points.
-     * @param n Component index.
-     * @param j Grid point number.
-     */
-    doublereal central_Deriv_G_Deriv(const doublereal* x,
-                                     const doublereal* g, int n, int j) const {
-        doublereal c1 = 0.5*(g[j] + g[j-1])*leftFirstDeriv(x, n, j);
-        doublereal c2 = 0.5*(g[j+1] + g[j])*rightFirstDeriv(x, n, j);
-        return 2.0*(c2 - c1)/(z(j+1) - z(j-1));
-    }
-
-    /**
-     * Value of component m between points j and j + 1. This is
-     * computed as the mean of the values at j and j + 1.
-     */
-    doublereal midpointSolution(const doublereal* x, int m, int j) const {
-        return 0.5*(value(x,m,j) + value(x,m,j+1));
-    }
-
-    /**
-     * This method is provided for use in method residual when
-     * central-differenced evaluation of terms like
-     * \f[
-     * \frac{d}{dz}\left(f_m \frac{df_n}{dz}\right)
-     * \f]
-     * is required.
-     * @param x The current trial solution vector.
-     * @param n Solution component for \f$ f_n \f$
-     * @param m Solution component for \f$ f_m \f$
-     * @param j Grid point number.
-     */
-    doublereal central_Deriv_S_Deriv(const doublereal* x,
-                                     int n, int m, int j) const {
-        doublereal c1 = midpointSolution(x,m,j-1)*leftFirstDeriv(x, n, j);
-        doublereal c2 = midpointSolution(x,m,j)*rightFirstDeriv(x, n, j);
-        return 2.0*(c2 - c1)/(z(j+1) - z(j-1));
-    }
     //@}
 };
 }

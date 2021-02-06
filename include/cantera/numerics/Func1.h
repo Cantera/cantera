@@ -3,12 +3,13 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_FUNC1_H
 #define CT_FUNC1_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/ctexceptions.h"
 
 #include <iostream>
 
@@ -32,6 +33,7 @@ const int CosFuncType = 102;
 const int ExpFuncType = 104;
 const int PowFuncType = 106;
 const int ConstFuncType = 110;
+const int TabulatedFuncType = 120;
 
 class TimesConstant1;
 
@@ -123,6 +125,7 @@ Func1& newCompositeFunction(Func1& f1, Func1& f2);
 Func1& newTimesConstFunction(Func1& f1, doublereal c);
 Func1& newPlusConstFunction(Func1& f1, doublereal c);
 
+
 //! implements the sin() function
 /*!
  * The argument to sin() is in radians
@@ -165,7 +168,11 @@ public:
     virtual Func1& derivative() const;
 };
 
-/// cos
+
+//! implements the cos() function
+/*!
+ * The argument to cos() is in radians
+ */
 class Cos1 : public Func1
 {
 public:
@@ -200,7 +207,8 @@ public:
     virtual Func1& derivative() const;
 };
 
-/// exp
+
+//! implements the exponential function
 class Exp1 : public Func1
 {
 public:
@@ -233,7 +241,8 @@ public:
     virtual Func1& derivative() const;
 };
 
-/// pow
+
+//! implements the power function (pow)
 class Pow1 : public Func1
 {
 public:
@@ -265,13 +274,53 @@ public:
     virtual Func1& derivative() const;
 };
 
-/**
- * Constant.
- */
+
+//! The Tabulated1 class implements a tabulated function
+class Tabulated1 : public Func1
+{
+public:
+    //! Constructor.
+    /*!
+     * @param n      Size of tabulated value arrays
+     * @param tvals   Pointer to time value array
+     * @param fvals   Pointer to function value array
+     * @param method Interpolation method ('linear' or 'previous')
+     */
+    Tabulated1(size_t n, const double* tvals, const double* fvals,
+               const std::string& method = "linear");
+
+    virtual std::string write(const std::string& arg) const;
+    virtual int ID() const {
+        return TabulatedFuncType;
+    }
+    virtual double eval(double t) const;
+    virtual Func1& duplicate() const {
+        if (m_isLinear) {
+            return *(new Tabulated1(m_tvec.size(), &m_tvec[0], &m_fvec[0],
+                                    "linear"));
+        } else {
+            return *(new Tabulated1(m_tvec.size(), &m_tvec[0], &m_fvec[0],
+                                    "previous"));
+        }
+    }
+
+    virtual Func1& derivative() const;
+private:
+    vector_fp m_tvec; //!< Vector of time values
+    vector_fp m_fvec; //!< Vector of function values
+    bool m_isLinear; //!< Boolean indicating interpolation method
+};
+
+
+//! The Const1 class implements a constant
 class Const1 : public Func1
 {
 public:
-    Const1(doublereal A) :
+    //! Constructor.
+    /*!
+     * @param A   Constant
+     */
+    Const1(double A) :
         Func1() {
         m_c = A;
     }

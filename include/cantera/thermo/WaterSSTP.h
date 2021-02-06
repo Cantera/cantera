@@ -5,7 +5,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_WATERSSTP_H
 #define CT_WATERSSTP_H
@@ -20,7 +20,7 @@ namespace Cantera
 class WaterPropsIAPWS;
 class WaterProps;
 //! Class for single-component water. This is designed to cover just the liquid
-//! part of water.
+//! and supercritical phases of water.
 /*!
  * The reference is W. Wagner, A. Pruss, "The IAPWS Formulation 1995 for the
  * Thermodynamic Properties of Ordinary Water Substance for General and
@@ -65,9 +65,14 @@ class WaterProps;
  *
  * ## Instantiation of the Class
  *
- * The constructor for this phase is NOT located in the default ThermoFactory
- * for %Cantera. However, a new WaterSSTP object may be created by the following
- * code snippets, combined with an XML file given in the XML example section.
+ * A new WaterSSTP object may be created by the following code snippets,
+ * combined with an XML file given in the XML example section.
+ *
+ * @code
+ *      ThermoPhase* w = newPhase("waterSSTPphase.xml");
+ * @endcode
+ *
+ * or
  *
  * @code
  *      WaterSSTP *w = new WaterSSTP("waterSSTPphase.xml","");
@@ -128,12 +133,17 @@ public:
     /*!
      * @param phaseRef  XML node referencing the water phase.
      * @param id        string id of the phase name
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     explicit WaterSSTP(XML_Node& phaseRef, const std::string& id = "");
 
     virtual std::string type() const {
-        return "Water";
+        return "liquid-water-IAPWS95";
     }
+
+    virtual std::string phaseOfMatter() const;
 
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
@@ -230,6 +240,15 @@ public:
         return m_waterProps.get();
     }
 
+    //! Switch that enables calculations in the gas phase
+    /**
+     *  Since this phase represents a liquid (or supercritical) phase, it is an
+     *  error to return a gas-phase answer. The sole intended use for this
+     *  member function is to check the thermodynamic consistency of the
+     *  underlying WaterProps class with ideal-gas thermo functions.
+     */
+    void _allowGasPhase(bool flag) { m_allowGasPhase = flag; }
+
 protected:
     /**
      * @internal This internal routine must be overridden because it is not
@@ -270,8 +289,8 @@ private:
     bool m_ready;
 
     /**
-     *  Since this phase represents a liquid phase, it's an error to
-     *  return a gas-phase answer. However, if the below is true, then
+     *  Since this phase represents a liquid (or supercritical) phase, it is an
+     *  error to return a gas-phase answer. However, if the below is true, then
      *  a gas-phase answer is allowed. This is used to check the thermodynamic
      *  consistency with ideal-gas thermo functions for example.
      */

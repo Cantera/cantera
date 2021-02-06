@@ -14,7 +14,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_GLOBAL_H
 #define CT_GLOBAL_H
@@ -56,23 +56,28 @@ class Logger;
  *
  * Additional directories may be added by calling function addDirectory.
  *
- * There are currently two different types of input files within %Cantera:
- *  - CTI: A human-readable input file written using Python syntax which
+ * There are currently three different types of input files within %Cantera. The
+ * YAML format is new in Cantera 2.5, and replaces both the CTI and CTML (XML)
+ * formats, which are deprecated and will be removed in Cantera 3.0. The scripts
+ * `cti2yaml.py` and `ctml2yaml.py` can be used to convert legacy input files to
+ * the YAML format.
+ *
+ *  - YAML: A human-readable input file written using YAML syntax which
  *    defines species, phases, and reactions, and contains thermodynamic,
- *    chemical kinetic, and transport data needed by %Cantera. Some options for
- *    non-ideal equations of state available in the CTML format have not yet
+ *    chemical kinetic, and transport data needed by %Cantera.
+ *
+ *  - CTI: A human-readable input file written using Python syntax. Some options
+ *    for non-ideal equations of state available in the CTML format have not
  *    been implemented for the CTI format.
  *
  *  - CTML: This is an XML file laid out in such a way that %Cantera can
  *    interpret the contents directly. Given a file in CTI format, %Cantera will
  *    convert the CTI file into the CTML format on-the-fly using a Python script
  *    (ctml_writer). This process is done in-memory without writing any new
- *    files to disk. Explicit use of the CTML format is not recommended unless
- *    using features not available in CTI or working on a computer where Python
- *    is not available.
+ *    files to disk. Explicit use of the CTML format is not recommended.
  *
- * %Cantera provides a converter (ck2cti) for converting Chemkin-format
- * gas-phase mechanisms to the CTI format.
+ * %Cantera provides converters (`ck2yaml` and `ckcti`) for converting
+ * Chemkin-format mechanisms to the YAML and CTI formats, respectively.
  *
  * Other input routines in other modules:
  *   @see importKinetics()
@@ -187,6 +192,26 @@ void warn_deprecated(const std::string& method, const std::string& extra="");
 //! @copydoc Application::suppress_deprecation_warnings
 void suppress_deprecation_warnings();
 
+//! helper function passing user warning to global handler
+void _warn_user(const std::string& method, const std::string& extra);
+
+/*!
+ * Print a user warning raised from *method*.
+ *
+ * @param method  method name
+ * @param msg  Python-style format string with the following arguments
+ * @param args  arguments for the format string
+ */
+template <typename... Args>
+void warn_user(const std::string& method, const std::string& msg,
+               const Args&... args) {
+    if (sizeof...(args) == 0) {
+        _warn_user(method, msg);
+    } else {
+        _warn_user(method, fmt::format(msg, args...));
+    }
+}
+
 //! @copydoc Application::make_deprecation_warnings_fatal
 void make_deprecation_warnings_fatal();
 
@@ -237,6 +262,9 @@ void close_XML_File(const std::string& file);
  * @param root    If the file string is empty, searches for the XML element with
  *                matching ID attribute are carried out from this XML node.
  * @returns the XML_Node, if found. Returns null if not found.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root);
 
@@ -259,6 +287,9 @@ XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root);
  * @param root    If the file string is empty, searches for the XML element with
  *                matching ID attribute are carried out from this XML node.
  * @returns the XML_Node, if found. Returns null if not found.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 XML_Node* get_XML_NameID(const std::string& nameTarget,
                          const std::string& file_ID,

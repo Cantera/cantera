@@ -1,5 +1,5 @@
 ! This file is part of Cantera. See License.txt in the top-level directory or
-! at http://www.cantera.org/license.txt for license and copyright information.
+! at https://cantera.org/license.txt for license and copyright information.
 
 module cantera_kinetics
 
@@ -8,6 +8,49 @@ module cantera_kinetics
   use fct
 
   contains
+
+    subroutine ctkin_newFromFile(phase, filename, id, neighbor1, neighbor2, &
+                                 neighbor3, neighbor4)
+      implicit none
+      type(phase_t), intent(inout) :: phase
+      character*(*), intent(in) :: filename
+      character*(*), intent(in), optional :: id
+      type(phase_t), intent(in), optional :: neighbor1
+      type(phase_t), intent(in), optional :: neighbor2
+      type(phase_t), intent(in), optional :: neighbor3
+      type(phase_t), intent(in), optional :: neighbor4
+      integer :: n1, n2, n3, n4
+
+      if (present(neighbor1)) then
+         n1 = neighbor1%thermo_id
+      else
+         n1 = -1
+      end if
+      if (present(neighbor2)) then
+         n2 = neighbor2%thermo_id
+      else
+         n2 = -1
+      end if
+      if (present(neighbor3)) then
+         n3 = neighbor3%thermo_id
+      else
+         n3 = -1
+      end if
+      if (present(neighbor4)) then
+         n4 = neighbor4%thermo_id
+      else
+         n4 = -1
+      end if
+
+      if (present(id)) then
+          phase%kin_id = kin_newfromfile(filename, id, phase%thermo_id, &
+                                         n1, n2, n3, n4)
+      else
+          phase%kin_id = kin_newfromfile(filename, '', phase%thermo_id, &
+                                         n1, n2, n3, n4)
+      end if
+      phase%nrxn = kin_nreactions(phase%kin_id)
+    end subroutine ctkin_newFromFile
 
     subroutine newKinetics(xml_phase, phase, &
          neighbor1, neighbor2, neighbor3, neighbor4)

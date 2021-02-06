@@ -7,7 +7,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/Reaction.h"
@@ -34,42 +34,44 @@ Kinetics::~Kinetics() {}
 void Kinetics::checkReactionIndex(size_t i) const
 {
     if (i >= nReactions()) {
-        throw IndexError("checkReactionIndex", "reactions", i, nReactions()-1);
+        throw IndexError("Kinetics::checkReactionIndex", "reactions", i,
+                         nReactions()-1);
     }
 }
 
 void Kinetics::checkReactionArraySize(size_t ii) const
 {
     if (nReactions() > ii) {
-        throw ArraySizeError("checkReactionArraySize", ii, nReactions());
+        throw ArraySizeError("Kinetics::checkReactionArraySize", ii,
+                             nReactions());
     }
 }
 
 void Kinetics::checkPhaseIndex(size_t m) const
 {
     if (m >= nPhases()) {
-        throw IndexError("checkPhaseIndex", "phase", m, nPhases()-1);
+        throw IndexError("Kinetics::checkPhaseIndex", "phase", m, nPhases()-1);
     }
 }
 
 void Kinetics::checkPhaseArraySize(size_t mm) const
 {
     if (nPhases() > mm) {
-        throw ArraySizeError("checkPhaseArraySize", mm, nPhases());
+        throw ArraySizeError("Kinetics::checkPhaseArraySize", mm, nPhases());
     }
 }
 
 void Kinetics::checkSpeciesIndex(size_t k) const
 {
     if (k >= m_kk) {
-        throw IndexError("checkSpeciesIndex", "species", k, m_kk-1);
+        throw IndexError("Kinetics::checkSpeciesIndex", "species", k, m_kk-1);
     }
 }
 
 void Kinetics::checkSpeciesArraySize(size_t kk) const
 {
     if (m_kk > kk) {
-        throw ArraySizeError("checkSpeciesArraySize", kk, m_kk);
+        throw ArraySizeError("Kinetics::checkSpeciesArraySize", kk, m_kk);
     }
 }
 
@@ -154,7 +156,8 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                 }
             }
             if (throw_err) {
-                throw CanteraError("Kinetics::checkDuplicates",
+                throw InputFileError("Kinetics::checkDuplicates",
+                        R.input, other.input,
                         "Undeclared duplicate reactions detected:\n"
                         "Reaction {}: {}\nReaction {}: {}\n",
                         i+1, other.equation(), m+1, R.equation());
@@ -167,7 +170,8 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
     if (unmatched_duplicates.size()) {
         size_t i = *unmatched_duplicates.begin();
         if (throw_err) {
-            throw CanteraError("Kinetics::checkDuplicates",
+            throw InputFileError("Kinetics::checkDuplicates",
+                m_reactions[i]->input,
                 "No duplicate found for declared duplicate reaction number {}"
                 " ({})", i, m_reactions[i]->equation());
         } else {
@@ -256,9 +260,10 @@ void Kinetics::checkReactionBalance(const Reaction& R)
         }
     }
     if (!ok) {
-        msg = "The following reaction is unbalanced: " + R.equation() + "\n" +
-              "  Element    Reactants    Products\n" + msg;
-        throw CanteraError("checkReactionBalance", msg);
+        throw InputFileError("Kinetics::checkReactionBalance", R.input,
+            "The following reaction is unbalanced: {}\n"
+            "  Element    Reactants    Products\n{}",
+            R.equation(), msg);
     }
 }
 
@@ -289,7 +294,6 @@ string Kinetics::kineticsSpeciesName(size_t k) const
 size_t Kinetics::kineticsSpeciesIndex(const std::string& nm) const
 {
     for (size_t n = 0; n < m_thermo.size(); n++) {
-        string id = thermo(n).id();
         // Check the ThermoPhase object for a match
         size_t k = thermo(n).speciesIndex(nm);
         if (k != npos) {
@@ -307,7 +311,7 @@ size_t Kinetics::kineticsSpeciesIndex(const std::string& nm,
     }
 
     for (size_t n = 0; n < m_thermo.size(); n++) {
-        string id = thermo(n).id();
+        string id = thermo(n).name();
         if (ph == id) {
             size_t k = thermo(n).speciesIndex(nm);
             if (k == npos) {
@@ -327,17 +331,28 @@ thermo_t& Kinetics::speciesPhase(const std::string& nm)
             return thermo(n);
         }
     }
-    throw CanteraError("speciesPhase", "unknown species "+nm);
+    throw CanteraError("Kinetics::speciesPhase", "unknown species '{}'", nm);
 }
 
-size_t Kinetics::speciesPhaseIndex(size_t k)
+const thermo_t& Kinetics::speciesPhase(const std::string& nm) const
+{
+    for (const auto thermo : m_thermo) {
+        if (thermo->speciesIndex(nm) != npos) {
+            return *thermo;
+        }
+    }
+    throw CanteraError("Kinetics::speciesPhase", "unknown species '{}'", nm);
+}
+
+size_t Kinetics::speciesPhaseIndex(size_t k) const
 {
     for (size_t n = m_start.size()-1; n != npos; n--) {
         if (k >= m_start[n]) {
             return n;
         }
     }
-    throw CanteraError("speciesPhaseIndex", "illegal species index: {}", k);
+    throw CanteraError("Kinetics::speciesPhaseIndex",
+                       "illegal species index: {}", k);
 }
 
 double Kinetics::reactantStoichCoeff(size_t kSpec, size_t irxn) const
@@ -442,7 +457,7 @@ void Kinetics::addPhase(thermo_t& thermo)
         m_rxnphase = nPhases();
     }
     m_thermo.push_back(&thermo);
-    m_phaseindex[m_thermo.back()->id()] = nPhases();
+    m_phaseindex[m_thermo.back()->name()] = nPhases();
     resizeSpecies();
 }
 
@@ -471,8 +486,8 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
     // is not reversible, since computing the reverse rate from thermochemistry
     // only works for elementary reactions.
     if (r->reversible && !r->orders.empty()) {
-        throw CanteraError("Kinetics::addReaction", "Reaction orders may only "
-            "be given for irreversible reactions");
+        throw InputFileError("Kinetics::addReaction", r->input,
+            "Reaction orders may only be given for irreversible reactions");
     }
 
     // Check for undeclared species
@@ -481,9 +496,9 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
             if (m_skipUndeclaredSpecies) {
                 return false;
             } else {
-                throw CanteraError("Kinetics::addReaction", "Reaction '" +
-                    r->equation() + "' contains the undeclared species '" +
-                    sp.first + "'");
+                throw InputFileError("Kinetics::addReaction", r->input,
+                    "Reaction '{}' contains the undeclared species '{}'",
+                    r->equation(), sp.first);
             }
         }
     }
@@ -492,9 +507,21 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
             if (m_skipUndeclaredSpecies) {
                 return false;
             } else {
-                throw CanteraError("Kinetics::addReaction", "Reaction '" +
-                    r->equation() + "' contains the undeclared species '" +
-                    sp.first + "'");
+                throw InputFileError("Kinetics::addReaction", r->input,
+                    "Reaction '{}' contains the undeclared species '{}'",
+                    r->equation(), sp.first);
+            }
+        }
+    }
+    for (const auto& sp : r->orders) {
+        if (kineticsSpeciesIndex(sp.first) == npos) {
+            if (m_skipUndeclaredSpecies) {
+                return false;
+            } else {
+                throw InputFileError("Kinetics::addReaction", r->input,
+                    "Reaction '{}' has a reaction order specified for the "
+                    "undeclared species '{}'",
+                    r->equation(), sp.first);
             }
         }
     }
@@ -588,7 +615,7 @@ shared_ptr<Reaction> Kinetics::reaction(size_t i)
     checkReactionIndex(i);
     return m_reactions[i];
 }
-    
+
 shared_ptr<const Reaction> Kinetics::reaction(size_t i) const
 {
     checkReactionIndex(i);

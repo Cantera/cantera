@@ -4,7 +4,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_REDLICHKISTERVPSSTP_H
 #define CT_REDLICHKISTERVPSSTP_H
@@ -202,7 +202,7 @@ namespace Cantera
  * \f]
  *
  * where we can use the concept of microscopic reversibility to write the
- * reverse rate constant in terms of the forward reate constant and the
+ * reverse rate constant in terms of the forward rate constant and the
  * concentration equilibrium constant, \f$ K_c \f$.
  *
  * \f[
@@ -222,13 +222,11 @@ public:
      */
     RedlichKisterVPSSTP();
 
-    //! Construct and initialize a RedlichKisterVPSSTP ThermoPhase object
-    //! directly from an XML input file
+    //! Construct a RedlichKisterVPSSTP object from an input file
     /*!
-     * @param inputFile Name of the input file containing the phase XML data
-     *                  to set up the object
-     * @param id        ID of the phase in the input file. Defaults to the
-     *                  empty string.
+     * @param inputFile Name of the input file containing the phase definition
+     * @param id        name (ID) of the phase in the input file. If empty, the
+     *                  first phase definition in the input file will be used.
      */
     RedlichKisterVPSSTP(const std::string& inputFile, const std::string& id = "");
 
@@ -238,6 +236,9 @@ public:
      *  @param phaseRef XML phase node containing the description of the phase
      *  @param id     id attribute containing the name of the phase.
      *                (default is the empty string)
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     RedlichKisterVPSSTP(XML_Node& phaseRef, const std::string& id = "");
 

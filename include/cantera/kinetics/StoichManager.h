@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_STOICH_MGR_H
 #define CT_STOICH_MGR_H
@@ -40,7 +40,7 @@ namespace Cantera
  * \f]
  *
  * where \f$ \nu^{(p)_{k,i}} \f$ is the product-side stoichiometric
- * coefficient of species \a k in reaction \a i. This could be done be
+ * coefficient of species \a k in reaction \a i. This could be done by
  * straightforward matrix multiplication, but would be inefficient, since most
  * of the matrix elements of \f$ \nu^{(p)}_{k,i} \f$ are zero. We could do
  * better by using sparse-matrix algorithms to compute this product.
@@ -61,12 +61,12 @@ namespace Cantera
  * computing quantities that can be written as matrix multiplies.
  *
  * They are designed to explicitly unroll loops over species or reactions for
- * Operations on reactions that require knowing the reaction stoichiometry.
+ * operations on reactions that require knowing the reaction stoichiometry.
  *
  * This module consists of class StoichManager, and classes C1, C2, and C3.
  * Classes C1, C2, and C3 handle operations involving one, two, or three
  * species, respectively, in a reaction. Instances are instantiated with a
- * reaction number, and n species numbers (n = 1 for C1, etc.).  All three
+ * reaction number, and n species numbers (n = 1 for C1, etc.). All three
  * classes have the same interface.
  *
  * These classes are designed for use by StoichManager, and the operations

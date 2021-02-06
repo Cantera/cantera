@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+
+  <!-- phase gas     -->
+  <phase dim="3" id="gas">
+    <elementArray datasrc="elements.xml">H</elementArray>
+    <speciesArray datasrc="#species_data">H H</speciesArray>
+    <state>
+      <temperature units="K">300.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="none"/>
+    <transport model="None"/>
+  </phase>
+
+  <!-- species definitions     -->
+  <speciesData id="species_data">
+
+    <!-- species H    -->
+    <species name="H">
+      <atomArray>H:1 </atomArray>
+      <thermo>
+        <NASA Tmax="1000.0" Tmin="200.0" P0="100000.0">
+          <floatArray name="coeffs" size="7">
+             2.500000000E+00,   7.053328190E-13,  -1.995919640E-15,   2.300816320E-18,
+             -9.277323320E-22,   2.547365990E+04,  -4.466828530E-01</floatArray>
+        </NASA>
+        <NASA Tmax="3500.0" Tmin="1000.0" P0="100000.0">
+          <floatArray name="coeffs" size="7">
+             2.500000010E+00,  -2.308429730E-11,   1.615619480E-14,  -4.735152350E-18,
+             4.981973570E-22,   2.547365990E+04,  -4.466829140E-01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+  </speciesData>
+  <speciesData id="species_data">
+
+    <!-- species H    -->
+    <species name="H">
+      <atomArray>H:1 </atomArray>
+      <thermo>
+        <NASA Tmax="1000.0" Tmin="200.0" P0="100000.0">
+          <floatArray name="coeffs" size="7">
+             2.500000000E+00,   7.053328190E-13,  -1.995919640E-15,   2.300816320E-18,
+             -9.277323320E-22,   2.547365990E+04,  -4.466828530E-01</floatArray>
+        </NASA>
+        <NASA Tmax="3500.0" Tmin="1000.0" P0="100000.0">
+          <floatArray name="coeffs" size="7">
+             2.500000010E+00,  -2.308429730E-11,   1.615619480E-14,  -4.735152350E-18,
+             4.981973570E-22,   2.547365990E+04,  -4.466829140E-01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+  </speciesData>
+</ctml>

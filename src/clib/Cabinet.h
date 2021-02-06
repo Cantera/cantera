@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_CABINET_H
 #define CT_CABINET_H
@@ -132,7 +132,7 @@ public:
             }
             data[n] = data[0];
         } else {
-            throw Cantera::CanteraError("Cabinet<M>::del",
+            throw Cantera::CanteraError("Cabinet::del",
                                         "Attempt made to delete an already-deleted object.");
         }
     }

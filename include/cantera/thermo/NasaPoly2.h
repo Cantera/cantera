@@ -9,7 +9,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_NASAPOLY2_H
 #define CT_NASAPOLY2_H
@@ -48,7 +48,9 @@ namespace Cantera
 class NasaPoly2 : public SpeciesThermoInterpType
 {
 public:
-    //! Full Constructor
+    NasaPoly2();
+
+    //! Constructor with all input data
     /*!
      * @param tlow      output - Minimum temperature
      * @param thigh     output - Maximum temperature
@@ -63,9 +65,32 @@ public:
         SpeciesThermoInterpType(tlow, thigh, pref),
         m_midT(coeffs[0]),
         mnp_low(tlow, coeffs[0], pref, coeffs + 8),
-        mnp_high(coeffs[0], thigh, pref, coeffs + 1),
-        m_coeff(coeffs, coeffs + 15) {
+        mnp_high(coeffs[0], thigh, pref, coeffs + 1) {
     }
+
+    virtual void setMinTemp(double Tmin) {
+        SpeciesThermoInterpType::setMinTemp(Tmin);
+        mnp_low.setMinTemp(Tmin);
+    }
+
+    virtual void setMaxTemp(double Tmax) {
+        SpeciesThermoInterpType::setMaxTemp(Tmax);
+        mnp_high.setMaxTemp(Tmax);
+    }
+
+    virtual void setRefPressure(double Pref) {
+        SpeciesThermoInterpType::setRefPressure(Pref);
+        mnp_low.setRefPressure(Pref);
+        mnp_high.setRefPressure(Pref);
+    }
+
+    /*!
+     * @param Tmid  Temperature [K] at the boundary between the low and high
+     *              temperature polynomials
+     * @param low   Vector of 7 coefficients for the low temperature polynomial
+     * @param high  Vector of 7 coefficients for the high temperature polynomial
+     */
+    void setParameters(double Tmid, const vector_fp& low, const vector_fp& high);
 
     virtual int reportType() const {
         return NASA2;
@@ -98,18 +123,15 @@ public:
         }
     }
 
+    size_t nCoeffs() const { return 15; }
+
     void reportParameters(size_t& n, int& type,
                           doublereal& tlow, doublereal& thigh,
                           doublereal& pref,
                           doublereal* const coeffs) const {
-        n = 0;
+        mnp_high.reportParameters(n, type, coeffs[0], thigh, pref, coeffs + 1);
+        mnp_low.reportParameters(n, type, tlow, coeffs[0], pref, coeffs + 8);
         type = NASA2;
-        tlow = m_lowT;
-        thigh = m_highT;
-        pref = m_Pref;
-        for (int i = 0; i < 15; i++) {
-            coeffs[i] = m_coeff[i];
-        }
     }
 
     doublereal reportHf298(doublereal* const h298 = 0) const {
@@ -150,8 +172,6 @@ protected:
     NasaPoly1 mnp_low;
     //! NasaPoly1 object for the high temperature region.
     NasaPoly1 mnp_high;
-    //! array of polynomial coefficients
-    vector_fp m_coeff;
 };
 
 }

@@ -9,4 +9,6 @@ function insert(r, gas)
 
 r.contents = gas;
 setThermoMgr(r, gas);
-setKineticsMgr(r, gas);
+if ~strcmp(r.type, 'Reservoir')
+    setKineticsMgr(r, gas);
+end

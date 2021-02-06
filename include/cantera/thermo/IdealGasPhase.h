@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_IDEALGASPHASE_H
 #define CT_IDEALGASPHASE_H
@@ -293,7 +293,7 @@ public:
     //! Construct and initialize an IdealGasPhase ThermoPhase object
     //! directly from an ASCII input file
     /*!
-     * @param inputFile Name of the input file containing the phase XML data
+     * @param inputFile Name of the input file containing the phase definition
      *                  to set up the object
      * @param id        ID of the phase in the input file. Defaults to the
      *                  empty string.
@@ -306,11 +306,22 @@ public:
      *  @param phaseRef XML phase node containing the description of the phase
      *  @param id     id attribute containing the name of the phase.
      *                (default is the empty string)
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     IdealGasPhase(XML_Node& phaseRef, const std::string& id = "");
 
     virtual std::string type() const {
         return "IdealGas";
+    }
+
+    //! String indicating the mechanical phase of the matter in this Phase.
+    /*!
+     * For the `IdealGasPhase`, this string is always `gas`.
+     */
+    virtual std::string phaseOfMatter() const {
+        return "gas";
     }
 
     //! @name Molar Thermodynamic Properties of the Solution
@@ -589,7 +600,7 @@ public:
     //@}
 
     virtual bool addSpecies(shared_ptr<Species> spec);
-    virtual void setToEquilState(const doublereal* lambda_RT);
+    virtual void setToEquilState(const doublereal* mu_RT);
 
 protected:
     //! Reference state pressure
@@ -631,6 +642,7 @@ private:
      */
     void _updateThermo() const;
 };
+
 }
 
 #endif

@@ -7,7 +7,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/EdgePhase.h"
@@ -289,6 +289,17 @@ void SurfPhase::setCoveragesByName(const compositionMap& cov)
     setCoverages(cv.data());
 }
 
+void SurfPhase::setState(const AnyMap& state) {
+    if (state.hasKey("coverages")) {
+        if (state["coverages"].is<string>()) {
+            setCoveragesByName(state["coverages"].asString());
+        } else {
+            setCoveragesByName(state["coverages"].asMap<double>());
+        }
+    }
+    ThermoPhase::setState(state);
+}
+
 void SurfPhase::_updateThermo(bool force) const
 {
     doublereal tnow = temperature();
@@ -310,6 +321,15 @@ void SurfPhase::setParametersFromXML(const XML_Node& eosdata)
     eosdata._require("model","Surface");
     doublereal n = getFloat(eosdata, "site_density", "toSI");
     setSiteDensity(n);
+}
+
+void SurfPhase::initThermo()
+{
+    if (m_input.hasKey("site-density")) {
+        // Units are kmol/m^2 for surface phases or kmol/m for edge phases
+        setSiteDensity(m_input.convert("site-density",
+            Units(1.0, 0, -static_cast<double>(m_ndim), 0, 0, 0, 1)));
+    }
 }
 
 void SurfPhase::setStateFromXML(const XML_Node& state)

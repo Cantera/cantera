@@ -1,5 +1,7 @@
 """
 A Rankine vapor power cycle
+
+Requires: Cantera >= 2.5.0
 """
 
 import cantera as ct
@@ -48,7 +50,7 @@ if __name__ == '__main__':
     w = ct.Water()
 
     # start with saturated liquid water at 300 K
-    w.TX = 300.0, 0.0
+    w.TQ = 300.0, 0.0
     h1 = w.h
     p1 = w.P
     printState(1, w)
@@ -60,7 +62,7 @@ if __name__ == '__main__':
 
     # heat it at constant pressure until it reaches the saturated vapor state
     # at this pressure
-    w.PX = p_max, 1.0
+    w.PQ = p_max, 1.0
     h3 = w.h
     heat_added = h3 - h2
     printState(3, w)

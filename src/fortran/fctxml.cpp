@@ -4,7 +4,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "clib/clib_utils.h"
 #include "cantera/base/ctml.h"
@@ -203,7 +203,8 @@ extern "C" {
             if (c) {
                 return XmlCabinet::add(c);
             } else {
-                throw CanteraError("fxml_find_id","id not found: "+f2string(id, idlen));
+                throw CanteraError("fxml_findid", "id not found: '{}'",
+                                   f2string(id, idlen));
             }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -219,8 +220,8 @@ extern "C" {
             if (c) {
                 return XmlCabinet::add(c);
             } else {
-                throw CanteraError("fxml_findByName","name "+f2string(nm, nmlen)
-                                   +" not found");
+                throw CanteraError("fxml_findByName", "name '{}' not found",
+                                   f2string(nm, nmlen));
             }
         } catch (...) {
             return handleAllExceptions(-1, ERR);

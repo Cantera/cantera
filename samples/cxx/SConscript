@@ -2,21 +2,26 @@ from buildutils import *
 
 Import('env', 'build', 'install', 'buildSample')
 
-# (subdir, program name, [source extensions])
+# (subdir, program name, [source extensions], openmp_flag)
 samples = [
     ('combustor', 'combustor', ['cpp'], False),
+    ('demo', 'demo', ['cpp'], False),
     ('flamespeed', 'flamespeed', ['cpp'], False),
     ('kinetics1', 'kinetics1', ['cpp'], False),
-    ('NASA_coeffs', 'NASA_coeffs', ['cpp'], False),
+    ('gas_transport', 'gas_transport', ['cpp'], False),
     ('rankine', 'rankine', ['cpp'], False),
     ('LiC6_electrode', 'LiC6_electrode', ['cpp'], False),
-    ('openmp_ignition', 'openmp_ignition', ['cpp'], True)
+    ('openmp_ignition', 'openmp_ignition', ['cpp'], True),
+    ('bvp', 'blasius', ['cpp'], False)
 ]
 
 for subdir, name, extensions, openmp in samples:
     localenv = env.Clone()
     if openmp:
         localenv.Append(CXXFLAGS=env['openmp_flag'], LINKFLAGS=env['openmp_flag'])
+        if env['using_apple_clang']:
+            localenv.Append(LIBS=['omp'])
+
         localenv['cmake_extra'] = """
 find_package(OpenMP REQUIRED)
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS})
@@ -25,10 +30,17 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
     else:
         localenv['cmake_extra'] = ''
 
-    buildSample(localenv.Program, pjoin(subdir, name),
-                mglob(localenv, subdir, *extensions),
-                CPPPATH=['#include'],
-                LIBS=env['cantera_libs'])
+    if env["OS"] == "Darwin":
+        localenv["cmake_extra"] += "find_library(ACCELERATE_FRAMEWORK Accelerate)"
+
+    localenv.Append(LIBS=env['cantera_libs'])
+    localenv.Prepend(CPPPATH=['#include'])
+
+    if openmp and not env['HAS_OPENMP']:
+        print("INFO: Skipping sample {} because 'omp.h' was not found.".format(name))
+    else:
+        buildSample(localenv.Program, pjoin(subdir, name),
+                    mglob(localenv, subdir, *extensions))
 
     # Note: These Makefiles and SConstruct files are automatically installed
     # by the "RecursiveInstall" that grabs everything in the cxx directory.
@@ -37,12 +49,26 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
                localenv['boost_inc_dir']) + tuple(localenv['extra_inc_dirs'])
     libdirs = ((localenv['ct_libdir'], localenv['sundials_libdir'],
                localenv['blas_lapack_dir']) + tuple(localenv['extra_lib_dirs']))
-    localenv['tmpl_compiler_flags'] = repr(localenv['CCFLAGS'] + localenv['CXXFLAGS'])
+    # Remove sysroot and macOS min version flags in templated output files
+    # Users should compile against their local SDKs, which should be backwards
+    # compatible with the SDK used for building. This only applies to the
+    # conda package for now.
+    if env['OS'] == 'Darwin' and os.environ.get('CONDA_BUILD', False):
+        ccFlags = []
+        for flag in localenv['CCFLAGS'] + localenv['CXXFLAGS']:
+            if not flag.startswith(('-isysroot', '-mmacosx', '/App')):
+                ccFlags.append(flag)
+    else:
+        ccFlags = localenv['CCFLAGS'] + localenv['CXXFLAGS']
+    localenv['tmpl_compiler_flags'] = repr(ccFlags)
     localenv['tmpl_cantera_frameworks'] = repr(localenv['FRAMEWORKS'])
     localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
     localenv['cmake_cantera_incdirs'] = ' '.join(quoted(x) for x in incdirs if x)
     localenv['tmpl_cantera_libs'] = repr(localenv['cantera_libs'])
     localenv['cmake_cantera_libs'] = ' '.join(localenv['cantera_libs'])
+    if env['OS'] == 'Darwin':
+        localenv['cmake_cantera_libs'] += ' ${ACCELERATE_FRAMEWORK}'
+        localenv['cmake_cantera_incdirs'] += ' "/usr/local/include"'
     localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])
     localenv['cmake_cantera_libdirs'] = ' '.join(quoted(x) for x in libdirs if x)
     localenv['tmpl_cantera_linkflags'] = repr(localenv['LINKFLAGS'])
@@ -57,6 +83,13 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
         env_args.append('MSVC_VERSION={0!r}'.format(localenv['MSVC_VERSION']))
     localenv['tmpl_env_args'] = ', '.join(env_args)
 
+    # If this is a conda build on macOS, we do not want to specify the conda
+    # compilers from the build environment, because those won't be installed
+    # on the user's system.
+    if env['OS'] == 'Darwin' and os.environ.get('CONDA_BUILD', False):
+        localenv['CXX'] = 'clang++'
+        localenv['CC'] = 'clang'
+
     sconstruct = localenv.SubstFile(pjoin(subdir, 'SConstruct'), 'SConstruct.in')
     install(pjoin('$inst_sampledir', 'cxx', subdir), sconstruct)
 
@@ -66,7 +99,7 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
 
     ## Generate Makefiles to be installed
     mak_path = pjoin(localenv['ct_incroot'], 'cantera', 'Cantera.mak')
-    localenv['mak_compiler_flags'] = ' '.join(localenv['CCFLAGS'] + localenv['CXXFLAGS'])
+    localenv['mak_compiler_flags'] = ' '.join(ccFlags)
     if ' ' in mak_path:
         # There is no reasonable way to handle spaces in Makefile 'include'
         # statement, so we fall back to using the relative path instead

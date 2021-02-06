@@ -17,8 +17,8 @@ Substance* GetSub(int isub);
  * - methane
  * - hydrogen
  * - oxygen
- * - hfc134a
- * - carbondioxide
+ * - HFC-134a
+ * - carbon-dioxide
  * - heptane
  */
 Substance* newSubstance(const std::string& name);

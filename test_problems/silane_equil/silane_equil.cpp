@@ -1,7 +1,9 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/IdealGasMix.h"
+#include "cantera/thermo/IdealGasPhase.h"
+
+#include <iostream>
 
 using namespace std;
 using namespace Cantera;
@@ -12,9 +14,10 @@ int main(int argc, char** argv)
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     try {
-        IdealGasMix g("silane.xml", "silane");
-        g.setState_TPX(1500.0, 100.0, "SIH4:0.01, H2:0.99");
-        g.equilibrate("TP");
+        auto sol = newSolution("silane.xml", "silane");
+        auto gas = sol->thermo();
+        gas->setState_TPX(1500.0, 100.0, "SIH4:0.01, H2:0.99");
+        gas->equilibrate("TP");
         return 0;
     } catch (CanteraError& err) {
         std::cerr << err.what() << std::endl;

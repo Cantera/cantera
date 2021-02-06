@@ -7,7 +7,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_PDSS_HKFT_H
 #define CT_PDSS_HKFT_H
@@ -84,7 +84,6 @@ public:
         m_spindex = k;
     }
 
-    virtual bool useSTITbyPDSS() const { return true; }
     virtual void initThermo();
 
      //! Set enthalpy of formation at Pr, Tr [J/kmol]

@@ -1,0 +1,753 @@
+phases:
+- name: NaCl(s)
+  thermo: fixed-stoichiometry
+  species: [NaCl(s)]
+  # specification of density was moved to the species object
+  state: {T: 300.0, P: 1 atm}
+
+- name: KCl(s)
+  thermo: fixed-stoichiometry
+  species: [KCl(s)]
+  state: {T: 300.0, P: 1 atm}
+
+- name: liquid-water
+  thermo: liquid-water-IAPWS95
+  transport: water
+  species: [H2O(l)]
+
+# @todo Remove after Cantera 2.5 - class FixedChemPotSSTP is deprecated
+- name: Li-fixed
+  thermo: fixed-chemical-potential
+  species: [Li]
+  chemical-potential: -2.3e7 J/kmol
+
+- name: molten-salt-Margules
+  thermo: Margules
+  species: [KCl(l), LiCl(l)]
+  state: {T: 900, P: 101325, X: {KCl(l): 0.3, LiCl(l): 0.7}}
+  units: {quantity: gmol}
+  interactions:
+  - species: [KCl(l), LiCl(l)]
+    excess-enthalpy: [-17570, -377]
+    excess-entropy: [-7.627, 4.958]
+
+- name: ideal-molal-aqueous
+  thermo: ideal-molal-solution
+  species:
+  - {ideal-molal-fake-species: all}
+  standard-concentration-basis: solvent-molar-volume
+  cutoff:
+    model: polyexp
+    gamma_o: 0.0001
+    gamma_k: 10.0
+    X_o: 0.2
+    c_0: 0.05
+    slope_f: 0.6
+    slope_g: 0.0
+  state:
+    T: 298.15
+    P: 1 atm
+    molalities: {CH4(aq): 0.01, H2S(aq): 0.03, CO2(aq): 0.1}
+
+- name: debye-huckel-B-dot-ak
+  thermo: Debye-Huckel
+  species: [{dh-electrolyte-species: all}]
+  activity-data:
+    model: B-dot-with-variable-a
+    A_Debye: 1.172576 kg^0.5/gmol^0.5
+    B_Debye: 3.2864e9 kg^0.5/gmol^0.5/m
+    B-dot: 0.0410
+    max-ionic-strength: 50.0
+    default-ionic-radius: 4.0 angstrom
+  state:
+    T: 300 K
+    P: 1 atm
+    M: {Na+: 9.3549, Cl-: 9.3549, H+: 1.0499E-8, OH-: 1.3765E-6, NaCl(aq): 0.98492}
+
+- name: debye-huckel-beta_ij
+  thermo: Debye-Huckel
+  species: [{dh-electrolyte-species: all}]
+  activity-data:
+    model: beta_ij
+    max-ionic-strength: 3.0
+    use-Helgeson-fixed-form: true
+    default-ionic-radius: 3.042843 angstrom
+    beta:
+    - species: [H+, Cl-]
+      beta: 0.27
+    - species: [Na+, Cl-]
+      beta: 0.15
+    - species: [Na+, OH-]
+      beta: 0.06
+  state:
+    T: 300 K
+    P: 1 atm
+    M: {Na+: 3.0, Cl-: 3.0, H+: 1.0499E-8, OH-: 1.3765E-6, NaCl(aq): 0.98492}
+
+- name: ions-from-neutral-molecule
+  thermo: ions-from-neutral-molecule
+  neutral-phase: KCl-neutral
+  species: [{ions-from-neutral-species: all}]
+  state: {T: 500, P: 2 bar, X: {K+: 0.1, Cl-: 0.1}}
+
+- name: KCl-neutral
+  species: [KCl(l)]
+  thermo: Margules
+
+# todo: Remove after Cantera 2.5 - the "gas" moode of class IdealSolnGasVPSS is
+# deprecated.
+- name: IdealSolnGas-gas
+  thermo: ideal-gas-VPSS
+  species: [{gas-species: [H2O, H2, O2]}]
+  state: {T: 400, P: 5 atm, X: {H2: 0.01, O2: 0.99}}
+
+- name: IdealSolnGas-liquid
+  thermo: ideal-solution-VPSS
+  standard-concentration-basis: unity
+  species: [Li(l)]
+
+- name: Redlich-Kister-LiC6
+  thermo: Redlich-Kister
+  species: [Li(C6), V(C6)]
+  interactions:
+  - species: [Li(C6), V(C6)]
+    excess-enthalpy: [-3.268e+06, 3.955e+06, -4.573e+06, 6.147e+06, -3.339e+06,
+                      1.117e+07, 2.997e+05, -4.866e+07, 1.362e+05, 1.373e+08,
+                      -2.129e+07, -1.722e+08, 3.956e+07, 9.302e+07, -3.280e+07]
+    excess-entropy: [0.0]
+
+- name: MaskellSolidSoln
+  thermo: Maskell-solid-solution
+  species: [H(s), He(s)]
+  excess-enthalpy: 5 J/mol
+  state: {T: 298, P: 1 atm, X: {H(s): 0.3, He(s): 0.7}}
+  product-species: H(s)
+
+- name: HMW-NaCl-electrolyte
+  species: [{HMW-species: [H2O(L), Cl-, H+, Na+, OH-]}]
+  thermo: HMW-electrolyte
+  state:
+    T: 423.15
+    P: 101325
+    molalities: {Na+: 6.0997, Cl-: 6.0996986044628, H+: 2.1628e-9, OH-: 1.3977e-6}
+  activity-data:
+    temperature-model: complex # "constant" or "linear" are the other options
+    A_Debye: 1.175930 kg^0.5/gmol^0.5
+    interactions: &hmw-ineractions
+    - species: [Na+, Cl-]
+      beta0: [0.0765, 0.008946, -3.3158E-6, -777.03, -4.4706]
+      beta1: [0.2664, 6.1608E-5, 1.0715E-6, 0.0, 0.0]
+      beta2: [0.0, 0.0, 0.0, 0.0, 0.0]
+      Cphi: [0.00127, -4.655E-5, 0.0, 33.317, 0.09421]
+      alpha1: 2.0
+    - species: [Cl-, H+]
+      beta0: [0.1775]
+      beta1: [0.2945]
+      beta2: [0.0]
+      Cphi: [0.0008]
+      alpha1: 2.0
+    - species: [Na+, OH-]
+      beta0: 0.0864
+      beta1: 0.253
+      beta2: 0.0
+      Cphi: 0.0044
+      alpha1: 2.0
+      alpha2: 0.0
+    - {species: [Cl-, OH-], theta: -0.05}
+    - {species: [Na+, Cl-, OH-], psi: -0.006}
+    - {species: [Na+, H+], theta: 0.036}
+    - {species: [Cl-, Na+, H+], psi: [-0.004]}
+
+- name: HMW-NaCl-HKFT
+  species:
+  - {HMW-species: [H2O(L)]}
+  - {HKFT-species: [Na+, Cl-, H+, OH-]}
+  thermo: HMW-electrolyte
+  state:
+    T: 323.15
+    P: 101325
+    molalities: {Na+: 6.0954, Cl-: 6.0954, H+: 2.1628e-9, OH-: 1.3977e-6}
+  activity-data:
+    temperature-model: complex # "constant" or "linear" are the other options
+    A_Debye: variable
+    interactions: *hmw-ineractions
+
+- name: CO2-RK
+  species: [{rk-species: [CO2, H2O, H2]}]
+  thermo: Redlich-Kwong
+  state: {T: 300, P: 200 atm, mole-fractions: {CO2: 0.9998, H2O: 0.0002}}
+
+- name: nitrogen
+  species: [N2]
+  thermo: pure-fluid
+  pure-fluid-name: nitrogen
+
+- name: CO2-purefluid
+  species: [{rk-species: [CO2]}]
+  thermo: pure-fluid
+  pure-fluid-name: carbondioxide
+  state: {T: 275, vapor-fraction: 0.1}
+
+- name: const-density
+  thermo: constant-density
+  density: 0.7 g/cm^3
+  species: [NaCl(s), KCl(s)]
+  state: {T: 320, P: 1 atm}
+
+- name: IdealSolidSolnPhase
+  thermo: ideal-condensed
+  standard-concentration-basis: unity
+  species: [{ISSP-species: all}]
+  state: {T: 500, P: 2 bar, X: {sp1: 0.1, sp2: 0.89, sp3: 0.01}}
+
+- name: Li7Si3(s)
+  species: [{lattice-species: [Li7Si3(s)]}]
+  thermo: fixed-stoichiometry
+- name: Li7Si3-interstitial
+  species: [{lattice-species: [Li(i), V(i)]}]
+  thermo: lattice
+  site-density: 1.046344e-2 gmol/cm^3
+  state: {T: 725 K, P: 10 atm, X: {Li(i): 0.01, V(i): 0.99}}
+- name: Li7Si3_and_interstitials
+  thermo: compound-lattice
+  composition: {Li7Si3(s): 1.0, Li7Si3-interstitial: 1.0}
+  state: {T: 725 K, P: 10 atm}
+
+- name: Metal
+  thermo: electron-cloud
+  species: ["electron"]
+  density: 9 kg/m^3
+  state: {T: 1073.15, P: 1 atm}
+
+- name: graphite-anode
+  thermo: binary-solution-tabulated
+  species: ["Li[anode]", "V[anode]"]
+  standard-concentration-basis: unity
+  tabulated-species: Li[anode]
+  units: {energy: J, quantity: mol, pressure: atm}
+  tabulated-thermo:
+    mole-fractions: [5.75000E-03, 1.25841E-01, 2.45932E-01, 3.66023E-01,
+      4.86114E-01, 6.06205E-01, 7.26295E-01]
+    enthalpy: [-6.40692E+04, -9.69664E+03, -8.31339E+03, -7.69063E+03,
+      -3.94568E+03, -2.01329E+03, -1.59649E+03]
+    entropy: [3.05724E+01, 2.53501E+01, 1.27000E+01, 1.21865E+01, 1.70474E+01,
+      1.92980E+01, 1.92885E+01]
+  state: {T: 300, P: 1, X: {"Li[anode]": 0.3, "V[anode]": 0.7}}
+
+
+species:
+- name: NaCl(s)
+  composition: {Na: 1, Cl: 1}
+  thermo:
+    model: Shomate
+    temperature-ranges: [250, 1075]
+    data:
+    - [50.72389, 6.672267, -2.517167, 10.15934, -0.200675, -427.2115, 130.3973]
+  equation-of-state:
+    model: constant-volume
+    # For constant density, specify either (mass) "density", "molar-density", or
+    # "molar-volume"
+    density: 2.165 g/cm^3
+
+- name: KCl(s)
+  composition: {K: 1, Cl: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300, 1000]
+    data:
+    - [5.3934311E+00, 2.6535242E-03, 9.6075655E-07, -5.0251843E-09,
+       4.0721228E-12, -5.4248389E+04, -2.1596814E+01]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.0376521717 L/mol
+
+- name: H2O(l)
+  composition: {H: 2, O: 1}
+
+- name: Li
+  composition: {Li: 1}
+
+- name: KCl(l)
+  composition: {K: 1, Cl: 1}
+  thermo:
+    model: Shomate
+    temperature-ranges: [700, 2000]
+    data:
+    - [73.59698, 0.0, 0.0, 0.0, 0.0, -443.7341, 175.7209]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 37.57 cm^3/gmol
+
+- name: LiCl(l)
+  composition: {Li: 1, Cl: 1}
+  thermo:
+    model: Shomate
+    temperature-ranges: [700, 2000]
+    data:
+    - [73.18025, -9.047232, -0.316390, 0.079587, 0.013594, -417.1314, 157.6711]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 20.304 cm^3/gmol
+
+- name: Li(l)
+  composition: {Li: 1}
+  thermo:
+    model: Shomate
+    temperature-ranges: [298, 700, 3000]
+    data:
+    - [26.3072, 30.4657, -69.1692, 44.1951, 0.0776, -6.0337, 59.8106]
+    - [22.6832, 10.476, -6.5428, 1.3255, 0.8783, -2.0426, 62.8859]
+  equation-of-state:
+    model: density-temperature-polynomial
+    units: {mass: g, length: cm}
+    data: [0.536504, -1.04279e-4, 3.84825e-9, -5.2853e-12]
+
+- name: Li(C6)
+  composition: {C: 6, Li: 1}
+  thermo:
+    model: constant-cp
+    h0: -11.65 kJ/mol
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.036 m^3/kmol
+
+- name: V(C6)
+  composition: {C: 6}
+  thermo:
+    model: constant-cp
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.036 m^3/kmol
+
+- name: H(s)
+  composition: {H: 1, He: 2}
+  thermo:
+    model: constant-cp
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.005 m^3/kmol
+
+- name: He(s)
+  composition: {He: 1}
+  thermo:
+    model: constant-cp
+    h0: 1000
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.01 m^3/kmol
+
+- name: N2
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [3.298677, 0.0014082404, -3.963222e-06, 5.641515e-09, -2.444854e-12,
+      -1020.8999, 3.950372]
+    - [2.92664, 0.0014879768, -5.68476e-07, 1.0097038e-10, -6.753351e-15,
+      -922.7977, 5.980528]
+
+- name: electron
+  composition: {E: 1}
+  thermo:
+    model: constant-cp
+
+- name: Li[anode]
+  composition: {Li: 1, C: 6}
+  thermo:
+    model: constant-cp
+  equation-of-state:
+    model: constant-volume
+    density: 5.0317 g/cm^3
+
+- name: V[anode]
+  composition: {C: 6}
+  thermo:
+    model: constant-cp
+  equation-of-state:
+    model: constant-volume
+    density: 5.0317 g/cm^3
+
+
+ideal-molal-fake-species:
+# Fake thermo data (GRI 3.0 coefficients for H2)
+- name: H2O(l)
+  composition: {H: 2, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0]
+    data:
+    - [2.34433112, 0.00798052075, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.5
+- name: CO2(aq)
+  composition: {C: 1, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0]
+    data:
+    - [2.34433112, 0.00798052075, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+- name: H2S(aq)
+  composition: {H: 2, S: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0]
+    data:
+    - [2.34433112, 0.00798052075, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.1
+- name: CH4(aq)
+  composition: {C: 1, H: 4}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0]
+    data:
+    - [2.34433112, 0.00798052075, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.1
+
+
+dh-electrolyte-species:
+- name: H2O(l)
+  composition: {H: 2, O: 1}
+  equation-of-state:
+    model: liquid-water-IAPWS95
+- name: Na+
+  composition: {Na: 1, E: -1}
+  thermo:
+    model: piecewise-Gibbs
+    h0: -240.34 kJ/mol
+    dimensionless: true
+    data: {298.15: -103.98186, 333.15: -103.98186}
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+  Debye-Huckel:
+    ionic-radius: 4 Å
+- name: Cl-
+  composition: {Cl: 1, E: 1}
+  thermo:
+    model: piecewise-Gibbs
+    h0: -167.08 kJ/mol
+    dimensionless: true
+    data: {298.15: -74.20664, 333.15: -74.20664}
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+  Debye-Huckel:
+    ionic-radius: 3.0 angstrom
+- name: H+
+  composition: {H: 1, E: -1}
+  thermo:
+    model: piecewise-Gibbs
+    h0: 0
+    dimensionless: true
+    data: {298.15: 0, 333.15: 0}
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.0
+  Debye-Huckel:
+    ionic-radius: 9e-10 m
+- name: OH-
+  composition: {O: 1, H: 1, E: 1}
+  thermo:
+    model: piecewise-Gibbs
+    h0: -230.015 kJ/mol
+    dimensionless: true
+    data: {298.15: -91.50963, 333.15: -85.0}
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+  Debye-Huckel:
+    ionic-radius: 3.5 angstrom
+- name: NaCl(aq)
+  composition: {Na: 1, Cl: 1}
+  thermo:
+    model: piecewise-Gibbs
+    h0: -96.03E3 cal/mol
+    dimensionless: true
+    data: {298.15: -174.5057463, 333.15: -174.5057463}
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+  Debye-Huckel:
+    electrolyte-species-type: weak-acid-associated
+    weak-acid-charge: -1.0
+
+ions-from-neutral-species:
+- name: K+
+  composition: {K: 1, E: -1}
+  equation-of-state:
+    model: ions-from-neutral-molecule
+    multipliers: {KCl(l): 1.2}
+- name: Cl-
+  composition: {Cl: 1, E: 1}
+  equation-of-state:
+    special-species: true
+    model: ions-from-neutral-molecule
+    multipliers: {KCl(l): 1.5}
+
+gas-species:
+- name: H2
+  composition: {H: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.34433112, 0.00798052075, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+    - [3.3372792, -4.94024731e-05, 4.99456778e-07, -1.79566394e-10, 2.00255376e-14,
+      -950.158922, -3.20502331]
+  equation-of-state:
+    model: ideal-gas
+- name: H2O
+  composition: {H: 2, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [4.19864056, -0.0020364341, 6.52040211e-06, -5.48797062e-09, 1.77197817e-12,
+      -30293.7267, -0.849032208]
+    - [3.03399249, 0.00217691804, -1.64072518e-07, -9.7041987e-11, 1.68200992e-14,
+      -30004.2971, 4.9667701]
+- name: O2
+  composition: {O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [3.78245636, -0.00299673416, 9.84730201e-06, -9.68129509e-09, 3.24372837e-12,
+      -1063.94356, 3.65767573]
+    - [3.28253784, 0.00148308754, -7.57966669e-07, 2.09470555e-10, -2.16717794e-14,
+      -1088.45772, 5.45323129]
+
+rk-species:
+- name: H2
+  composition: {H: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.34433112, 0.00798052075, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+    - [3.3372792, -4.94024731e-05, 4.99456778e-07, -1.79566394e-10, 2.00255376e-14,
+      -950.158922, -3.20502331]
+  equation-of-state:
+    model: Redlich-Kwong
+    units: {length: cm, pressure: bar, quantity: mol}
+    a: [3.0e+08, -3.30e+06]
+    b: 31.0
+- name: H2O
+  composition: {H: 2, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [4.19864056, -0.0020364341, 6.52040211e-06, -5.48797062e-09, 1.77197817e-12,
+      -30293.7267, -0.849032208]
+    - [3.03399249, 0.00217691804, -1.64072518e-07, -9.7041987e-11, 1.68200992e-14,
+      -30004.2971, 4.9667701]
+  equation-of-state:
+    model: Redlich-Kwong
+    a: [1.7458e+08 bar*cm^6/mol^2*K^0.5, -8.0e+04 bar*cm^6/mol^2*K^-0.5]
+    b: 18.18 cm^3/mol
+    binary-a:
+      H2: [4 bar*cm^6/mol^2*K^0.5, 40 bar*cm^6/mol^2*K^-0.5]
+      CO2: 7.897e7 bar*cm^6/mol^2*K^0.5
+- name: CO2
+  composition: {C: 1, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.35677352, 0.00898459677, -7.12356269e-06, 2.45919022e-09, -1.43699548e-13,
+      -48371.9697, 9.90105222]
+    - [3.85746029, 0.00441437026, -2.21481404e-06, 5.23490188e-10, -4.72084164e-14,
+      -48759.166, 2.27163806]
+  equation-of-state:
+    model: Redlich-Kwong
+    units: {length: cm, pressure: bar, quantity: mol}
+    a: [7.54e7, -4.13e4]
+    b: 27.80
+
+
+HMW-species:
+- name: H2O(L)
+  composition: {H: 2, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [273.15, 600]
+    data:
+    - [7.255750050E+01, -6.624454020E-01, 2.561987460E-03, -4.365919230E-06,
+       2.781789810E-09, -4.188654990E+04, -2.882801370E+02]
+  equation-of-state:
+    model: liquid-water-IAPWS95
+
+- name: Na+
+  composition: {Na: 1, E: -1}
+  thermo:
+    model: piecewise-Gibbs
+    reference-pressure: 1 bar
+    h0: 0.0
+    dimensionless: true
+    data: {298.15: -125.5213, 333.15: -125.5213}
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+
+- name: Cl-
+  composition: {Cl: 1, E: 1}
+  thermo:
+    model: piecewise-Gibbs
+    reference-pressure: 1 bar
+    h0: 0.0
+    dimensionless: true
+    data: {298.15: -52.8716, 333.15: -52.8716}
+  equation-of-state:
+    reference-pressure: 1 bar
+    model: constant-volume
+    molar-volume: 1.3
+
+- name: H+
+  composition: {H: 1, E: -1}
+  thermo:
+    model: piecewise-Gibbs
+    reference-pressure: 1 bar
+    h0: 0.0
+    dimensionless: true
+    data: {298.15: 0, 333.15: 0}
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+
+- name: OH-
+  composition: {O: 1, H: 1, E: 1}
+  thermo:
+    model: piecewise-Gibbs
+    reference-pressure: 1 bar
+    h0: 0.0
+    dimensionless: true
+    data: {298.15: -91.523, 333.15: -91.523}
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+
+
+HKFT-species:
+- name: Na+
+  composition: {Na: 1, E: -1}
+  equation-of-state:
+    model: HKFT
+    h0: -57433. cal/gmol
+    s0: 13.96 cal/gmol/K
+    a: [0.1839 cal/gmol/bar, -228.5 cal/gmol, 3.256 cal*K/gmol/bar, -27260. cal*K/gmol]
+    c: [18.18 cal/gmol/K, -29810. cal*K/gmol]
+    omega: 33060 cal/gmol
+
+- name: Cl-
+  composition: {Cl: 1, E: 1}
+  equation-of-state:
+    model: HKFT
+    units: {energy: cal, quantity: mol, pressure: bar}
+    g0: -31379
+    s0: 13.56
+    a: [0.4032, 480.1, 5.563, -28470.]
+    c: [-4.4, -57140.]
+    omega: 145600.
+
+- name: H+
+  composition: {H: 1, E: -1}
+  equation-of-state:
+    model: HKFT
+    g0: 0
+    s0: 0
+    a: [0, 0, 0, 0]
+    c: [0, 0]
+    omega: 0
+
+- name: OH-
+  composition: {O: 1, H: 1, E: 1}
+  equation-of-state:
+    model: HKFT
+    units: {energy: cal, quantity: mol, pressure: bar}
+    g0: -37595.
+    h0: -54977.
+    s0: -2.56
+    a: [0.12527, 7.38, 1.8423, -27821]
+    c: [4.15, -103460.]
+    omega: 172460.
+
+
+ISSP-species:
+- name: sp1
+  composition: {C: 2, H: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0]
+    data:
+    - [3.78245636, -0.00299673416, 9.84730201e-06, -9.68129509e-09, 3.24372837e-12,
+      -1063.94356, 3.65767573]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.5
+- name: sp2
+  composition: {C: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0]
+    data:
+    - [4.19864056, -0.0020364341, 6.52040211e-06, -5.48797062e-09, 1.77197817e-12,
+      -30293.7267, -0.849032208]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+- name: sp3
+  composition: {H: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0]
+    data:
+    - [2.34433112, 0.00798052075, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.1
+
+
+lattice-species:
+- name: Li7Si3(s)
+  composition: {Li: 7, Si: 3}
+  thermo:
+    model: Shomate
+    temperature-ranges: [250, 700, 2700]
+    data:
+    - [295.73961, -6.753295, -44.538551, 29.738846, -1.022387, -348.88919, 554.35647]
+    - [250.51429, 51.125155, -28.341244, 6.242135, 1.346861, -328.46578, 498.84106]
+  equation-of-state:
+    model: constant-volume
+    density: 1.39 g/cm^3
+- name: Li(i)
+  composition: {Li: 1}
+  thermo:
+    model: constant-cp
+    T0: 298.15
+    s0: 20 J/mol/K
+    cp0: 20 J/mol/K
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.2
+- name: V(i)
+  composition: {}
+  thermo:
+    model: constant-cp
+    h0: 89.8 J/mol

@@ -1,7 +1,7 @@
 //! @file ResidJacEval.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/numerics/ResidJacEval.h"
@@ -123,8 +123,7 @@ int ResidJacEval::evalResidNJ(const doublereal t, const doublereal deltaT,
                               const ResidEval_Type_Enum evalType,
                               const int id_x, const doublereal delta_x)
 {
-    throw CanteraError("ResidJacEval::evalResidNJ()", "Not implemented\n");
-    return 1;
+    throw NotImplementedError("ResidJacEval::evalResidNJ");
 }
 
 int ResidJacEval::eval(const doublereal t, const doublereal* const y, const doublereal* const ydot,
@@ -150,8 +149,7 @@ int ResidJacEval::evalJacobianDP(const doublereal t, const doublereal delta_t,
                                  doublereal* const* jac_colPts,
                                  doublereal* const resid)
 {
-    throw CanteraError("ResidJacEval::evalJacobianDP()", "Not implemented\n");
-    return 1;
+    throw NotImplementedError("ResidJacEval::evalJacobianDP");
 }
 
 }

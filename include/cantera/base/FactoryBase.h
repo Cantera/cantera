@@ -4,7 +4,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_FACTORY_BASE
 #define CT_FACTORY_BASE
@@ -74,20 +74,8 @@ public:
 
     //! Create an object using the object construction function corresponding to
     //! "name" and the provided constructor arguments
-    T* create(std::string name, Args... args) {
-        try {
-            return m_creators.at(name)(args...);
-        } catch (std::out_of_range&) {
-            if (m_synonyms.find(name) != m_synonyms.end()) {
-                return m_creators.at(m_synonyms.at(name))(args...);
-            } else if (m_deprecated_names.find(name) != m_deprecated_names.end()) {
-                warn_deprecated(name,
-                    fmt::format("Use '{}' instead.", m_deprecated_names.at(name)));
-                return m_creators.at(m_deprecated_names.at(name))(args...);
-            } else {
-                throw CanteraError("Factory::create", "No such type: '{}'", name);
-            }
-        }
+    T* create(const std::string& name, Args... args) {
+        return m_creators.at(canonicalize(name))(args...);
     }
 
     //! Register a new object construction function
@@ -95,7 +83,47 @@ public:
         m_creators[name] = f;
     }
 
+    //! Add an alias for an existing registered type
+    void addAlias(const std::string& original, const std::string& alias) {
+        if (!m_creators.count(original)) {
+            throw CanteraError("Factory::addAlias",
+                "Name '{}' not registered", original);
+        }
+        m_synonyms[alias] = original;
+    }
+
+    //! Get the canonical name registered for a type
+    std::string canonicalize(const std::string& name) {
+        if (m_creators.count(name)) {
+            return name;
+        } else if (m_synonyms.count(name)) {
+            return m_synonyms.at(name);
+        } else if (m_deprecated_names.count(name)) {
+            warn_deprecated(name,
+                fmt::format("Use '{}' instead.", m_deprecated_names.at(name)));
+            return m_deprecated_names.at(name);
+        } else {
+            throw CanteraError("Factory::canonicalize", "No such type: '{}'", name);
+        }
+    }
+
+    //! Returns true if `name` is registered with this factory
+    bool exists(const std::string& name) const {
+        return m_creators.count(name) || m_synonyms.count(name);
+    }
+
 protected:
+    //! Add a deprecated alias for an existing registered type
+    void addDeprecatedAlias(const std::string& original,
+                            const std::string& alias) {
+        if (!m_creators.count(original)) {
+            throw CanteraError("Factory::addDeprecatedAlias",
+                "Name '{}' not registered", original);
+        }
+        m_deprecated_names[alias] = original;
+    }
+
+private:
     std::unordered_map<std::string, std::function<T*(Args...)>> m_creators;
 
     //! Map of synonyms to canonical names

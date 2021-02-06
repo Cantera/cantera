@@ -8,7 +8,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 // Cantera includes
 #include "cantera/kinetics/KineticsFactory.h"
@@ -356,6 +356,17 @@ extern "C" {
 
     //-------------- Thermo --------------------//
 
+    integer th_newfromfile_(char* filename, char* phasename, ftnlen lenf, ftnlen lenp)
+    {
+        try {
+            thermo_t* th = newPhase(f2string(filename, lenf),
+                                    f2string(phasename, lenp));
+            return ThermoCabinet::add(th);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     integer newthermofromxml_(integer* mxml)
     {
         try {
@@ -554,10 +565,10 @@ extern "C" {
         return 0;
     }
 
-    status_t th_equil_(const integer* n, char* XY, ftnlen lenxy)
+    status_t th_equil_(const integer* n, char* XY, char* solver, doublereal* rtol, int* max_steps, int* max_iter, int* estimate_equil, int* log_level, ftnlen lenxy, ftnlen lensolver)
     {
         try {
-            _fth(n)->equilibrate(f2string(XY,lenxy));
+            _fth(n)->equilibrate(f2string(XY,lenxy), f2string(solver,lensolver), *rtol, *max_steps, *max_iter, *estimate_equil, *log_level);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -624,7 +635,46 @@ extern "C" {
         return 0;
     }
 
+    status_t th_getpartialmolarintenergies_r_(const integer* n, doublereal* ie)
+    {
+        try {
+            thermo_t* thrm = _fth(n);
+            thrm->getPartialMolarIntEnergies(ie);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+        return 0;
+    }
+
     //-------------- Kinetics ------------------//
+
+    integer kin_newfromfile_(const char* filename, const char* phasename,
+                             integer* reactingPhase, const integer* neighbor1,
+                             const integer* neighbor2, const integer* neighbor3,
+                             const integer* neighbor4, ftnlen nlen, ftnlen plen)
+    {
+        try {
+            std::vector<thermo_t*> phases;
+            phases.push_back(_fth(reactingPhase));
+            if (*neighbor1 >= 0) {
+                phases.push_back(_fth(neighbor1));
+                if (*neighbor2 >= 0) {
+                    phases.push_back(_fth(neighbor2));
+                    if (*neighbor3 >= 0) {
+                        phases.push_back(_fth(neighbor3));
+                        if (*neighbor4 >= 0) {
+                            phases.push_back(_fth(neighbor4));
+                        }
+                    }
+                }
+            }
+            auto kin = newKinetics(phases, f2string(filename, nlen),
+                                   f2string(phasename, plen));
+            return KineticsCabinet::add(kin.release());
+        } catch (...) {
+            return handleAllExceptions(999, ERR);
+        }
+    }
 
     integer newkineticsfromxml_(integer* mxml, integer* iphase,
                                 const integer* neighbor1, const integer* neighbor2, const integer* neighbor3,
@@ -898,6 +948,17 @@ extern "C" {
             std::string mstr = f2string(model, lenmodel);
             thermo_t* t = _fth(ith);
             Transport* tr = newTransportMgr(mstr, t, *loglevel);
+            return TransportCabinet::add(tr);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    integer trans_newdefault_(integer* ith, integer* loglevel, ftnlen lenmodel)
+    {
+        try {
+            thermo_t* t = _fth(ith);
+            Transport* tr = newDefaultTransportMgr(t, *loglevel);
             return TransportCabinet::add(tr);
         } catch (...) {
             return handleAllExceptions(-1, ERR);

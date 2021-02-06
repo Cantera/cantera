@@ -9,4 +9,10 @@ function mdot = massFlowRate(f, time)
 %     The mass flow rate through the :mat:func:`FlowDevice` at the given time
 %
 
-mdot = flowdevicemethods(21, f.index, time);
+if nargin == 1
+    mdot = flowdevicemethods(21, f.index);
+else
+    warning(['"time" argument to massFlowRate is deprecated and will be' ...
+            ' removed after Cantera 2.5.'])
+    mdot = flowdevicemethods(21, f.index, time);
+end

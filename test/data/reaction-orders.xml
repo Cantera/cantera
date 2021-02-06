@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate species="yes" reactions="yes"/>
+
+  <!-- phase gas     -->
+  <phase id="gas" dim="3">
+    <elementArray datasrc="elements.xml">O H </elementArray>
+    <speciesArray datasrc="gri30.xml#species_data">H2  O2  H2O OH </speciesArray>
+    <reactionArray datasrc="#reaction_data">
+      <skip species="undeclared"/>
+    </reactionArray>
+    <state>
+      <temperature units="K">300.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="None"/>
+  </phase>
+
+  <!-- species definitions     -->
+  <speciesData id="species_data"/>
+  <reactionData id="reaction_data">
+
+    <!-- reaction 0001    -->
+    <reaction id="0001" reversible="no" negative_orders="yes" nonreactant_orders="yes">
+      <equation>H2 + O2 =] 2 OH</equation>
+      <order species="H2">1.0</order>
+      <order species="O2">1</order>
+      <order species="HO2">-0.25</order>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.000000E+10</A>
+           <b>0.0</b>
+           <E units="kJ/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H2:1.0 O2:1</reactants>
+      <products>OH:2.0</products>
+    </reaction>
+
+    <!-- reaction 0002    -->
+    <reaction id="0002" reversible="no" negative_orders="yes" nonreactant_orders="yes">
+      <equation>2 H2 + O2 =] 2 H2O</equation>
+      <order species="H2">-0.25</order>
+      <order species="O2">1</order>
+      <order species="OH">0.15</order>
+      <rateCoeff>
+        <Arrhenius>
+           <A>5.623413E+13</A>
+           <b>0.0</b>
+           <E units="kJ/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H2:2.0 O2:1</reactants>
+      <products>H2O:2.0</products>
+    </reaction>
+  </reactionData>
+</ctml>

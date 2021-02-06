@@ -6,10 +6,8 @@
   <phase dim="3" id="gas">
     <elementArray datasrc="elements.xml">H C</elementArray>
     <speciesArray datasrc="#species_data">
-      H    R1A  R1B  P1   R2   
-      P2A  P2B  R3   P3A  P3B  
-      R4   P4   R5   P5A  P5B  
-      R6   P6A  P6B</speciesArray>
+      H    R1A  R1B  P1   R2   P2A  P2B  R3   P3A  P3B  R4
+      P4   R5   P5A  P5B  R6   P6A  P6B  R7   P7A  P7B</speciesArray>
     <reactionArray datasrc="#reaction_data"/>
     <state>
       <temperature units="K">300.0</temperature>
@@ -328,6 +326,57 @@
         </NASA>
       </thermo>
     </species>
+
+    <!-- species R7    -->
+    <species name="R7">
+      <atomArray>C:2 H:7 </atomArray>
+      <thermo>
+        <NASA Tmin="200.0" Tmax="1000.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08,
+             1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmin="1000.0" Tmax="3500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09,
+             -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species P7A    -->
+    <species name="P7A">
+      <atomArray>C:1 H:4 </atomArray>
+      <thermo>
+        <NASA Tmin="200.0" Tmax="1000.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08,
+             1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmin="1000.0" Tmax="3500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09,
+             -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species P7B    -->
+    <species name="P7B">
+      <atomArray>C:1 H:4 </atomArray>
+      <thermo>
+        <NASA Tmin="200.0" Tmax="1000.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08,
+             1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmin="1000.0" Tmax="3500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09,
+             -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
   </speciesData>
   <reactionData id="reaction_data">
 
@@ -517,6 +566,24 @@
       </rateCoeff>
       <reactants>R6:1.0</reactants>
       <products>P6A:1.0 P6B:1</products>
+    </reaction>
+
+    <!-- reaction 0007    -->
+    <reaction id="0007" reversible="yes" type="chebyshev">
+      <equation>R7 + H [=] P7A + P7B</equation>
+      <rateCoeff>
+        <Tmin>300.0</Tmin>
+        <Tmax>2000.0</Tmax>
+        <Pmin units="atm">0.009869232667160128</Pmin>
+        <Pmax units="atm">98.69232667160128</Pmax>
+        <floatArray name="coeffs" degreeT="4" degreeP="4">
+          2.90681e+01, -1.13970e+00, -1.20590e-01,  1.60340e-02,
+          1.97640e+00,  1.00370e+00,  7.28650e-03, -3.04320e-02,
+          3.17700e-01,  2.68890e-01,  9.48060e-02, -7.63850e-03,
+          -3.12850e-02, -3.94120e-02,  4.43750e-02,  1.44580e-02</floatArray>
+      </rateCoeff>
+      <reactants>R7:1.0 H:1</reactants>
+      <products>P7A:1.0 P7B:1</products>
     </reaction>
   </reactionData>
 </ctml>

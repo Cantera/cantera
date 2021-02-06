@@ -11,13 +11,15 @@ We then create a sequence of reduced mechanisms including only the top reactions
 and the associated species, and run the simulations again with these mechanisms
 to see whether the reduced mechanisms with a certain number of species are able
 to adequately simulate the ignition delay problem.
+
+Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
 import cantera as ct
 import numpy as np
 import matplotlib.pyplot as plt
 
-gas = ct.Solution('gri30.xml')
+gas = ct.Solution('gri30.yaml')
 initial_state = 1200, 5 * ct.one_atm, 'CH4:0.35, O2:1.0, N2:3.76'
 
 # Run a simulation with the full mechanism
@@ -44,8 +46,8 @@ plt.plot(tt, TT, label='K=53, R=325', color='k', lw=3, zorder=100)
 R = sorted(zip(Rmax, gas.reactions()), key=lambda x: -x[0])
 
 # Test reduced mechanisms with different numbers of reactions
-C = plt.cm.winter(np.linspace(0,1,5))
-for i,N in enumerate([40,50,60,70,80]):
+C = plt.cm.winter(np.linspace(0, 1, 5))
+for i, N in enumerate([40, 50, 60, 70, 80]):
     # Get the N most active reactions
     reactions = [r[1] for r in R[:N]]
 
@@ -77,7 +79,7 @@ for i,N in enumerate([40,50,60,70,80]):
         tt.append(1000 * t)
         TT.append(r.T)
 
-    plt.plot(tt,TT, lw=2, color=C[i],
+    plt.plot(tt, TT, lw=2, color=C[i],
              label='K={0}, R={1}'.format(gas2.n_species, N))
     plt.xlabel('Time (ms)')
     plt.ylabel('Temperature (K)')

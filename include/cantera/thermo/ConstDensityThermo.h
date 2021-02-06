@@ -5,7 +5,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_CONSTRHOTHERMO_H
 #define CT_CONSTRHOTHERMO_H
@@ -24,16 +24,26 @@ namespace Cantera
  * The density is assumed to be constant, no matter what the concentration of
  * the solution.
  *
+ * @deprecated To be removed after Cantera 2.5.0. Replaceable with LatticePhase
+ * or IdealSolidSolnPhase
+ *
  * @ingroup thermoprops
  */
 class ConstDensityThermo : public ThermoPhase
 {
 public:
     //! Constructor.
-    ConstDensityThermo() {}
+    ConstDensityThermo() {
+      warn_deprecated("class ConstDensityThermo", "To be removed after Cantera "
+        "2.5.0. Consider replacing with LatticePhase or IdealSolidSolnPhase\n");
+    }
 
     virtual std::string type() const {
         return "ConstDensity";
+    }
+
+    virtual bool isCompressible() const {
+        return false;
     }
 
     virtual doublereal enthalpy_mole() const;
@@ -121,7 +131,7 @@ public:
     virtual bool addSpecies(shared_ptr<Species> spec);
 
     virtual void setParameters(int n, doublereal* const c) {
-        setDensity(c[0]);
+        assignDensity(c[0]);
     }
 
     virtual void getParameters(int& n, doublereal* const c) const {
@@ -130,6 +140,7 @@ public:
         n = 1;
     }
 
+    virtual void initThermo();
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
 protected:

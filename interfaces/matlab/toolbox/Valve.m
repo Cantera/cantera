@@ -30,7 +30,7 @@ function v = Valve(upstream, downstream)
 %     Instance of class :mat:func:`FlowDevice`
 %
 
-v = FlowDevice(3);
+v = FlowDevice('Valve');
 if nargin == 2
     install(v, upstream, downstream)
 end

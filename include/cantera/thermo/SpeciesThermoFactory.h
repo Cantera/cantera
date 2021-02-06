@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef SPECIESTHERMO_FACTORY_H
 #define SPECIESTHERMO_FACTORY_H
@@ -17,6 +17,7 @@ namespace Cantera
 {
 
 class XML_Node;
+class AnyMap;
 
 //! Create a new SpeciesThermoInterpType object given a corresponding constant.
 /*!
@@ -47,8 +48,18 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const std::string& type,
  *  @param thermoNode 'thermo' XML_Node (child of the 'species' node) with child
  *      nodes representing parameterizations for one or more temperature ranges
  *  @returns the pointer to the newly allocated SpeciesThermoInterpType object
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermoNode);
+
+//! Create a new SpeciesThermoInterpType object using the specified parameters
+/*!
+ * @param thermo_node  An AnyMap specifying the model type (e.g. "NASA") and any
+ *                     model parameters necessary to instantiate the object
+ */
+unique_ptr<SpeciesThermoInterpType> newSpeciesThermo(const AnyMap& thermo_node);
 
 }
 

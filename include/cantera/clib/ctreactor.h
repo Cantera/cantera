@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CTC_REACTOR_H
 #define CTC_REACTOR_H
@@ -14,7 +14,8 @@
 extern "C" {
 #endif
 
-    CANTERA_CAPI int reactor_new(int type);
+    CANTERA_CAPI int reactor_new2(const char* type);
+    CANTERA_CAPI int reactor_new(int type); //!< @deprecated To be changed after Cantera 2.5.
     CANTERA_CAPI int reactor_del(int i);
     CANTERA_CAPI int reactor_setInitialVolume(int i, double v);
     CANTERA_CAPI int reactor_setChemistry(int i, int cflag);
@@ -47,16 +48,24 @@ extern "C" {
     CANTERA_CAPI double reactornet_atol(int i);
     CANTERA_CAPI double reactornet_sensitivity(int i, const char* v, int p, int r);
 
-    CANTERA_CAPI int flowdev_new(int type);
+    CANTERA_CAPI int flowdev_new2(const char* type);
+    CANTERA_CAPI int flowdev_new(int type); //!< @deprecated To be changed after Cantera 2.5.
     CANTERA_CAPI int flowdev_del(int i);
     CANTERA_CAPI int flowdev_install(int i, int n, int m);
     CANTERA_CAPI int flowdev_setMaster(int i, int n);
-    CANTERA_CAPI double flowdev_massFlowRate(int i, double time);
+    CANTERA_CAPI double flowdev_massFlowRate2(int i);
+    CANTERA_CAPI double flowdev_massFlowRate(int i, double time); //!< @deprecated To be changed after Cantera 2.5.
     CANTERA_CAPI int flowdev_setMassFlowRate(int i, double mdot);
-    CANTERA_CAPI int flowdev_setParameters(int i, int n, const double* v);
-    CANTERA_CAPI int flowdev_setFunction(int i, int n);
+    CANTERA_CAPI int flowdev_setParameters(int i, int n, const double* v);  //!< @deprecated To be removed after Cantera 2.5.
+    CANTERA_CAPI int flowdev_setMassFlowCoeff(int i, double v);
+    CANTERA_CAPI int flowdev_setValveCoeff(int i, double v);
+    CANTERA_CAPI int flowdev_setPressureCoeff(int i, double v);
+    CANTERA_CAPI int flowdev_setFunction(int i, int n); //!< @deprecated To be removed after Cantera 2.5.
+    CANTERA_CAPI int flowdev_setPressureFunction(int i, int n);
+    CANTERA_CAPI int flowdev_setTimeFunction(int i, int n);
 
-    CANTERA_CAPI int wall_new(int type);
+    CANTERA_CAPI int wall_new2(const char* type);
+    CANTERA_CAPI int wall_new(int type); //!< @deprecated To be changed after Cantera 2.5.
     CANTERA_CAPI int wall_del(int i);
     CANTERA_CAPI int wall_install(int i, int n, int m);
     CANTERA_CAPI double wall_vdot(int i, double t);

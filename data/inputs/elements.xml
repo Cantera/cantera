@@ -1,929 +1,853 @@
 <ctml>
   <elementData caseSensitive="no">
-	<element name="H" atomicWt = "1.00794" atomicNumber = "1"> 
+  <!--  Values are used from CIAAW. Atomic weights of the elements 2017
+ when a single value is given. Available online at
+ http://www.ciaaw.org/atomic-weights.htm
+
+ When a range of values is given in the CIAAW table, the "conventional
+ atomic weight" from the IUPAC Periodic Table is used. Available
+ online at https://iupac.org/wp-content/uploads/2018/12/IUPAC_Periodic_Table-01Dec18.pdf
+
+ Values for deuterium and tritium are from: M. Wang et al. The AME2016 atomic
+ mass evaluation. Chinese Physics C. doi:10.1088/1674-1137/41/3/030003.
+
+ The electron mass is the 2018 CODATA value.
+
+ If no value is given in either source, it is because no stable isotopes of
+ that element are known. Therefore, that element is not included in this file.
+ -->
+  <element name="H" atomicWt = "1.008" atomicNumber = "1">
            <entropy298 value = "65.340E3">
              <source>
-		    The standard entropy (1/2 H2gas) was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and Chemical Reference 
-		    Data, Monograph 9, p. 1310.  G_0 = -19.48112E6 J kmol-1
+        The standard entropy (1/2 H2gas) was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and Chemical Reference
+        Data, Monograph 9, p. 1310.  G_0 = -19.48112E6 J kmol-1
              </source>
            </entropy298>
         </element>
-	<element name="D" atomicWt = "2.014102" atomicNumber = "1" >
+  <element name="D" atomicWt = "2.0141017781" atomicNumber = "1" >
            <entropy298 value = "72.480E3">
              <source>
-		    The standard entropy (1/2 D2 gas) was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1040.  
+        The standard entropy (1/2 D2 gas) was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1040.
              </source>
            </entropy298>
         </element>
-	<element name="Tr" atomicWt = "3.016327" atomicNumber = "1" >
+  <element name="Tr" atomicWt = "3.0160492820" atomicNumber = "1" >
            <entropy298>
              <source>
-		    There is no reference state thermodynamic data tabulated 
-		    for this element.
+        There is no reference state thermodynamic data tabulated
+        for this element.
              </source>
            </entropy298>
         </element>
-	<element name="He" atomicWt = "4.00260" atomicNumber = "2" >
+  <element name="He" atomicWt = "4.002602" atomicNumber = "2" >
            <entropy298 value = "126.152E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1361.  
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1361.
              </source>
            </entropy298>
         </element>
-	<element name="Li" atomicWt = "6.941" atomicNumber = "3" >
+  <element name="Li" atomicWt = "6.94" atomicNumber = "3" >
            <entropy298 value = "29.085E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1493.  
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1493.
              </source>
            </entropy298>
         </element>
-	<element name="Be" atomicWt = "9.012182" atomicNumber = "4" >
+  <element name="Be" atomicWt = "9.0121831" atomicNumber = "4" >
            <entropy298 value = "9.440E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 361.  
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 361.
              </source>
            </entropy298>
         </element>
-	<element name="B" atomicWt = "10.811" atomicNumber = "5" >
+  <element name="B" atomicWt = "10.81" atomicNumber = "5" >
            <entropy298 value = "5.834E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 177.  
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 177.
              </source>
            </entropy298>
         </element>
-	<element name="C" atomicWt = "12.011" atomicNumber = "6">
+  <element name="C" atomicWt = "12.011" atomicNumber = "6">
            <entropy298 value = "5.740E3">
              <source>
                     The standard entropy was taken from the NIST-JANAF
-                    Handbook (Chase 1998), Journal of Physical and 
-                    Chemical Reference Data, Monograph 9, p. 550. 
+                    Handbook (Chase 1998), Journal of Physical and
+                    Chemical Reference Data, Monograph 9, p. 550.
              </source>
            </entropy298>
         </element>
-	<element name="N" atomicWt = "14.00674" atomicNumber = "7" >
+  <element name="N" atomicWt = "14.007" atomicNumber = "7" >
            <entropy298 value = "95.8045E3">
              <source>
-		    The standard entropy (1/2 N2 gas) was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1621.  
+        The standard entropy (1/2 N2 gas) was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1621.
              </source>
            </entropy298>
         </element>
-	<element name="O" atomicWt = "15.9994" atomicNumber = "8" >
+  <element name="O" atomicWt = "15.999" atomicNumber = "8" >
            <entropy298 value = "102.5735E3">
              <source>
-		    The standard entropy (1/2 O2 gas) was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1745.  
+        The standard entropy (1/2 O2 gas) was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1745.
              </source>
            </entropy298>
         </element>
-	<element name="F" atomicWt = "18.9984032" atomicNumber = "9" >
+  <element name="F" atomicWt = "18.998403163" atomicNumber = "9" >
            <entropy298 value = "101.3945E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1099.  
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1099.
              </source>
            </entropy298>
         </element>
-	<element name="Ne" atomicWt = "20.1797" atomicNumber = "10" >
+  <element name="Ne" atomicWt = "20.1797" atomicNumber = "10" >
            <entropy298 value = "146.327E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1695.  
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1695.
              </source>
            </entropy298>
         </element>
-	<element name="Na" atomicWt = "22.98977" atomicNumber = "11" >
+  <element name="Na" atomicWt = "22.98976928" atomicNumber = "11" >
            <entropy298 value = "51.455E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1637.  
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1637.
              </source>
            </entropy298>
         </element>
-	<element name="Mg" atomicWt = "24.3050" atomicNumber = "12" >
+  <element name="Mg" atomicWt = "24.305" atomicNumber = "12" >
            <entropy298 value = "32.671E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1529.  
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1529.
              </source>
            </entropy298>
         </element>
-	<element name="Al" atomicWt = "26.98154" atomicNumber = "13" >
+  <element name="Al" atomicWt = "26.9815384" atomicNumber = "13" >
            <entropy298 value = "28.275E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 59.  
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 59.
              </source>
            </entropy298>
         </element>
-	<element name="Si" atomicWt = "28.0855" atomicNumber = "14">
+  <element name="Si" atomicWt = "28.085" atomicNumber = "14">
            <entropy298 value = "18.820E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1881.  
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1881.
              </source>
            </entropy298>
         </element>
-	<element name="P" atomicWt = "30.97376" atomicNumber = "15" >
+  <element name="P" atomicWt = "30.973761998" atomicNumber = "15" >
            <entropy298 value = "41.077E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1817.  
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1817.
              </source>
            </entropy298>
         </element>
-	<element name="S" atomicWt = "32.066" atomicNumber = "16" >  
+  <element name="S" atomicWt = "32.06" atomicNumber = "16" >
            <entropy298 value = "32.056E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1859.  
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1859.
              </source>
            </entropy298>
         </element>
-	<element name="Cl" atomicWt = "35.4527" atomicNumber = "17">
+  <element name="Cl" atomicWt = "35.45" atomicNumber = "17">
            <entropy298 value = "111.535E3">
              <source>
-		    The standard entropy (1/2 Cl2 gas) was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 811.  
+        The standard entropy (1/2 Cl2 gas) was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 811.
              </source>
            </entropy298>
         </element>
-	<element name="Ar" atomicWt = "39.948" atomicNumber = "18" >
+  <element name="Ar" atomicWt = "39.95" atomicNumber = "18" >
            <entropy298 value = "154.845E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 175.  
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 175.
              </source>
            </entropy298>
         </element>
-	<element name="K" atomicWt = "39.0983" atomicNumber = "19"> 
+  <element name="K" atomicWt = "39.0983" atomicNumber = "19">
            <entropy298 value = "64.670E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1465.  
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1465.
              </source>
            </entropy298>
         </element>
-	<element name="Ca" atomicWt = "40.078" atomicNumber = "20" >
+  <element name="Ca" atomicWt = "40.078" atomicNumber = "20" >
            <entropy298 value = "41.588E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 703.  
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 703.
              </source>
            </entropy298>
         </element>
-	<element name="Sc" atomicWt = "44.95591" atomicNumber = "21" >
+  <element name="Sc" atomicWt = "44.955908" atomicNumber = "21" >
            <entropy298>
              <source>
-		    No reference state data for this element in the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9.
+        No reference state data for this element in the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9.
              </source>
            </entropy298>
         </element>
-	<element name="Ti" atomicWt = "47.88" atomicNumber = "22" >
+  <element name="Ti" atomicWt = "47.867" atomicNumber = "22" >
            <entropy298 value = "30.759E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1907.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1907.
              </source>
            </entropy298>
         </element>
-	<element name="V" atomicWt = "50.9415" atomicNumber = "23" >
+  <element name="V" atomicWt = "50.9415" atomicNumber = "23" >
            <entropy298 value = "28.936E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1917.  
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1917.
              </source>
            </entropy298>
         </element>
-	<element name="Cr" atomicWt = "51.9961" atomicNumber = "24" >
+  <element name="Cr" atomicWt = "51.9961" atomicNumber = "24" >
            <entropy298 value = "23.618E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 959.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 959.
              </source>
            </entropy298>
         </element>
-	<element name="Mn" atomicWt = "54.9381" atomicNumber = "25" >
+  <element name="Mn" atomicWt = "54.938043" atomicNumber = "25" >
            <entropy298 value = "32.010E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1571.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1571.
              </source>
            </entropy298>
         </element>
-	<element name="Fe" atomicWt = "55.847" atomicNumber = "26" >
+  <element name="Fe" atomicWt = "55.845" atomicNumber = "26" >
            <entropy298 value = "27.321E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1221.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1221.
              </source>
            </entropy298>
         </element>
-	<element name="Co" atomicWt = "58.9332" atomicNumber = "27" >
+  <element name="Co" atomicWt = "58.933194" atomicNumber = "27" >
            <entropy298 value = "30.067E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 943.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 943.
              </source>
            </entropy298>
         </element>
-	<element name="Ni" atomicWt = "58.69" atomicNumber = "28" >
+  <element name="Ni" atomicWt = "58.6934" atomicNumber = "28" >
            <entropy298 value = "29.870E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1697.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1697.
              </source>
            </entropy298>
         </element>
-	<element name="Cu" atomicWt = "63.546" atomicNumber = "29" >
+  <element name="Cu" atomicWt = "63.546" atomicNumber = "29" >
            <entropy298 value = "33.164E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1005.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1005.
              </source>
            </entropy298>
         </element>
-	<element name="Zn" atomicWt = "65.38" atomicNumber = "30" >
+  <element name="Zn" atomicWt = "65.38" atomicNumber = "30" >
            <entropy298 value = "41.717E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1935.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1935.
              </source>
            </entropy298>
         </element>
-	<element name="Ga" atomicWt = "69.723" atomicNumber = "31" >
+  <element name="Ga" atomicWt = "69.723" atomicNumber = "31" >
            <entropy298 value = "40.838E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1253.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1253.
              </source>
            </entropy298>
         </element>
-	<element name="Ge" atomicWt = "72.61" atomicNumber = "32" >
+  <element name="Ge" atomicWt = "72.630" atomicNumber = "32" >
            <entropy298 value = "31.09E3">
              <source>
-		     The standard entropy was taken from Robie and
-		     Hemingway (1995), Thermodynamic Properties of
-		     Minerals and Related Substances, USGS Bulletin
-		     2131, p. 88.
+         The standard entropy was taken from Robie and
+         Hemingway (1995), Thermodynamic Properties of
+         Minerals and Related Substances, USGS Bulletin
+         2131, p. 88.
              </source>
            </entropy298>
         </element>
-	<element name="As" atomicWt = "74.92159" atomicNumber = "33" >
+  <element name="As" atomicWt = "74.921595" atomicNumber = "33" >
            <entropy298 value = "35.69E3">
              <source>
-		     The standard entropy was taken from Robie and
-		     Hemingway (1995), Thermodynamic Properties of
-		     Minerals and Related Substances, USGS Bulletin
-		     2131, p. 69.
+         The standard entropy was taken from Robie and
+         Hemingway (1995), Thermodynamic Properties of
+         Minerals and Related Substances, USGS Bulletin
+         2131, p. 69.
              </source>
            </entropy298>
         </element>
-	<element name="Se" atomicWt = "78.96" atomicNumber = "34" >
+  <element name="Se" atomicWt = "78.971" atomicNumber = "34" >
            <entropy298 value = "42.27E3">
              <source>
-		     The standard entropy was taken from Robie and
-		     Hemingway (1995), Thermodynamic Properties of
-		     Minerals and Related Substances, USGS Bulletin
-		     2131, p. 107
+         The standard entropy was taken from Robie and
+         Hemingway (1995), Thermodynamic Properties of
+         Minerals and Related Substances, USGS Bulletin
+         2131, p. 107
              </source>
            </entropy298>
         </element>
-	<element name="Br" atomicWt = "79.904" atomicNumber = "35" >
+  <element name="Br" atomicWt = "79.904" atomicNumber = "35" >
            <entropy298 value = "76.103E3">
              <source>
-		     The standard entropy (1/2 Br2 gas) was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 470.
+        The standard entropy (1/2 Br2 gas) was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 470.
              </source>
            </entropy298>
         </element>
-	<element name="Kr" atomicWt = "83.80" atomicNumber = "36" >
+  <element name="Kr" atomicWt = "83.798" atomicNumber = "36" >
            <entropy298 value = "164.084E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1491.  
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1491.
              </source>
            </entropy298>
         </element>
-	<element name="Rb" atomicWt = "85.4678" atomicNumber = "37" >
+  <element name="Rb" atomicWt = "85.4678" atomicNumber = "37" >
            <entropy298 value = "76.778E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1849.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1849.
              </source>
            </entropy298>
         </element>
-	<element name="Sr" atomicWt = "87.62" atomicNumber = "38" >
+  <element name="Sr" atomicWt = "87.62" atomicNumber = "38" >
            <entropy298 value = "55.694E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1891.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1891.
              </source>
            </entropy298>
         </element>
-	<element name="Y" atomicWt = "88.90585" atomicNumber = "39" > 
+  <element name="Y" atomicWt = "88.90584" atomicNumber = "39" >
            <entropy298>
              <source>
-		     No reference state data found for Y.
+         No reference state data found for Y.
              </source>
            </entropy298>
         </element>
-	<element name="Zr" atomicWt = "91.224" atomicNumber = "40" >
+  <element name="Zr" atomicWt = "91.224" atomicNumber = "40" >
            <entropy298 value = "38.869E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1943.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1943.
              </source>
            </entropy298>
         </element>
-	<element name="Nb" atomicWt = "92.90638" atomicNumber = "41" >
+  <element name="Nb" atomicWt = "92.90637" atomicNumber = "41" >
            <entropy298 value = "36.464E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1675.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1675.
              </source>
            </entropy298>
         </element>
-	<element name="Mo" atomicWt = "95.94 " atomicNumber = "42" >
+  <element name="Mo" atomicWt = "95.95" atomicNumber = "42" >
            <entropy298 value = "28.605E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1577.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1577.
              </source>
            </entropy298>
         </element>
-	<element name="Tc" atomicWt = "97.9072" atomicNumber = "43" >
-           <entropy298 value = "32.506E3">
-             <source>
-		     The standard entropy was taken from the OECD-NEA
-		     handbook (Guillaumont et al., 2003) "UPDATE ON THE 
-		     CHEMICAL THERMODYNAMICS OF URANIUM, NEPTUNIUM, 
-		     PLUTONIUM, AMERICIUM AND TECHNETIUM", Table 7-1,
-		     p. 127.
-             </source>
-           </entropy298>
-        </element>
-	<element name="Ru" atomicWt = "101.07" atomicNumber = "44" >
+  <element name="Ru" atomicWt = "101.07" atomicNumber = "44" >
            <entropy298 value = "28.53E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 92.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 92.
              </source>
            </entropy298>
         </element>
-	<element name="Rh" atomicWt = "102.9055" atomicNumber = "45" >
+  <element name="Rh" atomicWt = "102.90549" atomicNumber = "45" >
            <entropy298 value = "31.54E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 90.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 90.
              </source>
            </entropy298>
         </element>
-	<element name="Pd" atomicWt = "106.42" atomicNumber = "46" >
+  <element name="Pd" atomicWt = "106.42" atomicNumber = "46" >
            <entropy298 value = "37.82E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 84.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 84.
              </source>
            </entropy298>
         </element>
-	<element name="Ag" atomicWt = "107.8682" atomicNumber = "47" >
+  <element name="Ag" atomicWt = "107.8682" atomicNumber = "47" >
            <entropy298 value = "42.55E3">
              <source>
-		     The standard entropy was taken from Robie and
-		     Hemingway (1995), Thermodynamic Properties of
-		     Minerals and Related Substances, USGS Bulletin
-		     2131, p. 67.
+         The standard entropy was taken from Robie and
+         Hemingway (1995), Thermodynamic Properties of
+         Minerals and Related Substances, USGS Bulletin
+         2131, p. 67.
              </source>
            </entropy298>
         </element>
-	<element name="Cd" atomicWt = "112.411" atomicNumber = "48" >
+  <element name="Cd" atomicWt = "112.414" atomicNumber = "48" >
            <entropy298 value = "51.80E3">
              <source>
-		     The standard entropy was taken from Robie and
-		     Hemingway (1995), Thermodynamic Properties of
-		     Minerals and Related Substances, USGS Bulletin
-		     2131, p. 79.
+         The standard entropy was taken from Robie and
+         Hemingway (1995), Thermodynamic Properties of
+         Minerals and Related Substances, USGS Bulletin
+         2131, p. 79.
              </source>
            </entropy298>
         </element>
-	<element name="In" atomicWt = "114.82" atomicNumber = "49" >
+  <element name="In" atomicWt = "114.818" atomicNumber = "49" >
            <entropy298 value = "57.84E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 64.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 64.
              </source>
            </entropy298>
         </element>
-	<element name="Sn" atomicWt = "118.710" atomicNumber = "50" >
+  <element name="Sn" atomicWt = "118.710" atomicNumber = "50" >
            <entropy298 value = "51.18E3">
              <source>
-		     The standard entropy was taken from Robie and
-		     Hemingway (1995), Thermodynamic Properties of
-		     Minerals and Related Substances, USGS Bulletin
-		     2131, p. 109.
+         The standard entropy was taken from Robie and
+         Hemingway (1995), Thermodynamic Properties of
+         Minerals and Related Substances, USGS Bulletin
+         2131, p. 109.
              </source>
            </entropy298>
         </element>
-	<element name="Sb" atomicWt = "121.75" atomicNumber = "51" >
+  <element name="Sb" atomicWt = "121.760" atomicNumber = "51" >
            <entropy298 value = "45.52E3">
              <source>
-		     The standard entropy was taken from Robie and
-		     Hemingway (1995), Thermodynamic Properties of
-		     Minerals and Related Substances, USGS Bulletin
-		     2131, p. 106.
+         The standard entropy was taken from Robie and
+         Hemingway (1995), Thermodynamic Properties of
+         Minerals and Related Substances, USGS Bulletin
+         2131, p. 106.
              </source>
            </entropy298>
         </element>
-	<element name="Te" atomicWt = "127.6" atomicNumber = "52" >
+  <element name="Te" atomicWt = "127.60" atomicNumber = "52" >
            <entropy298 value = "49.71E3">
              <source>
-		     The standard entropy was taken from Robie and
-		     Hemingway (1995), Thermodynamic Properties of
-		     Minerals and Related Substances, USGS Bulletin
-		     2131, p. 111.
+         The standard entropy was taken from Robie and
+         Hemingway (1995), Thermodynamic Properties of
+         Minerals and Related Substances, USGS Bulletin
+         2131, p. 111.
              </source>
            </entropy298>
         </element>
-	<element name="I" atomicWt = " 126.90447" atomicNumber = "53" >
+  <element name="I" atomicWt = " 126.90447" atomicNumber = "53" >
            <entropy298 value = "58.071E3">
              <source>
-		     The standard entropy (1/2 I2) was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1413. 
+         The standard entropy (1/2 I2) was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1413.
              </source>
            </entropy298>
         </element>
-	<element name="Xe" atomicWt = "131.29" atomicNumber = "54" >
+  <element name="Xe" atomicWt = "131.293" atomicNumber = "54" >
            <entropy298 value = "169.684E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1933.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1933.
              </source>
            </entropy298>
         </element>
-	<element name="Cs" atomicWt = "132.90543" atomicNumber = "55" >
+  <element name="Cs" atomicWt = "132.90545196" atomicNumber = "55" >
            <entropy298 value = "85.147E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 977.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 977.
              </source>
            </entropy298>
         </element>
-	<element name="Ba" atomicWt = "137.327" atomicNumber = "56" >
+  <element name="Ba" atomicWt = "137.327" atomicNumber = "56" >
            <entropy298 value = "62.475E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 319.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 319.
              </source>
            </entropy298>
         </element>
-	<element name="La" atomicWt = "138.9055" atomicNumber = "57" >
+  <element name="La" atomicWt = "138.90547" atomicNumber = "57" >
            <entropy298 value = "56.90E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 68.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 68.
              </source>
            </entropy298>
         </element>
-	<element name="Ce" atomicWt = "140.115" atomicNumber = "58" >
+  <element name="Ce" atomicWt = "140.116" atomicNumber = "58" >
            <entropy298 value = "72.00E3">
              <source>
-		     The standard entropy was taken from Robie and
-		     Hemingway (1995), Thermodynamic Properties of
-		     Minerals and Related Substances, USGS Bulletin
-		     2131, p. 80.
+         The standard entropy was taken from Robie and
+         Hemingway (1995), Thermodynamic Properties of
+         Minerals and Related Substances, USGS Bulletin
+         2131, p. 80.
              </source>
            </entropy298>
         </element>
-	<element name="Pr" atomicWt = "140.90765" atomicNumber = "59" >
+  <element name="Pr" atomicWt = "140.90766" atomicNumber = "59" >
            <entropy298 value = "73.93E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 85.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 85.
              </source>
            </entropy298>
         </element>
-	<element name="Nd" atomicWt = "144.24" atomicNumber = "60" >
+  <element name="Nd" atomicWt = "144.242" atomicNumber = "60" >
            <entropy298 value = "71.09E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 77.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 77.
              </source>
            </entropy298>
         </element>
-	<element name="Pm" atomicWt = "144.9127" atomicNumber = "61" >
-           <entropy298>
-             <source>
-		     There is no handbook standard state thermodynamic data for 
-		     this element.  There are estimates for stability constants
-		     of aqueous and solid species in Spahiu and Bruno (1995), 
-		     A Selected Thermodynamic Database for REE to be Used in 
-		     HLNW Performance Assessment Exercises. SKB Technical 
-		     Report 95-35. Stockholm, Sweden: Swedish Nuclear Fuel and
-		     Waste Management Company.  The compilation of Konings
-		     et al. list an estimated standard entropy value for Pm 
-		     of 158.0 J/K/mol at 298.15 K but with a non-zero enthalpy of
-		     formation which is not indicative of a reference state
-		     form for this element.
-             </source>
-           </entropy298>
-        </element>
-	<element name="Sm" atomicWt = "150.36 " atomicNumber = "62" >
+  <element name="Sm" atomicWt = "150.36" atomicNumber = "62" >
            <entropy298 value = "69.50E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 100.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 100.
              </source>
            </entropy298>
         </element>
-	<element name="Eu" atomicWt = "151.965" atomicNumber = "63" >
+  <element name="Eu" atomicWt = "151.964" atomicNumber = "63" >
            <entropy298 value = "80.79E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 52.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 52.
              </source>
            </entropy298>
         </element>
-	<element name="Gd" atomicWt = "157.25" atomicNumber = "64" >
+  <element name="Gd" atomicWt = "157.25" atomicNumber = "64" >
            <entropy298 value = "40.83E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 55.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 55.
              </source>
            </entropy298>
         </element>
-	<element name="Tb" atomicWt = "158.92534" atomicNumber = "65" >
+  <element name="Tb" atomicWt = "158.925354" atomicNumber = "65" >
            <entropy298 value = "73.30E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 104.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 104.
              </source>
            </entropy298>
         </element>
-	<element name="Dy" atomicWt = "162.50" atomicNumber = "66" >
+  <element name="Dy" atomicWt = "162.500" atomicNumber = "66" >
            <entropy298 value = "74.89E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 50.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 50.
              </source>
            </entropy298>
         </element>
-	<element name="Ho" atomicWt = "164.93032" atomicNumber = "67" >
+  <element name="Ho" atomicWt = "164.930328" atomicNumber = "67" >
            <entropy298 value = "75.02E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 62.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 62.
              </source>
            </entropy298>
         </element>
-	<element name="Er" atomicWt = "167.26" atomicNumber = "68" >
+  <element name="Er" atomicWt = "167.259" atomicNumber = "68" >
            <entropy298 value = "73.18E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 51.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 51.
              </source>
            </entropy298>
         </element>
-	<element name="Tm" atomicWt = "168.93421" atomicNumber = "69" >
+  <element name="Tm" atomicWt = "168.934218" atomicNumber = "69" >
            <entropy298 value = "74.01E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 109.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 109.
              </source>
            </entropy298>
         </element>
-	<element name="Yb" atomicWt = "173.04" atomicNumber = "70" >
+  <element name="Yb" atomicWt = "173.045" atomicNumber = "70" >
            <entropy298 value = "59.83E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 115.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 115.
              </source>
            </entropy298>
         </element>
-	<element name="Lu" atomicWt = "174.967" atomicNumber = "71" >
+  <element name="Lu" atomicWt = "174.9668" atomicNumber = "71" >
            <entropy298 value = "50.96E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 70.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 70.
              </source>
            </entropy298>
         </element>
-	<element name="Hf" atomicWt = "178.49" atomicNumber = "72" >
+  <element name="Hf" atomicWt = "178.49" atomicNumber = "72" >
            <entropy298 value = "43.560E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1363.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1363.
              </source>
            </entropy298>
         </element>
-	<element name="Ta" atomicWt = "180.9479" atomicNumber = "73" >
+  <element name="Ta" atomicWt = "180.94788" atomicNumber = "73" >
            <entropy298 value = "41.471E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1899.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1899.
              </source>
            </entropy298>
         </element>
-	<element name="W" atomicWt = "183.85" atomicNumber = "74" >
+  <element name="W" atomicWt = "183.84" atomicNumber = "74" >
            <entropy298 value = "32.660E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1925.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1925.
              </source>
            </entropy298>
         </element>
-	<element name="Re" atomicWt = "186.207" atomicNumber = "75" >
+  <element name="Re" atomicWt = "186.207" atomicNumber = "75" >
            <entropy298 value = "36.53E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 89.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 89.
              </source>
            </entropy298>
         </element>
-	<element name="Os" atomicWt = "190.2" atomicNumber = "76" >
+  <element name="Os" atomicWt = "190.23" atomicNumber = "76" >
            <entropy298 value = "32.64E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 81.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 81.
              </source>
            </entropy298>
         </element>
-	<element name="Ir" atomicWt = "192.22" atomicNumber = "77" >
+  <element name="Ir" atomicWt = "192.217" atomicNumber = "77" >
            <entropy298 value = "35.48E3">
              <source>
                      The standard entropy was taken from Robie and
                      Hemingway (1979), Thermodynamic Properties of
-		     Minerals and Related Substances at 298.15 K
-		     and 1 bar (10^5 Pascals) Pressure abd at Higher 
-		     Temperatures, USGS Bulletin 1452, p. 65.
+         Minerals and Related Substances at 298.15 K
+         and 1 bar (10^5 Pascals) Pressure and at Higher
+         Temperatures, USGS Bulletin 1452, p. 65.
              </source>
            </entropy298>
         </element>
-	<element name="Pt" atomicWt = "195.08" atomicNumber = "78" >
+  <element name="Pt" atomicWt = "195.084" atomicNumber = "78" >
            <entropy298 value = "41.63E3">
              <source>
-		     The standard entropy was taken from Robie and
-		     Hemingway (1995), Thermodynamic Properties of
-		     Minerals and Related Substances, USGS Bulletin
-		     2131, p. 103.
+         The standard entropy was taken from Robie and
+         Hemingway (1995), Thermodynamic Properties of
+         Minerals and Related Substances, USGS Bulletin
+         2131, p. 103.
              </source>
            </entropy298>
         </element>
-	<element name="Au" atomicWt = "196.96654" atomicNumber = "79" >
+  <element name="Au" atomicWt = "196.966570" atomicNumber = "79" >
            <entropy298 value = "47.49E3">
              <source>
-		     The standard entropy was taken from Robie and
-		     Hemingway (1995), Thermodynamic Properties of
-		     Minerals and Related Substances, USGS Bulletin
-		     2131, p. 70.
+         The standard entropy was taken from Robie and
+         Hemingway (1995), Thermodynamic Properties of
+         Minerals and Related Substances, USGS Bulletin
+         2131, p. 70.
              </source>
            </entropy298>
         </element>
-	<element name="Hg" atomicWt = "200.59" atomicNumber = "80" >
+  <element name="Hg" atomicWt = "200.592" atomicNumber = "80" >
            <entropy298 value = "76.028E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1373.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1373.
              </source>
            </entropy298>
         </element>
-	<element name="Ti" atomicWt = "204.3833" atomicNumber = "81" >
-           <entropy298 value = "30.759E3">
+  <element name="Tl" atomicWt = "204.38" atomicNumber = "81" >
+           <entropy298 value = "64.18E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1907.
+        The standard entropy was taken from Robie and
+        Hemingway (1979), Thermodynamic Properties of
+        Minerals and Related Substances at 298.15 K
+        and 1 bar (10^5 Pascals) Pressure and at Higher
+        Temperatures, USGS Bulletin 1452, p. 108.
              </source>
            </entropy298>
         </element>
-	<element name="Pb" atomicWt = "207.2" atomicNumber = "82" >
+  <element name="Pb" atomicWt = "207.2" atomicNumber = "82" >
            <entropy298 value = "64.785E3">
              <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1835.
+        The standard entropy was taken from the NIST-JANAF
+        Handbook (Chase 1998), Journal of Physical and
+        Chemical Reference Data, Monograph 9, p. 1835.
              </source>
            </entropy298>
         </element>
-	<element name="Bi" atomicWt = "208.98037" atomicNumber = "83" >
+  <element name="Bi" atomicWt = "208.98040" atomicNumber = "83" >
            <entropy298 value = "56.74E3">
              <source>
-		     The standard entropy was taken from Robie and
-		     Hemingway (1995), Thermodynamic Properties of
-		     Minerals and Related Substances, USGS Bulletin
-		     2131, p. 74.
+         The standard entropy was taken from Robie and
+         Hemingway (1995), Thermodynamic Properties of
+         Minerals and Related Substances, USGS Bulletin
+         2131, p. 74.
              </source>
            </entropy298>
         </element>
-	<element name="Po" atomicWt = "208.9824" atomicNumber = "84" >
-           <entropy298>
-             <source>
-		     No standard state thermodynamic data for this element.
-             </source>
-           </entropy298>
-        </element>
-	<element name="At" atomicWt = "209.9871" atomicNumber = "85" >
-           <entropy298>
-             <source>
-		     No standard state thermodynamic data for this element.
-             </source>
-           </entropy298>
-        </element>
-	<element name="Rn" atomicWt = "222.0176" atomicNumber = "86" >
-           <entropy298 value = "176.235E3">
-             <source>
-		    The standard entropy was taken from the NIST-JANAF 
-		    Handbook (Chase 1998), Journal of Physical and 
-		    Chemical Reference Data, Monograph 9, p. 1857.
-             </source>
-           </entropy298>
-        </element>
-	<element name="Fr" atomicWt = "223.0197" atomicNumber = "87" >
-           <entropy298>
-             <source>
-		     No standard state thermodynamic data for this element.
-             </source>
-           </entropy298>
-        </element>
-	<element name="Ra" atomicWt = "226.0254" atomicNumber = "88" >
-           <entropy298>
-             <source>
-		     No standard state thermodynamic data for this element.
-             </source>
-           </entropy298>
-        </element>
-	<element name="Ac" atomicWt = "227.0279" atomicNumber = "89" >
-           <entropy298>
-             <source>
-		     No standard state thermodynamic data for this element.
-             </source>
-           </entropy298>
-        </element>
-	<element name="Th" atomicWt = "232.0381" atomicNumber = "90" >
+  <element name="Th" atomicWt = "232.0377" atomicNumber = "90" >
            <entropy298 value = "51.080E3">
              <source>
-		     The standard entropy was taken from the OECD-NEA
-		     handbook (Guillaumont et al., 2003) "UPDATE ON THE 
-		     CHEMICAL THERMODYNAMICS OF URANIUM, NEPTUNIUM, 
-		     PLUTONIUM, AMERICIUM AND TECHNETIUM", Table 8-1,
-		     p. 145.
+         The standard entropy was taken from the OECD-NEA
+         handbook (Guillaumont et al., 2003) "UPDATE ON THE
+         CHEMICAL THERMODYNAMICS OF URANIUM, NEPTUNIUM,
+         PLUTONIUM, AMERICIUM AND TECHNETIUM", Table 8-1,
+         p. 145.
              </source>
            </entropy298>
         </element>
-	<element name="Pa" atomicWt = "231.03588" atomicNumber = "91" >
+  <element name="Pa" atomicWt = "231.03588" atomicNumber = "91" >
            <entropy298>
              <source>
-		     No standard state thermodynamic data for this element.
+         No standard state thermodynamic data for this element.
              </source>
            </entropy298>
         </element>
-	<element name="U" atomicWt = "238.0508" atomicNumber = "92" >
+  <element name="U" atomicWt = "238.02891" atomicNumber = "92" >
            <entropy298 value = "50.20E3">
              <source>
-		     The standard entropy was taken from the OECD-NEA
-		     handbook (Guillaumont et al., 2003) "UPDATE ON THE 
-		     CHEMICAL THERMODYNAMICS OF URANIUM, NEPTUNIUM, 
-		     PLUTONIUM, AMERICIUM AND TECHNETIUM", Table 3-1,
-		     p. 45.
+         The standard entropy was taken from the OECD-NEA
+         handbook (Guillaumont et al., 2003) "UPDATE ON THE
+         CHEMICAL THERMODYNAMICS OF URANIUM, NEPTUNIUM,
+         PLUTONIUM, AMERICIUM AND TECHNETIUM", Table 3-1,
+         p. 45.
              </source>
            </entropy298>
         </element>
-	<element name="Np" atomicWt = "237.0482" atomicNumber = "93" >
-           <entropy298 value = "50.460E3">
-             <source>
-		     The standard entropy was taken from the OECD-NEA
-		     handbook (Guillaumont et al., 2003) "UPDATE ON THE 
-		     CHEMICAL THERMODYNAMICS OF URANIUM, NEPTUNIUM, 
-		     PLUTONIUM, AMERICIUM AND TECHNETIUM", Table 4-1,
-		     p. 81.
-             </source>
-           </entropy298>
-        </element>
-	<element name="Pu" atomicWt = "244.0482" atomicNumber = "94" >
-           <entropy298 value = "54.460E3">
-             <source>
-		     The standard entropy was taken from the OECD-NEA
-		     handbook (Guillaumont et al., 2003) "UPDATE ON THE 
-		     CHEMICAL THERMODYNAMICS OF URANIUM, NEPTUNIUM, 
-		     PLUTONIUM, AMERICIUM AND TECHNETIUM", Table 5-1,
-		     p. 99.
-             </source>
-           </entropy298>
-        </element>
-	<element name="E" atomicWt = "0.000545" atomicNumber = "0" >
+  <element name="E" atomicWt = "0.000548579909065" atomicNumber = "0" >
            <entropy298 value = "0.0E3">
              <source>
                 The entropy is zero so as not to overcount. The 1/2 H2(g) entropy
-                is handled elsewhere. 
+                is handled elsewhere.
              </source>
            </entropy298>
         </element>

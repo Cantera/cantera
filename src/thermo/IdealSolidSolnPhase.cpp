@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -25,8 +25,8 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(int formGC) :
     m_Pcurrent(OneAtm)
 {
     if (formGC < 0 || formGC > 2) {
-        throw CanteraError(" IdealSolidSolnPhase Constructor",
-                           " Illegal value of formGC");
+        throw CanteraError("IdealSolidSolnPhase::IdealSolidSolnPhase",
+                           "Illegal value of formGC");
     }
 }
 
@@ -37,8 +37,8 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(const std::string& inputFile,
     m_Pcurrent(OneAtm)
 {
     if (formGC < 0 || formGC > 2) {
-        throw CanteraError(" IdealSolidSolnPhase Constructor",
-                           " Illegal value of formGC");
+        throw CanteraError("IdealSolidSolnPhase::IdealSolidSolnPhase",
+                           "Illegal value of formGC");
     }
     initThermoFile(inputFile, id_);
 }
@@ -50,8 +50,8 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, const std::string& id_,
     m_Pcurrent(OneAtm)
 {
     if (formGC < 0 || formGC > 2) {
-        throw CanteraError(" IdealSolidSolnPhase Constructor",
-                           " Illegal value of formGC");
+        throw CanteraError("IdealSolidSolnPhase::IdealSolidSolnPhase",
+                           "Illegal value of formGC");
     }
     importPhase(root, this);
 }
@@ -89,8 +89,8 @@ void IdealSolidSolnPhase::calcDensity()
                          m_speciesMolarVolume.end(), dtmp);
 
     // Set the density in the parent State object directly, by calling the
-    // Phase::setDensity() function.
-    Phase::setDensity(1.0/invDens);
+    // Phase::assignDensity() function.
+    Phase::assignDensity(1.0/invDens);
 }
 
 void IdealSolidSolnPhase::setDensity(const doublereal rho)
@@ -98,7 +98,10 @@ void IdealSolidSolnPhase::setDensity(const doublereal rho)
     // Unless the input density is exactly equal to the density calculated and
     // stored in the State object, we throw an exception. This is because the
     // density is NOT an independent variable.
-    if (rho != density()) {
+    warn_deprecated("IdealSolidSolnPhase::setDensity",
+        "Overloaded function to be removed after Cantera 2.5. "
+        "Error will be thrown by Phase::setDensity instead");
+    if (std::abs(rho/density() - 1.0) > 1e-15) {
         throw CanteraError("IdealSolidSolnPhase::setDensity",
                            "Density is not an independent variable");
     }
@@ -112,6 +115,9 @@ void IdealSolidSolnPhase::setPressure(doublereal p)
 
 void IdealSolidSolnPhase::setMolarDensity(const doublereal n)
 {
+    warn_deprecated("IdealSolidSolnPhase::setMolarDensity",
+        "Overloaded function to be removed after Cantera 2.5. "
+        "Error will be thrown by Phase::setMolarDensity instead");
     throw CanteraError("IdealSolidSolnPhase::setMolarDensity",
                        "Density is not an independent variable");
 }
@@ -123,6 +129,16 @@ void IdealSolidSolnPhase::compositionChanged()
 }
 
 // Chemical Potentials and Activities
+
+Units IdealSolidSolnPhase::standardConcentrationUnits() const
+{
+    if (m_formGC == 0) {
+        return Units(1.0); // dimensionless
+    } else {
+        // kmol/m^3 for bulk phases
+        return Units(1.0, 0, -static_cast<double>(nDim()), 0, 0, 0, 1);
+    }
+}
 
 void IdealSolidSolnPhase::getActivityConcentrations(doublereal* c) const
 {
@@ -359,16 +375,41 @@ bool IdealSolidSolnPhase::addSpecies(shared_ptr<Species> spec)
         m_s0_R.push_back(0.0);
         m_pe.push_back(0.0);;
         m_pp.push_back(0.0);
-        if (spec->extra.hasKey("molar_volume")) {
+        if (spec->input.hasKey("equation-of-state")) {
+            auto& eos = spec->input["equation-of-state"].getMapWhere("model", "constant-volume");
+            double mv;
+            if (eos.hasKey("density")) {
+                mv = molecularWeight(m_kk-1) / eos.convert("density", "kg/m^3");
+            } else if (eos.hasKey("molar-density")) {
+                mv = 1.0 / eos.convert("molar-density", "kmol/m^3");
+            } else if (eos.hasKey("molar-volume")) {
+                mv = eos.convert("molar-volume", "m^3/kmol");
+            } else {
+                throw CanteraError("IdealSolidSolnPhase::addSpecies",
+                    "equation-of-state entry for species '{}' is missing "
+                    "'density', 'molar-volume', or 'molar-density' "
+                    "specification", spec->name);
+            }
+            m_speciesMolarVolume.push_back(mv);
+        } else if (spec->extra.hasKey("molar_volume")) {
+            // From XML
             m_speciesMolarVolume.push_back(spec->extra["molar_volume"].asDouble());
         } else {
             throw CanteraError("IdealSolidSolnPhase::addSpecies",
                 "Molar volume not specified for species '{}'", spec->name);
         }
+        calcDensity();
     }
     return added;
 }
 
+void IdealSolidSolnPhase::initThermo()
+{
+   if (m_input.hasKey("standard-concentration-basis")) {
+        setStandardConcentrationModel(m_input["standard-concentration-basis"].asString());
+    }
+    ThermoPhase::initThermo();
+}
 
 void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
@@ -406,30 +447,39 @@ void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& 
     ThermoPhase::initThermoXML(phaseNode, id_);
 }
 
-void IdealSolidSolnPhase::setToEquilState(const doublereal* lambda_RT)
+void IdealSolidSolnPhase::setToEquilState(const doublereal* mu_RT)
 {
     const vector_fp& grt = gibbs_RT_ref();
 
-    // set the pressure and composition to be consistent with the temperature
     doublereal pres = 0.0;
+    double m_p0 = refPressure();
     for (size_t k = 0; k < m_kk; k++) {
-        m_pp[k] = -grt[k];
-        for (size_t m = 0; m < nElements(); m++) {
-            m_pp[k] += nAtoms(k,m)*lambda_RT[m];
+        double tmp = -grt[k] + mu_RT[k];
+        if (tmp < -600.) {
+            m_pp[k] = 0.0;
+        } else if (tmp > 500.0) {
+            // Protect against inf results if the exponent is too high
+            double tmp2 = tmp / 500.;
+            tmp2 *= tmp2;
+            m_pp[k] = m_p0 * exp(500.) * tmp2;
+        } else {
+            m_pp[k] = m_p0 * exp(tmp);
         }
-        m_pp[k] = m_Pref * exp(m_pp[k]);
         pres += m_pp[k];
     }
-    setState_PX(pres, &m_pp[0]);
+    // set state
+    setState_PX(pres, m_pp.data());
 }
 
 void IdealSolidSolnPhase::setStandardConcentrationModel(const std::string& model)
 {
     if (caseInsensitiveEquals(model, "unity")) {
         m_formGC = 0;
-    } else if (caseInsensitiveEquals(model, "molar_volume")) {
+    } else if (caseInsensitiveEquals(model, "species-molar-volume")
+               || caseInsensitiveEquals(model, "molar_volume")) {
         m_formGC = 1;
-    } else if (caseInsensitiveEquals(model, "solvent_volume")) {
+    } else if (caseInsensitiveEquals(model, "solvent-molar-volume")
+               || caseInsensitiveEquals(model, "solvent_volume")) {
         m_formGC = 2;
     } else {
         throw CanteraError("IdealSolidSolnPhase::setStandardConcentrationModel",

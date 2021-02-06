@@ -7,7 +7,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/PDSS_HKFT.h"
@@ -236,6 +236,31 @@ void PDSS_HKFT::setState_TP(doublereal temp, doublereal pres)
 void PDSS_HKFT::initThermo()
 {
     PDSS::initThermo();
+    if (m_input.hasKey("h0")) {
+        m_deltaH_formation_tr_pr = m_input.convert("h0", "cal/gmol");
+    }
+    if (m_input.hasKey("g0")) {
+        m_deltaG_formation_tr_pr = m_input.convert("g0", "cal/gmol");
+    }
+    if (m_input.hasKey("s0")) {
+        m_Entrop_tr_pr = m_input.convert("s0", "cal/gmol/K");
+    }
+    auto& units = m_input.units();
+    if (m_input.hasKey("a")) {
+        auto& a = m_input["a"].asVector<AnyValue>(4);
+        m_a1 = units.convert(a[0], "cal/gmol/bar");
+        m_a2 = units.convert(a[1], "cal/gmol");
+        m_a3 = units.convert(a[2], "cal*K/gmol/bar");
+        m_a4 = units.convert(a[3], "cal*K/gmol");
+    }
+    if (m_input.hasKey("c")) {
+        auto& c = m_input["c"].asVector<AnyValue>(2);
+        m_c1 = units.convert(c[0], "cal/gmol/K");
+        m_c2 = units.convert(c[1], "cal*K/gmol");
+    }
+    if (m_input.hasKey("omega")) {
+        m_omega_pr_tr = m_input.convert("omega", "cal/gmol");
+    }
 
     // Ok, if we are missing one, then we construct its value from the other two.
     // This code has been internally verified.
@@ -285,14 +310,15 @@ void PDSS_HKFT::initThermo()
     if (fabs(Hcalc -DHjmol) > 100.* toSI("cal/gmol")) {
         std::string sname = m_tp->speciesName(m_spindex);
         if (s_InputInconsistencyErrorExit) {
-            throw CanteraError("PDSS_HKFT::initThermo()", "For {}, DHjmol is"
+            throw CanteraError("PDSS_HKFT::initThermo", "For {}, DHjmol is"
                 " not consistent with G and S: {} vs {} cal gmol-1",
                 sname, Hcalc/toSI("cal/gmol"), m_deltaH_formation_tr_pr);
         } else {
-            writelog("PDSS_HKFT::initThermo() WARNING: DHjmol for {} is not"
-                " consistent with G and S: calculated {} vs input {} cal gmol-1",
-                sname, Hcalc/toSI("cal/gmol"), m_deltaH_formation_tr_pr);
-            writelog("                                : continuing with consistent DHjmol = {}", Hcalc/toSI("cal/gmol"));
+            warn_user("PDSS_HKFT::initThermo",
+                "DHjmol for {} is not consistent with G and S: calculated {} "
+                "vs input {} cal gmol-1; continuing with consistent DHjmol = {}",
+                sname, Hcalc/toSI("cal/gmol"), m_deltaH_formation_tr_pr,
+                Hcalc/toSI("cal/gmol"));
             m_deltaH_formation_tr_pr = Hcalc / toSI("cal/gmol");
         }
     }
@@ -353,18 +379,18 @@ void PDSS_HKFT::setParametersFromXML(const XML_Node& speciesNode)
 
     const XML_Node* tn = speciesNode.findByName("thermo");
     if (!tn) {
-        throw CanteraError("PDSS_HKFT::constructPDSSXML",
-                           "no thermo Node for species " + speciesNode.name());
+        throw CanteraError("PDSS_HKFT::setParametersFromXML",
+                           "no thermo Node for species '{}'", speciesNode.name());
     }
     if (!caseInsensitiveEquals(tn->attrib("model"), "hkft")) {
-        throw CanteraError("PDSS_HKFT::initThermoXML",
-                           "thermo model for species isn't hkft: "
-                           + speciesNode.name());
+        throw CanteraError("PDSS_HKFT::setParametersFromXML",
+                           "thermo model for species '{}' isn't 'hkft'",
+                           speciesNode.name());
     }
     const XML_Node* hh = tn->findByName("HKFT");
     if (!hh) {
-        throw CanteraError("PDSS_HKFT::constructPDSSXML",
-                           "no Thermo::HKFT Node for species " + speciesNode.name());
+        throw CanteraError("PDSS_HKFT::setParametersFromXML",
+                           "no Thermo::HKFT Node for species '{}'", speciesNode.name());
     }
 
     // go get the attributes
@@ -401,13 +427,14 @@ void PDSS_HKFT::setParametersFromXML(const XML_Node& speciesNode)
 
     const XML_Node* ss = speciesNode.findByName("standardState");
     if (!ss) {
-        throw CanteraError("PDSS_HKFT::constructPDSSXML",
-                           "no standardState Node for species " + speciesNode.name());
+        throw CanteraError("PDSS_HKFT::setParametersFromXML",
+                           "no 'standardState' Node for species '{}'",
+                           speciesNode.name());
     }
     if (!caseInsensitiveEquals(ss->attrib("model"), "hkft")) {
-        throw CanteraError("PDSS_HKFT::initThermoXML",
-                           "standardState model for species isn't hkft: "
-                           + speciesNode.name());
+        throw CanteraError("PDSS_HKFT::setParametersFromXML",
+                           "standardState model for species '{}' isn't 'hkft'",
+                           speciesNode.name());
     }
     double a[4] = {getFloat(*ss, "a1", "toSI"), getFloat(*ss, "a2", "toSI"),
                    getFloat(*ss, "a3", "toSI"), getFloat(*ss, "a4", "toSI")};
@@ -420,7 +447,7 @@ void PDSS_HKFT::setParametersFromXML(const XML_Node& speciesNode)
 
     int isum = hasDGO + hasDHO + hasSO;
     if (isum < 2) {
-        throw CanteraError("PDSS_HKFT::constructPDSSXML",
+        throw CanteraError("PDSS_HKFT::setParametersFromXML",
                            "Missing 2 or more of DG0_f_Pr_Tr, DH0_f_Pr_Tr, or S0_f_Pr_Tr fields. "
                            "Need to supply at least two of these fields");
     }
@@ -608,7 +635,7 @@ doublereal PDSS_HKFT::f(const doublereal temp, const doublereal pres, const int 
         fac2 = - (3.0 * af_coeff[1] * p2 + 4.0 * af_coeff[2] * p3)/ 1.0E5;
         return fac1 * fac2;
     } else {
-        throw CanteraError("HKFT_PDSS::gg", "unimplemented");
+        throw NotImplementedError("PDSS_HKFT::f");
     }
 }
 
@@ -660,7 +687,7 @@ doublereal PDSS_HKFT::g(const doublereal temp, const doublereal pres, const int 
         doublereal beta = m_waterSS->isothermalCompressibility();
         return - bfunc * gval * dens * beta / (1.0 - dens);
     } else {
-        throw CanteraError("HKFT_PDSS::g", "unimplemented");
+        throw NotImplementedError("PDSS_HKFT::g");
     }
     return 0.0;
 }

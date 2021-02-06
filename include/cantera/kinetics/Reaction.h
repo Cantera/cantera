@@ -3,12 +3,13 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_REACTION_H
 #define CT_REACTION_H
 
 #include "cantera/base/utilities.h"
+#include "cantera/base/AnyMap.h"
 #include "cantera/kinetics/RxnRates.h"
 #include "cantera/kinetics/Falloff.h"
 
@@ -71,6 +72,9 @@ public:
 
     //! True if negative reaction orders are allowed. Default is `false`.
     bool allow_negative_orders;
+
+    //! Input data used for specific models
+    AnyMap input;
 };
 
 
@@ -148,6 +152,8 @@ public:
     //! Falloff function which determines how low_rate and high_rate are
     //! combined to determine the rate constant for the reaction.
     shared_ptr<Falloff> falloff;
+
+    bool allow_negative_pre_exponential_factor;
 };
 
 //! A reaction where the rate decreases as pressure increases due to collisional
@@ -192,14 +198,14 @@ public:
 struct CoverageDependency
 {
     //! Constructor
-    //! @param a_  modification to the pre-exponential factor [m, kmol, s units]
+    //! @param a_  coefficient for exponential dependence on coverage [dimensionless]
     //! @param E_  modification to the activation energy [K]
-    //! @param m_  modification to the temperature exponent
+    //! @param m_  exponent for power law dependence on coverage [dimensionless]
     CoverageDependency(double a_, double E_, double m_) : a(a_), E(E_), m(m_) {}
     CoverageDependency() {}
-    double a; //!< modification to the pre-exponential factor [m, kmol, s units]
+    double a; //!< coefficient for exponential dependence on coverage [dimensionless]
     double E; //!< modification to the activation energy [K]
-    double m; //!< modification to the temperature exponent
+    double m; //!< exponent for power law dependence on coverage [dimensionless]
 };
 
 //! A reaction occurring on an interface (i.e. a SurfPhase or an EdgePhase)
@@ -245,6 +251,7 @@ public:
      *  add an electrical resistance to the formulation. The resistance modifies
      *  the electrical current flow in both directions. Only valid for Butler-
      *  Volmer formulations. Units are in ohms m2. Default = 0.0 ohms m2.
+     *  @deprecated Unused. To be removed after Cantera 2.5.
      */
     doublereal film_resistivity;
 
@@ -255,7 +262,13 @@ public:
 };
 
 //! Create a new Reaction object for the reaction defined in `rxn_node`
+//!
+//! @deprecated The XML input format is deprecated and will be removed in
+//!     Cantera 3.0.
 shared_ptr<Reaction> newReaction(const XML_Node& rxn_node);
+
+//! Create a new Reaction object using the specified parameters
+unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin);
 
 //! Create Reaction objects for all `<reaction>` nodes in an XML document.
 //!
@@ -275,8 +288,16 @@ shared_ptr<Reaction> newReaction(const XML_Node& rxn_node);
 //!   - The rate constants are expressed in (kmol, meter, second) units
 //!   - A `units` directive is included **and** all reactions take place in
 //!     bulk (e.g. gas) phases
+//!
+//! @deprecated The XML input format is deprecated and will be removed in
+//!     Cantera 3.0.
 std::vector<shared_ptr<Reaction> > getReactions(const XML_Node& node);
 
+//! Create Reaction objects for each item (an AnyMap) in `items`. The species
+//! involved in these reactions must exist in the phases associated with the
+//! Kinetics object `kinetics`.
+std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
+                                               Kinetics& kinetics);
 }
 
 #endif

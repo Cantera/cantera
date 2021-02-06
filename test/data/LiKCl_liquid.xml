@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+
+  <!-- phase KLiCl(L)    -->
+  <!--
+         Ok, the eutectic is measured to be X_b = X_LiCl = 0.595
+         and 355 C = 628.15
+    -->
+  <phase dim="3" id="MoltenSalt_electrolyte">
+    <elementArray datasrc="elements.xml">
+       Li K Cl
+    </elementArray>
+    <speciesArray datasrc="#species_MoltenSalt">
+        LiCl(L) KCl(L)
+    </speciesArray>
+    <thermo model="Margules">
+      <!--
+       <variablePressureStandardStateManager model="constvol" />
+     -->
+      <standardConc model="constant_volume" />
+      <activityCoefficients model="Margules" TempModel="constant">
+
+        <binaryNeutralSpeciesParameters speciesA="KCl(L)" speciesB="LiCl(L)">
+          <excessEnthalpy model="poly_Xb" terms="2" units="J/gmol">
+                  -17570., -377
+          </excessEnthalpy>
+          <excessEntropy model="poly_Xb" terms="2" units="J/gmol/K">
+                 -7.627, 4.958
+          </excessEntropy>
+        </binaryNeutralSpeciesParameters>
+
+      </activityCoefficients>
+    </thermo>
+    <transport model="None"/>
+    <kinetics model="none"/>
+  </phase>
+
+  <!-- species definitions     -->
+  <speciesData id="species_MoltenSalt">
+
+
+    <species name="Li+">
+      <atomArray> Li:1 </atomArray>
+      <charge> 1 </charge>
+      <specialSpecies/>
+      <thermo>
+        <pseudoSpecies>
+            LiCl(L)
+        </pseudoSpecies>
+        <Shomate Pref="1 bar" Tmax="2000.0" Tmin="700.0">
+          <floatArray size="7">
+             0.0, 0.0, 0.0,
+             0.0, 0.0, 0.0,
+             0.0
+          </floatArray>
+        </Shomate>
+      </thermo>
+      <density units="g/cm3"> 0.0 </density>
+    </species>
+
+
+
+    <species name="K+">
+      <atomArray> K:1 </atomArray>
+      <charge> 1 </charge>
+      <thermo>
+        <pseudoSpecies>
+            KCl(L)
+        </pseudoSpecies>
+      </thermo>
+      <density units="g/cm3"> 0.0 </density>
+    </species>
+
+
+
+    <species name="Cl-">
+      <atomArray> Cl- </atomArray>
+      <charge> -1 </charge>
+      <thermo>
+        <pseudoSpecies>
+            LiCl(L)
+        </pseudoSpecies>
+      </thermo>
+      <density units="g/cm3"> 0.0 </density>
+    </species>
+
+
+
+    <species name="KCl(L)">
+      <atomArray> K:1 Cl:1 </atomArray>
+      <thermo>
+        <Shomate Pref="1 bar" Tmax="2000.0" Tmin="700.0">
+          <floatArray size="7">
+           73.59698,  0.0,      0.0,
+           0.0,       0.0,      -443.7341,
+           175.7209
+          </floatArray>
+        </Shomate>
+      </thermo>
+      <standardState model="constant_incompressible">
+        <molarVolume units="cm3/gmol"> 37.57 </molarVolume>
+        <!--
+        <density units="g/cm3"> 1.984 </density>
+        -->
+      </standardState>
+    </species>
+
+    <species name="LiCl(L)">
+      <atomArray> Li:1 Cl:1 </atomArray>
+      <thermo>
+        <Shomate Pref="1 bar" Tmax="2000.0" Tmin="700.0">
+          <floatArray size="7">
+           73.18025, -9.047232, -0.316390,
+           0.079587, 0.013594, -417.1314,
+           157.6711
+          </floatArray>
+        </Shomate>
+      </thermo>
+      <standardState model="constant_incompressible">
+        <molarVolume units="cm3/gmol"> 20.304 </molarVolume>
+        <!--
+        <density units="g/cm3"> 2.07 </density>
+         -->
+      </standardState>
+    </species>
+
+
+
+  </speciesData>
+
+</ctml>

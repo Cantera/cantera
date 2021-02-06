@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/xml.h"
 #include "cantera/thermo/PureFluidPhase.h"
@@ -23,7 +23,7 @@ namespace Cantera
 {
 
 PureFluidPhase::PureFluidPhase() :
-    m_subflag(0),
+    m_subflag(-1),
     m_mw(-1.0),
     m_verbose(false)
 {
@@ -31,19 +31,19 @@ PureFluidPhase::PureFluidPhase() :
 
 void PureFluidPhase::initThermo()
 {
+    if (m_input.hasKey("pure-fluid-name")) {
+        setSubstance(m_input["pure-fluid-name"].asString());
+    }
+
     if (m_tpx_name != "") {
         m_sub.reset(tpx::newSubstance(m_tpx_name));
     } else {
         m_sub.reset(tpx::GetSub(m_subflag));
     }
-    if (!m_sub) {
-        throw CanteraError("PureFluidPhase::initThermo",
-                           "could not create new substance object.");
-    }
+
     m_mw = m_sub->MolWt();
     setMolecularWeight(0,m_mw);
-    double one = 1.0;
-    setMoleFractions(&one);
+
     double cp0_R, h0_RT, s0_R, p;
     double T0 = 298.15;
     if (T0 < m_sub->Tcrit()) {
@@ -60,7 +60,7 @@ void PureFluidPhase::initThermo()
     m_sub->setStdState(h0_RT*GasConstant*298.15/m_mw,
                        s_R*GasConstant/m_mw, T0, p);
     debuglog("PureFluidPhase::initThermo: initialized phase "
-             +id()+"\n", m_verbose);
+             +name()+"\n", m_verbose);
 }
 
 void PureFluidPhase::setParametersFromXML(const XML_Node& eosdata)
@@ -70,6 +70,30 @@ void PureFluidPhase::setParametersFromXML(const XML_Node& eosdata)
     if (m_subflag < 0) {
         throw CanteraError("PureFluidPhase::setParametersFromXML",
                            "missing or negative substance flag");
+    }
+}
+
+std::vector<std::string> PureFluidPhase::fullStates() const
+{
+    return {"TD", "UV", "DP", "HP", "SP", "SV",
+            "ST", "TV", "PV", "UP", "VH", "TH", "SH", "TPQ"};
+}
+
+std::vector<std::string> PureFluidPhase::partialStates() const
+{
+    return {"TP", "TQ", "PQ"};
+}
+
+std::string PureFluidPhase::phaseOfMatter() const
+{
+    if (temperature() >= critTemperature() || pressure() >= critPressure()) {
+        return "supercritical";
+    } else if (m_sub->TwoPhase() == 1) {
+        return "liquid-gas-mix";
+    } else if (pressure() < m_sub->Ps()) {
+        return "gas";
+    } else {
+        return "liquid";
     }
 }
 
@@ -179,6 +203,11 @@ void PureFluidPhase::getPartialMolarCp(doublereal* cpbar) const
 void PureFluidPhase::getPartialMolarVolumes(doublereal* vbar) const
 {
     vbar[0] = 1.0 / molarDensity();
+}
+
+Units PureFluidPhase::standardConcentrationUnits() const
+{
+    return Units(1.0);
 }
 
 void PureFluidPhase::getActivityConcentrations(doublereal* c) const
@@ -376,41 +405,57 @@ void PureFluidPhase::setState_Psat(doublereal p, doublereal x)
 std::string PureFluidPhase::report(bool show_thermo, doublereal threshold) const
 {
     fmt::memory_buffer b;
+    // This is the width of the first column of names in the report.
+    int name_width = 18;
+
+    string blank_leader = fmt::format("{:{}}", "", name_width);
+
+    string one_property = "{:>{}}   {:<.5g} {}\n";
+
+    string two_prop_header = "{}   {:^15}   {:^15}\n";
+    string kg_kmol_header = fmt::format(
+        two_prop_header, blank_leader, "1 kg", "1 kmol"
+    );
+    string Y_X_header = fmt::format(
+        two_prop_header, blank_leader, "mass frac. Y", "mole frac. X"
+    );
+    string two_prop_sep = fmt::format(
+        "{}   {:-^15}   {:-^15}\n", blank_leader, "", ""
+    );
+    string two_property = "{:>{}}   {:15.5g}   {:15.5g}  {}\n";
+
+    string three_prop_header = fmt::format(
+        "{}   {:^15}   {:^15}   {:^15}\n", blank_leader, "mass frac. Y",
+        "mole frac. X", "chem. pot. / RT"
+    );
+    string three_prop_sep = fmt::format(
+        "{}   {:-^15}   {:-^15}   {:-^15}\n", blank_leader, "", "", ""
+    );
+    string three_property = "{:>{}}   {:15.5g}   {:15.5g}   {:15.5g}\n";
+
     if (name() != "") {
         format_to(b, "\n  {}:\n", name());
     }
     format_to(b, "\n");
-    format_to(b, "       temperature    {:12.6g}  K\n", temperature());
-    format_to(b, "          pressure    {:12.6g}  Pa\n", pressure());
-    format_to(b, "           density    {:12.6g}  kg/m^3\n", density());
-    format_to(b, "  mean mol. weight    {:12.6g}  amu\n", meanMolecularWeight());
-    format_to(b, "    vapor fraction    {:12.6g}\n", vaporFraction());
+    format_to(b, one_property, "temperature", name_width, temperature(), "K");
+    format_to(b, one_property, "pressure", name_width, pressure(), "Pa");
+    format_to(b, one_property, "density", name_width, density(), "kg/m^3");
+    format_to(b, one_property, "mean mol. weight", name_width, meanMolecularWeight(), "kg/kmol");
+    format_to(b, "{:>{}}   {:<.5g}\n", "vapor fraction", name_width, vaporFraction());
+    format_to(b, "{:>{}}   {}\n", "phase of matter", name_width, phaseOfMatter());
 
-    doublereal phi = electricPotential();
-    if (phi != 0.0) {
-        format_to(b, "         potential    {:12.6g}  V\n", phi);
-    }
     if (show_thermo) {
         format_to(b, "\n");
-        format_to(b, "                          1 kg            1 kmol\n");
-        format_to(b, "                       -----------      ------------\n");
-        format_to(b, "          enthalpy    {:12.6g}     {:12.4g}     J\n",
-                enthalpy_mass(), enthalpy_mole());
-        format_to(b, "   internal energy    {:12.6g}     {:12.4g}     J\n",
-                intEnergy_mass(), intEnergy_mole());
-        format_to(b, "           entropy    {:12.6g}     {:12.4g}     J/K\n",
-                entropy_mass(), entropy_mole());
-        format_to(b, "    Gibbs function    {:12.6g}     {:12.4g}     J\n",
-                gibbs_mass(), gibbs_mole());
-        format_to(b, " heat capacity c_p    {:12.6g}     {:12.4g}     J/K\n",
-                cp_mass(), cp_mole());
-        try {
-            format_to(b, " heat capacity c_v    {:12.6g}     {:12.4g}     J/K\n",
-                    cv_mass(), cv_mole());
-        } catch (NotImplementedError&) {
-            format_to(b, " heat capacity c_v    <not implemented>\n");
-        }
+        format_to(b, kg_kmol_header);
+        format_to(b, two_prop_sep);
+        format_to(b, two_property, "enthalpy", name_width, enthalpy_mass(), enthalpy_mole(), "J");
+        format_to(b, two_property, "internal energy", name_width, intEnergy_mass(), intEnergy_mole(), "J");
+        format_to(b, two_property, "entropy", name_width, entropy_mass(), entropy_mole(), "J/K");
+        format_to(b, two_property, "Gibbs function", name_width, gibbs_mass(), gibbs_mole(), "J");
+        format_to(b, two_property, "heat capacity c_p", name_width, cp_mass(), cp_mole(), "J/K");
+        format_to(b, two_property, "heat capacity c_v", name_width, cv_mass(), cv_mole(), "J/K");
     }
+
     return to_string(b);
 }
 

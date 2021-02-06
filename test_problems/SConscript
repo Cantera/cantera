@@ -19,20 +19,8 @@ if localenv['OS'] == 'Linux':
 else:
     cantera_libs = localenv['cantera_libs']
 
-if localenv['python2_package'] in ('full', 'minimal'):
-    localenv['ENV']['PYTHONPATH'] = localenv['pythonpath_build2']
-    localenv['ENV']['PYTHON_CMD'] = localenv.subst('$python2_cmd')
-    haveConverters = True
-elif localenv['python3_package'] in ('full', 'minimal'):
-    localenv['ENV']['PYTHONPATH'] = localenv['pythonpath_build3']
-    localenv['ENV']['PYTHON_CMD'] = localenv.subst('$python3_cmd')
-    haveConverters = True
-else:
-    localenv['ENV']['PYTHONPATH'] = '../../build/python_minimal'
-    localenv['ENV']['PYTHON_CMD'] = localenv.subst('$python_cmd')
-    haveConverters = True
-
-localenv['ENV']['CANTERA_DATA'] = pjoin(os.getcwd(), '..', 'build', 'data')
+localenv['ENV']['CANTERA_DATA'] = (Dir('#build/data').abspath + os.pathsep +
+                                   Dir('#test/data').abspath)
 
 # Add build/lib in order to find Cantera shared library
 if env['OS'] == 'Windows' or env['OS'] == 'Cygwin':
@@ -47,36 +35,48 @@ PASSED_FILES = {}
 
 
 class Test(object):
-    _validArgs = set(['arguments', 'options', 'artifacts', 'comparisons',
-                      'tolerance', 'threshold', 'ignoreLines', 'extensions',
-                      'dependencies'])
-
-    def __init__(self, testName, subdir, programName, blessedName, **kwargs):
-        assert set(kwargs.keys()) <= self._validArgs, kwargs.keys()
-        self.subdir = subdir
-        self.programName = programName
-        arguments = kwargs.get('arguments') or []
+    def __init__(self, testName, subdir=None, programName=None,
+                 blessedName='output_blessed.txt', arguments=(), options='',
+                 artifacts=(), comparisons=(), profiles=(), ignoreLines=(),
+                 tolerance=1e-5, threshold=1e-14,
+                 dependencies=(), source_files=()):
+        self.subdir = subdir or testName
+        self.programName = programName or testName
         if isinstance(arguments, str):
             arguments = [arguments]
-        self.arguments = arguments # file arguments
-        self.options = kwargs.get('options') or ''
         self.blessedName = blessedName
-        self.artifacts = kwargs.get('artifacts') or ()
+        self.artifacts = artifacts
         if isinstance(self.artifacts, str):
             self.artifacts = [self.artifacts]
-        self.comparisons = kwargs.get('comparisons') or ()
-        self.tolerance = kwargs.get('tolerance') or 1e-5 # error tolerance for CSV comparison
-        self.threshold = kwargs.get('threshold') or 1e-14 # error threshold for CSV comparison
-
-        # ignore lines starting with specified strings when comparing output files
-        self.ignoreLines = kwargs.get('ignoreLines') or []
+        self.comparisons = comparisons
+        self.profiles = profiles
+        self.tolerance = tolerance  # error tolerance for CSV comparison
+        self.threshold = threshold  # error threshold for CSV comparison
+        self.source_files = source_files
 
         self.testName = testName
         self.passedFile = '.passed-%s' % testName
         PASSED_FILES[self.testName] = pjoin(self.subdir, self.passedFile)
 
         testResults.tests[self.testName] = self
-        run = self.run(localenv)
+
+        if source_files:
+            self.program = localenv.Program(
+                pjoin(self.subdir, self.programName), source_files,
+                LIBS=self.libs or cantera_libs)
+        else:
+            if isinstance(self.programName, str):
+                self.programName += '$PROGSUFFIX'
+            self.program = [self.programName]
+        command = self.program + [pjoin(self.subdir, arg) for arg in arguments]
+
+        run = localenv.RegressionTest(pjoin(self.subdir, self.passedFile),
+            command, active_test_name=testName,
+            test_blessed_file=blessedName, test_command_options=options,
+            test_comparisons=comparisons, test_profiles=profiles,
+            test_csv_threshold=threshold, test_csv_tolerance=tolerance,
+            test_ignoreLines=ignoreLines)
+
         localenv.Depends(env['test_results'], run)
         localenv.Depends(run, env['build_targets'])
         localenv.Alias('test-clean', self.clean(localenv))
@@ -86,45 +86,29 @@ class Test(object):
         # reset: just delete the ".passed" file so that this test will be re-run
         localenv.Alias('test-reset', self.reset(localenv))
 
-        for dep in kwargs.get('dependencies', []):
+        for dep in dependencies:
             localenv.Depends(run, dep)
         env.Depends(run, localenv.get('cantera_shlib', ()))
 
-    def run(self, env, *args):
-        source = list(args)
-        if not source:
-            source.append(self.programName)
-
-        source.extend(pjoin(self.subdir, arg) for arg in self.arguments)
-
-        test = env.RegressionTest(pjoin(self.subdir, self.passedFile), source,
-                                  active_test_name=self.testName,
-                                  test_blessed_file=self.blessedName,
-                                  test_command_options=self.options,
-                                  test_comparisons=self.comparisons,
-                                  test_csv_threshold=self.threshold,
-                                  test_csv_tolerance=self.tolerance,
-                                  test_ignoreLines=self.ignoreLines)
-        return test
-
-    def reset(self, env, **kwargs):
+    def reset(self, env):
         f = pjoin(os.getcwd(), self.subdir, self.passedFile)
         if os.path.exists(f):
             uniqueName = 'reset-%s' % self.testName
             target = env.Command(uniqueName, [], [Delete(f)])
             return target
 
-    def clean(self, env, **kwargs):
+    def clean(self, env, files=None):
         # Name used for the output file
         if self.blessedName is not None and 'blessed' in self.blessedName:
             outName = self.blessedName.replace('blessed', 'output')
         else:
             outName = 'test_output.txt'
 
-        files = kwargs.get('files') or []
+        files = files or []
         files += [self.passedFile, outName]
         files += list(self.artifacts)
         files += [comp[1] for comp in self.comparisons]
+        files += [comp[1] for comp in self.profiles]
         files = [pjoin(os.getcwd(), self.subdir, name) for name in files]
 
         uniqueName = 'clean-%s-' % self.testName
@@ -134,128 +118,87 @@ class Test(object):
         return target
 
 class CompileAndTest(Test):
-    def __init__(self, testName, subdir, programName, blessedName, libs=(),
+    def __init__(self, testName, subdir=None, programName=None,
+                 blessedName='output_blessed.txt', libs=(), extensions=('cpp',),
                  **kwargs):
-        self.extensions = kwargs.get('extensions') or ('cpp',)
         self.libs = list(libs)
-        Test.__init__(self, testName, subdir, programName, blessedName, **kwargs)
-
-    def run(self, env):
-        prog = env.Program(pjoin(self.subdir, self.programName),
-                           mglob(env, self.subdir, *self.extensions),
-                           LIBS=self.libs or cantera_libs)
-        source = [prog]
-        return Test.run(self, env, *source)
+        sources = mglob(env, subdir or testName, *extensions)
+        Test.__init__(self, testName, subdir, programName, blessedName,
+                      source_files=sources, **kwargs)
 
     def clean(self, env):
-        files = [self.programName + ext
-                 for ext in ['', '.o', '.exe', '.exe.manifest', '.ilk',
-                             '.obj', '.pdb']]
+        basenames = [os.path.splitext(f.name)[0] for f in self.source_files]
+        basenames.append(self.programName)
+        exts = ['', '.o', '.exe', '.exe.manifest', '.ilk', '.obj', '.pdb', '.obj.pdb']
+        files = [name + ext for name in set(basenames) for ext in exts]
         return Test.clean(self, env, files=files)
 
 
-dhGraph = localenv.Program('cathermo/DH_graph_1/DH_graph_1',
-                           mglob(env, 'cathermo/DH_graph_1', 'cpp'),
-                           LIBS=cantera_libs)
-dhGraph_name = dhGraph[0].name
-
-Test('DH_graph_dilute', 'cathermo/DH_graph_1',
-     dhGraph, 'DH_NaCl_dilute_blessed.csv',
-     artifacts=['DH_graph_1.log', dhGraph_name],
-     arguments='DH_NaCl_dilute.xml')
+dhGraph = CompileAndTest('DH_graph_dilute', 'cathermo/DH_graph_1', 'DH_graph_1',
+               'DH_NaCl_dilute_blessed.csv',
+               artifacts=['DH_graph_1.log'],
+               arguments='DH_NaCl_dilute.xml')
 Test('DH_graph_acommon', 'cathermo/DH_graph_1',
-     dhGraph, 'DH_NaCl_acommon_blessed.csv',
-     artifacts=['DH_graph_1.log', dhGraph_name],
+     dhGraph.program, 'DH_NaCl_acommon_blessed.csv',
+     artifacts=['DH_graph_1.log'],
      arguments='DH_NaCl_acommon.xml')
 Test('DH_graph_bdotak', 'cathermo/DH_graph_1',
-     dhGraph, 'DH_NaCl_bdotak_blessed.csv',
-     artifacts=['DH_graph_1.log', dhGraph_name],
+     dhGraph.program, 'DH_NaCl_bdotak_blessed.csv',
+     artifacts=['DH_graph_1.log'],
      arguments='DH_NaCl_bdotak.xml')
 Test('DH_graph_NM', 'cathermo/DH_graph_1',
-     dhGraph, 'DH_NaCl_NM_blessed.csv',
-     artifacts=['DH_graph_1.log', dhGraph_name],
+     dhGraph.program, 'DH_NaCl_NM_blessed.csv',
+     artifacts=['DH_graph_1.log'],
      arguments='DH_NaCl_NM.xml')
 Test('DH_graph_Pitzer', 'cathermo/DH_graph_1',
-     dhGraph, 'DH_NaCl_Pitzer_blessed.csv',
-     artifacts=['DH_graph_1.log', dhGraph_name],
+     dhGraph.program, 'DH_NaCl_Pitzer_blessed.csv',
+     artifacts=['DH_graph_1.log'],
      arguments='DH_NaCl_Pitzer.xml')
 
 CompileAndTest('HMW_graph_CpvT', 'cathermo/HMW_graph_CpvT',
-               'HMW_graph_CpvT', 'output_blessed.txt',
                extensions=['^HMW_graph_CpvT.cpp'],
-               arguments='HMW_NaCl_sp1977_alt.xml')
+               arguments=File('#test/data/HMW_NaCl_sp1977_alt.xml').abspath)
 CompileAndTest('HMW_graph_GvI', 'cathermo/HMW_graph_GvI',
-               'HMW_graph_GvI', None,
+               blessedName=None,
                comparisons=[('T298_blessed.csv', 'T298.csv'),
                             ('T523_blessed.csv', 'T523.csv')],
                artifacts=['T373.csv','T423.csv','T473.csv',
                           'T548.csv','T573.csv'])
 CompileAndTest('HMW_graph_GvT', 'cathermo/HMW_graph_GvT',
-               'HMW_graph_GvT', 'output_blessed.txt',
                extensions=['^HMW_graph_GvT.cpp'],
-               arguments='HMW_NaCl_sp1977_alt.xml')
+               arguments=File('#test/data/HMW_NaCl_sp1977_alt.xml').abspath)
 CompileAndTest('HMW_graph_HvT', 'cathermo/HMW_graph_HvT',
-               'HMW_graph_HvT', 'output_blessed.txt',
                extensions=['^HMW_graph_HvT.cpp'],
-               arguments='HMW_NaCl_sp1977_alt.xml')
+               arguments=File('#test/data/HMW_NaCl_sp1977_alt.xml').abspath)
 CompileAndTest('HMW_graph_VvT', 'cathermo/HMW_graph_VvT',
-               'HMW_graph_VvT', 'output_blessed.txt',
                extensions=['^HMW_graph_VvT.cpp'],
-               arguments='HMW_NaCl_sp1977_alt.xml')
+               arguments=File('#test/data/HMW_NaCl_sp1977_alt.xml').abspath)
 CompileAndTest('HMW_test_1', 'cathermo/HMW_test_1',
-               'HMW_test_1', 'output_noD_blessed.txt')
+               blessedName='output_noD_blessed.txt')
 CompileAndTest('HMW_test_3', 'cathermo/HMW_test_3',
-               'HMW_test_3', 'output_noD_blessed.txt')
-CompileAndTest('IMSTester', 'cathermo/ims', 'IMSTester', 'output_blessed.txt')
-CompileAndTest('ISSPTester', 'cathermo/issp', 'ISSPTester', 'output_blessed.txt')
-CompileAndTest('stoichSub', 'cathermo/stoichSub',
-               'stoichSub', 'output_blessed.txt')
-CompileAndTest('WaterPDSS', 'cathermo/testWaterPDSS',
-               'testWaterPDSS', 'output_blessed.txt')
-CompileAndTest('WaterSSTP', 'cathermo/testWaterTP',
-               'testWaterSSTP', 'output_blessed.txt')
-CompileAndTest('ISSPTester2', 'cathermo/VPissp',
-               'ISSPTester2', 'output_blessed.txt')
-CompileAndTest('wtWater', 'cathermo/wtWater',
-               'wtWater', 'output_blessed.txt')
+               blessedName='output_noD_blessed.txt')
+CompileAndTest('IMSTester', 'cathermo/ims')
+CompileAndTest('ISSPTester', 'cathermo/issp')
+CompileAndTest('stoichSub', 'cathermo/stoichSub')
+CompileAndTest('WaterPDSS', 'cathermo/testWaterPDSS')
+CompileAndTest('WaterSSTP', 'cathermo/testWaterTP')
+CompileAndTest('ISSPTester2', 'cathermo/VPissp')
 CompileAndTest('ChemEquil_ionizedGas',
-               'ChemEquil_ionizedGas', 'ionizedGasEquil',
-               'output_blessed.txt',
                comparisons=[('table_blessed.csv', 'table.csv')])
 #CompileAndTest('CpJump', 'CpJump', 'CpJump', 'output_blessed.txt')
-CompileAndTest('cxx_ex', 'cxx_ex', 'cxx_examples', 'output_blessed.txt',
-               comparisons=[('eq1_blessed.csv', 'eq1.csv'),
-                            ('kin1_blessed.csv', 'kin1.csv'),
-                            ('tr1_blessed.csv', 'tr1.csv'),
-                            ('tr2_blessed.csv', 'tr2.csv')],
-               tolerance=3e-3,
-               threshold=1e-7,
-               artifacts=['eq1.dat', 'kin1.dat', 'kin2.dat', 'kin3.csv',
-                          'kin3.dat', 'tr1.dat', 'tr2.dat'])
 
-diamond = localenv.Program('diamondSurf/runDiamond',
-                           'diamondSurf/runDiamond.cpp',
-                           LIBS=cantera_libs)
-diamond_name = diamond[0].name
-Test('diamondSurf-xml', 'diamondSurf', diamond, 'runDiamond_blessed.out',
-     options='diamond_blessed.xml', artifacts=diamond_name)
-if haveConverters:
-    Test('diamondSurf-cti', 'diamondSurf', diamond, 'runDiamond_blessed.out',
-         options='diamond.cti', artifacts=diamond_name)
-CompileAndTest('dustyGasTransport', 'dustyGasTransport', 'dustyGasTransport',
-               'output_blessed.txt')
-CompileAndTest('mixGasTransport',
-               'mixGasTransport', 'mixGasTransport', 'output_blessed.txt')
-CompileAndTest('multiGasTransport',
-               'multiGasTransport', 'multiGasTransport', 'output_blessed.txt')
+diamond = CompileAndTest('diamondSurf-xml', 'diamondSurf', 'diamondSurf',
+    'runDiamond_blessed.out', options='diamond_blessed.xml')
+Test('diamondSurf-cti', 'diamondSurf', diamond.program, 'runDiamond_blessed.out',
+     options='diamond.cti')
+CompileAndTest('dustyGasTransport')
+CompileAndTest('mixGasTransport')
+CompileAndTest('multiGasTransport')
 
-CompileAndTest('pureFluid', 'pureFluidTest', 'testPureWater', 'output_blessed.txt')
-if haveConverters:
-    CompileAndTest('rankine_democxx', 'rankine_democxx', 'rankine', 'output_blessed.txt')
-CompileAndTest('silane_equil', 'silane_equil', 'silane_equi', 'output_blessed.txt')
-CompileAndTest('stoichSolidKinetics', 'stoichSolidKinetics',
-               'stoichSolidKinetics', 'output_blessed.txt')
-CompileAndTest('surfkin', 'surfkin', 'surfdemo', 'output_blessed.txt')
+CompileAndTest('pureFluid', 'pureFluidTest')
+CompileAndTest('silane_equil')
+CompileAndTest('stoichSolidKinetics')
+CompileAndTest('surfkin')
 CompileAndTest('surfSolver', 'surfSolverTest', 'surfaceSolver', None,
                arguments='haca2.cti',
                comparisons=[('results_blessed.txt', 'results.txt')],
@@ -270,19 +213,55 @@ CompileAndTest('VCS-NaCl', 'VCSnonideal/NaCl_equil',
                'nacl_equil', 'good_out.txt',
                options='-d 3',
                artifacts=['vcs_equilibrate_res.csv']), # not testing this file because it's not really csv
-vcs_LiSi = localenv.Program('VCSnonideal/LatticeSolid_LiSi/latsol',
-                            'VCSnonideal/LatticeSolid_LiSi/latsol.cpp',
-                            LIBS=cantera_libs)
-vcs_LiSi_name = vcs_LiSi[0].name
-Test('VCS-LiSi', 'VCSnonideal/LatticeSolid_LiSi', vcs_LiSi, 'output_blessed.txt',
-               artifacts=['vcs_equilibrate_res.csv', vcs_LiSi_name])
-Test('VCS-LiSi-verbose', 'VCSnonideal/LatticeSolid_LiSi', vcs_LiSi, 'verbose_blessed.txt',
-               options='8',
-               artifacts=['vcs_equilibrate_res.csv', vcs_LiSi_name])
-CompileAndTest('VPsilane_test', 'VPsilane_test', 'VPsilane_test', 'output_blessed.txt')
 
-CompileAndTest('clib', 'clib_test', 'clib_test', 'output_blessed.txt',
+vcs_LiSi = CompileAndTest('VCS-LiSi', 'VCSnonideal/LatticeSolid_LiSi', 'latsol',
+                          artifacts=['vcs_equilibrate_res.csv'])
+Test('VCS-LiSi-verbose', 'VCSnonideal/LatticeSolid_LiSi', vcs_LiSi.program,
+     'verbose_blessed.txt', options='8',
+     artifacts=['vcs_equilibrate_res.csv'])
+CompileAndTest('VPsilane_test')
+
+CompileAndTest('clib', 'clib_test', 'clib_test',
                extensions=['^clib_test.c'], libs=['cantera_shared'])
+
+# C++ Samples
+Test('cxx-bvp', 'cxx_samples', '#build/samples/cxx/bvp/blasius', None,
+     profiles=[('blasius_blessed.csv', 'blasius.csv')],
+     tolerance=1e-4)
+Test('cxx-combustor', 'cxx_samples', '#build/samples/cxx/combustor/combustor', None,
+     comparisons=[('combustor_cxx_blessed.csv', 'combustor_cxx.csv')],
+     threshold=1e-10, tolerance=2e-4)
+Test('cxx-demo', 'cxx_samples', '#build/samples/cxx/demo/demo',
+     'cxx_demo_blessed.txt',
+     threshold=1e-10, tolerance=2e-4)
+Test('cxx-flamespeed', 'cxx_samples', '#build/samples/cxx/flamespeed/flamespeed',
+     'cxx_flamespeed_blessed.txt',
+     comparisons=[('flamespeed_blessed.csv', 'flamespeed.csv')],
+     options='0.9 0 0')
+Test('cxx-kinetics1', 'cxx_samples', '#build/samples/cxx/kinetics1/kinetics1', None,
+     comparisons=[('kin1_blessed.csv', 'kin1.csv')],
+     artifacts=['kin1.dat'])
+Test('cxx-gas-transport', 'cxx_samples',
+     '#build/samples/cxx/gas_transport/gas_transport', None,
+     comparisons=[('transport_mix_blessed.csv', 'transport_mix.csv'),
+                  ('transport_multi_blessed.csv', 'transport_multi.csv')])
+Test('cxx-LiC6-electrode', 'cxx_samples',
+     '#build/samples/cxx/LiC6_electrode/LiC6_electrode', None,
+     comparisons=[('LiC6_electrode_blessed.csv', 'LiC6_electrode_output.csv')])
+if env['HAS_OPENMP']:
+    Test('cxx-openmp-ignition', 'cxx_samples',
+        '#build/samples/cxx/openmp_ignition/openmp_ignition',
+        'opmenmp_ignition_blessed.txt',
+        ignoreLines=['Running on'])
+Test('cxx-rankine', 'cxx_samples', '#build/samples/cxx/rankine/rankine',
+     'rankine_blessed.txt')
+
+if env['f90_interface'] == 'y':
+    Test('f90-demo', 'fortran', '#build/samples/f90/demo', 'f90_demo_blessed.txt',
+         threshold=1e-10)
+    Test('f77-isentropic', 'fortran', '#build/samples/f77/isentropic',
+         'f77_isentropic_blessed.txt')
+    Test('f77-ctlib', 'fortran', '#build/samples/f77/ctlib', 'f77_ctlib_blessed.txt')
 
 # Force explicitly-named tests to run even if SCons thinks they're up to date
 for command in COMMAND_LINE_TARGETS:

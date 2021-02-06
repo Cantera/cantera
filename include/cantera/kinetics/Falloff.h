@@ -1,10 +1,11 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_FALLOFF_H
 #define CT_FALLOFF_H
 
 #include "cantera/kinetics/reaction_defs.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -74,8 +75,18 @@ public:
         return 0;
     }
 
+    //! Return a string representing the type of the Falloff parameterization.
+    virtual std::string type() const {
+        return "Lindemann";
+    }
+
     //! Return an integer representing the type of the Falloff parameterization.
+    /*!
+     * @deprecated To be removed after Cantera 2.5.
+     */
     virtual int getType() const {
+        warn_deprecated("Falloff::getType()",
+            "Replaced by Falloff::type(). To be removed after Cantera 2.5.");
         return SIMPLE_FALLOFF;
     }
 
@@ -146,7 +157,13 @@ public:
         return 1;
     }
 
+    virtual std::string type() const {
+        return "Troe";
+    }
+
     virtual int getType() const {
+        warn_deprecated("Troe::getType()",
+            "Replaced by Troe::type(). To be removed after Cantera 2.5.");
         return TROE_FALLOFF;
     }
 
@@ -181,9 +198,9 @@ protected:
  *  \f[ P_r = \frac{k_0 [M]}{k_{\infty}} \f]
  *
  *  \f[ F = {\left( a \; exp(\frac{-b}{T}) + exp(\frac{-T}{c})\right)}^n
- *              \;  d \; exp(\frac{-e}{T}) \f]
+ *              \;  d \; T^e \f]
  *      where
- *  \f[ n = \frac{1.0}{1.0 + {\log_{10} P_r}^2} \f]
+ *  \f[ n = \frac{1.0}{1.0 + (\log_{10} P_r)^2} \f]
  *
  *  \f$ c \f$ s required to greater than or equal to zero. If it is zero, then
  *  the corresponding term is set to zero.
@@ -220,7 +237,13 @@ public:
         return 2;
     }
 
+    virtual std::string type() const {
+        return "SRI";
+    }
+
     virtual int getType() const {
+        warn_deprecated("SRI::getType()",
+            "Replaced by SRI::type(). To be removed after Cantera 2.5.");
         return SRI_FALLOFF;
     }
 

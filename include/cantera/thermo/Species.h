@@ -1,7 +1,7 @@
 //! @file Species.h Declaration for class Cantera::Species.
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_SPECIES_H
 #define CT_SPECIES_H
@@ -55,11 +55,21 @@ public:
     shared_ptr<SpeciesThermoInterpType> thermo;
 
     //! Extra data used for specific models
+    //! @deprecated Superseded by #input. To be removed after Cantera 2.5.
     AnyMap extra;
+
+    //! Input parameters used to define a species, e.g. from a YAML input file.
+    AnyMap input;
 };
 
 //! Create a new Species object from a 'species' XML_Node.
+//!
+//! @deprecated The XML input format is deprecated and will be removed in
+//!     Cantera 3.0.
 shared_ptr<Species> newSpecies(const XML_Node& species_node);
+
+//! Create a new Species object from an AnyMap specification
+unique_ptr<Species> newSpecies(const AnyMap& node);
 
 //! Generate Species objects for all `<species>` nodes in an XML document.
 //!
@@ -70,7 +80,13 @@ shared_ptr<Species> newSpecies(const XML_Node& species_node);
 //! This function can be used in combination with get_XML_File and
 //! get_XML_from_string to get Species objects from either a file or a string,
 //! respectively, where the string or file is formatted as either CTI or XML.
+//!
+//! @deprecated The XML input format is deprecated and will be removed in
+//!     Cantera 3.0.
 std::vector<shared_ptr<Species> > getSpecies(const XML_Node& node);
+
+//! Generate Species objects for each item (an AnyMap) in `items`.
+std::vector<shared_ptr<Species>> getSpecies(const AnyValue& items);
 
 }
 

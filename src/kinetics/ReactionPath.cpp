@@ -4,7 +4,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/ReactionPath.h"
 #include "cantera/kinetics/reaction_defs.h"
@@ -22,7 +22,7 @@ void SpeciesNode::addPath(Path* path)
     } else if (path->end() == this) {
         m_in += path->flow();
     } else {
-        throw CanteraError("addPath","path added to wrong node");
+        throw CanteraError("SpeciesNode::addPath", "path added to wrong node");
     }
 }
 

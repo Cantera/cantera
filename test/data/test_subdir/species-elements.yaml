@@ -1,0 +1,39 @@
+units: {length: cm, time: s, quantity: mol, energy: cal}
+
+isotopes:
+- symbol: Ar
+  atomic-weight: 38
+- symbol: O18
+  atomic-weight: 18
+
+species:
+- name: NO2
+  composition: {N: 1, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.00, 1000.00, 6000.00]
+    data:
+    - [3.944031200E+00, -1.585429000E-03, 1.665781200E-05, -2.047542600E-08,
+       7.835056400E-12, 2.896617900E+03, 6.311991700E+00]
+    - [4.884754200E+00, 2.172395600E-03, -8.280690600E-07, 1.574751000E-10,
+       -1.051089500E-14, 2.316498300E+03, -1.174169500E-01]
+    note: "L 7/88"
+
+- name: N2O
+  composition: {N: 2, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.00, 1000.00, 6000.00]
+    data:
+    - [2.257150200E+00, 1.130472800E-02, -1.367131900E-05, 9.681980600E-09,
+       -2.930718200E-12, 8.741774400E+03, 1.075799200E+01]
+    - [4.823072900E+00, 2.627025100E-03, -9.585087400E-07, 1.600071200E-10,
+       -9.775230300E-15, 8.073404800E+03, -2.201720700E+00]
+    note: "L 7/88"
+
+nox-reactions:
+- equation: N2O (+ M) <=> N2 + O (+ M)
+  type: falloff
+  high-P-rate-constant: [7.91000E+10, 0, 56020]
+  low-P-rate-constant: [6.37000E+14, 0, 56640]
+  efficiencies: {AR: 0.625}

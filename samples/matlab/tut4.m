@@ -10,7 +10,7 @@ help tut4
 % To set a gas mixture to a state of chemical equilibrium, use the
 % 'equilibrate' method.
 %
-g = GRI30;
+g = GRI30('None');
 set(g,'T',1200.0,'P',oneatm,'X','CH4:0.95,O2:2,N2:7.52')
 equilibrate(g,'TP')
 
@@ -54,12 +54,12 @@ format short e;
 for i = 1:nReactions(g)
    if isReversible(g,i)
       disp([i, rf(i), rr(i), (rf(i) - rr(i))/rf(i)]);
-      end
+   end
 end
 
 
 % You might be wondering how 'equilibrate' works. (Then again, you might
-% not, in which case you can go on to the next tutorial now.)  Method
+% not, in which case you can go on to the next tutorial now.) Method
 % 'equilibrate' invokes Cantera's chemical equilibrium solver, which
 % uses an element potential method. The element potential method is
 % one of a class of equivalent 'nonstoichiometric' methods that all
@@ -75,7 +75,7 @@ end
 % does a few other things to generate a good starting guess and to
 % produce a reasonably robust algorithm. If you want to know more
 % about the details, look at the on-line documented source code of
-% Cantera C++ class 'ChemEquil' at http://www.cantera.org.
+% Cantera C++ class 'ChemEquil' at https://cantera.org.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all

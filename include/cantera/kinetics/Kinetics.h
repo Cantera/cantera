@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_KINETICS_H
 #define CT_KINETICS_H
@@ -186,11 +186,11 @@ public:
      * If a -1 is returned, then the phase is not defined in the Kinetics
      * object.
      */
-    size_t phaseIndex(const std::string& ph) {
+    size_t phaseIndex(const std::string& ph) const {
         if (m_phaseindex.find(ph) == m_phaseindex.end()) {
             return npos;
         } else {
-            return m_phaseindex[ph] - 1;
+            return m_phaseindex.at(ph) - 1;
         }
     }
 
@@ -199,7 +199,7 @@ public:
      * cSurf. For heterogeneous mechanisms, this identifies the one surface
      * phase. For homogeneous mechanisms, this returns -1.
      */
-    size_t surfacePhaseIndex() {
+    size_t surfacePhaseIndex() const {
         return m_surfphase;
     }
 
@@ -211,7 +211,7 @@ public:
      * of phases. If there is more than one, the index of the first one is
      * returned. For homogeneous mechanisms, the value 0 is returned.
      */
-    size_t reactionPhaseIndex() {
+    size_t reactionPhaseIndex() const {
         return m_rxnphase;
     }
 
@@ -309,6 +309,7 @@ public:
      * @param nm   String containing the name of the species.
      */
     thermo_t& speciesPhase(const std::string& nm);
+    const thermo_t& speciesPhase(const std::string& nm) const;
 
     /**
      * This function takes as an argument the kineticsSpecies index
@@ -328,7 +329,7 @@ public:
      *
      * @param k          Species index
      */
-    size_t speciesPhaseIndex(size_t k);
+    size_t speciesPhaseIndex(size_t k) const;
 
     //! @}
     //! @name Reaction Rates Of Progress
@@ -739,6 +740,9 @@ public:
     void skipUndeclaredSpecies(bool skip) {
         m_skipUndeclaredSpecies = skip;
     }
+    bool skipUndeclaredSpecies() const {
+        return m_skipUndeclaredSpecies;
+    }
 
     //! Determine behavior when adding a new reaction that contains third-body
     //! efficiencies for species not defined in any of the phases associated
@@ -747,6 +751,9 @@ public:
     //! raised.
     void skipUndeclaredThirdBodies(bool skip) {
         m_skipUndeclaredThirdBodies = skip;
+    }
+    bool skipUndeclaredThirdBodies() const {
+        return m_skipUndeclaredThirdBodies;
     }
 
     //@}
@@ -806,6 +813,11 @@ public:
      */
     void selectPhase(const doublereal* data, const thermo_t* phase,
                      doublereal* phase_data);
+
+    //! Set root Solution holding all phase information
+    virtual void setRoot(std::shared_ptr<Solution> root) {
+        m_root = root;
+    }
 
 protected:
     //! Cache for saved calculations within each Kinetics object.
@@ -888,10 +900,10 @@ protected:
     std::vector<size_t> m_start;
 
     /**
-     * Mapping of the phase id, i.e., the id attribute in the XML phase element
-     * to the position of the phase within the kinetics object. Positions start
-     * with the value of 1. The member function, phaseIndex() decrements by one
-     * before returning the index value, so that missing phases return -1.
+     * Mapping of the phase name to the position of the phase within the
+     * kinetics object. Positions start with the value of 1. The member
+     * function, phaseIndex() decrements by one before returning the index
+     * value, so that missing phases return -1.
      */
     std::map<std::string, size_t> m_phaseindex;
 
@@ -928,6 +940,9 @@ protected:
 
     //! @see skipUndeclaredThirdBodies()
     bool m_skipUndeclaredThirdBodies;
+
+    //! reference to Solution
+    std::weak_ptr<Solution> m_root;
 };
 
 }

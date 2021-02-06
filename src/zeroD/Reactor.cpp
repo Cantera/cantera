@@ -1,7 +1,7 @@
 //! @file Reactor.cpp A zero-dimensional reactor
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/Reactor.h"
 #include "cantera/zeroD/FlowDevice.h"
@@ -40,7 +40,7 @@ void Reactor::setKineticsMgr(Kinetics& kin)
 void Reactor::getState(double* y)
 {
     if (m_thermo == 0) {
-        throw CanteraError("getState",
+        throw CanteraError("Reactor::getState",
                            "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);
@@ -81,13 +81,10 @@ void Reactor::initialize(doublereal t0)
     m_thermo->restoreState(m_state);
     m_sdot.resize(m_nsp, 0.0);
     m_wdot.resize(m_nsp, 0.0);
-
-    m_enthalpy = m_thermo->enthalpy_mass();
-    m_pressure = m_thermo->pressure();
-    m_intEnergy = m_thermo->intEnergy_mass();
+    updateConnected(true);
 
     for (size_t n = 0; n < m_wall.size(); n++) {
-        Wall* W = m_wall[n];
+        WallBase* W = m_wall[n];
         W->initialize();
     }
 
@@ -143,7 +140,7 @@ void Reactor::updateState(doublereal* y)
         try {
             TT = bmt::bracket_and_solve_root(
                 u_err, T, 1.2, true, bmt::eps_tolerance<double>(48), maxiter);
-        } catch (std::exception& err) {
+        } catch (std::exception&) {
             // Try full-range bisection if bracketing fails (e.g. near
             // temperature limits for the phase's equation of state)
             try {
@@ -165,12 +162,7 @@ void Reactor::updateState(doublereal* y)
     }
 
     updateSurfaceState(y + m_nsp + 3);
-
-    // save parameters needed by other connected reactors
-    m_enthalpy = m_thermo->enthalpy_mass();
-    m_pressure = m_thermo->pressure();
-    m_intEnergy = m_thermo->intEnergy_mass();
-    m_thermo->saveState(m_state);
+    updateConnected(true);
 }
 
 void Reactor::updateSurfaceState(double* y)
@@ -182,15 +174,34 @@ void Reactor::updateSurfaceState(double* y)
     }
 }
 
+void Reactor::updateConnected(bool updatePressure) {
+    // save parameters needed by other connected reactors
+    m_enthalpy = m_thermo->enthalpy_mass();
+    if (updatePressure) {
+        m_pressure = m_thermo->pressure();
+    }
+    m_intEnergy = m_thermo->intEnergy_mass();
+    m_thermo->saveState(m_state);
+
+    // Update the mass flow rate of connected flow devices
+    double time = m_net->time();
+    for (size_t i = 0; i < m_outlet.size(); i++) {
+        m_outlet[i]->updateMassFlowRate(time);
+    }
+    for (size_t i = 0; i < m_inlet.size(); i++) {
+        m_inlet[i]->updateMassFlowRate(time);
+    }
+}
+
 void Reactor::evalEqs(doublereal time, doublereal* y,
                       doublereal* ydot, doublereal* params)
 {
     double dmdt = 0.0; // dm/dt (gas phase)
     double* dYdt = ydot + 3;
 
-    m_thermo->restoreState(m_state);
-    applySensitivity(params);
     evalWalls(time);
+    applySensitivity(params);
+    m_thermo->restoreState(m_state);
     double mdot_surf = evalSurfaces(time, ydot + m_nsp + 3);
     dmdt += mdot_surf; // mass added to gas phase from surface reactions
 
@@ -222,25 +233,25 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
     }
 
     // add terms for outlets
-    for (size_t i = 0; i < m_outlet.size(); i++) {
-        double mdot_out = m_outlet[i]->massFlowRate(time);
-        dmdt -= mdot_out; // mass flow out of system
+    for (auto outlet : m_outlet) {
+        double mdot = outlet->massFlowRate();
+        dmdt -= mdot; // mass flow out of system
         if (m_energy) {
-            ydot[2] -= mdot_out * m_enthalpy;
+            ydot[2] -= mdot * m_enthalpy;
         }
     }
 
     // add terms for inlets
-    for (size_t i = 0; i < m_inlet.size(); i++) {
-        double mdot_in = m_inlet[i]->massFlowRate(time);
-        dmdt += mdot_in; // mass flow into system
+    for (auto inlet : m_inlet) {
+        double mdot = inlet->massFlowRate();
+        dmdt += mdot; // mass flow into system
         for (size_t n = 0; n < m_nsp; n++) {
-            double mdot_spec = m_inlet[i]->outletSpeciesMassFlowRate(n);
+            double mdot_spec = inlet->outletSpeciesMassFlowRate(n);
             // flow of species into system and dilution by other species
-            dYdt[n] += (mdot_spec - mdot_in * Y[n]) / m_mass;
+            dYdt[n] += (mdot_spec - mdot * Y[n]) / m_mass;
         }
         if (m_energy) {
-            ydot[2] += mdot_in * m_inlet[i]->enthalpy_mass();
+            ydot[2] += mdot * inlet->enthalpy_mass();
         }
     }
 
@@ -285,9 +296,10 @@ double Reactor::evalSurfaces(double t, double* ydot)
         ydot[loc] = sum;
         loc += nk;
 
+        size_t bulkloc = kin->kineticsSpeciesIndex(m_thermo->speciesName(0));
         double wallarea = S->area();
         for (size_t k = 0; k < m_nsp; k++) {
-            m_sdot[k] += m_work[k]*wallarea;
+            m_sdot[k] += m_work[bulkloc + k] * wallarea;
             mdot_surf += m_sdot[k] * mw[k];
         }
     }
@@ -426,6 +438,62 @@ void Reactor::resetSensitivity(double* params)
     m_thermo->invalidateCache();
     if (m_kin) {
         m_kin->invalidateCache();
+    }
+}
+
+void Reactor::setAdvanceLimits(const double *limits)
+{
+    if (m_thermo == 0) {
+        throw CanteraError("Reactor::setAdvanceLimits",
+                           "Error: reactor is empty.");
+    }
+    m_advancelimits.assign(limits, limits + m_nv);
+
+    // resize to zero length if no limits are set
+    if (std::none_of(m_advancelimits.begin(), m_advancelimits.end(),
+                     [](double val){return val>0;})) {
+        m_advancelimits.resize(0);
+    }
+}
+
+bool Reactor::getAdvanceLimits(double *limits)
+{
+    bool has_limit = hasAdvanceLimits();
+    if (has_limit) {
+        std::copy(m_advancelimits.begin(), m_advancelimits.end(), limits);
+    } else {
+        std::fill(limits, limits + m_nv, -1.0);
+    }
+    return has_limit;
+}
+
+void Reactor::setAdvanceLimit(const string& nm, const double limit)
+{
+    size_t k = componentIndex(nm);
+
+    if (m_thermo == 0) {
+        throw CanteraError("Reactor::setAdvanceLimit",
+                           "Error: reactor is empty.");
+    }
+    if (m_nv == 0) {
+        if (m_net == 0) {
+            throw CanteraError("Reactor::setAdvanceLimit",
+                               "Cannot set limit on a reactor that is not "
+                               "assigned to a ReactorNet object.");
+        } else {
+            m_net->initialize();
+        }
+    } else if (k > m_nv) {
+        throw CanteraError("Reactor::setAdvanceLimit",
+                           "Index out of bounds.");
+    }
+    m_advancelimits.resize(m_nv, -1.0);
+    m_advancelimits[k] = limit;
+
+    // resize to zero length if no limits are set
+    if (std::none_of(m_advancelimits.begin(), m_advancelimits.end(),
+                     [](double val){return val>0;})) {
+        m_advancelimits.resize(0);
     }
 }
 

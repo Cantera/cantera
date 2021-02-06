@@ -7,7 +7,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/LatticeSolidPhase.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -116,6 +116,11 @@ doublereal LatticeSolidPhase::cp_mole() const
     return sum;
 }
 
+Units LatticeSolidPhase::standardConcentrationUnits() const
+{
+    return Units(1.0);
+}
+
 void LatticeSolidPhase::getActivityConcentrations(doublereal* c) const
 {
     _updateThermo();
@@ -158,7 +163,7 @@ doublereal LatticeSolidPhase::calcDensity()
     for (size_t n = 0; n < m_lattice.size(); n++) {
         sum += theta_[n] * m_lattice[n]->density();
     }
-    Phase::setDensity(sum);
+    Phase::assignDensity(sum);
     return sum;
 }
 
@@ -197,7 +202,7 @@ void LatticeSolidPhase::getMoleFractions(doublereal* const x) const
         m_lattice[n]->getMoleFractions(&m_x[strt]);
         for (size_t k = 0; k < nsp; k++) {
             if (fabs((x + strt)[k] - m_x[strt+k]) > 1.0E-14) {
-                throw CanteraError("LatticeSolidPhase::getMoleFractions()",
+                throw CanteraError("LatticeSolidPhase::getMoleFractions",
                                    "internal error");
             }
         }
@@ -286,48 +291,22 @@ void LatticeSolidPhase::getGibbs_ref(doublereal* g) const
     }
 }
 
+void LatticeSolidPhase::setParameters(const AnyMap& phaseNode,
+                                      const AnyMap& rootNode)
+{
+    ThermoPhase::setParameters(phaseNode, rootNode);
+    m_rootNode = rootNode;
+}
+
 void LatticeSolidPhase::initThermo()
 {
-    size_t kk = 0;
-    size_t kstart = 0;
-    lkstart_.resize(m_lattice.size() + 1);
-    size_t loc = 0;
-
-    for (size_t n = 0; n < m_lattice.size(); n++) {
-        shared_ptr<ThermoPhase>& lp = m_lattice[n];
-        vector_fp constArr(lp->nElements());
-        const vector_fp& aws = lp->atomicWeights();
-        for (size_t es = 0; es < lp->nElements(); es++) {
-            addElement(lp->elementName(es), aws[es], lp->atomicNumber(es),
-                       lp->entropyElement298(es), lp->elementType(es));
+    if (m_input.hasKey("composition")) {
+        compositionMap composition = m_input["composition"].asMap<double>();
+        for (auto& item : composition) {
+            AnyMap& node = m_rootNode["phases"].getMapWhere("name", item.first);
+            addLattice(newPhase(node, m_rootNode));
         }
-        kstart = kk;
-
-        for (size_t k = 0; k < lp->nSpecies(); k++) {
-            addSpecies(lp->species(k));
-            kk++;
-        }
-        // Add in the lattice stoichiometry constraint
-        if (n > 0) {
-            string econ = fmt::format("LC_{}_{}", n, id());
-            size_t m = addElement(econ, 0.0, 0, 0.0, CT_ELEM_TYPE_LATTICERATIO);
-            size_t mm = nElements();
-            size_t nsp0 = m_lattice[0]->nSpecies();
-            for (size_t k = 0; k < nsp0; k++) {
-                m_speciesComp[k * mm + m] = -theta_[0];
-            }
-            for (size_t k = 0; k < lp->nSpecies(); k++) {
-                size_t ks = kstart + k;
-                m_speciesComp[ks * mm + m] = theta_[n];
-            }
-        }
-        size_t nsp = m_lattice[n]->nSpecies();
-        lkstart_[n] = loc;
-        for (size_t k = 0; k < nsp; k++) {
-            m_x[loc] =m_lattice[n]->moleFraction(k) / (double) m_lattice.size();
-            loc++;
-        }
-        lkstart_[n+1] = loc;
+        setLatticeStoichiometry(composition);
     }
 
     setMoleFractions(m_x.data());
@@ -336,21 +315,34 @@ void LatticeSolidPhase::initThermo()
 
 bool LatticeSolidPhase::addSpecies(shared_ptr<Species> spec)
 {
-    bool added = ThermoPhase::addSpecies(spec);
-    if (added) {
-        m_x.push_back(0.0);
-        tmpV_.push_back(0.0);
-    }
-    return added;
+    // Species are added from component phases in addLattice()
+    return false;
 }
 
 void LatticeSolidPhase::addLattice(shared_ptr<ThermoPhase> lattice)
 {
     m_lattice.push_back(lattice);
+    if (lkstart_.empty()) {
+        lkstart_.push_back(0);
+    }
+    lkstart_.push_back(lkstart_.back() + lattice->nSpecies());
+
     if (theta_.size() == 0) {
         theta_.push_back(1.0);
     } else {
         theta_.push_back(0.0);
+    }
+
+    for (size_t k = 0; k < lattice->nSpecies(); k++) {
+        ThermoPhase::addSpecies(lattice->species(k));
+        vector_fp constArr(lattice->nElements());
+        const vector_fp& aws = lattice->atomicWeights();
+        for (size_t es = 0; es < lattice->nElements(); es++) {
+            addElement(lattice->elementName(es), aws[es], lattice->atomicNumber(es),
+                       lattice->entropyElement298(es), lattice->elementType(es));
+        }
+        m_x.push_back(lattice->moleFraction(k));
+        tmpV_.push_back(0.0);
     }
 }
 
@@ -358,6 +350,19 @@ void LatticeSolidPhase::setLatticeStoichiometry(const compositionMap& comp)
 {
     for (size_t i = 0; i < m_lattice.size(); i++) {
         theta_[i] = getValue(comp, m_lattice[i]->name(), 0.0);
+    }
+    // Add in the lattice stoichiometry constraint
+    for (size_t i = 1; i < m_lattice.size(); i++) {
+        string econ = fmt::format("LC_{}_{}", i, name());
+        size_t m = addElement(econ, 0.0, 0, 0.0, CT_ELEM_TYPE_LATTICERATIO);
+        size_t mm = nElements();
+        for (size_t k = 0; k < m_lattice[0]->nSpecies(); k++) {
+            m_speciesComp[k * mm + m] = -theta_[0];
+        }
+        for (size_t k = 0; k < m_lattice[i]->nSpecies(); k++) {
+            size_t ks = lkstart_[i] + k;
+            m_speciesComp[ks * mm + m] = theta_[i];
+        }
     }
 }
 

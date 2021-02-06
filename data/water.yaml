@@ -1,0 +1,52 @@
+description: |-
+  These two phases represent pure, condensed phases of water. They are
+  modeled as being incompressible. Note that the liquid water phase
+  defined here is very different from the phase "water" in
+  liquidvapor.yaml, which uses an accurate liquid/vapor equation of
+  state. That one, however, cannot be used as a part of a multi-phase
+  mixture, while this one can.
+
+generator: cti2yaml
+cantera-version: 2.5.0a3
+date: Wed, 11 Dec 2019 16:59:15 -0500
+input-files: [water.cti]
+
+phases:
+- name: ice
+  thermo: fixed-stoichiometry
+  elements: [H, O]
+  species: [H2O(S)]
+  state:
+    T: 300.0
+    P: 1.01325e+05
+- name: liquid_water
+  thermo: fixed-stoichiometry
+  elements: [H, O]
+  species: [H2O(L)]
+  state:
+    T: 300.0
+    P: 1.01325e+05
+
+species:
+- name: H2O(S)
+  composition: {H: 2, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 273.15]
+    data:
+    - [5.2967797, -0.0675749247, 5.16942109e-04, -1.4385336e-06, 1.52564794e-09,
+      -3.62266557e+04, -17.9220428]
+  equation-of-state:
+    model: constant-volume
+    density: 0.917 g/cm^3
+- name: H2O(L)
+  composition: {H: 2, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [273.15, 600.0]
+    data:
+    - [72.5575005, -0.662445402, 2.56198746e-03, -4.36591923e-06, 2.78178981e-09,
+      -4.18865499e+04, -288.280137]
+  equation-of-state:
+    model: constant-volume
+    density: 1.0 g/cm^3

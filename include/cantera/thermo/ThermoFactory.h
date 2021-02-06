@@ -5,7 +5,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef THERMO_FACTORY_H
 #define THERMO_FACTORY_H
@@ -93,7 +93,6 @@ private:
 //! Create a new thermo manager instance.
 /*!
  * @param model   String to look up the model against
- * @param f       ThermoFactory instance to use in matching the string
  * @returns a pointer to a new ThermoPhase instance matching the model string.
  *   Returns NULL if something went wrong. Throws an exception
  *   UnknownThermoPhaseModel if the string wasn't matched.
@@ -117,17 +116,34 @@ inline ThermoPhase* newThermoPhase(const std::string& model)
  * @return  A pointer to the completed and initialized ThermoPhase object.
  *
  * @ingroup inputfiles
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 ThermoPhase* newPhase(XML_Node& phase);
 
-//! Create and Initialize a ThermoPhase object from an XML input file.
+//! Create a new ThermoPhase object and initialize it
 /*!
- * This routine is a wrapper around the newPhase(XML_Node) routine which does
- * the work. The wrapper locates the input phase XML_Node in a file, and then
- * instantiates the object, returning the pointer to the ThermoPhase object.
+ * @param phaseNode  The node containing the phase definition (i.e. thermo
+ *     model, list of species, and initial state)
+ * @param rootNode   The root node of the tree containing the phase definition,
+ *     which will be used as the default location from which to read species
+ *     definitions.
+ */
+unique_ptr<ThermoPhase> newPhase(AnyMap& phaseNode,
+                                 const AnyMap& rootNode=AnyMap());
+
+//! Create and Initialize a ThermoPhase object from an input file.
+/*!
+ * For YAML input files, this function uses AnyMap::fromYamlFile() to read the
+ * input file, newThermoPhase() to create an empty ThermoPhase of the
+ * appropriate type, and setupPhase() to initialize the phase.
+ *
+ * For CTI and XML input files, this function uses get_XML_File() to read the
+ * input file and newPhase(XML_Node) to create and initialize the phase.
  *
  * @param infile name of the input file
- * @param id     name of the phase id in the file.
+ * @param id     name (id) of the phase in the file.
  *               If this is blank, the first phase in the file is used.
  * @returns an initialized ThermoPhase object.
  */
@@ -185,10 +201,28 @@ ThermoPhase* newPhase(const std::string& infile, std::string id="");
  *              ThermoPhase object here, especially for those objects which are
  *              part of the Cantera Kernel.
  * @ingroup thermoprops
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 void importPhase(XML_Node& phase, ThermoPhase* th);
 
+//! Initialize a ThermoPhase object
+/*!
+ *  @param phase      The ThermoPhase object to be initialized
+ *  @param phaseNode  The node containing the phase definition (i.e. thermo
+ *     model, list of species, and initial state)
+ * @param rootNode    The root node of the tree containing the phase definition,
+ *     which will be used as the default location from which to read species
+ *     definitions.
+ */
+void setupPhase(ThermoPhase& phase, AnyMap& phaseNode,
+                const AnyMap& rootNode=AnyMap());
+
 //! Add the elements given in an XML_Node tree to the specified phase
+//!
+//! @deprecated The XML input format is deprecated and will be removed in
+//!     Cantera 3.0.
 void installElements(Phase& th, const XML_Node& phaseNode);
 
 //!  Search an XML tree for species data.
@@ -200,6 +234,9 @@ void installElements(Phase& th, const XML_Node& phaseNode);
  * @param kname String containing the name of the species.
  * @param phaseSpeciesData   Pointer to the XML speciesData element
  *              containing the species data for that phase.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 const XML_Node* speciesXML_Node(const std::string& kname,
                                 const XML_Node* phaseSpeciesData);

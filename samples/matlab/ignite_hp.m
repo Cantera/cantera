@@ -6,11 +6,10 @@ function ignite_hp(gas)
 help ignite_hp
 
 if nargin == 0
-   gas = IdealGasMix('gri30.xml');
+   gas = Solution('gri30.yaml');
 end
 
 mw = molecularWeights(gas);
-nsp = nSpecies(gas);
 set(gas,'T',1001.0,'P',oneatm,'X','H2:2,O2:1,N2:4');
 
 y0 = [temperature(gas)

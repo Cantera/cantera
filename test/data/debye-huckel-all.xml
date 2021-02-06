@@ -1,0 +1,460 @@
+<?xml version="1.0"?>
+<ctml>
+  <phase id="debye-huckel-dilute" dim="3">
+    <state>
+      <temperature units="K"> 300  </temperature>
+      <pressure units="Pa">101325.0</pressure>
+      <soluteMolalities>
+                  Na+:9.3549
+                  Cl-:9.3549
+                   H+:1.0499E-8
+                  OH-:1.3765E-6
+             NaCl(aq):0.98492
+             NaOH(aq):3.8836E-6
+         NaH3SiO4(aq):6.8798E-5
+             SiO2(aq):3.0179E-5
+              H3SiO4-:1.0231E-6
+      </soluteMolalities>
+    </state>
+    <!-- thermo model identifies the inherited class
+         from ThermoPhase that will handle the thermodynamics.
+      -->
+    <thermo model="DebyeHuckel">
+      <standardConc model="solvent_volume" />
+      <activityCoefficients model="Dilute_limit">
+        <!-- A_Debye units = sqrt(kg/gmol)
+                  -->
+        <A_Debye> 1.172576 </A_Debye>
+        <!-- B_Debye units = sqrt(kg/gmol)/m
+                  -->
+        <B_Debye> 3.28640E9 </B_Debye>
+        <maxIonicStrength> 3.0 </maxIonicStrength>
+        <UseHelgesonFixedForm />
+        <ionicRadius default="3.5" units="Angstroms">
+                    Na+:4.0
+                    Cl-:3.0
+                    H+:9.0
+                    OH-:3.5
+        </ionicRadius>
+      </activityCoefficients>
+      <solvent> H2O(L) </solvent>
+    </thermo>
+    <elementArray datasrc="elements.xml"> O H C E Fe Si N Na Cl </elementArray>
+    <speciesArray datasrc="#species_waterSolution">
+               H2O(L) Na+ Cl- H+ OH- NaCl(aq) NaOH(aq) SiO2(aq)
+               NaH3SiO4(aq) H3SiO4-
+    </speciesArray>
+    <kinetics model="none" />
+  </phase>
+
+  <phase id="debye-huckel-B-dot-ak" dim="3">
+    <state>
+      <temperature units="K"> 300  </temperature>
+      <pressure units="Pa">101325.0</pressure>
+      <soluteMolalities>
+                  Na+:9.3549
+                  Cl-:9.3549
+                   H+:1.0499E-8
+                  OH-:1.3765E-6
+             NaCl(aq):0.98492
+             NaOH(aq):3.8836E-6
+         NaH3SiO4(aq):6.8798E-5
+             SiO2(aq):3.0179E-5
+              H3SiO4-:1.0231E-6
+      </soluteMolalities>
+    </state>
+    <!-- thermo model identifies the inherited class
+         from ThermoPhase that will handle the thermodynamics.
+      -->
+    <thermo model="DebyeHuckel">
+      <standardConc model="solvent_volume" />
+      <activityCoefficients model="Bdot_with_variable_a">
+        <!-- A_Debye units = sqrt(kg/gmol)
+                  -->
+        <A_Debye> 1.172576 </A_Debye>
+        <!-- B_Debye units = sqrt(kg/gmol)/m
+                  -->
+        <B_Debye> 3.28640E9 </B_Debye>
+        <B_dot>   0.0410 </B_dot>
+        <maxIonicStrength> 50.0 </maxIonicStrength>
+        <ionicRadius default="4.0" units="Angstroms">
+                    Na+:4.0
+                    Cl-:3.0
+                    H+:9.0
+                    OH-:3.5
+        </ionicRadius>
+      </activityCoefficients>
+      <solvent> H2O(L) </solvent>
+    </thermo>
+    <elementArray datasrc="elements.xml"> O H C E Fe Si N Na Cl </elementArray>
+    <speciesArray datasrc="#species_waterSolution">
+               H2O(L) Na+ Cl- H+ OH- NaCl(aq) NaOH(aq) SiO2(aq)
+               NaH3SiO4(aq) H3SiO4-
+    </speciesArray>
+    <kinetics model="none" />
+  </phase>
+
+  <phase id="debye-huckel-B-dot-a" dim="3">
+    <state>
+      <temperature units="K"> 300  </temperature>
+      <pressure units="Pa">101325.0</pressure>
+      <soluteMolalities>
+                  Na+:9.3549
+                  Cl-:9.3549
+                   H+:1.0499E-8
+                  OH-:1.3765E-6
+             NaCl(aq):0.98492
+             NaOH(aq):3.8836E-6
+         NaH3SiO4(aq):6.8798E-5
+             SiO2(aq):3.0179E-5
+              H3SiO4-:1.0231E-6
+      </soluteMolalities>
+    </state>
+    <!-- thermo model identifies the inherited class
+         from ThermoPhase that will handle the thermodynamics.
+      -->
+    <thermo model="DebyeHuckel">
+      <standardConc model="solvent_volume" />
+      <activityCoefficients model="Bdot_with_common_a">
+        <!-- A_Debye units = sqrt(kg/gmol)
+                  -->
+        <A_Debye> 1.172576 </A_Debye>
+        <!-- B_Debye units = sqrt(kg/gmol)/m
+                  -->
+        <B_Debye> 3.28640E9 </B_Debye>
+        <B_dot>   0.00 </B_dot>
+        <maxIonicStrength> 50.0 </maxIonicStrength>
+        <ionicRadius default="3.5" units="Angstroms">
+                    Na+:4.0
+                    Cl-:3.0
+                    H+:9.0
+                    OH-:3.5
+        </ionicRadius>
+      </activityCoefficients>
+      <solvent> H2O(L) </solvent>
+    </thermo>
+    <elementArray datasrc="elements.xml"> O H C E Fe Si N Na Cl </elementArray>
+    <speciesArray datasrc="#species_waterSolution">
+               H2O(L) Na+ Cl- H+ OH- NaCl(aq) NaOH(aq) SiO2(aq)
+               NaH3SiO4(aq) H3SiO4-
+    </speciesArray>
+    <kinetics model="none" />
+  </phase>
+
+  <phase id="debye-huckel-pitzer-beta_ij" dim="3">
+    <speciesArray datasrc="#species_waterSolution">
+               H2O(L) Na+ Cl- H+ OH- NaCl(aq) NaOH(aq)
+               NaH3SiO4(aq) SiO2(aq) H3SiO4-
+    </speciesArray>
+    <state>
+      <temperature units="K"> 300  </temperature>
+      <pressure units="Pa">101325.0</pressure>
+      <soluteMolalities>
+             Na+:3.0
+             Cl-:3.0
+             H+:1.0499E-8
+             OH-:1.3765E-6
+             NaCl(aq):0.98492
+             NaOH(aq):3.8836E-6
+             NaH3SiO4(aq):6.8798E-5
+             SiO2(aq):3.0179E-5
+             H3SiO4-:1.0231E-6
+      </soluteMolalities>
+    </state>
+    <!-- thermo model identifies the inherited class
+         from ThermoPhase that will handle the thermodynamics.
+      -->
+    <thermo model="DebyeHuckel">
+      <standardConc model="solvent_volume" />
+      <activityCoefficients model="Pitzer_with_Beta_ij">
+        <!-- A_Debye units = sqrt(kg/gmol)
+                  -->
+        <A_Debye> 1.172576 </A_Debye>
+        <!-- B_Debye units = sqrt(kg/gmol)/m
+                  -->
+        <B_Debye> 3.28640E9 </B_Debye>
+        <ionicRadius default="3.042843" units="Angstroms">
+        </ionicRadius>
+        <DHBetaMatrix>
+                  H+:Cl-:0.27
+                  Na+:Cl-:0.15
+                  Na+:OH-:0.06
+        </DHBetaMatrix>
+        <stoichIsMods>
+                   NaCl(aq):-1.0
+        </stoichIsMods>
+        <electrolyteSpeciesType>
+                   H+:chargedSpecies
+                   NaCl(aq):weakAcidAssociated
+        </electrolyteSpeciesType>
+      </activityCoefficients>
+      <solvent> H2O(L) </solvent>
+    </thermo>
+    <elementArray datasrc="elements.xml"> O H C E Fe Si N Na Cl </elementArray>
+    <kinetics model="none" />
+  </phase>
+
+  <phase id="debye-huckel-beta_ij" dim="3">
+    <speciesArray datasrc="#species_waterSolution">
+               H2O(L) Na+ Cl- H+ OH- NaCl(aq) NaOH(aq)
+               NaH3SiO4(aq) SiO2(aq) H3SiO4-
+    </speciesArray>
+    <state>
+      <temperature units="K"> 300  </temperature>
+      <pressure units="Pa">101325.0</pressure>
+      <soluteMolalities>
+             Na+:3.0
+             Cl-:3.0
+             H+:1.0499E-8
+             OH-:1.3765E-6
+             NaCl(aq):0.98492
+             NaOH(aq):3.8836E-6
+             NaH3SiO4(aq):6.8798E-5
+             SiO2(aq):3.0179E-5
+             H3SiO4-:1.0231E-6
+      </soluteMolalities>
+    </state>
+    <!-- thermo model identifies the inherited class
+         from ThermoPhase that will handle the thermodynamics.
+      -->
+    <thermo model="DebyeHuckel">
+      <standardConc model="solvent_volume" />
+      <activityCoefficients model="Beta_ij">
+        <!-- A_Debye units = sqrt(kg/gmol)
+                  -->
+        <A_Debye> 1.172576 </A_Debye>
+        <!-- B_Debye units = sqrt(kg/gmol)/m
+                  -->
+        <B_Debye> 3.28640E9 </B_Debye>
+        <ionicRadius default="3.042843" units="Angstroms">
+        </ionicRadius>
+        <DHBetaMatrix>
+                  H+:Cl-:0.27
+                  Na+:Cl-:0.15
+                  Na+:OH-:0.06
+        </DHBetaMatrix>
+        <stoichIsMods>
+                   NaCl(aq):-1.0
+        </stoichIsMods>
+        <electrolyteSpeciesType>
+                   H+:chargedSpecies
+                   NaCl(aq):weakAcidAssociated
+        </electrolyteSpeciesType>
+      </activityCoefficients>
+      <solvent> H2O(L) </solvent>
+    </thermo>
+    <elementArray datasrc="elements.xml"> O H C E Fe Si N Na Cl </elementArray>
+    <kinetics model="none" />
+  </phase>
+
+  <speciesData id="species_waterSolution">
+
+    <!-- species H2O(L)    -->
+    <species name="H2O(L)">
+      <atomArray>H:2 O:1 </atomArray>
+      <thermo>
+        <NASA Tmax="600.0" Tmin="273.14999999999998" P0="101325.0">
+          <floatArray name="coeffs" size="7">
+             7.255750050E+01,  -6.624454020E-01,
+             2.561987460E-03,  -4.365919230E-06,
+             2.781789810E-09,  -4.188671E+04,  -2.8827879E+02
+          </floatArray>
+        </NASA>
+      </thermo>
+      <standardState model="constant_incompressible">
+        <molarVolume> 0.05555555 </molarVolume>
+      </standardState>
+    </species>
+
+    <species name="Na+">
+      <atomArray> Na:1 E:-1 </atomArray>
+      <charge> +1 </charge>
+      <thermo>
+        <Mu0 Pref="101325.0" Tmax="1000.0" Tmin="200.0">
+          <H298 units="kJ/mol"> -240.34  </H298>
+          <numPoints> 2            </numPoints>
+          <floatArray size="2" title="Mu0Values" units="Dimensionless">
+             -103.98186, -103.98186
+          </floatArray>
+          <floatArray size="2" title="Mu0Temperatures">
+             298.15,    333.15
+          </floatArray>
+        </Mu0>
+      </thermo>
+      <standardState model="constant_incompressible">
+        <molarVolume> 1.3 </molarVolume>
+      </standardState>
+    </species>
+
+    <species name="Cl-">
+      <atomArray> Cl:1 E:1 </atomArray>
+      <charge> -1 </charge>
+      <standardState model="constant_incompressible">
+        <molarVolume> 1.3 </molarVolume>
+      </standardState>
+      <thermo>
+        <Mu0 Pref="101325.0" Tmax="333." Tmin="298.">
+          <H298 units="kJ/mol"> -167.08 </H298>
+          <numPoints> 2            </numPoints>
+          <floatArray size="2" title="Mu0Values" units="Dimensionless">
+            -74.20664, -74.20664
+          </floatArray>
+          <floatArray size="2" title="Mu0Temperatures">
+             298.15,    333.15
+          </floatArray>
+        </Mu0>
+      </thermo>
+    </species>
+
+    <species name="H+">
+      <atomArray> H:1 E:-1 </atomArray>
+      <charge> +1 </charge>
+      <standardState model="constant_incompressible">
+        <molarVolume> 0.0 </molarVolume>
+      </standardState>
+      <thermo>
+        <Mu0 Pref="101325.0" Tmax="333." Tmin="298.">
+          <H298 units="cal/mol"> 0.0  </H298>
+          <numPoints> 2            </numPoints>
+          <floatArray size="2" title="Mu0Values" units="Dimensionless">
+            0.0, 0.0
+          </floatArray>
+          <floatArray size="2" title="Mu0Temperatures">
+             298.15,    333.15
+          </floatArray>
+        </Mu0>
+      </thermo>
+    </species>
+
+    <species name="OH-">
+      <atomArray> O:1 H:1 E:1 </atomArray>
+      <charge> -1 </charge>
+      <standardState model="constant_incompressible">
+        <molarVolume> 1.3 </molarVolume>
+      </standardState>
+      <thermo>
+        <Mu0 Pref="101325.0" Tmax="333." Tmin="298.">
+          <H298 units="kJ/mol"> -230.015  </H298>
+          <numPoints> 2            </numPoints>
+          <floatArray size="2" title="Mu0Values" units="Dimensionless">
+            -91.50963 ,   -85.
+          </floatArray>
+          <floatArray size="2" title="Mu0Temperatures">
+             298.15,    333.15
+          </floatArray>
+        </Mu0>
+      </thermo>
+    </species>
+
+    <species name="NaCl(aq)">
+      <atomArray> Na:1 Cl:1 </atomArray>
+      <standardState model="constant_incompressible">
+        <molarVolume> 1.3 </molarVolume>
+      </standardState>
+      <stoichIsMods> -1.0 </stoichIsMods>
+      <electrolyteSpeciesType> weakAcidAssociated </electrolyteSpeciesType>
+      <thermo>
+        <Mu0 Pref="101325.0" Tmax="333." Tmin="298.">
+          <H298 units="cal/mol"> -96.03E3  </H298>
+          <numPoints> 2            </numPoints>
+          <!--       -176.188, -176.188  -->
+          <floatArray size="2" title="Mu0Values" units="Dimensionless">
+            -174.5057463, -174.5057463
+          </floatArray>
+          <floatArray size="2" title="Mu0Temperatures">
+             298.15,    333.15
+          </floatArray>
+        </Mu0>
+      </thermo>
+    </species>
+
+    <species name="NaOH(aq)">
+      <atomArray> Na:1 O:1 H:1 </atomArray>
+      <standardState model="constant_incompressible">
+        <molarVolume> 1.3 </molarVolume>
+      </standardState>
+      <stoichIsMods> -1.0 </stoichIsMods>
+      <electrolyteSpeciesType> weakAcidAssociated </electrolyteSpeciesType>
+      <thermo>
+        <Mu0 Pref="101325.0" Tmax="333." Tmin="298.">
+          <H298 units="kJ/mol"> -472.4865  </H298>
+          <numPoints> 2    </numPoints>
+          <!--   -193.6185,  -193.9308 -->
+          <floatArray size="2" title="Mu0Values" units="Dimensionless">
+            -195.02569,  -195.02569
+          </floatArray>
+          <floatArray size="2" title="Mu0Temperatures">
+             298.15,    323.15
+          </floatArray>
+        </Mu0>
+      </thermo>
+    </species>
+
+    <species name="SiO2(aq)">
+      <atomArray> Si:1 O:2  </atomArray>
+      <standardState model="constant_incompressible">
+        <molarVolume> 1.3 </molarVolume>
+      </standardState>
+      <stoichIsMods> 0.0 </stoichIsMods>
+      <electrolyteSpeciesType> nonpolarNeutral </electrolyteSpeciesType>
+      <thermo>
+        <Mu0 Pref="101325.0" Tmax="333." Tmin="298.">
+          <H298 units="kJ/mol"> -890.   </H298>
+          <numPoints> 2    </numPoints>
+          <floatArray size="2" title="Mu0Values" units="Dimensionless">
+           -363.2104, -300.
+          </floatArray>
+          <floatArray size="2" title="Mu0Temperatures">
+             298.15,    323.15
+          </floatArray>
+        </Mu0>
+      </thermo>
+    </species>
+
+    <species name="NaH3SiO4(aq)">
+      <atomArray> Na:1 H:3 Si:1 O:4  </atomArray>
+      <charge> 0 </charge>
+      <stoichIsMods> -1.0 </stoichIsMods>
+      <electrolyteSpeciesType> weakAcidAssociated </electrolyteSpeciesType>
+      <standardState model="constant_incompressible">
+        <molarVolume> 1.3 </molarVolume>
+      </standardState>
+      <thermo>
+        <Mu0 Pref="101325.0" Tmax="333." Tmin="298.">
+          <H298 units="kJ/mol"> -890.   </H298>
+          <numPoints> 2    </numPoints>
+          <floatArray size="2" title="Mu0Values" units="Dimensionless">
+           -694.683918 , -300.
+          </floatArray>
+          <floatArray size="2" title="Mu0Temperatures">
+             298.15,    323.15
+          </floatArray>
+        </Mu0>
+      </thermo>
+    </species>
+
+    <species name="H3SiO4-">
+      <atomArray> Si:1 O:4 H:3 E:1 </atomArray>
+      <charge> -1 </charge>
+      <stoichIsMods> -1.0 </stoichIsMods>
+      <electrolyteSpeciesType> chargedSpecies </electrolyteSpeciesType>
+      <standardState model="constant_incompressible">
+        <molarVolume> 1.3 </molarVolume>
+      </standardState>
+      <thermo>
+        <Mu0 Pref="101325.0" Tmax="333." Tmin="298.">
+          <H298 units="cal/mol"> 0.0  </H298>
+          <numPoints> 2            </numPoints>
+          <floatArray size="2" title="Mu0Values" units="Dimensionless">
+            -588.0556 ,  -450
+          </floatArray>
+          <floatArray size="2" title="Mu0Temperatures">
+             298.15,    333.15
+          </floatArray>
+        </Mu0>
+      </thermo>
+    </species>
+
+
+  </speciesData>
+</ctml>

@@ -1,7 +1,7 @@
 //! @file IdealGasReactor.cpp A zero-dimensional reactor
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/IdealGasReactor.h"
 #include "cantera/zeroD/FlowDevice.h"
@@ -26,7 +26,7 @@ void IdealGasReactor::setThermoMgr(ThermoPhase& thermo)
 void IdealGasReactor::getState(double* y)
 {
     if (m_thermo == 0) {
-        throw CanteraError("getState",
+        throw CanteraError("IdealGasReactor::getState",
                            "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);
@@ -65,12 +65,7 @@ void IdealGasReactor::updateState(doublereal* y)
     m_thermo->setMassFractions_NoNorm(y+3);
     m_thermo->setState_TR(y[2], m_mass / m_vol);
     updateSurfaceState(y + m_nsp + 3);
-
-    // save parameters needed by other connected reactors
-    m_enthalpy = m_thermo->enthalpy_mass();
-    m_pressure = m_thermo->pressure();
-    m_intEnergy = m_thermo->intEnergy_mass();
-    m_thermo->saveState(m_state);
+    updateConnected(true);
 }
 
 void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
@@ -80,8 +75,9 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
     double mcvdTdt = 0.0; // m * c_v * dT/dt
     double* dYdt = ydot + 3;
 
-    m_thermo->restoreState(m_state);
+    evalWalls(time);
     applySensitivity(params);
+    m_thermo->restoreState(m_state);
     m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
     const vector_fp& mw = m_thermo->molecularWeights();
     const doublereal* Y = m_thermo->massFractions();
@@ -90,7 +86,6 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
     }
 
-    evalWalls(time);
     double mdot_surf = evalSurfaces(time, ydot + m_nsp + 3);
     dmdt += mdot_surf;
 
@@ -108,21 +103,21 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
     }
 
     // add terms for outlets
-    for (size_t i = 0; i < m_outlet.size(); i++) {
-        double mdot_out = m_outlet[i]->massFlowRate(time);
-        dmdt -= mdot_out; // mass flow out of system
-        mcvdTdt -= mdot_out * m_pressure * m_vol / m_mass; // flow work
+    for (auto outlet : m_outlet) {
+        double mdot = outlet->massFlowRate();
+        dmdt -= mdot; // mass flow out of system
+        mcvdTdt -= mdot * m_pressure * m_vol / m_mass; // flow work
     }
 
     // add terms for inlets
-    for (size_t i = 0; i < m_inlet.size(); i++) {
-        double mdot_in = m_inlet[i]->massFlowRate(time);
-        dmdt += mdot_in; // mass flow into system
-        mcvdTdt += m_inlet[i]->enthalpy_mass() * mdot_in;
+    for (auto inlet : m_inlet) {
+        double mdot = inlet->massFlowRate();
+        dmdt += mdot; // mass flow into system
+        mcvdTdt += inlet->enthalpy_mass() * mdot;
         for (size_t n = 0; n < m_nsp; n++) {
-            double mdot_spec = m_inlet[i]->outletSpeciesMassFlowRate(n);
+            double mdot_spec = inlet->outletSpeciesMassFlowRate(n);
             // flow of species into system and dilution by other species
-            dYdt[n] += (mdot_spec - mdot_in * Y[n]) / m_mass;
+            dYdt[n] += (mdot_spec - mdot * Y[n]) / m_mass;
 
             // In combination with h_in*mdot_in, flow work plus thermal
             // energy carried with the species

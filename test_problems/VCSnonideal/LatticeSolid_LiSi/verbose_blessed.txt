@@ -4,13 +4,12 @@ dg_corr = -1.57754e+08
 um_li_chempot = -1.65555e+08
 Trying VCS equilibrium solver
 Unknown Cantera EOS to VCSnonideal: 'Margules'
-vcs_Cantera_convert: Species Type 8 not known 
-vcs_Cantera_convert: Species Type 8 not known 
+vcs_Cantera_convert: Species Type 0 not known 
+vcs_Cantera_convert: Species Type 0 not known 
 Unknown Cantera EOS to VCSnonideal: 'LatticeSolid'
 vcs_Cantera_convert: Species Type 8 not known 
 vcs_Cantera_convert: Species Type 1 not known 
 vcs_Cantera_convert: Species Type 1 not known 
-Unknown Cantera EOS to VCSnonideal: 'FixedChemPot'
 vcs_Cantera_convert: Species Type 1 not known 
 
 ================================================================================
@@ -28,9 +27,9 @@ vcs_Cantera_convert: Species Type 1 not known
 --------------------------------------------------------------------------------
              Information about phases
   PhaseName    PhaseNum SingSpec GasPhase EqnState NumSpec  TMolesInert       Tmoles(kmol)
-MoltenSalt_electrolyte     0     0        0 UnkType: -1             2     0.000000e+00     1.000000e+01
-Li7Si3_and_Interstitials(S)     1     0        0 UnkType: -1             3     0.000000e+00     1.000000e+00
-         LiFixed     2     1        0 UnkType: -1             1     0.000000e+00     1.000000e+02
+MoltenSalt_electrolyte     0     0        0 UnkType:      -1        2     0.000000e+00     1.000000e+01
+Li7Si3_and_Interstitials(S)     1     0        0 UnkType:      -1        3     0.000000e+00     1.000000e+00
+         LiFixed     2     1        0       Stoich Sub        1     0.000000e+00     1.000000e+02
 
 ================================================================================
 ================ Cantera_to_vprob: END OF PROBLEM STATEMENT ====================
@@ -53,9 +52,9 @@ Li7Si3_and_Interstitials(S)     1     0        0 UnkType: -1             3     0
 --------------------------------------------------------------------------------
              Information about phases
   PhaseName    PhaseNum SingSpec GasPhase EqnState NumSpec  TMolesInert       Tmoles(kmol)
-MoltenSalt_electrolyte     0     0        0 UnkType: -1             2     0.000000e+00     1.000000e+01
-Li7Si3_and_Interstitials(S)     1     0        0 UnkType: -1             3     0.000000e+00     1.000000e+00
-         LiFixed     2     1        0 UnkType: -1             1     0.000000e+00     1.000000e+02
+MoltenSalt_electrolyte     0     0        0 UnkType:      -1        2     0.000000e+00     1.000000e+01
+Li7Si3_and_Interstitials(S)     1     0        0 UnkType:      -1        3     0.000000e+00     1.000000e+00
+         LiFixed     2     1        0       Stoich Sub        1     0.000000e+00     1.000000e+02
 
 ================================================================================
 ==================== Cantera_to_vprob: END OF PROBLEM STATEMENT ====================
@@ -82,16 +81,16 @@ Li7Si3_and_Interstitials(S)     1     0        0 UnkType: -1             3     0
 --------------------------------------------------------------------------------
              Information about phases
   PhaseName    PhaseNum SingSpec  GasPhase    EqnState    NumSpec  TMolesInert      TKmoles
-MoltenSalt_electrolyte     0     0        0 UnkType: -1             2     0.000000e+00     1.000000e+01
-Li7Si3_and_Interstitials(S)     1     0        0 UnkType: -1             3     0.000000e+00     1.000000e+00
-         LiFixed     2     1        0 UnkType: -1             1     0.000000e+00     1.000000e+02
+MoltenSalt_electrolyte     0     0        0 UnkType:      -1        2     0.000000e+00     1.000000e+01
+Li7Si3_and_Interstitials(S)     1     0        0 UnkType:      -1        3     0.000000e+00     1.000000e+00
+         LiFixed     2     1        0       Stoich Sub        1     0.000000e+00     1.000000e+02
 
 Elemental Abundances:             Target_kmol    ElemType ElActive
                           Li  1.105050000000E+02    0         1
                           K   3.000000000000E+00    0         1
                           Cl  1.000000000000E+01    0         1
                           Si  1.500000000000E+00    0         1
-                          LC -5.551115123126E-17    3         1
+                          LC  0.000000000000E+00    3         1
 
 Chemical Potentials:  (J/kmol)
              Species       (phase)        SS0ChemPot       StarChemPot
@@ -147,7 +146,7 @@ VCS CALCULATION METHOD
                           K   3.000000000000E+00  3.000000000000E+00       0
                           Cl  1.000000000000E+01  1.000000000000E+01       0
                           Si  1.500000000000E+00  1.500000000000E+00       0
-                          LC  0.000000000000E+00 -6.071532165919E-17       3
+                          LC  0.000000000000E+00 -4.336808689942E-18       3
 
  USER ESTIMATE OF EQUILIBRIUM
  Stan. Chem. Pot. in J/kmol
@@ -213,19 +212,19 @@ VCS CALCULATION METHOD
    --- Li(i)           5.0000E-03  -5.0000E-03   2.4310E+01 | Delta damped from -0.120337 to -0.005 due to Li(i) going negative
    ----------------------------------------------------------------------------------
    --- Main Loop Treatment of each non-component species - Full Calculation:
-   --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- Li(i)         1 5.0000E-03 5.0000E-04-4.5000E-03 | initial nonpos kmoles=   0.000E+00
-   --- LiFixed       c 1.0000E+02 1.0000E+02 4.5000E-03 |
-   --- LiCl(L)       c 7.0000E+00 7.0000E+00 0.0000E+00 |
-   --- KCl(L)        c 3.0000E+00 3.0000E+00 0.0000E+00 |
-   --- Li7Si3(S)     c 5.0000E-01 5.0000E-01 0.0000E+00 |
-   --- V(i)          c 4.9500E-01 4.9950E-01 4.5000E-03 |
+   --- Species     IC      KMoles   Tent_KMoles  Rxn_Adj   |    Comment 
+   --- Li(i)         1  5.0000E-03  5.0000E-04 -4.5000E-03 | initial nonpos kmoles=   0.000E+00
+   --- LiFixed       c  1.0000E+02  1.0000E+02  4.5000E-03 |
+   --- LiCl(L)       c  7.0000E+00  7.0000E+00  0.0000E+00 |
+   --- KCl(L)        c  3.0000E+00  3.0000E+00  0.0000E+00 |
+   --- Li7Si3(S)     c  5.0000E-01  5.0000E-01  0.0000E+00 |
+   --- V(i)          c  4.9500E-01  4.9950E-01  4.5000E-03 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
    --- Subroutine vcs_dfe called for all species using tentative solution
    --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -4.1205696172077E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -4.1206756453367E+03
+   --- Total Old       Dimensionless Gibbs Free Energy = -4.1205692244414E+03
+   --- Total tentative Dimensionless Gibbs Free Energy = -4.1206752525561E+03
    --- subroutine FORCE: Beginning Slope = -0.109397
    --- subroutine FORCE: End Slope       = -0.0989949
    --- subroutine FORCE produced no adjustments, s2 < 0
@@ -233,20 +232,20 @@ VCS CALCULATION METHOD
    --- Summary of the Update  (all species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
    ---   LiFixed           1.000000E+02  1.000045E+02 -3.185109E+01 -3.185109E+01
-   ---   LiCl(L)           7.000000E+00  7.000000E+00 -8.660131E+01 -8.660131E+01
-   ---   KCl(L)            3.000000E+00  3.000000E+00 -9.603624E+01 -9.603624E+01
+   ---   LiCl(L)           7.000000E+00  7.000000E+00 -8.660130E+01 -8.660130E+01
+   ---   KCl(L)            3.000000E+00  3.000000E+00 -9.603623E+01 -9.603623E+01
    ---   Li7Si3(S)         5.000000E-01  5.000000E-01 -8.152380E+01 -8.152380E+01
    ---   V(i)              4.950000E-01  4.995000E-01 -6.859209E-01 -6.768711E-01
-   ---   Li(i)         1   5.000000E-03  5.000000E-04 -8.226517E+00 -1.052910E+01  2.431050E+01  2.199886E+01
-   ---                                                        Norms of Delta G():  2.431050E+01  2.199886E+01
+   ---   Li(i)         1   5.000000E-03  5.000000E-04 -8.226517E+00 -1.052910E+01  2.431049E+01  2.199886E+01
+   ---                                                        Norms of Delta G():  2.431049E+01  2.199886E+01
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
    ---   MoltenSalt_electrolyte =   1.0000000E+01
    ---   Li7Si3_and_Interstitials(S) =   1.0000000E+00
    ---              LiFixed =   1.0000450E+02
    -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -4.1205696172077E+03
-   --- Total New Dimensionless Gibbs Free Energy = -4.1206756453367E+03
+   --- Total Old Dimensionless Gibbs Free Energy = -4.1205692244414E+03
+   --- Total New Dimensionless Gibbs Free Energy = -4.1206752525561E+03
    --- Increment counter increased, step is accepted:    1
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
@@ -271,40 +270,40 @@ VCS CALCULATION METHOD
    --- Li(i)           5.0000E-04   0.0000E+00   2.1999E+01 | Skipped: IC =   0 and DG >0:   2.200E+01
    ----------------------------------------------------------------------------------
    --- Main Loop Treatment of each non-component species - Full Calculation:
-   --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- Li(i)         0 5.0000E-04 1.3963E-13-5.0000E-04 | minor species alternative calc
-   --- LiFixed       c 1.0000E+02 1.0000E+02 5.0000E-04 |
-   --- LiCl(L)       c 7.0000E+00 7.0000E+00 0.0000E+00 |
-   --- KCl(L)        c 3.0000E+00 3.0000E+00 0.0000E+00 |
-   --- Li7Si3(S)     c 5.0000E-01 5.0000E-01 0.0000E+00 |
-   --- V(i)          c 4.9950E-01 5.0000E-01 5.0000E-04 |
+   --- Species     IC      KMoles   Tent_KMoles  Rxn_Adj   |    Comment 
+   --- Li(i)         0  5.0000E-04  1.3963E-13 -5.0000E-04 | minor species alternative calc
+   --- LiFixed       c  1.0000E+02  1.0000E+02  5.0000E-04 |
+   --- LiCl(L)       c  7.0000E+00  7.0000E+00  0.0000E+00 |
+   --- KCl(L)        c  3.0000E+00  3.0000E+00  0.0000E+00 |
+   --- Li7Si3(S)     c  5.0000E-01  5.0000E-01  0.0000E+00 |
+   --- V(i)          c  4.9950E-01  5.0000E-01  5.0000E-04 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
    --- Subroutine vcs_dfe called for all species using tentative solution
    --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -4.1206756453367E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -4.1206861445167E+03
+   --- Total Old       Dimensionless Gibbs Free Energy = -4.1206752525561E+03
+   --- Total tentative Dimensionless Gibbs Free Energy = -4.1206857517346E+03
    --- subroutine FORCE: Beginning Slope = -0.0109994
-   --- subroutine FORCE: End Slope       = 5.0019e-07
+   --- subroutine FORCE: End Slope       = 5.0022e-07
    --- subroutine FORCE produced no adjustments (al = 0.999955)
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (all species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
    ---   LiFixed           1.000045E+02  1.000050E+02 -3.185109E+01 -3.185109E+01
-   ---   LiCl(L)           7.000000E+00  7.000000E+00 -8.660131E+01 -8.660131E+01
-   ---   KCl(L)            3.000000E+00  3.000000E+00 -9.603624E+01 -9.603624E+01
+   ---   LiCl(L)           7.000000E+00  7.000000E+00 -8.660130E+01 -8.660130E+01
+   ---   KCl(L)            3.000000E+00  3.000000E+00 -9.603623E+01 -9.603623E+01
    ---   Li7Si3(S)         5.000000E-01  5.000000E-01 -8.152380E+01 -8.152380E+01
    ---   V(i)              4.995000E-01  5.000000E-01 -6.768711E-01 -6.758706E-01
-   ---   Li(i)         0   5.000000E-04  1.396324E-13 -1.052910E+01 -3.252796E+01  2.199886E+01 -1.000381E-03
-   ---                                                        Norms of Delta G():  2.199886E+01  1.000381E-03
+   ---   Li(i)         0   5.000000E-04  1.396329E-13 -1.052910E+01 -3.252796E+01  2.199886E+01 -1.000440E-03
+   ---                                                        Norms of Delta G():  2.199886E+01  1.000440E-03
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
    ---   MoltenSalt_electrolyte =   1.0000000E+01
    ---   Li7Si3_and_Interstitials(S) =   1.0000000E+00
    ---              LiFixed =   1.0000500E+02
    -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -4.1206756453367E+03
-   --- Total New Dimensionless Gibbs Free Energy = -4.1206861445167E+03
+   --- Total Old Dimensionless Gibbs Free Energy = -4.1206752525561E+03
+   --- Total New Dimensionless Gibbs Free Energy = -4.1206857517346E+03
    --- Increment counter increased, step is accepted:    2
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
@@ -325,43 +324,43 @@ VCS CALCULATION METHOD
    --- Subroutine vcs_RxnStepSizes called - Details:
    ----------------------------------------------------------------------------------
    --- Species        KMoles     Rxn_Adjustment    DeltaG   | Comment
-   --- Li(i)           1.3963E-13   1.3969E-16  -1.0004E-03 | Normal calc: diag adjusted from 7.16166e+12 to 7.16166e+12 due to act coeff
+   --- Li(i)           1.3963E-13   1.3969E-16  -1.0004E-03 | Normal calc: diag adjusted from 7.16164e+12 to 7.16164e+12 due to act coeff
    ----------------------------------------------------------------------------------
    --- Main Loop Treatment of each non-component species - Full Calculation:
-   --- Species     IC     KMoles  Tent_KMoles Rxn_Adj   |    Comment 
-   --- Li(i)         0 1.3963E-13 1.3977E-13 1.3976E-16 | minor species alternative calc
-   --- LiFixed       c 1.0000E+02 1.0000E+02-1.3976E-16 |
-   --- LiCl(L)       c 7.0000E+00 7.0000E+00 0.0000E+00 |
-   --- KCl(L)        c 3.0000E+00 3.0000E+00 0.0000E+00 |
-   --- Li7Si3(S)     c 5.0000E-01 5.0000E-01 0.0000E+00 |
-   --- V(i)          c 5.0000E-01 5.0000E-01-1.3976E-16 |
+   --- Species     IC      KMoles   Tent_KMoles  Rxn_Adj   |    Comment 
+   --- Li(i)         0  1.3963E-13  1.3977E-13  1.3976E-16 | minor species alternative calc
+   --- LiFixed       c  1.0000E+02  1.0000E+02 -1.3976E-16 |
+   --- LiCl(L)       c  7.0000E+00  7.0000E+00  0.0000E+00 |
+   --- KCl(L)        c  3.0000E+00  3.0000E+00  0.0000E+00 |
+   --- Li7Si3(S)     c  5.0000E-01  5.0000E-01  0.0000E+00 |
+   --- V(i)          c  5.0000E-01  5.0000E-01 -1.3976E-16 |
    --------------------------------------------------------------------------------
    --- Finished Main Loop
    --- Subroutine vcs_dfe called for all species using tentative solution
    --- Subroutine vcs_deltag called for all noncomponents
-   --- Total Old       Dimensionless Gibbs Free Energy = -4.1206861445167E+03
-   --- Total tentative Dimensionless Gibbs Free Energy = -4.1206861445167E+03
-   --- subroutine FORCE: Beginning Slope = -1.39809e-19
-   --- subroutine FORCE: End Slope       = 0
+   --- Total Old       Dimensionless Gibbs Free Energy = -4.1206857517346E+03
+   --- Total tentative Dimensionless Gibbs Free Energy = -4.1206857517346E+03
+   --- subroutine FORCE: Beginning Slope = -1.39826e-19
+   --- subroutine FORCE: End Slope       = 9.31017e-32
    --- subroutine FORCE produced no adjustments, s2 < 0
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (all species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
    ---   LiFixed           1.000050E+02  1.000050E+02 -3.185109E+01 -3.185109E+01
-   ---   LiCl(L)           7.000000E+00  7.000000E+00 -8.660131E+01 -8.660131E+01
-   ---   KCl(L)            3.000000E+00  3.000000E+00 -9.603624E+01 -9.603624E+01
+   ---   LiCl(L)           7.000000E+00  7.000000E+00 -8.660130E+01 -8.660130E+01
+   ---   KCl(L)            3.000000E+00  3.000000E+00 -9.603623E+01 -9.603623E+01
    ---   Li7Si3(S)         5.000000E-01  5.000000E-01 -8.152380E+01 -8.152380E+01
    ---   V(i)              5.000000E-01  5.000000E-01 -6.758706E-01 -6.758706E-01
-   ---   Li(i)         0   1.396324E-13  1.397722E-13 -3.252796E+01 -3.252696E+01 -1.000381E-03  0.000000E+00
-   ---                                                        Norms of Delta G():  1.000381E-03  0.000000E+00
+   ---   Li(i)         0   1.396329E-13  1.397726E-13 -3.252796E+01 -3.252696E+01 -1.000440E-03  6.661338E-16
+   ---                                                        Norms of Delta G():  1.000440E-03  6.661338E-16
    ---           Phase_Name    KMoles(after update)
    ---   --------------------------------------------------
    ---   MoltenSalt_electrolyte =   1.0000000E+01
    ---   Li7Si3_and_Interstitials(S) =   1.0000000E+00
    ---              LiFixed =   1.0000500E+02
    -------------------------------------------------------------------------------------------------------
-   --- Total Old Dimensionless Gibbs Free Energy = -4.1206861445167E+03
-   --- Total New Dimensionless Gibbs Free Energy = -4.1206861445167E+03
+   --- Total Old Dimensionless Gibbs Free Energy = -4.1206857517346E+03
+   --- Total New Dimensionless Gibbs Free Energy = -4.1206857517346E+03
    --- Increment counter increased, step is accepted:    3
    --- Normal element abundance check - passed
    --- Check for an optimum basis passed
@@ -384,7 +383,7 @@ VCS CALCULATION METHOD
 --------------------------------------------------------------------------------
 		Temperature  =         6.3e+02 Kelvin
 		Pressure     =      1.0132e+05 Pa 
-		total Volume =          0.35041 m**3
+		total Volume =          1.6501 m**3
 
 
 --------------------------------------------------------------------------------
@@ -395,7 +394,7 @@ VCS CALCULATION METHOD
  KCl(L)                    3.0000000E+00      3.0000000E-01     -9.6036E+01     0
  Li7Si3(S)                 5.0000000E-01      5.0000000E-01     -8.1524E+01     0
  V(i)                      5.0000000E-01      5.0000000E-01     -6.7587E-01     0
- Li(i)                     1.3977220E-13      1.3977220E-13     -3.2527E+01  KMolNum 
+ Li(i)                     1.3977264E-13      1.3977264E-13     -3.2527E+01  KMolNum 
 --------------------------------------------------------------------------------
 
 
@@ -404,7 +403,7 @@ VCS CALCULATION METHOD
                | Components|    LiFixed    LiCl(L)     KCl(L)  Li7Si3(S)       V(i) |           |
  NonComponent  |   Moles   |        100          7          3        0.5        0.5 | DG/RT Rxn |
 -----------------------------------------------------------------------------------------------
-   5 Li(i)     |   1.4e-13 |      -1.00       0.00       0.00       0.00      -1.00 |         0 |
+   5 Li(i)     |   1.4e-13 |      -1.00       0.00       0.00       0.00      -1.00 |  6.66e-16 |
 -----------------------------------------------------------------------------------------------
 
 
@@ -415,22 +414,22 @@ VCS CALCULATION METHOD
                   | Element   |         Li          K         Cl         Si LC_1_Li7Si |                     |
     PhaseName     |KMolTarget |        111          3         10        1.5          0 |     Gibbs Total     |
 ------------------------------------------------------------------------------------------------------------
-   0 MoltenSalt_e | 1.000e+01 |          7          3         10          0          0 | -8.94317858985E+02 |
-   1 Li7Si3_and_I | 1.000e+00 |        3.5          0          0        1.5  -6.04e-17 | -4.10998353290E+01 |
-   2 LiFixed      | 1.000e+02 |        100          0          0          0          0 | -3.18526845020E+03 |
+   0 MoltenSalt_e | 1.000e+01 |          7          3         10          0          0 | -8.94317803632E+02 |
+   1 Li7Si3_and_I | 1.000e+00 |        3.5          0          0        1.5  -4.43e-18 | -4.10998328109E+01 |
+   2 LiFixed      | 1.000e+02 |        100          0          0          0          0 | -3.18526811529E+03 |
 ------------------------------------------------------------------------------------------------------------
-    TOTAL         | 1.110e+02 |        111          3         10        1.5  -6.04e-17 | -4.12068614452E+03 |
+    TOTAL         | 1.110e+02 |        111          3         10        1.5  -4.43e-18 | -4.12068575173E+03 |
 ------------------------------------------------------------------------------------------------------------
 
 
-	Total Dimensionless Gibbs Free Energy = G/RT =  -4.1206861E+03
+	Total Dimensionless Gibbs Free Energy = G/RT =  -4.1206858E+03
 
 Elemental Abundances (kmol):          Actual                    Target         Type      ElActive
                           Li  1.105050000000E+02    1.105050000000E+02     0       1
                           K   3.000000000000E+00    3.000000000000E+00     0       1
                           Cl  1.000000000000E+01    1.000000000000E+01     0       1
                           Si  1.500000000000E+00    1.500000000000E+00     0       1
-                          LC -6.038819494728E-17    0.000000000000E+00     3       1
+                          LC -4.434610288441E-18    0.000000000000E+00     3       1
 
 
 ---------------------------------------------------------------------------------------------
@@ -438,13 +437,13 @@ Chemical Potentials of the Species: (dimensionless)
 		(RT = 5.19779e+06 J/kmol)
     Name        TKMoles     StandStateChemPot      ln(AC)       ln(X_i)      |   F z_i phi   |    ChemPot    | (-lnMnaught)|  (MolNum ChemPot)|
 ---------------------------------------------------------------------------------------------------------------------------------------------------
- LiFixed       1.0000500E+02 -3.1851092E+01   0.0000000E+00   0.0000000E+00  | 0.0000000E+00 |   -3.1851E+01 |             |      -3.185268450E+03 |
- LiCl(L)       7.0000000E+00 -8.5938692E+01  -3.0594113E-01  -3.5667494E-01  | 0.0000000E+00 |   -8.6601E+01 |             |      -6.062091532E+02 |
- KCl(L)        3.0000000E+00 -9.3494315E+01  -1.3379472E+00  -1.2039728E+00  | 0.0000000E+00 |   -9.6036E+01 |             |      -2.881087058E+02 |
- Li7Si3(S)     5.0000000E-01 -8.0830653E+01   0.0000000E+00  -6.9314718E-01  | 0.0000000E+00 |   -8.1524E+01 |             |      -4.076190003E+01 |
- V(i)          5.0000000E-01  1.7276587E-02   0.0000000E+00  -6.9314718E-01  | 0.0000000E+00 |   -6.7587E-01 |             |      -3.379352969E-01 |
- Li(i)         1.3977220E-13 -2.9282001E+00   0.0000000E+00  -2.9598762E+01  | 0.0000000E+00 |   -3.2527E+01 |             |      -4.546365171E-12 |
-                                                                                                                                  -4.120686145E+03
+ LiFixed       1.0000500E+02 -3.1851089E+01   0.0000000E+00   0.0000000E+00  | 0.0000000E+00 |   -3.1851E+01 |             |      -3.185268115E+03 |
+ LiCl(L)       7.0000000E+00 -8.5938686E+01  -3.0594111E-01  -3.5667494E-01  | 0.0000000E+00 |   -8.6601E+01 |             |      -6.062091156E+02 |
+ KCl(L)        3.0000000E+00 -9.3494309E+01  -1.3379472E+00  -1.2039728E+00  | 0.0000000E+00 |   -9.6036E+01 |             |      -2.881086881E+02 |
+ Li7Si3(S)     5.0000000E-01 -8.0830648E+01   0.0000000E+00  -6.9314718E-01  | 0.0000000E+00 |   -8.1524E+01 |             |      -4.076189751E+01 |
+ V(i)          5.0000000E-01  1.7276586E-02   0.0000000E+00  -6.9314718E-01  | 0.0000000E+00 |   -6.7587E-01 |             |      -3.379352975E-01 |
+ Li(i)         1.3977264E-13 -2.9281999E+00   0.0000000E+00  -2.9598759E+01  | 0.0000000E+00 |   -3.2527E+01 |             |      -4.546379094E-12 |
+                                                                                                                                  -4.120685752E+03
 ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -481,71 +480,74 @@ Moles: 10
 
   MoltenSalt_electrolyte:
 
-       temperature          625.15  K
-          pressure          101325  Pa
-           density         2042.12  kg/m^3
-  mean mol. weight         52.0409  amu
+       temperature   625.15 K
+          pressure   1.0132e+05 Pa
+           density   2042 kg/m^3
+  mean mol. weight   52.037 kg/kmol
+   phase of matter   unspecified
 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     -7.3846e+06       -3.843e+08     J
-   internal energy     -7.3846e+06       -3.843e+08     J
-           entropy          2475.9        1.288e+05     J/K
-    Gibbs function     -8.9323e+06       -4.648e+08     J
- heat capacity c_p          1331.6         6.93e+04     J/K
- heat capacity c_v          1171.8        6.098e+04     J/K
+                          1 kg             1 kmol     
+                     ---------------   ---------------
+          enthalpy        -7.385e+06        -3.843e+08  J
+   internal energy       -7.3851e+06        -3.843e+08  J
+           entropy              2476        1.2885e+05  J/K
+    Gibbs function       -8.9329e+06       -4.6485e+08  J
+ heat capacity c_p            1331.7             69298  J/K
+ heat capacity c_v            1171.9             60983  J/K
 
-                           X                 Y          Chem. Pot. / RT
-                     -------------     ------------     ------------
-           LiCl(L)            0.7         0.570236         -86.6013
-            KCl(L)            0.3         0.429764         -96.0362
+                      mass frac. Y      mole frac. X     chem. pot. / RT
+                     ---------------   ---------------   ---------------
+           LiCl(L)           0.57022               0.7           -86.601
+            KCl(L)           0.42978               0.3           -96.036
 
 *************** Li7Si3_and_Interstitials(S) *****************
 Moles: 1
 
   Li7Si3_and_Interstitials(S):
 
-       temperature          625.15  K
-          pressure          101325  Pa
-           density            1390  kg/m^3
-  mean mol. weight         66.4218  amu
+       temperature   625.15 K
+          pressure   1.0132e+05 Pa
+           density   1390 kg/m^3
+  mean mol. weight   66.418 kg/kmol
+   phase of matter   solid
 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     -2.5006e+06       -1.661e+08     J
-   internal energy     -2.5009e+06       -1.661e+08     J
-           entropy            6116        4.062e+05     J/K
-    Gibbs function      -6.324e+06       -4.201e+08     J
- heat capacity c_p          4196.8        2.788e+05     J/K
- heat capacity c_v          4196.8        2.788e+05     J/K
+                          1 kg             1 kmol     
+                     ---------------   ---------------
+          enthalpy       -2.5008e+06       -1.6609e+08  J
+   internal energy        -2.501e+06       -1.6611e+08  J
+           entropy            6116.4        4.0623e+05  J/K
+    Gibbs function       -6.3244e+06       -4.2005e+08  J
+ heat capacity c_p            4197.1        2.7876e+05  J/K
+ heat capacity c_v            4197.1        2.7876e+05  J/K
 
-                           X                 Y          Chem. Pot. / RT
-                     -------------     ------------     ------------
-         Li7Si3(S)            0.5                1         -80.8307
-             Li(i)    1.39772e-13       1.4606e-14         -31.8338
-              V(i)            0.5      7.52765e-23        0.0172766
+                      mass frac. Y      mole frac. X     chem. pot. / RT
+                     ---------------   ---------------   ---------------
+         Li7Si3(S)                 1               0.5           -80.831
+             Li(i)        1.4605e-14        1.3977e-13           -31.834
+              V(i)        7.5281e-23               0.5          0.017277
 
 *************** LiFixed *****************
 Moles: 100.005
 
   LiFixed:
 
-       temperature          625.15  K
-          pressure          101325  Pa
-           density           0.001  kg/m^3
-  mean mol. weight           6.941  amu
+       temperature   625.15 K
+          pressure   1.0132e+05 Pa
+           density   534 kg/m^3
+  mean mol. weight   6.94 kg/kmol
+   phase of matter   unspecified
 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     -2.3852e+07       -1.656e+08     J
-   internal energy     -1.2398e+14       -8.605e+14     J
-           entropy               0                0     J/K
-    Gibbs function     -2.3852e+07       -1.656e+08     J
- heat capacity c_p               0                0     J/K
- heat capacity c_v               0                0     J/K
+                          1 kg             1 kmol     
+                     ---------------   ---------------
+          enthalpy       -2.3855e+07       -1.6556e+08  J
+   internal energy       -2.3855e+07       -1.6556e+08  J
+           entropy                 0                 0  J/K
+    Gibbs function       -2.3855e+07       -1.6556e+08  J
+ heat capacity c_p                 0                 0  J/K
+ heat capacity c_v                 0                 0  J/K
 
-                           X                 Y          Chem. Pot. / RT
-                     -------------     ------------     ------------
-           LiFixed              1                1         -31.8511
+                      mass frac. Y      mole frac. X     chem. pot. / RT
+                     ---------------   ---------------   ---------------
+           LiFixed                 1                 1           -31.851
 
 

@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/PDSS_Water.h"
@@ -153,7 +153,7 @@ void PDSS_Water::setPressure(doublereal p)
 
     doublereal dd = m_sub.density(T, p, waterState, dens);
     if (dd <= 0.0) {
-        throw CanteraError("PDSS_Water:setPressure()",
+        throw CanteraError("PDSS_Water:setPressure",
             "Failed to set water SS state: T = {} K and p = {} Pa", T, p);
     }
     m_dens = dd;

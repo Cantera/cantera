@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/oneD/Sim1D.h"
 #include "cantera/oneD/MultiJac.h"
@@ -12,6 +12,7 @@
 #include "cantera/numerics/funcs.h"
 #include "cantera/base/xml.h"
 #include "cantera/numerics/Func1.h"
+#include <limits>
 
 using namespace std;
 
@@ -124,15 +125,15 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
     for (size_t m = 0; m < nDomains(); m++) {
         Domain1D& dom = domain(m);
         if (loglevel > 0 && xd[m]->attrib("id") != dom.id()) {
-            writelog("Warning: domain names do not match: '" +
-                     (*xd[m])["id"] + + "' and '" + dom.id() + "'\n");
+            warn_user("Sim1D::restore", "Domain names do not match: "
+                "'{} and '{}'", (*xd[m])["id"], dom.id());
         }
         dom.resize(domain(m).nComponents(), intValue((*xd[m])["points"]));
     }
     resize();
     m_xlast_ts.clear();
     for (size_t m = 0; m < nDomains(); m++) {
-        domain(m).restore(*xd[m], &m_x[domain(m).loc()], loglevel);
+        domain(m).restore(*xd[m], &m_x[start(m)], loglevel);
     }
     finalize();
 }
@@ -424,50 +425,53 @@ int Sim1D::refine(int loglevel)
     return np;
 }
 
-int Sim1D::setFixedTemperature(doublereal t)
+int Sim1D::setFixedTemperature(double t)
 {
     int np = 0;
     vector_fp znew, xnew;
-    doublereal zfixed;
-    doublereal z1 = 0.0, z2 = 0.0, t1,t2;
-    size_t m1 = 0;
+    double zfixed = 0.0;
+    double z1 = 0.0, z2 = 0.0;
     std::vector<size_t> dsize;
 
     for (size_t n = 0; n < nDomains(); n++) {
-        bool addnewpt=false;
         Domain1D& d = domain(n);
         size_t comp = d.nComponents();
+        size_t mfixed = npos;
 
-        // loop over points in the current grid to determine where new point is
-        // needed.
+        // loop over current grid to determine where new point is needed
         StFlow* d_free = dynamic_cast<StFlow*>(&domain(n));
         size_t npnow = d.nPoints();
         size_t nstart = znew.size();
         if (d_free && d_free->domainType() == cFreeFlow) {
-            for (size_t m = 0; m < npnow-1; m++) {
-                if (value(n,2,m) == t) {
-                    zfixed = d.grid(m);
-                    d_free->m_zfixed = zfixed;
-                    d_free->m_tfixed = t;
-                    addnewpt = false;
-                    break;
-                } else if ((value(n,2,m)<t) && (value(n,2,m+1)>t)) {
-                    z1 = d.grid(m);
-                    m1 = m;
-                    z2 = d.grid(m+1);
-                    t1 = value(n,2,m);
-                    t2 = value(n,2,m+1);
+            for (size_t m = 0; m < npnow - 1; m++) {
+                bool fixedpt = false;
+                double t1 = value(n, 2, m);
+                double t2 = value(n, 2, m + 1);
+                // threshold to avoid adding new point too close to existing point
+                double thresh = min(1., 1.e-1 * (t2 - t1));
+                z1 = d.grid(m);
+                z2 = d.grid(m + 1);
+                if (fabs(t - t1) <= thresh) {
+                    zfixed = z1;
+                    fixedpt = true;
+                } else if (fabs(t2 - t) <= thresh) {
+                    zfixed = z2;
+                    fixedpt = true;
+                } else if ((t1 < t) && (t < t2)) {
+                    mfixed = m;
+                    zfixed = (z1 - z2) / (t1 - t2) * (t - t2) + z2;
+                    fixedpt = true;
+                }
 
-                    zfixed = (z1-z2)/(t1-t2)*(t-t2)+z2;
+                if (fixedpt) {
                     d_free->m_zfixed = zfixed;
                     d_free->m_tfixed = t;
-                    addnewpt = true;
                     break;
-                    //copy solution domain and push back values
                 }
             }
         }
 
+        // copy solution domain and push back values
         for (size_t m = 0; m < npnow; m++) {
             // add the current grid point to the new grid
             znew.push_back(d.grid(m));
@@ -476,11 +480,11 @@ int Sim1D::setFixedTemperature(doublereal t)
             for (size_t i = 0; i < comp; i++) {
                 xnew.push_back(value(n, i, m));
             }
-            if (m==m1 && addnewpt) {
-                //add new point at zfixed
+            if (m == mfixed) {
+                // add new point at zfixed (mfixed is not npos)
                 znew.push_back(zfixed);
                 np++;
-                double interp_factor = (zfixed-z2) / (z1-z2);
+                double interp_factor = (zfixed - z2) / (z1 - z2);
                 // for each component, linearly interpolate
                 // the solution to this point
                 for (size_t i = 0; i < comp; i++) {
@@ -511,8 +515,34 @@ int Sim1D::setFixedTemperature(doublereal t)
     return np;
 }
 
-void Sim1D::setRefineCriteria(int dom, doublereal ratio,
-                              doublereal slope, doublereal curve, doublereal prune)
+double Sim1D::fixedTemperature()
+{
+    double t_fixed = std::numeric_limits<double>::quiet_NaN();
+    for (size_t n = 0; n < nDomains(); n++) {
+        StFlow* d = dynamic_cast<StFlow*>(&domain(n));
+        if (d && d->domainType() == cFreeFlow && d->m_tfixed > 0) {
+            t_fixed = d->m_tfixed;
+            break;
+        }
+    }
+    return t_fixed;
+}
+
+double Sim1D::fixedTemperatureLocation()
+{
+    double z_fixed = std::numeric_limits<double>::quiet_NaN();
+    for (size_t n = 0; n < nDomains(); n++) {
+        StFlow* d = dynamic_cast<StFlow*>(&domain(n));
+        if (d && d->domainType() == cFreeFlow && d->m_tfixed > 0) {
+            z_fixed = d->m_zfixed;
+            break;
+        }
+    }
+    return z_fixed;
+}
+
+void Sim1D::setRefineCriteria(int dom, double ratio,
+                              double slope, double curve, double prune)
 {
     if (dom >= 0) {
         Refiner& r = domain(dom).refiner();

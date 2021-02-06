@@ -1,18 +1,16 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
-# at http://www.cantera.org/license.txt for license and copyright information.
+# at https://cantera.org/license.txt for license and copyright information.
 
 import sys
 import os
+import warnings
 from cpython.ref cimport PyObject
-
-cdef int _pythonMajorVersion = sys.version_info[0]
 
 cdef CxxPythonLogger* _logger = new CxxPythonLogger()
 CxxSetLogger(_logger)
 
 cdef string stringify(x) except *:
     """ Converts Python strings to std::string. """
-    # This method works with both Python 2.x and 3.x.
     if isinstance(x, bytes):
         return string(<bytes>x)
     else:
@@ -20,13 +18,7 @@ cdef string stringify(x) except *:
         return string(tmp)
 
 cdef pystr(string x):
-    cdef bytes s = x.c_str()
-    if _pythonMajorVersion == 2:
-        # Python 2.x
-        return s
-    else:
-        # Python 3.x
-        return s.decode()
+    return x.decode()
 
 def add_directory(directory):
     """ Add a directory to search for Cantera data files. """
@@ -47,13 +39,24 @@ def appdelete():
     CxxAppdelete()
 
 def make_deprecation_warnings_fatal():
+    warnings.filterwarnings('error', category=DeprecationWarning,
+                            module='cantera')  # for warnings in Python code
+    warnings.filterwarnings('error', category=DeprecationWarning,
+                            message='.*Cantera.*')  # for warnings in Cython code
     Cxx_make_deprecation_warnings_fatal()
+
+def suppress_deprecation_warnings():
+    warnings.filterwarnings('ignore', category=DeprecationWarning,
+                            module='cantera')  # for warnings in Python code
+    warnings.filterwarnings('ignore', category=DeprecationWarning,
+                            message='.*Cantera.*')  # for warnings in Cython code
+    Cxx_suppress_deprecation_warnings()
 
 def suppress_thermo_warnings(pybool suppress=True):
     Cxx_suppress_thermo_warnings(suppress)
 
 cdef Composition comp_map(X) except *:
-    if isinstance(X, (str, unicode, bytes)):
+    if isinstance(X, (str, bytes)):
         return parseCompString(stringify(X))
 
     # assume X is dict-like

@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_IONSFROMNEUTRALVPSSTP_H
 #define CT_IONSFROMNEUTRALVPSSTP_H
@@ -75,16 +75,11 @@ public:
      */
     IonsFromNeutralVPSSTP();
 
-    //! Construct and initialize an IonsFromNeutralVPSSTP object directly from
-    //! an ASCII input file
+    //! Construct an IonsFromNeutralVPSSTP object from an input file
     /*!
-     * This constructor is a shell around the routine initThermo(), with a
-     * reference to the XML database to get the info for the phase.
-     *
-     * @param inputFile Name of the input file containing the phase XML data
-     *     to set up the object
-     * @param id        ID of the phase in the input file. Defaults to the
-     *     empty string.
+     * @param inputFile Name of the input file containing the phase definition
+     * @param id        name (ID) of the phase in the input file. If empty, the
+     *                  first phase definition in the input file will be used.
      */
     IonsFromNeutralVPSSTP(const std::string& inputFile,
                           const std::string& id = "");
@@ -95,6 +90,9 @@ public:
      * @param phaseRoot XML phase node containing the description of the phase
      * @param id     id attribute containing the name of the phase.
      *               (default is the empty string)
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     IonsFromNeutralVPSSTP(XML_Node& phaseRoot, const std::string& id = "");
 
@@ -275,6 +273,8 @@ public:
     void setNeutralMoleculePhase(shared_ptr<ThermoPhase> neutral);
     shared_ptr<ThermoPhase> getNeutralMoleculePhase();
 
+    virtual void setParameters(const AnyMap& phaseNode,
+                               const AnyMap& rootNode=AnyMap());
     virtual void initThermo();
     virtual void setParametersFromXML(const XML_Node& thermoNode);
 
@@ -400,6 +400,10 @@ protected:
 
     //! This is a pointer to the neutral Molecule Phase
     shared_ptr<ThermoPhase> neutralMoleculePhase_;
+
+    //! Root node of the AnyMap which contains this phase definition.
+    //! Used to look up the phase definition for the embedded neutral phase.
+    AnyMap m_rootNode;
 
 private:
     GibbsExcessVPSSTP* geThermo;

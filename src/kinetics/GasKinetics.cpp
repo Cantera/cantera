@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/GasKinetics.h"
 
@@ -146,10 +146,8 @@ void GasKinetics::processFalloffReactions()
         } else { // CHEMACT_RXN
             pr[i] *= m_rfn_low[i];
         }
+        m_ropf[m_fallindx[i]] = pr[i];
     }
-
-    scatter_copy(pr.begin(), pr.begin() + m_falloff_low_rates.nReactions(),
-                 m_ropf.begin(), m_fallindx.begin());
 }
 
 void GasKinetics::updateROP()
@@ -172,15 +170,13 @@ void GasKinetics::updateROP()
         processFalloffReactions();
     }
 
-    // multiply by perturbation factor
-    multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
-
-    // copy the forward rates to the reverse rates
-    m_ropr = m_ropf;
-
-    // for reverse rates computed from thermochemistry, multiply the forward
-    // rates copied into m_ropr by the reciprocals of the equilibrium constants
-    multiply_each(m_ropr.begin(), m_ropr.end(), m_rkcn.begin());
+    for (size_t i = 0; i < nReactions(); i++) {
+        // Scale the forward rate coefficient by the perturbation factor
+        m_ropf[i] *= m_perturb[i];
+        // For reverse rates computed from thermochemistry, multiply the forward
+        // rate coefficients by the reciprocals of the equilibrium constants
+        m_ropr[i] = m_ropf[i] * m_rkcn[i];
+    }
 
     // multiply ropf by concentration products
     m_reactantStoich.multiply(m_conc.data(), m_ropf.data());
@@ -220,11 +216,9 @@ void GasKinetics::getFwdRateConstants(doublereal* kfwd)
         processFalloffReactions();
     }
 
-    // multiply by perturbation factor
-    multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
-
     for (size_t i = 0; i < nReactions(); i++) {
-        kfwd[i] = m_ropf[i];
+        // multiply by perturbation factor
+        kfwd[i] = m_ropf[i] * m_perturb[i];
     }
 }
 

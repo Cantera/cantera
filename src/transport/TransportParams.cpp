@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/transport/TransportParams.h"
 
@@ -25,6 +25,8 @@ TransportParams::TransportParams() :
     mode_(0),
     log_level(-1)
 {
+    warn_deprecated("class TransportParams",
+                    "Unused. To be removed after Cantera 2.5");
 }
 
 } // End of namespace Cantera

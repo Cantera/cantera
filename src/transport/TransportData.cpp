@@ -1,13 +1,15 @@
 //! @file TransportData.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/transport/TransportData.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
+
+#include <set>
 
 namespace Cantera
 {
@@ -154,6 +156,24 @@ void setupGasTransportData(GasTransportData& tr, const XML_Node& tr_node)
                          rot, acentric, dispersion, quad);
 }
 
+void setupGasTransportData(GasTransportData& tr, const AnyMap& node)
+{
+    std::string geometry = node["geometry"].asString();
+    double welldepth = node["well-depth"].asDouble();
+    double diameter = node["diameter"].asDouble();
+    double dipole = node.getDouble("dipole", 0.0);
+    double polar = node.getDouble("polarizability", 0.0);
+    double rot = node.getDouble("rotational-relaxation", 0.0);
+    double acentric = node.getDouble("acentric-factor", 0.0);
+    double dispersion = node.getDouble("dispersion-coefficient", 0.0);
+    double quad = node.getDouble("quadrupole-polarizability", 0.0);
+
+    tr.setCustomaryUnits(geometry, diameter, welldepth, dipole, polar,
+                         rot, acentric, dispersion, quad);
+
+    tr.input = node;
+}
+
 shared_ptr<TransportData> newTransportData(const XML_Node& transport_node)
 {
     std::string model = transport_node["model"];
@@ -164,6 +184,20 @@ shared_ptr<TransportData> newTransportData(const XML_Node& transport_node)
     } else {
         // Transport model not handled here
         return make_shared<TransportData>();
+    }
+}
+
+unique_ptr<TransportData> newTransportData(const AnyMap& node)
+{
+    if (node.getString("model", "") == "gas") {
+        unique_ptr<GasTransportData> tr(new GasTransportData());
+        setupGasTransportData(*tr, node);
+        return unique_ptr<TransportData>(move(tr));
+    } else {
+        // Transport model not handled here
+        unique_ptr<TransportData> tr(new TransportData());
+        tr->input = node;
+        return tr;
     }
 }
 

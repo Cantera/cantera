@@ -1,0 +1,344 @@
+description: |-
+  SURFACE MECHANISM OF POX of CH4 on PT wire gauze
+
+  ***********************************************************************
+  ****                                                                  *
+  ****     CH4-O2 SURFACE MECHANISM  ON PT                              *
+  ****                                                                  *
+  ****     Version 1.0   Spring 2005                                    *
+  ****                                                                  *
+  ****     Raul Quiceno, Olaf Deutschmann, IWR, Heidelberg University,  *
+  ****     Germany                                                     *
+  ****     Contact: mail@detchem.com (O. Deutschmann)                   *
+  ****                                                                  *
+  ****     Reference:                                                   *
+  ****     R. Quiceno, J. Perez-Ramyrez, J. Warnatz, O. Deutschmann.    *
+  ****     Appl. Catal. A: General (2006)                               *
+  ****     www.detchem.com/mechanisms                                   *
+  ****                                                                  *
+  ****                                                                  *
+  ****      The kinetic data of the backward reactions of               *
+  ****      reactions in Section 3 are calculated                       *
+  ****      from thermodynamics (k_b = k_f /K)                          *
+  ****                                                                  *
+  ****     Surface site density: 2.72E-9 mol/cm**2                      *
+  ****                                                                  *
+  -----------------------------------------------------------------------
+
+generator: cti2yaml
+cantera-version: 2.5.0a3
+date: Wed, 11 Dec 2019 16:59:07 -0500
+input-files: [methane_pox_on_pt.cti]
+
+units: {length: cm, quantity: mol, activation-energy: J/mol}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [O, H, C, N, Ar]
+  species: [H2, O2, H2O, CH4, CO, CO2, AR]
+  skip-undeclared-elements: true
+  state:
+    T: 300.0
+    P: 1.01325e+05
+    X: {CH4: 0.095, O2: 0.21, AR: 0.79}
+- name: Pt_surf
+  thermo: ideal-surface
+  elements: [Pt, H, O, C]
+  species: [PT(S), H(S), H2O(S), OH(S), CO(S), CO2(S), CH3(S), CH2(S), CH(S),
+    C(S), O(S)]
+  skip-undeclared-elements: true
+  kinetics: surface
+  reactions: declared-species
+  state:
+    T: 900.0
+    coverages: {O(S): 0.0, PT(S): 0.01, H(S): 0.99}
+  site-density: 2.72e-09
+
+species:
+- name: CH4
+  composition: {C: 1, H: 4}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [0.778741479, 0.0174766835, -2.78340904e-05, 3.04970804e-08, -1.22393068e-11,
+      -9825.22852, 13.7221947]
+    - [1.68347883, 0.0102372356, -3.87512864e-06, 6.78558487e-10, -4.50342312e-14,
+      -1.00807871e+04, 9.62339497]
+- name: O2
+  composition: {O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [3.7837135, -3.0233634e-03, 9.9492751e-06, -9.8189101e-09, 3.3031825e-12,
+      -1063.8107, 3.6416345]
+    - [3.6122139, 7.4853166e-04, -1.9820647e-07, 3.3749008e-11, -2.3907374e-15,
+      -1197.8151, 3.6703307]
+- name: CO
+  composition: {C: 1, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [3.26245165, 1.51194085e-03, -3.88175522e-06, 5.58194424e-09, -2.47495123e-12,
+      -1.43105391e+04, 4.84889698]
+    - [3.02507806, 1.44268852e-03, -5.63082779e-07, 1.01858133e-10, -6.91095156e-15,
+      -1.42683496e+04, 6.10821772]
+- name: CO2
+  composition: {C: 1, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [2.27572465, 9.92207229e-03, -1.04091132e-05, 6.86668678e-09, -2.11728009e-12,
+      -4.83731406e+04, 10.188488]
+    - [4.45362282, 3.14016873e-03, -1.27841054e-06, 2.39399667e-10, -1.66903319e-14,
+      -4.89669609e+04, -0.955395877]
+- name: H2
+  composition: {H: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [3.3553514, 5.0136144e-04, -2.3006908e-07, -4.7905324e-10, 4.8522585e-13,
+      -1019.1626, -3.5477228]
+    - [3.0667095, 5.7473755e-04, 1.3938319e-08, -2.5483518e-11, 2.9098574e-15,
+      -865.47412, -1.7798424]
+- name: H2O
+  composition: {H: 2, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [4.1677234, -1.811497e-03, 5.9471288e-06, -4.8692021e-09, 1.5291991e-12,
+      -3.0289969e+04, -0.73135474]
+    - [2.6110472, 3.156313e-03, -9.2985438e-07, 1.3331538e-10, -7.4689351e-15,
+      -2.9868167e+04, 7.2091268]
+- name: AR
+  composition: {Ar: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [2.5, 0.0, 0.0, 0.0, 0.0, -745.37498, 4.3660006]
+    - [2.5, 0.0, 0.0, 0.0, 0.0, -745.37502, 4.3660006]
+- name: PT(S)
+  composition: {Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: H(S)
+  composition: {H: 1, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [-1.3029877, 5.4173199e-03, 3.1277972e-07, -3.2328533e-09, 1.136282e-12,
+      -4227.7075, 5.8743238]
+    - [1.0696996, 1.543223e-03, -1.5500922e-07, -1.6573165e-10, 3.8359347e-14,
+      -5054.6128, -7.1555238]
+- name: H2O(S)
+  composition: {O: 1, H: 2, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [-2.7651553, 0.013315115, 1.0127695e-06, -7.1820083e-09, 2.2813776e-12,
+      -3.6398055e+04, 12.098145]
+    - [2.5803051, 4.9570827e-03, -4.6894056e-07, -5.2633137e-10, 1.1998322e-13,
+      -3.8302234e+04, -17.406322]
+- name: OH(S)
+  composition: {O: 1, H: 1, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [-2.0340881, 9.3662683e-03, 6.6275214e-07, -5.2074887e-09, 1.7088735e-12,
+      -2.5319949e+04, 8.9863186]
+    - [1.8249973, 3.2501565e-03, -3.1197541e-07, -3.4603206e-10, 7.9171472e-14,
+      -2.6685492e+04, -12.280891]
+- name: CO(S)
+  composition: {C: 1, O: 1, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [4.8907466, 6.8134235e-05, 1.9768814e-07, 1.2388669e-09, -9.0339249e-13,
+      -3.2297836e+04, -17.453161]
+    - [4.7083778, 9.6037297e-04, -1.1805279e-07, -7.6883826e-11, 1.8232e-14,
+      -3.2311723e+04, -16.719593]
+- name: CO2(S)
+  composition: {C: 1, O: 2, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [0.469, 6.2662e-03, 0.0, 0.0, 0.0, -5.04587e+04, -4.555]
+    - [0.469, 6.266e-03, 0.0, 0.0, 0.0, -5.04587e+04, -4.555]
+- name: CH3(S)
+  composition: {C: 1, H: 3, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [1.2919217, 7.2675603e-03, 9.8179476e-07, -2.0471294e-09, 9.0832717e-14,
+      -2574.561, -1.1983037]
+    - [3.0016165, 5.4084505e-03, -4.0538058e-07, -5.3422466e-10, 1.1451887e-13,
+      -3275.2722, -10.965984]
+- name: CH2(S)
+  composition: {C: 1, H: 2, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [-0.14876404, 5.1396289e-03, 1.1211075e-06, -8.2755452e-10, -4.4572345e-13,
+      1.08787e+04, 5.7451882]
+    - [0.74076122, 4.8032533e-03, -3.2825633e-07, -4.7779786e-10, 1.0073452e-13,
+      1.0443752e+04, 0.40842086]
+- name: CH(S)
+  composition: {C: 1, H: 1, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [0.84157485, 1.309538e-03, 2.8464575e-07, 6.3862904e-10, -4.2766658e-13,
+      2.2332801e+04, 1.1452305]
+    - [-4.8242472e-03, 3.0446239e-03, -1.6066099e-07, -2.90417e-10, 5.7999924e-14,
+      2.2595219e+04, 5.6677818]
+- name: C(S)
+  composition: {C: 1, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [0.58924019, 2.5012842e-03, -3.4229498e-07, -1.8994346e-09, 1.0190406e-12,
+      1.0236923e+04, 2.1937017]
+    - [1.5792824, 3.6528701e-04, -5.0657672e-08, -3.4884855e-11, 8.8089699e-15,
+      9953.5752, -3.0240495]
+- name: O(S)
+  composition: {O: 1, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [-0.94986904, 7.4042305e-03, -1.0451424e-06, -6.112042e-09, 3.3787992e-12,
+      -1.3209912e+04, 3.6137905]
+    - [1.945418, 9.1761647e-04, -1.1226719e-07, -9.9099624e-11, 2.4307699e-14,
+      -1.4005187e+04, -11.531663]
+
+reactions:
+- equation: H2 + 2 PT(S) => 2 H(S)  # Reaction 1
+  sticking-coefficient: {A: 0.046, b: 0, Ea: 0}
+  coverage-dependencies:
+    PT(S): {a: 0.0, m: -1.0, E: 0.0}
+- equation: O2 + 2 PT(S) => 2 O(S)  # Reaction 2
+  rate-constant: {A: 1.89e+21, b: -0.5, Ea: 0}
+- equation: CH4 + 2 PT(S) => CH3(S) + H(S)  # Reaction 3
+  sticking-coefficient: {A: 9.0e-04, b: 0.0, Ea: 7.2e+04}
+- equation: CH4 + PT(S) + O(S) => CH3(S) + OH(S)  # Reaction 4
+  rate-constant: {A: 5.0e+18, b: 0.7, Ea: 4.2e+04}
+  coverage-dependencies:
+    O(S): {a: 0.0, m: 0.0, E: 8000}
+- equation: CH4 + PT(S) + OH(S) => CH3(S) + H2O(S)  # Reaction 5
+  sticking-coefficient: {A: 1.0, b: 0.0, Ea: 1.0e+04}
+- equation: H2O + PT(S) => H2O(S)  # Reaction 6
+  sticking-coefficient: {A: 0.75, b: 0, Ea: 0}
+- equation: CO2 + PT(S) => CO2(S)  # Reaction 7
+  sticking-coefficient: {A: 5.0e-03, b: 0, Ea: 0}
+- equation: CO + PT(S) => CO(S)  # Reaction 8
+  sticking-coefficient: {A: 0.84, b: 0, Ea: 0}
+- equation: 2 H(S) => H2 + 2 PT(S)  # Reaction 9
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 67400}
+  coverage-dependencies:
+    H(S): {a: 0.0, m: 0.0, E: -1.0e+04}
+- equation: 2 O(S) => O2 + 2 PT(S)  # Reaction 10
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 235500}
+  coverage-dependencies:
+    O(S): {a: 0.0, m: 0.0, E: -1.883e+05}
+- equation: H2O(S) => H2O + PT(S)  # Reaction 11
+  rate-constant: {A: 4.5e+12, b: 0, Ea: 41800}
+- equation: CO(S) => CO + PT(S)  # Reaction 12
+  rate-constant: {A: 1.0e+15, b: 0, Ea: 146000}
+  coverage-dependencies:
+    CO(S): {a: 0.0, m: 0.0, E: -3.3e+04}
+- equation: CO2(S) => CO2 + PT(S)  # Reaction 13
+  rate-constant: {A: 1.0e+13, b: 0, Ea: 27100}
+- equation: C(S) + O(S) => CO(S) + PT(S)  # Reaction 14
+  rate-constant: {A: 3.7e+19, b: 0, Ea: 0}
+- equation: CO(S) + PT(S) => C(S) + O(S)  # Reaction 15
+  rate-constant: {A: 3.7e+19, b: 0, Ea: 236500}
+  coverage-dependencies:
+    CO(S): {a: 0.0, m: 0.0, E: -33000}
+- equation: CO(S) + O(S) => CO2(S) + PT(S)  # Reaction 16
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 117600}
+  coverage-dependencies:
+    CO(S): {a: 0.0, m: 0.0, E: -33000}
+- equation: CO2(S) + PT(S) => CO(S) + O(S)  # Reaction 17
+  rate-constant: {A: 3.7e+19, b: 0, Ea: 173300}
+  coverage-dependencies:
+    O(S): {a: 0.0, m: 0.0, E: 94100}
+- equation: CO(S) + OH(S) => CO2(S) + H(S)  # Reaction 18
+  rate-constant: {A: 1.0e+19, b: 0, Ea: 38700}
+  coverage-dependencies:
+    CO(S): {a: 0.0, m: 0.0, E: -30000}
+- equation: CO2(S) + H(S) => CO(S) + OH(S)  # Reaction 19
+  rate-constant: {A: 1.0e+19, b: 0, Ea: 8400}
+- equation: CH3(S) + PT(S) => CH2(S) + H(S)  # Reaction 20
+  rate-constant: {A: 1.26e+22, b: 0, Ea: 70300}
+- equation: CH2(S) + H(S) => CH3(S) + PT(S)  # Reaction 21
+  rate-constant: {A: 3.09e+22, b: 0, Ea: 0}
+  coverage-dependencies:
+    H(S): {a: 0.0, m: 0.0, E: -2800}
+- equation: CH2(S) + PT(S) => CH(S) + H(S)  # Reaction 22
+  rate-constant: {A: 7.31e+22, b: 0, Ea: 58900}
+  coverage-dependencies:
+    C(S): {a: 0.0, m: 0.0, E: 50000}
+- equation: CH(S) + H(S) => CH2(S) + PT(S)  # Reaction 23
+  rate-constant: {A: 3.09e+22, b: 0, Ea: 0}
+  coverage-dependencies:
+    H(S): {a: 0.0, m: 0.0, E: -2800}
+- equation: CH(S) + PT(S) => C(S) + H(S)  # Reaction 24
+  rate-constant: {A: 3.09e+22, b: 0, Ea: 0}
+  coverage-dependencies:
+    H(S): {a: 0.0, m: 0.0, E: -2800}
+- equation: C(S) + H(S) => CH(S) + PT(S)  # Reaction 25
+  rate-constant: {A: 1.25e+22, b: 0, Ea: 138000}
+- equation: H(S) + O(S) => OH(S) + PT(S)  # Reaction 26
+  rate-constant: {A: 1.28e+21, b: 0, Ea: 11200}
+- equation: OH(S) + PT(S) => H(S) + O(S)  # Reaction 27
+  rate-constant: {A: 7.39e+19, b: 0, Ea: 77300}
+  coverage-dependencies:
+    O(S): {a: 0.0, m: 0.0, E: -73200}
+- equation: H2O(S) + PT(S) => H(S) + OH(S)  # Reaction 28
+  rate-constant: {A: 1.15e+19, b: 0, Ea: 101400}
+  coverage-dependencies:
+    O(S): {a: 0.0, m: 0.0, E: 167300}
+- equation: 2 OH(S) => H2O(S) + O(S)  # Reaction 29
+  rate-constant: {A: 7.4e+20, b: 0, Ea: 74000}
+- equation: H2O(S) + O(S) => 2 OH(S)  # Reaction 30
+  rate-constant: {A: 1.0e+20, b: 0, Ea: 43100}
+  coverage-dependencies:
+    O(S): {a: 0.0, m: 0.0, E: 240600}
+- equation: H2 + C(S) => CH2(S)  # Reaction 31
+  sticking-coefficient: {A: 0.04, b: 0, Ea: 29700}
+  coverage-dependencies:
+    C(S): {a: 0.0, m: 0.0, E: 4600}
+- equation: CH2(S) => C(S) + H2  # Reaction 32
+  rate-constant: {A: 7.69e+13, b: 0, Ea: 25100}
+  coverage-dependencies:
+    C(S): {a: 0.0, m: 0.0, E: 50000}
+- equation: H(S) + OH(S) => H2O(S) + PT(S)  # Reaction 33
+  rate-constant: {A: 2.04e+21, b: 0, Ea: 66220}
+- equation: CH3(S) + H(S) => CH4 + 2 PT(S)  # Reaction 34
+  rate-constant: {A: 3.3e+21, b: 0, Ea: 50000}
+  coverage-dependencies:
+    H(S): {a: 0.0, m: 0.0, E: -2800}
+- equation: CH3(S) + H2O(S) => CH4 + OH(S) + PT(S)  # Reaction 35
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 110600}
+- equation: CH3(S) + OH(S) => CH4 + O(S) + PT(S)  # Reaction 36
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 87900}

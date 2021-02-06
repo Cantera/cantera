@@ -1,0 +1,28 @@
+phases:
+  # should work fine (no reactions)
+- name: nokinetics-noreactions
+  species: [{gri30.yaml/species: [O2, H2, H2O]}]
+  thermo: ideal-gas
+
+  # should also work fine (all reactions)
+- name: kinetics-noreactions
+  species: [{gri30.yaml/species: [O2, H2, H2O]}]
+  thermo: ideal-gas
+  kinetics: gas
+
+  # should work fine (no reactions)
+- name: kinetics-reactions-none
+  species: [{gri30.yaml/species: [O2, H2, H2O]}]
+  thermo: ideal-gas
+  kinetics: gas
+  reactions: none
+
+  # should be an error
+- name: nokinetics-reactions
+  species: [{gri30.yaml/species: [O2, H2, H2O]}]
+  thermo: ideal-gas
+  reactions: all
+
+reactions:
+- equation: 2 H2 + O2 => 2 H2O
+  rate-constant: {A: 1.4e11, b: 0.5, Ea: 2400 cal/mol}

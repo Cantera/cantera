@@ -1,12 +1,12 @@
 /**
  *  @file TransportParams.h
- *  Class that holds the data that is read in from the XML file, and which is used for
+ *  Class that holds the data that is read in from the input file, and which is used for
  *  processing of the transport object
  *  (see \ref tranprops and \link Cantera::TransportParams TransportParams \endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_TRANSPORTPARAMS_H
 #define CT_TRANSPORTPARAMS_H
@@ -20,6 +20,8 @@ namespace Cantera
 //! Base structure to hold transport model parameters.
 /*!
  * This structure is used by TransportFactory.
+ *
+ * @deprecated Unused. To be removed after Cantera 2.5.
  */
 class TransportParams
 {

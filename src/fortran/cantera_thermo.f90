@@ -1,5 +1,5 @@
 ! This file is part of Cantera. See License.txt in the top-level directory or
-! at http://www.cantera.org/license.txt for license and copyright information.
+! at https://cantera.org/license.txt for license and copyright information.
 
 module cantera_thermo
 
@@ -34,6 +34,25 @@ module cantera_thermo
 !  integer, parameter :: VS = -107
 
 contains
+
+    type(phase_t) function ctthermo_newFromFile(filename, id)
+      implicit none
+      character*(*), intent(in) :: filename
+      character*(*), intent(in), optional :: id
+      type(phase_t) :: self
+      if (present(id)) then
+         self%thermo_id = th_newfromfile(filename, id)
+      else
+         self%thermo_id = th_newfromfile(filename, '')
+      end if
+      self%nel = phase_nelements(self%thermo_id)
+      self%nsp = phase_nspecies(self%thermo_id)
+      self%nrxn = 0
+      self%err = 0
+      self%kin_id = -1
+      self%tran_id = -1
+      ctthermo_newFromFile = self
+    end function ctthermo_newFromFile
 
     type(phase_t) function newThermoPhase(xml_phase, index)
       implicit none
@@ -357,6 +376,28 @@ contains
       call ctthermo_setPressure(self, p)
     end subroutine ctstring_setState_TPX
 
+    subroutine ctthermo_setState_TRX(self, t, rho, x)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(in) :: t
+      double precision, intent(in) :: rho
+      double precision, intent(in) :: x(*)
+      call ctthermo_setTemperature(self, t)
+      call ctthermo_setMoleFractions(self, x)
+      call ctthermo_setDensity(self, rho)
+    end subroutine ctthermo_setState_TRX
+
+    subroutine ctstring_setState_TRX(self, t, rho, x)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(in) :: t
+      double precision, intent(in) :: rho
+      character*(*), intent(in) :: x
+      call ctthermo_setTemperature(self, t)
+      call ctthermo_setMoleFractionsByName(self, x)
+      call ctthermo_setDensity(self, rho)
+    end subroutine ctstring_setState_TRX
+
     subroutine ctthermo_setState_TRY(self, t, rho, y)
       implicit none
       type(phase_t), intent(inout) :: self
@@ -378,6 +419,28 @@ contains
       call ctthermo_setMassFractionsByName(self, y)
       call ctthermo_setDensity(self, rho)
     end subroutine ctstring_setState_TRY
+
+    subroutine ctthermo_setState_TPY(self, t, p, y)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(in) :: t
+      double precision, intent(in) :: p
+      double precision, intent(in) :: y(*)
+      call ctthermo_setTemperature(self, t)
+      call ctthermo_setMassFractions(self, y)
+      call ctthermo_setPressure(self, p)
+    end subroutine ctthermo_setState_TPY
+
+    subroutine ctstring_setState_TPY(self, t, p, y)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(in) :: t
+      double precision, intent(in) :: p
+      character*(*), intent(in) :: y
+      call ctthermo_setTemperature(self, t)
+      call ctthermo_setMassFractionsByName(self, y)
+      call ctthermo_setPressure(self, p)
+    end subroutine ctstring_setState_TPY
 
 
     subroutine ctthermo_setState_HP(self, h, p)
@@ -412,11 +475,47 @@ contains
       self%err = th_set_sp(self%thermo_id, s, p)
     end subroutine ctthermo_setstate_sp
 
-    subroutine ctthermo_equilibrate(self, XY)
+    subroutine ctthermo_equilibrate(self, XY, solver, rtol, max_steps, max_iter, estimate_equil, log_level)
       implicit none
       type(phase_t), intent(inout) :: self
       character*(*), intent(in) :: XY
-      self%err = th_equil(self%thermo_id, XY)
+      character*(*), intent(in), optional :: solver
+      double precision, intent(in), optional :: rtol
+      integer, intent(in), optional :: max_steps
+      integer, intent(in), optional :: max_iter
+      integer, intent(in), optional :: estimate_equil
+      integer, intent(in), optional :: log_level
+      character*(50) :: solver_
+      double precision :: rtol_
+      integer :: max_steps_
+      integer :: max_iter_
+      integer :: estimate_equil_
+      integer :: log_level_
+      solver_ = 'auto'
+      rtol_ = 1e-9
+      max_steps_ = 50000
+      max_iter_ = 100
+      estimate_equil_ = 0
+      log_level_ = 0
+      if(present(solver)) then
+          solver_ = solver
+      endif
+      if(present(rtol)) then
+          rtol_ = rtol
+      endif
+      if(present(max_steps)) then
+          max_steps_ = max_steps
+      endif
+      if(present(max_iter)) then
+          max_iter_ = max_iter
+      endif
+      if(present(estimate_equil)) then
+          estimate_equil_ = estimate_equil
+      endif
+      if(present(log_level)) then
+          log_level_ = log_level
+      endif
+      self%err = th_equil(self%thermo_id, XY, trim(solver_), rtol_, max_steps_, max_iter_, estimate_equil_, log_level_)
     end subroutine ctthermo_equilibrate
 
     double precision function ctthermo_refPressure(self)
@@ -460,5 +559,12 @@ contains
       double precision, intent(out) :: cp_r(self%nsp)
       self%err = th_getcp_r(self%thermo_id, lenm, cp_r)
     end subroutine ctthermo_getcp_r
+
+    subroutine ctthermo_getPartialMolarIntEnerg_R(self, ie)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(out) :: ie(self%nsp)
+      self%err = th_getpartialmolarintenergies_r(self%thermo_id, ie)
+    end subroutine ctthermo_getPartialMolarIntEnerg_R
 
 end module cantera_thermo

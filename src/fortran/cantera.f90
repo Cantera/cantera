@@ -4,7 +4,7 @@
 ! argument types.
 
 ! This file is part of Cantera. See License.txt in the top-level directory or
-! at http://www.cantera.org/license.txt for license and copyright information.
+! at https://cantera.org/license.txt for license and copyright information.
 
 MODULE CANTERA
 
@@ -179,6 +179,10 @@ MODULE CANTERA
   INTERFACE getNetRatesOfProgress
      MODULE PROCEDURE ctkin_getNetRatesOfProgress
   END INTERFACE getNetRatesOfProgress
+
+  INTERFACE getPartialMolarIntEnergies
+     MODULE PROCEDURE ctthermo_getPartialMolarIntEnerg_R
+  END INTERFACE getPartialMolarIntEnergies
 
   INTERFACE getReactionString
      MODULE PROCEDURE ctkin_getReactionString
@@ -377,10 +381,20 @@ MODULE CANTERA
      MODULE PROCEDURE ctstring_setState_TPX
   END INTERFACE setState_TPX
 
+  INTERFACE setState_TRX
+     MODULE PROCEDURE ctthermo_setState_TRX
+     MODULE PROCEDURE ctstring_setState_TRX
+  END INTERFACE setState_TRX
+
   INTERFACE setState_TRY
      MODULE PROCEDURE ctthermo_setState_TRY
      MODULE PROCEDURE ctstring_setState_TRY
   END INTERFACE setState_TRY
+
+  INTERFACE setState_TPY
+     MODULE PROCEDURE ctthermo_setState_TPY
+     MODULE PROCEDURE ctstring_setState_TPY
+  END INTERFACE setState_TPY
 
   INTERFACE setState_UV
      MODULE PROCEDURE ctthermo_setState_UV

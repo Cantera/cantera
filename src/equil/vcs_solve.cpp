@@ -4,7 +4,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/base/ctexceptions.h"
@@ -55,13 +55,13 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     string ser = "VCS_SOLVE: ERROR:\n\t";
     if (m_nsp <= 0) {
         plogf("%s Number of species is nonpositive\n", ser);
-        throw CanteraError("VCS_SOLVE()", ser +
+        throw CanteraError("VCS_SOLVE::VCS_SOLVE", ser +
                            " Number of species is nonpositive\n");
     }
     if (m_numPhases <= 0) {
         plogf("%s Number of phases is nonpositive\n", ser);
-        throw CanteraError("VCS_SOLVE()", ser +
-                           " Number of species is nonpositive\n");
+        throw CanteraError("VCS_SOLVE::VCS_SOLVE", ser +
+                           " Number of phases is nonpositive\n");
     }
 
     /*
@@ -189,7 +189,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         } else if (eos == "IdealSolidSoln") {
             VolPhase->m_eqnState = VCS_EOS_IDEAL_SOLN;
         } else if (eos == "Surf" || eos == "Edge") {
-            throw CanteraError("VCSnonideal",
+            throw CanteraError("VCS_SOLVE::VCS_SOLVE",
                                "Surface/edge phase not handled yet.");
         } else {
             if (m_printLvl > 1) {
@@ -231,7 +231,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
              } else if (m_speciesUnknownType[kT] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 m_molNumSpecies_old[kT] = tPhase->electricPotential();
              } else {
-               throw CanteraError(" vcs_Cantera_to_vsolve() ERROR",
+               throw CanteraError("VCS_SOLVE::VCS_SOLVE",
                                   "Unknown species type: {}", m_speciesUnknownType[kT]);
              }
 
@@ -425,7 +425,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY) {
             if (m_elemAbundancesGoal[i] != 0.0) {
                 if (fabs(m_elemAbundancesGoal[i]) > 1.0E-9) {
-                    throw CanteraError("VCS_SOLVE::vcs_prob_specifyFully",
+                    throw CanteraError("VCS_SOLVE::VCS_SOLVE",
                             "Charge neutrality condition {} is signicantly "
                             "nonzero, {}. Giving up",
                             m_elementName[i], m_elemAbundancesGoal[i]);

@@ -1,7 +1,7 @@
 //! @file FlowDevice.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/ReactorBase.h"
@@ -9,6 +9,11 @@
 
 namespace Cantera
 {
+
+FlowDevice::FlowDevice() : m_mdot(Undef), m_pfunc(0), m_tfunc(0),
+                           m_coeff(1.0), m_type(0),
+                           m_nspin(0), m_nspout(0),
+                           m_in(0), m_out(0) {}
 
 bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
 {
@@ -41,12 +46,17 @@ bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
     return true;
 }
 
-void FlowDevice::setFunction(Func1* f)
+void FlowDevice::setPressureFunction(Func1* f)
 {
-    m_func = f;
+    m_pfunc = f;
 }
 
-doublereal FlowDevice::outletSpeciesMassFlowRate(size_t k)
+void FlowDevice::setTimeFunction(Func1* g)
+{
+    m_tfunc = g;
+}
+
+double FlowDevice::outletSpeciesMassFlowRate(size_t k)
 {
     if (k >= m_nspout) {
         return 0.0;
@@ -58,7 +68,7 @@ doublereal FlowDevice::outletSpeciesMassFlowRate(size_t k)
     return m_mdot * m_in->massFraction(ki);
 }
 
-doublereal FlowDevice::enthalpy_mass()
+double FlowDevice::enthalpy_mass()
 {
     return m_in->enthalpy_mass();
 }

@@ -80,28 +80,16 @@ env['matlab_extension'] = ctmethods
 # 'ctpath.m'
 globalenv = env
 
-# If any Python 3 package is built, prefer that one. If not,
-# and if any Python 2 package is built, prefer that one.
-# In all other cases, use the Python 3 location variables,
-# which should all be empty strings
-if env['python3_package'] in ['full', 'minimal']:
-    major = '3'
-elif env['python2_package'] in ['full', 'minimal']:
-    major = '2'
-else:
-    major = '3'
-
 def copy_var(target, source, env):
-    if env['python{}_prefix'.format(major)] == 'USER':
+    if env['python_prefix'] == 'USER':
         env['python_module_loc_sc'] = ''
     else:
-        env['python_module_loc_sc'] = globalenv['python{}_module_loc'.format(major)]
-    env['python_cmd'] = env['python{}_cmd'.format(major)]
+        env['python_module_loc_sc'] = globalenv['python_module_loc']
 
 target = localenv.SubstFile('#interfaces/matlab/ctpath.m',
                             '#interfaces/matlab/ctpath.m.in')
 localenv.AddPreAction(target, copy_var)
-localenv.Depends(target, env['install_python{}_action'.format(major)])
+localenv.Depends(target, env['install_python_action'])
 install('$inst_matlab_dir', target)
 
 # 'Contents.m'

@@ -5,7 +5,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/equil/ChemEquil.h"
 #include "cantera/base/stringUtils.h"
@@ -72,7 +72,6 @@ void ChemEquil::initialize(thermo_t& s)
 
     // allocate space in internal work arrays within the ChemEquil object
     m_molefractions.resize(m_kk);
-    m_lambda.resize(m_mm, -100.0);
     m_elementmolefracs.resize(m_mm);
     m_comp.resize(m_mm * m_kk);
     m_jwork1.resize(m_mm+2);
@@ -112,9 +111,10 @@ void ChemEquil::initialize(thermo_t& s)
                 // the element should be an electron... if it isn't
                 // print a warning.
                 if (s.atomicWeight(m) > 1.0e-3) {
-                    writelog("WARNING: species {} has {} atoms of element {},"
-                             " but this element is not an electron.\n",
-                             s.speciesName(k), s.nAtoms(k,m), s.elementName(m));
+                    warn_user("ChemEquil::initialize",
+                        "species {} has {} atoms of element {}, "
+                        "but this element is not an electron.",
+                        s.speciesName(k), s.nAtoms(k,m), s.elementName(m));
                 }
             }
         }
@@ -325,7 +325,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
 
     // Check Compatibility
     if (m_mm != s.nElements() || m_kk != s.nSpecies()) {
-        throw CanteraError("ChemEquil::equilibrate ERROR",
+        throw CanteraError("ChemEquil::equilibrate",
                            "Input ThermoPhase is incompatible with initialization");
     }
 
@@ -367,7 +367,8 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
         m_p2 = [](ThermoPhase& s) { return s.density(); };
         break;
     default:
-        throw CanteraError("equilibrate","illegal property pair.");
+        throw CanteraError("ChemEquil::equilibrate",
+                           "illegal property pair '{}'", XYstr);
     }
     // If the temperature is one of the specified variables, and
     // it is outside the valid range, throw an exception.
@@ -404,7 +405,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
         }
     }
     if (tmp <= 0.0) {
-        throw CanteraError("ChemEquil",
+        throw CanteraError("ChemEquil::equilibrate",
                            "Element Abundance Vector is zeroed");
     }
 
@@ -577,9 +578,6 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
         if (iter > 0 && passThis && fabs(deltax) < options.relTolerance
                 && fabs(deltay) < options.relTolerance) {
             options.iterations = iter;
-            for (size_t m = 0; m < m_mm; m++) {
-                m_lambda[m] = x[m]* s.RT();
-            }
 
             if (m_eloc != npos) {
                 adjustEloc(s, elMolesGoal);
@@ -587,9 +585,9 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
 
             if (s.temperature() > s.maxTemp() + 1.0 ||
                     s.temperature() < s.minTemp() - 1.0) {
-                writelog("Warning: Temperature ({} K) outside valid range of "
-                         "{} K to {} K\n",
-                         s.temperature(), s.minTemp(), s.maxTemp());
+                warn_user("ChemEquil::equilibrate",
+                    "Temperature ({} K) outside valid range of {} K "
+                    "to {} K", s.temperature(), s.minTemp(), s.maxTemp());
             }
             return 0;
         }
@@ -631,7 +629,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
             info = solve(jac, res_trial.data());
         } catch (CanteraError& err) {
             s.restoreState(state);
-            throw CanteraError("equilibrate",
+            throw CanteraError("ChemEquil::equilibrate",
                                "Jacobian is singular. \nTry adding more species, "
                                "changing the elemental composition slightly, \nor removing "
                                "unused elements.\n\n" + err.getMessage());
@@ -661,7 +659,8 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
             }
         }
         if (fctr != 1.0 && loglevel > 0) {
-            writelogf("WARNING Soln Damping because of bounds: %g\n", fctr);
+            warn_user("ChemEquil::equilibrate",
+                "Soln Damping because of bounds: %g", fctr);
         }
 
         // multiply the step by the scaling factor
@@ -672,7 +671,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
             fail++;
             if (fail > 3) {
                 s.restoreState(state);
-                throw CanteraError("equilibrate",
+                throw CanteraError("ChemEquil::equilibrate",
                                    "Cannot find an acceptable Newton damping coefficient.");
             }
         } else {
@@ -1260,7 +1259,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                 solve(a1, resid.data());
             } catch (CanteraError& err) {
                 s.restoreState(state);
-                throw CanteraError("equilibrate:estimateEP_Brinkley()",
+                throw CanteraError("ChemEquil::estimateEP_Brinkley",
                                    "Jacobian is singular. \nTry adding more species, "
                                    "changing the elemental composition slightly, \nor removing "
                                    "unused elements.\n\n" + err.getMessage());

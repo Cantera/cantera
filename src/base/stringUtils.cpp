@@ -5,7 +5,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 //@{
 #include "cantera/base/ct_defs.h"
@@ -84,7 +84,7 @@ compositionMap parseCompString(const std::string& ss,
         double value;
         try {
             value = fpValueCheck(ss.substr(valstart, stop-valstart));
-        } catch (CanteraError& err) {
+        } catch (CanteraError&) {
             // If we have a key containing a colon, we expect this to fail. In
             // this case, take the current substring as part of the key and look
             // to the right of the next colon for the corresponding value.
@@ -147,6 +147,9 @@ doublereal fpValueCheck(const std::string& val)
     int istart = 0;
     ch = str[0];
     if (ch == '+' || ch == '-') {
+        if (str.size() == 1) {
+            throw CanteraError("fpValueCheck", "string ends in '{}'", ch);
+        }
         istart = 1;
     }
     for (size_t i = istart; i < str.size(); i++) {
@@ -168,9 +171,16 @@ doublereal fpValueCheck(const std::string& val)
             if (numExp > 1) {
                 throw CanteraError("fpValueCheck",
                                    "string has more than one exp char");
+            } else if (i == str.size() - 1) {
+                throw CanteraError("fpValueCheck",
+                                   "string ends in '{}'", ch);
             }
             ch = str[i+1];
             if (ch == '+' || ch == '-') {
+                if (i + 1 == str.size() - 1) {
+                    throw CanteraError("fpValueCheck",
+                                       "string ends in '{}'", ch);
+                }
                 i++;
             }
         } else {
@@ -195,12 +205,13 @@ std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
             s = s.substr(icolon+1, s.size());
             icolon = s.find(':');
             if (icolon != std::string::npos) {
-                throw CanteraError("parseSpeciesName()", "two colons in name: " + nameStr);
+                throw CanteraError("parseSpeciesName",
+                                   "two colons in name: '{}'", nameStr);
             }
         }
         if (iend != std::string::npos) {
-            throw CanteraError("parseSpeciesName()",
-                               "Species name has \" ;/\n/\t\" in the middle of it: " + nameStr);
+            throw CanteraError("parseSpeciesName", "Species name has "
+                               "\" ;/\n/\t\" in the middle of it: '{}'", nameStr);
         }
     }
     return s;

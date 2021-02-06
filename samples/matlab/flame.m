@@ -49,7 +49,6 @@ rho0 = density(gas);
 equilibrate(gas, 'HP');
 teq = temperature(gas);
 yeq = massFractions(gas);
-rhoeq = density(gas);
 
 z1 = 0.2;
 mdot0 = massFlux(left);
@@ -61,8 +60,6 @@ if flametype == 0
 else
   t1 = temperature(right);
 end
-zz = gridPoints(flow);
-dz = zz(end) - zz(1);
 setProfile(f, 2, {'u', 'V'}, [0.0            1.0
                               mdot0/rho0     -mdot1/rho0
                               0.0            0.0]);

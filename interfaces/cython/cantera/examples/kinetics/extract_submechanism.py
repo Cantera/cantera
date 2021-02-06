@@ -6,14 +6,16 @@ oxidation reactions are extracted from the GRI 3.0 mechanism.
 To test the submechanism, a premixed CO/H2 flame is simulated using the original
 mechanism and the submechanism, which demonstrates that the submechanism
 contains all of the important species and reactions.
+
+Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
 from timeit import default_timer
 import cantera as ct
-import numpy as np
 import matplotlib.pyplot as plt
 
-all_species = ct.Species.listFromFile('gri30.xml')
+input_file = 'gri30.yaml'
+all_species = ct.Species.listFromFile(input_file)
 species = []
 
 # Filter species
@@ -22,7 +24,7 @@ for S in all_species:
     if 'C' in comp and 'H' in comp:
         # Exclude all hydrocarbon species
         continue
-    if 'N' in comp and comp != {'N':2}:
+    if 'N' in comp and comp != {'N': 2}:
         # Exclude all nitrogen compounds except for N2
         continue
     if 'Ar' in comp:
@@ -35,7 +37,8 @@ species_names = {S.name for S in species}
 print('Species: {0}'.format(', '.join(S.name for S in species)))
 
 # Filter reactions, keeping only those that only involve the selected species
-all_reactions = ct.Reaction.listFromFile('gri30.xml')
+ref_phase = ct.Solution(thermo='ideal-gas', kinetics='gas', species=all_species)
+all_reactions = ct.Reaction.listFromFile(input_file, ref_phase)
 reactions = []
 
 print('\nReactions:')
@@ -50,9 +53,10 @@ for R in all_reactions:
     print(R.equation)
 print('\n')
 
-gas1 = ct.Solution('gri30.xml')
-gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+gas1 = ct.Solution(input_file)
+gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                    species=species, reactions=reactions)
+
 
 def solve_flame(gas):
     gas.TPX = 373, 0.05*ct.one_atm, 'H2:0.4, CO:0.6, O2:1, N2:3.76'
@@ -60,12 +64,13 @@ def solve_flame(gas):
     # Create the flame simulation object
     sim = ct.CounterflowPremixedFlame(gas=gas, width=0.2)
 
-    sim.reactants.mdot = 0.12 # kg/m^2/s
-    sim.products.mdot = 0.06 # kg/m^2/s
+    sim.reactants.mdot = 0.12  # kg/m^2/s
+    sim.products.mdot = 0.06  # kg/m^2/s
 
     sim.set_refine_criteria(ratio=3, slope=0.1, curve=0.2)
     sim.solve(0, auto=True)
     return sim
+
 
 t1 = default_timer()
 sim1 = solve_flame(gas1)

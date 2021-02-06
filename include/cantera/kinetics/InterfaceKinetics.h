@@ -4,14 +4,13 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_IFACEKINETICS_H
 #define CT_IFACEKINETICS_H
 
 #include "Kinetics.h"
 #include "Reaction.h"
-#include "cantera/base/utilities.h"
 #include "RateCoeffMgr.h"
 
 namespace Cantera
@@ -168,7 +167,7 @@ public:
 
     //! Return effective temperature exponent for the specified reaction
     /*!
-     *  Returns effective temperature exponenty, accounting for surface coverage
+     *  Returns effective temperature exponent, accounting for surface coverage
      *  dependencies. Current parameterization in SurfaceArrhenius does not
      *  change this parameter with the change in surface coverages.
      *
@@ -241,8 +240,18 @@ public:
      *  \f]
      *
      * @param tstep  Time value to advance the surface coverages
+     * @param rtol   The relative tolerance for the integrator
+     * @param atol   The absolute tolerance for the integrator
+     * @param maxStepSize   The maximum step-size the integrator is allowed to take.
+     *                      If zero, this option is disabled.
+     * @param maxSteps   The maximum number of time-steps the integrator can take.
+     *                   If not supplied, uses the default value in CVodeIntegrator (20000).
+     * @param maxErrTestFails   the maximum permissible number of error test failures
+     *                           If not supplied, uses the default value in CVODES (7).
      */
-    void advanceCoverages(doublereal tstep);
+    void advanceCoverages(doublereal tstep, double rtol=1.e-7,
+                          double atol=1.e-14, double maxStepSize=0,
+                          size_t maxSteps=20000, size_t maxErrTestFails=7);
 
     //! Solve for the pseudo steady-state of the surface problem
     /*!
@@ -366,6 +375,7 @@ public:
      */
     int phaseStability(const size_t iphase) const;
 
+    //! @deprecated To be removed after Cantera 2.5.
     virtual void determineFwdOrdersBV(ElectrochemicalReaction& r, vector_fp& fwdFullorders);
 
 protected:
@@ -524,6 +534,7 @@ protected:
      *                            directly.
      *    m_ctrxn_BVform[i] = 2;  this means that the irxn reaction is calculated via the BV format
      *                            directly, using concentrations instead of activity concentrations.
+     * @deprecated To be removed after Cantera 2.5.
      */
     std::vector<size_t> m_ctrxn_BVform;
 
@@ -669,6 +680,7 @@ protected:
     //! EdgeKinetics)
     size_t m_nDim;
 };
+
 }
 
 #endif

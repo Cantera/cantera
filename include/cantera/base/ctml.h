@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_CTML_H
 #define CT_CTML_H
@@ -57,6 +57,9 @@ class Array2D;
  *                      special double, Undef, which means to ignore the entry.
  * @param maxval        Maximum allowed value of the float. The default is the
  *                      special double, Undef, which means to ignore the entry.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 void addFloat(XML_Node& node, const std::string& titleString,
               const doublereal value, const std::string& unitsString="",
@@ -104,6 +107,9 @@ void addFloat(XML_Node& node, const std::string& titleString,
  * @param maxval        Maximum allowed value of the int. This is an optional
  *                      parameter. The default is the special double,
  *                      Undef, which means to ignore the entry.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 void addFloatArray(XML_Node& node, const std::string& titleString,
                    const size_t n, const doublereal* const values,
@@ -152,6 +158,9 @@ void addFloatArray(XML_Node& node, const std::string& titleString,
  * @param maxval      Maximum allowed value of the int. This is an optional
  *                    parameter. The default is the special double,
  *                    Undef, which means to ignore the entry.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 void addNamedFloatArray(XML_Node& parentNode, const std::string& name, const size_t n,
                         const doublereal* const vals, const std::string units = "",
@@ -183,6 +192,9 @@ void addNamedFloatArray(XML_Node& parentNode, const std::string& name, const siz
  * @param valueString Value string to be used in the new XML node.
  * @param titleString String name of the title attribute
  * @param typeString  String type. This is an optional parameter.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 void addString(XML_Node& node, const std::string& titleString,
                const std::string& valueString, const std::string& typeString="");
@@ -235,6 +247,9 @@ void addString(XML_Node& node, const std::string& titleString,
  * @param  nodeName     XML Name of the XML node to read. The default value for
  *                      the node name is floatArray
  * @returns the number of floats read into v.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 size_t getFloatArray(const XML_Node& node, vector_fp & v,
                      const bool convert=true, const std::string& unitsString="",
@@ -248,6 +263,9 @@ size_t getFloatArray(const XML_Node& node, vector_fp & v,
  *
  * @param node   Node to get the value from
  * @param v      Output vector containing the string tokens
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 void getStringArray(const XML_Node& node, std::vector<std::string>& v);
 
@@ -267,6 +285,9 @@ void getStringArray(const XML_Node& node, std::vector<std::string>& v);
  *
  *  @param node Current node
  *  @param m    Output Map containing the pairs of values found in the XML Node
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 void getMap(const XML_Node& node, std::map<std::string, std::string>& m);
 
@@ -296,6 +317,9 @@ void getMap(const XML_Node& node, std::map<std::string, std::string>& m);
  *  @param key              Vector of keys for each entry
  *  @param val              Vector of values for each entry
  *  @returns the number of pairs found
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 int getPairs(const XML_Node& node, std::vector<std::string>& key,
              std::vector<std::string>& val);
@@ -336,6 +360,9 @@ int getPairs(const XML_Node& node, std::vector<std::string>& key,
  *                      true.
  * @param matrixSymmetric  If true entries are made so that the matrix is always
  *                      symmetric. Default is false.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 void getMatrixValues(const XML_Node& node,
                      const std::vector<std::string>& keyStringRow,
@@ -372,6 +399,9 @@ void getMatrixValues(const XML_Node& node,
  *
  * @param node     Current XML node to get the values from
  * @param v        Output map of the results.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 void getIntegers(const XML_Node& node, std::map<std::string,int>& v);
 
@@ -404,6 +434,9 @@ void getIntegers(const XML_Node& node, std::map<std::string,int>& v);
  * @param type   String type. Currently known types are "toSI" and "actEnergy",
  *               and "" , for no conversion. The default value is "",
  *               which implies that no conversion is allowed.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 doublereal getFloat(const XML_Node& parent, const std::string& name,
                     const std::string& type="");
@@ -437,6 +470,9 @@ doublereal getFloat(const XML_Node& parent, const std::string& name,
  * @param type   String type. Currently known types are "toSI" and "actEnergy",
  *               and "" , for no conversion. The default value is "",
  *               which implies that no conversion is allowed.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 doublereal getFloatCurrent(const XML_Node& currXML, const std::string& type="");
 
@@ -468,6 +504,9 @@ doublereal getFloatCurrent(const XML_Node& currXML, const std::string& type="");
  *               "", which implies that no conversion is allowed.
  *
  * @returns true if the child element named "name" exists
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 bool getOptionalFloat(const XML_Node& parent, const std::string& name,
                       doublereal& fltRtn, const std::string& type="");
@@ -495,6 +534,9 @@ bool getOptionalFloat(const XML_Node& parent, const std::string& name,
  *
  * @param parent reference to the XML_Node object of the parent XML element
  * @param name   Name of the XML child element
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 int getInteger(const XML_Node& parent, const std::string& name);
 
@@ -523,6 +565,9 @@ int getInteger(const XML_Node& parent, const std::string& name);
  * @param nodeName   Name of the XML child element
  * @param modelName  On return this contains the contents of the model attribute
  * @return True if the nodeName XML node exists. False otherwise.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 bool getOptionalModel(const XML_Node& parent, const std::string& nodeName,
                       std::string& modelName);
@@ -533,6 +578,9 @@ bool getOptionalModel(const XML_Node& parent, const std::string& nodeName,
  * @param node   Current node from which to conduct the search
  * @param title  Name of the title attribute
  * @returns a pointer to the matched child node. Returns 0 if no node is found.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 XML_Node* getByTitle(const XML_Node& node, const std::string& title);
 
@@ -565,6 +613,9 @@ XML_Node* getByTitle(const XML_Node& node, const std::string& title);
  *                      variable
  * @param typeString    String type. This is an optional output variable. It
  *                      is filled with the attribute "type" of the XML entry.
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 void getString(const XML_Node& node, const std::string& titleString,
                std::string& valueString, std::string& typeString);
@@ -591,6 +642,9 @@ void getString(const XML_Node& node, const std::string& titleString,
  * @param parent     parent reference to the XML_Node object of the parent XML element
  * @param nameString Name of the child XML_Node to read the value from.
  * @return           String value of the child XML_Node
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 std::string getChildValue(const XML_Node& parent,
                           const std::string& nameString);
@@ -601,6 +655,9 @@ std::string getChildValue(const XML_Node& parent,
  * @param   debug   Turn on debug printing
  *
  * @ingroup inputfiles
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 void ct2ctml(const char* file, const int debug = 0);
 
@@ -610,6 +667,9 @@ void ct2ctml(const char* file, const int debug = 0);
  * @return  String containing the XML representation of the input file
  *
  * @ingroup inputfiles
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 std::string ct2ctml_string(const std::string& file);
 
@@ -619,6 +679,9 @@ std::string ct2ctml_string(const std::string& file);
  * @return  String containing the XML representation of the input
  *
  * @ingroup inputfiles
+ *
+ * @deprecated The XML input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 std::string ct_string2ctml_string(const std::string& cti);
 
@@ -628,6 +691,9 @@ std::string ct_string2ctml_string(const std::string& cti);
  * @param thermo_file     optional input file containing thermo data
  * @param transport_file  optional input file containing transport parameters
  * @param id_tag          id of the phase
+ *
+ * @deprecated The CTI input format is deprecated and will be removed in
+ *     Cantera 3.0.
  */
 void ck2cti(const std::string& in_file, const std::string& thermo_file="",
             const std::string& transport_file="",

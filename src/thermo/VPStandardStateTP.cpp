@@ -7,7 +7,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/thermo/PDSS.h"
@@ -25,6 +25,8 @@ namespace Cantera
 
 VPStandardStateTP::VPStandardStateTP() :
     m_Pcurrent(OneAtm),
+    m_minTemp(0.0),
+    m_maxTemp(BigNumber),
     m_Tlast_ss(-1.0),
     m_Plast_ss(-1.0)
 {
@@ -170,6 +172,9 @@ bool VPStandardStateTP::addSpecies(shared_ptr<Species> spec)
     if (!added) {
         return false;
     }
+
+    // VPStandardState does not use m_spthermo - install a dummy object
+    m_spthermo.install_STIT(m_kk-1, make_shared<SpeciesThermoInterpType>());
     m_h0_RT.push_back(0.0);
     m_cp0_R.push_back(0.0);
     m_g0_RT.push_back(0.0);
@@ -197,8 +202,7 @@ void VPStandardStateTP::setPressure(doublereal p)
 
 void VPStandardStateTP::calcDensity()
 {
-    throw NotImplementedError("VPStandardStateTP::calcDensity() called, "
-                              "but EOS for phase is not known");
+    throw NotImplementedError("VPStandardStateTP::calcDensity");
 }
 
 void VPStandardStateTP::setState_TP(doublereal t, doublereal pres)
@@ -225,14 +229,13 @@ void VPStandardStateTP::installPDSS(size_t k, unique_ptr<PDSS>&& pdss)
 {
     pdss->setParent(this, k);
     pdss->setMolecularWeight(molecularWeight(k));
-    if (pdss->useSTITbyPDSS()) {
-        m_spthermo.install_STIT(k, make_shared<STITbyPDSS>(pdss.get()));
-    } else {
-        auto stit = species(k)->thermo;
-        stit->validate(speciesName(k));
-        pdss->setReferenceThermo(stit);
-        m_spthermo.install_STIT(k, stit);
+    Species& spec = *species(k);
+    if (spec.thermo) {
+        pdss->setReferenceThermo(spec.thermo);
+        spec.thermo->validate(spec.name);
     }
+    m_minTemp = std::max(m_minTemp, pdss->minTemp());
+    m_maxTemp = std::min(m_maxTemp, pdss->maxTemp());
 
     if (m_PDSS_storage.size() < k+1) {
         m_PDSS_storage.resize(k+1);
@@ -289,4 +292,23 @@ void VPStandardStateTP::updateStandardStateThermo() const
         _updateStandardStateThermo();
     }
 }
+
+double VPStandardStateTP::minTemp(size_t k) const
+{
+    if (k == npos) {
+        return m_minTemp;
+    } else {
+        return m_PDSS_storage.at(k)->minTemp();
+    }
+}
+
+double VPStandardStateTP::maxTemp(size_t k) const
+{
+    if (k == npos) {
+        return m_maxTemp;
+    } else {
+        return m_PDSS_storage.at(k)->maxTemp();
+    }
+}
+
 }

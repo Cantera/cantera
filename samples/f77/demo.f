@@ -2,7 +2,7 @@ c
 c     Replace this sample main program with your program
 c
 c     This program uses functions defined in demo_ftnlib.cpp to create
-c     an ideal gas mixture and print some its properties. 
+c     an ideal gas mixture and print some of its properties.
 c
 c     For a C++ version of this program, see ../cxx/demo.cpp.
 c
@@ -17,7 +17,7 @@ c
       write(*,*)
       write(*,*) '********   Fortran 77 Test Program   ********'
 
-      call newIdealGasMix('h2o2.cti','ohmech','Mix')
+      call newIdealGasMix('h2o2.yaml','ohmech','Mix')
       t = 1200.0
       p = 101325.0
       call setState_TPX_String(t, p,
@@ -27,8 +27,8 @@ c
       write(*,*) 'Initial state properties:'
       write(*,10) temperature(), pressure(), density(),
      $     enthalpy_mole(), entropy_mole(), cp_mole()
-     
-c     compute the equilibrium state holding the specific 
+
+c     compute the equilibrium state holding the specific
 c     enthalpy and pressure constant
       call equilibrate('HP')
 

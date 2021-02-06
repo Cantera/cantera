@@ -11,7 +11,7 @@
  **/
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/transport/HighPressureGasTransport.h"
 #include "cantera/numerics/ctlapack.h"
@@ -130,8 +130,7 @@ void HighPressureGasTransport::getThermalDiffCoeffs(doublereal* const dt)
     // for (size_t k = 0; k < m_nsp; k++) {
     // dt[k] = c * m_mw[k] * m_molefracs[k] * m_a[k];
     // }
-    throw CanteraError("HighPressureGasTransport::getThermalDiffCoeffs",
-                       "Not yet implemented.");
+    throw NotImplementedError("HighPressureGasTransport::getThermalDiffCoeffs");
 }
 
 void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
@@ -149,7 +148,8 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* 
     updateDiff_T();
     //}
     if (ld < nsp) {
-        throw CanteraError("HighPressureTransport::getBinaryDiffCoeffs()", "ld is too small");
+        throw CanteraError("HighPressureGasTransport::getBinaryDiffCoeffs",
+                           "ld is too small");
     }
     doublereal rp = 1.0/m_thermo->pressure();
     for (size_t i = 0; i < nsp; i++) {
@@ -194,8 +194,7 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
 {
     // Not currently implemented.  m_Lmatrix inversion returns NaN.  Needs to be
     //   fixed.  --SCD - 2-28-2014
-    throw CanteraError("HighPressureTransport:getMultiDiffCoeffs()",
-                       "Routine not yet implemented");
+    throw NotImplementedError("HighPressureGasTransport:getMultiDiffCoeffs");
     // Calculate the multi-component Stefan-Maxwell diffusion coefficients,
     // based on the Takahashi-correlation-corrected binary diffusion coefficients.
 
@@ -217,7 +216,7 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
     updateDiff_T();
 
     if (ld < m_nsp) {
-        throw CanteraError("HighPressureTransport::getMultiDiffCoeffs()",
+        throw CanteraError("HighPressureGasTransport::getMultiDiffCoeffs",
                            "ld is too small");
     }
     for (size_t i = 0; i < m_nsp; i++) {

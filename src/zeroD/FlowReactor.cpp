@@ -1,7 +1,7 @@
 //! @file FlowReactor.cpp A steady-state plug flow reactor
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/FlowReactor.h"
 #include "cantera/base/global.h"
@@ -26,7 +26,7 @@ FlowReactor::FlowReactor() :
 void FlowReactor::getState(double* y)
 {
     if (m_thermo == 0) {
-        throw CanteraError("getState",
+        throw CanteraError("FlowReactor::getState",
                            "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);

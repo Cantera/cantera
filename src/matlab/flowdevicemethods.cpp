@@ -1,5 +1,5 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "ctmatutils.h"
 #include "cantera/clib/ctreactor.h"
@@ -10,8 +10,6 @@ void flowdevicemethods(int nlhs, mxArray* plhs[],
 {
     int m, iok = 0, n;
     int job = getInt(prhs[1]);
-    int i = getInt(prhs[2]);
-
     double r = Undef;
     double v = Undef;
     if (nrhs > 3) {
@@ -20,7 +18,9 @@ void flowdevicemethods(int nlhs, mxArray* plhs[],
 
     // constructor
     if (job == 0) {
-        n = flowdev_new(i);
+        char* type = getString(prhs[2]);
+
+        n = flowdev_new2(type);
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
         double* h = mxGetPr(plhs[0]);
         *h = double(n);
@@ -32,6 +32,7 @@ void flowdevicemethods(int nlhs, mxArray* plhs[],
 
     // options that do not return a value
 
+    int i = getInt(prhs[2]);
     if (job < 20) {
         switch (job) {
         case 1:
@@ -42,16 +43,27 @@ void flowdevicemethods(int nlhs, mxArray* plhs[],
             iok = flowdev_install(i, int(v), m);
             break;
         case 3:
+            // @deprecated To be removed after Cantera 2.5.
             iok = flowdev_setMassFlowRate(i, v);
             break;
         case 4:
-            iok = flowdev_setParameters(i, 1, &v);
+            iok = flowdev_setValveCoeff(i, v);
             break;
         case 5:
+            // @deprecated To be removed after Cantera 2.5.
             iok = flowdev_setFunction(i, int(v));
             break;
         case 7:
             iok = flowdev_setMaster(i, int(v));
+            break;
+        case 8:
+            iok = flowdev_setPressureFunction(i, int(v));
+            break;
+        case 9:
+            iok = flowdev_setTimeFunction(i, int(v));
+            break;
+        case 10:
+            iok = flowdev_setMassFlowCoeff(i, v);
             break;
         default:
             mexErrMsgTxt("unknown job parameter");
@@ -67,7 +79,11 @@ void flowdevicemethods(int nlhs, mxArray* plhs[],
         // options that return a value of type 'double'
         switch (job) {
         case 21:
-            r = flowdev_massFlowRate(i, v);
+            if (v == Undef) {
+                r = flowdev_massFlowRate2(i);
+            } else {
+                r = flowdev_massFlowRate(i, v);
+            }
             break;
         default:
             mexErrMsgTxt("unknown job parameter");

@@ -11,6 +11,7 @@ from .test_func1 import *
 from .test_reactor import *
 from .test_onedim import *
 from .test_convert import *
+from .test_composite import *
 
 cantera.add_directory(os.path.join(os.path.dirname(__file__), 'data'))
 cantera.add_directory(os.path.join(os.path.dirname(__file__), '..', 'examples', 'surface_chemistry'))

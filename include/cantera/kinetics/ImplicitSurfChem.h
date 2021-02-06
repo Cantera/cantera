@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_IMPSURFCHEM_H
 #define CT_IMPSURFCHEM_H
@@ -61,8 +61,19 @@ public:
      * @param k  Vector of pointers to InterfaceKinetics objects Each object
      *           consists of a surface or an edge containing internal degrees of
      *           freedom representing the concentration of surface adsorbates.
+     * @param rtol   The relative tolerance for the integrator
+     * @param atol   The absolute tolerance for the integrator
+     * @param maxStepSize   The maximum step-size the integrator is allowed to take.
+     *                      If zero, this option is disabled.
+     * @param maxSteps   The maximum number of time-steps the integrator can take.
+     *                   If not supplied, uses the default value in the CVodesIntegrator (20000).
+     * @param maxErrTestFails   the maximum permissible number of error test failures
+     *                           If not supplied, uses the default value in CVODES (7).
      */
-    ImplicitSurfChem(std::vector<InterfaceKinetics*> k);
+    ImplicitSurfChem(std::vector<InterfaceKinetics*> k,
+                     double rtol=1.e-7, double atol=1.e-14,
+                     double maxStepSize=0, size_t maxSteps=20000,
+                     size_t maxErrTestFails=7);
 
     virtual ~ImplicitSurfChem() {};
 
@@ -70,6 +81,27 @@ public:
      *  Must be called before calling method 'advance'
      */
     virtual void initialize(doublereal t0 = 0.0);
+
+    /*!
+     *  Set the maximum integration step-size.  Note, setting this value to zero
+     *  disables this option
+     */
+    virtual void setMaxStepSize(double maxstep = 0.0);
+
+    /*!
+     *  Set the relative and absolute integration tolerances.
+     */
+    virtual void setTolerances(double rtol=1.e-7, double atol=1.e-14);
+
+    /*!
+     *  Set the maximum number of CVODES integration steps.
+     */
+    virtual void setMaxSteps(size_t maxsteps = 20000);
+
+    /*!
+     *  Set the maximum number of CVODES error test failures
+     */
+    virtual void setMaxErrTestFails(size_t maxErrTestFails = 7);
 
     //! Integrate from t0 to t1. The integrator is reinitialized first.
     /*!
@@ -194,7 +226,7 @@ protected:
      *  This function will set the surface site factions in the underlying
      *  SurfPhase objects to the current value of the solution vector.
      *
-     * @param y Current value of the solution vector. The lenth is equal to
+     * @param y Current value of the solution vector. The length is equal to
      *     the sum of the number of surface sites in all the surface phases.
      */
     void updateState(doublereal* y);
@@ -230,6 +262,8 @@ protected:
     std::unique_ptr<Integrator> m_integ;
     doublereal m_atol, m_rtol; // tolerances
     doublereal m_maxstep; //!< max step size
+    size_t m_nmax; //!< maximum number of steps allowed
+    size_t m_maxErrTestFails; //!< maximum number of error test failures allowed
     vector_fp m_work;
 
     /**

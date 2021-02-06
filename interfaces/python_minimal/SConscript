@@ -5,58 +5,53 @@ Import('env', 'build', 'install')
 
 localenv = env.Clone()
 
-for py_ver in [2, 3]:
-    if env['python{}_package'.format(py_ver)] == 'minimal':
-        make_setup = build(localenv.SubstFile('setup{}.py'.format(py_ver), 'setup.py.in'))
+make_setup = build(localenv.SubstFile('setup.py', 'setup.py.in'))
 
-        # copy scripts from the full Cython module
-        for script in ['ctml_writer', 'ck2cti']:
-            # The actual script
-            s = build(env.Command('cantera/%s.py' % script,
-                                  '#interfaces/cython/cantera/%s.py' % script,
-                                  Copy('$TARGET', '$SOURCE')))
-            localenv.Depends(make_setup, s)
+# copy scripts from the full Cython module
+for script in ['ctml_writer', 'ck2cti']:
+    # The actual script
+    s = build(env.Command('cantera/{}.py'.format(script),
+                          '#interfaces/cython/cantera/{}.py'.format(script),
+                          Copy('$TARGET', '$SOURCE')))
+    localenv.Depends(make_setup, s)
 
-        localenv['python{}_cmd_esc'.format(py_ver)] = quoted(localenv['python{}_cmd'.format(py_ver)])
-        build_cmd = ('cd interfaces/python_minimal &&'
-                     ' $python{py_ver}_cmd_esc setup{py_ver}.py build --build-lib=../../build/python{py_ver}'.format(py_ver=py_ver))
+build_cmd = ('cd interfaces/python_minimal &&'
+             ' $python_cmd_esc setup.py build --build-lib=../../build/python')
 
-        mod = build(localenv.Command('#build/python{}/cantera/__init__.py'.format(py_ver),
-                                     'setup{}.py'.format(py_ver),
-                                     build_cmd))
-        env['python{}_module'.format(py_ver)] = mod
+mod = build(localenv.Command('#build/python/cantera/__init__.py', 'setup.py',
+                             build_cmd))
+env['python_module'] = mod
 
-        if localenv['PYTHON_INSTALLER'] == 'direct':
-            if localenv['python{}_prefix'.format(py_ver)] == 'USER':
-                # Install to the OS-dependent user site-packages directory
-                extra = '--user'
-                if localenv['OS'] == 'Darwin':
-                    extra += ' --prefix=""'
-            elif localenv['python{}_prefix'.format(py_ver)]:
-                # A specific location for the Cantera python module has been given
-                extra = '--user'
-                if localenv['OS'] == 'Darwin':
-                    extra += ' --prefix=""'
-                localenv.AppendENVPath(
-                    'PYTHONUSERBASE',
-                    normpath(localenv.subst('$python{}_prefix'.format(py_ver)))
-                )
-            else:
-                # Install Python module in the default location
-                extra = ''
-            mod_inst = install(localenv.Command, 'dummy{}'.format(py_ver), mod,
-                               build_cmd + ' install %s' % extra +
-                               ' --record=../../build/python{}-installed-files.txt'.format(py_ver) +
-                               ' --single-version-externally-managed')
-            global_env = env
-            def find_module_dir(target, source, env):
-                check = pjoin('cantera', '__init__.py')
-                py_ver = str(source[0]).split('/')[1][-1]
-                for filename in open('build/python{}-installed-files.txt'.format(py_ver)).readlines():
-                    filename = filename.strip()
-                    if filename.endswith(check):
-                        filename = filename.replace(check, '')
-                        global_env['python{}_module_loc'.format(py_ver)] = normpath(filename)
-                        break
-            localenv.AlwaysBuild(localenv.AddPostAction(mod_inst, find_module_dir))
-            env['install_python{}_action'.format(py_ver)] = mod_inst
+if localenv['PYTHON_INSTALLER'] == 'direct':
+    if localenv['python_prefix'] == 'USER':
+        # Install to the OS-dependent user site-packages directory
+        extra = '--user'
+        if localenv['OS'] == 'Darwin':
+            extra += ' --prefix=""'
+    elif localenv['python_prefix']:
+        # A specific location for the Cantera python module has been given
+        extra = '--user'
+        if localenv['OS'] == 'Darwin':
+            extra += ' --prefix=""'
+        localenv.AppendENVPath(
+            'PYTHONUSERBASE',
+            normpath(localenv.subst('$python_prefix'))
+        )
+    else:
+        # Install Python module in the default location
+        extra = ''
+    mod_inst = install(localenv.Command, 'dummy', mod,
+                       build_cmd + ' install ' + extra +
+                       ' --record=../../build/python-installed-files.txt' +
+                       ' --single-version-externally-managed')
+    global_env = env
+    def find_module_dir(target, source, env):
+        check = pjoin('cantera', '__init__.py')
+        for filename in open('build/python-installed-files.txt').readlines():
+            filename = filename.strip()
+            if filename.endswith(check):
+                filename = filename.replace(check, '')
+                global_env['python_module_loc'] = normpath(filename)
+                break
+    localenv.AlwaysBuild(localenv.AddPostAction(mod_inst, find_module_dir))
+    env['install_python_action'] = mod_inst

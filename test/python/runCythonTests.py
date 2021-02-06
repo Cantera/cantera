@@ -17,16 +17,12 @@ a single test:
 
     python runCythonTests.py onedim.TestDiffusionFlame.test_mixture_averaged
 """
-from __future__ import print_function
 
 import sys
 import os
-import warnings
 
-warnings.simplefilter('default')
 cantera_root = os.path.relpath(__file__).split(os.sep)[:-1] + ['..', '..']
-py_version = 'python3' if sys.version_info[0] == 3 else 'python2'
-module_path = os.path.abspath(os.sep.join(cantera_root + ['build', py_version]))
+module_path = os.path.abspath(os.sep.join(cantera_root + ['build']))
 
 if 'PYTHONPATH' in os.environ:
     os.environ['PYTHONPATH'] = module_path + os.path.pathsep + os.environ['PYTHONPATH']
@@ -40,12 +36,10 @@ from cantera.test.utilities import unittest
 import cantera
 import cantera.test
 
-cantera.make_deprecation_warnings_fatal()
-
 class TestResult(unittest.TextTestResult):
     def __init__(self, *args, **kwargs):
         unittest.TextTestResult.__init__(self, *args, **kwargs)
-        self.outName = 'python%d-results.txt' % sys.version_info[0]
+        self.outName = 'python-results.txt'
         with open(self.outName, 'w') as f:
             pass # just create an empty output file
 
@@ -77,11 +71,19 @@ if __name__ == '__main__':
     print('* INFO: Git commit:', cantera.__git_commit__, '\n')
     sys.stdout.flush()
 
+    if len(sys.argv) > 1 and sys.argv[1] == "fast_fail":
+        fast_fail = True
+        subset_start = 2
+    else:
+        fast_fail = False
+        subset_start = 1
     loader = unittest.TestLoader()
-    runner = unittest.TextTestRunner(verbosity=2, resultclass=TestResult)
+    runner = unittest.TextTestRunner(
+        verbosity=2, resultclass=TestResult, failfast=fast_fail
+    )
     suite = unittest.TestSuite()
     subsets = []
-    for name in sys.argv[1:]:
+    for name in sys.argv[subset_start:]:
         subsets.append('cantera.test.test_' + name)
 
     if not subsets:

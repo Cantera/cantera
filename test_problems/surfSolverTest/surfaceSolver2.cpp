@@ -4,7 +4,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 //  Example
 //
@@ -21,9 +21,10 @@ static void printUsage()
 {
 }
 
-#include "cantera/Interface.h"
+#include "cantera/thermo/ThermoFactory.h"
 #include "cantera/kinetics.h"
 #include "cantera/kinetics/ImplicitSurfChem.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/solveSP.h"
 #include "cantera/base/fmt.h"
 #include <cstdio>
@@ -399,19 +400,10 @@ int main(int argc, char** argv)
         /*  Now Tweak the inputs and do a quick calculation */
         /****************************************************************************/
 
-        /*
-         * Set the Gas State:
-         * -> note that the states are set in the XML files too
-         */
-
-        /*
-         * Set the Gas State:
-         * -> note that the states are set in the XML files too
-         */
-        pres = gasTP->pressure();
-        double temp = gasTP->temperature();
+        pres = surfPhaseTP->pressure();
+        double temp = surfPhaseTP->temperature();
         temp += 95;
-        gasTP->setState_TP(temp, pres);
+        surfPhaseTP->setState_TP(temp, pres);
 
         surfaceProb->solvePseudoSteadyStateProblem();
         iKin_ptr->getNetProductionRates(src);

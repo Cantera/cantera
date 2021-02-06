@@ -1,0 +1,6276 @@
+<!-- Database of critical properties
+
+ These critical properties are used to calculate the a and b parameters
+ for real gas equations of state, such as Redlich-Kwong and Peng-Robinson.
+
+ The a and b parameters can be provided explicitly by the user in the input
+ file.  In the case that they are not provided for a species, the function
+ initThermoXML will search this database for critical properties, which can
+ also be used to calculate the a and b coefficients.  If critical properties
+ are not found and coefficients are not provided, then an error is thrown.
+
+ Critical pressures are given in Pa. Critical volumes are given in m^3/kmol.
+
+ These critical properties have been compiled from various sources by
+ C. Karakaya (https://orcid.org/0000-0001-5102-5476)
+ -->
+<ctml>
+  <species name="CCL4">
+    <ChemName name="carbon-tetrachloride"/>
+    <MW value="153.823"/>
+    <Tc value="556.5"/>
+    <Pc value="4.56e+06"/>
+    <Vc value="0.2759"/>
+    <Zc value="0.272"/>
+    <omega value="0.193"/>
+  </species>
+  <species name="CCL3F">
+    <ChemName name="trichlorofluoromethane"/>
+    <MW value="137.368"/>
+    <Tc value="471.2"/>
+    <Pc value="4.38e+06"/>
+    <Vc value="0.248"/>
+    <Zc value="0.28"/>
+    <omega value="0.189"/>
+  </species>
+  <species name="CCL2F2">
+    <ChemName name="dichlorodifluoromethane"/>
+    <MW value="120.914"/>
+    <Tc value="384.8"/>
+    <Pc value="4.01e+06"/>
+    <Vc value="0.2176"/>
+    <Zc value="0.273"/>
+    <omega value="0.204"/>
+  </species>
+  <species name="CCLF3">
+    <ChemName name="chlorotrifluoromethane"/>
+    <MW value="104.459"/>
+    <Tc value="302"/>
+    <Pc value="3.9e+06"/>
+    <Vc value="0.1803"/>
+    <Zc value="0.278"/>
+    <omega value="0.198"/>
+  </species>
+  <species name="CF4">
+    <ChemName name="carbon-tetrafluoride"/>
+    <MW value="88.005"/>
+    <Tc value="227.5"/>
+    <Pc value="3.74e+06"/>
+    <Vc value="0.1405"/>
+    <Zc value="0.276"/>
+    <omega value="0.177"/>
+  </species>
+  <species name="CO">
+    <ChemName name="carbon-monoxide"/>
+    <MW value="28.01"/>
+    <Tc value="133.4"/>
+    <Pc value="3.5e+06"/>
+    <Vc value="0.0931"/>
+    <Zc value="0.294"/>
+    <omega value="0.066"/>
+  </species>
+  <species name="CO2">
+    <ChemName name="carbon-dioxide"/>
+    <MW value="44.01"/>
+    <Tc value="304.2"/>
+    <Pc value="7.39e+06"/>
+    <Vc value="0.0948"/>
+    <Zc value="0.275"/>
+    <omega value="0.239"/>
+  </species>
+  <species name="COS">
+    <ChemName name="carbonyl-sulfide"/>
+    <MW value="60.07"/>
+    <Tc value="378"/>
+    <Pc value="6.18e+06"/>
+    <Vc value="0.1417"/>
+    <Zc value="0.279"/>
+    <omega value="0.105"/>
+  </species>
+  <species name="CS2">
+    <ChemName name="carbon-disulfide"/>
+    <MW value="76.131"/>
+    <Tc value="552"/>
+    <Pc value="7.9e+06"/>
+    <Vc value="0.160"/>
+    <Zc value="0.276"/>
+    <omega value="0.109"/>
+  </species>
+  <species name="CHCL3">
+    <ChemName name="chloroform"/>
+    <MW value="119.378"/>
+    <Tc value="535.5"/>
+    <Pc value="5.48e+06"/>
+    <Vc value="0.2411"/>
+    <Zc value="0.293"/>
+    <omega value="0.218"/>
+  </species>
+  <species name="CHCL2F">
+    <ChemName name="dichlorofluoromethane"/>
+    <MW value="102.923"/>
+    <Tc value="451.6"/>
+    <Pc value="5.18e+06"/>
+    <Vc value="0.1964"/>
+    <Zc value="0.271"/>
+    <omega value="0.21"/>
+  </species>
+  <species name="CHCLF2">
+    <ChemName name="chlorodifluoromethane"/>
+    <MW value="86.469"/>
+    <Tc value="369.3"/>
+    <Pc value="4.94e+06"/>
+    <Vc value="0.1649"/>
+    <Zc value="0.266"/>
+    <omega value="0.221"/>
+  </species>
+  <species name="CHF3">
+    <ChemName name="trifluoromethane"/>
+    <MW value="70.014"/>
+    <Tc value="299.1"/>
+    <Pc value="4.82e+06"/>
+    <Vc value="0.1334"/>
+    <Zc value="0.259"/>
+    <omega value="0.26"/>
+  </species>
+  <species name="CHI3">
+    <ChemName name="triiodomethane"/>
+    <MW value="393.732"/>
+    <Tc value="794.55"/>
+    <Pc value="5.312e+06"/>
+    <Vc value="0.3495"/>
+    <Zc value="0.281"/>
+    <omega value="0.193"/>
+  </species>
+  <species name="CH2CL2">
+    <ChemName name="dichloromethane"/>
+    <MW value="84.933"/>
+    <Tc value="508.3"/>
+    <Pc value="6.08e+06"/>
+    <Vc value="0.1895"/>
+    <Zc value="0.235"/>
+    <omega value="0.199"/>
+  </species>
+  <species name="CH2CLF">
+    <ChemName name="chlorofluoromethane"/>
+    <MW value="68.478"/>
+    <Tc value="424.91"/>
+    <Pc value="5.131e+06"/>
+    <Vc value="0.1585"/>
+    <Zc value="0.23"/>
+    <omega value="0.199"/>
+  </species>
+  <species name="CH2F2">
+    <ChemName name="difluoromethane"/>
+    <MW value="52.024"/>
+    <Tc value="351.5"/>
+    <Pc value="5.82e+06"/>
+    <Vc value="0.1211"/>
+    <Zc value="0.241"/>
+    <omega value="0.271"/>
+  </species>
+  <species name="CH2I2">
+    <ChemName name="diiodomethane"/>
+    <MW value="267.836"/>
+    <Tc value="740.93"/>
+    <Pc value="5.423e+06"/>
+    <Vc value="0.2675"/>
+    <Zc value="0.235"/>
+    <omega value="0.18"/>
+  </species>
+  <species name="CH2O">
+    <ChemName name="formaldehyde"/>
+    <MW value="30.026"/>
+    <Tc value="402.7"/>
+    <Pc value="6.59e+06"/>
+    <Vc value="0.0995"/>
+    <Zc value="0.197"/>
+    <omega value="0.253"/>
+  </species>
+  <species name="CH2O2">
+    <ChemName name="formic-acid"/>
+    <MW value="46.026"/>
+    <Tc value="580"/>
+    <Pc value="5.5e+06"/>
+    <Vc value="0.1065"/>
+    <Zc value="0.152"/>
+    <omega value="0.349"/>
+  </species>
+  <species name="CH3BR">
+    <ChemName name="bromomethane"/>
+    <MW value="94.939"/>
+    <Tc value="464"/>
+    <Pc value="6.61e+06"/>
+    <Vc value="0.1535"/>
+    <Zc value="0.262"/>
+    <omega value="0.157"/>
+  </species>
+  <species name="CH3CL">
+    <ChemName name="chloromethane"/>
+    <MW value="50.488"/>
+    <Tc value="416.2"/>
+    <Pc value="6.66e+06"/>
+    <Vc value="0.1407"/>
+    <Zc value="0.268"/>
+    <omega value="0.153"/>
+  </species>
+  <species name="CH3F">
+    <ChemName name="fluoromethane"/>
+    <MW value="34.033"/>
+    <Tc value="317.9"/>
+    <Pc value="5.89e+06"/>
+    <Vc value="0.113"/>
+    <Zc value="0.251"/>
+    <omega value="0.187"/>
+  </species>
+  <species name="CH3I">
+    <ChemName name="iodomethane"/>
+    <MW value="141.939"/>
+    <Tc value="528"/>
+    <Pc value="6.44e+06"/>
+    <Vc value="0.1795"/>
+    <Zc value="0.231"/>
+    <omega value="0.148"/>
+  </species>
+  <species name="CH3NO2">
+    <ChemName name="nitromethane"/>
+    <MW value="61.04"/>
+    <Tc value="588"/>
+    <Pc value="6.31e+06"/>
+    <Vc value="0.173"/>
+    <Zc value="0.224"/>
+    <omega value="0.31"/>
+  </species>
+  <species name="CH4">
+    <ChemName name="methane"/>
+    <MW value="16.043"/>
+    <Tc value="190.7"/>
+    <Pc value="4.63e+06"/>
+    <Vc value="0.0989"/>
+    <Zc value="0.288"/>
+    <omega value="0.011"/>
+  </species>
+  <species name="CH4O">
+    <ChemName name="methanol"/>
+    <MW value="32.042"/>
+    <Tc value="513"/>
+    <Pc value="8.01e+06"/>
+    <Vc value="0.1179"/>
+    <Zc value="0.224"/>
+    <omega value="0.556"/>
+  </species>
+  <species name="CH4S">
+    <ChemName name="methanethiol"/>
+    <MW value="48.103"/>
+    <Tc value="469.7"/>
+    <Pc value="7.19e+06"/>
+    <Vc value="0.1464"/>
+    <Zc value="0.268"/>
+    <omega value="0.153"/>
+  </species>
+  <species name="CH5N">
+    <ChemName name="methylamine"/>
+    <MW value="31.057"/>
+    <Tc value="429.6"/>
+    <Pc value="7.44e+06"/>
+    <Vc value="0.1205"/>
+    <Zc value="0.213"/>
+    <omega value="0.292"/>
+  </species>
+  <species name="C2CL4">
+    <ChemName name="tetrachloroethene"/>
+    <MW value="165.834"/>
+    <Tc value="620.2"/>
+    <Pc value="4.76e+06"/>
+    <Vc value="0.2896"/>
+    <Zc value="0.25"/>
+    <omega value="0.25"/>
+  </species>
+  <species name="C2CL6">
+    <ChemName name="hexachloroethane"/>
+    <MW value="236.74"/>
+    <Tc value="704.35"/>
+    <Pc value="3.936e+06"/>
+    <Vc value="0.4195"/>
+    <Zc value="0.282"/>
+    <omega value="0.275"/>
+  </species>
+  <species name="C2CL3F3">
+    <ChemName name="112trichlorotrifluoroethane"/>
+    <MW value="187.376"/>
+    <Tc value="487.3"/>
+    <Pc value="3.41e+06"/>
+    <Vc value="0.3253"/>
+    <Zc value="0.274"/>
+    <omega value="0.256"/>
+  </species>
+  <species name="C2CL2F4">
+    <ChemName name="12dichlorotetrafluoroethane"/>
+    <MW value="170.922"/>
+    <Tc value="418.9"/>
+    <Pc value="3.26e+06"/>
+    <Vc value="0.2936"/>
+    <Zc value="0.275"/>
+    <omega value="0.246"/>
+  </species>
+  <species name="C2CLF5">
+    <ChemName name="chloropentafluoroethane"/>
+    <MW value="154.467"/>
+    <Tc value="353.2"/>
+    <Pc value="3.16e+06"/>
+    <Vc value="0.2596"/>
+    <Zc value="0.277"/>
+    <omega value="0.279"/>
+  </species>
+  <species name="C2F4">
+    <ChemName name="tetrafluoroethene"/>
+    <MW value="100.016"/>
+    <Tc value="306.4"/>
+    <Pc value="3.94e+06"/>
+    <Vc value="0.172"/>
+    <Zc value="0.267"/>
+    <omega value="0.223"/>
+  </species>
+  <species name="C2F6">
+    <ChemName name="hexafluoroethane"/>
+    <MW value="138.012"/>
+    <Tc value="292.9"/>
+    <Pc value="3.14e+06"/>
+    <Vc value="0.2234"/>
+    <Zc value="0.288"/>
+    <omega value="0.271"/>
+  </species>
+  <species name="C2N2">
+    <ChemName name="cyanogen"/>
+    <MW value="52.035"/>
+    <Tc value="399.9"/>
+    <Pc value="6.06e+06"/>
+    <Vc value="0.2735"/>
+    <Zc value="0.431"/>
+    <omega value="0.278"/>
+  </species>
+  <species name="C2HCL3">
+    <ChemName name="trichloroethene"/>
+    <MW value="131.389"/>
+    <Tc value="572"/>
+    <Pc value="5.05e+06"/>
+    <Vc value="0.256"/>
+    <Zc value="0.265"/>
+    <omega value="0.213"/>
+  </species>
+  <species name="C2HCL5">
+    <ChemName name="pentachloroethane"/>
+    <MW value="202.295"/>
+    <Tc value="646"/>
+    <Pc value="4.58e+06"/>
+    <Vc value="0.3755"/>
+    <Zc value="0.276"/>
+    <omega value="0.447"/>
+  </species>
+  <species name="C2HF3">
+    <ChemName name="trifluoroethene"/>
+    <MW value="82.025"/>
+    <Tc value="347.22"/>
+    <Pc value="4.516e+06"/>
+    <Vc value="0.1825"/>
+    <Zc value="0.286"/>
+    <omega value="0.238"/>
+  </species>
+  <species name="C2H2">
+    <ChemName name="acetylene(ethyne)"/>
+    <MW value="26.038"/>
+    <Tc value="309.2"/>
+    <Pc value="6.25e+06"/>
+    <Vc value="0.1129"/>
+    <Zc value="0.274"/>
+    <omega value="0.19"/>
+  </species>
+  <species name="C2H2CL2">
+    <ChemName name="1,1-dichloroethene"/>
+    <MW value="96.944"/>
+    <Tc value="489"/>
+    <Pc value="4.68e+06"/>
+    <Vc value="0.219"/>
+    <Zc value="0.252"/>
+    <omega value="0.179"/>
+  </species>
+  <species name="C2H2CL2-1">
+    <ChemName name="cis-1,2-dichloroethene"/>
+    <MW value="96.944"/>
+    <Tc value="537"/>
+    <Pc value="5.87e+06"/>
+    <Vc value="0.2255"/>
+    <Zc value="0.249"/>
+    <omega value="0.238"/>
+  </species>
+  <species name="C2H2CL2-2">
+    <ChemName name="trans-1,2-dichloroethene"/>
+    <MW value="96.944"/>
+    <Tc value="513"/>
+    <Pc value="4.58e+06"/>
+    <Vc value="0.2255"/>
+    <Zc value="0.258"/>
+    <omega value="0.232"/>
+  </species>
+  <species name="C2H2CL4-3">
+    <ChemName name="1,1,2,2-tetrachloroethane"/>
+    <MW value="167.850"/>
+    <Tc value="661.2"/>
+    <Pc value="5.12e+06"/>
+    <Vc value="0.2155"/>
+    <Zc value="0.188"/>
+    <omega value="0.264"/>
+  </species>
+  <species name="C2H2F2">
+    <ChemName name="1,1-difluoroethene"/>
+    <MW value="64.035"/>
+    <Tc value="303"/>
+    <Pc value="4.43e+06"/>
+    <Vc value="0.154"/>
+    <Zc value="0.273"/>
+    <omega value="0.14"/>
+  </species>
+  <species name="C2H2F2-1">
+    <ChemName name="cis-1,2-difluoroethene"/>
+    <MW value="64.035"/>
+    <Tc value="394.67"/>
+    <Pc value="4.769e+06"/>
+    <Vc value="0.1635"/>
+    <Zc value="0.238"/>
+    <omega value="0.21"/>
+  </species>
+  <species name="C2H2F2-2">
+    <ChemName name="trans-1,2-difluoroethene"/>
+    <MW value="64.035"/>
+    <Tc value="394.67"/>
+    <Pc value="4.769e+06"/>
+    <Vc value="0.1635"/>
+    <Zc value="0.238"/>
+    <omega value="0.21"/>
+  </species>
+  <species name="C2H2O">
+    <ChemName name="ketene"/>
+    <MW value="42.037"/>
+    <Tc value="380"/>
+    <Pc value="6.5e+06"/>
+    <Vc value="0.145"/>
+    <Zc value="0.3"/>
+    <omega value="0.21"/>
+  </species>
+  <species name="C2H3BR">
+    <ChemName name="bromoethylene"/>
+    <MW value="106.95"/>
+    <Tc value="470.11"/>
+    <Pc value="6.631e+06"/>
+    <Vc value="0.1615"/>
+    <Zc value="0.274"/>
+    <omega value="0.241"/>
+  </species>
+  <species name="C2H3CL">
+    <ChemName name="chloroethene"/>
+    <MW value="62.499"/>
+    <Tc value="425"/>
+    <Pc value="5.15e+06"/>
+    <Vc value="0.179"/>
+    <Zc value="0.261"/>
+    <omega value="0.122"/>
+  </species>
+  <species name="C2H3CL3-1">
+    <ChemName name="1,1,2-trichloroethane"/>
+    <MW value="133.405"/>
+    <Tc value="606"/>
+    <Pc value="5.14e+06"/>
+    <Vc value="0.2885"/>
+    <Zc value="0.253"/>
+    <omega value="0.287"/>
+  </species>
+  <species name="C2H3CLO">
+    <ChemName name="acetyl-chloride"/>
+    <MW value="78.498"/>
+    <Tc value="508"/>
+    <Pc value="5.87e+06"/>
+    <Vc value="0.204"/>
+    <Zc value="0.28"/>
+    <omega value="0.344"/>
+  </species>
+  <species name="C2H3F">
+    <ChemName name="fluoroethene"/>
+    <MW value="46.044"/>
+    <Tc value="327.8"/>
+    <Pc value="5.22e+06"/>
+    <Vc value="0.1439"/>
+    <Zc value="0.277"/>
+    <omega value="0.157"/>
+  </species>
+  <species name="C2H3F3">
+    <ChemName name="1,1,1-trifluoroethane"/>
+    <MW value="84.041"/>
+    <Tc value="346.2"/>
+    <Pc value="3.74e+06"/>
+    <Vc value="0.1938"/>
+    <Zc value="0.253"/>
+    <omega value="0.251"/>
+  </species>
+  <species name="C2H3N">
+    <ChemName name="acetonitrile"/>
+    <MW value="41.052"/>
+    <Tc value="547.9"/>
+    <Pc value="4.83e+06"/>
+    <Vc value="0.173"/>
+    <Zc value="0.184"/>
+    <omega value="0.327"/>
+  </species>
+  <species name="C2H4">
+    <ChemName name="ethylene"/>
+    <MW value="28.054"/>
+    <Tc value="282.8"/>
+    <Pc value="5.11e+06"/>
+    <Vc value="0.1272"/>
+    <Zc value="0.28"/>
+    <omega value="0.089"/>
+  </species>
+  <species name="C2H4BR2">
+    <ChemName name="1,2-dibromoethane"/>
+    <MW value="187.862"/>
+    <Tc value="646"/>
+    <Pc value="5.35e+06"/>
+    <Vc value="0.2715"/>
+    <Zc value="0.32"/>
+    <omega value="0.795"/>
+  </species>
+  <species name="C2H4CL2">
+    <ChemName name="1,1-dichloroethane"/>
+    <MW value="98.96"/>
+    <Tc value="523.2"/>
+    <Pc value="5.07e+06"/>
+    <Vc value="0.236"/>
+    <Zc value="0.275"/>
+    <omega value="0.24"/>
+  </species>
+  <species name="C2H4CL2-1">
+    <ChemName name="1,2-dichloroethane"/>
+    <MW value="98.96"/>
+    <Tc value="566.1"/>
+    <Pc value="5.37e+06"/>
+    <Vc value="0.225"/>
+    <Zc value="0.259"/>
+    <omega value="0.278"/>
+  </species>
+  <species name="C2H4F2">
+    <ChemName name="1,1-difluoroethane"/>
+    <MW value="66.05"/>
+    <Tc value="386.6"/>
+    <Pc value="4.5e+06"/>
+    <Vc value="0.181"/>
+    <Zc value="0.253"/>
+    <omega value="0.256"/>
+  </species>
+  <species name="C2H4I2">
+    <ChemName name="1,2-diiodoethane"/>
+    <MW value="281.863"/>
+    <Tc value="749.91"/>
+    <Pc value="4.73e+06"/>
+    <Vc value="0.3235"/>
+    <Zc value="0.245"/>
+    <omega value="0.223"/>
+  </species>
+  <species name="C2H4O">
+    <ChemName name="ethylene-oxide"/>
+    <MW value="44.053"/>
+    <Tc value="468.9"/>
+    <Pc value="7.19e+06"/>
+    <Vc value="0.1392"/>
+    <Zc value="0.259"/>
+    <omega value="0.202"/>
+  </species>
+  <species name="C2H4O-1">
+    <ChemName name="acetaldehyde"/>
+    <MW value="44.053"/>
+    <Tc value="461.1"/>
+    <Pc value="5.57e+06"/>
+    <Vc value="0.154"/>
+    <Zc value="0.22"/>
+    <omega value="0.303"/>
+  </species>
+  <species name="C2H4O2">
+    <ChemName name="acetic-acid"/>
+    <MW value="60.052"/>
+    <Tc value="594.4"/>
+    <Pc value="5.79e+06"/>
+    <Vc value="0.1711"/>
+    <Zc value="0.201"/>
+    <omega value="0.447"/>
+  </species>
+  <species name="C2H4O2-1">
+    <ChemName name="methyl-formate"/>
+    <MW value="60.052"/>
+    <Tc value="486.7"/>
+    <Pc value="6.e+06"/>
+    <Vc value="0.172"/>
+    <Zc value="0.255"/>
+    <omega value="0.257"/>
+  </species>
+  <species name="C2H4OS">
+    <ChemName name="thioacetic-acid"/>
+    <MW value="76.113"/>
+    <Tc value="577.34"/>
+    <Pc value="6.921e+06"/>
+    <Vc value="0.2195"/>
+    <Zc value="0.317"/>
+    <omega value="0.304"/>
+  </species>
+  <species name="C2H4S">
+    <ChemName name="thiacyclopropane"/>
+    <MW value="60.114"/>
+    <Tc value="555"/>
+    <Pc value="7.38e+06"/>
+    <Vc value="0.1515"/>
+    <Zc value="0.214"/>
+    <omega value="0.154"/>
+  </species>
+  <species name="C2H5BR">
+    <ChemName name="bromoethane"/>
+    <MW value="108.966"/>
+    <Tc value="505.7"/>
+    <Pc value="6.23e+06"/>
+    <Vc value="0.2149"/>
+    <Zc value="0.32"/>
+    <omega value="0.229"/>
+  </species>
+  <species name="C2H5CL">
+    <ChemName name="chloroethane"/>
+    <MW value="64.514"/>
+    <Tc value="460.4"/>
+    <Pc value="5.27e+06"/>
+    <Vc value="0.199"/>
+    <Zc value="0.274"/>
+    <omega value="0.191"/>
+  </species>
+  <species name="C2H5F">
+    <ChemName name="fluoroethane"/>
+    <MW value="48.06"/>
+    <Tc value="375.3"/>
+    <Pc value="5.03e+06"/>
+    <Vc value="0.169"/>
+    <Zc value="0.272"/>
+    <omega value="0.215"/>
+  </species>
+  <species name="C2H5I">
+    <ChemName name="iodoethane"/>
+    <MW value="155.966"/>
+    <Tc value="554"/>
+    <Pc value="4.7e+06"/>
+    <Vc value="0.2355"/>
+    <Zc value="0.248"/>
+    <omega value="0.184"/>
+  </species>
+  <species name="C2H5N">
+    <ChemName name="ethylenimine"/>
+    <MW value="43.068"/>
+    <Tc value="524"/>
+    <Pc value="9.95e+06"/>
+    <Vc value="0.1425"/>
+    <Zc value="0.215"/>
+    <omega value="0.435"/>
+  </species>
+  <species name="C2H5NO2">
+    <ChemName name="nitroethane"/>
+    <MW value="75.067"/>
+    <Tc value="595"/>
+    <Pc value="4.85e+06"/>
+    <Vc value="0.2295"/>
+    <Zc value="0.238"/>
+    <omega value="0.341"/>
+  </species>
+  <species name="C2H6">
+    <ChemName name="ethane"/>
+    <MW value="30.069"/>
+    <Tc value="305.4"/>
+    <Pc value="4.88e+06"/>
+    <Vc value="0.1457"/>
+    <Zc value="0.285"/>
+    <omega value="0.099"/>
+  </species>
+  <species name="C2H6O">
+    <ChemName name="methyl-ether"/>
+    <MW value="46.069"/>
+    <Tc value="400.1"/>
+    <Pc value="5.33e+06"/>
+    <Vc value="0.1869"/>
+    <Zc value="0.307"/>
+    <omega value="0.2"/>
+  </species>
+  <species name="C2H6O-1">
+    <ChemName name="ethyl-alcohol"/>
+    <MW value="46.069"/>
+    <Tc value="515.8"/>
+    <Pc value="6.36e+06"/>
+    <Vc value="0.1671"/>
+    <Zc value="0.24"/>
+    <omega value="0.644"/>
+  </species>
+  <species name="C2H6O2">
+    <ChemName name="ethylene-glycol"/>
+    <MW value="62.068"/>
+    <Tc value="790"/>
+    <Pc value="6.653e+06"/>
+    <Vc value="0.1855"/>
+    <Zc value="0.23"/>
+    <omega value="0.147"/>
+  </species>
+  <species name="C2H6S">
+    <ChemName name="methyl-sulfide"/>
+    <MW value="62.129"/>
+    <Tc value="503.3"/>
+    <Pc value="5.5e+06"/>
+    <Vc value="0.2029"/>
+    <Zc value="0.266"/>
+    <omega value="0.191"/>
+  </species>
+  <species name="C2H6S-1">
+    <ChemName name="ethanethiol"/>
+    <MW value="62.129"/>
+    <Tc value="498.6"/>
+    <Pc value="5.46e+06"/>
+    <Vc value="0.207"/>
+    <Zc value="0.274"/>
+    <omega value="0.191"/>
+  </species>
+  <species name="C2H6S2">
+    <ChemName name="methyl-disulfide"/>
+    <MW value="94.189"/>
+    <Tc value="605"/>
+    <Pc value="4.8e+06"/>
+    <Vc value="0.2555"/>
+    <Zc value="0.268"/>
+    <omega value="0.238"/>
+  </species>
+  <species name="C2H7N">
+    <ChemName name="ethylamine"/>
+    <MW value="45.084"/>
+    <Tc value="456.3"/>
+    <Pc value="5.62e+06"/>
+    <Vc value="0.1818"/>
+    <Zc value="0.27"/>
+    <omega value="0.289"/>
+  </species>
+  <species name="C2H7N-1">
+    <ChemName name="dimethylamine"/>
+    <MW value="45.084"/>
+    <Tc value="437.8"/>
+    <Pc value="5.24e+06"/>
+    <Vc value="0.1825"/>
+    <Zc value="0.256"/>
+    <omega value="0.302"/>
+  </species>
+  <species name="C3H3N">
+    <ChemName name="acrylonitrile"/>
+    <MW value="53.063"/>
+    <Tc value="536"/>
+    <Pc value="4.56e+06"/>
+    <Vc value="0.210"/>
+    <Zc value="0.21"/>
+    <omega value="0.35"/>
+  </species>
+  <species name="C3H4">
+    <ChemName name="allene(propadiene)"/>
+    <MW value="40.065"/>
+    <Tc value="385.4"/>
+    <Pc value="5.32e+06"/>
+    <Vc value="0.162"/>
+    <Zc value="0.271"/>
+    <omega value="0.313"/>
+  </species>
+  <species name="C3H4-1">
+    <ChemName name="propyne(methylacetylene)"/>
+    <MW value="40.065"/>
+    <Tc value="401"/>
+    <Pc value="5.35e+06"/>
+    <Vc value="0.1637"/>
+    <Zc value="0.275"/>
+    <omega value="0.215"/>
+  </species>
+  <species name="C3H4O2">
+    <ChemName name="acrylic-acid"/>
+    <MW value="72.063"/>
+    <Tc value="615"/>
+    <Pc value="5.67e+06"/>
+    <Vc value="0.210"/>
+    <Zc value="0.23"/>
+    <omega value="0.56"/>
+  </species>
+  <species name="C3H5BR">
+    <ChemName name="3-bromo-1-propene"/>
+    <MW value="120.977"/>
+    <Tc value="540.2"/>
+    <Pc value="5.139e+06"/>
+    <Vc value="0.2465"/>
+    <Zc value="0.282"/>
+    <omega value="0.273"/>
+  </species>
+  <species name="C3H5CL">
+    <ChemName name="3-chloro-1-propene"/>
+    <MW value="76.525"/>
+    <Tc value="513.8"/>
+    <Pc value="4.76e+06"/>
+    <Vc value="0.234"/>
+    <Zc value="0.26"/>
+    <omega value="0.13"/>
+  </species>
+  <species name="C3H5CL3">
+    <ChemName name="1,2,3-trichloropropane"/>
+    <MW value="147.431"/>
+    <Tc value="651"/>
+    <Pc value="3.95e+06"/>
+    <Vc value="0.348"/>
+    <Zc value="0.25"/>
+    <omega value="0.31"/>
+  </species>
+  <species name="C3H5I">
+    <ChemName name="3-iodo-1-propene"/>
+    <MW value="167.977"/>
+    <Tc value="595.81"/>
+    <Pc value="4.529e+06"/>
+    <Vc value="0.2725"/>
+    <Zc value="0.249"/>
+    <omega value="0.202"/>
+  </species>
+  <species name="C3H5N">
+    <ChemName name="propionitrile"/>
+    <MW value="55.079"/>
+    <Tc value="562.5"/>
+    <Pc value="4.18e+06"/>
+    <Vc value="0.230"/>
+    <Zc value="0.205"/>
+    <omega value="0.313"/>
+  </species>
+  <species name="C3H6">
+    <ChemName name="propene"/>
+    <MW value="42.08"/>
+    <Tc value="365"/>
+    <Pc value="4.61e+06"/>
+    <Vc value="0.1813"/>
+    <Zc value="0.282"/>
+    <omega value="0.144"/>
+  </species>
+  <species name="C3H6-1">
+    <ChemName name="cyclopropane"/>
+    <MW value="42.08"/>
+    <Tc value="398"/>
+    <Pc value="5.55e+06"/>
+    <Vc value="0.1628"/>
+    <Zc value="0.272"/>
+    <omega value="0.13"/>
+  </species>
+  <species name="C3H6BR2">
+    <ChemName name="1,2-dibromopropane"/>
+    <MW value="201.888"/>
+    <Tc value="634.11"/>
+    <Pc value="5.407e+06"/>
+    <Vc value="0.3215"/>
+    <Zc value="0.33"/>
+    <omega value="0.384"/>
+  </species>
+  <species name="C3H6CL2">
+    <ChemName name="1,2-dichloropropane"/>
+    <MW value="112.986"/>
+    <Tc value="577"/>
+    <Pc value="4.45e+06"/>
+    <Vc value="0.226"/>
+    <Zc value="0.21"/>
+    <omega value="0.24"/>
+  </species>
+  <species name="C3H6CL2-1">
+    <ChemName name="1,3-dichloropropane"/>
+    <MW value="112.986"/>
+    <Tc value="602.69"/>
+    <Pc value="4.006e+06"/>
+    <Vc value="0.3015"/>
+    <Zc value="0.241"/>
+    <omega value="0.288"/>
+  </species>
+  <species name="C3H6CL2-2">
+    <ChemName name="2,2-dichloropropane"/>
+    <MW value="112.986"/>
+    <Tc value="539.46"/>
+    <Pc value="4.104e+06"/>
+    <Vc value="0.2905"/>
+    <Zc value="0.266"/>
+    <omega value="0.198"/>
+  </species>
+  <species name="C3H6I2">
+    <ChemName name="1,2-diiodopropane"/>
+    <MW value="295.889"/>
+    <Tc value="780.49"/>
+    <Pc value="4.206e+06"/>
+    <Vc value="0.3735"/>
+    <Zc value="0.242"/>
+    <omega value="0.237"/>
+  </species>
+  <species name="C3H6O">
+    <ChemName name="propylene-oxide"/>
+    <MW value="58.08"/>
+    <Tc value="482.2"/>
+    <Pc value="4.92e+06"/>
+    <Vc value="0.186"/>
+    <Zc value="0.229"/>
+    <omega value="0.269"/>
+  </species>
+  <species name="C3H6O-1">
+    <ChemName name="allyl-alcohol"/>
+    <MW value="58.08"/>
+    <Tc value="545"/>
+    <Pc value="5.312e+06"/>
+    <Vc value="0.2035"/>
+    <Zc value="0.24"/>
+    <omega value="0.554"/>
+  </species>
+  <species name="C3H6O-2">
+    <ChemName name="propionaldehyde"/>
+    <MW value="58.08"/>
+    <Tc value="515.3"/>
+    <Pc value="6.33e+06"/>
+    <Vc value="0.176"/>
+    <Zc value="0.26"/>
+    <omega value="0.313"/>
+  </species>
+  <species name="C3H6O-3">
+    <ChemName name="acetone"/>
+    <MW value="58.08"/>
+    <Tc value="508.4"/>
+    <Pc value="4.78e+06"/>
+    <Vc value="0.2165"/>
+    <Zc value="0.232"/>
+    <omega value="0.304"/>
+  </species>
+  <species name="C3H6S">
+    <ChemName name="thiacyclobutane"/>
+    <MW value="74.14"/>
+    <Tc value="603"/>
+    <Pc value="6.1e+06"/>
+    <Vc value="0.1995"/>
+    <Zc value="0.228"/>
+    <omega value="0.195"/>
+  </species>
+  <species name="C3H7BR">
+    <ChemName name="1-bromopropane"/>
+    <MW value="122.992"/>
+    <Tc value="535.52"/>
+    <Pc value="4.843e+06"/>
+    <Vc value="0.2655"/>
+    <Zc value="0.289"/>
+    <omega value="0.294"/>
+  </species>
+  <species name="C3H7BR-1">
+    <ChemName name="2-bromopropane"/>
+    <MW value="122.992"/>
+    <Tc value="522.47"/>
+    <Pc value="4.897e+06"/>
+    <Vc value="0.2595"/>
+    <Zc value="0.293"/>
+    <omega value="0.264"/>
+  </species>
+  <species name="C3H7CL">
+    <ChemName name="1-chloropropane"/>
+    <MW value="78.541"/>
+    <Tc value="503.1"/>
+    <Pc value="4.58e+06"/>
+    <Vc value="0.254"/>
+    <Zc value="0.278"/>
+    <omega value="0.235"/>
+  </species>
+  <species name="C3H7CL-1">
+    <ChemName name="2-chloropropane"/>
+    <MW value="78.541"/>
+    <Tc value="494.1"/>
+    <Pc value="4.72e+06"/>
+    <Vc value="0.230"/>
+    <Zc value="0.269"/>
+    <omega value="0.232"/>
+  </species>
+  <species name="C3H7F">
+    <ChemName name="1-fluoropropane"/>
+    <MW value="62.087"/>
+    <Tc value="422"/>
+    <Pc value="4.157e+06"/>
+    <Vc value="0.2215"/>
+    <Zc value="0.263"/>
+    <omega value="0.227"/>
+  </species>
+  <species name="C3H7F-1">
+    <ChemName name="2-fluoropropane"/>
+    <MW value="62.087"/>
+    <Tc value="415.68"/>
+    <Pc value="4.2e+06"/>
+    <Vc value="0.2155"/>
+    <Zc value="0.262"/>
+    <omega value="0.204"/>
+  </species>
+  <species name="C3H7I">
+    <ChemName name="1-iodopropane"/>
+    <MW value="169.993"/>
+    <Tc value="589.39"/>
+    <Pc value="4.283e+06"/>
+    <Vc value="0.2915"/>
+    <Zc value="0.255"/>
+    <omega value="0.224"/>
+  </species>
+  <species name="C3H7I-1">
+    <ChemName name="2-iodopropane"/>
+    <MW value="169.993"/>
+    <Tc value="574.62"/>
+    <Pc value="4.328e+06"/>
+    <Vc value="0.2855"/>
+    <Zc value="0.259"/>
+    <omega value="0.195"/>
+  </species>
+  <species name="C3H7NO2">
+    <ChemName name="1-nitropropane"/>
+    <MW value="89.094"/>
+    <Tc value="606"/>
+    <Pc value="4.e+06"/>
+    <Vc value="0.2855"/>
+    <Zc value="0.254"/>
+    <omega value="0.376"/>
+  </species>
+  <species name="C3H7NO2-1">
+    <ChemName name="2-nitropropane"/>
+    <MW value="89.094"/>
+    <Tc value="597"/>
+    <Pc value="4.15e+06"/>
+    <Vc value="0.2795"/>
+    <Zc value="0.256"/>
+    <omega value="0.334"/>
+  </species>
+  <species name="C3H8">
+    <ChemName name="propane"/>
+    <MW value="44.096"/>
+    <Tc value="369.7"/>
+    <Pc value="4.25e+06"/>
+    <Vc value="0.1986"/>
+    <Zc value="0.279"/>
+    <omega value="0.153"/>
+  </species>
+  <species name="C3H8O">
+    <ChemName name="ethyl-methyl-ether"/>
+    <MW value="60.096"/>
+    <Tc value="437.8"/>
+    <Pc value="4.4e+06"/>
+    <Vc value="0.2208"/>
+    <Zc value="0.267"/>
+    <omega value="0.244"/>
+  </species>
+  <species name="C3H8O-1">
+    <ChemName name="propyl-alcohol"/>
+    <MW value="60.096"/>
+    <Tc value="536.9"/>
+    <Pc value="5.12e+06"/>
+    <Vc value="0.2189"/>
+    <Zc value="0.253"/>
+    <omega value="0.623"/>
+  </species>
+  <species name="C3H8O-2">
+    <ChemName name="isopropyl-alcohol"/>
+    <MW value="60.096"/>
+    <Tc value="516.6"/>
+    <Pc value="5.37e+06"/>
+    <Vc value="0.2197"/>
+    <Zc value="0.248"/>
+    <omega value="0.665"/>
+  </species>
+  <species name="C3H8S">
+    <ChemName name="ethyl-methyl-sulfide"/>
+    <MW value="76.156"/>
+    <Tc value="532.8"/>
+    <Pc value="4.25e+06"/>
+    <Vc value="0.2575"/>
+    <Zc value="0.262"/>
+    <omega value="0.216"/>
+  </species>
+  <species name="C3H8S-1">
+    <ChemName name="1-propanethiol"/>
+    <MW value="76.156"/>
+    <Tc value="536"/>
+    <Pc value="4.52e+06"/>
+    <Vc value="0.2575"/>
+    <Zc value="0.278"/>
+    <omega value="0.218"/>
+  </species>
+  <species name="C3H8S-2">
+    <ChemName name="2-propanethiol"/>
+    <MW value="76.156"/>
+    <Tc value="512"/>
+    <Pc value="4.35e+06"/>
+    <Vc value="0.2515"/>
+    <Zc value="0.284"/>
+    <omega value="0.223"/>
+  </species>
+  <species name="C3H9N">
+    <ChemName name="propylamine"/>
+    <MW value="59.111"/>
+    <Tc value="496.1"/>
+    <Pc value="4.72e+06"/>
+    <Vc value="0.233"/>
+    <Zc value="0.271"/>
+    <omega value="0.303"/>
+  </species>
+  <species name="C3H9N-1">
+    <ChemName name="trimethylamine"/>
+    <MW value="59.111"/>
+    <Tc value="433.4"/>
+    <Pc value="4.1e+06"/>
+    <Vc value="0.254"/>
+    <Zc value="0.288"/>
+    <omega value="0.205"/>
+  </species>
+  <species name="C4F8">
+    <ChemName name="octafluorocyclobutane"/>
+    <MW value="200.031"/>
+    <Tc value="388.4"/>
+    <Pc value="2.78e+06"/>
+    <Vc value="0.3243"/>
+    <Zc value="0.278"/>
+    <omega value="0.356"/>
+  </species>
+  <species name="C4H2">
+    <ChemName name="butadiyne(biacetylene)"/>
+    <MW value="50.06"/>
+    <Tc value="478.02"/>
+    <Pc value="5.863e+06"/>
+    <Vc value="0.1835"/>
+    <Zc value="0.271"/>
+    <omega value="0.1"/>
+  </species>
+  <species name="C4H4">
+    <ChemName name="1buten3yne(vinylacetylene)"/>
+    <MW value="52.076"/>
+    <Tc value="455"/>
+    <Pc value="4.96e+06"/>
+    <Vc value="0.202"/>
+    <Zc value="0.26"/>
+    <omega value="0.092"/>
+  </species>
+  <species name="C4H4O">
+    <ChemName name="furan"/>
+    <MW value="68.075"/>
+    <Tc value="487"/>
+    <Pc value="5.32e+06"/>
+    <Vc value="0.218"/>
+    <Zc value="0.286"/>
+    <omega value="0.209"/>
+  </species>
+  <species name="C4H4S">
+    <ChemName name="thiophene"/>
+    <MW value="84.136"/>
+    <Tc value="580"/>
+    <Pc value="5.21e+06"/>
+    <Vc value="0.219"/>
+    <Zc value="0.259"/>
+    <omega value="0.196"/>
+  </species>
+  <species name="C4H6">
+    <ChemName name="1,2-butadiene"/>
+    <MW value="54.091"/>
+    <Tc value="443.7"/>
+    <Pc value="4.49e+06"/>
+    <Vc value="0.219"/>
+    <Zc value="0.267"/>
+    <omega value="0.255"/>
+  </species>
+  <species name="C4H6-1">
+    <ChemName name="1,3-butadiene"/>
+    <MW value="54.091"/>
+    <Tc value="425.1"/>
+    <Pc value="4.33e+06"/>
+    <Vc value="0.2208"/>
+    <Zc value="0.27"/>
+    <omega value="0.195"/>
+  </species>
+  <species name="C4H6-2">
+    <ChemName name="1-butyne(ethylacetylene)"/>
+    <MW value="54.091"/>
+    <Tc value="463.7"/>
+    <Pc value="4.86e+06"/>
+    <Vc value="0.220"/>
+    <Zc value="0.27"/>
+    <omega value="0.11"/>
+  </species>
+  <species name="C4H6-3">
+    <ChemName name="2-butyne(dimethylacetylene)"/>
+    <MW value="54.091"/>
+    <Tc value="488.7"/>
+    <Pc value="5.08e+06"/>
+    <Vc value="0.221"/>
+    <Zc value="0.277"/>
+    <omega value="0.124"/>
+  </species>
+  <species name="C4H6-4">
+    <ChemName name="cyclobutene"/>
+    <MW value="54.091"/>
+    <Tc value="446.33"/>
+    <Pc value="5.266e+06"/>
+    <Vc value="0.1955"/>
+    <Zc value="0.278"/>
+    <omega value="0.189"/>
+  </species>
+  <species name="C4H6O3">
+    <ChemName name="acetic-anhydride"/>
+    <MW value="102.09"/>
+    <Tc value="569.1"/>
+    <Pc value="4.66e+06"/>
+    <Vc value="0.2895"/>
+    <Zc value="0.262"/>
+    <omega value="0.908"/>
+  </species>
+  <species name="C4H7N">
+    <ChemName name="butyronitrile"/>
+    <MW value="69.106"/>
+    <Tc value="582.2"/>
+    <Pc value="3.79e+06"/>
+    <Vc value="0.2855"/>
+    <Zc value="0.223"/>
+    <omega value="0.373"/>
+  </species>
+  <species name="C4H7N-1">
+    <ChemName name="isobutyronitrile"/>
+    <MW value="69.106"/>
+    <Tc value="565.98"/>
+    <Pc value="3.815e+06"/>
+    <Vc value="0.2795"/>
+    <Zc value="0.227"/>
+    <omega value="0.347"/>
+  </species>
+  <species name="C4H8">
+    <ChemName name="1-butene"/>
+    <MW value="56.107"/>
+    <Tc value="419.6"/>
+    <Pc value="4.02e+06"/>
+    <Vc value="0.240"/>
+    <Zc value="0.277"/>
+    <omega value="0.191"/>
+  </species>
+  <species name="C4H8-1">
+    <ChemName name="2-butene,cis"/>
+    <MW value="56.107"/>
+    <Tc value="433.1"/>
+    <Pc value="4.16e+06"/>
+    <Vc value="0.2347"/>
+    <Zc value="0.271"/>
+    <omega value="0.202"/>
+  </species>
+  <species name="C4H8-2">
+    <ChemName name="2-butene,trans"/>
+    <MW value="56.107"/>
+    <Tc value="428.6"/>
+    <Pc value="4.12e+06"/>
+    <Vc value="0.2379"/>
+    <Zc value="0.274"/>
+    <omega value="0.205"/>
+  </species>
+  <species name="C4H8-3">
+    <ChemName name="2-methylpropene"/>
+    <MW value="56.107"/>
+    <Tc value="417.9"/>
+    <Pc value="4.e+06"/>
+    <Vc value="0.2388"/>
+    <Zc value="0.275"/>
+    <omega value="0.194"/>
+  </species>
+  <species name="C4H8-4">
+    <ChemName name="cyclobutane"/>
+    <MW value="56.107"/>
+    <Tc value="463.5"/>
+    <Pc value="5.04e+06"/>
+    <Vc value="0.218"/>
+    <Zc value="0.278"/>
+    <omega value="0.181"/>
+  </species>
+  <species name="C4H8BR2">
+    <ChemName name="1,2-dibromobutane"/>
+    <MW value="215.915"/>
+    <Tc value="659.28"/>
+    <Pc value="4.717e+06"/>
+    <Vc value="0.3775"/>
+    <Zc value="0.325"/>
+    <omega value="0.429"/>
+  </species>
+  <species name="C4H8BR2-1">
+    <ChemName name="2,3-dibromobutane"/>
+    <MW value="215.915"/>
+    <Tc value="656.96"/>
+    <Pc value="4.769e+06"/>
+    <Vc value="0.3715"/>
+    <Zc value="0.324"/>
+    <omega value="0.397"/>
+  </species>
+  <species name="C4H8I2">
+    <ChemName name="1,2-diiodobutane"/>
+    <MW value="309.916"/>
+    <Tc value="726.41"/>
+    <Pc value="3.727e+06"/>
+    <Vc value="0.4295"/>
+    <Zc value="0.265"/>
+    <omega value="0.281"/>
+  </species>
+  <species name="C4H8O">
+    <ChemName name="butyraldehyde"/>
+    <MW value="72.107"/>
+    <Tc value="545.4"/>
+    <Pc value="5.38e+06"/>
+    <Vc value="0.2176"/>
+    <Zc value="0.258"/>
+    <omega value="0.352"/>
+  </species>
+  <species name="C4H8O-1">
+    <ChemName name="2-butanone"/>
+    <MW value="72.107"/>
+    <Tc value="535.6"/>
+    <Pc value="4.15e+06"/>
+    <Vc value="0.267"/>
+    <Zc value="0.252"/>
+    <omega value="0.32"/>
+  </species>
+  <species name="C4H8O2">
+    <ChemName name="p-dioxane"/>
+    <MW value="88.106"/>
+    <Tc value="588"/>
+    <Pc value="5.18e+06"/>
+    <Vc value="0.2388"/>
+    <Zc value="0.254"/>
+    <omega value="0.281"/>
+  </species>
+  <species name="C4H8O2-1">
+    <ChemName name="ethyl-acetate"/>
+    <MW value="88.106"/>
+    <Tc value="524.1"/>
+    <Pc value="3.85e+06"/>
+    <Vc value="0.2859"/>
+    <Zc value="0.252"/>
+    <omega value="0.362"/>
+  </species>
+  <species name="C4H8S">
+    <ChemName name="thiacyclopentane"/>
+    <MW value="88.167"/>
+    <Tc value="632"/>
+    <Pc value="5.3e+06"/>
+    <Vc value="0.2475"/>
+    <Zc value="0.241"/>
+    <omega value="0.224"/>
+  </species>
+  <species name="C4H9BR">
+    <ChemName name="1-bromobutane"/>
+    <MW value="137.019"/>
+    <Tc value="569.47"/>
+    <Pc value="4.255e+06"/>
+    <Vc value="0.3215"/>
+    <Zc value="0.289"/>
+    <omega value="0.339"/>
+  </species>
+  <species name="C4H9BR-1">
+    <ChemName name="2-bromobutane"/>
+    <MW value="137.019"/>
+    <Tc value="558.65"/>
+    <Pc value="4.3e+06"/>
+    <Vc value="0.3155"/>
+    <Zc value="0.292"/>
+    <omega value="0.308"/>
+  </species>
+  <species name="C4H9BR-2">
+    <ChemName name="2-bromo-2-methylpropane"/>
+    <MW value="137.019"/>
+    <Tc value="541.06"/>
+    <Pc value="4.363e+06"/>
+    <Vc value="0.3105"/>
+    <Zc value="0.301"/>
+    <omega value="0.246"/>
+  </species>
+  <species name="C4H9CL">
+    <ChemName name="1-chlorobutane"/>
+    <MW value="92.568"/>
+    <Tc value="542"/>
+    <Pc value="3.68e+06"/>
+    <Vc value="0.312"/>
+    <Zc value="0.255"/>
+    <omega value="0.218"/>
+  </species>
+  <species name="C4H9CL-1">
+    <ChemName name="2-chlorobutane"/>
+    <MW value="92.568"/>
+    <Tc value="520.7"/>
+    <Pc value="3.95e+06"/>
+    <Vc value="0.305"/>
+    <Zc value="0.28"/>
+    <omega value="0.3"/>
+  </species>
+  <species name="C4H9CL-2">
+    <ChemName name="1-chloro-2-methylpropane"/>
+    <MW value="92.568"/>
+    <Tc value="526.45"/>
+    <Pc value="3.759e+06"/>
+    <Vc value="0.3025"/>
+    <Zc value="0.26"/>
+    <omega value="0.249"/>
+  </species>
+  <species name="C4H9CL-3">
+    <ChemName name="2-chloro-2-methylpropane"/>
+    <MW value="92.568"/>
+    <Tc value="507.79"/>
+    <Pc value="3.81e+06"/>
+    <Vc value="0.2975"/>
+    <Zc value="0.269"/>
+    <omega value="0.189"/>
+  </species>
+  <species name="C4H9I">
+    <ChemName name="2-iodo-2-methylpropane"/>
+    <MW value="184.02"/>
+    <Tc value="587.9"/>
+    <Pc value="3.882e+06"/>
+    <Vc value="0.3365"/>
+    <Zc value="0.267"/>
+    <omega value="0.179"/>
+  </species>
+  <species name="C4H9N">
+    <ChemName name="pyrrolidine"/>
+    <MW value="71.122"/>
+    <Tc value="568.6"/>
+    <Pc value="5.7e+06"/>
+    <Vc value="0.249"/>
+    <Zc value="0.3"/>
+    <omega value="0.274"/>
+  </species>
+  <species name="C4H9NO2">
+    <ChemName name="1-nitrobutane"/>
+    <MW value="103.121"/>
+    <Tc value="624"/>
+    <Pc value="3.8e+06"/>
+    <Vc value="0.3415"/>
+    <Zc value="0.26"/>
+    <omega value="0.452"/>
+  </species>
+  <species name="C4H9NO2-1">
+    <ChemName name="2-nitrobutane"/>
+    <MW value="103.121"/>
+    <Tc value="615"/>
+    <Pc value="3.6e+06"/>
+    <Vc value="0.3355"/>
+    <Zc value="0.264"/>
+    <omega value="0.357"/>
+  </species>
+  <species name="C4H10">
+    <ChemName name="butane"/>
+    <MW value="58.123"/>
+    <Tc value="425.6"/>
+    <Pc value="3.76e+06"/>
+    <Vc value="0.255"/>
+    <Zc value="0.274"/>
+    <omega value="0.199"/>
+  </species>
+  <species name="C4H10-1">
+    <ChemName name="2-methylpropane(isobutane)"/>
+    <MW value="58.123"/>
+    <Tc value="407.7"/>
+    <Pc value="3.68e+06"/>
+    <Vc value="0.2631"/>
+    <Zc value="0.283"/>
+    <omega value="0.183"/>
+  </species>
+  <species name="C4H10O">
+    <ChemName name="ethyl-ether"/>
+    <MW value="74.122"/>
+    <Tc value="466.8"/>
+    <Pc value="3.64e+06"/>
+    <Vc value="0.2817"/>
+    <Zc value="0.262"/>
+    <omega value="0.281"/>
+  </species>
+  <species name="C4H10O-1">
+    <ChemName name="methyl-propyl-ether"/>
+    <MW value="74.122"/>
+    <Tc value="476.2"/>
+    <Pc value="3.8e+06"/>
+    <Vc value="0.274"/>
+    <Zc value="0.263"/>
+    <omega value="0.271"/>
+  </species>
+  <species name="C4H10O-2">
+    <ChemName name="methyl-isopropyl-ether"/>
+    <MW value="74.122"/>
+    <Tc value="464.5"/>
+    <Pc value="3.76e+06"/>
+    <Vc value="0.277"/>
+    <Zc value="0.27"/>
+    <omega value="0.266"/>
+  </species>
+  <species name="C4H10O-3">
+    <ChemName name="butyl-alcohol"/>
+    <MW value="74.122"/>
+    <Tc value="561.4"/>
+    <Pc value="4.42e+06"/>
+    <Vc value="0.2751"/>
+    <Zc value="0.259"/>
+    <omega value="0.592"/>
+  </species>
+  <species name="C4H10O-4">
+    <ChemName name="sec-butyl-alcohol"/>
+    <MW value="74.122"/>
+    <Tc value="538"/>
+    <Pc value="4.18e+06"/>
+    <Vc value="0.269"/>
+    <Zc value="0.252"/>
+    <omega value="0.577"/>
+  </species>
+  <species name="C4H10O-5">
+    <ChemName name="tert-butyl-alcohol"/>
+    <MW value="74.122"/>
+    <Tc value="508"/>
+    <Pc value="4.23e+06"/>
+    <Vc value="0.275"/>
+    <Zc value="0.259"/>
+    <omega value="0.612"/>
+  </species>
+  <species name="C4H10S">
+    <ChemName name="ethylsulfide"/>
+    <MW value="90.183"/>
+    <Tc value="557.5"/>
+    <Pc value="3.93e+06"/>
+    <Vc value="0.3173"/>
+    <Zc value="0.272"/>
+    <omega value="0.292"/>
+  </species>
+  <species name="C4H10S-1">
+    <ChemName name="isopropyl-methyl-sulfide"/>
+    <MW value="90.183"/>
+    <Tc value="551"/>
+    <Pc value="3.9e+06"/>
+    <Vc value="0.3075"/>
+    <Zc value="0.269"/>
+    <omega value="0.259"/>
+  </species>
+  <species name="C4H10S-2">
+    <ChemName name="methyl-propyl-sulfide"/>
+    <MW value="90.183"/>
+    <Tc value="563"/>
+    <Pc value="3.85e+06"/>
+    <Vc value="0.3135"/>
+    <Zc value="0.266"/>
+    <omega value="0.285"/>
+  </species>
+  <species name="C4H10S-3">
+    <ChemName name="1-butanethiol"/>
+    <MW value="90.183"/>
+    <Tc value="568"/>
+    <Pc value="3.88e+06"/>
+    <Vc value="0.3135"/>
+    <Zc value="0.279"/>
+    <omega value="0.284"/>
+  </species>
+  <species name="C4H10S-4">
+    <ChemName name="2-butanethiol"/>
+    <MW value="90.183"/>
+    <Tc value="551"/>
+    <Pc value="3.85e+06"/>
+    <Vc value="0.3075"/>
+    <Zc value="0.284"/>
+    <omega value="0.257"/>
+  </species>
+  <species name="C4H10S-5">
+    <ChemName name="2-methyl-1-propanethiol"/>
+    <MW value="90.183"/>
+    <Tc value="557"/>
+    <Pc value="3.9e+06"/>
+    <Vc value="0.3075"/>
+    <Zc value="0.281"/>
+    <omega value="0.258"/>
+  </species>
+  <species name="C4H10S-6">
+    <ChemName name="2-methyl-2-propanethiol"/>
+    <MW value="90.183"/>
+    <Tc value="521"/>
+    <Pc value="3.7e+06"/>
+    <Vc value="0.3025"/>
+    <Zc value="0.295"/>
+    <omega value="0.23"/>
+  </species>
+  <species name="C4H10S2">
+    <ChemName name="ethyl-disulfide"/>
+    <MW value="122.243"/>
+    <Tc value="642.1"/>
+    <Pc value="3.5e+06"/>
+    <Vc value="0.3675"/>
+    <Zc value="0.279"/>
+    <omega value="0.306"/>
+  </species>
+  <species name="C4H11N">
+    <ChemName name="butylamine"/>
+    <MW value="73.138"/>
+    <Tc value="524"/>
+    <Pc value="3.98e+06"/>
+    <Vc value="0.2885"/>
+    <Zc value="0.277"/>
+    <omega value="0.329"/>
+  </species>
+  <species name="C4H11N-1">
+    <ChemName name="sec-butylamine"/>
+    <MW value="73.138"/>
+    <Tc value="511"/>
+    <Pc value="3.97e+06"/>
+    <Vc value="0.2825"/>
+    <Zc value="0.283"/>
+    <omega value="0.368"/>
+  </species>
+  <species name="C4H11N-2">
+    <ChemName name="tert-butylamine"/>
+    <MW value="73.138"/>
+    <Tc value="483.9"/>
+    <Pc value="3.85e+06"/>
+    <Vc value="0.2926"/>
+    <Zc value="0.279"/>
+    <omega value="0.285"/>
+  </species>
+  <species name="C4H11N-3">
+    <ChemName name="diethylamine"/>
+    <MW value="73.138"/>
+    <Tc value="496.2"/>
+    <Pc value="3.92e+06"/>
+    <Vc value="0.301"/>
+    <Zc value="0.27"/>
+    <omega value="0.291"/>
+  </species>
+  <species name="C5H5N">
+    <ChemName name="pyridine"/>
+    <MW value="79.101"/>
+    <Tc value="618.7"/>
+    <Pc value="5.88e+06"/>
+    <Vc value="0.2528"/>
+    <Zc value="0.277"/>
+    <omega value="0.243"/>
+  </species>
+  <species name="C5H6S">
+    <ChemName name="2-methylthiophene"/>
+    <MW value="98.162"/>
+    <Tc value="610"/>
+    <Pc value="4.85e+06"/>
+    <Vc value="0.2755"/>
+    <Zc value="0.265"/>
+    <omega value="0.238"/>
+  </species>
+  <species name="C5H6S-1">
+    <ChemName name="3-methylthiophene"/>
+    <MW value="98.162"/>
+    <Tc value="615"/>
+    <Pc value="4.95e+06"/>
+    <Vc value="0.2755"/>
+    <Zc value="0.263"/>
+    <omega value="0.242"/>
+  </species>
+  <species name="C5H8">
+    <ChemName name="1,2-pentadiene"/>
+    <MW value="68.118"/>
+    <Tc value="503"/>
+    <Pc value="4.07e+06"/>
+    <Vc value="0.276"/>
+    <Zc value="0.269"/>
+    <omega value="0.173"/>
+  </species>
+  <species name="C5H8-1">
+    <ChemName name="1,3-pentadiene,cis"/>
+    <MW value="68.118"/>
+    <Tc value="496"/>
+    <Pc value="3.99e+06"/>
+    <Vc value="0.275"/>
+    <Zc value="0.266"/>
+    <omega value="0.175"/>
+  </species>
+  <species name="C5H8-2">
+    <ChemName name="1,3-pentadiene,trans"/>
+    <MW value="68.118"/>
+    <Tc value="494.31"/>
+    <Pc value="3.887e+06"/>
+    <Vc value="0.2765"/>
+    <Zc value="0.262"/>
+    <omega value="0.216"/>
+  </species>
+  <species name="C5H8-3">
+    <ChemName name="1,4-pentadiene"/>
+    <MW value="68.118"/>
+    <Tc value="478"/>
+    <Pc value="3.79e+06"/>
+    <Vc value="0.276"/>
+    <Zc value="0.263"/>
+    <omega value="0.127"/>
+  </species>
+  <species name="C5H8-4">
+    <ChemName name="2,3-pentadiene"/>
+    <MW value="68.118"/>
+    <Tc value="505.83"/>
+    <Pc value="4.141e+06"/>
+    <Vc value="0.2755"/>
+    <Zc value="0.271"/>
+    <omega value="0.204"/>
+  </species>
+  <species name="C5H8-5">
+    <ChemName name="3-methyl-1,2-butadiene"/>
+    <MW value="68.118"/>
+    <Tc value="496"/>
+    <Pc value="4.11e+06"/>
+    <Vc value="0.267"/>
+    <Zc value="0.266"/>
+    <omega value="0.16"/>
+  </species>
+  <species name="C5H8-6">
+    <ChemName name="2-methyl-1,3-butadiene"/>
+    <MW value="68.118"/>
+    <Tc value="483.3"/>
+    <Pc value="3.74e+06"/>
+    <Vc value="0.266"/>
+    <Zc value="0.248"/>
+    <omega value="0.164"/>
+  </species>
+  <species name="C5H8-7">
+    <ChemName name="1-pentyne"/>
+    <MW value="68.118"/>
+    <Tc value="493.5"/>
+    <Pc value="4.05e+06"/>
+    <Vc value="0.278"/>
+    <Zc value="0.275"/>
+    <omega value="0.164"/>
+  </species>
+  <species name="C5H8-8">
+    <ChemName name="2-pentyne"/>
+    <MW value="68.118"/>
+    <Tc value="521.99"/>
+    <Pc value="4.228e+06"/>
+    <Vc value="0.2775"/>
+    <Zc value="0.27"/>
+    <omega value="0.186"/>
+  </species>
+  <species name="C5H8-9">
+    <ChemName name="3-methyl-1-butyne"/>
+    <MW value="68.118"/>
+    <Tc value="476.04"/>
+    <Pc value="4.206e+06"/>
+    <Vc value="0.2715"/>
+    <Zc value="0.289"/>
+    <omega value="0.176"/>
+  </species>
+  <species name="C5H8-10">
+    <ChemName name="cyclopentene"/>
+    <MW value="68.118"/>
+    <Tc value="506"/>
+    <Pc value="4.763e+06"/>
+    <Vc value="0.2435"/>
+    <Zc value="0.275"/>
+    <omega value="0.206"/>
+  </species>
+  <species name="C5H8-11">
+    <ChemName name="spiropentane"/>
+    <MW value="68.118"/>
+    <Tc value="499.74"/>
+    <Pc value="5.213e+06"/>
+    <Vc value="0.2365"/>
+    <Zc value="0.297"/>
+    <omega value="0.221"/>
+  </species>
+  <species name="C5H10">
+    <ChemName name="1-pentene"/>
+    <MW value="70.134"/>
+    <Tc value="464.7"/>
+    <Pc value="3.55e+06"/>
+    <Vc value="0.3026"/>
+    <Zc value="0.278"/>
+    <omega value="0.233"/>
+  </species>
+  <species name="C5H10-1">
+    <ChemName name="2-pentene,cis"/>
+    <MW value="70.134"/>
+    <Tc value="474.9"/>
+    <Pc value="3.64e+06"/>
+    <Vc value="0.2955"/>
+    <Zc value="0.275"/>
+    <omega value="0.251"/>
+  </species>
+  <species name="C5H10-2">
+    <ChemName name="2-pentene,trans"/>
+    <MW value="70.134"/>
+    <Tc value="471"/>
+    <Pc value="3.52e+06"/>
+    <Vc value="0.2955"/>
+    <Zc value="0.275"/>
+    <omega value="0.259"/>
+  </species>
+  <species name="C5H10-3">
+    <ChemName name="2-methyl-1-butene"/>
+    <MW value="70.134"/>
+    <Tc value="464.8"/>
+    <Pc value="3.43e+06"/>
+    <Vc value="0.2975"/>
+    <Zc value="0.279"/>
+    <omega value="0.236"/>
+  </species>
+  <species name="C5H10-4">
+    <ChemName name="3-methyl-1-butene"/>
+    <MW value="70.134"/>
+    <Tc value="450"/>
+    <Pc value="3.51e+06"/>
+    <Vc value="0.2905"/>
+    <Zc value="0.283"/>
+    <omega value="0.209"/>
+  </species>
+  <species name="C5H10-5">
+    <ChemName name="2-methyl-2-butene"/>
+    <MW value="70.134"/>
+    <Tc value="470"/>
+    <Pc value="3.45e+06"/>
+    <Vc value="0.2965"/>
+    <Zc value="0.274"/>
+    <omega value="0.244"/>
+  </species>
+  <species name="C5H10-6">
+    <ChemName name="cyclopentane"/>
+    <MW value="70.134"/>
+    <Tc value="511.8"/>
+    <Pc value="4.52e+06"/>
+    <Vc value="0.2599"/>
+    <Zc value="0.276"/>
+    <omega value="0.196"/>
+  </species>
+  <species name="C5H10BR2">
+    <ChemName name="2,3-dibromo-2-methylbutane"/>
+    <MW value="229.942"/>
+    <Tc value="668.37"/>
+    <Pc value="4.255e+06"/>
+    <Vc value="0.4225"/>
+    <Zc value="0.324"/>
+    <omega value="0.377"/>
+  </species>
+  <species name="C5H10O">
+    <ChemName name="valeraldehyde"/>
+    <MW value="86.133"/>
+    <Tc value="554"/>
+    <Pc value="3.54e+06"/>
+    <Vc value="0.333"/>
+    <Zc value="0.26"/>
+    <omega value="0.4"/>
+  </species>
+  <species name="C5H10O-1">
+    <ChemName name="2-pentanone"/>
+    <MW value="86.133"/>
+    <Tc value="562.5"/>
+    <Pc value="3.69e+06"/>
+    <Vc value="0.3012"/>
+    <Zc value="0.238"/>
+    <omega value="0.346"/>
+  </species>
+  <species name="C5H10S">
+    <ChemName name="thiacyclohexane"/>
+    <MW value="102.194"/>
+    <Tc value="657.12"/>
+    <Pc value="4.653e+06"/>
+    <Vc value="0.2955"/>
+    <Zc value="0.252"/>
+    <omega value="0.22"/>
+  </species>
+  <species name="C5H10S-1">
+    <ChemName name="cyclopentanethiol"/>
+    <MW value="102.194"/>
+    <Tc value="629"/>
+    <Pc value="4.27e+06"/>
+    <Vc value="0.3105"/>
+    <Zc value="0.276"/>
+    <omega value="0.262"/>
+  </species>
+  <species name="C5H11BR">
+    <ChemName name="1-bromopentane"/>
+    <MW value="151.046"/>
+    <Tc value="564.76"/>
+    <Pc value="3.768e+06"/>
+    <Vc value="0.3775"/>
+    <Zc value="0.303"/>
+    <omega value="0.384"/>
+  </species>
+  <species name="C5H11CL">
+    <ChemName name="1-chloropentane"/>
+    <MW value="106.595"/>
+    <Tc value="552"/>
+    <Pc value="3.322e+06"/>
+    <Vc value="0.3645"/>
+    <Zc value="0.257"/>
+    <omega value="0.437"/>
+  </species>
+  <species name="C5H11CL-1">
+    <ChemName name="1-chloro-3-methylbutane"/>
+    <MW value="106.595"/>
+    <Tc value="558.87"/>
+    <Pc value="3.353e+06"/>
+    <Vc value="0.3585"/>
+    <Zc value="0.259"/>
+    <omega value="0.293"/>
+  </species>
+  <species name="C5H11CL-2">
+    <ChemName name="2-chloro-2-methylbutane"/>
+    <MW value="106.595"/>
+    <Tc value="548.97"/>
+    <Pc value="3.396e+06"/>
+    <Vc value="0.3535"/>
+    <Zc value="0.263"/>
+    <omega value="0.233"/>
+  </species>
+  <species name="C5H12">
+    <ChemName name="pentane"/>
+    <MW value="72.15"/>
+    <Tc value="470"/>
+    <Pc value="3.36e+06"/>
+    <Vc value="0.3106"/>
+    <Zc value="0.267"/>
+    <omega value="0.251"/>
+  </species>
+  <species name="C5H12-1">
+    <ChemName name="2-methylbutane(isopentane)"/>
+    <MW value="72.150"/>
+    <Tc value="461.1"/>
+    <Pc value="3.34e+06"/>
+    <Vc value="0.3074"/>
+    <Zc value="0.27"/>
+    <omega value="0.227"/>
+  </species>
+  <species name="C5H12-2">
+    <ChemName name="2,2-dimethypropane"/>
+    <MW value="72.15"/>
+    <Tc value="433.8"/>
+    <Pc value="3.2e+06"/>
+    <Vc value="0.3031"/>
+    <Zc value="0.276"/>
+    <omega value="0.197"/>
+  </species>
+  <species name="C5H12O">
+    <ChemName name="methyl-tert-butyl-ether"/>
+    <MW value="88.149"/>
+    <Tc value="497.1"/>
+    <Pc value="3.43e+06"/>
+    <Vc value="0.3225"/>
+    <Zc value="0.269"/>
+    <omega value="0.269"/>
+  </species>
+  <species name="C5H12O-1">
+    <ChemName name="pentyl-alcohol"/>
+    <MW value="88.149"/>
+    <Tc value="585.9"/>
+    <Pc value="3.89e+06"/>
+    <Vc value="0.326"/>
+    <Zc value="0.261"/>
+    <omega value="0.579"/>
+  </species>
+  <species name="C5H12O-2">
+    <ChemName name="tert-pentyl-alcohol"/>
+    <MW value="88.149"/>
+    <Tc value="549"/>
+    <Pc value="3.971e+06"/>
+    <Vc value="0.3235"/>
+    <Zc value="0.28"/>
+    <omega value="0.621"/>
+  </species>
+  <species name="C5H12S">
+    <ChemName name="butyl-methyl-sulfide"/>
+    <MW value="104.21"/>
+    <Tc value="591"/>
+    <Pc value="3.38e+06"/>
+    <Vc value="0.3695"/>
+    <Zc value="0.265"/>
+    <omega value="0.332"/>
+  </species>
+  <species name="C5H12S-1">
+    <ChemName name="ethyl-propyl-sulfide"/>
+    <MW value="104.21"/>
+    <Tc value="584"/>
+    <Pc value="3.38e+06"/>
+    <Vc value="0.3695"/>
+    <Zc value="0.268"/>
+    <omega value="0.329"/>
+  </species>
+  <species name="C5H12S-2">
+    <ChemName name="2-methyl-2-butanethiol"/>
+    <MW value="104.21"/>
+    <Tc value="566"/>
+    <Pc value="3.27e+06"/>
+    <Vc value="0.3585"/>
+    <Zc value="0.288"/>
+    <omega value="0.243"/>
+  </species>
+  <species name="C5H12S-3">
+    <ChemName name="1-pentanethiol"/>
+    <MW value="104.21"/>
+    <Tc value="601.26"/>
+    <Pc value="3.745e+06"/>
+    <Vc value="0.3695"/>
+    <Zc value="0.277"/>
+    <omega value="0.333"/>
+  </species>
+  <species name="C6CL6">
+    <ChemName name="hexachlorobenzene"/>
+    <MW value="284.784"/>
+    <Tc value="825.78"/>
+    <Pc value="3.228e+06"/>
+    <Vc value="0.5575"/>
+    <Zc value="0.263"/>
+    <omega value="0.543"/>
+  </species>
+  <species name="C6F6">
+    <ChemName name="hexafluorobenzene"/>
+    <MW value="186.056"/>
+    <Tc value="516.6"/>
+    <Pc value="3.27e+06"/>
+    <Vc value="0.3351"/>
+    <Zc value="0.255"/>
+    <omega value="0.396"/>
+  </species>
+  <species name="C6H4CL2">
+    <ChemName name="o-dichlorobenzene"/>
+    <MW value="147.004"/>
+    <Tc value="729"/>
+    <Pc value="4.1e+06"/>
+    <Vc value="0.360"/>
+    <Zc value="0.244"/>
+    <omega value="0.272"/>
+  </species>
+  <species name="C6H4CL2-1">
+    <ChemName name="m-dichlorobenzene"/>
+    <MW value="147.004"/>
+    <Tc value="679.37"/>
+    <Pc value="4.152e+06"/>
+    <Vc value="0.3615"/>
+    <Zc value="0.266"/>
+    <omega value="0.322"/>
+  </species>
+  <species name="C6H4CL2-2">
+    <ChemName name="p-dichlorobenzene"/>
+    <MW value="147.004"/>
+    <Tc value="680.89"/>
+    <Pc value="4.152e+06"/>
+    <Vc value="0.3615"/>
+    <Zc value="0.265"/>
+    <omega value="0.322"/>
+  </species>
+  <species name="C6H4F2">
+    <ChemName name="m-difluorobenzene"/>
+    <MW value="114.094"/>
+    <Tc value="552.94"/>
+    <Pc value="4.067e+06"/>
+    <Vc value="0.2995"/>
+    <Zc value="0.265"/>
+    <omega value="0.32"/>
+  </species>
+  <species name="C6H4F2-1">
+    <ChemName name="o-difluorobenzene"/>
+    <MW value="114.094"/>
+    <Tc value="554.46"/>
+    <Pc value="4.067e+06"/>
+    <Vc value="0.2995"/>
+    <Zc value="0.264"/>
+    <omega value="0.32"/>
+  </species>
+  <species name="C6H4F2-2">
+    <ChemName name="p-difluorobenzene"/>
+    <MW value="114.094"/>
+    <Tc value="556"/>
+    <Pc value="4.4e+06"/>
+    <Vc value="0.2995"/>
+    <Zc value="0.266"/>
+    <omega value="0.299"/>
+  </species>
+  <species name="C6H5BR">
+    <ChemName name="bromobenzene"/>
+    <MW value="157.01"/>
+    <Tc value="670.1"/>
+    <Pc value="4.52e+06"/>
+    <Vc value="0.3235"/>
+    <Zc value="0.263"/>
+    <omega value="0.251"/>
+  </species>
+  <species name="C6H5CL">
+    <ChemName name="chlorobenzene"/>
+    <MW value="112.558"/>
+    <Tc value="632.6"/>
+    <Pc value="4.52e+06"/>
+    <Vc value="0.3081"/>
+    <Zc value="0.265"/>
+    <omega value="0.249"/>
+  </species>
+  <species name="C6H5F">
+    <ChemName name="fluorobenzene"/>
+    <MW value="96.104"/>
+    <Tc value="559.8"/>
+    <Pc value="4.52e+06"/>
+    <Vc value="0.2713"/>
+    <Zc value="0.263"/>
+    <omega value="0.244"/>
+  </species>
+  <species name="C6H5I">
+    <ChemName name="iodobenzene"/>
+    <MW value="204.01"/>
+    <Tc value="721.1"/>
+    <Pc value="4.52e+06"/>
+    <Vc value="0.351"/>
+    <Zc value="0.265"/>
+    <omega value="0.249"/>
+  </species>
+  <species name="C6H6">
+    <ChemName name="benzene"/>
+    <MW value="78.113"/>
+    <Tc value="562"/>
+    <Pc value="4.89e+06"/>
+    <Vc value="0.2578"/>
+    <Zc value="0.269"/>
+    <omega value="0.212"/>
+  </species>
+  <species name="C6H6O">
+    <ChemName name="phenol"/>
+    <MW value="94.113"/>
+    <Tc value="692.9"/>
+    <Pc value="6.13e+06"/>
+    <Vc value="0.2293"/>
+    <Zc value="0.244"/>
+    <omega value="0.438"/>
+  </species>
+  <species name="C6H6S">
+    <ChemName name="benzenethiol"/>
+    <MW value="110.173"/>
+    <Tc value="685"/>
+    <Pc value="4.6e+06"/>
+    <Vc value="0.3175"/>
+    <Zc value="0.281"/>
+    <omega value="0.294"/>
+  </species>
+  <species name="C6H7N">
+    <ChemName name="2-picoline"/>
+    <MW value="93.128"/>
+    <Tc value="621.1"/>
+    <Pc value="4.6e+06"/>
+    <Vc value="0.335"/>
+    <Zc value="0.297"/>
+    <omega value="0.299"/>
+  </species>
+  <species name="C6H7N-1">
+    <ChemName name="3-picoline"/>
+    <MW value="93.128"/>
+    <Tc value="644.8"/>
+    <Pc value="4.65e+06"/>
+    <Vc value="0.3125"/>
+    <Zc value="0.272"/>
+    <omega value="0.306"/>
+  </species>
+  <species name="C6H7N-2">
+    <ChemName name="aniline"/>
+    <MW value="93.128"/>
+    <Tc value="698.9"/>
+    <Pc value="5.3e+06"/>
+    <Vc value="0.2739"/>
+    <Zc value="0.25"/>
+    <omega value="0.384"/>
+  </species>
+  <species name="C6H10">
+    <ChemName name="1-hexyne"/>
+    <MW value="82.145"/>
+    <Tc value="529.04"/>
+    <Pc value="3.691e+06"/>
+    <Vc value="0.3335"/>
+    <Zc value="0.28"/>
+    <omega value="0.249"/>
+  </species>
+  <species name="C6H10-1">
+    <ChemName name="cyclohexene"/>
+    <MW value="82.145"/>
+    <Tc value="560.4"/>
+    <Pc value="4.34e+06"/>
+    <Vc value="0.2915"/>
+    <Zc value="0.271"/>
+    <omega value="0.21"/>
+  </species>
+  <species name="C6H10-2">
+    <ChemName name="1-methylcyclopentene"/>
+    <MW value="82.145"/>
+    <Tc value="541.99"/>
+    <Pc value="3.79e+06"/>
+    <Vc value="0.3112"/>
+    <Zc value="0.273"/>
+    <omega value="0.219"/>
+  </species>
+  <species name="C6H10-3">
+    <ChemName name="3-methylcyclopentene"/>
+    <MW value="82.145"/>
+    <Tc value="535.71"/>
+    <Pc value="4.016e+06"/>
+    <Vc value="0.2985"/>
+    <Zc value="0.269"/>
+    <omega value="0.221"/>
+  </species>
+  <species name="C6H10-4">
+    <ChemName name="4-methylcyclopentene"/>
+    <MW value="82.145"/>
+    <Tc value="543.75"/>
+    <Pc value="4.016e+06"/>
+    <Vc value="0.2985"/>
+    <Zc value="0.265"/>
+    <omega value="0.221"/>
+  </species>
+  <species name="C6H10O">
+    <ChemName name="cyclohexanone"/>
+    <MW value="98.144"/>
+    <Tc value="629.1"/>
+    <Pc value="3.85e+06"/>
+    <Vc value="0.3125"/>
+    <Zc value="0.248"/>
+    <omega value="0.442"/>
+  </species>
+  <species name="C6H12">
+    <ChemName name="1-hexene"/>
+    <MW value="84.161"/>
+    <Tc value="508.5"/>
+    <Pc value="3.16e+06"/>
+    <Vc value="0.3619"/>
+    <Zc value="0.27"/>
+    <omega value="0.285"/>
+  </species>
+  <species name="C6H12-1">
+    <ChemName name="2-hexene,cis"/>
+    <MW value="84.161"/>
+    <Tc value="518"/>
+    <Pc value="3.28e+06"/>
+    <Vc value="0.351"/>
+    <Zc value="0.27"/>
+    <omega value="0.256"/>
+  </species>
+  <species name="C6H12-2">
+    <ChemName name="2-hexene,trans"/>
+    <MW value="84.161"/>
+    <Tc value="516"/>
+    <Pc value="3.27e+06"/>
+    <Vc value="0.351"/>
+    <Zc value="0.27"/>
+    <omega value="0.242"/>
+  </species>
+  <species name="C6H12-3">
+    <ChemName name="3-hexene,cis"/>
+    <MW value="84.161"/>
+    <Tc value="517"/>
+    <Pc value="3.28e+06"/>
+    <Vc value="0.350"/>
+    <Zc value="0.27"/>
+    <omega value="0.225"/>
+  </species>
+  <species name="C6H12-4">
+    <ChemName name="3-hexene,trans"/>
+    <MW value="84.161"/>
+    <Tc value="519.9"/>
+    <Pc value="3.25e+06"/>
+    <Vc value="0.350"/>
+    <Zc value="0.26"/>
+    <omega value="0.227"/>
+  </species>
+  <species name="C6H12-5">
+    <ChemName name="2-methyl-1-pentene"/>
+    <MW value="84.161"/>
+    <Tc value="506.48"/>
+    <Pc value="3.277e+06"/>
+    <Vc value="0.3535"/>
+    <Zc value="0.275"/>
+    <omega value="0.267"/>
+  </species>
+  <species name="C6H12-6">
+    <ChemName name="3-methyl-1-pentene"/>
+    <MW value="84.161"/>
+    <Tc value="495.26"/>
+    <Pc value="3.288e+06"/>
+    <Vc value="0.3465"/>
+    <Zc value="0.277"/>
+    <omega value="0.262"/>
+  </species>
+  <species name="C6H12-7">
+    <ChemName name="4-methyl-1-pentene"/>
+    <MW value="84.161"/>
+    <Tc value="494.8"/>
+    <Pc value="3.288e+06"/>
+    <Vc value="0.3465"/>
+    <Zc value="0.277"/>
+    <omega value="0.262"/>
+  </species>
+  <species name="C6H12-8">
+    <ChemName name="2-methyl-2-pentene"/>
+    <MW value="84.161"/>
+    <Tc value="518"/>
+    <Pc value="3.28e+06"/>
+    <Vc value="0.351"/>
+    <Zc value="0.27"/>
+    <omega value="0.229"/>
+  </species>
+  <species name="C6H12-9">
+    <ChemName name="3-methyl-2-pentene,cis"/>
+    <MW value="84.161"/>
+    <Tc value="518"/>
+    <Pc value="3.28e+06"/>
+    <Vc value="0.351"/>
+    <Zc value="0.27"/>
+    <omega value="0.269"/>
+  </species>
+  <species name="C6H12-10">
+    <ChemName name="3-methyl-2-pentene,trans"/>
+    <MW value="84.161"/>
+    <Tc value="521"/>
+    <Pc value="3.29e+06"/>
+    <Vc value="0.350"/>
+    <Zc value="0.27"/>
+    <omega value="0.207"/>
+  </species>
+  <species name="C6H12-11">
+    <ChemName name="4-methyl-2-pentene,cis"/>
+    <MW value="84.161"/>
+    <Tc value="490"/>
+    <Pc value="3.04e+06"/>
+    <Vc value="0.360"/>
+    <Zc value="0.27"/>
+    <omega value="0.29"/>
+  </species>
+  <species name="C6H12-12">
+    <ChemName name="4-methyl-2-pentene,trans"/>
+    <MW value="84.161"/>
+    <Tc value="493"/>
+    <Pc value="3.04e+06"/>
+    <Vc value="0.360"/>
+    <Zc value="0.27"/>
+    <omega value="0.29"/>
+  </species>
+  <species name="C6H12-13">
+    <ChemName name="2-ethyl-1-butene"/>
+    <MW value="84.161"/>
+    <Tc value="510.36"/>
+    <Pc value="3.277e+06"/>
+    <Vc value="0.3535"/>
+    <Zc value="0.273"/>
+    <omega value="0.267"/>
+  </species>
+  <species name="C6H12-14">
+    <ChemName name="2,3-dimethyl-1-butene"/>
+    <MW value="84.161"/>
+    <Tc value="501"/>
+    <Pc value="3.24e+06"/>
+    <Vc value="0.343"/>
+    <Zc value="0.27"/>
+    <omega value="0.221"/>
+  </species>
+  <species name="C6H12-15">
+    <ChemName name="3,3-dimethyl-1-butene"/>
+    <MW value="84.161"/>
+    <Tc value="490"/>
+    <Pc value="3.25e+06"/>
+    <Vc value="0.340"/>
+    <Zc value="0.27"/>
+    <omega value="0.156"/>
+  </species>
+  <species name="C6H12-16">
+    <ChemName name="2,3-dimethyl-2-butene"/>
+    <MW value="84.161"/>
+    <Tc value="524"/>
+    <Pc value="3.36e+06"/>
+    <Vc value="0.351"/>
+    <Zc value="0.27"/>
+    <omega value="0.239"/>
+  </species>
+  <species name="C6H12-17">
+    <ChemName name="cyclohexane"/>
+    <MW value="84.161"/>
+    <Tc value="553.5"/>
+    <Pc value="4.07e+06"/>
+    <Vc value="0.3083"/>
+    <Zc value="0.273"/>
+    <omega value="0.212"/>
+  </species>
+  <species name="C6H12-18">
+    <ChemName name="methylcyclopentane"/>
+    <MW value="84.161"/>
+    <Tc value="533.2"/>
+    <Pc value="3.8e+06"/>
+    <Vc value="0.319"/>
+    <Zc value="0.273"/>
+    <omega value="0.231"/>
+  </species>
+  <species name="C6H12O">
+    <ChemName name="cyclohexanol"/>
+    <MW value="100.16"/>
+    <Tc value="625.1"/>
+    <Pc value="3.73e+06"/>
+    <Vc value="0.3235"/>
+    <Zc value="0.279"/>
+    <omega value="0.528"/>
+  </species>
+  <species name="C6H12O-1">
+    <ChemName name="hexanal"/>
+    <MW value="100.16"/>
+    <Tc value="581.07"/>
+    <Pc value="3.38e+06"/>
+    <Vc value="0.3885"/>
+    <Zc value="0.256"/>
+    <omega value="0.459"/>
+  </species>
+  <species name="C6H12S">
+    <ChemName name="thiacycloheptane"/>
+    <MW value="116.221"/>
+    <Tc value="640.07"/>
+    <Pc value="4.374e+06"/>
+    <Vc value="0.3915"/>
+    <Zc value="0.322"/>
+    <omega value="0.291"/>
+  </species>
+  <species name="C6H14">
+    <ChemName name="hexane"/>
+    <MW value="86.177"/>
+    <Tc value="507.9"/>
+    <Pc value="3.02e+06"/>
+    <Vc value="0.3684"/>
+    <Zc value="0.264"/>
+    <omega value="0.299"/>
+  </species>
+  <species name="C6H14-1">
+    <ChemName name="2-methylpentane"/>
+    <MW value="86.177"/>
+    <Tc value="498.5"/>
+    <Pc value="3.03e+06"/>
+    <Vc value="0.3669"/>
+    <Zc value="0.267"/>
+    <omega value="0.278"/>
+  </species>
+  <species name="C6H14-2">
+    <ChemName name="3-methylpentane"/>
+    <MW value="86.177"/>
+    <Tc value="504.4"/>
+    <Pc value="3.15e+06"/>
+    <Vc value="0.3669"/>
+    <Zc value="0.273"/>
+    <omega value="0.272"/>
+  </species>
+  <species name="C6H14-3">
+    <ChemName name="2,2-dimethylbutane"/>
+    <MW value="86.177"/>
+    <Tc value="488.2"/>
+    <Pc value="3.1e+06"/>
+    <Vc value="0.359"/>
+    <Zc value="0.272"/>
+    <omega value="0.232"/>
+  </species>
+  <species name="C6H14-4">
+    <ChemName name="2,3-dimethylbutane"/>
+    <MW value="86.177"/>
+    <Tc value="500.3"/>
+    <Pc value="3.13e+06"/>
+    <Vc value="0.3574"/>
+    <Zc value="0.269"/>
+    <omega value="0.247"/>
+  </species>
+  <species name="C6H14O">
+    <ChemName name="propyl-ether"/>
+    <MW value="102.176"/>
+    <Tc value="530.6"/>
+    <Pc value="3.03e+06"/>
+    <Vc value="0.3895"/>
+    <Zc value="0.27"/>
+    <omega value="0.369"/>
+  </species>
+  <species name="C6H14O-1">
+    <ChemName name="isopropyl-ether"/>
+    <MW value="102.176"/>
+    <Tc value="500.2"/>
+    <Pc value="2.85e+06"/>
+    <Vc value="0.386"/>
+    <Zc value="0.262"/>
+    <omega value="0.331"/>
+  </species>
+  <species name="C6H14O-2">
+    <ChemName name="hexyl-alcohol"/>
+    <MW value="102.176"/>
+    <Tc value="610"/>
+    <Pc value="3.48e+06"/>
+    <Vc value="0.381"/>
+    <Zc value="0.262"/>
+    <omega value="0.56"/>
+  </species>
+  <species name="C6H14S">
+    <ChemName name="butyl-ethyl-sulfide"/>
+    <MW value="118.237"/>
+    <Tc value="609"/>
+    <Pc value="3.e+06"/>
+    <Vc value="0.4255"/>
+    <Zc value="0.265"/>
+    <omega value="0.374"/>
+  </species>
+  <species name="C6H14S-1">
+    <ChemName name="isopropyl-sulfide"/>
+    <MW value="118.237"/>
+    <Tc value="585.71"/>
+    <Pc value="3.225e+06"/>
+    <Vc value="0.4135"/>
+    <Zc value="0.274"/>
+    <omega value="0.316"/>
+  </species>
+  <species name="C6H14S-2">
+    <ChemName name="methyl-pentyl-sulfide"/>
+    <MW value="118.237"/>
+    <Tc value="587.98"/>
+    <Pc value="3.167e+06"/>
+    <Vc value="0.4255"/>
+    <Zc value="0.276"/>
+    <omega value="0.376"/>
+  </species>
+  <species name="C6H14S-3">
+    <ChemName name="propyl-sulfide"/>
+    <MW value="118.237"/>
+    <Tc value="609.73"/>
+    <Pc value="3.167e+06"/>
+    <Vc value="0.4255"/>
+    <Zc value="0.266"/>
+    <omega value="0.376"/>
+  </species>
+  <species name="C6H14S-4">
+    <ChemName name="1-hexanethiol"/>
+    <MW value="118.237"/>
+    <Tc value="622"/>
+    <Pc value="3.02e+06"/>
+    <Vc value="0.4255"/>
+    <Zc value="0.273"/>
+    <omega value="0.372"/>
+  </species>
+  <species name="C6H14S2">
+    <ChemName name="propyl-disulfide"/>
+    <MW value="150.297"/>
+    <Tc value="673"/>
+    <Pc value="2.75e+06"/>
+    <Vc value="0.4795"/>
+    <Zc value="0.277"/>
+    <omega value="0.37"/>
+  </species>
+  <species name="C6H15N">
+    <ChemName name="triethylamine"/>
+    <MW value="101.191"/>
+    <Tc value="535.2"/>
+    <Pc value="3.04e+06"/>
+    <Vc value="0.3945"/>
+    <Zc value="0.269"/>
+    <omega value="0.32"/>
+  </species>
+  <species name="C7H5F3">
+    <ChemName name="a,a,a-trifluorotoluene"/>
+    <MW value="146.112"/>
+    <Tc value="562.56"/>
+    <Pc value="3.564e+06"/>
+    <Vc value="0.3625"/>
+    <Zc value="0.276"/>
+    <omega value="0.327"/>
+  </species>
+  <species name="C7H5N">
+    <ChemName name="benzonitrile"/>
+    <MW value="103.123"/>
+    <Tc value="699.4"/>
+    <Pc value="4.22e+06"/>
+    <Vc value="0.3455"/>
+    <Zc value="0.241"/>
+    <omega value="0.362"/>
+  </species>
+  <species name="C7H6O2">
+    <ChemName name="benzoic-acid"/>
+    <MW value="122.123"/>
+    <Tc value="752"/>
+    <Pc value="4.56e+06"/>
+    <Vc value="0.341"/>
+    <Zc value="0.25"/>
+    <omega value="0.62"/>
+  </species>
+  <species name="C7H7F">
+    <ChemName name="p-fluorotoluene"/>
+    <MW value="110.131"/>
+    <Tc value="590.48"/>
+    <Pc value="3.815e+06"/>
+    <Vc value="0.3375"/>
+    <Zc value="0.262"/>
+    <omega value="0.311"/>
+  </species>
+  <species name="C7H8">
+    <ChemName name="toluene"/>
+    <MW value="92.14"/>
+    <Tc value="593.1"/>
+    <Pc value="4.21e+06"/>
+    <Vc value="0.3166"/>
+    <Zc value="0.265"/>
+    <omega value="0.263"/>
+  </species>
+  <species name="C7H8-1">
+    <ChemName name="1,3,5-cycloheptatriene"/>
+    <MW value="92.14"/>
+    <Tc value="593.9"/>
+    <Pc value="4.334e+06"/>
+    <Vc value="0.3115"/>
+    <Zc value="0.266"/>
+    <omega value="0.324"/>
+  </species>
+  <species name="C7H8O">
+    <ChemName name="m-cresol"/>
+    <MW value="108.14"/>
+    <Tc value="705.4"/>
+    <Pc value="4.56e+06"/>
+    <Vc value="0.3125"/>
+    <Zc value="0.24"/>
+    <omega value="0.454"/>
+  </species>
+  <species name="C7H8O-1">
+    <ChemName name="o-cresol"/>
+    <MW value="108.14"/>
+    <Tc value="695.3"/>
+    <Pc value="5.01e+06"/>
+    <Vc value="0.282"/>
+    <Zc value="0.244"/>
+    <omega value="0.433"/>
+  </species>
+  <species name="C7H8O-2">
+    <ChemName name="p-cresol"/>
+    <MW value="108.14"/>
+    <Tc value="704.5"/>
+    <Pc value="5.15e+06"/>
+    <Vc value="0.277"/>
+    <Zc value="0.244"/>
+    <omega value="0.505"/>
+  </species>
+  <species name="C7H12">
+    <ChemName name="1-heptyne"/>
+    <MW value="96.172"/>
+    <Tc value="559.69"/>
+    <Pc value="3.295e+06"/>
+    <Vc value="0.3895"/>
+    <Zc value="0.276"/>
+    <omega value="0.293"/>
+  </species>
+  <species name="C7H14">
+    <ChemName name="1-heptene"/>
+    <MW value="98.188"/>
+    <Tc value="537.2"/>
+    <Pc value="2.85e+06"/>
+    <Vc value="0.4389"/>
+    <Zc value="0.28"/>
+    <omega value="0.358"/>
+  </species>
+  <species name="C7H14-1">
+    <ChemName name="cycloheptane"/>
+    <MW value="98.188"/>
+    <Tc value="602"/>
+    <Pc value="3.81e+06"/>
+    <Vc value="0.353"/>
+    <Zc value="0.269"/>
+    <omega value="0.237"/>
+  </species>
+  <species name="C7H14-2">
+    <ChemName name="ethylcyclopentane"/>
+    <MW value="98.188"/>
+    <Tc value="569.5"/>
+    <Pc value="3.39e+06"/>
+    <Vc value="0.375"/>
+    <Zc value="0.269"/>
+    <omega value="0.271"/>
+  </species>
+  <species name="C7H14-3">
+    <ChemName name="1,1-dimethylcyclopentane"/>
+    <MW value="98.188"/>
+    <Tc value="550"/>
+    <Pc value="3.4e+06"/>
+    <Vc value="0.3535"/>
+    <Zc value="0.27"/>
+    <omega value="0.273"/>
+  </species>
+  <species name="C7H14-4">
+    <ChemName name="c-1,2-dimethylcyclopentane"/>
+    <MW value="98.188"/>
+    <Tc value="565"/>
+    <Pc value="3.4e+06"/>
+    <Vc value="0.3633"/>
+    <Zc value="0.27"/>
+    <omega value="0.269"/>
+  </species>
+  <species name="C7H14-5">
+    <ChemName name="t-1,2-dimethylcyclopentane"/>
+    <MW value="98.188"/>
+    <Tc value="553"/>
+    <Pc value="3.4e+06"/>
+    <Vc value="0.3633"/>
+    <Zc value="0.27"/>
+    <omega value="0.269"/>
+  </species>
+  <species name="C7H14-6">
+    <ChemName name="c-1,3-dimethylcyclopentane"/>
+    <MW value="98.188"/>
+    <Tc value="551"/>
+    <Pc value="3.4e+06"/>
+    <Vc value="0.3633"/>
+    <Zc value="0.27"/>
+    <omega value="0.272"/>
+  </species>
+  <species name="C7H14-7">
+    <ChemName name="t-1,3-dimethylcyclopentane"/>
+    <MW value="98.188"/>
+    <Tc value="553"/>
+    <Pc value="3.4e+06"/>
+    <Vc value="0.3633"/>
+    <Zc value="0.27"/>
+    <omega value="0.268"/>
+  </species>
+  <species name="C7H14-8">
+    <ChemName name="methylcyclohexane"/>
+    <MW value="98.188"/>
+    <Tc value="572.3"/>
+    <Pc value="3.47e+06"/>
+    <Vc value="0.3445"/>
+    <Zc value="0.263"/>
+    <omega value="0.236"/>
+  </species>
+  <species name="C7H14O">
+    <ChemName name="heptanal"/>
+    <MW value="114.187"/>
+    <Tc value="638.5"/>
+    <Pc value="3.032e+06"/>
+    <Vc value="0.4445"/>
+    <Zc value="0.25"/>
+    <omega value="0.259"/>
+  </species>
+  <species name="C7H16">
+    <ChemName name="heptane"/>
+    <MW value="100.203"/>
+    <Tc value="540.1"/>
+    <Pc value="2.74e+06"/>
+    <Vc value="0.4281"/>
+    <Zc value="0.262"/>
+    <omega value="0.349"/>
+  </species>
+  <species name="C7H16-1">
+    <ChemName name="2-methylhexane"/>
+    <MW value="100.203"/>
+    <Tc value="531"/>
+    <Pc value="2.75e+06"/>
+    <Vc value="0.421"/>
+    <Zc value="0.261"/>
+    <omega value="0.329"/>
+  </species>
+  <species name="C7H16-2">
+    <ChemName name="3-methylhexane"/>
+    <MW value="100.203"/>
+    <Tc value="535.4"/>
+    <Pc value="2.82e+06"/>
+    <Vc value="0.4108"/>
+    <Zc value="0.255"/>
+    <omega value="0.323"/>
+  </species>
+  <species name="C7H16-3">
+    <ChemName name="3-ethylpentane"/>
+    <MW value="100.203"/>
+    <Tc value="540.7"/>
+    <Pc value="2.89e+06"/>
+    <Vc value="0.416"/>
+    <Zc value="0.268"/>
+    <omega value="0.31"/>
+  </species>
+  <species name="C7H16-4">
+    <ChemName name="2,2-dimethylpentane"/>
+    <MW value="100.203"/>
+    <Tc value="520.4"/>
+    <Pc value="2.82e+06"/>
+    <Vc value="0.4158"/>
+    <Zc value="0.266"/>
+    <omega value="0.287"/>
+  </species>
+  <species name="C7H16-5">
+    <ChemName name="2,3-dimethylpentane"/>
+    <MW value="100.203"/>
+    <Tc value="537.6"/>
+    <Pc value="2.93e+06"/>
+    <Vc value="0.405"/>
+    <Zc value="0.256"/>
+    <omega value="0.296"/>
+  </species>
+  <species name="C7H16-6">
+    <ChemName name="2,4-dimethylpentane"/>
+    <MW value="100.203"/>
+    <Tc value="520.8"/>
+    <Pc value="2.75e+06"/>
+    <Vc value="0.4175"/>
+    <Zc value="0.264"/>
+    <omega value="0.302"/>
+  </species>
+  <species name="C7H16-7">
+    <ChemName name="3,3-dimethylpentane"/>
+    <MW value="100.203"/>
+    <Tc value="536.3"/>
+    <Pc value="2.96e+06"/>
+    <Vc value="0.414"/>
+    <Zc value="0.273"/>
+    <omega value="0.267"/>
+  </species>
+  <species name="C7H16-8">
+    <ChemName name="2,2,3-trimethylbutane"/>
+    <MW value="100.203"/>
+    <Tc value="530.4"/>
+    <Pc value="3.e+06"/>
+    <Vc value="0.3976"/>
+    <Zc value="0.266"/>
+    <omega value="0.25"/>
+  </species>
+  <species name="C7H16O">
+    <ChemName name="isopropyl-tert-butyl-ether"/>
+    <MW value="116.203"/>
+    <Tc value="558.21"/>
+    <Pc value="2.829e+06"/>
+    <Vc value="0.4285"/>
+    <Zc value="0.261"/>
+    <omega value="0.307"/>
+  </species>
+  <species name="C7H16O-1">
+    <ChemName name="heptyl-alcohol"/>
+    <MW value="116.203"/>
+    <Tc value="631.9"/>
+    <Pc value="3.16e+06"/>
+    <Vc value="0.4358"/>
+    <Zc value="0.262"/>
+    <omega value="0.56"/>
+  </species>
+  <species name="C7H16S">
+    <ChemName name="butyl-propyl-sulfide"/>
+    <MW value="132.263"/>
+    <Tc value="653.5"/>
+    <Pc value="2.851e+06"/>
+    <Vc value="0.4815"/>
+    <Zc value="0.259"/>
+    <omega value="0.318"/>
+  </species>
+  <species name="C7H16S-1">
+    <ChemName name="ethyl-pentyl-sulfide"/>
+    <MW value="132.263"/>
+    <Tc value="638.37"/>
+    <Pc value="2.851e+06"/>
+    <Vc value="0.4815"/>
+    <Zc value="0.259"/>
+    <omega value="0.42"/>
+  </species>
+  <species name="C7H16S-2">
+    <ChemName name="hexyl-methyl-sulfide"/>
+    <MW value="132.263"/>
+    <Tc value="638.37"/>
+    <Pc value="2.851e+06"/>
+    <Vc value="0.4815"/>
+    <Zc value="0.259"/>
+    <omega value="0.42"/>
+  </species>
+  <species name="C7H16S-3">
+    <ChemName name="1-heptanethiol"/>
+    <MW value="132.263"/>
+    <Tc value="645"/>
+    <Pc value="2.75e+06"/>
+    <Vc value="0.4815"/>
+    <Zc value="0.267"/>
+    <omega value="0.419"/>
+  </species>
+  <species name="C8H6">
+    <ChemName name="ethynylbenzene"/>
+    <MW value="102.135"/>
+    <Tc value="655.43"/>
+    <Pc value="4.403e+06"/>
+    <Vc value="0.3375"/>
+    <Zc value="0.273"/>
+    <omega value="0.239"/>
+  </species>
+  <species name="C8H8">
+    <ChemName name="styrene"/>
+    <MW value="104.151"/>
+    <Tc value="617.1"/>
+    <Pc value="3.69e+06"/>
+    <Vc value="0.3697"/>
+    <Zc value="0.264"/>
+    <omega value="0.257"/>
+  </species>
+  <species name="C8H8-1">
+    <ChemName name="1,3,5,7-cyclooctatetraene"/>
+    <MW value="104.151"/>
+    <Tc value="642.55"/>
+    <Pc value="4.141e+06"/>
+    <Vc value="0.3455"/>
+    <Zc value="0.268"/>
+    <omega value="0.244"/>
+  </species>
+  <species name="C8H10">
+    <ChemName name="ethylbenzene"/>
+    <MW value="106.167"/>
+    <Tc value="617.9"/>
+    <Pc value="3.73e+06"/>
+    <Vc value="0.374"/>
+    <Zc value="0.268"/>
+    <omega value="0.302"/>
+  </species>
+  <species name="C8H10-1">
+    <ChemName name="m-xylene"/>
+    <MW value="106.167"/>
+    <Tc value="619"/>
+    <Pc value="3.56e+06"/>
+    <Vc value="0.3761"/>
+    <Zc value="0.259"/>
+    <omega value="0.325"/>
+  </species>
+  <species name="C8H10-2">
+    <ChemName name="o-xylene"/>
+    <MW value="106.167"/>
+    <Tc value="631.1"/>
+    <Pc value="3.74e+06"/>
+    <Vc value="0.369"/>
+    <Zc value="0.262"/>
+    <omega value="0.31"/>
+  </species>
+  <species name="C8H10-3">
+    <ChemName name="p-xylene"/>
+    <MW value="106.167"/>
+    <Tc value="617.4"/>
+    <Pc value="3.53e+06"/>
+    <Vc value="0.3786"/>
+    <Zc value="0.26"/>
+    <omega value="0.32"/>
+  </species>
+  <species name="C8H14">
+    <ChemName name="1-octyne"/>
+    <MW value="110.199"/>
+    <Tc value="586.86"/>
+    <Pc value="2.96e+06"/>
+    <Vc value="0.4455"/>
+    <Zc value="0.27"/>
+    <omega value="0.338"/>
+  </species>
+  <species name="C8H16">
+    <ChemName name="1-octene"/>
+    <MW value="112.214"/>
+    <Tc value="571.7"/>
+    <Pc value="2.58e+06"/>
+    <Vc value="0.5159"/>
+    <Zc value="0.28"/>
+    <omega value="0.386"/>
+  </species>
+  <species name="C8H16-1">
+    <ChemName name="cyclooctane"/>
+    <MW value="112.214"/>
+    <Tc value="647.2"/>
+    <Pc value="3.55e+06"/>
+    <Vc value="0.410"/>
+    <Zc value="0.271"/>
+    <omega value="0.236"/>
+  </species>
+  <species name="C8H16-2">
+    <ChemName name="propylcyclopentane"/>
+    <MW value="112.214"/>
+    <Tc value="603"/>
+    <Pc value="3.e+06"/>
+    <Vc value="0.425"/>
+    <Zc value="0.25"/>
+    <omega value="0.335"/>
+  </species>
+  <species name="C8H16-3">
+    <ChemName name="ethylcyclohexane"/>
+    <MW value="112.214"/>
+    <Tc value="609"/>
+    <Pc value="3.e+06"/>
+    <Vc value="0.4558"/>
+    <Zc value="0.27"/>
+    <omega value="0.243"/>
+  </species>
+  <species name="C8H16-4">
+    <ChemName name="1,1-dimethylcyclohexane"/>
+    <MW value="112.214"/>
+    <Tc value="591"/>
+    <Pc value="2.9e+06"/>
+    <Vc value="0.4489"/>
+    <Zc value="0.27"/>
+    <omega value="0.238"/>
+  </species>
+  <species name="C8H16-5">
+    <ChemName name="c-1,2-dimethylcyclohexane"/>
+    <MW value="112.214"/>
+    <Tc value="606"/>
+    <Pc value="2.9e+06"/>
+    <Vc value="0.4713"/>
+    <Zc value="0.27"/>
+    <omega value="0.236"/>
+  </species>
+  <species name="C8H16-6">
+    <ChemName name="t-1,2-dimethylcyclohexane"/>
+    <MW value="112.214"/>
+    <Tc value="596"/>
+    <Pc value="2.9e+06"/>
+    <Vc value="0.4713"/>
+    <Zc value="0.27"/>
+    <omega value="0.242"/>
+  </species>
+  <species name="C8H16-7">
+    <ChemName name="c-1,3-dimethylcyclohexane"/>
+    <MW value="112.214"/>
+    <Tc value="591"/>
+    <Pc value="2.9e+06"/>
+    <Vc value="0.4489"/>
+    <Zc value="0.27"/>
+    <omega value="0.224"/>
+  </species>
+  <species name="C8H16-8">
+    <ChemName name="t-1,3-dimethylcyclohexane"/>
+    <MW value="112.214"/>
+    <Tc value="598"/>
+    <Pc value="2.97e+06"/>
+    <Vc value="0.4155"/>
+    <Zc value="0.254"/>
+    <omega value="0.189"/>
+  </species>
+  <species name="C8H16-9">
+    <ChemName name="c-1,4-dimethylcyclohexane"/>
+    <MW value="112.214"/>
+    <Tc value="598"/>
+    <Pc value="2.9e+06"/>
+    <Vc value="0.4713"/>
+    <Zc value="0.27"/>
+    <omega value="0.234"/>
+  </species>
+  <species name="C8H16-10">
+    <ChemName name="t-1,4-dimethylcyclohexane"/>
+    <MW value="112.214"/>
+    <Tc value="587.7"/>
+    <Pc value="2.97e+06"/>
+    <Vc value="0.4155"/>
+    <Zc value="0.27"/>
+    <omega value="0.242"/>
+  </species>
+  <species name="C8H16O">
+    <ChemName name="octanal"/>
+    <MW value="128.214"/>
+    <Tc value="621.11"/>
+    <Pc value="2.735e+06"/>
+    <Vc value="0.5005"/>
+    <Zc value="0.256"/>
+    <omega value="0.548"/>
+  </species>
+  <species name="C8H18">
+    <ChemName name="octane"/>
+    <MW value="114.23"/>
+    <Tc value="569.1"/>
+    <Pc value="2.49e+06"/>
+    <Vc value="0.4909"/>
+    <Zc value="0.259"/>
+    <omega value="0.398"/>
+  </species>
+  <species name="C8H18-1">
+    <ChemName name="2-methylheptane"/>
+    <MW value="114.23"/>
+    <Tc value="560.6"/>
+    <Pc value="2.49e+06"/>
+    <Vc value="0.4883"/>
+    <Zc value="0.261"/>
+    <omega value="0.378"/>
+  </species>
+  <species name="C8H18-2">
+    <ChemName name="3-methylheptane"/>
+    <MW value="114.23"/>
+    <Tc value="564.1"/>
+    <Pc value="2.56e+06"/>
+    <Vc value="0.4711"/>
+    <Zc value="0.252"/>
+    <omega value="0.37"/>
+  </species>
+  <species name="C8H18-3">
+    <ChemName name="4-methylheptane"/>
+    <MW value="114.23"/>
+    <Tc value="562.2"/>
+    <Pc value="2.56e+06"/>
+    <Vc value="0.476"/>
+    <Zc value="0.259"/>
+    <omega value="0.371"/>
+  </species>
+  <species name="C8H18-4">
+    <ChemName name="3-ethylhexane"/>
+    <MW value="114.23"/>
+    <Tc value="566.1"/>
+    <Pc value="2.63e+06"/>
+    <Vc value="0.4605"/>
+    <Zc value="0.252"/>
+    <omega value="0.361"/>
+  </species>
+  <species name="C8H18-5">
+    <ChemName name="2,2-dimethylhexane"/>
+    <MW value="114.23"/>
+    <Tc value="549.9"/>
+    <Pc value="2.53e+06"/>
+    <Vc value="0.478"/>
+    <Zc value="0.264"/>
+    <omega value="0.338"/>
+  </species>
+  <species name="C8H18-6">
+    <ChemName name="2,3-dimethylhexane"/>
+    <MW value="114.23"/>
+    <Tc value="564.5"/>
+    <Pc value="2.65e+06"/>
+    <Vc value="0.4682"/>
+    <Zc value="0.263"/>
+    <omega value="0.346"/>
+  </species>
+  <species name="C8H18-7">
+    <ChemName name="2,4-dimethylhexane"/>
+    <MW value="114.23"/>
+    <Tc value="554.1"/>
+    <Pc value="2.57e+06"/>
+    <Vc value="0.472"/>
+    <Zc value="0.262"/>
+    <omega value="0.343"/>
+  </species>
+  <species name="C8H18-8">
+    <ChemName name="2,5-dimethylhexane"/>
+    <MW value="114.23"/>
+    <Tc value="549.9"/>
+    <Pc value="2.49e+06"/>
+    <Vc value="0.4823"/>
+    <Zc value="0.262"/>
+    <omega value="0.356"/>
+  </species>
+  <species name="C8H18-9">
+    <ChemName name="3,3-dimethylhexane"/>
+    <MW value="114.23"/>
+    <Tc value="562.8"/>
+    <Pc value="2.69e+06"/>
+    <Vc value="0.443"/>
+    <Zc value="0.252"/>
+    <omega value="0.32"/>
+  </species>
+  <species name="C8H18-10">
+    <ChemName name="3,4-dimethylhexane"/>
+    <MW value="114.23"/>
+    <Tc value="569.7"/>
+    <Pc value="2.72e+06"/>
+    <Vc value="0.4588"/>
+    <Zc value="0.264"/>
+    <omega value="0.338"/>
+  </species>
+  <species name="C8H18-11">
+    <ChemName name="3-ethyl-2-methylpentane"/>
+    <MW value="114.23"/>
+    <Tc value="567"/>
+    <Pc value="2.71e+06"/>
+    <Vc value="0.4453"/>
+    <Zc value="0.254"/>
+    <omega value="0.361"/>
+  </species>
+  <species name="C8H18-12">
+    <ChemName name="3-ethyl-3-methylpentane"/>
+    <MW value="114.23"/>
+    <Tc value="576.5"/>
+    <Pc value="2.83e+06"/>
+    <Vc value="0.4551"/>
+    <Zc value="0.266"/>
+    <omega value="0.303"/>
+  </species>
+  <species name="C8H18-13">
+    <ChemName name="2,2,3-trimethylpentane"/>
+    <MW value="114.23"/>
+    <Tc value="563.5"/>
+    <Pc value="2.72e+06"/>
+    <Vc value="0.436"/>
+    <Zc value="0.254"/>
+    <omega value="0.297"/>
+  </species>
+  <species name="C8H18-14">
+    <ChemName name="2,2,4-trimethylpentane"/>
+    <MW value="114.23"/>
+    <Tc value="543.8"/>
+    <Pc value="2.58e+06"/>
+    <Vc value="0.4697"/>
+    <Zc value="0.266"/>
+    <omega value="0.303"/>
+  </species>
+  <species name="C8H18-15">
+    <ChemName name="2,3,3-trimethylpentane"/>
+    <MW value="114.23"/>
+    <Tc value="573.5"/>
+    <Pc value="2.82e+06"/>
+    <Vc value="0.4551"/>
+    <Zc value="0.269"/>
+    <omega value="0.29"/>
+  </species>
+  <species name="C8H18-16">
+    <ChemName name="2,3,4-trimethylpentane"/>
+    <MW value="114.23"/>
+    <Tc value="566.4"/>
+    <Pc value="2.74e+06"/>
+    <Vc value="0.4562"/>
+    <Zc value="0.265"/>
+    <omega value="0.315"/>
+  </species>
+  <species name="C8H18-17">
+    <ChemName name="2,2,3,3-tetramethylbutane"/>
+    <MW value="114.230"/>
+    <Tc value="567.8"/>
+    <Pc value="2.87e+06"/>
+    <Vc value="0.4618"/>
+    <Zc value="0.28"/>
+    <omega value="0.251"/>
+  </species>
+  <species name="C8H18O">
+    <ChemName name="butyl-ether"/>
+    <MW value="130.23"/>
+    <Tc value="580"/>
+    <Pc value="2.3e+06"/>
+    <Vc value="0.5015"/>
+    <Zc value="0.259"/>
+    <omega value="0.502"/>
+  </species>
+  <species name="C8H18O-1">
+    <ChemName name="sec-butyl-ether"/>
+    <MW value="130.23"/>
+    <Tc value="562"/>
+    <Pc value="2.55e+06"/>
+    <Vc value="0.4895"/>
+    <Zc value="0.266"/>
+    <omega value="0.41"/>
+  </species>
+  <species name="C8H18O-2">
+    <ChemName name="tert-butyl-ether"/>
+    <MW value="130.23"/>
+    <Tc value="550"/>
+    <Pc value="2.46e+06"/>
+    <Vc value="0.4795"/>
+    <Zc value="0.268"/>
+    <omega value="0.331"/>
+  </species>
+  <species name="C8H18O-3">
+    <ChemName name="octyl-alcohol"/>
+    <MW value="130.23"/>
+    <Tc value="652.5"/>
+    <Pc value="2.86e+06"/>
+    <Vc value="0.490"/>
+    <Zc value="0.258"/>
+    <omega value="0.587"/>
+  </species>
+  <species name="C8H18S">
+    <ChemName name="butyl-sulfide"/>
+    <MW value="146.29"/>
+    <Tc value="650"/>
+    <Pc value="2.5e+06"/>
+    <Vc value="0.5375"/>
+    <Zc value="0.26"/>
+    <omega value="0.394"/>
+  </species>
+  <species name="C8H18S-1">
+    <ChemName name="ethyl-hexyl-sulfide"/>
+    <MW value="146.29"/>
+    <Tc value="660.72"/>
+    <Pc value="2.579e+06"/>
+    <Vc value="0.5375"/>
+    <Zc value="0.252"/>
+    <omega value="0.465"/>
+  </species>
+  <species name="C8H18S-2">
+    <ChemName name="heptyl-methyl-sulfide"/>
+    <MW value="146.29"/>
+    <Tc value="660.72"/>
+    <Pc value="2.579e+06"/>
+    <Vc value="0.5375"/>
+    <Zc value="0.252"/>
+    <omega value="0.465"/>
+  </species>
+  <species name="C8H18S-3">
+    <ChemName name="pentyl-propyl-sulfide"/>
+    <MW value="146.29"/>
+    <Tc value="660.72"/>
+    <Pc value="2.579e+06"/>
+    <Vc value="0.5375"/>
+    <Zc value="0.252"/>
+    <omega value="0.465"/>
+  </species>
+  <species name="C8H18S-4">
+    <ChemName name="1-octanethiol"/>
+    <MW value="146.29"/>
+    <Tc value="665"/>
+    <Pc value="2.5e+06"/>
+    <Vc value="0.5375"/>
+    <Zc value="0.262"/>
+    <omega value="0.462"/>
+  </species>
+  <species name="C8H18S2">
+    <ChemName name="butyl-disulfide"/>
+    <MW value="178.35"/>
+    <Tc value="704.16"/>
+    <Pc value="2.624e+06"/>
+    <Vc value="0.5915"/>
+    <Zc value="0.265"/>
+    <omega value="0.529"/>
+  </species>
+  <species name="C9H10">
+    <ChemName name="alpha-methylstyrene"/>
+    <MW value="118.178"/>
+    <Tc value="654"/>
+    <Pc value="3.4e+06"/>
+    <Vc value="0.4135"/>
+    <Zc value="0.26"/>
+    <omega value="0.331"/>
+  </species>
+  <species name="C9H10-1">
+    <ChemName name="propenylbenzene,cis"/>
+    <MW value="118.178"/>
+    <Tc value="664.6"/>
+    <Pc value="3.464e+06"/>
+    <Vc value="0.4115"/>
+    <Zc value="0.258"/>
+    <omega value="0.316"/>
+  </species>
+  <species name="C9H10-2">
+    <ChemName name="propenylbenzene,trans"/>
+    <MW value="118.178"/>
+    <Tc value="664.6"/>
+    <Pc value="3.464e+06"/>
+    <Vc value="0.4115"/>
+    <Zc value="0.258"/>
+    <omega value="0.316"/>
+  </species>
+  <species name="C9H10-3">
+    <ChemName name="m-methylstyrene"/>
+    <MW value="118.178"/>
+    <Tc value="658.18"/>
+    <Pc value="3.365e+06"/>
+    <Vc value="0.4125"/>
+    <Zc value="0.254"/>
+    <omega value="0.325"/>
+  </species>
+  <species name="C9H10-4">
+    <ChemName name="o-methylstyrene"/>
+    <MW value="118.178"/>
+    <Tc value="662.66"/>
+    <Pc value="3.365e+06"/>
+    <Vc value="0.4125"/>
+    <Zc value="0.252"/>
+    <omega value="0.325"/>
+  </species>
+  <species name="C9H10-5">
+    <ChemName name="p-methylstyrene"/>
+    <MW value="118.178"/>
+    <Tc value="659.67"/>
+    <Pc value="3.365e+06"/>
+    <Vc value="0.4125"/>
+    <Zc value="0.253"/>
+    <omega value="0.325"/>
+  </species>
+  <species name="C9H12">
+    <ChemName name="propylbenzene"/>
+    <MW value="120.194"/>
+    <Tc value="638.6"/>
+    <Pc value="3.21e+06"/>
+    <Vc value="0.4374"/>
+    <Zc value="0.265"/>
+    <omega value="0.344"/>
+  </species>
+  <species name="C9H12-1">
+    <ChemName name="cumene"/>
+    <MW value="120.194"/>
+    <Tc value="631.7"/>
+    <Pc value="3.2e+06"/>
+    <Vc value="0.4347"/>
+    <Zc value="0.263"/>
+    <omega value="0.326"/>
+  </species>
+  <species name="C9H12-2">
+    <ChemName name="m-ethyltoluene"/>
+    <MW value="120.194"/>
+    <Tc value="637"/>
+    <Pc value="2.84e+06"/>
+    <Vc value="0.490"/>
+    <Zc value="0.26"/>
+    <omega value="0.36"/>
+  </species>
+  <species name="C9H12-3">
+    <ChemName name="o-ethyltoluene"/>
+    <MW value="120.194"/>
+    <Tc value="651"/>
+    <Pc value="3.04e+06"/>
+    <Vc value="0.460"/>
+    <Zc value="0.26"/>
+    <omega value="0.294"/>
+  </species>
+  <species name="C9H12-4">
+    <ChemName name="p-ethyltoluene"/>
+    <MW value="120.194"/>
+    <Tc value="640"/>
+    <Pc value="2.94e+06"/>
+    <Vc value="0.470"/>
+    <Zc value="0.26"/>
+    <omega value="0.322"/>
+  </species>
+  <species name="C9H12-5">
+    <ChemName name="1,2,3-trimethylbenzene"/>
+    <MW value="120.194"/>
+    <Tc value="664.5"/>
+    <Pc value="3.27e+06"/>
+    <Vc value="0.435"/>
+    <Zc value="0.26"/>
+    <omega value="0.366"/>
+  </species>
+  <species name="C9H12-6">
+    <ChemName name="1,2,4-trimethylbenzene"/>
+    <MW value="120.194"/>
+    <Tc value="649.2"/>
+    <Pc value="3.23e+06"/>
+    <Vc value="0.435"/>
+    <Zc value="0.256"/>
+    <omega value="0.376"/>
+  </species>
+  <species name="C9H12-7">
+    <ChemName name="mesitylene"/>
+    <MW value="120.194"/>
+    <Tc value="640.1"/>
+    <Pc value="3.24e+06"/>
+    <Vc value="0.430"/>
+    <Zc value="0.262"/>
+    <omega value="0.399"/>
+  </species>
+  <species name="C9H16">
+    <ChemName name="1-nonyne"/>
+    <MW value="124.225"/>
+    <Tc value="610.81"/>
+    <Pc value="2.674e+06"/>
+    <Vc value="0.5015"/>
+    <Zc value="0.264"/>
+    <omega value="0.382"/>
+  </species>
+  <species name="C9H18">
+    <ChemName name="1-nonene"/>
+    <MW value="126.241"/>
+    <Tc value="592"/>
+    <Pc value="2.34e+06"/>
+    <Vc value="0.580"/>
+    <Zc value="0.28"/>
+    <omega value="0.43"/>
+  </species>
+  <species name="C9H18-1">
+    <ChemName name="butylcyclopentane"/>
+    <MW value="126.241"/>
+    <Tc value="625.05"/>
+    <Pc value="2.764e+06"/>
+    <Vc value="0.4805"/>
+    <Zc value="0.256"/>
+    <omega value="0.354"/>
+  </species>
+  <species name="C9H18-2">
+    <ChemName name="propylcyclohexane"/>
+    <MW value="126.241"/>
+    <Tc value="639"/>
+    <Pc value="2.8e+06"/>
+    <Vc value="0.4725"/>
+    <Zc value="0.256"/>
+    <omega value="0.258"/>
+  </species>
+  <species name="C9H18-3">
+    <ChemName name="c-c-135trimethylcyclohexane"/>
+    <MW value="126.241"/>
+    <Tc value="607.86"/>
+    <Pc value="2.649e+06"/>
+    <Vc value="0.4705"/>
+    <Zc value="0.247"/>
+    <omega value="0.274"/>
+  </species>
+  <species name="C9H18-4">
+    <ChemName name="c-t-135trimethylcyclohexane"/>
+    <MW value="126.241"/>
+    <Tc value="602.2"/>
+    <Pc value="2.649e+06"/>
+    <Vc value="0.4705"/>
+    <Zc value="0.245"/>
+    <omega value="0.333"/>
+  </species>
+  <species name="C9H18O">
+    <ChemName name="nonanal"/>
+    <MW value="142.241"/>
+    <Tc value="640"/>
+    <Pc value="2.48e+06"/>
+    <Vc value="0.5565"/>
+    <Zc value="0.262"/>
+    <omega value="0.54"/>
+  </species>
+  <species name="C9H20">
+    <ChemName name="nonane"/>
+    <MW value="128.257"/>
+    <Tc value="594.8"/>
+    <Pc value="2.3e+06"/>
+    <Vc value="0.543"/>
+    <Zc value="0.253"/>
+    <omega value="0.445"/>
+  </species>
+  <species name="C9H20-1">
+    <ChemName name="2-methyloctane"/>
+    <MW value="128.257"/>
+    <Tc value="587"/>
+    <Pc value="2.31e+06"/>
+    <Vc value="0.5335"/>
+    <Zc value="0.254"/>
+    <omega value="0.423"/>
+  </species>
+  <species name="C9H20-2">
+    <ChemName name="3-methyloctane"/>
+    <MW value="128.257"/>
+    <Tc value="590"/>
+    <Pc value="2.341e+06"/>
+    <Vc value="0.529"/>
+    <Zc value="0.252"/>
+    <omega value="0.413"/>
+  </species>
+  <species name="C9H20-3">
+    <ChemName name="4-methyloctane"/>
+    <MW value="128.257"/>
+    <Tc value="586.67"/>
+    <Pc value="2.325e+06"/>
+    <Vc value="0.5335"/>
+    <Zc value="0.254"/>
+    <omega value="0.416"/>
+  </species>
+  <species name="C9H20-4">
+    <ChemName name="3-ethylheptane"/>
+    <MW value="128.257"/>
+    <Tc value="587.49"/>
+    <Pc value="2.325e+06"/>
+    <Vc value="0.5335"/>
+    <Zc value="0.254"/>
+    <omega value="0.416"/>
+  </species>
+  <species name="C9H20-5">
+    <ChemName name="4-ethylheptane"/>
+    <MW value="128.257"/>
+    <Tc value="584.95"/>
+    <Pc value="2.325e+06"/>
+    <Vc value="0.5335"/>
+    <Zc value="0.255"/>
+    <omega value="0.416"/>
+  </species>
+  <species name="C9H20-6">
+    <ChemName name="2,2-dimethylheptane"/>
+    <MW value="128.257"/>
+    <Tc value="576.8"/>
+    <Pc value="2.35e+06"/>
+    <Vc value="0.5285"/>
+    <Zc value="0.257"/>
+    <omega value="0.39"/>
+  </species>
+  <species name="C9H20-7">
+    <ChemName name="2,3-dimethylheptane"/>
+    <MW value="128.257"/>
+    <Tc value="589.6"/>
+    <Pc value="2.401e+06"/>
+    <Vc value="0.515"/>
+    <Zc value="0.252"/>
+    <omega value="0.385"/>
+  </species>
+  <species name="C9H20-8">
+    <ChemName name="2,4-dimethylheptane"/>
+    <MW value="128.257"/>
+    <Tc value="576.8"/>
+    <Pc value="2.341e+06"/>
+    <Vc value="0.517"/>
+    <Zc value="0.252"/>
+    <omega value="0.39"/>
+  </species>
+  <species name="C9H20-9">
+    <ChemName name="2,5-dimethylheptane"/>
+    <MW value="128.257"/>
+    <Tc value="581.1"/>
+    <Pc value="2.351e+06"/>
+    <Vc value="0.522"/>
+    <Zc value="0.254"/>
+    <omega value="0.393"/>
+  </species>
+  <species name="C9H20-10">
+    <ChemName name="2,6-dimethylheptane"/>
+    <MW value="128.257"/>
+    <Tc value="577.9"/>
+    <Pc value="2.3e+06"/>
+    <Vc value="0.535"/>
+    <Zc value="0.256"/>
+    <omega value="0.4"/>
+  </species>
+  <species name="C9H20-11">
+    <ChemName name="3,3-dimethylheptane"/>
+    <MW value="128.257"/>
+    <Tc value="588.4"/>
+    <Pc value="2.432e+06"/>
+    <Vc value="0.506"/>
+    <Zc value="0.252"/>
+    <omega value="0.379"/>
+  </species>
+  <species name="C9H20-12">
+    <ChemName name="3,4-dimethylheptane"/>
+    <MW value="128.257"/>
+    <Tc value="591.9"/>
+    <Pc value="2.462e+06"/>
+    <Vc value="0.503"/>
+    <Zc value="0.252"/>
+    <omega value="0.379"/>
+  </species>
+  <species name="C9H20-13">
+    <ChemName name="3,5-dimethylheptane"/>
+    <MW value="128.257"/>
+    <Tc value="583.2"/>
+    <Pc value="2.401e+06"/>
+    <Vc value="0.510"/>
+    <Zc value="0.253"/>
+    <omega value="0.385"/>
+  </species>
+  <species name="C9H20-14">
+    <ChemName name="4,4-dimethylheptane"/>
+    <MW value="128.257"/>
+    <Tc value="585.4"/>
+    <Pc value="2.432e+06"/>
+    <Vc value="0.501"/>
+    <Zc value="0.25"/>
+    <omega value="0.364"/>
+  </species>
+  <species name="C9H20-15">
+    <ChemName name="3-ethyl-2-methylhexane"/>
+    <MW value="128.257"/>
+    <Tc value="588.1"/>
+    <Pc value="2.452e+06"/>
+    <Vc value="0.497"/>
+    <Zc value="0.249"/>
+    <omega value="0.378"/>
+  </species>
+  <species name="C9H20-16">
+    <ChemName name="4-ethyl-2-methylhexane"/>
+    <MW value="128.257"/>
+    <Tc value="580"/>
+    <Pc value="2.401e+06"/>
+    <Vc value="0.504"/>
+    <Zc value="0.251"/>
+    <omega value="0.386"/>
+  </species>
+  <species name="C9H20-17">
+    <ChemName name="3-ethyl-3-methylhexane"/>
+    <MW value="128.257"/>
+    <Tc value="597.5"/>
+    <Pc value="2.553e+06"/>
+    <Vc value="0.487"/>
+    <Zc value="0.25"/>
+    <omega value="0.352"/>
+  </species>
+  <species name="C9H20-18">
+    <ChemName name="3-ethyl-4-methylhexane"/>
+    <MW value="128.257"/>
+    <Tc value="593.7"/>
+    <Pc value="2.513e+06"/>
+    <Vc value="0.490"/>
+    <Zc value="0.249"/>
+    <omega value="0.372"/>
+  </species>
+  <species name="C9H20-19">
+    <ChemName name="2,2,3-trimethylhexane"/>
+    <MW value="128.257"/>
+    <Tc value="588"/>
+    <Pc value="2.49e+06"/>
+    <Vc value="0.4989"/>
+    <Zc value="0.254"/>
+    <omega value="0.332"/>
+  </species>
+  <species name="C9H20-20">
+    <ChemName name="2,2,4-trimethylhexane"/>
+    <MW value="128.257"/>
+    <Tc value="573.5"/>
+    <Pc value="2.38e+06"/>
+    <Vc value="0.5066"/>
+    <Zc value="0.253"/>
+    <omega value="0.321"/>
+  </species>
+  <species name="C9H20-21">
+    <ChemName name="2,2,5-trimethylhexane"/>
+    <MW value="128.257"/>
+    <Tc value="568"/>
+    <Pc value="2.33e+06"/>
+    <Vc value="0.519"/>
+    <Zc value="0.256"/>
+    <omega value="0.357"/>
+  </species>
+  <species name="C9H20-22">
+    <ChemName name="2,3,3-trimethylhexane"/>
+    <MW value="128.257"/>
+    <Tc value="596"/>
+    <Pc value="2.553e+06"/>
+    <Vc value="0.491"/>
+    <Zc value="0.253"/>
+    <omega value="0.333"/>
+  </species>
+  <species name="C9H20-23">
+    <ChemName name="2,3,4-trimethylhexane"/>
+    <MW value="128.257"/>
+    <Tc value="594.5"/>
+    <Pc value="2.523e+06"/>
+    <Vc value="0.494"/>
+    <Zc value="0.252"/>
+    <omega value="0.353"/>
+  </species>
+  <species name="C9H20-24">
+    <ChemName name="2,3,5-trimethylhexane"/>
+    <MW value="128.257"/>
+    <Tc value="579.2"/>
+    <Pc value="2.401e+06"/>
+    <Vc value="0.509"/>
+    <Zc value="0.254"/>
+    <omega value="0.364"/>
+  </species>
+  <species name="C9H20-25">
+    <ChemName name="2,4,4-trimethylhexane"/>
+    <MW value="128.257"/>
+    <Tc value="581.5"/>
+    <Pc value="2.432e+06"/>
+    <Vc value="0.500"/>
+    <Zc value="0.251"/>
+    <omega value="0.344"/>
+  </species>
+  <species name="C9H20-26">
+    <ChemName name="3,3,4-trimethylhexane"/>
+    <MW value="128.257"/>
+    <Tc value="602.3"/>
+    <Pc value="2.624e+06"/>
+    <Vc value="0.484"/>
+    <Zc value="0.254"/>
+    <omega value="0.328"/>
+  </species>
+  <species name="C9H20-27">
+    <ChemName name="3,3-diethylpentane"/>
+    <MW value="128.257"/>
+    <Tc value="610"/>
+    <Pc value="2.67e+06"/>
+    <Vc value="0.5285"/>
+    <Zc value="0.249"/>
+    <omega value="0.338"/>
+  </species>
+  <species name="C9H20-28">
+    <ChemName name="3-ethyl-2,2-dimethylpentane"/>
+    <MW value="128.257"/>
+    <Tc value="590.4"/>
+    <Pc value="2.553e+06"/>
+    <Vc value="0.486"/>
+    <Zc value="0.253"/>
+    <omega value="0.333"/>
+  </species>
+  <species name="C9H20-29">
+    <ChemName name="3-ethyl-2,3-dimethylpentane"/>
+    <MW value="128.257"/>
+    <Tc value="606.8"/>
+    <Pc value="2.685e+06"/>
+    <Vc value="0.477"/>
+    <Zc value="0.254"/>
+    <omega value="0.349"/>
+  </species>
+  <species name="C9H20-30">
+    <ChemName name="3-ethyl-2,4-dimethylpentane"/>
+    <MW value="128.257"/>
+    <Tc value="591.2"/>
+    <Pc value="2.523e+06"/>
+    <Vc value="0.489"/>
+    <Zc value="0.251"/>
+    <omega value="0.352"/>
+  </species>
+  <species name="C9H20-31">
+    <ChemName name="2,2,3,3-tetramethylpentane"/>
+    <MW value="128.257"/>
+    <Tc value="607.5"/>
+    <Pc value="2.74e+06"/>
+    <Vc value="0.5175"/>
+    <Zc value="0.246"/>
+    <omega value="0.303"/>
+  </species>
+  <species name="C9H20-32">
+    <ChemName name="2,2,3,4-tetramethylpentane"/>
+    <MW value="128.257"/>
+    <Tc value="592.6"/>
+    <Pc value="2.6e+06"/>
+    <Vc value="0.5165"/>
+    <Zc value="0.251"/>
+    <omega value="0.313"/>
+  </species>
+  <species name="C9H20-33">
+    <ChemName name="2,2,4,4-tetramethylpentane"/>
+    <MW value="128.257"/>
+    <Tc value="574.5"/>
+    <Pc value="2.48e+06"/>
+    <Vc value="0.5175"/>
+    <Zc value="0.257"/>
+    <omega value="0.312"/>
+  </species>
+  <species name="C9H20-34">
+    <ChemName name="2,3,3,4-tetramethylpentane"/>
+    <MW value="128.257"/>
+    <Tc value="607.5"/>
+    <Pc value="2.72e+06"/>
+    <Vc value="0.5165"/>
+    <Zc value="0.246"/>
+    <omega value="0.313"/>
+  </species>
+  <species name="C9H20O">
+    <ChemName name="nonyl-alcohol"/>
+    <MW value="144.256"/>
+    <Tc value="671"/>
+    <Pc value="2.65e+06"/>
+    <Vc value="0.544"/>
+    <Zc value="0.259"/>
+    <omega value="0.603"/>
+  </species>
+  <species name="C9H20S">
+    <ChemName name="butyl-pentyl-sulfide"/>
+    <MW value="160.317"/>
+    <Tc value="681.56"/>
+    <Pc value="2.345e+06"/>
+    <Vc value="0.5935"/>
+    <Zc value="0.246"/>
+    <omega value="0.508"/>
+  </species>
+  <species name="C9H20S-1">
+    <ChemName name="ethyl-heptyl-sulfide"/>
+    <MW value="160.317"/>
+    <Tc value="681.56"/>
+    <Pc value="2.345e+06"/>
+    <Vc value="0.5935"/>
+    <Zc value="0.246"/>
+    <omega value="0.508"/>
+  </species>
+  <species name="C9H20S-2">
+    <ChemName name="hexyl-propyl-sulfide"/>
+    <MW value="160.317"/>
+    <Tc value="681.56"/>
+    <Pc value="2.345e+06"/>
+    <Vc value="0.5935"/>
+    <Zc value="0.246"/>
+    <omega value="0.508"/>
+  </species>
+  <species name="C9H20S-3">
+    <ChemName name="methyl-octyl-sulfide"/>
+    <MW value="160.317"/>
+    <Tc value="681.56"/>
+    <Pc value="2.345e+06"/>
+    <Vc value="0.5935"/>
+    <Zc value="0.246"/>
+    <omega value="0.508"/>
+  </species>
+  <species name="C9H20S-4">
+    <ChemName name="1-nonanethiol"/>
+    <MW value="160.317"/>
+    <Tc value="686.43"/>
+    <Pc value="2.456e+06"/>
+    <Vc value="0.5935"/>
+    <Zc value="0.255"/>
+    <omega value="0.512"/>
+  </species>
+  <species name="C10H8">
+    <ChemName name="naphthalene"/>
+    <MW value="128.173"/>
+    <Tc value="747.8"/>
+    <Pc value="4.04e+06"/>
+    <Vc value="0.4085"/>
+    <Zc value="0.268"/>
+    <omega value="0.313"/>
+  </species>
+  <species name="C10H8-1">
+    <ChemName name="azulene"/>
+    <MW value="128.173"/>
+    <Tc value="773.48"/>
+    <Pc value="3.897e+06"/>
+    <Vc value="0.4095"/>
+    <Zc value="0.248"/>
+    <omega value="0.355"/>
+  </species>
+  <species name="C10H14">
+    <ChemName name="butylbenzene"/>
+    <MW value="134.221"/>
+    <Tc value="660.7"/>
+    <Pc value="2.92e+06"/>
+    <Vc value="0.4975"/>
+    <Zc value="0.261"/>
+    <omega value="0.393"/>
+  </species>
+  <species name="C10H14-1">
+    <ChemName name="m-diethylbenzene"/>
+    <MW value="134.221"/>
+    <Tc value="663.6"/>
+    <Pc value="2.93e+06"/>
+    <Vc value="0.4875"/>
+    <Zc value="0.257"/>
+    <omega value="0.359"/>
+  </species>
+  <species name="C10H14-2">
+    <ChemName name="o-diethylbenzene"/>
+    <MW value="134.221"/>
+    <Tc value="669.6"/>
+    <Pc value="2.99e+06"/>
+    <Vc value="0.4875"/>
+    <Zc value="0.256"/>
+    <omega value="0.354"/>
+  </species>
+  <species name="C10H14-3">
+    <ChemName name="p-diethylbenzene"/>
+    <MW value="134.221"/>
+    <Tc value="657.9"/>
+    <Pc value="2.81e+06"/>
+    <Vc value="0.4805"/>
+    <Zc value="0.25"/>
+    <omega value="0.404"/>
+  </species>
+  <species name="C10H14-4">
+    <ChemName name="1,2,3,4-tetramethylbenzene"/>
+    <MW value="134.221"/>
+    <Tc value="695.1"/>
+    <Pc value="2.84e+06"/>
+    <Vc value="0.4875"/>
+    <Zc value="0.237"/>
+    <omega value="0.368"/>
+  </species>
+  <species name="C10H14-5">
+    <ChemName name="1,2,3,5-tetramethylbenzene"/>
+    <MW value="134.221"/>
+    <Tc value="679"/>
+    <Pc value="2.87e+06"/>
+    <Vc value="0.4875"/>
+    <Zc value="0.241"/>
+    <omega value="0.412"/>
+  </species>
+  <species name="C10H14-6">
+    <ChemName name="1,2,4,5-tetramethylbenzene"/>
+    <MW value="134.221"/>
+    <Tc value="675.6"/>
+    <Pc value="2.9e+06"/>
+    <Vc value="0.4875"/>
+    <Zc value="0.241"/>
+    <omega value="0.435"/>
+  </species>
+  <species name="C10H18">
+    <ChemName name="1-decyne"/>
+    <MW value="138.252"/>
+    <Tc value="632.49"/>
+    <Pc value="2.427e+06"/>
+    <Vc value="0.5575"/>
+    <Zc value="0.257"/>
+    <omega value="0.426"/>
+  </species>
+  <species name="C10H18-1">
+    <ChemName name="decahydronaphthalene,cis"/>
+    <MW value="138.252"/>
+    <Tc value="702.2"/>
+    <Pc value="3.2e+06"/>
+    <Vc value="0.4775"/>
+    <Zc value="0.25"/>
+    <omega value="0.286"/>
+  </species>
+  <species name="C10H18-2">
+    <ChemName name="decahydronaphthalene,trans"/>
+    <MW value="138.252"/>
+    <Tc value="687"/>
+    <Pc value="2.08e+06"/>
+    <Vc value="0.4775"/>
+    <Zc value="0.254"/>
+    <omega value="0.27"/>
+  </species>
+  <species name="C10H20">
+    <ChemName name="1-decene"/>
+    <MW value="140.268"/>
+    <Tc value="615"/>
+    <Pc value="2.2e+06"/>
+    <Vc value="0.650"/>
+    <Zc value="0.28"/>
+    <omega value="0.491"/>
+  </species>
+  <species name="C10H20-1">
+    <ChemName name="1-cyclopentylpentane"/>
+    <MW value="140.268"/>
+    <Tc value="647.49"/>
+    <Pc value="2.505e+06"/>
+    <Vc value="0.5365"/>
+    <Zc value="0.25"/>
+    <omega value="0.398"/>
+  </species>
+  <species name="C10H20-2">
+    <ChemName name="butylcyclohexane"/>
+    <MW value="140.268"/>
+    <Tc value="667"/>
+    <Pc value="3.15e+06"/>
+    <Vc value="0.5285"/>
+    <Zc value="0.255"/>
+    <omega value="0.362"/>
+  </species>
+  <species name="C10H20O">
+    <ChemName name="decanal"/>
+    <MW value="156.267"/>
+    <Tc value="651.95"/>
+    <Pc value="2.259e+06"/>
+    <Vc value="0.6125"/>
+    <Zc value="0.255"/>
+    <omega value="0.634"/>
+  </species>
+  <species name="C10H22">
+    <ChemName name="decane"/>
+    <MW value="142.284"/>
+    <Tc value="616.1"/>
+    <Pc value="2.11e+06"/>
+    <Vc value="0.602"/>
+    <Zc value="0.247"/>
+    <omega value="0.489"/>
+  </species>
+  <species name="C10H22-1">
+    <ChemName name="2-methylnonane"/>
+    <MW value="142.284"/>
+    <Tc value="610.3"/>
+    <Pc value="2.097e+06"/>
+    <Vc value="0.596"/>
+    <Zc value="0.246"/>
+    <omega value="0.459"/>
+  </species>
+  <species name="C10H22-2">
+    <ChemName name="3-methylnonane"/>
+    <MW value="142.284"/>
+    <Tc value="613.4"/>
+    <Pc value="2.138e+06"/>
+    <Vc value="0.582"/>
+    <Zc value="0.244"/>
+    <omega value="0.451"/>
+  </species>
+  <species name="C10H22-3">
+    <ChemName name="4-methylnonane"/>
+    <MW value="142.284"/>
+    <Tc value="610.5"/>
+    <Pc value="2.138e+06"/>
+    <Vc value="0.575"/>
+    <Zc value="0.242"/>
+    <omega value="0.451"/>
+  </species>
+  <species name="C10H22-4">
+    <ChemName name="5-methylnonane"/>
+    <MW value="142.284"/>
+    <Tc value="609.6"/>
+    <Pc value="2.138e+06"/>
+    <Vc value="0.573"/>
+    <Zc value="0.242"/>
+    <omega value="0.452"/>
+  </species>
+  <species name="C10H22-5">
+    <ChemName name="3-ethyloctane"/>
+    <MW value="142.284"/>
+    <Tc value="613.6"/>
+    <Pc value="2.189e+06"/>
+    <Vc value="0.561"/>
+    <Zc value="0.241"/>
+    <omega value="0.446"/>
+  </species>
+  <species name="C10H22-6">
+    <ChemName name="4-ethyloctane"/>
+    <MW value="142.284"/>
+    <Tc value="609.6"/>
+    <Pc value="2.178e+06"/>
+    <Vc value="0.552"/>
+    <Zc value="0.237"/>
+    <omega value="0.443"/>
+  </species>
+  <species name="C10H22-7">
+    <ChemName name="2,2-dimethyloctane"/>
+    <MW value="142.284"/>
+    <Tc value="602"/>
+    <Pc value="2.128e+06"/>
+    <Vc value="0.580"/>
+    <Zc value="0.247"/>
+    <omega value="0.417"/>
+  </species>
+  <species name="C10H22-8">
+    <ChemName name="2,3-dimethyloctane"/>
+    <MW value="142.284"/>
+    <Tc value="613.2"/>
+    <Pc value="2.189e+06"/>
+    <Vc value="0.567"/>
+    <Zc value="0.243"/>
+    <omega value="0.424"/>
+  </species>
+  <species name="C10H22-9">
+    <ChemName name="2,4-dimethyloctane"/>
+    <MW value="142.284"/>
+    <Tc value="599.4"/>
+    <Pc value="2.138e+06"/>
+    <Vc value="0.566"/>
+    <Zc value="0.243"/>
+    <omega value="0.43"/>
+  </species>
+  <species name="C10H22-10">
+    <ChemName name="2,5-dimethyloctane"/>
+    <MW value="142.284"/>
+    <Tc value="603"/>
+    <Pc value="2.148e+06"/>
+    <Vc value="0.569"/>
+    <Zc value="0.244"/>
+    <omega value="0.432"/>
+  </species>
+  <species name="C10H22-11">
+    <ChemName name="2,6-dimethyloctane"/>
+    <MW value="142.284"/>
+    <Tc value="603.1"/>
+    <Pc value="2.148e+06"/>
+    <Vc value="0.576"/>
+    <Zc value="0.247"/>
+    <omega value="0.453"/>
+  </species>
+  <species name="C10H22-12">
+    <ChemName name="2,7-dimethyloctane"/>
+    <MW value="142.284"/>
+    <Tc value="602.9"/>
+    <Pc value="2.097e+06"/>
+    <Vc value="0.590"/>
+    <Zc value="0.247"/>
+    <omega value="0.438"/>
+  </species>
+  <species name="C10H22-13">
+    <ChemName name="3,3-dimethyloctane"/>
+    <MW value="142.284"/>
+    <Tc value="612.1"/>
+    <Pc value="2.219e+06"/>
+    <Vc value="0.557"/>
+    <Zc value="0.243"/>
+    <omega value="0.404"/>
+  </species>
+  <species name="C10H22-14">
+    <ChemName name="3,4-dimethyloctane"/>
+    <MW value="142.284"/>
+    <Tc value="614"/>
+    <Pc value="2.239e+06"/>
+    <Vc value="0.551"/>
+    <Zc value="0.242"/>
+    <omega value="0.417"/>
+  </species>
+  <species name="C10H22-15">
+    <ChemName name="3,5-dimethyloctane"/>
+    <MW value="142.284"/>
+    <Tc value="606.3"/>
+    <Pc value="2.189e+06"/>
+    <Vc value="0.555"/>
+    <Zc value="0.241"/>
+    <omega value="0.424"/>
+  </species>
+  <species name="C10H22-16">
+    <ChemName name="3,6-dimethyloctane"/>
+    <MW value="142.284"/>
+    <Tc value="608.3"/>
+    <Pc value="2.189e+06"/>
+    <Vc value="0.562"/>
+    <Zc value="0.243"/>
+    <omega value="0.424"/>
+  </species>
+  <species name="C10H22-17">
+    <ChemName name="4,4-dimethyloctane"/>
+    <MW value="142.284"/>
+    <Tc value="606.9"/>
+    <Pc value="2.209e+06"/>
+    <Vc value="0.548"/>
+    <Zc value="0.24"/>
+    <omega value="0.402"/>
+  </species>
+  <species name="C10H22-18">
+    <ChemName name="4,5-dimethyloctane"/>
+    <MW value="142.284"/>
+    <Tc value="612.2"/>
+    <Pc value="2.239e+06"/>
+    <Vc value="0.546"/>
+    <Zc value="0.24"/>
+    <omega value="0.418"/>
+  </species>
+  <species name="C10H22-19">
+    <ChemName name="4-propylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="601"/>
+    <Pc value="2.178e+06"/>
+    <Vc value="0.545"/>
+    <Zc value="0.238"/>
+    <omega value="0.444"/>
+  </species>
+  <species name="C10H22-20">
+    <ChemName name="4-isopropylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="607.6"/>
+    <Pc value="2.229e+06"/>
+    <Vc value="0.537"/>
+    <Zc value="0.237"/>
+    <omega value="0.416"/>
+  </species>
+  <species name="C10H22-21">
+    <ChemName name="3-ethyl-2-methylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="610.9"/>
+    <Pc value="2.229e+06"/>
+    <Vc value="0.544"/>
+    <Zc value="0.239"/>
+    <omega value="0.415"/>
+  </species>
+  <species name="C10H22-22">
+    <ChemName name="4-ethyl-2-methylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="601.8"/>
+    <Pc value="2.189e+06"/>
+    <Vc value="0.545"/>
+    <Zc value="0.238"/>
+    <omega value="0.424"/>
+  </species>
+  <species name="C10H22-23">
+    <ChemName name="5-ethyl-2-methylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="606.7"/>
+    <Pc value="2.189e+06"/>
+    <Vc value="0.555"/>
+    <Zc value="0.241"/>
+    <omega value="0.424"/>
+  </species>
+  <species name="C10H22-24">
+    <ChemName name="3-ethyl-3-methylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="620"/>
+    <Pc value="2.31e+06"/>
+    <Vc value="0.532"/>
+    <Zc value="0.238"/>
+    <omega value="0.389"/>
+  </species>
+  <species name="C10H22-25">
+    <ChemName name="4-ethyl-3-methylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="614.3"/>
+    <Pc value="2.28e+06"/>
+    <Vc value="0.530"/>
+    <Zc value="0.237"/>
+    <omega value="0.41"/>
+  </species>
+  <species name="C10H22-26">
+    <ChemName name="3-ethyl-5-methylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="606.6"/>
+    <Pc value="2.229e+06"/>
+    <Vc value="0.541"/>
+    <Zc value="0.239"/>
+    <omega value="0.416"/>
+  </species>
+  <species name="C10H22-27">
+    <ChemName name="3-ethyl-4-methylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="615.5"/>
+    <Pc value="2.28e+06"/>
+    <Vc value="0.533"/>
+    <Zc value="0.237"/>
+    <omega value="0.409"/>
+  </species>
+  <species name="C10H22-28">
+    <ChemName name="4-ethyl-4-methylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="615.7"/>
+    <Pc value="2.31e+06"/>
+    <Vc value="0.525"/>
+    <Zc value="0.237"/>
+    <omega value="0.39"/>
+  </species>
+  <species name="C10H22-29">
+    <ChemName name="2,2,3-trimethylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="611.7"/>
+    <Pc value="2.27e+06"/>
+    <Vc value="0.546"/>
+    <Zc value="0.244"/>
+    <omega value="0.378"/>
+  </species>
+  <species name="C10H22-30">
+    <ChemName name="2,2,4-trimethylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="594.5"/>
+    <Pc value="2.168e+06"/>
+    <Vc value="0.552"/>
+    <Zc value="0.242"/>
+    <omega value="0.389"/>
+  </species>
+  <species name="C10H22-31">
+    <ChemName name="2,2,5-trimethylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="598"/>
+    <Pc value="2.168e+06"/>
+    <Vc value="0.559"/>
+    <Zc value="0.244"/>
+    <omega value="0.389"/>
+  </species>
+  <species name="C10H22-32">
+    <ChemName name="2,2,6-trimethylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="593.4"/>
+    <Pc value="2.128e+06"/>
+    <Vc value="0.573"/>
+    <Zc value="0.247"/>
+    <omega value="0.396"/>
+  </species>
+  <species name="C10H22-33">
+    <ChemName name="2,3,3-trimethylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="617.5"/>
+    <Pc value="2.32e+06"/>
+    <Vc value="0.538"/>
+    <Zc value="0.243"/>
+    <omega value="0.371"/>
+  </species>
+  <species name="C10H22-34">
+    <ChemName name="2,3,4-trimethylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="613.7"/>
+    <Pc value="2.29e+06"/>
+    <Vc value="0.538"/>
+    <Zc value="0.241"/>
+    <omega value="0.391"/>
+  </species>
+  <species name="C10H22-35">
+    <ChemName name="2,3,5-trimethylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="612.8"/>
+    <Pc value="2.239e+06"/>
+    <Vc value="0.547"/>
+    <Zc value="0.24"/>
+    <omega value="0.397"/>
+  </species>
+  <species name="C10H22-36">
+    <ChemName name="2,3,6-trimethylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="604.1"/>
+    <Pc value="2.189e+06"/>
+    <Vc value="0.560"/>
+    <Zc value="0.244"/>
+    <omega value="0.403"/>
+  </species>
+  <species name="C10H22-37">
+    <ChemName name="2,4,4-trimethylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="600.3"/>
+    <Pc value="2.219e+06"/>
+    <Vc value="0.541"/>
+    <Zc value="0.241"/>
+    <omega value="0.383"/>
+  </species>
+  <species name="C10H22-38">
+    <ChemName name="2,4,5-trimethylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="606.9"/>
+    <Pc value="2.239e+06"/>
+    <Vc value="0.544"/>
+    <Zc value="0.241"/>
+    <omega value="0.397"/>
+  </species>
+  <species name="C10H22-39">
+    <ChemName name="2,4,6-trimethylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="590.3"/>
+    <Pc value="2.148e+06"/>
+    <Vc value="0.560"/>
+    <Zc value="0.245"/>
+    <omega value="0.411"/>
+  </species>
+  <species name="C10H22-40">
+    <ChemName name="2,5,5-trimethylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="602.9"/>
+    <Pc value="2.219e+06"/>
+    <Vc value="0.550"/>
+    <Zc value="0.243"/>
+    <omega value="0.383"/>
+  </species>
+  <species name="C10H22-41">
+    <ChemName name="3,3,4-trimethylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="622.1"/>
+    <Pc value="2.371e+06"/>
+    <Vc value="0.526"/>
+    <Zc value="0.241"/>
+    <omega value="0.365"/>
+  </species>
+  <species name="C10H22-42">
+    <ChemName name="3,3,5-trimethylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="609.5"/>
+    <Pc value="2.32e+06"/>
+    <Vc value="0.5785"/>
+    <Zc value="0.248"/>
+    <omega value="0.382"/>
+  </species>
+  <species name="C10H22-43">
+    <ChemName name="3,4,4-trimethylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="620.9"/>
+    <Pc value="2.371e+06"/>
+    <Vc value="0.524"/>
+    <Zc value="0.241"/>
+    <omega value="0.365"/>
+  </species>
+  <species name="C10H22-44">
+    <ChemName name="3,4,5-trimethylheptane"/>
+    <MW value="142.284"/>
+    <Tc value="612.8"/>
+    <Pc value="2.239e+06"/>
+    <Vc value="0.547"/>
+    <Zc value="0.24"/>
+    <omega value="0.417"/>
+  </species>
+  <species name="C10H22-45">
+    <ChemName name="3-isopropyl-2-methylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="623.4"/>
+    <Pc value="2.29e+06"/>
+    <Vc value="0.529"/>
+    <Zc value="0.234"/>
+    <omega value="0.391"/>
+  </species>
+  <species name="C10H22-46">
+    <ChemName name="3,3-diethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="627.8"/>
+    <Pc value="2.412e+06"/>
+    <Vc value="0.510"/>
+    <Zc value="0.236"/>
+    <omega value="0.377"/>
+  </species>
+  <species name="C10H22-47">
+    <ChemName name="3,4-diethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="618.8"/>
+    <Pc value="2.33e+06"/>
+    <Vc value="0.519"/>
+    <Zc value="0.235"/>
+    <omega value="0.403"/>
+  </species>
+  <species name="C10H22-48">
+    <ChemName name="3-ethyl-2,2-dimethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="611.7"/>
+    <Pc value="2.31e+06"/>
+    <Vc value="0.526"/>
+    <Zc value="0.239"/>
+    <omega value="0.369"/>
+  </species>
+  <species name="C10H22-49">
+    <ChemName name="4-ethyl-2,2-dimethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="594.6"/>
+    <Pc value="2.219e+06"/>
+    <Vc value="0.539"/>
+    <Zc value="0.242"/>
+    <omega value="0.384"/>
+  </species>
+  <species name="C10H22-50">
+    <ChemName name="3-ethyl-2,3-dimethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="626.8"/>
+    <Pc value="2.422e+06"/>
+    <Vc value="0.516"/>
+    <Zc value="0.24"/>
+    <omega value="0.359"/>
+  </species>
+  <species name="C10H22-51">
+    <ChemName name="4-ethyl-2,3-dimethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="617.3"/>
+    <Pc value="2.341e+06"/>
+    <Vc value="0.524"/>
+    <Zc value="0.239"/>
+    <omega value="0.384"/>
+  </species>
+  <species name="C10H22-52">
+    <ChemName name="3-ethyl-2,4-dimethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="616.1"/>
+    <Pc value="2.341e+06"/>
+    <Vc value="0.522"/>
+    <Zc value="0.239"/>
+    <omega value="0.385"/>
+  </species>
+  <species name="C10H22-53">
+    <ChemName name="4-ethyl-2,4-dimethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="620.9"/>
+    <Pc value="2.471e+06"/>
+    <Vc value="0.524"/>
+    <Zc value="0.241"/>
+    <omega value="0.383"/>
+  </species>
+  <species name="C10H22-54">
+    <ChemName name="3-ethyl-2,5-dimethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="603.5"/>
+    <Pc value="2.239e+06"/>
+    <Vc value="0.537"/>
+    <Zc value="0.24"/>
+    <omega value="0.397"/>
+  </species>
+  <species name="C10H22-55">
+    <ChemName name="4-ethyl-3,3-dimethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="625.7"/>
+    <Pc value="2.422e+06"/>
+    <Vc value="0.513"/>
+    <Zc value="0.239"/>
+    <omega value="0.358"/>
+  </species>
+  <species name="C10H22-56">
+    <ChemName name="3-ethyl-3,4-dimethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="624.5"/>
+    <Pc value="2.422e+06"/>
+    <Vc value="0.511"/>
+    <Zc value="0.238"/>
+    <omega value="0.359"/>
+  </species>
+  <species name="C10H22-57">
+    <ChemName name="2,2,3,3-tetramethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="623"/>
+    <Pc value="2.51e+06"/>
+    <Vc value="0.5735"/>
+    <Zc value="0.242"/>
+    <omega value="0.364"/>
+  </species>
+  <species name="C10H22-58">
+    <ChemName name="2,2,3,4-tetramethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="620.4"/>
+    <Pc value="2.371e+06"/>
+    <Vc value="0.525"/>
+    <Zc value="0.241"/>
+    <omega value="0.345"/>
+  </species>
+  <species name="C10H22-59">
+    <ChemName name="2,2,3,5-tetramethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="601.3"/>
+    <Pc value="2.27e+06"/>
+    <Vc value="0.540"/>
+    <Zc value="0.245"/>
+    <omega value="0.357"/>
+  </species>
+  <species name="C10H22-60">
+    <ChemName name="2,2,4,4-tetramethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="610.2"/>
+    <Pc value="2.249e+06"/>
+    <Vc value="0.535"/>
+    <Zc value="0.237"/>
+    <omega value="0.344"/>
+  </species>
+  <species name="C10H22-61">
+    <ChemName name="2,2,4,5-tetramethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="598.5"/>
+    <Pc value="2.219e+06"/>
+    <Vc value="0.544"/>
+    <Zc value="0.243"/>
+    <omega value="0.363"/>
+  </species>
+  <species name="C10H22-62">
+    <ChemName name="2,2,5,5-tetramethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="581.4"/>
+    <Pc value="2.19e+06"/>
+    <Vc value="0.5735"/>
+    <Zc value="0.256"/>
+    <omega value="0.375"/>
+  </species>
+  <species name="C10H22-63">
+    <ChemName name="2,3,3,4-tetramethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="633.1"/>
+    <Pc value="2.482e+06"/>
+    <Vc value="0.514"/>
+    <Zc value="0.242"/>
+    <omega value="0.334"/>
+  </species>
+  <species name="C10H22-64">
+    <ChemName name="2,3,3,5-tetramethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="610.1"/>
+    <Pc value="2.32e+06"/>
+    <Vc value="0.531"/>
+    <Zc value="0.243"/>
+    <omega value="0.351"/>
+  </species>
+  <species name="C10H22-65">
+    <ChemName name="2,3,4,4-tetramethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="626.6"/>
+    <Pc value="2.422e+06"/>
+    <Vc value="0.518"/>
+    <Zc value="0.241"/>
+    <omega value="0.339"/>
+  </species>
+  <species name="C10H22-66">
+    <ChemName name="2,3,4,5-tetramethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="613.2"/>
+    <Pc value="2.341e+06"/>
+    <Vc value="0.530"/>
+    <Zc value="0.243"/>
+    <omega value="0.365"/>
+  </species>
+  <species name="C10H22-67">
+    <ChemName name="3,3,4,4-tetramethylhexane"/>
+    <MW value="142.284"/>
+    <Tc value="646.7"/>
+    <Pc value="2.574e+06"/>
+    <Vc value="0.506"/>
+    <Zc value="0.242"/>
+    <omega value="0.311"/>
+  </species>
+  <species name="C10H22-68">
+    <ChemName name="24dimethyl3isopropylpentane"/>
+    <MW value="142.284"/>
+    <Tc value="614.4"/>
+    <Pc value="2.341e+06"/>
+    <Vc value="0.521"/>
+    <Zc value="0.239"/>
+    <omega value="0.365"/>
+  </species>
+  <species name="C10H22-69">
+    <ChemName name="33-diethyl-2-methylpentane"/>
+    <MW value="142.284"/>
+    <Tc value="639.9"/>
+    <Pc value="2.533e+06"/>
+    <Vc value="0.501"/>
+    <Zc value="0.239"/>
+    <omega value="0.346"/>
+  </species>
+  <species name="C10H22-70">
+    <ChemName name="3ethyl-223trimethylpentane"/>
+    <MW value="142.284"/>
+    <Tc value="646"/>
+    <Pc value="2.574e+06"/>
+    <Vc value="0.503"/>
+    <Zc value="0.241"/>
+    <omega value="0.311"/>
+  </species>
+  <species name="C10H22-71">
+    <ChemName name="3ethyl-224trimethylpentane"/>
+    <MW value="142.284"/>
+    <Tc value="615.3"/>
+    <Pc value="2.371e+06"/>
+    <Vc value="0.518"/>
+    <Zc value="0.24"/>
+    <omega value="0.346"/>
+  </species>
+  <species name="C10H22-72">
+    <ChemName name="3ethyl-234trimethylpentane"/>
+    <MW value="142.284"/>
+    <Tc value="642.3"/>
+    <Pc value="2.543e+06"/>
+    <Vc value="0.506"/>
+    <Zc value="0.241"/>
+    <omega value="0.329"/>
+  </species>
+  <species name="C10H22-73">
+    <ChemName name="22334-pentamethylpentane"/>
+    <MW value="142.284"/>
+    <Tc value="643.8"/>
+    <Pc value="2.584e+06"/>
+    <Vc value="0.508"/>
+    <Zc value="0.245"/>
+    <omega value="0.294"/>
+  </species>
+  <species name="C10H22-74">
+    <ChemName name="22344-pentamethylpentane"/>
+    <MW value="142.284"/>
+    <Tc value="627.3"/>
+    <Pc value="2.401e+06"/>
+    <Vc value="0.521"/>
+    <Zc value="0.24"/>
+    <omega value="0.308"/>
+  </species>
+  <species name="C10H22O">
+    <ChemName name="decyl-alcohol"/>
+    <MW value="158.283"/>
+    <Tc value="687"/>
+    <Pc value="2.4e+06"/>
+    <Vc value="0.5999"/>
+    <Zc value="0.252"/>
+    <omega value="0.624"/>
+  </species>
+  <species name="C10H22S">
+    <ChemName name="butyl-hexyl-sulfide"/>
+    <MW value="174.344"/>
+    <Tc value="701.03"/>
+    <Pc value="2.141e+06"/>
+    <Vc value="0.6495"/>
+    <Zc value="0.239"/>
+    <omega value="0.551"/>
+  </species>
+  <species name="C10H22S-1">
+    <ChemName name="ethyl-octyl-sulfide"/>
+    <MW value="174.344"/>
+    <Tc value="701.03"/>
+    <Pc value="2.141e+06"/>
+    <Vc value="0.6495"/>
+    <Zc value="0.239"/>
+    <omega value="0.551"/>
+  </species>
+  <species name="C10H22S-2">
+    <ChemName name="heptyl-propyl-sulfide"/>
+    <MW value="174.344"/>
+    <Tc value="701.03"/>
+    <Pc value="2.141e+06"/>
+    <Vc value="0.6495"/>
+    <Zc value="0.239"/>
+    <omega value="0.551"/>
+  </species>
+  <species name="C10H22S-3">
+    <ChemName name="methyl-nonyl-sulfide"/>
+    <MW value="174.344"/>
+    <Tc value="701.03"/>
+    <Pc value="2.141e+06"/>
+    <Vc value="0.6495"/>
+    <Zc value="0.239"/>
+    <omega value="0.551"/>
+  </species>
+  <species name="C10H22S-4">
+    <ChemName name="pentyl-sulfide"/>
+    <MW value="174.344"/>
+    <Tc value="701.03"/>
+    <Pc value="2.141e+06"/>
+    <Vc value="0.6495"/>
+    <Zc value="0.239"/>
+    <omega value="0.551"/>
+  </species>
+  <species name="C10H22S-5">
+    <ChemName name="1-decanethiol"/>
+    <MW value="174.344"/>
+    <Tc value="702.19"/>
+    <Pc value="2.238e+06"/>
+    <Vc value="0.6495"/>
+    <Zc value="0.249"/>
+    <omega value="0.555"/>
+  </species>
+  <species name="C10H22S2">
+    <ChemName name="pentyl-disulfide"/>
+    <MW value="206.404"/>
+    <Tc value="726.94"/>
+    <Pc value="2.175e+06"/>
+    <Vc value="0.7035"/>
+    <Zc value="0.253"/>
+    <omega value="0.614"/>
+  </species>
+  <species name="C11H10">
+    <ChemName name="1-methylnaphthalene"/>
+    <MW value="142.2"/>
+    <Tc value="772"/>
+    <Pc value="3.49e+06"/>
+    <Vc value="0.462"/>
+    <Zc value="0.234"/>
+    <omega value="0.31"/>
+  </species>
+  <species name="C11H10-1">
+    <ChemName name="2-methylnaphthalene"/>
+    <MW value="142.2"/>
+    <Tc value="764.3"/>
+    <Pc value="3.48e+06"/>
+    <Vc value="0.462"/>
+    <Zc value="0.26"/>
+    <omega value="0.382"/>
+  </species>
+  <species name="C11H16">
+    <ChemName name="pentylbenzene"/>
+    <MW value="148.247"/>
+    <Tc value="679.9"/>
+    <Pc value="2.604e+06"/>
+    <Vc value="0.550"/>
+    <Zc value="0.26"/>
+    <omega value="0.437"/>
+  </species>
+  <species name="C11H16-1">
+    <ChemName name="pentamethylbenzene"/>
+    <MW value="148.247"/>
+    <Tc value="719"/>
+    <Pc value="2.493e+06"/>
+    <Vc value="0.5435"/>
+    <Zc value="0.228"/>
+    <omega value="0.407"/>
+  </species>
+  <species name="C11H20">
+    <ChemName name="1-undecyne"/>
+    <MW value="152.279"/>
+    <Tc value="650.99"/>
+    <Pc value="2.212e+06"/>
+    <Vc value="0.6135"/>
+    <Zc value="0.251"/>
+    <omega value="0.47"/>
+  </species>
+  <species name="C11H22">
+    <ChemName name="1-undecene"/>
+    <MW value="154.295"/>
+    <Tc value="637"/>
+    <Pc value="1.99e+06"/>
+    <Vc value="0.6325"/>
+    <Zc value="0.24"/>
+    <omega value="0.518"/>
+  </species>
+  <species name="C11H22-1">
+    <ChemName name="1-cyclopentylhexane"/>
+    <MW value="154.295"/>
+    <Tc value="667.67"/>
+    <Pc value="2.281e+06"/>
+    <Vc value="0.5925"/>
+    <Zc value="0.243"/>
+    <omega value="0.442"/>
+  </species>
+  <species name="C11H22-2">
+    <ChemName name="pentylcyclohexane"/>
+    <MW value="154.295"/>
+    <Tc value="674.01"/>
+    <Pc value="2.336e+06"/>
+    <Vc value="0.5845"/>
+    <Zc value="0.244"/>
+    <omega value="0.413"/>
+  </species>
+  <species name="C11H24">
+    <ChemName name="undecane"/>
+    <MW value="156.311"/>
+    <Tc value="640.1"/>
+    <Pc value="1.97e+06"/>
+    <Vc value="0.660"/>
+    <Zc value="0.241"/>
+    <omega value="0.535"/>
+  </species>
+  <species name="C11H24O">
+    <ChemName name="undecyl-alcohol"/>
+    <MW value="172.31"/>
+    <Tc value="666.31"/>
+    <Pc value="2.1e+06"/>
+    <Vc value="0.6705"/>
+    <Zc value="0.254"/>
+    <omega value="0.94"/>
+  </species>
+  <species name="C11H24S">
+    <ChemName name="butyl-heptyl-sulfide"/>
+    <MW value="188.371"/>
+    <Tc value="717.91"/>
+    <Pc value="1.963e+06"/>
+    <Vc value="0.7055"/>
+    <Zc value="0.232"/>
+    <omega value="0.592"/>
+  </species>
+  <species name="C11H24S-1">
+    <ChemName name="decyl-methyl-sulfide"/>
+    <MW value="188.371"/>
+    <Tc value="717.91"/>
+    <Pc value="1.963e+06"/>
+    <Vc value="0.7055"/>
+    <Zc value="0.232"/>
+    <omega value="0.592"/>
+  </species>
+  <species name="C11H24S-2">
+    <ChemName name="ethyl-nonyl-sulfide"/>
+    <MW value="188.371"/>
+    <Tc value="717.91"/>
+    <Pc value="1.963e+06"/>
+    <Vc value="0.7055"/>
+    <Zc value="0.232"/>
+    <omega value="0.592"/>
+  </species>
+  <species name="C11H24S-3">
+    <ChemName name="octyl-propyl-sulfide"/>
+    <MW value="188.371"/>
+    <Tc value="717.91"/>
+    <Pc value="1.963e+06"/>
+    <Vc value="0.7055"/>
+    <Zc value="0.232"/>
+    <omega value="0.592"/>
+  </species>
+  <species name="C11H24S-4">
+    <ChemName name="1-undecanethiol"/>
+    <MW value="188.371"/>
+    <Tc value="716.52"/>
+    <Pc value="2.047e+06"/>
+    <Vc value="0.7055"/>
+    <Zc value="0.242"/>
+    <omega value="0.596"/>
+  </species>
+  <species name="C12H10">
+    <ChemName name="biphenyl"/>
+    <MW value="154.211"/>
+    <Tc value="789.26"/>
+    <Pc value="3.847e+06"/>
+    <Vc value="0.5016"/>
+    <Zc value="0.294"/>
+    <omega value="0.372"/>
+  </species>
+  <species name="C12H12">
+    <ChemName name="1-ethylnaphthalene"/>
+    <MW value="156.227"/>
+    <Tc value="774.9"/>
+    <Pc value="3.14e+06"/>
+    <Vc value="0.5215"/>
+    <Zc value="0.253"/>
+    <omega value="0.395"/>
+  </species>
+  <species name="C12H12-1">
+    <ChemName name="2-ethylnaphthalene"/>
+    <MW value="156.227"/>
+    <Tc value="774.9"/>
+    <Pc value="3.14e+06"/>
+    <Vc value="0.5215"/>
+    <Zc value="0.254"/>
+    <omega value="0.392"/>
+  </species>
+  <species name="C12H12-2">
+    <ChemName name="1,2-dimethylnaphthalene"/>
+    <MW value="156.227"/>
+    <Tc value="775.34"/>
+    <Pc value="3.006e+06"/>
+    <Vc value="0.5215"/>
+    <Zc value="0.243"/>
+    <omega value="0.443"/>
+  </species>
+  <species name="C12H12-3">
+    <ChemName name="1,3-dimethylnaphthalene"/>
+    <MW value="156.227"/>
+    <Tc value="773.76"/>
+    <Pc value="3.006e+06"/>
+    <Vc value="0.5215"/>
+    <Zc value="0.244"/>
+    <omega value="0.443"/>
+  </species>
+  <species name="C12H12-4">
+    <ChemName name="1,4-dimethylnaphthalene"/>
+    <MW value="156.227"/>
+    <Tc value="776.78"/>
+    <Pc value="3.006e+06"/>
+    <Vc value="0.5215"/>
+    <Zc value="0.243"/>
+    <omega value="0.443"/>
+  </species>
+  <species name="C12H12-5">
+    <ChemName name="1,5-dimethylnaphthalene"/>
+    <MW value="156.227"/>
+    <Tc value="773.47"/>
+    <Pc value="3.006e+06"/>
+    <Vc value="0.5215"/>
+    <Zc value="0.244"/>
+    <omega value="0.443"/>
+  </species>
+  <species name="C12H12-6">
+    <ChemName name="1,6-dimethylnaphthalene"/>
+    <MW value="156.227"/>
+    <Tc value="770.6"/>
+    <Pc value="3.006e+06"/>
+    <Vc value="0.5215"/>
+    <Zc value="0.245"/>
+    <omega value="0.443"/>
+  </species>
+  <species name="C12H12-7">
+    <ChemName name="1,7-dimethylnaphthalene"/>
+    <MW value="156.227"/>
+    <Tc value="770.6"/>
+    <Pc value="3.006e+06"/>
+    <Vc value="0.5215"/>
+    <Zc value="0.245"/>
+    <omega value="0.443"/>
+  </species>
+  <species name="C12H12-8">
+    <ChemName name="2,3-dimethylnaphthalene"/>
+    <MW value="156.227"/>
+    <Tc value="777.78"/>
+    <Pc value="3.006e+06"/>
+    <Vc value="0.5215"/>
+    <Zc value="0.242"/>
+    <omega value="0.443"/>
+  </species>
+  <species name="C12H12-9">
+    <ChemName name="2,6-dimethylnaphthalene"/>
+    <MW value="156.227"/>
+    <Tc value="769.16"/>
+    <Pc value="3.006e+06"/>
+    <Vc value="0.5215"/>
+    <Zc value="0.245"/>
+    <omega value="0.443"/>
+  </species>
+  <species name="C12H12-10">
+    <ChemName name="2,7-dimethylnaphthalene"/>
+    <MW value="156.227"/>
+    <Tc value="770.6"/>
+    <Pc value="3.006e+06"/>
+    <Vc value="0.5215"/>
+    <Zc value="0.245"/>
+    <omega value="0.443"/>
+  </species>
+  <species name="C12H18">
+    <ChemName name="hexylbenzene"/>
+    <MW value="162.274"/>
+    <Tc value="697.5"/>
+    <Pc value="2.381e+06"/>
+    <Vc value="0.620"/>
+    <Zc value="0.26"/>
+    <omega value="0.48"/>
+  </species>
+  <species name="C12H18-1">
+    <ChemName name="1,2,3-triethylbenzene"/>
+    <MW value="162.274"/>
+    <Tc value="684.37"/>
+    <Pc value="2.336e+06"/>
+    <Vc value="0.5995"/>
+    <Zc value="0.246"/>
+    <omega value="0.479"/>
+  </species>
+  <species name="C12H18-2">
+    <ChemName name="1,2,4-triethylbenzene"/>
+    <MW value="162.274"/>
+    <Tc value="684.37"/>
+    <Pc value="2.336e+06"/>
+    <Vc value="0.5995"/>
+    <Zc value="0.246"/>
+    <omega value="0.479"/>
+  </species>
+  <species name="C12H18-3">
+    <ChemName name="1,3,5-triethylbenzene"/>
+    <MW value="162.274"/>
+    <Tc value="682.28"/>
+    <Pc value="2.336e+06"/>
+    <Vc value="0.5995"/>
+    <Zc value="0.247"/>
+    <omega value="0.479"/>
+  </species>
+  <species name="C12H18-4">
+    <ChemName name="hexamethylbenzene"/>
+    <MW value="162.274"/>
+    <Tc value="758"/>
+    <Pc value="2.238e+06"/>
+    <Vc value="0.5995"/>
+    <Zc value="0.216"/>
+    <omega value="0.396"/>
+  </species>
+  <species name="C12H22">
+    <ChemName name="1-dodecyne"/>
+    <MW value="166.306"/>
+    <Tc value="668.16"/>
+    <Pc value="2.025e+06"/>
+    <Vc value="0.6695"/>
+    <Zc value="0.244"/>
+    <omega value="0.512"/>
+  </species>
+  <species name="C12H24">
+    <ChemName name="1-dodecene"/>
+    <MW value="168.322"/>
+    <Tc value="657"/>
+    <Pc value="1.85e+06"/>
+    <Vc value="0.6885"/>
+    <Zc value="0.233"/>
+    <omega value="0.558"/>
+  </species>
+  <species name="C12H24-1">
+    <ChemName name="1-cyclopentylheptane"/>
+    <MW value="168.322"/>
+    <Tc value="679"/>
+    <Pc value="1.94e+06"/>
+    <Vc value="0.6485"/>
+    <Zc value="0.237"/>
+    <omega value="0.515"/>
+  </species>
+  <species name="C12H24-2">
+    <ChemName name="1-cyclohexylhexane"/>
+    <MW value="168.322"/>
+    <Tc value="691.81"/>
+    <Pc value="2.133e+06"/>
+    <Vc value="0.6405"/>
+    <Zc value="0.238"/>
+    <omega value="0.456"/>
+  </species>
+  <species name="C12H26">
+    <ChemName name="dodecane"/>
+    <MW value="170.337"/>
+    <Tc value="659.5"/>
+    <Pc value="1.83e+06"/>
+    <Vc value="0.718"/>
+    <Zc value="0.238"/>
+    <omega value="0.575"/>
+  </species>
+  <species name="C12H26O">
+    <ChemName name="dodecyl-alcohol"/>
+    <MW value="186.337"/>
+    <Tc value="679"/>
+    <Pc value="1.92e+06"/>
+    <Vc value="0.718"/>
+    <Zc value="0.24"/>
+    <omega value="1.001"/>
+  </species>
+  <species name="C12H26S">
+    <ChemName name="butyl-octyl-sulfide"/>
+    <MW value="202.397"/>
+    <Tc value="733.68"/>
+    <Pc value="1.806e+06"/>
+    <Vc value="0.7615"/>
+    <Zc value="0.225"/>
+    <omega value="0.631"/>
+  </species>
+  <species name="C12H26S-1">
+    <ChemName name="decyl-ethyl-sulfide"/>
+    <MW value="202.397"/>
+    <Tc value="733.68"/>
+    <Pc value="1.806e+06"/>
+    <Vc value="0.7615"/>
+    <Zc value="0.225"/>
+    <omega value="0.631"/>
+  </species>
+  <species name="C12H26S-2">
+    <ChemName name="hexyl-sulfide"/>
+    <MW value="202.397"/>
+    <Tc value="733.68"/>
+    <Pc value="1.806e+06"/>
+    <Vc value="0.7615"/>
+    <Zc value="0.225"/>
+    <omega value="0.631"/>
+  </species>
+  <species name="C12H26S-3">
+    <ChemName name="methyl-undecyl-sulfide"/>
+    <MW value="202.397"/>
+    <Tc value="733.68"/>
+    <Pc value="1.806e+06"/>
+    <Vc value="0.7615"/>
+    <Zc value="0.225"/>
+    <omega value="0.631"/>
+  </species>
+  <species name="C12H26S-4">
+    <ChemName name="nonyl-propyl-sulfide"/>
+    <MW value="202.397"/>
+    <Tc value="733.68"/>
+    <Pc value="1.806e+06"/>
+    <Vc value="0.7615"/>
+    <Zc value="0.225"/>
+    <omega value="0.631"/>
+  </species>
+  <species name="C12H26S-5">
+    <ChemName name="1-dodecanethiol"/>
+    <MW value="202.397"/>
+    <Tc value="729.81"/>
+    <Pc value="1.881e+06"/>
+    <Vc value="0.7615"/>
+    <Zc value="0.236"/>
+    <omega value="0.636"/>
+  </species>
+  <species name="C12H26S2">
+    <ChemName name="hexyl-disulfide"/>
+    <MW value="234.457"/>
+    <Tc value="747.1"/>
+    <Pc value="1.833e+06"/>
+    <Vc value="0.8155"/>
+    <Zc value="0.241"/>
+    <omega value="0.692"/>
+  </species>
+  <species name="C13H14">
+    <ChemName name="1-propylnaphthalene"/>
+    <MW value="170.254"/>
+    <Tc value="771.45"/>
+    <Pc value="2.756e+06"/>
+    <Vc value="0.5775"/>
+    <Zc value="0.248"/>
+    <omega value="0.488"/>
+  </species>
+  <species name="C13H14-1">
+    <ChemName name="2-propylnaphthalene"/>
+    <MW value="170.254"/>
+    <Tc value="772.44"/>
+    <Pc value="2.756e+06"/>
+    <Vc value="0.5775"/>
+    <Zc value="0.248"/>
+    <omega value="0.488"/>
+  </species>
+  <species name="C13H14-2">
+    <ChemName name="2ethyl-3-methylnaphthalene"/>
+    <MW value="170.254"/>
+    <Tc value="776.44"/>
+    <Pc value="2.713e+06"/>
+    <Vc value="0.5775"/>
+    <Zc value="0.243"/>
+    <omega value="0.488"/>
+  </species>
+  <species name="C13H14-3">
+    <ChemName name="2ethyl-6-methylnaphthalene"/>
+    <MW value="170.254"/>
+    <Tc value="766.56"/>
+    <Pc value="2.713e+06"/>
+    <Vc value="0.5775"/>
+    <Zc value="0.246"/>
+    <omega value="0.488"/>
+  </species>
+  <species name="C13H14-4">
+    <ChemName name="2ethyl-7-methylnaphthalene"/>
+    <MW value="170.254"/>
+    <Tc value="766.56"/>
+    <Pc value="2.713e+06"/>
+    <Vc value="0.5775"/>
+    <Zc value="0.246"/>
+    <omega value="0.488"/>
+  </species>
+  <species name="C13H20">
+    <ChemName name="1-phenylheptane"/>
+    <MW value="176.301"/>
+    <Tc value="713.5"/>
+    <Pc value="2.199e+06"/>
+    <Vc value="0.660"/>
+    <Zc value="0.25"/>
+    <omega value="0.53"/>
+  </species>
+  <species name="C13H24">
+    <ChemName name="1-tridecyne"/>
+    <MW value="180.333"/>
+    <Tc value="684.11"/>
+    <Pc value="1.861e+06"/>
+    <Vc value="0.7255"/>
+    <Zc value="0.237"/>
+    <omega value="0.553"/>
+  </species>
+  <species name="C13H26">
+    <ChemName name="1-tridecene"/>
+    <MW value="182.348"/>
+    <Tc value="674"/>
+    <Pc value="1.7e+06"/>
+    <Vc value="0.7445"/>
+    <Zc value="0.226"/>
+    <omega value="0.598"/>
+  </species>
+  <species name="C13H26-1">
+    <ChemName name="1-cyclopentyloctane"/>
+    <MW value="182.348"/>
+    <Tc value="702.06"/>
+    <Pc value="1.914e+06"/>
+    <Vc value="0.7045"/>
+    <Zc value="0.231"/>
+    <omega value="0.526"/>
+  </species>
+  <species name="C13H26-2">
+    <ChemName name="1-cyclohexylheptane"/>
+    <MW value="182.348"/>
+    <Tc value="708.63"/>
+    <Pc value="1.956e+06"/>
+    <Vc value="0.6965"/>
+    <Zc value="0.231"/>
+    <omega value="0.498"/>
+  </species>
+  <species name="C13H28">
+    <ChemName name="tridecane"/>
+    <MW value="184.364"/>
+    <Tc value="678.4"/>
+    <Pc value="1.73e+06"/>
+    <Vc value="0.780"/>
+    <Zc value="0.239"/>
+    <omega value="0.619"/>
+  </species>
+  <species name="C13H28O">
+    <ChemName name="1-tridecanol"/>
+    <MW value="200.364"/>
+    <Tc value="693.71"/>
+    <Pc value="1.774e+06"/>
+    <Vc value="0.7825"/>
+    <Zc value="0.241"/>
+    <omega value="0.989"/>
+  </species>
+  <species name="C13H28S">
+    <ChemName name="butyl-nonyl-sulfide"/>
+    <MW value="216.424"/>
+    <Tc value="748.42"/>
+    <Pc value="1.667e+06"/>
+    <Vc value="0.8175"/>
+    <Zc value="0.219"/>
+    <omega value="0.667"/>
+  </species>
+  <species name="C13H28S-1">
+    <ChemName name="decyl-propyl-sulfide"/>
+    <MW value="216.424"/>
+    <Tc value="748.42"/>
+    <Pc value="1.667e+06"/>
+    <Vc value="0.8175"/>
+    <Zc value="0.219"/>
+    <omega value="0.667"/>
+  </species>
+  <species name="C13H28S-2">
+    <ChemName name="dodecyl-methyl-sulfide"/>
+    <MW value="216.424"/>
+    <Tc value="748.42"/>
+    <Pc value="1.667e+06"/>
+    <Vc value="0.8175"/>
+    <Zc value="0.219"/>
+    <omega value="0.667"/>
+  </species>
+  <species name="C13H28S-3">
+    <ChemName name="ethyl-undecyl-sulfide"/>
+    <MW value="216.424"/>
+    <Tc value="748.42"/>
+    <Pc value="1.667e+06"/>
+    <Vc value="0.8175"/>
+    <Zc value="0.219"/>
+    <omega value="0.667"/>
+  </species>
+  <species name="C13H28S-4">
+    <ChemName name="1-tridecanethiol"/>
+    <MW value="216.424"/>
+    <Tc value="742.13"/>
+    <Pc value="1.733e+06"/>
+    <Vc value="0.8175"/>
+    <Zc value="0.23"/>
+    <omega value="0.673"/>
+  </species>
+  <species name="C14H16">
+    <ChemName name="1-butylnaphthalene"/>
+    <MW value="184.28"/>
+    <Tc value="781.5"/>
+    <Pc value="2.498e+06"/>
+    <Vc value="0.6335"/>
+    <Zc value="0.244"/>
+    <omega value="0.533"/>
+  </species>
+  <species name="C14H16-1">
+    <ChemName name="2-butylnaphthalene"/>
+    <MW value="184.28"/>
+    <Tc value="780.96"/>
+    <Pc value="2.498e+06"/>
+    <Vc value="0.6335"/>
+    <Zc value="0.244"/>
+    <omega value="0.533"/>
+  </species>
+  <species name="C14H22">
+    <ChemName name="1-phenyloctane"/>
+    <MW value="190.328"/>
+    <Tc value="728"/>
+    <Pc value="2.037e+06"/>
+    <Vc value="0.720"/>
+    <Zc value="0.25"/>
+    <omega value="0.577"/>
+  </species>
+  <species name="C14H22-1">
+    <ChemName name="1,2,3,4-tetraethylbenzene"/>
+    <MW value="190.328"/>
+    <Tc value="708.2"/>
+    <Pc value="1.93e+06"/>
+    <Vc value="0.7115"/>
+    <Zc value="0.233"/>
+    <omega value="0.562"/>
+  </species>
+  <species name="C14H22-2">
+    <ChemName name="1,2,3,5-tetraethylbenzene"/>
+    <MW value="190.328"/>
+    <Tc value="707.52"/>
+    <Pc value="1.93e+06"/>
+    <Vc value="0.7115"/>
+    <Zc value="0.234"/>
+    <omega value="0.562"/>
+  </species>
+  <species name="C14H22-3">
+    <ChemName name="1,2,4,5-tetraethylbenzene"/>
+    <MW value="190.328"/>
+    <Tc value="706.85"/>
+    <Pc value="1.93e+06"/>
+    <Vc value="0.7115"/>
+    <Zc value="0.234"/>
+    <omega value="0.562"/>
+  </species>
+  <species name="C14H26">
+    <ChemName name="1-tetradecyne"/>
+    <MW value="194.359"/>
+    <Tc value="698.93"/>
+    <Pc value="1.716e+06"/>
+    <Vc value="0.7815"/>
+    <Zc value="0.231"/>
+    <omega value="0.591"/>
+  </species>
+  <species name="C14H28">
+    <ChemName name="1-tetradecene"/>
+    <MW value="196.375"/>
+    <Tc value="689"/>
+    <Pc value="1.56e+06"/>
+    <Vc value="0.8005"/>
+    <Zc value="0.22"/>
+    <omega value="0.644"/>
+  </species>
+  <species name="C14H28-1">
+    <ChemName name="1-cyclopentylnonane"/>
+    <MW value="196.375"/>
+    <Tc value="716.95"/>
+    <Pc value="1.762e+06"/>
+    <Vc value="0.7605"/>
+    <Zc value="0.225"/>
+    <omega value="0.566"/>
+  </species>
+  <species name="C14H28-2">
+    <ChemName name="1-cyclohexyloctane"/>
+    <MW value="196.375"/>
+    <Tc value="723.61"/>
+    <Pc value="1.8e+06"/>
+    <Vc value="0.7525"/>
+    <Zc value="0.225"/>
+    <omega value="0.538"/>
+  </species>
+  <species name="C14H30">
+    <ChemName name="tetradecane"/>
+    <MW value="198.391"/>
+    <Tc value="696.8"/>
+    <Pc value="1.6e+06"/>
+    <Vc value="0.830"/>
+    <Zc value="0.233"/>
+    <omega value="0.583"/>
+  </species>
+  <species name="C14H30O">
+    <ChemName name="1-tetradecanol"/>
+    <MW value="214.39"/>
+    <Tc value="674.9"/>
+    <Pc value="1.639e+06"/>
+    <Vc value="0.8385"/>
+    <Zc value="0.245"/>
+    <omega value="1.006"/>
+  </species>
+  <species name="C14H30S">
+    <ChemName name="butyl-decyl-sulfide"/>
+    <MW value="230.451"/>
+    <Tc value="762.23"/>
+    <Pc value="1.544e+06"/>
+    <Vc value="0.8735"/>
+    <Zc value="0.213"/>
+    <omega value="0.7"/>
+  </species>
+  <species name="C14H30S-1">
+    <ChemName name="dodecyl-ethyl-sulfide"/>
+    <MW value="230.451"/>
+    <Tc value="762.23"/>
+    <Pc value="1.544e+06"/>
+    <Vc value="0.8735"/>
+    <Zc value="0.213"/>
+    <omega value="0.7"/>
+  </species>
+  <species name="C14H30S-2">
+    <ChemName name="heptyl-sulfide"/>
+    <MW value="230.451"/>
+    <Tc value="762.23"/>
+    <Pc value="1.544e+06"/>
+    <Vc value="0.8735"/>
+    <Zc value="0.213"/>
+    <omega value="0.7"/>
+  </species>
+  <species name="C14H30S-3">
+    <ChemName name="methyl-tridecyl-sulfide"/>
+    <MW value="230.451"/>
+    <Tc value="762.23"/>
+    <Pc value="1.544e+06"/>
+    <Vc value="0.8735"/>
+    <Zc value="0.213"/>
+    <omega value="0.7"/>
+  </species>
+  <species name="C14H30S-4">
+    <ChemName name="propyl-undecyl-sulfide"/>
+    <MW value="230.451"/>
+    <Tc value="762.23"/>
+    <Pc value="1.544e+06"/>
+    <Vc value="0.8735"/>
+    <Zc value="0.213"/>
+    <omega value="0.7"/>
+  </species>
+  <species name="C14H30S-5">
+    <ChemName name="1-tetradecanethiol"/>
+    <MW value="230.451"/>
+    <Tc value="753.8"/>
+    <Pc value="1.603e+06"/>
+    <Vc value="0.8735"/>
+    <Zc value="0.223"/>
+    <omega value="0.707"/>
+  </species>
+  <species name="C14H30S2">
+    <ChemName name="heptyl-disulfide"/>
+    <MW value="262.511"/>
+    <Tc value="765.96"/>
+    <Pc value="1.565e+06"/>
+    <Vc value="0.9275"/>
+    <Zc value="0.228"/>
+    <omega value="0.758"/>
+  </species>
+  <species name="C15H18">
+    <ChemName name="1-pentylnaphthalene"/>
+    <MW value="198.307"/>
+    <Tc value="793.32"/>
+    <Pc value="2.274e+06"/>
+    <Vc value="0.6895"/>
+    <Zc value="0.238"/>
+    <omega value="0.575"/>
+  </species>
+  <species name="C15H18-1">
+    <ChemName name="2-pentylnaphthalene"/>
+    <MW value="198.307"/>
+    <Tc value="797.48"/>
+    <Pc value="2.274e+06"/>
+    <Vc value="0.6895"/>
+    <Zc value="0.236"/>
+    <omega value="0.575"/>
+  </species>
+  <species name="C15H24">
+    <ChemName name="1-phenylnonane"/>
+    <MW value="204.355"/>
+    <Tc value="741"/>
+    <Pc value="1.895e+06"/>
+    <Vc value="0.790"/>
+    <Zc value="0.25"/>
+    <omega value="0.628"/>
+  </species>
+  <species name="C15H28">
+    <ChemName name="1-pentadecyne"/>
+    <MW value="208.386"/>
+    <Tc value="711.41"/>
+    <Pc value="1.587e+06"/>
+    <Vc value="0.8375"/>
+    <Zc value="0.225"/>
+    <omega value="0.628"/>
+  </species>
+  <species name="C15H30">
+    <ChemName name="1-pentadecene"/>
+    <MW value="210.402"/>
+    <Tc value="704"/>
+    <Pc value="1.45e+06"/>
+    <Vc value="0.8565"/>
+    <Zc value="0.214"/>
+    <omega value="0.682"/>
+  </species>
+  <species name="C15H30-1">
+    <ChemName name="1-cyclopentyldecane"/>
+    <MW value="210.402"/>
+    <Tc value="730.64"/>
+    <Pc value="1.629e+06"/>
+    <Vc value="0.8165"/>
+    <Zc value="0.219"/>
+    <omega value="0.604"/>
+  </species>
+  <species name="C15H30-2">
+    <ChemName name="1-cyclohexylnonane"/>
+    <MW value="210.402"/>
+    <Tc value="737.79"/>
+    <Pc value="1.662e+06"/>
+    <Vc value="0.8085"/>
+    <Zc value="0.219"/>
+    <omega value="0.577"/>
+  </species>
+  <species name="C15H32">
+    <ChemName name="pentadecane"/>
+    <MW value="212.418"/>
+    <Tc value="717.6"/>
+    <Pc value="1.6e+06"/>
+    <Vc value="0.890"/>
+    <Zc value="0.229"/>
+    <omega value="0.604"/>
+  </species>
+  <species name="C15H32O">
+    <ChemName name="1-pentadecanol"/>
+    <MW value="228.417"/>
+    <Tc value="722.53"/>
+    <Pc value="1.519e+06"/>
+    <Vc value="0.8945"/>
+    <Zc value="0.226"/>
+    <omega value="1.015"/>
+  </species>
+  <species name="C15H32S">
+    <ChemName name="butyl-undecyl-sulfide"/>
+    <MW value="244.478"/>
+    <Tc value="775.15"/>
+    <Pc value="1.434e+06"/>
+    <Vc value="0.9295"/>
+    <Zc value="0.207"/>
+    <omega value="0.729"/>
+  </species>
+  <species name="C15H32S-1">
+    <ChemName name="dodecyl-propyl-sulfide"/>
+    <MW value="244.478"/>
+    <Tc value="775.15"/>
+    <Pc value="1.434e+06"/>
+    <Vc value="0.9295"/>
+    <Zc value="0.207"/>
+    <omega value="0.729"/>
+  </species>
+  <species name="C15H32S-2">
+    <ChemName name="ethyl-tridecyl-sulfide"/>
+    <MW value="244.478"/>
+    <Tc value="775.15"/>
+    <Pc value="1.434e+06"/>
+    <Vc value="0.9295"/>
+    <Zc value="0.207"/>
+    <omega value="0.729"/>
+  </species>
+  <species name="C15H32S-3">
+    <ChemName name="methyl-tetradecyl-sulfide"/>
+    <MW value="244.478"/>
+    <Tc value="775.15"/>
+    <Pc value="1.434e+06"/>
+    <Vc value="0.9295"/>
+    <Zc value="0.207"/>
+    <omega value="0.729"/>
+  </species>
+  <species name="C15H32S-4">
+    <ChemName name="1-pentadecanethiol"/>
+    <MW value="244.478"/>
+    <Tc value="764.77"/>
+    <Pc value="1.486e+06"/>
+    <Vc value="0.9295"/>
+    <Zc value="0.217"/>
+    <omega value="0.737"/>
+  </species>
+  <species name="C16H26">
+    <ChemName name="1-phenyldecane"/>
+    <MW value="218.381"/>
+    <Tc value="753"/>
+    <Pc value="1.783e+06"/>
+    <Vc value="0.850"/>
+    <Zc value="0.25"/>
+    <omega value="0.675"/>
+  </species>
+  <species name="C16H26-1">
+    <ChemName name="pentaethylbenzene"/>
+    <MW value="218.381"/>
+    <Tc value="723.64"/>
+    <Pc value="1.622e+06"/>
+    <Vc value="0.8235"/>
+    <Zc value="0.222"/>
+    <omega value="0.637"/>
+  </species>
+  <species name="C16H30">
+    <ChemName name="1-hexadecyne"/>
+    <MW value="222.413"/>
+    <Tc value="724.26"/>
+    <Pc value="1.472e+06"/>
+    <Vc value="0.8935"/>
+    <Zc value="0.219"/>
+    <omega value="0.661"/>
+  </species>
+  <species name="C16H32">
+    <ChemName name="1-hexadecene"/>
+    <MW value="224.429"/>
+    <Tc value="717"/>
+    <Pc value="1.33e+06"/>
+    <Vc value="0.9125"/>
+    <Zc value="0.208"/>
+    <omega value="0.721"/>
+  </species>
+  <species name="C16H32-1">
+    <ChemName name="1-cyclopentylundecane"/>
+    <MW value="224.429"/>
+    <Tc value="743.3"/>
+    <Pc value="1.509e+06"/>
+    <Vc value="0.8725"/>
+    <Zc value="0.213"/>
+    <omega value="0.638"/>
+  </species>
+  <species name="C16H32-2">
+    <ChemName name="1-cyclohexyldecane"/>
+    <MW value="224.429"/>
+    <Tc value="750.03"/>
+    <Pc value="1.539e+06"/>
+    <Vc value="0.8645"/>
+    <Zc value="0.213"/>
+    <omega value="0.613"/>
+  </species>
+  <species name="C16H34">
+    <ChemName name="hexadecane"/>
+    <MW value="226.445"/>
+    <Tc value="734.3"/>
+    <Pc value="1.53e+06"/>
+    <Vc value="0.950"/>
+    <Zc value="0.224"/>
+    <omega value="0.742"/>
+  </species>
+  <species name="C16H34O">
+    <ChemName name="1-hexadecanol"/>
+    <MW value="242.444"/>
+    <Tc value="767.11"/>
+    <Pc value="1.411e+06"/>
+    <Vc value="0.9505"/>
+    <Zc value="0.21"/>
+    <omega value="1.018"/>
+  </species>
+  <species name="C16H34S">
+    <ChemName name="butyl-dodecyl-sulfide"/>
+    <MW value="258.505"/>
+    <Tc value="787.27"/>
+    <Pc value="1.335e+06"/>
+    <Vc value="0.9855"/>
+    <Zc value="0.201"/>
+    <omega value="0.754"/>
+  </species>
+  <species name="C16H34S-1">
+    <ChemName name="ethyl-tetradecyl-sulfide"/>
+    <MW value="258.505"/>
+    <Tc value="791.68"/>
+    <Pc value="1.288e+06"/>
+    <Vc value="0.9315"/>
+    <Zc value="0.182"/>
+    <omega value="0.686"/>
+  </species>
+  <species name="C16H34S-2">
+    <ChemName name="methyl-pentadecyl-sulfide"/>
+    <MW value="258.505"/>
+    <Tc value="787.27"/>
+    <Pc value="1.335e+06"/>
+    <Vc value="0.9855"/>
+    <Zc value="0.201"/>
+    <omega value="0.754"/>
+  </species>
+  <species name="C16H34S-3">
+    <ChemName name="octyl-sulfide"/>
+    <MW value="258.505"/>
+    <Tc value="787.27"/>
+    <Pc value="1.335e+06"/>
+    <Vc value="0.9855"/>
+    <Zc value="0.201"/>
+    <omega value="0.754"/>
+  </species>
+  <species name="C16H34S-4">
+    <ChemName name="propyl-tridecyl-sulfide"/>
+    <MW value="258.505"/>
+    <Tc value="787.27"/>
+    <Pc value="1.335e+06"/>
+    <Vc value="0.9855"/>
+    <Zc value="0.201"/>
+    <omega value="0.754"/>
+  </species>
+  <species name="C16H34S-5">
+    <ChemName name="1-hexadecanethiol"/>
+    <MW value="258.505"/>
+    <Tc value="774.68"/>
+    <Pc value="1.382e+06"/>
+    <Vc value="0.9855"/>
+    <Zc value="0.211"/>
+    <omega value="0.763"/>
+  </species>
+  <species name="C16H34S2">
+    <ChemName name="octyl-disulfide"/>
+    <MW value="290.565"/>
+    <Tc value="784.46"/>
+    <Pc value="1.352e+06"/>
+    <Vc value="0.0395"/>
+    <Zc value="0.215"/>
+    <omega value="0.806"/>
+  </species>
+  <species name="C17H28">
+    <ChemName name="1-phenylundecane"/>
+    <MW value="232.408"/>
+    <Tc value="764"/>
+    <Pc value="1.672e+06"/>
+    <Vc value="0.910"/>
+    <Zc value="0.24"/>
+    <omega value="0.722"/>
+  </species>
+  <species name="C17H32">
+    <ChemName name="1-heptadecyne"/>
+    <MW value="236.44"/>
+    <Tc value="736.21"/>
+    <Pc value="1.37e+06"/>
+    <Vc value="0.9495"/>
+    <Zc value="0.212"/>
+    <omega value="0.69"/>
+  </species>
+  <species name="C17H34">
+    <ChemName name="1-heptadecene"/>
+    <MW value="238.456"/>
+    <Tc value="732.4"/>
+    <Pc value="1.26e+06"/>
+    <Vc value="0.9905"/>
+    <Zc value="0.205"/>
+    <omega value="0.689"/>
+  </species>
+  <species name="C17H34-1">
+    <ChemName name="1-cyclopentyldodecane"/>
+    <MW value="238.456"/>
+    <Tc value="755.17"/>
+    <Pc value="1.403e+06"/>
+    <Vc value="0.9285"/>
+    <Zc value="0.207"/>
+    <omega value="0.669"/>
+  </species>
+  <species name="C17H34-2">
+    <ChemName name="1-cyclohexylundecane"/>
+    <MW value="238.456"/>
+    <Tc value="761.74"/>
+    <Pc value="1.429e+06"/>
+    <Vc value="0.9205"/>
+    <Zc value="0.208"/>
+    <omega value="0.646"/>
+  </species>
+  <species name="C17H36">
+    <ChemName name="heptadecane"/>
+    <MW value="240.471"/>
+    <Tc value="749.3"/>
+    <Pc value="1.46e+06"/>
+    <Vc value="0"/>
+    <Zc value="0.216"/>
+    <omega value="0.77"/>
+  </species>
+  <species name="C17H36O">
+    <ChemName name="1-heptadecanol"/>
+    <MW value="256.471"/>
+    <Tc value="736"/>
+    <Pc value="1.41e+06"/>
+    <Vc value="0.0065"/>
+    <Zc value="0.216"/>
+    <omega value="1.105"/>
+  </species>
+  <species name="C17H36S">
+    <ChemName name="butyl-tridecyl-sulfide"/>
+    <MW value="272.531"/>
+    <Tc value="798.63"/>
+    <Pc value="1.246e+06"/>
+    <Vc value="0.0415"/>
+    <Zc value="0.195"/>
+    <omega value="0.774"/>
+  </species>
+  <species name="C17H36S-1">
+    <ChemName name="ethyl-pentadecyl-sulfide"/>
+    <MW value="272.531"/>
+    <Tc value="798.63"/>
+    <Pc value="1.246e+06"/>
+    <Vc value="0.0415"/>
+    <Zc value="0.195"/>
+    <omega value="0.774"/>
+  </species>
+  <species name="C17H36S-2">
+    <ChemName name="hexadecyl-methyl-sulfide"/>
+    <MW value="272.531"/>
+    <Tc value="798.63"/>
+    <Pc value="1.246e+06"/>
+    <Vc value="0.0415"/>
+    <Zc value="0.195"/>
+    <omega value="0.774"/>
+  </species>
+  <species name="C17H36S-3">
+    <ChemName name="propyl-tetradecyl-sulfide"/>
+    <MW value="272.531"/>
+    <Tc value="798.63"/>
+    <Pc value="1.246e+06"/>
+    <Vc value="0.0415"/>
+    <Zc value="0.195"/>
+    <omega value="0.774"/>
+  </species>
+  <species name="C17H36S-4">
+    <ChemName name="1-heptadecanethiol"/>
+    <MW value="272.531"/>
+    <Tc value="786.01"/>
+    <Pc value="1.288e+06"/>
+    <Vc value="0.0415"/>
+    <Zc value="0.205"/>
+    <omega value="0.783"/>
+  </species>
+  <species name="C18H30">
+    <ChemName name="1-phenyldodecane"/>
+    <MW value="246.435"/>
+    <Tc value="774"/>
+    <Pc value="1.581e+06"/>
+    <Vc value="0.980"/>
+    <Zc value="0.24"/>
+    <omega value="0.773"/>
+  </species>
+  <species name="C18H30-1">
+    <ChemName name="hexaethylbenzene"/>
+    <MW value="246.435"/>
+    <Tc value="734.78"/>
+    <Pc value="1.382e+06"/>
+    <Vc value="0.9355"/>
+    <Zc value="0.212"/>
+    <omega value="0.698"/>
+  </species>
+  <species name="C18H34">
+    <ChemName name="1-octadecyne"/>
+    <MW value="250.467"/>
+    <Tc value="747.33"/>
+    <Pc value="1.277e+06"/>
+    <Vc value="0.0055"/>
+    <Zc value="0.207"/>
+    <omega value="0.715"/>
+  </species>
+  <species name="C18H36">
+    <ChemName name="1-octadecene"/>
+    <MW value="252.482"/>
+    <Tc value="739"/>
+    <Pc value="1.13e+06"/>
+    <Vc value="0.0245"/>
+    <Zc value="0.197"/>
+    <omega value="0.807"/>
+  </species>
+  <species name="C18H36-1">
+    <ChemName name="1-cycopentyltridecane"/>
+    <MW value="252.482"/>
+    <Tc value="766.47"/>
+    <Pc value="1.307e+06"/>
+    <Vc value="0.9845"/>
+    <Zc value="0.202"/>
+    <omega value="0.697"/>
+  </species>
+  <species name="C18H36-2">
+    <ChemName name="1-cyclohexyldodecane"/>
+    <MW value="252.482"/>
+    <Tc value="772.83"/>
+    <Pc value="1.331e+06"/>
+    <Vc value="0.9765"/>
+    <Zc value="0.202"/>
+    <omega value="0.675"/>
+  </species>
+  <species name="C18H38">
+    <ChemName name="octadecane"/>
+    <MW value="254.498"/>
+    <Tc value="748"/>
+    <Pc value="1.2e+06"/>
+    <Vc value="0.0435"/>
+    <Zc value="0.195"/>
+    <omega value="0.79"/>
+  </species>
+  <species name="C18H38O">
+    <ChemName name="1-octadecanol"/>
+    <MW value="270.498"/>
+    <Tc value="747"/>
+    <Pc value="1.41e+06"/>
+    <Vc value="0.0625"/>
+    <Zc value="0.209"/>
+    <omega value="1.144"/>
+  </species>
+  <species name="C18H38S">
+    <ChemName name="butyl-tetradecyl-sulfide"/>
+    <MW value="286.558"/>
+    <Tc value="810.53"/>
+    <Pc value="1.166e+06"/>
+    <Vc value="0.0975"/>
+    <Zc value="0.19"/>
+    <omega value="0.787"/>
+  </species>
+  <species name="C18H38S-1">
+    <ChemName name="ethyl-hexadecyl-sulfide"/>
+    <MW value="286.558"/>
+    <Tc value="810.53"/>
+    <Pc value="1.166e+06"/>
+    <Vc value="0.0975"/>
+    <Zc value="0.19"/>
+    <omega value="0.787"/>
+  </species>
+  <species name="C18H38S-2">
+    <ChemName name="heptadecyl-methyl-sulfide"/>
+    <MW value="286.558"/>
+    <Tc value="810.53"/>
+    <Pc value="1.166e+06"/>
+    <Vc value="0.0975"/>
+    <Zc value="0.19"/>
+    <omega value="0.787"/>
+  </species>
+  <species name="C18H38S-3">
+    <ChemName name="nonyl-sulfide"/>
+    <MW value="286.558"/>
+    <Tc value="810.53"/>
+    <Pc value="1.166e+06"/>
+    <Vc value="0.0975"/>
+    <Zc value="0.19"/>
+    <omega value="0.787"/>
+  </species>
+  <species name="C18H38S-4">
+    <ChemName name="pentadecyl-propyl-sulfide"/>
+    <MW value="286.558"/>
+    <Tc value="810.53"/>
+    <Pc value="1.166e+06"/>
+    <Vc value="0.0975"/>
+    <Zc value="0.19"/>
+    <omega value="0.787"/>
+  </species>
+  <species name="C18H38S-5">
+    <ChemName name="1-octadecanethiol"/>
+    <MW value="286.558"/>
+    <Tc value="795.36"/>
+    <Pc value="1.204e+06"/>
+    <Vc value="0.0975"/>
+    <Zc value="0.2"/>
+    <omega value="0.798"/>
+  </species>
+  <species name="C18H38S2">
+    <ChemName name="nonyl-disulfide"/>
+    <MW value="318.618"/>
+    <Tc value="802.3"/>
+    <Pc value="1.179e+06"/>
+    <Vc value="0.1515"/>
+    <Zc value="0.204"/>
+    <omega value="0.832"/>
+  </species>
+  <species name="C19H32">
+    <ChemName name="1-phenyltridecane"/>
+    <MW value="260.462"/>
+    <Tc value="784"/>
+    <Pc value="1.5e+06"/>
+    <Vc value="0.040"/>
+    <Zc value="0.24"/>
+    <omega value="0.816"/>
+  </species>
+  <species name="C19H36">
+    <ChemName name="1-nonadecyne"/>
+    <MW value="264.493"/>
+    <Tc value="758.94"/>
+    <Pc value="1.194e+06"/>
+    <Vc value="0.0615"/>
+    <Zc value="0.201"/>
+    <omega value="0.735"/>
+  </species>
+  <species name="C19H38">
+    <ChemName name="1-nonadecene"/>
+    <MW value="266.509"/>
+    <Tc value="755.1"/>
+    <Pc value="1.11e+06"/>
+    <Vc value="0.1065"/>
+    <Zc value="0.195"/>
+    <omega value="0.747"/>
+  </species>
+  <species name="C19H38-1">
+    <ChemName name="1-cyclopentyltetradecane"/>
+    <MW value="266.509"/>
+    <Tc value="772"/>
+    <Pc value="1.12e+06"/>
+    <Vc value="0.0405"/>
+    <Zc value="0.201"/>
+    <omega value="0.789"/>
+  </species>
+  <species name="C19H38-2">
+    <ChemName name="1-cyclohexyltridecane"/>
+    <MW value="266.509"/>
+    <Tc value="783.38"/>
+    <Pc value="1.242e+06"/>
+    <Vc value="0.0325"/>
+    <Zc value="0.197"/>
+    <omega value="0.7"/>
+  </species>
+  <species name="C19H40">
+    <ChemName name="nonadecane"/>
+    <MW value="268.525"/>
+    <Tc value="776"/>
+    <Pc value="1.36e+06"/>
+    <Vc value="0.100"/>
+    <Zc value="0.212"/>
+    <omega value="0.827"/>
+  </species>
+  <species name="C19H40O">
+    <ChemName name="1-nonadecanol"/>
+    <MW value="284.524"/>
+    <Tc value="775.3"/>
+    <Pc value="1.149e+06"/>
+    <Vc value="0.1185"/>
+    <Zc value="0.199"/>
+    <omega value="0.976"/>
+  </species>
+  <species name="C19H40S">
+    <ChemName name="butyl-pentadecyl-sulfide"/>
+    <MW value="300.585"/>
+    <Tc value="821.75"/>
+    <Pc value="1.093e+06"/>
+    <Vc value="0.1535"/>
+    <Zc value="0.185"/>
+    <omega value="0.794"/>
+  </species>
+  <species name="C19H40S-1">
+    <ChemName name="ethyl-heptadecyl-sulfide"/>
+    <MW value="300.585"/>
+    <Tc value="821.75"/>
+    <Pc value="1.093e+06"/>
+    <Vc value="0.1535"/>
+    <Zc value="0.185"/>
+    <omega value="0.794"/>
+  </species>
+  <species name="C19H40S-2">
+    <ChemName name="hexadecyl-propyl-sulfide"/>
+    <MW value="300.585"/>
+    <Tc value="821.75"/>
+    <Pc value="1.093e+06"/>
+    <Vc value="0.1535"/>
+    <Zc value="0.185"/>
+    <omega value="0.794"/>
+  </species>
+  <species name="C19H40S-3">
+    <ChemName name="methyl-octadecyl-sulfide"/>
+    <MW value="300.585"/>
+    <Tc value="821.75"/>
+    <Pc value="1.093e+06"/>
+    <Vc value="0.1535"/>
+    <Zc value="0.185"/>
+    <omega value="0.794"/>
+  </species>
+  <species name="C19H40S-4">
+    <ChemName name="1-nonadecanethiol"/>
+    <MW value="300.585"/>
+    <Tc value="805.29"/>
+    <Pc value="1.128e+06"/>
+    <Vc value="0.1535"/>
+    <Zc value="0.194"/>
+    <omega value="0.807"/>
+  </species>
+  <species name="C20H34">
+    <ChemName name="1-phenyltetradecane"/>
+    <MW value="274.489"/>
+    <Tc value="792"/>
+    <Pc value="1.419e+06"/>
+    <Vc value="0.110"/>
+    <Zc value="0.24"/>
+    <omega value="0.869"/>
+  </species>
+  <species name="C20H38">
+    <ChemName name="1-eicosyne"/>
+    <MW value="278.52"/>
+    <Tc value="769.79"/>
+    <Pc value="1.119e+06"/>
+    <Vc value="0.1175"/>
+    <Zc value="0.195"/>
+    <omega value="0.75"/>
+  </species>
+  <species name="C20H40">
+    <ChemName name="1-eicosene"/>
+    <MW value="280.536"/>
+    <Tc value="765.4"/>
+    <Pc value="1.04e+06"/>
+    <Vc value="0.1645"/>
+    <Zc value="0.19"/>
+    <omega value="0.77"/>
+  </species>
+  <species name="C20H40-1">
+    <ChemName name="1-cyclopentylpentadecane"/>
+    <MW value="280.536"/>
+    <Tc value="780"/>
+    <Pc value="1.02e+06"/>
+    <Vc value="0.0965"/>
+    <Zc value="0.191"/>
+    <omega value="0.833"/>
+  </species>
+  <species name="C20H40-2">
+    <ChemName name="1-cyclohexyltetradecane"/>
+    <MW value="280.536"/>
+    <Tc value="792.82"/>
+    <Pc value="1.162e+06"/>
+    <Vc value="0.0885"/>
+    <Zc value="0.192"/>
+    <omega value="0.719"/>
+  </species>
+  <species name="C20H42">
+    <ChemName name="eicosane"/>
+    <MW value="282.552"/>
+    <Tc value="767"/>
+    <Pc value="1.11e+06"/>
+    <Vc value="0.1555"/>
+    <Zc value="0.184"/>
+    <omega value="0.907"/>
+  </species>
+  <species name="C20H42O">
+    <ChemName name="1-eicosanol"/>
+    <MW value="298.551"/>
+    <Tc value="770"/>
+    <Pc value="1.2e+06"/>
+    <Vc value="0.1745"/>
+    <Zc value="0.197"/>
+    <omega value="1.052"/>
+  </species>
+  <species name="C20H42S">
+    <ChemName name="butyl-hexadecyl-sulfide"/>
+    <MW value="314.612"/>
+    <Tc value="832.33"/>
+    <Pc value="1.027e+06"/>
+    <Vc value="0.2095"/>
+    <Zc value="0.179"/>
+    <omega value="0.795"/>
+  </species>
+  <species name="C20H42S-1">
+    <ChemName name="decyl-sulfide"/>
+    <MW value="314.612"/>
+    <Tc value="832.33"/>
+    <Pc value="1.027e+06"/>
+    <Vc value="0.2095"/>
+    <Zc value="0.179"/>
+    <omega value="0.795"/>
+  </species>
+  <species name="C20H42S-2">
+    <ChemName name="ethyl-octadecyl-sulfide"/>
+    <MW value="314.612"/>
+    <Tc value="832.33"/>
+    <Pc value="1.027e+06"/>
+    <Vc value="0.2095"/>
+    <Zc value="0.179"/>
+    <omega value="0.795"/>
+  </species>
+  <species name="C20H42S-3">
+    <ChemName name="heptadecyl-propyl-sulfide"/>
+    <MW value="314.612"/>
+    <Tc value="832.33"/>
+    <Pc value="1.027e+06"/>
+    <Vc value="0.2095"/>
+    <Zc value="0.179"/>
+    <omega value="0.795"/>
+  </species>
+  <species name="C20H42S-4">
+    <ChemName name="methyl-nonadecyl-sulfide"/>
+    <MW value="314.612"/>
+    <Tc value="832.33"/>
+    <Pc value="1.027e+06"/>
+    <Vc value="0.2095"/>
+    <Zc value="0.179"/>
+    <omega value="0.795"/>
+  </species>
+  <species name="C20H42S-5">
+    <ChemName name="1-eicosanethiol"/>
+    <MW value="314.612"/>
+    <Tc value="814.57"/>
+    <Pc value="1.058e+06"/>
+    <Vc value="0.2095"/>
+    <Zc value="0.189"/>
+    <omega value="0.809"/>
+  </species>
+  <species name="C20H42S2">
+    <ChemName name="decyl-disulfide"/>
+    <MW value="346.672"/>
+    <Tc value="820.08"/>
+    <Pc value="1.038e+06"/>
+    <Vc value="0.2635"/>
+    <Zc value="0.192"/>
+    <omega value="0.83"/>
+  </species>
+  <species name="C21H36">
+    <ChemName name="1-phenylpentadecane"/>
+    <MW value="288.515"/>
+    <Tc value="800"/>
+    <Pc value="1.348e+06"/>
+    <Vc value="0.140"/>
+    <Zc value="0.23"/>
+    <omega value="0.914"/>
+  </species>
+  <species name="C21H42">
+    <ChemName name="1-cyclopentylhexadecane"/>
+    <MW value="294.563"/>
+    <Tc value="797.25"/>
+    <Pc value="1.072e+06"/>
+    <Vc value="0.1525"/>
+    <Zc value="0.186"/>
+    <omega value="0.748"/>
+  </species>
+  <species name="C21H42-1">
+    <ChemName name="1-cyclohexylpentadecane"/>
+    <MW value="294.563"/>
+    <Tc value="803.46"/>
+    <Pc value="1.09e+06"/>
+    <Vc value="0.1445"/>
+    <Zc value="0.187"/>
+    <omega value="0.733"/>
+  </species>
+  <species name="C22H38">
+    <ChemName name="1-phenylhexadecane"/>
+    <MW value="302.542"/>
+    <Tc value="808"/>
+    <Pc value="1.287e+06"/>
+    <Vc value="0.200"/>
+    <Zc value="0.23"/>
+    <omega value="0.964"/>
+  </species>
+  <species name="C22H44">
+    <ChemName name="1-cyclohexylhexadecane"/>
+    <MW value="308.59"/>
+    <Tc value="813.42"/>
+    <Pc value="1.024e+06"/>
+    <Vc value="0.2005"/>
+    <Zc value="0.182"/>
+    <omega value="0.741"/>
+  </species>
+  <species name="O2">
+    <ChemName name="oxygen"/>
+    <Tc value="154.58"/>
+    <Pc value="5.043e+06"/>
+    <omega value="0.741"/>
+  </species>
+  <species name="N2">
+    <ChemName name="nitrogen"/>
+    <Tc value="126.2"/>
+    <Pc value="3.39e+06"/>
+    <omega value="0.741"/>
+  </species>
+</ctml>

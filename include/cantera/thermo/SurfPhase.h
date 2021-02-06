@@ -7,7 +7,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_SURFPHASE_H
 #define CT_SURFPHASE_H
@@ -162,6 +162,9 @@ public:
     //! XML database
     /*!
      *  @param xmlphase XML node pointing to a SurfPhase description
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     SurfPhase(XML_Node& xmlphase);
 
@@ -282,8 +285,12 @@ public:
      *       <site_density units="mol/cm2"> 3e-09 </site_density>
      *    </thermo>
      * @endcode
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual void setParametersFromXML(const XML_Node& thermoData);
+    virtual void initThermo();
 
     virtual bool addSpecies(shared_ptr<Species> spec);
 
@@ -302,6 +309,9 @@ public:
      *      <coverages>c6H*:0.1, c6HH:0.9</coverages>
      *   </state>
      * @endcode
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual void setStateFromXML(const XML_Node& state);
 
@@ -394,6 +404,12 @@ public:
      */
     void getCoverages(doublereal* theta) const;
 
+    //! @copydoc ThermoPhase::setState
+    /*!
+     * Additionally uses the key `coverages` to set the fractional coverages.
+     */
+    virtual void setState(const AnyMap& state);
+
 protected:
     //! Surface site density (kmol m-2)
     doublereal m_n0;
@@ -440,6 +456,7 @@ private:
      */
     void _updateThermo(bool force=false) const;
 };
+
 }
 
 #endif

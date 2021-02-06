@@ -15,12 +15,10 @@ help reactor1
 if nargin == 1
    gas = g;
 else
-   gas = GRI30;
+   gas = GRI30('None');
 end
 
-nsp = nSpecies(gas);
-
-P = oneatm
+P = oneatm;
 % set the initial conditions
 set(gas,'T',1001.0,'P',P,'X','H2:2,O2:1,N2:4');
 
@@ -28,7 +26,7 @@ set(gas,'T',1001.0,'P',P,'X','H2:2,O2:1,N2:4');
 r = IdealGasReactor(gas);
 
 % create a reservoir to represent the environment
-a = IdealGasMix('air.cti');
+a = Solution('air.yaml','air','None');
 set(a,'P',P)
 env = Reservoir(a);
 
@@ -47,10 +45,14 @@ setArea(w, 1.0);
 % create a reactor network and insert the reactor:
 network = ReactorNet({r});
 
+nSteps = 100;
+tim(nSteps) = 0;
+temp(nSteps) = 0;
+x(nSteps,3) = 0;
 t = 0.0;
 dt = 1.0e-5;
 t0 = cputime;
-for n = 1:100
+for n = 1:nSteps
   t = t + dt;
   advance(network, t);
   tim(n) = time(network);

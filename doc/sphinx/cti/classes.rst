@@ -35,9 +35,6 @@ Phases of Matter
 .. autoclass:: metal
    :no-undoc-members:
 
-.. autoclass:: semiconductor
-   :no-undoc-members:
-
 .. autoclass:: incompressible_solid
    :no-undoc-members:
 
@@ -80,9 +77,6 @@ Thermodynamic Properties
 .. autoclass:: Shomate
    :no-undoc-members:
 
-.. autoclass:: Adsorbate
-   :no-undoc-members:
-
 .. autoclass:: const_cp
    :no-undoc-members:
 
@@ -120,6 +114,9 @@ Reactions
    :no-undoc-members:
 
 .. autoclass:: edge_reaction
+   :no-undoc-members:
+
+.. autoclass:: stick
    :no-undoc-members:
 
 Falloff Parameterizations

@@ -14,12 +14,14 @@ contain all species that might be present in any upstream reactor.
 
 Compare this approach for the transient problem to the method used for the
 steady-state problem in thermo/mixing.py.
+
+Requires: cantera >= 2.5.0
 """
 
 import cantera as ct
 
 # Use air for stream a.
-gas_a = ct.Solution('air.xml')
+gas_a = ct.Solution('air.yaml')
 gas_a.TPX = 300.0, ct.one_atm, 'O2:0.21, N2:0.78, AR:0.01'
 rho_a = gas_a.density
 
@@ -27,7 +29,7 @@ rho_a = gas_a.density
 # Use GRI-Mech 3.0 for stream b (methane) and for the mixer. If it is desired
 # to have a pure mixer, with no chemistry, use instead a reaction mechanism
 # for gas_b that has no reactions.
-gas_b = ct.Solution('gri30.xml')
+gas_b = ct.Solution('gri30.yaml')
 gas_b.TPX = 300.0, ct.one_atm, 'CH4:1'
 rho_b = gas_b.density
 

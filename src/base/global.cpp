@@ -1,7 +1,7 @@
 //! @file global.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/FactoryBase.h"
 #include "cantera/base/xml.h"
@@ -25,7 +25,7 @@ void setLogger(Logger* logwriter)
 {
     try {
         app()->setLogger(logwriter);
-    } catch (std::bad_alloc) {
+    } catch (const std::bad_alloc&) {
         logwriter->error("bad alloc thrown by app()");
     }
 }
@@ -54,6 +54,11 @@ void writeline(char repeat, size_t count, bool endl_after, bool endl_before)
 void warn_deprecated(const std::string& method, const std::string& extra)
 {
     app()->warn_deprecated(method, extra);
+}
+
+void _warn_user(const std::string& method, const std::string& extra)
+{
+    app()->warn_user(method, extra);
 }
 
 void suppress_deprecation_warnings()

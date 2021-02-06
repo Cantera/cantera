@@ -1,7 +1,7 @@
 //! @file Func1.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/numerics/Func1.h"
 #include "cantera/base/stringUtils.h"
@@ -213,6 +213,83 @@ Func1& Pow1::derivative() const
     return *r;
 }
 
+/******************************************************************************/
+
+Tabulated1::Tabulated1(size_t n, const double* tvals, const double* fvals,
+                       const std::string& method) :
+    Func1() {
+    m_tvec.resize(n);
+    std::copy(tvals, tvals + n, m_tvec.begin());
+    for (auto it = std::begin(m_tvec) + 1; it != std::end(m_tvec); it++) {
+        if (*(it - 1) > *it) {
+            throw CanteraError("Tabulated1::Tabulated1",
+                               "time values are not increasing monotonically.");
+        }
+    }
+    m_fvec.resize(n);
+    std::copy(fvals, fvals + n, m_fvec.begin());
+    if (method == "linear") {
+        m_isLinear = true;
+    } else if (method == "previous") {
+        m_isLinear = false;
+    } else {
+        throw CanteraError("Tabulated1::Tabulated1",
+                           "interpolation method '{}' is not implemented",
+                           method);
+    }
+}
+
+double Tabulated1::eval(double t) const {
+    size_t siz = m_tvec.size();
+    // constructor ensures that siz > 0
+    if (t <= m_tvec[0]) {
+        return m_fvec[0];
+    } else if (t >= m_tvec[siz-1]) {
+        return m_fvec[siz-1];
+    } else {
+        size_t ix = 0;
+        while (t > m_tvec[ix+1]) {
+            ix++;
+        }
+        if (m_isLinear) {
+            double df = m_fvec[ix+1] - m_fvec[ix];
+            df /= m_tvec[ix+1] - m_tvec[ix];
+            df *= t - m_tvec[ix];
+            return m_fvec[ix] + df;
+        } else {
+            return m_fvec[ix];
+        }
+    }
+}
+
+Func1& Tabulated1::derivative() const {
+    vector_fp tvec;
+    vector_fp dvec;
+    size_t siz = m_tvec.size();
+    if (m_isLinear) {
+        // piece-wise continuous derivative
+        if (siz>1) {
+            for (size_t i=1; i<siz; i++) {
+                double d = (m_fvec[i] - m_fvec[i-1]) /
+                  (m_tvec[i] - m_tvec[i-1]);
+                tvec.push_back(m_tvec[i-1]);
+                dvec.push_back(d);
+            }
+        }
+        tvec.push_back(m_tvec[siz-1]);
+        dvec.push_back(0.);
+    } else {
+        // derivative is zero (ignoring discontinuities)
+        tvec.push_back(m_tvec[0]);
+        tvec.push_back(m_tvec[siz-1]);
+        dvec.push_back(0.);
+        dvec.push_back(0.);
+    }
+    return *(new Tabulated1(tvec.size(), &tvec[0], &dvec[0], "previous"));
+}
+
+/******************************************************************************/
+
 string Func1::write(const std::string& arg) const
 {
     return fmt::format("<unknown {}>({})", ID(), arg);
@@ -231,6 +308,11 @@ string Pow1::write(const std::string& arg) const
     } else {
         return arg;
     }
+}
+
+string Tabulated1::write(const std::string& arg) const
+{
+    return fmt::format("\\mathrm{{Tabulated}}({})", arg);
 }
 
 string Const1::write(const std::string& arg) const

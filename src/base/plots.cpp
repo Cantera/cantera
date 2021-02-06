@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/plots.h"
 
@@ -60,7 +60,9 @@ void outputExcel(std::ostream& s, const std::string& title,
                  const std::vector<std::string>& names,
                  const Array2D& data)
 {
-    s << title + "," << endl;
+    if (!title.empty()) {
+        s << title + "," << endl;
+    }
     for (size_t i = 0; i < data.nRows(); i++) {
         s << names[i];
         if (i != data.nRows()-1) {

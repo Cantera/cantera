@@ -1,7 +1,7 @@
 //! @file IonFlow.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/oneD/IonFlow.h"
 #include "cantera/oneD/StFlow.h"
@@ -160,7 +160,7 @@ void IonFlow::setSolvingStage(const size_t stage)
     if (stage == 1 || stage == 2) {
         m_stage = stage;
     } else {
-        throw CanteraError("IonFlow::updateDiffFluxes",
+        throw CanteraError("IonFlow::setSolvingStage",
                     "solution stage must be set to: "
                     "1) frozenIonMethod, "
                     "2) electricFieldEqnMethod");

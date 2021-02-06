@@ -1,13 +1,14 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
-# at http://www.cantera.org/license.txt for license and copyright information.
+# at https://cantera.org/license.txt for license and copyright information.
 
+import warnings
 from collections import defaultdict as _defaultdict
 import numbers as _numbers
 
 _reactor_counts = _defaultdict(int)
 
 # Need a pure-python class to store weakrefs to
-class _WeakrefProxy(object):
+class _WeakrefProxy:
     pass
 
 cdef class ReactorBase:
@@ -48,6 +49,11 @@ cdef class ReactorBase:
         self._thermo = solution
         self._thermo._references[self._weakref_proxy] = True
         self.rbase.setThermoMgr(deref(solution.thermo))
+
+    property type:
+        """The type of the reactor."""
+        def __get__(self):
+            return pystr(self.rbase.typeStr())
 
     property name:
         """The name of the reactor."""
@@ -315,6 +321,17 @@ cdef class Reactor(ReactorBase):
         self.reactor.getState(&y[0])
         return y
 
+    def set_advance_limit(self, name, limit):
+        """
+        Limit absolute change of component *name* during `ReactorNet.advance`.
+        (positive *limit* values are considered; negative values disable a
+        previously set advance limit for a solution component). Note that
+        limits are disabled by default (with individual values set to -1.).
+        """
+        if limit is None:
+            limit = -1.
+        self.reactor.setAdvanceLimit(stringify(name), limit)
+
 
 cdef class Reservoir(ReactorBase):
     """
@@ -431,7 +448,7 @@ cdef class ReactorSurface:
             if self._kinetics is None:
                 raise CanteraError("Can't set coverages before assigning kinetics manager.")
 
-            if isinstance(coverages, (dict, str, unicode, bytes)):
+            if isinstance(coverages, (dict, str, bytes)):
                 self.surface.setCoverages(comp_map(coverages))
                 return
 
@@ -450,33 +467,13 @@ cdef class ReactorSurface:
         self.surface.addSensitivityReaction(m)
 
 
-cdef class Wall:
-    r"""
-    A Wall separates two reactors, or a reactor and a reservoir. A wall has a
-    finite area, may conduct or radiate heat between the two reactors on either
-    side, and may move like a piston.
-
-    Walls are stateless objects in Cantera, meaning that no differential
-    equation is integrated to determine any wall property. Since it is the wall
-    (piston) velocity that enters the energy equation, this means that it is
-    the velocity, not the acceleration or displacement, that is specified.
-    The wall velocity is computed from
-
-    .. math:: v = K(P_{\rm left} - P_{\rm right}) + v_0(t),
-
-    where :math:`K` is a non-negative constant, and :math:`v_0(t)` is a
-    specified function of time. The velocity is positive if the wall is
-    moving to the right.
-
-    The heat flux through the wall is computed from
-
-    .. math::  q = U(T_{\rm left} - T_{\rm right}) + \epsilon\sigma (T_{\rm left}^4 - T_{\rm right}^4) + q_0(t),
-
-    where :math:`U` is the overall heat transfer coefficient for
-    conduction/convection, and :math:`\epsilon` is the emissivity. The function
-    :math:`q_0(t)` is a specified function of time. The heat flux is positive
-    when heat flows from the reactor on the left to the reactor on the right.
+cdef class WallBase:
     """
+    Common base class for walls.
+    """
+    wall_type = "None"
+    def __cinit__(self, *args, **kwargs):
+        self.wall = newWall(stringify(self.wall_type))
 
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, left, right, *, name=None, A=None, K=None, U=None,
@@ -540,6 +537,11 @@ cdef class Wall:
         self._left_reactor = left
         self._right_reactor = right
 
+    property type:
+        """The type of the wall."""
+        def __get__(self):
+            return pystr(self.wall.type())
+
     property left:
         """ The left surface of this wall. """
         def __get__(self):
@@ -550,64 +552,12 @@ cdef class Wall:
         def __get__(self):
             return self.right_surface
 
-    property expansion_rate_coeff:
-        """
-        The coefficient *K* [m/s/Pa] that determines the velocity of the wall
-        as a function of the pressure difference between the adjacent reactors.
-        """
-        def __get__(self):
-            return self.wall.getExpansionRateCoeff()
-        def __set__(self, double val):
-            self.wall.setExpansionRateCoeff(val)
-
     property area:
         """ The wall area [m^2]. """
         def __get__(self):
             return self.wall.area()
         def __set__(self, double value):
             self.wall.setArea(value)
-
-    property heat_transfer_coeff:
-        """the overall heat transfer coefficient [W/m^2/K]"""
-        def __get__(self):
-            return self.wall.getHeatTransferCoeff()
-        def __set__(self, double value):
-            self.wall.setHeatTransferCoeff(value)
-
-    property emissivity:
-        """The emissivity (nondimensional)"""
-        def __get__(self):
-            return self.wall.getEmissivity()
-        def __set__(self, double value):
-            self.wall.setEmissivity(value)
-
-    def set_velocity(self, v):
-        """
-        The wall velocity [m/s]. May be either a constant or an arbitrary
-        function of time. See `Func1`.
-        """
-        cdef Func1 f
-        if isinstance(v, Func1):
-            f = v
-        else:
-            f = Func1(v)
-
-        self._velocity_func = f
-        self.wall.setVelocity(f.func)
-
-    def set_heat_flux(self, q):
-        """
-        Heat flux [W/m^2] across the wall. May be either a constant or
-        an arbitrary function of time. See `Func1`.
-        """
-        cdef Func1 f
-        if isinstance(q, Func1):
-            f = q
-        else:
-            f = Func1(q)
-
-        self._heat_flux_func = f
-        self.wall.setHeatFlux(f.func)
 
     def vdot(self, double t):
         """
@@ -626,6 +576,88 @@ cdef class Wall:
         return self.wall.Q(t)
 
 
+cdef class Wall(WallBase):
+    r"""
+    A Wall separates two reactors, or a reactor and a reservoir. A wall has a
+    finite area, may conduct or radiate heat between the two reactors on either
+    side, and may move like a piston.
+
+    Walls are stateless objects in Cantera, meaning that no differential
+    equation is integrated to determine any wall property. Since it is the wall
+    (piston) velocity that enters the energy equation, this means that it is
+    the velocity, not the acceleration or displacement, that is specified.
+    The wall velocity is computed from
+
+    .. math:: v = K(P_{\rm left} - P_{\rm right}) + v_0(t),
+
+    where :math:`K` is a non-negative constant, and :math:`v_0(t)` is a
+    specified function of time. The velocity is positive if the wall is
+    moving to the right.
+
+    The heat flux through the wall is computed from
+
+    .. math::  q = U(T_{\rm left} - T_{\rm right}) + \epsilon\sigma (T_{\rm left}^4 - T_{\rm right}^4) + q_0(t),
+
+    where :math:`U` is the overall heat transfer coefficient for
+    conduction/convection, and :math:`\epsilon` is the emissivity. The function
+    :math:`q_0(t)` is a specified function of time. The heat flux is positive
+    when heat flows from the reactor on the left to the reactor on the right.
+    """
+    wall_type = "Wall"
+
+    property expansion_rate_coeff:
+        """
+        The coefficient *K* [m/s/Pa] that determines the velocity of the wall
+        as a function of the pressure difference between the adjacent reactors.
+        """
+        def __get__(self):
+            return (<CxxWall*>(self.wall)).getExpansionRateCoeff()
+        def __set__(self, double val):
+            (<CxxWall*>(self.wall)).setExpansionRateCoeff(val)
+
+    property heat_transfer_coeff:
+        """the overall heat transfer coefficient [W/m^2/K]"""
+        def __get__(self):
+            return (<CxxWall*>(self.wall)).getHeatTransferCoeff()
+        def __set__(self, double value):
+            (<CxxWall*>(self.wall)).setHeatTransferCoeff(value)
+
+    property emissivity:
+        """The emissivity (nondimensional)"""
+        def __get__(self):
+            return (<CxxWall*>(self.wall)).getEmissivity()
+        def __set__(self, double value):
+            (<CxxWall*>(self.wall)).setEmissivity(value)
+
+    def set_velocity(self, v):
+        """
+        The wall velocity [m/s]. May be either a constant or an arbitrary
+        function of time. See `Func1`.
+        """
+        cdef Func1 f
+        if isinstance(v, Func1):
+            f = v
+        else:
+            f = Func1(v)
+
+        self._velocity_func = f
+        (<CxxWall*>(self.wall)).setVelocity(f.func)
+
+    def set_heat_flux(self, q):
+        """
+        Heat flux [W/m^2] across the wall. May be either a constant or
+        an arbitrary function of time. See `Func1`.
+        """
+        cdef Func1 f
+        if isinstance(q, Func1):
+            f = q
+        else:
+            f = Func1(q)
+
+        self._heat_flux_func = f
+        (<CxxWall*>self.wall).setHeatFlux(f.func)
+
+
 cdef class FlowDevice:
     """
     Base class for devices that allow flow between reactors.
@@ -637,9 +669,9 @@ cdef class FlowDevice:
     across a FlowDevice, and the pressure difference equals the difference in
     pressure between the upstream and downstream reactors.
     """
+    flowdevice_type = "None"
     def __cinit__(self, *args, **kwargs):
-        # Children of this abstract class are responsible for allocating dev
-        self.dev = NULL
+        self.dev = newFlowDevice(stringify(self.flowdevice_type))
 
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None):
@@ -658,6 +690,11 @@ cdef class FlowDevice:
     def __dealloc__(self):
         del self.dev
 
+    property type:
+        """The type of the flow device."""
+        def __get__(self):
+            return pystr(self.dev.typeStr())
+
     def _install(self, ReactorBase upstream, ReactorBase downstream):
         """
         Install the device between the *upstream* (source) and *downstream*
@@ -670,11 +707,66 @@ cdef class FlowDevice:
         self._upstream = upstream
         self._downstream = downstream
 
-    def mdot(self, double t):
+    property mass_flow_rate:
+        def __get__(self):
+            """
+            The mass flow rate [kg/s] through this device at the current reactor
+            network time.
+            """
+            return self.dev.massFlowRate()
+
+    def mdot(self, double t=-999):
         """
         The mass flow rate [kg/s] through this device at time *t* [s].
+
+        .. deprecated:: 2.5
+
+             To be removed after Cantera 2.5. Replaced with the
+             `mass_flow_rate` property.
         """
+        warnings.warn("To be removed after Cantera 2.5. "
+                "Replaced by property 'mass_flow_rate'", DeprecationWarning)
+
         return self.dev.massFlowRate(t)
+
+    def set_pressure_function(self, k):
+        r"""
+        Set the relationship between mass flow rate and the pressure drop across a
+        flow device. The mass flow rate [kg/s] is calculated given the pressure
+        drop [Pa] and a coefficient set by a flow device specific function.
+        The calculation of mass flow rate depends to the flow device.
+
+        >>> F = FlowDevice(res1, reactor1)
+        >>> F.set_pressure_function(lambda dP: dP**2)
+
+        where FlowDevice is either a Valve or PressureController object.
+        """
+        cdef Func1 f
+        if isinstance(k, Func1):
+            f = k
+        else:
+            f = Func1(k)
+        self._rate_func = f
+        self.dev.setPressureFunction(f.func)
+
+    def set_time_function(self, k):
+        r"""
+        Set the time dependence of a flow device. The mass flow rate [kg/s] is
+        calculated for a flow device, and multiplied by a function of time.
+        The calculation of mass flow rate depends to the flow device.
+
+        >>> F = FlowDevice(res1, reactor1)
+        >>> F.set_time_function(lambda t: exp(-10 * (t - 0.5)**2))
+
+        where FlowDevice is either a Valve or MassFlowController object.
+        """
+        cdef Func1 g
+        if isinstance(k, Func1):
+            g = k
+        else:
+            g = Func1(k)
+        self._time_func = g
+        self.dev.setTimeFunction(g.func)
 
 
 cdef class MassFlowController(FlowDevice):
@@ -683,46 +775,85 @@ cdef class MassFlowController(FlowDevice):
     flow rate independent of upstream and downstream conditions. The equation
     used to compute the mass flow rate is
 
-    .. math::
+    .. math:: \dot m = \max(\dot m_0*g(t), 0.),
 
-        \dot m = \max(\dot m_0, 0.0),
-
-    where :math:`\dot m_0` is either a constant value or a function of time.
-    Note that if :math:`\dot m_0 < 0`, the mass flow rate will be set to zero,
-    since reversal of the flow direction is not allowed.
+    where :math:`\dot m_0` is a constant value and :math:`g(t)` is a function of
+    time. Both :math:`\dot m_0` and :math:`g(t)` can be set individually by
+    the property `mass_flow_coeff` and the method `set_time_function`,
+    respectively. The property `mass_flow_rate` combines the former
+    into a single interface. Note that if :math:`\dot m_0*g(t) < 0`, the mass flow
+    rate will be set to zero, since reversal of the flow direction is not allowed.
 
     Unlike a real mass flow controller, a MassFlowController object will
     maintain the flow even if the downstream pressure is greater than the
-    upstream pressure.  This allows simple implementation of loops, in which
+    upstream pressure. This allows simple implementation of loops, in which
     exhaust gas from a reactor is fed back into it through an inlet. But note
     that this capability should be used with caution, since no account is
     taken of the work required to do this.
     """
-    def __cinit__(self, *args, **kwargs):
-        self.dev = new CxxMassFlowController()
+    flowdevice_type = "MassFlowController"
 
     # The signature of this function causes warnings for Sphinx documentation
-    def __init__(self, upstream, downstream, *, name=None, mdot=None):
+    def __init__(self, upstream, downstream, *, name=None, mdot=1.):
         super().__init__(upstream, downstream, name=name)
-        if mdot is not None:
-            self.set_mass_flow_rate(mdot)
+        self.mass_flow_rate = mdot
+
+    property mass_flow_coeff:
+        r"""Set the mass flow rate [kg/s] through the mass flow controller
+        as a constant, which may be modified by a function of time, see
+        `set_time_function`.
+
+        >>> mfc = MassFlowController(res1, reactor1)
+        >>> mfc.mass_flow_coeff = 1e-4  # Set the flow rate to a constant
+        >>> mfc.mass_flow_coeff  # Get the flow rate value
+        """
+        def __get__(self):
+            return (<CxxMassFlowController*>self.dev).getMassFlowCoeff()
+        def __set__(self, double value):
+            (<CxxMassFlowController*>self.dev).setMassFlowCoeff(value)
+
+    property mass_flow_rate:
+        r"""
+        Set the mass flow rate [kg/s] through this controller to be either
+        a constant or an arbitrary function of time. See `Func1`, or get its
+        current value.
+
+        Note that depending on the argument type, this method either changes
+        the property `mass_flow_coeff` or calls the `set_time_function` method.
+
+        >>> mfc.mass_flow_rate = 0.3
+        >>> mfc.mass_flow_rate = lambda t: 2.5 * exp(-10 * (t - 0.5)**2)
+        """
+        def __get__(self):
+            return self.dev.massFlowRate()
+
+        def __set__(self, m):
+            if isinstance(m, _numbers.Real):
+                (<CxxMassFlowController*>self.dev).setMassFlowRate(m)
+            else:
+                self.mass_flow_coeff = 1.
+                self.set_time_function(m)
 
     def set_mass_flow_rate(self, m):
-        """
+        r"""
         Set the mass flow rate [kg/s] through this controller to be either
         a constant or an arbitrary function of time. See `Func1`.
 
+        Note that depending on the argument type, this method either changes
+        the property `mass_flow_coeff` or calls the `set_time_function` method.
+
         >>> mfc.set_mass_flow_rate(0.3)
         >>> mfc.set_mass_flow_rate(lambda t: 2.5 * exp(-10 * (t - 0.5)**2))
-        """
-        cdef Func1 f
-        if isinstance(m, Func1):
-            f = m
-        else:
-            f = Func1(m)
 
-        self._rate_func = f
-        self.dev.setFunction(f.func)
+        .. deprecated:: 2.5
+
+             To be deprecated with version 2.5, and removed thereafter.
+             Replaced by property `mass_flow_rate`.
+        """
+        warnings.warn("To be removed after Cantera 2.5. "
+                      "Replaced by property 'mass_flow_rate'", DeprecationWarning)
+
+        self.mass_flow_rate = m
 
 
 cdef class Valve(FlowDevice):
@@ -737,13 +868,18 @@ cdef class Valve(FlowDevice):
     :math:`\dot m = 0`. However, an arbitrary function can also be specified,
     such that
 
-    .. math:: \dot m = f(P_1 - P_2)
+    .. math:: \dot m = K_v*f(P_1 - P_2)
 
-    where :math:`f` is the arbitrary function that returns the mass flow rate given
-    a single argument, the pressure differential. See the documentation for the
-    `set_valve_coeff` method for an example. Note that it is never possible for
-    the flow to reverse and go from the downstream to the upstream
-    reactor/reservoir through a line containing a `Valve` object.
+    where :math:`f` is the arbitrary function that multiplies :math:`K_v` given
+    a single argument, the pressure differential. Further, a valve opening function
+    :math:`g` may be specified using the method `set_time_function`, such that
+
+    .. math:: \dot m = K_v*g(t)*f(P_1 - P_2)
+
+    See the documentation for the `valve_coeff` property as well as the
+    `set_pressure_function` and `set_time_function` methods for examples. Note that
+    it is never possible for the flow to reverse and go from the downstream to the
+    upstream reactor/reservoir through a line containing a `Valve` object.
 
     `Valve` objects are often used between an upstream reactor and a
     downstream reactor or reservoir to maintain them both at nearly the same
@@ -751,14 +887,47 @@ cdef class Valve(FlowDevice):
     value, very small pressure differences will result in flow between the
     reactors that counteracts the pressure difference.
     """
-    def __cinit__(self, *args, **kwargs):
-        self.dev = new CxxValve()
+    flowdevice_type = "Valve"
 
     # The signature of this function causes warnings for Sphinx documentation
-    def __init__(self, upstream, downstream, *, name=None, K=None):
+    def __init__(self, upstream, downstream, *, name=None, K=1.):
         super().__init__(upstream, downstream, name=name)
-        if K is not None:
-            self.set_valve_coeff(K)
+        if isinstance(K, _numbers.Real):
+            self.valve_coeff = K
+        else:
+            self.valve_coeff = 1.
+            self.set_pressure_function(K)
+
+    property valve_coeff:
+        r"""Set valve coefficient, i.e. the proportionality constant between mass
+        flow rate and pressure drop [kg/s/Pa].
+
+        >>> V = Valve(res1, reactor1)
+        >>> V.valve_coeff = 1e-4  # Set the value of K to a constant
+        >>> V.valve_coeff  # Get the value of K
+        """
+        def __get__(self):
+            return (<CxxValve*>self.dev).getValveCoeff()
+        def __set__(self, double value):
+            (<CxxValve*>self.dev).setValveCoeff(value)
+
+    def set_valve_function(self, k):
+        r"""
+        Set the relationship between mass flow rate and the pressure drop across the
+        valve. The mass flow rate [kg/s] is calculated given the pressure drop [Pa].
+
+        >>> V = Valve(res1, reactor1)
+        >>> V.set_valve_function(lambda dP: (1e-5 * dP)**2)
+
+        .. deprecated:: 2.5
+
+             To be deprecated with version 2.5, and removed thereafter.
+             Renamed to `set_pressure_function`.
+        """
+        warnings.warn("To be removed after Cantera 2.5. "
+                      "Renamed to 'set_pressure_function' instead", DeprecationWarning)
+
+        self.set_pressure_function(k)
 
     def set_valve_coeff(self, k):
         """
@@ -769,20 +938,23 @@ cdef class Valve(FlowDevice):
 
         >>> V = Valve(res1, reactor1)
         >>> V.set_valve_coeff(1e-4)  # Set the value of K to a constant
-        >>> V.set_valve_coeff(lambda dP: (1e-5 * dP)**2)  # Set the value of K to a function
-        """
-        cdef Func1 f
-        if isinstance(k, _numbers.Real):
-            kv = k
-            (<CxxValve*>self.dev).setPressureCoeff(k)
-            return
+        >>> V.set_valve_coeff(lambda dP: (1e-5 * dP)**2)  # Set to a function
 
-        if isinstance(k, Func1):
-            f = k
+        .. deprecated:: 2.5
+
+             To be deprecated with version 2.5, and removed thereafter.
+             Functionality is now handled by property `valve_coeff` and
+             `set_pressure_function`.
+        """
+        warnings.warn("To be removed after Cantera 2.5. "
+                      "Use property 'valve_coeff' and/or function "
+                      "'set_pressure_function' instead.", DeprecationWarning)
+
+        if isinstance(k, _numbers.Real):
+            self.valve_coeff = k
         else:
-            f = Func1(k)
-        self._rate_func = f
-        self.dev.setFunction(f.func)
+            self.valve_coeff = 1.
+            self.set_pressure_function(k)
 
 
 cdef class PressureController(FlowDevice):
@@ -790,29 +962,55 @@ cdef class PressureController(FlowDevice):
     A PressureController is designed to be used in conjunction with another
     'master' flow controller, typically a `MassFlowController`. The master
     flow controller is installed on the inlet of the reactor, and the
-    corresponding `PressureController` is installed on on outlet of the
+    corresponding `PressureController` is installed on the outlet of the
     reactor. The `PressureController` mass flow rate is equal to the master
     mass flow rate, plus a small correction dependent on the pressure
     difference:
 
     .. math:: \dot m = \dot m_{\rm master} + K_v(P_1 - P_2).
+
+    As an alternative, an arbitrary function of pressure differential can be
+    specified using the method `set_pressure_function`, such that
+
+    .. math:: \dot m = \dot m_{\rm master} + K_v*f(P_1 - P_2)
+
+    where :math:`f` is the arbitrary function of a single argument.
     """
-    def __cinit__(self, *args, **kwargs):
-        self.dev = new CxxPressureController()
+    flowdevice_type = "PressureController"
 
     # The signature of this function causes warnings for Sphinx documentation
-    def __init__(self, upstream, downstream, *, name=None, master=None, K=None):
+    def __init__(self, upstream, downstream, *, name=None, master=None, K=1.):
         super().__init__(upstream, downstream, name=name)
         if master is not None:
             self.set_master(master)
-        if K is not None:
-            self.set_pressure_coeff(K)
+        if isinstance(K, _numbers.Real):
+            self.pressure_coeff = K
+        else:
+            self.pressure_coeff = 1.
+            self.set_pressure_function(K)
+
+    property pressure_coeff:
+        """
+        Get/set the proportionality constant :math:`K_v` [kg/s/Pa] between the
+        pressure drop and the mass flow rate.
+        """
+        def __get__(self):
+            return (<CxxPressureController*>self.dev).getPressureCoeff()
+        def __set__(self, double value):
+            (<CxxPressureController*>self.dev).setPressureCoeff(value)
 
     def set_pressure_coeff(self, double k):
         """
         Set the proportionality constant :math:`K_v` [kg/s/Pa] between the pressure
         drop and the mass flow rate.
+
+        .. deprecated:: 2.5
+
+             To be deprecated with version 2.5, and removed thereafter.
+             Replaced by property `pressure_coeff`.
         """
+        warnings.warn("To be removed after Cantera 2.5. "
+                      "Use property 'pressure_coeff' instead", DeprecationWarning)
         (<CxxPressureController*>self.dev).setPressureCoeff(k)
 
     def set_master(self, FlowDevice d):
@@ -847,12 +1045,17 @@ cdef class ReactorNet:
         self._reactors.append(r)
         self.net.addReactor(deref(r.reactor))
 
-    def advance(self, double t):
+    def advance(self, double t, pybool apply_limit=True):
         """
-        Advance the state of the reactor network in time from the current
-        time to time *t* [s], taking as many integrator timesteps as necessary.
+        Advance the state of the reactor network in time from the current time
+        towards time *t* [s], taking as many integrator timesteps as necessary.
+        If *apply_limit* is true and an advance limit is specified, the reactor
+        state at the end of the timestep is estimated prior to advancing. If
+        the difference exceed limits, the end time is reduced by half until
+        the projected end state remains within specified limits.
+        Returns the time reached at the end of integration.
         """
-        self.net.advance(t)
+        return self.net.advance(t, apply_limit)
 
     def step(self):
         """
@@ -860,6 +1063,12 @@ cdef class ReactorNet:
         returned.
         """
         return self.net.step()
+
+    def initialize(self):
+        """
+        Force initialization of the integrator after initial setup.
+        """
+        self.net.initialize()
 
     def reinitialize(self):
         """
@@ -881,11 +1090,30 @@ cdef class ReactorNet:
         """
         self.net.setInitialTime(t)
 
+    property max_time_step:
+        """
+        Get/set the maximum time step *t* [s] that the integrator is
+        allowed to use. The default value is set to zero, i.e. no time
+        step maximum is used.
+        """
+        def __get__(self):
+            return self.net.maxTimeStep()
+
+        def __set__(self, double t):
+            self.net.setMaxTimeStep(t)
+
     def set_max_time_step(self, double t):
         """
         Set the maximum time step *t* [s] that the integrator is allowed
         to use.
+
+        .. deprecated:: 2.5
+
+             To be deprecated with version 2.5, and removed thereafter.
+             Replaced by property `max_time_step`.
         """
+        warnings.warn("To be removed after Cantera 2.5. "
+                      "Use property 'max_time_step' instead", DeprecationWarning)
         self.net.setMaxTimeStep(t)
 
     property max_err_test_fails:
@@ -895,6 +1123,16 @@ cdef class ReactorNet:
         """
         def __set__(self, n):
             self.net.setMaxErrTestFails(n)
+
+    property max_steps:
+        """
+        The maximum number of internal integration time-steps that CVODES
+        is allowed to take before reaching the next output time.
+        """
+        def __set__(self, nsteps):
+            self.net.setMaxSteps(nsteps)
+        def __get__(self):
+            return self.net.maxSteps()
 
     property rtol:
         """
@@ -944,6 +1182,17 @@ cdef class ReactorNet:
         def __set__(self, pybool v):
             self.net.setVerbose(v)
 
+    def global_component_index(self, name, int reactor):
+        """
+        Returns the index of a component named *name* of a reactor with index
+        *reactor* within the global state vector. I.e. this determines the
+        (absolute) index of the component, where *reactor* is the index of the
+        reactor that holds the component. *name* is either a species name or the
+        name of a reactor state variable, e.g. 'int_energy', 'temperature', etc.
+        depending on the reactor's equations.
+        """
+        return self.net.globalComponentIndex(stringify(name), reactor)
+
     def component_name(self, int i):
         """
         Return the name of the i-th component of the global state vector. The
@@ -964,7 +1213,7 @@ cdef class ReactorNet:
         """
         if isinstance(component, int):
             return self.net.sensitivity(component, p)
-        elif isinstance(component, (str, unicode, bytes)):
+        elif isinstance(component, (str, bytes)):
             return self.net.sensitivity(stringify(component), p, r)
 
     def sensitivities(self):
@@ -1048,6 +1297,38 @@ cdef class ReactorNet:
         cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
         self.net.getState(&y[0])
         return y
+
+    def get_derivative(self, k):
+        """
+        Get the k-th time derivative of the state vector of the reactor network.
+        """
+        if not self.n_vars:
+            raise CanteraError('ReactorNet empty or not initialized.')
+        cdef np.ndarray[np.double_t, ndim = 1] dky = np.zeros(self.n_vars)
+        self.net.getDerivative(k, & dky[0])
+        return dky
+
+    property advance_limits:
+        """
+        Get or set absolute limits for state changes during `ReactorNet.advance`
+        (positive values are considered; negative values disable a previously
+        set advance limit for a solution component). Note that limits are
+        disabled by default (with individual values set to -1.).
+        """
+        def __get__(self):
+            cdef np.ndarray[np.double_t, ndim=1] limits = np.empty(self.n_vars)
+            self.net.getAdvanceLimits(&limits[0])
+            return limits
+
+        def __set__(self, limits):
+            if limits is None:
+                limits = -1. * np.ones([self.n_vars])
+            elif len(limits) != self.n_vars:
+                raise ValueError('array must be of length n_vars')
+
+            cdef np.ndarray[np.double_t, ndim=1] data = \
+                np.ascontiguousarray(limits, dtype=np.double)
+            self.net.setAdvanceLimits(&data[0])
 
     def advance_to_steady_state(self, int max_steps=10000,
                                 double residual_threshold=0., double atol=0.,

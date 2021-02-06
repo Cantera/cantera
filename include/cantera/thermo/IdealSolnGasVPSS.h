@@ -8,7 +8,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_IDEALSOLNGASVPSS_H
 #define CT_IDEALSOLNGASVPSS_H
@@ -23,6 +23,9 @@ namespace Cantera
  *
  * An ideal solution or an ideal gas approximation of a phase. Uses variable
  * pressure standard state methods for calculating thermodynamic properties.
+ *
+ * @deprecated "Gas" mode to be removed after Cantera 2.5. Use IdealGasPhase for
+ *     ideal gas phases instead.
  */
 class IdealSolnGasVPSS : public VPStandardStateTP
 {
@@ -34,7 +37,7 @@ public:
 
     IdealSolnGasVPSS();
 
-    /// Create an object from an XML input file
+    /// Create an object from an input file
     IdealSolnGasVPSS(const std::string& infile, std::string id="");
 
     //@}
@@ -45,8 +48,28 @@ public:
         return "IdealSolnGas";
     }
 
+    //! String indicating the mechanical phase of the matter in this Phase.
+    /*!
+     * Options for the string are:
+     *   * `gas`
+     *   * `undefined`
+     *
+     * If `m_idealGas` is true, returns `gas`. Otherwise, returns `undefined`.
+     */
+    virtual std::string phaseOfMatter() const {
+        if (m_idealGas) {
+            return "gas";
+        } else {
+            return "undefined";
+        }
+    }
+
     //! Set this phase to represent an ideal gas
-    void setGasMode() { m_idealGas = true; }
+    void setGasMode() {
+        warn_deprecated("IdealSolnGasVPSS::setGasMode",
+            "To be removed after Cantera 2.5. Use class IdealGasPhase instead.");
+        m_idealGas = true;
+    }
 
     //! Set this phase to represent an ideal liquid or solid solution
     void setSolnMode() { m_idealGas = false; }
@@ -96,6 +119,7 @@ protected:
     //! @}
 
 public:
+    virtual Units standardConcentrationUnits() const;
     virtual void getActivityConcentrations(doublereal* c) const;
 
     //! Returns the standard concentration \f$ C^0_k \f$, which is used to

@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "MMCollisionInt.h"
 #include "cantera/base/utilities.h"
@@ -428,8 +428,9 @@ void MMCollisionInt::fit_omega22(int degree, doublereal deltastar,
     w[0]= -1.0;
     double rmserr = polyfit(n, degree, logT, values.data(), w.data(), o22);
     if (m_loglevel > 0 && rmserr > 0.01) {
-        writelogf("Warning: RMS error = %12.6g in omega_22 fit"
-                  "with delta* = %12.6g\n", rmserr, deltastar);
+        warn_user("MMCollisionInt::fit_omega22",
+            "RMS error = {:12.6g} in omega_22 fit "
+            "with delta* = {:12.6g}", rmserr, deltastar);
     }
 }
 
@@ -474,17 +475,20 @@ void MMCollisionInt::fit(int degree, doublereal deltastar,
 
         writelog("astar = [" + vec2str(vector_fp(a, a+degree+1))+ "]\n");
         if (rmserr > 0.01) {
-            writelogf("Warning: RMS error = %12.6g for A* fit\n", rmserr);
+            warn_user("MMCollisionInt::fit",
+                "RMS error = {:12.6g} for A* fit", rmserr);
         }
 
         writelog("bstar = [" + vec2str(vector_fp(b, b+degree+1))+ "]\n");
         if (rmserr > 0.01) {
-            writelogf("Warning: RMS error = %12.6g for B* fit\n", rmserr);
+            warn_user("MMCollisionInt::fit",
+                "RMS error = {:12.6g} for B* fit", rmserr);
         }
 
         writelog("cstar = [" + vec2str(vector_fp(c, c+degree+1))+ "]\n");
         if (rmserr > 0.01) {
-            writelogf("Warning: RMS error = %12.6g for C* fit\n", rmserr);
+            warn_user("MMCollisionInt::fit",
+                "RMS error = {:12.6g} for C* fit", rmserr);
         }
     }
 }

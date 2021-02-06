@@ -28,6 +28,11 @@
 """
 This module contains functions for converting Chemkin-format input files to
 Cantera input files (CTI).
+
+.. deprecated:: 2.5
+
+    The CTI input file format is deprecated and will be removed in Cantera 3.0.
+    Use `ck2yaml.py` to convert Chemkin-format input files to the YAML format.
 """
 
 from __future__ import print_function
@@ -64,6 +69,8 @@ ENERGY_UNITS = {'CAL/': 'cal/mol',
                 'KJOU': 'kJ/mol',
                 'KJOULES/MOL': 'kJ/mol',
                 'KJOULES/MOLE': 'kJ/mol'}
+
+Avogadro = 6.02214129e23  # in molec/mol; value consistent with ct_defs.h.
 
 _open = open
 if sys.version_info[0] == 2:
@@ -580,7 +587,7 @@ class Chebyshev(KineticsModel):
 
     """
 
-    def __init__(self, coeffs=None, kunits='', **kwargs):
+    def __init__(self, coeffs=None, **kwargs):
         KineticsModel.__init__(self, **kwargs)
         if coeffs is not None:
             self.coeffs = np.array(coeffs, np.float64)
@@ -590,7 +597,6 @@ class Chebyshev(KineticsModel):
             self.coeffs = None
             self.degreeT = 0
             self.degreeP = 0
-        self.kunits = kunits
 
     def isPressureDependent(self):
         """
@@ -662,6 +668,12 @@ class ThirdBody(KineticsModel):
 
         lines[-1] = lines[-1][:-1] + ')'
         return '\n'.join(lines)
+
+    def options(self):
+        if self.arrheniusHigh.A[0] < 0:
+            return ['negative_A']
+        else:
+            return []
 
 
 class Falloff(ThirdBody):
@@ -1316,23 +1328,31 @@ class Parser(object):
 
         # Note that the subsequent lines could be in any order
         for line in lines[1:]:
+            if not line.strip():
+                continue  # blank line, or (erased) units field
             tokens = line.split('/')
+            parsed = False
 
             if 'stick' in line.lower():
+                parsed = True
                 arrhenius.is_sticking = True
 
             if 'mwon' in line.lower():
+                parsed = True
                 arrhenius.motz_wise = True
 
             if 'mwoff' in line.lower():
+                parsed = True
                 arrhenius.motz_wise = False
 
             if 'dup' in line.lower():
                 # Duplicate reaction
+                parsed = True
                 reaction.duplicate = True
 
             if 'low' in line.lower():
                 # Low-pressure-limit Arrhenius parameters for "falloff" reaction
+                parsed = True
                 tokens = tokens[1].split()
                 arrheniusLow = Arrhenius(
                     A=(float(tokens[0].strip()), klow_units),
@@ -1345,6 +1365,7 @@ class Parser(object):
             elif 'high' in line.lower():
                 # High-pressure-limit Arrhenius parameters for "chemically
                 # activated" reaction
+                parsed = True
                 tokens = tokens[1].split()
                 arrheniusHigh = Arrhenius(
                     A=(float(tokens[0].strip()), kunits),
@@ -1357,6 +1378,7 @@ class Parser(object):
                 arrhenius.A = (arrhenius.A[0], klow_units)
 
             elif 'rev' in line.lower():
+                parsed = True
                 reaction.reversible = False
 
                 tokens = tokens[1].split()
@@ -1369,7 +1391,7 @@ class Parser(object):
                                            reversible=False,
                                            parser=self)
 
-                    revReaction.kinetics = Arrhenius(
+                    revReaction.kinetics = reaction_type(
                         A=(float(tokens[0].strip()), klow_units),
                         b=float(tokens[1].strip()),
                         Ea=(float(tokens[2].strip()), energy_units),
@@ -1382,11 +1404,13 @@ class Parser(object):
                             parser=self)
 
             elif 'ford' in line.lower():
+                parsed = True
                 tokens = tokens[1].split()
                 reaction.fwdOrders[tokens[0].strip()] = tokens[1].strip()
 
             elif 'troe' in line.lower():
                 # Troe falloff parameters
+                parsed = True
                 tokens = tokens[1].split()
                 alpha = float(tokens[0].strip())
                 T3 = float(tokens[1].strip())
@@ -1401,6 +1425,7 @@ class Parser(object):
                 )
             elif 'sri' in line.lower():
                 # SRI falloff parameters
+                parsed = True
                 tokens = tokens[1].split()
                 A = float(tokens[0].strip())
                 B = float(tokens[1].strip())
@@ -1418,12 +1443,14 @@ class Parser(object):
                     falloff = Sri(A=A, B=B, C=C, D=D, E=E)
 
             elif 'cov' in line.lower():
+                parsed = True
                 C = tokens[1].split()
                 arrhenius.coverages.append(
                     [C[0], fortFloat(C[1]), fortFloat(C[2]), fortFloat(C[3])])
 
             elif 'cheb' in line.lower():
                 # Chebyshev parameters
+                parsed = True
                 if chebyshev is None:
                     chebyshev = Chebyshev()
                 tokens = [t.strip() for t in tokens]
@@ -1451,6 +1478,7 @@ class Parser(object):
 
             elif 'plog' in line.lower():
                 # Pressure-dependent Arrhenius parameters
+                parsed = True
                 if pdepArrhenius is None:
                     pdepArrhenius = []
                 tokens = tokens[1].split()
@@ -1461,10 +1489,15 @@ class Parser(object):
                     T0=(1,"K"),
                     parser=self
                 )])
-            else:
+            elif len(tokens) >= 2:
                 # Assume a list of collider efficiencies
+                parsed = True
                 for collider, efficiency in zip(tokens[0::2], tokens[1::2]):
                     efficiencies[collider.strip()] = float(efficiency.strip())
+
+            if not parsed:
+                raise InputParseError('Unparsable line:\n"""\n{0}\n"""'.format(line))
+
 
         # Decide which kinetics to keep and store them on the reaction object
         # Only one of these should be true at a time!
@@ -1478,6 +1511,11 @@ class Parser(object):
                 for p in range(chebyshev.degreeP):
                     chebyshev.coeffs[t,p] = chebyshevCoeffs[index]
                     index += 1
+            if quantity_units == 'mol' and self.quantity_units == 'molec':
+                chebyshev.coeffs[0, 0] -= np.log10(Avogadro)*quantity_dim
+            elif quantity_units == 'molec' and self.quantity_units == 'mol':
+                chebyshev.coeffs[0, 0] += np.log10(Avogadro)*quantity_dim
+
             reaction.kinetics = chebyshev
         elif pdepArrhenius is not None:
             reaction.kinetics = PDepArrhenius(
@@ -1545,7 +1583,7 @@ class Parser(object):
                 if tokens[0].upper().startswith('ELEM'):
                     inHeader = False
                     tokens = tokens[1:]
-                    while line is not None and not contains(line, 'END'):
+                    while line is not None and get_index(line, 'END') is None:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('SPEC', 'SPECIES'):
@@ -1569,7 +1607,7 @@ class Parser(object):
                     # List of species identifiers
                     tokens = tokens[1:]
                     inHeader = False
-                    while line is not None and not contains(line, 'END'):
+                    while line is not None and get_index(line, 'END') is None:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('REAC', 'REACTIONS', 'TRAN',
@@ -1619,7 +1657,7 @@ class Parser(object):
                     surf = self.surfaces[-1]
 
                     inHeader = False
-                    while line is not None and not contains(line, 'END'):
+                    while line is not None and get_index(line, 'END') is None:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('REAC', 'REACTIONS', 'THER',
@@ -1657,10 +1695,9 @@ class Parser(object):
 
                 elif tokens[0].upper().startswith('THER') and contains(line, 'NASA9'):
                     inHeader = False
-                    entryPosition = 0
                     entryLength = None
                     entry = []
-                    while line is not None and not get_index(line, 'END') == 0:
+                    while line is not None and get_index(line, 'END') != 0:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('REAC', 'REACTIONS', 'TRAN', 'TRANSPORT'):
@@ -1685,20 +1722,16 @@ class Parser(object):
                             except (IndexError, ValueError):
                                 pass
 
-                        if entryPosition == 0:
-                            entry.append(line)
-                        elif entryPosition == 1:
+                        entry.append(line)
+                        if len(entry) == 2:
                             entryLength = 2 + 3 * int(line.split()[0])
-                            entry.append(line)
-                        elif entryPosition < entryLength:
-                            entry.append(line)
 
-                        if entryPosition == entryLength-1:
+                        if len(entry) == entryLength:
                             label, thermo, comp, note = self.readNasa9Entry(entry)
+                            entry = []
                             if label not in self.speciesDict:
                                 if skipUndeclaredSpecies:
                                     logging.info('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
-                                    thermo = []
                                     continue
                                 else:
                                     # Add a new species entry
@@ -1717,20 +1750,15 @@ class Parser(object):
                                 species.composition = comp
                                 species.note = note
 
-                            entryPosition = -1
-                            entry = []
-
-                        entryPosition += 1
-
                 elif tokens[0].upper().startswith('THER'):
                     # List of thermodynamics (hopefully one per species!)
                     inHeader = False
                     line, comment = readline()
-                    if line is not None and not contains(line, 'END'):
+                    if line is not None and get_index(line, 'END') is None:
                         TintDefault = float(line.split()[1])
                     thermo = []
                     current = []
-                    while line is not None and not contains(line, 'END'):
+                    while line is not None and get_index(line, 'END') != 0:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('REAC', 'REACTIONS', 'TRAN', 'TRANSPORT'):
@@ -1822,7 +1850,7 @@ class Parser(object):
                         reactions = self.surfaces[-1].reactions
                     else:
                         reactions = self.reactions
-                    while line is not None and not contains(line, 'END'):
+                    while line is not None and get_index(line, 'END') is None:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('TRAN', 'TRANSPORT'):
@@ -1832,7 +1860,7 @@ class Parser(object):
                             break
 
                         lineStartsWithComment = not line and comment
-                        line = line.strip()
+                        line = line.rstrip()
                         comment = comment.rstrip()
 
                         if '=' in line and not lineStartsWithComment:
@@ -1843,7 +1871,7 @@ class Parser(object):
                             kinetics = ''
                             comments = ''
 
-                        if line:
+                        if line.strip():
                             kinetics += line + '\n'
                         if comment:
                             comments += comment + '\n'
@@ -1869,7 +1897,9 @@ class Parser(object):
                             reaction, revReaction = self.readKineticsEntry(kinetics, surface)
                         except Exception as e:
                             self.line_number = line_number
-                            logging.info('Error reading reaction entry starting on line {0}:'.format(line_number))
+                            logging.info('Error reading reaction starting on '
+                                'line {0}:\n"""\n{1}\n"""'.format(
+                                    line_number, kinetics.rstrip()))
                             raise
                         reaction.line_number = line_number
                         reaction.comment = comment
@@ -1882,7 +1912,7 @@ class Parser(object):
                     inHeader = False
                     line, comment = readline()
                     transport_start_line = self.line_number
-                    while line is not None and not contains(line, 'END'):
+                    while line is not None and get_index(line, 'END') is None:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('REAC', 'REACTIONS'):
@@ -1897,6 +1927,9 @@ class Parser(object):
                         else:
                             transportLines.append(line)
                         line, comment = readline()
+                elif line.strip():
+                    raise InputParseError('Section starts with unrecognized keyword.'
+                        '\n"""\n{0}\n"""'.format(line.rstrip()))
 
                 if advance:
                     line, comment = readline()
@@ -1951,6 +1984,7 @@ class Parser(object):
         """
 
         for i,line in enumerate(lines):
+            original_line = line
             line = line.strip()
             if not line or line.startswith('!'):
                 continue
@@ -1964,17 +1998,13 @@ class Parser(object):
 
             data = line.split()
 
-            if len(data) < 7:
-                raise InputParseError('Unable to parse transport data: not'
-                    ' enough parameters on line {0} of "{1}".'.format(
-                        line_offset + i, filename))
-            if len(data) > 7:
-                raise InputParseError('Extra parameters found in transport entry'
-                    ' for species "{0}" on line {1} of "{2}"'.format(
-                        data[0], line_offset + i, filename))
-
             speciesName = data[0]
             if speciesName in self.speciesDict:
+                if len(data) != 7:
+                    raise InputParseError('Unable to parse line {0} of {1}:\n"""\n{2}"""\n'
+                        '6 transport parameters expected, but found {3}.'.format(
+                            line_offset + i, filename, original_line, len(data)-1))
+
                 if self.speciesDict[speciesName].transport is None:
                     self.speciesDict[speciesName].transport = TransportData(*data, comment=comment)
                 else:
@@ -1984,16 +2014,15 @@ class Parser(object):
 
     def getSpeciesString(self, speciesList, indent):
         speciesNameLength = 1
-        elementsFromSpecies = set()
+        allElements = set(self.elements)
         for s in speciesList:
             if s.composition is None:
                 raise InputParseError('No thermo data found for species: {0!r}'.format(s.label))
-            elementsFromSpecies.update(s.composition)
+            missingElements = set(s.composition) - allElements
+            if missingElements:
+                raise InputParseError("Undefined elements in species '{}':"
+                    " {}".format(s.label, ','.join(repr(e) for e in missingElements)))
             speciesNameLength = max(speciesNameLength, len(s.label))
-
-        missingElements = elementsFromSpecies - set(self.elements)
-        if missingElements:
-            raise InputParseError('Undefined elements: ' + str(missingElements))
 
         speciesNames = ['']
         speciesPerLine = max(int((80-indent)/(speciesNameLength + 2)), 1)
@@ -2198,9 +2227,9 @@ duplicate transport data) to be ignored.
             try:
                 # Read input mechanism files
                 parser.loadChemkinFile(inputFile)
-            except Exception:
-                logging.warning("\nERROR: Unable to parse '{0}' near line {1}:\n".format(
-                                inputFile, parser.line_number))
+            except Exception as err:
+                logging.warning("\nERROR: Unable to parse '{0}' near line {1}:\n{2}\n".format(
+                                inputFile, parser.line_number, err))
                 raise
         else:
             phaseName = None
@@ -2211,9 +2240,9 @@ duplicate transport data) to be ignored.
             try:
                 # Read input mechanism files
                 parser.loadChemkinFile(surfaceFile, surface=True)
-            except Exception:
-                logging.warning("\nERROR: Unable to parse '{0}' near line {1}:\n".format(
-                                surfaceFile, parser.line_number))
+            except Exception as err:
+                logging.warning("\nERROR: Unable to parse '{0}' near line {1}:\n{2}\n".format(
+                                surfaceFile, parser.line_number, err))
                 raise
 
         if thermoFile:

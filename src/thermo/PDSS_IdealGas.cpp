@@ -5,7 +5,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/PDSS_IdealGas.h"
@@ -40,7 +40,7 @@ doublereal PDSS_IdealGas::cv_mole() const
 
 doublereal PDSS_IdealGas::pressure() const
 {
-    throw CanteraError("PDSS_IdealGas::pressure()", "unimplemented");
+    throw NotImplementedError("PDSS_IdealGas::pressure");
 }
 
 void PDSS_IdealGas::setPressure(doublereal p)

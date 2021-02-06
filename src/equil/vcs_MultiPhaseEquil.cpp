@@ -4,7 +4,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
 #include "cantera/equil/vcs_VolPhase.h"
@@ -225,7 +225,7 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
                 Tnew = 0.5*Tnow;
             }
             m_mix->setTemperature(Tnew);
-        } catch (CanteraError err) {
+        } catch (const CanteraError&) {
             if (!estimateEquil) {
                 strt = -1;
             } else {
@@ -237,7 +237,7 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
             }
         }
     }
-    throw CanteraError("MultiPhase::equilibrate_HP",
+    throw CanteraError("vcs_MultiPhaseEquil::equilibrate_HP",
                        "No convergence for T");
 }
 
@@ -351,7 +351,7 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
                 Tnew = 0.5*Tnow;
             }
             m_mix->setTemperature(Tnew);
-        } catch (CanteraError err) {
+        } catch (const CanteraError&) {
             if (!estimateEquil) {
                 strt = -1;
             } else {
@@ -363,7 +363,7 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
             }
         }
     }
-    throw CanteraError("MultiPhase::equilibrate_SP",
+    throw CanteraError("vcs_MultiPhaseEquil::equilibrate_SP",
                        "No convergence for T");
 }
 
@@ -407,7 +407,7 @@ int vcs_MultiPhaseEquil::equilibrate(int XY, int estimateEquil,
         return equilibrate_TV(XY, xtarget, estimateEquil,
                                   printLvl, err, maxsteps, loglevel);
     } else {
-        throw CanteraError(" vcs_MultiPhaseEquil::equilibrate",
+        throw CanteraError("vcs_MultiPhaseEquil::equilibrate",
                            "Unsupported Option");
     }
 }
@@ -425,11 +425,11 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
     // Check obvious bounds on the temperature and pressure NOTE, we may want to
     // do more here with the real bounds given by the ThermoPhase objects.
     if (m_mix->temperature() <= 0.0) {
-        throw CanteraError("vcs_MultiPhaseEquil::equilibrate",
+        throw CanteraError("vcs_MultiPhaseEquil::equilibrate_TP",
                            "Temperature less than zero on input");
     }
     if (m_mix->pressure() <= 0.0) {
-        throw CanteraError("vcs_MultiPhaseEquil::equilibrate",
+        throw CanteraError("vcs_MultiPhaseEquil::equilibrate_TP",
                            "Pressure less than zero on input");
     }
 

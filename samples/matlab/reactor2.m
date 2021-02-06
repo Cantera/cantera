@@ -11,10 +11,8 @@ help reactor2
 if nargin == 1
    gas = g;
 else
-   gas = GRI30;
+   gas = GRI30('None');
 end
-
-nsp = nSpecies(gas);
 
 % set the initial conditions
 set(gas,'T',1001.0,'P',oneatm,'X','H2:2,O2:1,N2:4');
@@ -25,6 +23,10 @@ r = IdealGasReactor(gas);
 % create a reactor network and insert the reactor
 network = ReactorNet({r});
 
+nSteps = 100;
+tim(nSteps) = 0;
+temp(nSteps) = 0;
+x(nSteps,3) = 0;
 t = 0;
 dt = 1.0e-5;
 t0 = cputime;

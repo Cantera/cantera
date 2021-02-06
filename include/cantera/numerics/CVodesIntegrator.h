@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_CVODESWRAPPER_H
 #define CT_CVODESWRAPPER_H
@@ -41,6 +41,8 @@ public:
     virtual doublereal step(double tout);
     virtual double& solution(size_t k);
     virtual double* solution();
+    virtual double* derivative(double tout, int n);
+    virtual int lastOrder() const;
     virtual int nEquations() const {
         return static_cast<int>(m_neq);
     }
@@ -49,10 +51,10 @@ public:
         m_maxord = n;
     }
     virtual void setMethod(MethodType t);
-    virtual void setIterator(IterType t);
     virtual void setMaxStepSize(double hmax);
     virtual void setMinStepSize(double hmin);
     virtual void setMaxSteps(int nmax);
+    virtual int maxSteps();
     virtual void setMaxErrTestFails(int n);
     virtual void setBandwidth(int N_Upper, int N_Lower) {
         m_mupper = N_Upper;
@@ -88,10 +90,10 @@ private:
     double m_t0;
     double m_time; //!< The current integrator time
     N_Vector m_y, m_abstol;
+    N_Vector m_dky;
     int m_type;
     int m_itol;
     int m_method;
-    int m_iter;
     int m_maxord;
     double m_reltol;
     double m_abstols;

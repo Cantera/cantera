@@ -1,8 +1,6 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FLAME1 - An axisymmetric stagnation-point non-premixed flame
 %
-%  An axisymmetric stagnation-point non-premixed flame
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    This script simulates a stagnation-point ethane-air flame.
 
 t0 = cputime;  % record the starting time
 
@@ -12,10 +10,9 @@ tin        =   300.0;               % inlet temperature
 mdot_o     =   0.72;                % air, kg/m^2/s
 mdot_f     =   0.24;                % fuel, kg/m^2/s
 
-rxnmech    =  'gri30.xml';          % reaction mechanism file
-transport  =  'Mix';                % transport model
-comp1       =  'O2:0.21, N2:0.78, AR:0.01';  % air composition
-comp2       =  'C2H6:1';            % fuel composition
+rxnmech    =  'gri30.yaml';          % reaction mechanism file
+comp1      =  'O2:0.21, N2:0.78, AR:0.01';  % air composition
+comp2      =  'C2H6:1';            % fuel composition
 
 initial_grid = 0.02*[0.0 0.2 0.4 0.6 0.8 1.0];  % m
 
@@ -34,7 +31,7 @@ refine_grid = 1;                    % 1 to enable refinement, 0 to
 % This object will be used to evaluate all thermodynamic, kinetic,
 % and transport properties
 %
-gas = GRI30('Mix'); %IdealGasMix(rxnmech, transport);
+gas = Solution(rxnmech,'gri30','Mix');
 
 % set its state to that of the  fuel (arbitrary)
 set(gas,'T', tin, 'P', p, 'X', comp2);

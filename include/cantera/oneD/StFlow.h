@@ -1,7 +1,7 @@
 //! @file StFlow.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_STFLOW_H
 #define CT_STFLOW_H
@@ -45,7 +45,12 @@ public:
     //!     to evaluate all thermodynamic, kinetic, and transport properties.
     //! @param nsp Number of species.
     //! @param points Initial number of grid points
-    StFlow(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1);
+    StFlow(ThermoPhase* ph = 0, size_t nsp = 1, size_t points = 1);
+
+    //! Delegating constructor
+    StFlow(shared_ptr<ThermoPhase> th, size_t nsp = 1, size_t points = 1) :
+        StFlow(th.get(), nsp, points) {
+    }
 
     //! @name Problem Specification
     //! @{
@@ -141,6 +146,9 @@ public:
      *  @param sol  Current value of the solution vector. The object will pick
      *              out which part of the solution vector pertains to this
      *              object.
+     *
+     * @deprecated The XML output format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual XML_Node& save(XML_Node& o, const doublereal* const sol);
 
@@ -193,13 +201,24 @@ public:
         return m_do_radiation;
     }
 
+    //! Return radiative heat loss at grid point j
+    double radiativeHeatLoss(size_t j) const {
+        return m_qdotRadiation[j];
+    }
+
     //! Set the emissivities for the boundary values
     /*!
      * Reads the emissivities for the left and right boundary values in the
      * radiative term and writes them into the variables, which are used for the
      * calculation.
      */
-    void setBoundaryEmissivities(doublereal e_left, doublereal e_right);
+    void setBoundaryEmissivities(double e_left, double e_right);
+
+    //! Return emissivitiy at left boundary
+    double leftEmissivity() const { return m_epsilon_left; }
+
+    //! Return emissivitiy at right boundary
+    double rightEmissivity() const { return m_epsilon_right; }
 
     void fixTemperature(size_t j=npos);
 
@@ -210,7 +229,14 @@ public:
     //! Change the grid size. Called after grid refinement.
     virtual void resize(size_t components, size_t points);
 
-    virtual void setFixedPoint(int j0, doublereal t0) {}
+    /*!
+     * @deprecated To be removed after Cantera 2.5.
+     */
+    virtual void setFixedPoint(int j0, doublereal t0) {
+        // this does nothing and does not appear to be overloaded
+        warn_deprecated("StFlow::setFixedPoint",
+                        "To be removed after Cantera 2.5.");
+    }
 
     //! Set the gas object state to be consistent with the solution at point j.
     void setGas(const doublereal* x, size_t j);
@@ -464,46 +490,6 @@ public:
 
 private:
     vector_fp m_ybar;
-};
-
-/**
- * A class for axisymmetric stagnation flows.
- *
- * @deprecated To be removed after Cantera 2.4. Use class StFlow with the
- *     StFlow::setAxisymmetricFlow() method instead.
- *
- * @ingroup onedim
- */
-class AxiStagnFlow : public StFlow
-{
-public:
-    AxiStagnFlow(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1) :
-        StFlow(ph, nsp, points) {
-        m_dovisc = true;
-        m_type = cAxisymmetricStagnationFlow;
-        warn_deprecated("Class AxiStagnFlow is deprecated",
-     "Use StFlow with setAxisymmetricFlow() instead. To be removed after Cantera 2.4.");
-    }
-};
-
-/**
- * A class for freely-propagating premixed flames.
- *
- * @deprecated To be removed after Cantera 2.4. Use class StFlow with the
- *     StFlow::setFreeFlow() method instead.
- *
- * @ingroup onedim
- */
-class FreeFlame : public StFlow
-{
-public:
-    FreeFlame(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1) :
-        StFlow(ph, nsp, points) {
-        m_dovisc = false;
-        m_type = cFreeFlow;
-        warn_deprecated("Class FreeFlame is deprecated",
-     "Use StFlow with setFreeFlow() instead. To be removed after Cantera 2.4.");
-    }
 };
 
 }

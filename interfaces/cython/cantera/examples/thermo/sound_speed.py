@@ -1,12 +1,14 @@
 """
 Compute the "equilibrium" and "frozen" sound speeds for a gas
+
+Requires: cantera >= 2.5.0
 """
 
 import cantera as ct
 import math
 
 
-def equilSoundSpeeds(gas, rtol=1.0e-6, maxiter=5000):
+def equilSoundSpeeds(gas, rtol=1.0e-6, max_iter=5000):
     """
     Returns a tuple containing the equilibrium and frozen sound speeds for a
     gas with an equilibrium composition.  The gas is first set to an
@@ -15,7 +17,7 @@ def equilSoundSpeeds(gas, rtol=1.0e-6, maxiter=5000):
     """
 
     # set the gas to equilibrium at its current T and P
-    gas.equilibrate('TP', rtol=rtol, maxiter=maxiter)
+    gas.equilibrate('TP', rtol=rtol, max_iter=max_iter)
 
     # save properties
     s0 = gas.s
@@ -33,7 +35,7 @@ def equilSoundSpeeds(gas, rtol=1.0e-6, maxiter=5000):
     afrozen = math.sqrt((p1 - p0)/(gas.density - r0))
 
     # now equilibrate the gas holding S and P constant
-    gas.equilibrate('SP', rtol=rtol, maxiter=maxiter)
+    gas.equilibrate('SP', rtol=rtol, max_iter=max_iter)
 
     # equilibrium sound speed
     aequil = math.sqrt((p1 - p0)/(gas.density - r0))
@@ -48,7 +50,7 @@ def equilSoundSpeeds(gas, rtol=1.0e-6, maxiter=5000):
 
 # test program
 if __name__ == "__main__":
-    gas = ct.Solution('gri30.xml')
+    gas = ct.Solution('gri30.yaml')
     gas.X = 'CH4:1.00, O2:2.0, N2:7.52'
     for n in range(27):
         T = 300.0 + 100.0 * n

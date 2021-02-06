@@ -10,7 +10,7 @@
 %
 help tut5
 
-g = GRI30;
+g = GRI30('None');
 set(g,'T',1500,'P',oneatm,'X',ones(nSpecies(g),1));
 
 % Methods are provided that compute many quantities of interest for
@@ -88,7 +88,7 @@ eqs   = reactionEqn(g)               % all equations
 
 kc = equil_Kc(g);
 for i = 1:nReactions(g)
-   disp(sprintf('%50s  %13.5g', eqs{i}, kc(i)))
+   fprintf('%50s  %13.5g', eqs{i}, kc(i))
 end
 
 % 6) Multipliers

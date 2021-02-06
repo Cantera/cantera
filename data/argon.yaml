@@ -1,0 +1,41 @@
+description: >-
+  Pure argon phase. Thermo and transport properties are taken
+  from GRI-Mech 3.0.
+
+generator: cti2yaml
+cantera-version: 2.5.0a3
+date: Wed, 11 Dec 2019 16:59:05 -0500
+input-files: [argon.cti]
+
+units: {length: cm, quantity: mol, activation-energy: cal/mol}
+deprecated: >-
+  The file 'argon.yaml' is deprecated and will be removed after Cantera 2.5.
+  A nearly equivalent phase can be obtained from 'air.yaml'.
+
+phases:
+- name: argon
+  thermo: ideal-gas
+  elements: [Ar]
+  species: [AR]
+  transport: mixture-averaged
+  state:
+    T: 300.0
+    P: 1.01325e+05
+  kinetics: gas
+  reactions: none
+
+species:
+- name: AR
+  composition: {Ar: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [2.5, 0.0, 0.0, 0.0, 0.0, -745.375, 4.366]
+    - [2.5, 0.0, 0.0, 0.0, 0.0, -745.375, 4.366]
+  transport:
+    model: gas
+    geometry: atom
+    diameter: 3.33
+    well-depth: 136.5
+  note: '120186'

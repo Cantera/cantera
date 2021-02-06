@@ -1,0 +1,42 @@
+description: |-
+  This file contains data for graphite from the NASA thermodynamic database,
+  which is available for download from
+  https://shepherd.caltech.edu/EDL/PublicResources/sdt/thermo.html. The
+  original sources are
+
+  S. Gordon and B.J. McBride, "Computer Program for Calculation of Complex
+  Chemical Equilibrium Composition, Rocket Performance, Incident and
+  Reflected Shocks and Chapman-Jouguet Detonations", NASA Report SP-273, 1971.
+
+  B.J. McBride, S. Gordon, and M.A. Reno, "Coefficients for Calculating
+  Thermodynamic and Transport Properties of Individual Species", NASA
+  Report TM-4513, October 1993.
+
+generator: cti2yaml
+cantera-version: 2.5.0a3
+date: Wed, 11 Dec 2019 16:59:05 -0500
+input-files: [graphite.cti]
+
+phases:
+- name: graphite
+  thermo: fixed-stoichiometry
+  elements: [C]
+  species: [C(gr)]
+  state:
+    T: 300.0
+    P: 1.01325e+05
+
+species:
+- name: C(gr)
+  composition: {C: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 5000.0]
+    data:
+    - [-0.310872072, 4.40353686e-03, 1.90394118e-06, -6.38546966e-09, 2.98964248e-12,
+      -108.650794, 1.11382953]
+    - [1.45571829, 1.71702216e-03, -6.97562786e-07, 1.35277032e-10, -9.67590652e-15,
+      -695.138814, -8.52583033]
+  equation-of-state:
+    model: constant-volume
+    density: 2.16 g/cm^3

@@ -1,7 +1,7 @@
 //! @file IonFlow.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_IONFLOW_H
 #define CT_IONFLOW_H
@@ -82,7 +82,7 @@ protected:
     bool m_import_electron_transport;
 
     //! electrical properties
-    vector_int m_speciesCharge;
+    vector_fp m_speciesCharge;
 
     //! index of species with charges
     std::vector<size_t> m_kCharge;
@@ -98,7 +98,7 @@ protected:
     vector_fp m_mobility;
 
     //! solving stage
-    int m_stage;
+    size_t m_stage;
 
     //! index of electron
     size_t m_kElectron;

@@ -1,5 +1,5 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/logger.h"
 #include "cantera/thermo/ThermoPhase.h"
@@ -73,6 +73,7 @@ THERMO_1D(getConcentrations)
 THERMO_1D(setConcentrations)
 
 THERMO_1D(getMolecularWeights)
+THERMO_1D(getCharges)
 THERMO_1D(getChemPotentials)
 THERMO_1D(getElectrochemPotentials)
 THERMO_1D(getPartialMolarEnthalpies)
@@ -112,6 +113,7 @@ TRANSPORT_1D(getMixDiffCoeffsMass)
 TRANSPORT_1D(getMixDiffCoeffsMole)
 TRANSPORT_1D(getThermalDiffCoeffs)
 TRANSPORT_1D(getSpeciesViscosities)
+TRANSPORT_1D(getMobilities)
 
 TRANSPORT_2D(getMultiDiffCoeffs)
 TRANSPORT_2D(getBinaryDiffCoeffs)

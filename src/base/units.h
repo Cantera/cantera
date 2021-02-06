@@ -8,7 +8,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_UNITS_H
 #define CT_UNITS_H
@@ -121,7 +121,7 @@ public:
             // tok is not one of the entries in map m_u, then
             // m_u[tok] returns 0.0. Check for this.
             if (fctr == 0) {
-                throw CanteraError("toSI","unknown unit: "+tsub);
+                throw CanteraError("Unit::toSI", "unknown unit: '{}'", tsub);
             }
             if (action == '-') {
                 f *= fctr;

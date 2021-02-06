@@ -9,8 +9,6 @@ w = Water;
 
 % start with saturated liquid water at t1
 set(w,'T',t1,'Liquid',1.0);
-h1 = enthalpy_mass(w);
-s1 = entropy_mass(w);
 p1 = pressure(w);
 
 % pump it to p2
@@ -21,17 +19,14 @@ p2 = pressure(w);
 % heat to saturated vapor
 set(w,'P',p2,'Vapor',1.0);
 h3 = enthalpy_mass(w);
-s3 = entropy_mass(w);
 
 heat_added = h3 - h2;
 
 % expand adiabatically back to the initial pressure
-work = expand(w, p1, eta_turbine)
-h4 = enthalpy_mass(w);
-x4 = vaporFraction(w);
+work = expand(w, p1, eta_turbine);
 
 % compute the efficiency
-efficiency = (work - pump_work)/heat_added
+efficiency = (work - pump_work)/heat_added;
 
 
 function w = pump(fluid, pfinal, eta)

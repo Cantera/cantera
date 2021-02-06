@@ -9,7 +9,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_DEBYEHUCKEL_H
 #define CT_DEBYEHUCKEL_H
@@ -565,7 +565,7 @@ public:
 
     //! Full constructor for creating the phase.
     /*!
-     *  @param inputFile  File name containing the XML description of the phase
+     *  @param inputFile  File name containing the definition of the phase
      *  @param id         id attribute containing the name of the phase.
      */
     DebyeHuckel(const std::string& inputFile, const std::string& id = "");
@@ -574,6 +574,9 @@ public:
     /*!
      *  @param phaseRef XML phase node containing the description of the phase
      *  @param id       id attribute containing the name of the phase.
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     DebyeHuckel(XML_Node& phaseRef, const std::string& id = "");
 
@@ -616,7 +619,7 @@ public:
      * In this equation of state implementation, the density is a function only
      * of the mole fractions. Therefore, it can't be an independent variable.
      * Instead, the pressure is used as the independent variable. Functions
-     * which try to set the thermodynamic state by calling setDensity() may
+     * which try to set the thermodynamic state by calling setDensity() will
      * cause an exception to be thrown.
      */
 
@@ -643,6 +646,8 @@ public:
      *       independent variable however.
      *
      * @param rho Input density (kg/m^3).
+     * @deprecated Functionality merged with base function after Cantera 2.5.
+     *             (superseded by isCompressible check in Phase::setDensity)
      */
     virtual void setDensity(const doublereal rho);
 
@@ -655,6 +660,8 @@ public:
      * exactly equal to the current molar density.
      *
      * @param conc   Input molar density (kmol/m^3).
+     * @deprecated Functionality merged with base function after Cantera 2.5.
+     *             (superseded by isCompressible check in Phase::setDensity)
      */
     virtual void setMolarDensity(const doublereal conc);
 
@@ -913,8 +920,8 @@ public:
     double AionicRadius(int k = 0) const;
 
     //! Set the DebyeHuckel parameterization form. Must be one of
-    //! 'dilute_limit', 'Bdot_with_variable_a', 'Bdot_with_common_a',
-    //! 'Beta_ij', or 'Pitzer_with_Beta_ij'.
+    //! 'dilute-limit', 'B-dot-with-variable-a', 'B-dot-with-common-a',
+    //! 'beta_ij', or 'Pitzer-with-beta_ij'.
     void setDebyeHuckelModel(const std::string& form);
 
     //! Returns the form of the Debye-Huckel parameterization used

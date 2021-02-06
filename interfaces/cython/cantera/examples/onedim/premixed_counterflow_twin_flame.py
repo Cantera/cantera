@@ -4,11 +4,14 @@
 Simulate two counter-flow jets of reactants shooting into each other. This
 simulation differs from the similar premixed_counterflow_flame.py example as the
 latter simulates a jet of reactants shooting into products.
+
+Requires: cantera >= 2.5.0
 """
 
 import cantera as ct
 import numpy as np
 import sys
+
 
 # Differentiation function for data that has variable grid spacing Used here to
 # compute normal strain-rate
@@ -23,20 +26,22 @@ def derivative(x, y):
 
     return dydx
 
+
 def computeStrainRates(oppFlame):
     # Compute the derivative of axial velocity to obtain normal strain rate
-    strainRates = derivative(oppFlame.grid, oppFlame.u)
+    strainRates = derivative(oppFlame.grid, oppFlame.velocity)
 
     # Obtain the location of the max. strain rate upstream of the pre-heat zone.
     # This is the characteristic strain rate
     maxStrLocation = abs(strainRates).argmax()
-    minVelocityPoint = oppFlame.u[:maxStrLocation].argmin()
+    minVelocityPoint = oppFlame.velocity[:maxStrLocation].argmin()
 
     # Characteristic Strain Rate = K
     strainRatePoint = abs(strainRates[:minVelocityPoint]).argmax()
     K = abs(strainRates[strainRatePoint])
 
     return strainRates, strainRatePoint, K
+
 
 def computeConsumptionSpeed(oppFlame):
 
@@ -46,10 +51,11 @@ def computeConsumptionSpeed(oppFlame):
 
     integrand = oppFlame.heat_release_rate/oppFlame.cp
 
-    I = np.trapz(integrand, oppFlame.grid)
-    Sc = I/(Tb - Tu)/rho_u
+    total_heat_release = np.trapz(integrand, oppFlame.grid)
+    Sc = total_heat_release/(Tb - Tu)/rho_u
 
     return Sc
+
 
 # This function is called to run the solver
 def solveOpposedFlame(oppFlame, massFlux=0.12, loglevel=1,
@@ -73,30 +79,31 @@ def solveOpposedFlame(oppFlame, massFlux=0.12, loglevel=1,
 
     return np.max(oppFlame.T), K, strainRatePoint
 
+
 # Select the reaction mechanism
-gas = ct.Solution('gri30.cti')
+gas = ct.Solution('gri30.yaml')
 
 # Create a CH4/Air premixed mixture with equivalence ratio=0.75, and at room
 # temperature and pressure.
-gas.set_equivalence_ratio(0.75, 'CH4', {'O2':1.0, 'N2':3.76})
+gas.set_equivalence_ratio(0.75, 'CH4', {'O2': 1.0, 'N2': 3.76})
 gas.TP = 300, ct.one_atm
 
 # Set the velocity
-axial_velocity = 2.0 # in m/s
+axial_velocity = 2.0  # in m/s
 
 # Domain half-width of 2.5 cm, meaning the whole domain is 5 cm wide
 width = 0.025
 
 # Done with initial conditions
 # Compute the mass flux, as this is what the Flame object requires
-massFlux = gas.density * axial_velocity # units kg/m2/s
+massFlux = gas.density * axial_velocity  # units kg/m2/s
 
 # Create the flame object
 oppFlame = ct.CounterflowTwinPremixedFlame(gas, width=width)
 
 # Uncomment the following line to use a Multi-component formulation. Default is
 # mixture-averaged
-#oppFlame.transport_model = 'Multi'
+# oppFlame.transport_model = 'Multi'
 
 # Now run the solver. The solver returns the peak temperature, strain rate and
 # the point which we ascribe to the characteristic strain rate.
@@ -119,24 +126,26 @@ if '--plot' in sys.argv:
 
     import matplotlib.pyplot as plt
 
-    plt.figure(figsize=(8,6), facecolor='white')
+    plt.figure(figsize=(8, 6), facecolor='white')
 
     # Axial Velocity Plot
-    plt.subplot(1,2,1)
-    plt.plot(oppFlame.grid, oppFlame.u, 'r', lw=2)
+    plt.subplot(1, 2, 1)
+    plt.plot(oppFlame.grid, oppFlame.velocity, 'r', lw=2)
     plt.xlim(oppFlame.grid[0], oppFlame.grid[-1])
     plt.xlabel('Distance (m)')
     plt.ylabel('Axial Velocity (m/s)')
 
     # Identify the point where the strain rate is calculated
-    plt.plot(oppFlame.grid[strainRatePoint], oppFlame.u[strainRatePoint],'gs')
+    plt.plot(oppFlame.grid[strainRatePoint],
+             oppFlame.velocity[strainRatePoint], 'gs')
     plt.annotate('Strain-Rate point',
-                 xy=(oppFlame.grid[strainRatePoint], oppFlame.u[strainRatePoint]),
+                 xy=(oppFlame.grid[strainRatePoint],
+                     oppFlame.velocity[strainRatePoint]),
                  xytext=(0.001, 0.1),
-                 arrowprops={'arrowstyle':'->'})
+                 arrowprops={'arrowstyle': '->'})
 
     # Temperature Plot
-    plt.subplot(1,2,2)
+    plt.subplot(1, 2, 2)
     plt.plot(oppFlame.grid, oppFlame.T, 'b', lw=2)
     plt.xlim(oppFlame.grid[0], oppFlame.grid[-1])
     plt.xlabel('Distance (m)')

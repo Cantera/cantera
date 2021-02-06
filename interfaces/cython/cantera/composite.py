@@ -1,9 +1,29 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
-# at http://www.cantera.org/license.txt for license and copyright information.
+# at https://cantera.org/license.txt for license and copyright information.
 
 from ._cantera import *
 import numpy as np
+from collections import OrderedDict
 import csv as _csv
+
+import pkg_resources
+
+# avoid explicit dependence of cantera on h5py
+try:
+    pkg_resources.get_distribution('h5py')
+except pkg_resources.DistributionNotFound:
+    _h5py = ImportError('Method requires a working h5py installation.')
+else:
+    import h5py as _h5py
+
+# avoid explicit dependence of cantera on pandas
+try:
+    pkg_resources.get_distribution('pandas')
+except pkg_resources.DistributionNotFound:
+    _pandas = ImportError('Method requires a working pandas installation.')
+else:
+    import pandas as _pandas
+
 
 class Solution(ThermoPhase, Kinetics, Transport):
     """
@@ -22,31 +42,45 @@ class Solution(ThermoPhase, Kinetics, Transport):
     The most common way to instantiate `Solution` objects is by using a phase
     definition, species and reactions defined in an input file::
 
-        gas = ct.Solution('gri30.cti')
+        gas = ct.Solution('gri30.yaml')
 
-    If an input file defines multiple phases, the phase *name* (in CTI) or *id*
-    (in XML) can be used to specify the desired phase::
+    If an input file defines multiple phases, the corresponding key in the
+    *phases* map (in YAML), *name* (in CTI), or *id* (in XML) can be used
+    to specify the desired phase via the ``name`` keyword argument of
+    the constructor::
 
-        gas = ct.Solution('diamond.cti', 'gas')
-        diamond = ct.Solution('diamond.cti', 'diamond')
+        gas = ct.Solution('diamond.yaml', name='gas')
+        diamond = ct.Solution('diamond.yaml', name='diamond')
+
+    The name of the `Solution` object defaults to the *phase* identifier
+    specified in the input file. Upon initialization of a 'Solution' object,
+    a custom name can assigned via::
+
+        gas.name = 'my_custom_name'
 
     `Solution` objects can also be constructed using `Species` and `Reaction`
     objects which can themselves either be imported from input files or defined
     directly in Python::
 
-        spec = ct.Species.listFromFile('gri30.cti')
-        rxns = ct.Reaction.listFromFile('gri30.cti')
+        spec = ct.Species.listFromFile('gri30.yaml')
+        rxns = ct.Reaction.listFromFile('gri30.yaml')
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
-                          species=spec, reactions=rxns)
+                          species=spec, reactions=rxns, name='my_custom_name')
 
     where the ``thermo`` and ``kinetics`` keyword arguments are strings
     specifying the thermodynamic and kinetics model, respectively, and
     ``species`` and ``reactions`` keyword arguments are lists of `Species` and
     `Reaction` objects, respectively.
 
+    Types of underlying models that form the composite `Solution` object are
+    queried using the ``thermo_model``, ``kinetics_model`` and
+    ``transport_model`` attributes; further, the ``composite`` attribute is a
+    shorthand returning a tuple containing the types of the three constitutive
+    models.
+
     For non-trivial uses cases of this functionality, see the examples
-    `extract_submechanism.py <https://cantera.org/examples/python/extract_submechanism.py.html>`_
-    and `mechanism_reduction.py <https://cantera.org/examples/python/mechanism_reduction.py.html>`_.
+    `extract_submechanism.py <https://cantera.org/examples/python/kinetics/extract_submechanism.py.html>`_
+    and `mechanism_reduction.py <https://cantera.org/examples/python/kinetics/mechanism_reduction.py.html>`_.
 
     In addition, `Solution` objects can be constructed by passing the text of
     the CTI or XML phase definition in directly, using the ``source`` keyword
@@ -56,7 +90,8 @@ class Solution(ThermoPhase, Kinetics, Transport):
             ideal_gas(name='gas', elements='O H Ar',
                       species='gri30: all',
                       reactions='gri30: all',
-                      options=['skip_undeclared_elements', 'skip_undeclared_species', 'skip_undeclared_third_bodies'],
+                      options=['skip_undeclared_elements', 'skip_undeclared_species',
+                               'skip_undeclared_third_bodies'],
                       initial_state=state(temperature=300, pressure=101325))'''
         gas = ct.Solution(source=cti_def)
     """
@@ -73,11 +108,12 @@ class Interface(InterfacePhase, InterfaceKinetics):
 
     To construct an `Interface` object, adjacent bulk phases which participate
     in reactions need to be created and then passed in as a list in the
-    ``phases`` argument to the constructor::
+    ``adjacent`` argument to the constructor::
 
-        gas = ct.Solution('diamond.cti', 'gas')
-        diamond = ct.Solution('diamond.cti', 'diamond')
-        diamond_surf = ct.Interface('diamond.cti', 'diamond_100', [gas, diamond])
+        gas = ct.Solution('diamond.yaml', name='gas')
+        diamond = ct.Solution('diamond.yaml', name='diamond')
+        diamond_surf = ct.Interface('diamond.yaml', name='diamond_100',
+                                    adjacent=[gas, diamond])
     """
     __slots__ = ('_phase_indices',)
 
@@ -88,12 +124,11 @@ class DustyGas(ThermoPhase, Kinetics, DustyGasTransport):
 
     The only transport properties computed are the multicomponent diffusion
     coefficients. The model does not compute viscosity or thermal conductivity.
-
     """
     __slots__ = ()
 
 
-class Quantity(object):
+class Quantity:
     """
     A class representing a specific quantity of a `Solution`. In addition to the
     properties which can be computed for class `Solution`, class `Quantity`
@@ -241,10 +276,10 @@ class Quantity(object):
         return Quantity(self.phase, mass=self.mass * other, constant=self.constant)
 
     def __iadd__(self, other):
-        if (self._id != other._id):
+        if self._id != other._id:
             raise ValueError('Cannot add Quantities with different phase '
                 'definitions.')
-        assert(self.constant == other.constant)
+        assert self.constant == other.constant
         a1,b1 = getattr(self.phase, self.constant)
         a2,b2 = getattr(other.phase, self.constant)
         m = self.mass + other.mass
@@ -286,17 +321,17 @@ for _attr in dir(Solution):
         setattr(Quantity, _attr, _prop(_attr))
 
 
-class SolutionArray(object):
+class SolutionArray:
     """
     A class providing a convenient interface for representing many thermodynamic
     states using the same `Solution` object and computing properties for that
     array of states.
 
-    SolutionArray can represent both 1D and multi-dimensional arrays of states,
+    `SolutionArray` can represent both 1D and multi-dimensional arrays of states,
     with shapes described in the same way as Numpy arrays. All of the states
-    can be set in a single call.
+    can be set in a single call::
 
-        >>> gas = ct.Solution('gri30.cti')
+        >>> gas = ct.Solution('gri30.yaml')
         >>> states = ct.SolutionArray(gas, (6, 10))
         >>> T = np.linspace(300, 1000, 10) # row vector
         >>> P = ct.one_atm * np.linspace(0.1, 5.0, 6)[:,np.newaxis] # column vector
@@ -304,7 +339,7 @@ class SolutionArray(object):
         >>> states.TPX = T, P, X
 
     Similar to Numpy arrays, input with fewer non-singleton dimensions than the
-    SolutionArray is 'broadcast' to generate input of the appropriate shape. In
+    `SolutionArray` is 'broadcast' to generate input of the appropriate shape. In
     the above example, the single value for the mole fraction input is applied
     to each input, while each row has a constant temperature and each column has
     a constant pressure.
@@ -330,7 +365,7 @@ class SolutionArray(object):
         >>> states.equilibrate('HP')
         >>> states.T # -> adiabatic flame temperature at various equivalence ratios
 
-    SolutionArray objects can also be 'sliced' like Numpy arrays, which can be
+    `SolutionArray` objects can also be 'sliced' like Numpy arrays, which can be
     used both for accessing and setting properties::
 
         >>> states = ct.SolutionArray(gas, (6, 10))
@@ -340,14 +375,14 @@ class SolutionArray(object):
     If many slices or elements of a property are going to be accessed (i.e.
     within a loop), it is generally more efficient to compute the property array
     once and access this directly, rather than repeatedly slicing the
-    SolutionArray object, e.g.::
+    `SolutionArray` object, e.g.::
 
         >>> mu = states.viscosity
         >>> for i,j in np.ndindex(mu.shape):
         ...     # do something with mu[i,j]
 
     Information about a subset of species may also be accessed, using
-    parentheses to specify the species:
+    parentheses to specify the species::
 
         >>> states('CH4').Y # -> mass fraction of CH4 in each state
         >>> states('H2','O2').partial_molar_cp # -> cp for H2 and O2
@@ -361,15 +396,37 @@ class SolutionArray(object):
         >>> s.reaction_equation(10)
         'CH4 + O <=> CH3 + OH'
 
-    Data represnted by a SolutionArray can be extracted and saved to a CSV file
-    using the `write_csv` method:
+    Data represented by a `SolutionArray` can be extracted and saved to a CSV file
+    using the `write_csv` method::
 
-        >>> states.write_csv('somefile.csv', cols=('T','P','X','net_rates_of_progress'))
+        >>> states.write_csv('somefile.csv', cols=('T', 'P', 'X', 'net_rates_of_progress'))
+
+    As long as stored columns specify a valid thermodynamic state, the contents of
+    a `SolutionArray` can be restored using the `read_csv` method::
+
+        >>> states = ct.SolutionArray(gas)
+        >>> states.read_csv('somefile.csv')
+
+    As an alternative to comma separated export and import, data extracted from
+    `SolutionArray` objects can also be saved to and restored from a HDF
+    container file using the `write_hdf`::
+
+        >>> states.write_hdf('somefile.h5', cols=('T', 'P', 'X'), group='some_key')
+
+    and `read_hdf` methods::
+
+        >>> states = ct.SolutionArray(gas)
+        >>> states.read_hdf('somefile.h5', key='some_key')
+
+    For HDF export and import, the (optional) keyword argument *group* allows
+    for saving and accessing of multiple solutions in a single container file.
+    Note that `write_hdf` and `read_hdf` require a working installation of h5py.
+    The package `h5py` can be installed using pip or conda.
 
     :param phase: The `Solution` object used to compute the thermodynamic,
         kinetic, and transport properties
     :param shape: A tuple or integer indicating the dimensions of the
-        SolutionArray. If the shape is 1D, the array may be extended using the
+        `SolutionArray`. If the shape is 1D, the array may be extended using the
         `append` method. Otherwise, the shape is fixed.
     :param states: The initial array of states. Used internally to provide
         slicing support.
@@ -385,9 +442,12 @@ class SolutionArray(object):
         'critical_temperature', 'critical_pressure', 'critical_density',
         'P_sat', 'T_sat', 'isothermal_compressibility',
         'thermal_expansion_coeff', 'electric_potential',
+        # From Kinetics
+        'heat_release_rate',
         # From Transport
         'viscosity', 'electrical_conductivity', 'thermal_conductivity',
     ]
+    _strings = ['phase_of_matter']
     _n_species = [
         # from ThermoPhase
         'Y', 'X', 'concentrations', 'partial_molar_enthalpies',
@@ -414,18 +474,17 @@ class SolutionArray(object):
         'forward_rate_constants', 'reverse_rate_constants',
         'delta_enthalpy', 'delta_gibbs', 'delta_entropy',
         'delta_standard_enthalpy', 'delta_standard_gibbs',
-        'delta_standard_entropy'
+        'delta_standard_entropy', 'heat_production_rates',
     ]
-    _state2 = ['TD', 'TP', 'UV', 'DP', 'HP', 'SP', 'SV']
     _call_scalar = ['elemental_mass_fraction', 'elemental_mole_fraction']
 
     _passthrough = [
         # from ThermoPhase
-        'name', 'ID', 'basis', 'n_elements', 'element_index',
+        'name', 'ID', 'source', 'basis', 'n_elements', 'element_index',
         'element_name', 'element_names', 'atomic_weight', 'atomic_weights',
         'n_species', 'species_name', 'species_names', 'species_index',
         'species', 'n_atoms', 'molecular_weights', 'min_temp', 'max_temp',
-        'reference_pressure',
+        'reference_pressure', 'charges',
         # From Kinetics
         'n_total_species', 'n_reactions', 'n_phases', 'reaction_phase_index',
         'kinetics_species_index', 'reaction', 'reactions', 'modify_reaction',
@@ -440,7 +499,10 @@ class SolutionArray(object):
     _interface_passthrough = ['site_density']
     _interface_n_species = ['coverages']
 
-    def __init__(self, phase, shape=(0,), states=None, extra=None):
+    _purefluid_scalar = ['Q']
+
+    def __init__(self, phase, shape=(0,), states=None, extra=None, meta=None):
+        self.__dict__['_extra'] = OrderedDict()
         self._phase = phase
 
         if isinstance(shape, int):
@@ -465,49 +527,103 @@ class SolutionArray(object):
             self._indices = list(np.ndindex(self._shape))
             self._output_dummy = self._states[..., 0]
 
-        self._extra_lists = {}
-        self._extra_arrays = {}
+        reserved = self.__dir__()
+
         if isinstance(extra, dict):
             for name, v in extra.items():
+                if name in reserved:
+                    raise ValueError(
+                        "Unable to create extra column '{}': name is already "
+                        "used by SolutionArray objects.".format(name))
                 if not np.shape(v):
-                    self._extra_lists[name] = [v]*self._shape[0]
-                    self._extra_arrays[name] = np.array(self._extra_lists[name])
-                elif len(v) == self._shape[0]:
-                    self._extra_lists[name] = list(v)
+                    self._extra[name] = np.full(self._shape, v)
+                elif (self._shape[0] == 1
+                      or np.array(v).shape[:len(self._shape)] == self._shape):
+                    arr = np.array(v)
+                    if arr.dtype == object:
+                        raise ValueError(
+                            "Unable to create extra column '{}': data type "
+                            "'object' is not supported.".format(name))
+                    if self._shape[0] == 1 and len(arr) > 1:
+                        arr = arr[np.newaxis, :]
+                    self._extra[name] = arr
                 else:
-                    raise ValueError("Unable to map extra SolutionArray"
-                                     "input for named {!r}".format(name))
-                self._extra_arrays[name] = np.array(self._extra_lists[name])
+                    raise ValueError("Unable to map extra SolutionArray "
+                                     "input named {!r}".format(name))
+        elif extra is not None:
+            if self._shape != (0,):
+                raise ValueError("Initial values for extra properties must be "
+                                 "supplied in a dictionary if the SolutionArray "
+                                 "is not initially empty.")
+            if isinstance(extra, np.ndarray):
+                extra = extra.flatten()
+            elif isinstance(extra, str):
+                extra = [extra]
 
-        elif extra and self._shape == (0,):
-            for name in extra:
-                self._extra_lists[name] = []
-                self._extra_arrays[name] = np.array(())
+            try:
+                iter_extra = iter(extra)
+            except TypeError:
+                raise ValueError(
+                    "Extra properties can be created by passing an iterable "
+                    "of names for the properties. If you want to supply initial "
+                    "values for the properties, use a dictionary whose keys are "
+                    "the names of the properties and values are the initial "
+                    "values.") from None
 
-        elif extra:
-            raise ValueError("Initial values for extra properties must be"
-                " supplied in a dict if the SolutionArray is not initially"
-                " empty")
+            for name in iter_extra:
+                if not isinstance(name, str):
+                    raise TypeError(
+                        "Unable to create extra column, passed value '{!r}' "
+                        "is not a string".format(name))
+                if name in reserved:
+                    raise ValueError(
+                        "Unable to create extra column '{}': name is already "
+                        "used by SolutionArray objects.".format(name))
+                self._extra[name] = np.empty(shape=(0,))
+
+        if meta is None:
+            self._meta = {}
+        else:
+            self._meta = meta
 
     def __getitem__(self, index):
         states = self._states[index]
-        shape = states.shape[:-1]
-        return SolutionArray(self._phase, shape, states)
+        if(isinstance(states, list)):
+            num_rows = len(states)
+            if num_rows == 0:
+                states = None
+            return SolutionArray(self._phase, num_rows, states)
+        else:
+            shape = states.shape[:-1]
+            return SolutionArray(self._phase, shape, states)
 
     def __getattr__(self, name):
-        if name not in self._extra_lists:
+        if name in self._extra:
+            return self._extra[name]
+        elif name in self.__dict__:
+            super().__getattr__(name)
+        else:
             raise AttributeError("'{}' object has no attribute '{}'".format(
                 self.__class__.__name__, name))
-        L = self._extra_lists[name]
-        A = self._extra_arrays[name]
-        if len(L) != len(A):
-            A = np.array(L)
-            self._extra_arrays[name] = A
-        return A
+
+    def __setattr__(self, name, value):
+        if name in self._extra:
+            new = np.array(value)
+            if not new.shape:
+                # maintain shape of extra entry
+                new = np.full(self._extra[name].shape, value)
+            elif new.shape[:len(self._shape)] != self._shape:
+                raise ValueError(
+                    "Incompatible shapes for extra column '{}': cannot assign "
+                    "value with shape {} to SolutionArray with shape {}"
+                    "".format(name, new.shape, self._shape))
+            super().__setattr__(name, new)
+        else:
+            super().__setattr__(name, value)
 
     def __call__(self, *species):
         return SolutionArray(self._phase[species], states=self._states,
-                             extra=self._extra_lists)
+                             extra=self._extra)
 
     def append(self, state=None, **kwargs):
         """
@@ -534,8 +650,24 @@ class SolutionArray(object):
         if len(self._shape) != 1:
             raise IndexError("Can only append to 1D SolutionArray")
 
-        for name, value in self._extra_lists.items():
-            value.append(kwargs.pop(name))
+        # This check must go before we start appending to any arrays so that
+        # array lengths don't get out of sync.
+        missing_extra_kwargs = self._extra.keys() - kwargs.keys()
+        if missing_extra_kwargs:
+            raise TypeError(
+                "Missing keyword arguments for extra values: "
+                "'{}'".format(", ".join(missing_extra_kwargs))
+            )
+
+        # For the checks of the state below, the kwargs dictionary can
+        # only contain keywords that match properties of the state. Here
+        # we pop any kwargs that have to do with the extra items so they
+        # aren't included in that check. They are put into a temporary
+        # storage so that appending can be done at the end of the function
+        # all at once.
+        extra_temp = {}
+        for name in self._extra:
+            extra_temp[name] = kwargs.pop(name)
 
         if state is not None:
             self._phase.state = state
@@ -543,20 +675,70 @@ class SolutionArray(object):
         elif len(kwargs) == 1:
             attr, value = next(iter(kwargs.items()))
             if frozenset(attr) not in self._phase._full_states:
-                raise KeyError("{} does not specify a full thermodynamic state")
+                raise KeyError(
+                    "'{}' does not specify a full thermodynamic state".format(attr)
+                )
             setattr(self._phase, attr, value)
 
         else:
             try:
                 attr = self._phase._full_states[frozenset(kwargs)]
             except KeyError:
-                raise KeyError("{} is not a valid combination of properties "
-                    "for setting the thermodynamic state".format(tuple(kwargs)))
+                raise KeyError(
+                    "{} is not a valid combination of properties for setting "
+                    "the thermodynamic state".format(tuple(kwargs))
+                ) from None
             setattr(self._phase, attr, [kwargs[a] for a in attr])
+
+        for name, value in self._extra.items():
+            new = extra_temp[name]
+            if len(value):
+                if (value.ndim == 1 and hasattr(new, '__len__') and
+                    not isinstance(new, str)):
+                    raise ValueError(
+                        "Encountered incompatible value '{}' for extra column '{}'."
+                        "".format(new, name))
+                elif value.ndim > 1 and value.shape[1:] != np.array(new).shape:
+                    raise ValueError(
+                        "Shape of new element does not match existing extra "
+                        "column '{}'".format(name))
+            # Casting to a list before appending is ~5x faster than using
+            # np.append when appending a single item.
+            v = value.tolist()
+            v.append(new)
+            extra_temp[name] = np.array(v)
+
+        for name, value in extra_temp.items():
+            self._extra[name] = value
 
         self._states.append(self._phase.state)
         self._indices.append(len(self._indices))
         self._shape = (len(self._indices),)
+
+    @property
+    def meta(self):
+        """
+        Dictionary holding information describing the `SolutionArray`. Metadata
+        should be provided for the creation of `SolutionArray` objects.
+        """
+        return self._meta
+
+    def sort(self, col, reverse=False):
+        """
+        Sort SolutionArray by column *col*.
+
+        :param col: Column that is used to sort the SolutionArray.
+        :param reverse: If True, the sorted list is reversed (descending order).
+        """
+        if len(self._shape) != 1:
+            raise TypeError("sort only works for 1D SolutionArray objects")
+
+        indices = np.argsort(getattr(self, col))
+        if reverse:
+            indices = indices[::-1]
+        self._states = [self._states[ix] for ix in indices]
+        for k, v in self._extra.items():
+            self._extra[k] = v[indices]
 
     def equilibrate(self, *args, **kwargs):
         """ See `ThermoPhase.equilibrate` """
@@ -565,165 +747,672 @@ class SolutionArray(object):
             self._phase.equilibrate(*args, **kwargs)
             self._states[index][:] = self._phase.state
 
-    def collect_data(self, cols=('extra','T','density','Y'), threshold=0,
-                     species='Y'):
+    def restore_data(self, data):
         """
-        Returns the data specified by *cols* in a single 2D Numpy array, along
-        with a list of column labels.
+        Restores a `SolutionArray` based on *data* specified in an ordered
+        dictionary. Thus, this method allows to restore data exported by
+        `collect_data`.
+
+        :param data: Dictionary holding data to be restored, where keys
+            refer to thermodynamic states (e.g. ``T``, ``density``) or extra
+            entries, and values contain corresponding data.
+
+        The receiving `SolutionArray` either has to be empty or should have
+        matching dimensions. Essential state properties and extra entries
+        are detected automatically whereas stored information of calculated
+        properties is omitted. If the receiving `SolutionArray` has extra
+        entries already specified, only those will be imported; if *labels*
+        does not contain those entries, an error is raised.
+        """
+
+        # check arguments
+        if not isinstance(data, dict) or len(data) == 0:
+            raise ValueError("'SolutionArray.restore_data' requires a "
+                             "non-empty data dictionary")
+        labels = list(data.keys())
+
+        for col in data.values():
+            if not isinstance(col, np.ndarray):
+                raise TypeError("'SolutionArray.restore_data' only works for "
+                                "dictionaries that contain ndarrays")
+
+            rows = data[labels[0]].shape[0]
+            if col.shape[0] != rows:
+                raise ValueError("'SolutionArray.restore_data' requires "
+                                 "all data entries to have a consistent "
+                                 "first dimension")
+
+        if self._shape != (0,) and self._shape != (rows,):
+            raise ValueError(
+                "incompatible dimensions ({} vs. {}): the receiving "
+                "SolutionArray object either needs to be empty "
+                "or have a length that matches data rows "
+                "to be restored".format(self._shape[0], rows)
+            )
+
+        # get full state information (may differ depending on ThermoPhase type)
+        states = list(self._phase._full_states.values())
+
+        # add partial and/or potentially non-unique state definitions
+        states += list(self._phase._partial_states.values())
+
+        def join(species):
+            """ Join tabular species composition data if present """
+            prefix = '{}_'.format(species)
+            spc = ['{}{}'.format(prefix, s) for s in self.species_names]
+
+            # solution species names also found in labels
+            valid_species = {s[2:]: labels.index(s) for s in spc
+                             if s in labels}
+
+            # labels that start with prefix (indicating concentration)
+            all_species = [l for l in labels if l.startswith(prefix)]
+            if valid_species:
+
+                if len(valid_species) != len(all_species):
+                    incompatible = list(set(valid_species) ^ set(all_species))
+                    raise ValueError('incompatible species information for '
+                                    '{}'.format(incompatible))
+
+                state_comp = np.zeros((rows, self.n_species))
+                for i, s in enumerate(self.species_names):
+                    if s in valid_species:
+                        col = data['{}{}'.format(prefix, s)]
+                        if col.ndim > 1:
+                            raise ValueError("Invalid format: tabular input "
+                                             "for 'SolutionArray.restore_data "
+                                             "requires 1D ndarrays")
+                        state_comp[:, i] = col
+                return state_comp
+            else:
+                return None
+
+        # determine whether complete concentration is available (mass or mole)
+        # assumes that 'X' or 'Y' is always in last place
+        mode = ''
+        state_comp = None
+        for species in ['X', 'Y']:
+            if not any([species in s for s in states]):
+                continue
+            elif species in labels:
+                state_comp = data[species]
+            else:
+                state_comp = join(species)
+
+            if state_comp is not None:
+                # save species mode and remaining full_state candidates
+                mode = species
+                states = [v[:-1] for v in states if mode in v]
+                break
+
+        if mode == '':
+            # concentration/quality specifier ('X' or 'Y') is not used
+            states = [st.rstrip('XY') for st in states]
+
+        # determine suitable thermo properties for reconstruction
+        basis = 'mass' if self.basis == 'mass' else 'mole'
+        prop = {'T': ('T'), 'P': ('P'), 'Q': ('Q'),
+                'D': ('density', 'density_{}'.format(basis)),
+                'U': ('u', 'int_energy_{}'.format(basis)),
+                'V': ('v', 'volume_{}'.format(basis)),
+                'H': ('h', 'enthalpy_{}'.format(basis)),
+                'S': ('s', 'entropy_{}'.format(basis))}
+        for st in states:
+            # identify property specifiers
+            state = [{st[i]: p for p in prop[st[i]] if p in labels}
+                     for i in range(len(st))]
+            if all(state):
+                # all property identifiers match
+                mode = st + mode
+                state = [list(st.values())[0] for st in state]
+                break
+        if len(mode) == 1:
+            raise ValueError(
+                "invalid/incomplete state information (detected "
+                "partial information as mode='{}')".format(mode)
+            )
+
+        # assemble and restore state information
+        state_data = tuple([data[s] for s in state])
+        if state_comp is not None:
+            state_data += (state_comp,)
+
+        # labels may include calculated properties that must not be restored:
+        # compare column labels to names that are reserved for SolutionArray
+        # attributes (see `SolutionArray.collect_data`), i.e. scalar values,
+        # arrays with number of species, and arrays with number of reactions.
+        exclude = [lab for lab in labels
+                   if any([lab in self._scalar,
+                           '_'.join(lab.split('_')[:-1]) in self._n_species,
+                           lab.split(' ')[0] in self._n_reactions])]
+        exclude += ['X', 'Y']
+        extra = {lab: data[lab] for lab in labels
+                 if lab not in exclude}
+        if len(self._extra):
+            extra_lists = {k: extra[k] for k in self._extra}
+        else:
+            extra_lists = extra
+
+        # ensure that SolutionArray accommodates dimensions
+        if self._shape == (0,):
+            self._states = [self._phase.state] * rows
+            self._indices = range(rows)
+            self._output_dummy = self._indices
+            self._shape = (rows,)
+
+        # restore data
+        for i in self._indices:
+            setattr(self._phase, mode, [st[i, ...] for st in state_data])
+            self._states[i] = self._phase.state
+        self._extra = extra_lists
+
+    def set_equivalence_ratio(self, phi, *args, **kwargs):
+        """
+        See `ThermoPhase.set_equivalence_ratio`
+
+        Note that *phi* either needs to be a scalar value or dimensions have
+        to be matched to the SolutionArray.
+        """
+
+        # broadcast argument shape
+        phi, _ = np.broadcast_arrays(phi, self._output_dummy)
+
+        # loop over values
+        for index in self._indices:
+            self._phase.state = self._states[index]
+            self._phase.set_equivalence_ratio(phi[index], *args, **kwargs)
+            self._states[index][:] = self._phase.state
+
+    def collect_data(self, cols=None, tabular=False, threshold=0, species=None):
+        """
+        Returns the data specified by *cols* in an ordered dictionary, where
+        keys correspond to SolutionArray attributes to be exported.
 
         :param cols: A list of any properties of the solution that are scalars
             or which have a value for each species or reaction. If species names
             are specified, then either the mass or mole fraction of that species
             will be taken, depending on the value of *species*. *cols* may also
             include any arrays which were specified as 'extra' variables when
-            defining the SolutionArray object. The special value 'extra' can be
-            used to include all 'extra' variables.
-        :param threshold: Relative tolerance for including a particular column.
-            The tolerance is applied by comparing the maximum absolute value for
-            a particular column to the maximum absolute value in all columns for
-            the same variable (e.g. mass fraction).
+            defining the `SolutionArray` object. The special value 'extra' can
+            be used to include all 'extra' variables.
+        :param tabular: Split 2D data into separate 1D columns for each
+            species / reaction
+        :param threshold: Relative tolerance for including a particular column
+            if tabular output is enabled. The tolerance is applied by comparing
+            the maximum absolute value for a particular column to the maximum
+            absolute value in all columns for the same variable (e.g. mass
+            fraction).
         :param species: Specifies whether to use mass ('Y') or mole ('X')
             fractions for individual species specified in 'cols'
         """
-        if len(self._shape) != 1:
-            raise TypeError("collect_data only works for 1D SolutionArray")
-        data = []
-        labels = []
+        if tabular and len(self._shape) != 1:
+            raise AttributeError("Tabular output of collect_data only works "
+                                 "for 1D SolutionArray")
+
+        # Create default columns (including complete state information)
+        if cols is None:
+            cols = ('extra',) + self._phase._native_state
+
+        if species is None:
+            species = cols[-1]
+        else:
+            cols = cols[:-1] + (species,)
 
         # Expand cols to include the individual items in 'extra'
         expanded_cols = []
         for c in cols:
             if c == 'extra':
-                expanded_cols.extend(self._extra_arrays)
+                expanded_cols.extend(self._extra)
             else:
                 expanded_cols.append(c)
 
-        species_names = set(self.species_names)
-        for c in expanded_cols:
-            single_species = False
+        expanded_cols = tuple(['density' if c == 'D' else c
+                               for c in expanded_cols])
+
+        def split(c, d):
+            """ Split attribute arrays into columns for tabular output """
             # Determine labels for the items in the current group of columns
-            if c in self._extra_arrays:
-                collabels = [c]
-            elif c in self._scalar:
-                collabels = [c]
-            elif c in self._n_species:
+            if c in self._n_species:
                 collabels = ['{}_{}'.format(c, s) for s in self.species_names]
             elif c in self._n_reactions:
                 collabels = ['{} {}'.format(c, r)
                              for r in self.reaction_equations()]
             elif c in species_names:
-                single_species = True
                 collabels = ['{}_{}'.format(species, c)]
+            elif c in self._extra and d.ndim > 1:
+                raise NotImplementedError(
+                    "Detected multi-dimensional extra column '{}': "
+                    "tabular output is not supported.".format(c))
+            else:
+                collabels = [c]
+
+            if d.ndim > 1:
+                if threshold and d.size:
+                    # Determine threshold value and select columns to keep
+                    maxval = abs(d).max()
+                    keep = (abs(d) > threshold * maxval).any(axis=0)
+                    d = d[:, keep]
+                    collabels = [label for label, k in zip(collabels, keep) if k]
+
+                return [(cl, d[:, i]) for i, cl in enumerate(collabels)]
+            else:
+                return [(collabels[0], d)]
+
+        data = []
+        attrs = self.__dir__() + list(self._extra.keys())
+        species_names = set(self.species_names)
+        for c in expanded_cols:
+            if c in species_names:
+
+                d = getattr(self(c), species)
+            elif c in attrs:
+                d = getattr(self, c)
             else:
                 raise CanteraError('property "{}" not supported'.format(c))
 
-            # Get the data for the current group of columns
-            if single_species:
-                d = getattr(self(c), species)
+            if tabular:
+                data += split(c, d)
+
             else:
-                d = getattr(self, c)
+                data += [(c, d)]
 
-            if d.ndim == 1:
-                d = d[:, np.newaxis]
-            elif threshold:
-                # Determine threshold value and select columns to keep
-                maxval = abs(d).max()
-                keep = (abs(d) > threshold * maxval).any(axis=0)
-                d = d[:, keep]
-                collabels = [label for label, k in zip(collabels, keep) if k]
+        return OrderedDict(data)
 
-            data.append(d)
-            labels.extend(collabels)
-
-        return np.hstack(data), labels
-
-    def write_csv(self, filename, cols=('extra','T','density','Y'),
-                  *args, **kwargs):
+    def write_csv(self, filename, cols=None, *args, **kwargs):
         """
         Write a CSV file named *filename* containing the data specified by
         *cols*. The first row of the CSV file will contain column labels.
 
         Additional arguments are passed on to `collect_data`. This method works
-        only with 1D SolutionArray objects.
+        only with 1D `SolutionArray` objects.
         """
-        data, labels = self.collect_data(cols, *args, **kwargs)
-        with open(filename, 'w') as outfile:
+        data_dict = self.collect_data(*args, cols=cols, tabular=True, **kwargs)
+        data = np.hstack([d[:, np.newaxis] for d in data_dict.values()])
+        labels = list(data_dict.keys())
+        with open(filename, 'w', newline='') as outfile:
             writer = _csv.writer(outfile)
             writer.writerow(labels)
             for row in data:
                 writer.writerow(row)
 
+    def read_csv(self, filename):
+        """
+        Read a CSV file named *filename* and restore data to the `SolutionArray`
+        using `restore_data`. This method allows for recreation of data
+        previously exported by `write_csv`.
+        """
+        if np.lib.NumpyVersion(np.__version__) < "1.14.0":
+            # bytestring needs to be converted for columns containing strings
+            data = np.genfromtxt(filename, delimiter=',',
+                                 dtype=None, names=True)
+            data_dict = OrderedDict()
+            for label in data.dtype.names:
+                if data[label].dtype.type == np.bytes_:
+                    data_dict[label] = data[label].astype('U')
+                else:
+                    data_dict[label] = data[label]
+        else:
+            # the 'encoding' parameter introduced with NumPy 1.14 simplifies import
+            data = np.genfromtxt(filename, delimiter=',',
+                                 dtype=None, names=True, encoding=None)
+            data_dict = OrderedDict({label: data[label]
+                                     for label in data.dtype.names})
+        self.restore_data(data_dict)
+
+    def to_pandas(self, cols=None, *args, **kwargs):
+        """
+        Returns the data specified by *cols* in a single pandas DataFrame.
+
+        Additional arguments are passed on to `collect_data`. This method works
+        only with 1D `SolutionArray` objects and requires a working pandas
+        installation. Use pip or conda to install `pandas` to enable this method.
+        """
+
+        if isinstance(_pandas, ImportError):
+            raise _pandas
+
+        data_dict = self.collect_data(*args, cols=cols, tabular=True, **kwargs)
+        data = np.hstack([d[:, np.newaxis] for d in data_dict.values()])
+        labels = list(data_dict.keys())
+        return _pandas.DataFrame(data=data, columns=labels)
+
+    def from_pandas(self, df):
+        """
+        Restores `SolutionArray` data from a pandas DataFrame *df*.
+
+        This method is intendend for loading of data that were previously
+        exported by `to_pandas`. The method requires a working pandas
+        installation. The package 'pandas' can be installed using pip or conda.
+        """
+
+        data = df.to_numpy(dtype=float)
+        labels = list(df.columns)
+
+        data_dict = OrderedDict()
+        for i, label in enumerate(labels):
+            data_dict[label] = data[:, i]
+        self.restore_data(data_dict)
+
+    def write_hdf(self, filename, *args, cols=None, group=None, subgroup=None,
+                  attrs={}, mode='a', append=False,
+                  compression=None, compression_opts=None, **kwargs):
+        """
+        Write data specified by *cols* to a HDF container file named *filename*.
+        Note that it is possible to write multiple data entries to a single HDF
+        container file, where *group* is used to differentiate data.
+
+        An example for the default HDF file structure is:::
+
+            /                        Group
+            /group0                  Group
+            /group0/some_attr        Attribute
+            ...
+            /group0/T                Dataset
+            ...
+            /group0/phase            Group
+            /group0/phase/name       Attribute
+            /group0/phase/source     Attribute
+
+        where ``group0`` is the default name for the top level HDF entry. In
+        addition to datasets, information stored in `SolutionArray.meta` is
+        saved in form of HDF attributes. An additional intermediate layer may
+        be created using the *subgroup* argument.
+
+        :param filename:
+            Name of the HDF container file; typical file extensions are
+            ``.hdf``, ``.hdf5`` or ``.h5``.
+        :param cols:
+            A list of any properties of the solution being exported.
+        :param group:
+            Identifier for the group in the container file. If no subgroup is
+            specified, a group represents a `SolutionArray`. If 'None', group
+            names default to 'groupN', with N being the number of pre-existing
+            groups within the HDF container file.
+        :param subgroup:
+            Name identifier for an optional subgroup, with subgroups
+            representing individual `SolutionArray` objects. If 'None', no
+            subgroup is created.
+        :param attrs:
+            Dictionary of user-defined attributes added at the group level
+            (typically used in conjunction with a subgroup argument).
+        :param mode:
+            Mode h5py uses to open the output file {'a' to read/write if file
+            exists, create otherwise (default); 'w' to create file, truncate if
+            exists; 'r+' to read/write, file must exist}.
+        :param append:
+            If False, the content of a pre-existing group is deleted before
+            writing the `SolutionArray` in the first position. If True, the
+            current `SolutionArray` objects is appended to the group.
+        :param compression:
+            Pre-defined h5py compression filters {None, 'gzip', 'lzf', 'szip'}
+            used for data compression.
+        :param compression_opts:
+            Options for the h5py compression filter; for 'gzip', this
+            corresponds to the compression level {None, 0-9}.
+        :return:
+            Group identifier used for storing HDF data.
+
+        Arguments *compression*, and *compression_opts* are mapped to parameters
+        for `h5py.create_dataset`; in both cases, the choices of `None` results
+        in default values set by h5py.
+
+        Additional arguments (i.e. *args* and *kwargs*) are passed on to
+        `collect_data`; see `collect_data` for further information. This method
+        requires a working installation of h5py (`h5py` can be installed using
+        pip or conda).
+        """
+        if isinstance(_h5py, ImportError):
+            raise _h5py
+
+        # collect data
+        data = self.collect_data(*args, cols=cols, **kwargs)
+
+        hdf_kwargs = {'compression': compression,
+                      'compression_opts': compression_opts}
+        hdf_kwargs = {k: v for k, v in hdf_kwargs.items() if v is not None}
+
+        # save to container file
+        with _h5py.File(filename, mode) as hdf:
+
+            # check existence of tagged item
+            if not group:
+                # add group with default name
+                group = 'group{}'.format(len(hdf.keys()))
+                root = hdf.create_group(group)
+            elif group not in hdf.keys():
+                # add group with custom name
+                root = hdf.create_group(group)
+            elif append and subgroup is not None:
+                # add subgroup to existing subgroup(s)
+                root = hdf[group]
+            else:
+                # reset data in existing group
+                root = hdf[group]
+                for sub in root.keys():
+                    del root[sub]
+
+            # save attributes
+            for attr, value in attrs.items():
+                root.attrs[attr] = value
+
+            # add subgroup if specified
+            if subgroup is not None:
+                dgroup = root.create_group(subgroup)
+            else:
+                dgroup = root
+
+            # add subgroup containing information on gas
+            sol = dgroup.create_group('phase')
+            sol.attrs['name'] = self.name
+            sol.attrs['source'] = self.source
+
+            # store SolutionArray data
+            for key, val in self._meta.items():
+                dgroup.attrs[key] = val
+            for header, value in data.items():
+                if value.dtype.type == np.str_:
+                    dgroup.create_dataset(header, data=value.astype('S'),
+                                          **hdf_kwargs)
+                else:
+                    dgroup.create_dataset(header, data=value, **hdf_kwargs)
+
+        return group
+
+    def read_hdf(self, filename, group=None, subgroup=None, force=False):
+        """
+        Read a dataset from a HDF container file and restore data to the
+        `SolutionArray` object. This method allows for recreation of data
+        previously exported by `write_hdf`.
+
+        :param filename: name of the HDF container file; typical file extensions
+            are ``.hdf``, ``.hdf5`` or ``.h5``.
+        :param group: Identifier for the group in the container file. A group
+            may contain a `SolutionArray` object or additional subgroups.
+        :param subgroup:
+            Optional name identifier for a subgroup representing a `SolutionArray`
+            object to be read. If 'None', no subgroup is assumed to exist.
+        :param force: If False, matching `SolutionArray` source identifiers are
+            enforced (e.g. input file used for the creation of the underlying
+            `Solution` object), with an error being raised if the current source
+            does not match the original source. If True, the error is
+            suppressed.
+        :return: User-defined attributes provided to describe the group holding
+            the `SolutionArray` information.
+
+        The method imports data using `restore_data` and requires a working
+        installation of h5py (`h5py` can be installed using pip or conda).
+        """
+        if isinstance(_h5py, ImportError):
+            raise _h5py
+
+        with _h5py.File(filename, 'r') as hdf:
+
+            groups = list(hdf.keys())
+            if not len(groups):
+                group = ''
+            elif group is None:
+                group = groups[0]
+
+            if not (group in hdf.keys()):
+                msg = ("HDF file does not contain group '{}'; "
+                       "available groups are: {}")
+                raise IOError(msg.format(group, list(hdf.keys())))
+
+            # load root and attributes
+            root = hdf[group]
+
+            # identify subgroup
+            sub_names = [key for key, value in root.items()
+                         if isinstance(value, _h5py.Group)]
+            if not len(sub_names):
+                msg = "HDF group '{}' does not contain valid data"
+                raise IOError(msg.format(group))
+
+            if subgroup is not None:
+                if subgroup not in sub_names:
+                    msg = ("HDF file does not contain data set '{}' within "
+                           "group '{}'; available data sets are: {}")
+                    raise IOError(msg.format(subgroup, group, sub_names))
+                dgroup = root[subgroup]
+            else:
+                dgroup = root
+
+            root_attrs = dict(root.attrs.items())
+
+            def strip_ext(source):
+                """Strip extension if source identifies a file name"""
+                out = source
+                for ext in ['.yml', '.yaml', '.xml', '.cti']:
+                    if source.endswith(ext):
+                        out = '.'.join(source.split('.')[:-1])
+                        break
+                return out
+
+            # ensure that mechanisms are matching
+            sol_source = strip_ext(dgroup['phase'].attrs['source'])
+            source = strip_ext(self.source)
+            if sol_source != source and not force:
+                msg = ("Sources of thermodynamic phases do not match: '{}' vs "
+                       "'{}'; use option 'force' to override this error.")
+                raise IOError(msg.format(sol_source, source))
+
+            # load metadata
+            self._meta = dict(dgroup.attrs.items())
+
+            # load data
+            data = OrderedDict()
+            for name, value in dgroup.items():
+                if name == 'phase':
+                    continue
+                elif value.dtype.type == np.bytes_:
+                    data[name] = np.array(value).astype('U')
+                else:
+                    data[name] = np.array(value)
+
+        self.restore_data(data)
+
+        return root_attrs
+
+
+def _state2_prop(name, doc_source):
+    # Factory for creating properties which consist of a tuple of two variables,
+    # e.g. 'TP' or 'SV'
+    def getter(self):
+        a = np.empty(self._shape)
+        b = np.empty(self._shape)
+        for index in self._indices:
+            self._phase.state = self._states[index]
+            a[index], b[index] = getattr(self._phase, name)
+        return a, b
+
+    def setter(self, AB):
+        assert len(AB) == 2, "Expected 2 elements, got {}".format(len(AB))
+        A, B, _ = np.broadcast_arrays(AB[0], AB[1], self._output_dummy)
+        for index in self._indices:
+            self._phase.state = self._states[index]
+            setattr(self._phase, name, (A[index], B[index]))
+            self._states[index][:] = self._phase.state
+
+    return getter, setter
+
+
+def _state3_prop(name, doc_source, scalar=False):
+    # Factory for creating properties which consist of a tuple of three
+    # variables, e.g. 'TPY' or 'UVX'
+    def getter(self):
+        a = np.empty(self._shape)
+        b = np.empty(self._shape)
+        if scalar:
+            c = np.empty(self._shape)
+        else:
+            c = np.empty(self._shape + (self._phase.n_selected_species,))
+        for index in self._indices:
+            self._phase.state = self._states[index]
+            a[index], b[index], c[index] = getattr(self._phase, name)
+        return a, b, c
+
+    def setter(self, ABC):
+        assert len(ABC) == 3, "Expected 3 elements, got {}".format(len(ABC))
+        A, B, _ = np.broadcast_arrays(ABC[0], ABC[1], self._output_dummy)
+        XY = ABC[2] # composition
+        if len(np.shape(XY)) < 2:
+            # composition is a single array (or string or dict)
+            for index in self._indices:
+                self._phase.state = self._states[index]
+                setattr(self._phase, name, (A[index], B[index], XY))
+                self._states[index][:] = self._phase.state
+        else:
+            # composition is an array with trailing dimension n_species
+            C = np.empty(self._shape + (self._phase.n_selected_species,))
+            C[:] = XY
+            for index in self._indices:
+                self._phase.state = self._states[index]
+                setattr(self._phase, name, (A[index], B[index], C[index]))
+                self._states[index][:] = self._phase.state
+
+    return getter, setter
 
 def _make_functions():
     # this is wrapped in a function to avoid polluting the module namespace
 
-    # Factory for creating properties which consist of a tuple of two variables,
-    # e.g. 'TP' or 'SV'
-    def state2_prop(name, doc_source):
-        def getter(self):
-            a = np.empty(self._shape)
-            b = np.empty(self._shape)
-            for index in self._indices:
-                self._phase.state = self._states[index]
-                a[index], b[index] = getattr(self._phase, name)
-            return a, b
+    names = []
+    for ph, ext in [(ThermoPhase, 'XY'), (PureFluid, 'Q')]:
 
-        def setter(self, AB):
-            assert len(AB) == 2, "Expected 2 elements, got {}".format(len(AB))
-            A, B, _ = np.broadcast_arrays(AB[0], AB[1], self._output_dummy)
-            for index in self._indices:
-                self._phase.state = self._states[index]
-                setattr(self._phase, name, (A[index], B[index]))
-                self._states[index][:] = self._phase.state
+        # all state setters/getters are combination of letters
+        setters = 'TDPUVHS' + ext
+        scalar = ext == 'Q'
 
-        return property(getter, setter, doc=getattr(doc_source, name).__doc__)
+        # add deprecated setters for PureFluid (e.g. PX/TX)
+        # @todo: remove .. deprecated:: 2.5
+        setters = setters.replace('Q', 'QX')
 
-    for name in SolutionArray._state2:
-        setattr(SolutionArray, name, state2_prop(name, Solution))
+        # obtain setters/getters from thermo objects
+        all_states = [k for k in ph.__dict__
+                      if not set(k) - set(setters) and len(k)>1]
 
-    for name in PureFluid._full_states.values():
-        setattr(SolutionArray, name, state2_prop(name, PureFluid))
-
-    # Factory for creating properties which consist of a tuple of three
-    # variables, e.g. 'TPY' or 'UVX'
-    def state3_prop(name):
-        def getter(self):
-            a = np.empty(self._shape)
-            b = np.empty(self._shape)
-            c = np.empty(self._shape + (self._phase.n_selected_species,))
-            for index in self._indices:
-                self._phase.state = self._states[index]
-                a[index], b[index], c[index] = getattr(self._phase, name)
-            return a, b, c
-
-        def setter(self, ABC):
-            assert len(ABC) == 3, "Expected 3 elements, got {}".format(len(ABC))
-            A, B, _ = np.broadcast_arrays(ABC[0], ABC[1], self._output_dummy)
-            XY = ABC[2] # composition
-            if len(np.shape(XY)) < 2:
-                # composition is a single array (or string or dict)
-                for index in self._indices:
-                    self._phase.state = self._states[index]
-                    setattr(self._phase, name, (A[index], B[index], XY))
-                    self._states[index][:] = self._phase.state
-            else:
-                # composition is an array with trailing dimension n_species
-                C = np.empty(self._shape + (self._phase.n_selected_species,))
-                C[:] = XY
-                for index in self._indices:
-                    self._phase.state = self._states[index]
-                    setattr(self._phase, name, (A[index], B[index], C[index]))
-                    self._states[index][:] = self._phase.state
-
-        return property(getter, setter, doc=getattr(Solution, name).__doc__)
-
-    for name in Solution._full_states.values():
-        setattr(SolutionArray, name, state3_prop(name))
+        # state setters (copy from ThermoPhase objects)
+        for name in all_states:
+            if name in names:
+                continue
+            names.append(name)
+            if len(name) == 2:
+                getter, setter = _state2_prop(name, ph)
+            elif len(name) == 3:
+                getter, setter = _state3_prop(name, ph, scalar)
+            doc = getattr(ph, name).__doc__
+            prop = property(getter, setter, doc=doc)
+            setattr(SolutionArray, name, prop)
 
     # Functions which define empty output arrays of an appropriate size for
     # different properties
     def empty_scalar(self):
         return np.empty(self._shape)
+
+    def empty_strings(self):
+        # The maximum length of strings assigned by built-in methods is
+        # currently limited to 50 characters; an attempt to assign longer
+        # character arrays will result in truncated strings.
+        return np.empty(self._shape, dtype='U50')
 
     def empty_species(self):
         return np.empty(self._shape + (self._phase.n_selected_species,))
@@ -751,11 +1440,17 @@ def _make_functions():
     for name in SolutionArray._scalar:
         setattr(SolutionArray, name, make_prop(name, empty_scalar, Solution))
 
+    for name in SolutionArray._strings:
+        setattr(SolutionArray, name, make_prop(name, empty_strings, Solution))
+
     for name in SolutionArray._n_species:
         setattr(SolutionArray, name, make_prop(name, empty_species, Solution))
 
     for name in SolutionArray._interface_n_species:
         setattr(SolutionArray, name, make_prop(name, empty_species, Interface))
+
+    for name in SolutionArray._purefluid_scalar:
+        setattr(SolutionArray, name, make_prop(name, empty_scalar, PureFluid))
 
     for name in SolutionArray._n_total_species:
         setattr(SolutionArray, name,

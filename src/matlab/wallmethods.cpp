@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/clib/ctreactor.h"
 #include "cantera/clib/ct.h"
@@ -14,7 +14,6 @@ void wallmethods(int nlhs, mxArray* plhs[],
 {
     int m, iok = 0, n;
     int job = getInt(prhs[1]);
-    int i = getInt(prhs[2]);
     double r = Undef;
     double v = Undef;
     if (nrhs > 3) {
@@ -23,7 +22,8 @@ void wallmethods(int nlhs, mxArray* plhs[],
 
     // constructor
     if (job == 0) {
-        n = wall_new(i);
+        char* type = getString(prhs[2]);
+        n = wall_new2(type);
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
         double* h = mxGetPr(plhs[0]);
         *h = double(n);
@@ -34,6 +34,8 @@ void wallmethods(int nlhs, mxArray* plhs[],
     }
 
     // options that do not return a value
+
+    int i = getInt(prhs[2]);
     if (job < 20) {
         switch (job) {
         case 1:

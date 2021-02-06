@@ -1,0 +1,243 @@
+description: |-
+  Source unknown. Data originially added by Dave Goodwin in an early
+  version of Cantera.
+
+generator: ck2yaml
+input-files: [silane.inp]
+cantera-version: 2.5.0a3
+date: Wed, 11 Dec 2019 16:59:04 -0500
+
+units: {length: cm, time: s, quantity: mol, activation-energy: cal/mol}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [Si, H, He]
+  species: [H2, H, HE, SIH4, SI, SIH, SIH2, SIH3, H3SISIH, SI2H6, H2SISIH2,
+    SI3H8, SI2, SI3]
+  kinetics: gas
+  state: {T: 300.0, P: 1 atm}
+
+species:
+- name: H2
+  composition: {H: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.34433112, 7.98052075e-03, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+    - [3.3372792, -4.94024731e-05, 4.99456778e-07, -1.79566394e-10, 2.00255376e-14,
+      -950.158922, -3.20502331]
+    note: TPIS78
+- name: H
+  composition: {H: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.5, 7.05332819e-13, -1.99591964e-15, 2.30081632e-18, -9.27732332e-22,
+      2.54736599e+04, -0.446682853]
+    - [2.50000001, -2.30842973e-11, 1.61561948e-14, -4.73515235e-18, 4.98197357e-22,
+      2.54736599e+04, -0.446682914]
+    note: L7/88
+- name: HE
+  composition: {He: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [2.5, 0.0, 0.0, 0.0, 0.0, -745.375, 0.9153488]
+    - [2.5, 0.0, 0.0, 0.0, 0.0, -745.375, 0.9153489]
+    note: '120186'
+- name: SIH4
+  composition: {Si: 1, H: 4}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 2000.0]
+    data:
+    - [1.4516404, 0.013987363, -4.2345639e-06, -2.3606142e-09, 1.3712089e-12,
+      3113.4105, 12.321855]
+    - [0.7935938, 0.017671899, -1.1398009e-05, 3.5992604e-09, -4.5241571e-13,
+      3198.2127, 15.242257]
+    note: '90784'
+- name: SI
+  composition: {Si: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [3.1793537, -2.7646992e-03, 4.4784038e-06, -3.2833177e-09, 9.1213631e-13,
+      5.3339032e+04, 2.7273204]
+    - [2.6506014, -3.5763852e-04, 2.9592293e-07, -7.2804829e-11, 5.7963329e-15,
+      5.3437054e+04, 5.2204057]
+    note: J3/67
+- name: SIH
+  composition: {Si: 1, H: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 2000.0]
+    data:
+    - [3.83601, -2.702657e-03, 6.84907e-06, -5.424184e-09, 1.472131e-12,
+      4.507593e+04, 0.9350778]
+    - [3.11043, 1.094946e-03, 2.898629e-08, -2.745104e-10, 7.051799e-14,
+      4.516898e+04, 4.193487]
+    note: '121986'
+- name: SIH2
+  composition: {Si: 1, H: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [3.475092, 2.139338e-03, 7.672306e-07, 5.217668e-10, -9.898824e-13,
+      3.147397e+04, 4.436585]
+    - [4.14239, 2.150191e-03, -2.19073e-07, -2.073725e-10, 4.741018e-14,
+      3.110484e+04, 0.2930745]
+    note: '42489'
+- name: SIH3
+  composition: {Si: 1, H: 3}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [2.946733, 6.466764e-03, 5.991653e-07, -2.218413e-09, 3.05267e-13,
+      2.270173e+04, 7.347948]
+    - [5.015906, 3.73275e-03, -3.609053e-07, -3.729193e-10, 8.46849e-14,
+      2.190233e+04, -4.291368]
+    note: '42489'
+- name: H3SISIH
+  composition: {H: 4, Si: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1500.0, 4000.0]
+    data:
+    - [3.698707, 0.0187018, -1.430704e-05, 6.005836e-09, -1.116293e-12,
+      3.590825e+04, 8.825191]
+    - [11.27202, 2.538145e-03, -2.998472e-07, -9.465367e-11, 1.855053e-14,
+      3.297169e+04, -32.64598]
+    note: '111191'
+- name: SI2H6
+  composition: {Si: 2, H: 6}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 2000.0]
+    data:
+    - [0.67347983, 0.040931531, -4.4841255e-05, 2.9952232e-08, -8.9010854e-12,
+      7932.7875, 18.627403]
+    - [3.4074936, 0.027206479, -1.7713204e-05, 5.6391177e-09, -7.1378682e-13,
+      7532.1842, 6.1321754]
+    note: '90784'
+- name: H2SISIH2
+  composition: {Si: 2, H: 4}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [5.133186, 0.01252855, -4.620421e-07, -6.606075e-09, 2.864345e-12,
+      2.956915e+04, 0.7605133]
+    - [8.986817, 5.405047e-03, -5.214022e-07, -5.313742e-10, 1.188727e-13,
+      2.832748e+04, -20.04478]
+    note: '42489'
+- name: SI3H8
+  composition: {Si: 3, H: 8}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 2000.0]
+    data:
+    - [0.77196846, 0.06344274, -7.6726109e-05, 5.4543715e-08, -1.6611729e-11,
+      1.2071263e+04, 21.532507]
+    - [6.0933341, 0.036580112, -2.3892361e-05, 7.6271932e-09, -9.6769384e-13,
+      1.1297205e+04, -2.7475654]
+    note: '90784'
+- name: SI2
+  composition: {Si: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 2000.0]
+    data:
+    - [2.9671976, 6.3119558e-03, -1.097079e-05, 8.927868e-09, -2.7873689e-12,
+      6.9870738e+04, 9.2789503]
+    - [4.1446779, 6.5234677e-04, -5.010852e-07, 1.8062843e-10, -2.5161111e-14,
+      6.9694707e+04, 3.8627366]
+    note: '90784'
+- name: SI3
+  composition: {Si: 3}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [4.5979129, 0.010715274, -1.6100422e-05, 1.0969207e-08, -2.7832875e-12,
+      7.4766324e+04, 3.4421671]
+    - [7.421336, -1.1709948e-04, 8.9820775e-08, 7.1935964e-12, -2.5670837e-15,
+      7.4146699e+04, -10.365274]
+    note: J3/67
+
+reactions:
+- equation: SIH4 + H <=> SIH3 + H2  # Reaction 1
+  rate-constant: {A: 7.8e+14, b: 0.0, Ea: 2260.0}
+  note: Roth
+- equation: SIH4 + M <=> SIH3 + H + M  # Reaction 2
+  type: three-body
+  rate-constant: {A: 3.91e+15, b: 0.0, Ea: 8.9356e+04}
+  note: 94TAK/MOM   tst calc
+- equation: SIH3 + H <=> SIH2 + H2  # Reaction 3
+  rate-constant: {A: 7.8e+14, b: 0.0, Ea: 2260.0}
+  note: assume same as SIH4
+- equation: SI + SI + M <=> SI2 + M  # Reaction 4
+  type: three-body
+  rate-constant: {A: 2.47e+16, b: 0.0, Ea: 1178.0}
+  note: 90MAR/RAF
+- equation: SIH4 + SIH2 <=> H3SISIH + H2  # Reaction 5
+  rate-constant: {A: 1.3e+13, b: 0.0, Ea: 0.0}
+  note: R8
+- equation: SIH + H2 <=> SIH2 + H  # Reaction 6
+  rate-constant: {A: 4.8e+14, b: 0.0, Ea: 23.64}
+  note: R11
+- equation: SIH + SIH4 <=> H3SISIH + H  # Reaction 7
+  rate-constant: {A: 1.6e+14, b: 0.0, Ea: 0.0}
+  note: R12
+- equation: SI + H2 <=> SIH + H  # Reaction 8
+  rate-constant: {A: 1.5e+15, b: 0.0, Ea: 31.8}
+  note: R13
+- equation: SIH4 (+M) <=> SIH2 + H2 (+M)  # Reaction 9
+  type: falloff
+  low-P-rate-constant: {A: 5.214e+29, b: -3.545, Ea: 5.755e+04}
+  high-P-rate-constant: {A: 3.119e+09, b: 1.669, Ea: 5.471e+04}
+  Troe: {A: -0.4984, T3: 888.3, T1: 209.4, T2: 2760.0}
+  efficiencies: {SIH4: 4.0, SI2H6: 4.0}
+  note: R1
+- equation: H3SISIH (+M) <=> H2SISIH2 (+M)  # Reaction 10
+  type: falloff
+  low-P-rate-constant: {A: 1.099e+33, b: -5.765, Ea: 9152.0}
+  high-P-rate-constant: {A: 2.54e+13, b: -0.2239, Ea: 5381.0}
+  Troe: {A: -0.4202, T3: 214.5, T1: 103.0, T2: 136.3}
+  efficiencies: {SIH4: 4.0, SI2H6: 4.0}
+  note: |-
+    HF(SiH2)=64.3, anh_inc.16b,  beta(Ar,300) = 0.25 fit from 300 to 1200K
+    A6
+- equation: SI3H8 (+M) <=> SIH4 + H3SISIH (+M)  # Reaction 11
+  type: falloff
+  low-P-rate-constant: {A: 4.36e+76, b: -17.26, Ea: 5.9303e+04}
+  high-P-rate-constant: {A: 3.73e+12, b: 0.992, Ea: 5.085e+04}
+  Troe: {A: 0.4157, T3: 365.3, T1: 3102.0, T2: 9.724}
+  efficiencies: {SIH4: 4.0, SI2H6: 4.0}
+  note: RRKM fits 3/18/93 by MEC
+- equation: SI3H8 (+M) <=> SIH2 + SI2H6 (+M)  # Reaction 12
+  type: falloff
+  low-P-rate-constant: {A: 1.73e+69, b: -15.07, Ea: 6.0491e+04}
+  high-P-rate-constant: {A: 6.97e+12, b: 0.9691, Ea: 5.2677e+04}
+  Troe: {A: -3.47e-05, T3: 442.0, T1: 2412.0, T2: 128.3}
+  efficiencies: {SIH4: 4.0, SI2H6: 4.0}
+- equation: SI2H6 (+M) <=> H2 + H3SISIH (+M)  # Reaction 13
+  type: falloff
+  low-P-rate-constant: {A: 1.945e+44, b: -7.772, Ea: 5.9023e+04}
+  high-P-rate-constant: {A: 9.086e+09, b: 1.834, Ea: 5.4197e+04}
+  Troe: {A: -0.1224, T3: 793.3, T1: 2400.0, T2: 11.39}
+  efficiencies: {SIH4: 4.0, SI2H6: 4.0}
+- equation: SI2H6 (+M) <=> SIH4 + SIH2 (+M)  # Reaction 14
+  type: falloff
+  low-P-rate-constant: {A: 5.09e+53, b: -10.37, Ea: 5.6034e+04}
+  high-P-rate-constant: {A: 1.81e+10, b: 1.747, Ea: 5.0203e+04}
+  Troe: {A: 4.375e-05, T3: 438.5, T1: 2726.0, T2: 438.2}
+  efficiencies: {SIH4: 4.0, SI2H6: 4.0}
+  note: A3

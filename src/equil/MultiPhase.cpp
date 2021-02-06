@@ -5,7 +5,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/equil/ChemEquil.h"
 #include "cantera/equil/MultiPhase.h"
@@ -49,7 +49,7 @@ void MultiPhase::addPhases(std::vector<ThermoPhase*>& phases,
 void MultiPhase::addPhase(ThermoPhase* p, doublereal moles)
 {
     if (m_init) {
-        throw CanteraError("addPhase",
+        throw CanteraError("MultiPhase::addPhase",
                            "phases cannot be added after init() has been called.");
     }
 
@@ -170,14 +170,14 @@ ThermoPhase& MultiPhase::phase(size_t n)
 void MultiPhase::checkPhaseIndex(size_t m) const
 {
     if (m >= nPhases()) {
-        throw IndexError("checkPhaseIndex", "phase", m, nPhases()-1);
+        throw IndexError("MultiPhase::checkPhaseIndex", "phase", m, nPhases()-1);
     }
 }
 
 void MultiPhase::checkPhaseArraySize(size_t mm) const
 {
     if (nPhases() > mm) {
-        throw ArraySizeError("checkPhaseIndex", mm, nPhases());
+        throw ArraySizeError("MultiPhase::checkPhaseIndex", mm, nPhases());
     }
 }
 
@@ -716,14 +716,14 @@ void MultiPhase::setTemperature(const doublereal T)
 void MultiPhase::checkElementIndex(size_t m) const
 {
     if (m >= m_nel) {
-        throw IndexError("checkElementIndex", "elements", m, m_nel-1);
+        throw IndexError("MultiPhase::checkElementIndex", "elements", m, m_nel-1);
     }
 }
 
 void MultiPhase::checkElementArraySize(size_t mm) const
 {
     if (m_nel > mm) {
-        throw ArraySizeError("checkElementArraySize", mm, m_nel);
+        throw ArraySizeError("MultiPhase::checkElementArraySize", mm, m_nel);
     }
 }
 
@@ -745,14 +745,14 @@ size_t MultiPhase::elementIndex(const std::string& name) const
 void MultiPhase::checkSpeciesIndex(size_t k) const
 {
     if (k >= m_nsp) {
-        throw IndexError("checkSpeciesIndex", "species", k, m_nsp-1);
+        throw IndexError("MultiPhase::checkSpeciesIndex", "species", k, m_nsp-1);
     }
 }
 
 void MultiPhase::checkSpeciesArraySize(size_t kk) const
 {
     if (m_nsp > kk) {
-        throw ArraySizeError("checkSpeciesArraySize", kk, m_nsp);
+        throw ArraySizeError("MultiPhase::checkSpeciesArraySize", kk, m_nsp);
     }
 }
 

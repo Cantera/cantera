@@ -1,7 +1,7 @@
 //! @file StFlow.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/oneD/StFlow.h"
 #include "cantera/base/ctml.h"
@@ -13,7 +13,7 @@ using namespace std;
 namespace Cantera
 {
 
-StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
+StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
     m_press(-1.0),
     m_nsp(nsp),
@@ -28,11 +28,16 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_kExcessLeft(0),
     m_kExcessRight(0),
     m_zfixed(Undef),
-    m_tfixed(Undef)
+    m_tfixed(-1.)
 {
+    if (ph->type() == "IdealGas") {
+        m_thermo = static_cast<IdealGasPhase*>(ph);
+    } else {
+        throw CanteraError("StFlow::StFlow",
+                           "Unsupported phase type: need 'IdealGasPhase'");
+    }
     m_type = cFlowType;
     m_points = points;
-    m_thermo = ph;
 
     if (ph == 0) {
         return; // used to create a dummy object
@@ -186,7 +191,7 @@ void StFlow::setGasAtMidpoint(const doublereal* x, size_t j)
 void StFlow::_finalize(const doublereal* x)
 {
     if (!m_do_multicomponent && m_do_soret) {
-        throw CanteraError("_finalize",
+        throw CanteraError("StFlow::_finalize",
             "Thermal diffusion (the Soret effect) is enabled, and requires "
             "using a multicomponent transport model.");
     }
@@ -237,11 +242,6 @@ void StFlow::eval(size_t jg, doublereal* xg,
     // influence for this domain, then skip evaluating the residual
     if (jg != npos && (jg + 1 < firstPoint() || jg > lastPoint() + 1)) {
         return;
-    }
-
-    // if evaluating a Jacobian, compute the steady-state residual
-    if (jg != npos) {
-        rdt = 0.0;
     }
 
     // start of local part of global arrays
@@ -574,9 +574,9 @@ string StFlow::componentName(size_t n) const
 {
     switch (n) {
     case 0:
-        return "u";
+        return "velocity";
     case 1:
-        return "V";
+        return "spread_rate";
     case 2:
         return "T";
     case 3:
@@ -595,8 +595,18 @@ string StFlow::componentName(size_t n) const
 size_t StFlow::componentIndex(const std::string& name) const
 {
     if (name=="u") {
+        warn_deprecated("StFlow::componentIndex",
+                        "To be changed after Cantera 2.5. "
+                        "Solution component 'u' renamed to 'velocity'");
+        return 0;
+    } else if (name=="velocity") {
         return 0;
     } else if (name=="V") {
+        warn_deprecated("StFlow::componentIndex",
+                        "To be changed after Cantera 2.5. "
+                        "Solution component 'V' renamed to 'spread_rate'");
+        return 1;
+    } else if (name=="spread_rate") {
         return 1;
     } else if (name=="T") {
         return 2;
@@ -610,8 +620,9 @@ size_t StFlow::componentIndex(const std::string& name) const
                 return n;
             }
         }
+        throw CanteraError("StFlow1D::componentIndex",
+                           "no component named " + name);
     }
-    return npos;
 }
 
 void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
@@ -760,7 +771,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
             // This may occur when restoring from a mechanism with a different
             // number of species.
             if (loglevel > 0) {
-                writelog("\nWarning: StFlow::restore: species_enabled is "
+                warn_user("StFlow::restore", "species_enabled is "
                     "length {} but should be length {}. Enabling all species "
                     "equations by default.", x.size(), m_nsp);
             }
@@ -870,10 +881,10 @@ void StFlow::solveEnergyEqn(size_t j)
 void StFlow::setBoundaryEmissivities(doublereal e_left, doublereal e_right)
 {
     if (e_left < 0 || e_left > 1) {
-        throw CanteraError("setBoundaryEmissivities",
+        throw CanteraError("StFlow::setBoundaryEmissivities",
             "The left boundary emissivity must be between 0.0 and 1.0!");
     } else if (e_right < 0 || e_right > 1) {
-        throw CanteraError("setBoundaryEmissivities",
+        throw CanteraError("StFlow::setBoundaryEmissivities",
             "The right boundary emissivity must be between 0.0 and 1.0!");
     } else {
         m_epsilon_left = e_left;

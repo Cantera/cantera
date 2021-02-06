@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/solveSP.h"
 #include "cantera/thermo/SurfPhase.h"
@@ -44,12 +44,12 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
             m_indexKinObjSurfPhase.push_back(n);
             m_kinObjPhaseIDSurfPhase.push_back(surfPhaseIndex);
         } else {
-            throw CanteraError("solveSP",
+            throw CanteraError("solveSP::solveSP",
                                "InterfaceKinetics object has no surface phase");
         }
         SurfPhase* sp = dynamic_cast<SurfPhase*>(&kin->thermo(surfPhaseIndex));
         if (!sp) {
-            throw CanteraError("solveSP",
+            throw CanteraError("solveSP::solveSP",
                                "Inconsistent ThermoPhase object within "
                                "InterfaceKinetics object");
         }

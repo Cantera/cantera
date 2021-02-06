@@ -19,7 +19,7 @@ function m = MassFlowController(upstream, downstream)
 %     Instance of class :mat:func:`FlowDevice`
 %
 
-m = FlowDevice(1);
+m = FlowDevice('MassFlowController');
 if nargin == 2
     install(m, upstream, downstream)
 end

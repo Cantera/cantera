@@ -11,32 +11,19 @@ if env['INSTALL_MANPAGES']:
 
 ### Generate customized scripts ###
 
-# If any Python 3 package is built, prefer that one. If not,
-# and if any Python 2 package is built, prefer that one.
-# In all other cases, use the Python 3 location variables,
-# which should all be empty strings
-if env['python3_package'] in ['full', 'minimal']:
-    major = '3'
-elif env['python2_package'] in ['full', 'minimal']:
-    major = '2'
-else:
-    major = '3'
-
 # 'setup_cantera'
 if localenv['layout'] != 'debian' and env['OS'] != 'Windows':
 
     def copy_var(target, source, env):
-        if env['python{}_prefix'.format(major)] == 'USER':
+        if env['python_prefix'] == 'USER':
             env['python_module_loc_sc'] = ''
         else:
-            env['python_module_loc_sc'] = env['python{}_module_loc'.format(major)]
-        env['python_cmd'] = env['python{}_cmd'.format(major)]
-        env['python_array_home'] = env['python{}_array_home'.format(major)]
+            env['python_module_loc_sc'] = env['python_module_loc']
 
     for script in ['setup_cantera', 'setup_cantera.csh']:
         target = env.SubstFile(script, script + '.in')
         localenv.AddPreAction(target, copy_var)
-        localenv.Depends(target, env['install_python{}_action'.format(major)])
+        localenv.Depends(target, env['install_python_action'])
         install('$inst_bindir', target)
 
 # Cantera.mak include file for Makefile projects
@@ -55,12 +42,7 @@ pc_incdirs.extend(localenv['extra_inc_dirs'])
 localenv['mak_extra_libdirs'] = ' '.join('-L%s' % s for s in localenv['extra_lib_dirs'])
 pc_libdirs.extend(localenv['extra_lib_dirs'])
 
-if env['HAS_GLIBCXX']:
-    localenv['mak_stdlib'] = '-lstdc++'
-elif env['HAS_LIBCPP']:
-    localenv['mak_stdlib'] = '-lc++'
-else:
-    localenv['mak_stdlib'] = ''
+localenv['mak_stdlib'] = ''.join('-l' + lib for lib in env['cxx_stdlib'])
 
 if localenv['system_sundials']:
     # Add links to the sundials environment

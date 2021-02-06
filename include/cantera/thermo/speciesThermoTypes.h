@@ -4,7 +4,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef SPECIES_THERMO_TYPES_H
 #define SPECIES_THERMO_TYPES_H
@@ -58,14 +58,5 @@
 //! 9 coefficient NASA Polynomials in multiple temperature regions
 //! This is implemented in the class Nasa9PolyMultiTempRegion in Nasa9Poly1MultiTempRegion
 #define NASA9MULTITEMP 513
-
-//! Surface Adsorbate Model for a species on a surface.
-//! This is implemented in the class Adsorbate.
-#define ADSORBATE 1024
-
-//! Type of reference state thermo which is a wrapper around a pressure dependent
-//! standard state object. Basically, the reference state pressure isn't special.
-//! A general object is called with the pressure set at the reference state.
-#define PDSS_TYPE 37
 
 #endif

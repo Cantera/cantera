@@ -13,11 +13,17 @@ resolve the solution. This is important here, since the flamefront moves as
 the mass flowrate is increased. Without using 'prune', a large number of grid
 points would be concentrated upsteam of the flame, where the flamefront had
 been previously. (To see this, try setting prune to zero.)
+
+Requires: cantera >= 2.5.0
 """
 
-import cantera as ct
-import numpy as np
 import os
+import importlib
+
+import cantera as ct
+
+
+hdf_output = importlib.util.find_spec('h5py') is not None
 
 # parameter values
 p = 0.05 * ct.one_atm  # pressure
@@ -28,11 +34,11 @@ tsurf = 500.0
 # then that solution will be used for the next mdot
 mdot = [0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]  # kg/m^2/s
 
-rxnmech = 'h2o2.cti'  # reaction mechanism file
+rxnmech = 'h2o2.yaml'  # reaction mechanism file
 comp = 'H2:1.8, O2:1, AR:7'  # premixed gas composition
 
 # The solution domain is chosen to be 20 cm
-width = 0.2 # m
+width = 0.2  # m
 
 loglevel = 1  # amount of diagnostic output (0 to 5)
 
@@ -67,16 +73,24 @@ sim.show_solution()
 
 sim.solve(loglevel, auto=True)
 
-outfile = 'stflame1.xml'
+if hdf_output:
+    outfile = 'stagnation_flame.h5'
+else:
+    outfile = 'stagnation_flame.xml'
 if os.path.exists(outfile):
     os.remove(outfile)
 
-for m,md in enumerate(mdot):
+for m, md in enumerate(mdot):
     sim.inlet.mdot = md
     sim.solve(loglevel)
-    sim.save(outfile, 'mdot{0}'.format(m), 'mdot = {0} kg/m2/s'.format(md))
+    if hdf_output:
+        sim.write_hdf(outfile, group='mdot{0}'.format(m),
+                      description='mdot = {0} kg/m2/s'.format(md))
+    else:
+        sim.save(outfile, 'mdot{0}'.format(m),
+                 'mdot = {0} kg/m2/s'.format(md))
 
     # write the velocity, temperature, and mole fractions to a CSV file
-    sim.write_csv('stflame1_{0}.csv'.format(m), quiet=False)
+    sim.write_csv('stagnation_flame_{0}.csv'.format(m), quiet=False)
 
 sim.show_stats()

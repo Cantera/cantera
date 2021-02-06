@@ -1,8 +1,9 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "ctmatutils.h"
 #include "cantera/clib/ct.h"
+#include "cantera/base/global.h"
 
 void checkNArgs(const int n, const int nrhs)
 {
@@ -20,14 +21,19 @@ void kineticsmethods(int nlhs, mxArray* plhs[],
 
     // construct a new instance
     if (job == 0) {
-        checkNArgs(8, nrhs);
-        int root = getInt(prhs[1]);
-        int iph = getInt(prhs[3]);
-        int in1 = getInt(prhs[4]);
-        int in2 = getInt(prhs[5]);
-        int in3 = getInt(prhs[6]);
-        int in4 = getInt(prhs[7]);
-        vv = static_cast<int>(kin_newFromXML(root, iph, in1, in2, in3, in4));
+        checkNArgs(10, nrhs);
+        std::string fileName = getString(prhs[3]);
+        std::string phaseName = getString(prhs[4]);
+        if (phaseName == "-") {
+            phaseName = "";
+        }
+        int iph = getInt(prhs[5]);
+        int in1 = getInt(prhs[6]);
+        int in2 = getInt(prhs[7]);
+        int in3 = getInt(prhs[8]);
+        int in4 = getInt(prhs[9]);
+        vv = static_cast<int>(kin_newFromFile(
+            fileName.c_str(), phaseName.c_str(), iph, in1, in2, in3, in4));
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
         double* h = mxGetPr(plhs[0]);
         *h = vv;
@@ -96,6 +102,9 @@ void kineticsmethods(int nlhs, mxArray* plhs[],
                 break;
             case 16:
                 ok = kin_getRevRateConstants(kin,1,nr,h);
+                break;
+            case 17:
+                ok = kin_getDelta(kin,getInt(prhs[3]),nr,h);
                 break;
             default:
                 ;

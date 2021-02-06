@@ -1,0 +1,39 @@
+
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+
+  <!-- phase NaCl(S)    -->
+  <phase dim="3" id="NaCl(S)">
+    <elementArray datasrc="elements.xml">
+        O H C Fe Ca N Na Cl
+    </elementArray>
+    <speciesArray datasrc="#species_NaCl(S)"> NaCl(S) </speciesArray>
+    <thermo model="StoichSubstance">
+      <density units="g/cm3">2.165</density>
+    </thermo>
+    <transport model="None"/>
+    <kinetics model="none"/>
+  </phase>
+
+  <!-- species definitions     -->
+  <speciesData id="species_NaCl(S)">
+
+    <!-- species NaCl(S)   -->
+    <species name="NaCl(S)">
+      <atomArray> Na:1 Cl:1 </atomArray>
+      <thermo>
+        <Shomate Pref="1 bar" Tmax="1075.0" Tmin="250.0">
+          <floatArray size="7">
+           50.72389, 6.672267, -2.517167,
+           10.15934, -0.200675, -427.2115,
+           130.3973
+          </floatArray>
+        </Shomate>
+      </thermo>
+      <density units="g/cm3">2.165</density>
+    </species>
+
+  </speciesData>
+
+</ctml>

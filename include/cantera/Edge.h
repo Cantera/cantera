@@ -1,10 +1,12 @@
 //! @file Edge.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CXX_EDGE
 #define CXX_EDGE
+
+#pragma message("warning: Edge.h is deprecated and will be removed after Cantera 2.5.0.")
 
 #include "thermo/ThermoFactory.h"
 #include "kinetics/importKinetics.h"
@@ -15,6 +17,10 @@ namespace Cantera
 {
 
 //! Convenience class which inherits from both EdgePhase and EdgeKinetics
+/*!
+ * @deprecated To be removed after Cantera 2.5.0.
+ *             Replaceable with Solution and/or EdgePhase/EdgeKinetics.
+ */
 class Edge :
     public EdgePhase, public EdgeKinetics
 {
@@ -22,6 +28,9 @@ public:
     Edge(const std::string& infile, std::string id, std::vector<ThermoPhase*> phases)
         : m_ok(false), m_r(0)
     {
+        warn_deprecated("class Metal",
+            "To be removed after Cantera 2.5.0. "
+            "Replaceable with Solution and/or EdgePhase/EdgeKinetics.");
         m_r = get_XML_File(infile);
         if (id == "-") {
             id = "";

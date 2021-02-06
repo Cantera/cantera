@@ -4,20 +4,9 @@ import os
 import warnings
 import shutil
 import tempfile
+import unittest
 import errno
 import cantera
-
-_ver = sys.version_info[:2]
-python_version = str(_ver[0])
-
-if _ver < (2,7) or (3,0) <= _ver < (3,2):
-    # unittest2 is a backport of the new features added to the unittest
-    # testing framework in Python 2.7 and Python 3.2. See
-    # https://pypi.python.org/pypi/unittest2 (for Python 2.x)
-    # https://pypi.python.org/pypi/unittest2py3k (for Python 3.x)
-    import unittest2 as unittest
-else:
-    import unittest
 
 
 class CanteraTest(unittest.TestCase):
@@ -30,8 +19,7 @@ class CanteraTest(unittest.TestCase):
         root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                 '..', '..', '..', '..'))
         if os.path.exists(os.path.join(root_dir, 'SConstruct')):
-            cls.test_work_dir = os.path.join(root_dir, 'test', 'work',
-                                             'python{}'.format(python_version))
+            cls.test_work_dir = os.path.join(root_dir, 'test', 'work', 'python')
             try:
                 os.makedirs(cls.test_work_dir)
             except OSError as e:
@@ -44,8 +32,11 @@ class CanteraTest(unittest.TestCase):
         else:
             cls.test_work_dir = tempfile.mkdtemp()
 
+        cantera.make_deprecation_warnings_fatal()
         cantera.add_directory(cls.test_work_dir)
         cls.test_data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
+        cls.cantera_data = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), '..', 'data'))
 
     @classmethod
     def tearDownClass(cls):

@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CTC_CT_H
 #define CTC_CT_H
@@ -16,6 +16,7 @@ extern "C" {
 
     CANTERA_CAPI int ct_appdelete();
 
+    CANTERA_CAPI int thermo_newFromFile(const char* filename, const char* phasename);
     CANTERA_CAPI int thermo_newFromXML(int mxml);
     CANTERA_CAPI int thermo_del(int n);
     CANTERA_CAPI size_t thermo_nElements(int n);
@@ -39,6 +40,7 @@ extern "C" {
     CANTERA_CAPI int thermo_setMassFractionsByName(int n, const char* y);
     CANTERA_CAPI int thermo_getAtomicWeights(int n, size_t lenm, double* atw);
     CANTERA_CAPI int thermo_getMolecularWeights(int n, size_t lenm, double* mw);
+    CANTERA_CAPI int thermo_getCharges(int n, size_t lenm, double* sc);
     CANTERA_CAPI int thermo_getElementName(int n, size_t k, size_t lennm, char* nm);
     CANTERA_CAPI int thermo_getSpeciesName(int n, size_t m, size_t lennm, char* nm);
     CANTERA_CAPI int thermo_getName(int n, size_t lennm, char* nm);
@@ -72,7 +74,6 @@ extern "C" {
     CANTERA_CAPI double thermo_thermalExpansionCoeff(int n);
     CANTERA_CAPI double thermo_isothermalCompressibility(int n);
     CANTERA_CAPI int thermo_chemPotentials(int n, size_t lenm, double* murt);
-    CANTERA_CAPI int thermo_elementPotentials(int n, size_t lenm, double* lambda);
     CANTERA_CAPI int thermo_getEnthalpies_RT(int n, size_t lenm, double* h_rt);
     CANTERA_CAPI int thermo_getEntropies_R(int n, size_t lenm, double* s_r);
     CANTERA_CAPI int thermo_getCp_R(int n, size_t lenm, double* cp_r);
@@ -102,9 +103,12 @@ extern "C" {
     CANTERA_CAPI int thermo_setState_Psat(int n, double p, double x);
     CANTERA_CAPI int thermo_setState_Tsat(int n, double t, double x);
 
-    CANTERA_CAPI size_t kin_newFromXML(int mxml, int iphase,
-                                       int neighbor1, int neighbor2, int neighbor3,
-                                       int neighbor4);
+    CANTERA_CAPI int kin_newFromFile(const char* filename, const char* phasename,
+                                     int reactingPhase, int neighbor1, int neighbor2,
+                                     int neighbor3, int neighbor4);
+    CANTERA_CAPI int kin_newFromXML(int mxml, int iphase,
+                                    int neighbor1, int neighbor2, int neighbor3,
+                                    int neighbor4);
     CANTERA_CAPI int kin_del(int n);
     CANTERA_CAPI size_t kin_nSpecies(int n);
     CANTERA_CAPI size_t kin_nReactions(int n);
@@ -137,7 +141,8 @@ extern "C" {
     CANTERA_CAPI int kin_advanceCoverages(int n, double tstep);
     CANTERA_CAPI size_t kin_phase(int n, size_t i);
 
-    CANTERA_CAPI size_t trans_new(const char* model, int th, int loglevel);
+    CANTERA_CAPI int trans_newDefault(int th, int loglevel);
+    CANTERA_CAPI int trans_new(const char* model, int th, int loglevel);
     CANTERA_CAPI int trans_del(int n);
     CANTERA_CAPI double trans_viscosity(int n);
     CANTERA_CAPI double trans_electricalConductivity(int n);

@@ -1,0 +1,159 @@
+phases:
+- name: gas
+  thermo: ideal-gas
+  species: [{gas-species: all}]
+  state: {T: 900 K, P: 1 atm, X: {H2: 0.4, Ar: 0.6}}
+
+- name: Pt-surf
+  thermo: ideal-surface
+  kinetics: surface
+  reactions: [Pt-reactions]
+  species: [{Pt-surf-species: all}]
+  site-density: 2.7063e-9 mol/cm^2
+  state: {T: 900 K, P: 1 atm, coverages: {Pt(s): 0.5, H(s): 0.4, O(s): 0.1}}
+
+- name: TPB
+  thermo: edge
+  species: [{tpb-species: [(tpb)]}]
+  site-density: 5e-17 mol/cm
+  state: {T: 1073.15 K, P: 1 atm, coverages: {(tpb): 1.0}}
+
+- name: graphite
+  thermo: lattice
+  species: [{graphite-anode-species: [C6, LiC6]}]
+  state: {T: 300, P: 101325, X: {C6: 1.0, LiC6: 1e-5}}
+  density: 2.26 g/cm^3
+
+- name: electrolyte
+  thermo: lattice
+  species: [{graphite-anode-species: [Li+(e), PF6-(e), EC(e), EMC(e)]}]
+  density: 1208.2 kg/m^3
+  state:
+    T: 300
+    P: 101325
+    X: {Li+(e): 0.08, PF6-(e): 0.08, EC(e): 0.28, EMC(e): 0.56}
+
+- name: anode-surface
+  thermo: ideal-surface
+  kinetics: surface
+  reactions: [graphite-anode-reactions]
+  species: [{graphite-anode-species: [(int)]}]
+  site-density: 1.0 mol/cm^2
+  state:
+    T: 300
+    P: 101325
+
+
+gas-species:
+- name: H2
+  composition: {H: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.34433112, 0.00798052075, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+    - [3.3372792, -4.94024731e-05, 4.99456778e-07, -1.79566394e-10, 2.00255376e-14,
+      -950.158922, -3.20502331]
+- name: H
+  composition: {H: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.5, 7.05332819e-13, -1.99591964e-15, 2.30081632e-18, -9.27732332e-22,
+      25473.6599, -0.446682853]
+    - [2.50000001, -2.30842973e-11, 1.61561948e-14, -4.73515235e-18, 4.98197357e-22,
+      25473.6599, -0.446682914]
+- name: Ar
+  composition: {Ar: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 5000.0]
+    data:
+    - [2.5, 0.0, 0.0, 0.0, 0.0, -745.375, 4.366]
+
+
+Pt-surf-species:
+- name: Pt(s)
+  composition: {Pt: 1}
+  thermo:
+    model: constant-cp
+- name: H(s)
+  composition: {H: 1, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300, 1000, 3000]
+    data:
+    - [-1.3029877E+00, 5.4173199E-03, 3.1277972E-07, -3.2328533E-09,
+       1.1362820E-12, -4.2277075E+03, 5.8743238E+00]
+    - [1.0696996E+00, 1.5432230E-03, -1.5500922E-07, -1.6573165E-10,
+       3.8359347E-14, -5.0546128E+03, -7.1555238E+00]
+- name: O(s)
+  composition: {O: 1, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300, 1000, 3000]
+    data:
+    - [-9.4986904E-01, 7.4042305E-03, -1.0451424E-06, -6.1120420E-09,
+       3.3787992E-12, -1.3209912E+04, 3.6137905E+00]
+    - [1.9454180E+00, 9.1761647E-04, -1.1226719E-07, -9.9099624E-11,
+       2.4307699E-14, -1.4005187E+04, -1.1531663E+01]
+
+
+tpb-species:
+- name: (tpb)
+  composition: {}
+  thermo:
+    model: constant-cp
+
+
+Pt-reactions:
+- equation: H2 + 2 Pt(s) => 2 H(s)
+  rate-constant: {A: 4.4579e10 cm^3/mol/s, b: 0.5, Ea: 0.0}
+  orders: {H2: 1.0, Pt(s): 1.0}
+- equation: 2 H(s) => H2 + 2 Pt(s)
+  rate-constant: {A: 3.7e21 cm^2/mol/s, b: 0, Ea: 67400 J/mol}
+  coverage-dependencies: {H(s): {a: 0, m: 0, E: -6000 J/mol}}
+- equation: H + Pt(s) => H(s)
+  sticking-coefficient: [1.0, 0.0, 0.0]
+
+
+graphite-anode-species:
+- name: EC(e)
+  composition: {C: 3, H: 4, O: 3}
+  thermo: {model: constant-cp}
+- name: EMC(e)
+  composition: {C: 4, H: 8, O: 3}
+  thermo: {model: constant-cp}
+- name: O2(e)
+  composition: {O: 2}
+  thermo:
+    model: constant-cp
+    h0: 0.00177285 kJ/mol
+    s0: 143.5777069 J/mol/K
+- name: Li+(e)
+  composition: {Li: 1, E: -1}
+  thermo: {model: constant-cp}
+- name: PF6-(e)
+  composition: {P: 1, F: 6, E: 1}
+  thermo: {model: constant-cp}
+- name: C6
+  composition: {C: 6}
+  thermo: {model: constant-cp}
+- name: LiC6
+  composition: {C: 6, Li: 1, E: -1}
+  thermo:
+    model: constant-cp
+    h0: -11.65 kJ/mol
+# dummy species for anode/electrolyte interface
+- name: (int)
+  composition: {}
+  thermo: {model: constant-cp}
+
+
+graphite-anode-reactions:
+- units: {length: cm, quantity: mol}
+- equation: LiC6 <=> Li+(e) + C6
+  rate-constant: [5.74, 0.0, 0.0]
+  beta: 0.4

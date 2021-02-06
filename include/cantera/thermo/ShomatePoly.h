@@ -9,7 +9,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_SHOMATEPOLY1_H
 #define CT_SHOMATEPOLY1_H
@@ -57,7 +57,9 @@ namespace Cantera
 class ShomatePoly : public SpeciesThermoInterpType
 {
 public:
-    //! Normal constructor
+    ShomatePoly() : m_coeff(7), m_coeff5_orig(0.0) {}
+
+    //! Constructor with all input data
     /*!
      * @param tlow         Minimum temperature
      * @param thigh        Maximum temperature
@@ -72,6 +74,19 @@ public:
         SpeciesThermoInterpType(tlow, thigh, pref),
         m_coeff(7)
     {
+        for (size_t i = 0; i < 7; i++) {
+            m_coeff[i] = coeffs[i] * 1000 / GasConstant;
+        }
+        m_coeff5_orig = m_coeff[5];
+    }
+
+    //! Set array of 7 polynomial coefficients. Input values are assumed to be
+    //! on a kJ/mol basis.
+    void setParameters(const vector_fp& coeffs) {
+        if (coeffs.size() != 7) {
+            throw CanteraError("ShomatePoly::setParameters", "Array must "
+                "contain 7 coefficients, but {} were given.", coeffs.size());
+        }
         for (size_t i = 0; i < 7; i++) {
             m_coeff[i] = coeffs[i] * 1000 / GasConstant;
         }
@@ -210,7 +225,9 @@ protected:
 class ShomatePoly2 : public SpeciesThermoInterpType
 {
 public:
-    //! Normal constructor
+    ShomatePoly2() : m_midT(0.0) {}
+
+    //! Constructor with all input data
     /*!
      * @param tlow    Minimum temperature
      * @param thigh   Maximum temperature
@@ -222,9 +239,38 @@ public:
         SpeciesThermoInterpType(tlow, thigh, pref),
         m_midT(coeffs[0]),
         msp_low(tlow, coeffs[0], pref, coeffs+1),
-        msp_high(coeffs[0], thigh, pref, coeffs+8),
-        m_coeff(coeffs, coeffs + 15)
+        msp_high(coeffs[0], thigh, pref, coeffs+8)
     {
+    }
+
+    virtual void setMinTemp(double Tmin) {
+        SpeciesThermoInterpType::setMinTemp(Tmin);
+        msp_low.setMinTemp(Tmin);
+    }
+
+    virtual void setMaxTemp(double Tmax) {
+        SpeciesThermoInterpType::setMaxTemp(Tmax);
+        msp_high.setMaxTemp(Tmax);
+    }
+
+    virtual void setRefPressure(double Pref) {
+        SpeciesThermoInterpType::setRefPressure(Pref);
+        msp_low.setRefPressure(Pref);
+        msp_high.setRefPressure(Pref);
+    }
+
+    /*!
+     * @param Tmid  Temperature [K] at the boundary between the low and high
+     *              temperature polynomials
+     * @param low   Vector of 7 coefficients for the low temperature polynomial
+     * @param high  Vector of 7 coefficients for the high temperature polynomial
+     */
+    void setParameters(double Tmid, const vector_fp& low, const vector_fp& high) {
+        m_midT = Tmid;
+        msp_low.setMaxTemp(Tmid);
+        msp_high.setMinTemp(Tmid);
+        msp_low.setParameters(low);
+        msp_high.setParameters(high);
     }
 
     virtual int reportType() const {
@@ -260,18 +306,15 @@ public:
         }
     }
 
+    virtual size_t nCoeffs() const { return 15; }
+
     virtual void reportParameters(size_t& n, int& type,
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,
                                   doublereal* const coeffs) const {
-        n = 0;
+        msp_low.reportParameters(n, type, tlow, coeffs[0], pref, coeffs + 1);
+        msp_high.reportParameters(n, type, coeffs[0], thigh, pref, coeffs + 8);
         type = SHOMATE2;
-        tlow = m_lowT;
-        thigh = m_highT;
-        pref = m_Pref;
-        for (int i = 0; i < 15; i++) {
-            coeffs[i] = m_coeff[i];
-        }
     }
 
     virtual doublereal reportHf298(doublereal* const h298 = 0) const {
@@ -310,8 +353,6 @@ protected:
     ShomatePoly msp_low;
     //! Shomate polynomial for the high temperature region.
     ShomatePoly msp_high;
-    //! Array of the original coefficients.
-    vector_fp m_coeff;
 };
 }
 

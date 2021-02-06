@@ -1,0 +1,14 @@
+Elements
+H  C
+
+SPECIES
+R1A R1B H P1
+END
+
+SPAM
+R1A + R1B = H + P1      1.2345e12  1.0  200.0
+END
+
+reactions cal/mol
+R1A + R1B = H + P1      1.2345e12  1.0  200.0
+R1A + R1A = H + P1      5.4321e10  1.0  500.0

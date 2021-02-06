@@ -10,7 +10,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_HMWSOLN_H
 #define CT_HMWSOLN_H
@@ -1046,9 +1046,9 @@ public:
     //! directly from an ASCII input file
     /*!
      *  This constructor is a shell that calls the routine initThermo(), with
-     *  a reference to the XML database to get the info for the phase.
+     *  a reference to the parsed input file to get the info for the phase.
      *
-     * @param inputFile Name of the input file containing the phase XML data
+     * @param inputFile Name of the input file containing the phase definition
      *                  to set up the object
      * @param id        ID of the phase in the input file. Defaults to the
      *                  empty string.
@@ -1061,6 +1061,9 @@ public:
      *  @param phaseRef XML phase node containing the description of the phase
      *  @param id     id attribute containing the name of the phase.
      *                (default is the empty string)
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     HMWSoln(XML_Node& phaseRef, const std::string& id = "");
 
@@ -1139,7 +1142,7 @@ public:
      * only of the mole fractions. Therefore, it can't be an independent
      * variable. Instead, the pressure is used as the independent variable.
      * Functions which try to set the thermodynamic state by calling
-     * setDensity() may cause an exception to be thrown.
+     * setDensity() will cause an exception to be thrown.
      */
     //!@{
 
@@ -1187,6 +1190,8 @@ public:
      *       independent variable however.
      *
      * @param rho Input density (kg/m^3).
+     * @deprecated Functionality merged with base function after Cantera 2.5.
+     *             (superseded by isCompressible check in Phase::setDensity)
      */
     virtual void setDensity(const doublereal rho);
 
@@ -1199,6 +1204,8 @@ public:
      * exactly equal to the current molar density.
      *
      * @param conc   Input molar density (kmol/m^3).
+     * @deprecated Functionality merged with base function after Cantera 2.5.
+     *             (superseded by isCompressible check in Phase::setDensity)
      */
     virtual void setMolarDensity(const doublereal conc);
 
@@ -1514,6 +1521,9 @@ public:
      *             describe the species in the phase.
      * @param id   ID of the phase. If nonnull, a check is done to see if
      *             phaseNode is pointing to the phase with the correct id.
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 

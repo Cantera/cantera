@@ -3,6 +3,9 @@
  *       test problem for multi transport
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
+
 //  Example
 //
 // Test case for mixture transport in a gas
@@ -17,11 +20,10 @@
 
 // perhaps, later, an analytical solution could be added
 
-#include "cantera/transport.h"
+#include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/transport/MultiTransport.h"
-#include "cantera/IdealGasMix.h"
 
-#include <cstdio>
+#include <iostream>
 
 using namespace std;
 using namespace Cantera;
@@ -42,8 +44,9 @@ int main(int argc, char** argv)
     string infile = "diamond.xml";
 
     try {
-        IdealGasMix g("gri30.xml", "gri30_mix");
-        size_t nsp = g.nSpecies();
+        auto sol = newSolution("gri30.yaml", "gri30", "Multi");
+        auto gas = sol->thermo();
+        size_t nsp = gas->nSpecies();
         double pres = 1.0E5;
         vector_fp Xset(nsp, 0.0);
         Xset[0] =  0.269205 ;
@@ -138,32 +141,30 @@ int main(int argc, char** argv)
         grad_T[0] = (T2 - T1) / dist;
         grad_T[1] = (T3 - T1) / dist;
 
-        int log_level = 0;
-        Transport* tran = newTransportMgr("Multi", &g, log_level=0);
-        MultiTransport* tranMix = dynamic_cast<MultiTransport*>(tran);
-        g.setState_TPX(1500.0, pres, Xset.data());
+        auto tran = sol->transport();
+        gas->setState_TPX(1500.0, pres, Xset.data());
         vector_fp mixDiffs(nsp, 0.0);
 
-        tranMix->getMixDiffCoeffs(mixDiffs.data());
+        tran->getMixDiffCoeffs(mixDiffs.data());
         printf(" Dump of the mixture Diffusivities:\n");
         for (size_t k = 0; k < nsp; k++) {
-            string sss = g.speciesName(k);
+            string sss = gas->speciesName(k);
             printf("    %15s %13.2g\n", sss.c_str(), mixDiffs[k]);
         }
 
         vector_fp specVisc(nsp, 0.0);
-        tranMix->getSpeciesViscosities(specVisc.data());
+        tran->getSpeciesViscosities(specVisc.data());
         printf(" Dump of the species viscosities:\n");
         for (size_t k = 0; k < nsp; k++) {
-            string sss = g.speciesName(k);
+            string sss = gas->speciesName(k);
             printf("    %15s %13.4g\n", sss.c_str(), specVisc[k]);
         }
 
         vector_fp thermDiff(nsp, 0.0);
-        tranMix->getThermalDiffCoeffs(thermDiff.data());
+        tran->getThermalDiffCoeffs(thermDiff.data());
         printf(" Dump of the Thermal Diffusivities :\n");
         for (size_t k = 0; k < nsp; k++) {
-            string sss = g.speciesName(k);
+            string sss = gas->speciesName(k);
             double ddd = cutoff(thermDiff[k]);
             printf("    %15s %13.4g\n", sss.c_str(), ddd);
         }
@@ -171,20 +172,20 @@ int main(int argc, char** argv)
         printf("Viscosity and thermal Cond vs. T\n");
         for (size_t k = 0; k < 10; k++) {
             T1 = 400. + 100. * k;
-            g.setState_TPX(T1, pres, Xset.data());
+            gas->setState_TPX(T1, pres, Xset.data());
             double visc = tran->viscosity();
             double cond = tran->thermalConductivity();
             printf("    %13g %13.4g %13.4g\n", T1, visc, cond);
         }
 
-        g.setState_TPX(T1, pres, Xset.data());
+        gas->setState_TPX(T1, pres, Xset.data());
 
         Array2D Bdiff(nsp, nsp, 0.0);
         printf("Binary Diffusion Coefficients H2 vs species\n");
 
-        tranMix->getBinaryDiffCoeffs(nsp, Bdiff.ptrColumn(0));
+        tran->getBinaryDiffCoeffs(nsp, Bdiff.ptrColumn(0));
         for (size_t k = 0; k < nsp; k++) {
-            string sss = g.speciesName(k);
+            string sss = gas->speciesName(k);
             printf(" H2 -   %15s %13.4g %13.4g\n", sss.c_str(), Bdiff(0,k), Bdiff(k,0));
         }
 
@@ -192,20 +193,20 @@ int main(int argc, char** argv)
 
         printf(" Dump of the species mobilities:\n");
         for (size_t k = 0; k < nsp; k++) {
-            string sss = g.speciesName(k);
+            string sss = gas->speciesName(k);
             printf("    %15s %13.4g\n", sss.c_str(), specMob[k]);
         }
 
         Array2D fluxes(nsp, 2, 0.0);
-        tranMix->getSpeciesFluxes(2, grad_T.data(), nsp,
-                                  grad_X.ptrColumn(0), nsp, fluxes.ptrColumn(0));
+        tran->getSpeciesFluxes(2, grad_T.data(), nsp,
+                               grad_X.ptrColumn(0), nsp, fluxes.ptrColumn(0));
         printf(" Dump of the species fluxes:\n");
         double sum1 = 0.0;
         double sum2 = 0.0;
         double max1 = 0.0;
         double max2 = 0.0;
         for (size_t k = 0; k < nsp; k++) {
-            string sss = g.speciesName(k);
+            string sss = gas->speciesName(k);
             double ddd = cutoff(fluxes(k,0));
             double eee = cutoff(fluxes(k,1));
             printf("    %15s %13.4g %13.4g\n", sss.c_str(), ddd, eee);
@@ -235,9 +236,9 @@ int main(int argc, char** argv)
         Array2D MDdiff(nsp, nsp, 0.0);
         printf("Multicomponent Diffusion Coefficients H2 vs species\n");
 
-        tranMix->getMultiDiffCoeffs(nsp, MDdiff.ptrColumn(0));
+        tran->getMultiDiffCoeffs(nsp, MDdiff.ptrColumn(0));
         for (size_t k = 0; k < nsp; k++) {
-            string sss = g.speciesName(k);
+            string sss = gas->speciesName(k);
             printf(" H2 -   %15s %13.4g %13.4g\n", sss.c_str(), MDdiff(0,k), MDdiff(k,0));
         }
 

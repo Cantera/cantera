@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/WaterPropsIAPWS.h"
 #include "cantera/base/ctexceptions.h"
@@ -78,6 +78,12 @@ doublereal WaterPropsIAPWS::pressure() const
 doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
                                     int phase, doublereal rhoguess)
 {
+    if (fabs(pressure - P_c) / P_c < 1.e-8 &&
+        fabs(temperature - T_c) / T_c < 1.e-8) {
+        // Catch critical point, as no solution is found otherwise
+        setState_TR(temperature, Rho_c);
+        return Rho_c;
+    }
     doublereal deltaGuess = 0.0;
     if (rhoguess == -1.0) {
         if (phase != -1) {
@@ -108,8 +114,13 @@ doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
     deltaGuess = rhoguess / Rho_c;
     setState_TR(temperature, rhoguess);
     doublereal delta_retn = m_phi.dfind(p_red, tau, deltaGuess);
+    if (delta_retn <= 0) {
+        // No solution found for first initial guess; perturb initial guess once
+        // to avoid spurious failures (band-aid fix)
+        delta_retn = m_phi.dfind(p_red, tau, 0.9 * deltaGuess);
+    }
     doublereal density_retn;
-    if (delta_retn >0.0) {
+    if (delta_retn > 0.0) {
         delta = delta_retn;
 
         // Dimensionalize the density before returning
@@ -142,10 +153,10 @@ doublereal WaterPropsIAPWS::density_const(doublereal pressure,
                     // relatively high -> convergence from above seems robust.
                     rhoguess = 1000.;
                 } else if (phase == WATER_UNSTABLELIQUID || phase == WATER_UNSTABLEGAS) {
-                    throw CanteraError("WaterPropsIAPWS::density",
+                    throw CanteraError("WaterPropsIAPWS::density_const",
                                        "Unstable Branch finder is untested");
                 } else {
-                    throw CanteraError("WaterPropsIAPWS::density",
+                    throw CanteraError("WaterPropsIAPWS::density_const",
                                        "unknown state: {}", phase);
                 }
             }
@@ -470,7 +481,7 @@ doublereal WaterPropsIAPWS::densSpinodalWater() const
     }
 
     if (!conv) {
-        throw CanteraError("WaterPropsIAPWS::densSpinodalWater()",
+        throw CanteraError("WaterPropsIAPWS::densSpinodalWater",
                            "convergence failure");
     }
     // Restore the original delta
@@ -557,7 +568,7 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
     }
 
     if (!conv) {
-        throw CanteraError("WaterPropsIAPWS::densSpinodalSteam()",
+        throw CanteraError("WaterPropsIAPWS::densSpinodalSteam",
                            "convergence failure");
     }
     // Restore the original delta

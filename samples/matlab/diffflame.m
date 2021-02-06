@@ -16,7 +16,6 @@ p          =   oneatm;              % Pressure
 tin        =   300.0;               % Inlet temperature
 mdot_o     =   0.72;                % Air mass flux, kg/m^2/s
 mdot_f     =   0.24;                % Fuel mass flux, kg/m^2/s
-rxnmech    =  'gri30.xml';          % Reaction mechanism file
 transport  =  'Mix';                % Transport model
 % NOTE: Transport model needed if mechanism file does not have transport
 % properties.
@@ -36,8 +35,8 @@ refine_grid = 1;                    % 1 to enable refinement, 0 to disable
 % properties.
 %
 
-fuel = GRI30('Mix');
-ox = GRI30('Mix');
+fuel = GRI30(transport);
+ox = GRI30(transport);
 oxcomp     =  'O2:0.21, N2:0.78';   % Air composition
 fuelcomp   =  'C2H6:1';             % Fuel composition
 % Set each gas mixture state with the corresponding composition.

@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate species="yes" reactions="yes"/>
+
+  <phase id="UnityLewis" dim="3">
+    <elementArray datasrc="elements.xml">H C</elementArray>
+    <speciesArray datasrc="gri30.xml#species_data">H H2 CH3 CH4</speciesArray>
+    <reactionArray datasrc="gri30.xml#reaction_data">
+      <skip species="undeclared" third_bodies="undeclared"/>
+    </reactionArray>
+    <state>
+      <temperature units="K">1200.0</temperature>
+      <pressure units="Pa">2666.4473684210525</pressure>
+      <moleFractions>H:0.002, H2:0.988, CH3:0.0002, CH4:0.01</moleFractions>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="UnityLewis"/>
+  </phase>
+  <phase id="CK_Mix" dim="3">
+    <elementArray datasrc="elements.xml">H C</elementArray>
+    <speciesArray datasrc="gri30.xml#species_data">H H2 CH3 CH4</speciesArray>
+    <reactionArray datasrc="gri30.xml#reaction_data">
+      <skip species="undeclared" third_bodies="undeclared"/>
+    </reactionArray>
+    <state>
+      <temperature units="K">1200.0</temperature>
+      <pressure units="Pa">2666.4473684210525</pressure>
+      <moleFractions>H:0.002, H2:0.988, CH3:0.0002, CH4:0.01</moleFractions>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="CK_Mix"/>
+  </phase>
+  <phase id="CK_Multi" dim="3">
+    <elementArray datasrc="elements.xml">H C</elementArray>
+    <speciesArray datasrc="gri30.xml#species_data">H H2 CH3 CH4</speciesArray>
+    <reactionArray datasrc="gri30.xml#reaction_data">
+      <skip species="undeclared" third_bodies="undeclared"/>
+    </reactionArray>
+    <state>
+      <temperature units="K">1200.0</temperature>
+      <pressure units="Pa">2666.4473684210525</pressure>
+      <moleFractions>H:0.002, H2:0.988, CH3:0.0002, CH4:0.01</moleFractions>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="CK_Multi"/>
+  </phase>
+  <phase id="HighP" dim="3">
+    <elementArray datasrc="elements.xml">H C</elementArray>
+    <speciesArray datasrc="gri30.xml#species_data">H H2 CH3 CH4</speciesArray>
+    <reactionArray datasrc="gri30.xml#reaction_data">
+      <skip species="undeclared" third_bodies="undeclared"/>
+    </reactionArray>
+    <state>
+      <temperature units="K">1200.0</temperature>
+      <pressure units="Pa">2666.4473684210525</pressure>
+      <moleFractions>H:0.002, H2:0.988, CH3:0.0002, CH4:0.01</moleFractions>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="HighP"/>
+  </phase>
+</ctml>

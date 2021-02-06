@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_METALPHASE_H
 #define CT_METALPHASE_H
@@ -28,6 +28,10 @@ public:
 
     virtual std::string type() const {
         return "Metal";
+    }
+
+    virtual bool isCompressible() const {
+        return false;
     }
 
     virtual doublereal enthalpy_mole() const {
@@ -85,6 +89,15 @@ public:
             c[n] = 1.0;
         }
     }
+    virtual void getPartialMolarEnthalpies(doublereal *h) const {
+        for (size_t n = 0; n < nSpecies(); n++) {
+            h[n] = 0.0;
+        }
+    }
+
+    virtual Units standardConcentrationUnits() const {
+        return Units(1.0);
+    }
 
     virtual doublereal standardConcentration(size_t k=0) const {
         return 1.0;
@@ -94,10 +107,16 @@ public:
         return 0.0;
     }
 
+    virtual void initThermo() {
+        if (m_input.hasKey("density")) {
+            assignDensity(m_input.convert("density", "kg/m^3"));
+        }
+    }
+
     virtual void setParametersFromXML(const XML_Node& eosdata) {
         eosdata._require("model","Metal");
         doublereal rho = getFloat(eosdata, "density", "density");
-        setDensity(rho);
+        assignDensity(rho);
     }
 
 private:

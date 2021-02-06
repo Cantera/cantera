@@ -13,7 +13,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_MOLALITYVPSSTP_H
 #define CT_MOLALITYVPSSTP_H
@@ -194,6 +194,14 @@ public:
     //! @name  Utilities
     //! @{
 
+    //! String indicating the mechanical phase of the matter in this Phase.
+    /*!
+     * All derived phases from `MolalityVPSSTP` always represent liquids.
+     */
+    virtual std::string phaseOfMatter() const {
+        return "liquid";
+    }
+
     //! Set the pH scale, which determines the scale for single-ion activity
     //! coefficients.
     /*!
@@ -217,23 +225,6 @@ public:
     //! @}
     //! @name Utilities for Solvent ID and Molality
     //! @{
-
-    /**
-     * This routine sets the index number of the solvent for the phase.
-     *
-     * Note, having a solvent is a precursor to many things having to do with
-     * molality.
-     *
-     * @param k the solvent index number
-     * @deprecated The solvent is always the first species in the phase. To be
-     *     removed after Cantera 2.4.
-     */
-    void setSolvent(size_t k);
-
-    //! Returns the solvent index.
-    //! @deprecated The solvent is always the first species in the phase. To be
-    //!     removed after Cantera 2.4.
-    size_t solventIndex() const;
 
     /**
      * Sets the minimum mole fraction in the molality formulation. Note the
@@ -473,6 +464,9 @@ public:
      *
      * @param state An XML_Node object corresponding to the "state" entry for
      *              this phase in the input file.
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual void setStateFromXML(const XML_Node& state);
 
@@ -516,6 +510,12 @@ public:
      *                    map for the molalities of the solutes.
      */
     void setState_TPM(doublereal t, doublereal p, const std::string& m);
+
+    //! @copydoc ThermoPhase::setState
+    /*!
+     * Additionally uses the keys `molalities` or `M` to set the molalities.
+     */
+    virtual void setState(const AnyMap& state);
 
     virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN) {
         getdlnActCoeffdlnN_numderiv(ld, dlnActCoeffdlnN);

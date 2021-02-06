@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/MixtureFugacityTP.h"
 #include "cantera/base/stringUtils.h"
@@ -246,8 +246,7 @@ void MixtureFugacityTP::setMoleFractions_NoState(const doublereal* const x)
 
 void MixtureFugacityTP::calcDensity()
 {
-    throw NotImplementedError("MixtureFugacityTP::calcDensity() "
-                              "called, but EOS for phase is not known");
+    throw NotImplementedError("MixtureFugacityTP::calcDensity");
 }
 
 void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
@@ -277,10 +276,10 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
                     Phase::setDensity(rho);
                     iState_ = phaseState(true);
                 } else {
-                    throw CanteraError("MixtureFugacityTP::setState_TP()", "neg rho");
+                    throw CanteraError("MixtureFugacityTP::setState_TP", "neg rho");
                 }
             } else {
-                throw CanteraError("MixtureFugacityTP::setState_TP()", "neg rho");
+                throw CanteraError("MixtureFugacityTP::setState_TP", "neg rho");
             }
         }
     } else if (forcedState_ == FLUID_GAS) {
@@ -292,10 +291,10 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
                 Phase::setDensity(rho);
                 iState_ = phaseState(true);
                 if (iState_ >= FLUID_LIQUID_0) {
-                    throw CanteraError("MixtureFugacityTP::setState_TP()", "wrong state");
+                    throw CanteraError("MixtureFugacityTP::setState_TP", "wrong state");
                 }
             } else {
-                throw CanteraError("MixtureFugacityTP::setState_TP()", "neg rho");
+                throw CanteraError("MixtureFugacityTP::setState_TP", "neg rho");
             }
         }
     } else if (forcedState_ > FLUID_LIQUID_0) {
@@ -306,10 +305,10 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
                 Phase::setDensity(rho);
                 iState_ = phaseState(true);
                 if (iState_ == FLUID_GAS) {
-                    throw CanteraError("MixtureFugacityTP::setState_TP()", "wrong state");
+                    throw CanteraError("MixtureFugacityTP::setState_TP", "wrong state");
                 }
             } else {
-                throw CanteraError("MixtureFugacityTP::setState_TP()", "neg rho");
+                throw CanteraError("MixtureFugacityTP::setState_TP", "neg rho");
             }
         }
     }
@@ -339,12 +338,12 @@ doublereal MixtureFugacityTP::z() const
 
 doublereal MixtureFugacityTP::sresid() const
 {
-    throw CanteraError("MixtureFugacityTP::sresid()", "Base Class: not implemented");
+    throw NotImplementedError("MixtureFugacityTP::sresid");
 }
 
 doublereal MixtureFugacityTP::hresid() const
 {
-    throw CanteraError("MixtureFugacityTP::hresid()", "Base Class: not implemented");
+    throw NotImplementedError("MixtureFugacityTP::hresid");
 }
 
 doublereal MixtureFugacityTP::psatEst(doublereal TKelvin) const
@@ -360,7 +359,7 @@ doublereal MixtureFugacityTP::psatEst(doublereal TKelvin) const
 
 doublereal MixtureFugacityTP::liquidVolEst(doublereal TKelvin, doublereal& pres) const
 {
-    throw CanteraError("MixtureFugacityTP::liquidVolEst()", "unimplemented");
+    throw NotImplementedError("MixtureFugacityTP::liquidVolEst");
 }
 
 doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
@@ -492,7 +491,7 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
     double densBase = 0.0;
     if (! conv) {
         molarVolBase = 0.0;
-        throw CanteraError("MixtureFugacityTP::densityCalc()", "Process did not converge");
+        throw CanteraError("MixtureFugacityTP::densityCalc", "Process did not converge");
     } else {
         densBase = mmw / molarVolBase;
     }
@@ -575,12 +574,12 @@ int MixtureFugacityTP::phaseState(bool checkState) const
 
 doublereal MixtureFugacityTP::densSpinodalLiquid() const
 {
-    throw CanteraError("MixtureFugacityTP::densSpinodalLiquid", "unimplemented");
+    throw NotImplementedError("MixtureFugacityTP::densSpinodalLiquid");
 }
 
 doublereal MixtureFugacityTP::densSpinodalGas() const
 {
-    throw CanteraError("MixtureFugacityTP::densSpinodalGas", "unimplemented");
+    throw NotImplementedError("MixtureFugacityTP::densSpinodalGas");
 }
 
 doublereal MixtureFugacityTP::satPressure(doublereal TKelvin)
@@ -708,11 +707,13 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
             }
         }
         if (!foundGas || !foundLiquid) {
-            writelog("error couldn't find a starting pressure\n");
+            warn_user("MixtureFugacityTP::calculatePsat",
+                "could not find a starting pressure; exiting.");
             return 0.0;
         }
         if (presGas != presLiquid) {
-            writelog("error couldn't find a starting pressure\n");
+            warn_user("MixtureFugacityTP::calculatePsat",
+                "could not find a starting pressure; exiting");
             return 0.0;
         }
 
@@ -780,12 +781,12 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
 
 doublereal MixtureFugacityTP::pressureCalc(doublereal TKelvin, doublereal molarVol) const
 {
-    throw CanteraError("MixtureFugacityTP::pressureCalc", "unimplemented");
+    throw NotImplementedError("MixtureFugacityTP::pressureCalc");
 }
 
 doublereal MixtureFugacityTP::dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const
 {
-    throw CanteraError("MixtureFugacityTP::dpdVCalc", "unimplemented");
+    throw NotImplementedError("MixtureFugacityTP::dpdVCalc");
 }
 
 void MixtureFugacityTP::_updateReferenceStateThermo() const
@@ -804,7 +805,7 @@ void MixtureFugacityTP::_updateReferenceStateThermo() const
         }
         doublereal pref = refPressure();
         if (pref <= 0.0) {
-            throw CanteraError("MixtureFugacityTP::_updateReferenceStateThermo()", "neg ref pressure");
+            throw CanteraError("MixtureFugacityTP::_updateReferenceStateThermo", "neg ref pressure");
         }
     }
 }

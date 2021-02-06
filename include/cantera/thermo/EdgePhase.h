@@ -5,7 +5,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_EDGEPHASE_H
 #define CT_EDGEPHASE_H
@@ -22,8 +22,8 @@ namespace Cantera
  * thermodynamic object.
  *
  * All of the equations and formulations carry through from SurfPhase to this
- * EdgePhase object. It should be noted however, that dimensional object with
- * length dimensions, have their dimensions reduced by one.
+ * EdgePhase object. It should be noted that dimensional quantities with
+ * dimensions including a length have their dimensions reduced by one.
  *
  * @ingroup thermoprops
  */
@@ -57,6 +57,9 @@ public:
      *       <site_density units="mol/cm"> 3e-15 </site_density>
      *    </thermo>
      * @endcode
+     *
+     * @deprecated The XML input format is deprecated and will be removed in
+     *     Cantera 3.0.
      */
     virtual void setParametersFromXML(const XML_Node& thermoData);
 };

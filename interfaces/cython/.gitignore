@@ -1,14 +1,8 @@
 cantera/*.cpp
 cantera/*.c
-cantera/data/*.cti
-cantera/data/*.xml
-cantera/test/data/*.cti
-cantera/test/data/*.xml
-cantera/test/data/*.inp
-cantera/test/data/*.dat
-cantera/test/data/*.csv
-setup2.py
-setup3.py
+cantera/data
+cantera/test/data
+setup.py
 scripts/ctml_writer.py
 scripts/ctml_writer
 scripts/ck2cti.py

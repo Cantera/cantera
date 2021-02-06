@@ -1,7 +1,7 @@
 //! @file ConstPressureReactor.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_CONSTP_REACTOR_H
 #define CT_CONSTP_REACTOR_H
@@ -24,7 +24,18 @@ class ConstPressureReactor : public Reactor
 public:
     ConstPressureReactor() {}
 
+    virtual std::string typeStr() const {
+        return "ConstPressureReactor";
+    }
+
+    /*!
+     * @deprecated To be changed after Cantera 2.5.
+     */
     virtual int type() const {
+        warn_deprecated("ConstPressureReactor::type",
+                        "To be changed after Cantera 2.5. "
+                        "Return string instead of magic number; use "
+                        "ConstPressureReactor::typeStr during transition");
         return ConstPressureReactorType;
     }
 

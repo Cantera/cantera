@@ -1,10 +1,12 @@
 //! @file IdealGasMix.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CXX_IDEALGASMIX
 #define CXX_IDEALGASMIX
+
+#pragma message("warning: IdealGasMix.h is deprecated and will be removed after Cantera 2.5.")
 
 #include "thermo/IdealGasPhase.h"
 #include "kinetics/GasKinetics.h"
@@ -15,6 +17,10 @@ namespace Cantera
 {
 
 //! Convenience class which inherits from both IdealGasPhase and GasKinetics
+/*!
+ * @deprecated To be removed after Cantera 2.5.
+ *             Replaceable with Solution and/or IdealGasPhase/GasKinetics.
+ */
 class IdealGasMix :
     public IdealGasPhase,
     public GasKinetics
@@ -25,6 +31,9 @@ public:
     IdealGasMix(const std::string& infile, std::string id_="") :
         m_ok(false), m_r(0)
     {
+        warn_deprecated("class IdealGasMix",
+            "To be removed after Cantera 2.5. "
+            "Replaceable with Solution and/or IdealGasPhase/GasKinetics.");
         m_r = get_XML_File(infile);
         m_id = id_;
         if (id_ == "-") {
@@ -38,12 +47,18 @@ public:
 
     IdealGasMix(XML_Node& root,
                 std::string id_) : m_ok(false), m_r(&root), m_id(id_) {
+        warn_deprecated("class IdealGasMix",
+            "To be removed after Cantera 2.5. "
+            "Replaceable with Solution and/or IdealGasPhase/GasKinetics.");
         m_ok = buildSolutionFromXML(root, id_, "phase", this, this);
     }
 
     IdealGasMix(const IdealGasMix& other) : m_ok(false),
         m_r(other.m_r),
         m_id(other.m_id) {
+        warn_deprecated("class IdealGasMix",
+            "To be removed after Cantera 2.5. "
+            "Replaceable with Solution and/or IdealGasPhase/GasKinetics.");
         m_ok = buildSolutionFromXML(*m_r, m_id, "phase", this, this);
     }
 

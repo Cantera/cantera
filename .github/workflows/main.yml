@@ -1,0 +1,336 @@
+name: CI
+
+on:
+  push:
+    # Build on tags that look like releases
+    tags:
+      - v*
+    # Build when main or testing is pushed to
+    branches:
+      - main
+      - testing
+  pull_request:
+    # Build when a pull request targets main
+    branches:
+      - main
+
+jobs:
+  ubuntu-multiple-pythons:
+    name: Ubuntu with Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: [ '3.5', '3.6', '3.7', '3.8', '3.9' ]
+        os: ['ubuntu-18.04', 'ubuntu-20.04']
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: x64
+    - name: Install Apt dependencies
+      run: sudo apt-get install libboost-dev gfortran
+    - name: Upgrade pip
+      run: python3 -m pip install -U pip setuptools wheel
+    - name: Install Python dependencies
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas
+    - name: Build Cantera
+      run: python3 `which scons` build -j2
+    - name: Test Cantera
+      run: python3 `which scons` test
+
+  macos-multiple-pythons:
+    name: macOS with Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: [ '3.7', '3.8', '3.9' ]
+        os: ['macos-10.15']
+      fail-fast: false
+    steps:
+    # Attempt to fix intermittent cloning errors. The error message says something like
+    # error: RPC failed; curl 18 transfer closed with outstanding read data remaining
+    # The clone is already being done with --depth=1, so the next recommended fix is to
+    # increase the buffer size. See also:
+    # https://github.com/actions/virtual-environments/issues/2198
+    # https://stackoverflow.com/q/38618885
+    - name: Configure git
+      run: /usr/local/bin/git config --global http.postBuffer 1048576000
+    - uses: actions/checkout@v2
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: x64
+    - name: Install Brew dependencies
+      run: brew install boost libomp
+    - name: Upgrade pip
+      run: python3 -m pip install -U pip 'setuptools>=47.0.0,<48' wheel
+    - name: Install Python dependencies
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas
+    - name: Build Cantera
+      run: python3 `which scons` build -j2
+    - name: Test Cantera
+      run: python3 `which scons` test
+
+  # Coverage is its own job because macOS builds of the samples
+  # use Homebrew gfortran which is not compatible for coverage
+  # with XCode clang. Also, turning off optimization really
+  # slows down the tests
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    needs: [ubuntu-multiple-pythons]
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    - name: Setup python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+        architecture: x64
+    - name: Install Apt dependencies
+      run: |
+        sudo apt-get install libboost-dev gfortran liblapack-dev libblas-dev
+    - name: Upgrade pip
+      run: python3 -m pip install -U pip setuptools wheel
+    - name: Install Python dependencies
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas
+    - name: Build Cantera
+      run: |
+        python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
+        optimize=n -j2
+    - name: Test Cantera
+      run: python3 `which scons` test
+    - name: Upload Coverage to Codecov
+      run: bash <(curl -s https://codecov.io/bash)
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  docs:
+    name: Build docs
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY: ${{ github.event_name == 'push' && github.repository_owner == 'Cantera' && endsWith(github.ref, 'main') }}
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout the repository
+        with:
+          submodules: recursive
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+          architecture: x64
+      - name: Install Apt dependencies
+        run: sudo apt-get install libboost-dev doxygen graphviz
+      - name: Upgrade pip
+        run: python3 -m pip install -U pip setuptools wheel
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install ruamel.yaml scons numpy cython sphinx \
+          sphinxcontrib-katex sphinxcontrib-matlabdomain sphinxcontrib-doxylink
+      - name: Build Cantera with documentation
+        run: python3 `which scons` build doxygen_docs=y sphinx_docs=y
+      # The known_hosts key is generated with `ssh-keygen -F cantera.org` from a
+      # machine that has previously logged in to cantera.org and trusts
+      # that it logged in to the right machine
+      - name: Set up SSH key and host for deploy
+        if: env.DEPLOY == 'true'
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.CTDEPLOY_KEY }}
+          known_hosts: ${{ secrets.CTDEPLOY_HOST }}
+      - name: Upload the docs
+        if: env.DEPLOY == 'true'
+        env:
+          RSYNC_USER: "ctdeploy"
+          RSYNC_SERVER: "cantera.org"
+          RSYNC_DEST: "cantera/documentation/dev"
+          DOCS_OUTPUT_DIR: "./build/docs/"
+        run: |
+          rsync -avzP --checksum --exclude='*.map' --exclude='*.md5' \
+          --exclude='/doxygen/xml' --delete --delete-excluded \
+          "${DOCS_OUTPUT_DIR}" ${RSYNC_USER}@${RSYNC_SERVER}:${RSYNC_DEST}
+
+  ubuntu-1804-py2:
+    # Ubuntu 18.04 using Python 2 to run SCons and the system Python 3 for the interface
+    name: Python 2 running SCons on Ubuntu 18.04
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout the repository
+        with:
+          submodules: recursive
+      - name: Install Apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libboost-dev gfortran scons python3-numpy \
+          python3-pip python3-setuptools python3-h5py python3-pandas \
+          python3-ruamel.yaml python-numpy cython3 libsundials-dev liblapack-dev \
+          libblas-dev
+      - name: Build Cantera
+        run: scons build python_cmd=/usr/bin/python3 blas_lapack_libs=lapack,blas -j2
+      - name: Test Cantera
+        run: scons test
+
+  run-examples:
+    name: Run the Python examples using bash
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        python-version: ['3.5', '3.6', '3.7', '3.8', '3.9']
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout the repository
+        with:
+          submodules: recursive
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+      - name: Install Apt dependencies
+        run: sudo apt-get install libboost-dev gfortran graphviz liblapack-dev libblas-dev
+      - name: Upgrade pip
+        run: python3 -m pip install -U pip setuptools wheel
+      - name: Install Python dependencies
+        run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas matplotlib scipy
+      - name: Build Cantera
+        run: python3 `which scons` build -j2
+      - name: Run the examples
+        # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part
+        run: |
+          find interfaces/cython/cantera/examples -type f -iname "*.py" \
+          -exec sh -c 'for n; do echo "$n" | tee -a results.txt && python3 "$n" >> results.txt || exit 1; done' sh {} +
+        env:
+          PYTHONPATH: build/python
+          PYTHONWARNINGS: error
+          MPLBACKEND: Agg
+      - name: Save the results file for inspection
+        uses: actions/upload-artifact@v2
+        with:
+          path: results.txt
+        # Run this step if the job was successful or failed, but not if it was cancelled
+        # Using always() would run this step if the job was cancelled as well.
+        if: failure() || success()
+
+  multiple-sundials:
+    name: Sundials ${{ matrix.sundials-ver }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sundials-ver: [ 2, 3, 4, 5.3 ]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout the repository
+        with:
+          submodules: recursive
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          python-version: 3.8
+          channel-priority: strict
+          channels: conda-forge
+        name: Set up conda
+      - name: Install conda dependencies
+        shell: bash -l {0}
+        run: |
+          conda install -q sundials=${{ matrix.sundials-ver }} scons numpy ruamel_yaml \
+          cython libboost fmt eigen yaml-cpp h5py pandas
+      - name: Build Cantera
+        run: |
+          scons build extra_inc_dirs=$CONDA_PREFIX/include:$CONDA_PREFIX/include/eigen3 \
+          extra_lib_dirs=$CONDA_PREFIX/lib system_fmt=y system_eigen=y system_yamlcpp=y \
+          system_sundials=y -j2 VERBOSE=True
+        shell: bash -l {0}
+      - name: Test Cantera
+        run: scons test
+        shell: bash -l {0}
+
+  cython-latest:
+    name: Test pre-release version of Cython
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    - name: Setup python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+        architecture: x64
+    - name: Install Apt dependencies
+      run: sudo apt-get install libboost-dev liblapack-dev libblas-dev
+    - name: Upgrade pip
+      run: python3 -m pip install -U pip setuptools wheel
+    - name: Install Python dependencies
+      run: |
+        python3 -m pip install ruamel.yaml scons numpy h5py pandas;
+        python3 -m pip install https://github.com/cython/cython/archive/master.zip --install-option='--no-cython-compile';
+    - name: Build Cantera
+      run: python3 `which scons` build blas_lapack_libs=lapack,blas python_package='full' -j2
+    - name: Test Cantera
+      run: python3 `which scons` test
+
+  windows:
+    name: ${{ matrix.os }}, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ['windows-2019']
+        vs-toolset: ['14.0', '14.2']
+        python-version: [ '3.5', '3.6', '3.7', '3.8', '3.9' ]
+        # Must use windows-2016 image because it installs VS2017 (MSVC 14.1)
+        # Scons cannot find MSVC 14.1 when VS2019 is installed
+        include:
+          - os: 'windows-2016'
+            vs-toolset: '14.1'
+            python-version: '3.5'
+          - os: 'windows-2016'
+            vs-toolset: '14.1'
+            python-version: '3.6'
+          - os: 'windows-2016'
+            vs-toolset: '14.1'
+            python-version: '3.7'
+          - os: 'windows-2016'
+            vs-toolset: '14.1'
+            python-version: '3.8'
+          - os: 'windows-2016'
+            vs-toolset: '14.1'
+            python-version: '3.9'
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout the repository
+        with:
+          submodules: recursive
+      - name: Set Up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+      - name: Install Python dependencies
+        run: |
+          python -m pip install -U pip 'setuptools>=47.0.0,<48'
+          python -m pip install scons pypiwin32 numpy ruamel.yaml cython h5py pandas
+      - name: Build Cantera
+        run: |
+          scons build -j2 boost_inc_dir=%BOOST_ROOT_1_72_0% debug=n VERBOSE=y python_package=full ^
+          msvc_version=${{ matrix.vs-toolset }} f90_interface=n
+        shell: cmd
+      - name: Test Cantera
+        run: scons test

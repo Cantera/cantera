@@ -1,12 +1,13 @@
 //! @file TransportData.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_TRANSPORTDATA_H
 #define CT_TRANSPORTDATA_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
@@ -22,6 +23,9 @@ public:
     virtual ~TransportData() {}
 
     virtual void validate(const Species& species) {}
+
+    //! Input data used for specific models
+    AnyMap input;
 };
 
 //! Transport data for a single gas-phase species which can be used in
@@ -85,7 +89,13 @@ public:
 };
 
 //! Create a new TransportData object from a 'transport' XML_Node.
+//!
+//! @deprecated The XML input format is deprecated and will be removed in
+//!     Cantera 3.0.
 shared_ptr<TransportData> newTransportData(const XML_Node& transport_node);
+
+//! Create a new TransportData object from an AnyMap specification
+unique_ptr<TransportData> newTransportData(const AnyMap& node);
 
 }
 

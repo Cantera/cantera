@@ -15,13 +15,21 @@
 # python ctml_writer.py infile.cti
 #
 # This will produce CTML file 'infile.xml'
+#
+# .. deprecated:: 2.5
+#
+#    The CTI and XML input file formats are deprecated and will be removed in
+#    Cantera 3.0. Use `cti2yaml.py` to convert CTI input files to the YAML
+#    format.
+#
 
 # This file is part of Cantera. See License.txt in the top-level directory or
-# at http://www.cantera.org/license.txt for license and copyright information.
+# at https://cantera.org/license.txt for license and copyright information.
 
 from __future__ import print_function
 
 import sys
+import re
 
 # Python 2/3 compatibility
 try:
@@ -267,13 +275,13 @@ def disable_motz_wise():
     global _motz_wise
     _motz_wise = False
 
-def export_species(filename, fmt = 'CSV'):
+def export_species(filename, fmt='CSV'):
     global _valexport
     global _valfmt
     _valexport = filename
     _valfmt = fmt
 
-def validate(species = 'yes', reactions = 'yes'):
+def validate(species='yes', reactions='yes'):
     """
     Enable or disable validation of species and reactions.
 
@@ -528,7 +536,8 @@ class species(object):
                  thermo = None,
                  transport = None,
                  charge = -999,
-                 size = 1.0):
+                 size = 1.0,
+                 standardState = None):
         """
         :param name:
             The species name (or formula). The name may be arbitrarily long,
@@ -562,6 +571,9 @@ class species(object):
             The charge, in multiples of :math:`|e|`. If not specified, the
             charge will be calculated from the number of "atoms" of element
             ``E``, which represents an electron.
+        :param standardState:
+            The species standard state model. Currently used only for IdealSolidSolution and derived
+            classes where it is used to calculate the phase density.
         """
         self._name = name
         self._atoms = getAtomicComp(atoms)
@@ -574,6 +586,7 @@ class species(object):
             self._thermo = const_cp()
 
         self._transport = transport
+        self._standardState = standardState
         chrg = 0
         self._charge = charge
         if 'E' in self._atoms:
@@ -590,7 +603,7 @@ class species(object):
         for e in self._atoms.keys():
             _enames[e] = 1
 
-    def export(self, f, fmt = 'CSV'):
+    def export(self, f, fmt='CSV'):
         if fmt == 'CSV':
             s = self._name+','
             for e in _enames:
@@ -639,12 +652,17 @@ class species(object):
                 nt = len(self._transport)
                 for n in range(nt):
                     self._transport[n].build(t)
+        if self._standardState:
+            ss = s.addChild("standardState")
+            ss['model'] = id
+            if isinstance(self._standardState, standardState):
+                self._standardState.build(ss)
 
 class thermo(object):
     """Base class for species standard-state thermodynamic properties."""
     def _build(self, p):
         return p.addChild("thermo")
-    def export(self, f, fmt = 'CSV'):
+    def export(self, f, fmt='CSV'):
         pass
 
 class Mu0_table(thermo):
@@ -798,6 +816,23 @@ class NASA9(thermo):
         u["size"] = "9"
         u["name"] = "coeffs"
 
+class standardState(object):
+    """Base class for species standard-state properties."""
+
+
+class constantIncompressible(standardState):
+    """Constant molar volume."""
+    def __init__(self,
+                 molarVolume = 0.0):
+        """
+        :param molarVolume:
+            Reference-state molar volume. Default: 0.0.
+        """
+        self._mv = molarVolume
+    def build(self, ss):
+        ss['model'] = 'constant_incompressible'
+        mv_units = _ulen+'3/'+_umol
+        addFloat(ss,'molarVolume',self._mv, defunits = mv_units)
 
 class activityCoefficients(object):
     pass
@@ -817,11 +852,11 @@ class pureFluidParameters(activityCoefficients):
     def build(self,a):
         f= a.addChild("pureFluidParameters")
         f['species'] = self._species
-        s = '%10.4E, %10.4E \n' % (self._acoeff[0], self._acoeff[1])
+        s = '%.10g, %.10g\n' % (self._acoeff[0], self._acoeff[1])
         ac = f.addChild("a_coeff",s)
         ac["units"] = _upres+'-'+_ulen+'6/'+_umol+'2'
         ac["model"] = "linear_a"
-        s = '%0.2f \n' % self._bcoeff
+        s = '%.10g\n' % self._bcoeff
         bc = f.addChild("b_coeff",s)
         bc["units"] = _ulen+'3/'+_umol
 
@@ -836,12 +871,12 @@ class crossFluidParameters(activityCoefficients):
         f= a.addChild("crossFluidParameters")
         f["species2"] = self._species2
         f["species1"] = self._species1
-        s = '%10.4E, %10.4E \n' % (self._acoeff[0], self._acoeff[1])
+        s = '%.10g, %.10g\n' % (self._acoeff[0], self._acoeff[1])
         ac = f.addChild("a_coeff",s)
         ac["units"] = _upres+'-'+_ulen+'6/'+_umol+'2'
         ac["model"] = "linear_a"
         if self._bcoeff:
-            s = '%0.2f \n' % self._bcoeff
+            s = '%.10g\n' % self._bcoeff
             bc = f.addChild("b_coeff",s)
             bc["units"] = _ulen+'3/'+_umol
 
@@ -885,41 +920,6 @@ class Shomate(thermo):
         u = n.addChild("floatArray", s)
         u["size"] = "7"
         u["name"] = "coeffs"
-
-
-class Adsorbate(thermo):
-    """Adsorbed species characterized by a binding energy and a set of
-    vibrational frequencies."""
-
-    def __init__(self, Trange = (0.0, 0.0),
-                 binding_energy = 0.0,
-                 frequencies = [], p0 = -1.0):
-        self._t = Trange
-        self._pref = p0
-        self._freqs = frequencies
-        self._be = binding_energy
-
-
-    def build(self, t):
-        n = t.addChild("adsorbate")
-        n['Tmin'] = repr(self._t[0])
-        n['Tmax'] = repr(self._t[1])
-        if self._pref <= 0.0:
-            n['P0'] = repr(_pref)
-        else:
-            n['P0'] = repr(self._pref)
-
-        energy_units = _uenergy+'/'+_umol
-        addFloat(n,'binding_energy',self._be, defunits = energy_units)
-        s = ""
-        nfreq = len(self._freqs)
-        for i in  range(nfreq):
-            s += '%17.9E, ' % self._freqs[i]
-        s += '\n'
-        u = n.addChild("floatArray", s)
-        u["size"] = repr(nfreq)
-        u["name"] = "freqs"
-
 
 
 class const_cp(thermo):
@@ -1089,6 +1089,10 @@ class Arrhenius(rate_expression):
                 addFloat(c, 'e', cov[3], fmt = '%f', defunits = _ue)
 
 class stick(Arrhenius):
+    """
+    A rate expression for a surface reaction given as a sticking probability,
+    parameterized using a modified Arrhenius expression.
+    """
     def __init__(self, *args, **kwargs):
         """
         :param motz_wise: 'True' if the Motz & Wise correction should be used,
@@ -1132,7 +1136,7 @@ class reaction(object):
                  id = '',
                  order = '',
                  options = []):
-        """
+        r"""
         :param equation:
             A string specifying the chemical equation.
         :param kf:
@@ -1301,8 +1305,12 @@ class reaction(object):
             self._kf = [self._kf]
         elif self._type == 'surface':
             self._kf = [self._kf]
+            if self._rate_coeff_type:
+                kfnode['type'] = self._rate_coeff_type
         elif self._type == 'edge':
             self._kf = [self._kf]
+            if self._rate_coeff_type:
+                kfnode['type'] = self._rate_coeff_type
         elif self._type == 'threeBody':
             self._kf = [self._kf]
             self.mdim += 1
@@ -1311,7 +1319,7 @@ class reaction(object):
             self._kf = []
 
         if self._type == 'edge' or self._type == 'surface':
-            if self._beta > 0:
+            if self._beta is not None:
                 electro = kfnode.addChild('electrochem')
                 electro['beta'] = repr(self._beta)
 
@@ -1417,7 +1425,7 @@ class pdep_reaction(reaction):
                 if r[-1] == ')' and r in self._p:
                     species = r[:-1]
                     if self._eff:
-                        raise CTI_Error("In reaction '{0}', explcit third body "
+                        raise CTI_Error("In reaction '{0}', explicit third body "
                             "'(+ {1})' and efficiencies cannot both be "
                             "specified".format(self._e, species))
                     self._eff = species+':1.0'
@@ -1595,6 +1603,12 @@ class chebyshev_reaction(reaction):
             del self._r['m)']
             del self._p['m)']
 
+        nP = len(self.coeffs[0])
+        for line in self.coeffs:
+            if len(line) != nP:
+                raise CTI_Error('Each row of Chebyshev coefficients must '
+                    'contain the same number of values.')
+
     def build(self, p):
         r = reaction.build(self, p)
         kfnode = r.child('rateCoeff')
@@ -1621,8 +1635,14 @@ class surface_reaction(reaction):
     A heterogeneous chemical reaction with pressure-independent rate
     coefficient and mass-action kinetics.
     """
-    def __init__(self, equation='', kf=None, id='', order='', beta = 0.0,
-                 options=[]):
+    def __init__(self,
+                 equation='',
+                 kf=None,
+                 id='',
+                 order='',
+                 beta = None,
+                 options=[],
+                 rate_coeff_type = ''):
         """
         :param equation:
             A string specifying the chemical equation.
@@ -1647,12 +1667,16 @@ class surface_reaction(reaction):
             Charge transfer coefficient: A number between 0 and 1 which, for a
             charge transfer reaction, determines how much of the electric
             potential difference between two phases is applied to the
-            activiation energy of the fwd reaction.  The remainder is applied to
+            activation energy of the fwd reaction.  The remainder is applied to
             the reverse reaction.
+        :param rate_coeff_type:
+            Form of the rate coefficient given.  If none given, assumed that the
+            rate coefficient is the standard kf.
         """
         reaction.__init__(self, equation, kf, id, order, options)
         self._type = 'surface'
         self._beta = beta
+        self._rate_coeff_type = rate_coeff_type
 
 
 class edge_reaction(reaction):
@@ -1662,11 +1686,13 @@ class edge_reaction(reaction):
                  kf = None,
                  id = '',
                  order = '',
-                 beta = 0.0,
-                 options = []):
+                 beta = None,
+                 options = [],
+                 rate_coeff_type = ''):
         reaction.__init__(self, equation, kf, id, order, options)
         self._type = 'edge'
         self._beta = beta
+        self._rate_coeff_type = rate_coeff_type
 
 
 #--------------
@@ -1931,8 +1957,6 @@ class phase(object):
             ph.addChild('note',self._comment)
 
         thermo = ph.addChild('thermo')
-        if 'allow_discontinuous_thermo' in self._options:
-            thermo['allow_discontinuities'] = 'true'
 
         return ph
 
@@ -2087,50 +2111,18 @@ class metal(phase):
         k = ph.addChild("kinetics")
         k['model'] = 'none'
 
-class semiconductor(phase):
-    """A semiconductor."""
-    def __init__(self,
-                 name = '',
-                 elements = '',
-                 species = '',
-                 note = '',
-                 density = -1.0,
-                 bandgap = 1.0 * eV,
-                 effectiveMass_e = 1.0 * ElectronMass,
-                 effectiveMass_h = 1.0 * ElectronMass,
-                 transport = 'None',
-                 initial_state = None,
-                 options = []):
-
-        phase.__init__(self, name, 3, elements, species, note, 'none',
-                       initial_state, options)
-        self._dens = density
-        self._pure = 0
-        self._tr = transport
-        self._emass = effectiveMass_e
-        self._hmass = effectiveMass_h
-        self._bandgap = bandgap
-
-    def conc_dim(self):
-        return (1,-3)
-
-    def build(self, p):
-        ph = phase.build(self, p)
-        e = ph.child("thermo")
-        e['model'] = 'Semiconductor'
-        addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
-        addFloat(e, 'effectiveMass_e', self._emass, defunits = _umass)
-        addFloat(e, 'effectiveMass_h', self._hmass, defunits = _umass)
-        addFloat(e, 'bandgap', self._bandgap, defunits = 'eV')
-        if self._tr:
-            t = ph.addChild('transport')
-            t['model'] = self._tr
-        k = ph.addChild("kinetics")
-        k['model'] = 'none'
-
 
 class incompressible_solid(phase):
-    """An incompressible solid."""
+    """An incompressible solid.
+
+    .. deprecated:: 2.5
+
+        To be deprecated with version 2.5, and removed thereafter.
+        This phase pointed to an ill-considered constant_density ThermoPhase
+        model, which assumed a constant mass density. This underlying phase is
+        simultaneously being deprecated. Please consider switching to
+        either `IdealSolidSolution` or `lattice` phase, instead.
+    """
     def __init__(self,
                  name = '',
                  elements = '',
@@ -2163,6 +2155,115 @@ class incompressible_solid(phase):
         k = ph.addChild("kinetics")
         k['model'] = 'none'
 
+class IdealSolidSolution(phase):
+    """An IdealSolidSolution phase."""
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 note = '',
+                 density = None,
+                 transport = 'None',
+                 initial_state = None,
+                 standard_concentration = None,
+                 options = []):
+
+        phase.__init__(self, name, 3, elements, species, note, 'None',
+                       initial_state, options)
+        self._stdconc = standard_concentration
+        if self._stdconc is None:
+            raise CTI_Error('In phase ' + name + ': standard_concentration must be specified.')
+        self._tr = transport
+
+    def conc_dim(self):
+        return (1,-3)
+
+    def build(self, p):
+        ph = phase.build(self, p)
+        e = ph.child("thermo")
+        e['model'] = 'IdealSolidSolution'
+        if self._tr:
+            t = ph.addChild('transport')
+            t['model'] = self._tr
+        k = ph.addChild("kinetics")
+        k['model'] = 'none'
+        sc = ph.addChild('standardConc')
+        sc['model'] = self._stdconc
+
+class BinarySolutionTabulatedThermo(phase):
+    """A BinarySolutionTabulatedThermo phase."""
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 note = '',
+                 transport = 'None',
+                 initial_state = None,
+                 standard_concentration = None,
+                 tabulated_species = None,
+                 tabulated_thermo = None,
+                 options = []):
+        phase.__init__(self, name, 3, elements, species, note, 'None',
+                       initial_state, options)
+        self._tabSpecies = tabulated_species
+        self._tabThermo = tabulated_thermo
+        self._stdconc = standard_concentration
+        self._tr = transport
+        if self._stdconc is None:
+            raise CTI_Error('In phase ' + name
+                + ': standard_concentration must be specified.')
+        if tabulated_species is None:
+            raise CTI_Error('In phase ' + name
+                + ': tabulated_species must be specified.')
+        if tabulated_thermo is None:
+            raise CTI_Error('In phase ' + name
+                + ': Thermo data must be provided for the tabulated_species.')
+
+    def build(self, p):
+        ph = phase.build(self, p)
+        e = ph.child("thermo")
+        e['model'] = 'BinarySolutionTabulatedThermo'
+        e1 = e.addChild('tabulatedSpecies')
+        e1['name'] = self._tabSpecies
+        t = e.addChild("tabulatedThermo")
+        self._tabThermo.build(t)
+        if self._tr:
+            t = ph.addChild('transport')
+            t['model'] = self._tr
+        k = ph.addChild("kinetics")
+        k['model'] = 'none'
+        sc = ph.addChild('standardConc')
+        sc['model'] = self._stdconc
+
+class table(thermo):
+    """User provided thermo table for BinarySolutionTabulatedThermo"""
+    def __init__(self,
+                 moleFraction = ([],''),
+                 enthalpy = ([],''),
+                 entropy = ([],'')):
+        """
+        :param moleFraction:
+            The mole fraction of the tabulated species. Required parameter.
+        :param enthalpy:
+            The enthalpy of the tabulated species. Required parameter.
+        :param entropy:
+            The entropy of the tabulated species. Required parameter.
+        """
+        self.x = moleFraction
+        self.h = enthalpy
+        self.s = entropy
+    def build(self,t):
+        x = ', '.join('{0:12.5e}'.format(val) for val in self.x[0])
+        u1 = t.addChild("moleFraction", x)
+        u1['size'] = str(len(self.x[0]))
+        h = ', '.join('{0:12.5e}'.format(val) for val in self.h[0])
+        u2 = t.addChild("enthalpy", h)
+        u2['units'] = self.h[1]
+        u2['size'] = str(len(self.h[0]))
+        s = ', '.join('{0:12.5e}'.format(val) for val in self.s[0])
+        u3 = t.addChild("entropy", s)
+        u3['units'] = self.s[1]
+        u3['size'] = str(len(self.s[0]))
 
 class lattice(phase):
     def __init__(self,
@@ -2179,7 +2280,7 @@ class lattice(phase):
                         initial_state, options)
         self._tr = transport
         self._n = site_density
-        self._species = species
+
         if name == '':
             raise CTI_Error('sublattice name must be specified')
         if species == '':
@@ -2638,9 +2739,10 @@ def convert(filename=None, outName=None, text=None):
         outName = 'STDOUT'
 
     open_kw = {'encoding': 'latin-1'} if sys.version_info.major == 3 else {}
+    open_mode = 'r' if sys.version_info.major == 3 else 'rU'
     try:
         if filename is not None:
-            with open(filename, 'rU', **open_kw) as f:
+            with open(filename, open_mode, **open_kw) as f:
                 code = compile(f.read(), filename, 'exec')
         else:
             code = compile(text, '<string>', 'exec')
@@ -2649,7 +2751,7 @@ def convert(filename=None, outName=None, text=None):
         # Show more context than the default SyntaxError message
         # to help see problems in multi-line statements
         if filename:
-            text = open(filename, 'rU').readlines()
+            text = open(filename, open_mode).readlines()
         else:
             text = text.split('\n')
         _printerr('%s in "%s" on line %i:\n' % (err.__class__.__name__,
@@ -2667,7 +2769,7 @@ def convert(filename=None, outName=None, text=None):
         import traceback
 
         if filename:
-            text = open(filename, 'rU').readlines()
+            text = open(filename, open_mode).readlines()
         else:
             text = text.split('\n')
             filename = '<string>'

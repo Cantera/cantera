@@ -9,7 +9,7 @@ from setuptools import setup
 # 'has_ext_modules' method is called in bdist_msi.run, which is where the
 # replacement of build_lib happens. Subsequent calls to 'has_ext_modules'
 # should use the correct value so that the resulting installer is specific to
-# this Python version. Known to affect Python versions 2.6 through 3.3. If
+# this Python version. Known to affect Python versions 2.6 through 3.7. If
 # this bug is ever fixed, this patch should be made conditional on the Python
 # version.
 if os.name == 'nt':
@@ -59,8 +59,8 @@ setup(
     long_description=long_description,
     author="Raymond Speth",
     author_email="speth@mit.edu",
-    url="http://www.cantera.org",
-    packages = [
+    url="https://cantera.org",
+    packages=[
         'cantera',
         'cantera.data',
         'cantera.test',
@@ -71,6 +71,9 @@ setup(
         'console_scripts': [
             'ck2cti=cantera.ck2cti:script_entry_point',
             'ctml_writer=cantera.ctml_writer:main',
+            'ck2yaml=cantera.ck2yaml:script_entry_point',
+            'cti2yaml=cantera.cti2yaml:main',
+            'ctml2yaml=cantera.ctml2yaml:main',
         ],
     },
     classifiers=[
@@ -83,16 +86,18 @@ setup(
         'Operating System :: POSIX :: Linux',
         'Programming Language :: C++',
         'Programming Language :: Fortran',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Scientific/Engineering :: Chemistry',
     ],
-    package_data = {
-        'cantera.data': ['*.*'],
-        'cantera.test.data': ['*.*'],
+    package_data={
+        'cantera.data': ['*.*', '*/*.*'],
+        'cantera.test.data': ['*.*', '*/*.*'],
         'cantera.examples': ['*/*.*'],
         'cantera': ["@py_extension@", '*.pxd'],
     },
+    zip_safe=False,
+    python_requires=">=@py_min_ver_str@",
 )

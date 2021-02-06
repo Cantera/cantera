@@ -7,7 +7,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_VPSTANDARDSTATETP_H
 #define CT_VPSTANDARDSTATETP_H
@@ -20,7 +20,7 @@ namespace Cantera
 /**
  * @ingroup thermoprops
  *
- * This is a filter class for ThermoPhase that implements some prepatory steps
+ * This is a filter class for ThermoPhase that implements some preparatory steps
  * for efficiently handling a variable pressure standard state for species.
  *
  * Several concepts are introduced. The first concept is there are temporary
@@ -37,11 +37,6 @@ namespace Cantera
  * phases, it makes sense to change the equation of state independent variable
  * from density to pressure. The variable m_Pcurrent contains the current value
  * of the pressure within the phase.
- *
- * @todo Put some teeth into this level by overloading the setDensity()
- *   function. It should now throw an exception. Instead, setPressure routines
- *   should calculate the solution density and then call State:setDensity()
- *   directly.
  */
 class VPStandardStateTP : public ThermoPhase
 {
@@ -52,6 +47,11 @@ public:
     VPStandardStateTP();
 
     //@}
+
+    virtual bool isCompressible() const {
+        return false;
+    }
+
     //! @name  Utilities (VPStandardStateTP)
     //@{
 
@@ -160,6 +160,9 @@ public:
      */
     virtual void updateStandardStateThermo() const;
 
+    virtual double minTemp(size_t k=npos) const;
+    virtual double maxTemp(size_t k=npos) const;
+
     //@}
 
 protected:
@@ -265,8 +268,14 @@ protected:
      */
     doublereal m_Pcurrent;
 
-    //! The last temperature at which the standard statethermodynamic properties
-    //! were calculated at.
+    //! The minimum temperature at which data for all species is valid
+    double m_minTemp;
+
+    //! The maximum temperature at which data for all species is valid
+    double m_maxTemp;
+
+    //! The last temperature at which the standard state thermodynamic
+    //! properties were calculated at.
     mutable doublereal m_Tlast_ss;
 
     //! The last pressure at which the Standard State thermodynamic properties

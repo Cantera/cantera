@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -23,24 +23,35 @@ namespace Cantera
 FixedChemPotSSTP::FixedChemPotSSTP() :
     chemPot_(0.0)
 {
+    warn_deprecated("class FixedChemPotSSTP", "To be removed after Cantera 2.5. "
+        "Use class StoichSubstance with a constant-cp species thermo model, "
+        "with 'h0' set to the desired chemical potential and 's0' set to 0.");
 }
 
 FixedChemPotSSTP::FixedChemPotSSTP(const std::string& infile, const std::string& id_) :
     chemPot_(0.0)
 {
+    warn_deprecated("class FixedChemPotSSTP", "To be removed after Cantera 2.5. "
+        "Use class StoichSubstance with a constant-cp species thermo model, "
+        "with 'h0' set to the desired chemical potential and 's0' set to 0.");
     initThermoFile(infile, id_);
 }
 FixedChemPotSSTP::FixedChemPotSSTP(XML_Node& xmlphase, const std::string& id_) :
     chemPot_(0.0)
 {
+    warn_deprecated("class FixedChemPotSSTP", "To be removed after Cantera 2.5. "
+        "Use class StoichSubstance with a constant-cp species thermo model, "
+        "with 'h0' set to the desired chemical potential and 's0' set to 0.");
     importPhase(xmlphase, this);
 }
 
 FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     chemPot_(0.0)
 {
+    warn_deprecated("class FixedChemPotSSTP", "To be removed after Cantera 2.5. "
+        "Use class StoichSubstance with a constant-cp species thermo model, "
+        "with 'h0' set to the desired chemical potential and 's0' set to 0.");
     std::string pname = Ename + "Fixed";
-    setID(pname);
     setName(pname);
     setNDim(3);
     addElement(Ename);
@@ -95,6 +106,11 @@ doublereal FixedChemPotSSTP::thermalExpansionCoeff() const
 }
 
 // ---- Chemical Potentials and Activities ----
+
+Units FixedChemPotSSTP::standardConcentrationUnits() const
+{
+    return Units(1.0); // dimensionless
+}
 
 void FixedChemPotSSTP::getActivityConcentrations(doublereal* c) const
 {
@@ -198,7 +214,7 @@ void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_
     XML_Node& tnode = phaseNode.child("thermo");
     std::string model = tnode["model"];
     if (model != "StoichSubstance" && model != "FixedChemPot" && model != "StoichSubstanceSSTP") {
-        throw CanteraError("FixedChemPotSSTP::initThermoXML()",
+        throw CanteraError("FixedChemPotSSTP::initThermoXML",
                            "thermo model attribute must be FixedChemPot or StoichSubstance or StoichSubstanceSSTP");
     }
 
@@ -210,6 +226,14 @@ void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_
         _updateThermo();
         chemPot_ = (m_h0_RT - m_s0_R) * RT();
     }
+}
+
+void FixedChemPotSSTP::initThermo()
+{
+    if (m_input.hasKey("chemical-potential")) {
+        chemPot_ = m_input.convert("chemical-potential", "J/kmol");
+    }
+    SingleSpeciesTP::initThermo();
 }
 
 void FixedChemPotSSTP::setParameters(int n, doublereal* const c)

@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/ImplicitSurfChem.h"
 #include "cantera/kinetics/solveSP.h"
@@ -17,13 +17,18 @@ using namespace std;
 namespace Cantera
 {
 
-ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
+ImplicitSurfChem::ImplicitSurfChem(
+        vector<InterfaceKinetics*> k, double rtol, double atol,
+        double maxStepSize, size_t maxSteps,
+        size_t maxErrTestFails) :
     m_nv(0),
     m_numTotalBulkSpecies(0),
     m_numTotalSpecies(0),
-    m_atol(1.e-14),
-    m_rtol(1.e-7),
-    m_maxstep(0.0),
+    m_atol(atol),
+    m_rtol(rtol),
+    m_maxstep(maxStepSize),
+    m_nmax(maxSteps),
+    m_maxErrTestFails(maxErrTestFails),
     m_mediumSpeciesStart(-1),
     m_bulkSpeciesStart(-1),
     m_surfSpeciesStart(-1),
@@ -38,7 +43,7 @@ ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
         m_vecKinPtrs.push_back(kinPtr);
         size_t ns = k[n]->surfacePhaseIndex();
         if (ns == npos) {
-            throw CanteraError("ImplicitSurfChem",
+            throw CanteraError("ImplicitSurfChem::ImplicitSurfChem",
                                "kinetics manager contains no surface phase");
         }
         m_surfindex.push_back(ns);
@@ -79,7 +84,6 @@ ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
     // numerically, and use a Newton linear iterator
     m_integ->setMethod(BDF_Method);
     m_integ->setProblemType(DENSE + NOJAC);
-    m_integ->setIterator(Newton_Iter);
     m_work.resize(ntmax);
 }
 
@@ -104,16 +108,49 @@ void ImplicitSurfChem::getState(doublereal* c)
     }
 }
 
+void ImplicitSurfChem::setMaxStepSize(double maxstep)
+{
+    m_maxstep = maxstep;
+    if (m_maxstep > 0) {
+        m_integ->setMaxStepSize(m_maxstep);
+    }
+}
+
+void ImplicitSurfChem::setTolerances(double rtol, double atol)
+{
+    m_rtol = rtol;
+    m_atol = atol;
+    m_integ->setTolerances(m_rtol, m_atol);
+}
+
+void ImplicitSurfChem::setMaxSteps(size_t maxsteps)
+{
+    m_nmax = maxsteps;
+    m_integ->setMaxSteps(static_cast<int>(m_nmax));
+}
+
+void ImplicitSurfChem::setMaxErrTestFails(size_t maxErrTestFails)
+{
+    m_maxErrTestFails = maxErrTestFails;
+    m_integ->setMaxErrTestFails(static_cast<int>(m_maxErrTestFails));
+}
+
 void ImplicitSurfChem::initialize(doublereal t0)
 {
-    m_integ->setTolerances(m_rtol, m_atol);
+    this->setTolerances(m_rtol, m_atol);
+    this->setMaxStepSize(m_maxstep);
+    this->setMaxSteps(m_nmax);
+    this->setMaxErrTestFails(m_maxErrTestFails);
     m_integ->initialize(t0, *this);
 }
 
 void ImplicitSurfChem::integrate(doublereal t0, doublereal t1)
 {
-    m_integ->initialize(t0, *this);
-    m_integ->setMaxStepSize(t1 - t0);
+    this->initialize(t0);
+    if (fabs(t1 - t0) < m_maxstep || m_maxstep == 0) {
+        // limit max step size on this run to t1 - t0
+        m_integ->setMaxStepSize(t1 - t0);
+    }
     m_integ->integrate(t1);
     updateState(m_integ->solution());
 }
@@ -180,7 +217,7 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
     //  2) Temperature and pressure
     getConcSpecies(m_concSpecies.data());
     InterfaceKinetics* ik = m_vecKinPtrs[0];
-    ThermoPhase& tp = ik->thermo(0);
+    ThermoPhase& tp = ik->thermo(ik->reactionPhaseIndex());
     doublereal TKelvin = tp.temperature();
     doublereal PGas = tp.pressure();
 

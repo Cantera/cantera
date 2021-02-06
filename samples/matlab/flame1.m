@@ -3,9 +3,7 @@
 %    This script simulates a burner-stablized lean hydrogen-oxygen flame
 %    at low pressure.
 
-help flame1;
-%disp('press any key to begin the simulation');
-%pause;
+help flame1
 
 t0 = cputime;  % record the starting time
 
@@ -14,7 +12,7 @@ p          =   0.05*oneatm;         % pressure
 tburner    =   373.0;               % burner temperature
 mdot       =   0.06;                % kg/m^2/s
 
-rxnmech    =  'h2o2.cti';           % reaction mechanism file
+rxnmech    =  'h2o2.yaml';           % reaction mechanism file
 comp       =  'H2:1.8, O2:1, AR:7'; % premixed gas composition
 
 initial_grid = [0.0 0.02 0.04 0.06 0.08 0.1 ...
@@ -36,7 +34,7 @@ max_jacobian_age = [5, 10];
 % This object will be used to evaluate all thermodynamic, kinetic,
 % and transport properties
 %
-gas = IdealGasMix(rxnmech);
+gas = Solution(rxnmech, 'ohmech', 'Mix');
 
 % set its state to that of the unburned gas at the burner
 set(gas,'T', tburner, 'P', p, 'X', comp);

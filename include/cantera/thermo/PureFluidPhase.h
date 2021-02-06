@@ -9,7 +9,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_EOS_TPX_H
 #define CT_EOS_TPX_H
@@ -37,11 +37,39 @@ public:
         return "PureFluid";
     }
 
+    //! String indicating the mechanical phase of the matter in this Phase.
+    /*!
+     * Options for the string are:
+     *   * `supercritical`
+     *   * `gas`
+     *   * `liquid`
+     *   * `liquid-gas-mix`
+     *
+     * If the temperature or pressure are greater than the critical temperature or
+     * pressure, respectively, the mechanical phase is `supercritical`. If the
+     * underlying tpx::TwoPhase() returns `True`, the mechanical phase is
+     * `liquid-gas-mix`. If the temperature is greater than the saturation temperature
+     * at the current pressure, the mechanical phase is `gas`. Otherwise, the mechanical
+     * phase is `liquid`.
+     */
+    virtual std::string phaseOfMatter() const;
+
     //! Set the name of the TPX substance to use for the equation of state. This
     //! function should be called before initThermo().
     void setSubstance(const std::string& name) {
         m_tpx_name = name;
     }
+
+    virtual bool isPure() const {
+        return true;
+    }
+
+    virtual bool hasPhaseTransition() const {
+        return true;
+    }
+
+    virtual std::vector<std::string> fullStates() const;
+    virtual std::vector<std::string> partialStates() const;
 
     virtual double minTemp(size_t k=npos) const;
     virtual double maxTemp(size_t k=npos) const;
@@ -81,6 +109,7 @@ public:
     virtual void getPartialMolarCp(doublereal* cpbar) const;
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
+    virtual Units standardConcentrationUnits() const;
     virtual void getActivityConcentrations(doublereal* c) const;
     virtual doublereal standardConcentration(size_t k=0) const;
 
