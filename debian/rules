@@ -4,7 +4,7 @@ export DH_OPTIONS
 export DH_VERBOSE
 
 clean:
-	scons clean
+	python3 `which scons` clean
 
 	rm -f site_scons/*.pyc
 	rm -f site_scons/site_tools/*.pyc
@@ -22,7 +22,7 @@ binary: build
 	dh_installchangelogs
 	dh_installman platform/posix/man/*
 
-	scons install
+	python3	`which scons` install
 
 	mkdir -p debian/cantera-common/usr/bin
 	sed 's|#\!/usr/bin/env python$$|#\!/usr/bin/env python3|' interfaces/cython/cantera/ctml_writer.py > debian/cantera-common/usr/bin/ctml_writer
@@ -50,7 +50,7 @@ binary-indep: binary
 	/bin/true
 
 build:
-	scons build -j6 prefix=/usr blas_lapack_libs=lapack,blas system_sundials=y f90_interface=y renamed_shared_libraries=n python_package=full layout=debian system_eigen=y extra_inc_dirs=/usr/include/eigen3 system_fmt=y
+	python3 `which scons` build -j6 prefix=/usr blas_lapack_libs=lapack,blas system_sundials=y f90_interface=y renamed_shared_libraries=n python_package=full layout=debian system_eigen=y extra_inc_dirs=/usr/include/eigen3 system_fmt=y
 
 build-arch: build
 
