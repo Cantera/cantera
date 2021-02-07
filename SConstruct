@@ -9,9 +9,9 @@ Basic usage:
 
     'scons clean' - Delete files created while building Cantera.
 
-    '[sudo] scons install' - Install Cantera.
+    'scons install' - Install Cantera.
 
-    '[sudo] scons uninstall' - Uninstall Cantera.
+    'scons uninstall' - Uninstall Cantera.
 
     'scons test' - Run all tests which did not previously pass or for which the
                    results may have changed.
@@ -1788,7 +1788,7 @@ def postBuildMessage(target, source, env):
         print("- To install, type 'scons install'.")
         print("- To create a Windows MSI installer, type 'scons msi'.")
     else:
-        print("- To install, type '[sudo] scons install'.")
+        print("- To install, type 'scons install'.")
     print("*******************************************************")
 
 finish_build = env.Command('finish_build', [], postBuildMessage)
