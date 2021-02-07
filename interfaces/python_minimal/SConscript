@@ -30,13 +30,21 @@ if localenv['PYTHON_INSTALLER'] == 'direct':
             extra += ' --prefix=""'
     elif localenv['python_prefix']:
         # A specific location for the Cantera python module has been given
-        extra = '--user'
-        if localenv['OS'] == 'Darwin':
-            extra += ' --prefix=""'
-        localenv.AppendENVPath(
-            'PYTHONUSERBASE',
-            normpath(localenv.subst('$python_prefix'))
-        )
+        if localenv['debian'] and localenv.subst('${python_prefix}') == '/usr/local':
+            # Installation to /usr/local is the default on Debian-based distributions
+            extra = ''
+        elif localenv['OS'] == 'Darwin':
+            extra = localenv.subst(' --prefix=${python_prefix}')
+        elif localenv['libdirname'] != 'lib':
+            # 64-bit RHEL / Fedora etc. or e.g. x32 Gentoo profile
+            extra = localenv.subst(
+                ' --prefix=${{python_prefix}}'
+                ' --install-lib=${{python_prefix}}/${{libdirname}}/python{}/site-packages'.format(py_version))
+        else:
+            extra = '--user'
+            localenv.AppendENVPath(
+                'PYTHONUSERBASE',
+                normpath(localenv.subst('$python_prefix')))
     else:
         # Install Python module in the default location
         extra = ''
