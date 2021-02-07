@@ -1,7 +1,7 @@
 description: This definition extracts the O/H/N submechanism from GRI-Mech 3.0
 
 generator: cti2yaml
-cantera-version: 2.5.0a3
+cantera-version: 2.5.0
 date: Wed, 11 Dec 2019 16:59:14 -0500
 input-files: [ohn.cti]
 

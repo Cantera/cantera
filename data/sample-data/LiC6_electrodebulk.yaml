@@ -1,5 +1,5 @@
 generator: ctml2yaml
-cantera-version: 2.5.0a3
+cantera-version: 2.5.0
 date: Fri, 13 Dec 2019 20:48:20 -0500
 input-files: [LiC6_electrodebulk.xml]
 
