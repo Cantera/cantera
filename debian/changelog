@@ -1,3 +1,9 @@
+cantera (2.5.0-1+bionic1) bionic; urgency=medium
+
+  * Rebuild with dependencies in new PPA
+
+ -- Raymond Speth <speth@mit.edu>  Mon, 08 Feb 2021 22:23:37 -0500
+
 cantera (2.5.0-1+bionic0) bionic; urgency=medium
 
   * New upstream release
