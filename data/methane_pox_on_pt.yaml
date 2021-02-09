@@ -26,7 +26,7 @@ description: |-
   -----------------------------------------------------------------------
 
 generator: cti2yaml
-cantera-version: 2.5.0a3
+cantera-version: 2.5.0
 date: Wed, 11 Dec 2019 16:59:07 -0500
 input-files: [methane_pox_on_pt.cti]
 

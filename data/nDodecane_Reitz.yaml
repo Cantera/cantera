@@ -13,7 +13,7 @@ description: |-
   233-243
 
 generator: cti2yaml
-cantera-version: 2.5.0a3
+cantera-version: 2.5.0
 date: Wed, 11 Dec 2019 16:59:08 -0500
 input-files: [nDodecane_Reitz.cti]
 
