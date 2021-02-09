@@ -9,9 +9,9 @@ Basic usage:
 
     'scons clean' - Delete files created while building Cantera.
 
-    '[sudo] scons install' - Install Cantera.
+    'scons install' - Install Cantera.
 
-    '[sudo] scons uninstall' - Uninstall Cantera.
+    'scons uninstall' - Uninstall Cantera.
 
     'scons test' - Run all tests which did not previously pass or for which the
                    results may have changed.
@@ -719,7 +719,7 @@ for arg in ARGUMENTS:
         print('Encountered unexpected command line argument: %r' % arg)
         sys.exit(1)
 
-env['cantera_version'] = "2.5.0rc1"
+env['cantera_version'] = "2.5.0"
 # For use where pre-release tags are not permitted (MSI, sonames)
 env['cantera_pure_version'] = re.match(r'(\d+\.\d+\.\d+)', env['cantera_version']).group(0)
 env['cantera_short_version'] = re.match(r'(\d+\.\d+)', env['cantera_version']).group(0)
@@ -1128,7 +1128,7 @@ if env['system_sundials'] == 'y':
     if sundials_ver < parse_version('2.4') or sundials_ver >= parse_version('6.0'):
         print("""ERROR: Sundials version %r is not supported.""" % env['sundials_version'])
         sys.exit(1)
-    elif sundials_ver > parse_version('5.3'):
+    elif sundials_ver > parse_version('5.7'):
         print("WARNING: Sundials version %r has not been tested." % env['sundials_version'])
 
     print("""INFO: Using system installation of Sundials version %s.""" % sundials_version)
@@ -1788,7 +1788,7 @@ def postBuildMessage(target, source, env):
         print("- To install, type 'scons install'.")
         print("- To create a Windows MSI installer, type 'scons msi'.")
     else:
-        print("- To install, type '[sudo] scons install'.")
+        print("- To install, type 'scons install'.")
     print("*******************************************************")
 
 finish_build = env.Command('finish_build', [], postBuildMessage)
@@ -1823,6 +1823,9 @@ def postInstallMessage(target, source, env):
         install_message += indent(textwrap.dedent("""
             Python package (cantera)    {python_module_loc!s}
             Python samples              {python_example_loc!s}""".format(**env_dict)), '  ')
+    elif env['python_package'] == 'minimal':
+        install_message += indent(textwrap.dedent("""
+            minimal Python module       {python_module_loc!s}""".format(**env_dict)), '  ')
 
     if env['matlab_toolbox'] == 'y':
         env['matlab_sample_loc'] = pjoin(env['ct_sampledir'], 'matlab')

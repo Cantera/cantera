@@ -4,7 +4,7 @@ description: |-
 
 generator: ck2yaml
 input-files: [h2o2.inp, gri30_tran.dat]
-cantera-version: 2.5.0a3
+cantera-version: 2.5.0
 date: Wed, 11 Dec 2019 16:59:04 -0500
 
 units: {length: cm, time: s, quantity: mol, activation-energy: cal/mol}
@@ -17,6 +17,23 @@ phases:
   kinetics: gas
   transport: mixture-averaged
   state: {T: 300.0, P: 1 atm}
+- name: ohmech-multi
+  thermo: ideal-gas
+  elements: [O, H, Ar, N]
+  species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR, N2]
+  kinetics: gas
+  transport: multicomponent
+  state: {T: 300.0, P: 1 atm}
+  deprecated: >-
+    The phase 'ohmech-multi' in the file 'h2o2.yaml' is deprecated and will be
+    removed after Cantera 2.5. You can use multi-component diffusion by including
+    an optional argument to 'Solution':
+      Python: ct.Solution('h2o2.yaml', transport_model='Multi')
+      MATLAB: Solution('h2o2.yaml', 'h2o2', 'Multi')
+      C++: newSolution("h2o2.yaml", "h2o2", "Multi")
+    Please see the webpage at
+    https://github.com/Cantera/cantera/wiki/deprecate_gri30_phases for more
+    information.
 
 species:
 - name: H2

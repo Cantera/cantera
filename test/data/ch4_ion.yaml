@@ -1,5 +1,5 @@
 generator: cti2yaml
-cantera-version: 2.5.0a4
+cantera-version: 2.5.0
 date: Mon, 10 Aug 2020 12:55:00 +0000
 input-files: [ch4_ion.cti]
 

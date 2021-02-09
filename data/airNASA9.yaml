@@ -5,7 +5,7 @@ description: |-
 
 generator: ck2yaml
 input-files: [airNASA9.inp, airDataNASA9.dat]
-cantera-version: 2.5.0a3
+cantera-version: 2.5.0
 date: Wed, 11 Dec 2019 16:59:03 -0500
 
 units: {length: cm, time: s, quantity: mol, activation-energy: cal/mol}

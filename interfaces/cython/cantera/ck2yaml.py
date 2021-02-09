@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # encoding: utf-8
 
 # This file is part of Cantera. See License.txt in the top-level directory or
@@ -1898,7 +1898,7 @@ class Parser:
             metadata = BlockMap([
                 ('generator', 'ck2yaml'),
                 ('input-files', FlowList(files)),
-                ('cantera-version', '2.5.0rc1'),
+                ('cantera-version', '2.5.0'),
                 ('date', formatdate(localtime=True)),
             ])
             if desc.strip():

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
@@ -2620,7 +2620,7 @@ def convert(
     metadata = BlockMap(
         {
             "generator": "ctml2yaml",
-            "cantera-version": "2.5.0rc1",
+            "cantera-version": "2.5.0",
             "date": formatdate(localtime=True),
         }
     )
