@@ -18,7 +18,6 @@ namespace bmt = boost::math::tools;
 namespace Cantera
 {
 Reactor::Reactor() :
-    m_kin(0),
     m_vdot(0.0),
     m_Q(0.0),
     m_mass(0.0),

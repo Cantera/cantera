@@ -30,7 +30,7 @@ const int Valve_Type = 3;
 class FlowDevice
 {
 public:
-    FlowDevice();
+    FlowDevice(const std::string& name = "(none)");
 
     virtual ~FlowDevice() {}
     FlowDevice(const FlowDevice&) = delete;
@@ -53,6 +53,19 @@ public:
                         "FlowDevice::typeStr during transition.");
         return m_type;
     }
+
+    //! Return the name of this flow device
+    std::string name() const {
+        return m_name;
+    }
+
+    //! Set the name of this flow device
+    void setName(const std::string& name) {
+        m_name = name;
+    }
+
+    //! Generate self-documenting YAML string.
+    virtual std::string toYAML() const;
 
     //! Mass flow rate (kg/s).
     //! @deprecated The 'time' argument will be removed after Cantera 2.5.
@@ -101,7 +114,7 @@ public:
     }
 
     //! Return a const reference to the downstream reactor.
-    const ReactorBase& out() const {
+    ReactorBase& out() const {
         return *m_out;
     }
 
@@ -165,6 +178,8 @@ protected:
     double m_coeff;
 
     int m_type; //!< @deprecated To be removed after Cantera 2.5.
+
+    std::string m_name; //! flow device name
 
 private:
     size_t m_nspin, m_nspout;

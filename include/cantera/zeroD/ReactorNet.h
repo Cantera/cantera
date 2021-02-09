@@ -102,6 +102,9 @@ public:
 
     //@}
 
+    //! Generate self-documenting YAML string.
+    std::string toYAML() const;
+
     //! Add the reactor *r* to this reactor network.
     void addReactor(Reactor& r);
 

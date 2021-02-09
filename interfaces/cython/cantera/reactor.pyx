@@ -7,6 +7,18 @@ import numbers as _numbers
 
 _reactor_counts = _defaultdict(int)
 
+
+def _unique_name(name, class_type):
+    """Generate a unique name."""
+
+    if name is not None:
+        return name
+    else:
+        _reactor_counts[class_type] += 1
+        n = _reactor_counts[class_type]
+        return '{0}_{1}'.format(class_type, n)
+
+
 # Need a pure-python class to store weakrefs to
 class _WeakrefProxy:
     pass
@@ -28,12 +40,7 @@ cdef class ReactorBase:
         if isinstance(contents, ThermoPhase):
             self.insert(contents)
 
-        if name is not None:
-            self.name = name
-        else:
-            _reactor_counts[self.reactor_type] += 1
-            n = _reactor_counts[self.reactor_type]
-            self.name = '{0}_{1}'.format(self.reactor_type, n)
+        self.name = _unique_name(name, self.type)
 
         if volume is not None:
             self.volume = volume
@@ -62,6 +69,10 @@ cdef class ReactorBase:
 
         def __set__(self, name):
             self.rbase.setName(stringify(name))
+
+    def to_yaml(self):
+        """Return a YAML representation of the Reactor setup."""
+        return pystr(self.rbase.toYAML())
 
     def syncState(self):
         """
@@ -406,13 +417,33 @@ cdef class ReactorSurface:
     def __dealloc__(self):
         del self.surface
 
-    def __init__(self, kin=None, Reactor r=None, *, A=None):
+    def __init__(self, kin=None, Reactor r=None, *, name=None, A=None):
+
         if kin is not None:
             self.kinetics = kin
         if r is not None:
             self.install(r)
         if A is not None:
             self.area = A
+
+        self.name = _unique_name(name, self.type)
+
+    property type:
+        """The type of the reactor."""
+        def __get__(self):
+            return pystr(self.surface.type())
+
+    property name:
+        """The name of the reactor."""
+        def __get__(self):
+            return pystr(self.surface.name())
+
+        def __set__(self, name):
+            self.surface.setName(stringify(name))
+
+    def to_yaml(self):
+        """Return a YAML representation of the ReactorSurface setup."""
+        return pystr(self.surface.toYAML())
 
     def install(self, Reactor r):
         r.reactor.addSurface(self.surface)
@@ -507,12 +538,8 @@ cdef class WallBase:
         self._heat_flux_func = None
 
         self._install(left, right)
-        if name is not None:
-            self.name = name
-        else:
-            _reactor_counts['Wall'] += 1
-            n = _reactor_counts['Wall']
-            self.name = 'Wall_{0}'.format(n)
+
+        self.name = _unique_name(name, self.type)
 
         if A is not None:
             self.area = A
@@ -541,6 +568,18 @@ cdef class WallBase:
         """The type of the wall."""
         def __get__(self):
             return pystr(self.wall.type())
+
+    property name:
+        """The name of the reactor."""
+        def __get__(self):
+            return pystr(self.wall.name())
+
+        def __set__(self, name):
+            self.wall.setName(stringify(name))
+
+    def to_yaml(self):
+        """Return a YAML representation of the WallBase setup."""
+        return pystr(self.wall.toYAML())
 
     property left:
         """ The left surface of this wall. """
@@ -678,12 +717,7 @@ cdef class FlowDevice:
         assert self.dev != NULL
         self._rate_func = None
 
-        if name is not None:
-            self.name = name
-        else:
-            _reactor_counts[self.__class__.__name__] += 1
-            n = _reactor_counts[self.__class__.__name__]
-            self.name = '{0}_{1}'.format(self.__class__.__name__, n)
+        self.name = _unique_name(name, self.type)
 
         self._install(upstream, downstream)
 
@@ -694,6 +728,18 @@ cdef class FlowDevice:
         """The type of the flow device."""
         def __get__(self):
             return pystr(self.dev.typeStr())
+
+    property name:
+        """The name of the reactor."""
+        def __get__(self):
+            return pystr(self.dev.name())
+
+        def __set__(self, name):
+            self.dev.setName(stringify(name))
+
+    def to_yaml(self):
+        """Return a YAML representation of the FlowDevice setup."""
+        return pystr(self.dev.toYAML())
 
     def _install(self, ReactorBase upstream, ReactorBase downstream):
         """
@@ -1044,6 +1090,20 @@ cdef class ReactorNet:
         """Add a reactor to the network."""
         self._reactors.append(r)
         self.net.addReactor(deref(r.reactor))
+
+    def to_yaml(self):
+        """
+        Return a YAML representation of the ReactorNet structure. To
+        print the structure to the terminal, simply call the ReactorNet object.
+        The following two statements are equivalent for the sim object::
+
+        >>> sim()
+        >>> print(sim.to_yaml())
+        """
+        return pystr(self.net.toYAML())
+
+    def __call__(self):
+        print(self.to_yaml())
 
     def advance(self, double t, pybool apply_limit=True):
         """

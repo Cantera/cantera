@@ -546,6 +546,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxReactorBase "Cantera::ReactorBase":
         CxxReactorBase()
         string typeStr()
+        string toYAML()
         void setThermoMgr(CxxThermoPhase&) except +translate_exception
         void restoreState() except +translate_exception
         void syncState() except +translate_exception
@@ -582,6 +583,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxWallBase "Cantera::WallBase":
         CxxWallBase()
         string type()
+        string name()
+        void setName(string)
+        string toYAML()
         cbool install(CxxReactorBase&, CxxReactorBase&)
         double area()
         void setArea(double)
@@ -610,6 +614,10 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
 
     cdef cppclass CxxReactorSurface "Cantera::ReactorSurface":
         CxxReactorSurface()
+        string type()
+        string name()
+        void setName(string)
+        string toYAML()
         double area()
         void setArea(double)
         void setKinetics(CxxKinetics*)
@@ -624,6 +632,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxFlowDevice "Cantera::FlowDevice":
         CxxFlowDevice()
         string typeStr()
+        string name()
+        void setName(string)
+        string toYAML()
         double massFlowRate() except +translate_exception
         double massFlowRate(double) except +translate_exception
         cbool install(CxxReactorBase&, CxxReactorBase&) except +translate_exception
@@ -652,6 +663,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxReactorNet "Cantera::ReactorNet":
         CxxReactorNet()
         void addReactor(CxxReactor&)
+        string toYAML() except +translate_exception
         double advance(double, cbool) except +translate_exception
         double step() except +translate_exception
         void initialize() except +translate_exception
@@ -1088,7 +1100,6 @@ cdef class WallBase:
     cdef object _heat_flux_func
     cdef ReactorBase _left_reactor
     cdef ReactorBase _right_reactor
-    cdef str name
 
 cdef class Wall(WallBase):
     pass
@@ -1097,7 +1108,6 @@ cdef class FlowDevice:
     cdef CxxFlowDevice* dev
     cdef Func1 _rate_func
     cdef Func1 _time_func
-    cdef str name
     cdef ReactorBase _upstream
     cdef ReactorBase _downstream
 

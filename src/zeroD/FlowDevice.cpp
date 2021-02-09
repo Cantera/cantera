@@ -6,14 +6,20 @@
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/ReactorBase.h"
 #include "cantera/numerics/Func1.h"
+#include "cantera/base/yaml.h"
 
 namespace Cantera
 {
 
-FlowDevice::FlowDevice() : m_mdot(Undef), m_pfunc(0), m_tfunc(0),
-                           m_coeff(1.0), m_type(0),
-                           m_nspin(0), m_nspout(0),
-                           m_in(0), m_out(0) {}
+FlowDevice::FlowDevice(const std::string& name) :
+    m_mdot(Undef),
+    m_pfunc(0), m_tfunc(0),
+    m_coeff(1.0), m_type(0),
+    m_nspin(0), m_nspout(0),
+    m_in(0), m_out(0)
+{
+    m_name = name;
+}
 
 bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
 {
@@ -44,6 +50,24 @@ bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
         m_out2in.push_back(ki);
     }
     return true;
+}
+
+std::string FlowDevice::toYAML() const
+{
+    YAML::Emitter yml;
+    std::stringstream out;
+
+    yml << YAML::BeginMap;
+    yml << YAML::Key << name();
+    yml << YAML::BeginMap;
+    yml << YAML::Key << "type" << YAML::Value << typeStr();
+    yml << YAML::Key << "reactors" << YAML::Flow;
+    yml << YAML::BeginSeq << m_in->name() << m_out->name() << YAML::EndSeq;
+    yml << YAML::EndMap;
+    yml << YAML::EndMap;
+
+    out << yml.c_str();
+    return out.str();
 }
 
 void FlowDevice::setPressureFunction(Func1* f)

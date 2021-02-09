@@ -89,7 +89,7 @@ public:
     //! Specify the mixture contained in the reactor. Note that a pointer to
     //! this substance is stored, and as the integration proceeds, the state of
     //! the substance is modified.
-    virtual void setThermoMgr(thermo_t& thermo);
+    virtual void setThermoMgr(ThermoPhase& thermo);
 
     //! Specify chemical kinetics governing the reactor.
     virtual void setKineticsMgr(Kinetics& kin) {
@@ -100,6 +100,9 @@ public:
     virtual void setChemistry(bool cflag = true) {
         throw NotImplementedError("ReactorBase::setChemistry");
     }
+
+    //! Generate self-documenting YAML string.
+    virtual std::string toYAML() const;
 
     //! Set the energy equation on or off.
     virtual void setEnergy(int eflag = 1) {
@@ -134,6 +137,11 @@ public:
     //! Return the number of Wall objects connected to this reactor.
     size_t nWalls() {
         return m_wall.size();
+    }
+
+    //! Return the number of ReactorSurface objects connected to this reactor.
+    size_t nSurfaces() {
+        return m_surfaces.size();
     }
 
     //! Insert a Wall between this reactor and another reactor.
@@ -177,7 +185,7 @@ public:
     virtual void syncState();
 
     //! return a reference to the contents.
-    thermo_t& contents() {
+    ThermoPhase& contents() {
         if (!m_thermo) {
             throw CanteraError("ReactorBase::contents",
                                "Reactor contents not defined.");
@@ -185,7 +193,7 @@ public:
         return *m_thermo;
     }
 
-    const thermo_t& contents() const {
+    const ThermoPhase& contents() const {
         if (!m_thermo) {
             throw CanteraError("ReactorBase::contents",
                                "Reactor contents not defined.");
@@ -261,7 +269,11 @@ protected:
     //! Number of homogeneous species in the mixture
     size_t m_nsp;
 
-    thermo_t* m_thermo;
+    ThermoPhase* m_thermo;
+
+    //! Pointer to the homogeneous Kinetics object that handles the reactions
+    Kinetics* m_kin;
+
     doublereal m_vol;
     doublereal m_enthalpy;
     doublereal m_intEnergy;

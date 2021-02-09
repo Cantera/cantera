@@ -28,7 +28,7 @@ const int WallType = 1;
 class WallBase
 {
 public:
-    WallBase();
+    WallBase(const std::string& name = "(none)");
 
     virtual ~WallBase() {}
     WallBase(const WallBase&) = delete;
@@ -39,6 +39,19 @@ public:
     virtual std::string type() const {
         return "WallBase";
     }
+
+    //! Return the name of this wall
+    std::string name() const {
+        return m_name;
+    }
+
+    //! Set the name of this wall
+    void setName(const std::string& name) {
+        m_name = name;
+    }
+
+    //! Generate self-documenting YAML string.
+    virtual std::string toYAML() const;
 
     //! Rate of volume change (m^3/s) for the adjacent reactors.
     /*!
@@ -95,7 +108,7 @@ public:
     }
 
     //! Return a reference to the Reactor or Reservoir to the right of the wall.
-    const ReactorBase& right() {
+    ReactorBase& right() const {
         return *m_right;
     }
 
@@ -106,6 +119,8 @@ protected:
     std::vector<ReactorSurface> m_surf;
 
     double m_area;
+
+    std::string m_name; //! wall name
 };
 
 //! Represents a wall between between two ReactorBase objects.

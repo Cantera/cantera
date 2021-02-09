@@ -17,10 +17,29 @@ class SurfPhase;
 class ReactorSurface
 {
 public:
-    ReactorSurface();
+    ReactorSurface(const std::string& name = "(none)");
     virtual ~ReactorSurface() {}
     ReactorSurface(const ReactorSurface&) = delete;
     ReactorSurface& operator=(const ReactorSurface&) = delete;
+
+    //! String indicating the wall model implemented. Usually
+    //! corresponds to the name of the derived class.
+    virtual std::string type() const {
+        return "ReactorSurface";
+    }
+
+    //! Return the name of this surface
+    std::string name() const {
+        return m_name;
+    }
+
+    //! Set the name of this surface
+    void setName(const std::string& name) {
+        m_name = name;
+    }
+
+    //! Generate self-documenting YAML string.
+    virtual std::string toYAML() const;
 
     //! Returns the surface area [m^2]
     double area() const;
@@ -90,6 +109,8 @@ protected:
     ReactorBase* m_reactor;
     vector_fp m_cov;
     std::vector<SensitivityParameter> m_params;
+
+    std::string m_name; //! reactor surface name
 };
 
 }

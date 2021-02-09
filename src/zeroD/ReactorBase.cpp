@@ -1,3 +1,4 @@
+
 //! @file ReactorBase.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -7,13 +8,17 @@
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/ReactorSurface.h"
+#include "cantera/thermo/SurfPhase.h"
+#include "cantera/base/yaml.h"
 
 using namespace std;
 namespace Cantera
 {
 
-ReactorBase::ReactorBase(const string& name) : m_nsp(0),
+ReactorBase::ReactorBase(const string& name) :
+    m_nsp(0),
     m_thermo(0),
+    m_kin(0),
     m_vol(1.0),
     m_enthalpy(0.0),
     m_intEnergy(0.0),
@@ -23,7 +28,7 @@ ReactorBase::ReactorBase(const string& name) : m_nsp(0),
     m_name = name;
 }
 
-void ReactorBase::setThermoMgr(thermo_t& thermo)
+void ReactorBase::setThermoMgr(ThermoPhase& thermo)
 {
     m_thermo = &thermo;
     m_nsp = m_thermo->nSpecies();
@@ -42,6 +47,30 @@ void ReactorBase::syncState()
     if (m_net) {
         m_net->setNeedsReinit();
     }
+}
+
+std::string ReactorBase::toYAML() const
+{
+    YAML::Emitter yml;
+    std::stringstream out;
+
+    yml << YAML::BeginMap;
+    yml << YAML::Key << name();
+    yml << YAML::BeginMap;
+    yml << YAML::Key << "type";
+    yml << YAML::Value << typeStr();
+    yml << YAML::Key << "phases" << YAML::Flow;
+    yml << YAML::BeginSeq;
+    yml << m_thermo->name();
+    for (const auto& s : m_surfaces) {
+        yml << s->thermo()->name();
+    }
+    yml << YAML::EndSeq;
+    yml << YAML::EndMap;
+    yml << YAML::EndMap;
+
+    out << yml.c_str();
+    return out.str();
 }
 
 void ReactorBase::addInlet(FlowDevice& inlet)
