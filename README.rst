@@ -35,10 +35,9 @@ Installation
 
 `Installation instructions for the current release of Cantera
 <https://cantera.org/install/index.html>`_ are available from the main `Cantera
-documentation site <https://cantera.org>`_. Installers are provided for Windows
-(MSI packages), macOS (through Homebrew), and Ubuntu. Anaconda packages
-containing the Cantera Python module are also available for Windows, macOS, and
-Linux.
+documentation site <https://cantera.org>`_. Installers are provided for Windows (MSI
+packages), macOS, and Ubuntu. Anaconda packages containing the Cantera Python and Matlab
+modules are also available for Windows, macOS, and Linux.
 
 .. image:: https://anaconda.org/cantera/cantera/badges/installer/conda.svg
     :target: https://anaconda.org/Cantera/cantera
@@ -101,33 +100,7 @@ Users' Group
 ============
 
 The `Cantera Users' Group <https://groups.google.com/group/cantera-users>`_ is a
-message board / mailing list for discussions amongst Cantera users.
-
-Cantera Gitter Chat
-===================
-
-.. image:: https://badges.gitter.im/org.png
-   :target: https://gitter.im/Cantera/Lobby
-
-
-The `Cantera Gitter Chat <https://gitter.im/Cantera/Lobby>`_ is a public chat
-client that is linked to users' Github account. The developers do not closely
-monitor the discussion, so *any* discussion at all of Cantera functionality
-such as how to use certain function calls, syntax problems, input files, etc.
-should be directed the User's Group. All conversations in the Gitter room will
-be covered under the Cantera Code of Conduct, so please be nice.
-
-The chat room is a place to strengthen and develop the Cantera community,
-discuss tangentially-related topics such as how to model the underlying physics
-of a problem , share cool applications you’ve developed, etc.
-
-Summary:
-
-“How do I perform this Cantera function call?” --> User's Group
-
-"What do I do with the variables that a Cantera function call returns?” -->
-Chat
-
+message board/mailing list for discussions amongst Cantera users.
 
 Continuous Integration Status
 =============================
