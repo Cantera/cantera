@@ -12,6 +12,7 @@
 # serve to show the default.
 
 import sys, os, re
+from pathlib import Path
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -24,7 +25,7 @@ sys.path.append(os.path.abspath('./exts'))
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-#needs_sphinx = '1.0'
+needs_sphinx = '2.0'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
@@ -43,7 +44,46 @@ extensions = [
               'sphinx.ext.intersphinx',
               ]
 
-autodoc_default_flags = ['members','show-inheritance','undoc-members']
+autodoc_default_options = {
+    'members': True,
+    'show-inheritance': True,
+    'undoc-members': True,
+}
+
+
+def setup(app):
+    """Set up an event handler to escape splat characters (*) in docstrings
+    when they appear in the introspected function signature.
+
+    This can happen when the ``*args``, ``**kwargs``, or keyword-only marker
+    (a plain ``*``) are used in a function signature. The only examples in
+    Cantera for which Sphinx issues warnings are __init__ functions, so it
+    may be related to the autoclass_content variable below, although I
+    didn't investigate.
+
+    This fixes warnings such as "Inline emphasis start marker without end" and
+    "Inline strong start marker without end" that Sphinx issues. I'm not sure
+    why autodoc doesn't handle this appropriately, but this seems pretty
+    effective and not all that fragile.
+    """
+    def escape_splats(app, what, name, obj, options, lines):
+        """This event handler is called each time the autodoc function
+        issues a ``process-docstring`` event. The ``lines`` argument
+        contains the lines of text that make up the docstring and must
+        be modified in place.
+        See: https://www.sphinx-doc.org/en/3.x/usage/extensions/autodoc.html#event-autodoc-process-docstring
+        """
+        splats = re.compile(r"\*args|\*\*kwargs|\s\*[,)]")
+        # Since the warnings for Cantera are only issued for classes,
+        # scope this replacement to as small a subset as possible. This
+        # conditional could be removed if other functions are found to
+        # cause this warning.
+        if what == "class":
+            for i, l in enumerate(lines):
+                if splats.search(l) is not None:
+                    lines[i] = l.replace("*", r"\*")
+    app.connect('autodoc-process-docstring', escape_splats)
+
 
 autoclass_content = 'both'
 
@@ -55,7 +95,7 @@ doxylink = {
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
-    'numpy': ('https://docs.scipy.org/doc/numpy/', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
 }
 
 # Ensure that the primary domain is the Python domain, since we've added the
@@ -82,7 +122,7 @@ copyright = '2001-2021, Cantera Developers'
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 
-configh = open('../../include/cantera/base/config.h').read()
+configh = Path('../../include/cantera/base/config.h').read_text()
 # The short X.Y version.
 version = re.search('CANTERA_SHORT_VERSION "(.*?)"', configh).group(1)
 # The full version, including alpha/beta/rc tags.

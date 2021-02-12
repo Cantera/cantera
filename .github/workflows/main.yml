@@ -138,10 +138,10 @@ jobs:
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
-          python3 -m pip install ruamel.yaml scons numpy cython sphinx \
+          python3 -m pip install ruamel.yaml scons numpy cython sphinx\<4.0 \
           sphinxcontrib-katex sphinxcontrib-matlabdomain sphinxcontrib-doxylink
       - name: Build Cantera with documentation
-        run: python3 `which scons` build doxygen_docs=y sphinx_docs=y
+        run: python3 `which scons` build -j2 doxygen_docs=y sphinx_docs=y
       # The known_hosts key is generated with `ssh-keygen -F cantera.org` from a
       # machine that has previously logged in to cantera.org and trusts
       # that it logged in to the right machine

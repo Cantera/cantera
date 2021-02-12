@@ -80,11 +80,14 @@ Flow Controllers
 MassFlowController
 ^^^^^^^^^^^^^^^^^^
 .. autoclass:: MassFlowController(upstream, downstream, *, name=None, mdot=None)
+   :inherited-members:
 
 Valve
 ^^^^^
 .. autoclass:: Valve(upstream, downstream, *, name=None, K=None)
+   :inherited-members:
 
 PressureController
 ^^^^^^^^^^^^^^^^^^
 .. autoclass:: PressureController(upstream, downstream, *, name=None, master=None, K=None)
+   :inherited-members:
