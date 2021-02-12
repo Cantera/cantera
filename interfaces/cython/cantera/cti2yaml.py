@@ -80,7 +80,6 @@ else:
         return repr(data)
 
 def represent_float(self, data):
-    # type: (Any) -> Any
     if data != data:
         value = '.nan'
     elif data == self.inf_value:
