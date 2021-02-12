@@ -1681,6 +1681,11 @@ public:
      */
     virtual void initThermo();
 
+    //! Initialize plasma
+    virtual void initPlasma(const AnyMap& phaseNode, const AnyMap& rootNode) {
+        throw NotImplementedError("ThermoPhase::initPlasma");
+    }
+
     //! Set the equation of state parameters
     /*!
      * @internal The number and meaning of these depends on the subclass.

@@ -1,0 +1,44 @@
+units: {length: cm, quantity: molec, activation-energy: K}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [O, E]
+  species:
+  - species: [O2^-]
+  - gri30_ion.yaml/species: [O2, E]
+
+  kinetics: gas
+  reactions: all
+  transport: mixture-averaged
+  state:
+    T: 300.0
+    P: 1.01325e+05
+
+species:
+- name: O2^-
+  composition: {E: 1, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.15, 1000.0, 6000.0]
+    data:
+    - [3.66442522, -9.28741138e-04, 6.45477082e-06, -7.7470338e-09, 2.93332662e-12,
+      -6870.76983, 4.35140681]
+    - [3.95666294, 5.98141823e-04, -2.12133905e-07, 3.63267581e-11, -2.24989228e-15,
+      -7062.87229, 2.27871017]
+  transport:
+    model: gas
+    geometry: linear
+    diameter: 3.33
+    well-depth: 136.5
+    polarizability: 1.424
+  note: L4/89
+
+reactions:
+- equation: E + O2 + O2 => O2^- + O2
+  type: electron-temperature
+  rate-constant: {A: 4.2e-27, b: -1.0, Ea-T: -100, Ea-Te: 700}
+  duplicate: true
+- equation: E + O2 + O2 => O2^- + O2
+  rate-constant: {A: 4.2e-27, b: -1.0, Ea: 600}
+  duplicate: true

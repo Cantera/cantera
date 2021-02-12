@@ -193,6 +193,23 @@ class TestIonTransport(utilities.CanteraTest):
         self.assertTrue(mobi != self.gas.mobilities[self.kH3Op])
 
 
+class TestPlasmaElectronTransport(utilities.CanteraTest):
+    def setUp(self):
+        self.gas = ct.Plasma('oxygen_plasma.yaml')
+        self.gas.TPX = 1000, ct.one_atm, 'O2:1.0'
+        self.gas.set_electron_energy_grid(np.linspace(0, 50, 200))
+        self.gas.electric_field = 1e6
+        self.kE = self.gas.species_index("E")
+
+    def test_electron_mobility(self):
+        mobi = self.gas.mobilities[self.kE]
+        self.assertNear(mobi, self.gas.electron_mobility)
+
+    def test_electron_diffusivity(self):
+        diff = self.gas.mix_diff_coeffs[self.kE]
+        self.assertNear(diff, self.gas.electron_diffusivity)
+
+
 class TestIonTransportYAML(TestIonTransport):
     def setUp(self):
         self.p = ct.one_atm

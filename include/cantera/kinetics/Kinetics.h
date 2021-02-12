@@ -819,6 +819,11 @@ public:
         m_root = root;
     }
 
+    //! set electron temperature
+    virtual void setElectronTemperature(double Te) {
+        throw NotImplementedError("Kinetics::setElectronTemperature");
+    }
+
 protected:
     //! Cache for saved calculations within each Kinetics object.
     ValueCache m_cache;

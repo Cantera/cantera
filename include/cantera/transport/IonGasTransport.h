@@ -73,6 +73,10 @@ public:
     //! The binary transport between two charged species is neglected.
     virtual void getMixDiffCoeffs(double* const d);
 
+    virtual void getMixDiffCoeffsMass(double* const d);
+
+    virtual void getMixDiffCoeffsMole(double* const d);
+
     /*! The electrical conductivity (Siemens/m).
      * \f[
      *     \sigma = \sum_k{\left|C_k\right| \mu_k \frac{X_k P}{k_b T}}
@@ -114,6 +118,9 @@ protected:
 
     //! polynomial of the collision integral for O2/O2-
     vector_fp m_om11_O2;
+
+    //! electron mobility which can be manually set to a value.
+    double m_electronMobility;
 };
 
 }

@@ -38,6 +38,7 @@
 #include "cantera/thermo/WaterSSTP.h"
 #include "cantera/thermo/BinarySolutionTabulatedThermo.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/plasma/WeaklyIonizedGas.h"
 
 using namespace std;
 
@@ -94,6 +95,8 @@ ThermoFactory::ThermoFactory()
     addAlias("liquid-water-IAPWS95", "PureLiquidWater");
     reg("binary-solution-tabulated", []() { return new BinarySolutionTabulatedThermo(); });
     addAlias("binary-solution-tabulated", "BinarySolutionTabulatedThermo");
+    reg("weakly-ionized-gas", []() { return new WeaklyIonizedGas(); });
+    addAlias("weakly-ionized-gas", "WeaklyIonizedGas");
 }
 
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)

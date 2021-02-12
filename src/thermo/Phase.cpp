@@ -25,6 +25,7 @@ Phase::Phase() :
     m_xml(new XML_Node("phase")),
     m_id("<phase>"),
     m_temp(0.001),
+    m_electron_temp(0.001),
     m_dens(0.001),
     m_mmw(0.0),
     m_stateNum(-1),
@@ -572,6 +573,16 @@ compositionMap Phase::getMassFractionsByName(double threshold) const
 void Phase::getMoleFractions(double* const x) const
 {
     scale(m_ym.begin(), m_ym.end(), x, m_mmw);
+}
+
+double Phase::numberDensity(size_t k) const
+{
+    return moleFraction(k) * molarDensity() * Avogadro;
+}
+
+double Phase::numberDensity(const std::string& nameSpec) const
+{
+    return moleFraction(nameSpec) * molarDensity() * Avogadro;
 }
 
 double Phase::moleFraction(size_t k) const

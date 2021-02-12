@@ -28,6 +28,28 @@ Arrhenius::Arrhenius(doublereal A, doublereal b, doublereal E)
     }
 }
 
+ElectronArrhenius::ElectronArrhenius()
+    : m_logA(-1.0E300)
+    , m_b(0.0)
+    , m_E1(0.0)
+    , m_E2(0.0)
+    , m_A(0.0)
+{
+}
+
+ElectronArrhenius::ElectronArrhenius(double A, double b, double E1, double E2)
+    : m_b(b)
+    , m_E1(E1)
+    , m_E2(E2)
+    , m_A(A)
+{
+    if (m_A  <= 0.0) {
+        m_logA = -1.0E300;
+    } else {
+        m_logA = std::log(m_A);
+    }
+}
+
 SurfaceArrhenius::SurfaceArrhenius()
     : m_b(0.0)
     , m_E(0.0)

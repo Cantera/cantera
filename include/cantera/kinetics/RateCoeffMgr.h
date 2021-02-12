@@ -69,6 +69,20 @@ public:
         }
     }
 
+    /**
+     * Similar to update(T, logT, values) but with an extra argument
+     * (second argument) of electron temperature, and change logT to logTe.
+     * This is used for plasma reactions where the electrons have a different
+     * temperature.
+     */
+    void update(double T, double Te, double logTe, double* values) {
+        double recipT = 1.0/T;
+        double recipTe = 1.0/Te;
+        for (size_t i = 0; i != m_rates.size(); i++) {
+            values[m_rxn[i]] = m_rates[i].updateRC(logTe, recipT, recipTe);
+        }
+    }
+
     size_t nReactions() const {
         return m_rates.size();
     }

@@ -35,7 +35,6 @@ cdef class _SolutionBase:
             self.kinetics = other.kinetics
             self.transport = other.transport
             self._base = other._base
-            self._source = other._source
             self._thermo = other._thermo
             self._kinetics = other._kinetics
             self._transport = other._transport
@@ -134,6 +133,10 @@ cdef class _SolutionBase:
                    "'Solution' instead").format(type(self).__name__)
             raise NotImplementedError(msg)
 
+        # Plasma
+        if pystr(self.thermo.type()) in ("WeaklyIonizedGas"):
+            self.thermo.initPlasma(phaseNode, root)
+
         # Kinetics
         cdef vector[CxxThermoPhase*] v
         cdef _SolutionBase phase
@@ -147,6 +150,7 @@ cdef class _SolutionBase:
             self.kinetics = self._kinetics.get()
         else:
             self.kinetics = NULL
+
 
     def _init_cti_xml(self, infile, name, adjacent, source):
         """
@@ -222,7 +226,6 @@ cdef class _SolutionBase:
             self.kinetics.skipUndeclaredThirdBodies(True)
             for reaction in reactions:
                 self.kinetics.addReaction(reaction._reaction)
-
 
     def __getitem__(self, selection):
         copy = self.__class__(origin=self)

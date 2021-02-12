@@ -139,6 +139,19 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
     cdef shared_ptr[CxxSolution] CxxNewSolution "Cantera::Solution::create" ()
 
 
+cdef extern from "cantera/plasma/ElectronCrossSection.h" namespace "Cantera":
+    cdef cppclass CxxElectronCrossSection "Cantera::ElectronCrossSection":
+        CxxElectronCrossSection()
+
+        string kind
+        string target
+        string product
+        double threshold
+        vector[vector[double]] data
+
+    cdef shared_ptr[CxxElectronCrossSection] CxxNewElectronCrossSection "newElectronCrossSection" (CxxAnyMap&) except +translate_exception
+    cdef vector[shared_ptr[CxxElectronCrossSection]] CxxGetElectronCrossSection "getElectronCrossSection" (CxxAnyValue&) except +translate_exception
+
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     ctypedef enum ThermoBasis:
         mass "Cantera::ThermoBasis::mass",
@@ -173,6 +186,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         void modifySpecies(size_t, shared_ptr[CxxSpecies]) except +translate_exception
         void initThermo() except +translate_exception
         void invalidateCache() except +translate_exception
+        void initPlasma(CxxAnyMap&, CxxAnyMap&) except +translate_exception
 
         # basic thermodynamic properties
         double temperature() except +translate_exception
@@ -223,6 +237,8 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         Composition getMoleFractionsByName(double)
         double moleFraction(size_t) except +translate_exception
         double moleFraction(string) except +translate_exception
+        double numberDensity(size_t) except +translate_exception
+        double numberDensity(string) except +translate_exception
 
         double concentration(size_t) except +translate_exception
         double elementalMassFraction(size_t) except +translate_exception
@@ -280,8 +296,49 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         double equivalenceRatio() except +translate_exception
         double stoichAirFuelRatio(const double* fuelComp, const double* oxComp, ThermoBasis basis) except +translate_exception
 
+        # non-equilibrium properties
+        double electronTemperature() except +translate_exception
+        void setElectronTemperature(double) except +translate_exception
+
+
 cdef extern from "cantera/thermo/IdealGasPhase.h":
-    cdef cppclass CxxIdealGasPhase "Cantera::IdealGasPhase"
+    cdef cppclass CxxIdealGasPhase "Cantera::IdealGasPhase":
+        CxxIdealGasPhase()
+
+
+cdef extern from "cantera/plasma/PlasmaPhase.h":
+    cdef cppclass CxxPlasmaPhase "Cantera::PlasmaPhase":
+        CxxPlasmaPhase()
+
+        #Properties
+        double grid(size_t)
+        size_t nPoints()
+        double electronMobility()
+        double electronDiffusivity()
+        double meanElectronEnergy()
+        double totalCollisionFreq()
+        double rateCoefficient(size_t)
+        double reverseRateCoefficient(size_t)
+        double powerGain()
+        double elasticPowerLoss()
+        double inelasticPowerLoss()
+        double electricField()
+        double electricFieldFreq()
+        void setElectricField(double)
+        void setElectricFieldFreq(double)
+        double electronTemperature()
+        void setupBoltzmannSolver(size_t, double, double, double)
+        void setMoleFractionThreshold(double)
+        void setInitialMeanElectronEnergy(double)
+        void setReuseEEDF(cbool)
+        string target(size_t)
+        string kind(size_t)
+        string product(size_t)
+        double threshold(size_t)
+
+        # initialization
+        cbool addElectronCrossSection(shared_ptr[CxxElectronCrossSection]) except +translate_exception
+        void setupGrid(size_t, double*) except +translate_exception
 
 
 cdef extern from "cantera/thermo/SurfPhase.h":
@@ -340,6 +397,13 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double efficiency(string)
         Composition efficiencies
         double default_efficiency
+
+    cdef cppclass CxxElectronTemperatureReaction "Cantera::ElectronTemperatureReaction" (CxxElementaryReaction):
+        CxxElectronTemperatureReaction()
+
+    cdef cppclass CxxPlasmaReaction "Cantera::PlasmaReaction" (CxxElementaryReaction):
+        CxxPlasmaReaction()
+        stdmap[string,string] process
 
     cdef cppclass CxxThreeBodyReaction "Cantera::ThreeBodyReaction" (CxxElementaryReaction):
         CxxThreeBodyReaction()
@@ -961,6 +1025,12 @@ ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +trans
 ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +translate_exception
 
 # classes
+cdef class ElectronCrossSection:
+    cdef shared_ptr[CxxElectronCrossSection] _electron_cross_section
+    cdef CxxElectronCrossSection* electron_cross_section
+
+    cdef _assign(self, shared_ptr[CxxElectronCrossSection] other)
+
 cdef class Species:
     cdef shared_ptr[CxxSpecies] _species
     cdef CxxSpecies* species
@@ -1002,6 +1072,9 @@ cdef class ThermoPhase(_SolutionBase):
 
 cdef class InterfacePhase(ThermoPhase):
     cdef CxxSurfPhase* surf
+
+cdef class PlasmaPhase(ThermoPhase):
+    cdef CxxPlasmaPhase* plasma
 
 cdef class Reaction:
     cdef shared_ptr[CxxReaction] _reaction

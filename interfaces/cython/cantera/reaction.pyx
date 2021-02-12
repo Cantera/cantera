@@ -3,6 +3,8 @@
 
 cdef extern from "cantera/kinetics/reaction_defs.h" namespace "Cantera":
     cdef int ELEMENTARY_RXN
+    cdef int ELECTRON_TEMPERATURE_RXN
+    cdef int PLASMA_RXN
     cdef int THREE_BODY_RXN
     cdef int FALLOFF_RXN
     cdef int PLOG_RXN
@@ -402,6 +404,27 @@ cdef class ElementaryReaction(Reaction):
         def __set__(self, allow):
             cdef CxxElementaryReaction* r = <CxxElementaryReaction*>self.reaction
             r.allow_negative_pre_exponential_factor = allow
+
+
+cdef class ElectronTemperatureReaction(ElementaryReaction):
+    """
+    A reaction which the rate coefficient depends on electron temperature.
+    This type of reaction is used in a plasma.
+    """
+    reaction_type = ELECTRON_TEMPERATURE_RXN
+
+    cdef CxxElectronTemperatureReaction* tbr(self):
+        return <CxxElectronTemperatureReaction*>self.reaction
+
+
+cdef class PlasmaReaction(ElementaryReaction):
+    """
+    A reaction which the rate coefficient is obtained by a plasma model.
+    """
+    reaction_type = PLASMA_RXN
+
+    cdef CxxPlasmaReaction* tbr(self):
+        return <CxxPlasmaReaction*>self.reaction
 
 
 cdef class ThreeBodyReaction(ElementaryReaction):
@@ -819,6 +842,10 @@ cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction):
 
     if reaction_type == ELEMENTARY_RXN:
         R = ElementaryReaction(init=False)
+    elif reaction_type == ELECTRON_TEMPERATURE_RXN:
+        R = ElectronTemperatureReaction(init=False)
+    elif reaction_type == PLASMA_RXN:
+        R = PlasmaReaction(init=False)
     elif reaction_type == THREE_BODY_RXN:
         R = ThreeBodyReaction(init=False)
     elif reaction_type == FALLOFF_RXN:
@@ -843,6 +870,10 @@ cdef CxxReaction* newReaction(int reaction_type):
     """
     if reaction_type == ELEMENTARY_RXN:
         return new CxxElementaryReaction()
+    elif reaction_type == ELECTRON_TEMPERATURE_RXN:
+        return new CxxElectronTemperatureReaction()
+    elif reaction_type == PLASMA_RXN:
+        return new CxxPlasmaReaction()
     elif reaction_type == THREE_BODY_RXN:
         return new CxxThreeBodyReaction()
     elif reaction_type == FALLOFF_RXN:

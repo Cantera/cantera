@@ -84,12 +84,35 @@ class ElementaryReaction : public Reaction
 {
 public:
     ElementaryReaction();
-    ElementaryReaction(const Composition& reactants, const Composition products,
+    ElementaryReaction(const Composition& reactants, const Composition& products,
                        const Arrhenius& rate);
     virtual void validate();
 
     Arrhenius rate;
     bool allow_negative_pre_exponential_factor;
+};
+
+//! A reaction which depends on electron temperature, usually including
+//! electron as a reactant species.
+class ElectronTemperatureReaction : public Reaction
+{
+public:
+    ElectronTemperatureReaction();
+    ElectronTemperatureReaction(const Composition& reactants, const Composition& products,
+                                const ElectronArrhenius& rate);
+    ElectronArrhenius rate;
+};
+
+//! A reaction which depends on electron energy distribustion function and electron
+//! collision cross section.
+class PlasmaReaction : public Reaction
+{
+public:
+    PlasmaReaction();
+    PlasmaReaction(const Composition& reactants, const Composition& products,
+                   const std::map<std::string, std::string>& process);
+    virtual void validate();
+    std::map<std::string, std::string> process;
 };
 
 //! A class for managing third-body efficiencies, including default values

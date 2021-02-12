@@ -1061,6 +1061,15 @@ cdef class ThermoPhase(_SolutionBase):
         X = self.thermo.getMoleFractionsByName(threshold)
         return {pystr(item.first):item.second for item in X}
 
+    def number_density(self, species):
+        if isinstance(species, (str, bytes)):
+            return self.thermo.numberDensity(stringify(species))
+        elif isinstance(species, (int, float)):
+            return self.thermo.numberDensity(<int>species)
+        else:
+            raise TypeError("'species' must be a string or a number."
+                            " Got {!r}.".format(species))
+
     ######## Read-only thermodynamic properties ########
 
     property P:
@@ -1635,6 +1644,13 @@ cdef class ThermoPhase(_SolutionBase):
             return self.thermo.electricPotential()
         def __set__(self, double value):
             self.thermo.setElectricPotential(value)
+
+    property electron_temperature:
+        """Get/Set the electron temperature [K] for this phase."""
+        def __get__(self):
+            return self.thermo.electronTemperature()
+        def __set__(self, double value):
+            self.thermo.setElectronTemperature(value)
 
 
 cdef class InterfacePhase(ThermoPhase):

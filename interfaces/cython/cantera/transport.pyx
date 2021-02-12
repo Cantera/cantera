@@ -144,7 +144,6 @@ cdef class Transport(_SolutionBase):
                     model = 'None'
                 self.transport = newTransportMgr(stringify(model), self.thermo)
             self._transport.reset(self.transport)
-
         super().__init__(*args, **kwargs)
         self.base.setTransport(self._transport)
 

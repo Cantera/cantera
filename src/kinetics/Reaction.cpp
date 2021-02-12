@@ -103,7 +103,7 @@ std::string Reaction::equation() const
 }
 
 ElementaryReaction::ElementaryReaction(const Composition& reactants_,
-                                       const Composition products_,
+                                       const Composition& products_,
                                        const Arrhenius& rate_)
     : Reaction(ELEMENTARY_RXN, reactants_, products_)
     , rate(rate_)
@@ -125,6 +125,78 @@ void ElementaryReaction::validate()
         throw CanteraError("ElementaryReaction::validate",
             "Undeclared negative pre-exponential factor found in reaction '"
             + equation() + "'");
+    }
+}
+
+ElectronTemperatureReaction::ElectronTemperatureReaction(const Composition& reactants_,
+                                                         const Composition& products_,
+                                                         const ElectronArrhenius& rate_)
+    : Reaction(ELECTRON_TEMPERATURE_RXN, reactants_, products_)
+    , rate(rate_)
+{
+}
+
+ElectronTemperatureReaction::ElectronTemperatureReaction()
+    : Reaction(ELECTRON_TEMPERATURE_RXN)
+{
+}
+
+PlasmaReaction::PlasmaReaction(const Composition& reactants_,
+                               const Composition& products_,
+                               const std::map<std::string, std::string>& process_)
+    : Reaction(PLASMA_RXN, reactants_, products_)
+    , process(process_)
+{
+}
+
+PlasmaReaction::PlasmaReaction()
+    : Reaction(PLASMA_RXN)
+{
+}
+
+void PlasmaReaction::validate()
+{
+    Reaction::validate();
+    bool reactants_ok = false;
+    bool found_electron = false;
+    if (reactants.size() == 2) {
+        double sum = 0.0;
+        for (auto species : reactants) {
+            if (species.first == "E") {
+                found_electron = true;
+            }
+            sum += species.second;
+        }
+        if (sum == 2.0 && found_electron) {
+            reactants_ok = true;
+        }
+    }
+    if (reactants_ok == false) {
+        throw CanteraError("PlasmaReaction::validate",
+                           "The type of the reaction {} is not suitable to be plasma."
+                           "The reactants have to be one electron plus one molecule", equation());
+    }
+
+    bool products_ok = false;
+    found_electron = false;
+    if (reversible) {
+        if (products.size() == 2) {
+            double sum = 0.0;
+            for (auto species : products) {
+                if (species.first == "E") {
+                    found_electron = true;
+                }
+                sum += species.second;
+            }
+            if (sum == 2.0 && found_electron) {
+                products_ok = true;
+            }
+        }
+        if (products_ok == false) {
+            throw CanteraError("PlasmaReaction::validate",
+                               "The reaction {} is not suitable to be reversible."
+                               "The products have to be one electron plus one molecule", equation());
+        }
     }
 }
 
@@ -347,6 +419,28 @@ Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate,
         Ta = units.convertActivationEnergy(rate_vec[2], "K");
     }
     return Arrhenius(A, b, Ta);
+}
+
+ElectronArrhenius readElectronTemperatureArrhenius(const Reaction& R, const AnyValue& rate,
+                                        const Kinetics& kin, const UnitSystem& units,
+                                        int pressure_dependence=0)
+{
+    double A, b, T1, T2;
+    Units rc_units = rateCoeffUnits(R, kin, pressure_dependence);
+    if (rate.is<AnyMap>()) {
+        auto& rate_map = rate.as<AnyMap>();
+        A = units.convert(rate_map["A"], rc_units);
+        b = rate_map["b"].asDouble();
+        T1 = units.convertActivationEnergy(rate_map["Ea-T"], "K");
+        T2 = units.convertActivationEnergy(rate_map["Ea-Te"], "K");
+    } else {
+        auto& rate_vec = rate.asVector<AnyValue>(4);
+        A = units.convert(rate_vec[0], rc_units);
+        b = rate_vec[1].asDouble();
+        T1 = units.convertActivationEnergy(rate_vec[2], "K");
+        T2 = units.convertActivationEnergy(rate_vec[3], "K");
+    }
+    return ElectronArrhenius(A, b, T1, T2);
 }
 
 //! Parse falloff parameters, given a rateCoeff node
@@ -576,6 +670,31 @@ void setupElementaryReaction(ElementaryReaction& R, const AnyMap& node,
     setupReaction(R, node, kin);
     R.allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
     R.rate = readArrhenius(R, node["rate-constant"], kin, node.units());
+}
+
+void setupElectronTemperatureReaction(ElectronTemperatureReaction& R, const AnyMap& node,
+                             const Kinetics& kin)
+{
+    setupReaction(R, node, kin);
+    R.rate = readElectronTemperatureArrhenius(R, node["rate-constant"], kin, node.units());
+}
+
+void setupPlasmaReaction(PlasmaReaction& R, const AnyMap& node,
+                         const Kinetics& kin)
+{
+    setupReaction(R, node, kin);
+    std::string kind, target, product;
+    if (node["process"].is<AnyMap>()) {
+        auto& process_map = node["process"].as<AnyMap>();
+        R.process["kind"] = process_map["kind"].asString();
+        R.process["target"] = process_map["target"].asString();
+        R.process["product"] = process_map["product"].asString();
+    } else {
+        auto& process_vec = node["process"].asVector<AnyValue>(3);
+        R.process["kind"] = process_vec[0].asString();
+        R.process["target"] = process_vec[1].asString();
+        R.process["product"] = process_vec[2].asString();
+    }
 }
 
 void setupThreeBodyReaction(ThreeBodyReaction& R, const XML_Node& rxn_node)
@@ -1086,6 +1205,14 @@ unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin)
     if (type == "elementary") {
         unique_ptr<ElementaryReaction> R(new ElementaryReaction());
         setupElementaryReaction(*R, node, kin);
+        return unique_ptr<Reaction>(move(R));
+    } else if (type == "electron-temperature") {
+        unique_ptr<ElectronTemperatureReaction> R(new ElectronTemperatureReaction());
+        setupElectronTemperatureReaction(*R, node, kin);
+        return unique_ptr<Reaction>(move(R));
+    } else if (type == "plasma") {
+        unique_ptr<PlasmaReaction> R(new PlasmaReaction());
+        setupPlasmaReaction(*R, node, kin);
         return unique_ptr<Reaction>(move(R));
     } else if (type == "three-body") {
         unique_ptr<ThreeBodyReaction> R(new ThreeBodyReaction());

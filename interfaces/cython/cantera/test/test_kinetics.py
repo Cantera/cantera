@@ -1089,6 +1089,22 @@ class TestReaction(utilities.CanteraTest):
             self.assertNear(surf1.net_rates_of_progress[1],
                             surf2.net_rates_of_progress[0])
 
+    def test_electron_arrhenius_rate(self):
+        gas = ct.Solution('electron-temperature-test.yaml')
+        gas.TP = 300, ct.one_atm
+        gas.electron_temperature = 300
+        self.assertNear(gas.forward_rate_constants[0], gas.forward_rate_constants[1])
+
+    def test_plasma(self):
+        gas = ct.Plasma('oxygen_plasma.yaml')
+        gas.TPX = 1000, ct.one_atm, 'O2:1.0'
+        gas.set_electron_energy_grid(np.linspace(0, 50, 200))
+        gas.electric_field = 1e6
+        self.assertNear(gas.forward_rate_constants[0],
+                        gas.plasma_process_rate_coefficient(5) * ct.avogadro)
+        self.assertNear(gas.reverse_rate_constants[0],
+                        gas.plasma_process_reverse_rate_coefficient(5) * ct.avogadro)
+
     def test_modify_invalid(self):
         # different reaction type
         tbr = self.gas.reaction(0)
