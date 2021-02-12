@@ -35,13 +35,15 @@ class FlameBase(Sim1D):
         The method returns simulation components that are specific to a class
         derived from `FlameBase` or a specific *domain* within the `FlameBase`
         simulation object. Entries may include:
-         * ``grid``: grid point positions along the flame [m]
-         * ``velocity``: normal velocity [m/s]
-         * ``spread_rate``: tangential velocity gradient [1/s]
-         * ``lambda``: radial pressure gradient [N/m^4]
-         * ``eField``: electric field strength
 
-        :param domain: Index of a specific domain within the `Sim1D.domains`
+        * ``grid``: grid point positions along the flame [m]
+        * ``velocity``: normal velocity [m/s]
+        * ``spread_rate``: tangential velocity gradient [1/s]
+        * ``lambda``: radial pressure gradient [N/m^4]
+        * ``eField``: electric field strength
+
+        :param domain:
+            Index of a specific domain within the `Sim1D.domains`
             list. The default is to return other columns of the `Sim1D` object.
         """
         if domain is None:
