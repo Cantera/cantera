@@ -110,7 +110,7 @@ if localenv['sphinx_docs']:
 
     sphinxdocs = build(localenv.Command('${SPHINXBUILD}/html/index.html',
         'sphinx/conf.py',
-        '${sphinx_cmd} -b html -d ${SPHINXBUILD}/doctrees ${SPHINXSRC} ${SPHINXBUILD}/html'))
+        '${sphinx_cmd} ${sphinx_options} -b html -d ${SPHINXBUILD}/doctrees ${SPHINXSRC} ${SPHINXBUILD}/html'))
     env.Alias('sphinx', sphinxdocs)
     env.Depends(sphinxdocs, env['python_module'])
 
