@@ -80,7 +80,6 @@ else:
         return repr(data)
 
 def represent_float(self, data):
-    # type: (Any) -> Any
     if data != data:
         value = '.nan'
     elif data == self.inf_value:
@@ -1640,7 +1639,7 @@ def convert(filename=None, output_name=None, text=None):
         # information regarding conversion
         metadata = BlockMap([
             ('generator', 'cti2yaml'),
-            ('cantera-version', '2.5.0'),
+            ('cantera-version', '2.5.1'),
             ('date', formatdate(localtime=True)),
         ])
         if filename is not None:

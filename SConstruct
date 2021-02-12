@@ -258,6 +258,7 @@ defaults.debugLinkFlags = ''
 defaults.noDebugLinkFlags = ''
 defaults.warningFlags = '-Wall'
 defaults.buildPch = False
+defaults.sphinx_options = '-W --keep-going'
 env['pch_flags'] = []
 env['openmp_flag'] = ['-fopenmp'] # used to generate sample build scripts
 
@@ -342,16 +343,16 @@ config_options = [
     PathVariable(
         'libdirname',
         """Set this to the directory where Cantera libraries should be installed.
-           Some distributions (e.g. Fedora/RHEL) use 'lib64' instead of 'lib' on 64-bit systems
+           Some distributions (for example, Fedora/RHEL) use 'lib64' instead of 'lib' on 64-bit systems
            or could use some other library directory name instead of 'lib' depends
-           on architecture and profile (e.g. Gentoo 'libx32' on x32 profile).
+           on architecture and profile (for example, Gentoo 'libx32' on x32 profile).
            If user didn't set 'libdirname' configuration variable set it to default value 'lib'""",
         'lib', PathVariable.PathAccept),
     EnumVariable(
         'python_package',
         """If you plan to work in Python, then you need the ``full`` Cantera Python
            package. If, on the other hand, you will only use Cantera from some
-           other language (e.g. MATLAB or Fortran 90/95) and only need Python
+           other language (for example, MATLAB or Fortran 90/95) and only need Python
            to process CTI files, then you only need a ``minimal`` subset of the
            package and Cython and NumPy are not necessary. The ``none`` option
            doesn't install any components of the Python interface. The default
@@ -439,11 +440,17 @@ config_options = [
         'sphinx_cmd',
         """Command to use for building the Sphinx documentation.""",
         'sphinx-build', PathVariable.PathAccept),
+    (
+        "sphinx_options",
+        """Options passed to the 'sphinx_cmd' command line. Separate multiple
+           options with spaces, for example, "-W --keep-going".""",
+        defaults.sphinx_options,
+    ),
     EnumVariable(
         'system_eigen',
         """Select whether to use Eigen from a system installation ('y'), from a
            Git submodule ('n'), or to decide automatically ('default'). If Eigen
-           is not installed directly into a system include directory, e.g. it is
+           is not installed directly into a system include directory, for example, it is
            installed in '/opt/include/eigen3/Eigen', then you will need to add
            '/opt/include/eigen3' to 'extra_inc_dirs'.
            """,
@@ -474,35 +481,35 @@ config_options = [
         """The directory where the SUNDIALS header files are installed. This
            should be the directory that contains the "cvodes", "nvector", etc.
            subdirectories. Not needed if the headers are installed in a
-           standard location, e.g., '/usr/include'.""",
+           standard location, for example, '/usr/include'.""",
         '', PathVariable.PathAccept),
     PathVariable(
         'sundials_libdir',
         """The directory where the SUNDIALS static libraries are installed.
            Not needed if the libraries are installed in a standard location,
-           e.g., '/usr/lib'.""",
+           for example, '/usr/lib'.""",
         '', PathVariable.PathAccept),
     (
         'blas_lapack_libs',
         """Cantera can use BLAS and LAPACK libraries available on your system if
-           you have optimized versions available (e.g., Intel MKL). Otherwise,
+           you have optimized versions available (for example, Intel MKL). Otherwise,
            Cantera will use Eigen for linear algebra support. To use BLAS
            and LAPACK, set 'blas_lapack_libs' to the the list of libraries
-           that should be passed to the linker, separated by commas, e.g.,
+           that should be passed to the linker, separated by commas, for example,
            "lapack,blas" or "lapack,f77blas,cblas,atlas". Eigen is required
            whether or not BLAS/LAPACK are used.""",
         ''),
     PathVariable(
         'blas_lapack_dir',
         """Directory containing the libraries specified by 'blas_lapack_libs'. Not
-           needed if the libraries are installed in a standard location, e.g.
+           needed if the libraries are installed in a standard location, for example,
            ``/usr/lib``.""",
         '', PathVariable.PathAccept),
     EnumVariable(
         'lapack_names',
         """Set depending on whether the procedure names in the specified
            libraries are lowercase or uppercase. If you don't know, run 'nm' on
-           the library file (e.g., 'nm libblas.a').""",
+           the library file (for example, 'nm libblas.a').""",
         'lower', ('lower','upper')),
     BoolVariable(
         'lapack_ftn_trailing_underscore',
@@ -533,7 +540,7 @@ config_options = [
     (
         'env_vars',
         """Environment variables to propagate through to SCons. Either the
-           string "all" or a comma separated list of variable names, e.g.
+           string "all" or a comma separated list of variable names, for example,
            'LD_LIBRARY_PATH,HOME'.""",
         defaults.env_vars),
     BoolVariable(
@@ -543,7 +550,7 @@ config_options = [
     (
         'cxx_flags',
         """Compiler flags passed to the C++ compiler only. Separate multiple
-           options with spaces, e.g., "cxx_flags='-g -Wextra -O3 --std=c++11'"
+           options with spaces, for example, "cxx_flags='-g -Wextra -O3 --std=c++11'"
            """,
         defaults.cxxFlags),
     (
@@ -592,7 +599,7 @@ config_options = [
         'warning_flags',
         """Additional compiler flags passed to the C/C++ compiler to enable
            extra warnings. Used only when compiling source code that is part
-           of Cantera (e.g. excluding code in the 'ext' directory).""",
+           of Cantera (for example, excluding code in the 'ext' directory).""",
         defaults.warningFlags),
     (
         'extra_inc_dirs',
@@ -607,12 +614,12 @@ config_options = [
     PathVariable(
         'boost_inc_dir',
         """Location of the Boost header files. Not needed if the headers are
-           installed in a standard location, e.g. '/usr/include'.""",
+           installed in a standard location, for example, '/usr/include'.""",
         defaults.boostIncDir, PathVariable.PathAccept),
     PathVariable(
         'stage_dir',
         """Directory relative to the Cantera source directory to be
-           used as a staging area for building e.g. a Debian
+           used as a staging area for building for example, a Debian
            package. If specified, 'scons install' will install files
            to 'stage_dir/prefix/...'.""",
         '',
@@ -623,7 +630,7 @@ config_options = [
         False),
     (
         'gtest_flags',
-        """Additional options passed to each GTest test suite, e.g.
+        """Additional options passed to each GTest test suite, for example,
            '--gtest_filter=*pattern*'. Separate multiple options with spaces.""",
         ''),
     BoolVariable(
@@ -638,7 +645,7 @@ config_options = [
     BoolVariable(
         'versioned_shared_library',
         """If enabled, create a versioned shared library, with symlinks to the
-           more generic library name, e.g. 'libcantera_shared.so.2.5.0' as the
+           more generic library name, for example, 'libcantera_shared.so.2.5.0' as the
            actual library and 'libcantera_shared.so' and 'libcantera_shared.so.2'
            as symlinks.
            """,
@@ -651,7 +658,7 @@ config_options = [
     EnumVariable(
         'layout',
         """The layout of the directory structure. 'standard' installs files to
-           several subdirectories under 'prefix', e.g. 'prefix/bin',
+           several subdirectories under 'prefix', for example, 'prefix/bin',
            'prefix/include/cantera', 'prefix/lib' etc. This layout is best used in
            conjunction with "prefix'='/usr/local'". 'compact' puts all installed
            files in the subdirectory defined by 'prefix'. This layout is best
@@ -719,7 +726,7 @@ for arg in ARGUMENTS:
         print('Encountered unexpected command line argument: %r' % arg)
         sys.exit(1)
 
-env['cantera_version'] = "2.5.0"
+env['cantera_version'] = "2.5.1"
 # For use where pre-release tags are not permitted (MSI, sonames)
 env['cantera_pure_version'] = re.match(r'(\d+\.\d+\.\d+)', env['cantera_version']).group(0)
 env['cantera_short_version'] = re.match(r'(\d+\.\d+)', env['cantera_version']).group(0)

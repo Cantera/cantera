@@ -69,17 +69,18 @@ def extract_matlab_docstring(mfile, level):
     return docstring + '\n'
 
 
-def get_function_name(str):
+def get_function_name(function_string):
     """
         Return the Matlab function or classdef signature, assuming that
         the string starts with either 'function ' or 'classdef '.
     """
-    if str.startswith('function '):
-        sig = str[len('function '):]
-    elif str.startswith('classdef '):
-        sig = str[len('classdef '):]
+    if function_string.startswith('function '):
+        sig = function_string[len('function '):]
+    elif function_string.startswith('classdef '):
+        sig = function_string[len('classdef '):]
     else:
-        print("Unknown function declaration in MATLAB document", str)
+        print("Unknown function declaration in MATLAB document", function_string)
+        sys.exit(1)
 
     # Split the function signature on the equals sign, if it exists.
     # We don't care about what comes before the equals sign, since
@@ -109,8 +110,9 @@ if localenv['sphinx_docs']:
 
     sphinxdocs = build(localenv.Command('${SPHINXBUILD}/html/index.html',
         'sphinx/conf.py',
-        '${sphinx_cmd} -b html -d ${SPHINXBUILD}/doctrees ${SPHINXSRC} ${SPHINXBUILD}/html'))
+        '${sphinx_cmd} ${sphinx_options} -b html -d ${SPHINXBUILD}/doctrees ${SPHINXSRC} ${SPHINXBUILD}/html'))
     env.Alias('sphinx', sphinxdocs)
+    env.Depends(sphinxdocs, env['python_module'])
 
     # Create a list of MATLAB classes to document. This uses the NamedTuple
     # structure defined at the top of the file. The @Data and @Utilities
@@ -205,5 +207,7 @@ if localenv['sphinx_docs']:
         localenv.Depends(sphinxdocs, c)
 
     localenv.AlwaysBuild(sphinxdocs)
+    if localenv['doxygen_docs']:
+        localenv.Depends(sphinxdocs, docs)
     install(localenv.RecursiveInstall, '$inst_docdir/sphinx/html',
             '#/build/docs/sphinx/html')
