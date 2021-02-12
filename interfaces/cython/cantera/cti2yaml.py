@@ -1639,7 +1639,7 @@ def convert(filename=None, output_name=None, text=None):
         # information regarding conversion
         metadata = BlockMap([
             ('generator', 'cti2yaml'),
-            ('cantera-version', '2.5.1'),
+            ('cantera-version', '2.5.2b1'),
             ('date', formatdate(localtime=True)),
         ])
         if filename is not None:
