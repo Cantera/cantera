@@ -112,6 +112,7 @@ if localenv['sphinx_docs']:
         'sphinx/conf.py',
         '${sphinx_cmd} -b html -d ${SPHINXBUILD}/doctrees ${SPHINXSRC} ${SPHINXBUILD}/html'))
     env.Alias('sphinx', sphinxdocs)
+    env.Depends(sphinxdocs, env['python_module'])
 
     # Create a list of MATLAB classes to document. This uses the NamedTuple
     # structure defined at the top of the file. The @Data and @Utilities
@@ -206,5 +207,7 @@ if localenv['sphinx_docs']:
         localenv.Depends(sphinxdocs, c)
 
     localenv.AlwaysBuild(sphinxdocs)
+    if localenv['doxygen_docs']:
+        localenv.Depends(sphinxdocs, docs)
     install(localenv.RecursiveInstall, '$inst_docdir/sphinx/html',
             '#/build/docs/sphinx/html')
