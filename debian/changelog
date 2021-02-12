@@ -1,3 +1,9 @@
+cantera (2.5.1-1+groovy0) groovy; urgency=medium
+
+  * New upstream release
+
+ -- Raymond Speth <speth@mit.edu>  Fri, 12 Feb 2021 17:42:10 -0500
+
 cantera (2.5.0-1+groovy0) groovy; urgency=medium
 
   * New upstream release
