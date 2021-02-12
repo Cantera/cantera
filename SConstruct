@@ -258,6 +258,7 @@ defaults.debugLinkFlags = ''
 defaults.noDebugLinkFlags = ''
 defaults.warningFlags = '-Wall'
 defaults.buildPch = False
+defaults.sphinx_options = '-W --keep-going'
 env['pch_flags'] = []
 env['openmp_flag'] = ['-fopenmp'] # used to generate sample build scripts
 
@@ -439,6 +440,12 @@ config_options = [
         'sphinx_cmd',
         """Command to use for building the Sphinx documentation.""",
         'sphinx-build', PathVariable.PathAccept),
+    (
+        "sphinx_options",
+        """Options passed to the 'sphinx_cmd' command line. Separate multiple
+           options with spaces, for example, "-W --keep-going".""",
+        defaults.sphinx_options,
+    ),
     EnumVariable(
         'system_eigen',
         """Select whether to use Eigen from a system installation ('y'), from a
