@@ -1,3 +1,9 @@
+cantera (2.5.1-1+focal0) focal; urgency=medium
+
+  * New upstream release
+
+ -- Raymond Speth <speth@mit.edu>  Fri, 12 Feb 2021 17:37:01 -0500
+
 cantera (2.5.0-1+focal0) focal; urgency=medium
 
   * New upstream release
