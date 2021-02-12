@@ -12,6 +12,7 @@
 # serve to show the default.
 
 import sys, os, re
+from pathlib import Path
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -46,7 +47,7 @@ extensions = [
 autodoc_default_options = {
     'members': True,
     'show-inheritance': True,
-    'undoc-members': True
+    'undoc-members': True,
 }
 
 autoclass_content = 'both'
@@ -59,7 +60,7 @@ doxylink = {
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
-    'numpy': ('https://docs.scipy.org/doc/numpy/', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
 }
 
 # Ensure that the primary domain is the Python domain, since we've added the
@@ -86,7 +87,7 @@ copyright = '2001-2021, Cantera Developers'
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 
-configh = open('../../include/cantera/base/config.h').read()
+configh = Path('../../include/cantera/base/config.h').read_text()
 # The short X.Y version.
 version = re.search('CANTERA_SHORT_VERSION "(.*?)"', configh).group(1)
 # The full version, including alpha/beta/rc tags.
