@@ -50,6 +50,41 @@ autodoc_default_options = {
     'undoc-members': True,
 }
 
+
+def setup(app):
+    """Set up an event handler to escape splat characters (*) in docstrings
+    when they appear in the introspected function signature.
+
+    This can happen when the ``*args``, ``**kwargs``, or keyword-only marker
+    (a plain ``*``) are used in a function signature. The only examples in
+    Cantera for which Sphinx issues warnings are __init__ functions, so it
+    may be related to the autoclass_content variable below, although I
+    didn't investigate.
+
+    This fixes warnings such as "Inline emphasis start marker without end" and
+    "Inline strong start marker without end" that Sphinx issues. I'm not sure
+    why autodoc doesn't handle this appropriately, but this seems pretty
+    effective and not all that fragile.
+    """
+    def escape_splats(app, what, name, obj, options, lines):
+        """This event handler is called each time the autodoc function
+        issues a ``process-docstring`` event. The ``lines`` argument
+        contains the lines of text that make up the docstring and must
+        be modified in place.
+        See: https://www.sphinx-doc.org/en/3.x/usage/extensions/autodoc.html#event-autodoc-process-docstring
+        """
+        splats = re.compile(r"\*args|\*\*kwargs|\s\*[,)]")
+        # Since the warnings for Cantera are only issued for classes,
+        # scope this replacement to as small a subset as possible. This
+        # conditional could be removed if other functions are found to
+        # cause this warning.
+        if what == "class":
+            for i, l in enumerate(lines):
+                if splats.search(l) is not None:
+                    lines[i] = l.replace("*", r"\*")
+    app.connect('autodoc-process-docstring', escape_splats)
+
+
 autoclass_content = 'both'
 
 doxylink = {
