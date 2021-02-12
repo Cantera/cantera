@@ -138,7 +138,7 @@ jobs:
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
-          python3 -m pip install ruamel.yaml scons numpy cython sphinx \
+          python3 -m pip install ruamel.yaml scons numpy cython sphinx\<4.0 \
           sphinxcontrib-katex sphinxcontrib-matlabdomain sphinxcontrib-doxylink
       - name: Build Cantera with documentation
         run: python3 `which scons` build doxygen_docs=y sphinx_docs=y
