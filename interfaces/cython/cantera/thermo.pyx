@@ -792,10 +792,9 @@ cdef class ThermoPhase(_SolutionBase):
 
         self.thermo.setEquivalenceRatio(phi, &f[0], &o[0], ThermoBasis.mass if basis=='mass' else ThermoBasis.molar)
 
-    def set_mixture_fraction(self, mixFrac, fuel, oxidizer, basis='mole'):
+    def set_mixture_fraction(self, mixture_fraction, fuel, oxidizer, basis='mole', mixFrac=None):
         """
-        Set the composition to a mixture of *fuel* and *oxidizer* at the
-        specified mixture fraction *mixFrac* (kg fuel / kg mixture), holding
+        specified mixture fraction *mixture_fraction* (kg fuel / kg mixture), holding
         temperature and pressure constant. Considers the oxidation of C to CO2,
         H to H2O and S to SO2. Other elements are assumed not to participate in
         oxidation (i.e. N ends up as N2). The *basis* determines the composition
@@ -809,7 +808,8 @@ cdef class ThermoPhase(_SolutionBase):
             >>> gas.mass_fraction_dict()
             {'CO': 0.145682068778996, 'NH3': 0.354317931221004, 'O2': 0.5}
 
-        :param mixFrac: Mixture fraction (kg fuel / kg mixture)
+        :param mixture_fraction:
+            Mixture fraction (kg fuel / kg mixture)
         :param fuel:
             Fuel species name or mole/mass fractions as string, array, or dict.
         :param oxidizer:
@@ -818,12 +818,17 @@ cdef class ThermoPhase(_SolutionBase):
         :param basis: determines if *fuel* and *oxidizer* are given in mole
             fractions (basis='mole') or mass fractions (basis='mass')
         """
+        if mixFrac is not None:
+            warnings.warn("The 'mixFrac' argument is deprecated and will be "
+                          "removed after 2.5. The argument can be replaced by "
+                          "'mixture_fraction'.", DeprecationWarning)
+            mixture_fraction = mixFrac
         cdef np.ndarray[np.double_t, ndim=1] f = \
                 np.ascontiguousarray(self.__composition_to_array(fuel, basis), dtype=np.double)
         cdef np.ndarray[np.double_t, ndim=1] o = \
                 np.ascontiguousarray(self.__composition_to_array(oxidizer, basis), dtype=np.double)
 
-        self.thermo.setMixtureFraction(mixFrac, &f[0], &o[0], ThermoBasis.mass if basis=='mass' else ThermoBasis.molar)
+        self.thermo.setMixtureFraction(mixture_fraction, &f[0], &o[0], ThermoBasis.mass if basis == 'mass' else ThermoBasis.molar)
 
     def get_equivalence_ratio(self, oxidizers=[], ignore=[]):
         """
