@@ -893,24 +893,25 @@ cdef class ThermoPhase(_SolutionBase):
     def equivalence_ratio(self, fuel=None, oxidizer=None, basis='mole'):
         """
         Get the equivalence ratio of the current mixture, which is a
-	conserved quantity. Considers the oxidation of C to CO2, H to H2O
+        conserved quantity. Considers the oxidation of C to CO2, H to H2O
         and S to SO2. Other elements are assumed not to participate in oxidation
         (i.e. N ends up as N2). If fuel and oxidizer are not specified, the
         equivalence ratio is computed from the available oxygen and the
         required oxygen for complete oxidation. The *basis* determines the
         composition of fuel and oxidizer: basis='mole' (default) means mole
         fractions, basis='mass' means mass fractions::
-       :param fuel:
+
+            >>> gas.set_equivalence_ratio(0.5, 'CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
+            >>> gas.equivalence_ratio('CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
+            0.5
+
+        :param fuel:
             Fuel species name or mole/,mass fractions as string, array, or dict
         :param oxidizer:
             Oxidizer species name or mole/mass fractions as a string, array, or dict.
         :param basis:
             Determines if *fuel* and *oxidizer* are given in mole fractions (basis='mole')
             or mass fractions (basis='mass')
-
-            >>> gas.set_equivalence_ratio(0.5, 'CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
-            >>> gas.equivalence_ratio('CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
-            0.5
         """
         if fuel is None and oxidizer is None:
             return self.thermo.equivalenceRatio()
