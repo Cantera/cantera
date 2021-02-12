@@ -383,7 +383,7 @@ cdef class ThermoPhase(_SolutionBase):
     property basis:
         """
         Determines whether intensive thermodynamic properties are treated on a
-        `mass` (per kg) or `molar` (per kmol) basis. This affects the values
+        ``mass`` (per kg) or ``molar`` (per kmol) basis. This affects the values
         returned by the properties `h`, `u`, `s`, `g`, `v`, `density`, `cv`,
         and `cp`, as well as the values used with the state-setting properties
         such as `HPX` and `UV`.
@@ -762,12 +762,13 @@ cdef class ThermoPhase(_SolutionBase):
 
     def set_equivalence_ratio(self, phi, fuel, oxidizer, basis='mole'):
         """
-        Set the composition to a mixture of *fuel* and *oxidizer* at the
-        specified equivalence ratio *phi*, holding temperature and pressure
+        Set the composition to a mixture of ``fuel`` and ``oxidizer`` at the
+        specified equivalence ratio ``phi``, holding temperature and pressure
         constant. Considers the oxidation of C to CO2, H to H2O and S to SO2.
-        Other elements are assumed not to participate in oxidation (i.e. N ends up as
-        N2). The *basis* determines the fuel and oxidizer compositions:
-        basis='mole' means mole fractions (default), basis='mass' means mass fractions::
+        Other elements are assumed not to participate in oxidation (that is,
+        N ends up as N2). The ``basis`` determines the fuel and oxidizer
+        compositions: ``basis='mole'`` means mole fractions (default),
+        ``basis='mass'`` means mass fractions::
 
             >>> gas.set_equivalence_ratio(0.5, 'CH4', 'O2:1.0, N2:3.76', basis='mole')
             >>> gas.mass_fraction_dict()
@@ -776,30 +777,33 @@ cdef class ThermoPhase(_SolutionBase):
             >>> gas.mass_fraction_dict()
             {'CO': 0.14784006249290754, 'NH3': 0.35956645545401045, 'O2': 0.49259348205308207}
 
-        :param phi: Equivalence ratio
+        :param phi:
+            Equivalence ratio
         :param fuel:
             Fuel species name or mole/mass fractions as string, array, or dict.
         :param oxidizer:
             Oxidizer species name or mole/mass fractions as a string, array, or
             dict.
-        :param basis: determines if *fuel* and *oxidizer* are given in mole
-            fractions (basis='mole') or mass fractions (basis='mass')
+        :param basis:
+            Determines if ``fuel`` and ``oxidizer`` are given in mole
+            fractions (``basis='mole'``) or mass fractions (``basis='mass'``)
         """
         cdef np.ndarray[np.double_t, ndim=1] f = \
                 np.ascontiguousarray(self.__composition_to_array(fuel, basis), dtype=np.double)
         cdef np.ndarray[np.double_t, ndim=1] o = \
                 np.ascontiguousarray(self.__composition_to_array(oxidizer, basis), dtype=np.double)
 
-        self.thermo.setEquivalenceRatio(phi, &f[0], &o[0], ThermoBasis.mass if basis=='mass' else ThermoBasis.molar)
+        self.thermo.setEquivalenceRatio(phi, &f[0], &o[0], ThermoBasis.mass if basis == 'mass' else ThermoBasis.molar)
 
     def set_mixture_fraction(self, mixture_fraction, fuel, oxidizer, basis='mole', mixFrac=None):
         """
+        Set the composition to a mixture of ``fuel`` and ``oxidizer`` at the
         specified mixture fraction *mixture_fraction* (kg fuel / kg mixture), holding
         temperature and pressure constant. Considers the oxidation of C to CO2,
         H to H2O and S to SO2. Other elements are assumed not to participate in
-        oxidation (i.e. N ends up as N2). The *basis* determines the composition
-        of fuel and oxidizer: basis='mole' (default) means mole fractions,
-        basis='mass' means mass fractions::
+        oxidation (that is, N ends up as N2). The ``basis`` determines the composition
+        of fuel and oxidizer: ``basis='mole'`` (default) means mole fractions,
+        ``basis='mass'`` means mass fractions::
 
             >>> gas.set_mixture_fraction(0.5, 'CH4', 'O2:1.0, N2:3.76')
             >>> gas.mass_fraction_dict()
@@ -815,8 +819,8 @@ cdef class ThermoPhase(_SolutionBase):
         :param oxidizer:
             Oxidizer species name or mole/mass fractions as a string, array, or
             dict.
-        :param basis: determines if *fuel* and *oxidizer* are given in mole
-            fractions (basis='mole') or mass fractions (basis='mass')
+        :param basis: determines if ``fuel`` and ``oxidizer`` are given in mole
+            fractions (``basis='mole'``) or mass fractions (``basis='mass'``)
         """
         if mixFrac is not None:
             warnings.warn("The 'mixFrac' argument is deprecated and will be "
@@ -836,7 +840,7 @@ cdef class ThermoPhase(_SolutionBase):
         equivalence ratio of an unburned mixture. This is not a quantity that is
         conserved after oxidation. Considers the oxidation of C to CO2, H to H2O
         and S to SO2. Other elements are assumed not to participate in oxidation
-        (i.e. N ends up as N2).
+        (that is, N ends up as N2).
 
         :param oxidizers:
             List of oxidizer species names as strings. Default: with
@@ -895,23 +899,23 @@ cdef class ThermoPhase(_SolutionBase):
         Get the equivalence ratio of the current mixture, which is a
         conserved quantity. Considers the oxidation of C to CO2, H to H2O
         and S to SO2. Other elements are assumed not to participate in oxidation
-        (i.e. N ends up as N2). If fuel and oxidizer are not specified, the
+        (that is, N ends up as N2). If fuel and oxidizer are not specified, the
         equivalence ratio is computed from the available oxygen and the
-        required oxygen for complete oxidation. The *basis* determines the
-        composition of fuel and oxidizer: basis='mole' (default) means mole
-        fractions, basis='mass' means mass fractions::
+        required oxygen for complete oxidation. The ``basis`` determines the
+        composition of fuel and oxidizer: ``basis='mole'`` (default) means mole
+        fractions, ``basis='mass'`` means mass fractions::
 
             >>> gas.set_equivalence_ratio(0.5, 'CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
             >>> gas.equivalence_ratio('CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
             0.5
 
         :param fuel:
-            Fuel species name or mole/,mass fractions as string, array, or dict
+            Fuel species name or mole/mass fractions as string, array, or dict.
         :param oxidizer:
             Oxidizer species name or mole/mass fractions as a string, array, or dict.
         :param basis:
-            Determines if *fuel* and *oxidizer* are given in mole fractions (basis='mole')
-            or mass fractions (basis='mass')
+            Determines if ``fuel`` and ``oxidizer`` are given in mole fractions
+            (``basis='mole'``) or mass fractions (``basis='mass'``)
         """
         if fuel is None and oxidizer is None:
             return self.thermo.equivalenceRatio()
@@ -929,27 +933,29 @@ cdef class ThermoPhase(_SolutionBase):
         Get the mixture fraction of the current mixture (kg fuel / (kg oxidizer + kg fuel))
         This is a quantity that is conserved after oxidation. Considers the
         oxidation of C to CO2, H to H2O and S to SO2. Other elements are assumed
-        not to participate in oxidation (i.e. N ends up as N2).
-        The *basis* determines the composition of fuel and oxidizer:
-        basis='mole' (default) means mole fractions, basis='mass' means mass fractions.
-        The mixture fraction can be computed from a single element (e.g. carbon
-        with element="C") or from all elements, which is the Bilger mixture
-        fraction (element="Bilger") and the default::
+        not to participate in oxidation (that is, N ends up as N2).
+        The ``basis`` determines the composition of fuel and oxidizer:
+        ``basis="mole"`` (default) means mole fractions, ``basis="mass"`` means mass fractions.
+        The mixture fraction can be computed from a single element (for example, carbon
+        with ``element="C"``) or from all elements, which is the Bilger mixture
+        fraction (``element="Bilger"``). The Bilger mixture fraction is computed by default::
+
+            >>> gas.set_mixture_fraction(0.5, 'CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
+            >>> gas.mixture_fraction('CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
+            0.5
 
         :param fuel:
             Fuel species name or mole/mass fractions as string, array, or dict.
         :param oxidizer:
             Oxidizer species name or mole/mass fractions as a string, array, or
             dict.
-        :param basis: determines if *fuel* and *oxidizer* are given in mole
-            fractions (basis='mole') or mass fractions (basis='mass')
-        :param element: computes the mixture fraction from the specified elemental
+        :param basis:
+            Determines if ``fuel`` and ``oxidizer`` are given in mole
+            fractions (``basis='mole'``) or mass fractions (``basis='mass'``)
+        :param element:
+            Computes the mixture fraction from the specified elemental
             mass fraction (given by element name or element index) or as
             the Bilger mixture fraction (default)
-
-            >>> gas.set_mixture_fraction(0.5, 'CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
-            >>> gas.mixture_fraction('CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
-            0.5
         """
         cdef np.ndarray[np.double_t, ndim=1] f = \
                 np.ascontiguousarray(self.__composition_to_array(fuel, basis), dtype=np.double)
@@ -967,21 +973,23 @@ cdef class ThermoPhase(_SolutionBase):
         """
         Get the stoichiometric air to fuel ratio (kg oxidizer / kg fuel). Considers the
         oxidation of C to CO2, H to H2O and S to SO2. Other elements are assumed
-        not to participate in oxidation (i.e. N ends up as N2).
-        The *basis* determines the composition of fuel and oxidizer: basis='mole' (default)
-        means mole fractions, basis='mass' means mass fractions::
+        not to participate in oxidation (that is, N ends up as N2).
+        The ``basis`` determines the composition of fuel and oxidizer: ``basis='mole'`` (default)
+        means mole fractions, ``basis='mass'`` means mass fractions::
+
+            >>> gas.set_mixture_fraction(0.5, 'CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
+            >>> gas.stoich_air_fuel_ratio('CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
+            8.148040722239438
 
         :param fuel:
             Fuel species name or mole/mass fractions as string, array, or dict.
         :param oxidizer:
             Oxidizer species name or mole/mass fractions as a string, array, or
             dict.
-        :param basis: determines if *fuel* and *oxidizer* are given in mole
-            fractions (basis='mole') or mass fractions (basis='mass')
+        :param basis:
+            Determines if ``fuel`` and ``oxidizer`` are given in mole
+            fractions (``basis='mole'``) or mass fractions (``basis='mass'``)
 
-            >>> gas.set_mixture_fraction(0.5, 'CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
-            >>> gas.stoich_air_fuel_ratio('CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
-            8.148040722239438
         """
         cdef np.ndarray[np.double_t, ndim=1] f = \
                 np.ascontiguousarray(self.__composition_to_array(fuel, basis), dtype=np.double)
@@ -1000,13 +1008,13 @@ cdef class ThermoPhase(_SolutionBase):
         with :math:`a_{m,k}` being the number of atoms of element :math:`m` in
         species :math:`k`, :math:`M_m` the atomic weight of element :math:`m`,
         :math:`M_k` the molecular weight of species :math:`k`, and :math:`Y_k`
-        the mass fraction of species :math:`k`.
+        the mass fraction of species :math:`k`::
+
+            >>> phase.elemental_mass_fraction('H')
+            1.0
 
         :param m:
             Base element, may be specified by name or by index.
-
-        >>> phase.elemental_mass_fraction('H')
-        1.0
         """
         return self.thermo.elementalMassFraction(self.element_index(m))
 
@@ -1021,13 +1029,13 @@ cdef class ThermoPhase(_SolutionBase):
 
         with :math:`a_{m,k}` being the number of atoms of element :math:`m` in
         species :math:`k`, :math:`\sum_j` being a sum over all elements, and
-        :math:`X_k` being the mole fraction of species :math:`k`.
+        :math:`X_k` being the mole fraction of species :math:`k`::
+
+            >>> phase.elemental_mole_fraction('H')
+            1.0
 
         :param m:
             Base element, may be specified by name or by index.
-
-        >>> phase.elemental_mole_fraction('H')
-        1.0
         """
         return self.thermo.elementalMoleFraction(self.element_index(m))
 
@@ -2050,7 +2058,7 @@ class Element:
     An element or a named isotope defined in Cantera.
 
     Class `Element` gets data for the elements and isotopes defined in
-    `src/thermo/Elements.cpp`. This class can be used in two ways. The
+    :ct:`Elements.cpp`. This class can be used in two ways. The
     first way is to get information about all of the elements stored in
     Cantera. The three attributes `num_elements_defined`,
     `element_symbols`, and `element_names` can be accessed by::
