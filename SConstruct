@@ -360,7 +360,7 @@ config_options = [
            Python is running SCons if the required prerequisites (NumPy and
            Cython) are installed. Note: ``y`` is a synonym for ``full`` and ``n``
            is a synonym for ``none``.""",
-        'default', ('new', 'full', 'minimal', 'none', 'n', 'y', 'default')),
+        'default', ('full', 'minimal', 'none', 'n', 'y', 'default')),
     PathVariable(
         'python_cmd',
         """Cantera needs to know where to find the Python interpreter. If
@@ -376,21 +376,6 @@ config_options = [
            will be installed to the system default 'site-packages' directory.
            To install to the current user's 'site-packages' directory, use
            'python_prefix=USER'.""",
-        defaults.python_prefix, PathVariable.PathAccept),
-    EnumVariable(
-        'python3_package',
-        """Deprecated synonym for the 'python_package' option. Will be overridden
-        if 'python_package' is set.""",
-        'default', ('full', 'minimal', 'y', 'n', 'none', 'default')),
-    PathVariable(
-        'python3_cmd',
-        """Deprecated synonym for the 'python_cmd' option. Will be overridden
-           if 'python_cmd' is set.""",
-        sys.executable, PathVariable.PathAccept),
-    PathVariable(
-        'python3_prefix',
-        """Deprecated synonym for the 'python_prefix' option. Will be overridden
-           if 'python_prefix' is set.""",
         defaults.python_prefix, PathVariable.PathAccept),
      EnumVariable(
         'matlab_toolbox',
@@ -523,19 +508,11 @@ config_options = [
            each argument ('no') in the Fortran libraries.""",
         True),
     EnumVariable(
-        'system_googletest',
-        """Select whether to use gtest/gmock from system
-           installation ('y'), from a Git submodule ('n'), or to decide
-           automatically ('default'). Deprecated option, please use 'googletest' instead.
-           This option is suppressed by 'googletest' option.""",
-        'unspecified', ('unspecified','default', 'y', 'n')),
-    EnumVariable(
         'googletest',
         """Select whether to use gtest/gmock from system
            installation ('system'), from a Git submodule ('submodule'), to decide
            automatically ('default') or don't look for gtest/gmock ('none')
-           and don't run tests that depend on gtest/gmock. If this option is
-           set then it suppresses the deprecated 'system_googletest' option.""",
+           and don't run tests that depend on gtest/gmock.""",
         'default', ('default', 'system', 'submodule', 'none')),
     (
         'env_vars',
@@ -943,17 +920,6 @@ except ValueError:
     env['FMT_VERSION'] = '0.0.0'
     print('INFO: Could not find version of fmt')
 
-# Convert setting of the deprecated system_googletest option
-if env['system_googletest'] != 'unspecified':
-    print("WARNING: The 'system_googletest' option is deprecated. "
-        "Use the 'googletest' option instead.")
-if env['system_googletest'] == 'default':
-    env['googletest'] = 'default'
-elif env['system_googletest'] == 'y':
-    env['googletest'] = 'system'
-elif env['system_googletest'] == 'n':
-    env['googletest'] = 'submodule'
-
 # Check for yaml-cpp library and checkout submodule if needed
 if env['system_yamlcpp'] in ('y', 'default'):
     if conf.CheckCXXHeader('yaml-cpp/yaml.h', '""'):
@@ -1256,26 +1222,7 @@ check_for_ruamel_yaml = any(
     for target in ["install", "test", "test-python-convert"]
 )
 
-# Handle the version-specific Python package options
-python_options = (('package', 'default'),
-                  ('cmd', sys.executable),
-                  ('prefix', defaults.python_prefix))
-for option, default in python_options:
-    if env['python3_' + option] != default:
-        print("WARNING: Option 'python3_{0}' is deprecated."
-            " Use 'python_{0}' instead.".format(option))
-        if env['python_' + option] == default:
-            env['python_' + option] = env['python3_' + option]
-        else:
-            print("WARNING: Ignoring option 'python3_{0}'"
-                " because 'python_{0}' was also set.".format(option))
-
-if env['python_package'] == 'new':
-    print("WARNING: The 'new' option for the Python package is "
-          "deprecated and will be removed in the future. Use "
-          "'full' instead.")
-    env['python_package'] = 'full'  # Allow 'new' as a synonym for 'full'
-elif env['python_package'] == 'y':
+if env['python_package'] == 'y':
     env['python_package'] = 'full'  # Allow 'y' as a synonym for 'full'
 elif env['python_package'] == 'n':
   env['python_package'] = 'none'  # Allow 'n' as a synonym for 'none'
