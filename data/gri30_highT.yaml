@@ -33,51 +33,6 @@ phases:
   state:
     T: 300.0
     P: 1.01325e+05
-- name: gri30_mix
-  thermo: ideal-gas
-  elements: [O, H, C, N, Ar]
-  species: [H2, H, O, O2, OH, H2O, HO2, H2O2, C, CH, CH2, CH2(S), CH3, CH4,
-    CO, CO2, HCO, CH2O, CH2OH, CH3O, CH3OH, C2H, C2H2, C2H3, C2H4, C2H5,
-    C2H6, HCCO, CH2CO, HCCOH, N, NH, NH2, NH3, NNH, NO, NO2, N2O, HNO, CN,
-    HCN, H2CN, HCNN, HCNO, HOCN, HNCO, NCO, N2, AR, C3H7, C3H8, CH2CHO,
-    CH3CHO]
-  kinetics: gas
-  reactions: all
-  transport: mixture-averaged
-  state:
-    T: 300.0
-    P: 1.01325e+05
-  deprecated: >-
-    The phase 'gri30_mix' in the file 'gri30_highT.yaml' is deprecated and will be
-    removed after Cantera 2.5. The default phase 'gri30' now includes
-    mixture-averaged transport properties by default and should be preferred.
-    Please see the webpage at
-    https://github.com/Cantera/cantera/wiki/deprecate_gri30_phases for more
-    information.
-- name: gri30_multi
-  thermo: ideal-gas
-  elements: [O, H, C, N, Ar]
-  species: [H2, H, O, O2, OH, H2O, HO2, H2O2, C, CH, CH2, CH2(S), CH3, CH4,
-    CO, CO2, HCO, CH2O, CH2OH, CH3O, CH3OH, C2H, C2H2, C2H3, C2H4, C2H5,
-    C2H6, HCCO, CH2CO, HCCOH, N, NH, NH2, NH3, NNH, NO, NO2, N2O, HNO, CN,
-    HCN, H2CN, HCNN, HCNO, HOCN, HNCO, NCO, N2, AR, C3H7, C3H8, CH2CHO,
-    CH3CHO]
-  kinetics: gas
-  reactions: all
-  transport: multicomponent
-  state:
-    T: 300.0
-    P: 1.01325e+05
-  deprecated: >-
-    The phase 'gri30_multi' in the file 'gri30_highT.yaml' is deprecated and will be
-    removed after Cantera 2.5. You can use multi-component diffusion by including
-    an optional argument to 'Solution':
-      Python: ct.Solution('gri30.yaml', transport_model='Multi')
-      MATLAB: Solution('gri30.yaml','gri30','Multi')
-      C++: newSolution("gri30.yaml", "gri30", "Multi")
-    Please see the webpage at
-    https://github.com/Cantera/cantera/wiki/deprecate_gri30_phases for more
-    information.
 
 species:
 - name: H2
