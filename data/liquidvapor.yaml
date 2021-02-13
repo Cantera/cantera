@@ -77,17 +77,6 @@ phases:
     T: 280.0
     P: 1.01325e+05
   pure-fluid-name: carbon-dioxide
-- name: carbondioxide
-  thermo: pure-fluid
-  elements: [C, O]
-  species: [CO2]
-  state:
-    T: 280.0
-    P: 1.01325e+05
-  deprecated: >-
-    The phase name 'carbondioxide' in 'liquidvapor.yaml' is deprecated and will
-    be removed after Cantera 2.5. Use the phase name 'carbon-dioxide' instead.
-  pure-fluid-name: carbon-dioxide
 - name: heptane
   thermo: pure-fluid
   elements: [C, H]
@@ -110,17 +99,6 @@ phases:
     1,1,1,2-Tetrafluoroethane (HFC-134a) for Temperatures From 170 K to 455 K
     and Pressures up to 70 MPa". J. Phys. Chem. Ref. Data, Vol. 23, No. 5, 1994.
     pp. 657--729.
-- name: hfc134a
-  thermo: pure-fluid
-  elements: [C, F, H]
-  species: [C2F4H2]
-  state:
-    T: 300.0
-    P: 1.01325e+05
-  pure-fluid-name: HFC-134a
-  deprecated: >-
-    The phase name 'hfc134a' in 'liquidvapor.yaml' is deprecated and will
-    be removed after Cantera 2.5. Use the phase name 'HFC-134a' instead.
 
 # Note that these species definitions are used ONLY to set the
 # reference state values for the entropy and enthalpy at 298.15 K,
