@@ -18,6 +18,8 @@ public:
     FlowReactor();
 
     virtual std::string typeStr() const {
+        warn_deprecated("FlowReactor::typeStr",
+                        "To be removed after Cantera 2.6. Use type() instead.");
         return "FlowReactor";
     }
 

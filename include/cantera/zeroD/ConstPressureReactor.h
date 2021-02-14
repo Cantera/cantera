@@ -25,6 +25,8 @@ public:
     ConstPressureReactor() {}
 
     virtual std::string typeStr() const {
+        warn_deprecated("ConstPressureReactor::typeStr",
+                        "To be removed after Cantera 2.6. Use type() instead.");
         return "ConstPressureReactor";
     }
 

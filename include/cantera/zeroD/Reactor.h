@@ -40,6 +40,8 @@ public:
     Reactor();
 
     virtual std::string typeStr() const {
+        warn_deprecated("Reactor::typeStr",
+                        "To be removed after Cantera 2.6. Use type() instead.");
         return "Reactor";
     }
 
