@@ -268,8 +268,7 @@ InterfaceReaction::InterfaceReaction(const Composition& reactants_,
 }
 
 ElectrochemicalReaction::ElectrochemicalReaction()
-    : film_resistivity(0.0)
-    , beta(0.5)
+    : beta(0.5)
     , exchange_current_density_formulation(false)
 {
 }
@@ -278,7 +277,6 @@ ElectrochemicalReaction::ElectrochemicalReaction(const Composition& reactants_,
                                                  const Composition& products_,
                                                  const Arrhenius& rate_)
     : InterfaceReaction(reactants_, products_, rate_)
-    , film_resistivity(0.0)
     , beta(0.5)
     , exchange_current_density_formulation(false)
 {
@@ -794,9 +792,6 @@ void setupChebyshevReaction(ChebyshevReaction&R, const AnyMap& node,
 
 void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)
 {
-    if (caseInsensitiveEquals(rxn_node["type"], "global")) {
-        R.reaction_type = GLOBAL_RXN;
-    }
     XML_Node& arr = rxn_node.child("rateCoeff").child("Arrhenius");
     if (caseInsensitiveEquals(arr["type"], "stick")) {
         R.is_sticking_coefficient = true;
@@ -867,26 +862,6 @@ void setupInterfaceReaction(InterfaceReaction& R, const AnyMap& node,
 void setupElectrochemicalReaction(ElectrochemicalReaction& R,
                                   const XML_Node& rxn_node)
 {
-    // Fix reaction_type for some specialized reaction types
-    std::string type = toLowerCopy(rxn_node["type"]);
-    if (type == "butlervolmer") {
-        R.reaction_type = BUTLERVOLMER_RXN;
-        warn_deprecated("reaction type 'ButlerVolmer'",
-            "To be removed after Cantera 2.5.");
-    } else if (type == "butlervolmer_noactivitycoeffs") {
-        R.reaction_type = BUTLERVOLMER_NOACTIVITYCOEFFS_RXN;
-        warn_deprecated("reaction type 'butlervolmer_noactivitycoeffs'",
-            "To be removed after Cantera 2.5.");
-    } else if (type == "surfaceaffinity") {
-        R.reaction_type = SURFACEAFFINITY_RXN;
-        warn_deprecated("reaction type 'surfaceaffinity'",
-            "To be removed after Cantera 2.5.");
-    } else if (type == "global") {
-        R.reaction_type = GLOBAL_RXN;
-        warn_deprecated("reaction type 'global'",
-            "To be removed after Cantera 2.5.");
-    }
-
     XML_Node& rc = rxn_node.child("rateCoeff");
     std::string rc_type = toLowerCopy(rc["type"]);
     if (rc_type == "exchangecurrentdensity") {
@@ -903,62 +878,7 @@ void setupElectrochemicalReaction(ElectrochemicalReaction& R,
         R.beta = fpValueCheck(rc.child("electrochem")["beta"]);
     }
 
-    if (rxn_node.hasChild("filmResistivity")) {
-        warn_deprecated("reaction filmResistivity",
-            "Not implemented. To be removed after Cantera 2.5.");
-    }
-    getOptionalFloat(rxn_node, "filmResistivity", R.film_resistivity);
     setupInterfaceReaction(R, rxn_node);
-
-    // For Butler Volmer reactions, install the orders for the exchange current
-    if (R.reaction_type == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN ||
-        R.reaction_type == BUTLERVOLMER_RXN) {
-        if (!R.reversible) {
-            throw CanteraError("setupElectrochemicalReaction",
-                "A Butler-Volmer reaction must be reversible");
-        }
-
-        R.orders.clear();
-        // Reaction orders based on species stoichiometric coefficients
-        R.allow_nonreactant_orders = true;
-        for (const auto& sp : R.reactants) {
-            R.orders[sp.first] += sp.second * (1.0 - R.beta);
-        }
-        for (const auto& sp : R.products) {
-            R.orders[sp.first] += sp.second * R.beta;
-        }
-    }
-
-    // For affinity reactions, fill in the global reaction formulation terms
-    if (rxn_node.hasChild("reactionOrderFormulation")) {
-        warn_deprecated("reactionOrderFormulation",
-            "To be removed after Cantera 2.5.");
-        Composition initial_orders = R.orders;
-        R.orders.clear();
-        R.allow_nonreactant_orders = true;
-        const XML_Node& rof_node = rxn_node.child("reactionOrderFormulation");
-        if (caseInsensitiveEquals(rof_node["model"], "reactantorders")) {
-            R.orders = initial_orders;
-        } else if (caseInsensitiveEquals(rof_node["model"], "zeroorders")) {
-            for (const auto& sp : R.reactants) {
-                R.orders[sp.first] = 0.0;
-            }
-        } else if (caseInsensitiveEquals(rof_node["model"], "butlervolmerorders")) {
-            // Reaction orders based on provided reaction orders
-            for (const auto& sp : R.reactants) {
-                double c = getValue(initial_orders, sp.first, sp.second);
-                R.orders[sp.first] += c * (1.0 - R.beta);
-            }
-            for (const auto& sp : R.products) {
-                double c = getValue(initial_orders, sp.first, sp.second);
-                R.orders[sp.first] += c * R.beta;
-            }
-        } else {
-            throw CanteraError("setupElectrochemicalReaction", "unknown model "
-                    "for reactionOrderFormulation XML_Node: '" +
-                    rof_node["model"] + "'");
-       }
-    }
 
     // Override orders based on the <orders> node
     if (rxn_node.hasChild("orders")) {

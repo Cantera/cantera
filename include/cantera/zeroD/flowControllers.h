@@ -25,6 +25,10 @@ public:
         return "MassFlowController";
     }
 
+    virtual std::string type() const {
+        return "MassFlowController";
+    }
+
     //! Set the fixed mass flow rate (kg/s) through the mass flow controller.
     void setMassFlowRate(double mdot);
 
@@ -66,6 +70,10 @@ public:
     PressureController();
 
     virtual std::string typeStr() const {
+        return "PressureController";
+    }
+
+    virtual std::string type() const {
         return "PressureController";
     }
 
@@ -122,18 +130,8 @@ public:
         return "Valve";
     }
 
-    //! Set the proportionality constant between pressure drop and mass flow
-    //! rate
-    /*!
-     * *c* has units of kg/s/Pa. The mass flow rate is computed as:
-     * \f[\dot{m} = c \Delta P \f]
-     */
-    //! @deprecated To be removed after Cantera 2.5.
-    void setPressureCoeff(double c) {
-        warn_deprecated("Valve::setPressureCoeff",
-                        "To be removed after Cantera 2.5. "
-                        "Use Valve::setValveCoeff instead.");
-        m_coeff = c;
+    virtual std::string type() const {
+        return "Valve";
     }
 
     //! Set the proportionality constant between pressure drop and mass flow

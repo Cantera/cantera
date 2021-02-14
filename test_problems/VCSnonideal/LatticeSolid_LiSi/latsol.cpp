@@ -1,6 +1,5 @@
 #include "cantera/thermo.h"
 #include "cantera/thermo/MargulesVPSSTP.h"
-#include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/LatticeSolidPhase.h"
 #include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/equil/vcs_MultiPhaseEquil.h"

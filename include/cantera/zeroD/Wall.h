@@ -17,10 +17,6 @@ class Kinetics;
 class SurfPhase;
 class Func1;
 
-//! Magic numbers
-//! @deprecated To be removed after Cantera 2.5.
-const int WallType = 1;
-
 /**
  * Base class for 'walls' (walls, pistons, etc.) connecting reactors.
  * @ingroup reactor0
@@ -65,18 +61,6 @@ public:
 
     //! Set the area [m^2].
     virtual void setArea(double a);
-
-    //! Get the area [m^2]
-    /*!
-     * Redundant function (same as WallBase::area()).
-     * @deprecated To be removed after Cantera 2.5.
-     */
-    double getArea() const {
-        warn_deprecated("WallBase::getArea",
-                        "To be removed after Cantera 2.5. "
-                        "Replace with WallBase::area.");
-        return m_area;
-    }
 
     //! Install the wall between two reactors or reservoirs
     bool install(ReactorBase& leftReactor, ReactorBase& rightReactor);

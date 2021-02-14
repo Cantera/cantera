@@ -75,8 +75,6 @@ void BinarySolutionTabulatedThermo::_updateThermo() const
         m_h0_RT[m_kk_tab] += m_h0_tab * rrt;
         m_s0_R[m_kk_tab] += m_s0_tab / GasConstant;
         for (size_t k = 0; k < m_kk; k++) {
-            double deltaE = rrt * m_pe[k];
-            m_h0_RT[k] += deltaE;
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
         m_tlast = tnow;

@@ -42,16 +42,8 @@ void flowdevicemethods(int nlhs, mxArray* plhs[],
             m = getInt(prhs[4]);
             iok = flowdev_install(i, int(v), m);
             break;
-        case 3:
-            // @deprecated To be removed after Cantera 2.5.
-            iok = flowdev_setMassFlowRate(i, v);
-            break;
         case 4:
             iok = flowdev_setValveCoeff(i, v);
-            break;
-        case 5:
-            // @deprecated To be removed after Cantera 2.5.
-            iok = flowdev_setFunction(i, int(v));
             break;
         case 7:
             iok = flowdev_setMaster(i, int(v));

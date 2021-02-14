@@ -17,15 +17,6 @@ class ReactorNet;
 class ReactorSurface;
 class Kinetics;
 
-//! Magic numbers
-//! @deprecated To be removed after Cantera 2.5.
-const int ReservoirType = 1;
-const int ReactorType = 2;
-const int FlowReactorType = 3;
-const int ConstPressureReactorType = 4;
-const int IdealGasReactorType = 5;
-const int IdealGasConstPressureReactorType = 6;
-
 enum class SensParameterType {
     reaction,
     enthalpy
@@ -58,14 +49,10 @@ public:
         return "ReactorBase";
     }
 
-    //! Return a constant indicating the type of this Reactor
-    //! @deprecated To be changed after Cantera 2.5.
-    virtual int type() const {
-        warn_deprecated("ReactorBase::type",
-                        "To be changed after Cantera 2.5. "
-                        "Return string instead of magic number; use "
-                        "ReactorBase::typeStr during transition");
-        return 0;
+    //! String indicating the reactor model implemented. Usually
+    //! corresponds to the name of the derived class.
+    virtual std::string type() const {
+        return "ReactorBase";
     }
 
     //! Return the name of this reactor

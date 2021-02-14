@@ -139,28 +139,6 @@ doublereal IdealMolalSoln::thermalExpansionCoeff() const
     return 0.0;
 }
 
-void IdealMolalSoln::setDensity(const doublereal rho)
-{
-    warn_deprecated("IdealMolalSoln::setDensity",
-        "Overloaded function to be removed after Cantera 2.5. "
-        "Error will be thrown by Phase::setDensity instead");
-    if (rho != density()) {
-        throw CanteraError("IdealMolalSoln::setDensity",
-                           "Density is not an independent variable");
-    }
-}
-
-void IdealMolalSoln::setMolarDensity(const doublereal conc)
-{
-    warn_deprecated("IdealMolalSoln::setMolarDensity",
-        "Overloaded function to be removed after Cantera 2.5. "
-        "Error will be thrown by Phase::setMolarDensity instead");
-    if (conc != Phase::molarDensity()) {
-        throw CanteraError("IdealMolalSoln::setMolarDensity",
-                           "molarDensity/density is not an independent variable");
-    }
-}
-
 // ------- Activities and Activity Concentrations
 
 Units IdealMolalSoln::standardConcentrationUnits() const

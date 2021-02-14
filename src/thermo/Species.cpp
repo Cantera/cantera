@@ -70,7 +70,7 @@ shared_ptr<Species> newSpecies(const XML_Node& species_node)
     // Extra data optionally used by LatticePhase
     const XML_Node* stdstate = species_node.findByName("standardState");
     if (stdstate && stdstate->findByName("molarVolume")) {
-        s->extra["molar_volume"] = getFloat(*stdstate, "molarVolume", "toSI");
+        s->input["molar_volume"] = getFloat(*stdstate, "molarVolume", "toSI");
     }
 
     // Extra data possibly used by IonsFromNeutralVPSSTP

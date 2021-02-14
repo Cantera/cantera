@@ -229,15 +229,6 @@ public:
     //! Change the grid size. Called after grid refinement.
     virtual void resize(size_t components, size_t points);
 
-    /*!
-     * @deprecated To be removed after Cantera 2.5.
-     */
-    virtual void setFixedPoint(int j0, doublereal t0) {
-        // this does nothing and does not appear to be overloaded
-        warn_deprecated("StFlow::setFixedPoint",
-                        "To be removed after Cantera 2.5.");
-    }
-
     //! Set the gas object state to be consistent with the solution at point j.
     void setGas(const doublereal* x, size_t j);
 

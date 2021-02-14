@@ -146,20 +146,6 @@ public:
      */
     //!@{
 
-    //! Return the string id for the phase.
-    /*!
-     * @deprecated To be removed after Cantera 2.5.
-     */
-    std::string id() const;
-
-    //! Set the string id for the phase.
-    /*!
-     *    @param id String id of the phase
-     *
-     * @deprecated To be removed after Cantera 2.5.
-     */
-    void setID(const std::string& id);
-
     //! Return the name of the phase.
     /*!
      *   Names are unique within a Cantera problem.

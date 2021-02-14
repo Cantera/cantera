@@ -372,11 +372,3 @@ TEST(AnyMap, missingKeyAt)
         EXPECT_THAT(ex.what(), ::testing::HasSubstr("Key 'spam' not found"));
     }
 }
-
-TEST(AnyMap, loadDeprecatedYaml)
-{
-    // The deprecation warning in this file is turned into an
-    // error by make_deprecation_warnings_fatal() called in main()
-    // for the test suite.
-    EXPECT_THROW(AnyMap::fromYamlFile("argon.yaml"), CanteraError);
-}

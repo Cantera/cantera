@@ -23,12 +23,10 @@
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/thermo/PureFluidPhase.h"
 #include "cantera/thermo/RedlichKwongMFTP.h"
-#include "cantera/thermo/ConstDensityThermo.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/EdgePhase.h"
 #include "cantera/thermo/MetalPhase.h"
 #include "cantera/thermo/StoichSubstance.h"
-#include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/LatticeSolidPhase.h"
 #include "cantera/thermo/LatticePhase.h"
 #include "cantera/thermo/HMWSoln.h"
@@ -51,8 +49,6 @@ ThermoFactory::ThermoFactory()
 {
     reg("ideal-gas", []() { return new IdealGasPhase(); });
     addAlias("ideal-gas", "IdealGas");
-    reg("constant-density", []() { return new ConstDensityThermo(); });
-    addAlias("constant-density", "Incompressible");
     reg("ideal-surface", []() { return new SurfPhase(); });
     addAlias("ideal-surface", "Surface");
     reg("edge", []() { return new EdgePhase(); });
@@ -82,8 +78,6 @@ ThermoFactory::ThermoFactory()
     reg("Margules", []() { return new MargulesVPSSTP(); });
     reg("ions-from-neutral-molecule", []() { return new IonsFromNeutralVPSSTP(); });
     addAlias("ions-from-neutral-molecule", "IonsFromNeutralMolecule");
-    reg("fixed-chemical-potential", []() { return new FixedChemPotSSTP(); });
-    addAlias("fixed-chemical-potential", "FixedChemPot");
     reg("Redlich-Kister", []() { return new RedlichKisterVPSSTP(); });
     reg("Redlich-Kwong", []() { return new RedlichKwongMFTP(); });
     addAlias("Redlich-Kwong", "RedlichKwongMFTP");

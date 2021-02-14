@@ -51,20 +51,6 @@ public:
 
     //! Return a pointer to a new falloff function calculator.
     /*!
-     * @param type Integer flag specifying the type of falloff function. The
-     *              standard types are defined in file reaction_defs.h. A
-     *              factory class derived from FalloffFactory may define other
-     *              types as well.
-     * @param c    input vector of doubles which populates the falloff
-     *             parameterization.
-     * @returns    a pointer to a new Falloff class.
-     *
-     * @deprecated To be removed after Cantera 2.5.
-     */
-    virtual Falloff* newFalloff(int type, const vector_fp& c);
-
-    //! Return a pointer to a new falloff function calculator.
-    /*!
      * @param type String identifier specifying the type of falloff function.
      *             The standard types match class names defined in Falloff.h.
      *             A factory class derived from FalloffFactory may define
@@ -85,12 +71,6 @@ private:
     //!  Mutex for use when calling the factory
     static std::mutex falloff_mutex;
 };
-
-//! @copydoc FalloffFactory::newFalloff
-/*!
- * @deprecated To be removed after Cantera 2.5.
- */
-shared_ptr<Falloff> newFalloff(int type, const vector_fp& c);
 
 //! @copydoc FalloffFactory::newFalloff
 shared_ptr<Falloff> newFalloff(const std::string& type, const vector_fp& c);

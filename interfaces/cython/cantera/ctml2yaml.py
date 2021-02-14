@@ -333,11 +333,9 @@ class Phase:
         "IdealSolidSolution": "ideal-condensed",
         "DebyeHuckel": "Debye-Huckel",
         "IdealMolalSolution": "ideal-molal-solution",
-        "IdealGasVPSS": "ideal-gas-VPSS",
         "IdealSolnVPSS": "ideal-solution-VPSS",
         "Margules": "Margules",
         "IonsFromNeutralMolecule": "ions-from-neutral-molecule",
-        "FixedChemPot": "fixed-chemical-potential",
         "Redlich-Kister": "Redlich-Kister",
         "RedlichKwongMFTP": "Redlich-Kwong",
         "MaskellSolidSolnPhase": "Maskell-solid-solution",
@@ -566,8 +564,6 @@ class Phase:
                 self.attribs["tabulated-species"] = node.get("name")
             elif node.tag == "tabulatedThermo":
                 self.attribs["tabulated-thermo"] = self.get_tabulated_thermo(node)
-            elif node.tag == "chemicalPotential":
-                self.attribs["chemical-potential"] = get_float_or_quantity(node)
 
         transport_node = phase.find("transport")
         if transport_node is not None:

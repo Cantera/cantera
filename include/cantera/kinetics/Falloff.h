@@ -80,16 +80,6 @@ public:
         return "Lindemann";
     }
 
-    //! Return an integer representing the type of the Falloff parameterization.
-    /*!
-     * @deprecated To be removed after Cantera 2.5.
-     */
-    virtual int getType() const {
-        warn_deprecated("Falloff::getType()",
-            "Replaced by Falloff::type(). To be removed after Cantera 2.5.");
-        return SIMPLE_FALLOFF;
-    }
-
     //! Returns the number of parameters used by this parameterization. The
     //! values of these parameters can be obtained from getParameters().
     virtual size_t nParameters() const {
@@ -159,12 +149,6 @@ public:
 
     virtual std::string type() const {
         return "Troe";
-    }
-
-    virtual int getType() const {
-        warn_deprecated("Troe::getType()",
-            "Replaced by Troe::type(). To be removed after Cantera 2.5.");
-        return TROE_FALLOFF;
     }
 
     virtual size_t nParameters() const {
@@ -239,12 +223,6 @@ public:
 
     virtual std::string type() const {
         return "SRI";
-    }
-
-    virtual int getType() const {
-        warn_deprecated("SRI::getType()",
-            "Replaced by SRI::type(). To be removed after Cantera 2.5.");
-        return SRI_FALLOFF;
     }
 
     virtual size_t nParameters() const {

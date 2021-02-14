@@ -1240,23 +1240,6 @@ class metal(phase):
         out['density'] = applyUnits(self.density)
 
 
-class incompressible_solid(phase):
-    """An incompressible solid."""
-    def __init__(self, name='', elements='', species='', note='', density=None,
-                 transport='None', initial_state=None, options=()):
-
-        phase.__init__(self, name, elements, species, note, 'none',
-                       initial_state, options)
-        self.thermo_model = 'constant-density'
-        self.density = density
-        if self.density is None:
-            raise InputError('density must be specified.')
-
-    def get_yaml(self, out):
-        super().get_yaml(out)
-        out['density'] = applyUnits(self.density)
-
-
 class liquid_vapor(phase):
     """
     A fluid with a complete liquid/vapor equation of state. This entry type

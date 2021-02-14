@@ -254,18 +254,6 @@ class FlameBase(Sim1D):
     def radiation_enabled(self, enable):
         self.flame.radiation_enabled = enable
 
-    def set_boundary_emissivities(self, e_left, e_right):
-        """
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Replaced by property `boundary_emissivities`.
-        """
-        warnings.warn("Method 'set_boundary_emissivities' to be removed after "
-                      "Cantera 2.5. Replaced by property "
-                      "'boundary_emissivities'", DeprecationWarning)
-        self.flame.boundary_emissivities = e_left, e_right
-
     @property
     def boundary_emissivities(self):
         """ Set/get boundary emissivities. """
@@ -297,41 +285,11 @@ class FlameBase(Sim1D):
         return self.profile(self.flame, 'T')
 
     @property
-    def u(self):
-        """
-        Array containing the velocity [m/s] normal to the flame at each point.
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Replaced by property `velocity`.
-        """
-        warnings.warn("Property 'u' to be removed after Cantera 2.5. "
-                      "Replaced by property 'velocity'",
-                      DeprecationWarning)
-        return self.profile(self.flame, 'velocity')
-
-    @property
     def velocity(self):
         """
         Array containing the velocity [m/s] normal to the flame at each point.
         """
         return self.profile(self.flame, 'velocity')
-
-    @property
-    def V(self):
-        """
-        Array containing the tangential velocity gradient [1/s] at each point.
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Replaced by property `spread_rate`.
-        """
-        warnings.warn("Property 'V' to be removed after Cantera 2.5. "
-                      "Replaced by property 'spread_rate'",
-                      DeprecationWarning)
-        return self.profile(self.flame, 'spread_rate')
 
     @property
     def spread_rate(self):

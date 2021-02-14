@@ -627,44 +627,6 @@ protected:
     virtual void calcDensity();
 
 public:
-    //! Set the internally stored density (gm/m^3) of the phase.
-    /*!
-     * Overridden setDensity() function is necessary because the density is not
-     * an independent variable.
-     *
-     * This function will now throw an error condition
-     *
-     * @internal May have to adjust the strategy here to make the eos for these
-     *     materials slightly compressible, in order to create a condition where
-     *     the density is a function of the pressure.
-     *
-     * This function will now throw an error condition if the input isn't
-     * exactly equal to the current density.
-     *
-     * @todo Now have a compressible ss equation for liquid water. Therefore,
-     *       this phase is compressible. May still want to change the
-     *       independent variable however.
-     *
-     * @param rho Input density (kg/m^3).
-     * @deprecated Functionality merged with base function after Cantera 2.5.
-     *             (superseded by isCompressible check in Phase::setDensity)
-     */
-    virtual void setDensity(const doublereal rho);
-
-    //! Set the internally stored molar density (kmol/m^3) of the phase.
-    /**
-     * Overridden setMolarDensity() function is necessary because the density
-     * is not an independent variable.
-     *
-     * This function will now throw an error condition if the input isn't
-     * exactly equal to the current molar density.
-     *
-     * @param conc   Input molar density (kmol/m^3).
-     * @deprecated Functionality merged with base function after Cantera 2.5.
-     *             (superseded by isCompressible check in Phase::setDensity)
-     */
-    virtual void setMolarDensity(const doublereal conc);
-
     /**
      * @}
      * @name Activities, Standard States, and Activity Concentrations

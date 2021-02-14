@@ -219,7 +219,6 @@ vcs_LiSi = CompileAndTest('VCS-LiSi', 'VCSnonideal/LatticeSolid_LiSi', 'latsol',
 Test('VCS-LiSi-verbose', 'VCSnonideal/LatticeSolid_LiSi', vcs_LiSi.program,
      'verbose_blessed.txt', options='8',
      artifacts=['vcs_equilibrate_res.csv'])
-CompileAndTest('VPsilane_test')
 
 CompileAndTest('clib', 'clib_test', 'clib_test',
                extensions=['^clib_test.c'], libs=['cantera_shared'])

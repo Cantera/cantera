@@ -93,33 +93,10 @@ void IdealSolidSolnPhase::calcDensity()
     Phase::assignDensity(1.0/invDens);
 }
 
-void IdealSolidSolnPhase::setDensity(const doublereal rho)
-{
-    // Unless the input density is exactly equal to the density calculated and
-    // stored in the State object, we throw an exception. This is because the
-    // density is NOT an independent variable.
-    warn_deprecated("IdealSolidSolnPhase::setDensity",
-        "Overloaded function to be removed after Cantera 2.5. "
-        "Error will be thrown by Phase::setDensity instead");
-    if (std::abs(rho/density() - 1.0) > 1e-15) {
-        throw CanteraError("IdealSolidSolnPhase::setDensity",
-                           "Density is not an independent variable");
-    }
-}
-
 void IdealSolidSolnPhase::setPressure(doublereal p)
 {
     m_Pcurrent = p;
     calcDensity();
-}
-
-void IdealSolidSolnPhase::setMolarDensity(const doublereal n)
-{
-    warn_deprecated("IdealSolidSolnPhase::setMolarDensity",
-        "Overloaded function to be removed after Cantera 2.5. "
-        "Error will be thrown by Phase::setMolarDensity instead");
-    throw CanteraError("IdealSolidSolnPhase::setMolarDensity",
-                       "Density is not an independent variable");
 }
 
 void IdealSolidSolnPhase::compositionChanged()
@@ -373,7 +350,6 @@ bool IdealSolidSolnPhase::addSpecies(shared_ptr<Species> spec)
         m_expg0_RT.push_back(0.0);
         m_cp0_R.push_back(0.0);
         m_s0_R.push_back(0.0);
-        m_pe.push_back(0.0);;
         m_pp.push_back(0.0);
         if (spec->input.hasKey("equation-of-state")) {
             auto& eos = spec->input["equation-of-state"].getMapWhere("model", "constant-volume");
@@ -391,9 +367,9 @@ bool IdealSolidSolnPhase::addSpecies(shared_ptr<Species> spec)
                     "specification", spec->name);
             }
             m_speciesMolarVolume.push_back(mv);
-        } else if (spec->extra.hasKey("molar_volume")) {
-            // From XML
-            m_speciesMolarVolume.push_back(spec->extra["molar_volume"].asDouble());
+        } else if (spec->input.hasKey("molar_volume")) {
+            // @Deprecated - remove this case for Cantera 3.0 with removal of the XML format
+            m_speciesMolarVolume.push_back(spec->input["molar_volume"].asDouble());
         } else {
             throw CanteraError("IdealSolidSolnPhase::addSpecies",
                 "Molar volume not specified for species '{}'", spec->name);
@@ -505,10 +481,7 @@ void IdealSolidSolnPhase::_updateThermo() const
         // Update the thermodynamic functions of the reference state.
         m_spthermo.update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
         m_tlast = tnow;
-        doublereal rrt = 1.0 / RT();
         for (size_t k = 0; k < m_kk; k++) {
-            double deltaE = rrt * m_pe[k];
-            m_h0_RT[k] += deltaE;
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
         m_tlast = tnow;

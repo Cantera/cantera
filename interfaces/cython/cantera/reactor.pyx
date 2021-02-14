@@ -53,7 +53,7 @@ cdef class ReactorBase:
     property type:
         """The type of the reactor."""
         def __get__(self):
-            return pystr(self.rbase.typeStr())
+            return pystr(self.rbase.type())
 
     property name:
         """The name of the reactor."""
@@ -693,7 +693,7 @@ cdef class FlowDevice:
     property type:
         """The type of the flow device."""
         def __get__(self):
-            return pystr(self.dev.typeStr())
+            return pystr(self.dev.type())
 
     def _install(self, ReactorBase upstream, ReactorBase downstream):
         """
@@ -714,20 +714,6 @@ cdef class FlowDevice:
             network time.
             """
             return self.dev.massFlowRate()
-
-    def mdot(self, double t=-999):
-        """
-        The mass flow rate [kg/s] through this device at time *t* [s].
-
-        .. deprecated:: 2.5
-
-             To be removed after Cantera 2.5. Replaced with the
-             `mass_flow_rate` property.
-        """
-        warnings.warn("To be removed after Cantera 2.5. "
-                "Replaced by property 'mass_flow_rate'", DeprecationWarning)
-
-        return self.dev.massFlowRate(t)
 
     def set_pressure_function(self, k):
         r"""
@@ -834,27 +820,6 @@ cdef class MassFlowController(FlowDevice):
                 self.mass_flow_coeff = 1.
                 self.set_time_function(m)
 
-    def set_mass_flow_rate(self, m):
-        r"""
-        Set the mass flow rate [kg/s] through this controller to be either
-        a constant or an arbitrary function of time. See `Func1`.
-
-        Note that depending on the argument type, this method either changes
-        the property `mass_flow_coeff` or calls the `set_time_function` method.
-
-        >>> mfc.set_mass_flow_rate(0.3)
-        >>> mfc.set_mass_flow_rate(lambda t: 2.5 * exp(-10 * (t - 0.5)**2))
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Replaced by property `mass_flow_rate`.
-        """
-        warnings.warn("To be removed after Cantera 2.5. "
-                      "Replaced by property 'mass_flow_rate'", DeprecationWarning)
-
-        self.mass_flow_rate = m
-
 
 cdef class Valve(FlowDevice):
     r"""
@@ -911,51 +876,6 @@ cdef class Valve(FlowDevice):
         def __set__(self, double value):
             (<CxxValve*>self.dev).setValveCoeff(value)
 
-    def set_valve_function(self, k):
-        r"""
-        Set the relationship between mass flow rate and the pressure drop across the
-        valve. The mass flow rate [kg/s] is calculated given the pressure drop [Pa].
-
-        >>> V = Valve(res1, reactor1)
-        >>> V.set_valve_function(lambda dP: (1e-5 * dP)**2)
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Renamed to `set_pressure_function`.
-        """
-        warnings.warn("To be removed after Cantera 2.5. "
-                      "Renamed to 'set_pressure_function' instead", DeprecationWarning)
-
-        self.set_pressure_function(k)
-
-    def set_valve_coeff(self, k):
-        """
-        Set the relationship between mass flow rate and the pressure drop across
-        the valve. If a number is given, it is the proportionality constant
-        [kg/s/Pa]. If a function is given, it should compute the mass flow
-        rate [kg/s] given the pressure drop [Pa].
-
-        >>> V = Valve(res1, reactor1)
-        >>> V.set_valve_coeff(1e-4)  # Set the value of K to a constant
-        >>> V.set_valve_coeff(lambda dP: (1e-5 * dP)**2)  # Set to a function
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Functionality is now handled by property `valve_coeff` and
-             `set_pressure_function`.
-        """
-        warnings.warn("To be removed after Cantera 2.5. "
-                      "Use property 'valve_coeff' and/or function "
-                      "'set_pressure_function' instead.", DeprecationWarning)
-
-        if isinstance(k, _numbers.Real):
-            self.valve_coeff = k
-        else:
-            self.valve_coeff = 1.
-            self.set_pressure_function(k)
-
 
 cdef class PressureController(FlowDevice):
     r"""
@@ -998,20 +918,6 @@ cdef class PressureController(FlowDevice):
             return (<CxxPressureController*>self.dev).getPressureCoeff()
         def __set__(self, double value):
             (<CxxPressureController*>self.dev).setPressureCoeff(value)
-
-    def set_pressure_coeff(self, double k):
-        """
-        Set the proportionality constant :math:`K_v` [kg/s/Pa] between the pressure
-        drop and the mass flow rate.
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Replaced by property `pressure_coeff`.
-        """
-        warnings.warn("To be removed after Cantera 2.5. "
-                      "Use property 'pressure_coeff' instead", DeprecationWarning)
-        (<CxxPressureController*>self.dev).setPressureCoeff(k)
 
     def set_master(self, FlowDevice d):
         """
@@ -1101,20 +1007,6 @@ cdef class ReactorNet:
 
         def __set__(self, double t):
             self.net.setMaxTimeStep(t)
-
-    def set_max_time_step(self, double t):
-        """
-        Set the maximum time step *t* [s] that the integrator is allowed
-        to use.
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Replaced by property `max_time_step`.
-        """
-        warnings.warn("To be removed after Cantera 2.5. "
-                      "Use property 'max_time_step' instead", DeprecationWarning)
-        self.net.setMaxTimeStep(t)
 
     property max_err_test_fails:
         """

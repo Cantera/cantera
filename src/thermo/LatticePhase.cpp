@@ -253,9 +253,9 @@ bool LatticePhase::addSpecies(shared_ptr<Species> spec)
             } else if (eos.hasKey("molar-volume")) {
                 mv = eos.convert("molar-volume", "m^3/kmol");
             }
-        } else if (spec->extra.hasKey("molar_volume")) {
-            // from XML
-            mv = spec->extra["molar_volume"].asDouble();
+        } else if (spec->input.hasKey("molar_volume")) {
+            // @Deprecated - remove this case for Cantera 3.0 with removal of the XML format
+            mv = spec->input["molar_volume"].asDouble();
         }
         m_speciesMolarVolume.push_back(mv);
     }
@@ -266,7 +266,8 @@ void LatticePhase::setSiteDensity(double sitedens)
 {
     m_site_density = sitedens;
     for (size_t k = 0; k < m_kk; k++) {
-        if (species(k)->extra.hasKey("molar_volume")) {
+        if (species(k)->input.hasKey("molar_volume")) {
+            // @Deprecated - remove this case for Cantera 3.0 with removal of the XML format
             continue;
         } else if (species(k)->input.hasKey("equation-of-state")) {
             auto& eos = species(k)->input["equation-of-state"].getMapWhere(

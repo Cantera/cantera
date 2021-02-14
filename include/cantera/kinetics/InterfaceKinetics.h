@@ -375,9 +375,6 @@ public:
      */
     int phaseStability(const size_t iphase) const;
 
-    //! @deprecated To be removed after Cantera 2.5.
-    virtual void determineFwdOrdersBV(ElectrochemicalReaction& r, vector_fp& fwdFullorders);
-
 protected:
     //! Build a SurfaceArrhenius object from a Reaction, taking into account
     //! the possible sticking coefficient form and coverage dependencies
@@ -517,26 +514,11 @@ protected:
     //! reactions in the mechanism
     /*!
      *  Vector of reaction indices which involve charge transfers. This provides
-     *  an index into the m_beta and m_ctrxn_BVform array.
+     *  an index into the m_beta array.
      *
      *        irxn = m_ctrxn[i]
      */
     std::vector<size_t> m_ctrxn;
-
-    //! Vector of Reactions which follow the Butler-Volmer methodology for specifying the
-    //! exchange current density first. Then, the other forms are specified based on this form.
-    /*!
-     *     Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
-     *
-     *    m_ctrxn_BVform[i] = 0;  This means that the irxn reaction is calculated via the standard forward
-     *                            and reverse reaction rates
-     *    m_ctrxn_BVform[i] = 1;  This means that the irxn reaction is calculated via the BV format
-     *                            directly.
-     *    m_ctrxn_BVform[i] = 2;  this means that the irxn reaction is calculated via the BV format
-     *                            directly, using concentrations instead of activity concentrations.
-     * @deprecated To be removed after Cantera 2.5.
-     */
-    std::vector<size_t> m_ctrxn_BVform;
 
     //! Vector of booleans indicating whether the charge transfer reaction rate constant
     //! is described by an exchange current density rate constant expression

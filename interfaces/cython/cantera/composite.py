@@ -480,7 +480,7 @@ class SolutionArray:
 
     _passthrough = [
         # from ThermoPhase
-        'name', 'ID', 'source', 'basis', 'n_elements', 'element_index',
+        'name', 'source', 'basis', 'n_elements', 'element_index',
         'element_name', 'element_names', 'atomic_weight', 'atomic_weights',
         'n_species', 'species_name', 'species_names', 'species_index',
         'species', 'n_atoms', 'molecular_weights', 'min_temp', 'max_temp',
@@ -1381,10 +1381,6 @@ def _make_functions():
         # all state setters/getters are combination of letters
         setters = 'TDPUVHS' + ext
         scalar = ext == 'Q'
-
-        # add deprecated setters for PureFluid (e.g. PX/TX)
-        # @todo: remove .. deprecated:: 2.5
-        setters = setters.replace('Q', 'QX')
 
         # obtain setters/getters from thermo objects
         all_states = [k for k in ph.__dict__

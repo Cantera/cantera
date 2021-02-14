@@ -70,7 +70,7 @@ void printBulk(ostream& oooo,
     double x[MSSIZE];
     double C[MSSIZE];
     oooo.precision(3);
-    string bulkParticlePhaseName = bulkPhaseTP->id();
+    string bulkParticlePhaseName = bulkPhaseTP->name();
     bulkPhaseTP->getMoleFractions(x);
     bulkPhaseTP->getConcentrations(C);
     size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, 1);
@@ -113,7 +113,7 @@ void printSurf(ostream& oooo,
                ThermoPhase* surfPhaseTP, InterfaceKinetics* iKin_ptr, double* src)
 {
     double x[MSSIZE];
-    string surfParticlePhaseName = surfPhaseTP->id();
+    string surfParticlePhaseName = surfPhaseTP->name();
     surfPhaseTP->getMoleFractions(x);
     size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, 2);
     oooo << "Surface Phase:  " << surfParticlePhaseName
