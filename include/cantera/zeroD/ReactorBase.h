@@ -45,7 +45,10 @@ public:
 
     //! String indicating the reactor model implemented. Usually
     //! corresponds to the name of the derived class.
+    //! @deprecated To be removed after Cantera 2.6. Use type() instead.
     virtual std::string typeStr() const {
+        warn_deprecated("ReactorBase::typeStr",
+                        "To be removed after Cantera 2.6. Use type() instead.");
         return "ReactorBase";
     }
 

@@ -22,6 +22,8 @@ public:
     MassFlowController();
 
     virtual std::string typeStr() const {
+        warn_deprecated("MassFlowController::typeStr",
+                        "To be removed after Cantera 2.6. Use type() instead.");
         return "MassFlowController";
     }
 
@@ -70,12 +72,15 @@ public:
     PressureController();
 
     virtual std::string typeStr() const {
+        warn_deprecated("PressureController::typeStr",
+                        "To be removed after Cantera 2.6. Use type() instead.");
         return "PressureController";
     }
 
     virtual std::string type() const {
         return "PressureController";
     }
+
 
     virtual bool ready() {
         return FlowDevice::ready() && m_master != 0;
@@ -127,6 +132,8 @@ public:
     Valve();
 
     virtual std::string typeStr() const {
+        warn_deprecated("Valve::typeStr",
+                        "To be removed after Cantera 2.6. Use type() instead.");
         return "Valve";
     }
 

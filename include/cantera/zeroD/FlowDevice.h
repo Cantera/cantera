@@ -30,9 +30,12 @@ public:
     FlowDevice(const FlowDevice&) = delete;
     FlowDevice& operator=(const FlowDevice&) = delete;
 
-    //! String indicating the flow device implemented. Usually
-    //! corresponds to the name of the derived class.
+    //! String indicating the flow device implemented.
+    //! Usually corresponds to the name of the derived class.
+    //! @deprecated To be removed after Cantera 2.6. Use type() instead.
     virtual std::string typeStr() const {
+        warn_deprecated("FlowDevice::typeStr",
+                        "To be removed after Cantera 2.6. Use type() instead.");
         return "FlowDevice";
     }
 
