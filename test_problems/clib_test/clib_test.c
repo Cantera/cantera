@@ -72,7 +72,7 @@ int main(int argc, char** argv)
     assert(ret == 0);
 
     printf("\ntime       Temperature\n");
-    int reactor = reactor_new2("IdealGasReactor");
+    int reactor = reactor_new("IdealGasReactor");
     int net = reactornet_new();
     ret = reactor_setThermoMgr(reactor, thermo);
     assert(ret == 0);

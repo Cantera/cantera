@@ -150,9 +150,6 @@ class TestReactor(utilities.CanteraTest):
         dt_max = 0.07
         t = tStart
 
-        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
-            self.net.set_max_time_step(dt_max)
-
         self.net.max_time_step = dt_max
         self.assertEqual(self.net.max_time_step, dt_max)
         self.net.set_initial_time(tStart)
@@ -608,19 +605,6 @@ class TestReactor(utilities.CanteraTest):
         self.net.advance(0.02)
         self.assertNear(valve.mass_flow_rate, mdot())
 
-    def test_valve_deprecations(self):
-        # Make sure Python deprecation warnings actually get displayed
-
-        self.make_reactors()
-        valve = ct.Valve(self.r1, self.r2)
-        k = 2e-5
-
-        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
-            valve.set_valve_coeff(k)
-
-        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
-            valve.set_valve_function(lambda t: t>.01)
-
     def test_valve_errors(self):
         self.make_reactors()
         res = ct.Reservoir()
@@ -684,18 +668,6 @@ class TestReactor(utilities.CanteraTest):
             self.assertNear(mdot(t), mfc.mass_flow_rate)
             dP = self.r1.thermo.P - outlet_reservoir.thermo.P
             self.assertNear(mdot(t) + pfunc(dP), pc.mass_flow_rate)
-
-    def test_pressure_controller_deprecations(self):
-        # Make sure Python deprecation warnings actually get displayed
-
-        self.make_reactors()
-        res = ct.Reservoir(self.gas1)
-        mfc = ct.MassFlowController(res, self.r1, mdot=0.6)
-
-        p = ct.PressureController(self.r1, self.r2, master=mfc, K=0.5)
-
-        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
-            p.set_pressure_coeff(2.)
 
     def test_pressure_controller_errors(self):
         self.make_reactors()

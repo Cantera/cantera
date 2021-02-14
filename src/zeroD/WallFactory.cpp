@@ -16,24 +16,11 @@ std::mutex WallFactory::wall_mutex;
 WallFactory::WallFactory()
 {
     reg("Wall", []() { return new Wall(); });
-
-    // only used by clib
-    reg_type("Wall", WallType);
 }
 
 WallBase* WallFactory::newWall(const std::string& wallType)
 {
     return create(wallType);
-}
-
-WallBase* WallFactory::newWall(int ir)
-{
-    try {
-        return create(m_types.at(ir));
-    } catch (out_of_range&) {
-        throw CanteraError("WallFactory::newWall",
-                           "unknown wall type!");
-    }
 }
 
 }

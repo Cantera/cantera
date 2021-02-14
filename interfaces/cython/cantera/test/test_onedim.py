@@ -181,22 +181,6 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertNear(self.sim.fixed_temperature, tfixed)
         self.assertNear(self.sim.fixed_temperature_location, zfixed)
 
-    def test_deprecated(self):
-        Tin = 300
-        p = ct.one_atm
-        reactants = 'H2:0.65, O2:0.5, AR:2'
-        self.create_sim(p, Tin, reactants, width=0.0001)
-        with self.assertWarnsRegex(DeprecationWarning, "Replaced by property"):
-            self.sim.flame.set_boundary_emissivities(0.5, 0.5)
-        with self.assertWarnsRegex(DeprecationWarning, "property 'velocity"):
-            self.sim.u
-        with self.assertWarnsRegex(DeprecationWarning, "property 'spread"):
-            self.sim.V
-        with self.assertRaisesRegex(ct.CanteraError, "renamed to 'velocity"):
-            self.sim.flame.component_index('u')
-        with self.assertRaisesRegex(ct.CanteraError, "renamed to 'spread_rate"):
-            self.sim.flame.component_index('V')
-
     def test_auto_width(self):
         Tin = 300
         p = ct.one_atm

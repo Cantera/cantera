@@ -71,7 +71,7 @@ void printBulk(ostream& oooo,ThermoPhase* bulkPhaseTP, InterfaceKinetics* iKin_p
     double x[MSSIZE];
     double C[MSSIZE];
     oooo.precision(3);
-    string bulkParticlePhaseName = bulkPhaseTP->id();
+    string bulkParticlePhaseName = bulkPhaseTP->name();
     bulkPhaseTP->getMoleFractions(x);
     bulkPhaseTP->getConcentrations(C);
     size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, 1);
@@ -114,7 +114,7 @@ void printSurf(ostream& oooo, ThermoPhase* surfPhaseTP,
 {
     double x[MSSIZE];
     oooo.precision(3);
-    string surfParticlePhaseName = surfPhaseTP->id();
+    string surfParticlePhaseName = surfPhaseTP->name();
     surfPhaseTP->getMoleFractions(x);
     size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, 2);
     oooo << "Surface Phase:  " << surfParticlePhaseName
@@ -255,7 +255,7 @@ int main(int argc, char** argv)
         // (this is a made up problem btw to check the software capability)
         ThermoPhase* surfPhaseTP2 = newPhase(*xs);
         size_t nsp2 = surfPhaseTP2->nSpecies();
-        string pname = surfPhaseTP2->id();
+        string pname = surfPhaseTP2->name();
         cout << "Number of species in 2nd surface phase, " << pname
              << " = " << nsp2 << endl;
 

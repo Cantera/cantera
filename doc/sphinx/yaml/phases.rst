@@ -65,11 +65,9 @@ and optionally reactions that can take place in that phase. The fields of a
     - :ref:`constant-density <sec-yaml-constant-density>`
     - :ref:`Debye-Huckel <sec-yaml-Debye-Huckel>`
     - :ref:`edge <sec-yaml-edge>`
-    - :ref:`fixed-chemical-potential <sec-yaml-fixed-chemical-potential>`
     - :ref:`fixed-stoichiometry <sec-yaml-fixed-stoichiometry>`
     - :ref:`HMW-electrolyte <sec-yaml-HMW-electrolyte>`
     - :ref:`ideal-gas <sec-yaml-ideal-gas>`
-    - :ref:`ideal-gas-VPSS <sec-yaml-ideal-gas-VPSS>`
     - :ref:`ideal-molal-solution <sec-yaml-ideal-molal-solution>`
     - :ref:`ideal-condensed <sec-yaml-ideal-condensed>`
     - :ref:`ideal-solution-VPSS <sec-yaml-ideal-solution-VPSS>`
@@ -370,29 +368,6 @@ Example::
     site-density: 5.0e-17 mol/cm
 
 
-.. _sec-yaml-fixed-chemical-potential:
-
-``fixed-chemical-potential``
-----------------------------
-
-A phase defined by a fixed value of the chemical potential, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d6/db0/classCantera_1_1FixedChemPotSSTP.html#details>`__.
-
-.. deprecated:: 2.5
-   Use class StoichSubstance with a constant-cp species thermo model, with 'h0'
-   set to the desired chemical potential and 's0' set to 0.
-
-Additional fields:
-
-``chemical-potential``
-    The molar chemical potential of the phase
-
-Example::
-
-    thermo: fixed-chemical-potential
-    chemical-potential: -2.3e7 J/kmol
-
-
 .. _sec-yaml-fixed-stoichiometry:
 
 ``fixed-stoichiometry``
@@ -533,17 +508,6 @@ Example::
 
 The ideal gas model as
 `described here <https://cantera.org/documentation/dev/doxygen/html/d7/dfa/classCantera_1_1IdealGasPhase.html#details>`__.
-
-.. _sec-yaml-ideal-gas-VPSS:
-
-``ideal-gas-VPSS``
-------------------
-
-The ideal gas model, using variable pressure standard state methods as
-`described here <https://cantera.org/documentation/dev/doxygen/html/dc/ddb/classCantera_1_1IdealSolnGasVPSS.html#details>`__.
-
-.. deprecated:: 2.5
-   Use the ``ideal-gas`` model instead.
 
 
 .. _sec-yaml-ideal-molal-solution:

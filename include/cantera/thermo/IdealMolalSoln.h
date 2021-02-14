@@ -213,34 +213,6 @@ protected:
     void calcDensity();
 
 public:
-    /**
-     * Overridden setDensity() function is necessary because the density is not
-     * an independent variable.
-     *
-     * This function will now throw an error condition
-     *
-     * @internal May have to adjust the strategy here to make the eos for these
-     *     materials slightly compressible, in order to create a condition where
-     *     the density is a function of the pressure.
-     *
-     * @param rho   Input Density
-     * @deprecated Functionality merged with base function after Cantera 2.5.
-     *             (superseded by isCompressible check in Phase::setDensity)
-     */
-    virtual void setDensity(const doublereal rho);
-
-    /**
-     * Overridden setMolarDensity() function is necessary because the density
-     * is not an independent variable.
-     *
-     * This function will now throw an error condition.
-     *
-     * @param rho   Input Density
-     * @deprecated Functionality merged with base function after Cantera 2.5.
-     *             (superseded by isCompressible check in Phase::setDensity)
-     */
-    virtual void setMolarDensity(const doublereal rho);
-
     //! The isothermal compressibility. Units: 1/Pa.
     /*!
      * The isothermal compressibility is defined as

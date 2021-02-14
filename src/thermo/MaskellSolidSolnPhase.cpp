@@ -59,21 +59,6 @@ doublereal MaskellSolidSolnPhase::entropy_mole() const
 
 // Mechanical Equation of State
 
-void MaskellSolidSolnPhase::setDensity(const doublereal rho)
-{
-    // Unless the input density is exactly equal to the density calculated and
-    // stored in the State object, we throw an exception. This is because the
-    // density is NOT an independent variable.
-    warn_deprecated("MaskellSolidSolnPhase::setDensity",
-        "Overloaded function to be removed after Cantera 2.5. "
-        "Error will be thrown by Phase::setDensity instead");
-    double dens = density();
-    if (rho != dens) {
-        throw CanteraError("MaskellSolidSolnPhase::setDensity",
-                           "Density is not an independent variable");
-    }
-}
-
 void MaskellSolidSolnPhase::calcDensity()
 {
     const vector_fp& vbar = getStandardVolumes();
@@ -90,15 +75,6 @@ void MaskellSolidSolnPhase::calcDensity()
 void MaskellSolidSolnPhase::setPressure(doublereal p)
 {
     m_Pcurrent = p;
-}
-
-void MaskellSolidSolnPhase::setMolarDensity(const doublereal n)
-{
-    warn_deprecated("MaskellSolidSolnPhase::setMolarDensity",
-        "Overloaded function to be removed after Cantera 2.5. "
-        "Error will be thrown by Phase::setMolarDensity instead");
-    throw CanteraError("MaskellSolidSolnPhase::setMolarDensity",
-                       "Density is not an independent variable");
 }
 
 // Chemical Potentials and Activities

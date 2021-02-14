@@ -28,29 +28,11 @@ ReactorFactory::ReactorFactory()
     reg("FlowReactor", []() { return new FlowReactor(); });
     reg("IdealGasReactor", []() { return new IdealGasReactor(); });
     reg("IdealGasConstPressureReactor", []() { return new IdealGasConstPressureReactor(); });
-
-    // only used by clib
-    reg_type("Reservoir", ReservoirType);
-    reg_type("Reactor", ReactorType);
-    reg_type("ConstPressureReactor", ConstPressureReactorType);
-    reg_type("FlowReactor", FlowReactorType);
-    reg_type("IdealGasReactor", IdealGasReactorType);
-    reg_type("IdealGasConstPressureReactor", IdealGasConstPressureReactorType);
 }
 
 ReactorBase* ReactorFactory::newReactor(const std::string& reactorType)
 {
     return create(reactorType);
-}
-
-ReactorBase* ReactorFactory::newReactor(int ir)
-{
-    try {
-        return create(m_types.at(ir));
-    } catch (out_of_range&) {
-        throw CanteraError("ReactorFactory::newReactor",
-                           "unknown reactor type!");
-    }
 }
 
 }

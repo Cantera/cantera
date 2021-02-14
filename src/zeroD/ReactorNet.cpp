@@ -90,7 +90,7 @@ void ReactorNet::initialize()
             writelog("Reactor {:d}: {:d} variables.\n", n, nv);
             writelog("              {:d} sensitivity params.\n", r.nSensParams());
         }
-        if (r.typeStr() == "FlowReactor" && m_reactors.size() > 1) {
+        if (r.type() == "FlowReactor" && m_reactors.size() > 1) {
             throw CanteraError("ReactorNet::initialize",
                                "FlowReactors must be used alone.");
         }

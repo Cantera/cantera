@@ -15,12 +15,6 @@ phases:
   transport: water
   species: [H2O(l)]
 
-# @todo Remove after Cantera 2.5 - class FixedChemPotSSTP is deprecated
-- name: Li-fixed
-  thermo: fixed-chemical-potential
-  species: [Li]
-  chemical-potential: -2.3e7 J/kmol
-
 - name: molten-salt-Margules
   thermo: Margules
   species: [KCl(l), LiCl(l)]
@@ -93,13 +87,6 @@ phases:
 - name: KCl-neutral
   species: [KCl(l)]
   thermo: Margules
-
-# todo: Remove after Cantera 2.5 - the "gas" moode of class IdealSolnGasVPSS is
-# deprecated.
-- name: IdealSolnGas-gas
-  thermo: ideal-gas-VPSS
-  species: [{gas-species: [H2O, H2, O2]}]
-  state: {T: 400, P: 5 atm, X: {H2: 0.01, O2: 0.99}}
 
 - name: IdealSolnGas-liquid
   thermo: ideal-solution-VPSS
@@ -188,12 +175,6 @@ phases:
   pure-fluid-name: carbondioxide
   state: {T: 275, vapor-fraction: 0.1}
 
-- name: const-density
-  thermo: constant-density
-  density: 0.7 g/cm^3
-  species: [NaCl(s), KCl(s)]
-  state: {T: 320, P: 1 atm}
-
 - name: IdealSolidSolnPhase
   thermo: ideal-condensed
   standard-concentration-basis: unity
@@ -263,9 +244,6 @@ species:
 
 - name: H2O(l)
   composition: {H: 2, O: 1}
-
-- name: Li
-  composition: {Li: 1}
 
 - name: KCl(l)
   composition: {K: 1, Cl: 1}

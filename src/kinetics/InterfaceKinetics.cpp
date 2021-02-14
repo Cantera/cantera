@@ -236,13 +236,10 @@ void InterfaceKinetics::applyVoltageKfwdCorrection(doublereal* const kf)
     for (size_t i = 0; i < m_beta.size(); i++) {
         size_t irxn = m_ctrxn[i];
 
-        // If we calculate the BV form directly, we don't add the voltage
-        // correction to the forward reaction rate constants.
-        if (m_ctrxn_BVform[i] == 0) {
-            double eamod = m_beta[i] * deltaElectricEnergy_[irxn];
-            if (eamod != 0.0) {
-                kf[irxn] *= exp(-eamod/thermo(reactionPhaseIndex()).RT());
-            }
+        // Add the voltage correction to the forward reaction rate constants.
+        double eamod = m_beta[i] * deltaElectricEnergy_[irxn];
+        if (eamod != 0.0) {
+            kf[irxn] *= exp(-eamod/thermo(reactionPhaseIndex()).RT());
         }
     }
 }
@@ -259,35 +256,12 @@ void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* con
         // current density formulation format.
         int iECDFormulation = m_ctrxn_ecdf[i];
         if (iECDFormulation) {
-            // If the BV form is to be converted into the normal form then we go
-            // through this process. If it isn't to be converted, then we don't
-            // go through this process.
-            //
             // We need to have the straight chemical reaction rate constant to
             // come out of this calculation.
-            if (m_ctrxn_BVform[i] == 0) {
-                //  Calculate the term and modify the forward reaction
-                double tmp = exp(- m_beta[i] * m_deltaG0[irxn]
-                                 / thermo(reactionPhaseIndex()).RT());
-                tmp *= 1.0 / m_ProdStanConcReac[irxn] / Faraday;
-                kfwd[irxn] *= tmp;
-            }
-            //  If BVform is nonzero we don't need to do anything.
-        } else {
-            // kfwd[] is the chemical reaction rate constant
-            //
-            // If we are to calculate the BV form directly, then we will do the
-            // reverse. We will calculate the exchange current density
-            // formulation here and substitute it.
-            if (m_ctrxn_BVform[i] != 0) {
-                // Calculate the term and modify the forward reaction rate
-                // constant so that it's in the exchange current density
-                // formulation format
-                double tmp = exp(m_beta[i] * m_deltaG0[irxn]
-                                 * thermo(reactionPhaseIndex()).RT());
-                tmp *= Faraday * m_ProdStanConcReac[irxn];
-                kfwd[irxn] *= tmp;
-            }
+            double tmp = exp(- m_beta[i] * m_deltaG0[irxn]
+                                / thermo(reactionPhaseIndex()).RT());
+            tmp *= 1.0 / m_ProdStanConcReac[irxn] / Faraday;
+            kfwd[irxn] *= tmp;
         }
     }
 }
@@ -547,33 +521,6 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
             m_ctrxn_ecdf.push_back(1);
         } else {
             m_ctrxn_ecdf.push_back(0);
-        }
-
-        if (r.reaction_type == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN ||
-            r.reaction_type == BUTLERVOLMER_RXN ||
-            r.reaction_type == SURFACEAFFINITY_RXN ||
-            r.reaction_type == GLOBAL_RXN) {
-            //   Specify alternative forms of the electrochemical reaction
-            if (r.reaction_type == BUTLERVOLMER_RXN) {
-                m_ctrxn_BVform.push_back(1);
-            } else if (r.reaction_type == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN) {
-                m_ctrxn_BVform.push_back(2);
-            } else {
-                // set the default to be the normal forward / reverse calculation method
-                m_ctrxn_BVform.push_back(0);
-            }
-            if (!r.orders.empty()) {
-                vector_fp orders(nTotalSpecies(), 0.0);
-                for (const auto& order : r.orders) {
-                    orders[kineticsSpeciesIndex(order.first)] = order.second;
-                }
-            }
-        } else {
-            m_ctrxn_BVform.push_back(0);
-            if (re->film_resistivity > 0.0) {
-                throw CanteraError("InterfaceKinetics::addReaction",
-                                   "film resistivity set for elementary reaction");
-            }
         }
     }
 
@@ -839,41 +786,6 @@ void InterfaceKinetics::setPhaseStability(const size_t iphase, const int isStabl
         m_phaseIsStable[iphase] = true;
     } else {
         m_phaseIsStable[iphase] = false;
-    }
-}
-
-void InterfaceKinetics::determineFwdOrdersBV(ElectrochemicalReaction& r, vector_fp& fwdFullOrders)
-{
-    // Start out with the full ROP orders vector.
-    // This vector will have the BV exchange current density orders in it.
-    fwdFullOrders.assign(nTotalSpecies(), 0.0);
-    for (const auto& order : r.orders) {
-        fwdFullOrders[kineticsSpeciesIndex(order.first)] = order.second;
-    }
-
-    //   forward and reverse beta values
-    double betaf = r.beta;
-
-    // Loop over the reactants doing away with the BV terms.
-    // This should leave the reactant terms only, even if they are non-mass action.
-    for (const auto& sp : r.reactants) {
-        size_t k = kineticsSpeciesIndex(sp.first);
-        fwdFullOrders[k] += betaf * sp.second;
-        // just to make sure roundoff doesn't leave a term that should be zero (haven't checked this out yet)
-        if (abs(fwdFullOrders[k]) < 0.00001) {
-            fwdFullOrders[k] = 0.0;
-        }
-    }
-
-    // Loop over the products doing away with the BV terms.
-    // This should leave the reactant terms only, even if they are non-mass action.
-    for (const auto& sp : r.products) {
-        size_t k = kineticsSpeciesIndex(sp.first);
-        fwdFullOrders[k] -= betaf * sp.second;
-        // just to make sure roundoff doesn't leave a term that should be zero (haven't checked this out yet)
-        if (abs(fwdFullOrders[k]) < 0.00001) {
-            fwdFullOrders[k] = 0.0;
-        }
     }
 }
 

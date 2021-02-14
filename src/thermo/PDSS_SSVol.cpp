@@ -173,19 +173,6 @@ void PDSS_SSVol::setState_TP(doublereal temp, doublereal pres)
     setTemperature(temp);
 }
 
-void PDSS_SSVol::setState_TR(doublereal temp, doublereal rho)
-{
-    setTemperature(temp);
-    warn_deprecated("PDSS_SSVol::setState_TR",
-        "Setter only changes temperature and "
-        "will be removed after Cantera 2.5.");
-    doublereal rhoStored = m_mw / m_Vss;
-    if (fabs(rhoStored - rho) / (rhoStored + rho) > 1.0E-4) {
-        throw CanteraError("PDSS_SSVol::setState_TR",
-                           "Inconsistent supplied rho");
-    }
-}
-
 doublereal PDSS_SSVol::satPressure(doublereal t)
 {
     return 1.0E-200;

@@ -423,18 +423,6 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertEqual(self.phase.name, 'something')
         self.assertIn('something', self.phase.report())
 
-    def test_phase(self):
-        self.assertEqual(self.phase.name, 'ohmech')
-        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
-            self.assertEqual(self.phase.ID, 'ohmech')
-
-        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
-            self.phase.ID = 'something'
-        self.assertEqual(self.phase.name, 'something')
-
-        with self.assertWarnsRegex(FutureWarning, "Keyword 'name' replaces 'phaseid'"):
-            gas = ct.Solution('h2o2.cti', phaseid='ohmech')
-
     def test_badLength(self):
         X = np.zeros(5)
         with self.assertRaisesRegex(ValueError, 'incorrect length'):

@@ -35,13 +35,8 @@ extern "C" {
 
     // reactor
 
-    //! @deprecated To be changed after Cantera 2.5.
-    int reactor_new(int type)
+    int reactor_new(const char* type)
     {
-        warn_deprecated("reactor_new(int)",
-                        "To be changed after Cantera 2.5. "
-                        "Argument changed to string instead of int; use"
-                        "reactor_new2(char*) during transition.");
         try {
             ReactorBase* r = ReactorFactory::factory()->newReactor(type);
             return ReactorCabinet::add(r);
@@ -350,12 +345,8 @@ extern "C" {
 
     // flow devices
 
-    int flowdev_new(int type)
+    int flowdev_new(const char* type)
     {
-        warn_deprecated("flowdev_new(int)",
-                        "To be changed after Cantera 2.5. "
-                        "Argument changed to string instead of int; use"
-                        "flowdev_new2(char*) during transition.");
         try {
             FlowDevice* f = FlowDeviceFactory::factory()->newFlowDevice(type);
             return FlowDeviceCabinet::add(f);
@@ -410,19 +401,7 @@ extern "C" {
         }
     }
 
-    double flowdev_massFlowRate(int i, double time)
-    {
-        try {
-            warn_deprecated("flowdev_massFlowRate(int i, double time)",
-                "To be changed after Cantera 2.5. 'time' argument will be "
-                "removed. Use flowdev_massFlowRate2(int i) during transition.");
-            return FlowDeviceCabinet::item(i).massFlowRate(time);
-        } catch (...) {
-            return handleAllExceptions(DERR, DERR);
-        }
-    }
-
-    double flowdev_massFlowRate2(int i)
+    double flowdev_massFlowRate(int i)
     {
         try {
             return FlowDeviceCabinet::item(i).massFlowRate();
@@ -431,25 +410,14 @@ extern "C" {
         }
     }
 
-    int flowdev_setMassFlowRate(int i, double mdot)
+    double flowdev_massFlowRate2(int i)
     {
-        /* @deprecated To be removed after Cantera 2.5. */
         try {
-            FlowDeviceCabinet::item(i).setMassFlowRate(mdot);
-            return 0;
+            warn_deprecated("flowdev_massFlowRate2(int i)",
+                "To be removed after Cantera 2.6. Use flowdev_massFlowRate(int i).");
+            return FlowDeviceCabinet::item(i).massFlowRate();
         } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int flowdev_setParameters(int i, int n, const double* v)
-    {
-        /* @deprecated To be removed after Cantera 2.5. */
-        try {
-            FlowDeviceCabinet::item(i).setParameters(n, v);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
+            return handleAllExceptions(DERR, DERR);
         }
     }
 
@@ -483,17 +451,6 @@ extern "C" {
         }
     }
 
-    int flowdev_setFunction(int i, int n)
-    {
-        /* @deprecated To be removed after Cantera 2.5. */
-        try {
-            FlowDeviceCabinet::item(i).setFunction(&FuncCabinet::item(n));
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int flowdev_setPressureFunction(int i, int n)
     {
         try {
@@ -516,12 +473,8 @@ extern "C" {
 
     /////////////    Walls   ///////////////////////
 
-    int wall_new(int type)
+    int wall_new(const char* type)
     {
-        warn_deprecated("wall_new(int)",
-                        "To be changed after Cantera 2.5. "
-                        "Argument changed to string instead of int; use"
-                        "wall_new2(char*) during transition.");
         try {
             WallBase* w = WallFactory::factory()->newWall(type);
             return WallCabinet::add(w);

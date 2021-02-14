@@ -27,16 +27,8 @@ public:
         return "IdealGasConstPressureReactor";
     }
 
-    /*!
-     * @deprecated To be changed after Cantera 2.5.
-     */
-    virtual int type() const {
-        warn_deprecated("IdealGasConstPressureReactor::type",
-                        "To be changed after Cantera 2.5. "
-                        "Return string instead of magic number; use "
-                        "IdealGasConstPressureReactor::typeStr during "
-                        "transition");
-        return IdealGasConstPressureReactorType;
+    virtual std::string type() const {
+        return "IdealGasConstPressureReactor";
     }
 
     virtual void setThermoMgr(ThermoPhase& thermo);

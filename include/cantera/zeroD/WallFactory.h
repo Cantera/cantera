@@ -29,34 +29,11 @@ public:
         s_factory = 0;
     }
 
-    //! Create a new wall by type identifier.
-    /*!
-     * @param n the type to be created.
-     */
-    virtual WallBase* newWall(int n);
-
     //! Create a new wall by type name.
     /*!
      * @param wallType the type to be created.
      */
     virtual WallBase* newWall(const std::string& wallType);
-
-    //! Register a new wall type identifier.
-    /*!
-     * @param name the name of the wall type.
-     * @param type the type identifier of the wall.
-     * Integer type identifiers are used by clib and matlab interfaces.
-     *
-     * @deprecated To be removed after Cantera 2.5.
-     */
-    void reg_type(const std::string& name, const int type) {
-        m_types[type] = name;
-    }
-
-protected:
-    //! Map containing wall type identifier / wall type name pairs.
-    //! @deprecated To be removed after Cantera 2.5.
-    std::unordered_map<int, std::string> m_types;
 
 private:
     static WallFactory* s_factory;

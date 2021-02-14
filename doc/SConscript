@@ -135,7 +135,7 @@ if localenv['sphinx_docs']:
     # Create a dictionary of extra files associated with each class. These
     # files are listed relative to the top directory interfaces/matlab/cantera
     extra = {
-        '@Solution': ['IdealGasMix.m', 'GRI30.m', 'Air.m'],
+        '@Solution': ['GRI30.m', 'Air.m'],
         '@Pure Fluid Phases': ['CarbonDioxide.m', 'HFC134a.m', 'Hydrogen.m',
                                'Methane.m', 'Nitrogen.m', 'Oxygen.m', 'Water.m'],
         '@Func': ['gaussian.m', 'polynom.m'],

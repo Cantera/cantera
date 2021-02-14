@@ -773,14 +773,13 @@ void MultiPhase::getMoleFractions(doublereal* const x) const
 
 std::string MultiPhase::phaseName(const size_t iph) const
 {
-    const ThermoPhase* tptr = m_phase[iph];
-    return tptr->id();
+    return m_phase[iph]->name();
 }
 
 int MultiPhase::phaseIndex(const std::string& pName) const
 {
     for (int iph = 0; iph < (int) nPhases(); iph++) {
-        if (m_phase[iph]->id() == pName) {
+        if (m_phase[iph]->name() == pName) {
             return iph;
         }
     }

@@ -31,16 +31,6 @@ class Array2D;
 class Arrhenius
 {
 public:
-    //! return the rate coefficient type.
-    /*!
-     * @deprecated To be removed after Cantera 2.5.
-     */
-    static int type() {
-        warn_deprecated("Arrhenius::type()",
-            "To be removed after Cantera 2.5.");
-        return ARRHENIUS_REACTION_RATECOEFF_TYPE;
-    }
-
     //! Default constructor.
     Arrhenius();
 
@@ -125,15 +115,6 @@ class SurfaceArrhenius
 {
 
 public:
-    /*!
-     * @deprecated To be removed after Cantera 2.5.
-     */
-    static int type() {
-        warn_deprecated("SurfaceArrhenius::type()",
-            "To be removed after Cantera 2.5.");
-        return SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE;
-    }
-
     SurfaceArrhenius();
     explicit SurfaceArrhenius(double A, double b, double Ta);
 
@@ -221,16 +202,6 @@ protected:
 class Plog
 {
 public:
-    //! return the rate coefficient type.
-    /*!
-     * @deprecated To be removed after Cantera 2.5.
-     */
-    static int type() {
-        warn_deprecated("Plog::type()",
-            "To be removed after Cantera 2.5.");
-        return PLOG_REACTION_RATECOEFF_TYPE;
-    }
-
     //! Default constructor.
     Plog() {}
 
@@ -355,16 +326,6 @@ protected:
 class ChebyshevRate
 {
 public:
-    //! return the rate coefficient type.
-    /*!
-     * @deprecated To be removed after Cantera 2.5.
-     */
-    static int type() {
-        warn_deprecated("ChebyshevRate::type()",
-            "To be removed after Cantera 2.5.");
-        return CHEBYSHEV_REACTION_RATECOEFF_TYPE;
-    }
-
     //! Default constructor.
     ChebyshevRate() {}
 

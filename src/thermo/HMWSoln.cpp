@@ -240,27 +240,6 @@ void HMWSoln::calcDensity()
     Phase::assignDensity(dd);
 }
 
-void HMWSoln::setDensity(const doublereal rho)
-{
-    warn_deprecated("HMWSoln::setDensity",
-        "Overloaded function to be removed after Cantera 2.5. "
-        "Error will be thrown by Phase::setDensity instead");
-    double dens_old = density();
-    if (rho != dens_old) {
-        throw CanteraError("HMWSoln::setDensity",
-                           "Density is not an independent variable");
-    }
-}
-
-void HMWSoln::setMolarDensity(const doublereal rho)
-{
-    warn_deprecated("HMWSoln::setMolarDensity",
-        "Overloaded function to be removed after Cantera 2.5. "
-        "Error will be thrown by Phase::setMolarDensity instead");
-    throw CanteraError("HMWSoln::setMolarDensity",
-                       "Density is not an independent variable");
-}
-
 // ------- Activities and Activity Concentrations
 
 void HMWSoln::getActivityConcentrations(doublereal* c) const

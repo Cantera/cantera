@@ -563,18 +563,6 @@ cdef class _FlowBase(Domain1D):
                 else:
                     self.set_transient_tolerances(**tol)
 
-    def set_boundary_emissivities(self, e_left, e_right):
-        """
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Replaced by property `boundary_emissivities`.
-        """
-        warnings.warn("Method 'set_boundary_emissivities' to be removed after "
-                      "Cantera 2.5. Replaced by property "
-                      "'boundary_emissivities'", DeprecationWarning)
-        self.boundary_emissivities = e_left, e_right
-
     property boundary_emissivities:
         """ Set/get boundary emissivities. """
         def __get__(self):
@@ -1388,21 +1376,6 @@ cdef class Sim1D:
     def set_max_time_step(self, tsmax):
         """ Set the maximum time step. """
         self.sim.setMaxTimeStep(tsmax)
-
-    def set_fixed_temperature(self, T):
-        """
-        Set the temperature used to fix the spatial location of a freely
-        propagating flame.
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Replaced by property `fixed_temperature`.
-        """
-        warnings.warn("Method 'set_fixed_temperature' to be removed after "
-                      "Cantera 2.5. Replaced by property 'fixed_temperature'",
-                      DeprecationWarning)
-        self.fixed_temperature = T
 
     property fixed_temperature:
         """

@@ -120,18 +120,6 @@ TEST(ThermoFromYaml, WaterSSTP)
     EXPECT_NEAR(thermo->enthalpy_mass(), -15649685.52296013, 1e-6);
 }
 
-//! @todo Remove after Cantera 2.5 - class FixedChemPotSSTP is deprecated
-TEST(ThermoFromYaml, FixedChemPot)
-{
-    suppress_deprecation_warnings();
-    auto thermo = newThermo("thermo-models.yaml", "Li-fixed");
-    EXPECT_EQ(thermo->nSpecies(), (size_t) 1);
-    double mu;
-    thermo->getChemPotentials(&mu);
-    EXPECT_DOUBLE_EQ(mu, -2.3e7);
-    make_deprecation_warnings_fatal();
-}
-
 TEST(ThermoFromYaml, Margules)
 {
     auto thermo = newThermo("thermo-models.yaml", "molten-salt-Margules");
@@ -235,19 +223,6 @@ TEST(ThermoFromYaml, IonsFromNeutral_fromString)
     EXPECT_NEAR(thermo->enthalpy_mass(), -14738312.44316336, 1e-6);
     EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
     EXPECT_NEAR(mu[1], -2.88157316e+06, 1e-1);
-}
-
-//! @todo Remove after Cantera 2.5 - "gas" mode of IdealSolnGasVPSS is
-//!     deprecated
-TEST(ThermoFromYaml, IdealSolnGas_gas)
-{
-    suppress_deprecation_warnings();
-    auto thermo = newThermo("thermo-models.yaml", "IdealSolnGas-gas");
-    make_deprecation_warnings_fatal();
-    thermo->equilibrate("HP");
-    EXPECT_NEAR(thermo->temperature(), 479.929, 1e-3); // based on h2o2.cti
-    EXPECT_NEAR(thermo->moleFraction("H2O"), 0.01, 1e-4);
-    EXPECT_NEAR(thermo->moleFraction("H2"), 0.0, 1e-4);
 }
 
 TEST(ThermoFromYaml, IdealSolnGas_liquid)
@@ -384,14 +359,6 @@ TEST(ThermoFromYaml, PureFluid_Unknown)
     EXPECT_THROW(newPhase(phase, root), CanteraError);
 }
 
-TEST(ThermoFromYaml, ConstDensityThermo)
-{
-    suppress_deprecation_warnings();
-    auto thermo = newThermo("thermo-models.yaml", "const-density");
-    EXPECT_DOUBLE_EQ(thermo->density(), 700.0);
-    make_deprecation_warnings_fatal();
-}
-
 TEST(ThermoFromYaml, IdealSolidSolnPhase)
 {
     auto thermo = newThermo("thermo-models.yaml", "IdealSolidSolnPhase");
@@ -463,12 +430,4 @@ TEST(ThermoFromYaml, BinarySolutionTabulatedThermo)
     EXPECT_NEAR(thermo->entropy_mass(), 90.443481807823474, 1e-12);
     thermo->setMoleFractionsByName("Li[anode]: 0.55, V[anode]: 0.45");
     EXPECT_NEAR(thermo->gibbs_mass(), -87066.246182649265, 1e-9);
-}
-
-TEST(ThermoFromYaml, DeprecatedPhase)
-{
-    // The deprecation warning in this file is turned into an
-    // error by make_deprecation_warnings_fatal() called in main()
-    // for the test suite.
-    EXPECT_THROW(newThermo("gri30.yaml", "gri30_mix"), CanteraError);
 }

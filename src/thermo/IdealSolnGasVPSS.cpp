@@ -1,7 +1,7 @@
 /**
  *  @file IdealSolnGasVPSS.cpp
- * Definition file for a derived class of ThermoPhase that assumes either
- * an ideal gas or ideal solution approximation and handles
+ * Definition file for a derived class of ThermoPhase that assumes
+ * an ideal solution approximation and handles
  * variable pressure standard state methods for calculating
  * thermodynamic properties (see \ref thermoprops and
  * class \link Cantera::IdealSolnGasVPSS IdealSolnGasVPSS\endlink).
@@ -22,13 +22,11 @@ namespace Cantera
 {
 
 IdealSolnGasVPSS::IdealSolnGasVPSS() :
-    m_idealGas(-1),
     m_formGC(0)
 {
 }
 
 IdealSolnGasVPSS::IdealSolnGasVPSS(const std::string& infile, std::string id_) :
-    m_idealGas(0),
     m_formGC(0)
 {
     XML_Node* root = get_XML_File(infile);
@@ -46,11 +44,6 @@ IdealSolnGasVPSS::IdealSolnGasVPSS(const std::string& infile, std::string id_) :
 
 void IdealSolnGasVPSS::setStandardConcentrationModel(const std::string& model)
 {
-    if (m_idealGas) {
-        throw CanteraError("IdealSolnGasVPSS::setStandardConcentrationModel",
-                           "Standard concentration model not applicable for ideal gas");
-    }
-
     if (caseInsensitiveEquals(model, "unity")) {
         m_formGC = 0;
     } else if (caseInsensitiveEquals(model, "species-molar-volume")
@@ -99,32 +92,17 @@ void IdealSolnGasVPSS::setPressure(doublereal p)
 
 void IdealSolnGasVPSS::calcDensity()
 {
-    // Calculate the molarVolume of the solution (m**3 kmol-1)
-    if (m_idealGas) {
-        double dens = m_Pcurrent * meanMolecularWeight() / RT();
-        Phase::assignDensity(dens);
-    } else {
-        const doublereal* const dtmp = moleFractdivMMW();
-        const vector_fp& vss = getStandardVolumes();
-        double dens = 1.0 / dot(vss.begin(), vss.end(), dtmp);
+    const doublereal* const dtmp = moleFractdivMMW();
+    const vector_fp& vss = getStandardVolumes();
+    double dens = 1.0 / dot(vss.begin(), vss.end(), dtmp);
 
-        // Set the density in the parent State object directly
-        Phase::assignDensity(dens);
-    }
-}
-
-doublereal IdealSolnGasVPSS::isothermalCompressibility() const
-{
-    if (m_idealGas) {
-        return 1.0 / m_Pcurrent;
-    } else {
-        throw NotImplementedError("IdealSolnGasVPSS::isothermalCompressibility");
-    }
+    // Set the density in the parent State object directly
+    Phase::assignDensity(dens);
 }
 
 Units IdealSolnGasVPSS::standardConcentrationUnits() const
 {
-    if (m_idealGas || m_formGC != 0) {
+    if (m_formGC != 0) {
         return Units(1.0, 0, -3, 0, 0, 0, 1);
     } else {
         return Units(1.0);
@@ -133,46 +111,38 @@ Units IdealSolnGasVPSS::standardConcentrationUnits() const
 
 void IdealSolnGasVPSS::getActivityConcentrations(doublereal* c) const
 {
-    if (m_idealGas) {
-        getConcentrations(c);
-    } else {
-        const vector_fp& vss = getStandardVolumes();
-        switch (m_formGC) {
-        case 0:
-            for (size_t k = 0; k < m_kk; k++) {
-                c[k] = moleFraction(k);
-            }
-            break;
-        case 1:
-            for (size_t k = 0; k < m_kk; k++) {
-                c[k] = moleFraction(k) / vss[k];
-            }
-            break;
-        case 2:
-            for (size_t k = 0; k < m_kk; k++) {
-                c[k] = moleFraction(k) / vss[0];
-            }
-            break;
+    const vector_fp& vss = getStandardVolumes();
+    switch (m_formGC) {
+    case 0:
+        for (size_t k = 0; k < m_kk; k++) {
+            c[k] = moleFraction(k);
         }
+        break;
+    case 1:
+        for (size_t k = 0; k < m_kk; k++) {
+            c[k] = moleFraction(k) / vss[k];
+        }
+        break;
+    case 2:
+        for (size_t k = 0; k < m_kk; k++) {
+            c[k] = moleFraction(k) / vss[0];
+        }
+        break;
     }
 }
 
 doublereal IdealSolnGasVPSS::standardConcentration(size_t k) const
 {
-    if (m_idealGas) {
-        return pressure() / RT();
-    } else {
-        const vector_fp& vss = getStandardVolumes();
-        switch (m_formGC) {
-        case 0:
-            return 1.0;
-        case 1:
-            return 1.0 / vss[k];
-        case 2:
-            return 1.0/ vss[0];
-        }
-        return 0.0;
+    const vector_fp& vss = getStandardVolumes();
+    switch (m_formGC) {
+    case 0:
+        return 1.0;
+    case 1:
+        return 1.0 / vss[k];
+    case 2:
+        return 1.0/ vss[0];
     }
+    return 0.0;
 }
 
 void IdealSolnGasVPSS::getActivityCoefficients(doublereal* ac) const
@@ -266,39 +236,13 @@ bool IdealSolnGasVPSS::addSpecies(shared_ptr<Species> spec)
 void IdealSolnGasVPSS::initThermo()
 {
     VPStandardStateTP::initThermo();
-    if (m_input.hasKey("thermo")) {
-        const string& model = m_input["thermo"].asString();
-        if (model == "ideal-solution-VPSS") {
-            setSolnMode();
-        } else if (model == "ideal-gas-VPSS") {
-            setGasMode();
-        }
-    }
     if (m_input.hasKey("standard-concentration-basis")) {
         setStandardConcentrationModel(m_input["standard-concentration-basis"].asString());
-    }
-
-    if (m_idealGas == -1) {
-        throw CanteraError("IdealSolnGasVPSS::initThermo",
-            "solution / gas mode not set");
     }
 }
 
 void IdealSolnGasVPSS::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-    if (phaseNode.hasChild("thermo")) {
-        XML_Node& thermoNode = phaseNode.child("thermo");
-        std::string model = thermoNode["model"];
-        if (model == "IdealGasVPSS") {
-            setGasMode();
-        } else if (model == "IdealSolnVPSS") {
-            setSolnMode();
-        } else {
-            throw CanteraError("IdealSolnGasVPSS::initThermoXML",
-                               "Unknown thermo model : " + model);
-        }
-    }
-
     // Form of the standard concentrations. Must have one of:
     //
     //     <standardConc model="unity" />
@@ -307,26 +251,12 @@ void IdealSolnGasVPSS::initThermoXML(XML_Node& phaseNode, const std::string& id_
     if (phaseNode.hasChild("standardConc")) {
         XML_Node& scNode = phaseNode.child("standardConc");
         setStandardConcentrationModel(scNode.attrib("model"));
-    } else if (!m_idealGas) {
+    } else {
         throw CanteraError("IdealSolnGasVPSS::initThermoXML",
                            "Unspecified standardConc model");
     }
 
     VPStandardStateTP::initThermoXML(phaseNode, id_);
-}
-
-void IdealSolnGasVPSS::setParametersFromXML(const XML_Node& thermoNode)
-{
-    VPStandardStateTP::setParametersFromXML(thermoNode);
-    std::string model = thermoNode["model"];
-    if (model == "IdealGasVPSS") {
-        setGasMode();
-    } else if (model == "IdealSolnVPSS") {
-        setSolnMode();
-    } else {
-        throw CanteraError("IdealSolnGasVPSS::setParametersFromXML",
-                           "Unknown thermo model : " + model);
-    }
 }
 
 }

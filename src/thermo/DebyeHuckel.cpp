@@ -115,30 +115,6 @@ void DebyeHuckel::calcDensity()
     Phase::assignDensity(dd);
 }
 
-void DebyeHuckel::setDensity(doublereal rho)
-{
-    warn_deprecated("DebyeHuckel::setDensity",
-        "Overloaded function to be removed after Cantera 2.5. "
-        "Error will be thrown by Phase::setDensity instead");
-    double dens = density();
-    if (rho != dens) {
-        throw CanteraError("DebyeHuckel::setDensity",
-                           "Density is not an independent variable");
-    }
-}
-
-void DebyeHuckel::setMolarDensity(const doublereal conc)
-{
-    warn_deprecated("DebyeHuckel::setMolarDensity",
-        "Overloaded function to be removed after Cantera 2.5. "
-        "Error will be thrown by Phase::setMolarDensity instead");
-    double concI = molarDensity();
-    if (conc != concI) {
-        throw CanteraError("DebyeHuckel::setMolarDensity",
-                           "molarDensity/density is not an independent variable");
-    }
-}
-
 // ------- Activities and Activity Concentrations
 
 void DebyeHuckel::getActivityConcentrations(doublereal* c) const

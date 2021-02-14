@@ -11,7 +11,6 @@ namespace Cantera
 {
 
 MassFlowController::MassFlowController() : FlowDevice() {
-    m_type = MFC_Type;
 }
 
 void MassFlowController::setMassFlowRate(double mdot)
@@ -36,7 +35,6 @@ void MassFlowController::updateMassFlowRate(double time)
 }
 
 PressureController::PressureController() : FlowDevice(), m_master(0) {
-    m_type = PressureController_Type;
 }
 
 void PressureController::updateMassFlowRate(double time)
@@ -58,7 +56,6 @@ void PressureController::updateMassFlowRate(double time)
 }
 
 Valve::Valve() : FlowDevice() {
-    m_type = Valve_Type;
 }
 
 void Valve::updateMassFlowRate(double time)

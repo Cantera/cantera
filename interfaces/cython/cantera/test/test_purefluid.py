@@ -82,12 +82,6 @@ class TestPureFluid(utilities.CanteraTest):
         with self.assertRaises(ValueError):
             self.water.Q = 0.3
 
-    def test_X_deprecated(self):
-        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
-            X = self.water.X
-        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
-            self.water.TX = 300, 1
-
     def test_set_minmax(self):
         self.water.TP = self.water.min_temp, 101325
         self.assertNear(self.water.T, self.water.min_temp)
@@ -305,37 +299,6 @@ class TestPureFluid(utilities.CanteraTest):
             self.water.TPQ = 500, 1e5, 0  # vapor fraction should be 1 (T < Tc)
         with self.assertRaisesRegex(ct.CanteraError, 'inconsistent'):
             self.water.TPQ = 700, 1e5, 0  # vapor fraction should be 1 (T > Tc)
-
-    def test_deprecated_X(self):
-
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'TQ'"):
-            self.water.TX = 400, 0.8
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'Q'"):
-            X = self.water.X
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'Q'"):
-            self.water.X = X
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'TPQ'"):
-            T, P, X = self.water.TPX
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'TPQ'"):
-            self.water.TPX = T, P, X
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'TQ'"):
-            T, X = self.water.TX
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'TQ'"):
-            self.water.TX = T, X
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'PQ'"):
-            P, X = self.water.PX
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'PQ'"):
-            self.water.PX = P, X
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'TDQ'"):
-            T, D, X = self.water.TDX
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'UVQ'"):
-            U, V, X = self.water.UVX
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'HPQ'"):
-            H, P, X = self.water.HPX
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'SPQ'"):
-            S, P, X = self.water.SPX
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'SVQ'"):
-            S, V, X = self.water.SVX
 
     def test_phase_of_matter(self):
         self.water.TP = 300, 101325

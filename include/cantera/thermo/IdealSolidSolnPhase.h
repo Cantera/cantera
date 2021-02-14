@@ -213,34 +213,6 @@ public:
      */
     void calcDensity();
 
-    /**
-     * Overridden setDensity() function is necessary because the density is not
-     * an independent variable.
-     *
-     * This function will now throw an error condition
-     *
-     * @internal May have to adjust the strategy here to make the eos for these
-     *     materials slightly compressible, in order to create a condition where
-     *     the density is a function of the pressure.
-     *
-     * @param rho  Input density
-     * @deprecated Functionality merged with base function after Cantera 2.5.
-     *             (superseded by isCompressible check in Phase::setDensity)
-     */
-    virtual void setDensity(const doublereal rho);
-
-    /**
-     * Overridden setMolarDensity() function is necessary because the density
-     * is not an independent variable.
-     *
-     * This function will now throw an error condition.
-     *
-     * @param rho   Input Density
-     * @deprecated Functionality merged with base function after Cantera 2.5.
-     *             (superseded by isCompressible check in Phase::setDensity)
-     */
-    virtual void setMolarDensity(const doublereal rho);
-
     //@}
 
     /**
@@ -574,21 +546,6 @@ public:
         return m_cp0_R;
     }
 
-    //! @deprecated To be removed after Cantera 2.5
-    virtual void setPotentialEnergy(int k, doublereal pe) {
-        warn_deprecated("IdealSolidSolnPhase::setPotentialEnergy",
-            "To be removed after Cantera 2.5");
-        m_pe[k] = pe;
-        _updateThermo();
-    }
-
-    //! @deprecated To be removed after Cantera 2.5
-    virtual doublereal potentialEnergy(int k) const {
-        warn_deprecated("IdealSolidSolnPhase::potentialEnergy",
-            "To be removed after Cantera 2.5");
-        return m_pe[k];
-    }
-
     //@}
     /// @name Utility Functions
     //@{
@@ -684,10 +641,6 @@ protected:
     //! Vector containing the species reference exp(-G/RT) functions at
     //! T = m_tlast
     mutable vector_fp m_expg0_RT;
-
-    //! Vector of potential energies for the species.
-    //! @deprecated To be removed after Cantera 2.5
-    mutable vector_fp m_pe;
 
     //! Temporary array used in equilibrium calculations
     mutable vector_fp m_pp;

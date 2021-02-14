@@ -152,8 +152,6 @@ public:
     virtual void setPressure(doublereal pres);
     virtual void setTemperature(doublereal temp);
     virtual void setState_TP(doublereal temp, doublereal pres);
-    //! @deprecated To be removed after Cantera 2.5.
-    virtual void setState_TR(doublereal temp, doublereal rho);
 
     //! @}
     //! @name Miscellaneous properties of the standard state

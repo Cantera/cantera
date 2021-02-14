@@ -25,12 +25,6 @@ if nargin == 0
     typ = 'MassFlowController';
 end
 
-if isa(typ, 'double')
-    warning('Definition via integer type to be deprecated after Cantera 2.5')
-    device_types = {'MassFlowController', 'PressureController', 'Valve'};
-    typ = device_types(typ);
-end
-
 x.type = char(typ);
 x.index = flowdevicemethods(0, x.type);
 if x.index < 0

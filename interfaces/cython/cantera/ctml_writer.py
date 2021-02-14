@@ -2112,49 +2112,6 @@ class metal(phase):
         k['model'] = 'none'
 
 
-class incompressible_solid(phase):
-    """An incompressible solid.
-
-    .. deprecated:: 2.5
-
-        To be deprecated with version 2.5, and removed thereafter.
-        This phase pointed to an ill-considered constant_density ThermoPhase
-        model, which assumed a constant mass density. This underlying phase is
-        simultaneously being deprecated. Please consider switching to
-        either `IdealSolidSolution` or `lattice` phase, instead.
-    """
-    def __init__(self,
-                 name = '',
-                 elements = '',
-                 species = '',
-                 note = '',
-                 density = None,
-                 transport = 'None',
-                 initial_state = None,
-                 options = []):
-
-        phase.__init__(self, name, 3, elements, species, note, 'none',
-                       initial_state, options)
-        self._dens = density
-        self._pure = 0
-        if self._dens is None:
-            raise CTI_Error('density must be specified.')
-        self._tr = transport
-
-    def conc_dim(self):
-        return (1,-3)
-
-    def build(self, p):
-        ph = phase.build(self, p)
-        e = ph.child("thermo")
-        e['model'] = 'Incompressible'
-        addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
-        if self._tr:
-            t = ph.addChild('transport')
-            t['model'] = self._tr
-        k = ph.addChild("kinetics")
-        k['model'] = 'none'
-
 class IdealSolidSolution(phase):
     """An IdealSolidSolution phase."""
     def __init__(self,

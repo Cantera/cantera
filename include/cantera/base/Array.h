@@ -350,18 +350,6 @@ inline void operator*=(Array2D& m, doublereal a)
     scale(m.begin(), m.end(), m.begin(), a);
 }
 
-//! Overload the plus equals operator for addition of one matrix with another
-/*!
- * Adds each element of the second matrix into the first matrix
- *
- * @param x   First matrix
- * @param y   Second matrix, which is a const
- */
-inline void operator+=(Array2D& x, const Array2D& y)
-{
-    sum_each(x.begin(), x.end(), y.begin());
-}
-
 }
 
 #endif
