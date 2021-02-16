@@ -7,10 +7,6 @@
 //! the same name in kinetics/Group.h
 #define FMT_NO_FMT_STRING_ALIAS
 
-//! Use header-only library to avoid relocation issues with linking to the
-//! static libfmt.a
-#define FMT_HEADER_ONLY
-
 //! Versions 6.2.0 and 6.2.1 of fmtlib do not include this define before they
 //! include windows.h, breaking builds on Windows. Fixed in fmtlib 7.0.0 and
 //! newer. https://github.com/fmtlib/fmt/pull/1616

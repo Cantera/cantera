@@ -44,6 +44,10 @@ for subdir, extensions, prepFunction in libs:
 
 if not env['system_fmt']:
     license_files.append(('fmtlib', 'fmt/LICENSE.rst'))
+    localenv = prep_default(env)
+    localenv.Prepend(CPPPATH=Dir('#ext/fmt/include'))
+    libraryTargets.extend(
+        localenv.SharedObject(mglob(localenv, 'fmt/src', 'cc')))
     for name in ('format.h', 'ostream.h', 'printf.h', 'core.h', 'format-inl.h'):
         build(copyenv.Command("#include/cantera/ext/fmt/" + name,
                               "#ext/fmt/include/fmt/" + name,

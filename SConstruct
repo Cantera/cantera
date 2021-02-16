@@ -444,7 +444,12 @@ config_options = [
         'system_fmt',
         """Select whether to use the fmt library from a system installation
            ('y'), from a Git submodule ('n'), or to decide automatically
-           ('default').""",
+           ('default').  If you do not want to use the Git submodule and fmt
+           is not installed directly into system include and library
+           directories, then you will need to add those directories to
+           'extra_inc_dirs' and 'extra_lib_dirs'. This installation of fmt
+           must include the shared version of the library, for example,
+           'libfmt.so'.""",
         'default', ('default', 'y', 'n')),
     EnumVariable(
         'system_yamlcpp',
@@ -866,8 +871,9 @@ if not conf.CheckCXXHeader('cmath', '<>'):
     config_error('The C++ compiler is not correctly configured.')
 
 
-def get_expression_value(includes, expression):
-    s = ['#include ' + i for i in includes]
+def get_expression_value(includes, expression, defines=()):
+    s = ['#define ' + d for d in defines]
+    s.extend('#include ' + i for i in includes)
     s.extend(('#define Q(x) #x',
               '#define QUOTE(x) Q(x)',
               '#include <iostream>',
@@ -909,7 +915,7 @@ if env['system_fmt'] in ('n', 'default'):
                          '    git submodule update --init --recursive ext/fmt\n')
 
 fmt_include = '<fmt/format.h>' if env['system_fmt'] else '"../ext/fmt/include/fmt/format.h"'
-fmt_version_source = get_expression_value([fmt_include], 'FMT_VERSION')
+fmt_version_source = get_expression_value([fmt_include], 'FMT_VERSION', ['FMT_HEADER_ONLY'])
 retcode, fmt_lib_version = conf.TryRun(fmt_version_source, '.cpp')
 try:
     fmt_lib_version = divmod(float(fmt_lib_version.strip()), 10000)
@@ -1664,6 +1670,10 @@ else:
 
 linkLibs.extend(env['sundials_libs'])
 linkSharedLibs.extend(env['sundials_libs'])
+
+if env['system_fmt']:
+    linkLibs.append('fmt')
+    linkSharedLibs.append('fmt')
 
 if env['system_yamlcpp']:
     linkLibs.append('yaml-cpp')
