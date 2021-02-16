@@ -34,7 +34,7 @@ pc_libdirs = []
 pc_incdirs = []
 pc_cflags = list(localenv['CXXFLAGS'])
 
-localenv['mak_corelibs'] = '-lcantera'
+localenv['mak_corelibs'] = ' '.join('-l' + lib for lib in localenv['cantera_libs'])
 
 localenv['mak_extra_includes'] = ' '.join('-I%s' % s for s in localenv['extra_inc_dirs'])
 pc_incdirs.extend(localenv['extra_inc_dirs'])
