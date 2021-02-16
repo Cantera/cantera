@@ -271,7 +271,7 @@ public:
      *
      * This routine normalizes the theta's to 1, before application
      */
-    void setCoverages(const doublereal* theta);
+    virtual void setCoverages(const doublereal* theta);
 
     //! Set the surface site fractions to a specified state.
     /*!
@@ -283,7 +283,7 @@ public:
      * @param theta    This is the surface site fraction for the kth species in
      *                 the surface phase. This is a dimensionless quantity.
      */
-    void setCoveragesNoNorm(const doublereal* theta);
+    virtual void setCoveragesNoNorm(const doublereal* theta);
 
     //! Set the coverages from a string of colon-separated name:value pairs.
     /*!

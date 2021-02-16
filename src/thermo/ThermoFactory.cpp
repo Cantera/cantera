@@ -26,6 +26,7 @@
 #include "cantera/thermo/RedlichKwongMFTP.h"
 #include "cantera/thermo/PengRobinson.h"
 #include "cantera/thermo/SurfPhase.h"
+#include "cantera/thermo/CoverageDependentSurfPhase.h"
 #include "cantera/thermo/EdgePhase.h"
 #include "cantera/thermo/MetalPhase.h"
 #include "cantera/thermo/StoichSubstance.h"
@@ -58,6 +59,7 @@ ThermoFactory::ThermoFactory()
     reg("ideal-surface", []() { return new SurfPhase(); });
     addDeprecatedAlias("ideal-surface", "Surface");
     addDeprecatedAlias("ideal-surface", "Surf");
+    reg("coverage-dependent-surface", []() { return new CoverageDependentSurfPhase(); });
     reg("edge", []() { return new EdgePhase(); });
     addDeprecatedAlias("edge", "Edge");
     reg("electron-cloud", []() { return new MetalPhase(); });
