@@ -25,9 +25,6 @@ namespace Cantera
  */
 extern int vcs_timing_print_lvl;
 
-// Forward references
-class VCS_SPECIES_THERMO;
-
 //! Class to keep track of time and iterations
 /*!
  * class keeps all of the counters together.

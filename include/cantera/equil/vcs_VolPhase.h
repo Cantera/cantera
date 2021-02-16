@@ -17,10 +17,6 @@ namespace Cantera
 
 class ThermoPhase;
 
-//! Models for the standard state volume of each species
-#define VCS_SSVOL_IDEALGAS 0
-#define VCS_SSVOL_CONSTANT 1
-
 /*
  * DEFINITIONS FOR THE vcs_VolPhase structure
  *

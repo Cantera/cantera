@@ -25,6 +25,10 @@ namespace Cantera
 #define VCS_MP_FAIL -6
 //@}
 
+//! Models for the standard state volume of each species
+#define VCS_SSVOL_IDEALGAS 0
+#define VCS_SSVOL_CONSTANT 1
+
 /*!
  * @name  Sizes of Phases and Cutoff Mole Numbers
  *
