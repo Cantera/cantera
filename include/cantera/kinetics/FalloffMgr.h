@@ -9,8 +9,8 @@
 #define CT_FALLOFFMGR_H
 
 #include "reaction_defs.h"
-#include "FalloffFactory.h"
 #include "cantera/base/global.h"
+#include "Falloff.h"
 
 namespace Cantera
 {
@@ -25,8 +25,6 @@ public:
     //! Constructor.
     FalloffMgr() :
         m_worksize(0) {
-        m_factory = FalloffFactory::factory(); // RFB:TODO This raw pointer should be encapsulated
-        // because accessing a 'Singleton Factory'
     }
 
     //! Install a new falloff function calculator.
@@ -94,7 +92,6 @@ public:
 protected:
     std::vector<size_t> m_rxn;
     std::vector<shared_ptr<Falloff> > m_falloff;
-    FalloffFactory* m_factory;
     vector_int m_loc;
     std::vector<vector_fp::difference_type> m_offset;
     size_t m_worksize;
