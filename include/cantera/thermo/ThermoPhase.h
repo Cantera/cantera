@@ -13,7 +13,8 @@
 
 #include "Phase.h"
 #include "MultiSpeciesThermo.h"
-#include "cantera/base/global.h"
+#include "cantera/base/Units.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
@@ -1613,7 +1614,7 @@ public:
      * @internal
      */
     virtual MultiSpeciesThermo& speciesThermo(int k = -1);
-    
+
     virtual const MultiSpeciesThermo& speciesThermo(int k = -1) const;
 
     /**

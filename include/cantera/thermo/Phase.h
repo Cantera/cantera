@@ -10,13 +10,15 @@
 #define CT_PHASE_H
 
 #include "cantera/base/ctexceptions.h"
-#include "cantera/base/Solution.h"
 #include "cantera/thermo/Elements.h"
-#include "cantera/thermo/Species.h"
 #include "cantera/base/ValueCache.h"
 
 namespace Cantera
 {
+
+class Solution;
+class Species;
+class XML_Node;
 
 /**
  * @defgroup phases Models of Phases of Matter
@@ -859,9 +861,7 @@ public:
     }
 
     //! Set root Solution holding all phase information
-    virtual void setRoot(std::shared_ptr<Solution> root) {
-        m_root = root;
-    }
+    virtual void setRoot(std::shared_ptr<Solution> root);
 
     //! Converts a compositionMap to a vector with entries for each species
     //! Species that are not specified are set to zero in the vector

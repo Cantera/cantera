@@ -11,6 +11,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/thermo/SpeciesThermoInterpType.h"
 #include "cantera/equil/ChemEquil.h"
 #include "cantera/equil/MultiPhase.h"
