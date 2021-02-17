@@ -7,6 +7,7 @@
 #define CT_RESERVOIR_H
 
 #include "ReactorBase.h"
+#include "cantera/base/Solution.h"
 
 namespace Cantera
 {

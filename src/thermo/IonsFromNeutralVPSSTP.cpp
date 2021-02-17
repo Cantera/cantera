@@ -16,6 +16,7 @@
 
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/thermo/PDSS_IonsFromNeutral.h"
 #include "cantera/base/stringUtils.h"
 

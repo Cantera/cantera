@@ -10,6 +10,7 @@
 #include "cantera/base/utilities.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/thermo/ThermoFactory.h"
 
 using namespace std;
@@ -997,6 +998,10 @@ void Phase::setMolecularWeight(const int k, const double mw)
 
 void Phase::compositionChanged() {
     m_stateNum++;
+}
+
+void Phase::setRoot(std::shared_ptr<Solution> root) {
+    m_root = root;
 }
 
 vector_fp Phase::getCompositionFromMap(const compositionMap& comp) const

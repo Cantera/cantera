@@ -13,6 +13,7 @@
 
 #include "cantera/thermo/DebyeHuckel.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/PDSS_ConstVol.h"
 #include "cantera/thermo/electrolytes.h"

@@ -9,6 +9,7 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/ReactorSurface.h"
+#include "cantera/base/Solution.h"
 
 #include <boost/math/tools/roots.hpp>
 
@@ -26,6 +27,11 @@ Reactor::Reactor() :
     m_energy(true),
     m_nv(0)
 {}
+
+void Reactor::insert(shared_ptr<Solution> sol) {
+    setThermoMgr(*sol->thermo());
+    setKineticsMgr(*sol->kinetics());
+}
 
 void Reactor::setKineticsMgr(Kinetics& kin)
 {

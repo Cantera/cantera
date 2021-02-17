@@ -13,6 +13,7 @@
 #include "cantera/thermo/PDSS.h"
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/PDSSFactory.h"
 #include "cantera/base/utilities.h"

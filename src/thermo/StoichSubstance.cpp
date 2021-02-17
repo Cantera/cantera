@@ -10,6 +10,7 @@
 
 #include "cantera/thermo/StoichSubstance.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/base/ctml.h"
 
 namespace Cantera

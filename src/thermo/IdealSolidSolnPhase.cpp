@@ -10,6 +10,7 @@
 
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/utilities.h"
