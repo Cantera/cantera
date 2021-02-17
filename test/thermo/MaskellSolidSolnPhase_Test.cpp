@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/MaskellSolidSolnPhase.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/thermo/PDSS_ConstVol.h"
 #include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/base/stringUtils.h"

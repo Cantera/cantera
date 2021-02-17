@@ -11,7 +11,9 @@
 
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/Reaction.h"
+#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/utilities.h"
 #include <unordered_set>
 
 using namespace std;
@@ -267,8 +269,8 @@ void Kinetics::checkReactionBalance(const Reaction& R)
     }
 }
 
-void Kinetics::selectPhase(const doublereal* data, const ThermoPhase* phase,
-                           doublereal* phase_data)
+void Kinetics::selectPhase(const double* data, const ThermoPhase* phase,
+                           double* phase_data)
 {
     for (size_t n = 0; n < nPhases(); n++) {
         if (phase == m_thermo[n]) {
@@ -365,6 +367,28 @@ double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn) const
 {
     return getValue(m_reactions[irxn]->products, kineticsSpeciesName(kSpec),
                     0.0);
+}
+
+int Kinetics::reactionType(size_t i) const {
+    return m_reactions[i]->reaction_type;
+}
+
+
+std::string Kinetics::reactionString(size_t i) const
+{
+    return m_reactions[i]->equation();
+}
+
+//! Returns a string containing the reactants side of the reaction equation.
+std::string Kinetics::reactantString(size_t i) const
+{
+    return m_reactions[i]->reactantString();
+}
+
+//! Returns a string containing the products side of the reaction equation.
+std::string Kinetics::productString(size_t i) const
+{
+    return m_reactions[i]->productString();
 }
 
 void Kinetics::getFwdRatesOfProgress(doublereal* fwdROP)

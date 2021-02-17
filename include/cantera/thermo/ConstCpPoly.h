@@ -12,6 +12,7 @@
 #define CT_CONSTCPPOLY_H
 
 #include "cantera/thermo/SpeciesThermoInterpType.h"
+#include "cantera/thermo/speciesThermoTypes.h"
 
 namespace Cantera
 {

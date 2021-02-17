@@ -590,6 +590,11 @@ void Surf1D::showSolution_s(std::ostream& s, const double* x)
     s << "  temperature: " << m_temp << " K" << std::endl;
 }
 
+void Surf1D::showSolution(const double* x)
+{
+    writelog("    Temperature: {:10.4g} K \n\n", m_temp);
+}
+
 // -------- ReactingSurf1D --------
 
 ReactingSurf1D::ReactingSurf1D()

@@ -13,10 +13,12 @@
 #define CT_VPSTANDARDSTATETP_H
 
 #include "ThermoPhase.h"
-#include "PDSS.h"
 
 namespace Cantera
 {
+
+class PDSS;
+
 /**
  * @ingroup thermoprops
  *
@@ -45,6 +47,8 @@ public:
 
     /// Constructor.
     VPStandardStateTP();
+
+    virtual ~VPStandardStateTP();
 
     //@}
 

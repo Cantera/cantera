@@ -2,9 +2,12 @@
 #include "cantera/kinetics/importKinetics.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/SurfPhase.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/kinetics/GasKinetics.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
+#include "cantera/kinetics/FalloffFactory.h"
 #include "cantera/base/Array.h"
+#include "cantera/base/stringUtils.h"
 
 using namespace Cantera;
 

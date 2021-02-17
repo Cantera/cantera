@@ -13,6 +13,7 @@
 #include "cantera/thermo.h"
 #include "cantera/kinetics.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
+#include <iostream>
 
 using namespace std;
 using namespace Cantera;

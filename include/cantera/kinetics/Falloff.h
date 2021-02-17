@@ -4,8 +4,7 @@
 #ifndef CT_FALLOFF_H
 #define CT_FALLOFF_H
 
-#include "cantera/kinetics/reaction_defs.h"
-#include "cantera/base/global.h"
+#include "cantera/base/ct_defs.h"
 
 namespace Cantera
 {

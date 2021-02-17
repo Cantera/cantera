@@ -9,8 +9,7 @@
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/utilities.h"
-
-#include <cstdio>
+#include "cantera/base/global.h"
 
 namespace Cantera
 {

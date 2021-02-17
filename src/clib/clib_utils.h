@@ -8,7 +8,6 @@
 #ifndef CT_CLIB_UTILS_H
 #define CT_CLIB_UTILS_H
 
-#include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
 #include "../base/application.h"
 #include "cantera/clib/clib_defs.h"

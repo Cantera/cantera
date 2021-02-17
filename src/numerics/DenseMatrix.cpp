@@ -7,6 +7,7 @@
 
 #include "cantera/numerics/DenseMatrix.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 #if CT_USE_LAPACK
     #include "cantera/numerics/ctlapack.h"
 #else

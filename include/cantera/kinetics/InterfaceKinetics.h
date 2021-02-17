@@ -10,7 +10,6 @@
 #define CT_IFACEKINETICS_H
 
 #include "Kinetics.h"
-#include "Reaction.h"
 #include "RateCoeffMgr.h"
 
 namespace Cantera
@@ -19,6 +18,7 @@ namespace Cantera
 // forward declarations
 class SurfPhase;
 class ImplicitSurfChem;
+class InterfaceReaction;
 
 //! A kinetics manager for heterogeneous reaction mechanisms. The reactions are
 //! assumed to occur at a 2D interface between two 3D phases.

@@ -14,8 +14,7 @@
 #include "cantera/tpx/Sub.h"
 #include "cantera/tpx/utils.h"
 #include "cantera/base/stringUtils.h"
-
-#include <cstdio>
+#include "cantera/base/global.h"
 
 using std::string;
 

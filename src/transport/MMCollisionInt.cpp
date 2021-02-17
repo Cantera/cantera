@@ -9,6 +9,7 @@
 #include "cantera/base/utilities.h"
 #include "cantera/numerics/polyfit.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 

@@ -7,6 +7,7 @@
 #include "application.h"
 #include "cantera/base/yaml.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 #ifdef CT_USE_DEMANGLE
   #include <boost/core/demangle.hpp>
 #endif

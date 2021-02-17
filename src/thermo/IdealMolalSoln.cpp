@@ -17,10 +17,9 @@
 
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/PDSS.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
-
-#include <iostream>
 
 namespace Cantera
 {

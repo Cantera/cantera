@@ -8,16 +8,14 @@
 #ifndef CT_CHEM_EQUIL_H
 #define CT_CHEM_EQUIL_H
 
-// Cantera includes
 #include "cantera/base/ct_defs.h"
-#include "cantera/base/ctexceptions.h"
-#include "cantera/thermo/ThermoPhase.h"
 #include <functional>
 
 namespace Cantera
 {
 
 class DenseMatrix;
+class ThermoPhase;
 /// map property strings to integers
 int _equilflag(const char* xy);
 

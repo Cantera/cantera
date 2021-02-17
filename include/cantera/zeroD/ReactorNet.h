@@ -8,11 +8,12 @@
 
 #include "Reactor.h"
 #include "cantera/numerics/FuncEval.h"
-#include "cantera/numerics/Integrator.h"
-#include "cantera/base/Array.h"
 
 namespace Cantera
 {
+
+class Array2D;
+class Integrator;
 
 //! A class representing a network of connected reactors.
 /*!
@@ -24,7 +25,7 @@ class ReactorNet : public FuncEval
 {
 public:
     ReactorNet();
-    virtual ~ReactorNet() {};
+    virtual ~ReactorNet();
     ReactorNet(const ReactorNet&) = delete;
     ReactorNet& operator=(const ReactorNet&) = delete;
 
@@ -234,16 +235,12 @@ public:
     //! integrator will take before reaching the next output time
     //! @param nmax The maximum number of steps, setting this value
     //!             to zero disables this option.
-    virtual void setMaxSteps(int nmax) {
-        m_integ->setMaxSteps(nmax);
-    }
+    virtual void setMaxSteps(int nmax);
 
     //! Returns the maximum number of internal integration time-steps the
     //!  integrator will take before reaching the next output time
     //!
-    virtual int maxSteps() {
-        return m_integ->maxSteps();
-    }
+    virtual int maxSteps();
 
     //! Set absolute step size limits during advance
     void setAdvanceLimits(const double* limits);
@@ -264,9 +261,7 @@ protected:
     //! Returns the order used for last solution step of the ODE integrator
     //! The function is intended for internal use by ReactorNet::advance
     //! and deliberately not exposed in external interfaces.
-    virtual int lastOrder() {
-        return m_integ->lastOrder();
-    }
+    virtual int lastOrder();
 
     std::vector<Reactor*> m_reactors;
     std::unique_ptr<Integrator> m_integ;

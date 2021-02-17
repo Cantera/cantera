@@ -3,7 +3,6 @@
 
 // commonly-included system headers
 #include <cmath>
-#include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <sstream>

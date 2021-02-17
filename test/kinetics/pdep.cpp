@@ -2,6 +2,7 @@
 #include "cantera/kinetics/importKinetics.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/kinetics/GasKinetics.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {

@@ -4,6 +4,7 @@
  */
 
 #include "cantera/thermo/StoichSubstance.h"
+#include "cantera/base/global.h"
 #include "TemperatureTable.h"
 #include <iostream>
 

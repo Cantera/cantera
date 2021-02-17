@@ -9,6 +9,7 @@
 
 #include "cantera/thermo.h"
 #include "cantera/transport.h"
+#include "cantera/base/Solution.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/plots.h"
 

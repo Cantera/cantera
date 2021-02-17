@@ -34,14 +34,7 @@ public:
                          doublereal* ydot, doublereal* params);
     virtual void updateState(doublereal* y);
 
-    void setMassFlowRate(doublereal mdot) {
-        m_rho0 = m_thermo->density();
-        m_speed = mdot/m_rho0;
-        m_speed0 = m_speed;
-        m_T = m_thermo->temperature();
-        m_P0 = m_thermo->pressure() + m_rho0*m_speed*m_speed;
-        m_h0 = m_thermo->enthalpy_mass() + 0.5*m_speed*m_speed;
-    }
+    void setMassFlowRate(double mdot);
 
     void setTimeConstant(doublereal tau) {
         m_fctr = 1.0/tau;

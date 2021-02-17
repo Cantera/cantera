@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/PDSSFactory.h"
 #include "cantera/thermo/PDSS_ConstVol.h"

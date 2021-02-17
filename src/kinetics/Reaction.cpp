@@ -8,9 +8,12 @@
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/kinetics/FalloffFactory.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/AnyMap.h"
+#include "cantera/base/utilities.h"
+#include "cantera/base/stringUtils.h"
 #include <sstream>
 #include <set>
 
@@ -131,6 +134,11 @@ void ElementaryReaction::validate()
 ThirdBody::ThirdBody(double default_eff)
     : default_efficiency(default_eff)
 {
+}
+
+double ThirdBody::efficiency(const std::string& k) const
+{
+    return getValue(efficiencies, k, default_efficiency);
 }
 
 ThreeBodyReaction::ThreeBodyReaction()

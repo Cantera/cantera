@@ -11,13 +11,15 @@
 #ifndef CT_KINETICS_H
 #define CT_KINETICS_H
 
-#include "cantera/thermo/ThermoPhase.h"
 #include "StoichManager.h"
-#include "cantera/kinetics/Reaction.h"
-#include "cantera/base/global.h"
+#include "cantera/base/ValueCache.h"
 
 namespace Cantera
 {
+
+class ThermoPhase;
+class Reaction;
+class Solution;
 
 /**
  * @defgroup chemkinetics Chemical Kinetics
@@ -600,9 +602,7 @@ public:
      *
      * @param i   reaction index
      */
-    virtual int reactionType(size_t i) const {
-        return m_reactions[i]->reaction_type;
-    }
+    virtual int reactionType(size_t i) const;
 
     /**
      * True if reaction i has been declared to be reversible. If isReversible(i)
@@ -620,19 +620,13 @@ public:
      *
      * @param i   reaction index
      */
-    std::string reactionString(size_t i) const {
-        return m_reactions[i]->equation();
-    }
+    std::string reactionString(size_t i) const;
 
     //! Returns a string containing the reactants side of the reaction equation.
-    std::string reactantString(size_t i) const {
-        return m_reactions[i]->reactantString();
-    }
+    std::string reactantString(size_t i) const;
 
     //! Returns a string containing the products side of the reaction equation.
-    std::string productString(size_t i) const {
-        return m_reactions[i]->productString();
-    }
+    std::string productString(size_t i) const;
 
     /**
      * Return the forward rate constants
@@ -811,8 +805,8 @@ public:
      * @param phase_data Output array where the values for the the specified
      *     phase are to be written.
      */
-    void selectPhase(const doublereal* data, const ThermoPhase* phase,
-                     doublereal* phase_data);
+    void selectPhase(const double* data, const ThermoPhase* phase,
+                     double* phase_data);
 
     //! Set root Solution holding all phase information
     virtual void setRoot(std::shared_ptr<Solution> root) {

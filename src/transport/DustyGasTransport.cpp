@@ -7,7 +7,9 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/transport/DustyGasTransport.h"
+#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/utilities.h"
 
 using namespace std;
 

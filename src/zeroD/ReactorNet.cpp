@@ -6,8 +6,9 @@
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/Wall.h"
-
-#include <cstdio>
+#include "cantera/base/utilities.h"
+#include "cantera/base/Array.h"
+#include "cantera/numerics/Integrator.h"
 
 using namespace std;
 
@@ -28,6 +29,10 @@ ReactorNet::ReactorNet() :
     // numerically, and use a Newton linear iterator
     m_integ->setMethod(BDF_Method);
     m_integ->setProblemType(DENSE + NOJAC);
+}
+
+ReactorNet::~ReactorNet()
+{
 }
 
 void ReactorNet::setInitialTime(double time)
@@ -123,6 +128,16 @@ void ReactorNet::reinitialize()
     } else {
         initialize();
     }
+}
+
+void ReactorNet::setMaxSteps(int nmax)
+{
+    m_integ->setMaxSteps(nmax);
+}
+
+int ReactorNet::maxSteps()
+{
+    return m_integ->maxSteps();
 }
 
 void ReactorNet::advance(doublereal time)
@@ -222,6 +237,11 @@ void ReactorNet::getEstimate(double time, int k, double* yest)
             yest[j] += factor * cvode_dky[j];
         }
     }
+}
+
+int ReactorNet::lastOrder()
+{
+    return m_integ->lastOrder();
 }
 
 void ReactorNet::addReactor(Reactor& r)

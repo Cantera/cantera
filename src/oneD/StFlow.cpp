@@ -4,9 +4,11 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/oneD/StFlow.h"
+#include "cantera/oneD/refine.h"
 #include "cantera/base/ctml.h"
 #include "cantera/transport/TransportBase.h"
 #include "cantera/numerics/funcs.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 

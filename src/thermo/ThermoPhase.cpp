@@ -19,6 +19,7 @@
 
 #include <iomanip>
 #include <fstream>
+#include <numeric>
 
 using namespace std;
 

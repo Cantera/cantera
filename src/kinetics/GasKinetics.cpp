@@ -6,6 +6,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/GasKinetics.h"
+#include "cantera/thermo/ThermoPhase.h"
 
 using namespace std;
 

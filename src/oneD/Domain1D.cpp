@@ -7,6 +7,7 @@
 
 #include "cantera/oneD/Domain1D.h"
 #include "cantera/oneD/MultiJac.h"
+#include "cantera/oneD/refine.h"
 #include "cantera/base/ctml.h"
 
 using namespace std;
@@ -28,6 +29,10 @@ Domain1D::Domain1D(size_t nv, size_t points, double time) :
     m_force_full_update(false)
 {
     resize(nv, points);
+}
+
+Domain1D::~Domain1D()
+{
 }
 
 void Domain1D::resize(size_t nv, size_t np)

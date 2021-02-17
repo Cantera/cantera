@@ -19,12 +19,11 @@
 
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/utilities.h"
+#include "cantera/base/global.h"
 
 #include <boost/algorithm/string.hpp>
 #include <sstream>
-#include <cstdio>
 
 namespace ba = boost::algorithm;
 

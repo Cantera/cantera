@@ -1,6 +1,7 @@
 // An open Rankine cycle
 
 #include "cantera/thermo/PureFluidPhase.h"
+#include "cantera/base/global.h"
 
 using namespace Cantera;
 

@@ -18,9 +18,6 @@
 #define CT_UTILITIES_H
 
 #include "ct_defs.h"
-#include "global.h"
-#include <stdexcept>
-
 #include <numeric>
 
 namespace Cantera

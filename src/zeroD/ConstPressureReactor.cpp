@@ -6,6 +6,7 @@
 #include "cantera/zeroD/ConstPressureReactor.h"
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/Wall.h"
+#include "cantera/kinetics/Kinetics.h"
 #include "cantera/thermo/SurfPhase.h"
 
 using namespace std;

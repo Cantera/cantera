@@ -9,6 +9,7 @@
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
+#include "cantera/base/Solution.h"
 
 #include <iostream>
 

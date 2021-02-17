@@ -9,6 +9,7 @@
 #include "cantera/transport/MultiTransport.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/utilities.h"
 
 using namespace std;
 
@@ -104,6 +105,11 @@ void MultiTransport::getThermalDiffCoeffs(doublereal* const dt)
     for (size_t k = 0; k < m_nsp; k++) {
         dt[k] = c * m_mw[k] * m_molefracs[k] * m_a[k];
     }
+}
+
+double MultiTransport::pressure_ig()
+{
+    return m_thermo->molarDensity() * GasConstant * m_thermo->temperature();
 }
 
 void MultiTransport::solveLMatrixEquation()

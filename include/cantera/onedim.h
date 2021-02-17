@@ -15,5 +15,6 @@
 #include "oneD/Domain1D.h"
 #include "oneD/Boundary1D.h"
 #include "oneD/StFlow.h"
+#include "oneD/refine.h"
 
 #endif

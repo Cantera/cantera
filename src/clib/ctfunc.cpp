@@ -9,7 +9,9 @@
 #include "cantera/clib/ctfunc.h"
 
 #include "cantera/numerics/Func1.h"
+#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/stringUtils.h"
 
 #include "Cabinet.h"
 

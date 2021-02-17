@@ -7,6 +7,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/transport/TransportBase.h"
+#include "cantera/thermo/ThermoPhase.h"
 
 using namespace std;
 
@@ -75,6 +76,11 @@ void Transport::setThermo(ThermoPhase& thermo)
         }
         m_thermo = &thermo;
     }
+}
+
+void Transport::setRoot(std::shared_ptr<Solution> root)
+{
+    m_root = root;
 }
 
 void Transport::finalize()

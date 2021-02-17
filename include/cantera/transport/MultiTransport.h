@@ -188,9 +188,7 @@ protected:
     void eval_L0101(const doublereal* x);
     bool hasInternalModes(size_t j);
 
-    doublereal pressure_ig() {
-        return m_thermo->molarDensity() * GasConstant * m_thermo->temperature();
-    }
+    double pressure_ig();
 
     virtual void solveLMatrixEquation();
     DenseMatrix incl;
