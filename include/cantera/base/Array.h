@@ -8,10 +8,8 @@
 #ifndef CT_ARRAY_H
 #define CT_ARRAY_H
 
-#include "utilities.h"
-
+#include "ct_defs.h"
 #include <iostream>
-#include <cstring>
 
 namespace Cantera
 {
@@ -48,11 +46,7 @@ public:
     /**
      * Default constructor. Create an empty array.
      */
-    Array2D() :
-        m_data(0),
-        m_nrows(0),
-        m_ncols(0) {
-    }
+    Array2D();
 
     //! Constructor.
     /*!
@@ -62,10 +56,7 @@ public:
      * @param n   Number of columns
      * @param v   Default fill value. The default is 0.0
      */
-    Array2D(const size_t m, const size_t n, const doublereal v = 0.0)
-        :  m_data(0), m_nrows(m), m_ncols(n) {
-        m_data.assign(n*m, v);
-    }
+    Array2D(const size_t m, const size_t n, const double v=0.0);
 
     //! Constructor.
     /*!
@@ -77,31 +68,13 @@ public:
      * @param values Initial values of the array. Must be of length m*n, and
      *     stored in column-major order.
      */
-    Array2D(const size_t m, const size_t n, const doublereal* values)
-        :  m_data(0), m_nrows(m), m_ncols(n) {
-        m_data.assign(values, values + n*m);
-    }
+    Array2D(const size_t m, const size_t n, const double* values);
 
-    Array2D(const Array2D& y) :
-        m_data(0),
-        m_nrows(0),
-        m_ncols(0) {
-        m_nrows = y.m_nrows;
-        m_ncols = y.m_ncols;
-        m_data = y.m_data;
-    }
+    Array2D(const Array2D& y);
 
     virtual ~Array2D() {}
 
-    Array2D& operator=(const Array2D& y) {
-        if (&y == this) {
-            return *this;
-        }
-        m_nrows = y.m_nrows;
-        m_ncols = y.m_ncols;
-        m_data = y.m_data;
-        return *this;
-    }
+    Array2D& operator=(const Array2D& y);
 
     //! Resize the array, and fill the new entries with 'v'
     /*!
@@ -109,11 +82,7 @@ public:
      * @param m  This is the number of columns in the new matrix
      * @param v  Default fill value -> defaults to zero.
      */
-    void resize(size_t n, size_t m, doublereal v = 0.0) {
-        m_nrows = n;
-        m_ncols = m;
-        m_data.resize(n*m, v);
-    }
+    void resize(size_t n, size_t m, double v=0.0);
 
     //! Append a column to the existing matrix using a std vector
     /*!
@@ -122,13 +91,7 @@ public:
      * @param c  This vector is the entries in the column to be added. It must
      *           have a length equal to m_nrows or greater.
      */
-    void appendColumn(const vector_fp& c) {
-        m_ncols++;
-        m_data.resize(m_nrows*m_ncols);
-        for (size_t m = 0; m < m_nrows; m++) {
-            value(m_ncols, m) = c[m];
-        }
-    }
+    void appendColumn(const vector_fp& c);
 
     //! Append a column to the existing matrix
     /*!
@@ -137,24 +100,14 @@ public:
      * @param c  This vector of doubles is the entries in the column to be
      *           added. It must have a length equal to m_nrows or greater.
      */
-    void appendColumn(const doublereal* const c) {
-        m_ncols++;
-        m_data.resize(m_nrows*m_ncols);
-        for (size_t m = 0; m < m_nrows; m++) {
-            value(m_ncols, m) = c[m];
-        }
-    }
+    void appendColumn(const double* const c);
 
     //! Set the nth row to array rw
     /*!
      * @param  n   Index of the row to be changed
      * @param  rw  Vector for the row. Must have a length of m_ncols.
      */
-    void setRow(size_t n, const doublereal* const rw) {
-        for (size_t j = 0; j < m_ncols; j++) {
-            m_data[m_nrows*j + n] = rw[j];
-        }
-    }
+    void setRow(size_t n, const double* const rw);
 
     //! Get the nth row and return it in a vector
     /*!
@@ -162,11 +115,7 @@ public:
      * @param rw   Return Vector for the operation. Must have a length of
      *             m_ncols.
      */
-    void getRow(size_t n, doublereal* const rw) {
-        for (size_t j = 0; j < m_ncols; j++) {
-            rw[j] = m_data[m_nrows*j + n];
-        }
-    }
+    void getRow(size_t n, double* const rw);
 
     //! Set the values in column m to those in array col
     /*!
@@ -175,11 +124,7 @@ public:
      * @param m   Column to set
      * @param col pointer to a col vector. Vector must have a length of m_nrows.
      */
-    void setColumn(size_t m, doublereal* const col) {
-        for (size_t i = 0; i < m_nrows; i++) {
-            m_data[m_nrows*m + i] = col[i];
-        }
-    }
+    void setColumn(size_t m, double* const col);
 
     //! Get the values in column m
     /*!
@@ -188,11 +133,7 @@ public:
      * @param m    Column to set
      * @param col  pointer to a col vector that will be returned
      */
-    void getColumn(size_t m, doublereal* const col) {
-        for (size_t i = 0; i < m_nrows; i++) {
-            col[i] = m_data[m_nrows*m + i];
-        }
-    }
+    void getColumn(size_t m, double* const col);
 
     //! Set all of the entries to zero
     void zero() {
@@ -323,19 +264,7 @@ protected:
  * @param m   Object of type Array2D that you are querying
  * @returns a reference to the ostream.
  */
-inline std::ostream& operator<<(std::ostream& s, const Array2D& m)
-{
-    size_t nr = m.nRows();
-    size_t nc = m.nColumns();
-    for (size_t i = 0; i < nr; i++) {
-        s << m(i,0);
-        for (size_t j = 1; j < nc; j++) {
-            s << ", " << m(i,j);
-        }
-        s << std::endl;
-    }
-    return s;
-}
+std::ostream& operator<<(std::ostream& s, const Array2D& m);
 
 //! Overload the times equals operator for multiplication of a matrix and a
 //! scalar.
@@ -345,10 +274,7 @@ inline std::ostream& operator<<(std::ostream& s, const Array2D& m)
  * @param m   Matrix
  * @param a   scalar
  */
-inline void operator*=(Array2D& m, doublereal a)
-{
-    scale(m.begin(), m.end(), m.begin(), a);
-}
+void operator*=(Array2D& m, double a);
 
 }
 
