@@ -25,6 +25,15 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(int formGC) :
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm)
 {
+    if (formGC == -1) {
+        formGC = 0;
+    } else {
+        warn_deprecated("IdealSolidSolnPhase(int formGC)",
+            "The formGC constructor argument is deprecated and will be removed"
+            " after Cantera 2.6. Use the setStandardConcentrationModel"
+            " method instead.");
+    }
+    m_formGC = formGC;
     if (formGC < 0 || formGC > 2) {
         throw CanteraError("IdealSolidSolnPhase::IdealSolidSolnPhase",
                            "Illegal value of formGC");
@@ -37,6 +46,15 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(const std::string& inputFile,
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm)
 {
+    if (formGC == -1) {
+        formGC = 0;
+    } else {
+        warn_deprecated("IdealSolidSolnPhase(string inputFile, string id_, int formGC)",
+            "The formGC constructor argument is deprecated and will be removed"
+            " after Cantera 2.6. Use the setStandardConcentrationModel"
+            " method instead.");
+    }
+    m_formGC = formGC;
     if (formGC < 0 || formGC > 2) {
         throw CanteraError("IdealSolidSolnPhase::IdealSolidSolnPhase",
                            "Illegal value of formGC");
@@ -50,6 +68,15 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, const std::string& id_,
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm)
 {
+    if (formGC == -1) {
+        formGC = 0;
+    } else {
+        warn_deprecated("IdealSolidSolnPhase(XML_Node root, string id_, int formGC)",
+            "The formGC constructor argument is deprecated and will be removed"
+            " after Cantera 2.6. Use the setStandardConcentrationModel"
+            " method instead.");
+    }
+    m_formGC = formGC;
     if (formGC < 0 || formGC > 2) {
         throw CanteraError("IdealSolidSolnPhase::IdealSolidSolnPhase",
                            "Illegal value of formGC");
