@@ -2,6 +2,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/base/Solution.h"
 
 #include <iostream>
 

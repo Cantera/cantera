@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/NasaPoly1.h"
 #include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {

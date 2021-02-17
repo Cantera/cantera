@@ -152,12 +152,6 @@ public:
     virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
 
 protected:
-    //! Calculate the pressure from the ideal gas law
-    doublereal pressure_ig() const {
-        return (m_thermo->molarDensity() * GasConstant *
-                m_thermo->temperature());
-    }
-
     //! Update the temperature dependent parts of the species thermal
     //! conductivities
     /*!

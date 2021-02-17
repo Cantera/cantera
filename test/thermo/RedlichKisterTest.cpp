@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/RedlichKisterVPSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/PDSS_IdealGas.h"

@@ -8,7 +8,10 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/numerics/polyfit.h"
 #include "cantera/transport/TransportData.h"
+#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/Species.h"
+#include "cantera/base/utilities.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {

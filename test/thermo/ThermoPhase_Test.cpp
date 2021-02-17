@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/ThermoFactory.h"
-#include <vector>
+#include "cantera/base/Solution.h"
 
 namespace Cantera
 {

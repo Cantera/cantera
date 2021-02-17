@@ -11,10 +11,11 @@
 #define CT_MULTIPHASE_H
 
 #include "cantera/numerics/DenseMatrix.h"
-#include "cantera/thermo/ThermoPhase.h"
 
 namespace Cantera
 {
+
+class ThermoPhase;
 
 //! @defgroup equilfunctions
 
@@ -666,21 +667,7 @@ private:
  *  @param x  Reference to a MultiPhase
  *  @returns a reference to the ostream
  */
-inline std::ostream& operator<<(std::ostream& s, MultiPhase& x)
-{
-    x.updatePhases();
-    for (size_t ip = 0; ip < x.nPhases(); ip++) {
-        if (x.phase(ip).name() != "") {
-            s << "*************** " << x.phase(ip).name() << " *****************" << std::endl;
-        } else {
-            s << "*************** Phase " << ip << " *****************" << std::endl;
-        }
-        s << "Moles: " << x.phaseMoles(ip) << std::endl;
-
-        s << x.phase(ip).report() << std::endl;
-    }
-    return s;
-}
+std::ostream& operator<<(std::ostream& s, MultiPhase& x);
 
 //! Choose the optimum basis of species for the equilibrium calculations.
 /*!

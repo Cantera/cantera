@@ -9,6 +9,7 @@
 
 #include "cantera/zerodim.h"
 #include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/numerics/Integrator.h"
 #include "example_utils.h"
 
 using namespace Cantera;

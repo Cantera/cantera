@@ -3,6 +3,7 @@
 
 #include "cantera/kinetics/BulkKinetics.h"
 #include "cantera/kinetics/Reaction.h"
+#include "cantera/thermo/ThermoPhase.h"
 
 namespace Cantera
 {

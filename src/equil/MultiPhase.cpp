@@ -11,7 +11,9 @@
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/equil/MultiPhaseEquil.h"
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
+#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/utilities.h"
 
 using namespace std;
 
@@ -834,4 +836,21 @@ void MultiPhase::updatePhases() const
         }
     }
 }
+
+std::ostream& operator<<(std::ostream& s, MultiPhase& x)
+{
+    x.updatePhases();
+    for (size_t ip = 0; ip < x.nPhases(); ip++) {
+        if (x.phase(ip).name() != "") {
+            s << "*************** " << x.phase(ip).name() << " *****************" << std::endl;
+        } else {
+            s << "*************** Phase " << ip << " *****************" << std::endl;
+        }
+        s << "Moles: " << x.phaseMoles(ip) << std::endl;
+
+        s << x.phase(ip).report() << std::endl;
+    }
+    return s;
+}
+
 }

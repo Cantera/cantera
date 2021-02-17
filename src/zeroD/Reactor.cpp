@@ -9,6 +9,7 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/ReactorSurface.h"
+#include "cantera/kinetics/Kinetics.h"
 #include "cantera/base/Solution.h"
 
 #include <boost/math/tools/roots.hpp>

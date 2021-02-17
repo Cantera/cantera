@@ -8,6 +8,7 @@
 
 #include "cantera/kinetics/ReactionPath.h"
 #include "cantera/kinetics/reaction_defs.h"
+#include "cantera/thermo/ThermoPhase.h"
 
 using namespace std;
 

@@ -4,8 +4,11 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/transport/IonGasTransport.h"
+#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/numerics/polyfit.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/utilities.h"
+#include "cantera/base/global.h"
 #include "MMCollisionInt.h"
 
 namespace Cantera

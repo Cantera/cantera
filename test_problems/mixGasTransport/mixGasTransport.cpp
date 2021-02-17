@@ -22,6 +22,7 @@
 
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/transport/MixTransport.h"
+#include "cantera/base/Solution.h"
 
 #include <iostream>
 

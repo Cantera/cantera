@@ -5,10 +5,12 @@
 
 #include "cantera/oneD/IonFlow.h"
 #include "cantera/oneD/StFlow.h"
+#include "cantera/oneD/refine.h"
 #include "cantera/base/ctml.h"
 #include "cantera/transport/TransportBase.h"
 #include "cantera/numerics/funcs.h"
 #include "cantera/numerics/polyfit.h"
+#include "cantera/base/utilities.h"
 
 using namespace std;
 

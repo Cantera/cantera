@@ -12,9 +12,10 @@
 // to include core headers directly, use the format "cantera/module/*.h".
 
 #include "cantera/thermo/IdealGasPhase.h" // defines class IdealGasPhase
+#include "cantera/base/Solution.h"
 #include "cantera/kinetics/GasKinetics.h"
 #include "cantera/transport.h" // transport properties
-#include <cstdio>
+#include <iostream>
 
 // All Cantera kernel names are in namespace Cantera. You can either
 // reference everything as Cantera::<name>, or include the following

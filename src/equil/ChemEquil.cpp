@@ -10,10 +10,11 @@
 #include "cantera/equil/ChemEquil.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/equil/MultiPhaseEquil.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/base/utilities.h"
+#include "cantera/base/global.h"
 
 using namespace std;
-
-#include <cstdio>
 
 namespace Cantera
 {
@@ -1311,7 +1312,7 @@ int ChemEquil::estimateEP_Brinkley(ThermoPhase& s, vector_fp& x,
 }
 
 
-void ChemEquil::adjustEloc(thermo_t& s, vector_fp& elMolesGoal)
+void ChemEquil::adjustEloc(ThermoPhase& s, vector_fp& elMolesGoal)
 {
     if (m_eloc == npos) {
         return;

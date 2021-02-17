@@ -7,8 +7,8 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/Elements.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ctexceptions.h"
 
 using namespace std;
 

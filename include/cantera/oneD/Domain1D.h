@@ -6,10 +6,7 @@
 #ifndef CT_DOMAIN1D_H
 #define CT_DOMAIN1D_H
 
-#include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
-#include "cantera/base/global.h"
-#include "refine.h"
 
 namespace Cantera
 {
@@ -29,6 +26,7 @@ const int cPorousType = 109;
 
 class MultiJac;
 class OneDim;
+class Refiner;
 class XML_Node;
 
 /**
@@ -46,7 +44,7 @@ public:
      */
     Domain1D(size_t nv=1, size_t points=1, double time=0.0);
 
-    virtual ~Domain1D() {}
+    virtual ~Domain1D();
     Domain1D(const Domain1D&) = delete;
     Domain1D& operator=(const Domain1D&) = delete;
 

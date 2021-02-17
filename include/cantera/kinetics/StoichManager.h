@@ -8,7 +8,6 @@
 #ifndef CT_STOICH_MGR_H
 #define CT_STOICH_MGR_H
 
-#include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 
 namespace Cantera

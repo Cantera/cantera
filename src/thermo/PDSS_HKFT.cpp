@@ -14,6 +14,7 @@
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 

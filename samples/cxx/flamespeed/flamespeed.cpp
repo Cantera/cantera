@@ -9,6 +9,8 @@
 #include "cantera/oneD/StFlow.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/transport.h"
+#include "cantera/base/Solution.h"
+#include "cantera/base/stringUtils.h"
 #include <fstream>
 
 using namespace Cantera;

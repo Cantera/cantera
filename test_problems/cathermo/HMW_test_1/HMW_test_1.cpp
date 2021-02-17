@@ -1,4 +1,5 @@
 #include "cantera/thermo/HMWSoln.h"
+#include "cantera/base/global.h"
 
 #include <cstdio>
 

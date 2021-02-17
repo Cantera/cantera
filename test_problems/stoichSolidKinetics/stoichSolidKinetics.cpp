@@ -4,6 +4,7 @@
 
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 using namespace Cantera;
 using namespace std;

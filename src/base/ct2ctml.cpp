@@ -9,6 +9,8 @@
 
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/global.h"
 #include "../../ext/libexecstream/exec-stream.h"
 
 #include <cstdio>

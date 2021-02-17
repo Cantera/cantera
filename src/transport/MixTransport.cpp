@@ -8,6 +8,8 @@
 
 #include "cantera/transport/MixTransport.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/base/utilities.h"
 
 using namespace std;
 

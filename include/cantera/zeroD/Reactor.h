@@ -7,10 +7,11 @@
 #define CT_REACTOR_H
 
 #include "ReactorBase.h"
-#include "cantera/kinetics/Kinetics.h"
 
 namespace Cantera
 {
+
+class Solution;
 
 /**
  * Class Reactor is a general-purpose class for stirred reactors. The reactor

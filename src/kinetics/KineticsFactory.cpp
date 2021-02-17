@@ -11,6 +11,7 @@
 #include "cantera/kinetics/EdgeKinetics.h"
 #include "cantera/kinetics/importKinetics.h"
 #include "cantera/base/xml.h"
+#include "cantera/base/stringUtils.h"
 
 using namespace std;
 

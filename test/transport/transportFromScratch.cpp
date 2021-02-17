@@ -6,6 +6,7 @@
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/base/global.h"
 #include "cantera/base/stringUtils.h"

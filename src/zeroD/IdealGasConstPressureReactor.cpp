@@ -6,6 +6,8 @@
 #include "cantera/zeroD/IdealGasConstPressureReactor.h"
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/ReactorNet.h"
+#include "cantera/kinetics/Kinetics.h"
+#include "cantera/thermo/ThermoPhase.h"
 
 using namespace std;
 

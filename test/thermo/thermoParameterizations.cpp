@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/thermo/NasaPoly2.h"

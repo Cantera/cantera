@@ -19,10 +19,14 @@
 #ifndef CT_TRANSPORTBASE_H
 #define CT_TRANSPORTBASE_H
 
-#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/base/ct_defs.h"
+#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {
+
+class ThermoPhase;
+class Solution;
 
 /*!
  * \addtogroup tranprops
@@ -655,9 +659,7 @@ public:
     virtual void setThermo(ThermoPhase& thermo);
 
     //! Set root Solution holding all phase information
-    virtual void setRoot(std::shared_ptr<Solution> root) {
-        m_root = root;
-    }
+    virtual void setRoot(std::shared_ptr<Solution> root);
 
 protected:
     //! Enable the transport object for use.

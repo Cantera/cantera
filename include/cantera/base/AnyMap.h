@@ -7,13 +7,9 @@
 #define CT_ANYMAP_H
 
 #include "cantera/base/ct_defs.h"
-#include "cantera/base/global.h"
-#include "cantera/base/Units.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/Units.h"
 
-#include <string>
-#include <vector>
-#include <memory>
 #include <unordered_map>
 #include <functional>
 

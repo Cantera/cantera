@@ -10,9 +10,6 @@
 #define CT_STRINGUTILS_H
 
 #include "ct_defs.h"
-#include "cantera/base/fmt.h"
-
-#include <string>
 
 namespace Cantera
 {

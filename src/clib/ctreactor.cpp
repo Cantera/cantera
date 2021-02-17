@@ -10,6 +10,8 @@
 
 // Cantera includes
 #include "cantera/numerics/Func1.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/kinetics/Kinetics.h"
 #include "cantera/zerodim.h"
 #include "Cabinet.h"
 

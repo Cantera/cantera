@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "cantera/base/Units.h"
+#include "cantera/base/Solution.h"
 #include "cantera/kinetics/GasKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/KineticsFactory.h"

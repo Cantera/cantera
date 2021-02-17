@@ -10,6 +10,7 @@
 
 #include "Kinetics.h"
 #include "cantera/base/FactoryBase.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {

@@ -6,7 +6,8 @@
 #ifndef CT_REACTORBASE_H
 #define CT_REACTORBASE_H
 
-#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/base/global.h"
+#include "cantera/base/ctexceptions.h"
 
 //! Namespace for classes implementing zero-dimensional reactor networks.
 namespace Cantera
@@ -16,6 +17,7 @@ class WallBase;
 class ReactorNet;
 class ReactorSurface;
 class Kinetics;
+class ThermoPhase;
 
 enum class SensParameterType {
     reaction,
@@ -154,12 +156,7 @@ public:
 
     //! Set the state of the Phase object associated with this reactor to the
     //! reactor's current state.
-    void restoreState() {
-        if (!m_thermo) {
-            throw CanteraError("ReactorBase::restoreState", "No phase defined.");
-        }
-        m_thermo->restoreState(m_state);
-    }
+    void restoreState();
 
     //! Set the state of the reactor to correspond to the state of the
     //! associated ThermoPhase object. This is the inverse of restoreState().

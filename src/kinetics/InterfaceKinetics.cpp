@@ -8,9 +8,9 @@
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/RateCoeffMgr.h"
 #include "cantera/kinetics/ImplicitSurfChem.h"
+#include "cantera/kinetics/Reaction.h"
 #include "cantera/thermo/SurfPhase.h"
-
-#include <cstdio>
+#include "cantera/base/utilities.h"
 
 using namespace std;
 

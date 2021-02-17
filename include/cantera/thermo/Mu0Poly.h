@@ -13,6 +13,7 @@
 #define CT_MU0POLY_H
 
 #include "cantera/thermo/SpeciesThermoInterpType.h"
+#include "cantera/thermo/speciesThermoTypes.h"
 
 namespace Cantera
 {

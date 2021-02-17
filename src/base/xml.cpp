@@ -12,6 +12,7 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/global.h"
 #include "cantera/base/utilities.h"
+#include "cantera/base/ctexceptions.h"
 
 #include <sstream>
 #include <fstream>

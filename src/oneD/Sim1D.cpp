@@ -9,8 +9,10 @@
 #include "cantera/oneD/MultiJac.h"
 #include "cantera/oneD/StFlow.h"
 #include "cantera/oneD/MultiNewton.h"
+#include "cantera/oneD/refine.h"
 #include "cantera/numerics/funcs.h"
 #include "cantera/base/xml.h"
+#include "cantera/base/stringUtils.h"
 #include "cantera/numerics/Func1.h"
 #include <limits>
 

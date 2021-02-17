@@ -264,9 +264,7 @@ public:
 
     virtual void showSolution_s(std::ostream& s, const double* x);
 
-    virtual void showSolution(const double* x) {
-        writelog("    Temperature: {:10.4g} K \n\n", m_temp);
-    }
+    virtual void showSolution(const double* x);
 };
 
 /**

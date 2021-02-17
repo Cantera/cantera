@@ -8,12 +8,11 @@
 #ifndef CT_FALLOFFMGR_H
 #define CT_FALLOFFMGR_H
 
-#include "reaction_defs.h"
-#include "cantera/base/global.h"
 #include "Falloff.h"
 
 namespace Cantera
 {
+
 
 /**
  *  A falloff manager that implements any set of falloff functions.

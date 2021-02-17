@@ -16,6 +16,7 @@
 
 #include "cantera/base/ctexceptions.h"
 #include "cantera/thermo/Nasa9PolyMultiTempRegion.h"
+#include "cantera/thermo/speciesThermoTypes.h"
 
 using namespace std;
 

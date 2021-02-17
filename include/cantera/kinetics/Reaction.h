@@ -8,15 +8,15 @@
 #ifndef CT_REACTION_H
 #define CT_REACTION_H
 
-#include "cantera/base/utilities.h"
 #include "cantera/base/AnyMap.h"
 #include "cantera/kinetics/RxnRates.h"
-#include "cantera/kinetics/Falloff.h"
 
 namespace Cantera
 {
 
 class Kinetics;
+class Falloff;
+class XML_Node;
 
 //! Intermediate class which stores data about a reaction and its rate
 //! parameterization so that it can be added to a Kinetics object.
@@ -99,9 +99,7 @@ public:
     explicit ThirdBody(double default_efficiency=1.0);
 
     //! Get the third-body efficiency for species *k*
-    double efficiency(const std::string& k) const {
-        return getValue(efficiencies, k, default_efficiency);
-    }
+    double efficiency(const std::string& k) const;
 
     //! Map of species to third body efficiency
     Composition efficiencies;

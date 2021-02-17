@@ -11,8 +11,7 @@
 #ifndef CT_XML_H
 #define CT_XML_H
 
-#include "ctexceptions.h"
-#include "global.h"
+#include "ct_defs.h"
 
 //@{
 #define XML_INDENT 4

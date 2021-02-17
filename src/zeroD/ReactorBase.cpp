@@ -7,6 +7,7 @@
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/ReactorSurface.h"
+#include "cantera/thermo/ThermoPhase.h"
 
 using namespace std;
 namespace Cantera
@@ -80,6 +81,13 @@ void ReactorBase::addSurface(ReactorSurface* surf)
 ReactorSurface* ReactorBase::surface(size_t n)
 {
     return m_surfaces[n];
+}
+
+void ReactorBase::restoreState() {
+    if (!m_thermo) {
+        throw CanteraError("ReactorBase::restoreState", "No phase defined.");
+    }
+    m_thermo->restoreState(m_state);
 }
 
 ReactorNet& ReactorBase::network()

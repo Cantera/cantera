@@ -5,6 +5,8 @@
 
 #include "cantera/zeroD/FlowReactor.h"
 #include "cantera/base/global.h"
+#include "cantera/kinetics/Kinetics.h"
+#include "cantera/thermo/ThermoPhase.h"
 
 using namespace std;
 
@@ -64,6 +66,16 @@ void FlowReactor::updateState(doublereal* y)
         m_thermo->setState_TP(m_T, pmom);
     }
     m_thermo->saveState(m_state);
+}
+
+void FlowReactor::setMassFlowRate(double mdot)
+{
+    m_rho0 = m_thermo->density();
+    m_speed = mdot/m_rho0;
+    m_speed0 = m_speed;
+    m_T = m_thermo->temperature();
+    m_P0 = m_thermo->pressure() + m_rho0*m_speed*m_speed;
+    m_h0 = m_thermo->enthalpy_mass() + 0.5*m_speed*m_speed;
 }
 
 void FlowReactor::evalEqs(doublereal time, doublereal* y,

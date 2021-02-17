@@ -2,6 +2,7 @@
 
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/base/global.h"
 #include "cantera/base/utilities.h"

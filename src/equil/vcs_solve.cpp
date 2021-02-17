@@ -13,6 +13,8 @@
 #include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/base/clockWC.h"
 #include "cantera/equil/MultiPhase.h"
+#include "cantera/thermo/speciesThermoTypes.h"
+#include "cantera/thermo/ThermoPhase.h"
 
 using namespace std;
 
