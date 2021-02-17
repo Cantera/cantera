@@ -46,8 +46,10 @@ public:
      * is supplied in the constructor or read from the input file.
      *
      * @param formCG This parameter initializes the #m_formGC variable.
+     * @deprecated the formGC argument is deprecated and will be removed after
+     *     Cantera 2.6. Use the setStandardConcentrationModel method instead.
      */
-    IdealSolidSolnPhase(int formCG=0);
+    IdealSolidSolnPhase(int formCG=-1);
 
     //! Construct and initialize an IdealSolidSolnPhase ThermoPhase object
     //! directly from an ASCII input file
@@ -62,8 +64,10 @@ public:
      * @param id     The name of this phase. This is used to look up
      *               the phase in the input file.
      * @param formCG This parameter initializes the #m_formGC variable.
+     * @deprecated the formGC argument is deprecated and will be removed after
+     *     Cantera 2.6. Use the setStandardConcentrationModel method instead.
      */
-    IdealSolidSolnPhase(const std::string& infile, const std::string& id="", int formCG=0);
+    IdealSolidSolnPhase(const std::string& infile, const std::string& id="", int formCG=-1);
 
     //! Construct and initialize an IdealSolidSolnPhase ThermoPhase object
     //! directly from an XML database
@@ -82,7 +86,7 @@ public:
      * @deprecated The XML input format is deprecated and will be removed in
      *     Cantera 3.0.
      */
-    IdealSolidSolnPhase(XML_Node& root, const std::string& id="", int formCG=0);
+    IdealSolidSolnPhase(XML_Node& root, const std::string& id="", int formCG=-1);
 
     virtual std::string type() const {
         return "IdealSolidSoln";
