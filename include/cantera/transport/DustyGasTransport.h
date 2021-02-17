@@ -67,11 +67,11 @@ public:
      *  @param thermo   Pointer to the ThermoPhase object for this phase.
      *      Defaults to zero.
      */
-    DustyGasTransport(thermo_t* thermo=0);
+    DustyGasTransport(ThermoPhase* thermo=0);
 
     //  overloaded base class methods
 
-    virtual void setThermo(thermo_t& thermo);
+    virtual void setThermo(ThermoPhase& thermo);
 
     virtual std::string transportType() const {
         return "DustyGas";

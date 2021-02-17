@@ -61,7 +61,7 @@ public:
      *  @param thermo    ThermoPhase object
      *  @param log_level log level
      */
-    virtual Transport* newTransport(const std::string& model, thermo_t* thermo, int log_level=0);
+    virtual Transport* newTransport(const std::string& model, ThermoPhase* thermo, int log_level=0);
 
     //! Build a new transport manager using the default transport manager
     //! in the phase description and return a base class pointer to it
@@ -69,7 +69,7 @@ public:
      * @param thermo    ThermoPhase object
      * @param log_level log level
      */
-    virtual Transport* newTransport(thermo_t* thermo, int log_level=0);
+    virtual Transport* newTransport(ThermoPhase* thermo, int log_level=0);
 
 private:
     //! Static instance of the factor -> This is the only instance of this
@@ -92,9 +92,9 @@ private:
     std::map<std::string, bool> m_CK_mode;
 };
 
-//! @copydoc TransportFactory::newTransport(const std::string&, thermo_t*, int, int)
+//! @copydoc TransportFactory::newTransport(const std::string&, ThermoPhase*, int, int)
 Transport* newTransportMgr(const std::string& transportModel = "",
-                           thermo_t* thermo = 0, int loglevel = 0);
+                           ThermoPhase* thermo = 0, int loglevel = 0);
 
 //!  Create a new transport manager instance.
 /*!
@@ -103,7 +103,7 @@ Transport* newTransportMgr(const std::string& transportModel = "",
  *  @returns a transport manager for the phase
  * @ingroup tranprops
  */
-Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel = 0);
+Transport* newDefaultTransportMgr(ThermoPhase* thermo, int loglevel = 0);
 
 } // End of namespace Cantera
 

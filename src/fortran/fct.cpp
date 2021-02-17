@@ -359,7 +359,7 @@ extern "C" {
     integer th_newfromfile_(char* filename, char* phasename, ftnlen lenf, ftnlen lenp)
     {
         try {
-            thermo_t* th = newPhase(f2string(filename, lenf),
+            ThermoPhase* th = newPhase(f2string(filename, lenf),
                                     f2string(phasename, lenp));
             return ThermoCabinet::add(th);
         } catch (...) {
@@ -371,7 +371,7 @@ extern "C" {
     {
         try {
             XML_Node* x = _xml(mxml);
-            thermo_t* th = newPhase(*x);
+            ThermoPhase* th = newPhase(*x);
             return ThermoCabinet::add(th);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -507,7 +507,7 @@ extern "C" {
     status_t th_chempotentials_(const integer* n, doublereal* murt)
     {
         try {
-            thermo_t* thrm = _fth(n);
+            ThermoPhase* thrm = _fth(n);
             thrm->getChemPotentials(murt);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -605,7 +605,7 @@ extern "C" {
     status_t th_getenthalpies_rt_(const integer* n, doublereal* h_rt)
     {
         try {
-            thermo_t* thrm = _fth(n);
+            ThermoPhase* thrm = _fth(n);
             thrm->getEnthalpy_RT(h_rt);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -616,7 +616,7 @@ extern "C" {
     status_t th_getentropies_r_(const integer* n, doublereal* s_r)
     {
         try {
-            thermo_t* thrm = _fth(n);
+            ThermoPhase* thrm = _fth(n);
             thrm->getEntropy_R(s_r);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -627,7 +627,7 @@ extern "C" {
     status_t th_getcp_r_(const integer* n, integer* lenm, doublereal* cp_r)
     {
         try {
-            thermo_t* thrm = _fth(n);
+            ThermoPhase* thrm = _fth(n);
             thrm->getCp_R(cp_r);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -638,7 +638,7 @@ extern "C" {
     status_t th_getpartialmolarintenergies_r_(const integer* n, doublereal* ie)
     {
         try {
-            thermo_t* thrm = _fth(n);
+            ThermoPhase* thrm = _fth(n);
             thrm->getPartialMolarIntEnergies(ie);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -654,7 +654,7 @@ extern "C" {
                              const integer* neighbor4, ftnlen nlen, ftnlen plen)
     {
         try {
-            std::vector<thermo_t*> phases;
+            std::vector<ThermoPhase*> phases;
             phases.push_back(_fth(reactingPhase));
             if (*neighbor1 >= 0) {
                 phases.push_back(_fth(neighbor1));
@@ -682,7 +682,7 @@ extern "C" {
     {
         try {
             XML_Node* x = _xml(mxml);
-            std::vector<thermo_t*> phases;
+            std::vector<ThermoPhase*> phases;
             phases.push_back(_fth(iphase));
             if (*neighbor1 >= 0) {
                 phases.push_back(_fth(neighbor1));
@@ -946,7 +946,7 @@ extern "C" {
     {
         try {
             std::string mstr = f2string(model, lenmodel);
-            thermo_t* t = _fth(ith);
+            ThermoPhase* t = _fth(ith);
             Transport* tr = newTransportMgr(mstr, t, *loglevel);
             return TransportCabinet::add(tr);
         } catch (...) {
@@ -957,7 +957,7 @@ extern "C" {
     integer trans_newdefault_(integer* ith, integer* loglevel, ftnlen lenmodel)
     {
         try {
-            thermo_t* t = _fth(ith);
+            ThermoPhase* t = _fth(ith);
             Transport* tr = newDefaultTransportMgr(t, *loglevel);
             return TransportCabinet::add(tr);
         } catch (...) {
@@ -1118,7 +1118,7 @@ extern "C" {
                 root = _xml(ixml);
             }
 
-            thermo_t* t = _fth(ith);
+            ThermoPhase* t = _fth(ith);
             Kinetics* k = _fkin(ikin);
 
             XML_Node* x, *r=0;

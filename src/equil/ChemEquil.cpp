@@ -47,7 +47,7 @@ ChemEquil::ChemEquil() : m_skip(npos), m_elementTotalSum(1.0),
     m_doResPerturb(false)
 {}
 
-ChemEquil::ChemEquil(thermo_t& s) :
+ChemEquil::ChemEquil(ThermoPhase& s) :
     m_skip(npos),
     m_elementTotalSum(1.0),
     m_p0(OneAtm), m_eloc(npos),
@@ -61,7 +61,7 @@ ChemEquil::~ChemEquil()
 {
 }
 
-void ChemEquil::initialize(thermo_t& s)
+void ChemEquil::initialize(ThermoPhase& s)
 {
     // store a pointer to s and some of its properties locally.
     m_phase = &s;
@@ -129,7 +129,7 @@ void ChemEquil::initialize(thermo_t& s)
     }
 }
 
-void ChemEquil::setToEquilState(thermo_t& s,
+void ChemEquil::setToEquilState(ThermoPhase& s,
                                 const vector_fp& lambda_RT, doublereal t)
 {
     // Construct the chemical potentials by summing element potentials
@@ -150,7 +150,7 @@ void ChemEquil::setToEquilState(thermo_t& s,
     update(s);
 }
 
-void ChemEquil::update(const thermo_t& s)
+void ChemEquil::update(const ThermoPhase& s)
 {
     // get the mole fractions, temperature, and density
     s.getMoleFractions(m_molefractions.data());
@@ -179,7 +179,7 @@ void ChemEquil::update(const thermo_t& s)
     }
 }
 
-int ChemEquil::setInitialMoles(thermo_t& s, vector_fp& elMoleGoal,
+int ChemEquil::setInitialMoles(ThermoPhase& s, vector_fp& elMoleGoal,
                                int loglevel)
 {
     MultiPhase mp;
@@ -215,7 +215,7 @@ int ChemEquil::setInitialMoles(thermo_t& s, vector_fp& elMoleGoal,
     return 0;
 }
 
-int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
+int ChemEquil::estimateElementPotentials(ThermoPhase& s, vector_fp& lambda_RT,
         vector_fp& elMolesGoal, int loglevel)
 {
     vector_fp b(m_mm, -999.0);
@@ -305,7 +305,7 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
     return info;
 }
 
-int ChemEquil::equilibrate(thermo_t& s, const char* XY, int loglevel)
+int ChemEquil::equilibrate(ThermoPhase& s, const char* XY, int loglevel)
 {
     initialize(s);
     update(s);
@@ -313,7 +313,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XY, int loglevel)
     return equilibrate(s, XY, elMolesGoal, loglevel-1);
 }
 
-int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
+int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
                            vector_fp& elMolesGoal, int loglevel)
 {
     int fail = 0;
@@ -686,7 +686,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
 }
 
 
-int ChemEquil::dampStep(thermo_t& mix, vector_fp& oldx,
+int ChemEquil::dampStep(ThermoPhase& mix, vector_fp& oldx,
                         double oldf, vector_fp& grad, vector_fp& step, vector_fp& x,
                         double& f, vector_fp& elmols, double xval, double yval)
 {
@@ -725,7 +725,7 @@ int ChemEquil::dampStep(thermo_t& mix, vector_fp& oldx,
     return 1;
 }
 
-void ChemEquil::equilResidual(thermo_t& s, const vector_fp& x,
+void ChemEquil::equilResidual(ThermoPhase& s, const vector_fp& x,
                               const vector_fp& elmFracGoal, vector_fp& resid,
                               doublereal xval, doublereal yval, int loglevel)
 {
@@ -771,7 +771,7 @@ void ChemEquil::equilResidual(thermo_t& s, const vector_fp& x,
     }
 }
 
-void ChemEquil::equilJacobian(thermo_t& s, vector_fp& x,
+void ChemEquil::equilJacobian(ThermoPhase& s, vector_fp& x,
                               const vector_fp& elmols, DenseMatrix& jac,
                               doublereal xval, doublereal yval, int loglevel)
 {
@@ -804,7 +804,7 @@ void ChemEquil::equilJacobian(thermo_t& s, vector_fp& x,
     m_doResPerturb = false;
 }
 
-double ChemEquil::calcEmoles(thermo_t& s, vector_fp& x, const double& n_t,
+double ChemEquil::calcEmoles(ThermoPhase& s, vector_fp& x, const double& n_t,
                              const vector_fp& Xmol_i_calc,
                              vector_fp& eMolesCalc, vector_fp& n_i_calc,
                              double pressureConst)
@@ -840,7 +840,7 @@ double ChemEquil::calcEmoles(thermo_t& s, vector_fp& x, const double& n_t,
     return n_t_calc;
 }
 
-int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
+int ChemEquil::estimateEP_Brinkley(ThermoPhase& s, vector_fp& x,
                                    vector_fp& elMoles)
 {
     // Before we do anything, we will save the state of the solution. Then, if

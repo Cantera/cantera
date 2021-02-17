@@ -11,7 +11,7 @@ using namespace std;
 
 namespace Cantera
 {
-GasKinetics::GasKinetics(thermo_t* thermo) :
+GasKinetics::GasKinetics(ThermoPhase* thermo) :
     BulkKinetics(thermo),
     m_logp_ref(0.0),
     m_logc_ref(0.0),

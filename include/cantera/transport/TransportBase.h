@@ -142,7 +142,7 @@ public:
      *
      * @see TransportFactory
      */
-    Transport(thermo_t* thermo=0, size_t ndim = 1);
+    Transport(ThermoPhase* thermo=0, size_t ndim = 1);
 
     virtual ~Transport() {}
 
@@ -162,7 +162,7 @@ public:
      * gas mixture, a surface, etc. This method returns a reference to the
      * object representing the phase itself.
      */
-    thermo_t& thermo() {
+    ThermoPhase& thermo() {
         return *m_thermo;
     }
 
@@ -637,7 +637,7 @@ public:
      *                 specification of the collision integrals. defaults to no.
      * @param log_level Defaults to zero, no logging
      */
-    virtual void init(thermo_t* thermo, int mode=0, int log_level=0) {}
+    virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0) {}
 
     //! Specifies the ThermoPhase object.
     /*!
@@ -652,7 +652,7 @@ public:
      * @param   thermo  Reference to the ThermoPhase object that the transport
      *                  object will use
      */
-    virtual void setThermo(thermo_t& thermo);
+    virtual void setThermo(ThermoPhase& thermo);
 
     //! Set root Solution holding all phase information
     virtual void setRoot(std::shared_ptr<Solution> root) {
@@ -671,7 +671,7 @@ protected:
     //@}
 
     //! pointer to the object representing the phase
-    thermo_t* m_thermo;
+    ThermoPhase* m_thermo;
 
     //! true if finalize has been called
     bool m_ready;

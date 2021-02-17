@@ -367,7 +367,7 @@ extern "C" {
     {
         try {
             XML_Node& x = XmlCabinet::item(mxml);
-            thermo_t* th = newPhase(x);
+            ThermoPhase* th = newPhase(x);
             return ThermoCabinet::add(th);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -881,7 +881,7 @@ extern "C" {
                         int neighbor3, int neighbor4)
     {
         try {
-            vector<thermo_t*> phases;
+            vector<ThermoPhase*> phases;
             phases.push_back(&ThermoCabinet::item(reactingPhase));
             if (neighbor1 >= 0) {
                 phases.push_back(&ThermoCabinet::item(neighbor1));
@@ -908,7 +908,7 @@ extern "C" {
     {
         try {
             XML_Node& x = XmlCabinet::item(mxml);
-            vector<thermo_t*> phases;
+            vector<ThermoPhase*> phases;
             phases.push_back(&ThermoCabinet::item(iphase));
             if (neighbor1 >= 0) {
                 phases.push_back(&ThermoCabinet::item(neighbor1));

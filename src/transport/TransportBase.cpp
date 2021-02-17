@@ -12,7 +12,7 @@ using namespace std;
 
 namespace Cantera
 {
-Transport::Transport(thermo_t* thermo, size_t ndim) :
+Transport::Transport(ThermoPhase* thermo, size_t ndim) :
     m_thermo(thermo),
     m_ready(false),
     m_nsp(0),
@@ -51,7 +51,7 @@ void Transport::setParameters(const int type, const int k,
     throw NotImplementedError("Transport::setParameters");
 }
 
-void Transport::setThermo(thermo_t& thermo)
+void Transport::setThermo(ThermoPhase& thermo)
 {
     if (!ready()) {
         m_thermo = &thermo;

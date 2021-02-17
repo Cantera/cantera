@@ -33,7 +33,7 @@ doublereal Frot(doublereal tr, doublereal sqtr)
 
 //////////////////// class MultiTransport methods //////////////
 
-MultiTransport::MultiTransport(thermo_t* thermo)
+MultiTransport::MultiTransport(ThermoPhase* thermo)
     : GasTransport(thermo)
 {
 }

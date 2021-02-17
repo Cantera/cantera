@@ -26,7 +26,7 @@ using namespace std;
 namespace Cantera
 {
 
-HighPressureGasTransport::HighPressureGasTransport(thermo_t* thermo)
+HighPressureGasTransport::HighPressureGasTransport(ThermoPhase* thermo)
 : MultiTransport(thermo)
 {
 }

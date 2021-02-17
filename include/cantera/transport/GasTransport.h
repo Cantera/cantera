@@ -115,7 +115,7 @@ public:
      */
     virtual void getMixDiffCoeffsMass(doublereal* const d);
 
-    virtual void init(thermo_t* thermo, int mode=0, int log_level=0);
+    virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
 
 protected:
     GasTransport(ThermoPhase* thermo=0);

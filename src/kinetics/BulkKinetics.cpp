@@ -7,7 +7,7 @@
 namespace Cantera
 {
 
-BulkKinetics::BulkKinetics(thermo_t* thermo) :
+BulkKinetics::BulkKinetics(ThermoPhase* thermo) :
     m_ROP_ok(false),
     m_temp(0.0)
 {

@@ -33,7 +33,7 @@ public:
     /*!
      *  @param thermo  Pointer to the gas ThermoPhase (optional)
      */
-    GasKinetics(thermo_t* thermo = 0);
+    GasKinetics(ThermoPhase* thermo = 0);
 
     virtual std::string kineticsType() const {
         return "Gas";

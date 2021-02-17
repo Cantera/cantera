@@ -21,7 +21,7 @@ class ElementaryReaction;
 class BulkKinetics : public Kinetics
 {
 public:
-    BulkKinetics(thermo_t* thermo = 0);
+    BulkKinetics(ThermoPhase* thermo = 0);
 
     virtual bool isReversible(size_t i);
 

@@ -201,7 +201,7 @@ public:
      * @param n  Phase Index
      * @return   Reference to the ThermoPhase object for the phase
      */
-    thermo_t& phase(size_t n);
+    ThermoPhase& phase(size_t n);
 
     //! Check that the specified phase index is in range
     //! Throws an exception if m is greater than nPhases()
