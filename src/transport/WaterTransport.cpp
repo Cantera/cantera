@@ -32,7 +32,7 @@ const double Hij[6][7] = {
 namespace Cantera
 {
 
-WaterTransport::WaterTransport(thermo_t* thermo, int ndim) :
+WaterTransport::WaterTransport(ThermoPhase* thermo, int ndim) :
     Transport(thermo, ndim)
 {
     if (thermo) {
@@ -40,7 +40,7 @@ WaterTransport::WaterTransport(thermo_t* thermo, int ndim) :
     }
 }
 
-void WaterTransport::init(thermo_t* thermo, int mode, int log_level)
+void WaterTransport::init(ThermoPhase* thermo, int mode, int log_level)
 {
     m_thermo = thermo;
 }

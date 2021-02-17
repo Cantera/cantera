@@ -65,7 +65,7 @@ public:
      *               probably require multiple ThermoPhase objects, this is
      *               probably not a good idea to have this parameter.
      */
-    InterfaceKinetics(thermo_t* thermo = 0);
+    InterfaceKinetics(ThermoPhase* thermo = 0);
 
     virtual ~InterfaceKinetics();
 
@@ -194,7 +194,7 @@ public:
      *
      * @param thermo    Reference to the ThermoPhase to be added.
      */
-    virtual void addPhase(thermo_t& thermo);
+    virtual void addPhase(ThermoPhase& thermo);
 
     virtual void init();
     virtual void resizeSpecies();

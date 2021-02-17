@@ -15,7 +15,7 @@ IonGasTransport::IonGasTransport() :
 {
 }
 
-void IonGasTransport::init(thermo_t* thermo, int mode, int log_level)
+void IonGasTransport::init(ThermoPhase* thermo, int mode, int log_level)
 {
     m_thermo = thermo;
     m_nsp = m_thermo->nSpecies();

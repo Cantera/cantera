@@ -91,7 +91,7 @@ public:
      *
      * @param s ThermoPhase object that will be used in the equilibrium calls.
      */
-    ChemEquil(thermo_t& s);
+    ChemEquil(ThermoPhase& s);
 
     virtual ~ChemEquil();
 
@@ -103,7 +103,7 @@ public:
      * ThermoPhase object. The properties must be already contained within the
      * current thermodynamic state of the system.
      */
-    int equilibrate(thermo_t& s, const char* XY, int loglevel = 0);
+    int equilibrate(ThermoPhase& s, const char* XY, int loglevel = 0);
 
     /*!
      * Compute the equilibrium composition for two specified properties and the
@@ -121,7 +121,7 @@ public:
      *     Unsuccessful returns are indicated by a return value of -1 for lack
      *     of convergence or -3 for a singular Jacobian.
      */
-    int equilibrate(thermo_t& s, const char* XY, vector_fp& elMoles,
+    int equilibrate(ThermoPhase& s, const char* XY, vector_fp& elMoles,
                     int loglevel = 0);
 
     /**
@@ -137,7 +137,7 @@ protected:
      * input from the equilibrate function. Currently, this means that the 2
      * ThermoPhases have to have consist of the same species and elements.
      */
-    thermo_t* m_phase;
+    ThermoPhase* m_phase;
 
     //! number of atoms of element m in species k.
     doublereal nAtoms(size_t k, size_t m) const {
@@ -148,7 +148,7 @@ protected:
      * Prepare for equilibrium calculations.
      * @param s object representing the solution phase.
      */
-    void initialize(thermo_t& s);
+    void initialize(ThermoPhase& s);
 
     /*!
      * Set mixture to an equilibrium state consistent with specified element
@@ -159,15 +159,15 @@ protected:
      * \f[ \lambda_m/RT \f].
      * @param t temperature in K.
      */
-    void setToEquilState(thermo_t& s,
+    void setToEquilState(ThermoPhase& s,
                          const vector_fp& x, doublereal t);
 
     //! Estimate the initial mole numbers. This version borrows from the
     //! MultiPhaseEquil solver.
-    int setInitialMoles(thermo_t& s, vector_fp& elMoleGoal, int loglevel = 0);
+    int setInitialMoles(ThermoPhase& s, vector_fp& elMoleGoal, int loglevel = 0);
 
     //! Generate a starting estimate for the element potentials.
-    int estimateElementPotentials(thermo_t& s, vector_fp& lambda,
+    int estimateElementPotentials(ThermoPhase& s, vector_fp& lambda,
                                   vector_fp& elMolesGoal, int loglevel = 0);
 
     /*!
@@ -203,7 +203,7 @@ protected:
      *
      * NOTE: update for activity coefficients.
      */
-    int estimateEP_Brinkley(thermo_t& s, vector_fp& lambda, vector_fp& elMoles);
+    int estimateEP_Brinkley(ThermoPhase& s, vector_fp& lambda, vector_fp& elMoles);
 
     //! Find an acceptable step size and take it.
     /*!
@@ -218,25 +218,25 @@ protected:
      * limited to a factor of 2 jump in the values from this method. Near
      * convergence, the delta damping gets out of the way.
      */
-    int dampStep(thermo_t& s, vector_fp& oldx,
+    int dampStep(ThermoPhase& s, vector_fp& oldx,
                  double oldf, vector_fp& grad, vector_fp& step, vector_fp& x,
                  double& f, vector_fp& elmols, double xval, double yval);
 
     /**
      *  Evaluates the residual vector F, of length #m_mm
      */
-    void equilResidual(thermo_t& s, const vector_fp& x,
+    void equilResidual(ThermoPhase& s, const vector_fp& x,
                        const vector_fp& elmtotal, vector_fp& resid,
                        double xval, double yval, int loglevel = 0);
 
-    void equilJacobian(thermo_t& s, vector_fp& x,
+    void equilJacobian(ThermoPhase& s, vector_fp& x,
                        const vector_fp& elmols, DenseMatrix& jac,
                        double xval, double yval, int loglevel = 0);
 
-    void adjustEloc(thermo_t& s, vector_fp& elMolesGoal);
+    void adjustEloc(ThermoPhase& s, vector_fp& elMolesGoal);
 
     //! Update internally stored state information.
-    void update(const thermo_t& s);
+    void update(const ThermoPhase& s);
 
     /**
      * Given a vector of dimensionless element abundances, this routine
@@ -244,7 +244,7 @@ protected:
      *
      * @param[in] x = current dimensionless element potentials..
      */
-    double calcEmoles(thermo_t& s, vector_fp& x,
+    double calcEmoles(ThermoPhase& s, vector_fp& x,
                       const double& n_t, const vector_fp& Xmol_i_calc,
                       vector_fp& eMolesCalc, vector_fp& n_i_calc,
                       double pressureConst);

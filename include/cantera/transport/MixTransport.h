@@ -149,7 +149,7 @@ public:
                                   size_t ldx, const doublereal* const grad_X,
                                   size_t ldf, doublereal* const fluxes);
 
-    virtual void init(thermo_t* thermo, int mode=0, int log_level=0);
+    virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
 
 protected:
     //! Calculate the pressure from the ideal gas law

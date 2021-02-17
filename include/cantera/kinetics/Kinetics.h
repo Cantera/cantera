@@ -224,10 +224,10 @@ public:
      *
      * @param n Index of the ThermoPhase being sought.
      */
-    thermo_t& thermo(size_t n=0) {
+    ThermoPhase& thermo(size_t n=0) {
         return *m_thermo[n];
     }
-    const thermo_t& thermo(size_t n=0) const {
+    const ThermoPhase& thermo(size_t n=0) const {
         return *m_thermo[n];
     }
 
@@ -308,8 +308,8 @@ public:
      *
      * @param nm   String containing the name of the species.
      */
-    thermo_t& speciesPhase(const std::string& nm);
-    const thermo_t& speciesPhase(const std::string& nm) const;
+    ThermoPhase& speciesPhase(const std::string& nm);
+    const ThermoPhase& speciesPhase(const std::string& nm) const;
 
     /**
      * This function takes as an argument the kineticsSpecies index
@@ -318,7 +318,7 @@ public:
      *
      * @param k          Species index
      */
-    thermo_t& speciesPhase(size_t k) {
+    ThermoPhase& speciesPhase(size_t k) {
         return thermo(speciesPhaseIndex(k));
     }
 
@@ -687,7 +687,7 @@ public:
      *
      * @param thermo    Reference to the ThermoPhase to be added.
      */
-    virtual void addPhase(thermo_t& thermo);
+    virtual void addPhase(ThermoPhase& thermo);
 
     /**
      * Prepare the class for the addition of reactions, after all phases have
@@ -811,7 +811,7 @@ public:
      * @param phase_data Output array where the values for the the specified
      *     phase are to be written.
      */
-    void selectPhase(const doublereal* data, const thermo_t* phase,
+    void selectPhase(const doublereal* data, const ThermoPhase* phase,
                      doublereal* phase_data);
 
     //! Set root Solution holding all phase information
@@ -891,7 +891,7 @@ protected:
      * Note that this kinetics object doesn't own these ThermoPhase objects
      * and is not responsible for creating or deleting them.
      */
-    std::vector<thermo_t*> m_thermo;
+    std::vector<ThermoPhase*> m_thermo;
 
     /**
      * m_start is a vector of integers specifying the beginning position for the

@@ -30,7 +30,7 @@ public:
     /*!
      * @param thermo  Optional parameter for the pointer to the ThermoPhase object
      */
-    MultiTransport(thermo_t* thermo=0);
+    MultiTransport(ThermoPhase* thermo=0);
 
     virtual std::string transportType() const {
         return (m_mode == CK_Mode) ? "CK_Multi" : "Multi";

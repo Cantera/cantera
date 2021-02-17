@@ -26,7 +26,7 @@ public:
      *  @param ndim     Number of dimensions of the flux expressions.
      *                  Defaults to a value of one.
      */
-    WaterTransport(thermo_t* thermo = 0, int ndim = 1);
+    WaterTransport(ThermoPhase* thermo = 0, int ndim = 1);
 
     virtual std::string transportType() const {
         return "Water";
@@ -69,7 +69,7 @@ public:
      */
     virtual doublereal thermalConductivity();
 
-    virtual void init(thermo_t* thermo, int mode=0, int log_level=0);
+    virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
 };
 }
 #endif

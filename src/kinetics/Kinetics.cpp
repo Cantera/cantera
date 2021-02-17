@@ -267,7 +267,7 @@ void Kinetics::checkReactionBalance(const Reaction& R)
     }
 }
 
-void Kinetics::selectPhase(const doublereal* data, const thermo_t* phase,
+void Kinetics::selectPhase(const doublereal* data, const ThermoPhase* phase,
                            doublereal* phase_data)
 {
     for (size_t n = 0; n < nPhases(); n++) {
@@ -323,7 +323,7 @@ size_t Kinetics::kineticsSpeciesIndex(const std::string& nm,
     return npos;
 }
 
-thermo_t& Kinetics::speciesPhase(const std::string& nm)
+ThermoPhase& Kinetics::speciesPhase(const std::string& nm)
 {
     for (size_t n = 0; n < m_thermo.size(); n++) {
         size_t k = thermo(n).speciesIndex(nm);
@@ -334,7 +334,7 @@ thermo_t& Kinetics::speciesPhase(const std::string& nm)
     throw CanteraError("Kinetics::speciesPhase", "unknown species '{}'", nm);
 }
 
-const thermo_t& Kinetics::speciesPhase(const std::string& nm) const
+const ThermoPhase& Kinetics::speciesPhase(const std::string& nm) const
 {
     for (const auto thermo : m_thermo) {
         if (thermo->speciesIndex(nm) != npos) {
@@ -442,7 +442,7 @@ void Kinetics::getNetProductionRates(doublereal* net)
     m_reactantStoich.decrementSpecies(m_ropnet.data(), net);
 }
 
-void Kinetics::addPhase(thermo_t& thermo)
+void Kinetics::addPhase(ThermoPhase& thermo)
 {
     // the phase with lowest dimensionality is assumed to be the
     // phase/interface at which reactions take place

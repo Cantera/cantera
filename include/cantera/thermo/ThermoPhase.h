@@ -1906,6 +1906,7 @@ protected:
 };
 
 //! typedef for the ThermoPhase class
+//! @deprecated To be removed after Cantera 2.6.
 typedef ThermoPhase thermo_t;
 
 }

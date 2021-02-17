@@ -17,7 +17,7 @@ using namespace std;
 namespace Cantera
 {
 
-InterfaceKinetics::InterfaceKinetics(thermo_t* thermo) :
+InterfaceKinetics::InterfaceKinetics(ThermoPhase* thermo) :
     m_redo_rates(false),
     m_surf(0),
     m_integrator(0),
@@ -664,7 +664,7 @@ void InterfaceKinetics::setIOFlag(int ioFlag)
     }
 }
 
-void InterfaceKinetics::addPhase(thermo_t& thermo)
+void InterfaceKinetics::addPhase(ThermoPhase& thermo)
 {
     Kinetics::addPhase(thermo);
     m_phaseExists.push_back(true);

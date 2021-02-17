@@ -23,7 +23,7 @@ ReactorBase::ReactorBase(const string& name) : m_nsp(0),
     m_name = name;
 }
 
-void ReactorBase::setThermoMgr(thermo_t& thermo)
+void ReactorBase::setThermoMgr(ThermoPhase& thermo)
 {
     m_thermo = &thermo;
     m_nsp = m_thermo->nSpecies();

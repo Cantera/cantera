@@ -272,7 +272,7 @@ void GasTransport::getMixDiffCoeffsMass(doublereal* const d)
     }
 }
 
-void GasTransport::init(thermo_t* thermo, int mode, int log_level)
+void GasTransport::init(ThermoPhase* thermo, int mode, int log_level)
 {
     m_thermo = thermo;
     m_nsp = m_thermo->nSpecies();

@@ -60,7 +60,7 @@ public:
     virtual void resetBadValues(double* xg);
 
 
-    thermo_t& phase() {
+    ThermoPhase& phase() {
         return *m_thermo;
     }
     Kinetics& kinetics() {

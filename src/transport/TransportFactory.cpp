@@ -59,7 +59,7 @@ void TransportFactory::deleteFactory()
 }
 
 Transport* TransportFactory::newTransport(const std::string& transportModel,
-        thermo_t* phase, int log_level)
+        ThermoPhase* phase, int log_level)
 {
     vector_fp state;
     Transport* tr = 0;
@@ -80,7 +80,7 @@ Transport* TransportFactory::newTransport(const std::string& transportModel,
     return tr;
 }
 
-Transport* TransportFactory::newTransport(thermo_t* phase, int log_level)
+Transport* TransportFactory::newTransport(ThermoPhase* phase, int log_level)
 {
     std::string transportModel = "None";
     XML_Node& phaseNode = phase->xml();
@@ -93,13 +93,13 @@ Transport* TransportFactory::newTransport(thermo_t* phase, int log_level)
     return newTransport(transportModel, phase,log_level);
 }
 
-Transport* newTransportMgr(const std::string& transportModel, thermo_t* thermo, int loglevel)
+Transport* newTransportMgr(const std::string& transportModel, ThermoPhase* thermo, int loglevel)
 {
     TransportFactory* f = TransportFactory::factory();
     return f->newTransport(transportModel, thermo, loglevel);
 }
 
-Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel)
+Transport* newDefaultTransportMgr(ThermoPhase* thermo, int loglevel)
 {
     return TransportFactory::factory()->newTransport(thermo, loglevel);
 }
