@@ -33,8 +33,10 @@ public:
     //! Constructor
     /*!
      * @param n0  Surface site density (kmol m-1).
+     * @deprecated The `n0` constructor argument is deprecated and will be
+     *      removed after Cantera 2.6. Use setSiteDensity() instead.
      */
-    EdgePhase(doublereal n0=1.0);
+    EdgePhase(doublereal n0=-1.0);
 
     virtual std::string type() const {
         return "Edge";

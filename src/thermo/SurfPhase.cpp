@@ -24,6 +24,13 @@ namespace Cantera
 SurfPhase::SurfPhase(doublereal n0):
     m_press(OneAtm)
 {
+    if (n0 != -1.0) {
+        warn_deprecated("SurfPhase(double)", "The 'n0' argument to the "
+            "SurfPhase constructor is deprecated and will be removed after "
+            "Cantera 2.6. Use the 'setSiteDensity' method instead.");
+    } else {
+        n0 = 1.0;
+    }
     setSiteDensity(n0);
     setNDim(2);
 }
@@ -346,8 +353,16 @@ void SurfPhase::setStateFromXML(const XML_Node& state)
     }
 }
 
-EdgePhase::EdgePhase(doublereal n0) : SurfPhase(n0)
+EdgePhase::EdgePhase(doublereal n0)
 {
+    if (n0 != -1.0) {
+        warn_deprecated("EdgePhase(double)", "The 'n0' argument to the "
+            "EdgePhase constructor is deprecated and will be removed after "
+            "Cantera 2.6. Use the 'setSiteDensity' method instead.");
+    } else {
+        n0 = 1.0;
+    }
+    setSiteDensity(n0);
     setNDim(1);
 }
 
