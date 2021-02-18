@@ -19,19 +19,15 @@ namespace Cantera
 class RedlichKwongMFTP : public MixtureFugacityTP
 {
 public:
-    //! @name Constructors and Duplicators
-    //! @{
-
-    //! Base constructor.
-    RedlichKwongMFTP();
-
     //! Construct a RedlichKwongMFTP object from an input file
     /*!
-     * @param inputFile Name of the input file containing the phase definition
+     * @param inputFile Name of the input file containing the phase definition.
+     *                  If blank, an empty phase will be created.
      * @param id        name (ID) of the phase in the input file. If empty, the
      *                  first phase definition in the input file will be used.
      */
-    RedlichKwongMFTP(const std::string& infile, const std::string& id="");
+    explicit RedlichKwongMFTP(const std::string& infile="",
+                              const std::string& id="");
 
     //! Construct and initialize a RedlichKwongMFTP object directly from an
     //! XML database

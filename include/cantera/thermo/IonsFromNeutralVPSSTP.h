@@ -70,19 +70,15 @@ public:
     //! @name Constructors
     //! @{
 
-    /*!
-     * Default constructor
-     */
-    IonsFromNeutralVPSSTP();
-
     //! Construct an IonsFromNeutralVPSSTP object from an input file
     /*!
-     * @param inputFile Name of the input file containing the phase definition
+     * @param inputFile Name of the input file containing the phase definition.
+     *                  If blank, an empty phase will be created.
      * @param id        name (ID) of the phase in the input file. If empty, the
      *                  first phase definition in the input file will be used.
      */
-    IonsFromNeutralVPSSTP(const std::string& inputFile,
-                          const std::string& id = "");
+    explicit IonsFromNeutralVPSSTP(const std::string& inputFile="",
+                                   const std::string& id="");
 
     //! Construct and initialize an IonsFromNeutralVPSSTP object
     //! directly from an XML database

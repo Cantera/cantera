@@ -27,20 +27,6 @@ using namespace std;
 namespace Cantera
 {
 
-DebyeHuckel::DebyeHuckel() :
-    m_formDH(DHFORM_DILUTE_LIMIT),
-    m_IionicMolality(0.0),
-    m_maxIionicStrength(30.0),
-    m_useHelgesonFixedForm(false),
-    m_IionicMolalityStoich(0.0),
-    m_form_A_Debye(A_DEBYE_CONST),
-    m_A_Debye(1.172576), // units = sqrt(kg/gmol)
-    m_B_Debye(3.28640E9), // units = sqrt(kg/gmol) / m
-    m_waterSS(0),
-    m_densWaterSS(1000.)
-{
-}
-
 DebyeHuckel::DebyeHuckel(const std::string& inputFile,
                          const std::string& id_) :
     m_formDH(DHFORM_DILUTE_LIMIT),

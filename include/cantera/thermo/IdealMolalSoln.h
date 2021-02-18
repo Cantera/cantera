@@ -78,19 +78,17 @@ namespace Cantera
 class IdealMolalSoln : public MolalityVPSSTP
 {
 public:
-    /// Constructor
-    IdealMolalSoln();
-
     //! Constructor for phase initialization
     /*!
      * This constructor will initialize a phase, by reading the required
      * information from an input file.
      *
      *  @param inputFile   Name of the Input file that contains information
-     *      about the phase
+     *      about the phase. If blank, an empty phase will be created.
      *  @param id          id of the phase within the input file
      */
-    IdealMolalSoln(const std::string& inputFile, const std::string& id = "");
+    explicit IdealMolalSoln(const std::string& inputFile="",
+                            const std::string& id="");
 
     //! Constructor for phase initialization
     /*!

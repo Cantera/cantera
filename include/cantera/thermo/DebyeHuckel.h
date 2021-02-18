@@ -558,17 +558,16 @@ class PDSS_Water;
 class DebyeHuckel : public MolalityVPSSTP
 {
 public:
-    //! Default Constructor
-    DebyeHuckel();
-
     virtual ~DebyeHuckel();
 
     //! Full constructor for creating the phase.
     /*!
-     *  @param inputFile  File name containing the definition of the phase
+     *  @param inputFile  File name containing the definition of the phase.
+     *                    If blank, an empty phase will be created.
      *  @param id         id attribute containing the name of the phase.
      */
-    DebyeHuckel(const std::string& inputFile, const std::string& id = "");
+    explicit DebyeHuckel(const std::string& inputFile="",
+                         const std::string& id="");
 
     //! Full constructor for creating the phase.
     /*!

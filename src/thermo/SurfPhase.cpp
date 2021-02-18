@@ -24,6 +24,9 @@ namespace Cantera
 SurfPhase::SurfPhase(doublereal n0):
     m_press(OneAtm)
 {
+    // @TODO After Cantera 2.6, this constructor can be deleted and a
+    // default value of "" can be added to for the infile argument of
+    // the other constructor to make this class default constructible.
     if (n0 != -1.0) {
         warn_deprecated("SurfPhase(double)", "The 'n0' argument to the "
             "SurfPhase constructor is deprecated and will be removed after "

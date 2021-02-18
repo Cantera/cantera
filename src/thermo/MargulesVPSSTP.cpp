@@ -18,13 +18,6 @@ using namespace std;
 
 namespace Cantera
 {
-MargulesVPSSTP::MargulesVPSSTP() :
-    numBinaryInteractions_(0),
-    formMargules_(0),
-    formTempModel_(0)
-{
-}
-
 MargulesVPSSTP::MargulesVPSSTP(const std::string& inputFile, const std::string& id_) :
     numBinaryInteractions_(0),
     formMargules_(0),

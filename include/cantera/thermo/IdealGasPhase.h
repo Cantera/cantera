@@ -287,18 +287,17 @@ namespace Cantera
 class IdealGasPhase: public ThermoPhase
 {
 public:
-    //! Default empty Constructor
-    IdealGasPhase();
-
     //! Construct and initialize an IdealGasPhase ThermoPhase object
     //! directly from an ASCII input file
     /*!
      * @param inputFile Name of the input file containing the phase definition
-     *                  to set up the object
+     *                  to set up the object. If blank, an empty phase will be
+     *                  created.
      * @param id        ID of the phase in the input file. Defaults to the
      *                  empty string.
      */
-    IdealGasPhase(const std::string& inputFile, const std::string& id = "");
+    explicit IdealGasPhase(const std::string& inputFile="",
+                           const std::string& id="");
 
     //! Construct and initialize an IdealGasPhase ThermoPhase object
     //! directly from an XML database

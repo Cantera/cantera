@@ -18,13 +18,6 @@ using namespace std;
 
 namespace Cantera
 {
-RedlichKisterVPSSTP::RedlichKisterVPSSTP() :
-    numBinaryInteractions_(0),
-    formRedlichKister_(0),
-    formTempModel_(0)
-{
-}
-
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(const std::string& inputFile,
         const std::string& id_) :
     numBinaryInteractions_(0),

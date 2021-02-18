@@ -12,34 +12,19 @@
 
 #include "cantera/thermo/IdealSolnGasVPSS.h"
 #include "cantera/thermo/PDSS.h"
-#include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/utilities.h"
+#include "cantera/base/xml.h"
 
 using namespace std;
 
 namespace Cantera
 {
 
-IdealSolnGasVPSS::IdealSolnGasVPSS() :
-    m_formGC(0)
-{
-}
-
 IdealSolnGasVPSS::IdealSolnGasVPSS(const std::string& infile, std::string id_) :
     m_formGC(0)
 {
-    XML_Node* root = get_XML_File(infile);
-    if (id_ == "-") {
-        id_ = "";
-    }
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, root);
-    if (!xphase) {
-        throw CanteraError("IdealSolnGasVPSS::IdealSolnGasVPSS",
-                           "Couldn't find phase named '{} in file '{}'",
-                           id_, infile);
-    }
-    importPhase(*xphase, this);
+    initThermoFile(infile, id_);
 }
 
 void IdealSolnGasVPSS::setStandardConcentrationModel(const std::string& model)

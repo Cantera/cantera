@@ -119,15 +119,13 @@ class WaterProps;
 class WaterSSTP : public SingleSpeciesTP
 {
 public:
-    //! Base constructor
-    WaterSSTP();
-
     //! Full constructor for a water phase
     /*!
      * @param inputFile String name of the input file
      * @param id        string id of the phase name
      */
-    explicit WaterSSTP(const std::string& inputFile, const std::string& id = "");
+    explicit WaterSSTP(const std::string& inputFile="",
+                       const std::string& id="");
 
     //! Full constructor for a water phase
     /*!

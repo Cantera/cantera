@@ -23,17 +23,6 @@ const doublereal RedlichKwongMFTP::omega_a = 4.27480233540E-01;
 const doublereal RedlichKwongMFTP::omega_b = 8.66403499650E-02;
 const doublereal RedlichKwongMFTP::omega_vc = 3.33333333333333E-01;
 
-RedlichKwongMFTP::RedlichKwongMFTP() :
-    m_formTempParam(0),
-    m_b_current(0.0),
-    m_a_current(0.0),
-    NSolns_(0),
-    dpdV_(0.0),
-    dpdT_(0.0)
-{
-    fill_n(Vroot_, 3, 0.0);
-}
-
 RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, const std::string& id_) :
     m_formTempParam(0),
     m_b_current(0.0),

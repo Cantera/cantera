@@ -1066,6 +1066,10 @@ const MultiSpeciesThermo& ThermoPhase::speciesThermo(int k) const
 void ThermoPhase::initThermoFile(const std::string& inputFile,
                                  const std::string& id)
 {
+    if (inputFile.empty()) {
+        // No input file specified - nothing to set up
+        return;
+    }
     size_t dot = inputFile.find_last_of(".");
     string extension;
     if (dot != npos) {

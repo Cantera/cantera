@@ -1038,8 +1038,6 @@ class WaterProps;
 class HMWSoln : public MolalityVPSSTP
 {
 public:
-    //! Default Constructor
-    HMWSoln();
     ~HMWSoln();
 
     //! Construct and initialize an HMWSoln ThermoPhase object
@@ -1049,11 +1047,12 @@ public:
      *  a reference to the parsed input file to get the info for the phase.
      *
      * @param inputFile Name of the input file containing the phase definition
-     *                  to set up the object
+     *                  to set up the object. If blank, an empty phase will be
+     *                  created.
      * @param id        ID of the phase in the input file. Defaults to the
      *                  empty string.
      */
-    HMWSoln(const std::string& inputFile, const std::string& id = "");
+    explicit HMWSoln(const std::string& inputFile="", const std::string& id="");
 
     //! Construct and initialize an HMWSoln ThermoPhase object
     //! directly from an XML database

@@ -113,20 +113,17 @@ namespace Cantera
 class BinarySolutionTabulatedThermo : public IdealSolidSolnPhase
 {
 public:
-    //! Default constructor for BinarySolutionTabulatedThermo
-    BinarySolutionTabulatedThermo();
-
     //! Construct and initialize an BinarySolutionTabulatedThermo ThermoPhase object
     //! directly from an input file
     /*!
      * This constructor will also fully initialize the object.
      *
      * @param infile File name for the input file containing information
-     *               for this phase
+     *               for this phase. If not specified, an empty phase will be created.
      * @param id     The name of this phase. This is used to look up
      *               the phase in the input file.
      */
-    BinarySolutionTabulatedThermo(const std::string& infile, const std::string& id="");
+    explicit BinarySolutionTabulatedThermo(const std::string& infile="", const std::string& id="");
 
     //! Construct and initialize an BinarySolutionTabulatedThermo ThermoPhase object
     //! directly from an XML database

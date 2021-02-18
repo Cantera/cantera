@@ -230,15 +230,14 @@ namespace Cantera
 class LatticePhase : public ThermoPhase
 {
 public:
-    //! Base Empty constructor
-    LatticePhase();
-
     //! Full constructor for a lattice phase
     /*!
-     * @param inputFile String name of the input file
+     * @param inputFile String name of the input file. If blank,
+     *                  an empty phase will be created.
      * @param id        string id of the phase name
      */
-    LatticePhase(const std::string& inputFile, const std::string& id = "");
+    explicit LatticePhase(const std::string& inputFile="",
+                          const std::string& id="");
 
     //! Full constructor for a water phase
     /*!

@@ -17,11 +17,6 @@ using namespace std;
 namespace Cantera
 {
 
-IdealGasPhase::IdealGasPhase() :
-    m_p0(-1.0)
-{
-}
-
 IdealGasPhase::IdealGasPhase(const std::string& inputFile, const std::string& id_) :
     m_p0(-1.0)
 {
