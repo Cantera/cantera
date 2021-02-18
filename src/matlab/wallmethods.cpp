@@ -23,7 +23,7 @@ void wallmethods(int nlhs, mxArray* plhs[],
     // constructor
     if (job == 0) {
         char* type = getString(prhs[2]);
-        n = wall_new2(type);
+        n = wall_new(type);
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
         double* h = mxGetPr(plhs[0]);
         *h = double(n);
