@@ -20,7 +20,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [ '3.5', '3.6', '3.7', '3.8', '3.9' ]
+        python-version: [ '3.6', '3.7', '3.8', '3.9' ]
         os: ['ubuntu-18.04', 'ubuntu-20.04']
       fail-fast: false
     steps:
@@ -189,7 +189,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        python-version: ['3.5', '3.6', '3.7', '3.8', '3.9']
+        python-version: ['3.6', '3.7', '3.8', '3.9']
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
@@ -293,13 +293,10 @@ jobs:
       matrix:
         os: ['windows-2019']
         vs-toolset: ['14.0', '14.2']
-        python-version: [ '3.5', '3.6', '3.7', '3.8', '3.9' ]
+        python-version: [ '3.6', '3.7', '3.8', '3.9' ]
         # Must use windows-2016 image because it installs VS2017 (MSVC 14.1)
         # Scons cannot find MSVC 14.1 when VS2019 is installed
         include:
-          - os: 'windows-2016'
-            vs-toolset: '14.1'
-            python-version: '3.5'
           - os: 'windows-2016'
             vs-toolset: '14.1'
             python-version: '3.6'
