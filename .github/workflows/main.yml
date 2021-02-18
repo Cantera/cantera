@@ -101,7 +101,7 @@ jobs:
         architecture: x64
     - name: Install Apt dependencies
       run: |
-        sudo apt-get install libboost-dev gfortran liblapack-dev libblas-dev
+        sudo apt-get install libboost-dev gfortran liblapack-dev libblas-dev libsundials-dev
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
@@ -109,7 +109,7 @@ jobs:
     - name: Build Cantera
       run: |
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
-        optimize=n -j2
+        optimize=n no_optimize_flags=-DNDEBUG -j2
     - name: Test Cantera
       run: python3 `which scons` test
     - name: Upload Coverage to Codecov
