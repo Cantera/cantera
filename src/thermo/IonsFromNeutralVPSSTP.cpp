@@ -27,15 +27,6 @@ using namespace std;
 namespace Cantera
 {
 
-IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP() :
-    ionSolnType_(cIonSolnType_SINGLEANION),
-    numNeutralMoleculeSpecies_(0),
-    indexSpecialSpecies_(npos),
-    neutralMoleculePhase_(0),
-    geThermo(0)
-{
-}
-
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile,
         const std::string& id_) :
     ionSolnType_(cIonSolnType_SINGLEANION),

@@ -60,14 +60,16 @@ public:
      * is supplied in the constructor or read from the input file.
      *
      * @param infile File name for the input file containing information
-     *               for this phase
+     *               for this phase. If blank, an empty phase will be
+     *               created.
      * @param id     The name of this phase. This is used to look up
      *               the phase in the input file.
      * @param formCG This parameter initializes the #m_formGC variable.
      * @deprecated the formGC argument is deprecated and will be removed after
      *     Cantera 2.6. Use the setStandardConcentrationModel method instead.
      */
-    IdealSolidSolnPhase(const std::string& infile, const std::string& id="", int formCG=-1);
+    explicit IdealSolidSolnPhase(const std::string& infile,
+                                 const std::string& id="", int formCG=-1);
 
     //! Construct and initialize an IdealSolidSolnPhase ThermoPhase object
     //! directly from an XML database

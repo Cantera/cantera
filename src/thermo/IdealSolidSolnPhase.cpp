@@ -25,6 +25,9 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(int formGC) :
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm)
 {
+    // @TODO: After Cantera 2.6, this constructor can be deleted and the default
+    // construction option can be provided by adding "" as the default argument
+    // to the constructor from input file name and phase id.
     if (formGC == -1) {
         formGC = 0;
     } else {

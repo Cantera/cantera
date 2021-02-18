@@ -19,12 +19,6 @@
 namespace Cantera
 {
 
-BinarySolutionTabulatedThermo::BinarySolutionTabulatedThermo()
-    : m_kk_tab(npos)
-    , m_xlast(-1)
-{
-}
-
 BinarySolutionTabulatedThermo::BinarySolutionTabulatedThermo(const std::string& inputFile,
                                                              const std::string& id_)
     : m_kk_tab(npos)

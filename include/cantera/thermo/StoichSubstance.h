@@ -149,17 +149,16 @@ namespace Cantera
 class StoichSubstance : public SingleSpeciesTP
 {
 public:
-    //! Default constructor for the StoichSubstance class
-    StoichSubstance() {}
-
     //! Construct and initialize a StoichSubstance ThermoPhase object directly
     //! from an ASCII input file
     /*!
-     * @param infile name of the input file
+     * @param infile name of the input file. If blank, an empty phase will be
+     *               created.
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    StoichSubstance(const std::string& infile, const std::string& id = "");
+    explicit StoichSubstance(const std::string& infile="",
+                             const std::string& id="");
 
     //! Construct and initialize a StoichSubstance ThermoPhase object directly
     //! from an XML database

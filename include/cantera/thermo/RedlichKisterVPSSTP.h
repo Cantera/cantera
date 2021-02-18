@@ -216,19 +216,15 @@ namespace Cantera
 class RedlichKisterVPSSTP : public GibbsExcessVPSSTP
 {
 public:
-    //! Constructor
-    /*!
-     * This doesn't do much more than initialize constants with default values.
-     */
-    RedlichKisterVPSSTP();
-
     //! Construct a RedlichKisterVPSSTP object from an input file
     /*!
-     * @param inputFile Name of the input file containing the phase definition
+     * @param inputFile Name of the input file containing the phase definition.
+     *                  If blank, an empty phase will be created.
      * @param id        name (ID) of the phase in the input file. If empty, the
      *                  first phase definition in the input file will be used.
      */
-    RedlichKisterVPSSTP(const std::string& inputFile, const std::string& id = "");
+    explicit RedlichKisterVPSSTP(const std::string& inputFile="",
+                                 const std::string& id="");
 
     //! Construct and initialize a RedlichKisterVPSSTP ThermoPhase object
     //! directly from an XML database

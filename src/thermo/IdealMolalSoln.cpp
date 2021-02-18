@@ -24,26 +24,6 @@
 namespace Cantera
 {
 
-IdealMolalSoln::IdealMolalSoln() :
-    m_formGC(2),
-    IMS_typeCutoff_(0),
-    IMS_X_o_cutoff_(0.20),
-    IMS_gamma_o_min_(0.00001),
-    IMS_gamma_k_min_(10.0),
-    IMS_slopefCut_(0.6),
-    IMS_slopegCut_(0.0),
-    IMS_cCut_(.05),
-    IMS_dfCut_(0.0),
-    IMS_efCut_(0.0),
-    IMS_afCut_(0.0),
-    IMS_bfCut_(0.0),
-    IMS_dgCut_(0.0),
-    IMS_egCut_(0.0),
-    IMS_agCut_(0.0),
-    IMS_bgCut_(0.0)
-{
-}
-
 IdealMolalSoln::IdealMolalSoln(const std::string& inputFile,
                                const std::string& id_) :
     MolalityVPSSTP(),

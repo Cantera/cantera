@@ -1624,7 +1624,8 @@ public:
      * Used to implement constructors for derived classes which take a
      * file name and phase name as arguments.
      *
-     * @param inputFile Input file containing the description of the phase
+     * @param inputFile Input file containing the description of the phase. If blank,
+     *     no setup will be performed.
      * @param id  Optional parameter identifying the name of the phase. If
      *            blank, the first phase definition encountered will be used.
      */

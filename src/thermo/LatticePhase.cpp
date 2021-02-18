@@ -19,15 +19,10 @@
 namespace Cantera
 {
 
-LatticePhase::LatticePhase() :
-    m_Pref(OneAtm),
-    m_Pcurrent(OneAtm),
-    m_speciesMolarVolume(0),
-    m_site_density(0.0)
-{
-}
-
 LatticePhase::LatticePhase(const std::string& inputFile, const std::string& id_)
+    : m_Pref(OneAtm)
+    , m_Pcurrent(OneAtm)
+    , m_site_density(0.0)
 {
     initThermoFile(inputFile, id_);
 }
