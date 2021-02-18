@@ -71,11 +71,7 @@ void flowdevicemethods(int nlhs, mxArray* plhs[],
         // options that return a value of type 'double'
         switch (job) {
         case 21:
-            if (v == Undef) {
-                r = flowdev_massFlowRate2(i);
-            } else {
-                r = flowdev_massFlowRate(i, v);
-            }
+            r = flowdev_massFlowRate(i);
             break;
         default:
             mexErrMsgTxt("unknown job parameter");
