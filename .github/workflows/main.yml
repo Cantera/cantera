@@ -40,7 +40,7 @@ jobs:
     - name: Install Python dependencies
       run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas
     - name: Build Cantera
-      run: python3 `which scons` build -j2
+      run: python3 `which scons` build -j2 debug=n
     - name: Test Cantera
       run: python3 `which scons` test
 
@@ -77,7 +77,7 @@ jobs:
     - name: Install Python dependencies
       run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas
     - name: Build Cantera
-      run: python3 `which scons` build -j2
+      run: python3 `which scons` build -j2 debug=n
     - name: Test Cantera
       run: python3 `which scons` test
 
@@ -141,7 +141,7 @@ jobs:
           python3 -m pip install ruamel.yaml scons numpy cython sphinx\<4.0 \
           sphinxcontrib-katex sphinxcontrib-matlabdomain sphinxcontrib-doxylink
       - name: Build Cantera with documentation
-        run: python3 `which scons` build -j2 doxygen_docs=y sphinx_docs=y
+        run: python3 `which scons` build -j2 doxygen_docs=y sphinx_docs=y debug=n optimize=n
       # The known_hosts key is generated with `ssh-keygen -F cantera.org` from a
       # machine that has previously logged in to cantera.org and trusts
       # that it logged in to the right machine
@@ -180,7 +180,7 @@ jobs:
           python3-ruamel.yaml python-numpy cython3 libsundials-dev liblapack-dev \
           libblas-dev
       - name: Build Cantera
-        run: scons build python_cmd=/usr/bin/python3 blas_lapack_libs=lapack,blas -j2
+        run: scons build python_cmd=/usr/bin/python3 blas_lapack_libs=lapack,blas -j2 debug=n
       - name: Test Cantera
         run: scons test
 
@@ -208,7 +208,7 @@ jobs:
       - name: Install Python dependencies
         run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas matplotlib scipy
       - name: Build Cantera
-        run: python3 `which scons` build -j2
+        run: python3 `which scons` build -j2 debug=n
       - name: Run the examples
         # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part
         run: |
@@ -254,7 +254,7 @@ jobs:
         run: |
           scons build extra_inc_dirs=$CONDA_PREFIX/include:$CONDA_PREFIX/include/eigen3 \
           extra_lib_dirs=$CONDA_PREFIX/lib system_fmt=y system_eigen=y system_yamlcpp=y \
-          system_sundials=y -j2 VERBOSE=True
+          system_sundials=y -j2 VERBOSE=True debug=n
         shell: bash -l {0}
       - name: Test Cantera
         run: scons test
@@ -282,7 +282,7 @@ jobs:
         python3 -m pip install ruamel.yaml scons numpy h5py pandas;
         python3 -m pip install https://github.com/cython/cython/archive/master.zip --install-option='--no-cython-compile';
     - name: Build Cantera
-      run: python3 `which scons` build blas_lapack_libs=lapack,blas python_package='full' -j2
+      run: python3 `which scons` build blas_lapack_libs=lapack,blas python_package='full' -j2 debug=n
     - name: Test Cantera
       run: python3 `which scons` test
 
