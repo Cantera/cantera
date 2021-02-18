@@ -20,7 +20,7 @@ void flowdevicemethods(int nlhs, mxArray* plhs[],
     if (job == 0) {
         char* type = getString(prhs[2]);
 
-        n = flowdev_new2(type);
+        n = flowdev_new(type);
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
         double* h = mxGetPr(plhs[0]);
         *h = double(n);
