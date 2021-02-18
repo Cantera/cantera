@@ -146,8 +146,10 @@ public:
     /*!
      *  @param n0 Site Density of the Surface Phase
      *            Units: kmol m-2.
+     *  @deprecated The `n0` constructor argument is deprecated and will be
+     *      removed after Cantera 2.6. Use setSiteDensity() instead.
      */
-    SurfPhase(doublereal n0 = 1.0);
+    SurfPhase(doublereal n0 = -1.0);
 
     //! Construct and initialize a SurfPhase ThermoPhase object directly from an
     //! ASCII input file
@@ -156,7 +158,7 @@ public:
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    SurfPhase(const std::string& infile, const std::string& id);
+    explicit SurfPhase(const std::string& infile, const std::string& id="");
 
     //! Construct and initialize a SurfPhase ThermoPhase object directly from an
     //! XML database
