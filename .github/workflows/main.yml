@@ -16,7 +16,7 @@ on:
 
 jobs:
   ubuntu-multiple-pythons:
-    name: Ubuntu with Python ${{ matrix.python-version }}
+    name: ${{ matrix.os }} with Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
