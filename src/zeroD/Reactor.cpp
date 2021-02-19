@@ -101,10 +101,6 @@ void Reactor::initialize(doublereal t0)
         m_nv += S->thermo()->nSpecies();
         size_t nt = S->kinetics()->nTotalSpecies();
         maxnt = std::max(maxnt, nt);
-        if (m_chem && &m_kin->thermo(0) != &S->kinetics()->thermo(0)) {
-            throw CanteraError("Reactor::initialize",
-                "First phase of all kinetics managers must be the gas.");
-        }
     }
     m_work.resize(maxnt);
 }
