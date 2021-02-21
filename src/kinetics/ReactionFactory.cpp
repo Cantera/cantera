@@ -176,23 +176,26 @@ unique_ptr<Reaction> newReaction(const XML_Node& rxn_node)
         throw CanteraError("newReaction",
             "Unknown reaction type '" + rxn_node["type"] + "'");
     }
-    ReactionFactory::factory()->setup_XML(R->type(), R, rxn_node);
+    if (type != "electrochemical") {
+        type = R->type();
+    }
+    ReactionFactory::factory()->setup_XML(type, R, rxn_node);
 
     return unique_ptr<Reaction>(R);
 }
 
-unique_ptr<Reaction> newReaction(const AnyMap& node,
+unique_ptr<Reaction> newReaction(const AnyMap& rxn_node,
                                  const Kinetics& kin)
 {
     std::string type = "elementary";
-    if (node.hasKey("type")) {
-        type = node["type"].asString();
+    if (rxn_node.hasKey("type")) {
+        type = rxn_node["type"].asString();
     }
 
     if (kin.thermo().nDim() < 3) {
         // See if this is an electrochemical reaction
         Reaction testReaction(0);
-        parseReactionEquation(testReaction, node["equation"], kin);
+        parseReactionEquation(testReaction, rxn_node["equation"], kin);
         if (isElectrochemicalReaction(testReaction, kin)) {
             type = "electrochemical";
         } else {
@@ -204,10 +207,10 @@ unique_ptr<Reaction> newReaction(const AnyMap& node,
     try {
         R = ReactionFactory::factory()->create(type);
     } catch (CanteraError& err) {
-        throw InputFileError("ReactionFactory::newReaction", node["type"],
+        throw InputFileError("ReactionFactory::newReaction", rxn_node["type"],
             "Unknown reaction type '{}'", type);
     }
-    ReactionFactory::factory()->setup_AnyMap(type, R, node, kin);
+    ReactionFactory::factory()->setup_AnyMap(type, R, rxn_node, kin);
 
     return unique_ptr<Reaction>(R);
 }

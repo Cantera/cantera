@@ -114,10 +114,10 @@ unique_ptr<Reaction> newReaction(const XML_Node& rxn_node);
 
 //! Create a new Reaction object using the specified parameters
 /*!
- * @param node AnyMap node describing reaction.
+ * @param rxn_node AnyMap node describing reaction.
  * @param kin kinetics manager
  */
-unique_ptr<Reaction> newReaction(const AnyMap& node,
+unique_ptr<Reaction> newReaction(const AnyMap& rxn_node,
                                  const Kinetics& kin);
 }
 #endif
