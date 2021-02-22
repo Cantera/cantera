@@ -399,6 +399,10 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxChebyshevReaction "Cantera::ChebyshevReaction" (CxxReaction):
         CxxChebyshevRate rate
 
+    cdef cppclass CxxCustomPyReaction "Cantera::CustomPyReaction" (CxxReaction):
+        CxxCustomPyReaction()
+        CxxCustomPyRxnRate rate
+
     cdef cppclass CxxCoverageDependency "Cantera::CoverageDependency":
         CxxCoverageDependency(double, double, double)
         double a
