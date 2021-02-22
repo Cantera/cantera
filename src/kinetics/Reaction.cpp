@@ -258,6 +258,19 @@ ChebyshevReaction::ChebyshevReaction(const Composition& reactants_,
 {
 }
 
+CustomPyReaction::CustomPyReaction()
+    : Reaction(CUSTOMPY_RXN)
+{
+}
+
+CustomPyReaction::CustomPyReaction(const Composition& reactants_,
+                                   const Composition& products_,
+                                   const CustomPyRxnRate& rate_)
+    : Reaction(CUSTOMPY_RXN, reactants_, products_)
+    , rate(rate_)
+{
+}
+
 InterfaceReaction::InterfaceReaction()
     : is_sticking_coefficient(false)
     , use_motz_wise_correction(false)

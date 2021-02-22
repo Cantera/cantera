@@ -96,6 +96,19 @@ ReactionFactory::ReactionFactory()
                    setupChebyshevReaction(*(ChebyshevReaction*)R, node, kin);
                });
 
+    // register custom Python reactions
+    reg("custom-Python", []() { return new CustomPyReaction(); });
+    reg_XML("custom-Python",
+            [](Reaction* R, const XML_Node& node) {
+                throw CanteraError("ReactionFactory", "Custom Python reactions "
+                                   "cannot be created from XML nodes'");
+            });
+    reg_AnyMap("custom-Python",
+               [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
+                   throw CanteraError("ReactionFactory", "Custom Python reactions "
+                                      "are not yet fully implemented'");
+               });
+
     // register interface reactions
     reg("interface", []() { return new InterfaceReaction(); });
     addAlias("interface", "surface");

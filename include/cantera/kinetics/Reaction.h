@@ -223,6 +223,22 @@ public:
     ChebyshevRate rate;
 };
 
+//! A reaction which follows mass-action kinetics with a custom reaction rate
+//! defined in Python.
+class CustomPyReaction : public Reaction
+{
+public:
+    CustomPyReaction();
+    CustomPyReaction(const Composition& reactants, const Composition& products,
+                     const CustomPyRxnRate& rate);
+
+    virtual std::string type() const {
+        return "custom-Python";
+    }
+
+    CustomPyRxnRate rate;
+};
+
 //! Modifications to an InterfaceReaction rate based on a surface species
 //! coverage.
 struct CoverageDependency
