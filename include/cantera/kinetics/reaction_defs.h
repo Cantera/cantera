@@ -58,6 +58,11 @@ const int PLOG_RXN = 5;
 const int CHEBYSHEV_RXN = 6;
 
 /**
+ * A custom Python reaction
+ */
+const int CUSTOMPY_RXN = 99;
+
+/**
  * A chemical activation reaction. For these reactions, the rate falls
  * off as the pressure increases, due to collisional stabilization of
  * a reaction intermediate. Example: Si + SiH4 (+M) <-> Si2H2 + H2
