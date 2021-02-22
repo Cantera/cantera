@@ -1746,6 +1746,7 @@ def postBuildMessage(target, source, env):
     print("*******************************************************")
     print("Compilation completed successfully.\n")
     print("- To run the test suite, type 'scons test'.")
+    print("- To list available tests, type 'scons test-help'.")
     if env['googletest'] == 'none':
         print("  WARNING: You set the 'googletest' to 'none' and all it's tests will be skipped.")
     if os.name == 'nt':
