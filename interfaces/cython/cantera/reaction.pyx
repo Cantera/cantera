@@ -403,6 +403,46 @@ cdef copyArrhenius(CxxArrhenius* rate):
     return r
 
 
+cdef class CustomRate:
+    r"""
+    A custom rate coefficient which depends on temperature only.
+
+    Warning: this class is an experimental part of the Cantera API and
+        may be changed or removed without notice.
+    """
+    def __cinit__(self, init=True):
+        if init:
+            self.rate = new CxxCustomPyRxnRate()
+            self.reaction = None
+
+    def __dealloc__(self):
+        if self.reaction is None:
+            del self.rate
+
+    def __repr__(self):
+        return 'CustomRate()'
+
+    def set_rate_function(self, k):
+        r"""
+        Set the function describing a custom reaction rate. 
+
+        >>> rr = CustomRate()
+        >>> rr.set_rate_function(lambda T: 38.7 * T**2.7 * exp(-3150.15/T))
+        """
+        cdef Func1 g
+        if isinstance(k, Func1):
+            g = k
+        else:
+            g = Func1(k)
+        self._rate_func = g
+        self.rate.setRateFunction(g.func)
+    
+    def __call__(self, float T):
+        cdef double logT = np.log(T)
+        cdef double recipT = 1/T
+        return self.rate.updateRC(logT, recipT)
+
+
 cdef class ElementaryReaction(Reaction):
     """
     A reaction which follows mass-action kinetics with a modified Arrhenius

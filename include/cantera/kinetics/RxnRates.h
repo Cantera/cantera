@@ -15,6 +15,7 @@ namespace Cantera
 {
 
 class Array2D;
+class Func1;
 
 //! Arrhenius reaction rate type depends only on temperature
 /**
@@ -427,6 +428,44 @@ protected:
     size_t nT_; //!< number of points in the temperature direction
     vector_fp chebCoeffs_; //!< Chebyshev coefficients, length nP * nT
     vector_fp dotProd_; //!< dot product of chebCoeffs with the reduced pressure polynomial
+};
+
+//! Custom Python reaction rate depending only on temperature
+/**
+ * The rate expression is provided by external Python code taking a single
+ * argument (temperature) and does not use a formalized parameterization.
+ *
+ * @warning This class is an experimental part of the %Cantera API and
+ *    may be changed or removed without notice.
+ */
+class CustomPyRxnRate
+{
+public:
+    //! Constructor.
+    CustomPyRxnRate();
+
+    // set custom rate
+    /**
+     * The Python function takes a single argument (temperature) and does
+     * not depend on parameters handled in C++.
+     */
+    void setRateFunction(Func1* f);
+
+    //! Update concentration-dependent parts of the rate coefficient.
+    /*!
+     *   For this class, there are no concentration-dependent parts, so this
+     *   method does nothing.
+     */
+    void update_C(const double* c) {}
+
+    // Update the value the natural logarithm of the rate constant.
+    double updateLog(double logT, double recipT) const;
+
+    // Update the value the rate constant.
+    double updateRC(double logT, double recipT) const;
+
+protected:
+    Func1* m_ratefunc;
 };
 
 }
