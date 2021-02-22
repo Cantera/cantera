@@ -5,6 +5,7 @@
 
 #include "cantera/kinetics/RxnRates.h"
 #include "cantera/base/Array.h"
+#include "cantera/numerics/Func1.h"
 
 namespace Cantera
 {
@@ -156,6 +157,26 @@ ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
             chebCoeffs_[nP_*t + p] = coeffs(t,p);
         }
     }
+}
+
+CustomPyRxnRate::CustomPyRxnRate() : m_ratefunc(0) {}
+
+void CustomPyRxnRate::setRateFunction(Func1* f) {
+    m_ratefunc = f;
+}
+
+double CustomPyRxnRate::updateLog(double logT, double recipT) const {
+    if (m_ratefunc) {
+        return std::log( m_ratefunc->eval(1./recipT) );
+    }
+    return 1.;
+}
+
+double CustomPyRxnRate::updateRC(double logT, double recipT) const {
+    if (m_ratefunc) {
+        return m_ratefunc->eval(1./recipT);
+    }
+    return 0.;
 }
 
 }

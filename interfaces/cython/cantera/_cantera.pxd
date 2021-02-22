@@ -312,6 +312,11 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double temperatureExponent()
         double activationEnergy_R()
 
+    cdef cppclass CxxCustomPyRxnRate "Cantera::CustomPyRxnRate":
+        CxxCustomPyRxnRate()
+        void setRateFunction(CxxFunc1*) except +translate_exception
+        double updateRC(double, double)
+
     cdef cppclass CxxReaction "Cantera::Reaction":
         # Note, this default constructor doesn't actually exist. The declaration
         # is required by a Cython bug which should be resolved in Cython 0.22.
@@ -1014,6 +1019,11 @@ cdef class Reaction:
 
 cdef class Arrhenius:
     cdef CxxArrhenius* rate
+    cdef Reaction reaction # parent reaction, to prevent garbage collection
+
+cdef class CustomRate:
+    cdef CxxCustomPyRxnRate* rate
+    cdef Func1 _rate_func
     cdef Reaction reaction # parent reaction, to prevent garbage collection
 
 cdef class Falloff:
