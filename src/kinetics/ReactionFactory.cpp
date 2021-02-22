@@ -5,11 +5,13 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
+#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/kinetics/ReactionFactory.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/AnyMap.h"
+#include "cantera/base/stringUtils.h"
 
 namespace Cantera
 {
