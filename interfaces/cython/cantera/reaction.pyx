@@ -424,7 +424,7 @@ cdef class CustomRate:
 
     def set_rate_function(self, k):
         r"""
-        Set the function describing a custom reaction rate. 
+        Set the function describing a custom reaction rate.
 
         >>> rr = CustomRate()
         >>> rr.set_rate_function(lambda T: 38.7 * T**2.7 * exp(-3150.15/T))
@@ -436,11 +436,17 @@ cdef class CustomRate:
             g = Func1(k)
         self._rate_func = g
         self.rate.setRateFunction(g.func)
-    
+
     def __call__(self, float T):
         cdef double logT = np.log(T)
         cdef double recipT = 1/T
         return self.rate.updateRC(logT, recipT)
+
+cdef wrapCustomRate(CxxCustomPyRxnRate* rate, Reaction reaction):
+    r = CustomRate(init=False)
+    r.rate = rate
+    r.reaction = reaction
+    return r
 
 
 cdef class ElementaryReaction(Reaction):
@@ -807,6 +813,22 @@ cdef class ChebyshevReaction(Reaction):
 
         r.rate.update_C(&logP)
         return r.rate.updateRC(logT, recipT)
+
+
+cdef class CustomReaction(Reaction):
+    """
+    A reaction which follows mass-action kinetics with a custom reaction rate.
+    """
+    reaction_type = "custom-Python"
+
+    property rate:
+        """ Get/Set the `CustomRate` rate coefficient for this reaction. """
+        def __get__(self):
+            cdef CxxCustomPyReaction* r = <CxxCustomPyReaction*>self.reaction
+            return wrapCustomRate(&(r.rate), self)
+        def __set__(self, CustomRate rate):
+            cdef CxxCustomPyReaction* r = <CxxCustomPyReaction*>self.reaction
+            r.rate = deref(rate.rate)
 
 
 cdef class InterfaceReaction(ElementaryReaction):
