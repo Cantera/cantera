@@ -407,13 +407,20 @@ cdef class CustomRate:
     r"""
     A custom rate coefficient which depends on temperature only.
 
+    The simplest way to create a `CustomRate` object is to use a lambda function,
+    for example::
+
+        rr = CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15/T))
+
     Warning: this class is an experimental part of the Cantera API and
         may be changed or removed without notice.
     """
-    def __cinit__(self, init=True):
+    def __cinit__(self, k=None, init=True):
         if init:
             self.rate = new CxxCustomPyRxnRate()
             self.reaction = None
+        if k:
+            self.set_rate_function(k)
 
     def __dealloc__(self):
         if self.reaction is None:
@@ -818,8 +825,25 @@ cdef class ChebyshevReaction(Reaction):
 cdef class CustomReaction(Reaction):
     """
     A reaction which follows mass-action kinetics with a custom reaction rate.
+
+    An example for the definition of a `CustomReaction` object is::
+
+        rxn = CustomReaction(equation='H2 + O <=> H + OH',
+                             rate=lambda T: 38.7 * T**2.7 * exp(-3150.15/T),
+                             kinetics=gas)
+
+    Warning: this class is an experimental part of the Cantera API and
+        may be changed or removed without notice.
     """
     reaction_type = "custom-Python"
+
+    def __init__(self, equation=None, rate=None, Kinetics kinetics=None, init=True, **kwargs):
+
+        if init:
+            yaml = '{{equation: {}, type: {}}}'.format(equation, self.reaction_type)
+            self._reaction = CxxNewReaction(AnyMapFromYamlString(stringify(yaml)),
+                                            deref(kinetics.kinetics))
+            self.rate = CustomRate(rate)
 
     property rate:
         """ Get/Set the `CustomRate` rate coefficient for this reaction. """
@@ -841,7 +865,7 @@ cdef class InterfaceReaction(ElementaryReaction):
         dependent on surface species coverages. The keys of the dict are species
         names, and the values are tuples specifying the three coverage
         parameters ``(a, m, E)`` which are the modifiers for the pre-exponential
-        factor [m, kmol, s units], the temperature exponent [nondimensional],
+        factor [m, kmol, s units], The temperature exponent [nondimensional],
         and the activation energy [J/kmol], respectively.
         """
         def __get__(self):
