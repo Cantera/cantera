@@ -812,6 +812,13 @@ void setupChebyshevReaction(ChebyshevReaction&R, const AnyMap& node,
                            coeffs);
 }
 
+void setupCustomPyReaction(CustomPyReaction& R, const AnyMap& node,
+                           const Kinetics& kin)
+{
+    setupReaction(R, node, kin);
+    R.rate = CustomPyRxnRate();
+}
+
 void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)
 {
     XML_Node& arr = rxn_node.child("rateCoeff").child("Arrhenius");

@@ -381,7 +381,7 @@ cdef class Arrhenius:
             return self.rate.activationEnergy_R() * gas_constant
 
     def __repr__(self):
-        return 'Arrhenius(A={:g}, b={:g}, E={:g})'.format(
+        return '<Arrhenius: A={:g}, b={:g}, E={:g}>'.format(
             self.pre_exponential_factor, self.temperature_exponent,
             self.activation_energy)
 
@@ -419,22 +419,23 @@ cdef class CustomRate:
         if init:
             self.rate = new CxxCustomPyRxnRate()
             self.reaction = None
-        if k:
-            self.set_rate_function(k)
+            self._rate_func = None
+            if k:
+                self.set_rate_function(k)
 
     def __dealloc__(self):
         if self.reaction is None:
             del self.rate
 
     def __repr__(self):
-        return 'CustomRate()'
+        return '<CustomRate>'
 
     def set_rate_function(self, k):
         r"""
-        Set the function describing a custom reaction rate.
+        Set the function describing a custom reaction rate::
 
-        >>> rr = CustomRate()
-        >>> rr.set_rate_function(lambda T: 38.7 * T**2.7 * exp(-3150.15/T))
+            rr = CustomRate()
+            rr.set_rate_function(lambda T: 38.7 * T**2.7 * exp(-3150.15/T))
         """
         cdef Func1 g
         if isinstance(k, Func1):
@@ -449,6 +450,7 @@ cdef class CustomRate:
         cdef double recipT = 1/T
         return self.rate.updateRC(logT, recipT)
 
+
 cdef wrapCustomRate(CxxCustomPyRxnRate* rate, Reaction reaction):
     r = CustomRate(init=False)
     r.rate = rate
@@ -460,8 +462,30 @@ cdef class ElementaryReaction(Reaction):
     """
     A reaction which follows mass-action kinetics with a modified Arrhenius
     reaction rate.
+
+    An example for the definition of a `ElementaryReaction` object is given as::
+
+        rxn = ElementaryReaction(equation='H2 + O <=> H + OH',
+                                 rate={'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07},
+                                 kinetics=gas)
     """
     reaction_type = "elementary"
+
+    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
+                 init=True, **kwargs):
+
+        if init and equation and rate and kinetics:
+            if isinstance(rate, dict):
+                coeffs = ['{}: {}'.format(k, v) for k, v in rate.items()]
+            else:
+                raise ValueError('Invalid rate definition')
+
+            rate_def = '{{{}}}'.format(', '.join(coeffs))
+            yaml = '{{equation: {}, rate-constant: {}, type: {}}}'.format(
+                equation, rate_def, self.reaction_type)
+            self._reaction = CxxNewReaction(AnyMapFromYamlString(stringify(yaml)),
+                                            deref(kinetics.kinetics))
+            self.reaction = self._reaction.get()
 
     property rate:
         """ Get/Set the `Arrhenius` rate coefficient for this reaction. """
@@ -826,10 +850,10 @@ cdef class CustomReaction(Reaction):
     """
     A reaction which follows mass-action kinetics with a custom reaction rate.
 
-    An example for the definition of a `CustomReaction` object is::
+    An example for the definition of a `CustomReaction` object is given as::
 
         rxn = CustomReaction(equation='H2 + O <=> H + OH',
-                             rate=lambda T: 38.7 * T**2.7 * exp(-3150.15/T),
+                             rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T),
                              kinetics=gas)
 
     Warning: this class is an experimental part of the Cantera API and
@@ -837,16 +861,19 @@ cdef class CustomReaction(Reaction):
     """
     reaction_type = "custom-Python"
 
-    def __init__(self, equation=None, rate=None, Kinetics kinetics=None, init=True, **kwargs):
+    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
+                 init=True, **kwargs):
 
-        if init:
+        if init and equation and kinetics:
             yaml = '{{equation: {}, type: {}}}'.format(equation, self.reaction_type)
             self._reaction = CxxNewReaction(AnyMapFromYamlString(stringify(yaml)),
                                             deref(kinetics.kinetics))
-            self.rate = CustomRate(rate)
+            self.reaction = self._reaction.get()
+            rate_obj = CustomRate(rate)
+            self.rate = rate_obj
 
     property rate:
-        """ Get/Set the `CustomRate` rate coefficient for this reaction. """
+        """ Get/Set the `CustomRate` object for this reaction. """
         def __get__(self):
             cdef CxxCustomPyReaction* r = <CxxCustomPyReaction*>self.reaction
             return wrapCustomRate(&(r.rate), self)
