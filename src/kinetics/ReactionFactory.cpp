@@ -105,8 +105,7 @@ ReactionFactory::ReactionFactory()
             });
     reg_AnyMap("custom-Python",
                [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
-                   throw CanteraError("ReactionFactory", "Custom Python reactions "
-                                      "are not yet fully implemented'");
+                   setupCustomPyReaction(*(CustomPyReaction*)R, node, kin);
                });
 
     // register interface reactions

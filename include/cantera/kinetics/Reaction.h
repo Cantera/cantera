@@ -357,6 +357,9 @@ void setupChebyshevReaction(ChebyshevReaction&, const XML_Node&);
 void setupChebyshevReaction(ChebyshevReaction&, const AnyMap&,
                             const Kinetics&);
 
+void setupCustomPyReaction(CustomPyReaction&, const AnyMap&,
+                           const Kinetics&);
+
 void setupInterfaceReaction(InterfaceReaction&, const XML_Node&);
 void setupInterfaceReaction(InterfaceReaction&, const AnyMap&,
                             const Kinetics&);
