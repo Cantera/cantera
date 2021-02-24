@@ -5,6 +5,9 @@ c     wrapper functions defined in demo_ftnlib.cpp to call the Cantera C++
 c     interface. See also the Python version of this problem in the Python
 c     examples.
 
+c     This file is part of Cantera. See License.txt in the top-level directory or
+c     at https://cantera.org/license.txt for license and copyright information.
+
       program isentropic
       implicit double precision (a-h,o-z)
       parameter (oneatm = 1.01325d5, NPTS = 200)
