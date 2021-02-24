@@ -1,4 +1,11 @@
-// An open Rankine cycle
+/*!
+ * @file rankine.cpp
+ *
+ * Open Rankine Cycle
+ *
+ * Calculate the thermodynamic states and efficiency of an open Rankine cycle
+ * using a pure substance model for water.
+ */
 
 #include "cantera/thermo/PureFluidPhase.h"
 

@@ -1,8 +1,11 @@
-/////////////////////////////////////////////////////////////
-//
-// zero-dimensional kinetics example program
-//
-/////////////////////////////////////////////////////////////
+/*!
+ * @file kinetics1.cpp
+ *
+ * Zero-dimensional kinetics
+ *
+ * This example simulates autoignition of hydrogen in a constant pressure
+ * reactor and saves the time history to files that can be used for plotting.
+ */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
