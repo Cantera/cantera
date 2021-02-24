@@ -58,7 +58,7 @@ public:
 
     // specify guesses for the initial values. These can be anything
     // that leads to a converged solution.
-    virtual doublereal initialValue(size_t n, size_t j) {
+    virtual double initialValue(size_t n, size_t j) {
         switch (n) {
         case 0:
             return 0.1*z(j);
