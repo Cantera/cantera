@@ -8,6 +8,9 @@
  * Usage: flamespeed [equivalence_ratio] [refine_grid] [loglevel]
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
+
 #include "cantera/oneD/Sim1D.h"
 #include "cantera/oneD/Boundary1D.h"
 #include "cantera/oneD/StFlow.h"
