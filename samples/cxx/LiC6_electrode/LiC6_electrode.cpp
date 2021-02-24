@@ -1,3 +1,13 @@
+/*!
+ * @file LiC6_electrode.cpp
+ *
+ * LiC6 Electrode
+ *
+ * Calculate the open-circuit potential of an LiC6 electrode and activity
+ * coefficients of each species as a function of the mole fraction of
+ * intercalated lithium.
+ */
+
 #include "cantera/thermo.h"
 #include <iostream>
 #include <fstream>

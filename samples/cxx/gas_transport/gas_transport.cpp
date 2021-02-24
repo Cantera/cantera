@@ -1,8 +1,12 @@
-/////////////////////////////////////////////////////////////
-//
-//  Example: Gas phase transport properties
-//
-/////////////////////////////////////////////////////////////
+/*!
+ * @file gas_transport.cpp
+ *
+ * Gas phase transport properties
+ *
+ * Construct a gas phase Solution object and use it to compute viscosity,
+ * thermal conductivity, mixture-averaged diffusion coefficients, and thermal
+ * diffusivities for a range of temperatures.
+ */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.

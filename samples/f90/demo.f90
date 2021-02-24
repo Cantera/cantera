@@ -1,6 +1,8 @@
+! Fortran 90 Demo
+!
 ! This program illustrates using Cantera in Fortran 90 to compute
 ! thermodynamic, kinetic, and transport properties of a gas mixture.
-!
+
 program main
 
   ! use the Cantera module
