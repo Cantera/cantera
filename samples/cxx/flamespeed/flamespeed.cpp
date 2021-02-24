@@ -1,6 +1,10 @@
 /*!
  * @file flamespeed.cpp
+ *
+ * Freely-propagating flame
+ *
  * C++ demo program to compute flame speeds using GRI-Mech.
+ *
  * Usage: flamespeed [equivalence_ratio] [refine_grid] [loglevel]
  */
 

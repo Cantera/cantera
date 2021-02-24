@@ -1,11 +1,12 @@
-c
-c     Replace this sample main program with your program
+c     Fortran 77 Demo
 c
 c     This program uses functions defined in demo_ftnlib.cpp to create
 c     an ideal gas mixture and print some of its properties.
 c
 c     For a C++ version of this program, see ../cxx/demo.cpp.
 c
+c     Replace this sample main program with your program
+
       program demo
       implicit double precision (a-h,o-z)
       parameter (MAXSP = 20, MAXRXNS = 100)

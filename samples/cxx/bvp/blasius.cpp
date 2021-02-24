@@ -1,5 +1,13 @@
-/// @file blasius.cpp
-/// The Blasius boundary layer
+/*!
+ * @file blasius.cpp
+ *
+ * Blasius BVP Solver
+ *
+ * This example solves the Blasius boundary value problem for the velocity
+ * profile of a laminar boundary layer over a flat plate. It defines class
+ * BoundaryValueProblem, which provides a simplified interface to the boundary
+ * value problem capabilities of Cantera.
+ */
 
 #include "BoundaryValueProblem.h"
 
