@@ -7,6 +7,9 @@ c     For a C++ version of this program, see ../cxx/demo.cpp.
 c
 c     Replace this sample main program with your program
 
+c     This file is part of Cantera. See License.txt in the top-level directory or
+c     at https://cantera.org/license.txt for license and copyright information.
+
       program demo
       implicit double precision (a-h,o-z)
       parameter (MAXSP = 20, MAXRXNS = 100)
