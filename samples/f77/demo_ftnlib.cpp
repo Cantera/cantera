@@ -24,6 +24,9 @@
  * is not the case, the procedure names must be edited before use.
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
+
 // add any other Cantera header files you need here
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/kinetics/GasKinetics.h"

@@ -8,6 +8,9 @@
  * equilibrium, and transport properties.
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
+
 // Include cantera header files. They should be included in the form
 // "cantera/*.h". These headers are designed for use in C++ programs and
 // provide a simplified interface to the Cantera header files. If you need
