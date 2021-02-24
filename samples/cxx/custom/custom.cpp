@@ -1,7 +1,11 @@
 /*!
  * @file custom.cpp
- * Solve a closed-system constant pressure ignition problem where the governing equations
- * are custom-implemented.
+ *
+ * Custom Reactor
+ *
+ * Solve a closed-system constant pressure ignition problem where the governing
+ * equations are custom-implemented, using Cantera's interface to CVODES to
+ * integrate the equations.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

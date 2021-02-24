@@ -1,4 +1,6 @@
 c
+c     CKLIB emulation
+c
 c     This example shows how to implement subroutines that emulate those
 c     of the Chemkin CKLIB library. This may be useful to port an
 c     existing Chemkin-based application to Cantera. As shown here, the
@@ -8,6 +10,9 @@ c     desired. It is also possible to rename these subroutines with the
 c     'ck' prefix if the application is not linked to the Chemkin CKLIB
 c     library. In this case, application programs do not need to be
 c     modified or recompiled - they only need to be relinked.
+c
+c     Relies on the wrapper functions defined in demo_ftnlib.cpp to call the
+c     Cantera C++ interface.
 c
 c     Only a few subroutines are implemented here, but the same idea can
 c     be applied to create Cantera-based versions of any other
