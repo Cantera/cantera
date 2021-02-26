@@ -1283,6 +1283,13 @@ cdef class ReactorNet:
         if return_residuals:
             return residuals[:step + 1]
 
+    def solve_steady(self):
+        """
+        Advance the reactor network to steady state via direct solution of
+        the ODE governing equations.
+        """
+        return self.net.solveSteady()
+
     def __reduce__(self):
         raise NotImplementedError('ReactorNet object is not picklable')
 

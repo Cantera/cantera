@@ -385,4 +385,51 @@ size_t ReactorNet::registerSensitivityParameter(
     return m_sens_params.size() - 1;
 }
 
+// ----------- 0DSS -----------
+double ReactorNet::solveSteady()
+{
+    if (m_reactors.empty()) {
+        throw CanteraError("ReactorNet::solveSteady",
+                           "no reactors in network!");
+    }
+    
+    //initialize
+    m_nv = 0;
+    m_start.assign(1, 0);
+    for (size_t n = 0; n < m_reactors.size(); n++) {
+        Reactor& r = *m_reactors[n];
+        if (r.nWalls()) {
+            throw CanteraError("ReactorNet::solveSteady",
+                           "Wall detected in network - cannot solve for"
+                           "steady state with transient components.");
+        }
+        //TODO: add check for constant mass flow rate
+        r.initialize(m_time);
+        m_nv += r.neq();
+        m_start.push_back(m_nv);
+    }
+    //solve
+    NonLinSol::solve();
+}
+
+doublereal ReactorNet::nonlinsol_initialValue(size_t i)
+{
+    for (size_t n = m_reactors.size() - 1; n >= 0; n--)
+        if (i >= m_start[n])
+            return m_reactors[n]->initialValue(i - m_start[n]);
+    return -1;
+}
+
+void ReactorNet::nonlinsol_residFunction(double *sol, double *rsd)
+{
+    updateState(sol);
+    for (size_t n = 0; n < m_reactors.size(); n++)
+        m_reactors[n]->residFunction(sol + m_start[n], rsd + m_start[n]);
+}
+
+size_t ReactorNet::nonlinsol_nEqs()
+{
+    return m_nv;
+}
+
 }

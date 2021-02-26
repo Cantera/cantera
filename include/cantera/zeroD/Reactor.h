@@ -159,6 +159,15 @@ public:
     //! @param limit value for step size limit
     void setAdvanceLimit(const std::string& nm, const double limit);
 
+    // Specify the residual function for the system
+    //  sol - iteration solution vector (input)
+    //  rsd - residual vector (output)
+    virtual void residFunction(double *sol, double *rsd);
+
+    // Specify guesses for the initial values.
+    // Note: called during Sim1D initialization
+    virtual doublereal initialValue(size_t i);
+
 protected:
     //! Set reaction rate multipliers based on the sensitivity variables in
     //! *params*.

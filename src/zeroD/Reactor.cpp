@@ -504,4 +504,30 @@ void Reactor::setAdvanceLimit(const string& nm, const double limit)
     }
 }
 
+// Specify the residual function for the system
+//  sol - iteration solution vector (input)
+//  rsd - residual vector (output)
+void Reactor::residFunction(double *sol, double *rsd)
+{
+    evalEqs(0, sol, rsd, 0); // evaluate ODE system at y = sol. store result (ydot) in rsd
+    rsd[1] = 1.0 - sol[1]; // constant volume
+    //TODO: allow volume other than 1.0
+}
+
+// Specify guesses for the initial values.
+// Note: called during Sim1D initialization
+doublereal Reactor::initialValue(size_t i) {
+    m_thermo->restoreState(m_state);
+    switch (i)
+    {
+    case 0:
+        return m_thermo->density() * m_vol;
+    case 1:
+        return m_vol;
+    case 2:
+        return m_thermo->intEnergy_mass() * m_thermo->density() * m_vol;
+    }
+    return m_thermo->massFraction(i-3);
+}
+
 }
