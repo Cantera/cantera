@@ -416,12 +416,12 @@ cdef class CustomRate:
         may be changed or removed without notice.
     """
     def __cinit__(self, k=None, init=True):
+
         if init:
             self.rate = new CxxCustomPyRxnRate()
             self.reaction = None
             self._rate_func = None
-            if k:
-                self.set_rate_function(k)
+            self.set_rate_function(k)
 
     def __dealloc__(self):
         if self.reaction is None:
@@ -437,6 +437,10 @@ cdef class CustomRate:
             rr = CustomRate()
             rr.set_rate_function(lambda T: 38.7 * T**2.7 * exp(-3150.15/T))
         """
+        if k is None:
+            self._rate_func = None
+            return
+
         cdef Func1 g
         if isinstance(k, Func1):
             g = k
@@ -455,6 +459,7 @@ cdef wrapCustomRate(CxxCustomPyRxnRate* rate, Reaction reaction):
     r = CustomRate(init=False)
     r.rate = rate
     r.reaction = reaction
+    #r.set_rate_function(k)
     return r
 
 
