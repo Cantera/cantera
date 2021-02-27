@@ -158,9 +158,14 @@ cdef class Kinetics(_SolutionBase):
             self.kinetics.setMultiplier(i_reaction, value)
 
     def reaction_type(self, int i_reaction):
-        """Type of reaction *i_reaction*."""
+        """Type code of reaction *i_reaction*."""
         self._check_reaction_index(i_reaction)
         return self.kinetics.reactionType(i_reaction)
+
+    def reaction_type_str(self, int i_reaction):
+        """Type of reaction *i_reaction*."""
+        self._check_reaction_index(i_reaction)
+        return pystr(self.kinetics.reactionTypeStr(i_reaction))
 
     def reaction_equation(self, int i_reaction):
         """The equation for the specified reaction. See also `reaction_equations`."""
