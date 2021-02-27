@@ -318,10 +318,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double updateRC(double, double)
 
     cdef cppclass CxxReaction "Cantera::Reaction":
-        # Note, this default constructor doesn't actually exist. The declaration
-        # is required by a Cython bug which should be resolved in Cython 0.22.
         CxxReaction()
-        CxxReaction(int)
 
         string reactantString()
         string productString()
