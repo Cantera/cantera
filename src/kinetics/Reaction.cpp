@@ -121,14 +121,14 @@ std::string Reaction::equation() const
 ElementaryReaction::ElementaryReaction(const Composition& reactants_,
                                        const Composition products_,
                                        const Arrhenius& rate_)
-    : Reaction(ELEMENTARY_RXN, reactants_, products_)
+    : Reaction(UNUSED_MAGIC_NUMBER, reactants_, products_)
     , rate(rate_)
     , allow_negative_pre_exponential_factor(false)
 {
 }
 
 ElementaryReaction::ElementaryReaction()
-    : Reaction(ELEMENTARY_RXN)
+    : Reaction()
     , allow_negative_pre_exponential_factor(false)
 {
 }
@@ -233,7 +233,7 @@ void FalloffReaction::validate() {
 
 ChemicallyActivatedReaction::ChemicallyActivatedReaction()
 {
-    reaction_type = CHEMACT_RXN;
+    reaction_type = UNUSED_MAGIC_NUMBER;
 }
 
 ChemicallyActivatedReaction::ChemicallyActivatedReaction(
@@ -242,43 +242,43 @@ ChemicallyActivatedReaction::ChemicallyActivatedReaction(
         const ThirdBody& tbody)
     : FalloffReaction(reactants_, products_, low_rate_, high_rate_, tbody)
 {
-    reaction_type = CHEMACT_RXN;
+    reaction_type = UNUSED_MAGIC_NUMBER;
 }
 
 PlogReaction::PlogReaction()
-    : Reaction(PLOG_RXN)
+    : Reaction()
 {
 }
 
 PlogReaction::PlogReaction(const Composition& reactants_,
                            const Composition& products_, const Plog& rate_)
-    : Reaction(PLOG_RXN, reactants_, products_)
+    : Reaction(UNUSED_MAGIC_NUMBER, reactants_, products_)
     , rate(rate_)
 {
 }
 
 ChebyshevReaction::ChebyshevReaction()
-    : Reaction(CHEBYSHEV_RXN)
+    : Reaction()
 {
 }
 
 ChebyshevReaction::ChebyshevReaction(const Composition& reactants_,
                                      const Composition& products_,
                                      const ChebyshevRate& rate_)
-    : Reaction(CHEBYSHEV_RXN, reactants_, products_)
+    : Reaction(UNUSED_MAGIC_NUMBER, reactants_, products_)
     , rate(rate_)
 {
 }
 
 CustomPyReaction::CustomPyReaction()
-    : Reaction(CUSTOMPY_RXN)
+    : Reaction()
 {
 }
 
 CustomPyReaction::CustomPyReaction(const Composition& reactants_,
                                    const Composition& products_,
                                    const CustomPyRate& rate_)
-    : Reaction(CUSTOMPY_RXN, reactants_, products_)
+    : Reaction(UNUSED_MAGIC_NUMBER, reactants_, products_)
     , rate(rate_)
 {
 }
@@ -287,7 +287,7 @@ InterfaceReaction::InterfaceReaction()
     : is_sticking_coefficient(false)
     , use_motz_wise_correction(false)
 {
-    reaction_type = INTERFACE_RXN;
+    reaction_type = UNUSED_MAGIC_NUMBER;
 }
 
 InterfaceReaction::InterfaceReaction(const Composition& reactants_,
@@ -298,7 +298,7 @@ InterfaceReaction::InterfaceReaction(const Composition& reactants_,
     , is_sticking_coefficient(isStick)
     , use_motz_wise_correction(false)
 {
-    reaction_type = INTERFACE_RXN;
+    reaction_type = UNUSED_MAGIC_NUMBER;
 }
 
 ElectrochemicalReaction::ElectrochemicalReaction()
@@ -534,7 +534,6 @@ void parseReactionEquation(Reaction& R, const AnyValue& equation,
             }
             if (kin.kineticsSpeciesIndex(species) == npos
                 && stoich != -1 && species != "M") {
-                R.reaction_type = INVALID_RXN;
                 R.set_valid(false);
             }
 
@@ -567,7 +566,6 @@ void setupReaction(Reaction& R, const AnyMap& node, const Kinetics& kin)
         for (const auto& order : node["orders"].asMap<double>()) {
             R.orders[order.first] = order.second;
             if (kin.kineticsSpeciesIndex(order.first) == npos) {
-                R.reaction_type = INVALID_RXN;
                 R.set_valid(false);
             }
         }

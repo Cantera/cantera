@@ -605,6 +605,13 @@ public:
     virtual int reactionType(size_t i) const;
 
     /**
+     * String specifying the type of reaction.
+     *
+     * @param i   reaction index
+     */
+    virtual std::string reactionTypeStr(size_t i) const;
+
+    /**
      * True if reaction i has been declared to be reversible. If isReversible(i)
      * is false, then the reverse rate of progress for reaction i is always
      * zero.
