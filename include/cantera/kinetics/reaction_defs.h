@@ -1,6 +1,8 @@
 /**
  *  @file reaction_defs.h
  * This file defines some constants used to specify reaction types.
+ *
+ * @deprecated To be removed after Cantera 2.6.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -16,7 +18,6 @@ namespace Cantera
 
 const int INVALID_RXN = 0;
 const int NONE = 0;
-const int UNUSED_MAGIC_NUMBER = -1;
 
 /// @name Reaction Types
 

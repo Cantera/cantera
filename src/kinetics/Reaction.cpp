@@ -26,7 +26,7 @@ namespace Cantera
 {
 
 Reaction::Reaction()
-    : reaction_type(UNUSED_MAGIC_NUMBER)
+    : reaction_type(NONE)
     , reversible(true)
     , duplicate(false)
     , allow_nonreactant_orders(false)
@@ -37,7 +37,7 @@ Reaction::Reaction()
 
 Reaction::Reaction(const Composition& reactants_,
                    const Composition& products_)
-    : reaction_type(UNUSED_MAGIC_NUMBER)
+    : reaction_type(NONE)
     , reactants(reactants_)
     , products(products_)
     , reversible(true)
@@ -144,12 +144,14 @@ ElementaryReaction::ElementaryReaction(const Composition& reactants_,
     , rate(rate_)
     , allow_negative_pre_exponential_factor(false)
 {
+    reaction_type = ELEMENTARY_RXN;
 }
 
 ElementaryReaction::ElementaryReaction()
     : Reaction()
     , allow_negative_pre_exponential_factor(false)
 {
+    reaction_type = ELEMENTARY_RXN;
 }
 
 void ElementaryReaction::validate()
@@ -175,7 +177,7 @@ double ThirdBody::efficiency(const std::string& k) const
 
 ThreeBodyReaction::ThreeBodyReaction()
 {
-    reaction_type = UNUSED_MAGIC_NUMBER; //THREE_BODY_RXN;
+    reaction_type = THREE_BODY_RXN;
 }
 
 ThreeBodyReaction::ThreeBodyReaction(const Composition& reactants_,
@@ -185,7 +187,7 @@ ThreeBodyReaction::ThreeBodyReaction(const Composition& reactants_,
     : ElementaryReaction(reactants_, products_, rate_)
     , third_body(tbody)
 {
-    reaction_type = UNUSED_MAGIC_NUMBER; //THREE_BODY_RXN;
+    reaction_type = THREE_BODY_RXN;
 }
 
 std::string ThreeBodyReaction::reactantString() const {
@@ -201,6 +203,7 @@ FalloffReaction::FalloffReaction()
     , falloff(new Falloff())
     , allow_negative_pre_exponential_factor(false)
 {
+    reaction_type = FALLOFF_RXN;
 }
 
 FalloffReaction::FalloffReaction(
@@ -213,6 +216,7 @@ FalloffReaction::FalloffReaction(
     , third_body(tbody)
     , falloff(new Falloff())
 {
+    reaction_type = FALLOFF_RXN;
 }
 
 std::string FalloffReaction::reactantString() const {
@@ -252,7 +256,7 @@ void FalloffReaction::validate() {
 
 ChemicallyActivatedReaction::ChemicallyActivatedReaction()
 {
-    reaction_type = UNUSED_MAGIC_NUMBER;
+    reaction_type = CHEMACT_RXN;
 }
 
 ChemicallyActivatedReaction::ChemicallyActivatedReaction(
@@ -261,12 +265,13 @@ ChemicallyActivatedReaction::ChemicallyActivatedReaction(
         const ThirdBody& tbody)
     : FalloffReaction(reactants_, products_, low_rate_, high_rate_, tbody)
 {
-    reaction_type = UNUSED_MAGIC_NUMBER;
+    reaction_type = CHEMACT_RXN;
 }
 
 PlogReaction::PlogReaction()
     : Reaction()
 {
+    reaction_type = PLOG_RXN;
 }
 
 PlogReaction::PlogReaction(const Composition& reactants_,
@@ -274,11 +279,13 @@ PlogReaction::PlogReaction(const Composition& reactants_,
     : Reaction(reactants_, products_)
     , rate(rate_)
 {
+    reaction_type = PLOG_RXN;
 }
 
 ChebyshevReaction::ChebyshevReaction()
     : Reaction()
 {
+    reaction_type = CHEBYSHEV_RXN;
 }
 
 ChebyshevReaction::ChebyshevReaction(const Composition& reactants_,
@@ -287,11 +294,13 @@ ChebyshevReaction::ChebyshevReaction(const Composition& reactants_,
     : Reaction(reactants_, products_)
     , rate(rate_)
 {
+    reaction_type = CHEBYSHEV_RXN;
 }
 
 CustomPyReaction::CustomPyReaction()
     : Reaction()
 {
+    reaction_type = CUSTOMPY_RXN;
 }
 
 CustomPyReaction::CustomPyReaction(const Composition& reactants_,
@@ -300,13 +309,14 @@ CustomPyReaction::CustomPyReaction(const Composition& reactants_,
     : Reaction(reactants_, products_)
     , rate(rate_)
 {
+    reaction_type = CUSTOMPY_RXN;
 }
 
 InterfaceReaction::InterfaceReaction()
     : is_sticking_coefficient(false)
     , use_motz_wise_correction(false)
 {
-    reaction_type = UNUSED_MAGIC_NUMBER;
+    reaction_type = INTERFACE_RXN;
 }
 
 InterfaceReaction::InterfaceReaction(const Composition& reactants_,
@@ -317,7 +327,7 @@ InterfaceReaction::InterfaceReaction(const Composition& reactants_,
     , is_sticking_coefficient(isStick)
     , use_motz_wise_correction(false)
 {
-    reaction_type = UNUSED_MAGIC_NUMBER;
+    reaction_type = INTERFACE_RXN;
 }
 
 ElectrochemicalReaction::ElectrochemicalReaction()

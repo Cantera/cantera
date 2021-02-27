@@ -9,6 +9,7 @@
 #define CT_FALLOFFMGR_H
 
 #include "Falloff.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -32,8 +33,14 @@ public:
      *     determine which array entry is modified in method pr_to_falloff.
      * @param reactionType Either `FALLOFF_RXN` or `CHEMACT_RXN`
      * @param f The falloff function.
+     *
+     * @deprecated To be removed after Cantera 2.6.
      */
     void install(size_t rxn, int reactionType, shared_ptr<Falloff> f) {
+        warn_deprecated("FalloffMgr::install()",
+            "To be removed after Cantera 2.6. Specify reaction type using "
+            "string instead.");
+
         m_rxn.push_back(rxn);
         m_offset.push_back(m_worksize);
         m_worksize += f->workSize();

@@ -64,6 +64,10 @@ public:
 
     //! Type of the reaction. The valid types are listed in the file,
     //! reaction_defs.h, with constants ending in `RXN`.
+    /*!
+     * @deprecated To be removed in Cantera 2.6.
+     *             Superseded by Reaction::type().
+     */
     int reaction_type;
 
     //! Reactant species and stoichiometric coefficients
