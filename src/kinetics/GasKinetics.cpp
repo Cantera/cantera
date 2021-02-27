@@ -72,6 +72,14 @@ GasKinetics::GasKinetics(ThermoPhase* thermo) :
                [&](size_t i, shared_ptr<Reaction> R) {
                    modifyChebyshevReaction(i, dynamic_cast<ChebyshevReaction&>(*R));
                });
+    reg_addRxn("custom-Python",
+               [&](shared_ptr<Reaction> R) {
+                   addCustomPyReaction(dynamic_cast<CustomPyReaction&>(*R));
+               });
+    reg_modRxn("custom-Python",
+               [&](size_t i, shared_ptr<Reaction> R) {
+                   modifyCustomPyReaction(i, dynamic_cast<CustomPyReaction&>(*R));
+               });
 }
 
 void GasKinetics::update_rates_T()
@@ -357,6 +365,11 @@ void GasKinetics::addChebyshevReaction(ChebyshevReaction& r)
     m_cheb_rates.install(nReactions()-1, r.rate);
 }
 
+void GasKinetics::addCustomPyReaction(CustomPyReaction& r)
+{
+    r.set_valid(false);
+}
+
 void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
 {
     // operations common to all reaction types
@@ -396,6 +409,11 @@ void GasKinetics::modifyPlogReaction(size_t i, PlogReaction& r)
 void GasKinetics::modifyChebyshevReaction(size_t i, ChebyshevReaction& r)
 {
     m_cheb_rates.replace(i, r.rate);
+}
+
+void GasKinetics::modifyCustomPyReaction(size_t i, CustomPyReaction& r)
+{
+    r.set_valid(false);
 }
 
 void GasKinetics::init()
