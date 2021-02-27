@@ -31,6 +31,7 @@ Reaction::Reaction(int type)
     , duplicate(false)
     , allow_nonreactant_orders(false)
     , allow_negative_orders(false)
+    , m_valid(true)
 {
 }
 
@@ -43,6 +44,7 @@ Reaction::Reaction(int type, const Composition& reactants_,
     , duplicate(false)
     , allow_nonreactant_orders(false)
     , allow_negative_orders(false)
+    , m_valid(true)
 {
 }
 
@@ -314,7 +316,7 @@ Arrhenius readArrhenius(const XML_Node& arrhenius_node)
 Units rateCoeffUnits(const Reaction& R, const Kinetics& kin,
                      int pressure_dependence=0)
 {
-    if (R.reaction_type == INVALID_RXN) {
+    if (!R.valid()) {
         // If a reaction is invalid because of missing species in the Kinetics
         // object, determining the units of the rate coefficient is impossible.
         return Units();
@@ -523,6 +525,7 @@ void parseReactionEquation(Reaction& R, const AnyValue& equation,
             if (kin.kineticsSpeciesIndex(species) == npos
                 && stoich != -1 && species != "M") {
                 R.reaction_type = INVALID_RXN;
+                R.set_valid(false);
             }
 
             if (reactants) {
@@ -555,6 +558,7 @@ void setupReaction(Reaction& R, const AnyMap& node, const Kinetics& kin)
             R.orders[order.first] = order.second;
             if (kin.kineticsSpeciesIndex(order.first) == npos) {
                 R.reaction_type = INVALID_RXN;
+                R.set_valid(false);
             }
         }
     }
@@ -942,7 +946,7 @@ std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
     std::vector<shared_ptr<Reaction>> all_reactions;
     for (const auto& node : items.asVector<AnyMap>()) {
         shared_ptr<Reaction> R(newReaction(node, kinetics));
-        if (R->reaction_type != INVALID_RXN) {
+        if (R->valid()) {
             all_reactions.emplace_back(R);
         } else if (!kinetics.skipUndeclaredSpecies()) {
             throw InputFileError("getReactions", node,
