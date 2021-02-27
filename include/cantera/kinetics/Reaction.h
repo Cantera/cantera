@@ -46,6 +46,16 @@ public:
     //! valid.
     virtual void validate();
 
+    //! Get validity flag of reaction
+    bool valid() const {
+        return m_valid;
+    }
+
+    //! Set validity flag of reaction
+    void set_valid(bool valid) {
+        m_valid = valid;
+    }
+
     //! Type of the reaction. The valid types are listed in the file,
     //! reaction_defs.h, with constants ending in `RXN`.
     int reaction_type;
@@ -80,6 +90,10 @@ public:
 
     //! Input data used for specific models
     AnyMap input;
+
+protected:
+    //! Flag indicating whether reaction is set up correctly
+    bool m_valid;
 };
 
 
