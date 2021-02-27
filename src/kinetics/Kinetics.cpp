@@ -115,7 +115,7 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                 unmatched_duplicates.erase(i);
                 unmatched_duplicates.erase(m);
                 continue;
-            } else if (R.reaction_type != other.reaction_type) {
+            } else if (R.type() != other.type()) {
                 continue; // different reaction types
             }
             doublereal c = checkDuplicateStoich(net_stoich[i], net_stoich[m]);
@@ -616,10 +616,10 @@ void Kinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
 {
     checkReactionIndex(i);
     shared_ptr<Reaction>& rOld = m_reactions[i];
-    if (rNew->reaction_type != rOld->reaction_type) {
+    if (rNew->type() != rOld->type()) {
         throw CanteraError("Kinetics::modifyReaction",
             "Reaction types are different: {} != {}.",
-            rOld->reaction_type, rNew->reaction_type);
+            rOld->type(), rNew->type());
     }
 
     if (rNew->reactants != rOld->reactants) {

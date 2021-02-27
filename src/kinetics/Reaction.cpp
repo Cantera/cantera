@@ -35,6 +35,19 @@ Reaction::Reaction()
 {
 }
 
+Reaction::Reaction(const Composition& reactants_,
+                   const Composition& products_)
+    : reaction_type(UNUSED_MAGIC_NUMBER)
+    , reactants(reactants_)
+    , products(products_)
+    , reversible(true)
+    , duplicate(false)
+    , allow_nonreactant_orders(false)
+    , allow_negative_orders(false)
+    , m_valid(true)
+{
+}
+
 Reaction::Reaction(int type)
     : reaction_type(type)
     , reversible(true)
@@ -121,7 +134,7 @@ std::string Reaction::equation() const
 ElementaryReaction::ElementaryReaction(const Composition& reactants_,
                                        const Composition products_,
                                        const Arrhenius& rate_)
-    : Reaction(UNUSED_MAGIC_NUMBER, reactants_, products_)
+    : Reaction(reactants_, products_)
     , rate(rate_)
     , allow_negative_pre_exponential_factor(false)
 {
@@ -156,7 +169,7 @@ double ThirdBody::efficiency(const std::string& k) const
 
 ThreeBodyReaction::ThreeBodyReaction()
 {
-    reaction_type = THREE_BODY_RXN;
+    reaction_type = UNUSED_MAGIC_NUMBER; //THREE_BODY_RXN;
 }
 
 ThreeBodyReaction::ThreeBodyReaction(const Composition& reactants_,
@@ -166,7 +179,7 @@ ThreeBodyReaction::ThreeBodyReaction(const Composition& reactants_,
     : ElementaryReaction(reactants_, products_, rate_)
     , third_body(tbody)
 {
-    reaction_type = THREE_BODY_RXN;
+    reaction_type = UNUSED_MAGIC_NUMBER; //THREE_BODY_RXN;
 }
 
 std::string ThreeBodyReaction::reactantString() const {
@@ -178,7 +191,7 @@ std::string ThreeBodyReaction::productString() const {
 }
 
 FalloffReaction::FalloffReaction()
-    : Reaction(FALLOFF_RXN)
+    : Reaction()
     , falloff(new Falloff())
     , allow_negative_pre_exponential_factor(false)
 {
@@ -188,7 +201,7 @@ FalloffReaction::FalloffReaction(
         const Composition& reactants_, const Composition& products_,
         const Arrhenius& low_rate_, const Arrhenius& high_rate_,
         const ThirdBody& tbody)
-    : Reaction(FALLOFF_RXN, reactants_, products_)
+    : Reaction(reactants_, products_)
     , low_rate(low_rate_)
     , high_rate(high_rate_)
     , third_body(tbody)
@@ -252,7 +265,7 @@ PlogReaction::PlogReaction()
 
 PlogReaction::PlogReaction(const Composition& reactants_,
                            const Composition& products_, const Plog& rate_)
-    : Reaction(UNUSED_MAGIC_NUMBER, reactants_, products_)
+    : Reaction(reactants_, products_)
     , rate(rate_)
 {
 }
@@ -265,7 +278,7 @@ ChebyshevReaction::ChebyshevReaction()
 ChebyshevReaction::ChebyshevReaction(const Composition& reactants_,
                                      const Composition& products_,
                                      const ChebyshevRate& rate_)
-    : Reaction(UNUSED_MAGIC_NUMBER, reactants_, products_)
+    : Reaction(reactants_, products_)
     , rate(rate_)
 {
 }
@@ -278,7 +291,7 @@ CustomPyReaction::CustomPyReaction()
 CustomPyReaction::CustomPyReaction(const Composition& reactants_,
                                    const Composition& products_,
                                    const CustomPyRate& rate_)
-    : Reaction(UNUSED_MAGIC_NUMBER, reactants_, products_)
+    : Reaction(reactants_, products_)
     , rate(rate_)
 {
 }

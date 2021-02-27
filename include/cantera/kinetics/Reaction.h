@@ -25,6 +25,8 @@ class Reaction
 public:
     explicit Reaction();
     explicit Reaction(int type);
+    Reaction(const Composition& reactants,
+             const Composition& products);
     Reaction(int type, const Composition& reactants,
              const Composition& products);
     virtual ~Reaction() {}
