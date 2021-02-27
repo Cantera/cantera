@@ -158,7 +158,15 @@ cdef class Kinetics(_SolutionBase):
             self.kinetics.setMultiplier(i_reaction, value)
 
     def reaction_type(self, int i_reaction):
-        """Type code of reaction *i_reaction*."""
+        """
+        Type code of reaction *i_reaction*.
+
+        .. deprecated:: 2.6
+        """
+        warnings.warn("Behavior changes after Cantera 2.6, "
+                      "when function will return a type string. "
+                      "Use method 'reaction_type_str' during "
+                      "transition instead.", DeprecationWarning)
         self._check_reaction_index(i_reaction)
         return self.kinetics.reactionType(i_reaction)
 

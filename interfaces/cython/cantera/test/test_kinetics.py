@@ -56,9 +56,9 @@ class TestKinetics(utilities.CanteraTest):
         self.assertEqual(self.phase.reaction_type_str(20), "falloff")
 
         with self.assertRaisesRegex(ValueError, 'out of range'):
-            self.phase.reaction_type(33)
+            self.phase.reaction_type_str(33)
         with self.assertRaisesRegex(ValueError, 'out of range'):
-            self.phase.reaction_type(-2)
+            self.phase.reaction_type_str(-2)
 
     def test_reaction_equations(self):
         self.assertEqual(self.phase.n_reactions,
