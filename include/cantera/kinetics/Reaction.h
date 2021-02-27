@@ -23,6 +23,7 @@ class XML_Node;
 class Reaction
 {
 public:
+    explicit Reaction();
     explicit Reaction(int type);
     Reaction(int type, const Composition& reactants,
              const Composition& products);

@@ -16,6 +16,7 @@ namespace Cantera
 
 const int INVALID_RXN = 0;
 const int NONE = 0;
+const int UNUSED_MAGIC_NUMBER = -1;
 
 /// @name Reaction Types
 

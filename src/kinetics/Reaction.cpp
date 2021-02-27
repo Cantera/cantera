@@ -25,6 +25,16 @@ namespace ba = boost::algorithm;
 namespace Cantera
 {
 
+Reaction::Reaction()
+    : reaction_type(UNUSED_MAGIC_NUMBER)
+    , reversible(true)
+    , duplicate(false)
+    , allow_nonreactant_orders(false)
+    , allow_negative_orders(false)
+    , m_valid(true)
+{
+}
+
 Reaction::Reaction(int type)
     : reaction_type(type)
     , reversible(true)
