@@ -159,20 +159,20 @@ ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
     }
 }
 
-CustomPyRxnRate::CustomPyRxnRate() : m_ratefunc(0) {}
+CustomPyRate::CustomPyRate() : m_ratefunc(0) {}
 
-void CustomPyRxnRate::setRateFunction(Func1* f) {
+void CustomPyRate::setRateFunction(Func1* f) {
     m_ratefunc = f;
 }
 
-double CustomPyRxnRate::updateLog(double logT, double recipT) const {
+double CustomPyRate::updateLog(double logT, double recipT) const {
     if (m_ratefunc) {
         return std::log( m_ratefunc->eval(1./recipT) );
     }
     return 1.;
 }
 
-double CustomPyRxnRate::updateRC(double logT, double recipT) const {
+double CustomPyRate::updateRC(double logT, double recipT) const {
     if (m_ratefunc) {
         return m_ratefunc->eval(1./recipT);
     }

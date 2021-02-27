@@ -244,13 +244,13 @@ class CustomPyReaction : public Reaction
 public:
     CustomPyReaction();
     CustomPyReaction(const Composition& reactants, const Composition& products,
-                     const CustomPyRxnRate& rate);
+                     const CustomPyRate& rate);
 
     virtual std::string type() const {
         return "custom-Python";
     }
 
-    CustomPyRxnRate rate;
+    CustomPyRate rate;
 };
 
 //! Modifications to an InterfaceReaction rate based on a surface species

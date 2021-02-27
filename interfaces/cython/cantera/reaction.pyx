@@ -418,7 +418,7 @@ cdef class CustomRate:
     def __cinit__(self, k=None, init=True):
 
         if init:
-            self.rate = new CxxCustomPyRxnRate()
+            self.rate = new CxxCustomPyRate()
             self.reaction = None
             self._rate_func = None
             self.set_rate_function(k)
@@ -455,7 +455,7 @@ cdef class CustomRate:
         return self.rate.updateRC(logT, recipT)
 
 
-cdef wrapCustomRate(CxxCustomPyRxnRate* rate, Reaction reaction):
+cdef wrapCustomRate(CxxCustomPyRate* rate, Reaction reaction):
     r = CustomRate(init=False)
     r.rate = rate
     r.reaction = reaction

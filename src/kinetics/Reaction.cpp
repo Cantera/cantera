@@ -267,7 +267,7 @@ CustomPyReaction::CustomPyReaction()
 
 CustomPyReaction::CustomPyReaction(const Composition& reactants_,
                                    const Composition& products_,
-                                   const CustomPyRxnRate& rate_)
+                                   const CustomPyRate& rate_)
     : Reaction(CUSTOMPY_RXN, reactants_, products_)
     , rate(rate_)
 {
@@ -820,7 +820,7 @@ void setupCustomPyReaction(CustomPyReaction& R, const AnyMap& node,
                            const Kinetics& kin)
 {
     setupReaction(R, node, kin);
-    R.rate = CustomPyRxnRate();
+    R.rate = CustomPyRate();
 }
 
 void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)

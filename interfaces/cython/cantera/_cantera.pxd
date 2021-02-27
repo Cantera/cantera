@@ -312,8 +312,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double temperatureExponent()
         double activationEnergy_R()
 
-    cdef cppclass CxxCustomPyRxnRate "Cantera::CustomPyRxnRate":
-        CxxCustomPyRxnRate()
+    cdef cppclass CxxCustomPyRate "Cantera::CustomPyRate":
+        CxxCustomPyRate()
         void setRateFunction(CxxFunc1*) except +translate_exception
         double updateRC(double, double)
 
@@ -401,7 +401,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
 
     cdef cppclass CxxCustomPyReaction "Cantera::CustomPyReaction" (CxxReaction):
         CxxCustomPyReaction()
-        CxxCustomPyRxnRate rate
+        CxxCustomPyRate rate
 
     cdef cppclass CxxCoverageDependency "Cantera::CoverageDependency":
         CxxCoverageDependency(double, double, double)
@@ -1026,7 +1026,7 @@ cdef class Arrhenius:
     cdef Reaction reaction # parent reaction, to prevent garbage collection
 
 cdef class CustomRate:
-    cdef CxxCustomPyRxnRate* rate
+    cdef CxxCustomPyRate* rate
     cdef Func1 _rate_func
     cdef Reaction reaction # parent reaction, to prevent garbage collection
 
