@@ -14,6 +14,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/utilities.h"
+#include "cantera/base/global.h"
 #include <unordered_set>
 
 using namespace std;
@@ -370,6 +371,10 @@ double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn) const
 }
 
 int Kinetics::reactionType(size_t i) const {
+    warn_deprecated("Kinetics::reactionType()",
+        "To be changed after Cantera 2.6. "
+        "Return string instead of magic number; use "
+        "Kinetics::reactionTypeStr during transition.");
     return m_reactions[i]->reaction_type;
 }
 

@@ -601,6 +601,8 @@ public:
      * are specific to the particular kinetics manager.
      *
      * @param i   reaction index
+     *
+     * @deprecated To be changed after Cantera 2.6.
      */
     virtual int reactionType(size_t i) const;
 

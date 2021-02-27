@@ -24,9 +24,12 @@ class Reaction
 {
 public:
     explicit Reaction();
-    explicit Reaction(int type);
     Reaction(const Composition& reactants,
              const Composition& products);
+
+    //! @deprecated To be removed after Cantera 2.6.
+    explicit Reaction(int type);
+    //! @deprecated To be removed after Cantera 2.6.
     Reaction(int type, const Composition& reactants,
              const Composition& products);
     virtual ~Reaction() {}

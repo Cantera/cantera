@@ -56,6 +56,9 @@ Reaction::Reaction(int type)
     , allow_negative_orders(false)
     , m_valid(true)
 {
+    warn_deprecated("Reaction::Reaction()",
+        "To be removed after Cantera 2.6. Use constructor without parameter "
+        "'type' instead.");
 }
 
 Reaction::Reaction(int type, const Composition& reactants_,
@@ -69,6 +72,9 @@ Reaction::Reaction(int type, const Composition& reactants_,
     , allow_negative_orders(false)
     , m_valid(true)
 {
+    warn_deprecated("Reaction::Reaction()",
+        "To be removed after Cantera 2.6. Use constructor without parameter "
+        "'type' instead.");
 }
 
 void Reaction::validate()
