@@ -438,11 +438,11 @@ protected:
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
  */
-class CustomPyRxnRate
+class CustomPyRate
 {
 public:
     //! Constructor.
-    CustomPyRxnRate();
+    CustomPyRate();
 
     // set custom rate
     /**
