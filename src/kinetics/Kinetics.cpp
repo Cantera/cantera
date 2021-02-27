@@ -123,8 +123,8 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                 continue; // stoichiometries differ (not by a multiple)
             } else if (c < 0.0 && !R.reversible && !other.reversible) {
                 continue; // irreversible reactions in opposite directions
-            } else if (R.reaction_type == FALLOFF_RXN ||
-                       R.reaction_type == CHEMACT_RXN) {
+            } else if (R.type() == "falloff" ||
+                       R.type() == "chemically-activated") {
                 ThirdBody& tb1 = dynamic_cast<FalloffReaction&>(R).third_body;
                 ThirdBody& tb2 = dynamic_cast<FalloffReaction&>(other).third_body;
                 bool thirdBodyOk = true;
@@ -140,7 +140,7 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                 if (thirdBodyOk) {
                     continue; // No overlap in third body efficiencies
                 }
-            } else if (R.reaction_type == THREE_BODY_RXN) {
+            } else if (R.type() == "three-body") {
                 ThirdBody& tb1 = dynamic_cast<ThreeBodyReaction&>(R).third_body;
                 ThirdBody& tb2 = dynamic_cast<ThreeBodyReaction&>(other).third_body;
                 bool thirdBodyOk = true;

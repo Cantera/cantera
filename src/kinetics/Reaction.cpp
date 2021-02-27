@@ -320,7 +320,7 @@ Units rateCoeffUnits(const Reaction& R, const Kinetics& kin,
         // If a reaction is invalid because of missing species in the Kinetics
         // object, determining the units of the rate coefficient is impossible.
         return Units();
-    } else if (R.reaction_type == INTERFACE_RXN
+    } else if (R.type() == "interface"
                && dynamic_cast<const InterfaceReaction&>(R).is_sticking_coefficient) {
         // Sticking coefficients are dimensionless
         return Units();
