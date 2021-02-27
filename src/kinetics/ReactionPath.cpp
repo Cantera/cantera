@@ -680,9 +680,9 @@ string reactionLabel(size_t i, size_t kr, size_t nr,
             label += " + "+ s.kineticsSpeciesName(slist[j]);
         }
     }
-    if (s.reactionType(i) == THREE_BODY_RXN) {
+    if (s.reactionTypeStr(i) == "three-body") {
         label += " + M ";
-    } else if (s.reactionType(i) == FALLOFF_RXN) {
+    } else if (s.reactionTypeStr(i) == "falloff") {
         label += " (+ M)";
     }
     return label;
@@ -735,9 +735,9 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
                             revlabel += " + "+ s.kineticsSpeciesName(m_prod[i][j]);
                         }
                     }
-                    if (s.reactionType(i) == THREE_BODY_RXN) {
+                    if (s.reactionTypeStr(i) == "three-body") {
                         revlabel += " + M ";
-                    } else if (s.reactionType(i) == FALLOFF_RXN) {
+                    } else if (s.reactionTypeStr(i) == "falloff") {
                         revlabel += " (+ M)";
                     }
 

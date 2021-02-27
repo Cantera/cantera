@@ -20,7 +20,7 @@ TEST(Reaction, ElementaryFromYaml)
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_EQ(R->reactants.at("NO"), 1);
     EXPECT_EQ(R->products.at("N2"), 1);
-    EXPECT_EQ(R->reaction_type, ELEMENTARY_RXN);
+    EXPECT_EQ(R->type(), "elementary");
 
     auto ER = dynamic_cast<ElementaryReaction&>(*R);
     EXPECT_DOUBLE_EQ(ER.rate.preExponentialFactor(), -2.7e10);
@@ -40,6 +40,7 @@ TEST(Reaction, ThreeBodyFromYaml1)
 
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
+    EXPECT_EQ(R->type(), "three-body");
 
     auto TBR = dynamic_cast<ThreeBodyReaction&>(*R);
     EXPECT_DOUBLE_EQ(TBR.rate.preExponentialFactor(), 1.2e11);

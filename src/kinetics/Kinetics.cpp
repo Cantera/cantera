@@ -373,6 +373,9 @@ int Kinetics::reactionType(size_t i) const {
     return m_reactions[i]->reaction_type;
 }
 
+std::string Kinetics::reactionTypeStr(size_t i) const {
+    return m_reactions[i]->type();
+}
 
 std::string Kinetics::reactionString(size_t i) const
 {
