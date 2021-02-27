@@ -121,11 +121,13 @@ protected:
     void addFalloffReaction(FalloffReaction& r);
     void addPlogReaction(PlogReaction& r);
     void addChebyshevReaction(ChebyshevReaction& r);
+    void addCustomPyReaction(CustomPyReaction& r);
 
     void modifyThreeBodyReaction(size_t i, ThreeBodyReaction& r);
     void modifyFalloffReaction(size_t i, FalloffReaction& r);
     void modifyPlogReaction(size_t i, PlogReaction& r);
     void modifyChebyshevReaction(size_t i, ChebyshevReaction& r);
+    void modifyCustomPyReaction(size_t i, CustomPyReaction& r);
 
     //! Update the equilibrium constants in molar units.
     void updateKc();
