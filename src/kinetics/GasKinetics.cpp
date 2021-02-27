@@ -203,7 +203,7 @@ void GasKinetics::processFalloffReactions()
     m_falloffn.pr_to_falloff(pr.data(), falloff_work.data());
 
     for (size_t i = 0; i < m_falloff_low_rates.nReactions(); i++) {
-        if (reactionType(m_fallindx[i]) == FALLOFF_RXN) {
+        if (reactionTypeStr(m_fallindx[i]) == "falloff") {
             pr[i] *= m_rfn_high[i];
         } else { // CHEMACT_RXN
             pr[i] *= m_rfn_low[i];
@@ -332,7 +332,7 @@ void GasKinetics::addFalloffReaction(FalloffReaction& r)
     concm_falloff_values.resize(m_falloff_concm.workSize());
 
     // install the falloff function calculator for this reaction
-    m_falloffn.install(nfall, r.reaction_type, r.falloff);
+    m_falloffn.install(nfall, r.type(), r.falloff);
     falloff_work.resize(m_falloffn.workSize());
 }
 
