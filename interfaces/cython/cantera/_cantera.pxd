@@ -1051,6 +1051,7 @@ cdef class Mixture:
     cpdef int element_index(self, element) except *
 
 cdef class Func1:
+    cdef shared_ptr[CxxFunc1] _func
     cdef CxxFunc1* func
     cdef object callable
     cdef object exception
