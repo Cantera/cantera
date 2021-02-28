@@ -86,10 +86,8 @@ cdef class Func1:
 
     cpdef void _set_callback(self, c) except *:
         self.callable = c
-        self.func = new CxxFunc1(func_callback, <void*>self)
-
-    def __dealloc__(self):
-        del self.func
+        self._func.reset(new CxxFunc1(func_callback, <void*>self))
+        self.func = self._func.get()
 
     def __call__(self, t):
         return self.func.eval(t)
