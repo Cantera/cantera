@@ -314,7 +314,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
 
     cdef cppclass CxxCustomPyRate "Cantera::CustomPyRate":
         CxxCustomPyRate()
-        void setRateFunction(CxxFunc1*) except +translate_exception
+        void setRateFunction(shared_ptr[CxxFunc1]) except +translate_exception
         double updateRC(double, double)
 
     cdef cppclass CxxReaction "Cantera::Reaction":
@@ -1019,14 +1019,17 @@ cdef class Reaction:
     @staticmethod
     cdef wrap(shared_ptr[CxxReaction])
 
+cdef class CustomReaction(Reaction):
+    cdef CustomRate _rate
+
 cdef class Arrhenius:
     cdef CxxArrhenius* rate
     cdef Reaction reaction # parent reaction, to prevent garbage collection
 
 cdef class CustomRate:
+    cdef shared_ptr[CxxCustomPyRate] _rate
     cdef CxxCustomPyRate* rate
     cdef Func1 _rate_func
-    cdef Reaction reaction # parent reaction, to prevent garbage collection
 
 cdef class Falloff:
     cdef shared_ptr[CxxFalloff] _falloff

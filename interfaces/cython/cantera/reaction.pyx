@@ -418,14 +418,9 @@ cdef class CustomRate:
     def __cinit__(self, k=None, init=True):
 
         if init:
-            self.rate = new CxxCustomPyRate()
-            self.reaction = None
-            self._rate_func = None
+            self._rate.reset(new CxxCustomPyRate())
+            self.rate = self._rate.get()
             self.set_rate_function(k)
-
-    def __dealloc__(self):
-        if self.reaction is None:
-            del self.rate
 
     def __repr__(self):
         return '<CustomRate>'
@@ -441,26 +436,17 @@ cdef class CustomRate:
             self._rate_func = None
             return
 
-        cdef Func1 g
         if isinstance(k, Func1):
-            g = k
+            self._rate_func = k
         else:
-            g = Func1(k)
-        self._rate_func = g
-        self.rate.setRateFunction(g.func)
+            self._rate_func = Func1(k)
+
+        self.rate.setRateFunction(self._rate_func._func)
 
     def __call__(self, float T):
         cdef double logT = np.log(T)
         cdef double recipT = 1/T
         return self.rate.updateRC(logT, recipT)
-
-
-cdef wrapCustomRate(CxxCustomPyRate* rate, Reaction reaction):
-    r = CustomRate(init=False)
-    r.rate = rate
-    r.reaction = reaction
-    #r.set_rate_function(k)
-    return r
 
 
 cdef class ElementaryReaction(Reaction):
@@ -874,17 +860,16 @@ cdef class CustomReaction(Reaction):
             self._reaction = CxxNewReaction(AnyMapFromYamlString(stringify(yaml)),
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
-            rate_obj = CustomRate(rate)
-            self.rate = rate_obj
+            self.rate = CustomRate(rate)
 
     property rate:
         """ Get/Set the `CustomRate` object for this reaction. """
         def __get__(self):
-            cdef CxxCustomPyReaction* r = <CxxCustomPyReaction*>self.reaction
-            return wrapCustomRate(&(r.rate), self)
+            return self._rate
         def __set__(self, CustomRate rate):
+            self._rate = rate
             cdef CxxCustomPyReaction* r = <CxxCustomPyReaction*>self.reaction
-            r.rate = deref(rate.rate)
+            r.rate = deref(self._rate.rate)
 
 
 cdef class InterfaceReaction(ElementaryReaction):
