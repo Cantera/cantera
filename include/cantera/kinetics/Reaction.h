@@ -18,7 +18,7 @@ class Kinetics;
 class Falloff;
 class XML_Node;
 
-//! Intermediate class which stores data about a reaction and its rate
+//! Abstract base class which stores data about a reaction and its rate
 //! parameterization so that it can be added to a Kinetics object.
 class Reaction
 {
@@ -44,9 +44,7 @@ public:
     std::string equation() const;
 
     //! The type of reaction
-    virtual std::string type() const {
-        return "<reaction>";
-    }
+    virtual std::string type() const = 0; // pure virtual function
 
     //! Ensure that the rate constant and other parameters for this reaction are
     //! valid.
