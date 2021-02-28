@@ -423,7 +423,7 @@ cdef class CustomRate:
             self.set_rate_function(k)
 
     def __repr__(self):
-        return '<CustomRate>'
+        return "<{}>".format(pystr(self.rate.type()))
 
     def set_rate_function(self, k):
         r"""
@@ -443,10 +443,18 @@ cdef class CustomRate:
 
         self.rate.setRateFunction(self._rate_func._func)
 
-    def __call__(self, float T):
-        cdef double logT = np.log(T)
-        cdef double recipT = 1/T
-        return self.rate.updateRC(logT, recipT)
+    def __call__(self, temperature=None):
+        if temperature is not None:
+            self.temperature = temperature
+
+        return self.rate.eval()
+
+    property temperature:
+        """ Get/Set temperature used for all reaction rate evaluations"""
+        def __get__(self):
+            return self.rate.temperature()
+        def __set__(self, float temperature):
+            self.rate.updateTemperature(temperature)
 
 
 cdef class ElementaryReaction(Reaction):

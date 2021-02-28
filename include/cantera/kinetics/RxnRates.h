@@ -430,6 +430,46 @@ protected:
     vector_fp dotProd_; //!< dot product of chebCoeffs with the reduced pressure polynomial
 };
 
+
+//! Abstract base class for reaction rate definitions
+/**
+ * @warning This class is an experimental part of the %Cantera API and
+ *    may be changed or removed without notice.
+ */
+class RxnRate
+{
+public:
+    //! Constructor
+    RxnRate() = default;
+
+    //! Identifier of reaction type
+    virtual std::string type() const = 0;
+
+    double temperature() const {
+        return m_temperature;
+    }
+
+    //! Evaluate reaction rate
+    virtual double eval() const = 0;
+
+    //! Update temperature
+    void updateTemperature(double T) {
+        if (T <= 0.) {
+            throw CanteraError("RxnRate::updateTemperature",
+                               "Temperature has to be positive.");
+        }
+        m_temperature = T;
+        m_logT = std::log(T);
+        m_recipT = 1./T;
+    }
+
+protected:
+    static double m_temperature;
+    static double m_logT;
+    static double m_recipT;
+};
+
+
 //! Custom Python reaction rate depending only on temperature
 /**
  * The rate expression is provided by external Python code taking a single
@@ -438,11 +478,15 @@ protected:
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
  */
-class CustomPyRate
+class CustomPyRate : public RxnRate
 {
 public:
     //! Constructor.
     CustomPyRate();
+
+    virtual std::string type() const {
+        return "custom-Python";
+    }
 
     // set custom rate
     /**
@@ -457,6 +501,10 @@ public:
      *   method does nothing.
      */
     void update_C(const double* c) {}
+
+    virtual double eval() const {
+        return updateRC(m_logT, m_recipT);
+    }
 
     // Update the value the natural logarithm of the rate constant.
     double updateLog(double logT, double recipT) const;
