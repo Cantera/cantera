@@ -898,7 +898,7 @@ class TestReaction(utilities.CanteraTest):
                               kinetics=self.gas)
         self.assertEqual(r.reactants, {'O':1, 'H2':1})
         self.assertEqual(r.products, {'H':1, 'OH':1})
-        #self.assertNear(r.rate(self.gas.T), self.gas.forward_rate_constants[2])
+        self.assertNear(r.rate(self.gas.T), self.gas.forward_rate_constants[2])
 
     def test_custom_rate(self):
         # probe O + H2 <=> H + OH

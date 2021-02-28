@@ -449,7 +449,7 @@ public:
      * The Python function takes a single argument (temperature) and does
      * not depend on parameters handled in C++.
      */
-    void setRateFunction(Func1* f);
+    void setRateFunction(shared_ptr<Func1> f);
 
     //! Update concentration-dependent parts of the rate coefficient.
     /*!
@@ -465,7 +465,7 @@ public:
     double updateRC(double logT, double recipT) const;
 
 protected:
-    Func1* m_ratefunc;
+    shared_ptr<Func1> m_ratefunc;
 };
 
 }

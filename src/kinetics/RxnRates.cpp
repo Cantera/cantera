@@ -161,7 +161,7 @@ ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
 
 CustomPyRate::CustomPyRate() : m_ratefunc(0) {}
 
-void CustomPyRate::setRateFunction(Func1* f) {
+void CustomPyRate::setRateFunction(shared_ptr<Func1> f) {
     m_ratefunc = f;
 }
 
