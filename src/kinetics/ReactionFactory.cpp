@@ -207,8 +207,9 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node,
     }
 
     if (kin.thermo().nDim() < 3) {
-        // See if this is an electrochemical reaction
-        Reaction testReaction;
+        // See if this is an electrochemical reaction: type of
+        // receiving reaction object is unimportant in this case
+        ElementaryReaction testReaction;
         parseReactionEquation(testReaction, rxn_node["equation"], kin);
         if (isElectrochemicalReaction(testReaction, kin)) {
             type = "electrochemical";
