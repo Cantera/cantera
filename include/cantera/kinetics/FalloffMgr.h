@@ -45,11 +45,7 @@ public:
         m_offset.push_back(m_worksize);
         m_worksize += f->workSize();
         m_falloff.push_back(f);
-        if (reactionType == FALLOFF_RXN) {
-            m_isfalloff.push_back(true);
-        } else {
-            m_isfalloff.push_back(false);
-        }
+        m_isfalloff.push_back(reactionType == FALLOFF_RXN);
         m_indices[rxn] = m_falloff.size()-1;
     }
 
@@ -65,11 +61,7 @@ public:
         m_offset.push_back(m_worksize);
         m_worksize += f->workSize();
         m_falloff.push_back(f);
-        if (type == "falloff") {
-            m_isfalloff.push_back(true);
-        } else {
-            m_isfalloff.push_back(false);
-        }
+        m_isfalloff.push_back(type == "falloff");
         m_indices[rxn] = m_falloff.size()-1;
     }
 
