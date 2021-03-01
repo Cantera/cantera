@@ -223,7 +223,6 @@ cdef class _SolutionBase:
             for reaction in reactions:
                 self.kinetics.addReaction(reaction._reaction)
 
-
     def __getitem__(self, selection):
         copy = self.__class__(origin=self)
         if isinstance(selection, slice):

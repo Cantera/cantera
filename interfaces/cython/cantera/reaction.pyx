@@ -884,7 +884,7 @@ cdef class CustomReaction(Reaction):
         def __set__(self, CustomRate rate):
             self._rate = rate
             cdef CxxCustomPyReaction* r = <CxxCustomPyReaction*>self.reaction
-            r.rate = deref(self._rate.rate)
+            r.setRxnRate(self._rate._rate)
 
 
 cdef class InterfaceReaction(ElementaryReaction):

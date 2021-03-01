@@ -72,14 +72,6 @@ GasKinetics::GasKinetics(ThermoPhase* thermo) :
                [&](size_t i, shared_ptr<Reaction> R) {
                    modifyChebyshevReaction(i, dynamic_cast<ChebyshevReaction&>(*R));
                });
-    reg_addRxn("custom-Python",
-               [&](shared_ptr<Reaction> R) {
-                   addCustomPyReaction(dynamic_cast<CustomPyReaction&>(*R));
-               });
-    reg_modRxn("custom-Python",
-               [&](size_t i, shared_ptr<Reaction> R) {
-                   modifyCustomPyReaction(i, dynamic_cast<CustomPyReaction&>(*R));
-               });
 }
 
 void GasKinetics::update_rates_T()
@@ -298,7 +290,11 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
     }
 
     try {
-        m_addRxn[r->type()](r);
+        if (r->rxnRate()) {
+            addRxnRate(r->rxnRate());
+        } else {
+            m_addRxn[r->type()](r);
+        }
     } catch (std::out_of_range&) {
         throw CanteraError("GasKinetics::addReaction",
             "Unknown reaction type specified: '{}'", r->type());
@@ -370,9 +366,8 @@ void GasKinetics::addChebyshevReaction(ChebyshevReaction& r)
     m_cheb_rates.install(nReactions()-1, r.rate);
 }
 
-void GasKinetics::addCustomPyReaction(CustomPyReaction& r)
+void GasKinetics::addRxnRate(shared_ptr<RxnRate> rate)
 {
-    shared_ptr<CustomPyRate> rate = std::make_shared<CustomPyRate>(std::move(r.rate));
     rate->updateTemperature(thermo().temperature());
     rate->updatePressure(thermo().pressure());
     m_ROP_ok = false;
@@ -386,7 +381,11 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     BulkKinetics::modifyReaction(i, rNew);
 
     try {
-        m_modRxn[rNew->type()](i, rNew);
+        if (rNew->rxnRate()) {
+            modifyRxnRate(i, rNew->rxnRate());
+        } else {
+            m_modRxn[rNew->type()](i, rNew);
+        }
     } catch (std::out_of_range&) {
         throw CanteraError("GasKinetics::modifyReaction",
             "Unknown reaction type specified: '{}'", rNew->type());
@@ -421,10 +420,14 @@ void GasKinetics::modifyChebyshevReaction(size_t i, ChebyshevReaction& r)
     m_cheb_rates.replace(i, r.rate);
 }
 
-void GasKinetics::modifyCustomPyReaction(size_t i, CustomPyReaction& r)
+void GasKinetics::modifyRxnRate(size_t i, shared_ptr<RxnRate> rate)
 {
     if (m_rxn_rates.find(i) != m_rxn_rates.end()) {
-        shared_ptr<CustomPyRate> rate = std::make_shared<CustomPyRate>(std::move(r.rate));
+        if (m_rxn_rates[i]->type() != rate->type()) {
+            throw CanteraError("GasKinetics::modifyReaction",
+                               "Attempting to replace '{}' with '{}'.",
+                               m_rxn_rates[i]->type(), rate->type());
+        }
         rate->updateTemperature(thermo().temperature());
         rate->updatePressure(thermo().pressure());
         m_ROP_ok = false;
@@ -432,7 +435,7 @@ void GasKinetics::modifyCustomPyReaction(size_t i, CustomPyReaction& r)
         m_rxn_rates[i] = rate;
     } else {
         throw CanteraError("GasKinetics::modifyReaction",
-            "Index {} does not exist.", i);
+                           "Index {} does not exist.", i);
     }
 }
 
