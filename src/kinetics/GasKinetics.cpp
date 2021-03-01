@@ -84,10 +84,10 @@ GasKinetics::GasKinetics(ThermoPhase* thermo) :
 
 void GasKinetics::update_rates_T()
 {
-    doublereal T = thermo().temperature();
-    doublereal P = thermo().pressure();
+    double T = thermo().temperature();
+    double P = thermo().pressure();
     m_logStandConc = log(thermo().standardConcentration());
-    doublereal logT = log(T);
+    double logT = log(T);
 
     if (T != m_temp) {
         if (!m_rfn.empty()) {
@@ -106,6 +106,11 @@ void GasKinetics::update_rates_T()
     }
 
     if (T != m_temp || P != m_pres) {
+        for (auto& rate : m_rxn_rates) {
+            // generic reaction rates
+            m_rfn.data()[rate.first] = rate.second->eval();
+        }
+
         if (m_plog_rates.nReactions()) {
             m_plog_rates.update(T, logT, m_rfn.data());
             m_ROP_ok = false;
@@ -367,7 +372,12 @@ void GasKinetics::addChebyshevReaction(ChebyshevReaction& r)
 
 void GasKinetics::addCustomPyReaction(CustomPyReaction& r)
 {
-    r.set_valid(false);
+    shared_ptr<CustomPyRate> rate = std::make_shared<CustomPyRate>(std::move(r.rate));
+    rate->updateTemperature(thermo().temperature());
+    rate->updatePressure(thermo().pressure());
+    m_ROP_ok = false;
+
+    m_rxn_rates[nReactions()-1] = rate;
 }
 
 void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
@@ -413,7 +423,17 @@ void GasKinetics::modifyChebyshevReaction(size_t i, ChebyshevReaction& r)
 
 void GasKinetics::modifyCustomPyReaction(size_t i, CustomPyReaction& r)
 {
-    r.set_valid(false);
+    if (m_rxn_rates.find(i) != m_rxn_rates.end()) {
+        shared_ptr<CustomPyRate> rate = std::make_shared<CustomPyRate>(std::move(r.rate));
+        rate->updateTemperature(thermo().temperature());
+        rate->updatePressure(thermo().pressure());
+        m_ROP_ok = false;
+
+        m_rxn_rates[i] = rate;
+    } else {
+        throw CanteraError("GasKinetics::modifyReaction",
+            "Index {} does not exist.", i);
+    }
 }
 
 void GasKinetics::init()

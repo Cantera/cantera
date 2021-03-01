@@ -456,6 +456,13 @@ cdef class CustomRate:
         def __set__(self, float temperature):
             self.rate.updateTemperature(temperature)
 
+    property pressure:
+        """ Get/Set pressure used for all reaction rate evaluations"""
+        def __get__(self):
+            return self.rate.pressure()
+        def __set__(self, float pressure):
+            self.rate.updatePressure(pressure)
+
 
 cdef class ElementaryReaction(Reaction):
     """

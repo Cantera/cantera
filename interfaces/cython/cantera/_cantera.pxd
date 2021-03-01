@@ -315,11 +315,12 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxCustomPyRate "Cantera::CustomPyRate":
         CxxCustomPyRate()
         string type()
-        void setRateFunction(shared_ptr[CxxFunc1]) except +translate_exception
-        double eval() except +translate_exception
-        double updateRC(double, double) except +translate_exception
         double temperature()
         void updateTemperature(double) except +translate_exception
+        double pressure()
+        void updatePressure(double) except +translate_exception
+        double eval() except +translate_exception
+        void setRateFunction(shared_ptr[CxxFunc1]) except +translate_exception
 
     cdef cppclass CxxReaction "Cantera::Reaction":
         CxxReaction()
