@@ -63,6 +63,9 @@ cdef class Func1:
 
     def __init__(self, c):
         if hasattr(c, '__call__'):
+            if type(c).__name__ == 'method':
+                raise TypeError("Unable to use callback from 'method'.")
+
             # callback function
             self._set_callback(c)
         else:
