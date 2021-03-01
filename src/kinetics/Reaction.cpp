@@ -303,6 +303,12 @@ CustomPyReaction::CustomPyReaction()
     reaction_type = CUSTOMPY_RXN;
 }
 
+TestReaction::TestReaction()
+    : Reaction()
+    , allow_negative_pre_exponential_factor(false)
+{
+}
+
 InterfaceReaction::InterfaceReaction()
     : is_sticking_coefficient(false)
     , use_motz_wise_correction(false)
@@ -850,6 +856,15 @@ void setupCustomPyReaction(CustomPyReaction& R, const AnyMap& node,
     setupReaction(R, node, kin);
     CustomPyRate rate;
     R.setRxnRate(std::make_shared<CustomPyRate>(std::move(rate)));
+}
+
+void setupTestReaction(TestReaction& R, const AnyMap& node,
+                       const Kinetics& kin)
+{
+    setupReaction(R, node, kin);
+    R.allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
+    Arrhenius arr = readArrhenius(R, node["rate-constant"], kin, node.units());
+    throw CanteraError("setupTestReaction", "Work-in-progress");
 }
 
 void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)

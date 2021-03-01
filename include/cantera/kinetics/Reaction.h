@@ -260,6 +260,10 @@ public:
 
 //! A reaction which follows mass-action kinetics with a custom reaction rate
 //! defined in Python.
+/**
+ * @warning This class is an experimental part of the %Cantera API and
+ *    may be changed or removed without notice.
+ */
 class CustomPyReaction : public Reaction
 {
 public:
@@ -269,6 +273,28 @@ public:
         return "custom-Python";
     }
 };
+
+
+//! A reaction which follows mass-action kinetics with a modified Arrhenius
+//! reaction rate.
+/**
+ * Alternative elementary reaction based on RxnRate.
+ *
+ * @warning This class is an experimental part of the %Cantera API and
+ *    may be changed or removed without notice.
+ */
+class TestReaction : public Reaction
+{
+public:
+    TestReaction();
+
+    virtual std::string type() const {
+        return "elementary-new";
+    }
+
+    bool allow_negative_pre_exponential_factor;
+};
+
 
 //! Modifications to an InterfaceReaction rate based on a surface species
 //! coverage.
@@ -390,6 +416,9 @@ void setupChebyshevReaction(ChebyshevReaction&, const AnyMap&,
 
 void setupCustomPyReaction(CustomPyReaction&, const AnyMap&,
                            const Kinetics&);
+
+void setupTestReaction(TestReaction&, const AnyMap&,
+                       const Kinetics&);
 
 void setupInterfaceReaction(InterfaceReaction&, const XML_Node&);
 void setupInterfaceReaction(InterfaceReaction&, const AnyMap&,
