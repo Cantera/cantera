@@ -480,11 +480,14 @@ cdef class ElementaryReaction(Reaction):
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
                  init=True, **kwargs):
 
-        if init and equation and rate and kinetics:
+        if init and equation and kinetics:
+
             if isinstance(rate, dict):
                 coeffs = ['{}: {}'.format(k, v) for k, v in rate.items()]
+            elif isinstance(rate, Arrhenius) or rate is None:
+                coeffs = ['{}: 0.'.format(k) for k in ['A', 'b', 'Ea']]
             else:
-                raise ValueError('Invalid rate definition')
+                raise ValueError("Invalid rate definition")
 
             rate_def = '{{{}}}'.format(', '.join(coeffs))
             yaml = '{{equation: {}, rate-constant: {}, type: {}}}'.format(
@@ -492,6 +495,9 @@ cdef class ElementaryReaction(Reaction):
             self._reaction = CxxNewReaction(AnyMapFromYamlString(stringify(yaml)),
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
+
+            if isinstance(rate, Arrhenius):
+                self.rate = rate
 
     property rate:
         """ Get/Set the `Arrhenius` rate coefficient for this reaction. """
@@ -871,6 +877,7 @@ cdef class CustomReaction(Reaction):
                  init=True, **kwargs):
 
         if init and equation and kinetics:
+
             yaml = '{{equation: {}, type: {}}}'.format(equation, self.reaction_type)
             self._reaction = CxxNewReaction(AnyMapFromYamlString(stringify(yaml)),
                                             deref(kinetics.kinetics))

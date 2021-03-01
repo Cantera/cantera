@@ -3,7 +3,6 @@ import re
 import itertools
 from os.path import join as pjoin
 import os
-from math import exp
 
 import cantera as ct
 from . import utilities
@@ -856,66 +855,9 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(gas2.net_rates_of_progress[0],
                         self.gas.net_rates_of_progress[2])
 
-    def test_elementary2(self):
-        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
-                           species=self.species, reactions=[])
-        gas2.TPX = self.gas.TPX
-
-        r = ct.ElementaryReaction(equation='H2 + O <=> H + OH',
-                                  rate={'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07},
-                                  kinetics=gas2)
-
-        self.assertNear(r.rate(self.gas.T), self.gas.forward_rate_constants[2])
-        self.assertEqual(r.reactants, self.gas.reaction(2).reactants)
-        self.assertEqual(r.products, self.gas.reaction(2).products)
-
-        gas2.add_reaction(r)
-        self.assertNear(gas2.forward_rate_constants[0],
-                        self.gas.forward_rate_constants[2])
-        self.assertNear(gas2.net_rates_of_progress[0],
-                        self.gas.net_rates_of_progress[2])
-
     def test_arrhenius_rate(self):
         R = self.gas.reaction(2)
         self.assertNear(R.rate(self.gas.T), self.gas.forward_rate_constants[2])
-
-    def test_custom1(self):
-        r = ct.CustomReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
-        r.rate = ct.CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
-
-        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
-                           species=self.species, reactions=[r])
-        gas2.TPX = self.gas.TPX
-
-        self.assertEqual(gas2.n_reactions, 1)
-        self.assertNear(gas2.forward_rate_constants[0],
-                        self.gas.forward_rate_constants[2])
-        self.assertNear(gas2.net_rates_of_progress[0],
-                        self.gas.net_rates_of_progress[2])
-
-    def test_custom2(self):
-        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
-                           species=self.species, reactions=[])
-        gas2.TPX = self.gas.TPX
-
-        r = ct.CustomReaction(equation='H2 + O <=> H + OH',
-                              rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T),
-                              kinetics=self.gas)
-        self.assertNear(r.rate(self.gas.T), self.gas.forward_rate_constants[2])
-        self.assertEqual(r.reactants, self.gas.reaction(2).reactants)
-        self.assertEqual(r.products, self.gas.reaction(2).products)
-
-        gas2.add_reaction(r)
-        self.assertNear(gas2.forward_rate_constants[0],
-                        self.gas.forward_rate_constants[2])
-        self.assertNear(gas2.net_rates_of_progress[0],
-                        self.gas.net_rates_of_progress[2])
-
-    def test_custom_rate(self):
-        # probe O + H2 <=> H + OH
-        rr = ct.CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
-        R = self.gas.reaction(2)
-        self.assertNear(R.rate(self.gas.T), rr(self.gas.T))
 
     def test_negative_A(self):
         species = ct.Species.listFromFile('gri30.cti')
