@@ -445,12 +445,10 @@ public:
     //! Identifier of reaction type
     virtual std::string type() const = 0;
 
+    //! Get temperature
     double temperature() const {
         return m_temperature;
     }
-
-    //! Evaluate reaction rate
-    virtual double eval() const = 0;
 
     //! Update temperature
     void updateTemperature(double T) {
@@ -463,10 +461,35 @@ public:
         m_recipT = 1./T;
     }
 
+    //! Get pressure
+    double pressure() const {
+        return m_pressure;
+    }
+
+    //! Update pressure
+    void updatePressure(double P) {
+        if (P <= 0.) {
+            throw CanteraError("RxnRate::updatePressure",
+                               "Pressure has to be positive.");
+        }
+        m_pressure = P;
+    }
+
+    //! Evaluate reaction rate
+    virtual double eval() const = 0;
+
 protected:
+    //! Temperature used for reaction rate evaluation
     static double m_temperature;
+
+    //! Logarithm of temperature used for reaction rate evaluation
     static double m_logT;
+
+    //! Inverse temperature used for reaction rate evaluation
     static double m_recipT;
+
+    //! Pressure used for reaction rate evaluation
+    static double m_pressure;
 };
 
 
@@ -495,22 +518,7 @@ public:
      */
     void setRateFunction(shared_ptr<Func1> f);
 
-    //! Update concentration-dependent parts of the rate coefficient.
-    /*!
-     *   For this class, there are no concentration-dependent parts, so this
-     *   method does nothing.
-     */
-    void update_C(const double* c) {}
-
-    virtual double eval() const {
-        return updateRC(m_logT, m_recipT);
-    }
-
-    // Update the value the natural logarithm of the rate constant.
-    double updateLog(double logT, double recipT) const;
-
-    // Update the value the rate constant.
-    double updateRC(double logT, double recipT) const;
+    virtual double eval() const;
 
 protected:
     shared_ptr<Func1> m_ratefunc;

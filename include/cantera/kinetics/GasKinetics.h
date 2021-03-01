@@ -101,6 +101,9 @@ protected:
     Rate1<Plog> m_plog_rates;
     Rate1<ChebyshevRate> m_cheb_rates;
 
+    //! Map of generic reaction rate expressions
+    std::map<size_t, shared_ptr<RxnRate>> m_rxn_rates;
+
     //! @name Reaction rate data
     //!@{
     doublereal m_logp_ref;

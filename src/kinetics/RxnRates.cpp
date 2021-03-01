@@ -162,6 +162,7 @@ ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
 double RxnRate::m_temperature = 1.;
 double RxnRate::m_logT = 0.;
 double RxnRate::m_recipT = 1.;
+double RxnRate::m_pressure = 1.;
 
 CustomPyRate::CustomPyRate() : m_ratefunc(0) {}
 
@@ -169,16 +170,9 @@ void CustomPyRate::setRateFunction(shared_ptr<Func1> f) {
     m_ratefunc = f;
 }
 
-double CustomPyRate::updateLog(double logT, double recipT) const {
+double CustomPyRate::eval() const {
     if (m_ratefunc) {
-        return std::log( m_ratefunc->eval(1./recipT) );
-    }
-    return 1.;
-}
-
-double CustomPyRate::updateRC(double logT, double recipT) const {
-    if (m_ratefunc) {
-        return m_ratefunc->eval(1./recipT);
+        return m_ratefunc->eval(m_temperature);
     }
     return 0.;
 }
