@@ -473,6 +473,8 @@ public:
                                "Pressure has to be positive.");
         }
         m_pressure = P;
+        m_logP = log(P);
+        m_log10P = log10(P);
     }
 
     //! Evaluate reaction rate
@@ -490,6 +492,12 @@ protected:
 
     //! Pressure used for reaction rate evaluation
     static double m_pressure;
+
+    //! Logarithm of pressure used for reaction rate evaluation
+    static double m_logP;
+
+    //! 10-base logarithm of pressure used for reaction rate evaluation
+    static double m_log10P;
 };
 
 
@@ -522,6 +530,29 @@ public:
 
 protected:
     shared_ptr<Func1> m_ratefunc;
+};
+
+
+//! Arrhenius reaction rate type depends only on temperature
+/**
+ * Wrapped Arrhenius rate.
+ *
+ * @warning This class is an experimental part of the %Cantera API and
+ *    may be changed or removed without notice.
+ */
+class ArrheniusRate : public RxnRate, public Arrhenius
+{
+public:
+    //! Constructor.
+    ArrheniusRate();
+
+    virtual std::string type() const {
+        return "Arrhenius";
+    }
+
+    virtual double eval() const {
+        return updateRC(m_logT, m_recipT);
+    }
 };
 
 }

@@ -163,6 +163,8 @@ double RxnRate::m_temperature = 1.;
 double RxnRate::m_logT = 0.;
 double RxnRate::m_recipT = 1.;
 double RxnRate::m_pressure = 1.;
+double RxnRate::m_logP = 0.;
+double RxnRate::m_log10P = 0.;
 
 CustomPyRate::CustomPyRate() : m_ratefunc(0) {}
 
