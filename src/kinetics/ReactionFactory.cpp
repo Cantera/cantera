@@ -108,6 +108,18 @@ ReactionFactory::ReactionFactory()
                    setupCustomPyReaction(*(CustomPyReaction*)R, node, kin);
                });
 
+    // register custom Python reactions
+    reg("elementary-new", []() { return new TestReaction(); });
+    reg_XML("elementary-new",
+            [](Reaction* R, const XML_Node& node) {
+                throw CanteraError("ReactionFactory", "Test reactions "
+                                   "cannot be created from XML nodes'");
+            });
+    reg_AnyMap("elementary-new",
+               [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
+                   setupTestReaction(*(TestReaction*)R, node, kin);
+               });
+
     // register interface reactions
     reg("interface", []() { return new InterfaceReaction(); });
     addAlias("interface", "surface");
