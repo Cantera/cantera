@@ -888,10 +888,10 @@ class TestReaction(utilities.CanteraTest):
         gas2.TPX = self.gas.TPX
 
         self.assertEqual(gas2.n_reactions, 1)
-        # self.assertNear(gas2.forward_rate_constants[0],
-        #                 self.gas.forward_rate_constants[2])
-        # self.assertNear(gas2.net_rates_of_progress[0],
-        #                 self.gas.net_rates_of_progress[2])
+        self.assertNear(gas2.forward_rate_constants[0],
+                        self.gas.forward_rate_constants[2])
+        self.assertNear(gas2.net_rates_of_progress[0],
+                        self.gas.net_rates_of_progress[2])
 
     def test_custom2(self):
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
