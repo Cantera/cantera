@@ -60,6 +60,16 @@ public:
         m_valid = valid;
     }
 
+    //! Retrieve reaction rate pointer
+    shared_ptr<RxnRate> rxnRate() const {
+        return m_rate;
+    }
+
+    //! Retrieve reaction rate pointer
+    void setRxnRate(shared_ptr<RxnRate> rate) {
+        m_rate = rate;
+    }
+
     //! Type of the reaction. The valid types are listed in the file,
     //! reaction_defs.h, with constants ending in `RXN`.
     /*!
@@ -102,6 +112,9 @@ public:
 protected:
     //! Flag indicating whether reaction is set up correctly
     bool m_valid;
+
+    //! Reaction rate used by generic reactions
+    shared_ptr<RxnRate> m_rate;
 };
 
 
@@ -251,14 +264,10 @@ class CustomPyReaction : public Reaction
 {
 public:
     CustomPyReaction();
-    CustomPyReaction(const Composition& reactants, const Composition& products,
-                     const CustomPyRate& rate);
 
     virtual std::string type() const {
         return "custom-Python";
     }
-
-    CustomPyRate rate;
 };
 
 //! Modifications to an InterfaceReaction rate based on a surface species

@@ -303,15 +303,6 @@ CustomPyReaction::CustomPyReaction()
     reaction_type = CUSTOMPY_RXN;
 }
 
-CustomPyReaction::CustomPyReaction(const Composition& reactants_,
-                                   const Composition& products_,
-                                   const CustomPyRate& rate_)
-    : Reaction(reactants_, products_)
-    , rate(rate_)
-{
-    reaction_type = CUSTOMPY_RXN;
-}
-
 InterfaceReaction::InterfaceReaction()
     : is_sticking_coefficient(false)
     , use_motz_wise_correction(false)
@@ -857,7 +848,8 @@ void setupCustomPyReaction(CustomPyReaction& R, const AnyMap& node,
                            const Kinetics& kin)
 {
     setupReaction(R, node, kin);
-    R.rate = CustomPyRate();
+    CustomPyRate rate;
+    R.setRxnRate(std::make_shared<CustomPyRate>(std::move(rate)));
 }
 
 void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)

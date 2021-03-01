@@ -403,7 +403,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
 
     cdef cppclass CxxCustomPyReaction "Cantera::CustomPyReaction" (CxxReaction):
         CxxCustomPyReaction()
-        CxxCustomPyRate rate
+        void setRxnRate(shared_ptr[CxxCustomPyRate])
 
     cdef cppclass CxxCoverageDependency "Cantera::CoverageDependency":
         CxxCoverageDependency(double, double, double)
