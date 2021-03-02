@@ -1,0 +1,88 @@
+"""
+An example demonstrating how to use custom reaction objects.
+
+For benchmark purposes, an ignition test is run to compare simulation times.
+
+Requires: cantera >= 2.6.0
+"""
+
+from timeit import default_timer
+import numpy as np
+from math import exp
+
+import cantera as ct
+
+gas0 = ct.Solution('h2o2.yaml')
+
+species = gas0.species()
+reactions = gas0.reactions()
+
+# construct custom reactions: replace 2nd reaction with equivalent custom reaction
+custom_reactions = [r for r in reactions]
+custom_reactions[2] = ct.CustomReaction(
+    equation='H2 + O <=> H + OH',
+    rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T),
+    kinetics=gas0)
+
+gas1 = ct.Solution(thermo='ideal-gas', kinetics='gas',
+                   species=species, reactions=custom_reactions)
+
+# construct test reactions: replace all elementary reactions with alternatives
+test_reactions = []
+for r in reactions:
+
+    if r.reaction_type == "elementary":
+        A = r.rate.pre_exponential_factor
+        b = r.rate.temperature_exponent
+        Ea = r.rate.activation_energy
+        r_new = ct.TestReaction(equation=r.equation,
+                                rate={'A': A, 'b': b, 'Ea': Ea},
+                                kinetics=gas0)
+    else:
+        r_new = r
+
+    test_reactions.append(r_new)
+
+gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
+                   species=species, reactions=test_reactions)
+
+# construct test case - simulate ignition
+
+def ignition(gas):
+    # set up reactor
+    gas.TP = 900, 5*ct.one_atm
+    gas.set_equivalence_ratio(0.4, 'H2', 'O2:1.0, AR:4.0')
+    r = ct.IdealGasReactor(gas)
+    net = ct.ReactorNet([r])
+    net.rtol_sensitivity = 2e-5
+
+    # time reactor integration
+    t1 = default_timer()
+    while net.time < .5:
+        net.step()
+    t2 = default_timer()
+
+    return 1000* (t2 - t1)
+
+# output results
+
+repeat = 100
+print('Average time of {} simulation runs:'.format(repeat))
+
+sim0 = 0
+for i in range(repeat):
+    sim0 += ignition(gas0)
+print('- Original mechanism: '
+      '{0:.2f} ms (T_final={1:.2f})'.format(sim0/repeat, gas0.T))
+
+sim1 = 0
+for i in range(repeat):
+    sim1 += ignition(gas1)
+print('- One Python reaction: '
+      '{0:.2f} ms (T_final={1:.2f})'.format(sim1/repeat, gas1.T))
+
+sim2 = 0
+for i in range(repeat):
+    sim2 += ignition(gas2)
+print('- Alternative reactions: '
+      '{0:.2f} ms (T_final={1:.2f})'.format(sim2/repeat, gas2.T))
