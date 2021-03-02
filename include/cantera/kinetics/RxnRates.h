@@ -446,12 +446,12 @@ public:
     virtual std::string type() const = 0;
 
     //! Get temperature
-    double temperature() const {
+    static double temperature() {
         return m_temperature;
     }
 
     //! Update temperature
-    void updateTemperature(double T) {
+    static void updateTemperature(double T) {
         if (T <= 0.) {
             throw CanteraError("RxnRate::updateTemperature",
                                "Temperature has to be positive.");
@@ -462,12 +462,12 @@ public:
     }
 
     //! Get pressure
-    double pressure() const {
+    static double pressure() {
         return m_pressure;
     }
 
     //! Update pressure
-    void updatePressure(double P) {
+    static void updatePressure(double P) {
         if (P <= 0.) {
             throw CanteraError("RxnRate::updatePressure",
                                "Pressure has to be positive.");

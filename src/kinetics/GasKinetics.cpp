@@ -17,8 +17,7 @@ GasKinetics::GasKinetics(ThermoPhase* thermo) :
     m_logp_ref(0.0),
     m_logc_ref(0.0),
     m_logStandConc(0.0),
-    m_pres(0.0),
-    m_update(true)
+    m_pres(0.0)
 {
     reg_addRxn("elementary",
                [&](shared_ptr<Reaction> R) {
@@ -98,11 +97,10 @@ void GasKinetics::update_rates_T()
         m_ROP_ok = false;
     }
 
-    if (T != m_temp || P != m_pres || m_update) {
+    if (T != m_temp || P != m_pres) {
         if (!m_rxn_rates.empty()) {
-            auto rate = m_rxn_rates.begin()->second;
-            rate->updateTemperature(T);
-            rate->updatePressure(P);
+            RxnRate::updateTemperature(T);
+            RxnRate::updatePressure(P);
         }
 
         for (auto& rate : m_rxn_rates) {
@@ -119,8 +117,6 @@ void GasKinetics::update_rates_T()
             m_cheb_rates.update(T, logT, m_rfn.data());
             m_ROP_ok = false;
         }
-
-        m_update = false;
     }
     m_pres = P;
     m_temp = T;
@@ -301,6 +297,8 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
     try {
         if (r->rxnRate()) {
             addRxnRate(r->rxnRate());
+            RxnRate::updateTemperature(thermo().temperature());
+            RxnRate::updatePressure(thermo().pressure());
         } else {
             m_addRxn[r->type()](r);
         }
@@ -377,10 +375,6 @@ void GasKinetics::addChebyshevReaction(ChebyshevReaction& r)
 
 void GasKinetics::addRxnRate(shared_ptr<RxnRate> rate)
 {
-    rate->updateTemperature(thermo().temperature());
-    rate->updatePressure(thermo().pressure());
-    m_update = true;
-
     m_rxn_rates[nReactions()-1] = rate;
 }
 
@@ -437,10 +431,6 @@ void GasKinetics::modifyRxnRate(size_t i, shared_ptr<RxnRate> rate)
                                "Attempting to replace '{}' with '{}'.",
                                m_rxn_rates[i]->type(), rate->type());
         }
-        rate->updateTemperature(thermo().temperature());
-        rate->updatePressure(thermo().pressure());
-        m_update = true;
-
         m_rxn_rates[i] = rate;
     } else {
         throw CanteraError("GasKinetics::modifyReaction",
