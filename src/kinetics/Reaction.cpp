@@ -864,7 +864,10 @@ void setupTestReaction(TestReaction& R, const AnyMap& node,
     setupReaction(R, node, kin);
     R.allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
     Arrhenius arr = readArrhenius(R, node["rate-constant"], kin, node.units());
-    throw CanteraError("setupTestReaction", "Work-in-progress");
+    ArrheniusRate rate(arr.preExponentialFactor(),
+                       arr.temperatureExponent(),
+                       arr.activationEnergy_R());
+    R.setRxnRate(std::make_shared<ArrheniusRate>(std::move(rate)));
 }
 
 void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)

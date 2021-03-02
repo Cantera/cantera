@@ -403,7 +403,33 @@ cdef copyArrhenius(CxxArrhenius* rate):
     return r
 
 
-cdef class CustomRate:
+cdef class _RxnRate:
+
+    def __repr__(self):
+        return "<{}>".format(pystr(self.base.type()))
+
+    def __call__(self, temperature=None):
+        if temperature is not None:
+            self.temperature = temperature
+
+        return self.base.eval()
+
+    property temperature:
+        """ Get/Set temperature used for all reaction rate evaluations"""
+        def __get__(self):
+            return self.base.temperature()
+        def __set__(self, float temperature):
+            self.base.updateTemperature(temperature)
+
+    property pressure:
+        """ Get/Set pressure used for all reaction rate evaluations"""
+        def __get__(self):
+            return self.base.pressure()
+        def __set__(self, float pressure):
+            self.base.updatePressure(pressure)
+
+
+cdef class CustomRate(_RxnRate):
     r"""
     A custom rate coefficient which depends on temperature only.
 
@@ -418,12 +444,10 @@ cdef class CustomRate:
     def __cinit__(self, k=None, init=True):
 
         if init:
-            self._rate.reset(new CxxCustomPyRate())
-            self.rate = self._rate.get()
+            self._base.reset(new CxxCustomPyRate())
+            self.base = self._base.get()
+            self.rate = <CxxCustomPyRate*>(self.base)
             self.set_rate_function(k)
-
-    def __repr__(self):
-        return "<{}>".format(pystr(self.rate.type()))
 
     def set_rate_function(self, k):
         r"""
@@ -443,25 +467,63 @@ cdef class CustomRate:
 
         self.rate.setRateFunction(self._rate_func._func)
 
-    def __call__(self, temperature=None):
-        if temperature is not None:
-            self.temperature = temperature
 
-        return self.rate.eval()
+cdef class ArrheniusRate(_RxnRate):
+    r"""
+    A reaction rate coefficient which depends on temperature only and follows
+    the modified Arrhenius form:
 
-    property temperature:
-        """ Get/Set temperature used for all reaction rate evaluations"""
+    .. math::
+
+        k_f = A T^b \exp{-\tfrac{E}{RT}}
+
+    where *A* is the `pre_exponential_factor`, *b* is the `temperature_exponent`,
+    and *E* is the `activation_energy`.
+
+    Warning: this class is an experimental part of the Cantera API and
+        may be changed or removed without notice.
+    """
+    def __cinit__(self, A=0, b=0, E=0, init=True):
+
+        if init:
+            self._base.reset(new CxxArrheniusRate(A, b, E / gas_constant))
+            self.base = self._base.get()
+            self.rate = <CxxArrheniusRate*>(self.base)
+
+    @staticmethod
+    cdef wrap(shared_ptr[CxxRxnRate] rate):
+        """
+        Wrap a C++ RxnRate object with a Python object.
+        """
+        # wrap C++ reaction
+        cdef ArrheniusRate arr
+        arr = ArrheniusRate(init=False)
+        arr._base = rate
+        arr.base = arr._base.get()
+        arr.rate = <CxxArrheniusRate*>(arr.base)
+        return arr
+
+    property pre_exponential_factor:
+        """
+        The pre-exponential factor *A* in units of m, kmol, and s raised to
+        powers depending on the reaction order.
+        """
         def __get__(self):
-            return self.rate.temperature()
-        def __set__(self, float temperature):
-            self.rate.updateTemperature(temperature)
+            return self.rate.preExponentialFactor()
 
-    property pressure:
-        """ Get/Set pressure used for all reaction rate evaluations"""
+    property temperature_exponent:
+        """
+        The temperature exponent *b*.
+        """
         def __get__(self):
-            return self.rate.pressure()
-        def __set__(self, float pressure):
-            self.rate.updatePressure(pressure)
+            return self.rate.temperatureExponent()
+
+    property activation_energy:
+        """
+        The activation energy *E* [J/kmol].
+        """
+        def __get__(self):
+            return self.rate.activationEnergy_R() * gas_constant
 
 
 cdef class ElementaryReaction(Reaction):
@@ -487,7 +549,7 @@ cdef class ElementaryReaction(Reaction):
             elif isinstance(rate, Arrhenius) or rate is None:
                 coeffs = ['{}: 0.'.format(k) for k in ['A', 'b', 'Ea']]
             else:
-                raise ValueError("Invalid rate definition")
+                raise TypeError("Invalid rate definition")
 
             rate_def = '{{{}}}'.format(', '.join(coeffs))
             yaml = '{{equation: {}, rate-constant: {}, type: {}}}'.format(
@@ -891,7 +953,68 @@ cdef class CustomReaction(Reaction):
         def __set__(self, CustomRate rate):
             self._rate = rate
             cdef CxxCustomPyReaction* r = <CxxCustomPyReaction*>self.reaction
-            r.setRxnRate(self._rate._rate)
+            r.setRxnRate(self._rate._base)
+
+
+cdef class TestReaction(Reaction):
+    """
+    A reaction which follows mass-action kinetics with a modified Arrhenius
+    reaction rate. The class is a re-implementation of `ElementaryReaction`
+    and serves for testing purposes.
+
+    An example for the definition of a `TestReaction` object is given as::
+
+        rxn = TestReaction(equation='H2 + O <=> H + OH',
+                           rate={'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07},
+                           kinetics=gas)
+
+    Warning: this class is an experimental part of the Cantera API and
+        may be changed or removed without notice.
+    """
+    reaction_type = "elementary-new"
+
+    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
+                 init=True, **kwargs):
+
+        if init and equation and kinetics:
+
+            if isinstance(rate, dict):
+                coeffs = ['{}: {}'.format(k, v) for k, v in rate.items()]
+            elif isinstance(rate, ArrheniusRate) or rate is None:
+                coeffs = ['{}: 0.'.format(k) for k in ['A', 'b', 'Ea']]
+            else:
+                raise TypeError("Invalid rate definition")
+
+            rate_def = '{{{}}}'.format(', '.join(coeffs))
+            yaml = '{{equation: {}, rate-constant: {}, type: {}}}'.format(
+                equation, rate_def, self.reaction_type)
+            self._reaction = CxxNewReaction(AnyMapFromYamlString(stringify(yaml)),
+                                            deref(kinetics.kinetics))
+            self.reaction = self._reaction.get()
+
+            if isinstance(rate, ArrheniusRate):
+                self.rate = rate
+
+    property rate:
+        """ Get/Set the `Arrhenius` rate coefficient for this reaction. """
+        def __get__(self):
+            cdef CxxTestReaction* r = <CxxTestReaction*>self.reaction
+            return ArrheniusRate.wrap(r.rxnRate())
+        def __set__(self, ArrheniusRate rate):
+            cdef CxxTestReaction* r = <CxxTestReaction*>self.reaction
+            r.setRxnRate(rate._base)
+
+    property allow_negative_pre_exponential_factor:
+        """
+        Get/Set whether the rate coefficient is allowed to have a negative
+        pre-exponential factor.
+        """
+        def __get__(self):
+            cdef CxxElementaryReaction* r = <CxxElementaryReaction*>self.reaction
+            return r.allow_negative_pre_exponential_factor
+        def __set__(self, allow):
+            cdef CxxElementaryReaction* r = <CxxElementaryReaction*>self.reaction
+            r.allow_negative_pre_exponential_factor = allow
 
 
 cdef class InterfaceReaction(ElementaryReaction):

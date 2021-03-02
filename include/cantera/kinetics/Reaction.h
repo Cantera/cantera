@@ -60,12 +60,12 @@ public:
         m_valid = valid;
     }
 
-    //! Retrieve reaction rate pointer
-    shared_ptr<RxnRate> rxnRate() const {
+    //! Get reaction rate pointer
+    shared_ptr<RxnRate> rxnRate() {
         return m_rate;
     }
 
-    //! Retrieve reaction rate pointer
+    //! Set reaction rate pointer
     void setRxnRate(shared_ptr<RxnRate> rate) {
         m_rate = rate;
     }

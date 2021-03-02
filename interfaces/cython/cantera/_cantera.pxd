@@ -312,15 +312,25 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double temperatureExponent()
         double activationEnergy_R()
 
-    cdef cppclass CxxCustomPyRate "Cantera::CustomPyRate":
-        CxxCustomPyRate()
+    cdef cppclass CxxRxnRate "Cantera::RxnRate":
+        CxxRxnRate()
         string type()
         double temperature()
         void updateTemperature(double) except +translate_exception
         double pressure()
         void updatePressure(double) except +translate_exception
         double eval() except +translate_exception
+
+    cdef cppclass CxxCustomPyRate "Cantera::CustomPyRate" (CxxRxnRate):
+        CxxCustomPyRate()
         void setRateFunction(shared_ptr[CxxFunc1]) except +translate_exception
+
+    cdef cppclass CxxArrheniusRate "Cantera::ArrheniusRate" (CxxRxnRate):
+        CxxArrheniusRate()
+        CxxArrheniusRate(double, double, double)
+        double preExponentialFactor()
+        double temperatureExponent()
+        double activationEnergy_R()
 
     cdef cppclass CxxReaction "Cantera::Reaction":
         CxxReaction()
@@ -338,6 +348,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool duplicate
         cbool allow_nonreactant_orders
         cbool allow_negative_orders
+        shared_ptr[CxxRxnRate] rxnRate()
+        void setRxnRate(shared_ptr[CxxRxnRate])
 
     cdef cppclass CxxElementaryReaction "Cantera::ElementaryReaction" (CxxReaction):
         CxxElementaryReaction()
@@ -403,7 +415,10 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
 
     cdef cppclass CxxCustomPyReaction "Cantera::CustomPyReaction" (CxxReaction):
         CxxCustomPyReaction()
-        void setRxnRate(shared_ptr[CxxCustomPyRate])
+
+    cdef cppclass CxxTestReaction "Cantera::TestReaction" (CxxReaction):
+        CxxTestReaction()
+        cbool allow_negative_pre_exponential_factor
 
     cdef cppclass CxxCoverageDependency "Cantera::CoverageDependency":
         CxxCoverageDependency(double, double, double)
@@ -1018,6 +1033,19 @@ cdef class ThermoPhase(_SolutionBase):
 cdef class InterfacePhase(ThermoPhase):
     cdef CxxSurfPhase* surf
 
+cdef class _RxnRate:
+    cdef shared_ptr[CxxRxnRate] _base
+    cdef CxxRxnRate* base
+
+cdef class CustomRate(_RxnRate):
+    cdef CxxCustomPyRate* rate
+    cdef Func1 _rate_func
+
+cdef class ArrheniusRate(_RxnRate):
+    cdef CxxArrheniusRate* rate
+    @staticmethod
+    cdef wrap(shared_ptr[CxxRxnRate])
+
 cdef class Reaction:
     cdef shared_ptr[CxxReaction] _reaction
     cdef CxxReaction* reaction
@@ -1030,11 +1058,6 @@ cdef class CustomReaction(Reaction):
 cdef class Arrhenius:
     cdef CxxArrhenius* rate
     cdef Reaction reaction # parent reaction, to prevent garbage collection
-
-cdef class CustomRate:
-    cdef shared_ptr[CxxCustomPyRate] _rate
-    cdef CxxCustomPyRate* rate
-    cdef Func1 _rate_func
 
 cdef class Falloff:
     cdef shared_ptr[CxxFalloff] _falloff

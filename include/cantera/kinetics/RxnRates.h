@@ -516,7 +516,7 @@ public:
     CustomPyRate();
 
     virtual std::string type() const {
-        return "custom-Python";
+        return "custom-PythonRate";
     }
 
     // set custom rate
@@ -546,8 +546,10 @@ public:
     //! Constructor.
     ArrheniusRate();
 
+    ArrheniusRate(double A, double b, double E);
+
     virtual std::string type() const {
-        return "Arrhenius";
+        return "ArrheniusRate";
     }
 
     virtual double eval() const {
