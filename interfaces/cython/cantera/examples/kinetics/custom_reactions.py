@@ -50,19 +50,18 @@ gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
 
 def ignition(gas):
     # set up reactor
-    gas.TP = 900, 5*ct.one_atm
+    gas.TP = 900, 5 * ct.one_atm
     gas.set_equivalence_ratio(0.4, 'H2', 'O2:1.0, AR:4.0')
     r = ct.IdealGasReactor(gas)
     net = ct.ReactorNet([r])
-    net.rtol_sensitivity = 2e-5
+    net.rtol_sensitivity = 2.e-5
 
     # time reactor integration
     t1 = default_timer()
-    while net.time < .5:
-        net.step()
+    net.advance(.5)
     t2 = default_timer()
 
-    return 1000* (t2 - t1)
+    return 1000 * (t2 - t1)
 
 # output results
 
@@ -73,16 +72,16 @@ sim0 = 0
 for i in range(repeat):
     sim0 += ignition(gas0)
 print('- Original mechanism: '
-      '{0:.2f} ms (T_final={1:.2f})'.format(sim0/repeat, gas0.T))
+      '{0:.2f} ms (T_final={1:.2f})'.format(sim0 / repeat, gas0.T))
 
 sim1 = 0
 for i in range(repeat):
     sim1 += ignition(gas1)
 print('- One Python reaction: '
-      '{0:.2f} ms (T_final={1:.2f})'.format(sim1/repeat, gas1.T))
+      '{0:.2f} ms (T_final={1:.2f})'.format(sim1 / repeat, gas1.T))
 
 sim2 = 0
 for i in range(repeat):
     sim2 += ignition(gas2)
 print('- Alternative reactions: '
-      '{0:.2f} ms (T_final={1:.2f})'.format(sim2/repeat, gas2.T))
+      '{0:.2f} ms (T_final={1:.2f})'.format(sim2 / repeat, gas2.T))

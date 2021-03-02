@@ -113,7 +113,6 @@ protected:
     vector_fp m_rfn_high;
 
     doublereal m_pres; //!< Last pressure at which rates were evaluated
-    bool m_update; //!< Boolean flag indicating whether update is needed
 
     vector_fp falloff_work;
     vector_fp concm_3b_values;
