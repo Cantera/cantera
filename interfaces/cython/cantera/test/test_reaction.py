@@ -67,6 +67,10 @@ class TestElementary(utilities.CanteraTest):
         gas2.add_reaction(rxn)
         self.check_sol(gas2)
 
+    def test_wrong_rate(self):
+        with self.assertRaises(TypeError):
+            rxn = self._cls(equation=self._equation, rate=[], kinetics=self.gas)
+
     def test_no_rate(self):
         rxn = self._cls(equation=self._equation, kinetics=self.gas)
         self.assertNear(rxn.rate(self.gas.T), 0.)
@@ -77,6 +81,11 @@ class TestElementary(utilities.CanteraTest):
 
         self.assertNear(gas2.forward_rate_constants[0], 0.)
         self.assertNear(gas2.net_rates_of_progress[0], 0.)
+
+    def test_replace_rate(self):
+        rxn = self._cls(equation=self._equation, kinetics=self.gas)
+        rxn.rate = self._rate_obj
+        self.check_rxn(rxn)
 
 
 class TestCustom(TestElementary):
@@ -91,7 +100,7 @@ class TestCustom(TestElementary):
     def setUp(self):
         # need to overwrite rate to ensure correct type ('method' is not compatible with Func1)
         self._rate = lambda T: 38.7 * T**2.7 * exp(-3150.15428/T)
-    
+
     def test_from_func(self):
         f = ct.Func1(self._rate)
         rxn = ct.CustomReaction(equation=self._equation, rate=f, kinetics=self.gas)
@@ -107,4 +116,13 @@ class TestCustom(TestElementary):
                                 rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T),
                                 kinetics=self.gas)
         self.check_rxn(rxn)
-        
+
+
+class TestElementaryNew(TestElementary):
+
+    _cls = ct.TestReaction
+    _equation = 'H2 + O <=> H + OH'
+    _rate = {'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07}
+    _rate_obj = ct.ArrheniusRate(38.7, 2.7, 2.619184e+07)
+    _index = 2
+    _type = "elementary-new"
