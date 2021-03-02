@@ -179,4 +179,8 @@ double CustomPyRate::eval() const {
     return 0.;
 }
 
+ArrheniusRate::ArrheniusRate(double A, double b, double E)
+    : Arrhenius(A, b, E) {
+}
+
 }
