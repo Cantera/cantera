@@ -3,6 +3,8 @@ import re
 from pathlib import Path
 from buildutils import *
 
+from string import Template
+
 Import('env', 'build', 'install')
 
 localenv = env.Clone()
@@ -106,6 +108,120 @@ else:
 for f in (multi_glob(localenv, 'cantera', 'py') +
           multi_glob(localenv, 'cantera/*', 'py')):
     localenv.Depends(mod, f)
+
+UNITS = {
+    "cp_mass": '"J/kg/K"', "cp_mole": '"J/kmol/K"', "cv_mass": '"J/kg/K"',
+    "cv_mole": '"J/kmol/K"', "density_mass": '"kg/m**3"', "density_mole": '"kmol/m**3"',
+    "enthalpy_mass": '"J/kg"', "enthalpy_mole": '"J/kmol"', "entropy_mass": '"J/kg/K"',
+    "entropy_mole": '"J/kmol/K"', "gibbs_mass": '"J/kg"', "gibbs_mole": '"J/kmol"',
+    "int_energy_mass": '"J/kg"', "int_energy_mole": '"J/kmol"',
+    "volume_mass": '"m**3/kg"', "volume_mole": '"m**3/kmol"', "T": '"K"', "P": '"Pa"',
+    "X": '"dimensionless"', "Y": '"dimensionless"', "Q": '"dimensionless"',
+    "cp": '"J/K/" + self.basis_units', "cv": '"J/K/" + self.basis_units',
+    "density": 'self.basis_units + "/m**3"', "h": '"J/" + self.basis_units',
+    "s": '"J/K/" + self.basis_units', "g": '"J/" + self.basis_units',
+    "u": '"J/" + self.basis_units', "v": '"m**3/" + self.basis_units',
+    "H": '"J/" + self.basis_units', "V": '"m**3/" + self.basis_units',
+    "S": '"J/K/" + self.basis_units', "D": 'self.basis_units + "/m**3"',
+    "U": '"J/" + self.basis_units', "P_sat": '"Pa"', "T_sat": '"K"',
+    "atomic_weight": '"kg/kmol"', "chemical_potentials": '"J/kmol"',
+    "concentrations": '"kmol/m**3"', "critical_pressure": '"Pa"',
+    "critical_temperature": '"K"', "electric_potential": '"V"',
+    "electrochemical_potentials": '"J/kmol"', "isothermal_compressibility": '"1/Pa"',
+    "max_temp": '"K"', "mean_molecular_weight": '"kg/kmol"', "min_temp": '"K"',
+    "molecular_weights": '"kg/kmol"', "partial_molar_cp": '"J/kmol/K"',
+    "partial_molar_enthalpies": '"J/kmol"', "partial_molar_entropies": '"J/kmol/K"',
+    "partial_molar_int_energies": '"J/kmol"', "partial_molar_volumes": '"m**3/kmol"',
+    "reference_pressure": '"Pa"', "thermal_expansion_coeff": '"1/K"'
+}
+
+getter_template = Template("""
+    @property
+    def ${name}(self):
+        return Q_(self._phase.${name}, ${units})
+""")
+
+getter_properties = [
+    "density_mass", "density_mole", "enthalpy_mass", "enthalpy_mole", "entropy_mass",
+    "entropy_mole", "int_energy_mass", "int_energy_mole", "volume_mass", "volume_mole",
+    "gibbs_mass", "gibbs_mole", "cp_mass", "cp_mole", "P", "P_sat", "T", "T_sat",
+    "atomic_weight", "chemical_potentials", "concentrations", "critical_pressure",
+    "critical_temperature", "electric_potential", "electrochemical_potentials",
+    "isothermal_compressibility", "max_temp", "mean_molecular_weight", "min_temp",
+    "molecular_weights", "partial_molar_cp", "partial_molar_enthalpies",
+    "partial_molar_entropies", "partial_molar_int_energies", "partial_molar_volumes",
+    "reference_pressure", "thermal_expansion_coeff", "cp", "cv", "density",
+    "h", "s", "g", "u", "v"
+]
+
+getter_string = "".join(
+    getter_template.substitute(name=name, units=UNITS[name]) for name in getter_properties
+)
+pf_getter_string = getter_template.substitute(name="Q", units=UNITS["Q"])
+
+setter_template = Template("""
+    @property
+    def ${name}(self):
+        ${n0}, ${n1} = self._phase.${name}
+        return Q_(${n0}, ${u0}), Q_(${n1}, ${u1})
+
+    @${name}.setter
+    def ${name}(self, value):
+        ${n0} = value[0].to(${u0}) if value[0] is not None else self.${n0}
+        ${n1} = value[1].to(${u1}) if value[1] is not None else self.${n1}
+        self._phase.${name} = ${n0}.magnitude, ${n1}.magnitude
+""")
+
+setter_properties = ["TP", "DP", "HP", "SP", "SV", "TD", "UV"]
+pf_setter_properties = ["PQ", "TQ", "PV", "SH", "ST", "TH", "TV", "UP", "VH"]
+
+setter_string = "".join(
+    setter_template.substitute(name=name, n0=name[0], u0=UNITS[name[0]], n1=name[1], u1=UNITS[name[1]]) for name in setter_properties
+)
+pf_setter_string = "".join(
+    setter_template.substitute(name=name, n0=name[0], u0=UNITS[name[0]], n1=name[1], u1=UNITS[name[1]]) for name in pf_setter_properties
+)
+
+setter1_template = Template("""
+    @property
+    def ${name}(self):
+        ${n0}, ${n1}, ${n2} = self._phase.${name}
+        return Q_(${n0}, ${u0}), Q_(${n1}, ${u1}), Q_(${n2}, ${u2})
+
+    @${name}.setter
+    def ${name}(self, value):
+        ${n0} = value[0].to(${u0}) if value[0] is not None else self.${n0}
+        ${n1} = value[1].to(${u1}) if value[1] is not None else self.${n1}
+        if value[2] is not None:
+            try:
+                ${n2} = value[2].to(${u2}).magnitude
+            except AttributeError:
+                ${n2} = value[2]
+        else:
+            ${n2} = self.${n2}.magnitude
+        self._phase.${name} = ${n0}.magnitude, ${n1}.magnitude, ${n2}
+""")
+
+setter1_properties = [
+    "TPX", "TPY", "DPX", "DPY", "HPX", "HPY", "SPX", "SPY", "SVX", "SVY",
+    "TDX", "TDY", "UVX", "UVY"
+]
+pf_setter1_properties = ["TPQ", "DPQ", "HPQ", "SPQ", "SVQ", "TDQ", "UVQ"]
+
+setter1_string = "".join(
+    setter1_template.substitute(name=name, n0=name[0], u0=UNITS[name[0]], n1=name[1], u1=UNITS[name[1]], n2=name[2], u2=UNITS[name[2]]) for name in setter1_properties
+)
+pf_setter1_string = "".join(
+    setter1_template.substitute(name=name, n0=name[0], u0=UNITS[name[0]], n1=name[1], u1=UNITS[name[1]], n2=name[2], u2=UNITS[name[2]]) for name in pf_setter1_properties
+)
+
+solution_properties = "".join([getter_string, setter_string, setter1_string])
+pf_properties = "".join([pf_getter_string, pf_setter_string, pf_setter1_string])
+
+localenv["solution_properties"] = solution_properties.strip()
+localenv["purefluid_properties"] = pf_properties.strip()
+units = localenv.SubstFile("cantera/units/solution.py", "cantera/units/solution.py.in")
+localenv.Depends(mod, units)
 
 # Determine installation path and install the Python module
 install_cmd = ["$python_cmd_esc", "-m", "pip", "install"]
