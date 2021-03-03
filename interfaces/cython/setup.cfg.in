@@ -49,6 +49,7 @@ packages =
     cantera.data
     cantera.test
     cantera.examples
+    cantera.units
 
 [options.package_data]
 # The module extension needs to be here since we don't want setuptools to compile

@@ -1,0 +1,108 @@
+from .. import Solution as _Solution, PureFluid as _PureFluid
+
+from pint import UnitRegistry
+units = UnitRegistry()
+Q_ = units.Quantity
+
+__all__ = (
+    "units", "Q_", "Solution", "PureFluid", "Heptane", "CarbonDioxide",
+    "Hfc134a", "Hydrogen", "Methane", "Nitrogen", "Oxygen", "Water")
+
+
+class Solution:
+    def __init__(self, infile, phasename=""):
+        self._phase = _Solution(infile, phasename)
+
+    @property
+    def basis_units(self):
+        if self._phase.basis == "mass":
+            return "kg"
+        else:
+            return "kmol"
+
+    def __getattr__(self, name):
+        return getattr(self._phase, name)
+
+    def __setattr__(self, name, value):
+        return super(Solution, self).__setattr__(name, value)
+
+    @property
+    def X(self):
+        X = self._phase.X
+        return Q_(X, "dimensionless")
+
+    @X.setter
+    def X(self, value):
+        if value is not None:
+            try:
+                X = value.to("dimensionless").magnitude
+            except AttributeError:
+                X = value
+        else:
+            X = self.X.magnitude
+        self._phase.X = X
+
+    @property
+    def Y(self):
+        Y = self._phase.Y
+        return Q_(Y, "dimensionless")
+
+    @Y.setter
+    def Y(self, value):
+        if value is not None:
+            try:
+                Y = value.to("dimensionless").magnitude
+            except AttributeError:
+                Y = value
+        else:
+            Y = self.Y.magnitude
+        self._phase.Y = Y
+
+    @solution_properties@
+
+
+class PureFluid(Solution):
+    def __init__(self, infile, phasename=""):
+        self._phase = _PureFluid(infile, phasename)
+
+    @purefluid_properties@
+
+
+class Heptane(PureFluid):
+    def __init__(self):
+        super().__init__("liquidvapor.yaml", "heptane")
+
+
+class CarbonDioxide(PureFluid):
+    def __init__(self):
+        super().__init__("liquidvapor.yaml", "carbon-dioxide")
+
+
+class Hfc134a(PureFluid):
+    def __init__(self):
+        super().__init__("liquidvapor.yaml", "hfc134a")
+
+
+class Hydrogen(PureFluid):
+    def __init__(self):
+        super().__init__("liquidvapor.yaml", "hydrogen")
+
+
+class Methane(PureFluid):
+    def __init__(self):
+        super().__init__("liquidvapor.yaml", "methane")
+
+
+class Nitrogen(PureFluid):
+    def __init__(self):
+        super().__init__("liquidvapor.yaml", "nitrogen")
+
+
+class Oxygen(PureFluid):
+    def __init__(self):
+        super().__init__("liquidvapor.yaml", "oxygen")
+
+
+class Water(PureFluid):
+    def __init__(self):
+        super().__init__("liquidvapor.yaml", "water")
