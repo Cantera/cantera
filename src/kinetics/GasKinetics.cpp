@@ -359,7 +359,7 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
         modifyPlogReaction(i, dynamic_cast<PlogReaction&>(*rNew));
     } else if (rNew->type() == "Chebyshev") {
         modifyChebyshevReaction(i, dynamic_cast<ChebyshevReaction&>(*rNew));
-    } else if (rNew->type() == "BlowersMasel") {
+    } else if (rNew->type() == "Blowers-Masel") {
         modifyBlowersMaselReaction(i, dynamic_cast<BlowersMaselReaction&>(*rNew));
     } else {
         throw CanteraError("GasKinetics::modifyReaction",

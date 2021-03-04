@@ -478,6 +478,12 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool is_sticking_coefficient
         cbool use_motz_wise_correction
         string sticking_species
+    
+    cdef cppclass CxxBMInterfaceReaction "Cantera::BMInterfaceReaction" (CxxBlowersMaselReaction):
+        stdmap[string, CxxCoverageDependency] coverage_deps
+        cbool is_sticking_coefficient
+        cbool use_motz_wise_correction
+        string sticking_species
 
 cdef extern from "cantera/kinetics/FalloffFactory.h" namespace "Cantera":
     cdef shared_ptr[CxxFalloff] CxxNewFalloff "Cantera::newFalloff" (string, vector[double]) except +translate_exception
