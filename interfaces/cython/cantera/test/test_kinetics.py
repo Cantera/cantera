@@ -1183,6 +1183,34 @@ class TestReaction(utilities.CanteraTest):
             self.assertNear(surf1.net_rates_of_progress[1],
                             surf2.net_rates_of_progress[0])
 
+    def test_BMinterface(self):
+        gas = ct.Solution('BM_ptcombust.yaml')
+        surf1 = ct.Interface('BM_ptcombust.yaml', 'Pt_surf', [gas])
+        r1 = ct.BMInterfaceReaction()
+        r1.reactants = 'H(S):2' 
+        r1.products = 'H2:1, PT(S):2'
+        r1.rate = ct.BlowersMasel(3.7e20, 0, 67.4e6, 1e9)
+        r1.coverage_deps = {'H(S)': (0, 0, -6e6)}
+
+        self.assertNear(r1.coverage_deps['H(S)'][2], -6e6)
+        
+        surf_species = []
+        for species in surf1.species():
+            surf_species.append(species)
+        surf2 = ct.Interface(thermo='Surface', species=surf_species,
+                             kinetics='interface', reactions=[r1], adjacent=[gas])
+
+        surf2.site_density = surf1.site_density
+        surf1.coverages = surf2.coverages = 'PT(S):0.7, H(S):0.3'
+        gas.TP = surf2.TP = surf1.TP
+
+        for T in [300, 500, 1500]:
+            gas.TP = surf1.TP = surf2.TP = T, 5*ct.one_atm
+            self.assertNear(surf1.forward_rate_constants[0],
+                            surf2.forward_rate_constants[0])
+            self.assertNear(surf1.net_rates_of_progress[0],
+                            surf2.net_rates_of_progress[0])
+
     def test_modify_invalid(self):
         # different reaction type
         tbr = self.gas.reaction(0)
@@ -1369,3 +1397,62 @@ class TestReaction(utilities.CanteraTest):
 
         # M&W toggled on (locally) for reaction 9
         self.assertNear(2.0 * k1[9], k2[9]) # sticking coefficient = 1.0
+
+    def test_modify_BMinterface(self):
+        gas = ct.Solution('BM_ptcombust.yaml', 'gas')
+        surf = ct.Interface('BM_ptcombust.yaml', 'Pt_surf', [gas])
+        surf.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
+        gas.TP = surf.TP
+
+        R = surf.reaction(0)
+        R.coverage_deps = {'O(S)': (0.0, 0.0, -3e6)}
+        surf.modify_reaction(0, R)
+
+        # Rate constant should now be independent of H(S) coverage, but
+        # dependent on O(S) coverage
+        k1 = surf.forward_rate_constants[0]
+        surf.coverages = 'O(S):0.2, PT(S):0.4, H(S):0.4'
+        k2 = surf.forward_rate_constants[0]
+        surf.coverages = 'O(S):0.2, PT(S):0.6, H(S):0.2'
+        k3 = surf.forward_rate_constants[0]
+        self.assertNotAlmostEqual(k1, k2)
+        self.assertNear(k2, k3)
+
+    def test_modify_BMsticking(self):
+        gas = ct.Solution('BM_ptcombust.yaml', 'gas')
+        surf = ct.Interface('BM_ptcombust.yaml', 'Pt_surf', [gas])
+        surf.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
+        gas.TP = surf.TP
+
+        R = surf.reaction(1)
+        R.rate = ct.BlowersMasel(0.25, 0, 0, 1000000) # original sticking coefficient = 1.0
+
+        k1 = surf.forward_rate_constants[1]
+        surf.modify_reaction(1, R)
+        k2 = surf.forward_rate_constants[1]
+        self.assertNear(k1, 4*k2)
+
+    def test_BMmotz_wise(self):
+        # Motz & Wise off for all reactions
+        gas1 = ct.Solution('BM_ptcombust.yaml', 'gas')
+        surf1 = ct.Interface('BM_ptcombust.yaml', 'Pt_surf', [gas1])
+        surf1.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
+        gas1.TP = surf1.TP
+
+        # Motz & Wise correction on for some reactions
+        gas2 = ct.Solution('BM-ptcombust-Motz-Wise.yaml', 'gas')
+        surf2 = ct.Interface('BM-ptcombust-Motz-Wise.yaml', 'Pt_surf', [gas2])
+        surf2.TPY = surf1.TPY
+
+        k1 = surf1.forward_rate_constants
+        k2 = surf2.forward_rate_constants
+
+        # M&W toggled on (globally) for reactions 2 and 7
+        self.assertNear(2.0 * k1[1], k2[1]) # sticking coefficient = 1.0
+        self.assertNear(1.6 * k1[2], k2[2]) # sticking coefficient = 0.75
+
+        # M&W toggled off (locally) for reaction 4
+        self.assertNear(k1[3], k2[3])
+
+        # M&W toggled on (locally) for reaction 5
+        self.assertNear(2.0 * k1[4], k2[4]) # sticking coefficient = 1.0
