@@ -612,9 +612,9 @@ void ElectrochemicalReaction::getParameters(AnyMap& reactionNode) const
 }
 
 BlowersMaselReaction::BlowersMaselReaction()
-    : Reaction(BLOWERSMASEL_RXN)
-    , allow_negative_pre_exponential_factor(false)
+    : allow_negative_pre_exponential_factor(false)
 {
+    reaction_type = BLOWERSMASEL_RXN;
 }
 
 void BlowersMaselReaction::validate()
@@ -631,10 +631,29 @@ void BlowersMaselReaction::validate()
 BlowersMaselReaction::BlowersMaselReaction(const Composition& reactants_,
                                            const Composition& products_,
                                            const BlowersMasel& rate_)
-    : Reaction(BLOWERSMASEL_RXN, reactants_, products_)
+    : Reaction(reactants_, products_)
     , rate(rate_)
     , allow_negative_pre_exponential_factor(false)
 {
+    reaction_type = BLOWERSMASEL_RXN;
+}
+
+BMInterfaceReaction::BMInterfaceReaction()
+    : is_sticking_coefficient(false)
+    , use_motz_wise_correction(false)
+{
+    reaction_type = BMINTERFACE_RXN;
+}
+
+BMInterfaceReaction::BMInterfaceReaction(const Composition& reactants_,
+                                         const Composition& products_,
+                                         const BlowersMasel& rate_,
+                                         bool isStick)
+    : BlowersMaselReaction(reactants_, products_, rate_)
+    , is_sticking_coefficient(isStick)
+    , use_motz_wise_correction(false)
+{
+    reaction_type = BMINTERFACE_RXN;
 }
 
 Arrhenius readArrhenius(const XML_Node& arrhenius_node)
@@ -1245,6 +1264,46 @@ void setupBlowersMaselReaction(BlowersMaselReaction& R, const AnyMap& node,
     setupReaction(R, node, kin);
     R.allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
     R.rate = readBlowersMasel(R, node["rate-constant"], kin, node.units());
+}
+
+void setupBMInterfaceReaction(BMInterfaceReaction& R, const AnyMap& node,
+                            const Kinetics& kin)
+{
+    setupReaction(R, node, kin);
+    R.allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
+
+    if (node.hasKey("rate-constant")) {
+        R.rate = readBlowersMasel(R, node["rate-constant"], kin, node.units());
+    } else if (node.hasKey("sticking-coefficient")) {
+        R.is_sticking_coefficient = true;
+        R.rate_units = Units(); // sticking coefficients are dimensionless
+        R.rate = readBlowersMasel(R, node["sticking-coefficient"], kin, node.units());
+        R.use_motz_wise_correction = node.getBool("Motz-Wise",
+            kin.thermo().input().getBool("Motz-Wise", false));
+        R.sticking_species = node.getString("sticking-species", "");
+    } else {
+        throw InputFileError("setupBMInterfaceReaction", node,
+            "Reaction must include either a 'rate-constant' or"
+            " 'sticking-coefficient' node.");
+    }
+
+    if (node.hasKey("coverage-dependencies")) {
+        for (const auto& item : node["coverage-dependencies"].as<AnyMap>()) {
+            double a, E, m;
+            if (item.second.is<AnyMap>()) {
+                auto& cov_map = item.second.as<AnyMap>();
+                a = cov_map["a"].asDouble();
+                m = cov_map["m"].asDouble();
+                E = node.units().convertActivationEnergy(cov_map["E"], "K");
+            } else {
+                auto& cov_vec = item.second.asVector<AnyValue>(3);
+                a = cov_vec[0].asDouble();
+                m = cov_vec[1].asDouble();
+                E = node.units().convertActivationEnergy(cov_vec[2], "K");
+            }
+            R.coverage_deps[item.first] = CoverageDependency(a, E, m);
+        }
+    }
 }
 
 std::vector<shared_ptr<Reaction> > getReactions(const XML_Node& node)

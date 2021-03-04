@@ -543,6 +543,141 @@ protected:
     vector_fp dotProd_; //!< dot product of chebCoeffs with the reduced pressure polynomial
 };
 
+/**
+ * A Blowers Masel rate with coverage-dependent terms.
+ *
+ * The rate expression is given by [Kee, R. J., Coltrin, M. E., & Glarborg, P.
+ * (2005). Chemically reacting flow: theory and practice. John Wiley & Sons.
+ * Eq 11.113]:
+ * \f[
+ *     k_f = A T^b \exp \left(
+ *             \ln 10 \sum a_k \theta_k
+ *             - \frac{1}{RT} \left( E_a + \sum E_k\theta_k \right)
+ *             + \sum m_k \ln \theta_k
+ *             \right)
+ *   \f]
+ * or, equivalently, and as implemented in Cantera,
+ * \f[
+ *     k_f = A T^b \exp \left( - \frac{E_a}{RT} \right)
+ *             \prod_k 10^{a_k \theta_k} \theta_k^{m_k}
+ *             \exp \left( \frac{- E_k \theta_k}{RT} \right)
+ *   \f]
+ * where the parameters \f$ (a_k, E_k, m_k) \f$ describe the dependency on the
+ * surface coverage of species \f$ k, \theta_k \f$.
+ * They are coupled with Blowers Masel approximation written by [Paul Blowers,
+ * Rich Masel(2004). Engineering Approximations For Activation Energies in Hydrogen
+ * Transfer Reactions. Eq (10)-(11)], which can be used to change the activation
+ * based on enthalpy of the reaction:
+ *
+ *   \f[
+ *        Ea = 0  if DeltaH < -4E_0
+ *        Ea = DeltaH   if DeltaH > 4E_0
+ *        Ea = \frac{(w_0 + DeltaH / 2)(V_P - 2w_0 + DeltaH)^2}{(V_P^2 - 4w_0^2 + DeltaH^2)}
+ *   \f] 
+ * where
+ *   \f[
+ *        V_P = 2w_0 (w_0 + E_0) / (w_0 - E_0)
+ *   \f]
+ * and \f$ w_0 \f$ is  the average of the bond energy of the 
+ * bond breaking and that being formed, which can be approximated as an
+ * arbitrary high value like 1000kJ/mol as long as \f$ w_0 >= 2 E_0 \f$
+ */
+class BMSurfaceArrhenius
+{
+
+public:
+    BMSurfaceArrhenius();
+    explicit BMSurfaceArrhenius(double A, double b, double Ta, double w);
+
+    //! Add a coverage dependency for species *k*, with exponential dependence
+    //! *a*, power-law exponent *m*, and activation energy dependence *e*,
+    //! where *e* is in Kelvin, i.e. energy divided by the molar gas constant.
+    void addCoverageDependence(size_t k, doublereal a,
+                               doublereal m, doublereal e);
+
+    void update_C(const doublereal* theta) {
+        m_acov = 0.0;
+        m_ecov = 0.0;
+        m_mcov = 0.0;
+        size_t k;
+        doublereal th;
+        for (size_t n = 0; n < m_ac.size(); n++) {
+            k = m_sp[n];
+            m_acov += m_ac[n] * theta[k];
+            m_ecov += m_ec[n] * theta[k];
+        }
+        for (size_t n = 0; n < m_mc.size(); n++) {
+            k = m_msp[n];
+            th = std::max(theta[k], Tiny);
+            m_mcov += m_mc[n]*std::log(th);
+        }
+    }
+
+    /**
+     * Update the value of the rate constant.
+     *
+     * This function returns the actual value of the rate constant. It can be
+     * safely called for negative values of the pre-exponential factor.
+     */
+    doublereal updateRC(doublereal logT, doublereal recipT, doublereal deltaH) {
+        double Ea = activationEnergy_R(deltaH);
+        return m_A * std::exp(std::log(10.0)*m_acov + m_b*logT -
+                              (Ea)*recipT + m_mcov);
+    }
+
+    //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
+    //! on the reaction order) accounting coverage dependence.
+    /*!
+     *  Returns reaction pre-exponent accounting for both *a* and *m*.
+     */
+    doublereal preExponentialFactor() const {
+        return m_A * std::exp(std::log(10.0)*m_acov + m_mcov);
+    }
+
+    //! Return effective temperature exponent
+    doublereal temperatureExponent() const {
+        return m_b;
+    }
+
+    //! Return the activation energy divided by the gas constant (i.e. the
+    //! activation temperature) [K] based on the input enthalpy 
+    //! accounting coverage dependence.
+    doublereal activationEnergy_R(doublereal deltaH) {
+        double deltaH_R = deltaH / GasConstant; // deltaH in temperature units (Kelvin)
+        if (deltaH_R < -4 * m_E0) {
+            m_E = 0;
+        } else if (deltaH_R > 4 * m_E0) {
+            m_E = deltaH_R;
+        } else {
+            // m_w is in Kelvin
+            // vp is in Kelvin
+            double vp = 2 * m_w * ((m_w + m_E0) / (m_w - m_E0));
+            double vp_2w_dH = (vp - 2 * m_w + deltaH_R); // (Vp - 2 w + dH)
+            m_E = (m_w + deltaH_R / 2) * (vp_2w_dH * vp_2w_dH) / 
+                 (vp * vp - 4 * m_w * m_w + deltaH_R * deltaH_R); // in Kelvin
+        }
+        return m_E + m_ecov;
+    }
+
+    //! Return the intrinsic activation energy divided by the gas constant (i.e. the
+    //! activation temperature) [K], accounting coverage dependence.
+    doublereal activationEnergy_R0() const {
+        return m_E + m_ecov;
+    }
+    
+    //! Return the bond energy *w* divided by the gas constant[K]
+    doublereal bondEnergy() const {
+        return m_w;
+    }    
+    
+protected:
+    doublereal m_b, m_E, m_A, m_E0, m_w;
+    doublereal m_acov, m_ecov, m_mcov;
+    std::vector<size_t> m_sp, m_msp;
+    vector_fp m_ac, m_ec, m_mc;
+};
+
+
 }
 
 #endif

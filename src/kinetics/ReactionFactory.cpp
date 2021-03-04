@@ -143,6 +143,20 @@ ReactionFactory::ReactionFactory()
                [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
                    setupElectrochemicalReaction(*(ElectrochemicalReaction*)R, node, kin);
                });
+    
+    // register Blowers Masel reactions
+    reg("Blowers-Masel", []() { return new BlowersMaselReaction(); });
+    reg_AnyMap("Blowers-Masel",
+               [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
+                   setupBlowersMaselReaction(*(BlowersMaselReaction*)R, node, kin);
+               });
+
+    // register surface Blowers Masel reactions
+    reg("surface-Blowers-Masel", []() { return new BMInterfaceReaction(); });
+    reg_AnyMap("surface-Blowers-Masel",
+               [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
+                   setupBMInterfaceReaction(*(BMInterfaceReaction*)R, node, kin);
+               });
 }
 
 bool isElectrochemicalReaction(Reaction& R, const Kinetics& kin)

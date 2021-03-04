@@ -424,8 +424,47 @@ public:
     BlowersMaselReaction(const Composition& reactants,
                          const Composition& products, const BlowersMasel& rate);
     virtual void validate();
+
+    virtual std::string type() const {
+        return "Blowers-Masel";
+    }
+
     BlowersMasel rate;
+
     bool allow_negative_pre_exponential_factor;
+};
+
+//! A reaction occurring on an interface (i.e. a SurfPhase or an EdgePhase)
+//! with the rate calculated with Blowers-Masel approximation.
+class BMInterfaceReaction : public BlowersMaselReaction
+{
+public:
+    BMInterfaceReaction();
+    BMInterfaceReaction(const Composition& reactants, const Composition& products,
+                      const BlowersMasel& rate, bool isStick=false);
+
+    virtual std::string type() const {
+        return "surface-Blowers-Masel";
+    }
+    //! Adjustments to the Arrhenius rate expression dependent on surface
+    //! species coverages. Three coverage parameters (a, E, m) are used for each
+    //! species on which the rate depends. See SurfaceArrhenius for details on
+    //! the parameterization.
+    std::map<std::string, CoverageDependency> coverage_deps;
+
+    //! Set to true if `rate` is a parameterization of the sticking coefficient
+    //! rather than the forward rate constant
+    bool is_sticking_coefficient;
+
+    //! Set to true if `rate` is a sticking coefficient which should be
+    //! translated into a rate coefficient using the correction factor developed
+    //! by Motz & Wise for reactions with high (near-unity) sticking
+    //! coefficients. Defaults to 'false'.
+    bool use_motz_wise_correction;
+
+    //! For reactions with multiple non-surface species, the sticking species
+    //! needs to be explicitly identified.
+    std::string sticking_species;
 };
 
 //! Create Reaction objects for all `<reaction>` nodes in an XML document.
@@ -499,7 +538,12 @@ void setupElectrochemicalReaction(ElectrochemicalReaction&,
 //! @internal May be changed without notice in future versions
 void setupElectrochemicalReaction(ElectrochemicalReaction&,
                                   const AnyMap&, const Kinetics&);
-
+//! @internal May be changed without notice in future versions
+void setupBlowersMaselReaction(BlowersMaselReaction&,
+                                  const AnyMap&, const Kinetics&);
+//! @internal May be changed without notice in future versions
+void setupBMInterfaceReaction(BMInterfaceReaction&,
+                                  const AnyMap&, const Kinetics&);
 }
 
 #endif
