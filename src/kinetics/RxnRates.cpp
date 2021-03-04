@@ -68,6 +68,30 @@ void Arrhenius::getParameters(AnyMap& rateNode, const Units& rate_units) const
     rateNode.setFlowStyle();
 }
 
+BlowersMasel::BlowersMasel()
+    : m_logA(-1.0E300)
+    , m_b(0.0)
+    , m_E(0.0)
+    , m_A(0.0)
+    , m_w(0.0)
+    , m_E0(0.0)
+{
+}
+
+BlowersMasel::BlowersMasel(doublereal A, doublereal b, doublereal E0, doublereal w)
+    : m_b(b)
+    , m_E(E0)
+    , m_A(A)
+    , m_w(w)
+    , m_E0(E0)
+{
+    if (m_A  <= 0.0) {
+        m_logA = -1.0E300;
+    } else {
+        m_logA = std::log(m_A);
+    }
+}
+
 SurfaceArrhenius::SurfaceArrhenius()
     : m_b(0.0)
     , m_E(0.0)

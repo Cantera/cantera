@@ -95,6 +95,109 @@ protected:
     doublereal m_logA, m_b, m_E, m_A;
 };
 
+//! Blowers Masel reaction rate type depends on enthalpy 
+/**
+ * The Blowers Masel approximation is written by [Paul Blowrs,
+ * Rich Masel(2004). Engineering Approximations For Activation Energies in Hydrogen
+ * Transfer Reactions. Eq (10)-(11)] to adjust the activation energy based on
+ * enthalpy change of a reaction:
+ *
+ *   \f[
+ *        Ea = 0  if DeltaH < -4E_0
+ *        Ea = DeltaH   if DeltaH > 4E_0
+ *        Ea = \frac{(w_0 + DeltaH / 2)(V_P - 2w_0 + DeltaH)^2}{(V_P^^2 - 4w_0^2 + DeltaH^2)}
+ *   \f] 
+ * where
+ *   \f[
+ *        V_P = \frac{2w_0 (w_0 + E_0)}{w_0 - E_0}
+ *   \f]
+ * and \f$ w_0 \f$ is  theaverage of the bond energy of the 
+ * bond breaking and that being formed, which can be approximated as
+ * arbitrary high value like 1000kJ/mol as long as \f$ w_0 >= 2 E_0 \f$
+ * The rate constant then can be calculated by Arrhenius function.
+ *   \f[
+ *        k_f =  A T^b \exp (-E_a/RT)
+ *   \f]
+ */
+class BlowersMasel
+{
+public:
+    //! Default constructor.
+    BlowersMasel();
+
+    /// Constructor.
+    /// @param A pre-exponential. The unit system is
+    ///     (kmol, m, s). The actual units depend on the reaction
+    ///     order and the dimensionality (surface or bulk).
+    /// @param b Temperature exponent. Non-dimensional.
+    /// @param E0 Intrinsic activation energy in temperature units. Kelvin.
+    /// @param w bond energy of the bond being formed or broken, in temperature unts. Kelvin.
+
+    BlowersMasel(doublereal A, doublereal b, doublereal E0, doublereal w);
+
+    //! Update concentration-dependent parts of the rate coefficient.
+    /*!
+     *   For this class, there are no concentration-dependent parts, so this
+     *   method does nothing.
+     */
+    void update_C(const doublereal* c) {
+    }
+
+    /**
+     * Update the value the rate constant.
+     *
+     * This function returns the actual value of the rate constant. It can be
+     * safely called for negative values of the pre-exponential factor.
+     */
+    doublereal updateRC(doublereal logT, doublereal recipT, doublereal deltaH) {
+        m_E = activationEnergy_R(deltaH);
+        return m_A * std::exp(m_b * logT - m_E * recipT);
+    }
+
+    //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
+    //! on the reaction order)
+    double preExponentialFactor() const {
+        return m_A;
+    }
+
+    //! Return the temperature exponent *b*
+    double temperatureExponent() const {
+        return m_b;
+    }
+
+    //! Return the actual activation energy (a function of the delta H of reaction)
+    //! divided by the gas constant (i.e. the activation temperature) [K]
+    doublereal activationEnergy_R(doublereal deltaH) {
+        double Ea; // will be in temperature units (Kelvin)
+        double deltaH_R = deltaH / GasConstant; // deltaH in temperature units (Kelvin)
+        if (deltaH_R < -4 * m_E0) {
+            Ea = 0;
+        } else if (deltaH_R > 4 * m_E0) {
+            Ea = deltaH_R;
+        } else {
+            // m_w is in Kelvin
+            // vp is in Kelvin
+            double vp = 2 * m_w * ((m_w + m_E0) / (m_w - m_E0));
+            double vp_2w_dH = (vp - 2 * m_w + deltaH_R); // (Vp - 2 w + dH)
+            Ea = (m_w + deltaH_R / 2) * (vp_2w_dH * vp_2w_dH) / 
+                 (vp * vp - 4 * m_w * m_w + deltaH_R * deltaH_R); // in Kelvin
+        }
+        return Ea;
+    }
+
+    //! Return the intrinsic activation energy divided by the gas constant (i.e. the
+    //! intrinsic activation temperature) [K]
+    doublereal activationEnergy_R0() const {
+        return m_E0;
+    }
+    //! Return the bond energy *w* divided by the gas constant[K]
+    doublereal bondEnergy() const {
+        return m_w;
+    }    
+
+protected:
+    doublereal m_logA, m_b, m_E, m_A, m_w, m_E0;
+};
 
 /**
  * An Arrhenius rate with coverage-dependent terms.

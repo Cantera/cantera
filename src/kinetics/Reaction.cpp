@@ -611,6 +611,32 @@ void ElectrochemicalReaction::getParameters(AnyMap& reactionNode) const
     }
 }
 
+BlowersMaselReaction::BlowersMaselReaction()
+    : Reaction(BLOWERSMASEL_RXN)
+    , allow_negative_pre_exponential_factor(false)
+{
+}
+
+void BlowersMaselReaction::validate()
+{
+    Reaction::validate();
+    if (!allow_negative_pre_exponential_factor &&
+        rate.preExponentialFactor() < 0) {
+        throw CanteraError("BlowersMaselReaction::validate",
+            "Undeclared negative pre-exponential factor found in reaction '"
+            + equation() + "'");
+    }
+}
+
+BlowersMaselReaction::BlowersMaselReaction(const Composition& reactants_,
+                                           const Composition& products_,
+                                           const BlowersMasel& rate_)
+    : Reaction(BLOWERSMASEL_RXN, reactants_, products_)
+    , rate(rate_)
+    , allow_negative_pre_exponential_factor(false)
+{
+}
+
 Arrhenius readArrhenius(const XML_Node& arrhenius_node)
 {
     return Arrhenius(getFloat(arrhenius_node, "A", "toSI"),
@@ -732,6 +758,32 @@ void readEfficiencies(ThirdBody& tbody, const AnyMap& node)
     if (node.hasKey("efficiencies")) {
         tbody.efficiencies = node["efficiencies"].asMap<double>();
     }
+}
+
+BlowersMasel readBlowersMasel(const Reaction& R, const AnyValue& rate,
+                        const Kinetics& kin, const UnitSystem& units,
+                        int pressure_dependence=0)
+{
+    double A, b, Ta0, w;
+    Units rc_units = R.rate_units;
+    if (pressure_dependence) {
+        Units rxn_phase_units = kin.thermo(kin.reactionPhaseIndex()).standardConcentrationUnits();
+        rc_units *= rxn_phase_units.pow(-pressure_dependence);
+    }
+    if (rate.is<AnyMap>()) {
+        auto& rate_map = rate.as<AnyMap>();
+        A = units.convert(rate_map["A"], rc_units);
+        b = rate_map["b"].asDouble();
+        Ta0 = units.convertActivationEnergy(rate_map["Ea0"], "K");
+        w = units.convertActivationEnergy(rate_map["w"], "K");
+    } else {
+        auto& rate_vec = rate.asVector<AnyValue>(4);
+        A = units.convert(rate_vec[0], rc_units);
+        b = rate_vec[1].asDouble();
+        Ta0 = units.convertActivationEnergy(rate_vec[2], "K");
+        w = units.convertActivationEnergy(rate_vec[3], "K");
+    }
+    return BlowersMasel(A, b, Ta0, w);
 }
 
 void setupReaction(Reaction& R, const XML_Node& rxn_node)
@@ -1185,6 +1237,14 @@ void setupElectrochemicalReaction(ElectrochemicalReaction& R,
     R.beta = node.getDouble("beta", 0.5);
     R.exchange_current_density_formulation = node.getBool(
         "exchange-current-density-formulation", false);
+}
+
+void setupBlowersMaselReaction(BlowersMaselReaction& R, const AnyMap& node,
+                             const Kinetics& kin)
+{
+    setupReaction(R, node, kin);
+    R.allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
+    R.rate = readBlowersMasel(R, node["rate-constant"], kin, node.units());
 }
 
 std::vector<shared_ptr<Reaction> > getReactions(const XML_Node& node)

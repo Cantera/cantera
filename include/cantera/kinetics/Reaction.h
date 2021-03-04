@@ -416,6 +416,18 @@ public:
     bool exchange_current_density_formulation;
 };
 
+//! A reaction with rate parameters for Blowers-Masel approximation
+class BlowersMaselReaction: public Reaction
+{
+public:
+    BlowersMaselReaction();
+    BlowersMaselReaction(const Composition& reactants,
+                         const Composition& products, const BlowersMasel& rate);
+    virtual void validate();
+    BlowersMasel rate;
+    bool allow_negative_pre_exponential_factor;
+};
+
 //! Create Reaction objects for all `<reaction>` nodes in an XML document.
 //!
 //! The `<reaction>` nodes are assumed to be children of the `<reactionData>`
