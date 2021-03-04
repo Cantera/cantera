@@ -42,6 +42,11 @@ void GasKinetics::update_rates_T()
         }
         updateKc();
         m_ROP_ok = false;
+        if (m_blowersmasel_rates.nReactions()) {
+            thermo().getPartialMolarEnthalpies(m_grt.data());
+            getReactionDelta(m_grt.data(), m_dH.data());
+            m_blowersmasel_rates.updateBlowersMasel(T, logT, m_rfn.data(), m_dH.data());
+        }
     }
 
     if (T != m_temp || P != m_pres) {
@@ -253,6 +258,8 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
         addPlogReaction(dynamic_cast<PlogReaction&>(*r));
     } else if (r->type() == "Chebyshev") {
         addChebyshevReaction(dynamic_cast<ChebyshevReaction&>(*r));
+    } else if (r->type() == "Blowers-Masel") {
+        addBlowersMaselReaction(dynamic_cast<BlowersMaselReaction&>(*r));
     } else {
         throw CanteraError("GasKinetics::addReaction",
             "Unknown reaction type specified: '{}'", r->type());
@@ -324,6 +331,12 @@ void GasKinetics::addChebyshevReaction(ChebyshevReaction& r)
     m_cheb_rates.install(nReactions()-1, r.rate);
 }
 
+void GasKinetics::addBlowersMaselReaction(BlowersMaselReaction& r)
+{
+    m_blowersmasel_rates.install(nReactions()-1, r.rate);
+}
+
+
 void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
 {
     // operations common to all bulk reaction types
@@ -346,6 +359,8 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
         modifyPlogReaction(i, dynamic_cast<PlogReaction&>(*rNew));
     } else if (rNew->type() == "Chebyshev") {
         modifyChebyshevReaction(i, dynamic_cast<ChebyshevReaction&>(*rNew));
+    } else if (rNew->type() == "BlowersMasel") {
+        modifyBlowersMaselReaction(i, dynamic_cast<BlowersMaselReaction&>(*rNew));
     } else {
         throw CanteraError("GasKinetics::modifyReaction",
             "Unknown reaction type specified: '{}'", rNew->type());
@@ -378,6 +393,11 @@ void GasKinetics::modifyPlogReaction(size_t i, PlogReaction& r)
 void GasKinetics::modifyChebyshevReaction(size_t i, ChebyshevReaction& r)
 {
     m_cheb_rates.replace(i, r.rate);
+}
+
+void GasKinetics::modifyBlowersMaselReaction(size_t i, BlowersMaselReaction& r)
+{
+    m_blowersmasel_rates.replace(i, r.rate);
 }
 
 void GasKinetics::init()

@@ -910,6 +910,91 @@ cdef class ChebyshevReaction(Reaction):
         r.rate.update_C(&logP)
         return r.rate.updateRC(logT, recipT)
 
+cdef class BlowersMasel:
+    def __cinit__(self, A=0, b=0, E0=0, w=0, init=True):
+        if init:
+            self.rate = new CxxBlowersMasel(A, b, E0 / gas_constant, w / gas_constant)
+            self.reaction = None
+
+    def __dealloc__(self):
+        if self.reaction is None:
+            del self.rate
+
+    property pre_exponential_factor:
+        """
+        The pre-exponential factor *A* in units of m, kmol, and s raised to
+        powers depending on the reaction order.
+        """
+        def __get__(self):
+            return self.rate.preExponentialFactor()
+
+    property temperature_exponent:
+        """
+        The temperature exponent *b*.
+        """
+        def __get__(self):
+            return self.rate.temperatureExponent()
+
+    def activation_energy(self, float dH):
+        """
+        The activation energy *E* [J/kmol].
+        """
+        return self.rate.activationEnergy_R(dH) * gas_constant
+
+    property bond_energy:
+        def __get__(self):
+            return self.rate.bondEnergy() * gas_constant
+
+    property intrinsic_activation_energy:
+        """
+        The intrinsic activation energy *E0* [J/kmol].
+        """    
+        def __get__(self):
+            return self.rate.activationEnergy_R0() * gas_constant
+
+    def __repr__(self):
+        return 'BlowersMasel(A={:g}, b={:g}, E0={:g}, w={:g})'.format(
+            self.pre_exponential_factor, self.temperature_exponent,
+            self.intrinsic_activation_energy, self.bond_energy)
+
+    def __call__(self, float T, float dH):
+        cdef double logT = np.log(T)
+        cdef double recipT = 1/T
+        return self.rate.updateRC(logT, recipT, dH)
+
+cdef wrapBlowersMasel(CxxBlowersMasel* rate, Reaction reaction):
+    r = BlowersMasel(init=False)
+    r.rate = rate
+    r.reaction = reaction
+    return r
+
+cdef class BlowersMaselReaction(Reaction):
+    """
+    A reaction which follows mass-action kinetics with Blowers Masel
+    reaction rate.
+    """
+    reaction_type = "Blowers-Masel"
+
+    property rate:
+        """ Get/Set the `Arrhenius` rate coefficient for this reaction. """
+        def __get__(self):
+            cdef CxxBlowersMaselReaction* r = <CxxBlowersMaselReaction*>self.reaction
+            return wrapBlowersMasel(&(r.rate), self)
+        def __set__(self, BlowersMasel rate):
+            cdef CxxBlowersMaselReaction* r = <CxxBlowersMaselReaction*>self.reaction
+            r.rate = deref(rate.rate)
+
+    property allow_negative_pre_exponential_factor:
+        """
+        Get/Set whether the rate coefficient is allowed to have a negative
+        pre-exponential factor.
+        """
+        def __get__(self):
+            cdef CxxBlowersMaselReaction* r = <CxxBlowersMaselReaction*>self.reaction
+            return r.allow_negative_pre_exponential_factor
+        def __set__(self, allow):
+            cdef CxxBlowersMaselReaction* r = <CxxBlowersMaselReaction*>self.reaction
+            r.allow_negative_pre_exponential_factor = allow
 
 cdef class CustomReaction(Reaction):
     """

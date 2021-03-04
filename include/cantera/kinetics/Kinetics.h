@@ -944,6 +944,9 @@ protected:
 
     //! Net rate-of-progress for each reaction
     vector_fp m_ropnet;
+    
+    //! The enthalpy change for each reaction to calculate Blowers-Masel rates
+    vector_fp m_dH;
 
     //! @see skipUndeclaredSpecies()
     bool m_skipUndeclaredSpecies;

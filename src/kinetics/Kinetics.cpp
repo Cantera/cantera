@@ -634,6 +634,7 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
     m_ropr.push_back(0.0);
     m_ropnet.push_back(0.0);
     m_perturb.push_back(1.0);
+    m_dH.push_back(0.0);
     return true;
 }
 
