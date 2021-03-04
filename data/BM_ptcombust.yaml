@@ -1,0 +1,111 @@
+description: |-
+  This is a test input file for interface Blowers Masel reaction tests.
+  This file is tweaked from the model made by Deutschmann, and it has
+  no physical sense, which should only be used for tests.
+  See https://www.detchem.com/mechanisms for original model.  
+  Ref:- 1.) Deutschman et al., 26th Symp. (Intl.) on Combustion, 1996
+            pp. 1747-1754
+  -----------------------------------------------------------------------
+generator: cti2yaml
+cantera-version: 2.5.0
+date: Wed, 11 Dec 2019 16:59:14 -0500
+input-files: [ptcombust.cti]
+
+units: {length: cm, quantity: mol, activation-energy: J/mol}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [O, H, C, N, Ar]
+  species:
+  - gri30.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, C, CH, CH2, CH2(S),
+      CH3, CH4, CO, CO2, HCO, CH2O, CH2OH, CH3O, CH3OH, C2H, C2H2, C2H3,
+      C2H4, C2H5, C2H6, HCCO, CH2CO, HCCOH, AR, N2]
+  skip-undeclared-elements: true
+  kinetics: gas
+  reactions:
+  - gri30.yaml/reactions: declared-species
+  transport: mixture-averaged
+  state:
+    T: 300.0
+    P: 1.01325e+05
+    X: {CH4: 0.095, O2: 0.21, AR: 0.79}
+- name: Pt_surf
+  thermo: ideal-surface
+  elements: [Pt, H, O, C]
+  species: [PT(S), H(S), H2O(S), OH(S), O(S)]
+  kinetics: surface
+  reactions: all
+  state:
+    T: 900.0
+    coverages: {O(S): 0.0, PT(S): 0.5, H(S): 0.5}
+  site-density: 2.7063e-09
+
+species:
+- name: PT(S)
+  composition: {Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: H(S)
+  composition: {H: 1, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [-1.3029877, 5.4173199e-03, 3.1277972e-07, -3.2328533e-09, 1.136282e-12,
+      -4227.7075, 5.8743238]
+    - [1.0696996, 1.543223e-03, -1.5500922e-07, -1.6573165e-10, 3.8359347e-14,
+      -5054.6128, -7.1555238]
+- name: H2O(S)
+  composition: {O: 1, H: 2, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [-2.7651553, 0.013315115, 1.0127695e-06, -7.1820083e-09, 2.2813776e-12,
+      -3.6398055e+04, 12.098145]
+    - [2.5803051, 4.9570827e-03, -4.6894056e-07, -5.2633137e-10, 1.1998322e-13,
+      -3.8302234e+04, -17.406322]
+- name: OH(S)
+  composition: {O: 1, H: 1, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [-2.0340881, 9.3662683e-03, 6.6275214e-07, -5.2074887e-09, 1.7088735e-12,
+      -2.5319949e+04, 8.9863186]
+    - [1.8249973, 3.2501565e-03, -3.1197541e-07, -3.4603206e-10, 7.9171472e-14,
+      -2.6685492e+04, -12.280891]
+- name: O(S)
+  composition: {O: 1, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [-0.94986904, 7.4042305e-03, -1.0451424e-06, -6.112042e-09, 3.3787992e-12,
+      -1.3209912e+04, 3.6137905]
+    - [1.945418, 9.1761647e-04, -1.1226719e-07, -9.9099624e-11, 2.4307699e-14,
+      -1.4005187e+04, -11.531663]
+
+reactions:
+- equation: 2 H(S) => H2 + 2 PT(S)  # Reaction 1
+  type: surface-Blowers-Masel
+  rate-constant: {A: 3.7e+21, b: 0, Ea0: 67400, w: 1000000}
+  coverage-dependencies:
+    H(S): {a: 0.0, m: 0.0, E: -6000.0}
+- equation: H + PT(S) => H(S)  # Reaction 2
+  type: surface-Blowers-Masel
+  sticking-coefficient: {A: 1.0, b: 0, Ea0: 0, w: 1000000}
+- equation: H2O + PT(S) => H2O(S)  # Reaction 3
+  type: surface-Blowers-Masel
+  sticking-coefficient: {A: 0.75, b: 0, Ea0: 0, w: 1000000}
+- equation: O2 + 2 PT(S) => 2 O(S)  # Reaction 4
+  type: surface-Blowers-Masel
+  sticking-coefficient: {A: 0.023, b: 0, Ea0: 0, w: 1000000}
+- equation: OH + PT(S) => OH(S)  # Reaction 5
+  type: surface-Blowers-Masel
+  sticking-coefficient: {A: 1.0, b: 0, Ea0: 0, w: 100000}

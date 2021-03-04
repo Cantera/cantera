@@ -273,6 +273,31 @@ TEST(Kinetics, InterfaceKineticsFromYaml)
     EXPECT_TRUE(IR3->is_sticking_coefficient);
 }
 
+TEST(Kinetics, BMInterfaceKineticsFromYaml)
+{
+    shared_ptr<ThermoPhase> gas(newPhase("surface-phases-BM.yaml", "gas"));
+    shared_ptr<ThermoPhase> surf_tp(newPhase("surface-phases-BM.yaml", "Pt-surf"));
+    shared_ptr<SurfPhase> surf = std::dynamic_pointer_cast<SurfPhase>(surf_tp);
+    std::vector<ThermoPhase*> phases{surf_tp.get(), gas.get()};
+    auto kin = newKinetics(phases, "surface-phases-BM.yaml", "Pt-surf");
+    EXPECT_EQ(kin->nReactions(), (size_t) 3);
+    EXPECT_EQ(kin->nTotalSpecies(), (size_t) 6);
+    auto R1 = kin->reaction(0);
+    auto IR1 = std::dynamic_pointer_cast<BMInterfaceReaction>(R1);
+    EXPECT_DOUBLE_EQ(R1->orders["Pt(s)"], 1.0);
+    EXPECT_DOUBLE_EQ(IR1->rate.preExponentialFactor(), 4.4579e7);
+
+    auto R2 = kin->reaction(1);
+    auto IR2 = std::dynamic_pointer_cast<BMInterfaceReaction>(R2);
+    EXPECT_DOUBLE_EQ(IR2->rate.preExponentialFactor(), 3.7e20);
+    EXPECT_DOUBLE_EQ(IR2->coverage_deps["H(s)"].E, -6e6 / GasConstant);
+    EXPECT_FALSE(IR2->is_sticking_coefficient);
+    
+    auto R3 = kin->reaction(2);
+    auto IR3 = std::dynamic_pointer_cast<BMInterfaceReaction>(R3);
+    EXPECT_TRUE(IR3->is_sticking_coefficient);
+}
+
 TEST(Kinetics, ElectrochemFromYaml)
 {
     shared_ptr<ThermoPhase> graphite(newPhase("surface-phases.yaml", "graphite"));
