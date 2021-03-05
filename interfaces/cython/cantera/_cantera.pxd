@@ -526,6 +526,7 @@ cdef extern from "cantera/transport/DustyGasTransport.h" namespace "Cantera":
         void setMeanParticleDiameter(double) except +translate_exception
         void setPermeability(double) except +translate_exception
         void getMolarFluxes(double*, double*, double, double*) except +translate_exception
+        CxxTransport& gasTransport() except +translate_exception
 
 
 cdef extern from "cantera/transport/TransportData.h" namespace "Cantera":

@@ -276,6 +276,11 @@ cdef class DustyGasTransport(Transport):
         def __set__(self, value):
             (<CxxDustyGasTransport*>self.transport).setPermeability(value)
 
+    property thermal_conductivity:
+        def __get__(self):
+            return (<CxxDustyGasTransport*>self.transport).gasTransport().thermalConductivity()
+
+
     def molar_fluxes(self, T1, T2, rho1, rho2, Y1, Y2, delta):
         """
         Get the molar fluxes [kmol/m^2/s], given the thermodynamic state at
