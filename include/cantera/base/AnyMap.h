@@ -137,6 +137,9 @@ public:
     friend bool operator==(const std::string& lhs, const AnyValue& rhs);
     friend bool operator!=(const std::string& lhs, const AnyValue& rhs);
 
+    void setQuantity(double value, const std::string& units, bool is_act_energy=false);
+    void setQuantity(const vector_fp& values, const std::string& units);
+
     explicit AnyValue(double value);
     AnyValue& operator=(double value);
     //! Return the held value as a `double`, if it is a `double` or a `long

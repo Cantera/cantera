@@ -55,6 +55,8 @@ public:
     //! the dimensions of these Units.
     Units pow(double expoonent) const;
 
+    bool operator==(const Units& other) const;
+
 private:
     //! Scale the unit by the factor `k`
     void scale(double k) { m_factor *= k; }
@@ -173,6 +175,7 @@ public:
     //! Convert `value` to the units specified by `dest` from the default
     //! activation energy units
     double convertActivationEnergyTo(double value, const std::string& dest) const;
+    double convertActivationEnergyTo(double value, const Units& dest) const;
 
     //! Convert `value` from the units specified by `src` to the default
     //! activation energy units
