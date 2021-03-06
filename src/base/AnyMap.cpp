@@ -1046,7 +1046,7 @@ std::pair<int, int> AnyValue::order() const
     return {m_line, m_column};
 }
 
-void AnyValue::applyUnits(const UnitSystem& units)
+void AnyValue::applyUnits(shared_ptr<UnitSystem>& units)
 {
     if (is<AnyMap>()) {
         // Units declaration applicable to this map
@@ -1103,12 +1103,12 @@ void AnyValue::applyUnits(const UnitSystem& units)
         auto& Q = as<Quantity>();
         if (Q.value.is<double>()) {
             if (Q.isActivationEnergy) {
-                *this = Q.value.as<double>() / units.convertActivationEnergyTo(1.0, Q.units);
+                *this = Q.value.as<double>() / units->convertActivationEnergyTo(1.0, Q.units);
             } else {
-                *this = Q.value.as<double>() / units.convertTo(1.0, Q.units);
+                *this = Q.value.as<double>() / units->convertTo(1.0, Q.units);
             }
         } else if (Q.value.is<vector_fp>()) {
-            double factor = 1.0 / units.convertTo(1.0, Q.units);
+            double factor = 1.0 / units->convertTo(1.0, Q.units);
             auto& old = Q.value.asVector<double>();
             vector_fp converted(old.size());
             scale(old.begin(), old.end(), converted.begin(), factor);
@@ -1279,7 +1279,7 @@ std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax)
 // Methods of class AnyMap
 
 AnyMap::AnyMap()
-    : m_units()
+    : m_units(new UnitSystem())
 {
 }
 
@@ -1487,15 +1487,21 @@ bool AnyMap::operator!=(const AnyMap& other) const
     return m_data != other.m_data;
 }
 
-void AnyMap::applyUnits(const UnitSystem& units) {
-    m_units = units;
+void AnyMap::applyUnits()
+{
+    applyUnits(m_units);
+}
 
+void AnyMap::applyUnits(shared_ptr<UnitSystem>& units) {
     if (hasKey("units")) {
         m_data["__units__"] = std::move(m_data["units"]);
         m_data.erase("units");
     }
     if (hasKey("__units__")) {
-        m_units.setDefaults(m_data["__units__"].asMap<std::string>());
+        m_units.reset(new UnitSystem(*units));
+        m_units->setDefaults(m_data["__units__"].asMap<std::string>());
+    } else {
+        m_units = units;
     }
     for (auto& item : m_data) {
         item.second.applyUnits(m_units);
@@ -1535,7 +1541,7 @@ AnyMap AnyMap::fromYamlString(const std::string& yaml) {
         throw InputFileError("AnyMap::fromYamlString", fake, err.msg);
     }
     amap.setMetadata("file-contents", AnyValue(yaml));
-    amap.applyUnits(UnitSystem());
+    amap.applyUnits();
     return amap;
 }
 
@@ -1577,7 +1583,7 @@ AnyMap AnyMap::fromYamlFile(const std::string& name,
         YAML::Node node = YAML::LoadFile(fullName);
         cache_item.first = node.as<AnyMap>();
         cache_item.first.setMetadata("filename", AnyValue(fullName));
-        cache_item.first.applyUnits(UnitSystem());
+        cache_item.first.applyUnits();
     } catch (YAML::Exception& err) {
         s_cache.erase(fullName);
         AnyMap fake;
@@ -1601,7 +1607,7 @@ AnyMap AnyMap::fromYamlFile(const std::string& name,
 std::string AnyMap::toYamlString() const
 {
     YAML::Emitter out;
-    const_cast<AnyMap*>(this)->applyUnits(m_units);
+    const_cast<AnyMap*>(this)->applyUnits();
     out << *this;
     out << YAML::Newline;
     return out.c_str();
