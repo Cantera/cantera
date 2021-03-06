@@ -12,7 +12,9 @@ from math import exp
 
 import cantera as ct
 
-gas0 = ct.Solution('h2o2.yaml')
+mech = 'gri30.yaml'
+fuel = 'CH4'
+gas0 = ct.Solution(mech)
 
 species = gas0.species()
 reactions = gas0.reactions()
@@ -50,8 +52,8 @@ gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
 
 def ignition(gas):
     # set up reactor
-    gas.TP = 900, 5 * ct.one_atm
-    gas.set_equivalence_ratio(0.4, 'H2', 'O2:1.0, AR:4.0')
+    gas.TP = 1000., 5 * ct.one_atm
+    gas.set_equivalence_ratio(0.8, fuel, 'O2:1.0, N2:3.773')
     r = ct.IdealGasReactor(gas)
     net = ct.ReactorNet([r])
     net.rtol_sensitivity = 2.e-5
@@ -66,22 +68,28 @@ def ignition(gas):
 # output results
 
 repeat = 100
-print('Average time of {} simulation runs:'.format(repeat))
+print("Average time of {} simulation runs for '{}' "
+      "({})".format(repeat, mech, fuel))
 
 sim0 = 0
 for i in range(repeat):
     sim0 += ignition(gas0)
+sim0 /= repeat
 print('- Original mechanism: '
-      '{0:.2f} ms (T_final={1:.2f})'.format(sim0 / repeat, gas0.T))
+      '{0:.2f} ms (T_final={1:.2f})'.format(sim0, gas0.T))
 
 sim1 = 0
 for i in range(repeat):
     sim1 += ignition(gas1)
+sim1 /= repeat
 print('- One Python reaction: '
-      '{0:.2f} ms (T_final={1:.2f})'.format(sim1 / repeat, gas1.T))
+      '{0:.2f} ms (T_final={1:.2f}) ... '
+      '{2:+.2f}%'.format(sim1, gas1.T, 100 * sim1 / sim0 - 100))
 
 sim2 = 0
 for i in range(repeat):
     sim2 += ignition(gas2)
+sim2 /= repeat
 print('- Alternative reactions: '
-      '{0:.2f} ms (T_final={1:.2f})'.format(sim2 / repeat, gas2.T))
+      '{0:.2f} ms (T_final={1:.2f}) ... '
+      '{2:+.2f}%'.format(sim2, gas2.T, 100 * sim2 / sim0 - 100))
