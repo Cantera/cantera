@@ -191,6 +191,18 @@ string formatDouble(double x, long int precision)
     }
 }
 
+struct Quantity
+{
+    AnyValue value;
+    Units units;
+    bool isActivationEnergy;
+
+    bool operator==(const Quantity& other) const {
+    return value == other.value && units == other.units
+            && isActivationEnergy == other.isActivationEnergy;
+    }
+};
+
 Cantera::AnyValue Empty;
 
 } // end anonymous namespace
@@ -526,8 +538,7 @@ struct convert<Cantera::AnyValue> {
 
 }
 
-namespace Cantera
-{
+namespace Cantera {
 
 std::map<std::string, std::string> AnyValue::s_typenames = {
     {typeid(double).name(), "double"},
@@ -716,6 +727,20 @@ bool operator==(const std::string& lhs, const AnyValue& rhs)
 bool operator!=(const std::string& lhs, const AnyValue& rhs)
 {
     return rhs != lhs;
+}
+
+// Specialization for "Quantity"
+
+void AnyValue::setQuantity(double value, const std::string& units, bool is_act_energy) {
+    *m_value = Quantity{AnyValue(value), Units(units), is_act_energy};
+    m_equals = eq_comparer<Quantity>;
+}
+
+void AnyValue::setQuantity(const vector_fp& values, const std::string& units) {
+    AnyValue v;
+    v = values;
+    *m_value = Quantity{v, Units(units), false};
+    m_equals = eq_comparer<Quantity>;
 }
 
 // Specializations for "double"
@@ -1073,6 +1098,21 @@ void AnyValue::applyUnits(const UnitSystem& units)
                 }
                 item.applyUnits(units);
             }
+        }
+    } else if (is<Quantity>()) {
+        auto& Q = as<Quantity>();
+        if (Q.value.is<double>()) {
+            if (Q.isActivationEnergy) {
+                *this = Q.value.as<double>() / units.convertActivationEnergyTo(1.0, Q.units);
+            } else {
+                *this = Q.value.as<double>() / units.convertTo(1.0, Q.units);
+            }
+        } else if (Q.value.is<vector_fp>()) {
+            double factor = 1.0 / units.convertTo(1.0, Q.units);
+            auto& old = Q.value.asVector<double>();
+            vector_fp converted(old.size());
+            scale(old.begin(), old.end(), converted.begin(), factor);
+            *this = std::move(converted);
         }
     }
 }
@@ -1561,6 +1601,7 @@ AnyMap AnyMap::fromYamlFile(const std::string& name,
 std::string AnyMap::toYamlString() const
 {
     YAML::Emitter out;
+    const_cast<AnyMap*>(this)->applyUnits(m_units);
     out << *this;
     out << YAML::Newline;
     return out.c_str();

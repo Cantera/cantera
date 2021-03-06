@@ -70,6 +70,7 @@ cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
         unordered_map[string, CxxAnyMap*] asMap(string) except +translate_exception
         CxxAnyMap& getMapWhere(string, string) except +translate_exception
         T& asType "as" [T]() except +translate_exception
+        string type_str()
         cbool isType "is" [T]()
         cbool isScalar()
         pair[int, int] order()

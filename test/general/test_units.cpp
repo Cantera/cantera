@@ -167,6 +167,16 @@ TEST(Units, from_anymap_default) {
     EXPECT_DOUBLE_EQ(m.convert("h1", "J/kmol", 999), 999);
 }
 
+TEST(Units, to_anymap) {
+    UnitSystem U{"kcal", "mol", "cm"};
+    AnyMap m;
+    m["h0"].setQuantity(90, "kJ/kg");
+    m["density"].setQuantity({10, 20}, "kg/m^3");
+    m.applyUnits(U);
+    EXPECT_DOUBLE_EQ(m["h0"].asDouble(), 90e3 / 4184);
+    EXPECT_DOUBLE_EQ(m["density"].asVector<double>()[1], 20.0 * 1e-6);
+}
+
 TEST(Units, from_yaml) {
     AnyMap m = AnyMap::fromYamlString(
         "units: {length: km}\n"

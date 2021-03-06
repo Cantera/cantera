@@ -225,6 +225,19 @@ std::string Units::str() const {
                        m_temperature_dim, m_current_dim, m_quantity_dim);
 }
 
+bool Units::operator==(const Units& other) const
+{
+    return m_factor == other.m_factor
+           && m_mass_dim == other.m_mass_dim
+           && m_length_dim == other.m_length_dim
+           && m_time_dim == other.m_time_dim
+           && m_temperature_dim == other.m_temperature_dim
+           && m_current_dim == other.m_current_dim
+           && m_quantity_dim == other.m_quantity_dim
+           && m_pressure_dim == other.m_pressure_dim
+           && m_energy_dim == other.m_energy_dim;
+}
+
 UnitSystem::UnitSystem(std::initializer_list<std::string> units)
     : m_mass_factor(1.0)
     , m_length_factor(1.0)
@@ -453,16 +466,21 @@ double UnitSystem::convertActivationEnergy(double value, const std::string& src,
 double UnitSystem::convertActivationEnergyTo(double value,
                                              const std::string& dest) const
 {
-    Units udest(dest);
-    if (udest.convertible(Units("J/kmol"))) {
-        return value * m_activation_energy_factor / udest.factor();
-    } else if (udest.convertible(knownUnits.at("K"))) {
+    return convertActivationEnergyTo(value, Units(dest));
+}
+
+double UnitSystem::convertActivationEnergyTo(double value,
+                                             const Units& dest) const
+{
+    if (dest.convertible(Units("J/kmol"))) {
+        return value * m_activation_energy_factor / dest.factor();
+    } else if (dest.convertible(knownUnits.at("K"))) {
         return value * m_activation_energy_factor / GasConstant;
-    } else if (udest.convertible(knownUnits.at("eV"))) {
-        return value * m_activation_energy_factor / (Avogadro * udest.factor());
+    } else if (dest.convertible(knownUnits.at("eV"))) {
+        return value * m_activation_energy_factor / (Avogadro * dest.factor());
     } else {
         throw CanteraError("UnitSystem::convertActivationEnergyTo",
-            "'{}' is not a unit of activation energy", dest);
+            "'{}' is not a unit of activation energy", dest.str());
     }
 }
 

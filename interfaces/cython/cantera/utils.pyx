@@ -111,7 +111,8 @@ cdef anyvalueToPython(string name, CxxAnyValue& v):
         return v.asType[vector[vector[cbool]]]()
     else:
         raise TypeError("Unable to convert value with key '{}' "
-                        "from AnyValue".format(pystr(name)))
+                        "from AnyValue of held type '{}'".format(
+                            pystr(name), v.type_str()))
 
 
 cdef anymapToPython(CxxAnyMap& m):
