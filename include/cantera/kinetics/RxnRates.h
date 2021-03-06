@@ -445,59 +445,8 @@ public:
     //! Identifier of reaction type
     virtual std::string type() const = 0;
 
-    //! Get temperature
-    static double temperature() {
-        return m_temperature;
-    }
-
-    //! Update temperature
-    static void updateTemperature(double T) {
-        if (T <= 0.) {
-            throw CanteraError("RxnRate::updateTemperature",
-                               "Temperature has to be positive.");
-        }
-        m_temperature = T;
-        m_logT = std::log(T);
-        m_recipT = 1./T;
-    }
-
-    //! Get pressure
-    static double pressure() {
-        return m_pressure;
-    }
-
-    //! Update pressure
-    static void updatePressure(double P) {
-        if (P <= 0.) {
-            throw CanteraError("RxnRate::updatePressure",
-                               "Pressure has to be positive.");
-        }
-        m_pressure = P;
-        m_logP = log(P);
-        m_log10P = log10(P);
-    }
-
     //! Evaluate reaction rate
-    virtual double eval() const = 0;
-
-protected:
-    //! Temperature used for reaction rate evaluation
-    static double m_temperature;
-
-    //! Logarithm of temperature used for reaction rate evaluation
-    static double m_logT;
-
-    //! Inverse temperature used for reaction rate evaluation
-    static double m_recipT;
-
-    //! Pressure used for reaction rate evaluation
-    static double m_pressure;
-
-    //! Logarithm of pressure used for reaction rate evaluation
-    static double m_logP;
-
-    //! 10-base logarithm of pressure used for reaction rate evaluation
-    static double m_log10P;
+    virtual double eval_T(double T, double logT, double recipT) const = 0;
 };
 
 
@@ -526,7 +475,7 @@ public:
      */
     void setRateFunction(shared_ptr<Func1> f);
 
-    virtual double eval() const;
+    virtual double eval_T(double T, double logT, double recipT) const;
 
 protected:
     shared_ptr<Func1> m_ratefunc;
@@ -552,8 +501,8 @@ public:
         return "ArrheniusRate";
     }
 
-    virtual double eval() const {
-        return updateRC(m_logT, m_recipT);
+    virtual double eval_T(double T, double logT, double recipT) const {
+        return updateRC(logT, recipT);
     }
 };
 

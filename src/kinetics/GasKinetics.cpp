@@ -27,6 +27,7 @@ void GasKinetics::update_rates_T()
     double P = thermo().pressure();
     m_logStandConc = log(thermo().standardConcentration());
     double logT = log(T);
+    double recipT = 1./T;
 
     if (T != m_temp) {
         if (!m_rfn.empty()) {
@@ -45,14 +46,9 @@ void GasKinetics::update_rates_T()
     }
 
     if (T != m_temp || P != m_pres) {
-        if (!m_rxn_rates.empty()) {
-            RxnRate::updateTemperature(T);
-            RxnRate::updatePressure(P);
-        }
-
         for (auto& rate : m_rxn_rates) {
             // generic reaction rates
-            m_rfn.data()[rate.first] = rate.second->eval();
+            m_rfn.data()[rate.first] = rate.second->eval_T(T, logT, recipT);
         }
 
         if (m_plog_rates.nReactions()) {
@@ -244,8 +240,6 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
     if (r->rxnRate()) {
         // new generic reaction type handler
         m_rxn_rates[nReactions()-1] = r->rxnRate();
-        RxnRate::updateTemperature(thermo().temperature());
-        RxnRate::updatePressure(thermo().pressure());
     } else if (r->type() == "elementary") {
         addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
     } else if (r->type() == "three-body") {
@@ -337,8 +331,6 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     if (rNew->rxnRate()) {
         // new generic reaction type handler
         modifyRxnRate(i, rNew->rxnRate());
-        RxnRate::updateTemperature(thermo().temperature());
-        RxnRate::updatePressure(thermo().pressure());
     } else if (rNew->type() == "elementary") {
         modifyElementaryReaction(i, dynamic_cast<ElementaryReaction&>(*rNew));
     } else if (rNew->type() == "three-body") {

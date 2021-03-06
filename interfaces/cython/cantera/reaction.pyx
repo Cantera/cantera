@@ -408,25 +408,10 @@ cdef class _RxnRate:
     def __repr__(self):
         return "<{}>".format(pystr(self.base.type()))
 
-    def __call__(self, temperature=None):
-        if temperature is not None:
-            self.temperature = temperature
-
-        return self.base.eval()
-
-    property temperature:
-        """ Get/Set temperature used for all reaction rate evaluations"""
-        def __get__(self):
-            return self.base.temperature()
-        def __set__(self, float temperature):
-            self.base.updateTemperature(temperature)
-
-    property pressure:
-        """ Get/Set pressure used for all reaction rate evaluations"""
-        def __get__(self):
-            return self.base.pressure()
-        def __set__(self, float pressure):
-            self.base.updatePressure(pressure)
+    def __call__(self, double temperature):
+        cdef double logT = np.log(temperature)
+        cdef double recipT = 1/temperature
+        return self.base.eval_T(temperature, logT, recipT)
 
 
 cdef class CustomRate(_RxnRate):
