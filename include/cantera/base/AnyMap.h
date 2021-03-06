@@ -231,8 +231,8 @@ public:
     //! Return values used to determine the sort order when outputting to YAML
     std::pair <int, int> order() const;
 
-    //! @see AnyMap::applyUnits
-    void applyUnits(const UnitSystem& units);
+    //! @see AnyMap::applyUnits(const UnitSystem&)
+    void applyUnits(shared_ptr<UnitSystem>& units);
 
     //! @see AnyMap::setFlowStyle
     void setFlowStyle(bool flow=true);
@@ -510,7 +510,7 @@ public:
     bool operator!=(const AnyMap& other) const;
 
     //! Return the default units that should be used to convert stored values
-    const UnitSystem& units() const { return m_units; }
+    const UnitSystem& units() const { return *m_units; }
 
     //! Use the supplied UnitSystem to set the default units, and recursively
     //! process overrides from nodes named `units`.
@@ -521,14 +521,17 @@ public:
      * then the specified units are taken to be the defaults for all the maps in
      * the list.
      *
-     * After being processed, the `units` nodes are removed, so this function
-     * should be called only once, on the root AnyMap. This function is called
-     * automatically by the fromYamlFile() and fromYamlString() constructors.
+     * After being processed, the `units` nodes are removed. This function is
+     * called automatically by the fromYamlFile() and fromYamlString()
+     * constructors.
      *
      * @warning This function is an experimental part of the %Cantera API and
      *     may be changed or removed without notice.
      */
-    void applyUnits(const UnitSystem& units);
+    void applyUnits();
+
+    //! @see applyUnits(const UnitSystem&)
+    void applyUnits(shared_ptr<UnitSystem>& units);
 
     //! Use "flow" style when outputting this AnyMap to YAML
     void setFlowStyle(bool flow=true);
@@ -570,7 +573,7 @@ private:
     std::unordered_map<std::string, AnyValue> m_data;
 
     //! The default units that are used to convert stored values
-    UnitSystem m_units;
+    std::shared_ptr<UnitSystem> m_units;
 
     //! Cache for previously-parsed input (YAML) files. The key is the full path
     //! to the file, and the second element of the value is the last-modified
