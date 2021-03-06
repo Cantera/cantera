@@ -26,8 +26,8 @@ void GasKinetics::update_rates_T()
     double T = thermo().temperature();
     double P = thermo().pressure();
     m_logStandConc = log(thermo().standardConcentration());
-    double logT = log(T);
-    double recipT = 1./T;
+    State state(T, P);
+    double logT = state.logT;
 
     if (T != m_temp) {
         if (!m_rfn.empty()) {
@@ -46,9 +46,10 @@ void GasKinetics::update_rates_T()
     }
 
     if (T != m_temp || P != m_pres) {
+
         for (auto& rate : m_rxn_rates) {
             // generic reaction rates
-            m_rfn.data()[rate.first] = rate.second->eval_T(T, logT, recipT);
+            m_rfn.data()[rate.first] = rate.second->eval(state);
         }
 
         if (m_plog_rates.nReactions()) {

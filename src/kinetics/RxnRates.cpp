@@ -165,9 +165,9 @@ void CustomPyRate::setRateFunction(shared_ptr<Func1> f) {
     m_ratefunc = f;
 }
 
-double CustomPyRate::eval_T(double T, double logT, double recipT) const {
+double CustomPyRate::eval(const State& state) const {
     if (m_ratefunc) {
-        return m_ratefunc->eval(T);
+        return m_ratefunc->eval(state.temperature);
     }
     return 0.;
 }

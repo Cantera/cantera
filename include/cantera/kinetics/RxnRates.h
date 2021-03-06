@@ -431,6 +431,47 @@ protected:
 };
 
 
+//! Data container holding state information
+/**
+ * The data container `State` holds information passed to RxnRate objects. Here, a
+ * pre-calculation of commonly used information (inverse, log, etc.) avoids
+ * computational overhead.
+ */
+struct State {
+    State()
+      : temperature(1.), logT(0.), recipT(0.)
+      , pressure(1.), logP(0.), log10P(0.) {
+    }
+
+    //! Constructor based on temperature *T*
+    State(double T) : temperature(T), pressure(1.), logP(0.), log10P(0.) {
+        logT = std::log(T);
+        recipT = 1./T;
+    }
+
+    //! Constructor based on temperature *T* and pressure *P*
+    State(double T, double P) : temperature(T), pressure(P) {
+        logT = std::log(T);
+        recipT = 1./T;
+        logP = std::log(P);
+        log10P = std::log10(P);
+    }
+
+    //! Constructor based on temperature *T*, pressure *P* and
+    //! concentration *conc*
+    State(double T, double P, const vector_fp& conc) : State(T, P) {
+        throw CanteraError("State::State", "Not implemented");
+    }
+    double temperature;
+    double logT;
+    double recipT;
+    double pressure;
+    double logP;
+    double log10P;
+    vector_fp conc;
+};
+
+
 //! Abstract base class for reaction rate definitions
 /**
  * @warning This class is an experimental part of the %Cantera API and
@@ -446,7 +487,22 @@ public:
     virtual std::string type() const = 0;
 
     //! Evaluate reaction rate
-    virtual double eval_T(double T, double logT, double recipT) const = 0;
+    virtual double eval(const State& state) const = 0;
+
+    //! Evaluate reaction rate based on temperature
+    virtual double evalT(double T) const {
+        return eval(State(T));
+    }
+
+    //! Evaluate reaction rate based on temperature and pressure
+    virtual double evalTP(double T, double P) const {
+        return eval(State(T, P));
+    }
+
+    //! Evaluate reaction rate based on temperature, pressure and concentrations
+    virtual double evalTPC(double T, double P, const vector_fp& conc) const {
+        return eval(State(T, P, conc));
+    }
 };
 
 
@@ -475,7 +531,7 @@ public:
      */
     void setRateFunction(shared_ptr<Func1> f);
 
-    virtual double eval_T(double T, double logT, double recipT) const;
+    virtual double eval(const State& state) const;
 
 protected:
     shared_ptr<Func1> m_ratefunc;
@@ -501,8 +557,8 @@ public:
         return "ArrheniusRate";
     }
 
-    virtual double eval_T(double T, double logT, double recipT) const {
-        return updateRC(logT, recipT);
+    virtual double eval(const State& state) const {
+        return updateRC(state.logT, state.recipT);
     }
 };
 
