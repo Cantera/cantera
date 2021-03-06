@@ -67,18 +67,6 @@ public:
     //! reactions.
     virtual void update_rates_C();
 
-    //! register a function that adds a reaction
-    void reg_addRxn(const std::string& name,
-                    std::function<void(shared_ptr<Reaction>)> f) {
-        m_addRxn[name] = f;
-    }
-
-    //! register a function that modifies a reaction
-    void reg_modRxn(const std::string& name,
-                    std::function<void(size_t, shared_ptr<Reaction>)> f) {
-        m_modRxn[name] = f;
-    }
-
 protected:
     //! Reaction index of each falloff reaction
     std::vector<size_t> m_fallindx;
@@ -126,8 +114,6 @@ protected:
     void addPlogReaction(PlogReaction& r);
     void addChebyshevReaction(ChebyshevReaction& r);
 
-    void addRxnRate(shared_ptr<RxnRate> rate);
-
     void modifyThreeBodyReaction(size_t i, ThreeBodyReaction& r);
     void modifyFalloffReaction(size_t i, FalloffReaction& r);
     void modifyPlogReaction(size_t i, PlogReaction& r);
@@ -137,14 +123,6 @@ protected:
 
     //! Update the equilibrium constants in molar units.
     void updateKc();
-
-    //! map functions adding reactions
-    std::unordered_map<std::string,
-        std::function<void(shared_ptr<Reaction>)>> m_addRxn;
-
-    //! map functions modifying reactions
-    std::unordered_map<std::string,
-        std::function<void(size_t, shared_ptr<Reaction>)>> m_modRxn;
 };
 
 }
