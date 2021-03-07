@@ -245,9 +245,16 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
 
     shared_ptr<RxnRate> rate=r->rxnRate();
     if (rate) {
+        size_t nRxn = nReactions() - 1;
         // new generic reaction type handler
-        rate->setIndex(nReactions()-1);
-        m_rxn_rates.push_back(rate);
+        rate->setIndex(nRxn);
+        if (rate->type() == "ArrheniusRate") {
+            m_arrhenius_indices[nRxn] = m_arrhenius_rates.size();
+            m_arrhenius_rates.push_back(std::dynamic_pointer_cast<ArrheniusRate>(rate));
+        } else {
+            m_rxn_indices[nRxn] = m_rxn_rates.size();
+            m_rxn_rates.push_back(rate);
+        }
     } else if (r->type() == "elementary") {
         addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
     } else if (r->type() == "three-body") {
@@ -336,9 +343,14 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     // operations common to all reaction types
     BulkKinetics::modifyReaction(i, rNew);
 
-    if (rNew->rxnRate()) {
+    shared_ptr<RxnRate> rate=rNew->rxnRate();
+    if (rate) {
         // new generic reaction type handler
-        modifyRxnRate(i, rNew->rxnRate());
+        if (rate->type() == "ArrheniusRate") {
+            modifyArrheniusRate(i, std::dynamic_pointer_cast<ArrheniusRate>(rate));
+        } else {
+            modifyRxnRate(i, rate);
+        }
     } else if (rNew->type() == "elementary") {
         modifyElementaryReaction(i, dynamic_cast<ElementaryReaction&>(*rNew));
     } else if (rNew->type() == "three-body") {
@@ -387,24 +399,31 @@ void GasKinetics::modifyChebyshevReaction(size_t i, ChebyshevReaction& r)
 
 void GasKinetics::modifyRxnRate(size_t i, shared_ptr<RxnRate> newRate)
 {
-    bool found = false;
-    size_t j = 0;
+    if (m_rxn_indices.find(i) != m_rxn_indices.end()) {
 
-    while ((!found) && (j < m_rxn_rates.size())) {
-        if (m_rxn_rates[j]->index() == i) {
-            if (newRate->type() != m_rxn_rates[j]->type()) {
-                throw CanteraError("GasKinetics::modifyRxnRate",
-                                   "Attempting to replace '{}' with '{}'.",
-                                   m_rxn_rates[j]->type(), newRate->type());
-            }
-            m_rxn_rates[j] = newRate;
-            found = true;
+        size_t j = m_rxn_indices[i];
+        if (newRate->type() != m_rxn_rates[j]->type()) {
+            throw CanteraError("GasKinetics::modifyRxnRate",
+                               "Attempting to replace '{}' with '{}'.",
+                               m_rxn_rates[j]->type(), newRate->type());
         }
-        j++;
-    }
-
-    if (!found) {
+        newRate->setIndex(m_rxn_rates[j]->index());
+        m_rxn_rates[j] = newRate;
+    } else {
         throw CanteraError("GasKinetics::modifyRxnRate",
+                           "Index {} does not exist.", i);
+    }
+}
+
+void GasKinetics::modifyArrheniusRate(size_t i,
+                                      shared_ptr<ArrheniusRate> newRate)
+{
+    if (m_arrhenius_indices.find(i) != m_arrhenius_indices.end()) {
+        size_t j = m_arrhenius_indices[i];
+        newRate->setIndex(m_arrhenius_rates[j]->index());
+        m_arrhenius_rates[j] = newRate;
+    } else {
+        throw CanteraError("GasKinetics::modifyArrheniusRate",
                            "Index {} does not exist.", i);
     }
 }

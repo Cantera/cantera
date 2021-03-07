@@ -89,9 +89,14 @@ protected:
     Rate1<Plog> m_plog_rates;
     Rate1<ChebyshevRate> m_cheb_rates;
 
-    //! Map of generic reaction rate expressions
+    //! Vector of generic reaction rates
     std::vector<shared_ptr<RxnRate>> m_rxn_rates;
+
+    //! Vector of specialized arrhenius reaction rates
     std::vector<shared_ptr<ArrheniusRate>> m_arrhenius_rates;
+
+    std::map<size_t, size_t> m_rxn_indices;
+    std::map<size_t, size_t> m_arrhenius_indices;
 
     //! @name Reaction rate data
     //!@{
@@ -121,6 +126,7 @@ protected:
     void modifyChebyshevReaction(size_t i, ChebyshevReaction& r);
 
     void modifyRxnRate(size_t i, shared_ptr<RxnRate> rate);
+    void modifyArrheniusRate(size_t i, shared_ptr<ArrheniusRate> rate);
 
     //! Update the equilibrium constants in molar units.
     void updateKc();
