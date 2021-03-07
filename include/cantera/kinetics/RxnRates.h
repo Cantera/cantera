@@ -460,8 +460,9 @@ struct State {
     //! Constructor based on temperature *T*, pressure *P* and
     //! concentration *conc*
     State(double T, double P, const vector_fp& conc) : State(T, P) {
-        throw CanteraError("State::State", "Not implemented");
+        throw CanteraError("State::State", "Not implemented (yet)");
     }
+
     double temperature;
     double logT;
     double recipT;
@@ -496,19 +497,50 @@ public:
     virtual double eval(const State& state) const = 0;
 
     //! Evaluate reaction rate based on temperature
-    virtual double evalT(double T) const {
+    double eval(double T) const {
         return eval(State(T));
     }
 
     //! Evaluate reaction rate based on temperature and pressure
-    virtual double evalTP(double T, double P) const {
+    double eval(double T, double P) const {
         return eval(State(T, P));
     }
 
     //! Evaluate reaction rate based on temperature, pressure and concentrations
-    virtual double evalTPC(double T, double P, const vector_fp& conc) const {
+    double eval(double T, double P, const vector_fp& conc) const {
         return eval(State(T, P, conc));
     }
+
+    // [...] other overrides are not created (yet)
+
+    //! Evaluate reaction rate derivative (with respect to temperature)
+    virtual double ddT(const State& state) const {
+        throw CanteraError("RxnRate::ddT",
+                           "Not (yet) implemented by derived RxnRate object.");
+    }
+
+    //! Evaluate reaction rate based on temperature
+    double ddT(double T) const {
+        return ddT(State(T));
+    }
+
+    //! Evaluate reaction rate based on temperature and pressure
+    double ddT(double T, double P) const {
+        return ddT(State(T, P));
+    }
+
+    // [...] other overrides are not created (yet)
+
+    //! Evaluate reaction rate derivative (with respect to pressure)
+    virtual double ddP(const State& state) const {
+        throw CanteraError("RxnRate::ddP",
+                           "Not (yet) implemented by derived RxnRate object.");
+    }
+
+    // [...] other signatures are not created (yet)
+
+    // signatures of a ddC method tbd
+
 protected:
     size_t m_index; //!< reaction index
 };
@@ -567,6 +599,15 @@ public:
 
     virtual double eval(const State& state) const override {
         return updateRC(state.logT, state.recipT);
+    }
+
+    virtual double ddT(const State& state) const override {
+        return updateRC(state.logT, state.recipT) *
+            (m_b + m_E * state.recipT) * state.recipT;
+    }
+
+    virtual double ddP(const State& state) const override {
+        return 0.;
     }
 };
 
