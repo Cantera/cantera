@@ -315,8 +315,10 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxRxnRate "Cantera::RxnRate":
         CxxRxnRate()
         string type()
-        double evalT(double) except +translate_exception
-        double evalTP(double, double) except +translate_exception
+        double eval(double) except +translate_exception
+        double eval(double, double) except +translate_exception
+        double ddT(double) except +translate_exception
+        double ddT(double, double) except +translate_exception
 
     cdef cppclass CxxCustomPyRate "Cantera::CustomPyRate" (CxxRxnRate):
         CxxCustomPyRate()

@@ -410,9 +410,15 @@ cdef class _RxnRate:
 
     def __call__(self, double temperature, pressure=None):
         if pressure:
-            return self.base.evalTP(temperature, pressure)
+            return self.base.eval(temperature, pressure)
         else:
-            return self.base.evalT(temperature)
+            return self.base.eval(temperature)
+
+    def ddT(self, double temperature, pressure=None):
+        if pressure:
+            return self.base.ddT(temperature, pressure)
+        else:
+            return self.base.ddT(temperature)
 
 
 cdef class CustomRate(_RxnRate):
