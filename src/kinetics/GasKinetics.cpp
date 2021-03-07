@@ -49,7 +49,7 @@ void GasKinetics::update_rates_T()
 
         for (auto& rate : m_arrhenius_rates) {
             // generic reaction rates
-            m_rfn.data()[rate->index()] = rate->eval(state);
+            m_rfn.data()[rate.index()] = rate.eval(state);
         }
 
         for (auto& rate : m_rxn_rates) {
@@ -250,7 +250,7 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
         rate->setIndex(nRxn);
         if (rate->type() == "ArrheniusRate") {
             m_arrhenius_indices[nRxn] = m_arrhenius_rates.size();
-            m_arrhenius_rates.push_back(std::dynamic_pointer_cast<ArrheniusRate>(rate));
+            m_arrhenius_rates.push_back(*std::dynamic_pointer_cast<ArrheniusRate>(rate));
         } else {
             m_rxn_indices[nRxn] = m_rxn_rates.size();
             m_rxn_rates.push_back(rate);
@@ -420,8 +420,8 @@ void GasKinetics::modifyArrheniusRate(size_t i,
 {
     if (m_arrhenius_indices.find(i) != m_arrhenius_indices.end()) {
         size_t j = m_arrhenius_indices[i];
-        newRate->setIndex(m_arrhenius_rates[j]->index());
-        m_arrhenius_rates[j] = newRate;
+        newRate->setIndex(m_arrhenius_rates[j].index());
+        m_arrhenius_rates[j] = *newRate;
     } else {
         throw CanteraError("GasKinetics::modifyArrheniusRate",
                            "Index {} does not exist.", i);

@@ -93,7 +93,7 @@ protected:
     std::vector<shared_ptr<RxnRate>> m_rxn_rates;
 
     //! Vector of specialized arrhenius reaction rates
-    std::vector<shared_ptr<ArrheniusRate>> m_arrhenius_rates;
+    std::vector<ArrheniusRate> m_arrhenius_rates;
 
     std::map<size_t, size_t> m_rxn_indices;
     std::map<size_t, size_t> m_arrhenius_indices;
