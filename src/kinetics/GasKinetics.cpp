@@ -47,9 +47,14 @@ void GasKinetics::update_rates_T()
 
     if (T != m_temp || P != m_pres) {
 
+        for (auto& rate : m_arrhenius_rates) {
+            // generic reaction rates
+            m_rfn.data()[rate->index()] = rate->eval(state);
+        }
+
         for (auto& rate : m_rxn_rates) {
             // generic reaction rates
-            m_rfn.data()[rate.first] = rate.second->eval(state);
+            m_rfn.data()[rate->index()] = rate->eval(state);
         }
 
         if (m_plog_rates.nReactions()) {
@@ -242,7 +247,7 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
     if (rate) {
         // new generic reaction type handler
         rate->setIndex(nReactions()-1);
-        m_rxn_rates[nReactions()-1] = rate;
+        m_rxn_rates.push_back(rate);
     } else if (r->type() == "elementary") {
         addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
     } else if (r->type() == "three-body") {
@@ -380,17 +385,26 @@ void GasKinetics::modifyChebyshevReaction(size_t i, ChebyshevReaction& r)
     m_cheb_rates.replace(i, r.rate);
 }
 
-void GasKinetics::modifyRxnRate(size_t i, shared_ptr<RxnRate> rate)
+void GasKinetics::modifyRxnRate(size_t i, shared_ptr<RxnRate> newRate)
 {
-    if (m_rxn_rates.find(i) != m_rxn_rates.end()) {
-        if (m_rxn_rates[i]->type() != rate->type()) {
-            throw CanteraError("GasKinetics::modifyReaction",
-                               "Attempting to replace '{}' with '{}'.",
-                               m_rxn_rates[i]->type(), rate->type());
+    bool found = false;
+    size_t j = 0;
+
+    while ((!found) && (j < m_rxn_rates.size())) {
+        if (m_rxn_rates[j]->index() == i) {
+            if (newRate->type() != m_rxn_rates[j]->type()) {
+                throw CanteraError("GasKinetics::modifyRxnRate",
+                                   "Attempting to replace '{}' with '{}'.",
+                                   m_rxn_rates[j]->type(), newRate->type());
+            }
+            m_rxn_rates[j] = newRate;
+            found = true;
         }
-        m_rxn_rates[i] = rate;
-    } else {
-        throw CanteraError("GasKinetics::modifyReaction",
+        j++;
+    }
+
+    if (!found) {
+        throw CanteraError("GasKinetics::modifyRxnRate",
                            "Index {} does not exist.", i);
     }
 }

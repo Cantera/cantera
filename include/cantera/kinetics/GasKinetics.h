@@ -90,7 +90,8 @@ protected:
     Rate1<ChebyshevRate> m_cheb_rates;
 
     //! Map of generic reaction rate expressions
-    std::map<size_t, shared_ptr<RxnRate>> m_rxn_rates;
+    std::vector<shared_ptr<RxnRate>> m_rxn_rates;
+    std::vector<shared_ptr<ArrheniusRate>> m_arrhenius_rates;
 
     //! @name Reaction rate data
     //!@{
