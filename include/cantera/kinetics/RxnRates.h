@@ -486,6 +486,12 @@ public:
     //! Identifier of reaction type
     virtual std::string type() const = 0;
 
+    //! Index or reaction within kinetics
+    size_t index() { return m_index; }
+
+    //! Index or reaction within kinetics
+    void setIndex(size_t index) { m_index = index; }
+
     //! Evaluate reaction rate
     virtual double eval(const State& state) const = 0;
 
@@ -503,6 +509,8 @@ public:
     virtual double evalTPC(double T, double P, const vector_fp& conc) const {
         return eval(State(T, P, conc));
     }
+protected:
+    size_t m_index; //!< reaction index
 };
 
 
@@ -514,13 +522,13 @@ public:
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
  */
-class CustomPyRate : public RxnRate
+class CustomPyRate final : public RxnRate
 {
 public:
     //! Constructor.
     CustomPyRate();
 
-    virtual std::string type() const {
+    virtual std::string type() const override {
         return "custom-PythonRate";
     }
 
@@ -531,7 +539,7 @@ public:
      */
     void setRateFunction(shared_ptr<Func1> f);
 
-    virtual double eval(const State& state) const;
+    virtual double eval(const State& state) const override;
 
 protected:
     shared_ptr<Func1> m_ratefunc;
@@ -545,7 +553,7 @@ protected:
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
  */
-class ArrheniusRate : public RxnRate, public Arrhenius
+class ArrheniusRate final : public RxnRate, public Arrhenius
 {
 public:
     //! Constructor.
@@ -553,11 +561,11 @@ public:
 
     ArrheniusRate(double A, double b, double E);
 
-    virtual std::string type() const {
+    virtual std::string type() const override {
         return "ArrheniusRate";
     }
 
-    virtual double eval(const State& state) const {
+    virtual double eval(const State& state) const override {
         return updateRC(state.logT, state.recipT);
     }
 };

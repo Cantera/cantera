@@ -238,9 +238,11 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
         return false;
     }
 
-    if (r->rxnRate()) {
+    shared_ptr<RxnRate> rate=r->rxnRate();
+    if (rate) {
         // new generic reaction type handler
-        m_rxn_rates[nReactions()-1] = r->rxnRate();
+        rate->setIndex(nReactions()-1);
+        m_rxn_rates[nReactions()-1] = rate;
     } else if (r->type() == "elementary") {
         addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
     } else if (r->type() == "three-body") {
