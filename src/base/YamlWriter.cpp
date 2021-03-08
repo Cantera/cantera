@@ -198,6 +198,7 @@ std::string YamlWriter::toYamlString() const
     }
 
     output.setMetadata("precision", AnyValue(m_float_precision));
+    output.setUnits(m_output_units);
     return output.toYamlString();
 }
 

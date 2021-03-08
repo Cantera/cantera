@@ -117,6 +117,7 @@ cdef anyvalueToPython(string name, CxxAnyValue& v):
 
 cdef anymapToPython(CxxAnyMap& m):
     py_items = []
+    m.applyUnits()
     for item in m:
         py_items.append((item.second.order(),
                          pystr(item.first),

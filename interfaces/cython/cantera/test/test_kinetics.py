@@ -854,8 +854,9 @@ class TestReaction(utilities.CanteraTest):
         r = ct.ElementaryReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
         r.rate = ct.Arrhenius(3.87e1, 2.7, 2.6e7)
         data = r.input_data
-        self.assertEqual(data['rate-constant'],
-                         {'A': 3.87e1, 'b': 2.7, 'Ea': 2.6e7})
+        self.assertNear(data['rate-constant']['A'], 3.87e1)
+        self.assertNear(data['rate-constant']['b'], 2.7)
+        self.assertNear(data['rate-constant']['Ea'], 2.6e7)
         terms = data['equation'].split()
         self.assertIn('O', terms)
         self.assertIn('OH', terms)
