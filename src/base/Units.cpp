@@ -8,6 +8,7 @@
 #include "cantera/base/global.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/AnyMap.h"
+#include "cantera/base/utilities.h"
 
 namespace {
 using namespace Cantera;
@@ -257,16 +258,22 @@ void UnitSystem::setDefaults(std::initializer_list<std::string> units)
         auto unit = Units(name);
         if (unit.convertible(knownUnits.at("kg"))) {
             m_mass_factor = unit.factor();
+            m_defaults["mass"] = name;
         } else if (unit.convertible(knownUnits.at("m"))) {
             m_length_factor = unit.factor();
+            m_defaults["length"] = name;
         } else if (unit.convertible(knownUnits.at("s"))) {
             m_time_factor = unit.factor();
+            m_defaults["time"] = name;
         } else if (unit.convertible(knownUnits.at("kmol"))) {
             m_quantity_factor = unit.factor();
+            m_defaults["quantity"] = name;
         } else if (unit.convertible(knownUnits.at("Pa"))) {
             m_pressure_factor = unit.factor();
+            m_defaults["pressure"] = name;
         } else if (unit.convertible(knownUnits.at("J"))) {
             m_energy_factor = unit.factor();
+            m_defaults["energy"] = name;
         } else if (unit.convertible(knownUnits.at("K"))
                    || unit.convertible(knownUnits.at("A"))) {
             // Do nothing -- no other scales are supported for temperature and current
@@ -287,20 +294,26 @@ void UnitSystem::setDefaults(const std::map<std::string, std::string>& units)
         Units unit(item.second);
         if (name == "mass" && unit.convertible(knownUnits.at("kg"))) {
             m_mass_factor = unit.factor();
+            m_defaults["mass"] = item.second;
         } else if (name == "length" && unit.convertible(knownUnits.at("m"))) {
             m_length_factor = unit.factor();
+            m_defaults["length"] = item.second;
         } else if (name == "time" && unit.convertible(knownUnits.at("s"))) {
             m_time_factor = unit.factor();
+            m_defaults["time"] = item.second;
         } else if (name == "temperature" && item.second == "K") {
             // do nothing - no other temperature scales are supported
         } else if (name == "current" && item.second == "A") {
             // do nothing - no other current scales are supported
         } else if (name == "quantity" && unit.convertible(knownUnits.at("kmol"))) {
             m_quantity_factor = unit.factor();
+            m_defaults["quantity"] = item.second;
         } else if (name == "pressure" && unit.convertible(knownUnits.at("Pa"))) {
             m_pressure_factor = unit.factor();
+            m_defaults["pressure"] = item.second;
         } else if (name == "energy" && unit.convertible(knownUnits.at("J"))) {
             m_energy_factor = unit.factor();
+            m_defaults["energy"] = item.second;
         } else if (name == "activation-energy") {
             // handled separately to allow override
         } else {
@@ -319,6 +332,7 @@ void UnitSystem::setDefaults(const std::map<std::string, std::string>& units)
 void UnitSystem::setDefaultActivationEnergy(const std::string& e_units)
 {
     Units u(e_units);
+    m_defaults["activation-energy"] = e_units;
     if (u.convertible(Units("J/kmol"))) {
         m_activation_energy_factor = u.factor();
     } else if (u.convertible(knownUnits.at("K"))) {
@@ -511,6 +525,39 @@ double UnitSystem::convertActivationEnergy(const AnyValue& v,
         // Both source and destination units are explicit
         return convertActivationEnergy(val_units.first, val_units.second, dest);
     }
+}
+
+AnyMap UnitSystem::getDelta(const UnitSystem& other) const
+{
+    AnyMap delta;
+    // Create a local alias because the template specialization can't be deduced
+    // automatically
+    const auto& get = getValue<std::string, std::string>;
+    if (m_mass_factor != other.m_mass_factor) {
+        delta["mass"] = get(m_defaults, "mass", "kg");
+    }
+    if (m_length_factor != other.m_length_factor) {
+        delta["length"] = get(m_defaults, "length", "m");
+    }
+    if (m_time_factor != other.m_time_factor) {
+        delta["time"] = get(m_defaults, "time", "s");
+    }
+    if (m_pressure_factor != other.m_pressure_factor) {
+        delta["pressure"] = get(m_defaults, "pressure", "Pa");
+    }
+    if (m_energy_factor != other.m_energy_factor) {
+        delta["energy"] = get(m_defaults, "energy", "J");
+    }
+    if (m_quantity_factor != other.m_quantity_factor) {
+        delta["quantity"] = get(m_defaults, "quantity", "kmol");
+    }
+    if (m_explicit_activation_energy
+        || (other.m_explicit_activation_energy
+            && m_activation_energy_factor != m_energy_factor / m_quantity_factor))
+    {
+        delta["activation-energy"] = get(m_defaults, "activation-energy", "J/kmol");
+    }
+    return delta;
 }
 
 }

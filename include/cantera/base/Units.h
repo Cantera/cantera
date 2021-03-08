@@ -188,6 +188,9 @@ public:
     double convertActivationEnergy(const AnyValue& val,
                                    const std::string& dest) const;
 
+    //! Get the changes to the defaults from `other` to this UnitSystem
+    AnyMap getDelta(const UnitSystem& other) const;
+
 private:
     //! Factor to convert mass from this unit system to kg
     double m_mass_factor;
@@ -213,6 +216,10 @@ private:
     //! True if activation energy units are set explicitly, rather than as a
     //! combination of energy and quantity units
     bool m_explicit_activation_energy;
+
+    //! Map of dimensions (mass, length, etc.) to names of specified default
+    //! units
+    std::map<std::string, std::string> m_defaults;
 };
 
 }

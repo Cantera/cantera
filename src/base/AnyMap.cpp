@@ -252,6 +252,14 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
 {
     // Initial sort based on the order in which items are added
     vector<std::tuple<std::pair<int, int>, std::string, const AnyValue*>> ordered;
+    // Units always come first
+    AnyValue units;
+    if (rhs.hasKey("__units__") && rhs["__units__"].as<AnyMap>().size()) {
+        units = rhs["__units__"];
+        units.setFlowStyle();
+        ordered.emplace_back(std::pair<int, int>{-2, 0}, std::string("units"), &units);
+    }
+
     int head = 0; // sort key of the first programmatically-added item
     int tail = 0; // sort key of the last programmatically-added item
     for (const auto& item : rhs) {
@@ -1506,6 +1514,18 @@ void AnyMap::applyUnits(shared_ptr<UnitSystem>& units) {
     for (auto& item : m_data) {
         item.second.applyUnits(m_units);
     }
+}
+
+void AnyMap::setUnits(const UnitSystem& units)
+{
+    if (hasKey("__units__")) {
+        for (const auto& item : units.getDelta(*m_units)) {
+            m_data["__units__"][item.first] = item.second;
+        }
+    } else {
+        m_data["__units__"] = units.getDelta(*m_units);
+    }
+    m_units.reset(new UnitSystem(units));
 }
 
 void AnyMap::setFlowStyle(bool flow) {

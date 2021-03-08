@@ -154,12 +154,13 @@ unique_ptr<Species> newSpecies(const AnyMap& node)
     const static std::set<std::string> known_keys{
         "thermo", "transport"
     };
-    s->input.applyUnits(node.units());
+    s->input.setUnits(node.units());
     for (const auto& item : node) {
         if (known_keys.count(item.first) == 0) {
             s->input[item.first] = item.second;
         }
     }
+    s->input.applyUnits();
 
     return s;
 }

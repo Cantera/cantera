@@ -533,6 +533,11 @@ public:
     //! @see applyUnits(const UnitSystem&)
     void applyUnits(shared_ptr<UnitSystem>& units);
 
+    //! Set the unit system for this AnyMap. The applyUnits() method should be
+    //! called on the root AnyMap object after all desired calls to setUnits()
+    //! in the tree have been made.
+    void setUnits(const UnitSystem& units);
+
     //! Use "flow" style when outputting this AnyMap to YAML
     void setFlowStyle(bool flow=true);
 
