@@ -7,6 +7,7 @@
 #define CT_YAMLWRITER_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/Units.h"
 
 namespace Cantera
 {
@@ -46,6 +47,11 @@ public:
         m_skip_user_defined = skip;
     }
 
+    //! Set the units to be used in the output file
+    void setUnits(const UnitSystem& units) {
+        m_output_units = units;
+    }
+
 protected:
     std::vector<shared_ptr<Solution>> m_phases;
 
@@ -54,6 +60,10 @@ protected:
 
     //! @see skipUserDefined()
     bool m_skip_user_defined;
+
+    //! Top-level units directive for the output file. Defaults to Cantera's
+    //! native SI+kmol system.
+    UnitSystem m_output_units;
 };
 
 }

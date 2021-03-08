@@ -64,6 +64,7 @@ cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
         CxxAnyValue& operator[](string) except +translate_exception
         cbool hasKey(string)
         string keys_str()
+        void applyUnits()
 
     cdef cppclass CxxAnyValue "Cantera::AnyValue":
         CxxAnyValue()

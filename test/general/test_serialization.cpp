@@ -107,6 +107,31 @@ TEST(YamlWriter, reactions)
     }
 }
 
+TEST(YamlWriter, reactionUnits)
+{
+    auto original = newSolution("h2o2.yaml");
+    YamlWriter writer;
+    writer.addPhase(original);
+    writer.setPrecision(14);
+    UnitSystem outUnits;
+    std::map<std::string, std::string> defaults = {{"activation-energy", "K"}};
+    outUnits.setDefaults(defaults);
+    writer.setUnits(outUnits);
+    writer.toYamlFile("generated-h2o2-K.yaml");
+    auto duplicate = newSolution("generated-h2o2-K.yaml");
+
+    auto kin1 = original->kinetics();
+    auto kin2 = duplicate->kinetics();
+
+    ASSERT_EQ(kin1->nReactions(), kin2->nReactions());
+    vector_fp kf1(kin1->nReactions()), kf2(kin1->nReactions());
+    kin1->getFwdRateConstants(kf1.data());
+    kin2->getFwdRateConstants(kf2.data());
+    for (size_t i = 0; i < kin1->nReactions(); i++) {
+        EXPECT_NEAR(kf1[i], kf2[i], 1e-13 * kf1[i]) << "for reaction i = " << i;
+    }
+}
+
 TEST(YamlWriter, multipleReactionSections)
 {
     auto original1 = newSolution("h2o2.yaml");
