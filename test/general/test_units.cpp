@@ -144,7 +144,8 @@ TEST(Units, from_anymap) {
         "{p: 12 bar, v: 10, A: 1 cm^2, V: 1,"
         " k1: [5e2, 2, 29000], k2: [1e14, -1, 1300 cal/kmol]}");
     UnitSystem U({"mm", "min", "atm"});
-    m.applyUnits(U);
+    m.setUnits(U);
+    m.applyUnits();
     EXPECT_DOUBLE_EQ(m.convert("p", "Pa"), 12e5);
     EXPECT_DOUBLE_EQ(m.convert("v", "cm/min"), 1.0);
     EXPECT_DOUBLE_EQ(m.convert("A", "mm^2"), 100);
@@ -154,7 +155,8 @@ TEST(Units, from_anymap) {
     EXPECT_DOUBLE_EQ(U.convertActivationEnergy(k1[2], "J/kmol"), 29000);
 
     // calling applyUnits again should not affect results
-    m.applyUnits(U);
+    m.setUnits(U);
+    m.applyUnits();
     EXPECT_DOUBLE_EQ(m.convert("p", "Pa"), 12e5);
     EXPECT_DOUBLE_EQ(U.convert(k1[0], "m^3/kmol"), 1e-9*5e2);
 }
@@ -172,9 +174,45 @@ TEST(Units, to_anymap) {
     AnyMap m;
     m["h0"].setQuantity(90, "kJ/kg");
     m["density"].setQuantity({10, 20}, "kg/m^3");
-    m.applyUnits(U);
+    m.setUnits(U);
+    m.applyUnits();
     EXPECT_DOUBLE_EQ(m["h0"].asDouble(), 90e3 / 4184);
     EXPECT_DOUBLE_EQ(m["density"].asVector<double>()[1], 20.0 * 1e-6);
+}
+
+TEST(Units, to_anymap_nested) {
+    UnitSystem U1{"g", "cm", "mol"};
+    UnitSystem U2{"mg", "km"};
+    for (int i = 0; i < 4; i++) {
+        AnyMap m;
+        m["A"].setQuantity(90, "kg/m");
+        m["nested"]["B"].setQuantity(12, "m^2");
+        auto C = std::vector<AnyMap>(2);
+        C[0]["foo"].setQuantity(17, "m^2");
+        C[1]["bar"].setQuantity(19, "kmol");
+        m["nested"]["C"] = C;
+        // Test different orders of setting units, and repeated calls to setUnits
+        if (i == 0) {
+            m.setUnits(U1);
+            m["nested"].as<AnyMap>().setUnits(U2);
+        } else if (i == 1) {
+            m["nested"].as<AnyMap>().setUnits(U2);
+            m.setUnits(U1);
+        } else if (i == 2) {
+            m.setUnits(U1);
+            m["nested"].as<AnyMap>().setUnits(U2);
+            m.setUnits(U1);
+        } else if (i == 3) {
+            m["nested"].as<AnyMap>().setUnits(U2);
+            m.setUnits(U1);
+            m["nested"].as<AnyMap>().setUnits(U2);
+        }
+        m.applyUnits();
+        EXPECT_DOUBLE_EQ(m["A"].asDouble(), 900) << "case " << i;
+        EXPECT_DOUBLE_EQ(m["nested"]["B"].asDouble(), 12e-6) << "case " << i;
+        EXPECT_DOUBLE_EQ(m["nested"]["C"].asVector<AnyMap>()[0]["foo"].asDouble(), 17e-6);
+        EXPECT_DOUBLE_EQ(m["nested"]["C"].asVector<AnyMap>()[1]["bar"].asDouble(), 19000);
+    }
 }
 
 TEST(Units, from_yaml) {
