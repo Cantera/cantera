@@ -202,7 +202,7 @@ void ElementaryReaction::getParameters(AnyMap& reactionNode) const
         reactionNode["negative-A"] = true;
     }
     AnyMap rateNode;
-    rate.getParameters(rateNode);
+    rate.getParameters(rateNode, rate_units);
     reactionNode["rate-constant"] = std::move(rateNode);
 }
 
@@ -311,10 +311,10 @@ void FalloffReaction::getParameters(AnyMap& reactionNode) const
     Reaction::getParameters(reactionNode);
     reactionNode["type"] = "falloff";
     AnyMap lowRateNode;
-    low_rate.getParameters(lowRateNode);
+    low_rate.getParameters(lowRateNode, low_rate_units);
     reactionNode["low-P-rate-constant"] = std::move(lowRateNode);
     AnyMap highRateNode;
-    high_rate.getParameters(highRateNode);
+    high_rate.getParameters(highRateNode, rate_units);
     reactionNode["high-P-rate-constant"] = std::move(highRateNode);
     falloff->getParameters(reactionNode);
 
@@ -366,8 +366,8 @@ void PlogReaction::getParameters(AnyMap& reactionNode) const
     std::vector<AnyMap> rateList;
     for (const auto& r : rate.rates()) {
         AnyMap rateNode;
-        rateNode["P"] = r.first;
-        r.second.getParameters(rateNode);
+        rateNode["P"].setQuantity(r.first, "Pa");
+        r.second.getParameters(rateNode, rate_units);
         rateList.push_back(std::move(rateNode));
     }
     reactionNode["rate-constants"] = std::move(rateList);
@@ -420,7 +420,6 @@ CustomFunc1Reaction::CustomFunc1Reaction()
 void CustomFunc1Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
 {
     Reaction2::setParameters(node, kin);
-    Units rate_units; // @todo Not needed once `rate_units` is implemented.
     setRate(
         std::shared_ptr<CustomFunc1Rate>(new CustomFunc1Rate(node, rate_units)));
 }
@@ -435,9 +434,6 @@ void TestReaction::setParameters(const AnyMap& node, const Kinetics& kin)
 {
     Reaction2::setParameters(node, kin);
 
-    // @todo Rate units will become available as `rate_units` after
-    // serialization is fully implemented.
-    Units rate_units = rateCoeffUnits(*this, kin);
     setRate(
         std::shared_ptr<ArrheniusRate>(new ArrheniusRate(node, rate_units)));
     allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
@@ -447,8 +443,8 @@ void ChebyshevReaction::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
     reactionNode["type"] = "Chebyshev";
-    reactionNode["temperature-range"] = vector_fp{rate.Tmin(), rate.Tmax()};
-    reactionNode["pressure-range"] = vector_fp{rate.Pmin(), rate.Pmax()};
+    reactionNode["temperature-range"].setQuantity({rate.Tmin(), rate.Tmax()}, "K");
+    reactionNode["pressure-range"].setQuantity({rate.Pmin(), rate.Pmax()}, "Pa");
     const auto& coeffs1d = rate.coeffs();
     size_t nT = rate.nTemperature();
     size_t nP = rate.nPressure();
@@ -458,7 +454,15 @@ void ChebyshevReaction::getParameters(AnyMap& reactionNode) const
             coeffs2d[i][j] = coeffs1d[nP*i + j];
         }
     }
-    reactionNode["data"] = std::move(coeffs2d);
+    // Unit conversions must take place later, after the destination unit system
+    // is known. A lambda function is used here to override the default behavior
+    Units rate_units2 = rate_units;
+    auto converter = [rate_units2](AnyValue& coeffs, const UnitSystem& units) {
+        coeffs.asVector<vector_fp>()[0][0] += std::log10(units.convertFrom(1.0, rate_units2));
+    };
+    AnyValue coeffs;
+    coeffs = std::move(coeffs2d);
+    reactionNode["data"].setQuantity(coeffs, converter);
 }
 
 InterfaceReaction::InterfaceReaction()
@@ -498,7 +502,7 @@ void InterfaceReaction::getParameters(AnyMap& reactionNode) const
             AnyMap dep;
             dep["a"] = d.second.a;
             dep["m"] = d.second.m;
-            dep["E"] = d.second.E;
+            dep["E"].setQuantity(d.second.E, "K", true);
             deps[d.first] = std::move(dep);
         }
         reactionNode["coverage-dependencies"] = std::move(deps);
@@ -538,16 +542,11 @@ Arrhenius readArrhenius(const XML_Node& arrhenius_node)
                      getFloat(arrhenius_node, "E", "actEnergy") / GasConstant);
 }
 
-Units rateCoeffUnits(const Reaction& R, const Kinetics& kin,
-                     int pressure_dependence)
+Units rateCoeffUnits(const Reaction& R, const Kinetics& kin)
 {
     if (!R.valid()) {
         // If a reaction is invalid because of missing species in the Kinetics
         // object, determining the units of the rate coefficient is impossible.
-        return Units();
-    } else if (R.type() == "interface"
-               && dynamic_cast<const InterfaceReaction&>(R).is_sticking_coefficient) {
-        // Sticking coefficients are dimensionless
         return Units();
     }
 
@@ -564,15 +563,13 @@ Units rateCoeffUnits(const Reaction& R, const Kinetics& kin,
         // unless already overridden by user-specified orders
         if (stoich.first == "M") {
             rcUnits *= rxn_phase_units.pow(-1);
+        } else if (ba::starts_with(stoich.first, "(+")) {
+            continue;
         } else if (R.orders.find(stoich.first) == R.orders.end()) {
             const auto& phase = kin.speciesPhase(stoich.first);
             rcUnits *= phase.standardConcentrationUnits().pow(-stoich.second);
         }
     }
-
-    // Incorporate pressure dependence for low-pressure falloff and high-
-    // pressure chemically-activated reaction limits
-    rcUnits *= rxn_phase_units.pow(-pressure_dependence);
     return rcUnits;
 }
 
@@ -580,10 +577,24 @@ Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate,
                         const Kinetics& kin, const UnitSystem& units,
                         int pressure_dependence=0)
 {
-    Units rate_units = rateCoeffUnits(R, kin, pressure_dependence);
-    Arrhenius arr;
-    arr.setParameters(rate, units, rate_units);
-    return arr;
+    double A, b, Ta;
+    Units rc_units = R.rate_units;
+    if (pressure_dependence) {
+        Units rxn_phase_units = kin.thermo(kin.reactionPhaseIndex()).standardConcentrationUnits();
+        rc_units *= rxn_phase_units.pow(-pressure_dependence);
+    }
+    if (rate.is<AnyMap>()) {
+        auto& rate_map = rate.as<AnyMap>();
+        A = units.convert(rate_map["A"], rc_units);
+        b = rate_map["b"].asDouble();
+        Ta = units.convertActivationEnergy(rate_map["Ea"], "K");
+    } else {
+        auto& rate_vec = rate.asVector<AnyValue>(3);
+        A = units.convert(rate_vec[0], rc_units);
+        b = rate_vec[1].asDouble();
+        Ta = units.convertActivationEnergy(rate_vec[2], "K");
+    }
+    return Arrhenius(A, b, Ta);
 }
 
 //! Parse falloff parameters, given a rateCoeff node
@@ -695,6 +706,9 @@ void setupReaction(Reaction& R, const XML_Node& rxn_node)
     R.duplicate = rxn_node.hasAttrib("duplicate");
     const std::string& rev = rxn_node["reversible"];
     R.reversible = (rev == "true" || rev == "yes");
+
+    // Prevent invalid conversions of the rate coefficient
+    R.rate_units = Units(0.0);
 }
 
 void parseReactionEquation(Reaction& R, const AnyValue& equation,
@@ -782,6 +796,7 @@ void setupReaction(Reaction& R, const AnyMap& node, const Kinetics& kin)
     R.allow_negative_orders = node.getBool("negative-orders", false);
     R.allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
 
+    R.rate_units = rateCoeffUnits(R, kin);
     R.input = node;
 }
 
@@ -861,6 +876,7 @@ void setupFalloffReaction(FalloffReaction& R, const XML_Node& rxn_node)
     if (rxn_node["negative_A"] == "yes") {
         R.allow_negative_pre_exponential_factor = true;
     }
+    R.low_rate_units = Units(0.0);
     readFalloff(R, rc_node);
     readEfficiencies(R.third_body, rc_node);
     setupReaction(R, rxn_node);
@@ -904,16 +920,20 @@ void setupFalloffReaction(FalloffReaction& R, const AnyMap& node,
         R.third_body.efficiencies[third_body.substr(2, third_body.size() - 3)] = 1.0;
     }
 
+    R.low_rate_units = R.rate_units;
+    Units rxn_phase_units = kin.thermo(kin.reactionPhaseIndex()).standardConcentrationUnits();
     if (node["type"] == "falloff") {
         R.low_rate = readArrhenius(R, node["low-P-rate-constant"], kin,
                                    node.units(), 1);
         R.high_rate = readArrhenius(R, node["high-P-rate-constant"], kin,
                                     node.units());
+        R.low_rate_units *= rxn_phase_units.pow(-1);
     } else { // type == "chemically-activated"
         R.low_rate = readArrhenius(R, node["low-P-rate-constant"], kin,
                                    node.units());
         R.high_rate = readArrhenius(R, node["high-P-rate-constant"], kin,
                                     node.units(), -1);
+        R.rate_units *= rxn_phase_units;
     }
 
     readFalloff(R, node);
@@ -943,6 +963,7 @@ void setupChemicallyActivatedReaction(ChemicallyActivatedReaction& R,
         throw CanteraError("setupChemicallyActivatedReaction", "Did not find "
             "the correct number of Arrhenius rate expressions");
     }
+    R.low_rate_units = Units(0.0);
     readFalloff(R, rc_node);
     readEfficiencies(R.third_body, rc_node);
     setupReaction(R, rxn_node);
@@ -1020,8 +1041,7 @@ void setupChebyshevReaction(ChebyshevReaction&R, const AnyMap& node,
         }
     }
     const UnitSystem& units = node.units();
-    Units rcUnits = rateCoeffUnits(R, kin);
-    coeffs(0, 0) += std::log10(units.convertTo(1.0, rcUnits));
+    coeffs(0, 0) += std::log10(units.convertTo(1.0, R.rate_units));
     R.rate = ChebyshevRate(units.convert(T_range[0], "K"),
                            units.convert(T_range[1], "K"),
                            units.convert(P_range[0], "Pa"),
@@ -1069,6 +1089,7 @@ void setupInterfaceReaction(InterfaceReaction& R, const AnyMap& node,
         R.rate = readArrhenius(R, node["rate-constant"], kin, node.units());
     } else if (node.hasKey("sticking-coefficient")) {
         R.is_sticking_coefficient = true;
+        R.rate_units = Units(); // sticking coefficients are dimensionless
         R.rate = readArrhenius(R, node["sticking-coefficient"], kin, node.units());
         R.use_motz_wise_correction = node.getBool("Motz-Wise",
             kin.thermo().input().getBool("Motz-Wise", false));

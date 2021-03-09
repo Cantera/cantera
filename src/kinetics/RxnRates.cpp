@@ -51,9 +51,17 @@ void Arrhenius::setParameters(const AnyValue& rate,
     }
 }
 
-void Arrhenius::getParameters(AnyMap& rateNode) const
+void Arrhenius::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
-    rateNode["A"] = preExponentialFactor();
+    if (rate_units.factor() != 0.0) {
+        rateNode["A"].setQuantity(preExponentialFactor(), rate_units);
+    } else {
+        // @TODO: This branch can be removed after CTI/XML support is removed
+        // in Cantera 3.0.
+        rateNode["A"] = preExponentialFactor();
+        rateNode["__unconvertible__"] = true;
+    }
+
     rateNode["b"] = temperatureExponent();
     rateNode["Ea"].setQuantity(activationEnergy_R(), "K", true);
     rateNode.setFlowStyle();
