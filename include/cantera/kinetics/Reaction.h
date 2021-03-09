@@ -10,6 +10,8 @@
 
 #include "cantera/base/AnyMap.h"
 #include "cantera/kinetics/ReactionRate.h"
+#include "cantera/kinetics/RxnRates.h"
+#include "cantera/base/Units.h"
 
 namespace Cantera
 {
@@ -103,6 +105,11 @@ public:
 
     //! Input data used for specific models
     AnyMap input;
+
+    //! The units of the rate constant. These are determined by the units of the
+    //! standard concentration of the reactant species' phases of the phase
+    //! where the reaction occurs.
+    Units rate_units;
 
 protected:
     //! Flag indicating whether reaction is set up correctly
@@ -226,6 +233,10 @@ public:
     shared_ptr<Falloff> falloff;
 
     bool allow_negative_pre_exponential_factor;
+
+    //! The units of the low-pressure rate constant. The units of the
+    //! high-pressure rate constant are stored in #rate_units.
+    Units low_rate_units;
 };
 
 //! A reaction where the rate decreases as pressure increases due to collisional
@@ -428,8 +439,7 @@ void parseReactionEquation(Reaction& R, const AnyValue& equation,
 //!
 //! @todo Rate units will become available as `rate_units` after serialization
 //!     is implemented.
-Units rateCoeffUnits(const Reaction& R, const Kinetics& kin,
-                     int pressure_dependence=0);
+Units rateCoeffUnits(const Reaction& R, const Kinetics& kin);
 
 // declarations of setup functions
 void setupElementaryReaction(ElementaryReaction&, const XML_Node&);

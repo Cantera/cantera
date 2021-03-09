@@ -107,18 +107,86 @@ TEST(YamlWriter, reactions)
     }
 }
 
-TEST(YamlWriter, reactionUnits)
+TEST(YamlWriter, reaction_units_from_Yaml)
 {
     auto original = newSolution("h2o2.yaml");
     YamlWriter writer;
     writer.addPhase(original);
     writer.setPrecision(14);
     UnitSystem outUnits;
-    std::map<std::string, std::string> defaults = {{"activation-energy", "K"}};
+    std::map<std::string, std::string> defaults = {
+        {"activation-energy", "K"},
+        {"quantity", "mol"},
+        {"length", "cm"}
+    };
     outUnits.setDefaults(defaults);
     writer.setUnits(outUnits);
-    writer.toYamlFile("generated-h2o2-K.yaml");
-    auto duplicate = newSolution("generated-h2o2-K.yaml");
+    writer.toYamlFile("generated-h2o2-outunits.yaml");
+    auto duplicate = newSolution("generated-h2o2-outunits.yaml");
+
+    auto kin1 = original->kinetics();
+    auto kin2 = duplicate->kinetics();
+
+    ASSERT_EQ(kin1->nReactions(), kin2->nReactions());
+    vector_fp kf1(kin1->nReactions()), kf2(kin1->nReactions());
+    kin1->getFwdRateConstants(kf1.data());
+    kin2->getFwdRateConstants(kf2.data());
+    for (size_t i = 0; i < kin1->nReactions(); i++) {
+        EXPECT_NEAR(kf1[i], kf2[i], 1e-13 * kf1[i]) << "for reaction i = " << i;
+    }
+}
+
+TEST(YamlWriter, reaction_units_from_Xml)
+{
+    auto original = newSolution("h2o2.xml");
+    YamlWriter writer;
+    writer.addPhase(original);
+    writer.setPrecision(14);
+    UnitSystem outUnits;
+    std::map<std::string, std::string> defaults = {
+        {"activation-energy", "K"},
+        {"quantity", "mol"},
+        {"length", "cm"}
+    };
+    outUnits.setDefaults(defaults);
+    writer.setUnits(outUnits);
+    // Should fail because pre-exponential factors from XML can't be converted
+    EXPECT_THROW(writer.toYamlFile("generated-h2o2-fail.yaml"), CanteraError);
+
+    // Outputting with the default MKS+kmol system still works
+    writer.setUnits(UnitSystem());
+    writer.toYamlFile("generated-h2o2-from-xml.yaml");
+    auto duplicate = newSolution("generated-h2o2-from-xml.yaml");
+
+    auto kin1 = original->kinetics();
+    auto kin2 = duplicate->kinetics();
+
+    ASSERT_EQ(kin1->nReactions(), kin2->nReactions());
+    vector_fp kf1(kin1->nReactions()), kf2(kin1->nReactions());
+    kin1->getFwdRateConstants(kf1.data());
+    kin2->getFwdRateConstants(kf2.data());
+    for (size_t i = 0; i < kin1->nReactions(); i++) {
+        EXPECT_NEAR(kf1[i], kf2[i], 1e-13 * kf1[i]) << "for reaction i = " << i;
+    }
+}
+
+TEST(YamlWriter, chebyshev_units_from_Yaml)
+{
+    auto original = newSolution("pdep-test.yaml");
+    YamlWriter writer;
+    writer.addPhase(original);
+    writer.setPrecision(14);
+    UnitSystem outUnits;
+    std::map<std::string, std::string> defaults = {
+        {"activation-energy", "K"},
+        {"quantity", "mol"},
+        {"length", "cm"},
+        {"pressure", "atm"}
+    };
+    outUnits.setDefaults(defaults);
+    writer.setUnits(outUnits);
+    writer.toYamlFile("generated-pdep-test.yaml");
+    auto duplicate = newSolution("generated-pdep-test.yaml");
 
     auto kin1 = original->kinetics();
     auto kin2 = duplicate->kinetics();

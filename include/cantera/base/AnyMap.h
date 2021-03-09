@@ -22,6 +22,7 @@ namespace YAML
 {
 class Emitter;
 Emitter& operator<<(Emitter& out, const Cantera::AnyMap& rhs);
+Emitter& operator<<(Emitter& out, const Cantera::AnyValue& rhs);
 }
 
 namespace Cantera
@@ -137,8 +138,32 @@ public:
     friend bool operator==(const std::string& lhs, const AnyValue& rhs);
     friend bool operator!=(const std::string& lhs, const AnyValue& rhs);
 
+    //! @name Quantity conversions
+    //! Assign a quantity consisting of one or more values and their
+    //! corresponding units, which will be converted to a target unit system
+    //! when the applyUnits() function is later called on the root of the
+    //! AnyMap.
+    //! @{
+
+    //! Assign a scalar quantity with units as a string, for example
+    //! `{3.0, "m^2"}`. If the `is_act_energy` flag is set to `true`, the units
+    //! will be converted using the special rules for activation energies.
     void setQuantity(double value, const std::string& units, bool is_act_energy=false);
+
+    //! Assign a scalar quantity with units as a Units object, for cases where
+    //! the units vary and are determined dynamically, such as reaction
+    //! pre-exponential factors
+    void setQuantity(double value, const Units& units);
+
+    //! Assign a vector where all the values have the same units
     void setQuantity(const vector_fp& values, const std::string& units);
+
+    typedef std::function<void(AnyValue&, const UnitSystem&)> unitConverter;
+
+    //! Assign a value of any type where the unit conversion requires a
+    //! different behavior besides scaling all values by the same factor
+    void setQuantity(const AnyValue& value, const unitConverter& converter);
+    //! @} end group quantity conversions
 
     explicit AnyValue(double value);
     AnyValue& operator=(double value);
@@ -271,6 +296,8 @@ private:
     static bool vector2_eq(const boost::any& lhs, const boost::any& rhs);
 
     mutable Comparer m_equals;
+
+    friend YAML::Emitter& YAML::operator<<(YAML::Emitter& out, const AnyValue& rhs);
 };
 
 //! Implicit conversion to vector<AnyValue>

@@ -196,6 +196,7 @@ struct Quantity
     AnyValue value;
     Units units;
     bool isActivationEnergy;
+    AnyValue::unitConverter converter;
 
     bool operator==(const Quantity& other) const {
     return value == other.value && units == other.units
@@ -245,8 +246,6 @@ struct convert<Cantera::AnyMap> {
         return true;
     }
 };
-
-YAML::Emitter& operator<<(YAML::Emitter& out, const AnyValue& rhs);
 
 YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
 {
@@ -412,7 +411,8 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyValue& rhs)
             out << rhs.asBool();
         } else {
             throw CanteraError("operator<<(YAML::Emitter&, AnyValue&)",
-                "Don't know how to encode value of type '{}'", rhs.type_str());
+                "Don't know how to encode value of type '{}' with key '{}'",
+                rhs.type_str(), rhs.m_key);
         }
     } else if (rhs.is<AnyMap>()) {
         out << rhs.as<AnyMap>();
@@ -459,7 +459,8 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyValue& rhs)
         out << YAML::EndSeq;
     } else {
         throw CanteraError("operator<<(YAML::Emitter&, AnyValue&)",
-            "Don't know how to encode value of type '{}'", rhs.type_str());
+            "Don't know how to encode value of type '{}' with key '{}'",
+            rhs.type_str(), rhs.m_key);
     }
     return out;
 }
@@ -744,12 +745,24 @@ void AnyValue::setQuantity(double value, const std::string& units, bool is_act_e
     m_equals = eq_comparer<Quantity>;
 }
 
+void AnyValue::setQuantity(double value, const Units& units) {
+    *m_value = Quantity{AnyValue(value), units, false};
+    m_equals = eq_comparer<Quantity>;
+}
+
 void AnyValue::setQuantity(const vector_fp& values, const std::string& units) {
     AnyValue v;
     v = values;
     *m_value = Quantity{v, Units(units), false};
     m_equals = eq_comparer<Quantity>;
 }
+
+void AnyValue::setQuantity(const AnyValue& value, const unitConverter& converter)
+{
+    *m_value = Quantity{value, Units(0.0), false, converter};
+    m_equals = eq_comparer<Quantity>;
+}
+
 
 // Specializations for "double"
 
@@ -1057,8 +1070,21 @@ std::pair<int, int> AnyValue::order() const
 void AnyValue::applyUnits(shared_ptr<UnitSystem>& units)
 {
     if (is<AnyMap>()) {
+        AnyMap& m = as<AnyMap>();
+
+        //! @todo Remove this check after CTI/XML support is removed in Cantera 3.0.
+        if (m.getBool("__unconvertible__", false)) {
+            AnyMap delta = units->getDelta(UnitSystem());
+            if (delta.hasKey("length") || delta.hasKey("quantity")
+                || delta.hasKey("time"))
+            {
+                throw CanteraError("AnyValue::applyUnits", "AnyMap contains"
+                    " values that cannot be converted to non-default unit"
+                    " systems (probably reaction rates read from XML files)");
+            }
+        }
         // Units declaration applicable to this map
-        as<AnyMap>().applyUnits(units);
+        m.applyUnits(units);
     } else if (is<std::vector<AnyMap>>()) {
         auto& list = as<std::vector<AnyMap>>();
         if (list.size() && list[0].hasKey("units") && list[0].size() == 1) {
@@ -1109,7 +1135,10 @@ void AnyValue::applyUnits(shared_ptr<UnitSystem>& units)
         }
     } else if (is<Quantity>()) {
         auto& Q = as<Quantity>();
-        if (Q.value.is<double>()) {
+        if (Q.converter) {
+            Q.converter(Q.value, *units);
+            *this = std::move(Q.value);
+        } else if (Q.value.is<double>()) {
             if (Q.isActivationEnergy) {
                 *this = Q.value.as<double>() / units->convertActivationEnergyTo(1.0, Q.units);
             } else {
