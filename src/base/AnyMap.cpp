@@ -1133,6 +1133,10 @@ void AnyValue::applyUnits(shared_ptr<UnitSystem>& units)
                 item.applyUnits(units);
             }
         }
+    } else if (is<vector<AnyValue>>()) {
+        for (auto& v : as<vector<AnyValue>>()) {
+            v.applyUnits(units);
+        }
     } else if (is<Quantity>()) {
         auto& Q = as<Quantity>();
         if (Q.converter) {
@@ -1150,6 +1154,10 @@ void AnyValue::applyUnits(shared_ptr<UnitSystem>& units)
             vector_fp converted(old.size());
             scale(old.begin(), old.end(), converted.begin(), factor);
             *this = std::move(converted);
+        } else {
+            throw CanteraError("AnyValue::applyUnits", "Don't know how to "
+                "convert Quantity with held type '{}' in key '{}'",
+                Q.value.type_str(), m_key);
         }
     }
 }

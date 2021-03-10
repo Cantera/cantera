@@ -300,7 +300,7 @@ void LatticePhase::initThermo()
 void LatticePhase::getParameters(AnyMap& phaseNode) const
 {
     ThermoPhase::getParameters(phaseNode);
-    phaseNode["site-density"] = m_site_density;
+    phaseNode["site-density"].setQuantity(m_site_density, "kmol/m^3");
 }
 
 void LatticePhase::getSpeciesParameters(const std::string& name,
@@ -318,20 +318,23 @@ void LatticePhase::getSpeciesParameters(const std::string& name,
 
         if (eosIn.hasKey("density")) {
             eosOut["model"] = "constant-volume";
-            eosOut["density"] = molecularWeight(k) / m_speciesMolarVolume[k];
+            eosOut["density"].setQuantity(
+                molecularWeight(k) / m_speciesMolarVolume[k], "kg/m^3");
         } else if (eosIn.hasKey("molar-density")) {
             eosOut["model"] = "constant-volume";
-            eosOut["molar-density"] = 1.0 / m_speciesMolarVolume[k];
+            eosOut["molar-density"].setQuantity(1.0 / m_speciesMolarVolume[k],
+                                                "kmol/m^3");
         } else if (eosIn.hasKey("molar-volume")) {
             eosOut["model"] = "constant-volume";
-            eosOut["molar-volume"] = m_speciesMolarVolume[k];
+            eosOut["molar-volume"].setQuantity(m_speciesMolarVolume[k],
+                                               "m^3/kmol");
         }
     } else if (S->input.hasKey("molar_volume")) {
         // Species came from XML
         auto& eosOut = speciesNode["equation-of-state"].getMapWhere(
             "model", "constant-volume", true);
         eosOut["model"] = "constant-volume";
-        eosOut["molar-volume"] = m_speciesMolarVolume[k];
+        eosOut["molar-volume"].setQuantity(m_speciesMolarVolume[k], "m^3/kmol");
     }
     // Otherwise, species volume is determined by the phase-level site density
 }

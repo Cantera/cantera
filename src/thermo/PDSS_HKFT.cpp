@@ -458,25 +458,22 @@ void PDSS_HKFT::getParameters(AnyMap& eosNode) const
 {
     PDSS::getParameters(eosNode);
     eosNode["model"] = "HKFT";
-    UnitSystem U;
-    U.setDefaults({"cal", "gmol", "bar"});
-    eosNode["h0"] = U.convertTo(m_deltaH_formation_tr_pr, "J/kmol");
-    eosNode["g0"] = U.convertTo(m_deltaG_formation_tr_pr, "J/kmol");
-    eosNode["s0"] = U.convertTo(m_Entrop_tr_pr, "J/kmol/K");
+    eosNode["h0"].setQuantity(m_deltaH_formation_tr_pr, "cal/gmol");
+    eosNode["g0"].setQuantity(m_deltaG_formation_tr_pr, "cal/gmol");
+    eosNode["s0"].setQuantity(m_Entrop_tr_pr, "cal/gmol/K");
 
-    eosNode["a"] = vector_fp{
-        U.convertTo(m_a1, "J/kmol/Pa"),
-        U.convertTo(m_a2, "J/kmol"),
-        U.convertTo(m_a3, "J*K/kmol/Pa"),
-        U.convertTo(m_a4, "J*K/kmol")
-    };
+    std::vector<AnyValue> a(4), c(2);
+    a[0].setQuantity(m_a1, "cal/gmol/bar");
+    a[1].setQuantity(m_a2, "cal/gmol");
+    a[2].setQuantity(m_a3, "cal*K/gmol/bar");
+    a[3].setQuantity(m_a4, "cal*K/gmol");
+    eosNode["a"] = std::move(a);
 
-    eosNode["c"] = vector_fp{
-        U.convertTo(m_c1, "J/kmol/K"),
-        U.convertTo(m_c2, "J*K/kmol")
-    };
+    c[0].setQuantity(m_c1, "cal/gmol/K");
+    c[1].setQuantity(m_c2, "cal*K/gmol");
+    eosNode["c"] = std::move(c);
 
-    eosNode["omega"] = U.convertTo(m_omega_pr_tr, "J/kmol");
+    eosNode["omega"].setQuantity(m_omega_pr_tr, "cal/gmol");
 }
 
 doublereal PDSS_HKFT::deltaH() const

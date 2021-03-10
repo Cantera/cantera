@@ -204,7 +204,7 @@ void MargulesVPSSTP::initThermo()
                 s = item.convertVector("excess-entropy", "J/kmol/K", 2);
             }
             if (item.hasKey("excess-volume-enthalpy")) {
-                vh = item.convertVector("excess-volume-enthalpy", "m^3/kmol/K", 2);
+                vh = item.convertVector("excess-volume-enthalpy", "m^3/kmol", 2);
             }
             if (item.hasKey("excess-volume-entropy")) {
                 vs = item.convertVector("excess-volume-entropy", "m^3/kmol/K", 2);
@@ -225,20 +225,20 @@ void MargulesVPSSTP::getParameters(AnyMap& phaseNode) const
         interaction["species"] = vector<std::string>{
             speciesName(m_pSpecies_A_ij[n]), speciesName(m_pSpecies_B_ij[n])};
         if (m_HE_b_ij[n] != 0 || m_HE_c_ij[n] != 0) {
-            interaction["excess-enthalpy"] =
-                vector_fp{m_HE_b_ij[n], m_HE_c_ij[n]};
+            interaction["excess-enthalpy"].setQuantity(
+                {m_HE_b_ij[n], m_HE_c_ij[n]}, "J/kmol");
         }
         if (m_SE_b_ij[n] != 0 || m_SE_c_ij[n] != 0) {
-            interaction["excess-entropy"] =
-                vector_fp{m_SE_b_ij[n], m_SE_c_ij[n]};
+            interaction["excess-entropy"].setQuantity(
+                {m_SE_b_ij[n], m_SE_c_ij[n]}, "J/kmol/K");
         }
         if (m_VHE_b_ij[n] != 0 || m_VHE_c_ij[n] != 0) {
-            interaction["excess-volume-enthalpy"] =
-                vector_fp{m_VHE_b_ij[n], m_VHE_c_ij[n]};
+            interaction["excess-volume-enthalpy"].setQuantity(
+                {m_VHE_b_ij[n], m_VHE_c_ij[n]}, "m^3/kmol");
         }
         if (m_VSE_b_ij[n] != 0 || m_VSE_c_ij[n] != 0) {
-            interaction["excess-volume-entropy"] =
-                vector_fp{m_VSE_b_ij[n], m_VSE_c_ij[n]};
+            interaction["excess-volume-entropy"].setQuantity(
+                {m_VSE_b_ij[n], m_VSE_c_ij[n]}, "m^3/kmol/K");
         }
         interactions.push_back(std::move(interaction));
     }

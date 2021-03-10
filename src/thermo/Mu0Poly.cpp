@@ -161,8 +161,8 @@ void Mu0Poly::getParameters(AnyMap& thermo) const
 {
     SpeciesThermoInterpType::getParameters(thermo);
     thermo["model"] = "piecewise-Gibbs";
-    thermo["h0"] = m_H298 * GasConstant;
-    map<std::string, double> data;
+    thermo["h0"].setQuantity(m_H298 * GasConstant, "J/kmol");
+    AnyMap data;
     bool dimensionless = m_input.getBool("dimensionless", false);
     if (dimensionless) {
         thermo["dimensionless"] = true;
@@ -171,10 +171,11 @@ void Mu0Poly::getParameters(AnyMap& thermo) const
         if (dimensionless) {
             data[fmt::format("{}", m_t0_int[i])] = m_mu0_R_int[i] / m_t0_int[i];
         } else {
-            data[fmt::format("{}", m_t0_int[i])] = m_mu0_R_int[i] * GasConstant;
+            data[fmt::format("{}", m_t0_int[i])].setQuantity(
+                m_mu0_R_int[i] * GasConstant, "J/kmol");
         }
     }
-    thermo["data"] = data;
+    thermo["data"] = std::move(data);
 }
 
 Mu0Poly* newMu0ThermoFromXML(const XML_Node& Mu0Node)

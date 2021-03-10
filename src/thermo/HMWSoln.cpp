@@ -827,7 +827,7 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
     if (m_form_A_Debye == A_DEBYE_WATER) {
         activityNode["A_Debye"] = "variable";
     } else if (m_A_Debye != A_Debye_default) {
-        activityNode["A_Debye"] = fmt::format("{} kg^0.5/gmol^0.5", m_A_Debye);
+        activityNode["A_Debye"].setQuantity(m_A_Debye, "kg^0.5/gmol^0.5");
     }
     if (m_maxIionicStrength != maxIionicStrength_default) {
         activityNode["max-ionic-strength"] = m_maxIionicStrength;

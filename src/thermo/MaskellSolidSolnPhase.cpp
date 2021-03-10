@@ -171,7 +171,7 @@ void MaskellSolidSolnPhase::initThermo()
 void MaskellSolidSolnPhase::getParameters(AnyMap& phaseNode) const
 {
     VPStandardStateTP::getParameters(phaseNode);
-    phaseNode["excess-enthalpy"] = h_mixing;
+    phaseNode["excess-enthalpy"].setQuantity(h_mixing, "J/kmol");
     phaseNode["product-species"] = speciesName(product_species_index);
 }
 

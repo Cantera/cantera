@@ -56,7 +56,7 @@ void PDSS_ConstVol::getParameters(AnyMap &eosNode) const
 {
     PDSS::getParameters(eosNode);
     eosNode["model"] = "constant-volume";
-    eosNode["molar-volume"] = m_constMolarVolume;
+    eosNode["molar-volume"].setQuantity(m_constMolarVolume, "m^3/kmol");
 }
 
 doublereal PDSS_ConstVol::intEnergy_mole() const

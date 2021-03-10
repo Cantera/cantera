@@ -168,14 +168,16 @@ void StoichSubstance::getSpeciesParameters(const std::string& name,
     if (S->input.hasKey("equation-of-state")) {
         auto& eosIn = S->input["equation-of-state"];
         if (eosIn.hasKey("density")) {
-            eosNode["density"] = density();
+            eosNode["density"].setQuantity(density(), "kg/m^3");
         } else if (eosIn.hasKey("molar-density")) {
-            eosNode["molar-density"] = density() / meanMolecularWeight();
+            eosNode["molar-density"].setQuantity(density() / meanMolecularWeight(),
+                                                 "kmol/m^3");
         } else {
-            eosNode["molar-volume"] = meanMolecularWeight() / density();
+            eosNode["molar-volume"].setQuantity(meanMolecularWeight() / density(),
+                                                "m^3/kmol");
         }
     } else {
-        eosNode["molar-volume"] = meanMolecularWeight() / density();
+        eosNode["molar-volume"].setQuantity(meanMolecularWeight() / density(), "m^3/kmol");
     }
 }
 

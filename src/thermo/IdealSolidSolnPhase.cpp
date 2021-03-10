@@ -440,14 +440,18 @@ void IdealSolidSolnPhase::getSpeciesParameters(const std::string &name,
     if (S->input.hasKey("equation-of-state")) {
         auto& eosIn = S->input["equation-of-state"];
         if (eosIn.hasKey("density")) {
-            eosNode["density"] = molecularWeight(k) / m_speciesMolarVolume[k];
+            eosNode["density"].setQuantity(
+                molecularWeight(k) / m_speciesMolarVolume[k], "kg/m^3");
         } else if (eosIn.hasKey("molar-density")) {
-            eosNode["molar-density"] = 1.0 / m_speciesMolarVolume[k];
+            eosNode["molar-density"].setQuantity(1.0 / m_speciesMolarVolume[k],
+                                                 "kmol/m^3");
         } else {
-            eosNode["molar-volume"] = m_speciesMolarVolume[k];
+            eosNode["molar-volume"].setQuantity(m_speciesMolarVolume[k],
+                                                "m^3/kmol");
         }
     } else {
-        eosNode["molar-volume"] = m_speciesMolarVolume[k];
+        eosNode["molar-volume"].setQuantity(m_speciesMolarVolume[k],
+                                            "m^3/kmol");
     }
 }
 
