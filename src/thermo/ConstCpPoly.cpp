@@ -86,10 +86,10 @@ void ConstCpPoly::getParameters(AnyMap& thermo) const
 {
     thermo["model"] = "constant-cp";
     SpeciesThermoInterpType::getParameters(thermo);
-    thermo["T0"] = m_t0;
-    thermo["h0"] = m_h0_R * GasConstant;
-    thermo["s0"] = m_s0_R * GasConstant;
-    thermo["cp0"] = m_cp0_R * GasConstant;
+    thermo["T0"].setQuantity(m_t0, "K");
+    thermo["h0"].setQuantity(m_h0_R * GasConstant, "J/kmol");
+    thermo["s0"].setQuantity(m_s0_R * GasConstant, "J/kmol/K");
+    thermo["cp0"].setQuantity(m_cp0_R * GasConstant, "J/kmol/K");
 }
 
 doublereal ConstCpPoly::reportHf298(doublereal* const h298) const

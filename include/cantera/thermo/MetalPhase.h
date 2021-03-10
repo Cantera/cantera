@@ -115,7 +115,7 @@ public:
 
     virtual void getParameters(AnyMap& phaseNode) const {
         ThermoPhase::getParameters(phaseNode);
-        phaseNode["density"] = density();
+        phaseNode["density"].setQuantity(density(), "kg/m^3");
     }
 
     virtual void setParametersFromXML(const XML_Node& eosdata) {

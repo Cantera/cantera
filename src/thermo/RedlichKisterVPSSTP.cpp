@@ -202,11 +202,12 @@ void RedlichKisterVPSSTP::getParameters(AnyMap& phaseNode) const
         while (s.size() > 1 && s.back() == 0) {
             s.pop_back();
         }
-        interaction["excess-enthalpy"] = std::move(h);
-        interaction["excess-entropy"] = std::move(s);
+        interaction["excess-enthalpy"].setQuantity(std::move(h), "J/kmol");
+        interaction["excess-entropy"].setQuantity(std::move(s), "J/kmol/K");
         interactions.push_back(std::move(interaction));
     }
-    phaseNode["interactions"] = std::move(interactions);}
+    phaseNode["interactions"] = std::move(interactions);
+}
 
 void RedlichKisterVPSSTP::initLengths()
 {

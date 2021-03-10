@@ -458,7 +458,15 @@ void ChebyshevReaction::getParameters(AnyMap& reactionNode) const
     // is known. A lambda function is used here to override the default behavior
     Units rate_units2 = rate_units;
     auto converter = [rate_units2](AnyValue& coeffs, const UnitSystem& units) {
-        coeffs.asVector<vector_fp>()[0][0] += std::log10(units.convertFrom(1.0, rate_units2));
+        if (rate_units2.factor() != 0.0) {
+            coeffs.asVector<vector_fp>()[0][0] += std::log10(units.convertFrom(1.0, rate_units2));
+        } else if (units.getDelta(UnitSystem()).size()) {
+            //! @todo This special case can be removed after Cantera 3.0 when
+            //! the XML/CTI formats are removed
+            throw CanteraError("ChebyshevReaction::getParameters lambda",
+                "Cannot convert rate constant from CTI/XML input to a "
+                "non-default unit system");
+        }
     };
     AnyValue coeffs;
     coeffs = std::move(coeffs2d);

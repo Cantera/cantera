@@ -332,7 +332,7 @@ public:
         SpeciesThermoInterpType::getParameters(thermo);
         thermo["model"] = "Shomate";
         vector_fp Tranges {m_lowT, m_midT, m_highT};
-        thermo["temperature-ranges"] = Tranges;
+        thermo["temperature-ranges"].setQuantity(Tranges, "K");
         thermo["data"] = std::vector<vector_fp>();
         msp_low.getParameters(thermo);
         msp_high.getParameters(thermo);

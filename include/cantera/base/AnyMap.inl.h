@@ -20,6 +20,16 @@ const T &AnyValue::as() const {
             // Implicit conversion of long int to double
             *m_value = static_cast<double>(as<long int>());
             m_equals = eq_comparer<double>;
+        } else if (typeid(T) == typeid(std::vector<double>)
+                   && m_value->type() == typeid(std::vector<AnyValue>)) {
+            // Implicit conversion of vector<AnyValue> to vector<double>
+            auto& asAny = as<std::vector<AnyValue>>();
+            vector_fp asDouble(asAny.size());
+            for (size_t i = 0; i < asAny.size(); i++) {
+                asDouble[i] = asAny[i].as<double>();
+            }
+            *m_value = std::move(asDouble);
+            m_equals = eq_comparer<std::vector<double>>;
         }
         return boost::any_cast<const T&>(*m_value);
     } catch (boost::bad_any_cast&) {

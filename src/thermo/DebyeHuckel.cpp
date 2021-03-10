@@ -626,11 +626,11 @@ void DebyeHuckel::getParameters(AnyMap& phaseNode) const
     if (m_form_A_Debye == A_DEBYE_WATER) {
         activityNode["A_Debye"] = "variable";
     } else if (m_A_Debye != A_Debye_default) {
-        activityNode["A_Debye"] = fmt::format("{} kg^0.5/gmol^0.5", m_A_Debye);
+        activityNode["A_Debye"].setQuantity(m_A_Debye, "kg^0.5/gmol^0.5");
     }
 
     if (m_B_Debye != B_Debye_default) {
-        activityNode["B_Debye"] = fmt::format("{} kg^0.5/gmol^0.5/m", m_B_Debye);
+        activityNode["B_Debye"].setQuantity(m_B_Debye, "kg^0.5/gmol^0.5/m");
     }
     if (m_maxIionicStrength != maxIionicStrength_default) {
         activityNode["max-ionic-strength"] = m_maxIionicStrength;
@@ -639,7 +639,7 @@ void DebyeHuckel::getParameters(AnyMap& phaseNode) const
         activityNode["use-Helgeson-fixed-form"] = true;
     }
     if (!isnan(m_Aionic_default)) {
-        activityNode["default-ionic-radius"] = m_Aionic_default;
+        activityNode["default-ionic-radius"].setQuantity(m_Aionic_default, "m");
     }
     for (double B_dot : m_B_Dot) {
         if (B_dot != 0.0) {
@@ -673,7 +673,7 @@ void DebyeHuckel::getSpeciesParameters(const std::string& name,
     checkSpeciesIndex(k);
     AnyMap dhNode;
     if (m_Aionic[k] != m_Aionic_default) {
-        dhNode["ionic-radius"] = m_Aionic[k];
+        dhNode["ionic-radius"].setQuantity(m_Aionic[k], "m");
     }
 
     int estDefault = cEST_nonpolarNeutral;

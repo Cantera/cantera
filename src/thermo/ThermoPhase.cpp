@@ -1203,13 +1203,13 @@ void ThermoPhase::getParameters(AnyMap& phaseNode) const
     AnyMap state;
     auto stateVars = nativeState();
     if (stateVars.count("T")) {
-        state["T"] = temperature();
+        state["T"].setQuantity(temperature(), "K");
     }
 
     if (stateVars.count("D")) {
-        state["density"] = density();
+        state["density"].setQuantity(density(), "kg/m^3");
     } else if (stateVars.count("P")) {
-        state["P"] = pressure();
+        state["P"].setQuantity(pressure(), "Pa");
     }
 
     if (stateVars.count("Y")) {

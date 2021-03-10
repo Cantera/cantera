@@ -55,7 +55,7 @@ void SpeciesThermoInterpType::reportParameters(size_t& index, int& type,
 void SpeciesThermoInterpType::getParameters(AnyMap& thermo) const
 {
     if (m_Pref != OneAtm) {
-        thermo["reference-pressure"] = m_Pref;
+        thermo["reference-pressure"].setQuantity(m_Pref, "Pa");
     }
 }
 

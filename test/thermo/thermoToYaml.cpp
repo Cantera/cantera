@@ -16,11 +16,13 @@ public:
         // added by the overrides of getParameters.
         thermo->input().clear();
         thermo->getParameters(data);
+        data.applyUnits();
 
         speciesData.resize(thermo->nSpecies());
         eosData.resize(thermo->nSpecies());
         for (size_t k = 0; k < thermo->nSpecies(); k++) {
             thermo->getSpeciesParameters(thermo->speciesName(k), speciesData[k]);
+            speciesData[k].applyUnits();
             if (speciesData[k].hasKey("equation-of-state")) {
                 // Get the first EOS node, for convenience
                 eosData[k] = speciesData[k]["equation-of-state"].asVector<AnyMap>()[0];
@@ -40,6 +42,7 @@ TEST_F(ThermoToYaml, simpleIdealGas)
     thermo->setState_TP(1010, 2e5);
     double rho = thermo->density();
     thermo->getParameters(data);
+    data.applyUnits();
 
     ASSERT_EQ(data["thermo"], "ideal-gas");
     ASSERT_EQ(data["state"]["T"], 1010);

@@ -673,11 +673,15 @@ void RedlichKwongMFTP::getSpeciesParameters(const std::string& name,
 
     size_t counter = k + m_kk * k;
     if (a_coeff_vec(1, counter) != 0.0) {
-        eosNode["a"] = vector_fp{a_coeff_vec(0, counter), a_coeff_vec(1, counter)};
+        vector<AnyValue> coeffs(2);
+        coeffs[0].setQuantity(a_coeff_vec(0, counter), "Pa*m^6/kmol^2*K^0.5");
+        coeffs[1].setQuantity(a_coeff_vec(1, counter), "Pa*m^6/kmol^2/K^0.5");
+        eosNode["a"] = std::move(coeffs);
     } else {
-        eosNode["a"] = a_coeff_vec(0, counter);
+        eosNode["a"].setQuantity(a_coeff_vec(0, counter),
+                                 "Pa*m^6/kmol^2*K^0.5");
     }
-    eosNode["b"] = b_vec_Curr_[k];
+    eosNode["b"].setQuantity(b_vec_Curr_[k], "m^3/kmol");
 }
 
 
