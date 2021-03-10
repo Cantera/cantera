@@ -114,14 +114,11 @@ TEST(YamlWriter, reaction_units_from_Yaml)
     YamlWriter writer;
     writer.addPhase(original);
     writer.setPrecision(14);
-    UnitSystem outUnits;
-    std::map<std::string, std::string> defaults = {
+    writer.setUnits({
         {"activation-energy", "K"},
         {"quantity", "mol"},
         {"length", "cm"}
-    };
-    outUnits.setDefaults(defaults);
-    writer.setUnits(outUnits);
+    });
     writer.toYamlFile("generated-h2o2-outunits.yaml");
     auto duplicate = newSolution("generated-h2o2-outunits.yaml");
 
@@ -143,19 +140,16 @@ TEST(YamlWriter, reaction_units_from_Xml)
     YamlWriter writer;
     writer.addPhase(original);
     writer.setPrecision(14);
-    UnitSystem outUnits;
-    std::map<std::string, std::string> defaults = {
+    writer.setUnits({
         {"activation-energy", "K"},
         {"quantity", "mol"},
         {"length", "cm"}
-    };
-    outUnits.setDefaults(defaults);
-    writer.setUnits(outUnits);
+    });
     // Should fail because pre-exponential factors from XML can't be converted
     EXPECT_THROW(writer.toYamlFile("generated-h2o2-fail.yaml"), CanteraError);
 
     // Outputting with the default MKS+kmol system still works
-    writer.setUnits(UnitSystem());
+    writer.setUnits();
     writer.toYamlFile("generated-h2o2-from-xml.yaml");
     auto duplicate = newSolution("generated-h2o2-from-xml.yaml");
 
@@ -177,15 +171,12 @@ TEST(YamlWriter, chebyshev_units_from_Yaml)
     YamlWriter writer;
     writer.addPhase(original);
     writer.setPrecision(14);
-    UnitSystem outUnits;
-    std::map<std::string, std::string> defaults = {
+    writer.setUnits({
         {"activation-energy", "K"},
         {"quantity", "mol"},
         {"length", "cm"},
         {"pressure", "atm"}
-    };
-    outUnits.setDefaults(defaults);
-    writer.setUnits(outUnits);
+    });
     writer.toYamlFile("generated-pdep-test.yaml");
     auto duplicate = newSolution("generated-pdep-test.yaml");
 
@@ -246,9 +237,11 @@ TEST(YamlWriter, Interface)
     YamlWriter writer;
     writer.addPhase(gas1);
     writer.addPhase(surf1, kin1);
-    UnitSystem U{"mm", "molec"};
-    U.setDefaultActivationEnergy("K");
-    writer.setUnits(U);
+    writer.setUnits({
+        {"length", "mm"},
+        {"quantity", "molec"},
+        {"activation-energy", "K"}
+    });
     writer.toYamlFile("generated-ptcombust.yaml");
 
     shared_ptr<ThermoPhase> gas2(newPhase("generated-ptcombust.yaml", "gas"));
@@ -301,11 +294,11 @@ TEST(YamlWriter, sofc)
     writer.addPhase(metal1);
     writer.addPhase(gas1);
     writer.addPhase(ox_bulk1);
-
-    UnitSystem U;
-    U.setDefaults({"cm", "atm"});
-    U.setDefaultActivationEnergy("eV");
-    writer.setUnits(U);
+    writer.setUnits({
+        {"length", "cm"},
+        {"pressure", "atm"},
+        {"activation-energy", "eV"}
+    });
     writer.toYamlFile("generated-sofc.yaml");
 
     shared_ptr<ThermoPhase> gas2(newPhase("generated-sofc.yaml", "gas"));

@@ -239,6 +239,45 @@ cdef class _SolutionBase:
                 self.transport.getParameters(params)
             return mergeAnyMap(params, self.thermo.input())
 
+    def write_yaml(self, filename, phases=None, units=None, precision=None,
+                   skip_user_defined=None):
+        """
+        Write the definition for this phase, any additional phases specified,
+        and their species and reactions to the specified file.
+
+        :param filename:
+            The name of the output file
+        :param phases:
+            Additional ThermoPhase / Solution objects to be included in the
+            output file
+        :param units:
+            A dictionary of the units to be used for each dimension. See
+            `YamlWriter.output_units`.
+        :param precision:
+            For output floating point values, the maximum number of digits to
+            the right of the decimal point. The default is 15 digits.
+        :param skip_user_defined:
+            If `True`, user-defined fields which are not used by Cantera will
+            be stripped from the output.
+        """
+        Y = YamlWriter()
+        Y.add_solution(self)
+        if phases is not None:
+            if isinstance(phases, _SolutionBase):
+                # "phases" is just a single phase object
+                Y.add_solution(phases)
+            else:
+                # Assume that "phases" is an iterable
+                for phase in phases:
+                    Y.add_solution(phase)
+        if units is not None:
+            Y.output_units = units
+        if precision is not None:
+            Y.precision = precision
+        if skip_user_defined is not None:
+            Y.skip_user_defined = skip_user_defined
+        Y.to_file(filename)
+
     def __getitem__(self, selection):
         copy = self.__class__(origin=self)
         if isinstance(selection, slice):

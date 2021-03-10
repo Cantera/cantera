@@ -31,7 +31,12 @@ public:
     void addPhase(shared_ptr<ThermoPhase> thermo, shared_ptr<Kinetics> kin={},
                   shared_ptr<Transport> tran={});
 
+    //! Return a YAML string that contains the definitions for the added phases,
+    //! species, and reactions
     std::string toYamlString() const;
+
+    //! Write the definitions for the added phases, species and reactions to
+    //! the specified file.
     void toYamlFile(const std::string& filename) const;
 
     //! For output floating point values, set the maximum number of digits to
@@ -47,10 +52,12 @@ public:
         m_skip_user_defined = skip;
     }
 
-    //! Set the units to be used in the output file
-    void setUnits(const UnitSystem& units) {
-        m_output_units = units;
-    }
+    //! Set the units to be used in the output file. Dimensions not specified
+    //! will use Cantera's defaults.
+    //! @param units  A map where keys are dimensions (mass, length, time,
+    //!     quantity, pressure, energy, activation-energy) and the values are
+    //!     corresponding units supported by the UnitSystem class.
+    void setUnits(const std::map<std::string, std::string>& units={});
 
 protected:
     std::vector<shared_ptr<Solution>> m_phases;

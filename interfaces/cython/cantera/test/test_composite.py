@@ -460,6 +460,47 @@ class TestSolutionSerialization(utilities.CanteraTest):
         self.assertNotIn('kinetics', data)
         self.assertNotIn('transport', data)
 
+    def test_yaml_simple(self):
+        gas = ct.Solution('h2o2.yaml')
+        gas.write_yaml('h2o2-generated.yaml')
+        with open('h2o2-generated.yaml', 'r') as infile:
+            generated = yaml.safe_load(infile)
+        for key in ('generator', 'date', 'phases', 'species', 'reactions'):
+            self.assertIn(key, generated)
+        self.assertEqual(generated['phases'][0]['transport'], 'mixture-averaged')
+        for i, species in enumerate(generated['species']):
+            self.assertEqual(species['composition'], gas.species(i).composition)
+        for i, reaction in enumerate(generated['reactions']):
+            self.assertEqual(reaction['equation'], gas.reaction_equation(i))
+
+    def test_yaml_outunits(self):
+        gas = ct.Solution('h2o2.yaml')
+        units = {'length': 'cm', 'quantity': 'mol', 'energy': 'cal'}
+        gas.write_yaml('h2o2-generated.yaml', units=units)
+        with open('h2o2-generated.yaml') as infile:
+            generated = yaml.safe_load(infile)
+        with open(pjoin(self.cantera_data, "h2o2.yaml")) as infile:
+            original = yaml.safe_load(infile)
+        self.assertEqual(generated['units'], units)
+
+        for r1, r2 in zip(original['reactions'], generated['reactions']):
+            if 'rate-constant' in r1:
+                self.assertNear(r1['rate-constant']['A'], r2['rate-constant']['A'])
+                self.assertNear(r1['rate-constant']['Ea'], r2['rate-constant']['Ea'])
+
+    def test_yaml_surface(self):
+        gas = ct.Solution('ptcombust.yaml', 'gas')
+        surf = ct.Interface('ptcombust.yaml', 'Pt_surf', [gas])
+        surf.write_yaml('ptcombust-generated.yaml')
+
+        with open('ptcombust-generated.yaml') as infile:
+            generated = yaml.safe_load(infile)
+        for key in ('phases', 'species', 'gas-reactions', 'Pt_surf-reactions'):
+            self.assertIn(key, generated)
+        self.assertEqual(len(generated['gas-reactions']), gas.n_reactions)
+        self.assertEqual(len(generated['Pt_surf-reactions']), surf.n_reactions)
+        self.assertEqual(len(generated['species']), surf.n_total_species)
+
 
 class TestSpeciesSerialization(utilities.CanteraTest):
     def test_species_simple(self):
