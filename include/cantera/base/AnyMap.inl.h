@@ -37,24 +37,9 @@ const T &AnyValue::as() const {
 
 template<class T>
 T &AnyValue::as() {
-    try {
-        if (typeid(T) == typeid(double) && m_value->type() == typeid(long int)) {
-            // Implicit conversion of long int to double
-            *m_value = static_cast<double>(as<long int>());
-            m_equals = eq_comparer<double>;
-        }
-        return boost::any_cast<T&>(*m_value);
-    } catch (boost::bad_any_cast&) {
-        if (m_value->type() == typeid(void)) {
-            // Values that have not been set are of type 'void'
-            throw InputFileError("AnyValue::as", *this,
-                "Key '{}' not found or contains no value", m_key);
-        } else {
-            throw InputFileError("AnyValue::as", *this,
-                "Key '{}' contains a '{}',\nnot a '{}'",
-                m_key, demangle(m_value->type()), demangle(typeid(T)));
-        }
-    }
+    // To avoid duplicating the code from the const version, call that version
+    // and just remove the const specifier from the return value
+    return const_cast<T&>(const_cast<const AnyValue*>(this)->as<T>());
 }
 
 template<class T>
