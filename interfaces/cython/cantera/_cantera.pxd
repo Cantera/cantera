@@ -546,6 +546,15 @@ cdef extern from "cantera/transport/TransportData.h" namespace "Cantera":
         double dispersion_coefficient
         double quadrupole_polarizability
 
+cdef extern from "cantera/base/YamlWriter.h" namespace "Cantera":
+    cdef cppclass CxxYamlWriter "Cantera::YamlWriter":
+        CxxYamlWriter()
+        void addPhase(shared_ptr[CxxSolution]) except +translate_exception
+        string toYamlString() except +translate_exception
+        void toYamlFile(string&) except +translate_exception
+        void setPrecision(int)
+        void skipUserDefined(cbool)
+        void setUnits(stdmap[string, string]&) except +translate_exception
 
 cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
     cdef cppclass CxxMultiPhase "Cantera::MultiPhase":
@@ -1105,6 +1114,10 @@ cdef class Transport(_SolutionBase):
 
 cdef class DustyGasTransport(Transport):
      pass
+
+cdef class YamlWriter:
+    cdef shared_ptr[CxxYamlWriter] _writer
+    cdef CxxYamlWriter* writer
 
 cdef class Mixture:
     cdef CxxMultiPhase* mix

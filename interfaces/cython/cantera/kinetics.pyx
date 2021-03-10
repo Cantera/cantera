@@ -473,3 +473,19 @@ cdef class InterfaceKinetics(Kinetics):
         species in all phases.
         """
         return self.net_production_rates[self._phase_slice(phase)]
+
+    def write_yaml(self, filename, phases=None, units=None, precision=None,
+                   skip_user_defined=None):
+        """
+        See `_SolutionBase.write_yaml`.
+        """
+        if phases is not None:
+            phases = list(phases)
+        else:
+            phases = []
+
+        for phase in self._phase_indices:
+            if isinstance(phase, _SolutionBase) and phase is not self:
+                phases.append(phase)
+
+        super().write_yaml(filename, phases, units, precision, skip_user_defined)

@@ -20,6 +20,7 @@ include "reaction.pyx"
 include "kinetics.pyx"
 include "transport.pyx"
 
+include "yamlwriter.pyx"
 include "mixture.pyx"
 include "reactor.pyx"
 include "onedim.pyx"

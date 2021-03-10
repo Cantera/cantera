@@ -208,4 +208,10 @@ void YamlWriter::toYamlFile(const std::string& filename) const
     out << toYamlString();
 }
 
+void YamlWriter::setUnits(const std::map<std::string, std::string>& units)
+{
+    m_output_units = UnitSystem();
+    m_output_units.setDefaults(units);
+}
+
 }
