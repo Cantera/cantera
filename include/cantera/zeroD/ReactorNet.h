@@ -8,7 +8,6 @@
 
 #include "Reactor.h"
 #include "cantera/numerics/FuncEval.h"
-#include "cantera/numerics/NonLinSol.h"
 
 namespace Cantera
 {
@@ -24,7 +23,7 @@ class Integrator;
  *
  * @ingroup ZeroD
  */
-class ReactorNet : public FuncEval, public NonLinSol
+class ReactorNet : public FuncEval
 {
 public:
     ReactorNet();
@@ -256,18 +255,6 @@ public:
 
     //! Advance the reactor network to steady state.
     double solveSteady();
-
-    // Specify the residual function for the system
-    //  sol - iteration solution vector (input)
-    //  rsd - residual vector (output)
-    virtual void nonlinsol_residFunction(double *sol, double *rsd);
-
-    // Specify guesses for the initial values.
-    // Note: called during Sim1D initialization
-    virtual doublereal nonlinsol_initialValue(size_t i);
-
-    // Number of equations (state variables) for this reactor
-    virtual size_t nonlinsol_nEqs();
 
 protected:
 

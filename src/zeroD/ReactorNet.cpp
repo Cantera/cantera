@@ -9,6 +9,7 @@
 #include "cantera/base/utilities.h"
 #include "cantera/base/Array.h"
 #include "cantera/numerics/Integrator.h"
+#include "cantera/numerics/Newton.h"
 
 using namespace std;
 
@@ -437,7 +438,7 @@ double ReactorNet::solveSteady()
         throw CanteraError("ReactorNet::solveSteady",
                            "no reactors in network!");
     }
-    
+
     //initialize
     m_nv = 0;
     m_start.assign(1, 0);
@@ -453,28 +454,24 @@ double ReactorNet::solveSteady()
         m_nv += r.neq();
         m_start.push_back(m_nv);
     }
+
+    //TODO: better initialization/configuration for this solver
     //solve
-    NonLinSol::solve();
-}
+    std::unique_ptr<Cantera::Jacobian> jac;
+    jac.reset(new Cantera::Jacobian(*this));
 
-doublereal ReactorNet::nonlinsol_initialValue(size_t i)
-{
-    for (size_t n = m_reactors.size() - 1; n >= 0; n--)
-        if (i >= m_start[n])
-            return m_reactors[n]->initialValue(i - m_start[n]);
-    return -1;
-}
+    std::unique_ptr<Cantera::Newton> m_newt;
+    m_newt.reset(new Cantera::Newton(*this, *jac));
 
-void ReactorNet::nonlinsol_residFunction(double *sol, double *rsd)
-{
-    updateState(sol);
-    for (size_t n = 0; n < m_reactors.size(); n++)
-        m_reactors[n]->residFunction(sol + m_start[n], rsd + m_start[n]);
-}
+    for (int i = 0; i < m_nv; i++)
+    {
+        m_newt->setBounds(i, -1.0e-3, 1.01);
+    }
+    m_newt->setBounds(0, 0, 100);
+    m_newt->setBounds(1, 0, 5);
+    m_newt->setBounds(2, -10000000, 10000000);
 
-size_t ReactorNet::nonlinsol_nEqs()
-{
-    return m_nv;
+    m_newt->solve(8);
 }
 
 }
