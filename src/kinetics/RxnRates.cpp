@@ -159,13 +159,13 @@ ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
     }
 }
 
-CustomPyRate::CustomPyRate() : m_ratefunc(0) {}
+CustomFunc1Rate::CustomFunc1Rate() : m_ratefunc(0) {}
 
-void CustomPyRate::setRateFunction(shared_ptr<Func1> f) {
+void CustomFunc1Rate::setRateFunction(shared_ptr<Func1> f) {
     m_ratefunc = f;
 }
 
-double CustomPyRate::eval(const State& state) const {
+double CustomFunc1Rate::eval(const State& state) const {
     if (m_ratefunc) {
         return m_ratefunc->eval(state.temperature);
     }

@@ -95,7 +95,7 @@ class TestCustom(TestElementary):
     _equation = 'H2 + O <=> H + OH'
     _rate_obj = ct.CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
     _index = 2
-    _type = "custom-Python"
+    _type = "custom-rate-function"
 
     def setUp(self):
         # need to overwrite rate to ensure correct type ('method' is not compatible with Func1)

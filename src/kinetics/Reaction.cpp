@@ -297,7 +297,7 @@ ChebyshevReaction::ChebyshevReaction(const Composition& reactants_,
     reaction_type = CHEBYSHEV_RXN;
 }
 
-CustomPyReaction::CustomPyReaction()
+CustomFunc1Reaction::CustomFunc1Reaction()
     : Reaction()
 {
     reaction_type = CUSTOMPY_RXN;
@@ -560,7 +560,7 @@ void parseReactionEquation(Reaction& R, const AnyValue& equation,
             }
             if (kin.kineticsSpeciesIndex(species) == npos
                 && stoich != -1 && species != "M") {
-                R.set_valid(false);
+                R.setValid(false);
             }
 
             if (reactants) {
@@ -592,7 +592,7 @@ void setupReaction(Reaction& R, const AnyMap& node, const Kinetics& kin)
         for (const auto& order : node["orders"].asMap<double>()) {
             R.orders[order.first] = order.second;
             if (kin.kineticsSpeciesIndex(order.first) == npos) {
-                R.set_valid(false);
+                R.setValid(false);
             }
         }
     }
@@ -850,12 +850,12 @@ void setupChebyshevReaction(ChebyshevReaction&R, const AnyMap& node,
                            coeffs);
 }
 
-void setupCustomPyReaction(CustomPyReaction& R, const AnyMap& node,
-                           const Kinetics& kin)
+void setupCustomFunc1Reaction(CustomFunc1Reaction& R, const AnyMap& node,
+                              const Kinetics& kin)
 {
     setupReaction(R, node, kin);
-    CustomPyRate rate;
-    R.setRxnRate(std::make_shared<CustomPyRate>(std::move(rate)));
+    CustomFunc1Rate rate;
+    R.setReactionRate(std::make_shared<CustomFunc1Rate>(std::move(rate)));
 }
 
 void setupTestReaction(TestReaction& R, const AnyMap& node,
@@ -867,7 +867,7 @@ void setupTestReaction(TestReaction& R, const AnyMap& node,
     ArrheniusRate rate(arr.preExponentialFactor(),
                        arr.temperatureExponent(),
                        arr.activationEnergy_R());
-    R.setRxnRate(std::make_shared<ArrheniusRate>(std::move(rate)));
+    R.setReactionRate(std::make_shared<ArrheniusRate>(std::move(rate)));
 }
 
 void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)

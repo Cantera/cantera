@@ -243,7 +243,7 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
         return false;
     }
 
-    shared_ptr<RxnRate> rate=r->rxnRate();
+    shared_ptr<ReactionRate> rate=r->reactionRate();
     if (rate) {
         size_t nRxn = nReactions() - 1;
         // new generic reaction type handler
@@ -343,13 +343,13 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     // operations common to all reaction types
     BulkKinetics::modifyReaction(i, rNew);
 
-    shared_ptr<RxnRate> rate=rNew->rxnRate();
+    shared_ptr<ReactionRate> rate=rNew->reactionRate();
     if (rate) {
         // new generic reaction type handler
         if (rate->type() == "ArrheniusRate") {
             modifyArrheniusRate(i, std::dynamic_pointer_cast<ArrheniusRate>(rate));
         } else {
-            modifyRxnRate(i, rate);
+            modifyReactionRate(i, rate);
         }
     } else if (rNew->type() == "elementary") {
         modifyElementaryReaction(i, dynamic_cast<ElementaryReaction&>(*rNew));
@@ -397,20 +397,20 @@ void GasKinetics::modifyChebyshevReaction(size_t i, ChebyshevReaction& r)
     m_cheb_rates.replace(i, r.rate);
 }
 
-void GasKinetics::modifyRxnRate(size_t i, shared_ptr<RxnRate> newRate)
+void GasKinetics::modifyReactionRate(size_t i, shared_ptr<ReactionRate> newRate)
 {
     if (m_rxn_indices.find(i) != m_rxn_indices.end()) {
 
         size_t j = m_rxn_indices[i];
         if (newRate->type() != m_rxn_rates[j]->type()) {
-            throw CanteraError("GasKinetics::modifyRxnRate",
+            throw CanteraError("GasKinetics::modifyReactionRate",
                                "Attempting to replace '{}' with '{}'.",
                                m_rxn_rates[j]->type(), newRate->type());
         }
         newRate->setIndex(m_rxn_rates[j]->index());
         m_rxn_rates[j] = newRate;
     } else {
-        throw CanteraError("GasKinetics::modifyRxnRate",
+        throw CanteraError("GasKinetics::modifyReactionRate",
                            "Index {} does not exist.", i);
     }
 }

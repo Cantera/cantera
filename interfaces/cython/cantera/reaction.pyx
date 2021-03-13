@@ -69,17 +69,6 @@ cdef class Reaction:
                 self.products = products
 
     @staticmethod
-    def _all_reaction_objects():
-        """
-        Retrieve all objects derived from Reaction
-        """
-        def all_subclasses(cls):
-            return set(cls.__subclasses__()).union(
-                [s for c in cls.__subclasses__() for s in all_subclasses(c)])
-
-        return {getattr(c, 'reaction_type'): c for c in all_subclasses(Reaction)}
-
-    @staticmethod
     cdef wrap(shared_ptr[CxxReaction] reaction):
         """
         Wrap a C++ Reaction object with a Python object of the correct derived type.
@@ -381,7 +370,7 @@ cdef class Arrhenius:
             return self.rate.activationEnergy_R() * gas_constant
 
     def __repr__(self):
-        return '<Arrhenius: A={:g}, b={:g}, E={:g}>'.format(
+        return 'Arrhenius(A={:g}, b={:g}, E={:g})'.format(
             self.pre_exponential_factor, self.temperature_exponent,
             self.activation_energy)
 
@@ -403,10 +392,10 @@ cdef copyArrhenius(CxxArrhenius* rate):
     return r
 
 
-cdef class _RxnRate:
+cdef class _ReactionRate:
 
     def __repr__(self):
-        return "<{}>".format(pystr(self.base.type()))
+        return "<{} at {:0x}>".format(pystr(self.base.type()), id(self))
 
     def __call__(self, double temperature, pressure=None):
         if pressure:
@@ -421,7 +410,7 @@ cdef class _RxnRate:
             return self.base.ddT(temperature)
 
 
-cdef class CustomRate(_RxnRate):
+cdef class CustomRate(_ReactionRate):
     r"""
     A custom rate coefficient which depends on temperature only.
 
@@ -436,9 +425,9 @@ cdef class CustomRate(_RxnRate):
     def __cinit__(self, k=None, init=True):
 
         if init:
-            self._base.reset(new CxxCustomPyRate())
+            self._base.reset(new CxxCustomFunc1Rate())
             self.base = self._base.get()
-            self.rate = <CxxCustomPyRate*>(self.base)
+            self.rate = <CxxCustomFunc1Rate*>(self.base)
             self.set_rate_function(k)
 
     def set_rate_function(self, k):
@@ -460,7 +449,7 @@ cdef class CustomRate(_RxnRate):
         self.rate.setRateFunction(self._rate_func._func)
 
 
-cdef class ArrheniusRate(_RxnRate):
+cdef class ArrheniusRate(_ReactionRate):
     r"""
     A reaction rate coefficient which depends on temperature only and follows
     the modified Arrhenius form:
@@ -483,9 +472,9 @@ cdef class ArrheniusRate(_RxnRate):
             self.rate = <CxxArrheniusRate*>(self.base)
 
     @staticmethod
-    cdef wrap(shared_ptr[CxxRxnRate] rate):
+    cdef wrap(shared_ptr[CxxReactionRate] rate):
         """
-        Wrap a C++ RxnRate object with a Python object.
+        Wrap a C++ ReactionRate object with a Python object.
         """
         # wrap C++ reaction
         cdef ArrheniusRate arr
@@ -925,7 +914,7 @@ cdef class CustomReaction(Reaction):
     Warning: this class is an experimental part of the Cantera API and
         may be changed or removed without notice.
     """
-    reaction_type = "custom-Python"
+    reaction_type = "custom-rate-function"
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
                  init=True, **kwargs):
@@ -944,8 +933,8 @@ cdef class CustomReaction(Reaction):
             return self._rate
         def __set__(self, CustomRate rate):
             self._rate = rate
-            cdef CxxCustomPyReaction* r = <CxxCustomPyReaction*>self.reaction
-            r.setRxnRate(self._rate._base)
+            cdef CxxCustomFunc1Reaction* r = <CxxCustomFunc1Reaction*>self.reaction
+            r.setReactionRate(self._rate._base)
 
 
 cdef class TestReaction(Reaction):
@@ -991,10 +980,10 @@ cdef class TestReaction(Reaction):
         """ Get/Set the `Arrhenius` rate coefficient for this reaction. """
         def __get__(self):
             cdef CxxTestReaction* r = <CxxTestReaction*>self.reaction
-            return ArrheniusRate.wrap(r.rxnRate())
+            return ArrheniusRate.wrap(r.reactionRate())
         def __set__(self, ArrheniusRate rate):
             cdef CxxTestReaction* r = <CxxTestReaction*>self.reaction
-            r.setRxnRate(rate._base)
+            r.setReactionRate(rate._base)
 
     property allow_negative_pre_exponential_factor:
         """
