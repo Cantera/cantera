@@ -763,6 +763,24 @@ void AnyValue::setQuantity(const AnyValue& value, const unitConverter& converter
     m_equals = eq_comparer<Quantity>;
 }
 
+template<>
+bool AnyValue::is<vector<double>>() const
+{
+    if (m_value->type() == typeid(vector<double>)) {
+        return true;
+    } else if (m_value->type() == typeid(vector<AnyValue>)) {
+        for (const auto& item : as<vector<AnyValue>>()) {
+            if (!(item.is<double>()
+                || (item.is<Quantity>() && item.as<Quantity>().value.is<double>())))
+            {
+                return false;
+            }
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
 
 // Specializations for "double"
 

@@ -57,6 +57,8 @@ bool AnyValue::is() const {
     return m_value->type() == typeid(T);
 }
 
+template<> bool AnyValue::is<std::vector<double>>() const;
+
 template<class T>
 AnyValue &AnyValue::operator=(const std::vector<T> &value) {
     *m_value = value;
