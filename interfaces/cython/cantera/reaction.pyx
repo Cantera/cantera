@@ -472,9 +472,9 @@ cdef class ArrheniusRate(_ReactionRate):
             self.rate = <CxxArrheniusRate*>(self.base)
 
     @staticmethod
-    cdef wrap(shared_ptr[CxxReactionRate] rate):
+    cdef wrap(shared_ptr[CxxReactionRateBase] rate):
         """
-        Wrap a C++ ReactionRate object with a Python object.
+        Wrap a C++ ReactionRateBase object with a Python object.
         """
         # wrap C++ reaction
         cdef ArrheniusRate arr

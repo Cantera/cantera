@@ -90,13 +90,17 @@ protected:
     Rate1<ChebyshevRate> m_cheb_rates;
 
     //! Vector of generic reaction rates
-    std::vector<shared_ptr<ReactionRate>> m_rxn_rates;
+    std::vector<shared_ptr<ReactionRateBase>> m_rxn_rates;
 
     //! Vector of specialized arrhenius reaction rates
     std::vector<ArrheniusRate> m_arrhenius_rates;
 
+    //! Vector of specialized custom reaction rates
+    std::vector<CustomFunc1Rate> m_func1_rates;
+
     std::map<size_t, size_t> m_rxn_indices;
     std::map<size_t, size_t> m_arrhenius_indices;
+    std::map<size_t, size_t> m_func1_indices;
 
     //! @name Reaction rate data
     //!@{
@@ -126,9 +130,11 @@ protected:
     void modifyChebyshevReaction(size_t i, ChebyshevReaction& r);
 
     //! @internal May be changed without notice in future versions
-    void modifyReactionRate(size_t i, shared_ptr<ReactionRate> rate);
+    void modifyReactionRate(size_t i, shared_ptr<ReactionRateBase> rate);
     //! @internal May be changed without notice in future versions
     void modifyArrheniusRate(size_t i, shared_ptr<ArrheniusRate> rate);
+    //! @internal May be changed without notice in future versions
+    void modifyCustomFunc1Rate(size_t i, shared_ptr<CustomFunc1Rate> rate);
 
     //! Update the equilibrium constants in molar units.
     void updateKc();

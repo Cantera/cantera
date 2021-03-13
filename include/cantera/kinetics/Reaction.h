@@ -9,7 +9,7 @@
 #define CT_REACTION_H
 
 #include "cantera/base/AnyMap.h"
-#include "cantera/kinetics/RxnRates.h"
+#include "cantera/kinetics/ReactionRate.h"
 
 namespace Cantera
 {
@@ -61,12 +61,12 @@ public:
     }
 
     //! Get reaction rate pointer
-    shared_ptr<ReactionRate> reactionRate() {
+    shared_ptr<ReactionRateBase> reactionRate() {
         return m_rate;
     }
 
     //! Set reaction rate pointer
-    void setReactionRate(shared_ptr<ReactionRate> rate) {
+    void setReactionRate(shared_ptr<ReactionRateBase> rate) {
         m_rate = rate;
     }
 
@@ -114,7 +114,7 @@ protected:
     bool m_valid;
 
     //! Reaction rate used by generic reactions
-    shared_ptr<ReactionRate> m_rate;
+    shared_ptr<ReactionRateBase> m_rate;
 };
 
 
