@@ -23,7 +23,7 @@ class XML_Node;
 class Reaction
 {
 public:
-    explicit Reaction();
+    Reaction();
     Reaction(const Composition& reactants,
              const Composition& products);
 
@@ -56,17 +56,17 @@ public:
     }
 
     //! Set validity flag of reaction
-    void set_valid(bool valid) {
+    void setValid(bool valid) {
         m_valid = valid;
     }
 
     //! Get reaction rate pointer
-    shared_ptr<RxnRate> rxnRate() {
+    shared_ptr<ReactionRate> reactionRate() {
         return m_rate;
     }
 
     //! Set reaction rate pointer
-    void setRxnRate(shared_ptr<RxnRate> rate) {
+    void setReactionRate(shared_ptr<ReactionRate> rate) {
         m_rate = rate;
     }
 
@@ -114,7 +114,7 @@ protected:
     bool m_valid;
 
     //! Reaction rate used by generic reactions
-    shared_ptr<RxnRate> m_rate;
+    shared_ptr<ReactionRate> m_rate;
 };
 
 
@@ -264,13 +264,13 @@ public:
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
  */
-class CustomPyReaction : public Reaction
+class CustomFunc1Reaction : public Reaction
 {
 public:
-    CustomPyReaction();
+    CustomFunc1Reaction();
 
     virtual std::string type() const {
-        return "custom-Python";
+        return "custom-rate-function";
     }
 };
 
@@ -278,7 +278,7 @@ public:
 //! A reaction which follows mass-action kinetics with a modified Arrhenius
 //! reaction rate.
 /**
- * Alternative elementary reaction based on RxnRate.
+ * Alternative elementary reaction based on ReactionRate.
  *
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
@@ -393,14 +393,17 @@ void parseReactionEquation(Reaction& R, const AnyValue& equation,
 
 // declarations of setup functions
 void setupElementaryReaction(ElementaryReaction&, const XML_Node&);
+//! @internal May be changed without notice in future versions
 void setupElementaryReaction(ElementaryReaction&, const AnyMap&,
                              const Kinetics&);
 
 void setupThreeBodyReaction(ThreeBodyReaction&, const XML_Node&);
+//! @internal May be changed without notice in future versions
 void setupThreeBodyReaction(ThreeBodyReaction&, const AnyMap&,
                             const Kinetics&);
 
 void setupFalloffReaction(FalloffReaction&, const XML_Node&);
+//! @internal May be changed without notice in future versions
 void setupFalloffReaction(FalloffReaction&, const AnyMap&,
                           const Kinetics&);
 
@@ -408,24 +411,30 @@ void setupChemicallyActivatedReaction(ChemicallyActivatedReaction&,
                                       const XML_Node&);
 
 void setupPlogReaction(PlogReaction&, const XML_Node&);
+//! @internal May be changed without notice in future versions
 void setupPlogReaction(PlogReaction&, const AnyMap&, const Kinetics&);
 
 void setupChebyshevReaction(ChebyshevReaction&, const XML_Node&);
+//! @internal May be changed without notice in future versions
 void setupChebyshevReaction(ChebyshevReaction&, const AnyMap&,
                             const Kinetics&);
 
-void setupCustomPyReaction(CustomPyReaction&, const AnyMap&,
-                           const Kinetics&);
+//! @internal May be changed without notice in future versions
+void setupCustomFunc1Reaction(CustomFunc1Reaction&, const AnyMap&,
+                              const Kinetics&);
 
+//! @internal May be changed without notice in future versions
 void setupTestReaction(TestReaction&, const AnyMap&,
                        const Kinetics&);
 
 void setupInterfaceReaction(InterfaceReaction&, const XML_Node&);
+//! @internal May be changed without notice in future versions
 void setupInterfaceReaction(InterfaceReaction&, const AnyMap&,
                             const Kinetics&);
 
 void setupElectrochemicalReaction(ElectrochemicalReaction&,
                                   const XML_Node&);
+//! @internal May be changed without notice in future versions
 void setupElectrochemicalReaction(ElectrochemicalReaction&,
                                   const AnyMap&, const Kinetics&);
 

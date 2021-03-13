@@ -312,19 +312,19 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double temperatureExponent()
         double activationEnergy_R()
 
-    cdef cppclass CxxRxnRate "Cantera::RxnRate":
-        CxxRxnRate()
+    cdef cppclass CxxReactionRate "Cantera::ReactionRate":
+        CxxReactionRate()
         string type()
         double eval(double) except +translate_exception
         double eval(double, double) except +translate_exception
         double ddT(double) except +translate_exception
         double ddT(double, double) except +translate_exception
 
-    cdef cppclass CxxCustomPyRate "Cantera::CustomPyRate" (CxxRxnRate):
-        CxxCustomPyRate()
+    cdef cppclass CxxCustomFunc1Rate "Cantera::CustomFunc1Rate" (CxxReactionRate):
+        CxxCustomFunc1Rate()
         void setRateFunction(shared_ptr[CxxFunc1]) except +translate_exception
 
-    cdef cppclass CxxArrheniusRate "Cantera::ArrheniusRate" (CxxRxnRate):
+    cdef cppclass CxxArrheniusRate "Cantera::ArrheniusRate" (CxxReactionRate):
         CxxArrheniusRate()
         CxxArrheniusRate(double, double, double)
         double preExponentialFactor()
@@ -347,8 +347,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool duplicate
         cbool allow_nonreactant_orders
         cbool allow_negative_orders
-        shared_ptr[CxxRxnRate] rxnRate()
-        void setRxnRate(shared_ptr[CxxRxnRate])
+        shared_ptr[CxxReactionRate] reactionRate()
+        void setReactionRate(shared_ptr[CxxReactionRate])
 
     cdef cppclass CxxElementaryReaction "Cantera::ElementaryReaction" (CxxReaction):
         CxxElementaryReaction()
@@ -412,8 +412,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxChebyshevReaction "Cantera::ChebyshevReaction" (CxxReaction):
         CxxChebyshevRate rate
 
-    cdef cppclass CxxCustomPyReaction "Cantera::CustomPyReaction" (CxxReaction):
-        CxxCustomPyReaction()
+    cdef cppclass CxxCustomFunc1Reaction "Cantera::CustomFunc1Reaction" (CxxReaction):
+        CxxCustomFunc1Reaction()
 
     cdef cppclass CxxTestReaction "Cantera::TestReaction" (CxxReaction):
         CxxTestReaction()
@@ -1032,18 +1032,18 @@ cdef class ThermoPhase(_SolutionBase):
 cdef class InterfacePhase(ThermoPhase):
     cdef CxxSurfPhase* surf
 
-cdef class _RxnRate:
-    cdef shared_ptr[CxxRxnRate] _base
-    cdef CxxRxnRate* base
+cdef class _ReactionRate:
+    cdef shared_ptr[CxxReactionRate] _base
+    cdef CxxReactionRate* base
 
-cdef class CustomRate(_RxnRate):
-    cdef CxxCustomPyRate* rate
+cdef class CustomRate(_ReactionRate):
+    cdef CxxCustomFunc1Rate* rate
     cdef Func1 _rate_func
 
-cdef class ArrheniusRate(_RxnRate):
+cdef class ArrheniusRate(_ReactionRate):
     cdef CxxArrheniusRate* rate
     @staticmethod
-    cdef wrap(shared_ptr[CxxRxnRate])
+    cdef wrap(shared_ptr[CxxReactionRate])
 
 cdef class Reaction:
     cdef shared_ptr[CxxReaction] _reaction

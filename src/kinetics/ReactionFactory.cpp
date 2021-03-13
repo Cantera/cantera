@@ -96,16 +96,16 @@ ReactionFactory::ReactionFactory()
                    setupChebyshevReaction(*(ChebyshevReaction*)R, node, kin);
                });
 
-    // register custom Python reactions
-    reg("custom-Python", []() { return new CustomPyReaction(); });
-    reg_XML("custom-Python",
+    // register custom reactions specified by Func1 objects
+    reg("custom-rate-function", []() { return new CustomFunc1Reaction(); });
+    reg_XML("custom-rate-function",
             [](Reaction* R, const XML_Node& node) {
-                throw CanteraError("ReactionFactory", "Custom Python reactions "
-                                   "cannot be created from XML nodes'");
+                throw CanteraError("ReactionFactory", "Custom reactions based "
+                    "on 'Func1' objects cannot be created from XML nodes'");
             });
-    reg_AnyMap("custom-Python",
+    reg_AnyMap("custom-rate-function",
                [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
-                   setupCustomPyReaction(*(CustomPyReaction*)R, node, kin);
+                   setupCustomFunc1Reaction(*(CustomFunc1Reaction*)R, node, kin);
                });
 
     // register custom Python reactions
@@ -136,9 +136,6 @@ ReactionFactory::ReactionFactory()
 
     // register electrochemical reactions
     reg("electrochemical", []() { return new ElectrochemicalReaction(); });
-    addAlias("electrochemical", "butlervolmer_noactivitycoeffs");
-    addAlias("electrochemical", "butlervolmer");
-    addAlias("electrochemical", "surfaceaffinity");
     reg_XML("electrochemical",
             [](Reaction* R, const XML_Node& node) {
                 setupElectrochemicalReaction(*(ElectrochemicalReaction*)R, node);

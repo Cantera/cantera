@@ -90,7 +90,7 @@ protected:
     Rate1<ChebyshevRate> m_cheb_rates;
 
     //! Vector of generic reaction rates
-    std::vector<shared_ptr<RxnRate>> m_rxn_rates;
+    std::vector<shared_ptr<ReactionRate>> m_rxn_rates;
 
     //! Vector of specialized arrhenius reaction rates
     std::vector<ArrheniusRate> m_arrhenius_rates;
@@ -125,7 +125,9 @@ protected:
     void modifyPlogReaction(size_t i, PlogReaction& r);
     void modifyChebyshevReaction(size_t i, ChebyshevReaction& r);
 
-    void modifyRxnRate(size_t i, shared_ptr<RxnRate> rate);
+    //! @internal May be changed without notice in future versions
+    void modifyReactionRate(size_t i, shared_ptr<ReactionRate> rate);
+    //! @internal May be changed without notice in future versions
     void modifyArrheniusRate(size_t i, shared_ptr<ArrheniusRate> rate);
 
     //! Update the equilibrium constants in molar units.

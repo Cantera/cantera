@@ -433,7 +433,7 @@ protected:
 
 //! Data container holding state information
 /**
- * The data container `State` holds information passed to RxnRate objects. Here, a
+ * The data container `State` holds information passed to ReactionRate objects. Here, a
  * pre-calculation of commonly used information (inverse, log, etc.) avoids
  * computational overhead.
  */
@@ -478,11 +478,11 @@ struct State {
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
  */
-class RxnRate
+class ReactionRate
 {
 public:
     //! Constructor
-    RxnRate() = default;
+    ReactionRate() = default;
 
     //! Identifier of reaction type
     virtual std::string type() const = 0;
@@ -515,8 +515,8 @@ public:
 
     //! Evaluate reaction rate derivative (with respect to temperature)
     virtual double ddT(const State& state) const {
-        throw CanteraError("RxnRate::ddT",
-                           "Not (yet) implemented by derived RxnRate object.");
+        throw CanteraError("ReactionRate::ddT",
+                           "Not (yet) implemented by derived ReactionRate object.");
     }
 
     //! Evaluate reaction rate based on temperature
@@ -533,8 +533,8 @@ public:
 
     //! Evaluate reaction rate derivative (with respect to pressure)
     virtual double ddP(const State& state) const {
-        throw CanteraError("RxnRate::ddP",
-                           "Not (yet) implemented by derived RxnRate object.");
+        throw CanteraError("ReactionRate::ddP",
+                           "Not (yet) implemented by derived ReactionRate object.");
     }
 
     // [...] other signatures are not created (yet)
@@ -546,28 +546,28 @@ protected:
 };
 
 
-//! Custom Python reaction rate depending only on temperature
+//! Custom reaction rate depending only on temperature
 /**
- * The rate expression is provided by external Python code taking a single
+ * The rate expression is provided by a Func1 object taking a single
  * argument (temperature) and does not use a formalized parameterization.
  *
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
  */
-class CustomPyRate final : public RxnRate
+class CustomFunc1Rate final : public ReactionRate
 {
 public:
     //! Constructor.
-    CustomPyRate();
+    CustomFunc1Rate();
 
     virtual std::string type() const override {
-        return "custom-PythonRate";
+        return "custom-function";
     }
 
     // set custom rate
     /**
-     * The Python function takes a single argument (temperature) and does
-     * not depend on parameters handled in C++.
+     * The call to the Func1 object takes a single argument (temperature) and
+     * does not depend on parameters handled in C++.
      */
     void setRateFunction(shared_ptr<Func1> f);
 
@@ -585,7 +585,7 @@ protected:
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
  */
-class ArrheniusRate final : public RxnRate, public Arrhenius
+class ArrheniusRate final : public ReactionRate, public Arrhenius
 {
 public:
     //! Constructor.
