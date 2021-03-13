@@ -326,6 +326,9 @@ protected:
 
     Array2D a_coeff_vec;
 
+    //! Explicitly-specified binary interaction parameters
+    std::map<std::string, std::map<std::string, std::pair<double, double>>> m_binaryParameters;
+
     //! For each species, true if the a and b coefficients were determined from
     //! the critical properties database
     std::vector<bool> m_coeffs_from_db;

@@ -106,6 +106,9 @@ void RedlichKwongMFTP::setBinaryCoeffs(const std::string& species_i,
     if (a1 != 0.0) {
         m_formTempParam = 1; // expression is temperature-dependent
     }
+
+    m_binaryParameters[species_i][species_j] = {a0, a1};
+    m_binaryParameters[species_j][species_i] = {a0, a1};
     size_t counter1 = ki + m_kk * kj;
     size_t counter2 = kj + m_kk * ki;
     a_coeff_vec(0, counter1) = a_coeff_vec(0, counter2) = a0;
@@ -682,8 +685,21 @@ void RedlichKwongMFTP::getSpeciesParameters(const std::string& name,
                                  "Pa*m^6/kmol^2*K^0.5");
     }
     eosNode["b"].setQuantity(b_vec_Curr_[k], "m^3/kmol");
+    if (m_binaryParameters.count(name)) {
+        AnyMap bin_a;
+        for (const auto& item : m_binaryParameters.at(name)) {
+            if (item.second.second == 0) {
+                bin_a[item.first].setQuantity(item.second.first, "Pa*m^6/kmol^2*K^0.5");
+            } else {
+                vector<AnyValue> coeffs(2);
+                coeffs[0].setQuantity(item.second.first, "Pa*m^6/kmol^2*K^0.5");
+                coeffs[1].setQuantity(item.second.second, "Pa*m^6/kmol^2/K^0.5");
+                bin_a[item.first] = std::move(coeffs);
+            }
+        }
+        eosNode["binary-a"] = std::move(bin_a);
+    }
 }
-
 
 vector<double> RedlichKwongMFTP::getCoeff(const std::string& iName)
 {
