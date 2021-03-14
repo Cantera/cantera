@@ -5,6 +5,7 @@
 
 #include "cantera/kinetics/RxnRates.h"
 #include "cantera/base/Array.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
@@ -21,6 +22,28 @@ Arrhenius::Arrhenius(doublereal A, doublereal b, doublereal E)
     , m_E(E)
     , m_A(A)
 {
+    if (m_A  <= 0.0) {
+        m_logA = -1.0E300;
+    } else {
+        m_logA = std::log(m_A);
+    }
+}
+
+void Arrhenius::setup(const AnyValue& rate,
+                      const UnitSystem& units, const Units& rc_units)
+{
+    if (rate.is<AnyMap>()) {
+        auto& rate_map = rate.as<AnyMap>();
+        m_A = units.convert(rate_map["A"], rc_units);
+        m_b = rate_map["b"].asDouble();
+        m_E = units.convertActivationEnergy(rate_map["Ea"], "K");
+    } else {
+        auto& rate_vec = rate.asVector<AnyValue>(3);
+        m_A = units.convert(rate_vec[0], rc_units);
+        m_b = rate_vec[1].asDouble();
+        m_E = units.convertActivationEnergy(rate_vec[2], "K");
+    }
+
     if (m_A  <= 0.0) {
         m_logA = -1.0E300;
     } else {

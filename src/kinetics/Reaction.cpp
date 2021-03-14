@@ -391,20 +391,10 @@ Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate,
                         const Kinetics& kin, const UnitSystem& units,
                         int pressure_dependence=0)
 {
-    double A, b, Ta;
     Units rc_units = rateCoeffUnits(R, kin, pressure_dependence);
-    if (rate.is<AnyMap>()) {
-        auto& rate_map = rate.as<AnyMap>();
-        A = units.convert(rate_map["A"], rc_units);
-        b = rate_map["b"].asDouble();
-        Ta = units.convertActivationEnergy(rate_map["Ea"], "K");
-    } else {
-        auto& rate_vec = rate.asVector<AnyValue>(3);
-        A = units.convert(rate_vec[0], rc_units);
-        b = rate_vec[1].asDouble();
-        Ta = units.convertActivationEnergy(rate_vec[2], "K");
-    }
-    return Arrhenius(A, b, Ta);
+    Arrhenius arr;
+    arr.setup(rate, units, rc_units);
+    return arr;
 }
 
 //! Parse falloff parameters, given a rateCoeff node
@@ -862,12 +852,10 @@ void setupTestReaction(TestReaction& R, const AnyMap& node,
                        const Kinetics& kin)
 {
     setupReaction(R, node, kin);
-    R.allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
-    Arrhenius arr = readArrhenius(R, node["rate-constant"], kin, node.units());
-    ArrheniusRate rate(arr.preExponentialFactor(),
-                       arr.temperatureExponent(),
-                       arr.activationEnergy_R());
+    Units rc_units = rateCoeffUnits(R, kin);
+    ArrheniusRate rate(node, rc_units);
     R.setReactionRate(std::make_shared<ArrheniusRate>(std::move(rate)));
+    R.allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
 }
 
 void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)

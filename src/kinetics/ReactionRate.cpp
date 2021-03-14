@@ -27,7 +27,6 @@ double CustomFunc1Rate::eval(const CustomFunc1Data& shared_data) const {
     return 0.;
 }
 
-
 void ArrheniusData::update(const ThermoPhase& bulk_phase) {
     m_temperature = bulk_phase.temperature();
     m_logT = std::log(m_temperature);
@@ -36,6 +35,10 @@ void ArrheniusData::update(const ThermoPhase& bulk_phase) {
 
 ArrheniusRate::ArrheniusRate(double A, double b, double E)
     : Arrhenius(A, b, E) {
+}
+
+ArrheniusRate::ArrheniusRate(const AnyMap& node, const Units& rc_units) {
+    setup(node["rate-constant"], node.units(), rc_units);
 }
 
 }

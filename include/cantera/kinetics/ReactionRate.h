@@ -16,6 +16,7 @@ namespace Cantera
 
 class Func1;
 class ThermoPhase;
+class AnyMap;
 
 
 //! Abstract base class for reaction rate definitions
@@ -169,6 +170,8 @@ public:
 
     ArrheniusRate(double A, double b, double E);
 
+    ArrheniusRate(const AnyMap& node, const Units& rc_units);
+
     virtual std::string type() const override {
         return "ArrheniusRate";
     }
@@ -230,11 +233,14 @@ public:
     //! Constructor.
     CustomFunc1Rate();
 
+    // Does nothing, as there is no formalized parameterization.
+    CustomFunc1Rate(const AnyMap& rate, const Units& rc_units) {}
+
     virtual std::string type() const override {
         return "custom-function";
     }
 
-    // set custom rate
+    //! Set custom rate
     /**
      * The call to the Func1 object takes a single argument (temperature) and
      * does not depend on parameters handled in C++.

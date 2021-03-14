@@ -15,6 +15,9 @@ namespace Cantera
 {
 
 class Array2D;
+class AnyValue;
+class UnitSystem;
+class Units;
 
 //! Arrhenius reaction rate type depends only on temperature
 /**
@@ -37,6 +40,10 @@ public:
     /// @param b Temperature exponent. Non-dimensional.
     /// @param E Activation energy in temperature units. Kelvin.
     Arrhenius(doublereal A, doublereal b, doublereal E);
+
+    //! Run object setup based on AnyMap node information
+    void setup(const AnyValue& rate,
+               const UnitSystem& units, const Units& rc_units);
 
     //! Update concentration-dependent parts of the rate coefficient.
     /*!
