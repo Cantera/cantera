@@ -247,6 +247,7 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
     shared_ptr<ReactionRateBase> rate=r->reactionRate();
     if (rate) {
         size_t nRxn = nReactions() - 1;
+
         // new generic reaction type handler
         rate->setIndex(nRxn);
         if (rate->type() == "ArrheniusRate") {
@@ -257,8 +258,6 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
             m_func1_rates.push_back(*std::dynamic_pointer_cast<CustomFunc1Rate>(rate));
         } else {
             throw CanteraError("GasKinetics::addReaction", "No longer used.");
-            //m_rxn_indices[nRxn] = m_rxn_rates.size();
-            //m_rxn_rates.push_back(rate);
         }
     } else if (r->type() == "elementary") {
         addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));

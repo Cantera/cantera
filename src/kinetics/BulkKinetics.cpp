@@ -120,6 +120,28 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
     } else {
         m_irrev.push_back(nReactions()-1);
     }
+
+    shared_ptr<ReactionRateBase> rate=r->reactionRate();
+    if (rate) {
+
+        // If neccessary, add new MultiBulkRates evaluator
+        if (m_bulk_types.find(rate->type()) != m_bulk_types.end()) {
+            m_bulk_types[rate->type()] = m_bulk_rates.size();
+
+            if (rate->type() == "ArrheniusRate") {
+                m_bulk_rates.push_back(std::unique_ptr<MultiRateBase>(
+                    new MultiBulkRates<ArrheniusRate, ArrheniusData>));
+            } else if (rate->type() == "custom-function") {
+                m_bulk_rates.push_back(std::unique_ptr<MultiRateBase>(
+                    new MultiBulkRates<CustomFunc1Rate, CustomFunc1Data>));
+            }
+        }
+
+        // Add reaction rate to evaluator
+        //size_t index = m_bulk_types[rate->type()];
+        //m_bulk_rates[index].add(nReactions() - 1, rate)
+    }
+
     return true;
 }
 

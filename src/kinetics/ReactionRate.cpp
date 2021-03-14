@@ -10,8 +10,8 @@
 namespace Cantera
 {
 
-void CustomFunc1Data::update(const ThermoPhase& bulk_phase) {
-    m_temperature = bulk_phase.temperature();
+void CustomFunc1Data::update(const ThermoPhase& bulk) {
+    m_temperature = bulk.temperature();
 }
 
 CustomFunc1Rate::CustomFunc1Rate() : m_ratefunc(0) {}
@@ -27,8 +27,8 @@ double CustomFunc1Rate::eval(const CustomFunc1Data& shared_data) const {
     return 0.;
 }
 
-void ArrheniusData::update(const ThermoPhase& bulk_phase) {
-    m_temperature = bulk_phase.temperature();
+void ArrheniusData::update(const ThermoPhase& bulk) {
+    m_temperature = bulk.temperature();
     m_logT = std::log(m_temperature);
     m_recipT = 1./m_temperature;
 }
