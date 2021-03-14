@@ -105,7 +105,7 @@ ReactionFactory::ReactionFactory()
             });
     reg_AnyMap("custom-rate-function",
                [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
-                   setupCustomFunc1Reaction(*(CustomFunc1Reaction*)R, node, kin);
+                   R->setup(node, kin);
                });
 
     // register custom Python reactions
@@ -117,7 +117,7 @@ ReactionFactory::ReactionFactory()
             });
     reg_AnyMap("elementary-new",
                [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
-                   setupTestReaction(*(TestReaction*)R, node, kin);
+                   R->setup(node, kin);
                });
 
     // register interface reactions

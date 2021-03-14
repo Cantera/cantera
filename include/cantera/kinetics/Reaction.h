@@ -60,6 +60,9 @@ public:
         m_valid = valid;
     }
 
+    //! Set up reaction based on AnyMap node
+    virtual void setup(const AnyMap& node, const Kinetics& kin);
+
     //! Get reaction rate pointer
     shared_ptr<ReactionRateBase> reactionRate() {
         return m_rate;
@@ -269,6 +272,8 @@ class CustomFunc1Reaction : public Reaction
 public:
     CustomFunc1Reaction();
 
+    virtual void setup(const AnyMap& node, const Kinetics& kin);
+
     virtual std::string type() const {
         return "custom-rate-function";
     }
@@ -291,6 +296,8 @@ public:
     virtual std::string type() const {
         return "elementary-new";
     }
+
+    virtual void setup(const AnyMap& node, const Kinetics& kin);
 
     bool allow_negative_pre_exponential_factor;
 };
@@ -391,6 +398,15 @@ std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
 void parseReactionEquation(Reaction& R, const AnyValue& equation,
                            const Kinetics& kin);
 
+//! The units of the rate constant. These are determined by the units of the
+//! standard concentration of the reactant species' phases of the phase
+//! where the reaction occurs.
+//!
+//! @todo Rate units will become available as `rate_units` after serialization
+//!     is implemented.
+Units rateCoeffUnits(const Reaction& R, const Kinetics& kin,
+                     int pressure_dependence=0);
+
 // declarations of setup functions
 void setupElementaryReaction(ElementaryReaction&, const XML_Node&);
 //! @internal May be changed without notice in future versions
@@ -418,14 +434,6 @@ void setupChebyshevReaction(ChebyshevReaction&, const XML_Node&);
 //! @internal May be changed without notice in future versions
 void setupChebyshevReaction(ChebyshevReaction&, const AnyMap&,
                             const Kinetics&);
-
-//! @internal May be changed without notice in future versions
-void setupCustomFunc1Reaction(CustomFunc1Reaction&, const AnyMap&,
-                              const Kinetics&);
-
-//! @internal May be changed without notice in future versions
-void setupTestReaction(TestReaction&, const AnyMap&,
-                       const Kinetics&);
 
 void setupInterfaceReaction(InterfaceReaction&, const XML_Node&);
 //! @internal May be changed without notice in future versions

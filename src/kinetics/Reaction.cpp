@@ -98,6 +98,29 @@ void Reaction::validate()
     }
 }
 
+void Reaction::setup(const AnyMap& node, const Kinetics& kin)
+{
+    parseReactionEquation(*this, node["equation"], kin);
+    // Non-stoichiometric reaction orders
+    std::map<std::string, double> orders;
+    if (node.hasKey("orders")) {
+        for (const auto& order : node["orders"].asMap<double>()) {
+            orders[order.first] = order.second;
+            if (kin.kineticsSpeciesIndex(order.first) == npos) {
+                setValid(false);
+            }
+        }
+    }
+
+    // Flags
+    id = node.getString("id", "");
+    duplicate = node.getBool("duplicate", false);
+    allow_negative_orders = node.getBool("negative-orders", false);
+    allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
+
+    input = node;
+}
+
 std::string Reaction::reactantString() const
 {
     std::ostringstream result;
@@ -303,10 +326,30 @@ CustomFunc1Reaction::CustomFunc1Reaction()
     reaction_type = CUSTOMPY_RXN;
 }
 
+void CustomFunc1Reaction::setup(const AnyMap& node, const Kinetics& kin)
+{
+    Reaction::setup(node, kin);
+    Units rc_units; // @todo Not needed once `rate_units` is implemented.
+    setReactionRate(
+        std::shared_ptr<CustomFunc1Rate>(new CustomFunc1Rate(node, rc_units)));
+}
+
 TestReaction::TestReaction()
     : Reaction()
     , allow_negative_pre_exponential_factor(false)
 {
+}
+
+void TestReaction::setup(const AnyMap& node, const Kinetics& kin)
+{
+    Reaction::setup(node, kin);
+
+    // @todo Rate units will become available as `rate_units` after
+    // serialization is fully implemented.
+    Units rc_units = rateCoeffUnits(*this, kin);
+    setReactionRate(
+        std::shared_ptr<ArrheniusRate>(new ArrheniusRate(node, rc_units)));
+    allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
 }
 
 InterfaceReaction::InterfaceReaction()
@@ -350,7 +393,7 @@ Arrhenius readArrhenius(const XML_Node& arrhenius_node)
 }
 
 Units rateCoeffUnits(const Reaction& R, const Kinetics& kin,
-                     int pressure_dependence=0)
+                     int pressure_dependence)
 {
     if (!R.valid()) {
         // If a reaction is invalid because of missing species in the Kinetics
@@ -838,24 +881,6 @@ void setupChebyshevReaction(ChebyshevReaction&R, const AnyMap& node,
                            units.convert(P_range[0], "Pa"),
                            units.convert(P_range[1], "Pa"),
                            coeffs);
-}
-
-void setupCustomFunc1Reaction(CustomFunc1Reaction& R, const AnyMap& node,
-                              const Kinetics& kin)
-{
-    setupReaction(R, node, kin);
-    CustomFunc1Rate rate;
-    R.setReactionRate(std::make_shared<CustomFunc1Rate>(std::move(rate)));
-}
-
-void setupTestReaction(TestReaction& R, const AnyMap& node,
-                       const Kinetics& kin)
-{
-    setupReaction(R, node, kin);
-    Units rc_units = rateCoeffUnits(R, kin);
-    ArrheniusRate rate(node, rc_units);
-    R.setReactionRate(std::make_shared<ArrheniusRate>(std::move(rate)));
-    R.allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
 }
 
 void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)
