@@ -11,6 +11,7 @@
 
 #include "Kinetics.h"
 #include "RateCoeffMgr.h"
+#include "cantera/kinetics/MultiRate.h"
 
 namespace Cantera
 {
@@ -45,6 +46,10 @@ public:
 protected:
     virtual void addElementaryReaction(ElementaryReaction& r);
     virtual void modifyElementaryReaction(size_t i, ElementaryReaction& rNew);
+
+    //! Vector of rate handlers
+    std::vector<unique_ptr<MultiRateBase>> m_bulk_rates;
+    std::map<std::string, size_t> m_bulk_types; //!< Mapping of rate handlers
 
     Rate1<Arrhenius> m_rates;
     std::vector<size_t> m_revindex; //!< Indices of reversible reactions
