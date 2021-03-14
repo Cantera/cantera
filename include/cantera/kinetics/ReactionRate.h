@@ -54,7 +54,7 @@ public:
     void setIndex(size_t index) { m_index = index; }
 
 protected:
-    size_t m_index; //!< reaction index
+    size_t m_index = npos; //!< reaction index
 };
 
 
