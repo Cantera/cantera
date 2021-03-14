@@ -48,14 +48,10 @@ void GasKinetics::update_rates_T()
 
     if (T != m_temp || P != m_pres) {
 
-        for (auto& rate : m_arrhenius_rates) {
-            // generic reaction rates
-            m_rfn.data()[rate.index()] = rate.eval(arrhenius_shared);
-        }
-
-        for (auto& rate : m_func1_rates) {
-            // generic reaction rates
-            m_rfn.data()[rate.index()] = rate.eval(func1_shared);
+        // loop over MultiBulkRates evaluators
+        for (auto& rates : m_bulk_rates) {
+            rates->update(thermo());
+            rates->getRateConstants(thermo(), m_rfn.data());
         }
 
         if (m_plog_rates.nReactions()) {
@@ -242,24 +238,12 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
     bool added = BulkKinetics::addReaction(r);
     if (!added) {
         return false;
+    } else if (r->reactionRate()) {
+        // Rate object already added in BulkKinetics::addReaction
+        return true;
     }
 
-    shared_ptr<ReactionRateBase> rate=r->reactionRate();
-    if (rate) {
-        size_t nRxn = nReactions() - 1;
-
-        // new generic reaction type handler
-        rate->setIndex(nRxn);
-        if (rate->type() == "ArrheniusRate") {
-            m_arrhenius_indices[nRxn] = m_arrhenius_rates.size();
-            m_arrhenius_rates.push_back(*std::dynamic_pointer_cast<ArrheniusRate>(rate));
-        } else if (rate->type() == "custom-function") {
-            m_func1_indices[nRxn] = m_func1_rates.size();
-            m_func1_rates.push_back(*std::dynamic_pointer_cast<CustomFunc1Rate>(rate));
-        } else {
-            throw CanteraError("GasKinetics::addReaction", "No longer used.");
-        }
-    } else if (r->type() == "elementary") {
+    if (r->type() == "elementary") {
         addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
     } else if (r->type() == "three-body") {
         addThreeBodyReaction(dynamic_cast<ThreeBodyReaction&>(*r));
@@ -344,20 +328,15 @@ void GasKinetics::addChebyshevReaction(ChebyshevReaction& r)
 
 void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
 {
-    // operations common to all reaction types
+    // operations common to all bulk reaction types
     BulkKinetics::modifyReaction(i, rNew);
 
-    shared_ptr<ReactionRateBase> rate=rNew->reactionRate();
-    if (rate) {
-        // new generic reaction type handler
-        if (rate->type() == "ArrheniusRate") {
-            modifyArrheniusRate(i, std::dynamic_pointer_cast<ArrheniusRate>(rate));
-        } else if (rate->type() == "custom-function") {
-            modifyCustomFunc1Rate(i, std::dynamic_pointer_cast<CustomFunc1Rate>(rate));
-        } else {
-            modifyReactionRate(i, rate);
-        }
-    } else if (rNew->type() == "elementary") {
+    if (rNew->reactionRate()) {
+        // Rate object already modified in BulkKinetics::modifyReaction
+        return;
+    }
+
+    if (rNew->type() == "elementary") {
         modifyElementaryReaction(i, dynamic_cast<ElementaryReaction&>(*rNew));
     } else if (rNew->type() == "three-body") {
         modifyThreeBodyReaction(i, dynamic_cast<ThreeBodyReaction&>(*rNew));
@@ -401,50 +380,6 @@ void GasKinetics::modifyPlogReaction(size_t i, PlogReaction& r)
 void GasKinetics::modifyChebyshevReaction(size_t i, ChebyshevReaction& r)
 {
     m_cheb_rates.replace(i, r.rate);
-}
-
-void GasKinetics::modifyReactionRate(size_t i, shared_ptr<ReactionRateBase> newRate)
-{
-    if (m_rxn_indices.find(i) != m_rxn_indices.end()) {
-
-        size_t j = m_rxn_indices[i];
-        if (newRate->type() != m_rxn_rates[j]->type()) {
-            throw CanteraError("GasKinetics::modifyReactionRate",
-                               "Attempting to replace '{}' with '{}'.",
-                               m_rxn_rates[j]->type(), newRate->type());
-        }
-        newRate->setIndex(m_rxn_rates[j]->index());
-        m_rxn_rates[j] = newRate;
-    } else {
-        throw CanteraError("GasKinetics::modifyReactionRate",
-                           "Index {} does not exist.", i);
-    }
-}
-
-void GasKinetics::modifyArrheniusRate(size_t i,
-                                      shared_ptr<ArrheniusRate> newRate)
-{
-    if (m_arrhenius_indices.find(i) != m_arrhenius_indices.end()) {
-        size_t j = m_arrhenius_indices[i];
-        newRate->setIndex(m_arrhenius_rates[j].index());
-        m_arrhenius_rates[j] = *newRate;
-    } else {
-        throw CanteraError("GasKinetics::modifyArrheniusRate",
-                           "Index {} does not exist.", i);
-    }
-}
-
-void GasKinetics::modifyCustomFunc1Rate(size_t i,
-                                        shared_ptr<CustomFunc1Rate> newRate)
-{
-    if (m_func1_indices.find(i) != m_func1_indices.end()) {
-        size_t j = m_func1_indices[i];
-        newRate->setIndex(m_func1_rates[j].index());
-        m_func1_rates[j] = *newRate;
-    } else {
-        throw CanteraError("GasKinetics::modifyCustomFunc1Rate",
-                           "Index {} does not exist.", i);
-    }
 }
 
 void GasKinetics::init()

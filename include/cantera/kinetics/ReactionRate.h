@@ -61,15 +61,6 @@ public:
 
     //! Evaluate reaction rate derivative based on bulk phase
     virtual double ddT(const ThermoPhase& bulk) const = 0;
-
-    //! Index or reaction within kinetics
-    size_t index() { return m_index; }
-
-    //! Index or reaction within kinetics
-    void setIndex(size_t index) { m_index = index; }
-
-protected:
-    size_t m_index = npos; //!< reaction index
 };
 
 
