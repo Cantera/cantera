@@ -39,9 +39,9 @@ public:
     virtual void add(const size_t rxn_index,
                      const shared_ptr<ReactionRateBase> rate) = 0;
 
-    //! Modify reaction rate object handled by the evaluator
-    virtual bool modify(const size_t rxn_index,
-                        const shared_ptr<ReactionRateBase> rate) = 0;
+    //! Replace reaction rate object handled by the evaluator
+    virtual bool replace(const size_t rxn_index,
+                         const shared_ptr<ReactionRateBase> rate) = 0;
 
     //! Evaluate all rate constants handled by the evaluator
     virtual void getRateConstants(const ThermoPhase& bulk_phase,
@@ -58,7 +58,7 @@ public:
  *     may be changed or removed without notice.
  */
 template <class RateType, class DataType>
-class MultiBulkRates : public MultiRateBase
+class MultiBulkRates final : public MultiRateBase
 {
 public:
     virtual void add(const size_t rxn_index,
@@ -68,10 +68,10 @@ public:
         m_rxn.push_back(rxn_index);
     }
 
-    virtual bool modify(const size_t rxn_index,
-                        const shared_ptr<ReactionRateBase> rate) override {
+    virtual bool replace(const size_t rxn_index,
+                         const shared_ptr<ReactionRateBase> rate) override {
         if (rate->type() != RateType::staticType()) {
-            throw CanteraError("MultiBulkRate::modify",
+            throw CanteraError("MultiBulkRate::replace",
                  "Invalid operation: cannot replace rate object of type '{}' "
                  "with a new rate of type '{}'.", RateType::staticType(), rate->type());
         }

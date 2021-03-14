@@ -38,6 +38,8 @@ public:
                                      bool doIrreversible = false);
 
     virtual bool addReaction(shared_ptr<Reaction> r);
+    virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
+
     virtual void resizeSpecies();
 
     virtual void setMultiplier(size_t i, double f);
