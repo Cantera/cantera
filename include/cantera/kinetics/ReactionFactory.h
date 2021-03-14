@@ -26,6 +26,11 @@ namespace Cantera
  * @endcode
  *
  * @ingroup reactionGroup
+ *
+ * @todo Once support for XML is phased out, a change of the base class type
+ *     to `Factory<Reaction, const AnyMap&, const Kinetics&>` will ensure that
+ *     `reg` and `create` methods provided by the base factory class can be
+ *     used. Thus, separate `setup_AnyMap` and other methods can be avoided.
  */
 class ReactionFactory : public Factory<Reaction>
 {
@@ -49,6 +54,11 @@ public:
         s_factory = 0;
     }
 
+    //! Set up reaction based on XML node information
+    /**
+     * Kept separate from base `create` method as the factory has to handle both
+     * XML and `AnyMap` input until support for the former is removed.
+     */
     void setup_XML(std::string name,
                    Reaction* R, const XML_Node& rxn_node) {
         try {
@@ -60,11 +70,19 @@ public:
     }
 
     //! Register a new object initializer function (from XML node)
+    /**
+     * Kept separate from base `reg` method as the factory has to handle both
+     * XML and `AnyMap` input until support for the former is removed.
+     */
     void reg_XML(const std::string& name,
                  std::function<void(Reaction*, const XML_Node&)> f) {
         m_xml_setup[name] = f;
     }
 
+    //! Set up reaction based on AnyMap node information
+    /**
+     * @todo call setup directly from constructor after removal of XML support.
+     */
     void setup_AnyMap(std::string name,
                       Reaction* R, const AnyMap& node, const Kinetics& kin) {
         try {
@@ -75,7 +93,10 @@ public:
         }
     }
 
-    //! Register a new object initializer function (from XML node)
+    //! Register a new object initializer function (from AnyMap node)
+    /**
+     * @todo can be handled by `reg` after removal of XML support.
+     */
     void reg_AnyMap(const std::string& name,
                     std::function<void(Reaction*, const AnyMap&, const Kinetics&)> f) {
         m_anymap_setup[name] = f;
