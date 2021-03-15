@@ -26,9 +26,7 @@ void GasKinetics::update_rates_T()
     double T = thermo().temperature();
     double P = thermo().pressure();
     m_logStandConc = log(thermo().standardConcentration());
-    ArrheniusData arrhenius_shared(T);
-    CustomFunc1Data func1_shared(T);
-    double logT = arrhenius_shared.m_logT;
+    double logT = log(T);
 
     if (T != m_temp) {
         if (!m_rfn.empty()) {
