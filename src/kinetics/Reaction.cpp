@@ -321,7 +321,7 @@ ChebyshevReaction::ChebyshevReaction(const Composition& reactants_,
 }
 
 CustomFunc1Reaction::CustomFunc1Reaction()
-    : Reaction()
+    : Reaction2()
 {
     reaction_type = CUSTOMPY_RXN;
 }
@@ -330,12 +330,12 @@ void CustomFunc1Reaction::setup(const AnyMap& node, const Kinetics& kin)
 {
     Reaction::setup(node, kin);
     Units rc_units; // @todo Not needed once `rate_units` is implemented.
-    setReactionRate(
+    setRate(
         std::shared_ptr<CustomFunc1Rate>(new CustomFunc1Rate(node, rc_units)));
 }
 
 TestReaction::TestReaction()
-    : Reaction()
+    : Reaction2()
     , allow_negative_pre_exponential_factor(false)
 {
 }
@@ -347,7 +347,7 @@ void TestReaction::setup(const AnyMap& node, const Kinetics& kin)
     // @todo Rate units will become available as `rate_units` after
     // serialization is fully implemented.
     Units rc_units = rateCoeffUnits(*this, kin);
-    setReactionRate(
+    setRate(
         std::shared_ptr<ArrheniusRate>(new ArrheniusRate(node, rc_units)));
     allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
 }

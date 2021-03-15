@@ -121,8 +121,9 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
         m_irrev.push_back(nReactions()-1);
     }
 
-    shared_ptr<ReactionRateBase> rate=r->reactionRate();
-    if (rate) {
+    if (r->newFramework()) {
+        shared_ptr<ReactionRateBase> rate;
+        rate = std::dynamic_pointer_cast<Reaction2>(r)->rate();
         // If neccessary, add new MultiBulkRates evaluator
         if (m_bulk_types.find(rate->type()) == m_bulk_types.end()) {
             m_bulk_types[rate->type()] = m_bulk_rates.size();
@@ -154,8 +155,9 @@ void BulkKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     // operations common to all reaction types
     Kinetics::modifyReaction(i, rNew);
 
-    shared_ptr<ReactionRateBase> rate=rNew->reactionRate();
-    if (rate) {
+    if (rNew->newFramework()) {
+        shared_ptr<ReactionRateBase> rate;
+        rate = std::dynamic_pointer_cast<Reaction2>(rNew)->rate();
         // Ensure that MultiBulkRates evaluator is available
         if (m_bulk_types.find(rate->type()) != m_bulk_types.end()) {
             throw CanteraError("BulkKinetics::modifyReaction",

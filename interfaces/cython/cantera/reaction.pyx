@@ -934,7 +934,7 @@ cdef class CustomReaction(Reaction):
         def __set__(self, CustomRate rate):
             self._rate = rate
             cdef CxxCustomFunc1Reaction* r = <CxxCustomFunc1Reaction*>self.reaction
-            r.setReactionRate(self._rate._base)
+            r.setRate(self._rate._base)
 
 
 cdef class TestReaction(Reaction):
@@ -980,10 +980,10 @@ cdef class TestReaction(Reaction):
         """ Get/Set the `Arrhenius` rate coefficient for this reaction. """
         def __get__(self):
             cdef CxxTestReaction* r = <CxxTestReaction*>self.reaction
-            return ArrheniusRate.wrap(r.reactionRate())
+            return ArrheniusRate.wrap(r.rate())
         def __set__(self, ArrheniusRate rate):
             cdef CxxTestReaction* r = <CxxTestReaction*>self.reaction
-            r.setReactionRate(rate._base)
+            r.setRate(rate._base)
 
     property allow_negative_pre_exponential_factor:
         """
