@@ -63,15 +63,8 @@ public:
     //! Set up reaction based on AnyMap node
     virtual void setup(const AnyMap& node, const Kinetics& kin);
 
-    //! Get reaction rate pointer
-    shared_ptr<ReactionRateBase> reactionRate() {
-        return m_rate;
-    }
-
-    //! Set reaction rate pointer
-    void setReactionRate(shared_ptr<ReactionRateBase> rate) {
-        m_rate = rate;
-    }
+    //! Flag indicating whether new framework is used
+    virtual bool newFramework() { return false; }
 
     //! Type of the reaction. The valid types are listed in the file,
     //! reaction_defs.h, with constants ending in `RXN`.
@@ -115,7 +108,28 @@ public:
 protected:
     //! Flag indicating whether reaction is set up correctly
     bool m_valid;
+};
 
+
+//! An intermediate class used to avoid naming conflicts of 'rate' member
+//! variables and getters (see `ElementaryReaction`, `PlogReaction` and
+//! `ChebyshevReaction`).
+class Reaction2 : public Reaction
+{
+public:
+    virtual bool newFramework() { return true; }
+
+    //! Get reaction rate pointer
+    shared_ptr<ReactionRateBase> rate() {
+        return m_rate;
+    }
+
+    //! Set reaction rate pointer
+    void setRate(shared_ptr<ReactionRateBase> rate) {
+        m_rate = rate;
+    }
+
+protected:
     //! Reaction rate used by generic reactions
     shared_ptr<ReactionRateBase> m_rate;
 };
@@ -267,7 +281,7 @@ public:
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
  */
-class CustomFunc1Reaction : public Reaction
+class CustomFunc1Reaction : public Reaction2
 {
 public:
     CustomFunc1Reaction();
@@ -288,7 +302,7 @@ public:
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
  */
-class TestReaction : public Reaction
+class TestReaction : public Reaction2
 {
 public:
     TestReaction();

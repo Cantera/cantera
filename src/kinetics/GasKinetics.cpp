@@ -236,7 +236,7 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
     bool added = BulkKinetics::addReaction(r);
     if (!added) {
         return false;
-    } else if (r->reactionRate()) {
+    } else if (r->newFramework()) {
         // Rate object already added in BulkKinetics::addReaction
         return true;
     }
@@ -329,7 +329,7 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     // operations common to all bulk reaction types
     BulkKinetics::modifyReaction(i, rNew);
 
-    if (rNew->reactionRate()) {
+    if (rNew->newFramework()) {
         // Rate object already modified in BulkKinetics::modifyReaction
         return;
     }

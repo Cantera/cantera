@@ -347,8 +347,11 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool duplicate
         cbool allow_nonreactant_orders
         cbool allow_negative_orders
-        shared_ptr[CxxReactionRateBase] reactionRate()
-        void setReactionRate(shared_ptr[CxxReactionRateBase])
+
+    cdef cppclass CxxReaction2 "Cantera::Reaction2" (CxxReaction):
+        CxxReaction2()
+        shared_ptr[CxxReactionRateBase] rate()
+        void setRate(shared_ptr[CxxReactionRateBase])
 
     cdef cppclass CxxElementaryReaction "Cantera::ElementaryReaction" (CxxReaction):
         CxxElementaryReaction()
@@ -412,10 +415,10 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxChebyshevReaction "Cantera::ChebyshevReaction" (CxxReaction):
         CxxChebyshevRate rate
 
-    cdef cppclass CxxCustomFunc1Reaction "Cantera::CustomFunc1Reaction" (CxxReaction):
+    cdef cppclass CxxCustomFunc1Reaction "Cantera::CustomFunc1Reaction" (CxxReaction2):
         CxxCustomFunc1Reaction()
 
-    cdef cppclass CxxTestReaction "Cantera::TestReaction" (CxxReaction):
+    cdef cppclass CxxTestReaction "Cantera::TestReaction" (CxxReaction2):
         CxxTestReaction()
         cbool allow_negative_pre_exponential_factor
 
