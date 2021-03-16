@@ -8,7 +8,9 @@ from libcpp.map cimport map as stdmap
 from libcpp.unordered_map cimport unordered_map
 from libcpp.pair cimport pair
 from libcpp cimport bool as cbool
+from libcpp.functional cimport function
 from cpython cimport bool as pybool
+from cpython.ref cimport PyObject
 
 import numpy as np
 cimport numpy as np
@@ -37,6 +39,14 @@ cdef extern from "cantera/cython/funcWrapper.h":
     cdef cppclass CxxFunc1 "Func1Py":
         CxxFunc1(callback_wrapper, void*)
         double eval(double) except +translate_exception
+
+    cdef cppclass PyFuncInfo:
+        PyFuncInfo()
+        PyObject* func
+        PyObject* exception_type
+        PyObject* exception_value
+
+    cdef function[void(double)] pyOverride(PyFuncInfo, void(PyFuncInfo&, double))
 
 cdef extern from "cantera/numerics/Func1.h":
     cdef cppclass CxxTabulated1 "Cantera::Tabulated1":
@@ -755,6 +765,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double speed()
         double distance()
 
+
     # walls
 
     cdef cppclass CxxWallBase "Cantera::WallBase":
@@ -861,6 +872,13 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         size_t nparams()
         string sensitivityParameterName(size_t) except +translate_exception
 
+cdef extern from "cantera/zeroD/DelegatedReactor.h" namespace "Cantera":
+    cdef cppclass CxxDelegatedReactor "Cantera::DelegatedReactor" (CxxReactor):
+        CxxDelegatedReactor()
+
+        void setInitialize(function[void(double)], string&) except +translate_exception
+
+        # void base_initialize(double) except +translate_exception
 
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef CxxThermoPhase* newPhase(string, string) except +translate_exception
@@ -1303,6 +1321,9 @@ cdef class IdealGasConstPressureReactor(Reactor):
 cdef class FlowReactor(Reactor):
     pass
 
+cdef class DelegatedReactor(Reactor):
+    cdef CxxDelegatedReactor* delegator
+
 cdef class ReactorSurface:
     cdef CxxReactorSurface* surface
     cdef Kinetics _kinetics
@@ -1431,3 +1452,6 @@ cdef extern from "cantera/thermo/Elements.h" namespace "Cantera":
     string getElementSymbol(int atomicNumber) except +translate_exception
     string getElementName(string ename) except +translate_exception
     string getElementName(int atomicNumber) except +translate_exception
+
+# Wrappers for override functions
+cdef void callback_v_d(PyFuncInfo&, double)
