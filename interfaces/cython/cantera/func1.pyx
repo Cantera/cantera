@@ -22,6 +22,17 @@ cdef double func_callback(double t, void* obj, void** err):
         return 0.0
 
 
+cdef void callback_v_d(PyFuncInfo& funcInfo, double arg):
+    try:
+        (<object>funcInfo.func)(arg)
+    except BaseException as e:
+        exc_type, exc_value = sys.exc_info()[:2]
+        funcInfo.exception_type = <PyObject*>exc_type
+        Py_INCREF(exc_type)
+        funcInfo.exception_value = <PyObject*>exc_value
+        Py_INCREF(exc_value)
+
+
 cdef class Func1:
     """
     This class is used as a wrapper for a function of one variable, i.e.
