@@ -966,7 +966,7 @@ cdef class Sim1D:
                else:
                    other_cols[e] = self.profile(dom, e)
             if self.radiation_enabled:
-                other_cols['qdot'] = self.radiative_heat_loss
+                other_cols['qdot'] = self.flame.radiative_heat_loss
 
             return states, other_cols, meta
 

@@ -896,6 +896,13 @@ class TestDiffusionFlame(utilities.CanteraTest):
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             self.assertFalse(bad, bad)
 
+        filename = pjoin(self.test_work_dir, 'DiffusionFlameTest-h2-mix-rad.csv')
+        self.sim.write_csv(filename) # check output
+        self.assertTrue(os.path.exists(filename))
+        csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
+        self.assertIn('qdot', csv_data.dtype.names)
+        os.remove(filename)
+
     def test_strain_rate(self):
         # This doesn't test that the values are correct, just that they can be
         # computed without error
@@ -986,6 +993,13 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
             bad = utilities.compareProfiles(referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             self.assertFalse(bad, bad)
+
+        filename = pjoin(self.test_work_dir, 'CounterflowPremixedFlame-h2-mix.csv')
+        sim.write_csv(filename) # check output
+        self.assertTrue(os.path.exists(filename))
+        csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
+        self.assertNotIn('qdot', csv_data.dtype.names)
+        os.remove(filename)
 
     def run_case(self, phi, T, width, P):
         gas = ct.Solution('h2o2.xml')
