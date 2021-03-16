@@ -4,6 +4,7 @@
 import warnings
 from collections import defaultdict as _defaultdict
 import numbers as _numbers
+from cpython cimport Py_INCREF
 
 _reactor_counts = _defaultdict(int)
 
@@ -386,6 +387,21 @@ cdef class FlowReactor(Reactor):
         """ The distance of the fluid element from the inlet of the reactor."""
         def __get__(self):
             return (<CxxFlowReactor*>self.reactor).distance()
+
+
+cdef class DelegatedReactor(Reactor):
+    reactor_type = "DelegatedReactor"
+
+    def __cinit__(self, *args, **kwargs):
+        self.delegator = <CxxDelegatedReactor*>(self.rbase)
+
+    def __init__(self, *args, **kwargs):
+        cdef PyFuncInfo func_info
+        if 'initialize' in self.__class__.__dict__:
+            func_info.func = <PyObject*>self.initialize
+            Py_INCREF(self.initialize)
+            self.delegator.setInitialize(pyOverride(func_info, callback_v_d), stringify('before'))
+        super().__init__(*args, **kwargs)
 
 
 cdef class ReactorSurface:
