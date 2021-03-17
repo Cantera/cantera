@@ -97,45 +97,62 @@ extern "C" {
 }
 
 
-struct PyFuncInfo {
+class PyFuncInfo {
+public:
     PyFuncInfo()
-        : func(nullptr)
-        , exception_type(nullptr)
-        , exception_value(nullptr)
+        : m_func(nullptr)
+        , m_exception_type(nullptr)
+        , m_exception_value(nullptr)
     {
     }
 
     PyFuncInfo(const PyFuncInfo& other)
-        : func(other.func)
-        , exception_type(other.exception_type)
-        , exception_value(other.exception_value)
+        : m_func(other.m_func)
+        , m_exception_type(other.m_exception_type)
+        , m_exception_value(other.m_exception_value)
     {
-        if (func) {
-            Py_INCREF(func);
-        }
-        if (exception_type) {
-            Py_INCREF(exception_type);
-        }
-        if (exception_value) {
-            Py_INCREF(exception_value);
-        }
+        Py_XINCREF(m_func);
+        Py_XINCREF(m_exception_type);
+        Py_XINCREF(m_exception_value);
     }
 
     ~PyFuncInfo() {
-        if (func) {
-            Py_DECREF(func);
-        }
-        if (exception_type) {
-            Py_DECREF(exception_type);
-        }
-        if (exception_value) {
-            Py_DECREF(exception_value);
-        }
+        Py_XDECREF(m_func);
+        Py_XDECREF(m_exception_type);
+        Py_XDECREF(m_exception_value);
     }
 
-    PyObject* func;
-    PyObject* exception_type;
-    PyObject* exception_value;
+    PyObject* func() {
+        return m_func;
+    }
+    void setFunc(PyObject* f) {
+        Py_XDECREF(m_func);
+        Py_XINCREF(f);
+        m_func = f;
+    }
+
+    PyObject* exceptionType() {
+        return m_exception_type;
+    }
+    void setExceptionType(PyObject* obj) {
+        Py_XDECREF(m_exception_type);
+        Py_XINCREF(obj);
+        m_exception_type = obj;
+    }
+
+    PyObject* exceptionValue() {
+        return m_exception_value;
+    }
+    void setExceptionValue(PyObject* obj) {
+        Py_XDECREF(m_exception_value);
+        Py_XINCREF(obj);
+        m_exception_value = obj;
+    }
+
+private:
+    PyObject* m_func;
+    PyObject* m_exception_type;
+    PyObject* m_exception_value;
 };
 
 // template <class ... Args>
@@ -143,11 +160,13 @@ struct PyFuncInfo {
 //     return [pydata, func](Args ... args) { func(pydata, args ...); }
 // }
 
-std::function<void(double)> pyOverride(PyFuncInfo func_info, void func(PyFuncInfo&, double)) {
+std::function<void(double)> pyOverride(PyObject* pyFunc, void func(PyFuncInfo&, double)) {
+    PyFuncInfo func_info;
+    func_info.setFunc(pyFunc);
     return [func_info, func](double x) mutable {
         func(func_info, x);
-        if (func_info.exception_type) {
-            throw CallbackError(func_info.exception_type, func_info.exception_value);
+        if (func_info.exceptionType()) {
+            throw CallbackError(func_info.exceptionType(), func_info.exceptionValue());
         }
     };
 }

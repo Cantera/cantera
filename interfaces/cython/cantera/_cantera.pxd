@@ -42,11 +42,14 @@ cdef extern from "cantera/cython/funcWrapper.h":
 
     cdef cppclass PyFuncInfo:
         PyFuncInfo()
-        PyObject* func
-        PyObject* exception_type
-        PyObject* exception_value
+        PyObject* func()
+        void setFunc(PyObject*)
+        PyObject* exceptionType()
+        void setExceptionType(PyObject*)
+        PyObject* exceptionValue()
+        void setExceptionValue(PyObject*)
 
-    cdef function[void(double)] pyOverride(PyFuncInfo, void(PyFuncInfo&, double))
+    cdef function[void(double)] pyOverride(PyObject*, void(PyFuncInfo&, double))
 
 cdef extern from "cantera/numerics/Func1.h":
     cdef cppclass CxxTabulated1 "Cantera::Tabulated1":
