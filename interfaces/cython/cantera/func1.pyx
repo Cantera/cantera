@@ -24,13 +24,11 @@ cdef double func_callback(double t, void* obj, void** err):
 
 cdef void callback_v_d(PyFuncInfo& funcInfo, double arg):
     try:
-        (<object>funcInfo.func)(arg)
+        (<object>funcInfo.func())(arg)
     except BaseException as e:
         exc_type, exc_value = sys.exc_info()[:2]
-        funcInfo.exception_type = <PyObject*>exc_type
-        Py_INCREF(exc_type)
-        funcInfo.exception_value = <PyObject*>exc_value
-        Py_INCREF(exc_value)
+        funcInfo.setExceptionType(<PyObject*>exc_type)
+        funcInfo.setExceptionValue(<PyObject*>exc_value)
 
 
 cdef class Func1:
