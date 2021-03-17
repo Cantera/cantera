@@ -4,7 +4,6 @@
 import warnings
 from collections import defaultdict as _defaultdict
 import numbers as _numbers
-from cpython cimport Py_INCREF
 
 _reactor_counts = _defaultdict(int)
 
@@ -396,11 +395,11 @@ cdef class DelegatedReactor(Reactor):
         self.delegator = <CxxDelegatedReactor*>(self.rbase)
 
     def __init__(self, *args, **kwargs):
-        cdef PyFuncInfo func_info
         if 'initialize' in self.__class__.__dict__:
-            func_info.func = <PyObject*>self.initialize
-            Py_INCREF(self.initialize)
-            self.delegator.setInitialize(pyOverride(func_info, callback_v_d), stringify('before'))
+            self.delegator.setInitialize(
+                pyOverride(<PyObject*>self.initialize, callback_v_d),
+                stringify('before')
+            )
         super().__init__(*args, **kwargs)
 
 
