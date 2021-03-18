@@ -289,6 +289,9 @@ jobs:
   windows:
     name: ${{ matrix.os }}, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
+    env:
+      BOOST_ROOT: ${{github.workspace}}/3rdparty/boost
+      BOOST_URL: https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.7z
     strategy:
       matrix:
         os: ['windows-2019']
@@ -324,9 +327,26 @@ jobs:
         run: |
           python -m pip install -U pip 'setuptools>=47.0.0,<48'
           python -m pip install scons pypiwin32 numpy ruamel.yaml cython h5py pandas
+      - name: Restore Boost cache
+        uses: actions/cache@v2
+        id: cache-boost
+        with:
+          path: ${{env.BOOST_ROOT}}
+          key: boost
+
+      - name: Install Boost Headers
+        if: steps.cache-boost.outputs.cache-hit != 'true'
+        run: |
+          BOOST_ROOT=$(echo $BOOST_ROOT | sed 's/\\/\//g')
+          mkdir -p $BOOST_ROOT
+          curl --progress-bar --location --output $BOOST_ROOT/download.7z $BOOST_URL
+          7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost_1_75_0/boost
+          mv $BOOST_ROOT/boost_1_75_0/boost $BOOST_ROOT/boost
+          rm $BOOST_ROOT/download.7z
+        shell: bash
       - name: Build Cantera
         run: |
-          scons build -j2 boost_inc_dir=%BOOST_ROOT_1_72_0% debug=n VERBOSE=y python_package=full ^
+          scons build -j2 boost_inc_dir=%BOOST_ROOT% debug=n VERBOSE=y python_package=full ^
           msvc_version=${{ matrix.vs-toolset }} f90_interface=n
         shell: cmd
       - name: Test Cantera
