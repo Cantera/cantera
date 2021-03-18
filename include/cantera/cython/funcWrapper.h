@@ -155,16 +155,13 @@ private:
     PyObject* m_exception_value;
 };
 
-// template <class ... Args>
-// std::function<void(Args ...)> pyOverride(PyFuncInfo* pydata, std::function<void(PyFuncInfo*, Args ... args)> func) {
-//     return [pydata, func](Args ... args) { func(pydata, args ...); }
-// }
 
-std::function<void(double)> pyOverride(PyObject* pyFunc, void func(PyFuncInfo&, double)) {
+template <class ... Args>
+std::function<void(Args ...)> pyOverride(PyObject* pyFunc, void func(PyFuncInfo&, Args ... args)) {
     PyFuncInfo func_info;
     func_info.setFunc(pyFunc);
-    return [func_info, func](double x) mutable {
-        func(func_info, x);
+    return [func_info, func](Args ... args) mutable {
+        func(func_info, args ...);
         if (func_info.exceptionType()) {
             throw CallbackError(func_info.exceptionType(), func_info.exceptionValue());
         }

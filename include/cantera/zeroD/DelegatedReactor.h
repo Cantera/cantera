@@ -8,6 +8,7 @@
 
 #include "Reactor.h"
 #include "cantera/base/global.h"
+#include <array>
 
 namespace Cantera
 {
@@ -15,49 +16,38 @@ namespace Cantera
 class DelegatedReactor : public Reactor
 {
 public:
-    DelegatedReactor() {
-        m_initialize = [this](double t0) { Reactor::initialize(t0); };
-    }
+    DelegatedReactor();
 
     void setInitialize(const std::function<void(double)>& func,
-                       const std::string& when) {
-        setOverride(&m_initialize, func, when,
-                    &DelegatedReactor::baseInitialize);
-    }
+                       const std::string& when);
     virtual void initialize(double t0) {
         m_initialize(t0);
     }
-    void baseInitialize(double t0) { Reactor::initialize(t0); }
 
-private:
-    template <class ... Args>
-    void setOverride(
-        std::function<void(Args ... args)>* target,
-        const std::function<void(Args ... args)>& func,
-        const std::string& when,
-        void(DelegatedReactor::* base)(Args ... args))
-    {
-
-        if (when == "before") {
-            *target = [this, base, func](Args ... args) {
-                func(args ...);
-                (this->*base)(args ...);
-            };
-        } else if (when == "after") {
-            *target = [this, base, func](Args ... args) {
-                (this->*base)(args ...);
-                func(args ...);
-            };
-        } else if (when == "replace") {
-            *target = func;
-        } else {
-            throw CanteraError("DelegatedReactor::setOverride",
-                "'when' must be one of 'before', 'after', or 'replace';"
-                " not '{}", when);
-        }
+    void setEvalEqs(const std::function<void(std::array<size_t, 3>, double, double*, double*, double*)>& func,
+                    const std::string& when);
+    virtual void evalEqs(double t, double* y, double* ydot, double* params) {
+        m_evalEqs(t, y, ydot, params);
     }
 
+private:
+    template <typename BaseFunc, class ... Args>
+    void setOverride(
+        std::function<void(Args ...)>* target,
+        const std::function<void(Args ...)>& func,
+        const std::string& when,
+        BaseFunc base);
+
+    template <int nArrays, typename BaseFunc, class ... Args>
+    void setOverride(
+        std::function<void(Args ...)>* target,
+        const std::function<void(std::array<size_t, nArrays>, Args ...)>& func,
+        const std::function<std::array<size_t, nArrays>()>& sizeGetter,
+        const std::string& when,
+        BaseFunc base);
+
     std::function<void(double)> m_initialize;
+    std::function<void(double, double*, double*, double*)> m_evalEqs;
 };
 
 }
