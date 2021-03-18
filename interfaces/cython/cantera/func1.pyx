@@ -31,6 +31,20 @@ cdef void callback_v_d(PyFuncInfo& funcInfo, double arg):
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
 
+cdef void callback_v_d_dp_dp_dp(PyFuncInfo& funcInfo, size_array3 sizes, double arg1,
+                                double* arg2, double* arg3, double* arg4):
+    cdef double[:] view2 = <double[:sizes[0]]>arg2 if sizes[0] else None
+    cdef double[:] view3 = <double[:sizes[1]]>arg3 if sizes[1] else None
+    cdef double[:] view4 = <double[:sizes[2]]>arg4 if sizes[2] else None
+
+    try:
+        (<object>funcInfo.func())(arg1, view2, view3, view4)
+    except BaseException as e:
+        exc_type, exc_value = sys.exc_info()[:2]
+        funcInfo.setExceptionType(<PyObject*>exc_type)
+        funcInfo.setExceptionValue(<PyObject*>exc_value)
+
+
 cdef class Func1:
     """
     This class is used as a wrapper for a function of one variable, i.e.
