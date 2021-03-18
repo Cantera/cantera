@@ -400,6 +400,11 @@ cdef class DelegatedReactor(Reactor):
                 pyOverride(<PyObject*>self.initialize, callback_v_d),
                 stringify('before')
             )
+        if 'evalEqs' in self.__class__.__dict__:
+            self.delegator.setEvalEqs(
+                pyOverride(<PyObject*>self.evalEqs, callback_v_d_dp_dp_dp),
+                stringify('after')
+            )
         super().__init__(*args, **kwargs)
 
 
