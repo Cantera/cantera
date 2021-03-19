@@ -45,6 +45,20 @@ cdef void callback_v_d_dp_dp_dp(PyFuncInfo& funcInfo, size_array3 sizes, double 
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
 
+cdef int callback_i_sr_z(PyFuncInfo& funcInfo, string& out, size_t arg):
+    try:
+        ret = (<object>funcInfo.func())(arg)
+        if ret is None:
+            return 0
+        else:
+            (&out)[0] = stringify(ret)
+            return 1
+    except BaseException as e:
+        exc_type, exc_value = sys.exc_info()[:2]
+        funcInfo.setExceptionType(<PyObject*>exc_type)
+        funcInfo.setExceptionValue(<PyObject*>exc_value)
+    return -1
+
 cdef class Func1:
     """
     This class is used as a wrapper for a function of one variable, i.e.
