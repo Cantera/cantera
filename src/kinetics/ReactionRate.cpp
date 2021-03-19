@@ -5,13 +5,17 @@
 
 #include "cantera/kinetics/ReactionRate.h"
 #include "cantera/numerics/Func1.h"
-#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
 
-void CustomFunc1Data::update(const ThermoPhase& bulk) {
-    m_temperature = bulk.temperature();
+ArrheniusRate::ArrheniusRate(double A, double b, double E)
+    : Arrhenius(A, b, E) {
+}
+
+ArrheniusRate::ArrheniusRate(const AnyMap& node, const Units& rc_units) {
+    setup(node["rate-constant"], node.units(), rc_units);
 }
 
 CustomFunc1Rate::CustomFunc1Rate() : m_ratefunc(0) {}
@@ -26,20 +30,6 @@ double CustomFunc1Rate::eval(const CustomFunc1Data& shared_data) const {
     }
     throw CanteraError("CustomFunc1Rate::eval",
                        "Custom rate function is not initialized.");
-}
-
-void ArrheniusData::update(const ThermoPhase& bulk) {
-    m_temperature = bulk.temperature();
-    m_logT = std::log(m_temperature);
-    m_recipT = 1./m_temperature;
-}
-
-ArrheniusRate::ArrheniusRate(double A, double b, double E)
-    : Arrhenius(A, b, E) {
-}
-
-ArrheniusRate::ArrheniusRate(const AnyMap& node, const Units& rc_units) {
-    setup(node["rate-constant"], node.units(), rc_units);
 }
 
 }

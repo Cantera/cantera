@@ -36,18 +36,25 @@ public:
     virtual ~MultiRateBase() {}
 
     //! Add reaction rate object to the evaluator
+    //! @param rxn_index  index of reaction
+    //! @param rate  reaction rate object
     virtual void add(const size_t rxn_index,
                      ReactionRateBase& rate) = 0;
 
     //! Replace reaction rate object handled by the evaluator
+    //! @param rxn_index  index of reaction
+    //! @param rate  reaction rate object
     virtual bool replace(const size_t rxn_index,
                          ReactionRateBase& rate) = 0;
 
     //! Evaluate all rate constants handled by the evaluator
-    virtual void getRateConstants(const ThermoPhase& bulk_phase,
+    //! @param bulk  object representing bulk phase
+    //! @param kf  array of rate constants
+    virtual void getRateConstants(const ThermoPhase& bulk,
                                   double* kf) const = 0;
 
     //! Update data common to reaction rates of a specific type
+    //! @param bulk  object representing bulk phase
     virtual void update(const ThermoPhase& bulk) = 0;
 };
 
