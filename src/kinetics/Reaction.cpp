@@ -637,6 +637,11 @@ ChebyshevReaction::ChebyshevReaction(const Composition& reactants_,
     reaction_type = CHEBYSHEV_RXN;
 }
 
+Reaction2::Reaction2(const Composition& reactants, const Composition& products)
+    : Reaction(reactants, products)
+{
+}
+
 void Reaction2::setParameters(const AnyMap& node, const Kinetics& kin)
 {
     parseReactionEquation(*this, node["equation"], kin);
@@ -661,10 +666,33 @@ void Reaction2::setParameters(const AnyMap& node, const Kinetics& kin)
     input = node;
 }
 
+ElementaryReaction2::ElementaryReaction2()
+    : Reaction2()
+    , allow_negative_pre_exponential_factor(false)
+{
+}
+
+ElementaryReaction2::ElementaryReaction2(const Composition& reactants,
+                                         const Composition& products,
+                                         const ArrheniusRate& rate)
+    : Reaction2(reactants, products)
+    , allow_negative_pre_exponential_factor(false)
+{
+    setRate(std::make_shared<ArrheniusRate>(rate));
+}
+
+void ElementaryReaction2::setParameters(const AnyMap& node, const Kinetics& kin)
+{
+    Reaction2::setParameters(node, kin);
+
+    setRate(
+        std::shared_ptr<ArrheniusRate>(new ArrheniusRate(node, rate_units)));
+    allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
+}
+
 CustomFunc1Reaction::CustomFunc1Reaction()
     : Reaction2()
 {
-    reaction_type = CUSTOMPY_RXN;
 }
 
 void CustomFunc1Reaction::setParameters(const AnyMap& node, const Kinetics& kin)

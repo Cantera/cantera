@@ -79,6 +79,15 @@ public:
         m_xml_setup[name] = f;
     }
 
+    //! Check whether `name` is registered
+    /**
+     * Detect whether '-old' suffix is required for valid XML constructor; used
+     * until XML support is removed.
+     */
+    bool missing_XML(const std::string& name) {
+        return m_xml_setup.find(name) == m_xml_setup.end();
+    }
+
     //! Set up reaction based on AnyMap node information
     /**
      * @todo call setup directly from constructor after removal of XML support.
