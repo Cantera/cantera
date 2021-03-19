@@ -1152,7 +1152,7 @@ class phase:
             else:
                 out['reactions'] = [BlockMap([(r[0], r[1])]) for r in self.reactions]
 
-        if self.transport:
+        if self.transport and self.transport != 'None':
             out['transport'] = _newNames[self.transport]
 
         if self.comment:
