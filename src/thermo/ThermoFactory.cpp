@@ -89,8 +89,8 @@ ThermoFactory::ThermoFactory()
     addAlias("liquid-water-IAPWS95", "PureLiquidWater");
     reg("binary-solution-tabulated", []() { return new BinarySolutionTabulatedThermo(); });
     addAlias("binary-solution-tabulated", "BinarySolutionTabulatedThermo");
-    reg("PengRobinson", []() { return new PengRobinson(); });
-    addAlias("PengRobinson", "Peng-Robinson");
+    reg("Peng-Robinson", []() { return new PengRobinson(); });
+    addAlias("Peng-Robinson", "PengRobinson");
 }
 
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
