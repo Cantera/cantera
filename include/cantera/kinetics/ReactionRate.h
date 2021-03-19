@@ -12,13 +12,13 @@
 #define CT_REACTIONRATE_H
 
 #include "cantera/kinetics/RxnRates.h"
+#include "cantera/kinetics/ReactionData.h"
 #include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {
 
 class Func1;
-class ThermoPhase;
 class AnyMap;
 
 
@@ -45,21 +45,29 @@ public:
     virtual std::string type() const = 0;
 
     //! Evaluate reaction rate based on temperature
+    //! @param T  temperature [K]
     virtual double eval(double T) const = 0;
 
     //! Evaluate reaction rate based on temperature and pressure
+    //! @param T  temperature [K]
+    //! @param P  pressure [Pa]
     virtual double eval(double T, double P) const = 0;
 
     //! Evaluate reaction rate based on bulk phase
+    //! @param bulk  object representing bulk phase
     virtual double eval(const ThermoPhase& bulk) const = 0;
 
     //! Evaluate reaction rate derivative based on temperature
+    //! @param T  temperature [K]
     virtual double ddT(double T) const = 0;
 
     //! Evaluate reaction rate derivative based on temperature and pressure
+    //! @param T  temperature [K]
+    //! @param P  pressure [Pa]
     virtual double ddT(double T, double P) const = 0;
 
     //! Evaluate reaction rate derivative based on bulk phase
+    //! @param bulk  object representing bulk phase
     virtual double ddT(const ThermoPhase& bulk) const = 0;
 };
 
@@ -76,10 +84,19 @@ template <class DataType>
 class ReactionRate : public ReactionRateBase
 {
 public:
+    ReactionRate() = default;
+
+    ReactionRate(const AnyMap& node, const Units& rc_units) {
+        throw CanteraError("ReactionRate::ReactionRate",
+            "Constructor needs to be implemented by derived classes.");
+    }
+
     //! Update information specific to reaction
+    //! @param shared_data  data shared by all reactions of a given type
     virtual void update(const DataType& shared_data, const ThermoPhase& bulk) {}
 
     //! Evaluate reaction rate
+    //! @param shared_data  data shared by all reactions of a given type
     virtual double eval(const DataType& shared_data) const = 0;
 
     virtual double eval(double T) const override {
@@ -95,6 +112,7 @@ public:
     }
 
     //! Evaluate derivative of reaction rate with respect to temperature
+    //! @param shared_data  data shared by all reactions of a given type
     virtual double ddT(const DataType& shared_data) const {
         throw CanteraError("ReactionRate::ddT",
                            "Not implemented by derived ReactionRate object.");
@@ -108,44 +126,9 @@ public:
         return ddT(DataType(T, P));
     }
 
-    virtual double ddT(const ThermoPhase& bulk) const {
+    virtual double ddT(const ThermoPhase& bulk) const override {
         return ddT(DataType(bulk));
     }
-
-    // [...] signatures for derivative with respect to pressure and concentration
-    // are not created (yet)
-};
-
-
-//! Data container holding shared data specific to `ArrheniusRate`
-/**
- * The data container `ArrheniusData` holds precalculated data common to
- * all `ArrheniusRate` objects.
- *
- * @warning This class is an experimental part of the %Cantera API and
- *    may be changed or removed without notice.
- */
-struct ArrheniusData {
-    ArrheniusData() : m_temperature(1.), m_logT(0.), m_recipT(1.) {}
-
-    //! Constructor based on temperature *T*
-    ArrheniusData(double T) : m_temperature(T) {
-        m_logT = std::log(T);
-        m_recipT = 1./T;
-    }
-
-    //! Constructor based on temperature *T*
-    ArrheniusData(double T, double P) : ArrheniusData(T) {}
-
-    //! Constructor accessing bulk phase definitions
-    ArrheniusData(const ThermoPhase& bulk) { update(bulk); }
-
-    //! Update based on bulk phase definitions
-    void update(const ThermoPhase& bulk);
-
-    double m_temperature;
-    double m_logT;
-    double m_recipT;
 };
 
 
@@ -159,11 +142,13 @@ struct ArrheniusData {
 class ArrheniusRate final : public ReactionRate<ArrheniusData>, public Arrhenius
 {
 public:
-    //! Constructor.
     ArrheniusRate();
 
     ArrheniusRate(double A, double b, double E);
 
+    //! Constructor
+    //! @param node  AnyMap object containing reaction rate specification
+    //! @param rc_units  Description of units used for rate parameters
     ArrheniusRate(const AnyMap& node, const Units& rc_units);
 
     virtual std::string type() const override { return "ArrheniusRate"; }
@@ -182,30 +167,6 @@ public:
 };
 
 
-//! Data container holding shared data specific to `CustomFunc1Rate`
-/**
- * @warning This class is an experimental part of the %Cantera API and
- *    may be changed or removed without notice.
- */
-struct CustomFunc1Data {
-    CustomFunc1Data() : m_temperature(1.) {}
-
-    //! Constructor based on temperature *T*
-    CustomFunc1Data(double T) : m_temperature(T) {}
-
-    //! Constructor based on temperature *T*
-    CustomFunc1Data(double T, double P) : CustomFunc1Data(T) {}
-
-    //! Constructor accessing bulk phase definitions
-    CustomFunc1Data(const ThermoPhase& bulk) { update(bulk); }
-
-    //! Update based on reacting phase definitions
-    void update(const ThermoPhase& bulk);
-
-    double m_temperature;
-};
-
-
 //! Custom reaction rate depending only on temperature
 /**
  * The rate expression is provided by a `Func1` object taking a single
@@ -217,10 +178,11 @@ struct CustomFunc1Data {
 class CustomFunc1Rate final : public ReactionRate<CustomFunc1Data>
 {
 public:
-    //! Constructor.
     CustomFunc1Rate();
 
-    // Does nothing, as there is no formalized parameterization.
+    //! Constructor does nothing, as there is no formalized parameterization
+    //! @param node  AnyMap object containing reaction rate specification
+    //! @param rc_units  Description of units used for rate parameters
     CustomFunc1Rate(const AnyMap& rate, const Units& rc_units) {}
 
     virtual std::string type() const override { return "custom-function"; }
