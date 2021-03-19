@@ -1,4 +1,4 @@
-//! @file RxnRates.cpp
+//! @file ReactionRate.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
@@ -24,7 +24,8 @@ double CustomFunc1Rate::eval(const CustomFunc1Data& shared_data) const {
     if (m_ratefunc) {
         return m_ratefunc->eval(shared_data.m_temperature);
     }
-    return 0.;
+    throw CanteraError("CustomFunc1Rate::eval",
+                       "Custom rate function is not initialized.");
 }
 
 void ArrheniusData::update(const ThermoPhase& bulk) {

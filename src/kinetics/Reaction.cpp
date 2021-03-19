@@ -98,7 +98,7 @@ void Reaction::validate()
     }
 }
 
-void Reaction::setup(const AnyMap& node, const Kinetics& kin)
+void Reaction2::setup(const AnyMap& node, const Kinetics& kin)
 {
     parseReactionEquation(*this, node["equation"], kin);
     // Non-stoichiometric reaction orders
@@ -328,7 +328,7 @@ CustomFunc1Reaction::CustomFunc1Reaction()
 
 void CustomFunc1Reaction::setup(const AnyMap& node, const Kinetics& kin)
 {
-    Reaction::setup(node, kin);
+    Reaction2::setup(node, kin);
     Units rc_units; // @todo Not needed once `rate_units` is implemented.
     setRate(
         std::shared_ptr<CustomFunc1Rate>(new CustomFunc1Rate(node, rc_units)));
@@ -342,7 +342,7 @@ TestReaction::TestReaction()
 
 void TestReaction::setup(const AnyMap& node, const Kinetics& kin)
 {
-    Reaction::setup(node, kin);
+    Reaction2::setup(node, kin);
 
     // @todo Rate units will become available as `rate_units` after
     // serialization is fully implemented.

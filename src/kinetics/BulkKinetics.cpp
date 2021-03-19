@@ -121,7 +121,7 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
         m_irrev.push_back(nReactions()-1);
     }
 
-    if (r->newFramework()) {
+    if (std::dynamic_pointer_cast<Reaction2>(r) != nullptr) {
         shared_ptr<ReactionRateBase> rate;
         rate = std::dynamic_pointer_cast<Reaction2>(r)->rate();
         // If neccessary, add new MultiBulkRates evaluator
@@ -139,7 +139,7 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
 
         // Add reaction rate to evaluator
         size_t index = m_bulk_types[rate->type()];
-        m_bulk_rates[index]->add(nReactions() - 1, rate);
+        m_bulk_rates[index]->add(nReactions() - 1, *rate);
     }
 
     return true;
@@ -155,7 +155,7 @@ void BulkKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     // operations common to all reaction types
     Kinetics::modifyReaction(i, rNew);
 
-    if (rNew->newFramework()) {
+    if (std::dynamic_pointer_cast<Reaction2>(rNew) != nullptr) {
         shared_ptr<ReactionRateBase> rate;
         rate = std::dynamic_pointer_cast<Reaction2>(rNew)->rate();
         // Ensure that MultiBulkRates evaluator is available
@@ -166,7 +166,7 @@ void BulkKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
 
         // Replace reaction rate to evaluator
         size_t index = m_bulk_types[rate->type()];
-        m_bulk_rates[index]->replace(i, rate);
+        m_bulk_rates[index]->replace(i, *rate);
     }
 }
 
