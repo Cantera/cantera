@@ -391,20 +391,44 @@ cdef class FlowReactor(Reactor):
 cdef class DelegatedReactor(Reactor):
     reactor_type = "DelegatedReactor"
 
+    delegatable_methods = {'initialize', 'eval'}
+
     def __cinit__(self, *args, **kwargs):
         self.delegator = <CxxDelegatedReactor*>(self.rbase)
 
     def __init__(self, *args, **kwargs):
-        if 'initialize' in self.__class__.__dict__:
+        delegates = {}
+
+        # Find all delegate methods, and make sure there aren't multiple
+        # conflicting implementations
+        for method in self.delegatable_methods:
+            if method in self.__class__.__dict__:
+                delegates[method] = 'replace', getattr(self, method)
+            before = 'before_{}'.format(method)
+            if before in self.__class__.__dict__:
+                if method in delegates:
+                    raise CanteraError(
+                        "Only one delegate supported for '{}'".format(method))
+                delegates[method] = 'before', getattr(self, before)
+            after = 'after_{}'.format(method)
+            if after in self.__class__.__dict__:
+                if method in delegates:
+                    raise CanteraError(
+                        "Only one delegate supported for '{}'".format(method))
+                delegates[method] = 'after', getattr(self, after)
+
+        # Assign each delegate using the specific function for doing so
+        if 'initialize' in delegates:
             self.delegator.setInitialize(
-                pyOverride(<PyObject*>self.initialize, callback_v_d),
-                stringify('before')
+                pyOverride(<PyObject*>delegates['initialize'][1], callback_v_d),
+                stringify(delegates['initialize'][0])
             )
-        if 'evalEqs' in self.__class__.__dict__:
+        if 'eval' in delegates:
             self.delegator.setEvalEqs(
-                pyOverride(<PyObject*>self.evalEqs, callback_v_d_dp_dp_dp),
-                stringify('after')
+                pyOverride(<PyObject*>delegates['eval'][1], callback_v_d_dp_dp_dp),
+                stringify(delegates['eval'][0])
             )
+
         super().__init__(*args, **kwargs)
 
 
