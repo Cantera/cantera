@@ -915,6 +915,12 @@ cdef extern from "cantera/zeroD/DelegatedReactor.h" namespace "Cantera":
         void setComponentIndex(function[int(size_t&, string&)], string&) except +translate_exception
         void setSpeciesIndex(function[int(size_t&, string&)], string&) except +translate_exception
 
+        void setNEq(size_t)
+        double vdot()
+        void setVdot(double)
+        double qdot()
+        void setQdot(double)
+
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef CxxThermoPhase* newPhase(string, string) except +translate_exception
     cdef CxxThermoPhase* newPhase(XML_Node&) except +translate_exception

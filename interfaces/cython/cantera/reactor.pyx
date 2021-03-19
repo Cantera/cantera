@@ -490,6 +490,33 @@ cdef class DelegatedReactor(Reactor):
 
         super().__init__(*args, **kwargs)
 
+    property n_vars:
+        """
+        Get/Set the number of state variables in the reactor.
+        """
+        def __get__(self):
+            return self.reactor.neq()
+        def __set__(self, n):
+            self.delegator.setNEq(n)
+
+    property vdot:
+        """
+        Get/Set the net rate of volume change (for example, from moving walls) [m^3/s]
+        """
+        def __get__(self):
+            return self.delegator.vdot()
+        def __set__(self, vdot):
+            self.delegator.setVdot(vdot)
+
+    property qdot:
+        """
+        Get/Set the net heat transfer rate (for example, through walls) [W]
+        """
+        def __get__(self):
+            return self.delegator.vdot()
+        def __set__(self, vdot):
+            self.delegator.setVdot(vdot)
+
 
 cdef class ReactorSurface:
     """

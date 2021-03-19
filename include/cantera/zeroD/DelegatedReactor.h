@@ -100,6 +100,32 @@ public:
         return m_speciesIndex(nm);
     }
 
+    // Make variables needed by Reactor implementation classes available
+
+    //! Set the number of equations represented by this reactor
+    void setNEq(size_t n) {
+        m_nv = n;
+    }
+
+    //! Get the net rate of volume change (for example, from moving walls) [m^3/s]
+    double vdot() const {
+        return m_vdot;
+    }
+
+    //! Set the net rate of volume change (for example, from moving walls) [m^3/s]
+    void setVdot(double v) {
+        m_vdot = v;
+    }
+
+    //! Get the net heat transfer rate (for example, through walls) [W]
+    double qdot() const {
+        return m_Q;
+    }
+
+    //! Set the net heat transfer rate (for example, through walls) [W]
+    void setQdot(double q) {
+        m_Q = q;
+    }
 
 private:
     template <typename BaseFunc, class ... Args>
