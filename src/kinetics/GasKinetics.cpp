@@ -247,7 +247,7 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
         return true;
     }
 
-    if (r->type() == "elementary") {
+    if (r->type() == "elementary-old") {
         addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
     } else if (r->type() == "three-body") {
         addThreeBodyReaction(dynamic_cast<ThreeBodyReaction&>(*r));

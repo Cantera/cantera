@@ -157,6 +157,9 @@ protected:
 class Reaction2 : public Reaction
 {
 public:
+    Reaction2() : Reaction() {}
+    Reaction2(const Composition& reactants, const Composition& products);
+
     //! Get reaction rate pointer
     shared_ptr<ReactionRateBase> rate() {
         return m_rate;
@@ -188,7 +191,7 @@ public:
     virtual void getParameters(AnyMap& reactionNode) const;
 
     virtual std::string type() const {
-        return "elementary";
+        return "elementary-old";
     }
 
     Arrhenius rate;
@@ -340,6 +343,31 @@ public:
 
     ChebyshevRate rate;
 };
+
+//! A reaction which follows mass-action kinetics with a modified Arrhenius
+//! reaction rate.
+/**
+ * Alternative elementary reaction based on ReactionRate.
+ *
+ * @warning This class is an experimental part of the %Cantera API and
+ *    may be changed or removed without notice.
+ */
+class ElementaryReaction2 : public Reaction2
+{
+public:
+    ElementaryReaction2();
+    ElementaryReaction2(const Composition& reactants, const Composition& products,
+                        const ArrheniusRate& rate);
+
+    virtual std::string type() const {
+        return "elementary";
+    }
+
+    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
+
+    bool allow_negative_pre_exponential_factor;
+};
+
 
 //! A reaction which follows mass-action kinetics with a custom reaction rate
 //! defined in Python.

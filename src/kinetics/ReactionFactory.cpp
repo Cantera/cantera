@@ -22,14 +22,19 @@ std::mutex ReactionFactory::reaction_mutex;
 ReactionFactory::ReactionFactory()
 {
     // register elementary reactions
-    reg("elementary", []() { return new ElementaryReaction(); });
+    reg("elementary", []() { return new ElementaryReaction2(); });
     addAlias("elementary", "arrhenius");
     addAlias("elementary", "");
-    reg_XML("elementary",
+    reg_AnyMap("elementary",
+               [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
+                   (dynamic_cast<Reaction2*>(R))->setParameters(node, kin);
+               });
+    reg("elementary-old", []() { return new ElementaryReaction(); });
+    reg_XML("elementary-old",
             [](Reaction* R, const XML_Node& node) {
                 setupElementaryReaction(*(ElementaryReaction*)R, node);
             });
-    reg_AnyMap("elementary",
+    reg_AnyMap("elementary-old",
                [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
                    setupElementaryReaction(*(ElementaryReaction*)R, node, kin);
                });
@@ -98,11 +103,6 @@ ReactionFactory::ReactionFactory()
 
     // register custom reactions specified by Func1 objects
     reg("custom-rate-function", []() { return new CustomFunc1Reaction(); });
-    reg_XML("custom-rate-function",
-            [](Reaction* R, const XML_Node& node) {
-                throw CanteraError("ReactionFactory", "Custom reactions based "
-                    "on 'Func1' objects cannot be created from XML nodes'");
-            });
     reg_AnyMap("custom-rate-function",
                [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
                    ((Reaction2*)R)->setParameters(node, kin);
@@ -244,6 +244,11 @@ unique_ptr<Reaction> newReaction(const XML_Node& rxn_node)
     }
 
     Reaction* R;
+
+    if (ReactionFactory::factory()->missing_XML(type)) {
+        type += "-old";
+    }
+
     try {
         R = ReactionFactory::factory()->create(type);
     } catch (CanteraError& err) {
@@ -263,6 +268,7 @@ unique_ptr<Reaction> newReaction(const XML_Node& rxn_node)
     if (type != "electrochemical") {
         type = R->type();
     }
+
     ReactionFactory::factory()->setup_XML(type, R, rxn_node);
 
     return unique_ptr<Reaction>(R);
