@@ -33,6 +33,10 @@ cdef extern from "<map>" namespace "std":
         iterator find(T&) nogil
 
 cdef extern from "<array>" namespace "std" nogil:
+    cdef cppclass size_array1 "std::array<size_t, 1>":
+        size_array1() except+
+        size_t& operator[](size_t)
+
     cdef cppclass size_array3 "std::array<size_t, 3>":
         size_array3() except+
         size_t& operator[](size_t)
@@ -54,10 +58,20 @@ cdef extern from "cantera/cython/funcWrapper.h":
         PyObject* exceptionValue()
         void setExceptionValue(PyObject*)
 
+    # pyOverride is actually a templated function, but we have to specify the individual
+    # instantiations because Cython doesn't understand variadic templates
     cdef function[void(double)] pyOverride(PyObject*, void(PyFuncInfo&, double))
+    cdef function[void(cbool)] pyOverride(PyObject*, void(PyFuncInfo&, cbool))
+    cdef function[void()] pyOverride(PyObject*, void(PyFuncInfo&))
+    cdef function[void(size_array1, double*)] pyOverride(
+        PyObject*, void(PyFuncInfo&, size_array1, double*))
     cdef function[void(size_array3, double, double*, double*, double*)] pyOverride(
         PyObject*, void(PyFuncInfo&, size_array3, double, double*, double*, double*))
+    cdef function[int(double&, size_array1, double, double*)] pyOverride(
+        PyObject*, int(PyFuncInfo&, double&, size_array1, double, double*))
     cdef function[int(string&, size_t)] pyOverride(PyObject*, int(PyFuncInfo&, string&, size_t))
+    cdef function[int(size_t&, const string&)] pyOverride(
+        PyObject*, int(PyFuncInfo&, size_t&, const string&))
 
 cdef extern from "cantera/numerics/Func1.h":
     cdef cppclass CxxTabulated1 "Cantera::Tabulated1":
@@ -888,8 +902,18 @@ cdef extern from "cantera/zeroD/DelegatedReactor.h" namespace "Cantera":
         CxxDelegatedReactor()
 
         void setInitialize(function[void(double)], string&) except +translate_exception
+        void setGetState(function[void(size_array1, double*)], string&) except +translate_exception
+        void setUpdateState(function[void(size_array1, double*)], string&) except +translate_exception
+        void setUpdateSurfaceState(function[void(size_array1, double*)], string&) except +translate_exception
+        void setGetSurfaceInitialConditions(function[void(size_array1, double*)], string&) except +translate_exception
+        void setUpdateConnected(function[void(cbool)], string&) except +translate_exception
+        void setSyncState(function[void()], string&) except +translate_exception
         void setEvalEqs(function[void(size_array3, double, double*, double*, double*)], string&) except +translate_exception
+        void setEvalWalls(function[void(double)], string&) except +translate_exception
+        void setEvalSurfaces(function[int(double&, size_array1, double, double*)], string&) except +translate_exception
         void setComponentName(function[int(string&, size_t)], string&) except +translate_exception
+        void setComponentIndex(function[int(size_t&, string&)], string&) except +translate_exception
+        void setSpeciesIndex(function[int(size_t&, string&)], string&) except +translate_exception
 
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef CxxThermoPhase* newPhase(string, string) except +translate_exception
@@ -1466,5 +1490,10 @@ cdef extern from "cantera/thermo/Elements.h" namespace "Cantera":
 
 # Wrappers for override functions
 cdef void callback_v_d(PyFuncInfo&, double)
+cdef void callback_v_b(PyFuncInfo&, cbool)
+cdef void callback_v(PyFuncInfo&)
+cdef void callback_v_dp(PyFuncInfo&, size_array1, double*)
 cdef void callback_v_d_dp_dp_dp(PyFuncInfo&, size_array3, double, double*, double*, double*)
+cdef int callback_i_dr_d_dp(PyFuncInfo&, double&, size_array1, double, double*)
 cdef int callback_i_sr_z(PyFuncInfo&, string&, size_t)
+cdef int callback_i_zr_csr(PyFuncInfo&, size_t&, const string&)

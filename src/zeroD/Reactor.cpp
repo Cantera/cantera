@@ -96,12 +96,14 @@ void Reactor::initialize(doublereal t0)
     }
 
     m_nv = m_nsp + 3;
+    m_nv_surf = 0;
     size_t maxnt = 0;
     for (auto& S : m_surfaces) {
-        m_nv += S->thermo()->nSpecies();
+        m_nv_surf += S->thermo()->nSpecies();
         size_t nt = S->kinetics()->nTotalSpecies();
         maxnt = std::max(maxnt, nt);
     }
+    m_nv += m_nv_surf;
     m_work.resize(maxnt);
 }
 

@@ -214,6 +214,7 @@ protected:
     bool m_chem;
     bool m_energy;
     size_t m_nv;
+    size_t m_nv_surf; //!!< Number of variables associated with reactor surfaces
 
     vector_fp m_advancelimits; //!< Advance step limit
 

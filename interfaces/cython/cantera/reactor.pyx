@@ -391,7 +391,11 @@ cdef class FlowReactor(Reactor):
 cdef class DelegatedReactor(Reactor):
     reactor_type = "DelegatedReactor"
 
-    delegatable_methods = {'initialize', 'eval', 'component_name'}
+    delegatable_methods = {'initialize', 'sync_state', 'get_state',
+        'update_state', 'update_surface_state', 'get_surface_initial_condition',
+        'update_connected', 'eval', 'eval_walls', 'eval_surfaces',
+        'component_name', 'component_index', 'species_index'
+    }
 
     def __cinit__(self, *args, **kwargs):
         self.delegator = <CxxDelegatedReactor*>(self.rbase)
@@ -423,15 +427,65 @@ cdef class DelegatedReactor(Reactor):
                 pyOverride(<PyObject*>delegates['initialize'][1], callback_v_d),
                 stringify(delegates['initialize'][0])
             )
+        if 'sync_state' in delegates:
+            self.delegator.setSyncState(
+                pyOverride(<PyObject*>delegates['sync_state'][1], callback_v),
+                stringify(delegates['sync_state'][0])
+            )
+        if 'get_state' in delegates:
+            self.delegator.setGetState(
+                pyOverride(<PyObject*>delegates['get_state'][1], callback_v_dp),
+                stringify(delegates['get_state'][0])
+            )
+        if 'update_state' in delegates:
+            self.delegator.setUpdateState(
+                pyOverride(<PyObject*>delegates['update_state'][1], callback_v_dp),
+                stringify(delegates['update_state'][0])
+            )
+        if 'update_surface_state' in delegates:
+            self.delegator.setUpdateSurfaceState(
+                pyOverride(<PyObject*>delegates['update_surface_state'][1], callback_v_dp),
+                stringify(delegates['update_surface_state'][0])
+            )
+        if 'get_surface_initial_condition' in delegates:
+            self.delegator.setGetSurfaceInitialConditions(
+                pyOverride(<PyObject*>delegates['get_surface_initial_condition'][1], callback_v_dp),
+                stringify(delegates['get_surface_initial_condition'][0])
+            )
+        if 'update_connected' in delegates:
+            self.delegator.setUpdateConnected(
+                pyOverride(<PyObject*>delegates['update_connected'][1], callback_v_b),
+                stringify(delegates['update_connected'][0])
+            )
         if 'eval' in delegates:
             self.delegator.setEvalEqs(
                 pyOverride(<PyObject*>delegates['eval'][1], callback_v_d_dp_dp_dp),
                 stringify(delegates['eval'][0])
             )
+        if 'eval_walls' in delegates:
+            self.delegator.setEvalWalls(
+                pyOverride(<PyObject*>delegates['eval_walls'][1], callback_v_d),
+                stringify(delegates['eval_walls'][0])
+            )
+        if 'eval_surfaces' in delegates:
+            self.delegator.setEvalSurfaces(
+                pyOverride(<PyObject*>delegates['eval_surfaces'][1], callback_i_dr_d_dp),
+                stringify(delegates['eval_surfaces'][0])
+            )
         if 'component_name' in delegates:
             self.delegator.setComponentName(
                 pyOverride(<PyObject*>delegates['component_name'][1], callback_i_sr_z),
                 stringify(delegates['component_name'][0])
+            )
+        if 'component_index' in delegates:
+            self.delegator.setComponentIndex(
+                pyOverride(<PyObject*>delegates['component_index'][1], callback_i_zr_csr),
+                stringify(delegates['component_index'][0])
+            )
+        if 'species_index' in delegates:
+            self.delegator.setSpeciesIndex(
+                pyOverride(<PyObject*>delegates['species_index'][1], callback_i_zr_csr),
+                stringify(delegates['species_index'][0])
             )
 
         super().__init__(*args, **kwargs)
