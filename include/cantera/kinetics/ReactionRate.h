@@ -86,11 +86,6 @@ class ReactionRate : public ReactionRateBase
 public:
     ReactionRate() = default;
 
-    ReactionRate(const AnyMap& node, const Units& rc_units) {
-        throw CanteraError("ReactionRate::ReactionRate",
-            "Constructor needs to be implemented by derived classes.");
-    }
-
     //! Update information specific to reaction
     //! @param shared_data  data shared by all reactions of a given type
     virtual void update(const DataType& shared_data, const ThermoPhase& bulk) {}
@@ -148,8 +143,8 @@ public:
 
     //! Constructor
     //! @param node  AnyMap object containing reaction rate specification
-    //! @param rc_units  Description of units used for rate parameters
-    ArrheniusRate(const AnyMap& node, const Units& rc_units);
+    //! @param rate_units  Description of units used for rate parameters
+    ArrheniusRate(const AnyMap& node, const Units& rate_units);
 
     virtual std::string type() const override { return "ArrheniusRate"; }
 
@@ -182,8 +177,8 @@ public:
 
     //! Constructor does nothing, as there is no formalized parameterization
     //! @param node  AnyMap object containing reaction rate specification
-    //! @param rc_units  Description of units used for rate parameters
-    CustomFunc1Rate(const AnyMap& rate, const Units& rc_units) {}
+    //! @param rate_units  Description of units used for rate parameters
+    CustomFunc1Rate(const AnyMap& rate, const Units& rate_units) {}
 
     virtual std::string type() const override { return "custom-function"; }
 

@@ -14,8 +14,8 @@ ArrheniusRate::ArrheniusRate(double A, double b, double E)
     : Arrhenius(A, b, E) {
 }
 
-ArrheniusRate::ArrheniusRate(const AnyMap& node, const Units& rc_units) {
-    setup(node["rate-constant"], node.units(), rc_units);
+ArrheniusRate::ArrheniusRate(const AnyMap& node, const Units& rate_units) {
+    setParameters(node["rate-constant"], node.units(), rate_units);
 }
 
 CustomFunc1Rate::CustomFunc1Rate() : m_ratefunc(0) {}
