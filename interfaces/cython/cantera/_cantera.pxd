@@ -57,6 +57,7 @@ cdef extern from "cantera/cython/funcWrapper.h":
     cdef function[void(double)] pyOverride(PyObject*, void(PyFuncInfo&, double))
     cdef function[void(size_array3, double, double*, double*, double*)] pyOverride(
         PyObject*, void(PyFuncInfo&, size_array3, double, double*, double*, double*))
+    cdef function[int(string&, size_t)] pyOverride(PyObject*, int(PyFuncInfo&, string&, size_t))
 
 cdef extern from "cantera/numerics/Func1.h":
     cdef cppclass CxxTabulated1 "Cantera::Tabulated1":
@@ -888,6 +889,7 @@ cdef extern from "cantera/zeroD/DelegatedReactor.h" namespace "Cantera":
 
         void setInitialize(function[void(double)], string&) except +translate_exception
         void setEvalEqs(function[void(size_array3, double, double*, double*, double*)], string&) except +translate_exception
+        void setComponentName(function[int(string&, size_t)], string&) except +translate_exception
 
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef CxxThermoPhase* newPhase(string, string) except +translate_exception
@@ -1465,3 +1467,4 @@ cdef extern from "cantera/thermo/Elements.h" namespace "Cantera":
 # Wrappers for override functions
 cdef void callback_v_d(PyFuncInfo&, double)
 cdef void callback_v_d_dp_dp_dp(PyFuncInfo&, size_array3, double, double*, double*, double*)
+cdef int callback_i_sr_z(PyFuncInfo&, string&, size_t)

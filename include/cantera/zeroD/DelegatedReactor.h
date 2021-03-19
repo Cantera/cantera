@@ -30,24 +30,38 @@ public:
         m_evalEqs(t, y, ydot, params);
     }
 
+    void setComponentName(const std::function<int(std::string&, size_t)>& func,
+                          const std::string& when);
+    virtual std::string componentName(size_t k) {
+        return m_componentName(k);
+    }
+
 private:
     template <typename BaseFunc, class ... Args>
-    void setOverride(
+    void setDelegate(
         std::function<void(Args ...)>* target,
         const std::function<void(Args ...)>& func,
         const std::string& when,
         BaseFunc base);
 
     template <int nArrays, typename BaseFunc, class ... Args>
-    void setOverride(
+    void setDelegate(
         std::function<void(Args ...)>* target,
         const std::function<void(std::array<size_t, nArrays>, Args ...)>& func,
         const std::function<std::array<size_t, nArrays>()>& sizeGetter,
         const std::string& when,
         BaseFunc base);
 
+    template <typename ReturnType, typename BaseFunc, class ... Args>
+    void setDelegate(
+        std::function<ReturnType(Args ...)>* target,
+        const std::function<int(ReturnType&, Args ...)>& func,
+        const std::string& when,
+        const BaseFunc& base);
+
     std::function<void(double)> m_initialize;
     std::function<void(double, double*, double*, double*)> m_evalEqs;
+    std::function<std::string(size_t)> m_componentName;
 };
 
 }
