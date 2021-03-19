@@ -10,7 +10,7 @@
 
 using namespace Cantera;
 
-TEST(Reaction, ElementaryFromYaml)
+TEST(Reaction, ElementaryFromYaml1)
 {
     auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
@@ -22,6 +22,29 @@ TEST(Reaction, ElementaryFromYaml)
     EXPECT_EQ(R->reactants.at("NO"), 1);
     EXPECT_EQ(R->products.at("N2"), 1);
     EXPECT_EQ(R->type(), "elementary");
+
+    auto ER = dynamic_cast<ElementaryReaction2&>(*R);
+    EXPECT_TRUE(ER.allow_negative_pre_exponential_factor);
+    EXPECT_FALSE(ER.allow_negative_orders);
+
+    const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(ER.rate());
+    EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), -2.7e10);
+    EXPECT_DOUBLE_EQ(rate->activationEnergy_R(), 355 / GasConst_cal_mol_K);
+}
+
+TEST(Reaction, ElementaryFromYaml2)
+{
+    auto sol = newSolution("gri30.yaml");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: N + NO <=> N2 + O,"
+        " type: elementary-old,"
+        " rate-constant: [-2.70000E+13 cm^3/mol/s, 0, 355 cal/mol],"
+        " negative-A: true}");
+
+    auto R = newReaction(rxn, *(sol->kinetics()));
+    EXPECT_EQ(R->reactants.at("NO"), 1);
+    EXPECT_EQ(R->products.at("N2"), 1);
+    EXPECT_EQ(R->type(), "elementary-old");
 
     auto ER = dynamic_cast<ElementaryReaction&>(*R);
     EXPECT_DOUBLE_EQ(ER.rate.preExponentialFactor(), -2.7e10);
@@ -218,8 +241,9 @@ TEST(Kinetics, GasKineticsFromYaml1)
     EXPECT_EQ(R->reactants.at("NO"), 1);
     EXPECT_EQ(R->products.at("N2"), 1);
     EXPECT_EQ(R->id, "NOx-R1");
-    const auto& ER = std::dynamic_pointer_cast<ElementaryReaction>(R);
-    EXPECT_DOUBLE_EQ(ER->rate.preExponentialFactor(), 2.7e10);
+    const auto& ER = std::dynamic_pointer_cast<ElementaryReaction2>(R);
+    const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(ER->rate());
+    EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 2.7e10);
 }
 
 TEST(Kinetics, GasKineticsFromYaml2)
