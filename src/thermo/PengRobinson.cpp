@@ -5,6 +5,7 @@
 
 #include "cantera/thermo/PengRobinson.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
 
@@ -22,17 +23,6 @@ namespace Cantera
 const double PengRobinson::omega_a = 4.5723552892138218E-01;
 const double PengRobinson::omega_b = 7.77960739038885E-02;
 const double PengRobinson::omega_vc = 3.07401308698703833E-01;
-
-PengRobinson::PengRobinson() :
-    m_b_current(0.0),
-    m_a_current(0.0),
-    m_aAlpha_current(0.0),
-    m_NSolns(0),
-    m_dpdV(0.0),
-    m_dpdT(0.0)
-{
-    fill_n(m_Vroot, 3, 0.0);
-}
 
 PengRobinson::PengRobinson(const std::string& infile, const std::string& id_) :
     m_b_current(0.0),

@@ -19,21 +19,17 @@ namespace Cantera
 class PengRobinson : public MixtureFugacityTP
 {
 public:
-    //! @name Constructors and Duplicators
-    //! @{
-
-    //! Base constructor.
-    PengRobinson();
 
     //! Construct and initialize a PengRobinson object directly from an
     //! input file
     /*!
-     * @param infile    Name of the input file containing the phase YAML data
-     *                  to set up the object
-     * @param id        ID of the phase in the input file. Defaults to the empty
-     *                  string.
+     * @param infile    Name of the input file containing the phase YAML data.
+     *                  If blank, an empty phase will be created.
+     * @param id        ID of the phase in the input file. If empty, the
+     *                  first phase definition in the input file will be used.
      */
-    PengRobinson(const std::string& infile, const std::string& id="");
+    explicit PengRobinson(const std::string& infile="",
+                              const std::string& id="");
 
     virtual std::string type() const {
         return "PengRobinson";
