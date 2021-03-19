@@ -75,12 +75,13 @@ cdef class Reaction:
         """
         # ensure all reaction types are registered
         if not(_reaction_class_registry):
-            def all_subclasses(cls):
-                return set(cls.__subclasses__()).union(
-                    [s for c in cls.__subclasses__() for s in all_subclasses(c)])
+            def register_subclasses(cls):
+                for c in cls.__subclasses__():
+                    _reaction_class_registry[getattr(c, 'reaction_type')] = c
+                    register_subclasses(c)
+
             # update global reaction class registry
-            _reaction_class_registry.update({getattr(c, 'reaction_type'): c
-                                             for c in all_subclasses(Reaction)})
+            register_subclasses(Reaction)
 
         # identify class
         rxn_type = pystr(reaction.get().type())
