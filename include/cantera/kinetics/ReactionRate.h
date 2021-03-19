@@ -67,7 +67,7 @@ public:
 //! Class template for reaction rate definitions with specialized DataType
 /**
  * This class template ensures that derived objects are aware of specialized
- * data types, which are passed by `MultiRateBase` evaluators.
+ * data types, which are passed by MultiRateBase evaluators.
  *
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
@@ -76,9 +76,6 @@ template <class DataType>
 class ReactionRate : public ReactionRateBase
 {
 public:
-    //! Constructor
-    ReactionRate() = default;
-
     //! Update information specific to reaction
     virtual void update(const DataType& shared_data, const ThermoPhase& bulk) {}
 
@@ -169,10 +166,7 @@ public:
 
     ArrheniusRate(const AnyMap& node, const Units& rc_units);
 
-    //! @internal access to reaction type is used by `MultiRateBase` evaluator
-    static std::string staticType() { return "ArrheniusRate"; }
-
-    virtual std::string type() const override { return staticType(); }
+    virtual std::string type() const override { return "ArrheniusRate"; }
 
     //! Update information specific to reaction
     static bool uses_update() { return false; }
@@ -229,10 +223,7 @@ public:
     // Does nothing, as there is no formalized parameterization.
     CustomFunc1Rate(const AnyMap& rate, const Units& rc_units) {}
 
-    //! @internal access to reaction type is used by `MultiRateBase` evaluator
-    static std::string staticType() { return "custom-function"; }
-
-    virtual std::string type() const override { return staticType(); }
+    virtual std::string type() const override { return "custom-function"; }
 
     //! Update information specific to reaction
     static bool uses_update() { return false; }

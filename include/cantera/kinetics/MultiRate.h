@@ -37,11 +37,11 @@ public:
 
     //! Add reaction rate object to the evaluator
     virtual void add(const size_t rxn_index,
-                     const shared_ptr<ReactionRateBase> rate) = 0;
+                     ReactionRateBase& rate) = 0;
 
     //! Replace reaction rate object handled by the evaluator
     virtual bool replace(const size_t rxn_index,
-                         const shared_ptr<ReactionRateBase> rate) = 0;
+                         ReactionRateBase& rate) = 0;
 
     //! Evaluate all rate constants handled by the evaluator
     virtual void getRateConstants(const ThermoPhase& bulk_phase,
@@ -62,22 +62,27 @@ class MultiBulkRates final : public MultiRateBase
 {
 public:
     virtual void add(const size_t rxn_index,
-                     const shared_ptr<ReactionRateBase> rate) override {
+                     ReactionRateBase& rate) override {
         m_indices[rxn_index] = m_rates.size();
-        m_rates.push_back(*std::dynamic_pointer_cast<RateType>(rate));
+        m_rates.push_back(dynamic_cast<RateType&>(rate));
         m_rxn.push_back(rxn_index);
     }
 
     virtual bool replace(const size_t rxn_index,
-                         const shared_ptr<ReactionRateBase> rate) override {
-        if (rate->type() != RateType::staticType()) {
+                         ReactionRateBase& rate) override {
+        if (!m_rates.size()) {
+            throw CanteraError("MultiBulkRate::replace",
+                 "Invalid operation: cannot replace rate object "
+                 "in empty rate handler.");
+        } else if (typeid(rate) != typeid(RateType)) {
             throw CanteraError("MultiBulkRate::replace",
                  "Invalid operation: cannot replace rate object of type '{}' "
-                 "with a new rate of type '{}'.", RateType::staticType(), rate->type());
+                 "with a new rate of type '{}'.",
+                 m_rates[0].type(), rate.type());
         }
         if (m_indices.find(rxn_index) != m_indices.end()) {
             size_t j = m_indices[rxn_index];
-            m_rates[j] = *std::dynamic_pointer_cast<RateType>(rate);
+            m_rates[j] = dynamic_cast<RateType&>(rate);
             return true;
         }
         return false;

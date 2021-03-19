@@ -1008,7 +1008,7 @@ cdef class InterfaceReaction(ElementaryReaction):
         dependent on surface species coverages. The keys of the dict are species
         names, and the values are tuples specifying the three coverage
         parameters ``(a, m, E)`` which are the modifiers for the pre-exponential
-        factor [m, kmol, s units], The temperature exponent [nondimensional],
+        factor [m, kmol, s units], the temperature exponent [nondimensional],
         and the activation energy [J/kmol], respectively.
         """
         def __get__(self):

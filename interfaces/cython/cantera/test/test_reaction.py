@@ -101,6 +101,18 @@ class TestCustom(TestElementary):
         # need to overwrite rate to ensure correct type ('method' is not compatible with Func1)
         self._rate = lambda T: 38.7 * T**2.7 * exp(-3150.15428/T)
 
+    def test_no_rate(self):
+        rxn = self._cls(equation=self._equation, kinetics=self.gas)
+        with self.assertRaisesRegex(ct.CanteraError, "Custom rate function is not initialized."):
+            rxn.rate(self.gas.T)
+
+        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                           species=self.species, reactions=[rxn])
+        gas2.TPX = self.gas.TPX
+
+        with self.assertRaisesRegex(ct.CanteraError, "Custom rate function is not initialized."):
+            gas2.forward_rate_constants
+
     def test_from_func(self):
         f = ct.Func1(self._rate)
         rxn = ct.CustomReaction(equation=self._equation, rate=f, kinetics=self.gas)

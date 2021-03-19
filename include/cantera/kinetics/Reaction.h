@@ -60,12 +60,6 @@ public:
         m_valid = valid;
     }
 
-    //! Set up reaction based on AnyMap node
-    virtual void setup(const AnyMap& node, const Kinetics& kin);
-
-    //! Flag indicating whether new framework is used
-    virtual bool newFramework() { return false; }
-
     //! Type of the reaction. The valid types are listed in the file,
     //! reaction_defs.h, with constants ending in `RXN`.
     /*!
@@ -117,8 +111,6 @@ protected:
 class Reaction2 : public Reaction
 {
 public:
-    virtual bool newFramework() { return true; }
-
     //! Get reaction rate pointer
     shared_ptr<ReactionRateBase> rate() {
         return m_rate;
@@ -128,6 +120,9 @@ public:
     void setRate(shared_ptr<ReactionRateBase> rate) {
         m_rate = rate;
     }
+
+    //! Set up reaction based on AnyMap node
+    virtual void setup(const AnyMap& node, const Kinetics& kin);
 
 protected:
     //! Reaction rate used by generic reactions
