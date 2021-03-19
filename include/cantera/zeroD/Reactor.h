@@ -64,7 +64,7 @@ public:
 
     virtual void setKineticsMgr(Kinetics& kin);
 
-    virtual void setChemistry(bool cflag = true) {
+    void setChemistry(bool cflag=true) {
         m_chem = cflag;
     }
 
@@ -73,7 +73,7 @@ public:
         return m_chem;
     }
 
-    virtual void setEnergy(int eflag = 1) {
+    void setEnergy(int eflag=1) {
         if (eflag > 0) {
             m_energy = true;
         } else {
@@ -87,7 +87,7 @@ public:
     }
 
     //! Number of equations (state variables) for this reactor
-    virtual size_t neq() {
+    size_t neq() {
         if (!m_nv) {
             initialize();
         }
