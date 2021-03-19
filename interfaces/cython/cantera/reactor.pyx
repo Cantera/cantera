@@ -391,7 +391,7 @@ cdef class FlowReactor(Reactor):
 cdef class DelegatedReactor(Reactor):
     reactor_type = "DelegatedReactor"
 
-    delegatable_methods = {'initialize', 'eval'}
+    delegatable_methods = {'initialize', 'eval', 'component_name'}
 
     def __cinit__(self, *args, **kwargs):
         self.delegator = <CxxDelegatedReactor*>(self.rbase)
@@ -427,6 +427,11 @@ cdef class DelegatedReactor(Reactor):
             self.delegator.setEvalEqs(
                 pyOverride(<PyObject*>delegates['eval'][1], callback_v_d_dp_dp_dp),
                 stringify(delegates['eval'][0])
+            )
+        if 'component_name' in delegates:
+            self.delegator.setComponentName(
+                pyOverride(<PyObject*>delegates['component_name'][1], callback_i_sr_z),
+                stringify(delegates['component_name'][0])
             )
 
         super().__init__(*args, **kwargs)

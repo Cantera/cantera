@@ -14,13 +14,14 @@ DelegatedReactor::DelegatedReactor()
     m_evalEqs = [this](double t, double* y, double* ydot, double* params) {
         Reactor::evalEqs(t, y, ydot, params);
     };
+    m_componentName = [this](size_t k) { return Reactor::componentName(k); };
 }
 
 void DelegatedReactor::setInitialize(
     const std::function<void(double)>& func,
     const std::string& when)
 {
-    setOverride(
+    setDelegate(
         &m_initialize, func, when,
         [this](double t0) { Reactor::initialize(t0); }
     );
@@ -30,7 +31,7 @@ void DelegatedReactor::setEvalEqs(
     const std::function<void(std::array<size_t, 3>, double, double*, double*, double*)>& func,
     const std::string& when)
 {
-    setOverride<3>(
+    setDelegate<3>(
         &m_evalEqs, func,
         [this]() {
             return std::array<size_t, 3>{neq(), neq(), nSensParams()};
@@ -42,8 +43,21 @@ void DelegatedReactor::setEvalEqs(
     );
 }
 
+void DelegatedReactor::setComponentName(
+    const std::function<int(std::string&, size_t)>& func,
+    const std::string& when)
+{
+    setDelegate(
+        &m_componentName, func, when,
+        [this](size_t k) {
+            return Reactor::componentName(k);
+        }
+    );
+}
+
+
 template <typename BaseFunc, class ... Args>
-void DelegatedReactor::setOverride(
+void DelegatedReactor::setDelegate(
     std::function<void(Args ...)>* target,
     const std::function<void(Args ...)>& func,
     const std::string& when,
@@ -62,14 +76,14 @@ void DelegatedReactor::setOverride(
     } else if (when == "replace") {
         *target = func;
     } else {
-        throw CanteraError("DelegatedReactor::setOverride",
+        throw CanteraError("DelegatedReactor::setDelegate",
             "'when' must be one of 'before', 'after', or 'replace';"
             " not '{}", when);
     }
 }
 
 template <int nArrays, typename BaseFunc, class ... Args>
-void DelegatedReactor::setOverride(
+void DelegatedReactor::setDelegate(
     std::function<void(Args ...)>* target,
     const std::function<void(std::array<size_t, nArrays>, Args ...)>& func,
     const std::function<std::array<size_t, nArrays>()>& sizeGetter,
@@ -91,7 +105,43 @@ void DelegatedReactor::setOverride(
             func(sizeGetter(), args ...);
         };
     } else {
-        throw CanteraError("DelegatedReactor::setOverride",
+        throw CanteraError("DelegatedReactor::setDelegate",
+            "'when' must be one of 'before', 'after', or 'replace';"
+            " not '{}", when);
+    }
+}
+
+template <typename ReturnType, typename BaseFunc, class ... Args>
+void DelegatedReactor::setDelegate(
+    std::function<ReturnType(Args ...)>* target,
+    const std::function<int(ReturnType&, Args ...)>& func,
+    const std::string& when,
+    const BaseFunc& base)
+{
+    if (when == "before") {
+        *target = [base, func](Args ... args) {
+            ReturnType ret;
+            int done = func(ret, args ...);
+            if (done) {
+                return ret;
+            } else {
+                return base(args ...);
+            }
+        };
+    } else if (when == "after") {
+        *target = [base, func](Args ... args) {
+            ReturnType ret = base(args ...);
+            func(ret, args ...);
+            return ret;
+        };
+    } else if (when == "replace") {
+        *target = [func](Args ... args) {
+            ReturnType ret;
+            func(ret, args ...);
+            return ret;
+        };
+    } else {
+        throw CanteraError("DelegatedReactor::setDelegate",
             "'when' must be one of 'before', 'after', or 'replace';"
             " not '{}", when);
     }
