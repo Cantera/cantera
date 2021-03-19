@@ -98,29 +98,6 @@ void Reaction::validate()
     }
 }
 
-void Reaction2::setup(const AnyMap& node, const Kinetics& kin)
-{
-    parseReactionEquation(*this, node["equation"], kin);
-    // Non-stoichiometric reaction orders
-    std::map<std::string, double> orders;
-    if (node.hasKey("orders")) {
-        for (const auto& order : node["orders"].asMap<double>()) {
-            orders[order.first] = order.second;
-            if (kin.kineticsSpeciesIndex(order.first) == npos) {
-                setValid(false);
-            }
-        }
-    }
-
-    // Flags
-    id = node.getString("id", "");
-    duplicate = node.getBool("duplicate", false);
-    allow_negative_orders = node.getBool("negative-orders", false);
-    allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
-
-    input = node;
-}
-
 std::string Reaction::reactantString() const
 {
     std::ostringstream result;
@@ -320,18 +297,41 @@ ChebyshevReaction::ChebyshevReaction(const Composition& reactants_,
     reaction_type = CHEBYSHEV_RXN;
 }
 
+void Reaction2::setParameters(const AnyMap& node, const Kinetics& kin)
+{
+    parseReactionEquation(*this, node["equation"], kin);
+    // Non-stoichiometric reaction orders
+    std::map<std::string, double> orders;
+    if (node.hasKey("orders")) {
+        for (const auto& order : node["orders"].asMap<double>()) {
+            orders[order.first] = order.second;
+            if (kin.kineticsSpeciesIndex(order.first) == npos) {
+                setValid(false);
+            }
+        }
+    }
+
+    // Flags
+    id = node.getString("id", "");
+    duplicate = node.getBool("duplicate", false);
+    allow_negative_orders = node.getBool("negative-orders", false);
+    allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
+
+    input = node;
+}
+
 CustomFunc1Reaction::CustomFunc1Reaction()
     : Reaction2()
 {
     reaction_type = CUSTOMPY_RXN;
 }
 
-void CustomFunc1Reaction::setup(const AnyMap& node, const Kinetics& kin)
+void CustomFunc1Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
 {
-    Reaction2::setup(node, kin);
-    Units rc_units; // @todo Not needed once `rate_units` is implemented.
+    Reaction2::setParameters(node, kin);
+    Units rate_units; // @todo Not needed once `rate_units` is implemented.
     setRate(
-        std::shared_ptr<CustomFunc1Rate>(new CustomFunc1Rate(node, rc_units)));
+        std::shared_ptr<CustomFunc1Rate>(new CustomFunc1Rate(node, rate_units)));
 }
 
 TestReaction::TestReaction()
@@ -340,15 +340,15 @@ TestReaction::TestReaction()
 {
 }
 
-void TestReaction::setup(const AnyMap& node, const Kinetics& kin)
+void TestReaction::setParameters(const AnyMap& node, const Kinetics& kin)
 {
-    Reaction2::setup(node, kin);
+    Reaction2::setParameters(node, kin);
 
     // @todo Rate units will become available as `rate_units` after
     // serialization is fully implemented.
-    Units rc_units = rateCoeffUnits(*this, kin);
+    Units rate_units = rateCoeffUnits(*this, kin);
     setRate(
-        std::shared_ptr<ArrheniusRate>(new ArrheniusRate(node, rc_units)));
+        std::shared_ptr<ArrheniusRate>(new ArrheniusRate(node, rate_units)));
     allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
 }
 
@@ -434,9 +434,9 @@ Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate,
                         const Kinetics& kin, const UnitSystem& units,
                         int pressure_dependence=0)
 {
-    Units rc_units = rateCoeffUnits(R, kin, pressure_dependence);
+    Units rate_units = rateCoeffUnits(R, kin, pressure_dependence);
     Arrhenius arr;
-    arr.setup(rate, units, rc_units);
+    arr.setParameters(rate, units, rate_units);
     return arr;
 }
 

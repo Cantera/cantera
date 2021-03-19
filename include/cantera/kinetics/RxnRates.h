@@ -42,8 +42,8 @@ public:
     Arrhenius(doublereal A, doublereal b, doublereal E);
 
     //! Run object setup based on AnyMap node information
-    void setup(const AnyValue& rate,
-               const UnitSystem& units, const Units& rc_units);
+    void setParameters(const AnyValue& rate,
+                       const UnitSystem& units, const Units& rate_units);
 
     //! Update concentration-dependent parts of the rate coefficient.
     /*!

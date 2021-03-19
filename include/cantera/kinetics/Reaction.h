@@ -122,7 +122,7 @@ public:
     }
 
     //! Set up reaction based on AnyMap node
-    virtual void setup(const AnyMap& node, const Kinetics& kin);
+    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
 
 protected:
     //! Reaction rate used by generic reactions
@@ -281,7 +281,7 @@ class CustomFunc1Reaction : public Reaction2
 public:
     CustomFunc1Reaction();
 
-    virtual void setup(const AnyMap& node, const Kinetics& kin);
+    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
 
     virtual std::string type() const {
         return "custom-rate-function";
@@ -306,7 +306,7 @@ public:
         return "elementary-new";
     }
 
-    virtual void setup(const AnyMap& node, const Kinetics& kin);
+    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
 
     bool allow_negative_pre_exponential_factor;
 };
