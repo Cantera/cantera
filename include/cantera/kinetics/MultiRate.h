@@ -1,8 +1,5 @@
 /**
  * @file MultiRate.h
- *
- * @warning This file is an experimental part of the %Cantera API and
- *     may be changed or removed without notice.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -26,9 +23,6 @@ namespace Cantera
  *     which can be updated using information of a single `ThermoPhase`.
  *     `InterfaceKinetics` will require access to an entire `Kinetics` object
  *     or the underlying `vector<ThermoPhase*>` vector (e.g. `m_thermo`).
- *
- * @warning This class is an experimental part of the %Cantera API and
- *     may be changed or removed without notice.
  */
 class MultiRateBase
 {
@@ -60,10 +54,6 @@ public:
 
 
 //! A class template handling all reaction rates specific to `BulkKinetics`.
-/**
- * @warning This class is an experimental part of the %Cantera API and
- *     may be changed or removed without notice.
- */
 template <class RateType, class DataType>
 class MultiBulkRates final : public MultiRateBase
 {
