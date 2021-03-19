@@ -447,9 +447,6 @@ cdef class CustomRate(_ReactionRate):
     for example::
 
         rr = CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15/T))
-
-    Warning: this class is an experimental part of the Cantera API and
-        may be changed or removed without notice.
     """
     def __cinit__(self, k=None, init=True):
 
@@ -489,9 +486,6 @@ cdef class ArrheniusRate(_ReactionRate):
 
     where *A* is the `pre_exponential_factor`, *b* is the `temperature_exponent`,
     and *E* is the `activation_energy`.
-
-    Warning: this class is an experimental part of the Cantera API and
-        may be changed or removed without notice.
     """
     def __cinit__(self, A=0, b=0, E=0, init=True):
 

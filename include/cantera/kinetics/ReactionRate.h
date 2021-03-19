@@ -32,9 +32,6 @@ class AnyMap;
  * Methods defined for the abstract base class are not aware of specialized
  * data handlers defined by the template class `ReactionRate<DataType>`
  * and thus can be exposed to the API.
- *
- * @warning This class is an experimental part of the %Cantera API and
- *    may be changed or removed without notice.
  */
 class ReactionRateBase
 {
@@ -76,9 +73,6 @@ public:
 /**
  * This class template ensures that derived objects are aware of specialized
  * data types, which are passed by MultiRateBase evaluators.
- *
- * @warning This class is an experimental part of the %Cantera API and
- *    may be changed or removed without notice.
  */
 template <class DataType>
 class ReactionRate : public ReactionRateBase
@@ -130,9 +124,6 @@ public:
 //! Arrhenius reaction rate type depends only on temperature
 /**
  * Wrapped Arrhenius rate.
- *
- * @warning This class is an experimental part of the %Cantera API and
- *    may be changed or removed without notice.
  */
 class ArrheniusRate final : public ReactionRate<ArrheniusData>, public Arrhenius
 {
@@ -166,9 +157,6 @@ public:
 /**
  * The rate expression is provided by a `Func1` object taking a single
  * argument (temperature) and does not use a formalized parameterization.
- *
- * @warning This class is an experimental part of the %Cantera API and
- *    may be changed or removed without notice.
  */
 class CustomFunc1Rate final : public ReactionRate<CustomFunc1Data>
 {

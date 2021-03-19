@@ -1,8 +1,5 @@
 /**
  * @file ReactionData.h
- *
- * @warning This file is an experimental part of the %Cantera API and
- *    may be changed or removed without notice.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -23,9 +20,6 @@ class ThermoPhase;
 /**
  * The data container `ArrheniusData` holds precalculated data common to
  * all `ArrheniusRate` objects.
- *
- * @warning This class is an experimental part of the %Cantera API and
- *    may be changed or removed without notice.
  */
 struct ArrheniusData
 {
@@ -55,10 +49,6 @@ struct ArrheniusData
 
 
 //! Data container holding shared data specific to CustomFunc1Rate
-/**
- * @warning This class is an experimental part of the %Cantera API and
- *    may be changed or removed without notice.
- */
 struct CustomFunc1Data
 {
     CustomFunc1Data() : m_temperature(1.) {}
