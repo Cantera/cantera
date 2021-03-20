@@ -359,6 +359,8 @@ public:
     ElementaryReaction2(const Composition& reactants, const Composition& products,
                         const ArrheniusRate& rate);
 
+    ElementaryReaction2(const AnyMap& node, const Kinetics& kin);
+
     virtual std::string type() const {
         return "elementary";
     }
@@ -380,6 +382,8 @@ class CustomFunc1Reaction : public Reaction2
 public:
     CustomFunc1Reaction();
 
+    CustomFunc1Reaction(const AnyMap& node, const Kinetics& kin);
+
     virtual void setParameters(const AnyMap& node, const Kinetics& kin);
 
     virtual std::string type() const {
@@ -400,6 +404,8 @@ class TestReaction : public Reaction2
 {
 public:
     TestReaction();
+
+    TestReaction(const AnyMap& node, const Kinetics& kin);
 
     virtual std::string type() const {
         return "elementary-new";
