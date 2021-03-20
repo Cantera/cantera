@@ -459,12 +459,15 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxChebyshevReaction "Cantera::ChebyshevReaction" (CxxReaction):
         CxxChebyshevRate rate
 
+    cdef cppclass CxxElementaryReaction2 "Cantera::ElementaryReaction2" (CxxReaction2):
+        CxxElementaryReaction2()
+        cbool allow_negative_pre_exponential_factor
+
     cdef cppclass CxxCustomFunc1Reaction "Cantera::CustomFunc1Reaction" (CxxReaction2):
         CxxCustomFunc1Reaction()
 
     cdef cppclass CxxTestReaction "Cantera::TestReaction" (CxxReaction2):
         CxxTestReaction()
-        cbool allow_negative_pre_exponential_factor
 
     cdef cppclass CxxBlowersMasel "Cantera::BlowersMasel":
         CxxBlowersMasel()
