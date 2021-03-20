@@ -696,10 +696,23 @@ ElementaryReaction2::ElementaryReaction2(const AnyMap& node, const Kinetics& kin
 
 bool ElementaryReaction2::setParameters(const AnyMap& node, const Kinetics& kin)
 {
-    bool ok = Reaction2::setParameters(node, kin);
+    if (!Reaction2::setParameters(node, kin)) {
+        return false;
+    }
     setRate(std::shared_ptr<ArrheniusRate>(new ArrheniusRate(node, rate_units)));
     allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
-    return ok;
+    return true;
+}
+
+void ElementaryReaction2::validate()
+{
+    Reaction::validate();
+    if (!allow_negative_pre_exponential_factor &&
+        std::dynamic_pointer_cast<ArrheniusRate>(m_rate)->preExponentialFactor() < 0) {
+        throw CanteraError("ElementaryReaction::validate",
+            "Undeclared negative pre-exponential factor found in reaction '"
+            + equation() + "'");
+    }
 }
 
 CustomFunc1Reaction::CustomFunc1Reaction()
@@ -723,7 +736,6 @@ bool CustomFunc1Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
 
 TestReaction::TestReaction()
     : Reaction2()
-    , allow_negative_pre_exponential_factor(false)
 {
     m_rate = std::shared_ptr<ArrheniusRate>(new ArrheniusRate);
 }
@@ -736,10 +748,11 @@ TestReaction::TestReaction(const AnyMap& node, const Kinetics& kin)
 
 bool TestReaction::setParameters(const AnyMap& node, const Kinetics& kin)
 {
-    bool ok = Reaction2::setParameters(node, kin);
+    if (!Reaction2::setParameters(node, kin)) {
+        return false;
+    }
     setRate(std::shared_ptr<ArrheniusRate>(new ArrheniusRate(node, rate_units)));
-    allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
-    return ok;
+    return true;
 }
 
 void ChebyshevReaction::getParameters(AnyMap& reactionNode) const

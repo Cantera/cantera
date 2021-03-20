@@ -30,14 +30,18 @@ ReactionFactory::ReactionFactory()
 
     reg("elementary-old", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ElementaryReaction();
-        setupElementaryReaction(*(ElementaryReaction*)R, node, kin);
+        if (node.hasKey("equation")) {
+            setupElementaryReaction(*(ElementaryReaction*)R, node, kin);
+        }
         return R;
     });
 
     // register three-body reactions
     reg("three-body", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ThreeBodyReaction();
-        setupThreeBodyReaction(*(ThreeBodyReaction*)R, node, kin);
+        if (node.hasKey("equation")) {
+            setupThreeBodyReaction(*(ThreeBodyReaction*)R, node, kin);
+        }
         return R;
     });
     addAlias("three-body", "threebody");
@@ -46,14 +50,18 @@ ReactionFactory::ReactionFactory()
     // register falloff reactions
     reg("falloff", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new FalloffReaction();
-        setupFalloffReaction(*(FalloffReaction*)R, node, kin);
+        if (node.hasKey("equation")) {
+            setupFalloffReaction(*(FalloffReaction*)R, node, kin);
+        }
         return R;
     });
 
     // register falloff reactions
     reg("chemically-activated", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ChemicallyActivatedReaction();
-        setupFalloffReaction(*(FalloffReaction*)R, node, kin);
+        if (node.hasKey("equation")) {
+            setupFalloffReaction(*(FalloffReaction*)R, node, kin);
+        }
         return R;
     });
     addAlias("chemically-activated", "chemact");
@@ -62,7 +70,9 @@ ReactionFactory::ReactionFactory()
     // register pressure-depdendent-Arrhenius reactions
     reg("pressure-dependent-Arrhenius", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new PlogReaction();
-        setupPlogReaction(*(PlogReaction*)R, node, kin);
+        if (node.hasKey("equation")) {
+            setupPlogReaction(*(PlogReaction*)R, node, kin);
+        }
         return R;
     });
     addAlias("pressure-dependent-Arrhenius", "plog");
@@ -71,7 +81,9 @@ ReactionFactory::ReactionFactory()
     // register Chebyshev reactions
     reg("Chebyshev", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ChebyshevReaction();
-        setupChebyshevReaction(*(ChebyshevReaction*)R, node, kin);
+        if (node.hasKey("equation")) {
+            setupChebyshevReaction(*(ChebyshevReaction*)R, node, kin);
+        }
         return R;
     });
     addAlias("Chebyshev", "chebyshev");
@@ -89,7 +101,9 @@ ReactionFactory::ReactionFactory()
     // register interface reactions
     reg("interface", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new InterfaceReaction();
-        setupInterfaceReaction(*(InterfaceReaction*)R, node, kin);
+        if (node.hasKey("equation")) {
+            setupInterfaceReaction(*(InterfaceReaction*)R, node, kin);
+        }
         return R;
     });
     addAlias("interface", "surface");
@@ -98,21 +112,27 @@ ReactionFactory::ReactionFactory()
     // register electrochemical reactions
     reg("electrochemical", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ElectrochemicalReaction();
-        setupElectrochemicalReaction(*(ElectrochemicalReaction*)R, node, kin);
+        if (node.hasKey("equation")) {
+            setupElectrochemicalReaction(*(ElectrochemicalReaction*)R, node, kin);
+        }
         return R;
     });
 
     // register Blowers Masel reactions
     reg("Blowers-Masel", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new BlowersMaselReaction();
-        setupBlowersMaselReaction(*(BlowersMaselReaction*)R, node, kin);
+        if (node.hasKey("equation")) {
+            setupBlowersMaselReaction(*(BlowersMaselReaction*)R, node, kin);
+        }
         return R;
     });
 
     // register surface Blowers Masel reactions
     reg("surface-Blowers-Masel", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new BlowersMaselInterfaceReaction();
-        setupBlowersMaselInterfaceReaction(*(BlowersMaselInterfaceReaction*)R, node, kin);
+        if (node.hasKey("equation")) {
+            setupBlowersMaselInterfaceReaction(*(BlowersMaselInterfaceReaction*)R, node, kin);
+        }
         return R;
     });
 }
@@ -277,10 +297,7 @@ unique_ptr<Reaction> newReaction(const XML_Node& rxn_node)
         type = "electrochemical";
     }
 
-    Reaction* R;
-    try {
-        R = ReactionFactoryXML::factory()->create(type, rxn_node);
-    } catch (CanteraError& err) {
+    if (!(ReactionFactoryXML::factory()->exists(type))) {
         throw CanteraError("newReaction",
             "Unknown reaction type '" + rxn_node["type"] + "'");
     }
@@ -293,9 +310,7 @@ unique_ptr<Reaction> newReaction(const XML_Node& rxn_node)
             type = "three-body";
         }
     }
-    if (type != "electrochemical") {
-        type = R->type();
-    }
+    Reaction* R = ReactionFactoryXML::factory()->create(type, rxn_node);
     return unique_ptr<Reaction>(R);
 }
 
@@ -330,14 +345,12 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin)
         type = "surface-Blowers-Masel";
     }
 
-    Reaction* R;
-    try {
-        R = ReactionFactory::factory()->create(type, rxn_node, kin);
-    } catch (CanteraError& err) {
+    if (!(ReactionFactory::factory()->exists(type))) {
         throw InputFileError("ReactionFactory::newReaction", rxn_node["type"],
             "Unknown reaction type '{}'", type);
     }
-
+    Reaction* R;
+    R = ReactionFactory::factory()->create(type, rxn_node, kin);
     return unique_ptr<Reaction>(R);
 }
 

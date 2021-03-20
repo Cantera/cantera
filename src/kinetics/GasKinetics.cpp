@@ -339,7 +339,7 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
         return;
     }
 
-    if (rNew->type() == "elementary") {
+    if (rNew->type() == "elementary-old") {
         modifyElementaryReaction(i, dynamic_cast<ElementaryReaction&>(*rNew));
     } else if (rNew->type() == "three-body") {
         modifyThreeBodyReaction(i, dynamic_cast<ThreeBodyReaction&>(*rNew));
