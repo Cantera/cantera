@@ -22,141 +22,173 @@ std::mutex ReactionFactory::reaction_mutex;
 ReactionFactory::ReactionFactory()
 {
     // register elementary reactions
-    reg("elementary", []() { return new ElementaryReaction2(); });
+    reg("elementary", [](const AnyMap& node, const Kinetics& kin) {
+        return new ElementaryReaction2(node, kin);
+    });
     addAlias("elementary", "arrhenius");
     addAlias("elementary", "");
-    reg_AnyMap("elementary",
-               [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
-                   (dynamic_cast<Reaction2*>(R))->setParameters(node, kin);
-               });
-    reg("elementary-old", []() { return new ElementaryReaction(); });
-    reg_XML("elementary-old",
-            [](Reaction* R, const XML_Node& node) {
-                setupElementaryReaction(*(ElementaryReaction*)R, node);
-            });
-    reg_AnyMap("elementary-old",
-               [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
-                   setupElementaryReaction(*(ElementaryReaction*)R, node, kin);
-               });
+
+    reg("elementary-old", [](const AnyMap& node, const Kinetics& kin) {
+        Reaction* R = new ElementaryReaction();
+        setupElementaryReaction(*(ElementaryReaction*)R, node, kin);
+        return R;
+    });
 
     // register three-body reactions
-    reg("three-body", []() { return new ThreeBodyReaction(); });
+    reg("three-body", [](const AnyMap& node, const Kinetics& kin) {
+        Reaction* R = new ThreeBodyReaction();
+        setupThreeBodyReaction(*(ThreeBodyReaction*)R, node, kin);
+        return R;
+    });
     addAlias("three-body", "threebody");
     addAlias("three-body", "three_body");
-    reg_XML("three-body",
-            [](Reaction* R, const XML_Node& node) {
-                setupThreeBodyReaction(*(ThreeBodyReaction*)R, node);
-            });
-    reg_AnyMap("three-body",
-               [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
-                   setupThreeBodyReaction(*(ThreeBodyReaction*)R, node, kin);
-               });
 
     // register falloff reactions
-    reg("falloff", []() { return new FalloffReaction(); });
-    reg_XML("falloff",
-            [](Reaction* R, const XML_Node& node) {
-                setupFalloffReaction(*(FalloffReaction*)R, node);
-            });
-    reg_AnyMap("falloff",
-               [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
-                   setupFalloffReaction(*(FalloffReaction*)R, node, kin);
-               });
+    reg("falloff", [](const AnyMap& node, const Kinetics& kin) {
+        Reaction* R = new FalloffReaction();
+        setupFalloffReaction(*(FalloffReaction*)R, node, kin);
+        return R;
+    });
 
     // register falloff reactions
-    reg("chemically-activated", []() { return new ChemicallyActivatedReaction(); });
+    reg("chemically-activated", [](const AnyMap& node, const Kinetics& kin) {
+        Reaction* R = new ChemicallyActivatedReaction();
+        setupFalloffReaction(*(FalloffReaction*)R, node, kin);
+        return R;
+    });
     addAlias("chemically-activated", "chemact");
     addAlias("chemically-activated", "chemically_activated");
-    reg_XML("chemically-activated",
-            [](Reaction* R, const XML_Node& node) {
-                setupChemicallyActivatedReaction(*(ChemicallyActivatedReaction*)R, node);
-            });
-    reg_AnyMap("chemically-activated",
-               [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
-                   setupFalloffReaction(*(FalloffReaction*)R, node, kin);
-               });
 
     // register pressure-depdendent-Arrhenius reactions
-    reg("pressure-dependent-Arrhenius", []() { return new PlogReaction(); });
+    reg("pressure-dependent-Arrhenius", [](const AnyMap& node, const Kinetics& kin) {
+        Reaction* R = new PlogReaction();
+        setupPlogReaction(*(PlogReaction*)R, node, kin);
+        return R;
+    });
     addAlias("pressure-dependent-Arrhenius", "plog");
     addAlias("pressure-dependent-Arrhenius", "pdep_arrhenius");
-    reg_XML("pressure-dependent-Arrhenius",
-            [](Reaction* R, const XML_Node& node) {
-                setupPlogReaction(*(PlogReaction*)R, node);
-            });
-    reg_AnyMap("pressure-dependent-Arrhenius",
-               [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
-                   setupPlogReaction(*(PlogReaction*)R, node, kin);
-               });
 
     // register Chebyshev reactions
-    reg("Chebyshev", []() { return new ChebyshevReaction(); });
+    reg("Chebyshev", [](const AnyMap& node, const Kinetics& kin) {
+        Reaction* R = new ChebyshevReaction();
+        setupChebyshevReaction(*(ChebyshevReaction*)R, node, kin);
+        return R;
+    });
     addAlias("Chebyshev", "chebyshev");
-    reg_XML("Chebyshev",
-            [](Reaction* R, const XML_Node& node) {
-                setupChebyshevReaction(*(ChebyshevReaction*)R, node);
-            });
-    reg_AnyMap("Chebyshev",
-               [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
-                   setupChebyshevReaction(*(ChebyshevReaction*)R, node, kin);
-               });
 
     // register custom reactions specified by Func1 objects
-    reg("custom-rate-function", []() { return new CustomFunc1Reaction(); });
-    reg_AnyMap("custom-rate-function",
-               [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
-                   ((Reaction2*)R)->setParameters(node, kin);
-               });
+    reg("custom-rate-function", [](const AnyMap& node, const Kinetics& kin) {
+        return new CustomFunc1Reaction(node, kin);
+    });
 
     // register custom Python reactions
-    reg("elementary-new", []() { return new TestReaction(); });
-    reg_XML("elementary-new",
-            [](Reaction* R, const XML_Node& node) {
-                throw CanteraError("ReactionFactory", "Test reactions "
-                                   "cannot be created from XML nodes'");
-            });
-    reg_AnyMap("elementary-new",
-               [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
-                   (dynamic_cast<Reaction2*>(R))->setParameters(node, kin);
-               });
+    reg("elementary-new", [](const AnyMap& node, const Kinetics& kin) {
+        return new TestReaction(node, kin);
+    });
 
     // register interface reactions
-    reg("interface", []() { return new InterfaceReaction(); });
+    reg("interface", [](const AnyMap& node, const Kinetics& kin) {
+        Reaction* R = new InterfaceReaction();
+        setupInterfaceReaction(*(InterfaceReaction*)R, node, kin);
+        return R;
+    });
     addAlias("interface", "surface");
     addAlias("interface", "edge");
-    reg_XML("interface",
-            [](Reaction* R, const XML_Node& node) {
-                setupInterfaceReaction(*(InterfaceReaction*)R, node);
-            });
-    reg_AnyMap("interface",
-               [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
-                   setupInterfaceReaction(*(InterfaceReaction*)R, node, kin);
-               });
 
     // register electrochemical reactions
-    reg("electrochemical", []() { return new ElectrochemicalReaction(); });
-    reg_XML("electrochemical",
-            [](Reaction* R, const XML_Node& node) {
-                setupElectrochemicalReaction(*(ElectrochemicalReaction*)R, node);
-            });
-    reg_AnyMap("electrochemical",
-               [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
-                   setupElectrochemicalReaction(*(ElectrochemicalReaction*)R, node, kin);
-               });
+    reg("electrochemical", [](const AnyMap& node, const Kinetics& kin) {
+        Reaction* R = new ElectrochemicalReaction();
+        setupElectrochemicalReaction(*(ElectrochemicalReaction*)R, node, kin);
+        return R;
+    });
 
     // register Blowers Masel reactions
-    reg("Blowers-Masel", []() { return new BlowersMaselReaction(); });
-    reg_AnyMap("Blowers-Masel",
-               [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
-                   setupBlowersMaselReaction(*(BlowersMaselReaction*)R, node, kin);
-               });
+    reg("Blowers-Masel", [](const AnyMap& node, const Kinetics& kin) {
+        Reaction* R = new BlowersMaselReaction();
+        setupBlowersMaselReaction(*(BlowersMaselReaction*)R, node, kin);
+        return R;
+    });
 
     // register surface Blowers Masel reactions
-    reg("surface-Blowers-Masel", []() { return new BlowersMaselInterfaceReaction(); });
-    reg_AnyMap("surface-Blowers-Masel",
-               [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
-                   setupBlowersMaselInterfaceReaction(*(BlowersMaselInterfaceReaction*)R, node, kin);
-               });
+    reg("surface-Blowers-Masel", [](const AnyMap& node, const Kinetics& kin) {
+        Reaction* R = new BlowersMaselInterfaceReaction();
+        setupBlowersMaselInterfaceReaction(*(BlowersMaselInterfaceReaction*)R, node, kin);
+        return R;
+    });
+}
+
+ReactionFactoryXML* ReactionFactoryXML::s_factory = 0;
+std::mutex ReactionFactoryXML::reaction_mutex;
+
+ReactionFactoryXML::ReactionFactoryXML()
+{
+    // register elementary reactions
+    reg("elementary-old", [](const XML_Node& node) {
+        Reaction* R = new ElementaryReaction();
+        setupElementaryReaction(*(ElementaryReaction*)R, node);
+        return R;
+    });
+    addAlias("elementary-old", "elementary");
+    addAlias("elementary-old", "arrhenius");
+    addAlias("elementary-old", "");
+
+    // register three-body reactions
+    reg("three-body", [](const XML_Node& node) {
+        Reaction* R = new ThreeBodyReaction();
+        setupThreeBodyReaction(*(ThreeBodyReaction*)R, node);
+        return R;
+    });
+    addAlias("three-body", "threebody");
+    addAlias("three-body", "three_body");
+
+    // register falloff reactions
+    reg("falloff", [](const XML_Node& node) {
+        Reaction* R = new FalloffReaction();
+        setupFalloffReaction(*(FalloffReaction*)R, node);
+        return R;
+    });
+
+    // register falloff reactions
+    reg("chemically-activated", [](const XML_Node& node) {
+        Reaction* R = new ChemicallyActivatedReaction();
+        setupChemicallyActivatedReaction(*(ChemicallyActivatedReaction*)R, node);
+        return R;
+    });
+    addAlias("chemically-activated", "chemact");
+    addAlias("chemically-activated", "chemically_activated");
+
+    // register pressure-depdendent-Arrhenius reactions
+    reg("pressure-dependent-Arrhenius", [](const XML_Node& node) {
+        Reaction* R = new PlogReaction();
+        setupPlogReaction(*(PlogReaction*)R, node);
+        return R;
+    });
+    addAlias("pressure-dependent-Arrhenius", "plog");
+    addAlias("pressure-dependent-Arrhenius", "pdep_arrhenius");
+
+    // register Chebyshev reactions
+    reg("Chebyshev", [](const XML_Node& node) {
+        Reaction* R = new ChebyshevReaction();
+        setupChebyshevReaction(*(ChebyshevReaction*)R, node);
+        return R;
+    });
+    addAlias("Chebyshev", "chebyshev");
+
+    // register interface reactions
+    reg("interface", [](const XML_Node& node) {
+        Reaction* R = new InterfaceReaction();
+        setupInterfaceReaction(*(InterfaceReaction*)R, node);
+        return R;
+    });
+    addAlias("interface", "surface");
+    addAlias("interface", "edge");
+
+    // register electrochemical reactions
+    reg("electrochemical", [](const XML_Node& node) {
+        Reaction* R = new ElectrochemicalReaction();
+        setupElectrochemicalReaction(*(ElectrochemicalReaction*)R, node);
+        return R;
+    });
 }
 
 bool isThreeBody(const Reaction& R)
@@ -228,7 +260,9 @@ bool isElectrochemicalReaction(Reaction& R, const Kinetics& kin)
 
 unique_ptr<Reaction> newReaction(const std::string& type)
 {
-    unique_ptr<Reaction> R(ReactionFactory::factory()->create(type));
+    AnyMap rxn_node;
+    Kinetics kin;
+    unique_ptr<Reaction> R(ReactionFactory::factory()->create(type, rxn_node, kin));
     return R;
 }
 
@@ -244,13 +278,8 @@ unique_ptr<Reaction> newReaction(const XML_Node& rxn_node)
     }
 
     Reaction* R;
-
-    if (ReactionFactory::factory()->missing_XML(type)) {
-        type += "-old";
-    }
-
     try {
-        R = ReactionFactory::factory()->create(type);
+        R = ReactionFactoryXML::factory()->create(type, rxn_node);
     } catch (CanteraError& err) {
         throw CanteraError("newReaction",
             "Unknown reaction type '" + rxn_node["type"] + "'");
@@ -262,20 +291,15 @@ unique_ptr<Reaction> newReaction(const XML_Node& rxn_node)
         setupReaction(testReaction, rxn_node);
         if (isThreeBody(testReaction)) {
             type = "three-body";
-            R = ReactionFactory::factory()->create(type);
         }
     }
     if (type != "electrochemical") {
         type = R->type();
     }
-
-    ReactionFactory::factory()->setup_XML(type, R, rxn_node);
-
     return unique_ptr<Reaction>(R);
 }
 
-unique_ptr<Reaction> newReaction(const AnyMap& rxn_node,
-                                 const Kinetics& kin)
+unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin)
 {
     std::string type = "elementary";
     if (rxn_node.hasKey("type")) {
@@ -308,12 +332,11 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node,
 
     Reaction* R;
     try {
-        R = ReactionFactory::factory()->create(type);
+        R = ReactionFactory::factory()->create(type, rxn_node, kin);
     } catch (CanteraError& err) {
         throw InputFileError("ReactionFactory::newReaction", rxn_node["type"],
             "Unknown reaction type '{}'", type);
     }
-    ReactionFactory::factory()->setup_AnyMap(type, R, rxn_node, kin);
 
     return unique_ptr<Reaction>(R);
 }
