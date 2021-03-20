@@ -541,7 +541,7 @@ cdef class ElementaryReaction(Reaction):
                                  rate={'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07},
                                  kinetics=gas)
     """
-    reaction_type = "elementary"
+    reaction_type = "elementary-old"
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
                  init=True, **kwargs):
@@ -1024,6 +1024,67 @@ cdef class BlowersMaselReaction(Reaction):
             cdef CxxBlowersMaselReaction* r = <CxxBlowersMaselReaction*>self.reaction
             r.allow_negative_pre_exponential_factor = allow
 
+cdef class ElementaryReaction2(Reaction):
+    """
+    A reaction which follows mass-action kinetics with a modified Arrhenius
+    reaction rate. The class is a re-implementation of `ElementaryReaction`
+    and serves for testing purposes.
+
+    An example for the definition of a `TestReaction` object is given as::
+
+        rxn = ElementaryReaction2(equation='H2 + O <=> H + OH',
+                                  rate={'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07},
+                                  kinetics=gas)
+
+    Warning: this class is an experimental part of the Cantera API and
+        may be changed or removed without notice.
+    """
+    reaction_type = "elementary"
+
+    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
+                 init=True, **kwargs):
+
+        if init and equation and kinetics:
+
+            if isinstance(rate, dict):
+                coeffs = ['{}: {}'.format(k, v) for k, v in rate.items()]
+            elif isinstance(rate, ArrheniusRate) or rate is None:
+                coeffs = ['{}: 0.'.format(k) for k in ['A', 'b', 'Ea']]
+            else:
+                raise TypeError("Invalid rate definition")
+
+            rate_def = '{{{}}}'.format(', '.join(coeffs))
+            yaml = '{{equation: {}, rate-constant: {}, type: {}}}'.format(
+                equation, rate_def, self.reaction_type)
+            self._reaction = CxxNewReaction(AnyMapFromYamlString(stringify(yaml)),
+                                            deref(kinetics.kinetics))
+            self.reaction = self._reaction.get()
+
+            if isinstance(rate, ArrheniusRate):
+                self.rate = rate
+
+    property rate:
+        """ Get/Set the `Arrhenius` rate coefficient for this reaction. """
+        def __get__(self):
+            cdef CxxElementaryReaction2* r = <CxxElementaryReaction2*>self.reaction
+            return ArrheniusRate.wrap(r.rate())
+        def __set__(self, ArrheniusRate rate):
+            cdef CxxElementaryReaction2* r = <CxxElementaryReaction2*>self.reaction
+            r.setRate(rate._base)
+
+    property allow_negative_pre_exponential_factor:
+        """
+        Get/Set whether the rate coefficient is allowed to have a negative
+        pre-exponential factor.
+        """
+        def __get__(self):
+            cdef CxxElementaryReaction2* r = <CxxElementaryReaction2*>self.reaction
+            return r.allow_negative_pre_exponential_factor
+        def __set__(self, allow):
+            cdef CxxElementaryReaction2* r = <CxxElementaryReaction2*>self.reaction
+            r.allow_negative_pre_exponential_factor = allow
+
+
 cdef class CustomReaction(Reaction):
     """
     A reaction which follows mass-action kinetics with a custom reaction rate.
@@ -1107,18 +1168,6 @@ cdef class TestReaction(Reaction):
         def __set__(self, ArrheniusRate rate):
             cdef CxxTestReaction* r = <CxxTestReaction*>self.reaction
             r.setRate(rate._base)
-
-    property allow_negative_pre_exponential_factor:
-        """
-        Get/Set whether the rate coefficient is allowed to have a negative
-        pre-exponential factor.
-        """
-        def __get__(self):
-            cdef CxxElementaryReaction* r = <CxxElementaryReaction*>self.reaction
-            return r.allow_negative_pre_exponential_factor
-        def __set__(self, allow):
-            cdef CxxElementaryReaction* r = <CxxElementaryReaction*>self.reaction
-            r.allow_negative_pre_exponential_factor = allow
 
 
 cdef class InterfaceReaction(ElementaryReaction):
