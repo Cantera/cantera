@@ -421,11 +421,14 @@ public:
         iNew = kin->nReactions() - 1;
     }
 
-    void compareReactions() {
+    void compareReactions(bool old=false) {
         auto kin = soln->kinetics();
         EXPECT_EQ(kin->reactionString(iOld), kin->reactionString(iNew));
-        EXPECT_EQ(kin->reactionTypeStr(iOld), kin->reactionTypeStr(iNew));
-        EXPECT_EQ(kin->isReversible(iOld), kin->isReversible(iNew));
+        if (old) {
+            EXPECT_EQ(kin->reactionTypeStr(iOld), kin->reactionTypeStr(iNew) + "-old");
+        } else {
+            EXPECT_EQ(kin->isReversible(iOld), kin->isReversible(iNew));
+        }
 
         vector_fp kf(kin->nReactions()), kr(kin->nReactions());
         vector_fp ropf(kin->nReactions()), ropr(kin->nReactions());
@@ -451,8 +454,8 @@ TEST_F(ReactionToYaml, elementary)
     soln = newSolution("h2o2.yaml", "", "None");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, O:1e-8, OH:3e-8");
     duplicateReaction(2);
-    EXPECT_TRUE(std::dynamic_pointer_cast<ElementaryReaction>(duplicate));
-    compareReactions();
+    EXPECT_TRUE(std::dynamic_pointer_cast<ElementaryReaction3>(duplicate));
+    compareReactions(true);
 }
 
 TEST_F(ReactionToYaml, threeBody)

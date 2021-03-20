@@ -604,7 +604,10 @@ class cti2yamlTest(utilities.CanteraTest):
             self.assertEqual(C.composition, Y.composition)
 
         for C, Y in zip(ctiPhase.reactions(), yamlPhase.reactions()):
-            self.assertEqual(C.__class__, Y.__class__)
+            if Y.__class__.__name__.endswith('2'):
+                self.assertEqual(C.__class__.__name__, Y.__class__.__name__[:-1])
+            else:
+                self.assertEqual(C.__class__, Y.__class__)
             self.assertEqual(C.reactants, Y.reactants)
             self.assertEqual(C.products, Y.products)
             self.assertEqual(C.duplicate, Y.duplicate)
@@ -851,7 +854,10 @@ class ctml2yamlTest(utilities.CanteraTest):
             self.assertEqual(C.composition, Y.composition)
 
         for C, Y in zip(ctmlPhase.reactions(), yamlPhase.reactions()):
-            self.assertEqual(C.__class__, Y.__class__)
+            if Y.__class__.__name__.endswith('2'):
+                self.assertEqual(C.__class__.__name__, Y.__class__.__name__[:-1])
+            else:
+                self.assertEqual(C.__class__, Y.__class__)
             self.assertEqual(C.reactants, Y.reactants)
             self.assertEqual(C.products, Y.products)
             self.assertEqual(C.duplicate, Y.duplicate)
