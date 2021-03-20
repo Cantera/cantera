@@ -38,6 +38,14 @@ class ReactionRateBase
 public:
     virtual ~ReactionRateBase() {}
 
+    //! Set parameters
+    //! @param node  AnyMap object containing reaction rate specification
+    //! @param rate_units  Description of units used for rate parameters
+    virtual bool setParameters(const AnyMap& node, const Units& rate_units) {
+        throw CanteraError("ReactionRate::setParameters",
+                           "Not implemented by derived ReactionRate object.");
+    }
+
     //! Identifier of reaction type
     virtual std::string type() const = 0;
 
@@ -132,10 +140,9 @@ public:
 
     ArrheniusRate(double A, double b, double E);
 
-    //! Constructor
-    //! @param node  AnyMap object containing reaction rate specification
-    //! @param rate_units  Description of units used for rate parameters
     ArrheniusRate(const AnyMap& node, const Units& rate_units);
+
+    virtual bool setParameters(const AnyMap& node, const Units& rate_units) override;
 
     virtual std::string type() const override { return "ArrheniusRate"; }
 

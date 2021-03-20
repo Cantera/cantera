@@ -1,3 +1,4 @@
+
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
@@ -103,6 +104,7 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
 {
     bool added = Kinetics::addReaction(r);
     if (!added) {
+        // undeclared species, etc.
         return false;
     }
     double dn = 0.0;
