@@ -193,9 +193,9 @@ class TestElementary(utilities.CanteraTest):
         self.check_rxn(rxn)
 
 
-class TestElementary2(TestElementary):
+class TestElementary3(TestElementary):
 
-    _cls = ct.ElementaryReaction2
+    _cls = ct.ElementaryReaction3
     _equation = 'H2 + O <=> H + OH'
     _rate = {'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07}
     _rate_obj = ct.ArrheniusRate(38.7, 2.7, 2.619184e+07)

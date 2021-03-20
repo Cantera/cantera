@@ -10,10 +10,10 @@
 
 using namespace Cantera;
 
-class KineticsFromScratch2 : public testing::Test
+class KineticsFromScratch3 : public testing::Test
 {
 public:
-    KineticsFromScratch2()
+    KineticsFromScratch3()
     {
         std::string yaml_file = "../data/kineticsfromscratch.yaml";
         std::string phase_name = "ohmech";
@@ -53,21 +53,21 @@ public:
     }
 };
 
-TEST_F(KineticsFromScratch2, add_elementary_reaction)
+TEST_F(KineticsFromScratch3, add_elementary_reaction)
 {
     // reaction 0:
     // reaction('O + H2 <=> H + OH', [3.870000e+01, 2.7, 6260.0])
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     ArrheniusRate rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction3>(reac, prod, rate);
 
     kin->addReaction(R);
     check_rates(0);
 }
 
 /*
-TEST_F(KineticsFromScratch2, add_three_body_reaction)
+TEST_F(KineticsFromScratch3, add_three_body_reaction)
 {
     // reaction 1:
     // three_body_reaction('2 O + M <=> O2 + M', [1.200000e+11, -1.0, 0.0],
@@ -83,7 +83,7 @@ TEST_F(KineticsFromScratch2, add_three_body_reaction)
     check_rates(1);
 }
 
-TEST_F(KineticsFromScratch2, undefined_third_body)
+TEST_F(KineticsFromScratch3, undefined_third_body)
 {
     Composition reac = parseCompString("O:2");
     Composition prod = parseCompString("O2:1");
@@ -95,7 +95,7 @@ TEST_F(KineticsFromScratch2, undefined_third_body)
     ASSERT_THROW(kin->addReaction(R), CanteraError);
 }
 
-TEST_F(KineticsFromScratch2, skip_undefined_third_body)
+TEST_F(KineticsFromScratch3, skip_undefined_third_body)
 {
     Composition reac = parseCompString("O:2");
     Composition prod = parseCompString("O2:1");
@@ -110,7 +110,7 @@ TEST_F(KineticsFromScratch2, skip_undefined_third_body)
 }
 
 
-TEST_F(KineticsFromScratch2, add_falloff_reaction)
+TEST_F(KineticsFromScratch3, add_falloff_reaction)
 {
     // reaction 2:
     // falloff_reaction('2 OH (+ M) <=> H2O2 (+ M)',
@@ -131,7 +131,7 @@ TEST_F(KineticsFromScratch2, add_falloff_reaction)
     check_rates(2);
 }
 
-TEST_F(KineticsFromScratch2, add_plog_reaction)
+TEST_F(KineticsFromScratch3, add_plog_reaction)
 {
     // reaction 3:
     // pdep_arrhenius('H2 + O2 <=> 2 OH',
@@ -153,7 +153,7 @@ TEST_F(KineticsFromScratch2, add_plog_reaction)
     check_rates(3);
 }
 
-TEST_F(KineticsFromScratch2, plog_invalid_rate)
+TEST_F(KineticsFromScratch3, plog_invalid_rate)
 {
     Composition reac = parseCompString("H2:1, O2:1");
     Composition prod = parseCompString("OH:2");
@@ -168,7 +168,7 @@ TEST_F(KineticsFromScratch2, plog_invalid_rate)
     ASSERT_THROW(kin->addReaction(R), CanteraError);
 }
 
-TEST_F(KineticsFromScratch2, add_chebyshev_reaction)
+TEST_F(KineticsFromScratch3, add_chebyshev_reaction)
 {
     // reaction 4:
     // chebyshev_reaction(
@@ -201,70 +201,70 @@ TEST_F(KineticsFromScratch2, add_chebyshev_reaction)
 }
 */
 
-TEST_F(KineticsFromScratch2, undeclared_species)
+TEST_F(KineticsFromScratch3, undeclared_species)
 {
     Composition reac = parseCompString("CO:1 OH:1");
     Composition prod = parseCompString("CO2:1 H:1");
     ArrheniusRate rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction3>(reac, prod, rate);
 
     ASSERT_THROW(kin->addReaction(R), CanteraError);
     ASSERT_EQ((size_t) 0, kin->nReactions());
 }
 
-TEST_F(KineticsFromScratch2, skip_undeclared_species)
+TEST_F(KineticsFromScratch3, skip_undeclared_species)
 {
     Composition reac = parseCompString("CO:1 OH:1");
     Composition prod = parseCompString("CO2:1 H:1");
     ArrheniusRate rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction3>(reac, prod, rate);
 
     kin->skipUndeclaredSpecies(true);
     kin->addReaction(R);
     ASSERT_EQ((size_t) 0, kin->nReactions());
 }
 
-TEST_F(KineticsFromScratch2, negative_A_error)
+TEST_F(KineticsFromScratch3, negative_A_error)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     ArrheniusRate rate(-3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction3>(reac, prod, rate);
 
     ASSERT_THROW(kin->addReaction(R), CanteraError);
     ASSERT_EQ((size_t) 0, kin->nReactions());
 }
 
-TEST_F(KineticsFromScratch2, allow_negative_A)
+TEST_F(KineticsFromScratch3, allow_negative_A)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     ArrheniusRate rate(-3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction3>(reac, prod, rate);
     R->allow_negative_pre_exponential_factor = true;
 
     kin->addReaction(R);
     ASSERT_EQ((size_t) 1, kin->nReactions());
 }
 
-TEST_F(KineticsFromScratch2, invalid_reversible_with_orders)
+TEST_F(KineticsFromScratch3, invalid_reversible_with_orders)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     ArrheniusRate rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction3>(reac, prod, rate);
     R->orders["H2"] = 0.5;
 
     ASSERT_THROW(kin->addReaction(R), CanteraError);
     ASSERT_EQ((size_t) 0, kin->nReactions());
 }
 
-TEST_F(KineticsFromScratch2, negative_order_override)
+TEST_F(KineticsFromScratch3, negative_order_override)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     ArrheniusRate rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction3>(reac, prod, rate);
     R->reversible = false;
     R->allow_negative_orders = true;
     R->orders["H2"] = - 0.5;
@@ -273,12 +273,12 @@ TEST_F(KineticsFromScratch2, negative_order_override)
     ASSERT_EQ((size_t) 1, kin->nReactions());
 }
 
-TEST_F(KineticsFromScratch2, invalid_negative_orders)
+TEST_F(KineticsFromScratch3, invalid_negative_orders)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     ArrheniusRate rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction3>(reac, prod, rate);
     R->reversible = false;
     R->orders["H2"] = - 0.5;
 
@@ -286,12 +286,12 @@ TEST_F(KineticsFromScratch2, invalid_negative_orders)
     ASSERT_EQ((size_t) 0, kin->nReactions());
 }
 
-TEST_F(KineticsFromScratch2, nonreactant_order_override)
+TEST_F(KineticsFromScratch3, nonreactant_order_override)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     ArrheniusRate rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction3>(reac, prod, rate);
     R->reversible = false;
     R->allow_nonreactant_orders = true;
     R->orders["OH"] = 0.5;
@@ -300,12 +300,12 @@ TEST_F(KineticsFromScratch2, nonreactant_order_override)
     ASSERT_EQ((size_t) 1, kin->nReactions());
 }
 
-TEST_F(KineticsFromScratch2, invalid_nonreactant_order)
+TEST_F(KineticsFromScratch3, invalid_nonreactant_order)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     ArrheniusRate rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction3>(reac, prod, rate);
     R->reversible = false;
     R->orders["OH"] = 0.5;
 
@@ -314,10 +314,10 @@ TEST_F(KineticsFromScratch2, invalid_nonreactant_order)
 }
 
 /*
-class InterfaceKineticsFromScratch2 : public testing::Test
+class InterfaceKineticsFromScratch3 : public testing::Test
 {
 public:
-    InterfaceKineticsFromScratch2()
+    InterfaceKineticsFromScratch3()
         : gas("../data/sofc-test.xml", "gas")
         , gas_ref("../data/sofc-test.xml", "gas")
         , surf("../data/sofc-test.xml", "metal_surface")
@@ -361,7 +361,7 @@ public:
     }
 };
 
-TEST_F(InterfaceKineticsFromScratch2, add_surface_reaction)
+TEST_F(InterfaceKineticsFromScratch3, add_surface_reaction)
 {
     // Reaction 3 on the metal surface
     // surface_reaction( "H(m) + O(m) <=> OH(m) + (m)",
@@ -375,7 +375,7 @@ TEST_F(InterfaceKineticsFromScratch2, add_surface_reaction)
     check_rates(3);
 }
 
-TEST_F(InterfaceKineticsFromScratch2, add_sticking_reaction)
+TEST_F(InterfaceKineticsFromScratch3, add_sticking_reaction)
 {
     // Reaction 0 on the metal surface
     // surface_reaction( "H2 + (m) + (m) <=> H(m) + H(m)",
@@ -389,7 +389,7 @@ TEST_F(InterfaceKineticsFromScratch2, add_sticking_reaction)
     check_rates(0);
 }
 
-TEST_F(InterfaceKineticsFromScratch2, unbalanced_sites)
+TEST_F(InterfaceKineticsFromScratch3, unbalanced_sites)
 {
     Composition reac = parseCompString("H(m):1 O(m):1");
     Composition prod = parseCompString("OH(m):1");

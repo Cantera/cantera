@@ -637,12 +637,12 @@ ChebyshevReaction::ChebyshevReaction(const Composition& reactants_,
     reaction_type = CHEBYSHEV_RXN;
 }
 
-Reaction2::Reaction2(const Composition& reactants, const Composition& products)
+Reaction3::Reaction3(const Composition& reactants, const Composition& products)
     : Reaction(reactants, products)
 {
 }
 
-bool Reaction2::setParameters(const AnyMap& node, const Kinetics& kin)
+bool Reaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 {
     if (!node.hasKey("equation")) {
         // empty node: used by newReaction() factory loader
@@ -672,31 +672,31 @@ bool Reaction2::setParameters(const AnyMap& node, const Kinetics& kin)
     return true;
 }
 
-ElementaryReaction2::ElementaryReaction2()
-    : Reaction2()
+ElementaryReaction3::ElementaryReaction3()
+    : Reaction3()
     , allow_negative_pre_exponential_factor(false)
 {
     m_rate = std::shared_ptr<ArrheniusRate>(new ArrheniusRate);
 }
 
-ElementaryReaction2::ElementaryReaction2(const Composition& reactants,
+ElementaryReaction3::ElementaryReaction3(const Composition& reactants,
                                          const Composition& products,
                                          const ArrheniusRate& rate)
-    : Reaction2(reactants, products)
+    : Reaction3(reactants, products)
     , allow_negative_pre_exponential_factor(false)
 {
     m_rate = std::make_shared<ArrheniusRate>(rate);
 }
 
-ElementaryReaction2::ElementaryReaction2(const AnyMap& node, const Kinetics& kin)
-    : ElementaryReaction2()
+ElementaryReaction3::ElementaryReaction3(const AnyMap& node, const Kinetics& kin)
+    : ElementaryReaction3()
 {
     setParameters(node, kin);
 }
 
-bool ElementaryReaction2::setParameters(const AnyMap& node, const Kinetics& kin)
+bool ElementaryReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 {
-    if (!Reaction2::setParameters(node, kin)) {
+    if (!Reaction3::setParameters(node, kin)) {
         return false;
     }
     setRate(std::shared_ptr<ArrheniusRate>(new ArrheniusRate(node, rate_units)));
@@ -704,7 +704,7 @@ bool ElementaryReaction2::setParameters(const AnyMap& node, const Kinetics& kin)
     return true;
 }
 
-void ElementaryReaction2::validate()
+void ElementaryReaction3::validate()
 {
     Reaction::validate();
     if (!allow_negative_pre_exponential_factor &&
@@ -716,7 +716,7 @@ void ElementaryReaction2::validate()
 }
 
 CustomFunc1Reaction::CustomFunc1Reaction()
-    : Reaction2()
+    : Reaction3()
 {
     m_rate = std::shared_ptr<CustomFunc1Rate>(new CustomFunc1Rate);
 }
@@ -729,13 +729,13 @@ CustomFunc1Reaction::CustomFunc1Reaction(const AnyMap& node, const Kinetics& kin
 
 bool CustomFunc1Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
 {
-    bool ok = Reaction2::setParameters(node, kin);
+    bool ok = Reaction3::setParameters(node, kin);
     setRate(std::shared_ptr<CustomFunc1Rate>(new CustomFunc1Rate(node, rate_units)));
     return ok;
 }
 
 TestReaction::TestReaction()
-    : Reaction2()
+    : Reaction3()
 {
     m_rate = std::shared_ptr<ArrheniusRate>(new ArrheniusRate);
 }
@@ -748,7 +748,7 @@ TestReaction::TestReaction(const AnyMap& node, const Kinetics& kin)
 
 bool TestReaction::setParameters(const AnyMap& node, const Kinetics& kin)
 {
-    if (!Reaction2::setParameters(node, kin)) {
+    if (!Reaction3::setParameters(node, kin)) {
         return false;
     }
     setRate(std::shared_ptr<ArrheniusRate>(new ArrheniusRate(node, rate_units)));

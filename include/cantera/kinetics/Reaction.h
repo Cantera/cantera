@@ -154,11 +154,11 @@ protected:
 //! An intermediate class used to avoid naming conflicts of 'rate' member
 //! variables and getters (see `ElementaryReaction`, `PlogReaction` and
 //! `ChebyshevReaction`).
-class Reaction2 : public Reaction
+class Reaction3 : public Reaction
 {
 public:
-    Reaction2() : Reaction() {}
-    Reaction2(const Composition& reactants, const Composition& products);
+    Reaction3() : Reaction() {}
+    Reaction3(const Composition& reactants, const Composition& products);
 
     //! Get reaction rate pointer
     shared_ptr<ReactionRateBase> rate() {
@@ -348,18 +348,15 @@ public:
 //! reaction rate.
 /**
  * Alternative elementary reaction based on ReactionRate.
- *
- * @warning This class is an experimental part of the %Cantera API and
- *    may be changed or removed without notice.
  */
-class ElementaryReaction2 : public Reaction2
+class ElementaryReaction3 : public Reaction3
 {
 public:
-    ElementaryReaction2();
-    ElementaryReaction2(const Composition& reactants, const Composition& products,
+    ElementaryReaction3();
+    ElementaryReaction3(const Composition& reactants, const Composition& products,
                         const ArrheniusRate& rate);
 
-    ElementaryReaction2(const AnyMap& node, const Kinetics& kin);
+    ElementaryReaction3(const AnyMap& node, const Kinetics& kin);
 
     virtual std::string type() const {
         return "elementary";
@@ -375,11 +372,7 @@ public:
 
 //! A reaction which follows mass-action kinetics with a custom reaction rate
 //! defined in Python.
-/**
- * @warning This class is an experimental part of the %Cantera API and
- *    may be changed or removed without notice.
- */
-class CustomFunc1Reaction : public Reaction2
+class CustomFunc1Reaction : public Reaction3
 {
 public:
     CustomFunc1Reaction();
@@ -402,7 +395,7 @@ public:
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
  */
-class TestReaction : public Reaction2
+class TestReaction : public Reaction3
 {
 public:
     TestReaction();
