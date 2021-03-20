@@ -26,13 +26,8 @@ namespace Cantera
  * @endcode
  *
  * @ingroup reactionGroup
- *
- * @todo Once support for XML is phased out, a change of the base class type
- *     to `Factory<Reaction, const AnyMap&, const Kinetics&>` will ensure that
- *     `reg` and `create` methods provided by the base factory class can be
- *     used. Thus, separate `setup_AnyMap` and other methods can be avoided.
  */
-class ReactionFactory : public Factory<Reaction>
+class ReactionFactory : public Factory<Reaction, const AnyMap&, const Kinetics&>
 {
 public:
     /**
@@ -54,63 +49,6 @@ public:
         s_factory = 0;
     }
 
-    //! Set up reaction based on XML node information
-    /**
-     * Kept separate from base `create` method as the factory has to handle both
-     * XML and `AnyMap` input until support for the former is removed.
-     */
-    void setup_XML(std::string name,
-                   Reaction* R, const XML_Node& rxn_node) {
-        try {
-            m_xml_setup.at(name)(R, rxn_node);
-        } catch (std::out_of_range&) {
-            throw CanteraError("ReactionFactory::setup_XML",
-                               "No such type: '{}'", name);
-        }
-    }
-
-    //! Register a new object initializer function (from XML node)
-    /**
-     * Kept separate from base `reg` method as the factory has to handle both
-     * XML and `AnyMap` input until support for the former is removed.
-     */
-    void reg_XML(const std::string& name,
-                 std::function<void(Reaction*, const XML_Node&)> f) {
-        m_xml_setup[name] = f;
-    }
-
-    //! Check whether `name` is registered
-    /**
-     * Detect whether '-old' suffix is required for valid XML constructor; used
-     * until XML support is removed.
-     */
-    bool missing_XML(const std::string& name) {
-        return m_xml_setup.find(name) == m_xml_setup.end();
-    }
-
-    //! Set up reaction based on AnyMap node information
-    /**
-     * @todo call setup directly from constructor after removal of XML support.
-     */
-    void setup_AnyMap(std::string name,
-                      Reaction* R, const AnyMap& node, const Kinetics& kin) {
-        try {
-            m_anymap_setup.at(name)(R, node, kin);
-        } catch (std::out_of_range&) {
-            throw CanteraError("ReactionFactory::setup_AnyMap",
-                               "No such type: '{}'", name);
-        }
-    }
-
-    //! Register a new object initializer function (from AnyMap node)
-    /**
-     * @todo can be handled by `reg` after removal of XML support.
-     */
-    void reg_AnyMap(const std::string& name,
-                    std::function<void(Reaction*, const AnyMap&, const Kinetics&)> f) {
-        m_anymap_setup[name] = f;
-    }
-
 private:
     //! Pointer to the single instance of the factory
     static ReactionFactory* s_factory;
@@ -120,15 +58,41 @@ private:
 
     //!  Mutex for use when calling the factory
     static std::mutex reaction_mutex;
-
-    //! map of XML initializers
-    std::unordered_map<std::string,
-        std::function<void(Reaction*, const XML_Node&)>> m_xml_setup;
-
-    //! map of AnyMap initializers
-    std::unordered_map<std::string,
-        std::function<void(Reaction*, const AnyMap&, const Kinetics&)>> m_anymap_setup;
 };
+
+class ReactionFactoryXML : public Factory<Reaction, const XML_Node&>
+{
+public:
+    /**
+     * Return a pointer to the factory. On the first call, a new instance is
+     * created. Since there is no need to instantiate more than one factory,
+     * on all subsequent calls, a pointer to the existing factory is returned.
+     */
+    static ReactionFactoryXML* factory() {
+        std::unique_lock<std::mutex> lock(reaction_mutex);
+        if (!s_factory) {
+            s_factory = new ReactionFactoryXML;
+        }
+        return s_factory;
+    }
+
+    virtual void deleteFactory() {
+        std::unique_lock<std::mutex> lock(reaction_mutex);
+        delete s_factory;
+        s_factory = 0;
+    }
+
+private:
+    //! Pointer to the single instance of the factory
+    static ReactionFactoryXML* s_factory;
+
+    //! default constructor, which is defined as private
+    ReactionFactoryXML();
+
+    //!  Mutex for use when calling the factory
+    static std::mutex reaction_mutex;
+};
+
 
 //! Create a new empty Reaction object
 /*!
