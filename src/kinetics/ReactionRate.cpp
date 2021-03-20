@@ -10,12 +10,24 @@
 namespace Cantera
 {
 
+ArrheniusRate::ArrheniusRate()
+    : Arrhenius() {
+}
+
 ArrheniusRate::ArrheniusRate(double A, double b, double E)
     : Arrhenius(A, b, E) {
 }
 
 ArrheniusRate::ArrheniusRate(const AnyMap& node, const Units& rate_units) {
-    setParameters(node["rate-constant"], node.units(), rate_units);
+    setParameters(node, rate_units);
+}
+
+bool ArrheniusRate::setParameters(const AnyMap& node, const Units& rate_units) {
+    if (!node.hasKey("rate-constant")) {
+        return false;
+    }
+    Arrhenius::setParameters(node["rate-constant"], node.units(), rate_units);
+    return true;
 }
 
 CustomFunc1Rate::CustomFunc1Rate() : m_ratefunc(0) {}
