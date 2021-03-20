@@ -367,6 +367,8 @@ public:
 
     virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
 
+    virtual void validate();
+
     bool allow_negative_pre_exponential_factor;
 };
 
@@ -412,8 +414,6 @@ public:
     }
 
     virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
-
-    bool allow_negative_pre_exponential_factor;
 };
 
 
