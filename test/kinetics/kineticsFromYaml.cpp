@@ -23,7 +23,7 @@ TEST(Reaction, ElementaryFromYaml1)
     EXPECT_EQ(R->products.at("N2"), 1);
     EXPECT_EQ(R->type(), "elementary");
 
-    auto ER = dynamic_cast<ElementaryReaction2&>(*R);
+    auto ER = dynamic_cast<ElementaryReaction3&>(*R);
     EXPECT_TRUE(ER.allow_negative_pre_exponential_factor);
     EXPECT_FALSE(ER.allow_negative_orders);
 
@@ -241,7 +241,7 @@ TEST(Kinetics, GasKineticsFromYaml1)
     EXPECT_EQ(R->reactants.at("NO"), 1);
     EXPECT_EQ(R->products.at("N2"), 1);
     EXPECT_EQ(R->id, "NOx-R1");
-    const auto& ER = std::dynamic_pointer_cast<ElementaryReaction2>(R);
+    const auto& ER = std::dynamic_pointer_cast<ElementaryReaction3>(R);
     const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(ER->rate());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 2.7e10);
 }

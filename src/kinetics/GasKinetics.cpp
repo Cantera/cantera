@@ -242,7 +242,7 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
     bool added = BulkKinetics::addReaction(r);
     if (!added) {
         return false;
-    } else if (std::dynamic_pointer_cast<Reaction2>(r) != nullptr) {
+    } else if (std::dynamic_pointer_cast<Reaction3>(r) != nullptr) {
         // Rate object already added in BulkKinetics::addReaction
         return true;
     }
@@ -334,7 +334,7 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     // operations common to all bulk reaction types
     BulkKinetics::modifyReaction(i, rNew);
 
-    if (std::dynamic_pointer_cast<Reaction2>(rNew) != nullptr) {
+    if (std::dynamic_pointer_cast<Reaction3>(rNew) != nullptr) {
         // Rate object already modified in BulkKinetics::modifyReaction
         return;
     }

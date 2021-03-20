@@ -540,6 +540,12 @@ cdef class ElementaryReaction(Reaction):
         rxn = ElementaryReaction(equation='H2 + O <=> H + OH',
                                  rate={'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07},
                                  kinetics=gas)
+
+    .. deprecated:: 2.6
+
+        This class is superseded by `ElementaryReaction3` and only used by XML. 
+        The implementation of this reaction type will change after Cantera 2.6; 
+        refer to `ElementaryReaction3` for new behavior.
     """
     reaction_type = "elementary-old"
 
@@ -1024,20 +1030,21 @@ cdef class BlowersMaselReaction(Reaction):
             cdef CxxBlowersMaselReaction* r = <CxxBlowersMaselReaction*>self.reaction
             r.allow_negative_pre_exponential_factor = allow
 
-cdef class ElementaryReaction2(Reaction):
+cdef class ElementaryReaction3(Reaction):
     """
     A reaction which follows mass-action kinetics with a modified Arrhenius
-    reaction rate. The class is a re-implementation of `ElementaryReaction`
-    and serves for testing purposes.
+    reaction rate.
 
-    An example for the definition of a `TestReaction` object is given as::
+    An example for the definition of an `ElementaryReaction3` object is given 
+    as::
 
-        rxn = ElementaryReaction2(equation='H2 + O <=> H + OH',
-                                  rate={'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07},
-                                  kinetics=gas)
+        rxn = ElementaryReaction3(
+            equation='H2 + O <=> H + OH',
+            rate={'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07},
+            kinetics=gas)
 
-    Warning: this class is an experimental part of the Cantera API and
-        may be changed or removed without notice.
+    This class is a replacement for `ElementaryReaction` and cannot be
+    instantiated from XML. It is the default for import from YAML.
     """
     reaction_type = "elementary"
 
@@ -1066,10 +1073,10 @@ cdef class ElementaryReaction2(Reaction):
     property rate:
         """ Get/Set the `Arrhenius` rate coefficient for this reaction. """
         def __get__(self):
-            cdef CxxElementaryReaction2* r = <CxxElementaryReaction2*>self.reaction
+            cdef CxxElementaryReaction3* r = <CxxElementaryReaction3*>self.reaction
             return ArrheniusRate.wrap(r.rate())
         def __set__(self, ArrheniusRate rate):
-            cdef CxxElementaryReaction2* r = <CxxElementaryReaction2*>self.reaction
+            cdef CxxElementaryReaction3* r = <CxxElementaryReaction3*>self.reaction
             r.setRate(rate._base)
 
     property allow_negative_pre_exponential_factor:
@@ -1078,10 +1085,10 @@ cdef class ElementaryReaction2(Reaction):
         pre-exponential factor.
         """
         def __get__(self):
-            cdef CxxElementaryReaction2* r = <CxxElementaryReaction2*>self.reaction
+            cdef CxxElementaryReaction3* r = <CxxElementaryReaction3*>self.reaction
             return r.allow_negative_pre_exponential_factor
         def __set__(self, allow):
-            cdef CxxElementaryReaction2* r = <CxxElementaryReaction2*>self.reaction
+            cdef CxxElementaryReaction3* r = <CxxElementaryReaction3*>self.reaction
             r.allow_negative_pre_exponential_factor = allow
 
 
@@ -1091,12 +1098,10 @@ cdef class CustomReaction(Reaction):
 
     An example for the definition of a `CustomReaction` object is given as::
 
-        rxn = CustomReaction(equation='H2 + O <=> H + OH',
-                             rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T),
-                             kinetics=gas)
-
-    Warning: this class is an experimental part of the Cantera API and
-        may be changed or removed without notice.
+        rxn = CustomReaction(
+            equation='H2 + O <=> H + OH',
+            rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T),
+            kinetics=gas)
     """
     reaction_type = "custom-rate-function"
 

@@ -23,7 +23,7 @@ ReactionFactory::ReactionFactory()
 {
     // register elementary reactions
     reg("elementary", [](const AnyMap& node, const Kinetics& kin) {
-        return new ElementaryReaction2(node, kin);
+        return new ElementaryReaction3(node, kin);
     });
     addAlias("elementary", "arrhenius");
     addAlias("elementary", "");
