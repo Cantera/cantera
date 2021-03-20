@@ -116,7 +116,7 @@ class TestElementary(utilities.CanteraTest):
     _rate = {'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07}
     _rate_obj = ct.Arrhenius(38.7, 2.7, 2.619184e+07)
     _index = 2
-    _type = "elementary"
+    _type = "elementary-old"
 
     @classmethod
     def setUpClass(cls):
@@ -191,6 +191,16 @@ class TestElementary(utilities.CanteraTest):
         rxn = self._cls(equation=self._equation, kinetics=self.gas)
         rxn.rate = self._rate_obj
         self.check_rxn(rxn)
+
+
+class TestElementary2(TestElementary):
+
+    _cls = ct.ElementaryReaction2
+    _equation = 'H2 + O <=> H + OH'
+    _rate = {'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07}
+    _rate_obj = ct.ArrheniusRate(38.7, 2.7, 2.619184e+07)
+    _index = 2
+    _type = "elementary"
 
 
 class TestCustom(TestElementary):
