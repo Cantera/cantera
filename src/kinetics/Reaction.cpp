@@ -681,6 +681,12 @@ ElementaryReaction2::ElementaryReaction2(const Composition& reactants,
     setRate(std::make_shared<ArrheniusRate>(rate));
 }
 
+ElementaryReaction2::ElementaryReaction2(const AnyMap& node, const Kinetics& kin)
+    : ElementaryReaction2()
+{
+    setParameters(node, kin);
+}
+
 void ElementaryReaction2::setParameters(const AnyMap& node, const Kinetics& kin)
 {
     Reaction2::setParameters(node, kin);
@@ -695,6 +701,13 @@ CustomFunc1Reaction::CustomFunc1Reaction()
 {
 }
 
+CustomFunc1Reaction::CustomFunc1Reaction(const AnyMap& node,
+                                         const Kinetics& kin)
+    : CustomFunc1Reaction()
+{
+    setParameters(node, kin);
+}
+
 void CustomFunc1Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
 {
     Reaction2::setParameters(node, kin);
@@ -706,6 +719,12 @@ TestReaction::TestReaction()
     : Reaction2()
     , allow_negative_pre_exponential_factor(false)
 {
+}
+
+TestReaction::TestReaction(const AnyMap& node, const Kinetics& kin)
+    : TestReaction()
+{
+    setParameters(node, kin);
 }
 
 void TestReaction::setParameters(const AnyMap& node, const Kinetics& kin)
