@@ -47,10 +47,8 @@ public:
 
     //! @name Molar Thermodynamic properties
     //! @{
-
     virtual doublereal cp_mole() const;
     virtual doublereal cv_mole() const;
-
     //! @}
     //! @name Mechanical Properties
     //! @{
