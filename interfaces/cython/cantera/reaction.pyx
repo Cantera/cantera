@@ -600,6 +600,38 @@ cdef class ThreeBodyReaction(ElementaryReaction):
     """
     reaction_type = "three-body"
 
+    def __init__(self, equation=None, rate=None, efficiencies=None,
+                 Kinetics kinetics=None, init=True, **kwargs):
+
+        if init and equation and kinetics:
+
+            # todo: simplify after creation of AnyMap from dict is implemented
+            if isinstance(rate, dict):
+                coeffs = ['{}: {}'.format(k, v) for k, v in rate.items()]
+            elif isinstance(rate, Arrhenius) or rate is None:
+                coeffs = ['{}: 0.'.format(k) for k in ['A', 'b', 'Ea']]
+            else:
+                raise TypeError("Invalid rate definition")
+            rate_def = '{{{}}}'.format(', '.join(coeffs))
+            rate_def = ', rate-constant: {}'.format(rate_def)
+
+            # todo: simplify after creation of AnyMap from dict is implemented
+            if isinstance(efficiencies, dict):
+                effs = ['{}: {}'.format(k, v) for k, v in efficiencies.items()]
+                eff_def = '{{{}}}'.format(', '.join(effs))
+                eff_def = ', efficiencies: {}'.format(eff_def)
+            elif efficiencies is None:
+                eff_def = ''
+
+            yaml = '{{equation: {}, type: {}{}{}}}'.format(
+                equation, self.reaction_type, rate_def, eff_def)
+            self._reaction = CxxNewReaction(AnyMapFromYamlString(stringify(yaml)),
+                                            deref(kinetics.kinetics))
+            self.reaction = self._reaction.get()
+
+            if isinstance(rate, Arrhenius):
+                self.rate = rate
+                
     cdef CxxThreeBodyReaction* tbr(self):
         return <CxxThreeBodyReaction*>self.reaction
 
@@ -1102,10 +1134,10 @@ cdef class ThreeBodyReaction3(ElementaryReaction3):
     as::
 
         rxn = ThreeBodyReaction3(
-            equation: '2 O + M <=> O2 + M',
-            type: three-body,
-            rate: {A: 1.2e+17, b: -1.0, Ea: 0.0},
-            efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83},
+            equation='2 O + M <=> O2 + M',
+            type='three-body',
+            rate={'A': 1.2e+17, 'b': -1.0, 'Ea': 0.0},
+            efficiencies={'H2': 2.4, 'H2O': 15.4, 'AR': 0.83},
             kinetics=gas)
 
     This class is a replacement for `ThreeBodyReaction` and cannot be
@@ -1116,6 +1148,9 @@ cdef class ThreeBodyReaction3(ElementaryReaction3):
     cdef CxxThreeBodyReaction3* tbr(self):
         return <CxxThreeBodyReaction3*>self.reaction
 
+    cdef CxxThirdBody* thirdbody(self):
+        return <CxxThirdBody*>(self.tbr().thirdBody().get())
+    
     def __init__(self, equation=None, rate=None, efficiencies=None,
                  Kinetics kinetics=None, init=True, **kwargs):
 
@@ -1155,9 +1190,11 @@ cdef class ThreeBodyReaction3(ElementaryReaction3):
         efficiencies.
         """
         def __get__(self):
-            return comp_map_to_dict(self.tbr().third_body.efficiencies)
+            #CxxThirdBody* thirdbody = self.tbr().third_body().get()
+            return comp_map_to_dict(self.thirdbody().efficiencies)
         def __set__(self, eff):
-            self.tbr().third_body.efficiencies = comp_map(eff)
+            #CxxThirdBody* thirdbody = self.tbr().third_body().get()
+            self.thirdbody().efficiencies = comp_map(eff)
 
     property default_efficiency:
         """
@@ -1165,16 +1202,19 @@ cdef class ThreeBodyReaction3(ElementaryReaction3):
         species used for species not in `efficiencies`.
         """
         def __get__(self):
-            return self.tbr().third_body.default_efficiency
+            #CxxThirdBody* thirdbody = self.tbr().third_body().get()
+            return self.thirdbody().default_efficiency
         def __set__(self, default_eff):
-            self.tbr().third_body.default_efficiency = default_eff
+            #CxxThirdBody* thirdbody = self.tbr().third_body().get()
+            self.thirdbody().default_efficiency = default_eff
 
     def efficiency(self, species):
         """
         Get the efficiency of the third body named *species* considering both
         the default efficiency and species-specific efficiencies.
         """
-        return self.tbr().third_body.efficiency(stringify(species))
+        #CxxThirdBody* thirdbody = self.tbr().third_body().get()
+        return self.thirdbody().efficiency(stringify(species))
 
 
 cdef class CustomReaction(Reaction):
