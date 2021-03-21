@@ -154,7 +154,6 @@ double PengRobinson::standardConcentration(size_t k) const
 void PengRobinson::getActivityCoefficients(double* ac) const
 {
     double mv = molarVolume();
-    //double T = temperature();
     double vpb2 = mv + (1 + M_SQRT2)*m_b_current;
     double vmb2 = mv + (1 - M_SQRT2)*m_b_current;
     double vmb = mv - m_b_current;
@@ -447,7 +446,6 @@ vector<double> PengRobinson::getCoeff(const std::string& iName)
 
                 }
 
-                //Assuming no temperature dependence
                 spCoeff[0] = omega_a * (GasConstant * GasConstant) * (T_crit * T_crit) / P_crit; //coeff a
                 spCoeff[1] = omega_b * GasConstant * T_crit / P_crit; // coeff b
                 spCoeff[2] = w_ac; // acentric factor
@@ -540,7 +538,7 @@ double PengRobinson::liquidVolEst(double T, double& presGuess) const
     bool foundLiq = false;
     int m = 0;
     while (m < 100 && !foundLiq) {
-                int nsol = solveCubic(T, pres, atmp, btmp, aAlphatmp, Vroot);
+        int nsol = solveCubic(T, pres, atmp, btmp, aAlphatmp, Vroot);
         if (nsol == 1 || nsol == 2) {
             double pc = critPressure();
             if (pres > pc) {
@@ -684,13 +682,11 @@ void PengRobinson::calculatePressureDerivatives() const
 void PengRobinson::updateMixingExpressions()
 {
     double temp = temperature();
-    //Update aAlpha_i
-    double sqt_alpha;
 
-    // Update indiviual alpha
+    // Update individual alpha
     for (size_t j = 0; j < m_kk; j++) {
         double critTemp_j = speciesCritTemperature(m_a_vec_Curr(j,j), m_b_vec_Curr[j]);
-        sqt_alpha = 1 + m_kappa_vec[j] * (1 - sqrt(temp / critTemp_j));
+        double sqt_alpha = 1 + m_kappa_vec[j] * (1 - sqrt(temp / critTemp_j));
         m_alpha_vec_Curr[j] = sqt_alpha*sqt_alpha;
     }
 
@@ -700,11 +696,6 @@ void PengRobinson::updateMixingExpressions()
             m_aAlpha_vec_Curr(i, j) = sqrt(m_alpha_vec_Curr[i] * m_alpha_vec_Curr[j]) * m_a_vec_Curr(i,j);
         }
     }
-
-    m_b_current = 0.0;
-    m_a_current = 0.0;
-    m_aAlpha_current = 0.0;
-
     calculateAB(m_a_current,m_b_current,m_aAlpha_current);
 }
 
@@ -725,8 +716,7 @@ void PengRobinson::calculateAB(double& aCalc, double& bCalc, double& aAlphaCalc)
 
 double PengRobinson::daAlpha_dT() const
 {
-    double daAlphadT = 0.0, temp, k, Tc = 0.0, sqtTr = 0.0;
-    double coeff1, coeff2;
+    double daAlphadT = 0.0, temp, k, Tc, sqtTr, coeff1, coeff2;
     for (size_t i = 0; i < m_kk; i++) {
         // Calculate first derivative of alpha for individual species
         Tc = speciesCritTemperature(m_a_vec_Curr(i,i), m_b_vec_Curr[i]);
@@ -749,7 +739,6 @@ double PengRobinson::daAlpha_dT() const
 
 double PengRobinson::d2aAlpha_dT2() const
 {
-    double temp, fac1, fac2, alphaij, alphai, alphaj, d2aAlphadT2 = 0.0, num;
     for (size_t i = 0; i < m_kk; i++) {
         double Tcrit_i = speciesCritTemperature(m_a_vec_Curr(i, i), m_b_vec_Curr[i]);
         double sqt_Tr = sqrt(temperature() / Tcrit_i); //we need species critical temperature
@@ -762,15 +751,16 @@ double PengRobinson::d2aAlpha_dT2() const
     }
 
     //Calculate mixture derivative
+    double d2aAlphadT2 = 0.0;
     for (size_t i = 0; i < m_kk; i++) {
-        alphai = m_alpha_vec_Curr[i];
+        double alphai = m_alpha_vec_Curr[i];
         for (size_t j = 0; j < m_kk; j++) {
-            alphaj = m_alpha_vec_Curr[j];
-            alphaij = alphai * alphaj;
-            temp = 0.5 * sqrt((m_a_vec_Curr(i, i) * m_a_vec_Curr(j, j)) / (alphaij));
-            num = (m_dalphadT_vec_Curr[j] * alphai + m_dalphadT_vec_Curr[i] * alphaj);
-            fac1 = -(0.5 / alphaij) * num * num;
-            fac2 = alphaj * m_d2alphadT2[i] + alphai * m_d2alphadT2[j] + 2. * m_dalphadT_vec_Curr[i] * m_dalphadT_vec_Curr[j];
+            double alphaj = m_alpha_vec_Curr[j];
+            double alphaij = alphai * alphaj;
+            double temp = 0.5 * sqrt((m_a_vec_Curr(i, i) * m_a_vec_Curr(j, j)) / (alphaij));
+            double num = (m_dalphadT_vec_Curr[j] * alphai + m_dalphadT_vec_Curr[i] * alphaj);
+            double fac1 = -(0.5 / alphaij) * num * num;
+            double fac2 = alphaj * m_d2alphadT2[i] + alphai * m_d2alphadT2[j] + 2. * m_dalphadT_vec_Curr[i] * m_dalphadT_vec_Curr[j];
             d2aAlphadT2 += moleFractions_[i] * moleFractions_[j] * temp * (fac1 + fac2);
         }
     }
