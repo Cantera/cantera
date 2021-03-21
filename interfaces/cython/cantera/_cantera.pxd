@@ -463,6 +463,10 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxElementaryReaction3()
         cbool allow_negative_pre_exponential_factor
 
+    cdef cppclass CxxThreeBodyReaction3 "Cantera::ThreeBodyReaction3" (CxxElementaryReaction3):
+        CxxThreeBodyReaction3()
+        CxxThirdBody third_body
+
     cdef cppclass CxxCustomFunc1Reaction "Cantera::CustomFunc1Reaction" (CxxReaction3):
         CxxCustomFunc1Reaction()
 
