@@ -48,7 +48,7 @@ class TestKinetics(utilities.CanteraTest):
         self.assertArrayNear(0.5 * rev_rates0, rev_rates2)
 
     def test_reaction_type(self):
-        self.assertEqual(self.phase.reaction_type_str(0), "three-body")
+        self.assertIn(self.phase.reaction_type_str(0), ["three-body", "three-body-old"])
         self.assertIn(self.phase.reaction_type_str(2), ["elementary", "elementary-old"])
         self.assertEqual(self.phase.reaction_type_str(21), "falloff")
 
@@ -905,7 +905,7 @@ class TestReaction(utilities.CanteraTest):
                 " efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}}",
                 self.gas)
 
-        self.assertTrue(isinstance(r, ct.ThreeBodyReaction))
+        self.assertTrue(isinstance(r, ct.ThreeBodyReaction3))
         self.assertEqual(r.reactants['O'], 2)
         self.assertEqual(r.products['O2'], 1)
         self.assertEqual(r.efficiencies['H2O'], 15.4)

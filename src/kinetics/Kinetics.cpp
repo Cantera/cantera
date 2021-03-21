@@ -144,6 +144,22 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                     continue; // No overlap in third body efficiencies
                 }
             } else if (R.type() == "three-body") {
+                ThirdBody& tb1 = *(dynamic_cast<ThreeBodyReaction3&>(R).thirdBody());
+                ThirdBody& tb2 = *(dynamic_cast<ThreeBodyReaction3&>(other).thirdBody());
+                bool thirdBodyOk = true;
+                for (size_t k = 0; k < nTotalSpecies(); k++) {
+                    string s = kineticsSpeciesName(k);
+                    if (tb1.efficiency(s) * tb2.efficiency(s) != 0.0) {
+                        // non-zero third body efficiencies for species `s` in
+                        // both reactions
+                        thirdBodyOk = false;
+                        break;
+                    }
+                }
+                if (thirdBodyOk) {
+                    continue; // No overlap in third body efficiencies
+                }
+            } else if (R.type() == "three-body-old") {
                 ThirdBody& tb1 = dynamic_cast<ThreeBodyReaction&>(R).third_body;
                 ThirdBody& tb2 = dynamic_cast<ThreeBodyReaction&>(other).third_body;
                 bool thirdBodyOk = true;

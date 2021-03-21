@@ -66,10 +66,11 @@ TEST(Reaction, ThreeBodyFromYaml1)
     EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
     EXPECT_EQ(R->type(), "three-body");
 
-    auto TBR = dynamic_cast<ThreeBodyReaction&>(*R);
-    EXPECT_DOUBLE_EQ(TBR.rate.preExponentialFactor(), 1.2e11);
-    EXPECT_DOUBLE_EQ(TBR.third_body.efficiencies["H2O"], 5.0);
-    EXPECT_DOUBLE_EQ(TBR.third_body.default_efficiency, 1.0);
+    auto TBR = dynamic_cast<ThreeBodyReaction3&>(*R);
+    const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(TBR.rate());
+    EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 1.2e11);
+    EXPECT_DOUBLE_EQ(TBR.thirdBody()->efficiencies["H2O"], 5.0);
+    EXPECT_DOUBLE_EQ(TBR.thirdBody()->default_efficiency, 1.0);
 }
 
 TEST(Reaction, ThreeBodyFromYaml2)
@@ -81,6 +82,25 @@ TEST(Reaction, ThreeBodyFromYaml2)
         " rate-constant: [1.20000E+17, -1, 0]}");
 
     EXPECT_THROW(newReaction(rxn, *(sol->kinetics())), CanteraError);
+}
+
+TEST(Reaction, ThreeBodyFromYaml3)
+{
+    auto sol = newSolution("gri30.yaml");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: 2 O + M = O2 + M,"
+        " type: three-body-old,"
+        " rate-constant: [1.20000E+17 cm^6/mol^2/s, -1, 0],"
+        " efficiencies: {AR: 0.83, H2O: 5}}");
+
+    auto R = newReaction(rxn, *(sol->kinetics()));
+    EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
+    EXPECT_EQ(R->type(), "three-body-old");
+
+    auto TBR = dynamic_cast<ThreeBodyReaction&>(*R);
+    EXPECT_DOUBLE_EQ(TBR.rate.preExponentialFactor(), 1.2e11);
+    EXPECT_DOUBLE_EQ(TBR.third_body.efficiencies["H2O"], 5.0);
+    EXPECT_DOUBLE_EQ(TBR.third_body.default_efficiency, 1.0);
 }
 
 TEST(Reaction, FalloffFromYaml1)
@@ -463,8 +483,8 @@ TEST_F(ReactionToYaml, threeBody)
     soln = newSolution("h2o2.yaml", "", "None");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, O:1e-8, OH:3e-8, H:2e-7");
     duplicateReaction(1);
-    EXPECT_TRUE(std::dynamic_pointer_cast<ThreeBodyReaction>(duplicate));
-    compareReactions();
+    EXPECT_TRUE(std::dynamic_pointer_cast<ThreeBodyReaction3>(duplicate));
+    compareReactions(true);
 }
 
 TEST_F(ReactionToYaml, TroeFalloff)

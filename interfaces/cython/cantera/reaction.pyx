@@ -598,7 +598,7 @@ cdef class ThreeBodyReaction(ElementaryReaction):
     A reaction with a non-reacting third body "M" that acts to add or remove
     energy from the reacting species.
     """
-    reaction_type = "three-body"
+    reaction_type = "three-body-old"
 
     def __init__(self, equation=None, rate=None, efficiencies=None,
                  Kinetics kinetics=None, init=True, **kwargs):
@@ -1143,7 +1143,7 @@ cdef class ThreeBodyReaction3(ElementaryReaction3):
     This class is a replacement for `ThreeBodyReaction` and cannot be
     instantiated from XML. It is the default for import from YAML.
     """
-    reaction_type = "three-body-new"
+    reaction_type = "three-body"
 
     cdef CxxThreeBodyReaction3* tbr(self):
         return <CxxThreeBodyReaction3*>self.reaction
@@ -1190,10 +1190,8 @@ cdef class ThreeBodyReaction3(ElementaryReaction3):
         efficiencies.
         """
         def __get__(self):
-            #CxxThirdBody* thirdbody = self.tbr().third_body().get()
             return comp_map_to_dict(self.thirdbody().efficiencies)
         def __set__(self, eff):
-            #CxxThirdBody* thirdbody = self.tbr().third_body().get()
             self.thirdbody().efficiencies = comp_map(eff)
 
     property default_efficiency:
@@ -1202,10 +1200,8 @@ cdef class ThreeBodyReaction3(ElementaryReaction3):
         species used for species not in `efficiencies`.
         """
         def __get__(self):
-            #CxxThirdBody* thirdbody = self.tbr().third_body().get()
             return self.thirdbody().default_efficiency
         def __set__(self, default_eff):
-            #CxxThirdBody* thirdbody = self.tbr().third_body().get()
             self.thirdbody().default_efficiency = default_eff
 
     def efficiency(self, species):
@@ -1213,7 +1209,6 @@ cdef class ThreeBodyReaction3(ElementaryReaction3):
         Get the efficiency of the third body named *species* considering both
         the default efficiency and species-specific efficiencies.
         """
-        #CxxThirdBody* thirdbody = self.tbr().third_body().get()
         return self.thirdbody().efficiency(stringify(species))
 
 
