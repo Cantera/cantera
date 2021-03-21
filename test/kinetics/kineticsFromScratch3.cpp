@@ -66,7 +66,6 @@ TEST_F(KineticsFromScratch3, add_elementary_reaction)
     check_rates(0);
 }
 
-/*
 TEST_F(KineticsFromScratch3, add_three_body_reaction)
 {
     // reaction 1:
@@ -74,10 +73,10 @@ TEST_F(KineticsFromScratch3, add_three_body_reaction)
     //                     efficiencies='AR:0.83 H2:2.4 H2O:15.4')
     Composition reac = parseCompString("O:2");
     Composition prod = parseCompString("O2:1");
-    Arrhenius rate(1.2e11, -1.0, 0.0);
+    ArrheniusRate rate(1.2e11, -1.0, 0.0);
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("AR:0.83 H2:2.4 H2O:15.4");
-    auto R = make_shared<ThreeBodyReaction>(reac, prod, rate, tbody);
+    auto R = make_shared<ThreeBodyReaction3>(reac, prod, rate, tbody);
 
     kin->addReaction(R);
     check_rates(1);
@@ -87,10 +86,10 @@ TEST_F(KineticsFromScratch3, undefined_third_body)
 {
     Composition reac = parseCompString("O:2");
     Composition prod = parseCompString("O2:1");
-    Arrhenius rate(1.2e11, -1.0, 0.0);
+    ArrheniusRate rate(1.2e11, -1.0, 0.0);
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("H2:0.1 CO2:0.83");
-    auto R = make_shared<ThreeBodyReaction>(reac, prod, rate, tbody);
+    auto R = make_shared<ThreeBodyReaction3>(reac, prod, rate, tbody);
 
     ASSERT_THROW(kin->addReaction(R), CanteraError);
 }
@@ -99,10 +98,10 @@ TEST_F(KineticsFromScratch3, skip_undefined_third_body)
 {
     Composition reac = parseCompString("O:2");
     Composition prod = parseCompString("O2:1");
-    Arrhenius rate(1.2e11, -1.0, 0.0);
+    ArrheniusRate rate(1.2e11, -1.0, 0.0);
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("H2:0.1 CO2:0.83");
-    auto R = make_shared<ThreeBodyReaction>(reac, prod, rate, tbody);
+    auto R = make_shared<ThreeBodyReaction3>(reac, prod, rate, tbody);
 
     kin->skipUndeclaredThirdBodies(true);
     kin->addReaction(R);
@@ -110,6 +109,7 @@ TEST_F(KineticsFromScratch3, skip_undefined_third_body)
 }
 
 
+/*
 TEST_F(KineticsFromScratch3, add_falloff_reaction)
 {
     // reaction 2:

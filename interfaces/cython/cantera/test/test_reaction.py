@@ -115,6 +115,7 @@ class TestElementary(utilities.CanteraTest):
     _equation = 'H2 + O <=> H + OH'
     _rate = {'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07}
     _rate_obj = ct.Arrhenius(38.7, 2.7, 2.619184e+07)
+    _kwargs = {}
     _index = 2
     _type = "elementary-old"
 
@@ -129,7 +130,6 @@ class TestElementary(utilities.CanteraTest):
     def check_rxn(self, rxn):
         ix = self._index
         self.assertEqual(rxn.reaction_type, self._type)
-        self.assertNear(rxn.rate(self.gas.T), self.gas.forward_rate_constants[ix])
         self.assertEqual(rxn.reactants, self.gas.reaction(ix).reactants)
         self.assertEqual(rxn.products, self.gas.reaction(ix).products)
 
@@ -156,11 +156,11 @@ class TestElementary(utilities.CanteraTest):
         self.check_rxn(rxn)
 
     def test_from_dict(self):
-        rxn = self._cls(equation=self._equation, rate=self._rate, kinetics=self.gas)
+        rxn = self._cls(equation=self._equation, rate=self._rate, kinetics=self.gas, **self._kwargs)
         self.check_rxn(rxn)
 
     def test_from_rate(self):
-        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas)
+        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas, **self._kwargs)
         self.check_rxn(rxn)
 
     def test_add_rxn(self):
@@ -168,16 +168,16 @@ class TestElementary(utilities.CanteraTest):
                            species=self.species, reactions=[])
         gas2.TPX = self.gas.TPX
 
-        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas)
+        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas, **self._kwargs)
         gas2.add_reaction(rxn)
         self.check_sol(gas2)
 
     def test_wrong_rate(self):
         with self.assertRaises(TypeError):
-            rxn = self._cls(equation=self._equation, rate=[], kinetics=self.gas)
+            rxn = self._cls(equation=self._equation, rate=[], kinetics=self.gas, **self._kwargs)
 
     def test_no_rate(self):
-        rxn = self._cls(equation=self._equation, kinetics=self.gas)
+        rxn = self._cls(equation=self._equation, kinetics=self.gas, **self._kwargs)
         self.assertNear(rxn.rate(self.gas.T), 0.)
 
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
@@ -188,7 +188,7 @@ class TestElementary(utilities.CanteraTest):
         self.assertNear(gas2.net_rates_of_progress[0], 0.)
 
     def test_replace_rate(self):
-        rxn = self._cls(equation=self._equation, kinetics=self.gas)
+        rxn = self._cls(equation=self._equation, kinetics=self.gas, **self._kwargs)
         rxn.rate = self._rate_obj
         self.check_rxn(rxn)
 
@@ -196,10 +196,7 @@ class TestElementary(utilities.CanteraTest):
 class TestElementary3(TestElementary):
 
     _cls = ct.ElementaryReaction3
-    _equation = 'H2 + O <=> H + OH'
-    _rate = {'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07}
     _rate_obj = ct.ArrheniusRate(38.7, 2.7, 2.619184e+07)
-    _index = 2
     _type = "elementary"
 
 
@@ -253,3 +250,38 @@ class TestElementaryNew(TestElementary):
     _rate_obj = ct.ArrheniusRate(38.7, 2.7, 2.619184e+07)
     _index = 2
     _type = "elementary-new"
+
+
+class TestThreeBody(TestElementary):
+
+    _cls = ct.ThreeBodyReaction
+    _equation = '2 O + M <=> O2 + M'
+    _rate = {'A': 1.2e11, 'b': -1.0, 'Ea': 0.0}
+    _rate_obj = ct.Arrhenius(1.2e11, -1., 0.)
+    _kwargs = {'efficiencies': {'H2': 2.4, 'H2O': 15.4, 'AR': 0.83}}
+    _index = 0
+    _type = "three-body"
+
+    def test_from_parts(self):
+        orig = self.gas.reaction(self._index)
+        rxn = self._cls(orig.reactants, orig.products)
+        rxn.rate = self._rate_obj
+        rxn.efficiencies = self._kwargs['efficiencies']
+        self.check_rxn(rxn)
+    
+    def test_rate(self):
+        # rate constant contains third-body concentration
+        pass
+        
+    def test_efficiencies(self):
+        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas, **self._kwargs)
+
+        self.assertEqual(rxn.efficiencies, self._kwargs['efficiencies'])
+
+        
+class TestThreeBody3(TestThreeBody):
+
+    _cls = ct.ThreeBodyReaction3
+    _rate_obj = ct.ArrheniusRate(1.2e11, -1., 0.)
+    _type = "three-body-new"
+
