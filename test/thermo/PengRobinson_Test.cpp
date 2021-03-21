@@ -151,7 +151,7 @@ TEST_F(PengRobinson_Test, setTP)
     // Check to make sure that the phase diagram is accurately reproduced for a few select isobars
 
     // All sub-cooled liquid:
-    const double p1[6] = {
+    const double rho1[6] = {
         6.6603507723749249e+002,
         1.6824762614489907e+002,
         1.6248354709581241e+002,
@@ -160,7 +160,7 @@ TEST_F(PengRobinson_Test, setTP)
         1.4902908974486667e+002
     };
     // Phase change between temperatures 4 & 5:
-    const double p2[6] = {
+    const double rho2[6] = {
         7.5732259810273172e+002,
         7.2766981078381912e+002,
         6.935475475396446e+002,
@@ -169,7 +169,7 @@ TEST_F(PengRobinson_Test, setTP)
         3.9966973266966875e+002
     };
     // Supercritical; no discontinuity in rho values:
-    const double p3[6] = {
+    const double rho3[6] = {
         8.0601205067780199e+002,
         7.8427655940884574e+002,
         7.6105347579146576e+002,
@@ -183,13 +183,13 @@ TEST_F(PengRobinson_Test, setTP)
         const double temp = 294 + i*2;
         set_r(0.999);
         test_phase->setState_TP(temp, 5542027.5);
-        EXPECT_NEAR(test_phase->density(),p1[i],1.e-8);
+        EXPECT_NEAR(test_phase->density(),rho1[i],1.e-8);
 
         test_phase->setState_TP(temp, 7388370.);
-        EXPECT_NEAR(test_phase->density(),p2[i],1.e-8);
+        EXPECT_NEAR(test_phase->density(),rho2[i],1.e-8);
 
         test_phase->setState_TP(temp, 9236712.5);
-        EXPECT_NEAR(test_phase->density(),p3[i],1.e-8);
+        EXPECT_NEAR(test_phase->density(),rho3[i],1.e-8);
     }
 }
 
