@@ -543,8 +543,8 @@ cdef class ElementaryReaction(Reaction):
 
     .. deprecated:: 2.6
 
-        This class is superseded by `ElementaryReaction3` and only used by XML. 
-        The implementation of this reaction type will change after Cantera 2.6; 
+        This class is superseded by `ElementaryReaction3` and only used by XML.
+        The implementation of this reaction type will change after Cantera 2.6;
         refer to `ElementaryReaction3` for new behavior.
     """
     reaction_type = "elementary-old"
@@ -1035,7 +1035,7 @@ cdef class ElementaryReaction3(Reaction):
     A reaction which follows mass-action kinetics with a modified Arrhenius
     reaction rate.
 
-    An example for the definition of an `ElementaryReaction3` object is given 
+    An example for the definition of an `ElementaryReaction3` object is given
     as::
 
         rxn = ElementaryReaction3(
@@ -1048,21 +1048,26 @@ cdef class ElementaryReaction3(Reaction):
     """
     reaction_type = "elementary"
 
-    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
-                 init=True, **kwargs):
+    cdef CxxElementaryReaction3* er(self):
+        return <CxxElementaryReaction3*>self.reaction
+
+    def __init__(self, equation=None, rate=None,
+                 Kinetics kinetics=None, init=True, **kwargs):
 
         if init and equation and kinetics:
 
+            # todo: simplify after creation of AnyMap from dict is implemented
             if isinstance(rate, dict):
                 coeffs = ['{}: {}'.format(k, v) for k, v in rate.items()]
             elif isinstance(rate, ArrheniusRate) or rate is None:
                 coeffs = ['{}: 0.'.format(k) for k in ['A', 'b', 'Ea']]
             else:
                 raise TypeError("Invalid rate definition")
-
             rate_def = '{{{}}}'.format(', '.join(coeffs))
-            yaml = '{{equation: {}, rate-constant: {}, type: {}}}'.format(
-                equation, rate_def, self.reaction_type)
+            rate_def = ', rate-constant: {}'.format(rate_def)
+
+            yaml = '{{equation: {}, type: {}{}}}'.format(
+                equation, self.reaction_type, rate_def)
             self._reaction = CxxNewReaction(AnyMapFromYamlString(stringify(yaml)),
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
@@ -1073,11 +1078,9 @@ cdef class ElementaryReaction3(Reaction):
     property rate:
         """ Get/Set the `Arrhenius` rate coefficient for this reaction. """
         def __get__(self):
-            cdef CxxElementaryReaction3* r = <CxxElementaryReaction3*>self.reaction
-            return ArrheniusRate.wrap(r.rate())
+            return ArrheniusRate.wrap(self.er().rate())
         def __set__(self, ArrheniusRate rate):
-            cdef CxxElementaryReaction3* r = <CxxElementaryReaction3*>self.reaction
-            r.setRate(rate._base)
+            self.er().setRate(rate._base)
 
     property allow_negative_pre_exponential_factor:
         """
@@ -1085,11 +1088,93 @@ cdef class ElementaryReaction3(Reaction):
         pre-exponential factor.
         """
         def __get__(self):
-            cdef CxxElementaryReaction3* r = <CxxElementaryReaction3*>self.reaction
-            return r.allow_negative_pre_exponential_factor
+            return self.er().allow_negative_pre_exponential_factor
         def __set__(self, allow):
-            cdef CxxElementaryReaction3* r = <CxxElementaryReaction3*>self.reaction
-            r.allow_negative_pre_exponential_factor = allow
+            self.er().allow_negative_pre_exponential_factor = allow
+
+
+cdef class ThreeBodyReaction3(ElementaryReaction3):
+    """
+    A reaction with a non-reacting third body "M" that acts to add or remove
+    energy from the reacting species.
+
+    An example for the definition of an `ThreeBodyReaction3` object is given
+    as::
+
+        rxn = ThreeBodyReaction3(
+            equation: '2 O + M <=> O2 + M',
+            type: three-body,
+            rate: {A: 1.2e+17, b: -1.0, Ea: 0.0},
+            efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83},
+            kinetics=gas)
+
+    This class is a replacement for `ThreeBodyReaction` and cannot be
+    instantiated from XML. It is the default for import from YAML.
+    """
+    reaction_type = "three-body-new"
+
+    cdef CxxThreeBodyReaction3* tbr(self):
+        return <CxxThreeBodyReaction3*>self.reaction
+
+    def __init__(self, equation=None, rate=None, efficiencies=None,
+                 Kinetics kinetics=None, init=True, **kwargs):
+
+        if init and equation and kinetics:
+
+            # todo: simplify after creation of AnyMap from dict is implemented
+            if isinstance(rate, dict):
+                coeffs = ['{}: {}'.format(k, v) for k, v in rate.items()]
+            elif isinstance(rate, ArrheniusRate) or rate is None:
+                coeffs = ['{}: 0.'.format(k) for k in ['A', 'b', 'Ea']]
+            else:
+                raise TypeError("Invalid rate definition")
+            rate_def = '{{{}}}'.format(', '.join(coeffs))
+            rate_def = ', rate-constant: {}'.format(rate_def)
+
+            # todo: simplify after creation of AnyMap from dict is implemented
+            if isinstance(efficiencies, dict):
+                effs = ['{}: {}'.format(k, v) for k, v in efficiencies.items()]
+                eff_def = '{{{}}}'.format(', '.join(effs))
+                eff_def = ', efficiencies: {}'.format(eff_def)
+            elif efficiencies is None:
+                eff_def = ''
+
+            yaml = '{{equation: {}, type: {}{}{}}}'.format(
+                equation, self.reaction_type, rate_def, eff_def)
+            self._reaction = CxxNewReaction(AnyMapFromYamlString(stringify(yaml)),
+                                            deref(kinetics.kinetics))
+            self.reaction = self._reaction.get()
+
+            if isinstance(rate, ArrheniusRate):
+                self.rate = rate
+
+    property efficiencies:
+        """
+        Get/Set a `dict` defining non-default third-body efficiencies for this
+        reaction, where the keys are the species names and the values are the
+        efficiencies.
+        """
+        def __get__(self):
+            return comp_map_to_dict(self.tbr().third_body.efficiencies)
+        def __set__(self, eff):
+            self.tbr().third_body.efficiencies = comp_map(eff)
+
+    property default_efficiency:
+        """
+        Get/Set the default third-body efficiency for this reaction, used for
+        species used for species not in `efficiencies`.
+        """
+        def __get__(self):
+            return self.tbr().third_body.default_efficiency
+        def __set__(self, default_eff):
+            self.tbr().third_body.default_efficiency = default_eff
+
+    def efficiency(self, species):
+        """
+        Get the efficiency of the third body named *species* considering both
+        the default efficiency and species-specific efficiencies.
+        """
+        return self.tbr().third_body.efficiency(stringify(species))
 
 
 cdef class CustomReaction(Reaction):
