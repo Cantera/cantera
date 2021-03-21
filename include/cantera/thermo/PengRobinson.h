@@ -90,8 +90,7 @@ public:
     //! normalize the generalized concentration.
     /*!
      * This is defined as the concentration by which the generalized
-     * concentration is normalized to produce the activity. In many cases, this
-     * quantity will be the same for all species in a phase.
+     * concentration is normalized to produce the activity.
      * The ideal gas mixture is considered as the standard or reference state here.
      * Since the activity for an ideal gas mixture is simply the mole fraction,
      * for an ideal gas,  \f$ C^0_k = P/\hat R T \f$.
