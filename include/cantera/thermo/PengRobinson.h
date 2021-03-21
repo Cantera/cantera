@@ -86,8 +86,6 @@ public:
 
     // @}
 
-public:
-
     //! Returns the standard concentration \f$ C^0_k \f$, which is used to
     //! normalize the generalized concentration.
     /*!
@@ -142,7 +140,6 @@ public:
 
     virtual double speciesCritTemperature(double a, double b) const;
 
-public:
     //@}
     //! @name Initialization Methods - For Internal use
     /*!
@@ -172,7 +169,6 @@ public:
 
     //! Set the pure fluid interaction parameters for a species
     /*!
-     *
      *  @param species   Name of the species
      *  @param a         "a" parameter in the Peng-Robinson model [Pa-m^6/kmol^2]
      *  @param b         "b" parameter in the Peng-Robinson model [m^3/kmol]
@@ -186,7 +182,6 @@ public:
      *  The "a" parameter for interactions between species *i* and *j* is
      *  assumed by default to be computed as:
      *  \f[ a_{ij} = \sqrt{a_{i, 0} a_{j, 0}} + \sqrt{a_{i, 1} a_{j, 1}} T \f]
-     *
      *
      *  @param species_i   Name of one species
      *  @param species_j   Name of the other species
