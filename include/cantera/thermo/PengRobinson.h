@@ -130,7 +130,7 @@ public:
     /*!
      *  The temperature dependent parameter in P-R EoS is calculated as
      *       \f$ \alpha = [1 + \kappa(1 - \sqrt{T/T_{crit}})]^2  \f$
-     *  kappa is a function calulated based on the acentric factor.
+     *  kappa is a function calculated based on the acentric factor.
      *  Units: unitless
      * 
      * @param a    species-specific coefficients used in P-R EoS
