@@ -651,7 +651,6 @@ bool Reaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 
     parseReactionEquation(*this, node["equation"], kin);
     // Non-stoichiometric reaction orders
-    std::map<std::string, double> orders;
     if (node.hasKey("orders")) {
         for (const auto& order : node["orders"].asMap<double>()) {
             orders[order.first] = order.second;
@@ -1234,7 +1233,7 @@ void setupReaction(Reaction& R, const AnyMap& node, const Kinetics& kin)
 {
     parseReactionEquation(R, node["equation"], kin);
     // Non-stoichiometric reaction orders
-    std::map<std::string, double> orders;
+    //std::map<std::string, double> orders;
     if (node.hasKey("orders")) {
         for (const auto& order : node["orders"].asMap<double>()) {
             R.orders[order.first] = order.second;
