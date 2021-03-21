@@ -275,6 +275,9 @@ protected:
 
     double m_Vroot[3];
 
+    //! Temporary storage - length = m_kk.
+    mutable vector_fp m_pp;
+
     // Partial molar volumes of the species
     mutable vector_fp m_partialMolarVolumes;
 

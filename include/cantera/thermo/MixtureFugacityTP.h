@@ -574,9 +574,6 @@ protected:
     //! Temporary storage for dimensionless reference state entropies
     mutable vector_fp m_s0_R;
 
-public:
-    //! Temporary storage - length = m_kk.
-    mutable vector_fp m_pp;
 };
 }
 
