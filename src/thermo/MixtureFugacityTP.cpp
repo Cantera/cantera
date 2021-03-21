@@ -254,10 +254,12 @@ void MixtureFugacityTP::setPressure(doublereal p)
                     setDensity(rho);
                     iState_ = phaseState(true);
                 } else {
-                    throw CanteraError("MixtureFugacityTP::setPressure", "neg rho");
+                    throw CanteraError("MixtureFugacityTP::setPressure",
+                        "neg rho");
                 }
             } else {
-                throw CanteraError("MixtureFugacityTP::setPressure", "neg rho");
+                throw CanteraError("MixtureFugacityTP::setPressure",
+                    "neg rho");
             }
         }
     } else if (forcedState_ == FLUID_GAS) {
@@ -268,10 +270,12 @@ void MixtureFugacityTP::setPressure(doublereal p)
                 setDensity(rho);
                 iState_ = phaseState(true);
                 if (iState_ >= FLUID_LIQUID_0) {
-                    throw CanteraError("MixtureFugacityTP::setPressure", "wrong state");
+                    throw CanteraError("MixtureFugacityTP::setPressure",
+                        "wrong state");
                 }
             } else {
-                throw CanteraError("MixtureFugacityTP::setPressure", "neg rho");
+                throw CanteraError("MixtureFugacityTP::setPressure",
+                    "neg rho");
             }
         }
     } else if (forcedState_ > FLUID_LIQUID_0) {
@@ -281,10 +285,12 @@ void MixtureFugacityTP::setPressure(doublereal p)
                 setDensity(rho);
                 iState_ = phaseState(true);
                 if (iState_ == FLUID_GAS) {
-                    throw CanteraError("MixtureFugacityTP::setPressure", "wrong state");
+                    throw CanteraError("MixtureFugacityTP::setPressure",
+                        "wrong state");
                 }
             } else {
-                throw CanteraError("MixtureFugacityTP::setPressure", "neg rho");
+                throw CanteraError("MixtureFugacityTP::setPressure",
+                    "neg rho");
             }
         }
     }
@@ -466,7 +472,8 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
     double densBase = 0.0;
     if (! conv) {
         molarVolBase = 0.0;
-        throw CanteraError("MixtureFugacityTP::densityCalc", "Process did not converge");
+        throw CanteraError("MixtureFugacityTP::densityCalc",
+            "Process did not converge");
     } else {
         densBase = mmw / molarVolBase;
     }
@@ -780,7 +787,8 @@ void MixtureFugacityTP::_updateReferenceStateThermo() const
         }
         doublereal pref = refPressure();
         if (pref <= 0.0) {
-            throw CanteraError("MixtureFugacityTP::_updateReferenceStateThermo", "neg ref pressure");
+            throw CanteraError("MixtureFugacityTP::_updateReferenceStateThermo",
+                "neg ref pressure");
         }
     }
 }
@@ -832,7 +840,8 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
 {   
     fill_n(Vroot, 3, 0.0);
     if (T <= 0.0) {
-        throw CanteraError("MixtureFugacityTP::solveCubic", "negative temperature T = {}", T);
+        throw CanteraError("MixtureFugacityTP::solveCubic", 
+            "negative temperature T = {}", T);
     }
 
     // Derive the center of the cubic, x_N
@@ -878,7 +887,8 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
     //check if y = h
     if (fabs(fabs(h) - fabs(yN)) < 1.0E-10) {
         if (disc > 1e-10) {
-            throw CanteraError("MixtureFugacityTP::solveCubic", "value of yN and h are too high, unrealistic roots may be obtained");
+            throw CanteraError("MixtureFugacityTP::solveCubic",
+                "value of yN and h are too high, unrealistic roots may be obtained");
         } 
         disc = 0.0;
     }
@@ -934,7 +944,7 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
             if (fabs(tmp) > 1.0E-4) {
                 for (int j = 0; j < 3; j++) {
                     if (j != i && fabs(Vroot[i] - Vroot[j]) < 1.0E-4 * (fabs(Vroot[i]) + fabs(Vroot[j]))) {
-                        writelog("MixtureFugacityTP::solveCubic(T = {}, p = {}):"
+                        writelog("MixtureFugacityTP::solveCubic(T ={}, p ={}):"
                                  " WARNING roots have merged: {}, {}\n",
                                  T, pres, Vroot[i], Vroot[j]);
                     }
@@ -954,7 +964,8 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
                 tmp = pow(yN/(2*an), 1./3.);
                 // In this case, tmp and delta must be equal.
                 if (fabs(tmp - delta) > 1.0E-9) {
-                    throw CanteraError("MixtureFugacityTP::solveCubic", "Inconsistency in cubic solver : solver is poorly conditioned.");
+                    throw CanteraError("MixtureFugacityTP::solveCubic", 
+                        "Inconsistency in solver: solver is ill-conditioned.");
                 }
                 Vroot[1] = xN + delta;
                 Vroot[0] = xN - 2.0*delta; // liquid phase root
@@ -962,7 +973,8 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
                 tmp = pow(yN/(2*an), 1./3.);
                 // In this case, tmp and delta must be equal. 
                 if (fabs(tmp - delta) > 1.0E-9) {
-                    throw CanteraError("MixtureFugacityTP::solveCubic", "Inconsistency in cubic solver : solver is poorly conditioned.");
+                    throw CanteraError("MixtureFugacityTP::solveCubic",
+                        "Inconsistency in solver: solver is ill-conditioned.");
                 }
                 delta = -delta;
                 Vroot[0] = xN + delta;
