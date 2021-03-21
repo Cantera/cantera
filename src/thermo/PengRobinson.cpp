@@ -357,17 +357,13 @@ void PengRobinson::getPartialMolarVolumes(double* vbar) const
 
 double PengRobinson::speciesCritTemperature(double a, double b) const
 {
-    double tc;
     if (b <= 0.0) {
-        tc = 1000000.;
-        return tc;
+        return 1000000.;
+    } else if (a <= 0.0) {
+        return 0.0;
+    } else {
+        return a * omega_b / (b * omega_a * GasConstant);
     }
-    if (a <= 0.0) {
-        tc = 0.0;
-        return tc;
-    }
-    tc = a * omega_b / (b * omega_a * GasConstant);
-    return tc;
 }
 
 bool PengRobinson::addSpecies(shared_ptr<Species> spec)
