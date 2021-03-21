@@ -1,4 +1,3 @@
-
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
@@ -124,8 +123,8 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
     }
 
     if (std::dynamic_pointer_cast<Reaction3>(r) != nullptr) {
-        shared_ptr<ReactionRateBase> rate;
-        rate = std::dynamic_pointer_cast<Reaction3>(r)->rate();
+        shared_ptr<Reaction3> r3 = std::dynamic_pointer_cast<Reaction3>(r);
+        shared_ptr<ReactionRateBase> rate = r3->rate();
         // If neccessary, add new MultiBulkRates evaluator
         if (m_bulk_types.find(rate->type()) == m_bulk_types.end()) {
             m_bulk_types[rate->type()] = m_bulk_rates.size();
@@ -142,9 +141,33 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
         // Add reaction rate to evaluator
         size_t index = m_bulk_types[rate->type()];
         m_bulk_rates[index]->add(nReactions() - 1, *rate);
+
+        // Add reaction to third-body evaluator
+        if (r3->thirdBody() != nullptr) {
+            addThirdBody(r3);
+        }
     }
 
     return true;
+}
+
+void BulkKinetics::addThirdBody(shared_ptr<Reaction3> r)
+{
+    std::map<size_t, double> efficiencies;
+    for (const auto& eff : r->thirdBody()->efficiencies) {
+        size_t k = kineticsSpeciesIndex(eff.first);
+        if (k != npos) {
+            efficiencies[k] = eff.second;
+        } else if (!m_skipUndeclaredThirdBodies) {
+            throw CanteraError("BulkKinetics::addThirdBody", "Found "
+                "third-body efficiency for undefined species '" + eff.first +
+                "' while adding reaction '" + r->equation() + "'");
+        }
+    }
+    m_multi_concm.install(nReactions() - 1, efficiencies,
+                          r->thirdBody()->default_efficiency);
+    concm_multi_values.resize(m_multi_concm.workSize());
+    m_multi_indices.push_back(nReactions() - 1);
 }
 
 void BulkKinetics::addElementaryReaction(ElementaryReaction& r)

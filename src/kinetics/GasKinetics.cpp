@@ -87,6 +87,11 @@ void GasKinetics::update_rates_C()
         m_falloff_concm.update(m_phys_conc, ctot, concm_falloff_values.data());
     }
 
+    // Third-body objects interacting with MultiRate evaluator
+    if (!concm_multi_values.empty()) {
+        m_multi_concm.update(m_phys_conc, ctot, concm_multi_values.data());
+    }
+
     // P-log reactions
     if (m_plog_rates.nReactions()) {
         double logP = log(thermo().pressure());
@@ -184,6 +189,13 @@ void GasKinetics::updateROP()
         processFalloffReactions();
     }
 
+    if (!concm_multi_values.empty()) {
+        // multiply 3rd body concentrations
+        for (size_t i = 0; i < m_multi_indices.size(); i++) {
+            m_ropf[m_multi_indices[i]] *= concm_multi_values[i];
+        }
+    }
+
     for (size_t i = 0; i < nReactions(); i++) {
         // Scale the forward rate coefficient by the perturbation factor
         m_ropf[i] *= m_perturb[i];
@@ -228,6 +240,13 @@ void GasKinetics::getFwdRateConstants(doublereal* kfwd)
 
     if (m_falloff_high_rates.nReactions()) {
         processFalloffReactions();
+    }
+
+    if (!concm_multi_values.empty()) {
+        // multiply 3rd body concentrations
+        for (size_t i = 0; i < m_multi_indices.size(); i++) {
+            m_ropf[m_multi_indices[i]] *= concm_multi_values[i];
+        }
     }
 
     for (size_t i = 0; i < nReactions(); i++) {
