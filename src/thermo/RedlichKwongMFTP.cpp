@@ -1035,7 +1035,8 @@ void RedlichKwongMFTP::calcCriticalConditions(doublereal& pc, doublereal& tc, do
             tc += deltatc;
         }
         if (deltatc > 0.1) {
-            throw CanteraError("RedlichKwongMFTP::calcCriticalConditions", "didn't converge");
+            throw CanteraError("RedlichKwongMFTP::calcCriticalConditions",
+                "didn't converge");
         }
     }
 
