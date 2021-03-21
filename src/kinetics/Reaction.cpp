@@ -742,6 +742,7 @@ void ElementaryReaction3::validate()
 ThreeBodyReaction3::ThreeBodyReaction3()
     : ElementaryReaction3()
 {
+    m_third_body = std::shared_ptr<ThirdBody>(new ThirdBody);
 }
 
 ThreeBodyReaction3::ThreeBodyReaction3(const Composition& reactants,
@@ -749,8 +750,8 @@ ThreeBodyReaction3::ThreeBodyReaction3(const Composition& reactants,
                                        const ArrheniusRate& rate,
                                        const ThirdBody& tbody)
     : ElementaryReaction3(reactants, products, rate)
-    , third_body(tbody)
 {
+    m_third_body = std::make_shared<ThirdBody>(tbody);
 }
 
 ThreeBodyReaction3::ThreeBodyReaction3(const AnyMap& node, const Kinetics& kin)
@@ -785,7 +786,9 @@ bool ThreeBodyReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
     if (!ElementaryReaction3::setParameters(node, kin)) {
         return false;
     }
-    return third_body.setEfficiencies(node);
+    reactants.erase("M");
+    products.erase("M");
+    return m_third_body->setEfficiencies(node);
 }
 
 void ThreeBodyReaction3::getParameters(AnyMap& reactionNode) const

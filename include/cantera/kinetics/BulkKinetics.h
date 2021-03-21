@@ -11,6 +11,7 @@
 
 #include "Kinetics.h"
 #include "RateCoeffMgr.h"
+#include "ThirdBodyCalc.h"
 #include "cantera/kinetics/MultiRate.h"
 
 namespace Cantera
@@ -44,6 +45,12 @@ public:
 
     virtual void setMultiplier(size_t i, double f);
     virtual void invalidateCache();
+
+    void addThirdBody(shared_ptr<Reaction3> r);
+
+    ThirdBodyCalc m_multi_concm; //!< used with MultiRate evaluator
+    vector_fp concm_multi_values;
+    std::vector<size_t> m_multi_indices; //!< reaction indices
 
 protected:
     virtual void addElementaryReaction(ElementaryReaction& r);

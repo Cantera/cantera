@@ -19,6 +19,7 @@ namespace Cantera
 class Kinetics;
 class Falloff;
 class XML_Node;
+class ThirdBody;
 
 //! Abstract base class which stores data about a reaction and its rate
 //! parameterization so that it can be added to a Kinetics object.
@@ -173,9 +174,18 @@ public:
     //! Set up reaction based on AnyMap node
     virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
 
+    //! Get pointer to third-body
+    shared_ptr<ThirdBody> thirdBody() {
+        return m_third_body;
+    }
+
 protected:
     //! Reaction rate used by generic reactions
     shared_ptr<ReactionRateBase> m_rate;
+
+    //! Relative efficiencies of third-body species in enhancing the reaction
+    //! rate (if applicable)
+    shared_ptr<ThirdBody> m_third_body;
 };
 
 
