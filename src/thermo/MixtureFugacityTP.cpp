@@ -827,8 +827,8 @@ void MixtureFugacityTP::calcCriticalConditions(double& pc, double& tc, double& v
 }
 
 int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b, 
-                                        double aAlpha, double Vroot[3], double an,
-                                        double bn, double cn, double dn, double tc, double vc) const
+                                  double aAlpha, double Vroot[3], double an,
+                                  double bn, double cn, double dn, double tc, double vc) const
 {   
     fill_n(Vroot, 3, 0.0);
     if (T <= 0.0) {
@@ -954,7 +954,7 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
                 tmp = pow(yN/(2*an), 1./3.);
                 // In this case, tmp and delta must be equal.
                 if (fabs(tmp - delta) > 1.0E-9) {
-                    throw CanteraError("MixtureFugacityTP::solveCubic", "Inconsistancy in cubic solver : solver is poorly conditioned.");
+                    throw CanteraError("MixtureFugacityTP::solveCubic", "Inconsistency in cubic solver : solver is poorly conditioned.");
                 }
                 Vroot[1] = xN + delta;
                 Vroot[0] = xN - 2.0*delta; // liquid phase root
@@ -962,7 +962,7 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
                 tmp = pow(yN/(2*an), 1./3.);
                 // In this case, tmp and delta must be equal. 
                 if (fabs(tmp - delta) > 1.0E-9) {
-                    throw CanteraError("MixtureFugacityTP::solveCubic", "Inconsistancy in cubic solver : solver is poorly conditioned.");
+                    throw CanteraError("MixtureFugacityTP::solveCubic", "Inconsistency in cubic solver : solver is poorly conditioned.");
                 }
                 delta = -delta;
                 Vroot[0] = xN + delta;

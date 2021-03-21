@@ -46,11 +46,9 @@ public:
     }
 
     //! @name Molar Thermodynamic properties
-    //! @{
-        
+    //! @{        
     virtual doublereal cp_mole() const;
     virtual doublereal cv_mole() const;
-
     //! @}
     //! @name Mechanical Properties
     //! @{
@@ -68,6 +66,30 @@ public:
     virtual doublereal pressure() const;
 
     // @}
+
+protected:
+    /**
+     * Calculate the density of the mixture using the partial molar volumes and
+     * mole fractions as input
+     *
+     * The formula for this is
+     *
+     * \f[
+     * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
+     * \f]
+     *
+     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are the molecular
+     * weights, and \f$V_k\f$ are the pure species molar volumes.
+     *
+     * Note, the basis behind this formula is that in an ideal solution the
+     * partial molar volumes are equal to the species standard state molar
+     * volumes. The species molar volumes may be functions of temperature and
+     * pressure.
+     */
+    virtual void calcDensity();
+
+    virtual void setTemperature(const doublereal temp);
+    virtual void compositionChanged();
 
 public:
 
