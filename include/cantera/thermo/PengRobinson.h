@@ -81,10 +81,7 @@ public:
      * \f[
      *   {a \alpha}_{mix} = \sum_i \sum_j X_i X_j {a \alpha}_{i, j} = \sum_i \sum_j X_i X_j \sqrt{a_i a_j} \sqrt{\alpha_i \alpha_j}
      * \f]
-     *
-     *
      */
-    
     virtual double pressure() const;
 
     // @}
