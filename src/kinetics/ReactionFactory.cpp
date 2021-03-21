@@ -37,6 +37,11 @@ ReactionFactory::ReactionFactory()
     });
 
     // register three-body reactions
+    reg("three-body-new", [](const AnyMap& node, const Kinetics& kin) {
+        return new ThreeBodyReaction3(node, kin);
+    });
+
+    // register three-body reactions
     reg("three-body", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ThreeBodyReaction();
         if (node.hasKey("equation")) {

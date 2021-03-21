@@ -204,6 +204,11 @@ class ThirdBody
 public:
     explicit ThirdBody(double default_efficiency=1.0);
 
+    ThirdBody(const AnyMap& node);
+
+    //! Set third-body efficiencies from AnyMap *node*
+    bool setEfficiencies(const AnyMap& node);
+
     //! Get the third-body efficiency for species *k*
     double efficiency(const std::string& k) const;
 
@@ -346,9 +351,6 @@ public:
 
 //! A reaction which follows mass-action kinetics with a modified Arrhenius
 //! reaction rate.
-/**
- * Alternative elementary reaction based on ReactionRate.
- */
 class ElementaryReaction3 : public Reaction3
 {
 public:
@@ -368,6 +370,32 @@ public:
     virtual void validate();
 
     bool allow_negative_pre_exponential_factor;
+};
+
+
+//! A reaction with a non-reacting third body "M" that acts to add or remove
+//! energy from the reacting species
+class ThreeBodyReaction3 : public ElementaryReaction3
+{
+public:
+    ThreeBodyReaction3();
+    ThreeBodyReaction3(const Composition& reactants, const Composition& products,
+                       const ArrheniusRate& rate, const ThirdBody& tbody);
+
+    ThreeBodyReaction3(const AnyMap& node, const Kinetics& kin);
+
+    virtual std::string type() const {
+        return "three-body-new";
+    }
+
+    virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
+
+    virtual std::string reactantString() const;
+    virtual std::string productString() const;
+
+    //! Relative efficiencies of third-body species in enhancing the reaction
+    //! rate.
+    ThirdBody third_body;
 };
 
 
