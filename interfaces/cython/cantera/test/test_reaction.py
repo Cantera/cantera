@@ -260,7 +260,7 @@ class TestThreeBody(TestElementary):
     _rate_obj = ct.Arrhenius(1.2e11, -1., 0.)
     _kwargs = {'efficiencies': {'H2': 2.4, 'H2O': 15.4, 'AR': 0.83}}
     _index = 0
-    _type = "three-body"
+    _type = "three-body-old"
 
     def test_from_parts(self):
         orig = self.gas.reaction(self._index)
@@ -283,5 +283,4 @@ class TestThreeBody3(TestThreeBody):
 
     _cls = ct.ThreeBodyReaction3
     _rate_obj = ct.ArrheniusRate(1.2e11, -1., 0.)
-    _type = "three-body-new"
-
+    _type = "three-body"

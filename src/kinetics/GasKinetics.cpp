@@ -268,7 +268,7 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
 
     if (r->type() == "elementary-old") {
         addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
-    } else if (r->type() == "three-body") {
+    } else if (r->type() == "three-body-old") {
         addThreeBodyReaction(dynamic_cast<ThreeBodyReaction&>(*r));
     } else if (r->type() == "falloff") {
         addFalloffReaction(dynamic_cast<FalloffReaction&>(*r));
@@ -360,7 +360,7 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
 
     if (rNew->type() == "elementary-old") {
         modifyElementaryReaction(i, dynamic_cast<ElementaryReaction&>(*rNew));
-    } else if (rNew->type() == "three-body") {
+    } else if (rNew->type() == "three-body-old") {
         modifyThreeBodyReaction(i, dynamic_cast<ThreeBodyReaction&>(*rNew));
     } else if (rNew->type() == "falloff") {
         modifyFalloffReaction(i, dynamic_cast<FalloffReaction&>(*rNew));

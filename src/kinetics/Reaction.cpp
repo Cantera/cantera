@@ -760,6 +760,46 @@ ThreeBodyReaction3::ThreeBodyReaction3(const AnyMap& node, const Kinetics& kin)
     setParameters(node, kin);
 }
 
+bool ThreeBodyReaction3::detectEfficiencies()
+{
+    for (const auto& reac : reactants) {
+        // detect explicitly specified collision partner
+        if (products.count(reac.first)) {
+            m_third_body->efficiencies[reac.first] = 1.;
+        }
+    }
+
+    if (m_third_body->efficiencies.size() == 0) {
+        return false;
+    } else if (m_third_body->efficiencies.size() > 1) {
+        throw CanteraError("ThreeBodyReaction3::detectEfficiencies",
+            "Found more than one explicitly specified collision partner\n"
+            "in reaction '{}'.", equation());
+    }
+
+    m_third_body->default_efficiency = 0.;
+    specified_collision_partner = true;
+    auto sp = m_third_body->efficiencies.begin();
+
+    // adjust reactant coefficients
+    auto reac = reactants.find(sp->first);
+    if (trunc(reac->second) != 1) {
+        reac->second -= 1.;
+    } else {
+        reactants.erase(reac);
+    }
+
+    // adjust product coefficients
+    auto prod = products.find(sp->first);
+    if (trunc(prod->second) != 1) {
+        prod->second -= 1.;
+    } else {
+        products.erase(prod);
+    }
+
+    return true;
+}
+
 void ThreeBodyReaction3::calculateRateCoeffUnits(const Kinetics& kin)
 {
     ElementaryReaction3::calculateRateCoeffUnits(kin);
@@ -786,6 +826,16 @@ bool ThreeBodyReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
     if (!ElementaryReaction3::setParameters(node, kin)) {
         return false;
     }
+
+    if (reactants.count("M") != 1 || products.count("M") != 1) {
+        if (!detectEfficiencies()) {
+            throw InputFileError("ThreeBodyReaction3::setParameters", node["equation"],
+                "Reaction equation '{}' does not contain third body 'M'",
+                node["equation"].asString());
+        }
+        return true;
+    }
+
     reactants.erase("M");
     products.erase("M");
     return m_third_body->setEfficiencies(node);

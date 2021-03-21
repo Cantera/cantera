@@ -37,20 +37,20 @@ ReactionFactory::ReactionFactory()
     });
 
     // register three-body reactions
-    reg("three-body-new", [](const AnyMap& node, const Kinetics& kin) {
+    reg("three-body", [](const AnyMap& node, const Kinetics& kin) {
         return new ThreeBodyReaction3(node, kin);
     });
+    addAlias("three-body", "threebody");
+    addAlias("three-body", "three_body");
 
     // register three-body reactions
-    reg("three-body", [](const AnyMap& node, const Kinetics& kin) {
+    reg("three-body-old", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ThreeBodyReaction();
         if (node.hasKey("equation")) {
             setupThreeBodyReaction(*(ThreeBodyReaction*)R, node, kin);
         }
         return R;
     });
-    addAlias("three-body", "threebody");
-    addAlias("three-body", "three_body");
 
     // register falloff reactions
     reg("falloff", [](const AnyMap& node, const Kinetics& kin) {
@@ -158,13 +158,14 @@ ReactionFactoryXML::ReactionFactoryXML()
     addAlias("elementary-old", "");
 
     // register three-body reactions
-    reg("three-body", [](const XML_Node& node) {
+    reg("three-body-old", [](const XML_Node& node) {
         Reaction* R = new ThreeBodyReaction();
         setupThreeBodyReaction(*(ThreeBodyReaction*)R, node);
         return R;
     });
-    addAlias("three-body", "threebody");
-    addAlias("three-body", "three_body");
+    addAlias("three-body-old", "three-body");
+    addAlias("three-body-old", "threebody");
+    addAlias("three-body-old", "three_body");
 
     // register falloff reactions
     reg("falloff", [](const XML_Node& node) {

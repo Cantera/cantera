@@ -240,7 +240,7 @@ public:
                       const Arrhenius& rate, const ThirdBody& tbody);
 
     virtual std::string type() const {
-        return "three-body";
+        return "three-body-old";
     }
 
     virtual std::string reactantString() const;
@@ -395,19 +395,16 @@ public:
     ThreeBodyReaction3(const AnyMap& node, const Kinetics& kin);
 
     virtual std::string type() const {
-        return "three-body-new";
+        return "three-body";
     }
 
+    bool detectEfficiencies();
     virtual void calculateRateCoeffUnits(const Kinetics& kin);
     virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
 
     virtual std::string reactantString() const;
     virtual std::string productString() const;
-
-    //! Relative efficiencies of third-body species in enhancing the reaction
-    //! rate.
-    ThirdBody third_body;
 
     bool specified_collision_partner = false; //!< Input specifies collision partner
 };
