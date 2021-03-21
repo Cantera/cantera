@@ -387,6 +387,20 @@ ThirdBody::ThirdBody(double default_eff)
 {
 }
 
+ThirdBody::ThirdBody(const AnyMap& node)
+{
+    setEfficiencies(node);
+}
+
+bool ThirdBody::setEfficiencies(const AnyMap& node)
+{
+    default_efficiency = node.getDouble("default-efficiency", 1.0);
+    if (node.hasKey("efficiencies")) {
+        efficiencies = node["efficiencies"].asMap<double>();
+    }
+    return true;
+}
+
 double ThirdBody::efficiency(const std::string& k) const
 {
     return getValue(efficiencies, k, default_efficiency);
@@ -723,6 +737,42 @@ void ElementaryReaction3::validate()
             "Undeclared negative pre-exponential factor found in reaction '"
             + equation() + "'");
     }
+}
+
+ThreeBodyReaction3::ThreeBodyReaction3()
+    : ElementaryReaction3()
+{
+}
+
+ThreeBodyReaction3::ThreeBodyReaction3(const Composition& reactants,
+                                       const Composition& products,
+                                       const ArrheniusRate& rate,
+                                       const ThirdBody& tbody)
+    : ElementaryReaction3(reactants, products, rate)
+    , third_body(tbody)
+{
+}
+
+ThreeBodyReaction3::ThreeBodyReaction3(const AnyMap& node, const Kinetics& kin)
+    : ThreeBodyReaction3()
+{
+    setParameters(node, kin);
+}
+
+bool ThreeBodyReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
+{
+    if (!ElementaryReaction3::setParameters(node, kin)) {
+        return false;
+    }
+    return third_body.setEfficiencies(node);
+}
+
+std::string ThreeBodyReaction3::reactantString() const {
+    return ElementaryReaction3::reactantString() + " + M";
+}
+
+std::string ThreeBodyReaction3::productString() const {
+    return ElementaryReaction3::productString() + " + M";
 }
 
 CustomFunc1Reaction::CustomFunc1Reaction()
@@ -1084,10 +1134,7 @@ void readEfficiencies(ThirdBody& tbody, const XML_Node& rc_node)
 
 void readEfficiencies(ThirdBody& tbody, const AnyMap& node)
 {
-    tbody.default_efficiency = node.getDouble("default-efficiency", 1.0);
-    if (node.hasKey("efficiencies")) {
-        tbody.efficiencies = node["efficiencies"].asMap<double>();
-    }
+    tbody.setEfficiencies(node);
 }
 
 BlowersMasel readBlowersMasel(const Reaction& R, const AnyValue& rate,
