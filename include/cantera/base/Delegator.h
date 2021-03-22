@@ -159,9 +159,14 @@ protected:
             };
         } else if (when == "after") {
             return [base, func](Args ... args) {
-                ReturnType ret = base(args ...);
-                func(ret, args ...);
-                return ret;
+                ReturnType ret1 = base(args ...);
+                ReturnType ret2;
+                int done = func(ret2, args ...);
+                if (done) {
+                    return ret1 + ret2;
+                } else {
+                    return ret1;
+                }
             };
         } else if (when == "replace") {
             return [func](Args ... args) {
@@ -195,9 +200,14 @@ protected:
             };
         } else if (when == "after") {
             return [base, func, sizeGetter](Args ... args) {
-                ReturnType ret = base(args ...);
-                func(ret, sizeGetter(), args ...);
-                return ret;
+                ReturnType ret1 = base(args ...);
+                ReturnType ret2;
+                int done = func(ret2, sizeGetter(), args ...);
+                if (done) {
+                    return ret1 + ret2;
+                } else {
+                    return ret1;
+                }
             };
         } else if (when == "replace") {
             return [func, sizeGetter](Args ... args) {
