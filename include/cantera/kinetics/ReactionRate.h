@@ -147,10 +147,20 @@ public:
 class ArrheniusRate final : public ReactionRate<ArrheniusData>, public Arrhenius
 {
 public:
+    //! Default constructor.
     ArrheniusRate();
 
+    /// Constructor.
+    /// @param A  pre-exponential. The unit system is
+    ///     (kmol, m, s). The actual units depend on the reaction
+    ///     order and the dimensionality (surface or bulk).
+    /// @param b  Temperature exponent. Non-dimensional.
+    /// @param E  Activation energy. J/kmol.
     ArrheniusRate(double A, double b, double E);
 
+    //! AnyMap constructor.
+    /// @param node  AnyMap containing rate information
+    /// @param rate_units  unit definitions used for rate information
     ArrheniusRate(const AnyMap& node, const Units& rate_units);
 
     virtual bool setParameters(const AnyMap& node, const Units& rate_units) override;
@@ -171,6 +181,11 @@ public:
                        double concm=0.) const override {
         return updateRC(shared_data.m_logT, shared_data.m_recipT) *
             (m_b + m_E * shared_data.m_recipT) * shared_data.m_recipT;
+    }
+
+    //! Return the activation energy [J/kmol]
+    double activationEnergy() const {
+        return m_E * GasConstant;
     }
 };
 

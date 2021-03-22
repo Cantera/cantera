@@ -495,7 +495,7 @@ cdef class ArrheniusRate(_ReactionRate):
     def __cinit__(self, A=0, b=0, E=0, init=True):
 
         if init:
-            self._base.reset(new CxxArrheniusRate(A, b, E / gas_constant))
+            self._base.reset(new CxxArrheniusRate(A, b, E))
             self.base = self._base.get()
             self.rate = <CxxArrheniusRate*>(self.base)
 
@@ -532,7 +532,7 @@ cdef class ArrheniusRate(_ReactionRate):
         The activation energy *E* [J/kmol].
         """
         def __get__(self):
-            return self.rate.activationEnergy_R() * gas_constant
+            return self.rate.activationEnergy()
 
 
 cdef class ElementaryReaction(Reaction):

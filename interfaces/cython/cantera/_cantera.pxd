@@ -370,7 +370,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxArrheniusRate(double, double, double)
         double preExponentialFactor()
         double temperatureExponent()
-        double activationEnergy_R()
+        double activationEnergy()
 
     cdef cppclass CxxReaction "Cantera::Reaction":
         CxxReaction()

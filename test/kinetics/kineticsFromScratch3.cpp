@@ -59,7 +59,7 @@ TEST_F(KineticsFromScratch3, add_elementary_reaction)
     // reaction('O + H2 <=> H + OH', [3.870000e+01, 2.7, 6260.0])
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
-    ArrheniusRate rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    ArrheniusRate rate(3.87e1, 2.7, 2.619184e+07);
     auto R = make_shared<ElementaryReaction3>(reac, prod, rate);
 
     kin->addReaction(R);
