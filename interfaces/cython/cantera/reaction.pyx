@@ -119,8 +119,8 @@ cdef class Reaction:
         cxx_reaction = CxxNewReaction(deref(CxxGetXmlFromString(stringify(text))))
         return Reaction.wrap(cxx_reaction)
 
-    @staticmethod
-    def fromYaml(text, Kinetics kinetics):
+    @classmethod
+    def fromYaml(cls, text, Kinetics kinetics):
         """
         Create a `Reaction` object from its YAML string representation.
 
@@ -130,6 +130,11 @@ cdef class Reaction:
             A `Kinetics` object whose associated phase(s) contain the species
             involved in the reaction.
         """
+        if cls.reaction_type != "":
+            raise TypeError(
+                "Class method 'fromYaml' was invoked from '{}' but should "
+                "be called from base class 'Reaction'".format(cls.__name__))
+
         cxx_reaction = CxxNewReaction(AnyMapFromYamlString(stringify(text)),
                                       deref(kinetics.kinetics))
         return Reaction.wrap(cxx_reaction)
@@ -554,17 +559,15 @@ cdef class ElementaryReaction(Reaction):
 
         if init and equation and kinetics:
 
+            spec = {'equation': equation, 'type': self.reaction_type}
             if isinstance(rate, dict):
-                coeffs = ['{}: {}'.format(k, v) for k, v in rate.items()]
+                spec['rate-constant'] = rate
             elif isinstance(rate, Arrhenius) or rate is None:
-                coeffs = ['{}: 0.'.format(k) for k in ['A', 'b', 'Ea']]
+                spec['rate-constant'] = dict.fromkeys(['A', 'b', 'Ea'], 0.)
             else:
                 raise TypeError("Invalid rate definition")
 
-            rate_def = '{{{}}}'.format(', '.join(coeffs))
-            yaml = '{{equation: {}, rate-constant: {}, type: {}}}'.format(
-                equation, rate_def, self.reaction_type)
-            self._reaction = CxxNewReaction(AnyMapFromYamlString(stringify(yaml)),
+            self._reaction = CxxNewReaction(dict_to_anymap(spec),
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
 
@@ -597,6 +600,12 @@ cdef class ThreeBodyReaction(ElementaryReaction):
     """
     A reaction with a non-reacting third body "M" that acts to add or remove
     energy from the reacting species.
+
+    .. deprecated:: 2.6
+
+        This class is superseded by `ThreeBodyReaction3` and only used by XML.
+        The implementation of this reaction type will change after Cantera 2.6;
+        refer to `ThreeBodyReaction3` for new behavior.
     """
     reaction_type = "three-body-old"
 
@@ -605,33 +614,24 @@ cdef class ThreeBodyReaction(ElementaryReaction):
 
         if init and equation and kinetics:
 
-            # todo: simplify after creation of AnyMap from dict is implemented
+            spec = {'equation': equation, 'type': self.reaction_type}
             if isinstance(rate, dict):
-                coeffs = ['{}: {}'.format(k, v) for k, v in rate.items()]
+                spec['rate-constant'] = rate
             elif isinstance(rate, Arrhenius) or rate is None:
-                coeffs = ['{}: 0.'.format(k) for k in ['A', 'b', 'Ea']]
+                spec['rate-constant'] = dict.fromkeys(['A', 'b', 'Ea'], 0.)
             else:
                 raise TypeError("Invalid rate definition")
-            rate_def = '{{{}}}'.format(', '.join(coeffs))
-            rate_def = ', rate-constant: {}'.format(rate_def)
 
-            # todo: simplify after creation of AnyMap from dict is implemented
             if isinstance(efficiencies, dict):
-                effs = ['{}: {}'.format(k, v) for k, v in efficiencies.items()]
-                eff_def = '{{{}}}'.format(', '.join(effs))
-                eff_def = ', efficiencies: {}'.format(eff_def)
-            elif efficiencies is None:
-                eff_def = ''
+                spec['efficiencies'] = efficiencies
 
-            yaml = '{{equation: {}, type: {}{}{}}}'.format(
-                equation, self.reaction_type, rate_def, eff_def)
-            self._reaction = CxxNewReaction(AnyMapFromYamlString(stringify(yaml)),
+            self._reaction = CxxNewReaction(dict_to_anymap(spec),
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
 
             if isinstance(rate, Arrhenius):
                 self.rate = rate
-                
+
     cdef CxxThreeBodyReaction* tbr(self):
         return <CxxThreeBodyReaction*>self.reaction
 
@@ -1071,9 +1071,14 @@ cdef class ElementaryReaction3(Reaction):
     as::
 
         rxn = ElementaryReaction3(
-            equation='H2 + O <=> H + OH',
+            equation='O + H2 <=> H + OH',
             rate={'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07},
             kinetics=gas)
+
+    The YAML description corresponding to this reaction is::
+
+        equation: O + H2 <=> H + OH
+        rate-constant: {A: 3.87e+04 cm^3/mol/s, b: 2.7, Ea: 6260.0 cal/mol}
 
     This class is a replacement for `ElementaryReaction` and cannot be
     instantiated from XML. It is the default for import from YAML.
@@ -1088,19 +1093,15 @@ cdef class ElementaryReaction3(Reaction):
 
         if init and equation and kinetics:
 
-            # todo: simplify after creation of AnyMap from dict is implemented
+            spec = {'equation': equation, 'type': self.reaction_type}
             if isinstance(rate, dict):
-                coeffs = ['{}: {}'.format(k, v) for k, v in rate.items()]
+                spec['rate-constant'] = rate
             elif isinstance(rate, ArrheniusRate) or rate is None:
-                coeffs = ['{}: 0.'.format(k) for k in ['A', 'b', 'Ea']]
+                spec['rate-constant'] = dict.fromkeys(['A', 'b', 'Ea'], 0.)
             else:
                 raise TypeError("Invalid rate definition")
-            rate_def = '{{{}}}'.format(', '.join(coeffs))
-            rate_def = ', rate-constant: {}'.format(rate_def)
 
-            yaml = '{{equation: {}, type: {}{}}}'.format(
-                equation, self.reaction_type, rate_def)
-            self._reaction = CxxNewReaction(AnyMapFromYamlString(stringify(yaml)),
+            self._reaction = CxxNewReaction(dict_to_anymap(spec),
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
 
@@ -1140,6 +1141,13 @@ cdef class ThreeBodyReaction3(ElementaryReaction3):
             efficiencies={'H2': 2.4, 'H2O': 15.4, 'AR': 0.83},
             kinetics=gas)
 
+    The YAML description corresponding to this reaction is::
+
+        equation: 2 O + M <=> O2 + M  # Reaction 1
+        type: three-body
+        rate-constant: {A: 1.2e+17 cm^6/mol^2/s, b: -1.0, Ea: 0.0 cal/mol}
+        efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
+
     This class is a replacement for `ThreeBodyReaction` and cannot be
     instantiated from XML. It is the default for import from YAML.
     """
@@ -1150,33 +1158,24 @@ cdef class ThreeBodyReaction3(ElementaryReaction3):
 
     cdef CxxThirdBody* thirdbody(self):
         return <CxxThirdBody*>(self.tbr().thirdBody().get())
-    
+
     def __init__(self, equation=None, rate=None, efficiencies=None,
                  Kinetics kinetics=None, init=True, **kwargs):
 
         if init and equation and kinetics:
 
-            # todo: simplify after creation of AnyMap from dict is implemented
+            spec = {'equation': equation, 'type': self.reaction_type}
             if isinstance(rate, dict):
-                coeffs = ['{}: {}'.format(k, v) for k, v in rate.items()]
+                spec['rate-constant'] = rate
             elif isinstance(rate, ArrheniusRate) or rate is None:
-                coeffs = ['{}: 0.'.format(k) for k in ['A', 'b', 'Ea']]
+                spec['rate-constant'] = dict.fromkeys(['A', 'b', 'Ea'], 0.)
             else:
                 raise TypeError("Invalid rate definition")
-            rate_def = '{{{}}}'.format(', '.join(coeffs))
-            rate_def = ', rate-constant: {}'.format(rate_def)
 
-            # todo: simplify after creation of AnyMap from dict is implemented
             if isinstance(efficiencies, dict):
-                effs = ['{}: {}'.format(k, v) for k, v in efficiencies.items()]
-                eff_def = '{{{}}}'.format(', '.join(effs))
-                eff_def = ', efficiencies: {}'.format(eff_def)
-            elif efficiencies is None:
-                eff_def = ''
+                spec['efficiencies'] = efficiencies
 
-            yaml = '{{equation: {}, type: {}{}{}}}'.format(
-                equation, self.reaction_type, rate_def, eff_def)
-            self._reaction = CxxNewReaction(AnyMapFromYamlString(stringify(yaml)),
+            self._reaction = CxxNewReaction(dict_to_anymap(spec),
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
 
@@ -1230,8 +1229,9 @@ cdef class CustomReaction(Reaction):
 
         if init and equation and kinetics:
 
-            yaml = '{{equation: {}, type: {}}}'.format(equation, self.reaction_type)
-            self._reaction = CxxNewReaction(AnyMapFromYamlString(stringify(yaml)),
+            spec = {'equation': equation, 'type': self.reaction_type}
+
+            self._reaction = CxxNewReaction(dict_to_anymap(spec),
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
             self.rate = CustomRate(rate)
@@ -1268,17 +1268,15 @@ cdef class TestReaction(Reaction):
 
         if init and equation and kinetics:
 
+            spec = {'equation': equation, 'type': self.reaction_type}
             if isinstance(rate, dict):
-                coeffs = ['{}: {}'.format(k, v) for k, v in rate.items()]
+                spec['rate-constant'] = rate
             elif isinstance(rate, ArrheniusRate) or rate is None:
-                coeffs = ['{}: 0.'.format(k) for k in ['A', 'b', 'Ea']]
+                spec['rate-constant'] = dict.fromkeys(['A', 'b', 'Ea'], 0.)
             else:
                 raise TypeError("Invalid rate definition")
 
-            rate_def = '{{{}}}'.format(', '.join(coeffs))
-            yaml = '{{equation: {}, rate-constant: {}, type: {}}}'.format(
-                equation, rate_def, self.reaction_type)
-            self._reaction = CxxNewReaction(AnyMapFromYamlString(stringify(yaml)),
+            self._reaction = CxxNewReaction(dict_to_anymap(spec),
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
 
