@@ -29,24 +29,9 @@ custom_reactions[2] = ct.CustomReaction(
 gas1 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                    species=species, reactions=custom_reactions)
 
-# construct test reactions: replace all elementary reactions with alternatives
-test_reactions = []
-for r in reactions:
+# old framework - use xml input
 
-    if r.reaction_type == "elementary":
-        A = r.rate.pre_exponential_factor
-        b = r.rate.temperature_exponent
-        Ea = r.rate.activation_energy
-        r_new = ct.TestReaction(equation=r.equation,
-                                rate={'A': A, 'b': b, 'Ea': Ea},
-                                kinetics=gas0)
-    else:
-        r_new = r
-
-    test_reactions.append(r_new)
-
-gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
-                   species=species, reactions=test_reactions)
+gas2 = ct.Solution(mech.replace('.yaml', '.xml'))
 
 # construct test case - simulate ignition
 
@@ -75,7 +60,7 @@ sim0 = 0
 for i in range(repeat):
     sim0 += ignition(gas0)
 sim0 /= repeat
-print('- Original mechanism: '
+print('- New framework (YAML): '
       '{0:.2f} ms (T_final={1:.2f})'.format(sim0, gas0.T))
 
 sim1 = 0
@@ -90,6 +75,6 @@ sim2 = 0
 for i in range(repeat):
     sim2 += ignition(gas2)
 sim2 /= repeat
-print('- Alternative reactions: '
+print('- Old framework (XML): '
       '{0:.2f} ms (T_final={1:.2f}) ... '
       '{2:+.2f}%'.format(sim2, gas2.T, 100 * sim2 / sim0 - 100))
