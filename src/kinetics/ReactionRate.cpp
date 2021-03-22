@@ -15,7 +15,7 @@ ArrheniusRate::ArrheniusRate()
 }
 
 ArrheniusRate::ArrheniusRate(double A, double b, double E)
-    : Arrhenius(A, b, E) {
+    : Arrhenius(A, b, E / GasConstant) {
 }
 
 ArrheniusRate::ArrheniusRate(const AnyMap& node, const Units& rate_units) {
