@@ -109,28 +109,24 @@ class TestImplicitThirdBody(utilities.CanteraTest):
         self.assertEqual(rxn.reaction_type, "elementary")
 
 
-class TestElementary(utilities.CanteraTest):
+class TestReaction(utilities.CanteraTest):
 
-    _cls = ct.ElementaryReaction
-    _equation = 'H2 + O <=> H + OH'
-    _rate = {'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07}
-    _rate_obj = ct.Arrhenius(38.7, 2.7, 2.619184e+07)
+    _cls = None
+    _equation = None
+    _rate = None
+    _rate_obj = None
     _kwargs = {}
-    _index = 2
-    _type = "elementary-old"
-    _yaml = """
-        equation: O + H2 <=> H + OH
-        type: elementary-old
-        rate-constant: {A: 3.87e+04 cm^3/mol/s, b: 2.7, Ea: 6260.0 cal/mol}
-    """
+    _index = None
+    _type = None
+    _yaml = None
 
     @classmethod
     def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
-        cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
+        cls.gas = ct.Solution('kineticsfromscratch.yaml', transport_model=None)
         cls.gas.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
         cls.gas.TP = 900, 2*ct.one_atm
-        cls.species = ct.Species.listFromFile('h2o2.yaml')
+        cls.species = cls.gas.species()
 
     def check_rxn(self, rxn):
         ix = self._index
@@ -152,30 +148,39 @@ class TestElementary(utilities.CanteraTest):
                         self.gas.net_rates_of_progress[ix])
 
     def test_rate(self):
+        if self._rate_obj is None:
+            return
         self.assertNear(self._rate_obj(self.gas.T), self.gas.forward_rate_constants[self._index])
 
     def test_from_parts(self):
+        if self._cls is None:
+            return
         orig = self.gas.reaction(self._index)
         rxn = self._cls(orig.reactants, orig.products)
         rxn.rate = self._rate_obj
         self.check_rxn(rxn)
 
     def test_from_dict(self):
+        if self._cls is None:
+            return
         rxn = self._cls(equation=self._equation, rate=self._rate, kinetics=self.gas, **self._kwargs)
         self.check_rxn(rxn)
 
     def test_from_yaml(self):
         if self._yaml is None:
             return
-        
         rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
         self.check_rxn(rxn)
-        
+
     def test_from_rate(self):
+        if self._cls is None or self._rate_obj is None:
+            return
         rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas, **self._kwargs)
         self.check_rxn(rxn)
 
     def test_add_rxn(self):
+        if self._cls is None:
+            return
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                            species=self.species, reactions=[])
         gas2.TPX = self.gas.TPX
@@ -185,10 +190,14 @@ class TestElementary(utilities.CanteraTest):
         self.check_sol(gas2)
 
     def test_wrong_rate(self):
+        if self._cls is None:
+            return
         with self.assertRaises(TypeError):
             rxn = self._cls(equation=self._equation, rate=[], kinetics=self.gas, **self._kwargs)
 
     def test_no_rate(self):
+        if self._cls is None:
+            return
         rxn = self._cls(equation=self._equation, kinetics=self.gas, **self._kwargs)
         self.assertNear(rxn.rate(self.gas.T), 0.)
 
@@ -200,10 +209,27 @@ class TestElementary(utilities.CanteraTest):
         self.assertNear(gas2.net_rates_of_progress[0], 0.)
 
     def test_replace_rate(self):
+        if self._cls is None:
+            return
         rxn = self._cls(equation=self._equation, kinetics=self.gas, **self._kwargs)
         rxn.rate = self._rate_obj
         self.check_rxn(rxn)
 
+
+class TestElementary(TestReaction):
+
+    _cls = ct.ElementaryReaction
+    _equation = 'H2 + O <=> H + OH'
+    _rate = {'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07}
+    _rate_obj = ct.Arrhenius(38.7, 2.7, 2.619184e+07)
+    _kwargs = {}
+    _index = 0
+    _type = "elementary-old"
+    _yaml = """
+        equation: O + H2 <=> H + OH
+        type: elementary-old
+        rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
+    """
 
 class TestElementary3(TestElementary):
 
@@ -212,16 +238,16 @@ class TestElementary3(TestElementary):
     _type = "elementary"
     _yaml = """
         equation: O + H2 <=> H + OH
-        rate-constant: {A: 3.87e+04 cm^3/mol/s, b: 2.7, Ea: 6260.0 cal/mol}
+        rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
     """
 
-class TestCustom(TestElementary):
+class TestCustom(TestReaction):
 
     # probe O + H2 <=> H + OH
     _cls = ct.CustomReaction
     _equation = 'H2 + O <=> H + OH'
     _rate_obj = ct.CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
-    _index = 2
+    _index = 0
     _type = "custom-rate-function"
     _yaml = None
 
@@ -258,34 +284,19 @@ class TestCustom(TestElementary):
         self.check_rxn(rxn)
 
 
-class TestElementaryNew(TestElementary):
-
-    _cls = ct.TestReaction
-    _equation = 'H2 + O <=> H + OH'
-    _rate = {'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07}
-    _rate_obj = ct.ArrheniusRate(38.7, 2.7, 2.619184e+07)
-    _index = 2
-    _type = "elementary-new"
-    _yaml = """
-        equation: O + H2 <=> H + OH
-        type: elementary-new
-        rate-constant: {A: 3.87e+04 cm^3/mol/s, b: 2.7, Ea: 6260.0 cal/mol}
-    """
-
-
-class TestThreeBody(TestElementary):
+class TestThreeBody(TestReaction):
 
     _cls = ct.ThreeBodyReaction
     _equation = '2 O + M <=> O2 + M'
     _rate = {'A': 1.2e11, 'b': -1.0, 'Ea': 0.0}
     _rate_obj = ct.Arrhenius(1.2e11, -1., 0.)
     _kwargs = {'efficiencies': {'H2': 2.4, 'H2O': 15.4, 'AR': 0.83}}
-    _index = 0
+    _index = 1
     _type = "three-body-old"
     _yaml = """
         equation: 2 O + M <=> O2 + M
         type: three-body-old
-        rate-constant: {A: 1.2e+17 cm^6/mol^2/s, b: -1.0, Ea: 0.0 cal/mol}
+        rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0 cal/mol}
         efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
     """
 
@@ -314,19 +325,43 @@ class TestThreeBody3(TestThreeBody):
     _yaml = """
         equation: 2 O + M <=> O2 + M
         type: three-body
-        rate-constant: {A: 1.2e+17 cm^6/mol^2/s, b: -1.0, Ea: 0.0 cal/mol}
+        rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0 cal/mol}
         efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
     """
 
 
-#class TestChebyshev(TestElementary):
-#
-#        equation: R5 + H (+ M) <=> P5A + P5B (+M)
-#        type: Chebyshev
-#        temperature-range: [300.0, 2000.0]
-#        pressure-range: [9.86e-03 atm, 98.6 atm]
-#        data:
-#        - [8.2883, -1.1397, -0.12059, 0.016034]
-#        - [1.9764, 1.0037, 7.2865e-03]
-#        - [0.3177, 0.26889, 0.094806, -7.6385e-03]
-#        - [-0.031285, -0.039412, 0.044375, 0.014458]
+class TestPlog(TestReaction):
+
+    _equation = "H2 + O2 <=> 2 OH"
+    _type = "pressure-dependent-Arrhenius"
+    _index = 3
+    _yaml = """
+        equation: H2 + O2 <=> 2 OH  # Reaction 4
+        type: pressure-dependent-Arrhenius
+        rate-constants:
+        - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04 cal/mol}
+        - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04 cal/mol}
+        - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
+        - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
+    """
+
+
+class TestChebyshev(TestReaction):
+
+    _equation = "HO2 <=> OH + O"
+    _rate = {'Tmin': 290., 'Tmax': 3000., 'Pmin': 1000., 'Pmax': 10000000.0,
+             'data': [[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
+                      [ 1.9764e+00,  1.0037e+00,  7.2865e-03, -3.0432e-02],
+                      [ 3.1770e-01,  2.6889e-01,  9.4806e-02, -7.6385e-03]]}
+    _type = "Chebyshev"
+    _index = 4
+    _yaml = """
+        equation: HO2 <=> OH + O  # Reaction 5
+        type: Chebyshev
+        temperature-range: [290.0, 3000.0]
+        pressure-range: [9.869232667160128e-03 atm, 98.69232667160128 atm]
+        data:
+        - [8.2883, -1.1397, -0.12059, 0.016034]
+        - [1.9764, 1.0037, 7.2865e-03, -0.030432]
+        - [0.3177, 0.26889, 0.094806, -7.6385e-03]
+    """
