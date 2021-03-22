@@ -48,10 +48,6 @@ public:
 
     void addThirdBody(shared_ptr<Reaction3> r);
 
-    ThirdBodyCalc m_multi_concm; //!< used with MultiRate evaluator
-    vector_fp concm_multi_values;
-    std::vector<size_t> m_multi_indices; //!< reaction indices
-
 protected:
     virtual void addElementaryReaction(ElementaryReaction& r);
     virtual void modifyElementaryReaction(size_t i, ElementaryReaction& rNew);
@@ -69,12 +65,19 @@ protected:
     //! valued stoichiometries.
     vector_fp m_dn;
 
-    //! Activity concentrations, as calculated by
-    //! ThermoPhase::getActivityConcentrations
+    ThirdBodyCalc m_multi_concm; //!< used with MultiRate evaluator
+    vector_fp concm_multi_values;
+    std::vector<size_t> m_multi_indices; //!< reaction indices
+
+    //! Third body concentrations
+    vector_fp m_concm;
+
+    //! Activity concentrations, as calculated by ThermoPhase::getActivityConcentrations
     vector_fp m_act_conc;
 
     //! Physical concentrations, as calculated by ThermoPhase::getConcentrations
     vector_fp m_phys_conc;
+
     vector_fp m_grt;
 
     bool m_ROP_ok;

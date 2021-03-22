@@ -148,6 +148,8 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
         }
     }
 
+    m_concm.push_back(0.0);
+
     return true;
 }
 

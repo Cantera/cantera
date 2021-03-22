@@ -68,7 +68,8 @@ public:
 
     //! Evaluate reaction rate based on bulk phase
     //! @param bulk  object representing bulk phase
-    virtual double eval(const ThermoPhase& bulk) const = 0;
+    //! @param concm  third-body concentration (if applicable)
+    virtual double eval(const ThermoPhase& bulk, double concm=0.) const = 0;
 
     //! Evaluate reaction rate derivative based on temperature
     //! @param T  temperature [K]
@@ -81,7 +82,8 @@ public:
 
     //! Evaluate reaction rate derivative based on bulk phase
     //! @param bulk  object representing bulk phase
-    virtual double ddT(const ThermoPhase& bulk) const = 0;
+    //! @param concm  third-body concentration (if applicable)
+    virtual double ddT(const ThermoPhase& bulk, double concm=0.) const = 0;
 };
 
 
@@ -102,7 +104,8 @@ public:
 
     //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
-    virtual double eval(const DataType& shared_data) const = 0;
+    //! @param concm  third-body concentration (if applicable)
+    virtual double eval(const DataType& shared_data, double concm=0.) const = 0;
 
     virtual double eval(double T) const override {
         return eval(DataType(T));
@@ -112,13 +115,13 @@ public:
         return eval(DataType(T, P));
     }
 
-    virtual double eval(const ThermoPhase& bulk) const override {
-        return eval(DataType(bulk));
+    virtual double eval(const ThermoPhase& bulk, double concm=0.) const override {
+        return eval(DataType(bulk), concm);
     }
 
     //! Evaluate derivative of reaction rate with respect to temperature
     //! @param shared_data  data shared by all reactions of a given type
-    virtual double ddT(const DataType& shared_data) const {
+    virtual double ddT(const DataType& shared_data, double concm=0.) const {
         throw CanteraError("ReactionRate::ddT",
                            "Not implemented by derived ReactionRate object.");
     }
@@ -131,8 +134,8 @@ public:
         return ddT(DataType(T, P));
     }
 
-    virtual double ddT(const ThermoPhase& bulk) const override {
-        return ddT(DataType(bulk));
+    virtual double ddT(const ThermoPhase& bulk, double concm=0.) const override {
+        return ddT(DataType(bulk), concm);
     }
 };
 
@@ -159,11 +162,13 @@ public:
     //! Update information specific to reaction
     static bool uses_update() { return false; }
 
-    virtual double eval(const ArrheniusData& shared_data) const override {
+    virtual double eval(const ArrheniusData& shared_data,
+                        double concm=0.) const override {
         return updateRC(shared_data.m_logT, shared_data.m_recipT);
     }
 
-    virtual double ddT(const ArrheniusData& shared_data) const override {
+    virtual double ddT(const ArrheniusData& shared_data,
+                       double concm=0.) const override {
         return updateRC(shared_data.m_logT, shared_data.m_recipT) *
             (m_b + m_E * shared_data.m_recipT) * shared_data.m_recipT;
     }
@@ -197,7 +202,8 @@ public:
      */
     void setRateFunction(shared_ptr<Func1> f);
 
-    virtual double eval(const CustomFunc1Data& shared_data) const override;
+    virtual double eval(const CustomFunc1Data& shared_data,
+                        double concm=0.) const override;
 
 protected:
     shared_ptr<Func1> m_ratefunc;

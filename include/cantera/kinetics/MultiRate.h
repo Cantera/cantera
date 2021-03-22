@@ -45,7 +45,7 @@ public:
     //! @param bulk  object representing bulk phase
     //! @param kf  array of rate constants
     virtual void getRateConstants(const ThermoPhase& bulk,
-                                  double* kf) const = 0;
+                                  double* kf, double* concm) const = 0;
 
     //! Update data common to reaction rates of a specific type
     //! @param bulk  object representing bulk phase
@@ -86,9 +86,9 @@ public:
     }
 
     virtual void getRateConstants(const ThermoPhase& bulk,
-                                  double* kf) const override {
+                                  double* kf, double* concm) const override {
         for (size_t i = 0; i < m_rates.size(); i++) {
-            kf[m_rxn[i]] = m_rates[i].eval(m_shared);
+          kf[m_rxn[i]] = m_rates[i].eval(m_shared, concm[m_rxn[i]]);
         }
     }
 
