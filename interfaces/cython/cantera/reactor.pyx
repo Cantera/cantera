@@ -391,103 +391,27 @@ cdef class FlowReactor(Reactor):
 cdef class DelegatedReactor(Reactor):
     reactor_type = "DelegatedReactor"
 
-    delegatable_methods = {'initialize', 'sync_state', 'get_state',
-        'update_state', 'update_surface_state', 'get_surface_initial_condition',
-        'update_connected', 'eval', 'eval_walls', 'eval_surfaces',
-        'component_name', 'component_index', 'species_index'
+    delegatable_methods = {
+        'initialize': ('initialize', 'v_d'),
+        'sync_state': ('syncState', 'v'),
+        'get_state': ('getState', 'v_dp'),
+        'update_state': ('updateState', 'v_dp'),
+        'update_surface_state': ('updateSurfaceState', 'v_dp'),
+        'get_surface_initial_condition': ('getSurfaceInitialCondition', 'v_dp'),
+        'update_connected': ('updateConnected', 'v_b'),
+        'eval': ('evalEqs', 'v_d_dp_dp_dp'),
+        'eval_walls': ('evalWalls', 'v_d'),
+        'eval_surfaces': ('evalSurfaces', 'i_dr_d_dp'),
+        'component_name': ('componentName', 'i_sr_z'),
+        'component_index': ('componentIndex', 'i_zr_csr'),
+        'species_index': ('speciesIndex', 'i_zr_csr')
     }
 
     def __cinit__(self, *args, **kwargs):
-        self.delegator = <CxxDelegatedReactor*>(self.rbase)
+        self.accessor = dynamic_cast[CxxReactorAccessorPtr](self.rbase)
 
     def __init__(self, *args, **kwargs):
-        delegates = {}
-
-        # Find all delegate methods, and make sure there aren't multiple
-        # conflicting implementations
-        for method in self.delegatable_methods:
-            if method in self.__class__.__dict__:
-                delegates[method] = 'replace', getattr(self, method)
-            before = 'before_{}'.format(method)
-            if before in self.__class__.__dict__:
-                if method in delegates:
-                    raise CanteraError(
-                        "Only one delegate supported for '{}'".format(method))
-                delegates[method] = 'before', getattr(self, before)
-            after = 'after_{}'.format(method)
-            if after in self.__class__.__dict__:
-                if method in delegates:
-                    raise CanteraError(
-                        "Only one delegate supported for '{}'".format(method))
-                delegates[method] = 'after', getattr(self, after)
-
-        # Assign each delegate using the specific function for doing so
-        if 'initialize' in delegates:
-            self.delegator.setInitialize(
-                pyOverride(<PyObject*>delegates['initialize'][1], callback_v_d),
-                stringify(delegates['initialize'][0])
-            )
-        if 'sync_state' in delegates:
-            self.delegator.setSyncState(
-                pyOverride(<PyObject*>delegates['sync_state'][1], callback_v),
-                stringify(delegates['sync_state'][0])
-            )
-        if 'get_state' in delegates:
-            self.delegator.setGetState(
-                pyOverride(<PyObject*>delegates['get_state'][1], callback_v_dp),
-                stringify(delegates['get_state'][0])
-            )
-        if 'update_state' in delegates:
-            self.delegator.setUpdateState(
-                pyOverride(<PyObject*>delegates['update_state'][1], callback_v_dp),
-                stringify(delegates['update_state'][0])
-            )
-        if 'update_surface_state' in delegates:
-            self.delegator.setUpdateSurfaceState(
-                pyOverride(<PyObject*>delegates['update_surface_state'][1], callback_v_dp),
-                stringify(delegates['update_surface_state'][0])
-            )
-        if 'get_surface_initial_condition' in delegates:
-            self.delegator.setGetSurfaceInitialConditions(
-                pyOverride(<PyObject*>delegates['get_surface_initial_condition'][1], callback_v_dp),
-                stringify(delegates['get_surface_initial_condition'][0])
-            )
-        if 'update_connected' in delegates:
-            self.delegator.setUpdateConnected(
-                pyOverride(<PyObject*>delegates['update_connected'][1], callback_v_b),
-                stringify(delegates['update_connected'][0])
-            )
-        if 'eval' in delegates:
-            self.delegator.setEvalEqs(
-                pyOverride(<PyObject*>delegates['eval'][1], callback_v_d_dp_dp_dp),
-                stringify(delegates['eval'][0])
-            )
-        if 'eval_walls' in delegates:
-            self.delegator.setEvalWalls(
-                pyOverride(<PyObject*>delegates['eval_walls'][1], callback_v_d),
-                stringify(delegates['eval_walls'][0])
-            )
-        if 'eval_surfaces' in delegates:
-            self.delegator.setEvalSurfaces(
-                pyOverride(<PyObject*>delegates['eval_surfaces'][1], callback_i_dr_d_dp),
-                stringify(delegates['eval_surfaces'][0])
-            )
-        if 'component_name' in delegates:
-            self.delegator.setComponentName(
-                pyOverride(<PyObject*>delegates['component_name'][1], callback_i_sr_z),
-                stringify(delegates['component_name'][0])
-            )
-        if 'component_index' in delegates:
-            self.delegator.setComponentIndex(
-                pyOverride(<PyObject*>delegates['component_index'][1], callback_i_zr_csr),
-                stringify(delegates['component_index'][0])
-            )
-        if 'species_index' in delegates:
-            self.delegator.setSpeciesIndex(
-                pyOverride(<PyObject*>delegates['species_index'][1], callback_i_zr_csr),
-                stringify(delegates['species_index'][0])
-            )
-
+        assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rbase))
         super().__init__(*args, **kwargs)
 
     property n_vars:
@@ -497,25 +421,37 @@ cdef class DelegatedReactor(Reactor):
         def __get__(self):
             return self.reactor.neq()
         def __set__(self, n):
-            self.delegator.setNEq(n)
+            self.accessor.setNEq(n)
 
     property vdot:
         """
         Get/Set the net rate of volume change (for example, from moving walls) [m^3/s]
         """
         def __get__(self):
-            return self.delegator.vdot()
+            return self.accessor.vdot()
         def __set__(self, vdot):
-            self.delegator.setVdot(vdot)
+            self.accessor.setVdot(vdot)
 
     property qdot:
         """
         Get/Set the net heat transfer rate (for example, through walls) [W]
         """
         def __get__(self):
-            return self.delegator.vdot()
+            return self.accessor.vdot()
         def __set__(self, vdot):
-            self.delegator.setVdot(vdot)
+            self.accessor.setVdot(vdot)
+
+
+cdef class DelegatedIdealGasReactor(DelegatedReactor):
+    reactor_type = "DelegatedIdealGasReactor"
+
+
+cdef class DelegatedConstPressureReactor(DelegatedReactor):
+    reactor_type = "DelegatedConstPressureReactor"
+
+
+cdef class DelegatedIdealGasConstPressureReactor(DelegatedReactor):
+    reactor_type = "DelegatedIdealGasConstPressureReactor"
 
 
 cdef class ReactorSurface:

@@ -5,6 +5,7 @@
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.map cimport map as stdmap
+from libcpp.cast cimport dynamic_cast
 from libcpp.unordered_map cimport unordered_map
 from libcpp.pair cimport pair
 from libcpp cimport bool as cbool
@@ -185,6 +186,21 @@ cdef extern from "cantera/base/Array.h" namespace "Cantera":
         vector[double]& data()
         size_t nRows()
         size_t nColumns()
+
+cdef extern from "cantera/base/Delegator.h" namespace "Cantera":
+    cdef cppclass CxxDelegator "Cantera::Delegator":
+        Delegator()
+
+        void setDelegate(string&, function[void()], string&) except +translate_exception
+        void setDelegate(string&, function[void(cbool)], string&) except +translate_exception
+        void setDelegate(string&, function[void(double)], string&) except +translate_exception
+        void setDelegate(string&, function[void(size_array1, double*)], string&) except +translate_exception
+        void setDelegate(string&, function[void(size_array3, double, double*, double*, double*)], string&) except +translate_exception
+        void setDelegate(string&, function[int(double&, size_array1, double, double*)], string&) except +translate_exception
+        void setDelegate(string&, function[int(string&, size_t)], string&) except +translate_exception
+        void setDelegate(string&, function[int(size_t&, string&)], string&) except +translate_exception
+
+ctypedef CxxDelegator* CxxDelegatorPtr
 
 cdef extern from "cantera/thermo/SpeciesThermoInterpType.h":
     cdef cppclass CxxSpeciesThermo "Cantera::SpeciesThermoInterpType":
@@ -897,29 +913,16 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         size_t nparams()
         string sensitivityParameterName(size_t) except +translate_exception
 
-cdef extern from "cantera/zeroD/DelegatedReactor.h" namespace "Cantera":
-    cdef cppclass CxxDelegatedReactor "Cantera::DelegatedReactor" (CxxReactor):
-        CxxDelegatedReactor()
-
-        void setInitialize(function[void(double)], string&) except +translate_exception
-        void setGetState(function[void(size_array1, double*)], string&) except +translate_exception
-        void setUpdateState(function[void(size_array1, double*)], string&) except +translate_exception
-        void setUpdateSurfaceState(function[void(size_array1, double*)], string&) except +translate_exception
-        void setGetSurfaceInitialConditions(function[void(size_array1, double*)], string&) except +translate_exception
-        void setUpdateConnected(function[void(cbool)], string&) except +translate_exception
-        void setSyncState(function[void()], string&) except +translate_exception
-        void setEvalEqs(function[void(size_array3, double, double*, double*, double*)], string&) except +translate_exception
-        void setEvalWalls(function[void(double)], string&) except +translate_exception
-        void setEvalSurfaces(function[int(double&, size_array1, double, double*)], string&) except +translate_exception
-        void setComponentName(function[int(string&, size_t)], string&) except +translate_exception
-        void setComponentIndex(function[int(size_t&, string&)], string&) except +translate_exception
-        void setSpeciesIndex(function[int(size_t&, string&)], string&) except +translate_exception
-
+cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
+    cdef cppclass CxxReactorAccessor "Cantera::ReactorAccessor":
+        CxxReactorAccessor()
         void setNEq(size_t)
         double vdot()
         void setVdot(double)
         double qdot()
         void setQdot(double)
+
+ctypedef CxxReactorAccessor* CxxReactorAccessorPtr
 
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef CxxThermoPhase* newPhase(string, string) except +translate_exception
@@ -1363,7 +1366,7 @@ cdef class FlowReactor(Reactor):
     pass
 
 cdef class DelegatedReactor(Reactor):
-    cdef CxxDelegatedReactor* delegator
+    cdef CxxReactorAccessor* accessor
 
 cdef class ReactorSurface:
     cdef CxxReactorSurface* surface
@@ -1483,6 +1486,7 @@ cdef np.ndarray get_transport_polynomial(Transport tran, transportPolyMethod1i m
 cdef np.ndarray get_binary_transport_polynomial(Transport tran, transportPolyMethod2i method, int indexi, int indexj, int n_coeffs)
 cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *
 cdef wrapSpeciesThermo(shared_ptr[CxxSpeciesThermo] spthermo)
+cdef void assign_delegates(object, CxxDelegator*)
 
 cdef extern from "cantera/thermo/Elements.h" namespace "Cantera":
     double getElementWeight(string ename) except +translate_exception
@@ -1493,13 +1497,3 @@ cdef extern from "cantera/thermo/Elements.h" namespace "Cantera":
     string getElementSymbol(int atomicNumber) except +translate_exception
     string getElementName(string ename) except +translate_exception
     string getElementName(int atomicNumber) except +translate_exception
-
-# Wrappers for override functions
-cdef void callback_v_d(PyFuncInfo&, double)
-cdef void callback_v_b(PyFuncInfo&, cbool)
-cdef void callback_v(PyFuncInfo&)
-cdef void callback_v_dp(PyFuncInfo&, size_array1, double*)
-cdef void callback_v_d_dp_dp_dp(PyFuncInfo&, size_array3, double, double*, double*, double*)
-cdef int callback_i_dr_d_dp(PyFuncInfo&, double&, size_array1, double, double*)
-cdef int callback_i_sr_z(PyFuncInfo&, string&, size_t)
-cdef int callback_i_zr_csr(PyFuncInfo&, size_t&, const string&)
