@@ -846,6 +846,23 @@ cdef class PlogReaction(Reaction):
     """
     reaction_type = "pressure-dependent-Arrhenius"
 
+    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
+                 init=True, **kwargs):
+
+        if init and equation and kinetics:
+
+            spec = {'equation': equation, 'type': self.reaction_type}
+            if isinstance(rate, list):
+                spec['rate-constants'] = []
+                for r in rate:
+                    spec['rate-constants'].append({'P': r['P'], **r['rate-constant']})
+            else:
+                raise TypeError("Invalid rate definition")
+
+            self._reaction = CxxNewReaction(dict_to_anymap(spec),
+                                            deref(kinetics.kinetics))
+            self.reaction = self._reaction.get()
+
     property rates:
         """
         Get/Set the rate coefficients for this reaction, which are given as a
@@ -888,6 +905,23 @@ cdef class ChebyshevReaction(Reaction):
     polynomial in temperature and pressure.
     """
     reaction_type = "Chebyshev"
+
+    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
+                 init=True, **kwargs):
+
+        if init and equation and kinetics:
+
+            spec = {'equation': equation, 'type': self.reaction_type}
+            if isinstance(rate, dict):
+                spec['temperature-range'] = [rate['Tmin'], rate['Tmax']]
+                spec['pressure-range'] = [rate['Pmin'], rate['Pmax']]
+                spec['data'] = rate['data']
+            else:
+                raise TypeError("Invalid rate definition")
+
+            self._reaction = CxxNewReaction(dict_to_anymap(spec),
+                                            deref(kinetics.kinetics))
+            self.reaction = self._reaction.get()
 
     property Tmin:
         """ Minimum temperature [K] for the Chebyshev fit """
