@@ -20,7 +20,7 @@ Requires: cantera >= 2.6.0, matplotlib >= 2.0
 import cantera as ct
 import numpy as np
 
-class InertialWallReactor(ct.DelegatedReactor):
+class InertialWallReactor(ct.DelegatedIdealGasReactor):
     def __init__(self, *args, neighbor, **kwargs):
         super().__init__(*args, **kwargs)
         self.v_wall = 0  # initial wall velocity
