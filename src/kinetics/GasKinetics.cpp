@@ -54,7 +54,7 @@ void GasKinetics::update_rates_T()
         // loop over MultiBulkRates evaluators
         for (auto& rates : m_bulk_rates) {
             rates->update(thermo());
-            rates->getRateConstants(thermo(), m_rfn.data());
+            rates->getRateConstants(thermo(), m_rfn.data(), m_concm.data());
         }
 
         if (m_plog_rates.nReactions()) {
@@ -89,7 +89,11 @@ void GasKinetics::update_rates_C()
 
     // Third-body objects interacting with MultiRate evaluator
     if (!concm_multi_values.empty()) {
+        // using pre-existing third-body handlers requires copying;
         m_multi_concm.update(m_phys_conc, ctot, concm_multi_values.data());
+        for (size_t i = 0; i < m_multi_indices.size(); i++) {
+            m_concm[m_multi_indices[i]] = concm_multi_values[i];
+        }
     }
 
     // P-log reactions
@@ -189,11 +193,9 @@ void GasKinetics::updateROP()
         processFalloffReactions();
     }
 
-    if (!concm_multi_values.empty()) {
-        // multiply 3rd body concentrations
-        for (size_t i = 0; i < m_multi_indices.size(); i++) {
-            m_ropf[m_multi_indices[i]] *= concm_multi_values[i];
-        }
+    // reactions involving third body
+    for (auto & index : m_multi_indices) {
+        m_ropf[index] *= m_concm[index];
     }
 
     for (size_t i = 0; i < nReactions(); i++) {
@@ -242,11 +244,9 @@ void GasKinetics::getFwdRateConstants(doublereal* kfwd)
         processFalloffReactions();
     }
 
-    if (!concm_multi_values.empty()) {
-        // multiply 3rd body concentrations
-        for (size_t i = 0; i < m_multi_indices.size(); i++) {
-            m_ropf[m_multi_indices[i]] *= concm_multi_values[i];
-        }
+    // reactions involving third body
+    for (auto & index : m_multi_indices) {
+        m_ropf[index] *= m_concm[index];
     }
 
     for (size_t i = 0; i < nReactions(); i++) {
