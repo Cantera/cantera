@@ -118,6 +118,11 @@ class TestElementary(utilities.CanteraTest):
     _kwargs = {}
     _index = 2
     _type = "elementary-old"
+    _yaml = """
+        equation: O + H2 <=> H + OH
+        type: elementary-old
+        rate-constant: {A: 3.87e+04 cm^3/mol/s, b: 2.7, Ea: 6260.0 cal/mol}
+    """
 
     @classmethod
     def setUpClass(cls):
@@ -159,6 +164,13 @@ class TestElementary(utilities.CanteraTest):
         rxn = self._cls(equation=self._equation, rate=self._rate, kinetics=self.gas, **self._kwargs)
         self.check_rxn(rxn)
 
+    def test_from_yaml(self):
+        if self._yaml is None:
+            return
+        
+        rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
+        self.check_rxn(rxn)
+        
     def test_from_rate(self):
         rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas, **self._kwargs)
         self.check_rxn(rxn)
@@ -198,7 +210,10 @@ class TestElementary3(TestElementary):
     _cls = ct.ElementaryReaction3
     _rate_obj = ct.ArrheniusRate(38.7, 2.7, 2.619184e+07)
     _type = "elementary"
-
+    _yaml = """
+        equation: O + H2 <=> H + OH
+        rate-constant: {A: 3.87e+04 cm^3/mol/s, b: 2.7, Ea: 6260.0 cal/mol}
+    """
 
 class TestCustom(TestElementary):
 
@@ -208,6 +223,7 @@ class TestCustom(TestElementary):
     _rate_obj = ct.CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
     _index = 2
     _type = "custom-rate-function"
+    _yaml = None
 
     def setUp(self):
         # need to overwrite rate to ensure correct type ('method' is not compatible with Func1)
@@ -250,6 +266,11 @@ class TestElementaryNew(TestElementary):
     _rate_obj = ct.ArrheniusRate(38.7, 2.7, 2.619184e+07)
     _index = 2
     _type = "elementary-new"
+    _yaml = """
+        equation: O + H2 <=> H + OH
+        type: elementary-new
+        rate-constant: {A: 3.87e+04 cm^3/mol/s, b: 2.7, Ea: 6260.0 cal/mol}
+    """
 
 
 class TestThreeBody(TestElementary):
@@ -261,6 +282,12 @@ class TestThreeBody(TestElementary):
     _kwargs = {'efficiencies': {'H2': 2.4, 'H2O': 15.4, 'AR': 0.83}}
     _index = 0
     _type = "three-body-old"
+    _yaml = """
+        equation: 2 O + M <=> O2 + M
+        type: three-body-old
+        rate-constant: {A: 1.2e+17 cm^6/mol^2/s, b: -1.0, Ea: 0.0 cal/mol}
+        efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
+    """
 
     def test_from_parts(self):
         orig = self.gas.reaction(self._index)
@@ -268,19 +295,38 @@ class TestThreeBody(TestElementary):
         rxn.rate = self._rate_obj
         rxn.efficiencies = self._kwargs['efficiencies']
         self.check_rxn(rxn)
-    
+
     def test_rate(self):
         # rate constant contains third-body concentration
         pass
-        
+
     def test_efficiencies(self):
         rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas, **self._kwargs)
 
         self.assertEqual(rxn.efficiencies, self._kwargs['efficiencies'])
 
-        
+
 class TestThreeBody3(TestThreeBody):
 
     _cls = ct.ThreeBodyReaction3
     _rate_obj = ct.ArrheniusRate(1.2e11, -1., 0.)
     _type = "three-body"
+    _yaml = """
+        equation: 2 O + M <=> O2 + M
+        type: three-body
+        rate-constant: {A: 1.2e+17 cm^6/mol^2/s, b: -1.0, Ea: 0.0 cal/mol}
+        efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
+    """
+
+
+#class TestChebyshev(TestElementary):
+#
+#        equation: R5 + H (+ M) <=> P5A + P5B (+M)
+#        type: Chebyshev
+#        temperature-range: [300.0, 2000.0]
+#        pressure-range: [9.86e-03 atm, 98.6 atm]
+#        data:
+#        - [8.2883, -1.1397, -0.12059, 0.016034]
+#        - [1.9764, 1.0037, 7.2865e-03]
+#        - [0.3177, 0.26889, 0.094806, -7.6385e-03]
+#        - [-0.031285, -0.039412, 0.044375, 0.014458]
