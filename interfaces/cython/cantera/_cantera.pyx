@@ -13,6 +13,7 @@ include "utils.pyx"
 include "constants.pyx"
 include "func1.pyx"
 include "units.pyx"
+include "delegator.pyx"
 
 include "base.pyx"
 include "speciesthermo.pyx"
