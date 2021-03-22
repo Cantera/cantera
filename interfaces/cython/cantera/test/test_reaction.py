@@ -153,7 +153,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(self._rate_obj(self.gas.T), self.gas.forward_rate_constants[self._index])
 
     def test_from_parts(self):
-        if self._cls is None:
+        if self._cls is None or not hasattr(self._cls, 'rate'):
             return
         orig = self.gas.reaction(self._index)
         rxn = self._cls(orig.reactants, orig.products)
@@ -179,7 +179,7 @@ class TestReaction(utilities.CanteraTest):
         self.check_rxn(rxn)
 
     def test_add_rxn(self):
-        if self._cls is None:
+        if self._cls is None or self._rate_obj is None:
             return
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                            species=self.species, reactions=[])
@@ -193,10 +193,10 @@ class TestReaction(utilities.CanteraTest):
         if self._cls is None:
             return
         with self.assertRaises(TypeError):
-            rxn = self._cls(equation=self._equation, rate=[], kinetics=self.gas, **self._kwargs)
+            rxn = self._cls(equation=self._equation, rate=(), kinetics=self.gas, **self._kwargs)
 
     def test_no_rate(self):
-        if self._cls is None:
+        if self._cls is None or not hasattr(self._cls, 'rate'):
             return
         rxn = self._cls(equation=self._equation, kinetics=self.gas, **self._kwargs)
         self.assertNear(rxn.rate(self.gas.T), 0.)
@@ -209,7 +209,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(gas2.net_rates_of_progress[0], 0.)
 
     def test_replace_rate(self):
-        if self._cls is None:
+        if self._cls is None or self._rate_obj is None:
             return
         rxn = self._cls(equation=self._equation, kinetics=self.gas, **self._kwargs)
         rxn.rate = self._rate_obj
@@ -332,7 +332,12 @@ class TestThreeBody3(TestThreeBody):
 
 class TestPlog(TestReaction):
 
+    _cls = ct.PlogReaction
     _equation = "H2 + O2 <=> 2 OH"
+    _rate = [{'P': 1013.25, 'rate-constant': {'A': 1.2124e+16, 'b': -0.5779, 'Ea': 45491376.8}},
+             {'P': 101325., 'rate-constant': {'A': 4.9108e+31, 'b': -4.8507, 'Ea': 103649395.2}},
+             {'P': 1013250., 'rate-constant': {'A': 1.2866e+47, 'b': -9.0246, 'Ea': 166508556.0}},
+             {'P': 10132500., 'rate-constant': {'A': 5.9632e+56, 'b': -11.529, 'Ea': 220076726.4}}]
     _type = "pressure-dependent-Arrhenius"
     _index = 3
     _yaml = """
@@ -348,6 +353,7 @@ class TestPlog(TestReaction):
 
 class TestChebyshev(TestReaction):
 
+    _cls = ct.ChebyshevReaction
     _equation = "HO2 <=> OH + O"
     _rate = {'Tmin': 290., 'Tmax': 3000., 'Pmin': 1000., 'Pmax': 10000000.0,
              'data': [[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
