@@ -129,30 +129,26 @@ public:
 
 private:
     template <typename BaseFunc, class ... Args>
-    void setDelegate(
-        std::function<void(Args ...)>* target,
+    std::function<void(Args ...)> makeDelegate(
         const std::function<void(Args ...)>& func,
         const std::string& when,
         BaseFunc base);
 
     template <int nArrays, typename BaseFunc, class ... Args>
-    void setDelegate(
-        std::function<void(Args ...)>* target,
+    std::function<void(Args ...)> makeDelegate(
         const std::function<void(std::array<size_t, nArrays>, Args ...)>& func,
         const std::function<std::array<size_t, nArrays>()>& sizeGetter,
         const std::string& when,
         BaseFunc base);
 
     template <typename ReturnType, typename BaseFunc, class ... Args>
-    void setDelegate(
-        std::function<ReturnType(Args ...)>* target,
+    std::function<ReturnType(Args ...)> makeDelegate(
         const std::function<int(ReturnType&, Args ...)>& func,
         const std::string& when,
         const BaseFunc& base);
 
     template <int nArrays, typename ReturnType, typename BaseFunc, class ... Args>
-    void setDelegate(
-        std::function<ReturnType(Args ...)>* target,
+    std::function<ReturnType(Args ...)> makeDelegate(
         const std::function<int(ReturnType&, std::array<size_t, nArrays>, Args ...)>& func,
         const std::function<std::array<size_t, nArrays>()>& sizeGetter,
         const std::string& when,

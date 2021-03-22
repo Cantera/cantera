@@ -41,8 +41,8 @@ void DelegatedReactor::setInitialize(
     const std::function<void(double)>& func,
     const std::string& when)
 {
-    setDelegate(
-        &m_initialize, func, when,
+    m_initialize = makeDelegate(
+        func, when,
         [this](double t0) { Reactor::initialize(t0); }
     );
 }
@@ -51,8 +51,8 @@ void DelegatedReactor::setSyncState(
     const std::function<void()>& func,
     const std::string& when)
 {
-    setDelegate(
-        &m_syncState, func, when,
+    m_syncState = makeDelegate(
+        func, when,
         [this]() { Reactor::syncState(); }
     );
 }
@@ -61,8 +61,8 @@ void DelegatedReactor::setGetState(
     const std::function<void(std::array<size_t, 1>, double*)>& func,
     const std::string& when)
 {
-    setDelegate<1>(
-        &m_getState, func,
+    m_getState = makeDelegate<1>(
+        func,
         [this]() {
             return std::array<size_t, 1>{neq()};
         },
@@ -77,8 +77,8 @@ void DelegatedReactor::setUpdateState(
     const std::function<void(std::array<size_t, 1>, double*)>& func,
     const std::string& when)
 {
-    setDelegate<1>(
-        &m_updateState, func,
+    m_updateState = makeDelegate<1>(
+        func,
         [this]() {
             return std::array<size_t, 1>{neq()};
         },
@@ -93,8 +93,8 @@ void DelegatedReactor::setUpdateSurfaceState(
     const std::function<void(std::array<size_t, 1>, double*)>& func,
     const std::string& when)
 {
-    setDelegate<1>(
-        &m_updateSurfaceState, func,
+    m_updateSurfaceState = makeDelegate<1>(
+        func,
         [this]() {
             return std::array<size_t, 1>{m_nv_surf};
         },
@@ -109,8 +109,8 @@ void DelegatedReactor::setGetSurfaceInitialConditions(
     const std::function<void(std::array<size_t, 1>, double*)>& func,
     const std::string& when)
 {
-    setDelegate<1>(
-        &m_getSurfaceInitialConditions, func,
+    m_getSurfaceInitialConditions = makeDelegate<1>(
+        func,
         [this]() {
             return std::array<size_t, 1>{m_nv_surf};
         },
@@ -125,8 +125,8 @@ void DelegatedReactor::setUpdateConnected(
     const std::function<void(bool)>& func,
     const std::string& when)
 {
-    setDelegate(
-        &m_updateConnected, func, when,
+    m_updateConnected = makeDelegate(
+        func, when,
         [this](bool updatePressure) {
             Reactor::updateConnected(updatePressure);
         }
@@ -137,8 +137,8 @@ void DelegatedReactor::setEvalEqs(
     const std::function<void(std::array<size_t, 3>, double, double*, double*, double*)>& func,
     const std::string& when)
 {
-    setDelegate<3>(
-        &m_evalEqs, func,
+    m_evalEqs = makeDelegate<3>(
+        func,
         [this]() {
             return std::array<size_t, 3>{neq(), neq(), nSensParams()};
         },
@@ -153,8 +153,8 @@ void DelegatedReactor::setEvalWalls(
     const std::function<void(double)>& func,
     const std::string& when)
 {
-    setDelegate(
-        &m_evalWalls, func, when,
+    m_evalWalls = makeDelegate(
+        func, when,
         [this](double t) {
             Reactor::evalWalls(t);
         }
@@ -165,8 +165,8 @@ void DelegatedReactor::setEvalSurfaces(
     const std::function<int(double&, std::array<size_t, 1>, double, double*)>& func,
     const std::string& when)
 {
-    setDelegate<1>(
-        &m_evalSurfaces, func,
+    m_evalSurfaces = makeDelegate<1>(
+        func,
         [this]() {
             return std::array<size_t, 1>{m_nv_surf};
         },
@@ -181,8 +181,8 @@ void DelegatedReactor::setComponentName(
     const std::function<int(std::string&, size_t)>& func,
     const std::string& when)
 {
-    setDelegate(
-        &m_componentName, func, when,
+    m_componentName = makeDelegate(
+        func, when,
         [this](size_t k) {
             return Reactor::componentName(k);
         }
@@ -193,8 +193,8 @@ void DelegatedReactor::setComponentIndex(
     const std::function<int(size_t&, const std::string& nm)>& func,
     const std::string& when)
 {
-    setDelegate(
-        &m_componentIndex, func, when,
+    m_componentIndex = makeDelegate(
+        func, when,
         [this](const std::string& nm) {
             return Reactor::componentIndex(nm);
         }
@@ -205,8 +205,8 @@ void DelegatedReactor::setSpeciesIndex(
     const std::function<int(size_t&, const std::string& nm)>& func,
     const std::string& when)
 {
-    setDelegate(
-        &m_speciesIndex, func, when,
+    m_speciesIndex = makeDelegate(
+        func, when,
         [this](const std::string& nm) {
             return Reactor::speciesIndex(nm);
         }
@@ -214,24 +214,23 @@ void DelegatedReactor::setSpeciesIndex(
 }
 
 template <typename BaseFunc, class ... Args>
-void DelegatedReactor::setDelegate(
-    std::function<void(Args ...)>* target,
+std::function<void(Args ...)> DelegatedReactor::makeDelegate(
     const std::function<void(Args ...)>& func,
     const std::string& when,
     BaseFunc base)
 {
     if (when == "before") {
-        *target = [base, func](Args ... args) {
+        return [base, func](Args ... args) {
             func(args ...);
             base(args ...);
         };
     } else if (when == "after") {
-        *target = [base, func](Args ... args) {
+        return [base, func](Args ... args) {
             base(args ...);
             func(args ...);
         };
     } else if (when == "replace") {
-        *target = func;
+        return func;
     } else {
         throw CanteraError("DelegatedReactor::setDelegate",
             "'when' must be one of 'before', 'after', or 'replace';"
@@ -240,25 +239,24 @@ void DelegatedReactor::setDelegate(
 }
 
 template <int nArrays, typename BaseFunc, class ... Args>
-void DelegatedReactor::setDelegate(
-    std::function<void(Args ...)>* target,
+std::function<void(Args ...)> DelegatedReactor::makeDelegate(
     const std::function<void(std::array<size_t, nArrays>, Args ...)>& func,
     const std::function<std::array<size_t, nArrays>()>& sizeGetter,
     const std::string& when,
     BaseFunc base)
 {
     if (when == "before") {
-        *target = [base, func, sizeGetter](Args ... args) {
+        return [base, func, sizeGetter](Args ... args) {
             func(sizeGetter(), args ...);
             base(args ...);
         };
     } else if (when == "after") {
-        *target = [base, func, sizeGetter](Args ... args) {
+        return [base, func, sizeGetter](Args ... args) {
             base(args ...);
             func(sizeGetter(), args ...);
         };
     } else if (when == "replace") {
-        *target = [func, sizeGetter](Args ... args) {
+        return [func, sizeGetter](Args ... args) {
             func(sizeGetter(), args ...);
         };
     } else {
@@ -269,14 +267,13 @@ void DelegatedReactor::setDelegate(
 }
 
 template <typename ReturnType, typename BaseFunc, class ... Args>
-void DelegatedReactor::setDelegate(
-    std::function<ReturnType(Args ...)>* target,
+std::function<ReturnType(Args ...)> DelegatedReactor::makeDelegate(
     const std::function<int(ReturnType&, Args ...)>& func,
     const std::string& when,
     const BaseFunc& base)
 {
     if (when == "before") {
-        *target = [base, func](Args ... args) {
+        return [base, func](Args ... args) {
             ReturnType ret;
             int done = func(ret, args ...);
             if (done) {
@@ -286,13 +283,13 @@ void DelegatedReactor::setDelegate(
             }
         };
     } else if (when == "after") {
-        *target = [base, func](Args ... args) {
+        return [base, func](Args ... args) {
             ReturnType ret = base(args ...);
             func(ret, args ...);
             return ret;
         };
     } else if (when == "replace") {
-        *target = [func](Args ... args) {
+        return [func](Args ... args) {
             ReturnType ret;
             func(ret, args ...);
             return ret;
@@ -305,15 +302,14 @@ void DelegatedReactor::setDelegate(
 }
 
 template <int nArrays, typename ReturnType, typename BaseFunc, class ... Args>
-void DelegatedReactor::setDelegate(
-    std::function<ReturnType(Args ...)>* target,
+std::function<ReturnType(Args ...)> DelegatedReactor::makeDelegate(
     const std::function<int(ReturnType&, std::array<size_t, nArrays>, Args ...)>& func,
     const std::function<std::array<size_t, nArrays>()>& sizeGetter,
     const std::string& when,
     BaseFunc base)
 {
     if (when == "before") {
-        *target = [base, func, sizeGetter](Args ... args) {
+        return [base, func, sizeGetter](Args ... args) {
             ReturnType ret;
             int done = func(ret, sizeGetter(), args ...);
             if (done) {
@@ -323,13 +319,13 @@ void DelegatedReactor::setDelegate(
             }
         };
     } else if (when == "after") {
-        *target = [base, func, sizeGetter](Args ... args) {
+        return [base, func, sizeGetter](Args ... args) {
             ReturnType ret = base(args ...);
             func(ret, sizeGetter(), args ...);
             return ret;
         };
     } else if (when == "replace") {
-        *target = [func, sizeGetter](Args ... args) {
+        return [func, sizeGetter](Args ... args) {
             ReturnType ret;
             func(ret, sizeGetter(), args ...);
             return ret;
@@ -340,6 +336,5 @@ void DelegatedReactor::setDelegate(
             " not '{}", when);
     }
 }
-
 
 } // end namespace Cantera
