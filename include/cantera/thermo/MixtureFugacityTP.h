@@ -528,16 +528,30 @@ protected:
 
     //! Solve the cubic equation of state
     /*!
-     * 
-     * Returns the number of solutions found. For the gas phase solution, it returns 
-     * a positive number (1 or 2). If it only finds the liquid branch solution, 
+     *
+     * Returns the number of solutions found. For the gas phase solution, it returns
+     * a positive number (1 or 2). If it only finds the liquid branch solution,
      * it will return -1 or -2 instead of 1 or 2.
      * If it returns 0, then there is an error.
      * The cubic equation is solved using Nickall's method
      * (Ref: The Mathematical Gazette(1993), 77(November), 354--359,
      *  https://www.jstor.org/stable/3619777)
+     *
+     * @param   T         temperature (kelvin)
+     * @param   pres      pressure (Pa)
+     * @param   a         "a" parameter in the non-ideal EoS [Pa-m^6/kmol^2]
+     * @param   b         "b" parameter in the non-ideal EoS [m^3/kmol]
+     * @param   aAlpha    a*alpha
+     * @param   Vroot     Roots of the cubic equation for molar volume (m3/kmol)
+     * @param   an        constant used in cubic equation
+     * @param   bn        constant used in cubic equation
+     * @param   cn        constant used in cubic equation
+     * @param   dn        constant used in cubic equation
+     * @param   tc        Critical temperature (kelvin)
+     * @param   vc        Critical volume
+     * @returns the number of solutions found
      */
-    int solveCubic(double T, double pres, double a, double b, 
+    int solveCubic(double T, double pres, double a, double b,
                    double aAlpha, double Vroot[3], double an,
                    double bn, double cn, double dn, double tc, double vc) const;
 
