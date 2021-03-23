@@ -312,7 +312,7 @@ protected:
      */
     mutable vector_fp dpdni_;
 
-public:
+private:
     //! Omega constant for a -> value of a in terms of critical properties
     /*!
      *  this was calculated from a small nonlinear solve
