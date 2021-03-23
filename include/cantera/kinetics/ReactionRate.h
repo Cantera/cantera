@@ -99,6 +99,9 @@ public:
     //! @param bulk  object representing bulk phase
     //! @param concm  third-body concentration (if applicable)
     virtual double ddT(const ThermoPhase& bulk, double concm=0.) const = 0;
+
+    //! Validate the reaction rate expression
+    virtual void validate(const std::string& equation) = 0;
 };
 
 
@@ -129,7 +132,6 @@ public:
     virtual void update(const ThermoPhase& bulk, double concm=0.) override {
         update(DataType(bulk), concm);
     }
-
 
     //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
@@ -222,6 +224,8 @@ public:
     double activationEnergy() const {
         return m_E * GasConstant;
     }
+
+    virtual void validate(const std::string& equation) {}
 };
 
 
@@ -273,6 +277,11 @@ public:
                         double concm=0.) const override {
         return updateRC(shared_data.m_logT, shared_data.m_recipT);
     }
+
+    virtual void validate(const std::string& equation) {
+        // changing to const so non-virtual base version can be used
+        Plog::validate(equation);
+    }
 };
 
 
@@ -305,6 +314,8 @@ public:
 
     virtual double eval(const CustomFunc1Data& shared_data,
                         double concm=0.) const override;
+
+    virtual void validate(const std::string& equation) {}
 
 protected:
     shared_ptr<Func1> m_ratefunc;
