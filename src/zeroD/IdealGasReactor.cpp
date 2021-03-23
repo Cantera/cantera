@@ -78,7 +78,6 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
     double* dYdt = ydot + 3;
 
     evalWalls(time);
-    applySensitivity(params);
     m_thermo->restoreState(m_state);
     m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
     const vector_fp& mw = m_thermo->molecularWeights();
@@ -134,8 +133,6 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
     } else {
         ydot[2] = 0;
     }
-
-    resetSensitivity(params);
 }
 
 size_t IdealGasReactor::componentIndex(const string& nm) const

@@ -82,7 +82,6 @@ void FlowReactor::evalEqs(doublereal time, doublereal* y,
                           doublereal* ydot, doublereal* params)
 {
     m_thermo->restoreState(m_state);
-    applySensitivity(params);
 
     // distance equation
     ydot[0] = m_speed;
@@ -102,7 +101,6 @@ void FlowReactor::evalEqs(doublereal time, doublereal* y,
     for (size_t n = 0; n < m_nsp; n++) {
         ydot[n+2] *= mw[n]*rrho;
     }
-    resetSensitivity(params);
 }
 
 size_t FlowReactor::componentIndex(const string& nm) const
