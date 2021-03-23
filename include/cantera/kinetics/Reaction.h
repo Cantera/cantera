@@ -333,7 +333,7 @@ public:
                  const Plog& rate);
 
     virtual std::string type() const {
-        return "pressure-dependent-Arrhenius";
+        return "pressure-dependent-Arrhenius-old";
     }
 
     virtual void validate();
@@ -422,7 +422,7 @@ public:
     PlogReaction3(const AnyMap& node, const Kinetics& kin);
 
     virtual std::string type() const {
-        return "pressure-dependent-Arrhenius-new";
+        return "pressure-dependent-Arrhenius";
     }
 
     virtual bool setParameters(const AnyMap& node, const Kinetics& kin);

@@ -28,6 +28,7 @@ ReactionFactory::ReactionFactory()
     addAlias("elementary", "arrhenius");
     addAlias("elementary", "");
 
+    // register elementary reactions (old framework)
     reg("elementary-old", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ElementaryReaction();
         if (node.hasKey("equation")) {
@@ -43,7 +44,7 @@ ReactionFactory::ReactionFactory()
     addAlias("three-body", "threebody");
     addAlias("three-body", "three_body");
 
-    // register three-body reactions
+    // register three-body reactions (old framework)
     reg("three-body-old", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ThreeBodyReaction();
         if (node.hasKey("equation")) {
@@ -72,19 +73,21 @@ ReactionFactory::ReactionFactory()
     addAlias("chemically-activated", "chemact");
     addAlias("chemically-activated", "chemically_activated");
 
-    // register pressure-depdendent-Arrhenius reactions
-    reg("pressure-dependent-Arrhenius-new", [](const AnyMap& node, const Kinetics& kin) {
+    // register pressure-dependent-Arrhenius reactions
+    reg("pressure-dependent-Arrhenius", [](const AnyMap& node, const Kinetics& kin) {
         return new PlogReaction3(node, kin);
     });
-    reg("pressure-dependent-Arrhenius", [](const AnyMap& node, const Kinetics& kin) {
+    addAlias("pressure-dependent-Arrhenius", "plog");
+    addAlias("pressure-dependent-Arrhenius", "pdep_arrhenius");
+
+    // register pressure-dependent-Arrhenius reactions (old framework)
+    reg("pressure-dependent-Arrhenius-old", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new PlogReaction();
         if (node.hasKey("equation")) {
             setupPlogReaction(*(PlogReaction*)R, node, kin);
         }
         return R;
     });
-    addAlias("pressure-dependent-Arrhenius", "plog");
-    addAlias("pressure-dependent-Arrhenius", "pdep_arrhenius");
 
     // register Chebyshev reactions
     reg("Chebyshev", [](const AnyMap& node, const Kinetics& kin) {
@@ -187,13 +190,14 @@ ReactionFactoryXML::ReactionFactoryXML()
     addAlias("chemically-activated", "chemically_activated");
 
     // register pressure-depdendent-Arrhenius reactions
-    reg("pressure-dependent-Arrhenius", [](const XML_Node& node) {
+    reg("pressure-dependent-Arrhenius-old", [](const XML_Node& node) {
         Reaction* R = new PlogReaction();
         setupPlogReaction(*(PlogReaction*)R, node);
         return R;
     });
-    addAlias("pressure-dependent-Arrhenius", "plog");
-    addAlias("pressure-dependent-Arrhenius", "pdep_arrhenius");
+    addAlias("pressure-dependent-Arrhenius-old", "pressure-dependent-Arrhenius");
+    addAlias("pressure-dependent-Arrhenius-old", "plog");
+    addAlias("pressure-dependent-Arrhenius-old", "pdep_arrhenius");
 
     // register Chebyshev reactions
     reg("Chebyshev", [](const XML_Node& node) {

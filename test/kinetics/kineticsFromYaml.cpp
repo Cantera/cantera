@@ -177,8 +177,8 @@ TEST(Reaction, PlogFromYaml)
         "- {P: 1.01325 MPa, A: 1.680000e+16, b: -0.6, Ea: 14754.0}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    auto PR = dynamic_cast<PlogReaction&>(*R);
-    const auto& rates = PR.rate.rates();
+    auto PR = dynamic_cast<PlogReaction3&>(*R);
+    const auto& rates = dynamic_cast<PlogRate&>(*PR.rate()).rates();
     EXPECT_EQ(rates.size(), (size_t) 4);
     EXPECT_NEAR(rates[0].first, 0.039474 * OneAtm, 1e-6);
     EXPECT_NEAR(rates[2].first, OneAtm, 1e-6);
@@ -521,10 +521,10 @@ TEST_F(ReactionToYaml, pdepArrhenius)
     soln = newSolution("pdep-test.yaml");
     soln->thermo()->setState_TPY(1000, 2e5, "R2:1, H:0.1, P2A:2, P2B:0.3");
     duplicateReaction(1);
-    EXPECT_TRUE(std::dynamic_pointer_cast<PlogReaction>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<PlogReaction3>(duplicate));
     compareReactions();
     soln->thermo()->setState_TPY(1100, 1e3, "R2:1, H:0.2, P2A:2, P2B:0.3");
-    compareReactions();
+    compareReactions(true);
 }
 
 TEST_F(ReactionToYaml, Chebyshev)

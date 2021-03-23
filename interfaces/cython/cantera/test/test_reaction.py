@@ -345,11 +345,11 @@ class TestPlog(TestReaction):
              {'P': 101325., 'rate-constant': {'A': 4.9108e+31, 'b': -4.8507, 'Ea': 103649395.2}},
              {'P': 1013250., 'rate-constant': {'A': 1.2866e+47, 'b': -9.0246, 'Ea': 166508556.0}},
              {'P': 10132500., 'rate-constant': {'A': 5.9632e+56, 'b': -11.529, 'Ea': 220076726.4}}]
-    _type = "pressure-dependent-Arrhenius"
+    _type = "pressure-dependent-Arrhenius-old"
     _index = 3
     _yaml = """
         equation: H2 + O2 <=> 2 OH  # Reaction 4
-        type: pressure-dependent-Arrhenius
+        type: pressure-dependent-Arrhenius-old
         rate-constants:
         - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04 cal/mol}
         - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04 cal/mol}
@@ -365,19 +365,16 @@ class TestPlog3(TestPlog):
                              (101325., ct.Arrhenius(4.9108e+31, -4.8507, 103649395.2)),
                              (1013250., ct.Arrhenius(1.2866e+47, -9.0246, 166508556.0)),
                              (10132500., ct.Arrhenius(5.9632e+56, -11.529, 220076726.4))])
-    _type = "pressure-dependent-Arrhenius-new"
+    _type = "pressure-dependent-Arrhenius"
     _yaml = """
         equation: H2 + O2 <=> 2 OH  # Reaction 4
-        type: pressure-dependent-Arrhenius-new
+        type: pressure-dependent-Arrhenius
         rate-constants:
         - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04 cal/mol}
         - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04 cal/mol}
         - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
         - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
     """
-
-    def test_from_yaml(self):
-        pass
 
 
 class TestChebyshev(TestReaction):

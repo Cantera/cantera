@@ -896,7 +896,7 @@ cdef class PlogReaction(Reaction):
     A pressure-dependent reaction parameterized by logarithmically interpolating
     between Arrhenius rate expressions at various pressures.
     """
-    reaction_type = "pressure-dependent-Arrhenius"
+    reaction_type = "pressure-dependent-Arrhenius-old"
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
                  init=True, **kwargs):
@@ -1302,7 +1302,7 @@ cdef class PlogReaction3(Reaction):
     A pressure-dependent reaction parameterized by logarithmically interpolating
     between Arrhenius rate expressions at various pressures.
     """
-    reaction_type = "pressure-dependent-Arrhenius-new"
+    reaction_type = "pressure-dependent-Arrhenius"
 
     cdef CxxPlogReaction3* pr(self):
         return <CxxPlogReaction3*>self.reaction
