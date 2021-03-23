@@ -908,7 +908,8 @@ bool PlogReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 void PlogReaction3::validate()
 {
     Reaction3::validate();
-    std::dynamic_pointer_cast<PlogRate>(m_rate)->validate(equation());
+    //std::dynamic_pointer_cast<PlogRate>(m_rate)->validate(equation());
+    m_rate->validate(equation());
 }
 
 CustomFunc1Reaction::CustomFunc1Reaction()
