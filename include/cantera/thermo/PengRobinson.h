@@ -134,9 +134,17 @@ public:
      * @param b    species-specific coefficients used in P-R EoS
      * @param w    the acentric factor
      */
-
     virtual void calculateAlpha(const std::string& species, double a, double b, double w);
 
+    //! Calculate species-specific critical temperature
+    /*!
+     *  The temperature dependent parameter in P-R EoS is calculated as
+     *       \f$ T_{crit} = (0.0778 a)/(0.4572 b R) \f$
+     *  Units: Kelvin
+     *
+     * @param a    species-specific coefficients used in P-R EoS
+     * @param b    species-specific coefficients used in P-R EoS
+     */
     virtual double speciesCritTemperature(double a, double b) const;
 
     //@}
@@ -204,7 +212,16 @@ protected:
 
     // Special functions not inherited from MixtureFugacityTP
 
+    //! Calculate temperature derivative d(a*alpha)/dT
+    /*!
+     *  These are stored internally.
+     */
     double daAlpha_dT() const;
+
+    //! Calculate second derivative d2(a*alpha)/dT2
+    /*!
+     *  These are stored internally.
+     */
     double d2aAlpha_dT2() const;
 
 public:
