@@ -205,7 +205,6 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
     double* dYdt = ydot + 3;
 
     evalWalls(time);
-    applySensitivity(params);
     m_thermo->restoreState(m_state);
     double mdot_surf = evalSurfaces(time, ydot + m_nsp + 3);
     dmdt += mdot_surf; // mass added to gas phase from surface reactions
@@ -261,7 +260,6 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
     }
 
     ydot[0] = dmdt;
-    resetSensitivity(params);
 }
 
 void Reactor::evalWalls(double t)

@@ -66,7 +66,6 @@ void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,
     double* dYdt = ydot + 2;
 
     evalWalls(time);
-    applySensitivity(params);
 
     m_thermo->restoreState(m_state);
     double mdot_surf = evalSurfaces(time, ydot + m_nsp + 2);
@@ -114,9 +113,6 @@ void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,
     } else {
         ydot[1] = 0.0;
     }
-
-    // reset sensitivity parameters
-    resetSensitivity(params);
 }
 
 size_t ConstPressureReactor::componentIndex(const string& nm) const

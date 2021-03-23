@@ -159,13 +159,13 @@ public:
     //! @param limit value for step size limit
     void setAdvanceLimit(const std::string& nm, const double limit);
 
-protected:
     //! Set reaction rate multipliers based on the sensitivity variables in
     //! *params*.
     virtual void applySensitivity(double* params);
     //! Reset the reaction rate multipliers
     virtual void resetSensitivity(double* params);
 
+protected:
     //! Return the index in the solution vector for this reactor of the species
     //! named *nm*, in either the homogeneous phase or a surface phase, relative
     //! to the start of the species terms. Used to implement componentIndex for
