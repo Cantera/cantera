@@ -913,33 +913,6 @@ class TestThermo(utilities.CanteraTest):
         self.assertNear(np.dot(g.standard_gibbs_RT, g.X) - Smix_R,
                         g.gibbs_mole / (R*g.T))
 
-class TestPengRobinsonPhase(utilities.CanteraTest):
-    def setUp(self):
-        self.gas = ct.Solution('co2_PR_example.yaml','CO2-PR')
-
-    def test_setSV(self):
-        """
-        Set state in terms of (s,v) 
-        """
-        self.gas.TPX = 350, 20e5, 'CO2:2.0, H2O:1.0'
-        s1, v1 = self.gas.SV
-        self.gas.SV = s1, 2 * v1
-
-        self.assertNear(self.gas.s, s1)
-        self.assertNear(self.gas.v, 2 * v1)  
-
-    def test_setHP(self):
-        """
-        Set state in terms of (H,p) 
-        """
-        self.gas.TPX = 350, 20e5, 'CO2:2.0, H2O:1.0'
-        deltaH = 1.25e5
-        h1, p1 = self.gas.HP
-        self.gas.HP = h1 - deltaH, None
-
-        self.assertNear(self.gas.h, h1 - deltaH)
-        self.assertNear(self.gas.P, p1)
-
 class TestInterfacePhase(utilities.CanteraTest):
     def setUp(self):
         self.gas = ct.Solution('diamond.xml', 'gas')
