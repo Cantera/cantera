@@ -356,6 +356,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxReactionRateBase "Cantera::ReactionRateBase":
         CxxReactionRateBase()
         string type()
+        void update(double) except +translate_exception
+        void update(double, double) except +translate_exception
         double eval(double) except +translate_exception
         double eval(double, double) except +translate_exception
         double ddT(double) except +translate_exception
@@ -371,6 +373,11 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double preExponentialFactor()
         double temperatureExponent()
         double activationEnergy()
+
+    cdef cppclass CxxPlogRate "Cantera::PlogRate" (CxxReactionRateBase):
+        CxxPlogRate()
+        CxxPlogRate(multimap[double, CxxArrhenius])
+        vector[pair[double, CxxArrhenius]] rates()
 
     cdef cppclass CxxReaction "Cantera::Reaction":
         CxxReaction()
@@ -466,6 +473,9 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxThreeBodyReaction3 "Cantera::ThreeBodyReaction3" (CxxElementaryReaction3):
         CxxThreeBodyReaction3()
         shared_ptr[CxxThirdBody] thirdBody()
+
+    cdef cppclass CxxPlogReaction3 "Cantera::PlogReaction3" (CxxReaction3):
+        CxxPlogReaction3()
 
     cdef cppclass CxxCustomFunc1Reaction "Cantera::CustomFunc1Reaction" (CxxReaction3):
         CxxCustomFunc1Reaction()
@@ -1130,6 +1140,11 @@ cdef class CustomRate(_ReactionRate):
 
 cdef class ArrheniusRate(_ReactionRate):
     cdef CxxArrheniusRate* rate
+    @staticmethod
+    cdef wrap(shared_ptr[CxxReactionRateBase])
+
+cdef class PlogRate(_ReactionRate):
+    cdef CxxPlogRate* rate
     @staticmethod
     cdef wrap(shared_ptr[CxxReactionRateBase])
 
