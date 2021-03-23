@@ -108,9 +108,17 @@ public:
      * @param[in] y solution vector, length neq()
      * @param[out] ydot rate of change of solution vector, length neq()
      * @param[in] params sensitivity parameter vector, length ReactorNet::nparams()
+     * @deprecated Replaced by eval(double t, double* ydot). To be removed after
+     *     Cantera 2.6.
      */
-    virtual void evalEqs(doublereal t, doublereal* y,
-                         doublereal* ydot, doublereal* params);
+    virtual void evalEqs(double t, double* y, double* ydot, double* params) {
+        throw NotImplementedError("Reactor::evalEqs", "Deprecated");
+    }
+
+    //! Evaluate the reactor governing equations. Called by ReactorNet::eval.
+    //! @param[in] t time.
+    //! @param[out] ydot rate of change of solution vector, length neq()
+    virtual void eval(double t, double* ydot);
 
     virtual void syncState();
 

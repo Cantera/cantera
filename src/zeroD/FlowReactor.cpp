@@ -78,8 +78,7 @@ void FlowReactor::setMassFlowRate(double mdot)
     m_h0 = m_thermo->enthalpy_mass() + 0.5*m_speed*m_speed;
 }
 
-void FlowReactor::evalEqs(doublereal time, doublereal* y,
-                          doublereal* ydot, doublereal* params)
+void FlowReactor::eval(double time, double* ydot)
 {
     m_thermo->restoreState(m_state);
 

@@ -21,7 +21,7 @@ ReactorNet::ReactorNet() :
     m_nv(0), m_rtol(1.0e-9), m_rtolsens(1.0e-4),
     m_atols(1.0e-15), m_atolsens(1.0e-6),
     m_maxstep(0.0), m_maxErrTestFails(0),
-    m_verbose(false)
+    m_verbose(false), m_checked_eval_deprecation(false)
 {
     suppressErrors(true);
 
@@ -255,10 +255,33 @@ void ReactorNet::eval(doublereal t, doublereal* y,
 {
     m_time = t; // This will be replaced at the end of the timestep
     updateState(y);
-    for (size_t n = 0; n < m_reactors.size(); n++) {
-        m_reactors[n]->applySensitivity(p);
-        m_reactors[n]->evalEqs(t, y + m_start[n], ydot + m_start[n], p);
-        m_reactors[n]->resetSensitivity(p);
+    if (!m_checked_eval_deprecation) {
+        m_have_deprecated_eval.assign(m_reactors.size(), false);
+        for (size_t n = 0; n < m_reactors.size(); n++) {
+            m_reactors[n]->applySensitivity(p);
+            try {
+                m_reactors[n]->evalEqs(t, y + m_start[n], ydot + m_start[n], p);
+                warn_deprecated(m_reactors[n]->type() +
+                    "::evalEqs(double t, double* y , double* ydot, double* params)",
+                    "Reactor time derivative evaluation now uses signature "
+                    "eval(double t, double* ydot)");
+                m_have_deprecated_eval[n] = true;
+            } catch (NotImplementedError& err) {
+                m_reactors[n]->eval(t, ydot + m_start[n]);
+            }
+            m_reactors[n]->resetSensitivity(p);
+        }
+        m_checked_eval_deprecation = true;
+    } else {
+        for (size_t n = 0; n < m_reactors.size(); n++) {
+            m_reactors[n]->applySensitivity(p);
+            if (m_have_deprecated_eval[n]) {
+                m_reactors[n]->evalEqs(t, y + m_start[n], ydot + m_start[n], p);
+            } else {
+                m_reactors[n]->eval(t, ydot + m_start[n]);
+            }
+            m_reactors[n]->resetSensitivity(p);
+        }
     }
     checkFinite("ydot", ydot, m_nv);
 }

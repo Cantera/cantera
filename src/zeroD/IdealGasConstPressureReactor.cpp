@@ -66,8 +66,7 @@ void IdealGasConstPressureReactor::updateState(doublereal* y)
     updateConnected(false);
 }
 
-void IdealGasConstPressureReactor::evalEqs(doublereal time, doublereal* y,
-                                   doublereal* ydot, doublereal* params)
+void IdealGasConstPressureReactor::eval(double time, double* ydot)
 {
     double dmdt = 0.0; // dm/dt (gas phase)
     double mcpdTdt = 0.0; // m * c_p * dT/dt

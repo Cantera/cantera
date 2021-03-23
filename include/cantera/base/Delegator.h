@@ -47,14 +47,14 @@ public:
             " for void(array<size_t, 1>, double*)");
     }
 
-    // For functions with the signature void(double, double*, double*, double*)
+    // For functions with the signature void(double, double*)
     virtual void setDelegate(
         const std::string& name,
-        const std::function<void(std::array<size_t, 3>, double, double*, double*, double*)>& func,
+        const std::function<void(std::array<size_t, 1>, double, double*)>& func,
         const std::string& when)
     {
         throw NotImplementedError("Delegator::setDelegate"
-            " for void(array<size_t, 3>, double, double*, double*, double*)");
+            " for void(array<size_t, 1>, double, double*)");
     }
 
     // For functions with the signature double(double, double*)

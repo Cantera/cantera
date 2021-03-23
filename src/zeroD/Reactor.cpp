@@ -198,8 +198,7 @@ void Reactor::updateConnected(bool updatePressure) {
     }
 }
 
-void Reactor::evalEqs(doublereal time, doublereal* y,
-                      doublereal* ydot, doublereal* params)
+void Reactor::eval(double time, double* ydot)
 {
     double dmdt = 0.0; // dm/dt (gas phase)
     double* dYdt = ydot + 3;

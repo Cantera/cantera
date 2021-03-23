@@ -399,7 +399,7 @@ cdef class DelegatedReactor(Reactor):
         'update_surface_state': ('updateSurfaceState', 'v_dp'),
         'get_surface_initial_condition': ('getSurfaceInitialCondition', 'v_dp'),
         'update_connected': ('updateConnected', 'v_b'),
-        'eval': ('evalEqs', 'v_d_dp_dp_dp'),
+        'eval': ('eval', 'v_d_dp'),
         'eval_walls': ('evalWalls', 'v_d'),
         'eval_surfaces': ('evalSurfaces', 'i_dr_d_dp'),
         'component_name': ('componentName', 'i_sr_z'),

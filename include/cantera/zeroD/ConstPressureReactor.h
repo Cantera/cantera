@@ -37,8 +37,7 @@ public:
     virtual void getState(doublereal* y);
 
     virtual void initialize(doublereal t0 = 0.0);
-    virtual void evalEqs(doublereal t, doublereal* y,
-                         doublereal* ydot, doublereal* params);
+    virtual void eval(double t, double* ydot);
 
     virtual void updateState(doublereal* y);
 

@@ -36,14 +36,12 @@ cdef void callback_v_dp(PyFuncInfo& funcInfo, size_array1 sizes, double* arg):
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
 
-cdef void callback_v_d_dp_dp_dp(PyFuncInfo& funcInfo, size_array3 sizes, double arg1,
-                                double* arg2, double* arg3, double* arg4):
-    cdef double[:] view2 = <double[:sizes[0]]>arg2 if sizes[0] else None
-    cdef double[:] view3 = <double[:sizes[1]]>arg3 if sizes[1] else None
-    cdef double[:] view4 = <double[:sizes[2]]>arg4 if sizes[2] else None
+cdef void callback_v_d_dp(PyFuncInfo& funcInfo, size_array1 sizes, double arg1,
+                                double* arg2):
+    cdef double[:] view = <double[:sizes[0]]>arg2 if sizes[0] else None
 
     try:
-        (<object>funcInfo.func())(arg1, view2, view3, view4)
+        (<object>funcInfo.func())(arg1, view)
     except BaseException as e:
         exc_type, exc_value = sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
@@ -143,9 +141,9 @@ cdef void assign_delegates(obj, CxxDelegator* delegator):
         if callback == 'v_b':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_b), cxx_when)
-        if callback == 'v_d_dp_dp_dp':
+        if callback == 'v_d_dp':
             delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_v_d_dp_dp_dp), cxx_when)
+                pyOverride(<PyObject*>method, callback_v_d_dp), cxx_when)
         if callback == 'i_dr_d_dp':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_i_dr_d_dp), cxx_when)
