@@ -433,14 +433,18 @@ cdef class _ReactionRate:
 
     def __call__(self, double temperature, pressure=None):
         if pressure:
+            self.base.update(temperature, pressure)
             return self.base.eval(temperature, pressure)
         else:
+            self.base.update(temperature)
             return self.base.eval(temperature)
 
     def ddT(self, double temperature, pressure=None):
         if pressure:
+            self.base.update(temperature, pressure)
             return self.base.ddT(temperature, pressure)
         else:
+            self.base.update(temperature)
             return self.base.ddT(temperature)
 
 
@@ -533,6 +537,54 @@ cdef class ArrheniusRate(_ReactionRate):
         """
         def __get__(self):
             return self.rate.activationEnergy()
+
+
+cdef class PlogRate(_ReactionRate):
+    r"""
+    """
+    def __cinit__(self, rates=None, init=True):
+
+        if rates and init:
+            self.rates = rates
+
+    @staticmethod
+    cdef wrap(shared_ptr[CxxReactionRateBase] rate):
+        """
+        Wrap a C++ ReactionRateBase object with a Python object.
+        """
+        # wrap C++ reaction
+        cdef PlogRate arr
+        arr = PlogRate(init=False)
+        arr._base = rate
+        arr.base = arr._base.get()
+        arr.rate = <CxxPlogRate*>(arr.base)
+        return arr
+
+    property rates:
+        """
+        Get/Set the rate coefficients for this reaction, which are given as a
+        list of (pressure, `Arrhenius`) tuples.
+        """
+        def __get__(self):
+            rates = []
+            cdef vector[pair[double, CxxArrhenius]] cxxrates = self.rate.rates()
+            cdef pair[double, CxxArrhenius] p_rate
+            for p_rate in cxxrates:
+                rates.append((p_rate.first, copyArrhenius(&p_rate.second)))
+            return rates
+
+        def __set__(self, rates):
+            cdef multimap[double, CxxArrhenius] ratemap
+            cdef Arrhenius rate
+            cdef pair[double, CxxArrhenius] item
+            for p, rate in rates:
+                item.first = p
+                item.second = deref(rate.rate)
+                ratemap.insert(item)
+
+            self._base.reset(new CxxPlogRate(ratemap))
+            self.base = self._base.get()
+            self.rate = <CxxPlogRate*>(self.base)
 
 
 cdef class ElementaryReaction(Reaction):
@@ -1243,6 +1295,57 @@ cdef class ThreeBodyReaction3(ElementaryReaction3):
         the default efficiency and species-specific efficiencies.
         """
         return self.thirdbody().efficiency(stringify(species))
+
+
+cdef class PlogReaction3(Reaction):
+    """
+    A pressure-dependent reaction parameterized by logarithmically interpolating
+    between Arrhenius rate expressions at various pressures.
+    """
+    reaction_type = "pressure-dependent-Arrhenius-new"
+
+    cdef CxxPlogReaction3* pr(self):
+        return <CxxPlogReaction3*>self.reaction
+
+    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
+                 init=True, **kwargs):
+
+        if init and equation and kinetics:
+
+            spec = {'equation': equation, 'type': self.reaction_type}
+            if isinstance(rate, list):
+                spec['rate-constants'] = []
+                for r in rate:
+                    spec['rate-constants'].append({'P': r['P'], **r['rate-constant']})
+            elif isinstance(rate, PlogRate) or rate is None:
+                spec['rate-constants'] = [
+                    {"P": 1, **dict.fromkeys(['A', 'b', 'Ea'], 0.)},
+                    {"P": 1e7, **dict.fromkeys(['A', 'b', 'Ea'], 0.)}]
+            else:
+                raise TypeError("Invalid rate definition")
+
+            self._reaction = CxxNewReaction(dict_to_anymap(spec),
+                                            deref(kinetics.kinetics))
+            self.reaction = self._reaction.get()
+
+            if isinstance(rate, PlogRate):
+                self.rate = rate
+
+    property rate:
+        """ Get/Set the `Plog` rate coefficients for this reaction. """
+        def __get__(self):
+            return PlogRate.wrap(self.pr().rate())
+        def __set__(self, PlogRate rate):
+            self.pr().setRate(rate._base)
+
+    def __call__(self, float T, float P):
+        cdef CxxPlogReaction* r = <CxxPlogReaction*>self.reaction
+        cdef double logT = np.log(T)
+        cdef double recipT = 1/T
+        cdef double logP = np.log(P)
+
+        r.rate.update_C(&logP)
+        return r.rate.updateRC(logT, recipT)
 
 
 cdef class CustomReaction(Reaction):

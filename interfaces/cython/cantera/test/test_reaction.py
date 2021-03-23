@@ -150,7 +150,11 @@ class TestReaction(utilities.CanteraTest):
     def test_rate(self):
         if self._rate_obj is None:
             return
-        self.assertNear(self._rate_obj(self.gas.T), self.gas.forward_rate_constants[self._index])
+        if type(self._rate_obj).__name__.endswith('Rate'):
+            self.assertNear(self._rate_obj(self.gas.T, self.gas.P),
+                        self.gas.forward_rate_constants[self._index])
+        else:
+            self.assertNear(self._rate_obj(self.gas.T), self.gas.forward_rate_constants[self._index])
 
     def test_from_parts(self):
         if self._cls is None or not hasattr(self._cls, 'rate'):
@@ -199,7 +203,10 @@ class TestReaction(utilities.CanteraTest):
         if self._cls is None or not hasattr(self._cls, 'rate'):
             return
         rxn = self._cls(equation=self._equation, kinetics=self.gas, **self._kwargs)
-        self.assertNear(rxn.rate(self.gas.T), 0.)
+        if type(self._rate_obj).__name__.endswith('Rate'):
+            self.assertNear(rxn.rate(self.gas.T, self.gas.P), 0.)
+        else:
+            self.assertNear(rxn.rate(self.gas.T), 0.)
 
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                            species=self.species, reactions=[rxn])
@@ -349,6 +356,28 @@ class TestPlog(TestReaction):
         - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
         - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
     """
+
+
+class TestPlog3(TestPlog):
+
+    _cls = ct.PlogReaction3
+    _rate_obj = ct.PlogRate([(1013.25, ct.Arrhenius(1.2124e+16, -0.5779, 45491376.8)),
+                             (101325., ct.Arrhenius(4.9108e+31, -4.8507, 103649395.2)),
+                             (1013250., ct.Arrhenius(1.2866e+47, -9.0246, 166508556.0)),
+                             (10132500., ct.Arrhenius(5.9632e+56, -11.529, 220076726.4))])
+    _type = "pressure-dependent-Arrhenius-new"
+    _yaml = """
+        equation: H2 + O2 <=> 2 OH  # Reaction 4
+        type: pressure-dependent-Arrhenius-new
+        rate-constants:
+        - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04 cal/mol}
+        - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04 cal/mol}
+        - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
+        - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
+    """
+
+    def test_from_yaml(self):
+        pass
 
 
 class TestChebyshev(TestReaction):
