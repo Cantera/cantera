@@ -49,7 +49,7 @@ public:
 
     //! Update data common to reaction rates of a specific type
     //! @param bulk  object representing bulk phase
-    virtual void update(const ThermoPhase& bulk) = 0;
+    virtual void update(const ThermoPhase& bulk, double* concm) = 0;
 };
 
 
@@ -92,15 +92,15 @@ public:
         }
     }
 
-    virtual void update(const ThermoPhase& bulk) override {
+    virtual void update(const ThermoPhase& bulk, double* concm) override {
         // update common data once for each reaction type
         m_shared.update(bulk);
         if (RateType::uses_update()) {
             // update reaction-specific data for each reaction. This loop
             // is efficient as all function calls are de-virtualized, and
             // all of the rate objects are contiguous in memory
-            for (auto& rate : m_rates) {
-                rate.update(m_shared, bulk);
+            for (size_t i = 0; i < m_rates.size(); i++) {
+                m_rates[i].update(m_shared, concm[m_rxn[i]]);
             }
         }
     }

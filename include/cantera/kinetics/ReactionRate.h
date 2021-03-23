@@ -56,6 +56,21 @@ public:
     //! Identifier of reaction type
     virtual std::string type() const = 0;
 
+    //! Update reaction rate data based on temperature
+    //! @param T  temperature [K]
+    virtual void update(double T) = 0;
+
+    //! Update reaction rate data based on temperature and pressure
+    //! @param T  temperature [K]
+    //! @param P  pressure [Pa]
+    //! @param concm  third-body concentration (if applicable)
+    virtual void update(double T, double P, double concm=0.) = 0;
+
+    //! Update reaction rate data based on bulk phase
+    //! @param bulk  object representing bulk phase
+    //! @param concm  third-body concentration (if applicable)
+    virtual void update(const ThermoPhase& bulk, double concm=0.) = 0;
+
     //! Evaluate reaction rate based on temperature
     //! @param T  temperature [K]
     virtual double eval(double T) const = 0;
@@ -63,7 +78,8 @@ public:
     //! Evaluate reaction rate based on temperature and pressure
     //! @param T  temperature [K]
     //! @param P  pressure [Pa]
-    virtual double eval(double T, double P) const = 0;
+    //! @param concm  third-body concentration (if applicable)
+    virtual double eval(double T, double P, double concm=0.) const = 0;
 
     //! Evaluate reaction rate based on bulk phase
     //! @param bulk  object representing bulk phase
@@ -99,7 +115,21 @@ public:
 
     //! Update information specific to reaction
     //! @param shared_data  data shared by all reactions of a given type
-    virtual void update(const DataType& shared_data, const ThermoPhase& bulk) {}
+    virtual void update(const DataType& shared_data,
+                        double concm=0.) {}
+
+    virtual void update(double T) override {
+        update(DataType(T));
+    }
+
+    virtual void update(double T, double P, double concm=0.) override {
+        update(DataType(T, P), concm);
+    }
+
+    virtual void update(const ThermoPhase& bulk, double concm=0.) override {
+        update(DataType(bulk), concm);
+    }
+
 
     //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
@@ -110,8 +140,8 @@ public:
         return eval(DataType(T));
     }
 
-    virtual double eval(double T, double P) const override {
-        return eval(DataType(T, P));
+    virtual double eval(double T, double P, double concm=0.) const override {
+        return eval(DataType(T, P), concm);
     }
 
     virtual double eval(const ThermoPhase& bulk, double concm=0.) const override {
@@ -233,8 +263,7 @@ public:
     //! Update information specific to reaction
     static bool uses_update() { return true; }
 
-    virtual void update(const PlogData& shared_data,
-                        const ThermoPhase& bulk) override {
+    virtual void update(const PlogData& shared_data, double concm=0.) override {
         update_C(shared_data.logP());
     }
 
