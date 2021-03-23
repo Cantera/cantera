@@ -146,11 +146,16 @@ void SurfaceArrhenius::addCoverageDependence(size_t k, doublereal a,
     }
 }
 
-Plog::Plog(const std::multimap<double, Arrhenius>& rates)
+Plog::Plog()
     : logP_(-1000)
     , logP1_(1000)
     , logP2_(-1000)
     , rDeltaP_(-1.0)
+{
+}
+
+Plog::Plog(const std::multimap<double, Arrhenius>& rates)
+    : Plog()
 {
     setup(rates);
 }
@@ -212,7 +217,7 @@ void Plog::validate(const std::string& equation)
         for (size_t i=0; i < 6; i++) {
             double k = 0;
             for (size_t p = ilow1_; p < ilow2_; p++) {
-                k += rates_[p].updateRC(log(T[i]), 1.0/T[i]);
+                k += rates_.at(p).updateRC(log(T[i]), 1.0/T[i]);
             }
             if (k < 0) {
                 format_to(err_reactions,
@@ -242,7 +247,6 @@ std::vector<std::pair<double, Arrhenius> > Plog::rates() const
     }
     return R;
 }
-
 
 ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
                              const Array2D& coeffs)

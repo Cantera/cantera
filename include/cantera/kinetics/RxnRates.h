@@ -324,7 +324,7 @@ class Plog
 {
 public:
     //! Default constructor.
-    Plog() {}
+    Plog();
 
     //! Constructor from Arrhenius rate expressions at a set of pressures
     explicit Plog(const std::multimap<double, Arrhenius>& rates);
