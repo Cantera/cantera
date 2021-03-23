@@ -11,11 +11,15 @@ namespace Cantera
 {
 
 ArrheniusRate::ArrheniusRate()
-    : Arrhenius() {
+    : Arrhenius()
+    , allow_negative_pre_exponential_factor(false)
+{
 }
 
 ArrheniusRate::ArrheniusRate(double A, double b, double E)
-    : Arrhenius(A, b, E / GasConstant) {
+    : Arrhenius(A, b, E / GasConstant)
+    , allow_negative_pre_exponential_factor(false)
+{
 }
 
 ArrheniusRate::ArrheniusRate(const AnyMap& node, const Units& rate_units) {
@@ -23,6 +27,7 @@ ArrheniusRate::ArrheniusRate(const AnyMap& node, const Units& rate_units) {
 }
 
 bool ArrheniusRate::setParameters(const AnyMap& node, const Units& rate_units) {
+    allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
     if (!node.hasKey("rate-constant")) {
         return false;
     }
@@ -33,6 +38,14 @@ bool ArrheniusRate::setParameters(const AnyMap& node, const Units& rate_units) {
 void ArrheniusRate::getParameters(AnyMap& rateNode,
                                   const Units& rate_units) const {
     Arrhenius::getParameters(rateNode, rate_units);
+}
+
+void ArrheniusRate::validate(const std::string& equation) {
+    if (!allow_negative_pre_exponential_factor && preExponentialFactor() < 0) {
+        throw CanteraError("ArrheniusRate::validate",
+            "Undeclared negative pre-exponential factor found in reaction '"
+            + equation + "'");
+    }
 }
 
 PlogRate::PlogRate()

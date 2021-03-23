@@ -373,6 +373,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double preExponentialFactor()
         double temperatureExponent()
         double activationEnergy()
+        cbool allow_negative_pre_exponential_factor
 
     cdef cppclass CxxPlogRate "Cantera::PlogRate" (CxxReactionRateBase):
         CxxPlogRate()
@@ -468,7 +469,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
 
     cdef cppclass CxxElementaryReaction3 "Cantera::ElementaryReaction3" (CxxReaction3):
         CxxElementaryReaction3()
-        cbool allow_negative_pre_exponential_factor
 
     cdef cppclass CxxThreeBodyReaction3 "Cantera::ThreeBodyReaction3" (CxxElementaryReaction3):
         CxxThreeBodyReaction3()

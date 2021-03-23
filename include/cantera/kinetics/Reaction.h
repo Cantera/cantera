@@ -179,6 +179,8 @@ public:
         return m_third_body;
     }
 
+    virtual void validate();
+
 protected:
     //! Reaction rate used by generic reactions
     shared_ptr<ReactionRateBase> m_rate;
@@ -376,10 +378,6 @@ public:
 
     virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
-
-    virtual void validate();
-
-    bool allow_negative_pre_exponential_factor;
 };
 
 
@@ -427,8 +425,6 @@ public:
 
     virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
-
-    virtual void validate();
 };
 
 

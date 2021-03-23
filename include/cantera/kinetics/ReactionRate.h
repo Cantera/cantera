@@ -225,7 +225,9 @@ public:
         return m_E * GasConstant;
     }
 
-    virtual void validate(const std::string& equation) {}
+    virtual void validate(const std::string& equation);
+
+    bool allow_negative_pre_exponential_factor;
 };
 
 
