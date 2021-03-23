@@ -36,11 +36,11 @@ PengRobinson::PengRobinson(const std::string& infile, const std::string& id_) :
     initThermoFile(infile, id_);
 }
 
-void PengRobinson::calculateAlpha(const std::string& species, double a, double b, double w)
-{
+void PengRobinson::setSpeciesCoeffs(const std::string& species, double a, double b, double w)
+{   
     size_t k = speciesIndex(species);
     if (k == npos) {
-        throw CanteraError("PengRobinson::calculateAlpha",
+        throw CanteraError("PengRobinson::setSpeciesCoeffs",
             "Unknown species '{}'.", species);
     }
 
@@ -57,20 +57,8 @@ void PengRobinson::calculateAlpha(const std::string& species, double a, double b
     double sqt_T_r = sqrt(temperature() / critTemp);
     double sqt_alpha = 1 + m_kappa_vec[k] * (1 - sqt_T_r);
     m_alpha_vec_Curr[k] = sqt_alpha*sqt_alpha;
-}
-
-void PengRobinson::setSpeciesCoeffs(const std::string& species, double a, double b, double w)
-{
-    //Calculate alpha for the given species
-    calculateAlpha(species, a, b, w);
     
-    size_t k = speciesIndex(species);
-    if (k == npos) {
-        throw CanteraError("PengRobinson::setSpeciesCoeffs",
-            "Unknown species '{}'.", species);
-    }
     m_a_vec_Curr(k,k) = a;
-    // we store this locally because it is used below to calculate a_Alpha:
     double aAlpha_k = a*m_alpha_vec_Curr[k];
     m_aAlpha_vec_Curr(k,k) = aAlpha_k;
 
