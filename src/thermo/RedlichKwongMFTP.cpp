@@ -711,7 +711,7 @@ doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGu
     bool foundLiq = false;
     int m = 0;
     while (m < 100 && !foundLiq) {
-        int nsol = CubicCall(TKelvin, pres, atmp, btmp, Vroot);
+        int nsol = solveCubic(TKelvin, pres, atmp, btmp, Vroot);
         if (nsol == 1 || nsol == 2) {
             double pc = critPressure();
             if (pres > pc) {
@@ -750,7 +750,7 @@ doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, 
     
 
     doublereal volguess = mmw / rhoguess;
-    NSolns_ = CubicCall(TKelvin, presPa, m_a_current, m_b_current, Vroot_);
+    NSolns_ = solveCubic(TKelvin, presPa, m_a_current, m_b_current, Vroot_);
 
     doublereal molarVolLast = Vroot_[0];
     if (NSolns_ >= 2) {
@@ -790,7 +790,7 @@ doublereal RedlichKwongMFTP::densSpinodalLiquid() const
 {
     double Vroot[3];
     double T = temperature();
-    int nsol = CubicCall(T, pressure(), m_a_current, m_b_current, Vroot);
+    int nsol = solveCubic(T, pressure(), m_a_current, m_b_current, Vroot);
     if (nsol != 3) {
         return critDensity();
     }
@@ -812,7 +812,7 @@ doublereal RedlichKwongMFTP::densSpinodalGas() const
 {
     double Vroot[3];
     double T = temperature();
-    int nsol = CubicCall(T, pressure(), m_a_current, m_b_current, Vroot);
+    int nsol = solveCubic(T, pressure(), m_a_current, m_b_current, Vroot);
     if (nsol != 3) {
         return critDensity();
     }
@@ -995,7 +995,7 @@ void RedlichKwongMFTP::calcCriticalConditions(doublereal& pc, doublereal& tc, do
     vc = omega_vc * GasConstant * tc / pc;
 }
 
-int RedlichKwongMFTP::CubicCall(double T, double pres, double a, double b, double Vroot[3]) const
+int RedlichKwongMFTP::solveCubic(double T, double pres, double a, double b, double Vroot[3]) const
 {
     
     // Derive the coefficients of the cubic polynomial to solve.
@@ -1011,7 +1011,7 @@ int RedlichKwongMFTP::CubicCall(double T, double pres, double a, double b, doubl
     double pc = omega_b * GasConstant * tc / b;
     double vc = omega_vc * GasConstant * tc / pc;
 
-    int nSolnValues = solveCubic(T, pres, a, b, a, Vroot, an, bn, cn, dn, tc, pc);
+    int nSolnValues = MixtureFugacityTP::solveCubic(T, pres, a, b, a, Vroot, an, bn, cn, dn, tc, pc);
     
     return nSolnValues;
 }
