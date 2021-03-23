@@ -313,7 +313,7 @@ protected:
      */
     mutable vector_fp m_dpdni;
 
-public:
+private:
     //! Omega constants: a0 (= omega_a) and b0 (= omega_b) values used in Peng-Robinson equation of state
     /*!
      *  These values are calculated by solving P-R cubic equation at the critical point.
