@@ -59,8 +59,7 @@ void ConstPressureReactor::updateState(doublereal* y)
     updateConnected(false);
 }
 
-void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,
-                                   doublereal* ydot, doublereal* params)
+void ConstPressureReactor::eval(double time, double* ydot)
 {
     double dmdt = 0.0; // dm/dt (gas phase)
     double* dYdt = ydot + 2;
