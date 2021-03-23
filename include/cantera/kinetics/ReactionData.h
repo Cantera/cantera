@@ -48,6 +48,45 @@ struct ArrheniusData
 };
 
 
+//! Data container holding shared data specific to PlogRate
+/**
+ * The data container `PlogData` holds precalculated data common to
+ * all `PlogRate` objects.
+ */
+struct PlogData
+{
+    PlogData() : m_temperature(1.), m_logT(0.), m_recipT(1.), m_logP(0.) {}
+
+    //! Constructor based on temperature *T* and pressure *P*
+    PlogData(double T);
+
+    //! Constructor based on temperature *T* and pressure *P*
+    PlogData(double T, double P) { update(T, P); };
+
+    //! Constructor accessing *bulk* phase definitions
+    PlogData(const ThermoPhase& bulk) { update(bulk); }
+
+    void update(double T);
+
+    void update(double T, double P) {
+        m_temperature = T;
+        m_logT = std::log(T);
+        m_recipT = 1./T;
+        m_logP = std::log(P);
+   }
+
+    void update(const ThermoPhase& bulk);
+
+    //! Pointer to logP (required by Plog::update_C)
+    const double* logP() const { return &m_logP; }
+
+    double m_temperature; //!< temperature
+    double m_logT; //!< logarithm of temperature
+    double m_recipT;  //!< inverse of temperature
+    double m_logP; //!< logarithm of pressure
+};
+
+
 //! Data container holding shared data specific to CustomFunc1Rate
 struct CustomFunc1Data
 {
