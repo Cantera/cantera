@@ -73,7 +73,6 @@ void IdealGasConstPressureReactor::evalEqs(doublereal time, doublereal* y,
     double mcpdTdt = 0.0; // m * c_p * dT/dt
     double* dYdt = ydot + 2;
 
-    applySensitivity(params);
     evalWalls(time);
 
     m_thermo->restoreState(m_state);
@@ -125,8 +124,6 @@ void IdealGasConstPressureReactor::evalEqs(doublereal time, doublereal* y,
     } else {
         ydot[1] = 0.0;
     }
-
-    resetSensitivity(params);
 }
 
 size_t IdealGasConstPressureReactor::componentIndex(const string& nm) const
