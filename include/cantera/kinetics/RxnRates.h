@@ -16,6 +16,7 @@ namespace Cantera
 
 class Array2D;
 class AnyValue;
+class AnyMap;
 class UnitSystem;
 class Units;
 class AnyMap;
@@ -329,7 +330,7 @@ public:
     explicit Plog(const std::multimap<double, Arrhenius>& rates);
 
     //! Run object setup based on AnyMap node information
-    void setParameters(const AnyValue& node,
+    void setParameters(const std::vector<AnyMap>& rates,
                        const UnitSystem& units, const Units& rate_units);
 
     void getParameters(AnyMap& rateNode, const Units& rate_units) const;

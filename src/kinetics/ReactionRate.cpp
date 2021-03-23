@@ -48,10 +48,11 @@ PlogRate::PlogRate(const AnyMap& node, const Units& rate_units) {
 }
 
 bool PlogRate::setParameters(const AnyMap& node, const Units& rate_units) {
-    if (!node.hasKey("rate-constant")) {
+    if (!node.hasKey("rate-constants")) {
         return false;
     }
-    Plog::setParameters(node["rate-constant"], node.units(), rate_units);
+    Plog::setParameters(node.at("rate-constants").asVector<AnyMap>(),
+                        node.units(), rate_units);
     return true;
 }
 

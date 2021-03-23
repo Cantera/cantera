@@ -73,6 +73,9 @@ ReactionFactory::ReactionFactory()
     addAlias("chemically-activated", "chemically_activated");
 
     // register pressure-depdendent-Arrhenius reactions
+    reg("pressure-dependent-Arrhenius-new", [](const AnyMap& node, const Kinetics& kin) {
+        return new PlogReaction3(node, kin);
+    });
     reg("pressure-dependent-Arrhenius", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new PlogReaction();
         if (node.hasKey("equation")) {

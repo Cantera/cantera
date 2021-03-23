@@ -19,7 +19,6 @@ namespace Cantera
 {
 
 class Func1;
-class AnyMap;
 
 
 //! Abstract base class for reaction rate definitions
