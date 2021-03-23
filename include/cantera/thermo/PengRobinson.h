@@ -123,19 +123,6 @@ public:
     virtual void getPartialMolarCp(double* cpbar) const;
     virtual void getPartialMolarVolumes(double* vbar) const;
 
-    //! Calculate the temperature dependent interaction parameter \f$\alpha\f$ needed for P-R EoS
-    /*!
-     *  The temperature dependent parameter in P-R EoS is calculated as
-     *       \f$ \alpha = [1 + \kappa(1 - \sqrt{T/T_{crit}})]^2  \f$
-     *  kappa is a function calculated based on the acentric factor.
-     *  Units: unitless
-     *
-     * @param a    species-specific coefficients used in P-R EoS
-     * @param b    species-specific coefficients used in P-R EoS
-     * @param w    the acentric factor
-     */
-    virtual void calculateAlpha(const std::string& species, double a, double b, double w);
-
     //! Calculate species-specific critical temperature
     /*!
      *  The temperature dependent parameter in P-R EoS is calculated as
