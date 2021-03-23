@@ -155,15 +155,15 @@ Plog::Plog(const std::multimap<double, Arrhenius>& rates)
     setup(rates);
 }
 
-void Plog::setParameters(const AnyValue& node,
+void Plog::setParameters(const std::vector<AnyMap>& rates,
                          const UnitSystem& units, const Units& rate_units)
 {
-    std::multimap<double, Arrhenius> rates;
-    for (const auto& rate : node["rate-constants"].asVector<AnyMap>()) {
-        rates.insert({rate.convert("P", "Pa"),
+    std::multimap<double, Arrhenius> multi_rates;
+    for (const auto& rate : rates) {
+        multi_rates.insert({rate.convert("P", "Pa"),
             Arrhenius(AnyValue(rate), units, rate_units)});
     }
-    setup(rates);
+    setup(multi_rates);
 }
 
 void Plog::getParameters(AnyMap& rateNode, const Units& rate_units) const

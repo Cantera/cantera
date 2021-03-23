@@ -130,6 +130,7 @@ TEST_F(KineticsFromScratch3, add_falloff_reaction)
     kin->addReaction(R);
     check_rates(2);
 }
+*/
 
 TEST_F(KineticsFromScratch3, add_plog_reaction)
 {
@@ -148,7 +149,7 @@ TEST_F(KineticsFromScratch3, add_plog_reaction)
         { 100.0*101325, Arrhenius(5.963200e+56, -11.529, 52599.6 / GasConst_cal_mol_K) }
     };
 
-    auto R = make_shared<PlogReaction>(reac, prod, Plog(rates));
+    auto R = make_shared<PlogReaction3>(reac, prod, PlogRate(rates));
     kin->addReaction(R);
     check_rates(3);
 }
@@ -164,10 +165,11 @@ TEST_F(KineticsFromScratch3, plog_invalid_rate)
         { 100.0*101325, Arrhenius(5.9632e+56, -11.529, 52599.6 / GasConst_cal_mol_K) }
     };
 
-    auto R = make_shared<PlogReaction>(reac, prod, Plog(rates));
+    auto R = make_shared<PlogReaction3>(reac, prod, PlogRate(rates));
     ASSERT_THROW(kin->addReaction(R), CanteraError);
 }
 
+/*
 TEST_F(KineticsFromScratch3, add_chebyshev_reaction)
 {
     // reaction 4:

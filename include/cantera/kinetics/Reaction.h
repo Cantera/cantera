@@ -410,6 +410,28 @@ public:
 };
 
 
+//! A pressure-dependent reaction parameterized by logarithmically interpolating
+//! between Arrhenius rate expressions at various pressures.
+class PlogReaction3 : public Reaction3
+{
+public:
+    PlogReaction3();
+    PlogReaction3(const Composition& reactants, const Composition& products,
+                  const PlogRate& rate);
+
+    PlogReaction3(const AnyMap& node, const Kinetics& kin);
+
+    virtual std::string type() const {
+        return "pressure-dependent-Arrhenius-new";
+    }
+
+    virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
+    virtual void getParameters(AnyMap& reactionNode) const;
+
+    virtual void validate();
+};
+
+
 //! A reaction which follows mass-action kinetics with a custom reaction rate
 //! defined in Python.
 class CustomFunc1Reaction : public Reaction3

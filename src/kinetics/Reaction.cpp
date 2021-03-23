@@ -867,6 +867,50 @@ std::string ThreeBodyReaction3::productString() const {
     }
 }
 
+PlogReaction3::PlogReaction3()
+    : Reaction3()
+{
+    m_rate = std::shared_ptr<PlogRate>(new PlogRate);
+}
+
+PlogReaction3::PlogReaction3(const Composition& reactants,
+                             const Composition& products, const PlogRate& rate)
+    : Reaction3(reactants, products)
+{
+    m_rate = std::make_shared<PlogRate>(rate);
+}
+
+PlogReaction3::PlogReaction3(const AnyMap& node, const Kinetics& kin)
+    : PlogReaction3()
+{
+    setParameters(node, kin);
+}
+
+void PlogReaction3::getParameters(AnyMap& reactionNode) const
+{
+    Reaction::getParameters(reactionNode);
+    reactionNode["type"] = "pressure-dependent-Arrhenius";
+    AnyMap rateNode;
+    m_rate->getParameters(rateNode, rate_units);
+    reactionNode.update(rateNode);
+}
+
+bool PlogReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
+{
+    if (!Reaction3::setParameters(node, kin)) {
+        return false;
+    }
+
+    setRate(std::shared_ptr<PlogRate>(new PlogRate(node, rate_units)));
+    return true;
+}
+
+void PlogReaction3::validate()
+{
+    Reaction3::validate();
+    std::dynamic_pointer_cast<PlogRate>(m_rate)->validate(equation());
+}
+
 CustomFunc1Reaction::CustomFunc1Reaction()
     : Reaction3()
 {
