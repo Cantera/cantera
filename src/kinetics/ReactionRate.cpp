@@ -35,6 +35,31 @@ void ArrheniusRate::getParameters(AnyMap& rateNode,
     Arrhenius::getParameters(rateNode, rate_units);
 }
 
+PlogRate::PlogRate()
+    : Plog() {
+}
+
+PlogRate::PlogRate(const std::multimap<double, Arrhenius>& rates)
+    : Plog(rates) {
+}
+
+PlogRate::PlogRate(const AnyMap& node, const Units& rate_units) {
+    setParameters(node, rate_units);
+}
+
+bool PlogRate::setParameters(const AnyMap& node, const Units& rate_units) {
+    if (!node.hasKey("rate-constant")) {
+        return false;
+    }
+    Plog::setParameters(node["rate-constant"], node.units(), rate_units);
+    return true;
+}
+
+void PlogRate::getParameters(AnyMap& rateNode,
+                             const Units& rate_units) const {
+    Plog::getParameters(rateNode, rate_units);
+}
+
 CustomFunc1Rate::CustomFunc1Rate() : m_ratefunc(0) {}
 
 void CustomFunc1Rate::setRateFunction(shared_ptr<Func1> f) {

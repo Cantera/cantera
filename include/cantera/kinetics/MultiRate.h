@@ -88,7 +88,7 @@ public:
     virtual void getRateConstants(const ThermoPhase& bulk,
                                   double* kf, double* concm) const override {
         for (size_t i = 0; i < m_rates.size(); i++) {
-          kf[m_rxn[i]] = m_rates[i].eval(m_shared, concm[m_rxn[i]]);
+            kf[m_rxn[i]] = m_rates[i].eval(m_shared, concm[m_rxn[i]]);
         }
     }
 

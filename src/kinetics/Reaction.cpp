@@ -626,14 +626,9 @@ void PlogReaction::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
     reactionNode["type"] = "pressure-dependent-Arrhenius";
-    std::vector<AnyMap> rateList;
-    for (const auto& r : rate.rates()) {
-        AnyMap rateNode;
-        rateNode["P"].setQuantity(r.first, "Pa");
-        r.second.getParameters(rateNode, rate_units);
-        rateList.push_back(std::move(rateNode));
-    }
-    reactionNode["rate-constants"] = std::move(rateList);
+    AnyMap rateNode;
+    rate.getParameters(rateNode, rate_units);
+    reactionNode.update(rateNode);
 }
 
 ChebyshevReaction::ChebyshevReaction()

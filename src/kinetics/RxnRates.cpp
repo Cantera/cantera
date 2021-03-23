@@ -29,6 +29,12 @@ Arrhenius::Arrhenius(doublereal A, doublereal b, doublereal E)
     }
 }
 
+Arrhenius::Arrhenius(const AnyValue& rate,
+                     const UnitSystem& units, const Units& rate_units)
+{
+    setParameters(rate, units, rate_units);
+}
+
 void Arrhenius::setParameters(const AnyValue& rate,
                               const UnitSystem& units, const Units& rate_units)
 {
@@ -145,6 +151,34 @@ Plog::Plog(const std::multimap<double, Arrhenius>& rates)
     , logP1_(1000)
     , logP2_(-1000)
     , rDeltaP_(-1.0)
+{
+    setup(rates);
+}
+
+void Plog::setParameters(const AnyValue& node,
+                         const UnitSystem& units, const Units& rate_units)
+{
+    std::multimap<double, Arrhenius> rates;
+    for (const auto& rate : node["rate-constants"].asVector<AnyMap>()) {
+        rates.insert({rate.convert("P", "Pa"),
+            Arrhenius(AnyValue(rate), units, rate_units)});
+    }
+    setup(rates);
+}
+
+void Plog::getParameters(AnyMap& rateNode, const Units& rate_units) const
+{
+    std::vector<AnyMap> rateList;
+    for (const auto& r : rates()) {
+        AnyMap rateNode_;
+        rateNode_["P"].setQuantity(r.first, "Pa");
+        r.second.getParameters(rateNode_, rate_units);
+        rateList.push_back(std::move(rateNode_));
+    }
+    rateNode["rate-constants"] = std::move(rateList);
+}
+
+void Plog::setup(const std::multimap<double, Arrhenius>& rates)
 {
     size_t j = 0;
     rates_.reserve(rates.size());

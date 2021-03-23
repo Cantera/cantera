@@ -43,6 +43,10 @@ public:
     /// @param E Activation energy in temperature units. Kelvin.
     Arrhenius(doublereal A, doublereal b, doublereal E);
 
+    //! Constructor based on AnyMap content
+    Arrhenius(const AnyValue& rate,
+              const UnitSystem& units, const Units& rate_units);
+
     //! Run object setup based on AnyMap node information
     void setParameters(const AnyValue& rate,
                        const UnitSystem& units, const Units& rate_units);
@@ -323,6 +327,15 @@ public:
 
     //! Constructor from Arrhenius rate expressions at a set of pressures
     explicit Plog(const std::multimap<double, Arrhenius>& rates);
+
+    //! Run object setup based on AnyMap node information
+    void setParameters(const AnyValue& node,
+                       const UnitSystem& units, const Units& rate_units);
+
+    void getParameters(AnyMap& rateNode, const Units& rate_units) const;
+
+    //! Set up Plog object
+    void setup(const std::multimap<double, Arrhenius>& rates);
 
     //! Update concentration-dependent parts of the rate coefficient.
     //! @param c natural log of the pressure in Pa

@@ -140,9 +140,15 @@ public:
 };
 
 
-//! Arrhenius reaction rate type depends only on temperature
+//! The ArrheniusRate reaction rate type depends only on temperature
 /**
- * Wrapped Arrhenius rate.
+ *  A reaction rate coefficient of the following form.
+ *
+ *   \f[
+ *        k_f =  A T^b \exp (-E/RT)
+ *   \f]
+ *
+ * Note: ArrheniusRate acts as a wrapper for the Arrhenius class.
  */
 class ArrheniusRate final : public ReactionRate<ArrheniusData>, public Arrhenius
 {
@@ -158,7 +164,7 @@ public:
     /// @param E  Activation energy. J/kmol.
     ArrheniusRate(double A, double b, double E);
 
-    //! AnyMap constructor.
+    //! Constructor using AnyMap content
     /// @param node  AnyMap containing rate information
     /// @param rate_units  unit definitions used for rate information
     ArrheniusRate(const AnyMap& node, const Units& rate_units);
@@ -186,6 +192,58 @@ public:
     //! Return the activation energy [J/kmol]
     double activationEnergy() const {
         return m_E * GasConstant;
+    }
+};
+
+
+//! Pressure-dependent reaction rate expressed by logarithmically interpolating
+//! between Arrhenius rate expressions at various pressures.
+/*!
+ * Given two rate expressions at two specific pressures:
+ *
+ *   * \f$ P_1: k_1(T) = A_1 T^{b_1} e^{-E_1 / RT} \f$
+ *   * \f$ P_2: k_2(T) = A_2 T^{b_2} e^{-E_2 / RT} \f$
+ *
+ * The rate at an intermediate pressure \f$ P_1 < P < P_2 \f$ is computed as
+ * \f[
+ *  \log k(T,P) = \log k_1(T) + \bigl(\log k_2(T) - \log k_1(T)\bigr)
+ *      \frac{\log P - \log P_1}{\log P_2 - \log P_1}
+ * \f]
+ * Multiple rate expressions may be given at the same pressure, in which case
+ * the rate used in the interpolation formula is the sum of all the rates given
+ * at that pressure. For pressures outside the given range, the rate expression
+ * at the nearest pressure is used.
+ */
+class PlogRate final : public ReactionRate<PlogData>, public Plog
+{
+public:
+    PlogRate();
+
+    //! Constructor from Arrhenius rate expressions at a set of pressures
+    explicit PlogRate(const std::multimap<double, Arrhenius>& rates);
+
+    //! Constructor using AnyMap content
+    /// @param node  AnyMap containing rate information
+    /// @param rate_units  unit definitions used for rate information
+    PlogRate(const AnyMap& node, const Units& rate_units);
+
+    virtual bool setParameters(const AnyMap& node, const Units& rate_units) override;
+    virtual void getParameters(AnyMap& rateNode,
+                               const Units& rate_units) const override;
+
+    //! Update information specific to reaction
+    static bool uses_update() { return true; }
+
+    virtual void update(const PlogData& shared_data,
+                        const ThermoPhase& bulk) override {
+        update_C(shared_data.logP());
+    }
+
+    virtual std::string type() const override { return "PlogRate"; }
+
+    virtual double eval(const PlogData& shared_data,
+                        double concm=0.) const override {
+        return updateRC(shared_data.m_logT, shared_data.m_recipT);
     }
 };
 
