@@ -680,9 +680,14 @@ bool Reaction3::setParameters(const AnyMap& node, const Kinetics& kin)
     return true;
 }
 
+void Reaction3::validate()
+{
+    Reaction::validate();
+    m_rate->validate(equation());
+}
+
 ElementaryReaction3::ElementaryReaction3()
     : Reaction3()
-    , allow_negative_pre_exponential_factor(false)
 {
     m_rate = std::shared_ptr<ArrheniusRate>(new ArrheniusRate);
 }
@@ -691,7 +696,6 @@ ElementaryReaction3::ElementaryReaction3(const Composition& reactants,
                                          const Composition& products,
                                          const ArrheniusRate& rate)
     : Reaction3(reactants, products)
-    , allow_negative_pre_exponential_factor(false)
 {
     m_rate = std::make_shared<ArrheniusRate>(rate);
 }
@@ -708,30 +712,19 @@ bool ElementaryReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
         return false;
     }
     setRate(std::shared_ptr<ArrheniusRate>(new ArrheniusRate(node, rate_units)));
-    allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
     return true;
 }
 
 void ElementaryReaction3::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
-    if (allow_negative_pre_exponential_factor) {
+    ArrheniusRate& rate = dynamic_cast<ArrheniusRate&>(*m_rate);
+    if (rate.allow_negative_pre_exponential_factor) {
         reactionNode["negative-A"] = true;
     }
     AnyMap rateNode;
     m_rate->getParameters(rateNode, rate_units);
     reactionNode["rate-constant"] = std::move(rateNode);
-}
-
-void ElementaryReaction3::validate()
-{
-    Reaction::validate();
-    if (!allow_negative_pre_exponential_factor &&
-        std::dynamic_pointer_cast<ArrheniusRate>(m_rate)->preExponentialFactor() < 0) {
-        throw CanteraError("ElementaryReaction::validate",
-            "Undeclared negative pre-exponential factor found in reaction '"
-            + equation() + "'");
-    }
 }
 
 ThreeBodyReaction3::ThreeBodyReaction3()
@@ -900,16 +893,8 @@ bool PlogReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
     if (!Reaction3::setParameters(node, kin)) {
         return false;
     }
-
     setRate(std::shared_ptr<PlogRate>(new PlogRate(node, rate_units)));
     return true;
-}
-
-void PlogReaction3::validate()
-{
-    Reaction3::validate();
-    //std::dynamic_pointer_cast<PlogRate>(m_rate)->validate(equation());
-    m_rate->validate(equation());
 }
 
 CustomFunc1Reaction::CustomFunc1Reaction()

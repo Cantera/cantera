@@ -1174,6 +1174,9 @@ cdef class ElementaryReaction3(Reaction):
     cdef CxxElementaryReaction3* er(self):
         return <CxxElementaryReaction3*>self.reaction
 
+    cdef CxxArrheniusRate* arr(self):
+        return <CxxArrheniusRate*>(self.er().rate().get())
+
     def __init__(self, equation=None, rate=None,
                  Kinetics kinetics=None, init=True, **kwargs):
 
@@ -1207,9 +1210,9 @@ cdef class ElementaryReaction3(Reaction):
         pre-exponential factor.
         """
         def __get__(self):
-            return self.er().allow_negative_pre_exponential_factor
+            return self.arr().allow_negative_pre_exponential_factor
         def __set__(self, allow):
-            self.er().allow_negative_pre_exponential_factor = allow
+            self.arr().allow_negative_pre_exponential_factor = allow
 
 
 cdef class ThreeBodyReaction3(ElementaryReaction3):
