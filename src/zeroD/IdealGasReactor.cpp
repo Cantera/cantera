@@ -70,8 +70,7 @@ void IdealGasReactor::updateState(doublereal* y)
     updateConnected(true);
 }
 
-void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
-                      doublereal* ydot, doublereal* params)
+void IdealGasReactor::eval(double time, double* ydot)
 {
     double dmdt = 0.0; // dm/dt (gas phase)
     double mcvdTdt = 0.0; // m * c_v * dT/dt

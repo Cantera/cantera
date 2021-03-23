@@ -47,9 +47,7 @@ public:
         m_updateConnected = [this](bool updatePressure) {
             R::updateConnected(updatePressure);
         };
-        m_evalEqs = [this](double t, double* y, double* ydot, double* params) {
-            R::evalEqs(t, y, ydot, params);
-        };
+        m_eval = [this](double t, double* ydot) { R::eval(t, ydot); };
         m_evalWalls = [this](double t) { R::evalWalls(t); };
         m_evalSurfaces = [this](double t, double* ydot) {
             return R::evalSurfaces(t, ydot);
@@ -167,26 +165,26 @@ public:
         }
     }
 
-    // For functions with the signature void(double, double*, double*, double*)
+    // For functions with the signature void(double, double*)
     virtual void setDelegate(
         const std::string& name,
-        const std::function<void(std::array<size_t, 3>, double, double*, double*, double*)>& func,
+        const std::function<void(std::array<size_t, 1>, double, double*)>& func,
         const std::string& when) override
     {
-        if (name == "evalEqs") {
-            m_evalEqs = makeDelegate<3>(func,
+        if (name == "eval") {
+            m_eval = makeDelegate<1>(func,
                 [this]() {
-                    return std::array<size_t, 3>{R::neq(), R::neq(), R::nSensParams()};
+                    return std::array<size_t, 1>{R::neq()};
                 },
                 when,
-                [this](double t, double* y, double* ydot, double* params) {
-                    R::evalEqs(t, y, ydot, params);
+                [this](double t, double* ydot) {
+                    R::eval(t, ydot);
                 }
             );
         } else {
             throw NotImplementedError("ReactorDelegator::setDelegate",
-                "For function named '{}' with signature",
-                "void(array<size_t, 3>, double, double*, double*, double*)", name);
+                "For function named '{}' with signature"
+                "void(array<size_t, 1>, double, double*)", name);
         }
     }
 
@@ -289,8 +287,8 @@ public:
         m_updateConnected(updatePressure);
     }
 
-    virtual void evalEqs(double t, double* y, double* ydot, double* params) override {
-        m_evalEqs(t, y, ydot, params);
+    virtual void eval(double t, double* ydot) override {
+        m_eval(t, ydot);
     }
 
     virtual void evalWalls(double t) override {
@@ -343,7 +341,7 @@ private:
     std::function<void(double*)> m_updateSurfaceState;
     std::function<void(double*)> m_getSurfaceInitialConditions;
     std::function<void(bool)> m_updateConnected;
-    std::function<void(double, double*, double*, double*)> m_evalEqs;
+    std::function<void(double, double*)> m_eval;
     std::function<void(double)> m_evalWalls;
     std::function<double(double, double*)> m_evalSurfaces;
     std::function<std::string(size_t)> m_componentName;
