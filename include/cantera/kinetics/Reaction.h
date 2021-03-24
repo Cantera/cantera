@@ -322,7 +322,7 @@ public:
     virtual void getParameters(AnyMap& reactionNode) const;
 
     virtual std::string type() const {
-        return "Chebyshev";
+        return "Chebyshev-old";
     }
 
     ChebyshevRate rate;
@@ -443,7 +443,7 @@ public:
     ChebyshevReaction3(const AnyMap& node, const Kinetics& kin);
 
     virtual std::string type() const {
-        return "Chebyshev-new";
+        return "Chebyshev";
     }
 
     virtual bool setParameters(const AnyMap& node, const Kinetics& kin);

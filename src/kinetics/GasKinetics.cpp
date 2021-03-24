@@ -276,7 +276,7 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
         addFalloffReaction(dynamic_cast<FalloffReaction&>(*r));
     } else if (r->type() == "pressure-dependent-Arrhenius-old") {
         addPlogReaction(dynamic_cast<PlogReaction&>(*r));
-    } else if (r->type() == "Chebyshev") {
+    } else if (r->type() == "Chebyshev-old") {
         addChebyshevReaction(dynamic_cast<ChebyshevReaction&>(*r));
     } else if (r->type() == "Blowers-Masel") {
         addBlowersMaselReaction(dynamic_cast<BlowersMaselReaction&>(*r));
@@ -368,7 +368,7 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
         modifyFalloffReaction(i, dynamic_cast<FalloffReaction&>(*rNew));
     } else if (rNew->type() == "pressure-dependent-Arrhenius-old") {
         modifyPlogReaction(i, dynamic_cast<PlogReaction&>(*rNew));
-    } else if (rNew->type() == "Chebyshev") {
+    } else if (rNew->type() == "Chebyshev-old") {
         modifyChebyshevReaction(i, dynamic_cast<ChebyshevReaction&>(*rNew));
     } else if (rNew->type() == "Blowers-Masel") {
         modifyBlowersMaselReaction(i, dynamic_cast<BlowersMaselReaction&>(*rNew));
