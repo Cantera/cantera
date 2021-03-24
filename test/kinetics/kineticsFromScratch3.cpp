@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include "cantera/base/Solution.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/Species.h"
@@ -18,19 +19,19 @@ public:
         std::string yaml_file = "../data/kineticsfromscratch.yaml";
         std::string phase_name = "ohmech";
 
-        p = std::shared_ptr<ThermoPhase>(newPhase(yaml_file, phase_name));
+        p = std::unique_ptr<ThermoPhase>(newPhase(yaml_file, phase_name));
         kin = std::shared_ptr<Kinetics>(newKineticsMgr("GasKinetics"));
         kin->addPhase(*p.get());
 
-        p_ref = std::shared_ptr<ThermoPhase>(newPhase(yaml_file, phase_name));
-        std::vector<ThermoPhase*> th;
-        th.push_back(p_ref.get());
-        kin_ref = shared_ptr<Kinetics>(newKinetics(th, yaml_file, phase_name));
+        sol = newSolution(yaml_file, phase_name);
+        p_ref = sol->thermo();
+        kin_ref = sol->kinetics();
     }
 
-    std::shared_ptr<ThermoPhase> p;
-    std::shared_ptr<ThermoPhase> p_ref;
+    std::unique_ptr<ThermoPhase> p;
     std::shared_ptr<Kinetics> kin;
+    std::shared_ptr<Solution> sol;
+    std::shared_ptr<ThermoPhase> p_ref;
     std::shared_ptr<Kinetics> kin_ref;
 
     //! iRef is the index of the corresponding reaction in the reference mech
@@ -243,7 +244,8 @@ TEST_F(KineticsFromScratch3, allow_negative_A)
     Composition prod = parseCompString("H:1 OH:1");
     ArrheniusRate rate(-3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
     auto R = make_shared<ElementaryReaction3>(reac, prod, rate);
-    R->allow_negative_pre_exponential_factor = true;
+    auto rr = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
+    rr->allow_negative_pre_exponential_factor = true;
 
     kin->addReaction(R);
     ASSERT_EQ((size_t) 1, kin->nReactions());
@@ -400,29 +402,39 @@ TEST_F(InterfaceKineticsFromScratch3, unbalanced_sites)
     auto R = make_shared<InterfaceReaction>(reac, prod, rate);
     ASSERT_THROW(kin->addReaction(R), CanteraError);
 }
+*/
 
-class KineticsAddSpecies2 : public testing::Test
+class KineticsAddSpecies3 : public testing::Test
 {
 public:
-    KineticsAddSpecies2()
-        : p_ref("../data/kineticsfromscratch.cti")
+    KineticsAddSpecies3()
     {
-        std::vector<ThermoPhase*> th;
-        th.push_back(&p_ref);
-        importKinetics(p_ref->xml(), th, &kin_ref);
-        kin->addPhase(p);
+        std::string yaml_file = "../data/kineticsfromscratch.yaml";
+        std::string phase_name = "ohmech";
 
-        std::vector<shared_ptr<Species>> S = getSpecies(*get_XML_File("h2o2.cti"));
+        p = std::shared_ptr<ThermoPhase>(newThermoPhase("ideal-gas"));
+        kin = std::shared_ptr<Kinetics>(newKineticsMgr("GasKinetics"));
+        kin->addPhase(*p.get());
+
+        AnyMap h2o2 = AnyMap::fromYamlFile("h2o2.yaml");
+        std::vector<shared_ptr<Species>> S = getSpecies(h2o2["species"]);
         for (auto sp : S) {
             species[sp->name] = sp;
         }
-        reactions = getReactions(*get_XML_File("../data/kineticsfromscratch.cti"));
+
+        sol = newSolution(yaml_file, phase_name);
+        p_ref = sol->thermo();
+        kin_ref = sol->kinetics();
+
+        AnyMap root = AnyMap::fromYamlFile(yaml_file);
+        reactions = getReactions(root["reactions"], *kin_ref);
     }
 
-    IdealGasPhase p;
-    IdealGasPhase p_ref;
-    GasKinetics kin;
-    GasKinetics kin_ref;
+    std::shared_ptr<Solution> sol;
+    std::shared_ptr<ThermoPhase> p;
+    std::shared_ptr<Kinetics> kin;
+    std::shared_ptr<ThermoPhase> p_ref;
+    std::shared_ptr<Kinetics> kin_ref;
     std::vector<shared_ptr<Reaction>> reactions;
     std::map<std::string, shared_ptr<Species>> species;
 
@@ -473,7 +485,7 @@ public:
     }
 };
 
-TEST_F(KineticsAddSpecies2, add_species_sequential)
+TEST_F(KineticsAddSpecies3, add_species_sequential)
 {
     ASSERT_EQ((size_t) 0, kin->nReactions());
 
@@ -502,7 +514,7 @@ TEST_F(KineticsAddSpecies2, add_species_sequential)
     check_rates(5, "O:0.01, H2:0.1, H:0.02, OH:0.03, O2:0.4, AR:0.3, H2O2:0.03, HO2:0.01");
 }
 
-TEST_F(KineticsAddSpecies2, add_species_err_first)
+TEST_F(KineticsAddSpecies3, add_species_err_first)
 {
     for (auto s : {"AR", "O", "H2", "H"}) {
         p->addSpecies(species[s]);
@@ -516,4 +528,3 @@ TEST_F(KineticsAddSpecies2, add_species_err_first)
     ASSERT_EQ((size_t) 1, kin->nReactions());
     check_rates(1, "O:0.001, H2:0.1, H:0.005, OH:0.02, AR:0.88");
 }
-*/
