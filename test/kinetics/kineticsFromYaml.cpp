@@ -606,7 +606,7 @@ TEST_F(ReactionToYaml, unconvertible2)
     Array2D coeffs(2, 2, 1.0);
     ChebyshevReaction R({{"H2", 1}, {"OH", 1}},
                         {{"H2O", 1}, {"H", 1}},
-                        ChebyshevRate(273, 3000, 1e2, 1e7, coeffs));
+                        Chebyshev(273, 3000, 1e2, 1e7, coeffs));
     UnitSystem U{"g", "cm", "mol"};
     AnyMap params = R.parameters();
     params.setUnits(U);

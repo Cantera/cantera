@@ -76,16 +76,16 @@ void PlogRate::getParameters(AnyMap& rateNode,
 }
 
 ChebyshevRate3::ChebyshevRate3()
-    : ChebyshevRate() {
+    : Chebyshev() {
 }
 
 ChebyshevRate3::ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pmax,
                                const Array2D& coeffs)
-    : ChebyshevRate(Tmin, Tmax, Pmin, Pmax, coeffs) {
+    : Chebyshev(Tmin, Tmax, Pmin, Pmax, coeffs) {
 }
 
 ChebyshevRate3::ChebyshevRate3(const AnyMap& node, const Units& rate_units)
-    : ChebyshevRate() {
+    : Chebyshev() {
     setParameters(node, rate_units);
 }
 
@@ -98,7 +98,7 @@ bool ChebyshevRate3::setParameters(const AnyMap& node, const Units& rate_units) 
             "data: [[-16.]]\n");
         Chebyshev::setParameters(rate, node.units(), rate_units);        return false;
     }
-    ChebyshevRate::setParameters(node, node.units(), rate_units);
+    Chebyshev::setParameters(node, node.units(), rate_units);
     return true;
 }
 

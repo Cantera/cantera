@@ -318,14 +318,14 @@ class ChebyshevReaction : public Reaction
 public:
     ChebyshevReaction();
     ChebyshevReaction(const Composition& reactants, const Composition& products,
-                      const ChebyshevRate& rate);
+                      const Chebyshev& rate);
     virtual void getParameters(AnyMap& reactionNode) const;
 
     virtual std::string type() const {
         return "Chebyshev-old";
     }
 
-    ChebyshevRate rate;
+    Chebyshev rate;
 };
 
 
@@ -464,27 +464,6 @@ public:
 
     virtual std::string type() const {
         return "custom-rate-function";
-    }
-};
-
-
-//! A reaction which follows mass-action kinetics with a modified Arrhenius
-//! reaction rate.
-/**
- * Alternative elementary reaction based on ReactionRate.
- *
- * @warning This class is an experimental part of the %Cantera API and
- *    may be changed or removed without notice.
- */
-class TestReaction : public Reaction3
-{
-public:
-    TestReaction();
-
-    TestReaction(const AnyMap& node, const Kinetics& kin);
-
-    virtual std::string type() const {
-        return "elementary-new";
     }
 };
 

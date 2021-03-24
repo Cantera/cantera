@@ -354,7 +354,7 @@ double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn) const
 }
 
 int Kinetics::reactionType(size_t i) const {
-    warn_deprecated("Kinetics::reactionType()",
+    warn_deprecated("Kinetics::reactionType",
         "To be changed after Cantera 2.6. "
         "Return string instead of magic number; use "
         "Kinetics::reactionTypeStr during transition.");

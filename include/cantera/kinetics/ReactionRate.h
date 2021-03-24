@@ -313,7 +313,7 @@ public:
  * therefore extrapolation of rates outside the range of temperatures and
  * pressures for which they are defined is strongly discouraged.
  */
-class ChebyshevRate3 final : public ReactionRate<ChebyshevData>, public ChebyshevRate
+class ChebyshevRate3 final : public ReactionRate<ChebyshevData>, public Chebyshev
 {
 public:
     //! Default constructor.

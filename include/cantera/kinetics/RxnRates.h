@@ -453,11 +453,11 @@ protected:
  * therefore extrapolation of rates outside the range of temperatures and
  * pressures for which they are defined is strongly discouraged.
  */
-class ChebyshevRate
+class Chebyshev
 {
 public:
     //! Default constructor.
-    ChebyshevRate() {}
+    Chebyshev() {}
 
     //! Constructor directly from coefficient array
     /*
@@ -469,8 +469,8 @@ public:
      *      `nP` are the number of temperatures and pressures used in the fit,
      *      respectively.
      */
-    ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
-                  const Array2D& coeffs);
+    Chebyshev(double Tmin, double Tmax, double Pmin, double Pmax,
+              const Array2D& coeffs);
 
     //! Run object setup based on AnyMap node information
     void setParameters(const AnyMap& node,
@@ -483,7 +483,7 @@ public:
 
     //! Update concentration-dependent parts of the rate coefficient.
     //! @param c base-10 logarithm of the pressure in Pa
-    void update_C(const doublereal* c) {
+    void update_C(const double* c) {
         double Pr = (2 * c[0] + PrNum_) * PrDen_;
         double Cnm1 = Pr;
         double Cn = 1;
@@ -506,7 +506,7 @@ public:
      *
      * This function returns the actual value of the rate constant.
      */
-    doublereal updateRC(doublereal logT, doublereal recipT) const {
+    double updateRC(double logT, double recipT) const {
         double Tr = (2 * recipT + TrNum_) * TrDen_;
         double Cnm1 = Tr;
         double Cn = 1;
@@ -709,6 +709,34 @@ protected:
     vector_fp m_ac, m_ec, m_mc;
 };
 
+
+
+//! Pressure-dependent rate expression where the rate coefficient is expressed
+//! as a bivariate Chebyshev polynomial in temperature and pressure.
+/*!
+ * @deprecated  Renamed to Chebyshev. Behavior will change after Cantera 2.6.
+ *     For future behavior, refer to ChebyshevRate3.
+ */
+class ChebyshevRate : public Chebyshev
+{
+public:
+    //! Default constructor.
+    ChebyshevRate();
+
+    //! Constructor directly from coefficient array
+    /*
+     *  @param Tmin    Minimum temperature [K]
+     *  @param Tmax    Maximum temperature [K]
+     *  @param Pmin    Minimum pressure [Pa]
+     *  @param Pmax    Maximum pressure [Pa]
+     *  @param coeffs  Coefficient array dimensioned `nT` by `nP` where `nT` and
+     *      `nP` are the number of temperatures and pressures used in the fit,
+     *      respectively.
+     */
+    ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
+                  const Array2D& coeffs);
+
+};
 
 }
 

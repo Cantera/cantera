@@ -6,6 +6,7 @@
 #include "cantera/kinetics/RxnRates.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/AnyMap.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -248,8 +249,8 @@ std::vector<std::pair<double, Arrhenius> > Plog::rates() const
     return R;
 }
 
-ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
-                             const Array2D& coeffs)
+Chebyshev::Chebyshev(double Tmin, double Tmax, double Pmin, double Pmax,
+                     const Array2D& coeffs)
     : Tmin_(Tmin)
     , Tmax_(Tmax)
     , Pmin_(Pmin)
@@ -262,8 +263,8 @@ ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
     setup(Tmin, Tmax, Pmin, Pmax, coeffs);
 }
 
-void ChebyshevRate::setParameters(const AnyMap& node,
-                                  const UnitSystem& units, const Units& rate_units)
+void Chebyshev::setParameters(const AnyMap& node,
+                              const UnitSystem& units, const Units& rate_units)
 {
     const auto& T_range = node["temperature-range"].asVector<AnyValue>(2);
     const auto& P_range = node["pressure-range"].asVector<AnyValue>(2);
@@ -271,7 +272,7 @@ void ChebyshevRate::setParameters(const AnyMap& node,
     Array2D coeffs(vcoeffs.size(), vcoeffs[0].size());
     for (size_t i = 0; i < coeffs.nRows(); i++) {
         if (vcoeffs[i].size() != vcoeffs[0].size()) {
-            throw InputFileError("ChebyshevRate::setParameters", node["data"],
+            throw InputFileError("Chebyshev::setParameters", node["data"],
                 "Inconsistent number of coefficients in row {} of matrix", i + 1);
         }
         for (size_t j = 0; j < coeffs.nColumns(); j++) {
@@ -292,8 +293,8 @@ void ChebyshevRate::setParameters(const AnyMap& node,
     setup(Tmin_, Tmax_, Pmin_, Pmax_, coeffs);
 }
 
-void ChebyshevRate::setup(double Tmin, double Tmax, double Pmin, double Pmax,
-                          const Array2D& coeffs)
+void Chebyshev::setup(double Tmin, double Tmax, double Pmin, double Pmax,
+                      const Array2D& coeffs)
 {
     double logPmin = std::log10(Pmin);
     double logPmax = std::log10(Pmax);
@@ -312,7 +313,7 @@ void ChebyshevRate::setup(double Tmin, double Tmax, double Pmin, double Pmax,
     }
 }
 
-void ChebyshevRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
+void Chebyshev::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
     rateNode["temperature-range"].setQuantity({Tmin(), Tmax()}, "K");
     rateNode["pressure-range"].setQuantity({Pmin(), Pmax()}, "Pa");
@@ -376,4 +377,19 @@ void BMSurfaceArrhenius::addCoverageDependence(size_t k, double a,
     }
 }
 
+ChebyshevRate::ChebyshevRate()
+    : Chebyshev()
+{
+    warn_deprecated("ChebyshevRate::ChebyshevRate",
+                    "Renamed to Chebyshev. Behavior will change after Cantera 2.6. "
+                    "For future behavior, refer to ChebyshevRate3");
+}
+
+ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
+                             const Array2D& coeffs)
+    : Chebyshev(Tmin, Tmax, Pmin, Pmax, coeffs)
+{
+    warn_deprecated("ChebyshevRate::ChebyshevRate",
+                    "Renamed to Chebyshev. Behavior will change after Cantera 2.6. "
+                    "For future behavior, refer to ChebyshevRate3");}
 }

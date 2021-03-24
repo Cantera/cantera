@@ -86,7 +86,7 @@ protected:
     ThirdBodyCalc m_falloff_concm;
 
     Rate1<Plog> m_plog_rates;
-    Rate1<ChebyshevRate> m_cheb_rates;
+    Rate1<Chebyshev> m_cheb_rates;
     Rate1<BlowersMasel> m_blowersmasel_rates;
 
     //! @name Reaction rate data
