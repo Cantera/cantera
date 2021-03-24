@@ -380,6 +380,19 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxPlogRate(multimap[double, CxxArrhenius])
         vector[pair[double, CxxArrhenius]] rates()
 
+    cdef cppclass CxxChebyshevRate3 "Cantera::ChebyshevRate3" (CxxReactionRateBase):
+        CxxChebyshevRate3()
+        CxxChebyshevRate3(double, double, double, double, CxxArray2D)
+        double Tmin()
+        double Tmax()
+        double Pmin()
+        double Pmax()
+        size_t nPressure()
+        size_t nTemperature()
+        vector[double]& coeffs()
+        void update_C(double*)
+        double updateRC(double, double)
+
     cdef cppclass CxxReaction "Cantera::Reaction":
         CxxReaction()
 
@@ -476,6 +489,9 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
 
     cdef cppclass CxxPlogReaction3 "Cantera::PlogReaction3" (CxxReaction3):
         CxxPlogReaction3()
+
+    cdef cppclass CxxChebyshevReaction3 "Cantera::ChebyshevReaction3" (CxxReaction3):
+        CxxChebyshevReaction3()
 
     cdef cppclass CxxCustomFunc1Reaction "Cantera::CustomFunc1Reaction" (CxxReaction3):
         CxxCustomFunc1Reaction()
@@ -1145,6 +1161,11 @@ cdef class ArrheniusRate(_ReactionRate):
 
 cdef class PlogRate(_ReactionRate):
     cdef CxxPlogRate* rate
+    @staticmethod
+    cdef wrap(shared_ptr[CxxReactionRateBase])
+
+cdef class ChebyshevRate(_ReactionRate):
+    cdef CxxChebyshevRate3* rate
     @staticmethod
     cdef wrap(shared_ptr[CxxReactionRateBase])
 

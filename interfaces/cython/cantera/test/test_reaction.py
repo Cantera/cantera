@@ -150,7 +150,7 @@ class TestReaction(utilities.CanteraTest):
     def test_rate(self):
         if self._rate_obj is None:
             return
-        if type(self._rate_obj).__name__.endswith('Rate'):
+        if 'Rate' in type(self._rate_obj).__name__:
             self.assertNear(self._rate_obj(self.gas.T, self.gas.P),
                         self.gas.forward_rate_constants[self._index])
         else:
@@ -203,7 +203,7 @@ class TestReaction(utilities.CanteraTest):
         if self._cls is None or not hasattr(self._cls, 'rate'):
             return
         rxn = self._cls(equation=self._equation, kinetics=self.gas, **self._kwargs)
-        if type(self._rate_obj).__name__.endswith('Rate'):
+        if 'Rate' in type(self._rate_obj).__name__:
             self.assertNear(rxn.rate(self.gas.T, self.gas.P), 0.)
         else:
             self.assertNear(rxn.rate(self.gas.T), 0.)
@@ -390,6 +390,26 @@ class TestChebyshev(TestReaction):
     _yaml = """
         equation: HO2 <=> OH + O  # Reaction 5
         type: Chebyshev
+        temperature-range: [290.0, 3000.0]
+        pressure-range: [9.869232667160128e-03 atm, 98.69232667160128 atm]
+        data:
+        - [8.2883, -1.1397, -0.12059, 0.016034]
+        - [1.9764, 1.0037, 7.2865e-03, -0.030432]
+        - [0.3177, 0.26889, 0.094806, -7.6385e-03]
+    """
+
+
+class TestChebyshev3(TestChebyshev):
+
+    _cls = ct.ChebyshevReaction3
+    _rate_obj = ct.ChebyshevRate(Tmin=290., Tmax=3000., Pmin=1000., Pmax=10000000.0,
+                                 data=[[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
+                                       [ 1.9764e+00,  1.0037e+00,  7.2865e-03, -3.0432e-02],
+                                       [ 3.1770e-01,  2.6889e-01,  9.4806e-02, -7.6385e-03]])
+    _type = "Chebyshev-new"
+    _yaml = """
+        equation: HO2 <=> OH + O  # Reaction 5
+        type: Chebyshev-new
         temperature-range: [290.0, 3000.0]
         pressure-range: [9.869232667160128e-03 atm, 98.69232667160128 atm]
         data:

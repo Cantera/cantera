@@ -91,7 +91,12 @@ ChebyshevRate3::ChebyshevRate3(const AnyMap& node, const Units& rate_units)
 
 bool ChebyshevRate3::setParameters(const AnyMap& node, const Units& rate_units) {
     if (!node.hasKey("data")) {
-        return false;
+        // ensure that Chebyshev has defined state and produces zero reaction rate
+        AnyMap rate = AnyMap::fromYamlString(
+            "temperature-range: [290, 3000]\n"
+            "pressure-range: [1.e-7, 1.e7]\n"
+            "data: [[-16.]]\n");
+        Chebyshev::setParameters(rate, node.units(), rate_units);        return false;
     }
     ChebyshevRate::setParameters(node, node.units(), rate_units);
     return true;
@@ -99,8 +104,7 @@ bool ChebyshevRate3::setParameters(const AnyMap& node, const Units& rate_units) 
 
 void ChebyshevRate3::getParameters(AnyMap& rateNode,
                                    const Units& rate_units) const {
-    throw CanteraError("ChebyshevRate3::getParameters",
-        "@todo");
+    Chebyshev::getParameters(rateNode, rate_units);
 }
 
 void ChebyshevRate3::validate(const std::string& equation) {

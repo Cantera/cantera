@@ -929,6 +929,7 @@ bool ChebyshevReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
     allow_negative_orders = node.getBool("negative-orders", false);
     allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
 
+    calculateRateCoeffUnits(kin);
     input = node;
 
     setRate(std::shared_ptr<ChebyshevRate3>(new ChebyshevRate3(node, rate_units)));
