@@ -259,6 +259,42 @@ ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
     , chebCoeffs_(coeffs.nColumns() * coeffs.nRows(), 0.0)
     , dotProd_(coeffs.nRows())
 {
+    setup(Tmin, Tmax, Pmin, Pmax, coeffs);
+}
+
+void ChebyshevRate::setParameters(const AnyMap& node,
+                                  const UnitSystem& units, const Units& rate_units)
+{
+    const auto& T_range = node["temperature-range"].asVector<AnyValue>(2);
+    const auto& P_range = node["pressure-range"].asVector<AnyValue>(2);
+    auto& vcoeffs = node["data"].asVector<vector_fp>();
+    Array2D coeffs(vcoeffs.size(), vcoeffs[0].size());
+    for (size_t i = 0; i < coeffs.nRows(); i++) {
+        if (vcoeffs[i].size() != vcoeffs[0].size()) {
+            throw InputFileError("ChebyshevRate::setParameters", node["data"],
+                "Inconsistent number of coefficients in row {} of matrix", i + 1);
+        }
+        for (size_t j = 0; j < coeffs.nColumns(); j++) {
+            coeffs(i, j) = vcoeffs[i][j];
+        }
+    }
+    coeffs(0, 0) += std::log10(units.convert(1.0, rate_units));
+
+    Tmin_ = units.convert(T_range[0], "K");
+    Tmax_ = units.convert(T_range[1], "K");
+    Pmin_ = units.convert(P_range[0], "Pa");
+    Pmax_ = units.convert(P_range[1], "Pa");
+    nP_ = coeffs.nColumns();
+    nT_ = coeffs.nRows();
+    chebCoeffs_.resize(nP_ * nT_);
+    dotProd_.resize(nT_);
+
+    setup(Tmin_, Tmax_, Pmin_, Pmax_, coeffs);
+}
+
+void ChebyshevRate::setup(double Tmin, double Tmax, double Pmin, double Pmax,
+                          const Array2D& coeffs)
+{
     double logPmin = std::log10(Pmin);
     double logPmax = std::log10(Pmax);
     double TminInv = 1.0 / Tmin;

@@ -75,6 +75,38 @@ void PlogRate::getParameters(AnyMap& rateNode,
     Plog::getParameters(rateNode, rate_units);
 }
 
+ChebyshevRate3::ChebyshevRate3()
+    : ChebyshevRate() {
+}
+
+ChebyshevRate3::ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pmax,
+                               const Array2D& coeffs)
+    : ChebyshevRate(Tmin, Tmax, Pmin, Pmax, coeffs) {
+}
+
+ChebyshevRate3::ChebyshevRate3(const AnyMap& node, const Units& rate_units)
+    : ChebyshevRate() {
+    setParameters(node, rate_units);
+}
+
+bool ChebyshevRate3::setParameters(const AnyMap& node, const Units& rate_units) {
+    if (!node.hasKey("rate-constants")) {
+        return false;
+    }
+    ChebyshevRate::setParameters(node.at("rate-constants").asVector<AnyMap>(),
+                                 node.units(), rate_units);
+    return true;
+}
+
+void ChebyshevRate3::getParameters(AnyMap& rateNode,
+                                   const Units& rate_units) const {
+    throw CanteraError("ChebyshevRate3::getParameters",
+        "@todo");
+}
+
+void ChebyshevRate3::validate(const std::string& equation) {
+}
+
 CustomFunc1Rate::CustomFunc1Rate() : m_ratefunc(0) {}
 
 void CustomFunc1Rate::setRateFunction(shared_ptr<Func1> f) {
