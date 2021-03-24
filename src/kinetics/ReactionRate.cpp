@@ -90,11 +90,10 @@ ChebyshevRate3::ChebyshevRate3(const AnyMap& node, const Units& rate_units)
 }
 
 bool ChebyshevRate3::setParameters(const AnyMap& node, const Units& rate_units) {
-    if (!node.hasKey("rate-constants")) {
+    if (!node.hasKey("data")) {
         return false;
     }
-    ChebyshevRate::setParameters(node.at("rate-constants").asVector<AnyMap>(),
-                                 node.units(), rate_units);
+    ChebyshevRate::setParameters(node, node.units(), rate_units);
     return true;
 }
 

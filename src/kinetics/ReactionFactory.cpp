@@ -90,6 +90,9 @@ ReactionFactory::ReactionFactory()
     });
 
     // register Chebyshev reactions
+    reg("Chebyshev-new", [](const AnyMap& node, const Kinetics& kin) {
+        return new ChebyshevReaction3(node, kin);
+    });
     reg("Chebyshev", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ChebyshevReaction();
         if (node.hasKey("equation")) {

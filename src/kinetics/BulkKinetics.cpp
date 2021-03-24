@@ -135,6 +135,9 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
             } else if (rate->type() == "PlogRate") {
                 m_bulk_rates.push_back(std::unique_ptr<MultiRateBase>(
                     new MultiBulkRates<PlogRate, PlogData>));
+            } else if (rate->type() == "ChebyshevRate") {
+                m_bulk_rates.push_back(std::unique_ptr<MultiRateBase>(
+                    new MultiBulkRates<ChebyshevRate3, ChebyshevData>));
             } else if (rate->type() == "custom-function") {
                 m_bulk_rates.push_back(std::unique_ptr<MultiRateBase>(
                     new MultiBulkRates<CustomFunc1Rate, CustomFunc1Data>));
