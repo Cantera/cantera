@@ -704,15 +704,7 @@ ElementaryReaction3::ElementaryReaction3(const AnyMap& node, const Kinetics& kin
     : ElementaryReaction3()
 {
     setParameters(node, kin);
-}
-
-bool ElementaryReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
-{
-    if (!Reaction3::setParameters(node, kin)) {
-        return false;
-    }
     setRate(std::shared_ptr<ArrheniusRate>(new ArrheniusRate(node, rate_units)));
-    return true;
 }
 
 void ElementaryReaction3::getParameters(AnyMap& reactionNode) const
@@ -746,6 +738,7 @@ ThreeBodyReaction3::ThreeBodyReaction3(const AnyMap& node, const Kinetics& kin)
     : ThreeBodyReaction3()
 {
     setParameters(node, kin);
+    setRate(std::shared_ptr<ArrheniusRate>(new ArrheniusRate(node, rate_units)));
 }
 
 bool ThreeBodyReaction3::detectEfficiencies()
@@ -877,6 +870,7 @@ PlogReaction3::PlogReaction3(const AnyMap& node, const Kinetics& kin)
     : PlogReaction3()
 {
     setParameters(node, kin);
+    setRate(std::shared_ptr<PlogRate>(new PlogRate(node, rate_units)));
 }
 
 void PlogReaction3::getParameters(AnyMap& reactionNode) const
@@ -888,32 +882,25 @@ void PlogReaction3::getParameters(AnyMap& reactionNode) const
     reactionNode.update(rateNode);
 }
 
-bool PlogReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
-{
-    if (!Reaction3::setParameters(node, kin)) {
-        return false;
-    }
-    setRate(std::shared_ptr<PlogRate>(new PlogRate(node, rate_units)));
-    return true;
-}
-
 CustomFunc1Reaction::CustomFunc1Reaction()
     : Reaction3()
 {
     m_rate = std::shared_ptr<CustomFunc1Rate>(new CustomFunc1Rate);
 }
 
+CustomFunc1Reaction::CustomFunc1Reaction(const Composition& reactants,
+                                         const Composition& products,
+                                         const CustomFunc1Rate& rate)
+    : Reaction3(reactants, products)
+{
+    m_rate = std::make_shared<CustomFunc1Rate>(rate);
+}
+
 CustomFunc1Reaction::CustomFunc1Reaction(const AnyMap& node, const Kinetics& kin)
     : CustomFunc1Reaction()
 {
     setParameters(node, kin);
-}
-
-bool CustomFunc1Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
-{
-    bool ok = Reaction3::setParameters(node, kin);
     setRate(std::shared_ptr<CustomFunc1Rate>(new CustomFunc1Rate(node, rate_units)));
-    return ok;
 }
 
 TestReaction::TestReaction()
@@ -926,15 +913,7 @@ TestReaction::TestReaction(const AnyMap& node, const Kinetics& kin)
     : TestReaction()
 {
     setParameters(node, kin);
-}
-
-bool TestReaction::setParameters(const AnyMap& node, const Kinetics& kin)
-{
-    if (!Reaction3::setParameters(node, kin)) {
-        return false;
-    }
     setRate(std::shared_ptr<ArrheniusRate>(new ArrheniusRate(node, rate_units)));
-    return true;
 }
 
 void ChebyshevReaction::getParameters(AnyMap& reactionNode) const

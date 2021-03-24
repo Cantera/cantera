@@ -56,7 +56,8 @@ PlogRate::PlogRate(const std::multimap<double, Arrhenius>& rates)
     : Plog(rates) {
 }
 
-PlogRate::PlogRate(const AnyMap& node, const Units& rate_units) {
+PlogRate::PlogRate(const AnyMap& node, const Units& rate_units)
+    : Plog() {
     setParameters(node, rate_units);
 }
 
