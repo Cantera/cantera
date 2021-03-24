@@ -225,15 +225,16 @@ TEST(Reaction, ChebyshevFromYaml)
 
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_EQ(R->reactants.size(), (size_t) 1);
-    auto CR = dynamic_cast<ChebyshevReaction&>(*R);
+    auto CR = dynamic_cast<ChebyshevReaction3&>(*R);
+    const auto& rate = std::dynamic_pointer_cast<ChebyshevRate3>(CR.rate());
     double logP = std::log10(2e6);
     double T = 1800;
-    CR.rate.update_C(&logP);
-    EXPECT_EQ(CR.rate.nTemperature(), (size_t) 6);
-    EXPECT_EQ(CR.rate.nPressure(), (size_t) 4);
-    EXPECT_DOUBLE_EQ(CR.rate.Tmax(), 3000);
-    EXPECT_DOUBLE_EQ(CR.rate.Pmin(), 1000);
-    EXPECT_NEAR(CR.rate.updateRC(std::log(T), 1.0/T), 130512.2773948636, 1e-9);
+    rate->update_C(&logP);
+    EXPECT_EQ(rate->nTemperature(), (size_t) 6);
+    EXPECT_EQ(rate->nPressure(), (size_t) 4);
+    EXPECT_DOUBLE_EQ(rate->Tmax(), 3000);
+    EXPECT_DOUBLE_EQ(rate->Pmin(), 1000);
+    EXPECT_NEAR(rate->updateRC(std::log(T), 1.0/T), 130512.2773948636, 1e-9);
 }
 
 TEST(Reaction, BlowersMaselFromYaml)
@@ -552,8 +553,8 @@ TEST_F(ReactionToYaml, Chebyshev)
     soln = newSolution("pdep-test.yaml");
     soln->thermo()->setState_TPY(1000, 2e5, "R6:1, P6A:2, P6B:0.3");
     duplicateReaction(5);
-    EXPECT_TRUE(std::dynamic_pointer_cast<ChebyshevReaction>(duplicate));
-    compareReactions();
+    EXPECT_TRUE(std::dynamic_pointer_cast<ChebyshevReaction3>(duplicate));
+    compareReactions(true);
 }
 
 TEST_F(ReactionToYaml, surface)

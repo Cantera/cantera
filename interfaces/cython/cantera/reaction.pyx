@@ -1034,7 +1034,7 @@ cdef class ChebyshevReaction(Reaction):
     A pressure-dependent reaction parameterized by a bivariate Chebyshev
     polynomial in temperature and pressure.
     """
-    reaction_type = "Chebyshev"
+    reaction_type = "Chebyshev-old"
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
                  init=True, **kwargs):
@@ -1434,7 +1434,7 @@ cdef class ChebyshevReaction3(Reaction):
     A pressure-dependent reaction parameterized by a bivariate Chebyshev
     polynomial in temperature and pressure.
     """
-    reaction_type = "Chebyshev-new"
+    reaction_type = "Chebyshev"
 
     cdef CxxChebyshevReaction3* cr(self):
         return <CxxChebyshevReaction3*>self.reaction

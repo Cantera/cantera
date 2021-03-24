@@ -385,11 +385,11 @@ class TestChebyshev(TestReaction):
              'data': [[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
                       [ 1.9764e+00,  1.0037e+00,  7.2865e-03, -3.0432e-02],
                       [ 3.1770e-01,  2.6889e-01,  9.4806e-02, -7.6385e-03]]}
-    _type = "Chebyshev"
+    _type = "Chebyshev-old"
     _index = 4
     _yaml = """
         equation: HO2 <=> OH + O  # Reaction 5
-        type: Chebyshev
+        type: Chebyshev-old
         temperature-range: [290.0, 3000.0]
         pressure-range: [9.869232667160128e-03 atm, 98.69232667160128 atm]
         data:
@@ -406,10 +406,10 @@ class TestChebyshev3(TestChebyshev):
                                  data=[[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
                                        [ 1.9764e+00,  1.0037e+00,  7.2865e-03, -3.0432e-02],
                                        [ 3.1770e-01,  2.6889e-01,  9.4806e-02, -7.6385e-03]])
-    _type = "Chebyshev-new"
+    _type = "Chebyshev"
     _yaml = """
         equation: HO2 <=> OH + O  # Reaction 5
-        type: Chebyshev-new
+        type: Chebyshev
         temperature-range: [290.0, 3000.0]
         pressure-range: [9.869232667160128e-03 atm, 98.69232667160128 atm]
         data:

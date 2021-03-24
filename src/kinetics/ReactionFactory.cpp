@@ -90,17 +90,17 @@ ReactionFactory::ReactionFactory()
     });
 
     // register Chebyshev reactions
-    reg("Chebyshev-new", [](const AnyMap& node, const Kinetics& kin) {
+    reg("Chebyshev", [](const AnyMap& node, const Kinetics& kin) {
         return new ChebyshevReaction3(node, kin);
     });
-    reg("Chebyshev", [](const AnyMap& node, const Kinetics& kin) {
+    addAlias("Chebyshev", "chebyshev");
+    reg("Chebyshev-old", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ChebyshevReaction();
         if (node.hasKey("equation")) {
             setupChebyshevReaction(*(ChebyshevReaction*)R, node, kin);
         }
         return R;
     });
-    addAlias("Chebyshev", "chebyshev");
 
     // register custom reactions specified by Func1 objects
     reg("custom-rate-function", [](const AnyMap& node, const Kinetics& kin) {
@@ -203,12 +203,12 @@ ReactionFactoryXML::ReactionFactoryXML()
     addAlias("pressure-dependent-Arrhenius-old", "pdep_arrhenius");
 
     // register Chebyshev reactions
-    reg("Chebyshev", [](const XML_Node& node) {
+    reg("Chebyshev-old", [](const XML_Node& node) {
         Reaction* R = new ChebyshevReaction();
         setupChebyshevReaction(*(ChebyshevReaction*)R, node);
         return R;
     });
-    addAlias("Chebyshev", "chebyshev");
+    addAlias("Chebyshev-old", "chebyshev");
 
     // register interface reactions
     reg("interface", [](const XML_Node& node) {
