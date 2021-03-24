@@ -28,6 +28,20 @@ void PlogData::update(const ThermoPhase& bulk) {
     update(bulk.temperature(), bulk.pressure());
 }
 
+ChebyshevData::ChebyshevData(double T) {
+    throw CanteraError("ChebyshevData::ChebyshevData",
+        "Missing state information: reaction type requires pressure.");
+}
+
+void ChebyshevData::update(double T) {
+    throw CanteraError("ChebyshevData::update",
+        "Missing state information: reaction type requires pressure.");
+}
+
+void ChebyshevData::update(const ThermoPhase& bulk) {
+    update(bulk.temperature(), bulk.pressure());
+}
+
 void CustomFunc1Data::update(const ThermoPhase& bulk) {
     m_temperature = bulk.temperature();
 }

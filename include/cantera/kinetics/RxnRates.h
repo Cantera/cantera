@@ -472,6 +472,14 @@ public:
     ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
                   const Array2D& coeffs);
 
+    //! Run object setup based on AnyMap node information
+    void setParameters(const AnyMap& node,
+                       const UnitSystem& units, const Units& rate_units);
+
+    //! Set up Chebyshev object
+    void setup(double Tmin, double Tmax, double Pmin, double Pmax,
+                  const Array2D& coeffs);
+
     //! Update concentration-dependent parts of the rate coefficient.
     //! @param c base-10 logarithm of the pressure in Pa
     void update_C(const doublereal* c) {
