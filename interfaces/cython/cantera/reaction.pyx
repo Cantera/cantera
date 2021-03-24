@@ -587,6 +587,84 @@ cdef class PlogRate(_ReactionRate):
             self.rate = <CxxPlogRate*>(self.base)
 
 
+cdef class ChebyshevRate(_ReactionRate):
+    r"""
+    """
+    def __cinit__(self, Tmin=None, Tmax=None, Pmin=None, Pmax=None, data=None, init=True):
+
+        if Tmin and Tmax and Pmin and Pmax and data and init:
+            self._setup(Tmin, Tmax, Pmin, Pmax, data)
+
+    def _setup(self, Tmin, Tmax, Pmin, Pmax, coeffs):
+        """
+        Simultaneously set values for `Tmin`, `Tmax`, `Pmin`, `Pmax`, and
+        `coeffs`.
+        """
+        cdef CxxArray2D data
+        data.resize(len(coeffs), len(coeffs[0]))
+        cdef double value
+        cdef int i
+        cdef int j
+        for i,row in enumerate(coeffs):
+            for j,value in enumerate(row):
+                CxxArray2D_set(data, i, j, value)
+
+        self._base.reset(new CxxChebyshevRate3(Tmin, Tmax, Pmin, Pmax, data))
+        self.base = self._base.get()
+        self.rate = <CxxChebyshevRate3*>(self.base)
+
+    @staticmethod
+    cdef wrap(shared_ptr[CxxReactionRateBase] rate):
+        """
+        Wrap a C++ ReactionRateBase object with a Python object.
+        """
+        # wrap C++ reaction
+        cdef ChebyshevRate arr
+        arr = ChebyshevRate(init=False)
+        arr._base = rate
+        arr.base = arr._base.get()
+        arr.rate = <CxxChebyshevRate3*>(arr.base)
+        return arr
+
+    property Tmin:
+        """ Minimum temperature [K] for the Chebyshev fit """
+        def __get__(self):
+            return self.rate.Tmin()
+
+    property Tmax:
+        """ Maximum temperature [K] for the Chebyshev fit """
+        def __get__(self):
+            return self.rate.Tmax()
+
+    property Pmin:
+        """ Minimum pressure [Pa] for the Chebyshev fit """
+        def __get__(self):
+            return self.rate.Pmin()
+
+    property Pmax:
+        """ Maximum pressure [Pa] for the Chebyshev fit """
+        def __get__(self):
+            return self.rate.Pmax()
+
+    property nPressure:
+        """ Number of pressures over which the Chebyshev fit is computed """
+        def __get__(self):
+            return self.rate.nPressure()
+
+    property nTemperature:
+        """ Number of temperatures over which the Chebyshev fit is computed """
+        def __get__(self):
+            return self.rate.nTemperature()
+
+    property coeffs:
+        """
+        2D array of Chebyshev coefficients of size `(nTemperature, nPressure)`.
+        """
+        def __get__(self):
+            c = np.fromiter(self.rate.coeffs(), np.double)
+            return c.reshape((self.rate.nTemperature(), self.rate.nPressure()))
+
+
 cdef class ElementaryReaction(Reaction):
     """
     A reaction which follows mass-action kinetics with a modified Arrhenius
@@ -1349,6 +1427,65 @@ cdef class PlogReaction3(Reaction):
 
         r.rate.update_C(&logP)
         return r.rate.updateRC(logT, recipT)
+
+
+cdef class ChebyshevReaction3(Reaction):
+    """
+    A pressure-dependent reaction parameterized by a bivariate Chebyshev
+    polynomial in temperature and pressure.
+    """
+    reaction_type = "Chebyshev-new"
+
+    cdef CxxChebyshevReaction3* cr(self):
+        return <CxxChebyshevReaction3*>self.reaction
+
+    cdef CxxChebyshevRate3* crr(self):
+        return <CxxChebyshevRate3*>(self.cr().rate().get())
+
+    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
+                 init=True, **kwargs):
+
+        if init and equation and kinetics:
+
+            spec = {'equation': equation, 'type': self.reaction_type}
+            if isinstance(rate, dict):
+                spec['temperature-range'] = [rate['Tmin'], rate['Tmax']]
+                spec['pressure-range'] = [rate['Pmin'], rate['Pmax']]
+                spec['data'] = rate['data']
+            elif isinstance(rate, ChebyshevRate) or rate is None:
+                pass
+            else:
+                raise TypeError("Invalid rate definition")
+
+            self._reaction = CxxNewReaction(dict_to_anymap(spec),
+                                            deref(kinetics.kinetics))
+            self.reaction = self._reaction.get()
+
+            if isinstance(rate, ChebyshevRate):
+                self.rate = rate
+
+    property rate:
+        """ Get/Set the `Chebyshev` rate coefficients for this reaction. """
+        def __get__(self):
+            return ChebyshevRate.wrap(self.cr().rate())
+        def __set__(self, ChebyshevRate rate):
+            self.cr().setRate(rate._base)
+
+    def set_parameters(self, Tmin, Tmax, Pmin, Pmax, coeffs):
+        """
+        Simultaneously set values for `Tmin`, `Tmax`, `Pmin`, `Pmax`, and
+        `coeffs`.
+        """
+        self.rate = self.ChebyshevRate(Tmin, Tmax, Pmin, Pmax, coeffs)
+
+    def __call__(self, float T, float P):
+        cdef CxxChebyshevReaction3* r = <CxxChebyshevReaction3*>self.reaction
+        cdef double logT = np.log(T)
+        cdef double recipT = 1/T
+        cdef double logP = np.log10(P)
+
+        self.crr().update_C(&logP)
+        return self.crr().updateRC(logT, recipT)
 
 
 cdef class CustomReaction(Reaction):
