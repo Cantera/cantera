@@ -1114,7 +1114,7 @@ cdef class ChebyshevReaction(Reaction):
             for j,value in enumerate(row):
                 CxxArray2D_set(data, i, j, value)
 
-        r.rate = CxxChebyshevRate(Tmin, Tmax, Pmin, Pmax, data)
+        r.rate = CxxChebyshev(Tmin, Tmax, Pmin, Pmax, data)
 
     def __call__(self, float T, float P):
         cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
@@ -1521,53 +1521,6 @@ cdef class CustomReaction(Reaction):
             self._rate = rate
             cdef CxxCustomFunc1Reaction* r = <CxxCustomFunc1Reaction*>self.reaction
             r.setRate(self._rate._base)
-
-
-cdef class TestReaction(Reaction):
-    """
-    A reaction which follows mass-action kinetics with a modified Arrhenius
-    reaction rate. The class is a re-implementation of `ElementaryReaction`
-    and serves for testing purposes.
-
-    An example for the definition of a `TestReaction` object is given as::
-
-        rxn = TestReaction(equation='H2 + O <=> H + OH',
-                           rate={'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07},
-                           kinetics=gas)
-
-    Warning: this class is an experimental part of the Cantera API and
-        may be changed or removed without notice.
-    """
-    reaction_type = "elementary-new"
-
-    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
-                 init=True, **kwargs):
-
-        if init and equation and kinetics:
-
-            spec = {'equation': equation, 'type': self.reaction_type}
-            if isinstance(rate, dict):
-                spec['rate-constant'] = rate
-            elif isinstance(rate, ArrheniusRate) or rate is None:
-                spec['rate-constant'] = dict.fromkeys(['A', 'b', 'Ea'], 0.)
-            else:
-                raise TypeError("Invalid rate definition")
-
-            self._reaction = CxxNewReaction(dict_to_anymap(spec),
-                                            deref(kinetics.kinetics))
-            self.reaction = self._reaction.get()
-
-            if isinstance(rate, ArrheniusRate):
-                self.rate = rate
-
-    property rate:
-        """ Get/Set the `Arrhenius` rate coefficient for this reaction. """
-        def __get__(self):
-            cdef CxxTestReaction* r = <CxxTestReaction*>self.reaction
-            return ArrheniusRate.wrap(r.rate())
-        def __set__(self, ArrheniusRate rate):
-            cdef CxxTestReaction* r = <CxxTestReaction*>self.reaction
-            r.setRate(rate._base)
 
 
 cdef class InterfaceReaction(ElementaryReaction):

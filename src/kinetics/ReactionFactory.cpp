@@ -107,11 +107,6 @@ ReactionFactory::ReactionFactory()
         return new CustomFunc1Reaction(node, kin);
     });
 
-    // register custom Python reactions
-    reg("elementary-new", [](const AnyMap& node, const Kinetics& kin) {
-        return new TestReaction(node, kin);
-    });
-
     // register interface reactions
     reg("interface", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new InterfaceReaction();

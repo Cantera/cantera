@@ -639,7 +639,7 @@ ChebyshevReaction::ChebyshevReaction()
 
 ChebyshevReaction::ChebyshevReaction(const Composition& reactants_,
                                      const Composition& products_,
-                                     const ChebyshevRate& rate_)
+                                     const Chebyshev& rate_)
     : Reaction(reactants_, products_)
     , rate(rate_)
 {
@@ -900,6 +900,7 @@ ChebyshevReaction3::ChebyshevReaction3(const AnyMap& node, const Kinetics& kin)
     : ChebyshevReaction3()
 {
     setParameters(node, kin);
+    setRate(std::shared_ptr<ChebyshevRate3>(new ChebyshevRate3(node, rate_units)));
 }
 
 bool ChebyshevReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
@@ -931,8 +932,6 @@ bool ChebyshevReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 
     calculateRateCoeffUnits(kin);
     input = node;
-
-    setRate(std::shared_ptr<ChebyshevRate3>(new ChebyshevRate3(node, rate_units)));
     return true;
 }
 
@@ -963,19 +962,6 @@ CustomFunc1Reaction::CustomFunc1Reaction(const AnyMap& node, const Kinetics& kin
 {
     setParameters(node, kin);
     setRate(std::shared_ptr<CustomFunc1Rate>(new CustomFunc1Rate(node, rate_units)));
-}
-
-TestReaction::TestReaction()
-    : Reaction3()
-{
-    m_rate = std::shared_ptr<ArrheniusRate>(new ArrheniusRate);
-}
-
-TestReaction::TestReaction(const AnyMap& node, const Kinetics& kin)
-    : TestReaction()
-{
-    setParameters(node, kin);
-    setRate(std::shared_ptr<ArrheniusRate>(new ArrheniusRate(node, rate_units)));
 }
 
 void ChebyshevReaction::getParameters(AnyMap& reactionNode) const
@@ -1657,11 +1643,11 @@ void setupChebyshevReaction(ChebyshevReaction& R, const XML_Node& rxn_node)
             coeffs(t,p) = coeffs_flat[nP*t + p];
         }
     }
-    R.rate = ChebyshevRate(getFloat(rc, "Tmin", "toSI"),
-                           getFloat(rc, "Tmax", "toSI"),
-                           getFloat(rc, "Pmin", "toSI"),
-                           getFloat(rc, "Pmax", "toSI"),
-                           coeffs);
+    R.rate = Chebyshev(getFloat(rc, "Tmin", "toSI"),
+                       getFloat(rc, "Tmax", "toSI"),
+                       getFloat(rc, "Pmin", "toSI"),
+                       getFloat(rc, "Pmax", "toSI"),
+                       coeffs);
     setupReaction(R, rxn_node);
 }
 
@@ -1686,11 +1672,11 @@ void setupChebyshevReaction(ChebyshevReaction&R, const AnyMap& node,
     }
     const UnitSystem& units = node.units();
     coeffs(0, 0) += std::log10(units.convertTo(1.0, R.rate_units));
-    R.rate = ChebyshevRate(units.convert(T_range[0], "K"),
-                           units.convert(T_range[1], "K"),
-                           units.convert(P_range[0], "Pa"),
-                           units.convert(P_range[1], "Pa"),
-                           coeffs);
+    R.rate = Chebyshev(units.convert(T_range[0], "K"),
+                       units.convert(T_range[1], "K"),
+                       units.convert(P_range[0], "Pa"),
+                       units.convert(P_range[1], "Pa"),
+                       coeffs);
 }
 
 void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)

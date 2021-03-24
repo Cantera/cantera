@@ -465,8 +465,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxPlogReaction "Cantera::PlogReaction" (CxxReaction):
         CxxPlog rate
 
-    cdef cppclass CxxChebyshevRate "Cantera::ChebyshevRate":
-        CxxChebyshevRate(double, double, double, double, CxxArray2D)
+    cdef cppclass CxxChebyshev "Cantera::Chebyshev":
+        CxxChebyshev(double, double, double, double, CxxArray2D)
         double Tmin()
         double Tmax()
         double Pmin()
@@ -478,7 +478,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double updateRC(double, double)
 
     cdef cppclass CxxChebyshevReaction "Cantera::ChebyshevReaction" (CxxReaction):
-        CxxChebyshevRate rate
+        CxxChebyshev rate
 
     cdef cppclass CxxElementaryReaction3 "Cantera::ElementaryReaction3" (CxxReaction3):
         CxxElementaryReaction3()
@@ -495,9 +495,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
 
     cdef cppclass CxxCustomFunc1Reaction "Cantera::CustomFunc1Reaction" (CxxReaction3):
         CxxCustomFunc1Reaction()
-
-    cdef cppclass CxxTestReaction "Cantera::TestReaction" (CxxReaction3):
-        CxxTestReaction()
 
     cdef cppclass CxxBlowersMasel "Cantera::BlowersMasel":
         CxxBlowersMasel()
