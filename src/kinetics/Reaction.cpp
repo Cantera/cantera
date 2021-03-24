@@ -882,6 +882,59 @@ void PlogReaction3::getParameters(AnyMap& reactionNode) const
     reactionNode.update(rateNode);
 }
 
+ChebyshevReaction3::ChebyshevReaction3()
+    : Reaction3()
+{
+    m_rate = std::shared_ptr<ChebyshevRate3>(new ChebyshevRate3);
+}
+
+ChebyshevReaction3::ChebyshevReaction3(const Composition& reactants,
+                                       const Composition& products,
+                                       const ChebyshevRate3& rate)
+    : Reaction3(reactants, products)
+{
+    m_rate = std::make_shared<ChebyshevRate3>(rate);
+}
+
+ChebyshevReaction3::ChebyshevReaction3(const AnyMap& node, const Kinetics& kin)
+    : ChebyshevReaction3()
+{
+    setParameters(node, kin);
+}
+
+bool ChebyshevReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
+{
+    if (!node.hasKey("equation")) {
+        // empty node: used by newReaction() factory loader
+        return false;
+    }
+
+    parseReactionEquation(*this, node["equation"], kin);
+    // Non-stoichiometric reaction orders
+    if (node.hasKey("orders")) {
+        for (const auto& order : node["orders"].asMap<double>()) {
+            orders[order.first] = order.second;
+            if (kin.kineticsSpeciesIndex(order.first) == npos) {
+                setValid(false);
+            }
+        }
+    }
+
+    reactants.erase("(+M)"); // remove optional third body notation
+    products.erase("(+M)");
+
+    // Flags
+    id = node.getString("id", "");
+    duplicate = node.getBool("duplicate", false);
+    allow_negative_orders = node.getBool("negative-orders", false);
+    allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
+
+    input = node;
+
+    setRate(std::shared_ptr<ChebyshevRate3>(new ChebyshevRate3(node, rate_units)));
+    return true
+}
+
 CustomFunc1Reaction::CustomFunc1Reaction()
     : Reaction3()
 {
