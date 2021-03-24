@@ -40,10 +40,7 @@ public:
     //! Set parameters
     //! @param node  AnyMap object containing reaction rate specification
     //! @param rate_units  Description of units used for rate parameters
-    virtual bool setParameters(const AnyMap& node, const Units& rate_units) {
-        throw CanteraError("ReactionRate::setParameters",
-                           "Not implemented by derived ReactionRate object.");
-    }
+    virtual bool setParameters(const AnyMap& node, const Units& rate_units) = 0;
 
     //! Get parameters
     //! Store the parameters of a ReactionRate needed to reconstruct an identical
@@ -262,7 +259,10 @@ public:
     /// @param rate_units  unit definitions used for rate information
     PlogRate(const AnyMap& node, const Units& rate_units);
 
-    virtual bool setParameters(const AnyMap& node, const Units& rate_units) override;
+    virtual std::string type() const override { return "PlogRate"; }
+
+    virtual bool setParameters(const AnyMap& node,
+                               const Units& rate_units) override;
     virtual void getParameters(AnyMap& rateNode,
                                const Units& rate_units) const override;
 
@@ -272,8 +272,6 @@ public:
     virtual void update(const PlogData& shared_data, double concm=0.) override {
         update_C(shared_data.logP());
     }
-
-    virtual std::string type() const override { return "PlogRate"; }
 
     virtual double eval(const PlogData& shared_data,
                         double concm=0.) const override {
@@ -303,6 +301,10 @@ public:
     CustomFunc1Rate(const AnyMap& rate, const Units& rate_units) {}
 
     virtual std::string type() const override { return "custom-function"; }
+
+    virtual bool setParameters(const AnyMap& node, const Units& rate_units) {
+        return true;
+    }
 
     //! Update information specific to reaction
     static bool uses_update() { return false; }

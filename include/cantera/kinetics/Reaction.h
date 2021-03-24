@@ -152,45 +152,6 @@ protected:
 };
 
 
-//! An intermediate class used to avoid naming conflicts of 'rate' member
-//! variables and getters (see `ElementaryReaction`, `PlogReaction` and
-//! `ChebyshevReaction`).
-class Reaction3 : public Reaction
-{
-public:
-    Reaction3() : Reaction() {}
-    Reaction3(const Composition& reactants, const Composition& products);
-
-    //! Get reaction rate pointer
-    shared_ptr<ReactionRateBase> rate() {
-        return m_rate;
-    }
-
-    //! Set reaction rate pointer
-    void setRate(shared_ptr<ReactionRateBase> rate) {
-        m_rate = rate;
-    }
-
-    //! Set up reaction based on AnyMap node
-    virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
-
-    //! Get pointer to third-body
-    shared_ptr<ThirdBody> thirdBody() {
-        return m_third_body;
-    }
-
-    virtual void validate();
-
-protected:
-    //! Reaction rate used by generic reactions
-    shared_ptr<ReactionRateBase> m_rate;
-
-    //! Relative efficiencies of third-body species in enhancing the reaction
-    //! rate (if applicable)
-    shared_ptr<ThirdBody> m_third_body;
-};
-
-
 //! A reaction which follows mass-action kinetics with a modified Arrhenius
 //! reaction rate.
 class ElementaryReaction : public Reaction
@@ -209,6 +170,7 @@ public:
     Arrhenius rate;
     bool allow_negative_pre_exponential_factor;
 };
+
 
 //! A class for managing third-body efficiencies, including default values
 class ThirdBody
@@ -231,6 +193,7 @@ public:
     //! #efficiencies.
     double default_efficiency;
 };
+
 
 //! A reaction with a non-reacting third body "M" that acts to add or remove
 //! energy from the reacting species
@@ -260,6 +223,7 @@ protected:
     virtual std::pair<std::vector<std::string>, bool>
         undeclaredThirdBodies(const Kinetics& kin) const;
 };
+
 
 //! A reaction that is first-order in [M] at low pressure, like a third-body
 //! reaction, but zeroth-order in [M] as pressure increases.
@@ -305,6 +269,7 @@ protected:
         const Kinetics& kin) const;
 };
 
+
 //! A reaction where the rate decreases as pressure increases due to collisional
 //! stabilization of a reaction intermediate. Like a FalloffReaction, except
 //! that the forward rate constant is written as being proportional to the low-
@@ -325,6 +290,7 @@ public:
     virtual void getParameters(AnyMap& reactionNode) const;
 };
 
+
 //! A pressure-dependent reaction parameterized by logarithmically interpolating
 //! between Arrhenius rate expressions at various pressures.
 class PlogReaction : public Reaction
@@ -344,6 +310,7 @@ public:
     Plog rate;
 };
 
+
 //! A pressure-dependent reaction parameterized by a bi-variate Chebyshev
 //! polynomial in temperature and pressure
 class ChebyshevReaction : public Reaction
@@ -361,6 +328,46 @@ public:
     ChebyshevRate rate;
 };
 
+
+//! An intermediate class used to avoid naming conflicts of 'rate' member
+//! variables and getters (see `ElementaryReaction`, `PlogReaction` and
+//! `ChebyshevReaction`).
+class Reaction3 : public Reaction
+{
+public:
+    Reaction3() : Reaction() {}
+    Reaction3(const Composition& reactants, const Composition& products);
+
+    //! Get reaction rate pointer
+    shared_ptr<ReactionRateBase> rate() {
+        return m_rate;
+    }
+
+    //! Set reaction rate pointer
+    void setRate(shared_ptr<ReactionRateBase> rate) {
+        m_rate = rate;
+    }
+
+    //! Set up reaction based on AnyMap *node*
+    virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
+
+    //! Get pointer to third-body
+    shared_ptr<ThirdBody> thirdBody() {
+        return m_third_body;
+    }
+
+    virtual void validate();
+
+protected:
+    //! Reaction rate used by generic reactions
+    shared_ptr<ReactionRateBase> m_rate;
+
+    //! Relative efficiencies of third-body species in enhancing the reaction
+    //! rate (if applicable)
+    shared_ptr<ThirdBody> m_third_body;
+};
+
+
 //! A reaction which follows mass-action kinetics with a modified Arrhenius
 //! reaction rate.
 class ElementaryReaction3 : public Reaction3
@@ -375,8 +382,6 @@ public:
     virtual std::string type() const {
         return "elementary";
     }
-
-    virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
 };
 
@@ -422,8 +427,6 @@ public:
     virtual std::string type() const {
         return "pressure-dependent-Arrhenius";
     }
-
-    virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
 };
 
@@ -434,10 +437,10 @@ class CustomFunc1Reaction : public Reaction3
 {
 public:
     CustomFunc1Reaction();
+    CustomFunc1Reaction(const Composition& reactants, const Composition& products,
+                        const CustomFunc1Rate& rate);
 
     CustomFunc1Reaction(const AnyMap& node, const Kinetics& kin);
-
-    virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
 
     virtual std::string type() const {
         return "custom-rate-function";
@@ -463,8 +466,6 @@ public:
     virtual std::string type() const {
         return "elementary-new";
     }
-
-    virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
 };
 
 
