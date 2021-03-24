@@ -10,6 +10,25 @@
 
 using namespace Cantera;
 
+TEST(ReactionRate, ModifyArrheniusRate)
+{
+    auto sol = newSolution("gri30.yaml");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: N + NO <=> N2 + O,"
+        " rate-constant: [-2.70000E+13 cm^3/mol/s, 0, 355 cal/mol],"
+        " negative-A: true}");
+
+    auto R = newReaction(rxn, *(sol->kinetics()));
+    auto ER = dynamic_cast<ElementaryReaction3&>(*R);
+
+    auto rr0 = std::dynamic_pointer_cast<ArrheniusRate>(ER.rate());
+    EXPECT_TRUE(rr0->allow_negative_pre_exponential_factor);
+    rr0->allow_negative_pre_exponential_factor = false;
+
+    auto rr1 = std::dynamic_pointer_cast<ArrheniusRate>(ER.rate());
+    EXPECT_FALSE(rr1->allow_negative_pre_exponential_factor);
+}
+
 TEST(Reaction, ElementaryFromYaml1)
 {
     auto sol = newSolution("gri30.yaml", "", "None");
@@ -24,7 +43,8 @@ TEST(Reaction, ElementaryFromYaml1)
     EXPECT_EQ(R->type(), "elementary");
 
     auto ER = dynamic_cast<ElementaryReaction3&>(*R);
-    EXPECT_TRUE(ER.allow_negative_pre_exponential_factor);
+    auto rr = std::dynamic_pointer_cast<ArrheniusRate>(ER.rate());
+    EXPECT_TRUE(rr->allow_negative_pre_exponential_factor);
     EXPECT_FALSE(ER.allow_negative_orders);
 
     const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(ER.rate());
@@ -178,7 +198,7 @@ TEST(Reaction, PlogFromYaml)
 
     auto R = newReaction(rxn, *(sol->kinetics()));
     auto PR = dynamic_cast<PlogReaction3&>(*R);
-    const auto& rates = dynamic_cast<PlogRate&>(*PR.rate()).rates();
+    const auto& rates = std::dynamic_pointer_cast<PlogRate>(PR.rate())->rates();
     EXPECT_EQ(rates.size(), (size_t) 4);
     EXPECT_NEAR(rates[0].first, 0.039474 * OneAtm, 1e-6);
     EXPECT_NEAR(rates[2].first, OneAtm, 1e-6);
