@@ -150,7 +150,7 @@ public:
      * safely called for negative values of the pre-exponential factor.
      */
     doublereal updateRC(doublereal logT, doublereal recipT, doublereal deltaH) {
-        m_E = activationEnergy_R(deltaH);
+        double m_E = activationEnergy_R(deltaH);
         return m_A * std::exp(m_b * logT - m_E * recipT);
     }
 
@@ -196,7 +196,7 @@ public:
     }    
 
 protected:
-    doublereal m_logA, m_b, m_E, m_A, m_w, m_E0;
+    doublereal m_logA, m_b, m_A, m_w, m_E0;
 };
 
 /**
@@ -644,25 +644,26 @@ public:
     //! accounting coverage dependence.
     doublereal activationEnergy_R(doublereal deltaH) {
         double deltaH_R = deltaH / GasConstant; // deltaH in temperature units (Kelvin)
+        double E;
         if (deltaH_R < -4 * m_E0) {
-            m_E = 0;
+            E = 0;
         } else if (deltaH_R > 4 * m_E0) {
-            m_E = deltaH_R;
+            E = deltaH_R;
         } else {
             // m_w is in Kelvin
             // vp is in Kelvin
             double vp = 2 * m_w * ((m_w + m_E0) / (m_w - m_E0));
             double vp_2w_dH = (vp - 2 * m_w + deltaH_R); // (Vp - 2 w + dH)
-            m_E = (m_w + deltaH_R / 2) * (vp_2w_dH * vp_2w_dH) / 
-                 (vp * vp - 4 * m_w * m_w + deltaH_R * deltaH_R); // in Kelvin
+            E = (m_w + deltaH_R / 2) * (vp_2w_dH * vp_2w_dH) /
+                (vp * vp - 4 * m_w * m_w + deltaH_R * deltaH_R); // in Kelvin
         }
-        return m_E + m_ecov;
+        return E + m_ecov;
     }
 
     //! Return the intrinsic activation energy divided by the gas constant (i.e. the
     //! activation temperature) [K], accounting coverage dependence.
     doublereal activationEnergy_R0() const {
-        return m_E + m_ecov;
+        return m_E0 + m_ecov;
     }
     
     //! Return the bond energy *w* divided by the gas constant[K]
@@ -671,7 +672,7 @@ public:
     }    
     
 protected:
-    doublereal m_b, m_E, m_A, m_E0, m_w;
+    doublereal m_b, m_A, m_E0, m_w;
     doublereal m_acov, m_ecov, m_mcov;
     std::vector<size_t> m_sp, m_msp;
     vector_fp m_ac, m_ec, m_mc;
