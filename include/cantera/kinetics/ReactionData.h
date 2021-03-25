@@ -11,6 +11,8 @@
 #ifndef CT_REACTIONDATA_H
 #define CT_REACTIONDATA_H
 
+#include "cantera/base/ct_defs.h"
+
 namespace Cantera
 {
 
