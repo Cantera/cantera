@@ -29,7 +29,7 @@ public:
      *                  first phase definition in the input file will be used.
      */
     explicit PengRobinson(const std::string& infile="",
-                              const std::string& id="");
+                          const std::string& id="");
 
     virtual std::string type() const {
         return "PengRobinson";
