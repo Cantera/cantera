@@ -1800,3 +1800,83 @@ class AdvanceCoveragesTest(utilities.CanteraTest):
         # check that the solutions are similar, but not identical
         self.assertArrayNear(cov, self.surf.coverages)
         self.assertTrue(any(cov != self.surf.coverages))
+
+
+class DelegatedReactorTest(utilities.CanteraTest):
+    def test_extra_variable(self):
+        class InertialWallReactor(ct.DelegatedIdealGasReactor):
+            def __init__(self, *args, neighbor, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.v_wall = 0
+                self.k_wall = 1e-5
+                self.neighbor = neighbor
+
+            def after_initialize(self, t0):
+                self.n_vars += 1
+                self.i_wall = self.n_vars - 1
+
+            def after_get_state(self, y):
+                y[self.i_wall] = self.v_wall
+
+            def after_update_state(self, y):
+                self.v_wall = y[self.i_wall]
+                self.walls[0].set_velocity(self.v_wall)
+
+            def after_eval(self, t, ydot):
+                # Extra equation is d(v_wall)/dt = k * delta P
+                a = self.k_wall * (self.thermo.P - self.neighbor.thermo.P)
+                ydot[self.i_wall] = a
+
+            def before_component_index(self, name):
+                if name == 'v_wall':
+                    return self.i_wall
+
+            def before_component_name(self, i):
+                if i == self.i_wall:
+                    return 'v_wall'
+
+        gas = ct.Solution('h2o2.yaml')
+        gas.TP = 300, ct.one_atm
+        res = ct.Reservoir(gas)
+        gas.TP = 300, 2 * ct.one_atm
+        r = InertialWallReactor(gas, neighbor=res)
+        w = ct.Wall(r, res)
+        net = ct.ReactorNet([r])
+
+        V = []
+        for i in range(20):
+            net.advance(0.05 * i)
+            V.append(r.volume)
+
+        # Wall is accelerating
+        self.assertTrue((np.diff(V, 2) > 0).all())
+
+        self.assertIn('v_wall', net.component_name(gas.n_species + 3))
+        self.assertEqual(r.component_index('volume'), 1)
+        self.assertEqual(r.component_name(gas.n_species + 3), 'v_wall')
+        self.assertEqual(r.component_name(2), 'temperature')
+
+    def test_replace_equations(self):
+        gas = ct.Solution('h2o2.yaml')
+        tau = np.linspace(0.5, 2, gas.n_species + 3)
+        class DummyReactor(ct.DelegatedReactor):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.y = np.ones(gas.n_species + 3)
+
+            def replace_get_state(self, y):
+                y[:] = self.y
+
+            def replace_update_state(self, y):
+                self.y[:] = y
+
+            def replace_eval(self, t, ydot):
+                ydot[:] = - self.y / tau
+
+        r = DummyReactor(gas)
+        net = ct.ReactorNet([r])
+        net.rtol *= 0.1
+
+        while(net.time < 1):
+            net.step()
+            self.assertArrayNear(r.get_state(), np.exp(- net.time / tau))
