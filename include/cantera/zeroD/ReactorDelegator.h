@@ -8,6 +8,8 @@
 
 #include "Reactor.h"
 #include "cantera/base/Delegator.h"
+#include "cantera/zeroD/ReactorSurface.h"
+#include "cantera/thermo/SurfPhase.h"
 
 namespace Cantera
 {
@@ -29,6 +31,13 @@ public:
 
     //! Set the net heat transfer rate (for example, through walls) [W]
     virtual void setQdot(double q) = 0;
+
+    //! Set the state of the thermo object to correspond to the state of the reactor
+    virtual void restoreThermoState() = 0;
+
+    //! Set the state of the thermo object for surface *n* to correspond to the
+    //! state of that surface
+    virtual void restoreSurfaceState(size_t n) = 0;
 };
 
 template <class R>
@@ -331,6 +340,16 @@ public:
 
     virtual void setQdot(double q) override {
         R::m_Q = q;
+    }
+
+    virtual void restoreThermoState() override {
+        R::m_thermo->restoreState(R::m_state);
+    }
+
+    virtual void restoreSurfaceState(size_t n) override {
+        ReactorSurface* surf = R::m_surfaces.at(n);
+        surf->thermo()->setTemperature(R::m_state[0]);
+        surf->syncCoverages();
     }
 
 private:

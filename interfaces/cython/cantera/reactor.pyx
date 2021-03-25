@@ -441,6 +441,20 @@ cdef class DelegatedReactor(Reactor):
         def __set__(self, vdot):
             self.accessor.setVdot(vdot)
 
+    def restore_thermo_state(self):
+        """
+        Set the state of the thermo object to correspond to the state of the
+        reactor.
+        """
+        self.accessor.restoreThermoState()
+
+    def restore_surface_state(self, n):
+        """
+        Set the state of the thermo object for surface *n* to correspond to the
+        state of that surface
+        """
+        self.accessor.restoreSurfaceState(n)
+
 
 cdef class DelegatedIdealGasReactor(DelegatedReactor):
     reactor_type = "DelegatedIdealGasReactor"
