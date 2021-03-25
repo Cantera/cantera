@@ -95,21 +95,22 @@ species:
 
 reactions:
 - equation: 2 H(S) => H2 + 2 PT(S)  # Reaction 1
-  type: surface-Blowers-Masel
+  type: Blowers-Masel
   rate-constant: {A: 3.7e+21, b: 0, Ea0: 67400, w: 1000000}
   coverage-dependencies:
     H(S): {a: 0.0, m: 0.0, E: -6000.0}
 - equation: H + PT(S) => H(S)  # Reaction 2
-  type: surface-Blowers-Masel
+  type: Blowers-Masel
   sticking-coefficient: {A: 1.0, b: 0, Ea0: 0, w: 1000000}
 - equation: H2O + PT(S) => H2O(S)  # Reaction 3
-  type: surface-Blowers-Masel
+  type: Blowers-Masel
   sticking-coefficient: {A: 0.75, b: 0, Ea0: 0, w: 1000000}
 - equation: O2 + 2 PT(S) => 2 O(S)  # Reaction 4
-  type: surface-Blowers-Masel
+  type: Blowers-Masel
   sticking-coefficient: {A: 0.023, b: 0, Ea0: 0, w: 1000000}
   Motz-Wise: false
 - equation: OH + PT(S) => OH(S)  # Reaction 5
-  type: surface-Blowers-Masel
+  type: Blowers-Masel
   sticking-coefficient: {A: 1.0, b: 0, Ea0: 0, w: 100000}
   Motz-Wise: true
+
