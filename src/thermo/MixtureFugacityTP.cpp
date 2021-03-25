@@ -788,7 +788,7 @@ void MixtureFugacityTP::_updateReferenceStateThermo() const
         doublereal pref = refPressure();
         if (pref <= 0.0) {
             throw CanteraError("MixtureFugacityTP::_updateReferenceStateThermo",
-                "neg ref pressure");
+                "negative reference pressure");
         }
     }
 }
