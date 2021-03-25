@@ -2,6 +2,7 @@ from math import exp
 from pathlib import Path
 
 import cantera as ct
+import numpy as np
 from . import utilities
 
 
@@ -107,6 +108,107 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             """
         rxn = ct.Reaction.fromYaml(yaml, self.gas)
         self.assertEqual(rxn.reaction_type, "elementary")
+
+
+class TestReactionRate(utilities.CanteraTest):
+
+    _cls = None
+    _type = None
+    _uses_pressure = False
+    _index = None
+
+    @classmethod
+    def setUpClass(cls):
+        utilities.CanteraTest.setUpClass()
+        cls.gas = ct.Solution('kineticsfromscratch.yaml')
+        cls.gas.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
+        cls.gas.TP = 900, 2*ct.one_atm
+
+    def test_type(self):
+        if self._index is None:
+            return
+        self.assertIn(self._type, '{}'.format(self.rate))
+
+    def test_rate_T(self):
+        if self._index is None:
+            return
+        if self._uses_pressure:
+            with self.assertRaisesRegex(ct.CanteraError, "reaction type requires pressure"):
+                self.assertNear(self.rate(self.gas.T),
+                                self.gas.forward_rate_constants[self._index])
+        else:
+            self.assertNear(self.rate(self.gas.T),
+                            self.gas.forward_rate_constants[self._index])
+
+    def test_rate_TP(self):
+        if self._index is None:
+            return
+        self.assertNear(self.rate(self.gas.T, self.gas.P),
+                        self.gas.forward_rate_constants[self._index])
+
+
+class TestArrheniusRate(TestReactionRate):
+
+    _type = "Arrhenius"
+    _uses_pressure = False
+    _index = 0
+
+    def setUp(self):
+        self.A = self.gas.reaction(self._index).rate.pre_exponential_factor
+        self.b = self.gas.reaction(self._index).rate.temperature_exponent
+        self.Ea = self.gas.reaction(self._index).rate.activation_energy
+        self.rate = ct.ArrheniusRate(self.A, self.b, self.Ea)
+
+    def test_parameters(self):
+        self.assertEqual(self.A, self.rate.pre_exponential_factor)
+        self.assertEqual(self.b, self.rate.temperature_exponent)
+        self.assertEqual(self.Ea, self.rate.activation_energy)
+
+    def test_allow_negative_pre_exponential_factor1(self):
+        self.assertFalse(self.rate.allow_negative_pre_exponential_factor)
+        self.rate.allow_negative_pre_exponential_factor = True
+        self.assertTrue(self.rate.allow_negative_pre_exponential_factor)
+
+    def test_allow_negative_pre_exponential_factor2(self):
+        # modify value in memory
+        self.assertFalse(self.gas.reaction(self._index).rate.allow_negative_pre_exponential_factor)
+        self.gas.reaction(self._index).rate.allow_negative_pre_exponential_factor = True
+        self.assertTrue(self.gas.reaction(self._index).rate.allow_negative_pre_exponential_factor)
+
+
+class TestPlogRate(TestReactionRate):
+
+    _type = "Plog"
+    _uses_pressure = True
+    _index = 3
+
+    def setUp(self):
+        self.rate = ct.PlogRate([(1013.25, ct.Arrhenius(1.2124e+16, -0.5779, 45491376.8)),
+                                (101325., ct.Arrhenius(4.9108e+31, -4.8507, 103649395.2)),
+                                (1013250., ct.Arrhenius(1.2866e+47, -9.0246, 166508556.0)),
+                                (10132500., ct.Arrhenius(5.9632e+56, -11.529, 220076726.4))])
+
+
+class TestChebyshevRate(TestReactionRate):
+
+    _type = "Chebyshev"
+    _uses_pressure = True
+    _index = 4
+
+    def setUp(self):
+        self.Tmin = self.gas.reaction(self._index).rate.Tmin
+        self.Tmax = self.gas.reaction(self._index).rate.Tmax
+        self.Pmin = self.gas.reaction(self._index).rate.Pmin
+        self.Pmax = self.gas.reaction(self._index).rate.Pmax
+        self.coeffs = self.gas.reaction(self._index).rate.coeffs
+        self.rate = ct.ChebyshevRate(self.Tmin, self.Tmax, self.Pmin, self.Pmax, self.coeffs)
+
+    def test_parameters(self):
+        self.assertEqual(self.Tmin, self.rate.Tmin)
+        self.assertEqual(self.Tmax, self.rate.Tmax)
+        self.assertEqual(self.Pmin, self.rate.Pmin)
+        self.assertEqual(self.Pmax, self.rate.Pmax)
+        self.assertTrue(np.all(self.coeffs == self.rate.coeffs))
 
 
 class TestReaction(utilities.CanteraTest):
