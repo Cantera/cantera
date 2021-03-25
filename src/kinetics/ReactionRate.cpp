@@ -22,6 +22,14 @@ ArrheniusRate::ArrheniusRate(double A, double b, double E)
 {
 }
 
+ArrheniusRate::ArrheniusRate(const Arrhenius& arr, bool allow_negative_A)
+    : Arrhenius(arr.preExponentialFactor(),
+                arr.temperatureExponent(),
+                arr.activationEnergy_R())
+    , allow_negative_pre_exponential_factor(allow_negative_A)
+{
+}
+
 ArrheniusRate::ArrheniusRate(const AnyMap& node, const Units& rate_units) {
     setParameters(node, rate_units);
 }

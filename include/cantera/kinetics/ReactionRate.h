@@ -184,22 +184,29 @@ public:
     //! Default constructor.
     ArrheniusRate();
 
-    /// Constructor.
-    /// @param A  pre-exponential. The unit system is
-    ///     (kmol, m, s). The actual units depend on the reaction
-    ///     order and the dimensionality (surface or bulk).
-    /// @param b  Temperature exponent. Non-dimensional.
-    /// @param E  Activation energy. J/kmol.
+    //! Constructor.
+    //! @param A  pre-exponential. The unit system is
+    //!     (kmol, m, s). The actual units depend on the reaction
+    //!     order and the dimensionality (surface or bulk).
+    //! @param b  Temperature exponent. Non-dimensional.
+    //! @param E  Activation energy. J/kmol.
     ArrheniusRate(double A, double b, double E);
 
     //! Constructor using AnyMap content
-    /// @param node  AnyMap containing rate information
-    /// @param rate_units  unit definitions used for rate information
+    //! @param node  AnyMap containing rate information
+    //! @param rate_units  unit definitions used for rate information
     ArrheniusRate(const AnyMap& node, const Units& rate_units);
 
-    virtual bool setParameters(const AnyMap& node, const Units& rate_units) override;
+    //! Constructor based on Arrhenius object
+    //! @param arr  Arrhenius object
+    //! @param allow_negative_A  allow negative pre-exponential factor
+    //!      (optional, default is false)
+    ArrheniusRate(const Arrhenius& arr, bool allow_negative_A=false);
+
     virtual void getParameters(AnyMap& rateNode,
                                const Units& rate_units) const override;
+    virtual bool setParameters(const AnyMap& node,
+                               const Units& rate_units) override;
 
     virtual std::string type() const override { return "ArrheniusRate"; }
 
@@ -255,8 +262,8 @@ public:
     explicit PlogRate(const std::multimap<double, Arrhenius>& rates);
 
     //! Constructor using AnyMap content
-    /// @param node  AnyMap containing rate information
-    /// @param rate_units  unit definitions used for rate information
+    //! @param node  AnyMap containing rate information
+    //! @param rate_units  unit definitions used for rate information
     PlogRate(const AnyMap& node, const Units& rate_units);
 
     virtual std::string type() const override { return "PlogRate"; }
@@ -333,8 +340,8 @@ public:
                    const Array2D& coeffs);
 
     //! Constructor using AnyMap content
-    /// @param node  AnyMap containing rate information
-    /// @param rate_units  unit definitions used for rate information
+    //! @param node  AnyMap containing rate information
+    //! @param rate_units  unit definitions used for rate information
     ChebyshevRate3(const AnyMap& node, const Units& rate_units);
 
     virtual std::string type() const override { return "ChebyshevRate"; }
