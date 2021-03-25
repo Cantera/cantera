@@ -152,10 +152,10 @@ ReactionFactory::ReactionFactory()
                });
 
     // register surface Blowers Masel reactions
-    reg("surface-Blowers-Masel", []() { return new BMInterfaceReaction(); });
+    reg("surface-Blowers-Masel", []() { return new BlowersMaselInterfaceReaction(); });
     reg_AnyMap("surface-Blowers-Masel",
                [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
-                   setupBMInterfaceReaction(*(BMInterfaceReaction*)R, node, kin);
+                   setupBlowersMaselInterfaceReaction(*(BlowersMaselInterfaceReaction*)R, node, kin);
                });
 }
 

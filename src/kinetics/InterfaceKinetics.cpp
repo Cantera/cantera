@@ -510,7 +510,7 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
         return false;
     }
     if (r_base->reaction_type == BMINTERFACE_RXN) {
-        BMInterfaceReaction& r = dynamic_cast<BMInterfaceReaction&>(*r_base);
+        BlowersMaselInterfaceReaction& r = dynamic_cast<BlowersMaselInterfaceReaction&>(*r_base);
         BMSurfaceArrhenius rate = buildBMSurfaceArrhenius(i, r, false);
         m_blowers_masel_rates.install(i, rate);
 
@@ -590,7 +590,7 @@ void InterfaceKinetics::modifyReaction(size_t i, shared_ptr<Reaction> r_base)
 {
     Kinetics::modifyReaction(i, r_base);
     if (r_base->reaction_type == BMINTERFACE_RXN) {
-        BMInterfaceReaction& r = dynamic_cast<BMInterfaceReaction&>(*r_base);
+        BlowersMaselInterfaceReaction& r = dynamic_cast<BlowersMaselInterfaceReaction&>(*r_base);
         BMSurfaceArrhenius rate = buildBMSurfaceArrhenius(i, r, true);
         m_blowers_masel_rates.replace(i, rate);
     } else {
@@ -696,9 +696,9 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
 }
 
 BMSurfaceArrhenius InterfaceKinetics::buildBMSurfaceArrhenius(
-    size_t i, BMInterfaceReaction& r, bool replace)
+    size_t i, BlowersMaselInterfaceReaction& r, bool replace)
 {
-    if (r. is_sticking_coefficient) {
+    if (r.is_sticking_coefficient) {
         // Identify the interface phase
         size_t iInterface = npos;
         size_t min_dim = 4;
