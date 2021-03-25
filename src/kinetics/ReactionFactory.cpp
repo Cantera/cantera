@@ -228,7 +228,7 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node,
         type = rxn_node["type"].asString();
     }
 
-    if (kin.thermo().nDim() < 3) {
+    if (kin.thermo().nDim() < 3 && type == "elementary") {
         // See if this is an electrochemical reaction: type of
         // receiving reaction object is unimportant in this case
         ElementaryReaction testReaction;
@@ -238,6 +238,10 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node,
         } else {
             type = "interface";
         }
+    }
+    if (kin.thermo().nDim() < 3 && type == "Blowers-Masel") {
+        // Allow yaml file to specify "Blowers-Masel" for surface reactions
+        type = "surface-Blowers-Masel";
     }
 
     Reaction* R;
