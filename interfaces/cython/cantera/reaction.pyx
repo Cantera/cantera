@@ -607,7 +607,7 @@ cdef class ChebyshevRate(_ReactionRate):
     def __cinit__(self, Tmin=None, Tmax=None, Pmin=None, Pmax=None, data=None,
                   init=True):
 
-        if Tmin and Tmax and Pmin and Pmax and data and init:
+        if Tmin and Tmax and Pmin and Pmax and data is not None and init:
             self._setup(Tmin, Tmax, Pmin, Pmax, data)
 
     def _setup(self, Tmin, Tmax, Pmin, Pmax, coeffs):
@@ -1324,7 +1324,7 @@ cdef class ThreeBodyReaction3(ElementaryReaction3):
 
     The YAML description corresponding to this reaction is::
 
-        equation: 2 O + M <=> O2 + M  # Reaction 1
+        equation: 2 O + M <=> O2 + M
         type: three-body
         rate-constant: {A: 1.2e+17 cm^6/mol^2/s, b: -1.0, Ea: 0.0 cal/mol}
         efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
@@ -1397,6 +1397,25 @@ cdef class PlogReaction3(Reaction):
     A pressure-dependent reaction parameterized by logarithmically interpolating
     between Arrhenius rate expressions at various pressures.
 
+    An example for the definition of an `PlogReaction3` object is given
+    as::
+
+        rxn = PlogReaction3(
+            [{'P': 1013.25, 'rate-constant': {'A': 1.2124e+16, 'b': -0.5779, 'Ea': 45491376.8}},
+             {'P': 101325., 'rate-constant': {'A': 4.9108e+31, 'b': -4.8507, 'Ea': 103649395.2}},
+             {'P': 1013250., 'rate-constant': {'A': 1.2866e+47, 'b': -9.0246, 'Ea': 166508556.0}},
+             {'P': 10132500., 'rate-constant': {'A': 5.9632e+56, 'b': -11.529, 'Ea': 220076726.4}}])
+
+    The YAML description corresponding to this reaction is::
+
+        equation: H2 + O2 <=> 2 OH
+        type: pressure-dependent-Arrhenius
+        rate-constants:
+        - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04 cal/mol}
+        - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04 cal/mol}
+        - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
+        - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
+
     This class is a replacement for `PlogReaction` and cannot be
     instantiated from XML. It is the default for import from YAML.
     """
@@ -1441,6 +1460,25 @@ cdef class ChebyshevReaction3(Reaction):
     """
     A pressure-dependent reaction parameterized by a bivariate Chebyshev
     polynomial in temperature and pressure.
+
+    An example for the definition of an `PlogReaction3` object is given
+    as::
+
+        rxm = ChebyshevRate(Tmin=290., Tmax=3000., Pmin=1000., Pmax=10000000.0,
+                            data=[[8.2883, -1.1397, -0.12059, 0.016034],
+                                  [1.9764, 1.0037, 7.2865e-03, -0.030432],
+                                  [0.3177, 0.26889, 0.094806, -7.6385e-03]])
+
+    The YAML description corresponding to this reaction is::
+
+        equation: HO2 <=> OH + O  # Reaction 5
+        type: Chebyshev
+        temperature-range: [290.0, 3000.0]
+        pressure-range: [9.869232667160128e-03 atm, 98.69232667160128 atm]
+        data:
+        - [8.2883, -1.1397, -0.12059, 0.016034]
+        - [1.9764, 1.0037, 7.2865e-03, -0.030432]
+        - [0.3177, 0.26889, 0.094806, -7.6385e-03]
 
     This class is a replacement for `ChebyshevReaction` and cannot be
     instantiated from XML. It is the default for import from YAML.
