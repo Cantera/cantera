@@ -538,9 +538,21 @@ cdef class ArrheniusRate(_ReactionRate):
         def __get__(self):
             return self.rate.activationEnergy()
 
+    property allow_negative_pre_exponential_factor:
+        """
+        Get/Set whether the rate coefficient is allowed to have a negative
+        pre-exponential factor.
+        """
+        def __get__(self):
+            return self.rate.allow_negative_pre_exponential_factor
+        def __set__(self, allow):
+            self.rate.allow_negative_pre_exponential_factor = allow
+
 
 cdef class PlogRate(_ReactionRate):
     r"""
+    A pressure-dependent reaction rate parameterized by logarithmically
+    interpolating between Arrhenius rate expressions at various pressures.
     """
     def __cinit__(self, rates=None, init=True):
 
@@ -589,8 +601,11 @@ cdef class PlogRate(_ReactionRate):
 
 cdef class ChebyshevRate(_ReactionRate):
     r"""
+    A pressure-dependent reaction rate parameterized by a bivariate Chebyshev
+    polynomial in temperature and pressure.
     """
-    def __cinit__(self, Tmin=None, Tmax=None, Pmin=None, Pmax=None, data=None, init=True):
+    def __cinit__(self, Tmin=None, Tmax=None, Pmin=None, Pmax=None, data=None,
+                  init=True):
 
         if Tmin and Tmax and Pmin and Pmax and data and init:
             self._setup(Tmin, Tmax, Pmin, Pmax, data)
@@ -973,6 +988,12 @@ cdef class PlogReaction(Reaction):
     """
     A pressure-dependent reaction parameterized by logarithmically interpolating
     between Arrhenius rate expressions at various pressures.
+
+    .. deprecated:: 2.6
+
+        This class is superseded by `PlogReaction3` and only used by XML.
+        The implementation of this reaction type will change after Cantera 2.6;
+        refer to `PlogReaction3` for new behavior.
     """
     reaction_type = "pressure-dependent-Arrhenius-old"
 
@@ -1033,6 +1054,12 @@ cdef class ChebyshevReaction(Reaction):
     """
     A pressure-dependent reaction parameterized by a bivariate Chebyshev
     polynomial in temperature and pressure.
+
+    .. deprecated:: 2.6
+
+        This class is superseded by `ChebyshevReaction3` and only used by XML.
+        The implementation of this reaction type will change after Cantera 2.6;
+        refer to `ChebyshevReaction3` for new behavior.
     """
     reaction_type = "Chebyshev-old"
 
@@ -1252,9 +1279,6 @@ cdef class ElementaryReaction3(Reaction):
     cdef CxxElementaryReaction3* er(self):
         return <CxxElementaryReaction3*>self.reaction
 
-    cdef CxxArrheniusRate* arr(self):
-        return <CxxArrheniusRate*>(self.er().rate().get())
-
     def __init__(self, equation=None, rate=None,
                  Kinetics kinetics=None, init=True, **kwargs):
 
@@ -1281,16 +1305,6 @@ cdef class ElementaryReaction3(Reaction):
             return ArrheniusRate.wrap(self.er().rate())
         def __set__(self, ArrheniusRate rate):
             self.er().setRate(rate._base)
-
-    property allow_negative_pre_exponential_factor:
-        """
-        Get/Set whether the rate coefficient is allowed to have a negative
-        pre-exponential factor.
-        """
-        def __get__(self):
-            return self.arr().allow_negative_pre_exponential_factor
-        def __set__(self, allow):
-            self.arr().allow_negative_pre_exponential_factor = allow
 
 
 cdef class ThreeBodyReaction3(ElementaryReaction3):
@@ -1382,6 +1396,9 @@ cdef class PlogReaction3(Reaction):
     """
     A pressure-dependent reaction parameterized by logarithmically interpolating
     between Arrhenius rate expressions at various pressures.
+
+    This class is a replacement for `PlogReaction` and cannot be
+    instantiated from XML. It is the default for import from YAML.
     """
     reaction_type = "pressure-dependent-Arrhenius"
 
@@ -1419,28 +1436,19 @@ cdef class PlogReaction3(Reaction):
         def __set__(self, PlogRate rate):
             self.pr().setRate(rate._base)
 
-    def __call__(self, float T, float P):
-        cdef CxxPlogReaction* r = <CxxPlogReaction*>self.reaction
-        cdef double logT = np.log(T)
-        cdef double recipT = 1/T
-        cdef double logP = np.log(P)
-
-        r.rate.update_C(&logP)
-        return r.rate.updateRC(logT, recipT)
-
 
 cdef class ChebyshevReaction3(Reaction):
     """
     A pressure-dependent reaction parameterized by a bivariate Chebyshev
     polynomial in temperature and pressure.
+
+    This class is a replacement for `ChebyshevReaction` and cannot be
+    instantiated from XML. It is the default for import from YAML.
     """
     reaction_type = "Chebyshev"
 
     cdef CxxChebyshevReaction3* cr(self):
         return <CxxChebyshevReaction3*>self.reaction
-
-    cdef CxxChebyshevRate3* crr(self):
-        return <CxxChebyshevRate3*>(self.cr().rate().get())
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
                  init=True, **kwargs):
@@ -1470,22 +1478,6 @@ cdef class ChebyshevReaction3(Reaction):
             return ChebyshevRate.wrap(self.cr().rate())
         def __set__(self, ChebyshevRate rate):
             self.cr().setRate(rate._base)
-
-    def set_parameters(self, Tmin, Tmax, Pmin, Pmax, coeffs):
-        """
-        Simultaneously set values for `Tmin`, `Tmax`, `Pmin`, `Pmax`, and
-        `coeffs`.
-        """
-        self.rate = self.ChebyshevRate(Tmin, Tmax, Pmin, Pmax, coeffs)
-
-    def __call__(self, float T, float P):
-        cdef CxxChebyshevReaction3* r = <CxxChebyshevReaction3*>self.reaction
-        cdef double logT = np.log(T)
-        cdef double recipT = 1/T
-        cdef double logP = np.log10(P)
-
-        self.crr().update_C(&logP)
-        return self.crr().updateRC(logT, recipT)
 
 
 cdef class CustomReaction(Reaction):

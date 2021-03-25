@@ -390,8 +390,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         size_t nPressure()
         size_t nTemperature()
         vector[double]& coeffs()
-        void update_C(double*)
-        double updateRC(double, double)
 
     cdef cppclass CxxReaction "Cantera::Reaction":
         CxxReaction()
