@@ -436,11 +436,11 @@ public:
 
 //! A reaction occurring on an interface (i.e. a SurfPhase or an EdgePhase)
 //! with the rate calculated with Blowers-Masel approximation.
-class BMInterfaceReaction : public BlowersMaselReaction
+class BlowersMaselInterfaceReaction : public BlowersMaselReaction
 {
 public:
-    BMInterfaceReaction();
-    BMInterfaceReaction(const Composition& reactants, const Composition& products,
+    BlowersMaselInterfaceReaction();
+    BlowersMaselInterfaceReaction(const Composition& reactants, const Composition& products,
                       const BlowersMasel& rate, bool isStick=false);
 
     virtual std::string type() const {
@@ -542,7 +542,7 @@ void setupElectrochemicalReaction(ElectrochemicalReaction&,
 void setupBlowersMaselReaction(BlowersMaselReaction&,
                                   const AnyMap&, const Kinetics&);
 //! @internal May be changed without notice in future versions
-void setupBMInterfaceReaction(BMInterfaceReaction&,
+void setupBlowersMaselInterfaceReaction(BlowersMaselInterfaceReaction&,
                                   const AnyMap&, const Kinetics&);
 }
 

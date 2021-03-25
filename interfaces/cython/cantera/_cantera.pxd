@@ -479,7 +479,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool use_motz_wise_correction
         string sticking_species
     
-    cdef cppclass CxxBMInterfaceReaction "Cantera::BMInterfaceReaction" (CxxBlowersMaselReaction):
+    cdef cppclass CxxBlowersMaselInterfaceReaction "Cantera::BlowersMaselInterfaceReaction" (CxxBlowersMaselReaction):
         stdmap[string, CxxCoverageDependency] coverage_deps
         cbool is_sticking_coefficient
         cbool use_motz_wise_correction

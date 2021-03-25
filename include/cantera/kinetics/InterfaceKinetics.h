@@ -19,7 +19,7 @@ namespace Cantera
 class SurfPhase;
 class ImplicitSurfChem;
 class InterfaceReaction;
-class BMInterfaceReaction;
+class BlowersMaselInterfaceReaction;
 
 //! A kinetics manager for heterogeneous reaction mechanisms. The reactions are
 //! assumed to occur at a 2D interface between two 3D phases.
@@ -393,8 +393,8 @@ protected:
     //! @todo This function duplicated most of the code from buildSurfaceArrhenius
     //! to return a slightly different reaction rate class and could be refactored in the
     //! future.
-    BMSurfaceArrhenius buildBMSurfaceArrhenius(size_t i, BMInterfaceReaction& r,
-                                           bool replace);
+    BMSurfaceArrhenius buildBMSurfaceArrhenius(size_t i, BlowersMaselInterfaceReaction& r,
+                                               bool replace);
         
     //! Temporary work vector of length m_kk
     vector_fp m_grt;

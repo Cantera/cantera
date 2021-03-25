@@ -638,14 +638,14 @@ BlowersMaselReaction::BlowersMaselReaction(const Composition& reactants_,
     reaction_type = BLOWERSMASEL_RXN;
 }
 
-BMInterfaceReaction::BMInterfaceReaction()
+BlowersMaselInterfaceReaction::BlowersMaselInterfaceReaction()
     : is_sticking_coefficient(false)
     , use_motz_wise_correction(false)
 {
     reaction_type = BMINTERFACE_RXN;
 }
 
-BMInterfaceReaction::BMInterfaceReaction(const Composition& reactants_,
+BlowersMaselInterfaceReaction::BlowersMaselInterfaceReaction(const Composition& reactants_,
                                          const Composition& products_,
                                          const BlowersMasel& rate_,
                                          bool isStick)
@@ -1266,7 +1266,7 @@ void setupBlowersMaselReaction(BlowersMaselReaction& R, const AnyMap& node,
     R.rate = readBlowersMasel(R, node["rate-constant"], kin, node.units());
 }
 
-void setupBMInterfaceReaction(BMInterfaceReaction& R, const AnyMap& node,
+void setupBlowersMaselInterfaceReaction(BlowersMaselInterfaceReaction& R, const AnyMap& node,
                             const Kinetics& kin)
 {
     setupReaction(R, node, kin);
@@ -1282,7 +1282,7 @@ void setupBMInterfaceReaction(BMInterfaceReaction& R, const AnyMap& node,
             kin.thermo().input().getBool("Motz-Wise", false));
         R.sticking_species = node.getString("sticking-species", "");
     } else {
-        throw InputFileError("setupBMInterfaceReaction", node,
+        throw InputFileError("setupBlowersMaselInterfaceReaction", node,
             "Reaction must include either a 'rate-constant' or"
             " 'sticking-coefficient' node.");
     }

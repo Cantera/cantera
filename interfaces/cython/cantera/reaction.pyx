@@ -1162,7 +1162,7 @@ cdef class InterfaceReaction(ElementaryReaction):
             cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
             r.sticking_species = stringify(species)
 
-cdef class BMInterfaceReaction(BlowersMaselReaction):
+cdef class BlowersMaselInterfaceReaction(BlowersMaselReaction):
     """ A reaction occurring on an `Interface` (i.e. a surface or an edge) """
     reaction_type = "surface-Blowers-Masel"
 
@@ -1176,7 +1176,7 @@ cdef class BMInterfaceReaction(BlowersMaselReaction):
         and the activation energy [J/kmol], respectively.
         """
         def __get__(self):
-            cdef CxxBMInterfaceReaction* r = <CxxBMInterfaceReaction*>self.reaction
+            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
             deps = {}
             cdef pair[string,CxxCoverageDependency] item
             for item in r.coverage_deps:
@@ -1184,7 +1184,7 @@ cdef class BMInterfaceReaction(BlowersMaselReaction):
                                            item.second.E * gas_constant)
             return deps
         def __set__(self, deps):
-            cdef CxxBMInterfaceReaction* r = <CxxBMInterfaceReaction*>self.reaction
+            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
             r.coverage_deps.clear()
             cdef str species
             for species, D in deps.items():
@@ -1198,10 +1198,10 @@ cdef class BMInterfaceReaction(BlowersMaselReaction):
         constant.
         """
         def __get__(self):
-            cdef CxxBMInterfaceReaction* r = <CxxBMInterfaceReaction*>self.reaction
+            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
             return r.is_sticking_coefficient
         def __set__(self, stick):
-            cdef CxxBMInterfaceReaction* r = <CxxBMInterfaceReaction*>self.reaction
+            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
             r.is_sticking_coefficient = stick
 
     property use_motz_wise_correction:
@@ -1212,10 +1212,10 @@ cdef class BMInterfaceReaction(BlowersMaselReaction):
         coefficient.
         """
         def __get__(self):
-            cdef CxxBMInterfaceReaction* r = <CxxBMInterfaceReaction*>self.reaction
+            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
             return r.use_motz_wise_correction
         def __set__(self, mw):
-            cdef CxxBMInterfaceReaction* r = <CxxBMInterfaceReaction*>self.reaction
+            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
             r.use_motz_wise_correction = mw
 
     property sticking_species:
@@ -1225,8 +1225,8 @@ cdef class BMInterfaceReaction(BlowersMaselReaction):
         ambiguous.
         """
         def __get__(self):
-            cdef CxxBMInterfaceReaction* r = <CxxBMInterfaceReaction*>self.reaction
+            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
             return pystr(r.sticking_species)
         def __set__(self, species):
-            cdef CxxBMInterfaceReaction* r = <CxxBMInterfaceReaction*>self.reaction
+            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
             r.sticking_species = stringify(species)
