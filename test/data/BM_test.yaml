@@ -18,30 +18,26 @@ phases:
   thermo: ideal-gas
   elements: [O, H, C, N, Ar]
   species:
-  - gri30.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, C, CH, CH2, CH2(S),
-      CH3, CH4, CO, CO2, HCO, CH2O, CH2OH, CH3O, CH3OH, C2H, C2H2, C2H3,
-      C2H4, C2H5, C2H6, HCCO, CH2CO, HCCOH, AR, N2]
+  - gri30.yaml/species: [H2, H, O, O2, OH, H2O, CH4, AR, N2]
   skip-undeclared-elements: true
   kinetics: gas
-  reactions:
-  - gri30.yaml/reactions: declared-species
+  reactions: [gas-reactions]
   transport: mixture-averaged
   state:
     T: 300.0
     P: 1.01325e+05
-    X: {CH4: 0.095, O2: 0.21, AR: 0.79}
 - name: Pt_surf
   thermo: ideal-surface
   elements: [Pt, H, O, C]
-  species: [PT(S), H(S), H2O(S), OH(S), O(S)]
+  species: [{Pt-surf-species: all}]
   kinetics: surface
-  reactions: all
+  reactions: [Pt-reactions]
   state:
     T: 900.0
     coverages: {O(S): 0.0, PT(S): 0.5, H(S): 0.5}
   site-density: 2.7063e-09
 
-species:
+Pt-surf-species:
 - name: PT(S)
   composition: {Pt: 1}
   thermo:
@@ -91,21 +87,30 @@ species:
     - [1.945418, 9.1761647e-04, -1.1226719e-07, -9.9099624e-11, 2.4307699e-14,
       -1.4005187e+04, -11.531663]
 
-reactions:
+gas-reactions:
+- equation: O + H2 <=> H + OH  # Reaction 1
+  type: Blowers-Masel
+  rate-constant: {A: 38700, b: 2.7, Ea0: 2.619184e4, w: 4.184e9}
+
+Pt-reactions:
 - equation: 2 H(S) => H2 + 2 PT(S)  # Reaction 1
-  type: surface-Blowers-Masel
+  type: Blowers-Masel
   rate-constant: {A: 3.7e+21, b: 0, Ea0: 67400, w: 1000000}
   coverage-dependencies:
     H(S): {a: 0.0, m: 0.0, E: -6000.0}
 - equation: H + PT(S) => H(S)  # Reaction 2
-  type: surface-Blowers-Masel
+  type: Blowers-Masel
   sticking-coefficient: {A: 1.0, b: 0, Ea0: 0, w: 1000000}
 - equation: H2O + PT(S) => H2O(S)  # Reaction 3
-  type: surface-Blowers-Masel
+  type: Blowers-Masel
   sticking-coefficient: {A: 0.75, b: 0, Ea0: 0, w: 1000000}
 - equation: O2 + 2 PT(S) => 2 O(S)  # Reaction 4
-  type: surface-Blowers-Masel
+  type: Blowers-Masel
   sticking-coefficient: {A: 0.023, b: 0, Ea0: 0, w: 1000000}
 - equation: OH + PT(S) => OH(S)  # Reaction 5
-  type: surface-Blowers-Masel
+  type: Blowers-Masel
   sticking-coefficient: {A: 1.0, b: 0, Ea0: 0, w: 100000}
+- equation: H2 + 2 PT(s) => 2 H(s)
+  type: Blowers-Masel
+  rate-constant: {A: 4.4579e10, b: 0.5, Ea0: 0.0, w: 1000000}
+  orders: {H2: 1.0, PT(s): 1.0}

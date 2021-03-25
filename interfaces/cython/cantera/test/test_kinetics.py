@@ -1086,10 +1086,10 @@ class TestReaction(utilities.CanteraTest):
         r = ct.BlowersMaselReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
         r.rate = ct.BlowersMasel(3.87e1, 2.7, 6260*1000*4.184, 1e9*1000*4.184)
 
-        gas1 = ct.Solution('BM_example.yaml')
+        gas1 = ct.Solution('BM_test.yaml')
 
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
-                           species=self.species, reactions=[r])
+                           species=gas1.species(), reactions=[r])
 
         gas1.TP = self.gas.TP
         gas2.TP = self.gas.TP
@@ -1102,13 +1102,13 @@ class TestReaction(utilities.CanteraTest):
                         gas1.net_rates_of_progress[0], rtol=1e-7)
 
     def test_Blowers_Masel_rate(self):
-        gas = ct.Solution('BM_example.yaml')
+        gas = ct.Solution('BM_test.yaml')
         R = gas.reaction(0)
         self.assertNear(R.rate(gas.T, gas.delta_enthalpy[0]), 
                         gas.forward_rate_constants[0], rtol=1e-7)
 
     def test_negative_A_blowersmasel(self):
-        species = ct.Species.listFromFile('BM_example.yaml')
+        species = ct.Solution('BM_test.yaml').species()
         r = ct.BlowersMaselReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
         r.rate = ct.BlowersMasel(-3.87e1, 2.7, 6260*1000*4.184, 1e9)
 
@@ -1123,7 +1123,7 @@ class TestReaction(utilities.CanteraTest):
                           species=species, reactions=[r])
     
     def test_Blowers_Masel_change_enthalpy(self):
-        gas = ct.Solution('BM_example.yaml')
+        gas = ct.Solution('BM_test.yaml')
         r = gas.reaction(0)
         E0 = r.rate.intrinsic_activation_energy
         w = r.rate.bond_energy
@@ -1183,10 +1183,11 @@ class TestReaction(utilities.CanteraTest):
             self.assertNear(surf1.net_rates_of_progress[1],
                             surf2.net_rates_of_progress[0])
 
-    def test_BMinterface(self):
-        gas = ct.Solution('BM_ptcombust.yaml')
-        surf1 = ct.Interface('BM_ptcombust.yaml', 'Pt_surf', [gas])
-        r1 = ct.BMInterfaceReaction()
+    def test_BlowersMaselinterface(self):
+        gas = ct.Solution('gri30.yaml')
+        gas.TPX = 300, ct.one_atm, {"CH4": 0.095, "O2": 0.21, "AR": 0.79}
+        surf1 = ct.Interface('BM_test.yaml', 'Pt_surf', [gas])
+        r1 = ct.BlowersMaselInterfaceReaction()
         r1.reactants = 'H(S):2' 
         r1.products = 'H2:1, PT(S):2'
         r1.rate = ct.BlowersMasel(3.7e20, 0, 67.4e6, 1e9)
@@ -1318,7 +1319,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(kf[4], kf[5])
 
     def test_modify_BlowersMasel(self):
-        gas = ct.Solution('BM_example.yaml')
+        gas = ct.Solution('BM_test.yaml')
         gas.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
         gas.TP = self.gas.TP
         R = gas.reaction(0)
@@ -1399,8 +1400,9 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(2.0 * k1[9], k2[9]) # sticking coefficient = 1.0
 
     def test_modify_BMinterface(self):
-        gas = ct.Solution('BM_ptcombust.yaml', 'gas')
-        surf = ct.Interface('BM_ptcombust.yaml', 'Pt_surf', [gas])
+        gas = ct.Solution('gri30.yaml')
+        gas.TPX = 300, ct.one_atm, {"CH4": 0.095, "O2": 0.21, "AR": 0.79}
+        surf = ct.Interface('BM_test.yaml', 'Pt_surf', [gas])
         surf.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
         gas.TP = surf.TP
 
@@ -1419,8 +1421,9 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(k2, k3)
 
     def test_modify_BMsticking(self):
-        gas = ct.Solution('BM_ptcombust.yaml', 'gas')
-        surf = ct.Interface('BM_ptcombust.yaml', 'Pt_surf', [gas])
+        gas = ct.Solution('gri30.yaml')
+        gas.TPX = 300, ct.one_atm, {"CH4": 0.095, "O2": 0.21, "AR": 0.79}
+        surf = ct.Interface('BM_test.yaml', 'Pt_surf', [gas])
         surf.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
         gas.TP = surf.TP
 
@@ -1434,8 +1437,9 @@ class TestReaction(utilities.CanteraTest):
 
     def test_BMmotz_wise(self):
         # Motz & Wise off for all reactions
-        gas1 = ct.Solution('BM_ptcombust.yaml', 'gas')
-        surf1 = ct.Interface('BM_ptcombust.yaml', 'Pt_surf', [gas1])
+        gas1 = ct.Solution('gri30.yaml')
+        gas1.TPX = 300, ct.one_atm, {"CH4": 0.095, "O2": 0.21, "AR": 0.79}
+        surf1 = ct.Interface('BM_test.yaml', 'Pt_surf', [gas1])
         surf1.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
         gas1.TP = surf1.TP
 
