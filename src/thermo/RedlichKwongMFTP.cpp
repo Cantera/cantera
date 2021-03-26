@@ -879,14 +879,6 @@ doublereal RedlichKwongMFTP::densSpinodalGas() const
     return mmw / (0.5 * (vv.first + vv.second));
 }
 
-doublereal RedlichKwongMFTP::pressureCalc(doublereal TKelvin, doublereal molarVol) const
-{
-    doublereal sqt = sqrt(TKelvin);
-    double pres = GasConstant * TKelvin / (molarVol - m_b_current)
-                  - m_a_current / (sqt * molarVol * (molarVol + m_b_current));
-    return pres;
-}
-
 doublereal RedlichKwongMFTP::dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const
 {
     doublereal sqt = sqrt(TKelvin);
