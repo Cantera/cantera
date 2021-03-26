@@ -376,72 +376,71 @@ bool PengRobinson::addSpecies(shared_ptr<Species> spec)
 
 vector<double> PengRobinson::getCoeff(const std::string& iName)
 {
-        vector_fp spCoeff{ NAN, NAN, NAN };
+    vector_fp spCoeff{ NAN, NAN, NAN };
 
-        // Get number of species in the database
-        // open xml file critProperties.xml
-        XML_Node* doc = get_XML_File("critProperties.xml");
-        size_t nDatabase = doc->nChildren();
+    // Get number of species in the database
+    // open xml file critProperties.xml
+    XML_Node* doc = get_XML_File("critProperties.xml");
+    size_t nDatabase = doc->nChildren();
 
-        // Loop through all species in the database and attempt to match supplied
-        // species to each. If present, calculate pureFluidParameters a_k and b_k
-        // based on crit properties T_c and P_c:
-        for (size_t isp = 0; isp < nDatabase; isp++) {
-            XML_Node& acNodeDoc = doc->child(isp);
-            std::string iNameLower = toLowerCopy(iName);
-            std::string dbName = toLowerCopy(acNodeDoc.attrib("name"));
+    // Loop through all species in the database and attempt to match supplied
+    // species to each. If present, calculate pureFluidParameters a_k and b_k
+    // based on crit properties T_c and P_c:
+    for (size_t isp = 0; isp < nDatabase; isp++) {
+        XML_Node& acNodeDoc = doc->child(isp);
+        std::string iNameLower = toLowerCopy(iName);
+        std::string dbName = toLowerCopy(acNodeDoc.attrib("name"));
 
-            // Attempt to match provided species iName to current database species
-            //  dbName:
-            if (iNameLower == dbName) {
-                // Read from database and calculate a and b coefficients
-                double vParams;
-                double T_crit = 0.0, P_crit = 0.0, w_ac = 0.0;
+        // Attempt to match provided species iName to current database species
+        //  dbName:
+        if (iNameLower == dbName) {
+            // Read from database and calculate a and b coefficients
+            double vParams;
+            double T_crit = 0.0, P_crit = 0.0, w_ac = 0.0;
 
-                if (acNodeDoc.hasChild("Tc")) {
-                    vParams = 0.0;
-                    XML_Node& xmlChildCoeff = acNodeDoc.child("Tc");
-                    if (xmlChildCoeff.hasAttrib("value")) {
-                        std::string critTemp = xmlChildCoeff.attrib("value");
-                        vParams = strSItoDbl(critTemp);
-                    }
-                    if (vParams <= 0.0) { //Assuming that Pc and Tc are non zero.
-                        throw CanteraError("PengRobinson::getCoeff",
-                            "Critical Temperature must be positive");
-                    }
-                    T_crit = vParams;
+            if (acNodeDoc.hasChild("Tc")) {
+                vParams = 0.0;
+                XML_Node& xmlChildCoeff = acNodeDoc.child("Tc");
+                if (xmlChildCoeff.hasAttrib("value")) {
+                    std::string critTemp = xmlChildCoeff.attrib("value");
+                    vParams = strSItoDbl(critTemp);
                 }
-                if (acNodeDoc.hasChild("Pc")) {
-                    vParams = 0.0;
-                    XML_Node& xmlChildCoeff = acNodeDoc.child("Pc");
-                    if (xmlChildCoeff.hasAttrib("value")) {
-                        std::string critPressure = xmlChildCoeff.attrib("value");
-                        vParams = strSItoDbl(critPressure);
-                    }
-                    if (vParams <= 0.0) { //Assuming that Pc and Tc are non zero.
-                        throw CanteraError("PengRobinson::getCoeff",
-                            "Critical Pressure must be positive");
-                    }
-                    P_crit = vParams;
+                if (vParams <= 0.0) { //Assuming that Pc and Tc are non zero.
+                    throw CanteraError("PengRobinson::getCoeff",
+                        "Critical Temperature must be positive");
                 }
-                if (acNodeDoc.hasChild("omega")) {
-                    vParams = 0.0;
-                    XML_Node& xmlChildCoeff = acNodeDoc.child("omega");
-                    if (xmlChildCoeff.hasChild("value")) {
-                        std::string acentric_factor = xmlChildCoeff.attrib("value");
-                        vParams = strSItoDbl(acentric_factor);
-                    }
-                    w_ac = vParams;
-
-                }
-
-                spCoeff[0] = omega_a * (GasConstant * GasConstant) * (T_crit * T_crit) / P_crit; //coeff a
-                spCoeff[1] = omega_b * GasConstant * T_crit / P_crit; // coeff b
-                spCoeff[2] = w_ac; // acentric factor
-                break;
+                T_crit = vParams;
             }
+            if (acNodeDoc.hasChild("Pc")) {
+                vParams = 0.0;
+                XML_Node& xmlChildCoeff = acNodeDoc.child("Pc");
+                if (xmlChildCoeff.hasAttrib("value")) {
+                    std::string critPressure = xmlChildCoeff.attrib("value");
+                    vParams = strSItoDbl(critPressure);
+                }
+                if (vParams <= 0.0) { //Assuming that Pc and Tc are non zero.
+                    throw CanteraError("PengRobinson::getCoeff",
+                        "Critical Pressure must be positive");
+                }
+                P_crit = vParams;
+            }
+            if (acNodeDoc.hasChild("omega")) {
+                vParams = 0.0;
+                XML_Node& xmlChildCoeff = acNodeDoc.child("omega");
+                if (xmlChildCoeff.hasChild("value")) {
+                    std::string acentric_factor = xmlChildCoeff.attrib("value");
+                    vParams = strSItoDbl(acentric_factor);
+                }
+                w_ac = vParams;
+            }
+
+            spCoeff[0] = omega_a * (GasConstant * GasConstant) * (T_crit * T_crit) / P_crit; //coeff a
+            spCoeff[1] = omega_b * GasConstant * T_crit / P_crit; // coeff b
+            spCoeff[2] = w_ac; // acentric factor
+            break;
         }
-        return spCoeff;
+    }
+    return spCoeff;
 }
 
 void PengRobinson::initThermo()
@@ -556,9 +555,9 @@ double PengRobinson::densityCalc(double T, double presPa, int phaseRequested, do
     double mmw = meanMolecularWeight();
     if (rhoGuess == -1.0) {
         if (phaseRequested >= FLUID_LIQUID_0) {
-                    double lqvol = liquidVolEst(T, presPa);
-                    rhoGuess = mmw / lqvol;
-                }
+            double lqvol = liquidVolEst(T, presPa);
+            rhoGuess = mmw / lqvol;
+        }
         } else {
             // Assume the Gas phase initial guess, if nothing is specified to the routine
             rhoGuess = presPa * mmw / (GasConstant * T);

@@ -90,7 +90,6 @@ ThermoFactory::ThermoFactory()
     reg("binary-solution-tabulated", []() { return new BinarySolutionTabulatedThermo(); });
     addAlias("binary-solution-tabulated", "BinarySolutionTabulatedThermo");
     reg("Peng-Robinson", []() { return new PengRobinson(); });
-    addAlias("Peng-Robinson", "PengRobinson");
 }
 
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
