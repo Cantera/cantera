@@ -26,12 +26,15 @@ The fields common to all ``reaction`` entries are:
     - :ref:`chemically-activated <sec-yaml-chemically-activated>`
     - :ref:`pressure-dependent-Arrhenius <sec-yaml-pressure-dependent-Arrhenius>`
     - :ref:`Chebyshev <sec-yaml-Chebyshev>`
+    - :ref:`Blowers-Masel <sec-yaml-Blowers-Masel>`
+    - :ref:`surface-Blowers-Masel <sec-yaml-surface-Blowers-Masel>`
 
-    Reactions on surfaces or edges are automatically treated as
-    :ref:`interface <sec-yaml-interface-reaction>` reactions, and reactions that
-    involve charge transfer between phases are automatically treated as
-    :ref:`electrochemical <sec-yaml-electrochemical-reaction>` reactions, without the
-    need to specify the ``type``.
+    Reactions without a specified ``type`` on surfaces or edges are automatically treated as 
+    :ref:`interface <sec-yaml-interface-reaction>` reactions, and reactions that involve 
+    charge transfer between phases are automatically treated as :ref:`electrochemical <sec-yaml-electrochemical-reaction>` 
+    reactions. Reactions on surfaces or edges specifying ``type`` as ``Blowers-Masel`` 
+    are treated as :ref:`surface-Blowers-Masel <sec-yaml-surface-Blowers-Masel>`.
+
 
 ``duplicate``
     Boolean indicating whether the reaction is a known duplicate of another
@@ -255,6 +258,31 @@ Example::
            [-2.26210e-01,  1.69190e-01,  4.85810e-03, -2.38030e-03],
            [-1.43220e-01,  7.71110e-02,  1.27080e-02, -6.41540e-04]]
 
+.. _sec-yaml-Blowers-Masel:
+
+``Blowers-Masel``
+-----------------
+
+A reaction with parameters to calculate rate constant based on Blowers Masel
+approximation as `described here <https://cantera.org/science/reactions.html#sec-blowers-masel>`__.
+
+Additional fields are:
+
+``rate-constant``
+    A list of values containing the pre-exponential factor :math:`A`, the 
+    temperature exponent :math:`b`, the intrinsic activation energy :math:`E_{a0}`,
+    and the average of the bond energy of the bond breaking and that being formed :math:`w`.
+
+``negative-A``
+    A boolean indicating whether a negative value for the pre-exponential factor
+    is allowed. The default is ``false``.
+
+Example::
+
+    equation: O + H2 <=> H + OH
+    type: Blowers-Masel
+    rate-constant: {A: 3.87e+04 cm^2/mol/s, b: 2.7, Ea0: 6260.0 cal/mol, w: 1e9 cal/mol}
+
 
 .. _sec-yaml-interface-reaction:
 
@@ -263,7 +291,7 @@ Example::
 
 A reaction occuring on a surface between two bulk phases, or along an edge
 at the intersection of two surfaces, as
-`described here <https://cantera.org/science/reactions.html#surface-reactions>`__.
+`described here <https://cantera.org/science/reactions.html#sec-surface>`__.
 
 Includes the fields of an :ref:`sec-yaml-elementary` reaction plus:
 
@@ -321,3 +349,23 @@ Example::
     equation: LiC6 <=> Li+(e) + C6
     rate-constant: [5.74, 0.0, 0.0]
     beta: 0.4
+
+.. _sec-yaml-surface-Blowers-Masel:
+
+``surface-Blowers-Masel``
+-------------------------
+
+A reaction occurring on a surface between two bulk phases, or along an edge
+at the intersection of two surfaces, which the rate constant can be calculated
+by Blowers Masel Approximation with Arrhenius expression as
+`described here <https://cantera.org/science/reactions.html#surface-blowers-masel-reactions>`__.
+
+Includes the fields of a :ref:`sec-yaml-Blowers-Masel` reaction and 
+the fields of an :ref:`sec-yaml-interface-reaction` reaction.
+
+Example::
+
+    equation: 2 H(s) => H2 + 2 Pt(s)
+    type: Blowers-Masel
+    rate-constant: {A: 3.7e21 cm^2/mol/s, b: 0, Ea0: 67400 J/mol, w: 1000000 J/mol}
+    coverage-dependencies: {H(s): {a: 0, m: 0, E: -6000 J/mol}}
