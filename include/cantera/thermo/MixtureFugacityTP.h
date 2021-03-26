@@ -540,7 +540,7 @@ protected:
      * @param   pres      pressure (Pa)
      * @param   a         "a" parameter in the non-ideal EoS [Pa-m^6/kmol^2]
      * @param   b         "b" parameter in the non-ideal EoS [m^3/kmol]
-     * @param   aAlpha    a*alpha
+     * @param   aAlpha    a*alpha (temperature dependent function for P-R EoS, 1 for R-K EoS)
      * @param   Vroot     Roots of the cubic equation for molar volume (m3/kmol)
      * @param   an        constant used in cubic equation
      * @param   bn        constant used in cubic equation
@@ -556,7 +556,6 @@ protected:
 
     //@}
 
-protected:
     //! Storage for the current values of the mole fractions of the species
     /*!
      * This vector is kept up-to-date when some the setState functions are called.
