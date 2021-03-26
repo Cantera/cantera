@@ -58,9 +58,19 @@ ChebyshevReaction
 .. autoclass:: ChebyshevReaction(reactants='', products='')
    :no-undoc-members:
 
+BlowersMaselReaction
+^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: BlowersMaselReaction(reactants='', products='')
+   :no-undoc-members:
+
 InterfaceReaction
 ^^^^^^^^^^^^^^^^^
 .. autoclass:: InterfaceReaction(reactants='', products='')
+   :no-undoc-members:
+
+BlowersMaselInterfaceReaction
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: BlowersMaselInterfaceReaction(reactants='', products='')
    :no-undoc-members:
 
 Auxilliary Reaction Data
@@ -84,6 +94,10 @@ SriFalloff
 ^^^^^^^^^^
 .. autoclass:: SriFalloff(coeffs=(), init=True)
    :no-undoc-members:
+
+BlowersMasel
+^^^^^^^^^^^^
+.. autoclass:: BlowersMasel(A, b, E0, w)
 
 Reaction Path Analysis
 ----------------------
