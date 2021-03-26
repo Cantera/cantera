@@ -210,7 +210,6 @@ public:
 
     virtual doublereal densSpinodalLiquid() const;
     virtual doublereal densSpinodalGas() const;
-    virtual doublereal pressureCalc(doublereal TKelvin, doublereal molarVol) const;
     virtual doublereal dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const;
 
     //! Calculate dpdV and dpdT at the current conditions

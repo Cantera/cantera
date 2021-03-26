@@ -646,13 +646,6 @@ double PengRobinson::densSpinodalGas() const
     return mmw / (0.5 * (vv.first + vv.second));
 }
 
-double PengRobinson::pressureCalc(double T, double molarVol) const
-{
-    double den = molarVol * molarVol + 2 * molarVol * m_b - m_b * m_b;
-    double pres = GasConstant * T / (molarVol - m_b) - m_aAlpha_mix / den;
-    return pres;
-}
-
 double PengRobinson::dpdVCalc(double T, double molarVol, double& presCalc) const
 {
     double den = molarVol * molarVol + 2 * molarVol * m_b - m_b * m_b;

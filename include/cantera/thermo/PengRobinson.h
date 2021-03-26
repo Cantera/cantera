@@ -195,7 +195,6 @@ protected:
 
     virtual double densSpinodalLiquid() const;
     virtual double densSpinodalGas() const;
-    virtual double pressureCalc(double TKelvin, double molarVol) const;
     virtual double dpdVCalc(double TKelvin, double molarVol, double& presCalc) const;
 
     // Special functions not inherited from MixtureFugacityTP
