@@ -247,27 +247,27 @@ public:
 protected:
     //! Value of b in the equation of state
     /*!
-     *  m_b_current is a function the mole fractions and species-specific b values.
+     *  m_b is a function the mole fractions and species-specific b values.
      */
-    double m_b_current;
+    double m_b;
 
     //! Value of a and alpha in the equation of state
     /*!
-     *  m_aAlpha_current is a function of the temperature and the mole fractions. m_a_current depends only on the mole fractions.
+     *  m_aAlpha_mix is a function of the temperature and the mole fractions. m_a depends only on the mole fractions.
      */
-    double m_a_current;
-    double m_aAlpha_current;
+    double m_a;
+    double m_aAlpha_mix;
 
     // Vectors required to store a_coeff, b_coeff, alpha, kappa and other values for every species. Length = m_kk
-    vector_fp m_b_vec_Curr;
-    vector_fp m_kappa_vec;
-    mutable vector_fp m_dalphadT_vec_Curr;
+    vector_fp m_b_coeffs;
+    vector_fp m_kappa;
+    mutable vector_fp m_dalphadT;
     mutable vector_fp m_d2alphadT2;
-    vector_fp m_alpha_vec_Curr;    
+    vector_fp m_alpha;
 
     //Matrices for Binary coefficients a_{i,j} and {a*alpha}_{i.j} are saved in an Array form. Length =  (m_kk, m_kk)
-    Array2D m_a_vec_Curr; 
-    Array2D m_aAlpha_vec_Curr; 
+    Array2D m_a_coeffs;
+    Array2D m_aAlpha_binary;
 
     int m_NSolns;
 
