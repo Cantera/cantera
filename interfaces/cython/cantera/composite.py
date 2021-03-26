@@ -63,7 +63,7 @@ class Solution(ThermoPhase, Kinetics, Transport):
     directly in Python::
 
         spec = ct.Species.listFromFile('gri30.yaml')
-        rxns = ct.Reaction.listFromFile('gri30.yaml')
+        rxns = ct.Reaction.listFromFile('gri30.yaml', gas)
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                           species=spec, reactions=rxns, name='my_custom_name')
 
