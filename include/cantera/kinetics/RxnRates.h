@@ -97,24 +97,27 @@ protected:
 
 //! Blowers Masel reaction rate type depends on enthalpy 
 /**
- * The Blowers Masel approximation is written by [Paul Blowrs,
- * Rich Masel(2004). Engineering Approximations For Activation Energies in Hydrogen
- * Transfer Reactions. Eq (10)-(11)] to adjust the activation energy based on
- * enthalpy change of a reaction:
- *
- *   \f[
- *        Ea = 0  if DeltaH < -4E_0
- *        Ea = DeltaH   if DeltaH > 4E_0
- *        Ea = \frac{(w_0 + DeltaH / 2)(V_P - 2w_0 + DeltaH)^2}{(V_P^^2 - 4w_0^2 + DeltaH^2)}
- *   \f] 
+ * The Blowers Masel approximation is written by Paul Blowers,
+ * Rich Masel(DOI: https://doi.org/10.1002/aic.690461015) to 
+ * adjust the activation energy based on enthalpy change of a reaction:
+ * 
+ *   \f{eqnarray*}{
+ *        E_a &=& 0\; \text{if }\Delta H < -4E_0 \\ 
+ *        E_a &=& \Delta H\; \text{if }\Delta H > 4E_0 \\
+ *        E_a &=& \frac{(w + \Delta H / 2)(V_P - 2w + 
+ *               \Delta H)^2}{(V_P^2 - 4w^2 + (\Delta H)^2)}\; \text{Otherwise}
+ *   \f}
  * where
  *   \f[
- *        V_P = \frac{2w_0 (w_0 + E_0)}{w_0 - E_0}
+ *        V_P = \frac{2w (w_0 + E_0)}{w - E_0},
  *   \f]
- * and \f$ w_0 \f$ is  theaverage of the bond energy of the 
- * bond breaking and that being formed, which can be approximated as
- * arbitrary high value like 1000kJ/mol as long as \f$ w_0 >= 2 E_0 \f$
- * The rate constant then can be calculated by Arrhenius function.
+ * \f$ w \f$ is the average of the bond energy of the 
+ * bond breaking and that being formed. Since the expression is 
+ * very insensitive to \f$ w \f$ for \f$ w >= 2 E_0 \f$, it 
+  * can be approximated to an arbitrary high value like 1000 kJ/mol.
+ * 
+ * After the activation energy is determined by Blowers-Masel approximation,
+ * it can be plugged into Arrhenius function to calculate the rate constant.
  *   \f[
  *        k_f =  A T^b \exp (-E_a/RT)
  *   \f]
@@ -131,7 +134,7 @@ public:
     ///     order and the dimensionality (surface or bulk).
     /// @param b Temperature exponent. Non-dimensional.
     /// @param E0 Intrinsic activation energy in temperature units. Kelvin.
-    /// @param w bond energy of the bond being formed or broken, in temperature unts. Kelvin.
+    /// @param w bond energy of the bond being formed or broken, in temperature units. Kelvin.
 
     BlowersMasel(doublereal A, doublereal b, doublereal E0, doublereal w);
 
