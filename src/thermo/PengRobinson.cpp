@@ -298,12 +298,11 @@ void PengRobinson::getPartialMolarEntropies(double* sbar) const
 void PengRobinson::getPartialMolarIntEnergies(double* ubar) const
 {
     // u_i = h_i - p*v_i
-    double* vbar = 0;
     double p = pressure();
     getPartialMolarEnthalpies(ubar);
-    getPartialMolarVolumes(vbar);
+    getPartialMolarVolumes(m_tmpV.data());
     for (size_t k = 0; k < m_kk; k++) {
-        ubar[k] = ubar[k] - p*vbar[k];
+        ubar[k] = ubar[k] - p*m_tmpV[k];
     }
 }
 
