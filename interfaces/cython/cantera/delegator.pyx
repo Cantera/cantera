@@ -103,12 +103,12 @@ cdef void assign_delegates(obj, CxxDelegator* delegator):
     for name in obj.delegatable_methods:
         when = None
         replace = 'replace_{}'.format(name)
-        if replace in obj.__class__.__dict__:
+        if hasattr(obj, replace):
             when = 'replace'
             method = getattr(obj, replace)
 
         before = 'before_{}'.format(name)
-        if before in obj.__class__.__dict__:
+        if hasattr(obj, before):
             if when is not None:
                 raise CanteraError(
                     "Only one delegate supported for '{}'".format(name))
@@ -116,7 +116,7 @@ cdef void assign_delegates(obj, CxxDelegator* delegator):
             method = getattr(obj, before)
 
         after = 'after_{}'.format(name)
-        if after in obj.__class__.__dict__:
+        if hasattr(obj, after):
             if when is not None:
                 raise CanteraError(
                     "Only one delegate supported for '{}'".format(name))
