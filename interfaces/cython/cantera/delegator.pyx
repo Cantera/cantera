@@ -127,29 +127,29 @@ cdef void assign_delegates(obj, CxxDelegator* delegator):
             continue
 
         cxx_name = stringify(obj.delegatable_methods[name][0])
-        callback = obj.delegatable_methods[name][1]
+        callback = obj.delegatable_methods[name][1].replace(' ', '')
         cxx_when = stringify(when)
-        if callback == 'v':
+        if callback == 'void()':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v), cxx_when)
-        if callback == 'v_d':
+        if callback == 'void(double)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_d), cxx_when)
-        if callback == 'v_dp':
+        if callback == 'void(double*)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_dp), cxx_when)
-        if callback == 'v_b':
+        if callback == 'void(bool)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_b), cxx_when)
-        if callback == 'v_d_dp':
+        if callback == 'void(double,double*)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_d_dp), cxx_when)
-        if callback == 'i_dr_d_dp':
+        if callback == 'double(double,double*)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_i_dr_d_dp), cxx_when)
-        if callback == 'i_sr_z':
+        if callback == 'string(size_t)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_i_sr_z), cxx_when)
-        if callback == 'i_zr_csr':
+        if callback == 'size_t(string)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_i_zr_csr), cxx_when)

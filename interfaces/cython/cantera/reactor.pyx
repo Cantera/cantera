@@ -392,19 +392,19 @@ cdef class DelegatedReactor(Reactor):
     reactor_type = "DelegatedReactor"
 
     delegatable_methods = {
-        'initialize': ('initialize', 'v_d'),
-        'sync_state': ('syncState', 'v'),
-        'get_state': ('getState', 'v_dp'),
-        'update_state': ('updateState', 'v_dp'),
-        'update_surface_state': ('updateSurfaceState', 'v_dp'),
-        'get_surface_initial_condition': ('getSurfaceInitialCondition', 'v_dp'),
-        'update_connected': ('updateConnected', 'v_b'),
-        'eval': ('eval', 'v_d_dp'),
-        'eval_walls': ('evalWalls', 'v_d'),
-        'eval_surfaces': ('evalSurfaces', 'i_dr_d_dp'),
-        'component_name': ('componentName', 'i_sr_z'),
-        'component_index': ('componentIndex', 'i_zr_csr'),
-        'species_index': ('speciesIndex', 'i_zr_csr')
+        'initialize': ('initialize', 'void(double)'),
+        'sync_state': ('syncState', 'void()'),
+        'get_state': ('getState', 'void(double*)'),
+        'update_state': ('updateState', 'void(double*)'),
+        'update_surface_state': ('updateSurfaceState', 'void(double*)'),
+        'get_surface_initial_condition': ('getSurfaceInitialCondition', 'void(double*)'),
+        'update_connected': ('updateConnected', 'void(bool)'),
+        'eval': ('eval', 'void(double, double*)'),
+        'eval_walls': ('evalWalls', 'void(double)'),
+        'eval_surfaces': ('evalSurfaces', 'double(double,double*)'),
+        'component_name': ('componentName', 'string(size_t)'),
+        'component_index': ('componentIndex', 'size_t(string)'),
+        'species_index': ('speciesIndex', 'size_t(string)')
     }
 
     def __cinit__(self, *args, **kwargs):
