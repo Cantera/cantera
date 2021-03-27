@@ -63,14 +63,17 @@ class Solution(ThermoPhase, Kinetics, Transport):
     directly in Python::
 
         spec = ct.Species.listFromFile('gri30.yaml')
-        rxns = ct.Reaction.listFromFile('gri30.yaml')
+        spec_gas = ct.Solution(thermo='IdealGas', species=spec)
+        rxns = ct.Reaction.listFromFile('gri30.yaml', spec_gas)
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                           species=spec, reactions=rxns, name='my_custom_name')
 
     where the ``thermo`` and ``kinetics`` keyword arguments are strings
     specifying the thermodynamic and kinetics model, respectively, and
     ``species`` and ``reactions`` keyword arguments are lists of `Species` and
-    `Reaction` objects, respectively.
+    `Reaction` objects, respectively. Note that importing the reactions from a
+    YAML input file requires a `Kinetics` object containing the species, as
+    shown.
 
     Types of underlying models that form the composite `Solution` object are
     queried using the ``thermo_model``, ``kinetics_model`` and
