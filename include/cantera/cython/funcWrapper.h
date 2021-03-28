@@ -97,6 +97,8 @@ extern "C" {
 }
 
 
+//! A class to hold information needed to call Python functions from delgated
+//! methods (see class Delegator).
 class PyFuncInfo {
 public:
     PyFuncInfo()
@@ -155,7 +157,13 @@ private:
     PyObject* m_exception_value;
 };
 
-
+//! Take a function which requires Python function information (as a PyFuncInfo
+//! object) and capture that object to generate a function that does not reqire
+//! any Python-specific arguments.
+//!
+//! The inner function is responsible for catching Python exceptions and
+//! stashing their details in the PyFuncInfo object. The wrapper function
+//! generated here examines the stashed exception and throws a C++ exception
 template <class ... Args>
 std::function<void(Args ...)> pyOverride(PyObject* pyFunc, void func(PyFuncInfo&, Args ... args)) {
     PyFuncInfo func_info;
@@ -168,6 +176,7 @@ std::function<void(Args ...)> pyOverride(PyObject* pyFunc, void func(PyFuncInfo&
     };
 }
 
+//! Same as above, but for functions that return an int.
 template <class ... Args>
 std::function<int(Args ...)> pyOverride(PyObject* pyFunc, int func(PyFuncInfo&, Args ... args)) {
     PyFuncInfo func_info;
