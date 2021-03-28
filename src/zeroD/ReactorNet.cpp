@@ -457,11 +457,8 @@ double ReactorNet::solveSteady()
 
     //TODO: better initialization/configuration for this solver
     //solve
-    std::unique_ptr<Cantera::Jacobian> jac;
-    jac.reset(new Cantera::Jacobian(*this));
-
     std::unique_ptr<Cantera::Newton> m_newt;
-    m_newt.reset(new Cantera::Newton(*this, *jac));
+    m_newt.reset(new Cantera::Newton(*this));
 
     for (int i = 0; i < m_nv; i++)
     {

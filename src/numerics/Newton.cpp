@@ -17,11 +17,8 @@ namespace Cantera
 const doublereal DampFactor = sqrt(2.0);
 const size_t NDAMP = 7;
 
-Newton::Newton(FuncEval& func, Jacobian& jac)
-    : m_maxAge(5)
-{
+Newton::Newton(FuncEval& func) {
     m_residfunc = &func;
-    m_jac = &jac;
     m_nv = m_residfunc->neq();
     m_x.resize(m_nv);
     m_x1.resize(m_nv);
@@ -34,7 +31,46 @@ Newton::Newton(FuncEval& func, Jacobian& jac)
     m_rtol_ts.resize(m_nv, 1.0e-4);
     m_atol_ts.resize(m_nv, 1.0e-11);
 
-    m_elapsed = 0.0;
+    m_jacobian = DenseMatrix(m_nv, m_nv);
+    m_jacAge = 10000;
+    m_jacMaxAge = 5;
+    m_jacRtol = 1.0e-5;
+    m_jacAtol = sqrt(std::numeric_limits<double>::epsilon());
+}
+
+void Newton::evalJacobian(doublereal* x, doublereal* xdot) {
+
+    // // calculate unperturbed residual
+    // m_residfunc->eval(0, x, xdot, 0);
+
+    for (size_t n = 0; n < m_nv; n++) {
+        double xsave = x[n];
+
+        // calculate the perturbation amount, preserving the sign of x[n]
+        double dx;
+        if (xsave >= 0) {
+            dx = xsave*m_jacRtol + m_jacAtol;
+        } else {
+            dx = xsave*m_jacRtol - m_jacAtol;
+        }
+
+        // perturb the solution vector
+        x[n] = xsave + dx;
+        dx = x[n] - xsave;
+
+        // calculate perturbed residual
+        vector_fp xdotPerturbed(m_nv); //make this member for speed?
+        m_residfunc->eval(0, x, xdotPerturbed.data(), 0);
+
+        // compute nth column of Jacobian
+        for (size_t m = 0; m < m_nv; m++) {
+            m_jacobian.value(m,n) = (xdotPerturbed[m] - xdot[m])/dx;
+        }
+        // restore solution vector
+        x[n] = xsave;
+    }
+
+    m_jacAge = 0;
 }
 
 doublereal Newton::weightedNorm(const doublereal* x, const doublereal* step) const
@@ -50,19 +86,18 @@ doublereal Newton::weightedNorm(const doublereal* x, const doublereal* step) con
 
 void Newton::step(doublereal* x, doublereal* step, int loglevel)
 {
-    fill(step, step + m_nv, 0.0);
     m_residfunc->eval(0, x, step, 0);
 
     //DenseMatrix overwrites itself with LU factored version on solve() calls.
     //Temporary fix: recompute jac before every solve call
-    m_jac->eval(x, step, 0.0);
+    evalJacobian(x, step);
 
     for (size_t n = 0; n < m_nv; n++) {
         step[n] = -step[n];
     }
 
     try {
-        m_jac->compute(step);
+        Cantera::solve(m_jacobian, step);
     } catch (CanteraError&) {
         // int iok = m_jac->info() - 1;
         int iok = -1; //TODO: enable error info
@@ -166,10 +201,10 @@ int Newton::dampStep(const doublereal* x0, const doublereal* step0,
         // write log information
         if (loglevel > 0) {
             doublereal ss = weightedNorm(x1,step1);
-            writelog("\n{:d}  {:9.5f}   {:9.5f}   {:9.5f}   {:9.5f}   {:9.5f} {:4d}  {:d}/{:d}",
+            writelog("\n{:d}  {:9.5f}   {:9.5f}   {:9.5f}   {:9.5f}   {:9.5f}  {:d}/{:d}",
                      m, damp, boundFactor, log10(ss+SmallNumber),
                      log10(s0+SmallNumber), log10(s1+SmallNumber),
-                     m_jac->nEvals(), m_jac->age(), m_maxAge);
+                     m_jacAge, m_jacMaxAge);
         }
 
         // if the norm of s1 is less than the norm of s0, then accept this
@@ -207,14 +242,13 @@ int Newton::solve(int loglevel)
 
     bool frst = true;
     // doublereal rdt = r.rdt();
-    int j0 = m_jac->nEvals();
     int nJacReeval = 0;
 
     while (true) {
         // Check whether the Jacobian should be re-evaluated.
-        if (m_jac->age() > m_maxAge) {
+        if (m_jacAge > m_jacMaxAge) {
             if (loglevel > 0) {
-                writelog("\nMaximum Jacobian age reached ({})\n", m_maxAge);
+                writelog("\nMaximum Jacobian age reached ({})\n", m_jacMaxAge);
             }
             forceNewJac = true;
         }
@@ -222,7 +256,7 @@ int Newton::solve(int loglevel)
         if (forceNewJac) {
             fill(m_stp.begin(), m_stp.end(), 0.0);
             m_residfunc->eval(0, &m_x[0], &m_stp[0], 0);
-            m_jac->eval(&m_x[0], &m_stp[0], 0.0);
+            evalJacobian(&m_x[0], &m_stp[0]);
             // jac.updateTransient(rdt, r.transientMask().data());
             forceNewJac = false;
         }
@@ -231,7 +265,7 @@ int Newton::solve(int loglevel)
         step(&m_x[0], &m_stp[0], loglevel-1);
 
         // increment the Jacobian age
-        m_jac->incrementAge();
+        m_jacAge++;
 
         // damp the Newton step
         m = dampStep(&m_x[0], &m_stp[0], &m_x1[0], &m_stp1[0], s1, loglevel-1, frst);
@@ -242,8 +276,8 @@ int Newton::solve(int loglevel)
                 writelog("\n    ------------------------------------");
             }
             doublereal ss = weightedNorm(&m_x[0], &m_stp[0]);
-            writelog("\n    {:10.4f}    {:10.4f}       {:d}",
-                     log10(ss),log10(s1),m_jac->nEvals());
+            writelog("\n    {:10.4f}    {:10.4f}",
+                     log10(ss),log10(s1));
         }
         frst = false;
 
@@ -261,7 +295,7 @@ int Newton::solve(int loglevel)
             // If dampStep fails, first try a new Jacobian if an old one was
             // being used. If it was a new Jacobian, then return -1 to signify
             // failure.
-            if (m_jac->age() > 1) {
+            if (m_jacAge > 1) {
                 forceNewJac = true;
                 if (nJacReeval > 3) {
                     break;
@@ -280,10 +314,9 @@ int Newton::solve(int loglevel)
         //TODO: add get solution method? vs copy into provided vector
         //copy(m_x.begin(), m_x.end(), x1);
     }
-    if (m > 0 && m_jac->nEvals() == j0) {
-        m = 100;
-    }
-    // m_elapsed += (clock() - t0)/(1.0*CLOCKS_PER_SEC);
+    // if (m > 0 && m_jac->nEvals() == j0) {
+    //     m = 100;
+    // }
     return m;
 }
 

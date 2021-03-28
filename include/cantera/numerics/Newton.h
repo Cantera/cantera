@@ -6,8 +6,8 @@
 #ifndef CT_NEWTON_H
 #define CT_NEWTON_H
 
-#include "Jacobian.h"
 #include "FuncEval.h"
+#include "DenseMatrix.h"
 
 namespace Cantera
 {
@@ -18,7 +18,7 @@ namespace Cantera
 class Newton
 {
 public:
-    Newton(FuncEval& func, Jacobian& jac);
+    Newton(FuncEval& func);
     virtual ~Newton() {};
     Newton(const Newton&) = delete;
     Newton& operator=(const Newton&) = delete;
@@ -59,7 +59,7 @@ public:
 
     /// Set options.
     void setOptions(int maxJacAge = 5) {
-        m_maxAge = maxJacAge;
+        m_jacMaxAge = maxJacAge;
     }
 
     //TODO: implement get methods
@@ -75,11 +75,15 @@ public:
         m_max[n] = upper;
     }
 
-protected:
-    doublereal m_rdt = 0.0;
+    void evalJacobian(doublereal* x, doublereal* xdot);
 
+protected:
     FuncEval* m_residfunc;
-    Jacobian* m_jac;
+
+    DenseMatrix m_jacobian;
+    int m_jacAge, m_jacMaxAge;
+    doublereal m_jacRtol, m_jacAtol;
+
 
     //! Work arrays of size #m_nv used in solve().
     vector_fp m_x, m_x1, m_stp, m_stp1;
@@ -88,12 +92,8 @@ protected:
     vector_fp m_rtol_ss, m_rtol_ts;
     vector_fp m_atol_ss, m_atol_ts;
 
-    int m_maxAge;
-
     //! number of variables
     size_t m_nv;
-
-    doublereal m_elapsed;
 };
 }
 
