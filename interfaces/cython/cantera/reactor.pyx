@@ -389,6 +389,84 @@ cdef class FlowReactor(Reactor):
 
 
 cdef class DelegatedReactor(Reactor):
+    """
+    A base class for a reactor with delegated methods where the base
+    functionality corresponds to the `Reactor` class.
+
+    The following methods of the C++ :ct:`Reactor` class can be modified by a
+    Python class which inherits from this class. For each method, the name below
+    should be prefixed with ``before_``, ``after_``, or ``replace_``, indicating
+    whether the this method should be called before, after, or instead of the
+    corresponding method from the base class.
+
+    For methods that return a value and have a ``before`` method specified, if
+    that method returns a value other than ``None`` that value will be returned
+    without calling the base class method; otherwise, the value from the base
+    class method will be returned. For methods that return a value and have an
+    ``after`` method specified, the returned value wil be the sum of the values
+    from the supplied method and the base class method.
+
+    ``initialize(self, t0: double) -> None``
+        Responsible for allocating and setting the sizes of any internal
+        variables, initializing attached walls, and setting the total number of
+        state variables associated with this reactor, `n_vars`.
+
+        Called once before the start of time integration.
+
+    ``sync_state(self) -> None``
+        Responsible for setting the state of the reactor to correspond to the
+        state of the associated ThermoPhase object.
+
+    ``get_state(self, y : double[:]) -> None``
+        Responsible for populating the state vector ``y`` (length `n_vars`)
+        with the initial state of the reactor.
+
+    ``update_state(self, y : double[:]) -> None``
+        Responsible for setting the state of the reactor object from the
+        values in the state vector ``y`` (length `n_vars`)
+
+    ``update_surface_state(self, y : double[:]) -> None``
+        Responsible for setting the state of surface phases in this reactor
+        from the values in the state vector ``y``. The length of ``y`` is the
+        total number of surface species in all surfaces.
+
+    ``get_surface_initial_condition(self, y : double[:]) -> None``
+        Responsible for populating the state vector ``y`` with the initial
+        state of each surface phase in this reactor. The length of ``y`` is the
+        total number of surface species in all surfaces.
+
+    ``update_connected(self, update_pressure : bool) -> None``
+        Responsible for storing properties which may be accessed by connected
+        reactors, and for updating the mass flow rates of connected flow devices.
+
+    ``eval(self, t : double, ydot : double[:]) -> None``
+        Responsible for calculating the time derivative of the state ``ydot``
+        (length `n_vars`) at time ``t`` based on the current state of the
+        reactor.
+
+    ``eval_walls(self, t : double) -> None``
+        Responsible for calculating the net rate of volume change `vdot`
+        and the net rate of heat transfer `qdot` caused by walls connected
+        to this reactor.
+
+    ``eval_surfaces(t : double, ydot : double[:]) -> double``
+        Responsible for calculating the time derivative of the surface species
+        ``ydot`` (length: total number of surface species in all surfaces) and
+        the net rate of production of bulk phase species on surfaces. Returns
+        the net mass flux from surfaces into the bulk phase.
+
+    ``component_name(i : int) -> string``
+        Returns the name of the state vector component with index ``i``
+
+    ``component_index(name: string) -> int``
+        Returns the index of the state vector component named ``name``
+
+    ``species_index(name : string) -> int``
+        Returns the index of the species named ``name``, in either the bulk
+        phase or a surface phase, relative to the start of the species terms in
+        the state vector.
+    """
+
     reactor_type = "DelegatedReactor"
 
     delegatable_methods = {
@@ -457,14 +535,26 @@ cdef class DelegatedReactor(Reactor):
 
 
 cdef class DelegatedIdealGasReactor(DelegatedReactor):
+    """
+    A variant of `DelegatedReactor` where the base behavior corresponds to the
+    `IdealGasReactor` class.
+    """
     reactor_type = "DelegatedIdealGasReactor"
 
 
 cdef class DelegatedConstPressureReactor(DelegatedReactor):
+    """
+    A variant of `DelegatedReactor` where the base behavior corresponds to the
+    `ConstPressureReactor` class.
+    """
     reactor_type = "DelegatedConstPressureReactor"
 
 
 cdef class DelegatedIdealGasConstPressureReactor(DelegatedReactor):
+    """
+    A variant of `DelegatedReactor` where the base behavior corresponds to the
+    `IdealGasConstPressureReactor` class.
+    """
     reactor_type = "DelegatedIdealGasConstPressureReactor"
 
 

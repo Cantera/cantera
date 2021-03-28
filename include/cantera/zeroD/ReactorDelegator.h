@@ -14,6 +14,14 @@
 namespace Cantera
 {
 
+//! An abstract base class for providing access to protected capabilities
+//! Reactor objects from delegate methods, which would normally only be able to
+//! access public Reactor members.
+//!
+//! Actual implementations of these methods are found in the templated
+//! ReactorDelegator class. The purpose of this base class is so these methods
+//! can be accessed by casting a Reactor* to a ReactorAccessor* without needing
+//! to know the specific kind of Reactor at compilation time.
 class ReactorAccessor
 {
 public:
@@ -40,6 +48,7 @@ public:
     virtual void restoreSurfaceState(size_t n) = 0;
 };
 
+//! Delegate methods of the Reactor class to external functions
 template <class R>
 class ReactorDelegator : public Delegator, public R, public ReactorAccessor
 {
