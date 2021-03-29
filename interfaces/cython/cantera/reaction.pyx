@@ -911,6 +911,12 @@ cdef class ChebyshevReaction(Reaction):
         return r.rate.updateRC(logT, recipT)
 
 cdef class BlowersMasel:
+    """
+    A reaction rate coefficient which depends on temperature and enthalpy change
+    of the reaction follows Blowers-Masel approximation and modified Arrhenius form
+    described in `Arrhenius`. The functions are used by reactions defined using `BlowersMaselReaction` and
+    `BlowersMaselInterfaceReaction`.
+    """
     def __cinit__(self, A=0, b=0, E0=0, w=0, init=True):
         if init:
             self.rate = new CxxBlowersMasel(A, b, E0 / gas_constant, w / gas_constant)
@@ -937,11 +943,17 @@ cdef class BlowersMasel:
 
     def activation_energy(self, float dH):
         """
-        The activation energy *E* [J/kmol].
+        The activation energy *E* [J/kmol]
+
+        :param dH: The enthalpy of reaction [J/kmol] at the current temperature
         """
         return self.rate.activationEnergy_R(dH) * gas_constant
 
     property bond_energy:
+        """
+        Average bond dissociation energy of the bond being formed and broken
+        in the reaction *E* [J/kmol].
+        """
         def __get__(self):
             return self.rate.bondEnergy() * gas_constant
 
@@ -1163,7 +1175,10 @@ cdef class InterfaceReaction(ElementaryReaction):
             r.sticking_species = stringify(species)
 
 cdef class BlowersMaselInterfaceReaction(BlowersMaselReaction):
-    """ A reaction occurring on an `Interface` (i.e. a surface or an edge) """
+    """
+    A reaction occurring on an `Interface` (i.e. a surface or an edge)
+    with the rate parameterization of `BlowersMasel`.
+    """
     reaction_type = "surface-Blowers-Masel"
 
     property coverage_deps:
