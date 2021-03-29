@@ -109,12 +109,12 @@ protected:
  *   \f}
  * where
  *   \f[
- *        V_P = \frac{2w (w_0 + E_0)}{w - E_0},
+ *        V_P = \frac{2w (w + E_0)}{w - E_0},
  *   \f]
- * \f$ w \f$ is the average of the bond energy of the 
- * bond breaking and that being formed. Since the expression is 
- * very insensitive to \f$ w \f$ for \f$ w >= 2 E_0 \f$, it 
-  * can be approximated to an arbitrary high value like 1000 kJ/mol.
+ * \f$ w \f$ is the average bond dissociation energy of the bond breaking 
+ * and that being formed in the reaction. Since the expression is 
+ * very insensitive to \f$ w \f$ for \f$ w >= 2 E_0 \f$, \f$ w \f$
+ * can be approximated to an arbitrary high value like 1000 kJ/mol.
  * 
  * After the activation energy is determined by Blowers-Masel approximation,
  * it can be plugged into Arrhenius function to calculate the rate constant.
@@ -134,9 +134,9 @@ public:
     ///     order and the dimensionality (surface or bulk).
     /// @param b Temperature exponent. Non-dimensional.
     /// @param E0 Intrinsic activation energy in temperature units. Kelvin.
-    /// @param w bond energy of the bond being formed or broken, in temperature units. Kelvin.
+    /// @param w average bond dissociation energy of the bond being formed and broken in the reaction, in temperature units. Kelvin.
 
-    BlowersMasel(doublereal A, doublereal b, doublereal E0, doublereal w);
+    BlowersMasel(double A, double b, double E0, double w);
 
     //! Update concentration-dependent parts of the rate coefficient.
     /*!
@@ -193,7 +193,7 @@ public:
     doublereal activationEnergy_R0() const {
         return m_E0;
     }
-    //! Return the bond energy *w* divided by the gas constant[K]
+    //! Return the bond dissociation energy *w* divided by the gas constant[K]
     doublereal bondEnergy() const {
         return m_w;
     }    
@@ -572,18 +572,20 @@ protected:
  * Transfer Reactions. Eq (10)-(11)], which can be used to change the activation
  * based on enthalpy of the reaction:
  *
- *   \f[
- *        Ea = 0  if DeltaH < -4E_0
- *        Ea = DeltaH   if DeltaH > 4E_0
- *        Ea = \frac{(w_0 + DeltaH / 2)(V_P - 2w_0 + DeltaH)^2}{(V_P^2 - 4w_0^2 + DeltaH^2)}
- *   \f] 
+ *   \f{eqnarray*}{
+ *        E_a &=& 0\; \text{if }\Delta H < -4E_0 \\ 
+ *        E_a &=& \Delta H\; \text{if }\Delta H > 4E_0 \\
+ *        E_a &=& \frac{(w + \Delta H / 2)(V_P - 2w + 
+ *               \Delta H)^2}{(V_P^2 - 4w^2 + (\Delta H)^2)}\; \text{Otherwise}
+ *   \f}
  * where
  *   \f[
- *        V_P = 2w_0 (w_0 + E_0) / (w_0 - E_0)
+ *        V_P = 2w (w + E_0) / (w - E_0),
  *   \f]
- * and \f$ w_0 \f$ is  the average of the bond energy of the 
- * bond breaking and that being formed, which can be approximated as an
- * arbitrary high value like 1000kJ/mol as long as \f$ w_0 >= 2 E_0 \f$
+ * \f$ w \f$ is the average bond dissociation energy of the bond breaking 
+ * and that being formed in the reaction. Since the expression is 
+ * very insensitive to \f$ w \f$ for \f$ w >= 2 E_0 \f$, \f$ w \f$
+ * can be approximated to an arbitrary high value like 1000 kJ/mol.
  */
 class BMSurfaceArrhenius
 {
@@ -595,8 +597,8 @@ public:
     //! Add a coverage dependency for species *k*, with exponential dependence
     //! *a*, power-law exponent *m*, and activation energy dependence *e*,
     //! where *e* is in Kelvin, i.e. energy divided by the molar gas constant.
-    void addCoverageDependence(size_t k, doublereal a,
-                               doublereal m, doublereal e);
+    void addCoverageDependence(size_t k, double a,
+                               double m, double e);
 
     void update_C(const doublereal* theta) {
         m_acov = 0.0;
