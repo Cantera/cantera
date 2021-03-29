@@ -1,4 +1,4 @@
-//! @file Newton.cpp damped Newton solver
+//! @file Newton.cpp: A damped & bounded quasi-Newton solver
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
@@ -42,7 +42,7 @@ Newton::Newton(FuncEval& func) {
 void Newton::evalJacobian(doublereal* x, doublereal* xdot) {
 
     // // calculate unperturbed residual
-    // m_residfunc->eval(0, x, xdot, 0);
+    m_residfunc->eval(0, x, xdot, 0);
 
     for (size_t n = 0; n < m_nv; n++) {
         // calculate the nth Jacobian column, unless component n is constant
@@ -107,17 +107,18 @@ doublereal Newton::weightedNorm(const doublereal* x, const doublereal* step) con
 void Newton::step(doublereal* x, doublereal* step, int loglevel)
 {
     m_residfunc->eval(0, x, step, 0);
-
-    //DenseMatrix overwrites itself with LU factored version on solve() calls.
-    //Temporary fix: recompute jac before every solve call
-    evalJacobian(x, step);
-
     for (size_t n = 0; n < m_nv; n++) {
         step[n] = -step[n];
     }
 
+    DenseMatrix solvejac = m_jacobian;
     try {
-        Cantera::solve(m_jacobian, step);
+        //Note: this function takes an unfactored jacobian, then finds its LU factorization before
+        // solving. Optimization is possible by saving the factored jacobian, since it can be reused.
+        // Also, the DenseMatrix provided here will be overwritten with the LU factored version, so
+        // a copy is passed instead in order to preserve the original for reuse.
+        Cantera::solve(solvejac, step);
+
     } catch (CanteraError&) {
         // int iok = m_jac->info() - 1;
         int iok = -1; //TODO: enable error info
@@ -253,7 +254,6 @@ int Newton::dampStep(const doublereal* x0, const doublereal* step0,
 
 int Newton::solve(int loglevel)
 {
-    // clock_t t0 = clock();
     int m = 0;
     bool forceNewJac = false;
     doublereal s1=1.e30;
@@ -261,7 +261,6 @@ int Newton::solve(int loglevel)
     m_residfunc->getState(m_x.data());
 
     bool frst = true;
-    // doublereal rdt = r.rdt();
     int nJacReeval = 0;
 
     while (true) {
@@ -274,10 +273,7 @@ int Newton::solve(int loglevel)
         }
 
         if (forceNewJac) {
-            fill(m_stp.begin(), m_stp.end(), 0.0);
-            m_residfunc->eval(0, &m_x[0], &m_stp[0], 0);
             evalJacobian(&m_x[0], &m_stp[0]);
-            // jac.updateTransient(rdt, r.transientMask().data());
             forceNewJac = false;
         }
 
