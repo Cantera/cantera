@@ -77,7 +77,7 @@ BlowersMasel::BlowersMasel()
 {
 }
 
-BlowersMasel::BlowersMasel(doublereal A, doublereal b, doublereal E0, doublereal w)
+BlowersMasel::BlowersMasel(double A, double b, double E0, double w)
     : m_b(b)
     , m_A(A)
     , m_w(w)
@@ -242,8 +242,8 @@ BMSurfaceArrhenius::BMSurfaceArrhenius(double A, double b, double Ta, double w)
 {
 }
 
-void BMSurfaceArrhenius::addCoverageDependence(size_t k, doublereal a,
-                               doublereal m, doublereal e)
+void BMSurfaceArrhenius::addCoverageDependence(size_t k, double a,
+                               double m, double e)
 {
     m_sp.push_back(k);
     m_ac.push_back(a);
