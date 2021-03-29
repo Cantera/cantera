@@ -111,11 +111,11 @@ protected:
  *   \f[
  *        V_P = \frac{2w (w + E_0)}{w - E_0},
  *   \f]
- * \f$ w \f$ is the average bond dissociation energy of the bond breaking 
- * and that being formed in the reaction. Since the expression is 
+ * \f$ w \f$ is the average bond dissociation energy of the bond breaking
+ * and that being formed in the reaction. Since the expression is
  * very insensitive to \f$ w \f$ for \f$ w >= 2 E_0 \f$, \f$ w \f$
  * can be approximated to an arbitrary high value like 1000 kJ/mol.
- * 
+ *
  * After the activation energy is determined by Blowers-Masel approximation,
  * it can be plugged into Arrhenius function to calculate the rate constant.
  *   \f[
@@ -134,7 +134,8 @@ public:
     ///     order and the dimensionality (surface or bulk).
     /// @param b Temperature exponent. Non-dimensional.
     /// @param E0 Intrinsic activation energy in temperature units. Kelvin.
-    /// @param w average bond dissociation energy of the bond being formed and broken in the reaction, in temperature units. Kelvin.
+    /// @param w average bond dissociation energy of the bond being formed and
+    ///     broken in the reaction, in temperature units. Kelvin.
 
     BlowersMasel(double A, double b, double E0, double w);
 
@@ -573,17 +574,17 @@ protected:
  * based on enthalpy of the reaction:
  *
  *   \f{eqnarray*}{
- *        E_a &=& 0\; \text{if }\Delta H < -4E_0 \\ 
+ *        E_a &=& 0\; \text{if }\Delta H < -4E_0 \\
  *        E_a &=& \Delta H\; \text{if }\Delta H > 4E_0 \\
- *        E_a &=& \frac{(w + \Delta H / 2)(V_P - 2w + 
+ *        E_a &=& \frac{(w + \Delta H / 2)(V_P - 2w +
  *               \Delta H)^2}{(V_P^2 - 4w^2 + (\Delta H)^2)}\; \text{Otherwise}
  *   \f}
  * where
  *   \f[
  *        V_P = 2w (w + E_0) / (w - E_0),
  *   \f]
- * \f$ w \f$ is the average bond dissociation energy of the bond breaking 
- * and that being formed in the reaction. Since the expression is 
+ * \f$ w \f$ is the average bond dissociation energy of the bond breaking
+ * and that being formed in the reaction. Since the expression is
  * very insensitive to \f$ w \f$ for \f$ w >= 2 E_0 \f$, \f$ w \f$
  * can be approximated to an arbitrary high value like 1000 kJ/mol.
  */

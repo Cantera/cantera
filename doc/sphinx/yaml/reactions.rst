@@ -271,7 +271,7 @@ Additional fields are:
 ``rate-constant``
     A list of values containing the pre-exponential factor :math:`A`, the 
     temperature exponent :math:`b`, the intrinsic activation energy :math:`E_{a0}`,
-    and the average of the bond dissociation energy of the bond breaking and that 
+    and the average of the bond dissociation energy of the bond breaking and that
     being formed in the reaction :math:`w`.
 
 ``negative-A``
