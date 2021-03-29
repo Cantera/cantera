@@ -468,6 +468,8 @@ double ReactorNet::solveSteady()
     m_newt->setBounds(1, 0, 5);
     m_newt->setBounds(2, -10000000, 10000000);
 
+    m_newt->setConstant(1, true);
+
     m_newt->solve(8);
 }
 

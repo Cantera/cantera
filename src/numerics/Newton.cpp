@@ -20,6 +20,7 @@ const size_t NDAMP = 7;
 Newton::Newton(FuncEval& func) {
     m_residfunc = &func;
     m_nv = m_residfunc->neq();
+    m_constant.resize(m_nv, false);
     m_x.resize(m_nv);
     m_x1.resize(m_nv);
     m_stp.resize(m_nv);
@@ -28,8 +29,8 @@ Newton::Newton(FuncEval& func) {
     m_min.resize(m_nv, 0.0);
     m_rtol_ss.resize(m_nv, 1.0e-4);
     m_atol_ss.resize(m_nv, 1.0e-9);
-    m_rtol_ts.resize(m_nv, 1.0e-4);
-    m_atol_ts.resize(m_nv, 1.0e-11);
+    // m_rtol_ts.resize(m_nv, 1.0e-4);
+    // m_atol_ts.resize(m_nv, 1.0e-11);
 
     m_jacobian = DenseMatrix(m_nv, m_nv);
     m_jacAge = 10000;
@@ -44,31 +45,50 @@ void Newton::evalJacobian(doublereal* x, doublereal* xdot) {
     // m_residfunc->eval(0, x, xdot, 0);
 
     for (size_t n = 0; n < m_nv; n++) {
-        double xsave = x[n];
+        // calculate the nth Jacobian column, unless component n is constant
+        if (!m_constant[n]) {
+            double xsave = x[n];
 
-        // calculate the perturbation amount, preserving the sign of x[n]
-        double dx;
-        if (xsave >= 0) {
-            dx = xsave*m_jacRtol + m_jacAtol;
+            // calculate the perturbation amount, preserving the sign of x[n]
+            double dx;
+            if (xsave >= 0) {
+                dx = xsave*m_jacRtol + m_jacAtol;
+            } else {
+                dx = xsave*m_jacRtol - m_jacAtol;
+            }
+
+            // perturb the solution vector
+            x[n] = xsave + dx;
+            dx = x[n] - xsave;
+
+            // calculate perturbed residual
+            vector_fp xdotPerturbed(m_nv); //make this member for speed?
+            m_residfunc->eval(0, x, xdotPerturbed.data(), 0);
+
+            // compute nth column of Jacobian
+            for (size_t m = 0; m < m_nv; m++) {
+                m_jacobian.value(m,n) = (xdotPerturbed[m] - xdot[m])/dx;
+            }
+            // restore solution vector
+            x[n] = xsave;
+
+        // for constant components: Jacobian column of 0's, with 1 on diagonal
+        // note: Jacobian row must also be 0's w/ 1 on diagonal
         } else {
-            dx = xsave*m_jacRtol - m_jacAtol;
+            for (size_t m = 0; m < m_nv; m++) {
+                m_jacobian.value(m,n) = 0;
+            }
+            m_jacobian.value(n,n) = 1;
         }
-
-        // perturb the solution vector
-        x[n] = xsave + dx;
-        dx = x[n] - xsave;
-
-        // calculate perturbed residual
-        vector_fp xdotPerturbed(m_nv); //make this member for speed?
-        m_residfunc->eval(0, x, xdotPerturbed.data(), 0);
-
-        // compute nth column of Jacobian
-        for (size_t m = 0; m < m_nv; m++) {
-            m_jacobian.value(m,n) = (xdotPerturbed[m] - xdot[m])/dx;
-        }
-        // restore solution vector
-        x[n] = xsave;
     }
+
+    // writelog("\nnew jac:\n");
+    // for (int i = 0; i < m_nv; i++) {
+    //     for (int j = 0; j < m_nv; j++) {
+    //         writelog("{:14.5} ", m_jacobian.value(i,j));
+    //     }
+    //     writelog("\n");
+    // }
 
     m_jacAge = 0;
 }

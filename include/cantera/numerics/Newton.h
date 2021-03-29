@@ -75,6 +75,10 @@ public:
         m_max[n] = upper;
     }
 
+    void setConstant(size_t component, bool constant) {
+        m_constant[component] = constant;
+    }
+
     void evalJacobian(doublereal* x, doublereal* xdot);
 
 protected:
@@ -94,6 +98,9 @@ protected:
 
     //! number of variables
     size_t m_nv;
+
+    //! constant variables
+    std::vector<bool> m_constant;
 };
 }
 
