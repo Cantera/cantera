@@ -95,16 +95,16 @@ protected:
     doublereal m_logA, m_b, m_E, m_A;
 };
 
-//! Blowers Masel reaction rate type depends on enthalpy 
+//! Blowers Masel reaction rate type depends on the enthalpy of reaction
 /**
  * The Blowers Masel approximation is written by Paul Blowers,
- * Rich Masel(DOI: https://doi.org/10.1002/aic.690461015) to 
+ * Rich Masel (DOI: https://doi.org/10.1002/aic.690461015) to
  * adjust the activation energy based on enthalpy change of a reaction:
- * 
+ *
  *   \f{eqnarray*}{
- *        E_a &=& 0\; \text{if }\Delta H < -4E_0 \\ 
+ *        E_a &=& 0\; \text{if }\Delta H < -4E_0 \\
  *        E_a &=& \Delta H\; \text{if }\Delta H > 4E_0 \\
- *        E_a &=& \frac{(w + \Delta H / 2)(V_P - 2w + 
+ *        E_a &=& \frac{(w + \Delta H / 2)(V_P - 2w +
  *               \Delta H)^2}{(V_P^2 - 4w^2 + (\Delta H)^2)}\; \text{Otherwise}
  *   \f}
  * where
@@ -183,7 +183,7 @@ public:
             // vp is in Kelvin
             double vp = 2 * m_w * ((m_w + m_E0) / (m_w - m_E0));
             double vp_2w_dH = (vp - 2 * m_w + deltaH_R); // (Vp - 2 w + dH)
-            Ea = (m_w + deltaH_R / 2) * (vp_2w_dH * vp_2w_dH) / 
+            Ea = (m_w + deltaH_R / 2) * (vp_2w_dH * vp_2w_dH) /
                  (vp * vp - 4 * m_w * m_w + deltaH_R * deltaH_R); // in Kelvin
         }
         return Ea;
@@ -197,7 +197,7 @@ public:
     //! Return the bond dissociation energy *w* divided by the gas constant[K]
     doublereal bondEnergy() const {
         return m_w;
-    }    
+    }
 
 protected:
     doublereal m_logA, m_b, m_A, m_w, m_E0;
@@ -646,7 +646,7 @@ public:
     }
 
     //! Return the activation energy divided by the gas constant (i.e. the
-    //! activation temperature) [K] based on the input enthalpy 
+    //! activation temperature) [K] based on the input enthalpy
     //! accounting coverage dependence.
     doublereal activationEnergy_R(doublereal deltaH) {
         double deltaH_R = deltaH / GasConstant; // deltaH in temperature units (Kelvin)
@@ -671,12 +671,12 @@ public:
     doublereal activationEnergy_R0() const {
         return m_E0 + m_ecov;
     }
-    
+
     //! Return the bond energy *w* divided by the gas constant[K]
     doublereal bondEnergy() const {
         return m_w;
-    }    
-    
+    }
+
 protected:
     doublereal m_b, m_A, m_E0, m_w;
     doublereal m_acov, m_ecov, m_mcov;

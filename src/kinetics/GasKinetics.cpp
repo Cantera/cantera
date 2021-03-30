@@ -336,7 +336,6 @@ void GasKinetics::addBlowersMaselReaction(BlowersMaselReaction& r)
     m_blowersmasel_rates.install(nReactions()-1, r.rate);
 }
 
-
 void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
 {
     // operations common to all bulk reaction types

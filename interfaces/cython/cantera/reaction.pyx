@@ -914,8 +914,8 @@ cdef class BlowersMasel:
     """
     A reaction rate coefficient which depends on temperature and enthalpy change
     of the reaction follows Blowers-Masel approximation and modified Arrhenius form
-    described in `Arrhenius`. The functions are used by reactions defined using `BlowersMaselReaction` and
-    `BlowersMaselInterfaceReaction`.
+    described in `Arrhenius`. The functions are used by reactions defined using
+    `BlowersMaselReaction` and `BlowersMaselInterfaceReaction`.
     """
     def __cinit__(self, A=0, b=0, E0=0, w=0, init=True):
         if init:
@@ -960,7 +960,7 @@ cdef class BlowersMasel:
     property intrinsic_activation_energy:
         """
         The intrinsic activation energy *E0* [J/kmol].
-        """    
+        """
         def __get__(self):
             return self.rate.activationEnergy_R0() * gas_constant
 

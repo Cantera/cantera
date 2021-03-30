@@ -1104,7 +1104,7 @@ class TestReaction(utilities.CanteraTest):
     def test_Blowers_Masel_rate(self):
         gas = ct.Solution('BM_test.yaml')
         R = gas.reaction(0)
-        self.assertNear(R.rate(gas.T, gas.delta_enthalpy[0]), 
+        self.assertNear(R.rate(gas.T, gas.delta_enthalpy[0]),
                         gas.forward_rate_constants[0], rtol=1e-7)
 
     def test_negative_A_blowersmasel(self):
@@ -1121,7 +1121,7 @@ class TestReaction(utilities.CanteraTest):
         r.allow_negative_pre_exponential_factor = True
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                           species=species, reactions=[r])
-    
+
     def test_Blowers_Masel_change_enthalpy(self):
         gas = ct.Solution('BM_test.yaml')
         r = gas.reaction(0)
@@ -1131,10 +1131,10 @@ class TestReaction(utilities.CanteraTest):
         b = r.rate.temperature_exponent
         vp = 2 * w * (w+E0) / (w - E0)
         deltaH = gas.delta_enthalpy[0]
-        E = ((w + deltaH / 2) * (vp - 2 * w + deltaH) ** 2 / 
+        E = ((w + deltaH / 2) * (vp - 2 * w + deltaH) ** 2 /
             (vp ** 2 - 4 * w ** 2 + deltaH ** 2))
         self.assertNear(E, gas.reaction(0).rate.activation_energy(deltaH))
-        
+
         deltaH_high = 10 * gas.reaction(0).rate.intrinsic_activation_energy
         deltaH_low = -20 * gas.reaction(0).rate.intrinsic_activation_energy
         index = gas.species_index('OH')
@@ -1142,7 +1142,7 @@ class TestReaction(utilities.CanteraTest):
         perturbed_coeffs = species.thermo.coeffs.copy()
         perturbed_coeffs[6] += deltaH_high / ct.gas_constant
         perturbed_coeffs[13] += deltaH_high / ct.gas_constant
-        species.thermo = ct.NasaPoly2(species.thermo.min_temp, species.thermo.max_temp, 
+        species.thermo = ct.NasaPoly2(species.thermo.min_temp, species.thermo.max_temp,
                             species.thermo.reference_pressure, perturbed_coeffs)
         gas.modify_species(index, species)
         self.assertEqual(deltaH_high, gas.reaction(0).rate.activation_energy(deltaH_high))
@@ -1151,7 +1151,7 @@ class TestReaction(utilities.CanteraTest):
         perturbed_coeffs = species.thermo.coeffs.copy()
         perturbed_coeffs[6] += deltaH_low / ct.gas_constant
         perturbed_coeffs[13] += deltaH_low / ct.gas_constant
-        species.thermo = ct.NasaPoly2(species.thermo.min_temp, species.thermo.max_temp, 
+        species.thermo = ct.NasaPoly2(species.thermo.min_temp, species.thermo.max_temp,
                             species.thermo.reference_pressure, perturbed_coeffs)
         gas.modify_species(index, species)
         self.assertEqual(0, gas.reaction(0).rate.activation_energy(deltaH_low))
@@ -1188,13 +1188,13 @@ class TestReaction(utilities.CanteraTest):
         gas.TPX = 300, ct.one_atm, {"CH4": 0.095, "O2": 0.21, "AR": 0.79}
         surf1 = ct.Interface('BM_test.yaml', 'Pt_surf', [gas])
         r1 = ct.BlowersMaselInterfaceReaction()
-        r1.reactants = 'H(S):2' 
+        r1.reactants = 'H(S):2'
         r1.products = 'H2:1, PT(S):2'
         r1.rate = ct.BlowersMasel(3.7e20, 0, 67.4e6, 1e9)
         r1.coverage_deps = {'H(S)': (0, 0, -6e6)}
 
         self.assertNear(r1.coverage_deps['H(S)'][2], -6e6)
-        
+
         surf_species = []
         for species in surf1.species():
             surf_species.append(species)
@@ -1327,7 +1327,7 @@ class TestReaction(utilities.CanteraTest):
         b1 = R.rate.temperature_exponent
         Ta1 = R.rate.activation_energy(gas.delta_enthalpy[0]) / ct.gas_constant
         T = gas.T
-        self.assertNear(A1* T ** b1 * np.exp(- Ta1 / T), 
+        self.assertNear(A1* T ** b1 * np.exp(- Ta1 / T),
                         gas.forward_rate_constants[0])
 
         # randomly modify the rate parameters of a Blowers-Masel reaction

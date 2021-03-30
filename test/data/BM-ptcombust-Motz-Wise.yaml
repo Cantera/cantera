@@ -1,9 +1,9 @@
 description: |-
-  This is a test input file for Motz Wise correction for interface 
-  Blowers Masel reaction tests. This file is tweaked from the model 
-  made by Deutschmann, and it has no physical sense, which should only 
+  This is a test input file for Motz Wise correction for interface
+  Blowers Masel reaction tests. This file is tweaked from the model
+  made by Deutschmann, and it has no physical sense, which should only
   be used for tests.
-  See https://www.detchem.com/mechanisms for original model.  
+  See https://www.detchem.com/mechanisms for original model.
   Ref:- 1.) Deutschman et al., 26th Symp. (Intl.) on Combustion, 1996
             pp. 1747-1754
   -----------------------------------------------------------------------
@@ -113,4 +113,3 @@ reactions:
   type: Blowers-Masel
   sticking-coefficient: {A: 1.0, b: 0, Ea0: 0, w: 100000}
   Motz-Wise: true
-
