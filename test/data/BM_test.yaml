@@ -2,7 +2,7 @@ description: |-
   This is a test input file for interface Blowers Masel reaction tests.
   This file is tweaked from the model made by Deutschmann, and it has
   no physical sense, which should only be used for tests.
-  See https://www.detchem.com/mechanisms for original model.  
+  See https://www.detchem.com/mechanisms for original model.
   Ref:- 1.) Deutschman et al., 26th Symp. (Intl.) on Combustion, 1996
             pp. 1747-1754
   -----------------------------------------------------------------------

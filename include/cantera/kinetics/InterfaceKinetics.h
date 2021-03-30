@@ -395,7 +395,7 @@ protected:
     //! future.
     BMSurfaceArrhenius buildBMSurfaceArrhenius(size_t i, BlowersMaselInterfaceReaction& r,
                                                bool replace);
-        
+
     //! Temporary work vector of length m_kk
     vector_fp m_grt;
 
@@ -419,7 +419,6 @@ protected:
      *  The class BMSurfaceArrhenius is described in RxnRates.h
      */
     Rate1<BMSurfaceArrhenius> m_blowers_masel_rates;
-
 
     bool m_redo_rates;
 

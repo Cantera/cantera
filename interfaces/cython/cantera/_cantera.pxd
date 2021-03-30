@@ -450,7 +450,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxTestReaction "Cantera::TestReaction" (CxxReaction2):
         CxxTestReaction()
         cbool allow_negative_pre_exponential_factor
-        
+
     cdef cppclass CxxBlowersMasel "Cantera::BlowersMasel":
         CxxBlowersMasel()
         CxxBlowersMasel(double, double, double, double)
@@ -461,7 +461,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double activationEnergy_R0()
         double bondEnergy()
 
-    
     cdef cppclass CxxBlowersMaselReaction "Cantera::BlowersMaselReaction"(CxxReaction):
         CxxBlowersMaselReaction()
         CxxBlowersMasel rate
@@ -478,7 +477,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool is_sticking_coefficient
         cbool use_motz_wise_correction
         string sticking_species
-    
+
     cdef cppclass CxxBlowersMaselInterfaceReaction "Cantera::BlowersMaselInterfaceReaction" (CxxBlowersMaselReaction):
         stdmap[string, CxxCoverageDependency] coverage_deps
         cbool is_sticking_coefficient

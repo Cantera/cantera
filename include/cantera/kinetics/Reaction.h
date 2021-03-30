@@ -538,12 +538,13 @@ void setupElectrochemicalReaction(ElectrochemicalReaction&,
 //! @internal May be changed without notice in future versions
 void setupElectrochemicalReaction(ElectrochemicalReaction&,
                                   const AnyMap&, const Kinetics&);
+
 //! @internal May be changed without notice in future versions
 void setupBlowersMaselReaction(BlowersMaselReaction&,
-                                  const AnyMap&, const Kinetics&);
+                               const AnyMap&, const Kinetics&);
 //! @internal May be changed without notice in future versions
 void setupBlowersMaselInterfaceReaction(BlowersMaselInterfaceReaction&,
-                                  const AnyMap&, const Kinetics&);
+                                        const AnyMap&, const Kinetics&);
 }
 
 #endif

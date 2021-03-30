@@ -29,11 +29,13 @@ The fields common to all ``reaction`` entries are:
     - :ref:`Blowers-Masel <sec-yaml-Blowers-Masel>`
     - :ref:`surface-Blowers-Masel <sec-yaml-surface-Blowers-Masel>`
 
-    Reactions without a specified ``type`` on surfaces or edges are automatically treated as 
-    :ref:`interface <sec-yaml-interface-reaction>` reactions, and reactions that involve 
-    charge transfer between phases are automatically treated as :ref:`electrochemical <sec-yaml-electrochemical-reaction>` 
-    reactions. Reactions on surfaces or edges specifying ``type`` as ``Blowers-Masel`` 
-    are treated as :ref:`surface-Blowers-Masel <sec-yaml-surface-Blowers-Masel>`.
+    Reactions without a specified ``type`` on surfaces or edges are
+    automatically treated as :ref:`interface <sec-yaml-interface-reaction>`
+    reactions, and reactions that involve charge transfer between phases are
+    automatically treated as :ref:`electrochemical <sec-yaml-electrochemical-reaction>`
+    reactions. Reactions on surfaces or edges specifying ``type`` as
+    ``Blowers-Masel`` are treated as
+    :ref:`surface-Blowers-Masel <sec-yaml-surface-Blowers-Masel>`.
 
 
 ``duplicate``
@@ -269,7 +271,7 @@ approximation as `described here <https://cantera.org/science/reactions.html#sec
 Additional fields are:
 
 ``rate-constant``
-    A list of values containing the pre-exponential factor :math:`A`, the 
+    A list of values containing the pre-exponential factor :math:`A`, the
     temperature exponent :math:`b`, the intrinsic activation energy :math:`E_{a0}`,
     and the average of the bond dissociation energy of the bond breaking and that
     being formed in the reaction :math:`w`.
@@ -361,7 +363,7 @@ at the intersection of two surfaces, which the rate constant can be calculated
 by Blowers Masel Approximation with Arrhenius expression as
 `described here <https://cantera.org/science/reactions.html#surface-blowers-masel-reactions>`__.
 
-Includes the fields of a :ref:`sec-yaml-Blowers-Masel` reaction and 
+Includes the fields of a :ref:`sec-yaml-Blowers-Masel` reaction and
 the fields of an :ref:`sec-yaml-interface-reaction` reaction.
 
 Example::

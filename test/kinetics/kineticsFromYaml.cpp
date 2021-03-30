@@ -190,7 +190,7 @@ TEST(Reaction, BlowersMaselFromYaml)
     auto ER = dynamic_cast<BlowersMaselReaction&>(*R);
     doublereal E_intrinsic = 6260 / GasConst_cal_mol_K * GasConstant; // J/kmol
     doublereal H_big = 5 * E_intrinsic;
-    doublereal H_small = -5 * E_intrinsic; 
+    doublereal H_small = -5 * E_intrinsic;
     doublereal H_mid = 4 * E_intrinsic;
     doublereal w = 1e9 / GasConst_cal_mol_K * GasConstant; // J/kmol
     doublereal vp = 2 * w * ((w + E_intrinsic) / (w - E_intrinsic));
@@ -200,7 +200,7 @@ TEST(Reaction, BlowersMaselFromYaml)
     EXPECT_DOUBLE_EQ(ER.rate.activationEnergy_R0(), 6260 / GasConst_cal_mol_K);
     EXPECT_DOUBLE_EQ(ER.rate.bondEnergy(), 1e9 / GasConst_cal_mol_K);
     EXPECT_DOUBLE_EQ(ER.rate.activationEnergy_R(H_big), H_big / GasConstant);
-    EXPECT_DOUBLE_EQ(ER.rate.activationEnergy_R(H_small), 0);   
+    EXPECT_DOUBLE_EQ(ER.rate.activationEnergy_R(H_small), 0);
     EXPECT_NEAR(ER.rate.activationEnergy_R(H_mid), Ea / GasConstant, 1e-7);
     EXPECT_TRUE(ER.allow_negative_pre_exponential_factor);
     EXPECT_FALSE(ER.allow_negative_orders);
@@ -292,7 +292,7 @@ TEST(Kinetics, BMInterfaceKineticsFromYaml)
     EXPECT_DOUBLE_EQ(IR2->rate.preExponentialFactor(), 3.7e20);
     EXPECT_DOUBLE_EQ(IR2->coverage_deps["H(S)"].E, -6e6 / GasConstant);
     EXPECT_FALSE(IR2->is_sticking_coefficient);
-    
+
     auto R3 = kin->reaction(1);
     auto IR3 = std::dynamic_pointer_cast<BlowersMaselInterfaceReaction>(R3);
     EXPECT_TRUE(IR3->is_sticking_coefficient);

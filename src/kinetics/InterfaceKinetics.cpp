@@ -542,11 +542,11 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
         InterfaceReaction& r = dynamic_cast<InterfaceReaction&>(*r_base);
         SurfaceArrhenius rate = buildSurfaceArrhenius(i, r, false);
         m_rates.install(i, rate);
-        
+
         // Turn on the global flag indicating surface coverage dependence
         if (!r.coverage_deps.empty()) {
             m_has_coverage_dependence = true;
-        }        
+        }
         ElectrochemicalReaction* re = dynamic_cast<ElectrochemicalReaction*>(&r);
         if (re) {
             m_has_electrochem_rxns = true;
@@ -582,7 +582,8 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
     deltaElectricEnergy_.push_back(0.0);
     m_deltaG0.push_back(0.0);
     m_deltaG.push_back(0.0);
-    m_ProdStanConcReac.push_back(0.0); 
+    m_ProdStanConcReac.push_back(0.0);
+
     return true;
 }
 

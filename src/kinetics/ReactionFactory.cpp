@@ -143,7 +143,7 @@ ReactionFactory::ReactionFactory()
                [](Reaction* R, const AnyMap& node, const Kinetics& kin) {
                    setupElectrochemicalReaction(*(ElectrochemicalReaction*)R, node, kin);
                });
-    
+
     // register Blowers Masel reactions
     reg("Blowers-Masel", []() { return new BlowersMaselReaction(); });
     reg_AnyMap("Blowers-Masel",
