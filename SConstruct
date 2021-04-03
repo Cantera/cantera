@@ -1034,10 +1034,11 @@ env['HAS_OPENMP'] = conf.CheckCXXHeader('omp.h', '""')
 boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
 retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
 env['BOOST_LIB_VERSION'] = '.'.join(boost_lib_version.strip().split('_'))
-print('INFO: Found Boost version {0}'.format(env['BOOST_LIB_VERSION']))
 if not env['BOOST_LIB_VERSION']:
     config_error("Boost could not be found. Install Boost headers or set"
                  " 'boost_inc_dir' to point to the boost headers.")
+else:
+    print('INFO: Found Boost version {0}'.format(env['BOOST_LIB_VERSION']))
 # demangle is availble in Boost 1.55 or newer
 env['has_demangle'] = conf.CheckDeclaration("boost::core::demangle",
                                 '#include <boost/core/demangle.hpp>', 'C++')
