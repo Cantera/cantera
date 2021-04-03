@@ -392,7 +392,11 @@ void CVodesIntegrator::applyOptions()
         CVDiag(m_cvode_mem);
     } else if (m_type == GMRES) {
         #if CT_SUNDIALS_VERSION >= 30
-            m_linsol = SUNSPGMR(m_y, PREC_NONE, 0);
+            # if CT_SUNDIALS_VERSION >= 40
+                m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0);
+            # else
+                m_linsol = SUNSPGMR(m_y, PREC_NONE, 0);
+            #endif
             CVSpilsSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol);
         #else
             CVSpgmr(m_cvode_mem, PREC_NONE, 0);
