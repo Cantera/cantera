@@ -1112,7 +1112,7 @@ if env['system_sundials'] == 'y':
 
     print("""INFO: Using system installation of Sundials version %s.""" % sundials_version)
 
-    #Determine whether or not Sundials was built with BLAS/LAPACK
+    # Determine whether or not Sundials was built with BLAS/LAPACK
     if sundials_ver < parse_version('2.6'):
         # In Sundials 2.4 / 2.5, SUNDIALS_BLAS_LAPACK is either 0 or 1
         sundials_blas_lapack = get_expression_value(['"sundials/sundials_config.h"'],
@@ -1121,10 +1121,24 @@ if env['system_sundials'] == 'y':
         if retcode == 0:
             config_error("Failed to determine Sundials BLAS/LAPACK.")
         env['has_sundials_lapack'] = int(has_sundials_lapack.strip())
-    else:
-        # In Sundials 2.6, SUNDIALS_BLAS_LAPACK is either defined or undefined
+    elif sundials_ver < parse_version('5.5'):
+        # In Sundials 2.6-5.5, SUNDIALS_BLAS_LAPACK is either defined or undefined
         env['has_sundials_lapack'] = conf.CheckDeclaration('SUNDIALS_BLAS_LAPACK',
                 '#include "sundials/sundials_config.h"', 'C++')
+    else:
+        # In Sundials 5.5 and higher, two defines are included specific to the
+        # SUNLINSOL packages indicating whether SUNDIALS has been built with LAPACK
+        lapackband = conf.CheckDeclaration(
+            "SUNDIALS_SUNLINSOL_LAPACKBAND",
+            '#include "sundials/sundials_config.h"',
+            "C++",
+        )
+        lapackdense = conf.CheckDeclaration(
+            "SUNDIALS_SUNLINSOL_LAPACKDENSE",
+            '#include "sundials/sundials_config.h"',
+            "C++",
+        )
+        env["has_sundials_lapack"] = lapackband and lapackdense
 
     # In the case where a user is trying to link Cantera to an external BLAS/LAPACK
     # library, but Sundials was configured without this support, print a Warning.
