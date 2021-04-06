@@ -91,6 +91,21 @@ void ReactorSurface::addSensitivityReaction(size_t i)
         SensitivityParameter{i, p, 1.0, SensParameterType::reaction});
 }
 
+void ReactorSurface::addSensitivitySpeciesEnthalpy(size_t k)
+{
+    if (k >= m_thermo->nSpecies()) {
+        throw CanteraError("Reactor::addSensitivitySpeciesEnthalpy",
+                           "Species index out of range ({})", k);
+    }
+
+    size_t p = m_reactor->network().registerSensitivityParameter(
+        "surf: " + m_thermo->speciesName(k) + " enthalpy",
+        0.0, GasConstant * 298.15);
+    m_params.emplace_back(
+        SensitivityParameter{k, p, m_thermo->Hf298SS(k),
+                             SensParameterType::enthalpy});
+}
+
 void ReactorSurface::setSensitivityParameters(const double* params)
 {
     for (auto& p : m_params) {

@@ -759,6 +759,8 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setCoverages(Composition&) except +translate_exception
         void syncCoverages()
         void addSensitivityReaction(size_t) except +translate_exception
+        void addSensitivitySpeciesEnthalpy(size_t) except +translate_exception
+
         size_t nSensParams()
 
     # flow devices

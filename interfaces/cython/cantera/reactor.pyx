@@ -465,6 +465,14 @@ cdef class ReactorSurface:
         The Surface must be installed on a reactor and part of a network first.
         """
         self.surface.addSensitivityReaction(m)
+    
+    def add_sensitivity_species_enthalpy(self, int k):
+        """
+        Specifies that the sensitivity of the state variables with respect to
+        species *k* should be computed. The reactor must be part of a network
+        first.
+        """
+        self.surface.addSensitivitySpeciesEnthalpy(k)
 
 
 cdef class WallBase:

@@ -76,6 +76,10 @@ public:
     //! sensitivity parameters. This function is called within
     //! ReactorNet::eval() before the reaction rates are evaluated.
     void setSensitivityParameters(const double* params);
+    
+    //! Add a sensitivity parameter associated with the enthalpy formation of
+    //! species *k* (in the homogeneous phase)
+    virtual void addSensitivitySpeciesEnthalpy(size_t k);
 
     //! Set reaction rate multipliers back to their initial values. This
     //! function is called within ReactorNet::eval() after all rates have been
