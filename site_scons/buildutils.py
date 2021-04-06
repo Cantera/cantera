@@ -19,6 +19,24 @@ import SCons.Node.FS
 from pkg_resources import parse_version
 import distutils.sysconfig
 
+
+from pathlib import Path
+import logging
+
+from typing import Union
+
+build_logger = logging.getLogger("build")
+build_logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter("{levelname!s}: {message!s}", style="{"))
+build_logger.addHandler(handler)
+
+output_logger = logging.getLogger("output")
+output_logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter("{message!s}", style="{"))
+output_logger.addHandler(handler)
+
 try:
     import numpy as np
 except ImportError:
@@ -617,17 +635,19 @@ def listify(value):
         # assume `value` is a string
         return value.split()
 
-def removeFile(name):
-    """ Remove file (if it exists) and print a log message """
-    if os.path.exists(name):
-        print('Removing file "%s"' % name)
-        os.remove(name)
+def remove_file(name: Union[Path, str]) -> None:
+    """Remove file (if it exists) and print a log message."""
+    path_name = Path(name)
+    if path_name.exists():
+        build_logger.info(f"Removing file '{name!s}'")
+        path_name.unlink()
 
-def removeDirectory(name):
-    """ Remove directory recursively and print a log message """
-    if os.path.exists(name):
-        print('Removing directory "%s"' % name)
-        shutil.rmtree(name)
+def remove_directory(name: Union[Path, str]) -> None:
+    """Remove directory recursively and print a log message."""
+    path_name = Path(name)
+    if path_name.exists() and path_name.is_dir():
+        build_logger.info(f"Removing directory '{name!s}'")
+        shutil.rmtree(path_name)
 
 def ipdb():
     """
