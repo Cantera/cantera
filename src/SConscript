@@ -57,7 +57,7 @@ if env['use_pch']:
         pch = localenv.GchSh('#src/pch/system.h.gch',
                              localenv['precompiled_header'])
 else:
-    removeFile('src/pch/system.h.gch')
+    remove_file('src/pch/system.h.gch')
     localenv['pch_flags'] = []
     pch = None
 

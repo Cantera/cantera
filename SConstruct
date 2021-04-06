@@ -37,97 +37,90 @@ Basic usage:
     'scons doxygen' - Build the Doxygen documentation
 """
 
-from __future__ import print_function
 from buildutils import *
 
 if not COMMAND_LINE_TARGETS:
     # Print usage help
-    print(__doc__)
+    output_logger.info(__doc__)
     sys.exit(0)
 
-valid_commands = ('build','clean','install','uninstall',
-                  'help','msi','samples','sphinx','doxygen','dump')
+valid_commands = ("build", "clean", "install", "uninstall",
+                  "help", "msi", "samples", "sphinx", "doxygen", "dump")
 
 for command in COMMAND_LINE_TARGETS:
     if command not in valid_commands and not command.startswith('test'):
-        print('ERROR: unrecognized command line target: %r' % command)
-        sys.exit(0)
+        logger.error(f"Unrecognized command line target: {command!r}")
+        sys.exit(1)
 
-extraEnvArgs = {}
+if "clean" in COMMAND_LINE_TARGETS:
+    remove_directory("build")
+    remove_directory("stage")
+    remove_directory(".sconf_temp")
+    remove_directory("test/work")
+    remove_file(".sconsign.dblite")
+    remove_file("include/cantera/base/config.h")
+    remove_file("src/pch/system.h.gch")
+    remove_directory("include/cantera/ext")
+    remove_file("interfaces/cython/cantera/_cantera.cpp")
+    remove_file("interfaces/cython/cantera/_cantera.h")
+    remove_file("interfaces/cython/setup.py")
+    remove_file("interfaces/python_minimal/setup.py")
+    remove_file("config.log")
+    remove_directory("doc/sphinx/matlab/examples")
+    remove_file("doc/sphinx/matlab/examples.rst")
+    for name in Path("doc/sphinx/matlab/").glob("**/*.rst"):
+        if name.name != "index.rst":
+            remove_file(name)
+    remove_directory("doc/sphinx/cython/examples")
+    remove_file("doc/sphinx/cython/examples.rst")
+    remove_directory("interfaces/cython/Cantera.egg-info")
+    remove_directory("interfaces/python_minimal/Cantera_minimal.egg-info")
+    for name in Path("interfaces/cython/cantera/data/").iterdir():
+        if name.is_dir():
+            remove_directory(name)
+        elif name.name != "__init__.py":
+            remove_file(name)
+    remove_directory("interfaces/cython/cantera/test/data/test_subdir")
+    for name in Path("interfaces/cython/cantera/test/data/").iterdir():
+        if name.name != "__init__.py":
+            remove_file(name)
+    for name in Path(".").glob("*.msi"):
+        remove_file(name)
+    for name in Path("site_scons").glob("**/*.pyc"):
+        remove_file(name)
+    for name in Path("interfaces/python_minimal/cantera").iterdir():
+        if name.name != "__init__.py":
+            remove_file(name)
+    remove_file("interfaces/matlab/toolbox/cantera_shared.dll")
+    remove_file("interfaces/matlab/Contents.m")
+    remove_file("interfaces/matlab/ctpath.m")
+    for name in Path("interfaces/matlab/toolbox").glob("ctmethods.*"):
+        remove_file(name)
 
-if 'clean' in COMMAND_LINE_TARGETS:
-    removeDirectory('build')
-    removeDirectory('stage')
-    removeDirectory('.sconf_temp')
-    removeDirectory('test/work')
-    removeFile('.sconsign.dblite')
-    removeFile('include/cantera/base/config.h')
-    removeFile('src/pch/system.h.gch')
-    removeDirectory('include/cantera/ext')
-    removeFile('interfaces/cython/cantera/_cantera.cpp')
-    removeFile('interfaces/cython/cantera/_cantera.h')
-    removeFile('interfaces/cython/setup.py')
-    removeFile('interfaces/python_minimal/setup.py')
-    removeFile('config.log')
-    removeDirectory('doc/sphinx/matlab/examples')
-    removeFile('doc/sphinx/matlab/examples.rst')
-    for name in os.listdir('doc/sphinx/matlab/'):
-        if name.endswith('.rst') and name != 'index.rst':
-            removeFile('doc/sphinx/matlab/' + name)
-    removeDirectory('doc/sphinx/cython/examples')
-    removeFile('doc/sphinx/cython/examples.rst')
-    removeDirectory('interfaces/cython/Cantera.egg-info')
-    removeDirectory('interfaces/python_minimal/Cantera_minimal.egg-info')
-    for name in os.listdir('interfaces/cython/cantera/data/'):
-        if os.path.isdir('interfaces/cython/cantera/data/' + name):
-            removeDirectory('interfaces/cython/cantera/data/' + name)
-        elif name != '__init__.py':
-            removeFile('interfaces/cython/cantera/data/' + name)
-    removeDirectory('interfaces/cython/cantera/test/data/test_subdir')
-    for name in os.listdir('interfaces/cython/cantera/test/data/'):
-        if name != '__init__.py':
-            removeFile('interfaces/cython/cantera/test/data/' + name)
-    for name in os.listdir('.'):
-        if name.endswith('.msi'):
-            removeFile(name)
-    for name in os.listdir('site_scons/'):
-        if name.endswith('.pyc'):
-            removeFile('site_scons/' + name)
-    for name in os.listdir('site_scons/site_tools/'):
-        if name.endswith('.pyc'):
-            removeFile('site_scons/site_tools/' + name)
-    for name in os.listdir('interfaces/python_minimal/cantera'):
-        if name != '__init__.py':
-            removeFile('interfaces/python_minimal/cantera/' + name)
-    removeFile('interfaces/matlab/toolbox/cantera_shared.dll')
-    removeFile('interfaces/matlab/Contents.m')
-    removeFile('interfaces/matlab/ctpath.m')
-    for name in os.listdir('interfaces/matlab/toolbox'):
-        if name.startswith('ctmethods.'):
-            removeFile('interfaces/matlab/toolbox/' + name)
+    print("Done removing output files.")
 
-    print('Done removing output files.')
-
-    if COMMAND_LINE_TARGETS == ['clean']:
+    if COMMAND_LINE_TARGETS == ["clean"]:
         # Just exit if there's nothing else to do
         sys.exit(0)
     else:
-        Alias('clean', [])
+        Alias("clean", [])
 
-if 'test-clean' in COMMAND_LINE_TARGETS:
-    removeDirectory('build/test')
-    removeDirectory('test/work')
-    removeDirectory('build/python_local')
+if "test-clean" in COMMAND_LINE_TARGETS:
+    remove_directory("build/test")
+    remove_directory("test/work")
+    remove_directory("build/python_local")
 
 # ******************************************************
 # *** Set system-dependent defaults for some options ***
 # ******************************************************
 
-print('INFO: SCons is using the following Python interpreter:', sys.executable)
+build_logger.info(f"SCons is using the following Python interpreter: {sys.executable}")
 
 opts = Variables('cantera.conf')
 
 windows_compiler_options = []
+extraEnvArgs = {}
+
 if os.name == 'nt':
     # On Windows, target the same architecture as the current copy of Python,
     # unless the user specified another option.
@@ -1092,7 +1085,7 @@ env['LIBM'] = ['m'] if env['NEED_LIBM'] else []
 
 if env['system_sundials'] == 'y':
     for subdir in ('sundials', 'nvector', 'cvodes', 'ida', 'sunlinsol', 'sunmatrix'):
-        removeDirectory('include/cantera/ext/'+subdir)
+        remove_directory('include/cantera/ext/' + subdir)
 
     # Determine Sundials version
     sundials_version_source = get_expression_value(['"sundials/sundials_config.h"'],
