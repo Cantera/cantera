@@ -33,8 +33,8 @@
 * Push the changes on your new feature branch to your forked copy of the
   `Cantera/cantera` repository on GitHub.
 
-* Submit a Pull Request on Github, from your forked copy. Check the results 
-  of the continuous-integration tests run using Travis and AppVeyor and resolve 
+* Submit a Pull Request on Github, from your forked copy. Check the results
+  of the continuous-integration tests run using Travis and AppVeyor and resolve
   any issues that arise.
 * Additional discussion of good Git & Github workflow is provided at
   http://matplotlib.org/devel/gitwash/development_workflow.html and
@@ -53,7 +53,7 @@
 * Configure your editor to use 4 spaces per indentation level, and **never to
   use tabs**.
 * Avoid introducing trailing whitespace
-* Limit line lengths to 80 characters when possible
+* Limit line lengths to 88 characters when possible
 * Write comments to explain non-obvious operations
 
 ## C++
