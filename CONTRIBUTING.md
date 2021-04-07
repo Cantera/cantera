@@ -34,7 +34,7 @@
   `Cantera/cantera` repository on GitHub.
 
 * Submit a Pull Request on Github, from your forked copy. Check the results
-  of the continuous-integration tests run using Travis and AppVeyor and resolve
+  of the continuous-integration tests run using GitHub Actions and resolve
   any issues that arise.
 * Additional discussion of good Git & Github workflow is provided at
   http://matplotlib.org/devel/gitwash/development_workflow.html and
