@@ -309,6 +309,11 @@ class TestDustyGas(utilities.CanteraTest):
         # Not sure why the following condition is not satisfied:
         # self.assertNear(sum(fluxes1) / sum(abs(fluxes1)), 0.0)
 
+    def test_thermal_conductivity(self):
+        gas1 = ct.Solution('h2o2.xml', transport_model='multicomponent')
+        gas1.TPX = self.phase.TPX
+
+        self.assertEqual(self.phase.thermal_conductivity, gas1.thermal_conductivity)
 
 class TestWaterTransport(utilities.CanteraTest):
     """
