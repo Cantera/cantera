@@ -35,6 +35,9 @@ class Solution;
  *  - surface heat loss rate (W)
  *  - species surface production rates (kmol/s)
  */
+
+class PreconditionerBase; //Forward Declaration so PreconditionerBase can be used in Reactor
+
 class Reactor : public ReactorBase
 {
 public:
@@ -63,6 +66,8 @@ public:
     void insert(shared_ptr<Solution> sol);
 
     virtual void setKineticsMgr(Kinetics& kin);
+    
+    virtual Kinetics* getKineticsMgr();
 
     virtual void setChemistry(bool cflag = true) {
         m_chem = cflag;
@@ -112,6 +117,16 @@ public:
     virtual void evalEqs(doublereal t, doublereal* y,
                          doublereal* ydot, doublereal* params);
 
+    /*
+    * Evaluate energy equations for preconditioning.
+     * @param[in] t time.
+     * @param[in] y solution vector, length neq()
+     * @param[out] ydot rate of change of solution vector, length neq()
+     * @param[in] params sensitivity parameter vector, length ReactorNet::nparams()
+    */
+    virtual double evaluateEnergyEquation(doublereal time, doublereal* y,
+                      doublereal* ydot, doublereal* params);
+
     virtual void syncState();
 
     //! Set the state of the reactor to correspond to the state vector *y*.
@@ -159,6 +174,12 @@ public:
     //! @param limit value for step size limit
     void setAdvanceLimit(const std::string& nm, const double limit);
 
+    //!This is a function to accept a preconditioner and perform an action based on reactor type.
+    //!@param preconditioner a preconditioner base subclass for preconditioning the system
+    //!@param reactorStart start of the reactor within the network
+    //!@param t, @param y, @param ydot, @param params double pointers used in integration
+    virtual void acceptPreconditioner(PreconditionerBase *preconditioner, size_t reactorStart, double t, double* y, double* ydot, double* params);
+
 protected:
     //! Set reaction rate multipliers based on the sensitivity variables in
     //! *params*.
@@ -200,6 +221,10 @@ protected:
 
     //! Pointer to the homogeneous Kinetics object that handles the reactions
     Kinetics* m_kin;
+
+    //! Value of m*cv*dTdt
+    double m_dEdt;
+    bool m_reevalute=true;
 
     doublereal m_vdot; //!< net rate of volume change from moving walls [m^3/s]
     doublereal m_Q; //!< net heat transfer through walls [W]

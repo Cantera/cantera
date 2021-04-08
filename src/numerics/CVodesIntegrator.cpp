@@ -2,13 +2,12 @@
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
-
 #include "cantera/numerics/CVodesIntegrator.h"
 #include "cantera/base/stringUtils.h"
-
+//System includes
 #include <iostream>
 using namespace std;
-
+//Sundials includes
 #include "sundials/sundials_types.h"
 #include "sundials/sundials_math.h"
 #include "sundials/sundials_nvector.h"
@@ -63,7 +62,7 @@ extern "C" {
         FuncEval* f = (FuncEval*) f_data;
         return f->eval_nothrow(t, NV_DATA_S(y), NV_DATA_S(ydot));
     }
-
+    
     //! Function called by CVodes when an error is encountered instead of
     //! writing to stdout. Here, save the error message provided by CVodes so
     //! that it can be included in the subsequently raised CanteraError.
@@ -74,6 +73,29 @@ extern "C" {
         integrator->m_error_message = msg;
         integrator->m_error_message += "\n";
     }
+    
+    #if CT_SUNDIALS_VERSION>=30 //These functions only work with Sundials 3.0 or newer
+        static int cvodes_jac_setup(realtype t, N_Vector y, N_Vector ydot, booleantype jok, booleantype *jcurPtr, realtype gamma, void *f_data)
+        {
+            if(!jok) 
+            {
+                FuncEval* f = (FuncEval*) f_data;
+                (*jcurPtr)=true; //Jacobian data was recomputed
+                return f->preconditioner_setup_nothrow(t, NV_DATA_S(y), NV_DATA_S(ydot));
+            } 
+            else 
+            {
+                (*jcurPtr)=false; //indicate that Jacobian data was not recomputed
+                return 0; //No error because not recomputed
+            }        
+        }
+
+        static int cvodes_jac_solve(realtype t, N_Vector y, N_Vector ydot, N_Vector r, N_Vector z, realtype gamma, realtype delta, int lr, void *f_data)
+        {
+            FuncEval* f = (FuncEval*) f_data;
+            return f->preconditioner_solve_nothrow(t, NV_DATA_S(y), NV_DATA_S(ydot),NV_DATA_S(r),NV_DATA_S(z));
+        }
+    #endif
 }
 
 CVodesIntegrator::CVodesIntegrator() :
@@ -363,7 +385,7 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
 }
 
 void CVodesIntegrator::applyOptions()
-{
+{   
     if (m_type == DENSE + NOJAC) {
         sd_size_t N = static_cast<sd_size_t>(m_neq);
         #if CT_SUNDIALS_VERSION >= 30
@@ -388,16 +410,36 @@ void CVodesIntegrator::applyOptions()
                 CVDense(m_cvode_mem, N);
             #endif
         #endif
-    } else if (m_type == DIAG) {
+    } 
+    else if (m_type == DIAG) {
         CVDiag(m_cvode_mem);
-    } else if (m_type == GMRES) {
+    } 
+    else if (m_type == GMRES) 
+    {   
         #if CT_SUNDIALS_VERSION >= 30
             m_linsol = SUNSPGMR(m_y, PREC_NONE, 0);
             CVSpilsSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol);
         #else
             CVSpgmr(m_cvode_mem, PREC_NONE, 0);
         #endif
-    } else if (m_type == BAND + NOJAC) {
+    } 
+    else if (m_type == GMRES+PRECONDITION) //Added for adaptive preconditioner
+    {   
+        #if CT_SUNDIALS_VERSION >= 40 //Only works for version Sundials 4.0 or newer -- Add for older sundials versions
+            int flag;// flag for debugging
+            //Set linear solver - this must be done before preconditioner is set preconditioner
+            m_linsol =  SUNLinSol_SPGMR(m_y, PREC_LEFT, 0); //make solver Scaled Preconditioned General Minimum Residual
+            // SUNLinSol_SPGMRSetPrecType();
+            flag = CVSpilsSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol); //set linear solver
+            //Set preconditioner
+            flag = CVodeSetPreconditioner(m_cvode_mem,cvodes_jac_setup,cvodes_jac_solve); //Set preconditioner functions
+        #else
+            char buffer[100];
+            sprintf(buffer,"GMRES+PRECONDITION not setup for Sundials %d.\n",CT_SUNDIALS_VERSION);
+            throw CanteraError("CVodesIntegrator::applyOptions",buffer);
+        #endif
+    } 
+    else if (m_type == BAND + NOJAC) {
         sd_size_t N = static_cast<sd_size_t>(m_neq);
         long int nu = m_mupper;
         long int nl = m_mlower;
@@ -569,5 +611,4 @@ string CVodesIntegrator::getErrorInfo(int N)
     }
     return to_string(s);
 }
-
 }

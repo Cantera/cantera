@@ -2,7 +2,6 @@
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
-
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/Wall.h"
@@ -33,6 +32,22 @@ ReactorNet::ReactorNet() :
 
 ReactorNet::~ReactorNet()
 {
+
+}
+
+void ReactorNet::setIntegratorType(int integratorType)
+{   
+    this->m_integ->setProblemType(integratorType); //Use integrator member function to set problem type
+}
+
+void ReactorNet::setIntegratorType(PreconditionerBase* preconditioner, int integratorType)
+{
+    /*
+    Use this function to set the type of integrator, options are combinations of the following:
+    */
+    this->m_preconditioner=preconditioner; //setting the preconditioner
+    this->m_preconditioner_type = preconditioner->getPreconditionerType();
+    this->m_integ->setProblemType(integratorType+PRECONDITION); //Use integrator member function to set problem type
 }
 
 void ReactorNet::setInitialTime(double time)
@@ -76,7 +91,7 @@ void ReactorNet::setSensitivityTolerances(double rtol, double atol)
 }
 
 void ReactorNet::initialize()
-{
+{   
     m_nv = 0;
     debuglog("Initializing reactor network.\n", m_verbose);
     if (m_reactors.empty()) {
@@ -114,13 +129,17 @@ void ReactorNet::initialize()
         writelog("Number of equations: {:d}\n", neq());
         writelog("Maximum time step:   {:14.6g}\n", m_maxstep);
     }
+    if (m_preconditioner_type!=PRECONDITIONER_NOT_SET)
+    {
+        m_preconditioner->initialize(this->m_nv,this->m_nv);
+    }
     m_integ->initialize(m_time, *this);
     m_integrator_init = true;
     m_init = true;
 }
 
 void ReactorNet::reinitialize()
-{
+{   
     if (m_init) {
         debuglog("Re-initializing reactor network.\n", m_verbose);
         m_integ->reinitialize(m_time, *this);
@@ -383,6 +402,27 @@ size_t ReactorNet::registerSensitivityParameter(
     m_sens_params.push_back(value);
     m_paramScales.push_back(scale);
     return m_sens_params.size() - 1;
+}
+
+// Functions added for preconditioning
+
+
+void ReactorNet::preconditionerSetup(doublereal t, doublereal* y,
+                      doublereal* ydot, doublereal* params)
+{
+    //Update state of reactors in setup
+    updateState(y); 
+    //Reseting preconditioner for new setup
+    this->m_preconditioner->reset(); 
+    //Passing reactors to preconditioner to complete setup
+    this->m_preconditioner->setup(&m_reactors, &m_start,t, y, ydot, params);
+}
+
+void ReactorNet::preconditionerSolve(doublereal t, doublereal* y,
+                      doublereal* ydot, doublereal* rhs, doublereal* output, doublereal* params)
+{
+    //Solve linear system for preconditioned output
+    this->m_preconditioner->solve(&m_reactors, &m_start, output,rhs,this->m_nv);
 }
 
 }

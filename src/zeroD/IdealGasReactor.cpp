@@ -8,6 +8,7 @@
 #include "cantera/zeroD/Wall.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/thermo/ThermoPhase.h"
+#include "cantera/zeroD/ReactorNet.h" 
 
 using namespace std;
 
@@ -137,6 +138,59 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
 
     resetSensitivity(params);
 }
+    
+
+
+double IdealGasReactor::evaluateEnergyEquation(doublereal time, doublereal* y,
+                      doublereal* ydot, doublereal* params)
+{ 
+
+    double m_dEdt = 0.0; // m * c_v * dT/dt
+    evalWalls(time);
+    applySensitivity(params);
+    m_thermo->restoreState(m_state);
+    m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
+    const vector_fp& mw = m_thermo->molecularWeights();
+
+    if (m_chem) 
+    {
+        m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
+    }
+    if (m_energy)
+    {
+        // compression work and external heat transfer
+        m_dEdt += - m_pressure * m_vdot - m_Q;
+
+        for (size_t n = 0; n < m_nsp; n++) {
+            // heat release from gas phase and surface reactions
+            m_dEdt -= m_wdot[n] * m_uk[n] * m_vol;
+            m_dEdt -= m_sdot[n] * m_uk[n];
+        }
+
+        // add terms for outlets
+        for (auto outlet : m_outlet) 
+        {
+            m_dEdt -= outlet->massFlowRate() * m_pressure * m_vol / m_mass; // flow work
+        }
+
+        // add terms for inlets
+        for (auto inlet : m_inlet) 
+        {
+            m_dEdt += inlet->enthalpy_mass() * inlet->massFlowRate();
+            for (size_t n = 0; n < m_nsp; n++) {
+                // In combination with h_in*mdot_in, flow work plus thermal
+                // energy carried with the species
+                m_dEdt -= m_uk[n] / mw[n] * inlet->outletSpeciesMassFlowRate(n);
+            }
+        }
+    }
+    else
+    {
+        m_dEdt = 0.0; // m * c_v * dT/dt
+    }
+    resetSensitivity(params);
+    return m_dEdt;
+}
 
 size_t IdealGasReactor::componentIndex(const string& nm) const
 {
@@ -162,5 +216,9 @@ std::string IdealGasReactor::componentName(size_t k) {
     }
 }
 
+void IdealGasReactor::acceptPreconditioner(PreconditionerBase *preconditioner, size_t reactorStart, double t, double* y, double* ydot, double* params)
+{
+    preconditioner->reactorLevelSetup(this,reactorStart,t,y,ydot,params);
+}
 
 }

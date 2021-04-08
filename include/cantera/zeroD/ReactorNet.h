@@ -8,6 +8,10 @@
 
 #include "Reactor.h"
 #include "cantera/numerics/FuncEval.h"
+#include "cantera/numerics/Integrator.h"
+#include "cantera/base/Array.h"
+#include "cantera/numerics/PreconditionerBase.h"
+#include "cantera/numerics/AdaptivePreconditioner.h"
 
 namespace Cantera
 {
@@ -31,6 +35,32 @@ public:
 
     //! @name Methods to set up a simulation.
     //@{
+
+
+    //! Set the type of integrator to be used
+    //! @param integratorType type of integrator used, default: DENSE+NOJAC
+    //! Integrator Types:
+    //!     const int DIAG = 1;
+    //!    const int DENSE = 2;
+    //!     const int NOJAC = 4;
+    //!     const int JAC = 8;
+    //!     const int GMRES = 16;
+    //!     const int BAND = 32;
+    void setIntegratorType(int integratorType=DENSE+NOJAC);
+
+    //! Set the type of integrator to be used
+    //! @param integratorType type of integrator used, default: GMRES
+    //! @param preconditioner a preconditioner object to be used
+    //! Integrator Types:
+    //!     const int DIAG = 1;
+    //!    const int DENSE = 2;
+    //!     const int NOJAC = 4;
+    //!     const int JAC = 8;
+    //!     const int GMRES = 16;
+    //!     const int BAND = 32;
+    //! Preconditioner Types:
+    //! 1 - ADAPTIVE_MECHANISM_PRECONDITIONER
+    void setIntegratorType(PreconditionerBase* preconditioner, int integratorType=GMRES);
 
     //! Set initial time. Default = 0.0 s. Restarts integration from this time
     //! using the current mixture state as the initial condition.
@@ -251,6 +281,26 @@ public:
     //! Retrieve absolute step size limits during advance
     bool getAdvanceLimits(double* limits);
 
+    //Functions added for preconditioning
+    /**
+     * Evaluate the setup processes for the Jacobian preconditioner. Called by the integrator.
+     * @param[in] t time.
+     * @param[in] y solution vector, length neq()
+     * @param[out] ydot rate of change of solution vector, length neq()
+     * @param[in] p sensitivity parameter vector, length nparams()
+     */
+    virtual void preconditionerSetup(doublereal t, doublereal* y,
+                        doublereal* ydot, doublereal* params);
+    /**
+     * Evaluate the system using a Jacobian preconditioner. Called by the integrator.
+     * @param[in] t time.
+     * @param[in] y solution vector, length neq()
+     * @param[out] ydot rate of change of solution vector, length neq()
+     * @param[in] p sensitivity parameter vector, length nparams()
+     */
+    virtual void preconditionerSolve(doublereal t, doublereal* y,
+                      doublereal* ydot, doublereal* rhs, doublereal* output, doublereal* params);
+
 protected:
 
     //! Estimate a future state based on current derivatives.
@@ -289,6 +339,12 @@ protected:
     vector_fp m_ydot;
     vector_fp m_yest;
     vector_fp m_advancelimits;
+
+    //! Pointer to preconditioner
+    PreconditionerBase *m_preconditioner;
+    //! preconditioner type set
+    unsigned long m_preconditioner_type=PRECONDITIONER_NOT_SET; //default setting is that it is not on.
+
 };
 }
 

@@ -8,6 +8,7 @@
 #include "cantera/zeroD/Wall.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/thermo/SurfPhase.h"
+#include "cantera/zeroD/ReactorNet.h"
 
 using namespace std;
 
@@ -157,5 +158,11 @@ std::string ConstPressureReactor::componentName(size_t k) {
     throw CanteraError("ConstPressureReactor::componentName",
                        "Index is out of bounds.");
 }
+
+void ConstPressureReactor::acceptPreconditioner(PreconditionerBase *preconditioner, size_t reactorStart, double t, double* y, double* ydot, double* params)
+{
+    preconditioner->reactorLevelSetup(this,reactorStart,t,y,ydot,params);
+}
+
 
 }

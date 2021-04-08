@@ -129,6 +129,52 @@ void IdealGasConstPressureReactor::evalEqs(doublereal time, doublereal* y,
     resetSensitivity(params);
 }
 
+double IdealGasConstPressureReactor::evaluateEnergyEquation(doublereal time, doublereal* y,
+                      doublereal* ydot, doublereal* params)
+    {
+        double m_dEdt = 0; // m * c_p * dT/dt
+        applySensitivity(params);
+        evalWalls(time);
+        m_thermo->restoreState(m_state);
+        m_thermo->getPartialMolarEnthalpies(&m_hk[0]);
+        const vector_fp& mw = m_thermo->molecularWeights();
+
+        if (m_chem) {
+            m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
+        }
+
+        if (m_energy)
+        {
+            // external heat transfer
+            m_dEdt -= m_Q;
+
+            for (size_t n = 0; n < m_nsp; n++) {
+                // heat release from gas phase and surface reactions
+                m_dEdt -= m_wdot[n] * m_hk[n] * m_vol;
+                m_dEdt -= m_sdot[n] * m_hk[n];
+            }
+
+            // add terms for inlets
+            for (auto inlet : m_inlet) 
+            {
+                double mdot = inlet->massFlowRate();
+                m_dEdt += inlet->enthalpy_mass() * mdot;
+                for (size_t n = 0; n < m_nsp; n++) 
+                {
+                    double mdot_spec = inlet->outletSpeciesMassFlowRate(n);
+                        m_dEdt -= m_hk[n] / mw[n] * mdot_spec;
+                }
+            }
+        }
+        else
+        {
+            m_dEdt=0.0;
+        }
+        
+        resetSensitivity(params);
+        return m_dEdt;
+    }
+
 size_t IdealGasConstPressureReactor::componentIndex(const string& nm) const
 {
     size_t k = speciesIndex(nm);
@@ -149,6 +195,11 @@ std::string IdealGasConstPressureReactor::componentName(size_t k) {
     } else {
         return ConstPressureReactor::componentName(k);
     }
+}
+
+void IdealGasConstPressureReactor::acceptPreconditioner(PreconditionerBase *preconditioner, size_t reactorStart, double t, double* y, double* ydot, double* params)
+{
+    preconditioner->reactorLevelSetup(this,reactorStart,t,y,ydot,params);
 }
 
 }

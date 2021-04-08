@@ -40,6 +40,9 @@ public:
     virtual void evalEqs(doublereal t, doublereal* y,
                          doublereal* ydot, doublereal* params);
 
+    virtual double evaluateEnergyEquation(doublereal time, doublereal* y,
+                      doublereal* ydot, doublereal* params);
+
     virtual void updateState(doublereal* y);
 
     //! Return the index in the solution vector for this reactor of the
@@ -48,6 +51,12 @@ public:
     //! name of a surface species.
     virtual size_t componentIndex(const std::string& nm) const;
     std::string componentName(size_t k);
+
+    //!This is a function to accept a preconditioner and perform an action based on reactor type.
+    //!@param preconditioner a preconditioner base subclass for preconditioning the system
+    //!@param reactorStart start of the reactor within the network
+    //!@param t, @param y, @param ydot, @param params double pointers used in integration
+    virtual void acceptPreconditioner(PreconditionerBase *preconditioner, size_t reactorStart, double t, double* y, double* ydot, double* params);
 
 protected:
     vector_fp m_uk; //!< Species molar internal energies

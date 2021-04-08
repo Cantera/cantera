@@ -236,6 +236,12 @@ public:
         return m_state[k+2];
     }
 
+    //! Return the thermodynamics manager object of reactor
+    ThermoPhase* getThermoMgr()
+    {
+        return this->m_thermo;
+    }
+    
     //@}
 
     //! The ReactorNet that this reactor belongs to.

@@ -10,7 +10,6 @@
 
 #include "cantera/numerics/Integrator.h"
 #include "cantera/base/ctexceptions.h"
-
 #include "sundials/sundials_nvector.h"
 
 namespace Cantera
@@ -22,6 +21,9 @@ namespace Cantera
  * @see FuncEval.h. Classes that use CVodesIntegrator:
  * ImplicitChem, ImplicitSurfChem, Reactor
  */
+
+
+
 class CVodesIntegrator : public Integrator
 {
 public:

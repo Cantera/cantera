@@ -679,6 +679,19 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setPressureCoeff(double)
         void setMaster(CxxFlowDevice*)
 
+    # preconditioners
+
+    cdef extern from "cantera/numerics/PreconditionerBase.h" namespace "Cantera":
+        cdef cppclass CxxPreconditionerBase "Cantera::PreconditionerBase":
+            CxxPreconditionerBase()
+
+    cdef extern from "cantera/numerics/AdaptivePreconditioner.h" namespace "Cantera":
+        cdef cppclass CxxAdaptivePreconditioner "Cantera::AdaptivePreconditioner" (CxxPreconditionerBase):
+            CxxAdaptivePreconditioner() except +
+            double threshold
+            double getThreshold()
+            void setThreshold(double threshold)
+
     # reactor net
 
     cdef cppclass CxxReactorNet "Cantera::ReactorNet":
@@ -714,6 +727,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double sensitivity(string&, size_t, int) except +translate_exception
         size_t nparams()
         string sensitivityParameterName(size_t) except +translate_exception
+        void setIntegratorType(int integratorType)
+        void setIntegratorType(CxxPreconditionerBase* preconditioner, int integratorType)
+
 
 
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
