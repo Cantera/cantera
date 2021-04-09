@@ -8,7 +8,7 @@ localenv = env.Clone()
 make_setup = build(localenv.SubstFile('setup.py', 'setup.py.in'))
 
 # copy scripts from the full Cython module
-for script in ['ctml_writer', 'ck2cti']:
+for script in ['ctml_writer', 'ck2cti', 'ck2yaml', 'cti2yaml', 'ctml2yaml']:
     # The actual script
     s = build(env.Command('cantera/{}.py'.format(script),
                           '#interfaces/cython/cantera/{}.py'.format(script),
