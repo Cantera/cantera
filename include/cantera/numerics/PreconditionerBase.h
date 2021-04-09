@@ -24,8 +24,6 @@ namespace Cantera//Making ASP apart of Cantera namespace
 {
   class PreconditionerBase
   {
-    private:
-
     protected:
         //@param threshold a double value to selectively fill the matrix structure based on this threshold
         double threshold=10e-16; //default

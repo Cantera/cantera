@@ -93,8 +93,7 @@ public:
     /*!
      * @param probtype    Type of the problem
      */
-    virtual void setProblemType(int probtype) 
-    {
+    virtual void setProblemType(int probtype) {
         warn("setProblemType");
     }
 
