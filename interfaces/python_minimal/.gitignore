@@ -2,6 +2,9 @@ setup*.py
 scripts/*
 cantera/ck2cti.py
 cantera/ctml_writer.py
+cantera/ck2yaml.py
+cantera/cti2yaml.py
+cantera/ctml2yaml.py
 build
 dist
 Cantera_minimal.egg-info
