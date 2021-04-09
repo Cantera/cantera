@@ -1,3 +1,8 @@
+//! @file AdaptivePreconditioner.cpp
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
+
 #include "cantera/numerics/AdaptivePreconditioner.h"
 #include "float.h"
 #include <iostream>
@@ -5,9 +10,9 @@
 namespace Cantera
 {
     /**
-     * 
+     *
      * AdaptivePreconditioner implementations
-     * 
+     *
      * **/
 
     void AdaptivePreconditioner::setDimensions(size_t nrows,size_t ncols)
@@ -38,10 +43,10 @@ namespace Cantera
     }
 
     void AdaptivePreconditioner::solve(std::vector<Reactor*>* reactors, std::vector<size_t>* reactorStart, double* output, double* rhs_vector,size_t size)
-    {   
+    {
         double *rhs_vector_temp = new double[size];
-        //rhs_vector is currently the mass fractions that come in 
-        for (size_t n = 0; n < reactors->size(); n++) 
+        //rhs_vector is currently the mass fractions that come in
+        for (size_t n = 0; n < reactors->size(); n++)
         {
             ForwardConversion(reactors->at(n),rhs_vector_temp,rhs_vector,reactorStart->at(n));
         }
@@ -65,7 +70,7 @@ namespace Cantera
             Eigen::VectorXd::Map(output,xVector.rows())= xVector;
         }
         //Convert output back
-        for (size_t n = 0; n < reactors->size(); n++) 
+        for (size_t n = 0; n < reactors->size(); n++)
         {
             BackwardConversion(reactors->at(n),output,reactorStart->at(n));
         }
@@ -78,29 +83,29 @@ namespace Cantera
             (reactors->at(n))->acceptPreconditioner(this,reactorStart->at(n),t,y,ydot,params);
         }
     }
-    
+
     void AdaptivePreconditioner::reactorLevelSetup(IdealGasConstPressureReactor* reactor, size_t reactorStart, double t, double* y, double* ydot, double* params)
     {
 
         StateMap *reactorStateMap = new StateMap; //Index map of idealGasConstPressureReactor
-        
+
         reactorStateMap->operator[]("start") = reactorStart;
         reactorStateMap->operator[]("numberOfSpecies") = (reactor->getKineticsMgr())->nTotalSpecies();
         reactorStateMap->operator[]("species") = reactorStart+(reactor->neq()-reactorStateMap->operator[]("numberOfSpecies")); //Starting idx for species
-        
+
         for (size_t i = 0; i < reactor->neq(); i++)
         {
             reactorStateMap->operator[](reactor->componentName(i))=i;
         }
-        
+
         double* rateLawDervs = new double[(reactor->getKineticsMgr())->nTotalSpecies()*(reactor->getKineticsMgr())->nTotalSpecies()]; //For later use of rate law derivatives
 
         SpeciesSpeciesDerivatives(reactor,reactorStateMap,rateLawDervs); //SpeciesDerivatives
-        
+
         TemperatureDerivatives(reactor,reactorStateMap,t,y,ydot,rateLawDervs,params); //Temperature Derivatives
-        
+
         NoPrecondition(reactorStateMap,"mass"); //No precondition on mass variable
-        
+
         delete[] rateLawDervs;
         delete reactorStateMap;
         // std::cout<<Eigen::MatrixXd(this->matrix)<<std::endl;
@@ -142,10 +147,10 @@ namespace Cantera
     {
         ThermoPhase *thermo = currReactor->getThermoMgr();
         double currMass =  currReactor->mass();
-        size_t nStateVars = currReactor->neq()-thermo->nSpecies(); 
+        size_t nStateVars = currReactor->neq()-thermo->nSpecies();
         //Transferring unchanged parameters for each reactor
         for (size_t i = 0; i < nStateVars; i++)
-        {   
+        {
             size_t globalIndex = reactorStart+i;
             tempState[globalIndex] = rhs[globalIndex];
         }
@@ -155,7 +160,7 @@ namespace Cantera
         for (size_t i = 0; i < thermo->nSpecies(); i++)
         {
             size_t globalIndex = reactorStart+i+nStateVars;
-            tempState[globalIndex] = currMass*molecularWeights[i]*rhs[globalIndex];     
+            tempState[globalIndex] = currMass*molecularWeights[i]*rhs[globalIndex];
         }
         delete[] molecularWeights;
     }
@@ -164,7 +169,7 @@ namespace Cantera
     {
             ThermoPhase *thermo = currReactor->getThermoMgr();
             double currMass =  currReactor->mass();
-            size_t nStateVars = currReactor->neq()-thermo->nSpecies(); 
+            size_t nStateVars = currReactor->neq()-thermo->nSpecies();
             //Do nothing to unchanged parameters
             //Convert moles back to mass fractions
             double *molecularWeights = new double[thermo->nSpecies()];
@@ -172,7 +177,7 @@ namespace Cantera
             for (size_t i = 0; i < thermo->nSpecies(); i++)
             {
                 size_t globalIndex = reactorStart+i+nStateVars;
-                output[globalIndex] *= 1/(molecularWeights[i]*currMass);     
+                output[globalIndex] *= 1/(molecularWeights[i]*currMass);
             }
             delete[] molecularWeights;
     }
@@ -189,7 +194,7 @@ namespace Cantera
         //Important sizes to the determination of values
         size_t numberOfReactions = kinetics->nReactions();
         size_t numberOfSpecies = stateMap->operator[]("numberOfSpecies");
-        size_t speciesStart  = stateMap->operator[]("species"); //Starting idx for species 
+        size_t speciesStart  = stateMap->operator[]("species"); //Starting idx for species
         //Array pointers for data that is reused
         double* kForward = new double[numberOfReactions];
         double* kBackward = new double[numberOfReactions];
@@ -198,9 +203,9 @@ namespace Cantera
         //Getting species concentrations
         thermo->getConcentrations(concentrations);
         //Getting forward rate constants for calcs
-        kinetics->getFwdRateConstants(kForward); 
+        kinetics->getFwdRateConstants(kForward);
         //Getting reverse rate constants for calcs
-        kinetics->getRevRateConstants(kBackward); 
+        kinetics->getRevRateConstants(kBackward);
         //Getting forward and reverse rates of progress
         for (size_t r = 0; r < numberOfReactions; r++)
         {
@@ -211,15 +216,15 @@ namespace Cantera
             this->GetRateOfProgress(reactants,stateMap,rateLawDerivatives,concentrations,kForward[r],reactor->volume(),numberOfSpecies);
             this->GetRateOfProgress(products,stateMap,rateLawDerivatives,concentrations,-1*kBackward[r],reactor->volume(),numberOfSpecies); //Multiply by negative one to change direction
         }
-        
+
         //Adding to preconditioner
         //d(w)/dn_j
         for (size_t j = 0; j < numberOfSpecies; j++) // column
             {
             for (size_t i = 0; i < numberOfSpecies; i++) //row
-            {  
+            {
             size_t idx = j+i*numberOfSpecies; //Getting flattened index
-            this->setElementByThreshold(i+speciesStart,j+speciesStart,reactor->volume()*rateLawDerivatives[idx]);//Add by threshold 
+            this->setElementByThreshold(i+speciesStart,j+speciesStart,reactor->volume()*rateLawDerivatives[idx]);//Add by threshold
             }
         }
         //Deleting appropriate pointers
@@ -229,7 +234,7 @@ namespace Cantera
     }
 
     inline void AdaptivePreconditioner::GetRateOfProgress(std::map<std::string, double> comp, StateMap* stateMap, double* omega, double* concentrations, double k_direction, double volume, size_t numberOfSpecies)
-    { 
+    {
         //flattened index for derivatives
         size_t oidx; //index for omega
         size_t sidx; //index for species
@@ -258,30 +263,30 @@ namespace Cantera
             omega[oidx] += k_direction*dRdn/volume; //Updating omega derivative as is necessary
             }
         }
-    } 
+    }
 
     void AdaptivePreconditioner::TemperatureDerivatives(IdealGasConstPressureReactor* reactor,StateMap* stateMap, double t, double* y, double* ydot, double* rateLawDerivatives, double* params)
-    {   
+    {
         //Getting kinetics object for access to reactions
         Kinetics* kinetics=reactor->getKineticsMgr();
         ThermoPhase* thermo=reactor->getThermoMgr();
         //Important sizes to the determination of values
         size_t numberOfSpecies = kinetics->nTotalSpecies();
-        size_t speciesStart  = stateMap->operator[]("species"); //Starting idx for species 
+        size_t speciesStart  = stateMap->operator[]("species"); //Starting idx for species
         size_t tempIndex = stateMap->operator[]("temperature")+stateMap->operator[]("start");
-        
+
         //Array pointers for data that is reused
         //net production rates (omega dot)
         double* netProductionRatesNext = new double[numberOfSpecies];
         double* netProductionRatesCurrent = new double[numberOfSpecies];
-        
+
         //Getting perturbed state
         //Perturbation for finite difference of temperature
         double deltaTemp = y[tempIndex]*(std::sqrt(DBL_EPSILON));
         thermo->setTemperature(y[tempIndex]+deltaTemp);
         kinetics->getNetProductionRates(netProductionRatesNext);
         double TDotNext = reactor->evaluateEnergyEquation(t,y,ydot,params)/(thermo->cp_mass()*reactor->mass()); //Perturbed internal energy
-        
+
         //Getting current state
         thermo->setTemperature(y[tempIndex]); //Setting temperature back to correct value
         kinetics->getNetProductionRates(netProductionRatesCurrent);
@@ -298,7 +303,7 @@ namespace Cantera
          **/
         //convert kmol/m^3/s to kmol/s by multiplying volume and deltaTemp
         for (size_t j = 0; j < numberOfSpecies; j++) //column
-        {   
+        {
             this->setElementByThreshold(j+speciesStart,tempIndex,(netProductionRatesNext[j]-netProductionRatesCurrent[j])/deltaTemp); //Add by threshold specTempDerivative
         }
         //Deleting appropriate pointers
@@ -325,7 +330,7 @@ namespace Cantera
             double hkwkSum = 0;
             double hkdwkdnjSum = 0;
             for (size_t k = 0; k < numberOfSpecies; k++) //Spans rows
-            {   
+            {
                 int idx = j+k*numberOfSpecies; //Getting flattened index - j to remain same and k to change. This means moving down a row.
                 hkwkSum += enthalpy[k]*netProductionRates[k];
                 hkdwkdnjSum += enthalpy[k]*rateLawDerivatives[idx];
@@ -344,11 +349,11 @@ namespace Cantera
 
 
     int AdaptivePreconditioner::checkEigenError(std::string method, size_t info)
-    {   
+    {
         int flag = 0;
-        if(info!=Eigen::Success) 
-        {   
-            
+        if(info!=Eigen::Success)
+        {
+
             std::string error="Failure: ";
             if(info==Eigen::NumericalIssue)
             {
@@ -377,7 +382,7 @@ namespace Cantera
     }
 
     void AdaptivePreconditioner::NoPrecondition(StateMap* stateMap, std::string key)
-    {   
+    {
         size_t idx = stateMap->operator[](key)+stateMap->operator[]("start");
         this->setElement(idx,idx,1); //setting key variable element of preconditioner equal to 1
     }
@@ -385,7 +390,7 @@ namespace Cantera
     /*
         Other functions used in preconditioner functions but not directly related to a state variable
     */
-    
+
     inline void AdaptivePreconditioner::printReactorComponents(Reactor* reactor)
     {
         for (size_t i = 0; i < reactor->neq(); i++)

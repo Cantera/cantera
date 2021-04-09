@@ -1,7 +1,12 @@
-/*
-Programmer: Anthony Walker
-This is the this file contains functions to adaptively precondition the sparse matrix class
-*/
+/**
+ *  @file AdaptivePreconditioner.h
+ *   Declarations for the class BandMatrix
+ *   which is a child class of PreconditionerBase for preconditioners used by sundials
+ */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
+
 #ifndef ADAPTIVEPRECONDITIONER_H
 #define ADAPTIVEPRECONDITIONER_H
 
@@ -24,11 +29,11 @@ const int ADAPTIVE_MECHANISM_PRECONDITIONER = 1;
 #include "cantera/kinetics/Reaction.h"
 
 /**
- * 
- * 
+ *
+ *
  * Adaptive Mechanism Preconditioning Namespace
- * 
- * 
+ *
+ *
  * */
 namespace Cantera //Making ASP apart of Cantera namespace
 {
@@ -37,13 +42,13 @@ namespace Cantera //Making ASP apart of Cantera namespace
   typedef std::map<std::string,size_t> StateMap;
 
   class AdaptivePreconditioner : public PreconditionerBase
-    { 
+    {
       protected:
 
         /**
-         * 
+         *
          * Physics Functions
-         * 
+         *
          **/
         //! This function determines derivatives of Species with respect to species for jacobian preconditioning;
         //! specifically it determines the derivatives of the rate laws of all species with respect to other species in terms of moles.
@@ -63,18 +68,18 @@ namespace Cantera //Making ASP apart of Cantera namespace
         //! @param meanSpecificHeat The mean specific heat used based on reactor type
         //! @param index The index location of temperature in the state vector
         virtual void TemperatureDerivatives(IdealGasConstPressureReactor* reactor, StateMap* stateMap, double t, double* y, double* ydot, double* rateLawDerivatives, double* params);
-        
+
         //!This function does not precondition the associated equation by assigning it's preconditioner value to a value of 1
         //!@param row the row index of the variable
         //!@param col the column index of the variable
         void NoPrecondition(StateMap* stateMap, std::string key);
 
         /**
-         * 
+         *
          * Other Functions
-         * 
+         *
          **/
-        
+
         //! This function is used to convert the system from mass fraction to mole fraction for solving the linear system with a mole based jacobian.
         //! @param *reactor A pointer to the current reactor being converted
         //! @param *tempState A double pointer to the temporary state used to solve the linear system
@@ -95,7 +100,7 @@ namespace Cantera //Making ASP apart of Cantera namespace
         inline void printReactorComponents(Reactor* reactor);
 
       public:
-          EIGEN_MAKE_ALIGNED_OPERATOR_NEW 
+          EIGEN_MAKE_ALIGNED_OPERATOR_NEW
           AdaptivePreconditioner(/* args */){};
           ~AdaptivePreconditioner(){};
           AdaptivePreconditioner(const AdaptivePreconditioner &preconditioner){*this=preconditioner;} //Copy constructor
@@ -113,7 +118,7 @@ namespace Cantera //Making ASP apart of Cantera namespace
           //!@param reactorStart an size_t providing the index location in which the state of the given reactor starts
           virtual void setup(std::vector<Reactor*>* reactors,std::vector<size_t>* reactorStart, double t, double* y, double* ydot, double* params);
 
-          //! THis function performs set up 
+          //! THis function performs set up
           //!This function is called during setup for any processes that need to be completed prior to setup functions
           //! e.g. dynamic memory allocation
           virtual void initialize(size_t nrows,size_t ncols);
@@ -145,12 +150,12 @@ namespace Cantera //Making ASP apart of Cantera namespace
           //!Function used to set compressed version of the matrix structure
           //!@param sparseMatrix a SUNMatrix pointer to a type of SUNMatrix
           //!@param compress a bool dictating whether or not the set matrix needs compressed or not
-          virtual void setMatrix(Eigen::SparseMatrix<double>* sparseMatrix);  
+          virtual void setMatrix(Eigen::SparseMatrix<double>* sparseMatrix);
 
         /**
-         * 
+         *
          * Reactor Level Functions
-         * 
+         *
          **/
 
         //!Function used to complete individual reactor setups
@@ -173,5 +178,5 @@ namespace Cantera //Making ASP apart of Cantera namespace
           //!@param reactorStart an size_t providing the index location in which the state of the given reactor starts
           virtual void reactorLevelSetup(ConstPressureReactor* reactor, size_t reactorStart, double t, double* y, double* ydot, double* params);
       };
-} 
+}
 #endif

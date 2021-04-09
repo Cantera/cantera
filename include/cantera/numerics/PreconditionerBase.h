@@ -1,3 +1,11 @@
+/**
+ *  @file PreconditionerBase.h
+ *   Declarations for the class PreconditionerBase which is a virtual base class for preconditioning systems.
+ */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
+
 #ifndef PRECONDITIONERBASE_H
 #define PRECONDITIONERBASE_H
 
@@ -13,14 +21,14 @@
 const int PRECONDITIONER_NOT_SET = 0;
 
 namespace Cantera//Making ASP apart of Cantera namespace
-{ 
+{
   class PreconditionerBase
-  { 
+  {
     private:
-        
+
     protected:
         //@param threshold a double value to selectively fill the matrix structure based on this threshold
-        double threshold=10e-16; //default 
+        double threshold=10e-16; //default
         //@param dimensions an size_t pointer to store dimensions
         size_t dimensions[2];
     public:
@@ -41,25 +49,25 @@ namespace Cantera//Making ASP apart of Cantera namespace
         virtual void solve(std::vector<Reactor*>* reactors, std::vector<size_t>* reactorStart, double* output, double *rhs_vector,size_t size){
           throw CanteraError("Cantera::PrecondtionerBase::solve","solve not implemented for PreconditionerBase, please use a subclass.");
         };
-        
+
         //! This function performs the setup of the preconditioner for the specified reactor type and should be overloaded for each different reactor time
         //!@param reactors A vector to reactor objects in the network
         //!@param reactorStart an size_t providing the index location in which the state of the given reactor starts
         virtual void setup(std::vector<Reactor*>* reactors, std::vector<size_t>* reactorStart, double t, double* y, double* ydot, double* params){
           throw CanteraError("Cantera::PrecondtionerBase::setup","setup not implemented for PreconditionerBase, please use a subclass.");
-        }; 
+        };
 
         //!This function is called during setup for any processes that need to be completed prior to setup functions
         //! e.g. dynamic memory allocation
         virtual void initialize(size_t nrows,size_t ncols){
           throw CanteraError("Cantera::PrecondtionerBase::initialize","initialize not implemented for PreconditionerBase, please use a subclass.");
-        }; 
+        };
 
         //!This function is called during setup for any processes that need to be completed post to setup functions
         //! e.g. dynamic memory allocation
         virtual void reset(){
           throw CanteraError("Cantera::PrecondtionerBase::reset","reset not implemented for PreconditionerBase, please use a subclass.");
-        }; 
+        };
 
         //!Function used to set a specific element of the matrix structure
         //!@param row size_t specifying the row location
@@ -101,9 +109,9 @@ namespace Cantera//Making ASP apart of Cantera namespace
         virtual size_t* getDimensions();
 
         /**
-         * 
+         *
          * Reactor Level Functions
-         * 
+         *
          **/
 
         //!Function used to complete individual reactor setups
@@ -111,29 +119,29 @@ namespace Cantera//Making ASP apart of Cantera namespace
           //!@param reactorStart an size_t providing the index location in which the state of the given reactor starts
           virtual void reactorLevelSetup(Reactor* reactor, size_t reactorStart, double t, double* y, double* ydot, double* params){
           throw CanteraError("Cantera::PrecondtionerBase::reactorLevelSetup","reactorLevelSetup not implemented for PreconditionerBase, please use a subclass.");
-        }; 
+        };
 
           //!Function used to complete individual reactor setups
           //!@param reactor A IdealGasConstPressureReactor pointer
           //!@param reactorStart an size_t providing the index location in which the state of the given reactor starts
           virtual void reactorLevelSetup(IdealGasConstPressureReactor* reactor, size_t reactorStart, double t, double* y, double* ydot, double* params){
           throw CanteraError("Cantera::PrecondtionerBase::reactorLevelSetup","reactorLevelSetup not implemented for PreconditionerBase, please use a subclass.");
-        }; 
+        };
 
           //!Function used to complete individual reactor setups
           //!@param reactor A IdealGasReactor pointer
           //!@param reactorStart an size_t providing the index location in which the state of the given reactor starts
           virtual void reactorLevelSetup(IdealGasReactor* reactor, size_t reactorStart, double t, double* y, double* ydot, double* params){
           throw CanteraError("Cantera::PrecondtionerBase::reactorLevelSetup","reactorLevelSetup not implemented for PreconditionerBase, please use a subclass.");
-        }; 
+        };
 
           //!Function used to complete individual reactor setups
           //!@param reactor A IdealGasReactor pointer
           //!@param reactorStart an size_t providing the index location in which the state of the given reactor starts
           virtual void reactorLevelSetup(ConstPressureReactor* reactor, size_t reactorStart, double t, double* y, double* ydot, double* params){
           throw CanteraError("Cantera::PrecondtionerBase::reactorLevelSetup","reactorLevelSetup not implemented for PreconditionerBase, please use a subclass.");
-        }; 
-        
+        };
+
   };
 }
 #endif
