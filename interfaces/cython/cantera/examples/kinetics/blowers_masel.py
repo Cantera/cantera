@@ -1,43 +1,75 @@
 """
 A simplest example to demonstrate the difference between Blowers-Masel
-reaction and elementary reaction. First we set up 2 same reactions with
-Arrhenius and Blowers-Masel rate parameters. The Blowers-Masel parameters
-are same as Arrhenius parameters with an additional value -- bond energy.
-First we show that the forward rate constants of 2 different reactions 
-are different even if the rate parameters are same. Then we change the 
-enthalpy of a species involved in all the reactions, and it shows that 
-the Arrhenius forward rate constant does not change, and the Blowers-Masel 
-forward rate constants change because the enthalpy change of the reactions
-are changed. 
+reaction and elementary reaction. The first two reactions have same reaction 
+equations with Arrhenius and Blowers-Masel rate parameters, respectively. 
+The Blowers-Masel parameters are same as Arrhenius parameters with an 
+additional value, bond energy. First we show that the forward rate constants 
+of the first 2 different reactions are different because of the different rate
+expression, then we print the forward rate constants for reaction 2 and reaction 3
+to show that even 2 reactions have same Blowers-Masel parameters can have different
+forward rate constants. The first plot generated shows the rate constant changes
+with respect to temperature for elementary and Blower-Masel reactions are different.
+The second plot shows the activation energy change of a Blowers-Masel reaction 
+with respect to the delta enthalpy of the reaction.
 """
 
 import cantera as ct
+import numpy as np
+import matplotlib.pyplot as plt
 
-#Create an elementary reaction
+#Create an elementary reaction O+H2<=>H+OH
 r1 = ct.ElementaryReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
 r1.rate = ct.Arrhenius(3.87e1, 2.7, 6260*1000*4.184)
 
-#Create a gas-phase Blowers-Masel reaction
+#Create a Blowers-Masel reaction O+H2<=>H+OH
 r2 = ct.BlowersMaselReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
 r2.rate = ct.BlowersMasel(3.87e1, 2.7, 6260*1000*4.184, 1e9)
 
 #Create a Blowers-Masel reaction with same parameters with r2
+#reaction equation is H+CH4<=>CH3+H2
 r3 = ct.BlowersMaselReaction({'H':1, 'CH4':1}, {'CH3':1, 'H2':1})
 r3.rate = ct.BlowersMasel(3.87e1, 2.7, 6260*1000*4.184, 1e9)
 
-gas1 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                    species=ct.Solution('gri30.yaml').species(), reactions=[r1, r2, r3])
 
-gas1.TP = 300, ct.one_atm
+gas.TP = 300, ct.one_atm
 
-print(gas1.forward_rate_constants[0])
+r1_rc = gas.forward_rate_constants[0]
+r2_rc = gas.forward_rate_constants[1]
+r3_rc = gas.forward_rate_constants[2]
 
-# Comparing the second and the third rate constants shows that
-# even the rate parameters are same, the rate constants are 
-# different due to the enthalpy change of the reactions are different
-print(gas1.forward_rate_constants[1])
-print(gas1.forward_rate_constants[2])
+print("The first and second reactions have same reaction equation,"
+      " but they have different reaction types, so the forward rate"
+      " constant of the first reaction is {0:.3f} kmol/(m^3.s),"
+      " the forward rate constant of the second reaction is {1:.3f} kmol/(m^3.s).".format(r1_rc, r2_rc))
 
+print("The rate parameters of second and the third reactions are same,"
+      " but the forward rate cosntant of second reaction is {0:.3f} kmol/(m^3.s),"
+      " the forward rate constant of the third reaction is"
+      " {1:.3f} kmol/(m^3.s).".format(r2_rc, r3_rc))
+
+# Comparing the reaction forward rate constant change of
+# Blowers-Masel reaction and elementary reaction with
+# respect to the temperature.
+r1_kf = []
+r2_kf = []
+T_range = np.arange(300, 3500, 100)
+for temp in T_range:
+    gas.TP = temp, ct.one_atm
+    r1_kf.append(gas.forward_rate_constants[0])
+    r2_kf.append(gas.forward_rate_constants[1])
+plt.scatter(T_range, r1_kf, 1*1, label='Reaction 1 (Elementary)')
+plt.scatter(T_range, r2_kf, 1*1, label='Reaction 2 (Blowers-Masel)')
+plt.xlabel("Temperature(K)")
+plt.ylabel("Forward Rate Constant $(kmol/(m^3.s))$")
+plt.title("Comparison Of kf vs. Temperature For Reaction 1 and 2",y=1.1)
+plt.legend()
+plt.savefig("kf_to_T.png")
+plt.clf()
+# This is the function to change the enthalpy of a species
+# so that the enthalpy change of reactions involving this
+#species can be changed
 def change_species_enthalpy(gas, species_name, dH):
     """
     Find the species by name and change it's enthlapy by dH (in J/kmol)
@@ -50,18 +82,26 @@ def change_species_enthalpy(gas, species_name, dH):
     perturbed_coeffs = species.thermo.coeffs.copy()
     perturbed_coeffs[6] += dx
     perturbed_coeffs[13] += dx
-    
+
     species.thermo = ct.NasaPoly2(species.thermo.min_temp, species.thermo.max_temp, 
                             species.thermo.reference_pressure, perturbed_coeffs)
 
     gas.modify_species(index, species)
 
-#change the enthalpy of species 'H' so that the reaction enthalpy changes
-change_species_enthalpy(gas1, 'H', +1e8)
+# Plot the activation energy change of reaction 2 with respect to the 
+# enthalpy change
+E0 = gas.reaction(1).rate.intrinsic_activation_energy
+upper_limit_enthalpy = 5 * E0
+lower_limit_enthalpy = -5 * E0
 
-# the rate constant of elementary should not change with enthalpy of the reaction
-print(gas1.forward_rate_constants[0])
+Ea_list = []
+deltaH_list = np.arange(lower_limit_enthalpy, upper_limit_enthalpy, (upper_limit_enthalpy-lower_limit_enthalpy)/100)
+for deltaH in deltaH_list:
+    change_species_enthalpy(gas, 'H', deltaH - gas.delta_enthalpy[1])
+    Ea_list.append(gas.reaction(1).rate.activation_energy(gas.delta_enthalpy[1]))
 
-# the rate constant of Blowers-Masel reaction changes with enthalpy of the reaction
-print(gas1.forward_rate_constants[1])
-print(gas1.forward_rate_constants[2])
+plt.scatter(deltaH_list, Ea_list, 1)
+plt.xlabel("Enthalpy Change (J/kmol)")
+plt.ylabel("Activation Energy Change (J/kmol)$")
+plt.title(r"Ea vs. $\Delta H$ For O+H2<=>H+OH", y=1.1)
+plt.savefig("Ea_to_H.png")
