@@ -31,6 +31,7 @@ Reaction::Reaction()
     , duplicate(false)
     , allow_nonreactant_orders(false)
     , allow_negative_orders(false)
+    , rate_units(0.0)
     , m_valid(true)
 {
 }
@@ -44,6 +45,7 @@ Reaction::Reaction(const Composition& reactants_,
     , duplicate(false)
     , allow_nonreactant_orders(false)
     , allow_negative_orders(false)
+    , rate_units(0.0)
     , m_valid(true)
 {
 }
@@ -54,6 +56,7 @@ Reaction::Reaction(int type)
     , duplicate(false)
     , allow_nonreactant_orders(false)
     , allow_negative_orders(false)
+    , rate_units(0.0)
     , m_valid(true)
 {
     warn_deprecated("Reaction::Reaction()",
@@ -70,6 +73,7 @@ Reaction::Reaction(int type, const Composition& reactants_,
     , duplicate(false)
     , allow_nonreactant_orders(false)
     , allow_negative_orders(false)
+    , rate_units(0.0)
     , m_valid(true)
 {
     warn_deprecated("Reaction::Reaction()",
@@ -167,6 +171,36 @@ std::string Reaction::equation() const
     }
 }
 
+void Reaction::calculateRateCoeffUnits(const Kinetics& kin)
+{
+    if (!valid()) {
+        // If a reaction is invalid because of missing species in the Kinetics
+        // object, determining the units of the rate coefficient is impossible.
+        return;
+    }
+
+    // Determine the units of the rate coefficient
+    Units rxn_phase_units = kin.thermo(kin.reactionPhaseIndex()).standardConcentrationUnits();
+    rate_units = rxn_phase_units;
+    rate_units *= Units(1.0, 0, 0, -1);
+    for (const auto& order : orders) {
+        const auto& phase = kin.speciesPhase(order.first);
+        rate_units *= phase.standardConcentrationUnits().pow(-order.second);
+    }
+    for (const auto& stoich : reactants) {
+        // Order for each reactant is the reactant stoichiometric coefficient,
+        // unless already overridden by user-specified orders
+        if (stoich.first == "M" || ba::starts_with(stoich.first, "(+")) {
+            // calculateRateCoeffUnits may be called before these pseudo-species
+            // have been stripped from the reactants
+            continue;
+        } else if (orders.find(stoich.first) == orders.end()) {
+            const auto& phase = kin.speciesPhase(stoich.first);
+            rate_units *= phase.standardConcentrationUnits().pow(-stoich.second);
+        }
+    }
+}
+
 ElementaryReaction::ElementaryReaction(const Composition& reactants_,
                                        const Composition products_,
                                        const Arrhenius& rate_)
@@ -239,6 +273,13 @@ std::string ThreeBodyReaction::productString() const {
     return ElementaryReaction::productString() + " + M";
 }
 
+void ThreeBodyReaction::calculateRateCoeffUnits(const Kinetics& kin)
+{
+    ElementaryReaction::calculateRateCoeffUnits(kin);
+    const ThermoPhase& rxn_phase = kin.thermo(kin.reactionPhaseIndex());
+    rate_units *= rxn_phase.standardConcentrationUnits().pow(-1);
+}
+
 void ThreeBodyReaction::getParameters(AnyMap& reactionNode) const
 {
     ElementaryReaction::getParameters(reactionNode);
@@ -254,6 +295,7 @@ FalloffReaction::FalloffReaction()
     : Reaction()
     , falloff(new Falloff())
     , allow_negative_pre_exponential_factor(false)
+    , low_rate_units(0.0)
 {
     reaction_type = FALLOFF_RXN;
 }
@@ -267,6 +309,7 @@ FalloffReaction::FalloffReaction(
     , high_rate(high_rate_)
     , third_body(tbody)
     , falloff(new Falloff())
+    , low_rate_units(0.0)
 {
     reaction_type = FALLOFF_RXN;
 }
@@ -306,6 +349,14 @@ void FalloffReaction::validate() {
     }
 }
 
+void FalloffReaction::calculateRateCoeffUnits(const Kinetics& kin)
+{
+    Reaction::calculateRateCoeffUnits(kin);
+    const ThermoPhase& rxn_phase = kin.thermo(kin.reactionPhaseIndex());
+    low_rate_units = rate_units;
+    low_rate_units *= rxn_phase.standardConcentrationUnits().pow(-1);
+}
+
 void FalloffReaction::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
@@ -337,6 +388,14 @@ ChemicallyActivatedReaction::ChemicallyActivatedReaction(
     : FalloffReaction(reactants_, products_, low_rate_, high_rate_, tbody)
 {
     reaction_type = CHEMACT_RXN;
+}
+
+void ChemicallyActivatedReaction::calculateRateCoeffUnits(const Kinetics& kin)
+{
+    Reaction::calculateRateCoeffUnits(kin); // Skip FalloffReaction
+    const ThermoPhase& rxn_phase = kin.thermo(kin.reactionPhaseIndex());
+    low_rate_units = rate_units;
+    rate_units *= rxn_phase.standardConcentrationUnits();
 }
 
 void ChemicallyActivatedReaction::getParameters(AnyMap& reactionNode) const
@@ -408,6 +467,7 @@ void Reaction2::setParameters(const AnyMap& node, const Kinetics& kin)
     allow_negative_orders = node.getBool("negative-orders", false);
     allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
 
+    calculateRateCoeffUnits(kin);
     input = node;
 }
 
@@ -461,10 +521,8 @@ void ChebyshevReaction::getParameters(AnyMap& reactionNode) const
         if (rate_units2.factor() != 0.0) {
             coeffs.asVector<vector_fp>()[0][0] += std::log10(units.convertFrom(1.0, rate_units2));
         } else if (units.getDelta(UnitSystem()).size()) {
-            //! @todo This special case can be removed after Cantera 3.0 when
-            //! the XML/CTI formats are removed
             throw CanteraError("ChebyshevReaction::getParameters lambda",
-                "Cannot convert rate constant from CTI/XML input to a "
+                "Cannot convert rate constant with unknown dimensions to a "
                 "non-default unit system");
         }
     };
@@ -548,37 +606,6 @@ Arrhenius readArrhenius(const XML_Node& arrhenius_node)
     return Arrhenius(getFloat(arrhenius_node, "A", "toSI"),
                      getFloat(arrhenius_node, "b"),
                      getFloat(arrhenius_node, "E", "actEnergy") / GasConstant);
-}
-
-Units rateCoeffUnits(const Reaction& R, const Kinetics& kin)
-{
-    if (!R.valid()) {
-        // If a reaction is invalid because of missing species in the Kinetics
-        // object, determining the units of the rate coefficient is impossible.
-        return Units();
-    }
-
-    // Determine the units of the rate coefficient
-    Units rxn_phase_units = kin.thermo(kin.reactionPhaseIndex()).standardConcentrationUnits();
-    Units rcUnits = rxn_phase_units;
-    rcUnits *= Units(1.0, 0, 0, -1);
-    for (const auto& order : R.orders) {
-        const auto& phase = kin.speciesPhase(order.first);
-        rcUnits *= phase.standardConcentrationUnits().pow(-order.second);
-    }
-    for (const auto& stoich : R.reactants) {
-        // Order for each reactant is the reactant stoichiometric coefficient,
-        // unless already overridden by user-specified orders
-        if (stoich.first == "M") {
-            rcUnits *= rxn_phase_units.pow(-1);
-        } else if (ba::starts_with(stoich.first, "(+")) {
-            continue;
-        } else if (R.orders.find(stoich.first) == R.orders.end()) {
-            const auto& phase = kin.speciesPhase(stoich.first);
-            rcUnits *= phase.standardConcentrationUnits().pow(-stoich.second);
-        }
-    }
-    return rcUnits;
 }
 
 Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate,
@@ -714,9 +741,6 @@ void setupReaction(Reaction& R, const XML_Node& rxn_node)
     R.duplicate = rxn_node.hasAttrib("duplicate");
     const std::string& rev = rxn_node["reversible"];
     R.reversible = (rev == "true" || rev == "yes");
-
-    // Prevent invalid conversions of the rate coefficient
-    R.rate_units = Units(0.0);
 }
 
 void parseReactionEquation(Reaction& R, const AnyValue& equation,
@@ -804,7 +828,7 @@ void setupReaction(Reaction& R, const AnyMap& node, const Kinetics& kin)
     R.allow_negative_orders = node.getBool("negative-orders", false);
     R.allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
 
-    R.rate_units = rateCoeffUnits(R, kin);
+    R.calculateRateCoeffUnits(kin);
     R.input = node;
 }
 
@@ -884,7 +908,6 @@ void setupFalloffReaction(FalloffReaction& R, const XML_Node& rxn_node)
     if (rxn_node["negative_A"] == "yes") {
         R.allow_negative_pre_exponential_factor = true;
     }
-    R.low_rate_units = Units(0.0);
     readFalloff(R, rc_node);
     readEfficiencies(R.third_body, rc_node);
     setupReaction(R, rxn_node);
@@ -928,21 +951,10 @@ void setupFalloffReaction(FalloffReaction& R, const AnyMap& node,
         R.third_body.efficiencies[third_body.substr(2, third_body.size() - 3)] = 1.0;
     }
 
-    R.low_rate_units = R.rate_units;
-    Units rxn_phase_units = kin.thermo(kin.reactionPhaseIndex()).standardConcentrationUnits();
-    if (node["type"] == "falloff") {
-        R.low_rate = readArrhenius(R, node["low-P-rate-constant"], kin,
-                                   node.units(), 1);
-        R.high_rate = readArrhenius(R, node["high-P-rate-constant"], kin,
-                                    node.units());
-        R.low_rate_units *= rxn_phase_units.pow(-1);
-    } else { // type == "chemically-activated"
-        R.low_rate = readArrhenius(R, node["low-P-rate-constant"], kin,
-                                   node.units());
-        R.high_rate = readArrhenius(R, node["high-P-rate-constant"], kin,
-                                    node.units(), -1);
-        R.rate_units *= rxn_phase_units;
-    }
+    R.low_rate = readArrhenius(R, node["low-P-rate-constant"], kin,
+                                node.units(), 1);
+    R.high_rate = readArrhenius(R, node["high-P-rate-constant"], kin,
+                                node.units());
 
     readFalloff(R, node);
 }
@@ -971,7 +983,6 @@ void setupChemicallyActivatedReaction(ChemicallyActivatedReaction& R,
         throw CanteraError("setupChemicallyActivatedReaction", "Did not find "
             "the correct number of Arrhenius rate expressions");
     }
-    R.low_rate_units = Units(0.0);
     readFalloff(R, rc_node);
     readEfficiencies(R.third_body, rc_node);
     setupReaction(R, rxn_node);

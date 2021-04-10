@@ -567,6 +567,12 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
         }
     }
 
+    // For reactions created outside the context of a Kinetics object, the units
+    // of the rate coefficient can't be determined in advance. Do that here.
+    if (r->rate_units.factor() == 0) {
+        r->calculateRateCoeffUnits(*this);
+    }
+
     checkReactionBalance(*r);
     size_t irxn = nReactions(); // index of the new reaction
 

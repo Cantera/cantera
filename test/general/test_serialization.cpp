@@ -145,11 +145,7 @@ TEST(YamlWriter, reaction_units_from_Xml)
         {"quantity", "mol"},
         {"length", "cm"}
     });
-    // Should fail because pre-exponential factors from XML can't be converted
-    EXPECT_THROW(writer.toYamlFile("generated-h2o2-fail.yaml"), CanteraError);
 
-    // Outputting with the default MKS+kmol system still works
-    writer.setUnits();
     writer.toYamlFile("generated-h2o2-from-xml.yaml");
     auto duplicate = newSolution("generated-h2o2-from-xml.yaml");
 

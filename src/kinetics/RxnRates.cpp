@@ -56,9 +56,10 @@ void Arrhenius::getParameters(AnyMap& rateNode, const Units& rate_units) const
     if (rate_units.factor() != 0.0) {
         rateNode["A"].setQuantity(preExponentialFactor(), rate_units);
     } else {
-        // @TODO: This branch can be removed after CTI/XML support is removed
-        // in Cantera 3.0.
         rateNode["A"] = preExponentialFactor();
+        // This can't be converted to a different unit system because the dimensions of
+        // the rate constant were not set. Can occur if the reaction was created outside
+        // the context of a Kinetics object and never added to a Kinetics object.
         rateNode["__unconvertible__"] = true;
     }
 

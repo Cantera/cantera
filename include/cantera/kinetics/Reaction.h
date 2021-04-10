@@ -48,6 +48,11 @@ public:
     //! The type of reaction
     virtual std::string type() const = 0; // pure virtual function
 
+    //! Calculate the units of the rate constant. These are determined by the units
+    //! of the standard concentration of the reactant species' phases and the phase
+    //! where the reaction occurs. Sets the value of #rate_units.
+    virtual void calculateRateCoeffUnits(const Kinetics& kin);
+
     //! Ensure that the rate constant and other parameters for this reaction are
     //! valid.
     virtual void validate();
@@ -193,6 +198,7 @@ public:
 
     virtual std::string reactantString() const;
     virtual std::string productString() const;
+    virtual void calculateRateCoeffUnits(const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
 
     //! Relative efficiencies of third-body species in enhancing the reaction
@@ -217,6 +223,7 @@ public:
     virtual std::string reactantString() const;
     virtual std::string productString() const;
     virtual void validate();
+    virtual void calculateRateCoeffUnits(const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
 
     //! The rate constant in the low-pressure limit
@@ -255,6 +262,7 @@ public:
         return "chemically-activated";
     }
 
+    virtual void calculateRateCoeffUnits(const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
 };
 
@@ -432,14 +440,6 @@ std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
 //! Parse reaction equation
 void parseReactionEquation(Reaction& R, const AnyValue& equation,
                            const Kinetics& kin);
-
-//! The units of the rate constant. These are determined by the units of the
-//! standard concentration of the reactant species' phases of the phase
-//! where the reaction occurs.
-//!
-//! @todo Rate units will become available as `rate_units` after serialization
-//!     is implemented.
-Units rateCoeffUnits(const Reaction& R, const Kinetics& kin);
 
 // declarations of setup functions
 void setupElementaryReaction(ElementaryReaction&, const XML_Node&);
