@@ -1090,15 +1090,14 @@ void AnyValue::applyUnits(shared_ptr<UnitSystem>& units)
     if (is<AnyMap>()) {
         AnyMap& m = as<AnyMap>();
 
-        //! @todo Remove this check after CTI/XML support is removed in Cantera 3.0.
         if (m.getBool("__unconvertible__", false)) {
             AnyMap delta = units->getDelta(UnitSystem());
             if (delta.hasKey("length") || delta.hasKey("quantity")
                 || delta.hasKey("time"))
             {
-                throw CanteraError("AnyValue::applyUnits", "AnyMap contains"
-                    " values that cannot be converted to non-default unit"
-                    " systems (probably reaction rates read from XML files)");
+                throw CanteraError("AnyValue::applyUnits", "AnyMap contains values"
+                    " that cannot be converted to non-default unit systems (probably"
+                    " reaction rates not associated with a Kinetics object)");
             }
         }
         // Units declaration applicable to this map
