@@ -1,5 +1,6 @@
 from os.path import join as pjoin
 import os
+import sys
 
 import numpy as np
 from collections import OrderedDict
@@ -449,6 +450,17 @@ class TestSolutionSerialization(utilities.CanteraTest):
         data = gas.input_data
         self.assertEqual(data['custom-field']['first'], True)
         self.assertEqual(data['custom-field']['last'], [100, 200, 300])
+
+        if sys.version_info >= (3,7):
+            # Check that items are ordered as expected
+            self.assertEqual(
+                list(data),
+                ['name', 'thermo', 'elements', 'species', 'state', 'custom-field']
+            )
+            self.assertEqual(
+                list(data['custom-field']),
+                ['first', 'second', 'last']
+            )
 
     def test_input_data_debye_huckel(self):
         soln = ct.Solution('thermo-models.yaml', 'debye-huckel-B-dot-ak')
