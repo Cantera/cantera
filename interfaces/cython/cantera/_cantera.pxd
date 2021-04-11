@@ -58,9 +58,19 @@ cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
             Iterator& operator++()
             cbool operator!=(Iterator&)
 
+        cppclass OrderedIterator:
+            pair[string, CxxAnyValue]& operator*()
+            OrderedIterator& operator++()
+            cbool operator!=(OrderedIterator&)
+
+        cppclass OrderedProxy:
+            OrderedIterator begin()
+            OrderedIterator end()
+
         CxxAnyMap()
         Iterator begin()
         Iterator end()
+        OrderedProxy ordered() except +translate_exception
         CxxAnyValue& operator[](string) except +translate_exception
         cbool hasKey(string)
         string keys_str()
@@ -74,7 +84,6 @@ cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
         string type_str()
         cbool isType "is" [T]()
         cbool isScalar()
-        pair[int, int] order()
 
     CxxAnyMap AnyMapFromYamlFile "Cantera::AnyMap::fromYamlFile" (string) except +translate_exception
     CxxAnyMap AnyMapFromYamlString "Cantera::AnyMap::fromYamlString" (string) except +translate_exception

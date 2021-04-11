@@ -116,14 +116,9 @@ cdef anyvalueToPython(string name, CxxAnyValue& v):
 
 
 cdef anymapToPython(CxxAnyMap& m):
-    py_items = []
     m.applyUnits()
-    for item in m:
-        py_items.append((item.second.order(),
-                         pystr(item.first),
-                         anyvalueToPython(item.first, item.second)))
-    py_items.sort()
-    return {key: value for (_, key, value) in py_items}
+    return {pystr(item.first): anyvalueToPython(item.first, item.second)
+            for item in m.ordered()}
 
 
 cdef mergeAnyMap(CxxAnyMap& primary, CxxAnyMap& extra):
@@ -134,16 +129,9 @@ cdef mergeAnyMap(CxxAnyMap& primary, CxxAnyMap& extra):
     Used to combine generated data representing the current state of the object
     (primary) with user-supplied fields (extra) not directly used by Cantera.
     """
-    py_items = []
-    for item in primary:
-        py_items.append((item.second.order(),
-                         pystr(item.first),
-                         anyvalueToPython(item.first, item.second)))
+    out = {pystr(item.first): anyvalueToPython(item.first, item.second)
+           for item in primary.ordered()}
     for item in extra:
         if not primary.hasKey(item.first):
-            py_items.append((item.second.order(),
-                             pystr(item.first),
-                             anyvalueToPython(item.first, item.second)))
-
-    py_items.sort()
-    return {key: value for (_, key, value) in py_items}
+            out[pystr(item.first)] = anyvalueToPython(item.first, item.second)
+    return out
