@@ -528,6 +528,55 @@ public:
         return Iterator(m_data.end(), m_data.end());
     }
 
+    class OrderedIterator;
+
+    //! Proxy for iterating over an AnyMap in the defined output ordering.
+    //! See ordered().
+    class OrderedProxy {
+    public:
+        OrderedProxy() {}
+        OrderedProxy(const AnyMap& data);
+        OrderedIterator begin() const;
+        OrderedIterator end() const;
+
+        typedef std::vector<std::pair<
+            std::pair<int, int>,
+            const std::pair<const std::string, AnyValue>*>> OrderVector;
+    private:
+        const AnyMap* m_data;
+        OrderVector m_ordered;
+        std::unique_ptr<std::pair<const std::string, AnyValue>> m_units;
+    };
+
+    //! Defined to allow the OrderedProxy class to be used with range-based
+    //! for loops.
+    class OrderedIterator {
+    public:
+        OrderedIterator() {}
+        OrderedIterator(const OrderedProxy::OrderVector::const_iterator& start,
+                        const OrderedProxy::OrderVector::const_iterator& stop);
+
+        const std::pair<const std::string, AnyValue>& operator*() const {
+            return *m_iter->second;
+        }
+        const std::pair<const std::string, AnyValue>* operator->() const {
+            return &(*m_iter->second);
+        }
+        bool operator!=(const OrderedIterator& right) const {
+            return m_iter != right.m_iter;
+        }
+        OrderedIterator& operator++() { ++m_iter; return *this; }
+
+    private:
+        OrderedProxy::OrderVector::const_iterator m_iter;
+        OrderedProxy::OrderVector::const_iterator m_stop;
+    };
+
+    // Return a proxy object that allows iteration in an order determined by the
+    // order of insertion, the location in an input file, and rules specified by
+    // the addOrderingRules() method.
+    OrderedProxy ordered() const { return OrderedProxy(*this); }
+
     //! Returns the number of elements in this map
     size_t size() const {
         return m_data.size();

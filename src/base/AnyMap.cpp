@@ -249,78 +249,14 @@ struct convert<Cantera::AnyMap> {
 
 YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
 {
-    // Initial sort based on the order in which items are added
-    vector<std::tuple<std::pair<int, int>, std::string, const AnyValue*>> ordered;
-    // Units always come first
-    AnyValue units;
-    if (rhs.hasKey("__units__") && rhs["__units__"].as<AnyMap>().size()) {
-        units = rhs["__units__"];
-        units.setFlowStyle();
-        ordered.emplace_back(std::pair<int, int>{-2, 0}, std::string("units"), &units);
-    }
-
-    int head = 0; // sort key of the first programmatically-added item
-    int tail = 0; // sort key of the last programmatically-added item
-    for (const auto& item : rhs) {
-        const auto& order = item.second.order();
-        if (order.first == -1) { // Item is not from an input file
-            head = std::min(head, order.second);
-            tail = std::max(tail, order.second);
-        }
-        ordered.emplace_back(order, item.first, &item.second);
-    }
-    std::sort(ordered.begin(), ordered.end());
-
-    // Adjust sort keys for items that should moved to the beginning or end of
-    // the list
-    if (rhs.hasKey("__type__")) {
-        bool order_changed = false;
-        const auto& itemType = rhs["__type__"].asString();
-        std::unique_lock<std::mutex> lock(yaml_field_order_mutex);
-        if (AnyMap::s_headFields.count(itemType)) {
-            for (const auto& key : AnyMap::s_headFields[itemType]) {
-                for (auto& item : ordered) {
-                    if (std::get<0>(item).first >= 0) {
-                        // This and following items come from an input file and
-                        // should not be re-ordered
-                        break;
-                    }
-                    if (std::get<1>(item) == key) {
-                        std::get<0>(item).second = --head;
-                        order_changed = true;
-                    }
-                }
-            }
-        }
-        if (AnyMap::s_tailFields.count(itemType)) {
-            for (const auto& key : AnyMap::s_tailFields[itemType]) {
-                for (auto& item : ordered) {
-                    if (std::get<0>(item).first >= 0) {
-                        // This and following items come from an input file and
-                        // should not be re-ordered
-                        break;
-                    }
-                    if (std::get<1>(item) == key) {
-                        std::get<0>(item).second = ++tail;
-                        order_changed = true;
-                    }
-                }
-            }
-        }
-
-        if (order_changed) {
-            std::sort(ordered.begin(), ordered.end());
-        }
-    }
-
     bool flow = rhs.getBool("__flow__", false);
     if (flow) {
         out << YAML::Flow;
         out << YAML::BeginMap;
         size_t width = 15;
-        for (const auto& item : ordered) {
-            const auto& name = std::get<1>(item);
-            const auto& value = *std::get<2>(item);
+        for (const auto& item : rhs.ordered()) {
+            const auto& name = item.first;
+            const auto& value = item.second;
             string valueStr;
             bool foundType = true;
             if (value.is<double>()) {
@@ -354,9 +290,9 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
         }
     } else {
         out << YAML::BeginMap;
-        for (const auto& item : ordered) {
-            out << std::get<1>(item);
-            out << *std::get<2>(item);
+        for (const auto& item : rhs.ordered()) {
+            out << item.first;
+            out << item.second;
         }
     }
     out << YAML::EndMap;
@@ -1524,6 +1460,90 @@ AnyMap::Iterator& AnyMap::Iterator::operator++()
         ++m_iter;
     }
     return *this;
+}
+
+
+AnyMap::OrderedProxy::OrderedProxy(const AnyMap& data)
+    : m_data(&data)
+{
+    // Units always come first
+    if (m_data->hasKey("__units__") && m_data->at("__units__").as<AnyMap>().size()) {
+        m_units.reset(new std::pair<const string, AnyValue>{"units", m_data->at("__units__")});
+        m_units->second.setFlowStyle();
+        m_ordered.emplace_back(std::pair<int, int>{-2, 0}, m_units.get());
+    }
+
+    int head = 0; // sort key of the first programmatically-added item
+    int tail = 0; // sort key of the last programmatically-added item
+    for (auto& item : *m_data) {
+        const auto& order = item.second.order();
+        if (order.first == -1) { // Item is not from an input file
+            head = std::min(head, order.second);
+            tail = std::max(tail, order.second);
+        }
+        m_ordered.emplace_back(order, &item);
+    }
+    std::sort(m_ordered.begin(), m_ordered.end());
+
+    // Adjust sort keys for items that should moved to the beginning or end of
+    // the list
+    if (m_data->hasKey("__type__")) {
+        bool order_changed = false;
+        const auto& itemType = m_data->at("__type__").asString();
+        std::unique_lock<std::mutex> lock(yaml_field_order_mutex);
+        if (AnyMap::s_headFields.count(itemType)) {
+            for (const auto& key : AnyMap::s_headFields[itemType]) {
+                for (auto& item : m_ordered) {
+                    if (item.first.first >= 0) {
+                        // This and following items come from an input file and
+                        // should not be re-ordered
+                        break;
+                    }
+                    if (item.second->first == key) {
+                        item.first.second = --head;
+                        order_changed = true;
+                    }
+                }
+            }
+        }
+        if (AnyMap::s_tailFields.count(itemType)) {
+            for (const auto& key : AnyMap::s_tailFields[itemType]) {
+                for (auto& item : m_ordered) {
+                    if (item.first.first >= 0) {
+                        // This and following items come from an input file and
+                        // should not be re-ordered
+                        break;
+                    }
+                    if (item.second->first == key) {
+                        item.first.second = ++tail;
+                        order_changed = true;
+                    }
+                }
+            }
+        }
+
+        if (order_changed) {
+            std::sort(m_ordered.begin(), m_ordered.end());
+        }
+    }
+}
+
+AnyMap::OrderedIterator AnyMap::OrderedProxy::begin() const
+{
+    return OrderedIterator(m_ordered.begin(), m_ordered.end());
+}
+
+AnyMap::OrderedIterator AnyMap::OrderedProxy::end() const
+{
+    return OrderedIterator(m_ordered.end(), m_ordered.end());
+}
+
+AnyMap::OrderedIterator::OrderedIterator(
+    const AnyMap::OrderedProxy::OrderVector::const_iterator& start,
+    const AnyMap::OrderedProxy::OrderVector::const_iterator& stop)
+{
+    m_iter = start;
+    m_stop = stop;
 }
 
 bool AnyMap::operator==(const AnyMap& other) const
