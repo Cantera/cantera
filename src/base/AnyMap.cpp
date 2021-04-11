@@ -614,7 +614,7 @@ AnyValue& AnyValue::operator=(AnyValue const& other) {
     if (this == &other) {
         return *this;
     }
-    AnyBase::operator=(*this);
+    AnyBase::operator=(other);
     m_key = other.m_key;
     m_value.reset(new boost::any{*other.m_value});
     m_equals = other.m_equals;
