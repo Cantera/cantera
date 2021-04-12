@@ -159,73 +159,74 @@ def regression_test(target, source, env):
         clargs = []
 
     # Name to use for the output file
-    blessedName = env['test_blessed_file']
-    if blessedName is not None and 'blessed' in blessedName:
-        outputName = blessedName.replace('blessed', 'output')
+    blessed_name = env["test_blessed_file"]
+    if blessed_name is not None and "blessed" in blessed_name:
+        output_name = Path(blessed_name.replace("blessed", "output"))
     else:
-        outputName = 'test_output.txt'
+        output_name = Path("test_output.txt")
 
     # command line options
-    clopts = env['test_command_options'].split()
+    clopts = env["test_command_options"].split()
 
     # Run the test program
-    dir = str(target[0].dir.abspath)
-    with open(pjoin(dir,outputName), 'w') as outfile:
-        code = subprocess.call([program.abspath] + clopts + clargs,
-                               stdout=outfile, stderr=outfile,
-                               cwd=dir, env=env['ENV'])
-
-    if code:
-        print('FAILED (program exit code:{0})'.format(code))
+    dir = Path(target[0].dir.abspath)
+    ret = subprocess.run(
+        [program.abspath] + clopts + clargs,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        cwd=dir, env=env["ENV"], universal_newlines=True,
+    )
+    if ret.returncode:
+        build_logger.error(f"FAILED (program exit code:{ret.returncode})")
+    dir.joinpath(output_name).write_text(ret.stdout)
 
     diff = 0
     # Compare output files
-    comparisons = env['test_comparisons']
-    if blessedName is not None:
-        comparisons.append((blessedName,outputName))
+    comparisons = env["test_comparisons"]
+    if blessed_name is not None:
+        comparisons.append((Path(blessed_name), output_name))
 
-    for blessed,output in comparisons:
-        print("""Comparing '%s' with '%s'""" % (blessed, output))
-        d = compareFiles(env, pjoin(dir, blessed), pjoin(dir, output))
+    for blessed, output in comparisons:
+        output_logger.info(f"Comparing '{blessed}' with '{output}'")
+        d = compare_files(env, dir.joinpath(blessed), dir.joinpath(output))
         if d:
-            print('FAILED')
+            output_logger.error("FAILED")
         diff |= d
 
-    for blessed,output in env['test_profiles']:
-        print("Comparing '{}' with '{}'".format(blessed, output))
-        d = compareProfiles(env, pjoin(dir, blessed), pjoin(dir, output))
+    for blessed, output in env["test_profiles"]:
+        output_logger.info(f"Comparing '{blessed}' with '{output}'")
+        d = compare_profiles(env, dir.joinpath(blessed), dir.joinpath(output))
         if d:
-            print('FAILED')
+            output_logger.error("FAILED")
         diff |= d
 
-    del testResults.tests[env['active_test_name']]
+    del test_results.tests[env["active_test_name"]]
 
-    if diff or code:
-        if os.path.exists(target[0].abspath):
-            os.path.unlink(target[0].abspath)
+    passed_file = Path(target[0].abspath)
+    if diff or ret.returncode:
+        if passed_file.exists():
+            passed_file.unlink()
 
-        testResults.failed[env['active_test_name']] = 1
+        test_results.failed[env["active_test_name"]] = 1
         if env["fast_fail_tests"]:
             sys.exit(1)
     else:
-        print('PASSED')
-        with open(target[0].path, 'w') as passed_file:
-            passed_file.write(time.asctime()+'\n')
-        testResults.passed[env['active_test_name']] = 1
+        output_logger.info("PASSED")
+        passed_file.write_text(time.asctime())
+        test_results.passed[env["active_test_name"]] = 1
 
 
-def compareFiles(env, file1, file2):
+def compare_files(env, file1: Path, file2: Path):
     """
     Compare the contents of two files, using a method chosen based on
     their file extensions.
     """
-    if file1.endswith('csv') and file2.endswith('csv'):
-        return compareCsvFiles(env, file1, file2)
+    if file1.suffix == ".csv" and file2.suffix == ".csv":
+        return compare_csv_files(env, file1, file2)
     else:
-        return compareTextFiles(env, file1, file2)
+        return compare_text_files(env, file1, file2)
 
 
-def compareTextFiles(env, file1, file2):
+def compare_text_files(env, file1: Path, file2: Path):
     """
     Compare the contents of two text files while:
        - ignoring trailing whitespace
@@ -310,7 +311,7 @@ def compareTextFiles(env, file1, file2):
     return 0
 
 
-def compareProfiles(env, ref_file, sample_file):
+def compare_profiles(env, ref_file, sample_file):
     """
     Compare two 2D arrays of spatial or time profiles. Each data set should
     contain the time or space coordinate in the first column and data series
@@ -411,7 +412,7 @@ def getPrecision(x):
     return 10**precision
 
 
-def compareCsvFiles(env, file1, file2):
+def compare_csv_files(env, file1: Path, file2: Path):
     """
     Compare the contents of two .csv file to see if they are
     similar. Similarity is defined according to tolerances stored in
