@@ -48,18 +48,17 @@ class DefineDict:
     pairs. Variables whose value is None or that are not in the dict
     are left undefined.
     """
-    def __init__(self, data):
+
+    def __init__(self, data: dict) -> None:
         self.data = data
         self.undefined = set()
 
-    def __getitem__(self, key):
-        if key not in self.data:
+    def __getitem__(self, key: str) -> str:
+        if key not in self.data or self.data[key] is None:
             self.undefined.add(key)
-            return '/* #undef %s */' % key
-        elif self.data[key] is None:
-            return '/* #undef %s */' % key
+            return f"/* #undef {key!s} */"
         else:
-            return '#define %s %s' % (key, self.data[key])
+            return f"#define {key!s} {self.data[key]!s}"
 
 
 class ConfigBuilder:
@@ -67,26 +66,28 @@ class ConfigBuilder:
     Used along with DefineDict to generate a customized config.h file
     from a config.h.in file using the variables given in 'defines'.
     """
-    def __init__(self, defines):
+
+    def __init__(self, defines: dict) -> None:
         self.defines = DefineDict(defines)
 
-    def __call__(self, source, target, env):
+    def __call__(self, target, source, env):
         for s, t in zip(source, target):
-            config_h_in = open(str(s), "r")
-            config_h = open(str(t), "w")
+            config_h_in = Path(str(s)).read_text()
+            config_h = Path(str(t))
 
-            config_h.write(config_h_in.read() % self.defines)
-            config_h_in.close()
-            config_h.close()
+            config_h.write_text(config_h_in.format_map(self.defines))
             self.print_config(str(t))
 
     def print_config(self, filename):
-        print('Generating %s with the following settings:' % filename)
+        message = [f"Generating {filename!s} with the following settings:"]
+
         for key, val in sorted(self.defines.data.items()):
             if val is not None:
-                print("    %-35s %s" % (key, val))
+                message.append(f"    {key!s:<35} {val}")
         for key in sorted(self.defines.undefined):
-            print("    %-35s %s" % (key, '*undefined*'))
+            message.append(f"    {key!s:<35} *undefined*")
+
+        build_logger.info("\n".join(message))
 
 
 class TestResults:
