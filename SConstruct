@@ -1482,16 +1482,23 @@ addInstallActions = ('install' in COMMAND_LINE_TARGETS or
 
 # Directories where things will be staged for package creation. These
 # variables should always be used by the Install(...) targets
-if env['stage_dir']:
-    instRoot = pjoin(os.getcwd(), env['stage_dir'],
-                     stripDrive(env['prefix']).strip('/\\'))
-    if env['python_prefix']:
-        env['python_prefix'] = pjoin(os.getcwd(), env['stage_dir'],
-                       stripDrive(env['python_prefix']).strip('/\\'))
+if env["stage_dir"]:
+    stage_prefix = Path(env["prefix"])
+    # Strip the root off the prefix if it's absolute
+    if stage_prefix.is_absolute():
+        stage_prefix = Path(*stage_prefix.parts[1:])
+
+    instRoot = Path.cwd().joinpath(env["stage_dir"], stage_prefix)
+
+    if env["python_prefix"]:
+        stage_py_prefix = Path(env["python_prefix"])
+        if stage_py_prefix.is_absolute():
+            stage_py_prefix = Path(*stage_py_prefix.parts[1:])
+        env["python_prefix"] = Path.cwd().joinpath(env["stage_dir"], stage_py_prefix)
     else:
-        env['python_prefix'] = pjoin(os.getcwd(), env['stage_dir'])
+        env["python_prefix"] = Path.cwd().joinpath(env["stage_dir"])
 else:
-    instRoot = env['prefix']
+    instRoot = env["prefix"]
 
 # Prevent setting Cantera installation path to source directory
 if os.path.abspath(instRoot) == Dir('.').abspath:
