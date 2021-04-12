@@ -327,7 +327,7 @@ cdef class Reaction:
         definition.
         """
         def __get__(self):
-            return anymapToPython(self.reaction.parameters(True))
+            return anymap_to_dict(self.reaction.parameters(True))
 
     def __repr__(self):
         return '<{}: {}>'.format(self.__class__.__name__, self.equation)
