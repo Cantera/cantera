@@ -58,7 +58,7 @@ class Test(object):
         self.passedFile = '.passed-%s' % testName
         PASSED_FILES[self.testName] = pjoin(self.subdir, self.passedFile)
 
-        testResults.tests[self.testName] = self
+        test_results.tests[self.testName] = self
 
         if source_files:
             self.program = localenv.Program(
