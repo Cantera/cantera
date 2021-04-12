@@ -37,6 +37,16 @@ Basic usage:
     'scons doxygen' - Build the Doxygen documentation
 """
 
+# This f-string is deliberately here to trigger a SyntaxError when
+# SConstruct is parsed by Python 2. This seems to be the most robust
+# and simplest option that will reliably trigger an error in Python 2
+# and provide actionable feedback for users.
+f"""
+Cantera must be built using Python 3.6 or higher. You can invoke SCons by executing
+    python3 `which scons`
+followed by any desired options.
+"""
+
 from buildutils import *
 
 if not COMMAND_LINE_TARGETS:
