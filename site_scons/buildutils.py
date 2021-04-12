@@ -537,25 +537,15 @@ def mglob(env, subdir, *args):
     return matches
 
 
-def which(program):
-    """ Replicates the functionality of the 'which' shell command """
-    def is_exe(fpath):
-        for ext in ('', '.exe', '.bat'):
-            if os.path.exists(fpath + ext):
-                return os.access(fpath + ext, os.X_OK)
-        return False
-
-    fpath, fname = os.path.split(program)
-    if fpath:
-        if is_exe(program):
-            return program
-    else:
+def which(program: str) -> bool:
+    """Replicates the functionality of the 'which' shell command."""
+    for ext in ("", ".exe", ".bat"):
+        fpath = Path(program + ext)
         for path in os.environ["PATH"].split(os.pathsep):
-            exe_file = os.path.join(path, program)
-            if is_exe(exe_file):
-                return exe_file
-
-    return None
+            exe_file = Path(path).joinpath(fpath)
+            if exe_file.exists() and os.access(exe_file, os.X_OK):
+                return True
+    return False
 
 optionWrapper = textwrap.TextWrapper(initial_indent='    ',
                                    subsequent_indent='    ',

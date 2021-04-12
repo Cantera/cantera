@@ -1162,7 +1162,7 @@ program main
    write(*,'(a)') 'Hello, world!'
 end program main
     '''
-    if which(compiler) is not None:
+    if which(compiler):
         env['F77'] = env['F90'] = env['F95'] = env['F03'] = env['FORTRAN'] = compiler
         success, output = conf.TryRun(hello_world, '.f90')
         if success and 'Hello, world!' in output:
