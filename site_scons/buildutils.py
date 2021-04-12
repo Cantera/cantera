@@ -1,4 +1,3 @@
-from __future__ import print_function
 import os
 from os.path import join as pjoin
 from os.path import normpath
@@ -42,7 +41,7 @@ try:
 except ImportError:
     np = None
 
-class DefineDict(object):
+class DefineDict:
     """
     A dictionary-like object which generates appropriate preprocessor
     define statements from its dict of variable / value
@@ -63,7 +62,7 @@ class DefineDict(object):
             return '#define %s %s' % (key, self.data[key])
 
 
-class ConfigBuilder(object):
+class ConfigBuilder:
     """
     Used along with DefineDict to generate a customized config.h file
     from a config.h.in file using the variables given in 'defines'.
@@ -90,7 +89,7 @@ class ConfigBuilder(object):
             print("    %-35s %s" % (key, '*undefined*'))
 
 
-class TestResults(object):
+class TestResults:
     """
     A class that stores information about all the regression tests
     that are defined and which ones have passed / failed in order to
