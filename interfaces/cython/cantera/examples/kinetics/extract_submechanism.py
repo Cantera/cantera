@@ -7,7 +7,7 @@ To test the submechanism, a premixed CO/H2 flame is simulated using the original
 mechanism and the submechanism, which demonstrates that the submechanism
 contains all of the important species and reactions.
 
-Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Requires: cantera >= 2.6.0, matplotlib >= 2.0
 """
 
 from timeit import default_timer
@@ -57,6 +57,8 @@ gas1 = ct.Solution(input_file)
 gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                    species=species, reactions=reactions)
 
+# Save the resulting mechanism for later use
+gas2.write_yaml("gri30-CO-H2-submech.yaml")
 
 def solve_flame(gas):
     gas.TPX = 373, 0.05*ct.one_atm, 'H2:0.4, CO:0.6, O2:1, N2:3.76'
