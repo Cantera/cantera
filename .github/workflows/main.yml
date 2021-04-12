@@ -218,7 +218,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        sundials-ver: [ 2, 3, 4, 5.3 ]
+        sundials-ver: [ 2, 3, 4, 5.7 ]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
