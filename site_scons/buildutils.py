@@ -350,65 +350,84 @@ def compare_profiles(env, ref_file, sample_file):
     After interpolation, each data point must satisfy a combined relative and absolute
     error criterion specified by `rtol` and `atol`.
     """
-    atol = env['test_csv_threshold']
-    rtol = env['test_csv_tolerance']
-    xtol = env['test_csv_tolerance']
-
     if not np:
-        print('WARNING: skipping profile comparison because numpy is not available')
-        return 0
+        build_logger.warning("Skipping profile comparison because numpy is not available")
+        return TestResult.PASS
 
-    reference = np.genfromtxt(ref_file, delimiter=',').T
-    sample = np.genfromtxt(sample_file, delimiter=',').T
-    assert reference.shape[0] == sample.shape[0]
+    atol = env["test_csv_threshold"]
+    rtol = env["test_csv_tolerance"]
+    xtol = env["test_csv_tolerance"]
 
-    # trim header rows if present
-    if np.isnan(sample[0,0]) and np.isnan(reference[0,0]):
+    reference = np.genfromtxt(ref_file, delimiter=",").T
+    sample = np.genfromtxt(sample_file, delimiter=",").T
+    if reference.shape[0] != sample.shape[0]:
+        build_logger.error(
+            "The output array does not have the same number of variabls as the "
+            "reference array."
+        )
+        return TestResult.FAIL
+
+    # trim header columns if present
+    if np.isnan(sample[0, 0]) and np.isnan(reference[0, 0]):
         reference = reference[:, 1:]
         sample = sample[:, 1:]
-    assert not np.isnan(reference).any()
-    assert not np.isnan(sample).any()
+    if np.isnan(reference).any() or np.isnan(sample).any():
+        build_logger.error(
+            "The output array and reference array have different headers "
+            "or contain non-numeric data."
+        )
+        return TestResult.FAIL
 
-    nVars = reference.shape[0]
-    nTimes = reference.shape[1]
+    n_vars = reference.shape[0]
+    n_times = reference.shape[1]
 
     bad = []
-    template = '{0:9.4e}  {1: 3d}   {2:14.7e}  {3:14.7e}  {4:9.3e}  {5:9.3e}  {6:9.3e}'
-    for i in range(1, nVars):
-        scale = max(max(abs(reference[i])), reference[i].ptp(),
-                    max(abs(sample[i])), sample[i].ptp())
-        slope = np.zeros(nTimes)
-        slope[1:] = np.diff(reference[i]) / np.diff(reference[0]) * reference[0].ptp()
+    template = "{0:10.4e}  {1:5d}  {2:14.7e}  {3:14.7e}  {4:9.3e}  {5:9.3e}  {6:9.3e}"
+    header = ["Failed series comparisons:"]
+    header.append("{:10s}  {:5s}  {:14s}  {:14s}  {:9s}  {:9s}  {:9s}".format(
+        "coordinate", "comp.", "reference val.", "test value", "abs. err", "rel. err",
+        "pos. err"
+    ))
+    header.append(f"{10*'-'}  -----  {14*'-'}  {14*'-'}  {9*'-'}  {9*'-'}  {9*'-'}")
+    ref_ptp = reference.ptp(axis=1)
+    ref_max = np.abs(reference).max(axis=1)
+    sample_ptp = sample.ptp(axis=1)
+    sample_max = np.abs(sample).max(axis=1)
+    scale = np.maximum(
+        np.maximum(ref_ptp[1:], ref_max[1:]),
+        np.maximum(sample_ptp[1:], sample_max[1:])
+    ).reshape(n_vars - 1, -1)
+    ref_diff = np.diff(reference)
+    slope = ref_diff[1:, :] / ref_diff[0, :] * ref_ptp[0]
+    slope = np.hstack((np.zeros((n_vars - 1, 1)), slope))
+    comp = np.zeros((n_vars - 1, n_times))
+    for i, row in enumerate(sample[1:]):
+        comp[i, :] = np.interp(reference[0, :], sample[0, :], row)
 
-        comp = np.interp(reference[0], sample[0], sample[i])
-        for j in range(nTimes):
-            a = reference[i,j]
-            b = comp[j]
-            abserr = abs(a-b)
-            relerr = abs(a-b) / (scale + atol)
+    abserr = np.abs(reference[1:] - comp)
+    relerr = abserr / (scale + atol)
+    # error that can be accounted for by shifting the profile along
+    # the time / spatial coordinate
+    xerr = abserr / (np.abs(slope) + atol)
+    if np.any(abserr > atol) and np.any(relerr > rtol) and np.any(xerr > xtol):
+        it = np.nditer((abserr, relerr, xerr), flags=["multi_index"])
+        for a, r, x in it:
+            i, j = it.multi_index
+            bad.append((reference[0, j], i, reference[i,j], comp[i,j], a, r, x))
 
-            # error that can be accounted for by shifting the profile along
-            # the time / spatial coordinate
-            xerr = abserr / (abs(slope[j]) + atol)
-
-            if abserr > atol and relerr > rtol and xerr > xtol:
-                bad.append((reference[0][j], i, a, b, abserr, relerr, xerr))
-
+    # Fix line lengths here
     footer = []
     maxrows = 10
     if len(bad) > maxrows:
         bad.sort(key=lambda row: -row[5])
-        footer += ['Plus {0} more points exceeding error thresholds.'.format(len(bad)-maxrows)]
+        footer += [f"Plus {len(bad) - maxrows} more points exceeding error thresholds."]
         bad = bad[:maxrows]
 
     if bad:
-        header = ['Failed series comparisons:',
-                  'coordinate  comp.  reference val    test value    abs. err   rel. err    pos. err',
-                  '----------  ---   --------------  --------------  ---------  ---------  ---------']
-        print('\n'.join(header + [template.format(*row) for row in bad] + footer))
-        return 1
+        output_logger.error("\n".join(header + [template.format(*row) for row in bad] + footer))
+        return TestResult.FAIL
     else:
-        return 0
+        return TestResult.PASS
 
 
 def compare_csv_files(env, file1: Path, file2: Path):
@@ -428,53 +447,58 @@ def compare_csv_files(env, file1: Path, file2: Path):
     files are dissimilar. Lines containing non-numeric data are
     automatically ignored.
     """
-    try:
-        import numpy as np
-    except ImportError:
-        print('WARNING: skipping .csv diff because numpy is not installed')
-        return 0
+    if not np:
+        build_logger.warning("Skipping profile comparison because numpy is not available")
+        return TestResult.PASS
 
     # decide how many header lines to skip
-    f = open(file1)
-    headerRows = 0
-    goodChars = set('0123456789.+-eE, ')
+    f = Path(file1).read_text().split("\n")
+    header_rows = 0
+    good_chars = set("0123456789.+-eE, ")
     for line in f:
-        if not set(line[:-1]).issubset(goodChars):
-            headerRows += 1
+        if not set(line).issubset(good_chars):
+            header_rows += 1
         else:
             break
 
     try:
-        data1 = np.genfromtxt(file1, skip_header=headerRows, delimiter=',')
-        data2 = np.genfromtxt(file2, skip_header=headerRows, delimiter=',')
+        data1 = np.genfromtxt(file1, skip_header=header_rows, delimiter=",")
+        data2 = np.genfromtxt(file2, skip_header=header_rows, delimiter=",")
     except (IOError, StopIteration) as e:
-        print(e)
-        return 1
+        build_logger.error(f"Could not read data files: {file1}; {file2}", exc_info=e)
+        return TestResult.FAIL
 
+    threshold = env["test_csv_threshold"]
     try:
-        relerror = (np.abs(data2-data1) /
-                    (np.maximum(np.abs(data2), np.abs(data1)) +
-                     env['test_csv_threshold']))
+        denom = np.maximum(np.abs(data2), np.abs(data1)) + threshold
+        relerror = np.abs(data2 - data1) / denom
         maxerror = np.nanmax(relerror.flat)
-    except ValueError as e:
-        print(e)
-        return 1
+    except (ValueError, TypeError) as e:
+        build_logger.error("Could not compute error.", exc_info=e)
+        return TestResult.FAIL
 
-    tol = env['test_csv_tolerance']
-    if maxerror > tol: # Threshold based on printing 6 digits in the CSV file
-        print("Files differ. %i / %i elements above specified tolerance (%f)" %
-              (np.sum(relerror > tol), relerror.size, tol))
-        print('  row   col   reference       test            rel. error')
-        print('  ----  ----  --------------  --------------  ----------')
-        for i,j in itertools.product(*map(range, relerror.shape)):
-            if relerror[i,j] > tol:
-                row = i + headerRows + 1
-                col = j + 1
-                print('  % 4i  % 4i  % 14.7e  % 14.7e  % 10.4e' %
-                      (row, col, data1[i,j], data2[i,j], relerror[i,j]))
-        return 1
-    else:
-        return 0
+    tol = env["test_csv_tolerance"]
+    if maxerror < tol: # Threshold based on printing 6 digits in the CSV file
+        return TestResult.PASS
+
+    n_fail = np.sum(relerror > tol)
+    n_tot = relerror.size
+    message = [
+        "Files differ.",
+        f"{n_fail:d} / {n_tot:d} elements above specified tolerance ({tol:f})",
+        "  row   col   reference       test            rel. error",
+        "  ----  ----  --------------  --------------  ----------",
+    ]
+    it = np.nditer([relerror, data1, data2], flags=["multi_index"])
+    for rele, ref, test in it:
+        if rele > tol:
+            r = it.multi_index[0] + header_rows + 1
+            c = it.multi_index[1] + 1
+            message.append(
+                f"  {r:4d}  {c:4d}  {ref:14.7e}  {test:14.7e}  {rele:10.4e}"
+            )
+    build_logger.error("\n".join(message))
+    return TestResult.FAIL
 
 
 def regression_test_message(target, source, env):
