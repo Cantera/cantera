@@ -88,9 +88,7 @@ cdef class SpeciesThermo:
 
     property input_data:
         def __get__(self):
-            cdef CxxAnyMap params
-            self.spthermo.getParameters(params)
-            return mergeAnyMap(params, self.spthermo.input())
+            return anymapToPython(self.spthermo.parameters(True))
 
     def cp(self, T):
         """

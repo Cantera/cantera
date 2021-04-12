@@ -14,6 +14,16 @@
 namespace Cantera
 {
 
+AnyMap TransportData::parameters(bool withInput) const
+{
+    AnyMap out;
+    getParameters(out);
+    if (withInput) {
+        out.update(input);
+    }
+    return out;
+}
+
 void TransportData::getParameters(AnyMap &transportNode) const
 {
 }

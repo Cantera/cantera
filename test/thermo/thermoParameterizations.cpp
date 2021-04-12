@@ -245,8 +245,7 @@ TEST(SpeciesThermo, Mu0PolyFromYaml) {
 TEST(SpeciesThermo, NasaPoly2ToYaml) {
     shared_ptr<Solution> soln = newSolution("../data/simplephases.cti", "nasa1");
     auto original = soln->thermo()->species("H2O")->thermo;
-    AnyMap h2o_data1;
-    original->getParameters(h2o_data1);
+    AnyMap h2o_data1 = original->parameters();
     AnyMap h2o_data2 = AnyMap::fromYamlString(h2o_data1.toYamlString());
     auto duplicate = newSpeciesThermo(h2o_data2);
     double cp1, cp2, h1, h2, s1, s2;
@@ -263,8 +262,7 @@ TEST(SpeciesThermo, NasaPoly2ToYaml) {
 TEST(SpeciesThermo, ShomatePolyToYaml) {
     shared_ptr<Solution> soln = newSolution("../data/simplephases.cti", "shomate1");
     auto original = soln->thermo()->species("CO2")->thermo;
-    AnyMap co2_data1;
-    original->getParameters(co2_data1);
+    AnyMap co2_data1 = original->parameters();
     AnyMap co2_data2 = AnyMap::fromYamlString(co2_data1.toYamlString());
     auto duplicate = newSpeciesThermo(co2_data2);
     double cp1, cp2, h1, h2, s1, s2;
@@ -281,8 +279,7 @@ TEST(SpeciesThermo, ShomatePolyToYaml) {
 TEST(SpeciesThermo, ConstCpToYaml) {
     shared_ptr<Solution> soln = newSolution("../data/simplephases.cti", "simple1");
     auto original = soln->thermo()->species("H2O")->thermo;
-    AnyMap h2o_data1;
-    original->getParameters(h2o_data1);
+    AnyMap h2o_data1 = original->parameters();
     AnyMap h2o_data2 = AnyMap::fromYamlString(h2o_data1.toYamlString());
     auto duplicate = newSpeciesThermo(h2o_data2);
     double cp1, cp2, h1, h2, s1, s2;
@@ -300,8 +297,7 @@ TEST(SpeciesThermo, PiecewiseGibbsToYaml) {
     shared_ptr<Solution> soln = newSolution("../data/thermo-models.yaml",
                                             "debye-huckel-beta_ij");
     auto original = soln->thermo()->species("OH-")->thermo;
-    AnyMap oh_data;
-    original->getParameters(oh_data);
+    AnyMap oh_data = original->parameters();
     auto duplicate = newSpeciesThermo(AnyMap::fromYamlString(oh_data.toYamlString()));
     double cp1, cp2, h1, h2, s1, s2;
     for (double T : {274, 300, 330, 340}) {
@@ -317,8 +313,7 @@ TEST(SpeciesThermo, PiecewiseGibbsToYaml) {
 TEST(SpeciesThermo, Nasa9PolyToYaml) {
     shared_ptr<Solution> soln = newSolution("airNASA9.cti");
     auto original = soln->thermo()->species("N2+")->thermo;
-    AnyMap n2p_data1;
-    original->getParameters(n2p_data1);
+    AnyMap n2p_data1 = original->parameters();
     AnyMap n2p_data2 = AnyMap::fromYamlString(n2p_data1.toYamlString());
     auto duplicate = newSpeciesThermo(n2p_data2);
     double cp1, cp2, h1, h2, s1, s2;

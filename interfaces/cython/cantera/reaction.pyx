@@ -327,9 +327,7 @@ cdef class Reaction:
         definition.
         """
         def __get__(self):
-            cdef CxxAnyMap params
-            self.reaction.getParameters(params)
-            return mergeAnyMap(params, self.reaction.input)
+            return anymapToPython(self.reaction.parameters(True))
 
     def __repr__(self):
         return '<{}: {}>'.format(self.__class__.__name__, self.equation)

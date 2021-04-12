@@ -230,14 +230,7 @@ cdef class _SolutionBase:
         definition.
         """
         def __get__(self):
-            cdef CxxAnyMap params
-            if self.thermo:
-                self.thermo.getParameters(params)
-            if self.kinetics:
-                self.kinetics.getParameters(params)
-            if self.transport:
-                self.transport.getParameters(params)
-            return mergeAnyMap(params, self.thermo.input())
+            return anymapToPython(self.base.parameters(True))
 
     def write_yaml(self, filename, phases=None, units=None, precision=None,
                    skip_user_defined=None):

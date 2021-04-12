@@ -602,11 +602,11 @@ public:
      */
     virtual void setParameters(const int type, const int k, const doublereal* const p);
 
-    //! Store the parameters for a phase definition which are needed to
+    //! Return the parameters for a phase definition which are needed to
     //! reconstruct an identical object using the newTransport function. This
     //! excludes the individual species transport properties, which are handled
     //! separately.
-    virtual void getParameters(AnyMap& phaseNode);
+    AnyMap parameters() const;
 
     //! Sets the velocity basis
     /*!

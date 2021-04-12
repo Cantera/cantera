@@ -119,19 +119,3 @@ cdef anymapToPython(CxxAnyMap& m):
     m.applyUnits()
     return {pystr(item.first): anyvalueToPython(item.first, item.second)
             for item in m.ordered()}
-
-
-cdef mergeAnyMap(CxxAnyMap& primary, CxxAnyMap& extra):
-    """
-    Combine two AnyMaps into a single Python dict. Items from the second map
-    are included only if there is no corresponding key in the first map.
-
-    Used to combine generated data representing the current state of the object
-    (primary) with user-supplied fields (extra) not directly used by Cantera.
-    """
-    out = {pystr(item.first): anyvalueToPython(item.first, item.second)
-           for item in primary.ordered()}
-    for item in extra:
-        if not primary.hasKey(item.first):
-            out[pystr(item.first)] = anyvalueToPython(item.first, item.second)
-    return out

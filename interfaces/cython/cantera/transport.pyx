@@ -58,9 +58,7 @@ cdef class GasTransportData:
 
     property input_data:
         def __get__(self):
-            cdef CxxAnyMap params
-            self.data.getParameters(params)
-            return mergeAnyMap(params, self.data.input)
+            return anymapToPython(self.data.parameters(True))
 
     property geometry:
         """

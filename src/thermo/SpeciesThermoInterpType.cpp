@@ -52,9 +52,19 @@ void SpeciesThermoInterpType::reportParameters(size_t& index, int& type,
     throw NotImplementedError("SpeciesThermoInterpType::reportParameters");
 }
 
+AnyMap SpeciesThermoInterpType::parameters(bool withInput) const
+{
+    AnyMap out;
+    getParameters(out);
+    if (withInput) {
+        out.update(m_input);
+    }
+    return out;
+}
+
 void SpeciesThermoInterpType::getParameters(AnyMap& thermo) const
 {
-    if (m_Pref != OneAtm) {
+    if (m_Pref != OneAtm && reportType() != 0) {
         thermo["reference-pressure"].setQuantity(m_Pref, "Pa");
     }
 }

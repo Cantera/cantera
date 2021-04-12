@@ -227,10 +227,14 @@ public:
                                   doublereal& refPressure,
                                   doublereal* const coeffs) const;
 
-    //! Store the parameters of the species thermo object such that an identical
-    //! species thermo object could be reconstructed using the
-    //! newSpeciesThermo() function.
-    virtual void getParameters(AnyMap& thermo) const;
+    //! Return the parameters of the species thermo object such that an
+    //! identical species thermo object could be reconstructed using the
+    //! newSpeciesThermo() function. Behavior specific to derived classes is
+    //! handled by the getParameters() method.
+    //! @param withInput  If true, include additional input data fields associated
+    //!   with the object, such as user-defined fields from a YAML input file, as
+    //!   returned by the input() method.
+    AnyMap parameters(bool withInput=true) const;
 
     //! Report the 298 K Heat of Formation of the standard state of one species
     //! (J kmol-1)
@@ -273,6 +277,11 @@ public:
     AnyMap& input();
 
 protected:
+    //! Store the parameters of the species thermo object such that an identical
+    //! species thermo object could be reconstructed using the
+    //! newSpeciesThermo() function.
+    virtual void getParameters(AnyMap& thermo) const;
+
     //!  lowest valid temperature
     doublereal m_lowT;
     //! Highest valid temperature
