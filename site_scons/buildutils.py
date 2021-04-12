@@ -11,6 +11,7 @@ import time
 import types
 import shutil
 import itertools
+import enum
 
 import SCons.Errors
 import SCons
@@ -40,6 +41,11 @@ try:
     import numpy as np
 except ImportError:
     np = None
+
+
+class TestResult(enum.IntEnum):
+    PASS = 0
+    FAIL = 1
 
 class DefineDict:
     """
@@ -234,34 +240,30 @@ def compare_text_files(env, file1: Path, file2: Path):
          variable env['test_ignoreLines'].
        - comparing floating point numbers only up to the printed precision
     """
-    text1 = [line.rstrip() for line in open(file1).readlines()
-             if not line.startswith(tuple(env['test_ignoreLines']))]
-    text2 = [line.rstrip() for line in open(file2).readlines()
-             if not line.startswith(tuple(env['test_ignoreLines']))]
+    text1 = [line.rstrip() for line in file1.read_text().split("\n")
+             if not line.startswith(tuple(env["test_ignoreLines"]))]
+    text2 = [line.rstrip() for line in file2.read_text().split("\n")
+             if not line.startswith(tuple(env["test_ignoreLines"]))]
 
     # Try to compare the files without testing the floating point numbers
     diff = list(difflib.unified_diff(text1, text2))
     if not diff:
-        return 0
+        return TestResult.PASS
 
-    atol = env['test_csv_threshold']
-    rtol = env['test_csv_tolerance']
+    atol = env["test_csv_threshold"]
+    rtol = env["test_csv_tolerance"]
 
     # Replace nearly-equal floating point numbers with exactly equivalent
     # representations to avoid confusing difflib
-    reFloat = re.compile(r'(\s*)([+-]{0,1}\d+\.{0,1}\d*([eE][+-]{0,1}\d*){0,1})')
-    for i in range(min(len(text1), len(text2))):
-        line1 = text1[i]
-        line2 = text2[i]
+    float_regex = re.compile(r"(\s*)([+-]{0,1}\d+\.{0,1}\d*([eE][+-]{0,1}\d*){0,1})")
+    for i, (line1, line2) in enumerate(zip(text1, text2)):
         if line1 == line2:
             continue
 
         # group(1) is the left space padding
         # group(2) is the number
-        floats1 = [(m.group(1),m.group(2))
-                   for m in list(reFloat.finditer(line1))]
-        floats2 = [(m.group(1),m.group(2))
-                   for m in list(reFloat.finditer(line2))]
+        floats1 = [(m.group(1), m.group(2)) for m in float_regex.finditer(line1)]
+        floats2 = [(m.group(1), m.group(2)) for m in float_regex.finditer(line2)]
 
         # If the lines don't contain the same number of numbers,
         # we're not going to pass the diff comparison no matter what
@@ -270,45 +272,68 @@ def compare_text_files(env, file1: Path, file2: Path):
 
         # if the lines don't have the same non-numeric text,
         # we're not going to pass the diff comparison
-        if reFloat.sub('', line1).strip() != reFloat.sub('', line2).strip():
+        if float_regex.sub("", line1).strip() != float_regex.sub("", line2).strip():
             continue
 
-        allMatch = True
-        for j in range(len(floats1)):
-            if floats1[j] == floats2[j]:
+        all_match = True
+        for float_1, float_2 in zip(floats1, floats2):
+            if float_1 == float_2:
                 # String representations match, so replacement is unnecessary
                 continue
 
+
             try:
-                delta = max(getPrecision(floats1[j][1]), getPrecision(floats2[j][1]))
-                num1 = float(floats1[j][1])
-                num2 = float(floats2[j][1])
-                abserr = abs(num1-num2)
-                relerr = abserr / (0.5 * abs(num1 + num2) + atol)
-                if abserr > (1.1*delta + atol) and relerr > rtol:
-                    print('Values differ: {0: 14g} {1: 14g}; rel. err = {2:.3e}; abs. err = {3:.3e}'.format(num1, num2, relerr, abserr))
-                    allMatch = False
-                    break
-            except Exception as e:
+                num1 = float(float_1[1])
+                num2 = float(float_2[1])
+            except ValueError:
                 # Something went wrong -- one of the strings isn't actually a number,
                 # so just ignore this line and let the test fail
                 pass
+            else:
+                precision = max(get_precision(float_1[1]), get_precision(float_2[1]))
+                atol = atol + pow(10, precision) * 1.1
+                abserr = abs(num1 - num2)
+                relerr = abserr / (0.5 * abs(num1 + num2) + atol)
+                if abserr > atol and relerr > rtol:
+                    logger.error(
+                        f"Values differ: {num1:14g} {num2:14g}; "
+                        f"rel. err = {relerr:.3e}; abs. err = {abserr:.3e}"
+                    )
+                    all_match = False
+                    break
 
         # All the values are sufficiently close, so replace the string
         # so that the diff of this line will succeed
-        if allMatch:
+        if all_match:
             text2[i] = line1
 
     # Try the comparison again
     diff = list(difflib.unified_diff(text1, text2))
     if diff:
-        print('Found differences between %s and %s:' % (file1, file2))
-        print('>>>')
-        print('\n'.join(diff))
-        print('<<<')
-        return 1
+        message = [f"Found differences between {file1!s} and {file2!s}:", ">>>"]
+        message.extend(diff)
+        message.append("<<<")
+        output_logger.error("\n".join(message))
+        return TestResult.FAIL
 
-    return 0
+    return TestResult.PASS
+
+
+def get_precision(number: str) -> int:
+    """Return the integer representing the power of 10 of the least significant digit in the number represented as a string."""
+    number = number.lower()
+    if "e" in number:
+        number, exponent = number.split("e")
+        exponent = int(exponent)
+    else:
+        exponent = 0
+
+    if "." in number:
+        digits = -len(number.split(".")[1])
+    else:
+        digits = 0
+
+    return exponent + digits
 
 
 def compare_profiles(env, ref_file, sample_file):
@@ -384,32 +409,6 @@ def compare_profiles(env, ref_file, sample_file):
         return 1
     else:
         return 0
-
-
-def getPrecision(x):
-    """
-    Return the number corresponding to the least significant digit of
-    the number represented by the string 'x'.
-    """
-    x = x.lower()
-    # Patterns to consider:
-    # 123
-    # 123.45
-    # 123.45e6
-    # 123e4
-    if 'e' in x:
-        x, exponent = x.split('e')
-        exponent = int(exponent)
-    else:
-        exponent = 0
-
-    decimalPt = x.find('.')
-    if decimalPt == -1:
-        decimalPt = len(x) - 1
-
-    precision = decimalPt + exponent - len(x) + 1
-
-    return 10**precision
 
 
 def compare_csv_files(env, file1: Path, file2: Path):
