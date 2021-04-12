@@ -1929,7 +1929,7 @@ if 'msi' in COMMAND_LINE_TARGETS:
 ### Tests ###
 if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
     env['testNames'] = []
-    env['test_results'] = env.Command('test_results', [], testResults.printReport)
+    env['test_results'] = env.Command('test_results', [], test_results.print_report)
 
     if env['python_package'] == 'none':
         # copy scripts from the full Cython module

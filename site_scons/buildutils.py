@@ -96,38 +96,41 @@ class TestResults:
     that are defined and which ones have passed / failed in order to
     print a summary at the end of the build process.
     """
+
     def __init__(self):
         self.tests = {}
         self.passed = {}
         self.failed = {}
 
-    def printReport(self, target, source, env):
+    def print_report(self, target, source, env):
+        values = {
+            "passed": sum(self.passed.values()),
+            "failed": sum(self.failed.values()),
+            "skipped": len(self.tests),
+        }
+        message = textwrap.dedent("""\
+            *****************************
+            ***    Testing Summary    ***
+            *****************************
+
+            Tests passed: {passed!s}
+            Up-to-date tests skipped: {skipped!s}
+            Tests failed: {failed!s}
+            """
+        ).format_map(values)
         if self.failed:
-            failures = ('Failed tests:' +
-                        ''.join('\n    - ' + n for n in self.failed) +
-                        '\n')
+            message = (message + "Failed tests:" +
+                       "".join("\n    - " + n for n in self.failed) +
+                       "\n")
+        message = message + "*****************************"
+        if self.failed:
+            output_logger.error("One or more tests failed.\n" + message)
+            sys.exit(1)
         else:
-            failures = ''
-        print("""
-*****************************
-***    Testing Summary    ***
-*****************************
-
-Tests passed: %(passed)s
-Up-to-date tests skipped: %(skipped)s
-Tests failed: %(failed)s
-%(failures)s
-*****************************""" % dict(
-            passed=sum(self.passed.values()),
-            failed=sum(self.failed.values()),
-            skipped=len(self.tests),
-            failures=failures))
-
-        if self.failed:
-            raise SCons.Errors.BuildError(self, 'One or more tests failed.')
+            output_logger.info(message)
 
 
-testResults = TestResults()
+test_results = TestResults()
 
 
 def regression_test(target, source, env):
