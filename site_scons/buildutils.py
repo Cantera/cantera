@@ -537,39 +537,6 @@ def mglob(env, subdir, *args):
     return matches
 
 
-def psplit(s):
-    """
-    Split a path given as a string into a list.
-    This is the inverse of os.path.join.
-    """
-    s = s.strip('/\\')
-    head, tail = os.path.split(s)
-    path = [tail]
-    while head:
-        head, tail = os.path.split(head)
-        path.append(tail)
-
-    path.reverse()
-    return path
-
-
-def subdirs(path):
-    """ Get the subdirectories of a specified directory """
-    for subdir in os.listdir(path):
-        dirpath = pjoin(path, subdir)
-        if os.path.isdir(dirpath):
-            yield subdir
-
-def stripDrive(s):
-    """
-    Remove a Windows drive letter specification from a path.
-    """
-    if len(s) > 1 and s[1] == ':':
-        return s[2:]
-    else:
-        return s
-
-
 def which(program):
     """ Replicates the functionality of the 'which' shell command """
     def is_exe(fpath):
