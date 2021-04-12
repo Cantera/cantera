@@ -102,6 +102,28 @@ void Reaction::validate()
     }
 }
 
+AnyMap Reaction::parameters(bool withInput) const
+{
+    AnyMap out;
+    getParameters(out);
+    if (withInput) {
+        out.update(input);
+    }
+
+    static bool reg = AnyMap::addOrderingRules("Reaction",
+        {{"head", "type"},
+         {"head", "equation"},
+         {"tail", "duplicate"},
+         {"tail", "orders"},
+         {"tail", "negative-orders"},
+         {"tail", "nonreactant-orders"}
+        });
+    if (reg) {
+        out["__type__"] = "Reaction";
+    }
+    return out;
+}
+
 void Reaction::getParameters(AnyMap& reactionNode) const
 {
     reactionNode["equation"] = equation();
@@ -117,18 +139,6 @@ void Reaction::getParameters(AnyMap& reactionNode) const
     }
     if (allow_nonreactant_orders) {
         reactionNode["nonreactant-orders"] = true;
-    }
-
-    static bool reg = AnyMap::addOrderingRules("Reaction",
-        {{"head", "type"},
-         {"head", "equation"},
-         {"tail", "duplicate"},
-         {"tail", "orders"},
-         {"tail", "negative-orders"},
-         {"tail", "nonreactant-orders"}
-        });
-    if (reg) {
-        reactionNode["__type__"] = "Reaction";
     }
 }
 

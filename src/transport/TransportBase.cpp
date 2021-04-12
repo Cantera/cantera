@@ -53,12 +53,14 @@ void Transport::setParameters(const int type, const int k,
     throw NotImplementedError("Transport::setParameters");
 }
 
-void Transport::getParameters(AnyMap& phaseNode)
+AnyMap Transport::parameters() const
 {
+    AnyMap out;
     string name = TransportFactory::factory()->canonicalize(transportType());
     if (name != "") {
-        phaseNode["transport"] = name;
+        out["transport"] = name;
     }
+    return out;
 }
 
 void Transport::setThermo(ThermoPhase& thermo)

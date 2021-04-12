@@ -1709,10 +1709,12 @@ public:
     virtual void setParameters(const AnyMap& phaseNode,
                                const AnyMap& rootNode=AnyMap());
 
-    //! Store the parameters of a ThermoPhase object such that an identical
-    //! one could be reconstructed using the newPhase(AnyMap&) function. This
-    //! does not include user-defined fields available in input().
-    virtual void getParameters(AnyMap& phaseNode) const;
+    //! Returns the parameters of a ThermoPhase object such that an identical
+    //! one could be reconstructed using the newPhase(AnyMap&) function.
+    //! @param withInput  If true, include additional input data fields associated
+    //!   with the phase description, such as user-defined fields from a YAML input
+    //!   file, as returned by the input() method.
+    AnyMap parameters(bool withInput=true) const;
 
     //! Get phase-specific parameters of a Species object such that an
     //! identical one could be reconstructed and added to this phase.
@@ -1872,6 +1874,11 @@ public:
     //@}
 
 protected:
+    //! Store the parameters of a ThermoPhase object such that an identical
+    //! one could be reconstructed using the newPhase(AnyMap&) function. This
+    //! does not include user-defined fields available in input().
+    virtual void getParameters(AnyMap& phaseNode) const;
+
     //! Fills `names` and `data` with the column names and species thermo
     //! properties to be included in the output of the reportCSV method.
     virtual void getCsvReportData(std::vector<std::string>& names,

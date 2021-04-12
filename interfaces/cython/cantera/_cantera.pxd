@@ -125,8 +125,7 @@ cdef extern from "cantera/thermo/SpeciesThermoInterpType.h":
         double refPressure()
         void reportParameters(size_t&, int&, double&, double&, double&, double* const) except +translate_exception
         int nCoeffs() except +translate_exception
-        void getParameters(CxxAnyMap&) except +translate_exception
-        CxxAnyMap& input()
+        CxxAnyMap parameters(cbool) except +translate_exception
 
 cdef extern from "cantera/thermo/SpeciesThermoFactory.h":
     cdef CxxSpeciesThermo* CxxNewSpeciesThermo "Cantera::newSpeciesThermoInterpType"\
@@ -145,8 +144,7 @@ cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
         Composition composition
         double charge
         double size
-        void getParameters(CxxAnyMap&) except +translate_exception
-        CxxAnyMap input
+        CxxAnyMap parameters(CxxThermoPhase*) except +translate_exception
 
     cdef shared_ptr[CxxSpecies] CxxNewSpecies "newSpecies" (XML_Node&)
     cdef vector[shared_ptr[CxxSpecies]] CxxGetSpecies "getSpecies" (XML_Node&)
@@ -162,6 +160,7 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
         void setThermo(shared_ptr[CxxThermoPhase])
         void setKinetics(shared_ptr[CxxKinetics])
         void setTransport(shared_ptr[CxxTransport])
+        CxxAnyMap parameters(cbool) except +translate_exception
 
     cdef shared_ptr[CxxSolution] CxxNewSolution "Cantera::Solution::create" ()
 
@@ -178,8 +177,6 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         # miscellaneous
         string type()
         string phaseOfMatter() except +translate_exception
-        CxxAnyMap& input()
-        void getParameters(CxxAnyMap&) except +translate_exception
         void getSpeciesParameters(string, CxxAnyMap&) except +translate_exception
         string report(cbool, double) except +translate_exception
         cbool hasPhaseTransition()
@@ -369,7 +366,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         string equation()
         string type()
         void validate() except +translate_exception
-        void getParameters(CxxAnyMap&) except +translate_exception
+        CxxAnyMap parameters(cbool) except +translate_exception
         int reaction_type
         Composition reactants
         Composition products
@@ -379,7 +376,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool duplicate
         cbool allow_nonreactant_orders
         cbool allow_negative_orders
-        CxxAnyMap input
 
     cdef cppclass CxxReaction2 "Cantera::Reaction2" (CxxReaction):
         CxxReaction2()
@@ -491,7 +487,6 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         void addReaction(shared_ptr[CxxReaction]) except +translate_exception
         void modifyReaction(int, shared_ptr[CxxReaction]) except +translate_exception
         void invalidateCache() except +translate_exception
-        void getParameters(CxxAnyMap&) except +translate_exception
 
         shared_ptr[CxxReaction] reaction(size_t) except +translate_exception
         cbool isReversible(int) except +translate_exception
@@ -517,7 +512,6 @@ cdef extern from "cantera/transport/TransportBase.h" namespace "Cantera":
     cdef cppclass CxxTransport "Cantera::Transport":
         CxxTransport(CxxThermoPhase*)
         string transportType()
-        void getParameters(CxxAnyMap&) except +translate_exception
         double viscosity() except +translate_exception
         double thermalConductivity() except +translate_exception
         double electricalConductivity() except +translate_exception
@@ -537,8 +531,7 @@ cdef extern from "cantera/transport/DustyGasTransport.h" namespace "Cantera":
 cdef extern from "cantera/transport/TransportData.h" namespace "Cantera":
     cdef cppclass CxxTransportData "Cantera::TransportData":
         CxxTransportData()
-        CxxAnyMap input
-        void getParameters(CxxAnyMap&) except +translate_exception
+        CxxAnyMap parameters(cbool) except +translate_exception
 
     cdef cppclass CxxGasTransportData "Cantera::GasTransportData" (CxxTransportData):
         CxxGasTransportData()

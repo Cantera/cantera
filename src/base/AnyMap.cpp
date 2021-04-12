@@ -1356,6 +1356,15 @@ void AnyMap::clear()
     m_data.clear();
 }
 
+void AnyMap::update(const AnyMap& other, bool keepExisting)
+{
+    for (const auto& item : other) {
+        if (!keepExisting || !hasKey(item.first)) {
+            (*this)[item.first] = item.second;
+        }
+    }
+}
+
 std::string AnyMap::keys_str() const
 {
     fmt::memory_buffer b;

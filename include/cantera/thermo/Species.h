@@ -15,6 +15,7 @@ namespace Cantera
 class SpeciesThermoInterpType;
 class TransportData;
 class XML_Node;
+class ThermoPhase;
 
 //! Contains data about a single chemical species
 /*!
@@ -35,7 +36,7 @@ public:
     Species& operator=(const Species& other) = delete;
     ~Species();
 
-    void getParameters(AnyMap& speciesNode, bool withInput=true) const;
+    AnyMap parameters(const ThermoPhase* phase=0, bool withInput=true) const;
 
     //! The name of the species
     std::string name;

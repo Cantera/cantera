@@ -264,11 +264,8 @@ cdef class Species:
 
     property input_data:
         def __get__(self):
-            cdef CxxAnyMap params
-            self.species.getParameters(params)
-            if self._phase:
-                self._phase.thermo.getSpeciesParameters(self.species.name, params)
-            return mergeAnyMap(params, self.species.input)
+            cdef CxxThermoPhase* phase = self._phase.thermo if self._phase else NULL
+            return anymapToPython(self.species.parameters(phase))
 
     def __repr__(self):
         return '<Species {}>'.format(self.name)

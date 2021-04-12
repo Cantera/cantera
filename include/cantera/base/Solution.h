@@ -14,6 +14,7 @@ namespace Cantera
 class ThermoPhase;
 class Kinetics;
 class Transport;
+class AnyMap;
 
 //! A container class holding managers for all pieces defining a phase
 class Solution : public std::enable_shared_from_this<Solution>
@@ -60,6 +61,8 @@ public:
     shared_ptr<Transport> transport() {
         return m_transport;
     }
+
+    AnyMap parameters(bool withInput=false) const;
 
 protected:
     shared_ptr<ThermoPhase> m_thermo;  //!< ThermoPhase manager

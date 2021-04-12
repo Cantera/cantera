@@ -54,27 +54,8 @@ std::string YamlWriter::toYamlString() const
     std::vector<AnyMap> phaseDefs(m_phases.size());
     size_t nspecies_total = 0;
     for (size_t i = 0; i < m_phases.size(); i++) {
-        m_phases[i]->thermo()->getParameters(phaseDefs[i]);
+        phaseDefs[i] = m_phases[i]->parameters(!m_skip_user_defined);
         nspecies_total += m_phases[i]->thermo()->nSpecies();
-        const auto& kin = m_phases[i]->kinetics();
-        if (kin) {
-            kin->getParameters(phaseDefs[i]);
-            if (phaseDefs[i].hasKey("kinetics") && kin->nReactions() == 0) {
-                phaseDefs[i]["reactions"] = "none";
-            }
-        }
-        const auto& tran = m_phases[i]->transport();
-        if (tran) {
-            tran->getParameters(phaseDefs[i]);
-        }
-
-        if (!m_skip_user_defined) {
-            for (const auto& item : m_phases[i]->thermo()->input()) {
-                if (!phaseDefs[i].hasKey(item.first)) {
-                    phaseDefs[i][item.first] = item.second;
-                }
-            }
-        }
     }
     output["phases"] = phaseDefs;
 
@@ -86,31 +67,7 @@ std::string YamlWriter::toYamlString() const
         const auto thermo = phase->thermo();
         for (const auto& name : thermo->speciesNames()) {
             const auto& species = thermo->species(name);
-            AnyMap speciesDef;
-            species->getParameters(speciesDef, !m_skip_user_defined);
-
-            thermo->getSpeciesParameters(name, speciesDef);
-            if (!m_skip_user_defined
-                && species->input.hasKey("equation-of-state")) {
-                auto& eosIn = species->input["equation-of-state"].asVector<AnyMap>();
-                for (const auto& eos : eosIn) {
-                    auto& out = speciesDef["equation-of-state"].getMapWhere(
-                        "model", eos["model"].asString(), true);
-                    for (const auto& item : eos) {
-                        if (!out.hasKey(item.first)) {
-                            out[item.first] = item.second;
-                        }
-                    }
-                }
-            }
-
-            if (!m_skip_user_defined) {
-                for (const auto& item : species->input) {
-                    if (!speciesDef.hasKey(item.first)) {
-                        speciesDef[item.first] = item.second;
-                    }
-                }
-            }
+            AnyMap speciesDef = species->parameters(thermo.get(), !m_skip_user_defined);
 
             if (speciesDefIndex.count(name) == 0) {
                 speciesDefs.emplace_back(speciesDef);
@@ -135,18 +92,7 @@ std::string YamlWriter::toYamlString() const
         }
         std::vector<AnyMap> reactions;
         for (size_t i = 0; i < kin->nReactions(); i++) {
-            const auto reaction = kin->reaction(i);
-            AnyMap reactionDef;
-            reaction->getParameters(reactionDef);
-            if (!m_skip_user_defined) {
-                for (const auto& item : reaction->input) {
-                    if (!reactionDef.hasKey(item.first)) {
-                        reactionDef[item.first] = item.second;
-                    }
-                }
-            }
-
-            reactions.push_back(std::move(reactionDef));
+            reactions.push_back(kin->reaction(i)->parameters(!m_skip_user_defined));
         }
         allReactions[phase->name()] = std::move(reactions);
     }

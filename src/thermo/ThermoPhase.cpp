@@ -1189,6 +1189,16 @@ void ThermoPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
     m_input = phaseNode;
 }
 
+AnyMap ThermoPhase::parameters(bool withInput) const
+{
+    AnyMap out;
+    getParameters(out);
+    if (withInput) {
+        out.update(m_input);
+    }
+    return out;
+}
+
 void ThermoPhase::getParameters(AnyMap& phaseNode) const
 {
     phaseNode["name"] = name();

@@ -58,6 +58,21 @@ void Solution::setTransport(shared_ptr<Transport> transport) {
     }
 }
 
+AnyMap Solution::parameters(bool withInput) const
+{
+    AnyMap out = m_thermo->parameters(false);
+    if (m_kinetics) {
+        out.update(m_kinetics->parameters());
+    }
+    if (m_transport) {
+        out.update(m_transport->parameters());
+    }
+    if (withInput) {
+        out.update(m_thermo->input());
+    }
+    return out;
+}
+
 shared_ptr<Solution> newSolution(const std::string& infile,
                                  const std::string& name,
                                  const std::string& transport,

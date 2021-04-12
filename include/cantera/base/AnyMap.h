@@ -437,6 +437,10 @@ public:
     //! Erase all items in the mapping
     void clear();
 
+    //! Add items from `other` to this AnyMap. If keys in `other` also exist in
+    //! this AnyMap, the `keepExisting` option determines which item is used.
+    void update(const AnyMap& other, bool keepExisting=true);
+
     //! Return a string listing the keys in this AnyMap, e.g. for use in error
     //! messages
     std::string keys_str() const;

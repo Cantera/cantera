@@ -704,10 +704,10 @@ public:
      */
     virtual void init() {}
 
-    //! Store the parameters for a phase definition which are needed to
+    //! Return the parameters for a phase definition which are needed to
     //! reconstruct an identical object using the newKinetics function. This
     //! excludes the reaction definitions, which are handled separately.
-    virtual void getParameters(AnyMap& phaseNode);
+    AnyMap parameters();
 
     /**
      * Resize arrays with sizes that depend on the total number of species.

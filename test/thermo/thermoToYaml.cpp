@@ -15,7 +15,7 @@ public:
         // to check for here, clear it so that the only parameters are those
         // added by the overrides of getParameters.
         thermo->input().clear();
-        thermo->getParameters(data);
+        data = thermo->parameters();
         data.applyUnits();
 
         speciesData.resize(thermo->nSpecies());
@@ -41,7 +41,7 @@ TEST_F(ThermoToYaml, simpleIdealGas)
     setup("ideal-gas.yaml", "simple");
     thermo->setState_TP(1010, 2e5);
     double rho = thermo->density();
-    thermo->getParameters(data);
+    data = thermo->parameters();
     data.applyUnits();
 
     ASSERT_EQ(data["thermo"], "ideal-gas");

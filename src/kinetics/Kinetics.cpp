@@ -494,12 +494,17 @@ void Kinetics::addPhase(ThermoPhase& thermo)
     resizeSpecies();
 }
 
-void Kinetics::getParameters(AnyMap& phaseNode)
+AnyMap Kinetics::parameters()
 {
+    AnyMap out;
     string name = KineticsFactory::factory()->canonicalize(kineticsType());
     if (name != "none") {
-        phaseNode["kinetics"] = name;
+        out["kinetics"] = name;
+        if (nReactions() == 0) {
+            out["reactions"] = "none";
+        }
     }
+    return out;
 }
 
 void Kinetics::resizeSpecies()

@@ -57,6 +57,14 @@ public:
     //! valid.
     virtual void validate();
 
+    //! Return the parameters such that an identical Reaction could be reconstructed
+    //! using the newReaction() function. Behavior specific to derived classes is
+    //! handled by the getParameters() method.
+    //! @param withInput  If true, include additional input data fields associated
+    //!   with the object, such as user-defined fields from a YAML input file, as
+    //!   contained in the #input attribute.
+    AnyMap parameters(bool withInput=true) const;
+
     //! Get validity flag of reaction
     bool valid() const {
         return m_valid;
@@ -66,11 +74,6 @@ public:
     void setValid(bool valid) {
         m_valid = valid;
     }
-
-    //! Store the parameters of a Reaction needed to reconstruct an identical
-    //! object using the newReaction(AnyMap&, Kinetics&) function. Does not
-    //! include user-defined fields available in the #input map.
-    virtual void getParameters(AnyMap& reactionNode) const;
 
     //! Type of the reaction. The valid types are listed in the file,
     //! reaction_defs.h, with constants ending in `RXN`.
@@ -117,6 +120,11 @@ public:
     Units rate_units;
 
 protected:
+    //! Store the parameters of a Reaction needed to reconstruct an identical
+    //! object using the newReaction(AnyMap&, Kinetics&) function. Does not
+    //! include user-defined fields available in the #input map.
+    virtual void getParameters(AnyMap& reactionNode) const;
+
     //! Flag indicating whether reaction is set up correctly
     bool m_valid;
 };

@@ -4,10 +4,12 @@
 #include "cantera/thermo/Species.h"
 #include "cantera/thermo/SpeciesThermoInterpType.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/TransportData.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ctml.h"
+#include "cantera/base/global.h"
 #include <iostream>
 #include <limits>
 #include <set>
@@ -33,8 +35,9 @@ Species::~Species()
 {
 }
 
-void Species::getParameters(AnyMap& speciesNode, bool withInput) const
+AnyMap Species::parameters(const ThermoPhase* phase, bool withInput) const
 {
+    AnyMap speciesNode;
     speciesNode["name"] = name;
     speciesNode["composition"] = composition;
     speciesNode["composition"].setFlowStyle();
@@ -45,34 +48,30 @@ void Species::getParameters(AnyMap& speciesNode, bool withInput) const
     if (size != 1) {
         speciesNode["size"] = size;
     }
-
-    AnyMap thermoNode;
-    if (thermo && thermo->reportType() != 0) {
-        thermo->getParameters(thermoNode);
-    }
-    if (thermo && withInput) {
-        for (const auto& item : thermo->input()) {
-            if (!thermoNode.hasKey(item.first)) {
-                thermoNode[item.first] = item.second;
-            }
+    if (thermo) {
+        AnyMap thermoNode = thermo->parameters(withInput);
+        if (thermoNode.size()) {
+            speciesNode["thermo"] = std::move(thermoNode);
         }
     }
-    if (thermoNode.size()) {
-        speciesNode["thermo"] = std::move(thermoNode);
-    }
-
     if (transport) {
-        AnyMap transportNode;
-        transport->getParameters(transportNode);
-        if (withInput) {
-            for (const auto& item : transport->input) {
-                if (!transportNode.hasKey(item.first)) {
-                    transportNode[item.first] = item.second;
-                }
-            }
-        }
-        speciesNode["transport"] = std::move(transportNode);
+        speciesNode["transport"] = transport->parameters(withInput);
     }
+    if (phase) {
+        phase->getSpeciesParameters(name, speciesNode);
+    }
+    if (withInput && input.hasKey("equation-of-state")) {
+        auto& eosIn = input["equation-of-state"].asVector<AnyMap>();
+        for (const auto& eos : eosIn) {
+            auto& out = speciesNode["equation-of-state"].getMapWhere(
+                "model", eos["model"].asString(), true);
+            out.update(eos);
+        }
+    }
+    if (withInput) {
+        speciesNode.update(input);
+    }
+    return speciesNode;
 }
 
 shared_ptr<Species> newSpecies(const XML_Node& species_node)
