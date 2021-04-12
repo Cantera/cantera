@@ -58,7 +58,7 @@ cdef class GasTransportData:
 
     property input_data:
         def __get__(self):
-            return anymapToPython(self.data.parameters(True))
+            return anymap_to_dict(self.data.parameters(True))
 
     property geometry:
         """

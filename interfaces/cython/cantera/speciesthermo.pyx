@@ -88,7 +88,7 @@ cdef class SpeciesThermo:
 
     property input_data:
         def __get__(self):
-            return anymapToPython(self.spthermo.parameters(True))
+            return anymap_to_dict(self.spthermo.parameters(True))
 
     def cp(self, T):
         """

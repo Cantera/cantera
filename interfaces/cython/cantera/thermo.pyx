@@ -265,7 +265,7 @@ cdef class Species:
     property input_data:
         def __get__(self):
             cdef CxxThermoPhase* phase = self._phase.thermo if self._phase else NULL
-            return anymapToPython(self.species.parameters(phase))
+            return anymap_to_dict(self.species.parameters(phase))
 
     def __repr__(self):
         return '<Species {}>'.format(self.name)

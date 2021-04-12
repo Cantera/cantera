@@ -230,7 +230,7 @@ cdef class _SolutionBase:
         definition.
         """
         def __get__(self):
-            return anymapToPython(self.base.parameters(True))
+            return anymap_to_dict(self.base.parameters(True))
 
     def write_yaml(self, filename, phases=None, units=None, precision=None,
                    skip_user_defined=None):

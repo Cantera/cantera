@@ -73,7 +73,7 @@ class CanteraError(RuntimeError):
 
 cdef public PyObject* pyCanteraError = <PyObject*>CanteraError
 
-cdef anyvalueToPython(string name, CxxAnyValue& v):
+cdef anyvalue_to_python(string name, CxxAnyValue& v):
     cdef CxxAnyMap a
     cdef CxxAnyValue b
     if v.isScalar():
@@ -86,9 +86,9 @@ cdef anyvalueToPython(string name, CxxAnyValue& v):
         elif v.isType[cbool]():
             return v.asType[cbool]()
     elif v.isType[CxxAnyMap]():
-        return anymapToPython(v.asType[CxxAnyMap]())
+        return anymap_to_dict(v.asType[CxxAnyMap]())
     elif v.isType[vector[CxxAnyMap]]():
-        return [anymapToPython(a) for a in v.asType[vector[CxxAnyMap]]()]
+        return [anymap_to_dict(a) for a in v.asType[vector[CxxAnyMap]]()]
     elif v.isType[vector[double]]():
         return v.asType[vector[double]]()
     elif v.isType[vector[string]]():
@@ -98,7 +98,7 @@ cdef anyvalueToPython(string name, CxxAnyValue& v):
     elif v.isType[vector[cbool]]():
         return v.asType[vector[cbool]]()
     elif v.isType[vector[CxxAnyValue]]():
-        return [anyvalueToPython(name, b)
+        return [anyvalue_to_python(name, b)
                 for b in v.asType[vector[CxxAnyValue]]()]
     elif v.isType[vector[vector[double]]]():
         return v.asType[vector[vector[double]]]()
@@ -115,7 +115,7 @@ cdef anyvalueToPython(string name, CxxAnyValue& v):
                             pystr(name), v.type_str()))
 
 
-cdef anymapToPython(CxxAnyMap& m):
+cdef anymap_to_dict(CxxAnyMap& m):
     m.applyUnits()
-    return {pystr(item.first): anyvalueToPython(item.first, item.second)
+    return {pystr(item.first): anyvalue_to_python(item.first, item.second)
             for item in m.ordered()}
