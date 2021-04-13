@@ -506,15 +506,16 @@ def regression_test_message(target, source, env):
     Determines the message printed by SCons while building a
     RegressionTest target.
     """
-    return """* Running test '%s'...""" % env['active_test_name']
+    return f"""* Running test '{env["active_test_name"]}'..."""
 
 
 def add_RegressionTest(env):
     """
     Add "RegressionTest" as a Builder in the specified Scons Environment.
     """
-    env['BUILDERS']['RegressionTest'] = env.Builder(
-        action=env.Action(regression_test, regression_test_message))
+    env["BUILDERS"]["RegressionTest"] = env.Builder(
+        action=env.Action(regression_test, regression_test_message)
+    )
 
 
 def quoted(s):
@@ -524,16 +525,16 @@ def quoted(s):
 
 def mglob(env, subdir, *args):
     """
-    Each arg in args is assumed to be file extension,
-    unless the arg starts with a '^', in which case the remainder
-    of the arg is taken to be a complete pattern.
+    Each argument in ``args`` is assumed to be file extension,
+    unless the arg starts with a ``'^'``, in which case the remainder
+    of the argument is taken to be a complete pattern.
     """
     matches = []
     for ext in args:
-        if ext.startswith('^'):
-            matches += env.Glob(pjoin(subdir, ext[1:]))
+        if ext.startswith("^"):
+            matches += env.Glob(Path(subdir).joinpath(ext[1:]))
         else:
-            matches += env.Glob(pjoin(subdir, '*.%s' % ext))
+            matches += env.Glob(Path(subdir).joinpath(f"*.{ext}"))
     return matches
 
 
