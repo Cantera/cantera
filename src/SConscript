@@ -73,7 +73,7 @@ for subdir, extensions, setup in libs:
 
 # build the Cantera static library
 lib = build(localenv.StaticLibrary('../lib/cantera', libraryTargets,
-                                   SPAWN=getSpawn(localenv)))
+                                   SPAWN=get_spawn(localenv)))
 localenv.Depends(lib, localenv['config_h_target'])
 install('$inst_libdir', lib)
 env['cantera_staticlib'] = lib
@@ -97,12 +97,12 @@ if localenv['layout'] != 'debian':
 
     if localenv['versioned_shared_library']:
         lib = build(localenv.SharedLibrary(sharedName, libraryTargets,
-                                           SPAWN=getSpawn(localenv),
+                                           SPAWN=get_spawn(localenv),
                                            SHLIBVERSION=localenv['cantera_pure_version']))
         install(localenv.InstallVersionedLib, '$inst_libdir', lib)
     else:
         lib = build(localenv.SharedLibrary(sharedName, libraryTargets,
-                                           SPAWN=getSpawn(localenv)))
+                                           SPAWN=get_spawn(localenv)))
         install('$inst_libdir', lib)
     env['cantera_shlib'] = lib
     localenv.Depends(lib, localenv['config_h_target'])

@@ -651,6 +651,7 @@ def listify(value):
         # assume `value` is a string
         return value.split()
 
+
 def remove_file(name: Union[Path, str]) -> None:
     """Remove file (if it exists) and print a log message."""
     path_name = Path(name)
@@ -658,12 +659,14 @@ def remove_file(name: Union[Path, str]) -> None:
         build_logger.info(f"Removing file '{name!s}'")
         path_name.unlink()
 
+
 def remove_directory(name: Union[Path, str]) -> None:
     """Remove directory recursively and print a log message."""
     path_name = Path(name)
     if path_name.exists() and path_name.is_dir():
         build_logger.info(f"Removing directory '{name!s}'")
         shutil.rmtree(path_name)
+
 
 def ipdb():
     """
@@ -678,7 +681,7 @@ def ipdb():
     Pdb(def_colors).set_trace(sys._getframe().f_back)
 
 
-def getSpawn(env):
+def get_spawn(env):
     """
     A replacement for env['SPAWN'] on Windows that can deal with very long
     commands, namely those generated when linking. This is only used when
@@ -686,26 +689,21 @@ def getSpawn(env):
     MSVC link command.
 
     Pass the return value of this function as the SPAWN keyword argument to
-    the Library target, e.g.:
+    the Library target, for example:
 
-        env.SharedLibrary(..., SPAWN=getSpawn(env))
+        env.SharedLibrary(..., SPAWN=get_spawn(env))
 
     Adapted from http://www.scons.org/wiki/LongCmdLinesOnWin32
     """
 
-    if 'cmd.exe' not in env['SHELL'] or env.subst('$CXX') == 'cl':
-        return env['SPAWN']
+    if "cmd.exe" not in env["SHELL"] or env.subst("$CXX") == "cl":
+        return env["SPAWN"]
 
-    try:
-        useShowWindow = subprocess.STARTF_USESHOWWINDOW
-    except AttributeError:
-        useShowWindow = subprocess._subprocess.STARTF_USESHOWWINDOW
-
-    def ourSpawn(sh, escape, cmd, args, environ):
-        newargs = ' '.join(args[1:])
+    def our_spawn(sh, escape, cmd, args, environ):
+        newargs = " ".join(args[1:])
         cmdline = cmd + " " + newargs
         startupinfo = subprocess.STARTUPINFO()
-        startupinfo.dwFlags |= useShowWindow
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         proc = subprocess.Popen(cmdline,
                                 stdin=subprocess.PIPE,
                                 stdout=subprocess.PIPE,
@@ -713,15 +711,13 @@ def getSpawn(env):
                                 startupinfo=startupinfo,
                                 shell=False,
                                 env=environ)
-        data, err = proc.communicate()
+        _, err = proc.communicate()
         rv = proc.wait()
         if rv:
-            print("=====")
-            print(err)
-            print("=====")
+            build_logger.error(err)
         return rv
 
-    return ourSpawn
+    return our_spawn
 
 
 def getCommandOutput(cmd, *args):

@@ -28,14 +28,14 @@ if localenv['layout'] != 'debian':
 
     if localenv['versioned_shared_library']:
         shlib = build(localenv.SharedLibrary(target=sharedName, source=objects,
-                                             SPAWN=getSpawn(localenv),
+                                             SPAWN=get_spawn(localenv),
                                              SHLIBVERSION=localenv['cantera_pure_version'],
                                              LIBS=list(env['cantera_libs'] + env['cxx_stdlib']),
                                              LINK='$FORTRAN_LINK'))
         install(localenv.InstallVersionedLib, '$inst_libdir', shlib)
     else:
         shlib = build(localenv.SharedLibrary(target=sharedName, source=objects,
-                                             SPAWN=getSpawn(localenv),
+                                             SPAWN=get_spawn(localenv),
                                              LIBS=list(env['cantera_libs'] + env['cxx_stdlib']),
                                              LINK='$FORTRAN_LINK'))
         install('$inst_libdir', shlib)
