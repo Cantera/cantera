@@ -6,6 +6,7 @@
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/kinetics/ReactionFactory.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/base/Array.h"
 
 using namespace Cantera;
 
@@ -388,6 +389,17 @@ TEST_F(ReactionToYaml, TroeFalloff)
     compareReactions();
 }
 
+TEST_F(ReactionToYaml, SriFalloff)
+{
+    soln = newSolution("sri-falloff.xml");
+    soln->thermo()->setState_TPY(1000, 2e5, "R1A: 0.1, R1B:0.2, H: 0.2, R2:0.5");
+    duplicateReaction(0);
+    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction>(duplicate));
+    compareReactions();
+    duplicateReaction(1);
+    compareReactions();
+}
+
 TEST_F(ReactionToYaml, chemicallyActivated)
 {
     soln = newSolution("chemically-activated-reaction.xml");
@@ -448,4 +460,27 @@ TEST_F(ReactionToYaml, electrochemical)
     EXPECT_TRUE(std::dynamic_pointer_cast<ElectrochemicalReaction>(duplicate));
     compareReactions();
     compareReactions();
+}
+
+TEST_F(ReactionToYaml, unconvertible1)
+{
+    ElementaryReaction R({{"H2", 1}, {"OH", 1}},
+                         {{"H2O", 1}, {"H", 1}},
+                         Arrhenius(1e5, -1.0, 12.5));
+    AnyMap params = R.parameters();
+    UnitSystem U{"g", "cm", "mol"};
+    params.setUnits(U);
+    EXPECT_THROW(params.applyUnits(), CanteraError);
+}
+
+TEST_F(ReactionToYaml, unconvertible2)
+{
+    Array2D coeffs(2, 2, 1.0);
+    ChebyshevReaction R({{"H2", 1}, {"OH", 1}},
+                        {{"H2O", 1}, {"H", 1}},
+                        ChebyshevRate(273, 3000, 1e2, 1e7, coeffs));
+    UnitSystem U{"g", "cm", "mol"};
+    AnyMap params = R.parameters();
+    params.setUnits(U);
+    EXPECT_THROW(params.applyUnits(), CanteraError);
 }
