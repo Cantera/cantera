@@ -671,31 +671,8 @@ for option in opts.keys():
             print('INFO: Expanding {!r} to {!r}'.format(original, modified))
             env[option] = modified
 
-if 'help' in COMMAND_LINE_TARGETS:
-    ### Print help about configuration options and exit.
-    print("""
-        **************************************************
-        *   Configuration options for building Cantera   *
-        **************************************************
-
-The following options can be passed to SCons to customize the Cantera
-build process. They should be given in the form:
-
-    scons build option1=value1 option2=value2
-
-Variables set in this way will be stored in the 'cantera.conf' file and reused
-automatically on subsequent invocations of scons. Alternatively, the
-configuration options can be entered directly into 'cantera.conf' before
-running 'scons build'. The format of this file is:
-
-    option1 = 'value1'
-    option2 = 'value2'
-
-        **************************************************
-""")
-
-    for opt in opts.options:
-        print('\n'.join(formatOption(env, opt)))
+if "help" in COMMAND_LINE_TARGETS:
+    help(env, opts)
     sys.exit(0)
 
 if 'doxygen' in COMMAND_LINE_TARGETS:
