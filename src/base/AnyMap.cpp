@@ -458,9 +458,9 @@ struct convert<Cantera::AnyValue> {
                     target = node.as<std::vector<std::vector<long int>>>();
                 } else if (subtypes == (Type::Integer | Type::Double) || subtypes == Type::Double) {
                     target = node.as<std::vector<std::vector<double>>>();
-                } else if (types == Type::String) {
+                } else if (subtypes == Type::String) {
                     target = node.as<std::vector<std::vector<std::string>>>();
-                } else if (types == Type::Bool) {
+                } else if (subtypes == Type::Bool) {
                     target = node.as<std::vector<std::vector<bool>>>();
                 } else {
                     target = node.as<std::vector<AnyValue>>();
