@@ -411,6 +411,12 @@ TEST_F(ThermoYamlRoundTrip, IdealMolalSolution)
     compareThermo(308, 1.1e5, "H2O(l): 0.95, H2S(aq): 0.01, CO2(aq): 0.04");
 }
 
+TEST_F(ThermoYamlRoundTrip, IdealSolutionVpss)
+{
+    roundtrip("thermo-models.yaml", "IdealSolnGas-liquid");
+    compareThermo(320, 1.5e5, "Li(l):1.0");
+}
+
 TEST_F(ThermoYamlRoundTrip, IonsFromNeutral)
 {
     roundtrip("thermo-models.yaml", "ions-from-neutral-molecule",

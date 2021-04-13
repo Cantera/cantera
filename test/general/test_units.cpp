@@ -54,10 +54,11 @@ TEST(Units, with_defaults1) {
 }
 
 TEST(Units, with_defaults2) {
-    UnitSystem U({"dyn/cm^2"});
+    UnitSystem U({"dyn/cm^2", "K"});
     EXPECT_DOUBLE_EQ(U.convertTo(1.0, "Pa"), 0.1);
     EXPECT_DOUBLE_EQ(U.convertFrom(1.0, "Pa"), 10);
     EXPECT_DOUBLE_EQ(U.convertTo(1.0, "N/m^2"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convertTo(300.0, "K"), 300.0);
 }
 
 TEST(Units, with_defaults_map) {
@@ -139,6 +140,12 @@ TEST(Units, activation_energies6) {
     EXPECT_DOUBLE_EQ(U.convertActivationEnergyTo(1, "eV"), 1.0);
 }
 
+TEST(Units, activation_energies_bad) {
+    UnitSystem U;
+    EXPECT_THROW(U.convertActivationEnergyTo(1000, "kg"), CanteraError);
+    EXPECT_THROW(U.convertActivationEnergyFrom(1000, "K^2"), CanteraError);
+}
+
 TEST(Units, from_anymap) {
     AnyMap m = AnyMap::fromYamlString(
         "{p: 12 bar, v: 10, A: 1 cm^2, V: 1,"
@@ -178,6 +185,24 @@ TEST(Units, to_anymap) {
     m.applyUnits();
     EXPECT_DOUBLE_EQ(m["h0"].asDouble(), 90e3 / 4184);
     EXPECT_DOUBLE_EQ(m["density"].asVector<double>()[1], 20.0 * 1e-6);
+}
+
+TEST(Units, anymap_quantities) {
+    AnyMap m;
+    std::vector<AnyValue> values(2);
+    values[0].setQuantity(8, "kg/m^3");
+    values[1].setQuantity(12, "mg/cl");
+    m["a"] = values;
+    values.emplace_back("hello");
+    m["b"] = values;
+    m.applyUnits();
+    EXPECT_TRUE(m["a"].is<vector_fp>());
+    m.applyUnits();
+    EXPECT_TRUE(m["a"].is<vector_fp>());
+    auto converted = m["a"].asVector<double>();
+    EXPECT_DOUBLE_EQ(converted[0], 8.0);
+    EXPECT_DOUBLE_EQ(converted[1], 1.2);
+    EXPECT_FALSE(m["b"].is<vector_fp>());
 }
 
 TEST(Units, to_anymap_nested) {

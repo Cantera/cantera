@@ -545,6 +545,31 @@ class TestSolutionSerialization(utilities.CanteraTest):
         self.assertArrayNear(surf.forward_rate_constants,
                              surf2.forward_rate_constants)
 
+    def test_yaml_eos(self):
+        ice = ct.Solution('water.yaml', 'ice')
+        ice.TP = 270, 2 * ct.one_atm
+        ice.write_yaml('ice-generated.yaml', units={'length': 'mm', 'mass': 'g'})
+
+        ice2 = ct.Solution('ice-generated.yaml')
+        self.assertNear(ice.density, ice2.density)
+        self.assertNear(ice.entropy_mole, ice2.entropy_mole)
+
+    def test_yaml_inconsistent_species(self):
+        gas = ct.Solution('h2o2.yaml')
+        gas2 = ct.Solution('h2o2.yaml')
+        gas2.name = 'modified'
+        # modify the NASA coefficients for one species
+        h2 = gas2.species('H2')
+        nasa_coeffs = h2.thermo.coeffs
+        nasa_coeffs[1] += 0.1
+        nasa_coeffs[8] += 0.1
+        h2.thermo = ct.NasaPoly2(h2.thermo.min_temp, h2.thermo.max_temp,
+                                 h2.thermo.reference_pressure, nasa_coeffs)
+        gas2.modify_species(gas2.species_index('H2'), h2)
+        with self.assertRaisesRegex(ct.CanteraError, "different definitions"):
+            gas.write_yaml('h2o2-error.yaml', phases=gas2)
+
+
 class TestSpeciesSerialization(utilities.CanteraTest):
     def test_species_simple(self):
         gas = ct.Solution('h2o2.yaml')
