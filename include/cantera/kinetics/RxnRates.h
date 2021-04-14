@@ -139,6 +139,8 @@ public:
 
     BlowersMasel(double A, double b, double E0, double w);
 
+    void getParameters(AnyMap& rateNode, const Units& rate_units) const;
+
     //! Update concentration-dependent parts of the rate coefficient.
     /*!
      *   For this class, there are no concentration-dependent parts, so this

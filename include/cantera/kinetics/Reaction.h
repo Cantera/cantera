@@ -424,6 +424,7 @@ public:
     BlowersMaselReaction();
     BlowersMaselReaction(const Composition& reactants,
                          const Composition& products, const BlowersMasel& rate);
+    virtual void getParameters(AnyMap& reactionNode) const;
     virtual void validate();
 
     virtual std::string type() const {
@@ -443,6 +444,7 @@ public:
     BlowersMaselInterfaceReaction();
     BlowersMaselInterfaceReaction(const Composition& reactants, const Composition& products,
                       const BlowersMasel& rate, bool isStick=false);
+    virtual void getParameters(AnyMap& reactionNode) const;
     virtual void calculateRateCoeffUnits(const Kinetics& kin);
 
     virtual std::string type() const {

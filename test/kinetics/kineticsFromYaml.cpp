@@ -542,3 +542,25 @@ TEST_F(ReactionToYaml, unconvertible2)
     params.setUnits(U);
     EXPECT_THROW(params.applyUnits(), CanteraError);
 }
+
+TEST_F(ReactionToYaml, BlowersMasel)
+{
+    soln = newSolution("BM_test.yaml", "gas");
+    soln->thermo()->setState_TPY(1100, 0.1 * OneAtm, "O:0.01, H2:0.8, O2:0.19");
+    duplicateReaction(0);
+    EXPECT_TRUE(std::dynamic_pointer_cast<BlowersMaselReaction>(duplicate));
+    compareReactions();
+}
+
+TEST_F(ReactionToYaml, BlowersMaselInterface)
+{
+    auto gas = newSolution("BM_test.yaml", "gas");
+    soln = newSolution("BM_test.yaml", "Pt_surf", "None", {gas});
+    gas->thermo()->setState_TPY(1100, 0.1 * OneAtm, "O:0.01, H2:0.8, O2:0.19");
+    soln->thermo()->setState_TP(1100, 0.1 * OneAtm);
+    auto surf = std::dynamic_pointer_cast<SurfPhase>(soln->thermo());
+    surf->setCoveragesByName("H(S):0.1, PT(S):0.8, H2O(S):0.1");
+    duplicateReaction(0);
+    EXPECT_TRUE(std::dynamic_pointer_cast<BlowersMaselInterfaceReaction>(duplicate));
+    compareReactions();
+}

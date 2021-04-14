@@ -646,6 +646,17 @@ BlowersMaselReaction::BlowersMaselReaction(const Composition& reactants_,
     reaction_type = BLOWERSMASEL_RXN;
 }
 
+void BlowersMaselReaction::getParameters(AnyMap& reactionNode) const
+{
+    Reaction::getParameters(reactionNode);
+    if (allow_negative_pre_exponential_factor) {
+        reactionNode["negative-A"] = true;
+    }
+    AnyMap rateNode;
+    rate.getParameters(rateNode, rate_units);
+    reactionNode["rate-constant"] = std::move(rateNode);
+}
+
 BlowersMaselInterfaceReaction::BlowersMaselInterfaceReaction()
     : is_sticking_coefficient(false)
     , use_motz_wise_correction(false)
@@ -669,6 +680,32 @@ void BlowersMaselInterfaceReaction::calculateRateCoeffUnits(const Kinetics& kin)
     BlowersMaselReaction::calculateRateCoeffUnits(kin);
     if (is_sticking_coefficient || input.hasKey("sticking-coefficient")) {
         rate_units = Units(1.0); // sticking coefficients are dimensionless
+    }
+}
+
+void BlowersMaselInterfaceReaction::getParameters(AnyMap& reactionNode) const
+{
+    BlowersMaselReaction::getParameters(reactionNode);
+    if (is_sticking_coefficient) {
+        reactionNode["sticking-coefficient"] = std::move(reactionNode["rate-constant"]);
+        reactionNode.erase("rate-constant");
+    }
+    if (use_motz_wise_correction) {
+        reactionNode["Motz-Wise"] = true;
+    }
+    if (!sticking_species.empty()) {
+        reactionNode["sticking-species"] = sticking_species;
+    }
+    if (!coverage_deps.empty()) {
+        AnyMap deps;
+        for (const auto& d : coverage_deps) {
+            AnyMap dep;
+            dep["a"] = d.second.a;
+            dep["m"] = d.second.m;
+            dep["E"].setQuantity(d.second.E, "K", true);
+            deps[d.first] = std::move(dep);
+        }
+        reactionNode["coverage-dependencies"] = std::move(deps);
     }
 }
 

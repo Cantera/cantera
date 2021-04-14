@@ -90,6 +90,24 @@ BlowersMasel::BlowersMasel(double A, double b, double E0, double w)
     }
 }
 
+void BlowersMasel::getParameters(AnyMap& rateNode, const Units& rate_units) const
+{
+    if (rate_units.factor() != 0.0) {
+        rateNode["A"].setQuantity(preExponentialFactor(), rate_units);
+    } else {
+        rateNode["A"] = preExponentialFactor();
+        // This can't be converted to a different unit system because the dimensions of
+        // the rate constant were not set. Can occur if the reaction was created outside
+        // the context of a Kinetics object and never added to a Kinetics object.
+        rateNode["__unconvertible__"] = true;
+    }
+
+    rateNode["b"] = temperatureExponent();
+    rateNode["Ea0"].setQuantity(activationEnergy_R0(), "K", true);
+    rateNode["w"].setQuantity(bondEnergy(), "K", true);
+    rateNode.setFlowStyle();
+}
+
 SurfaceArrhenius::SurfaceArrhenius()
     : m_b(0.0)
     , m_E(0.0)
