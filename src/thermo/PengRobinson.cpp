@@ -457,7 +457,7 @@ void PengRobinson::initThermo()
             } 
             double b = eos.convert("b", "m^3/kmol");
             // unitless acentric factor:
-            double w = eos["w_ac"].asDouble();
+            double w = eos["acentric_factor"].asDouble();
 
             setSpeciesCoeffs(item.first, a0, b, w);
             if (eos.hasKey("binary-a")) {
