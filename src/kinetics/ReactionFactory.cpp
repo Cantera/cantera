@@ -161,13 +161,40 @@ ReactionFactory::ReactionFactory()
 
 bool isThreeBody(Reaction& R)
 {
+    // detect explicitly specified collision partner
+    size_t found = 0;
     for (const auto& reac : R.reactants) {
-        // detect explicitly specified collision partner
-        if (R.products.count(reac.first)) {
-            return true;
+        auto prod = R.products.find(reac.first);
+        if (prod != R.products.end() &&
+            trunc(reac.second) == reac.second && trunc(prod->second) == prod->second) {
+            // candidate species with integer stoichiometric coefficients on both sides
+            found += 1;
         }
     }
-    return false;
+    if (found != 1) {
+        return false;
+    }
+
+    // ensure that all reactants have integer stoichiometric coefficients
+    size_t nreac = 0;
+    for (const auto& reac : R.reactants) {
+       if (trunc(reac.second) != reac.second) {
+           return false;
+       }
+       nreac += reac.second;
+    }
+
+    // ensure that all products have integer stoichiometric coefficients
+    size_t nprod = 0;
+    for (const auto& prod : R.products) {
+       if (trunc(prod.second) != prod.second) {
+           return false;
+       }
+       nprod += prod.second;
+    }
+
+    // either reactant or product side involves exactly three species
+    return (nreac == 3) || (nprod == 3);
 }
 
 bool isElectrochemicalReaction(Reaction& R, const Kinetics& kin)
@@ -223,10 +250,8 @@ unique_ptr<Reaction> newReaction(const XML_Node& rxn_node)
         throw CanteraError("newReaction",
             "Unknown reaction type '" + rxn_node["type"] + "'");
     }
-    if (type != "electrochemical") {
-        type = R->type();
-    }
-    if (type == "elementary") {
+    if (type == "") {
+        // Reaction type is not specified
         // See if this is a three-body reaction with a specified collision partner
         ElementaryReaction testReaction;
         setupReaction(testReaction, rxn_node);
@@ -234,6 +259,9 @@ unique_ptr<Reaction> newReaction(const XML_Node& rxn_node)
             type = "three-body";
             R = ReactionFactory::factory()->create(type);
         }
+    }
+    if (type != "electrochemical") {
+        type = R->type();
     }
     ReactionFactory::factory()->setup_XML(type, R, rxn_node);
 
@@ -247,6 +275,7 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node,
     if (rxn_node.hasKey("type")) {
         type = rxn_node["type"].asString();
     } else if (kin.thermo().nDim() == 3) {
+        // Reaction type is not specified
         // See if this is a three-body reaction with a specified collision partner
         ElementaryReaction testReaction;
         parseReactionEquation(testReaction, rxn_node["equation"], kin);
