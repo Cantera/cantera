@@ -25,7 +25,7 @@ species:
     model: Peng-Robinson
     a: 3.958134E+11
     b: 26.6275
-    w_ac: 0.228
+    acentric-factor: 0.228
 - name: H2O
   composition: {H: 2, O: 1}
   thermo:
@@ -41,7 +41,7 @@ species:
     model: Peng-Robinson
     a: 5.998873E+11
     b: 18.9714
-    w_ac: 0.344
+    acentric-factor: 0.344
 - name: H2
   composition: {H: 2}
   thermo:
@@ -57,7 +57,7 @@ species:
     model: Peng-Robinson
     a: 2.668423E+10
     b: 16.5478
-    w_ac: -0.22
+    acentric-factor: -0.22
 - name: CO
   composition: {C: 1, O: 1}
   thermo:
@@ -73,7 +73,7 @@ species:
     model: Peng-Robinson
     a: 1.607164E+11
     b: 24.6549
-    w_ac: 0.049
+    acentric-factor: 0.049
 - name: CH4
   composition: {C: 1, H: 4}
   thermo:
@@ -89,7 +89,7 @@ species:
     model: Peng-Robinson
     a: 2.496344E+11
     b: 26.8028
-    w_ac: 0.01
+    acentric-factor: 0.01
 - name: O2
   composition: {O: 2}
   thermo:
@@ -105,7 +105,7 @@ species:
     model: Peng-Robinson
     a: 1.497732E+11
     b: 19.8281
-    w_ac: 0.022
+    acentric-factor: 0.022
 - name: N2
   composition: {N: 2}
   thermo:
@@ -121,7 +121,7 @@ species:
     model: Peng-Robinson
     a: 1.485031E+11
     b: 28.0810
-    w_ac: 0.04
+    acentric-factor: 0.04
 
 
 reactions:
