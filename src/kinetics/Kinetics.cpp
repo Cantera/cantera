@@ -143,8 +143,13 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                     continue; // No overlap in third body efficiencies
                 }
             } else if (R.type() == "three-body") {
-                ThirdBody& tb1 = dynamic_cast<ThreeBodyReaction&>(R).third_body;
-                ThirdBody& tb2 = dynamic_cast<ThreeBodyReaction&>(other).third_body;
+                auto& R1 = dynamic_cast<ThreeBodyReaction&>(R);
+                auto& R2 = dynamic_cast<ThreeBodyReaction&>(other);
+                if (R1.specified != R2.specified) {
+                    continue; // No overlap as one third body is explicitly specified
+                }
+                ThirdBody& tb1 = R1.third_body;
+                ThirdBody& tb2 = R2.third_body;
                 bool thirdBodyOk = true;
                 for (size_t k = 0; k < nTotalSpecies(); k++) {
                     string s = kineticsSpeciesName(k);

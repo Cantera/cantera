@@ -159,6 +159,17 @@ ReactionFactory::ReactionFactory()
                });
 }
 
+bool isThreeBody(Reaction& R)
+{
+    for (const auto& reac : R.reactants) {
+        // detect explicitly specified collision partner
+        if (R.products.count(reac.first)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool isElectrochemicalReaction(Reaction& R, const Kinetics& kin)
 {
     vector_fp e_counter(kin.nPhases(), 0.0);
@@ -215,6 +226,15 @@ unique_ptr<Reaction> newReaction(const XML_Node& rxn_node)
     if (type != "electrochemical") {
         type = R->type();
     }
+    if (type == "elementary") {
+        // See if this is a three-body reaction with a specified collision partner
+        ElementaryReaction testReaction;
+        setupReaction(testReaction, rxn_node);
+        if (isThreeBody(testReaction)) {
+            type = "three-body";
+            R = ReactionFactory::factory()->create(type);
+        }
+    }
     ReactionFactory::factory()->setup_XML(type, R, rxn_node);
 
     return unique_ptr<Reaction>(R);
@@ -226,6 +246,13 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node,
     std::string type = "elementary";
     if (rxn_node.hasKey("type")) {
         type = rxn_node["type"].asString();
+    } else if (kin.thermo().nDim() == 3) {
+        // See if this is a three-body reaction with a specified collision partner
+        ElementaryReaction testReaction;
+        parseReactionEquation(testReaction, rxn_node["equation"], kin);
+        if (isThreeBody(testReaction)) {
+            type = "three-body";
+        }
     }
 
     if (kin.thermo().nDim() < 3 && type == "elementary") {

@@ -276,11 +276,21 @@ ThreeBodyReaction::ThreeBodyReaction(const Composition& reactants_,
 }
 
 std::string ThreeBodyReaction::reactantString() const {
-    return ElementaryReaction::reactantString() + " + M";
+    if (specified) {
+        return ElementaryReaction::reactantString() + " + "
+            + third_body.efficiencies.begin()->first;
+    } else {
+        return ElementaryReaction::reactantString() + " + M";
+    }
 }
 
 std::string ThreeBodyReaction::productString() const {
-    return ElementaryReaction::productString() + " + M";
+    if (specified) {
+        return ElementaryReaction::productString() + " + "
+            + third_body.efficiencies.begin()->first;
+    } else {
+        return ElementaryReaction::productString() + " + M";
+    }
 }
 
 void ThreeBodyReaction::calculateRateCoeffUnits(const Kinetics& kin)
@@ -858,6 +868,46 @@ BlowersMasel readBlowersMasel(const Reaction& R, const AnyValue& rate,
     return BlowersMasel(A, b, Ta0, w);
 }
 
+bool detectEfficiencies(ThreeBodyReaction& R)
+{
+    for (const auto& reac : R.reactants) {
+        // detect explicitly specified collision partner
+        if (R.products.count(reac.first)) {
+            R.third_body.efficiencies[reac.first] = 1.;
+        }
+    }
+
+    if (R.third_body.efficiencies.size() == 0) {
+        return false;
+    } else if (R.third_body.efficiencies.size() > 1) {
+        throw CanteraError("detectEfficiencies",
+            "Found more than one explicitly specified collision partner\n"
+            "in reaction '{}'.", R.equation());
+    }
+
+    R.third_body.default_efficiency = 0.;
+    R.specified = true;
+    auto sp = R.third_body.efficiencies.begin();
+
+    // adjust reactant coefficients
+    auto reac = R.reactants.find(sp->first);
+    if (abs(reac->second - 1) > SmallNumber) {
+        reac->second -= 1.;
+    } else {
+        R.reactants.erase(reac);
+    }
+
+    // adjust product coefficients
+    auto prod = R.products.find(sp->first);
+    if (abs(prod->second - 1) > SmallNumber) {
+        prod->second -= 1.;
+    } else {
+        R.products.erase(prod);
+    }
+
+    return true;
+}
+
 void setupReaction(Reaction& R, const XML_Node& rxn_node)
 {
     // Reactant and product stoichiometries
@@ -1000,6 +1050,9 @@ void setupThreeBodyReaction(ThreeBodyReaction& R, const XML_Node& rxn_node)
 {
     readEfficiencies(R.third_body, rxn_node.child("rateCoeff"));
     setupElementaryReaction(R, rxn_node);
+    if (R.third_body.efficiencies.size() == 0) {
+        detectEfficiencies(R);
+    }
 }
 
 void setupThreeBodyReaction(ThreeBodyReaction& R, const AnyMap& node,
@@ -1007,13 +1060,16 @@ void setupThreeBodyReaction(ThreeBodyReaction& R, const AnyMap& node,
 {
     setupElementaryReaction(R, node, kin);
     if (R.reactants.count("M") != 1 || R.products.count("M") != 1) {
-        throw InputFileError("setupThreeBodyReaction", node["equation"],
-            "Reaction equation '{}' does not contain third body 'M'",
-            node["equation"].asString());
+        if (!detectEfficiencies(R)) {
+            throw InputFileError("setupThreeBodyReaction", node["equation"],
+                "Reaction equation '{}' does not contain third body 'M'",
+                node["equation"].asString());
+        }
+    } else {
+        R.reactants.erase("M");
+        R.products.erase("M");
+        readEfficiencies(R.third_body, node);
     }
-    R.reactants.erase("M");
-    R.products.erase("M");
-    readEfficiencies(R.third_body, node);
 }
 
 void setupFalloffReaction(FalloffReaction& R, const XML_Node& rxn_node)
