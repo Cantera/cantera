@@ -1,16 +1,21 @@
 """
-A simplest example to demonstrate the difference between Blowers-Masel
-reaction and elementary reaction. The first two reactions have same reaction 
-equations with Arrhenius and Blowers-Masel rate parameters, respectively. 
-The Blowers-Masel parameters are same as Arrhenius parameters with an 
-additional value, bond energy. First we show that the forward rate constants 
-of the first 2 different reactions are different because of the different rate
-expression, then we print the forward rate constants for reaction 2 and reaction 3
-to show that even 2 reactions have same Blowers-Masel parameters can have different
-forward rate constants. The first plot generated shows the rate constant changes
-with respect to temperature for elementary and Blower-Masel reactions are different.
-The second plot shows the activation energy change of a Blowers-Masel reaction 
-with respect to the delta enthalpy of the reaction.
+A simple example to demonstrate the difference between Blowers-Masel
+reaction and elementary reaction.
+
+The first two reactions have the same reaction equations with Arrhenius and
+Blowers-Masel rate parameters, respectively. The Blowers-Masel parameters are the same
+as the Arrhenius parameters with an additional value, bond energy.
+
+First we show that the forward rate constants of the first 2 different reactions are
+different because of the different rate expression, then we print the forward rate
+constants for reaction 2 and reaction 3 to show that even two reactions that have the
+same Blowers-Masel parameters can have different forward rate constants.
+
+The first plot generated shows how the rate constant changes with respect to temperature
+for elementary and Blower-Masel reactions. The second plot shows the activation energy
+change of a Blowers-Masel reaction with respect to the delta enthalpy of the reaction.
+
+Requires: cantera >= 2.6.0, matplotlib >= 2.0
 """
 
 import cantera as ct
@@ -45,7 +50,7 @@ print("The first and second reactions have same reaction equation,"
       " the forward rate constant of the second reaction is {1:.3f} kmol/(m^3.s).".format(r1_rc, r2_rc))
 
 print("The rate parameters of second and the third reactions are same,"
-      " but the forward rate cosntant of second reaction is {0:.3f} kmol/(m^3.s),"
+      " but the forward rate constant of second reaction is {0:.3f} kmol/(m^3.s),"
       " the forward rate constant of the third reaction is"
       " {1:.3f} kmol/(m^3.s).".format(r2_rc, r3_rc))
 
@@ -59,20 +64,20 @@ for temp in T_range:
     gas.TP = temp, ct.one_atm
     r1_kf.append(gas.forward_rate_constants[0])
     r2_kf.append(gas.forward_rate_constants[1])
-plt.scatter(T_range, r1_kf, 1*1, label='Reaction 1 (Elementary)')
-plt.scatter(T_range, r2_kf, 1*1, label='Reaction 2 (Blowers-Masel)')
+plt.plot(T_range, r1_kf, label='Reaction 1 (Elementary)')
+plt.plot(T_range, r2_kf, label='Reaction 2 (Blowers-Masel)')
 plt.xlabel("Temperature(K)")
-plt.ylabel("Forward Rate Constant $(kmol/(m^3.s))$")
-plt.title("Comparison Of kf vs. Temperature For Reaction 1 and 2",y=1.1)
+plt.ylabel(r"Forward Rate Constant (kmol/(m$^3\cdot$ s))")
+plt.title("Comparison of $k_f$ vs. Temperature For Reaction 1 and 2",y=1.1)
 plt.legend()
 plt.savefig("kf_to_T.png")
-plt.clf()
+
 # This is the function to change the enthalpy of a species
 # so that the enthalpy change of reactions involving this
 #species can be changed
 def change_species_enthalpy(gas, species_name, dH):
     """
-    Find the species by name and change it's enthlapy by dH (in J/kmol)
+    Find the species by name and change it's enthalpy by dH (in J/kmol)
     """
     index = gas.species_index(species_name)
 
@@ -83,25 +88,27 @@ def change_species_enthalpy(gas, species_name, dH):
     perturbed_coeffs[6] += dx
     perturbed_coeffs[13] += dx
 
-    species.thermo = ct.NasaPoly2(species.thermo.min_temp, species.thermo.max_temp, 
+    species.thermo = ct.NasaPoly2(species.thermo.min_temp, species.thermo.max_temp,
                             species.thermo.reference_pressure, perturbed_coeffs)
 
     gas.modify_species(index, species)
 
-# Plot the activation energy change of reaction 2 with respect to the 
+# Plot the activation energy change of reaction 2 with respect to the
 # enthalpy change
 E0 = gas.reaction(1).rate.intrinsic_activation_energy
 upper_limit_enthalpy = 5 * E0
 lower_limit_enthalpy = -5 * E0
 
 Ea_list = []
-deltaH_list = np.arange(lower_limit_enthalpy, upper_limit_enthalpy, (upper_limit_enthalpy-lower_limit_enthalpy)/100)
+deltaH_list = np.linspace(lower_limit_enthalpy, upper_limit_enthalpy, 100)
 for deltaH in deltaH_list:
     change_species_enthalpy(gas, 'H', deltaH - gas.delta_enthalpy[1])
     Ea_list.append(gas.reaction(1).rate.activation_energy(gas.delta_enthalpy[1]))
 
-plt.scatter(deltaH_list, Ea_list, 1)
+plt.figure()
+plt.plot(deltaH_list, Ea_list)
 plt.xlabel("Enthalpy Change (J/kmol)")
-plt.ylabel("Activation Energy Change (J/kmol)$")
-plt.title(r"Ea vs. $\Delta H$ For O+H2<=>H+OH", y=1.1)
+plt.ylabel("Activation Energy Change (J/kmol)")
+plt.title(r"$E_a$ vs. $\Delta H$ For O+H2<=>H+OH", y=1.1)
 plt.savefig("Ea_to_H.png")
+plt.show()
