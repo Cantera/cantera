@@ -610,7 +610,7 @@ pr-species:
     units: {length: cm, quantity: mol}
     a: 2.668423E+10
     b: 16.5478
-    w_ac: -0.22
+    acentric-factor: -0.22
 - name: H2O
   composition: {H: 2, O: 1}
   thermo:
@@ -626,7 +626,7 @@ pr-species:
     units: {length: cm, quantity: mol}
     a: 5.998873E+11
     b: 18.9714
-    w_ac: 0.344
+    acentric-factor: 0.344
     binary-a:
       H2: 4 bar*cm^6/mol^2
       CO2: 7.897e7 bar*cm^6/mol^2
@@ -645,7 +645,7 @@ pr-species:
     units: {length: cm, quantity: mol}
     a: 3.958134E+11
     b: 26.6275
-    w_ac: 0.228
+    acentric-factor: 0.228
 
 
 HMW-species:
