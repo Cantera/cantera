@@ -35,7 +35,7 @@ script = '\n'.join(("from distutils.sysconfig import *",
                     "print(get_config_var('prefix'))",
                     "print(get_python_version())",
                     "print(numpy.get_include())"))
-info = getCommandOutput(localenv['python_cmd'], '-c', script)
+info = get_command_output(localenv["python_cmd"], "-c", script)
 module_ext, inc, pylib, prefix, py_version, numpy_include = info.splitlines()[-6:]
 localenv.Prepend(CPPPATH=[Dir('#include'), inc, numpy_include])
 localenv.Prepend(LIBS=localenv['cantera_libs'])

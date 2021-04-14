@@ -59,7 +59,7 @@ valid_commands = ("build", "clean", "install", "uninstall",
 
 for command in COMMAND_LINE_TARGETS:
     if command not in valid_commands and not command.startswith('test'):
-        logger.error(f"Unrecognized command line target: {command!r}")
+        build_logger.error(f"Unrecognized command line target: {command!r}")
         sys.exit(1)
 
 if "clean" in COMMAND_LINE_TARGETS:
@@ -694,9 +694,9 @@ env['cantera_pure_version'] = re.match(r'(\d+\.\d+\.\d+)', env['cantera_version'
 env['cantera_short_version'] = re.match(r'(\d+\.\d+)', env['cantera_version']).group(0)
 
 try:
-    env['git_commit'] = getCommandOutput('git', 'rev-parse', '--short', 'HEAD')
-except Exception:
-    env['git_commit'] = 'unknown'
+    env["git_commit"] = get_command_output("git", "rev-parse", "--short", "HEAD")
+except subprocess.CalledProcessError:
+    env["git_commit"] = "unknown"
 
 # Print values of all build options:
 print("Configuration variables read from 'cantera.conf' and command line:")
@@ -1273,7 +1273,7 @@ if env['python_package'] != 'none':
         expected_output_lines = 4
 
     try:
-        info = getCommandOutput(env['python_cmd'], '-c', script).splitlines()
+        info = get_command_output(env["python_cmd"], "-c", script).splitlines()
     except OSError as err:
         if env['VERBOSE']:
             print('Error checking for Python:')
