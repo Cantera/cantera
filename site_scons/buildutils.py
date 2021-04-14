@@ -720,21 +720,24 @@ def get_spawn(env):
     return our_spawn
 
 
-def getCommandOutput(cmd, *args):
+def get_command_output(cmd, *args):
     """
     Run a command with arguments and return its output.
     """
     environ = dict(os.environ)
-    if 'PYTHONHOME' in environ:
+    if "PYTHONHOME" in environ:
         # Can cause problems when trying to run a different Python interpreter
-        del environ['PYTHONHOME']
-    data = subprocess.check_output([cmd] + list(args), env=environ)
-    if sys.version_info.major == 3:
-        return data.strip().decode('utf-8')
-    else:
-        return data.strip()
+        del environ["PYTHONHOME"]
+    data = subprocess.run(
+        [cmd] + list(args),
+        env=environ,
+        stdout=subprocess.PIPE,
+        universal_newlines=True,
+        check=True,
+    )
+    return data.stdout.strip()
 
 # Monkey patch for SCons Cygwin bug
-# See http://scons.tigris.org/issues/show_bug.cgi?id=2664
-if 'cygwin' in platform.system().lower():
+# See https://github.com/SCons/scons/issues/2664
+if "cygwin" in platform.system().lower():
     SCons.Node.FS._my_normcase = lambda x: x
