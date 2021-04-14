@@ -216,9 +216,9 @@ TEST_F(PengRobinson_Test, getPressure)
     //Calculate kappa value
     kappa = 0.37464 + 1.54226*acc_factor - 0.26992*acc_factor*acc_factor;
 
-    for (int i = 0; i<10; i++)
+    for (int i = 0; i < 15; i++)
     {
-        const double temp = 296 + i * 2;
+        const double temp = 296 + i * 50;
         set_r(1.0);
         test_phase->setState_TR(temp, rho);
         const double Tcrit = test_phase->critTemperature();
