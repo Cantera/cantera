@@ -374,6 +374,7 @@ public:
     InterfaceReaction();
     InterfaceReaction(const Composition& reactants, const Composition& products,
                       const Arrhenius& rate, bool isStick=false);
+    virtual void calculateRateCoeffUnits(const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
 
     virtual std::string type() const {
@@ -442,6 +443,7 @@ public:
     BlowersMaselInterfaceReaction();
     BlowersMaselInterfaceReaction(const Composition& reactants, const Composition& products,
                       const BlowersMasel& rate, bool isStick=false);
+    virtual void calculateRateCoeffUnits(const Kinetics& kin);
 
     virtual std::string type() const {
         return "surface-Blowers-Masel";

@@ -559,6 +559,14 @@ InterfaceReaction::InterfaceReaction(const Composition& reactants_,
     reaction_type = INTERFACE_RXN;
 }
 
+void InterfaceReaction::calculateRateCoeffUnits(const Kinetics& kin)
+{
+    ElementaryReaction::calculateRateCoeffUnits(kin);
+    if (is_sticking_coefficient || input.hasKey("sticking-coefficient")) {
+        rate_units = Units(1.0); // sticking coefficients are dimensionless
+    }
+}
+
 void InterfaceReaction::getParameters(AnyMap& reactionNode) const
 {
     ElementaryReaction::getParameters(reactionNode);
@@ -654,6 +662,14 @@ BlowersMaselInterfaceReaction::BlowersMaselInterfaceReaction(const Composition& 
     , use_motz_wise_correction(false)
 {
     reaction_type = BMINTERFACE_RXN;
+}
+
+void BlowersMaselInterfaceReaction::calculateRateCoeffUnits(const Kinetics& kin)
+{
+    BlowersMaselReaction::calculateRateCoeffUnits(kin);
+    if (is_sticking_coefficient || input.hasKey("sticking-coefficient")) {
+        rate_units = Units(1.0); // sticking coefficients are dimensionless
+    }
 }
 
 Arrhenius readArrhenius(const XML_Node& arrhenius_node)
@@ -909,8 +925,8 @@ void setupReaction(Reaction& R, const AnyMap& node, const Kinetics& kin)
     R.allow_negative_orders = node.getBool("negative-orders", false);
     R.allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
 
-    R.calculateRateCoeffUnits(kin);
     R.input = node;
+    R.calculateRateCoeffUnits(kin);
 }
 
 void setupElementaryReaction(ElementaryReaction& R, const XML_Node& rxn_node)
@@ -1189,7 +1205,6 @@ void setupInterfaceReaction(InterfaceReaction& R, const AnyMap& node,
         R.rate = readArrhenius(R, node["rate-constant"], kin, node.units());
     } else if (node.hasKey("sticking-coefficient")) {
         R.is_sticking_coefficient = true;
-        R.rate_units = Units(); // sticking coefficients are dimensionless
         R.rate = readArrhenius(R, node["sticking-coefficient"], kin, node.units());
         R.use_motz_wise_correction = node.getBool("Motz-Wise",
             kin.thermo().input().getBool("Motz-Wise", false));
@@ -1276,7 +1291,6 @@ void setupBlowersMaselInterfaceReaction(BlowersMaselInterfaceReaction& R, const 
         R.rate = readBlowersMasel(R, node["rate-constant"], kin, node.units());
     } else if (node.hasKey("sticking-coefficient")) {
         R.is_sticking_coefficient = true;
-        R.rate_units = Units(); // sticking coefficients are dimensionless
         R.rate = readBlowersMasel(R, node["sticking-coefficient"], kin, node.units());
         R.use_motz_wise_correction = node.getBool("Motz-Wise",
             kin.thermo().input().getBool("Motz-Wise", false));
