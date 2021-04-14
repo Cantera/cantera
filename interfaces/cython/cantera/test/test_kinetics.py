@@ -1221,9 +1221,11 @@ class TestReaction(utilities.CanteraTest):
             self.gas.modify_reaction(0, R2)
 
         # different reactants
-        R = self.gas.reaction(7)
+        R = self.gas.reaction(7) # implicitly defined three-body reaction
+        R2 = ct.ElementaryReaction(R.reactants, R.products)
+        R2.rate = R.rate
         with self.assertRaisesRegex(ct.CanteraError, 'Reactants are different'):
-            self.gas.modify_reaction(23, R)
+            self.gas.modify_reaction(23, R2)
 
         # different products
         R = self.gas.reaction(14)

@@ -212,6 +212,8 @@ public:
     //! Relative efficiencies of third-body species in enhancing the reaction
     //! rate.
     ThirdBody third_body;
+
+    bool specified = false; //!< Explicitly specified collision partner
 };
 
 //! A reaction that is first-order in [M] at low pressure, like a third-body
@@ -505,6 +507,8 @@ void parseReactionEquation(Reaction& R, const AnyValue& equation,
                            const Kinetics& kin);
 
 // declarations of setup functions
+void setupReaction(Reaction& R, const XML_Node& rxn_node);
+
 void setupElementaryReaction(ElementaryReaction&, const XML_Node&);
 //! @internal May be changed without notice in future versions
 void setupElementaryReaction(ElementaryReaction&, const AnyMap&,
