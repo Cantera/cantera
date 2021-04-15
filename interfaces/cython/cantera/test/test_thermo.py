@@ -1145,13 +1145,13 @@ class TestSpecies(utilities.CanteraTest):
           composition: {H: 1, O: 2}
           thermo: {model: constant-cp, h0: 200}
         '''
-        species = ct.Species.listFromYaml(yaml)
+        species = ct.Species.list_from_yaml(yaml)
         self.assertEqual(species[0].name, 'H2O')
         self.assertEqual(species[1].composition, {'H': 1, 'O': 2})
         self.assertNear(species[0].thermo.h(300), 100)
 
     def test_listFromYaml_section(self):
-        species = ct.Species.listFromYaml(
+        species = ct.Species.list_from_yaml(
             (self.test_data_path / "ideal-gas.yaml").read_text(),
             'species')
 
