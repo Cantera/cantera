@@ -25,26 +25,83 @@ import logging
 
 from typing import TYPE_CHECKING, Union
 
-if TYPE_CHECKING:
-    import SCons.Environment as SCEnvironment
-    import SCons.Variables as SCVariables
-
-build_logger = logging.getLogger("build")
-build_logger.setLevel(logging.INFO)
-handler = logging.StreamHandler(sys.stdout)
-handler.setFormatter(logging.Formatter("{levelname!s}: {message!s}", style="{"))
-build_logger.addHandler(handler)
-
-output_logger = logging.getLogger("output")
-output_logger.setLevel(logging.INFO)
-handler = logging.StreamHandler(sys.stdout)
-handler.setFormatter(logging.Formatter("{message!s}", style="{"))
-output_logger.addHandler(handler)
-
 try:
     import numpy as np
 except ImportError:
     np = None
+
+if TYPE_CHECKING:
+    import SCons.Environment as SCEnvironment
+    import SCons.Variables as SCVariables
+
+
+class OutputFormatter(logging.Formatter):
+    """Format log output depending on whether the level should be shown.
+
+    When calling one of the logger functions (.debug(), .info(), etc.), the
+    ``extra`` keyword argument can be passed a dictionary that sets attributes
+    on the ``LogRecord`` instance. If the dictionary has a ``print_level`` key
+    with a Boolean value, that will be used to determine whether the log level
+    should be included in the log message. Example::
+
+       >>> logger.info("Message", extra={"print_level": False})
+       Message
+       >>> logger.info("Message")
+       INFO: Message
+    """
+
+    def format(self, record: logging.LogRecord) -> str:
+        if record.exc_info or record.exc_text:
+            raise ValueError("This formatter does not support exceptions")
+        elif record.stack_info:
+            raise ValueError("This formatter does not support stack traces")
+
+        no_level_style = "{message}"
+        level_style = "{levelname}: " + no_level_style
+        record.message = record.getMessage()
+        if getattr(record, "print_level", True):
+            s = level_style.format(**record.__dict__)
+        else:
+            s = no_level_style.format(**record.__dict__)
+        return s
+
+
+# Modified from https://stackoverflow.com/a/36338212
+class LevelFilter(logging.Filter):
+    """Filter out log messages above or below preset cutoffs.
+
+    Log levels in Python correspond to integers, with the lowest, DEBUG, set to
+    10 and the highest, CRITICAL, set to 50. This filter causes a log handler to
+    reject messages that are above or below numerical cutoffs. Example::
+
+    >>> # Handles log levels from debug up to, but not including, error
+    >>> handler.addFilter(LevelFilter(logging.DEBUG, logging.ERROR))
+    >>> # Handles log levels from warning up to and including critical
+    >>> handler.addFilter(LevelFilter(logging.WARNING, logging.CRITICAL+1))
+    """
+
+    def __init__(self, low: int, high: int) -> None:
+        self._low = low
+        self._high = high
+        super().__init__()
+    def filter(self, record: logging.LogRecord) -> bool:
+        if self._low <= record.levelno < self._high:
+            return True
+        return False
+
+
+logger = logging.getLogger("cantera")
+logger.setLevel(logging.INFO)
+f = OutputFormatter()
+stdout_handler = logging.StreamHandler(sys.stdout)
+stdout_handler.setFormatter(f)
+stdout_handler.addFilter(LevelFilter(logging.DEBUG, logging.ERROR))
+logger.addHandler(stdout_handler)
+
+stderr_handler = logging.StreamHandler(sys.stderr)
+stderr_handler.setFormatter(f)
+stderr_handler.addFilter(LevelFilter(logging.ERROR, logging.CRITICAL + 1))
+logger.addHandler(stderr_handler)
 
 
 class TestResult(enum.IntEnum):
@@ -97,7 +154,7 @@ class ConfigBuilder:
         for key in sorted(self.defines.undefined):
             message.append(f"    {key!s:<35} *undefined*")
 
-        build_logger.info("\n".join(message))
+        logger.info("\n".join(message))
 
 
 class TestResults:
@@ -134,10 +191,10 @@ class TestResults:
                        "\n")
         message = message + "*****************************"
         if self.failed:
-            output_logger.error("One or more tests failed.\n" + message)
+            logger.error("One or more tests failed.\n" + message, extra={"print_level": False})
             sys.exit(1)
         else:
-            output_logger.info(message)
+            logger.info(message, extra={"print_level": False})
 
 
 test_results = TestResults()
@@ -186,7 +243,7 @@ def regression_test(target, source, env):
         cwd=dir, env=env["ENV"], universal_newlines=True,
     )
     if ret.returncode:
-        build_logger.error(f"FAILED (program exit code:{ret.returncode})")
+        logger.error(f"FAILED (program exit code:{ret.returncode})")
     dir.joinpath(output_name).write_text(ret.stdout)
 
     diff = 0
@@ -196,17 +253,17 @@ def regression_test(target, source, env):
         comparisons.append((Path(blessed_name), output_name))
 
     for blessed, output in comparisons:
-        output_logger.info(f"Comparing '{blessed}' with '{output}'")
+        logger.info(f"Comparing '{blessed}' with '{output}'", extra={"print_level": False})
         d = compare_files(env, dir.joinpath(blessed), dir.joinpath(output))
         if d:
-            output_logger.error("FAILED")
+            logger.error("FAILED", extra={"print_level": False})
         diff |= d
 
     for blessed, output in env["test_profiles"]:
-        output_logger.info(f"Comparing '{blessed}' with '{output}'")
+        logger.info(f"Comparing '{blessed}' with '{output}'", extra={"print_level": False})
         d = compare_profiles(env, dir.joinpath(blessed), dir.joinpath(output))
         if d:
-            output_logger.error("FAILED")
+            logger.error("FAILED", extra={"print_level": False})
         diff |= d
 
     del test_results.tests[env["active_test_name"]]
@@ -220,7 +277,7 @@ def regression_test(target, source, env):
         if env["fast_fail_tests"]:
             sys.exit(1)
     else:
-        output_logger.info("PASSED")
+        logger.info("PASSED", extra={"print_level": False})
         passed_file.write_text(time.asctime())
         test_results.passed[env["active_test_name"]] = 1
 
@@ -301,7 +358,8 @@ def compare_text_files(env, file1: Path, file2: Path):
                 if abserr > atol and relerr > rtol:
                     logger.error(
                         f"Values differ: {num1:14g} {num2:14g}; "
-                        f"rel. err = {relerr:.3e}; abs. err = {abserr:.3e}"
+                        f"rel. err = {relerr:.3e}; abs. err = {abserr:.3e}",
+                        extra={"print_level": False},
                     )
                     all_match = False
                     break
@@ -317,7 +375,7 @@ def compare_text_files(env, file1: Path, file2: Path):
         message = [f"Found differences between {file1!s} and {file2!s}:", ">>>"]
         message.extend(diff)
         message.append("<<<")
-        output_logger.error("\n".join(message))
+        logger.error("\n".join(message), extra={"print_level": False})
         return TestResult.FAIL
 
     return TestResult.PASS
@@ -355,7 +413,7 @@ def compare_profiles(env, ref_file, sample_file):
     error criterion specified by `rtol` and `atol`.
     """
     if not np:
-        build_logger.warning("Skipping profile comparison because numpy is not available")
+        logger.warning("Skipping profile comparison because numpy is not available")
         return TestResult.PASS
 
     atol = env["test_csv_threshold"]
@@ -365,7 +423,7 @@ def compare_profiles(env, ref_file, sample_file):
     reference = np.genfromtxt(ref_file, delimiter=",").T
     sample = np.genfromtxt(sample_file, delimiter=",").T
     if reference.shape[0] != sample.shape[0]:
-        build_logger.error(
+        logger.error(
             "The output array does not have the same number of variabls as the "
             "reference array."
         )
@@ -376,7 +434,7 @@ def compare_profiles(env, ref_file, sample_file):
         reference = reference[:, 1:]
         sample = sample[:, 1:]
     if np.isnan(reference).any() or np.isnan(sample).any():
-        build_logger.error(
+        logger.error(
             "The output array and reference array have different headers "
             "or contain non-numeric data."
         )
@@ -419,7 +477,7 @@ def compare_profiles(env, ref_file, sample_file):
             i, j = it.multi_index
             bad.append((reference[0, j], i, reference[i,j], comp[i,j], a, r, x))
 
-    # Fix line lengths here
+    # TODO: Fix line lengths here
     footer = []
     maxrows = 10
     if len(bad) > maxrows:
@@ -428,7 +486,7 @@ def compare_profiles(env, ref_file, sample_file):
         bad = bad[:maxrows]
 
     if bad:
-        output_logger.error("\n".join(header + [template.format(*row) for row in bad] + footer))
+        logger.error("\n".join(header + [template.format(*row) for row in bad] + footer), extra={"print_level": False})
         return TestResult.FAIL
     else:
         return TestResult.PASS
@@ -452,7 +510,7 @@ def compare_csv_files(env, file1: Path, file2: Path):
     automatically ignored.
     """
     if not np:
-        build_logger.warning("Skipping profile comparison because numpy is not available")
+        logger.warning("Skipping profile comparison because numpy is not available")
         return TestResult.PASS
 
     # decide how many header lines to skip
@@ -469,7 +527,7 @@ def compare_csv_files(env, file1: Path, file2: Path):
         data1 = np.genfromtxt(file1, skip_header=header_rows, delimiter=",")
         data2 = np.genfromtxt(file2, skip_header=header_rows, delimiter=",")
     except (IOError, StopIteration) as e:
-        build_logger.error(f"Could not read data files: {file1}; {file2}", exc_info=e)
+        logger.error(f"Could not read data files: {file1}; {file2}", exc_info=e)
         return TestResult.FAIL
 
     threshold = env["test_csv_threshold"]
@@ -478,7 +536,7 @@ def compare_csv_files(env, file1: Path, file2: Path):
         relerror = np.abs(data2 - data1) / denom
         maxerror = np.nanmax(relerror.flat)
     except (ValueError, TypeError) as e:
-        build_logger.error("Could not compute error.", exc_info=e)
+        logger.error("Could not compute error.", exc_info=e)
         return TestResult.FAIL
 
     tol = env["test_csv_tolerance"]
@@ -501,7 +559,7 @@ def compare_csv_files(env, file1: Path, file2: Path):
             message.append(
                 f"  {r:4d}  {c:4d}  {ref:14.7e}  {test:14.7e}  {rele:10.4e}"
             )
-    build_logger.error("\n".join(message))
+    logger.error("\n".join(message))
     return TestResult.FAIL
 
 
@@ -636,7 +694,7 @@ def help(env: "SCEnvironment.Environment", options: "SCVariables.Variables") -> 
             lines.append(f"    - actual: {actual!r}")
         message.append("\n".join(lines))
 
-    output_logger.info("\n\n".join(message))
+    logger.info("\n\n".join(message), extra={"print_level": False})
 
 
 def listify(value):
@@ -656,7 +714,7 @@ def remove_file(name: Union[Path, str]) -> None:
     """Remove file (if it exists) and print a log message."""
     path_name = Path(name)
     if path_name.exists():
-        build_logger.info(f"Removing file '{name!s}'")
+        logger.info(f"Removing file '{name!s}'")
         path_name.unlink()
 
 
@@ -664,7 +722,7 @@ def remove_directory(name: Union[Path, str]) -> None:
     """Remove directory recursively and print a log message."""
     path_name = Path(name)
     if path_name.exists() and path_name.is_dir():
-        build_logger.info(f"Removing directory '{name!s}'")
+        logger.info(f"Removing directory '{name!s}'")
         shutil.rmtree(path_name)
 
 
@@ -714,7 +772,7 @@ def get_spawn(env):
         _, err = proc.communicate()
         rv = proc.wait()
         if rv:
-            build_logger.error(err)
+            logger.error(err)
         return rv
 
     return our_spawn

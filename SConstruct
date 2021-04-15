@@ -51,7 +51,7 @@ from buildutils import *
 
 if not COMMAND_LINE_TARGETS:
     # Print usage help
-    output_logger.info(__doc__)
+    logger.info(__doc__, extra={"print_level": False})
     sys.exit(0)
 
 valid_commands = ("build", "clean", "install", "uninstall",
@@ -59,7 +59,7 @@ valid_commands = ("build", "clean", "install", "uninstall",
 
 for command in COMMAND_LINE_TARGETS:
     if command not in valid_commands and not command.startswith('test'):
-        build_logger.error(f"Unrecognized command line target: {command!r}")
+        logger.error(f"Unrecognized command line target: {command!r}")
         sys.exit(1)
 
 if "clean" in COMMAND_LINE_TARGETS:
@@ -124,7 +124,7 @@ if "test-clean" in COMMAND_LINE_TARGETS:
 # *** Set system-dependent defaults for some options ***
 # ******************************************************
 
-build_logger.info(f"SCons is using the following Python interpreter: {sys.executable}")
+logger.info(f"SCons is using the following Python interpreter: {sys.executable}")
 
 opts = Variables('cantera.conf')
 
