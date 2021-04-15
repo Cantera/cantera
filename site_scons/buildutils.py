@@ -1,6 +1,4 @@
 import os
-from os.path import join as pjoin
-from os.path import normpath
 import sys
 import platform
 import textwrap
@@ -8,31 +6,20 @@ import re
 import subprocess
 import difflib
 import time
-import types
 import shutil
-import itertools
 import enum
-
-import SCons.Errors
-import SCons
-import SCons.Node.FS
-from pkg_resources import parse_version
-import distutils.sysconfig
-
-
 from pathlib import Path
 import logging
-
-from typing import TYPE_CHECKING, Union
+from typing import Union
 
 try:
     import numpy as np
 except ImportError:
     np = None
 
-if TYPE_CHECKING:
-    import SCons.Environment as SCEnvironment
-    import SCons.Variables as SCVariables
+__all__ = ("logger", "remove_directory", "remove_file", "test_results",
+           "add_RegressionTest", "get_command_output", "listify", "which",
+           "ConfigBuilder", "mglob", "get_spawn", "help")
 
 
 class OutputFormatter(logging.Formatter):

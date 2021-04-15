@@ -1,4 +1,8 @@
 """Cython-based Python Module"""
+import re
+from os.path import join as pjoin
+from os.path import normpath
+from pkg_resources import parse_version
 from buildutils import *
 
 Import('env', 'build', 'install')

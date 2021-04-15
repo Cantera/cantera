@@ -1,3 +1,4 @@
+from os.path import join as pjoin
 from buildutils import *
 
 Import('env', 'install', 'buildSample')

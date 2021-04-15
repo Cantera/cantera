@@ -47,6 +47,16 @@ Cantera must be built using Python 3.6 or higher. You can invoke SCons by execut
 followed by any desired options.
 """
 
+from pathlib import Path
+import sys
+import os
+import platform
+import subprocess
+import re
+import textwrap
+from os.path import join as pjoin
+from pkg_resources import parse_version
+import SCons
 from buildutils import *
 
 if not COMMAND_LINE_TARGETS:
