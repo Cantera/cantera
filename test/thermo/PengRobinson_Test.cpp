@@ -313,4 +313,32 @@ TEST_F(PengRobinson_Test, cpValidate)
     }
 }
 
+TEST_F(PengRobinson_Test, CoolPropValidate)
+{
+    // Validate the P-R EoS in Cantera with P-R EoS from CoolProp
+
+    const double rhoCoolProp[10] = {
+        9.067928191884574,
+        8.318322900591179,
+        7.6883521740498155,
+        7.150504298001246,
+        6.685330199667018,
+        6.278630757480957,
+        5.919763108091383,
+        5.600572727499541,
+        5.314694056926007,
+        5.057077678380463
+    };
+
+    double p = 5e5;
+
+    // Calculate density using Peng-Robinson EoS from Cantera
+    for(int i=0; i<10; i++)
+    {
+        const double temp = 300 + i*25;
+        set_r(1.0);
+        test_phase->setState_TP(temp, p);
+        EXPECT_NEAR(test_phase->density(),rhoCoolProp[i],1.e-5);
+    }
+}
 };
