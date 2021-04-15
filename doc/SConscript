@@ -1,11 +1,13 @@
-from __future__ import print_function
+
+from collections import namedtuple
+from os.path import join as pjoin
+import os
 from buildutils import *
 
 Import('env', 'build', 'install')
 
 localenv = env.Clone()
 
-from collections import namedtuple
 Page = namedtuple('Page', ['name', 'title', 'objects'])
 
 
