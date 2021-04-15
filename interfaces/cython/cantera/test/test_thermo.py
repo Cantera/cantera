@@ -12,10 +12,10 @@ from . import utilities
 
 class TestThermoPhase(utilities.CanteraTest):
     def setUp(self):
-        self.phase = ct.Solution('h2o2.xml')
+        self.phase = ct.Solution('h2o2.yaml')
 
     def test_source(self):
-        self.assertEqual(self.phase.source, 'h2o2.xml')
+        self.assertEqual(self.phase.source, 'h2o2.yaml')
 
     def test_missing_phases_key(self):
         yaml = '''
@@ -60,7 +60,7 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertIn('TD', self.phase._partial_states.values())
 
     def test_species(self):
-        self.assertEqual(self.phase.n_species, 9)
+        self.assertEqual(self.phase.n_species, 10)
         for i,name in enumerate(self.phase.species_names):
             self.assertEqual(name, self.phase.species_name(i))
             self.assertEqual(i, self.phase.species_index(name))
@@ -69,7 +69,7 @@ class TestThermoPhase(utilities.CanteraTest):
             self.phase.species(self.phase.n_species)
 
     def test_elements(self):
-        self.assertEqual(self.phase.n_elements, 3)
+        self.assertEqual(self.phase.n_elements, 4)
         for i,symbol in enumerate(self.phase.element_names):
             self.assertEqual(symbol, self.phase.element_name(i))
             self.assertEqual(i, self.phase.element_index(symbol))
@@ -516,12 +516,12 @@ class TestThermoPhase(utilities.CanteraTest):
 
     def test_setState_mass(self):
         self.check_setters(T1 = 500.0, rho1 = 1.5,
-                           Y1 = [0.1, 0.0, 0.0, 0.1, 0.4, 0.2, 0.0, 0.0, 0.2])
+                           Y1 = [0.1, 0.0, 0.0, 0.1, 0.4, 0.2, 0.0, 0.0, 0.0, 0.2])
 
     def test_setState_mole(self):
         self.phase.basis = 'molar'
         self.check_setters(T1 = 750.0, rho1 = 0.02,
-                           Y1 = [0.2, 0.1, 0.0, 0.3, 0.1, 0.0, 0.0, 0.2, 0.1])
+                           Y1 = [0.2, 0.1, 0.0, 0.3, 0.1, 0.0, 0.0, 0.2, 0.0, 0.1])
 
     def test_setters_hold_constant(self):
         props = ('T','P','s','h','u','v','X','Y')
