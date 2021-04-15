@@ -7,8 +7,8 @@ import copy
 
 class TestTransport(utilities.CanteraTest):
     def setUp(self):
-        self.phase = ct.Solution('h2o2.xml')
-        self.phase.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4]
+        self.phase = ct.Solution("h2o2.yaml")
+        self.phase.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.0, 0.4]
         self.phase.TP = 800, 2*ct.one_atm
 
     def test_scalar_properties(self):
@@ -99,7 +99,8 @@ class TestTransport(utilities.CanteraTest):
         self.assertTrue(all(self.phase.thermal_diff_coeffs.flat != 0.0))
 
     def test_add_species_mix(self):
-        S = {s.name: s for s in ct.Species.listFromFile('gri30.xml')}
+        yaml = (self.cantera_data_path / "gri30.yaml").read_text()
+        S = {s.name: s for s in ct.Species.list_from_yaml(yaml, 'species')}
 
         base = ['H', 'H2', 'OH', 'O2', 'AR']
         extra = ['H2O', 'CH4']
@@ -122,7 +123,8 @@ class TestTransport(utilities.CanteraTest):
         self.assertArrayNear(gas1.mix_diff_coeffs, gas2.mix_diff_coeffs)
 
     def test_add_species_multi(self):
-        S = {s.name: s for s in ct.Species.listFromFile('gri30.xml')}
+        yaml = (self.cantera_data_path / "gri30.yaml").read_text()
+        S = {s.name: s for s in ct.Species.list_from_yaml(yaml, 'species')}
 
         base = ['H', 'H2', 'OH', 'O2', 'AR', 'N2']
         extra = ['H2O', 'CH4']
@@ -155,10 +157,10 @@ class TestTransport(utilities.CanteraTest):
             self.phase.TP = 800, 5*ct.one_atm
             self.assertNear(self.phase[species_name].species_viscosities[0],
                             visc)
-                            
+
     def test_transport_polynomial_fits_viscosity(self):
         visc1_h2o = self.phase['H2O'].species_viscosities[0]
-        mu_poly_h2o = self.phase.get_viscosity_polynomial(self.phase.species_index('H2O'))        
+        mu_poly_h2o = self.phase.get_viscosity_polynomial(self.phase.species_index("H2O"))
         visc1_h2 = self.phase['H2'].species_viscosities[0]
         mu_poly_h2 = self.phase.get_viscosity_polynomial(self.phase.species_index('H2'))
         self.phase.set_viscosity_polynomial(self.phase.species_index('H2'), mu_poly_h2o)
@@ -168,12 +170,12 @@ class TestTransport(utilities.CanteraTest):
         self.assertTrue(visc1_h2o != visc1_h2)
         self.assertEqual(visc1_h2o, visc2_h2)
         self.assertEqual(visc1_h2, visc3_h2)
-                            
+
     def test_transport_polynomial_fits_conductivity(self):
         self.phase.X = {'O2': 1}
         cond1_o2 = self.phase.thermal_conductivity
-        lambda_poly_o2 = self.phase.get_thermal_conductivity_polynomial(self.phase.species_index('O2'))  
-        self.phase.X = {'H2': 1}      
+        lambda_poly_o2 = self.phase.get_thermal_conductivity_polynomial(self.phase.species_index("O2"))
+        self.phase.X = {"H2": 1}
         cond1_h2 = self.phase.thermal_conductivity
         lambda_poly_h2 = self.phase.get_thermal_conductivity_polynomial(self.phase.species_index('H2'))
         self.phase.set_thermal_conductivity_polynomial(self.phase.species_index('H2'), lambda_poly_o2)
@@ -183,7 +185,7 @@ class TestTransport(utilities.CanteraTest):
         self.assertTrue(cond1_o2 != cond1_h2)
         self.assertEqual(cond1_o2, cond2_h2)
         self.assertEqual(cond1_h2, cond3_h2)
-                            
+
     def test_transport_polynomial_fits_diffusion(self):
         D12 = self.phase.binary_diff_coeffs[1, 2]
         D23 = self.phase.binary_diff_coeffs[2, 3]
@@ -304,7 +306,7 @@ class TestTransportGeometryFlags(utilities.CanteraTest):
     def test_bad_geometry(self):
         good = {'H':'atom', 'H2':'linear', 'H2O':'nonlinear', 'OHp':'linear',
                 'E':'atom'}
-        ct.Species.listFromYaml(self.species_data.format(**good))
+        ct.Species.list_from_yaml(self.species_data.format(**good))
 
         bad = [{'H':'linear'}, {'H':'nonlinear'}, {'H2':'atom'},
                {'H2':'nonlinear'}, {'H2O':'atom'}, {'OHp':'atom'},
@@ -313,12 +315,12 @@ class TestTransportGeometryFlags(utilities.CanteraTest):
             test = copy.copy(good)
             test.update(geoms)
             with self.assertRaisesRegex(ct.CanteraError, 'invalid geometry'):
-                ct.Species.listFromYaml(self.species_data.format(**test))
+                ct.Species.list_from_yaml(self.species_data.format(**test))
 
 
 class TestDustyGas(utilities.CanteraTest):
     def setUp(self):
-        self.phase = ct.DustyGas('h2o2.xml')
+        self.phase = ct.DustyGas("h2o2.yaml")
         self.phase.TPX = 500.0, ct.one_atm, "O2:2.0, H2:1.0, H2O:1.0"
         self.phase.porosity = 0.2
         self.phase.tortuosity = 0.3
@@ -358,7 +360,7 @@ class TestDustyGas(utilities.CanteraTest):
         # self.assertNear(sum(fluxes1) / sum(abs(fluxes1)), 0.0)
 
     def test_thermal_conductivity(self):
-        gas1 = ct.Solution('h2o2.xml', transport_model='multicomponent')
+        gas1 = ct.Solution("h2o2.yaml", transport_model="multicomponent")
         gas1.TPX = self.phase.TPX
 
         self.assertEqual(self.phase.thermal_conductivity, gas1.thermal_conductivity)
@@ -459,7 +461,7 @@ class TestTransportData(utilities.CanteraTest):
     @classmethod
     def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
-        cls.gas = ct.Solution('h2o2.xml')
+        cls.gas = ct.Solution("h2o2.yaml")
         cls.gas.X = 'H2O:0.6, H2:0.4'
 
     def test_read(self):
