@@ -12,6 +12,14 @@ public:
         test_phase.reset(newPhase("../data/co2_PR_example.yaml"));
     }
 
+    //vary the composition of a co2-h2 mixture
+    void set_r(const double r) {
+        vector_fp moleFracs(7);
+        moleFracs[0] = r;
+        moleFracs[2] = 1-r;
+        test_phase->setMoleFractions(&moleFracs[0]);
+    }
+
     std::unique_ptr<ThermoPhase> test_phase;
 };
 
@@ -33,20 +41,21 @@ TEST_F(cubicSolver_Test, solve_cubic)
     PengRobinson* peng_robinson_phase = dynamic_cast<PengRobinson*>(test_phase.get());
     EXPECT_TRUE(peng_robinson_phase != NULL);
 
+    set_r(1.0);
     double a_coeff = 3.958134E+5;
     double b_coeff = 26.6275/1000;
     double acc_factor = 0.228;
     const double Tcrit = test_phase->critTemperature();
     const double pCrit = test_phase->critPressure();
     double kappa = 0.37464 + 1.54226 * acc_factor - 0.26992 * acc_factor * acc_factor;
-    double temp, pres, alpha;
+    double temp, pres, alpha, rho, p;
     int nSolnValues;
     double Vroot[3];
 
     const double expected_result[3] = {
-        24.810677442023493,
-        0.065859466219402446,
-        0.072816004568591469
+        24.809417072270659,
+        0.063638901847459045,
+        0.10521518550521104
     };
 
     //Vapor phase -> nSolnValues = 1
@@ -59,6 +68,13 @@ TEST_F(cubicSolver_Test, solve_cubic)
     EXPECT_NEAR(expected_result[0], Vroot[0], 1.e-6);
     EXPECT_NEAR(nSolnValues, 1 , 1.e-6);
 
+    // Obtain pressure using EoS and compare against the given pressure value
+    set_r(1.0);
+    rho = test_phase->meanMolecularWeight()/Vroot[0];
+    peng_robinson_phase->setState_TR(temp, rho);
+    p = peng_robinson_phase->pressure();
+    EXPECT_NEAR(p, pres, 1);
+
     //Liquid phase, supercritical -> nSolnValues = -1
     temp = 300;
     pres = 80e5;
@@ -69,13 +85,27 @@ TEST_F(cubicSolver_Test, solve_cubic)
     EXPECT_NEAR(expected_result[1], Vroot[0], 1.e-6);
     EXPECT_NEAR(nSolnValues, -1, 1.e-6);
 
-    //Near critical point -> nSolnValues = -1
+    // Obtain pressure using EoS and compare against the given pressure value
+    set_r(1.0);
+    rho = test_phase->meanMolecularWeight()/Vroot[0];
+    peng_robinson_phase->setState_TR(temp, rho);
+    p = peng_robinson_phase->pressure();
+    EXPECT_NEAR(p, pres, 1);
 
+    //Near critical point -> nSolnValues = -2
+    temp = Tcrit;
     //calculate alpha
     alpha = pow(1 + kappa * (1 - sqrt(temp / Tcrit)), 2);
     //Find cubic roots
     nSolnValues = peng_robinson_phase->solveCubic(Tcrit, pCrit, a_coeff, b_coeff, alpha * a_coeff, Vroot);
     EXPECT_NEAR(expected_result[2], Vroot[0], 1.e-6);
-    EXPECT_NEAR(nSolnValues, -1, 1.e-6);
+    EXPECT_NEAR(nSolnValues, -2, 1.e-6);
+
+    // Obtain pressure using EoS and compare against the given pressure value
+    set_r(1.0);
+    rho = test_phase->meanMolecularWeight()/Vroot[0];
+    peng_robinson_phase->setState_TR(Tcrit, rho);
+    p = peng_robinson_phase->pressure();
+    EXPECT_NEAR(p, pCrit, 1);
 }
 };
