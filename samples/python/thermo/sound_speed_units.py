@@ -2,13 +2,13 @@
 Compute the "equilibrium" and "frozen" sound speeds for a gas
 
 Requires: cantera >= 2.5.0
-Keywords: thermodynamics, equilibrium
 """
 
-import cantera as ct
-import math
+import cantera.units as ct
 import numpy as np
+import math
 
+ct.units.default_format = ".2F~P"
 
 def equilSoundSpeeds(gas, rtol=1.0e-6, max_iter=5000):
     """
@@ -34,27 +34,27 @@ def equilSoundSpeeds(gas, rtol=1.0e-6, max_iter=5000):
     gas.SP = s0, p1
 
     # frozen sound speed
-    afrozen = math.sqrt((p1 - p0)/(gas.density - r0))
+    afrozen = np.sqrt((p1 - p0)/(gas.density - r0)).to("ft/s")
 
     # now equilibrate the gas holding S and P constant
     gas.equilibrate('SP', rtol=rtol, max_iter=max_iter)
 
     # equilibrium sound speed
-    aequil = math.sqrt((p1 - p0)/(gas.density - r0))
+    aequil = np.sqrt((p1 - p0)/(gas.density - r0)).to("ft/s")
 
     # compute the frozen sound speed using the ideal gas expression as a check
     gamma = gas.cp/gas.cv
-    afrozen2 = math.sqrt(gamma * ct.gas_constant * gas.T /
-                         gas.mean_molecular_weight)
+    afrozen2 = np.sqrt(gamma * ct.units.molar_gas_constant * gas.T /
+                         gas.mean_molecular_weight).to("ft/s")
 
     return aequil, afrozen, afrozen2
-
 
 # test program
 if __name__ == "__main__":
     gas = ct.Solution('gri30.yaml')
     gas.X = 'CH4:1.00, O2:2.0, N2:7.52'
-    T_range = np.linspace(300, 2900, 27)
+    T_range = np.linspace(80.33, 4760.33, 50) * ct.units.degF
+    print("Temperature      Equilibrium Sound Speed     Frozen Sound Speed      Frozen Sound Speed Check")
     for T in T_range:
-        gas.TP = T, ct.one_atm
-        print(T, equilSoundSpeeds(gas))
+        gas.TP = T, 1.0 * ct.units.atm
+        print(T, *equilSoundSpeeds(gas), sep = "               ")
