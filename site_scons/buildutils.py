@@ -71,6 +71,7 @@ class LevelFilter(logging.Filter):
         self._low = low
         self._high = high
         super().__init__()
+
     def filter(self, record: logging.LogRecord) -> bool:
         if self._low <= record.levelno < self._high:
             return True
@@ -94,6 +95,7 @@ logger.addHandler(stderr_handler)
 class TestResult(enum.IntEnum):
     PASS = 0
     FAIL = 1
+
 
 class DefineDict:
     """
@@ -162,7 +164,8 @@ class TestResults:
             "failed": sum(self.failed.values()),
             "skipped": len(self.tests),
         }
-        message = textwrap.dedent("""\
+        message = textwrap.dedent(
+            """
             *****************************
             ***    Testing Summary    ***
             *****************************
@@ -178,7 +181,8 @@ class TestResults:
                        "\n")
         message = message + "*****************************"
         if self.failed:
-            logger.error("One or more tests failed.\n" + message, extra={"print_level": False})
+            logger.error("One or more tests failed.\n" + message,
+                         extra={"print_level": False})
             sys.exit(1)
         else:
             logger.info(message, extra={"print_level": False})
@@ -240,14 +244,16 @@ def regression_test(target, source, env):
         comparisons.append((Path(blessed_name), output_name))
 
     for blessed, output in comparisons:
-        logger.info(f"Comparing '{blessed}' with '{output}'", extra={"print_level": False})
+        logger.info(f"Comparing '{blessed}' with '{output}'",
+                    extra={"print_level": False})
         d = compare_files(env, dir.joinpath(blessed), dir.joinpath(output))
         if d:
             logger.error("FAILED", extra={"print_level": False})
         diff |= d
 
     for blessed, output in env["test_profiles"]:
-        logger.info(f"Comparing '{blessed}' with '{output}'", extra={"print_level": False})
+        logger.info(f"Comparing '{blessed}' with '{output}'",
+                    extra={"print_level": False})
         d = compare_profiles(env, dir.joinpath(blessed), dir.joinpath(output))
         if d:
             logger.error("FAILED", extra={"print_level": False})
@@ -329,7 +335,6 @@ def compare_text_files(env, file1: Path, file2: Path):
                 # String representations match, so replacement is unnecessary
                 continue
 
-
             try:
                 num1 = float(float_1[1])
                 num2 = float(float_2[1])
@@ -369,7 +374,18 @@ def compare_text_files(env, file1: Path, file2: Path):
 
 
 def get_precision(number: str) -> int:
-    """Return the integer representing the power of 10 of the least significant digit in the number represented as a string."""
+    """Return the precision of the least significant digit in a number.
+
+    Return an integer representing the power of 10 of the least significant digit in
+    ``number``, which must be a string.
+
+    Patterns to consider:
+    123 -> 0
+    123.45 -> -2
+    123.45e6 -> 4
+    123e4 -> 4
+    """
+
     number = number.lower()
     if "e" in number:
         number, exponent = number.split("e")
@@ -462,9 +478,8 @@ def compare_profiles(env, ref_file, sample_file):
         it = np.nditer((abserr, relerr, xerr), flags=["multi_index"])
         for a, r, x in it:
             i, j = it.multi_index
-            bad.append((reference[0, j], i, reference[i,j], comp[i,j], a, r, x))
+            bad.append((reference[0, j], i, reference[i, j], comp[i, j], a, r, x))
 
-    # TODO: Fix line lengths here
     footer = []
     maxrows = 10
     if len(bad) > maxrows:
@@ -473,7 +488,10 @@ def compare_profiles(env, ref_file, sample_file):
         bad = bad[:maxrows]
 
     if bad:
-        logger.error("\n".join(header + [template.format(*row) for row in bad] + footer), extra={"print_level": False})
+        logger.error(
+            "\n".join(header + [template.format(*row) for row in bad] + footer),
+            extra={"print_level": False},
+        )
         return TestResult.FAIL
     else:
         return TestResult.PASS
@@ -527,7 +545,7 @@ def compare_csv_files(env, file1: Path, file2: Path):
         return TestResult.FAIL
 
     tol = env["test_csv_tolerance"]
-    if maxerror < tol: # Threshold based on printing 6 digits in the CSV file
+    if maxerror < tol:  # Threshold based on printing 6 digits in the CSV file
         return TestResult.PASS
 
     n_fail = np.sum(relerror > tol)
@@ -598,7 +616,7 @@ def which(program: str) -> bool:
     return False
 
 
-def help(env: "SCEnvironment.Environment", options: "SCVariables.Variables") -> None:
+def help(env, options):
     """Print help about configuration options and exit.
 
     Print a nicely formatted description of a SCons configuration
@@ -719,9 +737,9 @@ def ipdb():
     where this function is called.
     """
     from IPython.core.debugger import Pdb
-    from IPython.core import ipapi
+    from IPython.core import getipython
 
-    ip = ipapi.get()
+    ip = getipython.get_ipython()
     def_colors = ip.colors
     Pdb(def_colors).set_trace(sys._getframe().f_back)
 
@@ -782,7 +800,9 @@ def get_command_output(cmd, *args):
     )
     return data.stdout.strip()
 
+
 # Monkey patch for SCons Cygwin bug
 # See https://github.com/SCons/scons/issues/2664
 if "cygwin" in platform.system().lower():
+    import SCons.Node.FS
     SCons.Node.FS._my_normcase = lambda x: x

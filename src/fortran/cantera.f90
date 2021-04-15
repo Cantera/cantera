@@ -9,7 +9,6 @@
 MODULE CANTERA
 
   USE cantera_thermo
-  USE cantera_thermo
   USE cantera_kinetics
   USE cantera_transport
   USE cantera_xml
@@ -429,4 +428,3 @@ MODULE CANTERA
   END INTERFACE write
 
 END MODULE CANTERA
-
