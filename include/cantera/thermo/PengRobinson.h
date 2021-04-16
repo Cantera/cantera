@@ -183,7 +183,7 @@ public:
      *  @param alpha       dimensionless function of T_r and \omega
      */
     void setBinaryCoeffs(const std::string& species_i,
-                         const std::string& species_j, double a, double alpha);
+                         const std::string& species_j, double a);
 
 protected:
     // Special functions inherited from MixtureFugacityTP
