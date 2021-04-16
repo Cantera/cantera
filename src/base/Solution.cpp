@@ -18,8 +18,7 @@
 namespace Cantera
 {
 
-Solution::Solution() :
-    m_description("") {
+Solution::Solution() {
 }
 
 std::string Solution::name() const {
@@ -37,6 +36,18 @@ void Solution::setName(const std::string& name) {
     } else {
         throw CanteraError("Solution::setName",
                            "Requires associated 'ThermoPhase'");
+    }
+}
+
+std::string Solution::description() const {
+    return m_input.getString("description", "");
+}
+
+void Solution::setDescription(const std::string& desc) {
+    if (desc == "") {
+        m_input.erase("description");
+    } else {
+        m_input["description"] = desc;
     }
 }
 
@@ -59,6 +70,16 @@ void Solution::setTransport(shared_ptr<Transport> transport) {
     if (m_transport) {
         m_transport->setRoot(shared_from_this());
     }
+}
+
+const AnyMap& Solution::input() const
+{
+    return m_input;
+}
+
+AnyMap& Solution::input()
+{
+    return m_input;
 }
 
 AnyMap Solution::parameters(bool withInput) const
@@ -92,7 +113,10 @@ shared_ptr<Solution> newSolution(const std::string& infile,
     }
     if (extension == "yml" || extension == "yaml") {
         AnyMap root = AnyMap::fromYamlFile(infile);
-        sol->setDescription(root.getString("description", ""));
+        root.erase("phases");
+        root.erase("species");
+        root.erase("reactions");
+        sol->input() = root;
     }
 
     // thermo phase

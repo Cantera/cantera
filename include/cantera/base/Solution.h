@@ -7,6 +7,7 @@
 #define CT_SOLUTION_H
 
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
@@ -14,7 +15,6 @@ namespace Cantera
 class ThermoPhase;
 class Kinetics;
 class Transport;
-class AnyMap;
 
 //! A container class holding managers for all pieces defining a phase
 class Solution : public std::enable_shared_from_this<Solution>
@@ -39,14 +39,10 @@ public:
     void setName(const std::string& name);
 
     //! Return the description of this Solution object
-    std::string description() const {
-        return m_description;
-    }
+    std::string description() const;
 
     //! Set the description of this Solution object
-    void setDescription(const std::string& desc) {
-        m_description = desc;
-    }
+    void setDescription(const std::string& desc);
 
     //! Set the ThermoPhase object
     void setThermo(shared_ptr<ThermoPhase> thermo);
@@ -74,12 +70,17 @@ public:
 
     AnyMap parameters(bool withInput=false) const;
 
-protected:
-    std::string m_description; //!< Description of Solution object
+    //! Access input data associated with the species thermo definition
+    const AnyMap& input() const;
+    AnyMap& input();
 
+protected:
     shared_ptr<ThermoPhase> m_thermo;  //!< ThermoPhase manager
     shared_ptr<Kinetics> m_kinetics;  //!< Kinetics manager
     shared_ptr<Transport> m_transport;  //!< Transport manager
+
+    //! Additional input fields, e.g. from a YAML input file.
+    AnyMap m_input;
 };
 
 //! Create and initialize a new Solution manager from an input file
