@@ -195,6 +195,7 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
         CxxSolution()
         string name()
         void setName(string)
+        CxxAnyMap input() except +translate_exception
         void setThermo(shared_ptr[CxxThermoPhase])
         void setKinetics(shared_ptr[CxxKinetics])
         void setTransport(shared_ptr[CxxTransport])
