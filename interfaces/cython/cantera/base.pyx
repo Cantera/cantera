@@ -236,6 +236,15 @@ cdef class _SolutionBase:
         def __get__(self):
             return anymap_to_dict(self.base.parameters(True))
 
+    property input_header:
+        """
+        Retrieve input header data not associated with the current state of this
+        Solution, which corresponds to fields at the root level of the YAML input
+        that are not required for the instantiation of Cantera objects.
+        """
+        def __get__(self):
+            return anymap_to_dict(self.base.input())
+
     def update_user_data(self, data):
         """
         Add the contents of the provided `dict` as additional fields when generating
