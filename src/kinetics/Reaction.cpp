@@ -296,8 +296,17 @@ std::string ThreeBodyReaction::productString() const {
 void ThreeBodyReaction::calculateRateCoeffUnits(const Kinetics& kin)
 {
     ElementaryReaction::calculateRateCoeffUnits(kin);
-    const ThermoPhase& rxn_phase = kin.thermo(kin.reactionPhaseIndex());
-    rate_units *= rxn_phase.standardConcentrationUnits().pow(-1);
+    bool specified = false;
+    for (const auto& reac : reactants) {
+        if (reac.first != "M" && products.count(reac.first)) {
+            // detected specified third-body collision partner
+            specified = true;
+        }
+    }
+    if (!specified) {
+        const ThermoPhase& rxn_phase = kin.thermo(kin.reactionPhaseIndex());
+        rate_units *= rxn_phase.standardConcentrationUnits().pow(-1);
+    }
 }
 
 void ThreeBodyReaction::getParameters(AnyMap& reactionNode) const
