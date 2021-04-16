@@ -244,6 +244,15 @@ cdef class _SolutionBase:
         def __get__(self):
             return anymap_to_dict(self.base.parameters(True))
 
+    property extra:
+        """
+        Retrieve input data not associated with the current state of this Solution,
+        which corresponds to fields at the root level of the YAML input that are not
+        required for the instantiation of Cantera objects.
+        """
+        def __get__(self):
+            return anymap_to_dict(self.base.input())
+
     def write_yaml(self, filename, phases=None, units=None, precision=None,
                    skip_user_defined=None):
         """
