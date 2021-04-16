@@ -1375,6 +1375,12 @@ class SolutionArray:
 
         return root_attrs
 
+    def __reduce__(self):
+        raise NotImplementedError('SolutionArray object is not picklable')
+
+    def __copy__(self):
+        raise NotImplementedError('SolutionArray object is not copyable')
+
 
 def _state2_prop(name, doc_source):
     # Factory for creating properties which consist of a tuple of two variables,
