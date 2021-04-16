@@ -81,7 +81,7 @@ void PengRobinson::setSpeciesCoeffs(const std::string& species, double a, double
 }
 
 void PengRobinson::setBinaryCoeffs(const std::string& species_i,
-        const std::string& species_j, double a0, double alpha)
+        const std::string& species_j, double a0)
 {
     size_t ki = speciesIndex(species_i);
     if (ki == npos) {
@@ -95,7 +95,9 @@ void PengRobinson::setBinaryCoeffs(const std::string& species_i,
     }
 
     m_a_coeffs(ki, kj) = m_a_coeffs(kj, ki) = a0;
-    m_aAlpha_binary(ki, kj) = m_aAlpha_binary(kj, ki) = a0*alpha;
+    // Calculate alpha_ij
+    double alpha_ij = m_alpha[ki] * m_alpha[kj];
+    m_aAlpha_binary(ki, kj) = m_aAlpha_binary(kj, ki) = a0*alpha_ij;
 }
 
 // ------------Molar Thermodynamic Properties -------------------------
@@ -496,7 +498,7 @@ void PengRobinson::initThermo()
         if (item.second->input.hasKey("equation-of-state")) {
             auto eos = item.second->input["equation-of-state"].getMapWhere(
                 "model", "Peng-Robinson");
-            double a0 = 0, a1 = 0;
+            double a0 = 0;
             if (eos["a"].isScalar()) {
                 a0 = eos.convert("a", "Pa*m^6/kmol^2");
             }
@@ -509,11 +511,11 @@ void PengRobinson::initThermo()
                 AnyMap& binary_a = eos["binary-a"].as<AnyMap>();
                 const UnitSystem& units = binary_a.units();
                 for (auto& item2 : binary_a) {
-                    double a0 = 0, a1 = 0;
+                    double a0 = 0;
                     if (item2.second.isScalar()) {
                         a0 = units.convert(item2.second, "Pa*m^6/kmol^2");
                     }
-                    setBinaryCoeffs(item.first, item2.first, a0, a1);
+                    setBinaryCoeffs(item.first, item2.first, a0);
                 }
             }
         } else {
