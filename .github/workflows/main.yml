@@ -216,6 +216,9 @@ jobs:
   multiple-sundials:
     name: Sundials ${{ matrix.sundials-ver }}
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
     strategy:
       matrix:
         sundials-ver: [ 2, 3, 4, 5.7 ]
@@ -229,23 +232,21 @@ jobs:
         with:
           auto-update-conda: true
           python-version: 3.8
-          channel-priority: strict
-          channels: conda-forge
+          miniforge-version: latest
         name: Set up conda
       - name: Install conda dependencies
-        shell: bash -l {0}
+        # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
+        # use boost-cpp rather than boost from conda-forge
         run: |
           conda install -q sundials=${{ matrix.sundials-ver }} scons numpy ruamel_yaml \
-          cython libboost fmt eigen yaml-cpp h5py pandas
+          cython boost-cpp fmt eigen yaml-cpp h5py pandas libgomp openblas
       - name: Build Cantera
         run: |
           scons build extra_inc_dirs=$CONDA_PREFIX/include:$CONDA_PREFIX/include/eigen3 \
           extra_lib_dirs=$CONDA_PREFIX/lib system_fmt=y system_eigen=y system_yamlcpp=y \
-          system_sundials=y -j2 VERBOSE=True debug=n
-        shell: bash -l {0}
+          system_sundials=y blas_lapack_libs='lapack,blas' -j2 VERBOSE=True debug=n
       - name: Test Cantera
         run: scons test
-        shell: bash -l {0}
 
   cython-latest:
     name: Test pre-release version of Cython
@@ -278,7 +279,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       BOOST_ROOT: ${{github.workspace}}/3rdparty/boost
-      BOOST_URL: https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.7z
+      BOOST_URL: https://pilotfiber.dl.sourceforge.net/project/boost/boost/1.75.0/boost_1_75_0.7z
     strategy:
       matrix:
         os: ['windows-2019']
