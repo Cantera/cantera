@@ -604,9 +604,9 @@ double PengRobinson::densityCalc(double T, double presPa, int phaseRequested, do
             double lqvol = liquidVolEst(T, presPa);
             rhoGuess = mmw / lqvol;
         }
-        } else {
-            // Assume the Gas phase initial guess, if nothing is specified to the routine
-            rhoGuess = presPa * mmw / (GasConstant * T);
+    } else {
+        // Assume the Gas phase initial guess, if nothing is specified to the routine
+        rhoGuess = presPa * mmw / (GasConstant * T);
     }
 
     double volGuess = mmw / rhoGuess;
