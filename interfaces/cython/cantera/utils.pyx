@@ -121,10 +121,51 @@ cdef anymap_to_dict(CxxAnyMap& m):
             for item in m.ordered()}
 
 
-cdef CxxAnyValue python_to_anyvalue(string name, v):
+cdef CxxAnyValue python_to_anyvalue(string name, v) except *:
+    # convert Python values to C++ AnyValue
     cdef CxxAnyMap a
     cdef CxxAnyValue b
 
+    if isinstance(v, dict):
+        a = dict_to_anymap(v)
+        b = a
+        return b
+
+    def is_scalar(v):
+        return not hasattr(v, '__len__') or isinstance(v, str)
+
+    all_same = True
+    if not is_scalar(v):
+        # ensure that data are homogeneous
+        # (np.array converts inhomogeneous sequences to string arrays)
+        if isinstance(v, np.ndarray):
+            pass
+        elif is_scalar(v[0]):
+            all_same = all([type(val) == type(v[0]) for val in v])
+        else:
+            all_same = []
+            sizes = []
+            for row in range(len(v)):
+                sizes.append(len(v[row]))
+                all_same.append(all([type(val) == type(v[0][0]) for val in v[row]]))
+            if not all(all_same):
+                raise NotImplementedError(
+                        "Cannot process nested sequences with inhomogeneous data types"
+                    )
+            elif np.unique(sizes).size != 1:
+                raise NotImplementedError(
+                        "Cannot process arrays represented by ragged nested sequences"
+                    )
+
+    cdef vector[CxxAnyValue] vv_any
+    if not all_same:
+        # inhomogeneous sequence
+        for val in v:
+            vv_any.push_back(python_to_anyvalue(name, val))
+        b = vv_any
+        return b
+
+    # data are homogeneous: convert to np.array for convenience
     vv = np.array(v)
 
     cdef string v_string
@@ -223,10 +264,11 @@ cdef CxxAnyValue python_to_anyvalue(string name, v):
                 "Cannot process boolean array with {} dimensions".format(vv.ndim)
             )
 
-    raise NotImplementedError("no conversion for type '{}'".format(type(v)))
+    raise NotImplementedError("Unable to process input:\n{}".format(v))
 
 
-cdef CxxAnyMap dict_to_anymap(dict dd):
+cdef CxxAnyMap dict_to_anymap(dict dd) except *:
+    # convert Python dictionary to C++ AnyMap
     cdef CxxAnyMap mm
     cdef string kk
     for key, val in dd.items():

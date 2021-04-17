@@ -83,6 +83,7 @@ cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
         CxxAnyValue& operator=(cbool) except +translate_exception
         CxxAnyValue& operator=(int) except +translate_exception
         CxxAnyValue& operator=(long) except +translate_exception
+        CxxAnyValue& operator=(CxxAnyMap) except +translate_exception
         CxxAnyValue& operator=[T](vector[T]) except +translate_exception
         unordered_map[string, CxxAnyMap*] asMap(string) except +translate_exception
         CxxAnyMap& getMapWhere(string, string) except +translate_exception
