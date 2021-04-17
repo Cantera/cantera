@@ -4,7 +4,7 @@ import cantera as ct
 from . import utilities
 from .utilities import unittest
 
-from cantera._cantera import _py_to_any_to_py, _dict_to_any_to_dict
+from cantera._cantera import _py_to_any_to_py
 
 class TestPyToAnyValue(utilities.CanteraTest):
 
@@ -24,16 +24,21 @@ class TestPyToAnyValue(utilities.CanteraTest):
             _py_to_any_to_py(value)
 
     def test_none(self):
-        self.check_raises(None, NotImplementedError, "'None'")
+        # None is converted to []
+        out = _py_to_any_to_py(None)
+        self.assertEqual(out, [])
 
     def test_set(self):
         self.check_raises({'a', 'b'}, NotImplementedError, "Python sets")
 
-    def test_empty1(self):
-        self.check_raises([], NotImplementedError, "empty sequences")
+    def test_empty_list(self):
+        self.check_conversion([])
 
-    def test_empty2(self):
-        self.check_raises(np.ndarray((0,)), NotImplementedError, "empty sequences")
+    def test_empty_ndarray(self):
+        self.check_inexact_conversion(np.ndarray((0,)))
+
+    def test_empty_dict(self):
+        self.check_conversion({})
 
     def test_scalar_string(self):
         self.check_conversion('spam')
@@ -109,16 +114,8 @@ class TestPyToAnyValue(utilities.CanteraTest):
     def test_ragged(self):
         self.check_raises([[1, 2, 3], [4]], NotImplementedError, 'ragged')
 
-    def test_dict1(self):
+    def test_dict(self):
         self.check_conversion({'a': 1, 'b': 2., 'c': 'eggs', 'd': True})
 
-    def test_dict2(self):
-        dd = {'a': 1, 'b': 2., 'c': 'eggs', 'd': True}
-        self.assertEqual(dd, _dict_to_any_to_dict(dd))
-
-    def test_nested_dict1(self):
+    def test_nested_dict(self):
         self.check_conversion({'a': 1, 'b': 2., 'c': {'d': 'eggs'}})
-
-    def test_nested_dict2(self):
-        dd = {'a': 1, 'b': 2., 'c': {'d': [1, 2, 3]}}
-        self.assertEqual(dd, _dict_to_any_to_dict(dd))

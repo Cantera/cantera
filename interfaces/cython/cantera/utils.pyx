@@ -76,6 +76,9 @@ cdef public PyObject* pyCanteraError = <PyObject*>CanteraError
 cdef anyvalue_to_python(string name, CxxAnyValue& v):
     cdef CxxAnyMap a
     cdef CxxAnyValue b
+    if v.isEmpty():
+        # It is not possible to determine the associated type; return empty list
+        return []
     if v.isScalar():
         if v.isType[string]():
             return pystr(v.asType[string]())
@@ -85,6 +88,10 @@ cdef anyvalue_to_python(string name, CxxAnyValue& v):
             return v.asType[long]()
         elif v.isType[cbool]():
             return v.asType[cbool]()
+        else:
+            raise TypeError("Unable to convert value with key '{}' "
+                            "from AnyValue of held type '{}'".format(
+                                pystr(name), v.type_str()))
     elif v.isType[CxxAnyMap]():
         return anymap_to_dict(v.asType[CxxAnyMap]())
     elif v.isType[vector[CxxAnyMap]]():
@@ -117,17 +124,19 @@ cdef anyvalue_to_python(string name, CxxAnyValue& v):
 
 cdef anymap_to_dict(CxxAnyMap& m):
     m.applyUnits()
+    if m.isEmpty():
+        return {}
     return {pystr(item.first): anyvalue_to_python(item.first, item.second)
             for item in m.ordered()}
 
 
-cdef CxxAnyValue python_to_anyvalue(string name, v) except *:
+cdef CxxAnyValue python_to_anyvalue(name, v) except *:
     # convert Python values to C++ AnyValue
     cdef CxxAnyMap a
     cdef CxxAnyValue b
 
     if v is None:
-        raise NotImplementedError("Cannot process 'None'.")
+        return b
     elif isinstance(v, set):
         raise NotImplementedError("Cannot process Python sets.")
     elif isinstance(v, dict):
@@ -143,7 +152,8 @@ cdef CxxAnyValue python_to_anyvalue(string name, v) except *:
         # ensure that data are homogeneous
         # (np.array converts inhomogeneous sequences to string arrays)
         if not len(v):
-            raise NotImplementedError("Cannot process empty sequences.")
+            # np.array converts empty arrays to float
+            pass
         elif isinstance(v, np.ndarray):
             pass
         elif is_scalar(v[0]):
@@ -174,34 +184,13 @@ cdef CxxAnyValue python_to_anyvalue(string name, v) except *:
     # data are homogeneous: convert to np.array for convenience
     vv = np.array(v)
 
-    cdef string v_string
-    cdef vector[string] vv_string
-    cdef vector[vector[string]] vvv_string
-    if isinstance(v, str) or (vv.ndim and isinstance(vv.ravel()[0], str)):
-        if vv.ndim == 0:
-            v_string = stringify(v)
-            b = v_string
-            return b
-        if vv.ndim == 1:
-            for val in vv:
-                vv_string.push_back(stringify(val))
-            b = vv_string
-            return b
-        if vv.ndim == 2:
-            vvv_string.resize(vv.shape[0])
-            for row in range(vv.shape[0]):
-                for val in vv[row, :]:
-                    vvv_string[row].push_back(stringify(val))
-            b = vvv_string
-            return b
-        raise NotImplementedError(
-                "Cannot process string array with {} dimensions".format(vv.ndim)
-            )
-
     cdef double v_double
     cdef vector[double] vv_double
     cdef vector[vector[double]] vvv_double
     if vv.dtype == float:
+        if vv.size == 0:
+            # empty list
+            return b
         if vv.ndim == 0:
             v_double = v
             b = v_double
@@ -270,6 +259,30 @@ cdef CxxAnyValue python_to_anyvalue(string name, v) except *:
                 "Cannot process boolean array with {} dimensions".format(vv.ndim)
             )
 
+    cdef string v_string
+    cdef vector[string] vv_string
+    cdef vector[vector[string]] vvv_string
+    if isinstance(v, str) or (vv.ndim and isinstance(vv.ravel()[0], str)):
+        if vv.ndim == 0:
+            v_string = stringify(v)
+            b = v_string
+            return b
+        if vv.ndim == 1:
+            for val in vv:
+                vv_string.push_back(stringify(val))
+            b = vv_string
+            return b
+        if vv.ndim == 2:
+            vvv_string.resize(vv.shape[0])
+            for row in range(vv.shape[0]):
+                for val in vv[row, :]:
+                    vvv_string[row].push_back(stringify(val))
+            b = vvv_string
+            return b
+        raise NotImplementedError(
+                "Cannot process string array with {} dimensions".format(vv.ndim)
+            )
+
     raise NotImplementedError("Unable to process input:\n{}".format(v))
 
 
@@ -279,7 +292,7 @@ cdef CxxAnyMap dict_to_anymap(dict dd) except *:
     cdef string kk
     for key, val in dd.items():
         kk = stringify(key)
-        mm[kk] = python_to_anyvalue(kk, val)
+        mm[kk] = python_to_anyvalue(key, val)
     return mm
 
 
@@ -288,11 +301,3 @@ def _py_to_any_to_py(dd):
     cdef string name = stringify("test")
     cdef CxxAnyValue vv = python_to_anyvalue(name, dd)
     return anyvalue_to_python(name, vv)
-
-
-def _dict_to_any_to_dict(dd):
-    # @internal  used for testing purposes only
-    if not isinstance(dd, dict):
-        raise TypeError("this requires a dictionary")
-    cdef CxxAnyMap mm = dict_to_anymap(dd)
-    return anymap_to_dict(mm)

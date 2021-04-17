@@ -620,6 +620,10 @@ std::string AnyValue::type_str() const {
     return demangle(type());
 }
 
+bool AnyValue::isEmpty() const {
+    return m_value->empty();
+}
+
 bool AnyValue::isScalar() const {
     return is<double>() || is<long int>() || is<std::string>() || is<bool>();
 }
@@ -1341,6 +1345,11 @@ const AnyValue& AnyMap::at(const std::string& key) const
         throw InputFileError("AnyMap::at", *this,
             "Key '{}' not found.\nExisting keys: {}", key, keys_str());
     }
+}
+
+bool AnyMap::isEmpty() const
+{
+    return m_data.size() == 0;
 }
 
 bool AnyMap::hasKey(const std::string& key) const
