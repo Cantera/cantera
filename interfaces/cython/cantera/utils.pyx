@@ -119,3 +119,132 @@ cdef anymap_to_dict(CxxAnyMap& m):
     m.applyUnits()
     return {pystr(item.first): anyvalue_to_python(item.first, item.second)
             for item in m.ordered()}
+
+
+cdef CxxAnyValue python_to_anyvalue(string name, v):
+    cdef CxxAnyMap a
+    cdef CxxAnyValue b
+
+    vv = np.array(v)
+
+    cdef string v_string
+    cdef vector[string] vv_string
+    cdef vector[vector[string]] vvv_string
+    if isinstance(v, str) or (vv.ndim and isinstance(vv[0], str)):
+        if vv.ndim == 0:
+            v_string = stringify(v)
+            b = v_string
+            return b
+        if vv.ndim == 1:
+            for val in vv:
+                vv_string.push_back(stringify(val))
+            b = vv_string
+            return b
+        if vv.ndim == 2:
+            vvv_string.resize(vv.shape[0])
+            for row in range(vv.shape[0]):
+                for val in vv[row, :]:
+                    vvv_string[row].push_back(stringify(val))
+            b = vvv_string
+            return b
+        raise NotImplementedError(
+                "Cannot process string array with {} dimensions".format(vv.ndim)
+            )
+
+    cdef double v_double
+    cdef vector[double] vv_double
+    cdef vector[vector[double]] vvv_double
+    if vv.dtype == np.float:
+        if vv.ndim == 0:
+            v_double = v
+            b = v_double
+            return b
+        if vv.ndim == 1:
+            for val in vv:
+                vv_double.push_back(val)
+            b = vv_double
+            return b
+        if vv.ndim == 2:
+            vvv_double.resize(vv.shape[0])
+            for row in range(vv.shape[0]):
+                for val in vv[row, :]:
+                    vvv_double[row].push_back(val)
+            b = vvv_double
+            return b
+        raise NotImplementedError(
+                "Cannot process float array with {} dimensions".format(vv.ndim)
+            )
+
+    cdef long v_int
+    cdef vector[long] vv_int
+    cdef vector[vector[long]] vvv_int
+    if vv.dtype == np.int:
+        if vv.ndim == 0:
+            v_int = v
+            b = v_int
+            return b
+        if vv.ndim == 1:
+            for val in vv:
+                vv_int.push_back(val)
+            b = vv_int
+            return b
+        if vv.ndim == 2:
+            vvv_int.resize(vv.shape[0])
+            for row in range(vv.shape[0]):
+                for val in vv[row, :]:
+                    vvv_int[row].push_back(val)
+            b = vvv_int
+            return b
+        raise NotImplementedError(
+                "Cannot process integer array with {} dimensions".format(vv.ndim)
+            )
+
+    cdef cbool v_bool
+    cdef vector[cbool] vv_bool
+    cdef vector[vector[cbool]] vvv_bool
+    if vv.dtype == np.bool:
+        if vv.ndim == 0:
+            v_bool = v
+            b = v_bool
+            return b
+        if vv.ndim == 1:
+            for val in vv:
+                vv_bool.push_back(val)
+            b = vv_bool
+            return b
+        if vv.ndim == 2:
+            vvv_bool.resize(vv.shape[0])
+            for row in range(vv.shape[0]):
+                for val in vv[row, :]:
+                    vvv_bool[row].push_back(val)
+            b = vvv_bool
+            return b
+        raise NotImplementedError(
+                "Cannot process boolean array with {} dimensions".format(vv.ndim)
+            )
+
+    raise NotImplementedError("no conversion for type '{}'".format(type(v)))
+
+
+cdef CxxAnyMap dict_to_anymap(dict dd):
+    cdef CxxAnyMap mm
+    cdef string kk
+    for key, val in dd.items():
+        kk = stringify(key)
+        mm[kk] = python_to_anyvalue(kk, val)
+    return mm
+
+
+def _py_to_any_to_py(dd):
+    # @internal  used for testing purposes only
+    cdef string name = stringify("test")
+    cdef CxxAnyValue vv = python_to_anyvalue(name, dd)
+    return anyvalue_to_python(name, vv)
+
+
+def _dict_to_any_to_dict(dd):
+    # @internal  used for testing purposes only
+    if not isinstance(dd, dict):
+        raise TypeError("this requires a dictionary")
+    cdef CxxAnyMap mm = dict_to_anymap(dd)
+    return anymap_to_dict(mm)
