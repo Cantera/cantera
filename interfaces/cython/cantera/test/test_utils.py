@@ -29,7 +29,7 @@ class TestPyToAnyValue(utilities.CanteraTest):
         self.assertEqual(out, [])
 
     def test_set(self):
-        self.check_raises({'a', 'b'}, NotImplementedError, "Python sets")
+        self.check_raises({'a', 'b'}, NotImplementedError, "Python set")
 
     def test_empty_list(self):
         self.check_conversion([])
@@ -65,7 +65,7 @@ class TestPyToAnyValue(utilities.CanteraTest):
         self.check_conversion([True, False])
 
     def test_list_various(self):
-        self.check_conversion([True, 'spam', 3, 4.])
+        self.check_conversion([True, 'spam', 3, 4., {'foo': 'bar'}])
 
     def test_tuple(self):
         self.check_inexact_conversion((True, 'spam', 3, 4.))
@@ -78,7 +78,7 @@ class TestPyToAnyValue(utilities.CanteraTest):
 
     def test_ndarray3(self):
         self.check_raises(np.random.randn(3, 2, 4),
-            NotImplementedError, 'Cannot process float')
+            NotImplementedError, 'cannot process float')
 
     def test_nested_string(self):
         self.check_conversion([['spam', 'eggs'], ['foo', 'bar']])
@@ -94,19 +94,27 @@ class TestPyToAnyValue(utilities.CanteraTest):
 
     def test_raises_string(self):
         self.check_raises([[['spam', 'eggs'], ['foo', 'bar']]],
-            NotImplementedError, 'Cannot process string')
+            NotImplementedError, 'cannot process string')
+
+    def test_raises_named(self):
+        self.check_raises({'abcd': [[['spam', 'eggs'], ['foo', 'bar']]]},
+            NotImplementedError, "value with key 'abcd'")
 
     def test_raises_int(self):
         self.check_raises([[[1, 2, 3], [4, 5, 6]]],
-            NotImplementedError, 'Cannot process integer')
+            NotImplementedError, 'cannot process integer')
 
     def test_raises_float(self):
         self.check_raises([[[1., 2., 3.], [4., 5., 6.]]],
-            NotImplementedError, 'Cannot process float')
+            NotImplementedError, 'cannot process float')
 
     def test_raises_bool(self):
         self.check_raises([[[True, False], [False, True]]],
-            NotImplementedError, 'Cannot process boolean')
+            NotImplementedError, 'cannot process boolean')
+
+    def test_multi_dict(self):
+        vv = [{'a': [['spam', 'eggs'], ['foo', 'bar']], 'b': {'c': 4}}, {'d': 3}]
+        self.check_conversion(vv)
 
     def test_inhomogeneous(self):
         self.check_raises([[1, 2], ['a', 'b']], NotImplementedError, 'inhomogeneous')
