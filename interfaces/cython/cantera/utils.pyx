@@ -126,7 +126,11 @@ cdef CxxAnyValue python_to_anyvalue(string name, v) except *:
     cdef CxxAnyMap a
     cdef CxxAnyValue b
 
-    if isinstance(v, dict):
+    if v is None:
+        raise NotImplementedError("Cannot process 'None'.")
+    elif isinstance(v, set):
+        raise NotImplementedError("Cannot process Python sets.")
+    elif isinstance(v, dict):
         a = dict_to_anymap(v)
         b = a
         return b
@@ -138,7 +142,9 @@ cdef CxxAnyValue python_to_anyvalue(string name, v) except *:
     if not is_scalar(v):
         # ensure that data are homogeneous
         # (np.array converts inhomogeneous sequences to string arrays)
-        if isinstance(v, np.ndarray):
+        if not len(v):
+            raise NotImplementedError("Cannot process empty sequences.")
+        elif isinstance(v, np.ndarray):
             pass
         elif is_scalar(v[0]):
             all_same = all([type(val) == type(v[0]) for val in v])
@@ -171,7 +177,7 @@ cdef CxxAnyValue python_to_anyvalue(string name, v) except *:
     cdef string v_string
     cdef vector[string] vv_string
     cdef vector[vector[string]] vvv_string
-    if isinstance(v, str) or (vv.ndim and isinstance(vv[0], str)):
+    if isinstance(v, str) or (vv.ndim and isinstance(vv.ravel()[0], str)):
         if vv.ndim == 0:
             v_string = stringify(v)
             b = v_string
@@ -195,7 +201,7 @@ cdef CxxAnyValue python_to_anyvalue(string name, v) except *:
     cdef double v_double
     cdef vector[double] vv_double
     cdef vector[vector[double]] vvv_double
-    if vv.dtype == np.float:
+    if vv.dtype == float:
         if vv.ndim == 0:
             v_double = v
             b = v_double
@@ -219,7 +225,7 @@ cdef CxxAnyValue python_to_anyvalue(string name, v) except *:
     cdef long v_int
     cdef vector[long] vv_int
     cdef vector[vector[long]] vvv_int
-    if vv.dtype == np.int:
+    if vv.dtype == int:
         if vv.ndim == 0:
             v_int = v
             b = v_int
@@ -243,7 +249,7 @@ cdef CxxAnyValue python_to_anyvalue(string name, v) except *:
     cdef cbool v_bool
     cdef vector[cbool] vv_bool
     cdef vector[vector[cbool]] vvv_bool
-    if vv.dtype == np.bool:
+    if vv.dtype == bool:
         if vv.ndim == 0:
             v_bool = v
             b = v_bool
