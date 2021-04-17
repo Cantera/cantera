@@ -119,6 +119,9 @@ public:
     //! Returns a string specifying the type of the held value.
     std::string type_str() const;
 
+    //! Return boolean indicating whether AnyValue is empty.
+    bool isEmpty() const;
+
     //! Returns `true` if the held value is of the specified type.
     template<class T>
     bool is() const;
@@ -427,6 +430,9 @@ public:
     //! Get the value of the item stored in `key`. Raises an exception if the
     //! value does not exist.
     const AnyValue& at(const std::string& key) const;
+
+    //! Return boolean indicating whether AnyMap is empty.
+    bool isEmpty() const;
 
     //! Returns `true` if the map contains an item named `key`.
     bool hasKey(const std::string& key) const;
