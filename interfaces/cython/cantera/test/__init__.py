@@ -13,6 +13,7 @@ from .test_reaction import *
 from .test_reactor import *
 from .test_thermo import *
 from .test_transport import *
+from .test_utils import *
 
 cantera.add_directory(os.path.join(os.path.dirname(__file__), 'data'))
 cantera.add_directory(os.path.join(os.path.dirname(__file__), '..', 'examples', 'surface_chemistry'))
