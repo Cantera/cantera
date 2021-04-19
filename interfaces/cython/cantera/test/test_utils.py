@@ -98,7 +98,7 @@ class TestPyToAnyValue(utilities.CanteraTest):
 
     def test_raises_named(self):
         self.check_raises({'abcd': [[['spam', 'eggs'], ['foo', 'bar']]]},
-            NotImplementedError, "value with key 'abcd'")
+            NotImplementedError, "with key 'abcd'")
 
     def test_raises_int(self):
         self.check_raises([[[1, 2, 3], [4, 5, 6]]],
