@@ -4,7 +4,7 @@ Import('env', 'build', 'install', 'libraryTargets')
 
 def defaultSetup(env, subdir, extensions):
     env.Append(CCFLAGS=env['pch_flags'])
-    return mglob(env, subdir, *extensions)
+    return multi_glob(env, subdir, *extensions)
 
 def applicationSetup(env, subdir, extensions):
     # Add #define variables unique to application.cpp

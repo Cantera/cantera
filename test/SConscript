@@ -94,7 +94,7 @@ def addTestProgram(subdir, progName, env_vars={}):
     testenv = localenv.Clone()
     testenv['ENV'].update(env_vars)
     program = testenv.Program(pjoin(subdir, progName),
-                              mglob(testenv, subdir, 'cpp'))
+                              multi_glob(testenv, subdir, 'cpp'))
     passedFile = File(pjoin(str(program[0].dir), '%s.passed' % program[0].name))
     PASSED_FILES[progName] = str(passedFile)
     test_results.tests[passedFile.name] = program
@@ -284,7 +284,7 @@ addTestProgram('transport', 'transport')
 
 python_subtests = ['']
 test_root = '#interfaces/cython/cantera/test'
-for f in mglob(localenv, test_root, '^test_*.py'):
+for f in multi_glob(localenv, test_root, '^test_*.py'):
     python_subtests.append(f.name[5:-3])
 
 if localenv['python_package'] == 'full':
@@ -299,14 +299,14 @@ if localenv['python_package'] == 'full':
             interpreter='$python_cmd',
             outfile=File('#test/work/python-results.txt').abspath,
             dependencies=(localenv['python_module'] + localenv['python_extension'] +
-                          mglob(localenv, test_root, 'py')),
+                          multi_glob(localenv, test_root, 'py')),
             optional=bool(subset))
         localenv.Alias('test-' + name, pyTest)
         env['testNames'].append(name)
 
 if localenv['matlab_toolbox'] == 'y':
     matlabTest = addMatlabTest('runCanteraTests.m', 'matlab',
-                               dependencies=mglob(localenv, 'matlab', 'm'))
+                               dependencies=multi_glob(localenv, 'matlab', 'm'))
     localenv.Alias('test-matlab', matlabTest)
     env['testNames'].append('matlab')
 

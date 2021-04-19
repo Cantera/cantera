@@ -19,7 +19,7 @@ except ImportError:
 
 __all__ = ("logger", "remove_directory", "remove_file", "test_results",
            "add_RegressionTest", "get_command_output", "listify", "which",
-           "ConfigBuilder", "mglob", "get_spawn", "help")
+           "ConfigBuilder", "multi_glob", "get_spawn", "help")
 
 if TYPE_CHECKING:
     from typing import Iterable, Union, List, TypeVar, Dict
@@ -620,8 +620,9 @@ def quoted(s):
     return '"%s"' % s
 
 
-def mglob(env: "SCEnvironment", subdir: str, *args: str):
-    """
+def multi_glob(env: "SCEnvironment", subdir: str, *args: str):
+    """Use SCons Glob to find nodes in a subdirectory using many file extensions.
+
     Each argument in ``args`` is assumed to be file extension,
     unless the arg starts with a ``'^'``, in which case the remainder
     of the argument is taken to be a complete pattern.
