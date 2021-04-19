@@ -130,181 +130,161 @@ cdef anymap_to_dict(CxxAnyMap& m):
             for item in m.ordered()}
 
 
-cdef CxxAnyValue python_to_anyvalue(v, name=None) except *:
+cdef CxxAnyValue python_to_anyvalue(item, name=None) except *:
     # convert Python values to C++ AnyValue
     cdef CxxAnyMap a
     cdef CxxAnyValue b
 
     if name is None:
-        msg = "Unable to convert value to AnyValue:\n"
+        msg = "Unable to convert item of type '{}' to AnyValue:\n".format(type(item))
     else:
-        msg = "Unable to convert value with key '{}' to AnyValue:\n".format(name)
+        msg = ("Unable to convert item of type '{}' with key '{}' to AnyValue:\n"
+               "".format(type(item), name))
 
-    if v is None:
+    if item is None:
         return b
-    elif isinstance(v, set):
+    elif isinstance(item, set):
         raise NotImplementedError("{}cannot process Python set.".format(msg))
-    elif isinstance(v, dict):
-        a = dict_to_anymap(v)
-        b = a
-        return b
+    elif isinstance(item, dict):
+        return <CxxAnyValue>dict_to_anymap(item)
 
-    def is_scalar(v):
-        return not hasattr(v, '__len__') or isinstance(v, str)
+    def is_scalar(item):
+        return not hasattr(item, '__len__') or isinstance(item, str)
 
-    all_same = True
-    multi_dict = False
-    if not is_scalar(v):
+    itype = set()
+    if not (is_scalar(item) or isinstance(item, np.ndarray)):
+        itype = set(type(i) for i in item)
         # ensure that data are homogeneous
         # (np.array converts inhomogeneous sequences to string arrays)
-        if not len(v):
+        if not len(item):
             # np.array converts empty arrays to float
             pass
-        elif isinstance(v, np.ndarray):
+        elif is_scalar(item[0]):
+            # the content may be inhomogeneous or 1-D homogeneous, but it will
+            # not be a 2-D array and thus does not have to be checked
             pass
-        elif is_scalar(v[0]):
-            all_same = all([type(val) == type(v[0]) for val in v])
-        elif isinstance(v[0], dict):
-            multi_dict = all([isinstance(val, dict) for val in v])
+        elif itype == {dict}:
+            # list of dictionaries
+            pass
         else:
-            all_same = []
+            itype = set()
             sizes = []
-            for row in range(len(v)):
-                sizes.append(len(v[row]))
-                all_same.append(all([type(val) == type(v[0][0]) for val in v[row]]))
-            if not all(all_same):
+            for row in item:
+                sizes.append(len(row))
+                itype = itype.union(set(type(val) for val in row))
+            if len(itype) != 1:
                 raise NotImplementedError(
-                        "{}cannot process nested sequences with inhomogeneous data "
-                        "types.".format(msg)
-                    )
+                    "{}cannot process nested sequences with inhomogeneous data "
+                    "types.".format(msg))
             elif np.unique(sizes).size != 1:
                 raise NotImplementedError(
-                        "{}cannot process arrays represented by ragged nested "
-                        "sequences.".format(msg)
-                    )
-            all_same = all(all_same)
+                    "{}cannot process arrays represented by ragged nested "
+                    "sequences.".format(msg))
 
     cdef vector[CxxAnyValue] vv_any
-    if not all_same:
+    if len(itype) > 1:
         # inhomogeneous sequence
-        for val in v:
+        for val in item:
             vv_any.push_back(python_to_anyvalue(val, name))
         b = vv_any
         return b
 
     cdef vector[CxxAnyMap] vv_map
-    if multi_dict:
-        for val in v:
+    if itype == {dict}:
+        for val in item:
             vv_map.push_back(dict_to_anymap(val))
         b = vv_map
         return b
 
     # data are homogeneous: convert to np.array for convenience
-    vv = np.array(v)
+    vv = np.array(item)
     ndim = vv.ndim
 
-    cdef double v_double
     cdef vector[double] vv_double
     cdef vector[vector[double]] vvv_double
     if vv.dtype == float:
         if vv.size == 0:
             # empty list
-            return b
-        if ndim == 0:
-            v_double = v
-            b = v_double
-            return b
-        if ndim == 1:
+            pass
+        elif ndim == 0:
+            b = <double>item
+        elif ndim == 1:
             for val in vv:
-                vv_double.push_back(val)
+                vv_double.push_back(<double>val)
             b = vv_double
-            return b
-        if ndim == 2:
+        elif ndim == 2:
             vvv_double.resize(vv.shape[0])
             for row in range(vv.shape[0]):
                 for val in vv[row, :]:
-                    vvv_double[row].push_back(val)
+                    vvv_double[row].push_back(<double>val)
             b = vvv_double
-            return b
-        raise NotImplementedError(
-                "{}cannot process float array with {} dimensions".format(msg, ndim)
-            )
+        else:
+            raise NotImplementedError(
+                "{}cannot process float array with {} dimensions".format(msg, ndim))
+        return b
 
-    cdef long v_int
     cdef vector[long] vv_int
     cdef vector[vector[long]] vvv_int
     if vv.dtype == int:
         if ndim == 0:
-            v_int = v
-            b = v_int
-            return b
-        if ndim == 1:
+            b = <long>item
+        elif ndim == 1:
             for val in vv:
-                vv_int.push_back(val)
+                vv_int.push_back(<long>val)
             b = vv_int
-            return b
-        if ndim == 2:
+        elif ndim == 2:
             vvv_int.resize(vv.shape[0])
             for row in range(vv.shape[0]):
                 for val in vv[row, :]:
-                    vvv_int[row].push_back(val)
+                    vvv_int[row].push_back(<long>val)
             b = vvv_int
-            return b
-        raise NotImplementedError(
-                "{}cannot process integer array with {} dimensions".format(msg, ndim)
-            )
+        else:
+            raise NotImplementedError(
+                "{}cannot process integer array with {} dimensions".format(msg, ndim))
+        return b
 
-    cdef cbool v_bool
     cdef vector[cbool] vv_bool
     cdef vector[vector[cbool]] vvv_bool
     if vv.dtype == bool:
         if ndim == 0:
-            v_bool = v
-            b = v_bool
-            return b
-        if ndim == 1:
+            b = <cbool>item
+        elif ndim == 1:
             for val in vv:
-                vv_bool.push_back(val)
+                vv_bool.push_back(<cbool>val)
             b = vv_bool
-            return b
-        if ndim == 2:
+        elif ndim == 2:
             vvv_bool.resize(vv.shape[0])
             for row in range(vv.shape[0]):
                 for val in vv[row, :]:
-                    vvv_bool[row].push_back(val)
+                    vvv_bool[row].push_back(<cbool>val)
             b = vvv_bool
-            return b
-        raise NotImplementedError(
-                "{}cannot process boolean array with {} dimensions".format(msg, ndim)
-            )
+        else:
+            raise NotImplementedError(
+                "{}cannot process boolean array with {} dimensions".format(msg, ndim))
+        return b
 
-    cdef string v_string
     cdef vector[string] vv_string
     cdef vector[vector[string]] vvv_string
-    if isinstance(v, str) or (ndim and isinstance(vv.ravel()[0], str)):
+    if isinstance(item, str) or (ndim and isinstance(vv.ravel()[0], str)):
         if ndim == 0:
-            v_string = stringify(v)
-            b = v_string
-            return b
-        if ndim == 1:
+            b = stringify(item)
+        elif ndim == 1:
             for val in vv:
                 vv_string.push_back(stringify(val))
             b = vv_string
-            return b
-        if ndim == 2:
+        elif ndim == 2:
             vvv_string.resize(vv.shape[0])
             for row in range(vv.shape[0]):
                 for val in vv[row, :]:
                     vvv_string[row].push_back(stringify(val))
             b = vvv_string
-            return b
-        raise NotImplementedError(
-                "{}cannot process string array with {} dimensions".format(msg, ndim)
-            )
+        else:
+            raise NotImplementedError(
+                "{}cannot process string array with {} dimensions".format(msg, ndim))
+        return b
 
     raise NotImplementedError(
-            "{}unknown conversion for variable with value\n".format(msg,v)
-        )
+        "{}unknown conversion for variable with value\n".format(msg, item))
 
 
 cdef CxxAnyMap dict_to_anymap(dict dd) except *:
