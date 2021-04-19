@@ -1412,12 +1412,17 @@ class TestReaction(utilities.CanteraTest):
 
         # Rate constant should now be independent of H(S) coverage, but
         # dependent on O(S) coverage
+        Ek = surf.reaction(0).coverage_deps['O(S)'][-1]
         k1 = surf.forward_rate_constants[0]
+        O2_theta_k1 = surf.coverages[-1]
         surf.coverages = 'O(S):0.2, PT(S):0.4, H(S):0.4'
         k2 = surf.forward_rate_constants[0]
+        O2_theta_k2 = surf.coverages[-1]
+        O2_delta_theta_k = O2_theta_k1 - O2_theta_k2
         surf.coverages = 'O(S):0.2, PT(S):0.6, H(S):0.2'
         k3 = surf.forward_rate_constants[0]
-        self.assertNotAlmostEqual(k1, k2)
+
+        self.assertNear(k1 / k2, np.exp(-O2_delta_theta_k * Ek / ct.gas_constant / surf.T))
         self.assertNear(k2, k3)
 
     def test_modify_BMsticking(self):
