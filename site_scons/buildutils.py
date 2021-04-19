@@ -10,7 +10,7 @@ import shutil
 import enum
 from pathlib import Path
 import logging
-from typing import Union
+from typing import TYPE_CHECKING
 
 try:
     import numpy as np
@@ -20,6 +20,17 @@ except ImportError:
 __all__ = ("logger", "remove_directory", "remove_file", "test_results",
            "add_RegressionTest", "get_command_output", "listify", "which",
            "ConfigBuilder", "mglob", "get_spawn", "help")
+
+if TYPE_CHECKING:
+    from typing import Iterable, Union, List, TypeVar, Dict
+    import SCons.Environment
+    import SCons.Node.FS
+    import SCons.Variables
+
+    SCEnvironment = SCons.Environment.Environment
+    LFSNode = List[Union[SCons.Node.FS.File, SCons.Node.FS.Dir]]
+    SCVariables = SCons.Variables.Variables
+    TPathLike = TypeVar("TPathLike", Path, str)
 
 
 class OutputFormatter(logging.Formatter):
@@ -93,6 +104,11 @@ logger.addHandler(stderr_handler)
 
 
 class TestResult(enum.IntEnum):
+    """Represent the passing/failing result of a test.
+
+    To be used instead of a bare integer for clarity.
+    """
+
     PASS = 0
     FAIL = 1
 
@@ -126,7 +142,11 @@ class ConfigBuilder:
     def __init__(self, defines: dict) -> None:
         self.defines = DefineDict(defines)
 
-    def __call__(self, target, source, env):
+    def __call__(self, target: "LFSNode", source: "LFSNode", env):
+        """
+        Note that all three arguments are required by SCons although only the first
+        two are used. All of them must be keyword arguments.
+        """
         for s, t in zip(source, target):
             config_h_in = Path(str(s)).read_text()
             config_h = Path(str(t))
@@ -134,7 +154,7 @@ class ConfigBuilder:
             config_h.write_text(config_h_in.format_map(self.defines))
             self.print_config(str(t))
 
-    def print_config(self, filename):
+    def print_config(self, filename: str):
         message = [f"Generating {filename!s} with the following settings:"]
 
         for key, val in sorted(self.defines.data.items()):
@@ -159,6 +179,11 @@ class TestResults:
         self.failed = {}
 
     def print_report(self, target, source, env):
+        """Print the test results report.
+
+        Note that the three arguments are not used here but are required by SCons,
+        and they must be keyword arguments.
+        """
         values = {
             "passed": sum(self.passed.values()),
             "failed": sum(self.failed.values()),
@@ -191,7 +216,7 @@ class TestResults:
 test_results = TestResults()
 
 
-def regression_test(target, source, env):
+def regression_test(target: "LFSNode", source: "LFSNode", env: "SCEnvironment"):
     """
     Run a regression test comparing the output of a test program with
     existing "blessed" output files.
@@ -275,7 +300,7 @@ def regression_test(target, source, env):
         test_results.passed[env["active_test_name"]] = 1
 
 
-def compare_files(env, file1: Path, file2: Path):
+def compare_files(env: "SCEnvironment", file1: Path, file2: Path) -> TestResult:
     """
     Compare the contents of two files, using a method chosen based on
     their file extensions.
@@ -286,7 +311,7 @@ def compare_files(env, file1: Path, file2: Path):
         return compare_text_files(env, file1, file2)
 
 
-def compare_text_files(env, file1: Path, file2: Path):
+def compare_text_files(env: "SCEnvironment", file1: Path, file2: Path) -> TestResult:
     """
     Compare the contents of two text files while:
        - ignoring trailing whitespace
@@ -401,7 +426,9 @@ def get_precision(number: str) -> int:
     return exponent + digits
 
 
-def compare_profiles(env, ref_file, sample_file):
+def compare_profiles(
+    env: "SCEnvironment", ref_file: Path, sample_file: Path
+) -> TestResult:
     """
     Compare two 2D arrays of spatial or time profiles. Each data set should
     contain the time or space coordinate in the first column and data series
@@ -497,7 +524,7 @@ def compare_profiles(env, ref_file, sample_file):
         return TestResult.PASS
 
 
-def compare_csv_files(env, file1: Path, file2: Path):
+def compare_csv_files(env: "SCEnvironment", file1: Path, file2: Path) -> TestResult:
     """
     Compare the contents of two .csv file to see if they are
     similar. Similarity is defined according to tolerances stored in
@@ -568,15 +595,18 @@ def compare_csv_files(env, file1: Path, file2: Path):
     return TestResult.FAIL
 
 
-def regression_test_message(target, source, env):
+def regression_test_message(target, source, env: "SCEnvironment") -> str:
     """
     Determines the message printed by SCons while building a
     RegressionTest target.
+
+    Note that the first two arguments are not used but are required by SCons and they
+    must be keyword arguments.
     """
     return f"""* Running test '{env["active_test_name"]}'..."""
 
 
-def add_RegressionTest(env):
+def add_RegressionTest(env: "SCEnvironment") -> None:
     """
     Add "RegressionTest" as a Builder in the specified Scons Environment.
     """
@@ -590,7 +620,7 @@ def quoted(s):
     return '"%s"' % s
 
 
-def mglob(env, subdir, *args):
+def mglob(env: "SCEnvironment", subdir: str, *args: str):
     """
     Each argument in ``args`` is assumed to be file extension,
     unless the arg starts with a ``'^'``, in which case the remainder
@@ -616,7 +646,7 @@ def which(program: str) -> bool:
     return False
 
 
-def help(env, options):
+def help(env: "SCEnvironment", options: "SCVariables") -> None:
     """Print help about configuration options and exit.
 
     Print a nicely formatted description of a SCons configuration
@@ -702,20 +732,19 @@ def help(env, options):
     logger.info("\n\n".join(message), extra={"print_level": False})
 
 
-def listify(value):
+def listify(value: "Union[str, Iterable]") -> "List[str]":
     """
     Convert an option specified as a string to a list, using spaces as
-    delimiters. Passes lists transparently.
+    delimiters. Passes lists and tuples transparently.
     """
-    if isinstance(value, (list, tuple)):
+    if isinstance(value, str):
+        return value.split()
+    else:
         # Already a sequence. Return as a list
         return list(value)
-    else:
-        # assume `value` is a string
-        return value.split()
 
 
-def remove_file(name: Union[Path, str]) -> None:
+def remove_file(name: "TPathLike") -> None:
     """Remove file (if it exists) and print a log message."""
     path_name = Path(name)
     if path_name.exists():
@@ -723,7 +752,7 @@ def remove_file(name: Union[Path, str]) -> None:
         path_name.unlink()
 
 
-def remove_directory(name: Union[Path, str]) -> None:
+def remove_directory(name: "TPathLike") -> None:
     """Remove directory recursively and print a log message."""
     path_name = Path(name)
     if path_name.exists() and path_name.is_dir():
@@ -744,7 +773,7 @@ def ipdb():
     Pdb(def_colors).set_trace(sys._getframe().f_back)
 
 
-def get_spawn(env):
+def get_spawn(env: "SCEnvironment"):
     """
     A replacement for env['SPAWN'] on Windows that can deal with very long
     commands, namely those generated when linking. This is only used when
@@ -756,17 +785,17 @@ def get_spawn(env):
 
         env.SharedLibrary(..., SPAWN=get_spawn(env))
 
-    Adapted from http://www.scons.org/wiki/LongCmdLinesOnWin32
+    Adapted from https://github.com/SCons/scons/wiki/LongCmdLinesOnWin32
     """
 
     if "cmd.exe" not in env["SHELL"] or env.subst("$CXX") == "cl":
         return env["SPAWN"]
 
-    def our_spawn(sh, escape, cmd, args, environ):
+    def our_spawn(sh: str, escape: str, cmd: str, args: str, environ: Dict[str, str]):
         newargs = " ".join(args[1:])
         cmdline = cmd + " " + newargs
-        startupinfo = subprocess.STARTUPINFO()
-        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        startupinfo = subprocess.STARTUPINFO()  # type: ignore
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # type: ignore
         proc = subprocess.Popen(cmdline,
                                 stdin=subprocess.PIPE,
                                 stdout=subprocess.PIPE,
@@ -783,7 +812,7 @@ def get_spawn(env):
     return our_spawn
 
 
-def get_command_output(cmd, *args):
+def get_command_output(cmd: str, *args: str):
     """
     Run a command with arguments and return its output.
     """
