@@ -4,6 +4,58 @@ import cantera as ct
 from . import utilities
 
 
+class TestImplicitThirdBody(utilities.CanteraTest):
+
+    @classmethod
+    def setUpClass(cls):
+        utilities.CanteraTest.setUpClass()
+        cls.gas = ct.Solution('gri30.yaml')
+
+    def test_implicit_three_body(self):
+        yaml1 = """
+            equation: H + 2 O2 <=> HO2 + O2
+            rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
+            """
+        rxn1 = ct.Reaction.fromYaml(yaml1, self.gas)
+        self.assertEqual(rxn1.reaction_type, 'three-body')
+
+        yaml2 = """
+            equation: H + O2 + M <=> HO2 + M
+            rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
+            type: three-body
+            default-efficiency: 0
+            efficiencies: {O2: 1.0}
+            """
+        rxn2 = ct.Reaction.fromYaml(yaml2, self.gas)
+        self.assertEqual(rxn1.efficiencies, rxn2.efficiencies)
+        self.assertEqual(rxn1.default_efficiency, rxn2.default_efficiency)
+
+    def test_non_integer_stoich(self):
+        yaml = """
+            equation: H + 1.5 O2 <=> HO2 + O2
+            rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
+            """
+        rxn = ct.Reaction.fromYaml(yaml, self.gas)
+        self.assertEqual(rxn.reaction_type, 'elementary')
+
+    def test_not_three_body(self):
+        yaml = """
+            equation: HCNO + H <=> H + HNCO  # Reaction 270
+            rate-constant: {A: 2.1e+15, b: -0.69, Ea: 2850.0}
+            """
+        rxn = ct.Reaction.fromYaml(yaml, self.gas)
+        self.assertEqual(rxn.reaction_type, 'elementary')
+
+    def test_user_override(self):
+        yaml = """
+            equation: H + 2 O2 <=> HO2 + O2
+            rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
+            type: elementary
+            """
+        rxn = ct.Reaction.fromYaml(yaml, self.gas)
+        self.assertEqual(rxn.reaction_type, 'elementary')
+
+
 class TestElementary(utilities.CanteraTest):
 
     _cls = ct.ElementaryReaction
