@@ -98,9 +98,9 @@ if localenv['doxygen_docs']:
     docs = build(localenv.Command('#build/docs/doxygen/html/index.html',
                                   'doxygen/Doxyfile', 'doxygen $SOURCE'))
     env.Depends(docs, env.Glob('#doc/doxygen/*') +
-                      mglob(env, '#include/cantera', 'h') +
-                      mglob(env, '#include/cantera/*', 'h') +
-                      mglob(env, '#src/cantera/*', 'h', 'cpp'))
+                      multi_glob(env, '#include/cantera', 'h') +
+                      multi_glob(env, '#include/cantera/*', 'h') +
+                      multi_glob(env, '#src/cantera/*', 'h', 'cpp'))
 
     env.Alias('doxygen', docs)
     install(localenv.RecursiveInstall, '$inst_docdir/doxygen/html',

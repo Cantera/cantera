@@ -1627,7 +1627,7 @@ env.Prepend(CPPPATH=[],
 
 # preprocess input files (cti -> xml)
 convertedInputFiles = set()
-for cti in mglob(env, 'data/inputs', 'cti'):
+for cti in multi_glob(env, 'data/inputs', 'cti'):
     build(env.Command('build/data/%s' % cti.name, cti.path,
                       Copy('$TARGET', '$SOURCE')))
     outName = os.path.splitext(cti.name)[0] + '.xml'
@@ -1636,17 +1636,17 @@ for cti in mglob(env, 'data/inputs', 'cti'):
                       '$python_cmd_esc interfaces/cython/cantera/ctml_writer.py $SOURCE $TARGET'))
 
 # Copy XML input files which are not present as cti:
-for xml in mglob(env, 'data/inputs', 'xml'):
+for xml in multi_glob(env, 'data/inputs', 'xml'):
     dest = pjoin('build','data',xml.name)
     if xml.name not in convertedInputFiles:
         build(env.Command(dest, xml.path, Copy('$TARGET', '$SOURCE')))
 
-for yaml in mglob(env, "data", "yaml"):
+for yaml in multi_glob(env, "data", "yaml"):
     dest = pjoin("build", "data", yaml.name)
     build(env.Command(dest, yaml.path, Copy("$TARGET", "$SOURCE")))
 for subdir in os.listdir('data'):
     if os.path.isdir(pjoin('data', subdir)):
-        for yaml in mglob(env, pjoin("data", subdir), "yaml"):
+        for yaml in multi_glob(env, pjoin("data", subdir), "yaml"):
             dest = pjoin("build", "data", subdir, yaml.name)
             if not os.path.exists(pjoin("build", "data", subdir)):
                 os.makedirs(pjoin("build", "data", subdir))

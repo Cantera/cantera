@@ -64,7 +64,7 @@ linklibs += localenv['sundials_libs']
 linklibs += localenv['blas_lapack_libs']
 
 ctmethods = build(localenv.SharedLibrary('#interfaces/matlab/toolbox/ctmethods',
-                                         mglob(localenv, '.', 'cpp'),
+                                         multi_glob(localenv, '.', 'cpp'),
                                          LIBPREFIX='',
                                          SHLIBPREFIX='',
                                          SHLIBSUFFIX=mexSuffix,

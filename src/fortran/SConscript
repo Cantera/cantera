@@ -5,7 +5,7 @@ Import('env', 'build', 'install')
 localenv = env.Clone()
 localenv.Prepend(CPPPATH=['#include', '#src'])
 
-f90_src = mglob(localenv, '.', 'f90', 'cpp')
+f90_src = multi_glob(localenv, '.', 'f90', 'cpp')
 
 artifacts = localenv.SharedObject(f90_src,
                             F90PATH=['#build/src/fortran'])

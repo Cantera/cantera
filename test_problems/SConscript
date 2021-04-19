@@ -124,7 +124,7 @@ class CompileAndTest(Test):
                  blessedName='output_blessed.txt', libs=(), extensions=('cpp',),
                  **kwargs):
         self.libs = list(libs)
-        sources = mglob(env, subdir or testName, *extensions)
+        sources = multi_glob(env, subdir or testName, *extensions)
         Test.__init__(self, testName, subdir, programName, blessedName,
                       source_files=sources, **kwargs)
 
