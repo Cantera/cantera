@@ -491,7 +491,16 @@ std::map<std::string, std::string> AnyValue::s_typenames = {
     {typeid(double).name(), "double"},
     {typeid(long int).name(), "long int"},
     {typeid(std::string).name(), "string"},
-    {typeid(std::vector<double>).name(), "vector<double>"},
+    {typeid(vector<AnyValue>).name(), "vector<AnyValue>"},
+    {typeid(vector<AnyMap>).name(), "vector<AnyMap>"},
+    {typeid(vector<double>).name(), "vector<double>"},
+    {typeid(vector<long int>).name(), "vector<long int>"},
+    {typeid(vector<bool>).name(), "vector<bool>"},
+    {typeid(vector<string>).name(), "vector<string>"},
+    {typeid(vector<vector<double>>).name(), "vector<vector<double>>"},
+    {typeid(vector<vector<long int>>).name(), "vector<vector<long int>>"},
+    {typeid(vector<vector<bool>>).name(), "vector<vector<bool>>"},
+    {typeid(vector<vector<string>>).name(), "vector<vector<string>>"},
     {typeid(AnyMap).name(), "AnyMap"},
 };
 
