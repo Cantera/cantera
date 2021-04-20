@@ -5,6 +5,7 @@ import sys
 import os
 import warnings
 from cpython.ref cimport PyObject
+import numbers
 
 cdef CxxPythonLogger* _logger = new CxxPythonLogger()
 CxxSetLogger(_logger)
@@ -76,9 +77,9 @@ cdef public PyObject* pyCanteraError = <PyObject*>CanteraError
 cdef anyvalue_to_python(string name, CxxAnyValue& v):
     cdef CxxAnyMap a
     cdef CxxAnyValue b
-    if v.isEmpty():
+    if v.isType[void]():
         # It is not possible to determine the associated type; return empty list
-        return []
+        return None
     if v.isScalar():
         if v.isType[string]():
             return pystr(v.asType[string]())
@@ -129,173 +130,201 @@ cdef anymap_to_dict(CxxAnyMap& m):
     return {pystr(item.first): anyvalue_to_python(item.first, item.second)
             for item in m.ordered()}
 
+cdef CxxAnyMap dict_to_anymap(data):
+    cdef CxxAnyMap m
+    for k, v in data.items():
+        m[stringify(k)] = python_to_anyvalue(v, k)
+    return m
+
+cdef get_types(item):
+    """ Helper function used by python_to_anyvalue """
+    if not len(item):
+        # Empty list, so no specific type can be inferred
+        return None, 1
+
+    elif isinstance(item, np.ndarray):
+        if isinstance(item.flat[0], numbers.Integral):
+            itype = numbers.Integral
+        elif isinstance(item.flat[0], numbers.Real):
+            itype = numbers.Real
+        else:
+            itype = item.dtype.type
+        return itype, item.ndim
+
+    else:
+        itype = set()
+        for i in item:
+            if isinstance(i, dict):
+                itype.add(dict)
+            elif isinstance(i, list) or isinstance(i , tuple):
+                itype.add(list)
+            elif type(i) == bool:
+                itype.add(bool)  # otherwise bools will get counted as integers
+            elif isinstance(i, numbers.Integral):
+                itype.add(numbers.Integral)
+            elif isinstance(i, numbers.Real):
+                itype.add(numbers.Real)
+            else:
+                itype.add(type(i))
+
+        if itype == {numbers.Real, numbers.Integral}:
+            itype = {numbers.Real}
+
+        if itype == {list}:
+            inner_types = set()
+            ndim_inner = set()
+            for j in item:
+                type_j, ndim_j = get_types(j)
+                inner_types.add(type_j)
+                ndim_inner.add(ndim_j)
+            if len(inner_types) == 1 and len(ndim_inner) == 1:
+                return inner_types.pop(), ndim_inner.pop() + 1
+            else:
+                return None, 1
+        elif len(itype) == 1:
+            return itype.pop(), 1
+        else:
+            return None, 1
 
 cdef CxxAnyValue python_to_anyvalue(item, name=None) except *:
-    # convert Python values to C++ AnyValue
-    cdef CxxAnyMap a
-    cdef CxxAnyValue b
-
-    if name is None:
-        msg = "Unable to convert item of type '{}' to AnyValue:\n".format(type(item))
+    cdef CxxAnyValue v
+    if isinstance(item, dict):
+        v = dict_to_anymap(item)
+    elif isinstance(item, (list, tuple, set, np.ndarray)):
+        itype, ndim = get_types(item)
+        if ndim == 1:
+            if itype == str:
+                v = list_string_to_anyvalue(item)
+            elif itype == bool:
+                v = list_bool_to_anyvalue(item)
+            elif itype == numbers.Integral:
+                v = list_int_to_anyvalue(item)
+            elif itype == numbers.Real:
+                v = list_double_to_anyvalue(item)
+            elif itype == dict:
+                v = list_dict_to_anyvalue(item)
+            else:
+                v = list_to_anyvalue(item)
+        elif ndim == 2:
+            if itype == str:
+                v = list2_string_to_anyvalue(item)
+            elif itype == bool:
+                v = list2_bool_to_anyvalue(item)
+            elif itype == numbers.Integral:
+                v = list2_int_to_anyvalue(item)
+            elif itype == numbers.Real:
+                v = list2_double_to_anyvalue(item)
+            else:
+                v = list_to_anyvalue(item)
+        else:
+            v = list_to_anyvalue(item)
+    elif isinstance(item, str):
+        v = stringify(item)
+    elif isinstance(item, bool):
+        v = <cbool>(item)
+    elif isinstance(item, int):
+        v = <long int>(item)
+    elif isinstance(item, float):
+        v = <double>(item)
+    elif item is None:
+        pass  # None corresponds to "empty" AnyValue
+    elif name is not None:
+        raise CanteraError("Unable to convert item of type '{}'"
+            " with key '{}' to AnyValue".format(type(item), name))
     else:
-        msg = ("Unable to convert item of type '{}' with key '{}' to AnyValue:\n"
-               "".format(type(item), name))
+        raise CanteraError("Unable to convert item of type '{}'"
+            " to AnyValue".format(type(item)))
+    return v
 
-    if item is None:
-        return b
-    elif isinstance(item, set):
-        raise NotImplementedError("{}cannot process Python set.".format(msg))
-    elif isinstance(item, dict):
-        return <CxxAnyValue>dict_to_anymap(item)
+# Helper functions for converting specific types to AnyValue
 
-    def is_scalar(item):
-        return not hasattr(item, '__len__') or isinstance(item, str)
+cdef vector[CxxAnyValue] list_to_anyvalue(data):
+    cdef vector[CxxAnyValue] v
+    v.resize(len(data))
+    cdef size_t i
+    for i, item in enumerate(data):
+        v[i] = python_to_anyvalue(item, "<list item>")
+    return v
 
-    itype = set()
-    if not (is_scalar(item) or isinstance(item, np.ndarray)):
-        itype = set(type(i) for i in item)
-        # ensure that data are homogeneous
-        # (np.array converts inhomogeneous sequences to string arrays)
-        if not len(item):
-            # np.array converts empty arrays to float
-            pass
-        elif is_scalar(item[0]):
-            # the content may be inhomogeneous or 1-D homogeneous, but it will
-            # not be a 2-D array and thus does not have to be checked
-            pass
-        elif itype == {dict}:
-            # list of dictionaries
-            pass
-        else:
-            itype = set()
-            sizes = []
-            for row in item:
-                sizes.append(len(row))
-                itype = itype.union(set(type(val) for val in row))
-            if len(itype) != 1:
-                raise NotImplementedError(
-                    "{}cannot process nested sequences with inhomogeneous data "
-                    "types.".format(msg))
-            elif np.unique(sizes).size != 1:
-                raise NotImplementedError(
-                    "{}cannot process arrays represented by ragged nested "
-                    "sequences.".format(msg))
+cdef vector[double] list_double_to_anyvalue(data):
+    cdef vector[double] v
+    v.resize(len(data))
+    cdef size_t i
+    for i, item in enumerate(data):
+        v[i] = <double>item
+    return v
 
-    cdef vector[CxxAnyValue] vv_any
-    if len(itype) > 1:
-        # inhomogeneous sequence
-        for val in item:
-            vv_any.push_back(python_to_anyvalue(val, name))
-        b = vv_any
-        return b
+cdef vector[long] list_int_to_anyvalue(data):
+    cdef vector[long] v
+    v.resize(len(data))
+    cdef size_t i
+    for i, item in enumerate(data):
+        v[i] = <long>item
+    return v
 
-    cdef vector[CxxAnyMap] vv_map
-    if itype == {dict}:
-        for val in item:
-            vv_map.push_back(dict_to_anymap(val))
-        b = vv_map
-        return b
+cdef vector[cbool] list_bool_to_anyvalue(data):
+    cdef vector[cbool] v
+    v.resize(len(data))
+    cdef size_t i
+    for i, item in enumerate(data):
+        v[i] = <cbool>item
+    return v
 
-    # data are homogeneous: convert to np.array for convenience
-    vv = np.array(item)
-    ndim = vv.ndim
+cdef vector[string] list_string_to_anyvalue(data):
+    cdef vector[string] v
+    v.resize(len(data))
+    cdef size_t i
+    for i, item in enumerate(data):
+        v[i] = stringify(item)
+    return v
 
-    cdef vector[double] vv_double
-    cdef vector[vector[double]] vvv_double
-    if vv.dtype == float:
-        if vv.size == 0:
-            # empty list
-            pass
-        elif ndim == 0:
-            b = <double>item
-        elif ndim == 1:
-            for val in vv:
-                vv_double.push_back(<double>val)
-            b = vv_double
-        elif ndim == 2:
-            vvv_double.resize(vv.shape[0])
-            for row in range(vv.shape[0]):
-                for val in vv[row, :]:
-                    vvv_double[row].push_back(<double>val)
-            b = vvv_double
-        else:
-            raise NotImplementedError(
-                "{}cannot process float array with {} dimensions".format(msg, ndim))
-        return b
+cdef vector[CxxAnyMap] list_dict_to_anyvalue(data):
+    cdef vector[CxxAnyMap] v
+    v.resize(len(data))
+    cdef size_t i
+    for i, item in enumerate(data):
+        v[i] = dict_to_anymap(item)
+    return v
 
-    cdef vector[long] vv_int
-    cdef vector[vector[long]] vvv_int
-    if vv.dtype == int:
-        if ndim == 0:
-            b = <long>item
-        elif ndim == 1:
-            for val in vv:
-                vv_int.push_back(<long>val)
-            b = vv_int
-        elif ndim == 2:
-            vvv_int.resize(vv.shape[0])
-            for row in range(vv.shape[0]):
-                for val in vv[row, :]:
-                    vvv_int[row].push_back(<long>val)
-            b = vvv_int
-        else:
-            raise NotImplementedError(
-                "{}cannot process integer array with {} dimensions".format(msg, ndim))
-        return b
+cdef vector[vector[double]] list2_double_to_anyvalue(data):
+    cdef vector[vector[double]] v
+    v.resize(len(data))
+    cdef size_t i, j
+    for i, item in enumerate(data):
+        v[i].resize(len(item))
+        for j, jtem in enumerate(item):
+            v[i][j] = <double>jtem
+    return v
 
-    cdef vector[cbool] vv_bool
-    cdef vector[vector[cbool]] vvv_bool
-    if vv.dtype == bool:
-        if ndim == 0:
-            b = <cbool>item
-        elif ndim == 1:
-            for val in vv:
-                vv_bool.push_back(<cbool>val)
-            b = vv_bool
-        elif ndim == 2:
-            vvv_bool.resize(vv.shape[0])
-            for row in range(vv.shape[0]):
-                for val in vv[row, :]:
-                    vvv_bool[row].push_back(<cbool>val)
-            b = vvv_bool
-        else:
-            raise NotImplementedError(
-                "{}cannot process boolean array with {} dimensions".format(msg, ndim))
-        return b
+cdef vector[vector[long]] list2_int_to_anyvalue(data):
+    cdef vector[vector[long]] v
+    v.resize(len(data))
+    cdef size_t i, j
+    for i, item in enumerate(data):
+        v[i].resize(len(item))
+        for j, jtem in enumerate(item):
+            v[i][j] = <long>jtem
+    return v
 
-    cdef vector[string] vv_string
-    cdef vector[vector[string]] vvv_string
-    if isinstance(item, str) or (ndim and isinstance(vv.ravel()[0], str)):
-        if ndim == 0:
-            b = stringify(item)
-        elif ndim == 1:
-            for val in vv:
-                vv_string.push_back(stringify(val))
-            b = vv_string
-        elif ndim == 2:
-            vvv_string.resize(vv.shape[0])
-            for row in range(vv.shape[0]):
-                for val in vv[row, :]:
-                    vvv_string[row].push_back(stringify(val))
-            b = vvv_string
-        else:
-            raise NotImplementedError(
-                "{}cannot process string array with {} dimensions".format(msg, ndim))
-        return b
+cdef vector[vector[cbool]] list2_bool_to_anyvalue(data):
+    cdef vector[vector[cbool]] v
+    v.resize(len(data))
+    cdef size_t i, j
+    for i, item in enumerate(data):
+        v[i].resize(len(item))
+        for j, jtem in enumerate(item):
+            v[i][j] = <cbool>jtem
+    return v
 
-    raise NotImplementedError(
-        "{}unknown conversion for variable with value\n".format(msg, item))
-
-
-cdef CxxAnyMap dict_to_anymap(dict dd) except *:
-    # convert Python dictionary to C++ AnyMap
-    cdef CxxAnyMap mm
-    cdef string kk
-    for key, val in dd.items():
-        kk = stringify(key)
-        mm[kk] = python_to_anyvalue(val, key)
-    return mm
-
+cdef vector[vector[string]] list2_string_to_anyvalue(data):
+    cdef vector[vector[string]] v
+    v.resize(len(data))
+    cdef size_t i, j
+    for i, item in enumerate(data):
+        v[i].resize(len(item))
+        for j, jtem in enumerate(item):
+            v[i][j] = stringify(jtem)
+    return v
 
 def _py_to_any_to_py(dd):
     # @internal  used for testing purposes only
