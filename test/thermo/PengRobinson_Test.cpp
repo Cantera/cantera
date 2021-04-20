@@ -65,7 +65,7 @@ TEST_F(PengRobinson_Test, chem_potentials)
 
 TEST_F(PengRobinson_Test, chemPotentials_RT)
 {
-    test_phase->setState_TP(298., 1.);
+    test_phase->setState_TP(410.0, 130 * OneAtm);
 
     // Test that chemPotentials_RT*RT = chemPotentials
     const double RT = GasConstant * 298.;
@@ -89,7 +89,7 @@ TEST_F(PengRobinson_Test, chemPotentials_RT)
 
 TEST_F(PengRobinson_Test, activityCoeffs)
 {
-    test_phase->setState_TP(298., 1.);
+    test_phase->setState_TP(330., 120 * OneAtm);
 
     // Test that mu0 + RT log(activityCoeff * MoleFrac) == mu
     const double RT = GasConstant * 298.;
@@ -131,6 +131,7 @@ TEST_F(PengRobinson_Test, activityConcentrations)
     double xmax = 0.9;
     int numSteps = 9;
     double dx = (xmax-xmin)/(numSteps-1);
+    test_phase->setState_TP(350, 100 * OneAtm);
 
     for(int i=0; i < numSteps; ++i)
     {
@@ -234,7 +235,7 @@ TEST_F(PengRobinson_Test, getPressure)
 TEST_F(PengRobinson_Test, gibbsEnergy)
 {
     // Test that g == h - T*s
-    const double T = 298.;
+    const double T = 360.;
     double xmin = 0.6;
     double xmax = 0.9;
     int numSteps = 9;
@@ -244,7 +245,7 @@ TEST_F(PengRobinson_Test, gibbsEnergy)
     for (int i = 0; i < numSteps; ++i)
     {
         const double r = xmin + i * dx;
-        test_phase->setState_TP(T, 1e5);
+        test_phase->setState_TP(T, 150e5);
         set_r(r);
         gibbs_theoretical = test_phase->enthalpy_mole() - T * (test_phase->entropy_mole());
         EXPECT_NEAR(test_phase->gibbs_mole(), gibbs_theoretical, 1.e-6);
@@ -266,7 +267,7 @@ TEST_F(PengRobinson_Test, totalEnthalpy)
     {
         sum = 0.0;
         const double r = xmin + i * dx;
-        test_phase->setState_TP(298., 1e5);
+        test_phase->setState_TP(430., 120e5);
         set_r(r);
         hbar = test_phase->enthalpy_mole();
         test_phase->getMoleFractions(&moleFractions[0]);
