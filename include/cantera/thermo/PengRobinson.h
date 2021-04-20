@@ -173,10 +173,6 @@ public:
 
     //! Set values for the interaction parameter between two species
     /*!
-     *  The "a" parameter for interactions between species *i* and *j* is
-     *  assumed by default to be computed as:
-     *  \f[ a_{ij} = \sqrt{a_{i, 0} a_{j, 0}} + \sqrt{a_{i, 1} a_{j, 1}} T \f]
-     *
      *  @param species_i   Name of one species
      *  @param species_j   Name of the other species
      *  @param a           constant term in the "a" expression [Pa-m^6/kmol^2]
