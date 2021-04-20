@@ -341,4 +341,52 @@ TEST_F(PengRobinson_Test, CoolPropValidate)
         EXPECT_NEAR(test_phase->density(),rhoCoolProp[i],1.e-5);
     }
 }
+
+TEST_F(PengRobinson_Test, partialMolarPropertyIdentities)
+{
+    // unique_ptr<ThermoPhase> phase(newPhase("co2_PR_example.yaml"));
+    vector_fp hk(test_phase->nSpecies());
+    vector_fp uk(test_phase->nSpecies());
+    vector_fp sk(test_phase->nSpecies());
+    vector_fp gk(test_phase->nSpecies());
+    vector_fp vk(test_phase->nSpecies());
+    vector_fp X(test_phase->nSpecies());
+
+    test_phase->setMoleFractionsByName("CO2: 0.7, H2O: 0.1, H2: 0.2");
+    test_phase->getMoleFractions(X.data());
+    double P = 100 * OneAtm;
+
+    for (int i = 0; i < 5; i++) {
+        double T = 300 + i*60;
+        test_phase->setState_TP(T, P);
+        test_phase->getPartialMolarEnthalpies(hk.data());
+        test_phase->getPartialMolarIntEnergies(uk.data());
+        test_phase->getPartialMolarEntropies(sk.data());
+        test_phase->getChemPotentials(gk.data());
+        test_phase->getPartialMolarVolumes(vk.data());
+
+        double h_mix = test_phase->enthalpy_mole();
+        double u_mix = test_phase->intEnergy_mole();
+        double s_mix = test_phase->entropy_mole();
+        double g_mix = test_phase->gibbs_mole();
+        double v_mix = test_phase->molarVolume();
+
+        double h = dot(X.begin(), X.end(), hk.begin());
+        EXPECT_NEAR(h, h_mix, 1e-11 * std::abs(h_mix));
+        double u = dot(X.begin(), X.end(), uk.begin());
+        EXPECT_NEAR(u, u_mix, 1e-11 * std::abs(u_mix));
+        double s = dot(X.begin(), X.end(), sk.begin());
+        EXPECT_NEAR(s, s_mix, 1e-11 * std::abs(s_mix));
+        double g = dot(X.begin(), X.end(), gk.begin());
+        EXPECT_NEAR(g, g_mix, 1e-11 * std::abs(g_mix));
+        double v = dot(X.begin(), X.end(), vk.begin());
+        EXPECT_NEAR(v, v_mix, 1e-11 * std::abs(v_mix));
+
+        for (size_t k = 0; k < test_phase->nSpecies(); k++) {
+            EXPECT_NEAR(uk[k] + P * vk[k], hk[k], 1e-11 * std::abs(h_mix));
+            EXPECT_NEAR(hk[k] - T * sk[k], gk[k], 1e-11 * std::abs(g_mix));
+        }
+    }
+}
+
 };
