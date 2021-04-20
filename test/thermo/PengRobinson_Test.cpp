@@ -283,33 +283,23 @@ TEST_F(PengRobinson_Test, cpValidate)
 {
     // Test that cp = dH/dT at constant pressure using finite difference method
 
-    double p = 1e5;
+    double p = 200e5;
     double Tmin = 298;
-    int numSteps = 1001;
-    double dT = 1e-5;
-    double r = 1.0;
-    vector_fp hbar(numSteps);
-    vector_fp cp(numSteps);
-    double dh_dT;
+    int numSteps = 20;
+    double dT = 1e-4;
+    test_phase->setMoleFractionsByName("CO2: 0.7, H2O: 0.1, H2: 0.2");
 
-    test_phase->setState_TP(Tmin, p);
-    set_r(r);
-    hbar[0] = test_phase->enthalpy_mole();  // J/kmol
-    cp[0] = test_phase->cp_mole();          // unit is J/kmol/K
-
-    for (int i = 0; i < numSteps; ++i)
-    {
-        const double T = Tmin + i * dT;
+    for (int i = 0; i < numSteps; ++i) {
+        const double T = Tmin + 10 * i;
+        test_phase->setState_TP(T - dT, p);
+        double h1 = test_phase->enthalpy_mole();  // J/kmol
         test_phase->setState_TP(T, p);
-        set_r(r);
-        hbar[i] = test_phase->enthalpy_mole();  // J/kmol
-        cp[i] = test_phase->cp_mole();          // unit is J/kmol/K
+        double cp = test_phase->cp_mole();        // unit is J/kmol/K
+        test_phase->setState_TP(T + dT, p);
+        double h2 = test_phase->enthalpy_mole();
 
-        if (i > 0)
-        {
-            dh_dT = (hbar[i] - hbar[i - 1]) / dT;
-            EXPECT_NEAR((cp[i] / dh_dT), 1.0, 1e-5);
-        }
+        double dh_dT = (h2 - h1) / (2 * dT);
+        EXPECT_NEAR(cp, dh_dT, 1e-6 * cp);
     }
 }
 
