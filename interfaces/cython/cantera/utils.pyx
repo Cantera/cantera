@@ -130,7 +130,7 @@ cdef anymap_to_dict(CxxAnyMap& m):
     return {pystr(item.first): anyvalue_to_python(item.first, item.second)
             for item in m.ordered()}
 
-cdef CxxAnyMap dict_to_anymap(data):
+cdef CxxAnyMap dict_to_anymap(data) except *:
     cdef CxxAnyMap m
     for k, v in data.items():
         m[stringify(k)] = python_to_anyvalue(v, k)
@@ -229,21 +229,21 @@ cdef CxxAnyValue python_to_anyvalue(item, name=None) except *:
     elif item is None:
         pass  # None corresponds to "empty" AnyValue
     elif name is not None:
-        raise CanteraError("Unable to convert item of type '{}'"
-            " with key '{}' to AnyValue".format(type(item), name))
+        raise CanteraError("Unable to convert item of type {!r}"
+            " with key {!r} to AnyValue".format(type(item), name))
     else:
-        raise CanteraError("Unable to convert item of type '{}'"
+        raise CanteraError("Unable to convert item of type {!r}"
             " to AnyValue".format(type(item)))
     return v
 
 # Helper functions for converting specific types to AnyValue
 
-cdef vector[CxxAnyValue] list_to_anyvalue(data):
+cdef vector[CxxAnyValue] list_to_anyvalue(data) except *:
     cdef vector[CxxAnyValue] v
     v.resize(len(data))
     cdef size_t i
     for i, item in enumerate(data):
-        v[i] = python_to_anyvalue(item, "<list item>")
+        v[i] = python_to_anyvalue(item)
     return v
 
 cdef vector[double] list_double_to_anyvalue(data):
@@ -278,7 +278,7 @@ cdef vector[string] list_string_to_anyvalue(data):
         v[i] = stringify(item)
     return v
 
-cdef vector[CxxAnyMap] list_dict_to_anyvalue(data):
+cdef vector[CxxAnyMap] list_dict_to_anyvalue(data) except *:
     cdef vector[CxxAnyMap] v
     v.resize(len(data))
     cdef size_t i
@@ -330,4 +330,4 @@ def _py_to_any_to_py(dd):
     # @internal  used for testing purposes only
     cdef string name = stringify("test")
     cdef CxxAnyValue vv = python_to_anyvalue(dd)
-    return anyvalue_to_python(name, vv)
+    return anyvalue_to_python(name, vv), pystr(vv.type_str())
