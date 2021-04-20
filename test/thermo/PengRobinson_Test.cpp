@@ -410,4 +410,34 @@ TEST_F(PengRobinson_Test, partialMolarPropertyIdentities)
     }
 }
 
+TEST(PengRobinson, lookupSpeciesProperties)
+{
+    AnyMap phase_def = AnyMap::fromYamlString(
+        "{name: test, species: [{gri30.yaml/species: [CO2, CH4, N2]}],"
+        " thermo: Peng-Robinson}"
+    );
+    unique_ptr<ThermoPhase> test(newPhase(phase_def));
+
+    // Check for correspondence to values in critical properties "database"
+    test->setState_TPX(330, 100 * OneAtm, "CH4: 1.0");
+    EXPECT_NEAR(test->critPressure(), 4.63e+06, 1e-2);
+    EXPECT_NEAR(test->critTemperature(), 190.7, 1e-3);
+
+    test->setState_TPX(330, 180 * OneAtm, "N2: 1.0");
+    EXPECT_NEAR(test->critPressure(), 3.39e+06, 1e-2);
+    EXPECT_NEAR(test->critTemperature(), 126.2, 1e-3);
+}
+
+TEST(PengRobinson, lookupSpeciesPropertiesMissing)
+{
+    AnyMap phase_def = AnyMap::fromYamlString(
+        "{name: test, species: [{gri30.yaml/species: [CO2, CH3, N2]}],"
+        " thermo: Peng-Robinson}"
+    );
+
+    // CH3 is not in the critical properties database, so this should be
+    // detected as an error
+    EXPECT_THROW(newPhase(phase_def), CanteraError);
+}
+
 };
