@@ -1613,6 +1613,8 @@ class CounterflowTwinPremixedFlame(FlameBase):
         `FlameBase.set_initial_guess`).
         """
         super().set_initial_guess(data=data, group=group)
+        if data:
+            return
 
         Yu = self.reactants.Y
         Tu = self.reactants.T
