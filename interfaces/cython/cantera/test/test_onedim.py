@@ -1189,7 +1189,7 @@ class TestTwinFlame(utilities.CanteraTest):
         gas.TP = T, ct.one_atm
         gas.set_equivalence_ratio(phi, 'H2', 'O2:1.0, AR:4.0')
         sim = ct.CounterflowTwinPremixedFlame(gas=gas, width=width)
-        sim.set_refine_criteria(ratio=5, slope=0.6, curve=0.8, prune=0.1)
+        sim.set_refine_criteria(ratio=5, slope=0.8, curve=1.0, prune=0.4)
         axial_velocity = 2.0
         sim.reactants.mdot = gas.density * axial_velocity
         sim.solve(loglevel=0, auto=True)
