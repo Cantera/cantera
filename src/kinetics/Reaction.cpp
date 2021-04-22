@@ -276,7 +276,7 @@ ThreeBodyReaction::ThreeBodyReaction(const Composition& reactants_,
 }
 
 std::string ThreeBodyReaction::reactantString() const {
-    if (specified) {
+    if (specified_collision_partner) {
         return ElementaryReaction::reactantString() + " + "
             + third_body.efficiencies.begin()->first;
     } else {
@@ -285,7 +285,7 @@ std::string ThreeBodyReaction::reactantString() const {
 }
 
 std::string ThreeBodyReaction::productString() const {
-    if (specified) {
+    if (specified_collision_partner) {
         return ElementaryReaction::productString() + " + "
             + third_body.efficiencies.begin()->first;
     } else {
@@ -296,14 +296,19 @@ std::string ThreeBodyReaction::productString() const {
 void ThreeBodyReaction::calculateRateCoeffUnits(const Kinetics& kin)
 {
     ElementaryReaction::calculateRateCoeffUnits(kin);
-    bool specified = false;
+    bool specified_collision_partner = false;
     for (const auto& reac : reactants) {
+        // While this reaction was already identified as a three-body reaction in a
+        // pre-processing step, this method is often called before a three-body
+        // reaction is fully instantiated. For the determination of the correct units,
+        // it is necessary to check whether the reaction uses a generic 'M' or an
+        // explicitly specified collision partner that may not have been deleted yet.
         if (reac.first != "M" && products.count(reac.first)) {
             // detected specified third-body collision partner
-            specified = true;
+            specified_collision_partner = true;
         }
     }
-    if (!specified) {
+    if (!specified_collision_partner) {
         const ThermoPhase& rxn_phase = kin.thermo(kin.reactionPhaseIndex());
         rate_units *= rxn_phase.standardConcentrationUnits().pow(-1);
     }
@@ -895,12 +900,12 @@ bool detectEfficiencies(ThreeBodyReaction& R)
     }
 
     R.third_body.default_efficiency = 0.;
-    R.specified = true;
+    R.specified_collision_partner = true;
     auto sp = R.third_body.efficiencies.begin();
 
     // adjust reactant coefficients
     auto reac = R.reactants.find(sp->first);
-    if (abs(reac->second - 1) > SmallNumber) {
+    if (trunc(reac->second) != 1) {
         reac->second -= 1.;
     } else {
         R.reactants.erase(reac);
@@ -908,7 +913,7 @@ bool detectEfficiencies(ThreeBodyReaction& R)
 
     // adjust product coefficients
     auto prod = R.products.find(sp->first);
-    if (abs(prod->second - 1) > SmallNumber) {
+    if (trunc(prod->second) != 1) {
         prod->second -= 1.;
     } else {
         R.products.erase(prod);
