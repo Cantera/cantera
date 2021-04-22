@@ -296,7 +296,7 @@ std::string ThreeBodyReaction::productString() const {
 void ThreeBodyReaction::calculateRateCoeffUnits(const Kinetics& kin)
 {
     ElementaryReaction::calculateRateCoeffUnits(kin);
-    bool specified_collision_partner = false;
+    bool specified_collision_partner_ = false;
     for (const auto& reac : reactants) {
         // While this reaction was already identified as a three-body reaction in a
         // pre-processing step, this method is often called before a three-body
@@ -305,10 +305,10 @@ void ThreeBodyReaction::calculateRateCoeffUnits(const Kinetics& kin)
         // explicitly specified collision partner that may not have been deleted yet.
         if (reac.first != "M" && products.count(reac.first)) {
             // detected specified third-body collision partner
-            specified_collision_partner = true;
+            specified_collision_partner_ = true;
         }
     }
-    if (!specified_collision_partner) {
+    if (!specified_collision_partner_) {
         const ThermoPhase& rxn_phase = kin.thermo(kin.reactionPhaseIndex());
         rate_units *= rxn_phase.standardConcentrationUnits().pow(-1);
     }
@@ -317,11 +317,13 @@ void ThreeBodyReaction::calculateRateCoeffUnits(const Kinetics& kin)
 void ThreeBodyReaction::getParameters(AnyMap& reactionNode) const
 {
     ElementaryReaction::getParameters(reactionNode);
-    reactionNode["type"] = "three-body";
-    reactionNode["efficiencies"] = third_body.efficiencies;
-    reactionNode["efficiencies"].setFlowStyle();
-    if (third_body.default_efficiency != 1.0) {
-        reactionNode["default-efficiency"] = third_body.default_efficiency;
+    if (!specified_collision_partner) {
+        reactionNode["type"] = "three-body";
+        reactionNode["efficiencies"] = third_body.efficiencies;
+        reactionNode["efficiencies"].setFlowStyle();
+        if (third_body.default_efficiency != 1.0) {
+            reactionNode["default-efficiency"] = third_body.default_efficiency;
+        }
     }
 }
 

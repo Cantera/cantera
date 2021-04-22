@@ -10,7 +10,7 @@ class TestImplicitThirdBody(utilities.CanteraTest):
     @classmethod
     def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
-        cls.gas = ct.Solution('gri30.yaml')
+        cls.gas = ct.Solution("gri30.yaml")
 
     def test_implicit_three_body(self):
         yaml1 = """
@@ -36,7 +36,7 @@ class TestImplicitThirdBody(utilities.CanteraTest):
     def test_duplicate(self):
         # @todo simplify this test
         #     duplicates are currently only checked for import from file
-        gas1 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas1 = ct.Solution(thermo="IdealGas", kinetics="GasKinetics",
                            species=self.gas.species(), reactions=[])
 
         yaml1 = """
@@ -63,13 +63,25 @@ class TestImplicitThirdBody(utilities.CanteraTest):
         gas1.add_reaction(rxn1)
         gas1.add_reaction(rxn2)
 
-        fname = 'duplicate.yaml'
+        fname = "duplicate.yaml"
         gas1.write_yaml(fname)
 
         with self.assertRaisesRegex(Exception, "Undeclared duplicate reactions"):
             gas2 = ct.Solution(fname)
 
         Path(fname).unlink()
+
+    def test_short_serialization(self):
+        yaml = """
+            equation: H + O2 + H2O <=> HO2 + H2O
+            rate-constant: {A: 1.126e+19, b: -0.76, Ea: 0.0}
+            """
+        rxn = ct.Reaction.fromYaml(yaml, self.gas)
+        input_data = rxn.input_data
+
+        self.assertNotIn("type", input_data)
+        self.assertNotIn("default-efficiency", input_data)
+        self.assertNotIn("efficiencies", input_data)
 
     def test_non_integer_stoich(self):
         yaml = """
