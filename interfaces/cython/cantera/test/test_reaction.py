@@ -1,4 +1,5 @@
 from math import exp
+from pathlib import Path
 
 import cantera as ct
 from . import utilities
@@ -17,7 +18,9 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
             """
         rxn1 = ct.Reaction.fromYaml(yaml1, self.gas)
-        self.assertEqual(rxn1.reaction_type, 'three-body')
+        self.assertEqual(rxn1.reaction_type, "three-body")
+        self.assertEqual(rxn1.default_efficiency, 0.)
+        self.assertEqual(rxn1.efficiencies, {"O2": 1})
 
         yaml2 = """
             equation: H + O2 + M <=> HO2 + M
@@ -30,13 +33,51 @@ class TestImplicitThirdBody(utilities.CanteraTest):
         self.assertEqual(rxn1.efficiencies, rxn2.efficiencies)
         self.assertEqual(rxn1.default_efficiency, rxn2.default_efficiency)
 
+    def test_duplicate(self):
+        # @todo simplify this test
+        #     duplicates are currently only checked for import from file
+        gas1 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                           species=self.gas.species(), reactions=[])
+
+        yaml1 = """
+            equation: H + O2 + H2O <=> HO2 + H2O
+            rate-constant: {A: 1.126e+19, b: -0.76, Ea: 0.0}
+            """
+        rxn1 = ct.Reaction.fromYaml(yaml1, gas1)
+
+        yaml2 = """
+            equation: H + O2 + M <=> HO2 + M
+            rate-constant: {A: 1.126e+19, b: -0.76, Ea: 0.0}
+            type: three-body
+            default-efficiency: 0
+            efficiencies: {H2O: 1}
+            """
+        rxn2 = ct.Reaction.fromYaml(yaml2, gas1)
+
+        self.assertEqual(rxn1.reaction_type, rxn2.reaction_type)
+        self.assertEqual(rxn1.reactants, rxn2.reactants)
+        self.assertEqual(rxn1.products, rxn2.products)
+        self.assertEqual(rxn1.efficiencies, rxn2.efficiencies)
+        self.assertEqual(rxn1.default_efficiency, rxn2.default_efficiency)
+
+        gas1.add_reaction(rxn1)
+        gas1.add_reaction(rxn2)
+
+        fname = 'duplicate.yaml'
+        gas1.write_yaml(fname)
+
+        with self.assertRaisesRegex(Exception, "Undeclared duplicate reactions"):
+            gas2 = ct.Solution(fname)
+
+        Path(fname).unlink()
+
     def test_non_integer_stoich(self):
         yaml = """
             equation: H + 1.5 O2 <=> HO2 + O2
             rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
             """
         rxn = ct.Reaction.fromYaml(yaml, self.gas)
-        self.assertEqual(rxn.reaction_type, 'elementary')
+        self.assertEqual(rxn.reaction_type, "elementary")
 
     def test_not_three_body(self):
         yaml = """
@@ -44,7 +85,7 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             rate-constant: {A: 2.1e+15, b: -0.69, Ea: 2850.0}
             """
         rxn = ct.Reaction.fromYaml(yaml, self.gas)
-        self.assertEqual(rxn.reaction_type, 'elementary')
+        self.assertEqual(rxn.reaction_type, "elementary")
 
     def test_user_override(self):
         yaml = """
@@ -53,7 +94,7 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             type: elementary
             """
         rxn = ct.Reaction.fromYaml(yaml, self.gas)
-        self.assertEqual(rxn.reaction_type, 'elementary')
+        self.assertEqual(rxn.reaction_type, "elementary")
 
 
 class TestElementary(utilities.CanteraTest):

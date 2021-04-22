@@ -213,7 +213,7 @@ public:
     //! rate.
     ThirdBody third_body;
 
-    bool specified = false; //!< Explicitly specified collision partner
+    bool specified_collision_partner = false; //!< Input specifies collision partner
 };
 
 //! A reaction that is first-order in [M] at low pressure, like a third-body

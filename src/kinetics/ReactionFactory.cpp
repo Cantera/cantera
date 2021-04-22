@@ -159,7 +159,7 @@ ReactionFactory::ReactionFactory()
                });
 }
 
-bool isThreeBody(Reaction& R)
+bool isThreeBody(const Reaction& R)
 {
     // detect explicitly specified collision partner
     size_t found = 0;
@@ -250,7 +250,7 @@ unique_ptr<Reaction> newReaction(const XML_Node& rxn_node)
         throw CanteraError("newReaction",
             "Unknown reaction type '" + rxn_node["type"] + "'");
     }
-    if (type == "") {
+    if (type.empty()) {
         // Reaction type is not specified
         // See if this is a three-body reaction with a specified collision partner
         ElementaryReaction testReaction;
