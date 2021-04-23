@@ -155,6 +155,8 @@ public:
     friend int invert(DenseMatrix& A, int nn);
 };
 
+int factor(DenseMatrix& A);
+int solveFactored(DenseMatrix& A, double* b, size_t nrhs=1, size_t ldb=0);
 
 //! Solve Ax = b. Array b is overwritten on exit with x.
 /*!

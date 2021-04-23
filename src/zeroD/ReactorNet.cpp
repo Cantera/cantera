@@ -464,13 +464,19 @@ double ReactorNet::solveSteady()
     {
         m_newt->setBounds(i, -1.0e-3, 1.01);
     }
-    m_newt->setBounds(0, 0, 100);
+    m_newt->setBounds(0, 1.0e-3, 100);
     m_newt->setBounds(1, 0, 5);
     m_newt->setBounds(2, -10000000, 10000000);
 
-    m_newt->setConstant(1, true);
+    m_newt->setConstants({1});
+    // m_newt->setConstants({0,1,2,11,12});
+    // m_newt->setConstant(0, true);
+    // m_newt->setConstant(1, true);
+    // m_newt->setConstant(2, true);
+    // m_newt->setConstant(11, true);
+    // m_newt->setConstant(12, true);
 
-    m_newt->solve(8);
+    return m_newt->hybridSolve();
 }
 
 }

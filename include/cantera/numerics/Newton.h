@@ -52,6 +52,10 @@ public:
     //! Compute the weighted 2-norm of `step`.
     doublereal weightedNorm(const doublereal* x, const doublereal* step) const;
 
+    int hybridSolve();
+
+    int timestep();
+
     /**
      * Find the solution to F(X) = 0 by damped Newton iteration.
      */
@@ -75,32 +79,46 @@ public:
         m_max[n] = upper;
     }
 
-    void setConstant(size_t component, bool constant) {
-        m_constant[component] = constant;
+    void setConstants(vector_int constantComponents) {
+        m_constantComponents = constantComponents;
     }
 
     void evalJacobian(doublereal* x, doublereal* xdot);
 
+    void getSolution(double* x) {
+        for (size_t i = 0; i < m_nv; i++) {
+            x[i] = m_x[i];
+        }
+    }
+
 protected:
     FuncEval* m_residfunc;
 
-    DenseMatrix m_jacobian;
+    //! number of variables
+    size_t m_nv;
+
+    //! solution converged if [weightedNorm(sol, step) < m_convergenceThreshold]
+    doublereal m_convergenceThreshold;
+
+    DenseMatrix m_jacobian, m_jacFactored;
     int m_jacAge, m_jacMaxAge;
     doublereal m_jacRtol, m_jacAtol;
 
 
-    //! Work arrays of size #m_nv used in solve().
+    //! work arrays of size #m_nv used in solve().
     vector_fp m_x, m_x1, m_stp, m_stp1;
 
     vector_fp m_max, m_min;
     vector_fp m_rtol_ss, m_rtol_ts;
     vector_fp m_atol_ss, m_atol_ts;
 
-    //! number of variables
-    size_t m_nv;
+    vector_fp m_xlast, m_xsave;
 
-    //! constant variables
-    std::vector<bool> m_constant;
+    //! the indexes of any constant variables
+    vector_int m_constantComponents;
+
+    //! current timestep reciprocal
+    doublereal m_rdt = 0;
 };
 }
 

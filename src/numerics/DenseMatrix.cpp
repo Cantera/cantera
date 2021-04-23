@@ -140,6 +140,83 @@ vector_int& DenseMatrix::ipiv()
     return m_ipiv;
 }
 
+int factor(DenseMatrix& A)
+{
+    int info = 0;
+    #if CT_USE_LAPACK
+        ct_dgetrf(A.nRows(), A.nColumns(), A.ptrColumn(0),
+                  A.nRows(), &A.ipiv()[0], info);
+        if (info > 0) {
+            if (A.m_printLevel) {
+                writelogf("solve(DenseMatrix& A, double* b): DGETRF returned INFO = %d   U(i,i) is exactly zero. The factorization has"
+                          " been completed, but the factor U is exactly singular, and division by zero will occur if "
+                          "it is used to solve a system of equations.\n", info);
+            }
+            if (!A.m_useReturnErrorCode) {
+                throw CanteraError("solve(DenseMatrix& A, double* b)",
+                                    "DGETRF returned INFO = {}. U(i,i) is exactly zero. The factorization has"
+                                    " been completed, but the factor U is exactly singular, and division by zero will occur if "
+                                    "it is used to solve a system of equations.", info);
+            }
+            return info;
+        } else if (info < 0) {
+            if (A.m_printLevel) {
+                writelogf("solve(DenseMatrix& A, double* b): DGETRF returned INFO = %d. The argument i has an illegal value\n", info);
+            }
+
+            throw CanteraError("solve(DenseMatrix& A, double* b)",
+                               "DGETRF returned INFO = {}. The argument i has an illegal value", info);
+        }
+    #else
+        MappedMatrix Am(&A(0,0), A.nRows(), A.nColumns());
+        #ifdef NDEBUG
+            auto lu = Am.partialPivLu();
+        #else
+            auto lu = Am.fullPivLu();
+            if (lu.nonzeroPivots() < static_cast<long int>(A.nColumns())) {
+                throw CanteraError("solve(DenseMatrix& A, double* b)",
+                    "Matrix appears to be rank-deficient: non-zero pivots = {}; columns = {}",
+                    lu.nonzeroPivots(), A.nColumns());
+            }
+        #endif
+    #endif
+    return info;
+}
+
+int solveFactored(DenseMatrix& A, double* b, size_t nrhs, size_t ldb)
+{
+    if (A.nColumns() != A.nRows()) {
+        if (A.m_printLevel) {
+            writelogf("solve(DenseMatrix& A, double* b): Can only solve a square matrix\n");
+        }
+        throw CanteraError("solve(DenseMatrix& A, double* b)", "Can only solve a square matrix");
+    }
+
+    int info = 0;
+    if (ldb == 0) {
+        ldb = A.nColumns();
+    }
+    #if CT_USE_LAPACK
+        ct_dgetrs(ctlapack::NoTranspose, A.nRows(), nrhs, A.ptrColumn(0),
+                  A.nRows(), &A.ipiv()[0], b, ldb, info);
+        if (info != 0) {
+            if (A.m_printLevel) {
+                writelog("solve(DenseMatrix& A, double* b): DGETRS returned INFO = {}\n", info);
+            }
+            if (info < 0 || !A.m_useReturnErrorCode) {
+                throw CanteraError("solve(DenseMatrix& A, double* b)",
+                                   "DGETRS returned INFO = {}", info);
+            }
+        }
+    #else
+        for (size_t i = 0; i < nrhs; i++) {
+            MappedVector bm(b + ldb*i, A.nColumns());
+            bm = lu.solve(bm);
+        }
+    #endif
+    return info;
+}
+
 int solve(DenseMatrix& A, double* b, size_t nrhs, size_t ldb)
 {
     if (A.nColumns() != A.nRows()) {

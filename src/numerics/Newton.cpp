@@ -20,7 +20,7 @@ const size_t NDAMP = 7;
 Newton::Newton(FuncEval& func) {
     m_residfunc = &func;
     m_nv = m_residfunc->neq();
-    m_constant.resize(m_nv, false);
+    m_convergenceThreshold = 1.0e-14;
     m_x.resize(m_nv);
     m_x1.resize(m_nv);
     m_stp.resize(m_nv);
@@ -31,93 +31,102 @@ Newton::Newton(FuncEval& func) {
     m_atol_ss.resize(m_nv, 1.0e-9);
     // m_rtol_ts.resize(m_nv, 1.0e-4);
     // m_atol_ts.resize(m_nv, 1.0e-11);
+    m_xlast.resize(m_nv);
+    m_xsave.resize(m_nv);
+
+    m_rdt = 0;
 
     m_jacobian = DenseMatrix(m_nv, m_nv);
     m_jacAge = 10000;
-    m_jacMaxAge = 5;
-    m_jacRtol = 1.0e-5;
+    m_jacMaxAge = 1;
+    m_jacRtol = 1.0e-15;
     m_jacAtol = sqrt(std::numeric_limits<double>::epsilon());
 }
 
 void Newton::evalJacobian(doublereal* x, doublereal* xdot) {
 
-    // // calculate unperturbed residual
+    // calculate unperturbed residual
     m_residfunc->eval(0, x, xdot, 0);
 
     for (size_t n = 0; n < m_nv; n++) {
-        // calculate the nth Jacobian column, unless component n is constant
-        if (!m_constant[n]) {
-            double xsave = x[n];
+        // calculate the nth Jacobian column
+        double xsave = x[n];
 
-            // calculate the perturbation amount, preserving the sign of x[n]
-            double dx;
-            if (xsave >= 0) {
-                dx = xsave*m_jacRtol + m_jacAtol;
-            } else {
-                dx = xsave*m_jacRtol - m_jacAtol;
-            }
-
-            // perturb the solution vector
-            x[n] = xsave + dx;
-            dx = x[n] - xsave;
-
-            // calculate perturbed residual
-            vector_fp xdotPerturbed(m_nv); //make this member for speed?
-            m_residfunc->eval(0, x, xdotPerturbed.data(), 0);
-
-            // compute nth column of Jacobian
-            for (size_t m = 0; m < m_nv; m++) {
-                m_jacobian.value(m,n) = (xdotPerturbed[m] - xdot[m])/dx;
-            }
-            // restore solution vector
-            x[n] = xsave;
-
-        // for constant components: Jacobian column of 0's, with 1 on diagonal
-        // note: Jacobian row must also be 0's w/ 1 on diagonal
+        // calculate the perturbation amount, preserving the sign of x[n]
+        double dx;
+        if (xsave >= 0) {
+            dx = xsave*m_jacRtol + m_jacAtol;
         } else {
-            for (size_t m = 0; m < m_nv; m++) {
-                m_jacobian.value(m,n) = 0;
+            dx = xsave*m_jacRtol - m_jacAtol;
+        }
+
+        // perturb the solution vector
+        x[n] = xsave + dx;
+        dx = x[n] - xsave;
+
+        // calculate perturbed residual
+        vector_fp xdotPerturbed(m_nv); //make this member for speed?
+        m_residfunc->eval(0, x, xdotPerturbed.data(), 0);
+
+        // compute nth column of Jacobian
+        for (size_t m = 0; m < m_nv; m++) {
+            m_jacobian.value(m,n) = (xdotPerturbed[m] - xdot[m])/dx;
+        }
+        // restore solution vector
+        x[n] = xsave;
+
+        // for constant-valued components: 1 in diagonal position, all 0's in row and column
+        for (size_t i : m_constantComponents) {
+            for (size_t j = 0; j < m_nv; j++) {
+                m_jacobian.value(i,j) = 0;
+                m_jacobian.value(j,i) = 0;
             }
-            m_jacobian.value(n,n) = 1;
+            m_jacobian.value(i,i) = 1;
         }
     }
 
     // writelog("\nnew jac:\n");
     // for (int i = 0; i < m_nv; i++) {
+    //     writelog("ROW {} | ", i);
     //     for (int j = 0; j < m_nv; j++) {
-    //         writelog("{:14.5} ", m_jacobian.value(i,j));
+    //         writelog("{:.5} ", m_jacobian.value(i,j));
     //     }
-    //     writelog("\n");
+    //     writelog("\n\n");
     // }
 
     m_jacAge = 0;
+
+    m_jacFactored = m_jacobian;
+    Cantera::factor(m_jacFactored);
 }
 
 doublereal Newton::weightedNorm(const doublereal* x, const doublereal* step) const
 {
-    double sum = 0.0;
+    double accum = 0.0;
     for (size_t n = 0; n < m_nv; n++) {
-        double weight = m_rtol_ss[n]*fabs(x[n]) + m_atol_ss[n]; //TODO: add transient tolerances if rdt!=0
-        double f = step[n]/weight;
-        sum += f*f;
+        double f = step[n]/(x[n] + m_atol_ss[n]);
+        accum += f*f;
     }
-    return sqrt(sum/m_nv);
+    // writelog("test.... {}", m_constantComponents.size());
+    // return sqrt(accum/(m_nv - m_constantComponents.size()));
+    return sqrt(accum/m_nv);
 }
 
 void Newton::step(doublereal* x, doublereal* step, int loglevel)
 {
     m_residfunc->eval(0, x, step, 0);
     for (size_t n = 0; n < m_nv; n++) {
-        step[n] = -step[n];
+        step[n] = -step[n] + m_rdt*(x[n]-m_xlast[n]);
     }
 
-    DenseMatrix solvejac = m_jacobian;
+    DenseMatrix solvejac = m_jacFactored;
     try {
         //Note: this function takes an unfactored jacobian, then finds its LU factorization before
         // solving. Optimization is possible by saving the factored jacobian, since it can be reused.
         // Also, the DenseMatrix provided here will be overwritten with the LU factored version, so
         // a copy is passed instead in order to preserve the original for reuse.
-        Cantera::solve(solvejac, step);
+        // Cantera::solve(solvejac, step);
+        Cantera::solveFactored(solvejac, step);
 
     } catch (CanteraError&) {
         // int iok = m_jac->info() - 1;
@@ -222,9 +231,9 @@ int Newton::dampStep(const doublereal* x0, const doublereal* step0,
         // write log information
         if (loglevel > 0) {
             doublereal ss = weightedNorm(x1,step1);
-            writelog("\n{:d}  {:9.5f}   {:9.5f}   {:9.5f}   {:9.5f}   {:9.5f}  {:d}/{:d}",
-                     m, damp, boundFactor, log10(ss+SmallNumber),
-                     log10(s0+SmallNumber), log10(s1+SmallNumber),
+            writelog("\n{:d}  {:9.5f}   {:9.5f}   {:9.5e}   {:9.5e}   {:9.5e}  {:d}/{:d}",
+                     m, damp, boundFactor, ss+SmallNumber,
+                     s0+SmallNumber, s1+SmallNumber,
                      m_jacAge, m_jacMaxAge);
         }
 
@@ -232,7 +241,7 @@ int Newton::dampStep(const doublereal* x0, const doublereal* step0,
         // damping coefficient. Also accept it if this step would result in a
         // converged solution. Otherwise, decrease the damping coefficient and
         // try again.
-        if (s1 < 1.0 || s1 < s0) {
+        if (s1 < m_convergenceThreshold || s1 < s0) {
             break;
         }
         damp /= DampFactor;
@@ -242,7 +251,7 @@ int Newton::dampStep(const doublereal* x0, const doublereal* step0,
     // stepping by the damped step would represent a converged solution, and
     // return 0 otherwise. If no damping coefficient could be found, return -2.
     if (m < NDAMP) {
-        if (s1 > 1.0) {
+        if (s1 > m_convergenceThreshold) {
             return 0;
         } else {
             return 1;
@@ -250,6 +259,44 @@ int Newton::dampStep(const doublereal* x0, const doublereal* step0,
     } else {
         return -2;
     }
+}
+
+int Newton::hybridSolve() {
+    int MAX = 100;
+    int newtonsolves = 0;
+    int timesteps = 0;
+
+    m_residfunc->getState(m_x.data());
+    copy(m_x.begin(), m_x.end(), m_xsave.begin());
+
+    for(int i = 0; i < MAX; i++) {
+        newtonsolves++;
+        if(solve() == 1) {
+            writelog("\nConverged in {} newton solves, {} timesteps.", newtonsolves, timesteps);
+            return 1;
+        }
+        copy(m_xsave.begin(), m_xsave.end(), m_x.begin());
+        for(int j = 0; j < MAX; j++) {
+            timesteps++;
+            timestep();
+        }
+        copy(m_x.begin(), m_x.end(), m_xsave.begin());
+    }
+    writelog("Solver failure...");
+    return 0;
+}
+
+int Newton::timestep() {
+    m_rdt = 1.0/1.0e-5;
+
+    // calculate time-integration Jacobian
+    // m_residfunc->getState(m_x.data());
+    copy(m_x.begin(), m_x.end(), m_xlast.begin());
+    evalJacobian(&m_x[0], &m_stp[0]);
+    for (size_t i = 0; i < m_nv; i++) {
+        m_jacobian.value(i,i) -= m_rdt;
+    }
+    return solve();
 }
 
 int Newton::solve(int loglevel)
@@ -302,6 +349,16 @@ int Newton::solve(int loglevel)
         if (m == 0) {
             copy(m_x1.begin(), m_x1.end(), m_x.begin());
         } else if (m == 1) {
+            // writelog("\nConverged. Newton steps: {}", steps);
+            // writelog("\nconverged!\n");
+            // writelog("\nsolution components: ");
+            // for(int i = 0; i < m_nv; i++) {
+            //     writelog("{:9.5e}, ", m_x[i]);
+            // }
+            // writelog("\nresidual components: ");
+            // for(int i = 0; i < m_nv; i++) {
+            //     writelog("{:9.5e}, ", m_stp[i]);
+            // }
             // convergence
             // if (rdt == 0) {
             //     jac.setAge(0); // for efficient sensitivity analysis
