@@ -778,8 +778,20 @@ class TestIdealGasReactor(TestReactor):
 class TestWellStirredReactorIgnition(utilities.CanteraTest):
     """ Ignition (or not) of a well-stirred reactor """
     def setup(self, T0, P0, mdot_fuel, mdot_ox):
+        gas_def = """
+        phases:
+        - name: gas
+          species:
+          - gri30.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, CH2, CH2(S), CH3,
+              CH4, CO, CO2, HCO, CH2O, CH2OH, CH3O, CH3OH, C2H4, C2H5, C2H6, N2, AR]
+          thermo: ideal-gas
+          kinetics: gas
+          reactions:
+          - gri30.yaml/reactions: declared-species
+          skip-undeclared-third-bodies: true
+        """
 
-        self.gas = ct.Solution('gri30.xml')
+        self.gas = ct.Solution(yaml=gas_def)
 
         # fuel inlet
         self.gas.TPX = T0, P0, "CH4:1.0"
@@ -873,9 +885,9 @@ class TestWellStirredReactorIgnition(utilities.CanteraTest):
         # test if steady state is reached
         self.assertTrue(residuals[-1] < 10. * self.net.rtol)
         # regression test; no external basis for these results
-        self.assertNear(self.combustor.T, 2486.14, 1e-5)
-        self.assertNear(self.combustor.thermo['H2O'].Y[0], 0.103801, 1e-5)
-        self.assertNear(self.combustor.thermo['HO2'].Y[0], 7.71278e-06, 1e-5)
+        self.assertNear(self.combustor.T, 2498.94, 1e-5)
+        self.assertNear(self.combustor.thermo['H2O'].Y[0], 0.103658, 1e-5)
+        self.assertNear(self.combustor.thermo['HO2'].Y[0], 8.734515e-06, 1e-5)
 
 
 class TestConstPressureReactor(utilities.CanteraTest):
@@ -888,15 +900,25 @@ class TestConstPressureReactor(utilities.CanteraTest):
     reactorClass = ct.ConstPressureReactor
 
     def create_reactors(self, add_Q=False, add_mdot=False, add_surf=False):
-        self.gas = ct.Solution('gri30.xml')
+        gas_def = """
+        phases:
+        - name: gas
+          species:
+          - gri30.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, CH3, CH4, CO, CO2,
+              HCO, CH2O, CH3O, CH3OH, N2, AR]
+          thermo: ideal-gas
+          kinetics: gas
+          reactions:
+          - gri30.yaml/reactions: declared-species
+          skip-undeclared-third-bodies: true
+        """
+        self.gas = ct.Solution(yaml=gas_def)
         self.gas.TPX = 900, 25*ct.one_atm, 'CO:0.5, H2O:0.2'
 
-        self.gas1 = ct.Solution('gri30.xml')
-        self.gas1.name = 'gas'
-        self.gas2 = ct.Solution('gri30.xml')
-        self.gas2.name = 'gas'
-        resGas = ct.Solution('gri30.xml')
-        solid = ct.Solution('diamond.xml', 'diamond')
+        self.gas1 = ct.Solution(yaml=gas_def)
+        self.gas2 = ct.Solution(yaml=gas_def)
+        resGas = ct.Solution(yaml=gas_def)
+        solid = ct.Solution('diamond.yaml', 'diamond')
 
         T0 = 1200
         P0 = 25*ct.one_atm
@@ -924,9 +946,9 @@ class TestConstPressureReactor(utilities.CanteraTest):
             mfc2 = ct.MassFlowController(env, self.r2, mdot=0.05)
 
         if add_surf:
-            self.interface1 = ct.Interface('diamond.xml', 'diamond_100',
+            self.interface1 = ct.Interface('diamond.yaml', 'diamond_100',
                                       (self.gas1, solid))
-            self.interface2 = ct.Interface('diamond.xml', 'diamond_100',
+            self.interface2 = ct.Interface('diamond.yaml', 'diamond_100',
                                       (self.gas2, solid))
 
             C = np.zeros(self.interface1.n_species)
@@ -1001,8 +1023,21 @@ class TestIdealGasConstPressureReactor(TestConstPressureReactor):
 
 
 class TestFlowReactor(utilities.CanteraTest):
+    gas_def = """
+    phases:
+    - name: gas
+      species:
+      - gri30.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, CH3, CH4, CO, CO2,
+          HCO, CH2O, CH3O, CH3OH, AR, N2]
+      thermo: ideal-gas
+      kinetics: gas
+      reactions:
+      - gri30.yaml/reactions: declared-species
+      skip-undeclared-third-bodies: true
+    """
+
     def test_nonreacting(self):
-        g = ct.Solution('h2o2.xml')
+        g = ct.Solution(yaml=self.gas_def)
         g.TPX = 300, 101325, 'O2:1.0'
         r = ct.FlowReactor(g)
         r.mass_flow_rate = 10
@@ -1020,7 +1055,7 @@ class TestFlowReactor(utilities.CanteraTest):
             self.assertNear(r.distance, v0 * t)
 
     def test_reacting(self):
-        g = ct.Solution('gri30.xml')
+        g = ct.Solution(yaml=self.gas_def)
         g.TPX = 1400, 20*101325, 'CO:1.0, H2O:1.0'
 
         r = ct.FlowReactor(g)
