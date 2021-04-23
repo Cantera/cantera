@@ -205,58 +205,60 @@ class TestIonTransportYAML(TestIonTransport):
 
 
 class TestTransportGeometryFlags(utilities.CanteraTest):
-    phase_data = """
-units(length="cm", time="s", quantity="mol", act_energy="cal/mol")
+    species_data = """
+    - name: H2
+      composition: {{H: 2}}
+      thermo: &dummy-thermo
+        {{model: constant-cp, T0: 1000, h0: 51.7, s0: 19.5, cp0: 8.41}}
+      transport:
+        model: gas
+        geometry: {H2}
+        diameter: 2.92
+        well-depth: 38.00
+        polarizability: 0.79
+        rotational-relaxation: 280.0
+    - name: H
+      composition: {{H: 1}}
+      thermo: *dummy-thermo
+      transport:
+        model: gas
+        geometry: {H}
+        diameter: 2.05
+        well-depth: 145.00
+    - name: H2O
+      composition: {{H: 2, O: 1}}
+      thermo: *dummy-thermo
+      transport:
+        model: gas
+        geometry: {H2O}
+        diameter: 2.60
+        well-depth: 572.40
+        dipole: 1.84
+        rotational-relaxation: 4.0
+    - name: OHp
+      composition: {{H: 1, O: 1, E: -1}}
+      thermo: *dummy-thermo
+      transport:
+        model: gas
+        geometry: {OHp}
+        diameter: 2.60
+        well-depth: 572.40
+        dipole: 1.84
+        rotational-relaxation: 4.0
+    - name: E
+      composition: {{E: 1}}
+      thermo: *dummy-thermo
+      transport:
+        model: gas
+        geometry: {E}
+        diameter: 0.01
+        well-depth: 1.0
+    """
 
-ideal_gas(name="test",
-    elements="O  H  E",
-    species="H2  H  H2O  OHp  E",
-    initial_state=state(temperature=300.0, pressure=OneAtm),
-    transport='Mix'
-)
-
-species(name="H2",
-    atoms=" H:2 ",
-    thermo=const_cp(t0=1000, h0=51.7, s0=19.5, cp0=8.41),
-    transport=gas_transport(
-                geom="{H2}",
-                diam=2.92, well_depth=38.00, polar=0.79, rot_relax=280.00)
-)
-
-species(name="H",
-    atoms=" H:1 ",
-    thermo=const_cp(t0=1000, h0=51.7, s0=19.5, cp0=8.41),
-    transport=gas_transport(
-                geom="{H}",
-                diam=2.05, well_depth=145.00)
-)
-species(name="H2O",
-    atoms=" H:2  O:1 ",
-    thermo=const_cp(t0=1000, h0=51.7, s0=19.5, cp0=8.41),
-    transport=gas_transport(
-                geom="{H2O}",
-                diam=2.60, well_depth=572.40, dipole=1.84, rot_relax=4.00)
-)
-
-species(name="OHp",
-    atoms=" H:1  O:1  E:-1",
-    thermo=const_cp(t0=1000, h0=51.7, s0=19.5, cp0=8.41),
-    transport=gas_transport(
-                geom="{OHp}",
-                diam=2.60, well_depth=572.40, dipole=1.84, rot_relax=4.00)
-)
-
-species(name="E",
-    atoms=" E:1 ",
-    thermo=const_cp(t0=1000, h0=0, s0=0, cp0=0),
-    transport=gas_transport(
-                geom="{E}", diam=0.01, well_depth=1.00)
-)
-"""
     def test_bad_geometry(self):
         good = {'H':'atom', 'H2':'linear', 'H2O':'nonlinear', 'OHp':'linear',
                 'E':'atom'}
-        ct.Solution(source=self.phase_data.format(**good))
+        ct.Species.listFromYaml(self.species_data.format(**good))
 
         bad = [{'H':'linear'}, {'H':'nonlinear'}, {'H2':'atom'},
                {'H2':'nonlinear'}, {'H2O':'atom'}, {'OHp':'atom'},
@@ -265,7 +267,7 @@ species(name="E",
             test = copy.copy(good)
             test.update(geoms)
             with self.assertRaisesRegex(ct.CanteraError, 'invalid geometry'):
-                ct.Solution(source=self.phase_data.format(**test))
+                ct.Species.listFromYaml(self.species_data.format(**test))
 
 
 class TestDustyGas(utilities.CanteraTest):
