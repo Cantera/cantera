@@ -77,8 +77,8 @@ cdef public PyObject* pyCanteraError = <PyObject*>CanteraError
 cdef anyvalue_to_python(string name, CxxAnyValue& v):
     cdef CxxAnyMap a
     cdef CxxAnyValue b
-    if v.isType[void]():
-        # It is not possible to determine the associated type; return empty list
+    if v.isEmpty():
+        # It is not possible to determine the associated type; return None
         return None
     if v.isScalar():
         if v.isType[string]():
@@ -156,7 +156,7 @@ cdef get_types(item):
         for i in item:
             if isinstance(i, dict):
                 itype.add(dict)
-            elif isinstance(i, list) or isinstance(i , tuple):
+            elif isinstance(i, (list, tuple)):
                 itype.add(list)
             elif type(i) == bool:
                 itype.add(bool)  # otherwise bools will get counted as integers
@@ -178,6 +178,9 @@ cdef get_types(item):
                 inner_types.add(type_j)
                 ndim_inner.add(ndim_j)
             if len(inner_types) == 1 and len(ndim_inner) == 1:
+                # Inner types and dimensions match up to second nesting level.
+                # Checks for higher levels are skipped as the items are converted
+                # to vector<AnyValue> rather than vector<vector<type>>.
                 return inner_types.pop(), ndim_inner.pop() + 1
             else:
                 return None, 1
@@ -259,7 +262,7 @@ cdef vector[long] list_int_to_anyvalue(data):
     v.resize(len(data))
     cdef size_t i
     for i, item in enumerate(data):
-        v[i] = <long>item
+        v[i] = <long int>item
     return v
 
 cdef vector[cbool] list_bool_to_anyvalue(data):
@@ -291,7 +294,7 @@ cdef vector[vector[double]] list2_double_to_anyvalue(data):
     v.resize(len(data))
     cdef size_t i, j
     for i, item in enumerate(data):
-        v[i].resize(len(item))
+        v[i].resize(len(item)) # allows for ragged nested lists
         for j, jtem in enumerate(item):
             v[i][j] = <double>jtem
     return v
@@ -301,9 +304,9 @@ cdef vector[vector[long]] list2_int_to_anyvalue(data):
     v.resize(len(data))
     cdef size_t i, j
     for i, item in enumerate(data):
-        v[i].resize(len(item))
+        v[i].resize(len(item)) # allows for ragged nested lists
         for j, jtem in enumerate(item):
-            v[i][j] = <long>jtem
+            v[i][j] = <long int>jtem
     return v
 
 cdef vector[vector[cbool]] list2_bool_to_anyvalue(data):
@@ -311,7 +314,7 @@ cdef vector[vector[cbool]] list2_bool_to_anyvalue(data):
     v.resize(len(data))
     cdef size_t i, j
     for i, item in enumerate(data):
-        v[i].resize(len(item))
+        v[i].resize(len(item)) # allows for ragged nested lists
         for j, jtem in enumerate(item):
             v[i][j] = <cbool>jtem
     return v
@@ -321,7 +324,7 @@ cdef vector[vector[string]] list2_string_to_anyvalue(data):
     v.resize(len(data))
     cdef size_t i, j
     for i, item in enumerate(data):
-        v[i].resize(len(item))
+        v[i].resize(len(item)) # allows for ragged nested lists
         for j, jtem in enumerate(item):
             v[i][j] = stringify(jtem)
     return v
