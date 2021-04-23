@@ -823,7 +823,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
 
     def run_extinction(self, mdot_fuel, mdot_ox, T_ox, width, P):
         self.create_sim(fuel='H2:1.0', oxidizer='O2:1.0', p=ct.one_atm*P,
-                        mdot_fuel=mdot_fuel, mdot_ox=mdot_ox, width=width)
+                        mdot_fuel=mdot_fuel, mdot_ox=mdot_ox, T_ox=T_ox, width=width)
         self.sim.solve(loglevel=0, auto=True)
         self.assertFalse(self.sim.extinct())
 
