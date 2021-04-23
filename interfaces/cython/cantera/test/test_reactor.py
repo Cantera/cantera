@@ -20,13 +20,13 @@ class TestReactor(utilities.CanteraTest):
 
         self.net = ct.ReactorNet()
 
-        self.gas1 = ct.Solution('h2o2.xml')
+        self.gas1 = ct.Solution('h2o2.yaml', transport_model=None)
         self.gas1.TPX = T1, P1, X1
         self.r1 = self.reactorClass(self.gas1)
         self.net.add_reactor(self.r1)
 
         if independent:
-            self.gas2 = ct.Solution('h2o2.xml')
+            self.gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         else:
             self.gas2 = self.gas1
 
@@ -52,7 +52,7 @@ class TestReactor(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, 'No phase'):
             R.kinetics.net_production_rates
 
-        g = ct.Solution('h2o2.xml')
+        g = ct.Solution('h2o2.yaml', transport_model=None)
         g.TP = 300, 101325
         R.insert(g)
 
@@ -331,7 +331,7 @@ class TestReactor(utilities.CanteraTest):
 
         self.net.advance(1.0)
 
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
         gas.TPX = T0, P0, X0
         gas.equilibrate('UV')
 
@@ -348,7 +348,7 @@ class TestReactor(utilities.CanteraTest):
         T0 = 1100
         X0 = 'H2:1.0, O2:0.5, AR:8.0'
 
-        gas1 = ct.Solution('h2o2.xml')
+        gas1 = ct.Solution('h2o2.yaml', transport_model=None)
         gas1.TPX = T0, P0, X0
         r1 = ct.IdealGasConstPressureReactor(gas1)
 
@@ -356,7 +356,7 @@ class TestReactor(utilities.CanteraTest):
         net.add_reactor(r1)
         net.advance(1.0)
 
-        gas2 = ct.Solution('h2o2.xml')
+        gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         gas2.TPX = T0, P0, X0
         gas2.equilibrate('HP')
 
@@ -438,7 +438,7 @@ class TestReactor(utilities.CanteraTest):
 
     def test_mass_flow_controller(self):
         self.make_reactors(n_reactors=1)
-        gas2 = ct.Solution('h2o2.xml')
+        gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         gas2.TPX = 300, 10*101325, 'H2:1.0'
         reservoir = ct.Reservoir(gas2)
 
@@ -620,7 +620,7 @@ class TestReactor(utilities.CanteraTest):
 
     def test_pressure_controller1(self):
         self.make_reactors(n_reactors=1)
-        g = ct.Solution('h2o2.xml')
+        g = ct.Solution('h2o2.yaml', transport_model=None)
         g.TPX = 500, 2*101325, 'H2:1.0'
         inlet_reservoir = ct.Reservoir(g)
         g.TP = 300, 101325
@@ -645,7 +645,7 @@ class TestReactor(utilities.CanteraTest):
 
     def test_pressure_controller2(self):
         self.make_reactors(n_reactors=1)
-        g = ct.Solution('h2o2.xml')
+        g = ct.Solution('h2o2.yaml', transport_model=None)
         g.TPX = 500, 2*101325, 'H2:1.0'
         inlet_reservoir = ct.Reservoir(g)
         g.TP = 300, 101325
@@ -1203,7 +1203,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
         net.atol_sensitivity = 1e-10
         net.rtol_sensitivity = 1e-8
 
-        gas2 = ct.Solution('h2o2.xml')
+        gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         gas2.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
         r2 = ct.IdealGasReactor(gas2)
         net.add_reactor(r2)
@@ -1240,7 +1240,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
 
     def _test_parameter_order1(self, reactorClass):
         # Single reactor, changing the order in which parameters are added
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
 
         def setup(params):
             net = ct.ReactorNet()
@@ -1293,15 +1293,15 @@ class TestReactorSensitivities(utilities.CanteraTest):
 
     def test_parameter_order2(self):
         # Multiple reactors, changing the order in which parameters are added
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
 
         def setup(reverse=False):
             net = ct.ReactorNet()
-            gas1 = ct.Solution('h2o2.xml')
+            gas1 = ct.Solution('h2o2.yaml', transport_model=None)
             gas1.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
             rA = ct.IdealGasReactor(gas1)
 
-            gas2 = ct.Solution('h2o2.xml')
+            gas2 = ct.Solution('h2o2.yaml', transport_model=None)
             gas2.TPX = 920, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:0.5'
             rB = ct.IdealGasReactor(gas2)
             if reverse:
@@ -1359,7 +1359,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
         interface = ct.Interface('diamond.xml', 'diamond_100',
                                  (gas1, solid))
 
-        gas2 = ct.Solution('h2o2.xml')
+        gas2 = ct.Solution('h2o2.yaml', transport_model=None)
 
         def setup(order):
             gas1.TPX = 1200, 1e3, 'H:0.002, H2:1, CH4:0.01, CH3:0.0002'
@@ -1421,7 +1421,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
                 self.assertArrayNear(S[a][:,i], S[b][:,j], 1e-2, 1e-3)
 
     def setup_ignition_delay(self):
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
         gas.TP = 900, 5*ct.one_atm
         gas.set_equivalence_ratio(0.4, 'H2', 'O2:1.0, AR:4.0')
         r = ct.IdealGasReactor(gas)
@@ -1501,7 +1501,7 @@ class CombustorTestImplementation:
 
     def setUp(self):
         self.referenceFile = pjoin(os.path.dirname(__file__), 'data', 'CombustorTest-integrateWithAdvance.csv')
-        self.gas = ct.Solution('h2o2.xml')
+        self.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
         # create a reservoir for the fuel inlet, and set to pure methane.
         self.gas.TPX = 300.0, ct.one_atm, 'H2:1.0'
@@ -1618,7 +1618,7 @@ class WallTestImplementation:
         self.r1 = ct.Reactor(self.gas1)
 
         # reactor to represent the combustible mixture
-        self.gas2 = ct.Solution('h2o2.xml')
+        self.gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         self.gas2.TPX = 500.0, 1.5*ct.one_atm, 'H2:0.5, O2:1.0, AR:10.0'
         self.r2 = ct.Reactor(self.gas2)
 
