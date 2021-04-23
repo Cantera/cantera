@@ -19,7 +19,7 @@ except ImportError:
 
 __all__ = ("logger", "remove_directory", "remove_file", "test_results",
            "add_RegressionTest", "get_command_output", "listify", "which",
-           "ConfigBuilder", "multi_glob", "get_spawn", "help")
+           "ConfigBuilder", "multi_glob", "get_spawn", "help", "quoted")
 
 if TYPE_CHECKING:
     from typing import Iterable, Union, List, TypeVar, Dict
@@ -615,9 +615,9 @@ def add_RegressionTest(env: "SCEnvironment") -> None:
     )
 
 
-def quoted(s):
-    """ Returns the given string wrapped in double quotes."""
-    return '"%s"' % s
+def quoted(s: str) -> str:
+    """Return the given string wrapped in double quotes."""
+    return f'"{s}"'
 
 
 def multi_glob(env: "SCEnvironment", subdir: str, *args: str):
