@@ -5,14 +5,13 @@ on:
     # Build on tags that look like releases
     tags:
       - v*
-    # Build when main or testing is pushed to
+    # Build when this branch is pushed to
     branches:
-      - main
-      - testing
+      - 2.5
   pull_request:
-    # Build when a pull request targets main
+    # Build when a pull request targets this branch
     branches:
-      - main
+      - 2.5
 
 jobs:
   ubuntu-multiple-pythons:
@@ -80,42 +79,6 @@ jobs:
       run: python3 `which scons` build -j2
     - name: Test Cantera
       run: python3 `which scons` test
-
-  # Coverage is its own job because macOS builds of the samples
-  # use Homebrew gfortran which is not compatible for coverage
-  # with XCode clang. Also, turning off optimization really
-  # slows down the tests
-  coverage:
-    name: Coverage
-    runs-on: ubuntu-latest
-    needs: [ubuntu-multiple-pythons]
-    steps:
-    - uses: actions/checkout@v2
-      name: Checkout the repository
-      with:
-        submodules: recursive
-    - name: Setup python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.8'
-        architecture: x64
-    - name: Install Apt dependencies
-      run: |
-        sudo apt-get install libboost-dev gfortran liblapack-dev libblas-dev
-    - name: Upgrade pip
-      run: python3 -m pip install -U pip setuptools wheel
-    - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas
-    - name: Build Cantera
-      run: |
-        python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
-        optimize=n -j2
-    - name: Test Cantera
-      run: python3 `which scons` test
-    - name: Upload Coverage to Codecov
-      run: bash <(curl -s https://codecov.io/bash)
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   docs:
     name: Build docs
@@ -231,7 +194,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        sundials-ver: [ 2, 3, 4, 5.3 ]
+        sundials-ver: [ 2, 3, 4, 5.7 ]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
@@ -259,32 +222,6 @@ jobs:
       - name: Test Cantera
         run: scons test
         shell: bash -l {0}
-
-  cython-latest:
-    name: Test pre-release version of Cython
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-      name: Checkout the repository
-      with:
-        submodules: recursive
-    - name: Setup python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.8'
-        architecture: x64
-    - name: Install Apt dependencies
-      run: sudo apt-get install libboost-dev liblapack-dev libblas-dev
-    - name: Upgrade pip
-      run: python3 -m pip install -U pip setuptools wheel
-    - name: Install Python dependencies
-      run: |
-        python3 -m pip install ruamel.yaml scons numpy h5py pandas;
-        python3 -m pip install https://github.com/cython/cython/archive/master.zip --install-option='--no-cython-compile';
-    - name: Build Cantera
-      run: python3 `which scons` build blas_lapack_libs=lapack,blas python_package='full' -j2
-    - name: Test Cantera
-      run: python3 `which scons` test
 
   windows:
     name: ${{ matrix.os }}, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}
