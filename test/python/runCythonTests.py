@@ -20,19 +20,16 @@ a single test:
 
 import sys
 import os
+from pathlib import Path
 
 cantera_root = os.path.relpath(__file__).split(os.sep)[:-1] + ['..', '..']
-module_path = os.path.abspath(os.sep.join(cantera_root + ['build']))
-
-if 'PYTHONPATH' in os.environ:
-    os.environ['PYTHONPATH'] = module_path + os.path.pathsep + os.environ['PYTHONPATH']
-else:
-    os.environ['PYTHONPATH'] = module_path
-
-sys.path.insert(0, module_path)
 os.chdir(os.sep.join(cantera_root + ['test', 'work']))
 
-from cantera.test.utilities import unittest
+import unittest
+try:
+    import pytest
+except ImportError:
+    pytest = None
 import cantera
 import cantera.test
 
@@ -77,19 +74,35 @@ if __name__ == '__main__':
     else:
         fast_fail = False
         subset_start = 1
-    loader = unittest.TestLoader()
-    runner = unittest.TextTestRunner(
-        verbosity=2, resultclass=TestResult, failfast=fast_fail
-    )
-    suite = unittest.TestSuite()
-    subsets = []
-    for name in sys.argv[subset_start:]:
-        subsets.append('cantera.test.test_' + name)
 
-    if not subsets:
-        subsets.append('cantera.test')
+    if pytest is not None:
+        base = Path(cantera.__file__).parent.joinpath('test')
+        subsets = []
+        for name in sys.argv[subset_start:]:
+            subsets.append(str(base.joinpath(f"test_{name}.py")))
 
-    suite = loader.loadTestsFromNames(subsets)
+        if not subsets:
+            subsets.append(str(base))
 
-    results = runner.run(suite)
-    sys.exit(len(results.errors) + len(results.failures))
+        pytest_args = []
+        if fast_fail:
+            pytest_args.insert(0, "-x")
+
+        sys.exit(pytest.main(pytest_args + subsets))
+    else:
+        loader = unittest.TestLoader()
+        runner = unittest.TextTestRunner(
+            verbosity=2, resultclass=TestResult, failfast=fast_fail
+        )
+        suite = unittest.TestSuite()
+        subsets = []
+        for name in sys.argv[subset_start:]:
+            subsets.append('cantera.test.test_' + name)
+
+        if not subsets:
+            subsets.append('cantera.test')
+
+        suite = loader.loadTestsFromNames(subsets)
+
+        results = runner.run(suite)
+        sys.exit(len(results.errors) + len(results.failures))
