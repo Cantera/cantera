@@ -46,6 +46,14 @@ public:
                            "Not implemented by derived ReactionRate object.");
     }
 
+    //! Get parameters
+    //! Store the parameters of a ReactionRate needed to reconstruct an identical
+    //! object. Does not include user-defined fields available in the #input map.
+    virtual void getParameters(AnyMap& rateNode, const Units& rate_units) const {
+        throw CanteraError("ReactionRate::getParameters",
+                           "Not implemented by derived ReactionRate object.");
+    }
+
     //! Identifier of reaction type
     virtual std::string type() const = 0;
 
@@ -143,6 +151,8 @@ public:
     ArrheniusRate(const AnyMap& node, const Units& rate_units);
 
     virtual bool setParameters(const AnyMap& node, const Units& rate_units) override;
+    virtual void getParameters(AnyMap& rateNode,
+                               const Units& rate_units) const override;
 
     virtual std::string type() const override { return "ArrheniusRate"; }
 
