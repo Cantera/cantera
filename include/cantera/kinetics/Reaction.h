@@ -388,7 +388,9 @@ public:
         return "three-body-new";
     }
 
+    virtual void calculateRateCoeffUnits(const Kinetics& kin);
     virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
+    virtual void getParameters(AnyMap& reactionNode) const;
 
     virtual std::string reactantString() const;
     virtual std::string productString() const;
@@ -396,6 +398,8 @@ public:
     //! Relative efficiencies of third-body species in enhancing the reaction
     //! rate.
     ThirdBody third_body;
+
+    bool specified_collision_partner = false; //!< Input specifies collision partner
 };
 
 
