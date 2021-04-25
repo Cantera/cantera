@@ -84,7 +84,7 @@ if __name__ == '__main__':
         if not subsets:
             subsets.append(str(base))
 
-        pytest_args = []
+        pytest_args = ["-raP", "--durations=50"]
         if fast_fail:
             pytest_args.insert(0, "-x")
 
