@@ -759,6 +759,27 @@ ThreeBodyReaction3::ThreeBodyReaction3(const AnyMap& node, const Kinetics& kin)
     setParameters(node, kin);
 }
 
+void ThreeBodyReaction3::calculateRateCoeffUnits(const Kinetics& kin)
+{
+    ElementaryReaction3::calculateRateCoeffUnits(kin);
+    bool specified_collision_partner_ = false;
+    for (const auto& reac : reactants) {
+        // While this reaction was already identified as a three-body reaction in a
+        // pre-processing step, this method is often called before a three-body
+        // reaction is fully instantiated. For the determination of the correct units,
+        // it is necessary to check whether the reaction uses a generic 'M' or an
+        // explicitly specified collision partner that may not have been deleted yet.
+        if (reac.first != "M" && products.count(reac.first)) {
+            // detected specified third-body collision partner
+            specified_collision_partner_ = true;
+        }
+    }
+    if (!specified_collision_partner_) {
+        const ThermoPhase& rxn_phase = kin.thermo(kin.reactionPhaseIndex());
+        rate_units *= rxn_phase.standardConcentrationUnits().pow(-1);
+    }
+}
+
 bool ThreeBodyReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 {
     if (!ElementaryReaction3::setParameters(node, kin)) {
@@ -767,12 +788,35 @@ bool ThreeBodyReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
     return third_body.setEfficiencies(node);
 }
 
+void ThreeBodyReaction3::getParameters(AnyMap& reactionNode) const
+{
+    ElementaryReaction3::getParameters(reactionNode);
+    if (!specified_collision_partner) {
+        reactionNode["type"] = "three-body";
+        reactionNode["efficiencies"] = m_third_body->efficiencies;
+        reactionNode["efficiencies"].setFlowStyle();
+        if (m_third_body->default_efficiency != 1.0) {
+            reactionNode["default-efficiency"] = m_third_body->default_efficiency;
+        }
+    }
+}
+
 std::string ThreeBodyReaction3::reactantString() const {
-    return ElementaryReaction3::reactantString() + " + M";
+    if (specified_collision_partner) {
+        return ElementaryReaction3::reactantString() + " + "
+            + m_third_body->efficiencies.begin()->first;
+    } else {
+        return ElementaryReaction3::reactantString() + " + M";
+    }
 }
 
 std::string ThreeBodyReaction3::productString() const {
-    return ElementaryReaction3::productString() + " + M";
+    if (specified_collision_partner) {
+        return ElementaryReaction3::productString() + " + "
+            + m_third_body->efficiencies.begin()->first;
+    } else {
+        return ElementaryReaction3::productString() + " + M";
+    }
 }
 
 CustomFunc1Reaction::CustomFunc1Reaction()
