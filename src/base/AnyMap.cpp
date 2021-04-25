@@ -39,6 +39,7 @@ bool isFloat(const std::string& val)
     int numDot = 0;
     int numExp = 0;
     int istart = 0;
+    int numDigit = 0;
     char ch = str[0];
     if (ch == '+' || ch == '-') {
         istart = 1;
@@ -49,6 +50,7 @@ bool isFloat(const std::string& val)
     for (size_t i = istart; i < str.size(); i++) {
         ch = str[i];
         if (isdigit(ch)) {
+            numDigit++;
         } else if (ch == '.') {
             numDot++;
             if (numDot > 1) {
@@ -59,7 +61,7 @@ bool isFloat(const std::string& val)
             }
         } else if (ch == 'e' || ch == 'E') {
             numExp++;
-            if (numExp > 1 || i == str.size() - 1) {
+            if (numExp > 1 || numDigit == 0 || i == str.size() - 1) {
                 return false;
             }
             ch = str[i+1];
