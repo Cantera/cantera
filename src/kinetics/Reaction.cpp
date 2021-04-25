@@ -703,6 +703,17 @@ bool ElementaryReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
     return true;
 }
 
+void ElementaryReaction3::getParameters(AnyMap& reactionNode) const
+{
+    Reaction::getParameters(reactionNode);
+    if (allow_negative_pre_exponential_factor) {
+        reactionNode["negative-A"] = true;
+    }
+    AnyMap rateNode;
+    m_rate->getParameters(rateNode, rate_units);
+    reactionNode["rate-constant"] = std::move(rateNode);
+}
+
 void ElementaryReaction3::validate()
 {
     Reaction::validate();

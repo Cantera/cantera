@@ -363,6 +363,7 @@ public:
     }
 
     virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
+    virtual void getParameters(AnyMap& reactionNode) const;
 
     virtual void validate();
 

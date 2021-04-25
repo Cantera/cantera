@@ -30,6 +30,11 @@ bool ArrheniusRate::setParameters(const AnyMap& node, const Units& rate_units) {
     return true;
 }
 
+void ArrheniusRate::getParameters(AnyMap& rateNode,
+                                  const Units& rate_units) const {
+    Arrhenius::getParameters(rateNode, rate_units);
+}
+
 CustomFunc1Rate::CustomFunc1Rate() : m_ratefunc(0) {}
 
 void CustomFunc1Rate::setRateFunction(shared_ptr<Func1> f) {
