@@ -20,6 +20,7 @@ class CanteraTest(unittest.TestCase):
                                                 '..', '..', '..', '..'))
         if os.path.exists(os.path.join(root_dir, 'SConstruct')):
             cls.test_work_dir = os.path.join(root_dir, 'test', 'work', 'python')
+            cls.using_tempfile = False
             try:
                 os.makedirs(cls.test_work_dir)
             except OSError as e:
@@ -31,6 +32,7 @@ class CanteraTest(unittest.TestCase):
                     raise
         else:
             cls.test_work_dir = tempfile.mkdtemp()
+            cls.using_tempfile = True
 
         cantera.make_deprecation_warnings_fatal()
         cantera.add_directory(cls.test_work_dir)
@@ -41,7 +43,7 @@ class CanteraTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         # Remove the working directory after testing, but only if its a temp directory
-        if tempfile.tempdir is not None:
+        if getattr(cls, "using_tempfile", False):
             try:
                 shutil.rmtree(cls.test_work_dir)
             except OSError:
