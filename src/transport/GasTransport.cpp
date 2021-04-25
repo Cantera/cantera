@@ -810,4 +810,33 @@ void GasTransport::getBinDiffCorrection(double t, MMCollisionInt& integrals,
           (q2*xk*xk + q1*xj*xj + q12*xk*xj);
 }
 
+void GasTransport::getViscosityPolynomials(size_t i, double* coeffs) const
+{
+    for (size_t k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
+        coeffs[k] = m_visccoeffs[i][k];
+    }
+}
+
+void GasTransport::getConductivityPolynomials(size_t i, double* coeffs) const
+{
+    for (size_t k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
+        coeffs[k] = m_condcoeffs[i][k];
+    }
+}
+
+void GasTransport::getBinDiffusivityPolynomials(size_t i, size_t j, double* coeffs) const
+{
+    size_t mi = (j >= i? i : j);
+    size_t mj = (j >= i? j : i);
+    int ic = 0;
+    for (size_t ii = 0; ii < mi; ii++) {
+        ic += m_nsp-ii;
+    }
+    ic += mj - mi;
+
+    for (size_t k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
+        coeffs[k] = m_diffcoeffs[ic][k];
+    }
+}
+
 }
