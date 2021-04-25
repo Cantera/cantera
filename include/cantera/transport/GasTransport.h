@@ -115,23 +115,14 @@ public:
      */
     virtual void getMixDiffCoeffsMass(doublereal* const d);
 
-    //! Return the polynomial fits to the viscosity of each species
-    const std::vector<vector_fp> viscosityPolynomials() const
-    {
-        return m_visccoeffs;
-    }
+    //! Return the polynomial fits to the viscosity of species i
+    virtual void getViscosityPolynomials(size_t i, double* coeffs) const;
 
-    //! Return the temperature fits of the heat conduction
-    const std::vector<vector_fp> conductivityPolynomials() const
-    {
-        return m_condcoeffs;
-    }
+    //! Return the temperature fits of the heat conductivity of species i
+    virtual void getConductivityPolynomials(size_t i, double* coeffs) const;
 
-    //! Return the polynomial fits to the binary diffusivity of each species
-    const std::vector<vector_fp> binDiffusivityPolynomials() const
-    {
-        return m_diffcoeffs;
-    }
+    //! Return the polynomial fits to the binary diffusivity of species pair (i, j)
+    virtual void getBinDiffusivityPolynomials(size_t i, size_t j, double* coeffs) const;
 
     virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
 
