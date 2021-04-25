@@ -709,7 +709,7 @@ class TestSofcKinetics(utilities.CanteraTest):
 
 
 class TestDuplicateReactions(utilities.CanteraTest):
-    infile = 'duplicate-reactions.cti'
+    infile = 'duplicate-reactions.yaml'
 
     def check(self, name):
         with self.assertRaisesRegex(ct.CanteraError, 'duplicate reaction'):
