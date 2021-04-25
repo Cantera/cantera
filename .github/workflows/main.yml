@@ -41,9 +41,9 @@ jobs:
       run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
         pytest-github-actions-annotate-failures
     - name: Build Cantera
-      run: python3 `which scons` build -j2 debug=n
+      run: python3 `which scons` build -j2 debug=n --debug=time
     - name: Test Cantera
-      run: python3 `which scons` test
+      run: python3 `which scons` test --debug=time
       env:
         GITHUB_ACTIONS: "true"
 
@@ -81,9 +81,9 @@ jobs:
       run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
         pytest-github-actions-annotate-failures
     - name: Build Cantera
-      run: python3 `which scons` build -j2 debug=n
+      run: python3 `which scons` build -j2 debug=n --debug=time
     - name: Test Cantera
-      run: python3 `which scons` test
+      run: python3 `which scons` test --debug=time
       env:
         GITHUB_ACTIONS: "true"
 
@@ -116,9 +116,9 @@ jobs:
     - name: Build Cantera
       run: |
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
-        optimize=n no_optimize_flags=-DNDEBUG -j2
+        optimize=n no_optimize_flags=-DNDEBUG -j2 --debug=time
     - name: Test Cantera
-      run: python3 `which scons` test
+      run: python3 `which scons` test --debug=time
       env:
         GITHUB_ACTIONS: "true"
     - name: Upload Coverage to Codecov
@@ -189,7 +189,8 @@ jobs:
           python3-ruamel.yaml python-numpy cython3 libsundials-dev liblapack-dev \
           libblas-dev
       - name: Build Cantera
-        run: scons build python_cmd=/usr/bin/python3 blas_lapack_libs=lapack,blas -j2 debug=n
+        run: scons build python_cmd=/usr/bin/python3 blas_lapack_libs=lapack,blas -j2
+          debug=n --debug=time
       - name: Test Cantera
         run: scons test
 
@@ -356,9 +357,9 @@ jobs:
       - name: Build Cantera
         run: |
           scons build -j2 boost_inc_dir=%BOOST_ROOT% debug=n VERBOSE=y python_package=full ^
-          msvc_version=${{ matrix.vs-toolset }} f90_interface=n
+          msvc_version=${{ matrix.vs-toolset }} f90_interface=n --debug=time
         shell: cmd
       - name: Test Cantera
-        run: scons test
+        run: scons test --debug=time
         env:
           GITHUB_ACTIONS: "true"
