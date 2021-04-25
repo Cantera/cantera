@@ -84,11 +84,12 @@ if __name__ == '__main__':
         if not subsets:
             subsets.append(str(base))
 
-        pytest_args = ["-raP", "--durations=50"]
+        pytest_args = ["-raP", "--durations=50", "--junitxml=pytest.xml"]
         if fast_fail:
             pytest_args.insert(0, "-x")
 
-        sys.exit(pytest.main(pytest_args + subsets))
+        ret_code = pytest.main(pytest_args + subsets)
+        sys.exit(ret_code)
     else:
         loader = unittest.TestLoader()
         runner = unittest.TextTestRunner(

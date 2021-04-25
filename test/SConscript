@@ -115,14 +115,18 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
     Create targets for running and resetting a test script.
     """
     def scriptRunner(target, source, env):
+        unittest_outfile = File("#test/work/python-results.txt").abspath
+        pytest_outfile = File("#test/work/pytest.xml").abspath
         """Scons Action to run a test script using the specified interpreter"""
         workDir = Dir('#test/work').abspath
         passedFile = target[0]
         testResults.tests.pop(passedFile.name, None)
         if not os.path.isdir(workDir):
             os.mkdir(workDir)
-        if os.path.exists(outfile):
-            os.remove(outfile)
+        if os.path.exists(unittest_outfile):
+            os.remove(unittest_outfile)
+        if os.path.exists(pytest_outfile):
+            os.remove(pytest_outfile)
 
         environ = dict(env['ENV'])
         for k,v in env_vars.items():
@@ -145,7 +149,7 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
             sys.exit(1)
 
         failures = 0
-        if os.path.exists(outfile):
+        if os.path.exists(unittest_outfile):
             # Determine individual test status
             for line in open(outfile):
                 status, name = line.strip().split(': ', 1)
@@ -154,6 +158,18 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
                 elif status in ('FAIL', 'ERROR'):
                     testResults.failed[':'.join((testname,name))] = 1
                     failures += 1
+        elif os.path.exists(pytest_outfile):
+            results = ElementTree.parse(pytest_outfile)
+            for test in results.findall('.//testcase'):
+                class_name = test.get('classname')
+                if class_name.startswith("build.python.cantera.test."):
+                    class_name = class_name[26:]
+                test_name = "python: {}.{}".format(class_name, test.get('name'))
+                if test.findall('failure'):
+                    testResults.failed[test_name] = 1
+                    failures += 1
+                else:
+                    testResults.passed[test_name] = 1
 
         if code and failures == 0:
             # Failure, but unable to determine status of individual tests. This
