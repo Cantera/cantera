@@ -469,7 +469,7 @@ TEST_F(ReactionToYaml, chemicallyActivated)
 
 TEST_F(ReactionToYaml, pdepArrhenius)
 {
-    soln = newSolution("pdep-test.xml");
+    soln = newSolution("pdep-test.yaml");
     soln->thermo()->setState_TPY(1000, 2e5, "R2:1, H:0.1, P2A:2, P2B:0.3");
     duplicateReaction(1);
     EXPECT_TRUE(std::dynamic_pointer_cast<PlogReaction>(duplicate));
@@ -480,7 +480,7 @@ TEST_F(ReactionToYaml, pdepArrhenius)
 
 TEST_F(ReactionToYaml, Chebyshev)
 {
-    soln = newSolution("pdep-test.xml");
+    soln = newSolution("pdep-test.yaml");
     soln->thermo()->setState_TPY(1000, 2e5, "R6:1, P6A:2, P6B:0.3");
     duplicateReaction(5);
     EXPECT_TRUE(std::dynamic_pointer_cast<ChebyshevReaction>(duplicate));

@@ -103,7 +103,7 @@ class converterTestCommon:
 
     def test_pdep(self):
         output = self.convert('pdep-test.inp')
-        ref, gas = self.checkConversion('pdep-test.xml', output)
+        ref, gas = self.checkConversion('pdep-test.yaml', output)
         # Chebyshev coefficients in XML are truncated to 6 digits, limiting accuracy
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6],
                            tol=2e-4)
@@ -545,10 +545,6 @@ class CtmlConverterTest(utilities.CanteraTest):
 
         self.assertNear(face.site_density, 3e-8)
 
-    def test_pdep(self):
-        gas = ct.Solution('pdep-test.cti')
-        self.assertEqual(gas.n_reactions, 7)
-
     def test_invalid(self):
         try:
             gas = ct.Solution('invalid.cti')
@@ -577,7 +573,7 @@ class CtmlConverterTest(utilities.CanteraTest):
         Solution object. This should result in a temp file creation in most OS's
         """
 
-        gas = ct.Solution(pjoin(self.test_data_dir, 'pdep-test.cti'))
+        gas = ct.Solution('pdep-test.yaml')
 
         with open(pjoin(self.test_data_dir, 'pdep-test.cti'), 'r') as f:
             data = f.read()
@@ -592,7 +588,7 @@ class CtmlConverterTest(utilities.CanteraTest):
         object. This should not result in a temp file creation in most OS's
         """
 
-        gas = ct.Solution(pjoin(self.test_data_dir, 'pdep-test.cti'))
+        gas = ct.Solution('pdep-test.yaml')
 
         with open(pjoin(self.test_data_dir, 'pdep-test.cti'), 'r') as f:
             data = f.read()

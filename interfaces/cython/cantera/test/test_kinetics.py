@@ -370,14 +370,14 @@ class KineticsRepeatability(utilities.CanteraTest):
         self.check_rates_pressure('h2o2.xml')
 
     def test_pdep_composition(self):
-        self.check_rates_composition('pdep-test.xml')
+        self.check_rates_composition('pdep-test.yaml')
 
     def test_pdep_temperature(self):
-        self.check_rates_temperature1('pdep-test.xml')
-        self.check_rates_temperature2('pdep-test.xml')
+        self.check_rates_temperature1('pdep-test.yaml')
+        self.check_rates_temperature2('pdep-test.yaml')
 
     def test_pdep_pressure(self):
-        self.check_rates_pressure('pdep-test.xml')
+        self.check_rates_pressure('pdep-test.yaml')
 
     def test_modify_thermo(self):
         # Make sure that thermo modifications propagate through to Kinetics
@@ -949,8 +949,8 @@ class TestReaction(utilities.CanteraTest):
                         self.gas.net_rates_of_progress[20])
 
     def test_plog(self):
-        gas1 = ct.Solution('pdep-test.cti')
-        species = ct.Species.listFromFile('pdep-test.cti')
+        gas1 = ct.Solution('pdep-test.yaml')
+        species = ct.Species.listFromFile('pdep-test.yaml')
 
         r = ct.PlogReaction()
         r.reactants = {'R1A':1, 'R1B':1}
@@ -975,15 +975,15 @@ class TestReaction(utilities.CanteraTest):
                             gas1.net_rates_of_progress[0])
 
     def test_plog_rate(self):
-        gas1 = ct.Solution('pdep-test.cti')
+        gas1 = ct.Solution('pdep-test.yaml')
         gas1.TP = 800, 2*ct.one_atm
         for i in range(4):
             self.assertNear(gas1.reaction(i)(gas1.T, gas1.P),
                             gas1.forward_rate_constants[i])
 
     def test_chebyshev(self):
-        gas1 = ct.Solution('pdep-test.cti')
-        species = ct.Species.listFromFile('pdep-test.cti')
+        gas1 = ct.Solution('pdep-test.yaml')
+        species = ct.Species.listFromFile('pdep-test.yaml')
 
         r = ct.ChebyshevReaction()
         r.reactants = 'R5:1, H:1'
@@ -1007,7 +1007,7 @@ class TestReaction(utilities.CanteraTest):
                             gas1.net_rates_of_progress[4])
 
     def test_chebyshev_single_P(self):
-        species = ct.Species.listFromFile('pdep-test.cti')
+        species = ct.Species.listFromFile('pdep-test.yaml')
         r = ct.ChebyshevReaction()
         r.reactants = 'R5:1, H:1'
         r.products = 'P5A:1, P5B:1'
@@ -1029,7 +1029,7 @@ class TestReaction(utilities.CanteraTest):
             self.assertNear(k1, k2)
 
     def test_chebyshev_single_T(self):
-        species = ct.Species.listFromFile('pdep-test.cti')
+        species = ct.Species.listFromFile('pdep-test.yaml')
         r = ct.ChebyshevReaction()
         r.reactants = 'R5:1, H:1'
         r.products = 'P5A:1, P5B:1'
@@ -1048,7 +1048,7 @@ class TestReaction(utilities.CanteraTest):
             self.assertNear(k1, k2)
 
     def test_chebyshev_rate(self):
-        gas1 = ct.Solution('pdep-test.cti')
+        gas1 = ct.Solution('pdep-test.yaml')
         gas1.TP = 800, 2*ct.one_atm
         for i in range(4,6):
             self.assertNear(gas1.reaction(i)(gas1.T, gas1.P),
@@ -1066,7 +1066,7 @@ class TestReaction(utilities.CanteraTest):
                            [-3.12850e-02, -3.94120e-02,  4.43750e-02,  1.44580e-02]])''')
 
     def test_chebyshev_bad_shape_yaml(self):
-        species = ct.Species.listFromFile('pdep-test.xml')
+        species = ct.Species.listFromFile('pdep-test.yaml')
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                           species=species, reactions=[])
 
@@ -1282,7 +1282,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(kf[49], kf[53])
 
     def test_modify_plog(self):
-        gas = ct.Solution('pdep-test.cti')
+        gas = ct.Solution('pdep-test.yaml')
         gas.TPX = 1010, 0.12 * ct.one_atm, 'R1A:0.3, R1B:0.2, H:0.1, R2:0.4'
 
         r0 = gas.reaction(0)
@@ -1303,7 +1303,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertNotAlmostEqual(kf[0], kf[1])
 
     def test_modify_chebyshev(self):
-        gas = ct.Solution('pdep-test.cti')
+        gas = ct.Solution('pdep-test.yaml')
         gas.TPX = 1010, 0.34 * ct.one_atm, 'R1A:0.3, R1B:0.2, H:0.1, R2:0.4'
 
         r1 = gas.reaction(4)
