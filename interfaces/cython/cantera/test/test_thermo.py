@@ -280,6 +280,7 @@ class TestThermoPhase(utilities.CanteraTest):
             self.phase.Y = np.array([])
         self.assertArrayNear(self.phase.X, X0)
 
+    @utilities.slow_test
     def test_set_equivalence_ratio_stoichiometric(self):
         gas = ct.Solution('gri30.xml')
         for fuel in ('C2H6', 'H2:0.7, CO:0.3', 'NH3:0.4, CH3OH:0.6'):

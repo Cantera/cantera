@@ -115,7 +115,7 @@ jobs:
     - name: Build Cantera
       run: |
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
-        optimize=n no_optimize_flags=-DNDEBUG env_vars=all -j2 --debug=time
+        optimize=n skip_slow_tests=y no_optimize_flags=-DNDEBUG env_vars=all -j2 --debug=time
     - name: Test Cantera
       run: python3 `which scons` test --debug=time
       env:

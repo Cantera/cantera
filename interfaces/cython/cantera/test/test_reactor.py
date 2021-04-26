@@ -1288,9 +1288,11 @@ class TestReactorSensitivities(utilities.CanteraTest):
     def test_parameter_order1a(self):
         self._test_parameter_order1(ct.IdealGasReactor)
 
+    @utilities.slow_test
     def test_parameter_order1b(self):
         self._test_parameter_order1(ct.IdealGasConstPressureReactor)
 
+    @utilities.slow_test
     def test_parameter_order2(self):
         # Multiple reactors, changing the order in which parameters are added
         gas = ct.Solution('h2o2.yaml', transport_model=None)
@@ -1352,6 +1354,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
         self.assertArrayNear(S[1][:N], S[3][N:], 1e-5, 1e-5)
         self.assertArrayNear(S[1][N:], S[3][:N], 1e-5, 1e-5)
 
+    @utilities.slow_test
     def test_parameter_order3(self):
         # Test including reacting surfaces
         gas1 = ct.Solution('diamond.xml', 'gas')

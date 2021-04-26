@@ -155,6 +155,7 @@ class TestKOH_Equil(utilities.CanteraTest):
 
         self.compare(data, pjoin(self.test_data_dir, 'koh-equil-TP.csv'))
 
+    @utilities.slow_test
     def test_equil_HP(self):
         temperatures = range(350, 5000, 300)
         data = np.zeros((len(temperatures), self.mix.n_species+2))
@@ -208,9 +209,11 @@ class TestEquil_GasCarbon(utilities.CanteraTest):
 
         self.compare(data, pjoin(self.test_data_dir, 'gas-carbon-equil.csv'))
 
+    @utilities.slow_test
     def test_gibbs(self):
         self.solve('gibbs')
 
+    @utilities.slow_test
     def test_vcs(self):
         self.solve('vcs')
 
