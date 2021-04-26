@@ -41,7 +41,11 @@ class Test(object):
                  blessedName='output_blessed.txt', arguments=(), options='',
                  artifacts=(), comparisons=(), profiles=(), ignoreLines=(),
                  tolerance=1e-5, threshold=1e-14,
-                 dependencies=(), source_files=()):
+                 dependencies=(), source_files=(), slow=False):
+
+        if slow and env["skip_slow_tests"]:
+            return
+
         self.subdir = subdir or testName
         self.programName = programName or testName
         if isinstance(arguments, str):
@@ -193,14 +197,14 @@ diamond = CompileAndTest('diamondSurf-xml', 'diamondSurf', 'diamondSurf',
     'runDiamond_blessed.out', options='diamond_blessed.xml')
 Test('diamondSurf-cti', 'diamondSurf', diamond.program, 'runDiamond_blessed.out',
      options='diamond.cti')
-CompileAndTest('dustyGasTransport')
+CompileAndTest('dustyGasTransport', slow=True)
 CompileAndTest('mixGasTransport')
 CompileAndTest('multiGasTransport')
 
 CompileAndTest('pureFluid', 'pureFluidTest')
 CompileAndTest('silane_equil')
 CompileAndTest('stoichSolidKinetics')
-CompileAndTest('surfkin')
+CompileAndTest('surfkin', slow=True)
 CompileAndTest('surfSolver', 'surfSolverTest', 'surfaceSolver', None,
                arguments='haca2.cti',
                comparisons=[('results_blessed.txt', 'results.txt')],
@@ -231,26 +235,26 @@ Test('cxx-bvp', 'cxx_samples', '#build/samples/cxx/bvp/blasius', None,
      tolerance=1e-4)
 Test('cxx-combustor', 'cxx_samples', '#build/samples/cxx/combustor/combustor', None,
      comparisons=[('combustor_cxx_blessed.csv', 'combustor_cxx.csv')],
-     threshold=1e-10, tolerance=2e-4)
+     threshold=1e-10, tolerance=2e-4, slow=True)
 Test('cxx-custom', 'cxx_samples', '#build/samples/cxx/custom/custom', None,
      comparisons=[('custom_cxx_blessed.csv', 'custom_cxx.csv')],
-     threshold=1e-10, tolerance=2e-4)
+     threshold=1e-10, tolerance=2e-4, slow=True)
 Test('cxx-demo', 'cxx_samples', '#build/samples/cxx/demo/demo',
      'cxx_demo_blessed.txt',
-     threshold=1e-10, tolerance=2e-4)
+     threshold=1e-10, tolerance=2e-4, slow=True)
 Test('cxx-flamespeed', 'cxx_samples', '#build/samples/cxx/flamespeed/flamespeed',
      'cxx_flamespeed_blessed.txt',
      comparisons=[('flamespeed_blessed.csv', 'flamespeed.csv')],
      options='0.9 0 0')
 Test('cxx-kinetics1', 'cxx_samples', '#build/samples/cxx/kinetics1/kinetics1', None,
      comparisons=[('kin1_blessed.csv', 'kin1.csv')],
-     artifacts=['kin1.dat'])
+     artifacts=['kin1.dat'], slow=True)
 Test('cxx-gas-transport', 'cxx_samples',
-     '#build/samples/cxx/gas_transport/gas_transport', None,
+     '#build/samples/cxx/gas_transport/gas_transport', None, slow=True,
      comparisons=[('transport_mix_blessed.csv', 'transport_mix.csv'),
                   ('transport_multi_blessed.csv', 'transport_multi.csv')])
 Test('cxx-LiC6-electrode', 'cxx_samples',
-     '#build/samples/cxx/LiC6_electrode/LiC6_electrode', None,
+     '#build/samples/cxx/LiC6_electrode/LiC6_electrode', None, slow=True,
      comparisons=[('LiC6_electrode_blessed.csv', 'LiC6_electrode_output.csv')])
 if env['HAS_OPENMP']:
     Test('cxx-openmp-ignition', 'cxx_samples',
