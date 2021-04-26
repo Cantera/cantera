@@ -88,6 +88,7 @@ class converterTestCommon:
                 self.assertNear(ref_kf[i], gas_kf[i], rtol=tol, msg='kf' + message)
                 self.assertNear(ref_kr[i], gas_kr[i], rtol=tol, msg='kr' + message)
 
+    @utilities.slow_test
     def test_gri30(self):
         output = self.convert('gri30.inp', thermo='gri30_thermo.dat',
                               transport='gri30_tran.dat', output='gri30_test')
@@ -283,6 +284,7 @@ class converterTestCommon:
         with self.assertRaisesRegex(self.InputError, 'Unparsable'):
             self.convert('invalid-equation.inp', thermo='dummy-thermo.dat')
 
+    @utilities.slow_test
     def test_reaction_units(self):
         out_def = self.convert('units-default.inp', thermo='dummy-thermo.dat')
         out_cus = self.convert('units-custom.inp', thermo='dummy-thermo.dat')
@@ -470,6 +472,7 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
             transport_file=transport, surface_file=surface, out_name=output,
             extra_file=extra, quiet=quiet, permissive=permissive)
 
+    @utilities.slow_test
     def test_extra(self):
         self.convert('gri30.inp', thermo='gri30_thermo.dat',
                      transport='gri30_tran.dat', output='gri30_extra',
@@ -539,6 +542,7 @@ class CtmlConverterTest(utilities.CanteraTest):
         self.assertNear(anode_bulk['electron'].X, 1.0)
         self.assertNear(oxide_a.density_mole, 17.6)
 
+    @utilities.slow_test
     def test_diamond(self):
         gas, solid = ct.import_phases('diamond.cti', ['gas','diamond'])
         face = ct.Interface('diamond.cti', 'diamond_100', [gas, solid])
@@ -668,6 +672,7 @@ class cti2yamlTest(utilities.CanteraTest):
                 message = 'dkm for species {0} at T = {1}'.format(i, T)
                 self.assertNear(Dkm_cti[i], Dkm_yaml[i], msg=message)
 
+    @utilities.slow_test
     def test_gri30(self):
         cti2yaml.convert(Path(self.cantera_data).joinpath('gri30.cti'),
                          Path(self.test_work_dir).joinpath('gri30.yaml'))
@@ -697,6 +702,7 @@ class cti2yamlTest(utilities.CanteraTest):
         self.checkThermo(ctiSurf, yamlSurf, [400, 800, 1600])
         self.checkKinetics(ctiSurf, yamlSurf, [500, 1200], [1e4, 3e5])
 
+    @utilities.slow_test
     def test_ptcombust_motzwise(self):
         cti2yaml.convert(Path(self.test_data_dir).joinpath('ptcombust-motzwise.cti'),
                          Path(self.test_work_dir).joinpath('ptcombust-motzwise.yaml'))
@@ -732,6 +738,7 @@ class cti2yamlTest(utilities.CanteraTest):
         ctiMetal.electric_potential = yamlMetal.electric_potential = 4
         self.checkKinetics(cti_tpb, yaml_tpb, [900, 1000, 1100], [1e5])
 
+    @utilities.slow_test
     def test_liquidvapor(self):
         output_file = Path(self.test_work_dir).joinpath('liquidvapor.yaml')
         cti2yaml.convert(Path(self.cantera_data).joinpath('liquidvapor.cti'),
@@ -753,6 +760,7 @@ class cti2yamlTest(utilities.CanteraTest):
             yamlGas.TP = ctiGas.TP = 300, P
             self.checkThermo(ctiGas, yamlGas, [300, 400, 500])
 
+    @utilities.slow_test
     def test_Redlich_Kwong_ndodecane(self):
         cti2yaml.convert(Path(self.cantera_data).joinpath('nDodecane_Reitz.cti'),
                          Path(self.test_work_dir).joinpath('nDodecane_Reitz.yaml'))
@@ -889,6 +897,7 @@ class ctml2yamlTest(utilities.CanteraTest):
                 message = 'dkm for species {0} at T = {1}'.format(i, T)
                 self.assertNear(Dkm_ctml[i], Dkm_yaml[i], msg=message)
 
+    @utilities.slow_test
     def test_gri30(self):
         ctml2yaml.convert(
             Path(self.cantera_data).joinpath('gri30.xml'),
@@ -986,6 +995,7 @@ class ctml2yamlTest(utilities.CanteraTest):
             yamlGas.TP = ctmlGas.TP = 300, P
             self.checkThermo(ctmlGas, yamlGas, [300, 400, 500])
 
+    @utilities.slow_test
     def test_Redlich_Kwong_ndodecane(self):
         ctml2yaml.convert(
             Path(self.cantera_data).joinpath('nDodecane_Reitz.xml'),

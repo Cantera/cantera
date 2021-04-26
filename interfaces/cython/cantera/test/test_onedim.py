@@ -181,6 +181,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertNear(self.sim.fixed_temperature, tfixed)
         self.assertNear(self.sim.fixed_temperature_location, zfixed)
 
+    @utilities.slow_test
     def test_auto_width(self):
         Tin = 300
         p = ct.one_atm
@@ -211,6 +212,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertLess(self.sim.grid[-1], 2.0) # grid should not be too wide
 
 
+    @utilities.slow_test
     def test_converge_adiabatic(self):
         # Test that the adiabatic flame temperature and species profiles
         # converge to the correct equilibrium values as the grid is refined
@@ -354,24 +356,31 @@ class TestFreeFlame(utilities.CanteraTest):
     def test_mixture_averaged_case1(self):
         self.run_mix(phi=0.65, T=300, width=0.03, p=1.0, refine=True)
 
+    @utilities.slow_test
     def test_mixture_averaged_case2(self):
         self.run_mix(phi=0.5, T=300, width=2.0, p=1.0, refine=False)
 
+    @utilities.slow_test
     def test_mixture_averaged_case3(self):
         self.run_mix(phi=0.5, T=500, width=0.05, p=1.0, refine=False)
 
+    @utilities.slow_test
     def test_mixture_averaged_case4(self):
         self.run_mix(phi=0.7, T=400, width=2.0, p=5.0, refine=False)
 
+    @utilities.slow_test
     def test_mixture_averaged_case5(self):
         self.run_mix(phi=1.0, T=300, width=2.0, p=5.0, refine=False)
 
+    @utilities.slow_test
     def test_mixture_averaged_case6(self):
         self.run_mix(phi=1.5, T=300, width=0.2, p=1.0, refine=True)
 
+    @utilities.slow_test
     def test_mixture_averaged_case7(self):
         self.run_mix(phi=1.5, T=500, width=2.0, p=0.1, refine=False)
 
+    @utilities.slow_test
     def test_mixture_averaged_case8(self):
         self.run_mix(phi=2.0, T=400, width=2.0, p=5.0, refine=False)
 
@@ -454,6 +463,7 @@ class TestFreeFlame(utilities.CanteraTest):
             self.sim.soret_enabled = True
             self.sim.solve(loglevel=0, auto=False)
 
+    @utilities.slow_test
     def test_soret_with_auto(self):
         # Test that auto solving with Soret enabled works
         self.create_sim(101325, 300, 'H2:2.0, O2:1.0')
@@ -561,6 +571,7 @@ class TestFreeFlame(utilities.CanteraTest):
                 else:
                     getattr(self.sim, attr)
 
+    @utilities.slow_test
     def test_save_restore_add_species(self):
         reactants = 'H2:1.1, O2:1, AR:5'
         p = 2 * ct.one_atm
@@ -589,6 +600,7 @@ class TestFreeFlame(utilities.CanteraTest):
             k2 = gas2.species_index(species)
             self.assertArrayNear(Y1[k1], Y2[k2])
 
+    @utilities.slow_test
     def test_save_restore_remove_species(self):
         reactants = 'H2:1.1, O2:1, AR:5'
         p = 2 * ct.one_atm
@@ -757,6 +769,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.assertTrue(self.sim.energy_enabled)
         self.assertEqual(self.sim.transport_model, 'Mix')
 
+    @utilities.slow_test
     def test_mixture_averaged(self, saveReference=False):
         referenceFile = pjoin(self.test_data_dir, 'DiffusionFlameTest-h2-mix.csv')
         self.create_sim(p=ct.one_atm)
@@ -830,24 +843,31 @@ class TestDiffusionFlame(utilities.CanteraTest):
     def test_extinction_case1(self):
         self.run_extinction(mdot_fuel=0.5, mdot_ox=3.0, T_ox=300, width=0.018, P=1.0)
 
+    @utilities.slow_test
     def test_extinction_case2(self):
         self.run_extinction(mdot_fuel=0.5, mdot_ox=1.0, T_ox=300, width=0.01, P=5.0)
 
+    @utilities.slow_test
     def test_extinction_case3(self):
         self.run_extinction(mdot_fuel=1.0, mdot_ox=0.5, T_ox=500, width=0.02, P=5.0)
 
+    @utilities.slow_test
     def test_extinction_case4(self):
         self.run_extinction(mdot_fuel=1.0, mdot_ox=3.0, T_ox=400, width=0.05, P=2.0)
 
+    @utilities.slow_test
     def test_extinction_case5(self):
         self.run_extinction(mdot_fuel=1.0, mdot_ox=3.0, T_ox=300, width=0.1, P=1.0)
 
+    @utilities.slow_test
     def test_extinction_case6(self):
         self.run_extinction(mdot_fuel=0.5, mdot_ox=0.5, T_ox=600, width=0.2, P=0.05)
 
+    @utilities.slow_test
     def test_extinction_case7(self):
         self.run_extinction(mdot_fuel=0.2, mdot_ox=2.0, T_ox=600, width=0.2, P=0.05)
 
+    @utilities.slow_test
     def test_restart(self):
         self.run_extinction(mdot_fuel=0.5, mdot_ox=3.0, T_ox=300, width=0.018, P=1.0)
 
@@ -1013,21 +1033,27 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
         self.assertTrue(all(sim.spread_rate >= -1e-9))
         return sim
 
+    @utilities.slow_test
     def test_solve_case1(self):
         self.run_case(phi=0.4, T=400, width=0.05, P=10.0)
 
+    @utilities.slow_test
     def test_solve_case2(self):
         self.run_case(phi=0.5, T=500, width=0.03, P=2.0)
 
+    @utilities.slow_test
     def test_solve_case3(self):
         self.run_case(phi=0.7, T=300, width=0.05, P=2.0)
 
+    @utilities.slow_test
     def test_solve_case4(self):
         self.run_case(phi=1.5, T=400, width=0.03, P=0.02)
 
+    @utilities.slow_test
     def test_solve_case5(self):
         self.run_case(phi=2.0, T=300, width=0.2, P=0.2)
 
+    @utilities.slow_test
     def test_restart(self):
         sim = self.run_case(phi=2.0, T=300, width=0.2, P=0.2)
 
@@ -1055,15 +1081,19 @@ class TestBurnerFlame(utilities.CanteraTest):
     def test_case1(self):
         self.solve(phi=0.5, T=500, width=2.0, P=0.1)
 
+    @utilities.slow_test
     def test_case2(self):
         self.solve(phi=2.0, T=400, width=0.05, P=1.0)
 
+    @utilities.slow_test
     def test_case3(self):
         self.solve(phi=1.7, T=300, width=0.05, P=1.0)
 
+    @utilities.slow_test
     def test_case4(self):
         self.solve(phi=0.5, T=300, width=1.0, P=5.0)
 
+    @utilities.slow_test
     def test_case5(self):
         self.solve(phi=1.0, T=400, width=0.2, P=0.01)
 
@@ -1150,9 +1180,11 @@ class TestImpingingJet(utilities.CanteraTest):
     def test_reacting_surface_case1(self):
         self.run_reacting_surface(xch4=0.095, tsurf=900.0, mdot=0.06, width=0.1)
 
+    @utilities.slow_test
     def test_reacting_surface_case2(self):
         self.run_reacting_surface(xch4=0.07, tsurf=1200.0, mdot=0.2, width=0.05)
 
+    @utilities.slow_test
     def test_reacting_surface_case3(self):
         self.run_reacting_surface(xch4=0.2, tsurf=800.0, mdot=0.1, width=0.2)
 
@@ -1213,6 +1245,7 @@ class TestTwinFlame(utilities.CanteraTest):
 
 
 class TestIonFreeFlame(utilities.CanteraTest):
+    @utilities.slow_test
     def test_ion_profile(self):
         reactants = 'CH4:0.216, O2:2'
         p = ct.one_atm

@@ -664,7 +664,13 @@ config_options = [
         "fast_fail_tests",
         """If enabled, tests will exit at the first failure.""",
         False,
-    )
+    ),
+    BoolVariable(
+        "skip_slow_tests",
+        """If enabled, skip a subset of tests that are known to have long runtimes.
+           Skipping these may be desirable when running with options that cause tests
+           to run slowly, like disabling optimization or activating code profiling.""",
+        False)
 ]
 
 opts.AddVariables(*config_options)

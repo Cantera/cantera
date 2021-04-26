@@ -8,6 +8,7 @@ import unittest
 import errno
 import cantera
 
+slow_test = unittest.skipIf(os.environ.get("CT_SKIP_SLOW", "0") == "1", "slow test")
 
 class CanteraTest(unittest.TestCase):
     @classmethod
