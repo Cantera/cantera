@@ -94,7 +94,6 @@ jobs:
   coverage:
     name: Coverage
     runs-on: ubuntu-latest
-    needs: [ubuntu-multiple-pythons]
     steps:
     - uses: actions/checkout@v2
       name: Checkout the repository
