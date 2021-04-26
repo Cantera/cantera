@@ -15,4 +15,5 @@ Fixes #
 - [ ] There is a clear use-case for this code change
 - [ ] The commit message has a short title & references relevant issues
 - [ ] Build passes (`scons build` & `scons test`) and unit tests address code coverage
+- [ ] Style & formatting of contributed code follows [contributing guidelines](https://github.com/Cantera/cantera/blob/main/CONTRIBUTING.md)
 - [ ] The pull request is ready for review
