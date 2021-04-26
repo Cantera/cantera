@@ -278,7 +278,7 @@ void ChebyshevRate::setParameters(const AnyMap& node,
             coeffs(i, j) = vcoeffs[i][j];
         }
     }
-    coeffs(0, 0) += std::log10(units.convert(1.0, rate_units));
+    coeffs(0, 0) += std::log10(units.convertTo(1.0, rate_units));
 
     Tmin_ = units.convert(T_range[0], "K");
     Tmax_ = units.convert(T_range[1], "K");
@@ -310,6 +310,36 @@ void ChebyshevRate::setup(double Tmin, double Tmax, double Pmin, double Pmax,
             chebCoeffs_[nP_*t + p] = coeffs(t,p);
         }
     }
+}
+
+void ChebyshevRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
+{
+    rateNode["temperature-range"].setQuantity({Tmin(), Tmax()}, "K");
+    rateNode["pressure-range"].setQuantity({Pmin(), Pmax()}, "Pa");
+    const auto& coeffs1d = coeffs();
+    size_t nT = nTemperature();
+    size_t nP = nPressure();
+    std::vector<vector_fp> coeffs2d(nT, vector_fp(nP));
+    for (size_t i = 0; i < nT; i++) {
+        for (size_t j = 0; j < nP; j++) {
+            coeffs2d[i][j] = coeffs1d[nP*i + j];
+        }
+    }
+    // Unit conversions must take place later, after the destination unit system
+    // is known. A lambda function is used here to override the default behavior
+    Units rate_units2 = rate_units;
+    auto converter = [rate_units2](AnyValue& coeffs, const UnitSystem& units) {
+        if (rate_units2.factor() != 0.0) {
+            coeffs.asVector<vector_fp>()[0][0] += std::log10(units.convertFrom(1.0, rate_units2));
+        } else if (units.getDelta(UnitSystem()).size()) {
+            throw CanteraError("ChebyshevReaction::getParameters lambda",
+                "Cannot convert rate constant with unknown dimensions to a "
+                "non-default unit system");
+        }
+    };
+    AnyValue coeffs;
+    coeffs = std::move(coeffs2d);
+    rateNode["data"].setQuantity(coeffs, converter);
 }
 
 BMSurfaceArrhenius::BMSurfaceArrhenius()

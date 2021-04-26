@@ -933,7 +933,15 @@ bool ChebyshevReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
     input = node;
 
     setRate(std::shared_ptr<ChebyshevRate3>(new ChebyshevRate3(node, rate_units)));
-    return true
+    return true;
+}
+
+void ChebyshevReaction3::getParameters(AnyMap& reactionNode) const
+{
+    Reaction::getParameters(reactionNode);
+    AnyMap rateNode;
+    m_rate->getParameters(rateNode, rate_units);
+    reactionNode.update(rateNode);
 }
 
 CustomFunc1Reaction::CustomFunc1Reaction()
@@ -974,32 +982,9 @@ void ChebyshevReaction::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
     reactionNode["type"] = "Chebyshev";
-    reactionNode["temperature-range"].setQuantity({rate.Tmin(), rate.Tmax()}, "K");
-    reactionNode["pressure-range"].setQuantity({rate.Pmin(), rate.Pmax()}, "Pa");
-    const auto& coeffs1d = rate.coeffs();
-    size_t nT = rate.nTemperature();
-    size_t nP = rate.nPressure();
-    std::vector<vector_fp> coeffs2d(nT, vector_fp(nP));
-    for (size_t i = 0; i < nT; i++) {
-        for (size_t j = 0; j < nP; j++) {
-            coeffs2d[i][j] = coeffs1d[nP*i + j];
-        }
-    }
-    // Unit conversions must take place later, after the destination unit system
-    // is known. A lambda function is used here to override the default behavior
-    Units rate_units2 = rate_units;
-    auto converter = [rate_units2](AnyValue& coeffs, const UnitSystem& units) {
-        if (rate_units2.factor() != 0.0) {
-            coeffs.asVector<vector_fp>()[0][0] += std::log10(units.convertFrom(1.0, rate_units2));
-        } else if (units.getDelta(UnitSystem()).size()) {
-            throw CanteraError("ChebyshevReaction::getParameters lambda",
-                "Cannot convert rate constant with unknown dimensions to a "
-                "non-default unit system");
-        }
-    };
-    AnyValue coeffs;
-    coeffs = std::move(coeffs2d);
-    reactionNode["data"].setQuantity(coeffs, converter);
+    AnyMap rateNode;
+    rate.getParameters(rateNode, rate_units);
+    reactionNode.update(rateNode);
 }
 
 InterfaceReaction::InterfaceReaction()

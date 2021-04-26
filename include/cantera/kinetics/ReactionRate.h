@@ -341,6 +341,8 @@ public:
 
     virtual bool setParameters(const AnyMap& node,
                                const Units& rate_units) override;
+    virtual void getParameters(AnyMap& rateNode,
+                               const Units& rate_units) const override;
 
     //! Update information specific to reaction
     static bool uses_update() { return true; }
