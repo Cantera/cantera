@@ -475,6 +475,7 @@ public:
     //! Run object setup based on AnyMap node information
     void setParameters(const AnyMap& node,
                        const UnitSystem& units, const Units& rate_units);
+    void getParameters(AnyMap& rateNode, const Units& rate_units) const;
 
     //! Set up Chebyshev object
     void setup(double Tmin, double Tmax, double Pmin, double Pmax,
