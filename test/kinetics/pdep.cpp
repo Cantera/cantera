@@ -1,8 +1,7 @@
 #include "gtest/gtest.h"
-#include "cantera/kinetics/importKinetics.h"
-#include "cantera/thermo/IdealGasPhase.h"
-#include "cantera/kinetics/GasKinetics.h"
-#include "cantera/base/global.h"
+#include "cantera/kinetics/Kinetics.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/base/Solution.h"
 
 namespace Cantera
 {
@@ -13,38 +12,28 @@ public:
     PdepTest() {}
 
     static void SetUpTestCase() {
-        XML_Node* phase_node = get_XML_File("../data/pdep-test.xml");
-
-        thermo_ = new IdealGasPhase();
-        kin_ = new GasKinetics();
-
-        buildSolutionFromXML(*phase_node, "gas", "phase", thermo_, kin_);
+        soln_ = newSolution("../data/pdep-test.yaml");
     }
 
     static void TearDownTestCase() {
-        delete thermo_;
-        thermo_ = NULL;
-
-        delete kin_;
-        kin_ = NULL;
+        soln_.reset();
     }
 
     void SetUp() {
         std::string Xref = "H:1.0, R1A:1.0, R1B:1.0, R2:1.0, "
                            "R3:1.0, R4:1.0, R5:1.0, R6:1.0";
 
-        thermo_->setState_TPX(900.0, 101325 * 8.0, Xref);
+        soln_->thermo()->setState_TPX(900.0, 101325 * 8.0, Xref);
     }
 
 protected:
-    static ThermoPhase* thermo_;
-    static Kinetics* kin_;
+    static shared_ptr<Solution> soln_;
 
     void set_TP(double T, double P) {
         T_ = T;
         RT_ = GasConst_cal_mol_K * T;
         P_ = P;
-        thermo_->setState_TP(T_, P_);
+        soln_->thermo()->setState_TP(T_, P_);
     }
 
     double k(double A, double n, double Ea) {
@@ -53,12 +42,11 @@ protected:
     double T_, RT_, P_;
 };
 
-ThermoPhase* PdepTest::thermo_ = NULL;
-Kinetics* PdepTest::kin_ = NULL;
+shared_ptr<Solution> PdepTest::soln_;
 
 TEST_F(PdepTest, reactionCounts)
 {
-    EXPECT_EQ((size_t) 7, kin_->nReactions());
+    EXPECT_EQ((size_t) 7, soln_->kinetics()->nReactions());
 }
 
 TEST_F(PdepTest, PlogLowPressure)
@@ -66,7 +54,7 @@ TEST_F(PdepTest, PlogLowPressure)
     // Test that P-log reactions have the right low-pressure limit
     set_TP(500.0, 1e-7);
     vector_fp kf(7);
-    kin_->getFwdRateConstants(&kf[0]);
+    soln_->kinetics()->getFwdRateConstants(&kf[0]);
 
     // Pre-exponential factor decreases by 10^3 for second-order reaction
     // when converting from cm + mol to m + kmol
@@ -86,7 +74,7 @@ TEST_F(PdepTest, PlogHighPressure)
     // Test that P-log reactions have the right high-pressure limit
     set_TP(500.0, 1e10);
     vector_fp kf(7);
-    kin_->getFwdRateConstants(&kf[0]);
+    soln_->kinetics()->getFwdRateConstants(&kf[0]);
 
     // Pre-exponential factor decreases by 10^3 for second-order reaction
     // when converting from cm + mol to m + kmol
@@ -103,7 +91,7 @@ TEST_F(PdepTest, PlogDuplicatePressures)
     set_TP(500.0, 1e10);
     vector_fp kf(7);
 
-    kin_->getFwdRateConstants(&kf[0]);
+    soln_->kinetics()->getFwdRateConstants(&kf[0]);
     double kf1 = k(1.3700e+14, -0.79, 17603.0) + k(1.2800e+03, 1.71, 9774.0);
     double kf2 = k(-7.4100e+27, -5.54, 12108.0) + k(1.9000e+12, -0.29, 8306.0);
 
@@ -117,7 +105,7 @@ TEST_F(PdepTest, PlogCornerCases)
     // is exactly of the specified interpolation values
     set_TP(500.0, 101325);
     vector_fp kf(7);
-    kin_->getFwdRateConstants(&kf[0]);
+    soln_->kinetics()->getFwdRateConstants(&kf[0]);
 
     double kf0 = k(4.910800e+28, -4.8507, 24772.8);
     double kf1 = k(1.2600e+17, -1.83, 15003.0) + k(1.2300e+01, 2.68, 6335.0);
@@ -132,7 +120,7 @@ TEST_F(PdepTest, PlogIntermediatePressure1)
 {
     set_TP(1100.0, 20*101325);
     vector_fp ropf(7);
-    kin_->getFwdRatesOfProgress(&ropf[0]);
+    soln_->kinetics()->getFwdRatesOfProgress(&ropf[0]);
 
     // Expected rates computed using Chemkin
     // ROP increases by 10**3 when converting from mol/cm3 to kmol/m3
@@ -144,9 +132,9 @@ TEST_F(PdepTest, PlogIntermediatePressure1)
 
 TEST_F(PdepTest, PlogIntermediatePressure2)
 {
-    thermo_->setState_TP(1100.0, 0.5*101325);
+    set_TP(1100.0, 0.5*101325);
     vector_fp ropf(7);
-    kin_->getFwdRatesOfProgress(&ropf[0]);
+    soln_->kinetics()->getFwdRatesOfProgress(&ropf[0]);
 
     EXPECT_NEAR(5.244649e+02, ropf[0], 5e-2);
     EXPECT_NEAR(2.252537e+02, ropf[1], 2e-2);
@@ -156,9 +144,9 @@ TEST_F(PdepTest, PlogIntermediatePressure2)
 
 TEST_F(PdepTest, PlogIntermediatePressure3)
 {
-    thermo_->setState_TP(800.0, 70*101325);
+    set_TP(800.0, 70*101325);
     vector_fp ropf(7);
-    kin_->getFwdRatesOfProgress(&ropf[0]);
+    soln_->kinetics()->getFwdRatesOfProgress(&ropf[0]);
 
     EXPECT_NEAR(2.274501e+04, ropf[0], 1e+1);
     EXPECT_NEAR(2.307191e+05, ropf[1], 1e+2);
@@ -172,7 +160,7 @@ TEST_F(PdepTest, ChebyshevIntermediate1)
     vector_fp kf(7);
 
     set_TP(1100.0, 20 * 101325);
-    kin_->getFwdRateConstants(&kf[0]);
+    soln_->kinetics()->getFwdRateConstants(&kf[0]);
     // Expected rates computed using RMG-py
     EXPECT_NEAR(3.130698657e+06, kf[4], 1e-1);
     EXPECT_NEAR(1.187949573e+00, kf[5], 1e-7);
@@ -189,7 +177,7 @@ TEST_F(PdepTest, ChebyshevIntermediate2)
     vector_fp kf(7);
 
     set_TP(400.0, 0.1 * 101325);
-    kin_->getFwdRateConstants(&kf[0]);
+    soln_->kinetics()->getFwdRateConstants(&kf[0]);
     // Expected rates computed using RMG-py
     EXPECT_NEAR(1.713599902e+05, kf[4], 1e-3);
     EXPECT_NEAR(9.581780687e-24, kf[5], 1e-31);
@@ -201,7 +189,7 @@ TEST_F(PdepTest, ChebyshevIntermediateROP)
     set_TP(1100.0, 30 * 101325);
     vector_fp ropf(7);
     // Expected rates computed using Chemkin
-    kin_->getFwdRatesOfProgress(&ropf[0]);
+    soln_->kinetics()->getFwdRatesOfProgress(&ropf[0]);
     EXPECT_NEAR(4.552930e+03, ropf[4], 1e-1);
     EXPECT_NEAR(4.877390e-02, ropf[5], 1e-5);
 }
@@ -212,22 +200,22 @@ TEST_F(PdepTest, ChebyshevEdgeCases)
 
     // Minimum P
     set_TP(500.0, 1000.0);
-    kin_->getFwdRateConstants(&kf[0]);
+    soln_->kinetics()->getFwdRateConstants(&kf[0]);
     EXPECT_NEAR(1.225785655e+06, kf[4], 1e-2);
 
     // Maximum P
     set_TP(500.0, 1.0e7);
-    kin_->getFwdRateConstants(&kf[0]);
+    soln_->kinetics()->getFwdRateConstants(&kf[0]);
     EXPECT_NEAR(1.580981157e+03, kf[4], 1e-5);
 
     // Minimum T
     set_TP(300.0, 101325);
-    kin_->getFwdRateConstants(&kf[0]);
+    soln_->kinetics()->getFwdRateConstants(&kf[0]);
     EXPECT_NEAR(5.405987017e+03, kf[4], 1e-5);
 
     // Maximum T
     set_TP(2000.0, 101325);
-    kin_->getFwdRateConstants(&kf[0]);
+    soln_->kinetics()->getFwdRateConstants(&kf[0]);
     EXPECT_NEAR(3.354054351e+07, kf[4], 1e-1);
 }
 
