@@ -9,10 +9,9 @@ cdef dict _reaction_class_registry = {}
 cdef class _ReactionRate:
     """
     Base class for ReactionRate objects.
+
     ReactionRate objects are used to calculate reaction rates and are associated
-    with a Reaction object. In order to improve computational speed, Kinetics
-    objects create internal copies that are linked to the original Reaction
-    definition.
+    with a Reaction object.
     """
 
     def __repr__(self):
@@ -62,10 +61,13 @@ cdef class ArrheniusRate(_ReactionRate):
     where *A* is the `pre_exponential_factor`, *b* is the `temperature_exponent`,
     and *E* is the `activation_energy`.
     """
-    def __cinit__(self, A=0, b=0, E=0, init=True):
+    def __cinit__(self, A=0, b=0, E=0, input_data=None, init=True):
 
         if init:
-            self._base.reset(new CxxArrheniusRate(A, b, E))
+            if isinstance(input_data, dict):
+                self._base.reset(new CxxArrheniusRate(dict_to_anymap(input_data)))
+            else:
+                self._base.reset(new CxxArrheniusRate(A, b, E))
             self.base = self._base.get()
             self.rate = <CxxArrheniusRate*>(self.base)
 
@@ -120,9 +122,13 @@ cdef class PlogRate(_ReactionRate):
     A pressure-dependent reaction rate parameterized by logarithmically
     interpolating between Arrhenius rate expressions at various pressures.
     """
-    def __cinit__(self, rates=None, init=True):
+    def __cinit__(self, rates=None, input_data=None, init=True):
 
-        if rates and init:
+        if isinstance(input_data, dict) and init:
+            self._base.reset(new CxxPlogRate(dict_to_anymap(input_data)))
+            self.base = self._base.get()
+            self.rate = <CxxPlogRate*>(self.base)
+        elif rates and init:
             self.rates = rates
 
     @staticmethod
@@ -171,9 +177,13 @@ cdef class ChebyshevRate(_ReactionRate):
     polynomial in temperature and pressure.
     """
     def __cinit__(self, Tmin=None, Tmax=None, Pmin=None, Pmax=None, data=None,
-                  init=True):
+                  input_data=None, init=True):
 
-        if Tmin and Tmax and Pmin and Pmax and data is not None and init:
+        if isinstance(input_data, dict) and init:
+            self._base.reset(new CxxChebyshevRate3(dict_to_anymap(input_data)))
+            self.base = self._base.get()
+            self.rate = <CxxChebyshevRate3*>(self.base)
+        elif Tmin and Tmax and Pmin and Pmax and data is not None and init:
             self._setup(Tmin, Tmax, Pmin, Pmax, data)
 
     def _setup(self, Tmin, Tmax, Pmin, Pmax, coeffs):
