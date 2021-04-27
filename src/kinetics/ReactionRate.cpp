@@ -6,7 +6,6 @@
 #include "cantera/kinetics/ReactionRate.h"
 #include "cantera/numerics/Func1.h"
 #include "cantera/base/AnyMap.h"
-#include "cantera/base/Units.h"
 
 namespace Cantera
 {
@@ -37,16 +36,20 @@ ArrheniusRate::ArrheniusRate(double A, double b, double E)
 {
 }
 
+ArrheniusRate::ArrheniusRate(const AnyMap& node, const Units& rate_units) {
+    setParameters(node, rate_units);
+}
+
+ArrheniusRate::ArrheniusRate(const AnyMap& node) {
+    setParameters(node, Units(1.));
+}
+
 ArrheniusRate::ArrheniusRate(const Arrhenius& arr, bool allow_negative_A)
     : Arrhenius(arr.preExponentialFactor(),
                 arr.temperatureExponent(),
                 arr.activationEnergy_R())
     , allow_negative_pre_exponential_factor(allow_negative_A)
 {
-}
-
-ArrheniusRate::ArrheniusRate(const AnyMap& node, const Units& rate_units) {
-    setParameters(node, rate_units);
 }
 
 void ArrheniusRate::setParameters(const AnyMap& node, const Units& rate_units) {
@@ -89,6 +92,11 @@ PlogRate::PlogRate(const AnyMap& node, const Units& rate_units)
     setParameters(node, rate_units);
 }
 
+PlogRate::PlogRate(const AnyMap& node)
+    : Plog() {
+    setParameters(node, Units(1.));
+}
+
 void PlogRate::setParameters(const AnyMap& node, const Units& rate_units) {
     units = rate_units;
     if (!node.hasKey("rate-constants")) {
@@ -122,6 +130,11 @@ ChebyshevRate3::ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pma
 ChebyshevRate3::ChebyshevRate3(const AnyMap& node, const Units& rate_units)
     : Chebyshev() {
     setParameters(node, rate_units);
+}
+
+ChebyshevRate3::ChebyshevRate3(const AnyMap& node)
+    : Chebyshev() {
+    setParameters(node, Units(1.));
 }
 
 void ChebyshevRate3::setParameters(const AnyMap& node, const Units& rate_units) {

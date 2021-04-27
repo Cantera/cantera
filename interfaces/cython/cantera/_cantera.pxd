@@ -366,6 +366,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
 
     cdef cppclass CxxArrheniusRate "Cantera::ArrheniusRate" (CxxReactionRateBase):
         CxxArrheniusRate()
+        CxxArrheniusRate(CxxAnyMap) except +translate_exception
         CxxArrheniusRate(double, double, double)
         double preExponentialFactor()
         double temperatureExponent()
@@ -374,11 +375,13 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
 
     cdef cppclass CxxPlogRate "Cantera::PlogRate" (CxxReactionRateBase):
         CxxPlogRate()
+        CxxPlogRate(CxxAnyMap) except +translate_exception
         CxxPlogRate(multimap[double, CxxArrhenius])
         vector[pair[double, CxxArrhenius]] rates()
 
     cdef cppclass CxxChebyshevRate3 "Cantera::ChebyshevRate3" (CxxReactionRateBase):
         CxxChebyshevRate3()
+        CxxChebyshevRate3(CxxAnyMap) except +translate_exception
         CxxChebyshevRate3(double, double, double, double, CxxArray2D)
         double Tmin()
         double Tmax()
