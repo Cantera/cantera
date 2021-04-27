@@ -10,8 +10,8 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#ifndef CT_UNITS_H
-#define CT_UNITS_H
+#ifndef CT_LEGACY_UNITS_H
+#define CT_LEGACY_UNITS_H
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
