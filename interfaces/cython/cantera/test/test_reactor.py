@@ -1174,7 +1174,7 @@ class TestSurfaceKinetics(utilities.CanteraTest):
 class TestReactorSensitivities(utilities.CanteraTest):
     def test_sensitivities1(self):
         net = ct.ReactorNet()
-        gas = ct.Solution('gri30.xml')
+        gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 1300, 20*101325, 'CO:1.0, H2:0.1, CH4:0.1, H2O:0.5'
         r1 = ct.IdealGasReactor(gas)
         net.add_reactor(r1)

@@ -131,7 +131,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
     @classmethod
     def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
-        cls.gas = ct.Solution('h2o2.yaml')
+        cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
     def test_collect_data(self):
         states = ct.SolutionArray(self.gas)
@@ -217,7 +217,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         self.assertEqual(b.meta['hello'], 'world')
         self.assertEqual(attr['foobar'], 'spam and eggs')
 
-        gas = ct.Solution('gri30.yaml')
+        gas = ct.Solution('gri30.yaml', transport_model=None)
         ct.SolutionArray(gas, 10).write_hdf(outfile)
 
         with _h5py.File(outfile, 'a') as hdf:
@@ -269,7 +269,7 @@ class TestRestoreIdealGas(utilities.CanteraTest):
     @classmethod
     def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
-        cls.gas = ct.Solution('h2o2.xml')
+        cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
     def test_restore_gas(self):
 
@@ -435,7 +435,7 @@ class TestSolutionSerialization(utilities.CanteraTest):
         self.assertEqual(data['transport'], 'mixture-averaged')
 
     def test_input_data_state(self):
-        gas = ct.Solution('h2o2.yaml')
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
         data = gas.input_data
         self.assertEqual(gas.T, data['state']['T'])
         self.assertEqual(gas.density, data['state']['density'])
@@ -555,8 +555,8 @@ class TestSolutionSerialization(utilities.CanteraTest):
         self.assertNear(ice.entropy_mole, ice2.entropy_mole)
 
     def test_yaml_inconsistent_species(self):
-        gas = ct.Solution('h2o2.yaml')
-        gas2 = ct.Solution('h2o2.yaml')
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
+        gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         gas2.name = 'modified'
         # modify the NASA coefficients for one species
         h2 = gas2.species('H2')
@@ -572,13 +572,13 @@ class TestSolutionSerialization(utilities.CanteraTest):
 
 class TestSpeciesSerialization(utilities.CanteraTest):
     def test_species_simple(self):
-        gas = ct.Solution('h2o2.yaml')
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
         data = gas.species('H2O').input_data
         self.assertEqual(data['name'], 'H2O')
         self.assertEqual(data['composition'], {'H': 2, 'O': 1})
 
     def test_species_thermo(self):
-        gas = ct.Solution('h2o2.yaml')
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
         data = gas.species('H2O').input_data['thermo']
         self.assertEqual(data['model'], 'NASA7')
         self.assertEqual(data['temperature-ranges'], [200, 1000, 3500])

@@ -89,12 +89,12 @@ TEST(YamlWriter, duplicateName)
 
 TEST(YamlWriter, reactions)
 {
-    auto original = newSolution("h2o2.yaml");
+    auto original = newSolution("h2o2.yaml", "", "None");
     YamlWriter writer;
     writer.addPhase(original);
     writer.setPrecision(14);
     writer.toYamlFile("generated-h2o2.yaml");
-    auto duplicate = newSolution("generated-h2o2.yaml");
+    auto duplicate = newSolution("generated-h2o2.yaml", "", "None");
 
     auto kin1 = original->kinetics();
     auto kin2 = duplicate->kinetics();
@@ -110,7 +110,7 @@ TEST(YamlWriter, reactions)
 
 TEST(YamlWriter, reaction_units_from_Yaml)
 {
-    auto original = newSolution("h2o2.yaml");
+    auto original = newSolution("h2o2.yaml", "", "None");
     YamlWriter writer;
     writer.addPhase(original);
     writer.setPrecision(14);
@@ -120,7 +120,7 @@ TEST(YamlWriter, reaction_units_from_Yaml)
         {"length", "cm"}
     });
     writer.toYamlFile("generated-h2o2-outunits.yaml");
-    auto duplicate = newSolution("generated-h2o2-outunits.yaml");
+    auto duplicate = newSolution("generated-h2o2-outunits.yaml", "", "None");
 
     auto kin1 = original->kinetics();
     auto kin2 = duplicate->kinetics();
@@ -136,7 +136,7 @@ TEST(YamlWriter, reaction_units_from_Yaml)
 
 TEST(YamlWriter, reaction_units_from_Xml)
 {
-    auto original = newSolution("h2o2.xml");
+    auto original = newSolution("h2o2.xml", "", "None");
     YamlWriter writer;
     writer.addPhase(original);
     writer.setPrecision(14);
@@ -147,7 +147,7 @@ TEST(YamlWriter, reaction_units_from_Xml)
     });
 
     writer.toYamlFile("generated-h2o2-from-xml.yaml");
-    auto duplicate = newSolution("generated-h2o2-from-xml.yaml");
+    auto duplicate = newSolution("generated-h2o2-from-xml.yaml", "", "None");
 
     auto kin1 = original->kinetics();
     auto kin2 = duplicate->kinetics();
@@ -190,9 +190,9 @@ TEST(YamlWriter, chebyshev_units_from_Yaml)
 
 TEST(YamlWriter, multipleReactionSections)
 {
-    auto original1 = newSolution("h2o2.yaml");
-    auto original2 = newSolution("h2o2.yaml");
-    auto original3 = newSolution("h2o2.yaml");
+    auto original1 = newSolution("h2o2.yaml", "", "None");
+    auto original2 = newSolution("h2o2.yaml", "", "None");
+    auto original3 = newSolution("h2o2.yaml", "", "None");
     // this phase will require its own "reactions" section
     auto R = original3->kinetics()->reaction(3);
     R->duplicate = true;
@@ -205,9 +205,9 @@ TEST(YamlWriter, multipleReactionSections)
     writer.addPhase(original3);
     writer.toYamlFile("generated-multi-rxn-secs.yaml");
 
-    auto duplicate1 = newSolution("generated-multi-rxn-secs.yaml", "ohmech");
-    auto duplicate2 = newSolution("generated-multi-rxn-secs.yaml", "ohmech2");
-    auto duplicate3 = newSolution("generated-multi-rxn-secs.yaml", "ohmech3");
+    auto duplicate1 = newSolution("generated-multi-rxn-secs.yaml", "ohmech", "None");
+    auto duplicate2 = newSolution("generated-multi-rxn-secs.yaml", "ohmech2", "None");
+    auto duplicate3 = newSolution("generated-multi-rxn-secs.yaml", "ohmech3", "None");
     auto kin1 = duplicate1->kinetics();
     auto kin2 = duplicate2->kinetics();
     auto kin3 = duplicate3->kinetics();
