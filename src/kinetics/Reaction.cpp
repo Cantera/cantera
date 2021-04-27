@@ -830,11 +830,11 @@ Reaction3::Reaction3(const Composition& reactants, const Composition& products)
 {
 }
 
-bool Reaction3::setParameters(const AnyMap& node, const Kinetics& kin)
+void Reaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 {
     if (!node.hasKey("equation")) {
         // empty node: used by newReaction() factory loader
-        return false;
+        return;
     }
 
     parseReactionEquation(*this, node["equation"], kin);
@@ -856,7 +856,6 @@ bool Reaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 
     calculateRateCoeffUnits(kin);
     input = node;
-    return true;
 }
 
 void Reaction3::validate()
@@ -981,24 +980,25 @@ void ThreeBodyReaction3::calculateRateCoeffUnits(const Kinetics& kin)
     }
 }
 
-bool ThreeBodyReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
+void ThreeBodyReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 {
-    if (!ElementaryReaction3::setParameters(node, kin)) {
-        return false;
+    if (!node.hasKey("equation")) {
+        // empty node: used by newReaction() factory loader
+        return;
     }
-
+    ElementaryReaction3::setParameters(node, kin);
     if (reactants.count("M") != 1 || products.count("M") != 1) {
         if (!detectEfficiencies()) {
             throw InputFileError("ThreeBodyReaction3::setParameters", node["equation"],
                 "Reaction equation '{}' does not contain third body 'M'",
                 node["equation"].asString());
         }
-        return true;
+        return;
     }
 
     reactants.erase("M");
     products.erase("M");
-    return m_third_body->setEfficiencies(node);
+    m_third_body->setEfficiencies(node);
 }
 
 void ThreeBodyReaction3::getParameters(AnyMap& reactionNode) const
@@ -1082,11 +1082,11 @@ ChebyshevReaction3::ChebyshevReaction3(const AnyMap& node, const Kinetics& kin)
     setRate(std::shared_ptr<ChebyshevRate3>(new ChebyshevRate3(node, rate_units)));
 }
 
-bool ChebyshevReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
+void ChebyshevReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 {
     if (!node.hasKey("equation")) {
         // empty node: used by newReaction() factory loader
-        return false;
+        return;
     }
 
     parseReactionEquation(*this, node["equation"], kin);
@@ -1111,7 +1111,6 @@ bool ChebyshevReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 
     calculateRateCoeffUnits(kin);
     input = node;
-    return true;
 }
 
 void ChebyshevReaction3::getParameters(AnyMap& reactionNode) const

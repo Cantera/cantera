@@ -1435,7 +1435,7 @@ cdef class ElementaryReaction3(Reaction):
             if isinstance(rate, dict):
                 spec['rate-constant'] = rate
             elif isinstance(rate, ArrheniusRate) or rate is None:
-                spec['rate-constant'] = dict.fromkeys(['A', 'b', 'Ea'], 0.)
+                pass
             else:
                 raise TypeError("Invalid rate definition")
 
@@ -1496,7 +1496,7 @@ cdef class ThreeBodyReaction3(ElementaryReaction3):
             if isinstance(rate, dict):
                 spec['rate-constant'] = rate
             elif isinstance(rate, ArrheniusRate) or rate is None:
-                spec['rate-constant'] = dict.fromkeys(['A', 'b', 'Ea'], 0.)
+                pass
             else:
                 raise TypeError("Invalid rate definition")
 
@@ -1582,9 +1582,7 @@ cdef class PlogReaction3(Reaction):
                 for r in rate:
                     spec['rate-constants'].append({'P': r['P'], **r['rate-constant']})
             elif isinstance(rate, PlogRate) or rate is None:
-                spec['rate-constants'] = [
-                    {"P": 1, **dict.fromkeys(['A', 'b', 'Ea'], 0.)},
-                    {"P": 1e7, **dict.fromkeys(['A', 'b', 'Ea'], 0.)}]
+                pass
             else:
                 raise TypeError("Invalid rate definition")
 
