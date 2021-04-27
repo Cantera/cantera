@@ -228,7 +228,7 @@ public:
         return m_E * GasConstant;
     }
 
-    virtual void validate(const std::string& equation);
+    virtual void validate(const std::string& equation) override;
 
     bool allow_negative_pre_exponential_factor;
 };
@@ -283,7 +283,7 @@ public:
         return updateRC(shared_data.m_logT, shared_data.m_recipT);
     }
 
-    virtual void validate(const std::string& equation) {
+    virtual void validate(const std::string& equation) override {
         Plog::validate(equation);
     }
 };
@@ -360,7 +360,7 @@ public:
         return updateRC(0., shared_data.m_recipT);
     }
 
-    virtual void validate(const std::string& equation);
+    virtual void validate(const std::string& equation) override;
 };
 
 
@@ -396,7 +396,7 @@ public:
     virtual double eval(const CustomFunc1Data& shared_data,
                         double concm=0.) const override;
 
-    virtual void validate(const std::string& equation) {}
+    virtual void validate(const std::string& equation) override {}
 
 protected:
     shared_ptr<Func1> m_ratefunc;

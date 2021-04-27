@@ -7,11 +7,23 @@ cdef dict _reaction_class_registry = {}
 
 
 cdef class _ReactionRate:
+    """
+    Base class for ReactionRate objects.
+    ReactionRate objects are used to calculate reaction rates and are associated
+    with a Reaction object. In order to improve computational speed, Kinetics
+    objects create internal copies that are linked to the original Reaction
+    definition.
+    """
 
     def __repr__(self):
         return "<{} at {:0x}>".format(pystr(self.base.type()), id(self))
 
     def __call__(self, double temperature, pressure=None):
+        """
+        Evaluate rate expression based on temperature and pressure. For rate
+        expressions that are dependent of pressure, an omission of pressure
+        will raise an exception.
+        """
         if pressure:
             self.base.update(temperature, pressure)
             return self.base.eval(temperature, pressure)
@@ -20,6 +32,9 @@ cdef class _ReactionRate:
             return self.base.eval(temperature)
 
     def ddT(self, double temperature, pressure=None):
+        """
+        Evaluate derivative of rate expression with respect to temperature.
+        """
         if pressure:
             self.base.update(temperature, pressure)
             return self.base.ddT(temperature, pressure)
@@ -1431,9 +1446,9 @@ cdef class ElementaryReaction3(Reaction):
 
         if init and equation and kinetics:
 
-            spec = {'equation': equation, 'type': self.reaction_type}
+            spec = {"equation": equation, "type": self.reaction_type}
             if isinstance(rate, dict):
-                spec['rate-constant'] = rate
+                spec["rate-constant"] = rate
             elif isinstance(rate, ArrheniusRate) or rate is None:
                 pass
             else:
@@ -1492,16 +1507,16 @@ cdef class ThreeBodyReaction3(ElementaryReaction3):
 
         if init and equation and kinetics:
 
-            spec = {'equation': equation, 'type': self.reaction_type}
+            spec = {"equation": equation, "type": self.reaction_type}
             if isinstance(rate, dict):
-                spec['rate-constant'] = rate
+                spec["rate-constant"] = rate
             elif isinstance(rate, ArrheniusRate) or rate is None:
                 pass
             else:
                 raise TypeError("Invalid rate definition")
 
             if isinstance(efficiencies, dict):
-                spec['efficiencies'] = efficiencies
+                spec["efficiencies"] = efficiencies
 
             self._reaction = CxxNewReaction(dict_to_anymap(spec),
                                             deref(kinetics.kinetics))
@@ -1576,11 +1591,11 @@ cdef class PlogReaction3(Reaction):
 
         if init and equation and kinetics:
 
-            spec = {'equation': equation, 'type': self.reaction_type}
+            spec = {"equation": equation, "type": self.reaction_type}
             if isinstance(rate, list):
-                spec['rate-constants'] = []
+                spec["rate-constants"] = []
                 for r in rate:
-                    spec['rate-constants'].append({'P': r['P'], **r['rate-constant']})
+                    spec["rate-constants"].append({"P": r["P"], **r["rate-constant"]})
             elif isinstance(rate, PlogRate) or rate is None:
                 pass
             else:
@@ -1638,11 +1653,11 @@ cdef class ChebyshevReaction3(Reaction):
 
         if init and equation and kinetics:
 
-            spec = {'equation': equation, 'type': self.reaction_type}
+            spec = {"equation": equation, "type": self.reaction_type}
             if isinstance(rate, dict):
-                spec['temperature-range'] = [rate['Tmin'], rate['Tmax']]
-                spec['pressure-range'] = [rate['Pmin'], rate['Pmax']]
-                spec['data'] = rate['data']
+                spec["temperature-range"] = [rate["Tmin"], rate["Tmax"]]
+                spec["pressure-range"] = [rate["Pmin"], rate["Pmax"]]
+                spec["data"] = rate["data"]
             elif isinstance(rate, ChebyshevRate) or rate is None:
                 pass
             else:
@@ -1681,7 +1696,7 @@ cdef class CustomReaction(Reaction):
 
         if init and equation and kinetics:
 
-            spec = {'equation': equation, 'type': self.reaction_type}
+            spec = {"equation": equation, "type": self.reaction_type}
 
             self._reaction = CxxNewReaction(dict_to_anymap(spec),
                                             deref(kinetics.kinetics))

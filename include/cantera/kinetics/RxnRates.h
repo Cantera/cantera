@@ -48,7 +48,10 @@ public:
     Arrhenius(const AnyValue& rate,
               const UnitSystem& units, const Units& rate_units);
 
-    //! Run object setup based on AnyMap node information
+    //! Perform object setup based on AnyMap node information
+    //! @param node  AnyMap containing rate information
+    //! @param units  unit system
+    //! @param rate_units  unit definitions specific to rate information
     void setParameters(const AnyValue& rate,
                        const UnitSystem& units, const Units& rate_units);
 
@@ -329,7 +332,10 @@ public:
     //! Constructor from Arrhenius rate expressions at a set of pressures
     explicit Plog(const std::multimap<double, Arrhenius>& rates);
 
-    //! Run object setup based on AnyMap node information
+    //! Perform object setup based on AnyMap node information
+    //! @param rates  vector of AnyMap containing rate information
+    //! @param units  unit system
+    //! @param rate_units  unit definitions specific to rate information
     void setParameters(const std::vector<AnyMap>& rates,
                        const UnitSystem& units, const Units& rate_units);
 
@@ -472,7 +478,10 @@ public:
     Chebyshev(double Tmin, double Tmax, double Pmin, double Pmax,
               const Array2D& coeffs);
 
-    //! Run object setup based on AnyMap node information
+    //! Perform object setup based on AnyMap node information
+    //! @param node  AnyMap containing rate information
+    //! @param units  unit system
+    //! @param rate_units  unit definitions specific to rate information
     void setParameters(const AnyMap& node,
                        const UnitSystem& units, const Units& rate_units);
     void getParameters(AnyMap& rateNode, const Units& rate_units) const;

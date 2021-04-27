@@ -34,12 +34,14 @@ struct ArrheniusData
     //! Constructor accessing *bulk* phase definitions
     ArrheniusData(const ThermoPhase& bulk) { update(bulk); }
 
+    //! Update data container based on temperature *T*
     void update(double T) {
         m_temperature = T;
         m_logT = std::log(T);
         m_recipT = 1./T;
     }
 
+    //! Update data container based on *bulk* phase state
     void update(const ThermoPhase& bulk);
 
     double m_temperature; //!< temperature
@@ -66,8 +68,10 @@ struct PlogData
     //! Constructor accessing *bulk* phase definitions
     PlogData(const ThermoPhase& bulk) { update(bulk); }
 
+    //! Update data container based on temperature *T* (raises exception)
     void update(double T);
 
+    //! Update data container based on temperature *T* and *P*
     void update(double T, double P) {
         m_temperature = T;
         m_logT = std::log(T);
@@ -75,6 +79,7 @@ struct PlogData
         m_logP = std::log(P);
    }
 
+    //! Update data container based on *bulk* phase state
     void update(const ThermoPhase& bulk);
 
     //! Pointer to logP (required by Plog::update_C)
@@ -105,14 +110,17 @@ struct ChebyshevData
     //! Constructor accessing *bulk* phase definitions
     ChebyshevData(const ThermoPhase& bulk) { update(bulk); }
 
+    //! Update data container based on temperature *T* (raises exception)
     void update(double T);
 
+    //! Update data container based on temperature *T* and *P*
     void update(double T, double P) {
         m_temperature = T;
         m_recipT = 1./T;
         m_log10P = std::log10(P);
-   }
+    }
 
+    //! Update data container based on *bulk* phase state
     void update(const ThermoPhase& bulk);
 
     //! Pointer to logP (required by Chebyshev::update_C)
@@ -138,8 +146,10 @@ struct CustomFunc1Data
     //! Constructor accessing *bulk* phase definitions
     CustomFunc1Data(const ThermoPhase& bulk) { update(bulk); }
 
+    //! Update data container based on temperature *T*
     void update(double T) { m_temperature = T; }
 
+    //! Update data container based on *bulk* phase state
     void update(const ThermoPhase& bulk);
 
     double m_temperature; //!< temperature
