@@ -40,7 +40,7 @@ public:
     //! Set parameters
     //! @param node  AnyMap object containing reaction rate specification
     //! @param rate_units  Description of units used for rate parameters
-    virtual bool setParameters(const AnyMap& node, const Units& rate_units) = 0;
+    virtual void setParameters(const AnyMap& node, const Units& rate_units) = 0;
 
     //! Get parameters
     //! Store the parameters of a ReactionRate needed to reconstruct an identical
@@ -203,10 +203,9 @@ public:
     //!      (optional, default is false)
     ArrheniusRate(const Arrhenius& arr, bool allow_negative_A=false);
 
+    virtual void setParameters(const AnyMap& node, const Units& rate_units) override;
     virtual void getParameters(AnyMap& rateNode,
                                const Units& rate_units) const override;
-    virtual bool setParameters(const AnyMap& node,
-                               const Units& rate_units) override;
 
     virtual std::string type() const override { return "ArrheniusRate"; }
 
@@ -268,8 +267,7 @@ public:
 
     virtual std::string type() const override { return "PlogRate"; }
 
-    virtual bool setParameters(const AnyMap& node,
-                               const Units& rate_units) override;
+    virtual void setParameters(const AnyMap& node, const Units& rate_units) override;
     virtual void getParameters(AnyMap& rateNode,
                                const Units& rate_units) const override;
 
@@ -346,8 +344,7 @@ public:
 
     virtual std::string type() const override { return "ChebyshevRate"; }
 
-    virtual bool setParameters(const AnyMap& node,
-                               const Units& rate_units) override;
+    virtual void setParameters(const AnyMap& node, const Units& rate_units) override;
     virtual void getParameters(AnyMap& rateNode,
                                const Units& rate_units) const override;
 
@@ -384,9 +381,7 @@ public:
 
     virtual std::string type() const override { return "custom-function"; }
 
-    virtual bool setParameters(const AnyMap& node, const Units& rate_units) {
-        return true;
-    }
+    virtual void setParameters(const AnyMap& node, const Units& rate_units) override {}
 
     //! Update information specific to reaction
     static bool uses_update() { return false; }

@@ -457,7 +457,7 @@ class Chebyshev
 {
 public:
     //! Default constructor.
-    Chebyshev() {}
+    Chebyshev() : nP_(0), nT_(0) {}
 
     //! Constructor directly from coefficient array
     /*

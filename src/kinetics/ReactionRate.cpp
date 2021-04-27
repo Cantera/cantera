@@ -34,13 +34,12 @@ ArrheniusRate::ArrheniusRate(const AnyMap& node, const Units& rate_units) {
     setParameters(node, rate_units);
 }
 
-bool ArrheniusRate::setParameters(const AnyMap& node, const Units& rate_units) {
+void ArrheniusRate::setParameters(const AnyMap& node, const Units& rate_units) {
     allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
     if (!node.hasKey("rate-constant")) {
-        return false;
+        return;
     }
     Arrhenius::setParameters(node["rate-constant"], node.units(), rate_units);
-    return true;
 }
 
 void ArrheniusRate::getParameters(AnyMap& rateNode,
@@ -69,13 +68,19 @@ PlogRate::PlogRate(const AnyMap& node, const Units& rate_units)
     setParameters(node, rate_units);
 }
 
-bool PlogRate::setParameters(const AnyMap& node, const Units& rate_units) {
+void PlogRate::setParameters(const AnyMap& node, const Units& rate_units) {
     if (!node.hasKey("rate-constants")) {
-        return false;
+        // ensure that Plog has defined state and produces zero reaction rate
+        AnyMap rate = AnyMap::fromYamlString(
+            "rate-constants:\n"
+            "- {P: 1e-7, A: 0., b: 0., Ea: 0.}\n"
+            "- {P: 1e7, A: 0., b: 0., Ea: 0.}");
+        Plog::setParameters(rate.at("rate-constants").asVector<AnyMap>(),
+                            node.units(), rate_units);
+        return;
     }
     Plog::setParameters(node.at("rate-constants").asVector<AnyMap>(),
                         node.units(), rate_units);
-    return true;
 }
 
 void PlogRate::getParameters(AnyMap& rateNode,
@@ -97,17 +102,17 @@ ChebyshevRate3::ChebyshevRate3(const AnyMap& node, const Units& rate_units)
     setParameters(node, rate_units);
 }
 
-bool ChebyshevRate3::setParameters(const AnyMap& node, const Units& rate_units) {
+void ChebyshevRate3::setParameters(const AnyMap& node, const Units& rate_units) {
     if (!node.hasKey("data")) {
         // ensure that Chebyshev has defined state and produces zero reaction rate
         AnyMap rate = AnyMap::fromYamlString(
             "temperature-range: [290, 3000]\n"
             "pressure-range: [1.e-7, 1.e7]\n"
             "data: [[-16.]]\n");
-        Chebyshev::setParameters(rate, node.units(), rate_units);        return false;
+        Chebyshev::setParameters(rate, node.units(), rate_units);
+        return;
     }
     Chebyshev::setParameters(node, node.units(), rate_units);
-    return true;
 }
 
 void ChebyshevRate3::getParameters(AnyMap& rateNode,

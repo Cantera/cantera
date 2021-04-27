@@ -473,7 +473,7 @@ public:
     }
 
     //! Set up reaction based on AnyMap *node*
-    virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
+    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
 
     //! Get pointer to third-body
     shared_ptr<ThirdBody> thirdBody() {
@@ -527,7 +527,7 @@ public:
 
     bool detectEfficiencies();
     virtual void calculateRateCoeffUnits(const Kinetics& kin);
-    virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
+    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
 
     virtual std::string reactantString() const;
@@ -570,7 +570,7 @@ public:
         return "Chebyshev";
     }
 
-    virtual bool setParameters(const AnyMap& node, const Kinetics& kin);
+    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
 };
 
