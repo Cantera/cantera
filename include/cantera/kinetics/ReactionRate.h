@@ -11,6 +11,7 @@
 #ifndef CT_REACTIONRATE_H
 #define CT_REACTIONRATE_H
 
+#include "cantera/base/Units.h"
 #include "cantera/kinetics/RxnRates.h"
 #include "cantera/kinetics/ReactionData.h"
 #include "cantera/base/ctexceptions.h"
@@ -19,7 +20,6 @@ namespace Cantera
 {
 
 class Func1;
-
 
 //! Abstract base class for reaction rate definitions
 /**
@@ -35,6 +35,7 @@ class Func1;
 class ReactionRateBase
 {
 public:
+    ReactionRateBase() : units(0.) {}
     virtual ~ReactionRateBase() {}
 
     //! Set parameters
@@ -99,6 +100,21 @@ public:
 
     //! Validate the reaction rate expression
     virtual void validate(const std::string& equation) = 0;
+
+    //! Return the parameters such that an identical Reaction could be reconstructed
+    //! using the newReaction() function. Behavior specific to derived classes is
+    //! handled by the getParameters() method.
+    //! @param rate_units  units used for rate parameters
+    AnyMap parameters(const Units& rate_units) const;
+
+    //! Return parameters using original unit system
+    AnyMap parameters() const;
+
+protected:
+    //! The units of the rate constant. These are determined by the units of the
+    //! standard concentration of the reactant species' phases of the phase
+    //! where the reaction occurs.
+    Units units;
 };
 
 
@@ -381,7 +397,9 @@ public:
 
     virtual std::string type() const override { return "custom-function"; }
 
-    virtual void setParameters(const AnyMap& node, const Units& rate_units) override {}
+    virtual void setParameters(const AnyMap& node, const Units& rate_units) override {
+        units = rate_units;
+    }
 
     //! Update information specific to reaction
     static bool uses_update() { return false; }

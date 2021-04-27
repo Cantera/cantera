@@ -42,6 +42,13 @@ cdef class _ReactionRate:
             self.base.update(temperature)
             return self.base.ddT(temperature)
 
+    property input_data:
+        """
+        Get input data for this reaction rate with its current parameter values.
+        """
+        def __get__(self):
+            return anymap_to_dict(self.base.parameters())
+
 
 cdef class ArrheniusRate(_ReactionRate):
     r"""

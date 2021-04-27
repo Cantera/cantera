@@ -6,9 +6,24 @@
 #include "cantera/kinetics/ReactionRate.h"
 #include "cantera/numerics/Func1.h"
 #include "cantera/base/AnyMap.h"
+#include "cantera/base/Units.h"
 
 namespace Cantera
 {
+
+AnyMap ReactionRateBase::parameters(const Units& rate_units) const
+{
+    AnyMap out;
+    getParameters(out, rate_units);
+    return out;
+}
+
+AnyMap ReactionRateBase::parameters() const
+{
+    AnyMap out;
+    getParameters(out, units);
+    return out;
+}
 
 ArrheniusRate::ArrheniusRate()
     : Arrhenius()
@@ -35,6 +50,7 @@ ArrheniusRate::ArrheniusRate(const AnyMap& node, const Units& rate_units) {
 }
 
 void ArrheniusRate::setParameters(const AnyMap& node, const Units& rate_units) {
+    units = rate_units;
     allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
     if (!node.hasKey("rate-constant")) {
         return;
@@ -44,7 +60,12 @@ void ArrheniusRate::setParameters(const AnyMap& node, const Units& rate_units) {
 
 void ArrheniusRate::getParameters(AnyMap& rateNode,
                                   const Units& rate_units) const {
-    Arrhenius::getParameters(rateNode, rate_units);
+    if (allow_negative_pre_exponential_factor) {
+        rateNode["negative-A"] = true;
+    }
+    AnyMap node;
+    Arrhenius::getParameters(node, rate_units);
+    rateNode["rate-constant"] = std::move(node);
 }
 
 void ArrheniusRate::validate(const std::string& equation) {
@@ -69,6 +90,7 @@ PlogRate::PlogRate(const AnyMap& node, const Units& rate_units)
 }
 
 void PlogRate::setParameters(const AnyMap& node, const Units& rate_units) {
+    units = rate_units;
     if (!node.hasKey("rate-constants")) {
         // ensure that Plog has defined state and produces zero reaction rate
         AnyMap rate = AnyMap::fromYamlString(
@@ -103,6 +125,7 @@ ChebyshevRate3::ChebyshevRate3(const AnyMap& node, const Units& rate_units)
 }
 
 void ChebyshevRate3::setParameters(const AnyMap& node, const Units& rate_units) {
+    units = rate_units;
     if (!node.hasKey("data")) {
         // ensure that Chebyshev has defined state and produces zero reaction rate
         AnyMap rate = AnyMap::fromYamlString(
