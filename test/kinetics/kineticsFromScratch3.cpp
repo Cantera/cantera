@@ -1,9 +1,9 @@
 #include "gtest/gtest.h"
-#include "cantera/base/Solution.h"
-#include "cantera/thermo/ThermoFactory.h"
+#include "cantera/kinetics/KineticsFactory.h"
+#include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/Species.h"
-#include "cantera/kinetics/KineticsFactory.h"
+#include "cantera/kinetics/GasKinetics.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/FalloffFactory.h"
 #include "cantera/base/Array.h"
@@ -15,40 +15,36 @@ class KineticsFromScratch3 : public testing::Test
 {
 public:
     KineticsFromScratch3()
+        : p("../data/kineticsfromscratch.yaml")
+        , p_ref("../data/kineticsfromscratch.yaml")
     {
-        std::string yaml_file = "../data/kineticsfromscratch.yaml";
-        std::string phase_name = "ohmech";
-
-        p = std::unique_ptr<ThermoPhase>(newPhase(yaml_file, phase_name));
-        kin = std::shared_ptr<Kinetics>(newKineticsMgr("GasKinetics"));
-        kin->addPhase(*p.get());
-
-        sol = newSolution(yaml_file, phase_name);
-        p_ref = sol->thermo();
-        kin_ref = sol->kinetics();
+        std::vector<ThermoPhase*> th;
+        th.push_back(&p_ref);
+        kin_ref = newKinetics(th, "../data/kineticsfromscratch.yaml", "ohmech");
+        kin.addPhase(p);
+        kin.init();
     }
 
-    std::unique_ptr<ThermoPhase> p;
-    std::shared_ptr<Kinetics> kin;
-    std::shared_ptr<Solution> sol;
-    std::shared_ptr<ThermoPhase> p_ref;
-    std::shared_ptr<Kinetics> kin_ref;
+    IdealGasPhase p;
+    IdealGasPhase p_ref;
+    GasKinetics kin;
+    unique_ptr<Kinetics> kin_ref;
 
     //! iRef is the index of the corresponding reaction in the reference mech
     void check_rates(int iRef) {
-        ASSERT_EQ((size_t) 1, kin->nReactions());
+        ASSERT_EQ((size_t) 1, kin.nReactions());
 
         std::string X = "O:0.02 H2:0.2 O2:0.5 H:0.03 OH:0.05 H2O:0.1 HO2:0.01";
-        p->setState_TPX(1200, 5*OneAtm, X);
-        p_ref->setState_TPX(1200, 5*OneAtm, X);
+        p.setState_TPX(1200, 5*OneAtm, X);
+        p_ref.setState_TPX(1200, 5*OneAtm, X);
 
         vector_fp k(1), k_ref(kin_ref->nReactions());
 
-        kin->getFwdRateConstants(&k[0]);
+        kin.getFwdRateConstants(&k[0]);
         kin_ref->getFwdRateConstants(&k_ref[0]);
         EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
 
-        kin->getRevRateConstants(&k[0]);
+        kin.getRevRateConstants(&k[0]);
         kin_ref->getRevRateConstants(&k_ref[0]);
         EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
     }
@@ -63,7 +59,7 @@ TEST_F(KineticsFromScratch3, add_elementary_reaction)
     ArrheniusRate rate(3.87e1, 2.7, 2.619184e+07);
     auto R = make_shared<ElementaryReaction3>(reac, prod, rate);
 
-    kin->addReaction(R);
+    kin.addReaction(R);
     check_rates(0);
 }
 
@@ -79,7 +75,7 @@ TEST_F(KineticsFromScratch3, add_three_body_reaction)
     tbody.efficiencies = parseCompString("AR:0.83 H2:2.4 H2O:15.4");
     auto R = make_shared<ThreeBodyReaction3>(reac, prod, rate, tbody);
 
-    kin->addReaction(R);
+    kin.addReaction(R);
     check_rates(1);
 }
 
@@ -92,7 +88,7 @@ TEST_F(KineticsFromScratch3, undefined_third_body)
     tbody.efficiencies = parseCompString("H2:0.1 CO2:0.83");
     auto R = make_shared<ThreeBodyReaction3>(reac, prod, rate, tbody);
 
-    ASSERT_THROW(kin->addReaction(R), CanteraError);
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
 }
 
 TEST_F(KineticsFromScratch3, skip_undefined_third_body)
@@ -104,11 +100,10 @@ TEST_F(KineticsFromScratch3, skip_undefined_third_body)
     tbody.efficiencies = parseCompString("H2:0.1 CO2:0.83");
     auto R = make_shared<ThreeBodyReaction3>(reac, prod, rate, tbody);
 
-    kin->skipUndeclaredThirdBodies(true);
-    kin->addReaction(R);
-    ASSERT_EQ((size_t) 1, kin->nReactions());
+    kin.skipUndeclaredThirdBodies(true);
+    kin.addReaction(R);
+    ASSERT_EQ((size_t) 1, kin.nReactions());
 }
-
 
 /*
 TEST_F(KineticsFromScratch3, add_falloff_reaction)
@@ -128,7 +123,7 @@ TEST_F(KineticsFromScratch3, add_falloff_reaction)
     tbody.efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
     auto R = make_shared<FalloffReaction>(reac, prod, low_rate, high_rate, tbody);
     R->falloff = newFalloff("Troe", falloff_params);
-    kin->addReaction(R);
+    kin.addReaction(R);
     check_rates(2);
 }
 */
@@ -151,7 +146,7 @@ TEST_F(KineticsFromScratch3, add_plog_reaction)
     };
 
     auto R = make_shared<PlogReaction3>(reac, prod, PlogRate(rates));
-    kin->addReaction(R);
+    kin.addReaction(R);
     check_rates(3);
 }
 
@@ -167,7 +162,7 @@ TEST_F(KineticsFromScratch3, plog_invalid_rate)
     };
 
     auto R = make_shared<PlogReaction3>(reac, prod, PlogRate(rates));
-    ASSERT_THROW(kin->addReaction(R), CanteraError);
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
 }
 
 TEST_F(KineticsFromScratch3, add_chebyshev_reaction)
@@ -198,7 +193,7 @@ TEST_F(KineticsFromScratch3, add_chebyshev_reaction)
     ChebyshevRate3 rate(290, 3000, 1000.0, 10000000.0, coeffs);
 
     auto R = make_shared<ChebyshevReaction3>(reac, prod, rate);
-    kin->addReaction(R);
+    kin.addReaction(R);
     check_rates(4);
 }
 
@@ -209,8 +204,8 @@ TEST_F(KineticsFromScratch3, undeclared_species)
     ArrheniusRate rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
     auto R = make_shared<ElementaryReaction3>(reac, prod, rate);
 
-    ASSERT_THROW(kin->addReaction(R), CanteraError);
-    ASSERT_EQ((size_t) 0, kin->nReactions());
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
+    ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
 TEST_F(KineticsFromScratch3, skip_undeclared_species)
@@ -220,9 +215,9 @@ TEST_F(KineticsFromScratch3, skip_undeclared_species)
     ArrheniusRate rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
     auto R = make_shared<ElementaryReaction3>(reac, prod, rate);
 
-    kin->skipUndeclaredSpecies(true);
-    kin->addReaction(R);
-    ASSERT_EQ((size_t) 0, kin->nReactions());
+    kin.skipUndeclaredSpecies(true);
+    kin.addReaction(R);
+    ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
 TEST_F(KineticsFromScratch3, negative_A_error)
@@ -232,8 +227,8 @@ TEST_F(KineticsFromScratch3, negative_A_error)
     ArrheniusRate rate(-3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
     auto R = make_shared<ElementaryReaction3>(reac, prod, rate);
 
-    ASSERT_THROW(kin->addReaction(R), CanteraError);
-    ASSERT_EQ((size_t) 0, kin->nReactions());
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
+    ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
 TEST_F(KineticsFromScratch3, allow_negative_A)
@@ -245,8 +240,8 @@ TEST_F(KineticsFromScratch3, allow_negative_A)
     auto rr = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
     rr->allow_negative_pre_exponential_factor = true;
 
-    kin->addReaction(R);
-    ASSERT_EQ((size_t) 1, kin->nReactions());
+    kin.addReaction(R);
+    ASSERT_EQ((size_t) 1, kin.nReactions());
 }
 
 TEST_F(KineticsFromScratch3, invalid_reversible_with_orders)
@@ -257,8 +252,8 @@ TEST_F(KineticsFromScratch3, invalid_reversible_with_orders)
     auto R = make_shared<ElementaryReaction3>(reac, prod, rate);
     R->orders["H2"] = 0.5;
 
-    ASSERT_THROW(kin->addReaction(R), CanteraError);
-    ASSERT_EQ((size_t) 0, kin->nReactions());
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
+    ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
 TEST_F(KineticsFromScratch3, negative_order_override)
@@ -271,8 +266,8 @@ TEST_F(KineticsFromScratch3, negative_order_override)
     R->allow_negative_orders = true;
     R->orders["H2"] = - 0.5;
 
-    kin->addReaction(R);
-    ASSERT_EQ((size_t) 1, kin->nReactions());
+    kin.addReaction(R);
+    ASSERT_EQ((size_t) 1, kin.nReactions());
 }
 
 TEST_F(KineticsFromScratch3, invalid_negative_orders)
@@ -284,8 +279,8 @@ TEST_F(KineticsFromScratch3, invalid_negative_orders)
     R->reversible = false;
     R->orders["H2"] = - 0.5;
 
-    ASSERT_THROW(kin->addReaction(R), CanteraError);
-    ASSERT_EQ((size_t) 0, kin->nReactions());
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
+    ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
 TEST_F(KineticsFromScratch3, nonreactant_order_override)
@@ -298,8 +293,8 @@ TEST_F(KineticsFromScratch3, nonreactant_order_override)
     R->allow_nonreactant_orders = true;
     R->orders["OH"] = 0.5;
 
-    kin->addReaction(R);
-    ASSERT_EQ((size_t) 1, kin->nReactions());
+    kin.addReaction(R);
+    ASSERT_EQ((size_t) 1, kin.nReactions());
 }
 
 TEST_F(KineticsFromScratch3, invalid_nonreactant_order)
@@ -311,8 +306,8 @@ TEST_F(KineticsFromScratch3, invalid_nonreactant_order)
     R->reversible = false;
     R->orders["OH"] = 0.5;
 
-    ASSERT_THROW(kin->addReaction(R), CanteraError);
-    ASSERT_EQ((size_t) 0, kin->nReactions());
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
+    ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
 /*
@@ -320,15 +315,15 @@ class InterfaceKineticsFromScratch3 : public testing::Test
 {
 public:
     InterfaceKineticsFromScratch3()
-        : gas("../data/sofc-test.xml", "gas")
-        , gas_ref("../data/sofc-test.xml", "gas")
-        , surf("../data/sofc-test.xml", "metal_surface")
-        , surf_ref("../data/sofc-test.xml", "metal_surface")
+        : gas("sofc.yaml", "gas")
+        , gas_ref("sofc.yaml", "gas")
+        , surf("sofc.yaml", "metal_surface")
+        , surf_ref("sofc.yaml", "metal_surface")
     {
         std::vector<ThermoPhase*> th = { &surf_ref, &gas_ref };
-        importKinetics(surf_ref.xml(), th, &kin_ref);
-        kin->addPhase(surf);
-        kin->addPhase(gas);
+        kin_ref = newKinetics(th, "sofc.yaml", "metal_surface");
+        kin.addPhase(surf);
+        kin.addPhase(gas);
     }
 
     IdealGasPhase gas;
@@ -336,11 +331,11 @@ public:
     SurfPhase surf;
     SurfPhase surf_ref;
     InterfaceKinetics kin;
-    InterfaceKinetics kin_ref;
+    unique_ptr<Kinetics> kin_ref;
 
     //! iRef is the index of the corresponding reaction in the reference mech
     void check_rates(int iRef) {
-        ASSERT_EQ((size_t) 1, kin->nReactions());
+        ASSERT_EQ((size_t) 1, kin.nReactions());
 
         std::string X = "H2:0.2 O2:0.5 H2O:0.1 N2:0.2";
         std::string Xs = "H(m):0.1 O(m):0.2 OH(m):0.3 (m):0.4";
@@ -353,11 +348,11 @@ public:
 
         vector_fp k(1), k_ref(kin_ref->nReactions());
 
-        kin->getFwdRateConstants(&k[0]);
+        kin.getFwdRateConstants(&k[0]);
         kin_ref->getFwdRateConstants(&k_ref[0]);
         EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
 
-        kin->getRevRateConstants(&k[0]);
+        kin.getRevRateConstants(&k[0]);
         kin_ref->getRevRateConstants(&k_ref[0]);
         EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
     }
@@ -373,7 +368,7 @@ TEST_F(InterfaceKineticsFromScratch3, add_surface_reaction)
     Arrhenius rate(5e21, 0, 100.0e6 / GasConstant); // kJ/mol -> J/kmol
 
     auto R = make_shared<InterfaceReaction>(reac, prod, rate);
-    kin->addReaction(R);
+    kin.addReaction(R);
     check_rates(3);
 }
 
@@ -387,7 +382,7 @@ TEST_F(InterfaceKineticsFromScratch3, add_sticking_reaction)
     Arrhenius rate(0.1, 0, 0.0);
 
     auto R = make_shared<InterfaceReaction>(reac, prod, rate, true);
-    kin->addReaction(R);
+    kin.addReaction(R);
     check_rates(0);
 }
 
@@ -398,7 +393,7 @@ TEST_F(InterfaceKineticsFromScratch3, unbalanced_sites)
     Arrhenius rate(5e21, 0, 100.0e6 / GasConstant);
 
     auto R = make_shared<InterfaceReaction>(reac, prod, rate);
-    ASSERT_THROW(kin->addReaction(R), CanteraError);
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
 }
 */
 
@@ -406,33 +401,27 @@ class KineticsAddSpecies3 : public testing::Test
 {
 public:
     KineticsAddSpecies3()
+        : p_ref("../data/kineticsfromscratch.yaml")
     {
-        std::string yaml_file = "../data/kineticsfromscratch.yaml";
-        std::string phase_name = "ohmech";
+        std::vector<ThermoPhase*> th;
+        th.push_back(&p_ref);
+        kin_ref = newKinetics(th, "../data/kineticsfromscratch.yaml", "ohmech");
+        kin.addPhase(p);
 
-        p = std::shared_ptr<ThermoPhase>(newThermoPhase("ideal-gas"));
-        kin = std::shared_ptr<Kinetics>(newKineticsMgr("GasKinetics"));
-        kin->addPhase(*p.get());
-
-        AnyMap h2o2 = AnyMap::fromYamlFile("h2o2.yaml");
-        std::vector<shared_ptr<Species>> S = getSpecies(h2o2["species"]);
+        std::vector<shared_ptr<Species>> S = getSpecies(
+            AnyMap::fromYamlFile("h2o2.yaml")["species"]);
         for (auto sp : S) {
             species[sp->name] = sp;
         }
-
-        sol = newSolution(yaml_file, phase_name);
-        p_ref = sol->thermo();
-        kin_ref = sol->kinetics();
-
-        AnyMap root = AnyMap::fromYamlFile(yaml_file);
-        reactions = getReactions(root["reactions"], *kin_ref);
+        reactions = getReactions(
+            AnyMap::fromYamlFile("../data/kineticsfromscratch.yaml")["reactions"],
+            *kin_ref);
     }
 
-    std::shared_ptr<Solution> sol;
-    std::shared_ptr<ThermoPhase> p;
-    std::shared_ptr<Kinetics> kin;
-    std::shared_ptr<ThermoPhase> p_ref;
-    std::shared_ptr<Kinetics> kin_ref;
+    IdealGasPhase p;
+    IdealGasPhase p_ref;
+    GasKinetics kin;
+    unique_ptr<Kinetics> kin_ref;
     std::vector<shared_ptr<Reaction>> reactions;
     std::map<std::string, shared_ptr<Species>> species;
 
@@ -444,85 +433,85 @@ public:
                 kin_ref->setMultiplier(i, 1);
             }
         }
-        p->setState_TPX(1200, 5*OneAtm, X);
-        p_ref->setState_TPX(1200, 5*OneAtm, X);
+        p.setState_TPX(1200, 5*OneAtm, X);
+        p_ref.setState_TPX(1200, 5*OneAtm, X);
 
-        vector_fp k(kin->nReactions()), k_ref(kin_ref->nReactions());
-        vector_fp w(kin->nTotalSpecies()), w_ref(kin_ref->nTotalSpecies());
+        vector_fp k(kin.nReactions()), k_ref(kin_ref->nReactions());
+        vector_fp w(kin.nTotalSpecies()), w_ref(kin_ref->nTotalSpecies());
 
-        kin->getFwdRateConstants(k.data());
+        kin.getFwdRateConstants(k.data());
         kin_ref->getFwdRateConstants(k_ref.data());
-        for (size_t i = 0; i < kin->nReactions(); i++) {
+        for (size_t i = 0; i < kin.nReactions(); i++) {
             EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
         }
 
-        kin->getFwdRatesOfProgress(k.data());
+        kin.getFwdRatesOfProgress(k.data());
         kin_ref->getFwdRatesOfProgress(k_ref.data());
-        for (size_t i = 0; i < kin->nReactions(); i++) {
+        for (size_t i = 0; i < kin.nReactions(); i++) {
             EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
         }
 
-        kin->getRevRateConstants(k.data());
+        kin.getRevRateConstants(k.data());
         kin_ref->getRevRateConstants(k_ref.data());
-        for (size_t i = 0; i < kin->nReactions(); i++) {
+        for (size_t i = 0; i < kin.nReactions(); i++) {
             EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
         }
 
-        kin->getRevRatesOfProgress(k.data());
+        kin.getRevRatesOfProgress(k.data());
         kin_ref->getRevRatesOfProgress(k_ref.data());
-        for (size_t i = 0; i < kin->nReactions(); i++) {
+        for (size_t i = 0; i < kin.nReactions(); i++) {
             EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
         }
 
-        kin->getCreationRates(w.data());
+        kin.getCreationRates(w.data());
         kin_ref->getCreationRates(w_ref.data());
-        for (size_t i = 0; i < kin->nTotalSpecies(); i++) {
-            size_t iref = p_ref->speciesIndex(p->speciesName(i));
-            EXPECT_DOUBLE_EQ(w_ref[iref], w[i]) << "sp = " << p->speciesName(i) << "; N = " << N;
+        for (size_t i = 0; i < kin.nTotalSpecies(); i++) {
+            size_t iref = p_ref.speciesIndex(p.speciesName(i));
+            EXPECT_DOUBLE_EQ(w_ref[iref], w[i]) << "sp = " << p.speciesName(i) << "; N = " << N;
         }
     }
 };
 
 TEST_F(KineticsAddSpecies3, add_species_sequential)
 {
-    ASSERT_EQ((size_t) 0, kin->nReactions());
+    ASSERT_EQ((size_t) 0, kin.nReactions());
 
     for (auto s : {"AR", "O", "H2", "H", "OH"}) {
-        p->addSpecies(species[s]);
+        p.addSpecies(species[s]);
     }
-    kin->addReaction(reactions[0]);
-    ASSERT_EQ(5, (int) kin->nTotalSpecies());
+    kin.addReaction(reactions[0]);
+    ASSERT_EQ(5, (int) kin.nTotalSpecies());
     check_rates(1, "O:0.001, H2:0.1, H:0.005, OH:0.02, AR:0.88");
 
-    p->addSpecies(species["O2"]);
-    p->addSpecies(species["H2O"]);
-    kin->addReaction(reactions[1]);
-    ASSERT_EQ(7, (int) kin->nTotalSpecies());
-    ASSERT_EQ(2, (int) kin->nReactions());
+    p.addSpecies(species["O2"]);
+    p.addSpecies(species["H2O"]);
+    kin.addReaction(reactions[1]);
+    ASSERT_EQ(7, (int) kin.nTotalSpecies());
+    ASSERT_EQ(2, (int) kin.nReactions());
     check_rates(2, "O:0.001, H2:0.1, H:0.005, OH:0.02, O2:0.5, AR:0.38");
 
-    p->addSpecies(species["H2O2"]);
-    kin->addReaction(reactions[2]);
-    kin->addReaction(reactions[3]);
+    p.addSpecies(species["H2O2"]);
+    kin.addReaction(reactions[2]);
+    kin.addReaction(reactions[3]);
     check_rates(4, "O:0.001, H2:0.1, H:0.005, OH:0.02, O2:0.5, AR:0.38"); // no change
     check_rates(4, "O:0.001, H2:0.1, H:0.005, OH:0.02, O2:0.5, AR:0.35, H2O2:0.03");
 
-    p->addSpecies(species["HO2"]);
-    kin->addReaction(reactions[4]);
+    p.addSpecies(species["HO2"]);
+    kin.addReaction(reactions[4]);
     check_rates(5, "O:0.01, H2:0.1, H:0.02, OH:0.03, O2:0.4, AR:0.3, H2O2:0.03, HO2:0.01");
 }
 
 TEST_F(KineticsAddSpecies3, add_species_err_first)
 {
     for (auto s : {"AR", "O", "H2", "H"}) {
-        p->addSpecies(species[s]);
+        p.addSpecies(species[s]);
     }
-    ASSERT_THROW(kin->addReaction(reactions[0]), CanteraError);
-    ASSERT_EQ((size_t) 0, kin->nReactions());
+    ASSERT_THROW(kin.addReaction(reactions[0]), CanteraError);
+    ASSERT_EQ((size_t) 0, kin.nReactions());
 
-    p->addSpecies(species["OH"]);
-    kin->addReaction(reactions[0]);
-    ASSERT_EQ(5, (int) kin->nTotalSpecies());
-    ASSERT_EQ((size_t) 1, kin->nReactions());
+    p.addSpecies(species["OH"]);
+    kin.addReaction(reactions[0]);
+    ASSERT_EQ(5, (int) kin.nTotalSpecies());
+    ASSERT_EQ((size_t) 1, kin.nReactions());
     check_rates(1, "O:0.001, H2:0.1, H:0.005, OH:0.02, AR:0.88");
 }
