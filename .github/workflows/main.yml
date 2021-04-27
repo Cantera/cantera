@@ -81,7 +81,7 @@ jobs:
       run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
         pytest-github-actions-annotate-failures
     - name: Build Cantera
-      run: python3 `which scons` build env_vars=all -j2 debug=n --debug=time
+      run: python3 `which scons` build env_vars=all -j3 debug=n --debug=time
     - name: Test Cantera
       run: python3 `which scons` test --debug=time
       env:
