@@ -6,6 +6,260 @@
 cdef dict _reaction_class_registry = {}
 
 
+cdef class _ReactionRate:
+
+    def __repr__(self):
+        return "<{} at {:0x}>".format(pystr(self.base.type()), id(self))
+
+    def __call__(self, double temperature, pressure=None):
+        if pressure:
+            self.base.update(temperature, pressure)
+            return self.base.eval(temperature, pressure)
+        else:
+            self.base.update(temperature)
+            return self.base.eval(temperature)
+
+    def ddT(self, double temperature, pressure=None):
+        if pressure:
+            self.base.update(temperature, pressure)
+            return self.base.ddT(temperature, pressure)
+        else:
+            self.base.update(temperature)
+            return self.base.ddT(temperature)
+
+
+cdef class ArrheniusRate(_ReactionRate):
+    r"""
+    A reaction rate coefficient which depends on temperature only and follows
+    the modified Arrhenius form:
+
+    .. math::
+
+        k_f = A T^b \exp{-\tfrac{E}{RT}}
+
+    where *A* is the `pre_exponential_factor`, *b* is the `temperature_exponent`,
+    and *E* is the `activation_energy`.
+    """
+    def __cinit__(self, A=0, b=0, E=0, init=True):
+
+        if init:
+            self._base.reset(new CxxArrheniusRate(A, b, E))
+            self.base = self._base.get()
+            self.rate = <CxxArrheniusRate*>(self.base)
+
+    @staticmethod
+    cdef wrap(shared_ptr[CxxReactionRateBase] rate):
+        """
+        Wrap a C++ ReactionRateBase object with a Python object.
+        """
+        # wrap C++ reaction
+        cdef ArrheniusRate arr
+        arr = ArrheniusRate(init=False)
+        arr._base = rate
+        arr.base = arr._base.get()
+        arr.rate = <CxxArrheniusRate*>(arr.base)
+        return arr
+
+    property pre_exponential_factor:
+        """
+        The pre-exponential factor *A* in units of m, kmol, and s raised to
+        powers depending on the reaction order.
+        """
+        def __get__(self):
+            return self.rate.preExponentialFactor()
+
+    property temperature_exponent:
+        """
+        The temperature exponent *b*.
+        """
+        def __get__(self):
+            return self.rate.temperatureExponent()
+
+    property activation_energy:
+        """
+        The activation energy *E* [J/kmol].
+        """
+        def __get__(self):
+            return self.rate.activationEnergy()
+
+    property allow_negative_pre_exponential_factor:
+        """
+        Get/Set whether the rate coefficient is allowed to have a negative
+        pre-exponential factor.
+        """
+        def __get__(self):
+            return self.rate.allow_negative_pre_exponential_factor
+        def __set__(self, allow):
+            self.rate.allow_negative_pre_exponential_factor = allow
+
+
+cdef class PlogRate(_ReactionRate):
+    r"""
+    A pressure-dependent reaction rate parameterized by logarithmically
+    interpolating between Arrhenius rate expressions at various pressures.
+    """
+    def __cinit__(self, rates=None, init=True):
+
+        if rates and init:
+            self.rates = rates
+
+    @staticmethod
+    cdef wrap(shared_ptr[CxxReactionRateBase] rate):
+        """
+        Wrap a C++ ReactionRateBase object with a Python object.
+        """
+        # wrap C++ reaction
+        cdef PlogRate arr
+        arr = PlogRate(init=False)
+        arr._base = rate
+        arr.base = arr._base.get()
+        arr.rate = <CxxPlogRate*>(arr.base)
+        return arr
+
+    property rates:
+        """
+        Get/Set the rate coefficients for this reaction, which are given as a
+        list of (pressure, `Arrhenius`) tuples.
+        """
+        def __get__(self):
+            rates = []
+            cdef vector[pair[double, CxxArrhenius]] cxxrates = self.rate.rates()
+            cdef pair[double, CxxArrhenius] p_rate
+            for p_rate in cxxrates:
+                rates.append((p_rate.first, copyArrhenius(&p_rate.second)))
+            return rates
+
+        def __set__(self, rates):
+            cdef multimap[double, CxxArrhenius] ratemap
+            cdef Arrhenius rate
+            cdef pair[double, CxxArrhenius] item
+            for p, rate in rates:
+                item.first = p
+                item.second = deref(rate.rate)
+                ratemap.insert(item)
+
+            self._base.reset(new CxxPlogRate(ratemap))
+            self.base = self._base.get()
+            self.rate = <CxxPlogRate*>(self.base)
+
+
+cdef class ChebyshevRate(_ReactionRate):
+    r"""
+    A pressure-dependent reaction rate parameterized by a bivariate Chebyshev
+    polynomial in temperature and pressure.
+    """
+    def __cinit__(self, Tmin=None, Tmax=None, Pmin=None, Pmax=None, data=None,
+                  init=True):
+
+        if Tmin and Tmax and Pmin and Pmax and data is not None and init:
+            self._setup(Tmin, Tmax, Pmin, Pmax, data)
+
+    def _setup(self, Tmin, Tmax, Pmin, Pmax, coeffs):
+        """
+        Simultaneously set values for `Tmin`, `Tmax`, `Pmin`, `Pmax`, and
+        `coeffs`.
+        """
+        cdef CxxArray2D data
+        data.resize(len(coeffs), len(coeffs[0]))
+        cdef double value
+        cdef int i
+        cdef int j
+        for i,row in enumerate(coeffs):
+            for j,value in enumerate(row):
+                CxxArray2D_set(data, i, j, value)
+
+        self._base.reset(new CxxChebyshevRate3(Tmin, Tmax, Pmin, Pmax, data))
+        self.base = self._base.get()
+        self.rate = <CxxChebyshevRate3*>(self.base)
+
+    @staticmethod
+    cdef wrap(shared_ptr[CxxReactionRateBase] rate):
+        """
+        Wrap a C++ ReactionRateBase object with a Python object.
+        """
+        # wrap C++ reaction
+        cdef ChebyshevRate arr
+        arr = ChebyshevRate(init=False)
+        arr._base = rate
+        arr.base = arr._base.get()
+        arr.rate = <CxxChebyshevRate3*>(arr.base)
+        return arr
+
+    property Tmin:
+        """ Minimum temperature [K] for the Chebyshev fit """
+        def __get__(self):
+            return self.rate.Tmin()
+
+    property Tmax:
+        """ Maximum temperature [K] for the Chebyshev fit """
+        def __get__(self):
+            return self.rate.Tmax()
+
+    property Pmin:
+        """ Minimum pressure [Pa] for the Chebyshev fit """
+        def __get__(self):
+            return self.rate.Pmin()
+
+    property Pmax:
+        """ Maximum pressure [Pa] for the Chebyshev fit """
+        def __get__(self):
+            return self.rate.Pmax()
+
+    property nPressure:
+        """ Number of pressures over which the Chebyshev fit is computed """
+        def __get__(self):
+            return self.rate.nPressure()
+
+    property nTemperature:
+        """ Number of temperatures over which the Chebyshev fit is computed """
+        def __get__(self):
+            return self.rate.nTemperature()
+
+    property coeffs:
+        """
+        2D array of Chebyshev coefficients of size `(nTemperature, nPressure)`.
+        """
+        def __get__(self):
+            c = np.fromiter(self.rate.coeffs(), np.double)
+            return c.reshape((self.rate.nTemperature(), self.rate.nPressure()))
+
+
+cdef class CustomRate(_ReactionRate):
+    r"""
+    A custom rate coefficient which depends on temperature only.
+
+    The simplest way to create a `CustomRate` object is to use a lambda function,
+    for example::
+
+        rr = CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15/T))
+    """
+    def __cinit__(self, k=None, init=True):
+
+        if init:
+            self._base.reset(new CxxCustomFunc1Rate())
+            self.base = self._base.get()
+            self.rate = <CxxCustomFunc1Rate*>(self.base)
+            self.set_rate_function(k)
+
+    def set_rate_function(self, k):
+        r"""
+        Set the function describing a custom reaction rate::
+
+            rr = CustomRate()
+            rr.set_rate_function(lambda T: 38.7 * T**2.7 * exp(-3150.15/T))
+        """
+        if k is None:
+            self._rate_func = None
+            return
+
+        if isinstance(k, Func1):
+            self._rate_func = k
+        else:
+            self._rate_func = Func1(k)
+
+        self.rate.setRateFunction(self._rate_func._func)
+
+
 cdef class Reaction:
     """
     A class which stores data about a reaction and its rate parameterization so
@@ -424,260 +678,6 @@ cdef copyArrhenius(CxxArrhenius* rate):
     r = Arrhenius(rate.preExponentialFactor(), rate.temperatureExponent(),
                   rate.activationEnergy_R() * gas_constant)
     return r
-
-
-cdef class _ReactionRate:
-
-    def __repr__(self):
-        return "<{} at {:0x}>".format(pystr(self.base.type()), id(self))
-
-    def __call__(self, double temperature, pressure=None):
-        if pressure:
-            self.base.update(temperature, pressure)
-            return self.base.eval(temperature, pressure)
-        else:
-            self.base.update(temperature)
-            return self.base.eval(temperature)
-
-    def ddT(self, double temperature, pressure=None):
-        if pressure:
-            self.base.update(temperature, pressure)
-            return self.base.ddT(temperature, pressure)
-        else:
-            self.base.update(temperature)
-            return self.base.ddT(temperature)
-
-
-cdef class CustomRate(_ReactionRate):
-    r"""
-    A custom rate coefficient which depends on temperature only.
-
-    The simplest way to create a `CustomRate` object is to use a lambda function,
-    for example::
-
-        rr = CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15/T))
-    """
-    def __cinit__(self, k=None, init=True):
-
-        if init:
-            self._base.reset(new CxxCustomFunc1Rate())
-            self.base = self._base.get()
-            self.rate = <CxxCustomFunc1Rate*>(self.base)
-            self.set_rate_function(k)
-
-    def set_rate_function(self, k):
-        r"""
-        Set the function describing a custom reaction rate::
-
-            rr = CustomRate()
-            rr.set_rate_function(lambda T: 38.7 * T**2.7 * exp(-3150.15/T))
-        """
-        if k is None:
-            self._rate_func = None
-            return
-
-        if isinstance(k, Func1):
-            self._rate_func = k
-        else:
-            self._rate_func = Func1(k)
-
-        self.rate.setRateFunction(self._rate_func._func)
-
-
-cdef class ArrheniusRate(_ReactionRate):
-    r"""
-    A reaction rate coefficient which depends on temperature only and follows
-    the modified Arrhenius form:
-
-    .. math::
-
-        k_f = A T^b \exp{-\tfrac{E}{RT}}
-
-    where *A* is the `pre_exponential_factor`, *b* is the `temperature_exponent`,
-    and *E* is the `activation_energy`.
-    """
-    def __cinit__(self, A=0, b=0, E=0, init=True):
-
-        if init:
-            self._base.reset(new CxxArrheniusRate(A, b, E))
-            self.base = self._base.get()
-            self.rate = <CxxArrheniusRate*>(self.base)
-
-    @staticmethod
-    cdef wrap(shared_ptr[CxxReactionRateBase] rate):
-        """
-        Wrap a C++ ReactionRateBase object with a Python object.
-        """
-        # wrap C++ reaction
-        cdef ArrheniusRate arr
-        arr = ArrheniusRate(init=False)
-        arr._base = rate
-        arr.base = arr._base.get()
-        arr.rate = <CxxArrheniusRate*>(arr.base)
-        return arr
-
-    property pre_exponential_factor:
-        """
-        The pre-exponential factor *A* in units of m, kmol, and s raised to
-        powers depending on the reaction order.
-        """
-        def __get__(self):
-            return self.rate.preExponentialFactor()
-
-    property temperature_exponent:
-        """
-        The temperature exponent *b*.
-        """
-        def __get__(self):
-            return self.rate.temperatureExponent()
-
-    property activation_energy:
-        """
-        The activation energy *E* [J/kmol].
-        """
-        def __get__(self):
-            return self.rate.activationEnergy()
-
-    property allow_negative_pre_exponential_factor:
-        """
-        Get/Set whether the rate coefficient is allowed to have a negative
-        pre-exponential factor.
-        """
-        def __get__(self):
-            return self.rate.allow_negative_pre_exponential_factor
-        def __set__(self, allow):
-            self.rate.allow_negative_pre_exponential_factor = allow
-
-
-cdef class PlogRate(_ReactionRate):
-    r"""
-    A pressure-dependent reaction rate parameterized by logarithmically
-    interpolating between Arrhenius rate expressions at various pressures.
-    """
-    def __cinit__(self, rates=None, init=True):
-
-        if rates and init:
-            self.rates = rates
-
-    @staticmethod
-    cdef wrap(shared_ptr[CxxReactionRateBase] rate):
-        """
-        Wrap a C++ ReactionRateBase object with a Python object.
-        """
-        # wrap C++ reaction
-        cdef PlogRate arr
-        arr = PlogRate(init=False)
-        arr._base = rate
-        arr.base = arr._base.get()
-        arr.rate = <CxxPlogRate*>(arr.base)
-        return arr
-
-    property rates:
-        """
-        Get/Set the rate coefficients for this reaction, which are given as a
-        list of (pressure, `Arrhenius`) tuples.
-        """
-        def __get__(self):
-            rates = []
-            cdef vector[pair[double, CxxArrhenius]] cxxrates = self.rate.rates()
-            cdef pair[double, CxxArrhenius] p_rate
-            for p_rate in cxxrates:
-                rates.append((p_rate.first, copyArrhenius(&p_rate.second)))
-            return rates
-
-        def __set__(self, rates):
-            cdef multimap[double, CxxArrhenius] ratemap
-            cdef Arrhenius rate
-            cdef pair[double, CxxArrhenius] item
-            for p, rate in rates:
-                item.first = p
-                item.second = deref(rate.rate)
-                ratemap.insert(item)
-
-            self._base.reset(new CxxPlogRate(ratemap))
-            self.base = self._base.get()
-            self.rate = <CxxPlogRate*>(self.base)
-
-
-cdef class ChebyshevRate(_ReactionRate):
-    r"""
-    A pressure-dependent reaction rate parameterized by a bivariate Chebyshev
-    polynomial in temperature and pressure.
-    """
-    def __cinit__(self, Tmin=None, Tmax=None, Pmin=None, Pmax=None, data=None,
-                  init=True):
-
-        if Tmin and Tmax and Pmin and Pmax and data is not None and init:
-            self._setup(Tmin, Tmax, Pmin, Pmax, data)
-
-    def _setup(self, Tmin, Tmax, Pmin, Pmax, coeffs):
-        """
-        Simultaneously set values for `Tmin`, `Tmax`, `Pmin`, `Pmax`, and
-        `coeffs`.
-        """
-        cdef CxxArray2D data
-        data.resize(len(coeffs), len(coeffs[0]))
-        cdef double value
-        cdef int i
-        cdef int j
-        for i,row in enumerate(coeffs):
-            for j,value in enumerate(row):
-                CxxArray2D_set(data, i, j, value)
-
-        self._base.reset(new CxxChebyshevRate3(Tmin, Tmax, Pmin, Pmax, data))
-        self.base = self._base.get()
-        self.rate = <CxxChebyshevRate3*>(self.base)
-
-    @staticmethod
-    cdef wrap(shared_ptr[CxxReactionRateBase] rate):
-        """
-        Wrap a C++ ReactionRateBase object with a Python object.
-        """
-        # wrap C++ reaction
-        cdef ChebyshevRate arr
-        arr = ChebyshevRate(init=False)
-        arr._base = rate
-        arr.base = arr._base.get()
-        arr.rate = <CxxChebyshevRate3*>(arr.base)
-        return arr
-
-    property Tmin:
-        """ Minimum temperature [K] for the Chebyshev fit """
-        def __get__(self):
-            return self.rate.Tmin()
-
-    property Tmax:
-        """ Maximum temperature [K] for the Chebyshev fit """
-        def __get__(self):
-            return self.rate.Tmax()
-
-    property Pmin:
-        """ Minimum pressure [Pa] for the Chebyshev fit """
-        def __get__(self):
-            return self.rate.Pmin()
-
-    property Pmax:
-        """ Maximum pressure [Pa] for the Chebyshev fit """
-        def __get__(self):
-            return self.rate.Pmax()
-
-    property nPressure:
-        """ Number of pressures over which the Chebyshev fit is computed """
-        def __get__(self):
-            return self.rate.nPressure()
-
-    property nTemperature:
-        """ Number of temperatures over which the Chebyshev fit is computed """
-        def __get__(self):
-            return self.rate.nTemperature()
-
-    property coeffs:
-        """
-        2D array of Chebyshev coefficients of size `(nTemperature, nPressure)`.
-        """
-        def __get__(self):
-            c = np.fromiter(self.rate.coeffs(), np.double)
-            return c.reshape((self.rate.nTemperature(), self.rate.nPressure()))
 
 
 cdef class ElementaryReaction(Reaction):
@@ -1152,6 +1152,7 @@ cdef class ChebyshevReaction(Reaction):
         r.rate.update_C(&logP)
         return r.rate.updateRC(logT, recipT)
 
+
 cdef class BlowersMasel:
     """
     A reaction rate coefficient which depends on temperature and enthalpy change
@@ -1219,11 +1220,13 @@ cdef class BlowersMasel:
         cdef double recipT = 1/T
         return self.rate.updateRC(logT, recipT, dH)
 
+
 cdef wrapBlowersMasel(CxxBlowersMasel* rate, Reaction reaction):
     r = BlowersMasel(init=False)
     r.rate = rate
     r.reaction = reaction
     return r
+
 
 cdef class BlowersMaselReaction(Reaction):
     """
@@ -1252,6 +1255,150 @@ cdef class BlowersMaselReaction(Reaction):
         def __set__(self, allow):
             cdef CxxBlowersMaselReaction* r = <CxxBlowersMaselReaction*>self.reaction
             r.allow_negative_pre_exponential_factor = allow
+
+
+cdef class InterfaceReaction(ElementaryReaction):
+    """ A reaction occurring on an `Interface` (i.e. a surface or an edge) """
+    reaction_type = "interface"
+
+    property coverage_deps:
+        """
+        Get/Set a dict containing adjustments to the Arrhenius rate expression
+        dependent on surface species coverages. The keys of the dict are species
+        names, and the values are tuples specifying the three coverage
+        parameters ``(a, m, E)`` which are the modifiers for the pre-exponential
+        factor [m, kmol, s units], the temperature exponent [nondimensional],
+        and the activation energy [J/kmol], respectively.
+        """
+        def __get__(self):
+            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
+            deps = {}
+            cdef pair[string,CxxCoverageDependency] item
+            for item in r.coverage_deps:
+                deps[pystr(item.first)] = (item.second.a, item.second.m,
+                                           item.second.E * gas_constant)
+            return deps
+        def __set__(self, deps):
+            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
+            r.coverage_deps.clear()
+            cdef str species
+            for species, D in deps.items():
+                r.coverage_deps[stringify(species)] = CxxCoverageDependency(
+                    D[0], D[2] / gas_constant, D[1])
+
+    property is_sticking_coefficient:
+        """
+        Get/Set a boolean indicating if the rate coefficient for this reaction
+        is expressed as a sticking coefficient rather than the forward rate
+        constant.
+        """
+        def __get__(self):
+            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
+            return r.is_sticking_coefficient
+        def __set__(self, stick):
+            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
+            r.is_sticking_coefficient = stick
+
+    property use_motz_wise_correction:
+        """
+        Get/Set a boolean indicating whether to use the correction factor
+        developed by Motz & Wise for reactions with high (near-unity) sticking
+        coefficients when converting the sticking coefficient to a rate
+        coefficient.
+        """
+        def __get__(self):
+            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
+            return r.use_motz_wise_correction
+        def __set__(self, mw):
+            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
+            r.use_motz_wise_correction = mw
+
+    property sticking_species:
+        """
+        The name of the sticking species. Needed only for reactions with
+        multiple non-surface reactant species, where the sticking species is
+        ambiguous.
+        """
+        def __get__(self):
+            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
+            return pystr(r.sticking_species)
+        def __set__(self, species):
+            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
+            r.sticking_species = stringify(species)
+
+
+cdef class BlowersMaselInterfaceReaction(BlowersMaselReaction):
+    """
+    A reaction occurring on an `Interface` (i.e. a surface or an edge)
+    with the rate parameterization of `BlowersMasel`.
+    """
+    reaction_type = "surface-Blowers-Masel"
+
+    property coverage_deps:
+        """
+        Get/Set a dict containing adjustments to the Arrhenius rate expression
+        dependent on surface species coverages. The keys of the dict are species
+        names, and the values are tuples specifying the three coverage
+        parameters ``(a, m, E)`` which are the modifiers for the pre-exponential
+        factor [m, kmol, s units], the temperature exponent [nondimensional],
+        and the activation energy [J/kmol], respectively.
+        """
+        def __get__(self):
+            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
+            deps = {}
+            cdef pair[string,CxxCoverageDependency] item
+            for item in r.coverage_deps:
+                deps[pystr(item.first)] = (item.second.a, item.second.m,
+                                           item.second.E * gas_constant)
+            return deps
+        def __set__(self, deps):
+            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
+            r.coverage_deps.clear()
+            cdef str species
+            for species, D in deps.items():
+                r.coverage_deps[stringify(species)] = CxxCoverageDependency(
+                    D[0], D[2] / gas_constant, D[1])
+
+    property is_sticking_coefficient:
+        """
+        Get/Set a boolean indicating if the rate coefficient for this reaction
+        is expressed as a sticking coefficient rather than the forward rate
+        constant.
+        """
+        def __get__(self):
+            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
+            return r.is_sticking_coefficient
+        def __set__(self, stick):
+            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
+            r.is_sticking_coefficient = stick
+
+    property use_motz_wise_correction:
+        """
+        Get/Set a boolean indicating whether to use the correction factor
+        developed by Motz & Wise for reactions with high (near-unity) sticking
+        coefficients when converting the sticking coefficient to a rate
+        coefficient.
+        """
+        def __get__(self):
+            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
+            return r.use_motz_wise_correction
+        def __set__(self, mw):
+            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
+            r.use_motz_wise_correction = mw
+
+    property sticking_species:
+        """
+        The name of the sticking species. Needed only for reactions with
+        multiple non-surface reactant species, where the sticking species is
+        ambiguous.
+        """
+        def __get__(self):
+            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
+            return pystr(r.sticking_species)
+        def __set__(self, species):
+            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
+            r.sticking_species = stringify(species)
+
 
 cdef class ElementaryReaction3(Reaction):
     """
@@ -1551,145 +1698,3 @@ cdef class CustomReaction(Reaction):
             self._rate = rate
             cdef CxxCustomFunc1Reaction* r = <CxxCustomFunc1Reaction*>self.reaction
             r.setRate(self._rate._base)
-
-
-cdef class InterfaceReaction(ElementaryReaction):
-    """ A reaction occurring on an `Interface` (i.e. a surface or an edge) """
-    reaction_type = "interface"
-
-    property coverage_deps:
-        """
-        Get/Set a dict containing adjustments to the Arrhenius rate expression
-        dependent on surface species coverages. The keys of the dict are species
-        names, and the values are tuples specifying the three coverage
-        parameters ``(a, m, E)`` which are the modifiers for the pre-exponential
-        factor [m, kmol, s units], the temperature exponent [nondimensional],
-        and the activation energy [J/kmol], respectively.
-        """
-        def __get__(self):
-            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
-            deps = {}
-            cdef pair[string,CxxCoverageDependency] item
-            for item in r.coverage_deps:
-                deps[pystr(item.first)] = (item.second.a, item.second.m,
-                                           item.second.E * gas_constant)
-            return deps
-        def __set__(self, deps):
-            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
-            r.coverage_deps.clear()
-            cdef str species
-            for species, D in deps.items():
-                r.coverage_deps[stringify(species)] = CxxCoverageDependency(
-                    D[0], D[2] / gas_constant, D[1])
-
-    property is_sticking_coefficient:
-        """
-        Get/Set a boolean indicating if the rate coefficient for this reaction
-        is expressed as a sticking coefficient rather than the forward rate
-        constant.
-        """
-        def __get__(self):
-            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
-            return r.is_sticking_coefficient
-        def __set__(self, stick):
-            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
-            r.is_sticking_coefficient = stick
-
-    property use_motz_wise_correction:
-        """
-        Get/Set a boolean indicating whether to use the correction factor
-        developed by Motz & Wise for reactions with high (near-unity) sticking
-        coefficients when converting the sticking coefficient to a rate
-        coefficient.
-        """
-        def __get__(self):
-            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
-            return r.use_motz_wise_correction
-        def __set__(self, mw):
-            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
-            r.use_motz_wise_correction = mw
-
-    property sticking_species:
-        """
-        The name of the sticking species. Needed only for reactions with
-        multiple non-surface reactant species, where the sticking species is
-        ambiguous.
-        """
-        def __get__(self):
-            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
-            return pystr(r.sticking_species)
-        def __set__(self, species):
-            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
-            r.sticking_species = stringify(species)
-
-cdef class BlowersMaselInterfaceReaction(BlowersMaselReaction):
-    """
-    A reaction occurring on an `Interface` (i.e. a surface or an edge)
-    with the rate parameterization of `BlowersMasel`.
-    """
-    reaction_type = "surface-Blowers-Masel"
-
-    property coverage_deps:
-        """
-        Get/Set a dict containing adjustments to the Arrhenius rate expression
-        dependent on surface species coverages. The keys of the dict are species
-        names, and the values are tuples specifying the three coverage
-        parameters ``(a, m, E)`` which are the modifiers for the pre-exponential
-        factor [m, kmol, s units], the temperature exponent [nondimensional],
-        and the activation energy [J/kmol], respectively.
-        """
-        def __get__(self):
-            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
-            deps = {}
-            cdef pair[string,CxxCoverageDependency] item
-            for item in r.coverage_deps:
-                deps[pystr(item.first)] = (item.second.a, item.second.m,
-                                           item.second.E * gas_constant)
-            return deps
-        def __set__(self, deps):
-            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
-            r.coverage_deps.clear()
-            cdef str species
-            for species, D in deps.items():
-                r.coverage_deps[stringify(species)] = CxxCoverageDependency(
-                    D[0], D[2] / gas_constant, D[1])
-
-    property is_sticking_coefficient:
-        """
-        Get/Set a boolean indicating if the rate coefficient for this reaction
-        is expressed as a sticking coefficient rather than the forward rate
-        constant.
-        """
-        def __get__(self):
-            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
-            return r.is_sticking_coefficient
-        def __set__(self, stick):
-            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
-            r.is_sticking_coefficient = stick
-
-    property use_motz_wise_correction:
-        """
-        Get/Set a boolean indicating whether to use the correction factor
-        developed by Motz & Wise for reactions with high (near-unity) sticking
-        coefficients when converting the sticking coefficient to a rate
-        coefficient.
-        """
-        def __get__(self):
-            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
-            return r.use_motz_wise_correction
-        def __set__(self, mw):
-            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
-            r.use_motz_wise_correction = mw
-
-    property sticking_species:
-        """
-        The name of the sticking species. Needed only for reactions with
-        multiple non-surface reactant species, where the sticking species is
-        ambiguous.
-        """
-        def __get__(self):
-            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
-            return pystr(r.sticking_species)
-        def __set__(self, species):
-            cdef CxxBlowersMaselInterfaceReaction* r = <CxxBlowersMaselInterfaceReaction*>self.reaction
-            r.sticking_species = stringify(species)

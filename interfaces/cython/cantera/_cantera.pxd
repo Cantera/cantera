@@ -363,10 +363,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double ddT(double) except +translate_exception
         double ddT(double, double) except +translate_exception
 
-    cdef cppclass CxxCustomFunc1Rate "Cantera::CustomFunc1Rate" (CxxReactionRateBase):
-        CxxCustomFunc1Rate()
-        void setRateFunction(shared_ptr[CxxFunc1]) except +translate_exception
-
     cdef cppclass CxxArrheniusRate "Cantera::ArrheniusRate" (CxxReactionRateBase):
         CxxArrheniusRate()
         CxxArrheniusRate(double, double, double)
@@ -391,6 +387,10 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         size_t nTemperature()
         vector[double]& coeffs()
 
+    cdef cppclass CxxCustomFunc1Rate "Cantera::CustomFunc1Rate" (CxxReactionRateBase):
+        CxxCustomFunc1Rate()
+        void setRateFunction(shared_ptr[CxxFunc1]) except +translate_exception
+
     cdef cppclass CxxReaction "Cantera::Reaction":
         CxxReaction()
 
@@ -410,11 +410,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool duplicate
         cbool allow_nonreactant_orders
         cbool allow_negative_orders
-
-    cdef cppclass CxxReaction3 "Cantera::Reaction3" (CxxReaction):
-        CxxReaction3()
-        shared_ptr[CxxReactionRateBase] rate()
-        void setRate(shared_ptr[CxxReactionRateBase])
 
     cdef cppclass CxxElementaryReaction "Cantera::ElementaryReaction" (CxxReaction):
         CxxElementaryReaction()
@@ -478,22 +473,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxChebyshevReaction "Cantera::ChebyshevReaction" (CxxReaction):
         CxxChebyshev rate
 
-    cdef cppclass CxxElementaryReaction3 "Cantera::ElementaryReaction3" (CxxReaction3):
-        CxxElementaryReaction3()
-
-    cdef cppclass CxxThreeBodyReaction3 "Cantera::ThreeBodyReaction3" (CxxElementaryReaction3):
-        CxxThreeBodyReaction3()
-        shared_ptr[CxxThirdBody] thirdBody()
-
-    cdef cppclass CxxPlogReaction3 "Cantera::PlogReaction3" (CxxReaction3):
-        CxxPlogReaction3()
-
-    cdef cppclass CxxChebyshevReaction3 "Cantera::ChebyshevReaction3" (CxxReaction3):
-        CxxChebyshevReaction3()
-
-    cdef cppclass CxxCustomFunc1Reaction "Cantera::CustomFunc1Reaction" (CxxReaction3):
-        CxxCustomFunc1Reaction()
-
     cdef cppclass CxxBlowersMasel "Cantera::BlowersMasel":
         CxxBlowersMasel()
         CxxBlowersMasel(double, double, double, double)
@@ -526,6 +505,27 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool is_sticking_coefficient
         cbool use_motz_wise_correction
         string sticking_species
+
+    cdef cppclass CxxReaction3 "Cantera::Reaction3" (CxxReaction):
+        CxxReaction3()
+        shared_ptr[CxxReactionRateBase] rate()
+        void setRate(shared_ptr[CxxReactionRateBase])
+
+    cdef cppclass CxxElementaryReaction3 "Cantera::ElementaryReaction3" (CxxReaction3):
+        CxxElementaryReaction3()
+
+    cdef cppclass CxxThreeBodyReaction3 "Cantera::ThreeBodyReaction3" (CxxElementaryReaction3):
+        CxxThreeBodyReaction3()
+        shared_ptr[CxxThirdBody] thirdBody()
+
+    cdef cppclass CxxPlogReaction3 "Cantera::PlogReaction3" (CxxReaction3):
+        CxxPlogReaction3()
+
+    cdef cppclass CxxChebyshevReaction3 "Cantera::ChebyshevReaction3" (CxxReaction3):
+        CxxChebyshevReaction3()
+
+    cdef cppclass CxxCustomFunc1Reaction "Cantera::CustomFunc1Reaction" (CxxReaction3):
+        CxxCustomFunc1Reaction()
 
 cdef extern from "cantera/kinetics/FalloffFactory.h" namespace "Cantera":
     cdef shared_ptr[CxxFalloff] CxxNewFalloff "Cantera::newFalloff" (string, vector[double]) except +translate_exception
@@ -1145,10 +1145,6 @@ cdef class _ReactionRate:
     cdef shared_ptr[CxxReactionRateBase] _base
     cdef CxxReactionRateBase* base
 
-cdef class CustomRate(_ReactionRate):
-    cdef CxxCustomFunc1Rate* rate
-    cdef Func1 _rate_func
-
 cdef class ArrheniusRate(_ReactionRate):
     cdef CxxArrheniusRate* rate
     @staticmethod
@@ -1163,6 +1159,10 @@ cdef class ChebyshevRate(_ReactionRate):
     cdef CxxChebyshevRate3* rate
     @staticmethod
     cdef wrap(shared_ptr[CxxReactionRateBase])
+
+cdef class CustomRate(_ReactionRate):
+    cdef CxxCustomFunc1Rate* rate
+    cdef Func1 _rate_func
 
 cdef class Reaction:
     cdef shared_ptr[CxxReaction] _reaction

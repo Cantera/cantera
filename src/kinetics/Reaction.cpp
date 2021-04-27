@@ -646,6 +646,185 @@ ChebyshevReaction::ChebyshevReaction(const Composition& reactants_,
     reaction_type = CHEBYSHEV_RXN;
 }
 
+void ChebyshevReaction::getParameters(AnyMap& reactionNode) const
+{
+    Reaction::getParameters(reactionNode);
+    reactionNode["type"] = "Chebyshev";
+    AnyMap rateNode;
+    rate.getParameters(rateNode, rate_units);
+    reactionNode.update(rateNode);
+}
+
+InterfaceReaction::InterfaceReaction()
+    : is_sticking_coefficient(false)
+    , use_motz_wise_correction(false)
+{
+    reaction_type = INTERFACE_RXN;
+}
+
+InterfaceReaction::InterfaceReaction(const Composition& reactants_,
+                                     const Composition& products_,
+                                     const Arrhenius& rate_,
+                                     bool isStick)
+    : ElementaryReaction(reactants_, products_, rate_)
+    , is_sticking_coefficient(isStick)
+    , use_motz_wise_correction(false)
+{
+    reaction_type = INTERFACE_RXN;
+}
+
+void InterfaceReaction::calculateRateCoeffUnits(const Kinetics& kin)
+{
+    ElementaryReaction::calculateRateCoeffUnits(kin);
+    if (is_sticking_coefficient || input.hasKey("sticking-coefficient")) {
+        rate_units = Units(1.0); // sticking coefficients are dimensionless
+    }
+}
+
+void InterfaceReaction::getParameters(AnyMap& reactionNode) const
+{
+    ElementaryReaction::getParameters(reactionNode);
+    if (is_sticking_coefficient) {
+        reactionNode["sticking-coefficient"] = std::move(reactionNode["rate-constant"]);
+        reactionNode.erase("rate-constant");
+    }
+    if (use_motz_wise_correction) {
+        reactionNode["Motz-Wise"] = true;
+    }
+    if (!sticking_species.empty()) {
+        reactionNode["sticking-species"] = sticking_species;
+    }
+    if (!coverage_deps.empty()) {
+        AnyMap deps;
+        for (const auto& d : coverage_deps) {
+            AnyMap dep;
+            dep["a"] = d.second.a;
+            dep["m"] = d.second.m;
+            dep["E"].setQuantity(d.second.E, "K", true);
+            deps[d.first] = std::move(dep);
+        }
+        reactionNode["coverage-dependencies"] = std::move(deps);
+    }
+}
+
+ElectrochemicalReaction::ElectrochemicalReaction()
+    : beta(0.5)
+    , exchange_current_density_formulation(false)
+{
+}
+
+ElectrochemicalReaction::ElectrochemicalReaction(const Composition& reactants_,
+                                                 const Composition& products_,
+                                                 const Arrhenius& rate_)
+    : InterfaceReaction(reactants_, products_, rate_)
+    , beta(0.5)
+    , exchange_current_density_formulation(false)
+{
+}
+
+void ElectrochemicalReaction::getParameters(AnyMap& reactionNode) const
+{
+    InterfaceReaction::getParameters(reactionNode);
+    if (beta != 0.5) {
+        reactionNode["beta"] = beta;
+    }
+    if (exchange_current_density_formulation) {
+        reactionNode["exchange-current-density-formulation"] = true;
+    }
+}
+
+BlowersMaselReaction::BlowersMaselReaction()
+    : allow_negative_pre_exponential_factor(false)
+{
+    reaction_type = BLOWERSMASEL_RXN;
+}
+
+void BlowersMaselReaction::validate()
+{
+    Reaction::validate();
+    if (!allow_negative_pre_exponential_factor &&
+        rate.preExponentialFactor() < 0) {
+        throw CanteraError("BlowersMaselReaction::validate",
+            "Undeclared negative pre-exponential factor found in reaction '"
+            + equation() + "'");
+    }
+}
+
+BlowersMaselReaction::BlowersMaselReaction(const Composition& reactants_,
+                                           const Composition& products_,
+                                           const BlowersMasel& rate_)
+    : Reaction(reactants_, products_)
+    , rate(rate_)
+    , allow_negative_pre_exponential_factor(false)
+{
+    reaction_type = BLOWERSMASEL_RXN;
+}
+
+void BlowersMaselReaction::getParameters(AnyMap& reactionNode) const
+{
+    Reaction::getParameters(reactionNode);
+    reactionNode["type"] = "Blowers-Masel";
+    if (allow_negative_pre_exponential_factor) {
+        reactionNode["negative-A"] = true;
+    }
+    AnyMap rateNode;
+    rate.getParameters(rateNode, rate_units);
+    reactionNode["rate-constant"] = std::move(rateNode);
+}
+
+BlowersMaselInterfaceReaction::BlowersMaselInterfaceReaction()
+    : is_sticking_coefficient(false)
+    , use_motz_wise_correction(false)
+{
+    reaction_type = BMINTERFACE_RXN;
+}
+
+BlowersMaselInterfaceReaction::BlowersMaselInterfaceReaction(const Composition& reactants_,
+                                         const Composition& products_,
+                                         const BlowersMasel& rate_,
+                                         bool isStick)
+    : BlowersMaselReaction(reactants_, products_, rate_)
+    , is_sticking_coefficient(isStick)
+    , use_motz_wise_correction(false)
+{
+    reaction_type = BMINTERFACE_RXN;
+}
+
+void BlowersMaselInterfaceReaction::calculateRateCoeffUnits(const Kinetics& kin)
+{
+    BlowersMaselReaction::calculateRateCoeffUnits(kin);
+    if (is_sticking_coefficient || input.hasKey("sticking-coefficient")) {
+        rate_units = Units(1.0); // sticking coefficients are dimensionless
+    }
+}
+
+void BlowersMaselInterfaceReaction::getParameters(AnyMap& reactionNode) const
+{
+    BlowersMaselReaction::getParameters(reactionNode);
+    reactionNode["type"] = "Blowers-Masel";
+    if (is_sticking_coefficient) {
+        reactionNode["sticking-coefficient"] = std::move(reactionNode["rate-constant"]);
+        reactionNode.erase("rate-constant");
+    }
+    if (use_motz_wise_correction) {
+        reactionNode["Motz-Wise"] = true;
+    }
+    if (!sticking_species.empty()) {
+        reactionNode["sticking-species"] = sticking_species;
+    }
+    if (!coverage_deps.empty()) {
+        AnyMap deps;
+        for (const auto& d : coverage_deps) {
+            AnyMap dep;
+            dep["a"] = d.second.a;
+            dep["m"] = d.second.m;
+            dep["E"].setQuantity(d.second.E, "K", true);
+            deps[d.first] = std::move(dep);
+        }
+        reactionNode["coverage-dependencies"] = std::move(deps);
+    }
+}
+
 Reaction3::Reaction3(const Composition& reactants, const Composition& products)
     : Reaction(reactants, products)
 {
@@ -962,185 +1141,6 @@ CustomFunc1Reaction::CustomFunc1Reaction(const AnyMap& node, const Kinetics& kin
 {
     setParameters(node, kin);
     setRate(std::shared_ptr<CustomFunc1Rate>(new CustomFunc1Rate(node, rate_units)));
-}
-
-void ChebyshevReaction::getParameters(AnyMap& reactionNode) const
-{
-    Reaction::getParameters(reactionNode);
-    reactionNode["type"] = "Chebyshev";
-    AnyMap rateNode;
-    rate.getParameters(rateNode, rate_units);
-    reactionNode.update(rateNode);
-}
-
-InterfaceReaction::InterfaceReaction()
-    : is_sticking_coefficient(false)
-    , use_motz_wise_correction(false)
-{
-    reaction_type = INTERFACE_RXN;
-}
-
-InterfaceReaction::InterfaceReaction(const Composition& reactants_,
-                                     const Composition& products_,
-                                     const Arrhenius& rate_,
-                                     bool isStick)
-    : ElementaryReaction(reactants_, products_, rate_)
-    , is_sticking_coefficient(isStick)
-    , use_motz_wise_correction(false)
-{
-    reaction_type = INTERFACE_RXN;
-}
-
-void InterfaceReaction::calculateRateCoeffUnits(const Kinetics& kin)
-{
-    ElementaryReaction::calculateRateCoeffUnits(kin);
-    if (is_sticking_coefficient || input.hasKey("sticking-coefficient")) {
-        rate_units = Units(1.0); // sticking coefficients are dimensionless
-    }
-}
-
-void InterfaceReaction::getParameters(AnyMap& reactionNode) const
-{
-    ElementaryReaction::getParameters(reactionNode);
-    if (is_sticking_coefficient) {
-        reactionNode["sticking-coefficient"] = std::move(reactionNode["rate-constant"]);
-        reactionNode.erase("rate-constant");
-    }
-    if (use_motz_wise_correction) {
-        reactionNode["Motz-Wise"] = true;
-    }
-    if (!sticking_species.empty()) {
-        reactionNode["sticking-species"] = sticking_species;
-    }
-    if (!coverage_deps.empty()) {
-        AnyMap deps;
-        for (const auto& d : coverage_deps) {
-            AnyMap dep;
-            dep["a"] = d.second.a;
-            dep["m"] = d.second.m;
-            dep["E"].setQuantity(d.second.E, "K", true);
-            deps[d.first] = std::move(dep);
-        }
-        reactionNode["coverage-dependencies"] = std::move(deps);
-    }
-}
-
-ElectrochemicalReaction::ElectrochemicalReaction()
-    : beta(0.5)
-    , exchange_current_density_formulation(false)
-{
-}
-
-ElectrochemicalReaction::ElectrochemicalReaction(const Composition& reactants_,
-                                                 const Composition& products_,
-                                                 const Arrhenius& rate_)
-    : InterfaceReaction(reactants_, products_, rate_)
-    , beta(0.5)
-    , exchange_current_density_formulation(false)
-{
-}
-
-void ElectrochemicalReaction::getParameters(AnyMap& reactionNode) const
-{
-    InterfaceReaction::getParameters(reactionNode);
-    if (beta != 0.5) {
-        reactionNode["beta"] = beta;
-    }
-    if (exchange_current_density_formulation) {
-        reactionNode["exchange-current-density-formulation"] = true;
-    }
-}
-
-BlowersMaselReaction::BlowersMaselReaction()
-    : allow_negative_pre_exponential_factor(false)
-{
-    reaction_type = BLOWERSMASEL_RXN;
-}
-
-void BlowersMaselReaction::validate()
-{
-    Reaction::validate();
-    if (!allow_negative_pre_exponential_factor &&
-        rate.preExponentialFactor() < 0) {
-        throw InputFileError("BlowersMaselReaction::validate", input,
-            "Undeclared negative pre-exponential factor found in reaction '"
-            + equation() + "'");
-    }
-}
-
-BlowersMaselReaction::BlowersMaselReaction(const Composition& reactants_,
-                                           const Composition& products_,
-                                           const BlowersMasel& rate_)
-    : Reaction(reactants_, products_)
-    , rate(rate_)
-    , allow_negative_pre_exponential_factor(false)
-{
-    reaction_type = BLOWERSMASEL_RXN;
-}
-
-void BlowersMaselReaction::getParameters(AnyMap& reactionNode) const
-{
-    Reaction::getParameters(reactionNode);
-    reactionNode["type"] = "Blowers-Masel";
-    if (allow_negative_pre_exponential_factor) {
-        reactionNode["negative-A"] = true;
-    }
-    AnyMap rateNode;
-    rate.getParameters(rateNode, rate_units);
-    reactionNode["rate-constant"] = std::move(rateNode);
-}
-
-BlowersMaselInterfaceReaction::BlowersMaselInterfaceReaction()
-    : is_sticking_coefficient(false)
-    , use_motz_wise_correction(false)
-{
-    reaction_type = BMINTERFACE_RXN;
-}
-
-BlowersMaselInterfaceReaction::BlowersMaselInterfaceReaction(const Composition& reactants_,
-                                         const Composition& products_,
-                                         const BlowersMasel& rate_,
-                                         bool isStick)
-    : BlowersMaselReaction(reactants_, products_, rate_)
-    , is_sticking_coefficient(isStick)
-    , use_motz_wise_correction(false)
-{
-    reaction_type = BMINTERFACE_RXN;
-}
-
-void BlowersMaselInterfaceReaction::calculateRateCoeffUnits(const Kinetics& kin)
-{
-    BlowersMaselReaction::calculateRateCoeffUnits(kin);
-    if (is_sticking_coefficient || input.hasKey("sticking-coefficient")) {
-        rate_units = Units(1.0); // sticking coefficients are dimensionless
-    }
-}
-
-void BlowersMaselInterfaceReaction::getParameters(AnyMap& reactionNode) const
-{
-    BlowersMaselReaction::getParameters(reactionNode);
-    reactionNode["type"] = "Blowers-Masel";
-    if (is_sticking_coefficient) {
-        reactionNode["sticking-coefficient"] = std::move(reactionNode["rate-constant"]);
-        reactionNode.erase("rate-constant");
-    }
-    if (use_motz_wise_correction) {
-        reactionNode["Motz-Wise"] = true;
-    }
-    if (!sticking_species.empty()) {
-        reactionNode["sticking-species"] = sticking_species;
-    }
-    if (!coverage_deps.empty()) {
-        AnyMap deps;
-        for (const auto& d : coverage_deps) {
-            AnyMap dep;
-            dep["a"] = d.second.a;
-            dep["m"] = d.second.m;
-            dep["E"].setQuantity(d.second.E, "K", true);
-            deps[d.first] = std::move(dep);
-        }
-        reactionNode["coverage-dependencies"] = std::move(deps);
-    }
 }
 
 Arrhenius readArrhenius(const XML_Node& arrhenius_node)
