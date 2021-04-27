@@ -487,6 +487,12 @@ vector<double> PengRobinson::getCoeff(const std::string& iName)
             break;
         }
     }
+    // If the species is not present in the database, throw an error 
+    if(isnan(spCoeff[0]))
+    {
+        throw CanteraError("PengRobinson::getCoeff",
+            "Species '{}' is not present in the database", iName);
+    }
     return spCoeff;
 }
 
