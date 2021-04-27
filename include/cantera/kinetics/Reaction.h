@@ -634,7 +634,7 @@ void setupElementaryReaction(ElementaryReaction&, const AnyMap&,
                              const Kinetics&);
 
 void setupThreeBodyReaction(ThreeBodyReaction&, const XML_Node&);
-//! @internal May be changed without notice in future versions
+//! @deprecated Cantera 2.6 (replaced by setParameters)
 void setupThreeBodyReaction(ThreeBodyReaction&, const AnyMap&,
                             const Kinetics&);
 
@@ -647,11 +647,11 @@ void setupChemicallyActivatedReaction(ChemicallyActivatedReaction&,
                                       const XML_Node&);
 
 void setupPlogReaction(PlogReaction&, const XML_Node&);
-//! @internal May be changed without notice in future versions
+//! @deprecated Cantera 2.6 (replaced by setParameters)
 void setupPlogReaction(PlogReaction&, const AnyMap&, const Kinetics&);
 
 void setupChebyshevReaction(ChebyshevReaction&, const XML_Node&);
-//! @internal May be changed without notice in future versions
+//! @deprecated Cantera 2.6 (replaced by setParameters)
 void setupChebyshevReaction(ChebyshevReaction&, const AnyMap&,
                             const Kinetics&);
 
