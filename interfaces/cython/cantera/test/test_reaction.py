@@ -116,18 +116,20 @@ class TestReactionRate(utilities.CanteraTest):
     _type = None
     _uses_pressure = False
     _index = None
+    _input = None
+    _cls = None
 
     @classmethod
     def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
-        cls.gas = ct.Solution('kineticsfromscratch.yaml')
-        cls.gas.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
+        cls.gas = ct.Solution("kineticsfromscratch.yaml")
+        cls.gas.X = "H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5"
         cls.gas.TP = 900, 2*ct.one_atm
 
     def test_type(self):
         if self._index is None:
             return
-        self.assertIn(self._type, '{}'.format(self.rate))
+        self.assertIn(self._type, "{}".format(self.rate))
 
     def test_rate_T(self):
         if self._index is None:
@@ -146,12 +148,30 @@ class TestReactionRate(utilities.CanteraTest):
         self.assertNear(self.rate(self.gas.T, self.gas.P),
                         self.gas.forward_rate_constants[self._index])
 
+    def test_input(self):
+        if self._input is None or self._cls is None:
+            return
+        rate = self._cls(input_data=self._input)
+        self.assertIn(self._type, "{}".format(rate))
+        self.assertNear(rate(self.gas.T, self.gas.P),
+                        self.rate(self.gas.T, self.gas.P))
+
+    def test_roundtrip(self):
+        if self._index is None:
+            return
+        input_data = self.rate.input_data
+        rate = self._cls(input_data=input_data)
+        self.assertNear(rate(self.gas.T, self.gas.P),
+                        self.rate(self.gas.T, self.gas.P))
+
 
 class TestArrheniusRate(TestReactionRate):
 
     _type = "Arrhenius"
     _uses_pressure = False
     _index = 0
+    _input = {"rate-constant": {"A": 38.7, "b": 2.7, "Ea": 26191840.0}}
+    _cls = ct.ArrheniusRate
 
     def setUp(self):
         self.A = self.gas.reaction(self._index).rate.pre_exponential_factor
@@ -181,6 +201,12 @@ class TestPlogRate(TestReactionRate):
     _type = "Plog"
     _uses_pressure = True
     _index = 3
+    _input = {"rate-constants": [
+        {"P": 1013.25, "A": 1.2124e+16, "b": -0.5779, "Ea": 45491376.8},
+        {"P": 101325., "A": 4.9108e+31, "b": -4.8507, "Ea": 103649395.2},
+        {"P": 1013250., "A": 1.2866e+47, "b": -9.0246, "Ea": 166508556.0},
+        {"P": 10132500., "A": 5.9632e+56, "b": -11.529, "Ea": 220076726.4}]}
+    _cls = ct.PlogRate
 
     def setUp(self):
         self.rate = ct.PlogRate([(1013.25, ct.Arrhenius(1.2124e+16, -0.5779, 45491376.8)),
@@ -194,6 +220,12 @@ class TestChebyshevRate(TestReactionRate):
     _type = "Chebyshev"
     _uses_pressure = True
     _index = 4
+    _input = {"data": [[8.2883, -1.1397, -0.12059, 0.016034],
+                       [1.9764, 1.0037, 0.0072865, -0.030432],
+                       [0.3177, 0.26889, 0.094806, -0.0076385]],
+              "pressure-range": [1000.0, 10000000.0],
+              "temperature-range": [290.0, 3000.0]}
+    _cls = ct.ChebyshevRate
 
     def setUp(self):
         self.Tmin = self.gas.reaction(self._index).rate.Tmin
@@ -221,6 +253,7 @@ class TestReaction(utilities.CanteraTest):
     _index = None
     _type = None
     _yaml = None
+    _input = None
 
     @classmethod
     def setUpClass(cls):
@@ -236,12 +269,12 @@ class TestReaction(utilities.CanteraTest):
         self.assertEqual(rxn.reactants, self.gas.reaction(ix).reactants)
         self.assertEqual(rxn.products, self.gas.reaction(ix).products)
 
-        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas2 = ct.Solution(thermo="IdealGas", kinetics="GasKinetics",
                            species=self.species, reactions=[rxn])
         gas2.TPX = self.gas.TPX
-        self.check_sol(gas2)
+        self.check_solution(gas2)
 
-    def check_sol(self, gas2):
+    def check_solution(self, gas2):
         ix = self._index
         self.assertEqual(gas2.reaction_type_str(0), self._type)
         self.assertNear(gas2.forward_rate_constants[0],
@@ -252,14 +285,14 @@ class TestReaction(utilities.CanteraTest):
     def test_rate(self):
         if self._rate_obj is None:
             return
-        if 'Rate' in type(self._rate_obj).__name__:
+        if "Rate" in type(self._rate_obj).__name__:
             self.assertNear(self._rate_obj(self.gas.T, self.gas.P),
-                        self.gas.forward_rate_constants[self._index])
+                            self.gas.forward_rate_constants[self._index])
         else:
             self.assertNear(self._rate_obj(self.gas.T), self.gas.forward_rate_constants[self._index])
 
     def test_from_parts(self):
-        if self._cls is None or not hasattr(self._cls, 'rate'):
+        if self._cls is None or not hasattr(self._cls, "rate"):
             return
         orig = self.gas.reaction(self._index)
         rxn = self._cls(orig.reactants, orig.products)
@@ -287,13 +320,13 @@ class TestReaction(utilities.CanteraTest):
     def test_add_rxn(self):
         if self._cls is None or self._rate_obj is None:
             return
-        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas2 = ct.Solution(thermo="IdealGas", kinetics="GasKinetics",
                            species=self.species, reactions=[])
         gas2.TPX = self.gas.TPX
 
         rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas, **self._kwargs)
         gas2.add_reaction(rxn)
-        self.check_sol(gas2)
+        self.check_solution(gas2)
 
     def test_wrong_rate(self):
         if self._cls is None:
@@ -302,15 +335,15 @@ class TestReaction(utilities.CanteraTest):
             rxn = self._cls(equation=self._equation, rate=(), kinetics=self.gas, **self._kwargs)
 
     def test_no_rate(self):
-        if self._cls is None or not hasattr(self._cls, 'rate'):
+        if self._cls is None or not hasattr(self._cls, "rate"):
             return
         rxn = self._cls(equation=self._equation, kinetics=self.gas, **self._kwargs)
-        if 'Rate' in type(self._rate_obj).__name__:
+        if "Rate" in type(self._rate_obj).__name__:
             self.assertNear(rxn.rate(self.gas.T, self.gas.P), 0.)
         else:
             self.assertNear(rxn.rate(self.gas.T), 0.)
 
-        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas2 = ct.Solution(thermo="IdealGas", kinetics="GasKinetics",
                            species=self.species, reactions=[rxn])
         gas2.TPX = self.gas.TPX
 
@@ -324,12 +357,21 @@ class TestReaction(utilities.CanteraTest):
         rxn.rate = self._rate_obj
         self.check_rxn(rxn)
 
+    def test_roundtrip(self):
+        if self._cls is None or self._type.endswith("-old"):
+            return
+        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas, **self._kwargs)
+        input_data = rxn.rate.input_data
+        rate_obj = rxn.rate.__class__(input_data=input_data)
+        rxn2 = self._cls(equation=self._equation, rate=rate_obj, kinetics=self.gas, **self._kwargs)
+        self.check_rxn(rxn2)
+
 
 class TestElementary(TestReaction):
 
     _cls = ct.ElementaryReaction
-    _equation = 'H2 + O <=> H + OH'
-    _rate = {'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07}
+    _equation = "H2 + O <=> H + OH"
+    _rate = {"A": 38.7, "b": 2.7, "Ea": 2.619184e+07}
     _rate_obj = ct.Arrhenius(38.7, 2.7, 2.619184e+07)
     _kwargs = {}
     _index = 0
@@ -338,7 +380,7 @@ class TestElementary(TestReaction):
         equation: O + H2 <=> H + OH
         type: elementary-old
         rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
-    """
+        """
 
 
 class TestElementary3(TestElementary):
@@ -349,16 +391,16 @@ class TestElementary3(TestElementary):
     _yaml = """
         equation: O + H2 <=> H + OH
         rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
-    """
+        """
 
 
 class TestThreeBody(TestReaction):
 
     _cls = ct.ThreeBodyReaction
-    _equation = '2 O + M <=> O2 + M'
-    _rate = {'A': 1.2e11, 'b': -1.0, 'Ea': 0.0}
+    _equation = "2 O + M <=> O2 + M"
+    _rate = {"A": 1.2e11, "b": -1.0, "Ea": 0.0}
     _rate_obj = ct.Arrhenius(1.2e11, -1., 0.)
-    _kwargs = {'efficiencies': {'H2': 2.4, 'H2O': 15.4, 'AR': 0.83}}
+    _kwargs = {"efficiencies": {"H2": 2.4, "H2O": 15.4, "AR": 0.83}}
     _index = 1
     _type = "three-body-old"
     _yaml = """
@@ -366,13 +408,13 @@ class TestThreeBody(TestReaction):
         type: three-body-old
         rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0 cal/mol}
         efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
-    """
+        """
 
     def test_from_parts(self):
         orig = self.gas.reaction(self._index)
         rxn = self._cls(orig.reactants, orig.products)
         rxn.rate = self._rate_obj
-        rxn.efficiencies = self._kwargs['efficiencies']
+        rxn.efficiencies = self._kwargs["efficiencies"]
         self.check_rxn(rxn)
 
     def test_rate(self):
@@ -382,7 +424,7 @@ class TestThreeBody(TestReaction):
     def test_efficiencies(self):
         rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas, **self._kwargs)
 
-        self.assertEqual(rxn.efficiencies, self._kwargs['efficiencies'])
+        self.assertEqual(rxn.efficiencies, self._kwargs["efficiencies"])
 
 
 class TestThreeBody3(TestThreeBody):
@@ -395,17 +437,44 @@ class TestThreeBody3(TestThreeBody):
         type: three-body
         rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0 cal/mol}
         efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
-    """
+        """
+
+
+class TestImplicitThreeBody3(TestThreeBody):
+
+    _cls = ct.ThreeBodyReaction3
+    _equation = "H + 2 O2 <=> HO2 + O2"
+    _rate = {"A": 2.08e+19, "b": -1.24, "Ea": 0.0}
+    _rate_obj = ct.ArrheniusRate(2.08e+19, -1.24, 0.)
+    _index = 5
+    _type = "three-body"
+    _yaml = """
+        equation: H + 2 O2 <=> HO2 + O2
+        rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
+        """
+
+    def test_efficiencies(self):
+        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas)
+        self.assertEqual(rxn.efficiencies, {"O2": 1.})
+        self.assertEqual(rxn.default_efficiency, 0.)
+
+    def test_from_parts(self):
+        orig = self.gas.reaction(self._index)
+        rxn = self._cls(orig.reactants, orig.products)
+        rxn.rate = self._rate_obj
+        rxn.efficiencies = {"O2": 1.}
+        rxn.default_efficiency = 0
+        self.check_rxn(rxn)
 
 
 class TestPlog(TestReaction):
 
     _cls = ct.PlogReaction
     _equation = "H2 + O2 <=> 2 OH"
-    _rate = [{'P': 1013.25, 'rate-constant': {'A': 1.2124e+16, 'b': -0.5779, 'Ea': 45491376.8}},
-             {'P': 101325., 'rate-constant': {'A': 4.9108e+31, 'b': -4.8507, 'Ea': 103649395.2}},
-             {'P': 1013250., 'rate-constant': {'A': 1.2866e+47, 'b': -9.0246, 'Ea': 166508556.0}},
-             {'P': 10132500., 'rate-constant': {'A': 5.9632e+56, 'b': -11.529, 'Ea': 220076726.4}}]
+    _rate = [{"P": 1013.25, "rate-constant": {"A": 1.2124e+16, "b": -0.5779, "Ea": 45491376.8}},
+             {"P": 101325., "rate-constant": {"A": 4.9108e+31, "b": -4.8507, "Ea": 103649395.2}},
+             {"P": 1013250., "rate-constant": {"A": 1.2866e+47, "b": -9.0246, "Ea": 166508556.0}},
+             {"P": 10132500., "rate-constant": {"A": 5.9632e+56, "b": -11.529, "Ea": 220076726.4}}]
     _type = "pressure-dependent-Arrhenius-old"
     _index = 3
     _yaml = """
@@ -416,7 +485,7 @@ class TestPlog(TestReaction):
         - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04 cal/mol}
         - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
         - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
-    """
+        """
 
 
 class TestPlog3(TestPlog):
@@ -435,15 +504,15 @@ class TestPlog3(TestPlog):
         - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04 cal/mol}
         - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
         - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
-    """
+        """
 
 
 class TestChebyshev(TestReaction):
 
     _cls = ct.ChebyshevReaction
     _equation = "HO2 <=> OH + O"
-    _rate = {'Tmin': 290., 'Tmax': 3000., 'Pmin': 1000., 'Pmax': 10000000.0,
-             'data': [[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
+    _rate = {"Tmin": 290., "Tmax": 3000., "Pmin": 1000., "Pmax": 10000000.0,
+             "data": [[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
                       [ 1.9764e+00,  1.0037e+00,  7.2865e-03, -3.0432e-02],
                       [ 3.1770e-01,  2.6889e-01,  9.4806e-02, -7.6385e-03]]}
     _type = "Chebyshev-old"
@@ -457,7 +526,7 @@ class TestChebyshev(TestReaction):
         - [8.2883, -1.1397, -0.12059, 0.016034]
         - [1.9764, 1.0037, 7.2865e-03, -0.030432]
         - [0.3177, 0.26889, 0.094806, -7.6385e-03]
-    """
+        """
 
 
 class TestChebyshev3(TestChebyshev):
@@ -477,21 +546,21 @@ class TestChebyshev3(TestChebyshev):
         - [8.2883, -1.1397, -0.12059, 0.016034]
         - [1.9764, 1.0037, 7.2865e-03, -0.030432]
         - [0.3177, 0.26889, 0.094806, -7.6385e-03]
-    """
+        """
 
 
 class TestCustom(TestReaction):
 
     # probe O + H2 <=> H + OH
     _cls = ct.CustomReaction
-    _equation = 'H2 + O <=> H + OH'
+    _equation = "H2 + O <=> H + OH"
     _rate_obj = ct.CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
     _index = 0
     _type = "custom-rate-function"
     _yaml = None
 
     def setUp(self):
-        # need to overwrite rate to ensure correct type ('method' is not compatible with Func1)
+        # need to overwrite rate to ensure correct type ("method" is not compatible with Func1)
         self._rate = lambda T: 38.7 * T**2.7 * exp(-3150.15428/T)
 
     def test_no_rate(self):
@@ -499,12 +568,15 @@ class TestCustom(TestReaction):
         with self.assertRaisesRegex(ct.CanteraError, "Custom rate function is not initialized."):
             rxn.rate(self.gas.T)
 
-        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas2 = ct.Solution(thermo="IdealGas", kinetics="GasKinetics",
                            species=self.species, reactions=[rxn])
         gas2.TPX = self.gas.TPX
 
         with self.assertRaisesRegex(ct.CanteraError, "Custom rate function is not initialized."):
             gas2.forward_rate_constants
+
+    def test_roundtrip(self):
+        pass
 
     def test_from_func(self):
         f = ct.Func1(self._rate)
@@ -521,3 +593,4 @@ class TestCustom(TestReaction):
                                 rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T),
                                 kinetics=self.gas)
         self.check_rxn(rxn)
+
