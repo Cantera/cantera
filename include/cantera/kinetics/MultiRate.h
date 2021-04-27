@@ -60,14 +60,13 @@ class MultiBulkRates final : public MultiRateBase
 public:
     virtual void add(const size_t rxn_index,
                      ReactionRateBase& rate) override {
-        m_indices[rxn_index] = m_rates.size();
-        m_rates.push_back(dynamic_cast<RateType&>(rate));
-        m_rxn.push_back(rxn_index);
+        m_indices[rxn_index] = m_rxn_rates.size();
+        m_rxn_rates.emplace_back(rxn_index, static_cast<RateType&>(rate));
     }
 
     virtual bool replace(const size_t rxn_index,
                          ReactionRateBase& rate) override {
-        if (!m_rates.size()) {
+        if (!m_rxn_rates.size()) {
             throw CanteraError("MultiBulkRate::replace",
                  "Invalid operation: cannot replace rate object "
                  "in empty rate handler.");
@@ -75,11 +74,11 @@ public:
             throw CanteraError("MultiBulkRate::replace",
                  "Invalid operation: cannot replace rate object of type '{}' "
                  "with a new rate of type '{}'.",
-                 m_rates[0].type(), rate.type());
+                 m_rxn_rates.at(0).second.type(), rate.type());
         }
         if (m_indices.find(rxn_index) != m_indices.end()) {
             size_t j = m_indices[rxn_index];
-            m_rates[j] = dynamic_cast<RateType&>(rate);
+            m_rxn_rates.at(j).second = static_cast<RateType&>(rate);
             return true;
         }
         return false;
@@ -87,8 +86,8 @@ public:
 
     virtual void getRateConstants(const ThermoPhase& bulk,
                                   double* kf, double* concm) const override {
-        for (size_t i = 0; i < m_rates.size(); i++) {
-            kf[m_rxn[i]] = m_rates[i].eval(m_shared, concm[m_rxn[i]]);
+        for (const auto& rxn : m_rxn_rates) {
+            kf[rxn.first] = rxn.second.eval(m_shared, concm[rxn.first]);
         }
     }
 
@@ -99,15 +98,15 @@ public:
             // update reaction-specific data for each reaction. This loop
             // is efficient as all function calls are de-virtualized, and
             // all of the rate objects are contiguous in memory
-            for (size_t i = 0; i < m_rates.size(); i++) {
-                m_rates[i].update(m_shared, concm[m_rxn[i]]);
+            for (auto& rxn : m_rxn_rates) {
+                rxn.second.update(m_shared, concm[rxn.first]);
             }
         }
     }
 
 protected:
-    std::vector<RateType> m_rates; //! Reaction rate objects
-    std::vector<size_t> m_rxn; //! Index within overall rate vector
+    //! Vector of pairs of reaction rates indices and reaction rates
+    std::vector<std::pair<size_t, RateType>> m_rxn_rates;
     std::map<size_t, size_t> m_indices; //! Mapping of indices
     DataType m_shared;
 };
