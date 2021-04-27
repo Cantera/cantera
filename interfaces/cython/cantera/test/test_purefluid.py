@@ -139,7 +139,7 @@ class TestPureFluid(utilities.CanteraTest):
 
     def test_isothermal_compressibility_lowP(self):
         # Low-pressure limit corresponds to ideal gas
-        ref = ct.Solution('gri30.xml')
+        ref = ct.Solution('h2o2.yaml', transport_model=None)
         ref.TPX = 450, 12, 'H2O:1.0'
         self.water.TP = 450, 12
         self.assertNear(ref.isothermal_compressibility,
@@ -147,7 +147,7 @@ class TestPureFluid(utilities.CanteraTest):
 
     def test_thermal_expansion_coeff_lowP(self):
         # Low-pressure limit corresponds to ideal gas
-        ref = ct.Solution('gri30.xml')
+        ref = ct.Solution('h2o2.yaml', transport_model=None)
         ref.TPX = 450, 12, 'H2O:1.0'
         self.water.TP = 450, 12
         self.assertNear(ref.thermal_expansion_coeff,

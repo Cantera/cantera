@@ -19,7 +19,7 @@ using namespace std;
 int main()
 {
     try {
-        auto sol = newSolution("gri30.yaml", "gri30");
+        auto sol = newSolution("gri30.yaml", "gri30", "None");
         auto gas = sol->thermo();
         gas->setState_TPX(1200.0, OneAtm,
                           "H2:2, O2:1, OH:0.01, H:0.01, O:0.01");

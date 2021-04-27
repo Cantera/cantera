@@ -10,13 +10,13 @@ from . import utilities
 
 class TestKinetics(utilities.CanteraTest):
     def setUp(self):
-        self.phase = ct.Solution('h2o2.xml')
-        self.phase.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4]
+        self.phase = ct.Solution('h2o2.yaml', transport_model=None)
+        self.phase.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4, 0]
         self.phase.TP = 800, 2*ct.one_atm
 
     def test_counts(self):
-        self.assertEqual(self.phase.n_reactions, 28)
-        self.assertEqual(self.phase.n_total_species, 9)
+        self.assertEqual(self.phase.n_reactions, 29)
+        self.assertEqual(self.phase.n_total_species, 10)
         self.assertEqual(self.phase.n_phases, 1)
         self.assertEqual(self.phase.reaction_phase_index, 0)
 
@@ -52,7 +52,7 @@ class TestKinetics(utilities.CanteraTest):
     def test_reaction_type(self):
         self.assertEqual(self.phase.reaction_type_str(0), "three-body")
         self.assertEqual(self.phase.reaction_type_str(2), "elementary")
-        self.assertEqual(self.phase.reaction_type_str(20), "falloff")
+        self.assertEqual(self.phase.reaction_type_str(21), "falloff")
 
         with self.assertRaisesRegex(ValueError, 'out of range'):
             self.phase.reaction_type_str(33)
@@ -62,7 +62,7 @@ class TestKinetics(utilities.CanteraTest):
     def test_reaction_equations(self):
         self.assertEqual(self.phase.n_reactions,
                          len(self.phase.reaction_equations()))
-        r,p = [x.split() for x in self.phase.reaction_equation(17).split('<=>')]
+        r,p = [x.split() for x in self.phase.reaction_equation(18).split('<=>')]
         self.assertIn('H', r)
         self.assertIn('H2O2', r)
         self.assertIn('HO2', p)
@@ -97,15 +97,15 @@ class TestKinetics(utilities.CanteraTest):
             self.assertEqual(nu_p[k,i], value)
 
         # H + H2O2 <=> HO2 + H2
-        check_reactant('H', 17, 1)
-        check_reactant('H2O2', 17, 1)
-        check_reactant('HO2', 17, 0)
-        check_reactant('H2', 17, 0)
+        check_reactant('H', 18, 1)
+        check_reactant('H2O2', 18, 1)
+        check_reactant('HO2', 18, 0)
+        check_reactant('H2', 18, 0)
 
-        check_product('H', 17, 0)
-        check_product('H2O2', 17, 0)
-        check_product('HO2', 17, 1)
-        check_product('H2', 17, 1)
+        check_product('H', 18, 0)
+        check_product('H2O2', 18, 0)
+        check_product('HO2', 18, 1)
+        check_product('H2', 18, 1)
 
         # 2 O + M <=> O2 + M
         check_reactant('O', 0, 2)
@@ -231,10 +231,10 @@ class KineticsFromReactions(utilities.CanteraTest):
             self.assertNear(rop1[k1], rop2[k2])
 
     def test_add_reaction(self):
-        gas1 = ct.Solution('h2o2.xml')
+        gas1 = ct.Solution('h2o2.yaml', transport_model=None)
 
-        S = ct.Species.listFromFile('h2o2.xml')
-        R = ct.Reaction.listFromFile('h2o2.xml')
+        S = ct.Species.listFromFile('h2o2.yaml')
+        R = ct.Reaction.listFromFile('h2o2.yaml', gas1)
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                            species=S, reactions=R[:5])
 
@@ -437,7 +437,7 @@ class TestReactionPath(utilities.CanteraTest):
     @classmethod
     def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
-        cls.gas = ct.Solution('gri30.xml')
+        cls.gas = ct.Solution('gri30.yaml', transport_model=None)
         cls.gas.TPX = 1300.0, ct.one_atm, 'CH4:0.4, O2:1, N2:3.76'
         r = ct.IdealGasReactor(cls.gas)
         net = ct.ReactorNet([r])
@@ -540,21 +540,21 @@ class TestReactionPath(utilities.CanteraTest):
                 self.assertNear(dot_fluxes[-i], fluxes[-i], 1e-2)
 
     def test_fluxes(self):
-        gas = ct.Solution('h2o2.cti')
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
         gas.TPX = 1100, 10*ct.one_atm, 'H:0.1, HO2:0.1, AR:6'
         diagram = ct.ReactionPathDiagram(gas, 'H')
         ropf = gas.forward_rates_of_progress
         ropr = gas.reverse_rates_of_progress
         fluxes, _ = self.get_fluxes(diagram)
 
-        self.assertNear(fluxes['HO2','H'], ropr[5] + ropr[8], 1e-5)
-        self.assertNear(fluxes['H', 'H2'], 2*ropf[10] + ropf[15], 1e-5)
-        self.assertNear(fluxes['H', 'H2O'], ropf[14], 1e-5)
-        self.assertNear(fluxes['H', 'OH'], ropf[16], 1e-5)
-        self.assertNear(fluxes['HO2','H2'], ropf[15], 1e-5)
-        self.assertNear(fluxes['HO2', 'H2O'], ropf[14], 1e-5)
-        self.assertNear(fluxes['HO2', 'OH'], ropf[16], 1e-5)
-        self.assertNear(fluxes['HO2', 'H2O2'], 2*ropf[25] + 2*ropf[26], 1e-5)
+        self.assertNear(fluxes['HO2','H'], ropr[5] + ropr[9], 1e-5)
+        self.assertNear(fluxes['H', 'H2'], 2*ropf[11] + ropf[16], 1e-5)
+        self.assertNear(fluxes['H', 'H2O'], ropf[15], 1e-5)
+        self.assertNear(fluxes['H', 'OH'], ropf[17], 1e-5)
+        self.assertNear(fluxes['HO2','H2'], ropf[16], 1e-5)
+        self.assertNear(fluxes['HO2', 'H2O'], ropf[15], 1e-5)
+        self.assertNear(fluxes['HO2', 'OH'], ropf[17], 1e-5)
+        self.assertNear(fluxes['HO2', 'H2O2'], 2*ropf[26] + 2*ropf[27], 1e-5)
 
 
 class TestChemicallyActivated(utilities.CanteraTest):
@@ -758,10 +758,10 @@ class TestReaction(utilities.CanteraTest):
     @classmethod
     def setUpClass(self):
         utilities.CanteraTest.setUpClass()
-        self.gas = ct.Solution('h2o2.xml')
+        self.gas = ct.Solution('h2o2.yaml', transport_model=None)
         self.gas.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
         self.gas.TP = 900, 2*ct.one_atm
-        self.species = ct.Species.listFromFile('h2o2.xml')
+        self.species = ct.Species.listFromFile('h2o2.yaml')
 
     def test_fromCti(self):
         r = ct.Reaction.fromCti('''three_body_reaction('2 O + M <=> O2 + M',
@@ -807,25 +807,27 @@ class TestReaction(utilities.CanteraTest):
         self.assertNotIn('H2O', r)
 
     def test_listFromFile(self):
-        R = ct.Reaction.listFromFile('h2o2.xml')
+        R = ct.Reaction.listFromFile('h2o2.yaml', self.gas)
         eq1 = [r.equation for r in R]
         eq2 = [r.equation for r in self.gas.reactions()]
         self.assertEqual(eq1, eq2)
 
     def test_listFromCti(self):
+        gas = ct.Solution("h2o2.xml", transport_model=None)
         p = os.path.dirname(__file__)
         with open(pjoin(p, '..', 'data', 'h2o2.cti')) as f:
             R = ct.Reaction.listFromCti(f.read())
         eq1 = [r.equation for r in R]
-        eq2 = [r.equation for r in self.gas.reactions()]
+        eq2 = [r.equation for r in gas.reactions()]
         self.assertEqual(eq1, eq2)
 
     def test_listFromXml(self):
+        gas = ct.Solution("h2o2.xml", transport_model=None)
         p = os.path.dirname(__file__)
         with open(pjoin(p, '..', 'data', 'h2o2.xml')) as f:
-            R = ct.Reaction.listFromCti(f.read())
+            R = ct.Reaction.listFromXml(f.read())
         eq1 = [r.equation for r in R]
-        eq2 = [r.equation for r in self.gas.reactions()]
+        eq2 = [r.equation for r in gas.reactions()]
         self.assertEqual(eq1, eq2)
 
     def test_listFromYaml(self):
@@ -944,9 +946,9 @@ class TestReaction(utilities.CanteraTest):
         gas2.TPX = self.gas.TPX
 
         self.assertNear(gas2.forward_rate_constants[0],
-                        self.gas.forward_rate_constants[20])
+                        self.gas.forward_rate_constants[21])
         self.assertNear(gas2.net_rates_of_progress[0],
-                        self.gas.net_rates_of_progress[20])
+                        self.gas.net_rates_of_progress[21])
 
     def test_plog(self):
         gas1 = ct.Solution('pdep-test.yaml')
@@ -1184,7 +1186,7 @@ class TestReaction(utilities.CanteraTest):
                             surf2.net_rates_of_progress[0])
 
     def test_BlowersMaselinterface(self):
-        gas = ct.Solution('gri30.yaml')
+        gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 300, ct.one_atm, {"CH4": 0.095, "O2": 0.21, "AR": 0.79}
         surf1 = ct.Interface('BM_test.yaml', 'Pt_surf', [gas])
         r1 = ct.BlowersMaselInterfaceReaction()
@@ -1223,15 +1225,15 @@ class TestReaction(utilities.CanteraTest):
         # different reactants
         R = self.gas.reaction(4)
         with self.assertRaisesRegex(ct.CanteraError, 'Reactants are different'):
-            self.gas.modify_reaction(23, R)
+            self.gas.modify_reaction(24, R)
 
         # different products
-        R = self.gas.reaction(14)
+        R = self.gas.reaction(15)
         with self.assertRaisesRegex(ct.CanteraError, 'Products are different'):
-            self.gas.modify_reaction(15, R)
+            self.gas.modify_reaction(16, R)
 
     def test_modify_elementary(self):
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
         gas.TPX = self.gas.TPX
         R = self.gas.reaction(2)
         A1 = R.rate.pre_exponential_factor
@@ -1248,7 +1250,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(A2*T**b2*np.exp(-Ta2/T), gas.forward_rate_constants[2])
 
     def test_modify_third_body(self):
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
         gas.TPX = self.gas.TPX
         R = self.gas.reaction(5)
         A1 = R.rate.pre_exponential_factor
@@ -1264,7 +1266,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear((A2*T**b2) / (A1*T**b1), kf2/kf1)
 
     def test_modify_falloff(self):
-        gas = ct.Solution('gri30.xml')
+        gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 1100, 3 * ct.one_atm, 'CH4:1.0, O2:0.4, CO2:0.1, H2O:0.05'
         r0 = gas.reaction(11)
         self.assertEqual(r0.falloff.type, "Lindemann")
@@ -1400,7 +1402,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(2.0 * k1[9], k2[9]) # sticking coefficient = 1.0
 
     def test_modify_BMinterface(self):
-        gas = ct.Solution('gri30.yaml')
+        gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 300, ct.one_atm, {"CH4": 0.095, "O2": 0.21, "AR": 0.79}
         surf = ct.Interface('BM_test.yaml', 'Pt_surf', [gas])
         surf.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
@@ -1426,7 +1428,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(k2, k3)
 
     def test_modify_BMsticking(self):
-        gas = ct.Solution('gri30.yaml')
+        gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 300, ct.one_atm, {"CH4": 0.095, "O2": 0.21, "AR": 0.79}
         surf = ct.Interface('BM_test.yaml', 'Pt_surf', [gas])
         surf.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
@@ -1442,7 +1444,7 @@ class TestReaction(utilities.CanteraTest):
 
     def test_BMmotz_wise(self):
         # Motz & Wise off for all reactions
-        gas1 = ct.Solution('gri30.yaml')
+        gas1 = ct.Solution('gri30.yaml', transport_model=None)
         gas1.TPX = 300, ct.one_atm, {"CH4": 0.095, "O2": 0.21, "AR": 0.79}
         surf1 = ct.Interface('BM_test.yaml', 'Pt_surf', [gas1])
         surf1.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'

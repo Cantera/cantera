@@ -48,13 +48,13 @@ class EquilTestCases:
         self.check(gas, CH4=0, O2=1, H2O=2, CO2=1)
 
     def test_equil_gri_stoichiometric(self):
-        gas = ct.Solution('gri30.xml')
+        gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 301, 100000, 'CH4:1.0, O2:2.0'
         gas.equilibrate('TP', self.solver)
         self.check(gas, CH4=0, O2=0, H2O=2, CO2=1)
 
     def test_equil_gri_lean(self):
-        gas = ct.Solution('gri30.xml')
+        gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 301, 100000, 'CH4:1.0, O2:3.0'
         gas.equilibrate('TP', self.solver)
         self.check(gas, CH4=0, O2=1, H2O=2, CO2=1)
@@ -85,14 +85,14 @@ class MultiphaseEquilTest(EquilTestCases, utilities.CanteraTest):
 
     @unittest.expectedFailure
     def test_equil_gri_stoichiometric(self):
-        gas = ct.Solution('gri30.xml')
+        gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 301, 100000, 'CH4:1.0, O2:2.0'
         gas.equilibrate('TP', self.solver)
         self.check(gas, CH4=0, O2=0, H2O=2, CO2=1)
 
     @unittest.expectedFailure
     def test_equil_gri_lean(self):
-        gas = ct.Solution('gri30.xml')
+        gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 301, 100000, 'CH4:1.0, O2:3.0'
         gas.equilibrate('TP', self.solver)
         self.check(gas, CH4=0, O2=1, H2O=2, CO2=1)
@@ -183,7 +183,7 @@ class TestKOH_Equil(utilities.CanteraTest):
 class TestEquil_GasCarbon(utilities.CanteraTest):
     "Test rougly based on examples/multiphase/adiabatic.py"
     def setUp(self):
-        self.gas = ct.Solution('gri30.xml')
+        self.gas = ct.Solution('gri30.yaml', transport_model=None)
         self.carbon = ct.Solution('graphite.xml')
         self.fuel = 'CH4'
         self.mix_phases = [(self.gas, 1.0), (self.carbon, 0.0)]

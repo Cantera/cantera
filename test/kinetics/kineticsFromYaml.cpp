@@ -12,7 +12,7 @@ using namespace Cantera;
 
 TEST(Reaction, ElementaryFromYaml)
 {
-    auto sol = newSolution("gri30.yaml");
+    auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: N + NO <=> N2 + O,"
         " rate-constant: [-2.70000E+13 cm^3/mol/s, 0, 355 cal/mol],"
@@ -32,7 +32,7 @@ TEST(Reaction, ElementaryFromYaml)
 
 TEST(Reaction, ThreeBodyFromYaml1)
 {
-    auto sol = newSolution("gri30.yaml");
+    auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: 2 O + M = O2 + M,"
         " type: three-body,"
@@ -51,7 +51,7 @@ TEST(Reaction, ThreeBodyFromYaml1)
 
 TEST(Reaction, ThreeBodyFromYaml2)
 {
-    auto sol = newSolution("gri30.yaml");
+    auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: 2 O <=> O2," // Missing "M" on each side of the equation
         " type: three-body,"
@@ -62,7 +62,7 @@ TEST(Reaction, ThreeBodyFromYaml2)
 
 TEST(Reaction, FalloffFromYaml1)
 {
-    auto sol = newSolution("gri30.yaml");
+    auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: N2O (+M) = N2 + O (+ M),"
         " type: falloff,"
@@ -79,7 +79,7 @@ TEST(Reaction, FalloffFromYaml1)
 
 TEST(Reaction, FalloffFromYaml2)
 {
-    auto sol = newSolution("gri30.yaml");
+    auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: H + CH2 (+ N2) <=> CH3 (+N2),"
         " type: falloff,"
@@ -105,7 +105,7 @@ TEST(Reaction, FalloffFromYaml2)
 
 TEST(Reaction, ChemicallyActivatedFromYaml)
 {
-    auto sol = newSolution("gri30.yaml");
+    auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: CH3 + OH (+M) <=> CH2O + H2 (+M),"
         " units: {length: cm, quantity: mol},"
@@ -122,7 +122,7 @@ TEST(Reaction, ChemicallyActivatedFromYaml)
 
 TEST(Reaction, PlogFromYaml)
 {
-    auto sol = newSolution("gri30.yaml");
+    auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
         "equation: 'H + CH4 <=> H2 + CH3'\n"
         "units: {pressure: atm}\n"
@@ -147,7 +147,7 @@ TEST(Reaction, PlogFromYaml)
 
 TEST(Reaction, ChebyshevFromYaml)
 {
-    auto sol = newSolution("gri30.yaml");
+    auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
         "equation: 'CH4 <=> CH3 + H'\n"
         "type: Chebyshev\n"
@@ -175,7 +175,7 @@ TEST(Reaction, ChebyshevFromYaml)
 
 TEST(Reaction, BlowersMaselFromYaml)
 {
-    auto sol = newSolution("gri30.yaml");
+    auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: O + H2 <=> H + OH,"
         " type: Blowers-Masel,"
@@ -422,7 +422,7 @@ public:
 
 TEST_F(ReactionToYaml, elementary)
 {
-    soln = newSolution("h2o2.xml");
+    soln = newSolution("h2o2.yaml", "", "None");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, O:1e-8, OH:3e-8");
     duplicateReaction(2);
     EXPECT_TRUE(std::dynamic_pointer_cast<ElementaryReaction>(duplicate));
@@ -431,7 +431,7 @@ TEST_F(ReactionToYaml, elementary)
 
 TEST_F(ReactionToYaml, threeBody)
 {
-    soln = newSolution("h2o2.xml");
+    soln = newSolution("h2o2.yaml", "", "None");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, O:1e-8, OH:3e-8, H:2e-7");
     duplicateReaction(1);
     EXPECT_TRUE(std::dynamic_pointer_cast<ThreeBodyReaction>(duplicate));
@@ -440,9 +440,9 @@ TEST_F(ReactionToYaml, threeBody)
 
 TEST_F(ReactionToYaml, TroeFalloff)
 {
-    soln = newSolution("h2o2.xml");
+    soln = newSolution("h2o2.yaml", "", "None");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, H2O2:1e-8, OH:3e-8");
-    duplicateReaction(20);
+    duplicateReaction(21);
     EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction>(duplicate));
     compareReactions();
 }

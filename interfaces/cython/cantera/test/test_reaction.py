@@ -121,10 +121,10 @@ class TestElementary(utilities.CanteraTest):
     @classmethod
     def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
-        cls.gas = ct.Solution('h2o2.xml')
+        cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
         cls.gas.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
         cls.gas.TP = 900, 2*ct.one_atm
-        cls.species = ct.Species.listFromFile('h2o2.xml')
+        cls.species = ct.Species.listFromFile('h2o2.yaml')
 
     def check_rxn(self, rxn):
         ix = self._index
