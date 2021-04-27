@@ -65,10 +65,11 @@ TEST_F(PengRobinson_Test, chem_potentials)
 
 TEST_F(PengRobinson_Test, chemPotentials_RT)
 {
-    test_phase->setState_TP(410.0, 130 * OneAtm);
+    double T = 410.0;
+    test_phase->setState_TP(T, 130 * OneAtm);
 
     // Test that chemPotentials_RT*RT = chemPotentials
-    const double RT = GasConstant * 298.;
+    const double RT = GasConstant * T;
     vector_fp mu(7);
     vector_fp mu_RT(7);
     double xmin = 0.6;
@@ -89,10 +90,11 @@ TEST_F(PengRobinson_Test, chemPotentials_RT)
 
 TEST_F(PengRobinson_Test, activityCoeffs)
 {
-    test_phase->setState_TP(330., 120 * OneAtm);
+    double T = 330.0;
+    test_phase->setState_TP(T, 120 * OneAtm);
 
     // Test that mu0 + RT log(activityCoeff * MoleFrac) == mu
-    const double RT = GasConstant * 298.;
+    const double RT = GasConstant * T;
     vector_fp mu0(7);
     vector_fp activityCoeffs(7);
     vector_fp chemPotentials(7);
