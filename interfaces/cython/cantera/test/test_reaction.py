@@ -340,6 +340,7 @@ class TestElementary(TestReaction):
         rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
     """
 
+
 class TestElementary3(TestElementary):
 
     _cls = ct.ElementaryReaction3
@@ -349,48 +350,6 @@ class TestElementary3(TestElementary):
         equation: O + H2 <=> H + OH
         rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
     """
-
-class TestCustom(TestReaction):
-
-    # probe O + H2 <=> H + OH
-    _cls = ct.CustomReaction
-    _equation = 'H2 + O <=> H + OH'
-    _rate_obj = ct.CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
-    _index = 0
-    _type = "custom-rate-function"
-    _yaml = None
-
-    def setUp(self):
-        # need to overwrite rate to ensure correct type ('method' is not compatible with Func1)
-        self._rate = lambda T: 38.7 * T**2.7 * exp(-3150.15428/T)
-
-    def test_no_rate(self):
-        rxn = self._cls(equation=self._equation, kinetics=self.gas)
-        with self.assertRaisesRegex(ct.CanteraError, "Custom rate function is not initialized."):
-            rxn.rate(self.gas.T)
-
-        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
-                           species=self.species, reactions=[rxn])
-        gas2.TPX = self.gas.TPX
-
-        with self.assertRaisesRegex(ct.CanteraError, "Custom rate function is not initialized."):
-            gas2.forward_rate_constants
-
-    def test_from_func(self):
-        f = ct.Func1(self._rate)
-        rxn = ct.CustomReaction(equation=self._equation, rate=f, kinetics=self.gas)
-        self.check_rxn(rxn)
-
-    def test_rate_func(self):
-        f = ct.Func1(self._rate)
-        rate = ct.CustomRate(f)
-        self.assertNear(rate(self.gas.T), self.gas.forward_rate_constants[self._index])
-
-    def test_custom(self):
-        rxn = ct.CustomReaction(equation=self._equation,
-                                rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T),
-                                kinetics=self.gas)
-        self.check_rxn(rxn)
 
 
 class TestThreeBody(TestReaction):
@@ -519,3 +478,46 @@ class TestChebyshev3(TestChebyshev):
         - [1.9764, 1.0037, 7.2865e-03, -0.030432]
         - [0.3177, 0.26889, 0.094806, -7.6385e-03]
     """
+
+
+class TestCustom(TestReaction):
+
+    # probe O + H2 <=> H + OH
+    _cls = ct.CustomReaction
+    _equation = 'H2 + O <=> H + OH'
+    _rate_obj = ct.CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
+    _index = 0
+    _type = "custom-rate-function"
+    _yaml = None
+
+    def setUp(self):
+        # need to overwrite rate to ensure correct type ('method' is not compatible with Func1)
+        self._rate = lambda T: 38.7 * T**2.7 * exp(-3150.15428/T)
+
+    def test_no_rate(self):
+        rxn = self._cls(equation=self._equation, kinetics=self.gas)
+        with self.assertRaisesRegex(ct.CanteraError, "Custom rate function is not initialized."):
+            rxn.rate(self.gas.T)
+
+        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                           species=self.species, reactions=[rxn])
+        gas2.TPX = self.gas.TPX
+
+        with self.assertRaisesRegex(ct.CanteraError, "Custom rate function is not initialized."):
+            gas2.forward_rate_constants
+
+    def test_from_func(self):
+        f = ct.Func1(self._rate)
+        rxn = ct.CustomReaction(equation=self._equation, rate=f, kinetics=self.gas)
+        self.check_rxn(rxn)
+
+    def test_rate_func(self):
+        f = ct.Func1(self._rate)
+        rate = ct.CustomRate(f)
+        self.assertNear(rate(self.gas.T), self.gas.forward_rate_constants[self._index])
+
+    def test_custom(self):
+        rxn = ct.CustomReaction(equation=self._equation,
+                                rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T),
+                                kinetics=self.gas)
+        self.check_rxn(rxn)

@@ -329,6 +329,130 @@ public:
 };
 
 
+//! Modifications to an InterfaceReaction rate based on a surface species
+//! coverage.
+struct CoverageDependency
+{
+    //! Constructor
+    //! @param a_  coefficient for exponential dependence on coverage [dimensionless]
+    //! @param E_  modification to the activation energy [K]
+    //! @param m_  exponent for power law dependence on coverage [dimensionless]
+    CoverageDependency(double a_, double E_, double m_) : a(a_), E(E_), m(m_) {}
+    CoverageDependency() {}
+    double a; //!< coefficient for exponential dependence on coverage [dimensionless]
+    double E; //!< modification to the activation energy [K]
+    double m; //!< exponent for power law dependence on coverage [dimensionless]
+};
+
+
+//! A reaction occurring on an interface (i.e. a SurfPhase or an EdgePhase)
+class InterfaceReaction : public ElementaryReaction
+{
+public:
+    InterfaceReaction();
+    InterfaceReaction(const Composition& reactants, const Composition& products,
+                      const Arrhenius& rate, bool isStick=false);
+    virtual void calculateRateCoeffUnits(const Kinetics& kin);
+    virtual void getParameters(AnyMap& reactionNode) const;
+
+    virtual std::string type() const {
+        return "interface";
+    }
+
+    //! Adjustments to the Arrhenius rate expression dependent on surface
+    //! species coverages. Three coverage parameters (a, E, m) are used for each
+    //! species on which the rate depends. See SurfaceArrhenius for details on
+    //! the parameterization.
+    std::map<std::string, CoverageDependency> coverage_deps;
+
+    //! Set to true if `rate` is a parameterization of the sticking coefficient
+    //! rather than the forward rate constant
+    bool is_sticking_coefficient;
+
+    //! Set to true if `rate` is a sticking coefficient which should be
+    //! translated into a rate coefficient using the correction factor developed
+    //! by Motz & Wise for reactions with high (near-unity) sticking
+    //! coefficients. Defaults to 'false'.
+    bool use_motz_wise_correction;
+
+    //! For reactions with multiple non-surface species, the sticking species
+    //! needs to be explicitly identified.
+    std::string sticking_species;
+};
+
+
+//! An interface reaction which involves charged species
+class ElectrochemicalReaction : public InterfaceReaction
+{
+public:
+    ElectrochemicalReaction();
+    ElectrochemicalReaction(const Composition& reactants,
+                            const Composition& products, const Arrhenius& rate);
+    virtual void getParameters(AnyMap& reactionNode) const;
+
+    //! Forward value of the apparent Electrochemical transfer coefficient
+    doublereal beta;
+
+    bool exchange_current_density_formulation;
+};
+
+
+//! A reaction with rate parameters for Blowers-Masel approximation
+class BlowersMaselReaction: public Reaction
+{
+public:
+    BlowersMaselReaction();
+    BlowersMaselReaction(const Composition& reactants,
+                         const Composition& products, const BlowersMasel& rate);
+    virtual void getParameters(AnyMap& reactionNode) const;
+    virtual void validate();
+
+    virtual std::string type() const {
+        return "Blowers-Masel";
+    }
+
+    BlowersMasel rate;
+
+    bool allow_negative_pre_exponential_factor;
+};
+
+
+//! A reaction occurring on an interface (i.e. a SurfPhase or an EdgePhase)
+//! with the rate calculated with Blowers-Masel approximation.
+class BlowersMaselInterfaceReaction : public BlowersMaselReaction
+{
+public:
+    BlowersMaselInterfaceReaction();
+    BlowersMaselInterfaceReaction(const Composition& reactants, const Composition& products,
+                      const BlowersMasel& rate, bool isStick=false);
+    virtual void getParameters(AnyMap& reactionNode) const;
+    virtual void calculateRateCoeffUnits(const Kinetics& kin);
+
+    virtual std::string type() const {
+        return "surface-Blowers-Masel";
+    }
+    //! Adjustments to the Arrhenius rate expression dependent on surface
+    //! species coverages. Three coverage parameters (a, E, m) are used for each
+    //! species on which the rate depends. See SurfaceArrhenius for details on
+    //! the parameterization.
+    std::map<std::string, CoverageDependency> coverage_deps;
+
+    //! Set to true if `rate` is a parameterization of the sticking coefficient
+    //! rather than the forward rate constant
+    bool is_sticking_coefficient;
+
+    //! Set to true if `rate` is a sticking coefficient which should be
+    //! translated into a rate coefficient using the correction factor developed
+    //! by Motz & Wise for reactions with high (near-unity) sticking
+    //! coefficients. Defaults to 'false'.
+    bool use_motz_wise_correction;
+
+    //! For reactions with multiple non-surface species, the sticking species
+    //! needs to be explicitly identified.
+    std::string sticking_species;
+};
+
+
 //! An intermediate class used to avoid naming conflicts of 'rate' member
 //! variables and getters (see `ElementaryReaction`, `PlogReaction` and
 //! `ChebyshevReaction`).
@@ -467,125 +591,6 @@ public:
     }
 };
 
-
-//! Modifications to an InterfaceReaction rate based on a surface species
-//! coverage.
-struct CoverageDependency
-{
-    //! Constructor
-    //! @param a_  coefficient for exponential dependence on coverage [dimensionless]
-    //! @param E_  modification to the activation energy [K]
-    //! @param m_  exponent for power law dependence on coverage [dimensionless]
-    CoverageDependency(double a_, double E_, double m_) : a(a_), E(E_), m(m_) {}
-    CoverageDependency() {}
-    double a; //!< coefficient for exponential dependence on coverage [dimensionless]
-    double E; //!< modification to the activation energy [K]
-    double m; //!< exponent for power law dependence on coverage [dimensionless]
-};
-
-//! A reaction occurring on an interface (i.e. a SurfPhase or an EdgePhase)
-class InterfaceReaction : public ElementaryReaction
-{
-public:
-    InterfaceReaction();
-    InterfaceReaction(const Composition& reactants, const Composition& products,
-                      const Arrhenius& rate, bool isStick=false);
-    virtual void calculateRateCoeffUnits(const Kinetics& kin);
-    virtual void getParameters(AnyMap& reactionNode) const;
-
-    virtual std::string type() const {
-        return "interface";
-    }
-
-    //! Adjustments to the Arrhenius rate expression dependent on surface
-    //! species coverages. Three coverage parameters (a, E, m) are used for each
-    //! species on which the rate depends. See SurfaceArrhenius for details on
-    //! the parameterization.
-    std::map<std::string, CoverageDependency> coverage_deps;
-
-    //! Set to true if `rate` is a parameterization of the sticking coefficient
-    //! rather than the forward rate constant
-    bool is_sticking_coefficient;
-
-    //! Set to true if `rate` is a sticking coefficient which should be
-    //! translated into a rate coefficient using the correction factor developed
-    //! by Motz & Wise for reactions with high (near-unity) sticking
-    //! coefficients. Defaults to 'false'.
-    bool use_motz_wise_correction;
-
-    //! For reactions with multiple non-surface species, the sticking species
-    //! needs to be explicitly identified.
-    std::string sticking_species;
-};
-
-//! An interface reaction which involves charged species
-class ElectrochemicalReaction : public InterfaceReaction
-{
-public:
-    ElectrochemicalReaction();
-    ElectrochemicalReaction(const Composition& reactants,
-                            const Composition& products, const Arrhenius& rate);
-    virtual void getParameters(AnyMap& reactionNode) const;
-
-    //! Forward value of the apparent Electrochemical transfer coefficient
-    doublereal beta;
-
-    bool exchange_current_density_formulation;
-};
-
-//! A reaction with rate parameters for Blowers-Masel approximation
-class BlowersMaselReaction: public Reaction
-{
-public:
-    BlowersMaselReaction();
-    BlowersMaselReaction(const Composition& reactants,
-                         const Composition& products, const BlowersMasel& rate);
-    virtual void getParameters(AnyMap& reactionNode) const;
-    virtual void validate();
-
-    virtual std::string type() const {
-        return "Blowers-Masel";
-    }
-
-    BlowersMasel rate;
-
-    bool allow_negative_pre_exponential_factor;
-};
-
-//! A reaction occurring on an interface (i.e. a SurfPhase or an EdgePhase)
-//! with the rate calculated with Blowers-Masel approximation.
-class BlowersMaselInterfaceReaction : public BlowersMaselReaction
-{
-public:
-    BlowersMaselInterfaceReaction();
-    BlowersMaselInterfaceReaction(const Composition& reactants, const Composition& products,
-                      const BlowersMasel& rate, bool isStick=false);
-    virtual void getParameters(AnyMap& reactionNode) const;
-    virtual void calculateRateCoeffUnits(const Kinetics& kin);
-
-    virtual std::string type() const {
-        return "surface-Blowers-Masel";
-    }
-    //! Adjustments to the Arrhenius rate expression dependent on surface
-    //! species coverages. Three coverage parameters (a, E, m) are used for each
-    //! species on which the rate depends. See SurfaceArrhenius for details on
-    //! the parameterization.
-    std::map<std::string, CoverageDependency> coverage_deps;
-
-    //! Set to true if `rate` is a parameterization of the sticking coefficient
-    //! rather than the forward rate constant
-    bool is_sticking_coefficient;
-
-    //! Set to true if `rate` is a sticking coefficient which should be
-    //! translated into a rate coefficient using the correction factor developed
-    //! by Motz & Wise for reactions with high (near-unity) sticking
-    //! coefficients. Defaults to 'false'.
-    bool use_motz_wise_correction;
-
-    //! For reactions with multiple non-surface species, the sticking species
-    //! needs to be explicitly identified.
-    std::string sticking_species;
-};
 
 //! Create Reaction objects for all `<reaction>` nodes in an XML document.
 //!
