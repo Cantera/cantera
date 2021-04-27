@@ -41,7 +41,7 @@ jobs:
       run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
         pytest-github-actions-annotate-failures
     - name: Build Cantera
-      run: python3 `which scons` build -j2 debug=n --debug=time
+      run: python3 `which scons` build env_vars=all -j2 debug=n --debug=time
     - name: Test Cantera
       run: python3 `which scons` test --debug=time
       env:
@@ -81,7 +81,7 @@ jobs:
       run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
         pytest-github-actions-annotate-failures
     - name: Build Cantera
-      run: python3 `which scons` build -j2 debug=n --debug=time
+      run: python3 `which scons` build env_vars=all -j2 debug=n --debug=time
     - name: Test Cantera
       run: python3 `which scons` test --debug=time
       env:
@@ -115,7 +115,7 @@ jobs:
     - name: Build Cantera
       run: |
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
-        optimize=n no_optimize_flags=-DNDEBUG -j2 --debug=time
+        optimize=n no_optimize_flags=-DNDEBUG env_vars=all -j2 --debug=time
     - name: Test Cantera
       run: python3 `which scons` test --debug=time
       env:
@@ -354,8 +354,8 @@ jobs:
           rm $BOOST_ROOT/download.7z
         shell: bash
       - name: Build Cantera
-        run: |
-          scons build -j2 boost_inc_dir=%BOOST_ROOT% debug=n VERBOSE=y python_package=full ^
+        run: scons build -j2 boost_inc_dir=%BOOST_ROOT% debug=n VERBOSE=y
+          python_package=full env_vars=PYTHONPATH,GITHUB_ACTIONS
           msvc_version=${{ matrix.vs-toolset }} f90_interface=n --debug=time
         shell: cmd
       - name: Test Cantera
