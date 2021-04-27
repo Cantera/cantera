@@ -1442,6 +1442,8 @@ class TestReactorSensitivities(utilities.CanteraTest):
         dtdp = ((t[-1] - tig)*S[-1,:]*Tf - np.trapz(S*T[:,None], t, axis=0))/(Tf-To)
         return dtdp
 
+    # See https://github.com/Cantera/enhancements/issues/55
+    @unittest.skip("Integration of sensitivity ODEs is unreliable")
     def test_ignition_delay_sensitivity(self):
         species = ('H2', 'H', 'O2', 'H2O2', 'H2O', 'OH', 'HO2')
         dtigdh_cvodes = self.calc_dtdh(species)
