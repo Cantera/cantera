@@ -155,8 +155,12 @@ cdef get_types(item):
         itype = set()
         for i in item:
             if isinstance(i, dict):
+                # Treat all classes derived from dict as equivalent, and
+                # convertible to AnyMap
                 itype.add(dict)
             elif isinstance(i, (list, tuple)):
+                # Treat all classes derived from list or tuple as equivalent,
+                # and convertible to std::vector
                 itype.add(list)
             elif type(i) == bool:
                 itype.add(bool)  # otherwise bools will get counted as integers
