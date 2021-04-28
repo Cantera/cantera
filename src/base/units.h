@@ -3,8 +3,6 @@
  * Header for units conversion utilities, which are used to translate
  * user input from input files (See \ref inputfiles and
  * class \link Cantera::Unit Unit\endlink).
- *
- * This header is included only by file misc.cpp.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
