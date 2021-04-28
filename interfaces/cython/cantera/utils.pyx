@@ -86,6 +86,8 @@ cdef anyvalue_to_python(string name, CxxAnyValue& v):
         elif v.isType[double]():
             return v.asType[double]()
         elif v.isType[long]():
+            # 'long' is equivalent to 'long int'
+            # Cython requires the former in this context
             return v.asType[long]()
         elif v.isType[cbool]():
             return v.asType[cbool]()
