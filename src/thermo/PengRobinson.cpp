@@ -783,12 +783,12 @@ double PengRobinson::d2aAlpha_dT2() const
     for (size_t i = 0; i < m_kk; i++) {
         double Tcrit_i = speciesCritTemperature(m_a_coeffs(i, i), m_b_coeffs[i]);
         double sqt_Tr = sqrt(temperature() / Tcrit_i); //we need species critical temperature
-        double coeff1 = 1 / (Tcrit_i*Tcrit_i*sqt_Tr);
+        double coeff1 = 1 / (Tcrit_i*sqt_Tr);
         double coeff2 = sqt_Tr - 1;
         //  Calculate first and second derivatives of alpha for individual species
         double k = m_kappa[i];
         m_dalphadT[i] = coeff1 * (k*k*coeff2 - k);
-        m_d2alphadT2[i] = (k*k + k) * coeff1 / (2*sqt_Tr*sqt_Tr);
+        m_d2alphadT2[i] = (k*k + k) * coeff1 / (2*sqt_Tr*sqt_Tr*Tcrit_i);
     }
 
     //Calculate mixture derivative
