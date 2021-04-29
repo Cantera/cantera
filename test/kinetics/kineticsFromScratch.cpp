@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "cantera/kinetics/importKinetics.h"
+#include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/Species.h"
@@ -15,19 +15,20 @@ class KineticsFromScratch : public testing::Test
 {
 public:
     KineticsFromScratch()
-        : p("../data/kineticsfromscratch.cti")
-        , p_ref("../data/kineticsfromscratch.cti")
+        : p("../data/kineticsfromscratch.yaml")
+        , p_ref("../data/kineticsfromscratch.yaml")
     {
         std::vector<ThermoPhase*> th;
         th.push_back(&p_ref);
-        importKinetics(p_ref.xml(), th, &kin_ref);
+        kin_ref = newKinetics(th, "../data/kineticsfromscratch.yaml", "ohmech");
         kin.addPhase(p);
+        kin.init();
     }
 
     IdealGasPhase p;
     IdealGasPhase p_ref;
     GasKinetics kin;
-    GasKinetics kin_ref;
+    unique_ptr<Kinetics> kin_ref;
 
     //! iRef is the index of the corresponding reaction in the reference mech
     void check_rates(int iRef) {
@@ -37,14 +38,14 @@ public:
         p.setState_TPX(1200, 5*OneAtm, X);
         p_ref.setState_TPX(1200, 5*OneAtm, X);
 
-        vector_fp k(1), k_ref(kin_ref.nReactions());
+        vector_fp k(1), k_ref(kin_ref->nReactions());
 
         kin.getFwdRateConstants(&k[0]);
-        kin_ref.getFwdRateConstants(&k_ref[0]);
+        kin_ref->getFwdRateConstants(&k_ref[0]);
         EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
 
         kin.getRevRateConstants(&k[0]);
-        kin_ref.getRevRateConstants(&k_ref[0]);
+        kin_ref->getRevRateConstants(&k_ref[0]);
         EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
     }
 };
@@ -311,13 +312,13 @@ class InterfaceKineticsFromScratch : public testing::Test
 {
 public:
     InterfaceKineticsFromScratch()
-        : gas("../data/sofc-test.xml", "gas")
-        , gas_ref("../data/sofc-test.xml", "gas")
-        , surf("../data/sofc-test.xml", "metal_surface")
-        , surf_ref("../data/sofc-test.xml", "metal_surface")
+        : gas("sofc.yaml", "gas")
+        , gas_ref("sofc.yaml", "gas")
+        , surf("sofc.yaml", "metal_surface")
+        , surf_ref("sofc.yaml", "metal_surface")
     {
         std::vector<ThermoPhase*> th = { &surf_ref, &gas_ref };
-        importKinetics(surf_ref.xml(), th, &kin_ref);
+        kin_ref = newKinetics(th, "sofc.yaml", "metal_surface");
         kin.addPhase(surf);
         kin.addPhase(gas);
     }
@@ -327,7 +328,7 @@ public:
     SurfPhase surf;
     SurfPhase surf_ref;
     InterfaceKinetics kin;
-    InterfaceKinetics kin_ref;
+    unique_ptr<Kinetics> kin_ref;
 
     //! iRef is the index of the corresponding reaction in the reference mech
     void check_rates(int iRef) {
@@ -342,14 +343,14 @@ public:
         surf.setCoveragesByName(Xs);
         surf_ref.setCoveragesByName(Xs);
 
-        vector_fp k(1), k_ref(kin_ref.nReactions());
+        vector_fp k(1), k_ref(kin_ref->nReactions());
 
         kin.getFwdRateConstants(&k[0]);
-        kin_ref.getFwdRateConstants(&k_ref[0]);
+        kin_ref->getFwdRateConstants(&k_ref[0]);
         EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
 
         kin.getRevRateConstants(&k[0]);
-        kin_ref.getRevRateConstants(&k_ref[0]);
+        kin_ref->getRevRateConstants(&k_ref[0]);
         EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
     }
 };
@@ -396,67 +397,70 @@ class KineticsAddSpecies : public testing::Test
 {
 public:
     KineticsAddSpecies()
-        : p_ref("../data/kineticsfromscratch.cti")
+        : p_ref("../data/kineticsfromscratch.yaml")
     {
         std::vector<ThermoPhase*> th;
         th.push_back(&p_ref);
-        importKinetics(p_ref.xml(), th, &kin_ref);
+        kin_ref = newKinetics(th, "../data/kineticsfromscratch.yaml", "ohmech");
         kin.addPhase(p);
 
-        std::vector<shared_ptr<Species>> S = getSpecies(*get_XML_File("h2o2.cti"));
+        std::vector<shared_ptr<Species>> S = getSpecies(
+            AnyMap::fromYamlFile("h2o2.yaml")["species"]);
         for (auto sp : S) {
             species[sp->name] = sp;
         }
-        reactions = getReactions(*get_XML_File("../data/kineticsfromscratch.cti"));
+        reactions = getReactions(
+            AnyMap::fromYamlFile("../data/kineticsfromscratch.yaml")["reactions"],
+            *kin_ref);
     }
 
     IdealGasPhase p;
     IdealGasPhase p_ref;
     GasKinetics kin;
-    GasKinetics kin_ref;
+    unique_ptr<Kinetics> kin_ref;
     std::vector<shared_ptr<Reaction>> reactions;
     std::map<std::string, shared_ptr<Species>> species;
 
     void check_rates(size_t N, const std::string& X) {
-        for (size_t i = 0; i < kin_ref.nReactions(); i++) {
+        for (size_t i = 0; i < kin_ref->nReactions(); i++) {
             if (i >= N) {
-                kin_ref.setMultiplier(i, 0);
+                kin_ref->setMultiplier(i, 0);
             } else {
-                kin_ref.setMultiplier(i, 1);
+                kin_ref->setMultiplier(i, 1);
             }
         }
         p.setState_TPX(1200, 5*OneAtm, X);
         p_ref.setState_TPX(1200, 5*OneAtm, X);
 
-        vector_fp k(kin.nReactions()), k_ref(kin_ref.nReactions());
-        vector_fp w(kin.nTotalSpecies()), w_ref(kin_ref.nTotalSpecies());
+        vector_fp k(kin.nReactions()), k_ref(kin_ref->nReactions());
+        vector_fp w(kin.nTotalSpecies()), w_ref(kin_ref->nTotalSpecies());
 
         kin.getFwdRateConstants(k.data());
-        kin_ref.getFwdRateConstants(k_ref.data());
+        kin_ref->getFwdRateConstants(k_ref.data());
         for (size_t i = 0; i < kin.nReactions(); i++) {
             EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
         }
 
         kin.getFwdRatesOfProgress(k.data());
-        kin_ref.getFwdRatesOfProgress(k_ref.data());
+        kin_ref->getFwdRatesOfProgress(k_ref.data());
         for (size_t i = 0; i < kin.nReactions(); i++) {
             EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
         }
 
         kin.getRevRateConstants(k.data());
-        kin_ref.getRevRateConstants(k_ref.data());
+        kin_ref->getRevRateConstants(k_ref.data());
         for (size_t i = 0; i < kin.nReactions(); i++) {
             EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
         }
 
         kin.getRevRatesOfProgress(k.data());
-        kin_ref.getRevRatesOfProgress(k_ref.data());
+        kin_ref->getRevRatesOfProgress(k_ref.data());
         for (size_t i = 0; i < kin.nReactions(); i++) {
             EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
         }
 
         kin.getCreationRates(w.data());
-        kin_ref.getCreationRates(w_ref.data());
+        kin_ref->getCreationRates(w_ref.data());
         for (size_t i = 0; i < kin.nTotalSpecies(); i++) {
             size_t iref = p_ref.speciesIndex(p.speciesName(i));
             EXPECT_DOUBLE_EQ(w_ref[iref], w[i]) << "sp = " << p.speciesName(i) << "; N = " << N;
