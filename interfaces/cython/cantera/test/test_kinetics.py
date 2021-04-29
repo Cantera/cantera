@@ -614,7 +614,7 @@ class ExplicitForwardOrderTest(utilities.CanteraTest):
 class TestSofcKinetics(utilities.CanteraTest):
     """ Test based on sofc.py """
     def test_sofc(self):
-        mech = 'sofc-test.xml'
+        mech = "sofc.yaml"
         T = 1073.15  # T in K
         P = ct.one_atm
         TPB_length_per_area = 1.0e7  # TPB length per unit area [1/m]
@@ -649,15 +649,17 @@ class TestSofcKinetics(utilities.CanteraTest):
         tpb_c = ct.Interface(mech, 'tpb', [cathode_bulk, cathode_surf,
                                                  oxide_surf_c])
 
+        kElectron_a = tpb_a.kinetics_species_index("electron")
         def anode_curr(E):
             anode_bulk.electric_potential = E
             w = tpb_a.net_production_rates
-            return ct.faraday * w[0] * TPB_length_per_area
+            return ct.faraday * w[kElectron_a] * TPB_length_per_area
 
+        kElectron_c = tpb_c.kinetics_species_index("electron")
         def cathode_curr(E):
             cathode_bulk.electric_potential = E + oxide_c.electric_potential
             w = tpb_c.net_production_rates
-            return -ct.faraday * w[0] * TPB_length_per_area
+            return -ct.faraday * w[kElectron_c] * TPB_length_per_area
 
         # initialization
         gas_a.TPX = T, P, 'H2:0.97, H2O:0.03'
