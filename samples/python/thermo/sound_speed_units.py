@@ -1,12 +1,11 @@
 """
 Compute the "equilibrium" and "frozen" sound speeds for a gas
 
-Requires: cantera >= 2.5.0
+Requires: cantera >= 2.6.0
 """
 
 import cantera.units as ct
 import numpy as np
-import math
 
 ct.units.default_format = ".2F~P"
 

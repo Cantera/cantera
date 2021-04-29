@@ -144,8 +144,8 @@ getter_template = Template("""
 getter_properties = [
     "density_mass", "density_mole", "enthalpy_mass", "enthalpy_mole", "entropy_mass",
     "entropy_mole", "int_energy_mass", "int_energy_mole", "volume_mass", "volume_mole",
-    "gibbs_mass", "gibbs_mole", "cp_mass", "cp_mole", "P", "P_sat", "T", "T_sat",
-    "atomic_weight", "chemical_potentials", "concentrations", "critical_pressure",
+    "gibbs_mass", "gibbs_mole", "cp_mass", "cp_mole", "cv_mass", "cv_mole", "P", "P_sat", "T",
+    "T_sat", "atomic_weight", "chemical_potentials", "concentrations", "critical_pressure",
     "critical_temperature", "electric_potential", "electrochemical_potentials",
     "isothermal_compressibility", "max_temp", "mean_molecular_weight", "min_temp",
     "molecular_weights", "partial_molar_cp", "partial_molar_enthalpies",
@@ -157,7 +157,6 @@ getter_properties = [
 getter_string = "".join(
     getter_template.substitute(name=name, units=UNITS[name]) for name in getter_properties
 )
-pf_getter_string = getter_template.substitute(name="Q", units=UNITS["Q"])
 
 setter_template = Template("""
     @property
@@ -216,7 +215,7 @@ pf_setter1_string = "".join(
 )
 
 solution_properties = "".join([getter_string, setter_string, setter1_string])
-pf_properties = "".join([pf_getter_string, pf_setter_string, pf_setter1_string])
+pf_properties = "".join([pf_setter_string, pf_setter1_string])
 
 localenv["solution_properties"] = solution_properties.strip()
 localenv["purefluid_properties"] = pf_properties.strip()
