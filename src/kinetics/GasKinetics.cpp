@@ -288,10 +288,6 @@ void GasKinetics::addFalloffReaction(FalloffReaction& r)
         size_t k = kineticsSpeciesIndex(eff.first);
         if (k != npos) {
             efficiencies[k] = eff.second;
-        } else if (!m_skipUndeclaredThirdBodies) {
-            throw CanteraError("GasKinetics::addFalloffReaction", "Found "
-                "third-body efficiency for undefined species '" + eff.first +
-                "' while adding reaction '" + r.equation() + "'");
         }
     }
     m_falloff_concm.install(nfall, efficiencies,
@@ -311,10 +307,6 @@ void GasKinetics::addThreeBodyReaction(ThreeBodyReaction& r)
         size_t k = kineticsSpeciesIndex(eff.first);
         if (k != npos) {
             efficiencies[k] = eff.second;
-        } else if (!m_skipUndeclaredThirdBodies) {
-            throw CanteraError("GasKinetics::addThreeBodyReaction", "Found "
-                "third-body efficiency for undefined species '" + eff.first +
-                "' while adding reaction '" + r.equation() + "'");
         }
     }
     m_3b_concm.install(nReactions()-1, efficiencies,
