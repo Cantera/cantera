@@ -86,17 +86,19 @@ void Reaction::validate()
     if (!allow_nonreactant_orders) {
         for (const auto& order : orders) {
             if (reactants.find(order.first) == reactants.end()) {
-                throw CanteraError("Reaction::validate", "Reaction order "
-                    "specified for non-reactant species '" + order.first + "'");
-            }
+                throw InputFileError("Reaction::validate", input,
+                    "Reaction order specified for non-reactant species '{}'",
+                    order.first);
+           }
         }
     }
 
     if (!allow_negative_orders) {
         for (const auto& order : orders) {
             if (order.second < 0.0) {
-                throw CanteraError("Reaction::validate", "Negative reaction "
-                    "order specified for species '" + order.first + "'");
+                throw InputFileError("Reaction::validate", input,
+                    "Negative reaction order specified for species '{}'",
+                    order.first);
             }
         }
     }
@@ -209,6 +211,33 @@ void Reaction::calculateRateCoeffUnits(const Kinetics& kin)
             rate_units *= phase.standardConcentrationUnits().pow(-stoich.second);
         }
     }
+}
+
+void updateUndeclared(std::vector<std::string>& undeclared,
+                      const Composition& comp, const Kinetics& kin) {
+    for (const auto& sp: comp) {
+        if (kin.kineticsSpeciesIndex(sp.first) == npos) {
+            undeclared.emplace_back(sp.first);
+        }
+    }
+}
+
+std::vector<std::string> Reaction::undeclaredSpecies(const Kinetics& kin) const {
+    std::vector<std::string> undeclared;
+    updateUndeclared(undeclared, reactants, kin);
+    updateUndeclared(undeclared, products, kin);
+    return undeclared;
+}
+
+std::vector<std::string> Reaction::undeclaredThirdBodies(const Kinetics& kin) const {
+    std::vector<std::string> undeclared;
+    return undeclared;
+}
+
+std::vector<std::string> Reaction::undeclaredOrders(const Kinetics& kin) const {
+    std::vector<std::string> undeclared;
+    updateUndeclared(undeclared, orders, kin);
+    return undeclared;
 }
 
 ElementaryReaction::ElementaryReaction(const Composition& reactants_,
@@ -327,6 +356,13 @@ void ThreeBodyReaction::getParameters(AnyMap& reactionNode) const
     }
 }
 
+std::vector<std::string> ThreeBodyReaction::undeclaredThirdBodies(
+        const Kinetics& kin) const {
+    std::vector<std::string> undeclared;
+    updateUndeclared(undeclared, third_body.efficiencies, kin);
+    return undeclared;
+}
+
 FalloffReaction::FalloffReaction()
     : Reaction()
     , falloff(new Falloff())
@@ -411,6 +447,13 @@ void FalloffReaction::getParameters(AnyMap& reactionNode) const
     if (third_body.default_efficiency != 1.0) {
         reactionNode["default-efficiency"] = third_body.default_efficiency;
     }
+}
+
+std::vector<std::string> FalloffReaction::undeclaredThirdBodies(
+        const Kinetics& kin) const {
+    std::vector<std::string> undeclared;
+    updateUndeclared(undeclared, third_body.efficiencies, kin);
+    return undeclared;
 }
 
 ChemicallyActivatedReaction::ChemicallyActivatedReaction()
@@ -1447,13 +1490,23 @@ std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
     std::vector<shared_ptr<Reaction>> all_reactions;
     for (const auto& node : items.asVector<AnyMap>()) {
         shared_ptr<Reaction> R(newReaction(node, kinetics));
-        if (R->valid()) {
+        std::vector<std::string> undeclared, more;
+        undeclared = R->undeclaredSpecies(kinetics);
+        more = R->undeclaredOrders(kinetics);
+        undeclared.insert(undeclared.end(), more.begin(), more.end());
+        more = R->undeclaredThirdBodies(kinetics);
+
+        if (R->valid() && undeclared.empty() && more.empty()) {
             all_reactions.emplace_back(R);
-        } else if (!kinetics.skipUndeclaredSpecies()) {
+        } else if (!kinetics.skipUndeclaredSpecies() && !undeclared.empty()) {
             throw InputFileError("getReactions", node,
                 "Reaction '{}' contains undeclared species.", R->equation());
+        } else if (!kinetics.skipUndeclaredThirdBodies() && !more.empty()) {
+            throw InputFileError("getReactions", node,
+                "Reaction '{}' contains undeclared third body species.",
+                R->equation());
         }
-    };
+    }
     return all_reactions;
 }
 

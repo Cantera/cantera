@@ -17,6 +17,7 @@
 #include "cantera/base/utilities.h"
 #include "cantera/base/global.h"
 #include <unordered_set>
+#include <boost/algorithm/string/join.hpp>
 
 using namespace std;
 
@@ -537,38 +538,52 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
     }
 
     // Check for undeclared species
-    for (const auto& sp : r->reactants) {
-        if (kineticsSpeciesIndex(sp.first) == npos) {
-            if (m_skipUndeclaredSpecies) {
-                return false;
-            } else {
-                throw InputFileError("Kinetics::addReaction", r->input,
-                    "Reaction '{}' contains the undeclared species '{}'",
-                    r->equation(), sp.first);
-            }
+    std::vector<std::string> undeclared;
+
+    undeclared = r->undeclaredSpecies(*this);
+    if (!undeclared.empty()) {
+        if (m_skipUndeclaredSpecies) {
+            return false;
+        } else {
+            throw InputFileError("Kinetics::addReaction", r->input, "Reaction '{}'\n"
+                "contains undeclared species: '{}'",
+                r->equation(), boost::algorithm::join(undeclared, "', '"));
         }
     }
-    for (const auto& sp : r->products) {
-        if (kineticsSpeciesIndex(sp.first) == npos) {
-            if (m_skipUndeclaredSpecies) {
-                return false;
-            } else {
-                throw InputFileError("Kinetics::addReaction", r->input,
-                    "Reaction '{}' contains the undeclared species '{}'",
-                    r->equation(), sp.first);
+
+    undeclared = r->undeclaredOrders(*this);
+    if (!undeclared.empty()) {
+        if (m_skipUndeclaredSpecies) {
+            return false;
+        } else {
+            if (r->input.hasKey("orders")) {
+                throw InputFileError("Kinetics::addReaction", r->input["orders"],
+                    "Reaction '{}'\n"
+                    "defines reaction orders for undeclared species: '{}'",
+                    r->equation(), boost::algorithm::join(undeclared, "', '"));
             }
+            // Error for empty r->input AnyMap (e.g. XML)
+            throw InputFileError("Kinetics::addReaction", r->input, "Reaction '{}'\n"
+                "defines reaction orders for undeclared species: '{}'",
+                r->equation(), boost::algorithm::join(undeclared, "', '"));
         }
     }
-    for (const auto& sp : r->orders) {
-        if (kineticsSpeciesIndex(sp.first) == npos) {
-            if (m_skipUndeclaredSpecies) {
-                return false;
-            } else {
-                throw InputFileError("Kinetics::addReaction", r->input,
-                    "Reaction '{}' has a reaction order specified for the "
-                    "undeclared species '{}'",
-                    r->equation(), sp.first);
+
+    undeclared = r->undeclaredThirdBodies(*this);
+    if (!undeclared.empty()) {
+        if (!m_skipUndeclaredThirdBodies) {
+            if (r->input.hasKey("efficiencies")) {
+                throw InputFileError("Kinetics::addReaction", r->input["efficiencies"],
+                    "Reaction '{}'\n"
+                    "defines third-body efficiencies for undeclared species: '{}'",
+                    r->equation(), boost::algorithm::join(undeclared, "', '"));
             }
+            // Error for specified ThirdBody or empty r->input AnyMap
+            throw InputFileError("Kinetics::addReaction", r->input, "Reaction '{}'\n"
+                "is a three-body reaction with undeclared species: '{}'",
+                r->equation(), boost::algorithm::join(undeclared, "', '"));
+        } else if (m_skipUndeclaredSpecies) {
+            return false;
         }
     }
 
