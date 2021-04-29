@@ -423,6 +423,93 @@ class KineticsRepeatability(utilities.CanteraTest):
             for msg in err_msg:
                 self.assertIn(msg, err_msg_list)
 
+
+class TestUndeclared(utilities.CanteraTest):
+
+    _gas_def = """
+            phases:
+            - name: gas
+              species:
+              - h2o2.yaml/species: [H, O2, H2O, HO2]
+              thermo: ideal-gas
+              kinetics: gas
+            """
+
+    def test_raise_undeclared_species(self):
+
+        gas_def = self._gas_def + """
+            reactions:
+            - equation: O + H2 <=> H + OH  # Reaction 3
+              rate-constant: {A: 3.87e+04, b: 2.7, Ea: 6260.0}
+            """
+
+        with self.assertRaisesRegex(ct.CanteraError, "contains undeclared species"):
+            ct.Solution(yaml=gas_def)
+
+    def test_raise_undeclared_third_bodies(self):
+
+        gas_def = self._gas_def + """
+            reactions:
+            - equation: H + O2 + AR <=> HO2 + AR  # Reaction 10
+              rate-constant: {A: 7.0e+17, b: -0.8, Ea: 0.0}
+            """
+
+        with self.assertRaisesRegex(ct.CanteraError, "three-body reaction with undeclared"):
+            ct.Solution(yaml=gas_def)
+
+    def test_skip_undeclared_third_bodies(self):
+
+        gas_def = self._gas_def + """
+              reactions:
+              - h2o2.yaml/reactions: declared-species
+              skip-undeclared-third-bodies: true
+            """
+
+        gas = ct.Solution(yaml=gas_def)
+        self.assertEqual(gas.n_reactions, 2)
+
+    def test_skip_undeclared_orders(self):
+
+        gas_def = self._gas_def + """
+            reactions:
+            - equation: H + O2 => HO2
+              rate-constant: {A: 1.255943e+13, b: -2.0, Ea: 5000.0 cal/mol}
+              orders:
+                H2O: 0.2
+              nonreactant-orders: true
+            """
+
+        gas = ct.Solution(yaml=gas_def)
+        self.assertEqual(gas.n_reactions, 1)
+
+    def test_raise_nonreactant_orders(self):
+
+        gas_def = self._gas_def + """
+            reactions:
+            - equation: H + O2 => HO2
+              rate-constant: {A: 1.255943e+13, b: -2.0, Ea: 5000.0 cal/mol}
+              orders:
+                H2O: 0.2
+            """
+
+        with self.assertRaisesRegex(ct.CanteraError, "Reaction order specified"):
+            ct.Solution(yaml=gas_def)
+
+    def test_raise_undeclared_orders(self):
+
+        gas_def = self._gas_def + """
+            reactions:
+            - equation: H + O2 => HO2
+              rate-constant: {A: 1.255943e+13, b: -2.0, Ea: 5000.0 cal/mol}
+              orders:
+                N2: 0.2
+              nonreactant-orders: true
+            """
+
+        with self.assertRaisesRegex(ct.CanteraError, "reaction orders for undeclared"):
+            ct.Solution(yaml=gas_def)
+
+
 class TestEmptyKinetics(utilities.CanteraTest):
     def test_empty(self):
         gas = ct.Solution('air-no-reactions.xml')
