@@ -553,7 +553,7 @@ AnyValue::AnyValue(AnyValue&& other)
     : AnyBase(std::move(other))
     , m_key(std::move(other.m_key))
     , m_value(std::move(other.m_value))
-    , m_equals(std::move(other.m_equals))
+    , m_equals(other.m_equals)
 {
 }
 
@@ -575,7 +575,7 @@ AnyValue& AnyValue::operator=(AnyValue&& other) {
     AnyBase::operator=(std::move(other));
     m_key = std::move(other.m_key);
     m_value = std::move(other.m_value);
-    m_equals = std::move(other.m_equals);
+    m_equals = other.m_equals;
     return *this;
 }
 
@@ -1109,7 +1109,10 @@ void AnyValue::applyUnits(shared_ptr<UnitSystem>& units)
         auto& Q = as<Quantity>();
         if (Q.converter) {
             Q.converter(Q.value, *units);
-            *this = std::move(Q.value);
+            m_equals = Q.value.m_equals;
+            // Replace the value last since Q is a reference to m_value and won't be
+            // valid after this
+            m_value = std::move(Q.value.m_value);
         } else if (Q.value.is<double>()) {
             if (Q.isActivationEnergy) {
                 *this = Q.value.as<double>() / units->convertActivationEnergyTo(1.0, Q.units);
