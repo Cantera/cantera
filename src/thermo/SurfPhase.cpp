@@ -39,12 +39,15 @@ SurfPhase::SurfPhase(doublereal n0):
 }
 
 SurfPhase::SurfPhase(const std::string& infile, const std::string& id_) :
+    m_n0(1.0),
     m_press(OneAtm)
 {
+    setNDim(2);
     initThermoFile(infile, id_);
 }
 
 SurfPhase::SurfPhase(XML_Node& xmlphase) :
+    m_n0(1.0),
     m_press(OneAtm)
 {
     importPhase(xmlphase, this);
