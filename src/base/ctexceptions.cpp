@@ -14,7 +14,8 @@ namespace Cantera
 
 // *** Exceptions ***
 
-static const char* stars = "***********************************************************************\n";
+static const char* stars = ("*****************************************"
+                            "**************************************\n");
 
 CanteraError::CanteraError(const std::string& procedure) :
     procedure_(procedure)
