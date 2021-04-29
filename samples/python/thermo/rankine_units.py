@@ -1,7 +1,7 @@
 """
 A Rankine vapor power cycle
 
-Requires: Cantera >= 2.5.0
+Requires: Cantera >= 2.6.0
 """
 
 import cantera.units as ct

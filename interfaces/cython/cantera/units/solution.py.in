@@ -65,6 +65,22 @@ class PureFluid(Solution):
     def __init__(self, infile, phasename=""):
         self._phase = _PureFluid(infile, phasename)
 
+    @property
+    def Q(self):
+        Q = self._phase.Q
+        return Q_(Q, "dimensionless")
+
+    @Q.setter
+    def Q(self, value):
+        if value is not None:
+            try:
+                Q = value.to("dimensionless").magnitude
+            except AttributeError:
+                Q = value
+        else:
+            Q = self.Q.magnitude
+        self._phase.Q = Q
+
     @purefluid_properties@
 
 
