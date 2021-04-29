@@ -9,7 +9,7 @@ class BinarySolutionTabulatedThermo_Test : public testing::Test
 {
 public:
     BinarySolutionTabulatedThermo_Test(){
-        test_phase.reset(newPhase("../data/BinarySolutionTabulatedThermo.cti"));
+        test_phase.reset(newPhase("../data/BinarySolutionTabulatedThermo.yaml"));
     }
 
     void set_defect_X(const double x) {
@@ -22,7 +22,7 @@ public:
     std::unique_ptr<ThermoPhase> test_phase;
 };
 
-TEST_F(BinarySolutionTabulatedThermo_Test,construct_from_cti)
+TEST_F(BinarySolutionTabulatedThermo_Test,construct_from_yaml)
 {
     BinarySolutionTabulatedThermo* BinarySolutionTabulatedThermo_phase = dynamic_cast<BinarySolutionTabulatedThermo*>(test_phase.get());
     EXPECT_TRUE(BinarySolutionTabulatedThermo_phase != NULL);
