@@ -1,0 +1,60 @@
+generator: cti2yaml
+cantera-version: 2.6.0a2
+date: Thu, 29 Apr 2021 18:35:16 -0400
+input-files: [simplephases.cti]
+
+units: {quantity: mol}
+
+phases:
+- name: simple1
+  thermo: ideal-gas
+  elements: [H, O, C]
+  species: [O2, H2, H2O]
+- name: nasa1
+  thermo: ideal-gas
+  elements: [H, O, C]
+  species:
+  - gri30.yaml/species: [O2, H2, H2O]
+- name: shomate1
+  thermo: ideal-gas
+  elements: [H, O, C]
+  species: [CO, CO2]
+
+species:
+- name: O2
+  composition: {O: 2}
+  thermo:
+    model: constant-cp
+    h0: 0.0
+    s0: 205.152
+    cp0: 29.39
+- name: H2
+  composition: {H: 2}
+  thermo:
+    model: constant-cp
+    h0: 0.0
+    s0: 130.68
+    cp0: 28.85
+- name: H2O
+  composition: {H: 2, O: 1}
+  thermo:
+    model: constant-cp
+    h0: -2.41826e+05
+    s0: 188.84
+    cp0: 35.22
+- name: CO
+  composition: {C: 1, O: 1}
+  thermo:
+    model: Shomate
+    temperature-ranges: [298, 1300, 6000]
+    data:
+    - [25.56759, 6.09613, 4.054656, -2.671301, 0.131021, -118.0089, 227.3665]
+    - [35.1507, 1.300095, -0.205921, 0.01355, -3.28278, -127.8375, 231.712]
+- name: CO2
+  composition: {C: 1, O: 2}
+  thermo:
+    model: Shomate
+    temperature-ranges: [298, 1200, 6000]
+    data:
+    - [24.99735, 55.18696, -33.69137, 7.948387, -0.136638, -403.6075, 228.2431]
+    - [58.16639, 2.720074, -0.492289, 0.038844, -6.447293, -425.9186, 263.6125]

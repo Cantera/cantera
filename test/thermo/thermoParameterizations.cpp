@@ -34,8 +34,8 @@ double c_co2[] = {298.15, -3.9351e8, 2.13785e5, 3.712e4};
 
 TEST_F(SpeciesThermoInterpTypeTest, install_const_cp)
 {
-    // Compare against instantiation from CTI file
-    IdealGasPhase p2("../data/simplephases.cti", "simple1");
+    // Compare against instantiation from YAML file
+    IdealGasPhase p2("simplephases.yaml", "simple1");
     auto sO2 = make_shared<Species>("O2", parseCompString("O:2"));
     auto sH2 = make_shared<Species>("H2", parseCompString("H:2"));
     auto sH2O = make_shared<Species>("H2O", parseCompString("H:2 O:1"));
@@ -69,8 +69,8 @@ TEST_F(SpeciesThermoInterpTypeTest, DISABLED_install_bad_pref)
 
 TEST_F(SpeciesThermoInterpTypeTest, install_nasa)
 {
-    // Compare against instantiation from CTI file
-    IdealGasPhase p2("../data/simplephases.cti", "nasa1");
+    // Compare against instantiation from YAML file
+    IdealGasPhase p2("simplephases.yaml", "nasa1");
     auto sO2 = make_shared<Species>("O2", parseCompString("O:2"));
     auto sH2 = make_shared<Species>("H2", parseCompString("H:2"));
     auto sH2O = make_shared<Species>("H2O", parseCompString("H:2 O:1"));
@@ -91,8 +91,8 @@ TEST_F(SpeciesThermoInterpTypeTest, install_nasa)
 
 TEST_F(SpeciesThermoInterpTypeTest, install_shomate)
 {
-    // Compare against instantiation from CTI file
-    IdealGasPhase p2("../data/simplephases.cti", "shomate1");
+    // Compare against instantiation from YAML file
+    IdealGasPhase p2("simplephases.yaml", "shomate1");
     auto sCO = make_shared<Species>("CO", parseCompString("C:1 O:1"));
     auto sCO2 = make_shared<Species>("CO2", parseCompString("C:1 O:2"));
     sCO->thermo.reset(new ShomatePoly2(200, 6000, 101325, co_shomate_coeffs));
@@ -243,7 +243,7 @@ TEST(SpeciesThermo, Mu0PolyFromYaml) {
 }
 
 TEST(SpeciesThermo, NasaPoly2ToYaml) {
-    shared_ptr<Solution> soln = newSolution("../data/simplephases.cti", "nasa1");
+    shared_ptr<Solution> soln = newSolution("simplephases.yaml", "nasa1");
     auto original = soln->thermo()->species("H2O")->thermo;
     AnyMap h2o_data1 = original->parameters();
     AnyMap h2o_data2 = AnyMap::fromYamlString(h2o_data1.toYamlString());
@@ -260,7 +260,7 @@ TEST(SpeciesThermo, NasaPoly2ToYaml) {
 }
 
 TEST(SpeciesThermo, ShomatePolyToYaml) {
-    shared_ptr<Solution> soln = newSolution("../data/simplephases.cti", "shomate1");
+    shared_ptr<Solution> soln = newSolution("simplephases.yaml", "shomate1");
     auto original = soln->thermo()->species("CO2")->thermo;
     AnyMap co2_data1 = original->parameters();
     AnyMap co2_data2 = AnyMap::fromYamlString(co2_data1.toYamlString());
@@ -277,7 +277,7 @@ TEST(SpeciesThermo, ShomatePolyToYaml) {
 }
 
 TEST(SpeciesThermo, ConstCpToYaml) {
-    shared_ptr<Solution> soln = newSolution("../data/simplephases.cti", "simple1");
+    shared_ptr<Solution> soln = newSolution("simplephases.yaml", "simple1");
     auto original = soln->thermo()->species("H2O")->thermo;
     AnyMap h2o_data1 = original->parameters();
     AnyMap h2o_data2 = AnyMap::fromYamlString(h2o_data1.toYamlString());
@@ -311,7 +311,7 @@ TEST(SpeciesThermo, PiecewiseGibbsToYaml) {
 }
 
 TEST(SpeciesThermo, Nasa9PolyToYaml) {
-    shared_ptr<Solution> soln = newSolution("airNASA9.cti");
+    shared_ptr<Solution> soln = newSolution("airNASA9.yaml");
     auto original = soln->thermo()->species("N2+")->thermo;
     AnyMap n2p_data1 = original->parameters();
     AnyMap n2p_data2 = AnyMap::fromYamlString(n2p_data1.toYamlString());
