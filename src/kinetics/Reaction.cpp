@@ -345,6 +345,7 @@ FalloffReaction::FalloffReaction(
     , high_rate(high_rate_)
     , third_body(tbody)
     , falloff(new Falloff())
+    , allow_negative_pre_exponential_factor(false)
     , low_rate_units(0.0)
 {
     reaction_type = FALLOFF_RXN;
