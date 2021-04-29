@@ -13,34 +13,34 @@ public:
         phase = newPhase("gri30.cti");
     }
 
-    void check_viscosity_poly(const std::string& speciek, const vector_fp& visc_coeff_expected, int mode) {
+    void check_viscosity_poly(const std::string& speciek, const vector_fp& visc_coeff_expected, int cmode) {
         MixTransport tran;
-        tran.init(phase, mode);
+        tran.init(phase, cmode);
         size_t k = phase->speciesIndex(speciek);
-        double coeffs[(mode == CK_Mode ? 4 : 5)];
+        double coeffs[(cmode == CK_Mode ? 4 : 5)];
         tran.getViscosityPolynomials(k, coeffs);
         for (size_t i = 0; i < visc_coeff_expected.size(); i++) {
             EXPECT_NEAR(coeffs[i], visc_coeff_expected[i], 1e-5);
         }
     }
 
-    void check_cond_poly(const std::string& speciek, const vector_fp& cond_coeff_expected, int mode) {
+    void check_cond_poly(const std::string& speciek, const vector_fp& cond_coeff_expected, int cmode) {
         MixTransport tran;
-        tran.init(phase, mode);
+        tran.init(phase, cmode);
         size_t k = phase->speciesIndex(speciek);
-        double coeffs[(mode == CK_Mode ? 4 : 5)];
+        double coeffs[(cmode == CK_Mode ? 4 : 5)];
         tran.getConductivityPolynomials(k, coeffs);
         for (size_t i = 0; i < cond_coeff_expected.size(); i++) {
             EXPECT_NEAR(coeffs[i], cond_coeff_expected[i], 1e-5);
         }
     }
 
-    void check_bindiff_poly(const std::string& speciek, const std::string& speciej, const vector_fp& bindiff_coeff_expected, int mode) {
+    void check_bindiff_poly(const std::string& speciek, const std::string& speciej, const vector_fp& bindiff_coeff_expected, int cmode) {
         MixTransport tran;
-        tran.init(phase, mode);
+        tran.init(phase, cmode);
         size_t k = phase->speciesIndex(speciek);
         size_t j = phase->speciesIndex(speciej);
-        double coeffs[(mode == CK_Mode ? 4 : 5)];
+        double coeffs[(cmode == CK_Mode ? 4 : 5)];
         tran.getBinDiffusivityPolynomials(k, j, coeffs);
         for (size_t i = 0; i < bindiff_coeff_expected.size(); i++) {
             EXPECT_NEAR(coeffs[i], bindiff_coeff_expected[i], 1e-5);
