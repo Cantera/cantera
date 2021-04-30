@@ -135,30 +135,30 @@ UNITS = {
     "reference_pressure": '"Pa"', "thermal_expansion_coeff": '"1/K"'
 }
 
+getter_properties = [
+    "density_mass", "density_mole", "enthalpy_mass", "enthalpy_mole", "entropy_mass",
+    "entropy_mole", "int_energy_mass", "int_energy_mole", "volume_mass", "volume_mole",
+    "gibbs_mass", "gibbs_mole", "cp_mass", "cp_mole", "cv_mass", "cv_mole", "P",
+    "P_sat", "T", "T_sat", "atomic_weight", "chemical_potentials", "concentrations",
+    "critical_pressure", "critical_temperature", "electric_potential",
+    "electrochemical_potentials", "isothermal_compressibility", "max_temp",
+    "mean_molecular_weight", "min_temp", "molecular_weights", "partial_molar_cp",
+    "partial_molar_enthalpies", "partial_molar_entropies", "partial_molar_int_energies",
+    "partial_molar_volumes", "reference_pressure", "thermal_expansion_coeff", "cp",
+    "cv", "density", "h", "s", "g", "u", "v"
+]
+
 getter_template = Template("""
     @property
     def ${name}(self):
         return Q_(self._phase.${name}, ${units})
 """)
 
-getter_properties = [
-    "density_mass", "density_mole", "enthalpy_mass", "enthalpy_mole", "entropy_mass",
-    "entropy_mole", "int_energy_mass", "int_energy_mole", "volume_mass", "volume_mole",
-    "gibbs_mass", "gibbs_mole", "cp_mass", "cp_mole", "cv_mass", "cv_mole", "P", "P_sat", "T",
-    "T_sat", "atomic_weight", "chemical_potentials", "concentrations", "critical_pressure",
-    "critical_temperature", "electric_potential", "electrochemical_potentials",
-    "isothermal_compressibility", "max_temp", "mean_molecular_weight", "min_temp",
-    "molecular_weights", "partial_molar_cp", "partial_molar_enthalpies",
-    "partial_molar_entropies", "partial_molar_int_energies", "partial_molar_volumes",
-    "reference_pressure", "thermal_expansion_coeff", "cp", "cv", "density",
-    "h", "s", "g", "u", "v"
-]
+thermophase_getters = []
+for name in getter_properties:
+    thermophase_getters.append(getter_template.substitute(name=name, units=UNITS[name]))
 
-getter_string = "".join(
-    getter_template.substitute(name=name, units=UNITS[name]) for name in getter_properties
-)
-
-setter_template = Template("""
+setter_2_template = Template("""
     @property
     def ${name}(self):
         ${n0}, ${n1} = self._phase.${name}
@@ -166,22 +166,34 @@ setter_template = Template("""
 
     @${name}.setter
     def ${name}(self, value):
-        ${n0} = value[0].to(${u0}) if value[0] is not None else self.${n0}
-        ${n1} = value[1].to(${u1}) if value[1] is not None else self.${n1}
+        try:
+            ${n0} = value[0].to(${u0}) if value[0] is not None else self.${n0}
+            ${n1} = value[1].to(${u1}) if value[1] is not None else self.${n1}
+        except AttributeError as e:
+            # The 'to' attribute missing means this isn't a pint Quantity
+            if "'to'" in str(e):
+                raise CanteraError(
+                    f"Values ({value}) must be instances of pint.Quantity classes"
+                ) from None
+            else:
+                raise
         self._phase.${name} = ${n0}.magnitude, ${n1}.magnitude
 """)
 
-setter_properties = ["TP", "DP", "HP", "SP", "SV", "TD", "UV"]
-pf_setter_properties = ["PQ", "TQ", "PV", "SH", "ST", "TH", "TV", "UP", "VH"]
+tp_setter_2_properties = ["TP", "DP", "HP", "SP", "SV", "TD", "UV"]
+pf_setter_2_properties = ["PQ", "TQ", "PV", "SH", "ST", "TH", "TV", "UP", "VH"]
 
-setter_string = "".join(
-    setter_template.substitute(name=name, n0=name[0], u0=UNITS[name[0]], n1=name[1], u1=UNITS[name[1]]) for name in setter_properties
-)
-pf_setter_string = "".join(
-    setter_template.substitute(name=name, n0=name[0], u0=UNITS[name[0]], n1=name[1], u1=UNITS[name[1]]) for name in pf_setter_properties
-)
+thermophase_2_setters = []
+for name in tp_setter_2_properties:
+    d = dict(name=name, n0=name[0], u0=UNITS[name[0]], n1=name[1], u1=UNITS[name[1]])
+    thermophase_2_setters.append(setter_2_template.substitute(d))
 
-setter1_template = Template("""
+purefluid_2_setters = []
+for name in pf_setter_2_properties:
+    d = dict(name=name, n0=name[0], u0=UNITS[name[0]], n1=name[1], u1=UNITS[name[1]])
+    purefluid_2_setters.append(setter_2_template.substitute(d))
+
+setter_3_template = Template("""
     @property
     def ${name}(self):
         ${n0}, ${n1}, ${n2} = self._phase.${name}
@@ -189,8 +201,17 @@ setter1_template = Template("""
 
     @${name}.setter
     def ${name}(self, value):
-        ${n0} = value[0].to(${u0}) if value[0] is not None else self.${n0}
-        ${n1} = value[1].to(${u1}) if value[1] is not None else self.${n1}
+        try:
+            ${n0} = value[0].to(${u0}) if value[0] is not None else self.${n0}
+            ${n1} = value[1].to(${u1}) if value[1] is not None else self.${n1}
+        except AttributeError as e:
+            # The 'to' attribute missing means this isn't a pint Quantity
+            if "'to'" in str(e):
+                raise CanteraError(
+                    f"Values ({value}) must be instances of pint.Quantity classes"
+                ) from None
+            else:
+                raise
         if value[2] is not None:
             try:
                 ${n2} = value[2].to(${u2}).magnitude
@@ -201,24 +222,97 @@ setter1_template = Template("""
         self._phase.${name} = ${n0}.magnitude, ${n1}.magnitude, ${n2}
 """)
 
-setter1_properties = [
-    "TPX", "TPY", "DPX", "DPY", "HPX", "HPY", "SPX", "SPY", "SVX", "SVY",
-    "TDX", "TDY", "UVX", "UVY"
+tp_setter_3_properties = [
+    "TPX", "TPY", "DPX", "DPY", "HPX", "HPY", "SPX", "SPY", "SVX", "SVY", "TDX", "TDY",
+    "UVX", "UVY"
 ]
-pf_setter1_properties = ["TPQ", "DPQ", "HPQ", "SPQ", "SVQ", "TDQ", "UVQ"]
 
-setter1_string = "".join(
-    setter1_template.substitute(name=name, n0=name[0], u0=UNITS[name[0]], n1=name[1], u1=UNITS[name[1]], n2=name[2], u2=UNITS[name[2]]) for name in setter1_properties
-)
-pf_setter1_string = "".join(
-    setter1_template.substitute(name=name, n0=name[0], u0=UNITS[name[0]], n1=name[1], u1=UNITS[name[1]], n2=name[2], u2=UNITS[name[2]]) for name in pf_setter1_properties
-)
+thermophase_3_setters = []
+for name in tp_setter_3_properties:
+    d = dict(name=name, n0=name[0], u0=UNITS[name[0]], n1=name[1], u1=UNITS[name[1]],
+             n2=name[2], u2=UNITS[name[2]])
+    thermophase_3_setters.append(setter_3_template.substitute(d))
 
-solution_properties = "".join([getter_string, setter_string, setter1_string])
-pf_properties = "".join([pf_setter_string, pf_setter1_string])
+getter_3_template = Template("""
+    @property
+    def ${name}(self):
+        ${n0}, ${n1}, ${n2} = self._phase.${name}
+        return Q_(${n0}, ${u0}), Q_(${n1}, ${u1}), Q_(${n2}, ${u2})
+""")
 
-localenv["solution_properties"] = solution_properties.strip()
-localenv["purefluid_properties"] = pf_properties.strip()
+pf_getter_3_properties = ["DPQ", "HPQ", "SPQ", "SVQ", "TDQ", "UVQ"]
+
+purefluid_3_getters = []
+for name in pf_getter_3_properties:
+    d = dict(name=name, n0=name[0], u0=UNITS[name[0]], n1=name[1], u1=UNITS[name[1]],
+             n2=name[2], u2=UNITS[name[2]])
+    purefluid_3_getters.append(getter_3_template.substitute(d))
+
+
+def recursive_join(*args, joiner=""):
+    result = ""
+    for arg in args:
+        result = result + joiner.join(arg)
+    return result
+
+
+thermophase_properties = recursive_join(thermophase_getters, thermophase_2_setters,
+                                        thermophase_3_setters)
+purefluid_properties = recursive_join(purefluid_2_setters, purefluid_3_getters)
+
+common_properties = """
+    def __getattr__(self, name):
+        return getattr(self._phase, name)
+
+    def __setattr__(self, name, value):
+        if name in dir(self):
+            object.__setattr__(self, name, value)
+        else:
+            setattr(self._phase, name, value)
+
+    @property
+    def basis_units(self):
+        if self._phase.basis == "mass":
+            return "kg"
+        else:
+            return "kmol"
+
+    @property
+    def X(self):
+        X = self._phase.X
+        return Q_(X, "dimensionless")
+
+    @X.setter
+    def X(self, value):
+        if value is not None:
+            try:
+                X = value.to("dimensionless").magnitude
+            except AttributeError:
+                X = value
+        else:
+            X = self.X.magnitude
+        self._phase.X = X
+
+    @property
+    def Y(self):
+        Y = self._phase.Y
+        return Q_(Y, "dimensionless")
+
+    @Y.setter
+    def Y(self, value):
+        if value is not None:
+            try:
+                Y = value.to("dimensionless").magnitude
+            except AttributeError:
+                Y = value
+        else:
+            Y = self.Y.magnitude
+        self._phase.Y = Y
+"""
+
+localenv["common_properties"] = common_properties.strip()
+localenv["thermophase_properties"] = thermophase_properties.strip()
+localenv["purefluid_properties"] = purefluid_properties.strip()
 units = localenv.SubstFile("cantera/units/solution.py", "cantera/units/solution.py.in")
 localenv.Depends(mod, units)
 
