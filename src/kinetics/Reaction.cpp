@@ -676,6 +676,7 @@ BlowersMaselReaction::BlowersMaselReaction(const Composition& reactants_,
 void BlowersMaselReaction::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
+    reactionNode["type"] = "Blowers-Masel";
     if (allow_negative_pre_exponential_factor) {
         reactionNode["negative-A"] = true;
     }
@@ -713,6 +714,7 @@ void BlowersMaselInterfaceReaction::calculateRateCoeffUnits(const Kinetics& kin)
 void BlowersMaselInterfaceReaction::getParameters(AnyMap& reactionNode) const
 {
     BlowersMaselReaction::getParameters(reactionNode);
+    reactionNode["type"] = "Blowers-Masel";
     if (is_sticking_coefficient) {
         reactionNode["sticking-coefficient"] = std::move(reactionNode["rate-constant"]);
         reactionNode.erase("rate-constant");
