@@ -77,25 +77,9 @@ shared_ptr<Species> make_const_cp_species(const std::string& name,
     return species;
 }
 
-
-TEST(IonsFromNeutralConstructor, fromXML)
-{
-    std::unique_ptr<ThermoPhase> p(newPhase("../data/mock_ion.xml",
-                                            "mock_ion_phase"));
-    ASSERT_EQ((int) p->nSpecies(), 2);
-    p->setState_TPX(500, 2e5, "K+:0.1, Cl-:0.1");
-    vector_fp mu(p->nSpecies());
-    p->getChemPotentials(mu.data());
-
-    // Values for regression testing only -- no reference values known for comparison
-    EXPECT_NEAR(p->density(), 1984.2507319669949, 1e-6);
-    EXPECT_NEAR(p->enthalpy_mass(), -14738312.44316336, 1e-6);
-    EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
-    EXPECT_NEAR(mu[1], -2.88157316e+06, 1e-1);
-}
-
 TEST(IonsFromNeutralConstructor, fromScratch)
 {
+    // Compare to the "ions-from-neutral-molecule" phase in "thermo-models.yaml"
     auto neutral = make_shared<MargulesVPSSTP>();
     auto sKCl = make_shomate_species("KCl(L)", "K:1 Cl:1", kcl_shomate_coeffs);
     neutral->addSpecies(sKCl);
@@ -127,7 +111,7 @@ TEST(IonsFromNeutralConstructor, fromScratch)
     vector_fp mu(p.nSpecies());
     p.getChemPotentials(mu.data());
 
-    // Values for regression testing only -- same as XML test
+    // Values for regression testing only -- same as ThermoFromYaml test
     EXPECT_NEAR(p.density(), 1984.2507319669949, 1e-6);
     EXPECT_NEAR(p.enthalpy_mass(), -14738312.44316336, 1e-6);
     EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
