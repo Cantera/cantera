@@ -16,6 +16,23 @@ class CanteraUnitsTest(utilities.CanteraTest):
                 f'rtol = {rtol:10e}; atol = {atol:10e}')
             self.fail(message)
 
+    def assertArrayQuantityNear(self, A, B, rtol=1e-8, atol=1e-12, msg=None):
+        if A.shape != B.shape:
+            self.fail(f"Arrays are of different lengths ({A.shape}, {B.shape})")
+        isclose = np.isclose(A, B, atol=atol, rtol=rtol)
+        if not isclose.all():
+            bad_A = A[~isclose]
+            bad_B = B[~isclose]
+            message = (
+                f"AssertNear: {bad_A:.14g} - {bad_B:.14g} = {bad_A - bad_B:.14g}\n" +
+                f"Error for {(~isclose).sum()} element(s) exceeds rtol = {rtol:10e}," +
+                f"atol = {atol:10e}."
+            )
+            if msg is not None:
+                message = msg + "\n" + message
+            self.fail(message)
+
+
 class TestSolutionUnits(CanteraUnitsTest):
     def setUp(self):
         self.phase = ct.Solution("h2o2.yaml")
@@ -203,7 +220,6 @@ class TestSolutionUnits(CanteraUnitsTest):
         self.assertEqual(dims_cv_mole["[substance]"], -1.0)
         self.assertEqual(dims_cv_mole["[temperature]"], -1.0)
 
-
     def check_setters(self, T1, rho1, Y1):
         T0, rho0, Y0 = self.phase.TDY
         self.phase.TDY = T1, rho1, Y1
@@ -217,7 +233,7 @@ class TestSolutionUnits(CanteraUnitsTest):
         def check_state(T, rho, Y):
             self.assertQuantityNear(self.phase.T, T)
             self.assertQuantityNear(self.phase.density, rho)
-            self.assertArrayNear(self.phase.Y, Y)
+            self.assertArrayQuantityNear(self.phase.Y, Y)
 
         self.phase.TDY = T0, rho0, Y0
         self.phase.TPY = T1, P1, Y1
@@ -311,101 +327,101 @@ class TestSolutionUnits(CanteraUnitsTest):
             self.assertQuantityNear(getattr(self.phase, second), second_val)
 
     def check_getters(self):
-        T,D,X = self.phase.TDX
+        T, D, X = self.phase.TDX
         self.assertQuantityNear(T, self.phase.T)
         self.assertQuantityNear(D, self.phase.density)
-        self.assertArrayNear(X, self.phase.X)
+        self.assertArrayQuantityNear(X, self.phase.X)
 
-        T,D,Y = self.phase.TDY
+        T, D, Y = self.phase.TDY
         self.assertQuantityNear(T, self.phase.T)
         self.assertQuantityNear(D, self.phase.density)
-        self.assertArrayNear(Y, self.phase.Y)
+        self.assertArrayQuantityNear(Y, self.phase.Y)
 
-        T,D = self.phase.TD
+        T, D = self.phase.TD
         self.assertQuantityNear(T, self.phase.T)
         self.assertQuantityNear(D, self.phase.density)
 
-        T,P,X = self.phase.TPX
+        T, P, X = self.phase.TPX
         self.assertQuantityNear(T, self.phase.T)
         self.assertQuantityNear(P, self.phase.P)
-        self.assertArrayNear(X, self.phase.X)
+        self.assertArrayQuantityNear(X, self.phase.X)
 
-        T,P,Y = self.phase.TPY
+        T, P, Y = self.phase.TPY
         self.assertQuantityNear(T, self.phase.T)
         self.assertQuantityNear(P, self.phase.P)
-        self.assertArrayNear(Y, self.phase.Y)
+        self.assertArrayQuantityNear(Y, self.phase.Y)
 
-        T,P = self.phase.TP
+        T, P = self.phase.TP
         self.assertQuantityNear(T, self.phase.T)
         self.assertQuantityNear(P, self.phase.P)
 
-        H,P,X = self.phase.HPX
+        H, P, X = self.phase.HPX
         self.assertQuantityNear(H, self.phase.h)
         self.assertQuantityNear(P, self.phase.P)
-        self.assertArrayNear(X, self.phase.X)
+        self.assertArrayQuantityNear(X, self.phase.X)
 
-        H,P,Y = self.phase.HPY
+        H, P, Y = self.phase.HPY
         self.assertQuantityNear(H, self.phase.h)
         self.assertQuantityNear(P, self.phase.P)
-        self.assertArrayNear(Y, self.phase.Y)
+        self.assertArrayQuantityNear(Y, self.phase.Y)
 
-        H,P = self.phase.HP
+        H, P = self.phase.HP
         self.assertQuantityNear(H, self.phase.h)
         self.assertQuantityNear(P, self.phase.P)
 
-        U,V,X = self.phase.UVX
+        U, V, X = self.phase.UVX
         self.assertQuantityNear(U, self.phase.u)
         self.assertQuantityNear(V, self.phase.v)
-        self.assertArrayNear(X, self.phase.X)
+        self.assertArrayQuantityNear(X, self.phase.X)
 
-        U,V,Y = self.phase.UVY
+        U, V, Y = self.phase.UVY
         self.assertQuantityNear(U, self.phase.u)
         self.assertQuantityNear(V, self.phase.v)
-        self.assertArrayNear(Y, self.phase.Y)
+        self.assertArrayQuantityNear(Y, self.phase.Y)
 
-        U,V = self.phase.UV
+        U, V = self.phase.UV
         self.assertQuantityNear(U, self.phase.u)
         self.assertQuantityNear(V, self.phase.v)
 
-        S,P,X = self.phase.SPX
+        S, P, X = self.phase.SPX
         self.assertQuantityNear(S, self.phase.s)
         self.assertQuantityNear(P, self.phase.P)
-        self.assertArrayNear(X, self.phase.X)
+        self.assertArrayQuantityNear(X, self.phase.X)
 
-        S,P,Y = self.phase.SPY
+        S, P, Y = self.phase.SPY
         self.assertQuantityNear(S, self.phase.s)
         self.assertQuantityNear(P, self.phase.P)
-        self.assertArrayNear(Y, self.phase.Y)
+        self.assertArrayQuantityNear(Y, self.phase.Y)
 
-        S,P = self.phase.SP
+        S, P = self.phase.SP
         self.assertQuantityNear(S, self.phase.s)
         self.assertQuantityNear(P, self.phase.P)
 
-        S,V,X = self.phase.SVX
+        S, V, X = self.phase.SVX
         self.assertQuantityNear(S, self.phase.s)
         self.assertQuantityNear(V, self.phase.v)
-        self.assertArrayNear(X, self.phase.X)
+        self.assertArrayQuantityNear(X, self.phase.X)
 
-        S,V,Y = self.phase.SVY
+        S, V, Y = self.phase.SVY
         self.assertQuantityNear(S, self.phase.s)
         self.assertQuantityNear(V, self.phase.v)
-        self.assertArrayNear(Y, self.phase.Y)
+        self.assertArrayQuantityNear(Y, self.phase.Y)
 
-        S,V = self.phase.SV
+        S, V = self.phase.SV
         self.assertQuantityNear(S, self.phase.s)
         self.assertQuantityNear(V, self.phase.v)
 
-        D,P,X = self.phase.DPX
+        D, P, X = self.phase.DPX
         self.assertQuantityNear(D, self.phase.density)
         self.assertQuantityNear(P, self.phase.P)
-        self.assertArrayNear(X, self.phase.X)
+        self.assertArrayQuantityNear(X, self.phase.X)
 
-        D,P,Y = self.phase.DPY
+        D, P, Y = self.phase.DPY
         self.assertQuantityNear(D, self.phase.density)
         self.assertQuantityNear(P, self.phase.P)
-        self.assertArrayNear(Y, self.phase.Y)
+        self.assertArrayQuantityNear(Y, self.phase.Y)
 
-        D,P = self.phase.DP
+        D, P = self.phase.DP
         self.assertQuantityNear(D, self.phase.density)
         self.assertQuantityNear(P, self.phase.P)
 
