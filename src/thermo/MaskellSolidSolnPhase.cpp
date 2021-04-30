@@ -159,10 +159,8 @@ void MaskellSolidSolnPhase::getStandardChemPotentials(doublereal* mu) const
 
 void MaskellSolidSolnPhase::initThermo()
 {
-    if (m_input.hasKey("excess-enthalpy")) {
+    if (!m_input.empty()) {
         set_h_mix(m_input.convert("excess-enthalpy", "J/kmol"));
-    }
-    if (m_input.hasKey("product-species")) {
         setProductSpecies(m_input["product-species"].asString());
     }
     VPStandardStateTP::initThermo();
