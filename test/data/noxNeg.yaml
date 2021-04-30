@@ -1,0 +1,54 @@
+generator: ctml2yaml
+cantera-version: 2.6.0a2
+date: Thu, 29 Apr 2021 12:42:40 -0400
+input-files: [/home/speth/src/cantera/build/python/cantera/test/data/noxNeg.xml]
+
+phases:
+- name: air
+  elements: [O, H, N, Ar]
+  species:
+  - gri30.yaml/species: [O, O2, N, NO, NO2, N2O, N2, NH, H, H2O, NH2, AR]
+  thermo: ideal-gas
+  transport: mixture-averaged
+  kinetics: gas
+  reactions: all
+  state: {T: 900.0 K, P: 1.01325e+05 Pa, X: {O2: 0.21, N2: 0.78, AR: 0.01}}
+
+reactions:
+- equation: NH + NO <=> N2O + H
+  rate-constant: {A: 2.94e+11, b: -0.4, Ea: 0.0 cal/mol}
+  duplicate: true
+- equation: NH + NO <=> N2O + H
+  rate-constant: {A: -2.16e+10, b: -0.23, Ea: 0.0 cal/mol}
+  negative-A: true
+  duplicate: true
+- equation: NH2 + NO <=> N2 + H2O
+  rate-constant: {A: 1.3e+13, b: -1.25, Ea: 0.0 cal/mol}
+  duplicate: true
+- equation: NH2 + NO <=> N2 + H2O
+  rate-constant: {A: -2.8e+10, b: -0.55, Ea: 0.0 cal/mol}
+  negative-A: true
+  duplicate: true
+- equation: 2 O + M <=> O2 + M
+  type: three-body
+  rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0 cal/mol}
+  efficiencies: {AR: 0.83}
+- equation: N + NO <=> N2 + O
+  rate-constant: {A: 2.7e+10, b: 0.0, Ea: 355.0 cal/mol}
+- equation: N + O2 <=> NO + O
+  rate-constant: {A: 9.0e+06, b: 1.0, Ea: 6500.0 cal/mol}
+- equation: N2O + O <=> N2 + O2
+  rate-constant: {A: 1.4e+09, b: 0.0, Ea: 1.081e+04 cal/mol}
+- equation: N2O + O <=> 2 NO
+  rate-constant: {A: 2.9e+10, b: 0.0, Ea: 2.315e+04 cal/mol}
+- equation: N2O (+ M) <=> N2 + O (+ M)
+  type: falloff
+  high-P-rate-constant: {A: 7.91e+10, b: 0.0, Ea: 5.602e+04 cal/mol}
+  low-P-rate-constant: {A: 6.37e+11, b: 0.0, Ea: 5.664e+04 cal/mol}
+  efficiencies: {AR: 0.625}
+- equation: NO + O + M <=> NO2 + M
+  type: three-body
+  rate-constant: {A: 1.06e+14, b: -1.41, Ea: 0.0 cal/mol}
+  efficiencies: {AR: 0.7}
+- equation: NO2 + O <=> NO + O2
+  rate-constant: {A: 3.9e+09, b: 0.0, Ea: -240.0 cal/mol}
