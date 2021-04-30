@@ -126,9 +126,10 @@ UNITS = {
     "U": '"J/" + self.basis_units', "P_sat": '"Pa"', "T_sat": '"K"',
     "atomic_weight": '"kg/kmol"', "chemical_potentials": '"J/kmol"',
     "concentrations": '"kmol/m**3"', "critical_pressure": '"Pa"',
-    "critical_temperature": '"K"', "electric_potential": '"V"',
-    "electrochemical_potentials": '"J/kmol"', "isothermal_compressibility": '"1/Pa"',
-    "max_temp": '"K"', "mean_molecular_weight": '"kg/kmol"', "min_temp": '"K"',
+    "critical_temperature": '"K"', "critical_density": 'self.basis_units + "/m**3"',
+    "electric_potential": '"V"', "electrochemical_potentials": '"J/kmol"',
+    "isothermal_compressibility": '"1/Pa"', "max_temp": '"K"',
+    "mean_molecular_weight": '"kg/kmol"', "min_temp": '"K"',
     "molecular_weights": '"kg/kmol"', "partial_molar_cp": '"J/kmol/K"',
     "partial_molar_enthalpies": '"J/kmol"', "partial_molar_entropies": '"J/kmol/K"',
     "partial_molar_int_energies": '"J/kmol"', "partial_molar_volumes": '"m**3/kmol"',
@@ -140,12 +141,12 @@ getter_properties = [
     "entropy_mole", "int_energy_mass", "int_energy_mole", "volume_mass", "volume_mole",
     "gibbs_mass", "gibbs_mole", "cp_mass", "cp_mole", "cv_mass", "cv_mole", "P",
     "P_sat", "T", "T_sat", "atomic_weight", "chemical_potentials", "concentrations",
-    "critical_pressure", "critical_temperature", "electric_potential",
-    "electrochemical_potentials", "isothermal_compressibility", "max_temp",
-    "mean_molecular_weight", "min_temp", "molecular_weights", "partial_molar_cp",
-    "partial_molar_enthalpies", "partial_molar_entropies", "partial_molar_int_energies",
-    "partial_molar_volumes", "reference_pressure", "thermal_expansion_coeff", "cp",
-    "cv", "density", "h", "s", "g", "u", "v"
+    "critical_pressure", "critical_temperature", "critical_density",
+    "electric_potential", "electrochemical_potentials", "isothermal_compressibility",
+    "max_temp", "mean_molecular_weight", "min_temp", "molecular_weights",
+    "partial_molar_cp", "partial_molar_enthalpies", "partial_molar_entropies",
+    "partial_molar_int_energies", "partial_molar_volumes", "reference_pressure",
+    "thermal_expansion_coeff", "cp", "cv", "density", "h", "s", "g", "u", "v",
 ]
 
 getter_template = Template("""
