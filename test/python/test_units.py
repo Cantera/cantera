@@ -1,19 +1,17 @@
-import itertools
 import numpy as np
-import warnings
-from pint import UnitRegistry
-units = UnitRegistry()
-Q_ = units.Quantity
 
-import cantera.units as ct
-import cantera as cn
+import cantera.with_units as ct
 from . import utilities
 
+
 class CanteraUnitsTest(utilities.CanteraTest):
-    def assertQuantityNear(self, a, b, atol=1.0E-12, rtol=1.0E-8):
+    def assertQuantityNear(self, a, b, atol=1.0E-12, rtol=1.0E-8, msg=None):
         if not np.isclose(a, b, atol=atol, rtol=rtol):
-            message = (f'AssertNear: {a:.14g} - {b:.14g} = {a-b:.14g}\n' +
-                f'rtol = {rtol:10e}; atol = {atol:10e}')
+            message = (
+                f"AssertNear: {a:.14g} - {b:.14g} = {a-b:.14g}\n" +
+                f"rtol = {rtol:10e}; atol = {atol:10e}")
+            if msg is not None:
+                message = msg + "\n" + message
             self.fail(message)
 
     def assertArrayQuantityNear(self, A, B, rtol=1e-8, atol=1e-12, msg=None):
@@ -38,7 +36,7 @@ class TestSolutionUnits(CanteraUnitsTest):
         self.phase = ct.Solution("h2o2.yaml")
 
     def test_mass_basis(self):
-        self.assertEqual(self.phase.basis_units, 'kg')
+        self.assertEqual(self.phase.basis_units, "kg")
         self.assertQuantityNear(self.phase.density_mass, self.phase.density)
         self.assertQuantityNear(self.phase.enthalpy_mass, self.phase.h)
         self.assertQuantityNear(self.phase.entropy_mass, self.phase.s)
@@ -49,8 +47,8 @@ class TestSolutionUnits(CanteraUnitsTest):
         self.assertQuantityNear(self.phase.cv_mass, self.phase.cv)
 
     def test_molar_basis(self):
-        self.phase._phase.basis = "molar"
-        self.assertEqual(self.phase.basis_units, 'kmol')
+        self.phase.basis = "molar"
+        self.assertEqual(self.phase.basis_units, "kmol")
         self.assertQuantityNear(self.phase.density_mole, self.phase.density)
         self.assertQuantityNear(self.phase.enthalpy_mole, self.phase.h)
         self.assertQuantityNear(self.phase.entropy_mole, self.phase.s)
@@ -60,8 +58,8 @@ class TestSolutionUnits(CanteraUnitsTest):
         self.assertQuantityNear(self.phase.cp_mole, self.phase.cp)
         self.assertQuantityNear(self.phase.cv_mole, self.phase.cv)
 
-    def test_dimensions(self):
-        #basis-independent
+    def test_dimensions_solution(self):
+        # basis-independent
         dims_T = self.phase.T.dimensionality
         self.assertEqual(dims_T["[temperature]"], 1.0)
         dims_P = self.phase.P.dimensionality
@@ -69,16 +67,10 @@ class TestSolutionUnits(CanteraUnitsTest):
         self.assertEqual(dims_P["[length]"], -1.0)
         self.assertEqual(dims_P["[time]"], -2.0)
         dims_X = self.phase.X.dimensionality
-        #units container for dimensionless is empty
+        # units container for dimensionless is empty
         self.assertEqual(len(dims_X), 0)
         dims_Y = self.phase.Y.dimensionality
         self.assertEqual(len(dims_Y), 0)
-        # dims_T_sat = self.phase.T_sat.dimensionality
-        # self.assertEqual(dims_T_sat["[temperature]"], 1.0)
-        # dims_P_sat = self.phase.P_sat.dimensionality
-        # self.assertEqual(dims_P_sat["[mass]"], 1.0)
-        # self.assertEqual(dims_P_sat["[length]"], -1.0)
-        # self.assertEqual(dims_P_sat["[time]"], -2.0)
         dims_atomic_weight = self.phase.atomic_weight.dimensionality
         self.assertEqual(dims_atomic_weight["[mass]"], 1.0)
         self.assertEqual(dims_atomic_weight["[substance]"], -1.0)
@@ -90,26 +82,20 @@ class TestSolutionUnits(CanteraUnitsTest):
         dims_concentrations = self.phase.concentrations.dimensionality
         self.assertEqual(dims_concentrations["[substance]"], 1.0)
         self.assertEqual(dims_concentrations["[length]"], -3.0)
-        # dims_critical_temperature = self.phase.critical_temperature.dimensionality
-        # self.assertEqual(dims_critical_temperature["[temperature]"], 1.0)
-        # dims_critical_pressure = self.phase.critical_pressure.dimensionality
-        # self.assertEqual(dims_critical_pressure["[mass]"], 1.0)
-        # self.assertEqual(dims_critical_pressure["[length]"], -1.0)
-        # self.assertEqual(dims_critical_pressure["[time]"], -2.0)
         dims_electric_potential = self.phase.electric_potential.dimensionality
         self.assertEqual(dims_electric_potential["[mass]"], 1.0)
         self.assertEqual(dims_electric_potential["[length]"], 2.0)
         self.assertEqual(dims_electric_potential["[time]"], -3.0)
         self.assertEqual(dims_electric_potential["[current]"], -1.0)
-        dims_electrochemical_potentials = self.phase.electrochemical_potentials.dimensionality
-        self.assertEqual(dims_electrochemical_potentials["[mass]"], 1.0)
-        self.assertEqual(dims_electrochemical_potentials["[length]"], 2.0)
-        self.assertEqual(dims_electrochemical_potentials["[time]"], -2.0)
-        self.assertEqual(dims_electrochemical_potentials["[substance]"], -1.0)
-        dims_isothermal_compressibility = self.phase.isothermal_compressibility.dimensionality
-        self.assertEqual(dims_isothermal_compressibility["[mass]"], -1.0)
-        self.assertEqual(dims_isothermal_compressibility["[length]"], 1.0)
-        self.assertEqual(dims_isothermal_compressibility["[time]"], 2.0)
+        dims_echem_potential = self.phase.electrochemical_potentials.dimensionality
+        self.assertEqual(dims_echem_potential["[mass]"], 1.0)
+        self.assertEqual(dims_echem_potential["[length]"], 2.0)
+        self.assertEqual(dims_echem_potential["[time]"], -2.0)
+        self.assertEqual(dims_echem_potential["[substance]"], -1.0)
+        dims_isothermal_comp = self.phase.isothermal_compressibility.dimensionality
+        self.assertEqual(dims_isothermal_comp["[mass]"], -1.0)
+        self.assertEqual(dims_isothermal_comp["[length]"], 1.0)
+        self.assertEqual(dims_isothermal_comp["[time]"], 2.0)
         dims_max_temp = self.phase.max_temp.dimensionality
         self.assertEqual(dims_max_temp["[temperature]"], 1.0)
         dims_mean_molecular_weight = self.phase.mean_molecular_weight.dimensionality
@@ -126,22 +112,22 @@ class TestSolutionUnits(CanteraUnitsTest):
         self.assertEqual(dims_partial_molar_cp["[time]"], -2.0)
         self.assertEqual(dims_partial_molar_cp["[substance]"], -1.0)
         self.assertEqual(dims_partial_molar_cp["[temperature]"], -1.0)
-        dims_partial_molar_enthalpies = self.phase.partial_molar_enthalpies.dimensionality
-        self.assertEqual(dims_partial_molar_enthalpies["[mass]"], 1.0)
-        self.assertEqual(dims_partial_molar_enthalpies["[length]"], 2.0)
-        self.assertEqual(dims_partial_molar_enthalpies["[time]"], -2.0)
-        self.assertEqual(dims_partial_molar_enthalpies["[substance]"], -1.0)
+        dims_partial_mol_enth = self.phase.partial_molar_enthalpies.dimensionality
+        self.assertEqual(dims_partial_mol_enth["[mass]"], 1.0)
+        self.assertEqual(dims_partial_mol_enth["[length]"], 2.0)
+        self.assertEqual(dims_partial_mol_enth["[time]"], -2.0)
+        self.assertEqual(dims_partial_mol_enth["[substance]"], -1.0)
         dims_partial_molar_entropies = self.phase.partial_molar_entropies.dimensionality
         self.assertEqual(dims_partial_molar_entropies["[mass]"], 1.0)
         self.assertEqual(dims_partial_molar_entropies["[length]"], 2.0)
         self.assertEqual(dims_partial_molar_entropies["[time]"], -2.0)
         self.assertEqual(dims_partial_molar_entropies["[substance]"], -1.0)
         self.assertEqual(dims_partial_molar_entropies["[temperature]"], -1.0)
-        dims_partial_molar_int_energies = self.phase.partial_molar_int_energies.dimensionality
-        self.assertEqual(dims_partial_molar_int_energies["[mass]"], 1.0)
-        self.assertEqual(dims_partial_molar_int_energies["[length]"], 2.0)
-        self.assertEqual(dims_partial_molar_int_energies["[time]"], -2.0)
-        self.assertEqual(dims_partial_molar_int_energies["[substance]"], -1.0)
+        dims_partial_mol_int_eng = self.phase.partial_molar_int_energies.dimensionality
+        self.assertEqual(dims_partial_mol_int_eng["[mass]"], 1.0)
+        self.assertEqual(dims_partial_mol_int_eng["[length]"], 2.0)
+        self.assertEqual(dims_partial_mol_int_eng["[time]"], -2.0)
+        self.assertEqual(dims_partial_mol_int_eng["[substance]"], -1.0)
         dims_partial_molar_volumes = self.phase.partial_molar_volumes.dimensionality
         self.assertEqual(dims_partial_molar_volumes["[length]"], 3.0)
         self.assertEqual(dims_partial_molar_volumes["[substance]"], -1.0)
@@ -151,7 +137,7 @@ class TestSolutionUnits(CanteraUnitsTest):
         self.assertEqual(dims_reference_pressure["[time]"], -2.0)
         dims_thermal_expansion_coeff = self.phase.thermal_expansion_coeff.dimensionality
         self.assertEqual(dims_thermal_expansion_coeff["[temperature]"], -1.0)
-        #basis-dependent (mass)
+        # basis-dependent (mass)
         dims_density_mass = self.phase.density_mass.dimensionality
         self.assertEqual(dims_density_mass["[mass]"], 1.0)
         self.assertEqual(dims_density_mass["[length]"], -3.0)
@@ -179,7 +165,7 @@ class TestSolutionUnits(CanteraUnitsTest):
         self.assertEqual(dims_cv_mass["[length]"], 2.0)
         self.assertEqual(dims_cv_mass["[time]"], -2.0)
         self.assertEqual(dims_cv_mass["[temperature]"], -1.0)
-        #basis-dependent (molar)
+        # basis-dependent (molar)
         dims_density_mole = self.phase.density_mole.dimensionality
         self.assertEqual(dims_density_mole["[substance]"], 1.0)
         self.assertEqual(dims_density_mole["[length]"], -3.0)
@@ -284,26 +270,35 @@ class TestSolutionUnits(CanteraUnitsTest):
         check_state(T1, rho1, Y1)
 
     def test_setState_mass(self):
-        self.check_setters(T1 = Q_(500.0, "K"), rho1 = Q_(1.5, "kg/m**3"),
-                           Y1 = Q_([0.1, 0.0, 0.0, 0.1, 0.4, 0.2, 0.0, 0.0, 0.2, 0.0], "dimensionless"))
+        Y1 = ct.Q_([0.1, 0.0, 0.0, 0.1, 0.4, 0.2, 0.0, 0.0, 0.2, 0.0], "dimensionless")
+        self.check_setters(
+            T1=ct.Q_(500.0, "K"),
+            rho1=ct.Q_(1.5, "kg/m**3"),
+            Y1=Y1,
+        )
 
-    # def test_setState_mole(self):
-    #     self.phase.basis = 'molar'
-    #     self.check_setters(T1 = Q_(750.0, "K"), rho1 = Q_(0.02, "kmol/m**3"),
-    #                        Y1 = Q_([0.2, 0.1, 0.0, 0.3, 0.1, 0.0, 0.0, 0.2, 0.1, 0.0], "dimensionless"))
+    def test_setState_mole(self):
+        self.phase.basis = "molar"
+        Y1 = ct.Q_([0.1, 0.0, 0.0, 0.1, 0.4, 0.2, 0.0, 0.0, 0.2, 0.0], "dimensionless")
+        self.check_setters(
+            T1=ct.Q_(750.0, "K"),
+            rho1=ct.Q_(0.02, "kmol/m**3"),
+            Y1=Y1,
+        )
 
     def test_setters_hold_constant(self):
-        props = ('T','P','s','h','u','v','X','Y')
-        pairs = [('TP', 'T', 'P'), ('SP', 's', 'P'),
-                 ('UV', 'u', 'v')]
-
-        self.phase.TDX = Q_(1000, "K"), Q_(1.5, "kg/m**3"), 'H2O:0.1, O2:0.95, AR:3.0'
+        props = ("T", "P", "s", "h", "u", "v", "X", "Y")
+        pairs = [("TP", "T", "P"), ("SP", "s", "P"),
+                 ("UV", "u", "v")]
+        self.phase.X = "H2O:0.1, O2:0.95, AR:3.0"
+        self.phase.TD = ct.Q_(1000, "K"), ct.Q_(1.5, "kg/m**3")
         values = {}
         for p in props:
             values[p] = getattr(self.phase, p)
 
+        composition = "H2:0.1, O2:1.0, AR:3.0"
         for pair, first, second in pairs:
-            self.phase.TDX = Q_(500, "K"), Q_(2.5, "kg/m**3"), 'H2:0.1, O2:1.0, AR:3.0'
+            self.phase.TDX = ct.Q_(500, "K"), ct.Q_(2.5, "kg/m**3"), composition
             first_val = getattr(self.phase, first)
             second_val = getattr(self.phase, second)
 
@@ -311,18 +306,18 @@ class TestSolutionUnits(CanteraUnitsTest):
             self.assertQuantityNear(getattr(self.phase, first), values[first])
             self.assertQuantityNear(getattr(self.phase, second), second_val)
 
-            self.phase.TDX = Q_(500, "K"), Q_(2.5, "kg/m**3"), 'H2:0.1, O2:1.0, AR:3.0'
+            self.phase.TDX = ct.Q_(500, "K"), ct.Q_(2.5, "kg/m**3"), composition
             setattr(self.phase, pair, (None, values[second]))
             self.assertQuantityNear(getattr(self.phase, first), first_val)
             self.assertQuantityNear(getattr(self.phase, second), values[second])
 
-            self.phase.TDX = Q_(500, "K"), Q_(2.5, "kg/m**3"), 'H2:0.1, O2:1.0, AR:3.0'
-            setattr(self.phase, pair + 'X', (None, None, values['X']))
+            self.phase.TDX = ct.Q_(500, "K"), ct.Q_(2.5, "kg/m**3"), composition
+            setattr(self.phase, pair + "X", (None, None, values["X"]))
             self.assertQuantityNear(getattr(self.phase, first), first_val)
             self.assertQuantityNear(getattr(self.phase, second), second_val)
 
-            self.phase.TDX = Q_(500, "K"), Q_(2.5, "kg/m**3"), 'H2:0.1, O2:1.0, AR:3.0'
-            setattr(self.phase, pair + 'Y', (None, None, values['Y']))
+            self.phase.TDX = ct.Q_(500, "K"), ct.Q_(2.5, "kg/m**3"), composition
+            setattr(self.phase, pair + "Y", (None, None, values["Y"]))
             self.assertQuantityNear(getattr(self.phase, first), first_val)
             self.assertQuantityNear(getattr(self.phase, second), second_val)
 
@@ -426,25 +421,45 @@ class TestSolutionUnits(CanteraUnitsTest):
         self.assertQuantityNear(P, self.phase.P)
 
     def test_getState_mass(self):
-        self.phase.TDY = Q_(350.0, "K"), Q_(0.7, "kg/m**3"), 'H2:0.1, H2O2:0.1, AR:0.8'
+        self.phase.Y = "H2:0.1, H2O2:0.1, AR:0.8"
+        self.phase.TD = ct.Q_(350.0, "K"), ct.Q_(0.7, "kg/m**3")
         self.check_getters()
 
     def test_getState_mole(self):
-        self.phase.basis = 'molar'
-        self.phase.TDX = Q_(350.0, "K"), Q_(0.01, "kg/m**3"), 'H2:0.1, O2:0.3, AR:0.6'
+        self.phase.basis = "molar"
+        self.phase.X = "H2:0.1, O2:0.3, AR:0.6"
+        self.phase.TD = ct.Q_(350.0, "K"), ct.Q_(0.01, "kmol/m**3")
         self.check_getters()
 
     def test_isothermal_compressibility(self):
         self.assertQuantityNear(self.phase.isothermal_compressibility, 1.0/self.phase.P)
 
+
 class TestPureFluidUnits(CanteraUnitsTest):
     def setUp(self):
         self.water = ct.Water()
 
+    def test_dimensions_purefluid(self):
+        """These properties are not defined on the IdealGas phase class,
+        so they can"t be tested in the Solution for the h2o2.yaml input file.
+        """
+        dims_T_sat = self.water.T_sat.dimensionality
+        self.assertEqual(dims_T_sat["[temperature]"], 1.0)
+        dims_P_sat = self.water.P_sat.dimensionality
+        self.assertEqual(dims_P_sat["[mass]"], 1.0)
+        self.assertEqual(dims_P_sat["[length]"], -1.0)
+        self.assertEqual(dims_P_sat["[time]"], -2.0)
+        dims_critical_temperature = self.water.critical_temperature.dimensionality
+        self.assertEqual(dims_critical_temperature["[temperature]"], 1.0)
+        dims_critical_pressure = self.water.critical_pressure.dimensionality
+        self.assertEqual(dims_critical_pressure["[mass]"], 1.0)
+        self.assertEqual(dims_critical_pressure["[length]"], -1.0)
+        self.assertEqual(dims_critical_pressure["[time]"], -2.0)
+
     def test_critical_properties(self):
         self.assertQuantityNear(self.water.critical_pressure, 22.089e6 * ct.units.Pa)
         self.assertQuantityNear(self.water.critical_temperature, 647.286 * ct.units.K)
-        self.assertQuantityNear(self.water.critical_density, 317.0 * ct.units.dimensionless)
+        self.assertQuantityNear(self.water.critical_density, ct.Q_(317.0, "kg/m**3"))
 
     def test_temperature_limits(self):
         co2 = ct.CarbonDioxide()
@@ -452,300 +467,57 @@ class TestPureFluidUnits(CanteraUnitsTest):
         self.assertQuantityNear(co2.max_temp, 1500.0 * ct.units.K)
 
     def test_set_state(self):
-        self.water.PQ = Q_(101325, "Pa"), Q_(0.5, "dimensionless")
+        self.water.PQ = ct.Q_(101325, "Pa"), ct.Q_(0.5, "dimensionless")
         self.assertQuantityNear(self.water.P, 101325 * ct.units.Pa)
         self.assertQuantityNear(self.water.Q, 0.5 * ct.units.dimensionless)
 
-        self.water.TQ = Q_(500, "K"), Q_(0.8, "dimensionless")
+        self.water.TQ = ct.Q_(500, "K"), ct.Q_(0.8, "dimensionless")
         self.assertQuantityNear(self.water.T, 500 * ct.units.K)
         self.assertQuantityNear(self.water.Q, 0.8 * ct.units.dimensionless)
 
     def test_substance_set(self):
-        self.water.TV = Q_(400, "K"), Q_(1.45, "m**3/kg")
+        self.water.TV = ct.Q_(400, "K"), ct.Q_(1.45, "m**3/kg")
         self.assertQuantityNear(self.water.T, 400 * ct.units.K)
         self.assertQuantityNear(self.water.v, 1.45 * ct.units.m**3 / ct.units.kg)
-        with self.assertRaisesRegex(cn.CanteraError, 'Negative specific volume'):
-            self.water.TV = Q_(300, "K"), Q_(-1, "m**3/kg")
+        with self.assertRaisesRegex(ct.CanteraError, "Negative specific volume"):
+            self.water.TV = ct.Q_(300, "K"), ct.Q_(-1, "m**3/kg")
 
-        self.water.PV = Q_(101325, "Pa"), Q_(1.45, "m**3/kg")
+        self.water.PV = ct.Q_(101325, "Pa"), ct.Q_(1.45, "m**3/kg")
         self.assertQuantityNear(self.water.P, 101325 * ct.units.Pa)
         self.assertQuantityNear(self.water.v, 1.45 * ct.units.m**3 / ct.units.kg)
 
-        self.water.UP = Q_(-1.45e7, "J/kg"), Q_(101325, "Pa")
+        self.water.UP = ct.Q_(-1.45e7, "J/kg"), ct.Q_(101325, "Pa")
         self.assertQuantityNear(self.water.u, -1.45e7 * ct.units.J / ct.units.kg)
         self.assertQuantityNear(self.water.P, 101325 * ct.units.Pa)
 
-        self.water.VH = Q_(1.45, "m**3/kg"), Q_(-1.45e7, "J/kg")
+        self.water.VH = ct.Q_(1.45, "m**3/kg"), ct.Q_(-1.45e7, "J/kg")
         self.assertQuantityNear(self.water.v, 1.45 * ct.units.m**3 / ct.units.kg)
         self.assertQuantityNear(self.water.h, -1.45e7 * ct.units.J / ct.units.kg)
 
-        self.water.TH = Q_(400, "K"), Q_(-1.45e7, "J/kg")
+        self.water.TH = ct.Q_(400, "K"), ct.Q_(-1.45e7, "J/kg")
         self.assertQuantityNear(self.water.T, 400 * ct.units.K)
         self.assertQuantityNear(self.water.h, -1.45e7 * ct.units.J / ct.units.kg)
 
-        self.water.SH = Q_(5000, "J/kg/K"), Q_(-1.45e7, "J/kg")
-        self.assertQuantityNear(self.water.s, 5000 * ct.units.J / ct.units.kg / ct.units.K)
+        self.water.SH = ct.Q_(5000, "J/kg/K"), ct.Q_(-1.45e7, "J/kg")
+        self.assertQuantityNear(self.water.s, 5000 * ct.units("J/kg/K"))
         self.assertQuantityNear(self.water.h, -1.45e7 * ct.units.J / ct.units.kg)
 
-        self.water.ST = Q_(5000, "J/kg/K"), Q_(400, "K")
-        self.assertQuantityNear(self.water.s, 5000 * ct.units.J / ct.units.kg / ct.units.K)
+        self.water.ST = ct.Q_(5000, "J/kg/K"), ct.Q_(400, "K")
+        self.assertQuantityNear(self.water.s, 5000 * ct.units("J/kg/K"))
         self.assertQuantityNear(self.water.T, 400 * ct.units.K)
-
-    def test_states(self):
-        self.assertEqual(self.water._native_state, ('T', 'D'))
-        self.assertNotIn('TPY', self.water._full_states.values())
-        self.assertIn('TQ', self.water._partial_states.values())
 
     def test_set_Q(self):
-        self.water.TQ = Q_(500, "K"), Q_(0.0, "dimensionless")
+        self.water.TQ = ct.Q_(500, "K"), ct.Q_(0.0, "dimensionless")
         p = self.water.P
-        self.water.Q = Q_(0.8, "dimensionless")
+        self.water.Q = ct.Q_(0.8, "dimensionless")
         self.assertQuantityNear(self.water.P, p)
         self.assertQuantityNear(self.water.T, 500 * ct.units.K)
         self.assertQuantityNear(self.water.Q, 0.8 * ct.units.dimensionless)
 
-        self.water.TP = Q_(650, "K"), Q_(101325, "Pa")
-        with self.assertRaises(cn.CanteraError):
-            self.water.Q = Q_(0.1, "dimensionless")
+        self.water.TP = ct.Q_(650, "K"), ct.Q_(101325, "Pa")
+        with self.assertRaises(ct.CanteraError):
+            self.water.Q = ct.Q_(0.1, "dimensionless")
 
-        self.water.TP = Q_(300, "K"), Q_(101325, "Pa")
+        self.water.TP = ct.Q_(300, "K"), ct.Q_(101325, "Pa")
         with self.assertRaises(ValueError):
-            self.water.Q = Q_(0.3, "dimensionless")
-
-    def test_set_minmax(self):
-        self.water.TP = self.water.min_temp, Q_(101325, "Pa")
-        self.assertQuantityNear(self.water.T, self.water.min_temp)
-
-        self.water.TP = self.water.max_temp, Q_(101325, "Pa")
-        self.assertQuantityNear(self.water.T, self.water.max_temp)
-
-    def check_fd_properties(self, T1, P1, T2, P2, tol):
-        # Properties which are computed as finite differences
-        self.water.TP = T1, P1
-        h1a = self.water.enthalpy_mass
-        cp1 = self.water.cp_mass
-        cv1 = self.water.cv_mass
-        k1 = self.water.isothermal_compressibility
-        alpha1 = self.water.thermal_expansion_coeff
-        h1b = self.water.enthalpy_mass
-
-        self.water.TP = T2, P2
-        h2a = self.water.enthalpy_mass
-        cp2 = self.water.cp_mass
-        cv2 = self.water.cv_mass
-        k2 = self.water.isothermal_compressibility
-        alpha2 = self.water.thermal_expansion_coeff
-        h2b = self.water.enthalpy_mass
-
-        self.assertQuantityNear(cp1, cp2, tol, tol)
-        self.assertQuantityNear(cv1, cv2, tol, tol)
-        self.assertQuantityNear(k1, k2, tol, tol)
-        self.assertQuantityNear(alpha1, alpha2, tol, tol)
-
-        # calculating these finite difference properties should not perturb the
-        # state of the object (except for checks on edge cases)
-        self.assertQuantityNear(h1a, h1b, 1e-9)
-        self.assertQuantityNear(h2a, h2b, 1e-9)
-
-    def test_properties_near_min(self):
-        self.check_fd_properties(self.water.min_temp*(1+1e-5), 101325 * ct.units.Pa,
-                                 self.water.min_temp*(1+1e-4), 101325 * ct.units.Pa, 1e-2)
-
-    def test_properties_near_max(self):
-        self.check_fd_properties(self.water.max_temp*(1-1e-5), 101325 * ct.units.Pa,
-                                 self.water.max_temp*(1-1e-4), 101325 * ct.units.Pa, 1e-2)
-
-    def test_properties_near_sat1(self):
-        for T in [340 * ct.units.K, 390 * ct.units.K, 420 * ct.units.K]:
-            self.water.TQ = T, Q_(0.0, "dimensionless")
-            P = self.water.P
-            self.check_fd_properties(T, P+0.01 * ct.units.Pa, T, P+0.5 * ct.units.Pa, 1e-4)
-
-    def test_properties_near_sat2(self):
-        for T in [340 * ct.units.K, 390 * ct.units.K, 420 * ct.units.K]:
-            self.water.TQ = T, Q_(0.0, "dimensionless")
-            P = self.water.P
-            self.check_fd_properties(T, P-0.01 * ct.units.Pa, T, P-0.5 * ct.units.Pa, 1e-4)
-
-    def test_isothermal_compressibility_lowP(self):
-        # Low-pressure limit corresponds to ideal gas
-        ref = ct.Solution('gri30.xml')
-        ref.TPX = Q_(450, "K"), Q_(12, "Pa"), 'H2O:1.0'
-        self.water.TP = Q_(450, "K"), Q_(12, "Pa")
-        self.assertQuantityNear(ref.isothermal_compressibility,
-                        self.water.isothermal_compressibility, 1e-5 * ct.units.dimensionless)
-
-    def test_thermal_expansion_coeff_lowP(self):
-        # Low-pressure limit corresponds to ideal gas
-        ref = ct.Solution('gri30.xml')
-        ref.TPX = Q_(450, "K"), Q_(12, "Pa"), 'H2O:1.0'
-        self.water.TP = Q_(450, "K"), Q_(12, "Pa")
-        self.assertQuantityNear(ref.thermal_expansion_coeff,
-                        self.water.thermal_expansion_coeff, 1e-5 * ct.units.dimensionless)
-
-    def test_thermal_expansion_coeff_TD(self):
-        for T in [440 * ct.units.K, 550 * ct.units.K, 660 * ct.units.K]:
-            self.water.TD = T, Q_(0.1, "kg/m**3")
-            self.assertQuantityNear(T * self.water.thermal_expansion_coeff, 1.0, 1e-2)
-
-    def test_pq_setter_triple_check(self):
-        self.water.PQ = Q_(101325, "Pa"), Q_(.2, "dimensionless")
-        T = self.water.T
-        # change T such that it would result in a Psat larger than P
-        self.water.TP = Q_(400, "K"), Q_(101325, "Pa")
-        # ensure that correct triple point pressure is recalculated
-        # (necessary as this value is not stored by the C++ base class)
-        self.water.PQ = Q_(101325, "Pa"), Q_(.2, "dimensionless")
-        self.assertQuantityNear(T, self.water.T, 1e-9)
-        with self.assertRaisesRegex(cn.CanteraError, 'below triple point'):
-            # min_temp is triple point temperature
-            self.water.TP = self.water.min_temp, Q_(101325, "Pa")
-            P = self.water.P_sat # triple-point pressure
-            self.water.PQ = .999*P, Q_(.2, "dimensionless")
-
-    def test_quality_exceptions(self):
-        # Critical point
-        self.water.TP = Q_(300, "K"), Q_(cn.one_atm, "Pa")
-        self.water.TQ = self.water.critical_temperature, Q_(.5, "dimensionless")
-        self.assertQuantityNear(self.water.P, self.water.critical_pressure)
-        self.water.TP = Q_(300, "K"), Q_(cn.one_atm, "Pa")
-        self.water.PQ = self.water.critical_pressure, Q_(.5, "dimensionless")
-        self.assertQuantityNear(self.water.T, self.water.critical_temperature)
-
-        # Supercritical
-        with self.assertRaisesRegex(cn.CanteraError, 'supercritical'):
-            self.water.TQ = 1.001 * self.water.critical_temperature, Q_(0, "dimensionless")
-        with self.assertRaisesRegex(cn.CanteraError, 'supercritical'):
-            self.water.PQ = 1.001 * self.water.critical_pressure, Q_(0, "dimensionless")
-
-        # Q negative
-        with self.assertRaisesRegex(cn.CanteraError, 'Invalid vapor fraction'):
-            self.water.TQ = Q_(373.15, "K"), Q_(-.001, "dimensionless")
-        with self.assertRaisesRegex(cn.CanteraError, 'Invalid vapor fraction'):
-            self.water.PQ = Q_(cn.one_atm, "Pa"), Q_(-.001, "dimensionless")
-
-        # Q larger than one
-        with self.assertRaisesRegex(cn.CanteraError, 'Invalid vapor fraction'):
-            self.water.TQ = Q_(373.15, "K"), Q_(1.001, "dimensionless")
-        with self.assertRaisesRegex(cn.CanteraError, 'Invalid vapor fraction'):
-            self.water.PQ = Q_(cn.one_atm, "Pa"), Q_(1.001, "dimensionless")
-
-    def test_saturated_mixture(self):
-        self.water.TP = Q_(300, "K"), Q_(cn.one_atm, "Pa")
-        with self.assertRaisesRegex(cn.CanteraError, 'Saturated mixture detected'):
-            self.water.TP = Q_(300, "K"), self.water.P_sat
-
-        w = ct.Water()
-
-        # Saturated vapor
-        self.water.TQ = Q_(373.15, "K"), Q_(1, "dimensionless")
-        self.assertEqual(self.water.phase_of_matter, 'liquid-gas-mix')
-        w.TP = self.water.T, .999 * self.water.P_sat
-        self.assertQuantityNear(self.water.cp, w.cp, 1.e-1)
-        self.assertQuantityNear(self.water.cv, w.cv, 1.e-1)
-        self.assertQuantityNear(self.water.thermal_expansion_coeff, w.thermal_expansion_coeff, 1.e-1)
-        self.assertQuantityNear(self.water.isothermal_compressibility, w.isothermal_compressibility, 1.e-1)
-
-        # Saturated mixture
-        self.water.TQ = Q_(373.15, "K"), Q_(.5, "dimensionless")
-        self.assertEqual(self.water.phase_of_matter, 'liquid-gas-mix')
-        self.assertEqual(self.water.cp, np.inf * ct.units.J / ct.units.kg / ct.units.K)
-        self.assertTrue(np.isnan(self.water.cv))
-        self.assertEqual(self.water.isothermal_compressibility, np.inf * 1 / ct.units.Pa)
-        self.assertEqual(self.water.thermal_expansion_coeff, np.inf * 1 / ct.units.K)
-
-        # Saturated liquid
-        self.water.TQ = Q_(373.15, "K"), Q_(0, "dimensionless")
-        self.assertEqual(self.water.phase_of_matter, 'liquid-gas-mix')
-        w.TP = self.water.T, 1.001 * self.water.P_sat
-        self.assertQuantityNear(self.water.cp, w.cp, 9.e-1)
-        self.assertQuantityNear(self.water.cv, w.cv, 9.e-1)
-        self.assertQuantityNear(self.water.thermal_expansion_coeff, w.thermal_expansion_coeff, 1.e-1)
-        self.assertQuantityNear(self.water.isothermal_compressibility, w.isothermal_compressibility, 1.e-1)
-
-    def test_saturation_near_limits(self):
-        # Low temperature limit (triple point)
-        self.water.TP = Q_(300, "K"), Q_(cn.one_atm, "Pa")
-        self.water.P_sat # ensure that solver buffers sufficiently different values
-        self.water.TP = self.water.min_temp, Q_(cn.one_atm, "Pa")
-        psat = self.water.P_sat
-        self.water.TP = Q_(300, "K"), Q_(cn.one_atm, "Pa")
-        self.water.P_sat # ensure that solver buffers sufficiently different values
-        self.water.TP = Q_(300, "K"), psat
-        self.assertQuantityNear(self.water.T_sat, self.water.min_temp)
-
-        # High temperature limit (critical point) - saturation temperature
-        self.water.TP = Q_(300, "K"), Q_(cn.one_atm, "Pa")
-        self.water.P_sat # ensure that solver buffers sufficiently different values
-        self.water.TP = self.water.critical_temperature, self.water.critical_pressure
-        self.assertQuantityNear(self.water.T_sat, self.water.critical_temperature)
-
-        # High temperature limit (critical point) - saturation pressure
-        self.water.TP = Q_(300, "K"), Q_(cn.one_atm, "Pa")
-        self.water.P_sat # ensure that solver buffers sufficiently different values
-        self.water.TP = self.water.critical_temperature, self.water.critical_pressure
-        self.assertQuantityNear(self.water.P_sat, self.water.critical_pressure)
-
-        # Supercricital
-        with self.assertRaisesRegex(cn.CanteraError, 'Illegal temperature value'):
-            self.water.TP = 1.001 * self.water.critical_temperature, self.water.critical_pressure
-            self.water.P_sat
-        with self.assertRaisesRegex(cn.CanteraError, 'Illegal pressure value'):
-            self.water.TP = self.water.critical_temperature, 1.001 * self.water.critical_pressure
-            self.water.T_sat
-
-        # Below triple point
-        with self.assertRaisesRegex(cn.CanteraError, 'Illegal temperature'):
-            self.water.TP = .999 * self.water.min_temp, Q_(cn.one_atm, "Pa")
-            self.water.P_sat
-        # @TODO: test disabled pending fix of GitHub issue #605
-        # with self.assertRaisesRegex(ct.CanteraError, 'Illegal pressure value'):
-        #     self.water.TP = 300, .999 * psat
-        #     self.water.T_sat
-
-    def test_TPQ(self):
-        self.water.TQ = Q_(400, "K"), Q_(0.8, "dimensionless")
-        T, P, Q = self.water.TPQ
-        self.assertQuantityNear(T, 400 * ct.units.K)
-        self.assertQuantityNear(Q, 0.8 * ct.units.dimensionless)
-
-        # a supercritical state
-        self.water.TPQ = Q_(800, "K"), Q_(3e7, "Pa"), Q_(1, "dimensionless")
-        self.assertQuantityNear(self.water.T, 800 * ct.units.K)
-        self.assertQuantityNear(self.water.P, 3e7 * ct.units.Pa)
-
-        self.water.TPQ = T, P, Q
-        self.assertQuantityNear(self.water.Q, 0.8 * ct.units.dimensionless)
-        with self.assertRaisesRegex(cn.CanteraError, 'inconsistent'):
-            self.water.TPQ = T, .999*P, Q
-        with self.assertRaisesRegex(cn.CanteraError, 'inconsistent'):
-            self.water.TPQ = T, 1.001*P, Q
-        with self.assertRaises(TypeError):
-            self.water.TPQ = T, P, 'spam'
-
-        self.water.TPQ = Q_(500, "K"), Q_(1e5, "Pa"), Q_(1, "dimensionless")  # superheated steam
-        self.assertQuantityNear(self.water.P, 1e5 * ct.units.Pa)
-        with self.assertRaisesRegex(cn.CanteraError, 'inconsistent'):
-            self.water.TPQ = Q_(500, "K"), Q_(1e5, "Pa"), Q_(0, "dimensionless")  # vapor fraction should be 1 (T < Tc)
-        with self.assertRaisesRegex(cn.CanteraError, 'inconsistent'):
-            self.water.TPQ = Q_(700, "K"), Q_(1e5, "Pa"), Q_(0, "dimensionless")  # vapor fraction should be 1 (T > Tc)
-
-    def test_phase_of_matter(self):
-        self.water.TP = Q_(300, "K"), Q_(101325, "Pa")
-        self.assertEqual(self.water.phase_of_matter, "liquid")
-        self.water.TP = Q_(500, "K"), Q_(101325, "Pa")
-        self.assertEqual(self.water.phase_of_matter, "gas")
-        self.water.TP = self.water.critical_temperature*2, Q_(101325, "Pa")
-        self.assertEqual(self.water.phase_of_matter, "supercritical")
-        self.water.TP = Q_(300, "K"), self.water.critical_pressure*2
-        self.assertEqual(self.water.phase_of_matter, "supercritical")
-        self.water.TQ = Q_(300, "K"), Q_(0.4, "dimensionless")
-        self.assertEqual(self.water.phase_of_matter, "liquid-gas-mix")
-
-        # These cases work after fixing GH-786
-        n2 = ct.Nitrogen()
-        n2.TP = Q_(100, "K"), Q_(1000, "Pa")
-        self.assertEqual(n2.phase_of_matter, "gas")
-
-        co2 = ct.CarbonDioxide()
-        self.assertEqual(co2.phase_of_matter, "gas")
+            self.water.Q = ct.Q_(0.3, "dimensionless")
