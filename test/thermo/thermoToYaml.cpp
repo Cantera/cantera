@@ -383,19 +383,19 @@ public:
 
 TEST_F(ThermoYamlRoundTrip, RedlichKwong)
 {
-    roundtrip("nDodecane_Reitz.xml", "nDodecane_RK");
+    roundtrip("nDodecane_Reitz.yaml", "nDodecane_RK");
     compareThermo(500, 6e5, "c12h26: 0.2, o2: 0.1, co2: 0.4, c2h2: 0.3");
 }
 
 TEST_F(ThermoYamlRoundTrip, BinarySolutionTabulated)
 {
-    roundtrip("lithium_ion_battery.xml", "cathode");
+    roundtrip("lithium_ion_battery.yaml", "cathode");
     compareThermo(310, 2e5, "Li[cathode]:0.4, V[cathode]:0.6");
 }
 
 TEST_F(ThermoYamlRoundTrip, Margules)
 {
-    roundtrip("LiKCl_liquid.xml", "MoltenSalt_electrolyte");
+    roundtrip("LiKCl_liquid.yaml", "MoltenSalt_electrolyte");
     compareThermo(920, 3e5, "KCl(L):0.35, LiCl(L):0.65");
 }
 
