@@ -17,7 +17,7 @@ static const double expected_result_minus_5000[9] = { 1.2340671804814456e7, 8.01
 class MaskellSolidSolnPhase_Test : public testing::Test
 {
 public:
-    void initializeTestPhaseWithXML(const std::string & filename)
+    void setup(const std::string & filename)
     {
         test_phase.reset(newPhase(filename));
     }
@@ -45,21 +45,18 @@ public:
     std::unique_ptr<ThermoPhase> test_phase;
 };
 
-TEST_F(MaskellSolidSolnPhase_Test, construct_from_xml)
+TEST_F(MaskellSolidSolnPhase_Test, construct_from_file)
 {
-    const std::string invalid_file("../data/MaskellSolidSolnPhase_nohmix.xml");
-    EXPECT_THROW(initializeTestPhaseWithXML(invalid_file), CanteraError);
+    EXPECT_THROW(setup("MaskellSolidSolnPhase_nohmix.yaml"), CanteraError);
 
-    const std::string valid_file("../data/MaskellSolidSolnPhase_valid.xml");
-    initializeTestPhaseWithXML(valid_file);
+    setup("MaskellSolidSolnPhase_valid.yaml");
     MaskellSolidSolnPhase* maskell_phase = dynamic_cast<MaskellSolidSolnPhase*>(test_phase.get());
     EXPECT_TRUE(maskell_phase != NULL);
 }
 
 TEST_F(MaskellSolidSolnPhase_Test, chem_potentials)
 {
-    const std::string valid_file("../data/MaskellSolidSolnPhase_valid.xml");
-    initializeTestPhaseWithXML(valid_file);
+    setup("MaskellSolidSolnPhase_valid.yaml");
     test_phase->setState_TP(298., 1.);
     set_r(0.5);
 
@@ -77,9 +74,7 @@ TEST_F(MaskellSolidSolnPhase_Test, chem_potentials)
 
 TEST_F(MaskellSolidSolnPhase_Test, partialMolarVolumes)
 {
-    const std::string valid_file("../data/MaskellSolidSolnPhase_valid.xml");
-    initializeTestPhaseWithXML(valid_file);
-
+    setup("MaskellSolidSolnPhase_valid.yaml");
     vector_fp pmv(2);
     test_phase->getPartialMolarVolumes(&pmv[0]);
     EXPECT_EQ(0.005, pmv[0]);
@@ -88,8 +83,7 @@ TEST_F(MaskellSolidSolnPhase_Test, partialMolarVolumes)
 
 TEST_F(MaskellSolidSolnPhase_Test, activityCoeffs)
 {
-    const std::string valid_file("../data/MaskellSolidSolnPhase_valid.xml");
-    initializeTestPhaseWithXML(valid_file);
+    setup("MaskellSolidSolnPhase_valid.yaml");
     test_phase->setState_TP(298., 1.);
     set_r(0.5);
 
@@ -112,17 +106,14 @@ TEST_F(MaskellSolidSolnPhase_Test, activityCoeffs)
 
 TEST_F(MaskellSolidSolnPhase_Test, standardConcentrations)
 {
-    const std::string valid_file("../data/MaskellSolidSolnPhase_valid.xml");
-    initializeTestPhaseWithXML(valid_file);
-
+    setup("MaskellSolidSolnPhase_valid.yaml");
     EXPECT_DOUBLE_EQ(1.0, test_phase->standardConcentration(0));
     EXPECT_DOUBLE_EQ(1.0, test_phase->standardConcentration(1));
 }
 
 TEST_F(MaskellSolidSolnPhase_Test, activityConcentrations)
 {
-    const std::string valid_file("../data/MaskellSolidSolnPhase_valid.xml");
-    initializeTestPhaseWithXML(valid_file);
+    setup("MaskellSolidSolnPhase_valid.yaml");
 
     // Check to make sure activityConcentration_i == standardConcentration_i * gamma_i * X_i
     vector_fp standardConcs(2);
