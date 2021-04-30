@@ -1,0 +1,51 @@
+generator: cti2yaml + manual additions
+cantera-version: 2.6.0a2
+date: Fri, 30 Apr 2021 17:13:23 -0400
+input-files: [co2_RK_lookup.cti, co2_RK_example.yaml]
+
+units: {length: cm, quantity: mol, activation-energy: cal/mol}
+
+phases:
+- name: carbondioxide
+  thermo: Redlich-Kwong
+  species:
+  - gri30.yaml/species: [CO2]
+  - species: [H2O, H2]
+  state:
+    T: 300.0
+    P: 1.01325e+05
+    X: {CO2: 0.99, H2: 0.01}
+
+species:
+- name: H2
+  composition: {H: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.34433112, 7.98052075e-03, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+    - [3.3372792, -4.94024731e-05, 4.99456778e-07, -1.79566394e-10, 2.00255376e-14,
+      -950.158922, -3.20502331]
+  equation-of-state:
+    model: Redlich-Kwong
+    a: 1.37191e+11
+    b: 17.64
+  note: TPIS78
+- name: H2O
+  composition: {H: 2, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [4.19864056, -2.0364341e-03, 6.52040211e-06, -5.48797062e-09, 1.77197817e-12,
+      -3.02937267e+04, -0.849032208]
+    - [3.03399249, 2.17691804e-03, -1.64072518e-07, -9.7041987e-11, 1.68200992e-14,
+      -3.00042971e+04, 4.9667701]
+  equation-of-state:
+    model: Redlich-Kwong
+    a: [1.7458e+13, -8.0e+09]
+    b: 18.18
+    binary-a:
+      CO2: [7.897e+12, 0]
+  note: L 8/89

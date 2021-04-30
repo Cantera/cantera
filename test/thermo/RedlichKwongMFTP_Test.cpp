@@ -10,7 +10,7 @@ class RedlichKwongMFTP_Test : public testing::Test
 {
 public:
     RedlichKwongMFTP_Test() {
-        test_phase.reset(newPhase("../data/co2_RK_example.cti"));
+        test_phase.reset(newPhase("co2_RK_example.yaml"));
     }
 
     //vary the composition of a co2-h2 mixture:
@@ -24,7 +24,7 @@ public:
     std::unique_ptr<ThermoPhase> test_phase;
 };
 
-TEST_F(RedlichKwongMFTP_Test, construct_from_cti)
+TEST_F(RedlichKwongMFTP_Test, construct_from_file)
 {
     RedlichKwongMFTP* redlich_kwong_phase = dynamic_cast<RedlichKwongMFTP*>(test_phase.get());
     EXPECT_TRUE(redlich_kwong_phase != NULL);
@@ -170,7 +170,7 @@ TEST_F(RedlichKwongMFTP_Test, critPropLookup)
 {
     // Check to make sure that RedlichKwongMFTP is able to properly calculate a and b
     // pureFluidParameters based on tabulated critical properties
-    test_phase.reset(newPhase("../data/co2_RK_lookup.cti"));
+    test_phase.reset(newPhase("co2_RK_lookup.yaml"));
 
     // Check that the critical properties (temperature and pressure) are calculated correctly for
     // pure fluids, both for those with pureFluidParameters provided in the cti file (i.e., h2) and
