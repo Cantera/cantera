@@ -84,41 +84,33 @@ class PureFluid(Solution):
     @purefluid_properties@
 
 
-class Heptane(PureFluid):
-    def __init__(self):
-        super().__init__("liquidvapor.yaml", "heptane")
+def Heptane():
+    return PureFluid("liquidvapor.yaml", "heptane")
 
 
-class CarbonDioxide(PureFluid):
-    def __init__(self):
-        super().__init__("liquidvapor.yaml", "carbon-dioxide")
+def CarbonDioxide():
+    return PureFluid("liquidvapor.yaml", "carbon-dioxide")
 
 
-class Hfc134a(PureFluid):
-    def __init__(self):
-        super().__init__("liquidvapor.yaml", "hfc134a")
+def Hfc134a():
+    return PureFluid("liquidvapor.yaml", "hfc134a")
 
 
-class Hydrogen(PureFluid):
-    def __init__(self):
-        super().__init__("liquidvapor.yaml", "hydrogen")
+def Hydrogen():
+    return PureFluid("liquidvapor.yaml", "hydrogen")
 
 
-class Methane(PureFluid):
-    def __init__(self):
-        super().__init__("liquidvapor.yaml", "methane")
+def Methane():
+    return PureFluid("liquidvapor.yaml", "methane")
 
 
-class Nitrogen(PureFluid):
-    def __init__(self):
-        super().__init__("liquidvapor.yaml", "nitrogen")
+def Nitrogen():
+    return PureFluid("liquidvapor.yaml", "nitrogen")
 
 
-class Oxygen(PureFluid):
-    def __init__(self):
-        super().__init__("liquidvapor.yaml", "oxygen")
+def Oxygen():
+    return PureFluid("liquidvapor.yaml", "oxygen")
 
 
-class Water(PureFluid):
-    def __init__(self):
-        super().__init__("liquidvapor.yaml", "water")
+def Water():
+    return PureFluid("liquidvapor.yaml", "water")
