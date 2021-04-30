@@ -315,7 +315,7 @@ def clean_node_text(node: etree.Element) -> str:
     text = node.text
     if text is None:
         raise MissingNodeText("The text of the node must exist", node)
-    return text.replace("\n", " ").replace("\t", " ").strip()
+    return text.replace("\n", " ").replace("\t", " ").strip(" ,")
 
 
 class Phase:
