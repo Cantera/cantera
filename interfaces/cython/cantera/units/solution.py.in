@@ -1,69 +1,29 @@
-from .. import Solution as _Solution, PureFluid as _PureFluid
+from .. import Solution as _Solution, PureFluid as _PureFluid, CanteraError
 
 from pint import UnitRegistry
 units = UnitRegistry()
 Q_ = units.Quantity
 
-__all__ = (
-    "units", "Q_", "Solution", "PureFluid", "Heptane", "CarbonDioxide",
-    "Hfc134a", "Hydrogen", "Methane", "Nitrogen", "Oxygen", "Water")
+__all__ = ("units", "Q_", "Solution", "PureFluid", "Heptane", "CarbonDioxide",
+           "Hfc134a", "Hydrogen", "Methane", "Nitrogen", "Oxygen", "Water",
+           "CanteraError")
 
 
 class Solution:
-    def __init__(self, infile, phasename=""):
-        self._phase = _Solution(infile, phasename)
+    def __init__(self, infile, name=""):
+        self.__dict__["_phase"] = _Solution(infile, name)
 
-    @property
-    def basis_units(self):
-        if self._phase.basis == "mass":
-            return "kg"
-        else:
-            return "kmol"
+    @common_properties@
 
-    def __getattr__(self, name):
-        return getattr(self._phase, name)
-
-    def __setattr__(self, name, value):
-        return super(Solution, self).__setattr__(name, value)
-
-    @property
-    def X(self):
-        X = self._phase.X
-        return Q_(X, "dimensionless")
-
-    @X.setter
-    def X(self, value):
-        if value is not None:
-            try:
-                X = value.to("dimensionless").magnitude
-            except AttributeError:
-                X = value
-        else:
-            X = self.X.magnitude
-        self._phase.X = X
-
-    @property
-    def Y(self):
-        Y = self._phase.Y
-        return Q_(Y, "dimensionless")
-
-    @Y.setter
-    def Y(self, value):
-        if value is not None:
-            try:
-                Y = value.to("dimensionless").magnitude
-            except AttributeError:
-                Y = value
-        else:
-            Y = self.Y.magnitude
-        self._phase.Y = Y
-
-    @solution_properties@
+    @thermophase_properties@
 
 
-class PureFluid(Solution):
-    def __init__(self, infile, phasename=""):
-        self._phase = _PureFluid(infile, phasename)
+
+class PureFluid:
+    def __init__(self, infile, name=""):
+        self.__dict__["_phase"] = _PureFluid(infile, name)
+
+    @common_properties@
 
     @property
     def Q(self):
@@ -76,10 +36,34 @@ class PureFluid(Solution):
             try:
                 Q = value.to("dimensionless").magnitude
             except AttributeError:
-                Q = value
+                raise CanteraError(
+                    "Values must be instances of pint.Quantity classes"
+                ) from None
         else:
             Q = self.Q.magnitude
         self._phase.Q = Q
+
+    @thermophase_properties@
+
+    @property
+    def TPQ(self):
+        T, P, Q = self._phase.TPQ
+        return Q_(T, "K"), Q_(P, "Pa"), Q_(Q, "dimensionless")
+
+    @TPQ.setter
+    def TPQ(self, value):
+        T = value[0] if value[0] is not None else self.T
+        P = value[1] if value[1] is not None else self.P
+        Q = value[2] if value[2] is not None else self.Q
+        try:
+            T = T.to("K")
+            P = P.to("Pa")
+            Q = Q.to("dimensionless")
+        except AttributeError:
+            raise CanteraError(
+                "Values must be instances of pint.Quantity classes"
+            ) from None
+        self._phase.TPQ = T.magnitude, P.magnitude, Q.magnitude
 
     @purefluid_properties@
 
