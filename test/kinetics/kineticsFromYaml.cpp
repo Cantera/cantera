@@ -388,7 +388,9 @@ public:
     void duplicateReaction(size_t i) {
         auto kin = soln->kinetics();
         iOld = i;
-        AnyMap rdata1 = kin->reaction(iOld)->parameters();
+        // Exclude the raw input data, to make sure this test actually relies on
+        // the fields being populated by the Reaction types.
+        AnyMap rdata1 = kin->reaction(iOld)->parameters(false);
         AnyMap rdata2 = AnyMap::fromYamlString(rdata1.toYamlString());
         duplicate = newReaction(rdata2, *kin);
         kin->addReaction(duplicate);
