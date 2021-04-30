@@ -1,0 +1,48 @@
+generator: ctml2yaml
+cantera-version: 2.6.0a2
+date: Fri, 30 Apr 2021 15:18:12 -0400
+input-files: [/home/speth/src/cantera/build/python/cantera/test/data/LiKCl_liquid.xml]
+
+phases:
+- name: MoltenSalt_electrolyte
+  elements: [Li, K, Cl]
+  species:
+  - species_MoltenSalt: [LiCl(L), KCl(L)]
+  thermo: Margules
+  interactions:
+  - species: [KCl(L), LiCl(L)]
+    excess-enthalpy: [-17570. J/gmol, -377 J/gmol]
+    excess-entropy: [-7.627 J/gmol/K, 4.958 J/gmol/K]
+
+species_MoltenSalt:
+- name: Li+
+  composition: {Li: 1.0, E: -1.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [700.0, 2000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: K+
+  composition: {K: 1.0, E: -1.0}
+- name: Cl-
+  composition: {E: 1.0}
+- name: KCl(L)
+  composition: {K: 1.0, Cl: 1.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [700.0, 2000.0]
+    data:
+    - [73.59698, 0.0, 0.0, 0.0, 0.0, -443.7341, 175.7209]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 37.57 cm^3/gmol
+- name: LiCl(L)
+  composition: {Li: 1.0, Cl: 1.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [700.0, 2000.0]
+    data:
+    - [73.18025, -9.047232, -0.31639, 0.079587, 0.013594, -417.1314, 157.6711]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 20.304 cm^3/gmol
