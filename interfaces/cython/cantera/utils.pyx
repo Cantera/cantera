@@ -77,7 +77,7 @@ cdef public PyObject* pyCanteraError = <PyObject*>CanteraError
 cdef anyvalue_to_python(string name, CxxAnyValue& v):
     cdef CxxAnyMap a
     cdef CxxAnyValue b
-    if v.isEmpty():
+    if v.empty():
         # It is not possible to determine the associated type; return None
         return None
     if v.isScalar():
@@ -127,7 +127,7 @@ cdef anyvalue_to_python(string name, CxxAnyValue& v):
 
 cdef anymap_to_dict(CxxAnyMap& m):
     m.applyUnits()
-    if m.isEmpty():
+    if m.empty():
         return {}
     return {pystr(item.first): anyvalue_to_python(item.first, item.second)
             for item in m.ordered()}

@@ -120,7 +120,7 @@ public:
     std::string type_str() const;
 
     //! Return boolean indicating whether AnyValue is empty.
-    bool isEmpty() const;
+    bool empty() const;
 
     //! Returns `true` if the held value is of the specified type.
     template<class T>
@@ -432,7 +432,7 @@ public:
     const AnyValue& at(const std::string& key) const;
 
     //! Return boolean indicating whether AnyMap is empty.
-    bool isEmpty() const;
+    bool empty() const;
 
     //! Returns `true` if the map contains an item named `key`.
     bool hasKey(const std::string& key) const;

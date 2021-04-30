@@ -629,7 +629,7 @@ std::string AnyValue::type_str() const {
     return demangle(type());
 }
 
-bool AnyValue::isEmpty() const {
+bool AnyValue::empty() const {
     return m_value->empty();
 }
 
@@ -1359,7 +1359,7 @@ const AnyValue& AnyMap::at(const std::string& key) const
     }
 }
 
-bool AnyMap::isEmpty() const
+bool AnyMap::empty() const
 {
     return m_data.size() == 0;
 }
