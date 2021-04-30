@@ -72,7 +72,7 @@ cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
         Iterator end()
         OrderedProxy ordered() except +translate_exception
         CxxAnyValue& operator[](string) except +translate_exception
-        cbool isEmpty()
+        cbool empty()
         cbool hasKey(string)
         string keys_str()
         void applyUnits()
@@ -90,7 +90,7 @@ cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
         CxxAnyMap& getMapWhere(string, string) except +translate_exception
         T& asType "as" [T]() except +translate_exception
         string type_str()
-        cbool isEmpty()
+        cbool empty()
         cbool isType "is" [T]()
         cbool isScalar()
 
