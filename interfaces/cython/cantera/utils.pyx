@@ -126,6 +126,7 @@ cdef anyvalue_to_python(string name, CxxAnyValue& v):
 
 
 cdef anymap_to_dict(CxxAnyMap& m):
+    cdef pair[string,CxxAnyValue] item
     m.applyUnits()
     if m.empty():
         return {}
