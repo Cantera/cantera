@@ -24,6 +24,7 @@ namespace Cantera
  * @param names      vector of variable names
  * @param data       N x M data array.
  *                     data(n,m) is the m^th value of the n^th variable.
+ * @deprecated To be removed after Cantera 2.6.
  */
 void writePlotFile(const std::string& fname, const std::string& fmt,
                    const std::string& plotTitle, const std::vector<std::string> &names,
@@ -36,6 +37,7 @@ void writePlotFile(const std::string& fname, const std::string& fmt,
  * @param names    vector of variable names
  * @param data      N x M data array.
  *                 data(n,m) is the m^th value of the n^th variable.
+ * @deprecated To be removed after Cantera 2.6.
  */
 void outputTEC(std::ostream& s, const std::string& title,
                const std::vector<std::string>& names,
@@ -48,6 +50,7 @@ void outputTEC(std::ostream& s, const std::string& title,
  * @param names      vector of variable names
  * @param data       N x M data array.
  *                        data(n,m) is the m^th value of the n^th variable.
+ * @deprecated To be removed after Cantera 2.6.
  */
 void outputExcel(std::ostream& s, const std::string& title,
                  const std::vector<std::string>& names,

@@ -23,6 +23,28 @@ using namespace Cantera;
 using std::cout;
 using std::endl;
 
+void write_csv(const std::string& name, const std::vector<std::string>& names,
+               const Array2D& data)
+{
+    std::ofstream s(name);
+    for (size_t i = 0; i < data.nRows(); i++) {
+        s << names[i];
+        if (i != data.nRows()-1) {
+            s << ",";
+        }
+    }
+    s << endl;
+    for (size_t i = 0; i < data.nColumns(); i++) {
+        for (size_t j = 0; j < data.nRows(); j++) {
+            s << data(j,i);
+            if (j != data.nRows()-1) {
+                s << ",";
+            }
+        }
+        s << endl;
+    }
+}
+
 void transport_example()
 {
     // create a gas mixture, and set its state
@@ -59,7 +81,7 @@ void transport_example()
     }
 
     // Save transport properties to a file
-    writePlotFile("transport_mix.csv", "XL", "", labels, output);
+    write_csv("transport_mix.csv", labels, output);
 
     // Create a new transport manager for multicomponent properties
     unique_ptr<Transport> multi(
@@ -76,7 +98,7 @@ void transport_example()
     }
 
     // Save transport properties to a file
-    writePlotFile("transport_multi.csv", "XL", "", labels, output);
+    write_csv("transport_multi.csv", labels, output);
 
     cout << "Output files:" << endl
             << "  transport_mix.csv" << endl
