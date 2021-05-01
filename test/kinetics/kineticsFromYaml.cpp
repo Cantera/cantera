@@ -451,7 +451,7 @@ TEST_F(ReactionToYaml, TroeFalloff)
 
 TEST_F(ReactionToYaml, SriFalloff)
 {
-    soln = newSolution("sri-falloff.xml");
+    soln = newSolution("sri-falloff.yaml");
     soln->thermo()->setState_TPY(1000, 2e5, "R1A: 0.1, R1B:0.2, H: 0.2, R2:0.5");
     duplicateReaction(0);
     EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction>(duplicate));
@@ -462,7 +462,7 @@ TEST_F(ReactionToYaml, SriFalloff)
 
 TEST_F(ReactionToYaml, chemicallyActivated)
 {
-    soln = newSolution("chemically-activated-reaction.xml");
+    soln = newSolution("chemically-activated-reaction.yaml");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, ch2o:0.1, ch3:1e-8, oh:3e-6");
     duplicateReaction(0);
     EXPECT_TRUE(std::dynamic_pointer_cast<ChemicallyActivatedReaction>(duplicate));

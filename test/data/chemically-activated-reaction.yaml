@@ -1,0 +1,77 @@
+generator: ctml2yaml
+cantera-version: 2.6.0a2
+date: Fri, 30 Apr 2021 21:45:59 -0400
+input-files: [/home/speth/src/cantera/build/python/cantera/test/data/chemically-activated-reaction.xml]
+
+phases:
+- name: gas
+  elements: [C, H, N, O, Ar]
+  species: [ch3, oh, ch2o, h2, n2]
+  thermo: ideal-gas
+  kinetics: gas
+  reactions: all
+  state: {T: 300.0 K, P: 1.01325e+05 Pa}
+
+species:
+- name: ch3
+  composition: {H: 3.0, C: 1.0}
+  note: iu0702
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.6571797, 2.1265979e-03, 5.4583883e-06, -6.6181003e-09, 2.4657074e-12, 1.6422716e+04,
+      1.6735354]
+    - [2.9781206, 5.797852e-03, -1.97558e-06, 3.072979e-10, -1.7917416e-14, 1.6509513e+04,
+      4.7224799]
+- name: oh
+  composition: {H: 1.0, O: 1.0}
+  note: iu3/03
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.99198424, -2.40106655e-03, 4.61664033e-06, -3.87916306e-09, 1.36319502e-12,
+      3368.89836, -0.103998477]
+    - [2.83853033, 1.10741289e-03, -2.94000209e-07, 4.20698729e-11, -2.4228989e-15,
+      3697.80808, 5.84494652]
+- name: ch2o
+  composition: {H: 2.0, C: 1.0, O: 1.0}
+  note: g8/88
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [4.79372312, -9.90833322e-03, 3.7321999e-05, -3.79285237e-08, 1.31772641e-11,
+      -1.43227879e+04, 0.602798058]
+    - [3.16952665, 6.1932056e-03, -2.25056366e-06, 3.6597566e-10, -2.20149458e-14,
+      -1.44922756e+04, 6.04207898]
+- name: h2
+  composition: {H: 2.0}
+  note: tpis78
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [2.34433112, 7.98052075e-03, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+    - [2.93286575, 8.26608026e-04, -1.46402364e-07, 1.54100414e-11, -6.888048e-16,
+      -813.065581, -1.02432865]
+- name: n2
+  composition: {N: 2.0}
+  note: g8/02
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.53100528, -1.23660988e-04, -5.02999433e-07, 2.43530612e-09, -1.40881235e-12,
+      -1046.97628, 2.96747038]
+    - [2.95257637, 1.3969004e-03, -4.92631603e-07, 7.86010195e-11, -4.60755204e-15,
+      -923.948688, 5.87188762]
+
+reactions:
+- equation: ch3 + oh (+ M) <=> ch2o + h2 (+ M)
+  type: chemically-activated
+  low-P-rate-constant: {A: 282.3201, b: 1.46878, Ea: -3270.56495 cal/mol}
+  high-P-rate-constant: {A: 5.88e-14, b: 6.721, Ea: -3022.227 cal/mol}
+  Troe: {A: 1.671, T3: 434.782, T1: 2934.21, T2: 3919.0}
