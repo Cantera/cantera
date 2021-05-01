@@ -6,6 +6,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/plots.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 
@@ -17,6 +18,7 @@ void writePlotFile(const std::string& fname, const std::string& fmt,
                    const std::vector<std::string> &names,
                    const Array2D& data)
 {
+    warn_deprecated("writePlotFile", "To be removed after Cantera 2.6.");
     ofstream f(fname);
     if (!f) {
         throw CanteraError("writePlotFile","could not open file "+fname+
@@ -36,6 +38,7 @@ void outputTEC(std::ostream& s, const std::string& title,
                const std::vector<std::string>& names,
                const Array2D& data)
 {
+    warn_deprecated("outputTEC", "To be removed after Cantera 2.6.");
     s << "TITLE     = \"" + title + "\"" << endl;
     s << "VARIABLES = " << endl;
     for (size_t i = 0; i < data.nRows(); i++) {
@@ -60,6 +63,7 @@ void outputExcel(std::ostream& s, const std::string& title,
                  const std::vector<std::string>& names,
                  const Array2D& data)
 {
+    warn_deprecated("outputExcel", "To be removed after Cantera 2.6.");
     if (!title.empty()) {
         s << title + "," << endl;
     }
