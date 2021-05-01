@@ -28,7 +28,7 @@ class TestThermoMethods : public testing::Test
 public:
     std::unique_ptr<ThermoPhase> thermo;
     TestThermoMethods() {
-        thermo.reset(newPhase("h2o2.xml"));
+        thermo.reset(newPhase("h2o2.yaml"));
     }
 };
 

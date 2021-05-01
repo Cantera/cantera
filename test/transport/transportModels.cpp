@@ -9,7 +9,7 @@ class WaterTransportTest : public testing::Test
 {
 public:
     WaterTransportTest() {
-        phase = newPhase("liquid-water.xml");
+        phase = newPhase("thermo-models.yaml", "liquid-water");
         tran = newDefaultTransportMgr(phase);
     }
 

@@ -26,8 +26,8 @@ class RedlichKister_Test : public testing::Test
 public:
     RedlichKister_Test() {}
 
-    void initXML() {
-        test_phase.reset(newPhase("../data/RedlichKisterVPSSTP_valid.xml"));
+    void setup() {
+        test_phase.reset(newPhase("thermo-models.yaml", "Redlich-Kister-LiC6"));
     }
 
     void set_r(const double r) {
@@ -40,16 +40,16 @@ public:
     std::unique_ptr<ThermoPhase> test_phase;
 };
 
-TEST_F(RedlichKister_Test, construct_from_xml)
+TEST_F(RedlichKister_Test, construct_from_file)
 {
-    initXML();
+    setup();
     RedlichKisterVPSSTP* redlich_kister_phase = dynamic_cast<RedlichKisterVPSSTP*>(test_phase.get());
     ASSERT_TRUE(redlich_kister_phase != NULL);
 }
 
 TEST_F(RedlichKister_Test, chem_potentials)
 {
-    initXML();
+    setup();
     test_phase->setState_TP(298.15, 101325.);
 
     double xmin = 0.6;
@@ -67,7 +67,7 @@ TEST_F(RedlichKister_Test, chem_potentials)
 
 TEST_F(RedlichKister_Test, dlnActivities)
 {
-    initXML();
+    setup();
     test_phase->setState_TP(298.15, 101325.);
 
     const double expected_result[9] = {
@@ -98,7 +98,7 @@ TEST_F(RedlichKister_Test, dlnActivities)
 
 TEST_F(RedlichKister_Test, activityCoeffs)
 {
-    initXML();
+    setup();
     test_phase->setState_TP(298., 1.);
 
     // Test that mu0 + RT log(activityCoeff * MoleFrac) == mu
@@ -125,14 +125,14 @@ TEST_F(RedlichKister_Test, activityCoeffs)
 
 TEST_F(RedlichKister_Test, standardConcentrations)
 {
-    initXML();
+    setup();
     EXPECT_DOUBLE_EQ(1.0, test_phase->standardConcentration(0));
     EXPECT_DOUBLE_EQ(1.0, test_phase->standardConcentration(1));
 }
 
 TEST_F(RedlichKister_Test, activityConcentrations)
 {
-    initXML();
+    setup();
     // Check to make sure activityConcentration_i == standardConcentration_i * gamma_i * X_i
     vector_fp standardConcs(2);
     vector_fp activityCoeffs(2);
