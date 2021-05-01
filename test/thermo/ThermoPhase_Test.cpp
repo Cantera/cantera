@@ -6,23 +6,6 @@
 namespace Cantera
 {
 
-class ThermoPhase_Fixture : public testing::Test
-{
-protected:
-    ThermoPhase test_phase;
-public:
-    ThermoPhase_Fixture() {}
-
-    ~ThermoPhase_Fixture() {}
-
-    void initializeElements()
-    {
-      test_phase.addElement("A", 1.);
-      test_phase.addElement("B", 2.);
-      test_phase.addElement("C", 3.);
-    }
-};
-
 class TestThermoMethods : public testing::Test
 {
 public:
