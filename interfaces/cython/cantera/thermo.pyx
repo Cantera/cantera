@@ -970,10 +970,12 @@ cdef class ThermoPhase(_SolutionBase):
         self.thermo.setMoleFractions_NoNorm(&data[0])
 
     def mass_fraction_dict(self, double threshold=0.0):
+        cdef pair[string,double] item
         Y = self.thermo.getMassFractionsByName(threshold)
         return {pystr(item.first):item.second for item in Y}
 
     def mole_fraction_dict(self, double threshold=0.0):
+        cdef pair[string,double] item
         X = self.thermo.getMoleFractionsByName(threshold)
         return {pystr(item.first):item.second for item in X}
 
