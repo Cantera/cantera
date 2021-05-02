@@ -17,8 +17,8 @@ public:
         MixTransport tran;
         tran.init(phase, cmode);
         size_t k = phase->speciesIndex(speciek);
-        double coeffs[(cmode == CK_Mode ? 4 : 5)];
-        tran.getViscosityPolynomials(k, coeffs);
+        vector_fp coeffs (cmode == CK_Mode ? 4 : 5);
+        tran.getViscosityPolynomials(k, &coeffs[0]);
         for (size_t i = 0; i < visc_coeff_expected.size(); i++) {
             EXPECT_NEAR(coeffs[i], visc_coeff_expected[i], 1e-5);
         }
@@ -28,8 +28,8 @@ public:
         MixTransport tran;
         tran.init(phase, cmode);
         size_t k = phase->speciesIndex(speciek);
-        double coeffs[(cmode == CK_Mode ? 4 : 5)];
-        tran.getConductivityPolynomials(k, coeffs);
+        vector_fp coeffs (cmode == CK_Mode ? 4 : 5);
+        tran.getConductivityPolynomials(k, &coeffs[0]);
         for (size_t i = 0; i < cond_coeff_expected.size(); i++) {
             EXPECT_NEAR(coeffs[i], cond_coeff_expected[i], 1e-5);
         }
@@ -40,8 +40,8 @@ public:
         tran.init(phase, cmode);
         size_t k = phase->speciesIndex(speciek);
         size_t j = phase->speciesIndex(speciej);
-        double coeffs[(cmode == CK_Mode ? 4 : 5)];
-        tran.getBinDiffusivityPolynomials(k, j, coeffs);
+        vector_fp coeffs (cmode == CK_Mode ? 4 : 5);
+        tran.getBinDiffusivityPolynomials(k, j, &coeffs[0]);
         for (size_t i = 0; i < bindiff_coeff_expected.size(); i++) {
             EXPECT_NEAR(coeffs[i], bindiff_coeff_expected[i], 1e-5);
         }
