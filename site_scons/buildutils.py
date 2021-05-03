@@ -11,6 +11,7 @@ import enum
 from pathlib import Path
 import logging
 from typing import TYPE_CHECKING
+import collections
 
 try:
     import numpy as np
@@ -33,16 +34,61 @@ if TYPE_CHECKING:
     TPathLike = TypeVar("TPathLike", Path, str)
 
 
+class LevelAdapter(logging.LoggerAdapter):
+    """This adapter processes the ``print_level`` keyword-argument to log functions.
+
+    In the default Logger functions, it is not possible to add extra keyword arguments
+    to modify behavior. This Adapter allows the Logger functions (.debug(), .info(),
+    etc.) to include the keyword argument ``print_level``, which takes a Boolean value
+    to determine whether or not the level of the message should be shown with the rest
+    of the message. The actual message formatting is handled elsewhere. Example::
+
+       >>> logger.info("Message", print_level=True)
+       INFO: Message
+       >>> logger.error("Message", print_level=False)
+       Message
+    """
+    def __init__(self, logger):
+        self.logger = logger
+
+    def process(self, msg, kwargs):
+        """Pop the value of ``print_level`` into the ``extra`` dictionary.
+
+        Key-value pairs in the "extra" dictionary are set as attributes on the
+        ``LogRecord`` instance.
+        """
+        if "print_level" in kwargs:
+            print_level = kwargs.pop("print_level")
+            if "extra" in kwargs:
+                kwargs["extra"].update(print_level=print_level)
+            else:
+                kwargs["extra"] = {"print_level": print_level}
+        return msg, kwargs
+
+
+# Modified from https://stackoverflow.com/a/42823461
+class BraceLogRecord(logging.LogRecord):
+    """Format a log record using brace syntax {} instead of %."""
+
+    def getMessage(self) -> str:
+        msg = str(self.msg)
+        if self.args:
+            if isinstance(self.args, collections.Mapping):
+                msg = msg.format_map(self.args)
+            else:
+                msg = msg.format(*self.args)
+        return msg
+
+
 class OutputFormatter(logging.Formatter):
     """Format log output depending on whether the level should be shown.
 
-    When calling one of the logger functions (.debug(), .info(), etc.), the
-    ``extra`` keyword argument can be passed a dictionary that sets attributes
-    on the ``LogRecord`` instance. If the dictionary has a ``print_level`` key
-    with a Boolean value, that will be used to determine whether the log level
-    should be included in the log message. Example::
+    Intended to be used with the LevelAdapter class to allow the ``print_level``
+    keyword argument to be added to Logger method calls (``.info()`` and others). The
+    ``print_level`` Boolean value is used to determine whether or not the level of the
+    logging message should be printed. By default, the level is shown. Example::
 
-       >>> logger.info("Message", extra={"print_level": False})
+       >>> logger.info("Message", print_level=False)
        Message
        >>> logger.info("Message")
        INFO: Message
@@ -89,6 +135,7 @@ class LevelFilter(logging.Filter):
         return False
 
 
+logging.setLogRecordFactory(BraceLogRecord)
 logger = logging.getLogger("cantera")
 logger.setLevel(logging.INFO)
 f = OutputFormatter()
@@ -101,6 +148,8 @@ stderr_handler = logging.StreamHandler(sys.stderr)
 stderr_handler.setFormatter(f)
 stderr_handler.addFilter(LevelFilter(logging.ERROR, logging.CRITICAL + 1))
 logger.addHandler(stderr_handler)
+
+logger = LevelAdapter(logger)
 
 
 class TestResult(enum.IntEnum):
@@ -206,11 +255,10 @@ class TestResults:
                        "\n")
         message = message + "*****************************"
         if self.failed:
-            logger.error("One or more tests failed.\n" + message,
-                         extra={"print_level": False})
+            logger.error("One or more tests failed.\n" + message, print_level=False)
             sys.exit(1)
         else:
-            logger.info(message, extra={"print_level": False})
+            logger.info(message, print_level=False)
 
 
 test_results = TestResults()
@@ -259,7 +307,7 @@ def regression_test(target: "LFSNode", source: "LFSNode", env: "SCEnvironment"):
         cwd=dir, env=env["ENV"], universal_newlines=True,
     )
     if ret.returncode:
-        logger.error(f"FAILED (program exit code:{ret.returncode})")
+        logger.error("FAILED (program exit code:{})", ret.returncode)
     dir.joinpath(output_name).write_text(ret.stdout)
 
     diff = 0
@@ -269,19 +317,17 @@ def regression_test(target: "LFSNode", source: "LFSNode", env: "SCEnvironment"):
         comparisons.append((Path(blessed_name), output_name))
 
     for blessed, output in comparisons:
-        logger.info(f"Comparing '{blessed}' with '{output}'",
-                    extra={"print_level": False})
+        logger.info(f"Comparing '{blessed}' with '{output}'", print_level=False)
         d = compare_files(env, dir.joinpath(blessed), dir.joinpath(output))
         if d:
-            logger.error("FAILED", extra={"print_level": False})
+            logger.error("FAILED", print_level=False)
         diff |= d
 
     for blessed, output in env["test_profiles"]:
-        logger.info(f"Comparing '{blessed}' with '{output}'",
-                    extra={"print_level": False})
+        logger.info(f"Comparing '{blessed}' with '{output}'", print_level=False)
         d = compare_profiles(env, dir.joinpath(blessed), dir.joinpath(output))
         if d:
-            logger.error("FAILED", extra={"print_level": False})
+            logger.error("FAILED", print_level=False)
         diff |= d
 
     del test_results.tests[env["active_test_name"]]
@@ -295,7 +341,7 @@ def regression_test(target: "LFSNode", source: "LFSNode", env: "SCEnvironment"):
         if env["fast_fail_tests"]:
             sys.exit(1)
     else:
-        logger.info("PASSED", extra={"print_level": False})
+        logger.info("PASSED", print_level=False)
         passed_file.write_text(time.asctime())
         test_results.passed[env["active_test_name"]] = 1
 
@@ -374,9 +420,9 @@ def compare_text_files(env: "SCEnvironment", file1: Path, file2: Path) -> TestRe
                 relerr = abserr / (0.5 * abs(num1 + num2) + atol)
                 if abserr > atol and relerr > rtol:
                     logger.error(
-                        f"Values differ: {num1:14g} {num2:14g}; "
-                        f"rel. err = {relerr:.3e}; abs. err = {abserr:.3e}",
-                        extra={"print_level": False},
+                        "Values differ: {:14g} {:14g}; "
+                        "rel. err = {:.3e}; abs. err = {:.3e}",
+                        num1, num2, relerr, abserr, print_level=False,
                     )
                     all_match = False
                     break
@@ -392,7 +438,7 @@ def compare_text_files(env: "SCEnvironment", file1: Path, file2: Path) -> TestRe
         message = [f"Found differences between {file1!s} and {file2!s}:", ">>>"]
         message.extend(diff)
         message.append("<<<")
-        logger.error("\n".join(message), extra={"print_level": False})
+        logger.error("\n".join(message), print_level=False)
         return TestResult.FAIL
 
     return TestResult.PASS
@@ -517,7 +563,7 @@ def compare_profiles(
     if bad:
         logger.error(
             "\n".join(header + [template.format(*row) for row in bad] + footer),
-            extra={"print_level": False},
+            print_level=False,
         )
         return TestResult.FAIL
     else:
@@ -730,7 +776,7 @@ def help(env: "SCEnvironment", options: "SCVariables") -> None:
             lines.append(f"    - actual: {actual!r}")
         message.append("\n".join(lines))
 
-    logger.info("\n\n".join(message), extra={"print_level": False})
+    logger.info("\n\n".join(message), print_level=False)
 
 
 def listify(value: "Union[str, Iterable]") -> "List[str]":
