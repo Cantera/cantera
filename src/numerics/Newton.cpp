@@ -14,19 +14,18 @@ namespace Cantera
 {
 
 // constants
-const doublereal DampFactor = sqrt(2.0);
-const size_t NDAMP = 7;
+const double damp_factor = sqrt(2.0);
+const double damp_min = 0.1;
 
 Newton::Newton(FuncEval& func) {
     m_residfunc = &func;
     m_nv = m_residfunc->neq();
-    m_convergenceThreshold = 1.0e-14;
     m_x.resize(m_nv);
     m_x1.resize(m_nv);
     m_stp.resize(m_nv);
     m_stp1.resize(m_nv);
-    m_max.resize(m_nv, 0.0);
-    m_min.resize(m_nv, 0.0);
+    m_upper_bounds.resize(m_nv, 0.0);
+    m_lower_bounds.resize(m_nv, 0.0);
     m_rtol_ss.resize(m_nv, 1.0e-4);
     m_atol_ss.resize(m_nv, 1.0e-9);
     // m_rtol_ts.resize(m_nv, 1.0e-4);
@@ -34,10 +33,11 @@ Newton::Newton(FuncEval& func) {
     m_xlast.resize(m_nv);
     m_xsave.resize(m_nv);
 
+    m_converge_tol = 1.0e-14;
     m_rdt = 0;
 
     m_jacobian = DenseMatrix(m_nv, m_nv);
-    m_jacAge = 10000;
+    m_jacAge = npos;
     m_jacMaxAge = 1;
     m_jacRtol = 1.0e-15;
     m_jacAtol = sqrt(std::numeric_limits<double>::epsilon());
@@ -100,16 +100,14 @@ void Newton::evalJacobian(doublereal* x, doublereal* xdot) {
     Cantera::factor(m_jacFactored);
 }
 
+// RMSD (weighted)
 doublereal Newton::weightedNorm(const doublereal* x, const doublereal* step) const
 {
-    double accum = 0.0;
-    for (size_t n = 0; n < m_nv; n++) {
-        double f = step[n]/(x[n] + m_atol_ss[n]);
-        accum += f*f;
+    double square = 0.0;
+    for (size_t i = 0; i < m_nv; i++) {
+        square += pow(step[i]/(x[i] + m_atol_ss[i]), 2);
     }
-    // writelog("test.... {}", m_constantComponents.size());
-    // return sqrt(accum/(m_nv - m_constantComponents.size()));
-    return sqrt(accum/m_nv);
+    return sqrt(square/m_nv);
 }
 
 void Newton::step(doublereal* x, doublereal* step, int loglevel)
@@ -141,126 +139,6 @@ void Newton::step(doublereal* x, doublereal* step, int loglevel)
     }
 }
 
-doublereal Newton::boundStep(const doublereal* x, const doublereal* step, int loglevel)
-{
-    doublereal boundFactor = 1.0;
-    bool wroteTitle = false;
-    for (size_t n = 0; n < m_nv; n++) {
-        double upperBound = m_max[n];
-        double lowerBound = m_min[n];
-        double val = x[n];
-        if (loglevel > 0 && (val > upperBound + 1.0e-12 || val < lowerBound - 1.0e-12)) {
-            writelog("\nERROR: solution out of bounds.\n");
-            writelog("Component {}: {:10.3e} with bounds ({:10.3e}, {:10.3e})\n",
-                        n, val, lowerBound, upperBound);
-            // writelog("domain {:d}: {:>20s}({:d}) = {:10.3e} ({:10.3e}, {:10.3e})\n",
-            //             r.domainIndex(), r.componentName(m), j, val, below, above);
-        }
-        double newval = val + step[n];
-
-        if (newval > upperBound) {
-            boundFactor = std::max(0.0, std::min(boundFactor, (upperBound - val)/(newval - val)));
-        } else if (newval < lowerBound) {
-            boundFactor = std::min(boundFactor, (val - lowerBound)/(val - newval));
-        }
-        if (loglevel > 1 && (newval > upperBound || newval < lowerBound)) {
-            if (!wroteTitle) {
-                writelog("\nNewton step takes solution out of bounds.\n\n");
-                // writelog("  {:>12s}  {:>12s}  {:>4s}  {:>10s}  {:>10s}  {:>10s}  {:>10s}\n",
-                //          "domain","component","pt","value","step","min","max");
-                wroteTitle = true;
-            }
-            writelog("Component {}: {:10.3e} with bounds ({:10.3e}, {:10.3e}), step = {:10.3e}\n",
-                        n, val, lowerBound, upperBound, step[n]);
-            // writelog("          {:4d}  {:>12s}  {:4d}  {:10.3e}  {:10.3e}  {:10.3e}  {:10.3e}\n",
-            //          r.domainIndex(), r.componentName(m), j,
-            //          val, step[index(m,j)], below, above);
-        }
-    }
-    return boundFactor;
-}
-
-int Newton::dampStep(const doublereal* x0, const doublereal* step0,
-                          doublereal* x1, doublereal* step1, doublereal& s1,
-                          int loglevel, bool writetitle)
-{
-    // write header
-    if (loglevel > 0 && writetitle) {
-        writelog("\n\nDamped Newton iteration:\n");
-        writeline('-', 65, false);
-
-        writelog("\n{}  {:>9s}   {:>9s}     {:>9s}   {:>9s}   {:>9s}  {:>5s} {:>5s}\n",
-                "m","F_damp","F_bound","log10(ss)",
-                "log10(s0)","log10(s1)","N_jac","Age");
-        writeline('-', 65);
-    }
-
-    // compute the weighted norm of the undamped step size step0
-    doublereal s0 = weightedNorm(x0, step0);
-
-    // compute the multiplier to keep all components in bounds
-    doublereal boundFactor = boundStep(x0, step0, loglevel-1);
-
-    // if bound factor is very small, then x0 is already close to the boundary and
-    // step0 points out of the allowed domain. In this case, the Newton
-    // algorithm fails, so return an error condition.
-    if (boundFactor < 1.e-10) {
-        debuglog("\nAt limits.\n", loglevel);
-        return -3;
-    }
-
-    // ---------- Attempt damped step ----------
-
-    // damping coefficient starts at 1.0
-    doublereal damp = 1.0;
-    size_t m;
-    for (m = 0; m < NDAMP; m++) {
-        double ff = boundFactor*damp;
-
-        // step the solution by the damped step size
-        for (size_t j = 0; j < m_nv; j++) {
-            x1[j] = ff*step0[j] + x0[j];
-        }
-
-        // compute the next undamped step that would result if x1 is accepted
-        step(x1, step1, loglevel-1);
-
-        // compute the weighted norm of step1
-        s1 = weightedNorm(x1, step1);
-
-        // write log information
-        if (loglevel > 0) {
-            doublereal ss = weightedNorm(x1,step1);
-            writelog("\n{:d}  {:9.5f}   {:9.5f}   {:9.5e}   {:9.5e}   {:9.5e}  {:d}/{:d}",
-                     m, damp, boundFactor, ss+SmallNumber,
-                     s0+SmallNumber, s1+SmallNumber,
-                     m_jacAge, m_jacMaxAge);
-        }
-
-        // if the norm of s1 is less than the norm of s0, then accept this
-        // damping coefficient. Also accept it if this step would result in a
-        // converged solution. Otherwise, decrease the damping coefficient and
-        // try again.
-        if (s1 < m_convergenceThreshold || s1 < s0) {
-            break;
-        }
-        damp /= DampFactor;
-    }
-
-    // If a damping coefficient was found, return 1 if the solution after
-    // stepping by the damped step would represent a converged solution, and
-    // return 0 otherwise. If no damping coefficient could be found, return -2.
-    if (m < NDAMP) {
-        if (s1 > m_convergenceThreshold) {
-            return 0;
-        } else {
-            return 1;
-        }
-    } else {
-        return -2;
-    }
-}
-
 int Newton::hybridSolve() {
     int MAX = 100;
     int newtonsolves = 0;
@@ -270,24 +148,25 @@ int Newton::hybridSolve() {
     copy(m_x.begin(), m_x.end(), m_xsave.begin());
 
     for(int i = 0; i < MAX; i++) {
-        newtonsolves++;
-        if(solve() == 1) {
-            writelog("\nConverged in {} newton solves, {} timesteps.", newtonsolves, timesteps);
-            return 1;
-        }
         copy(m_xsave.begin(), m_xsave.end(), m_x.begin());
         for(int j = 0; j < MAX; j++) {
             timesteps++;
             timestep();
         }
         copy(m_x.begin(), m_x.end(), m_xsave.begin());
+        newtonsolves++;
+        m_rdt = 0;
+        if(solve() == 1) {
+            writelog("\nConverged in {} newton solves, {} timesteps.", newtonsolves, timesteps);
+            return 1;
+        }
     }
     writelog("Solver failure...");
     return 0;
 }
 
 int Newton::timestep() {
-    m_rdt = 1.0/1.0e-5;
+    m_rdt = 1.0/(1.0e-5);
 
     // calculate time-integration Jacobian
     // m_residfunc->getState(m_x.data());
@@ -301,96 +180,84 @@ int Newton::timestep() {
 
 int Newton::solve(int loglevel)
 {
-    int m = 0;
-    bool forceNewJac = false;
-    doublereal s1=1.e30;
-
     m_residfunc->getState(m_x.data());
-
-    bool frst = true;
-    int nJacReeval = 0;
 
     while (true) {
         // Check whether the Jacobian should be re-evaluated.
         if (m_jacAge > m_jacMaxAge) {
-            if (loglevel > 0) {
-                writelog("\nMaximum Jacobian age reached ({})\n", m_jacMaxAge);
-            }
-            forceNewJac = true;
-        }
-
-        if (forceNewJac) {
             evalJacobian(&m_x[0], &m_stp[0]);
-            forceNewJac = false;
         }
 
         // compute the undamped Newton step
         step(&m_x[0], &m_stp[0], loglevel-1);
-
-        // increment the Jacobian age
         m_jacAge++;
 
-        // damp the Newton step
-        m = dampStep(&m_x[0], &m_stp[0], &m_x1[0], &m_stp1[0], s1, loglevel-1, frst);
-        if (loglevel == 1 && m >= 0) {
-            if (frst) {
-                writelog("\n\n    {:>10s}    {:>10s}   {:>5s}",
-                         "log10(ss)","log10(s1)","N_jac");
-                writelog("\n    ------------------------------------");
-            }
-            doublereal ss = weightedNorm(&m_x[0], &m_stp[0]);
-            writelog("\n    {:10.4f}    {:10.4f}",
-                     log10(ss),log10(s1));
-        }
-        frst = false;
+        // compute the weighted norm of the undamped step size step0
+        double step_rms = weightedNorm(&m_x[0], &m_stp[0]);
 
-        // Successful step, but not converged yet. Take the damped step, and try
-        // again.
-        if (m == 0) {
-            copy(m_x1.begin(), m_x1.end(), m_x.begin());
-        } else if (m == 1) {
-            // writelog("\nConverged. Newton steps: {}", steps);
-            // writelog("\nconverged!\n");
-            // writelog("\nsolution components: ");
-            // for(int i = 0; i < m_nv; i++) {
-            //     writelog("{:9.5e}, ", m_x[i]);
-            // }
-            // writelog("\nresidual components: ");
-            // for(int i = 0; i < m_nv; i++) {
-            //     writelog("{:9.5e}, ", m_stp[i]);
-            // }
-            // convergence
-            // if (rdt == 0) {
-            //     jac.setAge(0); // for efficient sensitivity analysis
-            // }
-            break;
-        } else if (m < 0) {
+        // compute the multiplier to keep all components in bounds.
+        double bound_factor = 1.0;
+        for (size_t i = 0; i < m_nv; i++) {
+            double upper_bound = m_upper_bounds[i];
+            double lower_bound = m_lower_bounds[i];
+            double val = m_x[i];
+            if (val > upper_bound + 1.0e-12 || val < lower_bound - 1.0e-12) {
+                throw CanteraError("Newton::dampStep", "solution out of bounds");
+            }
+            double newval = val + m_stp[i];
+
+            if (newval > upper_bound) {
+                bound_factor = max(0.0, min(bound_factor, (upper_bound - val)/(newval - val)));
+            } else if (newval < lower_bound) {
+                bound_factor = min(bound_factor, (val - lower_bound)/(val - newval));
+            }
+        }
+        // if bound factor is very small, then x0 is already close to the boundary and
+        // step0 points out of the allowed domain. In this case, the Newton
+        // algorithm fails, so return an error condition.
+        if (bound_factor < 1.e-10) {
+            throw CanteraError("Newton::dampStep", "solution at limits");
+        }
+
+        int m = -1;
+        // damped step - attempt to find a damping coefficient such that the next
+        // undamped step would have a RMSD smaller than that of step0
+        for (double damp = bound_factor; damp > damp_min; damp /= damp_factor) {
+            // step the solution by the damped step size
+            for (size_t j = 0; j < m_nv; j++) {
+                m_x1[j] = damp*m_stp[j] + m_x[j];
+            }
+            // compute the next undamped step that would result if x1 is accepted
+            step(&m_x1[0], &m_stp1[0], loglevel-1);
+
+            // compute the weighted norm of step1
+            double nextstep_rms = weightedNorm(&m_x1[0], &m_stp1[0]);
+
+            // converged solution criteria
+            if (nextstep_rms < m_converge_tol) {
+                return 1;
+            }
+            // Also accept it if this step would result in a
+            // converged solution - successful step, but not converged yet.
+            // Take the damped step and try again.
+            if (nextstep_rms < step_rms) {
+                m = 0;
+                copy(m_x1.begin(), m_x1.end(), m_x.begin());
+                break;
+            }
+        }
+
+        if (m < 0) {
             // If dampStep fails, first try a new Jacobian if an old one was
             // being used. If it was a new Jacobian, then return -1 to signify
             // failure.
             if (m_jacAge > 1) {
-                forceNewJac = true;
-                if (nJacReeval > 3) {
-                    break;
-                }
-                nJacReeval++;
-                debuglog("\nRe-evaluating Jacobian, since no damping "
-                         "coefficient\ncould be found with this Jacobian.\n",
-                         loglevel);
+                m_jacAge = npos;
             } else {
-                break;
+                return m;
             }
         }
     }
-
-    if (m < 0) {
-        //TODO: add get solution method? vs copy into provided vector
-        //copy(m_x.begin(), m_x.end(), x1);
-    }
-    // if (m > 0 && m_jac->nEvals() == j0) {
-    //     m = 100;
-    // }
-    return m;
 }
 
 } // end namespace Cantera

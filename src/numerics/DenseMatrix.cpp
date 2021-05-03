@@ -209,6 +209,17 @@ int solveFactored(DenseMatrix& A, double* b, size_t nrhs, size_t ldb)
             }
         }
     #else
+        MappedMatrix Am(&A(0,0), A.nRows(), A.nColumns());
+        #ifdef NDEBUG
+            auto lu = Am.partialPivLu();
+        #else
+            auto lu = Am.fullPivLu();
+            if (lu.nonzeroPivots() < static_cast<long int>(A.nColumns())) {
+                throw CanteraError("solve(DenseMatrix& A, double* b)",
+                    "Matrix appears to be rank-deficient: non-zero pivots = {}; columns = {}",
+                    lu.nonzeroPivots(), A.nColumns());
+            }
+        #endif
         for (size_t i = 0; i < nrhs; i++) {
             MappedVector bm(b + ldb*i, A.nColumns());
             bm = lu.solve(bm);
