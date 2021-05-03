@@ -136,6 +136,11 @@ UNITS = {
     "reference_pressure": '"Pa"', "thermal_expansion_coeff": '"1/K"'
 }
 
+SYMBOL = {
+    "T": "T", "P": "P", "D": "density", "H": "h", "S": "s",
+    "V": "v", "U": "u", "Q": "Q", "X": "X", "Y": "Y"
+}
+
 getter_properties = [
     "density_mass", "density_mole", "enthalpy_mass", "enthalpy_mole", "entropy_mass",
     "entropy_mole", "int_energy_mass", "int_energy_mole", "volume_mass", "volume_mole",
@@ -186,12 +191,14 @@ pf_setter_2_properties = ["PQ", "TQ", "PV", "SH", "ST", "TH", "TV", "UP", "VH"]
 
 thermophase_2_setters = []
 for name in tp_setter_2_properties:
-    d = dict(name=name, n0=name[0], u0=UNITS[name[0]], n1=name[1], u1=UNITS[name[1]])
+    d = dict(name=name, n0=SYMBOL[name[0]], u0=UNITS[name[0]], n1=SYMBOL[name[1]],
+             u1=UNITS[name[1]])
     thermophase_2_setters.append(setter_2_template.substitute(d))
 
 purefluid_2_setters = []
 for name in pf_setter_2_properties:
-    d = dict(name=name, n0=name[0], u0=UNITS[name[0]], n1=name[1], u1=UNITS[name[1]])
+    d = dict(name=name, n0=SYMBOL[name[0]], u0=UNITS[name[0]], n1=SYMBOL[name[1]],
+             u1=UNITS[name[1]])
     purefluid_2_setters.append(setter_2_template.substitute(d))
 
 setter_3_template = Template("""
@@ -230,8 +237,8 @@ tp_setter_3_properties = [
 
 thermophase_3_setters = []
 for name in tp_setter_3_properties:
-    d = dict(name=name, n0=name[0], u0=UNITS[name[0]], n1=name[1], u1=UNITS[name[1]],
-             n2=name[2], u2=UNITS[name[2]])
+    d = dict(name=name, n0=SYMBOL[name[0]], u0=UNITS[name[0]], n1=SYMBOL[name[1]],
+             u1=UNITS[name[1]], n2=SYMBOL[name[2]], u2=UNITS[name[2]])
     thermophase_3_setters.append(setter_3_template.substitute(d))
 
 getter_3_template = Template("""
