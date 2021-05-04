@@ -66,6 +66,7 @@ setup(
         'cantera.test',
         'cantera.test.data',
         'cantera.examples',
+        'cantera.units',
     ],
     entry_points={
         'console_scripts': [

@@ -58,3 +58,4 @@ doc/sphinx/matlab/thermodynamics.rst
 doc/sphinx/matlab/transport.rst
 doc/sphinx/matlab/utilities.rst
 doc/sphinx/matlab/zero-dim.rst
+interfaces/cython/cantera/units/solution.py
