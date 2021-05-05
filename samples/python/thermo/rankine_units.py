@@ -49,7 +49,7 @@ if __name__ == '__main__':
     # create an object representing water
     w = ct.Water()
 
-    # start with saturated liquid water at 80.33 degrees Fahrenheit
+    # start with saturated liquid water at 80.33 degrees Rankine
     w.TQ = 540 * ct.units.degR, 0.0 * ct.units.dimensionless
     h1 = w.h
     p1 = w.P
