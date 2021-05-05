@@ -694,6 +694,19 @@ cdef class ThermoPhase(_SolutionBase):
             else:
                 self._setArray1(thermo_setMassFractions, Y)
 
+    property Y_no_norm:
+        """
+        Set the unnormalized mass fractions. Can only be set as an array.
+
+             >>> phase.Y = [0.1, 0, -0.1, 0.4, 0, 0, 0, 0, 0.5]
+        """
+        def __set__(self, Y):
+            if len(Y) == self.n_species:
+                self.set_unnormalized_mass_fractions(Y)
+            else:
+                msg = "Got {}. Expected {}".format(len(Y), self.n_species)
+                raise ValueError('Array has incorrect length. ' + msg + '.')
+
     property X:
         """
         Get/Set the species mole fractions. Can be set as an array, as a dictionary,
@@ -714,6 +727,19 @@ cdef class ThermoPhase(_SolutionBase):
                 self.thermo.setMoleFractionsByName(comp_map(X))
             else:
                 self._setArray1(thermo_setMoleFractions, X)
+
+    property X_no_norm:
+        """
+        Set the unnormalized mole fractions. Can only be set as an array.
+
+             >>> phase.X = [0.1, 0, -0.1, 0.4, 0, 0, 0, 0, 0.5]
+        """
+        def __set__(self, X):
+            if len(X) == self.n_species:
+                self.set_unnormalized_mole_fractions(X)
+            else:
+                msg = "Got {}. Expected {}".format(len(X), self.n_species)
+                raise ValueError('Array has incorrect length. ' + msg + '.')
 
     property concentrations:
         """Get/Set the species concentrations [kmol/m^3]."""
@@ -1207,6 +1233,20 @@ cdef class ThermoPhase(_SolutionBase):
             self.X = values[2]
             self.thermo.setState_TR(T, D * self._mass_factor())
 
+    property TDY_NoNorm:
+        """
+        Get/Set temperature [K] and density [kg/m^3 or kmol/m^3], and unnormalized mass
+        fractions.
+        """
+        def __get__(self):
+            return self.T, self.density, self.Y
+        def __set__(self, values):
+            assert len(values) == 3, 'incorrect number of values'
+            T = values[0] if values[0] is not None else self.T
+            D = values[1] if values[1] is not None else self.density
+            self.Y_no_norm = values[2]
+            self.thermo.setState_TR(T, D * self._mass_factor())
+
     property TDY:
         """
         Get/Set temperature [K] and density [kg/m^3 or kmol/m^3], and mass
@@ -1242,6 +1282,17 @@ cdef class ThermoPhase(_SolutionBase):
             self.X = values[2]
             self.thermo.setState_TP(T, P)
 
+    property TPX_NoNorm:
+        """Get/Set temperature [K], pressure [Pa], and unnormalized mole fractions."""
+        def __get__(self):
+            return self.T, self.P, self.X
+        def __set__(self, values):
+            assert len(values) == 3, 'incorrect number of values'
+            T = values[0] if values[0] is not None else self.T
+            P = values[1] if values[1] is not None else self.P
+            self.X_no_norm = values[2]
+            self.thermo.setState_TP(T, P)
+
     property TPY:
         """Get/Set temperature [K], pressure [Pa], and mass fractions."""
         def __get__(self):
@@ -1251,6 +1302,17 @@ cdef class ThermoPhase(_SolutionBase):
             T = values[0] if values[0] is not None else self.T
             P = values[1] if values[1] is not None else self.P
             self.Y = values[2]
+            self.thermo.setState_TP(T, P)
+
+    property TPY_NoNorm:
+        """Get/Set temperature [K], pressure [Pa], and unnormalized mass fractions."""
+        def __get__(self):
+            return self.T, self.P, self.Y
+        def __set__(self, values):
+            assert len(values) == 3, 'incorrect number of values'
+            T = values[0] if values[0] is not None else self.T
+            P = values[1] if values[1] is not None else self.P
+            self.Y_no_norm = values[2]
             self.thermo.setState_TP(T, P)
 
     property UV:
