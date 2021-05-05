@@ -628,7 +628,7 @@ class SolutionArray:
         return SolutionArray(self._phase[species], states=self._states,
                              extra=self._extra)
 
-    def append(self, state=None, **kwargs):
+    def append(self, state=None, normalize=True, **kwargs):
         """
         Append an element to the array with the specified state. Elements can
         only be appended in cases where the array of states is one-dimensional.
@@ -681,8 +681,11 @@ class SolutionArray:
                 raise KeyError(
                     "'{}' does not specify a full thermodynamic state".format(attr)
                 )
-            setattr(self._phase, attr, value)
-
+            if not normalize:
+                attr_nonorm = attr + "_NoNorm"
+                setattr(self._phase, attr_nonorm, value)
+            else:
+                setattr(self._phase, attr, value)
         else:
             try:
                 attr = self._phase._full_states[frozenset(kwargs)]
@@ -691,8 +694,12 @@ class SolutionArray:
                     "{} is not a valid combination of properties for setting "
                     "the thermodynamic state".format(tuple(kwargs))
                 ) from None
-            setattr(self._phase, attr, [kwargs[a] for a in attr])
-
+            if not normalize:
+                attr_nonorm = attr + "_NoNorm"
+                setattr(self._phase, attr_nonorm, [kwargs[a] for a in attr])
+            else:
+                setattr(self._phase, attr, [kwargs[a] for a in attr])
+        
         for name, value in self._extra.items():
             new = extra_temp[name]
             if len(value):
@@ -712,12 +719,12 @@ class SolutionArray:
             extra_temp[name] = np.array(v)
 
         for name, value in extra_temp.items():
-            self._extra[name] = value
+            self._extra[name] = value  
 
         self._states.append(self._phase.state)
         self._indices.append(len(self._indices))
         self._shape = (len(self._indices),)
-
+        
     @property
     def meta(self):
         """
@@ -903,10 +910,15 @@ class SolutionArray:
             self._output_dummy = self._indices
             self._shape = (rows,)
 
+        # use unnormalized state setters
+        if mode in ('TDY', 'TPX', "TPY"):
+            mode = mode + "_NoNorm"
+
         # restore data
         for i in self._indices:
             setattr(self._phase, mode, [st[i, ...] for st in state_data])
             self._states[i] = self._phase.state
+
         self._extra = extra_lists
 
     def set_equivalence_ratio(self, phi, *args, **kwargs):
@@ -925,6 +937,39 @@ class SolutionArray:
             self._phase.state = self._states[index]
             self._phase.set_equivalence_ratio(phi[index], *args, **kwargs)
             self._states[index][:] = self._phase.state
+
+    def set_unnormalized_mass_fractions(self, Y, *args, **kwargs):
+        """
+        See `ThermoPhase.set_unnormalized_mass_fractions
+
+        Note that *Y* needs to be a list with length matching the number of species or 
+        multidimensional list with dimension matching the SolutionArray and the length 
+        of the inner lists matching the number of species.
+        """
+
+        Y = np.tile(Y, (len(self._indices), 1))
+
+        for index in self._indices:
+            self._phase.state = self._states[index]
+            self._phase.set_unnormalized_mass_fractions(Y[index])
+            self._states[index][:] = self._phase.state
+
+    def set_unnormalized_mole_fractions(self, X, *args, **kwargs):
+        """
+        See `ThermoPhase.set_unnormalized_mole_fractions
+
+        Note that *X* needs to be a list with length matching the number of species or 
+        multidimensional list with dimension matching the SolutionArray and the length 
+        of the inner lists matching the number of species.
+        """
+
+        X = np.tile(X, (len(self._indices), 1))
+
+        for index in self._indices:
+            self._phase.state = self._states[index]
+            self._phase.set_unnormalized_mole_fractions(X[index])
+            self._states[index][:] = self._phase.state
+
 
     def collect_data(self, cols=None, tabular=False, threshold=0, species=None):
         """
@@ -1372,7 +1417,7 @@ def _state3_prop(name, doc_source, scalar=False):
                 self._phase.state = self._states[index]
                 setattr(self._phase, name, (A[index], B[index], C[index]))
                 self._states[index][:] = self._phase.state
-
+    
     return getter, setter
 
 def _make_functions():

@@ -412,8 +412,8 @@ class FlameBase(Sim1D):
         n_points = np.array(states[0]).size
         if n_points:
             arr = SolutionArray(self.phase(domain), n_points,
-                                extra=other_cols, meta=meta)
-            arr.TPY = states
+                                extra=other_cols, meta=meta)       
+            arr.TPY_NoNorm = states
             return arr
         else:
             return SolutionArray(self.phase(domain), meta=meta)
