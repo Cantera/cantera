@@ -351,10 +351,13 @@ cdef class Arrhenius:
     def __cinit__(self, A=0, b=0, E=0, init=True):
         if init:
             self.rate = new CxxArrhenius(A, b, E / gas_constant)
+            self.own_rate = True
             self.reaction = None
+        else:
+            self.own_rate = False
 
     def __dealloc__(self):
-        if self.reaction is None:
+        if self.own_rate:
             del self.rate
 
     property pre_exponential_factor:
@@ -920,10 +923,13 @@ cdef class BlowersMasel:
     def __cinit__(self, A=0, b=0, E0=0, w=0, init=True):
         if init:
             self.rate = new CxxBlowersMasel(A, b, E0 / gas_constant, w / gas_constant)
+            self.own_rate = True
             self.reaction = None
+        else:
+            self.own_rate = False
 
     def __dealloc__(self):
-        if self.reaction is None:
+        if self.own_rate:
             del self.rate
 
     property pre_exponential_factor:
