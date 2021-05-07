@@ -1130,10 +1130,12 @@ cdef class CustomReaction(Reaction):
 
 cdef class Arrhenius:
     cdef CxxArrhenius* rate
+    cdef cbool own_rate
     cdef Reaction reaction # parent reaction, to prevent garbage collection
 
 cdef class BlowersMasel:
     cdef CxxBlowersMasel* rate
+    cdef cbool own_rate
     cdef Reaction reaction
 
 cdef class Falloff:
