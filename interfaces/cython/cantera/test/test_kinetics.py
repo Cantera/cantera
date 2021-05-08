@@ -457,7 +457,7 @@ class TestUndeclared(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, "three-body reaction with undeclared"):
             ct.Solution(yaml=gas_def)
 
-    def test_skip_undeclared_third_bodies(self):
+    def test_skip_undeclared_third_bodies1(self):
 
         gas_def = self._gas_def + """
               reactions:
@@ -466,7 +466,29 @@ class TestUndeclared(utilities.CanteraTest):
             """
 
         gas = ct.Solution(yaml=gas_def)
-        self.assertEqual(gas.n_reactions, 2)
+        self.assertEqual(gas.n_reactions, 3)
+
+    def test_skip_undeclared_third_bodies2(self):
+
+        gas_def = """
+            phases:
+            - name: gas
+              species:
+              - h2o2.yaml/species: [H, O2, HO2]
+              thermo: ideal-gas
+              skip-undeclared-third-bodies: true
+              kinetics: gas
+              reactions:
+              - h2o2.yaml/reactions: declared-species
+            """
+
+        gas = ct.Solution(yaml=gas_def)
+        found = False
+        for rxn in gas.reactions():
+            if rxn.equation == "H + O2 + M <=> HO2 + M":
+                found = True
+                break
+        self.assertTrue(found)
 
     def test_skip_undeclared_orders(self):
 
