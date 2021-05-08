@@ -1432,13 +1432,21 @@ cdef class BlowersMaselInterfaceReaction(BlowersMaselReaction):
             r.sticking_species = stringify(species)
 
 
-cdef class ElementaryReaction3(Reaction):
+cdef class Reaction3(Reaction):
+    """ Convenience class holding methods common to the Reaction3 framework """
+
+    def _deprecation_warning(self, attr, what="property"):
+        return ("\n{} '{}' to be removed after Cantera 2.6.\nThis {} is moved to "
+                "the {} object accessed via the 'rate' property."
+                ).format(what.capitalize(), attr, what, type(self.rate).__name__)
+
+
+cdef class ElementaryReaction3(Reaction3):
     """
     A reaction which follows mass-action kinetics with a modified Arrhenius
     reaction rate.
 
-    An example for the definition of an `ElementaryReaction3` object is given
-    as::
+    An example for the definition of an `ElementaryReaction3` object is given as::
 
         rxn = ElementaryReaction3(
             equation='O + H2 <=> H + OH',
@@ -1485,14 +1493,33 @@ cdef class ElementaryReaction3(Reaction):
         def __set__(self, ArrheniusRate rate):
             self.er().setRate(rate._base)
 
+    property allow_negative_pre_exponential_factor:
+        """
+        Get/Set whether the rate coefficient is allowed to have a negative
+        pre-exponential factor.
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by property `ArrheniusRate.allow_negative_pre_exponential_factor`.
+        """
+        def __get__(self):
+            attr =  "allow_negative_pre_exponential_factor"
+            warnings.warn(
+                self._deprecation_warning(attr), DeprecationWarning)
+            return self.rate.allow_negative_pre_exponential_factor
+        def __set__(self, allow):
+            attr =  "allow_negative_pre_exponential_factor"
+            warnings.warn(
+                self._deprecation_warning(attr), DeprecationWarning)
+            self.rate.allow_negative_pre_exponential_factor = allow
+
 
 cdef class ThreeBodyReaction3(ElementaryReaction3):
     """
     A reaction with a non-reacting third body "M" that acts to add or remove
     energy from the reacting species.
 
-    An example for the definition of an `ThreeBodyReaction3` object is given
-    as::
+    An example for the definition of an `ThreeBodyReaction3` object is given as::
 
         rxn = ThreeBodyReaction3(
             equation='2 O + M <=> O2 + M',
@@ -1571,13 +1598,12 @@ cdef class ThreeBodyReaction3(ElementaryReaction3):
         return self.thirdbody().efficiency(stringify(species))
 
 
-cdef class PlogReaction3(Reaction):
+cdef class PlogReaction3(Reaction3):
     """
     A pressure-dependent reaction parameterized by logarithmically interpolating
     between Arrhenius rate expressions at various pressures.
 
-    An example for the definition of an `PlogReaction3` object is given
-    as::
+    An example for the definition of an `PlogReaction3` object is given as::
 
         rxn = PlogReaction3(
             [{'P': 1013.25, 'rate-constant': {'A': 1.2124e+16, 'b': -0.5779, 'Ea': 45491376.8}},
@@ -1632,14 +1658,42 @@ cdef class PlogReaction3(Reaction):
         def __set__(self, PlogRate rate):
             self.pr().setRate(rate._base)
 
+    property rates:
+        """
+        Get/Set the rate coefficients for this reaction, which are given as a
+        list of (pressure, `Arrhenius`) tuples.
 
-cdef class ChebyshevReaction3(Reaction):
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by property `PlogRate.rates`.
+        """
+        def __get__(self):
+            warnings.warn(
+                self._deprecation_warning("rates"), DeprecationWarning)
+            return self.rate.rates
+
+        def __set__(self, rates):
+            warnings.warn(
+                self._deprecation_warning("rates"), DeprecationWarning)
+            self.rate.rates = rates
+
+    def __call__(self, float T, float P):
+        """
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replacable by call to `rate` property.
+        """
+        warnings.warn(
+            self._deprecation_warning("__call__", "method"), DeprecationWarning)
+        return self.rate(T, P)
+
+
+cdef class ChebyshevReaction3(Reaction3):
     """
     A pressure-dependent reaction parameterized by a bivariate Chebyshev
     polynomial in temperature and pressure.
 
-    An example for the definition of an `PlogReaction3` object is given
-    as::
+    An example for the definition of an `PlogReaction3` object is given as::
 
         rxm = ChebyshevRate(Tmin=290., Tmax=3000., Pmin=1000., Pmax=10000000.0,
                             data=[[8.2883, -1.1397, -0.12059, 0.016034],
@@ -1688,14 +1742,128 @@ cdef class ChebyshevReaction3(Reaction):
                 self.rate = rate
 
     property rate:
-        """ Get/Set the `Chebyshev` rate coefficients for this reaction. """
+        """ Get/Set the `ChebyshevRate` rate coefficients for this reaction. """
         def __get__(self):
             return ChebyshevRate.wrap(self.cr().rate())
         def __set__(self, ChebyshevRate rate):
             self.cr().setRate(rate._base)
 
+    property Tmin:
+        """
+        Minimum temperature [K] for the Chebyshev fit
 
-cdef class CustomReaction(Reaction):
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by property `ChebyshevRate.Tmin`.
+        """
+        def __get__(self):
+            warnings.warn(
+                self._deprecation_warning("Tmin"), DeprecationWarning)
+            return self.rate.Tmin
+
+    property Tmax:
+        """
+        Maximum temperature [K] for the Chebyshev fit
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by property `ChebyshevRate.Tmax`.
+        """
+        def __get__(self):
+            warnings.warn(
+                self._deprecation_warning("Tmax"), DeprecationWarning)
+            return self.rate.Tmax
+
+    property Pmin:
+        """
+        Minimum pressure [Pa] for the Chebyshev fit
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by property `ChebyshevRate.Pmin`.
+        """
+        def __get__(self):
+            warnings.warn(
+                self._deprecation_warning("Pmin"), DeprecationWarning)
+            return self.rate.Pmin
+
+    property Pmax:
+        """ Maximum pressure [Pa] for the Chebyshev fit
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by property `ChebyshevRate.Pmax`.
+        """
+        def __get__(self):
+            warnings.warn(
+                self._deprecation_warning("Pmax"), DeprecationWarning)
+            return self.rate.Pmax
+
+    property nPressure:
+        """
+        Number of pressures over which the Chebyshev fit is computed
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by property `ChebyshevRate.nPressure`.
+        """
+        def __get__(self):
+            warnings.warn(
+                self._deprecation_warning("nPressure"), DeprecationWarning)
+            return self.rate.nPressure
+
+    property nTemperature:
+        """
+        Number of temperatures over which the Chebyshev fit is computed
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by property `ChebyshevRate.nTemperature`.
+        """
+        def __get__(self):
+            warnings.warn(
+                self._deprecation_warning("nTemperature"), DeprecationWarning)
+            return self.rate.nTemperature
+
+    property coeffs:
+        """
+        2D array of Chebyshev coefficients of size `(nTemperature, nPressure)`.
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by property `ChebyshevRate.coeffs`.
+        """
+        def __get__(self):
+            warnings.warn(
+                self._deprecation_warning("coeffs"), DeprecationWarning)
+            return self.rate.coeffs
+
+    def set_parameters(self, Tmin, Tmax, Pmin, Pmax, coeffs):
+        """
+        Simultaneously set values for `Tmin`, `Tmax`, `Pmin`, `Pmax`, and
+        `coeffs`.
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by `ChebyshevRate` construcor.
+        """
+        warnings.warn("Method 'set_parameters' to be removed after Cantera 2.6. "
+            "Method is replacable by assigning a new 'ChebyshevRate' object to the "
+            "rate property.", DeprecationWarning)
+        self.rate = ChebyshevRate(Tmin, Tmax, Pmin, Pmax, coeffs)
+
+    def __call__(self, float T, float P):
+        """
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replacable by call to `rate` property.
+        """
+        warnings.warn(
+            self._deprecation_warning("__call__", "method"), DeprecationWarning)
+        return self.rate(T, P)
+
+
+cdef class CustomReaction(Reaction3):
     """
     A reaction which follows mass-action kinetics with a custom reaction rate.
 

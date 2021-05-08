@@ -1174,7 +1174,10 @@ cdef class Reaction:
     @staticmethod
     cdef wrap(shared_ptr[CxxReaction])
 
-cdef class CustomReaction(Reaction):
+cdef class Reaction3(Reaction):
+    pass
+
+cdef class CustomReaction(Reaction3):
     cdef CustomRate _rate
 
 cdef class Arrhenius:
