@@ -528,63 +528,10 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
     }
     resizeSpecies();
 
-    // If reaction orders are specified, then this reaction does not follow
-    // mass-action kinetics, and is not an elementary reaction. So check that it
-    // is not reversible, since computing the reverse rate from thermochemistry
-    // only works for elementary reactions.
-    if (r->reversible && !r->orders.empty()) {
-        throw InputFileError("Kinetics::addReaction", r->input,
-            "Reaction orders may only be given for irreversible reactions");
-    }
-
-    // Check for undeclared species
-    std::vector<std::string> undeclared;
-
-    undeclared = r->undeclaredSpecies(*this);
-    if (!undeclared.empty()) {
-        if (m_skipUndeclaredSpecies) {
-            return false;
-        } else {
-            throw InputFileError("Kinetics::addReaction", r->input, "Reaction '{}'\n"
-                "contains undeclared species: '{}'",
-                r->equation(), boost::algorithm::join(undeclared, "', '"));
-        }
-    }
-
-    undeclared = r->undeclaredOrders(*this);
-    if (!undeclared.empty()) {
-        if (m_skipUndeclaredSpecies) {
-            return false;
-        } else {
-            if (r->input.hasKey("orders")) {
-                throw InputFileError("Kinetics::addReaction", r->input["orders"],
-                    "Reaction '{}'\n"
-                    "defines reaction orders for undeclared species: '{}'",
-                    r->equation(), boost::algorithm::join(undeclared, "', '"));
-            }
-            // Error for empty r->input AnyMap (e.g. XML)
-            throw InputFileError("Kinetics::addReaction", r->input, "Reaction '{}'\n"
-                "defines reaction orders for undeclared species: '{}'",
-                r->equation(), boost::algorithm::join(undeclared, "', '"));
-        }
-    }
-
-    undeclared = r->undeclaredThirdBodies(*this);
-    if (!undeclared.empty()) {
-        if (!m_skipUndeclaredThirdBodies) {
-            if (r->input.hasKey("efficiencies")) {
-                throw InputFileError("Kinetics::addReaction", r->input["efficiencies"],
-                    "Reaction '{}'\n"
-                    "defines third-body efficiencies for undeclared species: '{}'",
-                    r->equation(), boost::algorithm::join(undeclared, "', '"));
-            }
-            // Error for specified ThirdBody or empty r->input AnyMap
-            throw InputFileError("Kinetics::addReaction", r->input, "Reaction '{}'\n"
-                "is a three-body reaction with undeclared species: '{}'",
-                r->equation(), boost::algorithm::join(undeclared, "', '"));
-        } else if (m_skipUndeclaredSpecies) {
-            return false;
-        }
+    // Check validity of reaction within the context of the Kinetics object
+    if (!r->checkSpecies(*this)) {
+        // Do not add reaction
+        return false;
     }
 
     // For reactions created outside the context of a Kinetics object, the units

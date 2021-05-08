@@ -102,6 +102,15 @@ void Reaction::validate()
             }
         }
     }
+
+    // If reaction orders are specified, then this reaction does not follow
+    // mass-action kinetics, and is not an elementary reaction. So check that it
+    // is not reversible, since computing the reverse rate from thermochemistry
+    // only works for elementary reactions.
+    if (reversible && !orders.empty()) {
+        throw InputFileError("Reaction::validate", input,
+            "Reaction orders may only be given for irreversible reactions");
+    }
 }
 
 AnyMap Reaction::parameters(bool withInput) const
@@ -222,22 +231,64 @@ void updateUndeclared(std::vector<std::string>& undeclared,
     }
 }
 
-std::vector<std::string> Reaction::undeclaredSpecies(const Kinetics& kin) const {
-    std::vector<std::string> undeclared;
-    updateUndeclared(undeclared, reactants, kin);
-    updateUndeclared(undeclared, products, kin);
-    return undeclared;
-}
-
 std::vector<std::string> Reaction::undeclaredThirdBodies(const Kinetics& kin) const {
     std::vector<std::string> undeclared;
     return undeclared;
 }
 
-std::vector<std::string> Reaction::undeclaredOrders(const Kinetics& kin) const {
+bool Reaction::checkSpecies(const Kinetics& kin) const {
+
+    // Check for undeclared species
     std::vector<std::string> undeclared;
+    updateUndeclared(undeclared, reactants, kin);
+    updateUndeclared(undeclared, products, kin);
+    if (!undeclared.empty()) {
+        if (kin.skipUndeclaredSpecies()) {
+            return false;
+        } else {
+            throw InputFileError("Reaction::checkSpecies", input, "Reaction '{}'\n"
+                "contains undeclared species: '{}'",
+                equation(), boost::algorithm::join(undeclared, "', '"));
+        }
+    }
+
+    undeclared.clear();
     updateUndeclared(undeclared, orders, kin);
-    return undeclared;
+    if (!undeclared.empty()) {
+        if (kin.skipUndeclaredSpecies()) {
+            return false;
+        } else {
+            if (input.hasKey("orders")) {
+                throw InputFileError("Reaction::checkSpecies", input["orders"],
+                    "Reaction '{}'\n"
+                    "defines reaction orders for undeclared species: '{}'",
+                    equation(), boost::algorithm::join(undeclared, "', '"));
+            }
+            // Error for empty input AnyMap (e.g. XML)
+            throw InputFileError("Reaction::checkSpecies", input, "Reaction '{}'\n"
+                "defines reaction orders for undeclared species: '{}'",
+                equation(), boost::algorithm::join(undeclared, "', '"));
+        }
+    }
+
+    // Use helper function while there is no uniform handling of third bodies
+    undeclared = undeclaredThirdBodies(kin);
+    if (!undeclared.empty()) {
+        if (!kin.skipUndeclaredThirdBodies()) {
+            if (input.hasKey("efficiencies")) {
+                throw InputFileError("Reaction::checkSpecies", input["efficiencies"],
+                    "Reaction '{}'\n"
+                    "defines third-body efficiencies for undeclared species: '{}'",
+                    equation(), boost::algorithm::join(undeclared, "', '"));
+            }
+            // Error for specified ThirdBody or empty input AnyMap
+            throw InputFileError("Reaction::checkSpecies", input, "Reaction '{}'\n"
+                "is a three-body reaction with undeclared species: '{}'",
+                equation(), boost::algorithm::join(undeclared, "', '"));
+        }
+    }
+
+    return true;
 }
 
 ElementaryReaction::ElementaryReaction(const Composition& reactants_,
@@ -262,7 +313,7 @@ void ElementaryReaction::validate()
     Reaction::validate();
     if (!allow_negative_pre_exponential_factor &&
         rate.preExponentialFactor() < 0) {
-        throw CanteraError("ElementaryReaction::validate",
+        throw InputFileError("ElementaryReaction::validate", input,
             "Undeclared negative pre-exponential factor found in reaction '"
             + equation() + "'");
     }
@@ -412,11 +463,11 @@ void FalloffReaction::validate() {
     if (!allow_negative_pre_exponential_factor &&
         (low_rate.preExponentialFactor() < 0 ||
          high_rate.preExponentialFactor() < 0)) {
-        throw CanteraError("FalloffReaction::validate", "Negative "
+        throw InputFileError("FalloffReaction::validate", input, "Negative "
             "pre-exponential factor found for reaction '" + equation() + "'");
     }
     if (low_rate.preExponentialFactor() * high_rate.preExponentialFactor() < 0) {
-        throw CanteraError("FalloffReaction::validate", "High and "
+        throw InputFileError("FalloffReaction::validate", input, "High and "
             "low rate pre-exponential factors must have the same sign."
             "Reaction: '{}'", equation());
     }
@@ -700,7 +751,7 @@ void BlowersMaselReaction::validate()
     Reaction::validate();
     if (!allow_negative_pre_exponential_factor &&
         rate.preExponentialFactor() < 0) {
-        throw CanteraError("BlowersMaselReaction::validate",
+        throw InputFileError("BlowersMaselReaction::validate", input,
             "Undeclared negative pre-exponential factor found in reaction '"
             + equation() + "'");
     }
@@ -1490,21 +1541,8 @@ std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
     std::vector<shared_ptr<Reaction>> all_reactions;
     for (const auto& node : items.asVector<AnyMap>()) {
         shared_ptr<Reaction> R(newReaction(node, kinetics));
-        std::vector<std::string> undeclared, more;
-        undeclared = R->undeclaredSpecies(kinetics);
-        more = R->undeclaredOrders(kinetics);
-        undeclared.insert(undeclared.end(), more.begin(), more.end());
-        more = R->undeclaredThirdBodies(kinetics);
-
-        if (R->valid() && undeclared.empty() && more.empty()) {
+        if (R->valid() && R->checkSpecies(kinetics)) {
             all_reactions.emplace_back(R);
-        } else if (!kinetics.skipUndeclaredSpecies() && !undeclared.empty()) {
-            throw InputFileError("getReactions", node,
-                "Reaction '{}' contains undeclared species.", R->equation());
-        } else if (!kinetics.skipUndeclaredThirdBodies() && !more.empty()) {
-            throw InputFileError("getReactions", node,
-                "Reaction '{}' contains undeclared third body species.",
-                R->equation());
         }
     }
     return all_reactions;
