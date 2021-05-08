@@ -75,17 +75,12 @@ public:
         m_valid = valid;
     }
 
-    //! Return vector containing list of undeclared species
+    //! Verify that all species involved in the reaction are defined in the Kinetics
+    //! object. The function returns true if all species are found, and raises an
+    //! exception unless the kinetics object is configured to skip undeclared species,
+    //! in which case false is returned.
     //! @param kin  Kinetics object
-    std::vector<std::string> undeclaredSpecies(const Kinetics& kin) const;
-
-    //! Return vector containing list of undeclared third body species
-    //! @param kin  Kinetics object
-    virtual std::vector<std::string> undeclaredThirdBodies(const Kinetics& kin) const;
-
-    //! Return vector containing list of undeclared reaction order species
-    //! @param kin  Kinetics object
-    std::vector<std::string> undeclaredOrders(const Kinetics& kin) const;
+    bool checkSpecies(const Kinetics& kin) const;
 
     //! Type of the reaction. The valid types are listed in the file,
     //! reaction_defs.h, with constants ending in `RXN`.
@@ -139,6 +134,12 @@ protected:
 
     //! Flag indicating whether reaction is set up correctly
     bool m_valid;
+
+    //! @internal  Helper function returning vector of undeclared third body species.
+    //! The function is used by the checkSpecies method and only needed as long as
+    //! there is no unified approach to handle third body collision partners.
+    //! @param kin  Kinetics object
+    virtual std::vector<std::string> undeclaredThirdBodies(const Kinetics& kin) const;
 };
 
 
@@ -221,13 +222,14 @@ public:
     virtual void calculateRateCoeffUnits(const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
 
-    virtual std::vector<std::string> undeclaredThirdBodies(const Kinetics& kin) const;
-
     //! Relative efficiencies of third-body species in enhancing the reaction
     //! rate.
     ThirdBody third_body;
 
     bool specified_collision_partner = false; //!< Input specifies collision partner
+
+protected:
+    virtual std::vector<std::string> undeclaredThirdBodies(const Kinetics& kin) const;
 };
 
 //! A reaction that is first-order in [M] at low pressure, like a third-body
@@ -250,8 +252,6 @@ public:
     virtual void calculateRateCoeffUnits(const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
 
-    virtual std::vector<std::string> undeclaredThirdBodies(const Kinetics& kin) const;
-
     //! The rate constant in the low-pressure limit
     Arrhenius low_rate;
 
@@ -270,6 +270,9 @@ public:
     //! The units of the low-pressure rate constant. The units of the
     //! high-pressure rate constant are stored in #rate_units.
     Units low_rate_units;
+
+protected:
+    virtual std::vector<std::string> undeclaredThirdBodies(const Kinetics& kin) const;
 };
 
 //! A reaction where the rate decreases as pressure increases due to collisional
