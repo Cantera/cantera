@@ -236,6 +236,49 @@ std::vector<std::string> Reaction::undeclaredThirdBodies(const Kinetics& kin) co
     return undeclared;
 }
 
+void Reaction::checkBalance(const Kinetics& kin) const {
+
+    Composition balr, balp;
+
+    // iterate over products and reactants
+    for (const auto& sp : products) {
+        const ThermoPhase& ph = kin.speciesPhase(sp.first);
+        size_t k = ph.speciesIndex(sp.first);
+        double stoich = sp.second;
+        for (size_t m = 0; m < ph.nElements(); m++) {
+            balr[ph.elementName(m)] = 0.0; // so that balr contains all species
+            balp[ph.elementName(m)] += stoich * ph.nAtoms(k, m);
+        }
+    }
+    for (const auto& sp : reactants) {
+        const ThermoPhase& ph = kin.speciesPhase(sp.first);
+        size_t k = ph.speciesIndex(sp.first);
+        double stoich = sp.second;
+        for (size_t m = 0; m < ph.nElements(); m++) {
+            balr[ph.elementName(m)] += stoich * ph.nAtoms(k, m);
+        }
+    }
+
+    std::string msg;
+    bool ok = true;
+    for (const auto& el : balr) {
+        const std::string& elem = el.first;
+        double elemsum = balr[elem] + balp[elem];
+        double elemdiff = fabs(balp[elem] - balr[elem]);
+        if (elemsum > 0.0 && elemdiff / elemsum > 1e-4) {
+            ok = false;
+            msg += fmt::format("  {}           {}           {}\n",
+                               elem, balr[elem], balp[elem]);
+        }
+    }
+    if (!ok) {
+        throw InputFileError("Reaction::checkBalance", input,
+            "The following reaction is unbalanced: {}\n"
+            "  Element    Reactants    Products\n{}",
+            equation(), msg);
+    }
+}
+
 bool Reaction::checkSpecies(const Kinetics& kin) const {
 
     // Check for undeclared species
@@ -287,6 +330,9 @@ bool Reaction::checkSpecies(const Kinetics& kin) const {
                 equation(), boost::algorithm::join(undeclared, "', '"));
         }
     }
+
+    //
+    checkBalance(kin);
 
     return true;
 }
@@ -1541,6 +1587,7 @@ std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
     std::vector<shared_ptr<Reaction>> all_reactions;
     for (const auto& node : items.asVector<AnyMap>()) {
         shared_ptr<Reaction> R(newReaction(node, kinetics));
+        R->validate();
         if (R->valid() && R->checkSpecies(kinetics)) {
             all_reactions.emplace_back(R);
         }

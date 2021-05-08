@@ -75,6 +75,12 @@ public:
         m_valid = valid;
     }
 
+    //! Check that the specified reaction is balanced (same number of atoms for
+    //! each element in the reactants and products). Raises an exception if the
+    //! reaction is not balanced. Used by checkSpecies.
+    //! @param kin  Kinetics object
+    void checkBalance(const Kinetics& kin) const;
+
     //! Verify that all species involved in the reaction are defined in the Kinetics
     //! object. The function returns true if all species are found, and raises an
     //! exception unless the kinetics object is configured to skip undeclared species,
