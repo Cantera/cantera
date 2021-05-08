@@ -232,44 +232,9 @@ double Kinetics::checkDuplicateStoich(std::map<int, double>& r1,
 
 void Kinetics::checkReactionBalance(const Reaction& R)
 {
-    Composition balr, balp;
-    // iterate over the products
-    for (const auto& sp : R.products) {
-        const ThermoPhase& ph = speciesPhase(sp.first);
-        size_t k = ph.speciesIndex(sp.first);
-        double stoich = sp.second;
-        for (size_t m = 0; m < ph.nElements(); m++) {
-            balr[ph.elementName(m)] = 0.0; // so that balr contains all species
-            balp[ph.elementName(m)] += stoich*ph.nAtoms(k,m);
-        }
-    }
-    for (const auto& sp : R.reactants) {
-        const ThermoPhase& ph = speciesPhase(sp.first);
-        size_t k = ph.speciesIndex(sp.first);
-        double stoich = sp.second;
-        for (size_t m = 0; m < ph.nElements(); m++) {
-            balr[ph.elementName(m)] += stoich*ph.nAtoms(k,m);
-        }
-    }
-
-    string msg;
-    bool ok = true;
-    for (const auto& el : balr) {
-        const string& elem = el.first;
-        double elemsum = balr[elem] + balp[elem];
-        double elemdiff = fabs(balp[elem] - balr[elem]);
-        if (elemsum > 0.0 && elemdiff/elemsum > 1e-4) {
-            ok = false;
-            msg += fmt::format("  {}           {}           {}\n",
-                               elem, balr[elem], balp[elem]);
-        }
-    }
-    if (!ok) {
-        throw InputFileError("Kinetics::checkReactionBalance", R.input,
-            "The following reaction is unbalanced: {}\n"
-            "  Element    Reactants    Products\n{}",
-            R.equation(), msg);
-    }
+    R.checkBalance(*this);
+    warn_deprecated("Kinetics::checkReactionBalance",
+        "To be removed after Cantera 2.6. Replacable by Reaction::checkBalance.");
 }
 
 void Kinetics::selectPhase(const double* data, const ThermoPhase* phase,
@@ -540,7 +505,6 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
         r->calculateRateCoeffUnits(*this);
     }
 
-    checkReactionBalance(*r);
     size_t irxn = nReactions(); // index of the new reaction
 
     // indices of reactant and product species within this Kinetics object
