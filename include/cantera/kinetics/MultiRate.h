@@ -61,7 +61,7 @@ public:
     virtual void add(const size_t rxn_index,
                      ReactionRateBase& rate) override {
         m_indices[rxn_index] = m_rxn_rates.size();
-        m_rxn_rates.emplace_back(rxn_index, static_cast<RateType&>(rate));
+        m_rxn_rates.emplace_back(rxn_index, dynamic_cast<RateType&>(rate));
     }
 
     virtual bool replace(const size_t rxn_index,
@@ -78,7 +78,7 @@ public:
         }
         if (m_indices.find(rxn_index) != m_indices.end()) {
             size_t j = m_indices[rxn_index];
-            m_rxn_rates.at(j).second = static_cast<RateType&>(rate);
+            m_rxn_rates.at(j).second = dynamic_cast<RateType&>(rate);
             return true;
         }
         return false;
