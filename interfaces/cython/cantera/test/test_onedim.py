@@ -1253,7 +1253,7 @@ class TestIonFreeFlame(utilities.CanteraTest):
         width = 0.03
 
         # Solution object used to compute mixture properties
-        self.gas = ct.Solution('ch4_ion.cti')
+        self.gas = ct.Solution('ch4_ion.yaml')
         self.gas.TPX = Tin, p, reactants
         self.sim = ct.IonFreeFlame(self.gas, width=width)
         self.sim.set_refine_criteria(ratio=4, slope=0.8, curve=1.0)
@@ -1279,7 +1279,7 @@ class TestIonBurnerFlame(utilities.CanteraTest):
         width = 0.01
 
         # Solution object used to compute mixture properties
-        self.gas = ct.Solution('ch4_ion.cti')
+        self.gas = ct.Solution('ch4_ion.yaml')
         self.gas.TPX = Tburner, p, reactants
         self.sim = ct.IonBurnerFlame(self.gas, width=width)
         self.sim.set_refine_criteria(ratio=4, slope=0.1, curve=0.1)
