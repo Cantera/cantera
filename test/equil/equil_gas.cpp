@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include "cantera/test/gtest_utils.h"
 
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/IdealGasPhase.h"
@@ -211,15 +212,15 @@ public:
 TEST_F(GriMatrix, ChemEquil_CH4_N2) { check_CH4_N2("element_potential"); }
 TEST_F(GriMatrix, ChemEquil_O2_N2) { check_O2_N2("element_potential"); }
 TEST_F(GriMatrix, ChemEquil_CH4_O2_N2) { check_CH4_O2_N2("element_potential"); }
-TEST_F(GriMatrix, ChemEquil_CH4_O2) { check_CH4_O2("element_potential"); }
+TEST_F(GriMatrix, SLOW_TEST(ChemEquil_CH4_O2)) { check_CH4_O2("element_potential"); }
 TEST_F(GriMatrix, MultiPhase_CH4_N2) { check_CH4_N2("gibbs"); }
 TEST_F(GriMatrix, MultiPhase_O2_N2) { check_O2_N2("gibbs"); }
-TEST_F(GriMatrix, MultiPhase_CH4_O2_N2) { check_CH4_O2_N2("gibbs"); }
+TEST_F(GriMatrix, SLOW_TEST(MultiPhase_CH4_O2_N2)) { check_CH4_O2_N2("gibbs"); }
 TEST_F(GriMatrix, DISABLED_MultiPhase_CH4_O2) { check_CH4_O2("gibbs"); }
 TEST_F(GriMatrix, VcsNonideal_CH4_N2) { check_CH4_N2("vcs"); }
 TEST_F(GriMatrix, VcsNonideal_O2_N2) { check_O2_N2("vcs"); }
 TEST_F(GriMatrix, VcsNonideal_CH4_O2_N2) { check_CH4_O2_N2("vcs"); }
-TEST_F(GriMatrix, VcsNonideal_CH4_O2) { check_CH4_O2("vcs"); }
+TEST_F(GriMatrix, SLOW_TEST(VcsNonideal_CH4_O2)) { check_CH4_O2("vcs"); }
 
 // Test for equilibrium at property pairs other than T and P, which require
 // nested iterations.
