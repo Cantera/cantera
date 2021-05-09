@@ -93,6 +93,8 @@ def addTestProgram(subdir, progName, env_vars={}):
 
     testenv = localenv.Clone()
     testenv['ENV'].update(env_vars)
+    if env["skip_slow_tests"]:
+        testenv.Append(CPPDEFINES=["CT_SKIP_SLOW"])
     program = testenv.Program(pjoin(subdir, progName),
                               multi_glob(testenv, subdir, 'cpp'))
     passedFile = File(pjoin(str(program[0].dir), '%s.passed' % program[0].name))
