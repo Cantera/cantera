@@ -434,6 +434,19 @@ class TestSolutionSerialization(utilities.CanteraTest):
         self.assertEqual(data['kinetics'], 'gas')
         self.assertEqual(data['transport'], 'mixture-averaged')
 
+    def test_input_data_user_modifications(self):
+        gas = ct.Solution("h2o2.yaml")
+        data1 = gas.input_data
+        gas.update_user_data({"foo": True})  # should get overwritten
+        extra = {"foo": [1.2, 3.4], "bar": [[1, 2], [3, 4]]}
+        gas.update_user_data(extra)
+        data2 = gas.input_data
+        self.assertEqual(extra["foo"], data2["foo"])
+        self.assertEqual(extra["bar"], data2["bar"])
+        gas.clear_user_data()
+        data3 = gas.input_data
+        self.assertEqual(data1, data3)
+
     def test_input_data_state(self):
         gas = ct.Solution('h2o2.yaml', transport_model=None)
         data = gas.input_data
@@ -568,6 +581,27 @@ class TestSolutionSerialization(utilities.CanteraTest):
         gas2.modify_species(gas2.species_index('H2'), h2)
         with self.assertRaisesRegex(ct.CanteraError, "different definitions"):
             gas.write_yaml('h2o2-error.yaml', phases=gas2)
+
+    def test_yaml_user_data(self):
+        gas = ct.Solution("h2o2.yaml")
+        extra = {"spam": {"A": 1, "B": 2}, "eggs": [1, 2.3, 4.5]}
+        gas.update_user_data(extra)
+        S = gas.species(2)
+        S.update_user_data({"foo": "bar"})
+        S.transport.update_user_data({"baz": 1234.5})
+        S.thermo.update_user_data({"something": (False, True)})
+        gas.reaction(5).update_user_data({"baked-beans": True})
+
+        gas.write_yaml("h2o2-generated-user-data.yaml")
+        gas2 = ct.Solution("h2o2-generated-user-data.yaml")
+        data2 = gas2.species(2).input_data
+
+        self.assertEqual(gas2.input_data["spam"], extra["spam"])
+        self.assertEqual(gas2.input_data["eggs"], extra["eggs"])
+        self.assertEqual(data2["foo"], "bar")
+        self.assertEqual(data2["transport"]["baz"], 1234.5)
+        self.assertEqual(data2["thermo"]["something"], [False, True])
+        self.assertTrue(gas2.reaction(5).input_data["baked-beans"])
 
 
 class TestSpeciesSerialization(utilities.CanteraTest):
