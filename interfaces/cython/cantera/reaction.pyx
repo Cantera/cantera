@@ -124,12 +124,18 @@ cdef class PlogRate(_ReactionRate):
     """
     def __cinit__(self, rates=None, input_data=None, init=True):
 
-        if isinstance(input_data, dict) and init:
-            self._base.reset(new CxxPlogRate(dict_to_anymap(input_data)))
+        if init and isinstance(rates, list):
+            self.rates = rates
+
+        elif init:
+            if isinstance(input_data, dict):
+                self._base.reset(new CxxPlogRate(dict_to_anymap(input_data)))
+            elif rates is None:
+                self._base.reset(new CxxPlogRate(dict_to_anymap({})))
+            else:
+                raise TypeError("Invalid type for parameter 'rates'")
             self.base = self._base.get()
             self.rate = <CxxPlogRate*>(self.base)
-        elif rates and init:
-            self.rates = rates
 
     @staticmethod
     cdef wrap(shared_ptr[CxxReactionRateBase] rate):
@@ -1035,10 +1041,8 @@ cdef class PlogReaction(Reaction):
         if init and equation and kinetics:
 
             spec = {'equation': equation, 'type': self.reaction_type}
-            if isinstance(rate, list):
-                spec['rate-constants'] = []
-                for r in rate:
-                    spec['rate-constants'].append({'P': r['P'], **r['rate-constant']})
+            if isinstance(rate, dict):
+                spec.update(rate)
             else:
                 raise TypeError("Invalid rate definition")
 
@@ -1064,7 +1068,7 @@ cdef class PlogReaction(Reaction):
             cdef multimap[double,CxxArrhenius] ratemap
             cdef Arrhenius rate
             cdef pair[double,CxxArrhenius] item
-            for p,rate in rates:
+            for p, rate in rates:
                 item.first = p
                 item.second = deref(rate.rate)
                 ratemap.insert(item)
@@ -1605,11 +1609,11 @@ cdef class PlogReaction3(Reaction3):
 
     An example for the definition of an `PlogReaction3` object is given as::
 
-        rxn = PlogReaction3(
-            [{'P': 1013.25, 'rate-constant': {'A': 1.2124e+16, 'b': -0.5779, 'Ea': 45491376.8}},
-             {'P': 101325., 'rate-constant': {'A': 4.9108e+31, 'b': -4.8507, 'Ea': 103649395.2}},
-             {'P': 1013250., 'rate-constant': {'A': 1.2866e+47, 'b': -9.0246, 'Ea': 166508556.0}},
-             {'P': 10132500., 'rate-constant': {'A': 5.9632e+56, 'b': -11.529, 'Ea': 220076726.4}}])
+        rxn = PlogReaction3(equation='H2 + O2 <=> 2 OH', rate={"rate-constants":
+            [{'P': 1013.25, 'A': 1.2124e+16, 'b': -0.5779, 'Ea': 45491376.8},
+             {'P': 101325., 'A': 4.9108e+31, 'b': -4.8507, 'Ea': 103649395.2},
+             {'P': 1013250., 'A': 1.2866e+47, 'b': -9.0246, 'Ea': 166508556.0},
+             {'P': 10132500., 'A': 5.9632e+56, 'b': -11.529, 'Ea': 220076726.4}]})
 
     The YAML description corresponding to this reaction is::
 
@@ -1635,10 +1639,8 @@ cdef class PlogReaction3(Reaction3):
         if init and equation and kinetics:
 
             spec = {"equation": equation, "type": self.reaction_type}
-            if isinstance(rate, list):
-                spec["rate-constants"] = []
-                for r in rate:
-                    spec["rate-constants"].append({"P": r["P"], **r["rate-constant"]})
+            if isinstance(rate, dict):
+                spec.update(rate)
             elif isinstance(rate, PlogRate) or rate is None:
                 pass
             else:
@@ -1675,7 +1677,9 @@ cdef class PlogReaction3(Reaction3):
         def __set__(self, rates):
             warnings.warn(
                 self._deprecation_warning("rates"), DeprecationWarning)
-            self.rate.rates = rates
+            rate_ = self.rate
+            rate_.rates = rates
+            self.rate = rate_
 
     def __call__(self, float T, float P):
         """
