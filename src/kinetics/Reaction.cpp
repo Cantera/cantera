@@ -231,9 +231,10 @@ void updateUndeclared(std::vector<std::string>& undeclared,
     }
 }
 
-std::vector<std::string> Reaction::undeclaredThirdBodies(const Kinetics& kin) const {
+std::pair<std::vector<std::string>, bool> Reaction::undeclaredThirdBodies(
+        const Kinetics& kin) const {
     std::vector<std::string> undeclared;
-    return undeclared;
+    return std::make_pair(undeclared, false);
 }
 
 void Reaction::checkBalance(const Kinetics& kin) const {
@@ -315,7 +316,9 @@ bool Reaction::checkSpecies(const Kinetics& kin) const {
     }
 
     // Use helper function while there is no uniform handling of third bodies
-    undeclared = undeclaredThirdBodies(kin);
+    auto third = undeclaredThirdBodies(kin);
+    undeclared = third.first;
+    bool specified_collision_partner_ = third.second;
     if (!undeclared.empty()) {
         if (!kin.skipUndeclaredThirdBodies()) {
             if (input.hasKey("efficiencies")) {
@@ -328,6 +331,8 @@ bool Reaction::checkSpecies(const Kinetics& kin) const {
             throw InputFileError("Reaction::checkSpecies", input, "Reaction '{}'\n"
                 "is a three-body reaction with undeclared species: '{}'",
                 equation(), boost::algorithm::join(undeclared, "', '"));
+        } else if (kin.skipUndeclaredSpecies() && specified_collision_partner_) {
+            return false;
         }
     }
 
@@ -453,11 +458,11 @@ void ThreeBodyReaction::getParameters(AnyMap& reactionNode) const
     }
 }
 
-std::vector<std::string> ThreeBodyReaction::undeclaredThirdBodies(
+std::pair<std::vector<std::string>, bool> ThreeBodyReaction::undeclaredThirdBodies(
         const Kinetics& kin) const {
     std::vector<std::string> undeclared;
     updateUndeclared(undeclared, third_body.efficiencies, kin);
-    return undeclared;
+    return std::make_pair(undeclared, specified_collision_partner);
 }
 
 FalloffReaction::FalloffReaction()
@@ -546,11 +551,11 @@ void FalloffReaction::getParameters(AnyMap& reactionNode) const
     }
 }
 
-std::vector<std::string> FalloffReaction::undeclaredThirdBodies(
+std::pair<std::vector<std::string>, bool> FalloffReaction::undeclaredThirdBodies(
         const Kinetics& kin) const {
     std::vector<std::string> undeclared;
     updateUndeclared(undeclared, third_body.efficiencies, kin);
-    return undeclared;
+    return std::make_pair(undeclared, false);
 }
 
 ChemicallyActivatedReaction::ChemicallyActivatedReaction()

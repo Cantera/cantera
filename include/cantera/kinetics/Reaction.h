@@ -141,11 +141,13 @@ protected:
     //! Flag indicating whether reaction is set up correctly
     bool m_valid;
 
-    //! @internal  Helper function returning vector of undeclared third body species.
+    //! @internal  Helper function returning vector of undeclared third body species
+    //! and a boolean expression indicating whether the third body is specified.
     //! The function is used by the checkSpecies method and only needed as long as
     //! there is no unified approach to handle third body collision partners.
     //! @param kin  Kinetics object
-    virtual std::vector<std::string> undeclaredThirdBodies(const Kinetics& kin) const;
+    virtual std::pair<std::vector<std::string>, bool>
+        undeclaredThirdBodies(const Kinetics& kin) const;
 };
 
 
@@ -235,7 +237,8 @@ public:
     bool specified_collision_partner = false; //!< Input specifies collision partner
 
 protected:
-    virtual std::vector<std::string> undeclaredThirdBodies(const Kinetics& kin) const;
+    virtual std::pair<std::vector<std::string>, bool>
+        undeclaredThirdBodies(const Kinetics& kin) const;
 };
 
 //! A reaction that is first-order in [M] at low pressure, like a third-body
@@ -278,7 +281,8 @@ public:
     Units low_rate_units;
 
 protected:
-    virtual std::vector<std::string> undeclaredThirdBodies(const Kinetics& kin) const;
+    virtual std::pair<std::vector<std::string>, bool> undeclaredThirdBodies(
+        const Kinetics& kin) const;
 };
 
 //! A reaction where the rate decreases as pressure increases due to collisional
