@@ -14,6 +14,13 @@ class TestKinetics(utilities.CanteraTest):
         self.phase.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4]
         self.phase.TP = 800, 2*ct.one_atm
 
+    def test_note(self):
+        self.assertEqual(self.phase.reaction(0).note, "")
+        self.phase.reaction(0).note = "Reaction 1"
+        self.assertEqual(self.phase.reaction(0).note, "Reaction 1")
+        self.phase.reaction(0).note = ""
+        self.assertEqual(self.phase.reaction(0).note, "")
+
     def test_counts(self):
         self.assertEqual(self.phase.n_reactions, 28)
         self.assertEqual(self.phase.n_total_species, 9)

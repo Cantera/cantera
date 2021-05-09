@@ -10,6 +10,19 @@
 
 using namespace Cantera;
 
+TEST(Reaction, annotation)
+{
+    auto sol = newSolution("gri30.yaml");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: N + NO <=> N2 + O,"
+        " rate-constant: [-2.70000E+13 cm^3/mol/s, 0, 355 cal/mol],"
+        " negative-A: true,"
+        " note: 'foo bar'}");
+
+    auto R = newReaction(rxn, *(sol->kinetics()));
+    EXPECT_EQ(R->note(), "foo bar");
+}
+
 TEST(Reaction, ElementaryFromYaml)
 {
     auto sol = newSolution("gri30.yaml");

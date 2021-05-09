@@ -270,6 +270,13 @@ cdef class Reaction:
         def __set__(self, orders):
             self.reaction.orders = comp_map(orders)
 
+    property note:
+        """ Annotation string describing the reaction. """
+        def __get__(self):
+            return pystr(self.reaction.note())
+        def __set__(self, note):
+            self.reaction.setNote(stringify(note))
+
     property ID:
         """
         Get/Set the identification string for the reaction, which can be used in

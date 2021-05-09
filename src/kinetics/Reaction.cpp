@@ -142,6 +142,20 @@ void Reaction::getParameters(AnyMap& reactionNode) const
     }
 }
 
+std::string Reaction::note() const
+{
+    return input.getString("note", "");
+}
+
+void Reaction::setNote(const std::string& note)
+{
+    if (note == "") {
+        input.erase("note");
+    } else {
+        input["note"] = note;
+    }
+}
+
 std::string Reaction::reactantString() const
 {
     std::ostringstream result;

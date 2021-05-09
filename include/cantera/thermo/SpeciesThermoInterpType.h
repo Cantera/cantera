@@ -276,6 +276,14 @@ public:
     const AnyMap& input() const;
     AnyMap& input();
 
+    //! Return the annotation string describing the parameterization of
+    //! the species thermo definition. The note is initialized to YAML
+    //! input (if available), and can be changed interactively by the user
+    std::string note() const;
+
+    //! Set the annotation string describing the parameterization
+    void setNote(const std::string& note);
+
 protected:
     //! Store the parameters of the species thermo object such that an identical
     //! species thermo object could be reconstructed using the

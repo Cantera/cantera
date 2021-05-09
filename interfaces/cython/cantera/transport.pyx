@@ -60,6 +60,13 @@ cdef class GasTransportData:
         def __get__(self):
             return anymap_to_dict(self.data.parameters(True))
 
+    property note:
+        """ Annotation string describing transport data. """
+        def __get__(self):
+            return pystr(self.data.note())
+        def __set__(self, note):
+            self.data.setNote(stringify(note))
+
     property geometry:
         """
         Get/Set the string specifying the molecular geometry. One of `atom`,

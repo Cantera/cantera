@@ -94,6 +94,16 @@ cdef class _SolutionBase:
         def __get__(self):
             return self._source
 
+    property description:
+        """
+        The description of this object
+        """
+        def __get__(self):
+            return pystr(self.base.description())
+
+        def __set__(self, desc):
+            self.base.setDescription(stringify(desc))
+
     property composite:
         """
         Returns tuple of thermo/kinetics/transport models associated with
@@ -124,6 +134,8 @@ cdef class _SolutionBase:
 
         phaseNode = root[stringify("phases")].getMapWhere(stringify("name"),
                                                           stringify(name))
+        self.description = pystr(root.getString(stringify("description"),
+                                                stringify("")))
 
         # Thermo
         if isinstance(self, ThermoPhase):
@@ -231,6 +243,15 @@ cdef class _SolutionBase:
         """
         def __get__(self):
             return anymap_to_dict(self.base.parameters(True))
+
+    property extra:
+        """
+        Retrieve input data not associated with the current state of this Solution,
+        which corresponds to fields at the root level of the YAML input that are not
+        required for the instantiation of Cantera objects.
+        """
+        def __get__(self):
+            return anymap_to_dict(self.base.input())
 
     def write_yaml(self, filename, phases=None, units=None, precision=None,
                    skip_user_defined=None):

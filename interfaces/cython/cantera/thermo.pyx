@@ -213,6 +213,13 @@ cdef class Species:
         def __get__(self):
             return pystr(self.species.name)
 
+    property note:
+        """ Annotation string describing the species. """
+        def __get__(self):
+            return pystr(self.species.note())
+        def __set__(self, note):
+            self.species.setNote(stringify(note))
+
     property composition:
         """
         A dict containing the elemental composition of the species. Keys are
@@ -295,6 +302,13 @@ cdef class ThermoPhase(_SolutionBase):
         """
         def __get__(self):
             return pystr(self.thermo.type())
+
+    property note:
+        """ Annotation string describing the thermo phase. """
+        def __get__(self):
+            return pystr(self.thermo.note())
+        def __set__(self, note):
+            self.thermo.setNote(stringify(note))
 
     property phase_of_matter:
         """

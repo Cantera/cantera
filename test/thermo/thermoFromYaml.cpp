@@ -1,4 +1,6 @@
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "cantera/base/Solution.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/Elements.h"
 #include "cantera/thermo/Species.h"
@@ -18,6 +20,12 @@ shared_ptr<ThermoPhase> newThermo(const std::string& fileName,
 }
 
 } // namespace
+
+TEST(ThermoFromYaml, description)
+{
+    auto sol = newSolution("gri30.yaml");
+    EXPECT_THAT(sol->description(), ::testing::HasSubstr("GRI-Mech Version 3.0 7/30/99"));
+}
 
 TEST(ThermoFromYaml, simpleIdealGas)
 {
@@ -39,6 +47,7 @@ TEST(ThermoFromYaml, elementOverride)
     EXPECT_DOUBLE_EQ(thermo->atomicWeight(0), getElementWeight("N"));
     EXPECT_DOUBLE_EQ(thermo->atomicWeight(1), getElementWeight("O"));
     EXPECT_DOUBLE_EQ(thermo->atomicWeight(2), 36);
+    EXPECT_EQ(thermo->note(), "replace Argon with custom element");
 }
 
 TEST(ThermoFromYaml, elementFromDifferentFile)

@@ -74,6 +74,20 @@ AnyMap Species::parameters(const ThermoPhase* phase, bool withInput) const
     return speciesNode;
 }
 
+std::string Species::note() const
+{
+    return input.getString("note", "");
+}
+
+void Species::setNote(const std::string& note)
+{
+    if (note == "") {
+        input.erase("note");
+    } else {
+        input["note"] = note;
+    }
+}
+
 shared_ptr<Species> newSpecies(const XML_Node& species_node)
 {
     std::string name = species_node["name"];

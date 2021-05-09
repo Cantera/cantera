@@ -7,9 +7,20 @@ import copy
 
 class TestTransport(utilities.CanteraTest):
     def setUp(self):
-        self.phase = ct.Solution('h2o2.xml')
-        self.phase.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4]
+        self.phase = ct.Solution('h2o2.yaml')
+        self.phase.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.0, 0.4]
         self.phase.TP = 800, 2*ct.one_atm
+
+    def test_note(self):
+        spc = self.phase.species("HO2")
+        self.assertEqual(spc.transport.note, "*")
+
+        spc = self.phase.species("H2")
+        self.assertEqual(spc.transport.note, "")
+        spc.transport.note = "foobar"
+        self.assertEqual(spc.transport.note, "foobar")
+        spc.transport.note = ""
+        self.assertEqual(spc.transport.note, "")
 
     def test_scalar_properties(self):
         self.assertTrue(self.phase.viscosity > 0.0)

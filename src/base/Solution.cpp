@@ -13,11 +13,13 @@
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/transport/TransportBase.h"
 #include "cantera/transport/TransportFactory.h"
+#include "cantera/base/stringUtils.h"
 
 namespace Cantera
 {
 
-Solution::Solution() {}
+Solution::Solution() {
+}
 
 std::string Solution::name() const {
     if (m_thermo) {
@@ -34,6 +36,18 @@ void Solution::setName(const std::string& name) {
     } else {
         throw CanteraError("Solution::setName",
                            "Requires associated 'ThermoPhase'");
+    }
+}
+
+std::string Solution::description() const {
+    return m_input.getString("description", "");
+}
+
+void Solution::setDescription(const std::string& desc) {
+    if (desc == "") {
+        m_input.erase("description");
+    } else {
+        m_input["description"] = desc;
     }
 }
 
@@ -58,6 +72,16 @@ void Solution::setTransport(shared_ptr<Transport> transport) {
     }
 }
 
+const AnyMap& Solution::input() const
+{
+    return m_input;
+}
+
+AnyMap& Solution::input()
+{
+    return m_input;
+}
+
 AnyMap Solution::parameters(bool withInput) const
 {
     AnyMap out = m_thermo->parameters(false);
@@ -80,6 +104,20 @@ shared_ptr<Solution> newSolution(const std::string& infile,
 
     // instantiate Solution object
     auto sol = Solution::create();
+
+    // description
+    size_t dot = infile.find_last_of(".");
+    std::string extension;
+    if (dot != npos) {
+        extension = toLowerCopy(infile.substr(dot+1));
+    }
+    if (extension == "yml" || extension == "yaml") {
+        AnyMap root = AnyMap::fromYamlFile(infile);
+        root.erase("phases");
+        root.erase("species");
+        root.erase("reactions");
+        sol->input() = root;
+    }
 
     // thermo phase
     sol->setThermo(shared_ptr<ThermoPhase>(newPhase(infile, name)));

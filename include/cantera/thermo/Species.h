@@ -38,6 +38,13 @@ public:
 
     AnyMap parameters(const ThermoPhase* phase=0, bool withInput=true) const;
 
+    //! Return annotation string describing the species. The note is initialized to YAML
+    //! input (if available), and can be changed interactively by the user
+    std::string note() const;
+
+    //! Set annotation string describing the species
+    void setNote(const std::string& note);
+
     //! The name of the species
     std::string name;
 

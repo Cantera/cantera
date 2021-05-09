@@ -76,6 +76,7 @@ cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
         cbool hasKey(string)
         string keys_str()
         void applyUnits()
+        string getString(string, string) except +translate_exception
 
     cdef cppclass CxxAnyValue "Cantera::AnyValue":
         CxxAnyValue()
@@ -135,6 +136,8 @@ cdef extern from "cantera/thermo/SpeciesThermoInterpType.h":
         void reportParameters(size_t&, int&, double&, double&, double&, double* const) except +translate_exception
         int nCoeffs() except +translate_exception
         CxxAnyMap parameters(cbool) except +translate_exception
+        string note()
+        void setNote(string)
 
 cdef extern from "cantera/thermo/SpeciesThermoFactory.h":
     cdef CxxSpeciesThermo* CxxNewSpeciesThermo "Cantera::newSpeciesThermoInterpType"\
@@ -150,6 +153,8 @@ cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
         shared_ptr[CxxTransportData] transport
 
         string name
+        string note()
+        void setNote(string)
         Composition composition
         double charge
         double size
@@ -166,10 +171,15 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
         CxxSolution()
         string name()
         void setName(string)
+        string description()
+        void setDescription(string)
+        CxxAnyMap input() except +translate_exception
         void setThermo(shared_ptr[CxxThermoPhase])
         void setKinetics(shared_ptr[CxxKinetics])
         void setTransport(shared_ptr[CxxTransport])
         CxxAnyMap parameters(cbool) except +translate_exception
+        string note()
+        void setNote(string)
 
     cdef shared_ptr[CxxSolution] CxxNewSolution "Cantera::Solution::create" ()
 
@@ -185,6 +195,8 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
 
         # miscellaneous
         string type()
+        string note()
+        void setNote(string)
         string phaseOfMatter() except +translate_exception
         void getSpeciesParameters(string, CxxAnyMap&) except +translate_exception
         string report(cbool, double) except +translate_exception
@@ -376,6 +388,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         string type()
         void validate() except +translate_exception
         CxxAnyMap parameters(cbool) except +translate_exception
+        string note()
+        void setNote(string)
         int reaction_type
         Composition reactants
         Composition products
@@ -563,6 +577,8 @@ cdef extern from "cantera/transport/TransportData.h" namespace "Cantera":
     cdef cppclass CxxTransportData "Cantera::TransportData":
         CxxTransportData()
         CxxAnyMap parameters(cbool) except +translate_exception
+        string note()
+        void setNote(string)
 
     cdef cppclass CxxGasTransportData "Cantera::GasTransportData" (CxxTransportData):
         CxxGasTransportData()
