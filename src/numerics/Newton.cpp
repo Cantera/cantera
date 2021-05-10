@@ -24,21 +24,30 @@ Newton::Newton(FuncEval& func) {
     m_stp1.resize(m_nv);
     m_upper_bounds.resize(m_nv, 0.0);
     m_lower_bounds.resize(m_nv, 0.0);
-    m_rtol_ss.resize(m_nv, 1.0e-4);
-    m_atol_ss.resize(m_nv, 1.0e-9);
-    // m_rtol_ts.resize(m_nv, 1.0e-4);
-    // m_atol_ts.resize(m_nv, 1.0e-11);
+
+    m_directsolve_config.rtol.resize(m_nv, 1.0e-4);
+    m_directsolve_config.atol.resize(m_nv, 1.0e-9);
+    m_directsolve_config.convtol = 1.0e-14;
+    m_directsolve_config.dt = 0;
+    m_directsolve_config.jac_maxage = 5;
+    m_directsolve_config.jac_rtol = 1.0e-15;
+    m_directsolve_config.jac_atol = sqrt(std::numeric_limits<double>::epsilon());
+
+    m_timestep_config.rtol.resize(m_nv, 1.0e-4);
+    m_timestep_config.atol.resize(m_nv, 1.0e-11);
+    m_timestep_config.convtol = 1.0e-14;
+    m_timestep_config.dt = 1.0e-5;
+    m_timestep_config.jac_maxage = 5;
+    m_timestep_config.jac_rtol = 1.0e-15;
+    m_timestep_config.jac_atol = sqrt(std::numeric_limits<double>::epsilon());
+
+    m_config = &m_directsolve_config;
+
     m_xlast.resize(m_nv);
     m_xsave.resize(m_nv);
 
-    m_converge_tol = 1.0e-14;
-    m_rdt = 0;
-
     m_jacobian = DenseMatrix(m_nv, m_nv);
     m_jacAge = npos;
-    m_jacMaxAge = 5;
-    m_jacRtol = 1.0e-15;
-    m_jacAtol = sqrt(std::numeric_limits<double>::epsilon());
 }
 
 void Newton::evalJacobian(doublereal* x, doublereal* xdot) {
@@ -53,9 +62,9 @@ void Newton::evalJacobian(doublereal* x, doublereal* xdot) {
         // calculate the perturbation amount, preserving the sign of x[n]
         double dx;
         if (xsave >= 0) {
-            dx = xsave*m_jacRtol + m_jacAtol;
+            dx = xsave*m_config->jac_rtol + m_config->jac_atol;
         } else {
-            dx = xsave*m_jacRtol - m_jacAtol;
+            dx = xsave*m_config->jac_rtol - m_config->jac_atol;
         }
 
         // perturb the solution vector
@@ -74,6 +83,13 @@ void Newton::evalJacobian(doublereal* x, doublereal* xdot) {
         x[n] = xsave;
     }
 
+    // timestep components
+    if (m_rdt > 0) {
+        for (size_t i = 0; i < m_nv; i++) {
+            m_jacobian.value(i,i) -= m_rdt;
+        }
+    }
+
     // for constant-valued components: 1 in diagonal position, all 0's in row and column
     for (size_t i : m_constantComponents) {
         for (size_t j = 0; j < m_nv; j++) {
@@ -81,13 +97,6 @@ void Newton::evalJacobian(doublereal* x, doublereal* xdot) {
             m_jacobian.value(j,i) = 0;
         }
         m_jacobian.value(i,i) = 1;
-    }
-
-    // timestep components
-    if (m_rdt > 0) {
-        for (size_t i = 0; i < m_nv; i++) {
-            m_jacobian.value(i,i) -= m_rdt;
-        }
     }
 
     // factor and save jacobian, will be reused for faster step computation
@@ -100,7 +109,7 @@ doublereal Newton::weightedNorm(const doublereal* x, const doublereal* step) con
 {
     double square = 0.0;
     for (size_t i = 0; i < m_nv; i++) {
-        square += pow(step[i]/(x[i] + m_atol_ss[i]), 2);
+        square += pow(step[i]/(x[i] + m_config->atol[i]), 2);
     }
     return sqrt(square/m_nv);
 }
@@ -139,13 +148,15 @@ int Newton::hybridSolve() {
 
     for(int i = 0; i < MAX; i++) {
         newtonsolves++;
+        m_config = &m_directsolve_config;
         if(solve(m_x.data()) > 0) {
             writelog("\nConverged in {} newton solves, {} timesteps.", newtonsolves, timesteps);
             return 1;
         }
+        m_config = &m_timestep_config;
         copy(m_xsave.begin(), m_xsave.end(), m_x.begin());
         for(int j = 0; j < MAX; j++) {
-            if (solve(m_x.data(), 1.0e-5) < 0) {
+            if (solve(m_x.data()) < 0) {
                 writelog("\nTimestep failure after {} newton solves, {} timesteps.", newtonsolves, timesteps);
                 return -1;
             }
@@ -161,22 +172,21 @@ int Newton::hybridSolve() {
 //  for time integration, input parameter `dt` != 0
 //  call without `dt`for direct nonlinear solution
 //  solution state available in *x* on return
-int Newton::solve(double* x, double dt)
+int Newton::solve(double* x)
 {
     copy(&x[0], &x[m_nv], m_x.begin());
+    m_jacAge = npos;
 
-    if (dt) {
+    if (m_config->dt) {
         copy(m_x.begin(), m_x.end(), m_xlast.begin());
-        m_rdt = 1/dt;
-        m_jacAge = npos;
+        m_rdt = 1/m_config->dt;
     } else {
         m_rdt = 0;
     }
 
     while (true) {
-
         // Check whether the Jacobian should be re-evaluated.
-        if (m_jacAge > m_jacMaxAge) {
+        if (m_jacAge > m_config->jac_maxage) {
             evalJacobian(&m_x[0], &m_stp[0]);
             m_jacAge = 0;
         }
@@ -224,7 +234,7 @@ int Newton::solve(double* x, double dt)
             double nextstep_rms = weightedNorm(&m_x1[0], &m_stp1[0]);
 
             // converged solution criteria
-            if (nextstep_rms < m_converge_tol) {
+            if (nextstep_rms < m_config->convtol) {
                 copy(m_x1.begin(), m_x1.end(), &x[0]);
                 return 1;
             }

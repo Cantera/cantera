@@ -12,6 +12,16 @@
 namespace Cantera
 {
 
+struct Configuration {
+    vector_fp rtol;
+    vector_fp atol;
+    double convtol;
+    double dt;
+    size_t jac_maxage;
+    double jac_rtol;
+    double jac_atol;
+};
+
 /**
  * A Newton solver.
  */
@@ -36,7 +46,7 @@ public:
 
     int hybridSolve();
 
-    int solve(double* x, double dt=0);
+    int solve(double* x);
 
     //TODO: implement get methods
     //nice implementation for steady vs transient below
@@ -69,20 +79,13 @@ protected:
     //! number of variables
     size_t m_nv;
 
-    //! solution converged if [weightedNorm(sol, step) < m_convergenceThreshold]
-    doublereal m_converge_tol;
-
     DenseMatrix m_jacobian, m_jacFactored;
-    size_t m_jacAge, m_jacMaxAge;
-    doublereal m_jacRtol, m_jacAtol;
-
+    size_t m_jacAge;
 
     //! work arrays of size #m_nv used in solve().
     vector_fp m_x, m_x1, m_stp, m_stp1;
 
     vector_fp m_upper_bounds, m_lower_bounds;
-    vector_fp m_rtol_ss, m_rtol_ts;
-    vector_fp m_atol_ss, m_atol_ts;
 
     vector_fp m_xlast, m_xsave;
 
@@ -91,6 +94,10 @@ protected:
 
     //! current timestep reciprocal
     doublereal m_rdt = 0;
+
+    Configuration m_directsolve_config;
+    Configuration m_timestep_config;
+    Configuration* m_config;
 };
 
 // //! Returns the weighted Root Mean Square Deviation given a vector of residuals and

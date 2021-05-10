@@ -470,11 +470,6 @@ double ReactorNet::solveSteady()
 
     m_newt->setConstants({1});
     // m_newt->setConstants({0,1,2,11,12});
-    // m_newt->setConstant(0, true);
-    // m_newt->setConstant(1, true);
-    // m_newt->setConstant(2, true);
-    // m_newt->setConstant(11, true);
-    // m_newt->setConstant(12, true);
 
     return m_newt->hybridSolve();
 }
