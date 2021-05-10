@@ -223,7 +223,8 @@ void Reaction::calculateRateCoeffUnits(const Kinetics& kin)
 }
 
 void updateUndeclared(std::vector<std::string>& undeclared,
-                      const Composition& comp, const Kinetics& kin) {
+                      const Composition& comp, const Kinetics& kin)
+{
     for (const auto& sp: comp) {
         if (kin.kineticsSpeciesIndex(sp.first) == npos) {
             undeclared.emplace_back(sp.first);
@@ -232,13 +233,14 @@ void updateUndeclared(std::vector<std::string>& undeclared,
 }
 
 std::pair<std::vector<std::string>, bool> Reaction::undeclaredThirdBodies(
-        const Kinetics& kin) const {
+        const Kinetics& kin) const
+{
     std::vector<std::string> undeclared;
     return std::make_pair(undeclared, false);
 }
 
-void Reaction::checkBalance(const Kinetics& kin) const {
-
+void Reaction::checkBalance(const Kinetics& kin) const
+{
     Composition balr, balp;
 
     // iterate over products and reactants
@@ -280,8 +282,8 @@ void Reaction::checkBalance(const Kinetics& kin) const {
     }
 }
 
-bool Reaction::checkSpecies(const Kinetics& kin) const {
-
+bool Reaction::checkSpecies(const Kinetics& kin) const
+{
     // Check for undeclared species
     std::vector<std::string> undeclared;
     updateUndeclared(undeclared, reactants, kin);
@@ -336,7 +338,6 @@ bool Reaction::checkSpecies(const Kinetics& kin) const {
         }
     }
 
-    //
     checkBalance(kin);
 
     return true;
@@ -406,7 +407,8 @@ ThreeBodyReaction::ThreeBodyReaction(const Composition& reactants_,
     reaction_type = THREE_BODY_RXN;
 }
 
-std::string ThreeBodyReaction::reactantString() const {
+std::string ThreeBodyReaction::reactantString() const
+{
     if (specified_collision_partner) {
         return ElementaryReaction::reactantString() + " + "
             + third_body.efficiencies.begin()->first;
@@ -415,7 +417,8 @@ std::string ThreeBodyReaction::reactantString() const {
     }
 }
 
-std::string ThreeBodyReaction::productString() const {
+std::string ThreeBodyReaction::productString() const
+{
     if (specified_collision_partner) {
         return ElementaryReaction::productString() + " + "
             + third_body.efficiencies.begin()->first;
@@ -459,7 +462,8 @@ void ThreeBodyReaction::getParameters(AnyMap& reactionNode) const
 }
 
 std::pair<std::vector<std::string>, bool> ThreeBodyReaction::undeclaredThirdBodies(
-        const Kinetics& kin) const {
+        const Kinetics& kin) const
+{
     std::vector<std::string> undeclared;
     updateUndeclared(undeclared, third_body.efficiencies, kin);
     return std::make_pair(undeclared, specified_collision_partner);
@@ -489,7 +493,8 @@ FalloffReaction::FalloffReaction(
     reaction_type = FALLOFF_RXN;
 }
 
-std::string FalloffReaction::reactantString() const {
+std::string FalloffReaction::reactantString() const
+{
     if (third_body.default_efficiency == 0 &&
         third_body.efficiencies.size() == 1) {
         return Reaction::reactantString() + " (+" +
@@ -499,7 +504,8 @@ std::string FalloffReaction::reactantString() const {
     }
 }
 
-std::string FalloffReaction::productString() const {
+std::string FalloffReaction::productString() const
+{
     if (third_body.default_efficiency == 0 &&
         third_body.efficiencies.size() == 1) {
         return Reaction::productString() + " (+" +
@@ -509,7 +515,8 @@ std::string FalloffReaction::productString() const {
     }
 }
 
-void FalloffReaction::validate() {
+void FalloffReaction::validate()
+{
     Reaction::validate();
     if (!allow_negative_pre_exponential_factor &&
         (low_rate.preExponentialFactor() < 0 ||
@@ -552,7 +559,8 @@ void FalloffReaction::getParameters(AnyMap& reactionNode) const
 }
 
 std::pair<std::vector<std::string>, bool> FalloffReaction::undeclaredThirdBodies(
-        const Kinetics& kin) const {
+        const Kinetics& kin) const
+{
     std::vector<std::string> undeclared;
     updateUndeclared(undeclared, third_body.efficiencies, kin);
     return std::make_pair(undeclared, false);
