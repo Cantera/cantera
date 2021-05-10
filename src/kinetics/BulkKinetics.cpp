@@ -195,7 +195,7 @@ void BulkKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
         shared_ptr<ReactionRateBase> rate;
         rate = std::dynamic_pointer_cast<Reaction3>(rNew)->rate();
         // Ensure that MultiBulkRates evaluator is available
-        if (m_bulk_types.find(rate->type()) != m_bulk_types.end()) {
+        if (m_bulk_types.find(rate->type()) == m_bulk_types.end()) {
             throw CanteraError("BulkKinetics::modifyReaction",
                  "Evaluator not available for type '{}'.", rate->type());
         }
