@@ -1233,20 +1233,6 @@ cdef class ThermoPhase(_SolutionBase):
             self.X = values[2]
             self.thermo.setState_TR(T, D * self._mass_factor())
 
-    property TDY_NoNorm:
-        """
-        Get/Set temperature [K] and density [kg/m^3 or kmol/m^3], and unnormalized mass
-        fractions.
-        """
-        def __get__(self):
-            return self.T, self.density, self.Y
-        def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
-            T = values[0] if values[0] is not None else self.T
-            D = values[1] if values[1] is not None else self.density
-            self.Y_no_norm = values[2]
-            self.thermo.setState_TR(T, D * self._mass_factor())
-
     property TDY:
         """
         Get/Set temperature [K] and density [kg/m^3 or kmol/m^3], and mass
@@ -1282,17 +1268,6 @@ cdef class ThermoPhase(_SolutionBase):
             self.X = values[2]
             self.thermo.setState_TP(T, P)
 
-    property TPX_NoNorm:
-        """Get/Set temperature [K], pressure [Pa], and unnormalized mole fractions."""
-        def __get__(self):
-            return self.T, self.P, self.X
-        def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
-            T = values[0] if values[0] is not None else self.T
-            P = values[1] if values[1] is not None else self.P
-            self.X_no_norm = values[2]
-            self.thermo.setState_TP(T, P)
-
     property TPY:
         """Get/Set temperature [K], pressure [Pa], and mass fractions."""
         def __get__(self):
@@ -1302,17 +1277,6 @@ cdef class ThermoPhase(_SolutionBase):
             T = values[0] if values[0] is not None else self.T
             P = values[1] if values[1] is not None else self.P
             self.Y = values[2]
-            self.thermo.setState_TP(T, P)
-
-    property TPY_NoNorm:
-        """Get/Set temperature [K], pressure [Pa], and unnormalized mass fractions."""
-        def __get__(self):
-            return self.T, self.P, self.Y
-        def __set__(self, values):
-            assert len(values) == 3, 'incorrect number of values'
-            T = values[0] if values[0] is not None else self.T
-            P = values[1] if values[1] is not None else self.P
-            self.Y_no_norm = values[2]
             self.thermo.setState_TP(T, P)
 
     property UV:
