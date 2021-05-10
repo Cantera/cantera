@@ -1675,6 +1675,9 @@ cdef class PlogReaction3(Reaction3):
             return self.rate.rates
 
         def __set__(self, rates):
+            warnings.warn("Property 'rates' to be removed after Cantera 2.6. "
+                "Setter is replacable by assigning a new 'PlogRate' object created "
+                "from rates to the rate property.", DeprecationWarning)
             warnings.warn(
                 self._deprecation_warning("rates"), DeprecationWarning)
             rate_ = self.rate
