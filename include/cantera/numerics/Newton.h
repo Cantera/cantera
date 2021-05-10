@@ -29,24 +29,14 @@ public:
 
     //! Compute the undamped Newton step. The residual function is evaluated
     //! at `x`, but the Jacobian is not recomputed.
-    void step(doublereal* x, doublereal* step, int loglevel);
+    void step(doublereal* x, doublereal* step);
 
     //! Compute the weighted 2-norm of `step`.
     doublereal weightedNorm(const doublereal* x, const doublereal* step) const;
 
     int hybridSolve();
 
-    int timestep();
-
-    /**
-     * Find the solution to F(X) = 0 by damped Newton iteration.
-     */
-    int solve(int loglevel=0);
-
-    /// Set options.
-    void setOptions(int maxJacAge = 5) {
-        m_jacMaxAge = maxJacAge;
-    }
+    int solve(double* x, double dt=0);
 
     //TODO: implement get methods
     //nice implementation for steady vs transient below

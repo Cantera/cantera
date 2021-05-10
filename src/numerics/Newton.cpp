@@ -6,8 +6,6 @@
 #include "cantera/numerics/Newton.h"
 #include "cantera/base/utilities.h"
 
-#include <ctime>
-
 using namespace std;
 
 namespace Cantera
@@ -38,7 +36,7 @@ Newton::Newton(FuncEval& func) {
 
     m_jacobian = DenseMatrix(m_nv, m_nv);
     m_jacAge = npos;
-    m_jacMaxAge = 1;
+    m_jacMaxAge = 5;
     m_jacRtol = 1.0e-15;
     m_jacAtol = sqrt(std::numeric_limits<double>::epsilon());
 }
@@ -74,28 +72,25 @@ void Newton::evalJacobian(doublereal* x, doublereal* xdot) {
         }
         // restore solution vector
         x[n] = xsave;
+    }
 
-        // for constant-valued components: 1 in diagonal position, all 0's in row and column
-        for (size_t i : m_constantComponents) {
-            for (size_t j = 0; j < m_nv; j++) {
-                m_jacobian.value(i,j) = 0;
-                m_jacobian.value(j,i) = 0;
-            }
-            m_jacobian.value(i,i) = 1;
+    // for constant-valued components: 1 in diagonal position, all 0's in row and column
+    for (size_t i : m_constantComponents) {
+        for (size_t j = 0; j < m_nv; j++) {
+            m_jacobian.value(i,j) = 0;
+            m_jacobian.value(j,i) = 0;
+        }
+        m_jacobian.value(i,i) = 1;
+    }
+
+    // timestep components
+    if (m_rdt > 0) {
+        for (size_t i = 0; i < m_nv; i++) {
+            m_jacobian.value(i,i) -= m_rdt;
         }
     }
 
-    // writelog("\nnew jac:\n");
-    // for (int i = 0; i < m_nv; i++) {
-    //     writelog("ROW {} | ", i);
-    //     for (int j = 0; j < m_nv; j++) {
-    //         writelog("{:.5} ", m_jacobian.value(i,j));
-    //     }
-    //     writelog("\n\n");
-    // }
-
-    m_jacAge = 0;
-
+    // factor and save jacobian, will be reused for faster step computation
     m_jacFactored = m_jacobian;
     Cantera::factor(m_jacFactored);
 }
@@ -110,7 +105,7 @@ doublereal Newton::weightedNorm(const doublereal* x, const doublereal* step) con
     return sqrt(square/m_nv);
 }
 
-void Newton::step(doublereal* x, doublereal* step, int loglevel)
+void Newton::step(doublereal* x, doublereal* step)
 {
     m_residfunc->eval(0, x, step, 0);
     for (size_t n = 0; n < m_nv; n++) {
@@ -119,13 +114,7 @@ void Newton::step(doublereal* x, doublereal* step, int loglevel)
 
     DenseMatrix solvejac = m_jacFactored;
     try {
-        //Note: this function takes an unfactored jacobian, then finds its LU factorization before
-        // solving. Optimization is possible by saving the factored jacobian, since it can be reused.
-        // Also, the DenseMatrix provided here will be overwritten with the LU factored version, so
-        // a copy is passed instead in order to preserve the original for reuse.
-        // Cantera::solve(solvejac, step);
         Cantera::solveFactored(solvejac, step);
-
     } catch (CanteraError&) {
         // int iok = m_jac->info() - 1;
         int iok = -1; //TODO: enable error info
@@ -140,60 +129,62 @@ void Newton::step(doublereal* x, doublereal* step, int loglevel)
 }
 
 int Newton::hybridSolve() {
-    int MAX = 100;
+    int MAX = 17;
     int newtonsolves = 0;
     int timesteps = 0;
 
+    // initial state
     m_residfunc->getState(m_x.data());
     copy(m_x.begin(), m_x.end(), m_xsave.begin());
 
     for(int i = 0; i < MAX; i++) {
-        copy(m_xsave.begin(), m_xsave.end(), m_x.begin());
-        for(int j = 0; j < MAX; j++) {
-            timesteps++;
-            timestep();
-        }
-        copy(m_x.begin(), m_x.end(), m_xsave.begin());
         newtonsolves++;
-        m_rdt = 0;
-        if(solve() == 1) {
+        if(solve(m_x.data()) > 0) {
             writelog("\nConverged in {} newton solves, {} timesteps.", newtonsolves, timesteps);
             return 1;
         }
+        copy(m_xsave.begin(), m_xsave.end(), m_x.begin());
+        for(int j = 0; j < MAX; j++) {
+            if (solve(m_x.data(), 1.0e-5) < 0) {
+                writelog("\nTimestep failure after {} newton solves, {} timesteps.", newtonsolves, timesteps);
+                return -1;
+            }
+            timesteps++;
+        }
+        copy(m_x.begin(), m_x.end(), m_xsave.begin());
     }
-    writelog("Solver failure...");
+    writelog("Failure to converge in {} steps.", MAX);
     return 0;
 }
 
-int Newton::timestep() {
-    m_rdt = 1.0/(1.0e-5);
-
-    // calculate time-integration Jacobian
-    // m_residfunc->getState(m_x.data());
-    copy(m_x.begin(), m_x.end(), m_xlast.begin());
-    evalJacobian(&m_x[0], &m_stp[0]);
-    for (size_t i = 0; i < m_nv; i++) {
-        m_jacobian.value(i,i) -= m_rdt;
-    }
-    return solve();
-}
-
-int Newton::solve(int loglevel)
+//! input initial state using parameter `x`
+//  for time integration, input parameter `dt` != 0
+//  call without `dt`for direct nonlinear solution
+//  solution state available in *x* on return
+int Newton::solve(double* x, double dt)
 {
-    m_residfunc->getState(m_x.data());
+    copy(&x[0], &x[m_nv], m_x.begin());
+
+    if (dt) {
+        copy(m_x.begin(), m_x.end(), m_xlast.begin());
+        m_rdt = 1/dt;
+        m_jacAge = npos;
+    } else {
+        m_rdt = 0;
+    }
 
     while (true) {
+
         // Check whether the Jacobian should be re-evaluated.
         if (m_jacAge > m_jacMaxAge) {
             evalJacobian(&m_x[0], &m_stp[0]);
+            m_jacAge = 0;
         }
 
-        // compute the undamped Newton step
-        step(&m_x[0], &m_stp[0], loglevel-1);
-        m_jacAge++;
-
-        // compute the weighted norm of the undamped step size step0
+        //compute the undamped Newton step and save its weighted norm
+        step(&m_x[0], &m_stp[0]);
         double step_rms = weightedNorm(&m_x[0], &m_stp[0]);
+        m_jacAge++;
 
         // compute the multiplier to keep all components in bounds.
         double bound_factor = 1.0;
@@ -216,6 +207,7 @@ int Newton::solve(int loglevel)
         // step0 points out of the allowed domain. In this case, the Newton
         // algorithm fails, so return an error condition.
         if (bound_factor < 1.e-10) {
+            return -1;
             throw CanteraError("Newton::dampStep", "solution at limits");
         }
 
@@ -227,14 +219,13 @@ int Newton::solve(int loglevel)
             for (size_t j = 0; j < m_nv; j++) {
                 m_x1[j] = damp*m_stp[j] + m_x[j];
             }
-            // compute the next undamped step that would result if x1 is accepted
-            step(&m_x1[0], &m_stp1[0], loglevel-1);
-
-            // compute the weighted norm of step1
+            // compute the next undamped step that would result if x1 is accepted, and save its weighted norm
+            step(&m_x1[0], &m_stp1[0]);
             double nextstep_rms = weightedNorm(&m_x1[0], &m_stp1[0]);
 
             // converged solution criteria
             if (nextstep_rms < m_converge_tol) {
+                copy(m_x1.begin(), m_x1.end(), &x[0]);
                 return 1;
             }
             // Also accept it if this step would result in a
@@ -254,7 +245,7 @@ int Newton::solve(int loglevel)
             if (m_jacAge > 1) {
                 m_jacAge = npos;
             } else {
-                return m;
+                return -1;
             }
         }
     }
