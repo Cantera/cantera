@@ -1085,7 +1085,7 @@ class TestReaction(utilities.CanteraTest):
         gas1 = ct.Solution('pdep-test.yaml')
         gas1.TP = 800, 2*ct.one_atm
         for i in range(4):
-            self.assertNear(gas1.reaction(i)(gas1.T, gas1.P),
+            self.assertNear(gas1.reaction(i).rate(gas1.T, gas1.P),
                             gas1.forward_rate_constants[i])
 
     def test_chebyshev(self):
@@ -1158,7 +1158,7 @@ class TestReaction(utilities.CanteraTest):
         gas1 = ct.Solution('pdep-test.yaml')
         gas1.TP = 800, 2*ct.one_atm
         for i in range(4,6):
-            self.assertNear(gas1.reaction(i)(gas1.T, gas1.P),
+            self.assertNear(gas1.reaction(i).rate(gas1.T, gas1.P),
                             gas1.forward_rate_constants[i])
 
     def test_chebyshev_bad_shape_cti(self):
@@ -1322,7 +1322,7 @@ class TestReaction(utilities.CanteraTest):
     def test_modify_invalid(self):
         # different reaction type
         tbr = self.gas.reaction(0)
-        R2 = ct.ElementaryReaction(tbr.reactants, tbr.products)
+        R2 = ct.ElementaryReaction3(tbr.reactants, tbr.products)
         R2.rate = tbr.rate
         with self.assertRaisesRegex(ct.CanteraError, 'types are different'):
             self.gas.modify_reaction(0, R2)
@@ -1350,7 +1350,7 @@ class TestReaction(utilities.CanteraTest):
         A2 = 1.5 * A1
         b2 = b1 + 0.1
         Ta2 = Ta1 * 1.2
-        R.rate = ct.Arrhenius(A2, b2, Ta2 * ct.gas_constant)
+        R.rate = ct.ArrheniusRate(A2, b2, Ta2 * ct.gas_constant)
         gas.modify_reaction(2, R)
         self.assertNear(A2*T**b2*np.exp(-Ta2/T), gas.forward_rate_constants[2])
 
@@ -1365,7 +1365,7 @@ class TestReaction(utilities.CanteraTest):
 
         A2 = 1.7 * A1
         b2 = b1 - 0.1
-        R.rate = ct.Arrhenius(A2, b2, 0.0)
+        R.rate = ct.ArrheniusRate(A2, b2, 0.0)
         gas.modify_reaction(5, R)
         kf2 = gas.forward_rate_constants[5]
         self.assertNear((A2*T**b2) / (A1*T**b1), kf2/kf1)
@@ -1394,13 +1394,13 @@ class TestReaction(utilities.CanteraTest):
 
         r0 = gas.reaction(0)
         r1 = gas.reaction(1)
-        r0.rates = r1.rates
+        r0.rate = ct.PlogRate(r1.rate.rates)
         gas.modify_reaction(0, r0)
         kf = gas.forward_rate_constants
         self.assertNear(kf[0], kf[1])
 
         # Removing the high-pressure rates should have no effect at low P...
-        r1.rates = r1.rates[:-4]
+        r1.rate = ct.PlogRate(rates=r1.rate.rates[:-4])
         gas.modify_reaction(1, r1)
         self.assertNear(kf[1], gas.forward_rate_constants[1])
 
@@ -1415,7 +1415,8 @@ class TestReaction(utilities.CanteraTest):
 
         r1 = gas.reaction(4)
         r2 = gas.reaction(5)
-        r1.set_parameters(r2.Tmin, r2.Tmax, r2.Pmin, r2.Pmax, r2.coeffs)
+        r1.rate = ct.ChebyshevRate(r2.rate.Tmin, r2.rate.Tmax,
+                                   r2.rate.Pmin, r2.rate.Pmax, r2.rate.coeffs)
 
         # rates should be different before calling 'modify_reaction'
         kf = gas.forward_rate_constants

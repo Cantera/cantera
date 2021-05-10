@@ -462,14 +462,10 @@ public:
         iNew = kin->nReactions() - 1;
     }
 
-    void compareReactions(bool old=false) {
+    void compareReactions() {
         auto kin = soln->kinetics();
         EXPECT_EQ(kin->reactionString(iOld), kin->reactionString(iNew));
-        if (old) {
-            EXPECT_EQ(kin->reactionTypeStr(iOld), kin->reactionTypeStr(iNew) + "-old");
-        } else {
-            EXPECT_EQ(kin->isReversible(iOld), kin->isReversible(iNew));
-        }
+        EXPECT_EQ(kin->isReversible(iOld), kin->isReversible(iNew));
 
         vector_fp kf(kin->nReactions()), kr(kin->nReactions());
         vector_fp ropf(kin->nReactions()), ropr(kin->nReactions());
@@ -496,7 +492,7 @@ TEST_F(ReactionToYaml, elementary)
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, O:1e-8, OH:3e-8");
     duplicateReaction(2);
     EXPECT_TRUE(std::dynamic_pointer_cast<ElementaryReaction3>(duplicate));
-    compareReactions(true);
+    compareReactions();
 }
 
 TEST_F(ReactionToYaml, threeBody)
@@ -505,7 +501,7 @@ TEST_F(ReactionToYaml, threeBody)
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, O:1e-8, OH:3e-8, H:2e-7");
     duplicateReaction(1);
     EXPECT_TRUE(std::dynamic_pointer_cast<ThreeBodyReaction3>(duplicate));
-    compareReactions(true);
+    compareReactions();
 }
 
 TEST_F(ReactionToYaml, TroeFalloff)
@@ -545,7 +541,7 @@ TEST_F(ReactionToYaml, pdepArrhenius)
     EXPECT_TRUE(std::dynamic_pointer_cast<PlogReaction3>(duplicate));
     compareReactions();
     soln->thermo()->setState_TPY(1100, 1e3, "R2:1, H:0.2, P2A:2, P2B:0.3");
-    compareReactions(true);
+    compareReactions();
 }
 
 TEST_F(ReactionToYaml, Chebyshev)
@@ -554,7 +550,7 @@ TEST_F(ReactionToYaml, Chebyshev)
     soln->thermo()->setState_TPY(1000, 2e5, "R6:1, P6A:2, P6B:0.3");
     duplicateReaction(5);
     EXPECT_TRUE(std::dynamic_pointer_cast<ChebyshevReaction3>(duplicate));
-    compareReactions(true);
+    compareReactions();
 }
 
 TEST_F(ReactionToYaml, surface)
