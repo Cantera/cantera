@@ -368,6 +368,13 @@ class SolutionArray:
         >>> states.equilibrate('HP')
         >>> states.T # -> adiabatic flame temperature at various equivalence ratios
 
+    To append a state with unnormalized and/or negative mass/mole fractions, the mole/mass fractions
+    must be specified as an array::
+
+        >>> states = ct.SolutionArray(gas)
+        >>> states.append(T=300., P=ct.one_atm, X = gas.X -1.e-16, normalize = False)
+        >>> states.X # -> unnormalized mole fractions
+
     `SolutionArray` objects can also be 'sliced' like Numpy arrays, which can be
     used both for accessing and setting properties::
 
@@ -649,6 +656,12 @@ class SolutionArray:
           the full-state setters::
 
               mystates.append(T=300, P=101325, X={'O2':1.0, 'N2':3.76})
+
+        To specify unnormalize mass/mole fractions, the normalize argument should
+        be set to false. This is only applicable when the mole/mass fractions are
+        specified as an array::
+
+            mystates.append(T=300, P=101325, X=gas.X - 1e-16, normalize=False)
         """
         if len(self._shape) != 1:
             raise IndexError("Can only append to 1D SolutionArray")
