@@ -68,12 +68,15 @@ if __name__ == '__main__':
     print('* INFO: Git commit:', cantera.__git_commit__, '\n')
     sys.stdout.flush()
 
-    if len(sys.argv) > 1 and sys.argv[1] == "fast_fail":
+    subset_start = 1
+    fast_fail = False
+    show_long = False
+    if "fast_fail" in sys.argv:
         fast_fail = True
-        subset_start = 2
-    else:
-        fast_fail = False
-        subset_start = 1
+        subset_start += 1
+    if "show_long" in sys.argv:
+        show_long = True
+        subset_start += 1
 
     if pytest is not None:
         base = Path(cantera.__file__).parent.joinpath('test')
@@ -84,7 +87,9 @@ if __name__ == '__main__':
         if not subsets:
             subsets.append(str(base))
 
-        pytest_args = ["-v", "-raP", "--durations=50", "--junitxml=pytest.xml"]
+        pytest_args = ["-v", "-raP", "--junitxml=pytest.xml"]
+        if show_long:
+            pytest_args += ["--durations=50"]
         if fast_fail:
             pytest_args.insert(0, "-x")
 
