@@ -3,6 +3,7 @@ import subprocess
 from xml.etree import ElementTree
 from os.path import join as pjoin
 import time
+import sys
 
 from buildutils import *
 
@@ -141,6 +142,8 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
         cmdargs = args.split()
         if env["fast_fail_tests"]:
             cmdargs.insert(0, "fast_fail")
+        if env["show_long_tests"]:
+            cmdargs.insert(0, "show_long")
         if env["skip_slow_tests"]:
             environ["CT_SKIP_SLOW"] = "1"
 

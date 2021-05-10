@@ -390,7 +390,7 @@ config_options = [
            To install to the current user's 'site-packages' directory, use
            'python_prefix=USER'.""",
         defaults.python_prefix, PathVariable.PathAccept),
-     EnumVariable(
+    EnumVariable(
         'matlab_toolbox',
         """This variable controls whether the MATLAB toolbox will be built. If
            set to 'y', you will also need to set the value of the 'matlab_path'
@@ -663,14 +663,17 @@ config_options = [
     BoolVariable(
         "fast_fail_tests",
         """If enabled, tests will exit at the first failure.""",
-        False,
-    ),
+        False),
     BoolVariable(
         "skip_slow_tests",
         """If enabled, skip a subset of tests that are known to have long runtimes.
            Skipping these may be desirable when running with options that cause tests
            to run slowly, like disabling optimization or activating code profiling.""",
-        False)
+        False),
+    BoolVariable(
+        "show_long_tests",
+        """If enabled, duration of slowest tests will be shown.""",
+        False),
 ]
 
 opts.AddVariables(*config_options)
