@@ -216,6 +216,8 @@ jobs:
   multiple-sundials:
     name: Sundials ${{ matrix.sundials-ver }}
     runs-on: ubuntu-latest
+    env:
+      OPENBLAS_NUM_THREADS: "1"
     defaults:
       run:
         shell: bash -l {0}
