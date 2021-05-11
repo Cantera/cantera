@@ -216,6 +216,8 @@ jobs:
   multiple-sundials:
     name: Sundials ${{ matrix.sundials-ver }}
     runs-on: ubuntu-latest
+    env:
+      OPENBLAS_NUM_THREADS: "1"
     defaults:
       run:
         shell: bash -l {0}
@@ -244,7 +246,7 @@ jobs:
         run: |
           scons build extra_inc_dirs=$CONDA_PREFIX/include:$CONDA_PREFIX/include/eigen3 \
           extra_lib_dirs=$CONDA_PREFIX/lib system_fmt=y system_eigen=y system_yamlcpp=y \
-          system_sundials=y blas_lapack_libs='lapack,blas' -j2 VERBOSE=True debug=n
+          system_sundials=y blas_lapack_libs='lapack,blas' -j2 VERBOSE=True debug=n env_vars=PATH,LD_LIBRARY_PATH,PYTHONPATH,OPENBLAS_NUM_THREADS
       - name: Test Cantera
         run: scons test
 
