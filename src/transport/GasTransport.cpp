@@ -828,9 +828,9 @@ void GasTransport::getBinDiffusivityPolynomials(size_t i, size_t j, double* coef
 {
     size_t mi = (j >= i? i : j);
     size_t mj = (j >= i? j : i);
-    int ic = 0;
+    size_t ic = 0;
     for (size_t ii = 0; ii < mi; ii++) {
-        ic += m_nsp-ii;
+        ic += m_nsp - ii;
     }
     ic += mj - mi;
 
