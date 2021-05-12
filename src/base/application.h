@@ -354,6 +354,12 @@ public:
     //! information can be specified in *extra*.
     void warn_user(const std::string& method, const std::string& extra="");
 
+    //! Turns Cantera warnings into exceptions. Activated within the test
+    //! suite to make sure that your warning message are being raised.
+    void make_warnings_fatal() {
+        m_fatal_warnings = true;
+    }
+
     //! Globally disable printing of warnings about problematic thermo data,
     //! e.g. NASA polynomials with discontinuities at the midpoint temperature.
     void suppress_thermo_warnings(bool suppress=true) {
@@ -453,6 +459,7 @@ protected:
     bool m_suppress_deprecation_warnings;
     bool m_fatal_deprecation_warnings;
     bool m_suppress_thermo_warnings;
+    bool m_fatal_warnings;
     bool m_use_legacy_rate_constants;
 
     ThreadMessages pMessenger;

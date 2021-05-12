@@ -893,6 +893,11 @@ public:
         m_root = root;
     }
 
+    //! Calculate the reaction enthalpy of a reaction which
+    //! has not necessarily been added into the Kinetics object
+    virtual double reactionEnthalpy(const Composition& reactants,
+                                    const Composition& products);
+
 protected:
     //! Cache for saved calculations within each Kinetics object.
     ValueCache m_cache;

@@ -70,6 +70,9 @@ def make_deprecation_warnings_fatal():
                             message='.*Cantera.*')  # for warnings in Cython code
     Cxx_make_deprecation_warnings_fatal()
 
+def make_warnings_fatal():# for warnings in Cython code
+    Cxx_make_warnings_fatal()
+
 def suppress_deprecation_warnings():
     warnings.filterwarnings('ignore', category=DeprecationWarning,
                             module='cantera')  # for warnings in Python code

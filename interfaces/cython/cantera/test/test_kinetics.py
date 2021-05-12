@@ -470,6 +470,23 @@ class KineticsRepeatability(utilities.CanteraTest):
             for msg in err_msg:
                 self.assertIn(msg, err_msg_list)
 
+    def test_sticking_coeff_err(self):
+        err_msg = ("Sticking coefficient is greater than 1 for reaction \'O2 \+ 2 PT\(S\) => 2 O\(S\)\'",
+                   "at T = 200.0",
+                   "at T = 500.0",
+                   "at T = 1000.0",
+                   "at T = 2000.0",
+                   "at T = 5000.0",
+                   "at T = 10000.0",
+                   "Sticking coefficient is greater than 1 for reaction",
+                   "CanteraError thrown by InterfaceReaction::validate:",
+                   "CanteraError thrown by BlowersMaselInterfaceReaction::validate:"
+                   )
+        ct.make_warnings_fatal()
+        for err in err_msg:
+            with self.assertRaisesRegex(ct.CanteraError, err):
+                gas = ct.Solution('sticking_coeff_check.yaml')
+                surface = ct.Interface('sticking_coeff_check.yaml', 'Pt_surf', [gas])
 
 class TestUndeclared(utilities.CanteraTest):
 

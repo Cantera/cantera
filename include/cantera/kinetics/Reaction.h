@@ -67,6 +67,10 @@ public:
     //! valid.
     virtual void validate();
 
+    //! Perform validation checks that need access to a complete Kinetics objects, for
+    // example to retrieve information about reactant / product species.
+    virtual void validate(Kinetics& kin) {}
+
     //! Return the parameters such that an identical Reaction could be reconstructed
     //! using the newReaction() function. Behavior specific to derived classes is
     //! handled by the getParameters() method.
@@ -197,7 +201,9 @@ public:
     ElementaryReaction2();
     ElementaryReaction2(const Composition& reactants, const Composition products,
                         const Arrhenius& rate);
+
     virtual void validate();
+    using Reaction::validate;
     virtual void getParameters(AnyMap& reactionNode) const;
 
     virtual std::string type() const {
@@ -283,7 +289,9 @@ public:
 
     virtual std::string reactantString() const;
     virtual std::string productString() const;
+
     virtual void validate();
+    using Reaction::validate;
     virtual void calculateRateCoeffUnits(const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
 
@@ -347,6 +355,7 @@ public:
     }
 
     virtual void validate();
+    using Reaction::validate;
     virtual void getParameters(AnyMap& reactionNode) const;
 
     Plog rate;
@@ -396,6 +405,9 @@ public:
                       const Arrhenius& rate, bool isStick=false);
     virtual void calculateRateCoeffUnits(const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
+
+    virtual void validate(Kinetics& kin);
+    using Reaction::validate;
 
     virtual std::string type() const {
         return "interface";
@@ -450,6 +462,7 @@ public:
     virtual void getParameters(AnyMap& reactionNode) const;
     virtual void validate();
     virtual void calculateRateCoeffUnits(const Kinetics& kin);
+    virtual void validate(Kinetics& kin);
 
     virtual std::string type() const {
         return "surface-Blowers-Masel";
@@ -717,5 +730,4 @@ void setupElectrochemicalReaction(ElectrochemicalReaction&,
 void setupBlowersMaselInterfaceReaction(BlowersMaselInterfaceReaction&,
                                         const AnyMap&, const Kinetics&);
 }
-
 #endif
