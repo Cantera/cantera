@@ -71,6 +71,11 @@ void make_deprecation_warnings_fatal()
     app()->make_deprecation_warnings_fatal();
 }
 
+void make_warnings_fatal()
+{
+    app()->make_warnings_fatal();
+}
+
 void suppress_thermo_warnings(bool suppress)
 {
     app()->suppress_thermo_warnings(suppress);

@@ -528,6 +528,8 @@ void Kinetics::resizeSpecies()
 bool Kinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 {
     r->validate();
+    r->validate(*this);
+
     if (m_kk == 0) {
         init();
     }
@@ -645,6 +647,26 @@ shared_ptr<const Reaction> Kinetics::reaction(size_t i) const
 {
     checkReactionIndex(i);
     return m_reactions[i];
+}
+
+double Kinetics::reactionEnthalpy(const Composition& reactants, const Composition& products)
+{
+    vector_fp hk(nTotalSpecies());
+    for (size_t n = 0; n < nPhases(); n++) {
+        thermo(n).getPartialMolarEnthalpies(&hk[m_start[n]]);
+    }
+    double rxn_deltaH = 0;
+    for (const auto& product : products) {
+        size_t k = kineticsSpeciesIndex(product.first);
+        double stoich = product.second;
+        rxn_deltaH += hk[k] * stoich;
+    }
+    for (const auto& reactant : reactants) {
+            size_t k = kineticsSpeciesIndex(reactant.first);
+            double stoich = reactant.second;
+            rxn_deltaH -= hk[k] * stoich;
+        }
+    return rxn_deltaH;
 }
 
 }

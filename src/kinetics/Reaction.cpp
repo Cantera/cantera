@@ -801,6 +801,26 @@ void InterfaceReaction::getParameters(AnyMap& reactionNode) const
     }
 }
 
+void InterfaceReaction::validate(Kinetics& kin)
+{
+    if (is_sticking_coefficient) {
+        fmt::memory_buffer err_reactions;
+        double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
+        for (size_t i=0; i < 6; i++) {
+            double k = rate.updateRC(log(T[i]), 1/T[i]);
+            if (k > 1) {
+                fmt_append(err_reactions,
+                    "\n Sticking coefficient is greater than 1 for reaction '{}'\n"
+                    " at T = {:.1f}\n",
+                    equation(), T[i]);
+            }
+        }
+        if (err_reactions.size()) {
+            warn_user("InterfaceReaction::validate", to_string(err_reactions));
+        }
+    }
+}
+
 ElectrochemicalReaction::ElectrochemicalReaction()
     : beta(0.5)
     , exchange_current_density_formulation(false)
@@ -898,6 +918,33 @@ void BlowersMaselInterfaceReaction::validate()
         throw InputFileError("BlowersMaselInterfaceReaction::validate", input,
             "Undeclared negative pre-exponential factor found in reaction '"
             + equation() + "'");
+        }
+}
+
+void BlowersMaselInterfaceReaction::validate(Kinetics& kin)
+{
+    if (is_sticking_coefficient) {
+        double original_T = kin.thermo().temperature();
+        double original_P = kin.thermo().pressure();
+        fmt::memory_buffer err_reactions;
+        double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
+        size_t length_T = sizeof(T) / sizeof(T[0]);
+        for (size_t i=0; i < length_T; i++) {
+            kin.thermo().setState_TP(T[i], original_P);
+            double rxn_deltaH = kin.reactionEnthalpy(reactants, products);
+            double k = rate.updateRC(log(T[i]), 1/T[i], rxn_deltaH);
+            if (k > 1) {
+                fmt_append(err_reactions,
+                          "\n Sticking coefficient is bigger than 1 for reaction '{}'\n"
+                          " at T = {:.1f}\n",
+                          equation(), T[i]);
+            }
+
+        }
+        kin.thermo().setState_TP(original_T, original_P);
+        if (err_reactions.size()) {
+            warn_user("BlowersMaselInterfaceReaction::validate", to_string(err_reactions));
+        }
     }
 }
 
@@ -2003,6 +2050,7 @@ std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
     for (const auto& node : items.asVector<AnyMap>()) {
         shared_ptr<Reaction> R(newReaction(node, kinetics));
         R->validate();
+        R->validate(kinetics);
         if (R->valid() && R->checkSpecies(kinetics)) {
             all_reactions.emplace_back(R);
         }
