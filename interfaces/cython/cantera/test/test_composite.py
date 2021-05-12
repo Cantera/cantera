@@ -135,7 +135,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         self.assertIn('X', collected)
         self.assertEqual(collected['X'].shape, (0, self.gas.n_species))
 
-    def test_append_unnormalized_data(self):
+    def test_append_no_norm_data(self):
         gas = ct.Solution('h2o2.yaml')
         gas.TP = 300, ct.one_atm
         gas.X = gas.X - 1.e-16
@@ -145,7 +145,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         self.assertEqual(states[0].P, gas.P)
         self.assertArrayNear(states[0].X, gas.X)
 
-    def test_import_unnormalized_data(self):
+    def test_import_no_norm_data(self):
         outfile = pjoin(self.test_work_dir, 'solutionarray.h5')
         if os.path.exists(outfile):
             os.remove(outfile)
