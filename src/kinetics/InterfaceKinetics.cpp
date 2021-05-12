@@ -627,18 +627,20 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
                 if (iPhase != iInterface) {
                     // Non-interface species. There should be exactly one of these
                     if (foundStick) {
-                        throw CanteraError("InterfaceKinetics::buildSurfaceArrhenius",
-                            "Multiple non-interface species found"
-                            "in sticking reaction: '" + r.equation() + "'");
+                        throw InputFileError("InterfaceKinetics::buildSurfaceArrhenius",
+                            r.input, "Multiple non-interface species ('{}' and '{}')\n"
+                            "found in sticking reaction: '{}'.\nSticking species "
+                            "must be explicitly specified.",
+                            sticking_species, sp.first, r.equation());
                     }
                     foundStick = true;
                     sticking_species = sp.first;
                 }
             }
             if (!foundStick) {
-                throw CanteraError("InterfaceKinetics::buildSurfaceArrhenius",
-                    "No non-interface species found"
-                    "in sticking reaction: '" + r.equation() + "'");
+                throw InputFileError("InterfaceKinetics::buildSurfaceArrhenius",
+                    r.input, "No non-interface species found "
+                    "in sticking reaction: '{}'", r.equation());
             }
         }
 
@@ -719,18 +721,20 @@ BMSurfaceArrhenius InterfaceKinetics::buildBMSurfaceArrhenius(
                 if (iPhase != iInterface) {
                     // Non-interface species. There should be exactly one of these
                     if (foundStick) {
-                        throw CanteraError("InterfaceKinetics::buildBMSurfaceArrhenius",
-                            "Multiple non-interface species found"
-                            "in sticking reaction: '" + r.equation() + "'");
+                        throw InputFileError("InterfaceKinetics::buildBMSurfaceArrhenius",
+                            r.input, "Multiple non-interface species ('{}' and '{}')\n"
+                            "found in sticking reaction: '{}'.\nSticking species "
+                            "must be explicitly specified.",
+                            sticking_species, sp.first, r.equation());
                     }
                     foundStick = true;
                     sticking_species = sp.first;
                 }
             }
             if (!foundStick) {
-                throw CanteraError("InterfaceKinetics::buildBMSurfaceArrhenius",
-                    "No non-interface species found"
-                    "in sticking reaction: '" + r.equation() + "'");
+                throw InputFileError("InterfaceKinetics::buildBMSurfaceArrhenius",
+                    r.input, "No non-interface species found "
+                    "in sticking reaction: '{}'", r.equation());
             }
         }
 
