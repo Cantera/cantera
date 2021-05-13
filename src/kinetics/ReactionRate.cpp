@@ -31,7 +31,7 @@ AnyMap ReactionRateBase::parameters() const
 }
 
 ArrheniusRate::ArrheniusRate()
-    : Arrhenius(SNAN, SNAN, SNAN)
+    : Arrhenius(NAN, NAN, NAN)
     , allow_negative_pre_exponential_factor(false)
 {
 }
@@ -184,7 +184,7 @@ double CustomFunc1Rate::eval(const CustomFunc1Data& shared_data,
     if (m_ratefunc) {
         return m_ratefunc->eval(shared_data.m_temperature);
     }
-    return SNAN;
+    return NAN;
 }
 
 }
