@@ -31,7 +31,7 @@ AnyMap ReactionRateBase::parameters() const
 }
 
 ArrheniusRate::ArrheniusRate()
-    : Arrhenius()
+    : Arrhenius(SNAN, SNAN, SNAN)
     , allow_negative_pre_exponential_factor(false)
 {
 }
@@ -65,6 +65,7 @@ void ArrheniusRate::setParameters(const AnyMap& node, const Units& rate_units)
     ReactionRateBase::setParameters(node, rate_units);
     allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
     if (!node.hasKey("rate-constant")) {
+        Arrhenius::setParameters(AnyValue(), node.units(), rate_units);
         return;
     }
     Arrhenius::setParameters(node["rate-constant"], node.units(), rate_units);
@@ -113,13 +114,7 @@ void PlogRate::setParameters(const AnyMap& node, const Units& rate_units)
 {
     ReactionRateBase::setParameters(node, rate_units);
     if (!node.hasKey("rate-constants")) {
-        // ensure that Plog has defined state and produces zero reaction rate
-        AnyMap rate = AnyMap::fromYamlString(
-            "rate-constants:\n"
-            "- {P: 1e-7, A: 0., b: 0., Ea: 0.}\n"
-            "- {P: 1e7, A: 0., b: 0., Ea: 0.}");
-        Plog::setParameters(rate.at("rate-constants").asVector<AnyMap>(),
-                            node.units(), rate_units);
+        Plog::setParameters(std::vector<AnyMap> (), node.units(), rate_units);
         return;
     }
     Plog::setParameters(node.at("rate-constants").asVector<AnyMap>(),
@@ -157,12 +152,7 @@ void ChebyshevRate3::setParameters(const AnyMap& node, const Units& rate_units)
 {
     ReactionRateBase::setParameters(node, rate_units);
     if (!node.hasKey("data")) {
-        // ensure that Chebyshev has defined state and produces zero reaction rate
-        AnyMap rate = AnyMap::fromYamlString(
-            "temperature-range: [290, 3000]\n"
-            "pressure-range: [1.e-7, 1.e7]\n"
-            "data: [[-16.]]\n");
-        Chebyshev::setParameters(rate, node.units(), rate_units);
+        Chebyshev::setParameters(AnyMap(), node.units(), rate_units);
         return;
     }
     Chebyshev::setParameters(node, node.units(), rate_units);
@@ -191,8 +181,7 @@ double CustomFunc1Rate::eval(const CustomFunc1Data& shared_data,
     if (m_ratefunc) {
         return m_ratefunc->eval(shared_data.m_temperature);
     }
-    throw CanteraError("CustomFunc1Rate::eval",
-                       "Custom rate function is not initialized.");
+    return SNAN;
 }
 
 }
