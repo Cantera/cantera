@@ -40,9 +40,9 @@ void Arrhenius::setParameters(const AnyValue& rate,
                               const UnitSystem& units, const Units& rate_units)
 {
     if (rate.empty()) {
-        m_A = SNAN;
-        m_b = SNAN;
-        m_E = SNAN;
+        m_A = NAN;
+        m_b = NAN;
+        m_E = NAN;
     } else if (rate.is<AnyMap>()) {
         auto& rate_map = rate.as<AnyMap>();
         m_A = units.convert(rate_map["A"], rate_units);
@@ -180,9 +180,9 @@ void Plog::setParameters(const std::vector<AnyMap>& rates,
                 Arrhenius(AnyValue(rate), units, rate_units)});
         }
     } else {
-        // ensure that reaction rate can be evaluated (but returns SNAN)
-        multi_rates.insert({1.e-7, Arrhenius(SNAN, SNAN, SNAN)});
-        multi_rates.insert({1.e14, Arrhenius(SNAN, SNAN, SNAN)});
+        // ensure that reaction rate can be evaluated (but returns NaN)
+        multi_rates.insert({1.e-7, Arrhenius(NAN, NAN, NAN)});
+        multi_rates.insert({1.e14, Arrhenius(NAN, NAN, NAN)});
     }
     setup(multi_rates);
 }
@@ -311,9 +311,9 @@ void Chebyshev::setParameters(const AnyMap& node,
         nP_ = coeffs.nColumns();
         nT_ = coeffs.nRows();
     } else {
-        // ensure that reaction rate can be evaluated (but returns SNAN)
+        // ensure that reaction rate can be evaluated (but returns NaN)
         coeffs = Array2D(1, 1);
-        coeffs(0, 0) = SNAN;
+        coeffs(0, 0) = NAN;
         Tmin_ = 290.;
         Tmax_ = 3000.;
         Pmin_ = 1.e-7;
