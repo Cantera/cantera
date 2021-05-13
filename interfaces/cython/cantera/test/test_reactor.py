@@ -437,6 +437,8 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(U2a + Q, U2b, 1e-6)
 
     def test_mass_flow_controller(self):
+        import os
+        self.assertEqual(os.environ["OPENBLAS_NUM_THREADS"], "1")
         self.make_reactors(n_reactors=1)
         gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         gas2.TPX = 300, 10*101325, 'H2:1.0'
