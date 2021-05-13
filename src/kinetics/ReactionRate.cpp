@@ -10,6 +10,12 @@
 namespace Cantera
 {
 
+void ReactionRateBase::setParameters(const AnyMap& node, const Units& rate_units)
+{
+    units = rate_units;
+    input = node;
+}
+
 AnyMap ReactionRateBase::parameters(const Units& rate_units) const
 {
     AnyMap out;
@@ -36,11 +42,13 @@ ArrheniusRate::ArrheniusRate(double A, double b, double E)
 {
 }
 
-ArrheniusRate::ArrheniusRate(const AnyMap& node, const Units& rate_units) {
+ArrheniusRate::ArrheniusRate(const AnyMap& node, const Units& rate_units)
+{
     setParameters(node, rate_units);
 }
 
-ArrheniusRate::ArrheniusRate(const AnyMap& node) {
+ArrheniusRate::ArrheniusRate(const AnyMap& node)
+{
     setParameters(node, Units(1.));
 }
 
@@ -52,8 +60,9 @@ ArrheniusRate::ArrheniusRate(const Arrhenius& arr, bool allow_negative_A)
 {
 }
 
-void ArrheniusRate::setParameters(const AnyMap& node, const Units& rate_units) {
-    units = rate_units;
+void ArrheniusRate::setParameters(const AnyMap& node, const Units& rate_units)
+{
+    ReactionRateBase::setParameters(node, rate_units);
     allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
     if (!node.hasKey("rate-constant")) {
         return;
@@ -62,7 +71,8 @@ void ArrheniusRate::setParameters(const AnyMap& node, const Units& rate_units) {
 }
 
 void ArrheniusRate::getParameters(AnyMap& rateNode,
-                                  const Units& rate_units) const {
+                                  const Units& rate_units) const
+{
     if (allow_negative_pre_exponential_factor) {
         rateNode["negative-A"] = true;
     }
@@ -71,7 +81,8 @@ void ArrheniusRate::getParameters(AnyMap& rateNode,
     rateNode["rate-constant"] = std::move(node);
 }
 
-void ArrheniusRate::validate(const std::string& equation) {
+void ArrheniusRate::validate(const std::string& equation)
+{
     if (!allow_negative_pre_exponential_factor && preExponentialFactor() < 0) {
         throw CanteraError("ArrheniusRate::validate",
             "Undeclared negative pre-exponential factor found in reaction '"
@@ -79,26 +90,28 @@ void ArrheniusRate::validate(const std::string& equation) {
     }
 }
 
-PlogRate::PlogRate()
-    : Plog() {
+PlogRate::PlogRate() : Plog()
+{
 }
 
 PlogRate::PlogRate(const std::multimap<double, Arrhenius>& rates)
-    : Plog(rates) {
+    : Plog(rates)
+{
 }
 
-PlogRate::PlogRate(const AnyMap& node, const Units& rate_units)
-    : Plog() {
+PlogRate::PlogRate(const AnyMap& node, const Units& rate_units) : Plog()
+{
     setParameters(node, rate_units);
 }
 
-PlogRate::PlogRate(const AnyMap& node)
-    : Plog() {
+PlogRate::PlogRate(const AnyMap& node) : Plog()
+{
     setParameters(node, Units(1.));
 }
 
-void PlogRate::setParameters(const AnyMap& node, const Units& rate_units) {
-    units = rate_units;
+void PlogRate::setParameters(const AnyMap& node, const Units& rate_units)
+{
+    ReactionRateBase::setParameters(node, rate_units);
     if (!node.hasKey("rate-constants")) {
         // ensure that Plog has defined state and produces zero reaction rate
         AnyMap rate = AnyMap::fromYamlString(
@@ -113,8 +126,8 @@ void PlogRate::setParameters(const AnyMap& node, const Units& rate_units) {
                         node.units(), rate_units);
 }
 
-void PlogRate::getParameters(AnyMap& rateNode,
-                             const Units& rate_units) const {
+void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
+{
     Plog::getParameters(rateNode, rate_units);
 }
 
@@ -124,21 +137,25 @@ ChebyshevRate3::ChebyshevRate3()
 
 ChebyshevRate3::ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pmax,
                                const Array2D& coeffs)
-    : Chebyshev(Tmin, Tmax, Pmin, Pmax, coeffs) {
+    : Chebyshev(Tmin, Tmax, Pmin, Pmax, coeffs)
+{
 }
 
 ChebyshevRate3::ChebyshevRate3(const AnyMap& node, const Units& rate_units)
-    : Chebyshev() {
+    : Chebyshev()
+{
     setParameters(node, rate_units);
 }
 
 ChebyshevRate3::ChebyshevRate3(const AnyMap& node)
-    : Chebyshev() {
+    : Chebyshev()
+{
     setParameters(node, Units(1.));
 }
 
-void ChebyshevRate3::setParameters(const AnyMap& node, const Units& rate_units) {
-    units = rate_units;
+void ChebyshevRate3::setParameters(const AnyMap& node, const Units& rate_units)
+{
+    ReactionRateBase::setParameters(node, rate_units);
     if (!node.hasKey("data")) {
         // ensure that Chebyshev has defined state and produces zero reaction rate
         AnyMap rate = AnyMap::fromYamlString(
@@ -152,21 +169,25 @@ void ChebyshevRate3::setParameters(const AnyMap& node, const Units& rate_units) 
 }
 
 void ChebyshevRate3::getParameters(AnyMap& rateNode,
-                                   const Units& rate_units) const {
+                                   const Units& rate_units) const
+{
     Chebyshev::getParameters(rateNode, rate_units);
 }
 
-void ChebyshevRate3::validate(const std::string& equation) {
+void ChebyshevRate3::validate(const std::string& equation)
+{
 }
 
 CustomFunc1Rate::CustomFunc1Rate() : m_ratefunc(0) {}
 
-void CustomFunc1Rate::setRateFunction(shared_ptr<Func1> f) {
+void CustomFunc1Rate::setRateFunction(shared_ptr<Func1> f)
+{
     m_ratefunc = f;
 }
 
 double CustomFunc1Rate::eval(const CustomFunc1Data& shared_data,
-                             double concm) const {
+                             double concm) const
+{
     if (m_ratefunc) {
         return m_ratefunc->eval(shared_data.m_temperature);
     }

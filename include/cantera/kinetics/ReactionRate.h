@@ -41,7 +41,7 @@ public:
     //! Set parameters
     //! @param node  AnyMap object containing reaction rate specification
     //! @param rate_units  Description of units used for rate parameters
-    virtual void setParameters(const AnyMap& node, const Units& rate_units) = 0;
+    virtual void setParameters(const AnyMap& node, const Units& rate_units);
 
     //! Get parameters
     //! Store the parameters of a ReactionRate needed to reconstruct an identical
@@ -111,6 +111,9 @@ public:
     AnyMap parameters() const;
 
 protected:
+    //! Input data used for specific models
+    AnyMap input;
+
     //! The units of the rate constant. These are determined by the units of the
     //! standard concentration of the reactant species' phases of the phase
     //! where the reaction occurs.

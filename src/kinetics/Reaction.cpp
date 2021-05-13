@@ -1008,7 +1008,8 @@ void ThreeBodyReaction3::getParameters(AnyMap& reactionNode) const
     }
 }
 
-std::string ThreeBodyReaction3::reactantString() const {
+std::string ThreeBodyReaction3::reactantString() const
+{
     if (specified_collision_partner) {
         return ElementaryReaction3::reactantString() + " + "
             + m_third_body->efficiencies.begin()->first;
@@ -1017,7 +1018,8 @@ std::string ThreeBodyReaction3::reactantString() const {
     }
 }
 
-std::string ThreeBodyReaction3::productString() const {
+std::string ThreeBodyReaction3::productString() const
+{
     if (specified_collision_partner) {
         return ElementaryReaction3::productString() + " + "
             + m_third_body->efficiencies.begin()->first;
