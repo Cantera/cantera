@@ -335,7 +335,7 @@ else:
     defaults.versionedSharedLibrary = True
 
 defaults.fsLayout = 'compact' if env['OS'] == 'Windows' else 'standard'
-defaults.env_vars = 'PATH,LD_LIBRARY_PATH,PYTHONPATH'
+defaults.env_vars = "PATH,LD_LIBRARY_PATH,PYTHONPATH,*_NUM_THREADS"
 
 defaults.python_prefix = '$prefix' if env['OS'] != 'Windows' else ''
 
@@ -738,6 +738,12 @@ elif env['env_vars']:
                 env['ENV'][name] = os.environ[name]
             if env['VERBOSE']:
                 print('Propagating environment variable {0}={1}'.format(name, env['ENV'][name]))
+        elif name == "*_NUM_THREADS":
+            r = re.compile("^." + name)
+            for n in filter(r.match, os.environ.keys()):
+                env['ENV'][n] = os.environ[n]
+                if env['VERBOSE']:
+                    print('Propagating environment variable {0}={1}'.format(n, env['ENV'][n]))
         elif name not in defaults.env_vars.split(','):
             print('WARNING: failed to propagate environment variable', repr(name))
             print('         Edit cantera.conf or the build command line to fix this.')
