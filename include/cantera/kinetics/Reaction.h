@@ -483,6 +483,9 @@ public:
     virtual void validate();
 
 protected:
+    virtual std::pair<std::vector<std::string>, bool>
+        undeclaredThirdBodies(const Kinetics& kin) const;
+
     //! Reaction rate used by generic reactions
     shared_ptr<ReactionRateBase> m_rate;
 

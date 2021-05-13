@@ -858,6 +858,19 @@ void Reaction3::setParameters(const AnyMap& node, const Kinetics& kin)
     input = node;
 }
 
+std::pair<std::vector<std::string>, bool> Reaction3::undeclaredThirdBodies(
+        const Kinetics& kin) const
+{
+    std::vector<std::string> undeclared;
+    if (m_third_body) {
+        updateUndeclared(undeclared, m_third_body->efficiencies, kin);
+        bool specified_collision_partner = dynamic_cast<const ThreeBodyReaction3*>(
+            this)->specified_collision_partner;
+        return std::make_pair(undeclared, specified_collision_partner);
+    }
+    return std::make_pair(undeclared, false);
+}
+
 void Reaction3::validate()
 {
     Reaction::validate();
