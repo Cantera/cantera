@@ -64,10 +64,15 @@ void Arrhenius::setParameters(const AnyValue& rate,
 
 void Arrhenius::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
-    if (rate_units.factor() != 0.0) {
-        rateNode["A"].setQuantity(preExponentialFactor(), rate_units);
+    double A = preExponentialFactor();
+    if (A != A) {
+        // Evaluates true if A is not a number (unconfigured object)
+        // Return empty/unmodified AnyMap
+        return;
+    } else if (rate_units.factor() != 0.0) {
+        rateNode["A"].setQuantity(A, rate_units);
     } else {
-        rateNode["A"] = preExponentialFactor();
+        rateNode["A"] = A;
         // This can't be converted to a different unit system because the dimensions of
         // the rate constant were not set. Can occur if the reaction was created outside
         // the context of a Kinetics object and never added to a Kinetics object.
@@ -185,6 +190,12 @@ void Plog::setParameters(const std::vector<AnyMap>& rates,
 void Plog::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
     std::vector<AnyMap> rateList;
+    double A = rates_[1].preExponentialFactor();
+    if (A != A) {
+        // Evaluates true if A is not a number (unconfigured object)
+        // Return empty/unmodified AnyMap
+        return;
+    }
     for (const auto& r : rates()) {
         AnyMap rateNode_;
         rateNode_["P"].setQuantity(r.first, "Pa");
@@ -338,6 +349,12 @@ void Chebyshev::setup(double Tmin, double Tmax, double Pmin, double Pmax,
 
 void Chebyshev::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
+    double A = chebCoeffs_[0];
+    if (A != A) {
+        // Evaluates true if A is not a number (unconfigured object)
+        // Return empty/unmodified AnyMap
+        return;
+    }
     rateNode["temperature-range"].setQuantity({Tmin(), Tmax()}, "K");
     rateNode["pressure-range"].setQuantity({Pmin(), Pmax()}, "Pa");
     const auto& coeffs1d = coeffs();

@@ -79,7 +79,10 @@ void ArrheniusRate::getParameters(AnyMap& rateNode,
     }
     AnyMap node;
     Arrhenius::getParameters(node, rate_units);
-    rateNode["rate-constant"] = std::move(node);
+    if (!node.empty()) {
+        // Arrhenius object is configured
+        rateNode["rate-constant"] = std::move(node);
+    }
 }
 
 void ArrheniusRate::validate(const std::string& equation)
