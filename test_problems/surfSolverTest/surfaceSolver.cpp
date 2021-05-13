@@ -38,14 +38,15 @@ void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, do
     double x[MSSIZE];
     double C[MSSIZE];
     oooo.precision(3);
-    string gasPhaseName          = "gas";
+    string gasPhaseName = gasTP->name();
     gasTP->getMoleFractions(x);
     gasTP->getConcentrations(C);
     double Temp = gasTP->temperature();
     double p = gasTP->pressure();
     oooo << "Gas Temperature = " << Temp << endl;
     oooo << "Gas Pressure    = " << p << endl;
-    size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, 0);
+    size_t iPhase = iKin_ptr->phaseIndex(gasPhaseName);
+    size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, iPhase);
     oooo << "Gas Phase:  " << gasPhaseName << "   "
          << "(" << kstart << ")" << endl;
     oooo << "                       Name      "
@@ -55,7 +56,7 @@ void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, do
     double sum = 0.0;
     size_t nspGas = gasTP->nSpecies();
     for (size_t k = 0; k < nspGas; k++) {
-        kstart = iKin_ptr->kineticsSpeciesIndex(k, 0);
+        kstart = iKin_ptr->kineticsSpeciesIndex(k, iPhase);
         fmt::print(oooo, "{:4d} {:>24s}   {:14.3g} {:14.3g}  {:14.3e}\n",
                    k, gasTP->speciesName(k), C[k], x[k], src[kstart]);
         sum += x[k];
@@ -73,7 +74,8 @@ void printBulk(ostream& oooo,
     string bulkParticlePhaseName = bulkPhaseTP->name();
     bulkPhaseTP->getMoleFractions(x);
     bulkPhaseTP->getConcentrations(C);
-    size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, 1);
+    size_t iPhase = iKin_ptr->phaseIndex(bulkParticlePhaseName);
+    size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, iPhase);
     double dens = bulkPhaseTP->density();
     oooo << "Bulk Phase:  " << bulkParticlePhaseName << "   "
          << "(" << kstart << ")" << endl;
@@ -90,7 +92,7 @@ void printBulk(ostream& oooo,
     const vector_fp& molecW = bulkPhaseTP->molecularWeights();
     size_t nspBulk = bulkPhaseTP->nSpecies();
     for (size_t k = 0; k < nspBulk; k++) {
-        kstart = iKin_ptr->kineticsSpeciesIndex(k, 1);
+        kstart = iKin_ptr->kineticsSpeciesIndex(k, iPhase);
         fmt::print(oooo, "{:4d} {:>24s}   {:14.3g} {:14.3g}  {:14.3e}\n",
                    k, bulkPhaseTP->speciesName(k), C[k], x[k], src[kstart]);
         sum += x[k];
@@ -115,7 +117,8 @@ void printSurf(ostream& oooo,
     double x[MSSIZE];
     string surfParticlePhaseName = surfPhaseTP->name();
     surfPhaseTP->getMoleFractions(x);
-    size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, 2);
+    size_t iPhase = iKin_ptr->phaseIndex(surfParticlePhaseName);
+    size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, iPhase);
     oooo << "Surface Phase:  " << surfParticlePhaseName
          << " (" << kstart << ")" << endl;
     double Temp = surfPhaseTP->temperature();
@@ -127,7 +130,7 @@ void printSurf(ostream& oooo,
     double sum = 0.0;
     size_t nspSurf = surfPhaseTP->nSpecies();
     for (size_t k = 0; k < nspSurf; k++) {
-        kstart = iKin_ptr->kineticsSpeciesIndex(0, 2);
+        kstart = iKin_ptr->kineticsSpeciesIndex(0, iPhase);
         double srcK = src[kstart];
         if (fabs(srcK) < 1.0E-7) {
             srcK = 0.0;
@@ -207,47 +210,24 @@ int main(int argc, char** argv)
         }
 
         /************************************************************/
-        XML_Node* xc = get_XML_File(infile);
-
-        XML_Node* const xg = (XML_Node*) findXMLPhase(xc, gasPhaseName);
-        if (!xg) {
-            printf("ERROR: Could not find gas phase named, %s, in file\n",
-                   gasPhaseName.c_str());
-            exit(-1);
-        }
-        ThermoPhase* gasTP = newPhase(*xg);
+        ThermoPhase* gasTP = newPhase(infile, gasPhaseName);
         size_t nspGas = gasTP->nSpecies();
         cout << "Number of species = " << nspGas << endl;
 
-        XML_Node* const xd =
-            (XML_Node*) findXMLPhase(xc, bulkParticlePhaseName);
-        if (!xd) {
-            printf("ERROR: Could not find bulk phase named, %s, in file\n",
-                   bulkParticlePhaseName.c_str());
-            exit(-1);
-        }
-        ThermoPhase* bulkPhaseTP = newPhase(*xd);
+        ThermoPhase* bulkPhaseTP = newPhase(infile, bulkParticlePhaseName);
         size_t nspBulk = bulkPhaseTP->nSpecies();
         cout << "Number of species in bulk phase named " <<
              bulkParticlePhaseName << " = " << nspBulk << endl;
 
-
-        XML_Node* const xs =
-            (XML_Node*) findXMLPhase(xc, surfParticlePhaseName);
-        if (!xs) {
-            printf("ERROR: Could not find surf Particle phase named, %s, in file\n",
-                   surfParticlePhaseName.c_str());
-            exit(-1);
-        }
-        ThermoPhase* surfPhaseTP = newPhase(*xs);
+        ThermoPhase* surfPhaseTP = newPhase(infile, surfParticlePhaseName);
         size_t nsp_d100 = surfPhaseTP->nSpecies();
         cout << "Number of species in surface phase, " << surfParticlePhaseName
              << " = " << nsp_d100 << endl;
 
         vector<ThermoPhase*> phaseList { gasTP, bulkPhaseTP, surfPhaseTP };
 
-        InterfaceKinetics* iKin_ptr = new InterfaceKinetics();
-        importKinetics(*xs, phaseList, iKin_ptr);
+        auto kin = newKinetics(phaseList, infile, surfParticlePhaseName);
+        InterfaceKinetics* iKin_ptr = dynamic_cast<InterfaceKinetics*>(kin.get());
         size_t nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
@@ -404,7 +384,6 @@ int main(int argc, char** argv)
         printBulk(ofile, bulkPhaseTP, iKin_ptr, src);
         printSurf(ofile, surfPhaseTP, iKin_ptr, src) ;
 
-        delete iKin_ptr;
         delete gasTP;
         gasTP = 0;
         delete bulkPhaseTP;

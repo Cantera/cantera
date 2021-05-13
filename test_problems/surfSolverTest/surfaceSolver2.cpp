@@ -205,55 +205,31 @@ int main(int argc, char** argv)
         }
 
         /************************************************************/
-        XML_Node* xc = get_XML_File(infile);
-        XML_Node* const xg = (XML_Node*) findXMLPhase(xc, gasPhaseName);
-        if (!xg) {
-            printf("ERROR: Could not find gas phase named, %s, in file\n",
-                   gasPhaseName.c_str());
-            exit(-1);
-        }
-        ThermoPhase* gasTP = newPhase(*xg);
+        ThermoPhase* gasTP = newPhase(infile, gasPhaseName);
         size_t nspGas = gasTP->nSpecies();
         cout << "Number of species = " << nspGas << endl;
 
-        XML_Node* const xd =
-            (XML_Node*) findXMLPhase(xc, bulkParticlePhaseName);
-        if (!xd) {
-            printf("ERROR: Could not find bulk phase named, %s, in file\n",
-                   bulkParticlePhaseName.c_str());
-            exit(-1);
-        }
-        ThermoPhase* bulkPhaseTP = newPhase(*xd);
+        ThermoPhase* bulkPhaseTP = newPhase(infile, bulkParticlePhaseName);
         size_t nspBulk = bulkPhaseTP->nSpecies();
         cout << "Number of species in bulk phase named " <<
              bulkParticlePhaseName << " = " << nspBulk << endl;
 
-
-        XML_Node* const xs =
-            (XML_Node*) findXMLPhase(xc, surfParticlePhaseName);
-        if (!xs) {
-            printf("ERROR: Could not find surf Particle phase named,"
-                   "%s, in file\n",
-                   surfParticlePhaseName.c_str());
-            exit(-1);
-        }
-        ThermoPhase* surfPhaseTP = newPhase(*xs);
+        ThermoPhase* surfPhaseTP = newPhase(infile, surfParticlePhaseName);
         size_t nsp_d100 = surfPhaseTP->nSpecies();
         cout << "Number of species in surface phase, " << surfParticlePhaseName
              << " = " << nsp_d100 << endl;
 
         vector<ThermoPhase*> phaseList { gasTP, bulkPhaseTP, surfPhaseTP };
-        InterfaceKinetics* iKin_ptr = new InterfaceKinetics();
-        importKinetics(*xs, phaseList, iKin_ptr);
+        auto kin = newKinetics(phaseList, infile, surfParticlePhaseName);
+        InterfaceKinetics* iKin_ptr = dynamic_cast<InterfaceKinetics*>(kin.get());
         size_t nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
         ofstream ofile("results2.txt");
 
-
         // create a second copy of the same surface phase
         // (this is a made up problem btw to check the software capability)
-        ThermoPhase* surfPhaseTP2 = newPhase(*xs);
+        ThermoPhase* surfPhaseTP2 = newPhase(infile, surfParticlePhaseName);
         size_t nsp2 = surfPhaseTP2->nSpecies();
         string pname = surfPhaseTP2->name();
         cout << "Number of species in 2nd surface phase, " << pname
@@ -263,8 +239,8 @@ int main(int argc, char** argv)
 
         // create the second  InterfaceKinetics object based on the
         // second surface phase.
-        InterfaceKinetics* iKin2_ptr = new InterfaceKinetics();
-        importKinetics(*xs, phaseList2, iKin2_ptr);
+        auto kin2 = newKinetics(phaseList2, infile, surfParticlePhaseName);
+        InterfaceKinetics* iKin2_ptr = dynamic_cast<InterfaceKinetics*>(kin2.get());
         nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
@@ -430,9 +406,7 @@ int main(int argc, char** argv)
 
         delete surfaceProb;
         surfaceProb = 0;
-        delete iKin_ptr;
         iKin_ptr = 0;
-        delete iKin2_ptr;
         iKin2_ptr = 0;
         delete gasTP;
         gasTP = 0;
