@@ -61,13 +61,19 @@ cdef class ArrheniusRate(_ReactionRate):
     where *A* is the `pre_exponential_factor`, *b* is the `temperature_exponent`,
     and *E* is the `activation_energy`.
     """
-    def __cinit__(self, A=0, b=0, E=0, input_data=None, init=True):
+    def __cinit__(self, A=None, b=None, E=None, input_data=None, init=True):
 
         if init:
             if isinstance(input_data, dict):
                 self._base.reset(new CxxArrheniusRate(dict_to_anymap(input_data)))
-            else:
+            elif all([arg is not None for arg in [A, b, E]]):
                 self._base.reset(new CxxArrheniusRate(A, b, E))
+            elif all([arg is None for arg in [A, b, E, input_data]]):
+                self._base.reset(new CxxArrheniusRate(dict_to_anymap({})))
+            elif input_data:
+                raise TypeError("Invalid parameter 'input_data'")
+            else:
+                raise TypeError("Invalid parameters 'A', 'b' or 'E'")
             self.base = self._base.get()
             self.rate = <CxxArrheniusRate*>(self.base)
 
@@ -132,8 +138,10 @@ cdef class PlogRate(_ReactionRate):
                 self._base.reset(new CxxPlogRate(dict_to_anymap(input_data)))
             elif rates is None:
                 self._base.reset(new CxxPlogRate(dict_to_anymap({})))
+            elif input_data:
+                raise TypeError("Invalid parameter 'input_data'")
             else:
-                raise TypeError("Invalid type for parameter 'rates'")
+                raise TypeError("Invalid parameter 'rates'")
             self.base = self._base.get()
             self.rate = <CxxPlogRate*>(self.base)
 
@@ -185,12 +193,21 @@ cdef class ChebyshevRate(_ReactionRate):
     def __cinit__(self, Tmin=None, Tmax=None, Pmin=None, Pmax=None, data=None,
                   input_data=None, init=True):
 
-        if isinstance(input_data, dict) and init:
-            self._base.reset(new CxxChebyshevRate3(dict_to_anymap(input_data)))
+        if init:
+            if isinstance(input_data, dict):
+                self._base.reset(new CxxChebyshevRate3(dict_to_anymap(input_data)))
+            elif all([arg is not None for arg in [Tmin, Tmax, Pmin, Pmax, data]]):
+                self._setup(Tmin, Tmax, Pmin, Pmax, data)
+                return
+            elif all([arg is None
+                    for arg in [Tmin, Tmax, Pmin, Pmax, data, input_data]]):
+                self._base.reset(new CxxChebyshevRate3(dict_to_anymap({})))
+            elif input_data:
+                raise TypeError("Invalid parameter 'input_data'")
+            else:
+                raise TypeError("Invalid parameters")
             self.base = self._base.get()
             self.rate = <CxxChebyshevRate3*>(self.base)
-        elif Tmin and Tmax and Pmin and Pmax and data is not None and init:
-            self._setup(Tmin, Tmax, Pmin, Pmax, data)
 
     def _setup(self, Tmin, Tmax, Pmin, Pmax, coeffs):
         """

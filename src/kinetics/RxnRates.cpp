@@ -39,7 +39,11 @@ Arrhenius::Arrhenius(const AnyValue& rate,
 void Arrhenius::setParameters(const AnyValue& rate,
                               const UnitSystem& units, const Units& rate_units)
 {
-    if (rate.is<AnyMap>()) {
+    if (rate.empty()) {
+        m_A = SNAN;
+        m_b = SNAN;
+        m_E = SNAN;
+    } else if (rate.is<AnyMap>()) {
         auto& rate_map = rate.as<AnyMap>();
         m_A = units.convert(rate_map["A"], rate_units);
         m_b = rate_map["b"].asDouble();
@@ -51,7 +55,7 @@ void Arrhenius::setParameters(const AnyValue& rate,
         m_E = units.convertActivationEnergy(rate_vec[2], "K");
     }
 
-    if (m_A  <= 0.0) {
+    if (m_A <= 0.0) {
         m_logA = -1.0E300;
     } else {
         m_logA = std::log(m_A);
@@ -165,9 +169,15 @@ void Plog::setParameters(const std::vector<AnyMap>& rates,
                          const UnitSystem& units, const Units& rate_units)
 {
     std::multimap<double, Arrhenius> multi_rates;
-    for (const auto& rate : rates) {
-        multi_rates.insert({rate.convert("P", "Pa"),
-            Arrhenius(AnyValue(rate), units, rate_units)});
+    if (rates.size()) {
+        for (const auto& rate : rates) {
+            multi_rates.insert({rate.convert("P", "Pa"),
+                Arrhenius(AnyValue(rate), units, rate_units)});
+        }
+    } else {
+        // ensure that reaction rate can be evaluated (but returns SNAN)
+        multi_rates.insert({1.e-7, Arrhenius(SNAN, SNAN, SNAN)});
+        multi_rates.insert({1.e14, Arrhenius(SNAN, SNAN, SNAN)});
     }
     setup(multi_rates);
 }
@@ -266,30 +276,43 @@ Chebyshev::Chebyshev(double Tmin, double Tmax, double Pmin, double Pmax,
 void Chebyshev::setParameters(const AnyMap& node,
                               const UnitSystem& units, const Units& rate_units)
 {
-    const auto& T_range = node["temperature-range"].asVector<AnyValue>(2);
-    const auto& P_range = node["pressure-range"].asVector<AnyValue>(2);
-    auto& vcoeffs = node["data"].asVector<vector_fp>();
-    Array2D coeffs(vcoeffs.size(), vcoeffs[0].size());
-    for (size_t i = 0; i < coeffs.nRows(); i++) {
-        if (vcoeffs[i].size() != vcoeffs[0].size()) {
-            throw InputFileError("Chebyshev::setParameters", node["data"],
-                "Inconsistent number of coefficients in row {} of matrix", i + 1);
+    Array2D coeffs;
+    if (!node.empty()) {
+        const auto& T_range = node["temperature-range"].asVector<AnyValue>(2);
+        const auto& P_range = node["pressure-range"].asVector<AnyValue>(2);
+        auto& vcoeffs = node["data"].asVector<vector_fp>();
+        coeffs = Array2D(vcoeffs.size(), vcoeffs[0].size());
+        for (size_t i = 0; i < coeffs.nRows(); i++) {
+            if (vcoeffs[i].size() != vcoeffs[0].size()) {
+                throw InputFileError("Chebyshev::setParameters", node["data"],
+                    "Inconsistent number of coefficients in row {} of matrix", i + 1);
+            }
+            for (size_t j = 0; j < coeffs.nColumns(); j++) {
+                coeffs(i, j) = vcoeffs[i][j];
+            }
         }
-        for (size_t j = 0; j < coeffs.nColumns(); j++) {
-            coeffs(i, j) = vcoeffs[i][j];
-        }
-    }
-    coeffs(0, 0) += std::log10(units.convertTo(1.0, rate_units));
+        coeffs(0, 0) += std::log10(units.convertTo(1.0, rate_units));
 
-    Tmin_ = units.convert(T_range[0], "K");
-    Tmax_ = units.convert(T_range[1], "K");
-    Pmin_ = units.convert(P_range[0], "Pa");
-    Pmax_ = units.convert(P_range[1], "Pa");
-    nP_ = coeffs.nColumns();
-    nT_ = coeffs.nRows();
+        Tmin_ = units.convert(T_range[0], "K");
+        Tmax_ = units.convert(T_range[1], "K");
+        Pmin_ = units.convert(P_range[0], "Pa");
+        Pmax_ = units.convert(P_range[1], "Pa");
+        nP_ = coeffs.nColumns();
+        nT_ = coeffs.nRows();
+    } else {
+        // ensure that reaction rate can be evaluated (but returns SNAN)
+        coeffs = Array2D(1, 1);
+        coeffs(0, 0) = SNAN;
+        Tmin_ = 290.;
+        Tmax_ = 3000.;
+        Pmin_ = 1.e-7;
+        Pmax_ = 1.e14;
+        nP_ = 1;
+        nT_ = 1;
+    }
+
     chebCoeffs_.resize(nP_ * nT_);
     dotProd_.resize(nT_);
-
     setup(Tmin_, Tmax_, Pmin_, Pmax_, coeffs);
 }
 
