@@ -17,7 +17,6 @@ int main(int argc, char** argv)
     size_t i;
     string commandFile;
     try {
-        std::string iFile = (argc > 1) ? argv[1] : "HMW_NaCl.xml";
         double Temp = 273.15 + 275.;
 
         double aTemp[7];
@@ -29,7 +28,7 @@ int main(int argc, char** argv)
         aTemp[5] = 273.15 + 275.;
         aTemp[6] = 273.15 + 300.;
 
-        HMWSoln* HMW = new HMWSoln(iFile, "NaCl_electrolyte");
+        HMWSoln* HMW = new HMWSoln("HMW_NaCl.yaml", "NaCl_electrolyte_complex_shomate");
 
         size_t nsp = HMW->nSpecies();
         double acMol[100];
