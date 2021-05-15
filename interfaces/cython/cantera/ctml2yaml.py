@@ -1236,7 +1236,9 @@ class Phase:
         The ``activityCoefficients`` must include the ``A_debye`` node, as well as
         any interaction parameters between species.
         """
-        activity_data = BlockMap({"temperature-model": activity_node.get("TempModel")})
+        activity_data = BlockMap(
+            {"temperature-model": activity_node.get("TempModel", "constant")}
+        )
         A_Debye_node = activity_node.find("A_Debye")
         if A_Debye_node is None:
             raise MissingXMLNode(
