@@ -40,8 +40,7 @@ public:
     FracCoeffTest() :
         therm("frac.yaml", "gas")
     {
-        std::vector<ThermoPhase*> phases { &therm };
-        kin = newKinetics(phases, "frac.yaml", "gas");
+        kin = newKinetics({&therm}, "frac.yaml", "gas");
         therm.setState_TPX(2000, 4*OneAtm,
                             "H2O:0.5, OH:.05, H:0.1, O2:0.15, H2:0.2");
         kH2O = therm.speciesIndex("H2O");
@@ -197,8 +196,7 @@ TEST_F(NegativePreexponentialFactor, fromYaml)
 TEST(InterfaceReaction, CoverageDependency) {
     IdealGasPhase gas("ptcombust.yaml", "gas");
     SurfPhase surf("ptcombust.yaml", "Pt_surf");
-    std::vector<ThermoPhase*> phases { &surf, &gas };
-    shared_ptr<Kinetics> kin(newKinetics(phases, "ptcombust.yaml", "Pt_surf"));
+    shared_ptr<Kinetics> kin(newKinetics({&surf, &gas}, "ptcombust.yaml", "Pt_surf"));
     ASSERT_EQ(kin->nReactions(), (size_t) 24);
 
     double T = 500;

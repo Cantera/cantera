@@ -267,8 +267,7 @@ TEST(Kinetics, GasKineticsFromYaml1)
     AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
     auto& phaseNode = infile["phases"].getMapWhere("name", "simple-kinetics");
     shared_ptr<ThermoPhase> thermo = newPhase(phaseNode, infile);
-    std::vector<ThermoPhase*> phases{thermo.get()};
-    auto kin = newKinetics(phases, phaseNode, infile);
+    auto kin = newKinetics({thermo.get()}, phaseNode, infile);
     EXPECT_EQ(kin->nReactions(), (size_t) 2);
     const auto& R = kin->reaction(0);
     EXPECT_EQ(R->reactants.at("NO"), 1);
@@ -284,8 +283,7 @@ TEST(Kinetics, GasKineticsFromYaml2)
     AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
     auto& phaseNode = infile["phases"].getMapWhere("name", "remote-kinetics");
     shared_ptr<ThermoPhase> thermo = newPhase(phaseNode, infile);
-    std::vector<ThermoPhase*> phases{thermo.get()};
-    auto kin = newKinetics(phases, phaseNode, infile);
+    auto kin = newKinetics({thermo.get()}, phaseNode, infile);
     EXPECT_EQ(kin->nReactions(), (size_t) 3);
 }
 
@@ -294,14 +292,12 @@ TEST(Kinetics, EfficienciesFromYaml)
     AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
     auto& phaseNode1 = infile["phases"].getMapWhere("name", "efficiency-error");
     shared_ptr<ThermoPhase> thermo1 = newPhase(phaseNode1, infile);
-    std::vector<ThermoPhase*> phases1{thermo1.get()};
     // Reaction with efficiency defined for undeclared species "AR"
-    EXPECT_THROW(newKinetics(phases1, phaseNode1, infile), CanteraError);
+    EXPECT_THROW(newKinetics({thermo1.get()}, phaseNode1, infile), CanteraError);
 
     auto& phaseNode2 = infile["phases"].getMapWhere("name", "efficiency-skip");
     shared_ptr<ThermoPhase> thermo2 = newPhase(phaseNode2, infile);
-    std::vector<ThermoPhase*> phases2{thermo2.get()};
-    auto kin = newKinetics(phases2, phaseNode2, infile);
+    auto kin = newKinetics({thermo2.get()}, phaseNode2, infile);
     EXPECT_EQ(kin->nReactions(), (size_t) 1);
 }
 
@@ -310,8 +306,8 @@ TEST(Kinetics, InterfaceKineticsFromYaml)
     shared_ptr<ThermoPhase> gas(newPhase("surface-phases.yaml", "gas"));
     shared_ptr<ThermoPhase> surf_tp(newPhase("surface-phases.yaml", "Pt-surf"));
     shared_ptr<SurfPhase> surf = std::dynamic_pointer_cast<SurfPhase>(surf_tp);
-    std::vector<ThermoPhase*> phases{surf_tp.get(), gas.get()};
-    auto kin = newKinetics(phases, "surface-phases.yaml", "Pt-surf");
+    auto kin = newKinetics({surf_tp.get(), gas.get()},
+                           "surface-phases.yaml", "Pt-surf");
     EXPECT_EQ(kin->nReactions(), (size_t) 3);
     EXPECT_EQ(kin->nTotalSpecies(), (size_t) 6);
     auto R1 = kin->reaction(0);
@@ -335,8 +331,7 @@ TEST(Kinetics, BMInterfaceKineticsFromYaml)
     shared_ptr<ThermoPhase> gas(newPhase("BM_test.yaml", "gas"));
     shared_ptr<ThermoPhase> surf_tp(newPhase("BM_test.yaml", "Pt_surf"));
     shared_ptr<SurfPhase> surf = std::dynamic_pointer_cast<SurfPhase>(surf_tp);
-    std::vector<ThermoPhase*> phases{surf_tp.get(), gas.get()};
-    auto kin = newKinetics(phases, "BM_test.yaml", "Pt_surf");
+    auto kin = newKinetics({surf_tp.get(), gas.get()}, "BM_test.yaml", "Pt_surf");
     EXPECT_EQ(kin->nReactions(), (size_t) 6);
     EXPECT_EQ(kin->nTotalSpecies(), (size_t) 14);
     auto R1 = kin->reaction(5);
@@ -360,8 +355,8 @@ TEST(Kinetics, ElectrochemFromYaml)
     shared_ptr<ThermoPhase> graphite(newPhase("surface-phases.yaml", "graphite"));
     shared_ptr<ThermoPhase> electrolyte(newPhase("surface-phases.yaml", "electrolyte"));
     shared_ptr<ThermoPhase> anode(newPhase("surface-phases.yaml", "anode-surface"));
-    std::vector<ThermoPhase*> phases{anode.get(), graphite.get(), electrolyte.get()};
-    auto kin = newKinetics(phases, "surface-phases.yaml", "anode-surface");
+    auto kin = newKinetics({anode.get(), graphite.get(), electrolyte.get()},
+                           "surface-phases.yaml", "anode-surface");
     graphite->setElectricPotential(0.4);
     vector_fp ropf(kin->nReactions()), ropr(kin->nReactions());
     kin->getFwdRatesOfProgress(ropf.data());

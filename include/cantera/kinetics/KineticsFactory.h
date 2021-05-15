@@ -110,7 +110,7 @@ inline Kinetics* newKineticsMgr(const std::string& model)
  * @param rootNode   The root node of the file containing the phase definition,
  *     which will be treated as the default source for reactions
  */
-unique_ptr<Kinetics> newKinetics(std::vector<ThermoPhase*>& phases,
+unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
                                  const AnyMap& phaseNode,
                                  const AnyMap& rootNode=AnyMap());
 
@@ -125,7 +125,7 @@ unique_ptr<Kinetics> newKinetics(std::vector<ThermoPhase*>& phases,
  * @param phase_name  The name of the reacting phase in the input file (i.e. the
  *     name of the first phase in the `phases` vector)
  */
-unique_ptr<Kinetics> newKinetics(std::vector<ThermoPhase*>& phases,
+unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
                                  const std::string& filename,
                                  const std::string& phase_name);
 

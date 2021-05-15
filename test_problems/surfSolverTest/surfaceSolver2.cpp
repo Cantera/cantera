@@ -150,8 +150,8 @@ int main(int argc, char** argv)
         cout << "Number of species in surface phase, " << surfParticlePhaseName
              << " = " << nsp_d100 << endl;
 
-        vector<ThermoPhase*> phaseList { gasTP, bulkPhaseTP, surfPhaseTP };
-        auto kin = newKinetics(phaseList, infile, surfParticlePhaseName);
+        auto kin = newKinetics({gasTP, bulkPhaseTP, surfPhaseTP},
+                               infile, surfParticlePhaseName);
         InterfaceKinetics* iKin_ptr = dynamic_cast<InterfaceKinetics*>(kin.get());
         size_t nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
@@ -166,11 +166,10 @@ int main(int argc, char** argv)
         cout << "Number of species in 2nd surface phase, " << pname
              << " = " << nsp2 << endl;
 
-        vector<ThermoPhase*> phaseList2 { gasTP, bulkPhaseTP, surfPhaseTP2 };
-
         // create the second  InterfaceKinetics object based on the
         // second surface phase.
-        auto kin2 = newKinetics(phaseList2, infile, surfParticlePhaseName);
+        auto kin2 = newKinetics({gasTP, bulkPhaseTP, surfPhaseTP2},
+                                infile, surfParticlePhaseName);
         InterfaceKinetics* iKin2_ptr = dynamic_cast<InterfaceKinetics*>(kin2.get());
         nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
