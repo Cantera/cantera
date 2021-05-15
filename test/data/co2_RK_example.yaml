@@ -10,8 +10,6 @@ phases:
   thermo: Redlich-Kwong
   elements: [C, O, H, N]
   species: [CO2, H2O, H2, CO, CH4, O2, N2]
-  kinetics: gas
-  reactions: all
   transport: multicomponent
   state:
     T: 300.0
@@ -177,7 +175,3 @@ species:
     dipole: 1.85
     rotational-relaxation: 4.0
   note: L 8/89
-
-reactions:
-- equation: CO2 + H2 <=> CO + H2O  # Reaction 1
-  rate-constant: {A: 1200.0, b: 0, Ea: 0}
