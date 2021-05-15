@@ -57,7 +57,7 @@ Kinetics* KineticsFactory::newKinetics(const string& model)
     return create(toLowerCopy(model));
 }
 
-unique_ptr<Kinetics> newKinetics(vector<ThermoPhase*>& phases,
+unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
                                  const AnyMap& phaseNode,
                                  const AnyMap& rootNode)
 {
@@ -71,7 +71,7 @@ unique_ptr<Kinetics> newKinetics(vector<ThermoPhase*>& phases,
     return kin;
 }
 
-unique_ptr<Kinetics> newKinetics(std::vector<ThermoPhase*>& phases,
+unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
                                  const std::string& filename,
                                  const std::string& phase_name)
 {
