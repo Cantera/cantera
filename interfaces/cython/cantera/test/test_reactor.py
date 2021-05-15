@@ -443,7 +443,13 @@ class TestReactor(utilities.CanteraTest):
         reservoir = ct.Reservoir(gas2)
 
         mfc = ct.MassFlowController(reservoir, self.r1)
-        mfc.mass_flow_rate = lambda t: 0.1 if 0.2 <= t < 1.2 else 0.0
+        # Triangular pulse with area = 0.1
+        def mdot(t):
+            if 0.2 <= t < 1.2:
+                return 0.2 - 0.4 * abs(t - 0.7)
+            else:
+                return 0.0
+        mfc.mass_flow_rate = mdot
         self.assertEqual(mfc.mass_flow_coeff, 1.)
 
         self.assertEqual(mfc.type, type(mfc).__name__)
@@ -462,10 +468,10 @@ class TestReactor(utilities.CanteraTest):
 
         self.net.advance(0.1)
         self.assertNear(mfc.mass_flow_rate, 0.)
-        self.net.advance(0.2)
-        self.assertNear(mfc.mass_flow_rate, 0.1)
-        self.net.advance(1.1)
-        self.assertNear(mfc.mass_flow_rate, 0.1)
+        self.net.advance(0.3)
+        self.assertNear(mfc.mass_flow_rate, 0.04)
+        self.net.advance(1.0)
+        self.assertNear(mfc.mass_flow_rate, 0.08)
         self.net.advance(1.2)
         self.assertNear(mfc.mass_flow_rate, 0.)
 
