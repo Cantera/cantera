@@ -193,10 +193,13 @@ CompileAndTest('ChemEquil_ionizedGas',
                comparisons=[('table_blessed.csv', 'table.csv')])
 #CompileAndTest('CpJump', 'CpJump', 'CpJump', 'output_blessed.txt')
 
-diamond = CompileAndTest('diamondSurf-xml', 'diamondSurf', 'diamondSurf',
-    'runDiamond_blessed.out', options='diamond_blessed.xml')
+diamond = CompileAndTest('diamondSurf-yaml', 'diamondSurf', 'diamondSurf',
+    'runDiamond_blessed.out', options='diamond.yaml')
 Test('diamondSurf-cti', 'diamondSurf', diamond.program, 'runDiamond_blessed.out',
-     options='diamond.cti')
+     options='diamond.cti')  # @TODO: remove after Cantera 2.6
+Test('diamondSurf-xml', 'diamondSurf', diamond.program, 'runDiamond_blessed.out',
+     options='diamond.xml')  # @TODO: remove after Cantera 2.6
+
 CompileAndTest('dustyGasTransport', slow=True)
 CompileAndTest('mixGasTransport')
 CompileAndTest('multiGasTransport')
