@@ -6,12 +6,6 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-//  Example
-//
-//  Read a surface growth mechanism and calculate the solution
-//  using Placid.
-//
-
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/kinetics.h"
 #include "cantera/kinetics/ImplicitSurfChem.h"
@@ -25,13 +19,6 @@ using namespace std;
 using namespace Cantera;
 
 #define MSSIZE 200
-
-/*****************************************************************/
-/*****************************************************************/
-/*****************************************************************/
-static void printUsage()
-{
-}
 
 void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, double* src)
 {
@@ -147,67 +134,15 @@ int main(int argc, char** argv)
 #if defined(_MSC_VER) && _MSC_VER < 1900
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
-    string infile;
+    string infile = "haca2.yaml";
+    string gasPhaseName = "gas";
+    string bulkParticlePhaseName = "soot";
+    string surfParticlePhaseName = "soot_interface";
     int ioflag = 1;
-    int i, k;
-    // look for command-line options
-    if (argc > 1) {
-        string tok;
-        for (int j = 1; j < argc; j++) {
-            tok = string(argv[j]);
-            if (tok[0] == '-') {
-                int nopt = static_cast<int>(tok.size());
-                for (int n = 1; n < nopt; n++) {
-                    if (tok[n] == 'h') {
-                        printUsage();
-                        exit(0);
-                    } else if (tok[n] == 'd') {
-                        int lvl = 0;
-                        if (j < (argc - 1)) {
-                            string tokla = string(argv[j+1]);
-                            if (strlen(tokla.c_str()) > 0) {
-                                lvl = atoi(tokla.c_str());
-                                n = nopt - 1;
-                                j += 1;
-                                ioflag = lvl;
-                            }
-                        }
-                    } else {
-                        printUsage();
-                        exit(1);
-                    }
-                }
-            } else if (infile == "") {
-                infile = tok;
-            } else {
-                printUsage();
-                exit(1);
-            }
-        }
-    }
-    if (infile == "") {
-        infile = "diamond.cti";
-    }
 
     try {
         /*************************************************************/
 
-        /*
-         *  FILL IN THESE NAMES FOR EACH PROBLEM
-         */
-        /*
-         * ProblemNumber = 0 : diamond.cti
-         *               = 1 : haca.cti
-         */
-        int ProblemNumber = 1;
-        string gasPhaseName          = "gas";
-        string bulkParticlePhaseName = "diamond";
-        string surfParticlePhaseName = "diamond_100";
-        if (ProblemNumber == 1) {
-            gasPhaseName          = "gas";
-            bulkParticlePhaseName = "soot";
-            surfParticlePhaseName = "soot_interface";
-        }
 
         /************************************************************/
         ThermoPhase* gasTP = newPhase(infile, gasPhaseName);
@@ -231,54 +166,9 @@ int main(int argc, char** argv)
         size_t nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
-        double x[MSSIZE], p = OneAtm;
+        double x[MSSIZE];
 
         ofstream ofile("results.txt");
-
-        /*
-         * Set the Gas State:
-         * -> note that the states are set in the XML files too
-         */
-        for (i = 0; i < MSSIZE; i++) {
-            x[i] = 0.0;
-        }
-        if (ProblemNumber == 0) {
-            x[0] = 0.0010;
-            x[1] = 0.9888;
-            x[2] = 0.0002;
-            x[3] = 0.0100;
-            p = 20.0*OneAtm/760.0;
-            gasTP->setState_TPX(1200., p, x);
-        }
-
-        /*
-         * Set the surface initial state
-         */
-        for (i = 0; i < MSSIZE; i++) {
-            x[i] = 0.0;
-        }
-        if (ProblemNumber == 0) {
-            size_t i0 = surfPhaseTP->speciesIndex("c6H*");
-            if (i0 != npos) {
-                x[i0] = 0.1;
-            }
-            size_t i1 = surfPhaseTP->speciesIndex("c6HH");
-            if (i1 != npos) {
-                x[i1] = 0.9;
-            }
-            surfPhaseTP->setState_TX(1200., x);
-        }
-
-        /*
-         * Set the bulk Phase State
-         */
-        for (i = 0; i < MSSIZE; i++) {
-            x[i] = 0.0;
-        }
-        if (ProblemNumber == 0) {
-            x[0] = 1.0;
-            bulkPhaseTP->setState_TPX(1200., p, x);
-        }
 
         iKin_ptr->setIOFlag(ioflag);
         /*
@@ -291,30 +181,6 @@ int main(int argc, char** argv)
          */
         double src[MSSIZE];
         iKin_ptr->getNetProductionRates(src);
-
-        double sum = 0.0;
-        if (ProblemNumber == 0) {
-            double naH;
-            for (k = 0; k < 13; k++) {
-                if (k < 4) {
-                    naH = gasTP->nAtoms(k, 0);
-                } else if (k == 4) {
-                    naH = 0;
-                } else if (k > 4) {
-                    int itp = k - 5;
-                    naH = surfPhaseTP->nAtoms(itp, 0);
-                }
-                cout << k << "  " << naH << "  " ;
-                if (fabs(src[k]) < 2.0E-17) {
-                    cout << " nil" << endl;
-                } else {
-                    cout << src[k] << endl;
-                }
-                sum += naH * src[k];
-            }
-            cout << "sum = " << sum << endl;
-        }
-
 
         printGas(cout, gasTP, iKin_ptr, src);
         printBulk(cout, bulkPhaseTP, iKin_ptr, src);
@@ -329,7 +195,7 @@ int main(int argc, char** argv)
 
         /*
          * Set the Gas State:
-         * -> note that the states are set in the XML files too
+         * -> note that the states are set in the input file too
          */
         double pres = gasTP->pressure();
         gasTP->getMoleFractions(x);

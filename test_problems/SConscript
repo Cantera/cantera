@@ -206,12 +206,10 @@ CompileAndTest('silane_equil')
 CompileAndTest('stoichSolidKinetics')
 CompileAndTest('surfkin', slow=True)
 CompileAndTest('surfSolver', 'surfSolverTest', 'surfaceSolver', None,
-               arguments='haca2.yaml',
                comparisons=[('results_blessed.txt', 'results.txt')],
                artifacts=['results.txt'],
                extensions=['^surfaceSolver.cpp'])
 CompileAndTest('surfSolver2', 'surfSolverTest', 'surfaceSolver2', None,
-               arguments='haca2.yaml',
                comparisons=[('results2_blessed.txt', 'results2.txt')],
                artifacts=['results2.txt'],
                extensions=['^surfaceSolver2.cpp'])
