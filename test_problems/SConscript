@@ -168,7 +168,7 @@ Test('DH_graph_Pitzer', 'cathermo/DH_graph_1',
 
 CompileAndTest('HMW_graph_CpvT', 'cathermo/HMW_graph_CpvT',
                extensions=['^HMW_graph_CpvT.cpp'],
-               arguments=File('#test/data/HMW_NaCl_sp1977_alt.xml').abspath)
+               arguments=File('#test/data/HMW_NaCl_sp1977_alt.yaml').abspath)
 CompileAndTest('HMW_graph_GvI', 'cathermo/HMW_graph_GvI',
                blessedName=None,
                comparisons=[('T298_blessed.csv', 'T298.csv'),
@@ -177,13 +177,13 @@ CompileAndTest('HMW_graph_GvI', 'cathermo/HMW_graph_GvI',
                           'T548.csv','T573.csv'])
 CompileAndTest('HMW_graph_GvT', 'cathermo/HMW_graph_GvT',
                extensions=['^HMW_graph_GvT.cpp'],
-               arguments=File('#test/data/HMW_NaCl_sp1977_alt.xml').abspath)
+               arguments=File('#test/data/HMW_NaCl_sp1977_alt.yaml').abspath)
 CompileAndTest('HMW_graph_HvT', 'cathermo/HMW_graph_HvT',
                extensions=['^HMW_graph_HvT.cpp'],
-               arguments=File('#test/data/HMW_NaCl_sp1977_alt.xml').abspath)
+               arguments=File('#test/data/HMW_NaCl_sp1977_alt.yaml').abspath)
 CompileAndTest('HMW_graph_VvT', 'cathermo/HMW_graph_VvT',
                extensions=['^HMW_graph_VvT.cpp'],
-               arguments=File('#test/data/HMW_NaCl_sp1977_alt.xml').abspath)
+               arguments=File('#test/data/HMW_NaCl_sp1977_alt.yaml').abspath)
 CompileAndTest('HMW_test_1', 'cathermo/HMW_test_1',
                blessedName='output_noD_blessed.txt')
 CompileAndTest('HMW_test_3', 'cathermo/HMW_test_3',

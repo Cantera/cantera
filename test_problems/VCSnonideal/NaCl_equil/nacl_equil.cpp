@@ -13,11 +13,11 @@ using namespace std;
 
 void printUsage()
 {
-    cout << "usage: nacl_equil [-h] [-help_cmdfile] [-d #] [HMW_NaCl.xml] "
+    cout << "usage: nacl_equil [-h] [-help_cmdfile] [-d #] [HMW_NaCl.yaml] "
          <<  endl;
     cout << "    -h           help" << endl;
     cout << "    -d           #   : level of debug printing" << endl;
-    cout << " [HMW_NaCl.xml]  - Optionally change the name of the input file " << endl;
+    cout << " [HMW_NaCl.yaml]  - Optionally change the name of the input file " << endl;
     cout << endl;
     cout << endl;
 }
@@ -31,7 +31,7 @@ int main(int argc, char** argv)
     int numSucc = 0;
     int numFail = 0;
     int printLvl = 1;
-    string inputFile = "HMW_NaCl.xml";
+    string inputFile = "HMW_NaCl.yaml";
     VCS_SOLVE::disableTiming();
 
     /*
@@ -67,7 +67,7 @@ int main(int argc, char** argv)
                         exit(1);
                     }
                 }
-            } else if (inputFile == "HMW_NaCl.xml") {
+            } else if (inputFile == "HMW_NaCl.yaml") {
                 inputFile = tok;
             } else {
                 printUsage();
@@ -85,14 +85,15 @@ int main(int argc, char** argv)
 
         // Initialize the individual phases
 
-        HMWSoln hmw(inputFile, "");
+        HMWSoln hmw(inputFile, "NaCl_electrolyte_complex_shomate");
+        hmw.setName("NaCl_electrolyte");
         size_t kk = hmw.nSpecies();
         vector_fp Xmol(kk, 0.0);
         size_t iH2OL = hmw.speciesIndex("H2O(L)");
         Xmol[iH2OL] = 1.0;
         hmw.setState_TPX(T, pres, Xmol.data());
 
-        ThermoPhase* gas = newPhase("gas.xml");
+        ThermoPhase* gas = newPhase("NaCl_gas.yaml");
 
         kk = gas->nSpecies();
         Xmol.resize(kk, 0.0);
@@ -104,7 +105,7 @@ int main(int argc, char** argv)
         gas->setState_TPX(T, pres, Xmol.data());
 
 
-        StoichSubstance ss("NaCl_Solid.xml", "");
+        StoichSubstance ss("NaCl_Solid.yaml");
         ss.setState_TP(T, pres);
 
 

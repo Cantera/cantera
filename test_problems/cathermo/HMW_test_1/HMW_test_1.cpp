@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 
     try {
 
-        HMWSoln* HMW = new HMWSoln("HMW_NaCl.xml");
+        HMWSoln* HMW = new HMWSoln("HMW_NaCl_const.yaml", "NaCl_electrolyte");
         HMW->printCoeffs();
 
         size_t nsp = HMW->nSpecies();
