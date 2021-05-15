@@ -191,7 +191,7 @@ CompileAndTest('WaterSSTP', 'cathermo/testWaterTP')
 CompileAndTest('ISSPTester2', 'cathermo/VPissp')
 CompileAndTest('ChemEquil_ionizedGas',
                comparisons=[('table_blessed.csv', 'table.csv')])
-#CompileAndTest('CpJump', 'CpJump', 'CpJump', 'output_blessed.txt')
+CompileAndTest('CpJump', 'CpJump', 'CpJump', 'output_blessed.txt')
 
 diamond = CompileAndTest('diamondSurf-yaml', 'diamondSurf', 'diamondSurf',
     'runDiamond_blessed.out', options='diamond.yaml')
