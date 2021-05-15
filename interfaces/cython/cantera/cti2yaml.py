@@ -1146,7 +1146,10 @@ class phase:
         if self.kinetics and self.reactions:
             out['kinetics'] = _newNames[self.kinetics]
             if len(self.reactions) == 1 and self.reactions[0][0] == 'reactions':
-                out['reactions'] = self.reactions[0][1]
+                if _reactions['reactions']:
+                    out['reactions'] = self.reactions[0][1]
+                else:
+                    out['reactions'] = 'none'
             elif all(r[1] == 'all' for r in self.reactions):
                 out['reactions'] = FlowList(r[0] for r in self.reactions)
             else:
