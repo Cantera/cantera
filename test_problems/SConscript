@@ -143,23 +143,28 @@ class CompileAndTest(Test):
 dhGraph = CompileAndTest('DH_graph_dilute', 'cathermo/DH_graph_1', 'DH_graph_1',
                'DH_NaCl_dilute_blessed.csv',
                artifacts=['DH_graph_1.log'],
-               arguments='DH_NaCl_dilute.xml')
+               arguments=File('#test/data/debye-huckel-all.yaml').abspath,
+               options='debye-huckel-dilute')
 Test('DH_graph_acommon', 'cathermo/DH_graph_1',
      dhGraph.program, 'DH_NaCl_acommon_blessed.csv',
      artifacts=['DH_graph_1.log'],
-     arguments='DH_NaCl_acommon.xml')
+     arguments=File('#test/data/debye-huckel-all.yaml').abspath,
+     options='debye-huckel-B-dot-a')
 Test('DH_graph_bdotak', 'cathermo/DH_graph_1',
      dhGraph.program, 'DH_NaCl_bdotak_blessed.csv',
      artifacts=['DH_graph_1.log'],
-     arguments='DH_NaCl_bdotak.xml')
+     arguments=File('#test/data/debye-huckel-all.yaml').abspath,
+     options='debye-huckel-B-dot-ak')
 Test('DH_graph_NM', 'cathermo/DH_graph_1',
      dhGraph.program, 'DH_NaCl_NM_blessed.csv',
      artifacts=['DH_graph_1.log'],
-     arguments='DH_NaCl_NM.xml')
+     arguments=File('#test/data/debye-huckel-all.yaml').abspath,
+     options='debye-huckel-beta_ij')
 Test('DH_graph_Pitzer', 'cathermo/DH_graph_1',
      dhGraph.program, 'DH_NaCl_Pitzer_blessed.csv',
      artifacts=['DH_graph_1.log'],
-     arguments='DH_NaCl_Pitzer.xml')
+     arguments=File('#test/data/debye-huckel-all.yaml').abspath,
+     options='debye-huckel-pitzer-beta_ij')
 
 CompileAndTest('HMW_graph_CpvT', 'cathermo/HMW_graph_CpvT',
                extensions=['^HMW_graph_CpvT.cpp'],
