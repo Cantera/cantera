@@ -585,9 +585,9 @@ class Phase:
             reactions = []
             for rA_node in phase.iterfind("reactionArray"):
                 # If the reaction list associated with the datasrc for this
-                # reactionArray is empty, don't do anything.
+                # reactionArray is missing or empty, don't do anything.
                 datasrc = rA_node.get("datasrc", "")
-                if datasrc.startswith("#") and not reaction_data[datasrc[1:]]:
+                if datasrc.startswith("#") and not reaction_data.get(datasrc[1:]):
                     continue
                 reactions.append(self.get_reaction_array(rA_node, reaction_data))
             # The reactions list may be empty, don't include any kinetics stuff
