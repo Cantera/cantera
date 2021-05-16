@@ -19,6 +19,21 @@
     <standardConc model="unity" />
   </phase>
 
+  <phase id="VpssSolidSolutionExample" dim="3">
+    <state>
+      <temperature units="K">500</temperature>
+    </state>
+    <thermo model="IdealSolnVPSS" />
+    <elementArray datasrc="elements.xml"> H  C</elementArray>
+    <speciesArray datasrc="#species_solidSolution">
+     C2H2-graph  C-graph H2-solute
+    </speciesArray>
+    <reactionArray datasrc="#reactions_solidSolution">
+    </reactionArray>
+    <kinetics model="SolidKinetics" />
+    <standardConc model="unity" />
+  </phase>
+
   <!-- species data 
        Note that these entries are for demonstration only, and the thermo
        is made up.

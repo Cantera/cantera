@@ -27,7 +27,8 @@ int main(int argc, char** argv)
 
     try {
         double Tkelvin = 1200.;
-        IdealSolnGasVPSS issp("IdealSolidSolnPhaseExample.xml");
+        IdealSolnGasVPSS issp("IdealSolidSolnPhaseExample.yaml",
+                              "VpssSolidSolutionExample");
         issp.setState_TPX(Tkelvin, OneAtm,
                           "C2H2-graph:0.3, C-graph:0.6, H2-solute:0.1");
         double hm = issp.enthalpy_mole();
