@@ -14,11 +14,11 @@ void testProblem(int printLvl)
     VCS_SOLVE::disableTiming();
 
     // Create the phases
-    std::unique_ptr<ThermoPhase> LiSi_solid(newPhase("Li7Si3_ls.xml",
+    std::unique_ptr<ThermoPhase> LiSi_solid(newPhase("Li7Si3_latsol.yaml",
                                                      "Li7Si3_and_Interstitials(S)"));
-    std::unique_ptr<ThermoPhase> Li_liq(newPhase("Li_Liquid.xml", "Li(L)"));
-    std::unique_ptr<ThermoPhase> LiFixed(newPhase("Li7Si3_ls.xml", "LiFixed"));
-    MargulesVPSSTP salt("LiKCl_liquid.xml", "MoltenSalt_electrolyte");
+    std::unique_ptr<ThermoPhase> Li_liq(newPhase("Li7Si3_latsol.yaml", "Li(L)"));
+    std::unique_ptr<ThermoPhase> LiFixed(newPhase("Li7Si3_latsol.yaml", "LiFixed"));
+    MargulesVPSSTP salt("Li7Si3_latsol.yaml", "MoltenSalt_electrolyte");
 
     // set states
     vector_fp x(salt.nSpecies(), 0);
