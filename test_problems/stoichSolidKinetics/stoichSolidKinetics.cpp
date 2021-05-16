@@ -40,28 +40,24 @@ void printRates(InterfaceKinetics& iKin)
 
 void testProblem()
 {
+    string mech = "stoichSolidKinetics.yaml";
     ss << std::scientific << std::setprecision(3) << std::uppercase;
-    XML_Node* xc = get_XML_File("ReactionSurf.xml");
-    XML_Node* xg = xc->findNameID("phase", "reaction_surface");
-    if (!xg) {
-        throw CanteraError("testProblem", "couldn't find file");
-    }
-    unique_ptr<ThermoPhase> surfTP(newPhase(*xg));
-    unique_ptr<ThermoPhase> gasTP(newPhase("gas.xml"));
+    unique_ptr<ThermoPhase> surfTP(newPhase(mech, "reaction_surface"));
+    unique_ptr<ThermoPhase> gasTP(newPhase(mech, "air"));
 
-    unique_ptr<ThermoPhase> cao_s(newPhase("solidPhases.xml", "CaO(S)"));
-    unique_ptr<ThermoPhase> caco3_s(newPhase("solidPhases.xml", "CaCO3(S)"));
-    unique_ptr<ThermoPhase> c_s(newPhase("solidPhases.xml", "C(S)"));
-    unique_ptr<ThermoPhase> fe3o4_s(newPhase("solidPhases.xml", "Fe3O4(S)"));
-    unique_ptr<ThermoPhase> feo_s(newPhase("solidPhases.xml", "FeO(S)"));
-    unique_ptr<ThermoPhase> fe_s(newPhase("solidPhases.xml", "Fe(S)"));
+    unique_ptr<ThermoPhase> cao_s(newPhase(mech, "CaO(S)"));
+    unique_ptr<ThermoPhase> caco3_s(newPhase(mech, "CaCO3(S)"));
+    unique_ptr<ThermoPhase> c_s(newPhase(mech, "C(S)"));
+    unique_ptr<ThermoPhase> fe3o4_s(newPhase(mech, "Fe3O4(S)"));
+    unique_ptr<ThermoPhase> feo_s(newPhase(mech, "FeO(S)"));
+    unique_ptr<ThermoPhase> fe_s(newPhase(mech, "Fe(S)"));
 
     vector<ThermoPhase*> phaseList {
         gasTP.get(), cao_s.get(), caco3_s.get(), c_s.get(), fe3o4_s.get(),
         feo_s.get(), fe_s.get(), surfTP.get()
     };
-    InterfaceKinetics iKin;
-    importKinetics(*xg, phaseList, &iKin);
+    auto kin = newKinetics(phaseList, mech, "reaction_surface");
+    auto& iKin = dynamic_cast<InterfaceKinetics&>(*kin);
 
     vector_fp mll(gasTP->nSpecies(), 0.0);
     size_t igco2 = gasTP->speciesIndex("CO2");
