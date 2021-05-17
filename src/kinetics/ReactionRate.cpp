@@ -5,7 +5,6 @@
 
 #include "cantera/kinetics/ReactionRate.h"
 #include "cantera/numerics/Func1.h"
-#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
@@ -94,21 +93,17 @@ void ArrheniusRate::validate(const std::string& equation)
     }
 }
 
-PlogRate::PlogRate() : Plog()
-{
-}
-
 PlogRate::PlogRate(const std::multimap<double, Arrhenius>& rates)
     : Plog(rates)
 {
 }
 
-PlogRate::PlogRate(const AnyMap& node, const Units& rate_units) : Plog()
+PlogRate::PlogRate(const AnyMap& node, const Units& rate_units)
 {
     setParameters(node, rate_units);
 }
 
-PlogRate::PlogRate(const AnyMap& node) : Plog()
+PlogRate::PlogRate(const AnyMap& node)
 {
     setParameters(node, Units(1.));
 }
@@ -129,10 +124,6 @@ void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
     Plog::getParameters(rateNode, rate_units);
 }
 
-ChebyshevRate3::ChebyshevRate3()
-    : Chebyshev() {
-}
-
 ChebyshevRate3::ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pmax,
                                const Array2D& coeffs)
     : Chebyshev(Tmin, Tmax, Pmin, Pmax, coeffs)
@@ -140,13 +131,11 @@ ChebyshevRate3::ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pma
 }
 
 ChebyshevRate3::ChebyshevRate3(const AnyMap& node, const Units& rate_units)
-    : Chebyshev()
 {
     setParameters(node, rate_units);
 }
 
 ChebyshevRate3::ChebyshevRate3(const AnyMap& node)
-    : Chebyshev()
 {
     setParameters(node, Units(1.));
 }

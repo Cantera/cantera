@@ -31,7 +31,7 @@ ReactionFactory::ReactionFactory()
     // register elementary reactions (old framework)
     reg("elementary-old", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ElementaryReaction();
-        if (node.hasKey("equation")) {
+        if (!node.empty()) {
             setupElementaryReaction(*(ElementaryReaction*)R, node, kin);
         }
         return R;
@@ -47,7 +47,7 @@ ReactionFactory::ReactionFactory()
     // register three-body reactions (old framework)
     reg("three-body-old", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ThreeBodyReaction();
-        if (node.hasKey("equation")) {
+        if (!node.empty()) {
             setupThreeBodyReaction(*(ThreeBodyReaction*)R, node, kin);
         }
         return R;
@@ -56,7 +56,7 @@ ReactionFactory::ReactionFactory()
     // register falloff reactions
     reg("falloff", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new FalloffReaction();
-        if (node.hasKey("equation")) {
+        if (!node.empty()) {
             setupFalloffReaction(*(FalloffReaction*)R, node, kin);
         }
         return R;
@@ -65,7 +65,7 @@ ReactionFactory::ReactionFactory()
     // register falloff reactions
     reg("chemically-activated", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ChemicallyActivatedReaction();
-        if (node.hasKey("equation")) {
+        if (!node.empty()) {
             setupFalloffReaction(*(FalloffReaction*)R, node, kin);
         }
         return R;
@@ -83,7 +83,7 @@ ReactionFactory::ReactionFactory()
     // register pressure-dependent-Arrhenius reactions (old framework)
     reg("pressure-dependent-Arrhenius-old", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new PlogReaction();
-        if (node.hasKey("equation")) {
+        if (!node.empty()) {
             setupPlogReaction(*(PlogReaction*)R, node, kin);
         }
         return R;
@@ -96,7 +96,7 @@ ReactionFactory::ReactionFactory()
     addAlias("Chebyshev", "chebyshev");
     reg("Chebyshev-old", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ChebyshevReaction();
-        if (node.hasKey("equation")) {
+        if (!node.empty()) {
             setupChebyshevReaction(*(ChebyshevReaction*)R, node, kin);
         }
         return R;
@@ -110,7 +110,7 @@ ReactionFactory::ReactionFactory()
     // register interface reactions
     reg("interface", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new InterfaceReaction();
-        if (node.hasKey("equation")) {
+        if (!node.empty()) {
             setupInterfaceReaction(*(InterfaceReaction*)R, node, kin);
         }
         return R;
@@ -121,7 +121,7 @@ ReactionFactory::ReactionFactory()
     // register electrochemical reactions
     reg("electrochemical", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ElectrochemicalReaction();
-        if (node.hasKey("equation")) {
+        if (!node.empty()) {
             setupElectrochemicalReaction(*(ElectrochemicalReaction*)R, node, kin);
         }
         return R;
@@ -130,7 +130,7 @@ ReactionFactory::ReactionFactory()
     // register Blowers Masel reactions
     reg("Blowers-Masel", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new BlowersMaselReaction();
-        if (node.hasKey("equation")) {
+        if (!node.empty()) {
             setupBlowersMaselReaction(*(BlowersMaselReaction*)R, node, kin);
         }
         return R;
@@ -139,7 +139,7 @@ ReactionFactory::ReactionFactory()
     // register surface Blowers Masel reactions
     reg("surface-Blowers-Masel", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new BlowersMaselInterfaceReaction();
-        if (node.hasKey("equation")) {
+        if (!node.empty()) {
             setupBlowersMaselInterfaceReaction(*(BlowersMaselInterfaceReaction*)R, node, kin);
         }
         return R;

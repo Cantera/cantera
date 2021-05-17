@@ -626,9 +626,7 @@ void PlogReaction::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
     reactionNode["type"] = "pressure-dependent-Arrhenius";
-    AnyMap rateNode;
-    rate.getParameters(rateNode, rate_units);
-    reactionNode.update(rateNode);
+    rate.getParameters(reactionNode, rate_units);
 }
 
 ChebyshevReaction::ChebyshevReaction()
@@ -650,9 +648,7 @@ void ChebyshevReaction::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
     reactionNode["type"] = "Chebyshev";
-    AnyMap rateNode;
-    rate.getParameters(rateNode, rate_units);
-    reactionNode.update(rateNode);
+    rate.getParameters(reactionNode, rate_units);
 }
 
 InterfaceReaction::InterfaceReaction()
@@ -832,7 +828,7 @@ Reaction3::Reaction3(const Composition& reactants, const Composition& products)
 
 void Reaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 {
-    if (!node.hasKey("equation")) {
+    if (node.empty()) {
         // empty node: used by newReaction() factory loader
         return;
     }
@@ -878,9 +874,8 @@ void Reaction3::validate()
 }
 
 ElementaryReaction3::ElementaryReaction3()
-    : Reaction3()
 {
-    m_rate = std::shared_ptr<ArrheniusRate>(new ArrheniusRate);
+    m_rate.reset(new ArrheniusRate);
 }
 
 ElementaryReaction3::ElementaryReaction3(const Composition& reactants,
@@ -888,14 +883,14 @@ ElementaryReaction3::ElementaryReaction3(const Composition& reactants,
                                          const ArrheniusRate& rate)
     : Reaction3(reactants, products)
 {
-    m_rate = std::make_shared<ArrheniusRate>(rate);
+    m_rate.reset(new ArrheniusRate(rate));
 }
 
 ElementaryReaction3::ElementaryReaction3(const AnyMap& node, const Kinetics& kin)
     : ElementaryReaction3()
 {
     setParameters(node, kin);
-    setRate(std::shared_ptr<ArrheniusRate>(new ArrheniusRate(node, rate_units)));
+    setRate(std::make_shared<ArrheniusRate>(node, rate_units));
 }
 
 void ElementaryReaction3::getParameters(AnyMap& reactionNode) const
@@ -923,7 +918,7 @@ ThreeBodyReaction3::ThreeBodyReaction3(const AnyMap& node, const Kinetics& kin)
     : ThreeBodyReaction3()
 {
     setParameters(node, kin);
-    setRate(std::shared_ptr<ArrheniusRate>(new ArrheniusRate(node, rate_units)));
+    setRate(std::make_shared<ArrheniusRate>(node, rate_units));
 }
 
 bool ThreeBodyReaction3::detectEfficiencies()
@@ -989,7 +984,7 @@ void ThreeBodyReaction3::calculateRateCoeffUnits(const Kinetics& kin)
 
 void ThreeBodyReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 {
-    if (!node.hasKey("equation")) {
+    if (node.empty()) {
         // empty node: used by newReaction() factory loader
         return;
     }
@@ -1042,23 +1037,22 @@ std::string ThreeBodyReaction3::productString() const
 }
 
 PlogReaction3::PlogReaction3()
-    : Reaction3()
 {
-    m_rate = std::shared_ptr<PlogRate>(new PlogRate);
+    m_rate.reset(new PlogRate);
 }
 
 PlogReaction3::PlogReaction3(const Composition& reactants,
                              const Composition& products, const PlogRate& rate)
     : Reaction3(reactants, products)
 {
-    m_rate = std::make_shared<PlogRate>(rate);
+    m_rate.reset(new PlogRate(rate));
 }
 
 PlogReaction3::PlogReaction3(const AnyMap& node, const Kinetics& kin)
     : PlogReaction3()
 {
     setParameters(node, kin);
-    setRate(std::shared_ptr<PlogRate>(new PlogRate(node, rate_units)));
+    setRate(std::make_shared<PlogRate>(node, rate_units));
 }
 
 void PlogReaction3::getParameters(AnyMap& reactionNode) const
@@ -1069,9 +1063,8 @@ void PlogReaction3::getParameters(AnyMap& reactionNode) const
 }
 
 ChebyshevReaction3::ChebyshevReaction3()
-    : Reaction3()
 {
-    m_rate = std::shared_ptr<ChebyshevRate3>(new ChebyshevRate3);
+    m_rate.reset(new ChebyshevRate3);
 }
 
 ChebyshevReaction3::ChebyshevReaction3(const Composition& reactants,
@@ -1079,19 +1072,19 @@ ChebyshevReaction3::ChebyshevReaction3(const Composition& reactants,
                                        const ChebyshevRate3& rate)
     : Reaction3(reactants, products)
 {
-    m_rate = std::make_shared<ChebyshevRate3>(rate);
+    m_rate.reset(new ChebyshevRate3(rate));
 }
 
 ChebyshevReaction3::ChebyshevReaction3(const AnyMap& node, const Kinetics& kin)
     : ChebyshevReaction3()
 {
     setParameters(node, kin);
-    setRate(std::shared_ptr<ChebyshevRate3>(new ChebyshevRate3(node, rate_units)));
+    setRate(std::make_shared<ChebyshevRate3>(node, rate_units));
 }
 
 void ChebyshevReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 {
-    if (!node.hasKey("equation")) {
+    if (node.empty()) {
         // empty node: used by newReaction() factory loader
         return;
     }
@@ -1128,9 +1121,8 @@ void ChebyshevReaction3::getParameters(AnyMap& reactionNode) const
 }
 
 CustomFunc1Reaction::CustomFunc1Reaction()
-    : Reaction3()
 {
-    m_rate = std::shared_ptr<CustomFunc1Rate>(new CustomFunc1Rate);
+    m_rate.reset(new CustomFunc1Rate);
 }
 
 CustomFunc1Reaction::CustomFunc1Reaction(const Composition& reactants,
@@ -1138,14 +1130,14 @@ CustomFunc1Reaction::CustomFunc1Reaction(const Composition& reactants,
                                          const CustomFunc1Rate& rate)
     : Reaction3(reactants, products)
 {
-    m_rate = std::make_shared<CustomFunc1Rate>(rate);
+    m_rate.reset(new CustomFunc1Rate(rate));
 }
 
 CustomFunc1Reaction::CustomFunc1Reaction(const AnyMap& node, const Kinetics& kin)
     : CustomFunc1Reaction()
 {
     setParameters(node, kin);
-    setRate(std::shared_ptr<CustomFunc1Rate>(new CustomFunc1Rate(node, rate_units)));
+    setRate(std::make_shared<CustomFunc1Rate>(node, rate_units));
 }
 
 Arrhenius readArrhenius(const XML_Node& arrhenius_node)
@@ -1422,7 +1414,6 @@ void setupReaction(Reaction& R, const AnyMap& node, const Kinetics& kin)
 {
     parseReactionEquation(R, node["equation"], kin);
     // Non-stoichiometric reaction orders
-    //std::map<std::string, double> orders;
     if (node.hasKey("orders")) {
         for (const auto& order : node["orders"].asMap<double>()) {
             R.orders[order.first] = order.second;

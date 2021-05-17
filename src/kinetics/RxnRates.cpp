@@ -65,8 +65,7 @@ void Arrhenius::setParameters(const AnyValue& rate,
 void Arrhenius::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
     double A = preExponentialFactor();
-    if (A != A) {
-        // Evaluates true if A is not a number (unconfigured object)
+    if (std::isnan(A)) {
         // Return empty/unmodified AnyMap
         return;
     } else if (rate_units.factor() != 0.0) {
@@ -191,8 +190,7 @@ void Plog::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
     std::vector<AnyMap> rateList;
     double A = rates_[1].preExponentialFactor();
-    if (A != A) {
-        // Evaluates true if A is not a number (unconfigured object)
+    if (std::isnan(A)) {
         // Return empty/unmodified AnyMap
         return;
     }
@@ -350,8 +348,7 @@ void Chebyshev::setup(double Tmin, double Tmax, double Pmin, double Pmax,
 void Chebyshev::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
     double A = chebCoeffs_[0];
-    if (A != A) {
-        // Evaluates true if A is not a number (unconfigured object)
+    if (std::isnan(A)) {
         // Return empty/unmodified AnyMap
         return;
     }

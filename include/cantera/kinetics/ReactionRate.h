@@ -11,6 +11,7 @@
 #ifndef CT_REACTIONRATE_H
 #define CT_REACTIONRATE_H
 
+#include "cantera/base/AnyMap.h"
 #include "cantera/base/Units.h"
 #include "cantera/kinetics/RxnRates.h"
 #include "cantera/kinetics/ReactionData.h"
@@ -38,19 +39,7 @@ public:
     ReactionRateBase() : units(0.) {}
     virtual ~ReactionRateBase() {}
 
-    //! Set parameters
-    //! @param node  AnyMap object containing reaction rate specification
-    //! @param rate_units  Description of units used for rate parameters
-    virtual void setParameters(const AnyMap& node, const Units& rate_units);
-
-    //! Get parameters
-    //! Store the parameters of a ReactionRate needed to reconstruct an identical
-    //! object. Does not include user-defined fields available in the #input map.
-    virtual void getParameters(AnyMap& rateNode, const Units& rate_units) const {
-        throw CanteraError("ReactionRate::getParameters",
-                           "Not implemented by derived ReactionRate object.");
-    }
-
+public:
     //! Identifier of reaction type
     virtual std::string type() const = 0;
 
@@ -110,7 +99,20 @@ public:
     //! Return parameters using original unit system
     AnyMap parameters() const;
 
+    //! Set parameters
+    //! @param node  AnyMap object containing reaction rate specification
+    //! @param rate_units  Description of units used for rate parameters
+    virtual void setParameters(const AnyMap& node, const Units& rate_units);
+
 protected:
+    //! Get parameters
+    //! Store the parameters of a ReactionRate needed to reconstruct an identical
+    //! object. Does not include user-defined fields available in the #input map.
+    virtual void getParameters(AnyMap& rateNode, const Units& rate_units) const {
+        throw CanteraError("ReactionRate::getParameters",
+                           "Not implemented by derived ReactionRate object.");
+    }
+
     //! Input data used for specific models
     AnyMap input;
 
@@ -138,15 +140,21 @@ public:
                         double concm=0.) {}
 
     virtual void update(double T) override {
-        update(DataType(T));
+        DataType data;
+        data.update(T);
+        update(data);
     }
 
     virtual void update(double T, double P, double concm=0.) override {
-        update(DataType(T, P), concm);
+        DataType data;
+        data.update(T, P);
+        update(data, concm);
     }
 
     virtual void update(const ThermoPhase& bulk, double concm=0.) override {
-        update(DataType(bulk), concm);
+        DataType data;
+        data.update(bulk);
+        update(data);
     }
 
     //! Evaluate reaction rate
@@ -155,15 +163,21 @@ public:
     virtual double eval(const DataType& shared_data, double concm=0.) const = 0;
 
     virtual double eval(double T) const override {
-        return eval(DataType(T));
+        DataType data;
+        data.update(T);
+        return eval(data);
     }
 
     virtual double eval(double T, double P, double concm=0.) const override {
-        return eval(DataType(T, P), concm);
+        DataType data;
+        data.update(T, P);
+        return eval(data, concm);
     }
 
     virtual double eval(const ThermoPhase& bulk, double concm=0.) const override {
-        return eval(DataType(bulk), concm);
+        DataType data;
+        data.update(bulk);
+        return eval(data, concm);
     }
 
     //! Evaluate derivative of reaction rate with respect to temperature
@@ -174,15 +188,21 @@ public:
     }
 
     virtual double ddT(double T) const override {
-        return ddT(DataType(T));
+        DataType data;
+        data.update(T);
+        return ddT(data);
     }
 
     virtual double ddT(double T, double P) const override {
-        return ddT(DataType(T, P));
+        DataType data;
+        data.update(T, P);
+        return ddT(data);
     }
 
     virtual double ddT(const ThermoPhase& bulk, double concm=0.) const override {
-        return ddT(DataType(bulk), concm);
+        DataType data;
+        data.update(bulk);
+        return ddT(data, concm);
     }
 };
 
@@ -278,7 +298,7 @@ public:
 class PlogRate final : public ReactionRate<PlogData>, public Plog
 {
 public:
-    PlogRate();
+    PlogRate() {}
 
     //! Constructor from Arrhenius rate expressions at a set of pressures
     explicit PlogRate(const std::multimap<double, Arrhenius>& rates);
@@ -349,7 +369,7 @@ class ChebyshevRate3 final : public ReactionRate<ChebyshevData>, public Chebyshe
 {
 public:
     //! Default constructor.
-    ChebyshevRate3();
+    ChebyshevRate3() {}
 
     //! Constructor directly from coefficient array
     /*
