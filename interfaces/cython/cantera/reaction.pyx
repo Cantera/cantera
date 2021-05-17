@@ -1626,11 +1626,14 @@ cdef class PlogReaction3(Reaction3):
 
     An example for the definition of an `PlogReaction3` object is given as::
 
-        rxn = PlogReaction3(equation='H2 + O2 <=> 2 OH', rate={"rate-constants":
-            [{'P': 1013.25, 'A': 1.2124e+16, 'b': -0.5779, 'Ea': 45491376.8},
-             {'P': 101325., 'A': 4.9108e+31, 'b': -4.8507, 'Ea': 103649395.2},
-             {'P': 1013250., 'A': 1.2866e+47, 'b': -9.0246, 'Ea': 166508556.0},
-             {'P': 10132500., 'A': 5.9632e+56, 'b': -11.529, 'Ea': 220076726.4}]})
+        rxn = PlogReaction3(
+            equation='H2 + O2 <=> 2 OH',
+            rate={"rate-constants":
+                [{'P': 1013.25, 'A': 1.2124e+16, 'b': -0.5779, 'Ea': 45491376.8},
+                 {'P': 101325., 'A': 4.9108e+31, 'b': -4.8507, 'Ea': 103649395.2},
+                 {'P': 1013250., 'A': 1.2866e+47, 'b': -9.0246, 'Ea': 166508556.0},
+                 {'P': 10132500., 'A': 5.9632e+56, 'b': -11.529, 'Ea': 220076726.4}]},
+            kinetics=gas)
 
     The YAML description corresponding to this reaction is::
 
@@ -1693,7 +1696,7 @@ cdef class PlogReaction3(Reaction3):
 
         def __set__(self, rates):
             warnings.warn("Property 'rates' to be removed after Cantera 2.6. "
-                "Setter is replacable by assigning a new 'PlogRate' object created "
+                "Setter is replaceable by assigning a new 'PlogRate' object created "
                 "from rates to the rate property.", DeprecationWarning)
             warnings.warn(
                 self._deprecation_warning("rates"), DeprecationWarning)
@@ -1705,7 +1708,7 @@ cdef class PlogReaction3(Reaction3):
         """
         .. deprecated:: 2.6
              To be deprecated with version 2.6, and removed thereafter.
-             Replacable by call to `rate` property.
+             Replaceable by call to `rate` property.
         """
         warnings.warn(
             self._deprecation_warning("__call__", "method"), DeprecationWarning)
@@ -1719,17 +1722,21 @@ cdef class ChebyshevReaction3(Reaction3):
 
     An example for the definition of an `PlogReaction3` object is given as::
 
-        rxm = ChebyshevRate(Tmin=290., Tmax=3000., Pmin=1000., Pmax=10000000.0,
-                            data=[[8.2883, -1.1397, -0.12059, 0.016034],
-                                  [1.9764, 1.0037, 7.2865e-03, -0.030432],
-                                  [0.3177, 0.26889, 0.094806, -7.6385e-03]])
+        rxn = ChebyshevReaction3(
+            equation="HO2 <=> OH + O",
+            rate={"Tmin": 290.0, "Tmax": 3000.0,
+                  "Pmin": 1e3, "Pmax": 1e8,
+                  "data": [[8.2883, -1.1397, -0.12059, 0.016034],
+                           [1.9764, 1.0037, 7.2865e-03, -0.030432],
+                           [0.3177, 0.26889, 0.094806, -7.6385e-03]]},
+            kinetics=gas)
 
     The YAML description corresponding to this reaction is::
 
-        equation: HO2 <=> OH + O  # Reaction 5
+        equation: HO2 <=> OH + O
         type: Chebyshev
         temperature-range: [290.0, 3000.0]
-        pressure-range: [9.869232667160128e-03 atm, 98.69232667160128 atm]
+        pressure-range: [1.e-03 bar, 10. bar]
         data:
         - [8.2883, -1.1397, -0.12059, 0.016034]
         - [1.9764, 1.0037, 7.2865e-03, -0.030432]
@@ -1869,10 +1876,10 @@ cdef class ChebyshevReaction3(Reaction3):
 
         .. deprecated:: 2.6
              To be deprecated with version 2.6, and removed thereafter.
-             Replaced by `ChebyshevRate` construcor.
+             Replaced by `ChebyshevRate` constructor.
         """
         warnings.warn("Method 'set_parameters' to be removed after Cantera 2.6. "
-            "Method is replacable by assigning a new 'ChebyshevRate' object to the "
+            "Method is replaceable by assigning a new 'ChebyshevRate' object to the "
             "rate property.", DeprecationWarning)
         self.rate = ChebyshevRate(Tmin, Tmax, Pmin, Pmax, coeffs)
 
@@ -1880,7 +1887,7 @@ cdef class ChebyshevReaction3(Reaction3):
         """
         .. deprecated:: 2.6
              To be deprecated with version 2.6, and removed thereafter.
-             Replacable by call to `rate` property.
+             Replaceable by call to `rate` property.
         """
         warnings.warn(
             self._deprecation_warning("__call__", "method"), DeprecationWarning)
