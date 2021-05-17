@@ -25,21 +25,15 @@ struct ArrheniusData
 {
     ArrheniusData() : m_temperature(1.), m_logT(0.), m_recipT(1.) {}
 
-    //! Constructor based on temperature *T*
-    ArrheniusData(double T) { update(T); }
-
-    //! Constructor based on temperature *T* and pressure *P*
-    ArrheniusData(double T, double P) { update(T); };
-
-    //! Constructor accessing *bulk* phase definitions
-    ArrheniusData(const ThermoPhase& bulk) { update(bulk); }
-
     //! Update data container based on temperature *T*
     void update(double T) {
         m_temperature = T;
         m_logT = std::log(T);
         m_recipT = 1./T;
     }
+
+    //! Update data container based on temperature *T* and pressure *P*
+    void update(double T, double P) { update(T); };
 
     //! Update data container based on *bulk* phase state
     void update(const ThermoPhase& bulk);
@@ -58,15 +52,6 @@ struct ArrheniusData
 struct PlogData
 {
     PlogData() : m_temperature(1.), m_logT(0.), m_recipT(1.), m_logP(0.) {}
-
-    //! Constructor based on temperature *T* and pressure *P*
-    PlogData(double T);
-
-    //! Constructor based on temperature *T* and pressure *P*
-    PlogData(double T, double P) { update(T, P); };
-
-    //! Constructor accessing *bulk* phase definitions
-    PlogData(const ThermoPhase& bulk) { update(bulk); }
 
     //! Update data container based on temperature *T* (raises exception)
     void update(double T);
@@ -101,15 +86,6 @@ struct ChebyshevData
 {
     ChebyshevData() : m_temperature(1.), m_recipT(1.), m_log10P(0.) {}
 
-    //! Constructor based on temperature *T* and pressure *P*
-    ChebyshevData(double T);
-
-    //! Constructor based on temperature *T* and pressure *P*
-    ChebyshevData(double T, double P) { update(T, P); };
-
-    //! Constructor accessing *bulk* phase definitions
-    ChebyshevData(const ThermoPhase& bulk) { update(bulk); }
-
     //! Update data container based on temperature *T* (raises exception)
     void update(double T);
 
@@ -137,17 +113,11 @@ struct CustomFunc1Data
 {
     CustomFunc1Data() : m_temperature(1.) {}
 
-    //! Constructor based on temperature *T*
-    CustomFunc1Data(double T) { update(T); }
-
-    //! Constructor based on temperature *T* and pressure *P*
-    CustomFunc1Data(double T, double P) { update(T); };
-
-    //! Constructor accessing *bulk* phase definitions
-    CustomFunc1Data(const ThermoPhase& bulk) { update(bulk); }
-
     //! Update data container based on temperature *T*
     void update(double T) { m_temperature = T; }
+
+    //! Update data container based on temperature *T* and pressure *P*
+    void update(double T, double P) { update(T); };
 
     //! Update data container based on *bulk* phase state
     void update(const ThermoPhase& bulk);

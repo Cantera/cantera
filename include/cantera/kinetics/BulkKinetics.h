@@ -66,7 +66,7 @@ protected:
     vector_fp m_dn;
 
     ThirdBodyCalc m_multi_concm; //!< used with MultiRate evaluator
-    vector_fp concm_multi_values;
+    vector_fp concm_multi_values; //!< concentrations of third-body collision partners
     std::vector<size_t> m_multi_indices; //!< reaction indices
 
     //! Third body concentrations
