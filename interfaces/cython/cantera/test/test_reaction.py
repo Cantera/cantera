@@ -442,7 +442,7 @@ class ReactionTests:
 
         rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
         for attr, default in self._deprecated_getters.items():
-            if self._type.endswith("-old"):
+            if self._legacy:
                 self.check_equal(getattr(rxn, attr), default)
             else:
                 with self.assertWarnsRegex(DeprecationWarning, "property is moved"):
@@ -455,7 +455,7 @@ class ReactionTests:
 
         rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
         for attr, new in self._deprecated_setters.items():
-            if self._type.endswith("-old"):
+            if self._legacy:
                 setattr(rxn, attr, new)
                 self.check_equal(getattr(rxn, attr), new)
             else:
@@ -472,7 +472,7 @@ class ReactionTests:
         rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
         for state, value in self._deprecated_callers.items():
             T, P = state
-            if self._type.endswith("-old"):
+            if self._legacy:
                 self.check_equal(rxn(T, P), value)
             else:
                 with self.assertWarnsRegex(DeprecationWarning, "method is moved"):
@@ -483,7 +483,7 @@ class TestElementary(ReactionTests, utilities.CanteraTest):
     # test legacy version of elementary reaction
 
     _cls = ct.ElementaryReaction
-    _type = "elementary-old"
+    _type = "elementary-legacy"
     _equation = "H2 + O <=> H + OH"
     _rate = {"A": 38.7, "b": 2.7, "Ea": 2.619184e+07}
     _rate_obj = ct.Arrhenius(38.7, 2.7, 2.619184e+07)
@@ -491,7 +491,7 @@ class TestElementary(ReactionTests, utilities.CanteraTest):
     _index = 0
     _yaml = """
         equation: O + H2 <=> H + OH
-        type: elementary-old
+        type: elementary-legacy
         rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
         """
     _deprecated_getters = {"allow_negative_pre_exponential_factor": False}
@@ -515,7 +515,7 @@ class TestThreeBody(TestElementary):
     # test legacy version of three-body reaction
 
     _cls = ct.ThreeBodyReaction
-    _type = "three-body-old"
+    _type = "three-body-legacy"
     _equation = "2 O + M <=> O2 + M"
     _rate = {"A": 1.2e11, "b": -1.0, "Ea": 0.0}
     _rate_obj = ct.Arrhenius(1.2e11, -1., 0.)
@@ -523,7 +523,7 @@ class TestThreeBody(TestElementary):
     _index = 1
     _yaml = """
         equation: 2 O + M <=> O2 + M
-        type: three-body-old
+        type: three-body-legacy
         rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0 cal/mol}
         efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
         """
@@ -597,7 +597,7 @@ class TestPlog(ReactionTests, utilities.CanteraTest):
     # test legacy version of Plog reaction
 
     _cls = ct.PlogReaction
-    _type = "pressure-dependent-Arrhenius-old"
+    _type = "pressure-dependent-Arrhenius-legacy"
     _equation = "H2 + O2 <=> 2 OH"
     _rate = {"rate-constants": [
              {"P": 1013.25, "A": 1.2124e+16, "b": -0.5779, "Ea": 45491376.8},
@@ -607,7 +607,7 @@ class TestPlog(ReactionTests, utilities.CanteraTest):
     _index = 3
     _yaml = """
         equation: H2 + O2 <=> 2 OH  # Reaction 4
-        type: pressure-dependent-Arrhenius-old
+        type: pressure-dependent-Arrhenius-legacy
         rate-constants:
         - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04 cal/mol}
         - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04 cal/mol}
@@ -629,7 +629,7 @@ class TestPlog(ReactionTests, utilities.CanteraTest):
     def test_deprecated_getters(self):
         # overload default tester for deprecated property getters
         rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
-        if self._type.endswith("-old"):
+        if self._legacy:
             self.check_rates(rxn.rates, self._rate["rate-constants"])
         else:
             with self.assertWarnsRegex(DeprecationWarning, "property is moved"):
@@ -646,7 +646,7 @@ class TestPlog(ReactionTests, utilities.CanteraTest):
         rates = rate.rates
 
         rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
-        if self._type.endswith("-old"):
+        if self._legacy:
             rxn.rates = rates
             self.check_rates(rxn.rates, _rate)
         else:
@@ -681,7 +681,7 @@ class TestChebyshev(ReactionTests, utilities.CanteraTest):
     # test legacy version of Chebyshev reaction
 
     _cls = ct.ChebyshevReaction
-    _type = "Chebyshev-old"
+    _type = "Chebyshev-legacy"
     _equation = "HO2 <=> OH + O"
     _rate = {"Tmin": 290., "Tmax": 3000., "Pmin": 1000., "Pmax": 10000000.0,
              "data": [[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
@@ -690,7 +690,7 @@ class TestChebyshev(ReactionTests, utilities.CanteraTest):
     _index = 4
     _yaml = """
         equation: HO2 <=> OH + O  # Reaction 5
-        type: Chebyshev-old
+        type: Chebyshev-legacy
         temperature-range: [290.0, 3000.0]
         pressure-range: [9.869232667160128e-03 atm, 98.69232667160128 atm]
         data:

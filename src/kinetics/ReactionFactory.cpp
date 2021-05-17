@@ -29,7 +29,7 @@ ReactionFactory::ReactionFactory()
     addAlias("elementary", "");
 
     // register elementary reactions (old framework)
-    reg("elementary-old", [](const AnyMap& node, const Kinetics& kin) {
+    reg("elementary-legacy", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ElementaryReaction();
         if (!node.empty()) {
             setupElementaryReaction(*(ElementaryReaction*)R, node, kin);
@@ -45,7 +45,7 @@ ReactionFactory::ReactionFactory()
     addAlias("three-body", "three_body");
 
     // register three-body reactions (old framework)
-    reg("three-body-old", [](const AnyMap& node, const Kinetics& kin) {
+    reg("three-body-legacy", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ThreeBodyReaction();
         if (!node.empty()) {
             setupThreeBodyReaction(*(ThreeBodyReaction*)R, node, kin);
@@ -81,7 +81,7 @@ ReactionFactory::ReactionFactory()
     addAlias("pressure-dependent-Arrhenius", "pdep_arrhenius");
 
     // register pressure-dependent-Arrhenius reactions (old framework)
-    reg("pressure-dependent-Arrhenius-old", [](const AnyMap& node, const Kinetics& kin) {
+    reg("pressure-dependent-Arrhenius-legacy", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new PlogReaction();
         if (!node.empty()) {
             setupPlogReaction(*(PlogReaction*)R, node, kin);
@@ -94,7 +94,7 @@ ReactionFactory::ReactionFactory()
         return new ChebyshevReaction3(node, kin);
     });
     addAlias("Chebyshev", "chebyshev");
-    reg("Chebyshev-old", [](const AnyMap& node, const Kinetics& kin) {
+    reg("Chebyshev-legacy", [](const AnyMap& node, const Kinetics& kin) {
         Reaction* R = new ChebyshevReaction();
         if (!node.empty()) {
             setupChebyshevReaction(*(ChebyshevReaction*)R, node, kin);
@@ -152,24 +152,24 @@ std::mutex ReactionFactoryXML::reaction_mutex;
 ReactionFactoryXML::ReactionFactoryXML()
 {
     // register elementary reactions
-    reg("elementary-old", [](const XML_Node& node) {
+    reg("elementary-legacy", [](const XML_Node& node) {
         Reaction* R = new ElementaryReaction();
         setupElementaryReaction(*(ElementaryReaction*)R, node);
         return R;
     });
-    addAlias("elementary-old", "elementary");
-    addAlias("elementary-old", "arrhenius");
-    addAlias("elementary-old", "");
+    addAlias("elementary-legacy", "elementary");
+    addAlias("elementary-legacy", "arrhenius");
+    addAlias("elementary-legacy", "");
 
     // register three-body reactions
-    reg("three-body-old", [](const XML_Node& node) {
+    reg("three-body-legacy", [](const XML_Node& node) {
         Reaction* R = new ThreeBodyReaction();
         setupThreeBodyReaction(*(ThreeBodyReaction*)R, node);
         return R;
     });
-    addAlias("three-body-old", "three-body");
-    addAlias("three-body-old", "threebody");
-    addAlias("three-body-old", "three_body");
+    addAlias("three-body-legacy", "three-body");
+    addAlias("three-body-legacy", "threebody");
+    addAlias("three-body-legacy", "three_body");
 
     // register falloff reactions
     reg("falloff", [](const XML_Node& node) {
@@ -188,22 +188,22 @@ ReactionFactoryXML::ReactionFactoryXML()
     addAlias("chemically-activated", "chemically_activated");
 
     // register pressure-depdendent-Arrhenius reactions
-    reg("pressure-dependent-Arrhenius-old", [](const XML_Node& node) {
+    reg("pressure-dependent-Arrhenius-legacy", [](const XML_Node& node) {
         Reaction* R = new PlogReaction();
         setupPlogReaction(*(PlogReaction*)R, node);
         return R;
     });
-    addAlias("pressure-dependent-Arrhenius-old", "pressure-dependent-Arrhenius");
-    addAlias("pressure-dependent-Arrhenius-old", "plog");
-    addAlias("pressure-dependent-Arrhenius-old", "pdep_arrhenius");
+    addAlias("pressure-dependent-Arrhenius-legacy", "pressure-dependent-Arrhenius");
+    addAlias("pressure-dependent-Arrhenius-legacy", "plog");
+    addAlias("pressure-dependent-Arrhenius-legacy", "pdep_arrhenius");
 
     // register Chebyshev reactions
-    reg("Chebyshev-old", [](const XML_Node& node) {
+    reg("Chebyshev-legacy", [](const XML_Node& node) {
         Reaction* R = new ChebyshevReaction();
         setupChebyshevReaction(*(ChebyshevReaction*)R, node);
         return R;
     });
-    addAlias("Chebyshev-old", "chebyshev");
+    addAlias("Chebyshev-legacy", "chebyshev");
 
     // register interface reactions
     reg("interface", [](const XML_Node& node) {

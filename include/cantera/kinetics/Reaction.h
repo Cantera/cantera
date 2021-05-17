@@ -164,7 +164,7 @@ public:
     virtual void getParameters(AnyMap& reactionNode) const;
 
     virtual std::string type() const {
-        return "elementary-old";
+        return "elementary-legacy";
     }
 
     Arrhenius rate;
@@ -205,7 +205,7 @@ public:
                       const Arrhenius& rate, const ThirdBody& tbody);
 
     virtual std::string type() const {
-        return "three-body-old";
+        return "three-body-legacy";
     }
 
     virtual std::string reactantString() const;
@@ -301,7 +301,7 @@ public:
                  const Plog& rate);
 
     virtual std::string type() const {
-        return "pressure-dependent-Arrhenius-old";
+        return "pressure-dependent-Arrhenius-legacy";
     }
 
     virtual void validate();
@@ -322,7 +322,7 @@ public:
     virtual void getParameters(AnyMap& reactionNode) const;
 
     virtual std::string type() const {
-        return "Chebyshev-old";
+        return "Chebyshev-legacy";
     }
 
     Chebyshev rate;

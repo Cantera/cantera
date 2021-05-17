@@ -57,14 +57,14 @@ TEST(Reaction, ElementaryFromYaml2)
     auto sol = newSolution("gri30.yaml");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: N + NO <=> N2 + O,"
-        " type: elementary-old,"
+        " type: elementary-legacy,"
         " rate-constant: [-2.70000E+13 cm^3/mol/s, 0, 355 cal/mol],"
         " negative-A: true}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_EQ(R->reactants.at("NO"), 1);
     EXPECT_EQ(R->products.at("N2"), 1);
-    EXPECT_EQ(R->type(), "elementary-old");
+    EXPECT_EQ(R->type(), "elementary-legacy");
 
     auto ER = dynamic_cast<ElementaryReaction&>(*R);
     EXPECT_DOUBLE_EQ(ER.rate.preExponentialFactor(), -2.7e10);
@@ -109,13 +109,13 @@ TEST(Reaction, ThreeBodyFromYaml3)
     auto sol = newSolution("gri30.yaml");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: 2 O + M = O2 + M,"
-        " type: three-body-old,"
+        " type: three-body-legacy,"
         " rate-constant: [1.20000E+17 cm^6/mol^2/s, -1, 0],"
         " efficiencies: {AR: 0.83, H2O: 5}}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
-    EXPECT_EQ(R->type(), "three-body-old");
+    EXPECT_EQ(R->type(), "three-body-legacy");
 
     auto TBR = dynamic_cast<ThreeBodyReaction&>(*R);
     EXPECT_DOUBLE_EQ(TBR.rate.preExponentialFactor(), 1.2e11);
