@@ -159,7 +159,7 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                 if (thirdBodyOk) {
                     continue; // No overlap in third body efficiencies
                 }
-            } else if (R.type() == "three-body-old") {
+            } else if (R.type() == "three-body-legacy") {
                 ThirdBody& tb1 = dynamic_cast<ThreeBodyReaction&>(R).third_body;
                 ThirdBody& tb2 = dynamic_cast<ThreeBodyReaction&>(other).third_body;
                 bool thirdBodyOk = true;

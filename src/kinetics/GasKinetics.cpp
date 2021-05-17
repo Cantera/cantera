@@ -266,17 +266,17 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
         return true;
     }
 
-    if (r->type() == "elementary-old") {
+    if (r->type() == "elementary-legacy") {
         addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
-    } else if (r->type() == "three-body-old") {
+    } else if (r->type() == "three-body-legacy") {
         addThreeBodyReaction(dynamic_cast<ThreeBodyReaction&>(*r));
     } else if (r->type() == "falloff") {
         addFalloffReaction(dynamic_cast<FalloffReaction&>(*r));
     } else if (r->type() == "chemically-activated") {
         addFalloffReaction(dynamic_cast<FalloffReaction&>(*r));
-    } else if (r->type() == "pressure-dependent-Arrhenius-old") {
+    } else if (r->type() == "pressure-dependent-Arrhenius-legacy") {
         addPlogReaction(dynamic_cast<PlogReaction&>(*r));
-    } else if (r->type() == "Chebyshev-old") {
+    } else if (r->type() == "Chebyshev-legacy") {
         addChebyshevReaction(dynamic_cast<ChebyshevReaction&>(*r));
     } else if (r->type() == "Blowers-Masel") {
         addBlowersMaselReaction(dynamic_cast<BlowersMaselReaction&>(*r));
@@ -358,17 +358,17 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
         return;
     }
 
-    if (rNew->type() == "elementary-old") {
+    if (rNew->type() == "elementary-legacy") {
         modifyElementaryReaction(i, dynamic_cast<ElementaryReaction&>(*rNew));
-    } else if (rNew->type() == "three-body-old") {
+    } else if (rNew->type() == "three-body-legacy") {
         modifyThreeBodyReaction(i, dynamic_cast<ThreeBodyReaction&>(*rNew));
     } else if (rNew->type() == "falloff") {
         modifyFalloffReaction(i, dynamic_cast<FalloffReaction&>(*rNew));
     } else if (rNew->type() == "chemically-activated") {
         modifyFalloffReaction(i, dynamic_cast<FalloffReaction&>(*rNew));
-    } else if (rNew->type() == "pressure-dependent-Arrhenius-old") {
+    } else if (rNew->type() == "pressure-dependent-Arrhenius-legacy") {
         modifyPlogReaction(i, dynamic_cast<PlogReaction&>(*rNew));
-    } else if (rNew->type() == "Chebyshev-old") {
+    } else if (rNew->type() == "Chebyshev-legacy") {
         modifyChebyshevReaction(i, dynamic_cast<ChebyshevReaction&>(*rNew));
     } else if (rNew->type() == "Blowers-Masel") {
         modifyBlowersMaselReaction(i, dynamic_cast<BlowersMaselReaction&>(*rNew));

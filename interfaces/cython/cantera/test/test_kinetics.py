@@ -48,8 +48,8 @@ class TestKinetics(utilities.CanteraTest):
         self.assertArrayNear(0.5 * rev_rates0, rev_rates2)
 
     def test_reaction_type(self):
-        self.assertIn(self.phase.reaction_type_str(0), ["three-body", "three-body-old"])
-        self.assertIn(self.phase.reaction_type_str(2), ["elementary", "elementary-old"])
+        self.assertIn(self.phase.reaction_type_str(0), ["three-body", "three-body-legacy"])
+        self.assertIn(self.phase.reaction_type_str(2), ["elementary", "elementary-legacy"])
         self.assertEqual(self.phase.reaction_type_str(21), "falloff")
 
         with self.assertRaisesRegex(ValueError, 'out of range'):

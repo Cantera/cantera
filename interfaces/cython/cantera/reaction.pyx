@@ -752,7 +752,7 @@ cdef class ElementaryReaction(Reaction):
         The implementation of this reaction type will change after Cantera 2.6;
         refer to `ElementaryReaction3` for new behavior.
     """
-    reaction_type = "elementary-old"
+    reaction_type = "elementary-legacy"
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
                  init=True, **kwargs):
@@ -807,7 +807,7 @@ cdef class ThreeBodyReaction(ElementaryReaction):
         The implementation of this reaction type will change after Cantera 2.6;
         refer to `ThreeBodyReaction3` for new behavior.
     """
-    reaction_type = "three-body-old"
+    reaction_type = "three-body-legacy"
 
     def __init__(self, equation=None, rate=None, efficiencies=None,
                  Kinetics kinetics=None, init=True, **kwargs):
@@ -1050,7 +1050,7 @@ cdef class PlogReaction(Reaction):
         The implementation of this reaction type will change after Cantera 2.6;
         refer to `PlogReaction3` for new behavior.
     """
-    reaction_type = "pressure-dependent-Arrhenius-old"
+    reaction_type = "pressure-dependent-Arrhenius-legacy"
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
                  init=True, **kwargs):
@@ -1114,7 +1114,7 @@ cdef class ChebyshevReaction(Reaction):
         The implementation of this reaction type will change after Cantera 2.6;
         refer to `ChebyshevReaction3` for new behavior.
     """
-    reaction_type = "Chebyshev-old"
+    reaction_type = "Chebyshev-legacy"
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
                  init=True, **kwargs):
