@@ -259,7 +259,6 @@ class TestPlogRate(TestReactionRate):
         rates = rate.rates
         self.assertEqual(len(rates), len(other))
 
-        self.assertEqual(len(rates), len(other))
         for index, item in enumerate(rates):
             P, rate = item
             self.assertNear(P, other[index]["P"])
@@ -481,7 +480,7 @@ class TestReaction(utilities.CanteraTest):
                 with self.assertWarnsRegex(DeprecationWarning, "property is moved"):
                     self.check_equal(getattr(rxn, attr), new)
 
-    def test_deprecated_callers (self):
+    def test_deprecated_callers(self):
         # check methods deprecated in new framework
         if self._yaml is None:
             return
@@ -691,7 +690,7 @@ class TestPlog3(TestPlog):
 
 
 class TestChebyshev(TestReaction):
-    # test legacy version of Cheyshev reaction
+    # test legacy version of Chebyshev reaction
 
     _cls = ct.ChebyshevReaction
     _equation = "HO2 <=> OH + O"
@@ -723,7 +722,7 @@ class TestChebyshev(TestReaction):
 
 
 class TestChebyshev3(TestChebyshev):
-    # test updated version of Cheyshev reaction
+    # test updated version of Chebyshev reaction
 
     _cls = ct.ChebyshevReaction3
     _rate_obj = ct.ChebyshevRate(Tmin=290., Tmax=3000., Pmin=1000., Pmax=10000000.0,
