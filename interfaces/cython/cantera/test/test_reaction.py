@@ -296,7 +296,7 @@ class ReactionTests:
 
     _cls = None # reaction object to be tested
     _type = None # name of reaction rate
-    _legacy = True # object uses legacy framework
+    _legacy = False # object uses legacy framework
     _equation = None # reaction equation string
     _rate = None # parameters for reaction rate object constructor
     _rate_obj = None # reaction rate object
@@ -480,50 +480,51 @@ class ReactionTests:
 
 
 class TestElementary(ReactionTests, utilities.CanteraTest):
-    # test legacy version of elementary reaction
+    # test updated version of elementary reaction
 
     _cls = ct.ElementaryReaction
-    _type = "elementary-legacy"
+    _type = "elementary"
     _equation = "H2 + O <=> H + OH"
     _rate = {"A": 38.7, "b": 2.7, "Ea": 2.619184e+07}
-    _rate_obj = ct.Arrhenius(38.7, 2.7, 2.619184e+07)
+    _rate_obj = ct.ArrheniusRate(38.7, 2.7, 2.619184e+07)
     _kwargs = {}
     _index = 0
+    _yaml = """
+        equation: O + H2 <=> H + OH
+        rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
+        """
+
+    _deprecated_getters = {"allow_negative_pre_exponential_factor": False}
+    _deprecated_setters = {"allow_negative_pre_exponential_factor": True}
+
+
+class TestElementary2(TestElementary):
+    # test legacy version of elementary reaction
+
+    _cls = ct.ElementaryReaction2
+    _type = "elementary-legacy"
+    _legacy = True
+    _rate_obj = ct.Arrhenius(38.7, 2.7, 2.619184e+07)
     _yaml = """
         equation: O + H2 <=> H + OH
         type: elementary-legacy
         rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
         """
-    _deprecated_getters = {"allow_negative_pre_exponential_factor": False}
-    _deprecated_setters = {"allow_negative_pre_exponential_factor": True}
-
-
-class TestElementary3(TestElementary):
-    # test updated version of elementary reaction
-
-    _cls = ct.ElementaryReaction3
-    _type = "elementary"
-    _legacy = False
-    _rate_obj = ct.ArrheniusRate(38.7, 2.7, 2.619184e+07)
-    _yaml = """
-        equation: O + H2 <=> H + OH
-        rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
-        """
 
 
 class TestThreeBody(TestElementary):
-    # test legacy version of three-body reaction
+    # test updated version of three-body reaction
 
     _cls = ct.ThreeBodyReaction
-    _type = "three-body-legacy"
+    _type = "three-body"
     _equation = "2 O + M <=> O2 + M"
     _rate = {"A": 1.2e11, "b": -1.0, "Ea": 0.0}
-    _rate_obj = ct.Arrhenius(1.2e11, -1., 0.)
+    _rate_obj = ct.ArrheniusRate(1.2e11, -1., 0.)
     _kwargs = {"efficiencies": {"H2": 2.4, "H2O": 15.4, "AR": 0.83}}
     _index = 1
     _yaml = """
         equation: 2 O + M <=> O2 + M
-        type: three-body-legacy
+        type: three-body
         rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0 cal/mol}
         efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
         """
@@ -547,27 +548,26 @@ class TestThreeBody(TestElementary):
         self.assertEqual(rxn.efficiencies, self._kwargs["efficiencies"])
 
 
-class TestThreeBody3(TestThreeBody):
-    # test updated version of three-body reaction
+class TestThreeBody2(TestThreeBody):
+    # test legacy version of three-body reaction
 
-    _cls = ct.ThreeBodyReaction3
-    _type = "three-body"
-    _legacy = False
-    _rate_obj = ct.ArrheniusRate(1.2e11, -1., 0.)
+    _cls = ct.ThreeBodyReaction2
+    _type = "three-body-legacy"
+    _legacy = True
+    _rate_obj = ct.Arrhenius(1.2e11, -1., 0.)
     _yaml = """
         equation: 2 O + M <=> O2 + M
-        type: three-body
+        type: three-body-legacy
         rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0 cal/mol}
         efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
         """
 
 
-class TestImplicitThreeBody3(TestThreeBody):
+class TestImplicitThreeBody(TestThreeBody):
     # test three-body reactions with explicit collision parther
 
-    _cls = ct.ThreeBodyReaction3
+    _cls = ct.ThreeBodyReaction
     _type = "three-body"
-    _legacy = False
     _equation = "H + 2 O2 <=> HO2 + O2"
     _rate = {"A": 2.08e+19, "b": -1.24, "Ea": 0.0}
     _rate_obj = ct.ArrheniusRate(2.08e+19, -1.24, 0.)
@@ -594,20 +594,25 @@ class TestImplicitThreeBody3(TestThreeBody):
 
 
 class TestPlog(ReactionTests, utilities.CanteraTest):
-    # test legacy version of Plog reaction
+    # test updated version of Plog reaction
 
     _cls = ct.PlogReaction
-    _type = "pressure-dependent-Arrhenius-legacy"
+    _type = "pressure-dependent-Arrhenius"
+    _legacy = False
     _equation = "H2 + O2 <=> 2 OH"
     _rate = {"rate-constants": [
              {"P": 1013.25, "A": 1.2124e+16, "b": -0.5779, "Ea": 45491376.8},
              {"P": 101325., "A": 4.9108e+31, "b": -4.8507, "Ea": 103649395.2},
              {"P": 1013250., "A": 1.2866e+47, "b": -9.0246, "Ea": 166508556.0},
              {"P": 10132500., "A": 5.9632e+56, "b": -11.529, "Ea": 220076726.4}]}
+    _rate_obj = ct.PlogRate([(1013.25, ct.Arrhenius(1.2124e+16, -0.5779, 45491376.8)),
+                             (101325., ct.Arrhenius(4.9108e+31, -4.8507, 103649395.2)),
+                             (1013250., ct.Arrhenius(1.2866e+47, -9.0246, 166508556.0)),
+                             (10132500., ct.Arrhenius(5.9632e+56, -11.529, 220076726.4))])
     _index = 3
     _yaml = """
-        equation: H2 + O2 <=> 2 OH  # Reaction 4
-        type: pressure-dependent-Arrhenius-legacy
+        equation: H2 + O2 <=> 2 OH
+        type: pressure-dependent-Arrhenius
         rate-constants:
         - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04 cal/mol}
         - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04 cal/mol}
@@ -656,19 +661,16 @@ class TestPlog(ReactionTests, utilities.CanteraTest):
                 self.check_rates(rxn.rates, _rate)
 
 
-class TestPlog3(TestPlog):
-    # test updated version of Plog reaction
+class TestPlog2(TestPlog):
+    # test legacy version of Plog reaction
 
-    _cls = ct.PlogReaction3
-    _type = "pressure-dependent-Arrhenius"
-    _legacy = False
-    _rate_obj = ct.PlogRate([(1013.25, ct.Arrhenius(1.2124e+16, -0.5779, 45491376.8)),
-                             (101325., ct.Arrhenius(4.9108e+31, -4.8507, 103649395.2)),
-                             (1013250., ct.Arrhenius(1.2866e+47, -9.0246, 166508556.0)),
-                             (10132500., ct.Arrhenius(5.9632e+56, -11.529, 220076726.4))])
+    _cls = ct.PlogReaction2
+    _type = "pressure-dependent-Arrhenius-legacy"
+    _legacy = True
+    _rate_obj = None
     _yaml = """
-        equation: H2 + O2 <=> 2 OH  # Reaction 4
-        type: pressure-dependent-Arrhenius
+        equation: H2 + O2 <=> 2 OH
+        type: pressure-dependent-Arrhenius-legacy
         rate-constants:
         - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04 cal/mol}
         - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04 cal/mol}
@@ -678,19 +680,23 @@ class TestPlog3(TestPlog):
 
 
 class TestChebyshev(ReactionTests, utilities.CanteraTest):
-    # test legacy version of Chebyshev reaction
+    # test updated version of Chebyshev reaction
 
     _cls = ct.ChebyshevReaction
-    _type = "Chebyshev-legacy"
+    _type = "Chebyshev"
     _equation = "HO2 <=> OH + O"
     _rate = {"Tmin": 290., "Tmax": 3000., "Pmin": 1000., "Pmax": 10000000.0,
              "data": [[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
                       [ 1.9764e+00,  1.0037e+00,  7.2865e-03, -3.0432e-02],
                       [ 3.1770e-01,  2.6889e-01,  9.4806e-02, -7.6385e-03]]}
+    _rate_obj = ct.ChebyshevRate(Tmin=290., Tmax=3000., Pmin=1000., Pmax=10000000.0,
+                                 data=[[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
+                                       [ 1.9764e+00,  1.0037e+00,  7.2865e-03, -3.0432e-02],
+                                       [ 3.1770e-01,  2.6889e-01,  9.4806e-02, -7.6385e-03]])
     _index = 4
     _yaml = """
-        equation: HO2 <=> OH + O  # Reaction 5
-        type: Chebyshev-legacy
+        equation: HO2 <=> OH + O
+        type: Chebyshev
         temperature-range: [290.0, 3000.0]
         pressure-range: [9.869232667160128e-03 atm, 98.69232667160128 atm]
         data:
@@ -709,19 +715,16 @@ class TestChebyshev(ReactionTests, utilities.CanteraTest):
             {k: v for k, v in obj._rate.items() if k != "data"})
 
 
-class TestChebyshev3(TestChebyshev):
-    # test updated version of Chebyshev reaction
+class TestChebyshev2(TestChebyshev):
+    # test legacy version of Chebyshev reaction
 
-    _cls = ct.ChebyshevReaction3
-    _type = "Chebyshev"
-    _legacy = False
-    _rate_obj = ct.ChebyshevRate(Tmin=290., Tmax=3000., Pmin=1000., Pmax=10000000.0,
-                                 data=[[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
-                                       [ 1.9764e+00,  1.0037e+00,  7.2865e-03, -3.0432e-02],
-                                       [ 3.1770e-01,  2.6889e-01,  9.4806e-02, -7.6385e-03]])
+    _cls = ct.ChebyshevReaction2
+    _type = "Chebyshev-legacy"
+    _legacy = True
+    _rate_obj = None
     _yaml = """
-        equation: HO2 <=> OH + O  # Reaction 5
-        type: Chebyshev
+        equation: HO2 <=> OH + O
+        type: Chebyshev-legacy
         temperature-range: [290.0, 3000.0]
         pressure-range: [9.869232667160128e-03 atm, 98.69232667160128 atm]
         data:

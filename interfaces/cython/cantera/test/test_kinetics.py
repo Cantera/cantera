@@ -877,7 +877,7 @@ class TestReaction(utilities.CanteraTest):
         r = ct.Reaction.fromCti('''three_body_reaction('2 O + M <=> O2 + M',
             [1.200000e+11, -1.0, 0.0], efficiencies='AR:0.83 H2:2.4 H2O:15.4')''')
 
-        self.assertTrue(isinstance(r, ct.ThreeBodyReaction))
+        self.assertTrue(isinstance(r, ct.ThreeBodyReaction2))
         self.assertEqual(r.reactants['O'], 2)
         self.assertEqual(r.products['O2'], 1)
         self.assertEqual(r.efficiencies['H2O'], 15.4)
@@ -892,7 +892,7 @@ class TestReaction(utilities.CanteraTest):
         rxn_node = root.find('.//reaction[@id="0001"]')
         r = ct.Reaction.fromXml(ET.tostring(rxn_node))
 
-        self.assertTrue(isinstance(r, ct.ThreeBodyReaction))
+        self.assertTrue(isinstance(r, ct.ThreeBodyReaction2))
         self.assertEqual(r.reactants['O'], 2)
         self.assertEqual(r.products['O2'], 1)
         self.assertEqual(r.efficiencies['H2O'], 15.4)
@@ -906,7 +906,7 @@ class TestReaction(utilities.CanteraTest):
                 " efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}}",
                 self.gas)
 
-        self.assertTrue(isinstance(r, ct.ThreeBodyReaction3))
+        self.assertTrue(isinstance(r, ct.ThreeBodyReaction))
         self.assertEqual(r.reactants['O'], 2)
         self.assertEqual(r.products['O2'], 1)
         self.assertEqual(r.efficiencies['H2O'], 15.4)
@@ -959,7 +959,7 @@ class TestReaction(utilities.CanteraTest):
 
     def test_input_data_from_scratch(self):
         r = ct.ElementaryReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
-        r.rate = ct.Arrhenius(3.87e1, 2.7, 2.6e7)
+        r.rate = ct.ArrheniusRate(3.87e1, 2.7, 2.6e7)
         data = r.input_data
         self.assertNear(data['rate-constant']['A'], 3.87e1)
         self.assertNear(data['rate-constant']['b'], 2.7)
@@ -970,7 +970,7 @@ class TestReaction(utilities.CanteraTest):
 
     def test_elementary(self):
         r = ct.ElementaryReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
-        r.rate = ct.Arrhenius(3.87e1, 2.7, 6260*1000*4.184)
+        r.rate = ct.ArrheniusRate(3.87e1, 2.7, 6260*1000*4.184)
 
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                            species=self.species, reactions=[r])
@@ -988,15 +988,15 @@ class TestReaction(utilities.CanteraTest):
     def test_negative_A(self):
         species = ct.Species.listFromFile('gri30.cti')
         r = ct.ElementaryReaction('NH:1, NO:1', 'N2O:1, H:1')
-        r.rate = ct.Arrhenius(-2.16e13, -0.23, 0)
+        r.rate = ct.ArrheniusRate(-2.16e13, -0.23, 0)
 
-        self.assertFalse(r.allow_negative_pre_exponential_factor)
+        self.assertFalse(r.rate.allow_negative_pre_exponential_factor)
 
         with self.assertRaisesRegex(ct.CanteraError, 'negative pre-exponential'):
             gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                               species=species, reactions=[r])
 
-        r.allow_negative_pre_exponential_factor = True
+        r.rate.allow_negative_pre_exponential_factor = True
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                           species=species, reactions=[r])
 
@@ -1026,7 +1026,7 @@ class TestReaction(utilities.CanteraTest):
         r = ct.ThreeBodyReaction()
         r.reactants = {'O':1, 'H':1}
         r.products = {'OH':1}
-        r.rate = ct.Arrhenius(5e11, -1.0, 0.0)
+        r.rate = ct.ArrheniusRate(5e11, -1.0, 0.0)
         r.efficiencies = {'AR':0.7, 'H2':2.0, 'H2O':6.0}
 
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
@@ -1062,7 +1062,7 @@ class TestReaction(utilities.CanteraTest):
         r = ct.PlogReaction()
         r.reactants = {'R1A':1, 'R1B':1}
         r.products = {'P1':1, 'H':1}
-        r.rates = [
+        r.rate.rates = [
             (0.01*ct.one_atm, ct.Arrhenius(1.2124e13, -0.5779, 10872.7*4184)),
             (1.0*ct.one_atm, ct.Arrhenius(4.9108e28, -4.8507, 24772.8*4184)),
             (10.0*ct.one_atm, ct.Arrhenius(1.2866e44, -9.0246, 39796.5*4184)),
@@ -1095,11 +1095,11 @@ class TestReaction(utilities.CanteraTest):
         r = ct.ChebyshevReaction()
         r.reactants = 'R5:1, H:1'
         r.products = 'P5A:1, P5B:1'
-        r.set_parameters(Tmin=300.0, Tmax=2000.0, Pmin=1000, Pmax=10000000,
-            coeffs=[[ 5.28830e+00, -1.13970e+00, -1.20590e-01,  1.60340e-02],
-                    [ 1.97640e+00,  1.00370e+00,  7.28650e-03, -3.04320e-02],
-                    [ 3.17700e-01,  2.68890e-01,  9.48060e-02, -7.63850e-03],
-                    [-3.12850e-02, -3.94120e-02,  4.43750e-02,  1.44580e-02]])
+        r.rate = ct.ChebyshevRate(Tmin=300.0, Tmax=2000.0, Pmin=1000, Pmax=10000000,
+            data=[[ 5.28830e+00, -1.13970e+00, -1.20590e-01,  1.60340e-02],
+                  [ 1.97640e+00,  1.00370e+00,  7.28650e-03, -3.04320e-02],
+                  [ 3.17700e-01,  2.68890e-01,  9.48060e-02, -7.63850e-03],
+                  [-3.12850e-02, -3.94120e-02,  4.43750e-02,  1.44580e-02]])
 
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                            species=species, reactions=[r])
@@ -1118,11 +1118,11 @@ class TestReaction(utilities.CanteraTest):
         r = ct.ChebyshevReaction()
         r.reactants = 'R5:1, H:1'
         r.products = 'P5A:1, P5B:1'
-        r.set_parameters(Tmin=300.0, Tmax=2000.0, Pmin=1000, Pmax=10000000,
-            coeffs=[[ 5.28830e+00],
-                    [ 1.97640e+00],
-                    [ 3.17700e-01],
-                    [-3.12850e-02]])
+        r.rate = ct.ChebyshevRate(Tmin=300.0, Tmax=2000.0, Pmin=1000, Pmax=10000000,
+            data=[[ 5.28830e+00],
+                  [ 1.97640e+00],
+                  [ 3.17700e-01],
+                  [-3.12850e-02]])
 
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                           species=species, reactions=[r])
@@ -1140,8 +1140,8 @@ class TestReaction(utilities.CanteraTest):
         r = ct.ChebyshevReaction()
         r.reactants = 'R5:1, H:1'
         r.products = 'P5A:1, P5B:1'
-        r.set_parameters(Tmin=300.0, Tmax=2000.0, Pmin=1000, Pmax=10000000,
-            coeffs=[[ 5.28830e+00, -1.13970e+00, -1.20590e-01,  1.60340e-02]])
+        r.rate = ct.ChebyshevRate(Tmin=300.0, Tmax=2000.0, Pmin=1000, Pmax=10000000,
+            data=[[ 5.28830e+00, -1.13970e+00, -1.20590e-01,  1.60340e-02]])
 
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                           species=species, reactions=[r])
@@ -1322,7 +1322,7 @@ class TestReaction(utilities.CanteraTest):
     def test_modify_invalid(self):
         # different reaction type
         tbr = self.gas.reaction(0)
-        R2 = ct.ElementaryReaction3(tbr.reactants, tbr.products)
+        R2 = ct.ElementaryReaction(tbr.reactants, tbr.products)
         R2.rate = tbr.rate
         with self.assertRaisesRegex(ct.CanteraError, 'types are different'):
             self.gas.modify_reaction(0, R2)

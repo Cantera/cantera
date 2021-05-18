@@ -735,22 +735,22 @@ cdef copyArrhenius(CxxArrhenius* rate):
     return r
 
 
-cdef class ElementaryReaction(Reaction):
+cdef class ElementaryReaction2(Reaction):
     """
     A reaction which follows mass-action kinetics with a modified Arrhenius
     reaction rate.
 
-    An example for the definition of a `ElementaryReaction` object is given as::
+    An example for the definition of a `ElementaryReaction2` object is given as::
 
-        rxn = ElementaryReaction(equation='H2 + O <=> H + OH',
-                                 rate={'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07},
-                                 kinetics=gas)
+        rxn = ElementaryReaction2(equation='H2 + O <=> H + OH',
+                                  rate={'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07},
+                                  kinetics=gas)
 
     .. deprecated:: 2.6
 
-        This class is superseded by `ElementaryReaction3` and only used by XML.
-        The implementation of this reaction type will change after Cantera 2.6;
-        refer to `ElementaryReaction3` for new behavior.
+        This class is replaced by `ElementaryReaction` and only used by CTI/XML. The
+        implementation uses the legacy framework for reaction rate evaluations used
+        by Cantera 2.5.1 and earlier. Refer to `ElementaryReaction` for new behavior.
     """
     reaction_type = "elementary-legacy"
 
@@ -796,16 +796,16 @@ cdef class ElementaryReaction(Reaction):
             r.allow_negative_pre_exponential_factor = allow
 
 
-cdef class ThreeBodyReaction(ElementaryReaction):
+cdef class ThreeBodyReaction2(ElementaryReaction2):
     """
     A reaction with a non-reacting third body "M" that acts to add or remove
     energy from the reacting species.
 
     .. deprecated:: 2.6
 
-        This class is superseded by `ThreeBodyReaction3` and only used by XML.
-        The implementation of this reaction type will change after Cantera 2.6;
-        refer to `ThreeBodyReaction3` for new behavior.
+        This class is replaced by `ThreeBodyReaction` and only used by CTI/XML. The
+        implementation uses the legacy framework for reaction rate evaluations used
+        by Cantera 2.5.1 and earlier. Refer to `ThreeBodyReaction` for new behavior.
     """
     reaction_type = "three-body-legacy"
 
@@ -1039,16 +1039,16 @@ cdef class ChemicallyActivatedReaction(FalloffReaction):
     reaction_type = "chemically-activated"
 
 
-cdef class PlogReaction(Reaction):
+cdef class PlogReaction2(Reaction):
     """
     A pressure-dependent reaction parameterized by logarithmically interpolating
     between Arrhenius rate expressions at various pressures.
 
     .. deprecated:: 2.6
 
-        This class is superseded by `PlogReaction3` and only used by XML.
-        The implementation of this reaction type will change after Cantera 2.6;
-        refer to `PlogReaction3` for new behavior.
+        This class is replaced by `PlogReaction` and only used by CTI/XML. The
+        implementation uses the legacy framework for reaction rate evaluations used
+        by Cantera 2.5.1 and earlier. Refer to `PlogReaction` for new behavior.
     """
     reaction_type = "pressure-dependent-Arrhenius-legacy"
 
@@ -1103,16 +1103,16 @@ cdef class PlogReaction(Reaction):
         return r.rate.updateRC(logT, recipT)
 
 
-cdef class ChebyshevReaction(Reaction):
+cdef class ChebyshevReaction2(Reaction):
     """
     A pressure-dependent reaction parameterized by a bivariate Chebyshev
     polynomial in temperature and pressure.
 
     .. deprecated:: 2.6
 
-        This class is superseded by `ChebyshevReaction3` and only used by XML.
-        The implementation of this reaction type will change after Cantera 2.6;
-        refer to `ChebyshevReaction3` for new behavior.
+        This class is replaced by `ChebyshevReaction` and only used by CTI/XML. The
+        implementation uses the legacy framework for reaction rate evaluations used
+        by Cantera 2.5.1 and earlier. Refer to `ChebyshevReaction` for new behavior.
     """
     reaction_type = "Chebyshev-legacy"
 
@@ -1310,7 +1310,7 @@ cdef class BlowersMaselReaction(Reaction):
             r.allow_negative_pre_exponential_factor = allow
 
 
-cdef class InterfaceReaction(ElementaryReaction):
+cdef class InterfaceReaction(ElementaryReaction2):
     """ A reaction occurring on an `Interface` (i.e. a surface or an edge) """
     reaction_type = "interface"
 
@@ -1462,14 +1462,14 @@ cdef class Reaction3(Reaction):
                 ).format(what.capitalize(), attr, what, type(self.rate).__name__)
 
 
-cdef class ElementaryReaction3(Reaction3):
+cdef class ElementaryReaction(Reaction3):
     """
     A reaction which follows mass-action kinetics with a modified Arrhenius
     reaction rate.
 
-    An example for the definition of an `ElementaryReaction3` object is given as::
+    An example for the definition of an `ElementaryReaction` object is given as::
 
-        rxn = ElementaryReaction3(
+        rxn = ElementaryReaction(
             equation='O + H2 <=> H + OH',
             rate={'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07},
             kinetics=gas)
@@ -1478,9 +1478,6 @@ cdef class ElementaryReaction3(Reaction3):
 
         equation: O + H2 <=> H + OH
         rate-constant: {A: 3.87e+04 cm^3/mol/s, b: 2.7, Ea: 6260.0 cal/mol}
-
-    This class is a replacement for `ElementaryReaction` and cannot be
-    instantiated from XML. It is the default for import from YAML.
     """
     reaction_type = "elementary"
 
@@ -1535,14 +1532,14 @@ cdef class ElementaryReaction3(Reaction3):
             self.rate.allow_negative_pre_exponential_factor = allow
 
 
-cdef class ThreeBodyReaction3(ElementaryReaction3):
+cdef class ThreeBodyReaction(ElementaryReaction):
     """
     A reaction with a non-reacting third body "M" that acts to add or remove
     energy from the reacting species.
 
-    An example for the definition of an `ThreeBodyReaction3` object is given as::
+    An example for the definition of an `ThreeBodyReaction` object is given as::
 
-        rxn = ThreeBodyReaction3(
+        rxn = ThreeBodyReaction(
             equation='2 O + M <=> O2 + M',
             type='three-body',
             rate={'A': 1.2e+17, 'b': -1.0, 'Ea': 0.0},
@@ -1555,9 +1552,6 @@ cdef class ThreeBodyReaction3(ElementaryReaction3):
         type: three-body
         rate-constant: {A: 1.2e+17 cm^6/mol^2/s, b: -1.0, Ea: 0.0 cal/mol}
         efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
-
-    This class is a replacement for `ThreeBodyReaction` and cannot be
-    instantiated from XML. It is the default for import from YAML.
     """
     reaction_type = "three-body"
 
@@ -1619,14 +1613,14 @@ cdef class ThreeBodyReaction3(ElementaryReaction3):
         return self.thirdbody().efficiency(stringify(species))
 
 
-cdef class PlogReaction3(Reaction3):
+cdef class PlogReaction(Reaction3):
     """
     A pressure-dependent reaction parameterized by logarithmically interpolating
     between Arrhenius rate expressions at various pressures.
 
-    An example for the definition of an `PlogReaction3` object is given as::
+    An example for the definition of an `PlogReaction` object is given as::
 
-        rxn = PlogReaction3(
+        rxn = PlogReaction(
             equation='H2 + O2 <=> 2 OH',
             rate={"rate-constants":
                 [{'P': 1013.25, 'A': 1.2124e+16, 'b': -0.5779, 'Ea': 45491376.8},
@@ -1644,9 +1638,6 @@ cdef class PlogReaction3(Reaction3):
         - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04 cal/mol}
         - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
         - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
-
-    This class is a replacement for `PlogReaction` and cannot be
-    instantiated from XML. It is the default for import from YAML.
     """
     reaction_type = "pressure-dependent-Arrhenius"
 
@@ -1715,14 +1706,14 @@ cdef class PlogReaction3(Reaction3):
         return self.rate(T, P)
 
 
-cdef class ChebyshevReaction3(Reaction3):
+cdef class ChebyshevReaction(Reaction3):
     """
     A pressure-dependent reaction parameterized by a bivariate Chebyshev
     polynomial in temperature and pressure.
 
-    An example for the definition of an `PlogReaction3` object is given as::
+    An example for the definition of an `PlogReaction` object is given as::
 
-        rxn = ChebyshevReaction3(
+        rxn = ChebyshevReaction(
             equation="HO2 <=> OH + O",
             rate={"Tmin": 290.0, "Tmax": 3000.0,
                   "Pmin": 1e3, "Pmax": 1e8,
@@ -1741,9 +1732,6 @@ cdef class ChebyshevReaction3(Reaction3):
         - [8.2883, -1.1397, -0.12059, 0.016034]
         - [1.9764, 1.0037, 7.2865e-03, -0.030432]
         - [0.3177, 0.26889, 0.094806, -7.6385e-03]
-
-    This class is a replacement for `ChebyshevReaction` and cannot be
-    instantiated from XML. It is the default for import from YAML.
     """
     reaction_type = "Chebyshev"
 
