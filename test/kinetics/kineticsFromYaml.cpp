@@ -66,7 +66,7 @@ TEST(Reaction, ElementaryFromYaml2)
     EXPECT_EQ(R->products.at("N2"), 1);
     EXPECT_EQ(R->type(), "elementary-legacy");
 
-    auto ER = dynamic_cast<ElementaryReaction&>(*R);
+    auto ER = dynamic_cast<ElementaryReaction2&>(*R);
     EXPECT_DOUBLE_EQ(ER.rate.preExponentialFactor(), -2.7e10);
     EXPECT_DOUBLE_EQ(ER.rate.activationEnergy_R(), 355 / GasConst_cal_mol_K);
     EXPECT_TRUE(ER.allow_negative_pre_exponential_factor);
@@ -117,7 +117,7 @@ TEST(Reaction, ThreeBodyFromYaml3)
     EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
     EXPECT_EQ(R->type(), "three-body-legacy");
 
-    auto TBR = dynamic_cast<ThreeBodyReaction&>(*R);
+    auto TBR = dynamic_cast<ThreeBodyReaction2&>(*R);
     EXPECT_DOUBLE_EQ(TBR.rate.preExponentialFactor(), 1.2e11);
     EXPECT_DOUBLE_EQ(TBR.third_body.efficiencies["H2O"], 5.0);
     EXPECT_DOUBLE_EQ(TBR.third_body.default_efficiency, 1.0);
@@ -588,9 +588,9 @@ TEST_F(ReactionToYaml, electrochemical)
 
 TEST_F(ReactionToYaml, unconvertible1)
 {
-    ElementaryReaction R({{"H2", 1}, {"OH", 1}},
-                         {{"H2O", 1}, {"H", 1}},
-                         Arrhenius(1e5, -1.0, 12.5));
+    ElementaryReaction2 R({{"H2", 1}, {"OH", 1}},
+                          {{"H2O", 1}, {"H", 1}},
+                          Arrhenius(1e5, -1.0, 12.5));
     AnyMap params = R.parameters();
     UnitSystem U{"g", "cm", "mol"};
     params.setUnits(U);
@@ -600,9 +600,9 @@ TEST_F(ReactionToYaml, unconvertible1)
 TEST_F(ReactionToYaml, unconvertible2)
 {
     Array2D coeffs(2, 2, 1.0);
-    ChebyshevReaction R({{"H2", 1}, {"OH", 1}},
-                        {{"H2O", 1}, {"H", 1}},
-                        Chebyshev(273, 3000, 1e2, 1e7, coeffs));
+    ChebyshevReaction2 R({{"H2", 1}, {"OH", 1}},
+                         {{"H2O", 1}, {"H", 1}},
+                         Chebyshev(273, 3000, 1e2, 1e7, coeffs));
     UnitSystem U{"g", "cm", "mol"};
     AnyMap params = R.parameters();
     params.setUnits(U);

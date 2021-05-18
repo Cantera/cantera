@@ -415,8 +415,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool allow_nonreactant_orders
         cbool allow_negative_orders
 
-    cdef cppclass CxxElementaryReaction "Cantera::ElementaryReaction" (CxxReaction):
-        CxxElementaryReaction()
+    cdef cppclass CxxElementaryReaction2 "Cantera::ElementaryReaction2" (CxxReaction):
+        CxxElementaryReaction2()
         CxxArrhenius rate
         cbool allow_negative_pre_exponential_factor
 
@@ -427,8 +427,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         Composition efficiencies
         double default_efficiency
 
-    cdef cppclass CxxThreeBodyReaction "Cantera::ThreeBodyReaction" (CxxElementaryReaction):
-        CxxThreeBodyReaction()
+    cdef cppclass CxxThreeBodyReaction2 "Cantera::ThreeBodyReaction2" (CxxElementaryReaction2):
+        CxxThreeBodyReaction2()
         CxxThirdBody third_body
 
     cdef cppclass CxxFalloff "Cantera::Falloff":
@@ -459,7 +459,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         void update_C(double*)
         double updateRC(double, double)
 
-    cdef cppclass CxxPlogReaction "Cantera::PlogReaction" (CxxReaction):
+    cdef cppclass CxxPlogReaction2 "Cantera::PlogReaction2" (CxxReaction):
         CxxPlog rate
 
     cdef cppclass CxxChebyshev "Cantera::Chebyshev":
@@ -474,7 +474,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         void update_C(double*)
         double updateRC(double, double)
 
-    cdef cppclass CxxChebyshevReaction "Cantera::ChebyshevReaction" (CxxReaction):
+    cdef cppclass CxxChebyshevReaction2 "Cantera::ChebyshevReaction2" (CxxReaction):
         CxxChebyshev rate
 
     cdef cppclass CxxBlowersMasel "Cantera::BlowersMasel":
@@ -498,7 +498,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double E
         double m
 
-    cdef cppclass CxxInterfaceReaction "Cantera::InterfaceReaction" (CxxElementaryReaction):
+    cdef cppclass CxxInterfaceReaction "Cantera::InterfaceReaction" (CxxElementaryReaction2):
         stdmap[string, CxxCoverageDependency] coverage_deps
         cbool is_sticking_coefficient
         cbool use_motz_wise_correction

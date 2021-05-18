@@ -30,9 +30,9 @@ ReactionFactory::ReactionFactory()
 
     // register elementary reactions (old framework)
     reg("elementary-legacy", [](const AnyMap& node, const Kinetics& kin) {
-        Reaction* R = new ElementaryReaction();
+        Reaction* R = new ElementaryReaction2();
         if (!node.empty()) {
-            setupElementaryReaction(*(ElementaryReaction*)R, node, kin);
+            setupElementaryReaction(*(ElementaryReaction2*)R, node, kin);
         }
         return R;
     });
@@ -46,9 +46,9 @@ ReactionFactory::ReactionFactory()
 
     // register three-body reactions (old framework)
     reg("three-body-legacy", [](const AnyMap& node, const Kinetics& kin) {
-        Reaction* R = new ThreeBodyReaction();
+        Reaction* R = new ThreeBodyReaction2();
         if (!node.empty()) {
-            setupThreeBodyReaction(*(ThreeBodyReaction*)R, node, kin);
+            setupThreeBodyReaction(*(ThreeBodyReaction2*)R, node, kin);
         }
         return R;
     });
@@ -82,9 +82,9 @@ ReactionFactory::ReactionFactory()
 
     // register pressure-dependent-Arrhenius reactions (old framework)
     reg("pressure-dependent-Arrhenius-legacy", [](const AnyMap& node, const Kinetics& kin) {
-        Reaction* R = new PlogReaction();
+        Reaction* R = new PlogReaction2();
         if (!node.empty()) {
-            setupPlogReaction(*(PlogReaction*)R, node, kin);
+            setupPlogReaction(*(PlogReaction2*)R, node, kin);
         }
         return R;
     });
@@ -95,9 +95,9 @@ ReactionFactory::ReactionFactory()
     });
     addAlias("Chebyshev", "chebyshev");
     reg("Chebyshev-legacy", [](const AnyMap& node, const Kinetics& kin) {
-        Reaction* R = new ChebyshevReaction();
+        Reaction* R = new ChebyshevReaction2();
         if (!node.empty()) {
-            setupChebyshevReaction(*(ChebyshevReaction*)R, node, kin);
+            setupChebyshevReaction(*(ChebyshevReaction2*)R, node, kin);
         }
         return R;
     });
@@ -153,8 +153,8 @@ ReactionFactoryXML::ReactionFactoryXML()
 {
     // register elementary reactions
     reg("elementary-legacy", [](const XML_Node& node) {
-        Reaction* R = new ElementaryReaction();
-        setupElementaryReaction(*(ElementaryReaction*)R, node);
+        Reaction* R = new ElementaryReaction2();
+        setupElementaryReaction(*(ElementaryReaction2*)R, node);
         return R;
     });
     addAlias("elementary-legacy", "elementary");
@@ -163,8 +163,8 @@ ReactionFactoryXML::ReactionFactoryXML()
 
     // register three-body reactions
     reg("three-body-legacy", [](const XML_Node& node) {
-        Reaction* R = new ThreeBodyReaction();
-        setupThreeBodyReaction(*(ThreeBodyReaction*)R, node);
+        Reaction* R = new ThreeBodyReaction2();
+        setupThreeBodyReaction(*(ThreeBodyReaction2*)R, node);
         return R;
     });
     addAlias("three-body-legacy", "three-body");
@@ -189,8 +189,8 @@ ReactionFactoryXML::ReactionFactoryXML()
 
     // register pressure-depdendent-Arrhenius reactions
     reg("pressure-dependent-Arrhenius-legacy", [](const XML_Node& node) {
-        Reaction* R = new PlogReaction();
-        setupPlogReaction(*(PlogReaction*)R, node);
+        Reaction* R = new PlogReaction2();
+        setupPlogReaction(*(PlogReaction2*)R, node);
         return R;
     });
     addAlias("pressure-dependent-Arrhenius-legacy", "pressure-dependent-Arrhenius");
@@ -199,8 +199,8 @@ ReactionFactoryXML::ReactionFactoryXML()
 
     // register Chebyshev reactions
     reg("Chebyshev-legacy", [](const XML_Node& node) {
-        Reaction* R = new ChebyshevReaction();
-        setupChebyshevReaction(*(ChebyshevReaction*)R, node);
+        Reaction* R = new ChebyshevReaction2();
+        setupChebyshevReaction(*(ChebyshevReaction2*)R, node);
         return R;
     });
     addAlias("Chebyshev-legacy", "chebyshev");
@@ -315,7 +315,7 @@ unique_ptr<Reaction> newReaction(const XML_Node& rxn_node)
     if (type.empty()) {
         // Reaction type is not specified
         // See if this is a three-body reaction with a specified collision partner
-        ElementaryReaction testReaction;
+        ElementaryReaction2 testReaction;
         setupReaction(testReaction, rxn_node);
         if (isThreeBody(testReaction)) {
             type = "three-body";
@@ -333,7 +333,7 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin)
     } else if (kin.thermo().nDim() == 3) {
         // Reaction type is not specified
         // See if this is a three-body reaction with a specified collision partner
-        ElementaryReaction testReaction;
+        ElementaryReaction2 testReaction;
         parseReactionEquation(testReaction, rxn_node["equation"], kin);
         if (isThreeBody(testReaction)) {
             type = "three-body";
@@ -343,7 +343,7 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin)
     if (kin.thermo().nDim() < 3 && type == "elementary") {
         // See if this is an electrochemical reaction: type of
         // receiving reaction object is unimportant in this case
-        ElementaryReaction testReaction;
+        ElementaryReaction2 testReaction;
         parseReactionEquation(testReaction, rxn_node["equation"], kin);
         if (isElectrochemicalReaction(testReaction, kin)) {
             type = "electrochemical";

@@ -777,10 +777,10 @@ cdef class ElementaryReaction(Reaction):
     property rate:
         """ Get/Set the `Arrhenius` rate coefficient for this reaction. """
         def __get__(self):
-            cdef CxxElementaryReaction* r = <CxxElementaryReaction*>self.reaction
+            cdef CxxElementaryReaction2* r = <CxxElementaryReaction2*>self.reaction
             return wrapArrhenius(&(r.rate), self)
         def __set__(self, Arrhenius rate):
-            cdef CxxElementaryReaction* r = <CxxElementaryReaction*>self.reaction
+            cdef CxxElementaryReaction2* r = <CxxElementaryReaction2*>self.reaction
             r.rate = deref(rate.rate)
 
     property allow_negative_pre_exponential_factor:
@@ -789,10 +789,10 @@ cdef class ElementaryReaction(Reaction):
         pre-exponential factor.
         """
         def __get__(self):
-            cdef CxxElementaryReaction* r = <CxxElementaryReaction*>self.reaction
+            cdef CxxElementaryReaction2* r = <CxxElementaryReaction2*>self.reaction
             return r.allow_negative_pre_exponential_factor
         def __set__(self, allow):
-            cdef CxxElementaryReaction* r = <CxxElementaryReaction*>self.reaction
+            cdef CxxElementaryReaction2* r = <CxxElementaryReaction2*>self.reaction
             r.allow_negative_pre_exponential_factor = allow
 
 
@@ -832,8 +832,8 @@ cdef class ThreeBodyReaction(ElementaryReaction):
             if isinstance(rate, Arrhenius):
                 self.rate = rate
 
-    cdef CxxThreeBodyReaction* tbr(self):
-        return <CxxThreeBodyReaction*>self.reaction
+    cdef CxxThreeBodyReaction2* tbr(self):
+        return <CxxThreeBodyReaction2*>self.reaction
 
     property efficiencies:
         """
@@ -1073,7 +1073,7 @@ cdef class PlogReaction(Reaction):
         list of (pressure, `Arrhenius`) tuples.
         """
         def __get__(self):
-            cdef CxxPlogReaction* r = <CxxPlogReaction*>self.reaction
+            cdef CxxPlogReaction2* r = <CxxPlogReaction2*>self.reaction
             rates = []
             cdef vector[pair[double,CxxArrhenius]] cxxrates = r.rate.rates()
             cdef pair[double,CxxArrhenius] p_rate
@@ -1090,11 +1090,11 @@ cdef class PlogReaction(Reaction):
                 item.second = deref(rate.rate)
                 ratemap.insert(item)
 
-            cdef CxxPlogReaction* r = <CxxPlogReaction*>self.reaction
+            cdef CxxPlogReaction2* r = <CxxPlogReaction2*>self.reaction
             r.rate = CxxPlog(ratemap)
 
     def __call__(self, float T, float P):
-        cdef CxxPlogReaction* r = <CxxPlogReaction*>self.reaction
+        cdef CxxPlogReaction2* r = <CxxPlogReaction2*>self.reaction
         cdef double logT = np.log(T)
         cdef double recipT = 1/T
         cdef double logP = np.log(P)
@@ -1136,37 +1136,37 @@ cdef class ChebyshevReaction(Reaction):
     property Tmin:
         """ Minimum temperature [K] for the Chebyshev fit """
         def __get__(self):
-            cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
+            cdef CxxChebyshevReaction2* r = <CxxChebyshevReaction2*>self.reaction
             return r.rate.Tmin()
 
     property Tmax:
         """ Maximum temperature [K] for the Chebyshev fit """
         def __get__(self):
-            cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
+            cdef CxxChebyshevReaction2* r = <CxxChebyshevReaction2*>self.reaction
             return r.rate.Tmax()
 
     property Pmin:
         """ Minimum pressure [Pa] for the Chebyshev fit """
         def __get__(self):
-            cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
+            cdef CxxChebyshevReaction2* r = <CxxChebyshevReaction2*>self.reaction
             return r.rate.Pmin()
 
     property Pmax:
         """ Maximum pressure [Pa] for the Chebyshev fit """
         def __get__(self):
-            cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
+            cdef CxxChebyshevReaction2* r = <CxxChebyshevReaction2*>self.reaction
             return r.rate.Pmax()
 
     property nPressure:
         """ Number of pressures over which the Chebyshev fit is computed """
         def __get__(self):
-            cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
+            cdef CxxChebyshevReaction2* r = <CxxChebyshevReaction2*>self.reaction
             return r.rate.nPressure()
 
     property nTemperature:
         """ Number of temperatures over which the Chebyshev fit is computed """
         def __get__(self):
-            cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
+            cdef CxxChebyshevReaction2* r = <CxxChebyshevReaction2*>self.reaction
             return r.rate.nTemperature()
 
     property coeffs:
@@ -1174,7 +1174,7 @@ cdef class ChebyshevReaction(Reaction):
         2D array of Chebyshev coefficients of size `(nTemperature, nPressure)`.
         """
         def __get__(self):
-            cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
+            cdef CxxChebyshevReaction2* r = <CxxChebyshevReaction2*>self.reaction
             c = np.fromiter(r.rate.coeffs(), np.double)
             return c.reshape((r.rate.nTemperature(), r.rate.nPressure()))
 
@@ -1183,7 +1183,7 @@ cdef class ChebyshevReaction(Reaction):
         Simultaneously set values for `Tmin`, `Tmax`, `Pmin`, `Pmax`, and
         `coeffs`.
         """
-        cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
+        cdef CxxChebyshevReaction2* r = <CxxChebyshevReaction2*>self.reaction
 
         cdef CxxArray2D data
         data.resize(len(coeffs), len(coeffs[0]))
@@ -1197,7 +1197,7 @@ cdef class ChebyshevReaction(Reaction):
         r.rate = CxxChebyshev(Tmin, Tmax, Pmin, Pmax, data)
 
     def __call__(self, float T, float P):
-        cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
+        cdef CxxChebyshevReaction2* r = <CxxChebyshevReaction2*>self.reaction
         cdef double logT = np.log(T)
         cdef double recipT = 1/T
         cdef double logP = np.log10(P)

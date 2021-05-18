@@ -154,12 +154,12 @@ protected:
 
 //! A reaction which follows mass-action kinetics with a modified Arrhenius
 //! reaction rate.
-class ElementaryReaction : public Reaction
+class ElementaryReaction2 : public Reaction
 {
 public:
-    ElementaryReaction();
-    ElementaryReaction(const Composition& reactants, const Composition products,
-                       const Arrhenius& rate);
+    ElementaryReaction2();
+    ElementaryReaction2(const Composition& reactants, const Composition products,
+                        const Arrhenius& rate);
     virtual void validate();
     virtual void getParameters(AnyMap& reactionNode) const;
 
@@ -197,12 +197,12 @@ public:
 
 //! A reaction with a non-reacting third body "M" that acts to add or remove
 //! energy from the reacting species
-class ThreeBodyReaction : public ElementaryReaction
+class ThreeBodyReaction2 : public ElementaryReaction2
 {
 public:
-    ThreeBodyReaction();
-    ThreeBodyReaction(const Composition& reactants, const Composition& products,
-                      const Arrhenius& rate, const ThirdBody& tbody);
+    ThreeBodyReaction2();
+    ThreeBodyReaction2(const Composition& reactants, const Composition& products,
+                       const Arrhenius& rate, const ThirdBody& tbody);
 
     virtual std::string type() const {
         return "three-body-legacy";
@@ -293,12 +293,12 @@ public:
 
 //! A pressure-dependent reaction parameterized by logarithmically interpolating
 //! between Arrhenius rate expressions at various pressures.
-class PlogReaction : public Reaction
+class PlogReaction2 : public Reaction
 {
 public:
-    PlogReaction();
-    PlogReaction(const Composition& reactants, const Composition& products,
-                 const Plog& rate);
+    PlogReaction2();
+    PlogReaction2(const Composition& reactants, const Composition& products,
+                  const Plog& rate);
 
     virtual std::string type() const {
         return "pressure-dependent-Arrhenius-legacy";
@@ -313,12 +313,12 @@ public:
 
 //! A pressure-dependent reaction parameterized by a bi-variate Chebyshev
 //! polynomial in temperature and pressure
-class ChebyshevReaction : public Reaction
+class ChebyshevReaction2 : public Reaction
 {
 public:
-    ChebyshevReaction();
-    ChebyshevReaction(const Composition& reactants, const Composition& products,
-                      const Chebyshev& rate);
+    ChebyshevReaction2();
+    ChebyshevReaction2(const Composition& reactants, const Composition& products,
+                       const Chebyshev& rate);
     virtual void getParameters(AnyMap& reactionNode) const;
 
     virtual std::string type() const {
@@ -346,7 +346,7 @@ struct CoverageDependency
 
 
 //! A reaction occurring on an interface (i.e. a SurfPhase or an EdgePhase)
-class InterfaceReaction : public ElementaryReaction
+class InterfaceReaction : public ElementaryReaction2
 {
 public:
     InterfaceReaction();
@@ -454,8 +454,8 @@ public:
 
 
 //! An intermediate class used to avoid naming conflicts of 'rate' member
-//! variables and getters (see `ElementaryReaction`, `PlogReaction` and
-//! `ChebyshevReaction`).
+//! variables and getters (see `ElementaryReaction2`, `PlogReaction2` and
+//! `ChebyshevReaction2`).
 class Reaction3 : public Reaction
 {
 public:
@@ -595,6 +595,19 @@ public:
 };
 
 
+#ifdef CT_NO_LEGACY_REACTIONS_26
+typedef ElementaryReaction3 ElementaryReaction;
+typedef ThreeBodyReaction3 ThreeBodyReaction;
+typedef PlogReaction3 PlogReaction;
+typedef ChebyshevReaction3 ChebyshevReaction;
+#else
+typedef ElementaryReaction2 ElementaryReaction;
+typedef ThreeBodyReaction2 ThreeBodyReaction;
+typedef PlogReaction2 PlogReaction;
+typedef ChebyshevReaction2 ChebyshevReaction;
+#endif
+
+
 //! Create Reaction objects for all `<reaction>` nodes in an XML document.
 //!
 //! The `<reaction>` nodes are assumed to be children of the `<reactionData>`
@@ -631,14 +644,14 @@ void parseReactionEquation(Reaction& R, const AnyValue& equation,
 // declarations of setup functions
 void setupReaction(Reaction& R, const XML_Node& rxn_node);
 
-void setupElementaryReaction(ElementaryReaction&, const XML_Node&);
+void setupElementaryReaction(ElementaryReaction2&, const XML_Node&);
 //! @internal May be changed without notice in future versions
-void setupElementaryReaction(ElementaryReaction&, const AnyMap&,
+void setupElementaryReaction(ElementaryReaction2&, const AnyMap&,
                              const Kinetics&);
 
-void setupThreeBodyReaction(ThreeBodyReaction&, const XML_Node&);
+void setupThreeBodyReaction(ThreeBodyReaction2&, const XML_Node&);
 //! @deprecated Cantera 2.6 (replaced by setParameters)
-void setupThreeBodyReaction(ThreeBodyReaction&, const AnyMap&,
+void setupThreeBodyReaction(ThreeBodyReaction2&, const AnyMap&,
                             const Kinetics&);
 
 void setupFalloffReaction(FalloffReaction&, const XML_Node&);
@@ -649,13 +662,13 @@ void setupFalloffReaction(FalloffReaction&, const AnyMap&,
 void setupChemicallyActivatedReaction(ChemicallyActivatedReaction&,
                                       const XML_Node&);
 
-void setupPlogReaction(PlogReaction&, const XML_Node&);
+void setupPlogReaction(PlogReaction2&, const XML_Node&);
 //! @deprecated Cantera 2.6 (replaced by setParameters)
-void setupPlogReaction(PlogReaction&, const AnyMap&, const Kinetics&);
+void setupPlogReaction(PlogReaction2&, const AnyMap&, const Kinetics&);
 
-void setupChebyshevReaction(ChebyshevReaction&, const XML_Node&);
+void setupChebyshevReaction(ChebyshevReaction2&, const XML_Node&);
 //! @deprecated Cantera 2.6 (replaced by setParameters)
-void setupChebyshevReaction(ChebyshevReaction&, const AnyMap&,
+void setupChebyshevReaction(ChebyshevReaction2&, const AnyMap&,
                             const Kinetics&);
 
 void setupInterfaceReaction(InterfaceReaction&, const XML_Node&);
