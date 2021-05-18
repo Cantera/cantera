@@ -368,13 +368,6 @@ class SolutionArray:
         >>> states.equilibrate('HP')
         >>> states.T # -> adiabatic flame temperature at various equivalence ratios
 
-    To append a state with non-normalized and/or negative mass/mole fractions, the mole/mass fractions
-    must be specified as an array::
-
-        >>> states = ct.SolutionArray(gas)
-        >>> states.append(T=300., P=ct.one_atm, X = gas.X -1.e-16, normalize = False)
-        >>> states.X # -> non-normalized mole fractions
-
     `SolutionArray` objects can also be 'sliced' like Numpy arrays, which can be
     used both for accessing and setting properties::
 
@@ -657,9 +650,9 @@ class SolutionArray:
 
               mystates.append(T=300, P=101325, X={'O2':1.0, 'N2':3.76})
 
-        To specify non-normalized mass/mole fractions, the normalize argument should
-        be set to false. This is only applicable when the mole/mass fractions are
-        specified as an array::
+        By default, the mass or mole fractions will be normalized so they sum to 1.0.
+        If this is not desired, the normalize argument can be set to False.
+        In this case, the mass or mole fractions must be specified as an array::
 
             mystates.append(T=300, P=101325, X=gas.X - 1e-16, normalize=False)
         """
@@ -689,16 +682,21 @@ class SolutionArray:
             self._phase.state = state
 
         elif len(kwargs) == 1:
-            attr, value = next(iter(kwargs.items()))
+            attr, value = kwargs.popitem()
             if frozenset(attr) not in self._phase._full_states:
                 raise KeyError(
                     "'{}' does not specify a full thermodynamic state".format(attr)
                 )
-            if not normalize:
-                setattr(self._phase, attr[-1] + "_no_norm", value[-1])
-                setattr(self._phase, attr[:-1], value[:-1])
-            else:
+            if normalize:
                 setattr(self._phase, attr, value)
+
+            else:
+                if attr[-1] == "X":
+                    self._phase.set_unnormalized_mole_fractions(value[-1])
+                elif attr[-1] == "Y":
+                    self._phase.set_unnormalized_mass_fractions(value[-1])
+                setattr(self._phase, attr[:2], value[:2])
+
         else:
             try:
                 attr = self._phase._full_states[frozenset(kwargs)]
@@ -707,11 +705,14 @@ class SolutionArray:
                     "{} is not a valid combination of properties for setting "
                     "the thermodynamic state".format(tuple(kwargs))
                 ) from None
-            if not normalize:
-                setattr(self._phase, attr[-1] + "_no_norm", kwargs[attr[-1]])
-                setattr(self._phase, attr[:-1], [kwargs[a] for a in attr[:-1]])
-            else:
+            if normalize:
                 setattr(self._phase, attr, [kwargs[a] for a in attr])
+            else:
+                if attr[-1] == "X":
+                    self._phase.set_unnormalized_mole_fractions(kwargs.pop("X"))
+                elif attr[-1] == "Y":
+                    self._phase.set_unnormalized_mass_fractions(kwargs.pop("Y"))
+                setattr(self._phase, attr[:2], list(kwargs.values()))
 
         for name, value in self._extra.items():
             new = extra_temp[name]
@@ -770,7 +771,7 @@ class SolutionArray:
             self._phase.equilibrate(*args, **kwargs)
             self._states[index][:] = self._phase.state
 
-    def restore_data(self, data):
+    def restore_data(self, data, normalize=False):
         """
         Restores a `SolutionArray` based on *data* specified in an ordered
         dictionary. Thus, this method allows to restore data exported by
@@ -786,6 +787,10 @@ class SolutionArray:
         properties is omitted. If the receiving `SolutionArray` has extra
         entries already specified, only those will be imported; if *labels*
         does not contain those entries, an error is raised.
+
+        By default, if the data contains mass or mole fractions,
+        they will be non-normalized. If this is not desired,
+        the normalize argument can be set to True, so they sum to 1.0.
         """
 
         # check arguments
@@ -923,22 +928,25 @@ class SolutionArray:
             self._output_dummy = self._indices
             self._shape = (rows,)
 
-        # use non-normalized state setters for Three property setter only
-        if mode in {"TPX", "TPY", "HPX", "HPY", "SPX", "SPY",
-                    "TDX", "TDY", "TPX", "TPY", "UVX", "UVY",
-                    "DPX", "DPY","HPX", "HPY", "SPX", "SPY",
-                    "SVX", "SVY"}:
-
-                for i in self._indices:
-                    setattr(self._phase, mode[-1] + "_no_norm", [st[i, ...] for st in state_data][2])
-                    setattr(self._phase, mode[:-1], [st[i, ...] for st in \
-                            state_data[:-1]])
-                    self._states[i] = self._phase.state
-
-        else:
-             # restore data
+        # restore data
+        if normalize:
             for i in self._indices:
                 setattr(self._phase, mode, [st[i, ...] for st in state_data])
+                self._states[i] = self._phase.state
+        else:
+            for i in self._indices:
+                if mode[-1] == "X":
+                    self._phase.set_unnormalized_mole_fractions([st[i, ...] for \
+                                                                 st in state_data][2])
+                    setattr(self._phase, mode[:2], [st[i, ...] for st in \
+                                                    state_data[:2]])
+                elif mode[-1] == "Y":
+                    self._phase.set_unnormalized_mass_fractions([st[i, ...] for \
+                                                                 st in state_data][2])
+                    setattr(self._phase, mode[:2], [st[i, ...] for st in \
+                                                    state_data[:2]])
+                else:
+                    setattr(self._phase, mode, [st[i, ...] for st in state_data])
                 self._states[i] = self._phase.state
 
         self._extra = extra_lists
@@ -1072,11 +1080,15 @@ class SolutionArray:
             for row in data:
                 writer.writerow(row)
 
-    def read_csv(self, filename):
+    def read_csv(self, filename, normalize=False):
         """
         Read a CSV file named *filename* and restore data to the `SolutionArray`
         using `restore_data`. This method allows for recreation of data
         previously exported by `write_csv`.
+
+        The normalize argument is passed on to `restore_data` to normalize
+        mole or mass fractions if desired. By default, the normalize
+        argument is set to False.
         """
         if np.lib.NumpyVersion(np.__version__) < "1.14.0":
             # bytestring needs to be converted for columns containing strings
@@ -1094,7 +1106,7 @@ class SolutionArray:
                                  dtype=None, names=True, encoding=None)
             data_dict = OrderedDict({label: data[label]
                                      for label in data.dtype.names})
-        self.restore_data(data_dict)
+        self.restore_data(data_dict, normalize)
 
     def to_pandas(self, cols=None, *args, **kwargs):
         """
@@ -1113,13 +1125,18 @@ class SolutionArray:
         labels = list(data_dict.keys())
         return _pandas.DataFrame(data=data, columns=labels)
 
-    def from_pandas(self, df):
+    def from_pandas(self, df, normalize=False):
         """
         Restores `SolutionArray` data from a pandas DataFrame *df*.
 
         This method is intendend for loading of data that were previously
         exported by `to_pandas`. The method requires a working pandas
         installation. The package 'pandas' can be installed using pip or conda.
+
+        The normalize argument is passed on to `restore_data` to normalize
+        mole or mass fractions if desired. By default, the normalize
+        argument is set to False.
+
         """
 
         data = df.to_numpy(dtype=float)
@@ -1128,7 +1145,7 @@ class SolutionArray:
         data_dict = OrderedDict()
         for i, label in enumerate(labels):
             data_dict[label] = data[:, i]
-        self.restore_data(data_dict)
+        self.restore_data(data_dict, normalize)
 
     def write_hdf(self, filename, *args, cols=None, group=None, subgroup=None,
                   attrs={}, mode='a', append=False,
@@ -1255,7 +1272,7 @@ class SolutionArray:
 
         return group
 
-    def read_hdf(self, filename, group=None, subgroup=None, force=False):
+    def read_hdf(self, filename, group=None, subgroup=None, force=False, normalize=False):
         """
         Read a dataset from a HDF container file and restore data to the
         `SolutionArray` object. This method allows for recreation of data
@@ -1278,6 +1295,10 @@ class SolutionArray:
 
         The method imports data using `restore_data` and requires a working
         installation of h5py (`h5py` can be installed using pip or conda).
+
+        The normalize argument is passed on to `restore_data` to normalize
+        mole or mass fractions if desired. By default, the normalize
+        argument is set to False.
         """
         if isinstance(_h5py, ImportError):
             raise _h5py
@@ -1346,7 +1367,7 @@ class SolutionArray:
                 else:
                     data[name] = np.array(value)
 
-        self.restore_data(data)
+        self.restore_data(data, normalize)
 
         return root_attrs
 
