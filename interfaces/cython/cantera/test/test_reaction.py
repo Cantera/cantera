@@ -493,9 +493,19 @@ class TestElementary(ReactionTests, utilities.CanteraTest):
         equation: O + H2 <=> H + OH
         rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
         """
-
     _deprecated_getters = {"allow_negative_pre_exponential_factor": False}
     _deprecated_setters = {"allow_negative_pre_exponential_factor": True}
+
+    def test_arrhenius(self):
+        # test assigning Arrhenius rate
+        rate = ct.Arrhenius(self._rate["A"], self._rate["b"], self._rate["Ea"])
+        rxn = self._cls(equation=self._equation, kinetics=self.gas, **self._kwargs)
+        if self._legacy:
+            rxn.rate = rate
+        else:
+            with self.assertWarnsRegex(DeprecationWarning, "'Arrhenius' object is deprecated"):
+                rxn.rate = rate
+        self.check_rxn(rxn)
 
 
 class TestElementary2(TestElementary):
