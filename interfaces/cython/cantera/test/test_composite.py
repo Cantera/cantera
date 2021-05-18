@@ -136,7 +136,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         self.assertEqual(collected['X'].shape, (0, self.gas.n_species))
 
     def test_append_no_norm_data(self):
-        gas = ct.Solution('h2o2.yaml')
+        gas = ct.Solution("h2o2.yaml")
         gas.TP = 300, ct.one_atm
         gas.X = gas.X - 1.e-16
         states = ct.SolutionArray(gas)
@@ -146,16 +146,16 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         self.assertArrayNear(states[0].X, gas.X)
 
     def test_import_no_norm_data(self):
-        outfile = pjoin(self.test_work_dir, 'solutionarray.h5')
+        outfile = pjoin(self.test_work_dir, "solutionarray.h5")
         if os.path.exists(outfile):
             os.remove(outfile)
 
-        gas = ct.Solution('h2o2.yaml')
+        gas = ct.Solution("h2o2.yaml")
         gas.set_unnormalized_mole_fractions(gas.X - 1e-16)
         states = ct.SolutionArray(gas, 5)
         states.write_hdf(outfile)
 
-        gas_new = ct.Solution('h2o2.yaml')
+        gas_new = ct.Solution("h2o2.yaml")
         b = ct.SolutionArray(gas_new)
         b.read_hdf(outfile)
         self.assertArrayNear(states.T, b.T)
