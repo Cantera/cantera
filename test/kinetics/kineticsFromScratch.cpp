@@ -57,7 +57,7 @@ TEST_F(KineticsFromScratch, add_elementary_reaction)
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
 
     kin.addReaction(R);
     check_rates(0);
@@ -73,7 +73,7 @@ TEST_F(KineticsFromScratch, add_three_body_reaction)
     Arrhenius rate(1.2e11, -1.0, 0.0);
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("AR:0.83 H2:2.4 H2O:15.4");
-    auto R = make_shared<ThreeBodyReaction>(reac, prod, rate, tbody);
+    auto R = make_shared<ThreeBodyReaction2>(reac, prod, rate, tbody);
 
     kin.addReaction(R);
     check_rates(1);
@@ -86,7 +86,7 @@ TEST_F(KineticsFromScratch, undefined_third_body)
     Arrhenius rate(1.2e11, -1.0, 0.0);
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("H2:0.1 CO2:0.83");
-    auto R = make_shared<ThreeBodyReaction>(reac, prod, rate, tbody);
+    auto R = make_shared<ThreeBodyReaction2>(reac, prod, rate, tbody);
 
     ASSERT_THROW(kin.addReaction(R), CanteraError);
 }
@@ -98,7 +98,7 @@ TEST_F(KineticsFromScratch, skip_undefined_third_body)
     Arrhenius rate(1.2e11, -1.0, 0.0);
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("H2:0.1 CO2:0.83");
-    auto R = make_shared<ThreeBodyReaction>(reac, prod, rate, tbody);
+    auto R = make_shared<ThreeBodyReaction2>(reac, prod, rate, tbody);
 
     kin.skipUndeclaredThirdBodies(true);
     kin.addReaction(R);
@@ -144,7 +144,7 @@ TEST_F(KineticsFromScratch, add_plog_reaction)
         { 100.0*101325, Arrhenius(5.963200e+56, -11.529, 52599.6 / GasConst_cal_mol_K) }
     };
 
-    auto R = make_shared<PlogReaction>(reac, prod, Plog(rates));
+    auto R = make_shared<PlogReaction2>(reac, prod, Plog(rates));
     kin.addReaction(R);
     check_rates(3);
 }
@@ -160,7 +160,7 @@ TEST_F(KineticsFromScratch, plog_invalid_rate)
         { 100.0*101325, Arrhenius(5.9632e+56, -11.529, 52599.6 / GasConst_cal_mol_K) }
     };
 
-    auto R = make_shared<PlogReaction>(reac, prod, Plog(rates));
+    auto R = make_shared<PlogReaction2>(reac, prod, Plog(rates));
     ASSERT_THROW(kin.addReaction(R), CanteraError);
 }
 
@@ -191,7 +191,7 @@ TEST_F(KineticsFromScratch, add_chebyshev_reaction)
     coeffs(2,3) = -7.6385e-03;
     Chebyshev rate(290, 3000, 1000.0, 10000000.0, coeffs);
 
-    auto R = make_shared<ChebyshevReaction>(reac, prod, rate);
+    auto R = make_shared<ChebyshevReaction2>(reac, prod, rate);
     kin.addReaction(R);
     check_rates(4);
 }
@@ -201,7 +201,7 @@ TEST_F(KineticsFromScratch, undeclared_species)
     Composition reac = parseCompString("CO:1 OH:1");
     Composition prod = parseCompString("CO2:1 H:1");
     Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
 
     ASSERT_THROW(kin.addReaction(R), CanteraError);
     ASSERT_EQ((size_t) 0, kin.nReactions());
@@ -212,7 +212,7 @@ TEST_F(KineticsFromScratch, skip_undeclared_species)
     Composition reac = parseCompString("CO:1 OH:1");
     Composition prod = parseCompString("CO2:1 H:1");
     Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
 
     kin.skipUndeclaredSpecies(true);
     kin.addReaction(R);
@@ -224,7 +224,7 @@ TEST_F(KineticsFromScratch, negative_A_error)
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     Arrhenius rate(-3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
 
     ASSERT_THROW(kin.addReaction(R), CanteraError);
     ASSERT_EQ((size_t) 0, kin.nReactions());
@@ -235,7 +235,7 @@ TEST_F(KineticsFromScratch, allow_negative_A)
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     Arrhenius rate(-3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
     R->allow_negative_pre_exponential_factor = true;
 
     kin.addReaction(R);
@@ -247,7 +247,7 @@ TEST_F(KineticsFromScratch, invalid_reversible_with_orders)
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
     R->orders["H2"] = 0.5;
 
     ASSERT_THROW(kin.addReaction(R), CanteraError);
@@ -259,7 +259,7 @@ TEST_F(KineticsFromScratch, negative_order_override)
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
     R->reversible = false;
     R->allow_negative_orders = true;
     R->orders["H2"] = - 0.5;
@@ -273,7 +273,7 @@ TEST_F(KineticsFromScratch, invalid_negative_orders)
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
     R->reversible = false;
     R->orders["H2"] = - 0.5;
 
@@ -286,7 +286,7 @@ TEST_F(KineticsFromScratch, nonreactant_order_override)
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
     R->reversible = false;
     R->allow_nonreactant_orders = true;
     R->orders["OH"] = 0.5;
@@ -300,7 +300,7 @@ TEST_F(KineticsFromScratch, invalid_nonreactant_order)
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
     R->reversible = false;
     R->orders["OH"] = 0.5;
 

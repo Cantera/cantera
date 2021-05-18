@@ -181,7 +181,7 @@ void BulkKinetics::addThirdBody(shared_ptr<Reaction3> r)
     m_multi_indices.push_back(nReactions() - 1);
 }
 
-void BulkKinetics::addElementaryReaction(ElementaryReaction& r)
+void BulkKinetics::addElementaryReaction(ElementaryReaction2& r)
 {
     m_rates.install(nReactions()-1, r.rate);
 }
@@ -206,7 +206,7 @@ void BulkKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     }
 }
 
-void BulkKinetics::modifyElementaryReaction(size_t i, ElementaryReaction& rNew)
+void BulkKinetics::modifyElementaryReaction(size_t i, ElementaryReaction2& rNew)
 {
     m_rates.replace(i, rNew.rate);
 }

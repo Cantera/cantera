@@ -110,21 +110,21 @@ protected:
     // transitional reaction types marked as '-old'
 
     //! @deprecated Cantera 2.6 (replaced by MultiRate approach)
-    void addThreeBodyReaction(ThreeBodyReaction& r);
+    void addThreeBodyReaction(ThreeBodyReaction2& r);
     void addFalloffReaction(FalloffReaction& r);
     //! @deprecated Cantera 2.6 (replaced by MultiRate approach)
-    void addPlogReaction(PlogReaction& r);
+    void addPlogReaction(PlogReaction2& r);
     //! @deprecated Cantera 2.6 (replaced by MultiRate approach)
-    void addChebyshevReaction(ChebyshevReaction& r);
+    void addChebyshevReaction(ChebyshevReaction2& r);
     void addBlowersMaselReaction(BlowersMaselReaction& r);
 
     //! @deprecated Cantera 2.6 (replaced by MultiRate approach)
-    void modifyThreeBodyReaction(size_t i, ThreeBodyReaction& r);
+    void modifyThreeBodyReaction(size_t i, ThreeBodyReaction2& r);
     void modifyFalloffReaction(size_t i, FalloffReaction& r);
     //! @deprecated Cantera 2.6 (replaced by MultiRate approach)
-    void modifyPlogReaction(size_t i, PlogReaction& r);
+    void modifyPlogReaction(size_t i, PlogReaction2& r);
     //! @deprecated Cantera 2.6 (replaced by MultiRate approach)
-    void modifyChebyshevReaction(size_t i, ChebyshevReaction& r);
+    void modifyChebyshevReaction(size_t i, ChebyshevReaction2& r);
     void modifyBlowersMaselReaction(size_t i, BlowersMaselReaction& r);
 
     //! Update the equilibrium constants in molar units.

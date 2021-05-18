@@ -267,17 +267,17 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
     }
 
     if (r->type() == "elementary-legacy") {
-        addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
+        addElementaryReaction(dynamic_cast<ElementaryReaction2&>(*r));
     } else if (r->type() == "three-body-legacy") {
-        addThreeBodyReaction(dynamic_cast<ThreeBodyReaction&>(*r));
+        addThreeBodyReaction(dynamic_cast<ThreeBodyReaction2&>(*r));
     } else if (r->type() == "falloff") {
         addFalloffReaction(dynamic_cast<FalloffReaction&>(*r));
     } else if (r->type() == "chemically-activated") {
         addFalloffReaction(dynamic_cast<FalloffReaction&>(*r));
     } else if (r->type() == "pressure-dependent-Arrhenius-legacy") {
-        addPlogReaction(dynamic_cast<PlogReaction&>(*r));
+        addPlogReaction(dynamic_cast<PlogReaction2&>(*r));
     } else if (r->type() == "Chebyshev-legacy") {
-        addChebyshevReaction(dynamic_cast<ChebyshevReaction&>(*r));
+        addChebyshevReaction(dynamic_cast<ChebyshevReaction2&>(*r));
     } else if (r->type() == "Blowers-Masel") {
         addBlowersMaselReaction(dynamic_cast<BlowersMaselReaction&>(*r));
     } else {
@@ -318,7 +318,7 @@ void GasKinetics::addFalloffReaction(FalloffReaction& r)
     falloff_work.resize(m_falloffn.workSize());
 }
 
-void GasKinetics::addThreeBodyReaction(ThreeBodyReaction& r)
+void GasKinetics::addThreeBodyReaction(ThreeBodyReaction2& r)
 {
     m_rates.install(nReactions()-1, r.rate);
     map<size_t, double> efficiencies;
@@ -333,12 +333,12 @@ void GasKinetics::addThreeBodyReaction(ThreeBodyReaction& r)
     concm_3b_values.resize(m_3b_concm.workSize());
 }
 
-void GasKinetics::addPlogReaction(PlogReaction& r)
+void GasKinetics::addPlogReaction(PlogReaction2& r)
 {
     m_plog_rates.install(nReactions()-1, r.rate);
 }
 
-void GasKinetics::addChebyshevReaction(ChebyshevReaction& r)
+void GasKinetics::addChebyshevReaction(ChebyshevReaction2& r)
 {
     m_cheb_rates.install(nReactions()-1, r.rate);
 }
@@ -359,17 +359,17 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     }
 
     if (rNew->type() == "elementary-legacy") {
-        modifyElementaryReaction(i, dynamic_cast<ElementaryReaction&>(*rNew));
+        modifyElementaryReaction(i, dynamic_cast<ElementaryReaction2&>(*rNew));
     } else if (rNew->type() == "three-body-legacy") {
-        modifyThreeBodyReaction(i, dynamic_cast<ThreeBodyReaction&>(*rNew));
+        modifyThreeBodyReaction(i, dynamic_cast<ThreeBodyReaction2&>(*rNew));
     } else if (rNew->type() == "falloff") {
         modifyFalloffReaction(i, dynamic_cast<FalloffReaction&>(*rNew));
     } else if (rNew->type() == "chemically-activated") {
         modifyFalloffReaction(i, dynamic_cast<FalloffReaction&>(*rNew));
     } else if (rNew->type() == "pressure-dependent-Arrhenius-legacy") {
-        modifyPlogReaction(i, dynamic_cast<PlogReaction&>(*rNew));
+        modifyPlogReaction(i, dynamic_cast<PlogReaction2&>(*rNew));
     } else if (rNew->type() == "Chebyshev-legacy") {
-        modifyChebyshevReaction(i, dynamic_cast<ChebyshevReaction&>(*rNew));
+        modifyChebyshevReaction(i, dynamic_cast<ChebyshevReaction2&>(*rNew));
     } else if (rNew->type() == "Blowers-Masel") {
         modifyBlowersMaselReaction(i, dynamic_cast<BlowersMaselReaction&>(*rNew));
     } else {
@@ -383,7 +383,7 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     m_pres += 0.1234;
 }
 
-void GasKinetics::modifyThreeBodyReaction(size_t i, ThreeBodyReaction& r)
+void GasKinetics::modifyThreeBodyReaction(size_t i, ThreeBodyReaction2& r)
 {
     m_rates.replace(i, r.rate);
 }
@@ -396,12 +396,12 @@ void GasKinetics::modifyFalloffReaction(size_t i, FalloffReaction& r)
     m_falloffn.replace(iFall, r.falloff);
 }
 
-void GasKinetics::modifyPlogReaction(size_t i, PlogReaction& r)
+void GasKinetics::modifyPlogReaction(size_t i, PlogReaction2& r)
 {
     m_plog_rates.replace(i, r.rate);
 }
 
-void GasKinetics::modifyChebyshevReaction(size_t i, ChebyshevReaction& r)
+void GasKinetics::modifyChebyshevReaction(size_t i, ChebyshevReaction2& r)
 {
     m_cheb_rates.replace(i, r.rate);
 }

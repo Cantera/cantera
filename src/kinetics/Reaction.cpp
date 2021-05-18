@@ -343,9 +343,9 @@ bool Reaction::checkSpecies(const Kinetics& kin) const
     return true;
 }
 
-ElementaryReaction::ElementaryReaction(const Composition& reactants_,
-                                       const Composition products_,
-                                       const Arrhenius& rate_)
+ElementaryReaction2::ElementaryReaction2(const Composition& reactants_,
+                                         const Composition products_,
+                                         const Arrhenius& rate_)
     : Reaction(reactants_, products_)
     , rate(rate_)
     , allow_negative_pre_exponential_factor(false)
@@ -353,25 +353,25 @@ ElementaryReaction::ElementaryReaction(const Composition& reactants_,
     reaction_type = ELEMENTARY_RXN;
 }
 
-ElementaryReaction::ElementaryReaction()
+ElementaryReaction2::ElementaryReaction2()
     : Reaction()
     , allow_negative_pre_exponential_factor(false)
 {
     reaction_type = ELEMENTARY_RXN;
 }
 
-void ElementaryReaction::validate()
+void ElementaryReaction2::validate()
 {
     Reaction::validate();
     if (!allow_negative_pre_exponential_factor &&
         rate.preExponentialFactor() < 0) {
-        throw InputFileError("ElementaryReaction::validate", input,
+        throw InputFileError("ElementaryReaction2::validate", input,
             "Undeclared negative pre-exponential factor found in reaction '"
             + equation() + "'");
     }
 }
 
-void ElementaryReaction::getParameters(AnyMap& reactionNode) const
+void ElementaryReaction2::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
     if (allow_negative_pre_exponential_factor) {
@@ -406,44 +406,44 @@ double ThirdBody::efficiency(const std::string& k) const
     return getValue(efficiencies, k, default_efficiency);
 }
 
-ThreeBodyReaction::ThreeBodyReaction()
+ThreeBodyReaction2::ThreeBodyReaction2()
 {
     reaction_type = THREE_BODY_RXN;
 }
 
-ThreeBodyReaction::ThreeBodyReaction(const Composition& reactants_,
-                                     const Composition& products_,
-                                     const Arrhenius& rate_,
-                                     const ThirdBody& tbody)
-    : ElementaryReaction(reactants_, products_, rate_)
+ThreeBodyReaction2::ThreeBodyReaction2(const Composition& reactants_,
+                                       const Composition& products_,
+                                       const Arrhenius& rate_,
+                                       const ThirdBody& tbody)
+    : ElementaryReaction2(reactants_, products_, rate_)
     , third_body(tbody)
 {
     reaction_type = THREE_BODY_RXN;
 }
 
-std::string ThreeBodyReaction::reactantString() const
+std::string ThreeBodyReaction2::reactantString() const
 {
     if (specified_collision_partner) {
-        return ElementaryReaction::reactantString() + " + "
+        return ElementaryReaction2::reactantString() + " + "
             + third_body.efficiencies.begin()->first;
     } else {
-        return ElementaryReaction::reactantString() + " + M";
+        return ElementaryReaction2::reactantString() + " + M";
     }
 }
 
-std::string ThreeBodyReaction::productString() const
+std::string ThreeBodyReaction2::productString() const
 {
     if (specified_collision_partner) {
-        return ElementaryReaction::productString() + " + "
+        return ElementaryReaction2::productString() + " + "
             + third_body.efficiencies.begin()->first;
     } else {
-        return ElementaryReaction::productString() + " + M";
+        return ElementaryReaction2::productString() + " + M";
     }
 }
 
-void ThreeBodyReaction::calculateRateCoeffUnits(const Kinetics& kin)
+void ThreeBodyReaction2::calculateRateCoeffUnits(const Kinetics& kin)
 {
-    ElementaryReaction::calculateRateCoeffUnits(kin);
+    ElementaryReaction2::calculateRateCoeffUnits(kin);
     bool specified_collision_partner_ = false;
     for (const auto& reac : reactants) {
         // While this reaction was already identified as a three-body reaction in a
@@ -462,9 +462,9 @@ void ThreeBodyReaction::calculateRateCoeffUnits(const Kinetics& kin)
     }
 }
 
-void ThreeBodyReaction::getParameters(AnyMap& reactionNode) const
+void ThreeBodyReaction2::getParameters(AnyMap& reactionNode) const
 {
-    ElementaryReaction::getParameters(reactionNode);
+    ElementaryReaction2::getParameters(reactionNode);
     if (!specified_collision_partner) {
         reactionNode["type"] = "three-body";
         reactionNode["efficiencies"] = third_body.efficiencies;
@@ -475,7 +475,7 @@ void ThreeBodyReaction::getParameters(AnyMap& reactionNode) const
     }
 }
 
-std::pair<std::vector<std::string>, bool> ThreeBodyReaction::undeclaredThirdBodies(
+std::pair<std::vector<std::string>, bool> ThreeBodyReaction2::undeclaredThirdBodies(
         const Kinetics& kin) const
 {
     std::vector<std::string> undeclared;
@@ -608,43 +608,43 @@ void ChemicallyActivatedReaction::getParameters(AnyMap& reactionNode) const
     reactionNode["type"] = "chemically-activated";
 }
 
-PlogReaction::PlogReaction()
+PlogReaction2::PlogReaction2()
     : Reaction()
 {
     reaction_type = PLOG_RXN;
 }
 
-PlogReaction::PlogReaction(const Composition& reactants_,
-                           const Composition& products_, const Plog& rate_)
+PlogReaction2::PlogReaction2(const Composition& reactants_,
+                             const Composition& products_, const Plog& rate_)
     : Reaction(reactants_, products_)
     , rate(rate_)
 {
     reaction_type = PLOG_RXN;
 }
 
-void PlogReaction::getParameters(AnyMap& reactionNode) const
+void PlogReaction2::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
     reactionNode["type"] = "pressure-dependent-Arrhenius";
     rate.getParameters(reactionNode, rate_units);
 }
 
-ChebyshevReaction::ChebyshevReaction()
+ChebyshevReaction2::ChebyshevReaction2()
     : Reaction()
 {
     reaction_type = CHEBYSHEV_RXN;
 }
 
-ChebyshevReaction::ChebyshevReaction(const Composition& reactants_,
-                                     const Composition& products_,
-                                     const Chebyshev& rate_)
+ChebyshevReaction2::ChebyshevReaction2(const Composition& reactants_,
+                                       const Composition& products_,
+                                       const Chebyshev& rate_)
     : Reaction(reactants_, products_)
     , rate(rate_)
 {
     reaction_type = CHEBYSHEV_RXN;
 }
 
-void ChebyshevReaction::getParameters(AnyMap& reactionNode) const
+void ChebyshevReaction2::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
     reactionNode["type"] = "Chebyshev";
@@ -662,7 +662,7 @@ InterfaceReaction::InterfaceReaction(const Composition& reactants_,
                                      const Composition& products_,
                                      const Arrhenius& rate_,
                                      bool isStick)
-    : ElementaryReaction(reactants_, products_, rate_)
+    : ElementaryReaction2(reactants_, products_, rate_)
     , is_sticking_coefficient(isStick)
     , use_motz_wise_correction(false)
 {
@@ -671,7 +671,7 @@ InterfaceReaction::InterfaceReaction(const Composition& reactants_,
 
 void InterfaceReaction::calculateRateCoeffUnits(const Kinetics& kin)
 {
-    ElementaryReaction::calculateRateCoeffUnits(kin);
+    ElementaryReaction2::calculateRateCoeffUnits(kin);
     if (is_sticking_coefficient || input.hasKey("sticking-coefficient")) {
         rate_units = Units(1.0); // sticking coefficients are dimensionless
     }
@@ -679,7 +679,7 @@ void InterfaceReaction::calculateRateCoeffUnits(const Kinetics& kin)
 
 void InterfaceReaction::getParameters(AnyMap& reactionNode) const
 {
-    ElementaryReaction::getParameters(reactionNode);
+    ElementaryReaction2::getParameters(reactionNode);
     if (is_sticking_coefficient) {
         reactionNode["sticking-coefficient"] = std::move(reactionNode["rate-constant"]);
         reactionNode.erase("rate-constant");
@@ -1286,7 +1286,7 @@ BlowersMasel readBlowersMasel(const Reaction& R, const AnyValue& rate,
     return BlowersMasel(A, b, Ta0, w);
 }
 
-bool detectEfficiencies(ThreeBodyReaction& R)
+bool detectEfficiencies(ThreeBodyReaction2& R)
 {
     for (const auto& reac : R.reactants) {
         // detect explicitly specified collision partner
@@ -1433,7 +1433,7 @@ void setupReaction(Reaction& R, const AnyMap& node, const Kinetics& kin)
     R.calculateRateCoeffUnits(kin);
 }
 
-void setupElementaryReaction(ElementaryReaction& R, const XML_Node& rxn_node)
+void setupElementaryReaction(ElementaryReaction2& R, const XML_Node& rxn_node)
 {
     const XML_Node& rc_node = rxn_node.child("rateCoeff");
     if (rc_node.hasChild("Arrhenius")) {
@@ -1455,7 +1455,7 @@ void setupElementaryReaction(ElementaryReaction& R, const XML_Node& rxn_node)
     setupReaction(R, rxn_node);
 }
 
-void setupElementaryReaction(ElementaryReaction& R, const AnyMap& node,
+void setupElementaryReaction(ElementaryReaction2& R, const AnyMap& node,
                              const Kinetics& kin)
 {
     setupReaction(R, node, kin);
@@ -1463,7 +1463,7 @@ void setupElementaryReaction(ElementaryReaction& R, const AnyMap& node,
     R.rate = readArrhenius(R, node["rate-constant"], kin, node.units());
 }
 
-void setupThreeBodyReaction(ThreeBodyReaction& R, const XML_Node& rxn_node)
+void setupThreeBodyReaction(ThreeBodyReaction2& R, const XML_Node& rxn_node)
 {
     readEfficiencies(R.third_body, rxn_node.child("rateCoeff"));
     setupElementaryReaction(R, rxn_node);
@@ -1472,7 +1472,7 @@ void setupThreeBodyReaction(ThreeBodyReaction& R, const XML_Node& rxn_node)
     }
 }
 
-void setupThreeBodyReaction(ThreeBodyReaction& R, const AnyMap& node,
+void setupThreeBodyReaction(ThreeBodyReaction2& R, const AnyMap& node,
                             const Kinetics& kin)
 {
     setupElementaryReaction(R, node, kin);
@@ -1595,7 +1595,7 @@ void setupChemicallyActivatedReaction(ChemicallyActivatedReaction& R,
     setupReaction(R, rxn_node);
 }
 
-void setupPlogReaction(PlogReaction& R, const XML_Node& rxn_node)
+void setupPlogReaction(PlogReaction2& R, const XML_Node& rxn_node)
 {
     XML_Node& rc = rxn_node.child("rateCoeff");
     std::multimap<double, Arrhenius> rates;
@@ -1607,7 +1607,7 @@ void setupPlogReaction(PlogReaction& R, const XML_Node& rxn_node)
     setupReaction(R, rxn_node);
 }
 
-void setupPlogReaction(PlogReaction& R, const AnyMap& node, const Kinetics& kin)
+void setupPlogReaction(PlogReaction2& R, const AnyMap& node, const Kinetics& kin)
 {
     setupReaction(R, node, kin);
     std::multimap<double, Arrhenius> rates;
@@ -1618,13 +1618,13 @@ void setupPlogReaction(PlogReaction& R, const AnyMap& node, const Kinetics& kin)
     R.rate = Plog(rates);
 }
 
-void PlogReaction::validate()
+void PlogReaction2::validate()
 {
     Reaction::validate();
     rate.validate(equation());
 }
 
-void setupChebyshevReaction(ChebyshevReaction& R, const XML_Node& rxn_node)
+void setupChebyshevReaction(ChebyshevReaction2& R, const XML_Node& rxn_node)
 {
     XML_Node& rc = rxn_node.child("rateCoeff");
     const XML_Node& coeff_node = rc.child("floatArray");
@@ -1647,7 +1647,7 @@ void setupChebyshevReaction(ChebyshevReaction& R, const XML_Node& rxn_node)
     setupReaction(R, rxn_node);
 }
 
-void setupChebyshevReaction(ChebyshevReaction&R, const AnyMap& node,
+void setupChebyshevReaction(ChebyshevReaction2&R, const AnyMap& node,
                             const Kinetics& kin)
 {
     setupReaction(R, node, kin);
