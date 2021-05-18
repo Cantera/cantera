@@ -1501,15 +1501,27 @@ cdef class ElementaryReaction(Reaction3):
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
 
-            if isinstance(rate, ArrheniusRate):
+            if isinstance(rate, (ArrheniusRate, Arrhenius)):
                 self.rate = rate
 
     property rate:
-        """ Get/Set the `Arrhenius` rate coefficient for this reaction. """
+        """ Get/Set the `ArrheniusRate` rate coefficient for this reaction. """
         def __get__(self):
             return ArrheniusRate.wrap(self.er().rate())
-        def __set__(self, ArrheniusRate rate):
-            self.er().setRate(rate._base)
+        def __set__(self, rate):
+            cdef ArrheniusRate rate3
+            if isinstance(rate, ArrheniusRate):
+                rate3 = rate
+            elif isinstance(rate, Arrhenius):
+                warnings.warn("Setting the rate using an 'Arrhenius' object is "
+                    "deprecated and will be removed after Cantera 2.6. The argument "
+                    "type is replaceable by 'ArrheniusRate'.", DeprecationWarning)
+                rate3 = ArrheniusRate(rate.pre_exponential_factor,
+                                      rate.temperature_exponent,
+                                      rate.activation_energy)
+            else:
+                raise TypeError("Invalid rate definition")
+            self.er().setRate(rate3._base)
 
     property allow_negative_pre_exponential_factor:
         """
@@ -1665,7 +1677,7 @@ cdef class PlogReaction(Reaction3):
                 self.rate = rate
 
     property rate:
-        """ Get/Set the `Plog` rate coefficients for this reaction. """
+        """ Get/Set the `PlogRate` rate coefficients for this reaction. """
         def __get__(self):
             return PlogRate.wrap(self.pr().rate())
         def __set__(self, PlogRate rate):
