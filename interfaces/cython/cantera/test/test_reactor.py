@@ -442,6 +442,13 @@ class TestReactor(utilities.CanteraTest):
         gas2.TPX = 300, 10*101325, 'H2:1.0'
         reservoir = ct.Reservoir(gas2)
 
+        # Apply a mass flow rate that is not a smooth function of time. This
+        # demonstrates the accuracy that can be achieved by having the mass flow rate
+        # evaluated simultaneously with the rest of the governing equations, as opposed
+        # to doing only between integrator time steps. In the latter case, larger
+        # errors would be introduced when the integrator steps past the times where the
+        # function's behavior changes and can't dynamically reduce the steps size for
+        # the already-completed steps.
         mfc = ct.MassFlowController(reservoir, self.r1)
         # Triangular pulse with area = 0.1
         def mdot(t):
