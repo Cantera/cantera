@@ -92,6 +92,5 @@
 
 * Style generally follows PEP8 (https://www.python.org/dev/peps/pep-0008/)
 * Code in `.py` and `.pyx` files needs to be written to work with Python 3
-* The minimum Python version that Cantera supports is Python 3.4, so code should only use features added in Python 3.4 or earlier
-* Code in `ctml_writer.py` and `ck2cti.py` needs to be written to work with both Python 2 and Python 3
-* Code in the Python examples should be written for Python 3
+* The minimum Python version that Cantera supports is Python 3.6, so code should only use features added in Python 3.6 or earlier
+* Please use double quotes in all new Python code
