@@ -651,7 +651,7 @@ class SolutionArray:
               mystates.append(T=300, P=101325, X={'O2':1.0, 'N2':3.76})
 
         By default, the mass or mole fractions will be normalized so they sum to 1.0.
-        If this is not desired, the normalize argument can be set to False.
+        If this is not desired, the ``normalize`` argument can be set to ``False``.
         In this case, the mass or mole fractions must be specified as an array::
 
             mystates.append(T=300, P=101325, X=gas.X - 1e-16, normalize=False)
@@ -687,15 +687,18 @@ class SolutionArray:
                 raise KeyError(
                     "'{}' does not specify a full thermodynamic state".format(attr)
                 )
-            if normalize:
+            if normalize or attr[-1] == "Q":
                 setattr(self._phase, attr, value)
-
-            else:
+            if not normalize:
                 if attr[-1] == "X":
                     self._phase.set_unnormalized_mole_fractions(value[-1])
+                    attr = attr[:-1]
+                    value = value[:-1]
                 elif attr[-1] == "Y":
                     self._phase.set_unnormalized_mass_fractions(value[-1])
-                setattr(self._phase, attr[:2], value[:2])
+                    attr = attr[:-1]
+                    value = value[:-1]
+                setattr(self._phase, attr, value)
 
         else:
             try:
@@ -705,14 +708,16 @@ class SolutionArray:
                     "{} is not a valid combination of properties for setting "
                     "the thermodynamic state".format(tuple(kwargs))
                 ) from None
-            if normalize:
-                setattr(self._phase, attr, [kwargs[a] for a in attr])
-            else:
+            if normalize or attr[-1] == "Q":
+                setattr(self._phase, attr, list(kwargs.values()))
+            if not normalize:
                 if attr[-1] == "X":
                     self._phase.set_unnormalized_mole_fractions(kwargs.pop("X"))
+                    attr = attr[:-1]
                 elif attr[-1] == "Y":
                     self._phase.set_unnormalized_mass_fractions(kwargs.pop("Y"))
-                setattr(self._phase, attr[:2], list(kwargs.values()))
+                    attr = attr[:-1]
+                setattr(self._phase, attr, list(kwargs.values()))
 
         for name, value in self._extra.items():
             new = extra_temp[name]
@@ -788,9 +793,10 @@ class SolutionArray:
         entries already specified, only those will be imported; if *labels*
         does not contain those entries, an error is raised.
 
-        By default, if the data contains mass or mole fractions,
-        they will be non-normalized. If this is not desired,
-        the normalize argument can be set to True, so they sum to 1.0.
+        If the data contains mass or mole fractions they will be set
+        without normalizing their sum to 1.0 by default. If this is not desired,
+        the ``normalize`` argument can be set to ``True`` to force the data
+        to sum to 1.0.
         """
 
         # check arguments
@@ -929,11 +935,11 @@ class SolutionArray:
             self._shape = (rows,)
 
         # restore data
-        if normalize:
+        if normalize or mode[-1] == "Q":
             for i in self._indices:
                 setattr(self._phase, mode, [st[i, ...] for st in state_data])
                 self._states[i] = self._phase.state
-        else:
+        if not normalize:
             for i in self._indices:
                 if mode[-1] == "X":
                     self._phase.set_unnormalized_mole_fractions([st[i, ...] for \
@@ -1086,9 +1092,8 @@ class SolutionArray:
         using `restore_data`. This method allows for recreation of data
         previously exported by `write_csv`.
 
-        The normalize argument is passed on to `restore_data` to normalize
-        mole or mass fractions if desired. By default, the normalize
-        argument is set to False.
+        The ``normalize`` argument is passed on to `restore_data` to normalize
+        mole or mass fractions, if desired. By default, ``normalize`` is ``False``.
         """
         if np.lib.NumpyVersion(np.__version__) < "1.14.0":
             # bytestring needs to be converted for columns containing strings
@@ -1133,9 +1138,8 @@ class SolutionArray:
         exported by `to_pandas`. The method requires a working pandas
         installation. The package 'pandas' can be installed using pip or conda.
 
-        The normalize argument is passed on to `restore_data` to normalize
-        mole or mass fractions if desired. By default, the normalize
-        argument is set to False.
+        The ``normalize`` argument is passed on to `restore_data` to normalize
+        mole or mass fractions, if desired. By default, ``normalize`` is ``False``..
 
         """
 
@@ -1296,9 +1300,8 @@ class SolutionArray:
         The method imports data using `restore_data` and requires a working
         installation of h5py (`h5py` can be installed using pip or conda).
 
-        The normalize argument is passed on to `restore_data` to normalize
-        mole or mass fractions if desired. By default, the normalize
-        argument is set to False.
+        The ``normalize`` argument is passed on to `restore_data` to normalize
+        mole or mass fractions, if desired. By default, ``normalize`` is ``False``.
         """
         if isinstance(_h5py, ImportError):
             raise _h5py
