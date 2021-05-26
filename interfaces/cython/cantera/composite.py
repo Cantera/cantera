@@ -652,7 +652,8 @@ class SolutionArray:
 
         By default, the mass or mole fractions will be normalized so they sum to 1.0.
         If this is not desired, the ``normalize`` argument can be set to ``False``.
-        In this case, the mass or mole fractions must be specified as an array::
+        In this case, the mass or mole fractions must be specified as an array.
+        For example::
 
             mystates.append(T=300, P=101325, X=gas.X - 1e-16, normalize=False)
         """
@@ -689,7 +690,7 @@ class SolutionArray:
                 )
             if normalize or attr[-1] == "Q":
                 setattr(self._phase, attr, value)
-            if not normalize:
+            elif not normalize:
                 if attr[-1] == "X":
                     self._phase.set_unnormalized_mole_fractions(value[-1])
                     attr = attr[:-1]
@@ -710,7 +711,7 @@ class SolutionArray:
                 ) from None
             if normalize or attr[-1] == "Q":
                 setattr(self._phase, attr, list(kwargs.values()))
-            if not normalize:
+            elif not normalize:
                 if attr[-1] == "X":
                     self._phase.set_unnormalized_mole_fractions(kwargs.pop("X"))
                     attr = attr[:-1]
@@ -939,7 +940,7 @@ class SolutionArray:
             for i in self._indices:
                 setattr(self._phase, mode, [st[i, ...] for st in state_data])
                 self._states[i] = self._phase.state
-        if not normalize:
+        elif not normalize:
             for i in self._indices:
                 if mode[-1] == "X":
                     self._phase.set_unnormalized_mole_fractions([st[i, ...] for \
