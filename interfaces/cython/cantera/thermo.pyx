@@ -694,19 +694,6 @@ cdef class ThermoPhase(_SolutionBase):
             else:
                 self._setArray1(thermo_setMassFractions, Y)
 
-    property Y_no_norm:
-        """
-        Set the unnormalized mass fractions. Can only be set as an array.
-
-             >>> phase.Y = [0.1, 0, -0.1, 0.4, 0, 0, 0, 0, 0.5]
-        """
-        def __set__(self, Y):
-            if len(Y) == self.n_species:
-                self.set_unnormalized_mass_fractions(Y)
-            else:
-                msg = "Got {}. Expected {}".format(len(Y), self.n_species)
-                raise ValueError('Array has incorrect length. ' + msg + '.')
-
     property X:
         """
         Get/Set the species mole fractions. Can be set as an array, as a dictionary,
@@ -727,19 +714,6 @@ cdef class ThermoPhase(_SolutionBase):
                 self.thermo.setMoleFractionsByName(comp_map(X))
             else:
                 self._setArray1(thermo_setMoleFractions, X)
-
-    property X_no_norm:
-        """
-        Set the unnormalized mole fractions. Can only be set as an array.
-
-             >>> phase.X = [0.1, 0, -0.1, 0.4, 0, 0, 0, 0, 0.5]
-        """
-        def __set__(self, X):
-            if len(X) == self.n_species:
-                self.set_unnormalized_mole_fractions(X)
-            else:
-                msg = "Got {}. Expected {}".format(len(X), self.n_species)
-                raise ValueError('Array has incorrect length. ' + msg + '.')
 
     property concentrations:
         """Get/Set the species concentrations [kmol/m^3]."""
