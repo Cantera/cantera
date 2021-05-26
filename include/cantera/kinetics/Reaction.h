@@ -453,9 +453,10 @@ public:
 };
 
 
-//! An intermediate class used to avoid naming conflicts of 'rate' member
-//! variables and getters (see `ElementaryReaction2`, `PlogReaction2` and
-//! `ChebyshevReaction2`).
+//! An intermediate class collecting new features of the updated reaction classes.
+//! It also avoids ambiguous uses of 'rate' member variables and getters (see
+//! `ElementaryReaction2`, `PlogReaction2` and `ChebyshevReaction2`). The class will
+//! be merged with Reaction after deprecation of the CTI/XML framework.
 class Reaction3 : public Reaction
 {
 public:
