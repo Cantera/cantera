@@ -628,7 +628,7 @@ class SolutionArray:
         return SolutionArray(self._phase[species], states=self._states,
                              extra=self._extra)
 
-    def append(self, state=None, normalize=True, **kwargs):
+    def append(self, state=None, normalize=None, **kwargs):
         """
         Append an element to the array with the specified state. Elements can
         only be appended in cases where the array of states is one-dimensional.
@@ -650,14 +650,13 @@ class SolutionArray:
 
               mystates.append(T=300, P=101325, X={'O2':1.0, 'N2':3.76})
 
-        By default, the mass or mole fractions will be normalized so they sum to 1.0.
-        If this is not desired, the ``normalize`` argument can be set to ``False``.
-        In this case, a tuple of three elements that corresponds to the
-        full state setters of the `Solution` must be in terms of the mass fraction
-        e.g. `TPY` or `HPY` and the mass fractions must be specified as an array.
+        By default, setters with `moleFractions` are normalized to sum to 1.0 in all
+        cases. while element appended using ``state`` or the setter contains
+        `massFractions` specified as an array, are non-normalized. If this is
+        not desired, the ``normalize`` argument can be set to ``True``.
         For example::
 
-            mystates.append(T=300, P=101325, Y=gas.Y - 0.1, normalize=False)
+            mystates.append(T=300, P=101325, Y=gas.Y - 0.1, normalize=True)
         """
         if len(self._shape) != 1:
             raise IndexError("Can only append to 1D SolutionArray")
@@ -683,7 +682,7 @@ class SolutionArray:
 
         if state is not None:
             mode = "".join(self._phase._native_state)
-            if normalize or mode[-1] == "Q":
+            if normalize:
                 if len(mode) == 3:
                     state_data = (state[0], state[1], state[2:])
                 elif len(mode) == 2:
@@ -702,18 +701,30 @@ class SolutionArray:
                 raise KeyError(
                     "'{}' does not specify a full thermodynamic state".format(attr)
                 )
-            if normalize or attr[-1] == "Q":
-                setattr(self._phase, attr, value)
-            else:
-                if attr[-1] == "Y":
-                    self._phase.set_unnormalized_mass_fractions(value[-1])
-                    attr = attr[:-1]
-                    value = value[:-1]
+            if attr[-1] == "Y":
+                if normalize:
                     setattr(self._phase, attr, value)
+                elif normalize is None:
+                    if isinstance(value[-1], (list, tuple, np.ndarray)):
+                        self._phase.set_unnormalized_mass_fractions(value[-1])
+                        attr = attr[:-1]
+                        value = value[:-1]
+                        setattr(self._phase, attr, value)
+                    else:
+                        setattr(self._phase, attr, list(kwargs.values()))
                 else:
-                    raise KeyError(
-                       "Non-normalize only works with mass fractions"
-                    )
+                    if isinstance(value[-1], (list, tuple, np.ndarray)):
+                        self._phase.set_unnormalized_mass_fractions(value[-1])
+                        attr = attr[:-1]
+                        value = value[:-1]
+                        setattr(self._phase, attr, value)
+                    else:
+                        raise ValueError(
+                           "Mass fraction must be specified as an array if "
+                           "`normalize` is True"
+                        )
+            else:
+                setattr(self._phase, attr, value)
 
         else:
             try:
@@ -723,17 +734,28 @@ class SolutionArray:
                     "{} is not a valid combination of properties for setting "
                     "the thermodynamic state".format(tuple(kwargs))
                 ) from None
-            if normalize or attr[-1] == "Q":
-                setattr(self._phase, attr, list(kwargs.values()))
-            else:
-                if attr[-1] == "Y":
-                    self._phase.set_unnormalized_mass_fractions(kwargs.pop("Y"))
-                    attr = attr[:-1]
+            if attr[-1] == "Y":
+                if normalize:
                     setattr(self._phase, attr, list(kwargs.values()))
+                elif normalize is None:
+                    if isinstance(kwargs["Y"], (list, tuple, np.ndarray)):
+                        self._phase.set_unnormalized_mass_fractions(kwargs.pop("Y"))
+                        attr = attr[:-1]
+                        setattr(self._phase, attr, list(kwargs.values()))
+                    else:
+                        setattr(self._phase, attr, list(kwargs.values()))
                 else:
-                    raise KeyError(
-                       "Non-normalize only works with mass fractions"
-                    )
+                    if isinstance(kwargs["Y"], (list, tuple, np.ndarray)):
+                        self._phase.set_unnormalized_mass_fractions(kwargs.pop("Y"))
+                        attr = attr[:-1]
+                        setattr(self._phase, attr, list(kwargs.values()))
+                    else:
+                        raise ValueError(
+                           "Mass fraction must be specified as an array if "
+                           "`normalize` is True"
+                        )
+            else:
+                setattr(self._phase, attr, list(kwargs.values()))
 
         for name, value in self._extra.items():
             new = extra_temp[name]
