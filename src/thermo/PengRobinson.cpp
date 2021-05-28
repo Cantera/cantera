@@ -255,45 +255,12 @@ void PengRobinson::getPartialMolarEnthalpies(double* hbar) const
 
 void PengRobinson::getPartialMolarEntropies(double* sbar) const
 {
-    getEntropy_R_ref(sbar);
-    scale(sbar, sbar+m_kk, sbar, GasConstant);
+    // Using the identity : (hk - T*sk) = gk
     double T = temperature();
-    double mv = molarVolume();
-    double vmb = mv - m_b;
-    double vpb2 = mv + (1 + M_SQRT2)*m_b;
-    double vmb2 = mv + (1 - M_SQRT2)*m_b;
-    double refP = refPressure();
-    double daAlphadT = daAlpha_dT();
-    double coeff1 = 0;
-    double den1 = 2 * M_SQRT2 * m_b * m_b;
-    double den2 = mv * mv + 2 * mv * m_b - m_b * m_b;
-
-    // Calculate sum(n_j (a alpha)_i, k * (1/alpha_k d/dT(alpha_k))) -> m_pp
-    // Calculate sum(n_j (a alpha)_i, k * (1/alpha_i d/dT(alpha_i))) -> m_tmpV
+    getPartialMolarEnthalpies(sbar);
+    getChemPotentials(m_tmpV.data());
     for (size_t k = 0; k < m_kk; k++) {
-        m_pp[k] = 0.0;
-        m_tmpV[k] = 0;
-        for (size_t i = 0; i < m_kk; i++) {
-            m_pp[k] += moleFractions_[i] * m_aAlpha_binary(k, i);
-            m_tmpV[k] += moleFractions_[i] * m_aAlpha_binary(k, i) * (m_dalphadT[i] / m_alpha[i]);
-        }
-        m_pp[k] = m_pp[k] * m_dalphadT[k] / m_alpha[k];
-    }
-
-
-    for (size_t k = 0; k < m_kk; k++) {
-        coeff1 = m_b * (m_pp[k] + m_tmpV[k]) - daAlphadT * m_b_coeffs[k];
-        sbar[k] += GasConstant * log(GasConstant * T / (refP * mv))
-                   + GasConstant
-                   + GasConstant * log(mv / vmb)
-                   + GasConstant * m_b_coeffs[k] / vmb
-                   - coeff1 * log(vpb2 / vmb2) / den1
-                   - m_b_coeffs[k] * mv * daAlphadT / den2 / m_b;
-    }
-    calculatePressureDerivatives();
-    getPartialMolarVolumes(m_partialMolarVolumes.data());
-    for (size_t k = 0; k < m_kk; k++) {
-        sbar[k] -= m_partialMolarVolumes[k] * m_dpdT;
+        sbar[k] = (sbar[k] - m_tmpV[k])/T;
     }
 }
 
@@ -798,7 +765,7 @@ double PengRobinson::d2aAlpha_dT2() const
         for (size_t j = 0; j < m_kk; j++) {
             double alphaj = m_alpha[j];
             double alphaij = alphai * alphaj;
-            double temp = 0.5 * sqrt((m_a_coeffs(i, i) * m_a_coeffs(j, j)) / (alphaij));
+            double temp = 0.5 * sqrt(m_a_coeffs(i, i) * m_a_coeffs(j, j) / (alphaij));
             double num = (m_dalphadT[j] * alphai + m_dalphadT[i] * alphaj);
             double fac1 = -(0.5 / alphaij) * num * num;
             double fac2 = alphaj * m_d2alphadT2[i] + alphai * m_d2alphadT2[j] + 2. * m_dalphadT[i] * m_dalphadT[j];
