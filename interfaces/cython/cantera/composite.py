@@ -682,7 +682,17 @@ class SolutionArray:
             extra_temp[name] = kwargs.pop(name)
 
         if state is not None:
-            self._phase.state = state
+            mode = "".join(self._phase._native_state)
+            if normalize or mode[-1] == "Q":
+                if len(mode) == 3:
+                    state_data = (state[0], state[1], state[2:])
+                elif len(mode) == 2:
+                    state_data = (state[0], state[1:])
+                else:
+                    state_data = state
+                setattr(self._phase, mode, state_data)
+            else:
+                self._phase.state = state
 
         # Non normalize form must be set using the mass fractions as the
         # mole fractions are not in the native_state setter.

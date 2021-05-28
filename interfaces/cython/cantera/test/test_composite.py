@@ -145,6 +145,25 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         self.assertEqual(states[0].P, gas.P)
         self.assertArrayNear(states[0].Y, gas.Y)
 
+    def test_append_no_norm_state(self):
+        gas = ct.Solution("h2o2.yaml")
+        gas.TP = 300, ct.one_atm
+        gas.set_unnormalized_mass_fractions(np.full(gas.n_species, 0.3))
+        states = ct.SolutionArray(gas)
+        states.append(gas.state, normalize=False)
+        self.assertEqual(states[0].T, gas.T)
+        self.assertEqual(states[0].P, gas.P)
+        self.assertArrayNear(states[0].Y, gas.Y)
+
+    def test_append_norm_state(self):
+        gas = ct.Solution("h2o2.yaml")
+        gas.TPX = 300, ct.one_atm, 'H2:0.5, O2:0.4'
+        states = ct.SolutionArray(gas)
+        states.append(gas.state)
+        self.assertEqual(states[0].T, gas.T)
+        self.assertEqual(states[0].P, gas.P)
+        self.assertArrayNear(states[0].X, gas.X)
+
     def test_import_no_norm_data(self):
         outfile = pjoin(self.test_work_dir, "solutionarray.h5")
         if os.path.exists(outfile):
