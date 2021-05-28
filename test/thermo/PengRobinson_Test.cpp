@@ -302,7 +302,7 @@ TEST_F(PengRobinson_Test, cpValidate)
         double h2 = test_phase->enthalpy_mole();
 
         double dh_dT = (h2 - h1) / (2 * dT);
-        EXPECT_NEAR(cp, dh_dT, 1e-6);
+        EXPECT_NEAR(cp, dh_dT, 1e-6 * cp);
     }
 }
 
