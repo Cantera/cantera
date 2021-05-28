@@ -138,20 +138,12 @@ class TestSolutionArrayIO(utilities.CanteraTest):
     def test_append_no_norm_data(self):
         gas = ct.Solution("h2o2.yaml")
         gas.TP = 300, ct.one_atm
-        gas.X = gas.X - 1.e-16
+        gas.set_unnormalized_mass_fractions(np.full(gas.n_species, 0.3))
         states = ct.SolutionArray(gas)
-        states.append(T=gas.T, P=gas.P, X = gas.X, normalize = False)
+        states.append(T=gas.T, P=gas.P, Y=gas.Y, normalize=False)
         self.assertEqual(states[0].T, gas.T)
         self.assertEqual(states[0].P, gas.P)
-        self.assertArrayNear(states[0].X, gas.X)
-
-        w = ct.Water()
-        states = ct.SolutionArray(w)
-        w.TQ = 300, 0.5
-        states.append(w.state)
-        self.assertEqual(states[0].T, w.T)
-        self.assertEqual(states[0].P, w.P)
-        self.assertEqual(states[0].Q, w.Q)
+        self.assertArrayNear(states[0].Y, gas.Y)
 
     def test_import_no_norm_data(self):
         outfile = pjoin(self.test_work_dir, "solutionarray.h5")
@@ -159,28 +151,16 @@ class TestSolutionArrayIO(utilities.CanteraTest):
             os.remove(outfile)
 
         gas = ct.Solution("h2o2.yaml")
-        gas.set_unnormalized_mole_fractions(gas.X - 1e-16)
+        gas.set_unnormalized_mole_fractions(np.full(gas.n_species, 0.3))
         states = ct.SolutionArray(gas, 5)
-        states.write_hdf(outfile, group="mole fraction")
+        states.write_hdf(outfile)
 
         gas_new = ct.Solution("h2o2.yaml")
         b = ct.SolutionArray(gas_new)
-        b.read_hdf(outfile, group="mole fraction")
+        b.read_hdf(outfile, normalize=False)
         self.assertArrayNear(states.T, b.T)
         self.assertArrayNear(states.P, b.P)
         self.assertArrayNear(states.X, b.X)
-
-        w = ct.Water()
-        w.TQ = 300, 0.5
-        states = ct.SolutionArray(w, 5)
-        states.write_hdf(outfile, group="vapor fraction")
-
-        w_new = ct.Water()
-        c = ct.SolutionArray(w_new)
-        c.read_hdf(outfile, group="vapor fraction")
-        self.assertArrayNear(states.T, c.T)
-        self.assertArrayNear(states.P, c.P)
-        self.assertArrayNear(states.Q, c.Q)
 
     def test_write_csv(self):
         states = ct.SolutionArray(self.gas, 7)
@@ -337,7 +317,7 @@ class TestRestoreIdealGas(utilities.CanteraTest):
 
         # basic restore
         b = ct.SolutionArray(self.gas)
-        b.restore_data(data)
+        b.restore_data(data, normalize=True)
         check(a, b)
 
         # skip concentrations
@@ -463,6 +443,32 @@ class TestRestorePureFluid(utilities.CanteraTest):
         b = ct.SolutionArray(self.water)
         b.restore_data(data)
         check(a, b)
+
+    def test_import_no_norm_water(self):
+        outfile = pjoin(self.test_work_dir, "solutionarray.h5")
+        if os.path.exists(outfile):
+            os.remove(outfile)
+
+        w = ct.Water()
+        w.TQ = 300, 0.5
+        states = ct.SolutionArray(w, 5)
+        states.write_hdf(outfile)
+
+        w_new = ct.Water()
+        c = ct.SolutionArray(w_new)
+        c.read_hdf(outfile)
+        self.assertArrayNear(states.T, c.T)
+        self.assertArrayNear(states.P, c.P)
+        self.assertArrayNear(states.Q, c.Q)
+
+    def test_append_no_norm_water(self):
+        w = ct.Water()
+        states = ct.SolutionArray(w)
+        w.TQ = 300, 0.5
+        states.append(w.state)
+        self.assertEqual(states[0].T, w.T)
+        self.assertEqual(states[0].P, w.P)
+        self.assertEqual(states[0].Q, w.Q)
 
 
 class TestSolutionSerialization(utilities.CanteraTest):
