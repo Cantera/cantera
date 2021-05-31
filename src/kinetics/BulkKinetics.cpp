@@ -145,6 +145,7 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
                 throw CanteraError("BulkKinetics::addReaction", "Adding "
                     "reaction type '" + rate->type() + "' is not implemented");
             }
+            m_bulk_rates.back()->resizeSpecies(m_kk);
         }
 
         // Add reaction rate to evaluator
@@ -217,6 +218,9 @@ void BulkKinetics::resizeSpecies()
     m_act_conc.resize(m_kk);
     m_phys_conc.resize(m_kk);
     m_grt.resize(m_kk);
+    for (auto& rates : m_bulk_rates) {
+        rates->resizeSpecies(m_kk);
+    }
 }
 
 void BulkKinetics::setMultiplier(size_t i, double f) {
