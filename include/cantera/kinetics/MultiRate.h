@@ -41,6 +41,10 @@ public:
     virtual bool replace(const size_t rxn_index,
                          ReactionRateBase& rate) = 0;
 
+    //! Update number of species
+    //! @param n_species  number of species
+    virtual void resizeSpecies(size_t n_species) = 0;
+
     //! Evaluate all rate constants handled by the evaluator
     //! @param bulk  object representing bulk phase
     //! @param kf  array of rate constants
@@ -59,13 +63,15 @@ class MultiBulkRates final : public MultiRateBase
 {
 public:
     virtual void add(const size_t rxn_index,
-                     ReactionRateBase& rate) override {
+                     ReactionRateBase& rate) override
+    {
         m_indices[rxn_index] = m_rxn_rates.size();
         m_rxn_rates.emplace_back(rxn_index, dynamic_cast<RateType&>(rate));
     }
 
     virtual bool replace(const size_t rxn_index,
-                         ReactionRateBase& rate) override {
+                         ReactionRateBase& rate) override
+    {
         if (!m_rxn_rates.size()) {
             throw CanteraError("MultiBulkRate::replace",
                  "Invalid operation: cannot replace rate object "
@@ -84,14 +90,21 @@ public:
         return false;
     }
 
+    virtual void resizeSpecies(size_t n_species)
+    {
+        m_shared.resizeSpecies(n_species);
+    }
+
     virtual void getRateConstants(const ThermoPhase& bulk,
-                                  double* kf, double* concm) const override {
+                                  double* kf, double* concm) const override
+    {
         for (const auto& rxn : m_rxn_rates) {
             kf[rxn.first] = rxn.second.eval(m_shared, concm[rxn.first]);
         }
     }
 
-    virtual void update(const ThermoPhase& bulk, double* concm) override {
+    virtual void update(const ThermoPhase& bulk, double* concm) override
+    {
         // update common data once for each reaction type
         m_shared.update(bulk);
         if (RateType::uses_update()) {

@@ -10,29 +10,35 @@
 namespace Cantera
 {
 
-void ArrheniusData::update(const ThermoPhase& bulk) {
+void ArrheniusData::update(const ThermoPhase& bulk)
+{
     update(bulk.temperature());
 }
 
-void PlogData::update(double T) {
+void PlogData::update(double T)
+{
     throw CanteraError("PlogData::update",
         "Missing state information: reaction type requires pressure.");
 }
 
-void PlogData::update(const ThermoPhase& bulk) {
+void PlogData::update(const ThermoPhase& bulk)
+{
     update(bulk.temperature(), bulk.pressure());
 }
 
-void ChebyshevData::update(double T) {
+void ChebyshevData::update(double T)
+{
     throw CanteraError("ChebyshevData::update",
         "Missing state information: reaction type requires pressure.");
 }
 
-void ChebyshevData::update(const ThermoPhase& bulk) {
+void ChebyshevData::update(const ThermoPhase& bulk)
+{
     update(bulk.temperature(), bulk.pressure());
 }
 
-void CustomFunc1Data::update(const ThermoPhase& bulk) {
+void CustomFunc1Data::update(const ThermoPhase& bulk)
+{
     m_temperature = bulk.temperature();
 }
 
