@@ -6,9 +6,23 @@ import shutil
 import tempfile
 import unittest
 import errno
+
+try:
+    import ruamel_yaml as yaml
+except ImportError:
+    from ruamel import yaml
+
 import cantera
 
 slow_test = unittest.skipIf(os.environ.get("CT_SKIP_SLOW", "0") == "1", "slow test")
+
+
+def load_yaml(yml_file, typ="safe"):
+    # Load YAML data from file. The YAML loader defaults to "safe".
+    yaml_ = yaml.YAML(typ=typ)
+    with open(yml_file, "rt", encoding="utf-8") as stream:
+        return yaml_.load(stream)
+
 
 class CanteraTest(unittest.TestCase):
     @classmethod

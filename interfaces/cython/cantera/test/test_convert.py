@@ -10,11 +10,6 @@ from . import utilities
 import cantera as ct
 from cantera import ck2cti, ck2yaml, cti2yaml, ctml2yaml
 
-try:
-    import ruamel_yaml as yaml
-except ImportError:
-    from ruamel import yaml
-
 
 class converterTestCommon:
     def convert(self, inputFile, thermo=None, transport=None,
@@ -479,25 +474,23 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
                      extra='extra.yaml')
 
         output = pjoin(self.test_work_dir, 'gri30_extra' + self.ext)
-        with open(output, 'rt', encoding="utf-8") as stream:
-            yml = yaml.safe_load(stream)
+        yml = utilities.load_yaml(output)
 
         desc = yml['description'].split('\n')[-1]
         self.assertEqual(desc, 'This is an alternative description.')
         for key in ['foo', 'bar']:
             self.assertIn(key, yml.keys())
         # This test tests it can convert the SRI parameters when D or E equal to 0
-   
+
     def test_sri_zero(self):
         self.convert('sri_convert_test.txt')
         output = pjoin(self.test_work_dir, 'sri_convert_test' + self.ext)
-        with open(output, 'r') as f:
-            mech = yaml.safe_load(f)
+        mech = utilities.load_yaml(output)
         D = mech['reactions'][0]['SRI']['D']
         E = mech['reactions'][0]['SRI']['E']
         self.assertEqual(D, 0)
         self.assertEqual(E, 0)
-        
+
     def test_duplicate_reactions(self):
         # Running a test this way instead of using the convertMech function
         # tests the behavior of the ck2yaml.main function and the mechanism
