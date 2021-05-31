@@ -6,12 +6,6 @@ import numpy as np
 from collections import OrderedDict
 import warnings
 
-try:
-    import ruamel_yaml as yaml
-except ImportError:
-    from ruamel import yaml
-
-
 import cantera as ct
 from cantera.composite import _h5py, _pandas
 from . import utilities
@@ -23,8 +17,7 @@ class TestModels(utilities.CanteraTest):
     def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
         cls.yml_file = pjoin(cls.test_data_dir, "thermo-models.yaml")
-        with open(cls.yml_file, 'rt', encoding="utf-8") as stream:
-            cls.yml = yaml.safe_load(stream)
+        cls.yml = utilities.load_yaml(cls.yml_file)
 
     def test_load_thermo_models(self):
         for ph in self.yml['phases']:
@@ -478,8 +471,7 @@ class TestSolutionSerialization(utilities.CanteraTest):
         gas.equilibrate('HP')
         gas.TP = 1500, ct.one_atm
         gas.write_yaml('h2o2-generated.yaml')
-        with open('h2o2-generated.yaml', 'r') as infile:
-            generated = yaml.safe_load(infile)
+        generated = utilities.load_yaml("h2o2-generated.yaml")
         for key in ('generator', 'date', 'phases', 'species', 'reactions'):
             self.assertIn(key, generated)
         self.assertEqual(generated['phases'][0]['transport'], 'mixture-averaged')
@@ -503,10 +495,8 @@ class TestSolutionSerialization(utilities.CanteraTest):
         gas.TP = 1500, ct.one_atm
         units = {'length': 'cm', 'quantity': 'mol', 'energy': 'cal'}
         gas.write_yaml('h2o2-generated.yaml', units=units)
-        with open('h2o2-generated.yaml') as infile:
-            generated = yaml.safe_load(infile)
-        with open(pjoin(self.cantera_data, "h2o2.yaml")) as infile:
-            original = yaml.safe_load(infile)
+        generated = utilities.load_yaml("h2o2-generated.yaml")
+        original = utilities.load_yaml(pjoin(self.cantera_data, "h2o2.yaml"))
         self.assertEqual(generated['units'], units)
 
         for r1, r2 in zip(original['reactions'], generated['reactions']):
@@ -529,8 +519,7 @@ class TestSolutionSerialization(utilities.CanteraTest):
         surf.coverages = np.ones(surf.n_species)
         surf.write_yaml('ptcombust-generated.yaml')
 
-        with open('ptcombust-generated.yaml') as infile:
-            generated = yaml.safe_load(infile)
+        generated = utilities.load_yaml("ptcombust-generated.yaml")
         for key in ('phases', 'species', 'gas-reactions', 'Pt_surf-reactions'):
             self.assertIn(key, generated)
         self.assertEqual(len(generated['gas-reactions']), gas.n_reactions)
