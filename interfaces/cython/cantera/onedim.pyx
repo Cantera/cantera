@@ -4,6 +4,7 @@
 from .interrupts import no_op
 import warnings
 from collections import OrderedDict
+from pathlib import PurePath
 
 # Need a pure-python class to store weakrefs to
 class _WeakrefProxy:
@@ -1411,6 +1412,8 @@ cdef class Sim1D:
         ...        description='solution with energy eqn. disabled')
 
         """
+        if isinstance(filename, PurePath):
+            filename = str(filename)
         self.sim.save(stringify(filename), stringify(name),
                       stringify(description), loglevel)
 
@@ -1427,6 +1430,8 @@ cdef class Sim1D:
 
         >>> s.restore(filename='save.xml', name='energy_off')
         """
+        if isinstance(filename, PurePath):
+            filename = str(filename)
         self.sim.restore(stringify(filename), stringify(name), loglevel)
         self._initialized = True
 

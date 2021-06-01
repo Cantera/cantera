@@ -11,10 +11,11 @@ import cantera.interrupts  # Helps with standalone packaging (PyInstaller etc.)
 
 import os
 import sys
+from pathlib import Path
 import warnings
 
 warnings.filterwarnings('default', module='cantera')
-add_directory(os.path.join(os.path.dirname(__file__), 'data'))
+add_directory(Path(__file__).parent / "data")
 add_directory('.')  # Move current working directory to the front of the path
 
 # Python interpreter used for converting mechanisms
