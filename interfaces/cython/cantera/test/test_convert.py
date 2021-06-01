@@ -1,10 +1,7 @@
-import os
-from os.path import join as pjoin
 import itertools
 from pathlib import Path
 import logging
 import io
-import sys
 
 from . import utilities
 import cantera as ct
@@ -16,20 +13,20 @@ class converterTestCommon:
                 surface=None, output=None, extra=None,
                 quiet=True, permissive=None):
         if output is None:
-            output = inputFile[:-4]  # strip '.inp'
+            output = Path(inputFile).stem  # strip '.inp'
         if inputFile is not None:
-            inputFile = pjoin(self.test_data_dir, inputFile)
+            inputFile = Path(self.test_data_dir).joinpath(inputFile)
         if thermo is not None:
-            thermo = pjoin(self.test_data_dir, thermo)
+            thermo = Path(self.test_data_dir).joinpath(thermo)
         if transport is not None:
-            transport = pjoin(self.test_data_dir, transport)
+            transport = Path(self.test_data_dir).joinpath(transport)
         if surface is not None:
-            surface = pjoin(self.test_data_dir, surface)
+            surface = Path(self.test_data_dir).joinpath(surface)
         if extra is not None:
-            extra = pjoin(self.test_data_dir, extra)
-        output = pjoin(self.test_work_dir, output + self.ext)
-        if os.path.exists(output):
-            os.remove(output)
+            extra = Path(self.test_data_dir).joinpath(extra)
+        output = Path(self.test_work_dir).joinpath(output + self.ext)
+        if output.is_file():
+            output.unlink()
         self._convert(inputFile, thermo=thermo, transport=transport,
             surface=surface, output=output, extra=extra,
             quiet=quiet, permissive=permissive)
@@ -473,7 +470,7 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
                      transport='gri30_tran.dat', output='gri30_extra',
                      extra='extra.yaml')
 
-        output = pjoin(self.test_work_dir, 'gri30_extra' + self.ext)
+        output = Path(self.test_work_dir).joinpath("gri30_extra" + self.ext)
         yml = utilities.load_yaml(output)
 
         desc = yml['description'].split('\n')[-1]
@@ -484,7 +481,7 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
 
     def test_sri_zero(self):
         self.convert('sri_convert_test.txt')
-        output = pjoin(self.test_work_dir, 'sri_convert_test' + self.ext)
+        output = Path(self.test_work_dir).joinpath("sri_convert_test" + self.ext)
         mech = utilities.load_yaml(output)
         D = mech['reactions'][0]['SRI']['D']
         E = mech['reactions'][0]['SRI']['E']
@@ -572,7 +569,7 @@ class CtmlConverterTest(utilities.CanteraTest):
 
         gas = ct.Solution('pdep-test.yaml')
 
-        with open(pjoin(self.test_data_dir, 'pdep-test.cti'), 'r') as f:
+        with open(Path(self.test_data_dir).joinpath("pdep-test.cti"), "r") as f:
             data = f.read()
         data_size_2048kB = data + ' '*2048*1024
         gas2 = ct.Solution(source=data_size_2048kB)
@@ -587,7 +584,7 @@ class CtmlConverterTest(utilities.CanteraTest):
 
         gas = ct.Solution('pdep-test.yaml')
 
-        with open(pjoin(self.test_data_dir, 'pdep-test.cti'), 'r') as f:
+        with open(Path(self.test_data_dir).joinpath("pdep-test.cti"), "r") as f:
             data = f.read()
         data_size_32kB = data + ' '*18000
         gas2 = ct.Solution(source=data_size_32kB)
