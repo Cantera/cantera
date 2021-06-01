@@ -2,6 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from collections import defaultdict as _defaultdict
+from pathlib import PurePath
 
 cdef class _SolutionBase:
     def __cinit__(self, infile='', name='', adjacent=(), origin=None,
@@ -53,6 +54,11 @@ cdef class _SolutionBase:
         self.transport = NULL
 
         # Parse inputs
+        if isinstance(infile, PurePath):
+            if infile.name:
+                infile = str(infile)
+            else:
+                infile = ''
         if infile.endswith('.yml') or infile.endswith('.yaml') or yaml:
             self._init_yaml(infile, name, adjacent, yaml)
         elif infile or source:
