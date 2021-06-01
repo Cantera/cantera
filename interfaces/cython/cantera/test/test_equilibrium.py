@@ -1,5 +1,4 @@
 import unittest
-from os.path import join as pjoin
 
 import numpy as np
 
@@ -153,7 +152,7 @@ class TestKOH_Equil(utilities.CanteraTest):
 
             data[i,1:] = self.mix.species_moles
 
-        self.compare(data, pjoin(self.test_data_dir, 'koh-equil-TP.csv'))
+        self.compare(data, self.test_data_path / "koh-equil-TP.csv")
 
     @utilities.slow_test
     def test_equil_HP(self):
@@ -177,7 +176,7 @@ class TestKOH_Equil(utilities.CanteraTest):
             data[i,1] = self.mix.T # equilibrated temperature
             data[i,2:] = self.mix.species_moles
 
-        self.compare(data, pjoin(self.test_data_dir, 'koh-equil-HP.csv'))
+        self.compare(data, self.test_data_path / "koh-equil-HP.csv")
 
 
 class TestEquil_GasCarbon(utilities.CanteraTest):
@@ -207,7 +206,7 @@ class TestEquil_GasCarbon(utilities.CanteraTest):
             data[i,:2] = (phi[i], mix.T)
             data[i,2:] = mix.species_moles
 
-        self.compare(data, pjoin(self.test_data_dir, 'gas-carbon-equil.csv'))
+        self.compare(data, self.test_data_path / "gas-carbon-equil.csv")
 
     @utilities.slow_test
     def test_gibbs(self):

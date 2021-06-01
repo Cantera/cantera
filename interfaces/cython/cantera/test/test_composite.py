@@ -1,5 +1,4 @@
 import sys
-from pathlib import Path
 
 import numpy as np
 from collections import OrderedDict
@@ -15,7 +14,7 @@ class TestModels(utilities.CanteraTest):
     @classmethod
     def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
-        cls.yml_file = Path(cls.test_data_dir).joinpath("thermo-models.yaml")
+        cls.yml_file = cls.test_data_path / "thermo-models.yaml"
         cls.yml = utilities.load_yaml(cls.yml_file)
 
     def test_load_thermo_models(self):
@@ -125,13 +124,6 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         utilities.CanteraTest.setUpClass()
         cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
-    def tearDown(self):
-        temp_files = ["solutionarray.csv", "solutionarray.h5"]
-        for f in temp_files:
-            fpath = Path(self.test_work_dir).joinpath(f)
-            if fpath.is_file():
-                fpath.unlink()
-
     def test_collect_data(self):
         states = ct.SolutionArray(self.gas)
         collected = states.collect_data(tabular=True)
@@ -149,7 +141,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         states.TPX = np.linspace(300, 1000, 7), 2e5, 'H2:0.5, O2:0.4'
         states.equilibrate('HP')
 
-        outfile = Path(self.test_work_dir).joinpath("solutionarray.csv")
+        outfile = self.test_work_path / "solutionarray.csv"
         states.write_csv(outfile)
 
         data = np.genfromtxt(outfile, names=True, delimiter=',')
@@ -166,7 +158,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
     def test_write_csv_str_column(self):
         states = ct.SolutionArray(self.gas, 3, extra={'spam': 'eggs'})
 
-        outfile = Path(self.test_work_dir).joinpath("solutionarray.csv")
+        outfile = self.test_work_path / "solutionarray.csv"
         states.write_csv(outfile)
 
         b = ct.SolutionArray(self.gas, extra={'spam'})
@@ -176,7 +168,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
     def test_write_csv_multidim_column(self):
         states = ct.SolutionArray(self.gas, 3, extra={'spam': np.zeros((3, 5,))})
 
-        outfile = Path(self.test_work_dir).joinpath("solutionarray.csv")
+        outfile = self.test_work_path / "solutionarray.csv"
         with self.assertRaisesRegex(NotImplementedError, 'not supported'):
             states.write_csv(outfile)
 
@@ -193,7 +185,9 @@ class TestSolutionArrayIO(utilities.CanteraTest):
 
     @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_write_hdf(self):
-        outfile = Path(self.test_work_dir).joinpath("solutionarray.h5")
+        outfile = self.test_work_path / "solutionarray.h5"
+        if outfile.is_file():
+            outfile.unlink()
 
         extra = {'foo': range(7), 'bar': range(7)}
         meta = {'spam': 'eggs', 'hello': 'world'}
@@ -236,7 +230,9 @@ class TestSolutionArrayIO(utilities.CanteraTest):
 
     @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_write_hdf_str_column(self):
-        outfile = Path(self.test_work_dir).joinpath("solutionarray.h5")
+        outfile = self.test_work_path / "solutionarray.h5"
+        if outfile.is_file():
+            outfile.unlink()
 
         states = ct.SolutionArray(self.gas, 3, extra={'spam': 'eggs'})
         states.write_hdf(outfile, mode='w')
@@ -247,7 +243,9 @@ class TestSolutionArrayIO(utilities.CanteraTest):
 
     @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_write_hdf_multidim_column(self):
-        outfile = Path(self.test_work_dir).joinpath("solutionarray.h5")
+        outfile = self.test_work_path / "solutionarray.h5"
+        if outfile.is_file():
+            outfile.unlink()
 
         states = ct.SolutionArray(self.gas, 3, extra={'spam': [[1, 2], [3, 4], [5, 6]]})
         states.write_hdf(outfile, mode='w')
@@ -496,7 +494,7 @@ class TestSolutionSerialization(utilities.CanteraTest):
         units = {'length': 'cm', 'quantity': 'mol', 'energy': 'cal'}
         gas.write_yaml('h2o2-generated.yaml', units=units)
         generated = utilities.load_yaml("h2o2-generated.yaml")
-        original = utilities.load_yaml(Path(self.cantera_data).joinpath("h2o2.yaml"))
+        original = utilities.load_yaml(self.cantera_data_path / "h2o2.yaml")
         self.assertEqual(generated['units'], units)
 
         for r1, r2 in zip(original['reactions'], generated['reactions']):

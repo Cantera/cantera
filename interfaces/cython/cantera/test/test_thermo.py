@@ -1,7 +1,4 @@
-from os.path import join as pjoin
-from pathlib import Path
 from collections import OrderedDict
-import os
 import numpy as np
 import gc
 import warnings
@@ -1113,8 +1110,7 @@ class TestSpecies(utilities.CanteraTest):
 
     def test_fromXml(self):
         import xml.etree.ElementTree as ET
-        p = os.path.dirname(__file__)
-        root = ET.parse(pjoin(p, '..', 'data', 'h2o2.xml')).getroot()
+        root = ET.parse(str(self.cantera_data_path / "h2o2.xml")).getroot()
         h2_node = root.find('.//species[@name="H2"]')
         h2_string = ET.tostring(h2_node)
 
@@ -1138,8 +1134,7 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual({sp.name for sp in S}, set(self.gas.species_names))
 
     def test_listFromCti(self):
-        p = os.path.dirname(__file__)
-        with open(pjoin(p, '..', 'data', 'h2o2.cti')) as f:
+        with open(self.cantera_data_path / "h2o2.cti") as f:
             S = ct.Species.listFromCti(f.read())
 
         self.assertEqual(S[3].name, self.gas.species_name(3))
@@ -1160,15 +1155,14 @@ class TestSpecies(utilities.CanteraTest):
 
     def test_listFromYaml_section(self):
         species = ct.Species.listFromYaml(
-            Path(__file__).parent.joinpath('data', 'ideal-gas.yaml').read_text(),
+            (self.test_data_path / "ideal-gas.yaml").read_text(),
             'species')
 
         self.assertEqual(species[0].name, 'O2')
         self.assertEqual(species[1].composition, {'N': 1, 'O': 1})
 
     def test_listFromXml(self):
-        p = os.path.dirname(__file__)
-        with open(pjoin(p, '..', 'data', 'h2o2.xml')) as f:
+        with open(self.cantera_data_path / "h2o2.xml") as f:
             S = ct.Species.listFromXml(f.read())
 
         self.assertEqual(S[4].name, self.gas.species_name(4))

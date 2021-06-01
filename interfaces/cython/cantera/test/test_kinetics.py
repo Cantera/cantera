@@ -1,8 +1,6 @@
 import numpy as np
 import re
 import itertools
-from os.path import join as pjoin
-import os
 
 import cantera as ct
 from . import utilities
@@ -816,7 +814,7 @@ class TestSofcKinetics(utilities.CanteraTest):
                              cathode_bulk.electric_potential -
                              anode_bulk.electric_potential])
 
-        self.compare(data, pjoin(self.test_data_dir, 'sofc-test.csv'), rtol=1e-7)
+        self.compare(data, self.test_data_path / "sofc-test.csv", rtol=1e-7)
 
 
 class TestDuplicateReactions(utilities.CanteraTest):
@@ -889,8 +887,7 @@ class TestReaction(utilities.CanteraTest):
 
     def test_fromXml(self):
         import xml.etree.ElementTree as ET
-        p = os.path.dirname(__file__)
-        root = ET.parse(pjoin(p, '..', 'data', 'h2o2.xml')).getroot()
+        root = ET.parse(self.cantera_data_path / "h2o2.xml").getroot()
         rxn_node = root.find('.//reaction[@id="0001"]')
         r = ct.Reaction.fromXml(ET.tostring(rxn_node))
 
@@ -925,8 +922,7 @@ class TestReaction(utilities.CanteraTest):
 
     def test_listFromCti(self):
         gas = ct.Solution("h2o2.xml", transport_model=None)
-        p = os.path.dirname(__file__)
-        with open(pjoin(p, '..', 'data', 'h2o2.cti')) as f:
+        with open(self.cantera_data_path / "h2o2.cti") as f:
             R = ct.Reaction.listFromCti(f.read())
         eq1 = [r.equation for r in R]
         eq2 = [r.equation for r in gas.reactions()]
@@ -934,8 +930,7 @@ class TestReaction(utilities.CanteraTest):
 
     def test_listFromXml(self):
         gas = ct.Solution("h2o2.xml", transport_model=None)
-        p = os.path.dirname(__file__)
-        with open(pjoin(p, '..', 'data', 'h2o2.xml')) as f:
+        with open(self.cantera_data_path / "h2o2.xml") as f:
             R = ct.Reaction.listFromXml(f.read())
         eq1 = [r.equation for r in R]
         eq2 = [r.equation for r in gas.reactions()]
