@@ -15,16 +15,16 @@ class converterTestCommon:
         if output is None:
             output = Path(inputFile).stem  # strip '.inp'
         if inputFile is not None:
-            inputFile = Path(self.test_data_dir).joinpath(inputFile)
+            inputFile = self.test_data_path / inputFile
         if thermo is not None:
-            thermo = Path(self.test_data_dir).joinpath(thermo)
+            thermo = self.test_data_path / thermo
         if transport is not None:
-            transport = Path(self.test_data_dir).joinpath(transport)
+            transport = self.test_data_path / transport
         if surface is not None:
-            surface = Path(self.test_data_dir).joinpath(surface)
+            surface = self.test_data_path / surface
         if extra is not None:
-            extra = Path(self.test_data_dir).joinpath(extra)
-        output = Path(self.test_work_dir).joinpath(output + self.ext)
+            extra = self.test_data_path / extra
+        output = self.test_work_path / (output + self.ext)
         if output.is_file():
             output.unlink()
         self._convert(inputFile, thermo=thermo, transport=transport,
@@ -359,14 +359,14 @@ class converterTestCommon:
 
     def test_reaction_comments1(self):
         output = self.convert('pdep-test.inp')
-        text = Path(output).read_text()
+        text = output.read_text()
         self.assertIn('Generic mechanism header', text)
         self.assertIn('Single PLOG reaction', text)
         self.assertIn('Multiple PLOG expressions at the same pressure', text)
 
     def test_reaction_comments2(self):
         output = self.convert('explicit-third-bodies.inp', thermo='dummy-thermo.dat')
-        text = Path(output).read_text()
+        text = output.read_text()
         self.assertIn('An end of line comment', text)
         self.assertIn('A comment after the last reaction', text)
 
@@ -470,7 +470,7 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
                      transport='gri30_tran.dat', output='gri30_extra',
                      extra='extra.yaml')
 
-        output = Path(self.test_work_dir).joinpath("gri30_extra" + self.ext)
+        output = self.test_work_path / ("gri30_extra" + self.ext)
         yml = utilities.load_yaml(output)
 
         desc = yml['description'].split('\n')[-1]
@@ -481,7 +481,7 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
 
     def test_sri_zero(self):
         self.convert('sri_convert_test.txt')
-        output = Path(self.test_work_dir).joinpath("sri_convert_test" + self.ext)
+        output = self.test_work_path / ("sri_convert_test" + self.ext)
         mech = utilities.load_yaml(output)
         D = mech['reactions'][0]['SRI']['D']
         E = mech['reactions'][0]['SRI']['E']
@@ -569,7 +569,7 @@ class CtmlConverterTest(utilities.CanteraTest):
 
         gas = ct.Solution('pdep-test.yaml')
 
-        with open(Path(self.test_data_dir).joinpath("pdep-test.cti"), "r") as f:
+        with open(self.test_data_path / "pdep-test.cti", "r") as f:
             data = f.read()
         data_size_2048kB = data + ' '*2048*1024
         gas2 = ct.Solution(source=data_size_2048kB)
@@ -584,7 +584,7 @@ class CtmlConverterTest(utilities.CanteraTest):
 
         gas = ct.Solution('pdep-test.yaml')
 
-        with open(Path(self.test_data_dir).joinpath("pdep-test.cti"), "r") as f:
+        with open(self.test_data_path / "pdep-test.cti", "r") as f:
             data = f.read()
         data_size_32kB = data + ' '*18000
         gas2 = ct.Solution(source=data_size_32kB)

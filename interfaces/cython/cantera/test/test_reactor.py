@@ -1,6 +1,6 @@
 import math
 import re
-from os.path import join as pjoin
+from pathlib import Path
 import os
 
 import numpy as np
@@ -1145,8 +1145,8 @@ class TestSurfaceKinetics(utilities.CanteraTest):
         surf1.coverages = C
         self.assertArrayNear(surf1.coverages, C)
         data = []
-        test_file = pjoin(self.test_work_dir, 'test_coverages_regression1.csv')
-        reference_file = pjoin(self.test_data_dir, 'WallKinetics-coverages-regression1.csv')
+        test_file = self.test_work_path / "test_coverages_regression1.csv"
+        reference_file = self.test_data_path / "WallKinetics-coverages-regression1.csv"
         data = []
         for t in np.linspace(1e-6, 1e-3):
             self.net.advance(t)
@@ -1170,8 +1170,8 @@ class TestSurfaceKinetics(utilities.CanteraTest):
         surf.coverages = C
         self.assertArrayNear(surf.coverages, C)
         data = []
-        test_file = pjoin(self.test_work_dir, 'test_coverages_regression2.csv')
-        reference_file = pjoin(self.test_data_dir, 'WallKinetics-coverages-regression2.csv')
+        test_file = self.test_work_path / "test_coverages_regression2.csv"
+        reference_file = self.test_data_path / "WallKinetics-coverages-regression2.csv"
         data = []
         for t in np.linspace(1e-6, 1e-3):
             self.net.advance(t)
@@ -1516,7 +1516,7 @@ class CombustorTestImplementation:
     """
 
     def setUp(self):
-        self.referenceFile = pjoin(os.path.dirname(__file__), 'data', 'CombustorTest-integrateWithAdvance.csv')
+        self.referenceFile = Path(__file__).parent / "data" / "CombustorTest-integrateWithAdvance.csv"
         self.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
         # create a reservoir for the fuel inlet, and set to pure methane.
@@ -1622,7 +1622,7 @@ class WallTestImplementation:
     """
 
     def setUp(self):
-        self.referenceFile = pjoin(os.path.dirname(__file__), 'data', 'WallTest-integrateWithAdvance.csv')
+        self.referenceFile = Path(__file__).parent / "data" / "WallTest-integrateWithAdvance.csv"
         # reservoir to represent the environment
         self.gas0 = ct.Solution('air.xml')
         self.gas0.TP = 300, ct.one_atm

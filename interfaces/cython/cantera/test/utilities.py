@@ -6,6 +6,7 @@ import shutil
 import tempfile
 import unittest
 import errno
+from pathlib import Path
 
 try:
     import ruamel_yaml as yaml
@@ -31,36 +32,40 @@ class CanteraTest(unittest.TestCase):
         # an in-source test, create the directory in the root
         # test/work directory. Otherwise, create a system level
         # temporary directory
-        root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                                '..', '..', '..', '..'))
-        if os.path.exists(os.path.join(root_dir, 'SConstruct')):
-            cls.test_work_dir = os.path.join(root_dir, 'test', 'work', 'python')
+        root_dir = Path(__file__).parents[4].resolve()
+        if (root_dir / "Sconstruct").is_file():
+            cls.test_work_path = root_dir / "test" / "work" / "python"
             cls.using_tempfile = False
             try:
-                os.makedirs(cls.test_work_dir)
-            except OSError as e:
-                if e.errno == errno.EEXIST:
-                    pass
-                elif e.errno == errno.EACCES:
-                    cls.test_work_dir = tempfile.mkdtemp()
-                else:
-                    raise
+                cls.test_work_path.mkdir()
+            except FileExistsError:
+                pass
+            except FileNotFoundError:
+                cls.test_work_path = Path(tempfile.mkdtemp())
+                cls.using_tempfile = True
+            except:
+                raise
         else:
-            cls.test_work_dir = tempfile.mkdtemp()
+            cls.test_work_path = Path(tempfile.mkdtemp())
             cls.using_tempfile = True
 
         cantera.make_deprecation_warnings_fatal()
-        cantera.add_directory(cls.test_work_dir)
-        cls.test_data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
-        cls.cantera_data = os.path.abspath(os.path.join(
-            os.path.dirname(__file__), '..', 'data'))
+        cantera.add_directory(cls.test_work_path)
+        cls.test_data_path = Path(__file__).parent / "data"
+        cls.cantera_data_path = Path(__file__).parents[1] / "data"
+
+        # retain old path strings
+        cls.test_work_dir = str(cls.test_work_path)
+        cls.test_data_dir = str(cls.test_data_path)
+        cls.cantera_data = str(cls.cantera_data_path)
+
 
     @classmethod
     def tearDownClass(cls):
         # Remove the working directory after testing, but only if its a temp directory
         if getattr(cls, "using_tempfile", False):
             try:
-                shutil.rmtree(cls.test_work_dir)
+                shutil.rmtree(str(cls.test_work_path))
             except OSError:
                 pass
 
@@ -101,7 +106,7 @@ class CanteraTest(unittest.TestCase):
         file if it does not exist.
         """
         data = np.array(data)
-        if os.path.exists(reference_file):
+        if Path(reference_file).is_file():
             # Compare with existing output file
             ref = np.genfromtxt(reference_file)
             self.assertEqual(data.shape, ref.shape)
@@ -110,7 +115,7 @@ class CanteraTest(unittest.TestCase):
         else:
             # Generate the output file for the first time
             warnings.warn('Generating test data file:' +
-                          os.path.abspath(reference_file))
+                          Path(reference_file).resolve())
             np.savetxt(reference_file, data, fmt='%.10e')
 
 
@@ -131,12 +136,12 @@ def compareProfiles(reference, sample, rtol=1e-5, atol=1e-12, xtol=1e-5):
     If the comparison succeeds, this function returns `None`. If the comparison
     fails, a formatted report of the differing elements is returned.
     """
-    if isinstance(reference, str):
+    if isinstance(reference, (str, Path)):
         reference = np.genfromtxt(reference, delimiter=',').T
     else:
         reference = np.asarray(reference).T
 
-    if isinstance(sample, str):
+    if isinstance(sample, (str, Path)):
         sample = np.genfromtxt(sample, delimiter=',').T
     else:
         sample = np.asarray(sample).T

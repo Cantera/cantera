@@ -1,8 +1,6 @@
 import cantera as ct
 from . import utilities
 import numpy as np
-import os
-from os.path import join as pjoin
 
 from cantera.composite import _h5py
 
@@ -510,9 +508,9 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.create_sim(p, Tin, reactants)
         self.solve_fixed_T()
-        filename = pjoin(self.test_work_dir, 'onedim-fixed-T.xml')
-        if os.path.exists(filename):
-            os.remove(filename)
+        filename = self.test_work_path / "onedim-fixed-T.xml"
+        if filename.is_file():
+            filename.unlink()
 
         Y1 = self.sim.Y
         u1 = self.sim.velocity
@@ -577,9 +575,9 @@ class TestFreeFlame(utilities.CanteraTest):
         p = 2 * ct.one_atm
         Tin = 400
 
-        filename = pjoin(self.test_work_dir, 'onedim-add-species.xml')
-        if os.path.exists(filename):
-            os.remove(filename)
+        filename = self.test_work_path / "onedim-add-species.xml"
+        if filename.is_file():
+            filename.unlink()
 
         self.create_sim(p, Tin, reactants, mech='h2o2.xml')
         gas1 = self.gas
@@ -606,9 +604,9 @@ class TestFreeFlame(utilities.CanteraTest):
         p = 2 * ct.one_atm
         Tin = 400
 
-        filename = pjoin(self.test_work_dir, 'onedim-add-species.xml')
-        if os.path.exists(filename):
-            os.remove(filename)
+        filename = self.test_work_path / "onedim-add-species.xml"
+        if filename.is_file():
+            filename.unlink()
 
         self.create_sim(p, Tin, reactants, mech='h2o2-plus.xml')
         gas1 = self.gas
@@ -630,9 +628,9 @@ class TestFreeFlame(utilities.CanteraTest):
             self.assertArrayNear(Y1[k1], Y2[k2])
 
     def test_write_csv(self):
-        filename = pjoin(self.test_work_dir, 'onedim-write_csv.csv')
-        if os.path.exists(filename):
-            os.remove(filename)
+        filename = self.test_work_path / "onedim-write_csv.csv"
+        if filename.is_file():
+            filename.unlink()
 
         self.create_sim(2e5, 350, 'H2:1.0, O2:2.0', mech='h2o2.xml')
         self.sim.write_csv(filename)
@@ -645,9 +643,9 @@ class TestFreeFlame(utilities.CanteraTest):
 
     @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_write_hdf(self):
-        filename = pjoin(self.test_work_dir, 'onedim-write_hdf.h5')
-        if os.path.exists(filename):
-            os.remove(filename)
+        filename = self.test_work_path / "onedim-write_hdf.h5"
+        if filename.is_file():
+            filename.unlink()
 
         self.run_mix(phi=1.1, T=350, width=2.0, p=2.0, refine=False)
         desc = 'mixture-averaged simulation'
@@ -771,7 +769,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
 
     @utilities.slow_test
     def test_mixture_averaged(self, saveReference=False):
-        referenceFile = pjoin(self.test_data_dir, 'DiffusionFlameTest-h2-mix.csv')
+        referenceFile = self.test_data_path / "DiffusionFlameTest-h2-mix.csv"
         self.create_sim(p=ct.one_atm)
 
         nPoints = len(self.sim.grid)
@@ -796,7 +794,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
             self.assertFalse(bad, bad)
 
     def test_auto(self, saveReference=False):
-        referenceFile = pjoin(self.test_data_dir, 'DiffusionFlameTest-h2-auto.csv')
+        referenceFile = self.test_data_path / "DiffusionFlameTest-h2-auto.csv"
         self.create_sim(p=ct.one_atm, mdot_fuel=2, mdot_ox=3)
 
         nPoints = []
@@ -885,7 +883,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.assertNear(mdot[-1], -self.sim.oxidizer_inlet.mdot, 1e-4)
 
     def test_mixture_averaged_rad(self, saveReference=False):
-        referenceFile = pjoin(self.test_data_dir, 'DiffusionFlameTest-h2-mix-rad.csv')
+        referenceFile = self.test_data_path / "DiffusionFlameTest-h2-mix-rad.csv"
         self.create_sim(p=ct.one_atm)
 
         nPoints = len(self.sim.grid)
@@ -916,12 +914,12 @@ class TestDiffusionFlame(utilities.CanteraTest):
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             self.assertFalse(bad, bad)
 
-        filename = pjoin(self.test_work_dir, 'DiffusionFlameTest-h2-mix-rad.csv')
+        filename = self.test_work_path / "DiffusionFlameTest-h2-mix-rad.csv"
         self.sim.write_csv(filename) # check output
-        self.assertTrue(os.path.exists(filename))
+        self.assertTrue(filename.is_file())
         csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
         self.assertIn('qdot', csv_data.dtype.names)
-        os.remove(filename)
+        filename.unlink()
 
     def test_strain_rate(self):
         # This doesn't test that the values are correct, just that they can be
@@ -1006,7 +1004,7 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
         data[:,3] = sim.T
         data[:,4:] = sim.Y.T
 
-        referenceFile = pjoin(self.test_data_dir, 'CounterflowPremixedFlame-h2-mix.csv')
+        referenceFile = self.test_data_path / "CounterflowPremixedFlame-h2-mix.csv"
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
@@ -1014,12 +1012,12 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             self.assertFalse(bad, bad)
 
-        filename = pjoin(self.test_work_dir, 'CounterflowPremixedFlame-h2-mix.csv')
+        filename = self.test_work_path / "CounterflowPremixedFlame-h2-mix.csv"
         sim.write_csv(filename) # check output
-        self.assertTrue(os.path.exists(filename))
+        self.assertTrue(filename.is_file())
         csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
         self.assertNotIn('qdot', csv_data.dtype.names)
-        os.remove(filename)
+        filename.unlink()
 
     def run_case(self, phi, T, width, P):
         gas = ct.Solution('h2o2.xml')
@@ -1190,9 +1188,9 @@ class TestImpingingJet(utilities.CanteraTest):
 
     @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_write_hdf(self):
-        filename = pjoin(self.test_work_dir, 'impingingjet-write_hdf.h5')
-        if os.path.exists(filename):
-            os.remove(filename)
+        filename = self.test_work_path / "impingingjet-write_hdf.h5"
+        if filename.is_file():
+            filename.unlink()
 
         self.run_reacting_surface(xch4=0.095, tsurf=900.0, mdot=0.06, width=0.1)
         self.sim.write_hdf(filename)
