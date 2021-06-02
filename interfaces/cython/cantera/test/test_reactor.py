@@ -1,15 +1,11 @@
 import math
 import re
-from pathlib import Path
-import os
 
 import numpy as np
 from .utilities import unittest
 
 import cantera as ct
 from . import utilities
-
-import warnings
 
 class TestReactor(utilities.CanteraTest):
     reactorClass = ct.Reactor
@@ -1516,7 +1512,7 @@ class CombustorTestImplementation:
     """
 
     def setUp(self):
-        self.referenceFile = Path(__file__).parent / "data" / "CombustorTest-integrateWithAdvance.csv"
+        self.referenceFile = utilities.TEST_DATA_PATH / "CombustorTest-integrateWithAdvance.csv"
         self.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
         # create a reservoir for the fuel inlet, and set to pure methane.
@@ -1622,7 +1618,7 @@ class WallTestImplementation:
     """
 
     def setUp(self):
-        self.referenceFile = Path(__file__).parent / "data" / "WallTest-integrateWithAdvance.csv"
+        self.referenceFile = utilities.TEST_DATA_PATH / "WallTest-integrateWithAdvance.csv"
         # reservoir to represent the environment
         self.gas0 = ct.Solution('air.xml')
         self.gas0.TP = 300, ct.one_atm

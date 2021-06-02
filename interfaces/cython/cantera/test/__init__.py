@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import cantera
 
 from .test_composite import *
@@ -15,5 +15,5 @@ from .test_thermo import *
 from .test_transport import *
 from .test_utils import *
 
-cantera.add_directory(os.path.join(os.path.dirname(__file__), 'data'))
-cantera.add_directory(os.path.join(os.path.dirname(__file__), '..', 'examples', 'surface_chemistry'))
+cantera.add_directory(Path(__file__) / "data")
+cantera.add_directory(Path(__file__).parents[1] / "examples" / "surface_chemistry")
