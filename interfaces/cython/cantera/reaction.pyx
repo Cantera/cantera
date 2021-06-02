@@ -367,12 +367,13 @@ cdef class Reaction:
     """
     _reaction_type = ""
     _has_legacy = False
+    _dual = False # indicate whether legacy implementations are separate or merged
 
-    def __cinit__(self, reactants='', products='', init=True, **kwargs):
+    def __cinit__(self, reactants='', products='', init=True, legacy=False, **kwargs):
 
         if init:
             rxn_type = self._reaction_type
-            if self._has_legacy:
+            if (not self._dual and self._has_legacy) or (self._dual and legacy):
                 rxn_type += "-legacy"
             self._reaction = CxxNewReaction(stringify((rxn_type)))
             self.reaction = self._reaction.get()
@@ -391,6 +392,9 @@ cdef class Reaction:
             def register_subclasses(cls):
                 for c in cls.__subclasses__():
                     rxn_type = getattr(c, "_reaction_type")
+                    if getattr(c, "_dual"):
+                        # registry needs to contain both updated and "-legacy" variants
+                        _reaction_class_registry[rxn_type] = c
                     if getattr(c, "_has_legacy", False):
                         rxn_type += "-legacy"
                     _reaction_class_registry[rxn_type] = c
@@ -1067,29 +1071,55 @@ cdef class ChemicallyActivatedReaction(FalloffReaction):
     _reaction_type = "chemically-activated"
 
 
-cdef class PlogReaction2(Reaction):
+cdef class PlogReaction(Reaction):
     """
     A pressure-dependent reaction parameterized by logarithmically interpolating
     between Arrhenius rate expressions at various pressures.
 
-    .. deprecated:: 2.6
+    An example for the definition of an `PlogReaction` object is given as::
 
-        This class is replaced by `PlogReaction` and only used by CTI/XML. The
-        implementation uses the legacy framework for reaction rate evaluations used
-        by Cantera 2.5.1 and earlier. Refer to `PlogReaction` for new behavior.
+        rxn = PlogReaction(
+            equation="H2 + O2 <=> 2 OH",
+            rate={"rate-constants":
+                [{"P": 1013.25, "A": 1.2124e+16, "b": -0.5779, "Ea": 45491376.8},
+                 {"P": 101325., "A": 4.9108e+31, "b": -4.8507, "Ea": 103649395.2},
+                 {"P": 1013250., "A": 1.2866e+47, "b": -9.0246, "Ea": 166508556.0},
+                 {"P": 10132500., "A": 5.9632e+56, "b": -11.529, "Ea": 220076726.4}]},
+            kinetics=gas)
+
+    The YAML description corresponding to this reaction is::
+
+        equation: H2 + O2 <=> 2 OH
+        type: pressure-dependent-Arrhenius
+        rate-constants:
+        - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04 cal/mol}
+        - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04 cal/mol}
+        - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
+        - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}or.
     """
     _reaction_type = "pressure-dependent-Arrhenius"
     _has_legacy = True
+    _dual = True
+
+    cdef CxxPlogReaction3* pr(self):
+        if not self.uses_legacy:
+            return <CxxPlogReaction3*>self.reaction
+        raise AttributeError("Rate object accessor not defined for legacy implementation")
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
-                 init=True, **kwargs):
+                 init=True, legacy=False, **kwargs):
 
         if init and equation and kinetics:
 
-            rxn_type = self._reaction_type + "-legacy"
+            if legacy:
+                rxn_type = self._reaction_type + "-legacy"
+            else:
+                rxn_type = self._reaction_type
             spec = {"equation": equation, "type": rxn_type}
             if isinstance(rate, dict):
                 spec.update(rate)
+            elif not legacy and (isinstance(rate, PlogRate) or rate is None):
+                pass
             else:
                 raise TypeError("Invalid rate definition")
 
@@ -1097,7 +1127,21 @@ cdef class PlogReaction2(Reaction):
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
 
-    property rates:
+            if not legacy and isinstance(rate, PlogRate):
+                self.rate = rate
+
+    property rate:
+        """ Get/Set the `PlogRate` rate coefficients for this reaction. """
+        def __get__(self):
+            if self.uses_legacy:
+                raise AttributeError("Legacy implementation does not use rate property.")
+            return PlogRate.wrap(self.pr().rate())
+        def __set__(self, PlogRate rate):
+            if self.uses_legacy:
+                raise AttributeError("Legacy implementation does not use rate property.")
+            self.pr().setRate(rate._base)
+
+    property _legacy_rates:
         """
         Get/Set the rate coefficients for this reaction, which are given as a
         list of (pressure, `Arrhenius`) tuples.
@@ -1123,7 +1167,38 @@ cdef class PlogReaction2(Reaction):
             cdef CxxPlogReaction2* r = <CxxPlogReaction2*>self.reaction
             r.rate = CxxPlog(ratemap)
 
-    def __call__(self, float T, float P):
+    property rates:
+        """
+        Get/Set the rate coefficients for this reaction, which are given as a
+        list of (pressure, `Arrhenius`) tuples.
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by property `PlogRate.rates`.
+        """
+        def __get__(self):
+            if self.uses_legacy:
+                return self._legacy_rates
+
+            warnings.warn(
+                self._deprecation_warning("rates"), DeprecationWarning)
+            return self.rate.rates
+
+        def __set__(self, rates):
+            if self.uses_legacy:
+                self._legacy_rates = rates
+                return
+
+            warnings.warn("Property 'rates' to be removed after Cantera 2.6. "
+                "Setter is replaceable by assigning a new 'PlogRate' object created "
+                "from rates to the rate property.", DeprecationWarning)
+            warnings.warn(
+                self._deprecation_warning("rates"), DeprecationWarning)
+            rate_ = self.rate
+            rate_.rates = rates
+            self.rate = rate_
+
+    def _legacy_call(self, float T, float P):
         cdef CxxPlogReaction2* r = <CxxPlogReaction2*>self.reaction
         cdef double logT = np.log(T)
         cdef double recipT = 1/T
@@ -1131,6 +1206,19 @@ cdef class PlogReaction2(Reaction):
 
         r.rate.update_C(&logP)
         return r.rate.updateRC(logT, recipT)
+
+    def __call__(self, float T, float P):
+        """
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaceable by call to `rate` property.
+        """
+        if self.uses_legacy:
+            return self._legacy_call(T, P)
+
+        warnings.warn(
+            self._deprecation_warning("__call__", "method"), DeprecationWarning)
+        return self.rate(T, P)
 
 
 cdef class ChebyshevReaction2(Reaction):
@@ -1653,99 +1741,6 @@ cdef class ThreeBodyReaction(ElementaryReaction):
         the default efficiency and species-specific efficiencies.
         """
         return self.thirdbody().efficiency(stringify(species))
-
-
-cdef class PlogReaction(Reaction3):
-    """
-    A pressure-dependent reaction parameterized by logarithmically interpolating
-    between Arrhenius rate expressions at various pressures.
-
-    An example for the definition of an `PlogReaction` object is given as::
-
-        rxn = PlogReaction(
-            equation='H2 + O2 <=> 2 OH',
-            rate={"rate-constants":
-                [{'P': 1013.25, 'A': 1.2124e+16, 'b': -0.5779, 'Ea': 45491376.8},
-                 {'P': 101325., 'A': 4.9108e+31, 'b': -4.8507, 'Ea': 103649395.2},
-                 {'P': 1013250., 'A': 1.2866e+47, 'b': -9.0246, 'Ea': 166508556.0},
-                 {'P': 10132500., 'A': 5.9632e+56, 'b': -11.529, 'Ea': 220076726.4}]},
-            kinetics=gas)
-
-    The YAML description corresponding to this reaction is::
-
-        equation: H2 + O2 <=> 2 OH
-        type: pressure-dependent-Arrhenius
-        rate-constants:
-        - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04 cal/mol}
-        - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04 cal/mol}
-        - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
-        - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
-    """
-    _reaction_type = "pressure-dependent-Arrhenius"
-
-    cdef CxxPlogReaction3* pr(self):
-        return <CxxPlogReaction3*>self.reaction
-
-    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
-                 init=True, **kwargs):
-
-        if init and equation and kinetics:
-
-            spec = {"equation": equation, "type": self._reaction_type}
-            if isinstance(rate, dict):
-                spec.update(rate)
-            elif isinstance(rate, PlogRate) or rate is None:
-                pass
-            else:
-                raise TypeError("Invalid rate definition")
-
-            self._reaction = CxxNewReaction(dict_to_anymap(spec),
-                                            deref(kinetics.kinetics))
-            self.reaction = self._reaction.get()
-
-            if isinstance(rate, PlogRate):
-                self.rate = rate
-
-    property rate:
-        """ Get/Set the `PlogRate` rate coefficients for this reaction. """
-        def __get__(self):
-            return PlogRate.wrap(self.pr().rate())
-        def __set__(self, PlogRate rate):
-            self.pr().setRate(rate._base)
-
-    property rates:
-        """
-        Get/Set the rate coefficients for this reaction, which are given as a
-        list of (pressure, `Arrhenius`) tuples.
-
-        .. deprecated:: 2.6
-             To be deprecated with version 2.6, and removed thereafter.
-             Replaced by property `PlogRate.rates`.
-        """
-        def __get__(self):
-            warnings.warn(
-                self._deprecation_warning("rates"), DeprecationWarning)
-            return self.rate.rates
-
-        def __set__(self, rates):
-            warnings.warn("Property 'rates' to be removed after Cantera 2.6. "
-                "Setter is replaceable by assigning a new 'PlogRate' object created "
-                "from rates to the rate property.", DeprecationWarning)
-            warnings.warn(
-                self._deprecation_warning("rates"), DeprecationWarning)
-            rate_ = self.rate
-            rate_.rates = rates
-            self.rate = rate_
-
-    def __call__(self, float T, float P):
-        """
-        .. deprecated:: 2.6
-             To be deprecated with version 2.6, and removed thereafter.
-             Replaceable by call to `rate` property.
-        """
-        warnings.warn(
-            self._deprecation_warning("__call__", "method"), DeprecationWarning)
-        return self.rate(T, P)
 
 
 cdef class ChebyshevReaction(Reaction3):
