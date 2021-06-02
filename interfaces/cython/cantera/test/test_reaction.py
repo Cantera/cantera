@@ -311,8 +311,8 @@ class ReactionTests:
     @classmethod
     def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
-        cls.gas = ct.Solution('kineticsfromscratch.yaml', transport_model=None)
-        cls.gas.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
+        cls.gas = ct.Solution("kineticsfromscratch.yaml", transport_model=None)
+        cls.gas.X = "H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5"
         cls.gas.TP = 900, 2*ct.one_atm
         cls.species = cls.gas.species()
 
@@ -521,7 +521,7 @@ class TestElementary(ReactionTests, utilities.CanteraTest):
 class TestElementary2(TestElementary):
     # test legacy version of elementary reaction
 
-    _cls = ct.ElementaryReaction2
+    _cls = ct.ElementaryReaction
     _type = "elementary-legacy"
     _legacy = True
     _rate_obj = ct.Arrhenius(38.7, 2.7, 2.619184e+07)
@@ -552,7 +552,7 @@ class TestThreeBody(TestElementary):
     def test_from_parts(self):
         # overload default reaction creation from parts
         orig = self.gas.reaction(self._index)
-        rxn = self._cls(orig.reactants, orig.products)
+        rxn = self._cls(orig.reactants, orig.products, legacy=self._legacy)
         rxn.rate = self._rate_obj
         rxn.efficiencies = self._kwargs["efficiencies"]
         self.check_rxn(rxn)
@@ -572,7 +572,7 @@ class TestThreeBody(TestElementary):
 class TestThreeBody2(TestThreeBody):
     # test legacy version of three-body reaction
 
-    _cls = ct.ThreeBodyReaction2
+    _cls = ct.ThreeBodyReaction
     _type = "three-body-legacy"
     _legacy = True
     _rate_obj = ct.Arrhenius(1.2e11, -1., 0.)
