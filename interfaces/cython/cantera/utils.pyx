@@ -4,7 +4,6 @@
 import sys
 import os
 import warnings
-from pathlib import Path
 from cpython.ref cimport PyObject
 import numbers
 
@@ -24,7 +23,6 @@ cdef pystr(string x):
 
 def add_directory(directory):
     """ Add a directory to search for Cantera data files. """
-    directory = Path(directory)
     CxxAddDirectory(stringify(str(directory)))
 
 def get_data_directories():
