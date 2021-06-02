@@ -508,8 +508,8 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
 
         with self.assertRaises(SystemExit):
             ck2yaml.main([
-                '--input={}/undeclared-duplicate-reactions.inp'.format(self.test_data_path),
-                '--thermo={}/dummy-thermo.dat'.format(self.test_data_path)])
+                f"--input={self.test_data_path}/undeclared-duplicate-reactions.inp",
+                f"--thermo={self.test_data_path}/dummy-thermo.dat"])
 
         # Put the original logger back in place
         logger.handlers.clear()
@@ -665,7 +665,7 @@ class cti2yamlTest(utilities.CanteraTest):
     def test_gri30(self):
         cti2yaml.convert(
             self.cantera_data_path / "gri30.cti",
-            self.test_work_path / "gri30.yaml"
+            self.test_work_path / "gri30.yaml",
         )
         ctiPhase, yamlPhase = self.checkConversion('gri30')
         X = {'O2': 0.3, 'H2': 0.1, 'CH4': 0.2, 'CO2': 0.4}
@@ -678,7 +678,7 @@ class cti2yamlTest(utilities.CanteraTest):
     def test_pdep(self):
         cti2yaml.convert(
             self.test_data_path / "pdep-test.cti",
-            self.test_work_path / "pdep-test.yaml"
+            self.test_work_path / "pdep-test.yaml",
         )
         ctiPhase, yamlPhase = self.checkConversion('pdep-test')
         self.checkKinetics(ctiPhase, yamlPhase, [300, 1000, 2200],
@@ -687,7 +687,7 @@ class cti2yamlTest(utilities.CanteraTest):
     def test_ptcombust(self):
         cti2yaml.convert(
             self.cantera_data_path / "ptcombust.cti",
-            self.test_work_path / "ptcombust.yaml"
+            self.test_work_path / "ptcombust.yaml",
         )
         ctiGas, yamlGas = self.checkConversion('ptcombust')
         ctiSurf, yamlSurf = self.checkConversion('ptcombust', ct.Interface,
@@ -701,7 +701,7 @@ class cti2yamlTest(utilities.CanteraTest):
     def test_ptcombust_motzwise(self):
         cti2yaml.convert(
             self.test_data_path / "ptcombust-motzwise.cti",
-            self.test_work_path / "ptcombust-motzwise.yaml"
+            self.test_work_path / "ptcombust-motzwise.yaml",
         )
         ctiGas, yamlGas = self.checkConversion('ptcombust-motzwise')
         ctiSurf, yamlSurf = self.checkConversion('ptcombust-motzwise', ct.Interface,
@@ -715,7 +715,7 @@ class cti2yamlTest(utilities.CanteraTest):
     def test_sofc(self):
         cti2yaml.convert(
             self.cantera_data_path / "sofc.cti",
-            self.test_work_path / "sofc.yaml"
+            self.test_work_path / "sofc.yaml",
         )
         ctiGas, yamlGas = self.checkConversion('sofc')
         ctiMetal, yamlMetal = self.checkConversion('sofc', name='metal')
@@ -742,7 +742,7 @@ class cti2yamlTest(utilities.CanteraTest):
         output_file = self.test_work_path / "liquidvapor.yaml"
         cti2yaml.convert(
             self.cantera_data_path / "liquidvapor.cti",
-            output_file
+            output_file,
         )
         for name in ['water', 'nitrogen', 'methane', 'hydrogen', 'oxygen',
                      'hfc134a', 'carbondioxide', 'heptane']:
@@ -756,7 +756,7 @@ class cti2yamlTest(utilities.CanteraTest):
     def test_Redlich_Kwong_CO2(self):
         cti2yaml.convert(
             self.test_data_path / "co2_RK_example.cti",
-            self.test_work_path / "co2_RK_example.yaml"
+            self.test_work_path / "co2_RK_example.yaml",
         )
         ctiGas, yamlGas = self.checkConversion('co2_RK_example')
         for P in [1e5, 2e6, 1.3e7]:
@@ -767,7 +767,7 @@ class cti2yamlTest(utilities.CanteraTest):
     def test_Redlich_Kwong_ndodecane(self):
         cti2yaml.convert(
             self.cantera_data_path / "nDodecane_Reitz.cti",
-            self.test_work_path / "nDodecane_Reitz.yaml"
+            self.test_work_path / "nDodecane_Reitz.yaml",
         )
         ctiGas, yamlGas = self.checkConversion('nDodecane_Reitz')
         self.checkThermo(ctiGas, yamlGas, [300, 400, 500])
@@ -777,7 +777,7 @@ class cti2yamlTest(utilities.CanteraTest):
     def test_diamond(self):
         cti2yaml.convert(
             self.cantera_data_path / "diamond.cti",
-            self.test_work_path / "diamond.yaml"
+            self.test_work_path / "diamond.yaml",
         )
         ctiGas, yamlGas = self.checkConversion('diamond', name='gas')
         ctiSolid, yamlSolid = self.checkConversion('diamond', name='diamond')
@@ -791,7 +791,7 @@ class cti2yamlTest(utilities.CanteraTest):
     def test_lithium_ion_battery(self):
         cti2yaml.convert(
             self.cantera_data_path / "lithium_ion_battery.cti",
-            self.test_work_path / "lithium_ion_battery.yaml"
+            self.test_work_path / "lithium_ion_battery.yaml",
         )
         name = 'lithium_ion_battery'
         ctiAnode, yamlAnode = self.checkConversion(name, name='anode')

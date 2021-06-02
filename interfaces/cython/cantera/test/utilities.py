@@ -3,7 +3,7 @@ from os import environ
 import warnings
 import tempfile
 import unittest
-from pathlib import Path
+from pathlib import Path, PurePath
 
 try:
     import ruamel_yaml as yaml
@@ -129,12 +129,12 @@ def compareProfiles(reference, sample, rtol=1e-5, atol=1e-12, xtol=1e-5):
     If the comparison succeeds, this function returns `None`. If the comparison
     fails, a formatted report of the differing elements is returned.
     """
-    if isinstance(reference, (str, Path)):
+    if isinstance(reference, (str, PurePath)):
         reference = np.genfromtxt(reference, delimiter=',').T
     else:
         reference = np.asarray(reference).T
 
-    if isinstance(sample, (str, Path)):
+    if isinstance(sample, (str, PurePath)):
         sample = np.genfromtxt(sample, delimiter=',').T
     else:
         sample = np.asarray(sample).T
