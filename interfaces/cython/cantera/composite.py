@@ -650,10 +650,11 @@ class SolutionArray:
 
               mystates.append(T=300, P=101325, X={'O2':1.0, 'N2':3.76})
 
-        By default, setters with `moleFractions` are normalized to sum to 1.0 in all
-        cases. while element appended using ``state`` or the setter contains
-        `massFractions` specified as an array, are non-normalized. If this is
-        not desired, the ``normalize`` argument can be set to ``True``.
+        By default, the mass or mole fractions will be non-normalized
+        if appending a `state` or numpy array specifying `X` or `Y`.
+        When appending a state, the mass or mole fractions are always
+        non-normalized. For states setters, if the non-normalized
+        form is desired, the ``normalize`` argument can be set to ``True``.
         For example::
 
             mystates.append(T=300, P=101325, Y=gas.Y - 0.1, normalize=True)
@@ -681,48 +682,30 @@ class SolutionArray:
             extra_temp[name] = kwargs.pop(name)
 
         if state is not None:
-            mode = "".join(self._phase._native_state)
-            if normalize:
-                if len(mode) == 3:
-                    state_data = (state[0], state[1], state[2:])
-                elif len(mode) == 2:
-                    state_data = (state[0], state[1:])
-                else:
-                    state_data = state
-                setattr(self._phase, mode, state_data)
-            else:
-                self._phase.state = state
+            self._phase.state = state
 
-        # Non normalize form must be set using the mass fractions as the
-        # mole fractions are not in the native_state setter.
         elif len(kwargs) == 1:
             attr, value = kwargs.popitem()
             if frozenset(attr) not in self._phase._full_states:
                 raise KeyError(
                     "'{}' does not specify a full thermodynamic state".format(attr)
                 )
-            if attr[-1] == "Y":
-                if normalize:
+            if attr[-1] == "X":
+                if not normalize and isinstance(value[-1], np.ndarray):
+                    self._phase.set_unnormalized_mole_fractions(value[-1])
+                    attr = attr[:-1]
+                    value = value[:-1]
                     setattr(self._phase, attr, value)
-                elif normalize is None:
-                    if isinstance(value[-1], (list, tuple, np.ndarray)):
-                        self._phase.set_unnormalized_mass_fractions(value[-1])
-                        attr = attr[:-1]
-                        value = value[:-1]
-                        setattr(self._phase, attr, value)
-                    else:
-                        setattr(self._phase, attr, list(kwargs.values()))
                 else:
-                    if isinstance(value[-1], (list, tuple, np.ndarray)):
-                        self._phase.set_unnormalized_mass_fractions(value[-1])
-                        attr = attr[:-1]
-                        value = value[:-1]
-                        setattr(self._phase, attr, value)
-                    else:
-                        raise ValueError(
-                           "Mass fraction must be specified as an array if "
-                           "`normalize` is True"
-                        )
+                    setattr(self._phase, attr, value)
+            elif attr[-1] == "Y":
+                if not normalize and isinstance(value[-1], np.ndarray):
+                    self._phase.set_unnormalized_mass_fractions(value[-1])
+                    attr = attr[:-1]
+                    value = value[:-1]
+                    setattr(self._phase, attr, value)
+                else:
+                    setattr(self._phase, attr, value)
             else:
                 setattr(self._phase, attr, value)
 
@@ -734,26 +717,20 @@ class SolutionArray:
                     "{} is not a valid combination of properties for setting "
                     "the thermodynamic state".format(tuple(kwargs))
                 ) from None
-            if attr[-1] == "Y":
-                if normalize:
+            if attr[-1] == "X":
+                if not normalize and isinstance(kwargs["X"], np.ndarray):
+                    self._phase.set_unnormalized_mole_fractions(kwargs.pop("X"))
+                    attr = attr[:-1]
                     setattr(self._phase, attr, list(kwargs.values()))
-                elif normalize is None:
-                    if isinstance(kwargs["Y"], (list, tuple, np.ndarray)):
-                        self._phase.set_unnormalized_mass_fractions(kwargs.pop("Y"))
-                        attr = attr[:-1]
-                        setattr(self._phase, attr, list(kwargs.values()))
-                    else:
-                        setattr(self._phase, attr, list(kwargs.values()))
                 else:
-                    if isinstance(kwargs["Y"], (list, tuple, np.ndarray)):
-                        self._phase.set_unnormalized_mass_fractions(kwargs.pop("Y"))
-                        attr = attr[:-1]
-                        setattr(self._phase, attr, list(kwargs.values()))
-                    else:
-                        raise ValueError(
-                           "Mass fraction must be specified as an array if "
-                           "`normalize` is True"
-                        )
+                    setattr(self._phase, attr, list(kwargs.values()))
+            elif attr[-1] == "Y":
+                if not normalize and isinstance(kwargs["Y"], np.ndarray):
+                    self._phase.set_unnormalized_mass_fractions(kwargs.pop("Y"))
+                    attr = attr[:-1]
+                    setattr(self._phase, attr, list(kwargs.values()))
+                else:
+                    setattr(self._phase, attr, list(kwargs.values()))
             else:
                 setattr(self._phase, attr, list(kwargs.values()))
 
@@ -832,9 +809,9 @@ class SolutionArray:
         does not contain those entries, an error is raised.
 
         If the data contains mass or mole fractions they will be set
-        without normalizing their sum to 1.0 by default. If this is not desired,
-        the ``normalize`` argument can be set to ``True`` to force the data
-        to sum to 1.0.
+        without normalizing their sum to 1.0 by default. If this is
+        not desired, the ``normalize`` argument can be set to ``True``
+        to force the data to sum to 1.0.
         """
 
         # check arguments
