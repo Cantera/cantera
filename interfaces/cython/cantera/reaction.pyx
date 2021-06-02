@@ -367,13 +367,13 @@ cdef class Reaction:
     """
     _reaction_type = ""
     _has_legacy = False
-    _dual = False # indicate whether legacy implementations are separate or merged
+    _hybrid = False # indicate whether legacy implementations are separate or merged
 
-    def __cinit__(self, reactants='', products='', init=True, legacy=False, **kwargs):
+    def __cinit__(self, reactants="", products="", init=True, legacy=False, **kwargs):
 
         if init:
             rxn_type = self._reaction_type
-            if (not self._dual and self._has_legacy) or (self._dual and legacy):
+            if (not self._hybrid and self._has_legacy) or (self._hybrid and legacy):
                 rxn_type += "-legacy"
             self._reaction = CxxNewReaction(stringify((rxn_type)))
             self.reaction = self._reaction.get()
@@ -392,7 +392,7 @@ cdef class Reaction:
             def register_subclasses(cls):
                 for c in cls.__subclasses__():
                     rxn_type = getattr(c, "_reaction_type")
-                    if getattr(c, "_dual"):
+                    if getattr(c, "_hybrid"):
                         # registry needs to contain both updated and "-legacy" variants
                         _reaction_class_registry[rxn_type] = c
                     if getattr(c, "_has_legacy", False):
@@ -678,7 +678,7 @@ cdef class Reaction:
         self.reaction.input.clear()
 
     def __repr__(self):
-        return '<{}: {}>'.format(self.__class__.__name__, self.equation)
+        return f"<{self.__class__.__name__}: {self.equation}>"
 
     def __str__(self):
         return self.equation
@@ -763,37 +763,50 @@ cdef copyArrhenius(CxxArrhenius* rate):
     return r
 
 
-cdef class ElementaryReaction2(Reaction):
+cdef class ElementaryReaction(Reaction):
     """
     A reaction which follows mass-action kinetics with a modified Arrhenius
     reaction rate.
 
-    An example for the definition of a `ElementaryReaction2` object is given as::
+    An example for the definition of an `ElementaryReaction` object is given as::
 
-        rxn = ElementaryReaction2(equation='H2 + O <=> H + OH',
-                                  rate={'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07},
-                                  kinetics=gas)
+        rxn = ElementaryReaction(
+            equation="O + H2 <=> H + OH",
+            rate={"A": 38.7, "b": 2.7, "Ea": 2.619184e+07},
+            kinetics=gas)
 
-    .. deprecated:: 2.6
+    The YAML description corresponding to this reaction is::
 
-        This class is replaced by `ElementaryReaction` and only used by CTI/XML. The
-        implementation uses the legacy framework for reaction rate evaluations used
-        by Cantera 2.5.1 and earlier. Refer to `ElementaryReaction` for new behavior.
+        equation: O + H2 <=> H + OH
+        rate-constant: {A: 3.87e+04 cm^3/mol/s, b: 2.7, Ea: 6260.0 cal/mol}
     """
     _reaction_type = "elementary"
     _has_legacy = True
+    _hybrid = True
+
+    cdef CxxElementaryReaction3* er(self):
+        if self.uses_legacy:
+            raise AttributeError("Rate object accessor not defined for legacy implementation")
+        return <CxxElementaryReaction3*>self.reaction
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
-                 init=True, **kwargs):
+                 init=True, legacy=False, **kwargs):
 
         if init and equation and kinetics:
 
-            rxn_type = self._reaction_type + "-legacy"
+            if legacy:
+                rxn_type = self._reaction_type + "-legacy"
+            else:
+                rxn_type = self._reaction_type
             spec = {"equation": equation, "type": rxn_type}
             if isinstance(rate, dict):
-                spec['rate-constant'] = rate
-            elif isinstance(rate, Arrhenius) or rate is None:
-                spec['rate-constant'] = dict.fromkeys(['A', 'b', 'Ea'], 0.)
+                spec["rate-constant"] = rate
+            elif legacy and (isinstance(rate, Arrhenius) or rate is None):
+                spec["rate-constant"] = dict.fromkeys(["A", "b", "Ea"], 0.)
+            elif rate is None:
+                pass
+            elif not legacy and isinstance(rate, (Arrhenius, ArrheniusRate)):
+                pass
             else:
                 raise TypeError("Invalid rate definition")
 
@@ -801,10 +814,12 @@ cdef class ElementaryReaction2(Reaction):
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
 
-            if isinstance(rate, Arrhenius):
+            if legacy and isinstance(rate, Arrhenius):
+                self.rate = rate
+            elif not legacy and isinstance(rate, (ArrheniusRate, Arrhenius)):
                 self.rate = rate
 
-    property rate:
+    property _legacy_rate:
         """ Get/Set the `Arrhenius` rate coefficient for this reaction. """
         def __get__(self):
             cdef CxxElementaryReaction2* r = <CxxElementaryReaction2*>self.reaction
@@ -813,7 +828,33 @@ cdef class ElementaryReaction2(Reaction):
             cdef CxxElementaryReaction2* r = <CxxElementaryReaction2*>self.reaction
             r.rate = deref(rate.rate)
 
-    property allow_negative_pre_exponential_factor:
+    property rate:
+        """ Get/Set the `ArrheniusRate` rate coefficient for this reaction. """
+        def __get__(self):
+            if self.uses_legacy:
+                return self._legacy_rate
+
+            return ArrheniusRate.wrap(self.er().rate())
+        def __set__(self, rate):
+            if self.uses_legacy:
+                self._legacy_rate = rate
+                return
+
+            cdef ArrheniusRate rate3
+            if isinstance(rate, ArrheniusRate):
+                rate3 = rate
+            elif isinstance(rate, Arrhenius):
+                warnings.warn("Setting the rate using an 'Arrhenius' object is "
+                    "deprecated and will be removed after Cantera 2.6. The argument "
+                    "type is replaceable by 'ArrheniusRate'.", DeprecationWarning)
+                rate3 = ArrheniusRate(rate.pre_exponential_factor,
+                                      rate.temperature_exponent,
+                                      rate.activation_energy)
+            else:
+                raise TypeError("Invalid rate definition")
+            self.er().setRate(rate3._base)
+
+    property _legacy_allow_negative_pre_exponential_factor:
         """
         Get/Set whether the rate coefficient is allowed to have a negative
         pre-exponential factor.
@@ -825,47 +866,106 @@ cdef class ElementaryReaction2(Reaction):
             cdef CxxElementaryReaction2* r = <CxxElementaryReaction2*>self.reaction
             r.allow_negative_pre_exponential_factor = allow
 
+    property allow_negative_pre_exponential_factor:
+        """
+        Get/Set whether the rate coefficient is allowed to have a negative
+        pre-exponential factor.
 
-cdef class ThreeBodyReaction2(ElementaryReaction2):
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by property `ArrheniusRate.allow_negative_pre_exponential_factor`.
+        """
+        def __get__(self):
+            if self.uses_legacy:
+                return self._legacy_allow_negative_pre_exponential_factor
+
+            attr = "allow_negative_pre_exponential_factor"
+            warnings.warn(
+                self._deprecation_warning(attr), DeprecationWarning)
+            return self.rate.allow_negative_pre_exponential_factor
+        def __set__(self, allow):
+            if self.uses_legacy:
+                self._legacy_allow_negative_pre_exponential_factor = allow
+                return
+
+            attr = "allow_negative_pre_exponential_factor"
+            warnings.warn(
+                self._deprecation_warning(attr), DeprecationWarning)
+            self.rate.allow_negative_pre_exponential_factor = allow
+
+
+cdef class ThreeBodyReaction(ElementaryReaction):
     """
     A reaction with a non-reacting third body "M" that acts to add or remove
     energy from the reacting species.
 
-    .. deprecated:: 2.6
+    An example for the definition of an `ThreeBodyReaction` object is given as::
 
-        This class is replaced by `ThreeBodyReaction` and only used by CTI/XML. The
-        implementation uses the legacy framework for reaction rate evaluations used
-        by Cantera 2.5.1 and earlier. Refer to `ThreeBodyReaction` for new behavior.
+        rxn = ThreeBodyReaction(
+            equation="2 O + M <=> O2 + M",
+            type="three-body",
+            rate={"A": 1.2e+17, "b": -1.0, "Ea": 0.0},
+            efficiencies={"H2": 2.4, "H2O": 15.4, "AR": 0.83},
+            kinetics=gas)
+
+    The YAML description corresponding to this reaction is::
+
+        equation: 2 O + M <=> O2 + M
+        type: three-body
+        rate-constant: {A: 1.2e+17 cm^6/mol^2/s, b: -1.0, Ea: 0.0 cal/mol}
+        efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
     """
     _reaction_type = "three-body"
     _has_legacy = True
+    _hybrid = True
+
+    cdef CxxThreeBodyReaction3* tbr(self):
+        if self.uses_legacy:
+            raise AttributeError("Incorrect accessor for updated implementation")
+        return <CxxThreeBodyReaction3*>self.reaction
+
+    cdef CxxThreeBodyReaction2* tbr2(self):
+        if not self.uses_legacy:
+            raise AttributeError("Incorrect accessor for legacy implementation")
+        return <CxxThreeBodyReaction2*>self.reaction
+
+    cdef CxxThirdBody* thirdbody(self):
+        if self.uses_legacy:
+            raise AttributeError("Accessor not defined for legacy implementation")
+        return <CxxThirdBody*>(self.tbr().thirdBody().get())
 
     def __init__(self, equation=None, rate=None, efficiencies=None,
-                 Kinetics kinetics=None, init=True, **kwargs):
+                 Kinetics kinetics=None, legacy=False, init=True, **kwargs):
 
         if init and equation and kinetics:
 
-            rxn_type = self._reaction_type + "-legacy"
+            if legacy:
+                rxn_type = self._reaction_type + "-legacy"
+            else:
+                rxn_type = self._reaction_type
             spec = {"equation": equation, "type": rxn_type}
             if isinstance(rate, dict):
-                spec['rate-constant'] = rate
-            elif isinstance(rate, Arrhenius) or rate is None:
-                spec['rate-constant'] = dict.fromkeys(['A', 'b', 'Ea'], 0.)
+                spec["rate-constant"] = rate
+            elif legacy and (isinstance(rate, Arrhenius) or rate is None):
+                spec["rate-constant"] = dict.fromkeys(["A", "b", "Ea"], 0.)
+            elif rate is None:
+                pass
+            elif not legacy and isinstance(rate, (Arrhenius, ArrheniusRate)):
+                pass
             else:
                 raise TypeError("Invalid rate definition")
 
             if isinstance(efficiencies, dict):
-                spec['efficiencies'] = efficiencies
+                spec["efficiencies"] = efficiencies
 
             self._reaction = CxxNewReaction(dict_to_anymap(spec),
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
 
-            if isinstance(rate, Arrhenius):
+            if legacy and isinstance(rate, Arrhenius):
                 self.rate = rate
-
-    cdef CxxThreeBodyReaction2* tbr(self):
-        return <CxxThreeBodyReaction2*>self.reaction
+            elif not legacy and isinstance(rate, (Arrhenius, ArrheniusRate)):
+                self.rate = rate
 
     property efficiencies:
         """
@@ -874,9 +974,14 @@ cdef class ThreeBodyReaction2(ElementaryReaction2):
         efficiencies.
         """
         def __get__(self):
-            return comp_map_to_dict(self.tbr().third_body.efficiencies)
+            if self.uses_legacy:
+                return comp_map_to_dict(self.tbr2().third_body.efficiencies)
+            return comp_map_to_dict(self.thirdbody().efficiencies)
         def __set__(self, eff):
-            self.tbr().third_body.efficiencies = comp_map(eff)
+            if self.uses_legacy:
+                self.tbr2().third_body.efficiencies = comp_map(eff)
+                return
+            self.thirdbody().efficiencies = comp_map(eff)
 
     property default_efficiency:
         """
@@ -884,16 +989,23 @@ cdef class ThreeBodyReaction2(ElementaryReaction2):
         species used for species not in `efficiencies`.
         """
         def __get__(self):
-            return self.tbr().third_body.default_efficiency
+            if self.uses_legacy:
+                return self.tbr2().third_body.default_efficiency
+            return self.thirdbody().default_efficiency
         def __set__(self, default_eff):
-            self.tbr().third_body.default_efficiency = default_eff
+            if self.uses_legacy:
+                self.tbr2().third_body.default_efficiency = default_eff
+                return
+            self.thirdbody().default_efficiency = default_eff
 
     def efficiency(self, species):
         """
         Get the efficiency of the third body named *species* considering both
         the default efficiency and species-specific efficiencies.
         """
-        return self.tbr().third_body.efficiency(stringify(species))
+        if self.uses_legacy:
+            return self.tbr2().third_body.efficiency(stringify(species))
+        return self.thirdbody().efficiency(stringify(species))
 
 
 cdef class Falloff:
@@ -1099,11 +1211,11 @@ cdef class PlogReaction(Reaction):
     """
     _reaction_type = "pressure-dependent-Arrhenius"
     _has_legacy = True
-    _dual = True
+    _hybrid = True
 
     cdef CxxPlogReaction3* pr(self):
         if self.uses_legacy:
-            raise AttributeError("Rate object accessor not defined for legacy implementation")
+            raise AttributeError("Accessor not defined for legacy implementation")
         return <CxxPlogReaction3*>self.reaction
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
@@ -1250,11 +1362,11 @@ cdef class ChebyshevReaction(Reaction):
     """
     _reaction_type = "Chebyshev"
     _has_legacy = True
-    _dual = True
+    _hybrid = True
 
     cdef CxxChebyshevReaction3* cr(self):
         if self.uses_legacy:
-            raise AttributeError("Rate object accessor not defined for legacy implementation")
+            raise AttributeError("Accessor not defined for legacy implementation")
         return <CxxChebyshevReaction3*>self.reaction
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
@@ -1605,10 +1717,16 @@ cdef class BlowersMaselReaction(Reaction):
             r.allow_negative_pre_exponential_factor = allow
 
 
-cdef class InterfaceReaction(ElementaryReaction2):
+cdef class InterfaceReaction(ElementaryReaction):
     """ A reaction occurring on an `Interface` (i.e. a surface or an edge) """
     _reaction_type = "interface"
     _has_legacy = False
+    _hybrid = False
+
+    property uses_legacy:
+        # legacy framework is implicitly used
+        def __get__(self):
+            return True
 
     property coverage_deps:
         """
@@ -1749,185 +1867,19 @@ cdef class BlowersMaselInterfaceReaction(BlowersMaselReaction):
             r.sticking_species = stringify(species)
 
 
-cdef class Reaction3(Reaction):
-    """ Convenience class holding methods common to the Reaction3 framework """
-
-    pass
-
-
-cdef class ElementaryReaction(Reaction3):
-    """
-    A reaction which follows mass-action kinetics with a modified Arrhenius
-    reaction rate.
-
-    An example for the definition of an `ElementaryReaction` object is given as::
-
-        rxn = ElementaryReaction(
-            equation='O + H2 <=> H + OH',
-            rate={'A': 38.7, 'b': 2.7, 'Ea': 2.619184e+07},
-            kinetics=gas)
-
-    The YAML description corresponding to this reaction is::
-
-        equation: O + H2 <=> H + OH
-        rate-constant: {A: 3.87e+04 cm^3/mol/s, b: 2.7, Ea: 6260.0 cal/mol}
-    """
-    _reaction_type = "elementary"
-
-    cdef CxxElementaryReaction3* er(self):
-        return <CxxElementaryReaction3*>self.reaction
-
-    def __init__(self, equation=None, rate=None,
-                 Kinetics kinetics=None, init=True, **kwargs):
-
-        if init and equation and kinetics:
-
-            spec = {"equation": equation, "type": self._reaction_type}
-            if isinstance(rate, dict):
-                spec["rate-constant"] = rate
-            elif isinstance(rate, ArrheniusRate) or rate is None:
-                pass
-            else:
-                raise TypeError("Invalid rate definition")
-
-            self._reaction = CxxNewReaction(dict_to_anymap(spec),
-                                            deref(kinetics.kinetics))
-            self.reaction = self._reaction.get()
-
-            if isinstance(rate, (ArrheniusRate, Arrhenius)):
-                self.rate = rate
-
-    property rate:
-        """ Get/Set the `ArrheniusRate` rate coefficient for this reaction. """
-        def __get__(self):
-            return ArrheniusRate.wrap(self.er().rate())
-        def __set__(self, rate):
-            cdef ArrheniusRate rate3
-            if isinstance(rate, ArrheniusRate):
-                rate3 = rate
-            elif isinstance(rate, Arrhenius):
-                warnings.warn("Setting the rate using an 'Arrhenius' object is "
-                    "deprecated and will be removed after Cantera 2.6. The argument "
-                    "type is replaceable by 'ArrheniusRate'.", DeprecationWarning)
-                rate3 = ArrheniusRate(rate.pre_exponential_factor,
-                                      rate.temperature_exponent,
-                                      rate.activation_energy)
-            else:
-                raise TypeError("Invalid rate definition")
-            self.er().setRate(rate3._base)
-
-    property allow_negative_pre_exponential_factor:
-        """
-        Get/Set whether the rate coefficient is allowed to have a negative
-        pre-exponential factor.
-
-        .. deprecated:: 2.6
-             To be deprecated with version 2.6, and removed thereafter.
-             Replaced by property `ArrheniusRate.allow_negative_pre_exponential_factor`.
-        """
-        def __get__(self):
-            attr =  "allow_negative_pre_exponential_factor"
-            warnings.warn(
-                self._deprecation_warning(attr), DeprecationWarning)
-            return self.rate.allow_negative_pre_exponential_factor
-        def __set__(self, allow):
-            attr =  "allow_negative_pre_exponential_factor"
-            warnings.warn(
-                self._deprecation_warning(attr), DeprecationWarning)
-            self.rate.allow_negative_pre_exponential_factor = allow
-
-
-cdef class ThreeBodyReaction(ElementaryReaction):
-    """
-    A reaction with a non-reacting third body "M" that acts to add or remove
-    energy from the reacting species.
-
-    An example for the definition of an `ThreeBodyReaction` object is given as::
-
-        rxn = ThreeBodyReaction(
-            equation='2 O + M <=> O2 + M',
-            type='three-body',
-            rate={'A': 1.2e+17, 'b': -1.0, 'Ea': 0.0},
-            efficiencies={'H2': 2.4, 'H2O': 15.4, 'AR': 0.83},
-            kinetics=gas)
-
-    The YAML description corresponding to this reaction is::
-
-        equation: 2 O + M <=> O2 + M
-        type: three-body
-        rate-constant: {A: 1.2e+17 cm^6/mol^2/s, b: -1.0, Ea: 0.0 cal/mol}
-        efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
-    """
-    _reaction_type = "three-body"
-
-    cdef CxxThreeBodyReaction3* tbr(self):
-        return <CxxThreeBodyReaction3*>self.reaction
-
-    cdef CxxThirdBody* thirdbody(self):
-        return <CxxThirdBody*>(self.tbr().thirdBody().get())
-
-    def __init__(self, equation=None, rate=None, efficiencies=None,
-                 Kinetics kinetics=None, init=True, **kwargs):
-
-        if init and equation and kinetics:
-
-            spec = {"equation": equation, "type": self._reaction_type}
-            if isinstance(rate, dict):
-                spec["rate-constant"] = rate
-            elif isinstance(rate, ArrheniusRate) or rate is None:
-                pass
-            else:
-                raise TypeError("Invalid rate definition")
-
-            if isinstance(efficiencies, dict):
-                spec["efficiencies"] = efficiencies
-
-            self._reaction = CxxNewReaction(dict_to_anymap(spec),
-                                            deref(kinetics.kinetics))
-            self.reaction = self._reaction.get()
-
-            if isinstance(rate, ArrheniusRate):
-                self.rate = rate
-
-    property efficiencies:
-        """
-        Get/Set a `dict` defining non-default third-body efficiencies for this
-        reaction, where the keys are the species names and the values are the
-        efficiencies.
-        """
-        def __get__(self):
-            return comp_map_to_dict(self.thirdbody().efficiencies)
-        def __set__(self, eff):
-            self.thirdbody().efficiencies = comp_map(eff)
-
-    property default_efficiency:
-        """
-        Get/Set the default third-body efficiency for this reaction, used for
-        species used for species not in `efficiencies`.
-        """
-        def __get__(self):
-            return self.thirdbody().default_efficiency
-        def __set__(self, default_eff):
-            self.thirdbody().default_efficiency = default_eff
-
-    def efficiency(self, species):
-        """
-        Get the efficiency of the third body named *species* considering both
-        the default efficiency and species-specific efficiencies.
-        """
-        return self.thirdbody().efficiency(stringify(species))
-
-
-cdef class CustomReaction(Reaction3):
+cdef class CustomReaction(Reaction):
     """
     A reaction which follows mass-action kinetics with a custom reaction rate.
 
     An example for the definition of a `CustomReaction` object is given as::
 
         rxn = CustomReaction(
-            equation='H2 + O <=> H + OH',
+            equation="H2 + O <=> H + OH",
             rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T),
             kinetics=gas)
+
+    Warning: this class is an experimental part of the Cantera API and
+        may be changed or removed without notice.
     """
     _reaction_type = "custom-rate-function"
 
