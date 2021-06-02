@@ -740,7 +740,7 @@ class TestChebyshev(ReactionTests, utilities.CanteraTest):
 class TestChebyshev2(TestChebyshev):
     # test legacy version of Chebyshev reaction
 
-    _cls = ct.ChebyshevReaction2
+    _cls = ct.ChebyshevReaction
     _type = "Chebyshev-legacy"
     _legacy = True
     _rate_obj = None
