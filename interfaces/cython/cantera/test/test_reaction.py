@@ -322,6 +322,7 @@ class ReactionTests:
         self.assertEqual(rxn.reaction_type, self._type)
         self.assertEqual(rxn.reactants, self.gas.reaction(ix).reactants)
         self.assertEqual(rxn.products, self.gas.reaction(ix).products)
+        self.assertEqual(rxn.uses_legacy, self._type.endswith("-legacy"))
 
         gas2 = ct.Solution(thermo="IdealGas", kinetics="GasKinetics",
                            species=self.species, reactions=[rxn])

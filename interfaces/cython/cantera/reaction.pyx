@@ -366,11 +366,15 @@ cdef class Reaction:
                         [(3.87e4, 'cm3/mol/s'), 2.7, (6260, 'cal/mol')])''')
     """
     _reaction_type = ""
+    _has_legacy = False
 
     def __cinit__(self, reactants='', products='', init=True, **kwargs):
 
         if init:
-            self._reaction = CxxNewReaction(stringify((self._reaction_type)))
+            rxn_type = self._reaction_type
+            if self._has_legacy:
+                rxn_type += "-legacy"
+            self._reaction = CxxNewReaction(stringify((rxn_type)))
             self.reaction = self._reaction.get()
             if reactants:
                 self.reactants = reactants
@@ -386,7 +390,10 @@ cdef class Reaction:
         if not(_reaction_class_registry):
             def register_subclasses(cls):
                 for c in cls.__subclasses__():
-                    _reaction_class_registry[getattr(c, '_reaction_type')] = c
+                    rxn_type = getattr(c, "_reaction_type")
+                    if getattr(c, "_has_legacy", False):
+                        rxn_type += "-legacy"
+                    _reaction_class_registry[rxn_type] = c
                     register_subclasses(c)
 
             # update global reaction class registry
@@ -596,8 +603,7 @@ cdef class Reaction:
 
     property reaction_type:
         """
-        Get/Set the identification string for the reaction, which can be used in
-        filtering operations.
+        Retrieve the native type name of the reaction.
         """
         def __get__(self):
             return pystr(self.reaction.type())
@@ -677,6 +683,11 @@ cdef class Reaction:
         return ("\n{} '{}' to be removed after Cantera 2.6.\nThis {} is moved to "
                 "the {} object accessed via the 'rate' property."
                 ).format(what.capitalize(), attr, what, type(self.rate).__name__)
+
+    property uses_legacy:
+        """Indicate whether reaction uses a legacy implementation"""
+        def __get__(self):
+            return pystr(self.reaction.type()).endswith("-legacy")
 
 
 cdef class Arrhenius:
@@ -765,14 +776,16 @@ cdef class ElementaryReaction2(Reaction):
         implementation uses the legacy framework for reaction rate evaluations used
         by Cantera 2.5.1 and earlier. Refer to `ElementaryReaction` for new behavior.
     """
-    _reaction_type = "elementary-legacy"
+    _reaction_type = "elementary"
+    _has_legacy = True
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
                  init=True, **kwargs):
 
         if init and equation and kinetics:
 
-            spec = {'equation': equation, 'type': self._reaction_type}
+            rxn_type = self._reaction_type + "-legacy"
+            spec = {"equation": equation, "type": rxn_type}
             if isinstance(rate, dict):
                 spec['rate-constant'] = rate
             elif isinstance(rate, Arrhenius) or rate is None:
@@ -820,14 +833,16 @@ cdef class ThreeBodyReaction2(ElementaryReaction2):
         implementation uses the legacy framework for reaction rate evaluations used
         by Cantera 2.5.1 and earlier. Refer to `ThreeBodyReaction` for new behavior.
     """
-    _reaction_type = "three-body-legacy"
+    _reaction_type = "three-body"
+    _has_legacy = True
 
     def __init__(self, equation=None, rate=None, efficiencies=None,
                  Kinetics kinetics=None, init=True, **kwargs):
 
         if init and equation and kinetics:
 
-            spec = {'equation': equation, 'type': self._reaction_type}
+            rxn_type = self._reaction_type + "-legacy"
+            spec = {"equation": equation, "type": rxn_type}
             if isinstance(rate, dict):
                 spec['rate-constant'] = rate
             elif isinstance(rate, Arrhenius) or rate is None:
@@ -1063,14 +1078,16 @@ cdef class PlogReaction2(Reaction):
         implementation uses the legacy framework for reaction rate evaluations used
         by Cantera 2.5.1 and earlier. Refer to `PlogReaction` for new behavior.
     """
-    _reaction_type = "pressure-dependent-Arrhenius-legacy"
+    _reaction_type = "pressure-dependent-Arrhenius"
+    _has_legacy = True
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
                  init=True, **kwargs):
 
         if init and equation and kinetics:
 
-            spec = {'equation': equation, 'type': self._reaction_type}
+            rxn_type = self._reaction_type + "-legacy"
+            spec = {"equation": equation, "type": rxn_type}
             if isinstance(rate, dict):
                 spec.update(rate)
             else:
@@ -1127,14 +1144,16 @@ cdef class ChebyshevReaction2(Reaction):
         implementation uses the legacy framework for reaction rate evaluations used
         by Cantera 2.5.1 and earlier. Refer to `ChebyshevReaction` for new behavior.
     """
-    _reaction_type = "Chebyshev-legacy"
+    _reaction_type = "Chebyshev"
+    _has_legacy = True
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
                  init=True, **kwargs):
 
         if init and equation and kinetics:
 
-            spec = {'equation': equation, 'type': self._reaction_type}
+            rxn_type = self._reaction_type + "-legacy"
+            spec = {"equation": equation, "type": rxn_type}
             if isinstance(rate, dict):
                 spec['temperature-range'] = [rate['Tmin'], rate['Tmax']]
                 spec['pressure-range'] = [rate['Pmin'], rate['Pmax']]
@@ -1326,6 +1345,7 @@ cdef class BlowersMaselReaction(Reaction):
 cdef class InterfaceReaction(ElementaryReaction2):
     """ A reaction occurring on an `Interface` (i.e. a surface or an edge) """
     _reaction_type = "interface"
+    _has_legacy = False
 
     property coverage_deps:
         """
