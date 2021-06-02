@@ -677,7 +677,7 @@ class TestPlog(ReactionTests, utilities.CanteraTest):
             rxn.rates = rates
             self.check_rates(rxn.rates, _rate)
         else:
-            with self.assertWarnsRegex(DeprecationWarning, "property is moved"):
+            with self.assertWarnsRegex(DeprecationWarning, "Setter is replaceable"):
                 rxn.rates = rates
             with self.assertWarnsRegex(DeprecationWarning, "property is moved"):
                 self.check_rates(rxn.rates, _rate)

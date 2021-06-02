@@ -581,6 +581,10 @@ public:
 
 //! A reaction which follows mass-action kinetics with a custom reaction rate
 //! defined in Python.
+/**
+ * @warning This class is an experimental part of the %Cantera API and
+ *    may be changed or removed without notice.
+ */
 class CustomFunc1Reaction : public Reaction3
 {
 public:
