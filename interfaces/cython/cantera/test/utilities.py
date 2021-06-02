@@ -1,5 +1,5 @@
 import numpy as np
-import os
+from os import environ
 import warnings
 import tempfile
 import unittest
@@ -12,7 +12,10 @@ except ImportError:
 
 import cantera
 
-slow_test = unittest.skipIf(os.environ.get("CT_SKIP_SLOW", "0") == "1", "slow test")
+slow_test = unittest.skipIf(environ.get("CT_SKIP_SLOW", "0") == "1", "slow test")
+
+TEST_DATA_PATH = Path(__file__).parent / "data"
+CANTERA_DATA_PATH = Path(__file__).parents[1] / "data"
 
 
 def load_yaml(yml_file, typ="safe"):
@@ -44,8 +47,8 @@ class CanteraTest(unittest.TestCase):
 
         cantera.make_deprecation_warnings_fatal()
         cantera.add_directory(cls.test_work_path)
-        cls.test_data_path = Path(__file__).parent / "data"
-        cls.cantera_data_path = Path(__file__).parents[1] / "data"
+        cls.test_data_path = TEST_DATA_PATH
+        cls.cantera_data_path = CANTERA_DATA_PATH
 
 
     @classmethod

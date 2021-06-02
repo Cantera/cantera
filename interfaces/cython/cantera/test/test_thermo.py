@@ -1,7 +1,6 @@
 from collections import OrderedDict
 import numpy as np
 import gc
-import warnings
 
 import cantera as ct
 from . import utilities

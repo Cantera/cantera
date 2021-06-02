@@ -2,7 +2,6 @@ import sys
 
 import numpy as np
 from collections import OrderedDict
-import warnings
 
 import cantera as ct
 from cantera.composite import _h5py, _pandas
@@ -247,7 +246,6 @@ class TestSolutionArrayIO(utilities.CanteraTest):
     def test_write_hdf_multidim_column(self):
         outfile = self.test_work_path / "solutionarray.h5"
         # In Python >= 3.8, this can be replaced by the missing_ok argument
-
         if outfile.is_file():
             outfile.unlink()
 

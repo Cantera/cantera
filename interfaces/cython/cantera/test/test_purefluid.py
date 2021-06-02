@@ -1,6 +1,5 @@
 import itertools
 import numpy as np
-import warnings
 
 import cantera as ct
 from . import utilities
