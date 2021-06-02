@@ -377,7 +377,7 @@ class FlameBase(Sim1D):
         self.gas.set_unnormalized_mass_fractions(Y)
         self.gas.TP = self.value(self.flame, 'T', point), self.P
 
-    def write_csv(self, filename, species='X', quiet=True):
+    def write_csv(self, filename, species='X', quiet=True, normalize=False):
         """
         Write the velocity, temperature, density, and species profiles
         to a CSV file.
@@ -387,20 +387,28 @@ class FlameBase(Sim1D):
         :param species:
             Attribute to use obtaining species profiles, e.g. ``X`` for
             mole fractions or ``Y`` for mass fractions.
+        :param normalize:
+            Boolean flag to indicate whether the mole/mass fractions should
+            be normalized (default is ``False``)
         """
 
         # save data
         cols = ('extra', 'T', 'D', species)
-        self.to_solution_array().write_csv(filename, cols=cols)
+        self.to_solution_array(normalize=normalize).write_csv(filename, cols=cols)
 
         if not quiet:
             print("Solution saved to '{0}'.".format(filename))
 
-    def to_solution_array(self, domain=None):
+    def to_solution_array(self, domain=None, normalize=False):
         """
         Return the solution vector as a `SolutionArray` object.
 
         Derived classes define default values for *other*.
+
+        If the data contains mass or mole fractions they will be set
+        without normalizing their sum to 1.0 by default. If this is
+        not desired, the ``normalize`` argument can be set to
+        ``True`` to force the data to sum to 1.0.
         """
         if domain is None:
             domain = self.flame
@@ -413,7 +421,21 @@ class FlameBase(Sim1D):
         if n_points:
             arr = SolutionArray(self.phase(domain), n_points,
                                 extra=other_cols, meta=meta)
-            arr.TPY = states
+            if normalize:
+                arr.TPY = states
+            else:
+                if len(states) == 3:
+                    if n_points==1:
+                        arr._phase.set_unnormalized_mass_fractions(states[2])
+                        arr._phase.TP = states[0], states[1]
+                        arr._states[0] = arr._phase.state
+                    else:
+                        for i in range(n_points):
+                            arr._phase.set_unnormalized_mass_fractions(states[2][i])
+                            arr._phase.TP = states[0][i], states[1]
+                            arr._states[i] = arr._phase.state
+                else:
+                    arr.TPY = states
             return arr
         else:
             return SolutionArray(self.phase(domain), meta=meta)
@@ -436,20 +458,23 @@ class FlameBase(Sim1D):
         meta = arr.meta
         super().restore_data(domain, states, other_cols, meta)
 
-    def to_pandas(self, species='X'):
+    def to_pandas(self, species='X', normalize=False):
         """
         Return the solution vector as a `pandas.DataFrame`.
 
         :param species:
             Attribute to use obtaining species profiles, e.g. ``X`` for
             mole fractions or ``Y`` for mass fractions.
+        :param normalize:
+            Boolean flag to indicate whether the mole/mass fractions should
+            be normalized (default is ``False``)
 
         This method uses `to_solution_array` and requires a working pandas
         installation. Use pip or conda to install `pandas` to enable this
         method.
         """
         cols = ('extra', 'T', 'D', species)
-        return self.to_solution_array().to_pandas(cols=cols)
+        return self.to_solution_array(normalize=normalize).to_pandas(cols=cols)
 
     def from_pandas(self, df, restore_boundaries=True, settings=None):
         """
@@ -476,7 +501,7 @@ class FlameBase(Sim1D):
 
     def write_hdf(self, filename, *args, group=None, species='X', mode='a',
                   description=None, compression=None, compression_opts=None,
-                  quiet=True, **kwargs):
+                  quiet=True, normalize=False, **kwargs):
         """
         Write the solution vector to a HDF container file.
 
@@ -537,6 +562,9 @@ class FlameBase(Sim1D):
             corresponds to the compression level {None, 0-9}.
         :param quiet:
             Suppress message confirming successful file output.
+        :param normalize:
+            Boolean flag to indicate whether the mole/mass fractions should
+            be normalized (default is ``False``)
 
         Additional arguments (i.e. *args* and *kwargs*) are passed on to
         `SolutionArray.collect_data`. The method exports data using
@@ -551,7 +579,7 @@ class FlameBase(Sim1D):
         if description is not None:
             meta['description'] = description
         for i in range(3):
-            arr = self.to_solution_array(domain=self.domains[i])
+            arr = self.to_solution_array(domain=self.domains[i], normalize=normalize)
             group = arr.write_hdf(filename, *args, group=group, cols=cols,
                                   subgroup=self.domains[i].name,
                                   attrs=meta, mode=mode, append=(i > 0),
@@ -565,7 +593,7 @@ class FlameBase(Sim1D):
             msg = "Solution saved to '{0}' as group '{1}'."
             print(msg.format(filename, group))
 
-    def read_hdf(self, filename, group=None, restore_boundaries=True):
+    def read_hdf(self, filename, group=None, restore_boundaries=True, normalize=True):
         """
         Restore the solution vector from a HDF container file.
 
@@ -576,6 +604,9 @@ class FlameBase(Sim1D):
         :param restore_boundaries:
             Boolean flag to indicate whether boundaries should be restored
             (default is ``True``)
+        :param normalize:
+            Boolean flag to indicate whether the mole/mass fractions should
+            be normalized (default is ``True``)
 
         The method imports data using `SolutionArray.read_hdf` via
         `from_solution_array` and requires a working installation of h5py
@@ -589,7 +620,7 @@ class FlameBase(Sim1D):
         for d in domains:
             arr = SolutionArray(self.phase(d), extra=self.other_components(d))
             meta = arr.read_hdf(filename, group=group,
-                                subgroup=self.domains[d].name)
+                                subgroup=self.domains[d].name, normalize=normalize)
             self.from_solution_array(arr, domain=d)
 
         self.settings = meta

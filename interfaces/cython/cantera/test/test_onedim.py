@@ -272,7 +272,7 @@ class TestFreeFlame(utilities.CanteraTest):
     def test_solution_array_output(self):
         self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
 
-        flow = self.sim.to_solution_array()
+        flow = self.sim.to_solution_array(normalize=True)
         self.assertArrayNear(self.sim.grid, flow.grid)
         self.assertArrayNear(self.sim.T, flow.T)
         for k in flow._extra.keys():
@@ -291,7 +291,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
     def test_restart(self):
         self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
-        arr = self.sim.to_solution_array()
+        arr = self.sim.to_solution_array(normalize=False)
 
         reactants = {'H2': 0.9, 'O2': 0.5, 'AR': 2}
         self.create_sim(1.1 * ct.one_atm, 500, reactants, 2.0)
@@ -657,7 +657,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.sim.write_hdf(filename, description=desc)
 
         f = ct.FreeFlame(self.gas)
-        meta = f.read_hdf(filename)
+        meta = f.read_hdf(filename, normalize=False)
         self.assertArrayNear(f.grid, self.sim.grid)
         self.assertArrayNear(f.T, self.sim.T)
         self.assertEqual(meta['description'], desc)
