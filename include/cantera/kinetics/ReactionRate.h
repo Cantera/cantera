@@ -419,6 +419,9 @@ public:
 /**
  * The rate expression is provided by a `Func1` object taking a single
  * argument (temperature) and does not use a formalized parameterization.
+ *
+ * @warning This class is an experimental part of the %Cantera API and
+ *    may be changed or removed without notice.
  */
 class CustomFunc1Rate final : public ReactionRate<CustomFunc1Data>
 {
