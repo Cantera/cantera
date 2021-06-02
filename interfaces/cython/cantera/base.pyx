@@ -55,10 +55,7 @@ cdef class _SolutionBase:
 
         # Parse inputs
         if isinstance(infile, PurePath):
-            if infile.name:
-                infile = str(infile)
-            else:
-                infile = ''
+            infile = str(infile)
         if infile.endswith('.yml') or infile.endswith('.yaml') or yaml:
             self._init_yaml(infile, name, adjacent, yaml)
         elif infile or source:
