@@ -350,16 +350,17 @@ class ReactionTests:
 
     def test_from_parts(self):
         # check instantiation from parts (reactants, products, rate expression)
-        if not hasattr(self._cls, "rate"):
+        if not self._rate_obj:
             return
         orig = self.gas.reaction(self._index)
-        rxn = self._cls(orig.reactants, orig.products)
+        rxn = self._cls(orig.reactants, orig.products, legacy=self._legacy)
         rxn.rate = self._rate_obj
         self.check_rxn(rxn)
 
     def test_from_dict(self):
         # check instantiation from keywords / rate defined by dictionary
-        rxn = self._cls(equation=self._equation, rate=self._rate, kinetics=self.gas, **self._kwargs)
+        rxn = self._cls(equation=self._equation, rate=self._rate, kinetics=self.gas,
+                        legacy=self._legacy, **self._kwargs)
         self.check_rxn(rxn)
 
     def test_from_yaml(self):
@@ -373,7 +374,8 @@ class ReactionTests:
         # check instantiation from keywords / rate provided as object
         if self._rate_obj is None:
             return
-        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas, **self._kwargs)
+        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas,
+                        legacy=self._legacy, **self._kwargs)
         self.check_rxn(rxn)
 
     def test_add_rxn(self):
@@ -384,20 +386,23 @@ class ReactionTests:
                            species=self.species, reactions=[])
         gas2.TPX = self.gas.TPX
 
-        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas, **self._kwargs)
+        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas,
+                        legacy=self._legacy, **self._kwargs)
         gas2.add_reaction(rxn)
         self.check_solution(gas2)
 
     def test_raises_invalid_rate(self):
         # check exception for instantiation from keywords / invalid rate
         with self.assertRaises(TypeError):
-            rxn = self._cls(equation=self._equation, rate=(), kinetics=self.gas, **self._kwargs)
+            rxn = self._cls(equation=self._equation, rate=(), kinetics=self.gas,
+                            legacy=self._legacy, **self._kwargs)
 
     def test_no_rate(self):
         # check behavior for instantiation from keywords / no rate
-        if not hasattr(self._cls, "rate"):
+        if self._rate_obj is None:
             return
-        rxn = self._cls(equation=self._equation, kinetics=self.gas, **self._kwargs)
+        rxn = self._cls(equation=self._equation, kinetics=self.gas,
+                        legacy=self._legacy, **self._kwargs)
         if self._legacy:
             self.assertNear(rxn.rate(self.gas.T), 0.)
         else:
@@ -414,7 +419,8 @@ class ReactionTests:
         # check replacing reaction rate expression
         if self._rate_obj is None:
             return
-        rxn = self._cls(equation=self._equation, kinetics=self.gas, **self._kwargs)
+        rxn = self._cls(equation=self._equation, kinetics=self.gas,
+                        legacy=self._legacy, **self._kwargs)
         rxn.rate = self._rate_obj
         self.check_rxn(rxn)
 
@@ -422,10 +428,12 @@ class ReactionTests:
         # check round-trip instantiation via input_data
         if self._legacy:
             return
-        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas, **self._kwargs)
+        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas,
+                        legacy=self._legacy, **self._kwargs)
         input_data = rxn.rate.input_data
         rate_obj = rxn.rate.__class__(input_data=input_data)
-        rxn2 = self._cls(equation=self._equation, rate=rate_obj, kinetics=self.gas, **self._kwargs)
+        rxn2 = self._cls(equation=self._equation, rate=rate_obj, kinetics=self.gas,
+                         legacy=self._legacy, **self._kwargs)
         self.check_rxn(rxn2)
 
     def check_equal(self, one, two):
@@ -500,7 +508,8 @@ class TestElementary(ReactionTests, utilities.CanteraTest):
     def test_arrhenius(self):
         # test assigning Arrhenius rate
         rate = ct.Arrhenius(self._rate["A"], self._rate["b"], self._rate["Ea"])
-        rxn = self._cls(equation=self._equation, kinetics=self.gas, **self._kwargs)
+        rxn = self._cls(equation=self._equation, kinetics=self.gas,
+                        legacy=self._legacy, **self._kwargs)
         if self._legacy:
             rxn.rate = rate
         else:
@@ -554,7 +563,8 @@ class TestThreeBody(TestElementary):
 
     def test_efficiencies(self):
         # check efficiencies
-        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas, **self._kwargs)
+        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas,
+                        legacy=self._legacy, **self._kwargs)
 
         self.assertEqual(rxn.efficiencies, self._kwargs["efficiencies"])
 
@@ -590,7 +600,8 @@ class TestImplicitThreeBody(TestThreeBody):
 
     def test_efficiencies(self):
         # overload of default tester
-        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas)
+        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas,
+                        legacy=self._legacy)
         self.assertEqual(rxn.efficiencies, {"O2": 1.})
         self.assertEqual(rxn.default_efficiency, 0.)
 
@@ -675,7 +686,7 @@ class TestPlog(ReactionTests, utilities.CanteraTest):
 class TestPlog2(TestPlog):
     # test legacy version of Plog reaction
 
-    _cls = ct.PlogReaction2
+    _cls = ct.PlogReaction
     _type = "pressure-dependent-Arrhenius-legacy"
     _legacy = True
     _rate_obj = None
