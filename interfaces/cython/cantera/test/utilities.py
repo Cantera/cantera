@@ -47,11 +47,6 @@ class CanteraTest(unittest.TestCase):
         cls.test_data_path = Path(__file__).parent / "data"
         cls.cantera_data_path = Path(__file__).parents[1] / "data"
 
-        # retain old path strings
-        cls.test_work_dir = str(cls.test_work_path)
-        cls.test_data_dir = str(cls.test_data_path)
-        cls.cantera_data = str(cls.cantera_data_path)
-
 
     @classmethod
     def tearDownClass(cls):
