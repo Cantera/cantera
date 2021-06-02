@@ -1110,7 +1110,7 @@ class TestSpecies(utilities.CanteraTest):
 
     def test_fromXml(self):
         import xml.etree.ElementTree as ET
-        root = ET.parse(str(self.cantera_data_path / "h2o2.xml")).getroot()
+        root = ET.parse(self.cantera_data_path / "h2o2.xml").getroot()
         h2_node = root.find('.//species[@name="H2"]')
         h2_string = ET.tostring(h2_node)
 
@@ -1134,9 +1134,7 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual({sp.name for sp in S}, set(self.gas.species_names))
 
     def test_listFromCti(self):
-        with open(self.cantera_data_path / "h2o2.cti") as f:
-            S = ct.Species.listFromCti(f.read())
-
+        S = ct.Species.listFromCti((self.cantera_data_path / "h2o2.cti").read_text())
         self.assertEqual(S[3].name, self.gas.species_name(3))
 
     def test_listFomYaml(self):
@@ -1162,9 +1160,7 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual(species[1].composition, {'N': 1, 'O': 1})
 
     def test_listFromXml(self):
-        with open(self.cantera_data_path / "h2o2.xml") as f:
-            S = ct.Species.listFromXml(f.read())
-
+        S = ct.Species.listFromXml((self.cantera_data_path / "h2o2.xml").read_text())
         self.assertEqual(S[4].name, self.gas.species_name(4))
 
     def test_modify_thermo(self):

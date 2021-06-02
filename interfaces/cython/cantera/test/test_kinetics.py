@@ -922,16 +922,14 @@ class TestReaction(utilities.CanteraTest):
 
     def test_listFromCti(self):
         gas = ct.Solution("h2o2.xml", transport_model=None)
-        with open(self.cantera_data_path / "h2o2.cti") as f:
-            R = ct.Reaction.listFromCti(f.read())
+        R = ct.Reaction.listFromCti((self.cantera_data_path / "h2o2.cti").read_text())
         eq1 = [r.equation for r in R]
         eq2 = [r.equation for r in gas.reactions()]
         self.assertEqual(eq1, eq2)
 
     def test_listFromXml(self):
         gas = ct.Solution("h2o2.xml", transport_model=None)
-        with open(self.cantera_data_path / "h2o2.xml") as f:
-            R = ct.Reaction.listFromXml(f.read())
+        R = ct.Reaction.listFromXml((self.cantera_data_path / "h2o2.xml").read_text())
         eq1 = [r.equation for r in R]
         eq2 = [r.equation for r in gas.reactions()]
         self.assertEqual(eq1, eq2)

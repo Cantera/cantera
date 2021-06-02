@@ -1,11 +1,8 @@
 import numpy as np
-import sys
 import os
 import warnings
-import shutil
 import tempfile
 import unittest
-import errno
 from pathlib import Path
 
 try:
@@ -33,18 +30,14 @@ class CanteraTest(unittest.TestCase):
         # test/work directory. Otherwise, create a system level
         # temporary directory
         root_dir = Path(__file__).parents[4].resolve()
-        if (root_dir / "Sconstruct").is_file():
+        if (root_dir / "SConstruct").is_file():
             cls.test_work_path = root_dir / "test" / "work" / "python"
             cls.using_tempfile = False
             try:
-                cls.test_work_path.mkdir()
-            except FileExistsError:
-                pass
+                cls.test_work_path.mkdir(exist_ok=True)
             except FileNotFoundError:
                 cls.test_work_path = Path(tempfile.mkdtemp())
                 cls.using_tempfile = True
-            except:
-                raise
         else:
             cls.test_work_path = Path(tempfile.mkdtemp())
             cls.using_tempfile = True
@@ -65,8 +58,10 @@ class CanteraTest(unittest.TestCase):
         # Remove the working directory after testing, but only if its a temp directory
         if getattr(cls, "using_tempfile", False):
             try:
-                shutil.rmtree(str(cls.test_work_path))
-            except OSError:
+                for f in cls.test_work_path.glob("*.*"):
+                    f.unlink()
+                cls.test_work_path.rmdir()
+            except FileNotFoundError:
                 pass
 
     def assertNear(self, a, b, rtol=1e-8, atol=1e-12, msg=None):

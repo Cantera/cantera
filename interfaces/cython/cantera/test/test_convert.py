@@ -25,6 +25,7 @@ class converterTestCommon:
         if extra is not None:
             extra = self.test_data_path / extra
         output = self.test_work_path / (output + self.ext)
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
         if output.is_file():
             output.unlink()
         self._convert(inputFile, thermo=thermo, transport=transport,
@@ -477,9 +478,9 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
         self.assertEqual(desc, 'This is an alternative description.')
         for key in ['foo', 'bar']:
             self.assertIn(key, yml.keys())
-        # This test tests it can convert the SRI parameters when D or E equal to 0
 
     def test_sri_zero(self):
+        # This test tests it can convert the SRI parameters when D or E equal to 0
         self.convert('sri_convert_test.txt')
         output = self.test_work_path / ("sri_convert_test" + self.ext)
         mech = utilities.load_yaml(output)
@@ -569,8 +570,7 @@ class CtmlConverterTest(utilities.CanteraTest):
 
         gas = ct.Solution('pdep-test.yaml')
 
-        with open(self.test_data_path / "pdep-test.cti", "r") as f:
-            data = f.read()
+        data = (self.test_data_path / "pdep-test.cti").read_text()
         data_size_2048kB = data + ' '*2048*1024
         gas2 = ct.Solution(source=data_size_2048kB)
 
@@ -584,8 +584,7 @@ class CtmlConverterTest(utilities.CanteraTest):
 
         gas = ct.Solution('pdep-test.yaml')
 
-        with open(self.test_data_path / "pdep-test.cti", "r") as f:
-            data = f.read()
+        data = (self.test_data_path / "pdep-test.cti").read_text()
         data_size_32kB = data + ' '*18000
         gas2 = ct.Solution(source=data_size_32kB)
 
