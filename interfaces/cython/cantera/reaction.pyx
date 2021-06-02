@@ -365,12 +365,12 @@ cdef class Reaction:
         R = ct.Reaction.fromCti('''reaction('O + H2 <=> H + OH',
                         [(3.87e4, 'cm3/mol/s'), 2.7, (6260, 'cal/mol')])''')
     """
-    reaction_type = ""
+    _reaction_type = ""
 
     def __cinit__(self, reactants='', products='', init=True, **kwargs):
 
         if init:
-            self._reaction = CxxNewReaction(stringify((self.reaction_type)))
+            self._reaction = CxxNewReaction(stringify((self._reaction_type)))
             self.reaction = self._reaction.get()
             if reactants:
                 self.reactants = reactants
@@ -386,7 +386,7 @@ cdef class Reaction:
         if not(_reaction_class_registry):
             def register_subclasses(cls):
                 for c in cls.__subclasses__():
-                    _reaction_class_registry[getattr(c, 'reaction_type')] = c
+                    _reaction_class_registry[getattr(c, '_reaction_type')] = c
                     register_subclasses(c)
 
             # update global reaction class registry
@@ -439,7 +439,7 @@ cdef class Reaction:
             A `Kinetics` object whose associated phase(s) contain the species
             involved in the reaction.
         """
-        if cls.reaction_type != "":
+        if cls._reaction_type != "":
             raise TypeError(
                 "Class method 'fromYaml' was invoked from '{}' but should "
                 "be called from base class 'Reaction'".format(cls.__name__))
@@ -594,6 +594,14 @@ cdef class Reaction:
         def __set__(self, ID):
             self.reaction.id = stringify(ID)
 
+    property reaction_type:
+        """
+        Get/Set the identification string for the reaction, which can be used in
+        filtering operations.
+        """
+        def __get__(self):
+            return pystr(self.reaction.type())
+
     property reversible:
         """
         Get/Set a flag which is `True` if this reaction is reversible or `False`
@@ -664,6 +672,11 @@ cdef class Reaction:
 
     def __str__(self):
         return self.equation
+
+    def _deprecation_warning(self, attr, what="property"):
+        return ("\n{} '{}' to be removed after Cantera 2.6.\nThis {} is moved to "
+                "the {} object accessed via the 'rate' property."
+                ).format(what.capitalize(), attr, what, type(self.rate).__name__)
 
 
 cdef class Arrhenius:
@@ -752,14 +765,14 @@ cdef class ElementaryReaction2(Reaction):
         implementation uses the legacy framework for reaction rate evaluations used
         by Cantera 2.5.1 and earlier. Refer to `ElementaryReaction` for new behavior.
     """
-    reaction_type = "elementary-legacy"
+    _reaction_type = "elementary-legacy"
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
                  init=True, **kwargs):
 
         if init and equation and kinetics:
 
-            spec = {'equation': equation, 'type': self.reaction_type}
+            spec = {'equation': equation, 'type': self._reaction_type}
             if isinstance(rate, dict):
                 spec['rate-constant'] = rate
             elif isinstance(rate, Arrhenius) or rate is None:
@@ -807,14 +820,14 @@ cdef class ThreeBodyReaction2(ElementaryReaction2):
         implementation uses the legacy framework for reaction rate evaluations used
         by Cantera 2.5.1 and earlier. Refer to `ThreeBodyReaction` for new behavior.
     """
-    reaction_type = "three-body-legacy"
+    _reaction_type = "three-body-legacy"
 
     def __init__(self, equation=None, rate=None, efficiencies=None,
                  Kinetics kinetics=None, init=True, **kwargs):
 
         if init and equation and kinetics:
 
-            spec = {'equation': equation, 'type': self.reaction_type}
+            spec = {'equation': equation, 'type': self._reaction_type}
             if isinstance(rate, dict):
                 spec['rate-constant'] = rate
             elif isinstance(rate, Arrhenius) or rate is None:
@@ -959,7 +972,7 @@ cdef class FalloffReaction(Reaction):
     A reaction that is first-order in [M] at low pressure, like a third-body
     reaction, but zeroth-order in [M] as pressure increases.
     """
-    reaction_type = "falloff"
+    _reaction_type = "falloff"
 
     cdef CxxFalloffReaction* frxn(self):
         return <CxxFalloffReaction*>self.reaction
@@ -1036,7 +1049,7 @@ cdef class ChemicallyActivatedReaction(FalloffReaction):
     that the forward rate constant is written as being proportional to the low-
     pressure rate constant.
     """
-    reaction_type = "chemically-activated"
+    _reaction_type = "chemically-activated"
 
 
 cdef class PlogReaction2(Reaction):
@@ -1050,14 +1063,14 @@ cdef class PlogReaction2(Reaction):
         implementation uses the legacy framework for reaction rate evaluations used
         by Cantera 2.5.1 and earlier. Refer to `PlogReaction` for new behavior.
     """
-    reaction_type = "pressure-dependent-Arrhenius-legacy"
+    _reaction_type = "pressure-dependent-Arrhenius-legacy"
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
                  init=True, **kwargs):
 
         if init and equation and kinetics:
 
-            spec = {'equation': equation, 'type': self.reaction_type}
+            spec = {'equation': equation, 'type': self._reaction_type}
             if isinstance(rate, dict):
                 spec.update(rate)
             else:
@@ -1114,14 +1127,14 @@ cdef class ChebyshevReaction2(Reaction):
         implementation uses the legacy framework for reaction rate evaluations used
         by Cantera 2.5.1 and earlier. Refer to `ChebyshevReaction` for new behavior.
     """
-    reaction_type = "Chebyshev-legacy"
+    _reaction_type = "Chebyshev-legacy"
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
                  init=True, **kwargs):
 
         if init and equation and kinetics:
 
-            spec = {'equation': equation, 'type': self.reaction_type}
+            spec = {'equation': equation, 'type': self._reaction_type}
             if isinstance(rate, dict):
                 spec['temperature-range'] = [rate['Tmin'], rate['Tmax']]
                 spec['pressure-range'] = [rate['Pmin'], rate['Pmax']]
@@ -1286,7 +1299,7 @@ cdef class BlowersMaselReaction(Reaction):
     A reaction which follows mass-action kinetics with Blowers Masel
     reaction rate.
     """
-    reaction_type = "Blowers-Masel"
+    _reaction_type = "Blowers-Masel"
 
     property rate:
         """ Get/Set the `Arrhenius` rate coefficient for this reaction. """
@@ -1312,7 +1325,7 @@ cdef class BlowersMaselReaction(Reaction):
 
 cdef class InterfaceReaction(ElementaryReaction2):
     """ A reaction occurring on an `Interface` (i.e. a surface or an edge) """
-    reaction_type = "interface"
+    _reaction_type = "interface"
 
     property coverage_deps:
         """
@@ -1385,7 +1398,7 @@ cdef class BlowersMaselInterfaceReaction(BlowersMaselReaction):
     A reaction occurring on an `Interface` (i.e. a surface or an edge)
     with the rate parameterization of `BlowersMasel`.
     """
-    reaction_type = "surface-Blowers-Masel"
+    _reaction_type = "surface-Blowers-Masel"
 
     property coverage_deps:
         """
@@ -1456,10 +1469,7 @@ cdef class BlowersMaselInterfaceReaction(BlowersMaselReaction):
 cdef class Reaction3(Reaction):
     """ Convenience class holding methods common to the Reaction3 framework """
 
-    def _deprecation_warning(self, attr, what="property"):
-        return ("\n{} '{}' to be removed after Cantera 2.6.\nThis {} is moved to "
-                "the {} object accessed via the 'rate' property."
-                ).format(what.capitalize(), attr, what, type(self.rate).__name__)
+    pass
 
 
 cdef class ElementaryReaction(Reaction3):
@@ -1479,7 +1489,7 @@ cdef class ElementaryReaction(Reaction3):
         equation: O + H2 <=> H + OH
         rate-constant: {A: 3.87e+04 cm^3/mol/s, b: 2.7, Ea: 6260.0 cal/mol}
     """
-    reaction_type = "elementary"
+    _reaction_type = "elementary"
 
     cdef CxxElementaryReaction3* er(self):
         return <CxxElementaryReaction3*>self.reaction
@@ -1489,7 +1499,7 @@ cdef class ElementaryReaction(Reaction3):
 
         if init and equation and kinetics:
 
-            spec = {"equation": equation, "type": self.reaction_type}
+            spec = {"equation": equation, "type": self._reaction_type}
             if isinstance(rate, dict):
                 spec["rate-constant"] = rate
             elif isinstance(rate, ArrheniusRate) or rate is None:
@@ -1565,7 +1575,7 @@ cdef class ThreeBodyReaction(ElementaryReaction):
         rate-constant: {A: 1.2e+17 cm^6/mol^2/s, b: -1.0, Ea: 0.0 cal/mol}
         efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
     """
-    reaction_type = "three-body"
+    _reaction_type = "three-body"
 
     cdef CxxThreeBodyReaction3* tbr(self):
         return <CxxThreeBodyReaction3*>self.reaction
@@ -1578,7 +1588,7 @@ cdef class ThreeBodyReaction(ElementaryReaction):
 
         if init and equation and kinetics:
 
-            spec = {"equation": equation, "type": self.reaction_type}
+            spec = {"equation": equation, "type": self._reaction_type}
             if isinstance(rate, dict):
                 spec["rate-constant"] = rate
             elif isinstance(rate, ArrheniusRate) or rate is None:
@@ -1651,7 +1661,7 @@ cdef class PlogReaction(Reaction3):
         - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
         - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
     """
-    reaction_type = "pressure-dependent-Arrhenius"
+    _reaction_type = "pressure-dependent-Arrhenius"
 
     cdef CxxPlogReaction3* pr(self):
         return <CxxPlogReaction3*>self.reaction
@@ -1661,7 +1671,7 @@ cdef class PlogReaction(Reaction3):
 
         if init and equation and kinetics:
 
-            spec = {"equation": equation, "type": self.reaction_type}
+            spec = {"equation": equation, "type": self._reaction_type}
             if isinstance(rate, dict):
                 spec.update(rate)
             elif isinstance(rate, PlogRate) or rate is None:
@@ -1745,7 +1755,7 @@ cdef class ChebyshevReaction(Reaction3):
         - [1.9764, 1.0037, 7.2865e-03, -0.030432]
         - [0.3177, 0.26889, 0.094806, -7.6385e-03]
     """
-    reaction_type = "Chebyshev"
+    _reaction_type = "Chebyshev"
 
     cdef CxxChebyshevReaction3* cr(self):
         return <CxxChebyshevReaction3*>self.reaction
@@ -1755,7 +1765,7 @@ cdef class ChebyshevReaction(Reaction3):
 
         if init and equation and kinetics:
 
-            spec = {"equation": equation, "type": self.reaction_type}
+            spec = {"equation": equation, "type": self._reaction_type}
             if isinstance(rate, dict):
                 spec["temperature-range"] = [rate["Tmin"], rate["Tmax"]]
                 spec["pressure-range"] = [rate["Pmin"], rate["Pmax"]]
@@ -1905,14 +1915,14 @@ cdef class CustomReaction(Reaction3):
             rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T),
             kinetics=gas)
     """
-    reaction_type = "custom-rate-function"
+    _reaction_type = "custom-rate-function"
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
                  init=True, **kwargs):
 
         if init and equation and kinetics:
 
-            spec = {"equation": equation, "type": self.reaction_type}
+            spec = {"equation": equation, "type": self._reaction_type}
 
             self._reaction = CxxNewReaction(dict_to_anymap(spec),
                                             deref(kinetics.kinetics))
