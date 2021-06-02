@@ -186,6 +186,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
     @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_write_hdf(self):
         outfile = self.test_work_path / "solutionarray.h5"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
         if outfile.is_file():
             outfile.unlink()
 
@@ -231,6 +232,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
     @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_write_hdf_str_column(self):
         outfile = self.test_work_path / "solutionarray.h5"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
         if outfile.is_file():
             outfile.unlink()
 
@@ -244,6 +246,8 @@ class TestSolutionArrayIO(utilities.CanteraTest):
     @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_write_hdf_multidim_column(self):
         outfile = self.test_work_path / "solutionarray.h5"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+
         if outfile.is_file():
             outfile.unlink()
 

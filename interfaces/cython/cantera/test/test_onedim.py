@@ -509,6 +509,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.create_sim(p, Tin, reactants)
         self.solve_fixed_T()
         filename = self.test_work_path / "onedim-fixed-T.xml"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
         if filename.is_file():
             filename.unlink()
 
@@ -576,6 +577,7 @@ class TestFreeFlame(utilities.CanteraTest):
         Tin = 400
 
         filename = self.test_work_path / "onedim-add-species.xml"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
         if filename.is_file():
             filename.unlink()
 
@@ -605,6 +607,7 @@ class TestFreeFlame(utilities.CanteraTest):
         Tin = 400
 
         filename = self.test_work_path / "onedim-add-species.xml"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
         if filename.is_file():
             filename.unlink()
 
@@ -629,6 +632,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
     def test_write_csv(self):
         filename = self.test_work_path / "onedim-write_csv.csv"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
         if filename.is_file():
             filename.unlink()
 
@@ -644,6 +648,7 @@ class TestFreeFlame(utilities.CanteraTest):
     @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_write_hdf(self):
         filename = self.test_work_path / "onedim-write_hdf.h5"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
         if filename.is_file():
             filename.unlink()
 
@@ -915,11 +920,14 @@ class TestDiffusionFlame(utilities.CanteraTest):
             self.assertFalse(bad, bad)
 
         filename = self.test_work_path / "DiffusionFlameTest-h2-mix-rad.csv"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if filename.is_file():
+            filename.unlink()
+
         self.sim.write_csv(filename) # check output
         self.assertTrue(filename.is_file())
         csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
         self.assertIn('qdot', csv_data.dtype.names)
-        filename.unlink()
 
     def test_strain_rate(self):
         # This doesn't test that the values are correct, just that they can be
@@ -1013,11 +1021,14 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
             self.assertFalse(bad, bad)
 
         filename = self.test_work_path / "CounterflowPremixedFlame-h2-mix.csv"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if filename.is_file():
+            filename.unlink()
+
         sim.write_csv(filename) # check output
         self.assertTrue(filename.is_file())
         csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
         self.assertNotIn('qdot', csv_data.dtype.names)
-        filename.unlink()
 
     def run_case(self, phi, T, width, P):
         gas = ct.Solution('h2o2.xml')
@@ -1189,6 +1200,7 @@ class TestImpingingJet(utilities.CanteraTest):
     @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_write_hdf(self):
         filename = self.test_work_path / "impingingjet-write_hdf.h5"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
         if filename.is_file():
             filename.unlink()
 
