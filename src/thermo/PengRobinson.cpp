@@ -724,7 +724,7 @@ void PengRobinson::calculateAB(double& aCalc, double& bCalc, double& aAlphaCalc)
 
 double PengRobinson::daAlpha_dT() const
 {
-    double daAlphadT = 0.0, temp, k, Tc, sqtTr, coeff1, coeff2;
+    double daAlphadT = 0.0, k, Tc, sqtTr, coeff1, coeff2;
     for (size_t i = 0; i < m_kk; i++) {
         // Calculate first derivative of alpha for individual species
         Tc = speciesCritTemperature(m_a_coeffs(i,i), m_b_coeffs[i]);
@@ -737,9 +737,8 @@ double PengRobinson::daAlpha_dT() const
     //Calculate mixture derivative
     for (size_t i = 0; i < m_kk; i++) {
         for (size_t j = 0; j < m_kk; j++) {
-            temp = 0.5 * sqrt((m_a_coeffs(i, i) * m_a_coeffs(j, j)) / (m_alpha[i] * m_alpha[j]));
-            daAlphadT += moleFractions_[i] * moleFractions_[j] * temp
-                        * (m_dalphadT[j] * m_alpha[i] + m_dalphadT[i] * m_alpha[j]);
+            daAlphadT += moleFractions_[i] * moleFractions_[j] * 0.5 * m_aAlpha_binary(i, j) 
+                                             * (m_dalphadT[i] / m_alpha[i] + m_dalphadT[j] / m_alpha[j]);
         }
     }
     return daAlphadT;
@@ -765,11 +764,11 @@ double PengRobinson::d2aAlpha_dT2() const
         for (size_t j = 0; j < m_kk; j++) {
             double alphaj = m_alpha[j];
             double alphaij = alphai * alphaj;
-            double temp = 0.5 * sqrt(m_a_coeffs(i, i) * m_a_coeffs(j, j) / (alphaij));
-            double num = (m_dalphadT[j] * alphai + m_dalphadT[i] * alphaj);
-            double fac1 = -(0.5 / alphaij) * num * num;
-            double fac2 = alphaj * m_d2alphadT2[i] + alphai * m_d2alphadT2[j] + 2. * m_dalphadT[i] * m_dalphadT[j];
-            d2aAlphadT2 += moleFractions_[i] * moleFractions_[j] * temp * (fac1 + fac2);
+            double term1 = m_d2alphadT2[i] / alphai + m_d2alphadT2[j] / alphaj;
+            double term2 = 2 * m_dalphadT[i] * m_dalphadT[j] / alphaij;
+            double term3 = m_dalphadT[i] / alphai + m_dalphadT[j] / alphaj;
+            d2aAlphadT2 += 0.5 * moleFractions_[i] * moleFractions_[j] * m_aAlpha_binary(i, j)
+                                       * (term1 + term2 - 0.5 * term3 * term3);
         }
     }
     return d2aAlphadT2;
