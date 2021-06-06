@@ -440,12 +440,53 @@ cdef class Reaction:
         return Reaction.wrap(cxx_reaction)
 
     @classmethod
-    def fromYaml(cls, text, Kinetics kinetics):
+    def from_dict(cls, data, Kinetics kinetics=None):
+        """
+        Create a `Reaction` object from a dictionary corresponding to its YAML
+        representation.
+
+        An example for the creation of a Reaction from a dictionary is::
+
+            rxn = Reaction.from_dict(
+                {"equation": "O + H2 <=> H + OH",
+                 "rate-constant": {"A": 38.7, "b": 2.7, "Ea": 26191840.0}},
+                kinetics=gas)
+
+        In the example, *gas* is a Kinetics (or Solution) object.
+
+        :param data:
+            A dictionary corresponding to the YAML representation.
+        :param kinetics:
+            A `Kinetics` object whose associated phase(s) contain the species
+            involved in the reaction.
+        """
+        if cls._reaction_type != "":
+            raise TypeError(
+                "Class method 'from_dict' was invoked from '{}' but should "
+                "be called from base class 'Reaction'".format(cls.__name__))
+        if kinetics is None:
+            raise ValueError("A Kinetics object is required.")
+
+        cdef CxxAnyMap any_map = dict_to_anymap(data)
+        cxx_reaction = CxxNewReaction(any_map, deref(kinetics.kinetics))
+        return Reaction.wrap(cxx_reaction)
+
+    @classmethod
+    def fromYaml(cls, text, Kinetics kinetics=None):
         """
         Create a `Reaction` object from its YAML string representation.
 
+        An example for the creation of a Reaction from a YAML string is::
+
+            rxn = Reaction.fromYaml('''
+                equation: O + H2 <=> H + OH
+                rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
+                ''', kinetics=gas)
+
+        In the example, *gas* is a Kinetics (or Solution) object.
+
         :param text:
-            The YAML reaction string
+            The YAML reaction string.
         :param kinetics:
             A `Kinetics` object whose associated phase(s) contain the species
             involved in the reaction.
@@ -454,9 +495,12 @@ cdef class Reaction:
             raise TypeError(
                 "Class method 'fromYaml' was invoked from '{}' but should "
                 "be called from base class 'Reaction'".format(cls.__name__))
+        if kinetics is None:
+            raise ValueError("A Kinetics object is required.")
 
-        cxx_reaction = CxxNewReaction(AnyMapFromYamlString(stringify(text)),
-                                      deref(kinetics.kinetics))
+        cdef CxxAnyMap any_map
+        any_map = AnyMapFromYamlString(stringify(text))
+        cxx_reaction = CxxNewReaction(any_map, deref(kinetics.kinetics))
         return Reaction.wrap(cxx_reaction)
 
     @staticmethod
@@ -1160,7 +1204,7 @@ cdef class PlogReaction(Reaction):
     A pressure-dependent reaction parameterized by logarithmically interpolating
     between Arrhenius rate expressions at various pressures.
 
-    An example for the definition of an `PlogReaction` object is given as::
+    An example for the definition of a `PlogReaction` object is given as::
 
         rxn = PlogReaction(
             equation="H2 + O2 <=> 2 OH",
@@ -1315,7 +1359,7 @@ cdef class ChebyshevReaction(Reaction):
     A pressure-dependent reaction parameterized by a bivariate Chebyshev
     polynomial in temperature and pressure.
 
-    An example for the definition of an `PlogReaction` object is given as::
+    An example for the definition of a `ChebyshevReaction` object is given as::
 
         rxn = ChebyshevReaction(
             equation="HO2 <=> OH + O",

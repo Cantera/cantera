@@ -316,23 +316,26 @@ class ReactionTests:
         cls.gas.TP = 900, 2*ct.one_atm
         cls.species = cls.gas.species()
 
-    def check_rxn(self, rxn):
+    def check_rxn(self, rxn, check_legacy=True):
         # helper function that checks reaction configuration
         ix = self._index
-        self.assertEqual(rxn.reaction_type, self._type)
         self.assertEqual(rxn.reactants, self.gas.reaction(ix).reactants)
         self.assertEqual(rxn.products, self.gas.reaction(ix).products)
-        self.assertEqual(rxn.uses_legacy, self._type.endswith("-legacy"))
+        if check_legacy:
+            self.assertEqual(rxn.reaction_type, self._type)
+            self.assertEqual(rxn.uses_legacy, self._type.endswith("-legacy"))
+            self.assertEqual(rxn.uses_legacy, self._legacy)
 
         gas2 = ct.Solution(thermo="IdealGas", kinetics="GasKinetics",
                            species=self.species, reactions=[rxn])
         gas2.TPX = self.gas.TPX
-        self.check_solution(gas2)
+        self.check_solution(gas2, check_legacy)
 
-    def check_solution(self, gas2):
+    def check_solution(self, gas2, check_legacy=True):
         # helper function that checks evaluation of reaction rates
         ix = self._index
-        self.assertEqual(gas2.reaction_type_str(0), self._type)
+        if check_legacy:
+            self.assertEqual(gas2.reaction_type_str(0), self._type)
         self.assertNear(gas2.forward_rate_constants[0],
                         self.gas.forward_rate_constants[ix])
         self.assertNear(gas2.net_rates_of_progress[0],
@@ -357,7 +360,7 @@ class ReactionTests:
         rxn.rate = self._rate_obj
         self.check_rxn(rxn)
 
-    def test_from_dict(self):
+    def test_from_dict1(self):
         # check instantiation from keywords / rate defined by dictionary
         rxn = self._cls(equation=self._equation, rate=self._rate, kinetics=self.gas,
                         legacy=self._legacy, **self._kwargs)
@@ -369,6 +372,16 @@ class ReactionTests:
             return
         rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
         self.check_rxn(rxn)
+
+    def test_from_dict2(self):
+        # check instantiation from a yaml dictionary
+        if self._yaml is None:
+            return
+        rxn1 = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
+        input_data = rxn1.input_data
+        rxn2 = ct.Reaction.from_dict(input_data, kinetics=self.gas)
+        # cannot compare types as input_data does not recreate legacy objects
+        self.check_rxn(rxn2, check_legacy=False)
 
     def test_from_rate(self):
         # check instantiation from keywords / rate provided as object
