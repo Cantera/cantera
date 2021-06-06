@@ -495,8 +495,6 @@ class TestElementary(ReactionTests, utilities.CanteraTest):
     _type = "elementary"
     _equation = "H2 + O <=> H + OH"
     _rate = {"A": 38.7, "b": 2.7, "Ea": 2.619184e+07}
-    _rate_obj = ct.ArrheniusRate(38.7, 2.7, 2.619184e+07)
-    _kwargs = {}
     _index = 0
     _yaml = """
         equation: O + H2 <=> H + OH
@@ -504,6 +502,15 @@ class TestElementary(ReactionTests, utilities.CanteraTest):
         """
     _deprecated_getters = {"allow_negative_pre_exponential_factor": False}
     _deprecated_setters = {"allow_negative_pre_exponential_factor": True}
+
+    @classmethod
+    def setUpClass(cls):
+        ReactionTests.setUpClass()
+        if cls._legacy:
+            args = list(cls._rate.values())
+            cls._rate_obj = ct.Arrhenius(*args)
+        else:
+            cls._rate_obj = ct.ArrheniusRate(**cls._rate)
 
     def test_arrhenius(self):
         # test assigning Arrhenius rate
@@ -524,7 +531,6 @@ class TestElementary2(TestElementary):
     _cls = ct.ElementaryReaction
     _type = "elementary-legacy"
     _legacy = True
-    _rate_obj = ct.Arrhenius(38.7, 2.7, 2.619184e+07)
     _yaml = """
         equation: O + H2 <=> H + OH
         type: elementary-legacy
@@ -539,7 +545,6 @@ class TestThreeBody(TestElementary):
     _type = "three-body"
     _equation = "2 O + M <=> O2 + M"
     _rate = {"A": 1.2e11, "b": -1.0, "Ea": 0.0}
-    _rate_obj = ct.ArrheniusRate(1.2e11, -1., 0.)
     _kwargs = {"efficiencies": {"H2": 2.4, "H2O": 15.4, "AR": 0.83}}
     _index = 1
     _yaml = """
@@ -575,7 +580,6 @@ class TestThreeBody2(TestThreeBody):
     _cls = ct.ThreeBodyReaction
     _type = "three-body-legacy"
     _legacy = True
-    _rate_obj = ct.Arrhenius(1.2e11, -1., 0.)
     _yaml = """
         equation: 2 O + M <=> O2 + M
         type: three-body-legacy
@@ -591,7 +595,6 @@ class TestImplicitThreeBody(TestThreeBody):
     _type = "three-body"
     _equation = "H + 2 O2 <=> HO2 + O2"
     _rate = {"A": 2.08e+19, "b": -1.24, "Ea": 0.0}
-    _rate_obj = ct.ArrheniusRate(2.08e+19, -1.24, 0.)
     _index = 5
     _yaml = """
         equation: H + 2 O2 <=> HO2 + O2
@@ -622,15 +625,10 @@ class TestPlog(ReactionTests, utilities.CanteraTest):
     _type = "pressure-dependent-Arrhenius"
     _legacy = False
     _equation = "H2 + O2 <=> 2 OH"
-    _rate = {"rate-constants": [
-             {"P": 1013.25, "A": 1.2124e+16, "b": -0.5779, "Ea": 45491376.8},
-             {"P": 101325., "A": 4.9108e+31, "b": -4.8507, "Ea": 103649395.2},
-             {"P": 1013250., "A": 1.2866e+47, "b": -9.0246, "Ea": 166508556.0},
-             {"P": 10132500., "A": 5.9632e+56, "b": -11.529, "Ea": 220076726.4}]}
-    _rate_obj = ct.PlogRate([(1013.25, ct.Arrhenius(1.2124e+16, -0.5779, 45491376.8)),
-                             (101325., ct.Arrhenius(4.9108e+31, -4.8507, 103649395.2)),
-                             (1013250., ct.Arrhenius(1.2866e+47, -9.0246, 166508556.0)),
-                             (10132500., ct.Arrhenius(5.9632e+56, -11.529, 220076726.4))])
+    _rate = [(1013.25, ct.Arrhenius(1.2124e+16, -0.5779, 45491376.8)),
+             (101325., ct.Arrhenius(4.9108e+31, -4.8507, 103649395.2)),
+             (1013250., ct.Arrhenius(1.2866e+47, -9.0246, 166508556.0)),
+             (10132500., ct.Arrhenius(5.9632e+56, -11.529, 220076726.4))]
     _index = 3
     _yaml = """
         equation: H2 + O2 <=> 2 OH
@@ -643,44 +641,45 @@ class TestPlog(ReactionTests, utilities.CanteraTest):
         """
     _deprecated_callers = {(1000., ct.one_atm): 530968934612.9017}
 
+    @classmethod
+    def setUpClass(cls):
+        ReactionTests.setUpClass()
+        if not cls._legacy:
+            cls._rate_obj = ct.PlogRate(cls._rate)
+
     def check_rates(self, rates, other):
         # helper function used by deprecation tests
         self.assertEqual(len(rates), len(other))
         for index, item in enumerate(rates):
             P, rate = item
-            self.assertNear(P, other[index]["P"])
-            self.assertNear(rate.pre_exponential_factor, other[index]["A"])
-            self.assertNear(rate.temperature_exponent, other[index]["b"])
-            self.assertNear(rate.activation_energy, other[index]["Ea"])
+            self.assertNear(P, other[index][0])
+            self.assertNear(rate.pre_exponential_factor, other[index][1].pre_exponential_factor)
+            self.assertNear(rate.temperature_exponent, other[index][1].temperature_exponent)
+            self.assertNear(rate.activation_energy, other[index][1].activation_energy)
 
     def test_deprecated_getters(self):
         # overload default tester for deprecated property getters
         rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
         if self._legacy:
-            self.check_rates(rxn.rates, self._rate["rate-constants"])
+            self.check_rates(rxn.rates, self._rate)
         else:
             with self.assertWarnsRegex(DeprecationWarning, "property is moved"):
-                self.check_rates(rxn.rates, self._rate["rate-constants"])
+                self.check_rates(rxn.rates, self._rate)
 
     def test_deprecated_setters(self):
         # overload default tester for deprecated property setters
-        _rate = [
-            {"P": 100., "A": 4.9108e+31, "b": -4.8507, "Ea": 103649395.2},
-            {"P": 10000., "A": 1.2866e+47, "b": -9.0246, "Ea": 166508556.0},
-            {"P": 1000000., "A": 5.9632e+56, "b": -11.529, "Ea": 220076726.4}]
-        rate = ct.PlogRate([(o["P"], ct.Arrhenius(o["A"], o["b"], o["Ea"]))
-                            for o in _rate])
+        rate = ct.PlogRate(self._rate)
         rates = rate.rates
 
         rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
         if self._legacy:
             rxn.rates = rates
-            self.check_rates(rxn.rates, _rate)
+            self.check_rates(rxn.rates, self._rate)
         else:
             with self.assertWarnsRegex(DeprecationWarning, "Setter is replaceable"):
                 rxn.rates = rates
             with self.assertWarnsRegex(DeprecationWarning, "property is moved"):
-                self.check_rates(rxn.rates, _rate)
+                self.check_rates(rxn.rates, self._rate)
 
 
 class TestPlog2(TestPlog):
@@ -711,10 +710,6 @@ class TestChebyshev(ReactionTests, utilities.CanteraTest):
              "data": [[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
                       [ 1.9764e+00,  1.0037e+00,  7.2865e-03, -3.0432e-02],
                       [ 3.1770e-01,  2.6889e-01,  9.4806e-02, -7.6385e-03]]}
-    _rate_obj = ct.ChebyshevRate(Tmin=290., Tmax=3000., Pmin=1000., Pmax=10000000.0,
-                                 data=[[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
-                                       [ 1.9764e+00,  1.0037e+00,  7.2865e-03, -3.0432e-02],
-                                       [ 3.1770e-01,  2.6889e-01,  9.4806e-02, -7.6385e-03]])
     _index = 4
     _yaml = """
         equation: HO2 <=> OH + O
@@ -730,11 +725,13 @@ class TestChebyshev(ReactionTests, utilities.CanteraTest):
     _deprecated_callers = {(1000., ct.one_atm): 2858762454.1119065}
 
     @classmethod
-    def setUpClass(obj):
+    def setUpClass(cls):
         ReactionTests.setUpClass()
-        obj._deprecated_getters.update({"coeffs": np.array(obj._rate["data"])})
-        obj._deprecated_getters.update(
-            {k: v for k, v in obj._rate.items() if k != "data"})
+        if not cls._legacy:
+            cls._rate_obj = ct.ChebyshevRate(**cls._rate)
+        cls._deprecated_getters.update({"coeffs": np.array(cls._rate["data"])})
+        cls._deprecated_getters.update(
+            {k: v for k, v in cls._rate.items() if k != "data"})
 
 
 class TestChebyshev2(TestChebyshev):

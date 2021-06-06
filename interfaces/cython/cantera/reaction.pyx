@@ -59,21 +59,21 @@ cdef class ArrheniusRate(_ReactionRate):
         k_f = A T^b \exp{-\tfrac{E}{RT}}
 
     where *A* is the `pre_exponential_factor`, *b* is the `temperature_exponent`,
-    and *E* is the `activation_energy`.
+    and *Ea* is the `activation_energy`.
     """
-    def __cinit__(self, A=None, b=None, E=None, input_data=None, init=True):
+    def __cinit__(self, A=None, b=None, Ea=None, input_data=None, init=True):
 
         if init:
             if isinstance(input_data, dict):
                 self._base.reset(new CxxArrheniusRate(dict_to_anymap(input_data)))
-            elif all([arg is not None for arg in [A, b, E]]):
-                self._base.reset(new CxxArrheniusRate(A, b, E))
-            elif all([arg is None for arg in [A, b, E, input_data]]):
+            elif all([arg is not None for arg in [A, b, Ea]]):
+                self._base.reset(new CxxArrheniusRate(A, b, Ea))
+            elif all([arg is None for arg in [A, b, Ea, input_data]]):
                 self._base.reset(new CxxArrheniusRate(dict_to_anymap({})))
             elif input_data:
                 raise TypeError("Invalid parameter 'input_data'")
             else:
-                raise TypeError("Invalid parameters 'A', 'b' or 'E'")
+                raise TypeError("Invalid parameters 'A', 'b' or 'Ea'")
             self.base = self._base.get()
             self.rate = <CxxArrheniusRate*>(self.base)
 
@@ -1164,11 +1164,10 @@ cdef class PlogReaction(Reaction):
 
         rxn = PlogReaction(
             equation="H2 + O2 <=> 2 OH",
-            rate={"rate-constants":
-                [{"P": 1013.25, "A": 1.2124e+16, "b": -0.5779, "Ea": 45491376.8},
-                 {"P": 101325., "A": 4.9108e+31, "b": -4.8507, "Ea": 103649395.2},
-                 {"P": 1013250., "A": 1.2866e+47, "b": -9.0246, "Ea": 166508556.0},
-                 {"P": 10132500., "A": 5.9632e+56, "b": -11.529, "Ea": 220076726.4}]},
+            rate=[(1013.25, Arrhenius(1.2124e+16, -0.5779, 45491376.8)),
+                  (101325., Arrhenius(4.9108e+31, -4.8507, 103649395.2)),
+                  (1013250., Arrhenius(1.2866e+47, -9.0246, 166508556.0)),
+                  (10132500., Arrhenius(5.9632e+56, -11.529, 220076726.4))],
             kinetics=gas)
 
     The YAML description corresponding to this reaction is::
@@ -1204,9 +1203,17 @@ cdef class PlogReaction(Reaction):
             if legacy:
                 rxn_type += "-legacy"
             spec = {"equation": equation, "type": rxn_type}
-            if isinstance(rate, dict):
-                spec.update(rate)
-            elif not legacy and (isinstance(rate, PlogRate) or rate is None):
+            if legacy and isinstance(rate, list):
+                rates = []
+                for r in rate:
+                    rates.append({
+                        "P": r[0],
+                        "A": r[1].pre_exponential_factor,
+                        "b": r[1].temperature_exponent,
+                        "Ea": r[1].activation_energy,
+                    })
+                spec.update({'rate-constants': rates})
+            elif not legacy and (isinstance(rate, (PlogRate, list)) or rate is None):
                 pass
             else:
                 raise TypeError("Invalid rate definition")
@@ -1217,6 +1224,8 @@ cdef class PlogReaction(Reaction):
 
             if not legacy and isinstance(rate, PlogRate):
                 self.rate = rate
+            elif not legacy and isinstance(rate, list):
+                self.rate = PlogRate(rate)
 
     property rate:
         """ Get/Set the `PlogRate` rate coefficients for this reaction. """
