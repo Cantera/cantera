@@ -414,6 +414,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool duplicate
         cbool allow_nonreactant_orders
         cbool allow_negative_orders
+        cbool usesLegacy()
 
     cdef cppclass CxxElementaryReaction2 "Cantera::ElementaryReaction2" (CxxReaction):
         CxxElementaryReaction2()

@@ -691,7 +691,7 @@ cdef class Reaction:
     property uses_legacy:
         """Indicate whether reaction uses a legacy implementation"""
         def __get__(self):
-            return pystr(self.reaction.type()).endswith("-legacy")
+            return self.reaction.usesLegacy()
 
 
 cdef class Arrhenius:

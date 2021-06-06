@@ -194,7 +194,7 @@ void GasKinetics::updateROP()
     }
 
     // reactions involving third body
-    for (auto & index : m_multi_indices) {
+    for (auto& index : m_multi_indices) {
         m_ropf[index] *= m_concm[index];
     }
 
@@ -245,7 +245,7 @@ void GasKinetics::getFwdRateConstants(doublereal* kfwd)
     }
 
     // reactions involving third body
-    for (auto & index : m_multi_indices) {
+    for (auto& index : m_multi_indices) {
         m_ropf[index] *= m_concm[index];
     }
 
@@ -261,7 +261,7 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
     bool added = BulkKinetics::addReaction(r);
     if (!added) {
         return false;
-    } else if (std::dynamic_pointer_cast<Reaction3>(r) != nullptr) {
+    } else if (!(r->usesLegacy())) {
         // Rate object already added in BulkKinetics::addReaction
         return true;
     }
@@ -353,7 +353,7 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     // operations common to all bulk reaction types
     BulkKinetics::modifyReaction(i, rNew);
 
-    if (std::dynamic_pointer_cast<Reaction3>(rNew) != nullptr) {
+    if (!(rNew->usesLegacy())) {
         // Rate object already modified in BulkKinetics::modifyReaction
         return;
     }

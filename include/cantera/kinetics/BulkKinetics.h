@@ -46,7 +46,7 @@ public:
     virtual void setMultiplier(size_t i, double f);
     virtual void invalidateCache();
 
-    void addThirdBody(shared_ptr<Reaction3> r);
+    void addThirdBody(shared_ptr<Reaction> r);
 
 protected:
     virtual void addElementaryReaction(ElementaryReaction2& r);

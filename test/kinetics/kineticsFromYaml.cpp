@@ -27,7 +27,7 @@ TEST(ReactionRate, ModifyArrheniusRate)
     EXPECT_FALSE(rr->allow_negative_pre_exponential_factor);
 }
 
-TEST(Reaction, ElementaryFromYaml1)
+TEST(Reaction, ElementaryFromYaml3)
 {
     auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
@@ -39,13 +39,10 @@ TEST(Reaction, ElementaryFromYaml1)
     EXPECT_EQ(R->reactants.at("NO"), 1);
     EXPECT_EQ(R->products.at("N2"), 1);
     EXPECT_EQ(R->type(), "elementary");
+    EXPECT_FALSE(R->allow_negative_orders);
 
-    auto ER = dynamic_cast<ElementaryReaction3&>(*R);
-    auto rr = std::dynamic_pointer_cast<ArrheniusRate>(ER.rate());
-    EXPECT_TRUE(rr->allow_negative_pre_exponential_factor);
-    EXPECT_FALSE(ER.allow_negative_orders);
-
-    const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(ER.rate());
+    const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
+    EXPECT_TRUE(rate->allow_negative_pre_exponential_factor);
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), -2.7e10);
     EXPECT_DOUBLE_EQ(rate->activationEnergy_R(), 355 / GasConst_cal_mol_K);
 }
@@ -71,7 +68,7 @@ TEST(Reaction, ElementaryFromYaml2)
     EXPECT_FALSE(ER.allow_negative_orders);
 }
 
-TEST(Reaction, ThreeBodyFromYaml1)
+TEST(Reaction, ThreeBodyFromYaml3)
 {
     auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
@@ -83,15 +80,14 @@ TEST(Reaction, ThreeBodyFromYaml1)
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
     EXPECT_EQ(R->type(), "three-body");
+    EXPECT_DOUBLE_EQ(R->thirdBody()->efficiencies["H2O"], 5.0);
+    EXPECT_DOUBLE_EQ(R->thirdBody()->default_efficiency, 1.0);
 
-    auto TBR = dynamic_cast<ThreeBodyReaction3&>(*R);
-    const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(TBR.rate());
+    const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 1.2e11);
-    EXPECT_DOUBLE_EQ(TBR.thirdBody()->efficiencies["H2O"], 5.0);
-    EXPECT_DOUBLE_EQ(TBR.thirdBody()->default_efficiency, 1.0);
 }
 
-TEST(Reaction, ThreeBodyFromYaml2)
+TEST(Reaction, ThreeBodyFromYamlMissingM)
 {
     auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
@@ -102,7 +98,7 @@ TEST(Reaction, ThreeBodyFromYaml2)
     EXPECT_THROW(newReaction(rxn, *(sol->kinetics())), CanteraError);
 }
 
-TEST(Reaction, ThreeBodyFromYaml3)
+TEST(Reaction, ThreeBodyFromYaml2)
 {
     auto sol = newSolution("gri30.yaml");
     AnyMap rxn = AnyMap::fromYamlString(
@@ -195,8 +191,7 @@ TEST(Reaction, PlogFromYaml)
         "- {P: 1.01325 MPa, A: 1.680000e+16, b: -0.6, Ea: 14754.0}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    auto PR = dynamic_cast<PlogReaction3&>(*R);
-    const auto& rates = std::dynamic_pointer_cast<PlogRate>(PR.rate())->rates();
+    const auto& rates = std::dynamic_pointer_cast<PlogRate>(R->rate())->rates();
     EXPECT_EQ(rates.size(), (size_t) 4);
     EXPECT_NEAR(rates[0].first, 0.039474 * OneAtm, 1e-6);
     EXPECT_NEAR(rates[2].first, OneAtm, 1e-6);
@@ -223,8 +218,7 @@ TEST(Reaction, ChebyshevFromYaml)
 
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_EQ(R->reactants.size(), (size_t) 1);
-    auto CR = dynamic_cast<ChebyshevReaction3&>(*R);
-    const auto& rate = std::dynamic_pointer_cast<ChebyshevRate3>(CR.rate());
+    const auto rate = std::dynamic_pointer_cast<ChebyshevRate3>(R->rate());
     double logP = std::log10(2e6);
     double T = 1800;
     rate->update_C(&logP);
