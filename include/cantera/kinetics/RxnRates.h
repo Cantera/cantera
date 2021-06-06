@@ -1,5 +1,8 @@
 /**
  *  @file RxnRates.h
+ *
+ * @TODO  at least part of the content of this file should be transferred
+ *     to ReactionRate.h once the old XML interface is removed after Cantera 2.6
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

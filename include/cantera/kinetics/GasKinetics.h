@@ -107,23 +107,23 @@ protected:
     void processFalloffReactions();
 
     // functions marked as deprecated below are only used for XML import and
-    // transitional reaction types marked as '-old'
+    // transitional reaction types are marked as '-legacy'
 
-    //! @deprecated Cantera 2.6 (replaced by MultiRate approach)
+    //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
     void addThreeBodyReaction(ThreeBodyReaction2& r);
     void addFalloffReaction(FalloffReaction& r);
-    //! @deprecated Cantera 2.6 (replaced by MultiRate approach)
+    //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
     void addPlogReaction(PlogReaction2& r);
-    //! @deprecated Cantera 2.6 (replaced by MultiRate approach)
+    //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
     void addChebyshevReaction(ChebyshevReaction2& r);
     void addBlowersMaselReaction(BlowersMaselReaction& r);
 
-    //! @deprecated Cantera 2.6 (replaced by MultiRate approach)
+    //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
     void modifyThreeBodyReaction(size_t i, ThreeBodyReaction2& r);
     void modifyFalloffReaction(size_t i, FalloffReaction& r);
-    //! @deprecated Cantera 2.6 (replaced by MultiRate approach)
+    //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
     void modifyPlogReaction(size_t i, PlogReaction2& r);
-    //! @deprecated Cantera 2.6 (replaced by MultiRate approach)
+    //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
     void modifyChebyshevReaction(size_t i, ChebyshevReaction2& r);
     void modifyBlowersMaselReaction(size_t i, BlowersMaselReaction& r);
 

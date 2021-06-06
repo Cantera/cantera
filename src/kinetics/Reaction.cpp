@@ -392,13 +392,12 @@ ThirdBody::ThirdBody(const AnyMap& node)
     setEfficiencies(node);
 }
 
-bool ThirdBody::setEfficiencies(const AnyMap& node)
+void ThirdBody::setEfficiencies(const AnyMap& node)
 {
     default_efficiency = node.getDouble("default-efficiency", 1.0);
     if (node.hasKey("efficiencies")) {
         efficiencies = node["efficiencies"].asMap<double>();
     }
-    return true;
 }
 
 double ThirdBody::efficiency(const std::string& k) const
@@ -740,7 +739,7 @@ void BlowersMaselReaction::validate()
     Reaction::validate();
     if (!allow_negative_pre_exponential_factor &&
         rate.preExponentialFactor() < 0) {
-        throw CanteraError("BlowersMaselReaction::validate",
+        throw InputFileError("BlowersMaselReaction::validate", input,
             "Undeclared negative pre-exponential factor found in reaction '"
             + equation() + "'");
     }
@@ -902,7 +901,7 @@ void ElementaryReaction3::getParameters(AnyMap& reactionNode) const
 ThreeBodyReaction3::ThreeBodyReaction3()
     : ElementaryReaction3()
 {
-    m_third_body = std::shared_ptr<ThirdBody>(new ThirdBody);
+    m_third_body.reset(new ThirdBody);
 }
 
 ThreeBodyReaction3::ThreeBodyReaction3(const Composition& reactants,

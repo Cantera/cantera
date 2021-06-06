@@ -253,7 +253,7 @@ public:
     virtual std::string type() const override { return "ArrheniusRate"; }
 
     //! Update information specific to reaction
-    static bool uses_update() { return false; }
+    static bool usesUpdate() { return false; }
 
     virtual double eval(const ArrheniusData& shared_data,
                         double concm=0.) const override {
@@ -319,10 +319,10 @@ public:
                                const Units& rate_units) const override;
 
     //! Update information specific to reaction
-    static bool uses_update() { return true; }
+    static bool usesUpdate() { return true; }
 
     virtual void update(const PlogData& shared_data, double concm=0.) override {
-        update_C(shared_data.logP());
+        update_C(&shared_data.m_logP);
     }
 
     virtual double eval(const PlogData& shared_data,
@@ -400,10 +400,10 @@ public:
                                const Units& rate_units) const override;
 
     //! Update information specific to reaction
-    static bool uses_update() { return true; }
+    static bool usesUpdate() { return true; }
 
     virtual void update(const ChebyshevData& shared_data, double concm=0.) override {
-        update_C(shared_data.log10P());
+        update_C(&shared_data.m_log10P);
     }
 
     virtual double eval(const ChebyshevData& shared_data,
@@ -440,7 +440,7 @@ public:
     }
 
     //! Update information specific to reaction
-    static bool uses_update() { return false; }
+    static bool usesUpdate() { return false; }
 
     //! Set custom rate
     /**

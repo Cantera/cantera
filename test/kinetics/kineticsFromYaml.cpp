@@ -12,7 +12,7 @@ using namespace Cantera;
 
 TEST(ReactionRate, ModifyArrheniusRate)
 {
-    auto sol = newSolution("gri30.yaml");
+    auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: N + NO <=> N2 + O,"
         " rate-constant: [-2.70000E+13 cm^3/mol/s, 0, 355 cal/mol],"
@@ -21,12 +21,10 @@ TEST(ReactionRate, ModifyArrheniusRate)
     auto R = newReaction(rxn, *(sol->kinetics()));
     auto ER = dynamic_cast<ElementaryReaction3&>(*R);
 
-    auto rr0 = std::dynamic_pointer_cast<ArrheniusRate>(ER.rate());
-    EXPECT_TRUE(rr0->allow_negative_pre_exponential_factor);
-    rr0->allow_negative_pre_exponential_factor = false;
-
-    auto rr1 = std::dynamic_pointer_cast<ArrheniusRate>(ER.rate());
-    EXPECT_FALSE(rr1->allow_negative_pre_exponential_factor);
+    auto rr = std::dynamic_pointer_cast<ArrheniusRate>(ER.rate());
+    EXPECT_TRUE(rr->allow_negative_pre_exponential_factor);
+    rr->allow_negative_pre_exponential_factor = false;
+    EXPECT_FALSE(rr->allow_negative_pre_exponential_factor);
 }
 
 TEST(Reaction, ElementaryFromYaml1)
