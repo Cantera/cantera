@@ -66,6 +66,9 @@ public:
     //!   contained in the #input attribute.
     AnyMap parameters(bool withInput=true) const;
 
+    //! Set up reaction based on AnyMap *node*
+    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
+
     //! Get validity flag of reaction
     bool valid() const {
         return m_valid;
@@ -133,6 +136,26 @@ public:
     //! where the reaction occurs.
     Units rate_units;
 
+    //! Get reaction rate pointer
+    shared_ptr<ReactionRateBase> rate() {
+        return m_rate;
+    }
+
+    //! Set reaction rate pointer
+    void setRate(shared_ptr<ReactionRateBase> rate) {
+        m_rate = rate;
+    }
+
+    //! Get pointer to third-body
+    shared_ptr<ThirdBody> thirdBody() {
+        return m_third_body;
+    }
+
+    //! Indicate whether object uses legacy framework
+    bool usesLegacy() const {
+        return !m_rate;
+    }
+
 protected:
     //! Store the parameters of a Reaction needed to reconstruct an identical
     //! object using the newReaction(AnyMap&, Kinetics&) function. Does not
@@ -149,6 +172,13 @@ protected:
     //! @param kin  Kinetics object
     virtual std::pair<std::vector<std::string>, bool>
         undeclaredThirdBodies(const Kinetics& kin) const;
+
+    //! Reaction rate used by generic reactions
+    shared_ptr<ReactionRateBase> m_rate;
+
+    //! Relative efficiencies of third-body species in enhancing the reaction
+    //! rate (if applicable)
+    shared_ptr<ThirdBody> m_third_body;
 };
 
 
@@ -453,52 +483,9 @@ public:
 };
 
 
-//! An intermediate class collecting new features of the updated reaction classes.
-//! It also avoids ambiguous uses of 'rate' member variables and getters (see
-//! `ElementaryReaction2`, `PlogReaction2` and `ChebyshevReaction2`). The class will
-//! be merged with Reaction after deprecation of the CTI/XML framework.
-class Reaction3 : public Reaction
-{
-public:
-    Reaction3() : Reaction() {}
-    Reaction3(const Composition& reactants, const Composition& products);
-
-    //! Get reaction rate pointer
-    shared_ptr<ReactionRateBase> rate() {
-        return m_rate;
-    }
-
-    //! Set reaction rate pointer
-    void setRate(shared_ptr<ReactionRateBase> rate) {
-        m_rate = rate;
-    }
-
-    //! Set up reaction based on AnyMap *node*
-    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
-
-    //! Get pointer to third-body
-    shared_ptr<ThirdBody> thirdBody() {
-        return m_third_body;
-    }
-
-    virtual void validate();
-
-protected:
-    virtual std::pair<std::vector<std::string>, bool>
-        undeclaredThirdBodies(const Kinetics& kin) const;
-
-    //! Reaction rate used by generic reactions
-    shared_ptr<ReactionRateBase> m_rate;
-
-    //! Relative efficiencies of third-body species in enhancing the reaction
-    //! rate (if applicable)
-    shared_ptr<ThirdBody> m_third_body;
-};
-
-
 //! A reaction which follows mass-action kinetics with a modified Arrhenius
 //! reaction rate.
-class ElementaryReaction3 : public Reaction3
+class ElementaryReaction3 : public Reaction
 {
 public:
     ElementaryReaction3();
@@ -543,7 +530,7 @@ public:
 
 //! A pressure-dependent reaction parameterized by logarithmically interpolating
 //! between Arrhenius rate expressions at various pressures.
-class PlogReaction3 : public Reaction3
+class PlogReaction3 : public Reaction
 {
 public:
     PlogReaction3();
@@ -561,7 +548,7 @@ public:
 
 //! A pressure-dependent reaction parameterized by a bi-variate Chebyshev
 //! polynomial in temperature and pressure
-class ChebyshevReaction3 : public Reaction3
+class ChebyshevReaction3 : public Reaction
 {
 public:
     ChebyshevReaction3();
@@ -574,7 +561,6 @@ public:
         return "Chebyshev";
     }
 
-    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
 };
 
@@ -585,7 +571,7 @@ public:
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
  */
-class CustomFunc1Reaction : public Reaction3
+class CustomFunc1Reaction : public Reaction
 {
 public:
     CustomFunc1Reaction();

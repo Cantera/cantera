@@ -122,9 +122,8 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
         m_irrev.push_back(nReactions()-1);
     }
 
-    if (std::dynamic_pointer_cast<Reaction3>(r) != nullptr) {
-        shared_ptr<Reaction3> r3 = std::dynamic_pointer_cast<Reaction3>(r);
-        shared_ptr<ReactionRateBase> rate = r3->rate();
+    if (!(r->usesLegacy())) {
+        shared_ptr<ReactionRateBase> rate = r->rate();
         // If neccessary, add new MultiBulkRates evaluator
         if (m_bulk_types.find(rate->type()) == m_bulk_types.end()) {
             m_bulk_types[rate->type()] = m_bulk_rates.size();
@@ -153,8 +152,8 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
         m_bulk_rates[index]->add(nReactions() - 1, *rate);
 
         // Add reaction to third-body evaluator
-        if (r3->thirdBody() != nullptr) {
-            addThirdBody(r3);
+        if (r->thirdBody() != nullptr) {
+            addThirdBody(r);
         }
     }
 
@@ -163,7 +162,7 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
     return true;
 }
 
-void BulkKinetics::addThirdBody(shared_ptr<Reaction3> r)
+void BulkKinetics::addThirdBody(shared_ptr<Reaction> r)
 {
     std::map<size_t, double> efficiencies;
     for (const auto& eff : r->thirdBody()->efficiencies) {
@@ -192,9 +191,8 @@ void BulkKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     // operations common to all reaction types
     Kinetics::modifyReaction(i, rNew);
 
-    if (std::dynamic_pointer_cast<Reaction3>(rNew) != nullptr) {
-        shared_ptr<ReactionRateBase> rate;
-        rate = std::dynamic_pointer_cast<Reaction3>(rNew)->rate();
+    if (!(rNew->usesLegacy())) {
+        shared_ptr<ReactionRateBase> rate = rNew->rate();
         // Ensure that MultiBulkRates evaluator is available
         if (m_bulk_types.find(rate->type()) == m_bulk_types.end()) {
             throw CanteraError("BulkKinetics::modifyReaction",

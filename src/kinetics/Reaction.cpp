@@ -111,6 +111,11 @@ void Reaction::validate()
         throw InputFileError("Reaction::validate", input,
             "Reaction orders may only be given for irreversible reactions");
     }
+
+    // Call validation of reaction rate evaluator
+    if (!usesLegacy()) {
+        m_rate->validate(equation());
+    }
 }
 
 AnyMap Reaction::parameters(bool withInput) const
@@ -151,6 +156,38 @@ void Reaction::getParameters(AnyMap& reactionNode) const
     if (allow_nonreactant_orders) {
         reactionNode["nonreactant-orders"] = true;
     }
+}
+
+void Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
+{
+    if (node.empty()) {
+        // empty node: used by newReaction() factory loader
+        return;
+    }
+
+    parseReactionEquation(*this, node["equation"], kin);
+    // Non-stoichiometric reaction orders
+    if (node.hasKey("orders")) {
+        for (const auto& order : node["orders"].asMap<double>()) {
+            orders[order.first] = order.second;
+            if (kin.kineticsSpeciesIndex(order.first) == npos) {
+                setValid(false);
+            }
+        }
+    }
+
+    // remove optional third body notation (used by ChebyshevReaction)
+    reactants.erase("(+M)");
+    products.erase("(+M)");
+
+    // Flags
+    id = node.getString("id", "");
+    duplicate = node.getBool("duplicate", false);
+    allow_negative_orders = node.getBool("negative-orders", false);
+    allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
+
+    calculateRateCoeffUnits(kin);
+    input = node;
 }
 
 std::string Reaction::reactantString() const
@@ -236,6 +273,12 @@ std::pair<std::vector<std::string>, bool> Reaction::undeclaredThirdBodies(
         const Kinetics& kin) const
 {
     std::vector<std::string> undeclared;
+    if (m_third_body) {
+        updateUndeclared(undeclared, m_third_body->efficiencies, kin);
+        bool specified_collision_partner = dynamic_cast<const ThreeBodyReaction3*>(
+            this)->specified_collision_partner;
+        return std::make_pair(undeclared, specified_collision_partner);
+    }
     return std::make_pair(undeclared, false);
 }
 
@@ -820,58 +863,6 @@ void BlowersMaselInterfaceReaction::getParameters(AnyMap& reactionNode) const
     }
 }
 
-Reaction3::Reaction3(const Composition& reactants, const Composition& products)
-    : Reaction(reactants, products)
-{
-}
-
-void Reaction3::setParameters(const AnyMap& node, const Kinetics& kin)
-{
-    if (node.empty()) {
-        // empty node: used by newReaction() factory loader
-        return;
-    }
-
-    parseReactionEquation(*this, node["equation"], kin);
-    // Non-stoichiometric reaction orders
-    if (node.hasKey("orders")) {
-        for (const auto& order : node["orders"].asMap<double>()) {
-            orders[order.first] = order.second;
-            if (kin.kineticsSpeciesIndex(order.first) == npos) {
-                setValid(false);
-            }
-        }
-    }
-
-    // Flags
-    id = node.getString("id", "");
-    duplicate = node.getBool("duplicate", false);
-    allow_negative_orders = node.getBool("negative-orders", false);
-    allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
-
-    calculateRateCoeffUnits(kin);
-    input = node;
-}
-
-std::pair<std::vector<std::string>, bool> Reaction3::undeclaredThirdBodies(
-        const Kinetics& kin) const
-{
-    std::vector<std::string> undeclared;
-    if (m_third_body) {
-        updateUndeclared(undeclared, m_third_body->efficiencies, kin);
-        bool specified_collision_partner = dynamic_cast<const ThreeBodyReaction3*>(
-            this)->specified_collision_partner;
-        return std::make_pair(undeclared, specified_collision_partner);
-    }
-    return std::make_pair(undeclared, false);
-}
-
-void Reaction3::validate()
-{
-    Reaction::validate();
-    m_rate->validate(equation());
-}
-
 ElementaryReaction3::ElementaryReaction3()
 {
     m_rate.reset(new ArrheniusRate);
@@ -880,7 +871,7 @@ ElementaryReaction3::ElementaryReaction3()
 ElementaryReaction3::ElementaryReaction3(const Composition& reactants,
                                          const Composition& products,
                                          const ArrheniusRate& rate)
-    : Reaction3(reactants, products)
+    : Reaction(reactants, products)
 {
     m_rate.reset(new ArrheniusRate(rate));
 }
@@ -987,7 +978,7 @@ void ThreeBodyReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
         // empty node: used by newReaction() factory loader
         return;
     }
-    ElementaryReaction3::setParameters(node, kin);
+    Reaction::setParameters(node, kin);
     if (reactants.count("M") != 1 || products.count("M") != 1) {
         if (!detectEfficiencies()) {
             throw InputFileError("ThreeBodyReaction3::setParameters", node["equation"],
@@ -1042,7 +1033,7 @@ PlogReaction3::PlogReaction3()
 
 PlogReaction3::PlogReaction3(const Composition& reactants,
                              const Composition& products, const PlogRate& rate)
-    : Reaction3(reactants, products)
+    : Reaction(reactants, products)
 {
     m_rate.reset(new PlogRate(rate));
 }
@@ -1069,7 +1060,7 @@ ChebyshevReaction3::ChebyshevReaction3()
 ChebyshevReaction3::ChebyshevReaction3(const Composition& reactants,
                                        const Composition& products,
                                        const ChebyshevRate3& rate)
-    : Reaction3(reactants, products)
+    : Reaction(reactants, products)
 {
     m_rate.reset(new ChebyshevRate3(rate));
 }
@@ -1079,37 +1070,6 @@ ChebyshevReaction3::ChebyshevReaction3(const AnyMap& node, const Kinetics& kin)
 {
     setParameters(node, kin);
     setRate(std::make_shared<ChebyshevRate3>(node, rate_units));
-}
-
-void ChebyshevReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
-{
-    if (node.empty()) {
-        // empty node: used by newReaction() factory loader
-        return;
-    }
-
-    parseReactionEquation(*this, node["equation"], kin);
-    // Non-stoichiometric reaction orders
-    if (node.hasKey("orders")) {
-        for (const auto& order : node["orders"].asMap<double>()) {
-            orders[order.first] = order.second;
-            if (kin.kineticsSpeciesIndex(order.first) == npos) {
-                setValid(false);
-            }
-        }
-    }
-
-    reactants.erase("(+M)"); // remove optional third body notation
-    products.erase("(+M)");
-
-    // Flags
-    id = node.getString("id", "");
-    duplicate = node.getBool("duplicate", false);
-    allow_negative_orders = node.getBool("negative-orders", false);
-    allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
-
-    calculateRateCoeffUnits(kin);
-    input = node;
 }
 
 void ChebyshevReaction3::getParameters(AnyMap& reactionNode) const
@@ -1127,7 +1087,7 @@ CustomFunc1Reaction::CustomFunc1Reaction()
 CustomFunc1Reaction::CustomFunc1Reaction(const Composition& reactants,
                                          const Composition& products,
                                          const CustomFunc1Rate& rate)
-    : Reaction3(reactants, products)
+    : Reaction(reactants, products)
 {
     m_rate.reset(new CustomFunc1Rate(rate));
 }
