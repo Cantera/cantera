@@ -53,6 +53,8 @@ public:
 
     //! Update data common to reaction rates of a specific type
     //! @param bulk  object representing bulk phase
+    //! @param concm  effective third-body concentrations
+    //! @TODO  enable more generic handling of non-trivial concentration dependencies
     virtual void update(const ThermoPhase& bulk, double* concm) = 0;
 };
 
@@ -107,7 +109,7 @@ public:
     {
         // update common data once for each reaction type
         m_shared.update(bulk);
-        if (RateType::uses_update()) {
+        if (RateType::usesUpdate()) {
             // update reaction-specific data for each reaction. This loop
             // is efficient as all function calls are de-virtualized, and
             // all of the rate objects are contiguous in memory

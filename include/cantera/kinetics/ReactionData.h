@@ -75,9 +75,6 @@ struct PlogData
     //! Update number of species; unused
     void resizeSpecies(size_t n_species) {}
 
-    //! Pointer to logP (required by Plog::update_C)
-    const double* logP() const { return &m_logP; }
-
     double m_temperature; //!< temperature
     double m_logT; //!< logarithm of temperature
     double m_recipT; //!< inverse of temperature
@@ -110,9 +107,6 @@ struct ChebyshevData
 
     //! Update number of species; unused
     void resizeSpecies(size_t n_species) {}
-
-    //! Pointer to logP (required by Chebyshev::update_C)
-    const double* log10P() const { return &m_log10P; }
 
     double m_temperature; //!< temperature
     double m_recipT; //!< inverse of temperature

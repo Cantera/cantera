@@ -105,29 +105,6 @@ TEST_F(KineticsFromScratch3, skip_undefined_third_body)
     ASSERT_EQ((size_t) 1, kin.nReactions());
 }
 
-/*
-TEST_F(KineticsFromScratch3, add_falloff_reaction)
-{
-    // reaction 2:
-    // falloff_reaction('2 OH (+ M) <=> H2O2 (+ M)',
-    //                  kf=[7.400000e+10, -0.37, 0.0],
-    //                  kf0=[2.300000e+12, -0.9, -1700.0],
-    //                  efficiencies='AR:0.7 H2:2.0 H2O:6.0',
-    //                  falloff=Troe(A=0.7346, T3=94.0, T1=1756.0, T2=5182.0))
-    Composition reac = parseCompString("OH:2");
-    Composition prod = parseCompString("H2O2:1");
-    Arrhenius high_rate(7.4e10, -0.37, 0.0);
-    Arrhenius low_rate(2.3e12, -0.9, -1700.0 / GasConst_cal_mol_K);
-    vector_fp falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
-    ThirdBody tbody;
-    tbody.efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
-    auto R = make_shared<FalloffReaction>(reac, prod, low_rate, high_rate, tbody);
-    R->falloff = newFalloff("Troe", falloff_params);
-    kin.addReaction(R);
-    check_rates(2);
-}
-*/
-
 TEST_F(KineticsFromScratch3, add_plog_reaction)
 {
     // reaction 3:
@@ -309,93 +286,6 @@ TEST_F(KineticsFromScratch3, invalid_nonreactant_order)
     ASSERT_THROW(kin.addReaction(R), CanteraError);
     ASSERT_EQ((size_t) 0, kin.nReactions());
 }
-
-/*
-class InterfaceKineticsFromScratch3 : public testing::Test
-{
-public:
-    InterfaceKineticsFromScratch3()
-        : gas("sofc.yaml", "gas")
-        , gas_ref("sofc.yaml", "gas")
-        , surf("sofc.yaml", "metal_surface")
-        , surf_ref("sofc.yaml", "metal_surface")
-    {
-        std::vector<ThermoPhase*> th = { &surf_ref, &gas_ref };
-        kin_ref = newKinetics(th, "sofc.yaml", "metal_surface");
-        kin.addPhase(surf);
-        kin.addPhase(gas);
-    }
-
-    IdealGasPhase gas;
-    IdealGasPhase gas_ref;
-    SurfPhase surf;
-    SurfPhase surf_ref;
-    InterfaceKinetics kin;
-    unique_ptr<Kinetics> kin_ref;
-
-    //! iRef is the index of the corresponding reaction in the reference mech
-    void check_rates(int iRef) {
-        ASSERT_EQ((size_t) 1, kin.nReactions());
-
-        std::string X = "H2:0.2 O2:0.5 H2O:0.1 N2:0.2";
-        std::string Xs = "H(m):0.1 O(m):0.2 OH(m):0.3 (m):0.4";
-        gas.setState_TPX(1200, 5*OneAtm, X);
-        gas_ref.setState_TPX(1200, 5*OneAtm, X);
-        surf.setState_TP(1200, 5*OneAtm);
-        surf_ref.setState_TP(1200, 5*OneAtm);
-        surf.setCoveragesByName(Xs);
-        surf_ref.setCoveragesByName(Xs);
-
-        vector_fp k(1), k_ref(kin_ref->nReactions());
-
-        kin.getFwdRateConstants(&k[0]);
-        kin_ref->getFwdRateConstants(&k_ref[0]);
-        EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
-
-        kin.getRevRateConstants(&k[0]);
-        kin_ref->getRevRateConstants(&k_ref[0]);
-        EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
-    }
-};
-
-TEST_F(InterfaceKineticsFromScratch3, add_surface_reaction)
-{
-    // Reaction 3 on the metal surface
-    // surface_reaction( "H(m) + O(m) <=> OH(m) + (m)",
-    //                   [5.00000E+22, 0, 100.0], id = 'metal-rxn4')
-    Composition reac = parseCompString("H(m):1 O(m):1");
-    Composition prod = parseCompString("OH(m):1 (m):1");
-    Arrhenius rate(5e21, 0, 100.0e6 / GasConstant); // kJ/mol -> J/kmol
-
-    auto R = make_shared<InterfaceReaction>(reac, prod, rate);
-    kin.addReaction(R);
-    check_rates(3);
-}
-
-TEST_F(InterfaceKineticsFromScratch3, add_sticking_reaction)
-{
-    // Reaction 0 on the metal surface
-    // surface_reaction( "H2 + (m) + (m) <=> H(m) + H(m)",
-    //                   stick(0.1, 0, 0), id = 'metal-rxn1')
-    Composition reac = parseCompString("H2:1 (m):2");
-    Composition prod = parseCompString("H(m):2");
-    Arrhenius rate(0.1, 0, 0.0);
-
-    auto R = make_shared<InterfaceReaction>(reac, prod, rate, true);
-    kin.addReaction(R);
-    check_rates(0);
-}
-
-TEST_F(InterfaceKineticsFromScratch3, unbalanced_sites)
-{
-    Composition reac = parseCompString("H(m):1 O(m):1");
-    Composition prod = parseCompString("OH(m):1");
-    Arrhenius rate(5e21, 0, 100.0e6 / GasConstant);
-
-    auto R = make_shared<InterfaceReaction>(reac, prod, rate);
-    ASSERT_THROW(kin.addReaction(R), CanteraError);
-}
-*/
 
 class KineticsAddSpecies3 : public testing::Test
 {

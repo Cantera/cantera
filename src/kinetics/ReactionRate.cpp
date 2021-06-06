@@ -110,6 +110,8 @@ PlogRate::PlogRate(const AnyMap& node)
 
 void PlogRate::setParameters(const AnyMap& node, const Units& rate_units)
 {
+    // @TODO  implementation of Plog::setParameters should be transferred here
+    //     when the Plog class is removed from RxnRates.h after Cantera 2.6
     ReactionRateBase::setParameters(node, rate_units);
     if (!node.hasKey("rate-constants")) {
         Plog::setParameters(std::vector<AnyMap> (), node.units(), rate_units);
@@ -121,6 +123,8 @@ void PlogRate::setParameters(const AnyMap& node, const Units& rate_units)
 
 void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
+    // @TODO  implementation of Plog::getParameters should be transferred here
+    //     when the Plog class is removed from RxnRates.h after Cantera 2.6
     Plog::getParameters(rateNode, rate_units);
 }
 
@@ -147,12 +151,16 @@ void ChebyshevRate3::setParameters(const AnyMap& node, const Units& rate_units)
         Chebyshev::setParameters(AnyMap(), node.units(), rate_units);
         return;
     }
+    // @TODO  implementation of Chebyshev::setParameters should be transferred here
+    //     when the Chebyshev class is removed from RxnRates.h after Cantera 2.6
     Chebyshev::setParameters(node, node.units(), rate_units);
 }
 
 void ChebyshevRate3::getParameters(AnyMap& rateNode,
                                    const Units& rate_units) const
 {
+    // @TODO  implementation of Chebyshev::getParameters should be transferred here
+    //     when the Chebyshev class is removed from RxnRates.h after Cantera 2.6
     Chebyshev::getParameters(rateNode, rate_units);
 }
 

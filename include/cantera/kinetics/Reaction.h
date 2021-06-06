@@ -181,7 +181,7 @@ public:
     ThirdBody(const AnyMap& node);
 
     //! Set third-body efficiencies from AnyMap *node*
-    bool setEfficiencies(const AnyMap& node);
+    void setEfficiencies(const AnyMap& node);
 
     //! Get the third-body efficiency for species *k*
     double efficiency(const std::string& k) const;
