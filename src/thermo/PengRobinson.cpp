@@ -156,15 +156,15 @@ void PengRobinson::getActivityCoefficients(double* ac) const
         }
     }
     double num = 0;
-    double den = 2 * M_SQRT2 * m_b * m_b;
-    double den2 = m_b * (mv * mv + 2 * mv * m_b - m_b * m_b);
+    double denom = 2 * M_SQRT2 * m_b * m_b;
+    double denom2 = m_b * (mv * mv + 2 * mv * m_b - m_b * m_b);
     double RTkelvin = RT();
     for (size_t k = 0; k < m_kk; k++) {
         num = 2 * m_b * m_pp[k] - m_aAlpha_mix * m_b_coeffs[k];
         ac[k] = (-RTkelvin * log(pres * mv/ RTkelvin) + RTkelvin * log(mv / vmb)
                  + RTkelvin * m_b_coeffs[k] / vmb
-                 - (num /den) * log(vpb2/vmb2)
-                 - m_aAlpha_mix * m_b_coeffs[k] * mv/den2
+                 - (num /denom) * log(vpb2/vmb2)
+                 - m_aAlpha_mix * m_b_coeffs[k] * mv/denom2
                 );
     }
     for (size_t k = 0; k < m_kk; k++) {
@@ -196,8 +196,8 @@ void PengRobinson::getChemPotentials(double* mu) const
     }
     double pres = pressure();
     double refP = refPressure();
-    double den = 2 * M_SQRT2 * m_b * m_b;
-    double den2 = m_b * (mv * mv + 2 * mv * m_b - m_b * m_b);
+    double denom = 2 * M_SQRT2 * m_b * m_b;
+    double denom2 = m_b * (mv * mv + 2 * mv * m_b - m_b * m_b);
 
     for (size_t k = 0; k < m_kk; k++) {
         double num = 2 * m_b * m_pp[k] - m_aAlpha_mix * m_b_coeffs[k];
@@ -205,8 +205,8 @@ void PengRobinson::getChemPotentials(double* mu) const
         mu[k] += (RTkelvin * log(pres/refP) - RTkelvin * log(pres * mv / RTkelvin)
                   + RTkelvin * log(mv / vmb)
                   + RTkelvin * m_b_coeffs[k] / vmb
-                  - (num /den) * log(vpb2/vmb2)
-                  - m_aAlpha_mix * m_b_coeffs[k] * mv/den2
+                  - (num /denom) * log(vpb2/vmb2)
+                  - m_aAlpha_mix * m_b_coeffs[k] * mv/denom2
                  );
     }
 }
@@ -231,12 +231,12 @@ void PengRobinson::getPartialMolarEnthalpies(double* hbar) const
         }
     }
 
-    double den = mv * mv + 2 * mv * m_b - m_b * m_b;
-    double den2 = den * den;
+    double denom = mv * mv + 2 * mv * m_b - m_b * m_b;
+    double denom2 = denom * denom;
     double RTkelvin = RT();
     for (size_t k = 0; k < m_kk; k++) {
-        m_dpdni[k] = RTkelvin / vmb + RTkelvin * m_b_coeffs[k] / (vmb * vmb) - 2.0 * m_pp[k] / den
-                    + 2 * vmb * m_aAlpha_mix * m_b_coeffs[k] / den2;
+        m_dpdni[k] = RTkelvin / vmb + RTkelvin * m_b_coeffs[k] / (vmb * vmb) - 2.0 * m_pp[k] / denom
+                    + 2 * vmb * m_aAlpha_mix * m_b_coeffs[k] / denom2;
     }
 
     double daAlphadT = daAlpha_dT();
@@ -247,7 +247,7 @@ void PengRobinson::getPartialMolarEnthalpies(double* hbar) const
     double fac3 = 2 * M_SQRT2 * m_b * m_b;
     for (size_t k = 0; k < m_kk; k++) {
         double hE_v = mv * m_dpdni[k] - RTkelvin + (2 * m_b - m_b_coeffs[k]) / fac3  * log(vpb2 / vmb2) * fac
-                     + (mv * m_b_coeffs[k]) /(m_b * den) * fac;
+                     + (mv * m_b_coeffs[k]) /(m_b * denom) * fac;
         hbar[k] = hbar[k] + hE_v;
         hbar[k] -= fac2 * m_dpdni[k];
     }
@@ -301,12 +301,12 @@ void PengRobinson::getPartialMolarCp(double* cpbar) const
         }
     }
 
-    double den = mv * mv + 2 * mv * m_b - m_b * m_b;
-    double den2 = den * den;
+    double denom = mv * mv + 2 * mv * m_b - m_b * m_b;
+    double denom2 = denom * denom;
     //double RTkelvin = RT();
     for (size_t k = 0; k < m_kk; k++) {
-        grad_dpdni[k] = GasConstant / vmb + GasConstant * m_b_coeffs[k] / (vmb * vmb) - 2.0 * m_pp[k] / den
-                       + 2 * vmb * daAlpha_dT() * m_b_coeffs[k] / den2;
+        grad_dpdni[k] = GasConstant / vmb + GasConstant * m_b_coeffs[k] / (vmb * vmb) - 2.0 * m_pp[k] / denom
+                       + 2 * vmb * daAlpha_dT() * m_b_coeffs[k] / denom2;
     }
 
     double fac = T * d2aAlpha_dT2();
@@ -316,7 +316,7 @@ void PengRobinson::getPartialMolarCp(double* cpbar) const
     for (size_t k = 0; k < m_kk; k++) {
         grad_hi[k] = cpbar[k] - GasConstant + mv*grad_dpdni[k]
                      + (2*m_b - m_b_coeffs[k])/fac2 * log(vpb2/vmb2) * fac
-                     + (mv * m_b_coeffs[k]) /(m_b * den) * fac;
+                     + (mv * m_b_coeffs[k]) /(m_b * denom) * fac;
     }
 
     calculatePressureDerivatives();
@@ -666,12 +666,10 @@ double PengRobinson::densSpinodalGas() const
 
 double PengRobinson::dpdVCalc(double T, double molarVol, double& presCalc) const
 {
-    double den = molarVol * molarVol + 2 * molarVol * m_b - m_b * m_b;
-    presCalc = GasConstant * T / (molarVol - m_b) - m_aAlpha_mix / den;
-
+    double denom = molarVol * molarVol + 2 * molarVol * m_b - m_b * m_b;
     double vpb = molarVol + m_b;
     double vmb = molarVol - m_b;
-    double dpdv = -GasConstant * T / (vmb * vmb) + 2 * m_aAlpha_mix * vpb / (den*den);
+    double dpdv = -GasConstant * T / (vmb * vmb) + 2 * m_aAlpha_mix * vpb / (denom*denom);
     return dpdv;
 }
 
@@ -683,8 +681,8 @@ void PengRobinson::calculatePressureDerivatives() const
 
     m_dpdV = dpdVCalc(T, mv, pres);
     double vmb = mv - m_b;
-    double den = mv * mv + 2 * mv * m_b - m_b * m_b;
-    m_dpdT = (GasConstant / vmb - daAlpha_dT() / den);
+    double denom = mv * mv + 2 * mv * m_b - m_b * m_b;
+    m_dpdT = (GasConstant / vmb - daAlpha_dT() / denom);
 }
 
 void PengRobinson::updateMixingExpressions()
@@ -715,8 +713,7 @@ void PengRobinson::calculateAB(double& aCalc, double& bCalc, double& aAlphaCalc)
     for (size_t i = 0; i < m_kk; i++) {
         bCalc += moleFractions_[i] * m_b_coeffs[i];
         for (size_t j = 0; j < m_kk; j++) {
-            double a_vec_Curr = m_a_coeffs(i, j);
-            aCalc += a_vec_Curr * moleFractions_[i] * moleFractions_[j];
+            aCalc += m_a_coeffs(i, j) * moleFractions_[i] * moleFractions_[j];
             aAlphaCalc += m_aAlpha_binary(i, j) * moleFractions_[i] * moleFractions_[j];
         }
     }
