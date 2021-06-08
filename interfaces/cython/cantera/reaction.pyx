@@ -33,6 +33,15 @@ cdef class ReactionRate:
         def __get__(self):
             return pystr(self.rate.type())
 
+    property _linked:
+        """Return boolean indicating whether rate object is linked to a Kinetics object"""
+        def __get__(self):
+            return pybool(self.rate.linked())
+
+    def _release_evaluator(self):
+        """Release rate object from evaluator"""
+        self.rate.releaseEvaluator()
+
     @staticmethod
     cdef wrap(shared_ptr[CxxReactionRate] rate):
         """
