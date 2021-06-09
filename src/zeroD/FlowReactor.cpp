@@ -78,27 +78,27 @@ void FlowReactor::setMassFlowRate(double mdot)
     m_h0 = m_thermo->enthalpy_mass() + 0.5*m_speed*m_speed;
 }
 
-void FlowReactor::eval(double time, double* ydot)
+void FlowReactor::eval(double time, double* LHS, double* RHS)
 {
     m_thermo->restoreState(m_state);
 
     // distance equation
-    ydot[0] = m_speed;
+    RHS[0] = m_speed;
 
     // speed equation. Set m_fctr to a large value, so that rho*u is held fixed
-    ydot[1] = m_fctr*(m_speed0 - m_thermo->density()*m_speed/m_rho0);
+    RHS[1] = m_fctr*(m_speed0 - m_thermo->density()*m_speed/m_rho0);
 
     // species equations //
     const vector_fp& mw = m_thermo->molecularWeights();
 
     if (m_chem) {
-        m_kin->getNetProductionRates(ydot+2); // "omega dot"
+        m_kin->getNetProductionRates(RHS+2); // "omega dot"
     } else {
-        fill(ydot + 2, ydot + 2 + m_nsp, 0.0);
+        fill(RHS + 2, RHS + 2 + m_nsp, 0.0);
     }
     doublereal rrho = 1.0/m_thermo->density();
     for (size_t n = 0; n < m_nsp; n++) {
-        ydot[n+2] *= mw[n]*rrho;
+        RHS[n+2] *= mw[n]*rrho;
     }
 }
 

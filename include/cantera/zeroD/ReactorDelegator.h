@@ -65,7 +65,7 @@ public:
         m_updateConnected = [this](bool updatePressure) {
             R::updateConnected(updatePressure);
         };
-        m_eval = [this](double t, double* ydot) { R::eval(t, ydot); };
+        m_eval = [this](double t, double* LHS, double* RHS) { R::eval(t, LHS, RHS); };
         m_evalWalls = [this](double t) { R::evalWalls(t); };
         m_evalSurfaces = [this](double t, double* ydot) {
             return R::evalSurfaces(t, ydot);
@@ -195,8 +195,8 @@ public:
                     return std::array<size_t, 1>{R::neq()};
                 },
                 when,
-                [this](double t, double* ydot) {
-                    R::eval(t, ydot);
+                [this](double t, double* LHS, double* RHS) {
+                    R::eval(t, LHS, RHS);
                 }
             );
         } else {
@@ -305,8 +305,8 @@ public:
         m_updateConnected(updatePressure);
     }
 
-    virtual void eval(double t, double* ydot) override {
-        m_eval(t, ydot);
+    virtual void eval(double t, double* LHS, double* RHS) override {
+        m_eval(t, LHS, RHS);
     }
 
     virtual void evalWalls(double t) override {
@@ -369,7 +369,7 @@ private:
     std::function<void(double*)> m_updateSurfaceState;
     std::function<void(double*)> m_getSurfaceInitialConditions;
     std::function<void(bool)> m_updateConnected;
-    std::function<void(double, double*)> m_eval;
+    std::function<void(double, double*, double*)> m_eval;
     std::function<void(double)> m_evalWalls;
     std::function<double(double, double*)> m_evalSurfaces;
     std::function<std::string(size_t)> m_componentName;

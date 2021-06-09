@@ -199,18 +199,20 @@ void Reactor::updateConnected(bool updatePressure) {
     }
 }
 
-void Reactor::eval(double time, double* ydot)
+void Reactor::eval(double time, double* LHS, double* RHS) //argument will be pointing at start of info for nth reactor in reactor network
 {
-    double dmdt = 0.0; // dm/dt (gas phase)
-    double* dYdt = ydot + 3;
+    double& dmdt = RHS[0]; // dm/dt (gas phase)
+    double* dYdt = RHS + 2; //dYdt is a pointer to a double, pointing to the 2nd element in the m_RHS vector
+
+    dmdt = 0.0;
 
     evalWalls(time);
     m_thermo->restoreState(m_state);
-    double mdot_surf = evalSurfaces(time, ydot + m_nsp + 3);
+    double mdot_surf = evalSurfaces(time, RHS + m_nsp + 3);
     dmdt += mdot_surf; // mass added to gas phase from surface reactions
 
     // volume equation
-    ydot[1] = m_vdot;
+    RHS[1] = m_vdot;
 
     const vector_fp& mw = m_thermo->molecularWeights();
     const doublereal* Y = m_thermo->massFractions();
@@ -231,9 +233,9 @@ void Reactor::eval(double time, double* ydot)
     //     \dot U = -P\dot V + A \dot q + \dot m_{in} h_{in} - \dot m_{out} h.
     // \f]
     if (m_energy) {
-        ydot[2] = - m_thermo->pressure() * m_vdot + m_Qdot;
+        RHS[2] = - m_thermo->pressure() * m_vdot + m_Qdot;
     } else {
-        ydot[2] = 0.0;
+        RHS[2] = 0.0;
     }
 
     // add terms for outlets
@@ -241,7 +243,7 @@ void Reactor::eval(double time, double* ydot)
         double mdot = outlet->massFlowRate();
         dmdt -= mdot; // mass flow out of system
         if (m_energy) {
-            ydot[2] -= mdot * m_enthalpy;
+            RHS[2] -= mdot * m_enthalpy;
         }
     }
 
@@ -255,11 +257,9 @@ void Reactor::eval(double time, double* ydot)
             dYdt[n] += (mdot_spec - mdot * Y[n]) / m_mass;
         }
         if (m_energy) {
-            ydot[2] += mdot * inlet->enthalpy_mass();
+            RHS[2] += mdot * inlet->enthalpy_mass();
         }
     }
-
-    ydot[0] = dmdt;
 }
 
 void Reactor::evalWalls(double t)

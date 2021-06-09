@@ -30,7 +30,7 @@ public:
     virtual void getState(doublereal* y);
 
     virtual void initialize(doublereal t0 = 0.0);
-    virtual void eval(double t, double* ydot);
+    virtual void eval(double t, double* LHS, double* RHS);
     virtual void updateState(doublereal* y);
 
     void setMassFlowRate(double mdot);

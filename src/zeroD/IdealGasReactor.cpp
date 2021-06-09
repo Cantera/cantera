@@ -70,11 +70,11 @@ void IdealGasReactor::updateState(doublereal* y)
     updateConnected(true);
 }
 
-void IdealGasReactor::eval(double time, double* ydot)
+void IdealGasReactor::eval(double time, double* LHS, double* RHS)
 {
-    double dmdt = 0.0; // dm/dt (gas phase)
-    double mcvdTdt = 0.0; // m * c_v * dT/dt
-    double* dYdt = ydot + 3;
+    double& dmdt = RHS[0]; // dm/dt (gas phase)
+    double& mcvdTdt = RHS[2]; // m * c_v * dT/dt
+    double* dYdt = RHS + 3;
 
     evalWalls(time);
     m_thermo->restoreState(m_state);
@@ -86,7 +86,7 @@ void IdealGasReactor::eval(double time, double* ydot)
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
     }
 
-    double mdot_surf = evalSurfaces(time, ydot + m_nsp + 3);
+    double mdot_surf = evalSurfaces(time, RHS + m_nsp + 3);
     dmdt += mdot_surf;
 
     // compression work and external heat transfer
@@ -125,12 +125,12 @@ void IdealGasReactor::eval(double time, double* ydot)
         }
     }
 
-    ydot[0] = dmdt;
-    ydot[1] = m_vdot;
+    RHS[0] = dmdt;
+    RHS[1] = m_vdot;
     if (m_energy) {
-        ydot[2] = mcvdTdt / (m_mass * m_thermo->cv_mass());
+        RHS[2] = mcvdTdt / (m_mass * m_thermo->cv_mass());
     } else {
-        ydot[2] = 0;
+        RHS[2] = 0;
     }
 }
 
