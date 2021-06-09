@@ -674,6 +674,10 @@ config_options = [
         "show_long_tests",
         """If enabled, duration of slowest tests will be shown.""",
         False),
+    BoolVariable(
+        "verbose_tests",
+        """If enabled, verbose test output will be shown.""",
+        False),
 ]
 
 opts.AddVariables(*config_options)
