@@ -119,8 +119,9 @@ public:
 
     //! Evaluate the reactor governing equations. Called by ReactorNet::eval.
     //! @param[in] t time.
-    //! @param[out] ydot rate of change of solution vector, length neq()
-    virtual void eval(double t, double* ydot);
+    //! @param[out] LHS pointer to start of vector of left-hand side coefficients for governing equations, length m_nv, default values 1
+    //! @param[out] RHS pointer to start of vector of right-hand side coefficients for governing equations, length m_nv, default values 0
+    virtual void eval(double t, double* LHS, double* RHS);
 
     virtual void syncState();
 
