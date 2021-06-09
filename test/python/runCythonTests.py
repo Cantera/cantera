@@ -98,6 +98,8 @@ if __name__ == '__main__':
             pytest_args.insert(0, "-x")
         if verbose:
             pytest_args.insert(0, "-v")
+        else:
+            pytest_args.append("--log-level=ERROR")
 
         ret_code = pytest.main(pytest_args + subsets)
         sys.exit(ret_code)
