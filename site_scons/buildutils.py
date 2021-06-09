@@ -838,7 +838,7 @@ def get_spawn(env: "SCEnvironment"):
     if "cmd.exe" not in env["SHELL"] or env.subst("$CXX") == "cl":
         return env["SPAWN"]
 
-    def our_spawn(sh: str, escape: str, cmd: str, args: str, environ: Dict[str, str]):
+    def our_spawn(sh: str, escape: str, cmd: str, args: str, environ: "Dict[str, str]"):
         newargs = " ".join(args[1:])
         cmdline = cmd + " " + newargs
         startupinfo = subprocess.STARTUPINFO()  # type: ignore

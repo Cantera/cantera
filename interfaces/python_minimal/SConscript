@@ -1,5 +1,5 @@
 """Minimal Python Module"""
-from os.path import join as pjoin
+from os.path import join as pjoin, normpath
 from buildutils import *
 
 Import('env', 'build', 'install')
