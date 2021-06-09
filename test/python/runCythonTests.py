@@ -71,11 +71,15 @@ if __name__ == '__main__':
     subset_start = 1
     fast_fail = False
     show_long = False
+    verbose = False
     if "fast_fail" in sys.argv:
         fast_fail = True
         subset_start += 1
     if "show_long" in sys.argv:
         show_long = True
+        subset_start += 1
+    if "verbose" in sys.argv:
+        verbose = True
         subset_start += 1
 
     if pytest is not None:
@@ -87,11 +91,13 @@ if __name__ == '__main__':
         if not subsets:
             subsets.append(str(base))
 
-        pytest_args = ["-v", "-raP", "--junitxml=pytest.xml"]
+        pytest_args = ["-raP", "--junitxml=pytest.xml"]
         if show_long:
             pytest_args += ["--durations=50"]
         if fast_fail:
             pytest_args.insert(0, "-x")
+        if verbose:
+            pytest_args.insert(0, "-v")
 
         ret_code = pytest.main(pytest_args + subsets)
         sys.exit(ret_code)
