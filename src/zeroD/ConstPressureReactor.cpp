@@ -59,15 +59,17 @@ void ConstPressureReactor::updateState(doublereal* y)
     updateConnected(false);
 }
 
-void ConstPressureReactor::eval(double time, double* ydot)
+void ConstPressureReactor::eval(double time, double* LHS, double* RHS)
 {
-    double dmdt = 0.0; // dm/dt (gas phase)
-    double* dYdt = ydot + 2;
+    double& dmdt = RHS[0]; // dm/dt (gas phase)
+    double* dYdt = RHS + 2;
+
+    dmdt = 0.0;
 
     evalWalls(time);
 
     m_thermo->restoreState(m_state);
-    double mdot_surf = evalSurfaces(time, ydot + m_nsp + 2);
+    double mdot_surf = evalSurfaces(time, RHS + m_nsp + 2);
     dmdt += mdot_surf;
 
     const vector_fp& mw = m_thermo->molecularWeights();
@@ -106,11 +108,11 @@ void ConstPressureReactor::eval(double time, double* ydot)
         dHdt += mdot * inlet->enthalpy_mass();
     }
 
-    ydot[0] = dmdt;
+    RHS[0] = dmdt;
     if (m_energy) {
-        ydot[1] = dHdt;
+        RHS[1] = dHdt;
     } else {
-        ydot[1] = 0.0;
+        RHS[1] = 0.0;
     }
 }
 
