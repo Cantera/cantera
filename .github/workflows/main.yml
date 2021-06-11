@@ -34,7 +34,9 @@ jobs:
         python-version: ${{ matrix.python-version }}
         architecture: x64
     - name: Install Apt dependencies
-      run: sudo apt-get install libboost-dev gfortran
+      run: |
+        sudo apt update
+        sudo apt install libboost-dev gfortran
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
@@ -106,7 +108,8 @@ jobs:
         architecture: x64
     - name: Install Apt dependencies
       run: |
-        sudo apt-get install libboost-dev gfortran liblapack-dev libblas-dev libsundials-dev
+        sudo apt update
+        sudo apt install libboost-dev gfortran liblapack-dev libblas-dev libsundials-dev
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
@@ -141,7 +144,9 @@ jobs:
           python-version: '3.8'
           architecture: x64
       - name: Install Apt dependencies
-        run: sudo apt-get install libboost-dev doxygen graphviz
+        run: |
+          sudo apt update
+          sudo apt install libboost-dev doxygen graphviz
       - name: Upgrade pip
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
@@ -189,7 +194,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: x64
       - name: Install Apt dependencies
-        run: sudo apt-get install libboost-dev gfortran graphviz liblapack-dev libblas-dev
+        run: |
+          sudo apt update
+          sudo apt install libboost-dev gfortran graphviz liblapack-dev libblas-dev
       - name: Upgrade pip
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
@@ -262,7 +269,9 @@ jobs:
         python-version: '3.8'
         architecture: x64
     - name: Install Apt dependencies
-      run: sudo apt-get install libboost-dev liblapack-dev libblas-dev
+      run: |
+        sudo apt update
+        sudo apt install libboost-dev liblapack-dev libblas-dev
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
