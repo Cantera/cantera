@@ -43,7 +43,8 @@ jobs:
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all -j2 debug=n --debug=time
     - name: Test Cantera
-      run: python3 `which scons` test --debug=time
+      run:
+        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
       env:
         GITHUB_ACTIONS: "true"
 
@@ -83,7 +84,8 @@ jobs:
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all -j3 debug=n --debug=time
     - name: Test Cantera
-      run: python3 `which scons` test --debug=time
+      run:
+        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
       env:
         GITHUB_ACTIONS: "true"
 
@@ -117,7 +119,8 @@ jobs:
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
         optimize=n skip_slow_tests=y no_optimize_flags=-DNDEBUG env_vars=all -j2 --debug=time
     - name: Test Cantera
-      run: python3 `which scons` test --debug=time
+      run:
+        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
       env:
         GITHUB_ACTIONS: "true"
     - name: Upload Coverage to Codecov
@@ -246,7 +249,7 @@ jobs:
           extra_lib_dirs=$CONDA_PREFIX/lib system_fmt=y system_eigen=y system_yamlcpp=y \
           system_sundials=y blas_lapack_libs='lapack,blas' -j2 VERBOSE=True debug=n
       - name: Test Cantera
-        run: scons test
+        run: scons test show_long_tests=yes verbose_tests=yes
 
   cython-latest:
     name: Test pre-release version of Cython
@@ -272,7 +275,7 @@ jobs:
     - name: Build Cantera
       run: python3 `which scons` build blas_lapack_libs=lapack,blas python_package='full' -j2 debug=n
     - name: Test Cantera
-      run: python3 `which scons` test
+      run: python3 `which scons` test show_long_tests=yes verbose_tests=yes
 
   windows:
     name: ${{ matrix.os }}, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}
@@ -338,6 +341,6 @@ jobs:
           msvc_version=${{ matrix.vs-toolset }} f90_interface=n --debug=time
         shell: cmd
       - name: Test Cantera
-        run: scons test --debug=time
+        run: scons test show_long_tests=yes verbose_tests=yes --debug=time
         env:
           GITHUB_ACTIONS: "true"
