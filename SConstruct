@@ -1147,6 +1147,10 @@ else: # env['system_sundials'] == 'n'
     env['sundials_version'] = '5.3'
     env['has_sundials_lapack'] = int(env['use_lapack'])
 
+def set_fortran(pattern, value):
+    # Set compiler / flags for all Fortran versions to be the same
+    for version in ("FORTRAN", "F77", "F90", "F95", "F03", "F08"):
+        env[pattern.format(version)] = value
 
 # Try to find a working Fortran compiler:
 def check_fortran(compiler, expected=False):
@@ -1156,7 +1160,7 @@ program main
 end program main
     '''
     if which(compiler):
-        env['F77'] = env['F90'] = env['F95'] = env['F03'] = env['FORTRAN'] = compiler
+        set_fortran("{}", compiler)
         success, output = conf.TryRun(hello_world, '.f90')
         if success and 'Hello, world!' in output:
             return True
@@ -1170,7 +1174,7 @@ end program main
 
     return False
 
-env['F77FLAGS'] = env['F90FLAGS'] = env['F95FLAGS'] = env['F03FLAGS'] = env['FORTRANFLAGS']
+set_fortran("{}FLAGS", env["FORTRANFLAGS"])
 
 if env['f90_interface'] in ('y','default'):
     foundF90 = False
@@ -1203,8 +1207,8 @@ elif 'g95' in env['FORTRAN']:
 elif 'ifort' in env['FORTRAN']:
     env['FORTRANMODDIRPREFIX'] = '-module '
 
-env['F77'] = env['F90'] = env['F95'] = env['F03'] = env['FORTRAN']
-
+set_fortran("{}", env["FORTRAN"])
+set_fortran("SH{}", env["FORTRAN"])
 env['FORTRANMODDIR'] = '${TARGET.dir}'
 
 env = conf.Finish()
