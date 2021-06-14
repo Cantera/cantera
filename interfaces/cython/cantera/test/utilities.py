@@ -18,12 +18,17 @@ TEST_DATA_PATH = Path(__file__).parent / "data"
 CANTERA_DATA_PATH = Path(__file__).parents[1] / "data"
 
 
-def load_yaml(yml_file, typ="safe"):
-    # Load YAML data from file. The YAML loader defaults to "safe".
-    yaml_ = yaml.YAML(typ=typ)
-    with open(yml_file, "rt", encoding="utf-8") as stream:
-        return yaml_.load(stream)
-
+def load_yaml(yml_file):
+    # Load YAML data from file using the "safe" loading option.
+    try:
+        yaml_ = yaml.YAML(typ="safe")
+        with open(yml_file, "rt", encoding="utf-8") as stream:
+            return yaml_.load(stream)
+    except yaml.constructor.ConstructorError:
+        with open(yml_file, "rt", encoding="utf-8") as stream:
+            # Ensure that  the loader remains backward-compatible with legacy
+            # ruamel.yaml versions (prior to 0.17.0).
+            return yaml.safe_load(stream)
 
 class CanteraTest(unittest.TestCase):
     @classmethod

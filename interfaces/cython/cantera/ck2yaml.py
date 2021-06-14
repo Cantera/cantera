@@ -1375,9 +1375,15 @@ class Parser:
         """
         Load YAML-formatted entries from ``path`` on disk.
         """
-        yaml_ = yaml.YAML()
-        with open(path, 'rt', encoding="utf-8") as stream:
-            yml = yaml_.load(stream)
+        try:
+            yaml_ = yaml.YAML(typ="rt")
+            with open(path, 'rt', encoding="utf-8") as stream:
+                yml = yaml_.load(stream)
+        except yaml.constructor.ConstructorError:
+            with open(path, "rt", encoding="utf-8") as stream:
+                # Ensure that the loader remains backward-compatible with legacy
+                # ruamel.yaml versions (prior to 0.17.0).
+                yml = yaml.round_trip_load(stream)
 
         # do not overwrite reserved field names
         reserved = {'generator', 'input-files', 'cantera-version', 'date',
