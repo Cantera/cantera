@@ -21,6 +21,7 @@ namespace Cantera
 {
 
 class Func1;
+class MultiRateBase;
 
 //! Abstract base class for reaction rate definitions
 /**
@@ -42,6 +43,9 @@ public:
 public:
     //! Identifier of reaction type
     virtual std::string type() const = 0;
+
+    //! Create multi-rate evaluator
+    virtual unique_ptr<MultiRateBase> newMultiRate() const = 0;
 
     //! Update reaction rate data based on temperature
     //! @param T  temperature [K]
@@ -252,6 +256,8 @@ public:
 
     virtual std::string type() const override { return "ArrheniusRate"; }
 
+    virtual unique_ptr<MultiRateBase> newMultiRate() const override;
+
     //! Update information specific to reaction
     static bool usesUpdate() { return false; }
 
@@ -313,6 +319,8 @@ public:
     PlogRate(const AnyMap& node);
 
     virtual std::string type() const override { return "PlogRate"; }
+
+    virtual unique_ptr<MultiRateBase> newMultiRate() const override;
 
     virtual void setParameters(const AnyMap& node, const Units& rate_units) override;
     virtual void getParameters(AnyMap& rateNode,
@@ -395,6 +403,8 @@ public:
 
     virtual std::string type() const override { return "ChebyshevRate"; }
 
+    virtual unique_ptr<MultiRateBase> newMultiRate() const override;
+
     virtual void setParameters(const AnyMap& node, const Units& rate_units) override;
     virtual void getParameters(AnyMap& rateNode,
                                const Units& rate_units) const override;
@@ -434,6 +444,8 @@ public:
     CustomFunc1Rate(const AnyMap& rate, const Units& rate_units) {}
 
     virtual std::string type() const override { return "custom-function"; }
+
+    virtual unique_ptr<MultiRateBase> newMultiRate() const override;
 
     virtual void setParameters(const AnyMap& node, const Units& rate_units) override {
         units = rate_units;
