@@ -888,8 +888,8 @@ ElementaryReaction3::ElementaryReaction3(const AnyMap& node, const Kinetics& kin
 
 void ElementaryReaction3::getParameters(AnyMap& reactionNode) const
 {
-    Reaction::getParameters(reactionNode);
     reactionNode.update(m_rate->parameters(rate_units));
+    Reaction::getParameters(reactionNode);
 }
 
 ThreeBodyReaction3::ThreeBodyReaction3()
@@ -1054,9 +1054,9 @@ PlogReaction3::PlogReaction3(const AnyMap& node, const Kinetics& kin)
 
 void PlogReaction3::getParameters(AnyMap& reactionNode) const
 {
+    reactionNode.update(m_rate->parameters(rate_units));
     Reaction::getParameters(reactionNode);
     reactionNode["type"] = "pressure-dependent-Arrhenius";
-    reactionNode.update(m_rate->parameters(rate_units));
 }
 
 ChebyshevReaction3::ChebyshevReaction3()
@@ -1083,9 +1083,9 @@ ChebyshevReaction3::ChebyshevReaction3(const AnyMap& node, const Kinetics& kin)
 
 void ChebyshevReaction3::getParameters(AnyMap& reactionNode) const
 {
+    reactionNode.update(m_rate->parameters(rate_units));
     Reaction::getParameters(reactionNode);
     reactionNode["type"] = "Chebyshev";
-    reactionNode.update(m_rate->parameters(rate_units));
 }
 
 CustomFunc1Reaction::CustomFunc1Reaction()
