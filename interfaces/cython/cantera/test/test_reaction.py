@@ -455,7 +455,7 @@ class ReactionTests:
         if isinstance(one, (list, tuple, np.ndarray)):
             self.assertArrayNear(one, two)
         else:
-            self.assertEqual(one, two)
+            self.assertNear(one, two)
 
     def test_deprecated_getters(self):
         # check property getters deprecated in new framework
