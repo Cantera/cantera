@@ -137,6 +137,7 @@ void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
     // @TODO  implementation of Plog::getParameters should be transferred here
     //     when the Plog class is removed from RxnRates.h after Cantera 2.6
     Plog::getParameters(rateNode, rate_units);
+    rateNode["type"] = type();
 }
 
 ChebyshevRate3::ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pmax,
@@ -179,6 +180,7 @@ void ChebyshevRate3::getParameters(AnyMap& rateNode,
     // @TODO  implementation of Chebyshev::getParameters should be transferred here
     //     when the Chebyshev class is removed from RxnRates.h after Cantera 2.6
     Chebyshev::getParameters(rateNode, rate_units);
+    rateNode["type"] = type();
 }
 
 void ChebyshevRate3::validate(const std::string& equation)
