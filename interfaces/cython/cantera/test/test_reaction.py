@@ -164,7 +164,8 @@ class ReactionRateTests:
         self.assertTrue(np.isnan(rate(self.gas.T, self.gas.P)))
         input_data = rate.input_data
         self.assertIsInstance(input_data, dict)
-        self.assertEqual(input_data, {})
+        if input_data:
+            self.assertEqual(input_data, {'type': self._type})
 
     def test_roundtrip(self):
         # check round-trip instantiation via input_data
@@ -175,12 +176,21 @@ class ReactionRateTests:
         self.assertNear(rate(self.gas.T, self.gas.P),
                         self.rate(self.gas.T, self.gas.P))
 
+    def test_from_dict(self):
+        # check round-trip instantiation via input_data
+        if self._index is None:
+            return
+        input_data = self.rate.input_data
+        rate = ct.ReactionRate.from_dict(input_data, self.gas)
+        self.assertNear(rate(self.gas.T, self.gas.P),
+                        self.rate(self.gas.T, self.gas.P))
+
 
 class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
     # test Arrhenius rate expressions
 
     _cls = ct.ArrheniusRate
-    _type = "Arrhenius"
+    _type = "ArrheniusRate"
     _uses_pressure = False
     _index = 0
     _input = {"rate-constant": {"A": 38.7, "b": 2.7, "Ea": 26191840.0}}
@@ -208,7 +218,7 @@ class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
     # test Plog rate expressions
 
     _cls = ct.PlogRate
-    _type = "Plog"
+    _type = "PlogRate"
     _uses_pressure = True
     _index = 3
     _input = {"rate-constants": [
@@ -265,7 +275,7 @@ class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
     # test Chebyshev rate expressions
 
     _cls = ct.ChebyshevRate
-    _type = "Chebyshev"
+    _type = "ChebyshevRate"
     _uses_pressure = True
     _index = 4
     _input = {"data": [[8.2883, -1.1397, -0.12059, 0.016034],

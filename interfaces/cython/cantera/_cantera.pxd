@@ -341,6 +341,10 @@ cdef extern from "cantera/kinetics/ReactionFactory.h" namespace "Cantera":
     cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (XML_Node&) except +translate_exception
     cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (CxxAnyMap&, CxxKinetics&) except +translate_exception
 
+cdef extern from "cantera/kinetics/RateFactory.h" namespace "Cantera":
+    cdef shared_ptr[CxxReactionRateBase] CxxNewRate "Cantera::newRate" (string) except +translate_exception
+    cdef shared_ptr[CxxReactionRateBase] CxxNewRate "newRate" (CxxAnyMap&, CxxKinetics&) except +translate_exception
+
 cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (XML_Node&) except +translate_exception
     cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (CxxAnyValue&, CxxKinetics&) except +translate_exception
@@ -1146,27 +1150,14 @@ cdef class ThermoPhase(_SolutionBase):
 cdef class InterfacePhase(ThermoPhase):
     cdef CxxSurfPhase* surf
 
-cdef class _ReactionRate:
-    cdef shared_ptr[CxxReactionRateBase] _base
-    cdef CxxReactionRateBase* base
-
-cdef class ArrheniusRate(_ReactionRate):
-    cdef CxxArrheniusRate* rate
+cdef class ReactionRate:
+    cdef shared_ptr[CxxReactionRateBase] _rate
+    cdef CxxReactionRateBase* rate
     @staticmethod
     cdef wrap(shared_ptr[CxxReactionRateBase])
 
-cdef class PlogRate(_ReactionRate):
-    cdef CxxPlogRate* rate
-    @staticmethod
-    cdef wrap(shared_ptr[CxxReactionRateBase])
-
-cdef class ChebyshevRate(_ReactionRate):
-    cdef CxxChebyshevRate3* rate
-    @staticmethod
-    cdef wrap(shared_ptr[CxxReactionRateBase])
-
-cdef class CustomRate(_ReactionRate):
-    cdef CxxCustomFunc1Rate* rate
+cdef class CustomRate(ReactionRate):
+    cdef CxxCustomFunc1Rate* cfr(self)
     cdef Func1 _rate_func
 
 cdef class Reaction:
