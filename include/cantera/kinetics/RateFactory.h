@@ -66,7 +66,7 @@ private:
 
 //! Create a new empty ReactionRateBase object
 /*!
- * @param type string identifying type of reaction.
+ * @param type string identifying type of reaction rate.
  */
 shared_ptr<ReactionRateBase> newRate(const std::string& type);
 

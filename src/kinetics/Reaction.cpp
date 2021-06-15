@@ -880,8 +880,10 @@ ElementaryReaction3::ElementaryReaction3(const Composition& reactants,
 ElementaryReaction3::ElementaryReaction3(const AnyMap& node, const Kinetics& kin)
     : ElementaryReaction3()
 {
-    setParameters(node, kin);
-    setRate(newRate(node, rate_units));
+    if (!node.empty()) {
+        setParameters(node, kin);
+        setRate(newRate(node, rate_units));
+    }
 }
 
 void ElementaryReaction3::getParameters(AnyMap& reactionNode) const
@@ -908,8 +910,10 @@ ThreeBodyReaction3::ThreeBodyReaction3(const Composition& reactants,
 ThreeBodyReaction3::ThreeBodyReaction3(const AnyMap& node, const Kinetics& kin)
     : ThreeBodyReaction3()
 {
-    setParameters(node, kin);
-    setRate(newRate(node, rate_units));
+    if (!node.empty()) {
+        setParameters(node, kin);
+        setRate(newRate(node, rate_units));
+    }
 }
 
 bool ThreeBodyReaction3::detectEfficiencies()
@@ -1042,8 +1046,10 @@ PlogReaction3::PlogReaction3(const Composition& reactants,
 PlogReaction3::PlogReaction3(const AnyMap& node, const Kinetics& kin)
     : PlogReaction3()
 {
-    setParameters(node, kin);
-    setRate(newRate(node, rate_units));
+    if (!node.empty()) {
+        setParameters(node, kin);
+        setRate(newRate(node, rate_units));
+    }
 }
 
 void PlogReaction3::getParameters(AnyMap& reactionNode) const
@@ -1069,8 +1075,10 @@ ChebyshevReaction3::ChebyshevReaction3(const Composition& reactants,
 ChebyshevReaction3::ChebyshevReaction3(const AnyMap& node, const Kinetics& kin)
     : ChebyshevReaction3()
 {
-    setParameters(node, kin);
-    setRate(newRate(node, rate_units));
+    if (!node.empty()) {
+        setParameters(node, kin);
+        setRate(newRate(node, rate_units));
+    }
 }
 
 void ChebyshevReaction3::getParameters(AnyMap& reactionNode) const
@@ -1096,8 +1104,10 @@ CustomFunc1Reaction::CustomFunc1Reaction(const Composition& reactants,
 CustomFunc1Reaction::CustomFunc1Reaction(const AnyMap& node, const Kinetics& kin)
     : CustomFunc1Reaction()
 {
-    setParameters(node, kin);
-    setRate(newRate(node, rate_units));
+    if (!node.empty()) {
+        setParameters(node, kin);
+        setRate(newRate(node, rate_units));
+    }
 }
 
 Arrhenius readArrhenius(const XML_Node& arrhenius_node)
