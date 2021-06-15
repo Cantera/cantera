@@ -377,7 +377,7 @@ class FlameBase(Sim1D):
         self.gas.set_unnormalized_mass_fractions(Y)
         self.gas.TP = self.value(self.flame, 'T', point), self.P
 
-    def write_csv(self, filename, species='X', quiet=True, normalize=False):
+    def write_csv(self, filename, species='X', quiet=True, normalize=True):
         """
         Write the velocity, temperature, density, and species profiles
         to a CSV file.
@@ -389,7 +389,7 @@ class FlameBase(Sim1D):
             mole fractions or ``Y`` for mass fractions.
         :param normalize:
             Boolean flag to indicate whether the mole/mass fractions should
-            be normalized (default is ``False``)
+            be normalized.
         """
 
         # save data
@@ -399,16 +399,15 @@ class FlameBase(Sim1D):
         if not quiet:
             print("Solution saved to '{0}'.".format(filename))
 
-    def to_solution_array(self, domain=None, normalize=False):
+    def to_solution_array(self, domain=None, normalize=True):
         """
         Return the solution vector as a `SolutionArray` object.
 
         Derived classes define default values for *other*.
 
-        If the data contains mass or mole fractions they will be set
-        without normalizing their sum to 1.0 by default. If this is
-        not desired, the ``normalize`` argument can be set to
-        ``True`` to force the data to sum to 1.0.
+        By default, the mass or mole fractions will be normalized i.e they
+        sum up to 1.0. If this is not desired, the ``normalize`` argument
+        can be set to ``False``.
         """
         if domain is None:
             domain = self.flame
@@ -425,17 +424,12 @@ class FlameBase(Sim1D):
                 arr.TPY = states
             else:
                 if len(states) == 3:
-                    if n_points==1:
-                        arr._phase.set_unnormalized_mass_fractions(states[2])
-                        arr._phase.TP = states[0], states[1]
-                        arr._states[0] = arr._phase.state
-                    else:
-                        for i in range(n_points):
-                            arr._phase.set_unnormalized_mass_fractions(states[2][i])
-                            arr._phase.TP = states[0][i], states[1]
-                            arr._states[i] = arr._phase.state
+                    for i in range(n_points):
+                        arr._phase.set_unnormalized_mass_fractions(states[2][i])
+                        arr._phase.TP = np.atleast_1d(states[0])[i], states[1]
+                        arr._states[i] = arr._phase.state
                 else:
-                    arr.TPY = states
+                    arr.TP = states
             return arr
         else:
             return SolutionArray(self.phase(domain), meta=meta)
@@ -458,7 +452,7 @@ class FlameBase(Sim1D):
         meta = arr.meta
         super().restore_data(domain, states, other_cols, meta)
 
-    def to_pandas(self, species='X', normalize=False):
+    def to_pandas(self, species='X', normalize=True):
         """
         Return the solution vector as a `pandas.DataFrame`.
 
@@ -467,7 +461,7 @@ class FlameBase(Sim1D):
             mole fractions or ``Y`` for mass fractions.
         :param normalize:
             Boolean flag to indicate whether the mole/mass fractions should
-            be normalized (default is ``False``)
+            be normalized (default is ``True``)
 
         This method uses `to_solution_array` and requires a working pandas
         installation. Use pip or conda to install `pandas` to enable this
@@ -501,7 +495,7 @@ class FlameBase(Sim1D):
 
     def write_hdf(self, filename, *args, group=None, species='X', mode='a',
                   description=None, compression=None, compression_opts=None,
-                  quiet=True, normalize=False, **kwargs):
+                  quiet=True, normalize=True, **kwargs):
         """
         Write the solution vector to a HDF container file.
 
@@ -564,7 +558,7 @@ class FlameBase(Sim1D):
             Suppress message confirming successful file output.
         :param normalize:
             Boolean flag to indicate whether the mole/mass fractions should
-            be normalized (default is ``False``)
+            be normalized (default is ``True``)
 
         Additional arguments (i.e. *args* and *kwargs*) are passed on to
         `SolutionArray.collect_data`. The method exports data using

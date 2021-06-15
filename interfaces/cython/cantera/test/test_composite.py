@@ -155,9 +155,10 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         self.assertArrayNear(states[0].Y, gas.Y)
 
     def test_import_no_norm_data(self):
-        outfile = pjoin(self.test_work_dir, "solutionarray.h5")
-        if os.path.exists(outfile):
-            os.remove(outfile)
+        outfile = self.test_work_path / "solutionarray.h5"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if outfile.is_file():
+            outfile.unlink()
 
         gas = ct.Solution("h2o2.yaml")
         gas.set_unnormalized_mole_fractions(np.full(gas.n_species, 0.3))
@@ -454,9 +455,10 @@ class TestRestorePureFluid(utilities.CanteraTest):
         check(a, b)
 
     def test_import_no_norm_water(self):
-        outfile = pjoin(self.test_work_dir, "solutionarray.h5")
-        if os.path.exists(outfile):
-            os.remove(outfile)
+        outfile = self.test_work_path / "solutionarray.h5"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if outfile.is_file():
+            outfile.unlink()
 
         w = ct.Water()
         w.TQ = 300, 0.5
@@ -465,7 +467,7 @@ class TestRestorePureFluid(utilities.CanteraTest):
 
         w_new = ct.Water()
         c = ct.SolutionArray(w_new)
-        c.read_hdf(outfile)
+        c.read_hdf(outfile, normalize=False)
         self.assertArrayNear(states.T, c.T)
         self.assertArrayNear(states.P, c.P)
         self.assertArrayNear(states.Q, c.Q)
