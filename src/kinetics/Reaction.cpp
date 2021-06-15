@@ -7,6 +7,7 @@
 
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/kinetics/ReactionFactory.h"
+#include "cantera/kinetics/RateFactory.h"
 #include "cantera/kinetics/FalloffFactory.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/thermo/ThermoPhase.h"
@@ -865,7 +866,7 @@ void BlowersMaselInterfaceReaction::getParameters(AnyMap& reactionNode) const
 
 ElementaryReaction3::ElementaryReaction3()
 {
-    m_rate.reset(new ArrheniusRate);
+    setRate(newRate(type()));
 }
 
 ElementaryReaction3::ElementaryReaction3(const Composition& reactants,
@@ -880,7 +881,7 @@ ElementaryReaction3::ElementaryReaction3(const AnyMap& node, const Kinetics& kin
     : ElementaryReaction3()
 {
     setParameters(node, kin);
-    setRate(std::make_shared<ArrheniusRate>(node, rate_units));
+    setRate(newRate(node, rate_units));
 }
 
 void ElementaryReaction3::getParameters(AnyMap& reactionNode) const
@@ -908,7 +909,7 @@ ThreeBodyReaction3::ThreeBodyReaction3(const AnyMap& node, const Kinetics& kin)
     : ThreeBodyReaction3()
 {
     setParameters(node, kin);
-    setRate(std::make_shared<ArrheniusRate>(node, rate_units));
+    setRate(newRate(node, rate_units));
 }
 
 bool ThreeBodyReaction3::detectEfficiencies()
@@ -1028,7 +1029,7 @@ std::string ThreeBodyReaction3::productString() const
 
 PlogReaction3::PlogReaction3()
 {
-    m_rate.reset(new PlogRate);
+    setRate(newRate(type()));
 }
 
 PlogReaction3::PlogReaction3(const Composition& reactants,
@@ -1042,7 +1043,7 @@ PlogReaction3::PlogReaction3(const AnyMap& node, const Kinetics& kin)
     : PlogReaction3()
 {
     setParameters(node, kin);
-    setRate(std::make_shared<PlogRate>(node, rate_units));
+    setRate(newRate(node, rate_units));
 }
 
 void PlogReaction3::getParameters(AnyMap& reactionNode) const
@@ -1054,7 +1055,7 @@ void PlogReaction3::getParameters(AnyMap& reactionNode) const
 
 ChebyshevReaction3::ChebyshevReaction3()
 {
-    m_rate.reset(new ChebyshevRate3);
+    setRate(newRate(type()));
 }
 
 ChebyshevReaction3::ChebyshevReaction3(const Composition& reactants,
@@ -1069,7 +1070,7 @@ ChebyshevReaction3::ChebyshevReaction3(const AnyMap& node, const Kinetics& kin)
     : ChebyshevReaction3()
 {
     setParameters(node, kin);
-    setRate(std::make_shared<ChebyshevRate3>(node, rate_units));
+    setRate(newRate(node, rate_units));
 }
 
 void ChebyshevReaction3::getParameters(AnyMap& reactionNode) const
@@ -1081,7 +1082,7 @@ void ChebyshevReaction3::getParameters(AnyMap& reactionNode) const
 
 CustomFunc1Reaction::CustomFunc1Reaction()
 {
-    m_rate.reset(new CustomFunc1Rate);
+    setRate(newRate(type()));
 }
 
 CustomFunc1Reaction::CustomFunc1Reaction(const Composition& reactants,
@@ -1096,7 +1097,7 @@ CustomFunc1Reaction::CustomFunc1Reaction(const AnyMap& node, const Kinetics& kin
     : CustomFunc1Reaction()
 {
     setParameters(node, kin);
-    setRate(std::make_shared<CustomFunc1Rate>(node, rate_units));
+    setRate(newRate(node, rate_units));
 }
 
 Arrhenius readArrhenius(const XML_Node& arrhenius_node)
