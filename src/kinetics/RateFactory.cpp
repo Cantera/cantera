@@ -52,7 +52,6 @@ RateFactory::RateFactory()
     addAlias("custom-function", "custom-rate-function");
 }
 
-
 shared_ptr<ReactionRateBase> newRate(const std::string& type)
 {
     return shared_ptr<ReactionRateBase> (
@@ -62,12 +61,15 @@ shared_ptr<ReactionRateBase> newRate(const std::string& type)
 shared_ptr<ReactionRateBase> newRate(const AnyMap& rate_node, const Units& rate_units)
 {
     std::string type = "";
-    if (rate_node.hasKey("type")) {
+    if (rate_node.empty()) {
+        throw InputFileError("RateFactory::newRate", rate_node,
+            "Received invalid empty node.");
+    } else if (rate_node.hasKey("type")) {
         type = rate_node["type"].asString();
     }
 
     if (!(RateFactory::factory()->exists(type))) {
-        throw InputFileError("RateFactory::newRate", rate_node["type"],
+        throw InputFileError("RateFactory::newRate", rate_node,
             "Unknown reaction rate type '{}'", type);
     }
 
