@@ -210,7 +210,6 @@ CompileAndTest('mixGasTransport')
 CompileAndTest('multiGasTransport')
 
 CompileAndTest('pureFluid', 'pureFluidTest')
-CompileAndTest('silane_equil')
 CompileAndTest('stoichSolidKinetics')
 CompileAndTest('surfSolver', 'surfSolverTest', 'surfaceSolver', None,
                comparisons=[('results_blessed.txt', 'results.txt')],
