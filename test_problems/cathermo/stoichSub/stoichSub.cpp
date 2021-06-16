@@ -14,10 +14,7 @@ using namespace Cantera;
 int main(int argc, char** argv)
 {
     try {
-        std::string iFile = (argc > 1) ? argv[1] : "NaCl_Solid.xml";
-        std::string file_ID = iFile + "#NaCl(S)";
-        XML_Node* xm = get_XML_NameID("phase", file_ID, 0);
-        StoichSubstance* solid = new StoichSubstance(*xm);
+        StoichSubstance* solid = new StoichSubstance("NaCl_Solid.yaml", "NaCl(S)");
 
         size_t nsp = solid->nSpecies();
         if (nsp != 1) {
