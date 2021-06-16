@@ -84,5 +84,11 @@ shared_ptr<ReactionRateBase> newRate(const AnyMap& rate_node, const Units& rate_
  */
 shared_ptr<ReactionRateBase> newRate(const AnyMap& rate_node, const Kinetics& kin);
 
+//! Retrieve the canoncial rate object name
+/*!
+ * @param type string identifying alternate reaction rate name.
+ */
+std::string canonicalRateName(const std::string& type);
+
 }
 #endif

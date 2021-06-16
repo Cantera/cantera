@@ -54,8 +54,11 @@ RateFactory::RateFactory()
 
 shared_ptr<ReactionRateBase> newRate(const std::string& type)
 {
-    return shared_ptr<ReactionRateBase> (
-        RateFactory::factory()->create(type, AnyMap(), Units(0.0)));
+    if (RateFactory::factory()->exists(type)) {
+        return shared_ptr<ReactionRateBase> (
+            RateFactory::factory()->create(type, AnyMap(), Units(0.0)));
+    }
+    return shared_ptr<ReactionRateBase> ();
 }
 
 shared_ptr<ReactionRateBase> newRate(const AnyMap& rate_node, const Units& rate_units)
@@ -85,6 +88,15 @@ shared_ptr<ReactionRateBase> newRate(const AnyMap& rate_node, const Kinetics& ki
     size_t idx = kin.reactionPhaseIndex();
     Units rate_units = kin.thermo(idx).standardConcentrationUnits();
     return newRate(rate_node, rate_units);
+}
+
+std::string canonicalRateName(const std::string& type)
+{
+    if (RateFactory::factory()->exists(type)) {
+        return RateFactory::factory()->canonicalize(type);
+    } else {
+        return "undefined";
+    }
 }
 
 }
