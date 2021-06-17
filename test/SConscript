@@ -290,6 +290,7 @@ addTestProgram('thermo', 'thermo')
 addTestProgram('equil', 'equil')
 addTestProgram('kinetics', 'kinetics')
 addTestProgram('transport', 'transport')
+addTestProgram('zeroD', 'zeroD')
 
 python_subtests = ['']
 test_root = '#interfaces/cython/cantera/test'
