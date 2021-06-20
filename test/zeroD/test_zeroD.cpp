@@ -43,10 +43,10 @@ TEST(ZeroDim, test_individual_reactor_initialization)
     reactor2.setThermoMgr(*gas2);
     reactor2.initialize(0);
     // Get state of reactors
-    double *state1 = new double[reactor1.neq()];
-    double *state2 = new double[reactor2.neq()];
-    reactor1.getState(state1);
-    reactor2.getState(state2);
+    std::vector<double> state1 (reactor1.neq());
+    std::vector<double> state2 (reactor2.neq());
+    reactor1.getState(state1.data());
+    reactor2.getState(state2.data());
     // Compare the reactors.
     EXPECT_EQ(reactor1.neq(), reactor2.neq());
     double tol = 1e-14;
@@ -56,8 +56,6 @@ TEST(ZeroDim, test_individual_reactor_initialization)
     {
         EXPECT_NEAR(state1[i], state2[i], tol);
     }
-    delete[] state1;
-    delete[] state2;
 }
 
 int main(int argc, char** argv)
