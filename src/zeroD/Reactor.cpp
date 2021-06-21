@@ -88,7 +88,7 @@ void Reactor::initialize(doublereal t0)
     m_thermo->restoreState(m_state);
     m_sdot.resize(m_nsp, 0.0);
     m_wdot.resize(m_nsp, 0.0);
-    updateConnected(true, t0);
+    updateConnected(true);
 
     for (size_t n = 0; n < m_wall.size(); n++) {
         WallBase* W = m_wall[n];
@@ -177,7 +177,7 @@ void Reactor::updateSurfaceState(double* y)
     }
 }
 
-void Reactor::updateConnected(bool updatePressure, double t0) {
+void Reactor::updateConnected(bool updatePressure) {
     // save parameters needed by other connected reactors
     m_enthalpy = m_thermo->enthalpy_mass();
     if (updatePressure) {
@@ -187,7 +187,7 @@ void Reactor::updateConnected(bool updatePressure, double t0) {
     m_thermo->saveState(m_state);
 
     // Update the mass flow rate of connected flow devices
-    double time = (m_net != nullptr) ? m_net->time() : t0;
+    double time = (m_net != nullptr) ? m_net->time() : 0.0;
     for (size_t i = 0; i < m_outlet.size(); i++) {
         m_outlet[i]->updateMassFlowRate(time);
     }

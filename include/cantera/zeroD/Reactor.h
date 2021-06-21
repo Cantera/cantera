@@ -193,8 +193,7 @@ protected:
     //!     `true` for reactors where the pressure is a dependent property,
     //!     calculated from the state, and `false` when the pressure is constant
     //!     or an independent variable.
-    //! @param t0 initialization time for the reactor if not obtained from the network
-    virtual void updateConnected(bool updatePressure, double t0=0.0);
+    virtual void updateConnected(bool updatePressure);
 
     //! Get initial conditions for SurfPhase objects attached to this reactor
     virtual void getSurfaceInitialConditions(double* y);

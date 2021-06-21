@@ -25,8 +25,8 @@ TEST(ZeroDim, test_individual_reactor_initialization)
     Reactor reactor1;
     reactor1.setKineticsMgr(*kin1);
     reactor1.setThermoMgr(*gas1);
-    // Initialize reactor at arbitrary value prior to integration to ensure no impact
-    reactor1.initialize(0.1);
+    // Initialize reactor prior to integration to ensure no impact
+    reactor1.initialize();
     // Setup reactor network and integrate
     ReactorNet network;
     network.addReactor(reactor1);
@@ -41,7 +41,7 @@ TEST(ZeroDim, test_individual_reactor_initialization)
     Reactor reactor2;
     reactor2.setKineticsMgr(*kin2);
     reactor2.setThermoMgr(*gas2);
-    reactor2.initialize(0);
+    reactor2.initialize(0.0);
     // Get state of reactors
     std::vector<double> state1 (reactor1.neq());
     std::vector<double> state2 (reactor2.neq());
