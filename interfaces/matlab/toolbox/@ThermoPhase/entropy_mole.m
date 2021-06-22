@@ -5,7 +5,7 @@ function v = entropy_mole(tp)
 %     Instance of class :mat:func:`ThermoPhase` (or another
 %     object that derives from ThermoPhase)
 % :return:
-%     Molar specific entropy of the mixture. Units: J/kg
+%     Molar specific entropy of the mixture. Units: J/kmol-K
 %
 
 v = thermo_get(tp.tp_id, 4);
