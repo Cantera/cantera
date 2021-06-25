@@ -14,17 +14,14 @@ TEST(ZeroDim, test_individual_reactor_initialization)
 {
     // Initial conditions
     double T0 = 1100.0;
-    double P0 = 1013250;
+    double P0 = 10*OneAtm;
     std::string X0 = "H2:1.0, O2:0.5, AR:8.0";
     // Reactor solution, phase, and kinetics objects
     std::shared_ptr<Solution> sol1 = newSolution("h2o2.yaml");
-    std::shared_ptr<ThermoPhase> gas1 = sol1->thermo();
-    std::shared_ptr<Kinetics> kin1 = sol1->kinetics();
-    gas1->setState_TPX(T0, P0, X0);
+    sol1->thermo()->setState_TPX(T0, P0, X0);
     // Set up reactor object
     Reactor reactor1;
-    reactor1.setKineticsMgr(*kin1);
-    reactor1.setThermoMgr(*gas1);
+    reactor1.insert(sol1);
     // Initialize reactor prior to integration to ensure no impact
     reactor1.initialize();
     // Setup reactor network and integrate
@@ -33,14 +30,11 @@ TEST(ZeroDim, test_individual_reactor_initialization)
     network.advance(1.0);
     // Secondary gas for comparison
     std::shared_ptr<Solution> sol2 = newSolution("h2o2.yaml");
-    std::shared_ptr<ThermoPhase> gas2 = sol2->thermo();
-    std::shared_ptr<Kinetics> kin2 = sol2->kinetics();
-    gas2->setState_TPX(T0, P0, X0);
-    gas2->equilibrate("UV");
+    sol2->thermo()->setState_TPX(T0, P0, X0);
+    sol2->thermo()->equilibrate("UV");
     // Secondary reactor for comparison
     Reactor reactor2;
-    reactor2.setKineticsMgr(*kin2);
-    reactor2.setThermoMgr(*gas2);
+    reactor2.insert(sol2);
     reactor2.initialize(0.0);
     // Get state of reactors
     std::vector<double> state1 (reactor1.neq());
