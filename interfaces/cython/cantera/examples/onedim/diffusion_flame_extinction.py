@@ -53,7 +53,7 @@ f.set_refine_criteria(ratio=3.0, slope=0.1, curve=0.2, prune=0.03)
 
 # Define a limit for the maximum temperature below which the flame is
 # considered as extinguished and the computation is aborted
-temperature_limit_extinction = 500  # K
+temperature_limit_extinction = max(f.oxidizer_inlet.T, f.fuel_inlet.T)
 
 # Initialize and solve
 print('Creating the initial solution')
@@ -114,6 +114,7 @@ while True:
     strain_factor = alpha[-1] / alpha[n_last_burning]
     # Create an initial guess based on the previous solution
     # Update grid
+    # NB: Grid scaling changes the diffusion flame width
     f.flame.grid *= strain_factor ** exp_d_a
     normalized_grid = f.grid / (f.grid[-1] - f.grid[0])
     # Update mass fluxes
