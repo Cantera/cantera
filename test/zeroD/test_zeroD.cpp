@@ -14,7 +14,8 @@ TEST(ZeroDim, test_individual_reactor_initialization)
 {
     // Initial conditions
     double T0 = 1100.0;
-    double P0 = 10*OneAtm;
+    double P0 = 10 * OneAtm;
+    double tol = 1e-7;
     std::string X0 = "H2:1.0, O2:0.5, AR:8.0";
     // Reactor solution, phase, and kinetics objects
     std::shared_ptr<Solution> sol1 = newSolution("h2o2.yaml");
@@ -43,10 +44,7 @@ TEST(ZeroDim, test_individual_reactor_initialization)
     reactor2.getState(state2.data());
     // Compare the reactors.
     EXPECT_EQ(reactor1.neq(), reactor2.neq());
-    double tol = 1e-14;
-    EXPECT_NEAR(state1[0], state2[0], tol);
-    EXPECT_NEAR(state1[1], state2[1], tol);
-    for(size_t i = 3; i < reactor1.neq(); i++)
+    for (size_t i = 0; i < reactor1.neq(); i++)
     {
         EXPECT_NEAR(state1[i], state2[i], tol);
     }
