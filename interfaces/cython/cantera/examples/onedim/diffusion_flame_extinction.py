@@ -114,7 +114,7 @@ while True:
     strain_factor = alpha[-1] / alpha[n_last_burning]
     # Create an initial guess based on the previous solution
     # Update grid
-    # NB: Grid scaling changes the diffusion flame width
+    # Note that grid scaling changes the diffusion flame width
     f.flame.grid *= strain_factor ** exp_d_a
     normalized_grid = f.grid / (f.grid[-1] - f.grid[0])
     # Update mass fluxes
