@@ -306,36 +306,6 @@ TEST_F(PengRobinson_Test, cpValidate)
     }
 }
 
-TEST_F(PengRobinson_Test, partialMolarCpFiniteDifference)
-{
-    // Test that cp_k = dh_k/dT at constant pressure using finite difference method
-
-    double p = 180e5;
-    double Tmin = 298;
-    int numSteps = 20;
-    double dT = 1e-4;
-    test_phase->setMoleFractionsByName("CO2: 0.6, H2O: 0.3, H2: 0.1");
-
-    size_t K = test_phase->nSpecies();
-    vector_fp cp(K), h1(K), h2(K);
-
-    for (int i = 0; i < numSteps; ++i) {
-        const double T = Tmin + 10 * i;
-        test_phase->setState_TP(T - dT, p);
-        test_phase->getPartialMolarEnthalpies(h1.data());  // J/kmol
-        test_phase->setState_TP(T, p);
-        test_phase->getPartialMolarCp(cp.data());        // unit is J/kmol/K
-        test_phase->setState_TP(T + dT, p);
-        test_phase->getPartialMolarEnthalpies(h2.data());
-
-        for (size_t k = 0; k < K; k++) {
-            double dh_dT = (h2[k] - h1[k]) / (2 * dT);
-            EXPECT_NEAR(cp[k], dh_dT, 1e-6 * cp[k]) << k << ", " << T;
-        }
-    }
-}
-
-
 TEST_F(PengRobinson_Test, CoolPropValidate)
 {
     // Validate the P-R EoS in Cantera with P-R EoS from CoolProp

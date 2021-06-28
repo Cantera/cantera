@@ -284,64 +284,7 @@ void PengRobinson::getPartialMolarIntEnergies(double* ubar) const
 
 void PengRobinson::getPartialMolarCp(double* cpbar) const
 {
-    // First we get the reference state contributions
-    getCp_R(cpbar);
-    scale(cpbar, cpbar+m_kk, cpbar, GasConstant);
-
-    // We calculate d/dT(m_dpdni)
-    vector_fp grad_dpdni(m_kk, 0.0);
-    vector_fp grad_hi(m_kk, 0.0);
-    vector_fp tmp(m_kk, 0.0);
-    double T = temperature();
-    double mv = molarVolume();
-    double vmb = mv - m_b;
-    double vpb2 = mv + (1 + M_SQRT2)*m_b;
-    double vmb2 = mv + (1 - M_SQRT2)*m_b;
-
-    double grad_aAlpha = 0;
-    double grad2_aAlpha = 0;
-    double num;
-    for (size_t k = 0; k < m_kk; k++) {
-        m_pp[k] = 0.0;
-        tmp[k] = 0;
-        for (size_t i = 0; i < m_kk; i++) {
-            // Calculate temperature derivative of m_aAlpha_binary(i,j)
-            num = m_dalphadT[i]/m_alpha[i] + m_dalphadT[k]/m_alpha[k];
-            grad_aAlpha = 0.5*m_aAlpha_binary(k, i)*num;
-            // Calculate second derivative of m_aAlpha_binary(i,j)
-            grad2_aAlpha = m_d2alphadT2[i]/m_alpha[i] - m_dalphadT[i]/(m_alpha[i]*m_alpha[i]) 
-                           + m_d2alphadT2[k]/m_alpha[k] - m_dalphadT[k]/(m_alpha[k]*m_alpha[k]);
-            grad2_aAlpha += 0.5* num*num; 
-            grad2_aAlpha *= 0.5*m_aAlpha_binary(k, i);
-            m_pp[k] += moleFractions_[i] * grad_aAlpha;
-            tmp[k] += moleFractions_[i] * grad2_aAlpha;
-        }
-    }
-
-    double denom = mv * mv + 2 * mv * m_b - m_b * m_b;
-    double denom2 = denom * denom;
-    for (size_t k = 0; k < m_kk; k++) {
-        grad_dpdni[k] = GasConstant / vmb + GasConstant * m_b_coeffs[k] / (vmb * vmb) - 2.0 * m_pp[k] / denom
-                       + 2 * vmb * daAlpha_dT() * m_b_coeffs[k] / denom2;
-    }
-
-    double fac = T * d2aAlpha_dT2();
-    double fac2 = 2 * M_SQRT2 * m_b * m_b;
-
-    // Calculate d(hi)/dT
-    for (size_t k = 0; k < m_kk; k++) {
-        grad_hi[k] = cpbar[k] - GasConstant + mv*grad_dpdni[k]
-                     - m_b_coeffs[k]/fac2 * log(vpb2/vmb2) * fac
-                     + (mv * m_b_coeffs[k]) /(m_b * denom) * fac
-                     + (T/(M_SQRT2 * m_b)) * log(vpb2/vmb2) * tmp[k];
-    }
-
-    calculatePressureDerivatives();
-    double fac3 = mv + T * m_dpdT / m_dpdV;
-
-    for (size_t k = 0; k < m_kk; k++) {
-        cpbar[k] = moleFractions_[k]*grad_hi[k] - fac3*m_dpdT;
-    }
+    throw NotImplementedError("PengRobinson::getPartialMolarCp");
 }
 
 void PengRobinson::getPartialMolarVolumes(double* vbar) const
