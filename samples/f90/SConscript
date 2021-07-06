@@ -1,4 +1,4 @@
-from os.path import join as pjoin
+from os.path import join as pjoin, relpath
 from buildutils import *
 
 Import('env', 'install', 'buildSample')
@@ -28,7 +28,7 @@ for programName, sources in samples:
     if ' ' in mak_path:
         # There is no reasonable way to handle spaces in Makefile 'include'
         # statement, so we fall back to using the relative path instead
-        mak_path = os.path.relpath(mak_path, pjoin(localenv['ct_sampledir'], 'f90'))
+        mak_path = relpath(mak_path, pjoin(localenv['ct_sampledir'], 'f90'))
     localenv['tmpl_Cantera_dot_mak'] = mak_path
 
     localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
