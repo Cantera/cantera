@@ -102,6 +102,10 @@ public:
         return m_E;
     }
 
+    //! Check to make sure that the sticking coefficient is
+    //! less than 1 over a range of temperatures
+    void validate(const std::string& equation);
+
 protected:
     doublereal m_logA, m_b, m_E, m_A;
 };
@@ -211,6 +215,10 @@ public:
     doublereal bondEnergy() const {
         return m_w;
     }
+
+    //! Check to make sure that the sticking coefficient is
+    //! less than 1 over a range of temperatures
+    void validate(const std::string& equation);
 
 protected:
     doublereal m_logA, m_b, m_A, m_w, m_E0;

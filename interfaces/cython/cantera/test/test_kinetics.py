@@ -422,6 +422,26 @@ class KineticsRepeatability(utilities.CanteraTest):
             for msg in err_msg:
                 self.assertIn(msg, err_msg_list)
 
+    def test_sticking_coeff_err(self):
+        err_msg = (" Sticking coefficient is more than 1 for reaction 'O2 + 2 PT(S) => 2 O(S)'",
+                   " at T = 200.0",
+                   " at T = 500.0",
+                   " at T = 1000.0",
+                   " at T = 2000.0",
+                   " at T = 5000.0",
+                   " at T = 10000.0",
+                   " Sticking coefficient is more than 1 for reaction 'OH + PT(S) => OH(S)'",
+                   "InputFileError thrown by InterfaceReaction::validate:",
+                   "InputFileError thrown by BlowersMaselInterfaceReaction::validate:"
+                   )
+        try:
+            gas = ct.Solution('sticking_coeff_check.yaml')
+            surface = ct.Interface('sticking_coeff_check.yaml', 'Pt_surf', [gas])
+            self.fail('CanteraError not raised')
+        except ct.CanteraError as e:
+            err_msg_list = str(e).splitlines()
+            for msg in err_msg:
+                self.assertIn(msg, err_msg_list)
 
 class TestUndeclared(utilities.CanteraTest):
 

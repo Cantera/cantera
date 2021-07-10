@@ -745,6 +745,19 @@ void InterfaceReaction::getParameters(AnyMap& reactionNode) const
     }
 }
 
+void InterfaceReaction::validate() {
+    ElementaryReaction::validate();
+    if (is_sticking_coefficient) {
+        try {
+            rate.validate(equation());
+        } catch (CanteraError& err) {
+            throw InputFileError("InterfaceReaction::validate", input,
+                err.getMessage());
+        }
+    }
+
+}
+
 ElectrochemicalReaction::ElectrochemicalReaction()
     : beta(0.5)
     , exchange_current_density_formulation(false)
@@ -1097,6 +1110,19 @@ CustomFunc1Reaction::CustomFunc1Reaction(const AnyMap& node, const Kinetics& kin
 {
     setParameters(node, kin);
     setRate(std::make_shared<CustomFunc1Rate>(node, rate_units));
+}
+
+void BlowersMaselInterfaceReaction::validate()
+{
+    BlowersMaselReaction::validate();
+    if (is_sticking_coefficient) {
+        try {
+            rate.validate(equation());
+        } catch (CanteraError& err) {
+            throw InputFileError("BlowersMaselInterfaceReaction::validate", input,
+                err.getMessage());
+        }
+    }
 }
 
 Arrhenius readArrhenius(const XML_Node& arrhenius_node)

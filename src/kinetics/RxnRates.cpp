@@ -7,6 +7,7 @@
 #include "cantera/base/Array.h"
 #include "cantera/base/AnyMap.h"
 #include "cantera/base/global.h"
+#include <math.h>
 
 namespace Cantera
 {
@@ -83,6 +84,23 @@ void Arrhenius::getParameters(AnyMap& rateNode, const Units& rate_units) const
     rateNode.setFlowStyle();
 }
 
+void Arrhenius::validate(const std::string& equation) {
+    fmt::memory_buffer err_reactions;
+    double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
+    for (size_t i=0; i < 6; i++) {
+        double gamma = m_A * std::exp(m_b*log(T[i]) - m_E*(1/T[i]));
+        if (gamma > 1) {
+             format_to(err_reactions,
+                       "\n Sticking coefficient is more than 1 for reaction '{}'\n"
+                       " at T = {:.1f}\n",
+                       equation, T[i]);
+        }
+    }
+    if (err_reactions.size()) {
+        throw CanteraError("Arrhenius::validate", to_string(err_reactions));
+    }
+}
+
 BlowersMasel::BlowersMasel()
     : m_logA(-1.0E300)
     , m_b(0.0)
@@ -121,6 +139,23 @@ void BlowersMasel::getParameters(AnyMap& rateNode, const Units& rate_units) cons
     rateNode["Ea0"].setQuantity(activationEnergy_R0(), "K", true);
     rateNode["w"].setQuantity(bondEnergy(), "K", true);
     rateNode.setFlowStyle();
+}
+
+void BlowersMasel::validate(const std::string& equation) {
+    fmt::memory_buffer err_reactions;
+    double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
+    for (size_t i=0; i < 6; i++) {
+        double gamma = m_A * std::exp(m_b*log(T[i]) - m_E0*(1/T[i]));
+        if (gamma > 1) {
+             format_to(err_reactions,
+                       "\n Sticking coefficient is more than 1 for reaction '{}'\n"
+                       " at T = {:.1f}\n",
+                       equation, T[i]);
+        }
+    }
+    if (err_reactions.size()) {
+        throw CanteraError("BlowersMasel::validate", to_string(err_reactions));
+    }
 }
 
 SurfaceArrhenius::SurfaceArrhenius()
