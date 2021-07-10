@@ -124,6 +124,7 @@ class ReactionRateTests:
     _uses_pressure = False # rate evaluation requires pressure
     _index = None # index of reaction in "kineticsfromscratch.yaml"
     _input = None # input parameters (dict corresponding to YAML)
+    _rate = None # rate object shared by tests
 
     @classmethod
     def setUpClass(cls):
@@ -134,21 +135,26 @@ class ReactionRateTests:
 
     def test_type(self):
         # check reaction type
-        self.assertIn(self._type, "{}".format(self.rate))
+        self.assertIn(self._type, "{}".format(self._rate))
+
+    def test_linked(self):
+        if self._rate is None:
+            return
+        self.assertFalse(self._rate._linked)
 
     def test_rate_T(self):
         # check evaluation as a function of temperature only
         if self._uses_pressure:
             with self.assertRaisesRegex(ct.CanteraError, "reaction type requires pressure"):
-                self.assertNear(self.rate(self.gas.T),
+                self.assertNear(self._rate(self.gas.T),
                                 self.gas.forward_rate_constants[self._index])
         else:
-            self.assertNear(self.rate(self.gas.T),
+            self.assertNear(self._rate(self.gas.T),
                             self.gas.forward_rate_constants[self._index])
 
     def test_rate_TP(self):
         # check evaluation as a function of temperature and pressure
-        self.assertNear(self.rate(self.gas.T, self.gas.P),
+        self.assertNear(self._rate(self.gas.T, self.gas.P),
                         self.gas.forward_rate_constants[self._index])
 
     def test_input(self):
@@ -156,7 +162,7 @@ class ReactionRateTests:
         rate = self._cls(input_data=self._input)
         self.assertIn(self._type, "{}".format(rate))
         self.assertNear(rate(self.gas.T, self.gas.P),
-                        self.rate(self.gas.T, self.gas.P))
+                        self._rate(self.gas.T, self.gas.P))
 
     def test_unconfigured(self):
         # check behavior of unconfigured rate object
@@ -170,10 +176,10 @@ class ReactionRateTests:
         # check round-trip instantiation via input_data
         if self._index is None:
             return
-        input_data = self.rate.input_data
+        input_data = self._rate.input_data
         rate = self._cls(input_data=input_data)
         self.assertNear(rate(self.gas.T, self.gas.P),
-                        self.rate(self.gas.T, self.gas.P))
+                        self._rate(self.gas.T, self.gas.P))
 
 
 class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
@@ -186,22 +192,60 @@ class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
     _input = {"rate-constant": {"A": 38.7, "b": 2.7, "Ea": 26191840.0}}
 
     def setUp(self):
+        self.gas.TP = 900, 2*ct.one_atm
         self.A = self.gas.reaction(self._index).rate.pre_exponential_factor
         self.b = self.gas.reaction(self._index).rate.temperature_exponent
         self.Ea = self.gas.reaction(self._index).rate.activation_energy
-        self.rate = ct.ArrheniusRate(self.A, self.b, self.Ea)
+        self._rate = ct.ArrheniusRate(self.A, self.b, self.Ea)
 
     def test_parameters(self):
         # test reaction rate parameters
-        self.assertEqual(self.A, self.rate.pre_exponential_factor)
-        self.assertEqual(self.b, self.rate.temperature_exponent)
-        self.assertEqual(self.Ea, self.rate.activation_energy)
+        self.assertEqual(self.A, self._rate.pre_exponential_factor)
+        self.assertEqual(self.b, self._rate.temperature_exponent)
+        self.assertEqual(self.Ea, self._rate.activation_energy)
 
     def test_allow_negative_pre_exponential_factor(self):
         # test reaction rate property
-        self.assertFalse(self.rate.allow_negative_pre_exponential_factor)
-        self.rate.allow_negative_pre_exponential_factor = True
-        self.assertTrue(self.rate.allow_negative_pre_exponential_factor)
+        self.assertFalse(self._rate.allow_negative_pre_exponential_factor)
+        self._rate.allow_negative_pre_exponential_factor = True
+        self.assertTrue(self._rate.allow_negative_pre_exponential_factor)
+
+    def test_pre_exponential_factor(self):
+        # modify value in rate expression
+        A = self._rate.pre_exponential_factor
+        rc = self._rate(self.gas.T, self.gas.P)
+        self._rate.pre_exponential_factor = 2 * A
+        self.assertNear(self._rate(self.gas.T, self.gas.P), 2 * rc, 1.e-6)
+
+    def test_pre_exponential_factor_in_memory(self):
+        # modify value in memory
+        A = self.gas.reaction(self._index).rate.pre_exponential_factor
+        sol = ct.Solution('kineticsfromscratch.yaml')
+        sol.TPX = self.gas.TPX
+        sol.reaction(self._index).rate.pre_exponential_factor = 2 * A
+        self.assertNear(sol.reaction(self._index).rate.pre_exponential_factor, 2 * A, 1.e-6)
+        sol.TP = 1000, ct.one_atm
+        self.gas.TP = 1000, ct.one_atm
+        self.assertNear(sol.forward_rate_constants[self._index],
+                        2 * self.gas.forward_rate_constants[self._index], 1.e-6)
+
+    def test_temperature_exponent(self):
+        # modify value in rate expression
+        rc = self._rate(self.gas.T, self.gas.P)
+        self._rate.temperature_exponent += 1
+        self.assertNear(self._rate(self.gas.T, self.gas.P), rc * self.gas.T, 1.e-6)
+
+    def test_temperature_exponent_in_memory(self):
+        # modify value in memory
+        b = self.gas.reaction(self._index).rate.temperature_exponent
+        sol = ct.Solution('kineticsfromscratch.yaml')
+        sol.TPX = self.gas.TPX
+        sol.reaction(self._index).rate.temperature_exponent += 1
+        self.assertNear(sol.reaction(self._index).rate.temperature_exponent, b + 1, 1.e-6)
+        sol.TP = 1000, ct.one_atm
+        self.gas.TP = 1000, ct.one_atm
+        self.assertNear(sol.forward_rate_constants[self._index],
+                        self.gas.forward_rate_constants[self._index] * self.gas.T, 1.e-6)
 
 
 class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
@@ -218,14 +262,14 @@ class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
         {"P": 10132500., "A": 5.9632e+56, "b": -11.529, "Ea": 220076726.4}]}
 
     def setUp(self):
-        self.rate = ct.PlogRate([(1013.25, ct.Arrhenius(1.2124e+16, -0.5779, 45491376.8)),
-                                (101325., ct.Arrhenius(4.9108e+31, -4.8507, 103649395.2)),
-                                (1013250., ct.Arrhenius(1.2866e+47, -9.0246, 166508556.0)),
-                                (10132500., ct.Arrhenius(5.9632e+56, -11.529, 220076726.4))])
+        self._rate = ct.PlogRate([(1013.25, ct.Arrhenius(1.2124e+16, -0.5779, 45491376.8)),
+                                  (101325., ct.Arrhenius(4.9108e+31, -4.8507, 103649395.2)),
+                                  (1013250., ct.Arrhenius(1.2866e+47, -9.0246, 166508556.0)),
+                                  (10132500., ct.Arrhenius(5.9632e+56, -11.529, 220076726.4))])
 
     def test_get_rates(self):
         # test getter for property rates
-        rates = self.rate.rates
+        rates = self._rate.rates
         self.assertIsInstance(rates, list)
 
         other = self._input["rate-constants"]
@@ -260,6 +304,28 @@ class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
         rate = ct.PlogRate()
         self.assertIsInstance(rate.rates, list)
 
+    def test_rates(self):
+        # modify value in rate expression
+        rates = [(o["P"], ct.Arrhenius(2 * o["A"], o["b"], o["Ea"]))
+                 for o in self._input["rate-constants"]]
+
+        rc = self._rate(self.gas.T, self.gas.P)
+        self._rate.rates = rates
+        self.assertNear(self._rate(self.gas.T, self.gas.P), 2 * rc, 1.e-6)
+
+    def test_rates_in_memory(self):
+        # modify value in memory
+        rates = [(o["P"], ct.Arrhenius(2 * o["A"], o["b"], o["Ea"]))
+                 for o in self._input["rate-constants"]]
+
+        sol = ct.Solution('kineticsfromscratch.yaml')
+        sol.TPX = self.gas.TPX
+        sol.reaction(self._index).rate.rates = rates
+        sol.TP = 1000, ct.one_atm
+        self.gas.TP = 1000, ct.one_atm
+        self.assertNear(sol.forward_rate_constants[self._index],
+                        2 * self.gas.forward_rate_constants[self._index], 1.e-6)
+
 
 class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
     # test Chebyshev rate expressions
@@ -280,15 +346,33 @@ class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
         self.Pmin = self.gas.reaction(self._index).rate.Pmin
         self.Pmax = self.gas.reaction(self._index).rate.Pmax
         self.coeffs = self.gas.reaction(self._index).rate.coeffs
-        self.rate = ct.ChebyshevRate(self.Tmin, self.Tmax, self.Pmin, self.Pmax, self.coeffs)
+        self._rate = ct.ChebyshevRate(self.Tmin, self.Tmax, self.Pmin, self.Pmax, self.coeffs)
 
     def test_parameters(self):
         # test getters for rate properties
-        self.assertEqual(self.Tmin, self.rate.Tmin)
-        self.assertEqual(self.Tmax, self.rate.Tmax)
-        self.assertEqual(self.Pmin, self.rate.Pmin)
-        self.assertEqual(self.Pmax, self.rate.Pmax)
-        self.assertTrue(np.all(self.coeffs == self.rate.coeffs))
+        self.assertEqual(self.Tmin, self._rate.Tmin)
+        self.assertEqual(self.Tmax, self._rate.Tmax)
+        self.assertEqual(self.Pmin, self._rate.Pmin)
+        self.assertEqual(self.Pmax, self._rate.Pmax)
+        self.assertTrue(np.all(self.coeffs == self._rate.coeffs))
+
+    def test_coeffs(self):
+        # modify value in rate expression
+        coeffs = 2. * np.array(self._input["data"])
+        rc = self._rate(self.gas.T, self.gas.P)
+        self._rate.coeffs = coeffs
+        self.assertNear(self._rate(self.gas.T, self.gas.P), rc**2, 1.e-6)
+
+    def test_coeffs_in_memory(self):
+        # modify value in memory
+        coeffs = 2. * np.array(self._input["data"])
+        sol = ct.Solution('kineticsfromscratch.yaml')
+        sol.TPX = self.gas.TPX
+        sol.reaction(self._index).rate.coeffs = coeffs
+        sol.TP = 1000, ct.one_atm
+        self.gas.TP = 1000, ct.one_atm
+        self.assertNear(sol.forward_rate_constants[self._index],
+                        self.gas.forward_rate_constants[self._index]**2, 1.e-6)
 
 
 class ReactionTests:
@@ -316,6 +400,11 @@ class ReactionTests:
         cls.gas.TP = 900, 2*ct.one_atm
         cls.species = cls.gas.species()
 
+    def setUp(self):
+        if self._rate_obj is None or self._legacy:
+            return
+        self._rate_obj._release()
+
     def check_rxn(self, rxn, check_legacy=True):
         # helper function that checks reaction configuration
         ix = self._index
@@ -325,20 +414,34 @@ class ReactionTests:
             self.assertEqual(rxn.reaction_type, self._type)
             self.assertEqual(rxn.uses_legacy, self._type.endswith("-legacy"))
             self.assertEqual(rxn.uses_legacy, self._legacy)
+        if not self._legacy:
+            self.assertFalse(rxn._linked)
+            with self.assertRaises(ct.CanteraError):
+                rxn.index
+            self.assertFalse(rxn.rate._linked)
 
         gas2 = ct.Solution(thermo="IdealGas", kinetics="GasKinetics",
                            species=self.species, reactions=[rxn])
         gas2.TPX = self.gas.TPX
-        self.check_solution(gas2, check_legacy)
+        self.check_solution(gas2, check_legacy=check_legacy)
 
-    def check_solution(self, gas2, check_legacy=True):
+    def check_solution(self, gas2, index=None, check_legacy=True):
         # helper function that checks evaluation of reaction rates
         ix = self._index
+
+        if index is None:
+            index = gas2.n_reactions - 1
+        if not self._legacy:
+            rxn = self.gas.reaction(index)
+            self.assertTrue(rxn._linked)
+            self.assertEqual(rxn.index, index)
+            self.assertTrue(rxn.rate._linked)
+
         if check_legacy:
-            self.assertEqual(gas2.reaction_type_str(0), self._type)
-        self.assertNear(gas2.forward_rate_constants[0],
+            self.assertEqual(gas2.reaction_type_str(index), self._type)
+        self.assertNear(gas2.forward_rate_constants[index],
                         self.gas.forward_rate_constants[ix])
-        self.assertNear(gas2.net_rates_of_progress[0],
+        self.assertNear(gas2.net_rates_of_progress[index],
                         self.gas.net_rates_of_progress[ix])
 
     def test_rate(self):
@@ -436,6 +539,27 @@ class ReactionTests:
                         legacy=self._legacy, **self._kwargs)
         rxn.rate = self._rate_obj
         self.check_rxn(rxn)
+
+    def test_replace_reaction(self):
+        if self._legacy:
+            return
+        rxn = self._cls(equation=self._equation, rate=self._rate, kinetics=self.gas,
+                        **self._kwargs)
+        self.assertFalse(rxn._linked)
+        self.assertFalse(rxn.rate._linked)
+
+        gas2 = ct.Solution('kineticsfromscratch.yaml')
+        gas2.TPX = self.gas.TPX
+
+        old_rate = gas2.reaction(self._index).rate
+        self.assertTrue(old_rate._linked)
+
+        gas2.modify_reaction(self._index, rxn)
+        self.assertTrue(rxn._linked)
+        self.assertEqual(rxn.index, self._index)
+        self.assertFalse(old_rate._linked)
+
+        self.check_solution(gas2, self._index)
 
     def test_roundtrip(self):
         # check round-trip instantiation via input_data
@@ -779,11 +903,19 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
     _yaml = None
 
     def setUp(self):
+        ReactionTests.setUp(self)
         # need to overwrite rate to ensure correct type ("method" is not compatible with Func1)
         self._rate = lambda T: 38.7 * T**2.7 * exp(-3150.15428/T)
 
     def test_roundtrip(self):
         # overload default tester for round trip
+        pass
+
+    # def replace_rate(self):
+    #     # overload default tester for rate replacement
+    #     pass
+
+    def test_replace_reaction(self):
         pass
 
     def test_from_func1(self):

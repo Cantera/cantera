@@ -4,7 +4,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/RxnRates.h"
-#include "cantera/base/Array.h"
 #include "cantera/base/AnyMap.h"
 #include "cantera/base/global.h"
 
@@ -169,21 +168,27 @@ Plog::Plog(const std::multimap<double, Arrhenius>& rates)
     setup(rates);
 }
 
+Plog::Plog(const std::vector<std::pair<double, Arrhenius>>& rates)
+    : Plog()
+{
+    setRates(rates);
+}
+
 void Plog::setParameters(const std::vector<AnyMap>& rates,
                          const UnitSystem& units, const Units& rate_units)
 {
-    std::multimap<double, Arrhenius> multi_rates;
+    std::vector<std::pair<double, Arrhenius>> rate_pairs;
     if (rates.size()) {
         for (const auto& rate : rates) {
-            multi_rates.insert({rate.convert("P", "Pa"),
+            rate_pairs.push_back({rate.convert("P", "Pa"),
                 Arrhenius(AnyValue(rate), units, rate_units)});
         }
     } else {
         // ensure that reaction rate can be evaluated (but returns NaN)
-        multi_rates.insert({1.e-7, Arrhenius(NAN, NAN, NAN)});
-        multi_rates.insert({1.e14, Arrhenius(NAN, NAN, NAN)});
+        rate_pairs.push_back({1.e-7, Arrhenius(NAN, NAN, NAN)});
+        rate_pairs.push_back({1.e14, Arrhenius(NAN, NAN, NAN)});
     }
-    setup(multi_rates);
+    setRates(rate_pairs);
 }
 
 void Plog::getParameters(AnyMap& rateNode, const Units& rate_units) const
@@ -268,16 +273,38 @@ std::vector<std::pair<double, Arrhenius> > Plog::rates() const
     return R;
 }
 
+void Plog::setRates(const std::vector<std::pair<double, Arrhenius>>& rates)
+{
+    size_t j = 0;
+    rates_.clear();
+    pressures_.clear();
+    rates_.reserve(rates.size());
+    // Insert intermediate pressures
+    for (const auto& rate : rates) {
+        double logp = std::log(rate.first);
+        if (pressures_.empty() || pressures_.rbegin()->first != logp) {
+            // starting a new group
+            pressures_[logp] = {j, j+1};
+        } else {
+            // another rate expression at the same pressure
+            pressures_[logp].second = j+1;
+        }
+
+        j++;
+        rates_.push_back(rate.second);
+    }
+
+    // Duplicate the first and last groups to handle P < P_0 and P > P_N
+    pressures_.insert({-1000.0, pressures_.begin()->second});
+    pressures_.insert({1000.0, pressures_.rbegin()->second});
+}
+
 Chebyshev::Chebyshev(double Tmin, double Tmax, double Pmin, double Pmax,
                      const Array2D& coeffs)
     : Tmin_(Tmin)
     , Tmax_(Tmax)
     , Pmin_(Pmin)
     , Pmax_(Pmax)
-    , nP_(coeffs.nColumns())
-    , nT_(coeffs.nRows())
-    , chebCoeffs_(coeffs.nColumns() * coeffs.nRows(), 0.0)
-    , dotProd_(coeffs.nRows())
 {
     setup(Tmin, Tmax, Pmin, Pmax, coeffs);
 }
@@ -306,8 +333,6 @@ void Chebyshev::setParameters(const AnyMap& node,
         Tmax_ = units.convert(T_range[1], "K");
         Pmin_ = units.convert(P_range[0], "Pa");
         Pmax_ = units.convert(P_range[1], "Pa");
-        nP_ = coeffs.nColumns();
-        nT_ = coeffs.nRows();
     } else {
         // ensure that reaction rate can be evaluated (but returns NaN)
         coeffs = Array2D(1, 1);
@@ -316,12 +341,8 @@ void Chebyshev::setParameters(const AnyMap& node,
         Tmax_ = 3000.;
         Pmin_ = 1.e-7;
         Pmax_ = 1.e14;
-        nP_ = 1;
-        nT_ = 1;
     }
 
-    chebCoeffs_.resize(nP_ * nT_);
-    dotProd_.resize(nT_);
     setup(Tmin_, Tmax_, Pmin_, Pmax_, coeffs);
 }
 
@@ -338,29 +359,32 @@ void Chebyshev::setup(double Tmin, double Tmax, double Pmin, double Pmax,
     PrNum_ = - logPmin - logPmax;
     PrDen_ = 1.0 / (logPmax - logPmin);
 
-    for (size_t t = 0; t < nT_; t++) {
-        for (size_t p = 0; p < nP_; p++) {
-            chebCoeffs_[nP_*t + p] = coeffs(t,p);
-        }
-    }
+    setCoeffs(coeffs);
+}
+
+void Chebyshev::setCoeffs(const Array2D& coeffs)
+{
+    m_coeffs = Array2D(coeffs);
+    nP_ = coeffs.nColumns();
+    nT_ = coeffs.nRows();
+    dotProd_.resize(nT_);
+    chebCoeffs_ = vector_fp(coeffs.data_row_major());
 }
 
 void Chebyshev::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
-    double A = chebCoeffs_[0];
-    if (std::isnan(A)) {
+    if (std::isnan(m_coeffs(0, 0))) {
         // Return empty/unmodified AnyMap
         return;
     }
     rateNode["temperature-range"].setQuantity({Tmin(), Tmax()}, "K");
     rateNode["pressure-range"].setQuantity({Pmin(), Pmax()}, "Pa");
-    const auto& coeffs1d = coeffs();
-    size_t nT = nTemperature();
-    size_t nP = nPressure();
+    size_t nT = m_coeffs.nRows();
+    size_t nP = m_coeffs.nColumns();
     std::vector<vector_fp> coeffs2d(nT, vector_fp(nP));
     for (size_t i = 0; i < nT; i++) {
         for (size_t j = 0; j < nP; j++) {
-            coeffs2d[i][j] = coeffs1d[nP*i + j];
+            coeffs2d[i][j] = m_coeffs(i, j);
         }
     }
     // Unit conversions must take place later, after the destination unit system

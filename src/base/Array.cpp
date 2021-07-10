@@ -102,6 +102,16 @@ void Array2D::getColumn(size_t m, double* const col)
     }
 }
 
+vector_fp Array2D::data_row_major() const
+{
+    vector_fp data(m_data.size());
+    for (size_t i = 0; i < m_nrows; i++) {
+        for (size_t j = 0; j < m_ncols; j++) {
+            data[m_ncols * i + j] = m_data[i + m_nrows * j];
+        }
+    }
+    return data;
+}
 
 std::ostream& operator<<(std::ostream& s, const Array2D& m)
 {

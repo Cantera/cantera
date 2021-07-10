@@ -196,6 +196,7 @@ TEST(YamlWriter, multipleReactionSections)
     // this phase will require its own "reactions" section
     auto R = original3->kinetics()->reaction(3);
     R->duplicate = true;
+    R->rate()->releaseEvaluator(); // unlink from kinetics object
     original3->kinetics()->addReaction(R);
     original2->setName("ohmech2");
     original3->setName("ohmech3");

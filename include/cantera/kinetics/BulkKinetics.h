@@ -53,7 +53,7 @@ protected:
     virtual void modifyElementaryReaction(size_t i, ElementaryReaction2& rNew);
 
     //! Vector of rate handlers
-    std::vector<unique_ptr<MultiRateBase>> m_bulk_rates;
+    std::vector<shared_ptr<MultiRateBase>> m_bulk_rates;
     std::map<std::string, size_t> m_bulk_types; //!< Mapping of rate handlers
 
     Rate1<Arrhenius> m_rates;

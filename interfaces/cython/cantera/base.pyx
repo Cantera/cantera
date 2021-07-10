@@ -212,6 +212,11 @@ cdef class _SolutionBase:
         if not kinetics:
             kinetics = "none"
 
+        for r in reactions:
+            if not r.uses_legacy and r._linked:
+                # release link to MultiRate evaluator
+                r.rate._release()
+
         cdef ThermoPhase phase
         cdef Reaction reaction
         if isinstance(self, Kinetics):

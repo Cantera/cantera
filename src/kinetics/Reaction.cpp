@@ -386,6 +386,24 @@ bool Reaction::checkSpecies(const Kinetics& kin) const
     return true;
 }
 
+bool Reaction::linked()
+{
+    if (m_rate) {
+        return m_rate->linked();
+    }
+    throw CanteraError("Reaction::linked", "Not applicable: no "
+                       "associated reaction rate object.");
+}
+
+size_t Reaction::index()
+{
+    if (m_rate) {
+        return m_rate->index();
+    }
+    throw CanteraError("Reaction::index", "Not applicable: no "
+                       "associated reaction rate object.");
+}
+
 ElementaryReaction2::ElementaryReaction2(const Composition& reactants_,
                                          const Composition products_,
                                          const Arrhenius& rate_)

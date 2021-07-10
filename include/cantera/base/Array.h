@@ -18,7 +18,7 @@ namespace Cantera
 /*!
  * In this form, the data entry for an n row, m col matrix is
  *
- *       index = i + (n-1) * j
+ *       index = i + n * j
  *
  * where
  *
@@ -223,6 +223,8 @@ public:
     const vector_fp& data() const {
         return m_data;
     }
+
+    vector_fp data_row_major() const;
 
     //! Return a pointer to the top of column j, columns are contiguous
     //! in memory

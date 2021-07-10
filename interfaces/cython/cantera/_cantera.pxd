@@ -125,6 +125,9 @@ cdef extern from "cantera/base/Array.h" namespace "Cantera":
         CxxArray2D(size_t, size_t)
         void resize(size_t, size_t)
         double operator()(size_t, size_t)
+        vector[double]& data()
+        size_t nRows()
+        size_t nColumns()
 
 cdef extern from "cantera/thermo/SpeciesThermoInterpType.h":
     cdef cppclass CxxSpeciesThermo "Cantera::SpeciesThermoInterpType":
@@ -356,6 +359,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxReactionRateBase "Cantera::ReactionRateBase":
         CxxReactionRateBase()
         string type()
+        cbool linked()
+        void releaseEvaluator()
         void update(double) except +translate_exception
         void update(double, double) except +translate_exception
         double eval(double) except +translate_exception
@@ -369,15 +374,19 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxArrheniusRate(CxxAnyMap) except +translate_exception
         CxxArrheniusRate(double, double, double)
         double preExponentialFactor()
+        void setPreExponentialFactor(double)
         double temperatureExponent()
+        void setTemperatureExponent(double)
         double activationEnergy()
+        void setActivationEnergy(double)
         cbool allow_negative_pre_exponential_factor
 
     cdef cppclass CxxPlogRate "Cantera::PlogRate" (CxxReactionRateBase):
         CxxPlogRate()
         CxxPlogRate(CxxAnyMap) except +translate_exception
-        CxxPlogRate(multimap[double, CxxArrhenius])
+        CxxPlogRate(vector[pair[double, CxxArrhenius]]) except +translate_exception
         vector[pair[double, CxxArrhenius]] rates()
+        void setRates(vector[pair[double, CxxArrhenius]]) except +translate_exception
 
     cdef cppclass CxxChebyshevRate3 "Cantera::ChebyshevRate3" (CxxReactionRateBase):
         CxxChebyshevRate3()
@@ -389,7 +398,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double Pmax()
         size_t nPressure()
         size_t nTemperature()
-        vector[double]& coeffs()
+        CxxArray2D& coeffs()
+        void setCoeffs(CxxArray2D)
 
     cdef cppclass CxxCustomFunc1Rate "Cantera::CustomFunc1Rate" (CxxReactionRateBase):
         CxxCustomFunc1Rate()
@@ -402,6 +412,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         string productString()
         string equation()
         string type()
+        cbool linked()
+        int index() except +translate_exception
         void validate() except +translate_exception
         CxxAnyMap parameters(cbool) except +translate_exception
         CxxAnyMap input
@@ -1159,11 +1171,13 @@ cdef class PlogRate(_ReactionRate):
     cdef CxxPlogRate* rate
     @staticmethod
     cdef wrap(shared_ptr[CxxReactionRateBase])
+    cdef vector[pair[double, CxxArrhenius]] _cxxrates(self, rates)
 
 cdef class ChebyshevRate(_ReactionRate):
     cdef CxxChebyshevRate3* rate
     @staticmethod
     cdef wrap(shared_ptr[CxxReactionRateBase])
+    cdef CxxArray2D _cxxarray2d(self, coeffs)
 
 cdef class CustomRate(_ReactionRate):
     cdef CxxCustomFunc1Rate* rate

@@ -17,6 +17,21 @@ cdef class _ReactionRate:
     def __repr__(self):
         return f"<{pystr(self.base.type())} at {id(self):0x}>"
 
+    property _linked:
+        """
+        Check whether reaction rate was defined as stand-alone or is linked to
+        a Kinetics object.
+        """
+        def __get__(self):
+            return self.base.linked()
+
+    def _release(self):
+        """
+        Break link between ReactionRate and Kinetics objects
+        (for testing purposes)
+        """
+        self.base.releaseEvaluator()
+
     def __call__(self, double temperature, pressure=None):
         """
         Evaluate rate expression based on temperature and pressure. For rate
@@ -95,6 +110,8 @@ cdef class ArrheniusRate(_ReactionRate):
         The pre-exponential factor *A* in units of m, kmol, and s raised to
         powers depending on the reaction order.
         """
+        def __set__(self, float A):
+            self.rate.setPreExponentialFactor(A)
         def __get__(self):
             return self.rate.preExponentialFactor()
 
@@ -102,13 +119,17 @@ cdef class ArrheniusRate(_ReactionRate):
         """
         The temperature exponent *b*.
         """
+        def __set__(self, float b):
+            self.rate.setTemperatureExponent(b)
         def __get__(self):
             return self.rate.temperatureExponent()
 
     property activation_energy:
         """
-        The activation energy *E* [J/kmol].
+        The activation energy *Ea* [J/kmol].
         """
+        def __set__(self, float Ea):
+            self.rate.setActivationEnergy(Ea)
         def __get__(self):
             return self.rate.activationEnergy()
 
@@ -131,7 +152,7 @@ cdef class PlogRate(_ReactionRate):
     def __cinit__(self, rates=None, input_data=None, init=True):
 
         if init and isinstance(rates, list):
-            self.rates = rates
+            self._base.reset(new CxxPlogRate(self._cxxrates(rates)))
 
         elif init:
             if isinstance(input_data, dict):
@@ -142,8 +163,9 @@ cdef class PlogRate(_ReactionRate):
                 raise TypeError("Invalid parameter 'input_data'")
             else:
                 raise TypeError("Invalid parameter 'rates'")
-            self.base = self._base.get()
-            self.rate = <CxxPlogRate*>(self.base)
+
+        self.base = self._base.get()
+        self.rate = <CxxPlogRate*>(self.base)
 
     @staticmethod
     cdef wrap(shared_ptr[CxxReactionRateBase] rate):
@@ -157,6 +179,16 @@ cdef class PlogRate(_ReactionRate):
         arr.base = arr._base.get()
         arr.rate = <CxxPlogRate*>(arr.base)
         return arr
+
+    cdef vector[pair[double, CxxArrhenius]] _cxxrates(self, rates):
+        cdef vector[pair[double, CxxArrhenius]] cxxrates
+        cdef Arrhenius rate
+        cdef pair[double, CxxArrhenius] item
+        for p, rate in rates:
+            item.first = p
+            item.second = deref(rate.rate)
+            cxxrates.push_back(item)
+        return cxxrates
 
     property rates:
         """
@@ -172,17 +204,7 @@ cdef class PlogRate(_ReactionRate):
             return rates
 
         def __set__(self, rates):
-            cdef multimap[double, CxxArrhenius] ratemap
-            cdef Arrhenius rate
-            cdef pair[double, CxxArrhenius] item
-            for p, rate in rates:
-                item.first = p
-                item.second = deref(rate.rate)
-                ratemap.insert(item)
-
-            self._base.reset(new CxxPlogRate(ratemap))
-            self.base = self._base.get()
-            self.rate = <CxxPlogRate*>(self.base)
+            self.rate.setRates(self._cxxrates(rates))
 
 
 cdef class ChebyshevRate(_ReactionRate):
@@ -197,8 +219,8 @@ cdef class ChebyshevRate(_ReactionRate):
             if isinstance(input_data, dict):
                 self._base.reset(new CxxChebyshevRate3(dict_to_anymap(input_data)))
             elif all([arg is not None for arg in [Tmin, Tmax, Pmin, Pmax, data]]):
-                self._setup(Tmin, Tmax, Pmin, Pmax, data)
-                return
+                self._base.reset(new CxxChebyshevRate3(Tmin, Tmax, Pmin, Pmax,
+                                                       self._cxxarray2d(data)))
             elif all([arg is None
                     for arg in [Tmin, Tmax, Pmin, Pmax, data, input_data]]):
                 self._base.reset(new CxxChebyshevRate3(dict_to_anymap({})))
@@ -209,12 +231,10 @@ cdef class ChebyshevRate(_ReactionRate):
             self.base = self._base.get()
             self.rate = <CxxChebyshevRate3*>(self.base)
 
-    def _setup(self, Tmin, Tmax, Pmin, Pmax, coeffs):
-        """
-        Simultaneously set values for `Tmin`, `Tmax`, `Pmin`, `Pmax`, and
-        `coeffs`.
-        """
+    cdef CxxArray2D _cxxarray2d(self, coeffs):
         cdef CxxArray2D data
+        if isinstance(coeffs, np.ndarray):
+            coeffs = coeffs.tolist()
         data.resize(len(coeffs), len(coeffs[0]))
         cdef double value
         cdef int i
@@ -222,10 +242,7 @@ cdef class ChebyshevRate(_ReactionRate):
         for i,row in enumerate(coeffs):
             for j,value in enumerate(row):
                 CxxArray2D_set(data, i, j, value)
-
-        self._base.reset(new CxxChebyshevRate3(Tmin, Tmax, Pmin, Pmax, data))
-        self.base = self._base.get()
-        self.rate = <CxxChebyshevRate3*>(self.base)
+        return data
 
     @staticmethod
     cdef wrap(shared_ptr[CxxReactionRateBase] rate):
@@ -275,8 +292,12 @@ cdef class ChebyshevRate(_ReactionRate):
         2D array of Chebyshev coefficients of size `(n_temperature, n_pressure)`.
         """
         def __get__(self):
-            c = np.fromiter(self.rate.coeffs(), np.double)
-            return c.reshape((self.rate.nTemperature(), self.rate.nPressure()))
+            cdef CxxArray2D cxxcoeffs = self.rate.coeffs()
+            c = np.fromiter(cxxcoeffs.data(), np.double)
+            return c.reshape(cxxcoeffs.nRows(), cxxcoeffs.nColumns(), order="F")
+
+        def __set__(self, coeffs):
+            self.rate.setCoeffs(self._cxxarray2d(coeffs))
 
 
 cdef class CustomRate(_ReactionRate):
@@ -736,6 +757,22 @@ cdef class Reaction:
         """Indicate whether reaction uses a legacy implementation"""
         def __get__(self):
             return self.reaction.usesLegacy()
+
+    property _linked:
+        """
+        Check whether reaction was defined as stand-alone or is linked to
+        a Kinetics object.
+        """
+        def __get__(self):
+            return self.reaction.linked()
+
+    property index:
+        """
+        Index of reaction within the Kinetics object (if applicable). Raises
+        an exception if the reaction is not linked.
+        """
+        def __get__(self):
+            return self.reaction.index()
 
 
 cdef class Arrhenius:

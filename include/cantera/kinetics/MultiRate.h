@@ -33,13 +33,17 @@ public:
     //! @param rxn_index  index of reaction
     //! @param rate  reaction rate object
     virtual void add(const size_t rxn_index,
-                     ReactionRateBase& rate) = 0;
+                     std::shared_ptr<ReactionRateBase> rate) = 0;
 
     //! Replace reaction rate object handled by the evaluator
     //! @param rxn_index  index of reaction
     //! @param rate  reaction rate object
     virtual bool replace(const size_t rxn_index,
-                         ReactionRateBase& rate) = 0;
+                         std::shared_ptr<ReactionRateBase> rate) = 0;
+
+    //! Access reaction rate object handled by evaluator
+    //! @param rxn_index  index of reaction
+    virtual ReactionRateBase& rate(size_t rxn_index) = 0;
 
     //! Update number of species
     //! @param n_species  number of species
@@ -64,32 +68,65 @@ template <class RateType, class DataType>
 class MultiBulkRates final : public MultiRateBase
 {
 public:
+    virtual ~MultiBulkRates() {
+        for (size_t i = 0; i < m_bases.size(); i++) {
+            m_bases[i]->releaseEvaluator();
+        }
+    }
+
     virtual void add(const size_t rxn_index,
-                     ReactionRateBase& rate) override
+                     std::shared_ptr<ReactionRateBase> rate) override
     {
-        m_indices[rxn_index] = m_rxn_rates.size();
-        m_rxn_rates.emplace_back(rxn_index, dynamic_cast<RateType&>(rate));
+        if (typeid(*rate) != typeid(RateType)) {
+            throw CanteraError("MultiBulkRate::add",
+                 "Wrong type: cannot add rate object of type '{}'",
+                 rate->type());
+        } else if (rate->linked()) {
+            // ensure there are no dangling objects (unlikely)
+            throw CanteraError("MultiBulkRate::add",
+                 "Reaction rate is already linked to a reaction rate evaluator;\n"
+                 "object needs to release link before it can be added again.");
+        }
+        size_t j = m_rxn_rates.size();
+        m_indices[rxn_index] = j;
+        m_rxn_rates.emplace_back(rxn_index, dynamic_cast<RateType&>(*rate));
+        // keep link to original object
+        m_bases.push_back(rate);
     }
 
     virtual bool replace(const size_t rxn_index,
-                         ReactionRateBase& rate) override
+                         std::shared_ptr<ReactionRateBase> rate) override
     {
         if (!m_rxn_rates.size()) {
             throw CanteraError("MultiBulkRate::replace",
                  "Invalid operation: cannot replace rate object "
                  "in empty rate handler.");
-        } else if (typeid(rate) != typeid(RateType)) {
+        } else if (typeid(*rate) != typeid(RateType)) {
             throw CanteraError("MultiBulkRate::replace",
                  "Invalid operation: cannot replace rate object of type '{}' "
                  "with a new rate of type '{}'.",
-                 m_rxn_rates.at(0).second.type(), rate.type());
+                 m_rxn_rates.at(0).second.type(), rate->type());
+        } else if (rate->linked()) {
+            // ensure there are no dangling objects (unlikely)
+            throw CanteraError("MultiBulkRate::replace",
+                 "Reaction rate is already linked to a reaction rate "
+                 "evaluator. Re-linked reaction rates are not allowed");
         }
         if (m_indices.find(rxn_index) != m_indices.end()) {
             size_t j = m_indices[rxn_index];
-            m_rxn_rates.at(j).second = dynamic_cast<RateType&>(rate);
+            m_rxn_rates.at(j).second = dynamic_cast<RateType&>(*rate);
+            // release evaluator from previously used rate object and update
+            m_bases[j]->releaseEvaluator();
+            m_bases[j] = rate;
             return true;
         }
         return false;
+    }
+
+    virtual ReactionRateBase& rate(size_t rxn_index) override
+    {
+        size_t j = m_indices[rxn_index];
+        return dynamic_cast<ReactionRateBase&>(m_rxn_rates.at(j).second);
     }
 
     virtual void resizeSpecies(size_t n_species)
@@ -120,6 +157,9 @@ public:
     }
 
 protected:
+    //! Pointers to reaction rate objects managed by Reaction object
+    std::vector<shared_ptr<ReactionRateBase>> m_bases;
+
     //! Vector of pairs of reaction rates indices and reaction rates
     std::vector<std::pair<size_t, RateType>> m_rxn_rates;
     std::map<size_t, size_t> m_indices; //! Mapping of indices

@@ -21,6 +21,8 @@ namespace Cantera
 {
 
 class Func1;
+class MultiRateBase;
+
 
 //! Abstract base class for reaction rate definitions
 /**
@@ -36,10 +38,9 @@ class Func1;
 class ReactionRateBase
 {
 public:
-    ReactionRateBase() : units(0.) {}
+    ReactionRateBase() : units(0.), m_index(npos) {}
     virtual ~ReactionRateBase() {}
 
-public:
     //! Identifier of reaction type
     virtual std::string type() const = 0;
 
@@ -104,6 +105,19 @@ public:
     //! @param rate_units  Description of units used for rate parameters
     virtual void setParameters(const AnyMap& node, const Units& rate_units);
 
+    //! Indicate whether reaction is linked to a rate evaluator
+    bool linked() { return bool(m_evaluator); }
+
+    //! Link reaction to MultiRateBase evaluator
+    void linkEvaluator(size_t index, const shared_ptr<MultiRateBase> evaluator);
+
+    //! Release (unlink) reaction from MultiRateBase evaluator
+    void releaseEvaluator();
+
+    //! Return index of reaction within the Kinetics object owning the rate
+    //! evaluator. Raises an exception if the reaction is not linked.
+    size_t index();
+
 protected:
     //! Get parameters
     //! Store the parameters of a ReactionRate needed to reconstruct an identical
@@ -120,6 +134,12 @@ protected:
     //! standard concentration of the reactant species' phases of the phase
     //! where the reaction occurs.
     Units units;
+
+    //! Evaluator handling the reaction rate
+    std::shared_ptr<MultiRateBase> m_evaluator;
+
+    //! Index of reaction within kinetics object (if applicable)
+    size_t m_index;
 };
 
 
@@ -266,6 +286,16 @@ public:
             (m_b + m_E * shared_data.m_recipT) * shared_data.m_recipT;
     }
 
+    //! Set the pre-exponential factor *A* (in m, kmol, s to powers depending
+    //! on the reaction order)
+    void setPreExponentialFactor(double A);
+
+    //! Set the temperature exponent *b*
+    void setTemperatureExponent(double b);
+
+    //! Set the activation energy [J/kmol]
+    void setActivationEnergy(double E);
+
     //! Return the activation energy [J/kmol]
     double activationEnergy() const {
         return m_E * GasConstant;
@@ -298,10 +328,10 @@ public:
 class PlogRate final : public ReactionRate<PlogData>, public Plog
 {
 public:
-    PlogRate() {}
+    PlogRate() = default;
 
     //! Constructor from Arrhenius rate expressions at a set of pressures
-    explicit PlogRate(const std::multimap<double, Arrhenius>& rates);
+    explicit PlogRate(const std::vector<std::pair<double, Arrhenius>>& rates);
 
     //! Constructor using AnyMap content
     //! @param node  AnyMap containing rate information
@@ -329,6 +359,9 @@ public:
                         double concm=0.) const override {
         return updateRC(shared_data.m_logT, shared_data.m_recipT);
     }
+
+    //! Set pressures and Arrhenius expressions which comprise this reaction.
+    void setRates(const std::vector<std::pair<double, Arrhenius>>& rates);
 
     virtual void validate(const std::string& equation) override {
         Plog::validate(equation);
@@ -410,6 +443,12 @@ public:
                         double concm=0.) const override {
         return updateRC(0., shared_data.m_recipT);
     }
+
+    //! Access the Chebyshev coefficients as 2-dimensional array.
+    const Array2D& coeffs() const;
+
+    //! Set the Chebyshev coefficients as 2-dimensional array.
+    void setCoeffs(const Array2D& coeffs);
 
     virtual void validate(const std::string& equation) override;
 };

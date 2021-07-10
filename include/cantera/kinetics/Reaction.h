@@ -156,6 +156,13 @@ public:
         return !m_rate;
     }
 
+    //! Indicate whether associated reaction rate is linked to a rate evaluator
+    bool linked();
+
+    //! Return index of reaction within the Kinetics object owning the rate
+    //! evaluator. Raises an exception if the reaction is not linked.
+    size_t index();
+
 protected:
     //! Store the parameters of a Reaction needed to reconstruct an identical
     //! object using the newReaction(AnyMap&, Kinetics&) function. Does not

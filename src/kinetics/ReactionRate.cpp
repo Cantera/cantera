@@ -4,6 +4,8 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/ReactionRate.h"
+#include "cantera/kinetics/MultiRate.h"
+#include "cantera/base/Array.h"
 #include "cantera/numerics/Func1.h"
 
 namespace Cantera
@@ -27,6 +29,28 @@ AnyMap ReactionRateBase::parameters() const
     AnyMap out;
     getParameters(out, units);
     return out;
+}
+
+void ReactionRateBase::linkEvaluator(size_t index,
+                                     const shared_ptr<MultiRateBase> evaluator)
+{
+    m_index = index;
+    m_evaluator = evaluator;
+}
+
+void ReactionRateBase::releaseEvaluator()
+{
+    m_index = npos;
+    m_evaluator.reset();
+}
+
+size_t ReactionRateBase::index()
+{
+    if (m_evaluator) {
+        return m_index;
+    }
+    throw CanteraError("ReactionRateBase::index", "Not applicable, as reaction rate "
+        "is not linked to Kinetics object with assoicated rate evaluator");
 }
 
 ArrheniusRate::ArrheniusRate()
@@ -84,6 +108,33 @@ void ArrheniusRate::getParameters(AnyMap& rateNode,
     }
 }
 
+void ArrheniusRate::setPreExponentialFactor(double A)
+{
+    m_A = A;
+    if (m_evaluator) {
+        dynamic_cast<ArrheniusRate&>(
+            m_evaluator->rate(m_index)).setPreExponentialFactor(A);
+    }
+}
+
+void ArrheniusRate::setTemperatureExponent(double b)
+{
+    m_b = b;
+    if (m_evaluator) {
+        dynamic_cast<ArrheniusRate&>(
+            m_evaluator->rate(m_index)).setTemperatureExponent(b);
+    }
+}
+
+void ArrheniusRate::setActivationEnergy(double E)
+{
+    m_E = E / GasConstant;
+    if (m_evaluator) {
+        dynamic_cast<ArrheniusRate&>(
+            m_evaluator->rate(m_index)).setActivationEnergy(E);
+    }
+}
+
 void ArrheniusRate::validate(const std::string& equation)
 {
     if (!allow_negative_pre_exponential_factor && preExponentialFactor() < 0) {
@@ -93,7 +144,7 @@ void ArrheniusRate::validate(const std::string& equation)
     }
 }
 
-PlogRate::PlogRate(const std::multimap<double, Arrhenius>& rates)
+PlogRate::PlogRate(const std::vector<std::pair<double, Arrhenius>>& rates)
     : Plog(rates)
 {
 }
@@ -126,6 +177,15 @@ void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
     // @TODO  implementation of Plog::getParameters should be transferred here
     //     when the Plog class is removed from RxnRates.h after Cantera 2.6
     Plog::getParameters(rateNode, rate_units);
+}
+
+void PlogRate::setRates(const std::vector<std::pair<double, Arrhenius>>& rates)
+{
+    Plog::setRates(rates);
+    if (m_evaluator) {
+        dynamic_cast<PlogRate&>(
+            m_evaluator->rate(m_index)).setRates(rates);
+    }
 }
 
 ChebyshevRate3::ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pmax,
@@ -162,6 +222,20 @@ void ChebyshevRate3::getParameters(AnyMap& rateNode,
     // @TODO  implementation of Chebyshev::getParameters should be transferred here
     //     when the Chebyshev class is removed from RxnRates.h after Cantera 2.6
     Chebyshev::getParameters(rateNode, rate_units);
+}
+
+const Array2D& ChebyshevRate3::coeffs() const
+{
+    return ChebyshevRate3::coeffs2D();
+}
+
+void ChebyshevRate3::setCoeffs(const Array2D& coeffs)
+{
+    Chebyshev::setCoeffs(coeffs);
+    if (m_evaluator) {
+        dynamic_cast<ChebyshevRate3&>(
+            m_evaluator->rate(m_index)).setCoeffs(coeffs);
+    }
 }
 
 void ChebyshevRate3::validate(const std::string& equation)

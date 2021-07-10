@@ -129,16 +129,16 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
             m_bulk_types[rate->type()] = m_bulk_rates.size();
 
             if (rate->type() == "ArrheniusRate") {
-                m_bulk_rates.push_back(std::unique_ptr<MultiRateBase>(
+                m_bulk_rates.push_back(std::shared_ptr<MultiRateBase>(
                     new MultiBulkRates<ArrheniusRate, ArrheniusData>));
             } else if (rate->type() == "PlogRate") {
-                m_bulk_rates.push_back(std::unique_ptr<MultiRateBase>(
+                m_bulk_rates.push_back(std::shared_ptr<MultiRateBase>(
                     new MultiBulkRates<PlogRate, PlogData>));
             } else if (rate->type() == "ChebyshevRate") {
-                m_bulk_rates.push_back(std::unique_ptr<MultiRateBase>(
+                m_bulk_rates.push_back(std::shared_ptr<MultiRateBase>(
                     new MultiBulkRates<ChebyshevRate3, ChebyshevData>));
             } else if (rate->type() == "custom-function") {
-                m_bulk_rates.push_back(std::unique_ptr<MultiRateBase>(
+                m_bulk_rates.push_back(std::shared_ptr<MultiRateBase>(
                     new MultiBulkRates<CustomFunc1Rate, CustomFunc1Data>));
             } else {
                 throw CanteraError("BulkKinetics::addReaction", "Adding "
@@ -149,7 +149,8 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
 
         // Add reaction rate to evaluator
         size_t index = m_bulk_types[rate->type()];
-        m_bulk_rates[index]->add(nReactions() - 1, *rate);
+        m_bulk_rates[index]->add(nReactions() - 1, rate);
+        rate->linkEvaluator(nReactions() - 1, m_bulk_rates[index]);
 
         // Add reaction to third-body evaluator
         if (r->thirdBody() != nullptr) {
@@ -201,7 +202,8 @@ void BulkKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
 
         // Replace reaction rate to evaluator
         size_t index = m_bulk_types[rate->type()];
-        m_bulk_rates[index]->replace(i, *rate);
+        m_bulk_rates[index]->replace(i, rate);
+        rate->linkEvaluator(i, m_bulk_rates[index]);
     }
 }
 

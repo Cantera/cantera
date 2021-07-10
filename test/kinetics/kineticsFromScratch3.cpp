@@ -115,7 +115,7 @@ TEST_F(KineticsFromScratch3, add_plog_reaction)
     //                [(100.0, 'atm'), 5.963200e+56, -11.529, 52599.6])
     Composition reac = parseCompString("H2:1, O2:1");
     Composition prod = parseCompString("OH:2");
-    std::multimap<double, Arrhenius> rates {
+    std::vector<std::pair<double, Arrhenius>> rates {
         { 0.01*101325, Arrhenius(1.212400e+16, -0.5779, 10872.7 / GasConst_cal_mol_K) },
         { 1.0*101325, Arrhenius(4.910800e+31, -4.8507, 24772.8 / GasConst_cal_mol_K) },
         { 10.0*101325, Arrhenius(1.286600e+47, -9.0246, 39796.5 / GasConst_cal_mol_K) },
@@ -131,7 +131,7 @@ TEST_F(KineticsFromScratch3, plog_invalid_rate)
 {
     Composition reac = parseCompString("H2:1, O2:1");
     Composition prod = parseCompString("OH:2");
-    std::multimap<double, Arrhenius> rates {
+    std::vector<std::pair<double, Arrhenius>> rates {
         { 0.01*101325, Arrhenius(1.2124e+16, -0.5779, 10872.7 / GasConst_cal_mol_K) },
         { 10.0*101325, Arrhenius(1e15, -1, 10000 / GasConst_cal_mol_K) },
         { 10.0*101325, Arrhenius(-2e20, -2.0, 20000 / GasConst_cal_mol_K) },
