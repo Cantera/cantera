@@ -614,6 +614,7 @@ cdef extern from "cantera/transport/TransportBase.h" namespace "Cantera":
     cdef cppclass CxxTransport "Cantera::Transport":
         CxxTransport(CxxThermoPhase*)
         string transportType()
+        cbool CKMode()
         double viscosity() except +translate_exception
         double thermalConductivity() except +translate_exception
         double electricalConductivity() except +translate_exception
@@ -1136,6 +1137,16 @@ cdef extern from "cantera/cython/wrappers.h":
 
     cdef void tran_getMultiDiffCoeffs(CxxTransport*, size_t, double*) except +translate_exception
     cdef void tran_getBinaryDiffCoeffs(CxxTransport*, size_t, double*) except +translate_exception
+
+    cdef void tran_getViscosityPolynomials(CxxTransport*, size_t, double*) except +translate_exception
+    cdef void tran_getConductivityPolynomials(CxxTransport*, size_t, double*) except +translate_exception
+    cdef void tran_getBinDiffusivityPolynomials(CxxTransport*, size_t, size_t, double*) except +translate_exception
+    cdef void tran_getCollisionIntegralPolynomials(CxxTransport*, size_t, size_t, double*, double*, double*) except +translate_exception
+
+    cdef void tran_setViscosityPolynomials(CxxTransport*, size_t, double*) except +translate_exception
+    cdef void tran_setConductivityPolynomials(CxxTransport*, size_t, double*) except +translate_exception
+    cdef void tran_setBinDiffusivityPolynomials(CxxTransport*, size_t, size_t, double*) except +translate_exception
+    cdef void tran_setCollisionIntegralPolynomials(CxxTransport*, size_t, size_t, double*, double*, double*, bool) except +translate_exception
 
 # typedefs
 ctypedef void (*thermoMethod1d)(CxxThermoPhase*, double*) except +translate_exception

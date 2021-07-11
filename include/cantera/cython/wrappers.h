@@ -110,12 +110,33 @@ void sparseCscData(const Eigen::SparseMatrix<double>& mat,
     void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t dim, double* data) \
     { object->FUNC_NAME(dim, data); }
 
+// Function which populates a 1D array, extra arguments
+#define ARRAY_FUNC1_1SPEC(PREFIX, CLASS_NAME, FUNC_NAME) \
+    void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t i, double* data) \
+    { object->FUNC_NAME(i, data); }
+    
+#define ARRAY_FUNC1_2SPEC(PREFIX, CLASS_NAME, FUNC_NAME) \
+    void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t i, size_t j, double* data) \
+    { object->FUNC_NAME(i, j, data); }
+    
+#define ARRAY_FUNC3_2SPEC(PREFIX, CLASS_NAME, FUNC_NAME) \
+    void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t i, size_t j, double* dataA, double* dataB, double* dataC) \
+    { object->FUNC_NAME(i, j, dataA, dataB, dataC); }
+    
+#define ARRAY_FUNC3_2SPEC_BOOL(PREFIX, CLASS_NAME, FUNC_NAME) \
+    void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t i, size_t j, double* dataA, double* dataB, double* dataC, bool flag) \
+    { object->FUNC_NAME(i, j, dataA, dataB, dataC, flag); }
+
 
 #define THERMO_1D(FUNC_NAME) ARRAY_FUNC(thermo, ThermoPhase, FUNC_NAME)
 #define KIN_1D(FUNC_NAME) ARRAY_FUNC(kin, Kinetics, FUNC_NAME)
 #define KIN_SPARSE_MATRIX(FUNC_NAME) SPARSE_MATRIX(kin, Kinetics, FUNC_NAME)
 #define TRANSPORT_1D(FUNC_NAME) ARRAY_FUNC(tran, Transport, FUNC_NAME)
 #define TRANSPORT_2D(FUNC_NAME) ARRAY_FUNC2(tran, Transport, FUNC_NAME)
+#define TRANSPORT_POLY_1SPECIE(FUNC_NAME) ARRAY_FUNC1_1SPEC(tran, Transport, FUNC_NAME)
+#define TRANSPORT_POLY_2SPECIE(FUNC_NAME) ARRAY_FUNC1_2SPEC(tran, Transport, FUNC_NAME)
+#define TRANSPORT_3POLY_2SPECIE(FUNC_NAME) ARRAY_FUNC3_2SPEC(tran, Transport, FUNC_NAME)
+#define TRANSPORT_3POLY_2SPECIE_BOOL(FUNC_NAME) ARRAY_FUNC3_2SPEC_BOOL(tran, Transport, FUNC_NAME)
 
 THERMO_1D(getMassFractions)
 THERMO_1D(setMassFractions)
@@ -173,3 +194,12 @@ TRANSPORT_1D(getMobilities)
 
 TRANSPORT_2D(getMultiDiffCoeffs)
 TRANSPORT_2D(getBinaryDiffCoeffs)
+
+TRANSPORT_POLY_1SPECIE(getViscosityPolynomials)
+TRANSPORT_POLY_1SPECIE(setViscosityPolynomials)
+TRANSPORT_POLY_1SPECIE(getConductivityPolynomials)
+TRANSPORT_POLY_1SPECIE(setConductivityPolynomials)
+TRANSPORT_POLY_2SPECIE(getBinDiffusivityPolynomials)
+TRANSPORT_POLY_2SPECIE(setBinDiffusivityPolynomials)
+TRANSPORT_3POLY_2SPECIE(getCollisionIntegralPolynomials)
+TRANSPORT_3POLY_2SPECIE_BOOL(setCollisionIntegralPolynomials)

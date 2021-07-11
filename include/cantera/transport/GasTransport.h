@@ -127,7 +127,33 @@ public:
     //! @see fitDiffCoeffs()
     virtual void getBinDiffusivityPolynomials(size_t i, size_t j, double* coeffs) const;
 
+    //! Return the polynomial fits to the collision integral of species pair (i, j)
+    //! @see fitCollisionIntegrals()
+    virtual void getCollisionIntegralPolynomials(size_t i, size_t j, double* astar_coeffs, 
+                                                double* bstar_coeffs, double* cstar_coeffs) const;
+
+    //! Modify the polynomial fits to the viscosity of species i
+    //! @see fitProperties()
+    virtual void setViscosityPolynomials(size_t i, double* coeffs);
+
+    //! Modify the temperature fits of the heat conductivity of species i
+    //! @see fitProperties()
+    virtual void setConductivityPolynomials(size_t i, double* coeffs);
+
+    //! Modify the polynomial fits to the binary diffusivity of species pair (i, j)
+    //! @see fitDiffCoeffs()
+    virtual void setBinDiffusivityPolynomials(size_t i, size_t j, double* coeffs);
+
+    //! Modify the polynomial fits to the collision integral of species pair (i, j)
+    //! @see fitCollisionIntegrals()
+    virtual void setCollisionIntegralPolynomials(size_t i, size_t j, double* astar_coeffs, 
+                                                double* bstar_coeffs, double* cstar_coeffs, bool actualT);
+
     virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
+    
+    bool CKMode() const {
+        return m_mode == CK_Mode;
+    }
 
 protected:
     GasTransport(ThermoPhase* thermo=0);
@@ -386,6 +412,10 @@ protected:
      * (i,j).
      */
     std::vector<vector_fp> m_omega22_poly;
+    
+    //! Flag to indicate for which (i,j) interaction pairs the 
+    //! actual temperature is used instead of the reduced temperature
+    std::vector<vector_int> m_star_poly_actualT;
 
     //! Fit for astar collision integral
     /*!

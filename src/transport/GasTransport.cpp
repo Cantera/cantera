@@ -319,6 +319,7 @@ void GasTransport::setupCollisionParameters()
     m_polar.resize(m_nsp, false);
     m_alpha.resize(m_nsp, 0.0);
     m_poly.resize(m_nsp);
+    m_star_poly_actualT.resize(m_nsp);
     m_sigma.resize(m_nsp);
     m_eps.resize(m_nsp);
     m_w_ac.resize(m_nsp);
@@ -330,6 +331,7 @@ void GasTransport::setupCollisionParameters()
 
     for (size_t i = 0; i < m_nsp; i++) {
         m_poly[i].resize(m_nsp);
+        m_star_poly_actualT[i].resize(m_nsp);
     }
 
     double f_eps, f_sigma;
@@ -490,12 +492,15 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
                 m_bstar_poly.push_back(cb);
                 m_cstar_poly.push_back(cc);
                 m_poly[i][j] = static_cast<int>(m_astar_poly.size()) - 1;
+                m_star_poly_actualT[i][j] = 0;
                 fitlist.push_back(dstar);
             } else {
                 // delta* found in fitlist, so just point to this polynomial
                 m_poly[i][j] = static_cast<int>((dptr - fitlist.begin()));
+                m_star_poly_actualT[i][j] = 0;
             }
             m_poly[j][i] = m_poly[i][j];
+            m_star_poly_actualT[j][i] = m_star_poly_actualT[i][j];
         }
     }
 }
@@ -837,6 +842,104 @@ void GasTransport::getBinDiffusivityPolynomials(size_t i, size_t j, double* coef
     for (size_t k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         coeffs[k] = m_diffcoeffs[ic][k];
     }
+}
+
+void GasTransport::getCollisionIntegralPolynomials(size_t i, size_t j, double* astar_coeffs, 
+                                                double* bstar_coeffs, double* cstar_coeffs) const
+{   
+    for (size_t k = 0; k < (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE)+1; k++) {
+        astar_coeffs[k] = m_astar_poly[m_poly[i][j]][k];
+        bstar_coeffs[k] = m_bstar_poly[m_poly[i][j]][k];
+        cstar_coeffs[k] = m_cstar_poly[m_poly[i][j]][k];
+    }
+}
+
+void GasTransport::setViscosityPolynomials(size_t i, double* coeffs)
+{
+    for (size_t k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
+        m_visccoeffs[i][k] = coeffs[k];
+    }
+    
+    m_visc_ok = false;
+    m_spvisc_ok = false;
+    m_viscwt_ok = false;
+    m_bindiff_ok = false;
+    m_temp = -1;
+    
+    std::cout << "Modified viscosity polynomial for species " 
+        << m_thermo->speciesName(i) << std::endl;
+}
+
+void GasTransport::setConductivityPolynomials(size_t i, double* coeffs)
+{
+    for (size_t k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
+        m_condcoeffs[i][k] = coeffs[k];
+    }
+    
+    m_visc_ok = false;
+    m_spvisc_ok = false;
+    m_viscwt_ok = false;
+    m_bindiff_ok = false;
+    m_temp = -1;
+    
+    std::cout << "Modified thermal conductivity polynomial for species " 
+        << m_thermo->speciesName(i) << std::endl;
+}
+
+void GasTransport::setBinDiffusivityPolynomials(size_t i, size_t j, double* coeffs)
+{
+    size_t mi = (j >= i? i : j);
+    size_t mj = (j >= i? j : i);
+    size_t ic = 0;
+    for (size_t ii = 0; ii < mi; ii++) {
+        ic += m_nsp - ii;
+    }
+    ic += mj - mi;
+
+    for (size_t k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
+        m_diffcoeffs[ic][k] = coeffs[k];
+    }
+    
+    m_visc_ok = false;
+    m_spvisc_ok = false;
+    m_viscwt_ok = false;
+    m_bindiff_ok = false;
+    m_temp = -1;
+    
+    std::cout << "Modified binary diffusion coefficient polynomial for species " 
+        << m_thermo->speciesName(i) << " and " << m_thermo->speciesName(j) << std::endl;
+}
+
+void GasTransport::setCollisionIntegralPolynomials(size_t i, size_t j, double* astar_coeffs, 
+                                                double* bstar_coeffs, double* cstar_coeffs, bool actualT)
+{
+    int degree = (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE);
+    vector_fp ca(degree+1), cb(degree+1), cc(degree+1);
+
+    for (size_t k = 0; k < degree+1; k++) {
+        ca[k] = astar_coeffs[k];
+        cb[k] = bstar_coeffs[k];
+        cc[k] = cstar_coeffs[k];
+    }
+    
+    m_astar_poly.push_back(ca);
+    m_bstar_poly.push_back(cb);
+    m_cstar_poly.push_back(cc);
+    m_poly[i][j] = static_cast<int>(m_astar_poly.size()) - 1;
+    m_poly[j][i] = m_poly[i][j];
+    if (actualT) {
+        m_star_poly_actualT[i][j] = 1;
+        m_star_poly_actualT[j][i] = m_star_poly_actualT[i][j];
+    }
+    
+    m_visc_ok = false;
+    m_spvisc_ok = false;
+    m_viscwt_ok = false;
+    m_bindiff_ok = false;
+    m_temp = -1;
+    
+    std::cout << "Modified collision polynomials for species " 
+        << m_thermo->speciesName(i) << " and " << m_thermo->speciesName(j) << std::endl;
 }
 
 }
