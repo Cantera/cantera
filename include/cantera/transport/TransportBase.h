@@ -585,6 +585,41 @@ public:
         throw NotImplementedError("Transport::getMixDiffCoeffsMass");
     }
 
+    //! Get/set the polynomial fits to the transport properties
+    virtual void getViscosityPolynomials(size_t i, double* coeffs) const{
+        throw NotImplementedError("Transport::getViscosityPolynomials");
+    }
+
+    virtual void getConductivityPolynomials(size_t i, double* coeffs) const{
+        throw NotImplementedError("Transport::getConductivityPolynomials");
+    }
+    
+    virtual void getBinDiffusivityPolynomials(size_t i, size_t j, double* coeffs) const{
+        throw NotImplementedError("Transport::getBinDiffusivityPolynomials");
+    }
+    
+    virtual void getCollisionIntegralPolynomials(size_t i, size_t j, double* astar_coeffs, 
+                                                double* bstar_coeffs, double* cstar_coeffs) const{
+        throw NotImplementedError("Transport::getCollisionIntegralPolynomials");
+    }
+    
+    virtual void setViscosityPolynomials(size_t i, double* coeffs){
+        throw NotImplementedError("Transport::setViscosityPolynomials");
+    }
+    
+    virtual void setConductivityPolynomials(size_t i, double* coeffs){
+        throw NotImplementedError("Transport::setConductivityPolynomials");
+    }
+    
+    virtual void setBinDiffusivityPolynomials(size_t i, size_t j, double* coeffs){
+        throw NotImplementedError("Transport::setBinDiffusivityPolynomials");
+    }
+    
+    virtual void setCollisionIntegralPolynomials(size_t i, size_t j, double* astar_coeffs, 
+                                                double* bstar_coeffs, double* cstar_coeffs, bool flag){
+        throw NotImplementedError("Transport::setCollisionIntegralPolynomials");
+    }
+
     //! Set model parameters for derived classes
     /*!
      * This method may be derived in subclasses to set model-specific
@@ -667,6 +702,10 @@ public:
 
     //! Set root Solution holding all phase information
     virtual void setRoot(std::shared_ptr<Solution> root);
+    
+    virtual bool CKMode() const {
+        throw NotImplementedError("Transport::CK_Mode");
+    }
 
 protected:
     //! Enable the transport object for use.
