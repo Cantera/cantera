@@ -116,6 +116,11 @@ if "clean" in COMMAND_LINE_TARGETS:
     remove_file("interfaces/matlab/ctpath.m")
     for name in Path("interfaces/matlab/toolbox").glob("ctmethods.*"):
         remove_file(name)
+    for name in Path("interfaces/python_sdist").iterdir():
+        if name.is_dir():
+            remove_directory(name)
+        elif name.name in ("LICENSE.txt", "setup.cfg", "sundials_config.h.in"):
+            remove_file(name)
 
     print("Done removing output files.")
 
