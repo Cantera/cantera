@@ -2203,7 +2203,8 @@ class table(thermo):
     def __init__(self,
                  moleFraction = ([],''),
                  enthalpy = ([],''),
-                 entropy = ([],'')):
+                 entropy = ([],''),
+                 partialMolarVolume = None):
         """
         :param moleFraction:
             The mole fraction of the tabulated species. Required parameter.
@@ -2211,10 +2212,13 @@ class table(thermo):
             The enthalpy of the tabulated species. Required parameter.
         :param entropy:
             The entropy of the tabulated species. Required parameter.
+        :param partialMolarVolume:
+            The partial molar volume of the tabulated species. Optional parameter.
         """
         self.x = moleFraction
         self.h = enthalpy
         self.s = entropy
+        self.vbar = partialMolarVolume
     def build(self,t):
         x = ', '.join('{0:12.5e}'.format(val) for val in self.x[0])
         u1 = t.addChild("moleFraction", x)
@@ -2227,6 +2231,11 @@ class table(thermo):
         u3 = t.addChild("entropy", s)
         u3['units'] = self.s[1]
         u3['size'] = str(len(self.s[0]))
+        if self.vbar is not None:
+            vbar = ', '.join('{0:12.5e}'.format(val) for val in self.vbar[0])
+            u4 = t.addChild("partialMolarVolume", vbar)
+            u4['units'] = self.vbar[1]
+            u4['size'] = str(len(self.vbar[0]))
 
 class lattice(phase):
     def __init__(self,

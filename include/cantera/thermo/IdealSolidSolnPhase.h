@@ -221,7 +221,7 @@ public:
      * have additionally specified in this class that the pure species molar
      * volumes are independent of temperature and pressure.
      */
-    void calcDensity();
+    virtual void calcDensity();
 
     //! @}
 
