@@ -563,9 +563,19 @@ public:
         throw NotImplementedError("ThermoPhase::getPartialMolarVolumes");
     }
 
-    //! @}
-    //! @name Properties of the Standard State of the Species in the Solution
-    //! @{
+    //! Return an array of integrated partial molar volumes for the
+    //! species in the mixture. Units: m^3/kmol.
+    /*!
+     *  @param vbar   Output vector of species integrated partial molar volumes.
+     *                Length = m_kk. units are m^3/kmol.
+     */
+    virtual void getIntegratedPartialMolarVolumes(doublereal* vbar) {
+    	throw NotImplementedError("ThermoPhase::getIntegratedPartialMolarVolumes");
+    }
+
+    //@}
+    /// @name Properties of the Standard State of the Species in the Solution
+    //@{
 
     //! Get the array of chemical potentials at unit activity for the species at
     //! their standard states at the current *T* and *P* of the solution.
