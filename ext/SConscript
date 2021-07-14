@@ -8,6 +8,7 @@ copyenv = localenv.Clone() # no CPPPATH addition, to avoid circular dependencies
 license_files = {"Cantera": File("#License.txt"),
                  "Libexecstream": File("#ext/libexecstream/doc/license.txt")}
 
+
 def prep_default(env):
     localenv = env.Clone()
 
@@ -70,9 +71,17 @@ if env['system_sundials'] == 'n':
         sundials_configh['SUNDIALS_USE_GENERIC_MATH'] = 1
     if env['use_lapack']:
         sundials_configh['SUNDIALS_BLAS_LAPACK'] = 1
-    localenv.AlwaysBuild(env.Command('#include/cantera/ext/sundials/sundials_config.h',
-                                     'sundials_config.h.in',
-                                     ConfigBuilder(sundials_configh)))
+    sundials_configh_build = env.Command("#build/ext/sundials_config.h.build",
+                                         "sundials_config.h.in",
+                                         ConfigBuilder(sundials_configh))
+    # This separate copy operation, which SCons will skip if sundials_config.h.build is
+    # unmodified, prevents unnecessary re-copies of files in the #include directory
+    localenv.AlwaysBuild(sundials_configh_build)
+    ext_copies.extend(
+        localenv.Command("#include/cantera/ext/sundials/sundials_config.h",
+                         "#build/ext/sundials_config.h.build",
+                         Copy("$TARGET", "$SOURCE"))
+    )
 
     # Copy sundials header files into common include directory
     for subdir in ('sundials', 'nvector', 'cvodes', 'ida', 'sunmatrix',
