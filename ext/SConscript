@@ -42,6 +42,8 @@ for subdir, extensions, prepFunction in libs:
     objects = localenv.SharedObject(multi_glob(localenv, subdir, *extensions))
     libraryTargets.extend(objects)
 
+ext_copies = []
+
 if not env['system_fmt']:
     license_files.append(('fmtlib', 'fmt/LICENSE.rst'))
     localenv = prep_default(env)
@@ -49,9 +51,11 @@ if not env['system_fmt']:
     libraryTargets.extend(
         localenv.SharedObject(multi_glob(localenv, 'fmt/src', 'cc')))
     for name in ('format.h', 'ostream.h', 'printf.h', 'core.h', 'format-inl.h'):
-        build(copyenv.Command("#include/cantera/ext/fmt/" + name,
-                              "#ext/fmt/include/fmt/" + name,
-                              Copy('$TARGET', '$SOURCE')))
+        ext_copies.extend(
+            copyenv.Command("#include/cantera/ext/fmt/" + name,
+                            "#ext/fmt/include/fmt/" + name,
+                            Copy("$TARGET", "$SOURCE"))
+        )
 
 if env['system_sundials'] == 'n':
     localenv = prep_default(env)
@@ -73,9 +77,11 @@ if env['system_sundials'] == 'n':
     for subdir in ('sundials', 'nvector', 'cvodes', 'ida', 'sunmatrix',
                    'sunlinsol', 'sunnonlinsol'):
         for header in multi_glob(env, 'sundials/include/'+subdir, 'h'):
-            build(copyenv.Command('#include/cantera/ext/%s/%s' % (subdir, header.name),
-                                  '#ext/sundials/include/%s/%s' % (subdir, header.name),
-                                  Copy('$TARGET', '$SOURCE')))
+            ext_copies.extend(
+                copyenv.Command(f"#include/cantera/ext/{subdir}/{header.name}",
+                                f"#ext/sundials/include/{subdir}/{header.name}",
+                                Copy("$TARGET", "$SOURCE"))
+            )
 
     # Compile Sundials source files. Skip files related to the Sundials Fortran
     # interface, which start with 'fsun'.
@@ -98,9 +104,13 @@ if not env['system_yamlcpp']:
     # Copy header files into common include directory
     for subdir in ('', 'contrib', 'node', 'node/detail'):
         for header in multi_glob(env, 'yaml-cpp/include/yaml-cpp/'+subdir, 'h'):
-            h = build(localenv.Command('#include/cantera/ext/yaml-cpp/{}/{}'.format(subdir, header.name),
-                                       '#ext/yaml-cpp/include/yaml-cpp/{}/{}'.format(subdir, header.name),
-                                       Copy('$TARGET', '$SOURCE')))
+            ext_copies.extend(
+                localenv.Command(
+                    f"#include/cantera/ext/yaml-cpp/{subdir}/{header.name}",
+                    f"#ext/yaml-cpp/include/yaml-cpp/{subdir}/{header.name}",
+                    Copy("$TARGET", "$SOURCE")
+                )
+            )
 
     # Compile yaml-cpp source files
     for subdir in ('', 'contrib'):
@@ -113,6 +123,7 @@ if not env['system_eigen']:
     h = build(copyenv.Command('#include/cantera/ext/Eigen', '#ext/eigen/Eigen',
                               Copy('$TARGET', '$SOURCE')))
     copyenv.Depends(copyenv['config_h_target'], h)
+    ext_copies.extend(h)
 
 # Google Test: Used internally for Cantera unit tests.
 if env['googletest'] == 'submodule':
@@ -122,6 +133,8 @@ if env['googletest'] == 'submodule':
     localenv = prep_gmock(env)
     gmock = build(localenv.Library('../lib/gmock',
                                    source=['googletest/googlemock/src/gmock-all.cc']))
+
+env["ext_include_copies_target"] = build(ext_copies)
 
 # Create license file containing licenses for Cantera and all included packages
 def generate_license(target, source, env):
