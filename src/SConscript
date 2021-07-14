@@ -72,11 +72,12 @@ for subdir, extensions, setup in libs:
 
 
 # build the Cantera static library
-lib = build(localenv.StaticLibrary('../lib/cantera', libraryTargets,
-                                   SPAWN=get_spawn(localenv)))
-localenv.Depends(lib, localenv['config_h_target'])
-install('$inst_libdir', lib)
-env['cantera_staticlib'] = lib
+if env["python_package"] != "sdist":
+    lib = build(localenv.StaticLibrary('../lib/cantera', libraryTargets,
+                                    SPAWN=get_spawn(localenv)))
+    localenv.Depends(lib, localenv['config_h_target'])
+    install('$inst_libdir', lib)
+    env['cantera_staticlib'] = lib
 
 if (localenv['system_sundials'] == 'y'):
     localenv.Append(LIBS=localenv['sundials_libs'],
@@ -89,7 +90,7 @@ if localenv['system_yamlcpp']:
     localenv.Append(LIBS=['yaml-cpp'])
 
 # Build the Cantera shared library
-if localenv['layout'] != 'debian':
+if localenv['layout'] != 'debian' and localenv["python_package"] != "sdist":
     if localenv['renamed_shared_libraries']:
         sharedName = '../lib/cantera_shared'
     else:
