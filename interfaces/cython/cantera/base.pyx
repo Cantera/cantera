@@ -9,6 +9,18 @@ cdef class _SolutionBase:
                   source=None, yaml=None, thermo=None, species=(),
                   kinetics=None, reactions=(), **kwargs):
 
+        # run instantiation only if valid sources are specified
+        if origin or infile or source or yaml or (thermo and species):
+
+            self._cinit(infile=infile, name=name, adjacent=adjacent,
+                        origin=origin, source=source, yaml=yaml,
+                        thermo=thermo, species=species, kinetics=kinetics,
+                        reactions=reactions, **kwargs)
+
+    def _cinit(self, infile='', name='', adjacent=(), origin=None,
+                  source=None, yaml=None, thermo=None, species=(),
+                  kinetics=None, reactions=(), **kwargs):
+
         if 'phaseid' in kwargs:
             if name is not '':
                 raise AttributeError('duplicate specification of phase name')
@@ -310,8 +322,17 @@ cdef class _SolutionBase:
             for i,spec in enumerate(species):
                 self._selected_species[i] = self.species_index(spec)
 
-    def __reduce__(self):
-        raise NotImplementedError('Solution object is not picklable')
+    def __getstate__(self):
+        """Save complete information of the current phase for pickling."""
+        Y = YamlWriter()
+        Y.add_solution(self)
+        return Y.to_string(), self.state
+
+    def __setstate__(self, pkl):
+        """Restore Solution from pickled information."""
+        yml, state = pkl
+        self._cinit(yaml=yml)
+        self.state = state
 
     def __copy__(self):
         raise NotImplementedError('Solution object is not copyable')

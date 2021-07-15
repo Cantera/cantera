@@ -734,10 +734,17 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(self.phase.min_temp, 300.0)
         self.assertNear(self.phase.max_temp, 3500.0)
 
-    def test_unpicklable(self):
+    def test_picklable(self):
         import pickle
-        with self.assertRaises(NotImplementedError):
-            pickle.dumps(self.phase)
+        self.phase.TPX = 500, 500000, 'H2:.75,O2:.25'
+        with open('gas.pkl', 'wb') as pkl:
+            pickle.dump(self.phase, pkl)
+
+        with open('gas.pkl', 'rb') as pkl:
+            gas2 = pickle.load(pkl)
+        self.assertEqual(self.phase.T, gas2.T)
+        self.assertEqual(self.phase.P, gas2.P)
+        self.assertTrue(np.allclose(self.phase.X, gas2.X))
 
     def test_uncopyable(self):
         import copy
