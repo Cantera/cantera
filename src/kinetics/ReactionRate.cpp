@@ -62,7 +62,7 @@ ArrheniusRate::ArrheniusRate(const Arrhenius& arr, bool allow_negative_A)
 
 unique_ptr<MultiRateBase> ArrheniusRate::newMultiRate() const
 {
-    return unique_ptr<MultiRateBase> (new MultiBulkRate<ArrheniusRate, ArrheniusData>);
+    return unique_ptr<MultiRateBase>(new MultiBulkRate<ArrheniusRate, ArrheniusData>);
 }
 
 void ArrheniusRate::setParameters(const AnyMap& node, const Units& rate_units)

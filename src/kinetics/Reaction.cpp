@@ -1069,9 +1069,9 @@ PlogReaction3::PlogReaction3(const AnyMap& node, const Kinetics& kin)
 
 void PlogReaction3::getParameters(AnyMap& reactionNode) const
 {
-    reactionNode.update(m_rate->parameters(rate_units));
     Reaction::getParameters(reactionNode);
     reactionNode["type"] = "pressure-dependent-Arrhenius";
+    reactionNode.update(m_rate->parameters(rate_units));
 }
 
 ChebyshevReaction3::ChebyshevReaction3()
