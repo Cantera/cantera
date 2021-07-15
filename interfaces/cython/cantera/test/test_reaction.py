@@ -20,7 +20,7 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             equation: H + 2 O2 <=> HO2 + O2
             rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
             """
-        rxn1 = ct.Reaction.fromYaml(yaml1, self.gas)
+        rxn1 = ct.Reaction.from_yaml(yaml1, self.gas)
         self.assertEqual(rxn1.reaction_type, "three-body")
         self.assertEqual(rxn1.default_efficiency, 0.)
         self.assertEqual(rxn1.efficiencies, {"O2": 1})
@@ -32,7 +32,7 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             default-efficiency: 0
             efficiencies: {O2: 1.0}
             """
-        rxn2 = ct.Reaction.fromYaml(yaml2, self.gas)
+        rxn2 = ct.Reaction.from_yaml(yaml2, self.gas)
         self.assertEqual(rxn1.efficiencies, rxn2.efficiencies)
         self.assertEqual(rxn1.default_efficiency, rxn2.default_efficiency)
 
@@ -46,7 +46,7 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             equation: H + O2 + H2O <=> HO2 + H2O
             rate-constant: {A: 1.126e+19, b: -0.76, Ea: 0.0}
             """
-        rxn1 = ct.Reaction.fromYaml(yaml1, gas1)
+        rxn1 = ct.Reaction.from_yaml(yaml1, gas1)
 
         yaml2 = """
             equation: H + O2 + M <=> HO2 + M
@@ -55,7 +55,7 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             default-efficiency: 0
             efficiencies: {H2O: 1}
             """
-        rxn2 = ct.Reaction.fromYaml(yaml2, gas1)
+        rxn2 = ct.Reaction.from_yaml(yaml2, gas1)
 
         self.assertEqual(rxn1.reaction_type, rxn2.reaction_type)
         self.assertEqual(rxn1.reactants, rxn2.reactants)
@@ -80,7 +80,7 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             equation: H + O2 + H2O <=> HO2 + H2O
             rate-constant: {A: 1.126e+19, b: -0.76, Ea: 0.0}
             """
-        rxn = ct.Reaction.fromYaml(yaml, self.gas)
+        rxn = ct.Reaction.from_yaml(yaml, self.gas)
         input_data = rxn.input_data
 
         self.assertNotIn("type", input_data)
@@ -93,7 +93,7 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             equation: 2 H + 1.5 O2 <=> H2O + O2
             rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
             """
-        rxn = ct.Reaction.fromYaml(yaml, self.gas)
+        rxn = ct.Reaction.from_yaml(yaml, self.gas)
         self.assertEqual(rxn.reaction_type, "elementary")
 
     def test_not_three_body(self):
@@ -102,7 +102,7 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             equation: HCNO + H <=> H + HNCO  # Reaction 270
             rate-constant: {A: 2.1e+15, b: -0.69, Ea: 2850.0}
             """
-        rxn = ct.Reaction.fromYaml(yaml, self.gas)
+        rxn = ct.Reaction.from_yaml(yaml, self.gas)
         self.assertEqual(rxn.reaction_type, "elementary")
 
     def test_user_override(self):
@@ -112,7 +112,7 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
             type: elementary
             """
-        rxn = ct.Reaction.fromYaml(yaml, self.gas)
+        rxn = ct.Reaction.from_yaml(yaml, self.gas)
         self.assertEqual(rxn.reaction_type, "elementary")
 
 
@@ -380,14 +380,22 @@ class ReactionTests:
         # check instantiation from yaml string
         if self._yaml is None:
             return
-        rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
+        rxn = ct.Reaction.from_yaml(self._yaml, kinetics=self.gas)
+        self.check_rxn(rxn)
+
+    def test_deprecated_yaml(self):
+        # check instantiation from yaml string
+        if self._yaml is None:
+            return
+        with self.assertWarnsRegex(DeprecationWarning, "is renamed to 'from_yaml'"):
+            rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
         self.check_rxn(rxn)
 
     def test_from_dict2(self):
         # check instantiation from a yaml dictionary
         if self._yaml is None:
             return
-        rxn1 = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
+        rxn1 = ct.Reaction.from_yaml(self._yaml, kinetics=self.gas)
         input_data = rxn1.input_data
         rxn2 = ct.Reaction.from_dict(input_data, kinetics=self.gas)
         # cannot compare types as input_data does not recreate legacy objects
@@ -472,7 +480,7 @@ class ReactionTests:
         if self._yaml is None:
             return
 
-        rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
+        rxn = ct.Reaction.from_yaml(self._yaml, kinetics=self.gas)
         for attr, default in self._deprecated_getters.items():
             if self._legacy:
                 self.check_equal(getattr(rxn, attr), default)
@@ -485,7 +493,7 @@ class ReactionTests:
         if self._yaml is None:
             return
 
-        rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
+        rxn = ct.Reaction.from_yaml(self._yaml, kinetics=self.gas)
         for attr, new in self._deprecated_setters.items():
             if self._legacy:
                 setattr(rxn, attr, new)
@@ -501,7 +509,7 @@ class ReactionTests:
         if self._yaml is None:
             return
 
-        rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
+        rxn = ct.Reaction.from_yaml(self._yaml, kinetics=self.gas)
         for state, value in self._deprecated_callers.items():
             T, P = state
             if self._legacy:
@@ -682,7 +690,7 @@ class TestPlog(ReactionTests, utilities.CanteraTest):
 
     def test_deprecated_getters(self):
         # overload default tester for deprecated property getters
-        rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
+        rxn = ct.Reaction.from_yaml(self._yaml, kinetics=self.gas)
         if self._legacy:
             self.check_rates(rxn.rates, self._rate)
         else:
@@ -694,7 +702,7 @@ class TestPlog(ReactionTests, utilities.CanteraTest):
         rate = ct.PlogRate(self._rate)
         rates = rate.rates
 
-        rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
+        rxn = ct.Reaction.from_yaml(self._yaml, kinetics=self.gas)
         if self._legacy:
             rxn.rates = rates
             self.check_rates(rxn.rates, self._rate)
