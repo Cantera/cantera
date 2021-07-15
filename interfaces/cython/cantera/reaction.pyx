@@ -41,7 +41,7 @@ cdef class ReactionRate:
         Wrap a C++ Reaction object with a Python object of the correct derived type.
         """
         # ensure all reaction types are registered
-        if not(_reaction_rate_class_registry):
+        if not _reaction_rate_class_registry:
             def register_subclasses(cls):
                 for c in cls.__subclasses__():
                     rate_type = getattr(c, "_reaction_rate_type")
@@ -68,13 +68,13 @@ cdef class ReactionRate:
         Create a `ReactionRate` object from a dictionary corresponding to its YAML
         representation.
 
-        An example for the creation of a ReactionRate from a dictionary is::
+        An example for the creation of a `ReactionRate` from a dictionary is::
 
             rate = ReactionRate.from_dict(
                 {"rate-constant": {"A": 38.7, "b": 2.7, "Ea": 26191840.0}},
                 kinetics=gas)
 
-        In the example, *gas* is a Kinetics (or Solution) object.
+        In the example, ``gas`` is a `Kinetics` (or `Solution`) object.
 
         :param data:
             A dictionary corresponding to the YAML representation.
@@ -84,8 +84,8 @@ cdef class ReactionRate:
         """
         if cls._reaction_rate_type != "":
             raise TypeError(
-                "Class method 'from_dict' was invoked from '{}' but should "
-                "be called from base class 'Reaction'".format(cls.__name__))
+                f"Class method 'from_dict' was invoked from '{cls.__name__}' but "
+                "should be called from base class 'ReactionRate'")
         if kinetics is None:
             raise ValueError("A Kinetics object is required.")
 
@@ -94,17 +94,17 @@ cdef class ReactionRate:
         return ReactionRate.wrap(cxx_rate)
 
     @classmethod
-    def fromYaml(cls, text, Kinetics kinetics=None):
+    def from_yaml(cls, text, Kinetics kinetics=None):
         """
         Create a `ReactionRate` object from its YAML string representation.
 
-        An example for the creation of a ReactionRate from a YAML string is::
+        An example for the creation of a `ReactionRate` from a YAML string is::
 
-            rate = ReactionRate.fromYaml('''
+            rate = ReactionRate.from_yaml('''
                 rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
                 ''', kinetics=gas)
 
-        In the example, *gas* is a Kinetics (or Solution) object.
+        In the example, ``gas`` is a `Kinetics` (or `Solution`) object.
 
         :param text:
             The YAML reaction rate string.
@@ -114,8 +114,8 @@ cdef class ReactionRate:
         """
         if cls._reaction_rate_type != "":
             raise TypeError(
-                "Class method 'fromYaml' was invoked from '{}' but should "
-                "be called from base class 'Reaction'".format(cls.__name__))
+                f"Class method 'from_yaml' was invoked from '{cls.__name__}' but "
+                "should be called from base class 'ReactionRate'")
         if kinetics is None:
             raise ValueError("A Kinetics object is required.")
 
@@ -152,8 +152,8 @@ cdef class ArrheniusRate(ReactionRate):
 
         k_f = A T^b \exp{-\tfrac{E}{RT}}
 
-    where *A* is the `pre_exponential_factor`, *b* is the `temperature_exponent`,
-    and *Ea* is the `activation_energy`.
+    where ``A`` is the `pre_exponential_factor`, ``b`` is the `temperature_exponent`,
+    and ``Ea`` is the `activation_energy`.
     """
     _reaction_rate_type = "ArrheniusRate"
 
@@ -177,7 +177,7 @@ cdef class ArrheniusRate(ReactionRate):
 
     property pre_exponential_factor:
         """
-        The pre-exponential factor *A* in units of m, kmol, and s raised to
+        The pre-exponential factor ``A`` in units of m, kmol, and s raised to
         powers depending on the reaction order.
         """
         def __get__(self):
@@ -185,14 +185,14 @@ cdef class ArrheniusRate(ReactionRate):
 
     property temperature_exponent:
         """
-        The temperature exponent *b*.
+        The temperature exponent ``b``.
         """
         def __get__(self):
             return self.arr().temperatureExponent()
 
     property activation_energy:
         """
-        The activation energy *E* [J/kmol].
+        The activation energy ``E`` [J/kmol].
         """
         def __get__(self):
             return self.arr().activationEnergy()
@@ -457,7 +457,7 @@ cdef class Reaction:
         Wrap a C++ Reaction object with a Python object of the correct derived type.
         """
         # ensure all reaction types are registered
-        if not(_reaction_class_registry):
+        if not _reaction_class_registry:
             def register_subclasses(cls):
                 for c in cls.__subclasses__():
                     rxn_type = getattr(c, "_reaction_type")
@@ -521,7 +521,7 @@ cdef class Reaction:
                  "rate-constant": {"A": 38.7, "b": 2.7, "Ea": 26191840.0}},
                 kinetics=gas)
 
-        In the example, *gas* is a Kinetics (or Solution) object.
+        In the example, ``gas`` is a Kinetics (or Solution) object.
 
         :param data:
             A dictionary corresponding to the YAML representation.
@@ -552,7 +552,7 @@ cdef class Reaction:
                 rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
                 ''', kinetics=gas)
 
-        In the example, *gas* is a Kinetics (or Solution) object.
+        In the example, ``gas`` is a Kinetics (or Solution) object.
 
         :param text:
             The YAML reaction string.
@@ -579,7 +579,7 @@ cdef class Reaction:
         YAML, CTI, or XML file.
 
         For YAML input files, a `Kinetics` object is required as the second
-        argument, and reactions from the section *section* will be returned.
+        argument, and reactions from the section ``section`` will be returned.
 
         Directories on Cantera's input file path will be searched for the
         specified file.
@@ -816,8 +816,8 @@ cdef class Arrhenius:
 
         k_f = A T^b \exp{-\tfrac{E}{RT}}
 
-    where *A* is the `pre_exponential_factor`, *b* is the `temperature_exponent`,
-    and *E* is the `activation_energy`.
+    where ``A`` is the `pre_exponential_factor`, ``b`` is the `temperature_exponent`,
+    and ``E`` is the `activation_energy`.
     """
     def __cinit__(self, A=0, b=0, E=0, init=True):
         if init:
@@ -833,7 +833,7 @@ cdef class Arrhenius:
 
     property pre_exponential_factor:
         """
-        The pre-exponential factor *A* in units of m, kmol, and s raised to
+        The pre-exponential factor ``A`` in units of m, kmol, and s raised to
         powers depending on the reaction order.
         """
         def __get__(self):
@@ -841,14 +841,14 @@ cdef class Arrhenius:
 
     property temperature_exponent:
         """
-        The temperature exponent *b*.
+        The temperature exponent ``b``.
         """
         def __get__(self):
             return self.rate.temperatureExponent()
 
     property activation_energy:
         """
-        The activation energy *E* [J/kmol].
+        The activation energy ``E`` [J/kmol].
         """
         def __get__(self):
             return self.rate.activationEnergy_R() * gas_constant
@@ -1087,7 +1087,7 @@ cdef class ThreeBodyReaction(ElementaryReaction):
 
     def efficiency(self, species):
         """
-        Get the efficiency of the third body named *species* considering both
+        Get the efficiency of the third body named ``species`` considering both
         the default efficiency and species-specific efficiencies.
         """
         return self.thirdbody().efficiency(stringify(species))
@@ -1252,7 +1252,7 @@ cdef class FalloffReaction(Reaction):
 
     def efficiency(self, species):
         """
-        Get the efficiency of the third body named *species* considering both
+        Get the efficiency of the third body named ``species`` considering both
         the default efficiency and species-specific efficiencies.
         """
         return self.frxn().third_body.efficiency(stringify(species))
@@ -1685,7 +1685,7 @@ cdef class BlowersMasel:
 
     property pre_exponential_factor:
         """
-        The pre-exponential factor *A* in units of m, kmol, and s raised to
+        The pre-exponential factor ``A`` in units of m, kmol, and s raised to
         powers depending on the reaction order.
         """
         def __get__(self):
@@ -1693,14 +1693,14 @@ cdef class BlowersMasel:
 
     property temperature_exponent:
         """
-        The temperature exponent *b*.
+        The temperature exponent ``b``.
         """
         def __get__(self):
             return self.rate.temperatureExponent()
 
     def activation_energy(self, float dH):
         """
-        The activation energy *E* [J/kmol]
+        The activation energy ``E`` [J/kmol]
 
         :param dH: The enthalpy of reaction [J/kmol] at the current temperature
         """
@@ -1709,14 +1709,14 @@ cdef class BlowersMasel:
     property bond_energy:
         """
         Average bond dissociation energy of the bond being formed and broken
-        in the reaction *E* [J/kmol].
+        in the reaction ``E`` [J/kmol].
         """
         def __get__(self):
             return self.rate.bondEnergy() * gas_constant
 
     property intrinsic_activation_energy:
         """
-        The intrinsic activation energy *E0* [J/kmol].
+        The intrinsic activation energy ``E0`` [J/kmol].
         """
         def __get__(self):
             return self.rate.activationEnergy_R0() * gas_constant

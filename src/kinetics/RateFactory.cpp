@@ -25,17 +25,12 @@ RateFactory::RateFactory()
     });
     addAlias("ArrheniusRate", "");
     addAlias("ArrheniusRate", "elementary");
-    addAlias("ArrheniusRate", "arrhenius");
     addAlias("ArrheniusRate", "three-body");
-    addAlias("ArrheniusRate", "threebody");
-    addAlias("ArrheniusRate", "three_body");
 
     // PlogRate evaluator
     reg("PlogRate", [](const AnyMap& node, const Units& rate_units) {
         return new PlogRate(node, rate_units);
     });
-    addAlias("PlogRate", "pressure-dependent-Arrhenius");
-    addAlias("PlogRate", "plog");
     addAlias("PlogRate", "pressure-dependent-Arrhenius");
 
     // ChebyshevRate evaluator
@@ -43,7 +38,6 @@ RateFactory::RateFactory()
         return new ChebyshevRate3(node, rate_units);
     });
     addAlias("ChebyshevRate", "Chebyshev");
-    addAlias("ChebyshevRate", "chebyshev");
 
     // CustomFunc1Rate evaluator
     reg("custom-function", [](const AnyMap& node, const Units& rate_units) {

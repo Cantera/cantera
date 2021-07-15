@@ -342,7 +342,7 @@ cdef extern from "cantera/kinetics/ReactionFactory.h" namespace "Cantera":
     cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (CxxAnyMap&, CxxKinetics&) except +translate_exception
 
 cdef extern from "cantera/kinetics/RateFactory.h" namespace "Cantera":
-    cdef shared_ptr[CxxReactionRateBase] CxxNewRate "Cantera::newRate" (string) except +translate_exception
+    cdef shared_ptr[CxxReactionRateBase] CxxNewRate "newRate" (string) except +translate_exception
     cdef shared_ptr[CxxReactionRateBase] CxxNewRate "newRate" (CxxAnyMap&, CxxKinetics&) except +translate_exception
 
 cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":

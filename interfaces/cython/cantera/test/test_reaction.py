@@ -165,7 +165,7 @@ class ReactionRateTests:
         input_data = rate.input_data
         self.assertIsInstance(input_data, dict)
         if input_data:
-            self.assertEqual(input_data, {'type': self._type})
+            self.assertEqual(input_data, {"type": self._type})
 
     def test_roundtrip(self):
         # check round-trip instantiation via input_data
