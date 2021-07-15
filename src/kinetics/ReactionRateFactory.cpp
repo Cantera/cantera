@@ -1,11 +1,11 @@
  /**
- *  @file RateFactory.cpp
+ *  @file ReactionRateFactory.cpp
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/kinetics/RateFactory.h"
+#include "cantera/kinetics/ReactionRateFactory.h"
 #include "cantera/kinetics/MultiRate.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
@@ -14,10 +14,10 @@
 namespace Cantera
 {
 
-RateFactory* RateFactory::s_factory = 0;
-std::mutex RateFactory::rate_mutex;
+ReactionRateFactory* ReactionRateFactory::s_factory = 0;
+std::mutex ReactionRateFactory::rate_mutex;
 
-RateFactory::RateFactory()
+ReactionRateFactory::ReactionRateFactory()
 {
     // ArrheniusRate evaluator
     reg("ArrheniusRate", [](const AnyMap& node, const Units& rate_units) {
@@ -46,51 +46,51 @@ RateFactory::RateFactory()
     addAlias("custom-function", "custom-rate-function");
 }
 
-shared_ptr<ReactionRateBase> newRate(const std::string& type)
+shared_ptr<ReactionRateBase> newReactionRate(const std::string& type)
 {
-    if (RateFactory::factory()->exists(type)) {
-        return shared_ptr<ReactionRateBase> (
-            RateFactory::factory()->create(type, AnyMap(), Units(0.0)));
-    }
-    return shared_ptr<ReactionRateBase> ();
+    return shared_ptr<ReactionRateBase> (
+        ReactionRateFactory::factory()->create(type, AnyMap(), Units(0.0)));
 }
 
-shared_ptr<ReactionRateBase> newRate(const AnyMap& rate_node, const Units& rate_units)
+shared_ptr<ReactionRateBase> newReactionRate(
+    const AnyMap& rate_node, const Units& rate_units)
 {
     std::string type = "";
     if (rate_node.empty()) {
-        throw InputFileError("RateFactory::newRate", rate_node,
+        throw InputFileError("ReactionRateFactory::newReactionRate", rate_node,
             "Received invalid empty node.");
     } else if (rate_node.hasKey("type")) {
         type = rate_node["type"].asString();
     }
 
-    if (!(RateFactory::factory()->exists(type))) {
-        throw InputFileError("RateFactory::newRate", rate_node,
+    if (!(ReactionRateFactory::factory()->exists(type))) {
+        throw InputFileError("ReactionRateFactory::newReactionRate", rate_node,
             "Unknown reaction rate type '{}'", type);
     }
 
     return shared_ptr<ReactionRateBase> (
-        RateFactory::factory()->create(type, rate_node, rate_units));
+        ReactionRateFactory::factory()->create(type, rate_node, rate_units));
 }
 
-shared_ptr<ReactionRateBase> newRate(const AnyMap& rate_node, const Kinetics& kin)
+shared_ptr<ReactionRateBase> newReactionRate(
+    const AnyMap& rate_node, const Kinetics& kin)
 {
     if (rate_node.empty()) {
-        return newRate(AnyMap(), Units(0.0));
+        return newReactionRate(AnyMap(), Units(0.0));
     }
     size_t idx = kin.reactionPhaseIndex();
     Units rate_units = kin.thermo(idx).standardConcentrationUnits();
-    return newRate(rate_node, rate_units);
+    return newReactionRate(rate_node, rate_units);
 }
 
 std::string canonicalRateName(const std::string& type)
 {
-    if (RateFactory::factory()->exists(type)) {
-        return RateFactory::factory()->canonicalize(type);
-    } else {
-        return "undefined";
+    if (ReactionRateFactory::factory()->exists(type)) {
+        return ReactionRateFactory::factory()->canonicalize(type);
     }
+
+    throw CanteraError("ReactionRateFactory::canonicalRateName",
+        "Unknown reaction rate type alias '{}'.", type);
 }
 
 }

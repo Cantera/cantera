@@ -90,7 +90,7 @@ cdef class ReactionRate:
             raise ValueError("A Kinetics object is required.")
 
         cdef CxxAnyMap any_map = dict_to_anymap(data)
-        cxx_rate = CxxNewRate(any_map, deref(kinetics.kinetics))
+        cxx_rate = CxxNewReactionRate(any_map, deref(kinetics.kinetics))
         return ReactionRate.wrap(cxx_rate)
 
     @classmethod
@@ -121,7 +121,7 @@ cdef class ReactionRate:
 
         cdef CxxAnyMap any_map
         any_map = AnyMapFromYamlString(stringify(text))
-        cxx_rate = CxxNewRate(any_map, deref(kinetics.kinetics))
+        cxx_rate = CxxNewReactionRate(any_map, deref(kinetics.kinetics))
         return ReactionRate.wrap(cxx_rate)
 
     def ddT(self, double temperature, pressure=None):

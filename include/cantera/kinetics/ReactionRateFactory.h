@@ -1,7 +1,6 @@
 /**
- *  @file RateFactory.h
- *  Factory class for reaction rate objects. Used by classes
- *  that implement kinetics
+ *  @file ReactionRateFactory.h
+ *  Factory class for reaction rate objects. Used by classes that implement kinetics
  *  (see \ref reactionGroup and class \link Cantera::Rate Rate\endlink).
  */
 
@@ -25,12 +24,13 @@ class Units;
  * The reaction factory is accessed through the static method factory:
  *
  * @code
- * Rate* f = RateFactory::factory()->newRate(type, c)
+ * Rate* f = ReactionRateFactory::factory()->newReactionRate(type, c)
  * @endcode
  *
  * @ingroup reactionGroup
  */
-class RateFactory : public Factory<ReactionRateBase, const AnyMap&, const Units&>
+class ReactionRateFactory
+    : public Factory<ReactionRateBase, const AnyMap&, const Units&>
 {
 public:
     /**
@@ -38,10 +38,10 @@ public:
      * created. Since there is no need to instantiate more than one factory,
      * on all subsequent calls, a pointer to the existing factory is returned.
      */
-    static RateFactory* factory() {
+    static ReactionRateFactory* factory() {
         std::unique_lock<std::mutex> lock(rate_mutex);
         if (!s_factory) {
-            s_factory = new RateFactory;
+            s_factory = new ReactionRateFactory;
         }
         return s_factory;
     }
@@ -54,10 +54,10 @@ public:
 
 private:
     //! Pointer to the single instance of the factory
-    static RateFactory* s_factory;
+    static ReactionRateFactory* s_factory;
 
     //! default constructor, which is defined as private
-    RateFactory();
+    ReactionRateFactory();
 
     //!  Mutex for use when calling the factory
     static std::mutex rate_mutex;
@@ -68,21 +68,23 @@ private:
 /*!
  * @param type string identifying type of reaction rate.
  */
-shared_ptr<ReactionRateBase> newRate(const std::string& type);
+shared_ptr<ReactionRateBase> newReactionRate(const std::string& type);
 
 //! Create a new Rate object using the specified parameters
 /*!
  * @param rate_node AnyMap node describing reaction rate.
  * @param rate_units Unit system of the reaction rate
  */
-shared_ptr<ReactionRateBase> newRate(const AnyMap& rate_node, const Units& rate_units);
+shared_ptr<ReactionRateBase> newReactionRate(
+    const AnyMap& rate_node, const Units& rate_units);
 
 //! Create a new Rate object using the specified parameters
 /*!
  * @param rate_node AnyMap node describing reaction rate.
  * @param kin kinetics manager
  */
-shared_ptr<ReactionRateBase> newRate(const AnyMap& rate_node, const Kinetics& kin);
+shared_ptr<ReactionRateBase> newReactionRate(
+    const AnyMap& rate_node, const Kinetics& kin);
 
 //! Retrieve the canoncial rate object name
 /*!

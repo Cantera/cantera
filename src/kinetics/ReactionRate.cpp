@@ -116,7 +116,7 @@ PlogRate::PlogRate(const AnyMap& node)
 
 unique_ptr<MultiRateBase> PlogRate::newMultiRate() const
 {
-    return unique_ptr<MultiRateBase> (new MultiBulkRate<PlogRate, PlogData>);
+    return unique_ptr<MultiRateBase>(new MultiBulkRate<PlogRate, PlogData>);
 }
 
 void PlogRate::setParameters(const AnyMap& node, const Units& rate_units)
@@ -158,7 +158,7 @@ ChebyshevRate3::ChebyshevRate3(const AnyMap& node)
 
 unique_ptr<MultiRateBase> ChebyshevRate3::newMultiRate() const
 {
-    return unique_ptr<MultiRateBase> (
+    return unique_ptr<MultiRateBase>(
         new MultiBulkRate<ChebyshevRate3, ChebyshevData>);
 }
 
@@ -191,7 +191,7 @@ CustomFunc1Rate::CustomFunc1Rate() : m_ratefunc(0) {}
 
 unique_ptr<MultiRateBase> CustomFunc1Rate::newMultiRate() const
 {
-    return unique_ptr<MultiRateBase> (
+    return unique_ptr<MultiRateBase>(
         new MultiBulkRate<CustomFunc1Rate, CustomFunc1Data>);
 }
 
