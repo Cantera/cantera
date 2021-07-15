@@ -64,7 +64,7 @@ public:
 
     virtual void setKineticsMgr(Kinetics& kin);
 
-    virtual void setChemistry(bool cflag = true) {
+    void setChemistry(bool cflag=true) {
         m_chem = cflag;
     }
 
@@ -73,7 +73,7 @@ public:
         return m_chem;
     }
 
-    virtual void setEnergy(int eflag = 1) {
+    void setEnergy(int eflag=1) {
         if (eflag > 0) {
             m_energy = true;
         } else {
@@ -87,7 +87,7 @@ public:
     }
 
     //! Number of equations (state variables) for this reactor
-    virtual size_t neq() {
+    size_t neq() {
         if (!m_nv) {
             initialize();
         }
@@ -108,9 +108,17 @@ public:
      * @param[in] y solution vector, length neq()
      * @param[out] ydot rate of change of solution vector, length neq()
      * @param[in] params sensitivity parameter vector, length ReactorNet::nparams()
+     * @deprecated Replaced by eval(double t, double* ydot). To be removed after
+     *     Cantera 2.6.
      */
-    virtual void evalEqs(doublereal t, doublereal* y,
-                         doublereal* ydot, doublereal* params);
+    virtual void evalEqs(double t, double* y, double* ydot, double* params) {
+        throw NotImplementedError("Reactor::evalEqs", "Deprecated");
+    }
+
+    //! Evaluate the reactor governing equations. Called by ReactorNet::eval.
+    //! @param[in] t time.
+    //! @param[out] ydot rate of change of solution vector, length neq()
+    virtual void eval(double t, double* ydot);
 
     virtual void syncState();
 
@@ -159,13 +167,13 @@ public:
     //! @param limit value for step size limit
     void setAdvanceLimit(const std::string& nm, const double limit);
 
-protected:
     //! Set reaction rate multipliers based on the sensitivity variables in
     //! *params*.
     virtual void applySensitivity(double* params);
     //! Reset the reaction rate multipliers
     virtual void resetSensitivity(double* params);
 
+protected:
     //! Return the index in the solution vector for this reactor of the species
     //! named *nm*, in either the homogeneous phase or a surface phase, relative
     //! to the start of the species terms. Used to implement componentIndex for
@@ -214,6 +222,7 @@ protected:
     bool m_chem;
     bool m_energy;
     size_t m_nv;
+    size_t m_nv_surf; //!!< Number of variables associated with reactor surfaces
 
     vector_fp m_advancelimits; //!< Advance step limit
 

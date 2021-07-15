@@ -96,12 +96,14 @@ void Reactor::initialize(doublereal t0)
     }
 
     m_nv = m_nsp + 3;
+    m_nv_surf = 0;
     size_t maxnt = 0;
     for (auto& S : m_surfaces) {
-        m_nv += S->thermo()->nSpecies();
+        m_nv_surf += S->thermo()->nSpecies();
         size_t nt = S->kinetics()->nTotalSpecies();
         maxnt = std::max(maxnt, nt);
     }
+    m_nv += m_nv_surf;
     m_work.resize(maxnt);
 }
 
@@ -196,14 +198,12 @@ void Reactor::updateConnected(bool updatePressure) {
     }
 }
 
-void Reactor::evalEqs(doublereal time, doublereal* y,
-                      doublereal* ydot, doublereal* params)
+void Reactor::eval(double time, double* ydot)
 {
     double dmdt = 0.0; // dm/dt (gas phase)
     double* dYdt = ydot + 3;
 
     evalWalls(time);
-    applySensitivity(params);
     m_thermo->restoreState(m_state);
     double mdot_surf = evalSurfaces(time, ydot + m_nsp + 3);
     dmdt += mdot_surf; // mass added to gas phase from surface reactions
@@ -259,7 +259,6 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
     }
 
     ydot[0] = dmdt;
-    resetSensitivity(params);
 }
 
 void Reactor::evalWalls(double t)

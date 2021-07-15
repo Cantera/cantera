@@ -289,6 +289,8 @@ protected:
     vector_fp m_ydot;
     vector_fp m_yest;
     vector_fp m_advancelimits;
+    bool m_checked_eval_deprecation; //!< @todo Remove after Cantera 2.6
+    std::vector<bool> m_have_deprecated_eval; //!< @todo Remove after Cantera 2.6
 };
 }
 

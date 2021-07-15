@@ -191,6 +191,12 @@ public:
     NotImplementedError(const std::string& func) :
         CanteraError(func, "Not implemented.") {}
 
+    //! @copydoc CanteraError(const std::string& procedure,
+    //!                       const std::string& msg, const Args&... args)
+    template <typename... Args>
+    NotImplementedError(const std::string& procedure, const std::string& msg,
+                 const Args&... args) : CanteraError(procedure, msg, args...) {}
+
     virtual std::string getClass() const {
         return "NotImplementedError";
     }

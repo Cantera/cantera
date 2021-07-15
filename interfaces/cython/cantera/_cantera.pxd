@@ -5,10 +5,13 @@
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.map cimport map as stdmap
+from libcpp.cast cimport dynamic_cast
 from libcpp.unordered_map cimport unordered_map
 from libcpp.pair cimport pair
 from libcpp cimport bool as cbool
+from libcpp.functional cimport function
 from cpython cimport bool as pybool
+from cpython.ref cimport PyObject
 
 import numpy as np
 cimport numpy as np
@@ -30,6 +33,15 @@ cdef extern from "<map>" namespace "std":
         pair[iterator, bint] insert(pair[T, U]) nogil
         iterator find(T&) nogil
 
+cdef extern from "<array>" namespace "std" nogil:
+    cdef cppclass size_array1 "std::array<size_t, 1>":
+        size_array1() except+
+        size_t& operator[](size_t)
+
+    cdef cppclass size_array3 "std::array<size_t, 3>":
+        size_array3() except+
+        size_t& operator[](size_t)
+
 cdef extern from "cantera/cython/funcWrapper.h":
     ctypedef double (*callback_wrapper)(double, void*, void**)
     cdef int translate_exception()
@@ -37,6 +49,30 @@ cdef extern from "cantera/cython/funcWrapper.h":
     cdef cppclass CxxFunc1 "Func1Py":
         CxxFunc1(callback_wrapper, void*)
         double eval(double) except +translate_exception
+
+    cdef cppclass PyFuncInfo:
+        PyFuncInfo()
+        PyObject* func()
+        void setFunc(PyObject*)
+        PyObject* exceptionType()
+        void setExceptionType(PyObject*)
+        PyObject* exceptionValue()
+        void setExceptionValue(PyObject*)
+
+    # pyOverride is actually a templated function, but we have to specify the individual
+    # instantiations because Cython doesn't understand variadic templates
+    cdef function[void(double)] pyOverride(PyObject*, void(PyFuncInfo&, double))
+    cdef function[void(cbool)] pyOverride(PyObject*, void(PyFuncInfo&, cbool))
+    cdef function[void()] pyOverride(PyObject*, void(PyFuncInfo&))
+    cdef function[void(size_array1, double*)] pyOverride(
+        PyObject*, void(PyFuncInfo&, size_array1, double*))
+    cdef function[void(size_array1, double, double*)] pyOverride(
+        PyObject*, void(PyFuncInfo&, size_array1, double, double*))
+    cdef function[int(double&, size_array1, double, double*)] pyOverride(
+        PyObject*, int(PyFuncInfo&, double&, size_array1, double, double*))
+    cdef function[int(string&, size_t)] pyOverride(PyObject*, int(PyFuncInfo&, string&, size_t))
+    cdef function[int(size_t&, const string&)] pyOverride(
+        PyObject*, int(PyFuncInfo&, size_t&, const string&))
 
 cdef extern from "cantera/numerics/Func1.h":
     cdef cppclass CxxTabulated1 "Cantera::Tabulated1":
@@ -125,6 +161,21 @@ cdef extern from "cantera/base/Array.h" namespace "Cantera":
         CxxArray2D(size_t, size_t)
         void resize(size_t, size_t)
         double operator()(size_t, size_t)
+
+cdef extern from "cantera/base/Delegator.h" namespace "Cantera":
+    cdef cppclass CxxDelegator "Cantera::Delegator":
+        Delegator()
+
+        void setDelegate(string&, function[void()], string&) except +translate_exception
+        void setDelegate(string&, function[void(cbool)], string&) except +translate_exception
+        void setDelegate(string&, function[void(double)], string&) except +translate_exception
+        void setDelegate(string&, function[void(size_array1, double*)], string&) except +translate_exception
+        void setDelegate(string&, function[void(size_array1, double, double*)], string&) except +translate_exception
+        void setDelegate(string&, function[int(double&, size_array1, double, double*)], string&) except +translate_exception
+        void setDelegate(string&, function[int(string&, size_t)], string&) except +translate_exception
+        void setDelegate(string&, function[int(size_t&, string&)], string&) except +translate_exception
+
+ctypedef CxxDelegator* CxxDelegatorPtr
 
 cdef extern from "cantera/thermo/SpeciesThermoInterpType.h":
     cdef cppclass CxxSpeciesThermo "Cantera::SpeciesThermoInterpType":
@@ -719,6 +770,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double speed()
         double distance()
 
+
     # walls
 
     cdef cppclass CxxWallBase "Cantera::WallBase":
@@ -825,6 +877,18 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         size_t nparams()
         string sensitivityParameterName(size_t) except +translate_exception
 
+cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
+    cdef cppclass CxxReactorAccessor "Cantera::ReactorAccessor":
+        CxxReactorAccessor()
+        void setNEq(size_t)
+        double vdot()
+        void setVdot(double)
+        double qdot()
+        void setQdot(double)
+        void restoreThermoState() except +translate_exception
+        void restoreSurfaceState(size_t) except +translate_exception
+
+ctypedef CxxReactorAccessor* CxxReactorAccessorPtr
 
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef CxxThermoPhase* newPhase(string, string) except +translate_exception
@@ -1251,6 +1315,9 @@ cdef class IdealGasConstPressureReactor(Reactor):
 cdef class FlowReactor(Reactor):
     pass
 
+cdef class DelegatedReactor(Reactor):
+    cdef CxxReactorAccessor* accessor
+
 cdef class ReactorSurface:
     cdef CxxReactorSurface* surface
     cdef Kinetics _kinetics
@@ -1365,6 +1432,7 @@ cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method)
 cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method)
 cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *
 cdef wrapSpeciesThermo(shared_ptr[CxxSpeciesThermo] spthermo)
+cdef void assign_delegates(object, CxxDelegator*)
 
 cdef extern from "cantera/thermo/Elements.h" namespace "Cantera":
     double getElementWeight(string ename) except +translate_exception
