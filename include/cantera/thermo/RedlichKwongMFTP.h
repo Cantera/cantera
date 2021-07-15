@@ -47,12 +47,8 @@ public:
 
     //! @name Molar Thermodynamic properties
     //! @{
-
-    virtual doublereal enthalpy_mole() const;
-    virtual doublereal entropy_mole() const;
     virtual doublereal cp_mole() const;
     virtual doublereal cv_mole() const;
-
     //! @}
     //! @name Mechanical Properties
     //! @{
@@ -71,32 +67,7 @@ public:
 
     // @}
 
-protected:
-    /**
-     * Calculate the density of the mixture using the partial molar volumes and
-     * mole fractions as input
-     *
-     * The formula for this is
-     *
-     * \f[
-     * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
-     * \f]
-     *
-     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are the molecular
-     * weights, and \f$V_k\f$ are the pure species molar volumes.
-     *
-     * Note, the basis behind this formula is that in an ideal solution the
-     * partial molar volumes are equal to the species standard state molar
-     * volumes. The species molar volumes may be functions of temperature and
-     * pressure.
-     */
-    virtual void calcDensity();
-
-    virtual void setTemperature(const doublereal temp);
-    virtual void compositionChanged();
-
 public:
-    virtual void getActivityConcentrations(doublereal* c) const;
 
     //! Returns the standard concentration \f$ C^0_k \f$, which is used to
     //! normalize the generalized concentration.
@@ -148,16 +119,6 @@ public:
     virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
     virtual void getPartialMolarCp(doublereal* cpbar) const;
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
-
-    //@}
-    /// @name Critical State Properties.
-    //@{
-
-    virtual doublereal critTemperature() const;
-    virtual doublereal critPressure() const;
-    virtual doublereal critVolume() const;
-    virtual doublereal critCompressibility() const;
-    virtual doublereal critDensity() const;
 
 public:
     //@}
@@ -247,11 +208,10 @@ protected:
 
 public:
     virtual doublereal liquidVolEst(doublereal TKelvin, doublereal& pres) const;
-    virtual doublereal densityCalc(doublereal TKelvin, doublereal pressure, int phase, doublereal rhoguess);
+    virtual doublereal densityCalc(doublereal T, doublereal pressure, int phase, doublereal rhoguess);
 
     virtual doublereal densSpinodalLiquid() const;
     virtual doublereal densSpinodalGas() const;
-    virtual doublereal pressureCalc(doublereal TKelvin, doublereal molarVol) const;
     virtual doublereal dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const;
 
     //! Calculate dpdV and dpdT at the current conditions
@@ -260,15 +220,13 @@ public:
      */
     void pressureDerivatives() const;
 
-    virtual void updateMixingExpressions();
-
     //! Update the a and b parameters
     /*!
      *  The a and the b parameters depend on the mole fraction and the
      *  temperature. This function updates the internal numbers based on the
      *  state of the object.
      */
-    void updateAB();
+    virtual void updateMixingExpressions();
 
     //! Calculate the a and the b parameters given the temperature
     /*!
@@ -285,21 +243,10 @@ public:
 
     doublereal da_dt() const;
 
-    void calcCriticalConditions(doublereal a, doublereal b, doublereal a0_coeff, doublereal aT_coeff,
-                                doublereal& pc, doublereal& tc, doublereal& vc) const;
+    void calcCriticalConditions(doublereal& pc, doublereal& tc, doublereal& vc) const;
 
-    //! Solve the cubic equation of state
-    /*!
-     * The R-K equation of state may be solved via the following formula:
-     *
-     *     V**3 - V**2(RT/P)  - V(RTb/P - a/(P T**.5) + b*b) - (a b / (P T**.5)) = 0
-     *
-     * Returns the number of solutions found. If it only finds the liquid
-     * branch solution, it will return a -1 or a -2 instead of 1 or 2.  If it
-     * returns 0, then there is an error.
-     */
-    int NicholsSolve(double TKelvin, double pres, doublereal a, doublereal b,
-                     doublereal Vroot[3]) const;
+    //! Prepare variables and call the function to solve the cubic equation of state
+    int solveCubic(double T, double pres, double a, double b, double Vroot[3]) const;
 
 protected:
     //! Form of the temperature parameterization
@@ -340,9 +287,6 @@ protected:
     //! Temporary storage - length = m_kk.
     mutable vector_fp m_pp;
 
-    //! Temporary storage - length = m_kk.
-    mutable vector_fp m_tmpV;
-
     // Partial molar volumes of the species
     mutable vector_fp m_partialMolarVolumes;
 
@@ -367,7 +311,7 @@ protected:
      */
     mutable vector_fp dpdni_;
 
-public:
+private:
     //! Omega constant for a -> value of a in terms of critical properties
     /*!
      *  this was calculated from a small nonlinear solve

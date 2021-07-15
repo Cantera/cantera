@@ -118,23 +118,6 @@ void RedlichKwongMFTP::setBinaryCoeffs(const std::string& species_i,
 
 // ------------Molar Thermodynamic Properties -------------------------
 
-doublereal RedlichKwongMFTP::enthalpy_mole() const
-{
-    _updateReferenceStateThermo();
-    doublereal h_ideal = RT() * mean_X(m_h0_RT);
-    doublereal h_nonideal = hresid();
-    return h_ideal + h_nonideal;
-}
-
-doublereal RedlichKwongMFTP::entropy_mole() const
-{
-    _updateReferenceStateThermo();
-    doublereal sr_ideal = GasConstant * (mean_X(m_s0_R)
-                                          - sum_xlogx() - std::log(pressure()/refPressure()));
-    doublereal sr_nonideal = sresid();
-    return sr_ideal + sr_nonideal;
-}
-
 doublereal RedlichKwongMFTP::cp_mole() const
 {
     _updateReferenceStateThermo();
@@ -174,39 +157,6 @@ doublereal RedlichKwongMFTP::pressure() const
     double molarV = meanMolecularWeight() / density();
     double pp = GasConstant * T/(molarV - m_b_current) - m_a_current/(sqrt(T) * molarV * (molarV + m_b_current));
     return pp;
-}
-
-void RedlichKwongMFTP::calcDensity()
-{
-    // Calculate the molarVolume of the solution (m**3 kmol-1)
-    const doublereal* const dtmp = moleFractdivMMW();
-    getPartialMolarVolumes(m_tmpV.data());
-    double invDens = dot(m_tmpV.begin(), m_tmpV.end(), dtmp);
-
-    // Set the density in the parent State object directly, by calling the
-    // Phase::setDensity() function.
-    Phase::setDensity(1.0/invDens);
-}
-
-void RedlichKwongMFTP::setTemperature(const doublereal temp)
-{
-    Phase::setTemperature(temp);
-    _updateReferenceStateThermo();
-    updateAB();
-}
-
-void RedlichKwongMFTP::compositionChanged()
-{
-    MixtureFugacityTP::compositionChanged();
-    updateAB();
-}
-
-void RedlichKwongMFTP::getActivityConcentrations(doublereal* c) const
-{
-    getActivityCoefficients(c);
-    for (size_t k = 0; k < m_kk; k++) {
-        c[k] *= moleFraction(k)*pressure()/RT();
-    }
 }
 
 doublereal RedlichKwongMFTP::standardConcentration(size_t k) const
@@ -430,87 +380,6 @@ void RedlichKwongMFTP::getPartialMolarVolumes(doublereal* vbar) const
     }
 }
 
-doublereal RedlichKwongMFTP::critTemperature() const
-{
-    double pc, tc, vc;
-    double a0 = 0.0;
-    double aT = 0.0;
-    for (size_t i = 0; i < m_kk; i++) {
-        for (size_t j = 0; j <m_kk; j++) {
-            size_t counter = i + m_kk * j;
-            a0 += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(0, counter);
-            aT += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(1, counter);
-        }
-    }
-    calcCriticalConditions(m_a_current, m_b_current, a0, aT, pc, tc, vc);
-    return tc;
-}
-
-doublereal RedlichKwongMFTP::critPressure() const
-{
-    double pc, tc, vc;
-    double a0 = 0.0;
-    double aT = 0.0;
-    for (size_t i = 0; i < m_kk; i++) {
-        for (size_t j = 0; j <m_kk; j++) {
-            size_t counter = i + m_kk * j;
-            a0 += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(0, counter);
-            aT += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(1, counter);
-        }
-    }
-    calcCriticalConditions(m_a_current, m_b_current, a0, aT, pc, tc, vc);
-    return pc;
-}
-
-doublereal RedlichKwongMFTP::critVolume() const
-{
-    double pc, tc, vc;
-    double a0 = 0.0;
-    double aT = 0.0;
-    for (size_t i = 0; i < m_kk; i++) {
-        for (size_t j = 0; j <m_kk; j++) {
-            size_t counter = i + m_kk * j;
-            a0 += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(0, counter);
-            aT += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(1, counter);
-        }
-    }
-    calcCriticalConditions(m_a_current, m_b_current, a0, aT, pc, tc, vc);
-    return vc;
-}
-
-doublereal RedlichKwongMFTP::critCompressibility() const
-{
-    double pc, tc, vc;
-    double a0 = 0.0;
-    double aT = 0.0;
-    for (size_t i = 0; i < m_kk; i++) {
-        for (size_t j = 0; j <m_kk; j++) {
-            size_t counter = i + m_kk * j;
-            a0 += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(0, counter);
-            aT += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(1, counter);
-        }
-    }
-    calcCriticalConditions(m_a_current, m_b_current, a0, aT, pc, tc, vc);
-    return pc*vc/tc/GasConstant;
-}
-
-doublereal RedlichKwongMFTP::critDensity() const
-{
-    double pc, tc, vc;
-    double a0 = 0.0;
-    double aT = 0.0;
-    for (size_t i = 0; i < m_kk; i++) {
-        for (size_t j = 0; j <m_kk; j++) {
-            size_t counter = i + m_kk * j;
-            a0 += moleFractions_[i] * moleFractions_[j] *a_coeff_vec(0, counter);
-            aT += moleFractions_[i] * moleFractions_[j] *a_coeff_vec(1, counter);
-        }
-    }
-    calcCriticalConditions(m_a_current, m_b_current, a0, aT, pc, tc, vc);
-    double mmw = meanMolecularWeight();
-    return mmw / vc;
-}
-
 bool RedlichKwongMFTP::addSpecies(shared_ptr<Species> spec)
 {
     bool added = MixtureFugacityTP::addSpecies(spec);
@@ -524,7 +393,6 @@ bool RedlichKwongMFTP::addSpecies(shared_ptr<Species> spec)
 
         m_pp.push_back(0.0);
         m_coeffs_from_db.push_back(false);
-        m_tmpV.push_back(0.0);
         m_partialMolarVolumes.push_back(0.0);
         dpdni_.push_back(0.0);
     }
@@ -892,7 +760,7 @@ doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGu
     bool foundLiq = false;
     int m = 0;
     while (m < 100 && !foundLiq) {
-        int nsol = NicholsSolve(TKelvin, pres, atmp, btmp, Vroot);
+        int nsol = solveCubic(TKelvin, pres, atmp, btmp, Vroot);
         if (nsol == 1 || nsol == 2) {
             double pc = critPressure();
             if (pres > pc) {
@@ -918,28 +786,20 @@ doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, 
     // It's necessary to set the temperature so that m_a_current is set correctly.
     setTemperature(TKelvin);
     double tcrit = critTemperature();
-    doublereal mmw = meanMolecularWeight();
+    double mmw = meanMolecularWeight();
     if (rhoguess == -1.0) {
-        if (phaseRequested != FLUID_GAS) {
-            if (TKelvin > tcrit) {
-                rhoguess = presPa * mmw / (GasConstant * TKelvin);
-            } else {
-                if (phaseRequested == FLUID_GAS || phaseRequested == FLUID_SUPERCRIT) {
-                    rhoguess = presPa * mmw / (GasConstant * TKelvin);
-                } else if (phaseRequested >= FLUID_LIQUID_0) {
+        if (phaseRequested >= FLUID_LIQUID_0) {
                     double lqvol = liquidVolEst(TKelvin, presPa);
                     rhoguess = mmw / lqvol;
                 }
-            }
         } else {
-            // Assume the Gas phase initial guess, if nothing is specified to
-            // the routine
+            // Assume the Gas phase initial guess, if nothing is specified to the routine
             rhoguess = presPa * mmw / (GasConstant * TKelvin);
-        }
     }
 
+
     doublereal volguess = mmw / rhoguess;
-    NSolns_ = NicholsSolve(TKelvin, presPa, m_a_current, m_b_current, Vroot_);
+    NSolns_ = solveCubic(TKelvin, presPa, m_a_current, m_b_current, Vroot_);
 
     doublereal molarVolLast = Vroot_[0];
     if (NSolns_ >= 2) {
@@ -979,7 +839,7 @@ doublereal RedlichKwongMFTP::densSpinodalLiquid() const
 {
     double Vroot[3];
     double T = temperature();
-    int nsol = NicholsSolve(T, pressure(), m_a_current, m_b_current, Vroot);
+    int nsol = solveCubic(T, pressure(), m_a_current, m_b_current, Vroot);
     if (nsol != 3) {
         return critDensity();
     }
@@ -1001,7 +861,7 @@ doublereal RedlichKwongMFTP::densSpinodalGas() const
 {
     double Vroot[3];
     double T = temperature();
-    int nsol = NicholsSolve(T, pressure(), m_a_current, m_b_current, Vroot);
+    int nsol = solveCubic(T, pressure(), m_a_current, m_b_current, Vroot);
     if (nsol != 3) {
         return critDensity();
     }
@@ -1017,14 +877,6 @@ doublereal RedlichKwongMFTP::densSpinodalGas() const
 
     doublereal mmw = meanMolecularWeight();
     return mmw / (0.5 * (vv.first + vv.second));
-}
-
-doublereal RedlichKwongMFTP::pressureCalc(doublereal TKelvin, doublereal molarVol) const
-{
-    doublereal sqt = sqrt(TKelvin);
-    double pres = GasConstant * TKelvin / (molarVol - m_b_current)
-                  - m_a_current / (sqt * molarVol * (molarVol + m_b_current));
-    return pres;
 }
 
 doublereal RedlichKwongMFTP::dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const
@@ -1057,11 +909,6 @@ void RedlichKwongMFTP::pressureDerivatives() const
 
 void RedlichKwongMFTP::updateMixingExpressions()
 {
-    updateAB();
-}
-
-void RedlichKwongMFTP::updateAB()
-{
     double temp = temperature();
     if (m_formTempParam == 1) {
         for (size_t i = 0; i < m_kk; i++) {
@@ -1092,7 +939,7 @@ void RedlichKwongMFTP::updateAB()
                 }
             }
         }
-        throw CanteraError("RedlichKwongMFTP::updateAB",
+        throw CanteraError("RedlichKwongMFTP::updateMixingExpressions",
             "Missing Redlich-Kwong coefficients for species: {}", to_string(b));
     }
 }
@@ -1136,11 +983,21 @@ doublereal RedlichKwongMFTP::da_dt() const
     return dadT;
 }
 
-void RedlichKwongMFTP::calcCriticalConditions(doublereal a, doublereal b, doublereal a0_coeff, doublereal aT_coeff,
-        doublereal& pc, doublereal& tc, doublereal& vc) const
+void RedlichKwongMFTP::calcCriticalConditions(doublereal& pc, doublereal& tc, doublereal& vc) const
 {
+    double a0 = 0.0;
+    double aT = 0.0;
+    for (size_t i = 0; i < m_kk; i++) {
+        for (size_t j = 0; j <m_kk; j++) {
+            size_t counter = i + m_kk * j;
+            a0 += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(0, counter);
+            aT += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(1, counter);
+        }
+    }
+    double a = m_a_current;
+    double b = m_b_current;
     if (m_formTempParam != 0) {
-        a = a0_coeff;
+        a = a0;
     }
     if (b <= 0.0) {
         tc = 1000000.;
@@ -1164,13 +1021,14 @@ void RedlichKwongMFTP::calcCriticalConditions(doublereal a, doublereal b, double
         tc = pow(tmp, pp);
         for (int j = 0; j < 10; j++) {
             sqrttc = sqrt(tc);
-            f = omega_a * b * GasConstant * tc * sqrttc / omega_b - aT_coeff * tc - a0_coeff;
-            dfdt = 1.5 * omega_a * b * GasConstant * sqrttc / omega_b - aT_coeff;
+            f = omega_a * b * GasConstant * tc * sqrttc / omega_b - aT * tc - a0;
+            dfdt = 1.5 * omega_a * b * GasConstant * sqrttc / omega_b - aT;
             deltatc = - f / dfdt;
             tc += deltatc;
         }
         if (deltatc > 0.1) {
-            throw CanteraError("RedlichKwongMFTP::calcCriticalConditions", "didn't converge");
+            throw CanteraError("RedlichKwongMFTP::calcCriticalConditions",
+                "didn't converge");
         }
     }
 
@@ -1178,21 +1036,14 @@ void RedlichKwongMFTP::calcCriticalConditions(doublereal a, doublereal b, double
     vc = omega_vc * GasConstant * tc / pc;
 }
 
-int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, doublereal b,
-                                   doublereal Vroot[3]) const
+int RedlichKwongMFTP::solveCubic(double T, double pres, double a, double b, double Vroot[3]) const
 {
-    Vroot[0] = 0.0;
-    Vroot[1] = 0.0;
-    Vroot[2] = 0.0;
-    if (TKelvin <= 0.0) {
-        throw CanteraError("RedlichKwongMFTP::NicholsSolve", "neg temperature");
-    }
 
     // Derive the coefficients of the cubic polynomial to solve.
     doublereal an = 1.0;
-    doublereal bn = - GasConstant * TKelvin / pres;
-    doublereal sqt = sqrt(TKelvin);
-    doublereal cn = - (GasConstant * TKelvin * b / pres - a/(pres * sqt) + b * b);
+    doublereal bn = - GasConstant * T / pres;
+    doublereal sqt = sqrt(T);
+    doublereal cn = - (GasConstant * T * b / pres - a/(pres * sqt) + b * b);
     doublereal dn = - (a * b / (pres * sqt));
 
     double tmp = a * omega_b / (b * omega_a * GasConstant);
@@ -1200,182 +1051,9 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
     double tc = pow(tmp, pp);
     double pc = omega_b * GasConstant * tc / b;
     double vc = omega_vc * GasConstant * tc / pc;
-    // Derive the center of the cubic, x_N
-    doublereal xN = - bn /(3 * an);
 
-    // Derive the value of delta**2. This is a key quantity that determines the
-    // number of turning points
-    doublereal delta2 = (bn * bn - 3 * an * cn) / (9 * an * an);
-    doublereal delta = 0.0;
+    int nSolnValues = MixtureFugacityTP::solveCubic(T, pres, a, b, a, Vroot, an, bn, cn, dn, tc, vc);
 
-    // Calculate a couple of ratios
-    doublereal ratio1 = 3.0 * an * cn / (bn * bn);
-    doublereal ratio2 = pres * b / (GasConstant * TKelvin);
-    if (fabs(ratio1) < 1.0E-7) {
-        doublereal ratio3 = a / (GasConstant * sqt) * pres / (GasConstant * TKelvin);
-        if (fabs(ratio2) < 1.0E-5 && fabs(ratio3) < 1.0E-5) {
-            doublereal zz = 1.0;
-            for (int i = 0; i < 10; i++) {
-                doublereal znew = zz / (zz - ratio2) - ratio3 / (zz + ratio1);
-                doublereal deltaz = znew - zz;
-                zz = znew;
-                if (fabs(deltaz) < 1.0E-14) {
-                    break;
-                }
-            }
-            doublereal v = zz * GasConstant * TKelvin / pres;
-            Vroot[0] = v;
-            return 1;
-        }
-    }
-
-    int nSolnValues;
-    double h2 = 4. * an * an * delta2 * delta2 * delta2;
-    if (delta2 > 0.0) {
-        delta = sqrt(delta2);
-    }
-
-    doublereal h = 2.0 * an * delta * delta2;
-    doublereal yN = 2.0 * bn * bn * bn / (27.0 * an * an) - bn * cn / (3.0 * an) + dn;
-    doublereal desc = yN * yN - h2;
-
-    if (fabs(fabs(h) - fabs(yN)) < 1.0E-10) {
-        if (desc != 0.0) {
-            // this is for getting to other cases
-            throw CanteraError("RedlichKwongMFTP::NicholsSolve", "numerical issues");
-        }
-        desc = 0.0;
-    }
-
-    if (desc < 0.0) {
-        nSolnValues = 3;
-    } else if (desc == 0.0) {
-        nSolnValues = 2;
-        // We are here as p goes to zero.
-    } else if (desc > 0.0) {
-        nSolnValues = 1;
-    }
-
-    // One real root -> have to determine whether gas or liquid is the root
-    if (desc > 0.0) {
-        doublereal tmpD = sqrt(desc);
-        doublereal tmp1 = (- yN + tmpD) / (2.0 * an);
-        doublereal sgn1 = 1.0;
-        if (tmp1 < 0.0) {
-            sgn1 = -1.0;
-            tmp1 = -tmp1;
-        }
-        doublereal tmp2 = (- yN - tmpD) / (2.0 * an);
-        doublereal sgn2 = 1.0;
-        if (tmp2 < 0.0) {
-            sgn2 = -1.0;
-            tmp2 = -tmp2;
-        }
-        doublereal p1 = pow(tmp1, 1./3.);
-        doublereal p2 = pow(tmp2, 1./3.);
-        doublereal alpha = xN + sgn1 * p1 + sgn2 * p2;
-        Vroot[0] = alpha;
-        Vroot[1] = 0.0;
-        Vroot[2] = 0.0;
-        tmp = an * Vroot[0] * Vroot[0] * Vroot[0] + bn * Vroot[0] * Vroot[0] + cn * Vroot[0] + dn;
-    } else if (desc < 0.0) {
-        doublereal tmp = - yN/h;
-        doublereal val = acos(tmp);
-        doublereal theta = val / 3.0;
-        doublereal oo = 2. * Pi / 3.;
-        doublereal alpha = xN + 2. * delta * cos(theta);
-        doublereal beta = xN + 2. * delta * cos(theta + oo);
-        doublereal gamma = xN + 2. * delta * cos(theta + 2.0 * oo);
-        Vroot[0] = beta;
-        Vroot[1] = gamma;
-        Vroot[2] = alpha;
-
-        for (int i = 0; i < 3; i++) {
-            tmp = an * Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn * Vroot[i] + dn;
-            if (fabs(tmp) > 1.0E-4) {
-                for (int j = 0; j < 3; j++) {
-                    if (j != i && fabs(Vroot[i] - Vroot[j]) < 1.0E-4 * (fabs(Vroot[i]) + fabs(Vroot[j]))) {
-                        warn_user("RedlichKwongMFTP::NicholsSolve",
-                            "roots have merged: {}, {} (T = {}, p = {})",
-                            Vroot[i], Vroot[j], TKelvin, pres);
-                    }
-                }
-            }
-        }
-    } else if (desc == 0.0) {
-        if (yN == 0.0 && h == 0.0) {
-            Vroot[0] = xN;
-            Vroot[1] = xN;
-            Vroot[2] = xN;
-        } else {
-            // need to figure out whether delta is pos or neg
-            if (yN > 0.0) {
-                tmp = pow(yN/(2*an), 1./3.);
-                if (fabs(tmp - delta) > 1.0E-9) {
-                    throw CanteraError("RedlichKwongMFTP::NicholsSolve", "unexpected");
-                }
-                Vroot[1] = xN + delta;
-                Vroot[0] = xN - 2.0*delta; // liquid phase root
-            } else {
-                tmp = pow(yN/(2*an), 1./3.);
-                if (fabs(tmp - delta) > 1.0E-9) {
-                    throw CanteraError("RedlichKwongMFTP::NicholsSolve", "unexpected");
-                }
-                delta = -delta;
-                Vroot[0] = xN + delta;
-                Vroot[1] = xN - 2.0*delta; // gas phase root
-            }
-        }
-        for (int i = 0; i < 2; i++) {
-            tmp = an * Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn * Vroot[i] + dn;
-        }
-    }
-
-    // Unfortunately, there is a heavy amount of roundoff error due to bad
-    // conditioning in this
-    double res, dresdV = 0.0;
-    for (int i = 0; i < nSolnValues; i++) {
-        for (int n = 0; n < 20; n++) {
-            res = an * Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn * Vroot[i] + dn;
-            if (fabs(res) < 1.0E-14) {
-                break;
-            }
-            dresdV = 3.0 * an * Vroot[i] * Vroot[i] + 2.0 * bn * Vroot[i] + cn;
-            double del = - res / dresdV;
-            Vroot[i] += del;
-            if (fabs(del) / (fabs(Vroot[i]) + fabs(del)) < 1.0E-14) {
-                break;
-            }
-            double res2 = an * Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn * Vroot[i] + dn;
-            if (fabs(res2) < fabs(res)) {
-                continue;
-            } else {
-                Vroot[i] -= del;
-                Vroot[i] += 0.1 * del;
-            }
-        }
-        if ((fabs(res) > 1.0E-14) && (fabs(res) > 1.0E-14 * fabs(dresdV) * fabs(Vroot[i]))) {
-            warn_user("RedlichKwongMFTP::NicholsSolve",
-                "root did not converge: V = {} (T = {}, p = {})",
-                Vroot[i], TKelvin, pres);
-        }
-    }
-
-    if (nSolnValues == 1) {
-        if (TKelvin > tc) {
-            if (Vroot[0] < vc) {
-                nSolnValues = -1;
-            }
-        } else {
-            if (Vroot[0] < xN) {
-                nSolnValues = -1;
-            }
-        }
-    } else {
-        if (nSolnValues == 2 && delta > 0.0) {
-            nSolnValues = -2;
-        }
-    }
     return nSolnValues;
 }
 
