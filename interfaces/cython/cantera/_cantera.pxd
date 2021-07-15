@@ -1157,7 +1157,7 @@ cdef class ReactionRate:
     cdef wrap(shared_ptr[CxxReactionRateBase])
 
 cdef class CustomRate(ReactionRate):
-    cdef CxxCustomFunc1Rate* cfr(self)
+    cdef CxxCustomFunc1Rate* cxx_object(self)
     cdef Func1 _rate_func
 
 cdef class Reaction:
