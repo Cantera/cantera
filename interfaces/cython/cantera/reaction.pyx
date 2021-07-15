@@ -394,7 +394,7 @@ cdef class Reaction:
     :param products:
         Value used to set `products`
 
-    The static methods `listFromFile`, `listFromYaml`, `listFromCti`, and
+    The static methods `listFromFile`, `list_from_yaml`, `listFromCti`, and
     `listFromXml` can be used to create lists of `Reaction` objects from
     existing definitions in the YAML, CTI, or XML formats. All of the following
     will produce a list of the 325 reactions which make up the GRI 3.0
@@ -407,7 +407,7 @@ cdef class Reaction:
     where `gas` is a `Solution` object with the appropriate thermodynamic model,
     which is the `ideal-gas` model in this case.
 
-    The static method `listFromYaml` can be used to create lists of `Reaction`
+    The static method `list_from_yaml` can be used to create lists of `Reaction`
     objects from a YAML list::
 
         rxns = '''
@@ -416,15 +416,15 @@ cdef class Reaction:
           - equation: O + HO2 <=> OH + O2
             rate-constant: {A: 2.0e+13, b: 0.0, Ea: 0.0}
         '''
-        R = ct.Reaction.listFromYaml(rxns, gas)
+        R = ct.Reaction.list_from_yaml(rxns, gas)
 
-    The methods `fromYaml`, `fromCti`, and `fromXml` can be used to create
+    The methods `from_yaml`, `fromCti`, and `fromXml` can be used to create
     individual `Reaction` objects from definitions in these formats. In the case
     of using YAML or CTI definitions, it is important to verify that either the
     pre-exponential factor and activation energy are supplied in SI units, or
     that they have their units specified::
 
-        R = ct.Reaction.fromYaml('''{equation: O + H2 <=> H + OH,
+        R = ct.Reaction.from_yaml('''{equation: O + H2 <=> H + OH,
                 rate-constant: {A: 3.87e+04 cm^3/mol/s, b: 2.7, Ea: 6260 cal/mol}}''',
                 gas)
 
@@ -531,8 +531,8 @@ cdef class Reaction:
         """
         if cls._reaction_type != "":
             raise TypeError(
-                "Class method 'from_dict' was invoked from '{}' but should "
-                "be called from base class 'Reaction'".format(cls.__name__))
+                f"Class method 'from_dict' was invoked from '{cls.__name__}' but "
+                "should be called from base class 'Reaction'")
         if kinetics is None:
             raise ValueError("A Kinetics object is required.")
 
@@ -545,9 +545,23 @@ cdef class Reaction:
         """
         Create a `Reaction` object from its YAML string representation.
 
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by `Reaction.from_yaml`.
+        """
+        warnings.warn("Class method 'fromYaml' is renamed to 'from_yaml' "
+            "and will be removed after Cantera 2.6.", DeprecationWarning)
+
+        return cls.from_yaml(text, kinetics)
+
+    @classmethod
+    def from_yaml(cls, text, Kinetics kinetics=None):
+        """
+        Create a `Reaction` object from its YAML string representation.
+
         An example for the creation of a Reaction from a YAML string is::
 
-            rxn = Reaction.fromYaml('''
+            rxn = Reaction.from_yaml('''
                 equation: O + H2 <=> H + OH
                 rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
                 ''', kinetics=gas)
@@ -562,8 +576,8 @@ cdef class Reaction:
         """
         if cls._reaction_type != "":
             raise TypeError(
-                "Class method 'fromYaml' was invoked from '{}' but should "
-                "be called from base class 'Reaction'".format(cls.__name__))
+                f"Class method 'from_yaml' was invoked from '{cls.__name__}' but "
+                "should be called from base class 'Reaction'")
         if kinetics is None:
             raise ValueError("A Kinetics object is required.")
 
@@ -635,6 +649,21 @@ cdef class Reaction:
 
     @staticmethod
     def listFromYaml(text, Kinetics kinetics):
+        """
+        Create a list of `Reaction` objects from all the reactions defined in a
+        YAML string.
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by `Reaction.list_from_yaml`.
+        """
+        warnings.warn("Class method 'listFromYaml' is renamed to 'list_from_yaml' "
+            "and will be removed after Cantera 2.6.", DeprecationWarning)
+
+        return Reaction.list_from_yaml(text, kinetics)
+
+    @staticmethod
+    def list_from_yaml(text, Kinetics kinetics):
         """
         Create a list of `Reaction` objects from all the reactions defined in a
         YAML string.

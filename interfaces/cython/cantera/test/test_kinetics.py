@@ -898,8 +898,8 @@ class TestReaction(utilities.CanteraTest):
         self.assertEqual(r.efficiencies['H2O'], 15.4)
         self.assertEqual(r.rate.temperature_exponent, -1.0)
 
-    def test_fromYaml(self):
-        r = ct.Reaction.fromYaml(
+    def test_from_yaml(self):
+        r = ct.Reaction.from_yaml(
                 "{equation: 2 O + M <=> O2 + M,"
                 " type: three-body,"
                 " rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0},"
@@ -935,6 +935,20 @@ class TestReaction(utilities.CanteraTest):
         eq2 = [r.equation for r in gas.reactions()]
         self.assertEqual(eq1, eq2)
 
+    def test_list_from_yaml(self):
+        yaml = """
+            - equation: O + H2 <=> H + OH  # Reaction 3
+              rate-constant: {A: 3.87e+04, b: 2.7, Ea: 6260.0}
+            - equation: O + HO2 <=> OH + O2  # Reaction 4
+              rate-constant: {A: 2.0e+13, b: 0.0, Ea: 0.0}
+            - equation: O + H2O2 <=> OH + HO2  # Reaction 5
+              rate-constant: {A: 9.63e+06, b: 2.0, Ea: 4000.0}
+        """
+        R = ct.Reaction.list_from_yaml(yaml, self.gas)
+        self.assertEqual(len(R), 3)
+        self.assertIn('HO2', R[2].products)
+        self.assertEqual(R[0].rate.temperature_exponent, 2.7)
+
     def test_listFromYaml(self):
         yaml = """
             - equation: O + H2 <=> H + OH  # Reaction 3
@@ -944,7 +958,8 @@ class TestReaction(utilities.CanteraTest):
             - equation: O + H2O2 <=> OH + HO2  # Reaction 5
               rate-constant: {A: 9.63e+06, b: 2.0, Ea: 4000.0}
         """
-        R = ct.Reaction.listFromYaml(yaml, self.gas)
+        with self.assertWarnsRegex(DeprecationWarning, "is renamed to 'list_from_yaml'"):
+            R = ct.Reaction.listFromYaml(yaml, self.gas)
         self.assertEqual(len(R), 3)
         self.assertIn('HO2', R[2].products)
         self.assertEqual(R[0].rate.temperature_exponent, 2.7)
@@ -1178,7 +1193,7 @@ class TestReaction(utilities.CanteraTest):
                           species=species, reactions=[])
 
         with self.assertRaisesRegex(ct.CanteraError, "Inconsistent"):
-            r = ct.Reaction.fromYaml('''
+            r = ct.Reaction.from_yaml('''
                 equation: R5 + H (+ M) <=> P5A + P5B (+M)
                 type: Chebyshev
                 temperature-range: [300.0, 2000.0]
