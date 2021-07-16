@@ -32,9 +32,9 @@ testFiles = localenv.RecursiveInstall('#interfaces/cython/cantera/test/data',
 build(testFiles)
 
 # Get information needed to build the Python module
-script = '\n'.join(("from distutils.sysconfig import *",
+script = '\n'.join(("from sysconfig import *",
                     "import numpy",
-                    "print(get_config_var('EXT_SUFFIX') or get_config_var('SO'))",
+                    "print(get_config_var('EXT_SUFFIX'))",
                     "print(get_config_var('INCLUDEPY'))",
                     "print(get_config_var('LDLIBRARY'))",
                     "print(get_config_var('prefix'))",
