@@ -159,6 +159,8 @@ doublereal actEnergyToSI(const std::string& unit)
 
 string canteraRoot()
 {
+    warn_deprecated("canteraRoot",
+                    "Unused in Cantera. To be removed after Cantera 2.6");
     char* ctroot = getenv("CANTERA_ROOT");
     if (ctroot != 0) {
         return string(ctroot);

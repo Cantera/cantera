@@ -113,6 +113,7 @@ std::string gitCommit();
  * @returns a string containing the name of the base directory where %Cantera is
  *     installed. If the environmental variable CANTERA_ROOT is defined, this
  *     function will return its value, preferentially.
+ * @deprecated Unused within Cantera. To be removed after Cantera 2.6
  *
  * @ingroup inputfiles
  */
