@@ -1,0 +1,49 @@
+[metadata]
+name = Cantera_minimal
+version = @cantera_version@
+description = A minimal Cantera interface, containing only the input file conversion scripts
+long_description = This Cantera interface contains the conversion scripts for input files into the Cantera format. For the full Python interface, please see [Cantera](https://pypi.org/project/cantera).
+long_description_content_type = text/markdown
+license_files = LICENSE.txt
+url = https://cantera.org
+author = Cantera Developers
+author_email = developers@cantera.org
+keywords = chemistry physics
+license = BSD 3-Clause License
+classifiers =
+    Development Status :: 5 - Production/Stable
+    Intended Audience :: Education
+    Intended Audience :: Science/Research
+    License :: OSI Approved :: BSD License
+    Operating System :: MacOS :: MacOS X
+    Operating System :: Microsoft :: Windows
+    Operating System :: POSIX :: Linux
+    Programming Language :: Python :: 3 :: Only
+    Programming Language :: Python :: 3.6
+    Programming Language :: Python :: 3.7
+    Programming Language :: Python :: 3.8
+    Programming Language :: Python :: 3.9
+    Topic :: Scientific/Engineering :: Chemistry
+    Topic :: Scientific/Engineering :: Physics
+project_urls =
+    Documentation = https://cantera.org/documentation
+    Funding = https://numfocus.org/donate-to-cantera
+    Source = https://github.com/Cantera/cantera
+    Tracker = https://github.com/Cantera/cantera/issues
+
+[options]
+zip_safe = True
+install_requires =
+    numpy >= 1.12.0
+    ruamel.yaml >= 0.15.34
+python_requires = >=@py_min_ver_str@
+packages =
+    cantera
+
+[options.entry_points]
+console_scripts =
+    ck2cti = cantera.ck2cti:script_entry_point
+    ctml_writer = cantera.ctml_writer:main
+    ck2yaml = cantera.ck2yaml:script_entry_point
+    cti2yaml = cantera.cti2yaml:main
+    ctml2yaml = cantera.ctml2yaml:main
