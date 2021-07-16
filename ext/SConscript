@@ -1,11 +1,12 @@
+from pathlib import Path
 from buildutils import *
 
 Import('env', 'build', 'install', 'libraryTargets')
 localenv = env.Clone()
 copyenv = localenv.Clone() # no CPPPATH addition, to avoid circular dependencies
 
-license_files = [('Cantera', '#License.txt'),
-                 ('Libexecstream', 'libexecstream/doc/license.txt')]
+license_files = {"Cantera": File("#License.txt"),
+                 "Libexecstream": File("#ext/libexecstream/doc/license.txt")}
 
 def prep_default(env):
     localenv = env.Clone()
@@ -45,7 +46,7 @@ for subdir, extensions, prepFunction in libs:
 ext_copies = []
 
 if not env['system_fmt']:
-    license_files.append(('fmtlib', 'fmt/LICENSE.rst'))
+    license_files["fmtlib"] = File("#ext/fmt/LICENSE.rst")
     localenv = prep_default(env)
     localenv.Prepend(CPPPATH=Dir('#ext/fmt/include'))
     libraryTargets.extend(
@@ -61,7 +62,7 @@ if env['system_sundials'] == 'n':
     localenv = prep_default(env)
     localenv.Prepend(CPPPATH=[Dir('#include/cantera/ext'),
                               Dir('#ext/sundials/src/sundials')])
-    license_files.append(('Sundials', 'sundials/LICENSE'))
+    license_files["Sundials"] = File("#ext/sundials/LICENSE")
 
     # Generate sundials_config.h
     sundials_configh = {}
@@ -99,7 +100,7 @@ if env['system_sundials'] == 'n':
 if not env['system_yamlcpp']:
     localenv = prep_default(env)
     localenv.Prepend(CPPPATH=Dir('#include/cantera/ext'))
-    license_files.append(('YAML-CPP', 'yaml-cpp/LICENSE'))
+    license_files["YAML-CPP"] = File("#ext/yaml-cpp/LICENSE")
 
     # Copy header files into common include directory
     for subdir in ('', 'contrib', 'node', 'node/detail'):
@@ -119,7 +120,7 @@ if not env['system_yamlcpp']:
 
 
 if not env['system_eigen']:
-    license_files.append(('Eigen', 'eigen/COPYING.MPL2'))
+    license_files["Eigen"] = File("#ext/eigen/COPYING.MPL2")
     h = build(copyenv.Command('#include/cantera/ext/Eigen', '#ext/eigen/Eigen',
                               Copy('$TARGET', '$SOURCE')))
     copyenv.Depends(copyenv['config_h_target'], h)
@@ -136,28 +137,33 @@ if env['googletest'] == 'submodule':
 
 env["ext_include_copies_target"] = build(ext_copies)
 
-# Create license file containing licenses for Cantera and all included packages
+
 def generate_license(target, source, env):
-    stars = '*'*50 + '\n' + '*'*50 + '\n'
-    tpl = stars + 'The following license applies to {}\n' + stars + '\n{}\n'
+    target = Path(target[0].abspath)
+    stars = "*" * 50 + "\n" + "*" * 50 + "\n"
+    tpl = stars + "The following license applies to {}\n" + stars + "\n{}\n"
 
     license = []
-    for (package,_),filename in zip(license_files, source):
-        license.append(tpl.format(package, open(filename.path).read().strip()))
+    for package, license_file in env["license_files"].items():
+        license_file = Path(license_file.abspath)
+        license.append(tpl.format(package, license_file.read_text().strip()))
+    license = "\n".join(license)
+    if target.suffix == ".rtf":
+        license = license.replace("\\", "\\\\").replace("{", "\\{").replace("}", "\\}")
+        license = license.replace("\n", " \\par\n")
+        license = (r"{\rtf1\ansi{\fonttbl\f0\fswiss Arial;}\f0\pard\fs16 "
+                   + license + "}")
 
-    license = '\n'.join(license)
-    if target[0].path.endswith('.rtf'):
-        license = license.replace('\\', '\\\\').replace('{', '\\{').replace('}', '\\}')
-        license = license.replace('\n', ' \\par\n')
-        license = r'{\rtf1\ansi{\fonttbl\f0\fswiss Arial;}\f0\pard\fs16 ' + license + '}'
+    target.write_text(license)
 
-    open(target[0].path, 'w').write(license)
 
-license = build(localenv.Command('LICENSE.txt', [x[1] for x in license_files],
+localenv["license_files"] = license_files
+license = build(localenv.Command("LICENSE.txt", license_files.values(),
                                  generate_license))
+env["license_target"] = license
 install('$inst_docdir', license)
 
 if env['OS'] == 'Windows':
     # RTF version is required for Windows installer
-    build(localenv.Command('LICENSE.rtf', [x[1] for x in license_files],
+    build(localenv.Command("LICENSE.rtf", license_files.values(),
                            generate_license))
