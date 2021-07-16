@@ -75,16 +75,19 @@ ext = localenv.LoadableModule('#build/python/cantera/_cantera{}'.format(module_e
                             SHLIBPREFIX='', LIBSUFFIXES=[module_ext])
 localenv['py_extension'] = ext[0].name
 
-localenv.SubstFile('setup.py', 'setup.py.in')
+setup_cfg = localenv.SubstFile("setup.cfg", "setup.cfg.in")
+readme = localenv.Command("README.rst", "#README.rst", Copy("$TARGET", "$SOURCE"))
+license = localenv.Command("LICENSE.txt", "#build/ext/LICENSE.txt",
+                           Copy("$TARGET", "$SOURCE"))
+localenv.Depends(license, localenv["license_target"])
 build_cmd = ('cd interfaces/cython &&'
              ' $python_cmd_esc setup.py build --build-lib=../../build/python')
-mod = build(localenv.Command('#build/python/cantera/__init__.py', 'setup.py',
+mod = build(localenv.Command("#build/python/cantera/__init__.py", "setup.cfg",
                              build_cmd))
 env['python_module'] = mod
 env['python_extension'] = ext
 
-localenv.Depends(mod, ext)
-localenv.Depends(mod, dataFiles + testFiles)
+localenv.Depends(mod, [ext, dataFiles, testFiles, setup_cfg, readme, license])
 localenv.Depends(ext, localenv['cantera_staticlib'])
 
 for f in (multi_glob(localenv, 'cantera', 'py') +
