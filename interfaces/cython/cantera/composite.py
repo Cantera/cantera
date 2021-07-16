@@ -798,12 +798,17 @@ class SolutionArray:
                              "non-empty data dictionary")
         labels = list(data.keys())
 
+        shape = data[labels[0]].shape
+        if not shape:
+            # ensure that data with a single entry have appropriate dimensions
+            data = OrderedDict([(k, np.array([v])) for k, v in data.items()])
+        rows = data[labels[0]].shape[0]
+
         for col in data.values():
             if not isinstance(col, np.ndarray):
                 raise TypeError("'SolutionArray.restore_data' only works for "
                                 "dictionaries that contain ndarrays")
 
-            rows = data[labels[0]].shape[0]
             if col.shape[0] != rows:
                 raise ValueError("'SolutionArray.restore_data' requires "
                                  "all data entries to have a consistent "
@@ -833,7 +838,7 @@ class SolutionArray:
                              if s in labels}
 
             # labels that start with prefix (indicating concentration)
-            all_species = [l for l in labels if l.startswith(prefix)]
+            all_species = [l[2:] for l in labels if l.startswith(prefix)]
             if valid_species:
 
                 if len(valid_species) != len(all_species):
@@ -1092,7 +1097,7 @@ class SolutionArray:
         """
         if np.lib.NumpyVersion(np.__version__) < "1.14.0":
             # bytestring needs to be converted for columns containing strings
-            data = np.genfromtxt(filename, delimiter=',',
+            data = np.genfromtxt(filename, delimiter=',', deletechars='',
                                  dtype=None, names=True)
             data_dict = OrderedDict()
             for label in data.dtype.names:
@@ -1102,7 +1107,7 @@ class SolutionArray:
                     data_dict[label] = data[label]
         else:
             # the 'encoding' parameter introduced with NumPy 1.14 simplifies import
-            data = np.genfromtxt(filename, delimiter=',',
+            data = np.genfromtxt(filename, delimiter=',', deletechars='',
                                  dtype=None, names=True, encoding=None)
             data_dict = OrderedDict({label: data[label]
                                      for label in data.dtype.names})

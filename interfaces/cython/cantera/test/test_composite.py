@@ -191,6 +191,21 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         self.assertArrayNear(states.P, b.P)
         self.assertArrayNear(states.X, b.X)
 
+    def test_write_csv_single_row(self):
+        gas = ct.Solution("gri30.yaml")
+        states = ct.SolutionArray(gas)
+        states.append(T=300., P=ct.one_atm, X="CH4:0.5, O2:0.4")
+        states.equilibrate("HP")
+
+        outfile = self.test_work_path / "solutionarray.csv"
+        states.write_csv(outfile)
+
+        b = ct.SolutionArray(gas)
+        b.read_csv(outfile)
+        self.assertArrayNear(states.T, b.T)
+        self.assertArrayNear(states.P, b.P)
+        self.assertArrayNear(states.X, b.X)
+
     def test_write_csv_str_column(self):
         states = ct.SolutionArray(self.gas, 3, extra={'spam': 'eggs'})
 
