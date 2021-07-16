@@ -60,8 +60,10 @@ elif localenv['OS'] == 'Windows':
         localenv.Append(LIBS='python{}'.format(py_version.replace('.','')))
         if localenv['OS_BITS'] == 64:
             localenv.Append(CPPDEFINES='MS_WIN64')
-        # fix for http://bugs.python.org/issue11566
-        localenv.Append(CPPDEFINES={'_hypot':'hypot'})
+        # fix for https://bugs.python.org/issue11566. Fixed in 3.7.3 and higher.
+        # See https://github.com/python/cpython/pull/11283
+        if parse_version(py_version) < parse_version("3.7.3"):
+            localenv.Append(CPPDEFINES={"_hypot": "hypot"})
 elif localenv['OS'] == 'Cygwin':
     # extract 'pythonX.Y' from 'libpythonX.Y.dll.a'
     localenv.Append(LIBS=pylib[3:-6])
