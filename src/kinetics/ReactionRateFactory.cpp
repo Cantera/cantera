@@ -72,17 +72,6 @@ shared_ptr<ReactionRateBase> newReactionRate(
         ReactionRateFactory::factory()->create(type, rate_node, rate_units));
 }
 
-shared_ptr<ReactionRateBase> newReactionRate(
-    const AnyMap& rate_node, const Kinetics& kin)
-{
-    if (rate_node.empty()) {
-        return newReactionRate(AnyMap(), Units(0.0));
-    }
-    size_t idx = kin.reactionPhaseIndex();
-    Units rate_units = kin.thermo(idx).standardConcentrationUnits();
-    return newReactionRate(rate_node, rate_units);
-}
-
 std::string canonicalRateName(const std::string& type)
 {
     if (ReactionRateFactory::factory()->exists(type)) {

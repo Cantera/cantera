@@ -124,6 +124,7 @@ class ReactionRateTests:
     _uses_pressure = False # rate evaluation requires pressure
     _index = None # index of reaction in "kineticsfromscratch.yaml"
     _input = None # input parameters (dict corresponding to YAML)
+    _yaml = None # yaml string specifying parameters
 
     @classmethod
     def setUpClass(cls):
@@ -169,19 +170,21 @@ class ReactionRateTests:
 
     def test_roundtrip(self):
         # check round-trip instantiation via input_data
-        if self._index is None:
-            return
         input_data = self.rate.input_data
         rate = self._cls(input_data=input_data)
         self.assertNear(rate(self.gas.T, self.gas.P),
                         self.rate(self.gas.T, self.gas.P))
 
     def test_from_dict(self):
-        # check round-trip instantiation via input_data
-        if self._index is None:
-            return
+        # check instantiation from dictionary
         input_data = self.rate.input_data
-        rate = ct.ReactionRate.from_dict(input_data, self.gas)
+        rate = ct.ReactionRate.from_dict(input_data)
+        self.assertNear(rate(self.gas.T, self.gas.P),
+                        self.rate(self.gas.T, self.gas.P))
+
+    def test_from_yaml(self):
+        # check instantiation from yaml string
+        rate = ct.ReactionRate.from_yaml(self._yaml)
         self.assertNear(rate(self.gas.T, self.gas.P),
                         self.rate(self.gas.T, self.gas.P))
 
@@ -194,6 +197,7 @@ class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
     _uses_pressure = False
     _index = 0
     _input = {"rate-constant": {"A": 38.7, "b": 2.7, "Ea": 26191840.0}}
+    _yaml = "rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}"
 
     def setUp(self):
         self.A = self.gas.reaction(self._index).rate.pre_exponential_factor
@@ -226,6 +230,14 @@ class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
         {"P": 101325., "A": 4.9108e+31, "b": -4.8507, "Ea": 103649395.2},
         {"P": 1013250., "A": 1.2866e+47, "b": -9.0246, "Ea": 166508556.0},
         {"P": 10132500., "A": 5.9632e+56, "b": -11.529, "Ea": 220076726.4}]}
+    _yaml = """
+        type: pressure-dependent-Arrhenius
+        rate-constants:
+        - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04 cal/mol}
+        - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04 cal/mol}
+        - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
+        - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
+        """
 
     def setUp(self):
         self.rate = ct.PlogRate([(1013.25, ct.Arrhenius(1.2124e+16, -0.5779, 45491376.8)),
@@ -283,6 +295,15 @@ class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
                        [0.3177, 0.26889, 0.094806, -0.0076385]],
               "pressure-range": [1000.0, 10000000.0],
               "temperature-range": [290.0, 3000.0]}
+    _yaml = """
+        type: Chebyshev
+        temperature-range: [290.0, 3000.0]
+        pressure-range: [9.869232667160128e-03 atm, 98.69232667160128 atm]
+        data:
+        - [8.2883, -1.1397, -0.12059, 0.016034]
+        - [1.9764, 1.0037, 7.2865e-03, -0.030432]
+        - [0.3177, 0.26889, 0.094806, -7.6385e-03]
+        """
 
     def setUp(self):
         self.Tmin = self.gas.reaction(self._index).rate.Tmin
