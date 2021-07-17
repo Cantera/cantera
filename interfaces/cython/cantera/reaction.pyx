@@ -63,7 +63,7 @@ cdef class ReactionRate:
         return rr
 
     @classmethod
-    def from_dict(cls, data, Kinetics kinetics):
+    def from_dict(cls, data):
         """
         Create a `ReactionRate` object from a dictionary corresponding to its YAML
         representation.
@@ -71,16 +71,10 @@ cdef class ReactionRate:
         An example for the creation of a `ReactionRate` from a dictionary is::
 
             rate = ReactionRate.from_dict(
-                {"rate-constant": {"A": 38.7, "b": 2.7, "Ea": 26191840.0}},
-                kinetics=gas)
-
-        In the example, ``gas`` is a `Kinetics` (or `Solution`) object.
+                {"rate-constant": {"A": 38.7, "b": 2.7, "Ea": 26191840.0}})
 
         :param data:
             A dictionary corresponding to the YAML representation.
-        :param kinetics:
-            A `Kinetics` object whose associated phase(s) contain the species
-            involved in the reaction.
         """
         if cls._reaction_rate_type != "":
             raise TypeError(
@@ -88,27 +82,21 @@ cdef class ReactionRate:
                 "should be called from base class 'ReactionRate'")
 
         cdef CxxAnyMap any_map = dict_to_anymap(data)
-        cxx_rate = CxxNewReactionRate(any_map, deref(kinetics.kinetics))
+        cxx_rate = CxxNewReactionRate(any_map)
         return ReactionRate.wrap(cxx_rate)
 
     @classmethod
-    def from_yaml(cls, text, Kinetics kinetics):
+    def from_yaml(cls, text):
         """
         Create a `ReactionRate` object from its YAML string representation.
 
         An example for the creation of a `ReactionRate` from a YAML string is::
 
-            rate = ReactionRate.from_yaml('''
-                rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
-                ''', kinetics=gas)
-
-        In the example, ``gas`` is a `Kinetics` (or `Solution`) object.
+            rate = ReactionRate.from_yaml(
+                "rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}")
 
         :param text:
             The YAML reaction rate string.
-        :param kinetics:
-            A `Kinetics` object whose associated phase(s) contain the species
-            involved in the reaction.
         """
         if cls._reaction_rate_type != "":
             raise TypeError(
@@ -117,7 +105,7 @@ cdef class ReactionRate:
 
         cdef CxxAnyMap any_map
         any_map = AnyMapFromYamlString(stringify(text))
-        cxx_rate = CxxNewReactionRate(any_map, deref(kinetics.kinetics))
+        cxx_rate = CxxNewReactionRate(any_map)
         return ReactionRate.wrap(cxx_rate)
 
     def ddT(self, double temperature, pressure=None):

@@ -76,15 +76,7 @@ shared_ptr<ReactionRateBase> newReactionRate(const std::string& type);
  * @param rate_units Unit system of the reaction rate
  */
 shared_ptr<ReactionRateBase> newReactionRate(
-    const AnyMap& rate_node, const Units& rate_units);
-
-//! Create a new Rate object using the specified parameters
-/*!
- * @param rate_node AnyMap node describing reaction rate.
- * @param kin kinetics manager
- */
-shared_ptr<ReactionRateBase> newReactionRate(
-    const AnyMap& rate_node, const Kinetics& kin);
+    const AnyMap& rate_node, const Units& rate_units=Units(1.0));
 
 //! Retrieve the canoncial rate object name
 /*!
