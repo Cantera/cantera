@@ -823,6 +823,12 @@ cdef class Reaction:
         def __get__(self):
             return self.reaction.usesLegacy()
 
+    property rate_coeff_units:
+        """Get string representation of reaction rate coefficient units"""
+        def __get__(self):
+            cdef CxxUnits rate_units = self.reaction.rate_units
+            return pystr(rate_units.str())
+
 
 cdef class Arrhenius:
     r"""

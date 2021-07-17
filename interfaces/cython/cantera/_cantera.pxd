@@ -49,6 +49,10 @@ cdef extern from "cantera/base/xml.h" namespace "Cantera":
         XML_Node* findID(string)
         int nChildren()
 
+cdef extern from "cantera/base/Units.h" namespace "Cantera":
+    cdef cppclass CxxUnits "Cantera::Units":
+        string str()
+
 cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
     cdef cppclass CxxAnyValue "Cantera::AnyValue"
 
@@ -208,6 +212,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         size_t stateSize()
         void saveState(size_t, double*) except +translate_exception
         void restoreState(size_t, double*) except +translate_exception
+        CxxUnits standardConcentrationUnits() except +translate_exception
 
         # initialization
         void addUndefinedElements() except +translate_exception
@@ -420,6 +425,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool allow_nonreactant_orders
         cbool allow_negative_orders
         cbool usesLegacy()
+        CxxUnits rate_units
 
     cdef cppclass CxxElementaryReaction2 "Cantera::ElementaryReaction2" (CxxReaction):
         CxxElementaryReaction2()
