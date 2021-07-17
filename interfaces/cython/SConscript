@@ -4,6 +4,7 @@ from os.path import join as pjoin
 from os.path import normpath
 from pathlib import Path
 from pkg_resources import parse_version
+import json
 from buildutils import *
 
 Import('env', 'build', 'install')
@@ -32,24 +33,41 @@ testFiles = localenv.RecursiveInstall('#interfaces/cython/cantera/test/data',
 build(testFiles)
 
 # Get information needed to build the Python module
-script = '\n'.join(("from sysconfig import *",
-                    "import numpy",
-                    "print(get_config_var('EXT_SUFFIX'))",
-                    "print(get_config_var('INCLUDEPY'))",
-                    "print(get_config_var('LDLIBRARY'))",
-                    "print(get_config_var('prefix'))",
-                    "print(get_python_version())",
-                    "print(numpy.get_include())"))
-info = get_command_output(localenv["python_cmd"], "-c", script)
-module_ext, inc, pylib, prefix, py_version, numpy_include = info.splitlines()[-6:]
+script = """\
+from sysconfig import *
+import numpy
+import json
+vars = get_config_vars()
+vars["plat"] = get_platform()
+vars["numpy_include"] = numpy.get_include()
+print(json.dumps(vars))
+"""
+info = json.loads(get_command_output(localenv["python_cmd"], "-c", script))
+module_ext = info["EXT_SUFFIX"]
+inc = info["INCLUDEPY"]
+pylib = info.get("LDLIBRARY")
+prefix = info["prefix"]
+py_version_short = parse_version(info["py_version_short"])
+py_version_full = parse_version(info["py_version"])
+numpy_include = info["numpy_include"]
 localenv.Prepend(CPPPATH=[Dir('#include'), inc, numpy_include])
 localenv.Prepend(LIBS=localenv['cantera_libs'])
+
+# Fix the module extension for Windows from the sysconfig library.
+# See https://github.com/python/cpython/pull/22088 and
+# https://bugs.python.org/issue39825
+if (
+    py_version_full < parse_version("3.8.7")
+    and localenv["OS"] == "Windows"
+    and module_ext == ".pyd"
+):
+    module_ext = f".cp{info['py_version_nodot']}-{info['plat'].replace('-', '_')}.pyd"
 
 # Don't print deprecation warnings for internal Python changes.
 # Only applies to Python 3.8. The field that is deprecated in Python 3.8
 # and causes the warnings to appear will be removed in Python 3.9 so no
 # further warnings should be issued.
-if localenv['HAS_CLANG'] and parse_version(py_version) == parse_version('3.8'):
+if localenv["HAS_CLANG"] and py_version_short == parse_version("3.8"):
     localenv.Append(CXXFLAGS='-Wno-deprecated-declarations')
 
 if localenv['OS'] == 'Darwin':
@@ -57,12 +75,12 @@ if localenv['OS'] == 'Darwin':
 elif localenv['OS'] == 'Windows':
     localenv.Append(LIBPATH=prefix+'/libs')
     if localenv['toolchain'] == 'mingw':
-        localenv.Append(LIBS='python{}'.format(py_version.replace('.','')))
+        localenv.Append(LIBS=f"python{info['py_version_nodot']}")
         if localenv['OS_BITS'] == 64:
             localenv.Append(CPPDEFINES='MS_WIN64')
-        # fix for https://bugs.python.org/issue11566. Fixed in 3.7.3 and higher.
+        # Fix for https://bugs.python.org/issue11566. Fixed in 3.7.3 and higher.
         # See https://github.com/python/cpython/pull/11283
-        if parse_version(py_version) < parse_version("3.7.3"):
+        if py_version_full < parse_version("3.7.3"):
             localenv.Append(CPPDEFINES={"_hypot": "hypot"})
 elif localenv['OS'] == 'Cygwin':
     # extract 'pythonX.Y' from 'libpythonX.Y.dll.a'
