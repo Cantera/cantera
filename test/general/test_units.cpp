@@ -4,6 +4,34 @@
 
 using namespace Cantera;
 
+TEST(Units, from_string) {
+    EXPECT_EQ(Units("1.").str(), "Units(1.0)");
+    EXPECT_EQ(Units("kg").str(), "Units(1.0 kg)");
+    EXPECT_EQ(Units("1.0 kg^0.5").str(), "Units(1.0 kg^0.5)");
+    EXPECT_EQ(Units("kg / m^3").str(), "Units(1.0 kg * m^-3)");
+    EXPECT_EQ(Units("0.001 m^3").str(), "Units(0.001 m^3)");
+}
+
+TEST(Units, string_output) {
+    EXPECT_EQ(Units(1.).str(), "Units(1.0)");
+    EXPECT_EQ(Units(1., 1.).str(), "Units(1.0 kg)");
+    EXPECT_EQ(Units(1., 2.).str(), "Units(1.0 kg^2)");
+    EXPECT_EQ(Units(1., .5).str(), "Units(1.0 kg^0.5)");
+    EXPECT_EQ(Units(1., -1.).str(), "Units(1.0 kg^-1)");
+    EXPECT_EQ(Units(1., 1., -3.).str(), "Units(1.0 kg * m^-3)");
+    EXPECT_EQ(Units(.001, 0., 3.).str(), "Units(0.001 m^3)");
+}
+
+TEST(Units, copy_construct) {
+    EXPECT_EQ(Units(Units(1.)).str(), "Units(1.0)");
+    EXPECT_EQ(Units(Units(1., 1.)).str(), "Units(1.0 kg)");
+    EXPECT_EQ(Units(Units(1., 2.)).str(), "Units(1.0 kg^2)");
+    EXPECT_EQ(Units(Units(1., .5)).str(), "Units(1.0 kg^0.5)");
+    EXPECT_EQ(Units(Units(1., -1.)).str(), "Units(1.0 kg^-1)");
+    EXPECT_EQ(Units(Units(1., 1., -3.)).str(), "Units(1.0 kg * m^-3)");
+    EXPECT_EQ(Units(Units(.001, 0., 3.)).str(), "Units(0.001 m^3)");
+}
+
 TEST(Units, convert_to_base_units) {
     UnitSystem U;
     EXPECT_DOUBLE_EQ(U.convert(1.0, "Pa", "kg/m/s^2"), 1.0);
