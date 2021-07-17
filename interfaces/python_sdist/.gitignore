@@ -1,0 +1,11 @@
+cantera/
+ext/
+src/
+include/
+setup.cfg
+Cantera.egg-info/
+build/
+dist/
+LICENSE.txt
+README.rst
+sundials_config.h*

@@ -83,8 +83,12 @@ if "clean" in COMMAND_LINE_TARGETS:
     remove_directory("include/cantera/ext")
     remove_file("interfaces/cython/cantera/_cantera.cpp")
     remove_file("interfaces/cython/cantera/_cantera.h")
-    remove_file("interfaces/cython/setup.py")
-    remove_file("interfaces/python_minimal/setup.py")
+    remove_file("interfaces/cython/setup.cfg")
+    remove_file("interfaces/cython/LICENSE.txt")
+    remove_file("interfaces/cython/README.rst")
+    remove_file("interfaces/python_minimal/setup.cfg")
+    remove_file("interfaces/python_minimal/LICENSE.txt")
+    remove_file("interfaces/python_minimal/README.rst")
     remove_file("config.log")
     remove_directory("doc/sphinx/matlab/examples")
     remove_file("doc/sphinx/matlab/examples.rst")
@@ -116,6 +120,11 @@ if "clean" in COMMAND_LINE_TARGETS:
     remove_file("interfaces/matlab/ctpath.m")
     for name in Path("interfaces/matlab/toolbox").glob("ctmethods.*"):
         remove_file(name)
+    for name in Path("interfaces/python_sdist").iterdir():
+        if name.is_dir():
+            remove_directory(name)
+        elif name.name in ("LICENSE.txt", "setup.cfg", "sundials_config.h.in"):
+            remove_file(name)
 
     print("Done removing output files.")
 
@@ -373,7 +382,7 @@ config_options = [
            Python is running SCons if the required prerequisites (NumPy and
            Cython) are installed. Note: ``y`` is a synonym for ``full`` and ``n``
            is a synonym for ``none``.""",
-        'default', ('full', 'minimal', 'none', 'n', 'y', 'default')),
+        'default', ('full', 'minimal', 'none', 'n', 'y', 'sdist', 'default')),
     PathVariable(
         'python_cmd',
         """Cantera needs to know where to find the Python interpreter. If
@@ -1228,7 +1237,7 @@ if env['VERBOSE']:
 env['python_cmd_esc'] = quoted(env['python_cmd'])
 
 # Python Package Settings
-python_min_version = parse_version('3.5')
+python_min_version = parse_version("3.6")
 # The string is used to set python_requires in setup.py.in
 env['py_min_ver_str'] = str(python_min_version)
 # Note: cython_min_version is redefined below if the Python version is 3.8 or higher
@@ -1350,6 +1359,8 @@ if env['python_package'] != 'none':
         # If the minimal package was specified, no further checking
         # needs to be done
         print('INFO: Building the minimal Python package for Python {}'.format(python_version))
+    elif env["python_package"] == "sdist":
+        logger.info("Building the source distribution for PyPI")
     else:
 
         if len(info) > expected_output_lines:
@@ -1738,6 +1749,8 @@ if env['python_package'] == 'full':
     SConscript('interfaces/cython/SConscript')
 elif env['python_package'] == 'minimal':
     SConscript('interfaces/python_minimal/SConscript')
+elif env["python_package"] == "sdist":
+    SConscript("interfaces/python_sdist/SConscript")
 
 if env['CC'] != 'cl':
     VariantDir('build/platform', 'platform/posix', duplicate=0)
