@@ -1570,6 +1570,12 @@ cdef class ThermoPhase(_SolutionBase):
         def __set__(self, double value):
             self.thermo.setElectricPotential(value)
 
+    property standard_concentration_units:
+        """Get standard concentration units for this phase."""
+        def __get__(self):
+            cdef CxxUnits units = self.thermo.standardConcentrationUnits()
+            return pystr(units.str())
+
 
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface or edge phase"""
