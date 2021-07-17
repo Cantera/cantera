@@ -273,6 +273,11 @@ void Reaction::calculateRateCoeffUnits(const Kinetics& kin)
             rate_units *= phase.standardConcentrationUnits().pow(-stoich.second);
         }
     }
+
+    if (m_rate) {
+        // Ensure that reaction rate object is updated
+        m_rate->setUnits(rate_units);
+    }
 }
 
 void updateUndeclared(std::vector<std::string>& undeclared,

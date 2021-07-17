@@ -16,6 +16,11 @@ void ReactionRateBase::setParameters(const AnyMap& node, const Units& rate_units
     input = node;
 }
 
+void ReactionRateBase::setUnits(const Units& rate_units)
+{
+    units = rate_units;
+}
+
 AnyMap ReactionRateBase::parameters(const Units& rate_units) const
 {
     AnyMap out;

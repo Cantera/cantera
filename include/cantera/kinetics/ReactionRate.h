@@ -108,6 +108,10 @@ public:
     //! @param rate_units  Description of units used for rate parameters
     virtual void setParameters(const AnyMap& node, const Units& rate_units);
 
+    //! Set rate units
+    //! @param rate_units  Description of units used for rate parameters
+    virtual void setUnits(const Units& rate_units);
+
 protected:
     //! Get parameters
     //! Store the parameters of a ReactionRate needed to reconstruct an identical
