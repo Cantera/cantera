@@ -144,17 +144,17 @@ Units::Units(const std::string& name)
     while (true) {
         // Split into groups of the form 'unit^exponent'
         size_t stop = name.find_first_of("*/", start);
-        size_t carat = name.find('^', start);
-        if (carat > stop) {
-            // No carat in this group
-            carat = npos;
+        size_t caret = name.find('^', start);
+        if (caret > stop) {
+            // No caret in this group
+            caret = npos;
         }
         std::string unit = trimCopy(
-            name.substr(start, std::min(carat, stop) - start));
+            name.substr(start, std::min(caret, stop) - start));
 
         double exponent = 1.0;
-        if (carat != npos) {
-            exponent = fpValueCheck(name.substr(carat+1, stop-carat-1));
+        if (caret != npos) {
+            exponent = fpValueCheck(name.substr(caret+1, stop-caret-1));
         }
         if (start != 0 && name[start-1] == '/') {
             // This unit is in the denominator
@@ -221,9 +221,32 @@ Units Units::pow(double exponent) const {
 }
 
 std::string Units::str() const {
-    return fmt::format("Units({} kg^{} * m^{} * s^{} * K^{} * A^{} * kmol^{})",
-                       m_factor, m_mass_dim, m_length_dim, m_time_dim,
-                       m_temperature_dim, m_current_dim, m_quantity_dim);
+    std::map<std::string, double> dims{
+        {"kg", m_mass_dim},
+        {"m", m_length_dim},
+        {"s", m_time_dim},
+        {"K", m_temperature_dim},
+        {"A", m_current_dim},
+        {"kmol", m_quantity_dim},
+    };
+    std::string out = "";
+    for (auto const& dim : dims) {
+        int rounded = roundf(dim.second);
+        if (dim.second == 1.) {
+            out.append(fmt::format(" * {}", dim.first));
+        } else if (dim.second == 0.) {
+            // skip
+        } else if (dim.second == rounded) {
+            out.append(fmt::format(" * {}^{}", dim.first, rounded));
+        } else {
+            out.append(fmt::format(" * {}^{}", dim.first, dim.second));
+        }
+    }
+
+    if (out.size()) {
+        return fmt::format("Units({} {})", m_factor, out.substr(3));
+    }
+    return fmt::format("Units({})", m_factor);
 }
 
 bool Units::operator==(const Units& other) const
