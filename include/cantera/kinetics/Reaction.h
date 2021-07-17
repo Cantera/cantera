@@ -142,9 +142,7 @@ public:
     }
 
     //! Set reaction rate pointer
-    void setRate(shared_ptr<ReactionRateBase> rate) {
-        m_rate = rate;
-    }
+    void setRate(shared_ptr<ReactionRateBase> rate);
 
     //! Get pointer to third-body
     shared_ptr<ThirdBody> thirdBody() {

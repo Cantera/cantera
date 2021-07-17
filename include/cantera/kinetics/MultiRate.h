@@ -61,7 +61,7 @@ public:
 
 //! A class template handling all reaction rates specific to `BulkKinetics`.
 template <class RateType, class DataType>
-class MultiBulkRates final : public MultiRateBase
+class MultiBulkRate final : public MultiRateBase
 {
 public:
     virtual void add(const size_t rxn_index,

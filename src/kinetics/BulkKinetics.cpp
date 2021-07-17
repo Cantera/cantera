@@ -124,26 +124,10 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
 
     if (!(r->usesLegacy())) {
         shared_ptr<ReactionRateBase> rate = r->rate();
-        // If neccessary, add new MultiBulkRates evaluator
+        // If neccessary, add new MultiBulkRate evaluator
         if (m_bulk_types.find(rate->type()) == m_bulk_types.end()) {
             m_bulk_types[rate->type()] = m_bulk_rates.size();
-
-            if (rate->type() == "ArrheniusRate") {
-                m_bulk_rates.push_back(std::unique_ptr<MultiRateBase>(
-                    new MultiBulkRates<ArrheniusRate, ArrheniusData>));
-            } else if (rate->type() == "PlogRate") {
-                m_bulk_rates.push_back(std::unique_ptr<MultiRateBase>(
-                    new MultiBulkRates<PlogRate, PlogData>));
-            } else if (rate->type() == "ChebyshevRate") {
-                m_bulk_rates.push_back(std::unique_ptr<MultiRateBase>(
-                    new MultiBulkRates<ChebyshevRate3, ChebyshevData>));
-            } else if (rate->type() == "custom-function") {
-                m_bulk_rates.push_back(std::unique_ptr<MultiRateBase>(
-                    new MultiBulkRates<CustomFunc1Rate, CustomFunc1Data>));
-            } else {
-                throw CanteraError("BulkKinetics::addReaction", "Adding "
-                    "reaction type '" + rate->type() + "' is not implemented");
-            }
+            m_bulk_rates.push_back(rate->newMultiRate());
             m_bulk_rates.back()->resizeSpecies(m_kk);
         }
 
@@ -193,7 +177,7 @@ void BulkKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
 
     if (!(rNew->usesLegacy())) {
         shared_ptr<ReactionRateBase> rate = rNew->rate();
-        // Ensure that MultiBulkRates evaluator is available
+        // Ensure that MultiBulkRate evaluator is available
         if (m_bulk_types.find(rate->type()) == m_bulk_types.end()) {
             throw CanteraError("BulkKinetics::modifyReaction",
                  "Evaluator not available for type '{}'.", rate->type());

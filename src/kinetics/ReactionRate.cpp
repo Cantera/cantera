@@ -4,6 +4,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/ReactionRate.h"
+#include "cantera/kinetics/MultiRate.h"
 #include "cantera/numerics/Func1.h"
 
 namespace Cantera
@@ -13,6 +14,11 @@ void ReactionRateBase::setParameters(const AnyMap& node, const Units& rate_units
 {
     units = rate_units;
     input = node;
+}
+
+void ReactionRateBase::setUnits(const Units& rate_units)
+{
+    units = rate_units;
 }
 
 AnyMap ReactionRateBase::parameters(const Units& rate_units) const
@@ -57,6 +63,11 @@ ArrheniusRate::ArrheniusRate(const Arrhenius& arr, bool allow_negative_A)
                 arr.activationEnergy_R())
     , allow_negative_pre_exponential_factor(allow_negative_A)
 {
+}
+
+unique_ptr<MultiRateBase> ArrheniusRate::newMultiRate() const
+{
+    return unique_ptr<MultiRateBase>(new MultiBulkRate<ArrheniusRate, ArrheniusData>);
 }
 
 void ArrheniusRate::setParameters(const AnyMap& node, const Units& rate_units)
@@ -108,6 +119,11 @@ PlogRate::PlogRate(const AnyMap& node)
     setParameters(node, Units(1.));
 }
 
+unique_ptr<MultiRateBase> PlogRate::newMultiRate() const
+{
+    return unique_ptr<MultiRateBase>(new MultiBulkRate<PlogRate, PlogData>);
+}
+
 void PlogRate::setParameters(const AnyMap& node, const Units& rate_units)
 {
     // @TODO  implementation of Plog::setParameters should be transferred here
@@ -126,6 +142,7 @@ void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
     // @TODO  implementation of Plog::getParameters should be transferred here
     //     when the Plog class is removed from RxnRates.h after Cantera 2.6
     Plog::getParameters(rateNode, rate_units);
+    rateNode["type"] = type();
 }
 
 ChebyshevRate3::ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pmax,
@@ -142,6 +159,12 @@ ChebyshevRate3::ChebyshevRate3(const AnyMap& node, const Units& rate_units)
 ChebyshevRate3::ChebyshevRate3(const AnyMap& node)
 {
     setParameters(node, Units(1.));
+}
+
+unique_ptr<MultiRateBase> ChebyshevRate3::newMultiRate() const
+{
+    return unique_ptr<MultiRateBase>(
+        new MultiBulkRate<ChebyshevRate3, ChebyshevData>);
 }
 
 void ChebyshevRate3::setParameters(const AnyMap& node, const Units& rate_units)
@@ -162,6 +185,7 @@ void ChebyshevRate3::getParameters(AnyMap& rateNode,
     // @TODO  implementation of Chebyshev::getParameters should be transferred here
     //     when the Chebyshev class is removed from RxnRates.h after Cantera 2.6
     Chebyshev::getParameters(rateNode, rate_units);
+    rateNode["type"] = type();
 }
 
 void ChebyshevRate3::validate(const std::string& equation)
@@ -169,6 +193,12 @@ void ChebyshevRate3::validate(const std::string& equation)
 }
 
 CustomFunc1Rate::CustomFunc1Rate() : m_ratefunc(0) {}
+
+unique_ptr<MultiRateBase> CustomFunc1Rate::newMultiRate() const
+{
+    return unique_ptr<MultiRateBase>(
+        new MultiBulkRate<CustomFunc1Rate, CustomFunc1Data>);
+}
 
 void CustomFunc1Rate::setRateFunction(shared_ptr<Func1> f)
 {
