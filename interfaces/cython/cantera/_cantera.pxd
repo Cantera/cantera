@@ -57,6 +57,11 @@ cdef extern from "cantera/base/Units.h" namespace "Cantera":
         string str()
         double factor()
 
+    cdef cppclass CxxUnitSystem "Cantera::UnitSystem":
+        CxxUnitSystem()
+        stdmap[string, string] defaults()
+        void setDefaults(stdmap[string, string]&) except +translate_exception
+
 cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
     cdef cppclass CxxAnyValue "Cantera::AnyValue"
 
@@ -1122,6 +1127,9 @@ cdef class Units:
     cdef CxxUnits units
     @staticmethod
     cdef copy(CxxUnits)
+
+cdef class UnitSystem:
+    cdef CxxUnitSystem unitsystem
 
 cdef class SpeciesThermo:
     cdef shared_ptr[CxxSpeciesThermo] _spthermo
