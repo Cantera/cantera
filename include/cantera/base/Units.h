@@ -109,6 +109,9 @@ public:
     //! recognize an optional argument with a default value)
     UnitSystem() : UnitSystem({}) {}
 
+    //! Return default units used by the unit system
+    std::map<std::string, std::string> defaults() const;
+
     //! Set the default units to convert from when explicit units are not
     //! provided. Defaults can be set for mass, length, time, quantity, energy,
     //! and pressure. Conversion using the pressure or energy units is done only
