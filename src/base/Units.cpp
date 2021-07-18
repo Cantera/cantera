@@ -229,6 +229,7 @@ std::string Units::str() const {
         {"A", m_current_dim},
         {"kmol", m_quantity_dim},
     };
+
     std::string out = "";
     for (auto const& dim : dims) {
         int rounded = roundf(dim.second);
@@ -243,10 +244,18 @@ std::string Units::str() const {
         }
     }
 
-    if (out.size()) {
-        return fmt::format("Units({} {})", m_factor, out.substr(3));
+    std::string factor;
+    if (m_factor == roundf(m_factor)) {
+        // ensure that fmt::format does not round to integer
+        factor = fmt::format("{:.1f}", m_factor);
+    } else {
+        factor = fmt::format("{}", m_factor);
     }
-    return fmt::format("Units({})", m_factor);
+
+    if (out.size()) {
+        return fmt::format("Units({} {})", factor, out.substr(3));
+    }
+    return fmt::format("Units({})", factor);
 }
 
 bool Units::operator==(const Units& other) const
