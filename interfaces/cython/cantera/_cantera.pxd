@@ -51,6 +51,9 @@ cdef extern from "cantera/base/xml.h" namespace "Cantera":
 
 cdef extern from "cantera/base/Units.h" namespace "Cantera":
     cdef cppclass CxxUnits "Cantera::Units":
+        CxxUnits()
+        CxxUnits(CxxUnits)
+        CxxUnits(string) except +translate_exception
         string str()
 
 cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
@@ -1114,6 +1117,11 @@ ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +trans
 ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +translate_exception
 
 # classes
+cdef class Units:
+    cdef CxxUnits units
+    @staticmethod
+    cdef copy(CxxUnits)
+
 cdef class SpeciesThermo:
     cdef shared_ptr[CxxSpeciesThermo] _spthermo
     cdef CxxSpeciesThermo* spthermo
