@@ -5,6 +5,63 @@ from . import utilities
 
 from cantera._cantera import _py_to_any_to_py
 
+
+class TestUnitSystem(utilities.CanteraTest):
+
+    def test_default(self):
+        units = ct.UnitSystem().units
+        checks = {
+            "activation-energy": "J/kmol",
+            "current": "A",
+            "energy": "J",
+            "length": "m",
+            "mass": "kg",
+            "pressure": "Pa",
+            "quantity": "kmol",
+            "temperature": "K",
+            "time": "s",
+        }
+        for dim, unit in units.items():
+            self.assertIn(dim, checks)
+            self.assertEqual(checks[dim], unit)
+
+    def test_cgs(self):
+        system = ct.UnitSystem({
+            "length": "cm", "mass": "g", "time": "s",
+            "quantity": "mol", "pressure": "dyn/cm^2", "energy": "erg",
+            "activation-energy": "cal/mol"})
+        units = system.units
+        checks = {
+            "activation-energy": "cal/mol",
+            "current": "A",
+            "energy": "erg",
+            "length": "cm",
+            "mass": "g",
+            "pressure": "dyn/cm^2",
+            "quantity": "mol",
+            "temperature": "K",
+            "time": "s",
+        }
+        for dim, unit in units.items():
+            self.assertIn(dim, checks)
+            self.assertEqual(checks[dim], unit)
+
+    def test_activation_energy(self):
+        system = ct.UnitSystem({"activation-energy": "eV"})
+        units = system.units
+        self.assertEqual(units["activation-energy"], "eV")
+
+        system = ct.UnitSystem({"activation-energy": "K"})
+        units = system.units
+        self.assertEqual(units["activation-energy"], "K")
+
+    def test_raises(self):
+        with self.assertRaisesRegex(ct.CanteraError, "non-unity conversion factor"):
+            ct.UnitSystem({"temperature": "2 K"})
+        with self.assertRaisesRegex(ct.CanteraError, "non-unity conversion factor"):
+            ct.UnitSystem({"current": "2 A"})
+
+
 class TestPyToAnyValue(utilities.CanteraTest):
 
     def check_conversion(self, value, check_type=None):
