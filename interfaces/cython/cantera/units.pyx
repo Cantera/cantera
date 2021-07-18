@@ -13,14 +13,13 @@ cdef class Units:
             self.units = CxxUnits()
 
     def __repr__(self):
-        return f"<{pystr(self.units.str())} at {id(self):0x}>"
+        return f"<Units({pystr(self.units.str())}) at {id(self):0x}>"
 
     @staticmethod
     cdef copy(CxxUnits other):
         """
         Copy a C++ Units object to a Python object.
         """
-        # copy C++ Units object
         cdef Units units = Units(init=False)
         units.units = CxxUnits(other)
         return units

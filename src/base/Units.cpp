@@ -280,9 +280,9 @@ std::string Units::str() const {
     }
 
     if (out.size()) {
-        return fmt::format("Units({} {})", factor, out.substr(3));
+        return fmt::format("{} {}", factor, out.substr(3));
     }
-    return fmt::format("Units({})", factor);
+    return factor;
 }
 
 bool Units::operator==(const Units& other) const
