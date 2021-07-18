@@ -267,9 +267,9 @@ std::string Units::str() const {
     }
 
     if (out.size()) {
-        return fmt::format("Units({} {})", factor, out.substr(3));
+        return fmt::format("{} {}", factor, out.substr(3));
     }
-    return fmt::format("Units({})", factor);
+    return factor;
 }
 
 bool Units::operator==(const Units& other) const
@@ -403,7 +403,8 @@ double UnitSystem::convert(double value, const Units& src,
 {
     if (!src.convertible(dest)) {
         throw CanteraError("UnitSystem::convert",
-            "Incompatible units:\n    {} and\n    {}", src.str(), dest.str());
+            "Incompatible units:\n    Units({}) and\n    Units({})",
+            src.str(), dest.str());
     }
     return value * src.factor() / dest.factor();
 }
