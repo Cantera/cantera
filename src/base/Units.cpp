@@ -186,6 +186,19 @@ Units::Units(const std::string& name)
     }
 }
 
+Units::Units(const Units& other)
+    : m_factor(other.m_factor)
+    , m_mass_dim(other.m_mass_dim)
+    , m_length_dim(other.m_length_dim)
+    , m_time_dim(other.m_time_dim)
+    , m_temperature_dim(other.m_temperature_dim)
+    , m_current_dim(other.m_current_dim)
+    , m_quantity_dim(other.m_quantity_dim)
+    , m_pressure_dim(other.m_pressure_dim)
+    , m_energy_dim(other.m_energy_dim)
+{
+}
+
 bool Units::convertible(const Units& other) const
 {
     return (m_mass_dim == other.m_mass_dim &&

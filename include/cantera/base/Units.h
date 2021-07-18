@@ -37,6 +37,9 @@ public:
     //! Create an object with the specified dimensions
     explicit Units(const std::string& name);
 
+    //! Copy constructor
+    Units(const Units& other);
+
     //! Returns `true` if the specified Units are dimensionally consistent
     bool convertible(const Units& other) const;
 
