@@ -1574,7 +1574,7 @@ cdef class ThermoPhase(_SolutionBase):
         """Get standard concentration units for this phase."""
         def __get__(self):
             cdef CxxUnits units = self.thermo.standardConcentrationUnits()
-            return pystr(units.str())
+            return Units.copy(units)
 
 
 cdef class InterfacePhase(ThermoPhase):
