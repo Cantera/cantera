@@ -9,6 +9,7 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/AnyMap.h"
 #include "cantera/base/utilities.h"
+#include <regex>
 
 namespace {
 using namespace Cantera;
@@ -141,6 +142,19 @@ Units::Units(const std::string& name)
     , m_energy_dim(0)
 {
     size_t start = 0;
+
+    // Determine factor
+    std::regex regexp("[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)");
+    std::smatch matched;
+    std::regex_search(name, matched, regexp);
+    if (matched.size()) {
+        std::string factor = *matched.begin();
+        if (name.find(factor) == 0) {
+            m_factor = fpValueCheck(factor);
+            start = factor.size();
+        }
+    }
+
     while (true) {
         // Split into groups of the form 'unit^exponent'
         size_t stop = name.find_first_of("*/", start);
