@@ -320,9 +320,18 @@ void UnitSystem::setDefaults(std::initializer_list<std::string> units)
         } else if (unit.convertible(knownUnits.at("J"))) {
             m_energy_factor = unit.factor();
             m_defaults["energy"] = name;
-        } else if (unit.convertible(knownUnits.at("K"))
-                   || unit.convertible(knownUnits.at("A"))) {
-            // Do nothing -- no other scales are supported for temperature and current
+        } else if (unit.convertible(knownUnits.at("K"))) {
+            // Do nothing -- no other scales are supported for temperature
+            if (unit.factor() != 1.) {
+                throw CanteraError("UnitSystem::setDefaults", "Temperature scales "
+                    "with non-unity conversion factor from Kelvin are not supported.");
+            }
+        } else if (unit.convertible(knownUnits.at("A"))) {
+            // Do nothing -- no other scales are supported for current
+            if (unit.factor() != 1.) {
+                throw CanteraError("UnitSystem::setDefaults", "Current scales "
+                    "with non-unity conversion factor from Ampere are not supported.");
+            }
         } else {
             throw CanteraError("UnitSystem::setDefaults",
                 "Unable to match unit '{}' to a basic dimension", name);
@@ -347,10 +356,18 @@ void UnitSystem::setDefaults(const std::map<std::string, std::string>& units)
         } else if (name == "time" && unit.convertible(knownUnits.at("s"))) {
             m_time_factor = unit.factor();
             m_defaults["time"] = item.second;
-        } else if (name == "temperature" && item.second == "K") {
+        } else if (name == "temperature" && unit.convertible(knownUnits.at("K"))) {
             // do nothing - no other temperature scales are supported
-        } else if (name == "current" && item.second == "A") {
+            if (unit.factor() != 1.) {
+                throw CanteraError("UnitSystem::setDefaults", "Temperature scales "
+                    "with non-unity conversion factor from Kelvin are not supported.");
+            }
+        } else if (name == "current" && unit.convertible(knownUnits.at("A"))) {
             // do nothing - no other current scales are supported
+            if (unit.factor() != 1.) {
+                throw CanteraError("UnitSystem::setDefaults", "Current scales "
+                    "with non-unity conversion factor from Ampere are not supported.");
+            }
         } else if (name == "quantity" && unit.convertible(knownUnits.at("kmol"))) {
             m_quantity_factor = unit.factor();
             m_defaults["quantity"] = item.second;
