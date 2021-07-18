@@ -24,6 +24,7 @@ const std::map<std::string, Units> knownUnits{
 
     // Length [L]
     {"m", Units(1.0, 0, 1, 0)},
+    {"cm", Units(.01, 0, 1, 0)},
     {"micron", Units(1e-6, 0, 1, 0)},
     {"angstrom", Units(1e-10, 0, 1, 0)},
     {"Å", Units(1e-10, 0, 1, 0)},
@@ -78,6 +79,7 @@ const std::map<std::string, Units> knownUnits{
 
     //! Activation energy units [M*L^2/T^2/Q]
     {"J/kmol", Units(1.0, 1, 2, -2, 0, 0, -1)},
+    {"cal/mol", Units(4184.0, 1, 2, -2, 0, 0, -1)},
 };
 
 const std::map<std::string, double> prefixes{
@@ -296,6 +298,35 @@ UnitSystem::UnitSystem(std::initializer_list<std::string> units)
     , m_explicit_activation_energy(false)
 {
     setDefaults(units);
+}
+
+std::map<std::string, std::string> UnitSystem::defaults() const
+{
+    // Unit system defaults
+    std::map<std::string, Units> units{
+        {"mass", Units(m_mass_factor, 1)},
+        {"length", Units(m_length_factor, 0, 1)},
+        {"time", Units(m_time_factor, 0, 0, 1)},
+        {"quantity", Units(m_quantity_factor, 0, 0, 0, 0, 0, 1)},
+        {"pressure", Units(m_pressure_factor, 1, -1, -2)},
+        {"energy", Units(m_energy_factor, 1, 2, -2)},
+        {"temperature", Units(1.0, 0, 0, 0, 1)},
+        {"current", Units(1.0, 0, 0, 0, 0, 1)},
+        {"activation-energy", Units(m_activation_energy_factor, 1, 2, -2, 0, 0, -1)},
+    };
+
+    // Retrieve known units (if applicable)
+    std::map<std::string, std::string> out;
+    for (const auto& unit : units) {
+        out[unit.first] = unit.second.str();
+        for (const auto& known : knownUnits) {
+            if (unit.second == known.second) {
+                // Units are known: use abbreviation
+                out[unit.first] = known.first;
+            }
+        }
+    }
+    return out;
 }
 
 void UnitSystem::setDefaults(std::initializer_list<std::string> units)
