@@ -15,11 +15,16 @@ cdef class Units:
     def __repr__(self):
         return f"<Units({pystr(self.units.str())}) at {id(self):0x}>"
 
+    property factor:
+        """
+        Return the factor for converting from this unit to Cantera's base units.
+        """
+        def __get__(self):
+            return self.units.factor()
+
     @staticmethod
     cdef copy(CxxUnits other):
-        """
-        Copy a C++ Units object to a Python object.
-        """
+        """Copy a C++ Units object to a Python object."""
         cdef Units units = Units(init=False)
         units.units = CxxUnits(other)
         return units

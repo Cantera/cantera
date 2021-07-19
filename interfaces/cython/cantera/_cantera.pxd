@@ -55,6 +55,7 @@ cdef extern from "cantera/base/Units.h" namespace "Cantera":
         CxxUnits(CxxUnits)
         CxxUnits(string) except +translate_exception
         string str()
+        double factor()
 
 cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
     cdef cppclass CxxAnyValue "Cantera::AnyValue"
