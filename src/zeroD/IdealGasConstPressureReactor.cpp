@@ -151,4 +151,9 @@ std::string IdealGasConstPressureReactor::componentName(size_t k) {
     }
 }
 
+void IdealGasConstPressureReactor::acceptPreconditioner(PreconditionerBase *preconditioner, size_t reactorStart, double t, double* y, double* ydot, double* params)
+{
+    preconditioner->reactorLevelSetup(this,reactorStart,t,y,ydot,params);
+}
+
 }

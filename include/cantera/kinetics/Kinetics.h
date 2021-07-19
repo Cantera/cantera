@@ -829,6 +829,8 @@ public:
         m_root = root;
     }
 
+    virtual shared_ptr<Reaction> getReaction(size_t i);
+
 protected:
     //! Cache for saved calculations within each Kinetics object.
     ValueCache m_cache;
