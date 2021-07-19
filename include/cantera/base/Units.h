@@ -37,6 +37,9 @@ public:
     //! Create an object with the specified dimensions
     explicit Units(const std::string& name);
 
+    //! Copy constructor
+    Units(const Units& other);
+
     //! Returns `true` if the specified Units are dimensionally consistent
     bool convertible(const Units& other) const;
 
@@ -108,6 +111,9 @@ public:
     //! Default constructor for unit system (needed as VS2019 does not
     //! recognize an optional argument with a default value)
     UnitSystem() : UnitSystem({}) {}
+
+    //! Return default units used by the unit system
+    std::map<std::string, std::string> defaults() const;
 
     //! Set the default units to convert from when explicit units are not
     //! provided. Defaults can be set for mass, length, time, quantity, energy,

@@ -9,6 +9,7 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/AnyMap.h"
 #include "cantera/base/utilities.h"
+#include <regex>
 
 namespace {
 using namespace Cantera;
@@ -23,6 +24,7 @@ const std::map<std::string, Units> knownUnits{
 
     // Length [L]
     {"m", Units(1.0, 0, 1, 0)},
+    {"cm", Units(.01, 0, 1, 0)},
     {"micron", Units(1e-6, 0, 1, 0)},
     {"angstrom", Units(1e-10, 0, 1, 0)},
     {"Å", Units(1e-10, 0, 1, 0)},
@@ -77,6 +79,7 @@ const std::map<std::string, Units> knownUnits{
 
     //! Activation energy units [M*L^2/T^2/Q]
     {"J/kmol", Units(1.0, 1, 2, -2, 0, 0, -1)},
+    {"cal/mol", Units(4184.0, 1, 2, -2, 0, 0, -1)},
 };
 
 const std::map<std::string, double> prefixes{
@@ -141,20 +144,33 @@ Units::Units(const std::string& name)
     , m_energy_dim(0)
 {
     size_t start = 0;
+
+    // Determine factor
+    std::regex regexp("[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)");
+    std::smatch matched;
+    std::regex_search(name, matched, regexp);
+    if (matched.size()) {
+        std::string factor = *matched.begin();
+        if (name.find(factor) == 0) {
+            m_factor = fpValueCheck(factor);
+            start = factor.size();
+        }
+    }
+
     while (true) {
         // Split into groups of the form 'unit^exponent'
         size_t stop = name.find_first_of("*/", start);
-        size_t carat = name.find('^', start);
-        if (carat > stop) {
-            // No carat in this group
-            carat = npos;
+        size_t caret = name.find('^', start);
+        if (caret > stop) {
+            // No caret in this group
+            caret = npos;
         }
         std::string unit = trimCopy(
-            name.substr(start, std::min(carat, stop) - start));
+            name.substr(start, std::min(caret, stop) - start));
 
         double exponent = 1.0;
-        if (carat != npos) {
-            exponent = fpValueCheck(name.substr(carat+1, stop-carat-1));
+        if (caret != npos) {
+            exponent = fpValueCheck(name.substr(caret+1, stop-caret-1));
         }
         if (start != 0 && name[start-1] == '/') {
             // This unit is in the denominator
@@ -184,6 +200,19 @@ Units::Units(const std::string& name)
             break;
         }
     }
+}
+
+Units::Units(const Units& other)
+    : m_factor(other.m_factor)
+    , m_mass_dim(other.m_mass_dim)
+    , m_length_dim(other.m_length_dim)
+    , m_time_dim(other.m_time_dim)
+    , m_temperature_dim(other.m_temperature_dim)
+    , m_current_dim(other.m_current_dim)
+    , m_quantity_dim(other.m_quantity_dim)
+    , m_pressure_dim(other.m_pressure_dim)
+    , m_energy_dim(other.m_energy_dim)
+{
 }
 
 bool Units::convertible(const Units& other) const
@@ -221,9 +250,41 @@ Units Units::pow(double exponent) const {
 }
 
 std::string Units::str() const {
-    return fmt::format("Units({} kg^{} * m^{} * s^{} * K^{} * A^{} * kmol^{})",
-                       m_factor, m_mass_dim, m_length_dim, m_time_dim,
-                       m_temperature_dim, m_current_dim, m_quantity_dim);
+    std::map<std::string, double> dims{
+        {"kg", m_mass_dim},
+        {"m", m_length_dim},
+        {"s", m_time_dim},
+        {"K", m_temperature_dim},
+        {"A", m_current_dim},
+        {"kmol", m_quantity_dim},
+    };
+
+    std::string out = "";
+    for (auto const& dim : dims) {
+        int rounded = roundf(dim.second);
+        if (dim.second == 1.) {
+            out.append(fmt::format(" * {}", dim.first));
+        } else if (dim.second == 0.) {
+            // skip
+        } else if (dim.second == rounded) {
+            out.append(fmt::format(" * {}^{}", dim.first, rounded));
+        } else {
+            out.append(fmt::format(" * {}^{}", dim.first, dim.second));
+        }
+    }
+
+    std::string factor;
+    if (m_factor == roundf(m_factor)) {
+        // ensure that fmt::format does not round to integer
+        factor = fmt::format("{:.1f}", m_factor);
+    } else {
+        factor = fmt::format("{}", m_factor);
+    }
+
+    if (out.size()) {
+        return fmt::format("{} {}", factor, out.substr(3));
+    }
+    return factor;
 }
 
 bool Units::operator==(const Units& other) const
@@ -252,6 +313,40 @@ UnitSystem::UnitSystem(std::initializer_list<std::string> units)
     setDefaults(units);
 }
 
+std::map<std::string, std::string> UnitSystem::defaults() const
+{
+    // Unit system defaults
+    std::map<std::string, Units> units{
+        {"mass", Units(m_mass_factor, 1)},
+        {"length", Units(m_length_factor, 0, 1)},
+        {"time", Units(m_time_factor, 0, 0, 1)},
+        {"quantity", Units(m_quantity_factor, 0, 0, 0, 0, 0, 1)},
+        {"pressure", Units(m_pressure_factor, 1, -1, -2)},
+        {"energy", Units(m_energy_factor, 1, 2, -2)},
+        {"temperature", Units(1.0, 0, 0, 0, 1)},
+        {"current", Units(1.0, 0, 0, 0, 0, 1)},
+        {"activation-energy", Units(m_activation_energy_factor, 1, 2, -2, 0, 0, -1)},
+    };
+
+    // Retrieve known units (if applicable)
+    std::map<std::string, std::string> out;
+    for (const auto& unit : units) {
+        out[unit.first] = unit.second.str();
+        for (const auto& known : knownUnits) {
+            if (unit.second == known.second) {
+                // Units are known: use abbreviation
+                out[unit.first] = known.first;
+            }
+        }
+    }
+
+    // Overwrite entries that have buffered defaults
+    for (const auto& defaults : m_defaults) {
+        out[defaults.first] = defaults.second;
+    }
+    return out;
+}
+
 void UnitSystem::setDefaults(std::initializer_list<std::string> units)
 {
     for (const auto& name : units) {
@@ -274,9 +369,18 @@ void UnitSystem::setDefaults(std::initializer_list<std::string> units)
         } else if (unit.convertible(knownUnits.at("J"))) {
             m_energy_factor = unit.factor();
             m_defaults["energy"] = name;
-        } else if (unit.convertible(knownUnits.at("K"))
-                   || unit.convertible(knownUnits.at("A"))) {
-            // Do nothing -- no other scales are supported for temperature and current
+        } else if (unit.convertible(knownUnits.at("K"))) {
+            // Do nothing -- no other scales are supported for temperature
+            if (unit.factor() != 1.) {
+                throw CanteraError("UnitSystem::setDefaults", "Temperature scales "
+                    "with non-unity conversion factor from Kelvin are not supported.");
+            }
+        } else if (unit.convertible(knownUnits.at("A"))) {
+            // Do nothing -- no other scales are supported for current
+            if (unit.factor() != 1.) {
+                throw CanteraError("UnitSystem::setDefaults", "Current scales "
+                    "with non-unity conversion factor from Ampere are not supported.");
+            }
         } else {
             throw CanteraError("UnitSystem::setDefaults",
                 "Unable to match unit '{}' to a basic dimension", name);
@@ -301,10 +405,18 @@ void UnitSystem::setDefaults(const std::map<std::string, std::string>& units)
         } else if (name == "time" && unit.convertible(knownUnits.at("s"))) {
             m_time_factor = unit.factor();
             m_defaults["time"] = item.second;
-        } else if (name == "temperature" && item.second == "K") {
+        } else if (name == "temperature" && unit.convertible(knownUnits.at("K"))) {
             // do nothing - no other temperature scales are supported
-        } else if (name == "current" && item.second == "A") {
+            if (unit.factor() != 1.) {
+                throw CanteraError("UnitSystem::setDefaults", "Temperature scales "
+                    "with non-unity conversion factor from Kelvin are not supported.");
+            }
+        } else if (name == "current" && unit.convertible(knownUnits.at("A"))) {
             // do nothing - no other current scales are supported
+            if (unit.factor() != 1.) {
+                throw CanteraError("UnitSystem::setDefaults", "Current scales "
+                    "with non-unity conversion factor from Ampere are not supported.");
+            }
         } else if (name == "quantity" && unit.convertible(knownUnits.at("kmol"))) {
             m_quantity_factor = unit.factor();
             m_defaults["quantity"] = item.second;
