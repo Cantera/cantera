@@ -1037,6 +1037,51 @@ class TestIdealGasConstPressureReactor(TestConstPressureReactor):
     reactorClass = ct.IdealGasConstPressureReactor
 
 
+class TestIdealGasConstPressureMoleReactor(TestIdealGasConstPressureReactor):
+    reactorClass = ct.IdealGasConstPressureMoleReactor
+
+    def create_reactors(self, **kwargs):
+        super().create_reactors(**kwargs)
+        if "add_surf" not in kwargs.keys():
+            self.net2.preconditioner = ct.AdaptivePreconditioner()
+            self.net2.derivative_settings = {"skip-third-bodies":True, "skip-falloff":True}
+
+    def test_get_solver_type(self):
+        self.create_reactors()
+        self.assertEqual(self.net2.linear_solver_type, "GMRES")
+
+class TestIdealGasMoleReactor(TestReactor):
+    reactorClass = ct.IdealGasMoleReactor
+
+    def test_adaptive_precon_integration(self):
+        # Network one with non-mole reactor
+        net1 = ct.ReactorNet()
+        gas1 = ct.Solution('h2o2.yaml', transport_model=None)
+        gas1.TP = 300, ct.one_atm
+        gas1.set_equivalence_ratio(1, "H2", "O2:1, N2:3.76")
+        r1 = ct.IdealGasReactor(gas1)
+        net1.add_reactor(r1)
+        # Network two with mole reactor and preconditioner
+        net2 = ct.ReactorNet()
+        gas2 = ct.Solution('h2o2.yaml', transport_model=None)
+        gas2.TP = 300, ct.one_atm
+        gas2.set_equivalence_ratio(1, "H2", "O2:1, N2:3.76")
+        r2 = ct.IdealGasMoleReactor(gas2)
+        net2.add_reactor(r2)
+        # add preconditioner
+        net2.preconditioner = ct.AdaptivePreconditioner()
+        net2.derivative_settings = {"skip-third-bodies":True, "skip-falloff":True}
+        # integrate
+        for i in range(1, 11, 1):
+            adv_time = i * 0.1
+            net1.advance(adv_time)
+            net2.advance(adv_time)
+            self.assertNear(r1.T, r2.T)
+            self.assertNear(r1.thermo.density, r2.thermo.density)
+            self.assertNear(r1.thermo.P, r1.thermo.P)
+            self.assertArrayNear(r1.thermo.X, r1.thermo.X)
+
+
 class TestFlowReactor(utilities.CanteraTest):
     gas_def = """
     phases:

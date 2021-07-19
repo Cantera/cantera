@@ -12,8 +12,10 @@
 #ifndef CT_INTEGRATOR_H
 #define CT_INTEGRATOR_H
 #include "FuncEval.h"
+#include "PreconditionerBase.h"
 
 #include "cantera/base/global.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
@@ -91,9 +93,66 @@ public:
     //! Set the problem type.
     /*!
      * @param probtype    Type of the problem
+     *
+     * @deprecated This funciton is to be removed along with the integer constants used
+     * in conditionals to set the problem type currently. This includes DENSE, JAC,
+     * NOJAC, BAND, and DIAG
      */
     virtual void setProblemType(int probtype) {
+        warn_deprecated("Integrator::setProblemType()",
+            "To be removed. Set linear solver type with setLinearSolverType");
         warn("setProblemType");
+    }
+
+    //! Set the linear solver type.
+    /*!
+     * @param linSolverType    Type of the linear solver
+     */
+    virtual void setLinearSolverType(std::string linSolverType) {
+        warn("setLinearSolverType");
+    }
+
+    //! Set the preconditioner type.
+    /*!
+     * @param prectype    Type of the problem
+     */
+    virtual void setPreconditionerType(PreconditionerType prectype) {
+        warn("setPreconditionerType");
+    }
+
+    //! Set preconditioner used by the linear solver
+    /*!
+     * @param preconditioner preconditioner object used for the linear solver
+     */
+    virtual void setPreconditioner(shared_ptr<PreconditionerBase> preconditioner) {
+        m_preconditioner = preconditioner;
+        m_prec_type = m_preconditioner->preconditionerType();
+    }
+
+    //! Solve a linear system Ax=b where A is the preconditioner
+    /*!
+     * @param[in] stateSize length of the rhs and output vectors
+     * @param[in] rhs right hand side vector used in linear system
+     * @param[out] output output vector for solution
+     */
+    virtual void preconditionerSolve(size_t stateSize, double* rhs, double* output) {
+        m_preconditioner->solve(stateSize, rhs, output);
+    }
+
+    //! Return the preconditioner type
+    virtual PreconditionerType preconditionerType() {
+        return m_prec_type;
+    }
+
+    //! Return preconditioner reference to object
+    virtual shared_ptr<PreconditionerBase> preconditioner() {
+        return m_preconditioner;
+    }
+
+    //! Return the integrator problem type
+    virtual std::string linearSolverType() {
+        warn("linearSolverType");
+        return "";
     }
 
     /**
@@ -218,6 +277,28 @@ public:
         warn("sensitivity");
         return 0.0;
     }
+
+    //! Get nonlinear solver stats from integrator
+    virtual AnyMap nonlinearSolverStats() const {
+        AnyMap stats;
+        warn("nonlinearSolverStats");
+        return stats;
+    }
+
+    //! Get linear solver stats from integrator
+    virtual AnyMap linearSolverStats() const {
+        AnyMap stats;
+        warn("linearSolverStats");
+        return stats;
+    }
+
+protected:
+    //! Pointer to preconditioner object used in integration which is
+    //! set by setPreconditioner and initialized inside of
+    //! ReactorNet::initialize()
+    shared_ptr<PreconditionerBase> m_preconditioner;
+    //! Type of preconditioning used in applyOptions
+    PreconditionerType m_prec_type = PreconditionerType::NO_PRECONDITION;
 
 private:
     doublereal m_dummy;

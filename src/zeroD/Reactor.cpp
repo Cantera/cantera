@@ -35,6 +35,11 @@ void Reactor::insert(shared_ptr<Solution> sol) {
     setKineticsMgr(*sol->kinetics());
 }
 
+void Reactor::setDerivativeSettings(AnyMap& settings)
+{
+    m_kin->setDerivativeSettings(settings);
+}
+
 void Reactor::setKineticsMgr(Kinetics& kin)
 {
     m_kin = &kin;

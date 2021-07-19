@@ -440,6 +440,10 @@ public:
     //! units = kg / kmol
     const vector_fp& molecularWeights() const;
 
+    //! Return a const reference to the internal vector of molecular weights.
+    //! units = kmol / kg
+    const vector_fp& inverseMolecularWeights() const;
+
     //! Copy the vector of species charges into array charges.
     //!     @param charges Output array of species charges (elem. charge)
     void getCharges(double* charges) const;
@@ -554,6 +558,9 @@ public:
     //! Set the concentrations without ignoring negative concentrations
     virtual void setConcentrationsNoNorm(const double* const conc);
     //! @}
+
+    //! Set the state of the object with moles in [kmol]
+    virtual void setMolesNoTruncate(const double* const N);
 
     //! Elemental mass fraction of element m
     /*!

@@ -26,6 +26,7 @@ plasma
 plotting
 plug flow reactor
 pollutant formation
+preconditioner
 premixed flame
 reaction path analysis
 reactor network

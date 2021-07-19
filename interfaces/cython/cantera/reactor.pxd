@@ -7,6 +7,7 @@
 from .ctcxx cimport *
 from .kinetics cimport *
 from .func1 cimport *
+from .preconditioners cimport *
 
 cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxWall "Cantera::Wall"
@@ -157,7 +158,12 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double sensitivity(string&, size_t, int) except +translate_exception
         size_t nparams()
         string sensitivityParameterName(size_t) except +translate_exception
-
+        void setLinearSolverType(string integratorType) except +translate_exception
+        string linearSolverType()
+        void setPreconditioner(CxxPreconditionerBase& preconditioner)
+        void setDerivativeSettings(CxxAnyMap&)
+        CxxAnyMap linearSolverStats()
+        CxxAnyMap nonlinearSolverStats()
 
 cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
     cdef cppclass CxxReactorAccessor "Cantera::ReactorAccessor":

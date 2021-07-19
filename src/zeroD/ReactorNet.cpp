@@ -28,7 +28,7 @@ ReactorNet::ReactorNet() :
     // use backward differencing, with a full Jacobian computed
     // numerically, and use a Newton linear iterator
     m_integ->setMethod(BDF_Method);
-    m_integ->setProblemType(DENSE + NOJAC);
+    m_integ->setLinearSolverType("DENSE");
 }
 
 ReactorNet::~ReactorNet()
@@ -128,6 +128,18 @@ void ReactorNet::reinitialize()
     } else {
         initialize();
     }
+}
+
+void ReactorNet::setLinearSolverType(std::string linSolverType)
+{
+    m_integ->setLinearSolverType(linSolverType);
+    m_integrator_init = false;
+}
+
+void ReactorNet::setPreconditioner(PreconditionerBase& preconditioner)
+{
+    m_integ->setPreconditioner(std::shared_ptr<PreconditionerBase>(&preconditioner));
+    m_integrator_init = false;
 }
 
 void ReactorNet::setMaxSteps(int nmax)
@@ -396,6 +408,62 @@ size_t ReactorNet::registerSensitivityParameter(
     m_sens_params.push_back(value);
     m_paramScales.push_back(scale);
     return m_sens_params.size() - 1;
+}
+
+void ReactorNet::setDerivativeSettings(AnyMap& settings)
+{
+    // Apply given settings to all reactors
+    for (size_t i = 0; i < m_reactors.size(); i++) {
+        m_reactors[i]->setDerivativeSettings(settings);
+    }
+}
+
+AnyMap ReactorNet::nonlinearSolverStats() const
+{
+    return m_integ->nonlinearSolverStats();
+}
+
+AnyMap ReactorNet::linearSolverStats() const
+{
+    return m_integ->linearSolverStats();
+}
+
+std::string ReactorNet::linearSolverType()
+{
+    return m_integ->linearSolverType();
+}
+
+void ReactorNet::preconditionerSolve(double* rhs, double* output)
+{
+    m_integ->preconditionerSolve(m_nv, rhs, output);
+}
+
+void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
+{
+    auto precon = m_integ->preconditioner();
+    // Reset preconditioner
+    precon->reset();
+    // Set gamma value for M =I - gamma*J
+    precon->setGamma(gamma);
+    // Make a copy of state to adjust it for preconditioner
+    vector_fp yCopy(m_nv);
+    // Get state of reactor
+    getState(yCopy.data());
+    // adjust state by preconditioner
+    precon->stateAdjustment(yCopy);
+    // update network with adjusted state
+    updateState(yCopy.data());
+    // Get jacobians and give elements to preconditioners
+    for (size_t i = 0; i < m_reactors.size(); i++) {
+        Eigen::SparseMatrix<double> reactorJac = m_reactors[i]->jacobian(t, y + m_start[i]);
+        for (int k=0; k<reactorJac.outerSize(); ++k) {
+            for (Eigen::SparseMatrix<double>::InnerIterator it(reactorJac, k); it; ++it) {
+                precon->setValue(it.row() + m_start[i], it.col() + m_start[i], it.value());
+            }
+        }
+    }
+    // post reactor setup operations
+    precon->setup();
 }
 
 }

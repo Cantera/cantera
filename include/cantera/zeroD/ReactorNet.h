@@ -9,11 +9,13 @@
 #include "Reactor.h"
 #include "cantera/numerics/FuncEval.h"
 
+
 namespace Cantera
 {
 
 class Array2D;
 class Integrator;
+class PreconditionerBase;
 
 //! A class representing a network of connected reactors.
 /*!
@@ -33,6 +35,15 @@ public:
 
     //! @name Methods to set up a simulation
     //! @{
+
+    //! Set the type of linear solver used in the integration.
+    //! @param linSolverType type of linear solver. Default type: "DENSE"
+    //! Other options include: "DIAG", "DENSE", "GMRES", "BAND"
+    void setLinearSolverType(std::string linSolverType = "DENSE");
+
+    //! Set preconditioner used by the linear solver
+    //! @param preconditioner preconditioner object used for the linear solver
+    void setPreconditioner(PreconditionerBase& preconditioner);
 
     //! Set initial time. Default = 0.0 s. Restarts integration from this time
     //! using the current mixture state as the initial condition.
@@ -83,6 +94,9 @@ public:
     doublereal atolSensitivity() const {
         return m_atolsens;
     }
+
+    //! Problem type of integrator
+    std::string linearSolverType();
 
     /**
      * Advance the state of all reactors in time. Take as many internal
@@ -178,6 +192,11 @@ public:
     virtual size_t neq() {
         return m_nv;
     }
+
+    size_t nReactors() {
+        return m_reactors.size();
+    }
+
     virtual void eval(doublereal t, doublereal* y,
                       doublereal* ydot, doublereal* p);
 
@@ -253,8 +272,34 @@ public:
     //! Retrieve absolute step size limits during advance
     bool getAdvanceLimits(double* limits);
 
-protected:
+    /*! Evaluate the setup processes for the Jacobian preconditioner.
+     * @param[in] t time.
+     * @param[in] y solution vector, length neq()
+     * @param gamma the gamma in M=I-gamma*J
+     * @warning This function is an experimental part of the %Cantera API and may be
+     * changed or removed without notice.
+     */
+    virtual void preconditionerSetup(double t, double* y, double gamma);
 
+    /*! Evaluate the linear system Ax=b where A is the preconditioner.
+     * @param[in] rhs right hand side vector used in linear system
+     * @param[out] output output vector for solution
+     * @warning This function is an experimental part of the %Cantera API and may be
+     * changed or removed without notice.
+     */
+    virtual void preconditionerSolve(double* rhs, double* output);
+
+    //! Use this to get nonlinear solver stats from Integrator
+    AnyMap nonlinearSolverStats() const;
+
+    //! Get linear solver stats from integrator
+    AnyMap linearSolverStats() const;
+
+    //! Set derivative settings of all reactors
+    //! @param settings the settings map propagated to all reactors and kinetics objects
+    virtual void setDerivativeSettings(AnyMap& settings);
+
+protected:
     //! Estimate a future state based on current derivatives.
     //! The function is intended for internal use by ReactorNet::advance
     //! and deliberately not exposed in external interfaces.
@@ -295,6 +340,9 @@ protected:
     //! "left hand side" of each governing equation
     vector_fp m_LHS;
     vector_fp m_RHS;
+
+    bool m_checked_eval_deprecation; //!< @todo Remove after Cantera 2.6
+    std::vector<bool> m_have_deprecated_eval; //!< @todo Remove after Cantera 2.6
 };
 }
 

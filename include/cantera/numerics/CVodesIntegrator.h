@@ -35,7 +35,6 @@ public:
     virtual void setTolerances(double reltol, size_t n, double* abstol);
     virtual void setTolerances(double reltol, double abstol);
     virtual void setSensitivityTolerances(double reltol, double abstol);
-    virtual void setProblemType(int probtype);
     virtual void initialize(double t0, FuncEval& func);
     virtual void reinitialize(double t0, FuncEval& func);
     virtual void integrate(double tout);
@@ -57,6 +56,14 @@ public:
     virtual void setMaxSteps(int nmax);
     virtual int maxSteps();
     virtual void setMaxErrTestFails(int n);
+    virtual AnyMap nonlinearSolverStats() const;
+    virtual AnyMap linearSolverStats() const;
+    void setLinearSolverType(std::string linSolverType) {
+        m_type = linSolverType;
+    }
+    virtual std::string linearSolverType() {
+        return m_type;
+    }
     virtual void setBandwidth(int N_Upper, int N_Lower) {
         m_mupper = N_Upper;
         m_mlower = N_Lower;
@@ -65,6 +72,23 @@ public:
         return static_cast<int>(m_np);
     }
     virtual double sensitivity(size_t k, size_t p);
+    virtual void setProblemType(int probtype)
+    {
+        warn_deprecated("CVodesIntegrator::setProblemType()",
+            "To be removed. Set linear solver type with setLinearSolverType");
+        if (probtype == DIAG)
+        {
+            setLinearSolverType("DIAG");
+        } else if (probtype == DENSE + NOJAC) {
+            setLinearSolverType("DENSE");
+        } else if (probtype == BAND + NOJAC) {
+            setLinearSolverType("BAND");
+        } else if (probtype == GMRES) {
+            setLinearSolverType("GMRES");
+        } else {
+            setLinearSolverType("Invalid Option");
+        }
+    }
 
     //! Returns a string listing the weighted error estimates associated
     //! with each solution component.
@@ -93,7 +117,7 @@ private:
     double m_time; //!< The current integrator time
     N_Vector m_y, m_abstol;
     N_Vector m_dky;
-    int m_type;
+    std::string m_type;
     int m_itol;
     int m_method;
     int m_maxord;
@@ -107,7 +131,6 @@ private:
     N_Vector* m_yS;
     size_t m_np;
     int m_mupper, m_mlower;
-
     //! Indicates whether the sensitivities stored in m_yS have been updated
     //! for at the current integrator time.
     bool m_sens_ok;

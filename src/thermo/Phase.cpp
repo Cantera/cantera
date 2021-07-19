@@ -478,6 +478,11 @@ const vector_fp& Phase::molecularWeights() const
     return m_molwts;
 }
 
+const vector_fp& Phase::inverseMolecularWeights() const
+{
+    return m_rmolwts;
+}
+
 void Phase::getCharges(double* charges) const
 {
     copy(m_speciesCharge.begin(), m_speciesCharge.end(), charges);
@@ -603,6 +608,25 @@ void Phase::setConcentrationsNoNorm(const double* const conc)
         m_ym[k] = conc[k] * rsum;
         m_y[k] = m_ym[k] * m_molwts[k];
     }
+    compositionChanged();
+}
+
+void Phase::setMolesNoTruncate(const double* const N)
+{
+    // get total moles
+    copy(N, N + m_kk, m_ym.begin());
+    double totalMoles = accumulate(m_ym.begin(), m_ym.end(), 0.0);
+    // get total mass
+    copy(N, N + m_kk, m_y.begin());
+    transform(m_y.begin(), m_y.end(), m_molwts.begin(), m_y.begin(), multiplies<double>());
+    double totalMass = accumulate(m_y.begin(), m_y.end(), 0.0);
+    // mean molecular weight
+    m_mmw = totalMass/totalMoles;
+    // mass fractions
+    scale(m_y.begin(), m_y.end(), m_y.begin(), 1/totalMass);
+    // moles fractions/m_mmw
+    scale(m_ym.begin(), m_ym.end(), m_ym.begin(), 1/(m_mmw * totalMoles));
+    // composition has changed
     compositionChanged();
 }
 
