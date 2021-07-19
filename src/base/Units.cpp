@@ -339,6 +339,11 @@ std::map<std::string, std::string> UnitSystem::defaults() const
             }
         }
     }
+
+    // Overwrite entries that have buffered defaults
+    for (const auto& defaults : m_defaults) {
+        out[defaults.first] = defaults.second;
+    }
     return out;
 }
 
