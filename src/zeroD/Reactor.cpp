@@ -44,6 +44,11 @@ void Reactor::setKineticsMgr(Kinetics& kin)
     }
 }
 
+Kinetics* Reactor::getKineticsMgr()
+{
+    return m_kin;
+}
+
 void Reactor::getState(double* y)
 {
     if (m_thermo == 0) {
@@ -498,6 +503,11 @@ void Reactor::setAdvanceLimit(const string& nm, const double limit)
                      [](double val){return val>0;})) {
         m_advancelimits.resize(0);
     }
+}
+
+void Reactor::acceptPreconditioner(PreconditionerBase *preconditioner, size_t reactorStart, double t, double* y, double* ydot, double* params)
+{
+    preconditioner->reactorLevelSetup(this,reactorStart,t,y,ydot,params);
 }
 
 }

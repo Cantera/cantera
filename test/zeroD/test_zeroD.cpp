@@ -50,6 +50,40 @@ TEST(ZeroDim, test_individual_reactor_initialization)
     }
 }
 
+TEST(ZeroDim, test_get_reaction_from_reactor)
+{
+    // Setting up solution to insert in reactor
+    auto sol = newSolution("methane_twostep.yaml");
+    sol->thermo()->setState_TPX(300.0, 101325, "CH4:1.0, O2:1.0, H2O:0, CO2:0");
+    // Set up reactor object
+    Reactor reactor;
+    reactor.insert(sol);
+    // Get reactions
+    auto kinetics = reactor.getKineticsMgr();
+    auto reaction0 = kinetics->getReaction(0);
+    auto reaction1 = kinetics->getReaction(1);
+    // Compare reaction strings to manual input
+    EXPECT_EQ(reaction0->equation(), "CH4 + 1.5 O2 => CO + 2 H2O");
+    EXPECT_EQ(reaction1->equation(), "CO + 0.5 O2 <=> CO2");
+}
+
+TEST(ZeroDim, test_get_thermo_from_reactor)
+{
+    // Setting up solution to insert in reactor
+    auto sol = newSolution("h2o2.yaml");
+    auto thermo1 = sol->thermo();
+    // Set up reactor object
+    Reactor reactor;
+    reactor.setThermoMgr(*thermo1);
+    // Get thermo from reactor
+    auto thermo2 = reactor.getThermoMgr();
+    // Compare two thermo objects
+    EXPECT_EQ(thermo1->nSpecies(), thermo2->nSpecies());
+    EXPECT_EQ(thermo1->enthalpy_mass(), thermo2->enthalpy_mass());
+    EXPECT_EQ(thermo1->intEnergy_mass(), thermo2->intEnergy_mass());
+    EXPECT_EQ(thermo1->pressure(), thermo2->pressure());
+}
+
 int main(int argc, char** argv)
 {
     printf("Running main() from test_zeroD.cpp\n");

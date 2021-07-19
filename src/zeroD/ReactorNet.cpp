@@ -35,6 +35,18 @@ ReactorNet::~ReactorNet()
 {
 }
 
+void ReactorNet::setIntegratorType(int integratorType)
+{
+    m_integ->setProblemType(integratorType);
+}
+
+void ReactorNet::setIntegratorType(PreconditionerBase* preconditioner, int integratorType)
+{
+    m_preconditioner=preconditioner;
+    m_preconditioner_type = preconditioner->getPreconditionerType();
+    m_integ->setProblemType(integratorType+PRECONDITION);
+}
+
 void ReactorNet::setInitialTime(double time)
 {
     m_time = time;
@@ -113,6 +125,11 @@ void ReactorNet::initialize()
     if (m_verbose) {
         writelog("Number of equations: {:d}\n", neq());
         writelog("Maximum time step:   {:14.6g}\n", m_maxstep);
+    }
+    if (m_preconditioner_type!=PRECONDITIONER_NOT_SET)
+    {
+        std::vector<size_t> precon_dims{m_nv, m_nv};
+        m_preconditioner->initialize(&precon_dims, m_atols);
     }
     m_integ->initialize(m_time, *this);
     m_integrator_init = true;
@@ -383,6 +400,26 @@ size_t ReactorNet::registerSensitivityParameter(
     m_sens_params.push_back(value);
     m_paramScales.push_back(scale);
     return m_sens_params.size() - 1;
+}
+
+void ReactorNet::preconditionerSetup(doublereal t, doublereal* y,
+                      doublereal* ydot, doublereal* params)
+{
+    // Set time step to current of the integrator
+    m_preconditioner->setTimeStep(m_integ->getIntegratorTimeStep());
+    // Update state of reactors in setup
+    updateState(y);
+    // Reseting preconditioner for new setup
+    m_preconditioner->reset();
+    // Passing reactors to preconditioner to complete setup
+    m_preconditioner->setup(&m_reactors, &m_start, t, y, ydot, params);
+}
+
+void ReactorNet::preconditionerSolve(doublereal t, doublereal* y,
+                      doublereal* ydot, doublereal* rhs, doublereal* output, doublereal* params)
+{
+    // Solve linear system for preconditioned output
+    m_preconditioner->solve(&m_reactors, &m_start, output, rhs, m_nv);
 }
 
 }

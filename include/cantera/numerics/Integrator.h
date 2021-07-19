@@ -24,6 +24,7 @@ const int NOJAC = 4;
 const int JAC = 8;
 const int GMRES = 16;
 const int BAND = 32;
+const int PRECONDITION = 64;
 
 /**
  * Specifies the method used to integrate the system of equations.
@@ -216,6 +217,11 @@ public:
 
     virtual double sensitivity(size_t k, size_t p) {
         warn("sensitivity");
+        return 0.0;
+    }
+
+    virtual double getIntegratorTimeStep() {
+        warn("getIntegratorTimeStep");
         return 0.0;
     }
 

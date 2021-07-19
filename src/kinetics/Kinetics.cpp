@@ -617,4 +617,9 @@ shared_ptr<const Reaction> Kinetics::reaction(size_t i) const
     return m_reactions[i];
 }
 
+shared_ptr<Reaction> Kinetics::getReaction(size_t i)
+{
+    return m_reactions.at(i);
+}
+
 }

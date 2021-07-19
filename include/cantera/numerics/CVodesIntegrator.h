@@ -74,6 +74,8 @@ public:
     //! Error message information provide by CVodes
     std::string m_error_message;
 
+    virtual double getIntegratorTimeStep();
+
 protected:
     //! Applies user-specified options to the underlying CVODES solver. Called
     //! during integrator initialization or reinitialization.

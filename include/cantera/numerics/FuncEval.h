@@ -49,6 +49,47 @@ public:
      */
     int eval_nothrow(double t, double* y, double* ydot);
 
+    /**
+     * Evaluate the setup processes for the Jacobian preconditioner. Called by the integrator.
+     * @param[in] t time.
+     * @param[in] y solution vector, length neq()
+     * @param[out] ydot rate of change of solution vector, length neq()
+     * @param[in] p sensitivity parameter vector, length nparams()
+     */
+    virtual void preconditionerSetup(doublereal t, doublereal* y,
+                        doublereal* ydot, doublereal* params);
+    /**
+     * Evaluate the system using a Jacobian preconditioner. Called by the integrator.
+     * @param[in] t time.
+     * @param[in] y solution vector, length neq()
+     * @param[out] ydot rate of change of solution vector, length neq()
+     * @param[in] p sensitivity parameter vector, length nparams()
+     */
+    virtual void preconditionerSolve(doublereal t, doublereal* y,
+                      doublereal* ydot, doublereal* rhs, doublereal* output, doublereal* params);
+
+    //! Evaluate the right-hand side using return code to indicate status.
+    /*!
+     * Errors are indicated using the return value, rather than by throwing
+     *  exceptions. This method is used when calling from a C-based integrator
+     *  such as CVODES. Exceptions may either be stored or printed, based on the
+     *  setting of suppressErrors().
+     *  @returns 0 for a successful evaluation; 1 after a potentially-
+     *      recoverable error; -1 after an unrecoverable error.
+     */
+    int preconditioner_setup_nothrow(double t, double* y, double* ydot);
+
+    //! Evaluate the right-hand side using return code to indicate status.
+    /*!
+     * Errors are indicated using the return value, rather than by throwing
+     *  exceptions. This method is used when calling from a C-based integrator
+     *  such as CVODES. Exceptions may either be stored or printed, based on the
+     *  setting of suppressErrors().
+     *  @returns 0 for a successful evaluation; 1 after a potentially-
+     *      recoverable error; -1 after an unrecoverable error.
+     */
+    int preconditioner_solve_nothrow(double t, double* y, double* ydot, double* rhs, double* output);
+
     //! Fill in the vector *y* with the current state of the system
     virtual void getState(double* y) {
         throw NotImplementedError("FuncEval::getState");

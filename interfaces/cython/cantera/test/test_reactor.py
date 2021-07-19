@@ -1800,3 +1800,33 @@ class AdvanceCoveragesTest(utilities.CanteraTest):
         # check that the solutions are similar, but not identical
         self.assertArrayNear(cov, self.surf.coverages)
         self.assertTrue(any(cov != self.surf.coverages))
+
+    @unittest.expectedFailure
+    def test_preconditioned_equilibrium_HP(self):
+        # Adiabatic, constant pressure combustion should proceed to equilibrium
+        # at constant enthalpy and pressure.
+        #Initial conditions
+        P0 = 10 * ct.one_atm
+        T0 = 1100
+        X0 = 'H2:1.0, O2:0.5, AR:8.0'
+        #Creating initial const pressure reactor
+        gas1 = ct.Solution('h2o2.yaml')
+        gas1.TPX = T0, P0, X0
+        r1 = ct.IdealGasConstPressureReactor(gas1)
+        #Creating reactor network
+        net = ct.ReactorNet()
+        net.add_reactor(r1)
+        #Added preconditioning
+        precon = ct.AdaptivePreconditioner()
+        precon.addToNetwork(net)
+        #Advance simulation
+        net.advance(1.0)
+        #Creating solution object
+        gas2 = ct.Solution('h2o2.yaml')
+        gas2.TPX = T0, P0, X0
+        gas2.equilibrate('HP')
+        #Assertions to check if correct
+        self.assertNear(r1.T, gas2.T)
+        self.assertNear(r1.thermo.P, P0)
+        self.assertNear(r1.thermo.density, gas2.density)
+        self.assertArrayNear(r1.thermo.X, gas2.X)
