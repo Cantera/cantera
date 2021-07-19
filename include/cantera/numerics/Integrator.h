@@ -221,7 +221,7 @@ public:
     }
 
     virtual double getIntegratorTimeStep() {
-        warn("getIntegratorTimeStep");
+        throw CanteraError("getIntegratorTimeStep", "method not implemented for Integrator");
         return 0.0;
     }
 
