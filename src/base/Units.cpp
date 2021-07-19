@@ -326,6 +326,18 @@ std::map<std::string, std::string> UnitSystem::defaults() const
             }
         }
     }
+
+    // Overwrite entries that have buffered defaults
+    for (const auto& defaults : m_defaults) {
+        out[defaults.first] = defaults.second;
+    }
+
+    // Ensure compact output for activation energy
+    if (m_defaults.find("activation-energy") == m_defaults.end()) {
+        out["activation-energy"] = fmt::format(
+            "{}/{}", out["energy"], out["quantity"]);
+    }
+
     return out;
 }
 
