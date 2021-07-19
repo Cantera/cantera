@@ -7,11 +7,14 @@
 #define CT_REACTOR_H
 
 #include "ReactorBase.h"
+#include "cantera/numerics/eigen_sparse.h"
+
 
 namespace Cantera
 {
 
 class Solution;
+class AnyMap;
 
 /**
  * Class Reactor is a general-purpose class for stirred reactors. The reactor
@@ -153,9 +156,22 @@ public:
     //! @param limit value for step size limit
     void setAdvanceLimit(const std::string& nm, const double limit);
 
+    //! Method to calculate the reactor specific jacobian
+    //! @param t current time of the simulation
+    //! @param y pointer to state vector
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    virtual Eigen::SparseMatrix<double> jacobian(double t, double* y) {
+        throw NotImplementedError("Reactor::jacobian");
+    }
+
+    //! Use this to set the kinetics objects derivative settings
+    virtual void setDerivativeSettings(AnyMap& settings);
+
     //! Set reaction rate multipliers based on the sensitivity variables in
     //! *params*.
     virtual void applySensitivity(double* params);
+
     //! Reset the reaction rate multipliers
     virtual void resetSensitivity(double* params);
 
@@ -217,6 +233,9 @@ protected:
 
     // Data associated each sensitivity parameter
     std::vector<SensitivityParameter> m_sensParams;
+
+    //! Vector of triplets representing the jacobian
+    std::vector<Eigen::Triplet<double>> m_jac_trips;
 };
 }
 

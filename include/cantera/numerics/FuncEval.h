@@ -14,6 +14,7 @@
 
 namespace Cantera
 {
+
 /**
  *  Virtual base class for ODE right-hand-side function evaluators.
  *  Classes derived from FuncEval evaluate the right-hand-side function
@@ -48,6 +49,48 @@ public:
      *      recoverable error; -1 after an unrecoverable error.
      */
     int eval_nothrow(double t, double* y, double* ydot);
+
+    /*! Evaluate the setup processes for the Jacobian preconditioner.
+     * @param[in] t time.
+     * @param[in] y solution vector, length neq()
+     * @param gamma the gamma in M=I-gamma*J
+     * @warning This function is an experimental part of the %Cantera API and may be
+     * changed or removed without notice.
+     */
+    virtual void preconditionerSetup(double t, double* y, double gamma) {
+        throw NotImplementedError("FuncEval::preconditionerSetup");
+    }
+
+    /*! Evaluate the linear system Ax=b where A is the preconditioner.
+     * @param[in] rhs right hand side vector used in linear system
+     * @param[out] output output vector for solution
+     * @warning This function is an experimental part of the %Cantera API and may be
+     * changed or removed without notice.
+     */
+    virtual void preconditionerSolve(double* rhs, double* output) {
+        throw NotImplementedError("FuncEval::preconditionerSolve");
+    }
+
+    /*! Preconditioner setup that doesn't throw an error but returns a
+     * CVODES flag. It also helps as a first level of polymorphism
+     * which identifies the specific FuncEval, e.g., ReactorNet.
+     * @param[in] t time.
+     * @param[in] y solution vector, length neq()
+     * @param gamma the gamma in M=I-gamma*J
+     * @warning This function is an experimental part of the %Cantera API and may be
+     * changed or removed without notice.
+     */
+    int preconditioner_setup_nothrow(double t, double* y, double gamma);
+
+    /*! Preconditioner solve that doesn't throw an error but returns a
+     * CVODES flag. It also helps as a first level of polymorphism
+     * which identifies the specific FuncEval, e.g., ReactorNet.
+     * @param[in] rhs right hand side vector used in linear system
+     * @param[out] output output vector for solution
+     * @warning This function is an experimental part of the %Cantera API and may be
+     * changed or removed without notice.
+     */
+    int preconditioner_solve_nothrow(double* rhs, double* output);
 
     //! Fill in the vector *y* with the current state of the system
     virtual void getState(double* y) {

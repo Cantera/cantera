@@ -83,7 +83,7 @@ ImplicitSurfChem::ImplicitSurfChem(
     // use backward differencing, with a full Jacobian computed
     // numerically, and use a Newton linear iterator
     m_integ->setMethod(BDF_Method);
-    m_integ->setProblemType(DENSE + NOJAC);
+    m_integ->setLinearSolverType("DENSE");
     m_work.resize(ntmax);
 }
 

@@ -7,7 +7,7 @@ import numbers as _numbers
 from cython.operator cimport dereference as deref
 
 from .thermo cimport *
-from ._utils cimport pystr, stringify, comp_map
+from ._utils cimport pystr, stringify, comp_map, dict_to_anymap, anymap_to_dict
 from ._utils import *
 from .delegator cimport *
 
@@ -367,6 +367,14 @@ cdef class IdealGasReactor(Reactor):
     reactor_type = "IdealGasReactor"
 
 
+cdef class IdealGasMoleReactor(Reactor):
+    """
+    A constant volume, zero-dimensional reactor for ideal gas mixtures with a mole
+    based state vector
+    """
+    reactor_type = "IdealGasMoleReactor"
+
+
 cdef class IdealGasConstPressureReactor(Reactor):
     """
     A homogeneous, constant pressure, zero-dimensional reactor for ideal gas
@@ -374,6 +382,14 @@ cdef class IdealGasConstPressureReactor(Reactor):
     to keep the pressure constant.
     """
     reactor_type = "IdealGasConstPressureReactor"
+
+cdef class IdealGasConstPressureMoleReactor(Reactor):
+    """
+    A homogeneous, constant pressure, zero-dimensional reactor for ideal gas
+    mixtures. The volume of the reactor changes as a function of time in order
+    to keep the pressure constant. This reactor also uses a mole based state vector.
+    """
+    reactor_type = "IdealGasConstPressureMoleReactor"
 
 
 cdef class FlowReactor(Reactor):
@@ -1459,3 +1475,50 @@ cdef class ReactorNet:
 
     def __copy__(self):
         raise NotImplementedError('ReactorNet object is not copyable')
+
+    property preconditioner:
+        """Preconditioner associated with integrator"""
+        def __set__(self, PreconditionerBase precon):
+            # set preconditioner
+            self.net.setPreconditioner(deref(precon.pbase))
+            # set problem type as default of preconditioner
+            self.linear_solver_type = precon.precon_linear_solver_type
+
+    property linear_solver_type:
+        """
+            The type of linear solver used in integration.
+
+            Options for this property include:
+            "DENSE"
+            "GMRES"
+            "BAND"
+            "DIAG"
+        """
+        def __set__(self, linear_solver_type):
+            self.net.setLinearSolverType(stringify(linear_solver_type))
+
+        def __get__(self):
+            return pystr(self.net.linearSolverType())
+
+
+    property linear_solver_stats:
+        """Linear solver stats from integrator"""
+        def __get__(self):
+            cdef CxxAnyMap stats
+            stats = self.net.linearSolverStats()
+            return anymap_to_dict(stats)
+
+    property nonlinear_solver_stats:
+        """Nonlinear solver stats from integrator"""
+        def __get__(self):
+            cdef CxxAnyMap stats
+            stats = self.net.nonlinearSolverStats()
+            return anymap_to_dict(stats)
+
+    property derivative_settings:
+        """
+        Apply derivative settings to all reactors in the network. See also Kinetics.
+        derivative_settings.
+        """
+        def __set__(self, settings):
+            self.net.setDerivativeSettings(dict_to_anymap(settings))
