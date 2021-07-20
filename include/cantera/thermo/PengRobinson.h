@@ -68,7 +68,7 @@ public:
      *    \kappa = \left(0.379642 + 1.487503\omega - 0.164423\omega^2 +  0.016667\omega^3 \right), \qquad \text{For } \omega > 0.491
      * \f]
      *
-     * Coefficients \f$ a_mix, b_mix \f$ and \f$(a \alpha)_{mix}\f$ are calculated as
+     * Coefficients \f$ a_{mix}, b_{mix} \f$ and \f$(a \alpha)_{mix}\f$ are calculated as
      *
      * \f[
      *    a_{mix} = \sum_i \sum_j X_i X_j a_{i, j} = \sum_i \sum_j X_i X_j \sqrt{a_i a_j}
@@ -120,13 +120,17 @@ public:
     virtual void getPartialMolarEnthalpies(double* hbar) const;
     virtual void getPartialMolarEntropies(double* sbar) const;
     virtual void getPartialMolarIntEnergies(double* ubar) const;
+    //! Calculate species-specific molar specific heats
+    /*!
+     *  This function is currently not implemented for Peng-Robinson phase.
+     */
     virtual void getPartialMolarCp(double* cpbar) const;
     virtual void getPartialMolarVolumes(double* vbar) const;
 
     //! Calculate species-specific critical temperature
     /*!
      *  The temperature dependent parameter in P-R EoS is calculated as
-     *       \f$ T_{crit} = (0.0778 a)/(0.4572 b R) \f$
+     *       \f[ T_{crit} = (0.0778 a)/(0.4572 b R) \f]
      *  Units: Kelvin
      *
      * @param a    species-specific coefficients used in P-R EoS
@@ -147,11 +151,11 @@ public:
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
 
-    //! Retrieve a and b coefficients by looking up tabulated critical parameters
+    //! Retrieve \f$a\f$ and \f$b\f$ coefficients by looking up tabulated critical parameters
     /*!
-    *  If pureFluidParameters are not provided for any species in the phase,
-    *  consult the critical properties tabulated in data/inputs/critProperties.xml.
-    *  If the species is found there, calculate pure fluid parameters a_k and b_k as:
+    *  If `pureFluidParameters` are not provided for any species in the phase,
+    *  consult the critical properties tabulated in `data/inputs/critProperties.xml`.
+    *  If the species is found there, calculate pure fluid parameters \f$a_k\f$ and \f$b_k\f$ as:
     *  \f[ a_k = 0.4278 R^2 T_c^2 / P_c \f]
     *
     *  and:
@@ -164,8 +168,8 @@ public:
     //! Set the pure fluid interaction parameters for a species
     /*!
      *  @param species   Name of the species
-     *  @param a         "a" parameter in the Peng-Robinson model [Pa-m^6/kmol^2]
-     *  @param b         "b" parameter in the Peng-Robinson model [m^3/kmol]
+     *  @param a         \f$a\f$ parameter in the Peng-Robinson model [Pa-m^6/kmol^2]
+     *  @param b         \f$a\f$ parameter in the Peng-Robinson model [m^3/kmol]
      *  @param w         acentric factor
      */
     void setSpeciesCoeffs(const std::string& species, double a, double b,
@@ -175,8 +179,8 @@ public:
     /*!
      *  @param species_i   Name of one species
      *  @param species_j   Name of the other species
-     *  @param a           constant term in the "a" expression [Pa-m^6/kmol^2]
-     *  @param alpha       dimensionless function of T_r and \omega
+     *  @param a           constant term in the \f$a\f$ expression [Pa-m^6/kmol^2]
+     *  @param alpha       dimensionless function of \f$T_r\f$ and \f$\omega\f$
      */
     void setBinaryCoeffs(const std::string& species_i,
                          const std::string& species_j, double a);
@@ -195,13 +199,13 @@ protected:
 
     // Special functions not inherited from MixtureFugacityTP
 
-    //! Calculate temperature derivative d(a*alpha)/dT
+    //! Calculate temperature derivative \f$d(a \alpha)/dT\f$
     /*!
      *  These are stored internally.
      */
     double daAlpha_dT() const;
 
-    //! Calculate second derivative d2(a*alpha)/dT2
+    //! Calculate second derivative \f$d^2(a \alpha)/dT^2\f$
     /*!
      *  These are stored internally.
      */
@@ -209,21 +213,21 @@ protected:
 
 public:
 
-    //! Calculate dpdV and dpdT at the current conditions
+    //! Calculate \f$dp/dV\f$ and \f$dp/dT\f$ at the current conditions
     /*!
      *  These are stored internally.
      */
     void calculatePressureDerivatives() const;
 
-    //! Update the a, b and alpha parameters
+    //! Update the \f$a\f$, \f$b\f$, and \f$\alpha\f$ parameters
     /*!
-     *  The a and the b parameters depend on the mole fraction and the
-     *  parameter alpha depends on the temperature. This function updates
+     *  The \f$a\f$ and the \f$b\f$ parameters depend on the mole fraction and the
+     *  parameter $\f\alpha\f$ depends on the temperature. This function updates
      *  the internal numbers based on the state of the object.
      */
     virtual void updateMixingExpressions();
 
-    //! Calculate the a, b and the alpha parameters given the temperature
+    //! Calculate the \f$a\f$, \f$b\f$, and \f$\alpha\f$ parameters given the temperature
     /*!
      * This function doesn't change the internal state of the object, so it is a
      * const function.  It does use the stored mole fractions in the object.
@@ -240,27 +244,34 @@ public:
     int solveCubic(double T, double pres, double a, double b, double aAlpha,
                    double Vroot[3]) const;
 protected:
-    //! Value of b in the equation of state
+    //! Value of \f$b\f$ in the equation of state
     /*!
-     *  m_b is a function of the mole fractions and species-specific b values.
+     *  `m_b` is a function of the mole fractions and species-specific b values.
      */
     double m_b;
 
-    //! Value of a and alpha in the equation of state
+    //! Value of \f$a\f$ in the equation of state
     /*!
-     *  m_aAlpha_mix is a function of the temperature and the mole fractions. m_a depends only on the mole fractions.
+     *  `m_a` depends only on the mole fractions.
      */
     double m_a;
+
+    //! Value of \f$\alpha\f$ in the equation of state
+    /*!
+     *  `m_aAlpha_mix` is a function of the temperature and the mole fractions.
+     */
     double m_aAlpha_mix;
 
-    // Vectors required to store a_coeff, b_coeff, alpha, kappa and other values for every species. Length = m_kk
+    // Vectors required to store species-specific a_coeff, b_coeff, alpha, kappa and other derivatives.
+    // Length = m_kk
     vector_fp m_b_coeffs;
     vector_fp m_kappa;
     mutable vector_fp m_dalphadT;
     mutable vector_fp m_d2alphadT2;
     vector_fp m_alpha;
 
-    //Matrices for Binary coefficients a_{i,j} and {a*alpha}_{i.j} are saved in an Array form. Length =  (m_kk, m_kk)
+    // Matrices for Binary coefficients a_{i,j} and {a*alpha}_{i.j} are saved in an Array form.
+    // Length =  (m_kk, m_kk)
     Array2D m_a_coeffs;
     Array2D m_aAlpha_binary;
 
@@ -296,13 +307,16 @@ protected:
     mutable vector_fp m_dpdni;
 
 private:
-    //! Omega constants: a0 (= omega_a) and b0 (= omega_b) values used in Peng-Robinson equation of state
+    //! Omega constant: a0 (= omega_a) used in Peng-Robinson equation of state
     /*!
-     *  These values are calculated by solving P-R cubic equation at the critical point.
+     *  This value is calculated by solving P-R cubic equation at the critical point.
      */
     static const double omega_a;
 
-    //! Omega constant for b
+    //! Omega constant: b0 (= omega_b) used in Peng-Robinson equation of state
+    /*!
+     *  This value is calculated by solving P-R cubic equation at the critical point.
+     */
     static const double omega_b;
 
     //! Omega constant for the critical molar volume

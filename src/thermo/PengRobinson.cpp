@@ -426,8 +426,8 @@ vector<double> PengRobinson::getCoeff(const std::string& iName)
 void PengRobinson::initThermo()
 {
     for (auto& item : m_species) {
-        // Read a and b coefficients and acentric factor w_ac from species 'input'
-        // information (i.e. as specified in a YAML input file)
+        // Read a and b coefficients and acentric factor w_ac from species input
+        // information, specified in a YAML input file.
         if (item.second->input.hasKey("equation-of-state")) {
             auto eos = item.second->input["equation-of-state"].getMapWhere(
                 "model", "Peng-Robinson");

@@ -77,6 +77,10 @@
     <Vc value="0.0948"/>
     <Zc value="0.275"/>
     <omega value="0.228"/>
+     <source>
+      The acentric factor is taken from Yaws, Carl L. (2001).
+      Matheson Gas Data Book. McGraw-Hill.
+     </source>
   </species>
   <species name="COS">
     <ChemName name="carbonyl-sulfide"/>
