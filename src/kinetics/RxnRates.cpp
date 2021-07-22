@@ -45,6 +45,11 @@ void Arrhenius::setParameters(const AnyValue& rate,
         m_E = NAN;
     } else if (rate.is<AnyMap>()) {
         auto& rate_map = rate.as<AnyMap>();
+        if (rate_map.hasKey("__standalone__") && rate_map["A"].is<std::string>()) {
+            throw InputFileError("Arrhenius::setParameters", rate_map,
+                "Specification of units is not supported for pre-exponential factor "
+                "when\ncreating a standalone 'ReactionRate' object.");
+        }
         m_A = units.convert(rate_map["A"], rate_units);
         m_b = rate_map["b"].asDouble();
         m_E = units.convertActivationEnergy(rate_map["Ea"], "K");

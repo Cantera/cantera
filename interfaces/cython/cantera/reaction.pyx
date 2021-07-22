@@ -95,6 +95,9 @@ cdef class ReactionRate:
             rate = ReactionRate.from_yaml(
                 "rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}")
 
+        Units for ``A`` require a unit system with length in ``m`` and quantity in
+        ``kmol`` (standard Cantera units).
+
         :param text:
             The YAML reaction rate string.
         """
