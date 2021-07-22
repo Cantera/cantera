@@ -78,7 +78,15 @@ void ArrheniusRate::setParameters(const AnyMap& node, const Units& rate_units)
         Arrhenius::setParameters(AnyValue(), node.units(), rate_units);
         return;
     }
-    Arrhenius::setParameters(node["rate-constant"], node.units(), rate_units);
+
+    if (!node.hasKey("__standalone__")) {
+        Arrhenius::setParameters(node["rate-constant"], node.units(), rate_units);
+        return;
+    }
+
+    AnyValue rate(node["rate-constant"]);
+    rate["__standalone__"] = true;
+    Arrhenius::setParameters(rate, node.units(), rate_units);
 }
 
 void ArrheniusRate::getParameters(AnyMap& rateNode,
@@ -133,8 +141,18 @@ void PlogRate::setParameters(const AnyMap& node, const Units& rate_units)
         Plog::setParameters(std::vector<AnyMap> (), node.units(), rate_units);
         return;
     }
-    Plog::setParameters(node.at("rate-constants").asVector<AnyMap>(),
-                        node.units(), rate_units);
+
+    if (!node.hasKey("__standalone__")) {
+        Plog::setParameters(node.at("rate-constants").asVector<AnyMap>(),
+                            node.units(), rate_units);
+        return;
+    }
+
+    std::vector<AnyMap> rates(node.at("rate-constants").asVector<AnyMap>());
+    for (auto& rate : rates) {
+        rate["__standalone__"] = true;
+    }
+    Plog::setParameters(rates, node.units(), rate_units);
 }
 
 void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const

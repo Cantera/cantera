@@ -1,5 +1,6 @@
 from math import exp
 from pathlib import Path
+import textwrap
 
 import cantera as ct
 import numpy as np
@@ -188,6 +189,12 @@ class ReactionRateTests:
         self.assertNear(rate(self.gas.T, self.gas.P),
                         self.rate(self.gas.T, self.gas.P))
 
+    def test_with_units(self):
+        units = "units: {length: cm, quantity: mol}"
+        yaml = f"{textwrap.dedent(self._yaml)}\n{units}"
+        with self.assertRaisesRegex(Exception, "not supported"):
+            rate = ct.ReactionRate.from_yaml(yaml)
+
 
 class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
     # test Arrhenius rate expressions
@@ -216,6 +223,11 @@ class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
         self.assertFalse(self.rate.allow_negative_pre_exponential_factor)
         self.rate.allow_negative_pre_exponential_factor = True
         self.assertTrue(self.rate.allow_negative_pre_exponential_factor)
+
+    def test_standalone(self):
+        yaml = "rate-constant: {A: 4.0e+21 cm^6/mol^2/s, b: 0.0, Ea: 1207.72688}"
+        with self.assertRaisesRegex(Exception, "not supported"):
+            rate = ct.ReactionRate.from_yaml(yaml)
 
 
 class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
@@ -281,6 +293,18 @@ class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
         # test instantiation of empty rate
         rate = ct.PlogRate()
         self.assertIsInstance(rate.rates, list)
+
+    def test_standalone(self):
+        yaml = """
+            type: pressure-dependent-Arrhenius
+            rate-constants:
+            - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04 cal/mol}
+            - {P: 1.0 atm, A: 4.9108e+31 cm^6/mol^2/s, b: -4.8507, Ea: 2.47728e+04 cal/mol}
+            - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
+            - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
+            """
+        with self.assertRaisesRegex(Exception, "not supported"):
+            rate = ct.ReactionRate.from_yaml(yaml)
 
 
 class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
