@@ -246,18 +246,29 @@ std::string Units::str() const {
         {"kmol", m_quantity_dim},
     };
 
+    std::string num = "";
     std::string out = "";
     for (auto const& dim : dims) {
         int rounded = roundf(dim.second);
-        if (dim.second == 1.) {
-            out.append(fmt::format(" * {}", dim.first));
-        } else if (dim.second == 0.) {
+        if (dim.second == 0.) {
             // skip
+        } else if (dim.second == 1.) {
+            num.append(fmt::format(" * {}", dim.first));
+        } else if (dim.second == -1.) {
+            out.append(fmt::format(" / {}", dim.first));
+        } else if (dim.second == rounded && rounded > 0) {
+            num.append(fmt::format(" * {}^{}", dim.first, rounded));
         } else if (dim.second == rounded) {
-            out.append(fmt::format(" * {}^{}", dim.first, rounded));
+            out.append(fmt::format(" / {}^{}", dim.first, -rounded));
+        } else if (dim.second > 0) {
+            num.append(fmt::format(" * {}^{}", dim.first, dim.second));
         } else {
-            out.append(fmt::format(" * {}^{}", dim.first, dim.second));
+            out.append(fmt::format(" / {}^{}", dim.first, -dim.second));
         }
+    }
+    if (num.size()) {
+        // concatenate numerator and denominator (skipping leading '*')
+        out = fmt::format("{}{}", num.substr(2), out);
     }
 
     std::string factor;
@@ -269,7 +280,7 @@ std::string Units::str() const {
     }
 
     if (out.size()) {
-        return fmt::format("{} {}", factor, out.substr(3));
+        return fmt::format("{}{}", factor, out);
     }
     return factor;
 }
