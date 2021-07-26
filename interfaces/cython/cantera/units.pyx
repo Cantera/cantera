@@ -46,6 +46,7 @@ cdef class Units:
         units.units = CxxUnits(other)
         return units
 
+
 cdef class UnitSystem:
     """
     Unit conversion utility

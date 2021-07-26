@@ -50,11 +50,14 @@ cdef class YamlWriter:
         will use Cantera's defaults.
 
         :param units:
-            A map where keys are dimensions (mass, length, time, quantity,
-            pressure, energy, activation-energy), and the values are
+            A UnitSystem object or map where keys are dimensions (mass, length, time,
+            quantity, pressure, energy, activation-energy), and the values are
             corresponding units such as kg, mm, s, kmol, Pa, cal, and eV.
         """
         def __set__(self, units):
+            if isinstance(units, UnitSystem):
+                defaults = UnitSystem().units
+                units = {k: v for k, v in units.units.items() if defaults[k] != v}
             cdef stdmap[string, string] cxxunits
             for dimension, unit in units.items():
                 cxxunits[stringify(dimension)] = stringify(unit)
