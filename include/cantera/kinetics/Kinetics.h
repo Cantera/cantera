@@ -128,6 +128,15 @@ public:
     Kinetics(const Kinetics&) = delete;
     Kinetics& operator=(const Kinetics&)= delete;
 
+    //! Initialize Kinetics object and associated StoichManagerN objects
+    void initialize();
+
+    //! Return boolean indicating whether Kinetics object is initialized
+    bool isInitialized() const
+    {
+        return m_initialized;
+    }
+
     //! Identifies the Kinetics manager type.
     //! Each class derived from Kinetics should override this method to return
     //! a meaningful identifier.
@@ -893,12 +902,18 @@ protected:
     //! Stoichiometry manager for the reactants for each reaction
     StoichManagerN m_reactantStoich;
 
+    //! Stoichiometry manager for the products for each reaction
+    StoichManagerN m_productStoich;
+
     //! Stoichiometry manager for the products of reversible reactions
     StoichManagerN m_revProductStoich;
 
     //! Stoichiometry manager for the products of irreversible reactions
     StoichManagerN m_irrevProductStoich;
     //@}
+
+    //! Boolean indicating whether the Kinetics object is initialized
+    bool m_initialized;
 
     //! The number of species in all of the phases
     //! that participate in this kinetics mechanism.

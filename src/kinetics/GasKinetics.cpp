@@ -175,6 +175,9 @@ void GasKinetics::processFalloffReactions()
 
 void GasKinetics::updateROP()
 {
+    if (!m_initialized) {
+        initialize();
+    }
     update_rates_C();
     update_rates_T();
     if (m_ROP_ok) {

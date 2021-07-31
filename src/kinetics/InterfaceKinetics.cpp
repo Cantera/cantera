@@ -300,6 +300,10 @@ void InterfaceKinetics::getRevRateConstants(doublereal* krev, bool doIrreversibl
 
 void InterfaceKinetics::updateROP()
 {
+    if (!m_initialized) {
+        initialize();
+    }
+
     // evaluate rate constants and equilibrium constants at temperature and phi
     // (electric potential)
     _update_rates_T();

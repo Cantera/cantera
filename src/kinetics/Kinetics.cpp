@@ -24,6 +24,7 @@ using namespace std;
 namespace Cantera
 {
 Kinetics::Kinetics() :
+    m_initialized(false),
     m_kk(0),
     m_thermo(0),
     m_surfphase(npos),
@@ -42,6 +43,19 @@ void Kinetics::checkReactionIndex(size_t i) const
         throw IndexError("Kinetics::checkReactionIndex", "reactions", i,
                          nReactions()-1);
     }
+}
+
+void Kinetics::initialize()
+{
+    size_t nRxn = nReactions();
+
+    // Stoichiometry managers
+    m_reactantStoich.initialize(m_kk, nRxn);
+    m_productStoich.initialize(m_kk, nRxn);
+    m_revProductStoich.initialize(m_kk, nRxn);
+    m_irrevProductStoich.initialize(m_kk, nRxn);
+
+    m_initialized = true;
 }
 
 void Kinetics::checkReactionArraySize(size_t ii) const
@@ -508,6 +522,7 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
         init();
     }
     resizeSpecies();
+    m_initialized = false;
 
     // Check validity of reaction within the context of the Kinetics object
     if (!r->checkSpecies(*this)) {
@@ -563,6 +578,7 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
 
     m_reactantStoich.add(irxn, rk, rorder, rstoich);
     // product orders = product stoichiometric coefficients
+    m_productStoich.add(irxn, pk, pstoich, pstoich);
     if (r->reversible) {
         m_revProductStoich.add(irxn, pk, pstoich, pstoich);
     } else {
