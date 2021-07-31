@@ -355,16 +355,30 @@ size_t Kinetics::speciesPhaseIndex(size_t k) const
                        "illegal species index: {}", k);
 }
 
-double Kinetics::reactantStoichCoeff(size_t kSpec, size_t irxn) const
+double Kinetics::reactantStoichCoeff(size_t kSpec, size_t irxn)
 {
-    return getValue(m_reactions[irxn]->reactants, kineticsSpeciesName(kSpec),
-                    0.0);
+    if (kSpec >= m_kk || irxn >= nReactions()) {
+        throw CanteraError("Kinetics::reactantStoichCoeff",
+            "Matrix index ({},{}) is out of range; size is ({},{}).",
+            kSpec, irxn, m_kk, nReactions());
+    }
+    if (!m_initialized) {
+        initialize();
+    }
+    return m_reactantStoich.stoichCoeffs().coeff(kSpec, irxn);
 }
 
-double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn) const
+double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn)
 {
-    return getValue(m_reactions[irxn]->products, kineticsSpeciesName(kSpec),
-                    0.0);
+    if (kSpec >= m_kk || irxn >= nReactions()) {
+        throw CanteraError("Kinetics::productStoichCoeff",
+            "Matrix index ({},{}) is out of range; size is ({},{}).",
+            kSpec, irxn, m_kk, nReactions());
+    }
+    if (!m_initialized) {
+        initialize();
+    }
+    return m_productStoich.stoichCoeffs().coeff(kSpec, irxn);
 }
 
 int Kinetics::reactionType(size_t i) const {

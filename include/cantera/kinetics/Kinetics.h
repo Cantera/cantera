@@ -563,7 +563,7 @@ public:
      * @param k   kinetic species index
      * @param i   reaction index
      */
-    virtual double reactantStoichCoeff(size_t k, size_t i) const;
+    double reactantStoichCoeff(size_t k, size_t i);
 
     /**
      * Stoichiometric coefficient of species k as a product in reaction i.
@@ -571,7 +571,7 @@ public:
      * @param k   kinetic species index
      * @param i   reaction index
      */
-    virtual double productStoichCoeff(size_t k, size_t i) const;
+    double productStoichCoeff(size_t k, size_t i);
 
     //! Reactant order of species k in reaction i.
     /*!

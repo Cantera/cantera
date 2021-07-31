@@ -218,9 +218,7 @@ cdef class Kinetics(_SolutionBase):
             k = self.kinetics_species_index(k_spec)
         else:
             k = k_spec
-            self._check_kinetics_species_index(k_spec)
 
-        self._check_reaction_index(i_reaction)
         return self.kinetics.reactantStoichCoeff(k, i_reaction)
 
     def product_stoich_coeff(self, k_spec, int i_reaction):
@@ -233,9 +231,7 @@ cdef class Kinetics(_SolutionBase):
             k = self.kinetics_species_index(k_spec)
         else:
             k = k_spec
-            self._check_kinetics_species_index(k_spec)
 
-        self._check_reaction_index(i_reaction)
         return self.kinetics.productStoichCoeff(k, i_reaction)
 
     def reactant_stoich_coeffs(self):
