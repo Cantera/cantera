@@ -409,8 +409,7 @@ public:
      * @param property Input vector of property value. Length: m_kk.
      * @param deltaProperty Output vector of deltaRxn. Length: nReactions().
      */
-    virtual void getReactionDelta(const doublereal* property,
-                                  doublereal* deltaProperty);
+    virtual void getReactionDelta(const double* property, double* deltaProperty);
 
     /**
      * Given an array of species properties 'g', return in array 'dg' the
@@ -422,7 +421,7 @@ public:
      * primarily designed for use in calculating reverse rate coefficients
      * from thermochemistry for reversible reactions.
      */
-    virtual void getRevReactionDelta(const doublereal* g, doublereal* dg);
+    virtual void getRevReactionDelta(const double* g, double* dg);
 
     //! Return the vector of values for the reaction Gibbs free energy change.
     /*!
@@ -532,7 +531,7 @@ public:
      *
      * @param cdot   Output vector of creation rates. Length: m_kk.
      */
-    virtual void getCreationRates(doublereal* cdot);
+    void getCreationRates(double* cdot);
 
     /**
      * Species destruction rates [kmol/m^3/s or kmol/m^2/s]. Return the species
@@ -541,7 +540,7 @@ public:
      *
      * @param ddot   Output vector of destruction rates. Length: m_kk.
      */
-    void getDestructionRates(doublereal* ddot);
+    void getDestructionRates(double* ddot);
 
     /**
      * Species net production rates [kmol/m^3/s or kmol/m^2/s]. Return the
@@ -551,7 +550,7 @@ public:
      *
      * @param wdot   Output vector of net production rates. Length: m_kk.
      */
-    void getNetProductionRates(doublereal* wdot);
+    void getNetProductionRates(double* wdot);
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines
@@ -907,9 +906,6 @@ protected:
 
     //! Stoichiometry manager for the products of reversible reactions
     StoichManagerN m_revProductStoich;
-
-    //! Stoichiometry manager for the products of irreversible reactions
-    StoichManagerN m_irrevProductStoich;
     //@}
 
     //! Boolean indicating whether the Kinetics object is initialized

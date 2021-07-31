@@ -13,6 +13,7 @@
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/thermo/ThermoPhase.h"
+#include "cantera/numerics/eigen_dense.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/global.h"
@@ -53,7 +54,6 @@ void Kinetics::initialize()
     m_reactantStoich.initialize(m_kk, nRxn);
     m_productStoich.initialize(m_kk, nRxn);
     m_revProductStoich.initialize(m_kk, nRxn);
-    m_irrevProductStoich.initialize(m_kk, nRxn);
 
     m_initialized = true;
 }
@@ -430,59 +430,75 @@ void Kinetics::getNetRatesOfProgress(doublereal* netROP)
 
 void Kinetics::getReactionDelta(const double* prop, double* deltaProp)
 {
-    fill(deltaProp, deltaProp + nReactions(), 0.0);
+    if (!m_initialized) {
+        initialize();
+    }
+    ConstMappedRowVector prop_(prop, m_kk);
+
+    MappedRowVector work(deltaProp, nReactions());
+    work.fill(0.); // zero out the output array
     // products add
-    m_revProductStoich.incrementReactions(prop, deltaProp);
-    m_irrevProductStoich.incrementReactions(prop, deltaProp);
+    work += prop_ * m_productStoich.stoichCoeffs();
     // reactants subtract
-    m_reactantStoich.decrementReactions(prop, deltaProp);
+    work -= prop_ * m_reactantStoich.stoichCoeffs();
 }
 
 void Kinetics::getRevReactionDelta(const double* prop, double* deltaProp)
 {
-    fill(deltaProp, deltaProp + nReactions(), 0.0);
+    if (!m_initialized) {
+        initialize();
+    }
+    ConstMappedRowVector prop_(prop, m_kk);
+
+    MappedRowVector work(deltaProp, nReactions());
+    work.fill(0.); // zero out the output array
     // products add
-    m_revProductStoich.incrementReactions(prop, deltaProp);
+    work += prop_ * m_revProductStoich.stoichCoeffs();
     // reactants subtract
-    m_reactantStoich.decrementReactions(prop, deltaProp);
+    work -= prop_ * m_reactantStoich.stoichCoeffs();
 }
 
 void Kinetics::getCreationRates(double* cdot)
 {
     updateROP();
+    ConstMappedVector revRop(m_ropr.data(), nReactions());
+    ConstMappedVector fwdRop(m_ropf.data(), nReactions());
 
-    // zero out the output array
-    fill(cdot, cdot + m_kk, 0.0);
+    MappedVector work(cdot, m_kk);
+    work.fill(0.); // zero out the output array
 
     // the forward direction creates product species
-    m_revProductStoich.incrementSpecies(m_ropf.data(), cdot);
-    m_irrevProductStoich.incrementSpecies(m_ropf.data(), cdot);
-
+    work += m_productStoich.stoichCoeffs() * fwdRop;
     // the reverse direction creates reactant species
-    m_reactantStoich.incrementSpecies(m_ropr.data(), cdot);
+    work += m_reactantStoich.stoichCoeffs() * revRop;
 }
 
-void Kinetics::getDestructionRates(doublereal* ddot)
+void Kinetics::getDestructionRates(double* ddot)
 {
     updateROP();
+    ConstMappedVector revRop(m_ropr.data(), nReactions());
+    ConstMappedVector fwdRop(m_ropf.data(), nReactions());
 
-    fill(ddot, ddot + m_kk, 0.0);
+    MappedVector work(ddot, m_kk);
+    work.fill(0.); // zero out the output array
+
     // the reverse direction destroys products in reversible reactions
-    m_revProductStoich.incrementSpecies(m_ropr.data(), ddot);
+    work += m_revProductStoich.stoichCoeffs() * revRop;
     // the forward direction destroys reactants
-    m_reactantStoich.incrementSpecies(m_ropf.data(), ddot);
+    work += m_reactantStoich.stoichCoeffs() * fwdRop;
 }
 
-void Kinetics::getNetProductionRates(doublereal* net)
+void Kinetics::getNetProductionRates(double* wdot)
 {
     updateROP();
+    ConstMappedVector netRop(m_ropnet.data(), nReactions());
 
-    fill(net, net + m_kk, 0.0);
+    MappedVector work(wdot, m_kk);
+    work.fill(0.); // zero out the output array
     // products are created for positive net rate of progress
-    m_revProductStoich.incrementSpecies(m_ropnet.data(), net);
-    m_irrevProductStoich.incrementSpecies(m_ropnet.data(), net);
+    work += m_productStoich.stoichCoeffs() * netRop;
     // reactants are destroyed for positive net rate of progress
-    m_reactantStoich.decrementSpecies(m_ropnet.data(), net);
+    work -= m_reactantStoich.stoichCoeffs() * netRop;
 }
 
 void Kinetics::addPhase(ThermoPhase& thermo)
@@ -595,8 +611,6 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
     m_productStoich.add(irxn, pk, pstoich, pstoich);
     if (r->reversible) {
         m_revProductStoich.add(irxn, pk, pstoich, pstoich);
-    } else {
-        m_irrevProductStoich.add(irxn, pk, pstoich, pstoich);
     }
 
     m_reactions.push_back(r);
