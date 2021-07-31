@@ -159,16 +159,6 @@ public:
         R[m_rxn] -= S[m_ic0];
     }
 
-    size_t rxnNumber() const {
-        return m_rxn;
-    }
-    size_t speciesIndex(size_t n) const {
-        return m_ic0;
-    }
-    size_t nSpecies() {
-        return 1;
-    }
-
 private:
     //! Reaction number
     size_t m_rxn;
@@ -218,16 +208,6 @@ public:
 
     void decrementReaction(const doublereal* S, doublereal* R) const {
         R[m_rxn] -= (S[m_ic0] + S[m_ic1]);
-    }
-
-    size_t rxnNumber() const {
-        return m_rxn;
-    }
-    size_t speciesIndex(size_t n) const {
-        return (n == 0 ? m_ic0 : m_ic1);
-    }
-    size_t nSpecies() {
-        return 2;
     }
 
 private:
@@ -286,16 +266,6 @@ public:
         R[m_rxn] -= (S[m_ic0] + S[m_ic1] + S[m_ic2]);
     }
 
-    size_t rxnNumber() const {
-        return m_rxn;
-    }
-    size_t speciesIndex(size_t n) const {
-        return (n == 0 ? m_ic0 : (n == 1 ? m_ic1 : m_ic2));
-    }
-    size_t nSpecies() {
-        return 3;
-    }
-
 private:
     size_t m_rxn;
     size_t m_ic0;
@@ -329,24 +299,6 @@ public:
             m_order[n] = order_[n];
             m_stoich[n] = stoich_[n];
         }
-    }
-
-    size_t data(std::vector<size_t>& ic) {
-        ic.resize(m_n);
-        for (size_t n = 0; n < m_n; n++) {
-            ic[n] = m_ic[n];
-        }
-        return m_rxn;
-    }
-
-    doublereal order(size_t n) const {
-        return m_order[n];
-    }
-    doublereal stoich(size_t n) const {
-        return m_stoich[n];
-    }
-    size_t speciesIndex(size_t n) const {
-        return m_ic[n];
     }
 
     void multiply(const doublereal* input, doublereal* output) const {
@@ -520,20 +472,9 @@ inline static void _decrementReactions(InputIter begin,
 class StoichManagerN
 {
 public:
-    /**
-     * Constructor for the StoichManagerN class.
-     *
-     * @internal Consider adding defaulted entries here that supply the total
-     *     number of reactions in the mechanism and the total number of species
-     *     in the species list. Then, we could use those numbers to provide
-     *     error checks during the construction of the object. Those numbers
-     *     would also provide some clarity to the purpose and utility of this
-     *     class.
-     *
-     * DGG - the problem is that the number of reactions and species are not
-     * known initially.
-     */
-    StoichManagerN() {
+    //! Constructor for the StoichManagerN class.
+    StoichManagerN()
+    {
     }
 
     /**
@@ -543,13 +484,15 @@ public:
      * This function is the same as the add() function below. However, the order
      * of each species in the power list expression is set to one automatically.
      */
-    void add(size_t rxn, const std::vector<size_t>& k) {
+    void add(size_t rxn, const std::vector<size_t>& k)
+    {
         vector_fp order(k.size(), 1.0);
         vector_fp stoich(k.size(), 1.0);
         add(rxn, k, order, stoich);
     }
 
-    void add(size_t rxn, const std::vector<size_t>& k, const vector_fp& order) {
+    void add(size_t rxn, const std::vector<size_t>& k, const vector_fp& order)
+    {
         vector_fp stoich(k.size(), 1.0);
         add(rxn, k, order, stoich);
     }
@@ -571,7 +514,8 @@ public:
      *     coefficients on the product side of irreversible reactions.
      */
     void add(size_t rxn, const std::vector<size_t>& k, const vector_fp& order,
-             const vector_fp& stoich) {
+             const vector_fp& stoich)
+    {
         if (order.size() != k.size()) {
            throw CanteraError("StoichManagerN::add()", "size of order and species arrays differ");
         }
@@ -615,35 +559,40 @@ public:
         }
     }
 
-    void multiply(const doublereal* input, doublereal* output) const {
+    void multiply(const double* input, double* output) const
+    {
         _multiply(m_c1_list.begin(), m_c1_list.end(), input, output);
         _multiply(m_c2_list.begin(), m_c2_list.end(), input, output);
         _multiply(m_c3_list.begin(), m_c3_list.end(), input, output);
         _multiply(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
-    void incrementSpecies(const doublereal* input, doublereal* output) const {
+    void incrementSpecies(const double* input, double* output) const
+    {
         _incrementSpecies(m_c1_list.begin(), m_c1_list.end(), input, output);
         _incrementSpecies(m_c2_list.begin(), m_c2_list.end(), input, output);
         _incrementSpecies(m_c3_list.begin(), m_c3_list.end(), input, output);
         _incrementSpecies(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
-    void decrementSpecies(const doublereal* input, doublereal* output) const {
+    void decrementSpecies(const double* input, double* output) const
+    {
         _decrementSpecies(m_c1_list.begin(), m_c1_list.end(), input, output);
         _decrementSpecies(m_c2_list.begin(), m_c2_list.end(), input, output);
         _decrementSpecies(m_c3_list.begin(), m_c3_list.end(), input, output);
         _decrementSpecies(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
-    void incrementReactions(const doublereal* input, doublereal* output) const {
+    void incrementReactions(const double* input, double* output) const
+    {
         _incrementReactions(m_c1_list.begin(), m_c1_list.end(), input, output);
         _incrementReactions(m_c2_list.begin(), m_c2_list.end(), input, output);
         _incrementReactions(m_c3_list.begin(), m_c3_list.end(), input, output);
         _incrementReactions(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
-    void decrementReactions(const doublereal* input, doublereal* output) const {
+    void decrementReactions(const double* input, double* output) const
+    {
         _decrementReactions(m_c1_list.begin(), m_c1_list.end(), input, output);
         _decrementReactions(m_c2_list.begin(), m_c2_list.end(), input, output);
         _decrementReactions(m_c3_list.begin(), m_c3_list.end(), input, output);
