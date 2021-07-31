@@ -8,6 +8,11 @@
 #ifndef CT_STOICH_MGR_H
 #define CT_STOICH_MGR_H
 
+#if CT_USE_SYSTEM_EIGEN
+#include <Eigen/Sparse>
+#else
+#include "cantera/ext/Eigen/Sparse"
+#endif
 #include "cantera/base/ctexceptions.h"
 
 namespace Cantera
@@ -477,6 +482,14 @@ public:
     {
     }
 
+    //! Initialize the sparse coefficient matrix
+    void initialize(size_t nSpc, size_t nRxn)
+    {
+        m_stoichCoeffs.setZero();
+        m_stoichCoeffs.resize(nSpc, nRxn);
+        m_stoichCoeffs.setFromTriplets(m_coeffList.begin(), m_coeffList.end());
+    }
+
     /**
      * Add a single reaction to the list of reactions that this stoichiometric
      * manager object handles.
@@ -524,9 +537,9 @@ public:
         }
         bool frac = false;
         for (size_t n = 0; n < stoich.size(); n++) {
+            m_coeffList.push_back(Eigen::Triplet<double>(k[n], rxn, stoich[n]));
             if (fmod(stoich[n], 1.0) || stoich[n] != order[n]) {
                 frac = true;
-                break;
             }
         }
         if (frac || k.size() > 3) {
@@ -567,6 +580,12 @@ public:
         _multiply(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
+    //! Return matrix containing stoichiometric coefficients
+    const Eigen::SparseMatrix<double>& stoichCoeffs() const
+    {
+        return m_stoichCoeffs;
+    }
+
     void incrementSpecies(const double* input, double* output) const
     {
         _incrementSpecies(m_c1_list.begin(), m_c1_list.end(), input, output);
@@ -604,6 +623,10 @@ private:
     std::vector<C2> m_c2_list;
     std::vector<C3> m_c3_list;
     std::vector<C_AnyN> m_cn_list;
+
+    //! Sparse matrices for stoichiometric coefficients
+    std::vector<Eigen::Triplet<double>> m_coeffList;
+    Eigen::SparseMatrix<double> m_stoichCoeffs;
 };
 
 }
