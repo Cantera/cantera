@@ -532,7 +532,7 @@ public:
      *
      * @param ddot   Output vector of destruction rates. Length: m_kk.
      */
-    virtual void getDestructionRates(doublereal* ddot);
+    void getDestructionRates(doublereal* ddot);
 
     /**
      * Species net production rates [kmol/m^3/s or kmol/m^2/s]. Return the
@@ -542,7 +542,7 @@ public:
      *
      * @param wdot   Output vector of net production rates. Length: m_kk.
      */
-    virtual void getNetProductionRates(doublereal* wdot);
+    void getNetProductionRates(doublereal* wdot);
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines
@@ -555,6 +555,7 @@ public:
      * @param i   reaction index
      */
     virtual double reactantStoichCoeff(size_t k, size_t i) const;
+
     /**
      * Stoichiometric coefficient of species k as a product in reaction i.
      *
