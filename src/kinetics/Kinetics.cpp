@@ -24,6 +24,31 @@ using namespace std;
 
 namespace Cantera
 {
+//! Extract components describing sparse matrix
+size_t sparseComponents(const Eigen::SparseMatrix<double>& mat,
+    std::vector<std::pair<int, int>>& indices, vector_fp& values)
+{
+    size_t count = 0;
+    for (int i = 0; i < mat.outerSize(); i++) {
+        for (Eigen::SparseMatrix<double>::InnerIterator it(mat, i); it; ++it) {
+            if (count < indices.size()) {
+                indices[count] = std::make_pair(it.row(), it.col());
+            }
+            if (count < values.size()) {
+                values[count] = it.value();
+            }
+            count++;
+        }
+    }
+    if (count > indices.size() || count > values.size()) {
+        throw CanteraError("sparseComponents",
+            "Output vectors have insufficient length. Required size is {}, "
+            "while provided lengths are:\nindices.size()={} and "
+            "values.size()={}.", count, indices.size(), values.size());
+    }
+    return count;
+}
+
 Kinetics::Kinetics() :
     m_initialized(false),
     m_kk(0),
@@ -57,6 +82,11 @@ void Kinetics::initialize()
     m_reactantStoich->initialize(m_kk, nRxn);
     m_productStoich->initialize(m_kk, nRxn);
     m_revProductStoich->initialize(m_kk, nRxn);
+
+    // products are created for positive net rate of progress
+    m_stoichMatrix = m_productStoich->stoichCoeffs();
+    // reactants are destroyed for positive net rate of progress
+    m_stoichMatrix -= m_reactantStoich->stoichCoeffs();
 
     m_initialized = true;
 }
@@ -500,6 +530,16 @@ void Kinetics::getCreationRates(double* cdot)
     work += m_reactantStoich->stoichCoeffs() * revRop;
 }
 
+Eigen::SparseMatrix<double> Kinetics::getCreationRateSpeciesDerivatives()
+{
+    Eigen::SparseMatrix<double> jac;
+    // the forward direction creates product species
+    jac = m_productStoich->stoichCoeffs() * getFwdRopSpeciesDerivatives();
+    // the reverse direction creates reactant species
+    jac += m_reactantStoich->stoichCoeffs() * getRevRopSpeciesDerivatives();
+    return jac;
+}
+
 void Kinetics::getDestructionRates(double* ddot)
 {
     updateROP();
@@ -515,17 +555,33 @@ void Kinetics::getDestructionRates(double* ddot)
     work += m_reactantStoich->stoichCoeffs() * fwdRop;
 }
 
+Eigen::SparseMatrix<double> Kinetics::getDestructionRateSpeciesDerivatives()
+{
+    Eigen::SparseMatrix<double> jac;
+    // the reverse direction destroys products in reversible reactions
+    jac = m_revProductStoich->stoichCoeffs() * getRevRopSpeciesDerivatives();
+    // the forward direction destroys reactants
+    jac += m_reactantStoich->stoichCoeffs() * getFwdRopSpeciesDerivatives();
+    return jac;
+}
+
 void Kinetics::getNetProductionRates(double* wdot)
 {
     updateROP();
     ConstMappedVector netRop(m_ropnet.data(), nReactions());
-
     MappedVector work(wdot, m_kk);
     work.fill(0.); // zero out the output array
     // products are created for positive net rate of progress
     work += m_productStoich->stoichCoeffs() * netRop;
     // reactants are destroyed for positive net rate of progress
     work -= m_reactantStoich->stoichCoeffs() * netRop;
+    // work = m_stoichMatrix * netRop;
+}
+
+Eigen::SparseMatrix<double> Kinetics::getNetProductionRateSpeciesDerivatives()
+{
+    return m_stoichMatrix * (
+        getFwdRopSpeciesDerivatives() - getRevRopSpeciesDerivatives());
 }
 
 void Kinetics::addPhase(ThermoPhase& thermo)

@@ -5,6 +5,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
+#include <numeric>
 #include "cantera/kinetics/GasKinetics.h"
 #include "cantera/kinetics/StoichManager.h"
 #include "cantera/thermo/ThermoPhase.h"
@@ -172,6 +173,20 @@ void GasKinetics::processFalloffReactions()
         }
         m_ropf[m_fallindx[i]] = pr[i];
     }
+}
+
+Eigen::SparseMatrix<double> GasKinetics::getFwdRopSpeciesDerivatives()
+{
+    updateROP();
+    return m_reactantStoich->speciesDerivatives(
+        m_act_conc.data(), m_effFwdRates.data());
+}
+
+Eigen::SparseMatrix<double> GasKinetics::getRevRopSpeciesDerivatives()
+{
+    updateROP();
+    return m_revProductStoich->speciesDerivatives(
+        m_act_conc.data(), m_effRevRates.data());
 }
 
 void GasKinetics::updateROP()

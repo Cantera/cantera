@@ -13,15 +13,27 @@
 
 #include "cantera/base/ValueCache.h"
 #include "cantera/kinetics/ReactionFactory.h"
+#include "cantera/numerics/eigen_defs.h"
 
 namespace Cantera
 {
-
 class ThermoPhase;
 class Reaction;
 class Solution;
 class AnyMap;
 class StoichManagerN;
+
+//! Extract components describing sparse matrix
+/**
+ * Service routine to pass sparse matrix compoments to external APIs
+ *
+ * @param mat   sparse matrix
+ * @param indices   row/column index pairs
+ * @param values   non-zero entries of sparse Jacobian matrix
+ * @return   number of non-zero entries
+ */
+size_t sparseComponents(const Eigen::SparseMatrix<double>& mat,
+    std::vector<std::pair<int, int>>& indices, vector_fp& values);
 
 /**
  * @defgroup chemkinetics Chemical Kinetics
@@ -553,6 +565,124 @@ public:
     void getNetProductionRates(double* wdot);
 
     //! @}
+    //! @name Routines to Calculate Derivatives
+    //! @{
+
+    /**
+     * Calculate Jacobian for forward rates-of-progress with respect to species
+     * concentrations.
+     *
+     * This derivative is the term of the Jacobian that accounts for the product of
+     * species concentrations in the law of mass action. The method does not include
+     * third-body efficiency effects or rate constants that depend on species
+     * concentrations.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::SparseMatrix<double> getFwdRopSpeciesDerivatives()
+    {
+        throw NotImplementedError("Kinetics::getFwdRopSpeciesDerivatives");
+    }
+
+    //! Service function for API; @see sparseComponents()
+    size_t getFwdRopSpeciesDerivatives(
+        std::vector<std::pair<int, int>>& indices, vector_fp& values)
+    {
+        return sparseComponents(getFwdRopSpeciesDerivatives(), indices, values);
+    }
+
+    /**
+     * Calculate Jacobian for reverse rates-of-progress with respect to species
+     * concentrations.
+     *
+     * This derivative is the term of the Jacobian that accounts for the product of
+     * species concentrations in the law of mass action. The method does not include
+     * third-body efficiency effects or rate constants that depend on species
+     * concentrations.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::SparseMatrix<double> getRevRopSpeciesDerivatives()
+    {
+        throw NotImplementedError("Kinetics::getRevRopSpeciesDerivatives");
+    }
+
+    //! Service function for API; @see sparseComponents()
+    virtual size_t getRevRopSpeciesDerivatives(
+        std::vector<std::pair<int, int>>& indices, vector_fp& values)
+    {
+        return sparseComponents(getRevRopSpeciesDerivatives(), indices, values);
+    }
+
+    /**
+     * Calculate Jacobian for species creation rates with respect to species
+     * concentrations.
+     *
+     * This derivative is the term of the Jacobian that accounts for the product of
+     * species concentrations in the law of mass action. The method does not include
+     * third-body efficiency effects or rate constants that depend on species
+     * concentrations.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    Eigen::SparseMatrix<double> getCreationRateSpeciesDerivatives();
+
+    //! Service function for API; @see sparseComponents()
+    size_t getCreationRateSpeciesDerivatives(
+        std::vector<std::pair<int, int>>& indices, vector_fp& values)
+    {
+        return sparseComponents(
+            getCreationRateSpeciesDerivatives(), indices, values);
+    }
+
+    /**
+     * Calculate Jacobian for species destruction rates with respect to species
+     * concentrations.
+     *
+     * This derivative is the term of the Jacobian that accounts for the product of
+     * species concentrations in the law of mass action. The method does not include
+     * third-body efficiency effects or rate constants that depend on species
+     * concentrations.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    Eigen::SparseMatrix<double> getDestructionRateSpeciesDerivatives();
+
+    //! Service function for API; @see sparseComponents()
+    size_t getDestructionRateSpeciesDerivatives(
+        std::vector<std::pair<int, int>>& indices, vector_fp& values)
+    {
+        return sparseComponents(
+            getDestructionRateSpeciesDerivatives(), indices, values);
+    }
+
+    /**
+     * Calculate Jacobian for species net production rates with respect to species
+     * concentrations.
+     *
+     * This derivative is the term of the Jacobian that accounts for the product of
+     * species concentrations in the law of mass action. The method does not include
+     * third-body efficiency effects or rate constants that depend on species
+     * concentrations.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    Eigen::SparseMatrix<double> getNetProductionRateSpeciesDerivatives();
+
+    //! Service function for API; @see sparseComponents()
+    size_t getNetProductionRateSpeciesDerivatives(
+        std::vector<std::pair<int, int>>& indices, vector_fp& values)
+    {
+        return sparseComponents(
+            getNetProductionRateSpeciesDerivatives(), indices, values);
+    }
+
+    //! @}
     //! @name Reaction Mechanism Informational Query Routines
     //! @{
 
@@ -933,6 +1063,9 @@ protected:
 
     //! Stoichiometry manager for the products of reversible reactions
     std::unique_ptr<StoichManagerN> m_revProductStoich;
+
+    //! Effective stoichiometry (products - reactants)
+    Eigen::SparseMatrix<double> m_stoichMatrix;
     //@}
 
     //! Boolean indicating whether the Kinetics object is initialized

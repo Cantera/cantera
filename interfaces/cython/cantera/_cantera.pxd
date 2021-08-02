@@ -579,6 +579,17 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         double multiplier(int)
         void setMultiplier(int, double)
 
+        size_t getFwdRopSpeciesDerivatives(
+            vector[pair[int, int]]&, vector[double]&) except +translate_exception
+        size_t getRevRopSpeciesDerivatives(
+            vector[pair[int, int]]&, vector[double]&) except +translate_exception
+        size_t getCreationRateSpeciesDerivatives(
+            vector[pair[int, int]]&, vector[double]&) except +translate_exception
+        size_t getDestructionRateSpeciesDerivatives(
+            vector[pair[int, int]]&, vector[double]&) except +translate_exception
+        size_t getNetProductionRateSpeciesDerivatives(
+            vector[pair[int, int]]&, vector[double]&) except +translate_exception
+
 
 cdef extern from "cantera/kinetics/InterfaceKinetics.h":
     cdef cppclass CxxInterfaceKinetics "Cantera::InterfaceKinetics":
