@@ -565,12 +565,34 @@ public:
     double reactantStoichCoeff(size_t k, size_t i);
 
     /**
+     * Retrieve row/column indices and corresponding values for the sparse
+     * reactant stoichiometric coefficient matrix.
+     *
+     * @param indices   row/column index pairs
+     * @param coeffs   stoichiometric coefficients
+     * @return   number of non-zero coefficients
+     */
+    size_t reactantStoichCoeffs(
+        std::vector<std::pair<int, int>>& indices, vector_fp& coeffs);
+
+    /**
      * Stoichiometric coefficient of species k as a product in reaction i.
      *
      * @param k   kinetic species index
      * @param i   reaction index
      */
     double productStoichCoeff(size_t k, size_t i);
+
+    /**
+     * Retrieve row/column indices and corresponding values for the sparse
+     * product stoichiometric coefficient matrix.
+     *
+     * @param indices   row/column index pairs
+     * @param coeffs   stoichiometric coefficients
+     * @return   number of non-zero coefficients
+     */
+    size_t productStoichCoeffs(
+        std::vector<std::pair<int, int>>& indices, vector_fp& coeffs);
 
     //! Reactant order of species k in reaction i.
     /*!

@@ -372,6 +372,15 @@ double Kinetics::reactantStoichCoeff(size_t kSpec, size_t irxn)
     return m_reactantStoich->stoichCoeffs().coeff(kSpec, irxn);
 }
 
+size_t Kinetics::reactantStoichCoeffs(
+    std::vector<std::pair<int, int>>& indices, vector_fp& coeffs)
+{
+    if (!m_initialized) {
+        initialize();
+    }
+    return m_reactantStoich->sparseStoichCoeffs(indices, coeffs);
+}
+
 double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn)
 {
     if (kSpec >= m_kk || irxn >= nReactions()) {
@@ -383,6 +392,15 @@ double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn)
         initialize();
     }
     return m_productStoich->stoichCoeffs().coeff(kSpec, irxn);
+}
+
+size_t Kinetics::productStoichCoeffs(
+    std::vector<std::pair<int, int>>& indices, vector_fp& coeffs)
+{
+    if (!m_initialized) {
+        initialize();
+    }
+    return m_productStoich->sparseStoichCoeffs(indices, coeffs);
 }
 
 int Kinetics::reactionType(size_t i) const {

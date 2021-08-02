@@ -236,30 +236,44 @@ cdef class Kinetics(_SolutionBase):
 
     def reactant_stoich_coeffs(self):
         """
-        The array of reactant stoichiometric coefficients. Element *[k,i]* of
-        this array is the reactant stoichiometric coefficient of species *k* in
-        reaction *i*.
+        The array of reactant stoichiometric coefficients. Element ``[k,i]`` of
+        this array is the reactant stoichiometric coefficient of species ``k`` in
+        reaction ``i``.
         """
-        cdef np.ndarray[np.double_t, ndim=2] data = np.empty((self.n_total_species,
-                                                              self.n_reactions))
-        cdef int i,k
-        for i in range(self.n_reactions):
-            for k in range(self.n_total_species):
-                data[k,i] = self.kinetics.reactantStoichCoeff(k,i)
+        cdef vector[pair[int, int]] indices
+        cdef pair[int, int] item
+        cdef vector[double] coeffs
+        # ensure that output vectors have sufficient size
+        max_size = self.n_total_species * self.n_reactions
+        indices.resize(max_size)
+        coeffs.resize(max_size)
+
+        size = self.kinetics.reactantStoichCoeffs(indices, coeffs)
+        data = np.zeros((self.n_total_species, self.n_reactions))
+        for i in xrange(size):
+            item = indices[i]
+            data[item.first, item.second] = coeffs[i]
         return data
 
     def product_stoich_coeffs(self):
         """
-        The array of product stoichiometric coefficients. Element *[k,i]* of
-        this array is the product stoichiometric coefficient of species *k* in
-        reaction *i*.
+        The array of product stoichiometric coefficients. Element ``[k,i]`` of
+        this array is the product stoichiometric coefficient of species ``k`` in
+        reaction ``i``.
         """
-        cdef np.ndarray[np.double_t, ndim=2] data = np.empty((self.n_total_species,
-                                                              self.n_reactions))
-        cdef int i,k
-        for i in range(self.n_reactions):
-            for k in range(self.n_total_species):
-                data[k,i] = self.kinetics.productStoichCoeff(k,i)
+        cdef vector[pair[int, int]] indices
+        cdef pair[int, int] item
+        cdef vector[double] coeffs
+        # ensure that output vectors have sufficient size
+        max_size = self.n_total_species * self.n_reactions
+        indices.resize(max_size)
+        coeffs.resize(max_size)
+
+        size = self.kinetics.productStoichCoeffs(indices, coeffs)
+        data = np.zeros((self.n_total_species, self.n_reactions))
+        for i in xrange(size):
+            item = indices[i]
+            data[item.first, item.second] = coeffs[i]
         return data
 
     property forward_rates_of_progress:
