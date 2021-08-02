@@ -1,14 +1,9 @@
-#include "cantera/base/ct_defs.h"
-#if CT_USE_SYSTEM_EIGEN
-#include <Eigen/Dense>
-#else
-#include "cantera/ext/Eigen/Dense"
-#endif
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
 
-namespace Cantera {
-    typedef Eigen::Map<Eigen::MatrixXd> MappedMatrix;
-    typedef Eigen::Map<Eigen::VectorXd> MappedVector;
-    typedef Eigen::Map<const Eigen::VectorXd> ConstMappedVector;
-    typedef Eigen::Map<Eigen::RowVectorXd> MappedRowVector;
-    typedef Eigen::Map<const Eigen::RowVectorXd> ConstMappedRowVector;
-}
+/*!
+ * @deprecated To be removed after Cantera 2.6. Replaced by eigen_defs.h.
+ */
+
+#pragma message("warning: eigen_dense.h is replaced by eigen_defs.h and will be removed after Cantera 2.6.")
+#include "eigen_defs.h"

@@ -8,11 +8,7 @@
 #ifndef CT_STOICH_MGR_H
 #define CT_STOICH_MGR_H
 
-#if CT_USE_SYSTEM_EIGEN
-#include <Eigen/Sparse>
-#else
-#include "cantera/ext/Eigen/Sparse"
-#endif
+#include "cantera/numerics/eigen_defs.h"
 #include "cantera/base/ctexceptions.h"
 
 namespace Cantera

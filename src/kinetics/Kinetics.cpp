@@ -14,7 +14,6 @@
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/kinetics/StoichManager.h"
 #include "cantera/thermo/ThermoPhase.h"
-#include "cantera/numerics/eigen_dense.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/global.h"

@@ -4,7 +4,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/numerics/polyfit.h"
-#include "cantera/numerics/eigen_dense.h"
+#include "cantera/numerics/eigen_defs.h"
 #include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
 

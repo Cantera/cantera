@@ -11,7 +11,7 @@
 #if CT_USE_LAPACK
     #include "cantera/numerics/ctlapack.h"
 #else
-    #include "cantera/numerics/eigen_dense.h"
+    #include "cantera/numerics/eigen_defs.h"
 #endif
 
 namespace Cantera
