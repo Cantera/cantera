@@ -12,6 +12,7 @@
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/kinetics/Reaction.h"
+#include "cantera/kinetics/StoichManager.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/numerics/eigen_dense.h"
 #include "cantera/base/stringUtils.h"
@@ -34,6 +35,9 @@ Kinetics::Kinetics() :
     m_skipUndeclaredSpecies(false),
     m_skipUndeclaredThirdBodies(false)
 {
+    m_reactantStoich = std::unique_ptr<StoichManagerN>(new StoichManagerN());
+    m_productStoich = std::unique_ptr<StoichManagerN>(new StoichManagerN());
+    m_revProductStoich = std::unique_ptr<StoichManagerN>(new StoichManagerN());
 }
 
 Kinetics::~Kinetics() {}
@@ -51,9 +55,9 @@ void Kinetics::initialize()
     size_t nRxn = nReactions();
 
     // Stoichiometry managers
-    m_reactantStoich.initialize(m_kk, nRxn);
-    m_productStoich.initialize(m_kk, nRxn);
-    m_revProductStoich.initialize(m_kk, nRxn);
+    m_reactantStoich->initialize(m_kk, nRxn);
+    m_productStoich->initialize(m_kk, nRxn);
+    m_revProductStoich->initialize(m_kk, nRxn);
 
     m_initialized = true;
 }
@@ -365,7 +369,7 @@ double Kinetics::reactantStoichCoeff(size_t kSpec, size_t irxn)
     if (!m_initialized) {
         initialize();
     }
-    return m_reactantStoich.stoichCoeffs().coeff(kSpec, irxn);
+    return m_reactantStoich->stoichCoeffs().coeff(kSpec, irxn);
 }
 
 double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn)
@@ -378,7 +382,7 @@ double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn)
     if (!m_initialized) {
         initialize();
     }
-    return m_productStoich.stoichCoeffs().coeff(kSpec, irxn);
+    return m_productStoich->stoichCoeffs().coeff(kSpec, irxn);
 }
 
 int Kinetics::reactionType(size_t i) const {
@@ -438,9 +442,9 @@ void Kinetics::getReactionDelta(const double* prop, double* deltaProp)
     MappedRowVector work(deltaProp, nReactions());
     work.fill(0.); // zero out the output array
     // products add
-    work += prop_ * m_productStoich.stoichCoeffs();
+    work += prop_ * m_productStoich->stoichCoeffs();
     // reactants subtract
-    work -= prop_ * m_reactantStoich.stoichCoeffs();
+    work -= prop_ * m_reactantStoich->stoichCoeffs();
 }
 
 void Kinetics::getRevReactionDelta(const double* prop, double* deltaProp)
@@ -453,9 +457,9 @@ void Kinetics::getRevReactionDelta(const double* prop, double* deltaProp)
     MappedRowVector work(deltaProp, nReactions());
     work.fill(0.); // zero out the output array
     // products add
-    work += prop_ * m_revProductStoich.stoichCoeffs();
+    work += prop_ * m_revProductStoich->stoichCoeffs();
     // reactants subtract
-    work -= prop_ * m_reactantStoich.stoichCoeffs();
+    work -= prop_ * m_reactantStoich->stoichCoeffs();
 }
 
 void Kinetics::getCreationRates(double* cdot)
@@ -468,9 +472,9 @@ void Kinetics::getCreationRates(double* cdot)
     work.fill(0.); // zero out the output array
 
     // the forward direction creates product species
-    work += m_productStoich.stoichCoeffs() * fwdRop;
+    work += m_productStoich->stoichCoeffs() * fwdRop;
     // the reverse direction creates reactant species
-    work += m_reactantStoich.stoichCoeffs() * revRop;
+    work += m_reactantStoich->stoichCoeffs() * revRop;
 }
 
 void Kinetics::getDestructionRates(double* ddot)
@@ -483,9 +487,9 @@ void Kinetics::getDestructionRates(double* ddot)
     work.fill(0.); // zero out the output array
 
     // the reverse direction destroys products in reversible reactions
-    work += m_revProductStoich.stoichCoeffs() * revRop;
+    work += m_revProductStoich->stoichCoeffs() * revRop;
     // the forward direction destroys reactants
-    work += m_reactantStoich.stoichCoeffs() * fwdRop;
+    work += m_reactantStoich->stoichCoeffs() * fwdRop;
 }
 
 void Kinetics::getNetProductionRates(double* wdot)
@@ -496,9 +500,9 @@ void Kinetics::getNetProductionRates(double* wdot)
     MappedVector work(wdot, m_kk);
     work.fill(0.); // zero out the output array
     // products are created for positive net rate of progress
-    work += m_productStoich.stoichCoeffs() * netRop;
+    work += m_productStoich->stoichCoeffs() * netRop;
     // reactants are destroyed for positive net rate of progress
-    work -= m_reactantStoich.stoichCoeffs() * netRop;
+    work -= m_reactantStoich->stoichCoeffs() * netRop;
 }
 
 void Kinetics::addPhase(ThermoPhase& thermo)
@@ -606,11 +610,11 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
         }
     }
 
-    m_reactantStoich.add(irxn, rk, rorder, rstoich);
+    m_reactantStoich->add(irxn, rk, rorder, rstoich);
     // product orders = product stoichiometric coefficients
-    m_productStoich.add(irxn, pk, pstoich, pstoich);
+    m_productStoich->add(irxn, pk, pstoich, pstoich);
     if (r->reversible) {
-        m_revProductStoich.add(irxn, pk, pstoich, pstoich);
+        m_revProductStoich->add(irxn, pk, pstoich, pstoich);
     }
 
     m_reactions.push_back(r);

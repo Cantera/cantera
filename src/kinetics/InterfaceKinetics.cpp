@@ -9,6 +9,7 @@
 #include "cantera/kinetics/RateCoeffMgr.h"
 #include "cantera/kinetics/ImplicitSurfChem.h"
 #include "cantera/kinetics/Reaction.h"
+#include "cantera/kinetics/StoichManager.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/utilities.h"
 
@@ -215,7 +216,7 @@ void InterfaceKinetics::updateExchangeCurrentQuantities()
     for (size_t i = 0; i < nReactions(); i++) {
         m_ProdStanConcReac[i] = 1.0;
     }
-    m_reactantStoich.multiply(m_StandardConc.data(), m_ProdStanConcReac.data());
+    m_reactantStoich->multiply(m_StandardConc.data(), m_ProdStanConcReac.data());
 }
 
 void InterfaceKinetics::applyVoltageKfwdCorrection(doublereal* const kf)
@@ -324,11 +325,11 @@ void InterfaceKinetics::updateROP()
 
     // multiply ropf by the activity concentration reaction orders to obtain
     // the forward rates of progress.
-    m_reactantStoich.multiply(m_actConc.data(), m_ropf.data());
+    m_reactantStoich->multiply(m_actConc.data(), m_ropf.data());
 
     // For reversible reactions, multiply ropr by the activity concentration
     // products
-    m_revProductStoich.multiply(m_actConc.data(), m_ropr.data());
+    m_revProductStoich->multiply(m_actConc.data(), m_ropr.data());
 
     for (size_t j = 0; j != nReactions(); ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];

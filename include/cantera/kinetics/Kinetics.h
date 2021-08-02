@@ -11,7 +11,6 @@
 #ifndef CT_KINETICS_H
 #define CT_KINETICS_H
 
-#include "StoichManager.h"
 #include "cantera/base/ValueCache.h"
 #include "cantera/kinetics/ReactionFactory.h"
 
@@ -22,6 +21,7 @@ class ThermoPhase;
 class Reaction;
 class Solution;
 class AnyMap;
+class StoichManagerN;
 
 /**
  * @defgroup chemkinetics Chemical Kinetics
@@ -899,13 +899,13 @@ protected:
     //@{
 
     //! Stoichiometry manager for the reactants for each reaction
-    StoichManagerN m_reactantStoich;
+    std::unique_ptr<StoichManagerN> m_reactantStoich;
 
     //! Stoichiometry manager for the products for each reaction
-    StoichManagerN m_productStoich;
+    std::unique_ptr<StoichManagerN> m_productStoich;
 
     //! Stoichiometry manager for the products of reversible reactions
-    StoichManagerN m_revProductStoich;
+    std::unique_ptr<StoichManagerN> m_revProductStoich;
     //@}
 
     //! Boolean indicating whether the Kinetics object is initialized

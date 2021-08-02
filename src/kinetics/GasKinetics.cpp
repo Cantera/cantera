@@ -6,6 +6,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/GasKinetics.h"
+#include "cantera/kinetics/StoichManager.h"
 #include "cantera/thermo/ThermoPhase.h"
 
 using namespace std;
@@ -210,10 +211,10 @@ void GasKinetics::updateROP()
     }
 
     // multiply ropf by concentration products
-    m_reactantStoich.multiply(m_act_conc.data(), m_ropf.data());
+    m_reactantStoich->multiply(m_act_conc.data(), m_ropf.data());
 
     // for reversible reactions, multiply ropr by concentration products
-    m_revProductStoich.multiply(m_act_conc.data(), m_ropr.data());
+    m_revProductStoich->multiply(m_act_conc.data(), m_ropr.data());
 
     for (size_t j = 0; j != nReactions(); ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];
