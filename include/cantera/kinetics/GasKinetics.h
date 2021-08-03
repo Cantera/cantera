@@ -102,6 +102,9 @@ protected:
     vector_fp concm_3b_values;
     vector_fp concm_falloff_values;
 
+    vector_fp m_effFwdRates; //!< Effective foward rate coefficient
+    vector_fp m_effRevRates; //!< Effective reverse rate coefficient
+
     //!@}
 
     void processFalloffReactions();

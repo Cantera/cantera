@@ -210,6 +210,10 @@ void GasKinetics::updateROP()
         m_ropr[i] = m_ropf[i] * m_rkcn[i];
     }
 
+    // buffer effective rate coefficients
+    m_effFwdRates = m_ropf;
+    m_effRevRates = m_ropr;
+
     // multiply ropf by concentration products
     m_reactantStoich->multiply(m_act_conc.data(), m_ropf.data());
 

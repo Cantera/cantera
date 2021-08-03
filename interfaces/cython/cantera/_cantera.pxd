@@ -1357,6 +1357,11 @@ cdef string stringify(x) except *
 cdef pystr(string x)
 cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method)
 cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method)
+cdef vector[pair[int, int]] index_vector(int size)
+cdef vector[double] value_vector(int size)
+cdef np.ndarray as_dense(
+    vector[pair[int, int]] indices, vector[double] values, int size,
+    int rows, int cols)
 cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method)
 cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method)
 cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *

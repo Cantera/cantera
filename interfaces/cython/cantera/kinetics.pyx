@@ -18,6 +18,29 @@ cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method):
     method(kin.kinetics, &data[0])
     return data
 
+cdef vector[pair[int, int]] index_vector(int size):
+    """Create vector of index pairs"""
+    cdef vector[pair[int, int]] indices
+    indices.resize(size)
+    return indices
+
+cdef vector[double] value_vector(int size):
+    """Create vector of double values"""
+    cdef vector[double] values
+    values.resize(size)
+    return values
+
+cdef np.ndarray as_dense(
+        vector[pair[int, int]] indices, vector[double] values, int size,
+        int rows, int cols):
+    """Reconstruct array from triplets"""
+    cdef pair[int, int] item
+    data = np.zeros((rows, cols))
+    for i in xrange(size):
+        item = indices[i]
+        data[item.first, item.second] = values[i]
+    return data
+
 
 cdef class Kinetics(_SolutionBase):
     """
@@ -245,20 +268,14 @@ cdef class Kinetics(_SolutionBase):
         this array is the reactant stoichiometric coefficient of species ``k`` in
         reaction ``i``.
         """
-        cdef vector[pair[int, int]] indices
-        cdef pair[int, int] item
-        cdef vector[double] coeffs
         # ensure that output vectors have sufficient size
         max_size = self.n_total_species * self.n_reactions
-        indices.resize(max_size)
-        coeffs.resize(max_size)
+        cdef vector[pair[int, int]] indices = index_vector(max_size)
+        cdef vector[double] coeffs = value_vector(max_size)
 
         size = self.kinetics.reactantStoichCoeffs(indices, coeffs)
-        data = np.zeros((self.n_total_species, self.n_reactions))
-        for i in xrange(size):
-            item = indices[i]
-            data[item.first, item.second] = coeffs[i]
-        return data
+        return as_dense(
+            indices, coeffs, size, self.n_total_species, self.n_reactions)
 
     def product_stoich_coeffs(self, cbool irreversible=True):
         """
@@ -270,20 +287,14 @@ cdef class Kinetics(_SolutionBase):
         Irreversible reactions are skipped if the input argument ``irreversible``
         is set to ``False``.
         """
-        cdef vector[pair[int, int]] indices
-        cdef pair[int, int] item
-        cdef vector[double] coeffs
         # ensure that output vectors have sufficient size
         max_size = self.n_total_species * self.n_reactions
-        indices.resize(max_size)
-        coeffs.resize(max_size)
+        cdef vector[pair[int, int]] indices = index_vector(max_size)
+        cdef vector[double] coeffs = value_vector(max_size)
 
         size = self.kinetics.productStoichCoeffs(indices, coeffs, irreversible)
-        data = np.zeros((self.n_total_species, self.n_reactions))
-        for i in xrange(size):
-            item = indices[i]
-            data[item.first, item.second] = coeffs[i]
-        return data
+        return as_dense(
+            indices, coeffs, size, self.n_total_species, self.n_reactions)
 
     property forward_rates_of_progress:
         """
