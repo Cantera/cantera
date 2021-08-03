@@ -580,8 +580,10 @@ public:
      *
      * @param k   kinetic species index
      * @param i   reaction index
+     * @param irreversible  flag indicating whether to include irreversible
+     *      reactions (default is true)
      */
-    double productStoichCoeff(size_t k, size_t i);
+    double productStoichCoeff(size_t k, size_t i, bool irreversible=true);
 
     /**
      * Retrieve row/column indices and corresponding values for the sparse
@@ -589,10 +591,13 @@ public:
      *
      * @param indices   row/column index pairs
      * @param coeffs   stoichiometric coefficients
+     * @param irreversible  flag indicating whether to include irreversible
+     *      reactions (default is true)
      * @return   number of non-zero coefficients
      */
     size_t productStoichCoeffs(
-        std::vector<std::pair<int, int>>& indices, vector_fp& coeffs);
+        std::vector<std::pair<int, int>>& indices, vector_fp& coeffs,
+        bool irreversible=true);
 
     //! Reactant order of species k in reaction i.
     /*!

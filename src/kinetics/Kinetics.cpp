@@ -381,7 +381,7 @@ size_t Kinetics::reactantStoichCoeffs(
     return m_reactantStoich->sparseStoichCoeffs(indices, coeffs);
 }
 
-double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn)
+double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn, bool irreversible)
 {
     if (kSpec >= m_kk || irxn >= nReactions()) {
         throw CanteraError("Kinetics::productStoichCoeff",
@@ -391,16 +391,22 @@ double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn)
     if (!m_initialized) {
         initialize();
     }
-    return m_productStoich->stoichCoeffs().coeff(kSpec, irxn);
+    if (irreversible) {
+        return m_productStoich->stoichCoeffs().coeff(kSpec, irxn);
+    }
+    return m_revProductStoich->stoichCoeffs().coeff(kSpec, irxn);
 }
 
 size_t Kinetics::productStoichCoeffs(
-    std::vector<std::pair<int, int>>& indices, vector_fp& coeffs)
+    std::vector<std::pair<int, int>>& indices, vector_fp& coeffs, bool irreversible)
 {
     if (!m_initialized) {
         initialize();
     }
-    return m_productStoich->sparseStoichCoeffs(indices, coeffs);
+    if (irreversible) {
+        return m_productStoich->sparseStoichCoeffs(indices, coeffs);
+    }
+    return m_revProductStoich->sparseStoichCoeffs(indices, coeffs);
 }
 
 int Kinetics::reactionType(size_t i) const {

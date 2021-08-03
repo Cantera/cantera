@@ -572,9 +572,9 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         double reactantStoichCoeff(int, int) except +translate_exception
         size_t reactantStoichCoeffs(
             vector[pair[int, int]]&, vector[double]&) except +translate_exception
-        double productStoichCoeff(int, int) except +translate_exception
+        double productStoichCoeff(int, int, cbool) except +translate_exception
         size_t productStoichCoeffs(
-            vector[pair[int, int]]&, vector[double]&) except +translate_exception
+            vector[pair[int, int]]&, vector[double]&, cbool) except +translate_exception
 
         double multiplier(int)
         void setMultiplier(int, double)

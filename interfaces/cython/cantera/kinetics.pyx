@@ -221,10 +221,15 @@ cdef class Kinetics(_SolutionBase):
 
         return self.kinetics.reactantStoichCoeff(k, i_reaction)
 
-    def product_stoich_coeff(self, k_spec, int i_reaction):
+    def product_stoich_coeff(self, k_spec, int i_reaction,
+            cbool irreversible=True):
         """
         The stoichiometric coefficient of species *k_spec* as a product in
         reaction *i_reaction*.
+
+        By default, both reversible and irreversible reactions are considered.
+        Irreversible reactions are skipped if the input argument ``irreversible``
+        is set to ``False``.
         """
         cdef int k
         if isinstance(k_spec, (str, bytes)):
@@ -232,7 +237,7 @@ cdef class Kinetics(_SolutionBase):
         else:
             k = k_spec
 
-        return self.kinetics.productStoichCoeff(k, i_reaction)
+        return self.kinetics.productStoichCoeff(k, i_reaction, irreversible)
 
     def reactant_stoich_coeffs(self):
         """
@@ -255,11 +260,15 @@ cdef class Kinetics(_SolutionBase):
             data[item.first, item.second] = coeffs[i]
         return data
 
-    def product_stoich_coeffs(self):
+    def product_stoich_coeffs(self, cbool irreversible=True):
         """
         The array of product stoichiometric coefficients. Element ``[k,i]`` of
         this array is the product stoichiometric coefficient of species ``k`` in
         reaction ``i``.
+
+        By default, both reversible and irreversible reactions are considered.
+        Irreversible reactions are skipped if the input argument ``irreversible``
+        is set to ``False``.
         """
         cdef vector[pair[int, int]] indices
         cdef pair[int, int] item
@@ -269,7 +278,7 @@ cdef class Kinetics(_SolutionBase):
         indices.resize(max_size)
         coeffs.resize(max_size)
 
-        size = self.kinetics.productStoichCoeffs(indices, coeffs)
+        size = self.kinetics.productStoichCoeffs(indices, coeffs, irreversible)
         data = np.zeros((self.n_total_species, self.n_reactions))
         for i in xrange(size):
             item = indices[i]
