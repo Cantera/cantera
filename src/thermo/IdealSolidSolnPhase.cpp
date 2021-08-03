@@ -194,7 +194,7 @@ void IdealSolidSolnPhase::getActivityCoefficients(doublereal* ac) const
 
 void IdealSolidSolnPhase::getChemPotentials(doublereal* mu) const
 {
-    doublereal delta_p = m_Pcurrent - m_Pref;
+    double delta_p = m_Pcurrent - m_Pref;
     const vector_fp& g_RT = gibbs_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
@@ -205,7 +205,7 @@ void IdealSolidSolnPhase::getChemPotentials(doublereal* mu) const
 
 void IdealSolidSolnPhase::getChemPotentials_RT(doublereal* mu) const
 {
-    doublereal delta_pdRT = (m_Pcurrent - m_Pref) / (temperature() * GasConstant);
+    double delta_pdRT = (m_Pcurrent - m_Pref) / (temperature() * GasConstant);
     const vector_fp& g_RT = gibbs_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
@@ -249,7 +249,7 @@ void IdealSolidSolnPhase::getPartialMolarVolumes(doublereal* vbar) const
 void IdealSolidSolnPhase::getPureGibbs(doublereal* gpure) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
-    doublereal delta_p = (m_Pcurrent - m_Pref);
+    double delta_p = (m_Pcurrent - m_Pref);
     for (size_t k = 0; k < m_kk; k++) {
         gpure[k] = RT() * gibbsrt[k] + delta_p * m_speciesMolarVolume[k];
     }
@@ -494,7 +494,12 @@ void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& 
 void IdealSolidSolnPhase::setToEquilState(const doublereal* mu_RT)
 {
     const vector_fp& grt = gibbs_RT_ref();
-
+    
+    // Within the method, we protect against inf results if the exponent is too
+    // high.
+    //
+    // If it is too low, we set the partial pressure to zero. This capability is
+    // needed by the elemental potential method.
     doublereal pres = 0.0;
     double m_p0 = refPressure();
     for (size_t k = 0; k < m_kk; k++) {
