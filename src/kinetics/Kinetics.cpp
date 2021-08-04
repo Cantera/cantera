@@ -487,47 +487,34 @@ void Kinetics::getNetRatesOfProgress(doublereal* netROP)
 
 void Kinetics::getReactionDelta(const double* prop, double* deltaProp)
 {
-    if (!m_finalized) {
-        finalizeSetup();
-    }
-    ConstMappedRowVector prop_(prop, m_kk);
-
-    MappedRowVector work(deltaProp, nReactions());
-    work.fill(0.); // zero out the output array
+    fill(deltaProp, deltaProp + nReactions(), 0.0);
     // products add
-    work += prop_ * m_productStoich->stoichCoeffs();
+    m_productStoich->incrementReactions(prop, deltaProp);
     // reactants subtract
-    work -= prop_ * m_reactantStoich->stoichCoeffs();
+    m_reactantStoich->decrementReactions(prop, deltaProp);
 }
 
 void Kinetics::getRevReactionDelta(const double* prop, double* deltaProp)
 {
-    if (!m_finalized) {
-        finalizeSetup();
-    }
-    ConstMappedRowVector prop_(prop, m_kk);
-
-    MappedRowVector work(deltaProp, nReactions());
-    work.fill(0.); // zero out the output array
+    fill(deltaProp, deltaProp + nReactions(), 0.0);
     // products add
-    work += prop_ * m_revProductStoich->stoichCoeffs();
+    m_revProductStoich->incrementReactions(prop, deltaProp);
     // reactants subtract
-    work -= prop_ * m_reactantStoich->stoichCoeffs();
+    m_reactantStoich->decrementReactions(prop, deltaProp);
 }
 
-void Kinetics::getCreationRates(double* cdot)
+void Kinetics::getCreationRates(doublereal* cdot)
 {
     updateROP();
-    ConstMappedVector revRop(m_ropr.data(), nReactions());
-    ConstMappedVector fwdRop(m_ropf.data(), nReactions());
 
-    MappedVector work(cdot, m_kk);
-    work.fill(0.); // zero out the output array
+    // zero out the output array
+    fill(cdot, cdot + m_kk, 0.0);
 
     // the forward direction creates product species
-    work += m_productStoich->stoichCoeffs() * fwdRop;
+    m_productStoich->incrementSpecies(m_ropf.data(), cdot);
+
     // the reverse direction creates reactant species
-    work += m_reactantStoich->stoichCoeffs() * revRop;
+    m_reactantStoich->incrementSpecies(m_ropr.data(), cdot);
 }
 
 Eigen::SparseMatrix<double> Kinetics::getCreationRateSpeciesDerivatives()
@@ -540,19 +527,25 @@ Eigen::SparseMatrix<double> Kinetics::getCreationRateSpeciesDerivatives()
     return jac;
 }
 
-void Kinetics::getDestructionRates(double* ddot)
+Eigen::VectorXd Kinetics::getCreationRateTemperatureDerivatives()
+{
+    Eigen::VectorXd jac;
+    // the forward direction creates product species
+    jac = m_productStoich->stoichCoeffs() * getFwdRopTemperatureDerivatives();
+    // the reverse direction creates reactant species
+    jac += m_reactantStoich->stoichCoeffs() * getRevRopTemperatureDerivatives();
+    return jac;
+}
+
+void Kinetics::getDestructionRates(doublereal* ddot)
 {
     updateROP();
-    ConstMappedVector revRop(m_ropr.data(), nReactions());
-    ConstMappedVector fwdRop(m_ropf.data(), nReactions());
 
-    MappedVector work(ddot, m_kk);
-    work.fill(0.); // zero out the output array
-
+    fill(ddot, ddot + m_kk, 0.0);
     // the reverse direction destroys products in reversible reactions
-    work += m_revProductStoich->stoichCoeffs() * revRop;
+    m_revProductStoich->incrementSpecies(m_ropr.data(), ddot);
     // the forward direction destroys reactants
-    work += m_reactantStoich->stoichCoeffs() * fwdRop;
+    m_reactantStoich->incrementSpecies(m_ropf.data(), ddot);
 }
 
 Eigen::SparseMatrix<double> Kinetics::getDestructionRateSpeciesDerivatives()
@@ -565,17 +558,25 @@ Eigen::SparseMatrix<double> Kinetics::getDestructionRateSpeciesDerivatives()
     return jac;
 }
 
-void Kinetics::getNetProductionRates(double* wdot)
+Eigen::VectorXd Kinetics::getDestructionRateTemperatureDerivatives()
+{
+    Eigen::VectorXd jac;
+    // the reverse direction destroys products in reversible reactions
+    jac = m_revProductStoich->stoichCoeffs() * getRevRopTemperatureDerivatives();
+    // the forward direction destroys reactants
+    jac += m_reactantStoich->stoichCoeffs() * getFwdRopTemperatureDerivatives();
+    return jac;
+}
+
+void Kinetics::getNetProductionRates(doublereal* net)
 {
     updateROP();
-    ConstMappedVector netRop(m_ropnet.data(), nReactions());
-    MappedVector work(wdot, m_kk);
-    work.fill(0.); // zero out the output array
+
+    fill(net, net + m_kk, 0.0);
     // products are created for positive net rate of progress
-    work += m_productStoich->stoichCoeffs() * netRop;
+    m_productStoich->incrementSpecies(m_ropnet.data(), net);
     // reactants are destroyed for positive net rate of progress
-    work -= m_reactantStoich->stoichCoeffs() * netRop;
-    // work = m_stoichMatrix * netRop;
+    m_reactantStoich->decrementSpecies(m_ropnet.data(), net);
 }
 
 Eigen::SparseMatrix<double> Kinetics::getNetProductionRateSpeciesDerivatives()

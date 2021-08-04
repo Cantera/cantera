@@ -415,7 +415,8 @@ public:
      * @param property Input vector of property value. Length: m_kk.
      * @param deltaProperty Output vector of deltaRxn. Length: nReactions().
      */
-    virtual void getReactionDelta(const double* property, double* deltaProperty);
+    virtual void getReactionDelta(const doublereal* property,
+                                  doublereal* deltaProperty);
 
     /**
      * Given an array of species properties 'g', return in array 'dg' the
@@ -427,7 +428,7 @@ public:
      * primarily designed for use in calculating reverse rate coefficients
      * from thermochemistry for reversible reactions.
      */
-    virtual void getRevReactionDelta(const double* g, double* dg);
+    virtual void getRevReactionDelta(const doublereal* g, doublereal* dg);
 
     //! Return the vector of values for the reaction Gibbs free energy change.
     /*!
@@ -537,7 +538,7 @@ public:
      *
      * @param cdot   Output vector of creation rates. Length: m_kk.
      */
-    void getCreationRates(double* cdot);
+    void getCreationRates(doublereal* cdot);
 
     /**
      * Species destruction rates [kmol/m^3/s or kmol/m^2/s]. Return the species
@@ -546,7 +547,7 @@ public:
      *
      * @param ddot   Output vector of destruction rates. Length: m_kk.
      */
-    void getDestructionRates(double* ddot);
+    void getDestructionRates(doublereal* ddot);
 
     /**
      * Species net production rates [kmol/m^3/s or kmol/m^2/s]. Return the
@@ -556,7 +557,7 @@ public:
      *
      * @param wdot   Output vector of net production rates. Length: m_kk.
      */
-    void getNetProductionRates(double* wdot);
+    void getNetProductionRates(doublereal* wdot);
 
     //! @}
     //! @name Routines to Calculate Derivatives

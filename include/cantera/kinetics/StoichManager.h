@@ -83,10 +83,34 @@ typedef std::vector<std::pair<int, int>> IndexPairs;
  *  - multiply(in, out) : out[irxn] is multiplied by
  *    in[k0] * in[k1] * in[k2]
  *
+ *  - incrementReaction(in, out) : out[irxn] is incremented by
+ *    in[k0] + in[k1] + in[k2]
+ *
+ *  - decrementReaction(in, out) : out[irxn] is decremented by
+ *    in[k0] + in[k1] + in[k2]
+ *
+ *  - incrementSpecies(in, out)  : out[k0], out[k1], and out[k2]
+ *    are all incremented by in[irxn]
+ *
+ *  - decrementSpecies(in, out)  : out[k0], out[k1], and out[k2]
+ *    are all decremented by in[irxn]
+ *
  * The function multiply() is usually used when evaluating the forward and
  * reverse rates of progress of reactions. The rate constants are usually
  * loaded into out[]. Then multiply() is called to add in the dependence of
  * the species concentrations to yield a forward and reverse rop.
+ *
+ * The function incrementSpecies() and its cousin decrementSpecies() is used
+ * to translate from rates of progress to species production rates. The vector
+ * in[] is preloaded with the rates of progress of all reactions. Then
+ * incrementSpecies() is called to increment the species production vector,
+ * out[], with the rates of progress.
+ *
+ * The functions incrementReaction() and decrementReaction() are used to find
+ * the standard state equilibrium constant for a reaction. Here, output[] is a
+ * vector of length number of reactions, usually the standard Gibbs free
+ * energies of reaction, while input, usually the standard state Gibbs free
+ * energies of species, is a vector of length number of species.
  *
  * Note the stoichiometric coefficient for a species in a reaction is handled
  * by always assuming it is equal to one and then treating reactants and
@@ -108,8 +132,24 @@ public:
         m_ic0(ic0) {
     }
 
-    void multiply(const double* S, double* R) const {
+    void incrementSpecies(const doublereal* R, doublereal* S) const {
+        S[m_ic0] += R[m_rxn];
+    }
+
+    void decrementSpecies(const doublereal* R, doublereal* S) const {
+        S[m_ic0] -= R[m_rxn];
+    }
+
+    void multiply(const doublereal* S, doublereal* R) const {
         R[m_rxn] *= S[m_ic0];
+    }
+
+    void incrementReaction(const doublereal* S, doublereal* R) const {
+        R[m_rxn] += S[m_ic0];
+    }
+
+    void decrementReaction(const doublereal* S, doublereal* R) const {
+        R[m_rxn] -= S[m_ic0];
     }
 
     void finalizeSetup(const IndexPairs& indices)
@@ -155,12 +195,30 @@ public:
     C2(size_t rxn = 0, size_t ic0 = 0, size_t ic1 = 0)
         : m_rxn(rxn), m_ic0(ic0), m_ic1(ic1) {}
 
-    void multiply(const double* S, double* R) const {
+    void incrementSpecies(const doublereal* R, doublereal* S) const {
+        S[m_ic0] += R[m_rxn];
+        S[m_ic1] += R[m_rxn];
+    }
+
+    void decrementSpecies(const doublereal* R, doublereal* S) const {
+        S[m_ic0] -= R[m_rxn];
+        S[m_ic1] -= R[m_rxn];
+    }
+
+    void multiply(const doublereal* S, doublereal* R) const {
         if (S[m_ic0] < 0 && S[m_ic1] < 0) {
             R[m_rxn] = 0;
         } else {
             R[m_rxn] *= S[m_ic0] * S[m_ic1];
         }
+    }
+
+    void incrementReaction(const doublereal* S, doublereal* R) const {
+        R[m_rxn] += S[m_ic0] + S[m_ic1];
+    }
+
+    void decrementReaction(const doublereal* S, doublereal* R) const {
+        R[m_rxn] -= (S[m_ic0] + S[m_ic1]);
     }
 
     void finalizeSetup(const IndexPairs& indices)
@@ -222,13 +280,33 @@ public:
     C3(size_t rxn = 0, size_t ic0 = 0, size_t ic1 = 0, size_t ic2 = 0)
         : m_rxn(rxn), m_ic0(ic0), m_ic1(ic1), m_ic2(ic2) {}
 
-    void multiply(const double* S, double* R) const {
+    void incrementSpecies(const doublereal* R, doublereal* S) const {
+        S[m_ic0] += R[m_rxn];
+        S[m_ic1] += R[m_rxn];
+        S[m_ic2] += R[m_rxn];
+    }
+
+    void decrementSpecies(const doublereal* R, doublereal* S) const {
+        S[m_ic0] -= R[m_rxn];
+        S[m_ic1] -= R[m_rxn];
+        S[m_ic2] -= R[m_rxn];
+    }
+
+    void multiply(const doublereal* S, doublereal* R) const {
         if ((S[m_ic0] < 0 && (S[m_ic1] < 0 || S[m_ic2] < 0)) ||
             (S[m_ic1] < 0 && S[m_ic2] < 0)) {
             R[m_rxn] = 0;
         } else {
             R[m_rxn] *= S[m_ic0] * S[m_ic1] * S[m_ic2];
         }
+    }
+
+    void incrementReaction(const doublereal* S, doublereal* R) const {
+        R[m_rxn] += S[m_ic0] + S[m_ic1] + S[m_ic2];
+    }
+
+    void decrementReaction(const doublereal* S, doublereal* R) const {
+        R[m_rxn] -= (S[m_ic0] + S[m_ic1] + S[m_ic2]);
     }
 
     void finalizeSetup(const IndexPairs& indices)
@@ -299,7 +377,8 @@ public:
         m_rxn(npos) {
     }
 
-    C_AnyN(size_t rxn, const std::vector<size_t>& ic, const vector_fp& order_, const vector_fp& stoich_) :
+    C_AnyN(size_t rxn, const std::vector<size_t>& ic,
+            const vector_fp& order_, const vector_fp& stoich_) :
         m_n(0),
         m_rxn(rxn) {
         m_n = ic.size();
@@ -314,7 +393,7 @@ public:
         }
     }
 
-    void multiply(const double* input, double* output) const {
+    void multiply(const doublereal* input, doublereal* output) const {
         for (size_t n = 0; n < m_n; n++) {
             double order = m_order[n];
             if (order != 0.0) {
@@ -325,6 +404,37 @@ public:
                     output[m_rxn] = 0.0;
                 }
             }
+        }
+    }
+
+    void incrementSpecies(const doublereal* input,
+                          doublereal* output) const {
+        doublereal x = input[m_rxn];
+        for (size_t n = 0; n < m_n; n++) {
+            output[m_ic[n]] += m_stoich[n]*x;
+        }
+
+    }
+
+    void decrementSpecies(const doublereal* input,
+                          doublereal* output) const {
+        doublereal x = input[m_rxn];
+        for (size_t n = 0; n < m_n; n++) {
+            output[m_ic[n]] -= m_stoich[n]*x;
+        }
+    }
+
+    void incrementReaction(const doublereal* input,
+                           doublereal* output) const {
+        for (size_t n = 0; n < m_n; n++) {
+            output[m_rxn] += m_stoich[n]*input[m_ic[n]];
+        }
+    }
+
+    void decrementReaction(const doublereal* input,
+                           doublereal* output) const {
+        for (size_t n = 0; n < m_n; n++) {
+            output[m_rxn] -= m_stoich[n]*input[m_ic[n]];
         }
     }
 
@@ -431,6 +541,42 @@ inline static void _multiply(InputIter begin, InputIter end,
     }
 }
 
+template<class InputIter, class Vec1, class Vec2>
+inline static void _incrementSpecies(InputIter begin,
+                                     InputIter end, const Vec1& input, Vec2& output)
+{
+    for (; begin != end; ++begin) {
+        begin->incrementSpecies(input, output);
+    }
+}
+
+template<class InputIter, class Vec1, class Vec2>
+inline static void _decrementSpecies(InputIter begin,
+                                     InputIter end, const Vec1& input, Vec2& output)
+{
+    for (; begin != end; ++begin) {
+        begin->decrementSpecies(input, output);
+    }
+}
+
+template<class InputIter, class Vec1, class Vec2>
+inline static void _incrementReactions(InputIter begin,
+                                       InputIter end, const Vec1& input, Vec2& output)
+{
+    for (; begin != end; ++begin) {
+        begin->incrementReaction(input, output);
+    }
+}
+
+template<class InputIter, class Vec1, class Vec2>
+inline static void _decrementReactions(InputIter begin,
+                                       InputIter end, const Vec1& input, Vec2& output)
+{
+    for (; begin != end; ++begin) {
+        begin->decrementReaction(input, output);
+    }
+}
+
 template<class InputIter, class Indices>
 inline static void _finalize(InputIter begin, InputIter end, Indices& ix)
 {
@@ -495,6 +641,10 @@ public:
         m_stoichCoeffs.resize(nSpc, nRxn);
         m_stoichCoeffs.reserve(m_coeffList.size());
         m_stoichCoeffs.setFromTriplets(m_coeffList.begin(), m_coeffList.end());
+
+        // Work vector
+        m_svec.resize(nSpc);
+        m_rvec.resize(nRxn);
 
         // Set up index pairs for jacobians
         Eigen::SparseMatrix<double> tmp = m_stoichCoeffs.transpose();
@@ -601,6 +751,34 @@ public:
         _multiply(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
+    void incrementSpecies(const doublereal* input, doublereal* output) const {
+        _incrementSpecies(m_c1_list.begin(), m_c1_list.end(), input, output);
+        _incrementSpecies(m_c2_list.begin(), m_c2_list.end(), input, output);
+        _incrementSpecies(m_c3_list.begin(), m_c3_list.end(), input, output);
+        _incrementSpecies(m_cn_list.begin(), m_cn_list.end(), input, output);
+    }
+
+    void decrementSpecies(const doublereal* input, doublereal* output) const {
+        _decrementSpecies(m_c1_list.begin(), m_c1_list.end(), input, output);
+        _decrementSpecies(m_c2_list.begin(), m_c2_list.end(), input, output);
+        _decrementSpecies(m_c3_list.begin(), m_c3_list.end(), input, output);
+        _decrementSpecies(m_cn_list.begin(), m_cn_list.end(), input, output);
+    }
+
+    void incrementReactions(const doublereal* input, doublereal* output) const {
+        _incrementReactions(m_c1_list.begin(), m_c1_list.end(), input, output);
+        _incrementReactions(m_c2_list.begin(), m_c2_list.end(), input, output);
+        _incrementReactions(m_c3_list.begin(), m_c3_list.end(), input, output);
+        _incrementReactions(m_cn_list.begin(), m_cn_list.end(), input, output);
+    }
+
+    void decrementReactions(const doublereal* input, doublereal* output) const {
+        _decrementReactions(m_c1_list.begin(), m_c1_list.end(), input, output);
+        _decrementReactions(m_c2_list.begin(), m_c2_list.end(), input, output);
+        _decrementReactions(m_c3_list.begin(), m_c3_list.end(), input, output);
+        _decrementReactions(m_cn_list.begin(), m_cn_list.end(), input, output);
+    }
+
     //! Return matrix containing stoichiometric coefficients
     const Eigen::SparseMatrix<double>& stoichCoeffs() const
     {
@@ -674,6 +852,9 @@ private:
     std::vector<C2> m_c2_list;
     std::vector<C3> m_c3_list;
     std::vector<C_AnyN> m_cn_list;
+
+    vector_fp m_svec; //!< Work vector holding species output
+    vector_fp m_rvec; //!< Work vector holding reaction output
 
     //! Sparse matrices for stoichiometric coefficients
     SparseTriplets m_coeffList;
