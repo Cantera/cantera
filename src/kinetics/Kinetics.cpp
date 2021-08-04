@@ -585,6 +585,36 @@ Eigen::SparseMatrix<double> Kinetics::getNetProductionRateSpeciesDerivatives()
         getFwdRopSpeciesDerivatives() - getRevRopSpeciesDerivatives());
 }
 
+size_t Kinetics::getRopSpeciesDerivatives(
+    std::vector<std::pair<int, int>>& indices, vector_fp& values,
+    bool forward, bool reverse)
+{
+    Eigen::SparseMatrix<double> ret;
+    if (forward && reverse) {
+        ret = getFwdRopSpeciesDerivatives() - getRevRopSpeciesDerivatives();
+    } else if (forward) {
+        ret = getFwdRopSpeciesDerivatives();
+    } else if (reverse) {
+        ret = getRevRopSpeciesDerivatives();
+    }
+    return sparseComponents(ret, indices, values);
+}
+
+size_t Kinetics::getProductionRateSpeciesDerivatives(
+    std::vector<std::pair<int, int>>& indices, vector_fp& values,
+    bool creation, bool destruction)
+{
+    Eigen::SparseMatrix<double> ret;
+    if (creation && destruction) {
+        ret = getNetProductionRateSpeciesDerivatives();
+    } else if (creation) {
+        ret = getCreationRateSpeciesDerivatives();
+    } else if (destruction) {
+        ret = getDestructionRateSpeciesDerivatives();
+    }
+    return sparseComponents(ret, indices, values);
+}
+
 void Kinetics::addPhase(ThermoPhase& thermo)
 {
     // the phase with lowest dimensionality is assumed to be the

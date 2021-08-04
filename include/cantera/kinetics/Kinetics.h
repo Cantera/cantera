@@ -28,8 +28,8 @@ class StoichManagerN;
  * Service routine to pass sparse matrix compoments to external APIs
  *
  * @param mat   sparse matrix
- * @param indices   row/column index pairs
- * @param values   non-zero entries of sparse Jacobian matrix
+ * @param indices   output vector for row/column index pairs
+ * @param values   output vector for non-zero matrix entries
  * @return   number of non-zero entries
  */
 size_t sparseComponents(const Eigen::SparseMatrix<double>& mat,
@@ -580,13 +580,6 @@ public:
         throw NotImplementedError("Kinetics::getFwdRopSpeciesDerivatives");
     }
 
-    //! Service function for API; @see sparseComponents()
-    size_t getFwdRopSpeciesDerivatives(
-        std::vector<std::pair<int, int>>& indices, vector_fp& values)
-    {
-        return sparseComponents(getFwdRopSpeciesDerivatives(), indices, values);
-    }
-
     /**
      * Calculate Jacobian for reverse rates-of-progress with respect to species
      * concentrations.
@@ -604,12 +597,22 @@ public:
         throw NotImplementedError("Kinetics::getRevRopSpeciesDerivatives");
     }
 
-    //! Service function for API; @see sparseComponents()
-    virtual size_t getRevRopSpeciesDerivatives(
-        std::vector<std::pair<int, int>>& indices, vector_fp& values)
-    {
-        return sparseComponents(getRevRopSpeciesDerivatives(), indices, values);
-    }
+     /**
+     * Calculate Jacobian for rates-of-progress with respect to species
+     * concentrations. Used to expose sparse matrix components to APIs.
+     *
+     * @param indices   output vector for row/column index pairs
+     * @param values   output vector for non-zero matrix entries
+     * @param forward   include forward direction
+     * @param reverse   include reverse direction
+     * @return   number of non-zero entries
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    size_t getRopSpeciesDerivatives(
+        std::vector<std::pair<int, int>>& indices, vector_fp& values,
+        bool forward, bool reverse);
 
     /**
      * Calculate Jacobian for species creation rates with respect to species
@@ -625,14 +628,6 @@ public:
      */
     Eigen::SparseMatrix<double> getCreationRateSpeciesDerivatives();
 
-    //! Service function for API; @see sparseComponents()
-    size_t getCreationRateSpeciesDerivatives(
-        std::vector<std::pair<int, int>>& indices, vector_fp& values)
-    {
-        return sparseComponents(
-            getCreationRateSpeciesDerivatives(), indices, values);
-    }
-
     /**
      * Calculate Jacobian for species destruction rates with respect to species
      * concentrations.
@@ -646,14 +641,6 @@ public:
      *    may be changed or removed without notice.
      */
     Eigen::SparseMatrix<double> getDestructionRateSpeciesDerivatives();
-
-    //! Service function for API; @see sparseComponents()
-    size_t getDestructionRateSpeciesDerivatives(
-        std::vector<std::pair<int, int>>& indices, vector_fp& values)
-    {
-        return sparseComponents(
-            getDestructionRateSpeciesDerivatives(), indices, values);
-    }
 
     /**
      * Calculate Jacobian for species net production rates with respect to species
@@ -669,13 +656,22 @@ public:
      */
     Eigen::SparseMatrix<double> getNetProductionRateSpeciesDerivatives();
 
-    //! Service function for API; @see sparseComponents()
-    size_t getNetProductionRateSpeciesDerivatives(
-        std::vector<std::pair<int, int>>& indices, vector_fp& values)
-    {
-        return sparseComponents(
-            getNetProductionRateSpeciesDerivatives(), indices, values);
-    }
+    /**
+     * Calculate Jacobian for species production rates with respect to species
+     * concentrations. Used to expose sparse matrix components to APIs.
+     *
+     * @param indices   output vector for row/column index pairs
+     * @param values   output vector for non-zero matrix entries
+     * @param creation   include fspecies creation rates
+     * @param destruction   include species destruction rates
+     * @return   number of non-zero entries
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    size_t getProductionRateSpeciesDerivatives(
+        std::vector<std::pair<int, int>>& indices, vector_fp& values,
+        bool creation, bool destruction);
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines

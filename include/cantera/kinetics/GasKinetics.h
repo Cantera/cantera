@@ -59,9 +59,6 @@ public:
     virtual Eigen::SparseMatrix<double> getFwdRopSpeciesDerivatives();
     virtual Eigen::SparseMatrix<double> getRevRopSpeciesDerivatives();
 
-    // virtual size_t getSpeciesSpeciesDerivatives(
-    //     std::vector<std::pair<int, int>>& indices, vector_fp& values);
-
     //! Update temperature-dependent portions of reaction rates and falloff
     //! functions.
     virtual void update_rates_T();
