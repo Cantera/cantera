@@ -143,8 +143,10 @@ class TestKinetics(utilities.CanteraTest):
 
     def test_rate_constants(self):
         self.assertEqual(len(self.phase.forward_rate_constants), self.phase.n_reactions)
-        self.assertArrayNear(self.phase.forward_rate_constants / self.phase.reverse_rate_constants,
-                             self.phase.equilibrium_constants)
+        ix = self.phase.reverse_rate_constants != 0.
+        self.assertArrayNear(
+            self.phase.forward_rate_constants[ix] / self.phase.reverse_rate_constants[ix],
+            self.phase.equilibrium_constants[ix])
 
     def test_species_rates(self):
         nu_p = self.phase.product_stoich_coeffs()
