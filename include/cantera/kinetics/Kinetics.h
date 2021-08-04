@@ -140,14 +140,8 @@ public:
     Kinetics(const Kinetics&) = delete;
     Kinetics& operator=(const Kinetics&)= delete;
 
-    //! Initialize Kinetics object and associated StoichManagerN objects
-    void initialize();
-
-    //! Return boolean indicating whether Kinetics object is initialized
-    bool isInitialized() const
-    {
-        return m_initialized;
-    }
+    //! finalize Kinetics object and associated StoichManagerN objects
+    void finalizeSetup();
 
     //! Identifies the Kinetics manager type.
     //! Each class derived from Kinetics should override this method to return
@@ -1068,8 +1062,8 @@ protected:
     Eigen::SparseMatrix<double> m_stoichMatrix;
     //@}
 
-    //! Boolean indicating whether the Kinetics object is initialized
-    bool m_initialized;
+    //! Boolean indicating whether the Kinetics object is finalized
+    bool m_finalized;
 
     //! The number of species in all of the phases
     //! that participate in this kinetics mechanism.

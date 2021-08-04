@@ -112,7 +112,7 @@ public:
         R[m_rxn] *= S[m_ic0];
     }
 
-    void initialize(const IndexPairs& indices)
+    void finalizeSetup(const IndexPairs& indices)
     {
         size_t count = 0;
         for (size_t n = 0; n < indices.size(); n++) {
@@ -125,7 +125,7 @@ public:
             }
         }
         if (count < 1) {
-            throw CanteraError("C1::initialize",
+            throw CanteraError("C1::finalizeSetup",
                 "Found no entries in Jacobian setup for reaction ({}).", m_rxn);
         }
     }
@@ -163,7 +163,7 @@ public:
         }
     }
 
-    void initialize(const IndexPairs& indices)
+    void finalizeSetup(const IndexPairs& indices)
     {
         size_t count = 0;
         for (size_t n = 0; n < indices.size(); n++) {
@@ -184,7 +184,7 @@ public:
             }
         }
         if (count < 2) {
-            throw CanteraError("C2::initialize",
+            throw CanteraError("C2::finalizeSetup",
                 "Found less than 2 entries in Jacobian setup for reaction ({}): {}",
                 m_rxn, count);
         }
@@ -231,7 +231,7 @@ public:
         }
     }
 
-    void initialize(const IndexPairs& indices)
+    void finalizeSetup(const IndexPairs& indices)
     {
         size_t count = 0;
         for (size_t n = 0; n < indices.size(); n++) {
@@ -256,7 +256,7 @@ public:
             }
         }
         if (count < 3) {
-            throw CanteraError("C3::initialize",
+            throw CanteraError("C3::finalizeSetup",
                 "Found less than 3 entries in Jacobian setup for reaction ({}): {}",
                 m_rxn, count);
         }
@@ -328,7 +328,7 @@ public:
         }
     }
 
-    void initialize(const IndexPairs& indices)
+    void finalizeSetup(const IndexPairs& indices)
     {
         size_t count = 0;
         for (size_t n = 0; n < indices.size(); n++) {
@@ -347,7 +347,7 @@ public:
             }
         }
         if (count < m_n) {
-            throw CanteraError("C_AnyN::initialize",
+            throw CanteraError("C_AnyN::finalizeSetup",
                 "Found less than {} entries in Jacobian setup for reaction ({}): {}",
                 m_n, m_rxn, count);
         }
@@ -432,10 +432,10 @@ inline static void _multiply(InputIter begin, InputIter end,
 }
 
 template<class InputIter, class Indices>
-inline static void _initialize(InputIter begin, InputIter end, Indices& ix)
+inline static void _finalize(InputIter begin, InputIter end, Indices& ix)
 {
     for (; begin != end; ++begin) {
-        begin->initialize(ix);
+        begin->finalizeSetup(ix);
     }
 }
 
@@ -487,8 +487,8 @@ public:
     {
     }
 
-    //! Initialize the sparse coefficient matrix
-    void initialize(size_t nSpc, size_t nRxn)
+    //! finalize the sparse coefficient matrix
+    void finalizeSetup(size_t nSpc, size_t nRxn)
     {
         // Stoichiometric coefficient matrix
         m_stoichCoeffs.setZero();
@@ -504,11 +504,11 @@ public:
             }
         }
 
-        // Initialize reactions
-        _initialize(m_c1_list.begin(), m_c1_list.end(), m_indices);
-        _initialize(m_c2_list.begin(), m_c2_list.end(), m_indices);
-        _initialize(m_c3_list.begin(), m_c3_list.end(), m_indices);
-        _initialize(m_cn_list.begin(), m_cn_list.end(), m_indices);
+        // finalize reactions
+        _finalize(m_c1_list.begin(), m_c1_list.end(), m_indices);
+        _finalize(m_c2_list.begin(), m_c2_list.end(), m_indices);
+        _finalize(m_c3_list.begin(), m_c3_list.end(), m_indices);
+        _finalize(m_cn_list.begin(), m_cn_list.end(), m_indices);
     }
 
     /**
@@ -674,8 +674,6 @@ private:
     std::vector<C2> m_c2_list;
     std::vector<C3> m_c3_list;
     std::vector<C_AnyN> m_cn_list;
-
-    bool m_initialized;
 
     //! Sparse matrices for stoichiometric coefficients
     SparseTriplets m_coeffList;

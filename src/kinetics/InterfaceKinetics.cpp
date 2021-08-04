@@ -301,8 +301,8 @@ void InterfaceKinetics::getRevRateConstants(doublereal* krev, bool doIrreversibl
 
 void InterfaceKinetics::updateROP()
 {
-    if (!m_initialized) {
-        initialize();
+    if (!m_finalized) {
+        finalizeSetup();
     }
 
     // evaluate rate constants and equilibrium constants at temperature and phi

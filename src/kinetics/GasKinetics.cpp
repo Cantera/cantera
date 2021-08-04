@@ -191,8 +191,8 @@ Eigen::SparseMatrix<double> GasKinetics::getRevRopSpeciesDerivatives()
 
 void GasKinetics::updateROP()
 {
-    if (!m_initialized) {
-        initialize();
+    if (!m_finalized) {
+        finalizeSetup();
     }
     update_rates_C();
     update_rates_T();

@@ -50,7 +50,7 @@ size_t sparseComponents(const Eigen::SparseMatrix<double>& mat,
 }
 
 Kinetics::Kinetics() :
-    m_initialized(false),
+    m_finalized(false),
     m_kk(0),
     m_thermo(0),
     m_surfphase(npos),
@@ -74,21 +74,21 @@ void Kinetics::checkReactionIndex(size_t i) const
     }
 }
 
-void Kinetics::initialize()
+void Kinetics::finalizeSetup()
 {
     size_t nRxn = nReactions();
 
     // Stoichiometry managers
-    m_reactantStoich->initialize(m_kk, nRxn);
-    m_productStoich->initialize(m_kk, nRxn);
-    m_revProductStoich->initialize(m_kk, nRxn);
+    m_reactantStoich->finalizeSetup(m_kk, nRxn);
+    m_productStoich->finalizeSetup(m_kk, nRxn);
+    m_revProductStoich->finalizeSetup(m_kk, nRxn);
 
     // products are created for positive net rate of progress
     m_stoichMatrix = m_productStoich->stoichCoeffs();
     // reactants are destroyed for positive net rate of progress
     m_stoichMatrix -= m_reactantStoich->stoichCoeffs();
 
-    m_initialized = true;
+    m_finalized = true;
 }
 
 void Kinetics::checkReactionArraySize(size_t ii) const
@@ -395,8 +395,8 @@ double Kinetics::reactantStoichCoeff(size_t kSpec, size_t irxn)
             "Matrix index ({},{}) is out of range; size is ({},{}).",
             kSpec, irxn, m_kk, nReactions());
     }
-    if (!m_initialized) {
-        initialize();
+    if (!m_finalized) {
+        finalizeSetup();
     }
     return m_reactantStoich->stoichCoeffs().coeff(kSpec, irxn);
 }
@@ -404,8 +404,8 @@ double Kinetics::reactantStoichCoeff(size_t kSpec, size_t irxn)
 size_t Kinetics::reactantStoichCoeffs(
     std::vector<std::pair<int, int>>& indices, vector_fp& coeffs)
 {
-    if (!m_initialized) {
-        initialize();
+    if (!m_finalized) {
+        finalizeSetup();
     }
     return m_reactantStoich->sparseStoichCoeffs(indices, coeffs);
 }
@@ -417,8 +417,8 @@ double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn, bool irreversible
             "Matrix index ({},{}) is out of range; size is ({},{}).",
             kSpec, irxn, m_kk, nReactions());
     }
-    if (!m_initialized) {
-        initialize();
+    if (!m_finalized) {
+        finalizeSetup();
     }
     if (irreversible) {
         return m_productStoich->stoichCoeffs().coeff(kSpec, irxn);
@@ -429,8 +429,8 @@ double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn, bool irreversible
 size_t Kinetics::productStoichCoeffs(
     std::vector<std::pair<int, int>>& indices, vector_fp& coeffs, bool irreversible)
 {
-    if (!m_initialized) {
-        initialize();
+    if (!m_finalized) {
+        finalizeSetup();
     }
     if (irreversible) {
         return m_productStoich->sparseStoichCoeffs(indices, coeffs);
@@ -487,8 +487,8 @@ void Kinetics::getNetRatesOfProgress(doublereal* netROP)
 
 void Kinetics::getReactionDelta(const double* prop, double* deltaProp)
 {
-    if (!m_initialized) {
-        initialize();
+    if (!m_finalized) {
+        finalizeSetup();
     }
     ConstMappedRowVector prop_(prop, m_kk);
 
@@ -502,8 +502,8 @@ void Kinetics::getReactionDelta(const double* prop, double* deltaProp)
 
 void Kinetics::getRevReactionDelta(const double* prop, double* deltaProp)
 {
-    if (!m_initialized) {
-        initialize();
+    if (!m_finalized) {
+        finalizeSetup();
     }
     ConstMappedRowVector prop_(prop, m_kk);
 
@@ -635,7 +635,7 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
         init();
     }
     resizeSpecies();
-    m_initialized = false;
+    m_finalized = false;
 
     // Check validity of reaction within the context of the Kinetics object
     if (!r->checkSpecies(*this)) {
