@@ -141,7 +141,7 @@ public:
     Kinetics& operator=(const Kinetics&)= delete;
 
     //! finalize Kinetics object and associated StoichManagerN objects
-    void finalizeSetup();
+    virtual void finalizeSetup();
 
     //! Identifies the Kinetics manager type.
     //! Each class derived from Kinetics should override this method to return

@@ -19,6 +19,14 @@ BulkKinetics::BulkKinetics(ThermoPhase* thermo) :
     }
 }
 
+void BulkKinetics::finalizeSetup()
+{
+    // Third-body calculators
+    m_multi_concm->finalizeSetup(m_kk, nReactions());
+
+    Kinetics::finalizeSetup();
+}
+
 bool BulkKinetics::isReversible(size_t i) {
     return std::find(m_revindex.begin(), m_revindex.end(), i) < m_revindex.end();
 }

@@ -54,6 +54,7 @@ public:
     virtual void invalidateCache();
     //@}
 
+    virtual void finalizeSetup();
     void updateROP();
 
     virtual Eigen::SparseMatrix<double> getFwdRopSpeciesDerivatives();
