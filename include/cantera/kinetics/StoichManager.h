@@ -633,32 +633,41 @@ public:
     {
     }
 
-    //! finalize the sparse coefficient matrix
+    //! finalize the sparse coefficient matrix setup
     void finalizeSetup(size_t nSpc, size_t nRxn)
     {
+        size_t nCoeffs = m_coeffList.size();
+
         // Stoichiometric coefficient matrix
         m_stoichCoeffs.setZero();
         m_stoichCoeffs.resize(nSpc, nRxn);
-        m_stoichCoeffs.reserve(m_coeffList.size());
+        m_stoichCoeffs.reserve(nCoeffs);
         m_stoichCoeffs.setFromTriplets(m_coeffList.begin(), m_coeffList.end());
 
-        // Work vector
-        m_svec.resize(nSpc);
-        m_rvec.resize(nRxn);
+        // Set up outer/inner indices for mapped jacobian output
+        Eigen::SparseMatrix<double> tmp = m_stoichCoeffs.transpose();
+        m_outerIndices.resize(nSpc + 1); // number of columns + 1
+        for (int i = 0; i < tmp.outerSize() + 1; i++) {
+            m_outerIndices[i] = tmp.outerIndexPtr()[i];
+        }
+        m_innerIndices.resize(nCoeffs);
+        for (size_t n = 0; n < nCoeffs; n++) {
+            m_innerIndices[n] = tmp.innerIndexPtr()[n];
+        }
+        m_values.resize(nCoeffs, 0.);
 
         // Set up index pairs for jacobians
-        Eigen::SparseMatrix<double> tmp = m_stoichCoeffs.transpose();
+        IndexPairs indices;
         for (int i = 0; i < tmp.outerSize(); i++) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(tmp, i); it; ++it) {
-                m_indices.emplace_back(it.row(), it.col());
+                indices.emplace_back(it.row(), it.col());
             }
         }
-
         // finalize reactions
-        _finalize(m_c1_list.begin(), m_c1_list.end(), m_indices);
-        _finalize(m_c2_list.begin(), m_c2_list.end(), m_indices);
-        _finalize(m_c3_list.begin(), m_c3_list.end(), m_indices);
-        _finalize(m_cn_list.begin(), m_cn_list.end(), m_indices);
+        _finalize(m_c1_list.begin(), m_c1_list.end(), indices);
+        _finalize(m_c2_list.begin(), m_c2_list.end(), indices);
+        _finalize(m_c3_list.begin(), m_c3_list.end(), indices);
+        _finalize(m_cn_list.begin(), m_cn_list.end(), indices);
     }
 
     /**
@@ -825,26 +834,15 @@ public:
         const double* conc, const double* rates)
     {
         // calculate jacobian entries using known sparse storage order
-        vector_fp jacv(m_coeffList.size(), 0.);
-        _jacobian(m_c1_list.begin(), m_c1_list.end(), conc, rates, jacv);
-        _jacobian(m_c2_list.begin(), m_c2_list.end(), conc, rates, jacv);
-        _jacobian(m_c3_list.begin(), m_c3_list.end(), conc, rates, jacv);
-        _jacobian(m_cn_list.begin(), m_cn_list.end(), conc, rates, jacv);
+        std::fill(m_values.begin(), m_values.end(), 0.);
+        _jacobian(m_c1_list.begin(), m_c1_list.end(), conc, rates, m_values);
+        _jacobian(m_c2_list.begin(), m_c2_list.end(), conc, rates, m_values);
+        _jacobian(m_c3_list.begin(), m_c3_list.end(), conc, rates, m_values);
+        _jacobian(m_cn_list.begin(), m_cn_list.end(), conc, rates, m_values);
 
-        // build triplet vectors specifying sparse matrix
-        SparseTriplets jact;
-        jact.reserve(m_indices.size());
-        for (size_t i = 0; i < m_indices.size(); i++) {
-            size_t row = m_indices[i].first;
-            size_t col = m_indices[i].second;
-            jact.emplace_back(row, col, jacv[i]);
-        }
-
-        Eigen::SparseMatrix<double> jac;
-        jac.resize(m_stoichCoeffs.cols(), m_stoichCoeffs.rows());
-        jac.reserve(jact.size());
-        jac.setFromTriplets(jact.begin(), jact.end());
-        return jac;
+        return MappedSparseMatrix(
+            m_stoichCoeffs.cols(), m_stoichCoeffs.rows(), m_values.size(),
+            m_outerIndices.data(), m_innerIndices.data(), m_values.data());
     }
 
 private:
@@ -853,15 +851,14 @@ private:
     std::vector<C3> m_c3_list;
     std::vector<C_AnyN> m_cn_list;
 
-    vector_fp m_svec; //!< Work vector holding species output
-    vector_fp m_rvec; //!< Work vector holding reaction output
-
     //! Sparse matrices for stoichiometric coefficients
-    SparseTriplets m_coeffList;
+    std::vector<Eigen::Triplet<double>> m_coeffList;
     Eigen::SparseMatrix<double> m_stoichCoeffs;
 
-    //! Index pairs used to build species-species derivatives
-    IndexPairs m_indices;
+    //! Storage indicies used to build Jacobians
+    std::vector<int> m_outerIndices;
+    std::vector<int> m_innerIndices;
+    vector_fp m_values;
 };
 
 }

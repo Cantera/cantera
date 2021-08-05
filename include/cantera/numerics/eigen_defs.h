@@ -22,7 +22,8 @@ typedef Eigen::Map<const Eigen::VectorXd> ConstMappedVector;
 typedef Eigen::Map<Eigen::RowVectorXd> MappedRowVector;
 typedef Eigen::Map<const Eigen::RowVectorXd> ConstMappedRowVector;
 
-typedef std::vector<Eigen::Triplet<double>> SparseTriplets;
+typedef Eigen::Map<Eigen::SparseMatrix<double>> MappedSparseMatrix;
+typedef Eigen::Map<const Eigen::SparseMatrix<double>> ConstMappedSparseMatrix;
 }
 
 #endif
