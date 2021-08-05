@@ -581,8 +581,12 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
 
         size_t getRopSpeciesDerivatives(
             vector[pair[int, int]]&, vector[double]&, cbool, cbool) except +translate_exception
+        void getRopTemperatureDerivatives(
+            vector[double]&, cbool, cbool) except +translate_exception
         size_t getProductionRateSpeciesDerivatives(
             vector[pair[int, int]]&, vector[double]&, cbool, cbool) except +translate_exception
+        void getProductionRateTemperatureDerivatives(
+            vector[double]&, cbool, cbool) except +translate_exception
 
 
 cdef extern from "cantera/kinetics/InterfaceKinetics.h":

@@ -257,6 +257,28 @@ Eigen::SparseMatrix<double> GasKinetics::getRevRopSpeciesDerivatives()
     return jac;
 }
 
+Eigen::VectorXd GasKinetics::getFwdRopTemperatureDerivatives()
+{
+    updateROP();
+
+    Eigen::VectorXd out(nReactions());
+    out.fill(NAN);
+    for (auto& rates : m_bulk_rates) {
+        rates->getScaledRateConstantTemperatureDerivatives(
+            thermo(), out.data(), m_concm.data());
+    }
+
+    out.array() *= MappedVector(m_ropf.data(), nReactions()).array();
+    return out;
+}
+
+Eigen::VectorXd GasKinetics::getRevRopTemperatureDerivatives()
+{
+    throw NotImplementedError("GasKinetics::getRevRopTemperatureDerivatives");
+    Eigen::VectorXd out(nReactions());
+    out.fill(NAN);
+}
+
 void GasKinetics::updateROP()
 {
     update_rates_C();

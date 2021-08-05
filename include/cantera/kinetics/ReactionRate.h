@@ -89,7 +89,18 @@ public:
     //! Evaluate reaction rate derivative based on bulk phase
     //! @param bulk  object representing bulk phase
     //! @param concm  third-body concentration (if applicable)
-    virtual double ddT(const ThermoPhase& bulk, double concm=0.) const = 0;
+    //! @param silent  return NaN instead of raising an exception if analytic
+    //!     derivative is not implemented
+    virtual double ddT(const ThermoPhase& bulk,
+                       double concm=0., bool silent=false) const = 0;
+
+    //! Evaluate reaction rate derivative divided by reaction rate based on bulk phase
+    //! @param bulk  object representing bulk phase
+    //! @param concm  third-body concentration (if applicable)
+    //! @param silent  return NaN instead of raising an exception if analytic
+    //!     derivative is not implemented
+    virtual double ddTscaled(const ThermoPhase& bulk,
+                             double concm=0., bool silent=false) const = 0;
 
     //! Validate the reaction rate expression
     virtual void validate(const std::string& equation) = 0;
@@ -188,29 +199,41 @@ public:
         return eval(data, concm);
     }
 
-    //! Evaluate derivative of reaction rate with respect to temperature
-    //! @param shared_data  data shared by all reactions of a given type
-    virtual double ddT(const DataType& shared_data, double concm=0.) const {
-        throw CanteraError("ReactionRate::ddT",
-                           "Not implemented by derived ReactionRate object.");
-    }
-
     virtual double ddT(double T) const override {
         DataType data;
         data.update(T);
-        return ddT(data);
+        return eval(data) * ddTscaled(data);
     }
 
     virtual double ddT(double T, double P) const override {
         DataType data;
         data.update(T, P);
-        return ddT(data);
+        return eval(data) * ddTscaled(data);
     }
 
-    virtual double ddT(const ThermoPhase& bulk, double concm=0.) const override {
+    virtual double ddT(const ThermoPhase& bulk,
+                       double concm=0., bool silent=false) const override {
         DataType data;
         data.update(bulk);
-        return ddT(data, concm);
+        return eval(data, concm) * ddTscaled(data, concm, silent);
+    }
+
+    virtual double ddTscaled(const ThermoPhase& bulk,
+                             double concm=0., bool silent=false) const override {
+        DataType data;
+        data.update(bulk);
+        return ddTscaled(data, concm, silent);
+    }
+
+    //! Evaluate scaled derivative of reaction rate with respect to temperature
+    //! @param shared_data  data shared by all reactions of a given type
+    virtual double ddTscaled(const DataType& shared_data,
+                             double concm=0., bool silent=false) const {
+        if (silent) {
+            return NAN;
+        }
+        throw CanteraError("ReactionRate::ddTscaled",
+            "Not implemented by derived ReactionRate object.");
     }
 };
 
@@ -270,10 +293,9 @@ public:
         return updateRC(shared_data.m_logT, shared_data.m_recipT);
     }
 
-    virtual double ddT(const ArrheniusData& shared_data,
-                       double concm=0.) const override {
-        return updateRC(shared_data.m_logT, shared_data.m_recipT) *
-            (m_b + m_E * shared_data.m_recipT) * shared_data.m_recipT;
+    virtual double ddTscaled(const ArrheniusData& shared_data,
+                             double concm=0., bool silent=false) const override {
+        return (m_b + m_E * shared_data.m_recipT) * shared_data.m_recipT;
     }
 
     //! Return the activation energy [J/kmol]

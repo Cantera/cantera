@@ -412,6 +412,21 @@ cdef class Kinetics(_SolutionBase):
         return as_dense(
             indices, values, size, self.n_reactions, self.n_total_species)
 
+    def rop_temperature_derivatives(self, forward=True, reverse=True):
+        """
+        Calculate Jacobian for rates-of-progress with respect to temperature.
+        By default, both ``forward`` and ``reverse`` rates are considered.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        cdef vector[double] values = value_vector(self.n_reactions)
+        self.kinetics.getRopTemperatureDerivatives(values, forward, reverse)
+        data = np.zeros((self.n_reactions))
+        for i in xrange(self.n_reactions):
+            data[i] = values[i]
+        return data
+
     def production_rate_species_derivatives(self, creation=True, destruction=True):
         """
         Calculate Jacobian for species production rates with respect to species
@@ -434,6 +449,22 @@ cdef class Kinetics(_SolutionBase):
             indices, values, creation, destruction)
         return as_dense(
             indices, values, size, self.n_total_species, self.n_total_species)
+
+    def production_rate_temperature_derivatives(self, creation=True, destruction=True):
+        """
+        Calculate Jacobian for species production rates with respect to temperature.
+        By default, both species ``creation`` and ``destruction`` are considered.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        cdef vector[double] values = value_vector(self.n_total_species)
+        self.kinetics.getProductionRateTemperatureDerivatives(
+            values, creation, destruction)
+        data = np.zeros((self.n_total_species))
+        for i in xrange(self.n_total_species):
+            data[i] = values[i]
+        return data
 
     property delta_enthalpy:
         """Change in enthalpy for each reaction [J/kmol]."""

@@ -48,8 +48,16 @@ public:
     //! Evaluate all rate constants handled by the evaluator
     //! @param bulk  object representing bulk phase
     //! @param kf  array of rate constants
-    virtual void getRateConstants(const ThermoPhase& bulk,
-                                  double* kf, double* concm) const = 0;
+    //! @param concm  effective third-body concentrations
+    virtual void getRateConstants(
+        const ThermoPhase& bulk, double* kf, double* concm) const = 0;
+
+    //! Evaluate all rate constant temperature derivatives handled by the evaluator
+    //! @param bulk  object representing bulk phase
+    //! @param dkf  array of rate constants
+    //! @param concm  effective third-body concentrations
+    virtual void getScaledRateConstantTemperatureDerivatives(
+        const ThermoPhase& bulk, double* dkf, double* concm) const = 0;
 
     //! Update data common to reaction rates of a specific type
     //! @param bulk  object representing bulk phase
@@ -97,11 +105,19 @@ public:
         m_shared.resizeSpecies(n_species);
     }
 
-    virtual void getRateConstants(const ThermoPhase& bulk,
-                                  double* kf, double* concm) const override
+    virtual void getRateConstants(
+        const ThermoPhase& bulk, double* kf, double* concm) const override
     {
         for (const auto& rxn : m_rxn_rates) {
             kf[rxn.first] = rxn.second.eval(m_shared, concm[rxn.first]);
+        }
+    }
+
+    virtual void getScaledRateConstantTemperatureDerivatives(
+        const ThermoPhase& bulk, double* dkf, double* concm) const override
+    {
+        for (const auto& rxn : m_rxn_rates) {
+            dkf[rxn.first] = rxn.second.ddTscaled(m_shared, concm[rxn.first], true);
         }
     }
 

@@ -585,6 +585,12 @@ Eigen::SparseMatrix<double> Kinetics::getNetProductionRateSpeciesDerivatives()
         getFwdRopSpeciesDerivatives() - getRevRopSpeciesDerivatives());
 }
 
+Eigen::VectorXd Kinetics::getNetProductionRateTemperatureDerivatives()
+{
+    return m_stoichMatrix * (
+        getFwdRopTemperatureDerivatives() - getRevRopTemperatureDerivatives());
+}
+
 size_t Kinetics::getRopSpeciesDerivatives(
     std::vector<std::pair<int, int>>& indices, vector_fp& values,
     bool forward, bool reverse)
@@ -613,6 +619,36 @@ size_t Kinetics::getProductionRateSpeciesDerivatives(
         ret = getDestructionRateSpeciesDerivatives();
     }
     return sparseComponents(ret, indices, values);
+}
+
+void Kinetics::getRopTemperatureDerivatives(
+    vector_fp& values, bool forward, bool reverse)
+{
+    MappedVector mapped(values.data(), nReactions());
+    if (forward && reverse) {
+        mapped = getFwdRopTemperatureDerivatives() - getRevRopTemperatureDerivatives();
+    } else if (forward) {
+        mapped = getFwdRopTemperatureDerivatives();
+    } else if (reverse) {
+        mapped = getRevRopTemperatureDerivatives();
+    } else {
+        mapped.setZero();
+    }
+}
+
+void Kinetics::getProductionRateTemperatureDerivatives(
+    vector_fp& values, bool creation, bool destruction)
+{
+    MappedVector mapped(values.data(), nReactions());
+    if (creation && destruction) {
+        mapped = getNetProductionRateTemperatureDerivatives();
+    } else if (creation) {
+        mapped = getCreationRateTemperatureDerivatives();
+    } else if (destruction) {
+        mapped = getDestructionRateTemperatureDerivatives();
+    } else {
+        mapped.setZero();
+    }
 }
 
 void Kinetics::addPhase(ThermoPhase& thermo)

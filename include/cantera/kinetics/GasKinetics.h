@@ -68,6 +68,8 @@ public:
 
     virtual Eigen::SparseMatrix<double> getFwdRopSpeciesDerivatives();
     virtual Eigen::SparseMatrix<double> getRevRopSpeciesDerivatives();
+    virtual Eigen::VectorXd getFwdRopTemperatureDerivatives();
+    virtual Eigen::VectorXd getRevRopTemperatureDerivatives();
 
     //! Update temperature-dependent portions of reaction rates and falloff
     //! functions.
