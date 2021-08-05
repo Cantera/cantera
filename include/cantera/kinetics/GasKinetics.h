@@ -85,8 +85,8 @@ protected:
 
     FalloffMgr m_falloffn;
 
-    ThirdBodyCalc m_3b_concm;
-    ThirdBodyCalc m_falloff_concm;
+    std::shared_ptr<ThirdBodyCalc> m_3b_concm;
+    std::shared_ptr<ThirdBodyCalc> m_falloff_concm;
 
     Rate1<Plog> m_plog_rates;
     Rate1<Chebyshev> m_cheb_rates;

@@ -8,6 +8,7 @@
 #include <numeric>
 #include "cantera/kinetics/GasKinetics.h"
 #include "cantera/kinetics/StoichManager.h"
+#include "cantera/kinetics/ThirdBodyCalc.h"
 #include "cantera/thermo/ThermoPhase.h"
 
 using namespace std;
@@ -21,6 +22,8 @@ GasKinetics::GasKinetics(ThermoPhase* thermo) :
     m_logStandConc(0.0),
     m_pres(0.0)
 {
+    m_3b_concm = std::unique_ptr<ThirdBodyCalc>(new ThirdBodyCalc());
+    m_falloff_concm = std::unique_ptr<ThirdBodyCalc>(new ThirdBodyCalc());
 }
 
 void GasKinetics::update_rates_T()
@@ -81,18 +84,18 @@ void GasKinetics::update_rates_C()
 
     // 3-body reactions
     if (!concm_3b_values.empty()) {
-        m_3b_concm.update(m_phys_conc, ctot, concm_3b_values.data());
+        m_3b_concm->update(m_phys_conc, ctot, concm_3b_values.data());
     }
 
     // Falloff reactions
     if (!concm_falloff_values.empty()) {
-        m_falloff_concm.update(m_phys_conc, ctot, concm_falloff_values.data());
+        m_falloff_concm->update(m_phys_conc, ctot, concm_falloff_values.data());
     }
 
     // Third-body objects interacting with MultiRate evaluator
     if (!concm_multi_values.empty()) {
         // using pre-existing third-body handlers requires copying;
-        m_multi_concm.update(m_phys_conc, ctot, concm_multi_values.data());
+        m_multi_concm->update(m_phys_conc, ctot, concm_multi_values.data());
         for (size_t i = 0; i < m_multi_indices.size(); i++) {
             m_concm[m_multi_indices[i]] = concm_multi_values[i];
         }
@@ -205,7 +208,7 @@ void GasKinetics::updateROP()
 
     // multiply ropf by enhanced 3b conc for all 3b rxns
     if (!concm_3b_values.empty()) {
-        m_3b_concm.multiply(m_ropf.data(), concm_3b_values.data());
+        m_3b_concm->multiply(m_ropf.data(), concm_3b_values.data());
     }
 
     if (m_falloff_high_rates.nReactions()) {
@@ -268,7 +271,7 @@ void GasKinetics::getFwdRateConstants(double* kfwd)
 
         // multiply ropf by enhanced 3b conc for all 3b rxns
         if (!concm_3b_values.empty()) {
-            m_3b_concm.multiply(m_ropf.data(), concm_3b_values.data());
+            m_3b_concm->multiply(m_ropf.data(), concm_3b_values.data());
         }
 
         // reactions involving third body
@@ -341,9 +344,9 @@ void GasKinetics::addFalloffReaction(FalloffReaction& r)
             efficiencies[k] = eff.second;
         }
     }
-    m_falloff_concm.install(nfall, efficiencies,
+    m_falloff_concm->install(nfall, efficiencies,
                             r.third_body.default_efficiency);
-    concm_falloff_values.resize(m_falloff_concm.workSize());
+    concm_falloff_values.resize(m_falloff_concm->workSize());
 
     // install the falloff function calculator for this reaction
     m_falloffn.install(nfall, r.type(), r.falloff);
@@ -360,9 +363,9 @@ void GasKinetics::addThreeBodyReaction(ThreeBodyReaction2& r)
             efficiencies[k] = eff.second;
         }
     }
-    m_3b_concm.install(nReactions()-1, efficiencies,
+    m_3b_concm->install(nReactions()-1, efficiencies,
                        r.third_body.default_efficiency);
-    concm_3b_values.resize(m_3b_concm.workSize());
+    concm_3b_values.resize(m_3b_concm->workSize());
 }
 
 void GasKinetics::addPlogReaction(PlogReaction2& r)
