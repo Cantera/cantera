@@ -569,8 +569,8 @@ public:
      *  @param vbar   Output vector of species integrated partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
-    virtual void getIntegratedPartialMolarVolumes(doublereal* vbar) {
-    	throw NotImplementedError("ThermoPhase::getIntegratedPartialMolarVolumes");
+    virtual void getIntegratedPartialMolarVolumes(double* integrated_vbar) const {
+        throw NotImplementedError("ThermoPhase::getIntegratedPartialMolarVolumes");
     }
 
     //@}
