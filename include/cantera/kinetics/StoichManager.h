@@ -13,7 +13,6 @@
 
 namespace Cantera
 {
-typedef std::vector<std::pair<int, int>> IndexPairs;
 
 /**
  * @defgroup Stoichiometry Stoichiometry
@@ -152,7 +151,7 @@ public:
         R[m_rxn] -= S[m_ic0];
     }
 
-    void finalizeSetup(const IndexPairs& indices)
+    void finalizeSetup(const std::vector<std::pair<int, int>>& indices)
     {
         size_t count = 0;
         for (size_t n = 0; n < indices.size(); n++) {
@@ -221,7 +220,7 @@ public:
         R[m_rxn] -= (S[m_ic0] + S[m_ic1]);
     }
 
-    void finalizeSetup(const IndexPairs& indices)
+    void finalizeSetup(const std::vector<std::pair<int, int>>& indices)
     {
         size_t count = 0;
         for (size_t n = 0; n < indices.size(); n++) {
@@ -309,7 +308,7 @@ public:
         R[m_rxn] -= (S[m_ic0] + S[m_ic1] + S[m_ic2]);
     }
 
-    void finalizeSetup(const IndexPairs& indices)
+    void finalizeSetup(const std::vector<std::pair<int, int>>& indices)
     {
         size_t count = 0;
         for (size_t n = 0; n < indices.size(); n++) {
@@ -413,7 +412,6 @@ public:
         for (size_t n = 0; n < m_n; n++) {
             output[m_ic[n]] += m_stoich[n]*x;
         }
-
     }
 
     void decrementSpecies(const doublereal* input,
@@ -438,7 +436,7 @@ public:
         }
     }
 
-    void finalizeSetup(const IndexPairs& indices)
+    void finalizeSetup(const std::vector<std::pair<int, int>>& indices)
     {
         size_t count = 0;
         for (size_t n = 0; n < indices.size(); n++) {
@@ -657,7 +655,7 @@ public:
         m_values.resize(nCoeffs, 0.);
 
         // Set up index pairs for jacobians
-        IndexPairs indices;
+        std::vector<std::pair<int, int>> indices;
         for (int i = 0; i < tmp.outerSize(); i++) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(tmp, i); it; ++it) {
                 indices.emplace_back(it.row(), it.col());

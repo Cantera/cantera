@@ -55,7 +55,16 @@ public:
     //@}
 
     virtual void finalizeSetup();
-    void updateROP();
+    virtual void updateROP();
+
+    //! Retrieve rate coefficients
+    void calcFwdRateCoefficients(vector_fp& ropf);
+
+    //! Apply third-body collider concentrations
+    void applyThirdBodies(vector_fp& ropf);
+
+    //! Calculate reverse rate coefficients
+    void calcRevRateCoefficients(const vector_fp& ropf, vector_fp& ropr);
 
     virtual Eigen::SparseMatrix<double> getFwdRopSpeciesDerivatives();
     virtual Eigen::SparseMatrix<double> getRevRopSpeciesDerivatives();
@@ -93,6 +102,11 @@ protected:
     Rate1<Chebyshev> m_cheb_rates;
     Rate1<BlowersMasel> m_blowersmasel_rates;
 
+    //! Buffers for partial rop results
+    vector_fp m_rop_stoich;
+    vector_fp m_rop_3b;
+    vector_fp m_rop_rates;
+
     //! @name Reaction rate data
     //!@{
     doublereal m_logp_ref;
@@ -106,12 +120,9 @@ protected:
     vector_fp concm_3b_values;
     vector_fp concm_falloff_values;
 
-    vector_fp m_effFwdRates; //!< Effective foward rate coefficient
-    vector_fp m_effRevRates; //!< Effective reverse rate coefficient
-
     //!@}
 
-    void processFalloffReactions();
+    void processFalloffReactions(vector_fp& ropf);
 
     // functions marked as deprecated below are only used for XML import and
     // transitional reaction types are marked as '-legacy'

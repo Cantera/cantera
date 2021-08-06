@@ -17,6 +17,7 @@
 
 namespace Cantera
 {
+
 class ThermoPhase;
 class Reaction;
 class Solution;
@@ -1009,6 +1010,11 @@ protected:
     ValueCache m_cache;
 
     // Update internal rate-of-progress variables #m_ropf and #m_ropr.
+    /*!
+     * Internal routine that updates the Rates of Progress (ROP) of the reactions.
+     * The ROP is the product species concentrations raised to the power of
+     * individual stoichiometric coefficients of reaction rate coefficients.
+    */
     virtual void updateROP() {
         throw NotImplementedError("Kinetics::updateROP");
     }
