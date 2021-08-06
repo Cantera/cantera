@@ -1612,138 +1612,183 @@ class TestReaction(utilities.CanteraTest):
 
 
 class RateExpressionTests:
-    rxn_idx = None
+    rxn_idx = None # index of reaction to be tested
     phase = None
     rtol = 1e-5
     orders = None
 
     def setUp(self):
-        self.r_stoich = self.phase.reactant_stoich_coeffs()
-        self.p_stoich = self.phase.product_stoich_coeffs()
-        self.tpx = self.phase.TPX
+        self.r_stoich = self.gas.reactant_stoich_coeffs()
+        self.p_stoich = self.gas.product_stoich_coeffs()
+        self.tpx = self.gas.TPX
 
-        self.rxn = self.phase.reactions()[self.rxn_idx]
-        self.rix = [self.phase.species_index(k) for k in self.rxn.reactants.keys()]
-        self.pix = [self.phase.species_index(k) for k in self.rxn.products.keys()]
-        self.phase.set_multiplier(0.)
-        self.phase.set_multiplier(1., self.rxn_idx)
+        self.rxn = self.gas.reactions()[self.rxn_idx]
+        self.rix = [self.gas.species_index(k) for k in self.rxn.reactants.keys()]
+        self.pix = [self.gas.species_index(k) for k in self.rxn.products.keys()]
+        self.gas.set_multiplier(0.)
+        self.gas.set_multiplier(1., self.rxn_idx)
 
-    def rop_derivative(self, spc_ix, mode, dc=1e-6):
+    def rop_species_derivative(self, spc_ix, mode, dc=1e-6):
         # numerical derivative for rates-of-progress
         def calc(fwd):
             if mode == "forward":
-                return self.phase.forward_rates_of_progress
+                return self.gas.forward_rates_of_progress
             if mode == "reverse":
-                return self.phase.reverse_rates_of_progress
+                return self.gas.reverse_rates_of_progress
             if mode == "net":
-                return self.phase.net_rates_of_progress
+                return self.gas.net_rates_of_progress
 
         rop = calc(mode)
-        n_spc = self.phase.n_species
+        n_spc = self.gas.n_species
         dconc = np.zeros((n_spc))
-        dconc[spc_ix] = self.phase.concentrations[spc_ix] * dc
-        dx = (self.phase.concentrations + dconc) / self.phase.density_mole
-        self.phase.set_unnormalized_mole_fractions(dx)
-        self.phase.TP = self.tpx[:2]
+        dconc[spc_ix] = self.gas.concentrations[spc_ix] * dc
+        dx = (self.gas.concentrations + dconc) / self.gas.density_mole
+        self.gas.set_unnormalized_mole_fractions(dx)
+        self.gas.TP = self.tpx[:2]
         drop = (calc(mode) - rop) / dconc[spc_ix]
 
-        self.phase.TPX = self.tpx
+        self.gas.TPX = self.tpx
         return drop
 
-    def rate_derivative(self, spc_ix, mode=None, dc=1e-6):
+    def rate_species_derivative(self, spc_ix, mode=None, dc=1e-6):
         # numerical derivative for production rates
         def calc(mode):
             if mode == "creation":
-                return self.phase.creation_rates
+                return self.gas.creation_rates
             if mode == "destruction":
-                return self.phase.destruction_rates
+                return self.gas.destruction_rates
             if mode == "net":
-                return self.phase.net_production_rates
+                return self.gas.net_production_rates
 
         rate = calc(mode)
-        n_spc = self.phase.n_species
+        n_spc = self.gas.n_species
         dconc = np.zeros((n_spc))
-        dconc[spc_ix] = self.phase.concentrations[spc_ix] * dc
-        dx = (self.phase.concentrations + dconc) / self.phase.density_mole
-        self.phase.set_unnormalized_mole_fractions(dx)
-        self.phase.TP = self.tpx[:2]
+        dconc[spc_ix] = self.gas.concentrations[spc_ix] * dc
+        dx = (self.gas.concentrations + dconc) / self.gas.density_mole
+        self.gas.set_unnormalized_mole_fractions(dx)
+        self.gas.TP = self.tpx[:2]
         drate = (calc(mode) - rate) / dconc[spc_ix]
 
-        self.phase.TPX = self.tpx
+        self.gas.TPX = self.tpx
         return drate
 
     def test_stoich_coeffs(self):
+        # check stoichiometric coefficient output
         for k, v in self.rxn.reactants.items():
-            ix = self.phase.species_index(k)
+            ix = self.gas.species_index(k)
             self.assertEqual(self.r_stoich[ix, self.rxn_idx], v)
         for k, v in self.rxn.products.items():
-            ix = self.phase.species_index(k)
+            ix = self.gas.species_index(k)
             self.assertEqual(self.p_stoich[ix, self.rxn_idx], v)
 
-    def test_forward_rop_derivatives(self):
-        drop = self.phase.rop_species_derivatives(reverse=False, third_bodies=False)
-        rop = self.phase.forward_rates_of_progress
+    def test_forward_rop_dconcentration(self):
+        # check derivatives of forward rates of progress with respect to concentrations
+        # against analytic result
+        drop = self.gas.rop_species_derivatives(reverse=False, third_bodies=False)
+        rop = self.gas.forward_rates_of_progress
         for spc_ix in self.rix:
             if self.orders is None:
                 stoich = self.r_stoich[spc_ix, self.rxn_idx]
             else:
-                stoich = self.orders[self.phase.species_names[spc_ix]]
+                stoich = self.orders[self.gas.species_names[spc_ix]]
             self.assertNear(rop[self.rxn_idx],
-                drop[self.rxn_idx, spc_ix] * self.phase.concentrations[spc_ix] / stoich)
+                drop[self.rxn_idx, spc_ix] * self.gas.concentrations[spc_ix] / stoich)
 
-    def test_forward_rop_derivatives_num(self):
-        drop = self.phase.rop_species_derivatives(reverse=False)
+    def test_forward_rop_dconcentration_num(self):
+        # check derivatives of forward rates of progress with respect to concentrations
+        # against numeric result
+        drop = self.gas.rop_species_derivatives(reverse=False)
         for spc_ix in self.rix:
-            drop_num = self.rop_derivative(spc_ix, mode="forward")
+            drop_num = self.rop_species_derivative(spc_ix, mode="forward")
             self.assertArrayNear(drop[:, spc_ix], drop_num, self.rtol)
 
-    def test_reverse_rop_derivatives(self):
-        drop = self.phase.rop_species_derivatives(forward=False, third_bodies=False)
-        rop = self.phase.reverse_rates_of_progress
+    def test_reverse_rop_dconcentration(self):
+        # check derivatives of reverse rates of progress with respect to concentrations
+        # against analytic result
+        drop = self.gas.rop_species_derivatives(forward=False, third_bodies=False)
+        rop = self.gas.reverse_rates_of_progress
         for spc_ix in self.pix:
             stoich = self.p_stoich[spc_ix, self.rxn_idx]
             self.assertNear(rop[self.rxn_idx],
-                drop[self.rxn_idx, spc_ix] * self.phase.concentrations[spc_ix] / stoich)
+                drop[self.rxn_idx, spc_ix] * self.gas.concentrations[spc_ix] / stoich)
 
-    def test_reverse_rop_derivatives_num(self):
-        drop = self.phase.rop_species_derivatives(forward=False)
+    def test_reverse_rop_dconcentration_num(self):
+        # check derivatives of reverse rates of progress with respect to concentrations
+        # against numeric result
+        drop = self.gas.rop_species_derivatives(forward=False)
         for spc_ix in self.pix:
-            drop_num = self.rop_derivative(spc_ix, mode="reverse")
+            drop_num = self.rop_species_derivative(spc_ix, mode="reverse")
             self.assertArrayNear(drop[:, spc_ix], drop_num, self.rtol)
 
-    def test_net_rop_derivatives(self):
-        drop_fwd = self.phase.rop_species_derivatives(reverse=False)
-        drop_rev = self.phase.rop_species_derivatives(forward=False)
-        self.assertArrayNear(drop_fwd - drop_rev, self.phase.rop_species_derivatives(), self.rtol)
+    def test_net_rop_dconcentration(self):
+        # check derivatives of net rates of progress with respect to concentrations
+        drop_fwd = self.gas.rop_species_derivatives(reverse=False)
+        drop_rev = self.gas.rop_species_derivatives(forward=False)
+        self.assertArrayNear(drop_fwd - drop_rev, self.gas.rop_species_derivatives(), self.rtol)
 
-    def test_creation_derivatives_num(self):
-        drate = self.phase.production_rate_species_derivatives(destruction=False)
+    def test_creation_dconcentration_num(self):
+        # check derivatives of creation rates with respect to concentrations
+        drate = self.gas.production_rate_species_derivatives(destruction=False)
         for spc_ix in self.rix + self.pix:
-            drate_num = self.rate_derivative(spc_ix, "creation")
+            drate_num = self.rate_species_derivative(spc_ix, "creation")
             ix = np.bitwise_and(drate[:, spc_ix] != 0, drate_num != 0)
             self.assertArrayNear(drate[ix, spc_ix], drate_num[ix], self.rtol)
 
-    def test_destruction_derivatives_num(self):
-        drate = self.phase.production_rate_species_derivatives(creation=False)
+    def test_destruction_dconcentration_num(self):
+        # check derivatives of destruction rates with respect to concentrations
+        drate = self.gas.production_rate_species_derivatives(creation=False)
         for spc_ix in self.rix + self.pix:
-            drate_num = self.rate_derivative(spc_ix, "destruction")
+            drate_num = self.rate_species_derivative(spc_ix, "destruction")
             ix = np.bitwise_and(drate[:, spc_ix] != 0, drate_num != 0)
             self.assertArrayNear(drate[ix, spc_ix], drate_num[ix], self.rtol)
 
-    def test_net_production_derivatives(self):
-        drate_fwd = self.phase.production_rate_species_derivatives(destruction=False)
-        drate_rev = self.phase.production_rate_species_derivatives(creation=False)
+    def test_net_production_dconcentration(self):
+        # check derivatives of net production rates with respect to concentrations
+        drate_fwd = self.gas.production_rate_species_derivatives(destruction=False)
+        drate_rev = self.gas.production_rate_species_derivatives(creation=False)
         self.assertArrayNear(drate_fwd - drate_rev,
-            self.phase.production_rate_species_derivatives())
+            self.gas.production_rate_species_derivatives())
+
+    def test_exact_rate_dtemperature(self):
+        # check basic temperature derivative of rate coefficient
+        rate = self.rxn.rate
+        if rate.__class__.__name__ != "ArrheniusRate":
+            return
+        T = self.tpx[0]
+
+        R = ct.gas_constant
+        Ea = rate.activation_energy
+        b =  rate.temperature_exponent
+        A = rate.pre_exponential_factor
+        k0 = rate(T)
+        self.assertNear(k0, A * T**b * np.exp(-Ea/R/T))
+
+        scaled_ddT = (Ea / R / T + b) / T
+        dkdT = rate.ddT(T)
+        self.assertNear(dkdT, k0 * scaled_ddT) # exact
+
+        dT = 1e-6
+        k1 = rate(T + dT)
+        self.assertNear((k1 - k0) / dT, dkdT, 1e-6) # numeric
+
+        rop = self.gas.forward_rates_of_progress
+        drop = self.gas.rop_temperature_derivatives(reverse=False, approx=False)
+        self.assertNear(drop[self.rxn_idx], rop[self.rxn_idx] * scaled_ddT) # exact
+
+    def test_forward_rop_dtemperature(self):
+        # compare exact and approximate forward rate of progress derivatives
+        drop = self.gas.rop_temperature_derivatives(reverse=False, approx=False)
+        drop_approx = self.gas.rop_temperature_derivatives(reverse=False)
+        self.assertNear(drop[self.rxn_idx], drop_approx[self.rxn_idx], 1e-6)
 
 
 class HydrogenOxygen(RateExpressionTests):
 
     def setUp(self):
-        self.phase = ct.Solution('h2o2.yaml', transport_model=None)
+        self.gas = ct.Solution('h2o2.yaml', transport_model=None)
         #   species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR, N2]
-        self.phase.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4, 0]
-        self.phase.TP = 800, 2*ct.one_atm
+        self.gas.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4, 0]
+        self.gas.TP = 800, 2*ct.one_atm
         RateExpressionTests.setUp(self)
 
 
@@ -1759,6 +1804,11 @@ class TestElementarySelf(HydrogenOxygen, utilities.CanteraTest):
     rxn_idx = 27
 
 
+class TestThreeBody2(HydrogenOxygen, utilities.CanteraTest):
+    # Three body reaction with default efficiency
+    rxn_idx = 0
+
+
 class TestThreeBody(HydrogenOxygen, utilities.CanteraTest):
     # Three body reaction with default efficiency
     # - equation: O + H + M <=> OH + M  # Reaction 2
@@ -1767,29 +1817,29 @@ class TestThreeBody(HydrogenOxygen, utilities.CanteraTest):
     rtol = 1e-4
 
     def test_thirdbodies_forward(self):
-        drop = self.phase.rop_species_derivatives(reverse=False)
-        drops = self.phase.rop_species_derivatives(reverse=False, third_bodies=False)
+        drop = self.gas.rop_species_derivatives(reverse=False)
+        drops = self.gas.rop_species_derivatives(reverse=False, third_bodies=False)
         dropm = drop - drops
-        rop = self.phase.forward_rates_of_progress
+        rop = self.gas.forward_rates_of_progress
         self.assertNear(rop[self.rxn_idx],
-            (dropm[self.rxn_idx] * self.phase.concentrations).sum())
+            (dropm[self.rxn_idx] * self.gas.concentrations).sum())
 
     def test_thirdbodies_reverse(self):
-        drop = self.phase.rop_species_derivatives(forward=False)
-        drops = self.phase.rop_species_derivatives(forward=False, third_bodies=False)
+        drop = self.gas.rop_species_derivatives(forward=False)
+        drops = self.gas.rop_species_derivatives(forward=False, third_bodies=False)
         dropm = drop - drops
-        rop = self.phase.reverse_rates_of_progress
+        rop = self.gas.reverse_rates_of_progress
         self.assertNear(rop[self.rxn_idx],
-            (dropm[self.rxn_idx] * self.phase.concentrations).sum())
+            (dropm[self.rxn_idx] * self.gas.concentrations).sum())
 
 
 class EdgeCases(RateExpressionTests):
 
     def setUp(self):
-        self.phase = ct.Solution('jacobian-tests.yaml', transport_model=None)
+        self.gas = ct.Solution('jacobian-tests.yaml', transport_model=None)
         #   species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]
-        self.phase.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4]
-        self.phase.TP = 800, 2*ct.one_atm
+        self.gas.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4]
+        self.gas.TP = 800, 2*ct.one_atm
         RateExpressionTests.setUp(self)
 
 

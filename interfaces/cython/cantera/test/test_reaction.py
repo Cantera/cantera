@@ -225,9 +225,18 @@ class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
         self.assertTrue(self.rate.allow_negative_pre_exponential_factor)
 
     def test_standalone(self):
+        # test creation with unsupported alternative units
         yaml = "rate-constant: {A: 4.0e+21 cm^6/mol^2/s, b: 0.0, Ea: 1207.72688}"
         with self.assertRaisesRegex(Exception, "not supported"):
             rate = ct.ReactionRate.from_yaml(yaml)
+
+    def test_derivative(self):
+        # check exact derivative against numerical derivative
+        temp = 1000.
+        dtemp = 1.e-6
+        ddT_exact = self.rate.ddT(temp)
+        ddT_numeric = (self.rate(temp + dtemp) - self.rate(temp)) / dtemp
+        self.assertNear(ddT_exact, ddT_numeric, 1.e-6)
 
 
 class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
