@@ -10,6 +10,7 @@
 
 #include "cantera/base/ct_defs.h"
 #include <cassert>
+#include <numeric>
 
 namespace Cantera
 {
@@ -37,10 +38,11 @@ public:
     void finalizeSetup(size_t nSpc, size_t nRxn)
     {
         // Sparse Efficiency coefficient matrix
-        m_efficiencies.setZero();
-        m_efficiencies.resize(nRxn, nSpc);
-        m_efficiencies.reserve(m_efficiencyList.size());
-        m_efficiencies.setFromTriplets(
+        Eigen::SparseMatrix<double> efficiencies;
+        efficiencies.setZero();
+        efficiencies.resize(nRxn, nSpc);
+        efficiencies.reserve(m_efficiencyList.size());
+        efficiencies.setFromTriplets(
             m_efficiencyList.begin(), m_efficiencyList.end());
 
         // Jacobian matrix multipliers
@@ -56,7 +58,7 @@ public:
         Eigen::SparseMatrix<double> defaults(nRxn, nSpc);
         defaults.reserve(triplets.size());
         defaults.setFromTriplets(triplets.begin(), triplets.end());
-        m_multipliers = m_efficiencies + defaults;
+        m_multipliers = efficiencies + defaults;
     }
 
     void update(const vector_fp& conc, double ctot, double* work) {
@@ -70,6 +72,8 @@ public:
     }
 
     void multiply(double* output, const double* work) {
+        // @TODO: Tests reveal that multiply is usually called exactly once after
+        //      each update.
         for (size_t i = 0; i < m_reaction_index.size(); i++) {
             output[m_reaction_index[i]] *= work[i];
         }
@@ -81,7 +85,8 @@ public:
      */
     Eigen::SparseMatrix<double> speciesDerivatives(const double* product)
     {
-        throw NotImplementedError("ThirdBodyCalc::speciesDerivatives");
+        ConstMappedVector mapped(product, m_multipliers.rows());
+        return mapped.asDiagonal() * m_multipliers;
     }
 
     size_t workSize() {
@@ -101,9 +106,8 @@ protected:
     //! The default efficiency for each reaction
     vector_fp m_default;
 
-    //! Sparse efficiency matrix
+    //! Sparse efficiency matrix (compensated for defaults)
     std::vector<Eigen::Triplet<double>> m_efficiencyList;
-    Eigen::SparseMatrix<double> m_efficiencies;
 
     //! Sparse Jacobian multiplier matrix
     Eigen::SparseMatrix<double> m_multipliers;

@@ -569,14 +569,16 @@ public:
      * concentrations.
      *
      * This derivative is the term of the Jacobian that accounts for the product of
-     * species concentrations in the law of mass action. The method does not include
-     * third-body efficiency effects or rate constants that depend on species
-     * concentrations.
+     * species concentrations in the law of mass action. The method does not consider
+     * rate constants that depend on species concentrations.
+     *
+     * @param thirdbodies   include third body derivatives
      *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::SparseMatrix<double> getFwdRopSpeciesDerivatives()
+    virtual Eigen::SparseMatrix<double> getFwdRopSpeciesDerivatives(
+        bool thirdbodies=true)
     {
         throw NotImplementedError("Kinetics::getFwdRopSpeciesDerivatives");
     }
@@ -586,14 +588,16 @@ public:
      * concentrations.
      *
      * This derivative is the term of the Jacobian that accounts for the product of
-     * species concentrations in the law of mass action. The method does not include
-     * third-body efficiency effects or rate constants that depend on species
-     * concentrations.
+     * species concentrations in the law of mass action. The method does not consider
+     * rate constants that depend on species concentrations.
+     *
+     * @param thirdbodies   include third body derivatives
      *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::SparseMatrix<double> getRevRopSpeciesDerivatives()
+    virtual Eigen::SparseMatrix<double> getRevRopSpeciesDerivatives(
+        bool thirdbodies=true)
     {
         throw NotImplementedError("Kinetics::getRevRopSpeciesDerivatives");
     }
@@ -606,6 +610,7 @@ public:
      * @param values   output vector for non-zero matrix entries
      * @param forward   include forward direction
      * @param reverse   include reverse direction
+     * @param thirdbodies   include third body derivatives
      * @return   number of non-zero entries
      *
      * @warning This method is an experimental part of the %Cantera API and
@@ -613,7 +618,7 @@ public:
      */
     size_t getRopSpeciesDerivatives(
         std::vector<std::pair<int, int>>& indices, vector_fp& values,
-        bool forward, bool reverse);
+        bool forward, bool reverse, bool thirdbodies);
 
     /**
      * Calculate Jacobian for forward rates-of-progress with respect to species
@@ -657,42 +662,48 @@ public:
      * concentrations.
      *
      * This derivative is the term of the Jacobian that accounts for the product of
-     * species concentrations in the law of mass action. The method does not include
-     * third-body efficiency effects or rate constants that depend on species
-     * concentrations.
+     * species concentrations in the law of mass action. The method does not consider
+     * rate constants that depend on species concentrations.
+     *
+     * @param thirdbodies   include third body derivatives
      *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    Eigen::SparseMatrix<double> getCreationRateSpeciesDerivatives();
+    Eigen::SparseMatrix<double> getCreationRateSpeciesDerivatives(
+        bool thirdbodies=true);
 
     /**
      * Calculate Jacobian for species destruction rates with respect to species
      * concentrations.
      *
      * This derivative is the term of the Jacobian that accounts for the product of
-     * species concentrations in the law of mass action. The method does not include
-     * third-body efficiency effects or rate constants that depend on species
-     * concentrations.
+     * species concentrations in the law of mass action. The method does not consider
+     * rate constants that depend on species concentrations.
+     *
+     * @param thirdbodies   include third body derivatives
      *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    Eigen::SparseMatrix<double> getDestructionRateSpeciesDerivatives();
+    Eigen::SparseMatrix<double> getDestructionRateSpeciesDerivatives(
+        bool thirdbodies=true);
 
     /**
      * Calculate Jacobian for species net production rates with respect to species
      * concentrations.
      *
      * This derivative is the term of the Jacobian that accounts for the product of
-     * species concentrations in the law of mass action. The method does not include
-     * third-body efficiency effects or rate constants that depend on species
-     * concentrations.
+     * species concentrations in the law of mass action. The method does not consider
+     * rate constants that depend on species concentrations.
+     *
+     * @param thirdbodies   include third body derivatives
      *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    Eigen::SparseMatrix<double> getNetProductionRateSpeciesDerivatives();
+    Eigen::SparseMatrix<double> getNetProductionRateSpeciesDerivatives(
+        bool thirdbodies=true);
 
     /**
      * Calculate Jacobian for species production rates with respect to species
@@ -702,6 +713,7 @@ public:
      * @param values   output vector for non-zero matrix entries
      * @param creation   include fspecies creation rates
      * @param destruction   include species destruction rates
+     * @param thirdbodies   include third body derivatives
      * @return   number of non-zero entries
      *
      * @warning This method is an experimental part of the %Cantera API and
@@ -709,7 +721,7 @@ public:
      */
     size_t getProductionRateSpeciesDerivatives(
         std::vector<std::pair<int, int>>& indices, vector_fp& values,
-        bool creation, bool destruction);
+        bool creation, bool destruction, bool thirdbodies);
 
     /**
      * Calculate Jacobian for species creation rates with respect to temperature.

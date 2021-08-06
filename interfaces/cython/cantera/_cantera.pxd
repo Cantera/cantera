@@ -580,11 +580,11 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         void setMultiplier(int, double)
 
         size_t getRopSpeciesDerivatives(
-            vector[pair[int, int]]&, vector[double]&, cbool, cbool) except +translate_exception
+            vector[pair[int, int]]&, vector[double]&, cbool, cbool, cbool) except +translate_exception
         void getRopTemperatureDerivatives(
             vector[double]&, cbool, cbool) except +translate_exception
         size_t getProductionRateSpeciesDerivatives(
-            vector[pair[int, int]]&, vector[double]&, cbool, cbool) except +translate_exception
+            vector[pair[int, int]]&, vector[double]&, cbool, cbool, cbool) except +translate_exception
         void getProductionRateTemperatureDerivatives(
             vector[double]&, cbool, cbool) except +translate_exception
 

@@ -389,16 +389,15 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_species_array(self, kin_getNetProductionRates)
 
-    def rop_species_derivatives(self, forward=True, reverse=True):
+    def rop_species_derivatives(self, forward=True, reverse=True, third_bodies=True):
         """
         Calculate Jacobian for rates-of-progress with respect to species
         concentrations. By default, both ``forward`` and ``reverse`` rates are
         considered.
 
         This derivative is the term of the Jacobian that accounts for the product of
-        species concentrations in the law of mass action. The method does not include
-        third-body efficiency effects or rate constants that depend on species
-        concentrations.
+        species concentrations in the law of mass action. The method does not consider
+        rate constants that depend on species concentrations.
 
         Warning: this method is an experimental part of the Cantera API and
             may be changed or removed without notice.
@@ -408,7 +407,7 @@ cdef class Kinetics(_SolutionBase):
         cdef vector[double] values = value_vector(max_size)
 
         size = self.kinetics.getRopSpeciesDerivatives(
-            indices, values, forward, reverse)
+            indices, values, forward, reverse, third_bodies)
         return as_dense(
             indices, values, size, self.n_reactions, self.n_total_species)
 
@@ -427,16 +426,16 @@ cdef class Kinetics(_SolutionBase):
             data[i] = values[i]
         return data
 
-    def production_rate_species_derivatives(self, creation=True, destruction=True):
+    def production_rate_species_derivatives(
+            self, creation=True, destruction=True, third_bodies=True):
         """
         Calculate Jacobian for species production rates with respect to species
         concentrations. By default, both species ``creation`` and ``destruction`` are
         considered.
 
         This derivative is the term of the Jacobian that accounts for the product of
-        species concentrations in the law of mass action. The method does not include
-        third-body efficiency effects or rate constants that depend on species
-        concentrations.
+        species concentrations in the law of mass action. The method does not consider
+        rate constants that depend on species concentrations.
 
         Warning: this method is an experimental part of the Cantera API and
             may be changed or removed without notice.
@@ -446,7 +445,7 @@ cdef class Kinetics(_SolutionBase):
         cdef vector[double] values = value_vector(max_size)
 
         size = self.kinetics.getProductionRateSpeciesDerivatives(
-            indices, values, creation, destruction)
+            indices, values, creation, destruction, third_bodies)
         return as_dense(
             indices, values, size, self.n_total_species, self.n_total_species)
 

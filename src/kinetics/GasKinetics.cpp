@@ -191,7 +191,7 @@ void GasKinetics::processFalloffReactions(vector_fp& ropf)
     }
 }
 
-Eigen::SparseMatrix<double> GasKinetics::getFwdRopSpeciesDerivatives()
+Eigen::SparseMatrix<double> GasKinetics::getFwdRopSpeciesDerivatives(bool thirdbodies)
 {
     Eigen::SparseMatrix<double> jac;
 
@@ -210,23 +210,28 @@ Eigen::SparseMatrix<double> GasKinetics::getFwdRopSpeciesDerivatives()
     jac = m_reactantStoich->speciesDerivatives(
         m_act_conc.data(), m_rop_stoich.data());
 
+    if (!thirdbodies) {
+        return jac;
+    }
+
     // derivatives handled by ThirdBodyCalc
-    std::fill(m_rop_3b.begin(), m_rop_3b.end(), 1.);
+    std::copy(m_rop_rates.begin(), m_rop_rates.end(), m_rop_3b.begin());
     m_reactantStoich->multiply(m_act_conc.data(), m_rop_3b.data());
     if (!concm_3b_values.empty()) {
-        // No need to backport code for legacy routines
+        // Do not support legacy CTI/XML-based reaction rate evaluators
         throw CanteraError("GasKinetics::getFwdRopSpeciesDerivatives",
             "Not supported for legacy input format.");
     }
-    // @TODO implement rest
+    if (!concm_multi_values.empty()) {
+        jac += m_multi_concm->speciesDerivatives(m_rop_3b.data());
+    }
 
     return jac;
 }
 
-Eigen::SparseMatrix<double> GasKinetics::getRevRopSpeciesDerivatives()
+Eigen::SparseMatrix<double> GasKinetics::getRevRopSpeciesDerivatives(bool thirdbodies)
 {
     Eigen::SparseMatrix<double> jac;
-    vector_fp& buffer = m_ropr; // buffer to store intermediate results
 
     update_rates_C();
     update_rates_T();
@@ -236,23 +241,29 @@ Eigen::SparseMatrix<double> GasKinetics::getRevRopSpeciesDerivatives()
 
     // forward reaction rate coefficients
     calcFwdRateCoefficients(m_rop_rates);
+    calcRevRateCoefficients(m_rop_rates, m_rop_rates);
 
     // derivatives handled by StoichManagerN
     std::copy(m_rop_rates.begin(), m_rop_rates.end(), m_rop_stoich.begin());
     applyThirdBodies(m_rop_stoich);
-    calcRevRateCoefficients(m_rop_stoich, buffer);
     jac = m_revProductStoich->speciesDerivatives(
-        m_act_conc.data(), buffer.data());
+        m_act_conc.data(), m_rop_stoich.data());
+
+    if (!thirdbodies) {
+        return jac;
+    }
 
     // derivatives handled by ThirdBodyCalc
-    std::fill(m_rop_3b.begin(), m_rop_3b.end(), 1.);
-    m_reactantStoich->multiply(m_act_conc.data(), m_rop_3b.data());
+    std::copy(m_rop_rates.begin(), m_rop_rates.end(), m_rop_3b.begin());
+    m_productStoich->multiply(m_act_conc.data(), m_rop_3b.data());
     if (!concm_3b_values.empty()) {
-        // No need to backport code for legacy routines
-        throw CanteraError("GasKinetics::getFwdRopSpeciesDerivatives",
+        // Do not support legacy CTI/XML-based reaction rate evaluators
+        throw CanteraError("GasKinetics::getRevRopSpeciesDerivatives",
             "Not supported for legacy input format.");
     }
-    // @TODO implement rest
+    if (!concm_multi_values.empty()) {
+        jac += m_multi_concm->speciesDerivatives(m_rop_3b.data());
+    }
 
     return jac;
 }

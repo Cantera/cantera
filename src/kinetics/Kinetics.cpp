@@ -517,13 +517,16 @@ void Kinetics::getCreationRates(doublereal* cdot)
     m_reactantStoich->incrementSpecies(m_ropr.data(), cdot);
 }
 
-Eigen::SparseMatrix<double> Kinetics::getCreationRateSpeciesDerivatives()
+Eigen::SparseMatrix<double> Kinetics::getCreationRateSpeciesDerivatives(
+    bool thirdbodies)
 {
     Eigen::SparseMatrix<double> jac;
     // the forward direction creates product species
-    jac = m_productStoich->stoichCoeffs() * getFwdRopSpeciesDerivatives();
+    jac = m_productStoich->stoichCoeffs()
+        * getFwdRopSpeciesDerivatives(thirdbodies);
     // the reverse direction creates reactant species
-    jac += m_reactantStoich->stoichCoeffs() * getRevRopSpeciesDerivatives();
+    jac += m_reactantStoich->stoichCoeffs()
+        * getRevRopSpeciesDerivatives(thirdbodies);
     return jac;
 }
 
@@ -548,13 +551,16 @@ void Kinetics::getDestructionRates(doublereal* ddot)
     m_reactantStoich->incrementSpecies(m_ropf.data(), ddot);
 }
 
-Eigen::SparseMatrix<double> Kinetics::getDestructionRateSpeciesDerivatives()
+Eigen::SparseMatrix<double> Kinetics::getDestructionRateSpeciesDerivatives(
+    bool thirdbodies)
 {
     Eigen::SparseMatrix<double> jac;
     // the reverse direction destroys products in reversible reactions
-    jac = m_revProductStoich->stoichCoeffs() * getRevRopSpeciesDerivatives();
+    jac = m_revProductStoich->stoichCoeffs()
+        * getRevRopSpeciesDerivatives(thirdbodies);
     // the forward direction destroys reactants
-    jac += m_reactantStoich->stoichCoeffs() * getFwdRopSpeciesDerivatives();
+    jac += m_reactantStoich->stoichCoeffs()
+        * getFwdRopSpeciesDerivatives(thirdbodies);
     return jac;
 }
 
@@ -579,10 +585,12 @@ void Kinetics::getNetProductionRates(doublereal* net)
     m_reactantStoich->decrementSpecies(m_ropnet.data(), net);
 }
 
-Eigen::SparseMatrix<double> Kinetics::getNetProductionRateSpeciesDerivatives()
+Eigen::SparseMatrix<double> Kinetics::getNetProductionRateSpeciesDerivatives(
+    bool thirdbodies)
 {
     return m_stoichMatrix * (
-        getFwdRopSpeciesDerivatives() - getRevRopSpeciesDerivatives());
+        getFwdRopSpeciesDerivatives(thirdbodies)
+        - getRevRopSpeciesDerivatives(thirdbodies));
 }
 
 Eigen::VectorXd Kinetics::getNetProductionRateTemperatureDerivatives()
@@ -593,30 +601,31 @@ Eigen::VectorXd Kinetics::getNetProductionRateTemperatureDerivatives()
 
 size_t Kinetics::getRopSpeciesDerivatives(
     std::vector<std::pair<int, int>>& indices, vector_fp& values,
-    bool forward, bool reverse)
+    bool forward, bool reverse, bool thirdbodies)
 {
     Eigen::SparseMatrix<double> ret;
     if (forward && reverse) {
-        ret = getFwdRopSpeciesDerivatives() - getRevRopSpeciesDerivatives();
+        ret = getFwdRopSpeciesDerivatives(thirdbodies)
+            - getRevRopSpeciesDerivatives(thirdbodies);
     } else if (forward) {
-        ret = getFwdRopSpeciesDerivatives();
+        ret = getFwdRopSpeciesDerivatives(thirdbodies);
     } else if (reverse) {
-        ret = getRevRopSpeciesDerivatives();
+        ret = getRevRopSpeciesDerivatives(thirdbodies);
     }
     return sparseComponents(ret, indices, values);
 }
 
 size_t Kinetics::getProductionRateSpeciesDerivatives(
     std::vector<std::pair<int, int>>& indices, vector_fp& values,
-    bool creation, bool destruction)
+    bool creation, bool destruction, bool thirdbodies)
 {
     Eigen::SparseMatrix<double> ret;
     if (creation && destruction) {
-        ret = getNetProductionRateSpeciesDerivatives();
+        ret = getNetProductionRateSpeciesDerivatives(thirdbodies);
     } else if (creation) {
-        ret = getCreationRateSpeciesDerivatives();
+        ret = getCreationRateSpeciesDerivatives(thirdbodies);
     } else if (destruction) {
-        ret = getDestructionRateSpeciesDerivatives();
+        ret = getDestructionRateSpeciesDerivatives(thirdbodies);
     }
     return sparseComponents(ret, indices, values);
 }
