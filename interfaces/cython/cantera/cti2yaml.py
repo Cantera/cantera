@@ -1377,7 +1377,7 @@ class IdealSolidSolution(phase):
 
 class table:
     """User provided thermo table for BinarySolutionTabulatedThermo"""
-    def __init__(self, moleFraction=([],''), enthalpy=([],''), entropy=([],''), partialMolarVolume=([],'')):
+    def __init__(self, moleFraction=([],''), enthalpy=([],''), entropy=([],'')):
         """
         :param moleFraction:
             The mole fraction of the tabulated species. Required parameter.
@@ -1385,13 +1385,10 @@ class table:
             The enthalpy of the tabulated species. Required parameter.
         :param entropy:
             The entropy of the tabulated species. Required parameter.
-        :param partialMolarVolume:
-            The partial molar volume of the tabulated species. Required parameter.
         """
         self.x = moleFraction
         self.h = enthalpy
         self.s = entropy
-        self.vbar = partialMolarVolume
 
 
 class BinarySolutionTabulatedThermo(IdealSolidSolution):
@@ -1436,7 +1433,6 @@ class BinarySolutionTabulatedThermo(IdealSolidSolution):
         tabThermo['mole-fractions'] = FlowList(self.tabulated_thermo.x[0])
         tabThermo['enthalpy'] = FlowList(self.tabulated_thermo.h[0])
         tabThermo['entropy'] = FlowList(self.tabulated_thermo.s[0])
-        tabThermo['partialMolarVolume'] = FlowList(self.tabulated_thermo.vbar[0])
         out['tabulated-thermo'] = tabThermo
 
 class lattice(phase):

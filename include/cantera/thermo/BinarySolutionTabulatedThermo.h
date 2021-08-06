@@ -147,8 +147,8 @@ public:
     virtual void getParameters(AnyMap& phaseNode) const;
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id_);
 
-    void getIntegratedPartialMolarVolumes(doublereal* vbar);
-    void getPartialMolarVolumes(doublereal* vbar) const;
+    void getIntegratedPartialMolarVolumes(double* integrated_vbar) const;
+    void getPartialMolarVolumes(double* vbar) const;
     virtual void calcDensity();
 
 protected:
@@ -156,10 +156,12 @@ protected:
     virtual void compositionChanged();
 
     //! Species thermodynamics interpolation functions
-    double interpolate(double x,const vector_fp& molefrac,const vector_fp& inputData) const;
+    double interpolate(double x, const vector_fp& molefrac,
+            const vector_fp& inputData) const;
 
     //! Piecewise trapezoidal integration of the partial molar volume table
-    void integrate(vector_fp& inputData,vector_fp& integratedData,vector_fp& moleFraction);
+    void integrate(vector_fp& inputData, vector_fp& integratedData,
+            vector_fp& moleFraction);
 
     //! Current tabulated species index
     size_t m_kk_tab;

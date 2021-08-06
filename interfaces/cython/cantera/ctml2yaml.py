@@ -1244,24 +1244,7 @@ class Phase:
                 "The number of entries in the mole_fraction list is different from the "
                 "indicated size."
             )
-        partial_molar_volume_node = tab_thermo_node.find("partialMolarVolume")
-        if partial_molar_volume_node is None:
-            raise MissingXMLNode(
-                "The 'tabulatedThermo' node must have a 'partialMolarVolume' node.",
-                tab_thermo_node,
-            )
-        partialMolarVolume_units = partial_molar_volume_node.get("units", "").split("/")
-        if not partialMolarVolume_units:
-            raise MissingXMLAttribute(
-                "The 'partialMolarVolume' node must have a 'units' attribute.", partial_molar_volume_node,
-            )
-        partial_molar_volume = clean_node_text(partial_molar_volume_node).split(",")
-        tab_thermo["partialMolarVolume"] = FlowList(map(float, partial_molar_volume))
-        if len(partial_molar_volume) != int(partial_molar_volume_node.get("size", 0)):
-            raise ValueError(
-                "The number of entries in the partial_molar_volume list is different from the "
-                "indicated size."
-            )
+
         return tab_thermo
 
     def hmw_electrolyte(
