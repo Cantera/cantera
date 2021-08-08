@@ -230,7 +230,7 @@ public:
     virtual double ddTscaled(const DataType& shared_data,
                              double concm=0., bool silent=false) const {
         if (silent) {
-            return NAN;
+            return NAN; // sentinel value
         }
         throw CanteraError("ReactionRate::ddTscaled",
             "Not implemented by derived ReactionRate object.");

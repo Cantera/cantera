@@ -411,7 +411,7 @@ cdef class Kinetics(_SolutionBase):
         return as_dense(
             indices, values, size, self.n_reactions, self.n_total_species)
 
-    def rop_temperature_derivatives(self, forward=True, reverse=True):
+    def rop_temperature_derivatives(self, forward=True, reverse=True, approx=True):
         """
         Calculate Jacobian for rates-of-progress with respect to temperature.
         By default, both ``forward`` and ``reverse`` rates are considered.
@@ -420,7 +420,7 @@ cdef class Kinetics(_SolutionBase):
             may be changed or removed without notice.
         """
         cdef vector[double] values = value_vector(self.n_reactions)
-        self.kinetics.getRopTemperatureDerivatives(values, forward, reverse)
+        self.kinetics.getRopTemperatureDerivatives(values, forward, reverse, approx)
         data = np.zeros((self.n_reactions))
         for i in xrange(self.n_reactions):
             data[i] = values[i]
@@ -449,7 +449,8 @@ cdef class Kinetics(_SolutionBase):
         return as_dense(
             indices, values, size, self.n_total_species, self.n_total_species)
 
-    def production_rate_temperature_derivatives(self, creation=True, destruction=True):
+    def production_rate_temperature_derivatives(
+            self, creation=True, destruction=True, approx=True):
         """
         Calculate Jacobian for species production rates with respect to temperature.
         By default, both species ``creation`` and ``destruction`` are considered.
@@ -459,7 +460,7 @@ cdef class Kinetics(_SolutionBase):
         """
         cdef vector[double] values = value_vector(self.n_total_species)
         self.kinetics.getProductionRateTemperatureDerivatives(
-            values, creation, destruction)
+            values, creation, destruction, approx)
         data = np.zeros((self.n_total_species))
         for i in xrange(self.n_total_species):
             data[i] = values[i]

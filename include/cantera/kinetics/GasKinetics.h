@@ -70,8 +70,9 @@ public:
         bool thirdbodies=true);
     virtual Eigen::SparseMatrix<double> getRevRopSpeciesDerivatives(
         bool thirdbodies=true);
-    virtual Eigen::VectorXd getFwdRopTemperatureDerivatives();
-    virtual Eigen::VectorXd getRevRopTemperatureDerivatives();
+    virtual Eigen::VectorXd getFwdRopTemperatureDerivatives(bool approx=true);
+    virtual Eigen::VectorXd getRevRopTemperatureDerivatives(bool approx=true);
+    virtual Eigen::VectorXd getNetRopTemperatureDerivatives(bool approx=true);
 
     //! Update temperature-dependent portions of reaction rates and falloff
     //! functions.

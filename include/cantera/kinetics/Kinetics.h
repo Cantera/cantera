@@ -624,25 +624,34 @@ public:
      * Calculate Jacobian for forward rates-of-progress with respect to species
      * temperature.
      *
+     * @param approx   use numerical approximation
+     *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::VectorXd getFwdRopTemperatureDerivatives()
-    {
-        throw NotImplementedError("Kinetics::getFwdRopTemperatureDerivatives");
-    }
+    virtual Eigen::VectorXd getFwdRopTemperatureDerivatives(bool approx=true);
 
     /**
      * Calculate Jacobian for reverse rates-of-progress with respect to species
      * temperature.
      *
+     * @param approx   use numerical approximation
+     *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::VectorXd getRevRopTemperatureDerivatives()
-    {
-        throw NotImplementedError("Kinetics::getRevRopTemperatureDerivatives");
-    }
+    virtual Eigen::VectorXd getRevRopTemperatureDerivatives(bool approx=true);
+
+    /**
+     * Calculate Jacobian for net rates-of-progress with respect to species
+     * temperature.
+     *
+     * @param approx   use numerical approximation
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::VectorXd getNetRopTemperatureDerivatives(bool approx=true);
 
      /**
      * Calculate Jacobian for rates-of-progress with respect to temperature.
@@ -651,11 +660,13 @@ public:
      * @param values   output vector for non-zero matrix entries
      * @param forward   include forward direction
      * @param reverse   include reverse direction
+     * @param approx   use numerical approximation
      *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    void getRopTemperatureDerivatives(vector_fp& values, bool forward, bool reverse);
+    void getRopTemperatureDerivatives(
+        vector_fp& values, bool forward, bool reverse, bool approx);
 
     /**
      * Calculate Jacobian for species creation rates with respect to species
@@ -726,26 +737,32 @@ public:
     /**
      * Calculate Jacobian for species creation rates with respect to temperature.
      *
+     * @param approx   use numerical approximation
+     *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    Eigen::VectorXd getCreationRateTemperatureDerivatives();
+    Eigen::VectorXd getCreationRateTemperatureDerivatives(bool approx=true);
 
     /**
      * Calculate Jacobian for species destruction rates with respect to temperature.
      *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
-     */
-    Eigen::VectorXd getDestructionRateTemperatureDerivatives();
-
-    /**
-     * Calculate Jacobian for species net production rates with respect to temperature.
+     * @param approx   use numerical approximation
      *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    Eigen::VectorXd getNetProductionRateTemperatureDerivatives();
+    Eigen::VectorXd getDestructionRateTemperatureDerivatives(bool approx=true);
+
+    /**
+     * Calculate Jacobian for species net production rates with respect to temperature.
+     *
+     * @param approx   use numerical approximation
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    Eigen::VectorXd getNetProductionRateTemperatureDerivatives(bool approx=true);
 
      /**
      * Calculate Jacobian for species production rates with respect to temperature.
@@ -754,12 +771,13 @@ public:
      * @param values   output vector for non-zero matrix entries
      * @param forward   include forward direction
      * @param reverse   include reverse direction
+     * @param approx   use numerical approximation
      *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
     void getProductionRateTemperatureDerivatives(
-        vector_fp& values, bool forward, bool reverse);
+        vector_fp& values, bool forward, bool reverse, bool approx);
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines
@@ -1095,6 +1113,9 @@ public:
 protected:
     //! Cache for saved calculations within each Kinetics object.
     ValueCache m_cache;
+
+    //! Internal function to calculate numerical temperature derivative
+    Eigen::VectorXd ropTemperatureDerivatives(bool forward, double dT=1.e-6);
 
     // Update internal rate-of-progress variables #m_ropf and #m_ropr.
     /*!

@@ -195,8 +195,6 @@ Eigen::SparseMatrix<double> GasKinetics::getFwdRopSpeciesDerivatives(bool thirdb
 {
     Eigen::SparseMatrix<double> jac;
 
-    update_rates_C();
-    update_rates_T();
     if (!m_finalized) {
         finalizeSetup();
     }
@@ -233,8 +231,6 @@ Eigen::SparseMatrix<double> GasKinetics::getRevRopSpeciesDerivatives(bool thirdb
 {
     Eigen::SparseMatrix<double> jac;
 
-    update_rates_C();
-    update_rates_T();
     if (!m_finalized) {
         finalizeSetup();
     }
@@ -268,32 +264,52 @@ Eigen::SparseMatrix<double> GasKinetics::getRevRopSpeciesDerivatives(bool thirdb
     return jac;
 }
 
-Eigen::VectorXd GasKinetics::getFwdRopTemperatureDerivatives()
+Eigen::VectorXd GasKinetics::getFwdRopTemperatureDerivatives(bool approx)
 {
-    updateROP();
+    if (approx) {
+        return Kinetics::getFwdRopTemperatureDerivatives(approx);
+    }
 
     Eigen::VectorXd out(nReactions());
+    updateROP();
     out.fill(NAN);
     for (auto& rates : m_bulk_rates) {
         rates->getScaledRateConstantTemperatureDerivatives(
             thermo(), out.data(), m_concm.data());
     }
-
     out.array() *= MappedVector(m_ropf.data(), nReactions()).array();
     return out;
 }
 
-Eigen::VectorXd GasKinetics::getRevRopTemperatureDerivatives()
+Eigen::VectorXd GasKinetics::getRevRopTemperatureDerivatives(bool approx)
 {
-    throw NotImplementedError("GasKinetics::getRevRopTemperatureDerivatives");
-    Eigen::VectorXd out(nReactions());
-    out.fill(NAN);
+    if (approx) {
+        return Kinetics::getRevRopTemperatureDerivatives(approx);
+    }
+
+    // @TODO look at temperature derivatives of equilibrium constants
+    throw CanteraError("GasKinetics::getRevRopTemperatureDerivatives",
+        "Exact reverse rates-of-progress temperature derivatives "
+        "are not implemented.\nUse numerical approximation instead.");
+}
+
+Eigen::VectorXd GasKinetics::getNetRopTemperatureDerivatives(bool approx)
+{
+    if (approx) {
+        return Kinetics::getNetRopTemperatureDerivatives(approx);
+    }
+
+    // @TODO look at temperature derivatives of equilibrium constants
+    throw CanteraError("GasKinetics::getRevNetTemperatureDerivatives",
+        "Exact net rates-of-progress temperature derivatives "
+        "are not implemented.\nUse numerical approximation instead.");
 }
 
 void GasKinetics::updateROP()
 {
-    update_rates_C();
-    update_rates_T();
+    if (!m_finalized) {
+        finalizeSetup();
+    }
 
     calcFwdRateCoefficients(m_ropf);
     applyThirdBodies(m_ropf);
@@ -322,6 +338,9 @@ void GasKinetics::updateROP()
 
  void GasKinetics::calcFwdRateCoefficients(vector_fp& ropf)
  {
+    update_rates_C();
+    update_rates_T();
+
     // copy rate coefficients into ropf
     ropf = m_rfn;
 
@@ -359,9 +378,6 @@ void GasKinetics::calcRevRateCoefficients(const vector_fp& ropf, vector_fp& ropr
 
 void GasKinetics::getFwdRateConstants(doublereal* kfwd)
 {
-    update_rates_C();
-    update_rates_T();
-
     calcFwdRateCoefficients(m_ropf);
     if (legacy_rate_constants_used()) {
         warn_deprecated("GasKinetics::getFwdRateConstants",
