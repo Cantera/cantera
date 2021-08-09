@@ -165,6 +165,7 @@ class TestTransport(utilities.CanteraTest):
         visc2_h2 = self.phase['H2'].species_viscosities[0]
         self.phase.modify_viscosity_polynomial(self.phase.species_index('H2'), mu_poly_h2)
         visc3_h2 = self.phase['H2'].species_viscosities[0]
+        self.assertTrue(visc1_h2o != visc1_h2)
         self.assertEqual(visc1_h2o, visc2_h2)
         self.assertEqual(visc1_h2, visc3_h2)
                             
@@ -179,22 +180,11 @@ class TestTransport(utilities.CanteraTest):
         cond2_h2 = self.phase.thermal_conductivity
         self.phase.modify_thermal_conductivity_polynomial(self.phase.species_index('H2'), lambda_poly_h2)
         cond3_h2 = self.phase.thermal_conductivity
+        self.assertTrue(cond1_o2 != cond1_h2)
         self.assertEqual(cond1_o2, cond2_h2)
         self.assertEqual(cond1_h2, cond3_h2)
                             
-    def test_transport_polynomial_fits_collision(self):
-        astar1, bstar1, cstar1 = self.phase.collision_integral_polynomials(self.phase.species_index('O2'),
-                                                                        self.phase.species_index('H2'))
-        self.phase.modify_collision_integral_polynomials(self.phase.species_index('O2'), 
-                                                        self.phase.species_index('H2'), 
-                                                        astar1, bstar1, cstar1)
-        astar2, bstar2, cstar2 = self.phase.collision_integral_polynomials(self.phase.species_index('O2'),
-                                                                        self.phase.species_index('H2'))
-        self.assertEqual(astar1, astar2)
-        self.assertEqual(bstar1, bstar2)
-        self.assertEqual(cstar1, cstar2)
-                            
-    def test_transport_polynomial_fits_collision(self):
+    def test_transport_polynomial_fits_diffusion(self):
         D12 = self.phase.binary_diff_coeffs[1, 2]
         D23 = self.phase.binary_diff_coeffs[2, 3]
         bd_poly_12 = self.phase.binary_diff_coeffs_polynomial(1, 2)
@@ -207,6 +197,7 @@ class TestTransport(utilities.CanteraTest):
         self.phase.modify_binary_diff_coeffs_polynomial(2, 3, bd_poly_23)
         D12new = self.phase.binary_diff_coeffs[1, 2]
         D23new = self.phase.binary_diff_coeffs[2, 3]
+        self.assertTrue(D12 != D23)
         self.assertEqual(D12, D23mod)
         self.assertEqual(D23, D12mod)
         self.assertEqual(D12, D12new)
