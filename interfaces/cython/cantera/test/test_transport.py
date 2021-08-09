@@ -155,7 +155,62 @@ class TestTransport(utilities.CanteraTest):
             self.phase.TP = 800, 5*ct.one_atm
             self.assertNear(self.phase[species_name].species_viscosities[0],
                             visc)
-
+                            
+    def test_transport_polynomial_fits_viscosity(self):
+        visc1_h2o = self.phase['H2O'].species_viscosities[0]
+        mu_poly_h2o = self.phase.viscosity_polynomial(self.phase.species_index('H2O'))        
+        visc1_h2 = self.phase['H2'].species_viscosities[0]
+        mu_poly_h2 = self.phase.viscosity_polynomial(self.phase.species_index('H2'))
+        self.phase.modify_viscosity_polynomial(self.phase.species_index('H2'), mu_poly_h2o)
+        visc2_h2 = self.phase['H2'].species_viscosities[0]
+        self.phase.modify_viscosity_polynomial(self.phase.species_index('H2'), mu_poly_h2)
+        visc3_h2 = self.phase['H2'].species_viscosities[0]
+        self.assertEqual(visc1_h2o, visc2_h2)
+        self.assertEqual(visc1_h2, visc3_h2)
+                            
+    def test_transport_polynomial_fits_conductivity(self):
+        self.phase.X = {'O2': 1}
+        cond1_o2 = self.phase.thermal_conductivity
+        lambda_poly_o2 = self.phase.thermal_conductivity_polynomial(self.phase.species_index('O2'))  
+        self.phase.X = {'H2': 1}      
+        cond1_h2 = self.phase.thermal_conductivity
+        lambda_poly_h2 = self.phase.thermal_conductivity_polynomial(self.phase.species_index('H2'))
+        self.phase.modify_thermal_conductivity_polynomial(self.phase.species_index('H2'), lambda_poly_o2)
+        cond2_h2 = self.phase.thermal_conductivity
+        self.phase.modify_thermal_conductivity_polynomial(self.phase.species_index('H2'), lambda_poly_h2)
+        cond3_h2 = self.phase.thermal_conductivity
+        self.assertEqual(cond1_o2, cond2_h2)
+        self.assertEqual(cond1_h2, cond3_h2)
+                            
+    def test_transport_polynomial_fits_collision(self):
+        astar1, bstar1, cstar1 = self.phase.collision_integral_polynomials(self.phase.species_index('O2'),
+                                                                        self.phase.species_index('H2'))
+        self.phase.modify_collision_integral_polynomials(self.phase.species_index('O2'), 
+                                                        self.phase.species_index('H2'), 
+                                                        astar1, bstar1, cstar1)
+        astar2, bstar2, cstar2 = self.phase.collision_integral_polynomials(self.phase.species_index('O2'),
+                                                                        self.phase.species_index('H2'))
+        self.assertEqual(astar1, astar2)
+        self.assertEqual(bstar1, bstar2)
+        self.assertEqual(cstar1, cstar2)
+                            
+    def test_transport_polynomial_fits_collision(self):
+        D12 = self.phase.binary_diff_coeffs[1, 2]
+        D23 = self.phase.binary_diff_coeffs[2, 3]
+        bd_poly_12 = self.phase.binary_diff_coeffs_polynomial(1, 2)
+        bd_poly_23 = self.phase.binary_diff_coeffs_polynomial(2, 3)
+        self.phase.modify_binary_diff_coeffs_polynomial(1, 2, bd_poly_23)
+        self.phase.modify_binary_diff_coeffs_polynomial(2, 3, bd_poly_12)
+        D12mod = self.phase.binary_diff_coeffs[1, 2]
+        D23mod = self.phase.binary_diff_coeffs[2, 3]
+        self.phase.modify_binary_diff_coeffs_polynomial(1, 2, bd_poly_12)
+        self.phase.modify_binary_diff_coeffs_polynomial(2, 3, bd_poly_23)
+        D12new = self.phase.binary_diff_coeffs[1, 2]
+        D23new = self.phase.binary_diff_coeffs[2, 3]
+        self.assertEqual(D12, D23mod)
+        self.assertEqual(D23, D12mod)
+        self.assertEqual(D12, D12new)
+        self.assertEqual(D23, D23new)
 
 class TestIonTransport(utilities.CanteraTest):
     def setUp(self):
