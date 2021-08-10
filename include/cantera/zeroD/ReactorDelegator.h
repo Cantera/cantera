@@ -183,29 +183,6 @@ public:
         }
     }
 
-    // For functions with the signature void(double, double*)
-    virtual void setDelegate(
-        const std::string& name,
-        const std::function<void(std::array<size_t, 1>, double, double*)>& func,
-        const std::string& when) override
-    {
-        if (name == "eval") {
-            m_eval = makeDelegate<1>(func,
-                [this]() {
-                    return std::array<size_t, 1>{R::neq()};
-                },
-                when,
-                [this](double t, double* LHS, double* RHS) {
-                    R::eval(t, LHS, RHS);
-                }
-            );
-        } else {
-            throw NotImplementedError("ReactorDelegator::setDelegate",
-                "For function named '{}' with signature"
-                "void(array<size_t, 1>, double, double*)", name);
-        }
-    }
-
     // For functions with the signature double(double, double*)
     virtual void setDelegate(
         const std::string& name,
@@ -272,6 +249,29 @@ public:
             throw NotImplementedError("ReactorDelegator::setDelegate",
                 "For function named '{}' with signature"
                 " void(size_t&, string)", name);
+        }
+    }
+
+    // For functions with the signature void(double, double*, double*)
+    virtual void setDelegate(
+        const std::string& name,
+        const std::function<void(std::array<size_t, 2>, double, double*, double*)>& func,
+        const std::string& when) override
+    {
+        if (name == "eval") {
+            m_eval = makeDelegate<2>(func,
+                [this]() {
+                    return std::array<size_t, 2>{R::neq(), R::neq()};
+                },
+                when,
+                [this](double t, double* LHS, double* RHS) {
+                    R::eval(t, LHS, RHS);
+                }
+            );
+        } else {
+            throw NotImplementedError("ReactorDelegator::setDelegate",
+                "For function named '{}' with signature"
+                "void(array<size_t, 2>, double, double*, double*)", name);
         }
     }
 

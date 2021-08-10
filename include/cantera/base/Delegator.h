@@ -92,6 +92,17 @@ public:
     }
 
     //! A method overridden in derived classes to set delegates for member
+    //! functions with the signature `void(double, double*, double*)`
+    virtual void setDelegate(
+        const std::string& name,
+        const std::function<void(std::array <size_t, 2>, double, double*, double*)>& func,
+        const std::string& when)
+    {
+        throw NotImplementedError("Delegator::setDelegate"
+            " for void(array<size_t, 2>, double, double*, double*)");
+    }
+
+    //! A method overridden in derived classes to set delegates for member
     //! functions with the signature `double(double, double*)`
     virtual void setDelegate(
         const std::string& name,
@@ -123,14 +134,6 @@ public:
         throw NotImplementedError("Delegator::setDelegate"
             " for void(size_t&, string)");
     }
-
-    //! A method overridden in derived classes to set delegates for member
-    //! functions with the signature `void(double, double*, double*)`
-    virtual void setDelegate(
-        const std::string& name,
-        const std::function<void(std::array size_t, 1>, doouble, double*, double*)>& func,
-        const std::string& when)
-    )
 
 protected:
     //! Create a delegate for a function with no return value and no array

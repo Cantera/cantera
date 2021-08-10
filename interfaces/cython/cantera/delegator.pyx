@@ -98,6 +98,17 @@ cdef int callback_i_zr_csr(PyFuncInfo& funcInfo, size_t& out, const string& arg)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
     return -1
 
+# Wrapper for functions of type void(double, double*, double*)
+cdef void callback_v_d_dp_dp(PyFuncInfo& funcInfo, size_array2 sizes, double arg1,
+                                double* arg2, double* arg3):
+    cdef double[:] view = <double[:sizes[0]]>arg2 if sizes[0] else None
+
+    try:
+        (<object>funcInfo.func())(arg1, view)
+    except BaseException as e:
+        exc_type, exc_value = sys.exc_info()[:2]
+        funcInfo.setExceptionType(<PyObject*>exc_type)
+        funcInfo.setExceptionValue(<PyObject*>exc_value)
 
 cdef void assign_delegates(obj, CxxDelegator* delegator):
     """
@@ -176,3 +187,6 @@ cdef void assign_delegates(obj, CxxDelegator* delegator):
         if callback == 'size_t(string)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_i_zr_csr), cxx_when)
+        if callback == 'void(double,double*,double*)':
+            delegator.setDelegate(cxx_name,
+                pyOverride(<PyObject*>method, callback_v_d_dp_dp), cxx_when)

@@ -26,6 +26,7 @@ Reactor::Reactor() :
     m_mass(0.0),
     m_chem(false),
     m_energy(true),
+    m_nv(0)
 {}
 
 void Reactor::insert(shared_ptr<Solution> sol) {
