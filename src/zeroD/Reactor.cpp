@@ -202,7 +202,7 @@ void Reactor::updateConnected(bool updatePressure) {
 void Reactor::eval(double time, double* LHS, double* RHS) //argument will be pointing at start of info for nth reactor in reactor network
 {
     double& dmdt = RHS[0]; // dm/dt (gas phase)
-    double* dYdt = RHS + 2; //dYdt is a pointer to a double, pointing to the 2nd element in the m_RHS vector
+    double* dYdt = RHS + 3; //dYdt is a pointer to a double, pointing to the 3rd element in the m_RHS vector
 
     dmdt = 0.0;
 
@@ -223,9 +223,10 @@ void Reactor::eval(double time, double* LHS, double* RHS) //argument will be poi
 
     for (size_t k = 0; k < m_nsp; k++) {
         // production in gas phase and from surfaces
-        dYdt[k] = (m_wdot[k] * m_vol + m_sdot[k]) * mw[k] / m_mass;
+        dYdt[k] = (m_wdot[k] * m_vol + m_sdot[k]) * mw[k];
         // dilution by net surface mass flux
-        dYdt[k] -= Y[k] * mdot_surf / m_mass;
+        dYdt[k] -= Y[k] * mdot_surf;
+        LHS[k+3] = m_mass;
     }
 
     // Energy equation.
@@ -254,7 +255,7 @@ void Reactor::eval(double time, double* LHS, double* RHS) //argument will be poi
         for (size_t n = 0; n < m_nsp; n++) {
             double mdot_spec = inlet->outletSpeciesMassFlowRate(n);
             // flow of species into system and dilution by other species
-            dYdt[n] += (mdot_spec - mdot * Y[n]) / m_mass;
+            dYdt[n] += (mdot_spec - mdot * Y[n]);
         }
         if (m_energy) {
             RHS[2] += mdot * inlet->enthalpy_mass();

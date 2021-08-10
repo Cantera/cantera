@@ -439,7 +439,7 @@ cdef class DelegatedReactor(Reactor):
         Responsible for storing properties which may be accessed by connected
         reactors, and for updating the mass flow rates of connected flow devices.
 
-    ``eval(self, t : double, ydot : double[:]) -> None``
+    ``eval(self, t : double, LHS : double[:], RHS : double[:]) -> None``
         Responsible for calculating the time derivative of the state ``ydot``
         (length `n_vars`) at time ``t`` based on the current state of the
         reactor.
@@ -477,7 +477,7 @@ cdef class DelegatedReactor(Reactor):
         'update_surface_state': ('updateSurfaceState', 'void(double*)'),
         'get_surface_initial_conditions': ('getSurfaceInitialConditions', 'void(double*)'),
         'update_connected': ('updateConnected', 'void(bool)'),
-        'eval': ('eval', 'void(double, double*)'),
+        'eval': ('eval', 'void(double, double*, double*)'),
         'eval_walls': ('evalWalls', 'void(double)'),
         'eval_surfaces': ('evalSurfaces', 'double(double,double*)'),
         'component_name': ('componentName', 'string(size_t)'),
