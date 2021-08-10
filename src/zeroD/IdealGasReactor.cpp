@@ -97,9 +97,11 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
         mcvdTdt -= m_wdot[n] * m_uk[n] * m_vol;
         mcvdTdt -= m_sdot[n] * m_uk[n];
         // production in gas phase and from surfaces
-        dYdt[n] = (m_wdot[n] * m_vol + m_sdot[n]) * mw[n] / m_mass;
+        dYdt[n] = (m_wdot[n] * m_vol + m_sdot[n]) * mw[n];
         // dilution by net surface mass flux
-        dYdt[n] -= Y[n] * mdot_surf / m_mass;
+        dYdt[n] -= Y[n] * mdot_surf;
+        //Assign left-hand side of dYdt ODE as total mass
+        LHS[n+3] = m_mass;
     }
 
     // add terms for outlets
@@ -117,18 +119,20 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
         for (size_t n = 0; n < m_nsp; n++) {
             double mdot_spec = inlet->outletSpeciesMassFlowRate(n);
             // flow of species into system and dilution by other species
-            dYdt[n] += (mdot_spec - mdot * Y[n]) / m_mass;
+            dYdt[n] += mdot_spec - mdot * Y[n];
 
             // In combination with h_in*mdot_in, flow work plus thermal
             // energy carried with the species
             mcvdTdt -= m_uk[n] / mw[n] * mdot_spec;
+
         }
     }
 
-    RHS[0] = dmdt;
+    RHS[0] = dmdt; //redundant?
     RHS[1] = m_vdot;
     if (m_energy) {
-        RHS[2] = mcvdTdt / (m_mass * m_thermo->cv_mass());
+        RHS[2] = mcvdTdt;
+        LHS[2] = m_mass * m_thermo->cv_mass();
     } else {
         RHS[2] = 0;
     }

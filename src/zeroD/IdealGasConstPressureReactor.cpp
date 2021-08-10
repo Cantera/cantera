@@ -97,10 +97,11 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
         mcpdTdt -= (m_wdot[n] * m_hk[n] * m_vol);
         mcpdTdt -= (m_sdot[n] * m_hk[n]);
         // production in gas phase and from surfaces
-        RHS[n+2] = (m_wdot[n] * m_vol + m_sdot[n]) * mw[n];
-        LHS[n+2] = m_mass;
+        dYdt[n] = (m_wdot[n] * m_vol + m_sdot[n]) * mw[n];
         // dilution by net surface mass flux
-        dYdt[n] -= (Y[n] * mdot_surf / m_mass); //fix later (LHS reassignment)
+        dYdt[n] -= Y[n] * mdot_surf;
+        //Assign left-hand side of dYdt ODE as total mass
+        LHS[n+2] = m_mass;
     }
 
     // add terms for outlets
@@ -116,15 +117,15 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
         for (size_t n = 0; n < m_nsp; n++) {
             double mdot_spec = inlet->outletSpeciesMassFlowRate(n);
             // flow of species into system and dilution by other species
-            dYdt[n] += ((mdot_spec - mdot * Y[n]) / m_mass);
+            dYdt[n] += mdot_spec - mdot * Y[n];
             mcpdTdt -= (m_hk[n] / mw[n] * mdot_spec);
         }
     }
 
-    //dYdt[n] = (dYdt[n])*m_userLHS[n+3] + m_userm_RHS[n+3]; //user will need to define the soot creation rate for each species (defined in coupled ODEs) How to implement that?
     RHS[0] = dmdt;
     if (m_energy) {
-        RHS[1] = mcpdTdt / (m_mass * m_thermo->cp_mass());
+        RHS[1] = mcpdTdt;
+        LHS[1] = m_mass * m_thermo->cp_mass();
     } else {
         RHS[1] = 0.0;
     }
