@@ -495,7 +495,6 @@ public:
     virtual std::string type() const {
         return "elementary";
     }
-    virtual void getParameters(AnyMap& reactionNode) const;
 };
 
 
@@ -540,7 +539,6 @@ public:
     virtual std::string type() const {
         return "pressure-dependent-Arrhenius";
     }
-    virtual void getParameters(AnyMap& reactionNode) const;
 };
 
 
@@ -558,8 +556,6 @@ public:
     virtual std::string type() const {
         return "Chebyshev";
     }
-
-    virtual void getParameters(AnyMap& reactionNode) const;
 };
 
 
