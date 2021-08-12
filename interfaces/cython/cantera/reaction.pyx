@@ -20,7 +20,7 @@ cdef class ReactionRate:
     _reaction_rate_type = ""
 
     def __repr__(self):
-        return f"<{pystr(self.rate.type())} at {id(self):0x}>"
+        return f"<{type(self).__name__} at {id(self):0x}>"
 
     def __call__(self, double temperature, pressure=None):
         """
