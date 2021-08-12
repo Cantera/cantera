@@ -142,7 +142,7 @@ cdef class ArrheniusRate(ReactionRate):
     where ``A`` is the `pre_exponential_factor`, ``b`` is the `temperature_exponent`,
     and ``Ea`` is the `activation_energy`.
     """
-    _reaction_rate_type = "ArrheniusRate"
+    _reaction_rate_type = "Arrhenius"
 
     def __cinit__(self, A=None, b=None, Ea=None, input_data=None, init=True):
 
@@ -200,7 +200,7 @@ cdef class PlogRate(ReactionRate):
     A pressure-dependent reaction rate parameterized by logarithmically
     interpolating between Arrhenius rate expressions at various pressures.
     """
-    _reaction_rate_type = "PlogRate"
+    _reaction_rate_type = "pressure-dependent-Arrhenius"
 
     def __cinit__(self, rates=None, input_data=None, init=True):
 
@@ -253,7 +253,7 @@ cdef class ChebyshevRate(ReactionRate):
     A pressure-dependent reaction rate parameterized by a bivariate Chebyshev
     polynomial in temperature and pressure.
     """
-    _reaction_rate_type = "ChebyshevRate"
+    _reaction_rate_type = "Chebyshev"
 
     def __cinit__(self, Tmin=None, Tmax=None, Pmin=None, Pmax=None, data=None,
                   input_data=None, init=True):
@@ -345,7 +345,7 @@ cdef class CustomRate(ReactionRate):
     Warning: this class is an experimental part of the Cantera API and
         may be changed or removed without notice.
     """
-    _reaction_rate_type = "custom-function"
+    _reaction_rate_type = "custom-rate-function"
 
     def __cinit__(self, k=None, init=True):
 

@@ -20,30 +20,27 @@ std::mutex ReactionRateFactory::rate_mutex;
 ReactionRateFactory::ReactionRateFactory()
 {
     // ArrheniusRate evaluator
-    reg("ArrheniusRate", [](const AnyMap& node, const Units& rate_units) {
+    reg("Arrhenius", [](const AnyMap& node, const Units& rate_units) {
         return new ArrheniusRate(node, rate_units);
     });
-    addAlias("ArrheniusRate", "");
-    addAlias("ArrheniusRate", "elementary");
-    addAlias("ArrheniusRate", "three-body");
+    addAlias("Arrhenius", "");
+    addAlias("Arrhenius", "elementary");
+    addAlias("Arrhenius", "three-body");
 
     // PlogRate evaluator
-    reg("PlogRate", [](const AnyMap& node, const Units& rate_units) {
+    reg("pressure-dependent-Arrhenius", [](const AnyMap& node, const Units& rate_units) {
         return new PlogRate(node, rate_units);
     });
-    addAlias("PlogRate", "pressure-dependent-Arrhenius");
 
     // ChebyshevRate evaluator
-    reg("ChebyshevRate", [](const AnyMap& node, const Units& rate_units) {
+    reg("Chebyshev", [](const AnyMap& node, const Units& rate_units) {
         return new ChebyshevRate3(node, rate_units);
     });
-    addAlias("ChebyshevRate", "Chebyshev");
 
     // CustomFunc1Rate evaluator
-    reg("custom-function", [](const AnyMap& node, const Units& rate_units) {
+    reg("custom-rate-function", [](const AnyMap& node, const Units& rate_units) {
         return new CustomFunc1Rate(node, rate_units);
     });
-    addAlias("custom-function", "custom-rate-function");
 }
 
 shared_ptr<ReactionRateBase> newReactionRate(const std::string& type)
@@ -83,16 +80,6 @@ shared_ptr<ReactionRateBase> newReactionRate(const AnyMap& rate_node)
     }
     AnyMap node(rate_node);
     return newReactionRate(node, Units(0.));
-}
-
-std::string canonicalRateName(const std::string& type)
-{
-    if (ReactionRateFactory::factory()->exists(type)) {
-        return ReactionRateFactory::factory()->canonicalize(type);
-    }
-
-    throw CanteraError("ReactionRateFactory::canonicalRateName",
-        "Unknown reaction rate type alias '{}'.", type);
 }
 
 }

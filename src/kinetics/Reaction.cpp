@@ -196,13 +196,8 @@ void Reaction::setRate(shared_ptr<ReactionRateBase> rate)
     if (!rate) {
         // null pointer
         m_rate.reset();
-    } else if (canonicalRateName(type()) == rate->type()) {
-        m_rate = rate;
     } else {
-        throw CanteraError("Reaction::setRate",
-            "Mismatched reaction rate types: reaction type '{}' requires\n"
-            "rate with type '{}' but received rate object with\n"
-            "type '{}'.", type(), canonicalRateName(type()), rate->type());
+        m_rate = rate;
     }
 }
 
