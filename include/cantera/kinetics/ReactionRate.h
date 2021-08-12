@@ -258,7 +258,7 @@ public:
     virtual void getParameters(AnyMap& rateNode,
                                const Units& rate_units) const override;
 
-    virtual std::string type() const override { return "ArrheniusRate"; }
+    virtual std::string type() const override { return "Arrhenius"; }
 
     virtual unique_ptr<MultiRateBase> newMultiRate() const override;
 
@@ -322,7 +322,10 @@ public:
     //! @param node  AnyMap containing rate information
     PlogRate(const AnyMap& node);
 
-    virtual std::string type() const override { return "PlogRate"; }
+    virtual std::string type() const override
+    {
+        return "pressure-dependent-Arrhenius";
+    }
 
     virtual unique_ptr<MultiRateBase> newMultiRate() const override;
 
@@ -405,7 +408,7 @@ public:
     //! @param node  AnyMap containing rate information
     ChebyshevRate3(const AnyMap& node);
 
-    virtual std::string type() const override { return "ChebyshevRate"; }
+    virtual std::string type() const override { return "Chebyshev"; }
 
     virtual unique_ptr<MultiRateBase> newMultiRate() const override;
 
@@ -447,7 +450,7 @@ public:
     //! @param rate_units  Description of units used for rate parameters
     CustomFunc1Rate(const AnyMap& rate, const Units& rate_units) {}
 
-    virtual std::string type() const override { return "custom-function"; }
+    virtual std::string type() const override { return "custom-rate-function"; }
 
     virtual unique_ptr<MultiRateBase> newMultiRate() const override;
 

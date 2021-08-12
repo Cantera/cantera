@@ -200,7 +200,7 @@ class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
     # test Arrhenius rate expressions
 
     _cls = ct.ArrheniusRate
-    _type = "ArrheniusRate"
+    _type = "Arrhenius"
     _uses_pressure = False
     _index = 0
     _input = {"rate-constant": {"A": 38.7, "b": 2.7, "Ea": 26191840.0}}
@@ -234,7 +234,7 @@ class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
     # test Plog rate expressions
 
     _cls = ct.PlogRate
-    _type = "PlogRate"
+    _type = "pressure-dependent-Arrhenius"
     _uses_pressure = True
     _index = 3
     _input = {"rate-constants": [
@@ -311,7 +311,7 @@ class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
     # test Chebyshev rate expressions
 
     _cls = ct.ChebyshevRate
-    _type = "ChebyshevRate"
+    _type = "Chebyshev"
     _uses_pressure = True
     _index = 4
     _input = {"data": [[8.2883, -1.1397, -0.12059, 0.016034],
