@@ -157,6 +157,10 @@ void Reaction::getParameters(AnyMap& reactionNode) const
     if (allow_nonreactant_orders) {
         reactionNode["nonreactant-orders"] = true;
     }
+
+    if (m_rate) {
+        reactionNode.update(m_rate->parameters(rate_units));
+    }
 }
 
 void Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
@@ -902,12 +906,6 @@ ElementaryReaction3::ElementaryReaction3(const AnyMap& node, const Kinetics& kin
     }
 }
 
-void ElementaryReaction3::getParameters(AnyMap& reactionNode) const
-{
-    reactionNode.update(m_rate->parameters(rate_units));
-    Reaction::getParameters(reactionNode);
-}
-
 ThreeBodyReaction3::ThreeBodyReaction3()
 {
     m_third_body.reset(new ThirdBody);
@@ -1018,7 +1016,7 @@ void ThreeBodyReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 
 void ThreeBodyReaction3::getParameters(AnyMap& reactionNode) const
 {
-    ElementaryReaction3::getParameters(reactionNode);
+    Reaction::getParameters(reactionNode);
     if (!specified_collision_partner) {
         reactionNode["type"] = "three-body";
         reactionNode["efficiencies"] = m_third_body->efficiencies;
@@ -1071,13 +1069,6 @@ PlogReaction3::PlogReaction3(const AnyMap& node, const Kinetics& kin)
     }
 }
 
-void PlogReaction3::getParameters(AnyMap& reactionNode) const
-{
-    Reaction::getParameters(reactionNode);
-    reactionNode["type"] = "pressure-dependent-Arrhenius";
-    reactionNode.update(m_rate->parameters(rate_units));
-}
-
 ChebyshevReaction3::ChebyshevReaction3()
 {
     setRate(newReactionRate(type()));
@@ -1099,13 +1090,6 @@ ChebyshevReaction3::ChebyshevReaction3(const AnyMap& node, const Kinetics& kin)
     } else {
         setRate(newReactionRate(type()));
     }
-}
-
-void ChebyshevReaction3::getParameters(AnyMap& reactionNode) const
-{
-    reactionNode.update(m_rate->parameters(rate_units));
-    Reaction::getParameters(reactionNode);
-    reactionNode["type"] = "Chebyshev";
 }
 
 CustomFunc1Reaction::CustomFunc1Reaction()
