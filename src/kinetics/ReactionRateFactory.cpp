@@ -74,7 +74,7 @@ shared_ptr<ReactionRateBase> newReactionRate(
 
 shared_ptr<ReactionRateBase> newReactionRate(const AnyMap& rate_node)
 {
-    UnitSystem system = rate_node.units();
+    const UnitSystem& system = rate_node.units();
     if (system.convertTo(1., "m") != 1. || system.convertTo(1., "kmol") != 1.) {
         throw InputFileError("ReactionRateFactory::newReactionRate",
             rate_node.at("__units__"),
@@ -82,8 +82,7 @@ shared_ptr<ReactionRateBase> newReactionRate(const AnyMap& rate_node)
             "when creating\na standalone 'ReactionRate' object.");
     }
     AnyMap node(rate_node);
-    node["__standalone__"] = true;
-    return newReactionRate(node, Units(1.));
+    return newReactionRate(node, Units(0.));
 }
 
 std::string canonicalRateName(const std::string& type)

@@ -201,7 +201,7 @@ void Reaction::setRate(shared_ptr<ReactionRateBase> rate)
     } else {
         throw CanteraError("Reaction::setRate",
             "Mismatched reaction rate types: reaction type '{}' requires\n"
-            "rate with canononical type '{}' but received rate object with\n"
+            "rate with type '{}' but received rate object with\n"
             "type '{}'.", type(), canonicalRateName(type()), rate->type());
     }
 }
@@ -898,11 +898,12 @@ ElementaryReaction3::ElementaryReaction3(const Composition& reactants,
 }
 
 ElementaryReaction3::ElementaryReaction3(const AnyMap& node, const Kinetics& kin)
-    : ElementaryReaction3()
 {
     if (!node.empty()) {
         setParameters(node, kin);
         setRate(newReactionRate(node, rate_units));
+    } else {
+        setRate(newReactionRate(type()));
     }
 }
 
@@ -913,9 +914,9 @@ void ElementaryReaction3::getParameters(AnyMap& reactionNode) const
 }
 
 ThreeBodyReaction3::ThreeBodyReaction3()
-    : ElementaryReaction3()
 {
     m_third_body.reset(new ThirdBody);
+    setRate(newReactionRate(type()));
 }
 
 ThreeBodyReaction3::ThreeBodyReaction3(const Composition& reactants,
@@ -928,11 +929,13 @@ ThreeBodyReaction3::ThreeBodyReaction3(const Composition& reactants,
 }
 
 ThreeBodyReaction3::ThreeBodyReaction3(const AnyMap& node, const Kinetics& kin)
-    : ThreeBodyReaction3()
 {
+    m_third_body.reset(new ThirdBody);
     if (!node.empty()) {
         setParameters(node, kin);
         setRate(newReactionRate(node, rate_units));
+    } else {
+        setRate(newReactionRate(type()));
     }
 }
 
@@ -1064,11 +1067,12 @@ PlogReaction3::PlogReaction3(const Composition& reactants,
 }
 
 PlogReaction3::PlogReaction3(const AnyMap& node, const Kinetics& kin)
-    : PlogReaction3()
 {
     if (!node.empty()) {
         setParameters(node, kin);
         setRate(newReactionRate(node, rate_units));
+    } else {
+        setRate(newReactionRate(type()));
     }
 }
 
@@ -1093,11 +1097,12 @@ ChebyshevReaction3::ChebyshevReaction3(const Composition& reactants,
 }
 
 ChebyshevReaction3::ChebyshevReaction3(const AnyMap& node, const Kinetics& kin)
-    : ChebyshevReaction3()
 {
     if (!node.empty()) {
         setParameters(node, kin);
         setRate(newReactionRate(node, rate_units));
+    } else {
+        setRate(newReactionRate(type()));
     }
 }
 
@@ -1122,11 +1127,12 @@ CustomFunc1Reaction::CustomFunc1Reaction(const Composition& reactants,
 }
 
 CustomFunc1Reaction::CustomFunc1Reaction(const AnyMap& node, const Kinetics& kin)
-    : CustomFunc1Reaction()
 {
     if (!node.empty()) {
         setParameters(node, kin);
         setRate(newReactionRate(node, rate_units));
+    } else {
+        setRate(newReactionRate(type()));
     }
 }
 
