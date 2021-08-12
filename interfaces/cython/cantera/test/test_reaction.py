@@ -136,7 +136,7 @@ class ReactionRateTests:
 
     def test_type(self):
         # check reaction type
-        self.assertIn(self._type, "{}".format(self.rate))
+        self.assertIn(self._cls.__name__, "{}".format(self.rate))
 
     def test_rate_T(self):
         # check evaluation as a function of temperature only
@@ -156,7 +156,7 @@ class ReactionRateTests:
     def test_input(self):
         # check instantiation based on input_data
         rate = self._cls(input_data=self._input)
-        self.assertIn(self._type, "{}".format(rate))
+        self.assertIn(self._cls.__name__, "{}".format(rate))
         self.assertNear(rate(self.gas.T, self.gas.P),
                         self.rate(self.gas.T, self.gas.P))
 
