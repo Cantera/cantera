@@ -23,7 +23,7 @@ reactions:
 - equation: H2 <=> H + H  # Reaction 2
   rate-constant: {A: 1.968e+16, b: 0.0, Ea: 9.252008e+04}
   note: Single reactant
-- equation: OH + O + O2 <=> HO2 + O2  # Reaction 3
+- equation: 2 H + O <=> H2O  # Reaction 3
   rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
   note: Three reactants
 - equation: 0.7 H2 + 0.6 OH + 0.2 O2 => H2O  # Reaction 4
