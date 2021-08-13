@@ -411,6 +411,15 @@ cdef class Kinetics(_SolutionBase):
         return as_dense(
             indices, values, size, self.n_reactions, self.n_total_species)
 
+    property jacobian_settings:
+        """ """
+        def __get__(self):
+            cdef CxxAnyMap settings
+            self.kinetics.getJacobianSettings(settings)
+            return anymap_to_dict(settings)
+        def __set__(self, settings):
+            self.kinetics.setJacobianSettings(dict_to_anymap(settings))
+
     def rop_temperature_derivatives(self, forward=True, reverse=True, approx=True):
         """
         Calculate Jacobian for rates-of-progress with respect to temperature.

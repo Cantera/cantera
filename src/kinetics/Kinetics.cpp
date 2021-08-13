@@ -62,6 +62,8 @@ Kinetics::Kinetics() :
     m_reactantStoich = std::unique_ptr<StoichManagerN>(new StoichManagerN());
     m_productStoich = std::unique_ptr<StoichManagerN>(new StoichManagerN());
     m_revProductStoich = std::unique_ptr<StoichManagerN>(new StoichManagerN());
+
+    setJacobianSettings(AnyMap());
 }
 
 Kinetics::~Kinetics() {}
@@ -465,6 +467,21 @@ std::string Kinetics::reactantString(size_t i) const
 std::string Kinetics::productString(size_t i) const
 {
     return m_reactions[i]->productString();
+}
+
+void Kinetics::getJacobianSettings(AnyMap& settings) const
+{
+    settings["exact-temperature-derivatives"] = m_jac_exact_temperature_derivatives;
+    settings["skip-third-bodies"] = m_jac_skip_third_bodies;
+    settings["skip-falloff"] = m_jac_skip_falloff;
+}
+
+void Kinetics::setJacobianSettings(const AnyMap& settings)
+{
+    m_jac_exact_temperature_derivatives = settings.getBool(
+        "exact-temperature-derivatives", false);
+    m_jac_skip_third_bodies = settings.getBool("skip-third-bodies", false);
+    m_jac_skip_falloff = settings.getBool("skip-falloff", true);
 }
 
 void Kinetics::getFwdRatesOfProgress(doublereal* fwdROP)

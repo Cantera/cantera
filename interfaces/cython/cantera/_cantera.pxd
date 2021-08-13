@@ -587,6 +587,8 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
             vector[pair[int, int]]&, vector[double]&, cbool, cbool, cbool) except +translate_exception
         void getProductionRateTemperatureDerivatives(
             vector[double]&, cbool, cbool, cbool) except +translate_exception
+        void getJacobianSettings(CxxAnyMap&) except +translate_exception
+        void setJacobianSettings(CxxAnyMap&) except +translate_exception
 
 
 cdef extern from "cantera/kinetics/InterfaceKinetics.h":

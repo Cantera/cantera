@@ -564,6 +564,10 @@ public:
     //! @name Routines to Calculate Derivatives
     //! @{
 
+    void getJacobianSettings(AnyMap& settings) const;
+
+    void setJacobianSettings(const AnyMap& settings);
+
     /**
      * Calculate Jacobian for forward rates-of-progress with respect to species
      * concentrations.
@@ -1255,6 +1259,12 @@ protected:
 
     //! reference to Solution
     std::weak_ptr<Solution> m_root;
+
+private:
+    //! Jacobian settings
+    bool m_jac_exact_temperature_derivatives;
+    bool m_jac_skip_third_bodies;
+    bool m_jac_skip_falloff;
 };
 
 }
