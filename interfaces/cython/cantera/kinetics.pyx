@@ -9,6 +9,22 @@ cdef np.ndarray get_mapped(Kinetics kin, kineticsMethodMapped method, size_t dim
     method(kin.kinetics, &data[0], dim)
     return data
 
+cdef np.ndarray get_dense(Kinetics kin, kineticsMethodSparse method,
+        size_t max_dim, size_t n_rows, size_t n_cols):
+    cdef vector[size_t] rows
+    cdef vector[size_t] cols
+    cdef vector[double] data
+    cdef size_t size
+    rows.resize(max_dim)
+    cols.resize(max_dim)
+    data.resize(max_dim)
+    size = method(kin.kinetics, &rows[0], &cols[0], &data[0], max_dim)
+
+    out = np.zeros((n_rows, n_cols))
+    for i in xrange(size):
+        out[rows[i], cols[i]] = data[i]
+    return out
+
 cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method):
     cdef np.ndarray[np.double_t, ndim=1] data = np.empty(kin.n_total_species)
     method(kin.kinetics, &data[0])
@@ -275,12 +291,8 @@ cdef class Kinetics(_SolutionBase):
         """
         # ensure that output vectors have sufficient size
         max_size = self.n_total_species * self.n_reactions
-        cdef vector[pair[int, int]] indices = index_vector(max_size)
-        cdef vector[double] coeffs = value_vector(max_size)
-
-        size = self.kinetics.reactantStoichCoeffs(indices, coeffs)
-        return as_dense(
-            indices, coeffs, size, self.n_total_species, self.n_reactions)
+        return get_dense(self, kin_reactantStoichCoeffs,
+            max_size, self.n_total_species, self.n_reactions)
 
     def product_stoich_coeffs(self, cbool irreversible=True):
         """
@@ -294,12 +306,11 @@ cdef class Kinetics(_SolutionBase):
         """
         # ensure that output vectors have sufficient size
         max_size = self.n_total_species * self.n_reactions
-        cdef vector[pair[int, int]] indices = index_vector(max_size)
-        cdef vector[double] coeffs = value_vector(max_size)
-
-        size = self.kinetics.productStoichCoeffs(indices, coeffs, irreversible)
-        return as_dense(
-            indices, coeffs, size, self.n_total_species, self.n_reactions)
+        if irreversible:
+            return get_dense(self, kin_productStoichCoeffs,
+                max_size, self.n_total_species, self.n_reactions)
+        return get_dense(self, kin_revProductStoichCoeffs,
+            max_size, self.n_total_species, self.n_reactions)
 
     property forward_rates_of_progress:
         """

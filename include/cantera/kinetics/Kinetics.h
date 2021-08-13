@@ -754,15 +754,9 @@ public:
     double reactantStoichCoeff(size_t k, size_t i);
 
     /**
-     * Retrieve row/column indices and corresponding values for the sparse
-     * reactant stoichiometric coefficient matrix.
-     *
-     * @param indices   row/column index pairs
-     * @param coeffs   stoichiometric coefficients
-     * @return   number of non-zero coefficients
+     * Retrieve sparse reactant stoichiometric coefficient matrix.
      */
-    size_t reactantStoichCoeffs(
-        std::vector<std::pair<int, int>>& indices, vector_fp& coeffs);
+    const Eigen::SparseMatrix<double> reactantStoichCoeffs();
 
     /**
      * Stoichiometric coefficient of species k as a product in reaction i.
@@ -775,18 +769,15 @@ public:
     double productStoichCoeff(size_t k, size_t i, bool irreversible=true);
 
     /**
-     * Retrieve row/column indices and corresponding values for the sparse
-     * product stoichiometric coefficient matrix.
-     *
-     * @param indices   row/column index pairs
-     * @param coeffs   stoichiometric coefficients
-     * @param irreversible  flag indicating whether to include irreversible
-     *      reactions (default is true)
-     * @return   number of non-zero coefficients
+     * Retrieve sparse product stoichiometric coefficient matrix for all reactions.
      */
-    size_t productStoichCoeffs(
-        std::vector<std::pair<int, int>>& indices, vector_fp& coeffs,
-        bool irreversible=true);
+    const Eigen::SparseMatrix<double> productStoichCoeffs();
+
+    /**
+     * Retrieve sparse product stoichiometric coefficient matrix for reversible
+     * reactions.
+     */
+    const Eigen::SparseMatrix<double> revProductStoichCoeffs();
 
     //! Reactant order of species k in reaction i.
     /*!

@@ -792,32 +792,6 @@ public:
         return m_stoichCoeffs;
     }
 
-    //! Retrieve row/column and values for stoichiometric coefficients
-    /*!
-     * Output vectors *indices* and *coeffs are filled with non-zero elements of the
-     * stoichiometric coefficient matrix.
-     *
-     * @param indices   row/column index pairs
-     * @param coeffs   stoichiometric coefficients
-     * @return   number of non-zero coefficients
-     */
-    size_t sparseStoichCoeffs(
-        std::vector<std::pair<int, int>>& indices, vector_fp& coeffs)
-    {
-        size_t len = m_coeffList.size();
-        if (indices.size() < len || coeffs.size() < len) {
-            throw CanteraError("StoichManagerN::stoichCoeffTriplets",
-                "Output vectors have insufficient length. Required size is {}, "
-                "while provided lengths are:\nindices.size()={}, and "
-                "coeffs.size()={}.", len, indices.size(), coeffs.size());
-        }
-        for (size_t i = 0; i < len; i++) {
-            indices[i] = std::make_pair(m_coeffList[i].row(), m_coeffList[i].col());
-            coeffs[i] = m_coeffList[i].value();
-        }
-        return len;
-    }
-
     //! Calculate derivatives with respect to species concentrations.
     /*!
      * The species derivative is the term of the Jacobian that accounts for

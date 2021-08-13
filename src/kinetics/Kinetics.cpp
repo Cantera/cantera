@@ -403,13 +403,12 @@ double Kinetics::reactantStoichCoeff(size_t kSpec, size_t irxn)
     return m_reactantStoich->stoichCoeffs().coeff(kSpec, irxn);
 }
 
-size_t Kinetics::reactantStoichCoeffs(
-    std::vector<std::pair<int, int>>& indices, vector_fp& coeffs)
+const Eigen::SparseMatrix<double> Kinetics::reactantStoichCoeffs()
 {
     if (!m_finalized) {
         finalizeSetup();
     }
-    return m_reactantStoich->sparseStoichCoeffs(indices, coeffs);
+    return m_reactantStoich->stoichCoeffs();
 }
 
 double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn, bool irreversible)
@@ -428,16 +427,20 @@ double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn, bool irreversible
     return m_revProductStoich->stoichCoeffs().coeff(kSpec, irxn);
 }
 
-size_t Kinetics::productStoichCoeffs(
-    std::vector<std::pair<int, int>>& indices, vector_fp& coeffs, bool irreversible)
+const Eigen::SparseMatrix<double> Kinetics::productStoichCoeffs()
 {
     if (!m_finalized) {
         finalizeSetup();
     }
-    if (irreversible) {
-        return m_productStoich->sparseStoichCoeffs(indices, coeffs);
+    return m_productStoich->stoichCoeffs();
+}
+
+const Eigen::SparseMatrix<double> Kinetics::revProductStoichCoeffs()
+{
+    if (!m_finalized) {
+        finalizeSetup();
     }
-    return m_revProductStoich->sparseStoichCoeffs(indices, coeffs);
+    return m_revProductStoich->stoichCoeffs();
 }
 
 int Kinetics::reactionType(size_t i) const {

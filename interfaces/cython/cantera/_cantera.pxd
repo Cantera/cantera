@@ -1110,6 +1110,11 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void kin_getDestructionRateTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
     cdef void kin_getNetProductionRateTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
 
+    # Kinetics sparse matrices
+    cdef size_t kin_reactantStoichCoeffs(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
+    cdef size_t kin_productStoichCoeffs(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
+    cdef size_t kin_revProductStoichCoeffs(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
+
     # Transport properties
     cdef void tran_getMixDiffCoeffs(CxxTransport*, double*) except +translate_exception
     cdef void tran_getMixDiffCoeffsMass(CxxTransport*, double*) except +translate_exception
@@ -1127,6 +1132,7 @@ ctypedef void (*transportMethod1d)(CxxTransport*, double*) except +translate_exc
 ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +translate_exception
 ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +translate_exception
 ctypedef void (*kineticsMethodMapped)(CxxKinetics*, double*, size_t) except +translate_exception
+ctypedef size_t (*kineticsMethodSparse)(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
 
 # classes
 cdef class SpeciesThermo:
@@ -1375,6 +1381,8 @@ cdef pystr(string x)
 cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method)
 cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method)
 cdef np.ndarray get_mapped(Kinetics kin, kineticsMethodMapped method, size_t dim)
+cdef np.ndarray get_dense(Kinetics kin, kineticsMethodSparse method,
+    size_t dim, size_t n_rows, size_t n_cols)
 cdef vector[pair[int, int]] index_vector(int size)
 cdef vector[double] value_vector(int size)
 cdef np.ndarray as_dense(

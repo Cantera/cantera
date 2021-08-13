@@ -73,15 +73,6 @@ TEST_F(FracCoeffTest, InvalidStoichCoeffs)
     EXPECT_THROW(kin->productStoichCoeff(kH2O, 3), CanteraError);
 }
 
-TEST_F(FracCoeffTest, StoichCoeffsRaises)
-{
-    std::vector<std::pair<int, int>> indices;
-    indices.emplace_back(std::make_pair(0, 0));
-    vector_fp coeffs(1);
-    EXPECT_THROW(kin->reactantStoichCoeffs(indices, coeffs), CanteraError);
-    EXPECT_THROW(kin->productStoichCoeffs(indices, coeffs), CanteraError);
-}
-
 TEST_F(FracCoeffTest, RateConstants)
 {
     vector_fp kf(kin->nReactions(), 0.0);
