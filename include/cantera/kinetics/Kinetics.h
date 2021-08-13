@@ -24,18 +24,6 @@ class Solution;
 class AnyMap;
 class StoichManagerN;
 
-//! Extract components describing sparse matrix
-/**
- * Service routine to pass sparse matrix compoments to external APIs
- *
- * @param mat   sparse matrix
- * @param indices   output vector for row/column index pairs
- * @param values   output vector for non-zero matrix entries
- * @return   number of non-zero entries
- */
-size_t sparseComponents(const Eigen::SparseMatrix<double>& mat,
-    std::vector<std::pair<int, int>>& indices, vector_fp& values);
-
 /**
  * @defgroup chemkinetics Chemical Kinetics
  */
@@ -576,13 +564,10 @@ public:
      * species concentrations in the law of mass action. The method does not consider
      * rate constants that depend on species concentrations.
      *
-     * @param thirdbodies   include third body derivatives
-     *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::SparseMatrix<double> getFwdRopSpeciesDerivatives(
-        bool thirdbodies=true)
+    virtual Eigen::SparseMatrix<double> getFwdRopSpeciesDerivatives()
     {
         throw NotImplementedError("Kinetics::getFwdRopSpeciesDerivatives");
     }
@@ -595,34 +580,29 @@ public:
      * species concentrations in the law of mass action. The method does not consider
      * rate constants that depend on species concentrations.
      *
-     * @param thirdbodies   include third body derivatives
-     *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::SparseMatrix<double> getRevRopSpeciesDerivatives(
-        bool thirdbodies=true)
+    virtual Eigen::SparseMatrix<double> getRevRopSpeciesDerivatives()
     {
         throw NotImplementedError("Kinetics::getRevRopSpeciesDerivatives");
     }
 
-     /**
-     * Calculate Jacobian for rates-of-progress with respect to species
-     * concentrations. Used to expose sparse matrix components to APIs.
+    /**
+     * Calculate Jacobian for net rates-of-progress with respect to species
+     * concentrations.
      *
-     * @param indices   output vector for row/column index pairs
-     * @param values   output vector for non-zero matrix entries
-     * @param forward   include forward direction
-     * @param reverse   include reverse direction
-     * @param thirdbodies   include third body derivatives
-     * @return   number of non-zero entries
+     * This derivative is the term of the Jacobian that accounts for the product of
+     * species concentrations in the law of mass action. The method does not consider
+     * rate constants that depend on species concentrations.
      *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    size_t getRopSpeciesDerivatives(
-        std::vector<std::pair<int, int>>& indices, vector_fp& values,
-        bool forward, bool reverse, bool thirdbodies);
+    virtual Eigen::SparseMatrix<double> getNetRopSpeciesDerivatives()
+    {
+        throw NotImplementedError("Kinetics::getNetRopSpeciesDerivatives");
+    }
 
     /**
      * Calculate Jacobian for forward rates-of-progress with respect to species
@@ -659,13 +639,10 @@ public:
      * species concentrations in the law of mass action. The method does not consider
      * rate constants that depend on species concentrations.
      *
-     * @param thirdbodies   include third body derivatives
-     *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    Eigen::SparseMatrix<double> getCreationRateSpeciesDerivatives(
-        bool thirdbodies=true);
+    Eigen::SparseMatrix<double> getCreationRateSpeciesDerivatives();
 
     /**
      * Calculate Jacobian for species destruction rates with respect to species
@@ -675,13 +652,10 @@ public:
      * species concentrations in the law of mass action. The method does not consider
      * rate constants that depend on species concentrations.
      *
-     * @param thirdbodies   include third body derivatives
-     *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    Eigen::SparseMatrix<double> getDestructionRateSpeciesDerivatives(
-        bool thirdbodies=true);
+    Eigen::SparseMatrix<double> getDestructionRateSpeciesDerivatives();
 
     /**
      * Calculate Jacobian for species net production rates with respect to species
@@ -691,31 +665,10 @@ public:
      * species concentrations in the law of mass action. The method does not consider
      * rate constants that depend on species concentrations.
      *
-     * @param thirdbodies   include third body derivatives
-     *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    Eigen::SparseMatrix<double> getNetProductionRateSpeciesDerivatives(
-        bool thirdbodies=true);
-
-    /**
-     * Calculate Jacobian for species production rates with respect to species
-     * concentrations. Used to expose sparse matrix components to APIs.
-     *
-     * @param indices   output vector for row/column index pairs
-     * @param values   output vector for non-zero matrix entries
-     * @param creation   include fspecies creation rates
-     * @param destruction   include species destruction rates
-     * @param thirdbodies   include third body derivatives
-     * @return   number of non-zero entries
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
-     */
-    size_t getProductionRateSpeciesDerivatives(
-        std::vector<std::pair<int, int>>& indices, vector_fp& values,
-        bool creation, bool destruction, bool thirdbodies);
+    Eigen::SparseMatrix<double> getNetProductionRateSpeciesDerivatives();
 
     /**
      * Calculate Jacobian for species creation rates with respect to temperature.

@@ -39,29 +39,6 @@ cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method):
     method(kin.kinetics, &data[0])
     return data
 
-cdef vector[pair[int, int]] index_vector(int size):
-    """Create vector of index pairs"""
-    cdef vector[pair[int, int]] indices
-    indices.resize(size)
-    return indices
-
-cdef vector[double] value_vector(int size):
-    """Create vector of double values"""
-    cdef vector[double] values
-    values.resize(size)
-    return values
-
-cdef np.ndarray as_dense(
-        vector[pair[int, int]] indices, vector[double] values, int size,
-        int rows, int cols):
-    """Reconstruct array from triplets"""
-    cdef pair[int, int] item
-    data = np.zeros((rows, cols))
-    for i in xrange(size):
-        item = indices[i]
-        data[item.first, item.second] = values[i]
-    return data
-
 
 cdef class Kinetics(_SolutionBase):
     """
@@ -405,28 +382,6 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_species_array(self, kin_getNetProductionRates)
 
-    def rop_species_derivatives(self, forward=True, reverse=True, third_bodies=True):
-        """
-        Calculate Jacobian for rates-of-progress with respect to species
-        concentrations. By default, both ``forward`` and ``reverse`` rates are
-        considered.
-
-        This derivative is the term of the Jacobian that accounts for the product of
-        species concentrations in the law of mass action. The method does not consider
-        rate constants that depend on species concentrations.
-
-        Warning: this method is an experimental part of the Cantera API and
-            may be changed or removed without notice.
-        """
-        max_size = self.n_total_species * self.n_reactions
-        cdef vector[pair[int, int]] indices = index_vector(max_size)
-        cdef vector[double] values = value_vector(max_size)
-
-        size = self.kinetics.getRopSpeciesDerivatives(
-            indices, values, forward, reverse, third_bodies)
-        return as_dense(
-            indices, values, size, self.n_reactions, self.n_total_species)
-
     property jacobian_settings:
         """ """
         def __get__(self):
@@ -435,6 +390,45 @@ cdef class Kinetics(_SolutionBase):
             return anymap_to_dict(settings)
         def __set__(self, settings):
             self.kinetics.setJacobianSettings(dict_to_anymap(settings))
+
+    property forward_rop_species_derivatives:
+        """
+        Calculate Jacobian for forward rates-of-progress with respect to species
+        concentrations.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            max_size = self.n_total_species * self.n_reactions
+            return get_dense(self, kin_getFwdRopSpeciesDerivatives,
+                max_size, self.n_reactions, self.n_total_species)
+
+    property reverse_rop_species_derivatives:
+        """
+        Calculate Jacobian for reverse rates-of-progress with respect to species
+        concentrations.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            max_size = self.n_total_species * self.n_reactions
+            return get_dense(self, kin_getRevRopSpeciesDerivatives,
+                max_size, self.n_reactions, self.n_total_species)
+
+    property net_rop_species_derivatives:
+        """
+        Calculate Jacobian for net rates-of-progress with respect to species
+        concentrations.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            max_size = self.n_total_species * self.n_reactions
+            return get_dense(self, kin_getNetRopSpeciesDerivatives,
+                max_size, self.n_reactions, self.n_total_species)
 
     property forward_rop_temperature_derivatives:
         """
@@ -466,28 +460,44 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_mapped(self, kin_getNetRopTemperatureDerivatives, self.n_reactions)
 
-    def production_rate_species_derivatives(
-            self, creation=True, destruction=True, third_bodies=True):
+    property creation_rate_species_derivatives:
         """
-        Calculate Jacobian for species production rates with respect to species
-        concentrations. By default, both species ``creation`` and ``destruction`` are
-        considered.
-
-        This derivative is the term of the Jacobian that accounts for the product of
-        species concentrations in the law of mass action. The method does not consider
-        rate constants that depend on species concentrations.
+        Calculate Jacobian for species creation rates with respect to species
+        concentrations.
 
         Warning: this method is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        max_size = self.n_total_species * self.n_total_species
-        cdef vector[pair[int, int]] indices = index_vector(max_size)
-        cdef vector[double] values = value_vector(max_size)
+        def __get__(self):
+            max_size = self.n_total_species * self.n_total_species
+            return get_dense(self, kin_getCreationRateSpeciesDerivatives,
+                max_size, self.n_total_species, self.n_total_species)
 
-        size = self.kinetics.getProductionRateSpeciesDerivatives(
-            indices, values, creation, destruction, third_bodies)
-        return as_dense(
-            indices, values, size, self.n_total_species, self.n_total_species)
+    property destruction_rate_species_derivatives:
+        """
+        Calculate Jacobian for species destruction rates with respect to species
+        concentrations.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            max_size = self.n_total_species * self.n_total_species
+            return get_dense(self, kin_getDestructionRateSpeciesDerivatives,
+                max_size, self.n_total_species, self.n_total_species)
+
+    property net_production_rate_species_derivatives:
+        """
+        Calculate Jacobian for species net production rates with respect to species
+        concentrations.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            max_size = self.n_total_species * self.n_total_species
+            return get_dense(self, kin_getNetProductionRateSpeciesDerivatives,
+                max_size, self.n_total_species, self.n_total_species)
 
     property creation_rate_temperature_derivatives:
         """

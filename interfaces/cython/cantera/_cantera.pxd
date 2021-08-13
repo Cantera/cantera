@@ -1115,6 +1115,14 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef size_t kin_productStoichCoeffs(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
     cdef size_t kin_revProductStoichCoeffs(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
 
+    cdef size_t kin_getFwdRopSpeciesDerivatives(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
+    cdef size_t kin_getRevRopSpeciesDerivatives(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
+    cdef size_t kin_getNetRopSpeciesDerivatives(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
+
+    cdef size_t kin_getCreationRateSpeciesDerivatives(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
+    cdef size_t kin_getDestructionRateSpeciesDerivatives(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
+    cdef size_t kin_getNetProductionRateSpeciesDerivatives(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
+
     # Transport properties
     cdef void tran_getMixDiffCoeffs(CxxTransport*, double*) except +translate_exception
     cdef void tran_getMixDiffCoeffsMass(CxxTransport*, double*) except +translate_exception
@@ -1383,11 +1391,6 @@ cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method)
 cdef np.ndarray get_mapped(Kinetics kin, kineticsMethodMapped method, size_t dim)
 cdef np.ndarray get_dense(Kinetics kin, kineticsMethodSparse method,
     size_t dim, size_t n_rows, size_t n_cols)
-cdef vector[pair[int, int]] index_vector(int size)
-cdef vector[double] value_vector(int size)
-cdef np.ndarray as_dense(
-    vector[pair[int, int]] indices, vector[double] values, int size,
-    int rows, int cols)
 cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method)
 cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method)
 cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *

@@ -66,10 +66,9 @@ public:
     //! Calculate reverse rate coefficients
     void calcRevRateCoefficients(const vector_fp& ropf, vector_fp& ropr);
 
-    virtual Eigen::SparseMatrix<double> getFwdRopSpeciesDerivatives(
-        bool thirdbodies=true);
-    virtual Eigen::SparseMatrix<double> getRevRopSpeciesDerivatives(
-        bool thirdbodies=true);
+    virtual Eigen::SparseMatrix<double> getFwdRopSpeciesDerivatives();
+    virtual Eigen::SparseMatrix<double> getRevRopSpeciesDerivatives();
+    virtual Eigen::SparseMatrix<double> getNetRopSpeciesDerivatives();
     virtual Eigen::VectorXd getFwdRopTemperatureDerivatives();
     virtual Eigen::VectorXd getRevRopTemperatureDerivatives();
     virtual Eigen::VectorXd getNetRopTemperatureDerivatives();

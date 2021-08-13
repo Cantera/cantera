@@ -191,7 +191,7 @@ void GasKinetics::processFalloffReactions(vector_fp& ropf)
     }
 }
 
-Eigen::SparseMatrix<double> GasKinetics::getFwdRopSpeciesDerivatives(bool thirdbodies)
+Eigen::SparseMatrix<double> GasKinetics::getFwdRopSpeciesDerivatives()
 {
     Eigen::SparseMatrix<double> jac;
 
@@ -208,7 +208,7 @@ Eigen::SparseMatrix<double> GasKinetics::getFwdRopSpeciesDerivatives(bool thirdb
     jac = m_reactantStoich->speciesDerivatives(
         m_act_conc.data(), m_rop_stoich.data());
 
-    if (!thirdbodies) {
+    if (m_jac_skip_third_bodies) {
         return jac;
     }
 
@@ -227,7 +227,7 @@ Eigen::SparseMatrix<double> GasKinetics::getFwdRopSpeciesDerivatives(bool thirdb
     return jac;
 }
 
-Eigen::SparseMatrix<double> GasKinetics::getRevRopSpeciesDerivatives(bool thirdbodies)
+Eigen::SparseMatrix<double> GasKinetics::getRevRopSpeciesDerivatives()
 {
     Eigen::SparseMatrix<double> jac;
 
@@ -245,7 +245,7 @@ Eigen::SparseMatrix<double> GasKinetics::getRevRopSpeciesDerivatives(bool thirdb
     jac = m_revProductStoich->speciesDerivatives(
         m_act_conc.data(), m_rop_stoich.data());
 
-    if (!thirdbodies) {
+    if (m_jac_skip_third_bodies) {
         return jac;
     }
 
@@ -262,6 +262,11 @@ Eigen::SparseMatrix<double> GasKinetics::getRevRopSpeciesDerivatives(bool thirdb
     }
 
     return jac;
+}
+
+Eigen::SparseMatrix<double> GasKinetics::getNetRopSpeciesDerivatives()
+{
+    return getFwdRopSpeciesDerivatives() - getRevRopSpeciesDerivatives();
 }
 
 Eigen::VectorXd GasKinetics::getFwdRopTemperatureDerivatives()

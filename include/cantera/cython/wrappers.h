@@ -135,6 +135,10 @@ KIN_1D(getFwdRatesOfProgress)
 KIN_1D(getRevRatesOfProgress)
 KIN_1D(getNetRatesOfProgress)
 
+KIN_SPARSE(getFwdRopSpeciesDerivatives)
+KIN_SPARSE(getRevRopSpeciesDerivatives)
+KIN_SPARSE(getNetRopSpeciesDerivatives)
+
 KIN_MAPPED(getFwdRopTemperatureDerivatives)
 KIN_MAPPED(getRevRopTemperatureDerivatives)
 KIN_MAPPED(getNetRopTemperatureDerivatives)
@@ -153,6 +157,10 @@ KIN_1D(getDeltaSSEntropy)
 KIN_1D(getCreationRates)
 KIN_1D(getDestructionRates)
 KIN_1D(getNetProductionRates)
+
+KIN_SPARSE(getCreationRateSpeciesDerivatives)
+KIN_SPARSE(getDestructionRateSpeciesDerivatives)
+KIN_SPARSE(getNetProductionRateSpeciesDerivatives)
 
 KIN_MAPPED(getCreationRateTemperatureDerivatives)
 KIN_MAPPED(getDestructionRateTemperatureDerivatives)

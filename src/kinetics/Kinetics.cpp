@@ -24,30 +24,6 @@ using namespace std;
 
 namespace Cantera
 {
-//! Extract components describing sparse matrix
-size_t sparseComponents(const Eigen::SparseMatrix<double>& mat,
-    std::vector<std::pair<int, int>>& indices, vector_fp& values)
-{
-    size_t count = 0;
-    for (int i = 0; i < mat.outerSize(); i++) {
-        for (Eigen::SparseMatrix<double>::InnerIterator it(mat, i); it; ++it) {
-            if (count < indices.size()) {
-                indices[count] = std::make_pair(it.row(), it.col());
-            }
-            if (count < values.size()) {
-                values[count] = it.value();
-            }
-            count++;
-        }
-    }
-    if (count > indices.size() || count > values.size()) {
-        throw CanteraError("sparseComponents",
-            "Output vectors have insufficient length. Required size is {}, "
-            "while provided lengths are:\nindices.size()={} and "
-            "values.size()={}.", count, indices.size(), values.size());
-    }
-    return count;
-}
 
 Kinetics::Kinetics() :
     m_finalized(false),
@@ -636,16 +612,13 @@ void Kinetics::getCreationRates(doublereal* cdot)
     m_reactantStoich->incrementSpecies(m_ropr.data(), cdot);
 }
 
-Eigen::SparseMatrix<double> Kinetics::getCreationRateSpeciesDerivatives(
-    bool thirdbodies)
+Eigen::SparseMatrix<double> Kinetics::getCreationRateSpeciesDerivatives()
 {
     Eigen::SparseMatrix<double> jac;
     // the forward direction creates product species
-    jac = m_productStoich->stoichCoeffs()
-        * getFwdRopSpeciesDerivatives(thirdbodies);
+    jac = m_productStoich->stoichCoeffs() * getFwdRopSpeciesDerivatives();
     // the reverse direction creates reactant species
-    jac += m_reactantStoich->stoichCoeffs()
-        * getRevRopSpeciesDerivatives(thirdbodies);
+    jac += m_reactantStoich->stoichCoeffs() * getRevRopSpeciesDerivatives();
     return jac;
 }
 
@@ -673,16 +646,13 @@ void Kinetics::getDestructionRates(doublereal* ddot)
     m_reactantStoich->incrementSpecies(m_ropf.data(), ddot);
 }
 
-Eigen::SparseMatrix<double> Kinetics::getDestructionRateSpeciesDerivatives(
-    bool thirdbodies)
+Eigen::SparseMatrix<double> Kinetics::getDestructionRateSpeciesDerivatives()
 {
     Eigen::SparseMatrix<double> jac;
     // the reverse direction destroys products in reversible reactions
-    jac = m_revProductStoich->stoichCoeffs()
-        * getRevRopSpeciesDerivatives(thirdbodies);
+    jac = m_revProductStoich->stoichCoeffs() * getRevRopSpeciesDerivatives();
     // the forward direction destroys reactants
-    jac += m_reactantStoich->stoichCoeffs()
-        * getFwdRopSpeciesDerivatives(thirdbodies);
+    jac += m_reactantStoich->stoichCoeffs() * getFwdRopSpeciesDerivatives();
     return jac;
 }
 
@@ -710,12 +680,9 @@ void Kinetics::getNetProductionRates(doublereal* net)
     m_reactantStoich->decrementSpecies(m_ropnet.data(), net);
 }
 
-Eigen::SparseMatrix<double> Kinetics::getNetProductionRateSpeciesDerivatives(
-    bool thirdbodies)
+Eigen::SparseMatrix<double> Kinetics::getNetProductionRateSpeciesDerivatives()
 {
-    return m_stoichMatrix * (
-        getFwdRopSpeciesDerivatives(thirdbodies)
-        - getRevRopSpeciesDerivatives(thirdbodies));
+    return m_stoichMatrix * getNetRopSpeciesDerivatives();
 }
 
 Eigen::VectorXd Kinetics::getNetProductionRateTemperatureDerivatives()
@@ -724,37 +691,6 @@ Eigen::VectorXd Kinetics::getNetProductionRateTemperatureDerivatives()
         finalizeSetup();
     }
     return m_stoichMatrix * getNetRopTemperatureDerivatives();
-}
-
-size_t Kinetics::getRopSpeciesDerivatives(
-    std::vector<std::pair<int, int>>& indices, vector_fp& values,
-    bool forward, bool reverse, bool thirdbodies)
-{
-    Eigen::SparseMatrix<double> ret;
-    if (forward && reverse) {
-        ret = getFwdRopSpeciesDerivatives(thirdbodies)
-            - getRevRopSpeciesDerivatives(thirdbodies);
-    } else if (forward) {
-        ret = getFwdRopSpeciesDerivatives(thirdbodies);
-    } else if (reverse) {
-        ret = getRevRopSpeciesDerivatives(thirdbodies);
-    }
-    return sparseComponents(ret, indices, values);
-}
-
-size_t Kinetics::getProductionRateSpeciesDerivatives(
-    std::vector<std::pair<int, int>>& indices, vector_fp& values,
-    bool creation, bool destruction, bool thirdbodies)
-{
-    Eigen::SparseMatrix<double> ret;
-    if (creation && destruction) {
-        ret = getNetProductionRateSpeciesDerivatives(thirdbodies);
-    } else if (creation) {
-        ret = getCreationRateSpeciesDerivatives(thirdbodies);
-    } else if (destruction) {
-        ret = getDestructionRateSpeciesDerivatives(thirdbodies);
-    }
-    return sparseComponents(ret, indices, values);
 }
 
 void Kinetics::addPhase(ThermoPhase& thermo)
