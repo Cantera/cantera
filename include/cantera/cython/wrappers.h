@@ -2,6 +2,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/logger.h"
+#include "cantera/numerics/eigen_defs.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/TransportBase.h"
 #include "cantera/kinetics/Kinetics.h"
@@ -59,9 +60,15 @@ void CxxArray2D_set(Cantera::Array2D& array, size_t i, size_t j, double value)
     void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t dim, double* data) \
     { object->FUNC_NAME(dim, data); }
 
+// Function which maps vector output to a 1D array of a given length
+#define MAPPED_FUNC(PREFIX, CLASS_NAME, FUNC_NAME) \
+    void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, double* data, size_t dim) \
+    { Eigen::Map<Eigen::VectorXd> mapped(data, dim); mapped = object->FUNC_NAME(); }
+
 
 #define THERMO_1D(FUNC_NAME) ARRAY_FUNC(thermo, ThermoPhase, FUNC_NAME)
 #define KIN_1D(FUNC_NAME) ARRAY_FUNC(kin, Kinetics, FUNC_NAME)
+#define KIN_MAPPED(FUNC_NAME) MAPPED_FUNC(kin, Kinetics, FUNC_NAME)
 #define TRANSPORT_1D(FUNC_NAME) ARRAY_FUNC(tran, Transport, FUNC_NAME)
 #define TRANSPORT_2D(FUNC_NAME) ARRAY_FUNC2(tran, Transport, FUNC_NAME)
 
@@ -93,6 +100,10 @@ KIN_1D(getFwdRatesOfProgress)
 KIN_1D(getRevRatesOfProgress)
 KIN_1D(getNetRatesOfProgress)
 
+KIN_MAPPED(getFwdRopTemperatureDerivatives)
+KIN_MAPPED(getRevRopTemperatureDerivatives)
+KIN_MAPPED(getNetRopTemperatureDerivatives)
+
 KIN_1D(getEquilibriumConstants)
 KIN_1D(getFwdRateConstants)
 KIN_1D(getRevRateConstants)
@@ -107,6 +118,10 @@ KIN_1D(getDeltaSSEntropy)
 KIN_1D(getCreationRates)
 KIN_1D(getDestructionRates)
 KIN_1D(getNetProductionRates)
+
+KIN_MAPPED(getCreationRateTemperatureDerivatives)
+KIN_MAPPED(getDestructionRateTemperatureDerivatives)
+KIN_MAPPED(getNetProductionRateTemperatureDerivatives)
 
 TRANSPORT_1D(getMixDiffCoeffs)
 TRANSPORT_1D(getMixDiffCoeffsMass)

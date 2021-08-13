@@ -264,10 +264,10 @@ Eigen::SparseMatrix<double> GasKinetics::getRevRopSpeciesDerivatives(bool thirdb
     return jac;
 }
 
-Eigen::VectorXd GasKinetics::getFwdRopTemperatureDerivatives(bool approx)
+Eigen::VectorXd GasKinetics::getFwdRopTemperatureDerivatives()
 {
-    if (approx) {
-        return Kinetics::getFwdRopTemperatureDerivatives(approx);
+    if (!m_jac_exact_temperature_derivatives) {
+        return Kinetics::getFwdRopTemperatureDerivatives();
     }
 
     Eigen::VectorXd out(nReactions());
@@ -281,10 +281,10 @@ Eigen::VectorXd GasKinetics::getFwdRopTemperatureDerivatives(bool approx)
     return out;
 }
 
-Eigen::VectorXd GasKinetics::getRevRopTemperatureDerivatives(bool approx)
+Eigen::VectorXd GasKinetics::getRevRopTemperatureDerivatives()
 {
-    if (approx) {
-        return Kinetics::getRevRopTemperatureDerivatives(approx);
+    if (!m_jac_exact_temperature_derivatives) {
+        return Kinetics::getRevRopTemperatureDerivatives();
     }
 
     // @TODO look at temperature derivatives of equilibrium constants
@@ -293,10 +293,10 @@ Eigen::VectorXd GasKinetics::getRevRopTemperatureDerivatives(bool approx)
         "are not implemented.\nUse numerical approximation instead.");
 }
 
-Eigen::VectorXd GasKinetics::getNetRopTemperatureDerivatives(bool approx)
+Eigen::VectorXd GasKinetics::getNetRopTemperatureDerivatives()
 {
-    if (approx) {
-        return Kinetics::getNetRopTemperatureDerivatives(approx);
+    if (!m_jac_exact_temperature_derivatives) {
+        return Kinetics::getNetRopTemperatureDerivatives();
     }
 
     // @TODO look at temperature derivatives of equilibrium constants

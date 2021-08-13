@@ -4,6 +4,11 @@
 # NOTE: These cdef functions cannot be members of Kinetics because they would
 # cause "layout conflicts" when creating derived classes with multiple bases,
 # e.g. class Solution. [Cython 0.16]
+cdef np.ndarray get_mapped(Kinetics kin, kineticsMethodMapped method, size_t dim):
+    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(dim)
+    method(kin.kinetics, &data[0], dim)
+    return data
+
 cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method):
     cdef np.ndarray[np.double_t, ndim=1] data = np.empty(kin.n_total_species)
     method(kin.kinetics, &data[0])
@@ -420,20 +425,35 @@ cdef class Kinetics(_SolutionBase):
         def __set__(self, settings):
             self.kinetics.setJacobianSettings(dict_to_anymap(settings))
 
-    def rop_temperature_derivatives(self, forward=True, reverse=True, approx=True):
+    property forward_rop_temperature_derivatives:
         """
-        Calculate Jacobian for rates-of-progress with respect to temperature.
-        By default, both ``forward`` and ``reverse`` rates are considered.
+        Calculate Jacobian for forward rates-of-progress with respect to temperature.
 
         Warning: this method is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        cdef vector[double] values = value_vector(self.n_reactions)
-        self.kinetics.getRopTemperatureDerivatives(values, forward, reverse, approx)
-        data = np.zeros((self.n_reactions))
-        for i in xrange(self.n_reactions):
-            data[i] = values[i]
-        return data
+        def __get__(self):
+            return get_mapped(self, kin_getFwdRopTemperatureDerivatives, self.n_reactions)
+
+    property reverse_rop_temperature_derivatives:
+        """
+        Calculate Jacobian for reverse rates-of-progress with respect to temperature.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_getRevRopTemperatureDerivatives, self.n_reactions)
+
+    property net_rop_temperature_derivatives:
+        """
+        Calculate Jacobian for net rates-of-progress with respect to temperature.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_getNetRopTemperatureDerivatives, self.n_reactions)
 
     def production_rate_species_derivatives(
             self, creation=True, destruction=True, third_bodies=True):
@@ -458,22 +478,38 @@ cdef class Kinetics(_SolutionBase):
         return as_dense(
             indices, values, size, self.n_total_species, self.n_total_species)
 
-    def production_rate_temperature_derivatives(
-            self, creation=True, destruction=True, approx=True):
+    property creation_rate_temperature_derivatives:
         """
-        Calculate Jacobian for species production rates with respect to temperature.
-        By default, both species ``creation`` and ``destruction`` are considered.
+        Calculate Jacobian of species creation rates with respect to temperature.
 
         Warning: this method is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        cdef vector[double] values = value_vector(self.n_total_species)
-        self.kinetics.getProductionRateTemperatureDerivatives(
-            values, creation, destruction, approx)
-        data = np.zeros((self.n_total_species))
-        for i in xrange(self.n_total_species):
-            data[i] = values[i]
-        return data
+        def __get__(self):
+            return get_mapped(
+                self, kin_getCreationRateTemperatureDerivatives, self.n_total_species)
+
+    property destruction_rate_temperature_derivatives:
+        """
+        Calculate Jacobian of species destruction rates with respect to temperature.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(
+                self, kin_getDestructionRateTemperatureDerivatives, self.n_total_species)
+
+    property net_production_rate_temperature_derivatives:
+        """
+        Calculate Jacobian of species net production rates with respect to temperature.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(
+                self, kin_getNetProductionRateTemperatureDerivatives, self.n_total_species)
 
     property delta_enthalpy:
         """Change in enthalpy for each reaction [J/kmol]."""

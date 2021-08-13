@@ -1772,13 +1772,19 @@ class RateExpressionTests:
         self.assertNear((k1 - k0) / dT, dkdT, 1e-6) # numeric
 
         rop = self.gas.forward_rates_of_progress
-        drop = self.gas.rop_temperature_derivatives(reverse=False, approx=False)
+        settings_bkp = self.gas.jacobian_settings
+        self.gas.jacobian_settings = {"exact-temperature-derivatives": True}
+        drop = self.gas.forward_rop_temperature_derivatives
+        self.gas.jacobian_settings = settings_bkp
         self.assertNear(drop[self.rxn_idx], rop[self.rxn_idx] * scaled_ddT) # exact
 
     def test_forward_rop_dtemperature(self):
         # compare exact and approximate forward rate of progress derivatives
-        drop = self.gas.rop_temperature_derivatives(reverse=False, approx=False)
-        drop_approx = self.gas.rop_temperature_derivatives(reverse=False)
+        settings_bkp = self.gas.jacobian_settings
+        self.gas.jacobian_settings = {"exact-temperature-derivatives": True}
+        drop = self.gas.forward_rop_temperature_derivatives
+        self.gas.jacobian_settings = settings_bkp
+        drop_approx = self.gas.forward_rop_temperature_derivatives
         self.assertNear(drop[self.rxn_idx], drop_approx[self.rxn_idx], 1e-6)
 
 

@@ -581,12 +581,9 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
 
         size_t getRopSpeciesDerivatives(
             vector[pair[int, int]]&, vector[double]&, cbool, cbool, cbool) except +translate_exception
-        void getRopTemperatureDerivatives(
-            vector[double]&, cbool, cbool, cbool) except +translate_exception
         size_t getProductionRateSpeciesDerivatives(
             vector[pair[int, int]]&, vector[double]&, cbool, cbool, cbool) except +translate_exception
-        void getProductionRateTemperatureDerivatives(
-            vector[double]&, cbool, cbool, cbool) except +translate_exception
+
         void getJacobianSettings(CxxAnyMap&) except +translate_exception
         void setJacobianSettings(CxxAnyMap&) except +translate_exception
 
@@ -1089,6 +1086,10 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void kin_getRevRatesOfProgress(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getNetRatesOfProgress(CxxKinetics*, double*) except +translate_exception
 
+    cdef void kin_getFwdRopTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_getRevRopTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_getNetRopTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
+
     cdef void kin_getEquilibriumConstants(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getFwdRateConstants(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getRevRateConstants(CxxKinetics*, double*) except +translate_exception
@@ -1104,6 +1105,10 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void kin_getCreationRates(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getDestructionRates(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getNetProductionRates(CxxKinetics*, double*) except +translate_exception
+
+    cdef void kin_getCreationRateTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_getDestructionRateTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_getNetProductionRateTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
 
     # Transport properties
     cdef void tran_getMixDiffCoeffs(CxxTransport*, double*) except +translate_exception
@@ -1121,6 +1126,7 @@ ctypedef void (*thermoMethod1d)(CxxThermoPhase*, double*) except +translate_exce
 ctypedef void (*transportMethod1d)(CxxTransport*, double*) except +translate_exception
 ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +translate_exception
 ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +translate_exception
+ctypedef void (*kineticsMethodMapped)(CxxKinetics*, double*, size_t) except +translate_exception
 
 # classes
 cdef class SpeciesThermo:
@@ -1368,6 +1374,7 @@ cdef string stringify(x) except *
 cdef pystr(string x)
 cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method)
 cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method)
+cdef np.ndarray get_mapped(Kinetics kin, kineticsMethodMapped method, size_t dim)
 cdef vector[pair[int, int]] index_vector(int size)
 cdef vector[double] value_vector(int size)
 cdef np.ndarray as_dense(

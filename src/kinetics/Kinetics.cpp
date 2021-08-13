@@ -540,27 +540,61 @@ Eigen::VectorXd Kinetics::ropTemperatureDerivatives(bool forward, double dT)
     return out;
 }
 
-Eigen::VectorXd Kinetics::getFwdRopTemperatureDerivatives(bool approx)
+Eigen::VectorXd Kinetics::getFwdRopTemperatureDerivatives()
 {
-    if (!approx) {
+    if (m_jac_exact_temperature_derivatives) {
         throw NotImplementedError("Kinetics::getFwdRopTemperatureDerivatives");
     }
+
+    if (legacy_rate_constants_used()) {
+        // @TODO  This is somewhat restrictive; however, using the alternative
+        // definition by default appears to be inconsistent.
+        warn_user("GasKinetics::fwdRopTemperatureDerivatives",
+            "This routine relies on rate\nconstant calculations; here, the legacy "
+            "definition introduces spurious temperature dependencies\ndue to the "
+            "inclusion of third-body concentrations for ThreeBodyReaction objects.\n"
+            "Proceed with caution, or set 'use_legacy_rate_constants' to false for "
+            "new behavior.");
+    }
+
     return ropTemperatureDerivatives(true, 1e-6);
 }
 
-Eigen::VectorXd Kinetics::getRevRopTemperatureDerivatives(bool approx)
+Eigen::VectorXd Kinetics::getRevRopTemperatureDerivatives()
 {
-    if (!approx) {
+    if (m_jac_exact_temperature_derivatives) {
         throw NotImplementedError("Kinetics::getRevRopTemperatureDerivatives");
+    }
+
+    if (legacy_rate_constants_used()) {
+        // @TODO  This is somewhat restrictive; however, using the alternative
+        // definition by default appears to be inconsistent.
+        warn_user("GasKinetics::revRopTemperatureDerivatives",
+            "This routine relies on rate\nconstant calculations; here, the legacy "
+            "definition introduces spurious temperature dependencies\ndue to the "
+            "inclusion of third-body concentrations for ThreeBodyReaction objects.\n"
+            "Proceed with caution, or set 'use_legacy_rate_constants' to false for "
+            "new behavior.");
     }
 
     return ropTemperatureDerivatives(false, 1e-6);
 }
 
-Eigen::VectorXd Kinetics::getNetRopTemperatureDerivatives(bool approx)
+Eigen::VectorXd Kinetics::getNetRopTemperatureDerivatives()
 {
-    if (!approx) {
+    if (m_jac_exact_temperature_derivatives) {
         throw NotImplementedError("Kinetics::getNetRopTemperatureDerivatives");
+    }
+
+    if (legacy_rate_constants_used()) {
+        // @TODO  This is somewhat restrictive; however, using the alternative
+        // definition by default appears to be inconsistent.
+        warn_user("GasKinetics::netRopTemperatureDerivatives",
+            "This routine relies on rate\nconstant calculations; here, the legacy "
+            "definition introduces spurious temperature dependencies\ndue to the "
+            "inclusion of third-body concentrations for ThreeBodyReaction objects.\n"
+            "Proceed with caution, or set 'use_legacy_rate_constants' to false for "
+            "new behavior.");
     }
 
     return ropTemperatureDerivatives(true, 1e-6)
@@ -612,17 +646,17 @@ Eigen::SparseMatrix<double> Kinetics::getCreationRateSpeciesDerivatives(
     return jac;
 }
 
-Eigen::VectorXd Kinetics::getCreationRateTemperatureDerivatives(bool approx)
+Eigen::VectorXd Kinetics::getCreationRateTemperatureDerivatives()
 {
     if (!m_finalized) {
         finalizeSetup();
     }
-    Eigen::VectorXd jac;
+    Eigen::VectorXd out(m_kk);
     // the forward direction creates product species
-    jac = m_productStoich->stoichCoeffs() * getFwdRopTemperatureDerivatives(approx);
+    out = m_productStoich->stoichCoeffs() * getFwdRopTemperatureDerivatives();
     // the reverse direction creates reactant species
-    jac += m_reactantStoich->stoichCoeffs() * getRevRopTemperatureDerivatives(approx);
-    return jac;
+    out += m_reactantStoich->stoichCoeffs() * getRevRopTemperatureDerivatives();
+    return out;
 }
 
 void Kinetics::getDestructionRates(doublereal* ddot)
@@ -649,17 +683,17 @@ Eigen::SparseMatrix<double> Kinetics::getDestructionRateSpeciesDerivatives(
     return jac;
 }
 
-Eigen::VectorXd Kinetics::getDestructionRateTemperatureDerivatives(bool approx)
+Eigen::VectorXd Kinetics::getDestructionRateTemperatureDerivatives()
 {
     if (!m_finalized) {
         finalizeSetup();
     }
-    Eigen::VectorXd jac;
+    Eigen::VectorXd out(m_kk);
     // the reverse direction destroys products in reversible reactions
-    jac = m_revProductStoich->stoichCoeffs() * getRevRopTemperatureDerivatives(approx);
+    out = m_revProductStoich->stoichCoeffs() * getRevRopTemperatureDerivatives();
     // the forward direction destroys reactants
-    jac += m_reactantStoich->stoichCoeffs() * getFwdRopTemperatureDerivatives(approx);
-    return jac;
+    out += m_reactantStoich->stoichCoeffs() * getFwdRopTemperatureDerivatives();
+    return out;
 }
 
 void Kinetics::getNetProductionRates(doublereal* net)
@@ -681,12 +715,12 @@ Eigen::SparseMatrix<double> Kinetics::getNetProductionRateSpeciesDerivatives(
         - getRevRopSpeciesDerivatives(thirdbodies));
 }
 
-Eigen::VectorXd Kinetics::getNetProductionRateTemperatureDerivatives(bool approx)
+Eigen::VectorXd Kinetics::getNetProductionRateTemperatureDerivatives()
 {
     if (!m_finalized) {
         finalizeSetup();
     }
-    return m_stoichMatrix * getNetRopTemperatureDerivatives(approx);
+    return m_stoichMatrix * getNetRopTemperatureDerivatives();
 }
 
 size_t Kinetics::getRopSpeciesDerivatives(
@@ -718,36 +752,6 @@ size_t Kinetics::getProductionRateSpeciesDerivatives(
         ret = getDestructionRateSpeciesDerivatives(thirdbodies);
     }
     return sparseComponents(ret, indices, values);
-}
-
-void Kinetics::getRopTemperatureDerivatives(
-    vector_fp& values, bool forward, bool reverse, bool approx)
-{
-    MappedVector mapped(values.data(), nReactions());
-    if (forward && reverse) {
-        mapped = getNetRopTemperatureDerivatives(approx);
-    } else if (forward) {
-        mapped = getFwdRopTemperatureDerivatives(approx);
-    } else if (reverse) {
-        mapped = getRevRopTemperatureDerivatives(approx);
-    } else {
-        mapped.setZero();
-    }
-}
-
-void Kinetics::getProductionRateTemperatureDerivatives(
-    vector_fp& values, bool creation, bool destruction, bool approx)
-{
-    MappedVector mapped(values.data(), m_kk);
-    if (creation && destruction) {
-        mapped = getNetProductionRateTemperatureDerivatives(approx);
-    } else if (creation) {
-        mapped = getCreationRateTemperatureDerivatives(approx);
-    } else if (destruction) {
-        mapped = getDestructionRateTemperatureDerivatives(approx);
-    } else {
-        mapped.setZero();
-    }
 }
 
 void Kinetics::addPhase(ThermoPhase& thermo)
