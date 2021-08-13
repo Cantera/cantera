@@ -401,7 +401,7 @@ cdef class Kinetics(_SolutionBase):
         """
         def __get__(self):
             max_size = self.n_total_species * self.n_reactions
-            return get_dense(self, kin_getFwdRopSpeciesDerivatives,
+            return get_dense(self, kin_fwdRopSpeciesDerivatives,
                 max_size, self.n_reactions, self.n_total_species)
 
     property reverse_rop_species_derivatives:
@@ -414,7 +414,7 @@ cdef class Kinetics(_SolutionBase):
         """
         def __get__(self):
             max_size = self.n_total_species * self.n_reactions
-            return get_dense(self, kin_getRevRopSpeciesDerivatives,
+            return get_dense(self, kin_revRopSpeciesDerivatives,
                 max_size, self.n_reactions, self.n_total_species)
 
     property net_rop_species_derivatives:
@@ -427,7 +427,7 @@ cdef class Kinetics(_SolutionBase):
         """
         def __get__(self):
             max_size = self.n_total_species * self.n_reactions
-            return get_dense(self, kin_getNetRopSpeciesDerivatives,
+            return get_dense(self, kin_netRopSpeciesDerivatives,
                 max_size, self.n_reactions, self.n_total_species)
 
     property forward_rop_temperature_derivatives:
@@ -438,7 +438,7 @@ cdef class Kinetics(_SolutionBase):
             may be changed or removed without notice.
         """
         def __get__(self):
-            return get_mapped(self, kin_getFwdRopTemperatureDerivatives, self.n_reactions)
+            return get_mapped(self, kin_fwdRopTemperatureDerivatives, self.n_reactions)
 
     property reverse_rop_temperature_derivatives:
         """
@@ -448,7 +448,7 @@ cdef class Kinetics(_SolutionBase):
             may be changed or removed without notice.
         """
         def __get__(self):
-            return get_mapped(self, kin_getRevRopTemperatureDerivatives, self.n_reactions)
+            return get_mapped(self, kin_revRopTemperatureDerivatives, self.n_reactions)
 
     property net_rop_temperature_derivatives:
         """
@@ -458,7 +458,7 @@ cdef class Kinetics(_SolutionBase):
             may be changed or removed without notice.
         """
         def __get__(self):
-            return get_mapped(self, kin_getNetRopTemperatureDerivatives, self.n_reactions)
+            return get_mapped(self, kin_netRopTemperatureDerivatives, self.n_reactions)
 
     property creation_rate_species_derivatives:
         """
@@ -470,7 +470,7 @@ cdef class Kinetics(_SolutionBase):
         """
         def __get__(self):
             max_size = self.n_total_species * self.n_total_species
-            return get_dense(self, kin_getCreationRateSpeciesDerivatives,
+            return get_dense(self, kin_creationRateSpeciesDerivatives,
                 max_size, self.n_total_species, self.n_total_species)
 
     property destruction_rate_species_derivatives:
@@ -483,7 +483,7 @@ cdef class Kinetics(_SolutionBase):
         """
         def __get__(self):
             max_size = self.n_total_species * self.n_total_species
-            return get_dense(self, kin_getDestructionRateSpeciesDerivatives,
+            return get_dense(self, kin_destructionRateSpeciesDerivatives,
                 max_size, self.n_total_species, self.n_total_species)
 
     property net_production_rate_species_derivatives:
@@ -496,7 +496,7 @@ cdef class Kinetics(_SolutionBase):
         """
         def __get__(self):
             max_size = self.n_total_species * self.n_total_species
-            return get_dense(self, kin_getNetProductionRateSpeciesDerivatives,
+            return get_dense(self, kin_netProductionRateSpeciesDerivatives,
                 max_size, self.n_total_species, self.n_total_species)
 
     property creation_rate_temperature_derivatives:
@@ -508,7 +508,7 @@ cdef class Kinetics(_SolutionBase):
         """
         def __get__(self):
             return get_mapped(
-                self, kin_getCreationRateTemperatureDerivatives, self.n_total_species)
+                self, kin_creationRateTemperatureDerivatives, self.n_total_species)
 
     property destruction_rate_temperature_derivatives:
         """
@@ -519,7 +519,7 @@ cdef class Kinetics(_SolutionBase):
         """
         def __get__(self):
             return get_mapped(
-                self, kin_getDestructionRateTemperatureDerivatives, self.n_total_species)
+                self, kin_destructionRateTemperatureDerivatives, self.n_total_species)
 
     property net_production_rate_temperature_derivatives:
         """
@@ -530,7 +530,7 @@ cdef class Kinetics(_SolutionBase):
         """
         def __get__(self):
             return get_mapped(
-                self, kin_getNetProductionRateTemperatureDerivatives, self.n_total_species)
+                self, kin_netProductionRateTemperatureDerivatives, self.n_total_species)
 
     property delta_enthalpy:
         """Change in enthalpy for each reaction [J/kmol]."""

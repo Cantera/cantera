@@ -567,9 +567,9 @@ public:
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::SparseMatrix<double> getFwdRopSpeciesDerivatives()
+    virtual Eigen::SparseMatrix<double> fwdRopSpeciesDerivatives()
     {
-        throw NotImplementedError("Kinetics::getFwdRopSpeciesDerivatives");
+        throw NotImplementedError("Kinetics::fwdRopSpeciesDerivatives");
     }
 
     /**
@@ -583,9 +583,9 @@ public:
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::SparseMatrix<double> getRevRopSpeciesDerivatives()
+    virtual Eigen::SparseMatrix<double> revRopSpeciesDerivatives()
     {
-        throw NotImplementedError("Kinetics::getRevRopSpeciesDerivatives");
+        throw NotImplementedError("Kinetics::revRopSpeciesDerivatives");
     }
 
     /**
@@ -599,9 +599,9 @@ public:
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::SparseMatrix<double> getNetRopSpeciesDerivatives()
+    virtual Eigen::SparseMatrix<double> netRopSpeciesDerivatives()
     {
-        throw NotImplementedError("Kinetics::getNetRopSpeciesDerivatives");
+        throw NotImplementedError("Kinetics::netRopSpeciesDerivatives");
     }
 
     /**
@@ -611,7 +611,7 @@ public:
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::VectorXd getFwdRopTemperatureDerivatives();
+    virtual Eigen::VectorXd fwdRopTemperatureDerivatives();
 
     /**
      * Calculate Jacobian for reverse rates-of-progress with respect to species
@@ -620,7 +620,7 @@ public:
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::VectorXd getRevRopTemperatureDerivatives();
+    virtual Eigen::VectorXd revRopTemperatureDerivatives();
 
     /**
      * Calculate Jacobian for net rates-of-progress with respect to species
@@ -629,7 +629,7 @@ public:
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::VectorXd getNetRopTemperatureDerivatives();
+    virtual Eigen::VectorXd netRopTemperatureDerivatives();
 
     /**
      * Calculate Jacobian for species creation rates with respect to species
@@ -642,7 +642,7 @@ public:
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    Eigen::SparseMatrix<double> getCreationRateSpeciesDerivatives();
+    Eigen::SparseMatrix<double> creationRateSpeciesDerivatives();
 
     /**
      * Calculate Jacobian for species destruction rates with respect to species
@@ -655,7 +655,7 @@ public:
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    Eigen::SparseMatrix<double> getDestructionRateSpeciesDerivatives();
+    Eigen::SparseMatrix<double> destructionRateSpeciesDerivatives();
 
     /**
      * Calculate Jacobian for species net production rates with respect to species
@@ -668,7 +668,7 @@ public:
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    Eigen::SparseMatrix<double> getNetProductionRateSpeciesDerivatives();
+    Eigen::SparseMatrix<double> netProductionRateSpeciesDerivatives();
 
     /**
      * Calculate Jacobian for species creation rates with respect to temperature.
@@ -676,7 +676,7 @@ public:
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::VectorXd getCreationRateTemperatureDerivatives();
+    virtual Eigen::VectorXd creationRateTemperatureDerivatives();
 
     /**
      * Calculate Jacobian for species destruction rates with respect to temperature.
@@ -684,7 +684,7 @@ public:
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::VectorXd getDestructionRateTemperatureDerivatives();
+    virtual Eigen::VectorXd destructionRateTemperatureDerivatives();
 
     /**
      * Calculate Jacobian for species net production rates with respect to temperature.
@@ -692,7 +692,7 @@ public:
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::VectorXd getNetProductionRateTemperatureDerivatives();
+    virtual Eigen::VectorXd netProductionRateTemperatureDerivatives();
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines

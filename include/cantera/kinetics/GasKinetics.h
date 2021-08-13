@@ -66,12 +66,12 @@ public:
     //! Calculate reverse rate coefficients
     void calcRevRateCoefficients(const vector_fp& ropf, vector_fp& ropr);
 
-    virtual Eigen::SparseMatrix<double> getFwdRopSpeciesDerivatives();
-    virtual Eigen::SparseMatrix<double> getRevRopSpeciesDerivatives();
-    virtual Eigen::SparseMatrix<double> getNetRopSpeciesDerivatives();
-    virtual Eigen::VectorXd getFwdRopTemperatureDerivatives();
-    virtual Eigen::VectorXd getRevRopTemperatureDerivatives();
-    virtual Eigen::VectorXd getNetRopTemperatureDerivatives();
+    virtual Eigen::SparseMatrix<double> fwdRopSpeciesDerivatives();
+    virtual Eigen::SparseMatrix<double> revRopSpeciesDerivatives();
+    virtual Eigen::SparseMatrix<double> netRopSpeciesDerivatives();
+    virtual Eigen::VectorXd fwdRopTemperatureDerivatives();
+    virtual Eigen::VectorXd revRopTemperatureDerivatives();
+    virtual Eigen::VectorXd netRopTemperatureDerivatives();
 
     //! Update temperature-dependent portions of reaction rates and falloff
     //! functions.

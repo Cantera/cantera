@@ -191,7 +191,7 @@ void GasKinetics::processFalloffReactions(vector_fp& ropf)
     }
 }
 
-Eigen::SparseMatrix<double> GasKinetics::getFwdRopSpeciesDerivatives()
+Eigen::SparseMatrix<double> GasKinetics::fwdRopSpeciesDerivatives()
 {
     Eigen::SparseMatrix<double> jac;
 
@@ -217,7 +217,7 @@ Eigen::SparseMatrix<double> GasKinetics::getFwdRopSpeciesDerivatives()
     m_reactantStoich->multiply(m_act_conc.data(), m_rop_3b.data());
     if (!concm_3b_values.empty()) {
         // Do not support legacy CTI/XML-based reaction rate evaluators
-        throw CanteraError("GasKinetics::getFwdRopSpeciesDerivatives",
+        throw CanteraError("GasKinetics::fwdRopSpeciesDerivatives",
             "Not supported for legacy input format.");
     }
     if (!concm_multi_values.empty()) {
@@ -227,7 +227,7 @@ Eigen::SparseMatrix<double> GasKinetics::getFwdRopSpeciesDerivatives()
     return jac;
 }
 
-Eigen::SparseMatrix<double> GasKinetics::getRevRopSpeciesDerivatives()
+Eigen::SparseMatrix<double> GasKinetics::revRopSpeciesDerivatives()
 {
     Eigen::SparseMatrix<double> jac;
 
@@ -254,7 +254,7 @@ Eigen::SparseMatrix<double> GasKinetics::getRevRopSpeciesDerivatives()
     m_productStoich->multiply(m_act_conc.data(), m_rop_3b.data());
     if (!concm_3b_values.empty()) {
         // Do not support legacy CTI/XML-based reaction rate evaluators
-        throw CanteraError("GasKinetics::getRevRopSpeciesDerivatives",
+        throw CanteraError("GasKinetics::revRopSpeciesDerivatives",
             "Not supported for legacy input format.");
     }
     if (!concm_multi_values.empty()) {
@@ -264,15 +264,15 @@ Eigen::SparseMatrix<double> GasKinetics::getRevRopSpeciesDerivatives()
     return jac;
 }
 
-Eigen::SparseMatrix<double> GasKinetics::getNetRopSpeciesDerivatives()
+Eigen::SparseMatrix<double> GasKinetics::netRopSpeciesDerivatives()
 {
-    return getFwdRopSpeciesDerivatives() - getRevRopSpeciesDerivatives();
+    return fwdRopSpeciesDerivatives() - revRopSpeciesDerivatives();
 }
 
-Eigen::VectorXd GasKinetics::getFwdRopTemperatureDerivatives()
+Eigen::VectorXd GasKinetics::fwdRopTemperatureDerivatives()
 {
     if (!m_jac_exact_temperature_derivatives) {
-        return Kinetics::getFwdRopTemperatureDerivatives();
+        return Kinetics::fwdRopTemperatureDerivatives();
     }
 
     Eigen::VectorXd out(nReactions());
@@ -286,26 +286,26 @@ Eigen::VectorXd GasKinetics::getFwdRopTemperatureDerivatives()
     return out;
 }
 
-Eigen::VectorXd GasKinetics::getRevRopTemperatureDerivatives()
+Eigen::VectorXd GasKinetics::revRopTemperatureDerivatives()
 {
     if (!m_jac_exact_temperature_derivatives) {
-        return Kinetics::getRevRopTemperatureDerivatives();
+        return Kinetics::revRopTemperatureDerivatives();
     }
 
     // @TODO look at temperature derivatives of equilibrium constants
-    throw CanteraError("GasKinetics::getRevRopTemperatureDerivatives",
+    throw CanteraError("GasKinetics::revRopTemperatureDerivatives",
         "Exact reverse rates-of-progress temperature derivatives "
         "are not implemented.\nUse numerical approximation instead.");
 }
 
-Eigen::VectorXd GasKinetics::getNetRopTemperatureDerivatives()
+Eigen::VectorXd GasKinetics::netRopTemperatureDerivatives()
 {
     if (!m_jac_exact_temperature_derivatives) {
-        return Kinetics::getNetRopTemperatureDerivatives();
+        return Kinetics::netRopTemperatureDerivatives();
     }
 
     // @TODO look at temperature derivatives of equilibrium constants
-    throw CanteraError("GasKinetics::getRevNetTemperatureDerivatives",
+    throw CanteraError("GasKinetics::netRopTemperatureDerivatives",
         "Exact net rates-of-progress temperature derivatives "
         "are not implemented.\nUse numerical approximation instead.");
 }

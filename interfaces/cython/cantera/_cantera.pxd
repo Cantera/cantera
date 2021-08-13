@@ -1086,9 +1086,9 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void kin_getRevRatesOfProgress(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getNetRatesOfProgress(CxxKinetics*, double*) except +translate_exception
 
-    cdef void kin_getFwdRopTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
-    cdef void kin_getRevRopTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
-    cdef void kin_getNetRopTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_fwdRopTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_revRopTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_netRopTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
 
     cdef void kin_getEquilibriumConstants(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getFwdRateConstants(CxxKinetics*, double*) except +translate_exception
@@ -1106,22 +1106,22 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void kin_getDestructionRates(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getNetProductionRates(CxxKinetics*, double*) except +translate_exception
 
-    cdef void kin_getCreationRateTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
-    cdef void kin_getDestructionRateTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
-    cdef void kin_getNetProductionRateTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_creationRateTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_destructionRateTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_netProductionRateTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
 
     # Kinetics sparse matrices
     cdef size_t kin_reactantStoichCoeffs(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
     cdef size_t kin_productStoichCoeffs(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
     cdef size_t kin_revProductStoichCoeffs(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
 
-    cdef size_t kin_getFwdRopSpeciesDerivatives(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
-    cdef size_t kin_getRevRopSpeciesDerivatives(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
-    cdef size_t kin_getNetRopSpeciesDerivatives(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
+    cdef size_t kin_fwdRopSpeciesDerivatives(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
+    cdef size_t kin_revRopSpeciesDerivatives(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
+    cdef size_t kin_netRopSpeciesDerivatives(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
 
-    cdef size_t kin_getCreationRateSpeciesDerivatives(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
-    cdef size_t kin_getDestructionRateSpeciesDerivatives(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
-    cdef size_t kin_getNetProductionRateSpeciesDerivatives(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
+    cdef size_t kin_creationRateSpeciesDerivatives(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
+    cdef size_t kin_destructionRateSpeciesDerivatives(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
+    cdef size_t kin_netProductionRateSpeciesDerivatives(CxxKinetics*, size_t*, size_t*, double*, size_t) except +translate_exception
 
     # Transport properties
     cdef void tran_getMixDiffCoeffs(CxxTransport*, double*) except +translate_exception

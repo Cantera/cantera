@@ -519,10 +519,10 @@ Eigen::VectorXd Kinetics::ropTemperatureDerivatives(bool forward, double dT)
     return out;
 }
 
-Eigen::VectorXd Kinetics::getFwdRopTemperatureDerivatives()
+Eigen::VectorXd Kinetics::fwdRopTemperatureDerivatives()
 {
     if (m_jac_exact_temperature_derivatives) {
-        throw NotImplementedError("Kinetics::getFwdRopTemperatureDerivatives");
+        throw NotImplementedError("Kinetics::fwdRopTemperatureDerivatives");
     }
 
     if (legacy_rate_constants_used()) {
@@ -539,10 +539,10 @@ Eigen::VectorXd Kinetics::getFwdRopTemperatureDerivatives()
     return ropTemperatureDerivatives(true, 1e-6);
 }
 
-Eigen::VectorXd Kinetics::getRevRopTemperatureDerivatives()
+Eigen::VectorXd Kinetics::revRopTemperatureDerivatives()
 {
     if (m_jac_exact_temperature_derivatives) {
-        throw NotImplementedError("Kinetics::getRevRopTemperatureDerivatives");
+        throw NotImplementedError("Kinetics::revRopTemperatureDerivatives");
     }
 
     if (legacy_rate_constants_used()) {
@@ -559,10 +559,10 @@ Eigen::VectorXd Kinetics::getRevRopTemperatureDerivatives()
     return ropTemperatureDerivatives(false, 1e-6);
 }
 
-Eigen::VectorXd Kinetics::getNetRopTemperatureDerivatives()
+Eigen::VectorXd Kinetics::netRopTemperatureDerivatives()
 {
     if (m_jac_exact_temperature_derivatives) {
-        throw NotImplementedError("Kinetics::getNetRopTemperatureDerivatives");
+        throw NotImplementedError("Kinetics::netRopTemperatureDerivatives");
     }
 
     if (legacy_rate_constants_used()) {
@@ -612,26 +612,26 @@ void Kinetics::getCreationRates(doublereal* cdot)
     m_reactantStoich->incrementSpecies(m_ropr.data(), cdot);
 }
 
-Eigen::SparseMatrix<double> Kinetics::getCreationRateSpeciesDerivatives()
+Eigen::SparseMatrix<double> Kinetics::creationRateSpeciesDerivatives()
 {
     Eigen::SparseMatrix<double> jac;
     // the forward direction creates product species
-    jac = m_productStoich->stoichCoeffs() * getFwdRopSpeciesDerivatives();
+    jac = m_productStoich->stoichCoeffs() * fwdRopSpeciesDerivatives();
     // the reverse direction creates reactant species
-    jac += m_reactantStoich->stoichCoeffs() * getRevRopSpeciesDerivatives();
+    jac += m_reactantStoich->stoichCoeffs() * revRopSpeciesDerivatives();
     return jac;
 }
 
-Eigen::VectorXd Kinetics::getCreationRateTemperatureDerivatives()
+Eigen::VectorXd Kinetics::creationRateTemperatureDerivatives()
 {
     if (!m_finalized) {
         finalizeSetup();
     }
     Eigen::VectorXd out(m_kk);
     // the forward direction creates product species
-    out = m_productStoich->stoichCoeffs() * getFwdRopTemperatureDerivatives();
+    out = m_productStoich->stoichCoeffs() * fwdRopTemperatureDerivatives();
     // the reverse direction creates reactant species
-    out += m_reactantStoich->stoichCoeffs() * getRevRopTemperatureDerivatives();
+    out += m_reactantStoich->stoichCoeffs() * revRopTemperatureDerivatives();
     return out;
 }
 
@@ -646,26 +646,26 @@ void Kinetics::getDestructionRates(doublereal* ddot)
     m_reactantStoich->incrementSpecies(m_ropf.data(), ddot);
 }
 
-Eigen::SparseMatrix<double> Kinetics::getDestructionRateSpeciesDerivatives()
+Eigen::SparseMatrix<double> Kinetics::destructionRateSpeciesDerivatives()
 {
     Eigen::SparseMatrix<double> jac;
     // the reverse direction destroys products in reversible reactions
-    jac = m_revProductStoich->stoichCoeffs() * getRevRopSpeciesDerivatives();
+    jac = m_revProductStoich->stoichCoeffs() * revRopSpeciesDerivatives();
     // the forward direction destroys reactants
-    jac += m_reactantStoich->stoichCoeffs() * getFwdRopSpeciesDerivatives();
+    jac += m_reactantStoich->stoichCoeffs() * fwdRopSpeciesDerivatives();
     return jac;
 }
 
-Eigen::VectorXd Kinetics::getDestructionRateTemperatureDerivatives()
+Eigen::VectorXd Kinetics::destructionRateTemperatureDerivatives()
 {
     if (!m_finalized) {
         finalizeSetup();
     }
     Eigen::VectorXd out(m_kk);
     // the reverse direction destroys products in reversible reactions
-    out = m_revProductStoich->stoichCoeffs() * getRevRopTemperatureDerivatives();
+    out = m_revProductStoich->stoichCoeffs() * revRopTemperatureDerivatives();
     // the forward direction destroys reactants
-    out += m_reactantStoich->stoichCoeffs() * getFwdRopTemperatureDerivatives();
+    out += m_reactantStoich->stoichCoeffs() * fwdRopTemperatureDerivatives();
     return out;
 }
 
@@ -680,17 +680,17 @@ void Kinetics::getNetProductionRates(doublereal* net)
     m_reactantStoich->decrementSpecies(m_ropnet.data(), net);
 }
 
-Eigen::SparseMatrix<double> Kinetics::getNetProductionRateSpeciesDerivatives()
+Eigen::SparseMatrix<double> Kinetics::netProductionRateSpeciesDerivatives()
 {
-    return m_stoichMatrix * getNetRopSpeciesDerivatives();
+    return m_stoichMatrix * netRopSpeciesDerivatives();
 }
 
-Eigen::VectorXd Kinetics::getNetProductionRateTemperatureDerivatives()
+Eigen::VectorXd Kinetics::netProductionRateTemperatureDerivatives()
 {
     if (!m_finalized) {
         finalizeSetup();
     }
-    return m_stoichMatrix * getNetRopTemperatureDerivatives();
+    return m_stoichMatrix * netRopTemperatureDerivatives();
 }
 
 void Kinetics::addPhase(ThermoPhase& thermo)
