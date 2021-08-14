@@ -221,6 +221,12 @@ void suppress_thermo_warnings(bool suppress=true);
 //! @copydoc Application::thermo_warnings_suppressed
 bool thermo_warnings_suppressed();
 
+//! @copydoc Application::use_legacy_rate_constants
+void use_legacy_rate_constants(bool legacy=true);
+
+//! @copydoc Application::legacy_rate_constants_used
+bool legacy_rate_constants_used();
+
 //! @copydoc Application::Messages::setLogger
 void setLogger(Logger* logwriter);
 
