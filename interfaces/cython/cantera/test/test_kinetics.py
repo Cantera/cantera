@@ -47,6 +47,12 @@ class TestKinetics(utilities.CanteraTest):
         self.assertArrayNear(0.5 * fwd_rates0, fwd_rates2)
         self.assertArrayNear(0.5 * rev_rates0, rev_rates2)
 
+    def test_legacy_reaction_rate(self):
+        ct.use_legacy_rate_constants(True)
+        with self.assertRaisesRegex(ct.CanteraError, "Deprecated: Behavior to change"):
+            self.phase.forward_rate_constants
+        ct.use_legacy_rate_constants(False)
+
     def test_reaction_type(self):
         self.assertIn(self.phase.reaction_type_str(0), ["three-body", "three-body-legacy"])
         self.assertIn(self.phase.reaction_type_str(2), ["elementary", "elementary-legacy"])

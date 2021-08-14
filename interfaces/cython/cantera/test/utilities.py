@@ -51,6 +51,7 @@ class CanteraTest(unittest.TestCase):
             cls.using_tempfile = True
 
         cantera.make_deprecation_warnings_fatal()
+        cantera.use_legacy_rate_constants(False)
         cantera.add_directory(cls.test_work_path)
         cls.test_data_path = TEST_DATA_PATH
         cls.cantera_data_path = CANTERA_DATA_PATH
