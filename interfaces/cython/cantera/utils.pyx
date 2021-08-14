@@ -56,6 +56,9 @@ def suppress_deprecation_warnings():
 def suppress_thermo_warnings(pybool suppress=True):
     Cxx_suppress_thermo_warnings(suppress)
 
+def use_legacy_rate_constants(pybool legacy):
+    Cxx_use_legacy_rate_constants(legacy)
+
 cdef Composition comp_map(X) except *:
     if isinstance(X, (str, bytes)):
         return parseCompString(stringify(X))

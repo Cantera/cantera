@@ -81,6 +81,16 @@ bool thermo_warnings_suppressed()
     return app()->thermo_warnings_suppressed();
 }
 
+void use_legacy_rate_constants(bool legacy)
+{
+    app()->use_legacy_rate_constants(legacy);
+}
+
+bool legacy_rate_constants_used()
+{
+    return app()->legacy_rate_constants_used();
+}
+
 // **************** Global Data ****************
 
 Unit* Unit::s_u = 0;

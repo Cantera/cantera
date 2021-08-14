@@ -365,6 +365,20 @@ public:
         return m_suppress_thermo_warnings;
     }
 
+    //! Use definition of rate constants that includes third-body concentrations
+    //! for ThreeBodyReaction objects.
+    /*!
+     * @deprecated  Used for deprecation purposes, @see Kinetics::getFwdRateConstants()
+     */
+    void use_legacy_rate_constants(bool legacy=true) {
+        m_use_legacy_rate_constants = legacy;
+    }
+
+    //! Returns `true` if legacy rate constant definition should be used
+    bool legacy_rate_constants_used() {
+        return m_use_legacy_rate_constants;
+    }
+
     //! @copydoc Messages::setLogger
     void setLogger(Logger* logwriter) {
         pMessenger->setLogger(logwriter);
@@ -425,6 +439,7 @@ protected:
     bool m_suppress_deprecation_warnings;
     bool m_fatal_deprecation_warnings;
     bool m_suppress_thermo_warnings;
+    bool m_use_legacy_rate_constants;
 
     ThreadMessages pMessenger;
 
