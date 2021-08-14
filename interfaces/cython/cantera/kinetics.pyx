@@ -301,6 +301,15 @@ cdef class Kinetics(_SolutionBase):
         all temperature-dependent, pressure-dependent, and third body
         contributions. Units are a combination of kmol, m^3 and s, that depend
         on the rate expression for the reaction.
+
+        .. deprecated:: 2.6
+
+            Behavior to change after Cantera 2.6; results will no longer
+            include third-body concentrations for ThreeBodyReaction objects.
+            Going forward, results are consistent with conventional definitions
+            (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically Reacting
+            Flow', Wiley Interscience, 2003).
+            For new behavior, run 'ct.use_legacy_rate_constants(False)'.
         """
         def __get__(self):
             return get_reaction_array(self, kin_getFwdRateConstants)
@@ -311,6 +320,15 @@ cdef class Kinetics(_SolutionBase):
         all temperature-dependent, pressure-dependent, and third body
         contributions. Units are a combination of kmol, m^3 and s, that depend
         on the rate expression for the reaction.
+
+        .. deprecated:: 2.6
+
+            Behavior to change after Cantera 2.6; results will no longer
+            include third-body concentrations for ThreeBodyReaction objects.
+            Going forward, results are consistent with conventional definitions
+            (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically Reacting
+            Flow', Wiley Interscience, 2003).
+            For new behavior, run 'ct.use_legacy_rate_constants(False)'.
         """
         def __get__(self):
             return get_reaction_array(self, kin_getRevRateConstants)

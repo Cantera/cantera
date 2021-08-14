@@ -80,7 +80,7 @@ void BulkKinetics::getDeltaSSEntropy(doublereal* deltaS)
     getReactionDelta(m_grt.data(), deltaS);
 }
 
-void BulkKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible)
+void BulkKinetics::getRevRateConstants(double* krev, bool doIrreversible)
 {
     // go get the forward rate constants. -> note, we don't really care about
     // speed or redundancy in these informational routines.
