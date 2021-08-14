@@ -1494,6 +1494,16 @@ extern "C" {
         }
     }
 
+    int ct_use_legacy_rate_constants(int legacy)
+    {
+        try {
+            use_legacy_rate_constants(legacy != 0);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int ct_setLogWriter(void* logger)
     {
         try {
