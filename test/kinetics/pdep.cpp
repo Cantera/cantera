@@ -225,6 +225,7 @@ int main(int argc, char** argv)
 {
     printf("Running main() from pdep.cpp\n");
     Cantera::make_deprecation_warnings_fatal();
+    Cantera::use_legacy_rate_constants(false);
     testing::InitGoogleTest(&argc, argv);
     int result = RUN_ALL_TESTS();
     Cantera::appdelete();
