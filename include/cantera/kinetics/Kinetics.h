@@ -649,8 +649,15 @@ public:
      *
      * @param kfwd    Output vector containing the forward reaction rate
      *                constants. Length: nReactions().
+     *
+     * @deprecated  Behavior to change after Cantera 2.6; results will no longer
+     *              include third-body concentrations for ThreeBodyReaction objects.
+     *              Going forward, results are consistent with conventional definitions
+     *              (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically Reacting
+     *              Flow', Wiley Interscience, 2003).
+     *              For new behavior, set 'Cantera::use_legacy_rate_constants(false)'.
      */
-    virtual void getFwdRateConstants(doublereal* kfwd) {
+    virtual void getFwdRateConstants(double* kfwd) {
         throw NotImplementedError("Kinetics::getFwdRateConstants");
     }
 
@@ -666,10 +673,17 @@ public:
      * @param krev   Output vector of reverse rate constants
      * @param doIrreversible boolean indicating whether irreversible reactions
      *                       should be included.
+     *
+     * @deprecated  Behavior to change after Cantera 2.6; results will no longer
+     *              include third-body concentrations for ThreeBodyReaction objects.
+     *              Going forward, results are consistent with conventional definitions
+     *              (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically Reacting
+     *              Flow', Wiley Interscience, 2003).
+     *              For new behavior, set 'Cantera::use_legacy_rate_constants(false)'.
      */
-    virtual void getRevRateConstants(doublereal* krev,
+    virtual void getRevRateConstants(double* krev,
                                      bool doIrreversible = false) {
-        throw NotImplementedError("Kinetics::getFwdRateConstants");
+        throw NotImplementedError("Kinetics::getRevRateConstants");
     }
 
     //! @}

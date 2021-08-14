@@ -227,7 +227,7 @@ void GasKinetics::updateROP()
     m_ROP_ok = true;
 }
 
-void GasKinetics::getFwdRateConstants(doublereal* kfwd)
+void GasKinetics::getFwdRateConstants(double* kfwd)
 {
     update_rates_C();
     update_rates_T();
@@ -235,18 +235,25 @@ void GasKinetics::getFwdRateConstants(doublereal* kfwd)
     // copy rate coefficients into ropf
     m_ropf = m_rfn;
 
-    // multiply ropf by enhanced 3b conc for all 3b rxns
-    if (!concm_3b_values.empty()) {
-        m_3b_concm.multiply(m_ropf.data(), concm_3b_values.data());
+    if (legacy_rate_constants_used()) {
+        warn_deprecated("GasKinetics::getFwdRateConstants",
+            "Behavior to change after Cantera 2.6;\nresults will no longer "
+            "include third-body concentrations for ThreeBodyReaction objects.\n"
+            "Set 'use_legacy_rate_constants' to false for new behavior.");
+
+        // multiply ropf by enhanced 3b conc for all 3b rxns
+        if (!concm_3b_values.empty()) {
+            m_3b_concm.multiply(m_ropf.data(), concm_3b_values.data());
+        }
+
+        // reactions involving third body
+        for (auto& index : m_multi_indices) {
+            m_ropf[index] *= m_concm[index];
+        }
     }
 
     if (m_falloff_high_rates.nReactions()) {
         processFalloffReactions();
-    }
-
-    // reactions involving third body
-    for (auto& index : m_multi_indices) {
-        m_ropf[index] *= m_concm[index];
     }
 
     for (size_t i = 0; i < nReactions(); i++) {

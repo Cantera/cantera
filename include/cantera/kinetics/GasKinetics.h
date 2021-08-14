@@ -43,7 +43,7 @@ public:
     //! @{
 
     virtual void getEquilibriumConstants(doublereal* kc);
-    virtual void getFwdRateConstants(doublereal* kfwd);
+    virtual void getFwdRateConstants(double* kfwd);
 
     //! @}
     //! @name Reaction Mechanism Setup Routines

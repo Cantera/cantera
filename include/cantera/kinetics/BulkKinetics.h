@@ -35,7 +35,7 @@ public:
     virtual void getDeltaSSEnthalpy(doublereal* deltaH);
     virtual void getDeltaSSEntropy(doublereal* deltaS);
 
-    virtual void getRevRateConstants(doublereal* krev,
+    virtual void getRevRateConstants(double* krev,
                                      bool doIrreversible = false);
 
     virtual bool addReaction(shared_ptr<Reaction> r);
