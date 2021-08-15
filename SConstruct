@@ -678,6 +678,11 @@ config_options = [
         "verbose_tests",
         """If enabled, verbose test output will be shown.""",
         False),
+    BoolVariable(
+        "legacy_rate_constants",
+        """If set to false, rate constant calculations will not use legacy
+        definition by default.""",
+        True),
 ]
 
 opts.AddVariables(*config_options)
@@ -1577,6 +1582,11 @@ if env.get('has_sundials_lapack') and env['use_lapack']:
     configh['CT_SUNDIALS_USE_LAPACK'] = 1
 else:
     configh['CT_SUNDIALS_USE_LAPACK'] = 0
+
+if env['legacy_rate_constants']:
+    configh['CT_LEGACY_RATE_CONSTANTS'] = 1
+else:
+    configh['CT_LEGACY_RATE_CONSTANTS'] = 0
 
 cdefine('LAPACK_FTN_STRING_LEN_AT_END', 'lapack_ftn_string_len_at_end')
 cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')

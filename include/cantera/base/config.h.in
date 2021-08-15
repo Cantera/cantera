@@ -78,4 +78,7 @@ typedef int ftnlen;       // Fortran hidden string length type
 //    built to use this option
 {CT_SUNDIALS_USE_LAPACK!s}
 
+//    Use legacy rate constant by default
+{CT_LEGACY_RATE_CONSTANTS!s}
+
 #endif
