@@ -11,12 +11,12 @@
 
 #include "Kinetics.h"
 #include "RateCoeffMgr.h"
+#include "ThirdBodyCalc.h"
 #include "cantera/kinetics/MultiRate.h"
 
 namespace Cantera
 {
 
-class ThirdBodyCalc;
 class ElementaryReaction2;
 
 //! Partial specialization of Kinetics for chemistry in a single bulk phase
@@ -66,7 +66,7 @@ protected:
     //! valued stoichiometries.
     vector_fp m_dn;
 
-    std::shared_ptr<ThirdBodyCalc> m_multi_concm; //!< used with MultiRate evaluator
+    ThirdBodyCalc m_multi_concm; //!< used with MultiRate evaluator
     vector_fp concm_multi_values; //!< concentrations of third-body collision partners
     std::vector<size_t> m_multi_indices; //!< reaction indices
 

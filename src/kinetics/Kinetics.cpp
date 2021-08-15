@@ -682,7 +682,7 @@ void Kinetics::getNetProductionRates(doublereal* net)
 
 Eigen::SparseMatrix<double> Kinetics::netProductionRateSpeciesDerivatives()
 {
-    return m_stoichMatrix * netRopSpeciesDerivatives();
+    return m_stoichMatrix * (fwdRopSpeciesDerivatives() - revRopSpeciesDerivatives());
 }
 
 Eigen::VectorXd Kinetics::netProductionRateTemperatureDerivatives()

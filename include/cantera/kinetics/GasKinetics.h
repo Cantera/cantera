@@ -57,15 +57,6 @@ public:
     virtual void finalizeSetup();
     virtual void updateROP();
 
-    //! Retrieve rate coefficients
-    void calcFwdRateCoefficients(vector_fp& ropf);
-
-    //! Apply third-body collider concentrations
-    void applyThirdBodies(vector_fp& ropf);
-
-    //! Calculate reverse rate coefficients
-    void calcRevRateCoefficients(const vector_fp& ropf, vector_fp& ropr);
-
     virtual Eigen::SparseMatrix<double> fwdRopSpeciesDerivatives();
     virtual Eigen::SparseMatrix<double> revRopSpeciesDerivatives();
     virtual Eigen::SparseMatrix<double> netRopSpeciesDerivatives();
@@ -83,6 +74,51 @@ public:
     //! reactions.
     virtual void update_rates_C();
 
+private:
+
+    //! Retrieve rate coefficients
+    void calcFwdRateCoefficients(double* ropf)
+    {
+        update_rates_C();
+        update_rates_T();
+
+        // copy rate coefficients into ropf
+        copy(m_rfn.begin(), m_rfn.end(), ropf);
+
+        if (m_falloff_high_rates.nReactions()) {
+            processFalloffReactions(ropf);
+        }
+
+        // Scale the forward rate coefficient by the perturbation factor
+        for (size_t i = 0; i < nReactions(); ++i) {
+            ropf[i] *= m_perturb[i];
+        }
+    }
+
+    //! Apply third-body collider concentrations
+    void applyThirdBodies(double* ropf)
+    {
+        // multiply ropf by enhanced 3b conc for all 3b rxns
+        if (!concm_3b_values.empty()) {
+            m_3b_concm.multiply(ropf, concm_3b_values.data());
+        }
+
+        // reactions involving third body
+        if (!concm_multi_values.empty()) {
+            m_multi_concm.multiply(ropf, concm_multi_values.data());
+        }
+    }
+
+    //! Calculate reverse rate coefficients
+    void applyRevRateCoefficients(double* ropr)
+    {
+        // For reverse rates computed from thermochemistry, multiply the forward
+        // rate coefficients by the reciprocals of the equilibrium constants
+        for (size_t i = 0; i < nReactions(); ++i) {
+            ropr[i] *= m_rkcn[i];
+        }
+    }
+
 protected:
     //! Reaction index of each falloff reaction
     std::vector<size_t> m_fallindx;
@@ -99,8 +135,8 @@ protected:
 
     FalloffMgr m_falloffn;
 
-    std::shared_ptr<ThirdBodyCalc> m_3b_concm;
-    std::shared_ptr<ThirdBodyCalc> m_falloff_concm;
+    ThirdBodyCalc m_3b_concm;
+    ThirdBodyCalc m_falloff_concm;
 
     Rate1<Plog> m_plog_rates;
     Rate1<Chebyshev> m_cheb_rates;
@@ -126,7 +162,7 @@ protected:
 
     //!@}
 
-    void processFalloffReactions(vector_fp& ropf);
+    void processFalloffReactions(double* ropf);
 
     // functions marked as deprecated below are only used for XML import and
     // transitional reaction types are marked as '-legacy'

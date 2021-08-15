@@ -22,15 +22,13 @@ GasKinetics::GasKinetics(ThermoPhase* thermo) :
     m_logStandConc(0.0),
     m_pres(0.0)
 {
-    m_3b_concm = std::unique_ptr<ThirdBodyCalc>(new ThirdBodyCalc());
-    m_falloff_concm = std::unique_ptr<ThirdBodyCalc>(new ThirdBodyCalc());
 }
 
 void GasKinetics::finalizeSetup()
 {
     // Third-body calculators
-    m_3b_concm->finalizeSetup(m_kk, nReactions());
-    m_falloff_concm->finalizeSetup(m_kk, nReactions());
+    m_3b_concm.finalizeSetup(m_kk, nReactions());
+    m_falloff_concm.finalizeSetup(m_kk, nReactions());
 
     m_rop_stoich.resize(nReactions());
     m_rop_3b.resize(nReactions());
@@ -97,18 +95,18 @@ void GasKinetics::update_rates_C()
 
     // 3-body reactions
     if (!concm_3b_values.empty()) {
-        m_3b_concm->update(m_phys_conc, ctot, concm_3b_values.data());
+        m_3b_concm.update(m_phys_conc, ctot, concm_3b_values.data());
     }
 
     // Falloff reactions
     if (!concm_falloff_values.empty()) {
-        m_falloff_concm->update(m_phys_conc, ctot, concm_falloff_values.data());
+        m_falloff_concm.update(m_phys_conc, ctot, concm_falloff_values.data());
     }
 
     // Third-body objects interacting with MultiRate evaluator
     if (!concm_multi_values.empty()) {
         // using pre-existing third-body handlers requires copying;
-        m_multi_concm->update(m_phys_conc, ctot, concm_multi_values.data());
+        m_multi_concm.update(m_phys_conc, ctot, concm_multi_values.data());
         for (size_t i = 0; i < m_multi_indices.size(); i++) {
             m_concm[m_multi_indices[i]] = concm_multi_values[i];
         }
@@ -168,7 +166,7 @@ void GasKinetics::getEquilibriumConstants(doublereal* kc)
     m_temp = 0.0;
 }
 
-void GasKinetics::processFalloffReactions(vector_fp& ropf)
+void GasKinetics::processFalloffReactions(double* ropf)
 {
     // use m_ropr for temporary storage of reduced pressure
     vector_fp& pr = m_ropr;
@@ -200,11 +198,11 @@ Eigen::SparseMatrix<double> GasKinetics::fwdRopSpeciesDerivatives()
     }
 
     // forward reaction rate coefficients
-    calcFwdRateCoefficients(m_rop_rates);
+    calcFwdRateCoefficients(m_rop_rates.data());
 
     // derivatives handled by StoichManagerN
     std::copy(m_rop_rates.begin(), m_rop_rates.end(), m_rop_stoich.begin());
-    applyThirdBodies(m_rop_stoich);
+    applyThirdBodies(m_rop_stoich.data());
     jac = m_reactantStoich->speciesDerivatives(
         m_act_conc.data(), m_rop_stoich.data());
 
@@ -221,7 +219,7 @@ Eigen::SparseMatrix<double> GasKinetics::fwdRopSpeciesDerivatives()
             "Not supported for legacy input format.");
     }
     if (!concm_multi_values.empty()) {
-        jac += m_multi_concm->speciesDerivatives(m_rop_3b.data());
+        jac += m_multi_concm.speciesDerivatives(m_rop_3b.data());
     }
 
     return jac;
@@ -236,12 +234,12 @@ Eigen::SparseMatrix<double> GasKinetics::revRopSpeciesDerivatives()
     }
 
     // forward reaction rate coefficients
-    calcFwdRateCoefficients(m_rop_rates);
-    calcRevRateCoefficients(m_rop_rates, m_rop_rates);
+    calcFwdRateCoefficients(m_rop_rates.data());
+    applyRevRateCoefficients(m_rop_rates.data());
 
     // derivatives handled by StoichManagerN
     std::copy(m_rop_rates.begin(), m_rop_rates.end(), m_rop_stoich.begin());
-    applyThirdBodies(m_rop_stoich);
+    applyThirdBodies(m_rop_stoich.data());
     jac = m_revProductStoich->speciesDerivatives(
         m_act_conc.data(), m_rop_stoich.data());
 
@@ -258,7 +256,7 @@ Eigen::SparseMatrix<double> GasKinetics::revRopSpeciesDerivatives()
             "Not supported for legacy input format.");
     }
     if (!concm_multi_values.empty()) {
-        jac += m_multi_concm->speciesDerivatives(m_rop_3b.data());
+        jac += m_multi_concm.speciesDerivatives(m_rop_3b.data());
     }
 
     return jac;
@@ -316,9 +314,10 @@ void GasKinetics::updateROP()
         finalizeSetup();
     }
 
-    calcFwdRateCoefficients(m_ropf);
-    applyThirdBodies(m_ropf);
-    calcRevRateCoefficients(m_ropf, m_ropr);
+    calcFwdRateCoefficients(m_ropf.data());
+    applyThirdBodies(m_ropf.data());
+    copy(m_ropf.begin(), m_ropf.end(), m_ropr.begin());
+    applyRevRateCoefficients(m_ropr.data());
 
     // multiply ropf by concentration products
     m_reactantStoich->multiply(m_act_conc.data(), m_ropf.data());
@@ -341,49 +340,9 @@ void GasKinetics::updateROP()
     m_ROP_ok = true;
 }
 
- void GasKinetics::calcFwdRateCoefficients(vector_fp& ropf)
- {
-    update_rates_C();
-    update_rates_T();
-
-    // copy rate coefficients into ropf
-    ropf = m_rfn;
-
-    if (m_falloff_high_rates.nReactions()) {
-        processFalloffReactions(ropf);
-    }
-
-    // Scale the forward rate coefficient by the perturbation factor
-    for (size_t i = 0; i < nReactions(); i++) {
-        ropf[i] *= m_perturb[i];
-    }
-}
-
-void GasKinetics::applyThirdBodies(vector_fp& ropf)
-{
-    // multiply ropf by enhanced 3b conc for all 3b rxns
-    if (!concm_3b_values.empty()) {
-        m_3b_concm->multiply(ropf.data(), concm_3b_values.data());
-    }
-
-    // reactions involving third body
-    if (!concm_multi_values.empty()) {
-        m_multi_concm->multiply(ropf.data(), concm_multi_values.data());
-    }
-}
-
-void GasKinetics::calcRevRateCoefficients(const vector_fp& ropf, vector_fp& ropr)
-{
-    // For reverse rates computed from thermochemistry, multiply the forward
-    // rate coefficients by the reciprocals of the equilibrium constants
-    for (size_t i = 0; i < nReactions(); i++) {
-        ropr[i] = ropf[i] * m_rkcn[i];
-    }
-}
-
 void GasKinetics::getFwdRateConstants(doublereal* kfwd)
 {
-    calcFwdRateCoefficients(m_ropf);
+    calcFwdRateCoefficients(m_ropf.data());
     if (legacy_rate_constants_used()) {
         warn_deprecated("GasKinetics::getFwdRateConstants",
             "Behavior to change after Cantera 2.6;\nresults will no longer include "
@@ -392,13 +351,11 @@ void GasKinetics::getFwdRateConstants(doublereal* kfwd)
             "'useLegacyRateConstants(0)' (MATLAB), 'Cantera::use_legacy_rate_constants"
             "(false)' (C++),\nor 'ct_use_legacy_rate_constants(0)' (clib).");
 
-        applyThirdBodies(m_ropf);
+        applyThirdBodies(m_ropf.data());
     }
 
     // copy result
-    for (size_t i = 0; i < nReactions(); i++) {
-        kfwd[i] = m_ropf[i];
-    }
+    copy(m_ropf.begin(), m_ropf.end(), kfwd);
 }
 
 bool GasKinetics::addReaction(shared_ptr<Reaction> r)
@@ -455,9 +412,9 @@ void GasKinetics::addFalloffReaction(FalloffReaction& r)
             efficiencies[k] = eff.second;
         }
     }
-    m_falloff_concm->install(nfall, efficiencies,
+    m_falloff_concm.install(nfall, efficiencies,
                             r.third_body.default_efficiency);
-    concm_falloff_values.resize(m_falloff_concm->workSize());
+    concm_falloff_values.resize(m_falloff_concm.workSize());
 
     // install the falloff function calculator for this reaction
     m_falloffn.install(nfall, r.type(), r.falloff);
@@ -474,9 +431,9 @@ void GasKinetics::addThreeBodyReaction(ThreeBodyReaction2& r)
             efficiencies[k] = eff.second;
         }
     }
-    m_3b_concm->install(nReactions()-1, efficiencies,
+    m_3b_concm.install(nReactions()-1, efficiencies,
                        r.third_body.default_efficiency);
-    concm_3b_values.resize(m_3b_concm->workSize());
+    concm_3b_values.resize(m_3b_concm.workSize());
 }
 
 void GasKinetics::addPlogReaction(PlogReaction2& r)

@@ -3,7 +3,6 @@
 
 #include "cantera/kinetics/BulkKinetics.h"
 #include "cantera/kinetics/Reaction.h"
-#include "cantera/kinetics/ThirdBodyCalc.h"
 #include "cantera/thermo/ThermoPhase.h"
 
 namespace Cantera
@@ -13,7 +12,6 @@ BulkKinetics::BulkKinetics(ThermoPhase* thermo) :
     m_ROP_ok(false),
     m_temp(0.0)
 {
-    m_multi_concm = std::unique_ptr<ThirdBodyCalc>(new ThirdBodyCalc());
     if (thermo) {
         addPhase(*thermo);
     }
@@ -22,7 +20,7 @@ BulkKinetics::BulkKinetics(ThermoPhase* thermo) :
 void BulkKinetics::finalizeSetup()
 {
     // Third-body calculators
-    m_multi_concm->finalizeSetup(m_kk, nReactions());
+    m_multi_concm.finalizeSetup(m_kk, nReactions());
 
     Kinetics::finalizeSetup();
 }
@@ -169,9 +167,9 @@ void BulkKinetics::addThirdBody(shared_ptr<Reaction> r)
                 "' while adding reaction '" + r->equation() + "'");
         }
     }
-    m_multi_concm->install(nReactions() - 1, efficiencies,
-                           r->thirdBody()->default_efficiency);
-    concm_multi_values.resize(m_multi_concm->workSize());
+    m_multi_concm.install(nReactions() - 1, efficiencies,
+                          r->thirdBody()->default_efficiency);
+    concm_multi_values.resize(m_multi_concm.workSize());
     m_multi_indices.push_back(nReactions() - 1);
 }
 
