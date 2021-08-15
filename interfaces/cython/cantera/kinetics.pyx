@@ -1,6 +1,8 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+from ctypes import c_int
+
 # NOTE: These cdef functions cannot be members of Kinetics because they would
 # cause "layout conflicts" when creating derived classes with multiple bases,
 # e.g. class Solution. [Cython 0.16]
@@ -10,9 +12,9 @@ cdef np.ndarray get_mapped(Kinetics kin, kineticsMethodMapped method, size_t dim
     return data
 
 cdef np.ndarray get_dense(Kinetics kin, kineticsMethodSparse method,
-        size_t max_dim, size_t n_rows, size_t n_cols):
-    cdef vector[size_t] rows
-    cdef vector[size_t] cols
+        size_t max_dim, tuple shape):
+    cdef vector[int] rows
+    cdef vector[int] cols
     cdef vector[double] data
     cdef size_t size
     rows.resize(max_dim)
@@ -20,10 +22,17 @@ cdef np.ndarray get_dense(Kinetics kin, kineticsMethodSparse method,
     data.resize(max_dim)
     size = method(kin.kinetics, &rows[0], &cols[0], &data[0], max_dim)
 
-    out = np.zeros((n_rows, n_cols))
+    out = np.zeros(shape)
     for i in xrange(size):
         out[rows[i], cols[i]] = data[i]
     return out
+
+cdef tuple get_sparse(Kinetics kin, kineticsMethodSparse method, size_t max_dim):
+    cdef np.ndarray[int, ndim=1, mode="c"] rows = np.empty(max_dim, dtype=c_int)
+    cdef np.ndarray[int, ndim=1, mode="c"] cols = np.empty(max_dim, dtype=c_int)
+    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(max_dim)
+    size = method(kin.kinetics, &rows[0], &cols[0], &data[0], max_dim)
+    return data[:size], tuple([rows[:size], cols[:size]])
 
 cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method):
     cdef np.ndarray[np.double_t, ndim=1] data = np.empty(kin.n_total_species)
@@ -267,9 +276,12 @@ cdef class Kinetics(_SolutionBase):
         reaction ``i``.
         """
         # ensure that output vectors have sufficient size
-        max_size = self.n_total_species * self.n_reactions
-        return get_dense(self, kin_reactantStoichCoeffs,
-            max_size, self.n_total_species, self.n_reactions)
+        shape = self.n_total_species, self.n_reactions
+        max_size = shape[0] * shape[1]
+        if __use_sparse__:
+            data, ix_ij = get_sparse(self, kin_reactantStoichCoeffs, max_size)
+            return _scipy_sparse.coo_matrix((data, ix_ij), shape=shape)
+        return get_dense(self, kin_reactantStoichCoeffs, max_size, shape)
 
     def product_stoich_coeffs(self, cbool irreversible=True):
         """
@@ -282,12 +294,17 @@ cdef class Kinetics(_SolutionBase):
         is set to ``False``.
         """
         # ensure that output vectors have sufficient size
-        max_size = self.n_total_species * self.n_reactions
+        shape = self.n_total_species, self.n_reactions
+        max_size = shape[0] * shape[1]
         if irreversible:
-            return get_dense(self, kin_productStoichCoeffs,
-                max_size, self.n_total_species, self.n_reactions)
-        return get_dense(self, kin_revProductStoichCoeffs,
-            max_size, self.n_total_species, self.n_reactions)
+            if __use_sparse__:
+                data, ix_ij = get_sparse(self, kin_productStoichCoeffs, max_size)
+                return _scipy_sparse.coo_matrix((data, ix_ij), shape=shape)
+            return get_dense(self, kin_productStoichCoeffs, max_size, shape)
+        if __use_sparse__:
+            data, ix_ij = get_sparse(self, kin_revProductStoichCoeffs, max_size)
+            return _scipy_sparse.coo_matrix((data, ix_ij), shape=shape)
+        return get_dense(self, kin_revProductStoichCoeffs, max_size, shape)
 
     property forward_rates_of_progress:
         """
@@ -394,41 +411,50 @@ cdef class Kinetics(_SolutionBase):
     property forward_rop_species_derivatives:
         """
         Calculate Jacobian for forward rates-of-progress with respect to species
-        concentrations.
+        concentrations. For sparse output, set ``ct.use_sparse(True)``.
 
         Warning: this method is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
         def __get__(self):
-            max_size = self.n_total_species * self.n_reactions
-            return get_dense(self, kin_fwdRopSpeciesDerivatives,
-                max_size, self.n_reactions, self.n_total_species)
+            shape = self.n_reactions, self.n_total_species
+            max_size = shape[0] * shape[1]
+            if __use_sparse__:
+                data, ix_ij = get_sparse(self, kin_fwdRopSpeciesDerivatives, max_size)
+                return _scipy_sparse.coo_matrix((data, ix_ij), shape=shape)
+            return get_dense(self, kin_fwdRopSpeciesDerivatives, max_size, shape)
 
     property reverse_rop_species_derivatives:
         """
         Calculate Jacobian for reverse rates-of-progress with respect to species
-        concentrations.
+        concentrations. For sparse output, set ``ct.use_sparse(True)``.
 
         Warning: this method is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
         def __get__(self):
-            max_size = self.n_total_species * self.n_reactions
-            return get_dense(self, kin_revRopSpeciesDerivatives,
-                max_size, self.n_reactions, self.n_total_species)
+            shape = self.n_reactions, self.n_total_species
+            max_size = shape[0] * shape[1]
+            if __use_sparse__:
+                data, ix_ij = get_sparse(self, kin_revRopSpeciesDerivatives, max_size)
+                return _scipy_sparse.coo_matrix((data, ix_ij), shape=shape)
+            return get_dense(self, kin_revRopSpeciesDerivatives, max_size, shape)
 
     property net_rop_species_derivatives:
         """
         Calculate Jacobian for net rates-of-progress with respect to species
-        concentrations.
+        concentrations. For sparse output, set ``ct.use_sparse(True)``.
 
         Warning: this method is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
         def __get__(self):
-            max_size = self.n_total_species * self.n_reactions
-            return get_dense(self, kin_netRopSpeciesDerivatives,
-                max_size, self.n_reactions, self.n_total_species)
+            shape = self.n_reactions, self.n_total_species
+            max_size = shape[0] * shape[1]
+            if __use_sparse__:
+                data, ix_ij = get_sparse(self, kin_netRopSpeciesDerivatives, max_size)
+                return _scipy_sparse.coo_matrix((data, ix_ij), shape=shape)
+            return get_dense(self, kin_netRopSpeciesDerivatives, max_size, shape)
 
     property forward_rop_temperature_derivatives:
         """
@@ -469,9 +495,14 @@ cdef class Kinetics(_SolutionBase):
             may be changed or removed without notice.
         """
         def __get__(self):
-            max_size = self.n_total_species * self.n_total_species
-            return get_dense(self, kin_creationRateSpeciesDerivatives,
-                max_size, self.n_total_species, self.n_total_species)
+            shape = self.n_total_species, self.n_total_species
+            max_size = shape[0] * shape[1]
+            if __use_sparse__:
+                data, ix_ij = get_sparse(
+                    self, kin_creationRateSpeciesDerivatives, max_size)
+                return _scipy_sparse.coo_matrix((data, ix_ij), shape=shape)
+            return get_dense(
+                self, kin_creationRateSpeciesDerivatives, max_size, shape)
 
     property destruction_rate_species_derivatives:
         """
@@ -482,9 +513,14 @@ cdef class Kinetics(_SolutionBase):
             may be changed or removed without notice.
         """
         def __get__(self):
-            max_size = self.n_total_species * self.n_total_species
-            return get_dense(self, kin_destructionRateSpeciesDerivatives,
-                max_size, self.n_total_species, self.n_total_species)
+            shape = self.n_total_species, self.n_total_species
+            max_size = shape[0] * shape[1]
+            if __use_sparse__:
+                data, ix_ij = get_sparse(
+                    self, kin_destructionRateSpeciesDerivatives, max_size)
+                return _scipy_sparse.coo_matrix((data, ix_ij), shape=shape)
+            return get_dense(
+                self, kin_destructionRateSpeciesDerivatives, max_size, shape)
 
     property net_production_rate_species_derivatives:
         """
@@ -495,9 +531,14 @@ cdef class Kinetics(_SolutionBase):
             may be changed or removed without notice.
         """
         def __get__(self):
-            max_size = self.n_total_species * self.n_total_species
-            return get_dense(self, kin_netProductionRateSpeciesDerivatives,
-                max_size, self.n_total_species, self.n_total_species)
+            shape = self.n_total_species, self.n_total_species
+            max_size = shape[0] * shape[1]
+            if __use_sparse__:
+                data, ix_ij = get_sparse(
+                    self, kin_netProductionRateSpeciesDerivatives, max_size)
+                return _scipy_sparse.coo_matrix((data, ix_ij), shape=shape)
+            return get_dense(
+                self, kin_netProductionRateSpeciesDerivatives, max_size, shape)
 
     property creation_rate_temperature_derivatives:
         """

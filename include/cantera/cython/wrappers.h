@@ -68,7 +68,7 @@ void CxxArray2D_set(Cantera::Array2D& array, size_t i, size_t j, double value)
 
 // Service function to pass components describing sparse matrix
 size_t sparseComponents(const Eigen::SparseMatrix<double>& mat,
-    size_t* rows, size_t* cols, double* data, size_t dim)
+    int* rows, int* cols, double* data, size_t dim)
 {
     size_t count = 0;
     for (int i = 0; i < mat.outerSize(); i++) {
@@ -92,7 +92,7 @@ size_t sparseComponents(const Eigen::SparseMatrix<double>& mat,
 // Function which passes sparse matrix components to a set of 1D arrays
 #define SPARSE_FUNC(PREFIX, CLASS_NAME, FUNC_NAME) \
     size_t PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, \
-    size_t* rows, size_t* cols, double* data, size_t dim) \
+    int* rows, int* cols, double* data, size_t dim) \
     { return sparseComponents(object->FUNC_NAME(), rows, cols, data, dim); }
 
 
