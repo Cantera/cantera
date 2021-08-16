@@ -48,10 +48,23 @@ class TestKinetics(utilities.CanteraTest):
         self.assertArrayNear(0.5 * rev_rates0, rev_rates2)
 
     def test_legacy_reaction_rate(self):
-        ct.use_legacy_rate_constants(True)
+        ct.use_legacy_rate_constants(True) # set to False for test suite
         with self.assertRaisesRegex(ct.CanteraError, "Deprecated: Behavior to change"):
             self.phase.forward_rate_constants
+
+        ct.suppress_deprecation_warnings() # disable fatal deprecation warnings
+        fwd_rates_legacy = self.phase.forward_rate_constants
+
         ct.use_legacy_rate_constants(False)
+        ct.make_deprecation_warnings_fatal() # re-enable fatal deprecation warnings
+
+        fwd_rates = self.phase.forward_rate_constants
+        ix_3b = np.array([self.phase.reaction_type_str(i) == "three-body"
+            for i in range(self.phase.n_reactions)])
+        ix_other = ix_3b == False
+
+        self.assertArrayNear(fwd_rates_legacy[ix_other], fwd_rates[ix_other])
+        self.assertFalse((fwd_rates_legacy[ix_3b] == fwd_rates[ix_3b]).any())
 
     def test_reaction_type(self):
         self.assertIn(self.phase.reaction_type_str(0), ["three-body", "three-body-legacy"])
