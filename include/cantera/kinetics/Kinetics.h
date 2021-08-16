@@ -1020,7 +1020,7 @@ protected:
     //! Cache for saved calculations within each Kinetics object.
     ValueCache m_cache;
 
-    //! Internal function to calculate numerical temperature derivative
+    //! @internal  Routine to calculate numerical temperature derivative
     Eigen::VectorXd ropTemperatureDerivatives(bool forward, double dT=1.e-6);
 
     // Update internal rate-of-progress variables #m_ropf and #m_ropr.

@@ -53,11 +53,11 @@ public:
         const ThermoPhase& bulk, double* kf, double* concm) const = 0;
 
     //! Evaluate all rate constant temperature derivatives handled by the evaluator,
-    //! which are multiplied with the array or rate constants
+    //! which are multiplied with the array of rate constants
     //! @param bulk  object representing bulk phase
     //! @param dkf  array of rate constants
     //! @param concm  effective third-body concentrations
-    virtual void applyRateConstants_ddTscaled(
+    virtual void processRateConstants_ddTscaled(
         const ThermoPhase& bulk, double* dkf, double* concm) const = 0;
 
     //! Update data common to reaction rates of a specific type
@@ -114,7 +114,7 @@ public:
         }
     }
 
-    virtual void applyRateConstants_ddTscaled(
+    virtual void processRateConstants_ddTscaled(
         const ThermoPhase& bulk, double* dkf, double* concm) const override
     {
         for (const auto& rxn : m_rxn_rates) {

@@ -75,9 +75,17 @@ public:
     virtual void update_rates_C();
 
 private:
+    //! @name Internal service methods
+    /*!
+     * These methods are for @internal use, and seek to avoid code duplication
+     * while evaluating terms used for rate constants, rates of progress, and
+     * their derivatives. Frequently used methods are defined in the header
+     * file and use raw data pointers to allow inlining and avoid overhead.
+     */
+    //!@{
 
-    //! Retrieve rate coefficients
-    void calcFwdRateCoefficients(double* ropf)
+    //! Calculate rate coefficients
+    void processFwdRateCoefficients(double* ropf)
     {
         update_rates_C();
         update_rates_T();
@@ -95,36 +103,46 @@ private:
         }
     }
 
-    //! Apply third-body collider concentrations
-    void applyThirdBodies(double* ropf)
+    //! Multiply rate with third-body collider concentrations
+    void processThirdBodies(double* rop)
     {
-        // multiply ropf by enhanced 3b conc for all 3b rxns
+        // multiply rop by enhanced 3b conc for all 3b rxns
         if (!concm_3b_values.empty()) {
-            m_3b_concm.multiply(ropf, concm_3b_values.data());
+            m_3b_concm.multiply(rop, concm_3b_values.data());
         }
 
         // reactions involving third body
         if (!concm_multi_values.empty()) {
-            m_multi_concm.multiply(ropf, concm_multi_values.data());
+            m_multi_concm.multiply(rop, concm_multi_values.data());
         }
     }
 
-    //! Calculate reverse rate coefficients
-    void applyRevRateCoefficients(double* ropr)
+    //! Multiply rate with inverse equilibrium constant
+    void processEquilibriumConstants(double* rop)
     {
         // For reverse rates computed from thermochemistry, multiply the forward
         // rate coefficients by the reciprocals of the equilibrium constants
         for (size_t i = 0; i < nReactions(); ++i) {
-            ropr[i] *= m_rkcn[i];
+            rop[i] *= m_rkcn[i];
         }
     }
 
-    //! Numerical derivative of inverse equilibrium constant
-    void applyInvEquilibriumConstants_ddTscaled(double* drkcn);
+    //! Multiply rate with scaled temperature derivatives of the inverse
+    //! equilibrium constant
+    void processEquilibriumConstants_ddTscaled(double* drkcn);
+    //!@}
+
+    //! Buffers for partial rop results with length nReactions()
+    vector_fp m_rbuf0;
+    vector_fp m_rbuf1;
+    vector_fp m_rbuf2;
 
 protected:
     //! Reaction index of each falloff reaction
     std::vector<size_t> m_fallindx;
+
+    //! Reaction index of each legacy reaction (old framework)
+    std::vector<size_t> m_legacy;
 
     //! Map of reaction index to falloff reaction index (i.e indices in
     //! #m_falloff_low_rates and #m_falloff_high_rates)
@@ -144,12 +162,6 @@ protected:
     Rate1<Plog> m_plog_rates;
     Rate1<Chebyshev> m_cheb_rates;
     Rate1<BlowersMasel> m_blowersmasel_rates;
-    std::vector<size_t> m_legacy; //!< Indices of legacy reactions
-
-    //! Buffers for partial rop results
-    vector_fp m_rop_stoich;
-    vector_fp m_rop_3b;
-    vector_fp m_rop_rates;
 
     //! @name Reaction rate data
     //!@{
