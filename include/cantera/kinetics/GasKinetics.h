@@ -119,6 +119,9 @@ private:
         }
     }
 
+    //! Numerical derivative of inverse equilibrium constant
+    void applyInvEquilibriumConstants_ddTscaled(double* drkcn);
+
 protected:
     //! Reaction index of each falloff reaction
     std::vector<size_t> m_fallindx;
@@ -141,6 +144,7 @@ protected:
     Rate1<Plog> m_plog_rates;
     Rate1<Chebyshev> m_cheb_rates;
     Rate1<BlowersMasel> m_blowersmasel_rates;
+    std::vector<size_t> m_legacy; //!< Indices of legacy reactions
 
     //! Buffers for partial rop results
     vector_fp m_rop_stoich;

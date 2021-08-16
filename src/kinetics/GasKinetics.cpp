@@ -273,15 +273,44 @@ Eigen::VectorXd GasKinetics::fwdRopTemperatureDerivatives()
         return Kinetics::fwdRopTemperatureDerivatives();
     }
 
-    Eigen::VectorXd out(nReactions());
     updateROP();
-    out.fill(NAN);
+    Eigen::VectorXd dFwdRop(nReactions());
+    copy(m_ropf.begin(), m_ropf.end(), &dFwdRop[0]);
     for (auto& rates : m_bulk_rates) {
-        rates->getScaledRateConstantTemperatureDerivatives(
-            thermo(), out.data(), m_concm.data());
+        rates->applyRateConstants_ddTscaled(
+            thermo(), dFwdRop.data(), m_concm.data());
     }
-    out.array() *= MappedVector(m_ropf.data(), nReactions()).array();
-    return out;
+
+    for (size_t i = 0; i < m_legacy.size(); ++i) {
+        dFwdRop(m_legacy[i]) = NAN;
+    }
+
+    return dFwdRop;
+}
+
+void GasKinetics::applyInvEquilibriumConstants_ddTscaled(double* drkcn)
+{
+    double dT = 1e-6;
+    double dTinv = 1. / dT;
+    vector_fp kc0(nReactions());
+    vector_fp kc1(nReactions());
+
+    double T = thermo().temperature();
+    double P = thermo().pressure();
+    thermo().setState_TP(T + dT, P);
+    getEquilibriumConstants(kc1.data());
+
+    thermo().setState_TP(T, P);
+    getEquilibriumConstants(kc0.data());
+
+    for (size_t i = 0; i < nReactions(); ++i) {
+        drkcn[i] *= (kc0[i] - kc1[i]) * dTinv;
+        drkcn[i] /= kc0[i]; // divide once as this is a scaled derivative
+    }
+
+    for (size_t i = 0; i < m_irrev.size(); ++i) {
+        drkcn[m_irrev[i]] = 0.0;
+    }
 }
 
 Eigen::VectorXd GasKinetics::revRopTemperatureDerivatives()
@@ -290,10 +319,26 @@ Eigen::VectorXd GasKinetics::revRopTemperatureDerivatives()
         return Kinetics::revRopTemperatureDerivatives();
     }
 
-    // @TODO look at temperature derivatives of equilibrium constants
-    throw CanteraError("GasKinetics::revRopTemperatureDerivatives",
-        "Exact reverse rates-of-progress temperature derivatives "
-        "are not implemented.\nUse numerical approximation instead.");
+    // reverse rop times scaled rate constant derivative
+    updateROP();
+    Eigen::VectorXd dRevRop(nReactions());
+    copy(m_ropr.begin(), m_ropr.end(), &dRevRop[0]);
+    for (auto& rates : m_bulk_rates) {
+        rates->applyRateConstants_ddTscaled(
+            thermo(), dRevRop.data(), m_concm.data());
+    }
+
+    // reverse rop times scaled inverse equilibrium constant derivatives
+    Eigen::VectorXd dRevRop2(nReactions());
+    copy(m_ropr.begin(), m_ropr.end(), &dRevRop2[0]);
+    applyInvEquilibriumConstants_ddTscaled(dRevRop2.data());
+
+    for (size_t i = 0; i < m_legacy.size(); ++i) {
+        dRevRop(m_legacy[i]) = NAN;
+    }
+
+    dRevRop += dRevRop2;
+    return dRevRop;
 }
 
 Eigen::VectorXd GasKinetics::netRopTemperatureDerivatives()
@@ -302,10 +347,26 @@ Eigen::VectorXd GasKinetics::netRopTemperatureDerivatives()
         return Kinetics::netRopTemperatureDerivatives();
     }
 
-    // @TODO look at temperature derivatives of equilibrium constants
-    throw CanteraError("GasKinetics::netRopTemperatureDerivatives",
-        "Exact net rates-of-progress temperature derivatives "
-        "are not implemented.\nUse numerical approximation instead.");
+    // net rop times scaled rate constant derivative
+    updateROP();
+    Eigen::VectorXd dNetRop(nReactions());
+    copy(m_ropnet.begin(), m_ropnet.end(), &dNetRop[0]);
+    for (auto& rates : m_bulk_rates) {
+        rates->applyRateConstants_ddTscaled(
+            thermo(), dNetRop.data(), m_concm.data());
+    }
+
+    // reverse rop times scaled inverse equilibrium constant derivatives
+    Eigen::VectorXd dRevRop2(nReactions());
+    copy(m_ropr.begin(), m_ropr.end(), &dRevRop2[0]);
+    applyInvEquilibriumConstants_ddTscaled(dRevRop2.data());
+
+    for (size_t i = 0; i < m_legacy.size(); ++i) {
+        dNetRop(m_legacy[i]) = NAN;
+    }
+
+    dNetRop -= dRevRop2;
+    return dNetRop;
 }
 
 void GasKinetics::updateROP()
@@ -387,6 +448,7 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
         throw CanteraError("GasKinetics::addReaction",
             "Unknown reaction type specified: '{}'", r->type());
     }
+    m_legacy.push_back(nReactions() - 1);
     return true;
 }
 
