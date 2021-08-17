@@ -80,7 +80,6 @@ void ArrheniusRate::setParameters(const AnyMap& node, const Units& rate_units)
     }
 
     Arrhenius::setParameters(node["rate-constant"], node.units(), rate_units);
-    return;
 }
 
 void ArrheniusRate::getParameters(AnyMap& rateNode,
@@ -138,7 +137,6 @@ void PlogRate::setParameters(const AnyMap& node, const Units& rate_units)
 
     Plog::setParameters(node.at("rate-constants").asVector<AnyMap>(),
                         node.units(), rate_units);
-    return;
 }
 
 void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
