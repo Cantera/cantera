@@ -420,9 +420,9 @@ cdef class Kinetics(_SolutionBase):
             shape = self.n_reactions, self.n_total_species
             max_size = shape[0] * shape[1]
             if __use_sparse__:
-                data, ix_ij = get_sparse(self, kin_fwdRopSpeciesDerivatives, max_size)
+                data, ix_ij = get_sparse(self, kin_fwdRatesOfProgress_ddC, max_size)
                 return _scipy_sparse.coo_matrix((data, ix_ij), shape=shape)
-            return get_dense(self, kin_fwdRopSpeciesDerivatives, max_size, shape)
+            return get_dense(self, kin_fwdRatesOfProgress_ddC, max_size, shape)
 
     property reverse_rop_species_derivatives:
         """
@@ -436,9 +436,9 @@ cdef class Kinetics(_SolutionBase):
             shape = self.n_reactions, self.n_total_species
             max_size = shape[0] * shape[1]
             if __use_sparse__:
-                data, ix_ij = get_sparse(self, kin_revRopSpeciesDerivatives, max_size)
+                data, ix_ij = get_sparse(self, kin_revRatesOfProgress_ddC, max_size)
                 return _scipy_sparse.coo_matrix((data, ix_ij), shape=shape)
-            return get_dense(self, kin_revRopSpeciesDerivatives, max_size, shape)
+            return get_dense(self, kin_revRatesOfProgress_ddC, max_size, shape)
 
     property net_rop_species_derivatives:
         """
@@ -452,9 +452,9 @@ cdef class Kinetics(_SolutionBase):
             shape = self.n_reactions, self.n_total_species
             max_size = shape[0] * shape[1]
             if __use_sparse__:
-                data, ix_ij = get_sparse(self, kin_netRopSpeciesDerivatives, max_size)
+                data, ix_ij = get_sparse(self, kin_netRatesOfProgress_ddC, max_size)
                 return _scipy_sparse.coo_matrix((data, ix_ij), shape=shape)
-            return get_dense(self, kin_netRopSpeciesDerivatives, max_size, shape)
+            return get_dense(self, kin_netRatesOfProgress_ddC, max_size, shape)
 
     property forward_rop_temperature_derivatives:
         """
@@ -464,7 +464,7 @@ cdef class Kinetics(_SolutionBase):
             may be changed or removed without notice.
         """
         def __get__(self):
-            return get_mapped(self, kin_fwdRopTemperatureDerivatives, self.n_reactions)
+            return get_mapped(self, kin_fwdRatesOfProgress_ddT, self.n_reactions)
 
     property reverse_rop_temperature_derivatives:
         """
@@ -474,7 +474,7 @@ cdef class Kinetics(_SolutionBase):
             may be changed or removed without notice.
         """
         def __get__(self):
-            return get_mapped(self, kin_revRopTemperatureDerivatives, self.n_reactions)
+            return get_mapped(self, kin_revRatesOfProgress_ddT, self.n_reactions)
 
     property net_rop_temperature_derivatives:
         """
@@ -484,7 +484,7 @@ cdef class Kinetics(_SolutionBase):
             may be changed or removed without notice.
         """
         def __get__(self):
-            return get_mapped(self, kin_netRopTemperatureDerivatives, self.n_reactions)
+            return get_mapped(self, kin_netRatesOfProgress_ddT, self.n_reactions)
 
     property creation_rate_species_derivatives:
         """
@@ -499,10 +499,10 @@ cdef class Kinetics(_SolutionBase):
             max_size = shape[0] * shape[1]
             if __use_sparse__:
                 data, ix_ij = get_sparse(
-                    self, kin_creationRateSpeciesDerivatives, max_size)
+                    self, kin_creationRates_ddC, max_size)
                 return _scipy_sparse.coo_matrix((data, ix_ij), shape=shape)
             return get_dense(
-                self, kin_creationRateSpeciesDerivatives, max_size, shape)
+                self, kin_creationRates_ddC, max_size, shape)
 
     property destruction_rate_species_derivatives:
         """
@@ -517,10 +517,10 @@ cdef class Kinetics(_SolutionBase):
             max_size = shape[0] * shape[1]
             if __use_sparse__:
                 data, ix_ij = get_sparse(
-                    self, kin_destructionRateSpeciesDerivatives, max_size)
+                    self, kin_destructionRates_ddC, max_size)
                 return _scipy_sparse.coo_matrix((data, ix_ij), shape=shape)
             return get_dense(
-                self, kin_destructionRateSpeciesDerivatives, max_size, shape)
+                self, kin_destructionRates_ddC, max_size, shape)
 
     property net_production_rate_species_derivatives:
         """
@@ -535,10 +535,10 @@ cdef class Kinetics(_SolutionBase):
             max_size = shape[0] * shape[1]
             if __use_sparse__:
                 data, ix_ij = get_sparse(
-                    self, kin_netProductionRateSpeciesDerivatives, max_size)
+                    self, kin_netProductionRates_ddC, max_size)
                 return _scipy_sparse.coo_matrix((data, ix_ij), shape=shape)
             return get_dense(
-                self, kin_netProductionRateSpeciesDerivatives, max_size, shape)
+                self, kin_netProductionRates_ddC, max_size, shape)
 
     property creation_rate_temperature_derivatives:
         """
@@ -549,7 +549,7 @@ cdef class Kinetics(_SolutionBase):
         """
         def __get__(self):
             return get_mapped(
-                self, kin_creationRateTemperatureDerivatives, self.n_total_species)
+                self, kin_creationRates_ddT, self.n_total_species)
 
     property destruction_rate_temperature_derivatives:
         """
@@ -560,7 +560,7 @@ cdef class Kinetics(_SolutionBase):
         """
         def __get__(self):
             return get_mapped(
-                self, kin_destructionRateTemperatureDerivatives, self.n_total_species)
+                self, kin_destructionRates_ddT, self.n_total_species)
 
     property net_production_rate_temperature_derivatives:
         """
@@ -571,7 +571,7 @@ cdef class Kinetics(_SolutionBase):
         """
         def __get__(self):
             return get_mapped(
-                self, kin_netProductionRateTemperatureDerivatives, self.n_total_species)
+                self, kin_netProductionRates_ddT, self.n_total_species)
 
     property delta_enthalpy:
         """Change in enthalpy for each reaction [J/kmol]."""

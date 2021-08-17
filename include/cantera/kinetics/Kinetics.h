@@ -552,24 +552,39 @@ public:
     //! @name Routines to Calculate Derivatives
     //! @{
 
-    void getJacobianSettings(AnyMap& settings) const;
+    /**
+     * Retrieve Jacobian settings. @see setJacobianSettings.
+     */
+    virtual void getJacobianSettings(AnyMap& settings) const
+    {
+        throw NotImplementedError("Kinetics::getJacobianSettings",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
 
-    void setJacobianSettings(const AnyMap& settings);
+    /**
+     * Set/modify Jacobian settings.
+     */
+    virtual void setJacobianSettings(const AnyMap& settings)
+    {
+        throw NotImplementedError("Kinetics::setJacobianSettings",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
 
     /**
      * Calculate Jacobian for forward rates-of-progress with respect to species
      * concentrations.
      *
      * This derivative is the term of the Jacobian that accounts for the product of
-     * species concentrations in the law of mass action. The method does not consider
+     * species mole fractions in the law of mass action. The method does not consider
      * rate constants that depend on species concentrations.
      *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::SparseMatrix<double> fwdRopSpeciesDerivatives()
+    virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddC()
     {
-        throw NotImplementedError("Kinetics::fwdRopSpeciesDerivatives");
+        throw NotImplementedError("Kinetics::fwdRatesOfProgress_ddC",
+            "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
     /**
@@ -577,15 +592,16 @@ public:
      * concentrations.
      *
      * This derivative is the term of the Jacobian that accounts for the product of
-     * species concentrations in the law of mass action. The method does not consider
+     * species mole fractions in the law of mass action. The method does not consider
      * rate constants that depend on species concentrations.
      *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::SparseMatrix<double> revRopSpeciesDerivatives()
+    virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddC()
     {
-        throw NotImplementedError("Kinetics::revRopSpeciesDerivatives");
+        throw NotImplementedError("Kinetics::revRatesOfProgress_ddC",
+            "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
     /**
@@ -593,15 +609,16 @@ public:
      * concentrations.
      *
      * This derivative is the term of the Jacobian that accounts for the product of
-     * species concentrations in the law of mass action. The method does not consider
+     * species mole fractions in the law of mass action. The method does not consider
      * rate constants that depend on species concentrations.
      *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::SparseMatrix<double> netRopSpeciesDerivatives()
+    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddC()
     {
-        throw NotImplementedError("Kinetics::netRopSpeciesDerivatives");
+        throw NotImplementedError("Kinetics::netRatesOfProgress_ddC",
+            "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
     /**
@@ -611,7 +628,11 @@ public:
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::VectorXd fwdRopTemperatureDerivatives();
+    virtual Eigen::VectorXd fwdRatesOfProgress_ddT()
+    {
+        throw NotImplementedError("Kinetics::fwdRatesOfProgress_ddT",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
 
     /**
      * Calculate Jacobian for reverse rates-of-progress with respect to species
@@ -620,7 +641,11 @@ public:
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::VectorXd revRopTemperatureDerivatives();
+    virtual Eigen::VectorXd revRatesOfProgress_ddT()
+    {
+        throw NotImplementedError("Kinetics::revRatesOfProgress_ddT",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
 
     /**
      * Calculate Jacobian for net rates-of-progress with respect to species
@@ -629,46 +654,50 @@ public:
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::VectorXd netRopTemperatureDerivatives();
+    virtual Eigen::VectorXd netRatesOfProgress_ddT()
+    {
+        throw NotImplementedError("Kinetics::netRatesOfProgress_ddT",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
 
     /**
      * Calculate Jacobian for species creation rates with respect to species
      * concentrations.
      *
      * This derivative is the term of the Jacobian that accounts for the product of
-     * species concentrations in the law of mass action. The method does not consider
+     * species mole fractions in the law of mass action. The method does not consider
      * rate constants that depend on species concentrations.
      *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    Eigen::SparseMatrix<double> creationRateSpeciesDerivatives();
+    Eigen::SparseMatrix<double> creationRates_ddC();
 
     /**
      * Calculate Jacobian for species destruction rates with respect to species
      * concentrations.
      *
      * This derivative is the term of the Jacobian that accounts for the product of
-     * species concentrations in the law of mass action. The method does not consider
+     * species mole fractions in the law of mass action. The method does not consider
      * rate constants that depend on species concentrations.
      *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    Eigen::SparseMatrix<double> destructionRateSpeciesDerivatives();
+    Eigen::SparseMatrix<double> destructionRates_ddC();
 
     /**
      * Calculate Jacobian for species net production rates with respect to species
      * concentrations.
      *
      * This derivative is the term of the Jacobian that accounts for the product of
-     * species concentrations in the law of mass action. The method does not consider
+     * species mole fractions in the law of mass action. The method does not consider
      * rate constants that depend on species concentrations.
      *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    Eigen::SparseMatrix<double> netProductionRateSpeciesDerivatives();
+    Eigen::SparseMatrix<double> netProductionRates_ddC();
 
     /**
      * Calculate Jacobian for species creation rates with respect to temperature.
@@ -676,7 +705,7 @@ public:
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::VectorXd creationRateTemperatureDerivatives();
+    virtual Eigen::VectorXd creationRates_ddT();
 
     /**
      * Calculate Jacobian for species destruction rates with respect to temperature.
@@ -684,7 +713,7 @@ public:
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::VectorXd destructionRateTemperatureDerivatives();
+    virtual Eigen::VectorXd destructionRates_ddT();
 
     /**
      * Calculate Jacobian for species net production rates with respect to temperature.
@@ -692,7 +721,7 @@ public:
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
      */
-    virtual Eigen::VectorXd netProductionRateTemperatureDerivatives();
+    virtual Eigen::VectorXd netProductionRates_ddT();
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines
@@ -1020,9 +1049,6 @@ protected:
     //! Cache for saved calculations within each Kinetics object.
     ValueCache m_cache;
 
-    //! @internal  Routine to calculate numerical temperature derivative
-    Eigen::VectorXd ropTemperatureDerivatives(bool forward, double dT=1.e-6);
-
     // Update internal rate-of-progress variables #m_ropf and #m_ropr.
     /*!
      * Internal routine that updates the Rates of Progress (ROP) of the reactions.
@@ -1161,11 +1187,6 @@ protected:
 
     //! reference to Solution
     std::weak_ptr<Solution> m_root;
-
-    //! Jacobian settings
-    bool m_jac_exact_temperature_derivatives;
-    bool m_jac_skip_third_bodies;
-    bool m_jac_skip_falloff;
 };
 
 }

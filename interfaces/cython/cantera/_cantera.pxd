@@ -570,19 +570,10 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         string reactantString(int) except +translate_exception
         string productString(int) except +translate_exception
         double reactantStoichCoeff(int, int) except +translate_exception
-        size_t reactantStoichCoeffs(
-            vector[pair[int, int]]&, vector[double]&) except +translate_exception
         double productStoichCoeff(int, int, cbool) except +translate_exception
-        size_t productStoichCoeffs(
-            vector[pair[int, int]]&, vector[double]&, cbool) except +translate_exception
 
         double multiplier(int)
         void setMultiplier(int, double)
-
-        size_t getRopSpeciesDerivatives(
-            vector[pair[int, int]]&, vector[double]&, cbool, cbool, cbool) except +translate_exception
-        size_t getProductionRateSpeciesDerivatives(
-            vector[pair[int, int]]&, vector[double]&, cbool, cbool, cbool) except +translate_exception
 
         void getJacobianSettings(CxxAnyMap&) except +translate_exception
         void setJacobianSettings(CxxAnyMap&) except +translate_exception
@@ -1086,9 +1077,9 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void kin_getRevRatesOfProgress(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getNetRatesOfProgress(CxxKinetics*, double*) except +translate_exception
 
-    cdef void kin_fwdRopTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
-    cdef void kin_revRopTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
-    cdef void kin_netRopTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_fwdRatesOfProgress_ddT(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_revRatesOfProgress_ddT(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_netRatesOfProgress_ddT(CxxKinetics*, double*, size_t) except +translate_exception
 
     cdef void kin_getEquilibriumConstants(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getFwdRateConstants(CxxKinetics*, double*) except +translate_exception
@@ -1106,22 +1097,22 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void kin_getDestructionRates(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getNetProductionRates(CxxKinetics*, double*) except +translate_exception
 
-    cdef void kin_creationRateTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
-    cdef void kin_destructionRateTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
-    cdef void kin_netProductionRateTemperatureDerivatives(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_creationRates_ddT(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_destructionRates_ddT(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_netProductionRates_ddT(CxxKinetics*, double*, size_t) except +translate_exception
 
     # Kinetics sparse matrices
     cdef size_t kin_reactantStoichCoeffs(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
     cdef size_t kin_productStoichCoeffs(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
     cdef size_t kin_revProductStoichCoeffs(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
 
-    cdef size_t kin_fwdRopSpeciesDerivatives(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
-    cdef size_t kin_revRopSpeciesDerivatives(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
-    cdef size_t kin_netRopSpeciesDerivatives(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
+    cdef size_t kin_fwdRatesOfProgress_ddC(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
+    cdef size_t kin_revRatesOfProgress_ddC(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
+    cdef size_t kin_netRatesOfProgress_ddC(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
 
-    cdef size_t kin_creationRateSpeciesDerivatives(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
-    cdef size_t kin_destructionRateSpeciesDerivatives(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
-    cdef size_t kin_netProductionRateSpeciesDerivatives(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
+    cdef size_t kin_creationRates_ddC(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
+    cdef size_t kin_destructionRates_ddC(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
+    cdef size_t kin_netProductionRates_ddC(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
 
     # Transport properties
     cdef void tran_getMixDiffCoeffs(CxxTransport*, double*) except +translate_exception
