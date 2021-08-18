@@ -304,12 +304,13 @@ cdef class Kinetics(_SolutionBase):
 
         .. deprecated:: 2.6
 
-            Behavior to change after Cantera 2.6; results will no longer
-            include third-body concentrations for ThreeBodyReaction objects.
-            Going forward, results are consistent with conventional definitions
-            (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically Reacting
-            Flow', Wiley Interscience, 2003).
-            For new behavior, run 'ct.use_legacy_rate_constants(False)'.
+            Behavior to change after Cantera 2.6; for Cantera 2.6, rate constants of
+            three-body reactions are multiplied with third-body concentrations
+            (no change to legacy behavior). After Cantera 2.6, results will no longer
+            include third-body concentrations and be consistent with conventional
+            definitions (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically
+            Reacting Flow', Wiley Interscience, 2003).
+            To switch to new behavior, run 'cantera.use_legacy_rate_constants(False)'.
         """
         def __get__(self):
             return get_reaction_array(self, kin_getFwdRateConstants)
@@ -323,12 +324,13 @@ cdef class Kinetics(_SolutionBase):
 
         .. deprecated:: 2.6
 
-            Behavior to change after Cantera 2.6; results will no longer
-            include third-body concentrations for ThreeBodyReaction objects.
-            Going forward, results are consistent with conventional definitions
-            (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically Reacting
-            Flow', Wiley Interscience, 2003).
-            For new behavior, run 'ct.use_legacy_rate_constants(False)'.
+            Behavior to change after Cantera 2.6; for Cantera 2.6, rate constants of
+            three-body reactions are multiplied with third-body concentrations
+            (no change to legacy behavior). After Cantera 2.6, results will no longer
+            include third-body concentrations and be consistent with conventional
+            definitions (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically
+            Reacting Flow', Wiley Interscience, 2003).
+            To switch to new behavior, run 'cantera.use_legacy_rate_constants(False)'.
         """
         def __get__(self):
             return get_reaction_array(self, kin_getRevRateConstants)

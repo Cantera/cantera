@@ -650,11 +650,13 @@ public:
      * @param kfwd    Output vector containing the forward reaction rate
      *                constants. Length: nReactions().
      *
-     * @deprecated  Behavior to change after Cantera 2.6; results will no longer
-     *              include third-body concentrations for ThreeBodyReaction objects.
-     *              Going forward, results are consistent with conventional definitions
-     *              (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically Reacting
-     *              Flow', Wiley Interscience, 2003).
+     * @deprecated  Behavior to change after Cantera 2.6; for Cantera 2.6, rate
+     *              constants of three-body reactions are multiplied with third-body
+     *              concentrations (no change to legacy behavior). After Cantera 2.6,
+     *              results will no longer include third-body concentrations and be
+     *              consistent with conventional definitions (see Eq. 9.75 in
+     *              Kee, Coltrin and Glarborg, 'Chemically eacting Flow', Wiley
+     *              Interscience, 2003).
      *              For new behavior, set 'Cantera::use_legacy_rate_constants(false)'.
      */
     virtual void getFwdRateConstants(double* kfwd) {
@@ -674,11 +676,13 @@ public:
      * @param doIrreversible boolean indicating whether irreversible reactions
      *                       should be included.
      *
-     * @deprecated  Behavior to change after Cantera 2.6; results will no longer
-     *              include third-body concentrations for ThreeBodyReaction objects.
-     *              Going forward, results are consistent with conventional definitions
-     *              (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically Reacting
-     *              Flow', Wiley Interscience, 2003).
+     * @deprecated  Behavior to change after Cantera 2.6; for Cantera 2.6, rate
+     *              constants of three-body reactions are multiplied with third-body
+     *              concentrations (no change to legacy behavior). After Cantera 2.6,
+     *              results will no longer include third-body concentrations and be
+     *              consistent with conventional definitions (see Eq. 9.75 in
+     *              Kee, Coltrin and Glarborg, 'Chemically eacting Flow', Wiley
+     *              Interscience, 2003).
      *              For new behavior, set 'Cantera::use_legacy_rate_constants(false)'.
      */
     virtual void getRevRateConstants(double* krev,

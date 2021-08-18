@@ -237,9 +237,11 @@ void GasKinetics::getFwdRateConstants(double* kfwd)
 
     if (legacy_rate_constants_used()) {
         warn_deprecated("GasKinetics::getFwdRateConstants",
-            "Behavior to change after Cantera 2.6;\nresults will no longer "
-            "include third-body concentrations for ThreeBodyReaction objects.\n"
-            "Set 'use_legacy_rate_constants' to false for new behavior.");
+            "Behavior to change after Cantera 2.6;\nresults will no longer include "
+            "third-body concentrations for three-body reactions.\nTo switch to new "
+            "behavior, use 'cantera.use_legacy_rate_constants(False)' (Python),\n"
+            "'useLegacyRateConstants(0)' (MATLAB), 'Cantera::use_legacy_rate_constants"
+            "(false)' (C++),\nor 'ct_use_legacy_rate_constants(0)' (clib).");
 
         // multiply ropf by enhanced 3b conc for all 3b rxns
         if (!concm_3b_values.empty()) {
