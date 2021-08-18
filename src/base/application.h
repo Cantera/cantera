@@ -365,10 +365,24 @@ public:
         return m_suppress_thermo_warnings;
     }
 
-    //! Use definition of rate constants that includes third-body concentrations
-    //! for ThreeBodyReaction objects.
+    //! Set definition used for rate constant calculation.
+    //! @see Kinetics::getFwdRateConstants()
     /*!
-     * @deprecated  Used for deprecation purposes, @see Kinetics::getFwdRateConstants()
+     * If set to 'false', rate constants of three-body reactions are consistent with
+     * conventional definitions. If set to 'true', output for rate constants of
+     * three-body reactions is multipied by third-body concentrations (legacy
+     * behavior). For the pre-compiled Cantera 2.6 distribution, the default value is
+     * set to 'true', which implies no change compared to previous behavior. For
+     * user-compiled Cantera, the default behavior can be changed by the SCons flag
+     * 'legacy_rate_constants'.
+     *
+     * @deprecated  Behavior to change after Cantera 2.6; for Cantera 2.6, rate
+     *              constants of three-body reactions are multiplied with third-body
+     *              concentrations (no change to legacy behavior). After Cantera 2.6,
+     *              results will no longer include third-body concentrations and be
+     *              consistent with conventional definitions (see Eq. 9.75 in
+     *              Kee, Coltrin and Glarborg, 'Chemically eacting Flow', Wiley
+     *              Interscience, 2003).
      */
     void use_legacy_rate_constants(bool legacy=true) {
         m_use_legacy_rate_constants = legacy;

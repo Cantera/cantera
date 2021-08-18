@@ -680,8 +680,12 @@ config_options = [
         False),
     BoolVariable(
         "legacy_rate_constants",
-        """If set to false, rate constant calculations will not use legacy
-        definition by default.""",
+        """If set to 'false', rate constant calculations will will no longer include
+        third-body concentrations for ThreeBodyReaction objects. For Cantera 2.6, the
+        default is set to 'true' (no change of previous behavior). After Cantera 2.6,
+        the default will be changed to 'false', and rate constant calculations will be
+        consistent with conventional definitions (see Eq. 9.75 in Kee, Coltrin and
+        Glarborg, 'Chemically Reacting Flow', Wiley Interscience, 2003).""",
         True),
 ]
 
