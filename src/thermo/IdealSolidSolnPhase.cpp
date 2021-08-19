@@ -219,7 +219,11 @@ void IdealSolidSolnPhase::getChemPotentials_RT(doublereal* mu) const
 void IdealSolidSolnPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     const vector_fp& _h = enthalpy_RT_ref();
-    scale(_h.begin(), _h.end(), hbar, RT());
+    double delta_p = m_Pcurrent - m_Pref;
+    for (size_t k = 0; k < m_kk; k++) {
+        hbar[k] = _h[k]*RT() + delta_p * m_speciesMolarVolume[k];
+    }
+    // scale(_h.begin(), _h.end(), hbar, RT());
 }
 
 void IdealSolidSolnPhase::getPartialMolarEntropies(doublereal* sbar) const
