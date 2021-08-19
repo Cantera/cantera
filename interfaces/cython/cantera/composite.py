@@ -928,7 +928,7 @@ class SolutionArray:
         # ensure that SolutionArray accommodates dimensions
         if self._shape == (0,):
             self._states = [self._phase.state] * rows
-            self._indices = range(rows)
+            self._indices = list(range(rows))
             self._output_dummy = self._indices
             self._shape = (rows,)
 
