@@ -525,6 +525,8 @@ class ReactionTests:
         if self._yaml is None:
             return
 
+        ct.suppress_deprecation_warnings() # disable fatal deprecation warnings
+
         rxn = ct.Reaction.from_yaml(self._yaml, kinetics=self.gas)
         for attr, default in self._deprecated_getters.items():
             if self._legacy:
@@ -532,6 +534,8 @@ class ReactionTests:
             else:
                 with self.assertWarnsRegex(DeprecationWarning, "property is moved"):
                     self.check_equal(getattr(rxn, attr), default)
+
+        ct.make_deprecation_warnings_fatal() # re-enable fatal deprecation warnings
 
     def test_deprecated_setters(self):
         # check property setters deprecated in new framework
