@@ -12,6 +12,7 @@
 #define CT_RXNRATES_H
 
 #include "cantera/kinetics/reaction_defs.h"
+#include "cantera/base/Array.h"
 #include "cantera/base/ctexceptions.h"
 
 namespace Cantera
@@ -490,8 +491,15 @@ public:
     void getParameters(AnyMap& rateNode, const Units& rate_units) const;
 
     //! Set up Chebyshev object
+    /*!
+     * @deprecated   Deprecated in Cantera 2.6. Replaceable with
+     *               @see setLimits() and @see setCoeffs().
+     */
     void setup(double Tmin, double Tmax, double Pmin, double Pmax,
                   const Array2D& coeffs);
+
+    //! Set limits for Chebyshev object
+    void setLimits(double Tmin, double Tmax, double Pmin, double Pmax);
 
     //! Update concentration-dependent parts of the rate coefficient.
     //! @param c base-10 logarithm of the pressure in Pa
@@ -500,13 +508,13 @@ public:
         double Cnm1 = Pr;
         double Cn = 1;
         double Cnp1;
-        for (size_t j = 0; j < nT_; j++) {
-            dotProd_[j] = chebCoeffs_[nP_*j];
+        for (size_t i = 0; i < nT_; i++) {
+            dotProd_[i] = m_coeffs(i, 0);
         }
-        for (size_t i = 1; i < nP_; i++) {
+        for (size_t j = 1; j < nP_; j++) {
             Cnp1 = 2 * Pr * Cn - Cnm1;
-            for (size_t j = 0; j < nT_; j++) {
-                dotProd_[j] += Cnp1 * chebCoeffs_[nP_*j + i];
+            for (size_t i = 0; i < nT_; i++) {
+                dotProd_[i] += Cnp1 * m_coeffs(i, j);
             }
             Cnm1 = Cn;
             Cn = Cnp1;
@@ -567,10 +575,20 @@ public:
     /*!
      *  \f$ \alpha_{t,p} = \mathrm{coeffs}[N_P*t + p] \f$ where
      *  \f$ 0 <= t < N_T \f$ and \f$ 0 <= p < N_P \f$.
+     *
+     * @deprecated   Behavior to change after Cantera 2.6. For new
+     *               behavior @see getCoeffs().
      */
-    const vector_fp& coeffs() const {
-        return chebCoeffs_;
+    const vector_fp& coeffs() const;
+
+    //! Access Chebyshev coefficients as 2-dimensional array.
+    const Array2D& getCoeffs() const
+    {
+        return m_coeffs;
     }
+
+    //! Set the Chebyshev coefficients as 2-dimensional array.
+    void setCoeffs(const Array2D& coeffs);
 
 protected:
     double Tmin_, Tmax_; //!< valid temperature range
@@ -578,6 +596,7 @@ protected:
     double TrNum_, TrDen_; //!< terms appearing in the reduced temperature
     double PrNum_, PrDen_; //!< terms appearing in the reduced pressure
 
+    Array2D m_coeffs; //!<< coefficient array
     size_t nP_; //!< number of points in the pressure direction
     size_t nT_; //!< number of points in the temperature direction
     vector_fp chebCoeffs_; //!< Chebyshev coefficients, length nP * nT

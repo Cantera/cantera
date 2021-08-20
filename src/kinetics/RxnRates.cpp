@@ -4,7 +4,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/RxnRates.h"
-#include "cantera/base/Array.h"
 #include "cantera/base/AnyMap.h"
 #include "cantera/base/global.h"
 
@@ -277,16 +276,9 @@ std::vector<std::pair<double, Arrhenius> > Plog::rates() const
 
 Chebyshev::Chebyshev(double Tmin, double Tmax, double Pmin, double Pmax,
                      const Array2D& coeffs)
-    : Tmin_(Tmin)
-    , Tmax_(Tmax)
-    , Pmin_(Pmin)
-    , Pmax_(Pmax)
-    , nP_(coeffs.nColumns())
-    , nT_(coeffs.nRows())
-    , chebCoeffs_(coeffs.nColumns() * coeffs.nRows(), 0.0)
-    , dotProd_(coeffs.nRows())
 {
-    setup(Tmin, Tmax, Pmin, Pmax, coeffs);
+    setLimits(Tmin, Tmax, Pmin, Pmax);
+    setCoeffs(coeffs);
 }
 
 void Chebyshev::setParameters(const AnyMap& node,
@@ -307,33 +299,32 @@ void Chebyshev::setParameters(const AnyMap& node,
                 coeffs(i, j) = vcoeffs[i][j];
             }
         }
-        coeffs(0, 0) += std::log10(units.convertTo(1.0, rate_units));
-
-        Tmin_ = units.convert(T_range[0], "K");
-        Tmax_ = units.convert(T_range[1], "K");
-        Pmin_ = units.convert(P_range[0], "Pa");
-        Pmax_ = units.convert(P_range[1], "Pa");
-        nP_ = coeffs.nColumns();
-        nT_ = coeffs.nRows();
+        if (rate_units.factor()) {
+            coeffs(0, 0) += std::log10(units.convertTo(1.0, rate_units));
+        }
+        setLimits(
+            units.convert(T_range[0], "K"), units.convert(T_range[1], "K"),
+            units.convert(P_range[0], "Pa"), units.convert(P_range[1], "Pa"));
     } else {
         // ensure that reaction rate can be evaluated (but returns NaN)
         coeffs = Array2D(1, 1);
         coeffs(0, 0) = NAN;
-        Tmin_ = 290.;
-        Tmax_ = 3000.;
-        Pmin_ = 1.e-7;
-        Pmax_ = 1.e14;
-        nP_ = 1;
-        nT_ = 1;
+        setLimits(290., 3000., 1.e-7, 1.e14);
     }
 
-    chebCoeffs_.resize(nP_ * nT_);
-    dotProd_.resize(nT_);
-    setup(Tmin_, Tmax_, Pmin_, Pmax_, coeffs);
+    setCoeffs(coeffs);
 }
 
 void Chebyshev::setup(double Tmin, double Tmax, double Pmin, double Pmax,
                       const Array2D& coeffs)
+{
+    warn_deprecated("Chebyshev::setup", "Deprecated in Cantera 2.6; "
+        "replaceable with setLimits() and setCoeffs().");
+    setLimits(Tmin, Tmax, Pmin, Pmax);
+    setCoeffs(coeffs);
+}
+
+void Chebyshev::setLimits(double Tmin, double Tmax, double Pmin, double Pmax)
 {
     double logPmin = std::log10(Pmin);
     double logPmax = std::log10(Pmax);
@@ -345,29 +336,52 @@ void Chebyshev::setup(double Tmin, double Tmax, double Pmin, double Pmax,
     PrNum_ = - logPmin - logPmax;
     PrDen_ = 1.0 / (logPmax - logPmin);
 
-    for (size_t t = 0; t < nT_; t++) {
-        for (size_t p = 0; p < nP_; p++) {
-            chebCoeffs_[nP_*t + p] = coeffs(t,p);
+    Tmin_ = Tmin;
+    Tmax_ = Tmax;
+    Pmin_ = Pmin;
+    Pmax_ = Pmax;
+}
+
+const vector_fp& Chebyshev::coeffs() const
+{
+    warn_deprecated("Chebyshev::coeffs", "Behavior to change after Cantera 2.6; "
+        "for new behavior, use getCoeffs().");
+    return chebCoeffs_;
+}
+
+void Chebyshev::setCoeffs(const Array2D& coeffs)
+{
+    m_coeffs = Array2D(coeffs);
+    nP_ = coeffs.nColumns();
+    nT_ = coeffs.nRows();
+    dotProd_.resize(nT_);
+
+    // convert to row major for legacy output
+    // note: chebCoeffs_ is not used internally
+    size_t rows = nT_;
+    size_t cols = nP_;
+    chebCoeffs_.resize(rows * cols);
+    for (size_t i = 0; i < rows; i++) {
+        for (size_t j = 0; j < cols; j++) {
+            chebCoeffs_[cols * i + j] = m_coeffs(i, j);
         }
     }
 }
 
 void Chebyshev::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
-    double A = chebCoeffs_[0];
-    if (std::isnan(A)) {
+    if (std::isnan(m_coeffs(0, 0))) {
         // Return empty/unmodified AnyMap
         return;
     }
     rateNode["temperature-range"].setQuantity({Tmin(), Tmax()}, "K");
     rateNode["pressure-range"].setQuantity({Pmin(), Pmax()}, "Pa");
-    const auto& coeffs1d = coeffs();
-    size_t nT = nTemperature();
-    size_t nP = nPressure();
+    size_t nT = m_coeffs.nRows();
+    size_t nP = m_coeffs.nColumns();
     std::vector<vector_fp> coeffs2d(nT, vector_fp(nP));
     for (size_t i = 0; i < nT; i++) {
         for (size_t j = 0; j < nP; j++) {
-            coeffs2d[i][j] = coeffs1d[nP*i + j];
+            coeffs2d[i][j] = m_coeffs(i, j);
         }
     }
     // Unit conversions must take place later, after the destination unit system

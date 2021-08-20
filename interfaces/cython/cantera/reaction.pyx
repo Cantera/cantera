@@ -262,8 +262,8 @@ cdef class ChebyshevRate(ReactionRate):
             if isinstance(input_data, dict):
                 self._rate.reset(new CxxChebyshevRate3(dict_to_anymap(input_data)))
             elif all([arg is not None for arg in [Tmin, Tmax, Pmin, Pmax, data]]):
-                self._setup(Tmin, Tmax, Pmin, Pmax, data)
-                return
+                self._rate.reset(new CxxChebyshevRate3(Tmin, Tmax, Pmin, Pmax,
+                                                       self._cxxarray2d(data)))
             elif all([arg is None
                     for arg in [Tmin, Tmax, Pmin, Pmax, data, input_data]]):
                 self._rate.reset(new CxxChebyshevRate3(dict_to_anymap({})))
@@ -273,12 +273,11 @@ cdef class ChebyshevRate(ReactionRate):
                 raise TypeError("Invalid parameters")
             self.rate = self._rate.get()
 
-    def _setup(self, Tmin, Tmax, Pmin, Pmax, coeffs):
-        """
-        Simultaneously set values for `Tmin`, `Tmax`, `Pmin`, `Pmax`, and
-        `coeffs`.
-        """
+    cdef CxxArray2D _cxxarray2d(self, coeffs):
+        """ Internal function to assign coefficient matrix values """
         cdef CxxArray2D data
+        if isinstance(coeffs, np.ndarray):
+            coeffs = coeffs.tolist()
         data.resize(len(coeffs), len(coeffs[0]))
         cdef double value
         cdef int i
@@ -287,8 +286,7 @@ cdef class ChebyshevRate(ReactionRate):
             for j,value in enumerate(row):
                 CxxArray2D_set(data, i, j, value)
 
-        self._rate.reset(new CxxChebyshevRate3(Tmin, Tmax, Pmin, Pmax, data))
-        self.rate = self._rate.get()
+        return data
 
     cdef CxxChebyshevRate3* cxx_object(self):
         return <CxxChebyshevRate3*>self.rate
@@ -328,9 +326,9 @@ cdef class ChebyshevRate(ReactionRate):
         2D array of Chebyshev coefficients of size `(n_temperature, n_pressure)`.
         """
         def __get__(self):
-            c = np.fromiter(self.cxx_object().coeffs(), np.double)
-            return c.reshape(
-                (self.cxx_object().nTemperature(), self.cxx_object().nPressure()))
+            cdef CxxArray2D cxxcoeffs = self.cxx_object().coeffs()
+            c = np.fromiter(cxxcoeffs.data(), np.double)
+            return c.reshape(cxxcoeffs.nRows(), cxxcoeffs.nColumns(), order="F")
 
 
 cdef class CustomRate(ReactionRate):
