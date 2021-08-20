@@ -174,7 +174,7 @@ int main(int argc, char** argv)
         nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
-        double x[MSSIZE], p = OneAtm;
+        double x[MSSIZE];
 
         /*
          *  Set-up the Surface Problem
