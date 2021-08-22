@@ -16,11 +16,8 @@ namespace Cantera
 /**
  * @defgroup Stoichiometry Stoichiometry
  *
- * Note: these classes are designed for internal use in class
- * ReactionStoichManager.
- *
  * The classes defined here implement simple operations that are used by class
- * ReactionStoichManager to compute things like rates of progress, species
+ * Kinetics to compute things like rates of progress, species
  * production rates, etc. In general, a reaction mechanism may involve many
  * species and many reactions, but any given reaction typically only involves
  * a few species as reactants, and a few as products. Therefore, the matrix of
@@ -62,17 +59,17 @@ namespace Cantera
  * They are designed to explicitly unroll loops over species or reactions for
  * operations on reactions that require knowing the reaction stoichiometry.
  *
- * This module consists of class StoichManager, and classes C1, C2, and C3.
+ * This module consists of class StoichManagerN, and classes C1, C2, and C3.
  * Classes C1, C2, and C3 handle operations involving one, two, or three
  * species, respectively, in a reaction. Instances are instantiated with a
  * reaction number, and n species numbers (n = 1 for C1, etc.). All three
  * classes have the same interface.
  *
- * These classes are designed for use by StoichManager, and the operations
+ * These classes are designed for use by StoichManagerN, and the operations
  * implemented are those needed to efficiently compute quantities such as
  * rates of progress, species production rates, reaction thermochemistry, etc.
  * The compiler will inline these methods into the body of the corresponding
- * StoichManager method, and so there is no performance penalty (unless
+ * StoichManagerN method, and so there is no performance penalty (unless
  * inlining is turned off).
  *
  * To describe the methods, consider class C3 and suppose an instance is
@@ -80,9 +77,6 @@ namespace Cantera
  *
  *  - multiply(in, out) : out[irxn] is multiplied by
  *    in[k0] * in[k1] * in[k2]
- *
- *  - power(in, out) : out[irxn] is multiplied by
- *     (in[k0]^order0) * (in[k1]^order1) * (in[k2]^order2)
  *
  *  - incrementReaction(in, out) : out[irxn] is incremented by
  *    in[k0] + in[k1] + in[k2]
@@ -133,12 +127,6 @@ public:
         m_ic0(ic0) {
     }
 
-    size_t data(std::vector<size_t>& ic) {
-        ic.resize(1);
-        ic[0] = m_ic0;
-        return m_rxn;
-    }
-
     void incrementSpecies(const doublereal* R, doublereal* S) const {
         S[m_ic0] += R[m_rxn];
     }
@@ -159,16 +147,6 @@ public:
         R[m_rxn] -= S[m_ic0];
     }
 
-    size_t rxnNumber() const {
-        return m_rxn;
-    }
-    size_t speciesIndex(size_t n) const {
-        return m_ic0;
-    }
-    size_t nSpecies() {
-        return 1;
-    }
-
 private:
     //! Reaction number
     size_t m_rxn;
@@ -186,13 +164,6 @@ class C2
 public:
     C2(size_t rxn = 0, size_t ic0 = 0, size_t ic1 = 0)
         : m_rxn(rxn), m_ic0(ic0), m_ic1(ic1) {}
-
-    size_t data(std::vector<size_t>& ic) {
-        ic.resize(2);
-        ic[0] = m_ic0;
-        ic[1] = m_ic1;
-        return m_rxn;
-    }
 
     void incrementSpecies(const doublereal* R, doublereal* S) const {
         S[m_ic0] += R[m_rxn];
@@ -220,16 +191,6 @@ public:
         R[m_rxn] -= (S[m_ic0] + S[m_ic1]);
     }
 
-    size_t rxnNumber() const {
-        return m_rxn;
-    }
-    size_t speciesIndex(size_t n) const {
-        return (n == 0 ? m_ic0 : m_ic1);
-    }
-    size_t nSpecies() {
-        return 2;
-    }
-
 private:
     //! Reaction index -> index into the ROP vector
     size_t m_rxn;
@@ -248,14 +209,6 @@ class C3
 public:
     C3(size_t rxn = 0, size_t ic0 = 0, size_t ic1 = 0, size_t ic2 = 0)
         : m_rxn(rxn), m_ic0(ic0), m_ic1(ic1), m_ic2(ic2) {}
-
-    size_t data(std::vector<size_t>& ic) {
-        ic.resize(3);
-        ic[0] = m_ic0;
-        ic[1] = m_ic1;
-        ic[2] = m_ic2;
-        return m_rxn;
-    }
 
     void incrementSpecies(const doublereal* R, doublereal* S) const {
         S[m_ic0] += R[m_rxn];
@@ -284,16 +237,6 @@ public:
 
     void decrementReaction(const doublereal* S, doublereal* R) const {
         R[m_rxn] -= (S[m_ic0] + S[m_ic1] + S[m_ic2]);
-    }
-
-    size_t rxnNumber() const {
-        return m_rxn;
-    }
-    size_t speciesIndex(size_t n) const {
-        return (n == 0 ? m_ic0 : (n == 1 ? m_ic1 : m_ic2));
-    }
-    size_t nSpecies() {
-        return 3;
     }
 
 private:
@@ -329,24 +272,6 @@ public:
             m_order[n] = order_[n];
             m_stoich[n] = stoich_[n];
         }
-    }
-
-    size_t data(std::vector<size_t>& ic) {
-        ic.resize(m_n);
-        for (size_t n = 0; n < m_n; n++) {
-            ic[n] = m_ic[n];
-        }
-        return m_rxn;
-    }
-
-    doublereal order(size_t n) const {
-        return m_order[n];
-    }
-    doublereal stoich(size_t n) const {
-        return m_stoich[n];
-    }
-    size_t speciesIndex(size_t n) const {
-        return m_ic[n];
     }
 
     void multiply(const doublereal* input, doublereal* output) const {
