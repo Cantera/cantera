@@ -1110,6 +1110,10 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void kin_getDestructionRates(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getNetProductionRates(CxxKinetics*, double*) except +translate_exception
 
+    # Kinetics sparse matrices
+    cdef size_t kin_reactantStoichCoeffs(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
+    cdef size_t kin_productStoichCoeffs(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
+
     # Transport properties
     cdef void tran_getMixDiffCoeffs(CxxTransport*, double*) except +translate_exception
     cdef void tran_getMixDiffCoeffsMass(CxxTransport*, double*) except +translate_exception
@@ -1126,6 +1130,7 @@ ctypedef void (*thermoMethod1d)(CxxThermoPhase*, double*) except +translate_exce
 ctypedef void (*transportMethod1d)(CxxTransport*, double*) except +translate_exception
 ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +translate_exception
 ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +translate_exception
+ctypedef size_t (*kineticsMethodSparse)(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
 
 # classes
 cdef class Units:
@@ -1383,6 +1388,8 @@ cdef string stringify(x) except *
 cdef pystr(string x)
 cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method)
 cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method)
+cdef np.ndarray get_dense(Kinetics kin, kineticsMethodSparse method, size_t dim, tuple shape)
+cdef tuple get_sparse(Kinetics kin, kineticsMethodSparse method, size_t dim)
 cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method)
 cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method)
 cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *

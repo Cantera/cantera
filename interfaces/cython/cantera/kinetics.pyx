@@ -1,6 +1,8 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+from ctypes import c_int
+
 # NOTE: These cdef functions cannot be members of Kinetics because they would
 # cause "layout conflicts" when creating derived classes with multiple bases,
 # e.g. class Solution. [Cython 0.16]
@@ -17,6 +19,29 @@ cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method):
     cdef np.ndarray[np.double_t, ndim=1] data = np.empty(kin.n_reactions)
     method(kin.kinetics, &data[0])
     return data
+
+cdef np.ndarray get_dense(Kinetics kin, kineticsMethodSparse method,
+        size_t max_dim, tuple shape):
+    cdef vector[int] rows
+    cdef vector[int] cols
+    cdef vector[double] data
+    cdef size_t size
+    rows.resize(max_dim)
+    cols.resize(max_dim)
+    data.resize(max_dim)
+    size = method(kin.kinetics, &rows[0], &cols[0], &data[0], max_dim)
+
+    out = np.zeros(shape)
+    for i in xrange(size):
+        out[rows[i], cols[i]] = data[i]
+    return out
+
+cdef tuple get_sparse(Kinetics kin, kineticsMethodSparse method, size_t max_dim):
+    cdef np.ndarray[int, ndim=1, mode="c"] rows = np.empty(max_dim, dtype=c_int)
+    cdef np.ndarray[int, ndim=1, mode="c"] cols = np.empty(max_dim, dtype=c_int)
+    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(max_dim)
+    size = method(kin.kinetics, &rows[0], &cols[0], &data[0], max_dim)
+    return data[:size], tuple([rows[:size], cols[:size]])
 
 
 cdef class Kinetics(_SolutionBase):
