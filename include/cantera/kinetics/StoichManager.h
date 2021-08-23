@@ -8,6 +8,7 @@
 #ifndef CT_STOICH_MGR_H
 #define CT_STOICH_MGR_H
 
+#include "cantera/numerics/eigen_sparse.h"
 #include "cantera/base/ctexceptions.h"
 
 namespace Cantera
@@ -458,7 +459,23 @@ public:
      * DGG - the problem is that the number of reactions and species are not
      * known initially.
      */
-    StoichManagerN() {
+    StoichManagerN() : m_finalized(false) {
+        m_stoichCoeffs.setZero();
+        m_stoichCoeffs.resize(0, 0);
+    }
+
+    //! finalize the sparse coefficient matrix setup
+    void finalizeSetup(size_t nSpc, size_t nRxn)
+    {
+        size_t nCoeffs = m_coeffList.size();
+
+        // Stoichiometric coefficient matrix
+        m_stoichCoeffs.setZero();
+        m_stoichCoeffs.resize(nSpc, nRxn);
+        m_stoichCoeffs.reserve(nCoeffs);
+        m_stoichCoeffs.setFromTriplets(m_coeffList.begin(), m_coeffList.end());
+
+        m_finalized = true;
     }
 
     /**
@@ -505,9 +522,9 @@ public:
         }
         bool frac = false;
         for (size_t n = 0; n < stoich.size(); n++) {
+            m_coeffList.push_back(Eigen::Triplet<double>(k[n], rxn, stoich[n]));
             if (fmod(stoich[n], 1.0) || stoich[n] != order[n]) {
                 frac = true;
-                break;
             }
         }
         if (frac || k.size() > 3) {
@@ -538,6 +555,7 @@ public:
                 m_cn_list.emplace_back(rxn, k, order, stoich);
             }
         }
+        m_finalized = false;
     }
 
     void multiply(const doublereal* input, doublereal* output) const {
@@ -575,11 +593,30 @@ public:
         _decrementReactions(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
+    //! Return matrix containing stoichiometric coefficients
+    const Eigen::SparseMatrix<double>& stoichCoeffs() const
+    {
+        if (!m_finalized) {
+            // This can happen if a user overrides default behavior:
+            // Kinetics::finalizeSetup is not called after adding reactions via
+            // Kinetics::addReaction with the 'finalize' flag set to 'false'
+            throw CanteraError("StoichManagerN::stoichCoeffs",
+                "The object is not fully configured; make sure to call finalizeSetup.");
+        }
+        return m_stoichCoeffs;
+    }
+
 private:
+    bool m_finalized; //!< Boolean flag indicating whether setup is finalized
+
     std::vector<C1> m_c1_list;
     std::vector<C2> m_c2_list;
     std::vector<C3> m_c3_list;
     std::vector<C_AnyN> m_cn_list;
+
+    //! Sparse matrices for stoichiometric coefficients
+    std::vector<Eigen::Triplet<double>> m_coeffList;
+    Eigen::SparseMatrix<double> m_stoichCoeffs;
 };
 
 }
