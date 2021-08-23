@@ -356,14 +356,12 @@ size_t Kinetics::speciesPhaseIndex(size_t k) const
 
 double Kinetics::reactantStoichCoeff(size_t kSpec, size_t irxn) const
 {
-    return getValue(m_reactions[irxn]->reactants, kineticsSpeciesName(kSpec),
-                    0.0);
+    return m_reactantStoich.stoichCoeffs().coeff(kSpec, irxn);
 }
 
 double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn) const
 {
-    return getValue(m_reactions[irxn]->products, kineticsSpeciesName(kSpec),
-                    0.0);
+    return m_productStoich.stoichCoeffs().coeff(kSpec, irxn);
 }
 
 int Kinetics::reactionType(size_t i) const {
