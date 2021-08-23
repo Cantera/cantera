@@ -43,6 +43,13 @@ cdef extern from "cantera/numerics/Func1.h":
         CxxTabulated1(int, double*, double*, string) except +translate_exception
         double eval(double) except +translate_exception
 
+cdef extern from "cantera/numerics/eigen_sparse.h" namespace "Eigen":
+    cdef cppclass CxxSparseMatrix "Eigen::SparseMatrix<double>":
+        CxxSparseMatrix()
+        size_t nonZeros()
+        size_t rows()
+        size_t cols()
+
 cdef extern from "cantera/base/xml.h" namespace "Cantera":
     cdef cppclass XML_Node:
         XML_Node* findByName(string)
@@ -1049,6 +1056,8 @@ cdef extern from "cantera/cython/wrappers.h":
 
     cdef void CxxSetLogger "setLogger" (CxxPythonLogger*)
 
+    cdef size_t CxxSparseComponents "sparseComponents" (CxxSparseMatrix, int*, int*, double*, size_t) except +translate_exception
+
     # workaround for Cython assignment limitations
     cdef void CxxArray2D_set(CxxArray2D, size_t, size_t, double)
 
@@ -1104,8 +1113,9 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void kin_getNetProductionRates(CxxKinetics*, double*) except +translate_exception
 
     # Kinetics sparse matrices
-    cdef size_t kin_reactantStoichCoeffs(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
-    cdef size_t kin_productStoichCoeffs(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
+    cdef CxxSparseMatrix kin_reactantStoichCoeffs(CxxKinetics*) except +translate_exception
+    cdef CxxSparseMatrix kin_productStoichCoeffs(CxxKinetics*) except +translate_exception
+    cdef CxxSparseMatrix kin_revProductStoichCoeffs(CxxKinetics*) except +translate_exception
 
     # Transport properties
     cdef void tran_getMixDiffCoeffs(CxxTransport*, double*) except +translate_exception
@@ -1123,7 +1133,7 @@ ctypedef void (*thermoMethod1d)(CxxThermoPhase*, double*) except +translate_exce
 ctypedef void (*transportMethod1d)(CxxTransport*, double*) except +translate_exception
 ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +translate_exception
 ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +translate_exception
-ctypedef size_t (*kineticsMethodSparse)(CxxKinetics*, int*, int*, double*, size_t) except +translate_exception
+ctypedef CxxSparseMatrix (*kineticsMethodSparse)(CxxKinetics*) except +translate_exception
 
 # classes
 cdef class Units:
@@ -1381,8 +1391,8 @@ cdef string stringify(x) except *
 cdef pystr(string x)
 cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method)
 cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method)
-cdef np.ndarray get_dense(Kinetics kin, kineticsMethodSparse method, size_t dim, tuple shape)
-cdef tuple get_sparse(Kinetics kin, kineticsMethodSparse method, size_t dim)
+cdef np.ndarray get_dense(Kinetics kin, kineticsMethodSparse method)
+cdef tuple get_sparse(Kinetics kin, kineticsMethodSparse method)
 cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method)
 cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method)
 cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *

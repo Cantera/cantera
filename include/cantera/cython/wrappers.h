@@ -73,11 +73,10 @@ size_t sparseComponents(const Eigen::SparseMatrix<double>& mat,
     return count;
 }
 
-// Function which passes sparse matrix components to a set of 1D arrays
-#define SPARSE_FUNC(PREFIX, CLASS_NAME, FUNC_NAME) \
-    size_t PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, \
-    int* rows, int* cols, double* data, size_t length) \
-    { return sparseComponents(object->FUNC_NAME(), rows, cols, data, length); }
+// Function which passes sparse matrix
+#define SPARSE_MATRIX(PREFIX, CLASS_NAME, FUNC_NAME) \
+    Eigen::SparseMatrix<double> PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object) \
+    { return object->FUNC_NAME(); }
 
 // Function which populates a 1D array
 #define ARRAY_FUNC(PREFIX, CLASS_NAME, FUNC_NAME) \
@@ -92,7 +91,7 @@ size_t sparseComponents(const Eigen::SparseMatrix<double>& mat,
 
 #define THERMO_1D(FUNC_NAME) ARRAY_FUNC(thermo, ThermoPhase, FUNC_NAME)
 #define KIN_1D(FUNC_NAME) ARRAY_FUNC(kin, Kinetics, FUNC_NAME)
-#define KIN_SPARSE(FUNC_NAME) SPARSE_FUNC(kin, Kinetics, FUNC_NAME)
+#define KIN_SPARSE_MATRIX(FUNC_NAME) SPARSE_MATRIX(kin, Kinetics, FUNC_NAME)
 #define TRANSPORT_1D(FUNC_NAME) ARRAY_FUNC(tran, Transport, FUNC_NAME)
 #define TRANSPORT_2D(FUNC_NAME) ARRAY_FUNC2(tran, Transport, FUNC_NAME)
 
@@ -120,8 +119,9 @@ THERMO_1D(getCp_R)
 THERMO_1D(getActivities)
 THERMO_1D(getActivityCoefficients)
 
-KIN_SPARSE(reactantStoichCoeffs)
-KIN_SPARSE(productStoichCoeffs)
+KIN_SPARSE_MATRIX(reactantStoichCoeffs)
+KIN_SPARSE_MATRIX(productStoichCoeffs)
+KIN_SPARSE_MATRIX(revProductStoichCoeffs)
 
 KIN_1D(getFwdRatesOfProgress)
 KIN_1D(getRevRatesOfProgress)
