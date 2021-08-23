@@ -175,7 +175,7 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
                 rootNode.getString("__file__", ""));
             for (const auto& R : reactions[node].asVector<AnyMap>()) {
                 try {
-                    kin.addReaction(newReaction(R, kin));
+                    kin.addReaction(newReaction(R, kin), false);
                 } catch (CanteraError& err) {
                     format_to(add_rxn_err, "{}", err.what());
                 }
@@ -184,7 +184,7 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
             // specified section is in the current file
             for (const auto& R : rootNode.at(sections[i]).asVector<AnyMap>()) {
                 try {
-                    kin.addReaction(newReaction(R, kin));
+                    kin.addReaction(newReaction(R, kin), false);
                 } catch (CanteraError& err) {
                     format_to(add_rxn_err, "{}", err.what());
                 }
@@ -196,6 +196,8 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
     if (add_rxn_err.size()) {
         throw CanteraError("addReactions", to_string(add_rxn_err));
     }
+
+    kin.finalizeSetup();
 }
 
 }

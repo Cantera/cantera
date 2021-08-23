@@ -24,6 +24,7 @@ using namespace std;
 namespace Cantera
 {
 Kinetics::Kinetics() :
+    m_finalized(false),
     m_kk(0),
     m_thermo(0),
     m_surfphase(npos),
@@ -42,6 +43,18 @@ void Kinetics::checkReactionIndex(size_t i) const
         throw IndexError("Kinetics::checkReactionIndex", "reactions", i,
                          nReactions()-1);
     }
+}
+
+void Kinetics::finalizeSetup()
+{
+    size_t nRxn = nReactions();
+
+    // Stoichiometry managers
+    m_reactantStoich.finalizeSetup(m_kk, nRxn);
+    m_revProductStoich.finalizeSetup(m_kk, nRxn);
+    m_irrevProductStoich.finalizeSetup(m_kk, nRxn);
+
+    m_finalized = true;
 }
 
 void Kinetics::checkReactionArraySize(size_t ii) const
@@ -501,7 +514,7 @@ void Kinetics::resizeSpecies()
     invalidateCache();
 }
 
-bool Kinetics::addReaction(shared_ptr<Reaction> r)
+bool Kinetics::addReaction(shared_ptr<Reaction> r, bool finalize)
 {
     r->validate();
     if (m_kk == 0) {
@@ -577,6 +590,13 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
     m_ropnet.push_back(0.0);
     m_perturb.push_back(1.0);
     m_dH.push_back(0.0);
+
+    if (finalize) {
+        finalizeSetup();
+    } else {
+        m_finalized = false;
+    }
+
     return true;
 }
 

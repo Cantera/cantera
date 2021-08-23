@@ -135,6 +135,9 @@ public:
         return "Kinetics";
     }
 
+    //! Finalize Kinetics object and associated objects
+    virtual void finalizeSetup();
+
     //! Number of reactions in the reaction mechanism.
     size_t nReactions() const {
         return m_reactions.size();
@@ -738,9 +741,10 @@ public:
      * base class method in addition to handling their own specialized behavior.
      *
      * @param r      Pointer to the Reaction object to be added.
+     * @param finalize  If `true`, finalize Kinetics object.
      * @return `true` if the reaction is added or `false` if it was skipped
      */
-    virtual bool addReaction(shared_ptr<Reaction> r);
+    virtual bool addReaction(shared_ptr<Reaction> r, bool finalize=true);
 
     /**
      * Modify the rate expression associated with a reaction. The
@@ -898,6 +902,9 @@ protected:
     //! Stoichiometry manager for the products of irreversible reactions
     StoichManagerN m_irrevProductStoich;
     //@}
+
+    //! Boolean indicating whether Kinetics object setup is finalized
+    bool m_finalized;
 
     //! The number of species in all of the phases
     //! that participate in this kinetics mechanism.
