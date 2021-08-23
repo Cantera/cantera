@@ -896,11 +896,11 @@ protected:
     //! Stoichiometry manager for the reactants for each reaction
     StoichManagerN m_reactantStoich;
 
+    //! Stoichiometry manager for the products for each reaction
+    StoichManagerN m_productStoich;
+
     //! Stoichiometry manager for the products of reversible reactions
     StoichManagerN m_revProductStoich;
-
-    //! Stoichiometry manager for the products of irreversible reactions
-    StoichManagerN m_irrevProductStoich;
     //@}
 
     //! Boolean indicating whether Kinetics object setup is finalized

@@ -51,8 +51,8 @@ void Kinetics::finalizeSetup()
 
     // Stoichiometry managers
     m_reactantStoich.finalizeSetup(m_kk, nRxn);
+    m_productStoich.finalizeSetup(m_kk, nRxn);
     m_revProductStoich.finalizeSetup(m_kk, nRxn);
-    m_irrevProductStoich.finalizeSetup(m_kk, nRxn);
 
     m_finalized = true;
 }
@@ -417,8 +417,7 @@ void Kinetics::getReactionDelta(const double* prop, double* deltaProp)
 {
     fill(deltaProp, deltaProp + nReactions(), 0.0);
     // products add
-    m_revProductStoich.incrementReactions(prop, deltaProp);
-    m_irrevProductStoich.incrementReactions(prop, deltaProp);
+    m_productStoich.incrementReactions(prop, deltaProp);
     // reactants subtract
     m_reactantStoich.decrementReactions(prop, deltaProp);
 }
@@ -440,8 +439,7 @@ void Kinetics::getCreationRates(double* cdot)
     fill(cdot, cdot + m_kk, 0.0);
 
     // the forward direction creates product species
-    m_revProductStoich.incrementSpecies(m_ropf.data(), cdot);
-    m_irrevProductStoich.incrementSpecies(m_ropf.data(), cdot);
+    m_productStoich.incrementSpecies(m_ropf.data(), cdot);
 
     // the reverse direction creates reactant species
     m_reactantStoich.incrementSpecies(m_ropr.data(), cdot);
@@ -464,8 +462,7 @@ void Kinetics::getNetProductionRates(doublereal* net)
 
     fill(net, net + m_kk, 0.0);
     // products are created for positive net rate of progress
-    m_revProductStoich.incrementSpecies(m_ropnet.data(), net);
-    m_irrevProductStoich.incrementSpecies(m_ropnet.data(), net);
+    m_productStoich.incrementSpecies(m_ropnet.data(), net);
     // reactants are destroyed for positive net rate of progress
     m_reactantStoich.decrementSpecies(m_ropnet.data(), net);
 }
@@ -576,10 +573,9 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r, bool finalize)
 
     m_reactantStoich.add(irxn, rk, rorder, rstoich);
     // product orders = product stoichiometric coefficients
+    m_productStoich.add(irxn, pk, pstoich, pstoich);
     if (r->reversible) {
         m_revProductStoich.add(irxn, pk, pstoich, pstoich);
-    } else {
-        m_irrevProductStoich.add(irxn, pk, pstoich, pstoich);
     }
 
     m_reactions.push_back(r);
