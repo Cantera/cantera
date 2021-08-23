@@ -6,6 +6,15 @@ import os
 import warnings
 from cpython.ref cimport PyObject
 import numbers
+import pkg_resources
+
+# avoid explicit dependence of cantera on scipy
+try:
+    pkg_resources.get_distribution('scipy')
+except pkg_resources.DistributionNotFound:
+    _scipy_sparse = ImportError('Method requires a working scipy installation.')
+else:
+    from scipy import sparse as _scipy_sparse
 
 cdef CxxPythonLogger* _logger = new CxxPythonLogger()
 CxxSetLogger(_logger)
@@ -35,9 +44,21 @@ __version__ = pystr(get_cantera_version())
 
 __git_commit__ = pystr(CxxGitCommit())
 
+__use_sparse__ = False
+
 def appdelete():
     """ Delete all global Cantera C++ objects """
     CxxAppdelete()
+
+def use_sparse(sparse=True):
+    """
+    Enable sparse output using `scipy.sparse`. Sparse output requires a working
+    `scipy` installation. Use pip or conda to install `scipy` to enable this method.
+    """
+    global __use_sparse__
+    if sparse and isinstance(_scipy_sparse, ImportError):
+        raise _scipy_sparse
+    __use_sparse__ = sparse
 
 def make_deprecation_warnings_fatal():
     warnings.filterwarnings('error', category=DeprecationWarning,
