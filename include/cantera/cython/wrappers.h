@@ -2,6 +2,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/logger.h"
+#include "cantera/numerics/eigen_sparse.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/TransportBase.h"
 #include "cantera/kinetics/Kinetics.h"
@@ -49,6 +50,35 @@ void CxxArray2D_set(Cantera::Array2D& array, size_t i, size_t j, double value)
     array(i,j) = value;
 }
 
+// Service function to pass components describing sparse matrix
+size_t sparseComponents(const Eigen::SparseMatrix<double>& mat,
+    int* rows, int* cols, double* data, size_t length)
+{
+    size_t count = 0;
+    for (int i = 0; i < mat.outerSize(); i++) {
+        for (Eigen::SparseMatrix<double>::InnerIterator it(mat, i); it; ++it) {
+            if (count < length) {
+                rows[count] = it.row();
+                cols[count] = it.col();
+                data[count] = it.value();
+            }
+            count++;
+        }
+    }
+    if (count > length) {
+        throw Cantera::CanteraError("sparseComponents",
+            "Output arrays have insufficient length. Required size is {}, "
+            "while provided length is {}.", count, length);
+    }
+    return count;
+}
+
+// Function which passes sparse matrix components to a set of 1D arrays
+#define SPARSE_FUNC(PREFIX, CLASS_NAME, FUNC_NAME) \
+    size_t PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, \
+    int* rows, int* cols, double* data, size_t length) \
+    { return sparseComponents(object->FUNC_NAME(), rows, cols, data, length); }
+
 // Function which populates a 1D array
 #define ARRAY_FUNC(PREFIX, CLASS_NAME, FUNC_NAME) \
     void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, double* data) \
@@ -62,6 +92,7 @@ void CxxArray2D_set(Cantera::Array2D& array, size_t i, size_t j, double value)
 
 #define THERMO_1D(FUNC_NAME) ARRAY_FUNC(thermo, ThermoPhase, FUNC_NAME)
 #define KIN_1D(FUNC_NAME) ARRAY_FUNC(kin, Kinetics, FUNC_NAME)
+#define KIN_SPARSE(FUNC_NAME) SPARSE_FUNC(kin, Kinetics, FUNC_NAME)
 #define TRANSPORT_1D(FUNC_NAME) ARRAY_FUNC(tran, Transport, FUNC_NAME)
 #define TRANSPORT_2D(FUNC_NAME) ARRAY_FUNC2(tran, Transport, FUNC_NAME)
 
@@ -88,6 +119,9 @@ THERMO_1D(getGibbs_RT)
 THERMO_1D(getCp_R)
 THERMO_1D(getActivities)
 THERMO_1D(getActivityCoefficients)
+
+KIN_SPARSE(reactantStoichCoeffs)
+KIN_SPARSE(productStoichCoeffs)
 
 KIN_1D(getFwdRatesOfProgress)
 KIN_1D(getRevRatesOfProgress)
