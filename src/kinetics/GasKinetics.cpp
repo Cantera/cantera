@@ -264,10 +264,10 @@ void GasKinetics::getFwdRateConstants(double* kfwd)
     }
 }
 
-bool GasKinetics::addReaction(shared_ptr<Reaction> r)
+bool GasKinetics::addReaction(shared_ptr<Reaction> r, bool finalize)
 {
     // operations common to all reaction types
-    bool added = BulkKinetics::addReaction(r);
+    bool added = BulkKinetics::addReaction(r, finalize);
     if (!added) {
         return false;
     } else if (!(r->usesLegacy())) {

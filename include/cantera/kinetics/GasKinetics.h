@@ -49,7 +49,7 @@ public:
     //! @name Reaction Mechanism Setup Routines
     //! @{
     virtual void init();
-    virtual bool addReaction(shared_ptr<Reaction> r);
+    virtual bool addReaction(shared_ptr<Reaction> r, bool finalize=true);
     virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
     virtual void invalidateCache();
     //@}

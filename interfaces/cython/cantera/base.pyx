@@ -224,7 +224,8 @@ cdef class _SolutionBase:
             self.kinetics.init()
             self.kinetics.skipUndeclaredThirdBodies(True)
             for reaction in reactions:
-                self.kinetics.addReaction(reaction._reaction)
+                self.kinetics.addReaction(reaction._reaction, False)
+            self.kinetics.finalizeSetup()
 
     property input_data:
         """

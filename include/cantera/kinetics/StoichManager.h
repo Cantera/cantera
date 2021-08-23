@@ -459,7 +459,7 @@ public:
      * DGG - the problem is that the number of reactions and species are not
      * known initially.
      */
-    StoichManagerN() : m_finalized(false) {
+    StoichManagerN() : m_finalized(true) {
         m_stoichCoeffs.setZero();
         m_stoichCoeffs.resize(0, 0);
     }
