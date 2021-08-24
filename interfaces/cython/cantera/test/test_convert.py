@@ -39,8 +39,8 @@ class converterTestCommon:
 
         self.assertEqual(ref.element_names, gas.element_names)
         self.assertEqual(ref.species_names, gas.species_names)
-        coeffs_ref = ref.reactant_stoich_coefficients
-        coeffs_gas = gas.reactant_stoich_coefficients
+        coeffs_ref = ref.reactant_stoich_coeffs3
+        coeffs_gas = gas.reactant_stoich_coeffs3
         self.assertEqual(coeffs_gas.shape, coeffs_ref.shape)
         self.assertTrue((coeffs_gas == coeffs_ref).all())
 
@@ -154,7 +154,7 @@ class converterTestCommon:
         self.assertEqual(gas.species_name(8), 'co')
 
         self.assertEqual(gas.n_reactions, 12)
-        nu = gas.product_stoich_coefficients - gas.reactant_stoich_coefficients
+        nu = gas.product_stoich_coeffs3 - gas.reactant_stoich_coeffs3
         self.assertEqual(list(nu[:,0]), [-1, -1, 0, 2, 0, 0, 0, 0, 0])
         self.assertEqual(list(nu[:,1]), [-2, 3, 0, -1, 0, 0, 0, 0, 0])
         self.assertEqual(list(nu[:,2]), [-1, 0, 0, 0, 1, 0, 0, 0, 0])
@@ -233,8 +233,8 @@ class converterTestCommon:
         self.assertEqual(Rr[2], 0.0)
         self.assertEqual(Rr[3], 0.0)
         self.assertEqual(Rr[4], 0.0)
-        Rstoich = gas.reactant_stoich_coefficients
-        Pstoich = gas.product_stoich_coefficients
+        Rstoich = gas.reactant_stoich_coeffs3
+        Pstoich = gas.product_stoich_coeffs3
         self.assertEqual(list(Rstoich[:, 0]), list(Pstoich[:, 1]))
         self.assertEqual(list(Rstoich[:, 1]), list(Pstoich[:, 0]))
         self.assertEqual(list(Rstoich[:, 2]), list(Pstoich[:, 3]))
@@ -289,8 +289,8 @@ class converterTestCommon:
         output = self.convert('float-stoich.inp', thermo='dummy-thermo.dat')
         gas = ct.Solution(output)
 
-        R = gas.reactant_stoich_coefficients
-        P = gas.product_stoich_coefficients
+        R = gas.reactant_stoich_coeffs3
+        P = gas.product_stoich_coeffs3
         self.assertArrayNear(R[:,0], [0, 1.5, 0.5, 0])
         self.assertArrayNear(P[:,0], [1, 0, 0, 1])
         self.assertArrayNear(R[:,1], [1, 0, 0, 1])
