@@ -54,6 +54,11 @@ void Kinetics::resizeReactions()
     m_productStoich.resizeCoeffs(m_kk, nRxn);
     m_revProductStoich.resizeCoeffs(m_kk, nRxn);
 
+    // products are created for positive net rate of progress
+    m_stoichMatrix = m_productStoich.stoichCoeffs();
+    // reactants are destroyed for positive net rate of progress
+    m_stoichMatrix -= m_reactantStoich.stoichCoeffs();
+
     m_ready = true;
 }
 
@@ -479,6 +484,56 @@ void Kinetics::getNetProductionRates(doublereal* net)
     m_productStoich.incrementSpecies(m_ropnet.data(), net);
     // reactants are destroyed for positive net rate of progress
     m_reactantStoich.decrementSpecies(m_ropnet.data(), net);
+}
+
+Eigen::SparseMatrix<double> Kinetics::creationRates_ddC()
+{
+    Eigen::SparseMatrix<double> jac;
+    // the forward direction creates product species
+    jac = m_productStoich.stoichCoeffs() * fwdRatesOfProgress_ddC();
+    // the reverse direction creates reactant species
+    jac += m_reactantStoich.stoichCoeffs() * revRatesOfProgress_ddC();
+    return jac;
+}
+
+Eigen::VectorXd Kinetics::creationRates_ddT()
+{
+    Eigen::VectorXd out(m_kk);
+    // the forward direction creates product species
+    out = m_productStoich.stoichCoeffs() * fwdRatesOfProgress_ddT();
+    // the reverse direction creates reactant species
+    out += m_reactantStoich.stoichCoeffs() * revRatesOfProgress_ddT();
+    return out;
+}
+
+Eigen::SparseMatrix<double> Kinetics::destructionRates_ddC()
+{
+    Eigen::SparseMatrix<double> jac;
+    // the reverse direction destroys products in reversible reactions
+    jac = m_revProductStoich.stoichCoeffs() * revRatesOfProgress_ddC();
+    // the forward direction destroys reactants
+    jac += m_reactantStoich.stoichCoeffs() * fwdRatesOfProgress_ddC();
+    return jac;
+}
+
+Eigen::VectorXd Kinetics::destructionRates_ddT()
+{
+    Eigen::VectorXd out(m_kk);
+    // the reverse direction destroys products in reversible reactions
+    out = m_revProductStoich.stoichCoeffs() * revRatesOfProgress_ddT();
+    // the forward direction destroys reactants
+    out += m_reactantStoich.stoichCoeffs() * fwdRatesOfProgress_ddT();
+    return out;
+}
+
+Eigen::SparseMatrix<double> Kinetics::netProductionRates_ddC()
+{
+    return m_stoichMatrix * netRatesOfProgress_ddC();
+}
+
+Eigen::VectorXd Kinetics::netProductionRates_ddT()
+{
+    return m_stoichMatrix * netRatesOfProgress_ddT();
 }
 
 void Kinetics::addPhase(ThermoPhase& thermo)

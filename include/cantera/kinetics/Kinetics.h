@@ -569,6 +569,192 @@ public:
     virtual void getNetProductionRates(doublereal* wdot);
 
     //! @}
+    //! @name Routines to Calculate Jacobians / Derivatives
+    /*!
+     * Jacobians are calculated with respect to species concentrations and
+     * temperature for forward/reverse/net rates of progress as well as
+     * creation/destruction and net prodcution of species.
+     *
+     * Jacobian evaluation is set by keyword/value pairs using the methods
+     * @see getJacobianSettings and @see setJacobianSettings.
+     *
+     * For GasKinetics, the following keyword/value pairs are supported:
+     *  - 'constant-pressure' (boolean) ... if 'true' (default), constant pressure
+     *    is assumed, wheareas constant volume is assumed otherwise. For constant
+     *    pressure, species concentrations are a function of temperature.
+     *  - 'mole-fractions' (boolean) ... if 'true' (default), Jacobians are
+     *    calculated with respect to mole fractions; if 'false' they are calculated
+     *    with respect to species concentrations.
+     *  - 'skip-third-bodies' (boolean) ... if 'false' (default), third body
+     *    concentrations are considered for the evaluation of jacobians
+     *  - 'skip-falloff' (boolean) ... if 'true' (default), third-body effects
+     *    on reaction rates are not considered.
+     *  - 'atol-delta-T' (double) ... tolerance used to perturb temperature
+     *    when calculating numerical derivatives.
+     *
+     * @warning Methods used for the evaluation of Jacobians are an experimental
+     *    feature of the %Cantera API and may be changed or removed without notice.
+     */
+    //! @{
+
+    /**
+     * Retrieve Jacobian settings.
+     *
+     * @param settings  AnyMap containing settings determining Jacobian evaluation.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual void getJacobianSettings(AnyMap& settings) const
+    {
+        throw NotImplementedError("Kinetics::getJacobianSettings",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
+
+    /**
+     * Set/modify Jacobian settings.
+     *
+     * @param settings  AnyMap containing settings determining Jacobian evaluation.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual void setJacobianSettings(const AnyMap& settings)
+    {
+        throw NotImplementedError("Kinetics::setJacobianSettings",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
+
+    /**
+     * Calculate Jacobian for forward rates-of-progress with respect to species
+     * concentrations.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddC()
+    {
+        throw NotImplementedError("Kinetics::fwdRatesOfProgress_ddC",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
+
+    /**
+     * Calculate Jacobian for forward rates-of-progress with respect to species
+     * temperature.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::VectorXd fwdRatesOfProgress_ddT()
+    {
+        throw NotImplementedError("Kinetics::fwdRatesOfProgress_ddT",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
+
+    /**
+     * Calculate Jacobian for reverse rates-of-progress with respect to species
+     * concentrations.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddC()
+    {
+        throw NotImplementedError("Kinetics::revRatesOfProgress_ddC",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
+
+    /**
+     * Calculate Jacobian for reverse rates-of-progress with respect to species
+     * temperature.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::VectorXd revRatesOfProgress_ddT()
+    {
+        throw NotImplementedError("Kinetics::revRatesOfProgress_ddT",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
+
+    /**
+     * Calculate Jacobian for net rates-of-progress with respect to species
+     * concentrations.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddC()
+    {
+        throw NotImplementedError("Kinetics::netRatesOfProgress_ddC",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
+
+    /**
+     * Calculate Jacobian for net rates-of-progress with respect to species
+     * temperature.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::VectorXd netRatesOfProgress_ddT()
+    {
+        throw NotImplementedError("Kinetics::netRatesOfProgress_ddT",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
+
+    /**
+     * Calculate Jacobian for species creation rates with respect to species
+     * concentrations.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    Eigen::SparseMatrix<double> creationRates_ddC();
+
+    /**
+     * Calculate Jacobian for species creation rates with respect to temperature.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::VectorXd creationRates_ddT();
+
+    /**
+     * Calculate Jacobian for species destruction rates with respect to species
+     * concentrations.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    Eigen::SparseMatrix<double> destructionRates_ddC();
+
+    /**
+     * Calculate Jacobian for species destruction rates with respect to temperature.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::VectorXd destructionRates_ddT();
+
+    /**
+     * Calculate Jacobian for species net production rates with respect to species
+     * concentrations.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    Eigen::SparseMatrix<double> netProductionRates_ddC();
+
+    /**
+     * Calculate Jacobian for species net production rates with respect to temperature.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::VectorXd netProductionRates_ddT();
+
+    //! @}
     //! @name Reaction Mechanism Informational Query Routines
     //! @{
 
@@ -948,6 +1134,9 @@ protected:
 
     //! Stoichiometry manager for the products of reversible reactions
     StoichManagerN m_revProductStoich;
+
+    //! Effective stoichiometry (products - reactants)
+    Eigen::SparseMatrix<double> m_stoichMatrix;
     //! @}
 
     //! Boolean indicating whether Kinetics object is fully configured
