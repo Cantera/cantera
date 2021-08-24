@@ -115,7 +115,7 @@ jobs:
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas scipy pytest
         pytest-github-actions-annotate-failures
     - name: Build Cantera
       run: |
