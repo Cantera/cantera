@@ -67,6 +67,61 @@ public:
     //! reactions.
     virtual void update_rates_C();
 
+private:
+    //! @name Internal service methods
+    /*!
+     * These methods are for @internal use, and seek to avoid code duplication
+     * while evaluating terms used for rate constants, rates of progress, and
+     * their derivatives. Frequently used methods are defined in the header
+     * file and use raw data pointers to allow inlining and avoid overhead.
+     */
+    //! @{
+
+    //! Calculate rate coefficients
+    void processFwdRateCoefficients(double* ropf)
+    {
+        update_rates_C();
+        update_rates_T();
+
+        // copy rate coefficients into ropf
+        copy(m_rfn.begin(), m_rfn.end(), ropf);
+
+        if (m_falloff_high_rates.nReactions()) {
+            processFalloffReactions(ropf);
+        }
+
+        // Scale the forward rate coefficient by the perturbation factor
+        for (size_t i = 0; i < nReactions(); ++i) {
+            ropf[i] *= m_perturb[i];
+        }
+    }
+
+    //! Multiply rate with third-body collider concentrations
+    void processThirdBodies(double* rop)
+    {
+        // multiply rop by enhanced 3b conc for all 3b rxns
+        if (!concm_3b_values.empty()) {
+            m_3b_concm.multiply(rop, concm_3b_values.data());
+        }
+
+        // reactions involving third body
+        if (!m_concm.empty()) {
+            m_multi_concm.multiply(rop, m_concm.data());
+        }
+    }
+
+    //! Multiply rate with inverse equilibrium constant
+    void processEquilibriumConstants(double* rop)
+    {
+        // For reverse rates computed from thermochemistry, multiply the forward
+        // rate coefficients by the reciprocals of the equilibrium constants
+        for (size_t i = 0; i < nReactions(); ++i) {
+            rop[i] *= m_rkcn[i];
+        }
+    }
+
+    //! @}
+
 protected:
     //! Reaction index of each falloff reaction
     std::vector<size_t> m_fallindx; //!< @deprecated (legacy only)
@@ -106,7 +161,7 @@ protected:
     // transitional reaction types that are marked as '-legacy'
 
     //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
-    void processFalloffReactions();
+    void processFalloffReactions(double* ropf);
 
     //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
     void addThreeBodyReaction(ThreeBodyReaction2& r);
