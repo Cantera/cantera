@@ -11,6 +11,7 @@
 #include "ReactionRate.h"
 #include "MultiRateBase.h"
 #include "cantera/base/utilities.h"
+#include <iostream>
 
 namespace Cantera
 {
@@ -67,11 +68,13 @@ public:
         }
     }
 
-    virtual void processRateConstants_ddTscaled(double* dkf) override
+    virtual void processRateConstants_ddT(double* rop,
+                                          const double* kf,
+                                          double deltaT) override
     {
         // call helper function: implementation of derivative depends on whether
-        // ReactionRate::ddTScaledFromStruct is defined
-        _process_ddTScaled(dkf);
+        // ReactionRate::ddTFromStruct is defined
+        _process_ddT(rop, kf, deltaT);
     }
 
     virtual void update(double T) override {
@@ -95,27 +98,28 @@ public:
 protected:
     //! Helper function to process temperature derivatives for rate types that
     //! implement the `ddTScaledFromStruct` method.
-    template <typename T=RateType, typename std::enable_if<has_ddT<T>::value, bool>::type = true>
-    void _process_ddTScaled(double* dkf) {
+    template <typename T=RateType,
+        typename std::enable_if<has_ddT<T>::value, bool>::type = true>
+    void _process_ddT(double* rop, const double* kf, double deltaT) {
         for (const auto& rxn : m_rxn_rates) {
-            dkf[rxn.first] *= rxn.second.ddTScaledFromStruct(m_shared);;
+            rop[rxn.first] *= rxn.second.ddTScaledFromStruct(m_shared);;
         }
     }
 
     //! Helper function for rate types that do not implement `ddTScaledFromStruct`
-    template <typename T=RateType, typename std::enable_if<!has_ddT<T>::value, bool>::type = true>
-    void _process_ddTScaled(double* dkf) {
-        double m_jac_atol_deltaT = 1e-3;
+    template <typename T=RateType,
+        typename std::enable_if<!has_ddT<T>::value, bool>::type = true>
+    void _process_ddT(double* rop, const double* kf, double deltaT) {
 
         // perturb conditions
-        double dTinv = 1. / m_jac_atol_deltaT;
+        double dTinv = 1. / (m_shared.temperature * deltaT);
         m_shared.perturbT(deltaT);
 
         // apply numerical derivative
         for (auto& rxn : m_rxn_rates) {
-            if (dkf[rxn.first] != 0.) {
+            if (kf[rxn.first] != 0.) {
                 double k1 = rxn.second.evalFromStruct(m_shared);
-                dkf[rxn.first] *= dTinv * (k1 / dkf[rxn.first] - 1.);
+                rop[rxn.first] *= dTinv * (k1 / kf[rxn.first] - 1.);
             } // else not needed: derivative is already zero
         }
 

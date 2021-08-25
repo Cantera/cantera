@@ -56,9 +56,15 @@ public:
     virtual void getRateConstants(double* kf) = 0;
 
     //! Evaluate all rate constant temperature derivatives handled by the evaluator;
-    //! which are multiplied with the array of rate constants
-    //! @param dkf  array of rate constants, which is modified by the method
-    virtual void processRateConstants_ddTscaled(double* dkf) = 0;
+    //! which are multiplied with the array of rate-of-progress variables.
+    //! Depending on the implementation of a rate object, either an exact derivative or
+    //! a numerical approximation may be used.
+    //! @param rop  array of rop, which is modified by the method
+    //! @param kf  array of forward rate constants (numerical derivative only)
+    //! @param deltaT  relative temperature perturbation (numerical derivative only)
+    virtual void processRateConstants_ddT(double* rop,
+                                          const double* kf,
+                                          double deltaT) = 0;
 
     //! Update common reaction rate data based on temperature.
     //! Only used in conjunction with evalSingle and ReactionRate::eval

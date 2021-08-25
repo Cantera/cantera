@@ -589,7 +589,7 @@ public:
      *    concentrations are considered for the evaluation of jacobians
      *  - 'skip-falloff' (boolean) ... if 'true' (default), third-body effects
      *    on reaction rates are not considered.
-     *  - 'atol-delta-T' (double) ... tolerance used to perturb temperature
+     *  - 'rtol-delta-T' (double) ... tolerance used to perturb temperature
      *    when calculating numerical derivatives.
      *
      * @warning Methods used for the evaluation of Jacobians are an experimental
