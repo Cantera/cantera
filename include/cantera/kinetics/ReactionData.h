@@ -56,6 +56,7 @@ struct ReactionData
     //! Perturb temperature of data container
     /**
      * The method is used for the evaluation of numerical derivatives.
+     * @param  deltaT  relative temperature perturbation
      */
     virtual bool perturbT(double deltaT);
 

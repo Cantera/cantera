@@ -24,7 +24,7 @@ bool ReactionData::perturbT(double deltaT)
         return false;
     }
     m_temperature_buf = temperature;
-    ReactionData::update(temperature + deltaT);
+    ReactionData::update(temperature * (1. + deltaT));
     return true;
 }
 

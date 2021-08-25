@@ -17,6 +17,16 @@ GasKinetics::GasKinetics(ThermoPhase* thermo) :
     m_logStandConc(0.0),
     m_pres(0.0)
 {
+    setJacobianSettings(AnyMap()); // use default settings
+}
+
+void GasKinetics::resizeReactions()
+{
+    m_rbuf0.resize(nReactions());
+    m_rbuf1.resize(nReactions());
+    m_rbuf2.resize(nReactions());
+
+    BulkKinetics::resizeReactions();
 }
 
 void GasKinetics::getThirdBodyConcentrations(double* concm)
@@ -260,6 +270,203 @@ void GasKinetics::getFwdRateConstants(double* kfwd)
     copy(m_ropf.begin(), m_ropf.end(), kfwd);
 }
 
+void GasKinetics::getJacobianSettings(AnyMap& settings) const
+{
+    settings["constant-pressure"] = m_jac_const_pressure;
+    settings["mole-fractions"] = m_jac_mole_fractions;
+    settings["skip-third-bodies"] = m_jac_skip_third_bodies;
+    settings["skip-falloff"] = m_jac_skip_falloff;
+    settings["rtol-delta-T"] = m_jac_atol_deltaT;
+}
+
+void GasKinetics::setJacobianSettings(const AnyMap& settings)
+{
+    bool force = settings.empty();
+    if (force || settings.hasKey("constant-pressure")) {
+        m_jac_const_pressure = settings.getBool("constant-pressure", true);
+    }
+    if (force || settings.hasKey("mole-fractions")) {
+        m_jac_mole_fractions = settings.getBool("mole-fractions", true);
+    }
+    if (force || settings.hasKey("skip-third-bodies")) {
+        m_jac_skip_third_bodies = settings.getBool("skip-third-bodies", false);
+    }
+    if (force || settings.hasKey("skip-falloff")) {
+        m_jac_skip_falloff = settings.getBool("skip-falloff", true);
+    }
+    if (!m_jac_skip_falloff) {
+        m_jac_skip_falloff = true;
+        throw NotImplementedError("GasKinetics::setJacobianSettings",
+            "Derivative term related to reaction rate dependence on third bodies "
+            "is not implemented.");
+    }
+    if (force || settings.hasKey("rtol-delta-T")) {
+        m_jac_rtol_deltaT = settings.getDouble("rtol-delta-T", 1e-6);
+    }
+}
+
+void GasKinetics::checkLegacyRates(const std::string& name)
+{
+    if (m_legacy.size()) {
+        // Do not support legacy CTI/XML-based reaction rate evaluators
+        throw CanteraError(name, "Not supported for legacy (CTI/XML) input format.");
+    }
+}
+
+Eigen::VectorXd GasKinetics::fwdRateConstants_ddT()
+{
+    checkLegacyRates("GasKinetics::fwdRateConstants_ddT");
+    updateROP();
+
+    Eigen::VectorXd dFwdKc(nReactions());
+    copy(m_rfn.begin(), m_rfn.end(), &dFwdKc[0]);
+    Eigen::Map<Eigen::VectorXd> dFwdKcM(m_rbuf2.data(), nReactions());
+    if (m_jac_const_pressure) {
+        dFwdKcM = dFwdKc;
+    }
+
+    // direct temperature dependence
+    for (auto& rates : m_bulk_rates) {
+        rates->processRateConstants_ddT(
+            dFwdKc.data(), m_rfn.data(), m_jac_rtol_deltaT);
+    }
+
+    // reaction rates that depend on third-body colliders
+    if (m_jac_const_pressure) {
+        for (auto& rates : m_bulk_rates) {
+            rates->processRateConstants_ddMscaled(
+                dFwdKcM.data(), m_rfn.data(), m_jac_atol_deltaM);
+        }
+        processConcentrations_ddT(dFwdKcM.data());
+        dFwdKc += dFwdKcM;
+    }
+    return dFwdKc;
+}
+
+void GasKinetics::processEquilibriumConstants_ddT(double* drkcn)
+{
+    vector_fp& kc0 = m_rbuf0;
+    vector_fp& kc1 = m_rbuf1;
+
+    double T = thermo().temperature();
+    double P = thermo().pressure();
+    double dTinv = 1. / (m_jac_rtol_deltaT * T);
+    thermo().setState_TP(T * (1. + m_jac_rtol_deltaT), P);
+    getEquilibriumConstants(kc1.data());
+
+    thermo().setState_TP(T, P);
+    getEquilibriumConstants(kc0.data());
+
+    for (size_t i = 0; i < nReactions(); ++i) {
+        drkcn[i] *= (kc0[i] - kc1[i]) * dTinv;
+        drkcn[i] /= kc0[i]; // divide once as this is a scaled derivative
+    }
+
+    for (size_t i = 0; i < m_irrev.size(); ++i) {
+        drkcn[m_irrev[i]] = 0.0;
+    }
+}
+
+void GasKinetics::processConcentrations_ddT(double* rop)
+{
+    double dctot_dT;
+    if (thermo().type() == "IdealGas") {
+        dctot_dT = -thermo().molarDensity() / thermo().temperature();
+    } else {
+        double T = thermo().temperature();
+        double P = thermo().pressure();
+        thermo().setState_TP(T * (1. + m_jac_rtol_deltaT), P);
+        double ctot1 = thermo().molarDensity();
+        thermo().setState_TP(T, P);
+        double ctot0 = thermo().molarDensity();
+        dctot_dT = (ctot1 - ctot0) / (T * m_jac_rtol_deltaT);
+    }
+
+    for (size_t i = 0; i < nReactions(); ++i ) {
+        rop[i] *= dctot_dT;
+    }
+}
+
+Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddT()
+{
+    checkLegacyRates("GasKinetics::fwdRatesOfProgress_ddT");
+    updateROP();
+
+    Eigen::VectorXd dFwdRop(nReactions());
+    copy(m_ropf.begin(), m_ropf.end(), &dFwdRop[0]);
+    for (auto& rates : m_bulk_rates) {
+        rates->processRateConstants_ddT(
+            dFwdRop.data(), m_rfn.data(), m_jac_rtol_deltaT);
+    }
+
+    if (m_jac_const_pressure) {
+        Eigen::Map<Eigen::VectorXd> dFwdRopC(m_rbuf1.data(), nReactions());
+        dFwdRopC.fill(0.);
+        m_reactantStoich.scale(m_ropf.data(), dFwdRopC.data());
+
+        // reactions involving third body
+        if (!m_concm.empty()) {
+            Eigen::Map<Eigen::VectorXd> dFwdRopM(m_rbuf2.data(), nReactions());
+            dFwdRopM.fill(0.);
+            m_multi_concm.scale(m_ropf.data(), dFwdRopM.data());
+            dFwdRopC += dFwdRopM;
+        }
+
+        // add term to account for changes of concentrations
+        processConcentrations_ddT(dFwdRopC.data());
+        dFwdRop += dFwdRopC;
+    }
+    return dFwdRop;
+}
+
+Eigen::VectorXd GasKinetics::revRatesOfProgress_ddT()
+{
+    checkLegacyRates("GasKinetics::revRatesOfProgress_ddT");
+    updateROP();
+
+    // reverse rop times scaled rate constant derivative
+    Eigen::VectorXd dRevRop(nReactions());
+    copy(m_ropr.begin(), m_ropr.end(), &dRevRop[0]);
+    for (auto& rates : m_bulk_rates) {
+        rates->processRateConstants_ddT(
+            dRevRop.data(), m_rfn.data(), m_jac_rtol_deltaT);
+    }
+
+    // reverse rop times scaled inverse equilibrium constant derivatives
+    Eigen::Map<Eigen::VectorXd> dRevRop2(m_rbuf2.data(), nReactions());
+    copy(m_ropr.begin(), m_ropr.end(), m_rbuf2.begin());
+    processEquilibriumConstants_ddT(dRevRop2.data());
+
+    dRevRop += dRevRop2;
+
+    if (m_jac_const_pressure) {
+        Eigen::Map<Eigen::VectorXd> dRevRopC(m_rbuf1.data(), nReactions());
+        dRevRopC.fill(0.);
+        m_revProductStoich.scale(m_ropr.data(), dRevRopC.data());
+
+        // reactions involving third body
+        if (!m_concm.empty()) {
+            Eigen::Map<Eigen::VectorXd> dRevRopM(m_rbuf2.data(), nReactions());
+            dRevRopM.fill(0.);
+            m_multi_concm.scale(m_ropr.data(), dRevRopM.data());
+            dRevRopC += dRevRopM;
+        }
+
+        // add term to account for changes of concentrations
+        processConcentrations_ddT(dRevRopC.data());
+        dRevRop += dRevRopC;
+    }
+
+    return dRevRop;
+}
+
+Eigen::VectorXd GasKinetics::netRatesOfProgress_ddT()
+{
+    checkLegacyRates("GasKinetics::netRatesOfProgress_ddT");
+
+    return fwdRatesOfProgress_ddT() - revRatesOfProgress_ddT();
+}
+
 bool GasKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 {
     // operations common to all reaction types
@@ -287,6 +494,7 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
         throw CanteraError("GasKinetics::addReaction",
             "Unknown reaction type specified: '{}'", r->type());
     }
+    m_legacy.push_back(nReactions() - 1);
     return true;
 }
 
