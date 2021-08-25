@@ -66,6 +66,9 @@ public:
     virtual Eigen::VectorXd fwdRatesOfProgress_ddT();
     virtual Eigen::VectorXd revRatesOfProgress_ddT();
     virtual Eigen::VectorXd netRatesOfProgress_ddT();
+    virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddC();
+    virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddC();
+    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddC();
 
     //! Update temperature-dependent portions of reaction rates and falloff
     //! functions.
@@ -105,6 +108,9 @@ protected:
     //! Apply derivative of species concentrations with respect to temperature
     //! (at constant pressure)
     void processConcentrations_ddT(double* rop);
+
+    //! Multiply rate with concentration
+    void scaleConcentrations(double *rates);
 
     //! Calculate rate coefficients
     void checkLegacyRates(const std::string& name);

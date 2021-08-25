@@ -467,6 +467,120 @@ Eigen::VectorXd GasKinetics::netRatesOfProgress_ddT()
     return fwdRatesOfProgress_ddT() - revRatesOfProgress_ddT();
 }
 
+void GasKinetics::scaleConcentrations(double *rates)
+{
+    double ctot = thermo().molarDensity();
+    for (size_t i = 0; i < nReactions(); ++i) {
+        rates[i] *= ctot;
+    }
+}
+
+Eigen::SparseMatrix<double> GasKinetics::fwdRatesOfProgress_ddC()
+{
+    checkLegacyRates("GasKinetics::fwdRatesOfProgress_ddC");
+
+    Eigen::SparseMatrix<double> jac;
+    vector_fp& rop_rates = m_rbuf0;
+    vector_fp& rop_stoich = m_rbuf1;
+    vector_fp& rop_3b = m_rbuf2;
+
+    // forward reaction rate coefficients
+    processFwdRateCoefficients(rop_rates.data());
+    if (m_jac_mole_fractions) {
+        scaleConcentrations(rop_rates.data());
+    }
+
+    // derivatives handled by StoichManagerN
+    copy(rop_rates.begin(), rop_rates.end(), rop_stoich.begin());
+    processThirdBodies(rop_stoich.data());
+    jac = m_reactantStoich.jacobian(m_act_conc.data(), rop_stoich.data());
+
+    // derivatives handled by ThirdBodyCalc
+    if (!m_jac_skip_third_bodies && !m_concm.empty()) {
+        copy(rop_rates.begin(), rop_rates.end(), rop_3b.begin());
+        m_reactantStoich.multiply(m_act_conc.data(), rop_3b.data());
+        jac += m_multi_concm.jacobian(rop_3b.data());
+    }
+
+    return jac;
+}
+
+Eigen::SparseMatrix<double> GasKinetics::revRatesOfProgress_ddC()
+{
+    checkLegacyRates("GasKinetics::revRatesOfProgress_ddC");
+
+    Eigen::SparseMatrix<double> jac;
+    vector_fp& rop_rates = m_rbuf0;
+    vector_fp& rop_stoich = m_rbuf1;
+    vector_fp& rop_3b = m_rbuf2;
+
+    // reverse reaction rate coefficients
+    processFwdRateCoefficients(rop_rates.data());
+    processEquilibriumConstants(rop_rates.data());
+    if (m_jac_mole_fractions) {
+        scaleConcentrations(rop_rates.data());
+    }
+
+    // derivatives handled by StoichManagerN
+    copy(rop_rates.begin(), rop_rates.end(), rop_stoich.begin());
+    processThirdBodies(rop_stoich.data());
+    jac = m_revProductStoich.jacobian(m_act_conc.data(), rop_stoich.data());
+
+    // derivatives handled by ThirdBodyCalc
+    if (!m_jac_skip_third_bodies && !m_concm.empty()) {
+        copy(rop_rates.begin(), rop_rates.end(), rop_3b.begin());
+        m_revProductStoich.multiply(m_act_conc.data(), rop_3b.data());
+        jac += m_multi_concm.jacobian(rop_3b.data());
+    }
+
+    return jac;
+}
+
+Eigen::SparseMatrix<double> GasKinetics::netRatesOfProgress_ddC()
+{
+    checkLegacyRates("GasKinetics::netRatesOfProgress_ddC");
+
+    Eigen::SparseMatrix<double> jac;
+    vector_fp& rop_rates = m_rbuf0;
+    vector_fp& rop_stoich = m_rbuf1;
+    vector_fp& rop_3b = m_rbuf2;
+
+    // forward reaction rate coefficients
+    processFwdRateCoefficients(rop_rates.data());
+    if (m_jac_mole_fractions) {
+        scaleConcentrations(rop_rates.data());
+    }
+    copy(rop_rates.begin(), rop_rates.end(), rop_stoich.begin());
+
+    // forward derivatives handled by StoichManagerN
+    processThirdBodies(rop_stoich.data());
+    jac = m_reactantStoich.jacobian(m_act_conc.data(), rop_stoich.data());
+
+    // forward derivatives handled by ThirdBodyCalc
+    if (!m_jac_skip_third_bodies && !m_concm.empty()) {
+        copy(rop_rates.begin(), rop_rates.end(), rop_3b.begin());
+        m_reactantStoich.multiply(m_act_conc.data(), rop_3b.data());
+        jac += m_multi_concm.jacobian(rop_3b.data());
+    }
+
+    // reverse reaction rate coefficients
+    processEquilibriumConstants(rop_rates.data());
+    copy(rop_rates.begin(), rop_rates.end(), rop_stoich.begin());
+
+    // reverse derivatives handled by StoichManagerN
+    processThirdBodies(rop_stoich.data());
+    jac -= m_revProductStoich.jacobian(m_act_conc.data(), rop_stoich.data());
+
+    // reverse derivatives handled by ThirdBodyCalc
+    if (!m_jac_skip_third_bodies && !m_concm.empty()) {
+        copy(rop_rates.begin(), rop_rates.end(), rop_3b.begin());
+        m_revProductStoich.multiply(m_act_conc.data(), rop_3b.data());
+        jac -= m_multi_concm.jacobian(rop_3b.data());
+    }
+
+    return jac;
+}
+
 bool GasKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 {
     // operations common to all reaction types
