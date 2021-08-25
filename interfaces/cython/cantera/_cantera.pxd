@@ -727,6 +727,9 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         double multiplier(int)
         void setMultiplier(int, double)
 
+        void getJacobianSettings(CxxAnyMap&) except +translate_exception
+        void setJacobianSettings(CxxAnyMap&) except +translate_exception
+
 
 cdef extern from "cantera/kinetics/InterfaceKinetics.h":
     cdef cppclass CxxInterfaceKinetics "Cantera::InterfaceKinetics":
@@ -1250,6 +1253,22 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void kin_getRevRatesOfProgress(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getNetRatesOfProgress(CxxKinetics*, double*) except +translate_exception
 
+    cdef void kin_fwdRateConstants_ddT(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_fwdRateConstants_ddP(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_fwdRateConstants_ddD(CxxKinetics*, double*, size_t) except +translate_exception
+
+    cdef void kin_fwdRatesOfProgress_ddT(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_revRatesOfProgress_ddT(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_netRatesOfProgress_ddT(CxxKinetics*, double*, size_t) except +translate_exception
+
+    cdef void kin_fwdRatesOfProgress_ddP(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_revRatesOfProgress_ddP(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_netRatesOfProgress_ddP(CxxKinetics*, double*, size_t) except +translate_exception
+
+    cdef void kin_fwdRatesOfProgress_ddD(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_revRatesOfProgress_ddD(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_netRatesOfProgress_ddD(CxxKinetics*, double*, size_t) except +translate_exception
+
     cdef void kin_getEquilibriumConstants(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getFwdRateConstants(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getRevRateConstants(CxxKinetics*, double*) except +translate_exception
@@ -1268,10 +1287,30 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void kin_getDestructionRates(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getNetProductionRates(CxxKinetics*, double*) except +translate_exception
 
+    cdef void kin_creationRates_ddT(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_destructionRates_ddT(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_netProductionRates_ddT(CxxKinetics*, double*, size_t) except +translate_exception
+
+    cdef void kin_creationRates_ddP(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_destructionRates_ddP(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_netProductionRates_ddP(CxxKinetics*, double*, size_t) except +translate_exception
+
+    cdef void kin_creationRates_ddD(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_destructionRates_ddD(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_netProductionRates_ddD(CxxKinetics*, double*, size_t) except +translate_exception
+
     # Kinetics sparse matrices
     cdef CxxSparseMatrix kin_reactantStoichCoeffs(CxxKinetics*) except +translate_exception
     cdef CxxSparseMatrix kin_productStoichCoeffs(CxxKinetics*) except +translate_exception
     cdef CxxSparseMatrix kin_revProductStoichCoeffs(CxxKinetics*) except +translate_exception
+
+    cdef CxxSparseMatrix kin_fwdRatesOfProgress_ddC(CxxKinetics*) except +translate_exception
+    cdef CxxSparseMatrix kin_revRatesOfProgress_ddC(CxxKinetics*) except +translate_exception
+    cdef CxxSparseMatrix kin_netRatesOfProgress_ddC(CxxKinetics*) except +translate_exception
+
+    cdef CxxSparseMatrix kin_creationRates_ddC(CxxKinetics*) except +translate_exception
+    cdef CxxSparseMatrix kin_destructionRates_ddC(CxxKinetics*) except +translate_exception
+    cdef CxxSparseMatrix kin_netProductionRates_ddC(CxxKinetics*) except +translate_exception
 
     # Transport properties
     cdef void tran_getMixDiffCoeffs(CxxTransport*, double*) except +translate_exception
@@ -1299,6 +1338,7 @@ ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +trans
 ctypedef void (*transportPolyMethod1i)(CxxTransport*, size_t, double*) except +translate_exception
 ctypedef void (*transportPolyMethod2i)(CxxTransport*, size_t, size_t, double*) except +translate_exception
 ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +translate_exception
+ctypedef void (*kineticsMethodMapped)(CxxKinetics*, double*, size_t) except +translate_exception
 ctypedef CxxSparseMatrix (*kineticsMethodSparse)(CxxKinetics*) except +translate_exception
 
 # classes
@@ -1566,6 +1606,7 @@ cdef string stringify(x) except *
 cdef pystr(string x)
 cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method)
 cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method)
+cdef np.ndarray get_mapped(Kinetics kin, kineticsMethodMapped method, size_t dim)
 cdef np.ndarray get_dense(Kinetics kin, kineticsMethodSparse method)
 cdef tuple get_sparse(Kinetics kin, kineticsMethodSparse method)
 cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method)

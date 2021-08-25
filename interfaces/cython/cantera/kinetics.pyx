@@ -24,6 +24,11 @@ cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method):
     method(kin.kinetics, &data[0])
     return data
 
+cdef np.ndarray get_mapped(Kinetics kin, kineticsMethodMapped method, size_t dim):
+    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(dim)
+    method(kin.kinetics, &data[0], dim)
+    return data
+
 cdef np.ndarray get_dense(Kinetics kin, kineticsMethodSparse method):
     cdef CxxSparseMatrix smat = method(kin.kinetics)
     cdef size_t length = smat.nonZeros()
@@ -56,7 +61,6 @@ cdef tuple get_sparse(Kinetics kin, kineticsMethodSparse method):
 
     CxxSparseCscData(smat, &value[0], &inner[0], &outer[0])
     return value, inner, outer
-
 
 cdef class Kinetics(_SolutionBase):
     """
@@ -451,6 +455,365 @@ cdef class Kinetics(_SolutionBase):
         """
         def __get__(self):
             return get_species_array(self, kin_getNetProductionRates)
+
+    property jacobian_settings:
+        """
+        Property setting behavior of Jacobian evaluation.
+
+        For ``GasKinetics``, the following keyword/value pairs are supported:
+
+        -  ``skip-third-bodies`` (boolean) ... if `False` (default), third body
+           concentrations are considered for the evaluation of jacobians
+
+        -  ``skip-falloff`` (boolean) ... if `True` (default), third-body effects
+           on reaction rates are not considered.
+
+        -  ``rtol-delta`` (double) ... relative tolerance used to perturb properties
+           when calculating numerical derivatives.
+
+        The Jacobian settings are updated using a dictionary::
+
+            >>> gas.jacobian_settings = {"skip-falloff": True}
+
+        which updates settings used for the evaluation of Jacobians. Passing an empty
+        dictionary will reset all values to their defaults.
+
+        Warning: this property is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            cdef CxxAnyMap settings
+            self.kinetics.getJacobianSettings(settings)
+            return anymap_to_dict(settings)
+        def __set__(self, settings):
+            self.kinetics.setJacobianSettings(dict_to_anymap(settings))
+
+    property forward_rate_constants_temperature_derivatives:
+        """
+        Calculate Jacobian for forward rate constants with respect to temperature
+        at constant pressure and molar density.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_fwdRateConstants_ddT, self.n_reactions)
+
+    property forward_rate_constants_pressure_derivatives:
+        """
+        Calculate Jacobian for forward rate constants with respect to pressure
+        at constant temperature and molar density.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_fwdRateConstants_ddP, self.n_reactions)
+
+    property forward_rate_constants_density_derivatives:
+        """
+        Calculate Jacobian for forward rate constants with respect to molar density
+        at constant temperature and pressure.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_fwdRateConstants_ddD, self.n_reactions)
+
+    property forward_rop_temperature_derivatives:
+        """
+        Calculate Jacobian for forward rates-of-progress with respect to temperature
+        at constant pressure and molar density.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_fwdRatesOfProgress_ddT, self.n_reactions)
+
+    property forward_rop_pressure_derivatives:
+        """
+        Calculate Jacobian for forward rates-of-progress with respect to pressure
+        at constant temperature and molar density.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_fwdRatesOfProgress_ddP, self.n_reactions)
+
+    property forward_rop_density_derivatives:
+        """
+        Calculate Jacobian for forward rates-of-progress with respect to molar density
+        at constant temperature and pressure.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_fwdRatesOfProgress_ddD, self.n_reactions)
+
+    property forward_rop_species_derivatives:
+        """
+        Calculate Jacobian for forward rates-of-progress with respect to species
+        concentrations at constant temperature and pressure. For sparse output,
+        set ``ct.use_sparse(True)``.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            if __use_sparse__:
+                tup = get_sparse(self, kin_fwdRatesOfProgress_ddC)
+                shape = self.n_reactions, self.n_total_species
+                return _scipy_sparse.csc_matrix(tup, shape=shape)
+            return get_dense(self, kin_fwdRatesOfProgress_ddC)
+
+    property reverse_rop_temperature_derivatives:
+        """
+        Calculate Jacobian for reverse rates-of-progress with respect to temperature
+        at constant pressure and molar density.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_revRatesOfProgress_ddT, self.n_reactions)
+
+    property reverse_rop_pressure_derivatives:
+        """
+        Calculate Jacobian for reverse rates-of-progress with respect to pressure
+        at constant temperature and molar density.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_revRatesOfProgress_ddP, self.n_reactions)
+
+    property reverse_rop_density_derivatives:
+        """
+        Calculate Jacobian for reverse rates-of-progress with respect to molar density
+        at constant temperature and pressure.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_revRatesOfProgress_ddD, self.n_reactions)
+
+    property reverse_rop_species_derivatives:
+        """
+        Calculate Jacobian for reverse rates-of-progress with respect to species
+        concentrations at constant temperature and pressure. For sparse output,
+        set ``ct.use_sparse(True)``.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            if __use_sparse__:
+                tup = get_sparse(self, kin_revRatesOfProgress_ddC)
+                shape = self.n_reactions, self.n_total_species
+                return _scipy_sparse.csc_matrix(tup, shape=shape)
+            return get_dense(self, kin_revRatesOfProgress_ddC)
+
+    property net_rop_temperature_derivatives:
+        """
+        Calculate Jacobian for net rates-of-progress with respect to temperature
+        at constant pressure and molar density.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_netRatesOfProgress_ddT, self.n_reactions)
+
+    property net_rop_pressure_derivatives:
+        """
+        Calculate Jacobian for net rates-of-progress with respect to pressure
+        at constant temperature and molar density.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_netRatesOfProgress_ddP, self.n_reactions)
+
+    property net_rop_density_derivatives:
+        """
+        Calculate Jacobian for net rates-of-progress with respect to molar density
+        at constant temperature and pressure.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_netRatesOfProgress_ddD, self.n_reactions)
+
+    property net_rop_species_derivatives:
+        """
+        Calculate Jacobian for net rates-of-progress with respect to species
+        concentrations at constant temperature and pressure. For sparse output,
+        set ``ct.use_sparse(True)``.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            if __use_sparse__:
+                tup = get_sparse(self, kin_netRatesOfProgress_ddC)
+                shape = self.n_reactions, self.n_total_species
+                return _scipy_sparse.csc_matrix(tup, shape=shape)
+            return get_dense(self, kin_netRatesOfProgress_ddC)
+
+    property creation_rate_temperature_derivatives:
+        """
+        Calculate Jacobian of species creation rates with respect to temperature
+        at constant pressure and molar density.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_creationRates_ddT, self.n_total_species)
+
+    property creation_rate_pressure_derivatives:
+        """
+        Calculate Jacobian of species creation rates with respect to pressure
+        at constant temperature and molar density.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_creationRates_ddP, self.n_total_species)
+
+    property creation_rate_density_derivatives:
+        """
+        Calculate Jacobian of species creation rates with respect to molar density
+        at constant temperature and pressure.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_creationRates_ddD, self.n_total_species)
+
+    property creation_rate_species_derivatives:
+        """
+        Calculate Jacobian for species creation rates with respect to species
+        concentrations at constant temperature and pressure. For sparse output,
+        set ``ct.use_sparse(True)``.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            if __use_sparse__:
+                tup = get_sparse(self, kin_creationRates_ddC)
+                shape = self.n_total_species, self.n_total_species
+                return _scipy_sparse.csc_matrix(tup, shape=shape)
+            return get_dense(self, kin_creationRates_ddC)
+
+    property destruction_rate_temperature_derivatives:
+        """
+        Calculate Jacobian of species destruction rates with respect to temperature
+        at constant pressure and molar density.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_destructionRates_ddT, self.n_total_species)
+
+    property destruction_rate_pressure_derivatives:
+        """
+        Calculate Jacobian of species destruction rates with respect to pressure
+        at constant temperature and molar density.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_destructionRates_ddP, self.n_total_species)
+
+    property destruction_rate_density_derivatives:
+        """
+        Calculate Jacobian of species destruction rates with respect to molar density
+        at constant temperature and pressure.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_destructionRates_ddD, self.n_total_species)
+
+    property destruction_rate_species_derivatives:
+        """
+        Calculate Jacobian for species destruction rates with respect to species
+        concentrations at constant temperature and pressure. For sparse output,
+        set ``ct.use_sparse(True)``.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            if __use_sparse__:
+                tup = get_sparse(self, kin_destructionRates_ddC)
+                shape = self.n_total_species, self.n_total_species
+                return _scipy_sparse.csc_matrix(tup, shape=shape)
+            return get_dense(self, kin_destructionRates_ddC)
+
+    property net_production_rate_temperature_derivatives:
+        """
+        Calculate Jacobian of species net production rates with respect to temperature
+        at constant pressure and molar density.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_netProductionRates_ddT, self.n_total_species)
+
+    property net_production_rate_pressure_derivatives:
+        """
+        Calculate Jacobian of species net production rates with respect to pressure
+        at constant temperature and molar density.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_netProductionRates_ddP, self.n_total_species)
+
+    property net_production_rate_density_derivatives:
+        """
+        Calculate Jacobian of species net production rates with respect to molar density
+        at constant temperature and pressure.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_mapped(self, kin_netProductionRates_ddD, self.n_total_species)
+
+    property net_production_rate_species_derivatives:
+        """
+        Calculate Jacobian for species net production rates with respect to species
+        concentrations at constant temperature and pressure. For sparse output,
+        set ``ct.use_sparse(True)``.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+        """
+        def __get__(self):
+            if __use_sparse__:
+                tup = get_sparse(self, kin_netProductionRates_ddC)
+                shape = self.n_total_species, self.n_total_species
+                return _scipy_sparse.csc_matrix(tup, shape=shape)
+            return get_dense(self, kin_netProductionRates_ddC)
 
     property delta_enthalpy:
         """Change in enthalpy for each reaction [J/kmol]."""
