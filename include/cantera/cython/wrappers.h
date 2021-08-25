@@ -100,6 +100,11 @@ void sparseCscData(const Eigen::SparseMatrix<double>& mat,
     Eigen::SparseMatrix<double> PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object) \
     { return object->FUNC_NAME(); }
 
+// Function which maps vector output to a 1D array of a given length
+#define MAPPED_FUNC(PREFIX, CLASS_NAME, FUNC_NAME) \
+    void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, double* data, size_t dim) \
+    { Eigen::Map<Eigen::VectorXd> mapped(data, dim); mapped = object->FUNC_NAME(); }
+
 // Function which populates a 1D array
 #define ARRAY_FUNC(PREFIX, CLASS_NAME, FUNC_NAME) \
     void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, double* data) \
@@ -114,7 +119,7 @@ void sparseCscData(const Eigen::SparseMatrix<double>& mat,
 #define ARRAY_POLY(PREFIX, CLASS_NAME, FUNC_NAME) \
     void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t i, double* data) \
     { object->FUNC_NAME(i, data); }
-    
+
 #define ARRAY_POLY_BINARY(PREFIX, CLASS_NAME, FUNC_NAME) \
     void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t i, size_t j, double* data) \
     { object->FUNC_NAME(i, j, data); }
@@ -122,6 +127,7 @@ void sparseCscData(const Eigen::SparseMatrix<double>& mat,
 #define THERMO_1D(FUNC_NAME) ARRAY_FUNC(thermo, ThermoPhase, FUNC_NAME)
 #define KIN_1D(FUNC_NAME) ARRAY_FUNC(kin, Kinetics, FUNC_NAME)
 #define KIN_SPARSE_MATRIX(FUNC_NAME) SPARSE_MATRIX(kin, Kinetics, FUNC_NAME)
+#define KIN_MAPPED(FUNC_NAME) MAPPED_FUNC(kin, Kinetics, FUNC_NAME)
 #define TRANSPORT_1D(FUNC_NAME) ARRAY_FUNC(tran, Transport, FUNC_NAME)
 #define TRANSPORT_2D(FUNC_NAME) ARRAY_FUNC2(tran, Transport, FUNC_NAME)
 #define TRANSPORT_POLY(FUNC_NAME) ARRAY_POLY(tran, Transport, FUNC_NAME)
@@ -159,6 +165,26 @@ KIN_1D(getFwdRatesOfProgress)
 KIN_1D(getRevRatesOfProgress)
 KIN_1D(getNetRatesOfProgress)
 
+KIN_SPARSE_MATRIX(fwdRatesOfProgress_ddC)
+KIN_SPARSE_MATRIX(revRatesOfProgress_ddC)
+KIN_SPARSE_MATRIX(netRatesOfProgress_ddC)
+
+KIN_MAPPED(fwdRateConstants_ddT)
+KIN_MAPPED(fwdRateConstants_ddP)
+KIN_MAPPED(fwdRateConstants_ddD)
+
+KIN_MAPPED(fwdRatesOfProgress_ddT)
+KIN_MAPPED(revRatesOfProgress_ddT)
+KIN_MAPPED(netRatesOfProgress_ddT)
+
+KIN_MAPPED(fwdRatesOfProgress_ddP)
+KIN_MAPPED(revRatesOfProgress_ddP)
+KIN_MAPPED(netRatesOfProgress_ddP)
+
+KIN_MAPPED(fwdRatesOfProgress_ddD)
+KIN_MAPPED(revRatesOfProgress_ddD)
+KIN_MAPPED(netRatesOfProgress_ddD)
+
 KIN_1D(getEquilibriumConstants)
 KIN_1D(getFwdRateConstants)
 KIN_1D(getRevRateConstants)
@@ -175,6 +201,22 @@ KIN_1D(getThirdBodyConcentrations)
 KIN_1D(getCreationRates)
 KIN_1D(getDestructionRates)
 KIN_1D(getNetProductionRates)
+
+KIN_SPARSE_MATRIX(creationRates_ddC)
+KIN_SPARSE_MATRIX(destructionRates_ddC)
+KIN_SPARSE_MATRIX(netProductionRates_ddC)
+
+KIN_MAPPED(creationRates_ddT)
+KIN_MAPPED(destructionRates_ddT)
+KIN_MAPPED(netProductionRates_ddT)
+
+KIN_MAPPED(creationRates_ddP)
+KIN_MAPPED(destructionRates_ddP)
+KIN_MAPPED(netProductionRates_ddP)
+
+KIN_MAPPED(creationRates_ddD)
+KIN_MAPPED(destructionRates_ddD)
+KIN_MAPPED(netProductionRates_ddD)
 
 TRANSPORT_1D(getMixDiffCoeffs)
 TRANSPORT_1D(getMixDiffCoeffsMass)
