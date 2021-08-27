@@ -154,6 +154,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         self.assertEqual(states[0].P, gas.P)
         self.assertArrayNear(states[0].Y, gas.Y)
 
+    @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_import_no_norm_data(self):
         outfile = self.test_work_path / "solutionarray.h5"
         # In Python >= 3.8, this can be replaced by the missing_ok argument
@@ -469,6 +470,7 @@ class TestRestorePureFluid(utilities.CanteraTest):
         b.restore_data(data)
         check(a, b)
 
+    @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_import_no_norm_water(self):
         outfile = self.test_work_path / "solutionarray.h5"
         # In Python >= 3.8, this can be replaced by the missing_ok argument
