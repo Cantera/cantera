@@ -165,4 +165,52 @@ void SRI::getParameters(AnyMap& reactionNode) const
     reactionNode["SRI"] = std::move(params);
 }
 
+void Tsang::init(const vector_fp& c)
+{
+    if (c.size() != 1 && c.size() != 2) {
+        throw CanteraError("Tsang::init",
+            "Incorrect number of parameters. 1 or 2 required. Received {}.",
+            c.size());
+    }
+    m_a = c[0];
+
+    if (c.size() == 2) {
+        m_b = c[1];
+    }
+    else {
+        m_b = 0.0;
+    }
+}
+
+void Tsang::updateTemp(double T, double* work) const
+{
+    double Fcent = m_a + (m_b * T);
+    *work = log10(std::max(Fcent, SmallNumber));
+}
+
+double Tsang::F(double pr, const double* work) const
+{   //identical to Troe::F
+    double lpr = log10(std::max(pr,SmallNumber));
+    double cc = -0.4 - 0.67 * (*work);
+    double nn = 0.75 - 1.27 * (*work);
+    double f1 = (lpr + cc)/ (nn - 0.14 * (lpr + cc));
+    double lgf = (*work) / (1.0 + f1 * f1);
+    return pow(10.0, lgf);
+}
+
+void Tsang::getParameters(double* params) const {
+    params[0] = m_a;
+    params[1] = m_b;
+}
+
+void Tsang::getParameters(AnyMap& reactionNode) const
+{
+    AnyMap params;
+    params["A"] = m_a;
+    params["B"] = m_b;
+
+    params.setFlowStyle();
+    reactionNode["Tsang"] = std::move(params);
+}
+
 }

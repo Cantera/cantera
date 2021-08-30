@@ -160,6 +160,33 @@ TEST(Reaction, FalloffFromYaml2)
     EXPECT_EQ(R->input["source"].asString(), "somewhere");
 }
 
+TEST(Reaction, FalloffFromYaml3)
+{
+    auto sol = newSolution("gri30.yaml", "", "None");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: HCN (+ M) <=> H + CN (+ M),"
+        " type: falloff,"
+        " low-P-rate-constant: {A: 3.57e+26, b: -2.6, Ea: 1.249e+05},"
+        " high-P-rate-constant: {A: 8.3e+17, b: -0.93, Ea: 1.238e+05},"
+        " Tsang: {A: 0.95, B: -1.0e-04},"
+        " efficiencies: {CO2: 1.6, H2O: 5.0, N2: 1.0, N2O: 5.0},"
+        " source: ARL-TR-5088}");
+
+    auto R = newReaction(rxn, *(sol->kinetics()));
+    auto FR = dynamic_cast<FalloffReaction&>(*R);
+    EXPECT_DOUBLE_EQ(FR.third_body.efficiency("N2"), 1.0);
+    EXPECT_DOUBLE_EQ(FR.third_body.efficiency("H2O"), 5.0);
+    EXPECT_DOUBLE_EQ(FR.high_rate.preExponentialFactor(), 8.3e17);
+    EXPECT_DOUBLE_EQ(FR.low_rate.preExponentialFactor(), 3.57e26);
+    EXPECT_DOUBLE_EQ(FR.high_rate.activationEnergy_R(), 123800.0 / GasConstant);
+    EXPECT_DOUBLE_EQ(FR.low_rate.activationEnergy_R(), 124900.0 / GasConstant);
+    vector_fp params(2);
+    FR.falloff->getParameters(params.data());
+    EXPECT_DOUBLE_EQ(params[0], 0.95);
+    EXPECT_DOUBLE_EQ(params[1], -0.0001);
+    EXPECT_EQ(R->input["source"].asString(), "ARL-TR-5088");
+}
+
 TEST(Reaction, ChemicallyActivatedFromYaml)
 {
     auto sol = newSolution("gri30.yaml", "", "None");
@@ -504,6 +531,17 @@ TEST_F(ReactionToYaml, SriFalloff)
 {
     soln = newSolution("sri-falloff.yaml");
     soln->thermo()->setState_TPY(1000, 2e5, "R1A: 0.1, R1B:0.2, H: 0.2, R2:0.5");
+    duplicateReaction(0);
+    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction>(duplicate));
+    compareReactions();
+    duplicateReaction(1);
+    compareReactions();
+}
+
+TEST_F(ReactionToYaml, TsangFalloff)
+{
+    soln = newSolution("tsang-falloff.yaml");
+    soln->thermo()->setState_TPY(1000, 2e5, "NO:1.0, OH:1.0, H:1.0, CN:1.0");
     duplicateReaction(0);
     EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction>(duplicate));
     compareReactions();
