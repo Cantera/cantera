@@ -1,0 +1,57 @@
+description: |-
+  Sample reactions in the Tsang falloff format for testing.
+  From Lucassen et al. 2011 (doi: 10.1016/j.combustflame.2011.02.010)
+
+generator: cti2yaml
+cantera-version: 2.6.0a2
+date: Mon, 30 Aug 2021 16:33:51 +0300
+input-files: [Lucassen-2011.cti]
+
+units: {length: cm, quantity: mol, activation-energy: cal/mol}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [H, C, O, N, Ar]
+  species:
+  - gri30.yaml/species: [H, NO, OH, CN, HCN, CO2, H2O, N2, N2O]
+  - species: [HONO]
+  kinetics: gas
+  reactions: all
+  transport: mixture-averaged
+  state:
+    T: 300.0
+    P: 1.01325e+05
+
+species:
+- name: HONO
+  composition: {H: 1, N: 1, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [2.290413, 0.01409922, -1.367872e-05, 7.49878e-09, -1.876905e-12,
+      -1.043195e+04, 13.28077]
+    - [5.486893, 4.218065e-03, -1.649143e-06, 2.971877e-10, -2.021148e-14,
+      -1.126865e+04, -2.997002]
+  transport:
+    model: gas
+    geometry: nonlinear
+    diameter: 3.828
+    well-depth: 232.4
+    rotational-relaxation: 1.0
+  note: '31787'
+
+reactions:
+- equation: NO + OH (+ M) <=> HONO (+ M)  # Reaction 761
+  type: falloff
+  low-P-rate-constant: {A: 5.08e+23, b: -2.51, Ea: -67.6}
+  high-P-rate-constant: {A: 1.988e+12, b: -0.05, Ea: -721.0}
+  Tsang: {A: 0.62, B: 0.0}
+  efficiencies: {CO2: 1.5, H2O: 8.3, N2: 1.0, N2O: 5.0}
+- equation: HCN (+ M) <=> H + CN (+ M)  # Reaction 762
+  type: falloff
+  low-P-rate-constant: {A: 3.57e+26, b: -2.6, Ea: 1.249e+05}
+  high-P-rate-constant: {A: 8.3e+17, b: -0.93, Ea: 1.238e+05}
+  Tsang: {A: 0.95, B: -1.0e-04}
+  efficiencies: {CO2: 1.6, H2O: 5.0, N2: 1.0, N2O: 5.0}

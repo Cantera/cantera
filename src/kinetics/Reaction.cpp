@@ -1181,6 +1181,12 @@ void readFalloff(FalloffReaction& R, const XML_Node& rc_node)
                 "3 or 5 parameters, but {} were given", np);
         }
         R.falloff = newFalloff("SRI", falloff_parameters);
+    } else if (caseInsensitiveEquals(falloff["type"], "tsang")) {
+        if (np != 2) {
+            throw CanteraError("readFalloff", "Tsang parameterization takes "
+                "2 parameters, but {} were given", np);
+        }
+        R.falloff = newFalloff("Tsang", falloff_parameters);
     } else {
         throw CanteraError("readFalloff", "Unrecognized falloff type: '{}'",
                            falloff["type"]);
@@ -1214,6 +1220,13 @@ void readFalloff(FalloffReaction& R, const AnyMap& node)
             params.push_back(f["E"].asDouble());
         }
         R.falloff = newFalloff("SRI", params);
+    } else if (node.hasKey("Tsang")) {
+        auto& f = node["Tsang"].as<AnyMap>();
+        vector_fp params{
+            f["A"].asDouble(),
+            f["B"].asDouble()
+        };
+        R.falloff = newFalloff("Tsang", params);
     } else {
         R.falloff = newFalloff("Lindemann", {});
     }

@@ -20,6 +20,7 @@ FalloffFactory::FalloffFactory()
     addAlias("Lindemann", "Simple");
     reg("Troe", []() { return new Troe(); });
     reg("SRI", []() { return new SRI(); });
+    reg("Tsang", []() { return new Tsang(); });
 }
 
 Falloff* FalloffFactory::newFalloff(const std::string& type, const vector_fp& c)

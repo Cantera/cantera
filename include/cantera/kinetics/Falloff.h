@@ -48,7 +48,7 @@ public:
      * @param T Temperature [K].
      * @param work storage space for intermediate results.
      */
-    virtual void updateTemp(doublereal T, doublereal* work) const {}
+    virtual void updateTemp(double T, double* work) const {}
 
     /**
      * The falloff function. This is defined so that the rate coefficient is
@@ -67,7 +67,7 @@ public:
      *             to updateTemp.
      * @returns the value of the falloff function \f$ F \f$ defined above
      */
-    virtual doublereal F(doublereal pr, const doublereal* work) const {
+    virtual double F(double pr, const double* work) const {
         return 1.0;
     }
 
@@ -144,9 +144,9 @@ public:
      *   @param work      Vector of working space, length 1, representing the
      *                    temperature-dependent part of the parameterization.
      */
-    virtual void updateTemp(doublereal T, doublereal* work) const;
+    virtual void updateTemp(double T, double* work) const;
 
-    virtual doublereal F(doublereal pr, const doublereal* work) const;
+    virtual double F(double pr, const double* work) const;
 
     virtual size_t workSize() {
         return 1;
@@ -167,16 +167,16 @@ public:
 
 protected:
     //! parameter a in the 4-parameter Troe falloff function. Dimensionless
-    doublereal m_a;
+    double m_a;
 
     //! parameter 1/T_3 in the 4-parameter Troe falloff function. [K^-1]
-    doublereal m_rt3;
+    double m_rt3;
 
     //! parameter 1/T_1 in the 4-parameter Troe falloff function. [K^-1]
-    doublereal m_rt1;
+    double m_rt1;
 
     //! parameter T_2 in the 4-parameter Troe falloff function. [K]
-    doublereal m_t2;
+    double m_t2;
 };
 
 //! The SRI falloff function
@@ -220,9 +220,9 @@ public:
      *   @param work      Vector of working space, length 2, representing the
      *                    temperature-dependent part of the parameterization.
      */
-    virtual void updateTemp(doublereal T, doublereal* work) const;
+    virtual void updateTemp(double T, double* work) const;
 
-    virtual doublereal F(doublereal pr, const doublereal* work) const;
+    virtual double F(double pr, const double* work) const;
 
     virtual size_t workSize() {
         return 2;
@@ -243,19 +243,92 @@ public:
 
 protected:
     //! parameter a in the 5-parameter SRI falloff function. Dimensionless.
-    doublereal m_a;
+    double m_a;
 
     //! parameter b in the 5-parameter SRI falloff function. [K]
-    doublereal m_b;
+    double m_b;
 
     //! parameter c in the 5-parameter SRI falloff function. [K]
-    doublereal m_c;
+    double m_c;
 
     //! parameter d in the 5-parameter SRI falloff function. Dimensionless.
-    doublereal m_d;
+    double m_d;
 
     //! parameter d in the 5-parameter SRI falloff function. Dimensionless.
-    doublereal m_e;
+    double m_e;
+};
+
+//! The 1- or 2-parameter Tsang falloff parameterization.
+/*!
+ *  The Tsang falloff model is adapted from that of Troe.
+ *  It provides a constant or linear in temperature value for \f$ F_{cent} \f$:
+ *  \f[ F_{cent} = A + B*T \f]
+ *  
+ *  The value of \f$ F_{cent} \f$ is then applied to Troe's model for the
+ *  determination of the value of \f$ F \f$:
+ * \f[ F = F_{cent}^{1/(1 + f_1^2)} \f]
+ *    where
+ * \f[ f_1 = (\log_{10} P_r + C) /
+ *              \left(N - 0.14 (\log_{10} P_r + C)\right) \f]
+ *
+ * \f[ C = -0.4 - 0.67 \log_{10} F_{cent} \f]
+ *
+ * \f[ N = 0.75 - 1.27 \log_{10} F_{cent} \f]
+ *
+ *  References:
+ *  Example of reaction database developed by Tsang utilizing this format:
+ *      https://doi.org/10.1063/1.555890
+ *  Example of Chemkin implementation of Tsang format (supplemental materials):
+ *      https://doi.org/10.1016/j.combustflame.2011.02.010
+ *
+ * @ingroup falloffGroup
+ */
+class Tsang : public Falloff
+{
+public:
+    //! Constructor
+    Tsang() : m_a(0.0), m_b(0.0) {}
+
+    //! Initialization of the object
+    /*!
+     * @param c Vector of one or two doubles: The doubles are the parameters,
+     *          a and (optionally) b of the Tsang F_cent parameterization
+     */
+    virtual void init(const vector_fp& c);
+
+    //! Update the temperature parameters in the representation
+    /*!
+     *   @param T         Temperature (Kelvin)
+     *   @param work      Vector of working space, length 1, representing the
+     *                    temperature-dependent part of the parameterization.
+     */
+    virtual void updateTemp(double T, double* work) const;
+
+    virtual double F(double pr, const double* work) const;
+
+    virtual size_t workSize() {
+        return 1;
+    }
+
+    virtual std::string type() const {
+        return "Tsang";
+    }
+
+    virtual size_t nParameters() const {
+        return 2;
+    }
+
+    //! Sets params to contain, in order, \f[ (A, B) \f]
+    virtual void getParameters(double* params) const;
+
+    virtual void getParameters(AnyMap& reactionNode) const;
+
+protected:
+    //! parameter a in the Tsang F_cent formulation. Dimensionless
+    double m_a;
+
+    //! parameter b in the Tsang F_cent formulation. [K^-1]
+    double m_b;
 };
 
 }
