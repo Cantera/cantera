@@ -49,6 +49,11 @@ public:
     Units& operator*=(const Units& other);
 
     //! Provide a string representation of these Units
+    //! @param leading_one  print '1' if no units are in the numerator
+    std::string unit_str(bool leading_one=true) const;
+
+    //! Provide a string representation of these Units that includes the
+    //! conversion factor
     std::string str() const;
 
     //! Raise these Units to a power, changing both the conversion factor and
