@@ -5,44 +5,35 @@ cdef class Units:
     """
     A representation of the units associated with a dimensional quantity.
 
-    Used for converting quantities between unit systems and checking for dimensional
-    consistency. `Units` objects are mainly used within the `UnitSystem` class to
-    convert values from a user-specified Unit system to Cantera's base units
+    This class is a light-weight interface to internal Cantera capabilities that are
+    used for converting quantities between unit systems and checking for dimensional
+    consistency. Internally, `Units` objects are mainly used within the `UnitSystem`
+    class to convert values from a user-specified Unit system to Cantera's base units
     (SI + kmol).
 
-    String representations of units can be written using multiplication, division,
-    and exponentiation. Spaces are ignored. Positive, negative, and decimal exponents
-    are permitted. Examples are::
-
-        ct.Units("kg*m/s^2")
-        ct.Units("J/kmol")
-        ct.Units("m*s^-2")
-        ct.Units("J/kg/K")
-        ct.Units("4184.0 J/kmol")
-
-    Metric prefixes are recognized for all units, for example ``nm``, ``hPa``, ``mg``,
-    ``EJ``, ``mL``, ``kcal``. In addition, a numeric scaling factor can be provided.
+    The Python API handles display of `Units` that do not require a conversion factor,
+    with other functions not enabled.
     """
-    def __cinit__(self, name=None, init=True):
-        if init and name:
+    def __cinit__(self, name=None):
+        if name:
             self.units = CxxUnits(stringify(name))
-        elif init:
-            self.units = CxxUnits()
+            if abs(self.units.factor() - 1.) > np.nextafter(0, 1):
+                raise ValueError(
+                    "The creation of 'Units' objects that require a conversion "
+                    "factor\nwith respect to Cantera's default unit system is not "
+                    f"supported:\ninput '{name}' is equivalent to "
+                    f"'{pystr(self.units.str())}' where the conversion factor is "
+                    f"'{self.units.factor()}'")
 
     def __repr__(self):
+        if abs(self.units.factor() - 1.) < np.nextafter(0, 1):
+            return f"<Units({pystr(self.units.unit_str())}) at {id(self):0x}>"
         return f"<Units({pystr(self.units.str())}) at {id(self):0x}>"
-
-    property factor:
-        """
-        Return the factor for converting from this unit to Cantera's base units.
-        """
-        def __get__(self):
-            return self.units.factor()
 
     @staticmethod
     cdef copy(CxxUnits other):
         """Copy a C++ Units object to a Python object."""
-        cdef Units units = Units(init=False)
+        cdef Units units = Units()
         units.units = CxxUnits(other)
         return units
 

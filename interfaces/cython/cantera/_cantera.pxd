@@ -54,6 +54,7 @@ cdef extern from "cantera/base/Units.h" namespace "Cantera":
         CxxUnits()
         CxxUnits(CxxUnits)
         CxxUnits(string) except +translate_exception
+        string unit_str()
         string str()
         double factor()
 
