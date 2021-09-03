@@ -226,7 +226,8 @@ Units& Units::operator*=(const Units& other)
     return *this;
 }
 
-Units Units::pow(double exponent) const {
+Units Units::pow(double exponent) const
+{
     return Units(std::pow(m_factor, exponent),
                  m_mass_dim * exponent,
                  m_length_dim * exponent,
@@ -236,7 +237,8 @@ Units Units::pow(double exponent) const {
                  m_quantity_dim * exponent);
 }
 
-std::string Units::str() const {
+std::string Units::unit_str(bool leading_one) const
+{
     std::map<std::string, double> dims{
         {"kg", m_mass_dim},
         {"m", m_length_dim},
@@ -268,9 +270,20 @@ std::string Units::str() const {
     }
     if (num.size()) {
         // concatenate numerator and denominator (skipping leading '*')
-        out = fmt::format("{}{}", num.substr(2), out);
+        out = fmt::format("{}{}", num.substr(3), out);
+    } else if (leading_one) {
+        // print '1' as the numerator is empty
+        out = fmt::format("1{}", out);
+    } else if (out.size()) {
+        out = out.substr(1);
     }
 
+    return out;
+}
+
+std::string Units::str() const
+{
+    std::string out = unit_str(false);
     std::string factor;
     if (m_factor == roundf(m_factor)) {
         // ensure that fmt::format does not round to integer
@@ -280,7 +293,7 @@ std::string Units::str() const {
     }
 
     if (out.size()) {
-        return fmt::format("{}{}", factor, out);
+        return fmt::format("{} {}", factor, out);
     }
     return factor;
 }
