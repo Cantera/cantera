@@ -1627,11 +1627,10 @@ void setupChebyshevReaction(ChebyshevReaction2& R, const XML_Node& rxn_node)
             coeffs(t,p) = coeffs_flat[nP*t + p];
         }
     }
-    R.rate = Chebyshev(getFloat(rc, "Tmin", "toSI"),
-                       getFloat(rc, "Tmax", "toSI"),
-                       getFloat(rc, "Pmin", "toSI"),
-                       getFloat(rc, "Pmax", "toSI"),
-                       coeffs);
+    R.rate = Chebyshev(
+        std::make_pair(getFloat(rc, "Tmin", "toSI"), getFloat(rc, "Tmax", "toSI")),
+        std::make_pair(getFloat(rc, "Pmin", "toSI"), getFloat(rc, "Pmax", "toSI")),
+        coeffs);
     setupReaction(R, rxn_node);
 }
 
@@ -1656,11 +1655,12 @@ void setupChebyshevReaction(ChebyshevReaction2&R, const AnyMap& node,
     }
     const UnitSystem& units = node.units();
     coeffs(0, 0) += std::log10(units.convertTo(1.0, R.rate_units));
-    R.rate = Chebyshev(units.convert(T_range[0], "K"),
-                       units.convert(T_range[1], "K"),
-                       units.convert(P_range[0], "Pa"),
-                       units.convert(P_range[1], "Pa"),
-                       coeffs);
+    R.rate = Chebyshev(
+        std::make_pair(
+            units.convert(T_range[0], "K"), units.convert(T_range[1], "K")),
+        std::make_pair(
+            units.convert(P_range[0], "Pa"), units.convert(P_range[1], "Pa")),
+        coeffs);
 }
 
 void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)

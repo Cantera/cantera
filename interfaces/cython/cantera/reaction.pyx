@@ -255,17 +255,24 @@ cdef class ChebyshevRate(ReactionRate):
     """
     _reaction_rate_type = "Chebyshev"
 
-    def __cinit__(self, Tmin=None, Tmax=None, Pmin=None, Pmax=None, data=None,
+    def __cinit__(self, temperature_range=None, pressure_range=None, data=None,
                   input_data=None, init=True):
 
+        cdef pair[double,double] Trange
+        cdef pair[double,double] Prange
         if init:
             if isinstance(input_data, dict):
                 self._rate.reset(new CxxChebyshevRate3(dict_to_anymap(input_data)))
-            elif all([arg is not None for arg in [Tmin, Tmax, Pmin, Pmax, data]]):
-                self._rate.reset(new CxxChebyshevRate3(Tmin, Tmax, Pmin, Pmax,
-                                                       self._cxxarray2d(data)))
+            elif all([arg is not None
+                    for arg in [temperature_range, pressure_range, data]]):
+                Trange.first = temperature_range[0]
+                Trange.second = temperature_range[1]
+                Prange.first = pressure_range[0]
+                Prange.second = pressure_range[1]
+                self._rate.reset(
+                    new CxxChebyshevRate3(Trange, Prange, self._cxxarray2d(data)))
             elif all([arg is None
-                    for arg in [Tmin, Tmax, Pmin, Pmax, data, input_data]]):
+                    for arg in [temperature_range, pressure_range, data, input_data]]):
                 self._rate.reset(new CxxChebyshevRate3(dict_to_anymap({})))
             elif input_data:
                 raise TypeError("Invalid parameter 'input_data'")
@@ -291,35 +298,17 @@ cdef class ChebyshevRate(ReactionRate):
     cdef CxxChebyshevRate3* cxx_object(self):
         return <CxxChebyshevRate3*>self.rate
 
-    property Tmin:
-        """ Minimum temperature [K] for the Chebyshev fit """
+    property temperature_range:
+        """ Valid temperature range [K] for the Chebyshev fit """
         def __get__(self):
-            return self.cxx_object().Tmin()
+            cdef pair[double,double] limits = self.cxx_object().temperatureRange()
+            return limits.first, limits.second
 
-    property Tmax:
-        """ Maximum temperature [K] for the Chebyshev fit """
+    property pressure_range:
+        """ Valid pressure range [Pa] for the Chebyshev fit """
         def __get__(self):
-            return self.cxx_object().Tmax()
-
-    property Pmin:
-        """ Minimum pressure [Pa] for the Chebyshev fit """
-        def __get__(self):
-            return self.cxx_object().Pmin()
-
-    property Pmax:
-        """ Maximum pressure [Pa] for the Chebyshev fit """
-        def __get__(self):
-            return self.cxx_object().Pmax()
-
-    property n_pressure:
-        """ Number of pressures over which the Chebyshev fit is computed """
-        def __get__(self):
-            return self.cxx_object().nPressure()
-
-    property n_temperature:
-        """ Number of temperatures over which the Chebyshev fit is computed """
-        def __get__(self):
-            return self.cxx_object().nTemperature()
+            cdef pair[double,double] limits = self.cxx_object().pressureRange()
+            return limits.first, limits.second
 
     property coeffs:
         """
@@ -811,10 +800,14 @@ cdef class Reaction:
     def __str__(self):
         return self.equation
 
-    def _deprecation_warning(self, attr, what="property"):
-        return ("\n{} '{}' to be removed after Cantera 2.6.\nThis {} is moved to "
-                "the {} object accessed via the 'rate' property."
-                ).format(what.capitalize(), attr, what, type(self.rate).__name__)
+    def _deprecation_warning(self, attr, what="property", new=None):
+        if new:
+            return (f"\n{what.capitalize()} '{attr}' to be removed after Cantera 2.6.\n"
+                    f"This {what} is moved to the {type(self.rate).__name__} object "
+                    f"accessed via the 'rate' property as '{new}'.")
+        return (f"\n{what.capitalize()} '{attr}' to be removed after Cantera 2.6.\n"
+                f"This {what} is moved to the {type(self.rate).__name__} object accessed "
+                "via the 'rate' property.")
 
     property uses_legacy:
         """Indicate whether reaction uses a legacy implementation"""
@@ -1453,8 +1446,8 @@ cdef class ChebyshevReaction(Reaction):
 
         rxn = ChebyshevReaction(
             equation="HO2 <=> OH + O",
-            rate={"Tmin": 290.0, "Tmax": 3000.0,
-                  "Pmin": 1e3, "Pmax": 1e8,
+            rate={"temperature-range": [290.0, 3000.0],
+                  "pressure-range": [1e3, 1e8],
                   "data": [[8.2883, -1.1397, -0.12059, 0.016034],
                            [1.9764, 1.0037, 7.2865e-03, -0.030432],
                            [0.3177, 0.26889, 0.094806, -7.6385e-03]]},
@@ -1495,9 +1488,8 @@ cdef class ChebyshevReaction(Reaction):
                 rxn_type += "-legacy"
             spec = {"equation": equation, "type": rxn_type}
             if isinstance(rate, dict):
-                spec["temperature-range"] = [rate["Tmin"], rate["Tmax"]]
-                spec["pressure-range"] = [rate["Pmin"], rate["Pmax"]]
-                spec["data"] = rate["data"]
+                for key, value in rate.items():
+                    spec[key.replace("_", "-")] = value
             elif not legacy and (isinstance(rate, ChebyshevRate) or rate is None):
                 pass
             else:
@@ -1527,14 +1519,17 @@ cdef class ChebyshevReaction(Reaction):
 
         .. deprecated:: 2.6
              To be deprecated with version 2.6, and removed thereafter.
-             Replaced by property `ChebyshevRate.Tmin`.
+             Replaced by property `ChebyshevRate.temperature_range[0]`.
         """
         def __get__(self):
             if self.uses_legacy:
-                return self.cxx_object2().rate.Tmin()
+                return self.cxx_object2().rate.temperatureRange().first
 
-            warnings.warn(self._deprecation_warning("Tmin"), DeprecationWarning)
-            return self.rate.Tmin
+            warnings.warn(
+                self._deprecation_warning(
+                    "Tmin", new="ChebyshevRate.temperature_range[0]"),
+                DeprecationWarning)
+            return self.rate.temperature_range[0]
 
     property Tmax:
         """
@@ -1542,14 +1537,17 @@ cdef class ChebyshevReaction(Reaction):
 
         .. deprecated:: 2.6
              To be deprecated with version 2.6, and removed thereafter.
-             Replaced by property `ChebyshevRate.Tmax`.
+             Replaced by property `ChebyshevRate.temperature_range[1]`.
         """
         def __get__(self):
             if self.uses_legacy:
-                return self.cxx_object2().rate.Tmax()
+                return self.cxx_object2().rate.temperatureRange().second
 
-            warnings.warn(self._deprecation_warning("Tmax"), DeprecationWarning)
-            return self.rate.Tmax
+            warnings.warn(
+                self._deprecation_warning(
+                    "Tmax", new="ChebyshevRate.temperature_range[1]"),
+                DeprecationWarning)
+            return self.rate.temperature_range[1]
 
     property Pmin:
         """
@@ -1557,28 +1555,34 @@ cdef class ChebyshevReaction(Reaction):
 
         .. deprecated:: 2.6
              To be deprecated with version 2.6, and removed thereafter.
-             Replaced by property `ChebyshevRate.Pmin`.
+             Replaced by property `ChebyshevRate.pressure_range[0]`.
         """
         def __get__(self):
             if self.uses_legacy:
-                return self.cxx_object2().rate.Pmin()
+                return self.cxx_object2().rate.pressureRange().first
 
-            warnings.warn(self._deprecation_warning("Pmin"), DeprecationWarning)
-            return self.rate.Pmin
+            warnings.warn(
+                self._deprecation_warning(
+                    "Pmin", new="ChebyshevRate.pressure_range[0]"),
+                DeprecationWarning)
+            return self.rate.pressure_range[0]
 
     property Pmax:
         """ Maximum pressure [Pa] for the Chebyshev fit
 
         .. deprecated:: 2.6
              To be deprecated with version 2.6, and removed thereafter.
-             Replaced by property `ChebyshevRate.Pmax`.
+             Replaced by property `ChebyshevRate.pressure_range[1]`.
         """
         def __get__(self):
             if self.uses_legacy:
-                return self.cxx_object2().rate.Pmax()
+                return self.cxx_object2().rate.pressureRange().second
 
-            warnings.warn(self._deprecation_warning("Pmax"), DeprecationWarning)
-            return self.rate.Pmax
+            warnings.warn(
+                self._deprecation_warning(
+                    "Pmax", new="ChebyshevRate.pressure_range[0]"),
+                DeprecationWarning)
+            return self.rate.pressure_range[1]
 
     property nPressure:
         """
@@ -1586,14 +1590,17 @@ cdef class ChebyshevReaction(Reaction):
 
         .. deprecated:: 2.6
              To be deprecated with version 2.6, and removed thereafter.
-             Replaced by property `ChebyshevRate.nPressure`.
+             Accessible as number of columns of `ChebyshevRate.coeffs`.
         """
         def __get__(self):
             if self.uses_legacy:
-                return self.cxx_object2().rate.nPressure()
+                return self.cxx_object2().rate.getCoeffs().nColumns()
 
-            warnings.warn(self._deprecation_warning("nPressure"), DeprecationWarning)
-            return self.rate.n_pressure
+            warnings.warn(
+                self._deprecation_warning(
+                    "nPressure", new="ChebyshevRate.coeffs.shape[1]"),
+                DeprecationWarning)
+            return self.rate.coeffs.shape[1]
 
     property nTemperature:
         """
@@ -1601,20 +1608,23 @@ cdef class ChebyshevReaction(Reaction):
 
         .. deprecated:: 2.6
              To be deprecated with version 2.6, and removed thereafter.
-             Replaced by property `ChebyshevRate.nTemperature`.
+             Accessible as number of rows of `ChebyshevRate.coeffs`.
         """
         def __get__(self):
             if self.uses_legacy:
-                return self.cxx_object2().rate.nTemperature()
+                return self.cxx_object2().rate.getCoeffs().nRows()
 
             warnings.warn(
-                self._deprecation_warning("nTemperature"), DeprecationWarning)
-            return self.rate.n_temperature
+                self._deprecation_warning(
+                    "nTemperature", new="ChebyshevRate.coeffs.shape[0]"),
+                DeprecationWarning)
+            return self.rate.coeffs.shape[0]
 
     cdef _legacy_get_coeffs(self):
         cdef CxxChebyshevReaction2* r = self.cxx_object2()
-        c = np.fromiter(r.rate.coeffs(), np.double)
-        return c.reshape((r.rate.nTemperature(), r.rate.nPressure()))
+        cdef CxxArray2D cxxcoeffs = r.rate.getCoeffs()
+        c = np.fromiter(cxxcoeffs.data(), np.double)
+        return c.reshape(cxxcoeffs.nRows(), cxxcoeffs.nColumns(), order="F")
 
     property coeffs:
         """
@@ -1643,7 +1653,11 @@ cdef class ChebyshevReaction(Reaction):
             for j, value in enumerate(row):
                 CxxArray2D_set(data, i, j, value)
 
-        r.rate = CxxChebyshev(Tmin, Tmax, Pmin, Pmax, data)
+        cdef pair[double,double] Trange
+        Trange.first, Trange.second = Tmin, Tmax
+        cdef pair[double,double] Prange
+        Prange.first, Prange.second = Pmin, Pmax
+        r.rate = CxxChebyshev(Trange, Prange, data)
 
     def set_parameters(self, Tmin, Tmax, Pmin, Pmax, coeffs):
         """
@@ -1660,7 +1674,11 @@ cdef class ChebyshevReaction(Reaction):
         warnings.warn("Method 'set_parameters' to be removed after Cantera 2.6. "
             "Method is replaceable by assigning a new 'ChebyshevRate' object to the "
             "rate property.", DeprecationWarning)
-        self.rate = ChebyshevRate(Tmin, Tmax, Pmin, Pmax, coeffs)
+        cdef pair[double,double] Trange
+        Trange.first, Trange.second = Tmin, Tmax
+        cdef pair[double,double] Prange
+        Prange.first, Prange.second = Pmin, Pmax
+        self.rate = ChebyshevRate(Trange, Prange, coeffs)
 
     cdef _legacy_call(self, float T, float P):
         cdef CxxChebyshevReaction2* r = self.cxx_object2()

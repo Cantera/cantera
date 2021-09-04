@@ -404,13 +404,9 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxChebyshevRate3 "Cantera::ChebyshevRate3" (CxxReactionRateBase):
         CxxChebyshevRate3()
         CxxChebyshevRate3(CxxAnyMap) except +translate_exception
-        CxxChebyshevRate3(double, double, double, double, CxxArray2D)
-        double Tmin()
-        double Tmax()
-        double Pmin()
-        double Pmax()
-        size_t nPressure()
-        size_t nTemperature()
+        CxxChebyshevRate3(pair[double, double], pair[double, double], CxxArray2D)
+        pair[double, double] temperatureRange()
+        pair[double, double] pressureRange()
         CxxArray2D& coeffs()
 
     cdef cppclass CxxCustomFunc1Rate "Cantera::CustomFunc1Rate" (CxxReactionRateBase):
@@ -487,14 +483,11 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxPlog rate
 
     cdef cppclass CxxChebyshev "Cantera::Chebyshev":
-        CxxChebyshev(double, double, double, double, CxxArray2D)
-        double Tmin()
-        double Tmax()
-        double Pmin()
-        double Pmax()
-        size_t nPressure()
-        size_t nTemperature()
+        CxxChebyshev(pair[double, double], pair[double, double], CxxArray2D)
+        pair[double, double] temperatureRange()
+        pair[double, double] pressureRange()
         vector[double]& coeffs()
+        CxxArray2D& getCoeffs()
         void update_C(double*)
         double updateRC(double, double)
 
