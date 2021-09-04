@@ -1131,7 +1131,9 @@ class TestReaction(utilities.CanteraTest):
         r = ct.ChebyshevReaction()
         r.reactants = 'R5:1, H:1'
         r.products = 'P5A:1, P5B:1'
-        r.rate = ct.ChebyshevRate(Tmin=300.0, Tmax=2000.0, Pmin=1000, Pmax=10000000,
+        r.rate = ct.ChebyshevRate(
+            temperature_range=(300.0, 2000.0),
+            pressure_range=(1000, 10000000),
             data=[[ 5.28830e+00, -1.13970e+00, -1.20590e-01,  1.60340e-02],
                   [ 1.97640e+00,  1.00370e+00,  7.28650e-03, -3.04320e-02],
                   [ 3.17700e-01,  2.68890e-01,  9.48060e-02, -7.63850e-03],
@@ -1154,7 +1156,9 @@ class TestReaction(utilities.CanteraTest):
         r = ct.ChebyshevReaction()
         r.reactants = 'R5:1, H:1'
         r.products = 'P5A:1, P5B:1'
-        r.rate = ct.ChebyshevRate(Tmin=300.0, Tmax=2000.0, Pmin=1000, Pmax=10000000,
+        r.rate = ct.ChebyshevRate(
+            temperature_range=(300.0, 2000.0),
+            pressure_range=(1000, 10000000),
             data=[[ 5.28830e+00],
                   [ 1.97640e+00],
                   [ 3.17700e-01],
@@ -1176,7 +1180,9 @@ class TestReaction(utilities.CanteraTest):
         r = ct.ChebyshevReaction()
         r.reactants = 'R5:1, H:1'
         r.products = 'P5A:1, P5B:1'
-        r.rate = ct.ChebyshevRate(Tmin=300.0, Tmax=2000.0, Pmin=1000, Pmax=10000000,
+        r.rate = ct.ChebyshevRate(
+            temperature_range=(300.0, 2000.0),
+            pressure_range=(1000, 10000000),
             data=[[ 5.28830e+00, -1.13970e+00, -1.20590e-01,  1.60340e-02]])
 
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
@@ -1451,8 +1457,8 @@ class TestReaction(utilities.CanteraTest):
 
         r1 = gas.reaction(4)
         r2 = gas.reaction(5)
-        r1.rate = ct.ChebyshevRate(r2.rate.Tmin, r2.rate.Tmax,
-                                   r2.rate.Pmin, r2.rate.Pmax, r2.rate.coeffs)
+        r1.rate = ct.ChebyshevRate(
+            r2.rate.temperature_range, r2.rate.pressure_range, r2.rate.coeffs)
 
         # rates should be different before calling 'modify_reaction'
         kf = gas.forward_rate_constants

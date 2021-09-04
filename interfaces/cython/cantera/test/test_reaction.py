@@ -330,19 +330,17 @@ class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
         """
 
     def setUp(self):
-        self.Tmin = self.gas.reaction(self._index).rate.Tmin
-        self.Tmax = self.gas.reaction(self._index).rate.Tmax
-        self.Pmin = self.gas.reaction(self._index).rate.Pmin
-        self.Pmax = self.gas.reaction(self._index).rate.Pmax
+        self.Trange = self.gas.reaction(self._index).rate.temperature_range
+        self.Prange = self.gas.reaction(self._index).rate.pressure_range
         self.coeffs = self.gas.reaction(self._index).rate.coeffs
-        self.rate = ct.ChebyshevRate(self.Tmin, self.Tmax, self.Pmin, self.Pmax, self.coeffs)
+        self.rate = ct.ChebyshevRate(self.Trange, self.Prange, self.coeffs)
 
     def test_parameters(self):
         # test getters for rate properties
-        self.assertEqual(self.Tmin, self.rate.Tmin)
-        self.assertEqual(self.Tmax, self.rate.Tmax)
-        self.assertEqual(self.Pmin, self.rate.Pmin)
-        self.assertEqual(self.Pmax, self.rate.Pmax)
+        self.assertEqual(self.Trange[0], self.rate.temperature_range[0])
+        self.assertEqual(self.Trange[1], self.rate.temperature_range[1])
+        self.assertEqual(self.Prange[0], self.rate.pressure_range[0])
+        self.assertEqual(self.Prange[1], self.rate.pressure_range[1])
         self.assertTrue(np.all(self.coeffs == self.rate.coeffs))
 
 
@@ -786,7 +784,7 @@ class TestChebyshev(ReactionTests, utilities.CanteraTest):
     _cls = ct.ChebyshevReaction
     _type = "Chebyshev"
     _equation = "HO2 <=> OH + O"
-    _rate = {"Tmin": 290., "Tmax": 3000., "Pmin": 1000., "Pmax": 10000000.0,
+    _rate = {"temperature_range": (290., 3000.), "pressure_range": (1000., 10000000.0),
              "data": [[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
                       [ 1.9764e+00,  1.0037e+00,  7.2865e-03, -3.0432e-02],
                       [ 3.1770e-01,  2.6889e-01,  9.4806e-02, -7.6385e-03]]}
@@ -811,7 +809,8 @@ class TestChebyshev(ReactionTests, utilities.CanteraTest):
             cls._rate_obj = ct.ChebyshevRate(**cls._rate)
         cls._deprecated_getters.update({"coeffs": np.array(cls._rate["data"])})
         cls._deprecated_getters.update(
-            {k: v for k, v in cls._rate.items() if k != "data"})
+            {k: v for k, v in cls._rate.items()
+                if k not in ["data", "temperature_range", "pressure_range"]})
 
 
 class TestChebyshev2(TestChebyshev):
