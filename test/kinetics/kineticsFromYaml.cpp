@@ -249,10 +249,10 @@ TEST(Reaction, ChebyshevFromYaml)
     double logP = std::log10(2e6);
     double T = 1800;
     rate->update_C(&logP);
-    EXPECT_EQ(rate->nTemperature(), (size_t) 6);
-    EXPECT_EQ(rate->nPressure(), (size_t) 4);
-    EXPECT_DOUBLE_EQ(rate->Tmax(), 3000);
-    EXPECT_DOUBLE_EQ(rate->Pmin(), 1000);
+    EXPECT_EQ(rate->coeffs().nRows(), (size_t) 6);
+    EXPECT_EQ(rate->coeffs().nColumns(), (size_t) 4);
+    EXPECT_DOUBLE_EQ(rate->temperatureRange().second, 3000);
+    EXPECT_DOUBLE_EQ(rate->pressureRange().first, 1000);
     EXPECT_NEAR(rate->updateRC(std::log(T), 1.0/T), 130512.2773948636, 1e-9);
 }
 
@@ -627,7 +627,8 @@ TEST_F(ReactionToYaml, unconvertible2)
     Array2D coeffs(2, 2, 1.0);
     ChebyshevReaction2 R({{"H2", 1}, {"OH", 1}},
                          {{"H2O", 1}, {"H", 1}},
-                         Chebyshev(273, 3000, 1e2, 1e7, coeffs));
+                         Chebyshev(std::make_pair(273., 3000.),
+                                   std::make_pair(1.e2, 1.e7), coeffs));
     UnitSystem U{"g", "cm", "mol"};
     AnyMap params = R.parameters();
     params.setUnits(U);
