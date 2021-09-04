@@ -5,7 +5,6 @@
 
 #include "cantera/kinetics/RxnRates.h"
 #include "cantera/base/AnyMap.h"
-#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -274,10 +273,21 @@ std::vector<std::pair<double, Arrhenius> > Plog::rates() const
     return R;
 }
 
+Chebyshev::Chebyshev(
+    const std::pair<double, double> Trange,
+    const std::pair<double, double> Prange,
+    const Array2D& coeffs)
+{
+    setLimits(Trange, Prange);
+    setCoeffs(coeffs);
+}
+
 Chebyshev::Chebyshev(double Tmin, double Tmax, double Pmin, double Pmax,
                      const Array2D& coeffs)
 {
-    setLimits(Tmin, Tmax, Pmin, Pmax);
+    warn_deprecated("Chebyshev", "Deprecated in Cantera 2.6; "
+        "replaceable with constructor using pairs for range input.");
+    setLimits(std::make_pair(Tmin, Tmax), std::make_pair(Pmin, Pmax));
     setCoeffs(coeffs);
 }
 
@@ -303,13 +313,15 @@ void Chebyshev::setParameters(const AnyMap& node,
             coeffs(0, 0) += std::log10(units.convertTo(1.0, rate_units));
         }
         setLimits(
-            units.convert(T_range[0], "K"), units.convert(T_range[1], "K"),
-            units.convert(P_range[0], "Pa"), units.convert(P_range[1], "Pa"));
+            std::make_pair(
+                units.convert(T_range[0], "K"), units.convert(T_range[1], "K")),
+            std::make_pair(
+                units.convert(P_range[0], "Pa"), units.convert(P_range[1], "Pa")));
     } else {
         // ensure that reaction rate can be evaluated (but returns NaN)
         coeffs = Array2D(1, 1);
         coeffs(0, 0) = NAN;
-        setLimits(290., 3000., 1.e-7, 1.e14);
+        setLimits(std::make_pair(290., 3000.), std::make_pair(1.e-7, 1.e14));
     }
 
     setCoeffs(coeffs);
@@ -320,46 +332,37 @@ void Chebyshev::setup(double Tmin, double Tmax, double Pmin, double Pmax,
 {
     warn_deprecated("Chebyshev::setup", "Deprecated in Cantera 2.6; "
         "replaceable with setLimits() and setCoeffs().");
-    setLimits(Tmin, Tmax, Pmin, Pmax);
+    setLimits(std::make_pair(Tmin, Tmax), std::make_pair(Pmin, Pmax));
     setCoeffs(coeffs);
 }
 
-void Chebyshev::setLimits(double Tmin, double Tmax, double Pmin, double Pmax)
+void Chebyshev::setLimits(
+    const std::pair<double, double> Trange,
+    const std::pair<double, double> Prange)
 {
-    double logPmin = std::log10(Pmin);
-    double logPmax = std::log10(Pmax);
-    double TminInv = 1.0 / Tmin;
-    double TmaxInv = 1.0 / Tmax;
+    double logPmin = std::log10(Prange.first);
+    double logPmax = std::log10(Prange.second);
+    double TminInv = 1.0 / Trange.first;
+    double TmaxInv = 1.0 / Trange.second;
 
     TrNum_ = - TminInv - TmaxInv;
     TrDen_ = 1.0 / (TmaxInv - TminInv);
     PrNum_ = - logPmin - logPmax;
     PrDen_ = 1.0 / (logPmax - logPmin);
 
-    Tmin_ = Tmin;
-    Tmax_ = Tmax;
-    Pmin_ = Pmin;
-    Pmax_ = Pmax;
-}
-
-const vector_fp& Chebyshev::coeffs() const
-{
-    warn_deprecated("Chebyshev::coeffs", "Behavior to change after Cantera 2.6; "
-        "for new behavior, use getCoeffs().");
-    return chebCoeffs_;
+    m_Trange = Trange;
+    m_Prange = Prange;
 }
 
 void Chebyshev::setCoeffs(const Array2D& coeffs)
 {
-    m_coeffs = Array2D(coeffs);
-    nP_ = coeffs.nColumns();
-    nT_ = coeffs.nRows();
-    dotProd_.resize(nT_);
+    m_coeffs = coeffs;
+    dotProd_.resize(coeffs.nRows());
 
     // convert to row major for legacy output
     // note: chebCoeffs_ is not used internally
-    size_t rows = nT_;
-    size_t cols = nP_;
+    size_t rows = m_coeffs.nRows();
+    size_t cols = m_coeffs.nColumns();
     chebCoeffs_.resize(rows * cols);
     for (size_t i = 0; i < rows; i++) {
         for (size_t j = 0; j < cols; j++) {
@@ -374,8 +377,10 @@ void Chebyshev::getParameters(AnyMap& rateNode, const Units& rate_units) const
         // Return empty/unmodified AnyMap
         return;
     }
-    rateNode["temperature-range"].setQuantity({Tmin(), Tmax()}, "K");
-    rateNode["pressure-range"].setQuantity({Pmin(), Pmax()}, "Pa");
+    rateNode["temperature-range"].setQuantity(
+        {temperatureRange().first, temperatureRange().second}, "K");
+    rateNode["pressure-range"].setQuantity(
+        {pressureRange().first, pressureRange().second}, "Pa");
     size_t nT = m_coeffs.nRows();
     size_t nP = m_coeffs.nColumns();
     std::vector<vector_fp> coeffs2d(nT, vector_fp(nP));

@@ -14,6 +14,7 @@
 #include "cantera/kinetics/reaction_defs.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -467,10 +468,23 @@ class Chebyshev
 {
 public:
     //! Default constructor.
-    Chebyshev() : nP_(0), nT_(0) {}
+    Chebyshev() {}
 
     //! Constructor directly from coefficient array
-    /*
+    /*!
+     * @param Trange  Valid temperature range (min, max) [K]
+     * @param Prange  Valid pressure range (min, max) [Pa]
+     * @param coeffs  Coefficient array dimensioned `nT` by `nP` where `nT` and
+     *      `nP` are the number of temperatures and pressures used in the fit,
+     *      respectively.
+     */
+    Chebyshev(
+        const std::pair<double, double> Trange,
+        const std::pair<double, double> Prange,
+        const Array2D& coeffs);
+
+    //! Constructor directly from coefficient array
+    /*!
      *  @param Tmin    Minimum temperature [K]
      *  @param Tmax    Maximum temperature [K]
      *  @param Pmin    Minimum pressure [Pa]
@@ -478,6 +492,9 @@ public:
      *  @param coeffs  Coefficient array dimensioned `nT` by `nP` where `nT` and
      *      `nP` are the number of temperatures and pressures used in the fit,
      *      respectively.
+     *
+     * @deprecated  Deprecated in Cantera 2.6.
+     *              Use constructor using pairs for range input.
      */
     Chebyshev(double Tmin, double Tmax, double Pmin, double Pmax,
               const Array2D& coeffs);
@@ -499,7 +516,13 @@ public:
                   const Array2D& coeffs);
 
     //! Set limits for Chebyshev object
-    void setLimits(double Tmin, double Tmax, double Pmin, double Pmax);
+    /*!
+     * @param Trange  Temperature range (min, max) [K]
+     * @param Prange  Pressure range (min, max) [Pa]
+     */
+    void setLimits(
+        const std::pair<double, double> Trange,
+        const std::pair<double, double> Prange);
 
     //! Update concentration-dependent parts of the rate coefficient.
     //! @param c base-10 logarithm of the pressure in Pa
@@ -508,12 +531,12 @@ public:
         double Cnm1 = Pr;
         double Cn = 1;
         double Cnp1;
-        for (size_t i = 0; i < nT_; i++) {
+        for (size_t i = 0; i < m_coeffs.nRows(); i++) {
             dotProd_[i] = m_coeffs(i, 0);
         }
-        for (size_t j = 1; j < nP_; j++) {
+        for (size_t j = 1; j < m_coeffs.nColumns(); j++) {
             Cnp1 = 2 * Pr * Cn - Cnm1;
-            for (size_t i = 0; i < nT_; i++) {
+            for (size_t i = 0; i < m_coeffs.nRows(); i++) {
                 dotProd_[i] += Cnp1 * m_coeffs(i, j);
             }
             Cnm1 = Cn;
@@ -532,7 +555,7 @@ public:
         double Cn = 1;
         double Cnp1;
         double logk = dotProd_[0];
-        for (size_t i = 1; i < nT_; i++) {
+        for (size_t i = 1; i < m_coeffs.nRows(); i++) {
             Cnp1 = 2 * Tr * Cn - Cnm1;
             logk += Cnp1 * dotProd_[i];
             Cnm1 = Cn;
@@ -542,33 +565,87 @@ public:
     }
 
     //! Minimum valid temperature [K]
-    double Tmin() const {
-        return Tmin_;
+    /*!
+     * @deprecated  Deprecated in Cantera 2.6.
+     *              Replaceable with @see temperatureRange()
+     */
+    double Tmin() const
+    {
+        warn_deprecated("Chebyshev::Tmin", "Deprecated in Cantera 2.6; "
+            "replaceable with temperatureRange.");
+        return m_Trange.first;
     }
 
     //! Maximum valid temperature [K]
-    double Tmax() const {
-        return Tmax_;
+    /*!
+     * @deprecated  Deprecated in Cantera 2.6.
+     *              Replaceable with @see temperatureRange()
+     */
+    double Tmax() const
+    {
+        warn_deprecated("Chebyshev::Tmax", "Deprecated in Cantera 2.6; "
+            "replaceable with temperatureRange.");
+        return m_Trange.second;
+    }
+
+    // Range of valid temperatures (min, max) [K]
+    const std::pair<double, double>& temperatureRange() const
+    {
+        return m_Trange;
     }
 
     //! Minimum valid pressure [Pa]
-    double Pmin() const {
-        return Pmin_;
+    /*!
+     * @deprecated  Deprecated in Cantera 2.6.
+     *              Replaceable with @see pressureRange()
+     */
+    double Pmin() const
+    {
+        warn_deprecated("Chebyshev::Pmin", "Deprecated in Cantera 2.6; "
+            "replaceable with pressureRange.");
+        return m_Prange.first;
     }
 
     //! Maximum valid pressure [Pa]
-    double Pmax() const {
-        return Pmax_;
+    /*!
+     * @deprecated  Deprecated in Cantera 2.6.
+     *              Replaceable with @see pressureRange()
+     */
+    double Pmax() const
+    {
+        warn_deprecated("Chebyshev::Pmax", "Deprecated in Cantera 2.6; "
+            "replaceable with pressureRange.");
+        return m_Prange.second;
+    }
+
+    // Range of valid pressures (min, max) [Pa]
+    const std::pair<double, double>& pressureRange() const
+    {
+        return m_Prange;
     }
 
     //! Number of points in the pressure direction
-    size_t nPressure() const {
-        return nP_;
+    /*!
+     * @deprecated  Deprecated in Cantera 2.6.
+     *              Accessible as number of columns of the coefficient matrix
+     */
+    size_t nPressure() const
+    {
+        warn_deprecated("Chebyshev::nPressure", "Deprecated in Cantera 2.6; "
+            "accessible as number of colums of the coefficient matrix.");
+        return m_coeffs.nColumns();
     }
 
     //! Number of points in the temperature direction
-    size_t nTemperature() const {
-        return nT_;
+    /*!
+     * @deprecated  Deprecated in Cantera 2.6.
+     *              Accessible as number of rows of the coefficient matrix
+     */
+    size_t nTemperature() const
+    {
+        warn_deprecated("Chebyshev::nTemperature", "Deprecated in Cantera 2.6; "
+            "accessible as number of rows of the coefficient matrix.");
+        return m_coeffs.nRows();
     }
 
     //! Access the Chebyshev coefficients.
@@ -579,7 +656,12 @@ public:
      * @deprecated   Behavior to change after Cantera 2.6. For new
      *               behavior @see getCoeffs().
      */
-    const vector_fp& coeffs() const;
+    const vector_fp& coeffs() const
+    {
+        warn_deprecated("Chebyshev::coeffs", "Behavior to change after Cantera 2.6; "
+            "for new behavior, use getCoeffs().");
+        return chebCoeffs_;
+    }
 
     //! Access Chebyshev coefficients as 2-dimensional array.
     const Array2D& getCoeffs() const
@@ -591,14 +673,12 @@ public:
     void setCoeffs(const Array2D& coeffs);
 
 protected:
-    double Tmin_, Tmax_; //!< valid temperature range
-    double Pmin_, Pmax_; //!< valid pressure range
+    std::pair<double, double> m_Trange; //!< valid temperature range
+    std::pair<double, double> m_Prange; //!< valid pressure range
     double TrNum_, TrDen_; //!< terms appearing in the reduced temperature
     double PrNum_, PrDen_; //!< terms appearing in the reduced pressure
 
     Array2D m_coeffs; //!<< coefficient array
-    size_t nP_; //!< number of points in the pressure direction
-    size_t nT_; //!< number of points in the temperature direction
     vector_fp chebCoeffs_; //!< Chebyshev coefficients, length nP * nT
     vector_fp dotProd_; //!< dot product of chebCoeffs with the reduced pressure polynomial
 };
