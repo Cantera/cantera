@@ -332,8 +332,8 @@ class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
     def setUp(self):
         self.Trange = self.gas.reaction(self._index).rate.temperature_range
         self.Prange = self.gas.reaction(self._index).rate.pressure_range
-        self.coeffs = self.gas.reaction(self._index).rate.coeffs
-        self.rate = ct.ChebyshevRate(self.Trange, self.Prange, self.coeffs)
+        self.data = self.gas.reaction(self._index).rate.data
+        self.rate = ct.ChebyshevRate(self.Trange, self.Prange, self.data)
 
     def test_parameters(self):
         # test getters for rate properties
@@ -341,7 +341,7 @@ class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
         self.assertEqual(self.Trange[1], self.rate.temperature_range[1])
         self.assertEqual(self.Prange[0], self.rate.pressure_range[0])
         self.assertEqual(self.Prange[1], self.rate.pressure_range[1])
-        self.assertTrue(np.all(self.coeffs == self.rate.coeffs))
+        self.assertTrue(np.all(self.data == self.rate.data))
 
 
 class ReactionTests:
@@ -531,7 +531,11 @@ class ReactionTests:
                 self.check_equal(getattr(rxn, attr), default)
             else:
                 with self.assertWarnsRegex(DeprecationWarning, "property is moved"):
-                    self.check_equal(getattr(rxn, attr), default)
+                    try:
+                        self.check_equal(getattr(rxn, attr), default)
+                    except Exception as err:
+                        print(f"Exception raised when testing getter for '{attr}'")
+                        raise err
 
         ct.make_deprecation_warnings_fatal() # re-enable fatal deprecation warnings
 

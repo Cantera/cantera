@@ -414,7 +414,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxChebyshevRate3(pair[double, double], pair[double, double], CxxArray2D)
         pair[double, double] temperatureRange()
         pair[double, double] pressureRange()
-        CxxArray2D& coeffs()
+        CxxArray2D& data()
 
     cdef cppclass CxxCustomFunc1Rate "Cantera::CustomFunc1Rate" (CxxReactionRateBase):
         CxxCustomFunc1Rate()
@@ -493,8 +493,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxChebyshev(pair[double, double], pair[double, double], CxxArray2D)
         pair[double, double] temperatureRange()
         pair[double, double] pressureRange()
-        vector[double]& coeffs()
-        CxxArray2D& getCoeffs()
+        CxxArray2D& data()
         void update_C(double*)
         double updateRC(double, double)
 

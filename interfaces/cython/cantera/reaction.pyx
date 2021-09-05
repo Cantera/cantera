@@ -310,12 +310,13 @@ cdef class ChebyshevRate(ReactionRate):
             cdef pair[double,double] limits = self.cxx_object().pressureRange()
             return limits.first, limits.second
 
-    property coeffs:
+    property data:
         """
-        2D array of Chebyshev coefficients of size `(n_temperature, n_pressure)`.
+        2D array of Chebyshev coefficients where rows and columns correspond to
+        temperature and pressure dimensions over which the Chebyshev fit is computed.
         """
         def __get__(self):
-            cdef CxxArray2D cxxcoeffs = self.cxx_object().coeffs()
+            cdef CxxArray2D cxxcoeffs = self.cxx_object().data()
             c = np.fromiter(cxxcoeffs.data(), np.double)
             return c.reshape(cxxcoeffs.nRows(), cxxcoeffs.nColumns(), order="F")
 
@@ -1590,17 +1591,17 @@ cdef class ChebyshevReaction(Reaction):
 
         .. deprecated:: 2.6
              To be deprecated with version 2.6, and removed thereafter.
-             Accessible as number of columns of `ChebyshevRate.coeffs`.
+             Accessible as number of columns of `ChebyshevRate.data`.
         """
         def __get__(self):
             if self.uses_legacy:
-                return self.cxx_object2().rate.getCoeffs().nColumns()
+                return self.cxx_object2().rate.data().nColumns()
 
             warnings.warn(
                 self._deprecation_warning(
-                    "nPressure", new="ChebyshevRate.coeffs.shape[1]"),
+                    "nPressure", new="ChebyshevRate.data.shape[1]"),
                 DeprecationWarning)
-            return self.rate.coeffs.shape[1]
+            return self.rate.data.shape[1]
 
     property nTemperature:
         """
@@ -1608,21 +1609,21 @@ cdef class ChebyshevReaction(Reaction):
 
         .. deprecated:: 2.6
              To be deprecated with version 2.6, and removed thereafter.
-             Accessible as number of rows of `ChebyshevRate.coeffs`.
+             Accessible as number of rows of `ChebyshevRate.data`.
         """
         def __get__(self):
             if self.uses_legacy:
-                return self.cxx_object2().rate.getCoeffs().nRows()
+                return self.cxx_object2().rate.data().nRows()
 
             warnings.warn(
                 self._deprecation_warning(
-                    "nTemperature", new="ChebyshevRate.coeffs.shape[0]"),
+                    "nTemperature", new="ChebyshevRate.data.shape[0]"),
                 DeprecationWarning)
-            return self.rate.coeffs.shape[0]
+            return self.rate.data.shape[0]
 
     cdef _legacy_get_coeffs(self):
         cdef CxxChebyshevReaction2* r = self.cxx_object2()
-        cdef CxxArray2D cxxcoeffs = r.rate.getCoeffs()
+        cdef CxxArray2D cxxcoeffs = r.rate.data()
         c = np.fromiter(cxxcoeffs.data(), np.double)
         return c.reshape(cxxcoeffs.nRows(), cxxcoeffs.nColumns(), order="F")
 
@@ -1632,14 +1633,17 @@ cdef class ChebyshevReaction(Reaction):
 
         .. deprecated:: 2.6
              To be deprecated with version 2.6, and removed thereafter.
-             Replaced by property `ChebyshevRate.coeffs`.
+             Replaced by property `ChebyshevRate.data`.
         """
         def __get__(self):
             if self.uses_legacy:
                 return self._legacy_get_coeffs()
 
-            warnings.warn(self._deprecation_warning("coeffs"), DeprecationWarning)
-            return self.rate.coeffs
+            warnings.warn(
+                self._deprecation_warning(
+                    "coeffs", new="ChebyshevRate.data"),
+                DeprecationWarning)
+            return self.rate.data
 
     cdef _legacy_set_parameters(self, Tmin, Tmax, Pmin, Pmax, coeffs):
         cdef CxxChebyshevReaction2* r = self.cxx_object2()

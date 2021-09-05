@@ -250,8 +250,8 @@ TEST(Reaction, ChebyshevFromYaml)
     double logP = std::log10(2e6);
     double T = 1800;
     rate->update_C(&logP);
-    EXPECT_EQ(rate->coeffs().nRows(), (size_t) 6);
-    EXPECT_EQ(rate->coeffs().nColumns(), (size_t) 4);
+    EXPECT_EQ(rate->data().nRows(), (size_t) 6);
+    EXPECT_EQ(rate->data().nColumns(), (size_t) 4);
     EXPECT_DOUBLE_EQ(rate->temperatureRange().second, 3000);
     EXPECT_DOUBLE_EQ(rate->pressureRange().first, 1000);
     EXPECT_NEAR(rate->updateRC(std::log(T), 1.0/T), 130512.2773948636, 1e-9);

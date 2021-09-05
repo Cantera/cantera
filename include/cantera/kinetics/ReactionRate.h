@@ -431,12 +431,6 @@ public:
         return updateRC(0., shared_data.m_recipT);
     }
 
-    //! Access the Chebyshev coefficients as 2-dimensional array.
-    const Array2D& coeffs() const;
-
-    //! Set the Chebyshev coefficients as 2-dimensional array.
-    void setCoeffs(const Array2D& coeffs);
-
     virtual void validate(const std::string& equation) override;
 };
 
