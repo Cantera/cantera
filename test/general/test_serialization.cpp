@@ -114,11 +114,14 @@ TEST(YamlWriter, reaction_units_from_Yaml)
     YamlWriter writer;
     writer.addPhase(original);
     writer.setPrecision(14);
-    writer.setUnits({
+    auto units = UnitSystem();
+    std::map<std::string, std::string> defaults{
         {"activation-energy", "K"},
         {"quantity", "mol"},
         {"length", "cm"}
-    });
+    };
+    units.setDefaults(defaults);
+    writer.setUnitSystem(units);
     writer.toYamlFile("generated-h2o2-outunits.yaml");
     auto duplicate = newSolution("generated-h2o2-outunits.yaml", "", "None");
 

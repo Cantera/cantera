@@ -160,4 +160,9 @@ void YamlWriter::setUnits(const std::map<std::string, std::string>& units)
     m_output_units.setDefaults(units);
 }
 
+void YamlWriter::setUnitSystem(const UnitSystem& units)
+{
+    m_output_units = units;
+}
+
 }

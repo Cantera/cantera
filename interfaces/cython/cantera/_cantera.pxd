@@ -648,7 +648,7 @@ cdef extern from "cantera/base/YamlWriter.h" namespace "Cantera":
         void toYamlFile(string&) except +translate_exception
         void setPrecision(int)
         void skipUserDefined(cbool)
-        void setUnits(stdmap[string, string]&) except +translate_exception
+        void setUnitSystem(CxxUnitSystem) except +translate_exception
 
 cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
     cdef cppclass CxxMultiPhase "Cantera::MultiPhase":
@@ -1223,6 +1223,8 @@ cdef class DustyGasTransport(Transport):
 cdef class YamlWriter:
     cdef shared_ptr[CxxYamlWriter] _writer
     cdef CxxYamlWriter* writer
+    @staticmethod
+    cdef CxxUnitSystem _get_unitsystem(UnitSystem units)
 
 cdef class Mixture:
     cdef CxxMultiPhase* mix
