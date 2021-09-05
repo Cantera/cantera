@@ -292,7 +292,7 @@ Chebyshev::Chebyshev(
     const Array2D& coeffs)
 {
     setLimits(Trange, Prange);
-    setCoeffs(coeffs);
+    setData(coeffs);
 }
 
 Chebyshev::Chebyshev(double Tmin, double Tmax, double Pmin, double Pmax,
@@ -301,7 +301,7 @@ Chebyshev::Chebyshev(double Tmin, double Tmax, double Pmin, double Pmax,
     warn_deprecated("Chebyshev", "Deprecated in Cantera 2.6; "
         "replaceable with constructor using pairs for range input.");
     setLimits(std::make_pair(Tmin, Tmax), std::make_pair(Pmin, Pmax));
-    setCoeffs(coeffs);
+    setData(coeffs);
 }
 
 void Chebyshev::setParameters(const AnyMap& node,
@@ -337,16 +337,16 @@ void Chebyshev::setParameters(const AnyMap& node,
         setLimits(std::make_pair(290., 3000.), std::make_pair(1.e-7, 1.e14));
     }
 
-    setCoeffs(coeffs);
+    setData(coeffs);
 }
 
 void Chebyshev::setup(double Tmin, double Tmax, double Pmin, double Pmax,
                       const Array2D& coeffs)
 {
     warn_deprecated("Chebyshev::setup", "Deprecated in Cantera 2.6; "
-        "replaceable with setLimits() and setCoeffs().");
+        "replaceable with setLimits() and setData().");
     setLimits(std::make_pair(Tmin, Tmax), std::make_pair(Pmin, Pmax));
-    setCoeffs(coeffs);
+    setData(coeffs);
 }
 
 void Chebyshev::setLimits(
@@ -367,13 +367,13 @@ void Chebyshev::setLimits(
     m_Prange = Prange;
 }
 
-void Chebyshev::setCoeffs(const Array2D& coeffs)
+void Chebyshev::setData(const Array2D& coeffs)
 {
     m_coeffs = coeffs;
     dotProd_.resize(coeffs.nRows());
 
     // convert to row major for legacy output
-    // note: chebCoeffs_ is not used internally
+    // note: chebCoeffs_ is not used internally (@TODO: remove after Cantera 2.6)
     size_t rows = m_coeffs.nRows();
     size_t cols = m_coeffs.nColumns();
     chebCoeffs_.resize(rows * cols);

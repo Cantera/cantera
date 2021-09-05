@@ -666,24 +666,24 @@ public:
      *  \f$ \alpha_{t,p} = \mathrm{coeffs}[N_P*t + p] \f$ where
      *  \f$ 0 <= t < N_T \f$ and \f$ 0 <= p < N_P \f$.
      *
-     * @deprecated   Behavior to change after Cantera 2.6. For new
-     *               behavior @see getCoeffs().
+     * @deprecated   To be removed after Cantera 2.6. Replaceable by @see data().
      */
     const vector_fp& coeffs() const
     {
-        warn_deprecated("Chebyshev::coeffs", "Behavior to change after Cantera 2.6; "
-            "for new behavior, use getCoeffs().");
+        warn_deprecated("Chebyshev::coeffs", "Deprecated in Cantera 2.6 "
+            "and to be removed thereafter; replaceable by data().");
         return chebCoeffs_;
     }
 
-    //! Access Chebyshev coefficients as 2-dimensional array.
-    const Array2D& getCoeffs() const
+    //! Access Chebyshev coefficients as 2-dimensional array with temperature and
+    //! pressure dimensions corresponding to rows and columns, respecitively.
+    const Array2D& data() const
     {
         return m_coeffs;
     }
 
     //! Set the Chebyshev coefficients as 2-dimensional array.
-    void setCoeffs(const Array2D& coeffs);
+    void setData(const Array2D& coeffs);
 
 protected:
     std::pair<double, double> m_Trange; //!< valid temperature range

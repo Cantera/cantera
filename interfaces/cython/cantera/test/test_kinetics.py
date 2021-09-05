@@ -1481,7 +1481,7 @@ class TestReaction(utilities.CanteraTest):
         r1 = gas.reaction(4)
         r2 = gas.reaction(5)
         r1.rate = ct.ChebyshevRate(
-            r2.rate.temperature_range, r2.rate.pressure_range, r2.rate.coeffs)
+            r2.rate.temperature_range, r2.rate.pressure_range, r2.rate.data)
 
         # rates should be different before calling 'modify_reaction'
         kf = gas.forward_rate_constants
