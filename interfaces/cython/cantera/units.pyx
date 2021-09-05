@@ -76,8 +76,7 @@ cdef class UnitSystem:
             self.units = units
 
     def __repr__(self):
-        units = f"{self.units}".replace(",", ",\n")
-        return f"<UnitSystem at {id(self):0x}> with\n{units}"
+        return f"<UnitSystem at {id(self):0x}>"
 
     property units:
         """
