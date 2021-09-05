@@ -50,18 +50,19 @@ cdef class YamlWriter:
         will use Cantera's defaults.
 
         :param units:
-            A UnitSystem object or map where keys are dimensions (mass, length, time,
+            A `UnitSystem` object or map where keys are dimensions (mass, length, time,
             quantity, pressure, energy, activation-energy), and the values are
             corresponding units such as kg, mm, s, kmol, Pa, cal, and eV.
         """
         def __set__(self, units):
-            if isinstance(units, UnitSystem):
-                defaults = UnitSystem().units
-                units = {k: v for k, v in units.units.items() if defaults[k] != v}
-            cdef stdmap[string, string] cxxunits
-            for dimension, unit in units.items():
-                cxxunits[stringify(dimension)] = stringify(unit)
-            self.writer.setUnits(cxxunits)
+            if not isinstance(units, UnitSystem):
+                units = UnitSystem(units)
+            cdef CxxUnitSystem cxxunits = YamlWriter._get_unitsystem(units)
+            self.writer.setUnitSystem(cxxunits)
+
+    @staticmethod
+    cdef CxxUnitSystem _get_unitsystem(UnitSystem units):
+        return units.unitsystem
 
     def __reduce__(self):
         raise NotImplementedError('YamlWriter object is not picklable')

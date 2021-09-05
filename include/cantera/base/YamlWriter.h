@@ -59,6 +59,12 @@ public:
     //!     corresponding units supported by the UnitSystem class.
     void setUnits(const std::map<std::string, std::string>& units={});
 
+    //! Set the units to be used in the output file. Dimensions not specified
+    //! will use Cantera's defaults.
+    //! @param units  A UnitSystem object specifying dimensions (mass, length, time,
+    //!     quantity, pressure, energy, activation-energy).
+    void setUnitSystem(const UnitSystem& units=UnitSystem());
+
 protected:
     std::vector<shared_ptr<Solution>> m_phases;
 

@@ -263,8 +263,8 @@ cdef class _SolutionBase:
             Additional ThermoPhase / Solution objects to be included in the
             output file
         :param units:
-            A dictionary of the units to be used for each dimension. See
-            `YamlWriter.output_units`.
+            A `UnitSystem` object or dictionary of the units to be used for
+            each dimension. See `YamlWriter.output_units`.
         :param precision:
             For output floating point values, the maximum number of digits to
             the right of the decimal point. The default is 15 digits.
