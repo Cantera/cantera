@@ -347,7 +347,13 @@ public:
     void getParameters(AnyMap& rateNode, const Units& rate_units) const;
 
     //! Set up Plog object
+    /*!
+     * @deprecated   Deprecated in Cantera 2.6. Renamed to setRates.
+     */
     void setup(const std::multimap<double, Arrhenius>& rates);
+
+    //! Set up Plog object
+    void setRates(const std::multimap<double, Arrhenius>& rates);
 
     //! Update concentration-dependent parts of the rate coefficient.
     //! @param c natural log of the pressure in Pa
@@ -414,7 +420,14 @@ public:
 
     //! Return the pressures and Arrhenius expressions which comprise this
     //! reaction.
+    /*!
+     * @deprecated   To be removed after Cantera 2.6. Replaceable by getRates.
+     */
     std::vector<std::pair<double, Arrhenius> > rates() const;
+
+    //! Return the pressures and Arrhenius expressions which comprise this
+    //! reaction.
+    std::multimap<double, Arrhenius> getRates() const;
 
 protected:
     //! log(p) to (index range) in the rates_ vector

@@ -218,7 +218,8 @@ TEST(Reaction, PlogFromYaml)
         "- {P: 1.01325 MPa, A: 1.680000e+16, b: -0.6, Ea: 14754.0}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    const auto& rates = std::dynamic_pointer_cast<PlogRate>(R->rate())->rates();
+    const auto& rateMap = std::dynamic_pointer_cast<PlogRate>(R->rate())->getRates();
+    std::vector<std::pair<double, Arrhenius>> rates(rateMap.begin(), rateMap.end());
     EXPECT_EQ(rates.size(), (size_t) 4);
     EXPECT_NEAR(rates[0].first, 0.039474 * OneAtm, 1e-6);
     EXPECT_NEAR(rates[2].first, OneAtm, 1e-6);
