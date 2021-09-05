@@ -171,7 +171,7 @@ Plog::Plog()
 Plog::Plog(const std::multimap<double, Arrhenius>& rates)
     : Plog()
 {
-    setup(rates);
+    setRates(rates);
 }
 
 void Plog::setParameters(const std::vector<AnyMap>& rates,
@@ -188,7 +188,7 @@ void Plog::setParameters(const std::vector<AnyMap>& rates,
         multi_rates.insert({1.e-7, Arrhenius(NAN, NAN, NAN)});
         multi_rates.insert({1.e14, Arrhenius(NAN, NAN, NAN)});
     }
-    setup(multi_rates);
+    setRates(multi_rates);
 }
 
 void Plog::getParameters(AnyMap& rateNode, const Units& rate_units) const
@@ -199,7 +199,7 @@ void Plog::getParameters(AnyMap& rateNode, const Units& rate_units) const
         // Return empty/unmodified AnyMap
         return;
     }
-    for (const auto& r : rates()) {
+    for (const auto& r : getRates()) {
         AnyMap rateNode_;
         rateNode_["P"].setQuantity(r.first, "Pa");
         r.second.getParameters(rateNode_, rate_units);
@@ -209,6 +209,13 @@ void Plog::getParameters(AnyMap& rateNode, const Units& rate_units) const
 }
 
 void Plog::setup(const std::multimap<double, Arrhenius>& rates)
+{
+    warn_deprecated("Plog::setup", "Deprecated in Cantera 2.6; "
+        "renamed to setRates.");
+    setRates(rates);
+}
+
+void Plog::setRates(const std::multimap<double, Arrhenius>& rates)
 {
     size_t j = 0;
     rates_.reserve(rates.size());
@@ -259,18 +266,24 @@ void Plog::validate(const std::string& equation)
 
 std::vector<std::pair<double, Arrhenius> > Plog::rates() const
 {
-    std::vector<std::pair<double, Arrhenius> > R;
+    warn_deprecated("Plog::rates", "To be removed after Cantera 2.6; "
+        "replaceable by getRates().");
+    auto rateMap = getRates();
+    return std::vector<std::pair<double, Arrhenius>>(rateMap.begin(), rateMap.end());
+}
+
+std::multimap<double, Arrhenius> Plog::getRates() const
+{
+    std::multimap<double, Arrhenius> rateMap;
     // initial preincrement to skip rate for P --> 0
     for (auto iter = ++pressures_.begin();
-         iter->first < 1000; // skip rates for (P --> infinity)
-         ++iter) {
-        for (size_t i = iter->second.first;
-             i < iter->second.second;
-             i++) {
-            R.emplace_back(std::exp(iter->first), rates_[i]);
+            iter->first < 1000; // skip rates for (P --> infinity)
+            ++iter) {
+        for (size_t i = iter->second.first; i < iter->second.second; i++) {
+            rateMap.insert({std::exp(iter->first), rates_[i]});
         }
     }
-    return R;
+    return rateMap;
 }
 
 Chebyshev::Chebyshev(

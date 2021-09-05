@@ -228,9 +228,9 @@ cdef class PlogRate(ReactionRate):
         """
         def __get__(self):
             rates = []
-            cdef vector[pair[double, CxxArrhenius]] cxxrates
+            cdef multimap[double, CxxArrhenius] cxxrates
             cdef pair[double, CxxArrhenius] p_rate
-            cxxrates = self.cxx_object().rates()
+            cxxrates = self.cxx_object().getRates()
             for p_rate in cxxrates:
                 rates.append((p_rate.first, copyArrhenius(&p_rate.second)))
             return rates
@@ -1367,7 +1367,7 @@ cdef class PlogReaction(Reaction):
 
     cdef list _legacy_get_rates(self):
         cdef CxxPlogReaction2* r = self.cxx_object2()
-        cdef vector[pair[double,CxxArrhenius]] cxxrates = r.rate.rates()
+        cdef multimap[double,CxxArrhenius] cxxrates = r.rate.getRates()
         cdef pair[double,CxxArrhenius] p_rate
         rates = []
         for p_rate in cxxrates:
