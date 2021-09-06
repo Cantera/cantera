@@ -403,8 +403,7 @@ public:
      * @param property Input vector of property value. Length: m_kk.
      * @param deltaProperty Output vector of deltaRxn. Length: nReactions().
      */
-    virtual void getReactionDelta(const doublereal* property,
-                                  doublereal* deltaProperty);
+    virtual void getReactionDelta(const double* property, double* deltaProperty) const;
 
     /**
      * Given an array of species properties 'g', return in array 'dg' the
@@ -416,7 +415,7 @@ public:
      * primarily designed for use in calculating reverse rate coefficients
      * from thermochemistry for reversible reactions.
      */
-    virtual void getRevReactionDelta(const doublereal* g, doublereal* dg);
+    virtual void getRevReactionDelta(const double* g, double* dg) const;
 
     //! Return the vector of values for the reaction Gibbs free energy change.
     /*!
