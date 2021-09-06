@@ -411,7 +411,7 @@ void Kinetics::getNetRatesOfProgress(doublereal* netROP)
     std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
 }
 
-void Kinetics::getReactionDelta(const double* prop, double* deltaProp)
+void Kinetics::getReactionDelta(const double* prop, double* deltaProp) const
 {
     fill(deltaProp, deltaProp + nReactions(), 0.0);
     // products add
@@ -420,7 +420,7 @@ void Kinetics::getReactionDelta(const double* prop, double* deltaProp)
     m_reactantStoich.decrementReactions(prop, deltaProp);
 }
 
-void Kinetics::getRevReactionDelta(const double* prop, double* deltaProp)
+void Kinetics::getRevReactionDelta(const double* prop, double* deltaProp) const
 {
     fill(deltaProp, deltaProp + nReactions(), 0.0);
     // products add
