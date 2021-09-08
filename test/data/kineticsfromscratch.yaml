@@ -1,3 +1,7 @@
+description: |-
+  Sample reactions used for testing of kinetics from scratch.
+  Some reaction rate definitions use arbitrary parameters.
+
 generator: cti2yaml
 cantera-version: 2.6.0a2
 date: Thu, 29 Apr 2021 13:12:07 -0400
@@ -25,6 +29,7 @@ reactions:
   rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0}
   efficiencies: {AR: 0.83, H2: 2.4, H2O: 15.4}
 - equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 3
+  duplicate: true
   type: falloff
   low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -1700.0}
   high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0}
@@ -47,3 +52,31 @@ reactions:
   - [0.3177, 0.26889, 0.094806, -7.6385e-03]
 - equation: H + 2 O2 <=> HO2 + O2 # Reaction 6
   rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
+- equation: O + H2 <=> H + OH  # Reaction 7
+  type: Blowers-Masel
+  rate-constant: {A: 38700, b: 2.7, Ea0: 2.619184e4, w: 4.184e9}
+- equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 8
+  duplicate: true
+  type: falloff
+  low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -1700.0}
+  high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0}
+  efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+- equation: H + HO2 (+ M) <=> H2 + O2 (+ M)  # Reaction 9
+  duplicate: true
+  type: falloff
+  high-P-rate-constant: {A: 4.0e+15, b: -0.5, Ea: 100.0 cal/mol}
+  low-P-rate-constant: {A: 7.0e+20, b: -1.0, Ea: 0.0 cal/mol}
+  efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+  SRI: {A: 1.1, B: 700.0, C: 1234.0, D: 56.0, E: 0.7}
+- equation: H + HO2 (+ M) <=> H2 + O2 (+ M)  # Reaction 10
+  duplicate: true
+  type: falloff
+  high-P-rate-constant: {A: 4.0e+15, b: -0.5, Ea: 100.0 cal/mol}
+  low-P-rate-constant: {A: 7.0e+20, b: -1.0, Ea: 0.0 cal/mol}
+  efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+  Tsang: {A: 0.95, B: -1.0e-04}
+- equation: H2O + OH (+M) <=> HO2 + H2 (+M)  # Reaction 11
+  units: {length: cm, quantity: mol}
+  type: chemically-activated
+  high-P-rate-constant: [5.88E-14, 6.721, -3022.227]
+  low-P-rate-constant: [282320.078, 1.46878, -3270.56495]
