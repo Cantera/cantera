@@ -339,7 +339,9 @@ std::map<std::string, std::string> UnitSystem::defaults() const
         {"activation-energy", Units(m_activation_energy_factor, 1, 2, -2, 0, 0, -1)},
     };
 
-    // Retrieve known units (if applicable)
+    // Retrieve known units
+    // (replace combinations of base units used by the default system by known
+    // secondary units, e.g. 'kg / m / s^2' is replaced by 'Pa')
     std::map<std::string, std::string> out;
     for (const auto& unit : units) {
         out[unit.first] = unit.second.str();
@@ -351,12 +353,14 @@ std::map<std::string, std::string> UnitSystem::defaults() const
         }
     }
 
-    // Overwrite entries that have buffered defaults
+    // Overwrite entries that have non-unity conversion factors
+    // (replace units deviating from default unit system with buffered values)
     for (const auto& defaults : m_defaults) {
         out[defaults.first] = defaults.second;
     }
 
     // Ensure compact output for activation energy
+    // (use appropriate abbreviations for activation energy)
     if (m_defaults.find("activation-energy") == m_defaults.end()) {
         out["activation-energy"] = fmt::format(
             "{} / {}", out["energy"], out["quantity"]);

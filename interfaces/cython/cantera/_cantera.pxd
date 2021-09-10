@@ -647,7 +647,7 @@ cdef extern from "cantera/base/YamlWriter.h" namespace "Cantera":
         void toYamlFile(string&) except +translate_exception
         void setPrecision(int)
         void skipUserDefined(cbool)
-        void setUnitSystem(CxxUnitSystem) except +translate_exception
+        void setUnitSystem(CxxUnitSystem&) except +translate_exception
 
 cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
     cdef cppclass CxxMultiPhase "Cantera::MultiPhase":
