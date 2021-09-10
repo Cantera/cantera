@@ -31,30 +31,26 @@ cdef class Units:
 
 cdef class UnitSystem:
     """
-    Unit conversion utility
+    Unit system used for YAML input and output.
 
-    Provides functions for converting dimensional values from a given unit system.
-    The main use is for converting values specified in input files to Cantera's
+    The `UnitSystem` class is used to specify dimensional values for a given unit
+    system. The main use is for converting values specified in input files to Cantera's
     native unit system, which is SI units except for the use of kmol as the base
     unit of quantity, i.e. kilogram, meter, second, kelvin, ampere, and kmol.
-
-    Special functions for converting activation energies allow these values to be
-    expressed as either energy per quantity, energy (e.g. eV), or temperature by
-    applying a factor of the Avogadro number or the gas constant where needed.
 
     The default unit system used by Cantera is SI+kmol::
 
         ct.UnitSystem({
             "length": "m", "mass": "kg", "time": "s",
             "quantity": "kmol", "pressure": "Pa", "energy": "J",
-            "temperature": "K", "current": "A", "activation-energy": "J/kmol"})
+            "temperature": "K", "current": "A", "activation-energy": "J / kmol"})
 
     A CGS+mol unit system with activation energy units of cal/mol is created as::
 
         ct.UnitSystem({
             "length": "cm", "mass": "g", "time": "s",
-            "quantity": "mol", "pressure": "dyn/cm^2", "energy": "erg",
-            "temperature": "K", "current": "A", "activation-energy": "cal/mol"})
+            "quantity": "mol", "pressure": "dyn / cm^2", "energy": "erg",
+            "temperature": "K", "current": "A", "activation-energy": "cal / mol"})
 
     Defaults for dimensions not specified will be left unchanged. Accordingly,
     the default unit system is retrieved as::

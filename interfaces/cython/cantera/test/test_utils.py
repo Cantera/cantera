@@ -11,7 +11,7 @@ class TestUnitSystem(utilities.CanteraTest):
     def test_default(self):
         units = ct.UnitSystem().units
         checks = {
-            "activation-energy": "J/kmol",
+            "activation-energy": "J / kmol",
             "current": "A",
             "energy": "J",
             "length": "m",
@@ -28,16 +28,16 @@ class TestUnitSystem(utilities.CanteraTest):
     def test_cgs(self):
         system = ct.UnitSystem({
             "length": "cm", "mass": "g", "time": "s",
-            "quantity": "mol", "pressure": "dyn/cm^2", "energy": "erg",
-            "activation-energy": "cal/mol"})
+            "quantity": "mol", "pressure": "dyn / cm^2", "energy": "erg",
+            "activation-energy": "cal / mol"})
         units = system.units
         checks = {
-            "activation-energy": "cal/mol",
+            "activation-energy": "cal / mol",
             "current": "A",
             "energy": "erg",
             "length": "cm",
             "mass": "g",
-            "pressure": "dyn/cm^2",
+            "pressure": "dyn / cm^2",
             "quantity": "mol",
             "temperature": "K",
             "time": "s",
