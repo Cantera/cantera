@@ -24,7 +24,6 @@ const std::map<std::string, Units> knownUnits{
 
     // Length [L]
     {"m", Units(1.0, 0, 1, 0)},
-    {"cm", Units(.01, 0, 1, 0)},
     {"micron", Units(1e-6, 0, 1, 0)},
     {"angstrom", Units(1e-10, 0, 1, 0)},
     {"Å", Units(1e-10, 0, 1, 0)},
@@ -79,7 +78,6 @@ const std::map<std::string, Units> knownUnits{
 
     //! Activation energy units [M*L^2/T^2/Q]
     {"J/kmol", Units(1.0, 1, 2, -2, 0, 0, -1)},
-    {"cal/mol", Units(4184.0, 1, 2, -2, 0, 0, -1)},
 };
 
 const std::map<std::string, double> prefixes{
@@ -132,7 +130,7 @@ Units::Units(double factor, double mass, double length, double time,
     }
 }
 
-Units::Units(const std::string& name)
+Units::Units(const std::string& name, bool force_unity)
     : m_factor(1.0)
     , m_mass_dim(0)
     , m_length_dim(0)
@@ -200,6 +198,13 @@ Units::Units(const std::string& name)
             break;
         }
     }
+
+    if (force_unity && (std::abs(m_factor - 1.) > SmallNumber)) {
+        throw CanteraError("Units::Units(string)",
+            "Detected non-unity conversion factor:\n"
+            "input '{}' is equivalent to '{}' where the conversion factor is '{}'",
+            name, str(), m_factor);
+    }
 }
 
 bool Units::convertible(const Units& other) const
@@ -237,7 +242,7 @@ Units Units::pow(double exponent) const
                  m_quantity_dim * exponent);
 }
 
-std::string Units::unit_str(bool leading_one) const
+std::string Units::str(bool skip_unity) const
 {
     std::map<std::string, double> dims{
         {"kg", m_mass_dim},
@@ -249,7 +254,7 @@ std::string Units::unit_str(bool leading_one) const
     };
 
     std::string num = "";
-    std::string out = "";
+    std::string den = "";
     for (auto const& dim : dims) {
         int rounded = roundf(dim.second);
         if (dim.second == 0.) {
@@ -257,33 +262,26 @@ std::string Units::unit_str(bool leading_one) const
         } else if (dim.second == 1.) {
             num.append(fmt::format(" * {}", dim.first));
         } else if (dim.second == -1.) {
-            out.append(fmt::format(" / {}", dim.first));
+            den.append(fmt::format(" / {}", dim.first));
         } else if (dim.second == rounded && rounded > 0) {
             num.append(fmt::format(" * {}^{}", dim.first, rounded));
         } else if (dim.second == rounded) {
-            out.append(fmt::format(" / {}^{}", dim.first, -rounded));
+            den.append(fmt::format(" / {}^{}", dim.first, -rounded));
         } else if (dim.second > 0) {
             num.append(fmt::format(" * {}^{}", dim.first, dim.second));
         } else {
-            out.append(fmt::format(" / {}^{}", dim.first, -dim.second));
+            den.append(fmt::format(" / {}^{}", dim.first, -dim.second));
         }
     }
-    if (num.size()) {
-        // concatenate numerator and denominator (skipping leading '*')
-        out = fmt::format("{}{}", num.substr(3), out);
-    } else if (leading_one) {
+
+    if (skip_unity && (std::abs(m_factor - 1.) < SmallNumber)) {
+        if (num.size()) {
+            return fmt::format("{}{}", num.substr(3), den);
+        }
         // print '1' as the numerator is empty
-        out = fmt::format("1{}", out);
-    } else if (out.size()) {
-        out = out.substr(1);
+        return fmt::format("1{}", den);
     }
 
-    return out;
-}
-
-std::string Units::str() const
-{
-    std::string out = unit_str(false);
     std::string factor;
     if (m_factor == roundf(m_factor)) {
         // ensure that fmt::format does not round to integer
@@ -292,10 +290,12 @@ std::string Units::str() const
         factor = fmt::format("{}", m_factor);
     }
 
-    if (out.size()) {
-        return fmt::format("{} {}", factor, out);
+    if (num.size()) {
+        // concatenate factor, numerator and denominator (skipping leading '*')
+        return fmt::format("{} {}{}", factor, num.substr(3), den);
     }
-    return factor;
+
+    return fmt::format("{}{}", factor, den);
 }
 
 bool Units::operator==(const Units& other) const
@@ -359,7 +359,7 @@ std::map<std::string, std::string> UnitSystem::defaults() const
     // Ensure compact output for activation energy
     if (m_defaults.find("activation-energy") == m_defaults.end()) {
         out["activation-energy"] = fmt::format(
-            "{}/{}", out["energy"], out["quantity"]);
+            "{} / {}", out["energy"], out["quantity"]);
     }
 
     return out;

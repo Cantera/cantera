@@ -53,8 +53,7 @@ cdef extern from "cantera/base/Units.h" namespace "Cantera":
     cdef cppclass CxxUnits "Cantera::Units":
         CxxUnits()
         CxxUnits(CxxUnits)
-        CxxUnits(string) except +translate_exception
-        string unit_str()
+        CxxUnits(string, cbool) except +translate_exception
         string str()
         double factor()
 
