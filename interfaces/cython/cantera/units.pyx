@@ -16,18 +16,9 @@ cdef class Units:
     """
     def __cinit__(self, name=None):
         if name:
-            self.units = CxxUnits(stringify(name))
-            if abs(self.units.factor() - 1.) > np.nextafter(0, 1):
-                raise ValueError(
-                    "The creation of 'Units' objects that require a conversion "
-                    "factor\nwith respect to Cantera's default unit system is not "
-                    f"supported:\ninput '{name}' is equivalent to "
-                    f"'{pystr(self.units.str())}' where the conversion factor is "
-                    f"'{self.units.factor()}'")
+            self.units = CxxUnits(stringify(name), True)
 
     def __repr__(self):
-        if abs(self.units.factor() - 1.) < np.nextafter(0, 1):
-            return f"<Units({pystr(self.units.unit_str())}) at {id(self):0x}>"
         return f"<Units({pystr(self.units.str())}) at {id(self):0x}>"
 
     @staticmethod

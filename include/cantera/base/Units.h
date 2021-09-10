@@ -35,7 +35,8 @@ public:
                    double quantity=0);
 
     //! Create an object with the specified dimensions
-    explicit Units(const std::string& name);
+    //! @param force_unity  ensure that conversion factor is equal to one
+    explicit Units(const std::string& name, bool force_unity=false);
 
     //! Returns `true` if the specified Units are dimensionally consistent
     bool convertible(const Units& other) const;
@@ -49,12 +50,8 @@ public:
     Units& operator*=(const Units& other);
 
     //! Provide a string representation of these Units
-    //! @param leading_one  print '1' if no units are in the numerator
-    std::string unit_str(bool leading_one=true) const;
-
-    //! Provide a string representation of these Units that includes the
-    //! conversion factor
-    std::string str() const;
+    //! @param skip_unity  do not print '1' if conversion factor is equal to one
+    std::string str(bool skip_unity=true) const;
 
     //! Raise these Units to a power, changing both the conversion factor and
     //! the dimensions of these Units.
