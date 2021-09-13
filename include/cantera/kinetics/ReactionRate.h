@@ -264,12 +264,12 @@ public:
     static bool usesUpdate() { return false; }
 
     virtual double eval(const ArrheniusData& shared_data) const override {
-        return updateRC(shared_data.m_logT, shared_data.m_recipT);
+        return updateRC(shared_data.logT, shared_data.recipT);
     }
 
     virtual double ddT(const ArrheniusData& shared_data) const override {
-        return updateRC(shared_data.m_logT, shared_data.m_recipT) *
-            (m_b + m_E * shared_data.m_recipT) * shared_data.m_recipT;
+        return updateRC(shared_data.logT, shared_data.recipT) *
+            (m_b + m_E * shared_data.recipT) * shared_data.recipT;
     }
 
     //! Return the activation energy [J/kmol]
@@ -333,11 +333,11 @@ public:
     static bool usesUpdate() { return true; }
 
     virtual void update(const PlogData& shared_data) override {
-        update_C(&shared_data.m_logP);
+        update_C(&shared_data.logP);
     }
 
     virtual double eval(const PlogData& shared_data) const override {
-        return updateRC(shared_data.m_logT, shared_data.m_recipT);
+        return updateRC(shared_data.logT, shared_data.recipT);
     }
 
     virtual void validate(const std::string& equation) override {
@@ -418,11 +418,11 @@ public:
     static bool usesUpdate() { return true; }
 
     virtual void update(const ChebyshevData& shared_data) override {
-        update_C(&shared_data.m_log10P);
+        update_C(&shared_data.log10P);
     }
 
     virtual double eval(const ChebyshevData& shared_data) const override {
-        return updateRC(0., shared_data.m_recipT);
+        return updateRC(0., shared_data.recipT);
     }
 
     virtual void validate(const std::string& equation) override;
