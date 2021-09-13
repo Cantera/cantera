@@ -24,14 +24,14 @@ class Kinetics;
  */
 struct ArrheniusData
 {
-    ArrheniusData() : m_temperature(1.), m_logT(0.), m_recipT(1.) {}
+    ArrheniusData() : temperature(1.), logT(0.), recipT(1.) {}
 
     //! Update data container based on temperature *T*
     void update(double T)
     {
-        m_temperature = T;
-        m_logT = std::log(T);
-        m_recipT = 1./T;
+        temperature = T;
+        logT = std::log(T);
+        recipT = 1./T;
     }
 
     //! Update data container based on temperature *T* and pressure *P*
@@ -43,9 +43,9 @@ struct ArrheniusData
     //! Update number of species and reactions; unused
     void resize(size_t n_species, size_t n_reactions) {}
 
-    double m_temperature; //!< temperature
-    double m_logT; //!< logarithm of temperature
-    double m_recipT;  //!< inverse of temperature
+    double temperature; //!< temperature
+    double logT; //!< logarithm of temperature
+    double recipT;  //!< inverse of temperature
 };
 
 
@@ -56,7 +56,7 @@ struct ArrheniusData
  */
 struct PlogData
 {
-    PlogData() : m_temperature(1.), m_logT(0.), m_recipT(1.), m_logP(0.) {}
+    PlogData() : temperature(1.), logT(0.), recipT(1.), logP(0.) {}
 
     //! Update data container based on temperature *T* (raises exception)
     void update(double T);
@@ -64,11 +64,11 @@ struct PlogData
     //! Update data container based on temperature *T* and *P*
     void update(double T, double P)
     {
-        m_temperature = T;
-        m_logT = std::log(T);
-        m_recipT = 1./T;
-        m_logP = std::log(P);
-   }
+        temperature = T;
+        logT = std::log(T);
+        recipT = 1./T;
+        logP = std::log(P);
+    }
 
     //! Update data container based on *bulk* phase state
     void update(const ThermoPhase& bulk, const Kinetics& kin);
@@ -76,10 +76,10 @@ struct PlogData
     //! Update number of species and reactions; unused
     void resize(size_t n_species, size_t n_reactions) {}
 
-    double m_temperature; //!< temperature
-    double m_logT; //!< logarithm of temperature
-    double m_recipT; //!< inverse of temperature
-    double m_logP; //!< logarithm of pressure
+    double temperature; //!< temperature
+    double logT; //!< logarithm of temperature
+    double recipT; //!< inverse of temperature
+    double logP; //!< logarithm of pressure
 };
 
 
@@ -90,7 +90,7 @@ struct PlogData
  */
 struct ChebyshevData
 {
-    ChebyshevData() : m_temperature(1.), m_recipT(1.), m_log10P(0.) {}
+    ChebyshevData() : temperature(1.), recipT(1.), log10P(0.) {}
 
     //! Update data container based on temperature *T* (raises exception)
     void update(double T);
@@ -98,9 +98,9 @@ struct ChebyshevData
     //! Update data container based on temperature *T* and *P*
     void update(double T, double P)
     {
-        m_temperature = T;
-        m_recipT = 1./T;
-        m_log10P = std::log10(P);
+        temperature = T;
+        recipT = 1./T;
+        log10P = std::log10(P);
     }
 
     //! Update data container based on *bulk* phase state
@@ -109,19 +109,19 @@ struct ChebyshevData
     //! Update number of species and reactions; unused
     void resize(size_t n_species, size_t n_reactions) {}
 
-    double m_temperature; //!< temperature
-    double m_recipT; //!< inverse of temperature
-    double m_log10P; //!< base 10 logarithm of pressure
+    double temperature; //!< temperature
+    double recipT; //!< inverse of temperature
+    double log10P; //!< base 10 logarithm of pressure
 };
 
 
 //! Data container holding shared data specific to CustomFunc1Rate
 struct CustomFunc1Data
 {
-    CustomFunc1Data() : m_temperature(1.) {}
+    CustomFunc1Data() : temperature(1.) {}
 
     //! Update data container based on temperature *T*
-    void update(double T) { m_temperature = T; }
+    void update(double T) { temperature = T; }
 
     //! Update data container based on temperature *T* and pressure *P*
     void update(double T, double P) { update(T); }
@@ -132,7 +132,7 @@ struct CustomFunc1Data
     //! Update number of species and reactions; unused
     void resize(size_t n_species, size_t n_reactions) {}
 
-    double m_temperature; //!< temperature
+    double temperature; //!< temperature
 };
 
 }

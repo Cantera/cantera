@@ -211,7 +211,7 @@ void CustomFunc1Rate::setRateFunction(shared_ptr<Func1> f)
 double CustomFunc1Rate::eval(const CustomFunc1Data& shared_data) const
 {
     if (m_ratefunc) {
-        return m_ratefunc->eval(shared_data.m_temperature);
+        return m_ratefunc->eval(shared_data.temperature);
     }
     return NAN;
 }

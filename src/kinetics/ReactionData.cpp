@@ -39,7 +39,7 @@ void ChebyshevData::update(const ThermoPhase& bulk, const Kinetics& kin)
 
 void CustomFunc1Data::update(const ThermoPhase& bulk, const Kinetics& kin)
 {
-    m_temperature = bulk.temperature();
+    temperature = bulk.temperature();
 }
 
 }
