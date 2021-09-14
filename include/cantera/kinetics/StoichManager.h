@@ -474,6 +474,7 @@ public:
         m_stoichCoeffs.resize(nSpc, nRxn);
         m_stoichCoeffs.reserve(nCoeffs);
         m_stoichCoeffs.setFromTriplets(m_coeffList.begin(), m_coeffList.end());
+        m_stoichCoeffs.makeCompressed();
 
         m_finalized = true;
     }
