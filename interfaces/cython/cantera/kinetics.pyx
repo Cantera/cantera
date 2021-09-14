@@ -26,27 +26,32 @@ cdef np.ndarray get_dense(Kinetics kin, kineticsMethodSparse method):
     if length == 0:
         return np.zeros((kin.n_reactions, 0))
 
+    # index/value triplets
     cdef np.ndarray[int, ndim=1, mode="c"] rows = np.empty(length, dtype=c_int)
     cdef np.ndarray[int, ndim=1, mode="c"] cols = np.empty(length, dtype=c_int)
     cdef np.ndarray[np.double_t, ndim=1] data = np.empty(length)
 
-    size = CxxSparseComponents(smat, &rows[0], &cols[0], &data[0], length)
+    size = CxxSparseTriplets(smat, &rows[0], &cols[0], &data[0], length)
     out = np.zeros((smat.rows(), smat.cols()))
     for i in xrange(length):
         out[rows[i], cols[i]] = data[i]
     return out
 
 cdef tuple get_sparse(Kinetics kin, kineticsMethodSparse method):
+    # retrieve sparse matrix
     cdef CxxSparseMatrix smat = method(kin.kinetics)
+
+    # pointers to values and inner indices of CSC storage
     cdef size_t length = smat.nonZeros()
+    cdef np.ndarray[np.double_t, ndim=1] value = np.empty(length)
+    cdef np.ndarray[int, ndim=1, mode="c"] inner = np.empty(length, dtype=c_int)
 
-    cdef np.ndarray[int, ndim=1, mode="c"] rows = np.empty(length, dtype=c_int)
-    cdef np.ndarray[int, ndim=1, mode="c"] cols = np.empty(length, dtype=c_int)
-    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(length)
+    # pointers outer indices of CSC storage
+    cdef size_t ncols = smat.outerSize()
+    cdef np.ndarray[int, ndim=1, mode="c"] outer = np.empty(ncols + 1, dtype=c_int)
 
-    if length > 0:
-        size = CxxSparseComponents(smat, &rows[0], &cols[0], &data[0], length)
-    return data, tuple([rows, cols])
+    CxxSparseCscData(smat, &value[0], &inner[0], &outer[0])
+    return value, inner, outer
 
 
 cdef class Kinetics(_SolutionBase):
@@ -293,9 +298,9 @@ cdef class Kinetics(_SolutionBase):
         """
         def __get__(self):
             if __use_sparse__:
-                data, ix_ij = get_sparse(self, kin_reactantStoichCoeffs)
+                tup = get_sparse(self, kin_reactantStoichCoeffs)
                 shape = self.n_total_species, self.n_reactions
-                return _scipy_sparse.coo_matrix((data, ix_ij), shape=shape)
+                return _scipy_sparse.csc_matrix(tup, shape=shape)
             return get_dense(self, kin_reactantStoichCoeffs)
 
     def product_stoich_coeffs(self):
@@ -323,9 +328,9 @@ cdef class Kinetics(_SolutionBase):
         """
         def __get__(self):
             if __use_sparse__:
-                data, ix_ij = get_sparse(self, kin_productStoichCoeffs)
+                tup = get_sparse(self, kin_productStoichCoeffs)
                 shape = self.n_total_species, self.n_reactions
-                return _scipy_sparse.coo_matrix((data, ix_ij), shape=shape)
+                return _scipy_sparse.csc_matrix(tup, shape=shape)
             return get_dense(self, kin_productStoichCoeffs)
 
     property product_stoich_coeffs_reversible:
@@ -338,9 +343,9 @@ cdef class Kinetics(_SolutionBase):
         """
         def __get__(self):
             if __use_sparse__:
-                data, ix_ij = get_sparse(self, kin_revProductStoichCoeffs)
+                tup = get_sparse(self, kin_revProductStoichCoeffs)
                 shape = self.n_total_species, self.n_reactions
-                return _scipy_sparse.coo_matrix((data, ix_ij), shape=shape)
+                return _scipy_sparse.csc_matrix(tup, shape=shape)
             return get_dense(self, kin_revProductStoichCoeffs)
 
     property forward_rates_of_progress:

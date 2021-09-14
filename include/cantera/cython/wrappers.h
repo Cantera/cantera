@@ -50,8 +50,8 @@ void CxxArray2D_set(Cantera::Array2D& array, size_t i, size_t j, double value)
     array(i,j) = value;
 }
 
-// Service function to pass components describing sparse matrix
-size_t sparseComponents(const Eigen::SparseMatrix<double>& mat,
+// Service function to pass index/value triplets describing sparse matrix
+size_t sparseTriplets(const Eigen::SparseMatrix<double>& mat,
     int* rows, int* cols, double* data, size_t length)
 {
     size_t count = 0;
@@ -71,6 +71,32 @@ size_t sparseComponents(const Eigen::SparseMatrix<double>& mat,
             "while provided length is {}.", count, length);
     }
     return count;
+}
+
+// Service function to pass CSC data describing sparse matrix
+void sparseCscData(const Eigen::SparseMatrix<double>& mat,
+    double* value, int* inner, int* outer)
+{
+    if (!mat.isCompressed()) {
+        throw Cantera::CanteraError("sparseCscData",
+            "Invalid input: Eigen matrix is not compressed.");
+    }
+    if (mat.IsRowMajor) {
+        throw Cantera::CanteraError("sparseCscData",
+            "Invalid input: Eigen matrix is not in column major format.");
+    }
+
+    const double* valuePtr = mat.valuePtr();
+    const int* innerPtr = mat.innerIndexPtr();
+    for (size_t i = 0; i < mat.nonZeros(); ++i) {
+        value[i] = valuePtr[i];
+        inner[i] = innerPtr[i];
+    }
+
+    const int* outerPtr = mat.outerIndexPtr();
+    for (size_t i = 0; i < mat.outerSize() + 1; ++i) {
+        outer[i] = outerPtr[i];
+    }
 }
 
 // Function which passes sparse matrix
