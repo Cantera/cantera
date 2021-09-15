@@ -391,23 +391,6 @@ cdef class FlowReactor(Reactor):
 
 
 cdef class DelegatedReactor(Reactor):
-    reactor_type = "DelegatedReactor"
-
-    delegatable_methods = {
-        'initialize': ('initialize', 'v_d'),
-        'sync_state': ('syncState', 'v'),
-        'get_state': ('getState', 'v_dp'),
-        'update_state': ('updateState', 'v_dp'),
-        'update_surface_state': ('updateSurfaceState', 'v_dp'),
-        'get_surface_initial_condition': ('getSurfaceInitialCondition', 'v_dp'),
-        'update_connected': ('updateConnected', 'v_b'),
-        'eval': ('eval', 'v_d_dp'),
-        'eval_walls': ('evalWalls', 'v_d'),
-        'eval_surfaces': ('evalSurfaces', 'i_dr_d_dp'),
-        'component_name': ('componentName', 'i_sr_z'),
-        'component_index': ('componentIndex', 'i_zr_csr'),
-        'species_index': ('speciesIndex', 'i_zr_csr')
-    }
     """
     A base class for a reactor with delegated methods where the base
     functionality corresponds to the `Reactor` class.
@@ -458,7 +441,7 @@ cdef class DelegatedReactor(Reactor):
         Responsible for storing properties which may be accessed by connected
         reactors, and for updating the mass flow rates of connected flow devices.
 
-    ``eval(self, t : double, ydot : double[:]) -> None``
+    ``eval(self, t : double, LHS : double[:], RHS : double[:]) -> None``
         Responsible for calculating the time derivative of the state ``ydot``
         (length `n_vars`) at time ``t`` based on the current state of the
         reactor.
@@ -496,7 +479,7 @@ cdef class DelegatedReactor(Reactor):
         'update_surface_state': ('updateSurfaceState', 'void(double*)'),
         'get_surface_initial_condition': ('getSurfaceInitialCondition', 'void(double*)'),
         'update_connected': ('updateConnected', 'void(bool)'),
-        'eval': ('eval', 'void(double, double*)'),
+        'eval': ('eval', 'void(double, double*, double*)'),
         'eval_walls': ('evalWalls', 'void(double)'),
         'eval_surfaces': ('evalSurfaces', 'double(double,double*)'),
         'component_name': ('componentName', 'string(size_t)'),

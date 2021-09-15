@@ -393,7 +393,6 @@ class TestReactor(utilities.CanteraTest):
         self.make_reactors(T1=500)
         self.r1.energy_enabled = False
         self.add_wall(A=1.0, U=2500)
-
         self.net.advance(11.0)
 
         self.assertNear(self.r1.T, 500)
@@ -1822,10 +1821,10 @@ class DelegatedReactorTest(utilities.CanteraTest):
                 self.v_wall = y[self.i_wall]
                 self.walls[0].set_velocity(self.v_wall)
 
-            def after_eval(self, t, ydot):
+            def after_eval(self, t, LHS, RHS):
                 # Extra equation is d(v_wall)/dt = k * delta P
                 a = self.k_wall * (self.thermo.P - self.neighbor.thermo.P)
-                ydot[self.i_wall] = a
+                RHS[self.i_wall] = a
 
             def before_component_index(self, name):
                 if name == 'v_wall':
@@ -1870,8 +1869,8 @@ class DelegatedReactorTest(utilities.CanteraTest):
             def replace_update_state(self, y):
                 self.y[:] = y
 
-            def replace_eval(self, t, ydot):
-                ydot[:] = - self.y / tau
+            def replace_eval(self, t, LHS, RHS):
+                RHS[:] = - self.y / tau
 
         r = DummyReactor(gas)
         net = ct.ReactorNet([r])
@@ -1880,3 +1879,32 @@ class DelegatedReactorTest(utilities.CanteraTest):
         while(net.time < 1):
             net.step()
             self.assertArrayNear(r.get_state(), np.exp(- net.time / tau))
+
+    def test_RHS_LHS(self):
+        gas = ct.Solution('h2o2.yaml')
+        gas0 = ct.Solution('h2o2.yaml')
+        gas.TPX = 500, ct.one_atm, 'H2:2,O2:1,N2:4'
+        gas0.TPX = 500, ct.one_atm, 'H2:2,O2:1,N2:4'
+        mass_gas = 20 #[kg]
+        Q = 100 #[J/s]
+        mass_lump = 10 #[kg]
+        cp_lump = 1.0 #[J/kgK]
+        time = 0 #[s]
+        n_steps = 300
+
+        class DummyReactor(ct.DelegatedIdealGasConstPressureReactor):
+            def after_eval(self,t,LHS,RHS):
+                self.m_mass = mass_gas
+                LHS[1] = mass_lump*cp_lump+self.m_mass*self.thermo.cp_mass
+                RHS[1] = Q
+        
+        r1 = DummyReactor(gas)
+        r1_net = ct.ReactorNet([r1])
+
+        for n in range(n_steps):
+            time += 4.e-4
+            r1_net.advance(time)
+
+        r1_heat = mass_lump*cp_lump*(r1.thermo.T-500) + mass_gas*(gas.enthalpy_mass - gas0.enthalpy_mass)
+        add_heat = Q*time
+        self.assertTrue(np.isclose(add_heat,r1_heat,atol=1e-5)) 

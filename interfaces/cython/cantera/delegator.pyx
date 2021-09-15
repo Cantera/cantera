@@ -101,10 +101,11 @@ cdef int callback_i_zr_csr(PyFuncInfo& funcInfo, size_t& out, const string& arg)
 # Wrapper for functions of type void(double, double*, double*)
 cdef void callback_v_d_dp_dp(PyFuncInfo& funcInfo, size_array2 sizes, double arg1,
                                 double* arg2, double* arg3):
-    cdef double[:] view = <double[:sizes[0]]>arg2 if sizes[0] else None
+    cdef double[:] view1 = <double[:sizes[0]]>arg2 if sizes[0] else None
+    cdef double[:] view2 = <double[:sizes[1]]>arg3 if sizes[1] else None
 
     try:
-        (<object>funcInfo.func())(arg1, view)
+        (<object>funcInfo.func())(arg1, view1, view2)   
     except BaseException as e:
         exc_type, exc_value = sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
