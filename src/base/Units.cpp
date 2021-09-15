@@ -327,46 +327,31 @@ UnitSystem::UnitSystem(std::initializer_list<std::string> units)
 std::map<std::string, std::string> UnitSystem::defaults() const
 {
     // Unit system defaults
-    std::map<std::string, Units> units{
-        {"mass", Units(m_mass_factor, 1)},
-        {"length", Units(m_length_factor, 0, 1)},
-        {"time", Units(m_time_factor, 0, 0, 1)},
-        {"quantity", Units(m_quantity_factor, 0, 0, 0, 0, 0, 1)},
-        {"pressure", Units(m_pressure_factor, 1, -1, -2)},
-        {"energy", Units(m_energy_factor, 1, 2, -2)},
-        {"temperature", Units(1.0, 0, 0, 0, 1)},
-        {"current", Units(1.0, 0, 0, 0, 0, 1)},
-        {"activation-energy", Units(m_activation_energy_factor, 1, 2, -2, 0, 0, -1)},
+    std::map<std::string, std::string> units{
+        {"mass", "kg"},
+        {"length", "m"},
+        {"time", "s"},
+        {"quantity", "kmol"},
+        {"pressure", "Pa"},
+        {"energy", "J"},
+        {"temperature", "K"},
+        {"current", "A"},
+        {"activation-energy", "J / kmol"},
     };
 
-    // Retrieve known units
-    // (replace combinations of base units used by the default system by known
-    // secondary units, e.g. 'kg / m / s^2' is replaced by 'Pa')
-    std::map<std::string, std::string> out;
-    for (const auto& unit : units) {
-        out[unit.first] = unit.second.str();
-        for (const auto& known : knownUnits) {
-            if (unit.second == known.second) {
-                // Units are known: use abbreviation
-                out[unit.first] = known.first;
-            }
-        }
-    }
-
-    // Overwrite entries that have non-unity conversion factors
-    // (replace units deviating from default unit system with buffered values)
+    // Overwrite entries that have conversion factors
     for (const auto& defaults : m_defaults) {
-        out[defaults.first] = defaults.second;
+        units[defaults.first] = defaults.second;
     }
 
-    // Ensure compact output for activation energy
-    // (use appropriate abbreviations for activation energy)
-    if (m_defaults.find("activation-energy") == m_defaults.end()) {
-        out["activation-energy"] = fmt::format(
-            "{} / {}", out["energy"], out["quantity"]);
+    // Activation energy follows specified energy and quantity units
+    // unless given explicitly
+    if (!m_defaults.count("activation-energy")) {
+        units["activation-energy"] = fmt::format(
+            "{} / {}", units["energy"], units["quantity"]);
     }
 
-    return out;
+    return units;
 }
 
 void UnitSystem::setDefaults(std::initializer_list<std::string> units)
