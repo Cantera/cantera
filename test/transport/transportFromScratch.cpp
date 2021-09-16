@@ -38,11 +38,12 @@ public:
         sO2->transport = tO2;
         sH2O->transport = tH2O;
 
-        std::string phase_def = "ideal_gas(name='test', elements='O H',"
-            "species='gri30: H2 O2 H2O')";
+        AnyMap phase_def = AnyMap::fromYamlString(
+            "name: test\n"
+            "thermo: ideal-gas\n"
+            "species: [{gri30.yaml/species: [H2, O2, H2O]}]");
 
-        XML_Node* fxml = get_XML_from_string(phase_def);
-        ref.reset(newPhase(*fxml->findByName("phase")));
+        ref = newPhase(phase_def);
         test.reset(new IdealGasPhase());
 
         test->addElement("O");
@@ -58,8 +59,8 @@ public:
 
     shared_ptr<Species> sH2, sO2, sH2O;
     shared_ptr<GasTransportData> tH2, tO2, tH2O;
-    shared_ptr<ThermoPhase> ref;
-    shared_ptr<ThermoPhase> test;
+    unique_ptr<ThermoPhase> ref;
+    unique_ptr<ThermoPhase> test;
 };
 
 TEST_F(TransportFromScratch, binaryDiffCoeffs)
