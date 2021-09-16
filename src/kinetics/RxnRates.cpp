@@ -218,6 +218,8 @@ void Plog::setup(const std::multimap<double, Arrhenius>& rates)
 void Plog::setRates(const std::multimap<double, Arrhenius>& rates)
 {
     size_t j = 0;
+    rates_.clear();
+    pressures_.clear();
     rates_.reserve(rates.size());
     // Insert intermediate pressures
     for (const auto& rate : rates) {
