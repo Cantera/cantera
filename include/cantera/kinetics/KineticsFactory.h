@@ -15,13 +15,17 @@
 namespace Cantera
 {
 
+//! @deprecated Unused. To be removed after Cantera 2.6.
 class UnknownKineticsModel : public CanteraError
 {
 public:
     UnknownKineticsModel(const std::string& proc, const std::string& kineticsModel) :
         CanteraError(proc, "Specified Kinetics model "
                      + kineticsModel +
-                     " does not match any known type.") {}
+                     " does not match any known type.") {
+        warn_deprecated("class UnknownKineticsModel",
+            "Unused. To be removed after Cantera 2.6.");
+    }
 };
 
 /**

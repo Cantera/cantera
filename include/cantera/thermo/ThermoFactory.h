@@ -29,6 +29,8 @@ namespace Cantera
 /*!
  * This particular error class may be caught, if the application may have other
  * models that the main Cantera application doesn't know about.
+ *
+ * @deprecated Unused. To be removed after Cantera 2.6.
  */
 class UnknownThermoPhaseModel : public CanteraError
 {
@@ -42,7 +44,10 @@ public:
                             const std::string& thermoModel) :
         CanteraError(proc, "Specified ThermoPhase model "
                      + thermoModel +
-                     " does not match any known type.") {}
+                     " does not match any known type.") {
+        warn_deprecated("class UnknownThermoPhaseModel",
+            "Unused. To be removed after Cantera 2.6.");
+    }
 };
 
 
@@ -75,7 +80,7 @@ public:
      * @param model  String to look up the model against
      * @returns a pointer to a new ThermoPhase instance matching the model
      *   string. Returns NULL if something went wrong. Throws an exception
-     *   UnknownThermoPhaseModel if the string wasn't matched.
+     *   if the string wasn't matched.
      */
     virtual ThermoPhase* newThermoPhase(const std::string& model);
 
