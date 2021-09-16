@@ -49,11 +49,7 @@ cdef extern from "cantera/numerics/eigen_sparse.h" namespace "Eigen":
         size_t nonZeros()
         size_t rows()
         size_t cols()
-        size_t innerSize()
         size_t outerSize()
-        int* outerIndexPtr()
-        int* innerIndexPtr()
-        double* valuePtr()
 
 cdef extern from "cantera/base/xml.h" namespace "Cantera":
     cdef cppclass XML_Node:

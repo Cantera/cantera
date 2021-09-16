@@ -266,8 +266,8 @@ void Plog::validate(const std::string& equation)
 
 std::vector<std::pair<double, Arrhenius> > Plog::rates() const
 {
-    warn_deprecated("Plog::rates", "To be removed after Cantera 2.6; "
-        "replaceable by getRates().");
+    warn_deprecated("Plog::rates", "Behavior to change after Cantera 2.6; "
+        "see getRates() for new behavior.");
     auto rateMap = getRates();
     return std::vector<std::pair<double, Arrhenius>>(rateMap.begin(), rateMap.end());
 }

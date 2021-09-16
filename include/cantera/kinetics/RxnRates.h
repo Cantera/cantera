@@ -676,7 +676,7 @@ public:
     }
 
     //! Access Chebyshev coefficients as 2-dimensional array with temperature and
-    //! pressure dimensions corresponding to rows and columns, respecitively.
+    //! pressure dimensions corresponding to rows and columns, respectively.
     const Array2D& data() const
     {
         return m_coeffs;
