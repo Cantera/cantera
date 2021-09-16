@@ -258,19 +258,17 @@ cdef class ChebyshevRate(ReactionRate):
     def __cinit__(self, temperature_range=None, pressure_range=None, data=None,
                   input_data=None, init=True):
 
-        cdef pair[double,double] Trange
-        cdef pair[double,double] Prange
         if init:
             if isinstance(input_data, dict):
                 self._rate.reset(new CxxChebyshevRate3(dict_to_anymap(input_data)))
             elif all([arg is not None
                     for arg in [temperature_range, pressure_range, data]]):
-                Trange.first = temperature_range[0]
-                Trange.second = temperature_range[1]
-                Prange.first = pressure_range[0]
-                Prange.second = pressure_range[1]
+                Tmin = temperature_range[0]
+                Tmax = temperature_range[1]
+                Pmin = pressure_range[0]
+                Pmax = pressure_range[1]
                 self._rate.reset(
-                    new CxxChebyshevRate3(Trange, Prange, self._cxxarray2d(data)))
+                    new CxxChebyshevRate3(Tmin, Tmax, Pmin, Pmax, self._cxxarray2d(data)))
             elif all([arg is None
                     for arg in [temperature_range, pressure_range, data, input_data]]):
                 self._rate.reset(new CxxChebyshevRate3(dict_to_anymap({})))
@@ -301,14 +299,28 @@ cdef class ChebyshevRate(ReactionRate):
     property temperature_range:
         """ Valid temperature range [K] for the Chebyshev fit """
         def __get__(self):
-            cdef pair[double,double] limits = self.cxx_object().temperatureRange()
-            return limits.first, limits.second
+            return self.cxx_object().Tmin(), self.cxx_object().Tmax()
 
     property pressure_range:
         """ Valid pressure range [Pa] for the Chebyshev fit """
         def __get__(self):
-            cdef pair[double,double] limits = self.cxx_object().pressureRange()
-            return limits.first, limits.second
+            return self.cxx_object().Pmin(), self.cxx_object().Pmax()
+
+    property n_temperature:
+        """
+        Number of temperatures over which the Chebyshev fit is computed.
+        (same as number of rows of `data` property).
+        """
+        def __get__(self):
+            return self.cxx_object().Pmin(), self.cxx_object().nTemperature()
+
+    property n_pressure:
+        """
+        Number of pressures over which the Chebyshev fit is computed
+        (same as number of columns of `data` property).
+        """
+        def __get__(self):
+            return self.cxx_object().Pmin(), self.cxx_object().nPressure()
 
     property data:
         """
@@ -1524,7 +1536,7 @@ cdef class ChebyshevReaction(Reaction):
         """
         def __get__(self):
             if self.uses_legacy:
-                return self.cxx_object2().rate.temperatureRange().first
+                return self.cxx_object2().rate.Tmin()
 
             warnings.warn(
                 self._deprecation_warning(
@@ -1542,7 +1554,7 @@ cdef class ChebyshevReaction(Reaction):
         """
         def __get__(self):
             if self.uses_legacy:
-                return self.cxx_object2().rate.temperatureRange().second
+                return self.cxx_object2().rate.Tmax()
 
             warnings.warn(
                 self._deprecation_warning(
@@ -1560,7 +1572,7 @@ cdef class ChebyshevReaction(Reaction):
         """
         def __get__(self):
             if self.uses_legacy:
-                return self.cxx_object2().rate.pressureRange().first
+                return self.cxx_object2().rate.Pmin()
 
             warnings.warn(
                 self._deprecation_warning(
@@ -1577,7 +1589,7 @@ cdef class ChebyshevReaction(Reaction):
         """
         def __get__(self):
             if self.uses_legacy:
-                return self.cxx_object2().rate.pressureRange().second
+                return self.cxx_object2().rate.Pmax()
 
             warnings.warn(
                 self._deprecation_warning(
@@ -1591,15 +1603,15 @@ cdef class ChebyshevReaction(Reaction):
 
         .. deprecated:: 2.6
              To be deprecated with version 2.6, and removed thereafter.
-             Accessible as number of columns of `ChebyshevRate.data`.
+             Replaced by property `ChebyshevRate.n_pressure`.
         """
         def __get__(self):
             if self.uses_legacy:
-                return self.cxx_object2().rate.data().nColumns()
+                return self.cxx_object2().rate.nPressure()
 
             warnings.warn(
                 self._deprecation_warning(
-                    "nPressure", new="ChebyshevRate.data.shape[1]"),
+                    "nPressure", new="ChebyshevRate.data.n_pressure"),
                 DeprecationWarning)
             return self.rate.data.shape[1]
 
@@ -1609,15 +1621,15 @@ cdef class ChebyshevReaction(Reaction):
 
         .. deprecated:: 2.6
              To be deprecated with version 2.6, and removed thereafter.
-             Accessible as number of rows of `ChebyshevRate.data`.
+             Replaced by property `ChebyshevRate.n_temperature`.
         """
         def __get__(self):
             if self.uses_legacy:
-                return self.cxx_object2().rate.data().nRows()
+                return self.cxx_object2().rate.nTemperature()
 
             warnings.warn(
                 self._deprecation_warning(
-                    "nTemperature", new="ChebyshevRate.data.shape[0]"),
+                    "nTemperature", new="ChebyshevRate.data.n_temperature"),
                 DeprecationWarning)
             return self.rate.data.shape[0]
 
@@ -1657,11 +1669,7 @@ cdef class ChebyshevReaction(Reaction):
             for j, value in enumerate(row):
                 CxxArray2D_set(data, i, j, value)
 
-        cdef pair[double,double] Trange
-        Trange.first, Trange.second = Tmin, Tmax
-        cdef pair[double,double] Prange
-        Prange.first, Prange.second = Pmin, Pmax
-        r.rate = CxxChebyshev(Trange, Prange, data)
+        r.rate = CxxChebyshev(Tmin, Tmax, Pmin, Pmax, data)
 
     def set_parameters(self, Tmin, Tmax, Pmin, Pmax, coeffs):
         """

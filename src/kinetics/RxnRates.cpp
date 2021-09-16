@@ -286,21 +286,10 @@ std::multimap<double, Arrhenius> Plog::getRates() const
     return rateMap;
 }
 
-Chebyshev::Chebyshev(
-    const std::pair<double, double> Trange,
-    const std::pair<double, double> Prange,
-    const Array2D& coeffs)
-{
-    setLimits(Trange, Prange);
-    setData(coeffs);
-}
-
 Chebyshev::Chebyshev(double Tmin, double Tmax, double Pmin, double Pmax,
                      const Array2D& coeffs)
 {
-    warn_deprecated("Chebyshev", "Deprecated in Cantera 2.6; "
-        "replaceable with constructor using pairs for range input.");
-    setLimits(std::make_pair(Tmin, Tmax), std::make_pair(Pmin, Pmax));
+    setLimits(Tmin, Tmax, Pmin, Pmax);
     setData(coeffs);
 }
 
@@ -326,15 +315,13 @@ void Chebyshev::setParameters(const AnyMap& node,
             coeffs(0, 0) += std::log10(units.convertTo(1.0, rate_units));
         }
         setLimits(
-            std::make_pair(
-                units.convert(T_range[0], "K"), units.convert(T_range[1], "K")),
-            std::make_pair(
-                units.convert(P_range[0], "Pa"), units.convert(P_range[1], "Pa")));
+            units.convert(T_range[0], "K"), units.convert(T_range[1], "K"),
+            units.convert(P_range[0], "Pa"), units.convert(P_range[1], "Pa"));
     } else {
         // ensure that reaction rate can be evaluated (but returns NaN)
         coeffs = Array2D(1, 1);
         coeffs(0, 0) = NAN;
-        setLimits(std::make_pair(290., 3000.), std::make_pair(1.e-7, 1.e14));
+        setLimits(290., 3000., 1.e-7, 1.e14);
     }
 
     setData(coeffs);
@@ -345,26 +332,26 @@ void Chebyshev::setup(double Tmin, double Tmax, double Pmin, double Pmax,
 {
     warn_deprecated("Chebyshev::setup", "Deprecated in Cantera 2.6; "
         "replaceable with setLimits() and setData().");
-    setLimits(std::make_pair(Tmin, Tmax), std::make_pair(Pmin, Pmax));
+    setLimits(Tmin, Tmax, Pmin, Pmax);
     setData(coeffs);
 }
 
-void Chebyshev::setLimits(
-    const std::pair<double, double> Trange,
-    const std::pair<double, double> Prange)
+void Chebyshev::setLimits(double Tmin, double Tmax, double Pmin, double Pmax)
 {
-    double logPmin = std::log10(Prange.first);
-    double logPmax = std::log10(Prange.second);
-    double TminInv = 1.0 / Trange.first;
-    double TmaxInv = 1.0 / Trange.second;
+    double logPmin = std::log10(Pmin);
+    double logPmax = std::log10(Pmax);
+    double TminInv = 1.0 / Tmin;
+    double TmaxInv = 1.0 / Tmax;
 
     TrNum_ = - TminInv - TmaxInv;
     TrDen_ = 1.0 / (TmaxInv - TminInv);
     PrNum_ = - logPmin - logPmax;
     PrDen_ = 1.0 / (logPmax - logPmin);
 
-    m_Trange = Trange;
-    m_Prange = Prange;
+    Tmin_ = Tmin;
+    Tmax_ = Tmax;
+    Pmin_ = Pmin;
+    Pmax_ = Pmax;
 }
 
 void Chebyshev::setData(const Array2D& coeffs)
@@ -390,10 +377,8 @@ void Chebyshev::getParameters(AnyMap& rateNode, const Units& rate_units) const
         // Return empty/unmodified AnyMap
         return;
     }
-    rateNode["temperature-range"].setQuantity(
-        {temperatureRange().first, temperatureRange().second}, "K");
-    rateNode["pressure-range"].setQuantity(
-        {pressureRange().first, pressureRange().second}, "Pa");
+    rateNode["temperature-range"].setQuantity({Tmin(), Tmax()}, "K");
+    rateNode["pressure-range"].setQuantity({Pmin(), Pmax()}, "Pa");
     size_t nT = m_coeffs.nRows();
     size_t nP = m_coeffs.nColumns();
     std::vector<vector_fp> coeffs2d(nT, vector_fp(nP));

@@ -148,10 +148,9 @@ void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
     rateNode["type"] = type();
 }
 
-ChebyshevRate3::ChebyshevRate3(
-    const std::pair<double, double> Trange,
-    const std::pair<double, double> Prange,
-    const Array2D& coeffs) : Chebyshev(Trange, Prange, coeffs)
+ChebyshevRate3::ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pmax,
+                               const Array2D& coeffs)
+    : Chebyshev(Tmin, Tmax, Pmin, Pmax, coeffs)
 {
 }
 
