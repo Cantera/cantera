@@ -92,7 +92,7 @@ public:
         return false;
     }
 
-    virtual void resizeSpecies(size_t n_species)
+    virtual void resizeSpecies(size_t n_species) override
     {
         m_shared.resizeSpecies(n_species);
     }
