@@ -1504,7 +1504,7 @@ if env["stage_dir"]:
     instRoot = Path.cwd().joinpath(env["stage_dir"], stage_prefix)
 
     if env["python_prefix"]:
-        stage_py_prefix = Path(env["python_prefix"])
+        stage_py_prefix = Path(env.subst("$python_prefix"))
         if stage_py_prefix.is_absolute():
             stage_py_prefix = Path(*stage_py_prefix.parts[1:])
         env["python_prefix"] = Path.cwd().joinpath(env["stage_dir"], stage_py_prefix)
