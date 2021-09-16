@@ -200,8 +200,9 @@ CompileAndTest('CpJump', 'CpJump', 'CpJump', 'output_blessed.txt')
 
 diamond = CompileAndTest('diamondSurf-yaml', 'diamondSurf', 'diamondSurf',
     'runDiamond_blessed.out', options='diamond.yaml')
-Test('diamondSurf-cti', 'diamondSurf', diamond.program, 'runDiamond_blessed.out',
-     options='diamond.cti')  # @TODO: remove after Cantera 2.6
+if env["python_package"] != "none":
+    Test('diamondSurf-cti', 'diamondSurf', diamond.program, 'runDiamond_blessed.out',
+        options='diamond.cti')  # @TODO: remove after Cantera 2.6
 Test('diamondSurf-xml', 'diamondSurf', diamond.program, 'runDiamond_blessed.out',
      options='diamond.xml')  # @TODO: remove after Cantera 2.6
 

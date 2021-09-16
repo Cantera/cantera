@@ -9,6 +9,7 @@
 namespace Cantera
 {
 
+#ifndef CT_NO_PYTHON
 TEST(FracCoeff, ConvertFracCoeff)
 {
     IdealGasPhase thermo1("../data/frac.cti", "gas");
@@ -33,6 +34,7 @@ TEST(FracCoeff, ConvertFracCoeff)
         }
     }
 }
+#endif
 
 class FracCoeffTest : public testing::Test
 {
@@ -181,11 +183,13 @@ public:
     size_t nRxn, nSpec;
 };
 
+#ifndef CT_NO_PYTHON
 TEST_F(NegativePreexponentialFactor, fromCti)
 {
     setup("../data/noxNeg.cti");
     testNetProductionRates();
 }
+#endif
 
 TEST_F(NegativePreexponentialFactor, fromYaml)
 {
