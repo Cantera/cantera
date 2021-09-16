@@ -562,8 +562,7 @@ public:
     /**
      * Stoichiometric coefficient matrix for reactants.
      */
-    Eigen::SparseMatrix<double> reactantStoichCoeffs() const
-    {
+    Eigen::SparseMatrix<double> reactantStoichCoeffs() const {
         return m_reactantStoich.stoichCoeffs();
     }
 
@@ -578,16 +577,14 @@ public:
     /**
      * Stoichiometric coefficient matrix for products.
      */
-    Eigen::SparseMatrix<double> productStoichCoeffs() const
-    {
+    Eigen::SparseMatrix<double> productStoichCoeffs() const {
         return m_productStoich.stoichCoeffs();
     }
 
     /**
      * Stoichiometric coefficient matrix for products of reversible reactions.
      */
-    Eigen::SparseMatrix<double> revProductStoichCoeffs() const
-    {
+    Eigen::SparseMatrix<double> revProductStoichCoeffs() const {
         return m_revProductStoich.stoichCoeffs();
     }
 

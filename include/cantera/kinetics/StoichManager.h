@@ -470,11 +470,9 @@ public:
         size_t nCoeffs = m_coeffList.size();
 
         // Stoichiometric coefficient matrix
-        m_stoichCoeffs.setZero();
         m_stoichCoeffs.resize(nSpc, nRxn);
         m_stoichCoeffs.reserve(nCoeffs);
         m_stoichCoeffs.setFromTriplets(m_coeffList.begin(), m_coeffList.end());
-        m_stoichCoeffs.makeCompressed();
 
         m_finalized = true;
     }
@@ -523,7 +521,7 @@ public:
         }
         bool frac = false;
         for (size_t n = 0; n < stoich.size(); n++) {
-            m_coeffList.push_back(Eigen::Triplet<double>(k[n], rxn, stoich[n]));
+            m_coeffList.emplace_back(k[n], rxn, stoich[n]);
             if (fmod(stoich[n], 1.0) || stoich[n] != order[n]) {
                 frac = true;
             }
@@ -608,7 +606,7 @@ public:
     }
 
 private:
-    bool m_finalized; //!< Boolean flag indicating whether setup is finalized
+    bool m_finalized; //!< Boolean flag indicating whether object setup is finalized
 
     std::vector<C1> m_c1_list;
     std::vector<C2> m_c2_list;
@@ -616,7 +614,7 @@ private:
     std::vector<C_AnyN> m_cn_list;
 
     //! Sparse matrices for stoichiometric coefficients
-    std::vector<Eigen::Triplet<double>> m_coeffList;
+    SparseTriplets m_coeffList;
     Eigen::SparseMatrix<double> m_stoichCoeffs;
 };
 

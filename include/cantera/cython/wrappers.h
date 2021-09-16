@@ -81,10 +81,6 @@ void sparseCscData(const Eigen::SparseMatrix<double>& mat,
         throw Cantera::CanteraError("sparseCscData",
             "Invalid input: Eigen matrix is not compressed.");
     }
-    if (mat.IsRowMajor) {
-        throw Cantera::CanteraError("sparseCscData",
-            "Invalid input: Eigen matrix is not in column major format.");
-    }
 
     const double* valuePtr = mat.valuePtr();
     const int* innerPtr = mat.innerIndexPtr();
