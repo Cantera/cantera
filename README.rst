@@ -89,7 +89,7 @@ possible.
 Development Site
 ================
 
-The current development version is 2.6.0a2. The current stable version is
+The current development version is 2.6.0a3. The current stable version is
 2.5.1. The `latest Cantera source code <https://github.com/Cantera/cantera>`_,
 the `issue tracker <https://github.com/Cantera/cantera/issues>`_ for bugs and
 enhancement requests, `downloads of Cantera releases and binary installers
