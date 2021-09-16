@@ -24,8 +24,6 @@ class AnyValue;
 class AnyMap;
 class UnitSystem;
 class Units;
-class AnyMap;
-class Units;
 
 //! Arrhenius reaction rate type depends only on temperature
 /**
@@ -421,7 +419,8 @@ public:
     //! Return the pressures and Arrhenius expressions which comprise this
     //! reaction.
     /*!
-     * @deprecated   To be removed after Cantera 2.6. Replaceable by getRates.
+     * @deprecated  Behavior to change after Cantera 2.6.
+     *              @see getRates for new behavior.
      */
     std::vector<std::pair<double, Arrhenius> > rates() const;
 
@@ -485,19 +484,6 @@ public:
 
     //! Constructor directly from coefficient array
     /*!
-     * @param Trange  Valid temperature range (min, max) [K]
-     * @param Prange  Valid pressure range (min, max) [Pa]
-     * @param coeffs  Coefficient array dimensioned `nT` by `nP` where `nT` and
-     *      `nP` are the number of temperatures and pressures used in the fit,
-     *      respectively.
-     */
-    Chebyshev(
-        const std::pair<double, double> Trange,
-        const std::pair<double, double> Prange,
-        const Array2D& coeffs);
-
-    //! Constructor directly from coefficient array
-    /*!
      *  @param Tmin    Minimum temperature [K]
      *  @param Tmax    Maximum temperature [K]
      *  @param Pmin    Minimum pressure [Pa]
@@ -505,9 +491,6 @@ public:
      *  @param coeffs  Coefficient array dimensioned `nT` by `nP` where `nT` and
      *      `nP` are the number of temperatures and pressures used in the fit,
      *      respectively.
-     *
-     * @deprecated  Deprecated in Cantera 2.6.
-     *              Use constructor using pairs for range input.
      */
     Chebyshev(double Tmin, double Tmax, double Pmin, double Pmax,
               const Array2D& coeffs);
@@ -530,12 +513,12 @@ public:
 
     //! Set limits for Chebyshev object
     /*!
-     * @param Trange  Temperature range (min, max) [K]
-     * @param Prange  Pressure range (min, max) [Pa]
+     *  @param Tmin    Minimum temperature [K]
+     *  @param Tmax    Maximum temperature [K]
+     *  @param Pmin    Minimum pressure [Pa]
+     *  @param Pmax    Maximum pressure [Pa]
      */
-    void setLimits(
-        const std::pair<double, double> Trange,
-        const std::pair<double, double> Prange);
+    void setLimits(double Tmin, double Tmax, double Pmin, double Pmax);
 
     //! Update concentration-dependent parts of the rate coefficient.
     //! @param c base-10 logarithm of the pressure in Pa
@@ -578,86 +561,32 @@ public:
     }
 
     //! Minimum valid temperature [K]
-    /*!
-     * @deprecated  Deprecated in Cantera 2.6.
-     *              Replaceable with @see temperatureRange()
-     */
-    double Tmin() const
-    {
-        warn_deprecated("Chebyshev::Tmin", "Deprecated in Cantera 2.6; "
-            "replaceable with temperatureRange.");
-        return m_Trange.first;
+    double Tmin() const {
+        return Tmin_;
     }
 
     //! Maximum valid temperature [K]
-    /*!
-     * @deprecated  Deprecated in Cantera 2.6.
-     *              Replaceable with @see temperatureRange()
-     */
-    double Tmax() const
-    {
-        warn_deprecated("Chebyshev::Tmax", "Deprecated in Cantera 2.6; "
-            "replaceable with temperatureRange.");
-        return m_Trange.second;
-    }
-
-    // Range of valid temperatures (min, max) [K]
-    const std::pair<double, double>& temperatureRange() const
-    {
-        return m_Trange;
+    double Tmax() const {
+        return Tmax_;
     }
 
     //! Minimum valid pressure [Pa]
-    /*!
-     * @deprecated  Deprecated in Cantera 2.6.
-     *              Replaceable with @see pressureRange()
-     */
-    double Pmin() const
-    {
-        warn_deprecated("Chebyshev::Pmin", "Deprecated in Cantera 2.6; "
-            "replaceable with pressureRange.");
-        return m_Prange.first;
+    double Pmin() const {
+        return Pmin_;
     }
 
     //! Maximum valid pressure [Pa]
-    /*!
-     * @deprecated  Deprecated in Cantera 2.6.
-     *              Replaceable with @see pressureRange()
-     */
-    double Pmax() const
-    {
-        warn_deprecated("Chebyshev::Pmax", "Deprecated in Cantera 2.6; "
-            "replaceable with pressureRange.");
-        return m_Prange.second;
-    }
-
-    // Range of valid pressures (min, max) [Pa]
-    const std::pair<double, double>& pressureRange() const
-    {
-        return m_Prange;
+    double Pmax() const {
+        return Pmax_;
     }
 
     //! Number of points in the pressure direction
-    /*!
-     * @deprecated  Deprecated in Cantera 2.6.
-     *              Accessible as number of columns of the coefficient matrix
-     */
-    size_t nPressure() const
-    {
-        warn_deprecated("Chebyshev::nPressure", "Deprecated in Cantera 2.6; "
-            "accessible as number of colums of the coefficient matrix.");
+    size_t nPressure() const {
         return m_coeffs.nColumns();
     }
 
     //! Number of points in the temperature direction
-    /*!
-     * @deprecated  Deprecated in Cantera 2.6.
-     *              Accessible as number of rows of the coefficient matrix
-     */
-    size_t nTemperature() const
-    {
-        warn_deprecated("Chebyshev::nTemperature", "Deprecated in Cantera 2.6; "
-            "accessible as number of rows of the coefficient matrix.");
+    size_t nTemperature() const {
         return m_coeffs.nRows();
     }
 
@@ -668,8 +597,7 @@ public:
      *
      * @deprecated   To be removed after Cantera 2.6. Replaceable by @see data().
      */
-    const vector_fp& coeffs() const
-    {
+    const vector_fp& coeffs() const {
         warn_deprecated("Chebyshev::coeffs", "Deprecated in Cantera 2.6 "
             "and to be removed thereafter; replaceable by data().");
         return chebCoeffs_;
@@ -677,8 +605,7 @@ public:
 
     //! Access Chebyshev coefficients as 2-dimensional array with temperature and
     //! pressure dimensions corresponding to rows and columns, respectively.
-    const Array2D& data() const
-    {
+    const Array2D& data() const {
         return m_coeffs;
     }
 
@@ -686,8 +613,8 @@ public:
     void setData(const Array2D& coeffs);
 
 protected:
-    std::pair<double, double> m_Trange; //!< valid temperature range
-    std::pair<double, double> m_Prange; //!< valid pressure range
+    double Tmin_, Tmax_; //!< valid temperature range
+    double Pmin_, Pmax_; //!< valid pressure range
     double TrNum_, TrDen_; //!< terms appearing in the reduced temperature
     double PrNum_, PrDen_; //!< terms appearing in the reduced pressure
 
