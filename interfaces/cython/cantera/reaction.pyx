@@ -35,6 +35,11 @@ cdef class ReactionRate:
             self.rate.update(temperature)
             return self.rate.eval(temperature)
 
+    property _cpp_type:
+        """ Get the C++ ReactionRate type (used for debugging purposes) """
+        def __get__(self):
+            return pystr(self.rate.type())
+
     @staticmethod
     cdef wrap(shared_ptr[CxxReactionRateBase] rate):
         """

@@ -52,11 +52,8 @@ shared_ptr<ReactionRateBase> newReactionRate(const std::string& type)
 shared_ptr<ReactionRateBase> newReactionRate(
     const AnyMap& rate_node, const Units& rate_units)
 {
-    std::string type = "";
-    if (rate_node.empty()) {
-        throw InputFileError("ReactionRateFactory::newReactionRate", rate_node,
-            "Received invalid empty node.");
-    } else if (rate_node.hasKey("type")) {
+    std::string type = ""; // default is to create Arrhenius from empty
+    if (rate_node.hasKey("type")) {
         type = rate_node["type"].asString();
     }
 

@@ -240,11 +240,7 @@ public:
     //! Constructor using AnyMap content
     //! @param node  AnyMap containing rate information
     //! @param rate_units  unit definitions used for rate information
-    ArrheniusRate(const AnyMap& node, const Units& rate_units);
-
-    //! Constructor using AnyMap content
-    //! @param node  AnyMap containing rate information
-    ArrheniusRate(const AnyMap& node);
+    ArrheniusRate(const AnyMap& node, const Units& rate_units=Units(0.));
 
     //! Constructor based on Arrhenius object
     //! @param arr  Arrhenius object
@@ -312,11 +308,7 @@ public:
     //! Constructor using AnyMap content
     //! @param node  AnyMap containing rate information
     //! @param rate_units  unit definitions used for rate information
-    PlogRate(const AnyMap& node, const Units& rate_units);
-
-    //! Constructor using AnyMap content
-    //! @param node  AnyMap containing rate information
-    PlogRate(const AnyMap& node);
+    PlogRate(const AnyMap& node, const Units& rate_units=Units(0.));
 
     virtual std::string type() const override
     {
@@ -400,11 +392,7 @@ public:
     //! Constructor using AnyMap content
     //! @param node  AnyMap containing rate information
     //! @param rate_units  unit definitions used for rate information
-    ChebyshevRate3(const AnyMap& node, const Units& rate_units);
-
-    //! Constructor using AnyMap content
-    //! @param node  AnyMap containing rate information
-    ChebyshevRate3(const AnyMap& node);
+    ChebyshevRate3(const AnyMap& node, const Units& rate_units=Units(0.));
 
     virtual std::string type() const override { return "Chebyshev"; }
 

@@ -50,9 +50,8 @@ void Arrhenius::setParameters(const AnyValue& rate,
                 throw InputFileError("Arrhenius::setParameters", rate_map,
                     "Specification of units is not supported for pre-exponential "
                     "factor when\ncreating a standalone 'ReactionRate' object.");
-            } else {
-                m_A = rate_map["A"].asDouble();
             }
+            m_A = rate_map["A"].asDouble();
         } else {
             m_A = units.convert(rate_map["A"], rate_units);
         }
