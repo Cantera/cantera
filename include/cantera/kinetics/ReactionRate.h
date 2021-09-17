@@ -13,6 +13,7 @@
 
 #include "cantera/base/AnyMap.h"
 #include "cantera/base/Units.h"
+#include "cantera/kinetics/MultiRate.h"
 #include "cantera/kinetics/RxnRates.h"
 #include "cantera/kinetics/ReactionData.h"
 #include "cantera/base/ctexceptions.h"
@@ -23,112 +24,6 @@ namespace Cantera
 class Func1;
 class MultiRateBase;
 class Kinetics;
-
-
-//! Abstract base class for reaction rate definitions
-/**
- * Because this class has no template parameters, derived objects can be
- * accessed via `shared_ptr<ReactionRateBase>`. For performance reasons
- * it is essential that derived classes use the keyword `final` to
- * de-virtualize `virtual` methods.
- *
- * Methods defined for the abstract base class are not aware of specialized
- * data handlers defined by the template class `ReactionRate<DataType>`
- * and thus can be exposed to the API.
- */
-class ReactionRateBase
-{
-public:
-    ReactionRateBase() : units(0.) {}
-    virtual ~ReactionRateBase() {}
-
-public:
-    //! Identifier of reaction type
-    virtual std::string type() const = 0;
-
-    //! Create multi-rate evaluator
-    virtual unique_ptr<MultiRateBase> newMultiRate() const = 0;
-
-    //! Update reaction rate data based on temperature
-    //! @param T  temperature [K]
-    virtual void update(double T) = 0;
-
-    //! Update reaction rate data based on temperature and pressure
-    //! @param T  temperature [K]
-    //! @param P  pressure [Pa]
-    virtual void update(double T, double P) = 0;
-
-    //! Update reaction rate data based on bulk phase
-    //! @param bulk  object representing bulk phase
-    //! @param kin  object representing kinetics (required by some rate types)
-    virtual void update(const ThermoPhase& bulk, const Kinetics& kin) = 0;
-
-    //! Evaluate reaction rate based on temperature
-    //! @param T  temperature [K]
-    virtual double eval(double T) const = 0;
-
-    //! Evaluate reaction rate based on temperature and pressure
-    //! @param T  temperature [K]
-    //! @param P  pressure [Pa]
-    virtual double eval(double T, double P) const = 0;
-
-    //! Evaluate reaction rate based on bulk phase
-    //! @param bulk  object representing bulk phase
-    //! @param kin  object representing kinetics (required by some rate types)
-    virtual double eval(const ThermoPhase& bulk, const Kinetics& kin) const = 0;
-
-    //! Evaluate reaction rate derivative based on temperature
-    //! @param T  temperature [K]
-    virtual double ddT(double T) const = 0;
-
-    //! Evaluate reaction rate derivative based on temperature and pressure
-    //! @param T  temperature [K]
-    //! @param P  pressure [Pa]
-    virtual double ddT(double T, double P) const = 0;
-
-    //! Evaluate reaction rate derivative based on bulk phase
-    //! @param bulk  object representing bulk phase
-    //! @param kin  object representing kinetics (required by some rate types)
-    virtual double ddT(const ThermoPhase& bulk, const Kinetics& kin) const = 0;
-
-    //! Validate the reaction rate expression
-    virtual void validate(const std::string& equation) = 0;
-
-    //! Return the parameters such that an identical Reaction could be reconstructed
-    //! using the newReaction() function. Behavior specific to derived classes is
-    //! handled by the getParameters() method.
-    //! @param rate_units  units used for rate parameters
-    AnyMap parameters(const Units& rate_units) const;
-
-    //! Return parameters using original unit system
-    AnyMap parameters() const;
-
-    //! Set parameters
-    //! @param node  AnyMap object containing reaction rate specification
-    //! @param rate_units  Description of units used for rate parameters
-    virtual void setParameters(const AnyMap& node, const Units& rate_units);
-
-    //! Set rate units
-    //! @param rate_units  Description of units used for rate parameters
-    virtual void setUnits(const Units& rate_units);
-
-protected:
-    //! Get parameters
-    //! Store the parameters of a ReactionRate needed to reconstruct an identical
-    //! object. Does not include user-defined fields available in the #input map.
-    virtual void getParameters(AnyMap& rateNode, const Units& rate_units) const {
-        throw NotImplementedError("ReactionRate::getParameters",
-                                  "Not implemented by '{}' object.", type());
-    }
-
-    //! Input data used for specific models
-    AnyMap input;
-
-    //! The units of the rate constant. These are determined by the units of the
-    //! standard concentration of the reactant species' phases of the phase
-    //! where the reaction occurs.
-    Units units;
-};
 
 
 //! Class template for reaction rate definitions with specialized DataType
@@ -210,6 +105,65 @@ public:
         data.update(bulk, kin);
         return ddT(data);
     }
+};
+
+
+//! Class template for wrapped reaction rate definitions
+/**
+ * This class template ensures that derived objects are aware of specialized
+ * data types, which are passed by MultiRateBase evaluators.
+ */
+template <class RateType, class DataType>
+class RateTemplate : public ReactionRate<DataType>,  public RateType
+{
+public:
+    using RateType::RateType; // Inherit constructors
+
+    //! Constructor using AnyMap content
+    //! @param node  AnyMap containing rate information
+    //! @param rate_units  unit definitions used for rate information
+    RateTemplate(const AnyMap& node, const Units& rate_units=Units(0.)) {
+        setParameters(node, rate_units);
+    }
+
+    virtual std::string type() const override {
+        // need to be explicitly included due to multiple inheritance
+        return RateType::type();
+    }
+
+    virtual void setParameters(const AnyMap& node, const Units& rate_units) override {
+        ReactionRateBase::setParameters(node, rate_units);
+        RateType::setParameters(node, rate_units);
+    }
+
+    virtual void getParameters(AnyMap& node, const Units& rate_units) const override {
+        RateType::getParameters(node, rate_units);
+    }
+
+    virtual unique_ptr<MultiRateBase> newMultiRate() const override {
+        return unique_ptr<MultiRateBase>(
+            new MultiBulkRate<RateTemplate<RateType, DataType>, DataType>);
+    }
+
+    virtual void update(const DataType& shared_data) override {
+        RateType::update(shared_data);
+    }
+
+    virtual double eval(const DataType& shared_data) const override {
+        return RateType::eval(shared_data);
+    }
+
+    virtual void validate(const std::string& equation) override {
+        RateType::validate(equation);
+    }
+};
+
+
+//! Arrhenius reaction rate type; @see Arrhenius3
+class ArrheniusRate3 final : public RateTemplate<Arrhenius3, ArrheniusData>
+{
+public:
+    using RateTemplate<Arrhenius3, ArrheniusData>::RateTemplate;
 };
 
 

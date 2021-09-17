@@ -8,7 +8,7 @@
 #ifndef CT_MULTIRATE_H
 #define CT_MULTIRATE_H
 
-#include "cantera/kinetics/ReactionRate.h"
+#include "cantera/kinetics/ReactionRateBase.h"
 
 namespace Cantera
 {
