@@ -38,6 +38,9 @@ public:
         return "Gas";
     }
 
+    virtual void resizeReactions();
+    virtual void getThirdBodyConcentrations(double* concm);
+
     //! @}
     //! @name Reaction Rates Of Progress
     //! @{
@@ -101,6 +104,7 @@ protected:
     vector_fp falloff_work;
     vector_fp concm_3b_values;
     vector_fp concm_falloff_values;
+    vector_fp m_concm_any; //!< Effective third-body concentrations for any reaction
 
     //!@}
 

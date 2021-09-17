@@ -21,6 +21,18 @@ GasKinetics::GasKinetics(ThermoPhase* thermo) :
 {
 }
 
+void GasKinetics::resizeReactions()
+{
+    m_concm_any.resize(nReactions(), NAN);
+    BulkKinetics::resizeReactions();
+}
+
+void GasKinetics::getThirdBodyConcentrations(double* concm)
+{
+    updateROP();
+    std::copy(m_concm_any.begin(), m_concm_any.end(), concm);
+}
+
 void GasKinetics::update_rates_T()
 {
     double T = thermo().temperature();
@@ -80,17 +92,19 @@ void GasKinetics::update_rates_C()
     // 3-body reactions
     if (!concm_3b_values.empty()) {
         m_3b_concm.update(m_phys_conc, ctot, concm_3b_values.data());
+        m_3b_concm.copy(concm_3b_values, m_concm_any.data());
     }
 
     // Falloff reactions
     if (!concm_falloff_values.empty()) {
         m_falloff_concm.update(m_phys_conc, ctot, concm_falloff_values.data());
-    }
+        m_falloff_concm.copy(concm_falloff_values, m_concm_any.data());    }
 
     // Third-body objects interacting with MultiRate evaluator
     if (!concm_multi_values.empty()) {
         // using pre-existing third-body handlers requires copying;
         m_multi_concm.update(m_phys_conc, ctot, concm_multi_values.data());
+        m_multi_concm.copy(concm_multi_values, m_concm_any.data());
         for (size_t i = 0; i < m_multi_indices.size(); i++) {
             m_concm[m_multi_indices[i]] = concm_multi_values[i];
         }
@@ -319,7 +333,8 @@ void GasKinetics::addFalloffReaction(FalloffReaction& r)
         }
     }
     m_falloff_concm.install(nfall, efficiencies,
-                            r.third_body.default_efficiency);
+                            r.third_body.default_efficiency,
+                            nReactions() - 1);
     concm_falloff_values.resize(m_falloff_concm.workSize());
 
     // install the falloff function calculator for this reaction

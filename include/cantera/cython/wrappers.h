@@ -170,6 +170,8 @@ KIN_1D(getDeltaSSEnthalpy)
 KIN_1D(getDeltaSSGibbs)
 KIN_1D(getDeltaSSEntropy)
 
+KIN_1D(getThirdBodyConcentrations)
+
 KIN_1D(getCreationRates)
 KIN_1D(getDestructionRates)
 KIN_1D(getNetProductionRates)
