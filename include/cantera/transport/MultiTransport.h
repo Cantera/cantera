@@ -133,9 +133,6 @@ protected:
     //! Dense matrix for cstar
     DenseMatrix m_cstar;
 
-    //! Dense matrix for omega22
-    DenseMatrix m_om22;
-
     vector_fp m_cinternal;
 
     vector_fp m_sqrt_eps_k;

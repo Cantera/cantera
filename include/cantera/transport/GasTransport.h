@@ -415,7 +415,7 @@ protected:
     
     //! Flag to indicate for which (i,j) interaction pairs the 
     //! actual temperature is used instead of the reduced temperature
-    std::vector<vector_int> m_star_poly_actualT;
+    std::vector<vector_int> m_star_poly_uses_actualT;
 
     //! Fit for astar collision integral
     /*!

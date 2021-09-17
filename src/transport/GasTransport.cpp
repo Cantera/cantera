@@ -319,7 +319,7 @@ void GasTransport::setupCollisionParameters()
     m_polar.resize(m_nsp, false);
     m_alpha.resize(m_nsp, 0.0);
     m_poly.resize(m_nsp);
-    m_star_poly_actualT.resize(m_nsp);
+    m_star_poly_uses_actualT.resize(m_nsp);
     m_sigma.resize(m_nsp);
     m_eps.resize(m_nsp);
     m_w_ac.resize(m_nsp);
@@ -331,7 +331,7 @@ void GasTransport::setupCollisionParameters()
 
     for (size_t i = 0; i < m_nsp; i++) {
         m_poly[i].resize(m_nsp);
-        m_star_poly_actualT[i].resize(m_nsp);
+        m_star_poly_uses_actualT[i].resize(m_nsp);
     }
 
     double f_eps, f_sigma;
@@ -492,15 +492,15 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
                 m_bstar_poly.push_back(cb);
                 m_cstar_poly.push_back(cc);
                 m_poly[i][j] = static_cast<int>(m_astar_poly.size()) - 1;
-                m_star_poly_actualT[i][j] = 0;
+                m_star_poly_uses_actualT[i][j] = 0;
                 fitlist.push_back(dstar);
             } else {
                 // delta* found in fitlist, so just point to this polynomial
                 m_poly[i][j] = static_cast<int>((dptr - fitlist.begin()));
-                m_star_poly_actualT[i][j] = 0;
+                m_star_poly_uses_actualT[i][j] = 0;
             }
             m_poly[j][i] = m_poly[i][j];
-            m_star_poly_actualT[j][i] = m_star_poly_actualT[i][j];
+            m_star_poly_uses_actualT[j][i] = m_star_poly_uses_actualT[i][j];
         }
     }
 }
@@ -919,8 +919,8 @@ void GasTransport::setCollisionIntegralPolynomial(size_t i, size_t j, double* as
     m_poly[i][j] = static_cast<int>(m_astar_poly.size()) - 1;
     m_poly[j][i] = m_poly[i][j];
     if (actualT) {
-        m_star_poly_actualT[i][j] = 1;
-        m_star_poly_actualT[j][i] = m_star_poly_actualT[i][j];
+        m_star_poly_uses_actualT[i][j] = 1;
+        m_star_poly_uses_actualT[j][i] = m_star_poly_uses_actualT[i][j];
     }
     
     m_visc_ok = false;
