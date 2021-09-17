@@ -53,11 +53,6 @@ ArrheniusRate::ArrheniusRate(const AnyMap& node, const Units& rate_units)
     setParameters(node, rate_units);
 }
 
-ArrheniusRate::ArrheniusRate(const AnyMap& node)
-{
-    setParameters(node, Units(1.));
-}
-
 ArrheniusRate::ArrheniusRate(const Arrhenius& arr, bool allow_negative_A)
     : Arrhenius(arr.preExponentialFactor(),
                 arr.temperatureExponent(),
@@ -116,11 +111,6 @@ PlogRate::PlogRate(const AnyMap& node, const Units& rate_units)
     setParameters(node, rate_units);
 }
 
-PlogRate::PlogRate(const AnyMap& node)
-{
-    setParameters(node, Units(1.));
-}
-
 unique_ptr<MultiRateBase> PlogRate::newMultiRate() const
 {
     return unique_ptr<MultiRateBase>(new MultiBulkRate<PlogRate, PlogData>);
@@ -157,11 +147,6 @@ ChebyshevRate3::ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pma
 ChebyshevRate3::ChebyshevRate3(const AnyMap& node, const Units& rate_units)
 {
     setParameters(node, rate_units);
-}
-
-ChebyshevRate3::ChebyshevRate3(const AnyMap& node)
-{
-    setParameters(node, Units(1.));
 }
 
 unique_ptr<MultiRateBase> ChebyshevRate3::newMultiRate() const
