@@ -111,7 +111,7 @@ public:
     //! Identifier of reaction rate type
     // const static std::string type()
     virtual std::string type() const {
-        return "Arrhenius3";
+        return "Arrhenius";
     }
 
     //! Perform object setup based on AnyMap node information
@@ -152,6 +152,12 @@ public:
     //! Return the activation energy *Ea* [J/kmol]
     double activationEnergy() const {
         return m_Ea_R * GasConstant;
+    }
+
+    //! Return the activation energy divided by the gas constant (i.e. the
+    //! activation temperature) [K]
+    double activationEnergy_R() const {
+        return m_Ea_R;
     }
 };
 
