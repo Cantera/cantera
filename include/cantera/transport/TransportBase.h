@@ -586,38 +586,38 @@ public:
     }
 
     //! Get/set the polynomial fits to the transport properties
-    virtual void getViscosityPolynomials(size_t i, double* coeffs) const{
-        throw NotImplementedError("Transport::getViscosityPolynomials");
+    virtual void getViscosityPolynomial(size_t i, double* coeffs) const{
+        throw NotImplementedError("Transport::getViscosityPolynomial");
     }
 
-    virtual void getConductivityPolynomials(size_t i, double* coeffs) const{
-        throw NotImplementedError("Transport::getConductivityPolynomials");
+    virtual void getConductivityPolynomial(size_t i, double* coeffs) const{
+        throw NotImplementedError("Transport::getConductivityPolynomial");
     }
     
-    virtual void getBinDiffusivityPolynomials(size_t i, size_t j, double* coeffs) const{
-        throw NotImplementedError("Transport::getBinDiffusivityPolynomials");
+    virtual void getBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs) const{
+        throw NotImplementedError("Transport::getBinDiffusivityPolynomial");
     }
     
-    virtual void getCollisionIntegralPolynomials(size_t i, size_t j, double* astar_coeffs, 
+    virtual void getCollisionIntegralPolynomial(size_t i, size_t j, double* astar_coeffs, 
                                                 double* bstar_coeffs, double* cstar_coeffs) const{
-        throw NotImplementedError("Transport::getCollisionIntegralPolynomials");
+        throw NotImplementedError("Transport::getCollisionIntegralPolynomial");
     }
     
-    virtual void setViscosityPolynomials(size_t i, double* coeffs){
-        throw NotImplementedError("Transport::setViscosityPolynomials");
+    virtual void setViscosityPolynomial(size_t i, double* coeffs){
+        throw NotImplementedError("Transport::setViscosityPolynomial");
     }
     
-    virtual void setConductivityPolynomials(size_t i, double* coeffs){
-        throw NotImplementedError("Transport::setConductivityPolynomials");
+    virtual void setConductivityPolynomial(size_t i, double* coeffs){
+        throw NotImplementedError("Transport::setConductivityPolynomial");
     }
     
-    virtual void setBinDiffusivityPolynomials(size_t i, size_t j, double* coeffs){
-        throw NotImplementedError("Transport::setBinDiffusivityPolynomials");
+    virtual void setBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs){
+        throw NotImplementedError("Transport::setBinDiffusivityPolynomial");
     }
     
-    virtual void setCollisionIntegralPolynomials(size_t i, size_t j, double* astar_coeffs, 
+    virtual void setCollisionIntegralPolynomial(size_t i, size_t j, double* astar_coeffs, 
                                                 double* bstar_coeffs, double* cstar_coeffs, bool flag){
-        throw NotImplementedError("Transport::setCollisionIntegralPolynomials");
+        throw NotImplementedError("Transport::setCollisionIntegralPolynomial");
     }
 
     //! Set model parameters for derived classes
