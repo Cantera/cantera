@@ -92,4 +92,28 @@ void ArrheniusBase::validate(const std::string& equation)
     }
 }
 
+void Arrhenius3::setParameters(const AnyMap& node, const Units& rate_units)
+{
+    allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
+    if (!node.hasKey("rate-constant")) {
+        ArrheniusBase::setParameters(AnyValue(), node.units(), rate_units);
+        return;
+    }
+
+    ArrheniusBase::setParameters(node["rate-constant"], node.units(), rate_units);
+}
+
+void Arrhenius3::getParameters(AnyMap& rateNode, const Units& rate_units) const
+{
+    if (allow_negative_pre_exponential_factor) {
+        rateNode["negative-A"] = true;
+    }
+    AnyMap node;
+    ArrheniusBase::getParameters(node, rate_units);
+    if (!node.empty()) {
+        // Arrhenius object is configured
+        rateNode["rate-constant"] = std::move(node);
+    }
+}
+
 }

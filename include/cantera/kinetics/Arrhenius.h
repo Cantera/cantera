@@ -84,6 +84,77 @@ protected:
     double m_Ea_R; //!< Activation energy (in temperature units)
 };
 
+
+//! Arrhenius reaction rate type depends only on temperature
+/*!
+ * A reaction rate coefficient of the following form.
+ *
+ *   \f[
+ *        k_f =  A T^b \exp (-Ea/RT)
+ *   \f]
+ *
+ * @todo supersedes Arrhenius: replace existing instances with this class, rename,
+ *      and deprecate Arrhenius3.
+ *
+ * @ingroup arrheniusGroup
+ */
+class Arrhenius3 : public ArrheniusBase
+{
+public:
+    using ArrheniusBase::ArrheniusBase; // inherit constructors
+
+    //! Constructor based on AnyMap content
+    Arrhenius3(const AnyMap& node, const Units& rate_units) {
+        setParameters(node, rate_units);
+    }
+
+    //! Identifier of reaction rate type
+    // const static std::string type()
+    virtual std::string type() const {
+        return "Arrhenius3";
+    }
+
+    //! Perform object setup based on AnyMap node information
+    /*!
+     *  @param node  AnyMap containing rate information
+     *  @param rate_units  Unit definitions specific to rate information
+     */
+    virtual void setParameters(const AnyMap& node, const Units& rate_units);
+
+    virtual void getParameters(AnyMap& node, const Units& units) const;
+
+    //! Update information specific to reaction
+    const static bool usesUpdate() {
+        return false;
+    }
+
+    //! Update information specific to reaction
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    void update(const ArrheniusData& shared_data) {}
+
+    //! Evaluate reaction rate
+    //! @param shared_data  data shared by all reactions of a given type
+    double eval(const ArrheniusData& shared_data) const {
+        return m_A * std::exp(m_b * shared_data.logT - m_Ea_R * shared_data.recipT);
+    }
+
+    //! Evaluate derivative of reaction rate with respect to temperature
+    //! divided by reaction rate value
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    virtual double ddTscaled(const ArrheniusData& shared_data) const {
+        return (m_b + m_Ea_R * shared_data.recipT) * shared_data.recipT;
+    }
+
+    //! Return the activation energy *Ea* [J/kmol]
+    double activationEnergy() const {
+        return m_Ea_R * GasConstant;
+    }
+};
+
 }
 
 #endif
