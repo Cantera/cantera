@@ -25,6 +25,8 @@ class BulkKinetics : public Kinetics
 public:
     BulkKinetics(ThermoPhase* thermo = 0);
 
+    virtual void resizeReactions();
+
     virtual bool isReversible(size_t i);
 
     virtual void getDeltaGibbs(doublereal* deltaG);

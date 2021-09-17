@@ -17,6 +17,15 @@ BulkKinetics::BulkKinetics(ThermoPhase* thermo) :
     }
 }
 
+void BulkKinetics::resizeReactions()
+{
+    Kinetics::resizeReactions();
+
+    for (auto& rates : m_bulk_rates) {
+        rates->resize(nTotalSpecies(), nReactions());
+    }
+}
+
 bool BulkKinetics::isReversible(size_t i) {
     return std::find(m_revindex.begin(), m_revindex.end(), i) < m_revindex.end();
 }
@@ -101,7 +110,7 @@ void BulkKinetics::getRevRateConstants(double* krev, bool doIrreversible)
 
 bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 {
-    bool added = Kinetics::addReaction(r, resize);
+    bool added = Kinetics::addReaction(r, false);
     if (!added) {
         // undeclared species, etc.
         return false;
@@ -128,7 +137,7 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
         if (m_bulk_types.find(rate->type()) == m_bulk_types.end()) {
             m_bulk_types[rate->type()] = m_bulk_rates.size();
             m_bulk_rates.push_back(rate->newMultiRate());
-            m_bulk_rates.back()->resizeSpecies(m_kk);
+            m_bulk_rates.back()->resize(m_kk, nReactions());
         }
 
         // Add reaction rate to evaluator
@@ -142,6 +151,12 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
     }
 
     m_concm.push_back(0.0);
+
+    if (resize) {
+        resizeReactions();
+    } else {
+        m_ready = false;
+    }
 
     return true;
 }
@@ -201,7 +216,7 @@ void BulkKinetics::resizeSpecies()
     m_phys_conc.resize(m_kk);
     m_grt.resize(m_kk);
     for (auto& rates : m_bulk_rates) {
-        rates->resizeSpecies(m_kk);
+        rates->resize(m_kk, nReactions());
     }
 }
 
