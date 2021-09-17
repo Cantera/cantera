@@ -160,76 +160,11 @@ public:
 
 
 //! Arrhenius reaction rate type; @see Arrhenius3
-class ArrheniusRate3 final : public RateTemplate<Arrhenius3, ArrheniusData>
+class ArrheniusRate final : public RateTemplate<Arrhenius3, ArrheniusData>
 {
 public:
+    // inherit constructors
     using RateTemplate<Arrhenius3, ArrheniusData>::RateTemplate;
-};
-
-
-//! The ArrheniusRate reaction rate type depends only on temperature
-/**
- *  A reaction rate coefficient of the following form.
- *
- *   \f[
- *        k_f =  A T^b \exp (-E/RT)
- *   \f]
- *
- * Note: ArrheniusRate acts as a wrapper for the Arrhenius class.
- */
-class ArrheniusRate final : public ReactionRate<ArrheniusData>, public Arrhenius
-{
-public:
-    //! Default constructor.
-    ArrheniusRate();
-
-    //! Constructor.
-    //! @param A  pre-exponential. The unit system is
-    //!     (kmol, m, s). The actual units depend on the reaction
-    //!     order and the dimensionality (surface or bulk).
-    //! @param b  Temperature exponent. Non-dimensional.
-    //! @param E  Activation energy. J/kmol.
-    ArrheniusRate(double A, double b, double E);
-
-    //! Constructor using AnyMap content
-    //! @param node  AnyMap containing rate information
-    //! @param rate_units  unit definitions used for rate information
-    ArrheniusRate(const AnyMap& node, const Units& rate_units=Units(0.));
-
-    //! Constructor based on Arrhenius object
-    //! @param arr  Arrhenius object
-    //! @param allow_negative_A  allow negative pre-exponential factor
-    //!      (optional, default is false)
-    ArrheniusRate(const Arrhenius& arr, bool allow_negative_A=false);
-
-    virtual void setParameters(const AnyMap& node, const Units& rate_units) override;
-    virtual void getParameters(AnyMap& rateNode,
-                               const Units& rate_units) const override;
-
-    virtual std::string type() const override { return "Arrhenius"; }
-
-    virtual unique_ptr<MultiRateBase> newMultiRate() const override;
-
-    //! Update information specific to reaction
-    static bool usesUpdate() { return false; }
-
-    virtual double eval(const ArrheniusData& shared_data) const override {
-        return updateRC(shared_data.logT, shared_data.recipT);
-    }
-
-    virtual double ddT(const ArrheniusData& shared_data) const override {
-        return updateRC(shared_data.logT, shared_data.recipT) *
-            (m_b + m_E * shared_data.recipT) * shared_data.recipT;
-    }
-
-    //! Return the activation energy [J/kmol]
-    double activationEnergy() const {
-        return m_E * GasConstant;
-    }
-
-    virtual void validate(const std::string& equation) override;
-
-    bool allow_negative_pre_exponential_factor;
 };
 
 
