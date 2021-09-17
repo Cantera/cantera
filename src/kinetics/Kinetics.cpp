@@ -24,7 +24,7 @@ using namespace std;
 namespace Cantera
 {
 Kinetics::Kinetics() :
-    m_finalized(false),
+    m_ready(false),
     m_kk(0),
     m_thermo(0),
     m_surfphase(npos),
@@ -45,16 +45,16 @@ void Kinetics::checkReactionIndex(size_t i) const
     }
 }
 
-void Kinetics::finalizeSetup()
+void Kinetics::resizeReactions()
 {
     size_t nRxn = nReactions();
 
     // Stoichiometry managers
-    m_reactantStoich.finalizeSetup(m_kk, nRxn);
-    m_productStoich.finalizeSetup(m_kk, nRxn);
-    m_revProductStoich.finalizeSetup(m_kk, nRxn);
+    m_reactantStoich.resizeCoeffs(m_kk, nRxn);
+    m_productStoich.resizeCoeffs(m_kk, nRxn);
+    m_revProductStoich.resizeCoeffs(m_kk, nRxn);
 
-    m_finalized = true;
+    m_ready = true;
 }
 
 void Kinetics::checkReactionArraySize(size_t ii) const
@@ -509,7 +509,7 @@ void Kinetics::resizeSpecies()
     invalidateCache();
 }
 
-bool Kinetics::addReaction(shared_ptr<Reaction> r, bool finalize)
+bool Kinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 {
     r->validate();
     if (m_kk == 0) {
@@ -585,10 +585,10 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r, bool finalize)
     m_perturb.push_back(1.0);
     m_dH.push_back(0.0);
 
-    if (finalize) {
-        finalizeSetup();
+    if (resize) {
+        resizeReactions();
     } else {
-        m_finalized = false;
+        m_ready = false;
     }
 
     return true;

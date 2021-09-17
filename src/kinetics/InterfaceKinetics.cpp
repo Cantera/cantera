@@ -477,7 +477,7 @@ void InterfaceKinetics::getDeltaSSEntropy(doublereal* deltaS)
     getReactionDelta(m_grt.data(), deltaS);
 }
 
-bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool finalize)
+bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
 {
     if (!m_surf) {
         init();
@@ -505,7 +505,7 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool finalize)
     }
 
     size_t i = nReactions();
-    bool added = Kinetics::addReaction(r_base, finalize);
+    bool added = Kinetics::addReaction(r_base, resize);
     if (!added) {
         return false;
     }

@@ -99,9 +99,9 @@ void BulkKinetics::getRevRateConstants(double* krev, bool doIrreversible)
     }
 }
 
-bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool finalize)
+bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 {
-    bool added = Kinetics::addReaction(r, finalize);
+    bool added = Kinetics::addReaction(r, resize);
     if (!added) {
         // undeclared species, etc.
         return false;

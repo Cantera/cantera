@@ -197,7 +197,7 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
         throw CanteraError("addReactions", to_string(add_rxn_err));
     }
 
-    kin.finalizeSetup();
+    kin.resizeReactions();
 }
 
 }
