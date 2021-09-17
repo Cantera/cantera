@@ -1,5 +1,6 @@
 """Minimal Python Module"""
 from os.path import join as pjoin, normpath
+from pathlib import Path
 from buildutils import *
 
 Import('env', 'build', 'install')
@@ -49,6 +50,15 @@ if localenv['PYTHON_INSTALLER'] == 'direct':
     else:
         # Install Python module in the default location
         extra = ''
+
+if env["stage_dir"]:
+    # Get the absolute path to the stage directory. If the stage directory is a relative
+    # path, consider it to be relative to the root of the Cantera source directory,
+    # which is two directories up from the current working directory of this SConscript
+    # file.
+    stage_absolute = Path.cwd().parents[1].joinpath(env["stage_dir"]).resolve()
+    extra += f" --root={stage_absolute}"
+
     mod_inst = install(localenv.Command, 'dummy', mod,
                        build_cmd + ' install ' + extra +
                        ' --record=../../build/python-installed-files.txt' +

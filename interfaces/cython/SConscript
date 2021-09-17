@@ -2,6 +2,7 @@
 import re
 from os.path import join as pjoin
 from os.path import normpath
+from pathlib import Path
 from pkg_resources import parse_version
 from buildutils import *
 
@@ -122,6 +123,14 @@ else:
     # Install Python module in the default location
     extra = ''
 
+if env["stage_dir"]:
+    # Get the absolute path to the stage directory. If the stage directory is a relative
+    # path, consider it to be relative to the root of the Cantera source directory,
+    # which is two directories up from the current working directory of this SConscript
+    # file.
+    stage_absolute = Path.cwd().parents[1].joinpath(env['stage_dir']).resolve()
+    extra += f" --root={stage_absolute}"
+
 env['python_module_loc'] = '<unspecified>'
 if localenv['PYTHON_INSTALLER'] == 'direct':
     mod_inst = install(localenv.Command, 'dummy', mod,
@@ -134,9 +143,9 @@ if localenv['PYTHON_INSTALLER'] == 'direct':
         for filename in open('build/python-installed-files.txt').readlines():
             filename = filename.strip()
             if filename.endswith(check):
-                filename = filename.replace(check, '')
-                global_env['python_module_loc'] = normpath(filename)
+                global_env["python_module_loc"] = normpath(filename.replace(check, ""))
                 break
+
     localenv.AlwaysBuild(localenv.AddPostAction(mod_inst, find_module_dir))
     env['install_python_action'] = mod_inst
 elif localenv['PYTHON_INSTALLER'] == 'debian':
