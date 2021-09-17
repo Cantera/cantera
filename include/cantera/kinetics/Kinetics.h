@@ -136,7 +136,7 @@ public:
     }
 
     //! Finalize Kinetics object and associated objects
-    virtual void finalizeSetup();
+    virtual void resizeReactions();
 
     //! Number of reactions in the reaction mechanism.
     size_t nReactions() const {
@@ -762,11 +762,11 @@ public:
      * Add a single reaction to the mechanism. Derived classes should call the
      * base class method in addition to handling their own specialized behavior.
      *
-     * @param r      Pointer to the Reaction object to be added.
-     * @param finalize  If `true`, finalize Kinetics object.
+     * @param r       Pointer to the Reaction object to be added.
+     * @param resize  If `true`, resizeReactions is called after reaction is added.
      * @return `true` if the reaction is added or `false` if it was skipped
      */
-    virtual bool addReaction(shared_ptr<Reaction> r, bool finalize=true);
+    virtual bool addReaction(shared_ptr<Reaction> r, bool resize=true);
 
     /**
      * Modify the rate expression associated with a reaction. The
@@ -925,8 +925,8 @@ protected:
     StoichManagerN m_revProductStoich;
     //@}
 
-    //! Boolean indicating whether Kinetics object setup is finalized
-    bool m_finalized;
+    //! Boolean indicating whether Kinetics object is fully configured
+    bool m_ready;
 
     //! The number of species in all of the phases
     //! that participate in this kinetics mechanism.

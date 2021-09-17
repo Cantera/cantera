@@ -199,7 +199,7 @@ public:
 
     virtual void init();
     virtual void resizeSpecies();
-    virtual bool addReaction(shared_ptr<Reaction> r, bool finalize=true);
+    virtual bool addReaction(shared_ptr<Reaction> r, bool resize=true);
     virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
     //! @}
 

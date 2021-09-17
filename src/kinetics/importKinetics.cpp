@@ -127,7 +127,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
         kin.checkDuplicates();
     }
 
-    kin.finalizeSetup();
+    kin.resizeReactions();
 
     return true;
 }
