@@ -12,6 +12,7 @@
 #define CT_RXNRATES_H
 
 #include "cantera/kinetics/reaction_defs.h"
+#include "cantera/kinetics/Arrhenius.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/global.h"
@@ -33,7 +34,7 @@ class Units;
  *        k_f =  A T^b \exp (-E/RT)
  *   \f]
  */
-class Arrhenius
+class Arrhenius : public ArrheniusBase
 {
 public:
     //! Default constructor.
@@ -51,14 +52,8 @@ public:
     Arrhenius(const AnyValue& rate,
               const UnitSystem& units, const Units& rate_units);
 
-    //! Perform object setup based on AnyMap node information
-    //! @param node  AnyMap containing rate information
-    //! @param units  unit system
-    //! @param rate_units  unit definitions specific to rate information
     void setParameters(const AnyValue& rate,
                        const UnitSystem& units, const Units& rate_units);
-
-    void getParameters(AnyMap& rateNode, const Units& rate_units) const;
 
     //! Update concentration-dependent parts of the rate coefficient.
     /*!
@@ -85,17 +80,6 @@ public:
         return m_A * std::exp(m_b*logT - m_E*recipT);
     }
 
-    //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
-    //! on the reaction order)
-    double preExponentialFactor() const {
-        return m_A;
-    }
-
-    //! Return the temperature exponent *b*
-    double temperatureExponent() const {
-        return m_b;
-    }
-
     //! Return the activation energy divided by the gas constant (i.e. the
     //! activation temperature) [K]
     doublereal activationEnergy_R() const {
@@ -103,7 +87,7 @@ public:
     }
 
 protected:
-    doublereal m_logA, m_b, m_E, m_A;
+    doublereal m_logA, m_E;
 };
 
 //! Blowers Masel reaction rate type depends on the enthalpy of reaction
