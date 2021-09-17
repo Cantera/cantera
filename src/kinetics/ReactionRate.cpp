@@ -11,31 +11,6 @@
 namespace Cantera
 {
 
-void ReactionRateBase::setParameters(const AnyMap& node, const Units& rate_units)
-{
-    units = rate_units;
-    input = node;
-}
-
-void ReactionRateBase::setUnits(const Units& rate_units)
-{
-    units = rate_units;
-}
-
-AnyMap ReactionRateBase::parameters(const Units& rate_units) const
-{
-    AnyMap out;
-    getParameters(out, rate_units);
-    return out;
-}
-
-AnyMap ReactionRateBase::parameters() const
-{
-    AnyMap out;
-    getParameters(out, units);
-    return out;
-}
-
 ArrheniusRate::ArrheniusRate()
     : Arrhenius(NAN, NAN, NAN)
     , allow_negative_pre_exponential_factor(false)
