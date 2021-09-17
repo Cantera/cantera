@@ -9,17 +9,17 @@
 namespace Cantera
 {
 Arrhenius::Arrhenius()
-    : m_logA(-1.0E300)
-    , m_b(0.0)
-    , m_E(0.0)
-    , m_A(0.0)
+    : ArrheniusBase()
+    , m_logA(-1.0E300)
+    , m_E(0.)
 {
+    m_b = 0.0;
+    m_A = 0.0;
 }
 
 Arrhenius::Arrhenius(doublereal A, doublereal b, doublereal E)
-    : m_b(b)
+    : ArrheniusBase(A, b, E * GasConstant)
     , m_E(E)
-    , m_A(A)
 {
     if (m_A  <= 0.0) {
         m_logA = -1.0E300;
@@ -37,59 +37,13 @@ Arrhenius::Arrhenius(const AnyValue& rate,
 void Arrhenius::setParameters(const AnyValue& rate,
                               const UnitSystem& units, const Units& rate_units)
 {
-    if (rate.empty()) {
-        m_A = NAN;
-        m_b = NAN;
-        m_E = NAN;
-    } else if (rate.is<AnyMap>()) {
-        auto& rate_map = rate.as<AnyMap>();
-        if (rate_units.factor() == 0) {
-            // A zero rate units factor is used as a sentinel to detect
-            // stand-alone reaction rate objects
-            if (rate_map["A"].is<std::string>()) {
-                throw InputFileError("Arrhenius::setParameters", rate_map,
-                    "Specification of units is not supported for pre-exponential "
-                    "factor when\ncreating a standalone 'ReactionRate' object.");
-            }
-            m_A = rate_map["A"].asDouble();
-        } else {
-            m_A = units.convert(rate_map["A"], rate_units);
-        }
-        m_b = rate_map["b"].asDouble();
-        m_E = units.convertActivationEnergy(rate_map["Ea"], "K");
-    } else {
-        auto& rate_vec = rate.asVector<AnyValue>(3);
-        m_A = units.convert(rate_vec[0], rate_units);
-        m_b = rate_vec[1].asDouble();
-        m_E = units.convertActivationEnergy(rate_vec[2], "K");
-    }
-
+    ArrheniusBase::setParameters(rate, units, rate_units);
+    m_E = m_Ea_R;
     if (m_A <= 0.0) {
         m_logA = -1.0E300;
     } else {
         m_logA = std::log(m_A);
     }
-}
-
-void Arrhenius::getParameters(AnyMap& rateNode, const Units& rate_units) const
-{
-    double A = preExponentialFactor();
-    if (std::isnan(A)) {
-        // Return empty/unmodified AnyMap
-        return;
-    } else if (rate_units.factor() != 0.0) {
-        rateNode["A"].setQuantity(A, rate_units);
-    } else {
-        rateNode["A"] = A;
-        // This can't be converted to a different unit system because the dimensions of
-        // the rate constant were not set. Can occur if the reaction was created outside
-        // the context of a Kinetics object and never added to a Kinetics object.
-        rateNode["__unconvertible__"] = true;
-    }
-
-    rateNode["b"] = temperatureExponent();
-    rateNode["Ea"].setQuantity(activationEnergy_R(), "K", true);
-    rateNode.setFlowStyle();
 }
 
 BlowersMasel::BlowersMasel()
