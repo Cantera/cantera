@@ -1134,6 +1134,8 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void kin_getDeltaSSGibbs(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getDeltaSSEntropy(CxxKinetics*, double*) except +translate_exception
 
+    cdef void kin_getThirdBodyConcentrations(CxxKinetics*, double*) except +translate_exception
+
     # Kinetics per-species properties
     cdef void kin_getCreationRates(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getDestructionRates(CxxKinetics*, double*) except +translate_exception

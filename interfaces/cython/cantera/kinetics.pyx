@@ -464,6 +464,15 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_reaction_array(self, kin_getDeltaSSEnthalpy)
 
+    property third_body_concentrations:
+        """
+        Effective third-body concentrations used by individual reactions; values
+        are only defined for reactions involving third-bodies and are set to
+        not-a-number otherwise.
+        """
+        def __get__(self):
+            return get_reaction_array(self, kin_getThirdBodyConcentrations)
+
     property delta_standard_gibbs:
         """
         Change in standard-state Gibbs free energy (independent of composition)
