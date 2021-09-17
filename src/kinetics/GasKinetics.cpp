@@ -65,8 +65,8 @@ void GasKinetics::update_rates_T()
 
         // loop over MultiBulkRates evaluators
         for (auto& rates : m_bulk_rates) {
-            rates->update(thermo(), m_concm.data());
-            rates->getRateConstants(thermo(), m_rfn.data(), m_concm.data());
+            rates->update(thermo(), *this);
+            rates->getRateConstants(m_rfn.data());
         }
 
         if (m_plog_rates.nReactions()) {

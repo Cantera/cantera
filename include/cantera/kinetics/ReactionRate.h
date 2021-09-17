@@ -22,6 +22,8 @@ namespace Cantera
 
 class Func1;
 class MultiRateBase;
+class Kinetics;
+
 
 //! Abstract base class for reaction rate definitions
 /**
@@ -54,13 +56,12 @@ public:
     //! Update reaction rate data based on temperature and pressure
     //! @param T  temperature [K]
     //! @param P  pressure [Pa]
-    //! @param concm  third-body concentration (if applicable)
-    virtual void update(double T, double P, double concm=0.) = 0;
+    virtual void update(double T, double P) = 0;
 
     //! Update reaction rate data based on bulk phase
     //! @param bulk  object representing bulk phase
-    //! @param concm  third-body concentration (if applicable)
-    virtual void update(const ThermoPhase& bulk, double concm=0.) = 0;
+    //! @param kin  object representing kinetics (required by some rate types)
+    virtual void update(const ThermoPhase& bulk, const Kinetics& kin) = 0;
 
     //! Evaluate reaction rate based on temperature
     //! @param T  temperature [K]
@@ -69,13 +70,12 @@ public:
     //! Evaluate reaction rate based on temperature and pressure
     //! @param T  temperature [K]
     //! @param P  pressure [Pa]
-    //! @param concm  third-body concentration (if applicable)
-    virtual double eval(double T, double P, double concm=0.) const = 0;
+    virtual double eval(double T, double P) const = 0;
 
     //! Evaluate reaction rate based on bulk phase
     //! @param bulk  object representing bulk phase
-    //! @param concm  third-body concentration (if applicable)
-    virtual double eval(const ThermoPhase& bulk, double concm=0.) const = 0;
+    //! @param kin  object representing kinetics (required by some rate types)
+    virtual double eval(const ThermoPhase& bulk, const Kinetics& kin) const = 0;
 
     //! Evaluate reaction rate derivative based on temperature
     //! @param T  temperature [K]
@@ -88,8 +88,8 @@ public:
 
     //! Evaluate reaction rate derivative based on bulk phase
     //! @param bulk  object representing bulk phase
-    //! @param concm  third-body concentration (if applicable)
-    virtual double ddT(const ThermoPhase& bulk, double concm=0.) const = 0;
+    //! @param kin  object representing kinetics (required by some rate types)
+    virtual double ddT(const ThermoPhase& bulk, const Kinetics& kin) const = 0;
 
     //! Validate the reaction rate expression
     virtual void validate(const std::string& equation) = 0;
@@ -117,8 +117,8 @@ protected:
     //! Store the parameters of a ReactionRate needed to reconstruct an identical
     //! object. Does not include user-defined fields available in the #input map.
     virtual void getParameters(AnyMap& rateNode, const Units& rate_units) const {
-        throw CanteraError("ReactionRate::getParameters",
-                           "Not implemented by derived ReactionRate object.");
+        throw NotImplementedError("ReactionRate::getParameters",
+                                  "Not implemented by '{}' object.", type());
     }
 
     //! Input data used for specific models
@@ -144,8 +144,7 @@ public:
 
     //! Update information specific to reaction
     //! @param shared_data  data shared by all reactions of a given type
-    virtual void update(const DataType& shared_data,
-                        double concm=0.) {}
+    virtual void update(const DataType& shared_data) {}
 
     virtual void update(double T) override {
         DataType data;
@@ -153,22 +152,21 @@ public:
         update(data);
     }
 
-    virtual void update(double T, double P, double concm=0.) override {
+    virtual void update(double T, double P) override {
         DataType data;
         data.update(T, P);
-        update(data, concm);
+        update(data);
     }
 
-    virtual void update(const ThermoPhase& bulk, double concm=0.) override {
+    virtual void update(const ThermoPhase& bulk, const Kinetics& kin) override {
         DataType data;
-        data.update(bulk);
+        data.update(bulk, kin);
         update(data);
     }
 
     //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
-    //! @param concm  third-body concentration (if applicable)
-    virtual double eval(const DataType& shared_data, double concm=0.) const = 0;
+    virtual double eval(const DataType& shared_data) const = 0;
 
     virtual double eval(double T) const override {
         DataType data;
@@ -176,23 +174,23 @@ public:
         return eval(data);
     }
 
-    virtual double eval(double T, double P, double concm=0.) const override {
+    virtual double eval(double T, double P) const override {
         DataType data;
         data.update(T, P);
-        return eval(data, concm);
+        return eval(data);
     }
 
-    virtual double eval(const ThermoPhase& bulk, double concm=0.) const override {
+    virtual double eval(const ThermoPhase& bulk, const Kinetics& kin) const override {
         DataType data;
-        data.update(bulk);
-        return eval(data, concm);
+        data.update(bulk, kin);
+        return eval(data);
     }
 
     //! Evaluate derivative of reaction rate with respect to temperature
     //! @param shared_data  data shared by all reactions of a given type
-    virtual double ddT(const DataType& shared_data, double concm=0.) const {
-        throw CanteraError("ReactionRate::ddT",
-                           "Not implemented by derived ReactionRate object.");
+    virtual double ddT(const DataType& shared_data) const {
+        throw NotImplementedError("ReactionRate::ddT",
+                                  "Not implemented by '{}' object.", type());
     }
 
     virtual double ddT(double T) const override {
@@ -207,10 +205,10 @@ public:
         return ddT(data);
     }
 
-    virtual double ddT(const ThermoPhase& bulk, double concm=0.) const override {
+    virtual double ddT(const ThermoPhase& bulk, const Kinetics& kin) const override {
         DataType data;
-        data.update(bulk);
-        return ddT(data, concm);
+        data.update(bulk, kin);
+        return ddT(data);
     }
 };
 
@@ -265,13 +263,11 @@ public:
     //! Update information specific to reaction
     static bool usesUpdate() { return false; }
 
-    virtual double eval(const ArrheniusData& shared_data,
-                        double concm=0.) const override {
+    virtual double eval(const ArrheniusData& shared_data) const override {
         return updateRC(shared_data.m_logT, shared_data.m_recipT);
     }
 
-    virtual double ddT(const ArrheniusData& shared_data,
-                       double concm=0.) const override {
+    virtual double ddT(const ArrheniusData& shared_data) const override {
         return updateRC(shared_data.m_logT, shared_data.m_recipT) *
             (m_b + m_E * shared_data.m_recipT) * shared_data.m_recipT;
     }
@@ -336,12 +332,11 @@ public:
     //! Update information specific to reaction
     static bool usesUpdate() { return true; }
 
-    virtual void update(const PlogData& shared_data, double concm=0.) override {
+    virtual void update(const PlogData& shared_data) override {
         update_C(&shared_data.m_logP);
     }
 
-    virtual double eval(const PlogData& shared_data,
-                        double concm=0.) const override {
+    virtual double eval(const PlogData& shared_data) const override {
         return updateRC(shared_data.m_logT, shared_data.m_recipT);
     }
 
@@ -422,12 +417,11 @@ public:
     //! Update information specific to reaction
     static bool usesUpdate() { return true; }
 
-    virtual void update(const ChebyshevData& shared_data, double concm=0.) override {
+    virtual void update(const ChebyshevData& shared_data) override {
         update_C(&shared_data.m_log10P);
     }
 
-    virtual double eval(const ChebyshevData& shared_data,
-                        double concm=0.) const override {
+    virtual double eval(const ChebyshevData& shared_data) const override {
         return updateRC(0., shared_data.m_recipT);
     }
 
@@ -471,8 +465,7 @@ public:
      */
     void setRateFunction(shared_ptr<Func1> f);
 
-    virtual double eval(const CustomFunc1Data& shared_data,
-                        double concm=0.) const override;
+    virtual double eval(const CustomFunc1Data& shared_data) const override;
 
     virtual void validate(const std::string& equation) override {}
 

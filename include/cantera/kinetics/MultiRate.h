@@ -32,30 +32,26 @@ public:
     //! Add reaction rate object to the evaluator
     //! @param rxn_index  index of reaction
     //! @param rate  reaction rate object
-    virtual void add(const size_t rxn_index,
-                     ReactionRateBase& rate) = 0;
+    virtual void add(const size_t rxn_index, ReactionRateBase& rate) = 0;
 
     //! Replace reaction rate object handled by the evaluator
     //! @param rxn_index  index of reaction
     //! @param rate  reaction rate object
-    virtual bool replace(const size_t rxn_index,
-                         ReactionRateBase& rate) = 0;
+    virtual bool replace(const size_t rxn_index, ReactionRateBase& rate) = 0;
 
-    //! Update number of species
+    //! Update number of species and reactions
     //! @param n_species  number of species
-    virtual void resizeSpecies(size_t n_species) = 0;
+    //! @param n_reactions  number of reactions
+    virtual void resize(size_t n_species, size_t n_reactions) = 0;
 
     //! Evaluate all rate constants handled by the evaluator
-    //! @param bulk  object representing bulk phase
     //! @param kf  array of rate constants
-    virtual void getRateConstants(const ThermoPhase& bulk,
-                                  double* kf, double* concm) const = 0;
+    virtual void getRateConstants(double* kf) const = 0;
 
     //! Update data common to reaction rates of a specific type
     //! @param bulk  object representing bulk phase
-    //! @param concm  effective third-body concentrations
-    //! @TODO  enable more generic handling of non-trivial concentration dependencies
-    virtual void update(const ThermoPhase& bulk, double* concm) = 0;
+    //! @param kin  object representing kinetics
+    virtual void update(const ThermoPhase& bulk, const Kinetics& kin) = 0;
 };
 
 
@@ -64,16 +60,12 @@ template <class RateType, class DataType>
 class MultiBulkRate final : public MultiRateBase
 {
 public:
-    virtual void add(const size_t rxn_index,
-                     ReactionRateBase& rate) override
-    {
+    virtual void add(const size_t rxn_index, ReactionRateBase& rate) override {
         m_indices[rxn_index] = m_rxn_rates.size();
         m_rxn_rates.emplace_back(rxn_index, dynamic_cast<RateType&>(rate));
     }
 
-    virtual bool replace(const size_t rxn_index,
-                         ReactionRateBase& rate) override
-    {
+    virtual bool replace(const size_t rxn_index, ReactionRateBase& rate) override {
         if (!m_rxn_rates.size()) {
             throw CanteraError("MultiBulkRate::replace",
                  "Invalid operation: cannot replace rate object "
@@ -92,29 +84,25 @@ public:
         return false;
     }
 
-    virtual void resizeSpecies(size_t n_species) override
-    {
-        m_shared.resizeSpecies(n_species);
+    virtual void resize(size_t n_species, size_t n_reactions) override {
+        m_shared.resize(n_species, n_reactions);
     }
 
-    virtual void getRateConstants(const ThermoPhase& bulk,
-                                  double* kf, double* concm) const override
-    {
+    virtual void getRateConstants(double* kf) const override {
         for (const auto& rxn : m_rxn_rates) {
-            kf[rxn.first] = rxn.second.eval(m_shared, concm[rxn.first]);
+            kf[rxn.first] = rxn.second.eval(m_shared);
         }
     }
 
-    virtual void update(const ThermoPhase& bulk, double* concm) override
-    {
+    virtual void update(const ThermoPhase& bulk, const Kinetics& kin) override {
         // update common data once for each reaction type
-        m_shared.update(bulk);
+        m_shared.update(bulk, kin);
         if (RateType::usesUpdate()) {
             // update reaction-specific data for each reaction. This loop
             // is efficient as all function calls are de-virtualized, and
             // all of the rate objects are contiguous in memory
             for (auto& rxn : m_rxn_rates) {
-                rxn.second.update(m_shared, concm[rxn.first]);
+                rxn.second.update(m_shared);
             }
         }
     }

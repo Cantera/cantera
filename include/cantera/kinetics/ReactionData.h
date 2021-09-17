@@ -14,6 +14,7 @@ namespace Cantera
 {
 
 class ThermoPhase;
+class Kinetics;
 
 
 //! Data container holding shared data specific to ArrheniusRate
@@ -37,10 +38,10 @@ struct ArrheniusData
     void update(double T, double P) { update(T); }
 
     //! Update data container based on *bulk* phase state
-    void update(const ThermoPhase& bulk);
+    void update(const ThermoPhase& bulk, const Kinetics& kin);
 
-    //! Update number of species; unused
-    void resizeSpecies(size_t n_species) {}
+    //! Update number of species and reactions; unused
+    void resize(size_t n_species, size_t n_reactions) {}
 
     double m_temperature; //!< temperature
     double m_logT; //!< logarithm of temperature
@@ -70,10 +71,10 @@ struct PlogData
    }
 
     //! Update data container based on *bulk* phase state
-    void update(const ThermoPhase& bulk);
+    void update(const ThermoPhase& bulk, const Kinetics& kin);
 
-    //! Update number of species; unused
-    void resizeSpecies(size_t n_species) {}
+    //! Update number of species and reactions; unused
+    void resize(size_t n_species, size_t n_reactions) {}
 
     double m_temperature; //!< temperature
     double m_logT; //!< logarithm of temperature
@@ -103,10 +104,10 @@ struct ChebyshevData
     }
 
     //! Update data container based on *bulk* phase state
-    void update(const ThermoPhase& bulk);
+    void update(const ThermoPhase& bulk, const Kinetics& kin);
 
-    //! Update number of species; unused
-    void resizeSpecies(size_t n_species) {}
+    //! Update number of species and reactions; unused
+    void resize(size_t n_species, size_t n_reactions) {}
 
     double m_temperature; //!< temperature
     double m_recipT; //!< inverse of temperature
@@ -126,10 +127,10 @@ struct CustomFunc1Data
     void update(double T, double P) { update(T); }
 
     //! Update data container based on *bulk* phase state
-    void update(const ThermoPhase& bulk);
+    void update(const ThermoPhase& bulk, const Kinetics& kin);
 
-    //! Update number of species; unused
-    void resizeSpecies(size_t n_species) {}
+    //! Update number of species and reactions; unused
+    void resize(size_t n_species, size_t n_reactions) {}
 
     double m_temperature; //!< temperature
 };
