@@ -619,6 +619,8 @@ cdef extern from "cantera/transport/TransportBase.h" namespace "Cantera":
         double thermalConductivity() except +translate_exception
         double electricalConductivity() except +translate_exception
         void getSpeciesViscosities(double*) except +translate_exception
+        void getCollisionIntegralPolynomial(size_t i, size_t j, double* dataA, double* dataB, double* dataC) except +translate_exception
+        void setCollisionIntegralPolynomial(size_t i, size_t j, double* dataA, double* dataB, double* dataC, cbool flag) except +translate_exception
 
 
 cdef extern from "cantera/transport/DustyGasTransport.h" namespace "Cantera":
@@ -1138,20 +1140,20 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void tran_getMultiDiffCoeffs(CxxTransport*, size_t, double*) except +translate_exception
     cdef void tran_getBinaryDiffCoeffs(CxxTransport*, size_t, double*) except +translate_exception
 
-    cdef void tran_getViscosityPolynomials(CxxTransport*, size_t, double*) except +translate_exception
-    cdef void tran_getConductivityPolynomials(CxxTransport*, size_t, double*) except +translate_exception
-    cdef void tran_getBinDiffusivityPolynomials(CxxTransport*, size_t, size_t, double*) except +translate_exception
-    cdef void tran_getCollisionIntegralPolynomials(CxxTransport*, size_t, size_t, double*, double*, double*) except +translate_exception
+    cdef void tran_getViscosityPolynomial(CxxTransport*, size_t, double*) except +translate_exception
+    cdef void tran_getConductivityPolynomial(CxxTransport*, size_t, double*) except +translate_exception
+    cdef void tran_getBinDiffusivityPolynomial(CxxTransport*, size_t, size_t, double*) except +translate_exception
 
-    cdef void tran_setViscosityPolynomials(CxxTransport*, size_t, double*) except +translate_exception
-    cdef void tran_setConductivityPolynomials(CxxTransport*, size_t, double*) except +translate_exception
-    cdef void tran_setBinDiffusivityPolynomials(CxxTransport*, size_t, size_t, double*) except +translate_exception
-    cdef void tran_setCollisionIntegralPolynomials(CxxTransport*, size_t, size_t, double*, double*, double*, bool) except +translate_exception
+    cdef void tran_setViscosityPolynomial(CxxTransport*, size_t, double*) except +translate_exception
+    cdef void tran_setConductivityPolynomial(CxxTransport*, size_t, double*) except +translate_exception
+    cdef void tran_setBinDiffusivityPolynomial(CxxTransport*, size_t, size_t, double*) except +translate_exception
 
 # typedefs
 ctypedef void (*thermoMethod1d)(CxxThermoPhase*, double*) except +translate_exception
 ctypedef void (*transportMethod1d)(CxxTransport*, double*) except +translate_exception
 ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +translate_exception
+ctypedef void (*transportPolyMethod1i)(CxxTransport*, size_t, double*) except +translate_exception
+ctypedef void (*transportPolyMethod2i)(CxxTransport*, size_t, size_t, double*) except +translate_exception
 ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +translate_exception
 ctypedef CxxSparseMatrix (*kineticsMethodSparse)(CxxKinetics*) except +translate_exception
 
@@ -1415,6 +1417,8 @@ cdef np.ndarray get_dense(Kinetics kin, kineticsMethodSparse method)
 cdef tuple get_sparse(Kinetics kin, kineticsMethodSparse method)
 cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method)
 cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method)
+cdef np.ndarray get_transport_polynomial(Transport tran, transportPolyMethod1i method, int index, int n_coeffs)
+cdef np.ndarray get_binary_transport_polynomial(Transport tran, transportPolyMethod2i method, int indexi, int indexj, int n_coeffs)
 cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *
 cdef wrapSpeciesThermo(shared_ptr[CxxSpeciesThermo] spthermo)
 

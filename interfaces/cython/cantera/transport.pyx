@@ -17,6 +17,18 @@ cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method):
     cdef np.ndarray[np.double_t, ndim=2] data = np.empty((kk, kk))
     method(tran.transport, kk, &data[0,0])
     return data
+    
+cdef np.ndarray get_transport_polynomial(
+        Transport tran, transportPolyMethod1i method, int index, int n_coeffs):
+    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(n_coeffs)
+    method(tran.transport, index, &data[0])
+    return data
+    
+cdef np.ndarray get_binary_transport_polynomial(
+        Transport tran, transportPolyMethod2i method, int indexi, int indexj, int n_coeffs):
+    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(n_coeffs)
+    method(tran.transport, indexi, indexj, &data[0])
+    return data
 
 cdef class GasTransportData:
     """
@@ -260,64 +272,61 @@ cdef class Transport(_SolutionBase):
         def __get__(self):
             return get_transport_1d(self, tran_getMobilities)
 
-    def viscosity_polynomial(self, i):
+    def get_viscosity_polynomial(self, i):
         """Get the polynomial fit to the logarithm of temperature for 
         the viscosity of species i."""
-        cdef np.ndarray[np.double_t, ndim=1] data = np.empty(4 if self.transport.CKMode() else 5)
-        tran_getViscosityPolynomials(self.transport, i, &data[0])
-        return data
+        n_coeffs = 4 if self.transport.CKMode() else 5
+        return get_transport_polynomial(self, tran_getViscosityPolynomial, i, n_coeffs)
 
-    def thermal_conductivity_polynomial(self, i):
+    def get_thermal_conductivity_polynomial(self, i):
         """Get the polynomial fit to the logarithm of temperature for 
         the thermal conductivity of species i."""
-        cdef np.ndarray[np.double_t, ndim=1] data = np.empty(4 if self.transport.CKMode() else 5)
-        tran_getConductivityPolynomials(self.transport, i, &data[0])
-        return data
+        n_coeffs = 4 if self.transport.CKMode() else 5
+        return get_transport_polynomial(self, tran_getConductivityPolynomial, i, n_coeffs)
 
-    def binary_diff_coeffs_polynomial(self, i, j):
+    def get_binary_diff_coeffs_polynomial(self, i, j):
         """Get the polynomial fit to the logarithm of temperature for 
         the binary diffusion coefficient of species i and j."""
-        cdef np.ndarray[np.double_t, ndim=1] data = np.empty(4 if self.transport.CKMode() else 5)
-        tran_getBinDiffusivityPolynomials(self.transport, i, j, &data[0])
-        return data
+        n_coeffs = 4 if self.transport.CKMode() else 5
+        return get_binary_transport_polynomial(self, tran_getBinDiffusivityPolynomial, i, j, n_coeffs)
 
-    def collision_integral_polynomials(self, i, j):
+    def get_collision_integral_polynomials(self, i, j):
         """Get the polynomial fit to the logarithm of temperature for 
         the collision integral of species i and j."""
         cdef np.ndarray[np.double_t, ndim=1] adata = np.empty(7 if self.transport.CKMode() else 9)
         cdef np.ndarray[np.double_t, ndim=1] bdata = np.empty(7 if self.transport.CKMode() else 9)
         cdef np.ndarray[np.double_t, ndim=1] cdata = np.empty(7 if self.transport.CKMode() else 9)
-        tran_getCollisionIntegralPolynomials(self.transport, i, j, &adata[0], &bdata[0], &cdata[0])
+        self.transport.getCollisionIntegralPolynomial(i, j, &adata[0], &bdata[0], &cdata[0])
         return adata, bdata, cdata
 
-    def modify_viscosity_polynomial(self, i, values):
+    def set_viscosity_polynomial(self, i, values):
         """Set the polynomial fit to the logarithm of temperature for 
         the viscosity of species i."""
         if len(values) != (4 if self.transport.CKMode() else 5):
             msg = "Got {}. Expected {}".format(len(values), (4 if self.transport.CKMode() else 5))
             raise ValueError('Array has incorrect length. ' + msg + '.')
         cdef np.ndarray[np.double_t, ndim=1] data = np.ascontiguousarray(values, dtype=np.double)
-        tran_setViscosityPolynomials(self.transport, i, &data[0])
+        tran_setViscosityPolynomial(self.transport, i, &data[0])
 
-    def modify_thermal_conductivity_polynomial(self, i, values):
+    def set_thermal_conductivity_polynomial(self, i, values):
         """Set the polynomial fit to the logarithm of temperature for 
         the thermal conductivity of species i."""
         if len(values) != (4 if self.transport.CKMode() else 5):
             msg = "Got {}. Expected {}".format(len(values), (4 if self.transport.CKMode() else 5))
             raise ValueError('Array has incorrect length. ' + msg + '.')
         cdef np.ndarray[np.double_t, ndim=1] data = np.ascontiguousarray(values, dtype=np.double)
-        tran_setConductivityPolynomials(self.transport, i, &data[0])
+        tran_setConductivityPolynomial(self.transport, i, &data[0])
 
-    def modify_binary_diff_coeffs_polynomial(self, i, j, values):
+    def set_binary_diff_coeffs_polynomial(self, i, j, values):
         """Set the polynomial fit to the logarithm of temperature for 
         the binary diffusion coefficient of species i and j."""
         if len(values) != (4 if self.transport.CKMode() else 5):
             msg = "Got {}. Expected {}".format(len(values), (4 if self.transport.CKMode() else 5))
             raise ValueError('Array has incorrect length. ' + msg + '.')
         cdef np.ndarray[np.double_t, ndim=1] data = np.ascontiguousarray(values, dtype=np.double)
-        tran_setBinDiffusivityPolynomials(self.transport, i, j, &data[0])
+        tran_setBinDiffusivityPolynomial(self.transport, i, j, &data[0])
 
-    def modify_collision_integral_polynomials(self, i, j, avalues, bvalues, cvalues, actualT=True):
+    def set_collision_integral_polynomial(self, i, j, avalues, bvalues, cvalues, actualT=True):
         """Get the polynomial fit to the logarithm of temperature for 
         the collision integral of species i and j."""
         if len(avalues) != (7 if self.transport.CKMode() else 9):
@@ -332,7 +341,7 @@ cdef class Transport(_SolutionBase):
         cdef np.ndarray[np.double_t, ndim=1] adata = np.ascontiguousarray(avalues, dtype=np.double)
         cdef np.ndarray[np.double_t, ndim=1] bdata = np.ascontiguousarray(bvalues, dtype=np.double)
         cdef np.ndarray[np.double_t, ndim=1] cdata = np.ascontiguousarray(cvalues, dtype=np.double)
-        tran_setCollisionIntegralPolynomials(self.transport, i, j, &adata[0], &bdata[0], &cdata[0], actualT)
+        self.transport.setCollisionIntegralPolynomial(i, j, &adata[0], &bdata[0], &cdata[0], actualT)
 
 cdef class DustyGasTransport(Transport):
     """

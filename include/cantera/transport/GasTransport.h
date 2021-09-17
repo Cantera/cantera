@@ -117,36 +117,36 @@ public:
 
     //! Return the polynomial fits to the viscosity of species i
     //! @see fitProperties()
-    virtual void getViscosityPolynomials(size_t i, double* coeffs) const;
+    virtual void getViscosityPolynomial(size_t i, double* coeffs) const;
 
     //! Return the temperature fits of the heat conductivity of species i
     //! @see fitProperties()
-    virtual void getConductivityPolynomials(size_t i, double* coeffs) const;
+    virtual void getConductivityPolynomial(size_t i, double* coeffs) const;
 
     //! Return the polynomial fits to the binary diffusivity of species pair (i, j)
     //! @see fitDiffCoeffs()
-    virtual void getBinDiffusivityPolynomials(size_t i, size_t j, double* coeffs) const;
+    virtual void getBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs) const;
 
     //! Return the polynomial fits to the collision integral of species pair (i, j)
     //! @see fitCollisionIntegrals()
-    virtual void getCollisionIntegralPolynomials(size_t i, size_t j, double* astar_coeffs, 
+    virtual void getCollisionIntegralPolynomial(size_t i, size_t j, double* astar_coeffs, 
                                                 double* bstar_coeffs, double* cstar_coeffs) const;
 
     //! Modify the polynomial fits to the viscosity of species i
     //! @see fitProperties()
-    virtual void setViscosityPolynomials(size_t i, double* coeffs);
+    virtual void setViscosityPolynomial(size_t i, double* coeffs);
 
     //! Modify the temperature fits of the heat conductivity of species i
     //! @see fitProperties()
-    virtual void setConductivityPolynomials(size_t i, double* coeffs);
+    virtual void setConductivityPolynomial(size_t i, double* coeffs);
 
     //! Modify the polynomial fits to the binary diffusivity of species pair (i, j)
     //! @see fitDiffCoeffs()
-    virtual void setBinDiffusivityPolynomials(size_t i, size_t j, double* coeffs);
+    virtual void setBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs);
 
     //! Modify the polynomial fits to the collision integral of species pair (i, j)
     //! @see fitCollisionIntegrals()
-    virtual void setCollisionIntegralPolynomials(size_t i, size_t j, double* astar_coeffs, 
+    virtual void setCollisionIntegralPolynomial(size_t i, size_t j, double* astar_coeffs, 
                                                 double* bstar_coeffs, double* cstar_coeffs, bool actualT);
 
     virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);

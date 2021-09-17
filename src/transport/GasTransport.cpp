@@ -815,21 +815,21 @@ void GasTransport::getBinDiffCorrection(double t, MMCollisionInt& integrals,
           (q2*xk*xk + q1*xj*xj + q12*xk*xj);
 }
 
-void GasTransport::getViscosityPolynomials(size_t i, double* coeffs) const
+void GasTransport::getViscosityPolynomial(size_t i, double* coeffs) const
 {
     for (size_t k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         coeffs[k] = m_visccoeffs[i][k];
     }
 }
 
-void GasTransport::getConductivityPolynomials(size_t i, double* coeffs) const
+void GasTransport::getConductivityPolynomial(size_t i, double* coeffs) const
 {
     for (size_t k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         coeffs[k] = m_condcoeffs[i][k];
     }
 }
 
-void GasTransport::getBinDiffusivityPolynomials(size_t i, size_t j, double* coeffs) const
+void GasTransport::getBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs) const
 {
     size_t mi = (j >= i? i : j);
     size_t mj = (j >= i? j : i);
@@ -844,7 +844,7 @@ void GasTransport::getBinDiffusivityPolynomials(size_t i, size_t j, double* coef
     }
 }
 
-void GasTransport::getCollisionIntegralPolynomials(size_t i, size_t j, double* astar_coeffs, 
+void GasTransport::getCollisionIntegralPolynomial(size_t i, size_t j, double* astar_coeffs, 
                                                 double* bstar_coeffs, double* cstar_coeffs) const
 {   
     for (size_t k = 0; k < (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE)+1; k++) {
@@ -854,7 +854,7 @@ void GasTransport::getCollisionIntegralPolynomials(size_t i, size_t j, double* a
     }
 }
 
-void GasTransport::setViscosityPolynomials(size_t i, double* coeffs)
+void GasTransport::setViscosityPolynomial(size_t i, double* coeffs)
 {
     for (size_t k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         m_visccoeffs[i][k] = coeffs[k];
@@ -865,12 +865,9 @@ void GasTransport::setViscosityPolynomials(size_t i, double* coeffs)
     m_viscwt_ok = false;
     m_bindiff_ok = false;
     m_temp = -1;
-    
-    std::cout << "Modified viscosity polynomial for species " 
-        << m_thermo->speciesName(i) << std::endl;
 }
 
-void GasTransport::setConductivityPolynomials(size_t i, double* coeffs)
+void GasTransport::setConductivityPolynomial(size_t i, double* coeffs)
 {
     for (size_t k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         m_condcoeffs[i][k] = coeffs[k];
@@ -881,12 +878,9 @@ void GasTransport::setConductivityPolynomials(size_t i, double* coeffs)
     m_viscwt_ok = false;
     m_bindiff_ok = false;
     m_temp = -1;
-    
-    std::cout << "Modified thermal conductivity polynomial for species " 
-        << m_thermo->speciesName(i) << std::endl;
 }
 
-void GasTransport::setBinDiffusivityPolynomials(size_t i, size_t j, double* coeffs)
+void GasTransport::setBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs)
 {
     size_t mi = (j >= i? i : j);
     size_t mj = (j >= i? j : i);
@@ -905,12 +899,9 @@ void GasTransport::setBinDiffusivityPolynomials(size_t i, size_t j, double* coef
     m_viscwt_ok = false;
     m_bindiff_ok = false;
     m_temp = -1;
-    
-    std::cout << "Modified binary diffusion coefficient polynomial for species " 
-        << m_thermo->speciesName(i) << " and " << m_thermo->speciesName(j) << std::endl;
 }
 
-void GasTransport::setCollisionIntegralPolynomials(size_t i, size_t j, double* astar_coeffs, 
+void GasTransport::setCollisionIntegralPolynomial(size_t i, size_t j, double* astar_coeffs, 
                                                 double* bstar_coeffs, double* cstar_coeffs, bool actualT)
 {
     int degree = (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE);
@@ -937,9 +928,6 @@ void GasTransport::setCollisionIntegralPolynomials(size_t i, size_t j, double* a
     m_viscwt_ok = false;
     m_bindiff_ok = false;
     m_temp = -1;
-    
-    std::cout << "Modified collision polynomials for species " 
-        << m_thermo->speciesName(i) << " and " << m_thermo->speciesName(j) << std::endl;
 }
 
 }
