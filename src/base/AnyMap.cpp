@@ -1657,6 +1657,14 @@ bool AnyMap::addOrderingRules(const string& objectType,
     return true;
 }
 
+void AnyMap::clearCachedFile(const std::string& filename)
+{
+    std::string fullName = findInputFile(filename);
+    if (s_cache.count(fullName)) {
+        s_cache.erase(fullName);
+    }
+}
+
 AnyMap AnyMap::fromYamlString(const std::string& yaml) {
     AnyMap amap;
     try {

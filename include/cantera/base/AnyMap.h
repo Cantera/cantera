@@ -659,6 +659,9 @@ public:
     static bool addOrderingRules(const std::string& objectType,
                                  const std::vector<std::vector<std::string>>& specs);
 
+    //! Remove the specified file from the input cache if it is present
+    static void clearCachedFile(const std::string& filename);
+
 private:
     //! The stored data
     std::unordered_map<std::string, AnyValue> m_data;
