@@ -122,8 +122,8 @@ class ReactionRateTests:
 
     _cls = None # reaction rate object to be tested
     _type = None # name of reaction rate
-    _uses_pressure = False # rate evaluation requires pressure
     _index = None # index of reaction in "kineticsfromscratch.yaml"
+    _parts = {}
     _input = None # input parameters (dict corresponding to YAML)
     _yaml = None # yaml string specifying parameters
 
@@ -134,66 +134,88 @@ class ReactionRateTests:
         cls.gas.X = "H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5"
         cls.gas.TP = 900, 2*ct.one_atm
 
-    def test_type(self):
-        # check reaction type
-        self.assertIn(self._cls.__name__, "{}".format(self.rate))
+    def assertIsFinite(self, value):
+        if not np.isfinite(value):
+            self.fail(f"Value '{value}' is not finite")
 
-    def test_rate_T(self):
-        # check evaluation as a function of temperature only
-        if self._uses_pressure:
-            with self.assertRaisesRegex(ct.CanteraError, "reaction type requires pressure"):
-                self.assertNear(self.rate(self.gas.T),
-                                self.gas.forward_rate_constants[self._index])
+    def assertIsNaN(self, value):
+        if not np.isnan(value):
+            self.fail(f"Value '{value}' is a number")
+
+    def from_parts(self):
+        # create reaction rate object from parts
+        return self._cls(**self._parts)
+
+    def from_input(self, input=None):
+        # create reaction rate object from input_data
+        if input is None:
+            input = self._input
         else:
-            self.assertNear(self.rate(self.gas.T),
-                            self.gas.forward_rate_constants[self._index])
+            self.assertIsInstance(input, dict)
+        return self._cls(input_data=input)
 
-    def test_rate_TP(self):
-        # check evaluation as a function of temperature and pressure
-        self.assertNear(self.rate(self.gas.T, self.gas.P),
-                        self.gas.forward_rate_constants[self._index])
+    def from_yaml(self):
+        # create reaction rate object from yaml
+        return ct.ReactionRate.from_yaml(self._yaml)
 
-    def test_input(self):
-        # check instantiation based on input_data
-        rate = self._cls(input_data=self._input)
-        self.assertIn(self._cls.__name__, "{}".format(rate))
-        self.assertNear(rate(self.gas.T, self.gas.P),
-                        self.rate(self.gas.T, self.gas.P))
+    def from_dict(self, input=None):
+        # create reaction rate object from dictionary
+        if input is None:
+            input = self.from_parts().input_data
+        else:
+            self.assertIsInstance(input, dict)
+        return ct.ReactionRate.from_dict(input)
+
+    def eval(self, rate):
+        # evaluate rate expression
+        return rate(self.gas.T)
+
+    def check_rate(self, rate):
+        # check rates
+        self.assertEqual(self._type, rate._cpp_type)
+        self.assertIn(self._cls.__name__, f"{rate}")
+        value = self.eval(rate)
+        self.assertIsFinite(value)
+        self.assertNear(value, self.gas.forward_rate_constants[self._index])
+
+    def test_from_parts(self):
+        # check constructors (from argument list)
+        self.check_rate(self.from_parts())
+
+    def test_from_yaml(self):
+        # check constructors (from yaml input)
+        self.check_rate(self.from_yaml())
+
+    def test_from_dict(self):
+        # check constructors (from dictionary)
+        self.check_rate(self.from_dict())
+
+    def test_from_input(self):
+        # check constructors (from 'input_data' argument)
+        self.check_rate(self.from_input())
 
     def test_unconfigured(self):
         # check behavior of unconfigured rate object
-        rate = self._cls(input_data={})
-        self.assertTrue(np.isnan(rate(self.gas.T, self.gas.P)))
-        input_data = rate.input_data
-        self.assertIsInstance(input_data, dict)
-        if input_data:
-            self.assertEqual(input_data, {"type": self._type})
+        rate0 = self.from_input({})
+        self.assertIsNaN(rate0(self.gas.T, self.gas.P))
+        input_data = rate0.input_data
+        rate1 = self.from_dict(input_data)
+        self.assertEqual(rate1._cpp_type, self._type)
+        self.assertIsNaN(rate1(self.gas.T, self.gas.P))
 
     def test_roundtrip(self):
         # check round-trip instantiation via input_data
-        input_data = self.rate.input_data
-        rate = self._cls(input_data=input_data)
-        self.assertNear(rate(self.gas.T, self.gas.P),
-                        self.rate(self.gas.T, self.gas.P))
-
-    def test_from_dict(self):
-        # check instantiation from dictionary
-        input_data = self.rate.input_data
-        rate = ct.ReactionRate.from_dict(input_data)
-        self.assertNear(rate(self.gas.T, self.gas.P),
-                        self.rate(self.gas.T, self.gas.P))
-
-    def test_from_yaml(self):
-        # check instantiation from yaml string
-        rate = ct.ReactionRate.from_yaml(self._yaml)
-        self.assertNear(rate(self.gas.T, self.gas.P),
-                        self.rate(self.gas.T, self.gas.P))
+        rate0 = self.from_parts()
+        input_data = rate0.input_data
+        rate1 = self.from_dict(input_data)
+        self.assertNear(rate0(self.gas.T, self.gas.P),
+                        rate1(self.gas.T, self.gas.P))
 
     def test_with_units(self):
         units = "units: {length: cm, quantity: mol}"
         yaml = f"{textwrap.dedent(self._yaml)}\n{units}"
         with self.assertRaisesRegex(Exception, "not supported"):
-            rate = ct.ReactionRate.from_yaml(yaml)
+            ct.ReactionRate.from_yaml(yaml)
 
 
 class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
@@ -201,33 +223,32 @@ class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
 
     _cls = ct.ArrheniusRate
     _type = "Arrhenius"
-    _uses_pressure = False
     _index = 0
     _input = {"rate-constant": {"A": 38.7, "b": 2.7, "Ea": 26191840.0}}
     _yaml = "rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}"
 
-    def setUp(self):
-        self.A = self.gas.reaction(self._index).rate.pre_exponential_factor
-        self.b = self.gas.reaction(self._index).rate.temperature_exponent
-        self.Ea = self.gas.reaction(self._index).rate.activation_energy
-        self.rate = ct.ArrheniusRate(self.A, self.b, self.Ea)
+    @classmethod
+    def setUpClass(cls):
+        ReactionRateTests.setUpClass()
+        cls._parts = cls._input["rate-constant"]
 
-    def test_parameters(self):
-        # test reaction rate parameters
-        self.assertEqual(self.A, self.rate.pre_exponential_factor)
-        self.assertEqual(self.b, self.rate.temperature_exponent)
-        self.assertEqual(self.Ea, self.rate.activation_energy)
+    def test_from_parts(self):
+        rate = self.from_parts()
+        self.assertEqual(self._parts["A"], rate.pre_exponential_factor)
+        self.assertEqual(self._parts["b"], rate.temperature_exponent)
+        self.assertEqual(self._parts["Ea"], rate.activation_energy)
 
-    def test_allow_negative_pre_exponential_factor(self):
+    def test_negative_A(self):
         # test reaction rate property
-        self.assertFalse(self.rate.allow_negative_pre_exponential_factor)
-        self.rate.allow_negative_pre_exponential_factor = True
-        self.assertTrue(self.rate.allow_negative_pre_exponential_factor)
+        rate = self.from_parts()
+        self.assertFalse(rate.allow_negative_pre_exponential_factor)
+        rate.allow_negative_pre_exponential_factor = True
+        self.assertTrue(rate.allow_negative_pre_exponential_factor)
 
     def test_standalone(self):
         yaml = "rate-constant: {A: 4.0e+21 cm^6/mol^2/s, b: 0.0, Ea: 1207.72688}"
         with self.assertRaisesRegex(Exception, "not supported"):
-            rate = ct.ReactionRate.from_yaml(yaml)
+            ct.ReactionRate.from_yaml(yaml)
 
 
 class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
@@ -235,7 +256,6 @@ class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
 
     _cls = ct.PlogRate
     _type = "pressure-dependent-Arrhenius"
-    _uses_pressure = True
     _index = 3
     _input = {"rate-constants": [
         {"P": 1013.25, "A": 1.2124e+16, "b": -0.5779, "Ea": 45491376.8},
@@ -251,15 +271,27 @@ class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
         - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
         """
 
-    def setUp(self):
-        self.rate = ct.PlogRate([(1013.25, ct.Arrhenius(1.2124e+16, -0.5779, 45491376.8)),
-                                (101325., ct.Arrhenius(4.9108e+31, -4.8507, 103649395.2)),
-                                (1013250., ct.Arrhenius(1.2866e+47, -9.0246, 166508556.0)),
-                                (10132500., ct.Arrhenius(5.9632e+56, -11.529, 220076726.4))])
+    @classmethod
+    def setUpClass(cls):
+        ReactionRateTests.setUpClass()
+        cls._parts = {
+            "rates": [(rc["P"], ct.Arrhenius(rc["A"], rc["b"], rc["Ea"]))
+                      for rc in cls._input["rate-constants"]],
+            }
+
+    def eval(self, rate):
+        # check evaluation as a function of temperature only
+        return rate(self.gas.T, self.gas.P)
+
+    def test_raises(self):
+        rate = self.from_parts()
+        with self.assertRaisesRegex(ct.CanteraError, "reaction type requires pressure"):
+            rate(self.gas.T)
 
     def test_get_rates(self):
         # test getter for property rates
-        rates = self.rate.rates
+        rate = self.from_parts()
+        rates = rate.rates
         self.assertIsInstance(rates, list)
 
         other = self._input["rate-constants"]
@@ -304,7 +336,7 @@ class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
             - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
             """
         with self.assertRaisesRegex(Exception, "not supported"):
-            rate = ct.ReactionRate.from_yaml(yaml)
+            ct.ReactionRate.from_yaml(yaml)
 
 
 class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
@@ -312,7 +344,6 @@ class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
 
     _cls = ct.ChebyshevRate
     _type = "Chebyshev"
-    _uses_pressure = True
     _index = 4
     _input = {"data": [[8.2883, -1.1397, -0.12059, 0.016034],
                        [1.9764, 1.0037, 0.0072865, -0.030432],
@@ -329,34 +360,47 @@ class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
         - [0.3177, 0.26889, 0.094806, -7.6385e-03]
         """
 
-    def setUp(self):
-        self.Trange = self.gas.reaction(self._index).rate.temperature_range
-        self.Prange = self.gas.reaction(self._index).rate.pressure_range
-        self.data = self.gas.reaction(self._index).rate.data
-        self.rate = ct.ChebyshevRate(self.Trange, self.Prange, self.data)
+    @classmethod
+    def setUpClass(cls):
+        ReactionRateTests.setUpClass()
+        cls._parts = {
+            "pressure_range": cls._input["pressure-range"],
+            "temperature_range": cls._input["temperature-range"],
+            "data": cls._input["data"],
+        }
 
-    def test_parameters(self):
-        # test getters for rate properties
-        self.assertEqual(self.Trange[0], self.rate.temperature_range[0])
-        self.assertEqual(self.Trange[1], self.rate.temperature_range[1])
-        self.assertEqual(self.Prange[0], self.rate.pressure_range[0])
-        self.assertEqual(self.Prange[1], self.rate.pressure_range[1])
-        self.assertTrue(np.all(self.data == self.rate.data))
+    def eval(self, rate):
+        # check evaluation as a function of temperature only
+        return rate(self.gas.T, self.gas.P)
+
+    def test_raises(self):
+        rate = self.from_parts()
+        with self.assertRaisesRegex(ct.CanteraError, "reaction type requires pressure"):
+            rate(self.gas.T)
+
+    def test_from_parts(self):
+        rate = self.from_parts()
+        temperature_range = self._parts["temperature_range"]
+        self.assertEqual(temperature_range[0], rate.temperature_range[0])
+        self.assertEqual(temperature_range[1], rate.temperature_range[1])
+        pressure_range = self._parts["pressure_range"]
+        self.assertEqual(pressure_range[0], rate.pressure_range[0])
+        self.assertEqual(pressure_range[1], rate.pressure_range[1])
+        self.assertTrue(np.all(self._parts["data"] == rate.data))
 
 
 class ReactionTests:
     # test suite for reaction expressions
 
     _cls = None # reaction object to be tested
-    _type = None # name of reaction rate
-    _legacy = False # object uses legacy framework
     _equation = None # reaction equation string
     _rate = None # parameters for reaction rate object constructor
     _rate_obj = None # reaction rate object
     _kwargs = {} # additional parameters required by constructor
     _index = None # index of reaction in "kineticsfromscratch.yaml"
+    _type = None # name of reaction rate
+    _legacy = False # object uses legacy framework
     _yaml = None # YAML parameterization
-    _input = None # input parameters (dict corresponding to YAML)
     _deprecated_getters = {} # test legacy getters (old framework)
     _deprecated_setters = {} # test legacy setters (old framework)
     _deprecated_callers = {} # test legacy callers (old framework)
@@ -365,9 +409,42 @@ class ReactionTests:
     def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
         cls.gas = ct.Solution("kineticsfromscratch.yaml", transport_model=None)
-        cls.gas.X = "H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5"
-        cls.gas.TP = 900, 2*ct.one_atm
         cls.species = cls.gas.species()
+
+    def setUp(self):
+        self.gas.X = "H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5"
+        self.gas.TP = 900, 2*ct.one_atm
+
+    def from_yaml(self, deprecated=False):
+        # create reaction object from yaml
+        if deprecated:
+            with self.assertWarnsRegex(DeprecationWarning, "is renamed to 'from_yaml'"):
+                return ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
+        return ct.Reaction.from_yaml(self._yaml, kinetics=self.gas)
+
+    def from_dict(self):
+        # create reaction rate object from input data
+        input_data = self.from_yaml().input_data
+        return ct.Reaction.from_dict(input_data, kinetics=self.gas)
+
+    def from_rate(self, rate):
+        # create reaction object from keywords / rate
+        return self._cls(equation=self._equation, rate=rate, kinetics=self.gas,
+                         legacy=self._legacy, **self._kwargs)
+
+    def from_parts(self):
+        # create reaction rate object from parts
+        orig = self.gas.reaction(self._index)
+        rxn = self._cls(orig.reactants, orig.products, legacy=self._legacy)
+        rxn.rate = self._rate_obj
+        return rxn
+
+    def check_rate(self, rate_obj):
+        if self._legacy:
+            rate = rate_obj(self.gas.T)
+        else:
+            rate = rate_obj(self.gas.T, self.gas.P)
+        self.assertNear(rate, self.gas.forward_rate_constants[self._index])
 
     def check_rxn(self, rxn, check_legacy=True):
         # helper function that checks reaction configuration
@@ -379,6 +456,9 @@ class ReactionTests:
             self.assertEqual(rxn.uses_legacy, self._type.endswith("-legacy"))
             self.assertEqual(rxn.uses_legacy, self._legacy)
 
+        if not self._legacy:
+            # legacy rate evaluation is not consistent
+            self.check_rate(rxn.rate)
         gas2 = ct.Solution(thermo="IdealGas", kinetics="GasKinetics",
                            species=self.species, reactions=[rxn])
         gas2.TPX = self.gas.TPX
@@ -396,61 +476,30 @@ class ReactionTests:
 
     def test_rate(self):
         # check consistency of reaction rate and forward rate constant
-        if self._rate_obj is None:
-            return
-        if self._legacy:
-            self.assertNear(self._rate_obj(self.gas.T), self.gas.forward_rate_constants[self._index])
-        else:
-            self.assertNear(self._rate_obj(self.gas.T, self.gas.P),
-                            self.gas.forward_rate_constants[self._index])
+        if self._rate_obj is not None:
+            self.check_rate(self._rate_obj)
 
-    def test_from_parts(self):
-        # check instantiation from parts (reactants, products, rate expression)
-        if not self._rate_obj:
-            return
-        orig = self.gas.reaction(self._index)
-        rxn = self._cls(orig.reactants, orig.products, legacy=self._legacy)
-        rxn.rate = self._rate_obj
-        self.check_rxn(rxn)
+    def test_constructors(self):
+        # test constructors
 
-    def test_from_dict1(self):
         # check instantiation from keywords / rate defined by dictionary
-        rxn = self._cls(equation=self._equation, rate=self._rate, kinetics=self.gas,
-                        legacy=self._legacy, **self._kwargs)
-        self.check_rxn(rxn)
+        self.check_rxn(self.from_rate(self._rate))
 
-    def test_from_yaml(self):
-        # check instantiation from yaml string
-        if self._yaml is None:
-            return
-        rxn = ct.Reaction.from_yaml(self._yaml, kinetics=self.gas)
-        self.check_rxn(rxn)
+        if self._rate_obj is not None:
+            # check instantiation from keywords / rate provided as object
+            self.check_rxn(self.from_rate(self._rate_obj))
 
-    def test_deprecated_yaml(self):
-        # check instantiation from yaml string
-        if self._yaml is None:
-            return
-        with self.assertWarnsRegex(DeprecationWarning, "is renamed to 'from_yaml'"):
-            rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
-        self.check_rxn(rxn)
+            # check instantiation from parts (reactants, products, rate expression)
+            self.check_rxn(self.from_parts())
 
-    def test_from_dict2(self):
-        # check instantiation from a yaml dictionary
-        if self._yaml is None:
-            return
-        rxn1 = ct.Reaction.from_yaml(self._yaml, kinetics=self.gas)
-        input_data = rxn1.input_data
-        rxn2 = ct.Reaction.from_dict(input_data, kinetics=self.gas)
-        # cannot compare types as input_data does not recreate legacy objects
-        self.check_rxn(rxn2, check_legacy=False)
+        if self._yaml is not None:
+            # check instantiation from yaml string
+            self.check_rxn(self.from_yaml())
+            self.check_rxn(self.from_yaml(deprecated=True))
 
-    def test_from_rate(self):
-        # check instantiation from keywords / rate provided as object
-        if self._rate_obj is None:
-            return
-        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas,
-                        legacy=self._legacy, **self._kwargs)
-        self.check_rxn(rxn)
+            # check instantiation from a yaml dictionary (input_data)
+            # cannot compare types as input_data does not recreate legacy objects
+            self.check_rxn(self.from_dict(), check_legacy=False)
 
     def test_add_rxn(self):
         # check adding new reaction to solution
@@ -459,42 +508,42 @@ class ReactionTests:
         gas2 = ct.Solution(thermo="IdealGas", kinetics="GasKinetics",
                            species=self.species, reactions=[])
         gas2.TPX = self.gas.TPX
-
-        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas,
-                        legacy=self._legacy, **self._kwargs)
+        rxn = self.from_rate(self._rate_obj)
         gas2.add_reaction(rxn)
         self.check_solution(gas2)
 
     def test_raises_invalid_rate(self):
         # check exception for instantiation from keywords / invalid rate
         with self.assertRaises(TypeError):
-            rxn = self._cls(equation=self._equation, rate=(), kinetics=self.gas,
-                            legacy=self._legacy, **self._kwargs)
+            self.from_rate(tuple())
+        with self.assertRaises(TypeError):
+            self.from_rate("spam")
+        with self.assertRaises(TypeError):
+            self.from_rate(False)
+        with self.assertRaises(TypeError):
+            self.from_rate(1.)
 
     def test_no_rate(self):
         # check behavior for instantiation from keywords / no rate
         if self._rate_obj is None:
             return
-        rxn = self._cls(equation=self._equation, kinetics=self.gas,
-                        legacy=self._legacy, **self._kwargs)
+        rxn = self.from_rate(None)
+        if self._legacy:
+            self.assertNear(rxn.rate(self.gas.T), 0.)
+        else:
+            self.assertTrue(np.isnan(rxn.rate(self.gas.T, self.gas.P)))
+
         gas2 = ct.Solution(thermo="IdealGas", kinetics="GasKinetics",
                            species=self.species, reactions=[rxn])
         gas2.TPX = self.gas.TPX
-
-        if self._legacy:
-            self.assertNear(rxn.rate(self.gas.T), 0.)
-            self.assertNear(gas2.forward_rate_constants[0], 0.)
-            self.assertNear(gas2.net_rates_of_progress[0], 0.)
-        else:
-            self.assertTrue(np.isnan(rxn.rate(self.gas.T, self.gas.P)))
-            self.assertTrue(np.isnan(gas2.forward_rate_constants[0]))
+        self.assertNear(gas2.forward_rate_constants[0], 0.)
+        self.assertNear(gas2.net_rates_of_progress[0], 0.)
 
     def test_replace_rate(self):
         # check replacing reaction rate expression
         if self._rate_obj is None:
             return
-        rxn = self._cls(equation=self._equation, kinetics=self.gas,
-                        legacy=self._legacy, **self._kwargs)
+        rxn = self.from_rate(None)
         rxn.rate = self._rate_obj
         self.check_rxn(rxn)
 
@@ -502,12 +551,10 @@ class ReactionTests:
         # check round-trip instantiation via input_data
         if self._legacy:
             return
-        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas,
-                        legacy=self._legacy, **self._kwargs)
-        input_data = rxn.rate.input_data
-        rate_obj = rxn.rate.__class__(input_data=input_data)
-        rxn2 = self._cls(equation=self._equation, rate=rate_obj, kinetics=self.gas,
-                         legacy=self._legacy, **self._kwargs)
+        rxn = self.from_rate(self._rate_obj)
+        rate_input_data = rxn.rate.input_data
+        rate_obj = rxn.rate.__class__(input_data=rate_input_data)
+        rxn2 = self.from_rate(rate_obj)
         self.check_rxn(rxn2)
 
     def check_equal(self, one, two):
@@ -523,9 +570,7 @@ class ReactionTests:
         if self._yaml is None:
             return
 
-        ct.suppress_deprecation_warnings() # disable fatal deprecation warnings
-
-        rxn = ct.Reaction.from_yaml(self._yaml, kinetics=self.gas)
+        rxn = self.from_yaml()
         for attr, default in self._deprecated_getters.items():
             if self._legacy:
                 self.check_equal(getattr(rxn, attr), default)
@@ -537,14 +582,12 @@ class ReactionTests:
                         print(f"Exception raised when testing getter for '{attr}'")
                         raise err
 
-        ct.make_deprecation_warnings_fatal() # re-enable fatal deprecation warnings
-
     def test_deprecated_setters(self):
         # check property setters deprecated in new framework
         if self._yaml is None:
             return
 
-        rxn = ct.Reaction.from_yaml(self._yaml, kinetics=self.gas)
+        rxn = self.from_yaml()
         for attr, new in self._deprecated_setters.items():
             if self._legacy:
                 setattr(rxn, attr, new)
@@ -560,7 +603,7 @@ class ReactionTests:
         if self._yaml is None:
             return
 
-        rxn = ct.Reaction.from_yaml(self._yaml, kinetics=self.gas)
+        rxn = self.from_yaml()
         for state, value in self._deprecated_callers.items():
             T, P = state
             if self._legacy:
@@ -570,16 +613,18 @@ class ReactionTests:
                     self.check_equal(rxn(T, P), value)
 
 
-class TestElementary(ReactionTests, utilities.CanteraTest):
-    # test updated version of elementary reaction
+class TestElementary2(ReactionTests, utilities.CanteraTest):
+    # test legacy version of elementary reaction
 
     _cls = ct.ElementaryReaction
-    _type = "elementary"
     _equation = "H2 + O <=> H + OH"
     _rate = {"A": 38.7, "b": 2.7, "Ea": 2.619184e+07}
     _index = 0
+    _type = "elementary-legacy"
+    _legacy = True
     _yaml = """
         equation: O + H2 <=> H + OH
+        type: elementary-legacy
         rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
         """
     _deprecated_getters = {"allow_negative_pre_exponential_factor": False}
@@ -597,8 +642,7 @@ class TestElementary(ReactionTests, utilities.CanteraTest):
     def test_arrhenius(self):
         # test assigning Arrhenius rate
         rate = ct.Arrhenius(self._rate["A"], self._rate["b"], self._rate["Ea"])
-        rxn = self._cls(equation=self._equation, kinetics=self.gas,
-                        legacy=self._legacy, **self._kwargs)
+        rxn = self.from_rate(None)
         if self._legacy:
             rxn.rate = rate
         else:
@@ -607,42 +651,38 @@ class TestElementary(ReactionTests, utilities.CanteraTest):
         self.check_rxn(rxn)
 
 
-class TestElementary2(TestElementary):
-    # test legacy version of elementary reaction
+class TestElementary(TestElementary2):
+    # test updated version of elementary reaction
 
-    _cls = ct.ElementaryReaction
-    _type = "elementary-legacy"
-    _legacy = True
+    _type = "elementary"
+    _legacy = False
     _yaml = """
         equation: O + H2 <=> H + OH
-        type: elementary-legacy
         rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
         """
 
 
-class TestThreeBody(TestElementary):
-    # test updated version of three-body reaction
+class TestThreeBody2(TestElementary2):
+    # test legacy version of three-body reaction
 
     _cls = ct.ThreeBodyReaction
-    _type = "three-body"
     _equation = "2 O + M <=> O2 + M"
     _rate = {"A": 1.2e11, "b": -1.0, "Ea": 0.0}
     _kwargs = {"efficiencies": {"H2": 2.4, "H2O": 15.4, "AR": 0.83}}
     _index = 1
+    _type = "three-body-legacy"
+    _legacy = True
     _yaml = """
         equation: 2 O + M <=> O2 + M
-        type: three-body
+        type: three-body-legacy
         rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0 cal/mol}
         efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
         """
 
-    def test_from_parts(self):
-        # overload default reaction creation from parts
-        orig = self.gas.reaction(self._index)
-        rxn = self._cls(orig.reactants, orig.products, legacy=self._legacy)
-        rxn.rate = self._rate_obj
+    def from_parts(self):
+        rxn = ReactionTests.from_parts(self)
         rxn.efficiencies = self._kwargs["efficiencies"]
-        self.check_rxn(rxn)
+        return rxn
 
     def test_rate(self):
         # rate constant contains third-body concentration
@@ -656,15 +696,14 @@ class TestThreeBody(TestElementary):
         self.assertEqual(rxn.efficiencies, self._kwargs["efficiencies"])
 
 
-class TestThreeBody2(TestThreeBody):
-    # test legacy version of three-body reaction
+class TestThreeBody(TestThreeBody2):
+    # test updated version of three-body reaction
 
-    _cls = ct.ThreeBodyReaction
-    _type = "three-body-legacy"
-    _legacy = True
+    _legacy = False
+    _type = "three-body"
     _yaml = """
         equation: 2 O + M <=> O2 + M
-        type: three-body-legacy
+        type: three-body
         rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0 cal/mol}
         efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
         """
@@ -673,8 +712,6 @@ class TestThreeBody2(TestThreeBody):
 class TestImplicitThreeBody(TestThreeBody):
     # test three-body reactions with explicit collision parther
 
-    _cls = ct.ThreeBodyReaction
-    _type = "three-body"
     _equation = "H + 2 O2 <=> HO2 + O2"
     _rate = {"A": 2.08e+19, "b": -1.24, "Ea": 0.0}
     _index = 5
@@ -683,38 +720,34 @@ class TestImplicitThreeBody(TestThreeBody):
         rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
         """
 
+    def from_parts(self):
+        rxn = ReactionTests.from_parts(self)
+        rxn.efficiencies = {"O2": 1.}
+        rxn.default_efficiency = 0
+        return rxn
+
     def test_efficiencies(self):
         # overload of default tester
-        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.gas,
-                        legacy=self._legacy)
+        rxn = self.from_rate(self._rate_obj)
         self.assertEqual(rxn.efficiencies, {"O2": 1.})
         self.assertEqual(rxn.default_efficiency, 0.)
 
-    def test_from_parts(self):
-        # overload of default tester
-        orig = self.gas.reaction(self._index)
-        rxn = self._cls(orig.reactants, orig.products)
-        rxn.rate = self._rate_obj
-        rxn.efficiencies = {"O2": 1.}
-        rxn.default_efficiency = 0
-        self.check_rxn(rxn)
 
-
-class TestPlog(ReactionTests, utilities.CanteraTest):
-    # test updated version of Plog reaction
+class TestPlog2(ReactionTests, utilities.CanteraTest):
+    # test legacy version of Plog reaction
 
     _cls = ct.PlogReaction
-    _type = "pressure-dependent-Arrhenius"
-    _legacy = False
     _equation = "H2 + O2 <=> 2 OH"
     _rate = [(1013.25, ct.Arrhenius(1.2124e+16, -0.5779, 45491376.8)),
              (101325., ct.Arrhenius(4.9108e+31, -4.8507, 103649395.2)),
              (1013250., ct.Arrhenius(1.2866e+47, -9.0246, 166508556.0)),
              (10132500., ct.Arrhenius(5.9632e+56, -11.529, 220076726.4))]
     _index = 3
+    _type = "pressure-dependent-Arrhenius-legacy"
+    _legacy = True
     _yaml = """
         equation: H2 + O2 <=> 2 OH
-        type: pressure-dependent-Arrhenius
+        type: pressure-dependent-Arrhenius-legacy
         rate-constants:
         - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04 cal/mol}
         - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04 cal/mol}
@@ -741,7 +774,7 @@ class TestPlog(ReactionTests, utilities.CanteraTest):
 
     def test_deprecated_getters(self):
         # overload default tester for deprecated property getters
-        rxn = ct.Reaction.from_yaml(self._yaml, kinetics=self.gas)
+        rxn = self.from_yaml()
         if self._legacy:
             self.check_rates(rxn.rates, self._rate)
         else:
@@ -753,7 +786,7 @@ class TestPlog(ReactionTests, utilities.CanteraTest):
         rate = ct.PlogRate(self._rate)
         rates = rate.rates
 
-        rxn = ct.Reaction.from_yaml(self._yaml, kinetics=self.gas)
+        rxn = self.from_yaml()
         if self._legacy:
             rxn.rates = rates
             self.check_rates(rxn.rates, self._rate)
@@ -764,16 +797,14 @@ class TestPlog(ReactionTests, utilities.CanteraTest):
                 self.check_rates(rxn.rates, self._rate)
 
 
-class TestPlog2(TestPlog):
-    # test legacy version of Plog reaction
+class TestPlog(TestPlog2):
+    # test updated version of Plog reaction
 
-    _cls = ct.PlogReaction
-    _type = "pressure-dependent-Arrhenius-legacy"
-    _legacy = True
-    _rate_obj = None
+    _type = "pressure-dependent-Arrhenius"
+    _legacy = False
     _yaml = """
         equation: H2 + O2 <=> 2 OH
-        type: pressure-dependent-Arrhenius-legacy
+        type: pressure-dependent-Arrhenius
         rate-constants:
         - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04 cal/mol}
         - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04 cal/mol}
@@ -782,20 +813,21 @@ class TestPlog2(TestPlog):
         """
 
 
-class TestChebyshev(ReactionTests, utilities.CanteraTest):
-    # test updated version of Chebyshev reaction
+class TestChebyshev2(ReactionTests, utilities.CanteraTest):
+    # test legacy version of Chebyshev reaction
 
     _cls = ct.ChebyshevReaction
-    _type = "Chebyshev"
     _equation = "HO2 <=> OH + O"
     _rate = {"temperature_range": (290., 3000.), "pressure_range": (1000., 10000000.0),
              "data": [[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
                       [ 1.9764e+00,  1.0037e+00,  7.2865e-03, -3.0432e-02],
                       [ 3.1770e-01,  2.6889e-01,  9.4806e-02, -7.6385e-03]]}
     _index = 4
+    _type = "Chebyshev-legacy"
+    _legacy = True
     _yaml = """
         equation: HO2 <=> OH + O
-        type: Chebyshev
+        type: Chebyshev-legacy
         temperature-range: [290.0, 3000.0]
         pressure-range: [9.869232667160128e-03 atm, 98.69232667160128 atm]
         data:
@@ -817,16 +849,14 @@ class TestChebyshev(ReactionTests, utilities.CanteraTest):
                 if k not in ["data", "temperature_range", "pressure_range"]})
 
 
-class TestChebyshev2(TestChebyshev):
-    # test legacy version of Chebyshev reaction
+class TestChebyshev(TestChebyshev2):
+    # test updated version of Chebyshev reaction
 
-    _cls = ct.ChebyshevReaction
-    _type = "Chebyshev-legacy"
-    _legacy = True
-    _rate_obj = None
+    _type = "Chebyshev"
+    _legacy = False
     _yaml = """
         equation: HO2 <=> OH + O
-        type: Chebyshev-legacy
+        type: Chebyshev
         temperature-range: [290.0, 3000.0]
         pressure-range: [9.869232667160128e-03 atm, 98.69232667160128 atm]
         data:
@@ -841,25 +871,33 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
 
     # probe O + H2 <=> H + OH
     _cls = ct.CustomReaction
-    _type = "custom-rate-function"
-    _legacy = False
     _equation = "H2 + O <=> H + OH"
     _rate_obj = ct.CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
     _index = 0
+    _type = "custom-rate-function"
+    _legacy = False
     _yaml = None
 
     def setUp(self):
         # need to overwrite rate to ensure correct type ("method" is not compatible with Func1)
+        super().setUp()
         self._rate = lambda T: 38.7 * T**2.7 * exp(-3150.15428/T)
 
     def test_roundtrip(self):
         # overload default tester for round trip
         pass
 
+    def test_raises_invalid_rate(self):
+        # check exception for instantiation from keywords / invalid rate
+        with self.assertRaises(TypeError):
+            self.from_rate(tuple())
+        with self.assertRaises(TypeError):
+            self.from_rate("spam")
+
     def test_from_func1(self):
         # check instantiation from keywords / rate provided as func1
         f = ct.Func1(self._rate)
-        rxn = ct.CustomReaction(equation=self._equation, rate=f, kinetics=self.gas)
+        rxn = self.from_rate(f)
         self.check_rxn(rxn)
 
     def test_rate_func(self):
@@ -870,7 +908,5 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
 
     def test_custom_lambda(self):
         # check instantiation from keywords / rate provided as lambda function
-        rxn = ct.CustomReaction(equation=self._equation,
-                                rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T),
-                                kinetics=self.gas)
+        rxn = self.from_rate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
         self.check_rxn(rxn)
