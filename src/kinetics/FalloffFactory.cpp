@@ -16,7 +16,7 @@ std::mutex FalloffFactory::falloff_mutex;
 
 FalloffFactory::FalloffFactory()
 {
-    reg("Lindemann", []() { return new Falloff(); });
+    reg("Lindemann", []() { return new Lindemann(); });
     addAlias("Lindemann", "Simple");
     reg("Troe", []() { return new Troe(); });
     reg("SRI", []() { return new SRI(); });

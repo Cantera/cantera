@@ -30,6 +30,18 @@ void BlowersMaselData::update(const ThermoPhase& bulk, const Kinetics& kin)
     kin.getReactionDelta(m_grt.data(), dH.data());
 }
 
+void FalloffData::update(double T)
+{
+    temperature = T;
+    logT = std::log(T);
+    recipT = 1./T;
+}
+
+void FalloffData::update(const ThermoPhase& bulk, const Kinetics& kin)
+{
+    update(bulk.temperature());
+}
+
 void PlogData::update(double T)
 {
     throw CanteraError("PlogData::update",

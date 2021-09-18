@@ -102,6 +102,7 @@ class Arrhenius3 : public ArrheniusBase
 {
 public:
     using ArrheniusBase::ArrheniusBase; // inherit constructors
+    using ArrheniusBase::setParameters;
 
     //! Constructor based on AnyMap content
     Arrhenius3(const AnyMap& node, const Units& rate_units) {

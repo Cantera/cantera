@@ -32,6 +32,26 @@ ReactionRateFactory::ReactionRateFactory()
         return new BlowersMaselRate(node, rate_units);
     });
 
+    // Lindemann falloff evaluator
+    reg("Lindemann", [](const AnyMap& node, const Units& rate_units) {
+        return new FalloffRate<Lindemann>(node, rate_units);
+    });
+
+    // Troe falloff evaluator
+    reg("Troe", [](const AnyMap& node, const Units& rate_units) {
+        return new FalloffRate<Troe>(node, rate_units);
+    });
+
+    // SRI falloff evaluator
+    reg("SRI", [](const AnyMap& node, const Units& rate_units) {
+        return new FalloffRate<SRI>(node, rate_units);
+    });
+
+    // Tsang falloff evaluator
+    reg("Tsang", [](const AnyMap& node, const Units& rate_units) {
+        return new FalloffRate<Tsang>(node, rate_units);
+    });
+
     // PlogRate evaluator
     reg("pressure-dependent-Arrhenius", [](const AnyMap& node, const Units& rate_units) {
         return new PlogRate(node, rate_units);
@@ -60,6 +80,18 @@ shared_ptr<ReactionRateBase> newReactionRate(
     std::string type = ""; // default is to create Arrhenius from empty
     if (rate_node.hasKey("type")) {
         type = rate_node["type"].asString();
+    }
+
+    if (type == "falloff" || type == "chemically-activated") {
+        if (rate_node.hasKey("Troe")) {
+            type = "Troe";
+        } else if (rate_node.hasKey("SRI")) {
+            type = "SRI";
+        } else if (rate_node.hasKey("Tsang")) {
+            type = "Tsang";
+        } else {
+            type = "Lindemann";
+        }
     }
 
     if (!(ReactionRateFactory::factory()->exists(type))) {

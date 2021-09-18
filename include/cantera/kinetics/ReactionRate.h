@@ -15,7 +15,7 @@
 #include "cantera/base/Units.h"
 #include "cantera/kinetics/MultiRate.h"
 #include "cantera/kinetics/RxnRates.h"
-#include "cantera/kinetics/ReactionData.h"
+#include "cantera/kinetics/Falloff.h"
 #include "cantera/base/ctexceptions.h"
 
 namespace Cantera
@@ -117,6 +117,7 @@ template <class RateType, class DataType>
 class RateTemplate : public ReactionRate<DataType>,  public RateType
 {
 public:
+    RateTemplate() = default;
     using RateType::RateType; // Inherit constructors
 
     //! Constructor using AnyMap content
@@ -165,14 +166,25 @@ class ArrheniusRate final : public RateTemplate<Arrhenius3, ArrheniusData>
 public:
     // inherit constructors
     using RateTemplate<Arrhenius3, ArrheniusData>::RateTemplate;
+    using ArrheniusBase::setParameters;
 };
 
 
-//! Blowers-Masel reaction rate type; see @BlowersMasel3
+//! Blowers-Masel reaction rate type; @see BlowersMasel3
 class BlowersMaselRate final : public RateTemplate<BlowersMasel3, BlowersMaselData>
 {
 public:
     using RateTemplate<BlowersMasel3, BlowersMaselData>::RateTemplate;
+    using BlowersMasel3::setParameters;
+};
+
+
+//! Class template for falloff reaction rate definitions; @see Falloff
+template <class FalloffType>
+class FalloffRate final : public RateTemplate<FalloffType, FalloffData>
+{
+public:
+    using RateTemplate<FalloffType, FalloffData>::RateTemplate;
 };
 
 
