@@ -142,9 +142,14 @@ class ReactionRateTests:
         if not np.isnan(value):
             self.fail(f"Value '{value}' is a number")
 
+    def update(self, rate):
+        # update (called by constructors)
+        return rate
+
     def from_parts(self):
         # create reaction rate object from parts
-        return self._cls(**self._parts)
+        rate = self._cls(**self._parts)
+        return self.update(rate)
 
     def from_input(self, input=None):
         # create reaction rate object from input_data
@@ -152,11 +157,13 @@ class ReactionRateTests:
             input = self._input
         else:
             self.assertIsInstance(input, dict)
-        return self._cls(input_data=input)
+        rate = self._cls(input_data=input)
+        return self.update(rate)
 
     def from_yaml(self):
         # create reaction rate object from yaml
-        return ct.ReactionRate.from_yaml(self._yaml)
+        rate = ct.ReactionRate.from_yaml(self._yaml)
+        return self.update(rate)
 
     def from_dict(self, input=None):
         # create reaction rate object from dictionary
@@ -164,7 +171,8 @@ class ReactionRateTests:
             input = self.from_parts().input_data
         else:
             self.assertIsInstance(input, dict)
-        return ct.ReactionRate.from_dict(input)
+        rate = ct.ReactionRate.from_dict(input)
+        return self.update(rate)
 
     def eval(self, rate):
         # evaluate rate expression
@@ -249,6 +257,36 @@ class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
         yaml = "rate-constant: {A: 4.0e+21 cm^6/mol^2/s, b: 0.0, Ea: 1207.72688}"
         with self.assertRaisesRegex(Exception, "not supported"):
             ct.ReactionRate.from_yaml(yaml)
+
+
+class TestBlowersMaselRate(ReactionRateTests, utilities.CanteraTest):
+    # test Blowers-Masel rate expressions
+
+    _cls = ct.BlowersMaselRate
+    _type = "Blowers-Masel"
+    _index = 6
+    _input = {"rate-constant": {"A": 38700, "b": 2.7, "Ea0": 1.0958665856e8, "w": 1.7505856e13}}
+    _yaml = """
+        type: Blowers-Masel
+        rate-constant: {A: 38700, b: 2.7, Ea0: 1.0958665856e8, w: 1.7505856e13}
+        """
+
+    @classmethod
+    def setUpClass(cls):
+        ReactionRateTests.setUpClass()
+        cls._parts = cls._input["rate-constant"]
+
+    def update(self, rate):
+        self.gas.forward_rate_constants # force update
+        rate.delta_enthalpy = self.gas.delta_enthalpy[self._index]
+        return rate
+
+    def test_negative_A(self):
+        # test reaction rate property
+        rate = self.from_parts()
+        self.assertFalse(rate.allow_negative_pre_exponential_factor)
+        rate.allow_negative_pre_exponential_factor = True
+        self.assertTrue(rate.allow_negative_pre_exponential_factor)
 
 
 class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
