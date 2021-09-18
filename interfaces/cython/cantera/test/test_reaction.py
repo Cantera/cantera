@@ -225,6 +225,10 @@ class ReactionRateTests:
         with self.assertRaisesRegex(Exception, "not supported"):
             ct.ReactionRate.from_yaml(yaml)
 
+    def test_third_body(self):
+        concm = self.gas.third_body_concentrations
+        self.assertIsNaN(concm[self._index])
+
 
 class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
     # test Arrhenius rate expressions
@@ -245,6 +249,7 @@ class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
         self.assertEqual(self._parts["A"], rate.pre_exponential_factor)
         self.assertEqual(self._parts["b"], rate.temperature_exponent)
         self.assertEqual(self._parts["Ea"], rate.activation_energy)
+        self.check_rate(rate)
 
     def test_negative_A(self):
         # test reaction rate property
@@ -281,12 +286,141 @@ class TestBlowersMaselRate(ReactionRateTests, utilities.CanteraTest):
         rate.delta_enthalpy = self.gas.delta_enthalpy[self._index]
         return rate
 
+    def test_from_parts(self):
+        rate = self.from_parts()
+        self.assertEqual(self._parts["A"], rate.pre_exponential_factor)
+        self.assertEqual(self._parts["b"], rate.temperature_exponent)
+        self.assertEqual(self._parts["Ea0"], rate.intrinsic_activation_energy)
+        self.assertEqual(self._parts["w"], rate.bond_energy)
+        self.check_rate(rate)
+
     def test_negative_A(self):
         # test reaction rate property
         rate = self.from_parts()
         self.assertFalse(rate.allow_negative_pre_exponential_factor)
         rate.allow_negative_pre_exponential_factor = True
         self.assertTrue(rate.allow_negative_pre_exponential_factor)
+
+    def test_additional_parts(self):
+        # test reaction rate property
+        rate = self.from_parts()
+        rr = self.gas.reaction(self._index).rate
+        self.assertNear(rate.activation_energy, rr.activation_energy(rate.delta_enthalpy))
+
+
+class FalloffRateTests(ReactionRateTests):
+    # test Falloff rate expressions
+    _n_data = [0]
+
+    @classmethod
+    def setUpClass(cls):
+        ReactionRateTests.setUpClass()
+        param = cls._input["low-P-rate-constant"]
+        cls._parts["low"] = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+        param = cls._input["high-P-rate-constant"]
+        cls._parts["high"] = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+
+    def update(self, rate):
+        self.gas.forward_rate_constants # force update of internal states
+        concm = self.gas.third_body_concentrations
+        rate.third_body_concentration = concm[self._index]
+        return rate
+
+    def test_data(self):
+        rate = self.from_parts()
+        for n in self._n_data:
+            rate.data = np.random.rand(n)
+
+    def test_third_body(self):
+        concm = self.gas.third_body_concentrations
+        self.assertIsFinite(concm[self._index])
+
+
+class TestLindemannRate(FalloffRateTests, utilities.CanteraTest):
+    # test Lindemann rate expressions
+
+    _cls = ct.LindemannRate
+    _type = "Lindemann"
+    _index = 7
+    _parts = {
+        "data": [],
+        }
+    _input = {
+        "type": "falloff",
+        "low-P-rate-constant": {"A": 2.3e+12, "b": -0.9, "Ea": -7112800.0},
+        "high-P-rate-constant": {"A": 7.4e+10, "b": -0.37, "Ea": 0.0},
+        }
+    _yaml = """
+        type: falloff
+        low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -7112800.0}
+        high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0}
+        """
+
+
+class TestTroeRate(FalloffRateTests, utilities.CanteraTest):
+    # test Troe rate expressions
+
+    _cls = ct.TroeRate
+    _type = "Troe"
+    _index = 2
+    _parts = {"data": [0.7346, 94.0, 1756.0, 5182.0]}
+    _input = {
+        "type": "falloff",
+        "low-P-rate-constant": {"A": 2.3e+12, "b": -0.9, "Ea": -7112800.0},
+        "high-P-rate-constant": {"A": 7.4e+10, "b": -0.37, "Ea": 0.0},
+        "Troe": {"A": 0.7346, "T3": 94.0, "T1": 1756.0, "T2": 5182.0},
+        }
+    _yaml = """
+        type: falloff
+        low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -7112800.0}
+        high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0}
+        Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
+        """
+    _n_data = [3, 4]
+
+
+class TestSriRate(FalloffRateTests, utilities.CanteraTest):
+    # test SRI rate expressions
+
+    _cls = ct.SriRate
+    _type = "SRI"
+    _index = 8
+    _parts = {"data": [1.1, 700.0, 1234.0, 56.0, 0.7]}
+    _input = {
+        "type": "falloff",
+        "high-P-rate-constant": {"A": 4.0e+15, "b": -0.5, "Ea": 418400.0},
+        "low-P-rate-constant": {"A": 7.0e+20, "b": -1.0, "Ea": 0.0},
+        "SRI": {"A": 1.1, "B": 700.0, "C": 1234.0, "D": 56.0, "E": 0.7},
+        }
+    _yaml = """
+        type: falloff
+        high-P-rate-constant: {A: 4.0e+15, b: -0.5, Ea: 100.0 cal/mol}
+        low-P-rate-constant: {A: 7.0e+20, b: -1.0, Ea: 0.0 cal/mol}
+        SRI: {A: 1.1, B: 700.0, C: 1234.0, D: 56.0, E: 0.7}
+        """
+    _n_data = [3, 5]
+
+
+class TestTsangRate(FalloffRateTests, utilities.CanteraTest):
+    # test Tsang rate expressions
+
+    _cls = ct.TsangRate
+    _type = "Tsang"
+    _index = 9
+    _parts = {"data": [0.95, -1.0e-04]}
+    _input = {
+        "type": "falloff",
+        "high-P-rate-constant": {"A": 4.0e+15, "b": -0.5, "Ea": 418400.0},
+        "low-P-rate-constant": {"A": 7.0e+20, "b": -1.0, "Ea": 0.0},
+        "Tsang": {"A": 0.95, "B": -1.0e-04}
+        }
+    _yaml = """
+        type: falloff
+        high-P-rate-constant: {A: 4.0e+15, b: -0.5, Ea: 100.0 cal/mol}
+        low-P-rate-constant: {A: 7.0e+20, b: -1.0, Ea: 0.0 cal/mol}
+        Tsang: {A: 0.95, B: -1.0e-04}
+        """
+    _n_data = [1, 2]
 
 
 class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
