@@ -116,4 +116,68 @@ void Arrhenius3::getParameters(AnyMap& rateNode, const Units& rate_units) const
     }
 }
 
+BlowersMasel3::BlowersMasel3()
+    : ArrheniusBase()
+    , m_w_R(NAN)
+    , m_deltaH_R(NAN)
+{
+}
+
+BlowersMasel3::BlowersMasel3(double A, double b, double Ea0, double w)
+    : ArrheniusBase(A, b, Ea0)
+    , m_w_R(w / GasConstant)
+    , m_deltaH_R(NAN)
+{
+}
+
+void BlowersMasel3::setParameters(
+    const AnyValue& rate, const UnitSystem& units, const Units& rate_units)
+{
+    if (rate.empty()) {
+        m_A = NAN;
+        m_b = NAN;
+        m_Ea_R = NAN;
+        m_w_R = NAN;
+    } else if (rate.is<AnyMap>()) {
+        ArrheniusBase::setParameters(rate, units, rate_units);
+        auto& rate_map = rate.as<AnyMap>();
+        m_Ea_R = units.convertActivationEnergy(rate_map["Ea0"], "K");
+        m_w_R = units.convertActivationEnergy(rate_map["w"], "K");
+    } else {
+        auto& rate_vec = rate.asVector<AnyValue>(4);
+        m_A = units.convert(rate_vec[0], rate_units);
+        m_b = rate_vec[1].asDouble();
+        m_Ea_R = units.convertActivationEnergy(rate_vec[2], "K");
+        m_w_R = units.convertActivationEnergy(rate_vec[3], "K");
+    }
+}
+
+void BlowersMasel3::setParameters(const AnyMap& node, const Units& rate_units)
+{
+    allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
+    if (!node.hasKey("rate-constant")) {
+        BlowersMasel3::setParameters(AnyValue(), node.units(), rate_units);
+        return;
+    }
+    BlowersMasel3::setParameters(node["rate-constant"], node.units(), rate_units);
+}
+
+void BlowersMasel3::getParameters(AnyMap& rateNode,
+                                     const Units& rate_units) const
+{
+    if (allow_negative_pre_exponential_factor) {
+        rateNode["negative-A"] = true;
+    }
+    AnyMap node;
+    ArrheniusBase::getParameters(node, rate_units);
+    if (!node.empty()) {
+        // object is configured
+        node.erase("Ea");
+        node["Ea0"].setQuantity(m_Ea_R, "K", true);
+        node["w"].setQuantity(m_w_R, "K", true);
+        rateNode["rate-constant"] = std::move(node);
+    }
+    rateNode["type"] = type();
+}
+
 }

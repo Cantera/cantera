@@ -27,8 +27,7 @@ struct ArrheniusData
     ArrheniusData() : temperature(1.), logT(0.), recipT(1.) {}
 
     //! Update data container based on temperature *T*
-    void update(double T)
-    {
+    void update(double T) {
         temperature = T;
         logT = std::log(T);
         recipT = 1./T;
@@ -49,6 +48,46 @@ struct ArrheniusData
 };
 
 
+//! Data container holding shared data specific to BlowersMaselRate
+/**
+ * The data container `BlowersMaselData` holds precalculated data common to
+ * all `BlowersMaselRate` objects.
+ */
+struct BlowersMaselData
+{
+    BlowersMaselData()
+        : temperature(1.), logT(0.), recipT(1.), finalized(false) {}
+
+    //! Update data container based on temperature *T*
+    void update(double T);
+
+    //! Update data container based on temperature *T* and pressure *P*
+    void update(double T, double P) {
+        update(T);
+    }
+
+    //! Update data container based on *bulk* phase state and *kin* kinetics
+    void update(const ThermoPhase& bulk, const Kinetics& kin);
+
+    //! Finalize setup
+    void resize(size_t n_species, size_t n_reactions) {
+        m_grt.resize(n_species, 0.);
+        dH.resize(n_reactions, 0.);
+        finalized = true;
+    }
+
+    double temperature; //!< temperature
+    double logT; //!< logarithm of temperature
+    double recipT; //!< inverse of temperature
+
+    bool finalized; //!< boolean indicating whether vectors are accessible
+    vector_fp dH; //!< enthalpy change for each reaction
+
+protected:
+    vector_fp m_grt; //!< work vector holding partial molar enthalpies
+};
+
+
 //! Data container holding shared data specific to PlogRate
 /**
  * The data container `PlogData` holds precalculated data common to
@@ -62,8 +101,7 @@ struct PlogData
     void update(double T);
 
     //! Update data container based on temperature *T* and *P*
-    void update(double T, double P)
-    {
+    void update(double T, double P) {
         temperature = T;
         logT = std::log(T);
         recipT = 1./T;

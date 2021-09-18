@@ -161,6 +161,139 @@ public:
     }
 };
 
+
+//! Blowers Masel reaction rate type depends on the enthalpy of reaction
+/**
+ * The Blowers Masel approximation is written by Paul Blowers,
+ * Rich Masel (DOI: https://doi.org/10.1002/aic.690461015) to
+ * adjust the activation energy based on enthalpy change of a reaction:
+ *
+ *   \f{eqnarray*}{
+ *        E_a &=& 0\; \text{if }\Delta H < -4E_0 \\
+ *        E_a &=& \Delta H\; \text{if }\Delta H > 4E_0 \\
+ *        E_a &=& \frac{(w + \Delta H / 2)(V_P - 2w +
+ *               \Delta H)^2}{(V_P^2 - 4w^2 + (\Delta H)^2)}\; \text{Otherwise}
+ *   \f}
+ * where
+ *   \f[
+ *        V_P = \frac{2w (w + E_0)}{w - E_0},
+ *   \f]
+ * \f$ w \f$ is the average bond dissociation energy of the bond breaking
+ * and that being formed in the reaction. Since the expression is
+ * very insensitive to \f$ w \f$ for \f$ w >= 2 E_0 \f$, \f$ w \f$
+ * can be approximated to an arbitrary high value like 1000 kJ/mol.
+ *
+ * After the activation energy is determined by Blowers-Masel approximation,
+ * it can be plugged into Arrhenius function to calculate the rate constant.
+ *   \f[
+ *        k_f =  A T^b \exp (-E_a/RT)
+ *   \f]
+ *
+ * @ingroup arrheniusGroup
+ */
+class BlowersMasel3 : public ArrheniusBase
+{
+public:
+    //! Default constructor.
+    BlowersMasel3();
+
+    //! Constructor.
+    /*!
+     *  @param A  Pre-exponential factor. The unit system is (kmol, m, s); actual units
+     *      depend on the reaction order and the dimensionality (surface or bulk).
+     *  @param b  Temperature exponent (non-dimensional)
+     *  @param Ea0  Intrinsic activation energy in energy units [J/kmol]
+     *  @param w  Average bond dissociation energy of the bond being formed and
+     *      broken in the reaction, in energy units [J/kmol]
+     */
+    BlowersMasel3(double A, double b, double Ea0, double w);
+
+    //! Constructor based on AnyMap content
+    BlowersMasel3(const AnyMap& node, const Units& rate_units) {
+        setParameters(node, rate_units);
+    }
+
+    //! Identifier of reaction rate type
+    virtual std::string type() const {
+        return "Blowers-Masel";
+    }
+
+    virtual void setParameters(const AnyValue& rate,
+                               const UnitSystem& units, const Units& rate_units);
+
+    //! Perform object setup based on AnyMap node information
+    /*!
+     *  @param node  AnyMap containing rate information
+     *  @param rate_units  Unit definitions specific to rate information
+     */
+    virtual void setParameters(const AnyMap& node, const Units& rate_units);
+
+    virtual void getParameters(AnyMap& node, const Units& units) const;
+
+    //! Update information specific to reaction
+    const static bool usesUpdate() {
+        return true;
+    }
+
+    void update(const BlowersMaselData& shared_data) {
+        if (shared_data.finalized && rate_index != npos) {
+            m_deltaH_R = shared_data.dH[rate_index] / GasConstant;
+        }
+    }
+
+    double eval(const BlowersMaselData& shared_data) const {
+        double Ea_R = activationEnergy_R(m_deltaH_R);
+        return m_A * std::exp(m_b * shared_data.logT - Ea_R * shared_data.recipT);
+    }
+
+    //! Return the actual activation energy (a function of the delta H of reaction)
+    //! divided by the gas constant (i.e. the activation temperature) [K]
+    double activationEnergy_R(double deltaH_R) const {
+        if (deltaH_R < -4 * m_Ea_R) {
+            return 0.;
+        }
+        if (deltaH_R > 4 * m_Ea_R) {
+            return deltaH_R;
+        }
+        double vp = 2 * m_w_R * ((m_w_R + m_Ea_R) / (m_w_R - m_Ea_R)); // in Kelvin
+        double vp_2w_dH = (vp - 2 * m_w_R + deltaH_R); // (Vp - 2 w + dH)
+        return (m_w_R + deltaH_R / 2) * (vp_2w_dH * vp_2w_dH) /
+            (vp * vp - 4 * m_w_R * m_w_R + deltaH_R * deltaH_R); // in Kelvin
+    }
+
+    //! Return the actual activation energy [J/kmol]
+    double activationEnergy() const {
+        return activationEnergy_R(m_deltaH_R) * GasConstant;
+    }
+
+    //! Return the intrinsic activation energy [J/kmol]
+    double activationEnergy0() const {
+        return m_Ea_R * GasConstant;
+    }
+
+    //! Return the bond dissociation energy *w* [J/kmol]
+    double bondEnergy() const {
+        return m_w_R * GasConstant;
+    }
+
+    //! Enthalpy change of reaction used to adjust activation energy [J/kmol]
+    double deltaH() const {
+        return m_deltaH_R * GasConstant;
+    }
+
+    //! Set enthalpy change without Kinetics object. In most cases, the enthalpy
+    //! change is set during the update method, which, howwever, requires the
+    //! object to be linked to a Kinetics object.
+    void setDeltaH(double dH) {
+        m_deltaH_R = dH / GasConstant;
+    }
+
+protected:
+    double m_w_R; //!< Bond dissociation energy (in temperature units)
+
+    double m_deltaH_R; //!< Delta H of the reaction (in temperature units)
+};
+
 }
 
 #endif

@@ -4,6 +4,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/ReactionData.h"
+#include "cantera/kinetics/Kinetics.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/ctexceptions.h"
 
@@ -13,6 +14,20 @@ namespace Cantera
 void ArrheniusData::update(const ThermoPhase& bulk, const Kinetics& kin)
 {
     update(bulk.temperature());
+}
+
+void BlowersMaselData::update(double T)
+{
+    temperature = T;
+    logT = std::log(T);
+    recipT = 1./T;
+}
+
+void BlowersMaselData::update(const ThermoPhase& bulk, const Kinetics& kin)
+{
+    update(bulk.temperature());
+    bulk.getPartialMolarEnthalpies(m_grt.data());
+    kin.getReactionDelta(m_grt.data(), dH.data());
 }
 
 void PlogData::update(double T)

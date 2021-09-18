@@ -168,6 +168,14 @@ public:
 };
 
 
+//! Blowers-Masel reaction rate type; see @BlowersMasel3
+class BlowersMaselRate final : public RateTemplate<BlowersMasel3, BlowersMaselData>
+{
+public:
+    using RateTemplate<BlowersMasel3, BlowersMaselData>::RateTemplate;
+};
+
+
 //! Pressure-dependent reaction rate expressed by logarithmically interpolating
 //! between Arrhenius rate expressions at various pressures.
 /*!
@@ -199,8 +207,7 @@ public:
     //! @param rate_units  unit definitions used for rate information
     PlogRate(const AnyMap& node, const Units& rate_units=Units(0.));
 
-    virtual std::string type() const override
-    {
+    virtual std::string type() const override {
         return "pressure-dependent-Arrhenius";
     }
 

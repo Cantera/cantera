@@ -413,6 +413,15 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double activationEnergy()
         cbool allow_negative_pre_exponential_factor
 
+    cdef cppclass CxxBlowersMaselRate "Cantera::BlowersMaselRate" (CxxArrheniusRate):
+        CxxBlowersMaselRate()
+        CxxBlowersMaselRate(CxxAnyMap) except +translate_exception
+        CxxBlowersMaselRate(double, double, double, double)
+        double activationEnergy0()
+        double bondEnergy()
+        double deltaH()
+        void setDeltaH(double)
+
     cdef cppclass CxxPlogRate "Cantera::PlogRate" (CxxReactionRateBase):
         CxxPlogRate()
         CxxPlogRate(CxxAnyMap) except +translate_exception
