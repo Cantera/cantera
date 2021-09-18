@@ -283,6 +283,166 @@ cdef class BlowersMaselRate(ReactionRate):
             self.cxx_object().allow_negative_pre_exponential_factor = allow
 
 
+cdef class FalloffRate(ReactionRate):
+    """
+    Base class for parameterizations used to describe the fall-off in reaction rates
+    due to intermolecular energy transfer. These objects are used by `FalloffReaction`.
+    Note that `FalloffRate` is a base class for specialized fall-off parameterizations
+    and cannot be instantiated by itself.
+    """
+
+    _reaction_rate_type = None
+
+    def __cinit__(self, low=None, high=None, data=None, input_data=None, init=True):
+
+        if self._reaction_rate_type is None:
+            raise TypeError(
+                f"Base class '{type(self).__class__}' cannot be instantiated "
+                "by itself; use specialized fall-off rate instead.")
+
+        if init:
+            if isinstance(input_data, dict):
+                if input_data:
+                    self._from_dict(input_data)
+                else:
+                    self._from_empty()
+            elif input_data is None:
+                self._from_empty()
+            else:
+                raise TypeError("Invalid input parameters")
+            self.rate = self._rate.get()
+
+            if (low is not None) and (high is not None):
+                self.low_rate = low
+                self.high_rate = high
+                if data is None:
+                    data = ()
+                self.data = data
+
+    cdef CxxFalloffRate[CxxFalloff3]* cxx_object(self):
+        return <CxxFalloffRate[CxxFalloff3]*>self.rate
+
+    property low_rate:
+        """ Get/Set the `Arrhenius` rate constant in the low-pressure limit """
+        def __get__(self):
+            return wrapArrhenius(&(self.cxx_object().lowRate()), None)
+        def __set__(self, Arrhenius rate):
+            self.cxx_object().setLowRate(deref(rate.rate))
+
+    property high_rate:
+        """ Get/Set the `Arrhenius` rate constant in the high-pressure limit """
+        def __get__(self):
+            return wrapArrhenius(&(self.cxx_object().highRate()), None)
+        def __set__(self, Arrhenius rate):
+            self.cxx_object().setHighRate(deref(rate.rate))
+
+    property data:
+        """ The array of coefficients used to define this falloff function. """
+        def __get__(self):
+            cdef vector[double] cxxdata
+            self.cxx_object().getData(cxxdata)
+            return np.fromiter(cxxdata, np.double)
+        def __set__(self, data):
+            cdef vector[double] cxxdata
+            for c in data:
+                cxxdata.push_back(c)
+            self.cxx_object().setData(cxxdata)
+
+    property allow_negative_pre_exponential_factor:
+        """
+        Get/Set whether the rate coefficient is allowed to have a negative
+        pre-exponential factor.
+        """
+        def __get__(self):
+            return self.cxx_object().allow_negative_pre_exponential_factor
+        def __set__(self, cbool allow):
+            self.cxx_object().allow_negative_pre_exponential_factor = allow
+
+    property chemically_activated:
+        """
+        Get whether the object is a chemically-activated reaction rate.
+        """
+        def __get__(self):
+            return self.cxx_object().chemicallyActivated()
+
+    property third_body_concentration:
+        """
+        Get/Set the effective third-body concentration used for the reaction
+        rate calculation.
+        """
+        def __get__(self):
+            return self.cxx_object().third_body_concentration
+        def __set__(self, double conc):
+            self.cxx_object().third_body_concentration = conc
+
+    def falloff_function(self, double temperature, conc3b=None):
+        """
+        Evaluate the falloff function
+        """
+        if conc3b is None:
+            conc3b = self.third_body_concentration
+        return self.cxx_object().evalF(temperature, conc3b)
+
+
+cdef class LindemannRate(FalloffRate):
+    r"""
+    The Lindemann falloff parameterization.
+    This class implements the simple falloff function :math:`F(T,P_r) = 1.0`.
+    """
+    _reaction_rate_type = "Lindemann"
+
+    def _from_empty(self):
+        self._rate.reset(new CxxFalloffRate[CxxLindemann]())
+
+    def _from_dict(self, dict input_data):
+        self._rate.reset(new CxxFalloffRate[CxxLindemann](dict_to_anymap(input_data)))
+
+
+cdef class TroeRate(FalloffRate):
+    r"""
+    The 3- or 4-parameter Troe falloff function.
+    :param data:
+        An array of 3 or 4 parameters: :math:`[a, T^{***}, T^*, T^{**}]` where
+        the final parameter is optional (with a default value of 0).
+    """
+    _reaction_rate_type = "Troe"
+
+    def _from_empty(self):
+        self._rate.reset(new CxxFalloffRate[CxxTroe]())
+
+    def _from_dict(self, dict input_data):
+        self._rate.reset(new CxxFalloffRate[CxxTroe](dict_to_anymap(input_data)))
+
+
+cdef class SriRate(FalloffRate):
+    r"""
+    The 3- or 5-parameter SRI falloff function.
+    :param data:
+        An array of 3 or 5 parameters: :math:`[a, b, c, d, e]` where the last
+        two parameters are optional (with default values of 1 and 0, respectively).
+    """
+    _reaction_rate_type = "SRI"
+
+    def _from_empty(self):
+        self._rate.reset(new CxxFalloffRate[CxxSri]())
+
+    def _from_dict(self, dict input_data):
+        self._rate.reset(new CxxFalloffRate[CxxSri](dict_to_anymap(input_data)))
+
+
+cdef class TsangRate(FalloffRate):
+    r"""
+    The Tsang falloff parameterization.
+    """
+    _reaction_rate_type = "Tsang"
+
+    def _from_empty(self):
+        self._rate.reset(new CxxFalloffRate[CxxTsang]())
+
+    def _from_dict(self, dict input_data):
+        self._rate.reset(new CxxFalloffRate[CxxTsang](dict_to_anymap(input_data)))
+
+
 cdef class PlogRate(ReactionRate):
     r"""
     A pressure-dependent reaction rate parameterized by logarithmically

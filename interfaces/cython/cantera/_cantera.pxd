@@ -422,6 +422,27 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double deltaH()
         void setDeltaH(double)
 
+    cdef cppclass CxxFalloffRate "Cantera::FalloffRate" [T] (CxxReactionRateBase):
+        CxxFalloffRate()
+        CxxFalloffRate(CxxAnyMap) except +translate_exception
+        cbool allow_negative_pre_exponential_factor
+        double third_body_concentration
+        cbool chemicallyActivated()
+        void chemicallyActivated(cbool)
+        CxxArrhenius& lowRate()
+        void setLowRate(CxxArrhenius&) except +translate_exception
+        CxxArrhenius& highRate()
+        void setHighRate(CxxArrhenius&) except +translate_exception
+        void getData(vector[double]&)
+        void setData(vector[double]&) except +translate_exception
+        double evalF(double, double) except +translate_exception
+
+    cdef cppclass CxxFalloff3 "Cantera::Falloff"
+    cdef cppclass CxxLindemann "Cantera::Lindemann" (CxxFalloff3)
+    cdef cppclass CxxTroe "Cantera::Troe" (CxxFalloff3)
+    cdef cppclass CxxSri "Cantera::SRI" (CxxFalloff3)
+    cdef cppclass CxxTsang "Cantera::Tsang" (CxxFalloff3)
+
     cdef cppclass CxxPlogRate "Cantera::PlogRate" (CxxReactionRateBase):
         CxxPlogRate()
         CxxPlogRate(CxxAnyMap) except +translate_exception

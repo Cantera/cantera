@@ -5,6 +5,8 @@
 #define CT_FALLOFF_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/kinetics/RxnRates.h"
+#include "cantera/kinetics/ReactionData.h"
 
 namespace Cantera
 {
@@ -25,12 +27,23 @@ class AnyMap;
  * Falloff computes one falloff function. This base class implements the
  * trivial falloff function F = 1.0.
  *
- * @ingroup falloffGroup
+ * @todo remove Lindemann-specific portions to establish a 'true' base class
  */
 class Falloff
 {
 public:
-    Falloff() {}
+    Falloff()
+        : allow_negative_pre_exponential_factor(false)
+        , third_body_concentration(NAN)
+        , m_chemicallyActivated(false)
+        , m_rc_low(NAN)
+        , m_rc_high(NAN)
+    {
+        m_lowRate = Arrhenius(NAN, NAN, NAN);
+        m_highRate = Arrhenius(NAN, NAN, NAN);
+        m_work.resize(workSize());
+    }
+
     virtual ~Falloff() {}
 
     /**
@@ -38,8 +51,26 @@ public:
      *
      * @param c Vector of coefficients of the parameterization. The number and
      *     meaning of these coefficients is subclass-dependent.
+     *
+     * @todo  deprecate; superseded by setData
      */
-    virtual void init(const vector_fp& c);
+    void init(const vector_fp& c);
+
+    /**
+     * Set coefficients of the falloff parametetrization.
+     *
+     * @param c Vector of coefficients of the parameterization. The number and
+     *     meaning of these coefficients is subclass-dependent.
+     */
+    virtual void setData(const vector_fp& c);
+
+    /**
+     * Retrieve coefficients of the falloff parametetrization.
+     *
+     * @param c Vector of coefficients of the parameterization. The number and
+     *     meaning of these coefficients is subclass-dependent.
+     */
+    virtual void getData(vector_fp& c) const;
 
     /**
      * Update the temperature-dependent portions of the falloff function, if
@@ -71,14 +102,26 @@ public:
         return 1.0;
     }
 
+    //! Evaluate falloff function at current conditions
+    double evalF(double T, double conc3b) {
+        FalloffData data;
+        data.update(T);
+        update(data);
+        double pr = conc3b * m_rc_low / (m_rc_high + SmallNumber);
+        return F(pr, m_work.data());
+    }
+
     //! The size of the work array required.
-    virtual size_t workSize() {
+    /**
+     * @todo  deprecate; only used by legacy framework
+     */
+    virtual size_t workSize() const {
         return 0;
     }
 
     //! Return a string representing the type of the Falloff parameterization.
     virtual std::string type() const {
-        return "Lindemann";
+        return "Falloff";
     }
 
     //! Returns the number of parameters used by this parameterization. The
@@ -87,13 +130,115 @@ public:
         return 0;
     }
 
+    //! Perform object setup based on AnyMap node information
+    //! @param node  AnyMap containing rate information
+    //! @param rate_units  unit definitions specific to rate information
+    virtual void setParameters(const AnyMap& node, const Units& rate_units);
+
     //! Get the values of the parameters for this object. *params* must be an
     //! array of at least nParameters() elements.
+    /**
+     * @todo  deprecate; superseded by getData
+     */
     virtual void getParameters(double* params) const {}
+
+    /**
+     * @todo  deprecate; only used by legacy framework
+     */
+    virtual void getParameters(AnyMap& reactionNode) const {}
 
     //! Store the falloff-related parameters needed to reconstruct an identical
     //! Reaction using the newReaction(AnyMap&, Kinetics&) function.
-    virtual void getParameters(AnyMap& reactionNode) const {}
+    virtual void getParameters(AnyMap& rateNode, const Units& rate_units) const;
+
+    //! Flag indicating that information specific to reaction rate is required
+    const static bool usesUpdate() {
+        return true;
+    }
+
+    //! Update information specific to reaction
+    //! @param shared_data  data shared by all reactions of a given type
+    virtual void update(const FalloffData& shared_data) {
+        updateTemp(shared_data.temperature, m_work.data());
+        m_rc_low = m_lowRate.updateRC(shared_data.logT, shared_data.recipT);
+        m_rc_high = m_highRate.updateRC(shared_data.logT, shared_data.recipT);
+    }
+
+    //! Evaluate reaction rate
+    //! @param shared_data  data shared by all reactions of a given type
+    virtual double eval(const FalloffData& shared_data) const {
+        double pr = third_body_concentration * m_rc_low / (m_rc_high + SmallNumber);
+        // AssertFinite(pr, "Falloff::eval", "pr is not finite.");
+
+        // Apply falloff function
+        if (m_chemicallyActivated) {
+            // 1 / (1 + Pr) * F
+            pr = F(pr, m_work.data()) / (1.0 + pr);
+            return pr * m_rc_low;
+        }
+
+        // Pr / (1 + Pr) * F
+        pr *= F(pr, m_work.data()) / (1.0 + pr);
+        return pr * m_rc_high;
+    }
+
+    //! Evaluate derivative of reaction rate with respect to temperature
+    //! @param shared_data  data shared by all reactions of a given type
+    virtual double ddT(const FalloffData& shared_data) const
+    {
+        return NAN; // @todo
+    }
+
+    //! Validate the reaction rate expression
+    virtual void validate(const std::string& equation);
+
+    bool allow_negative_pre_exponential_factor; // Flag is directly accessible
+    double third_body_concentration; //!< Buffered third-body concentration
+
+    //! Get flag indicating whether reaction is chemically activated
+    const bool chemicallyActivated() const {
+        return m_chemicallyActivated;
+    }
+
+    //! Get reaction rate in the low-pressure limit
+    Arrhenius& lowRate() {
+        return m_lowRate;
+    }
+
+    //! Set reaction rate in the low-pressure limit
+    void setLowRate(const Arrhenius& low);
+
+    //! Get reaction rate in the high-pressure limit
+    Arrhenius& highRate() {
+        return m_highRate;
+    }
+
+    //! Set reaction rate in the high-pressure limit
+    void setHighRate(const Arrhenius& high);
+
+protected:
+    Arrhenius m_lowRate; //!< The reaction rate in the low-pressure limit
+    Arrhenius m_highRate; //!< The reaction rate in the high-pressure limit
+
+    bool m_chemicallyActivated; //!< Flag indicating whether reaction is chemically activated
+    double m_rc_low; //!< Evaluated reaction rate in the low-pressure limit
+    double m_rc_high; //!< Evaluated reaction rate in the high-pressure limit
+    vector_fp m_work; //!< Work vector
+};
+
+
+//! The Lindemann falloff parameterization.
+/**
+ * This class implements the trivial falloff function F = 1.0.
+ *
+ * @ingroup falloffGroup
+ */
+class Lindemann : public Falloff
+{
+public:
+    virtual std::string type() const {
+        return "Lindemann";
+    }
 };
 
 
@@ -129,14 +274,18 @@ class Troe : public Falloff
 {
 public:
     //! Constructor
-    Troe() : m_a(0.0), m_rt3(0.0), m_rt1(0.0), m_t2(0.0) {}
+    Troe() : Falloff(), m_a(NAN), m_rt3(0.0), m_rt1(0.0), m_t2(0.0) {
+        m_work.resize(workSize());
+    }
 
-    //! Initialization of the object
+    //! Set coefficients used by parameterization
     /*!
      * @param c Vector of three or four doubles: The doubles are the parameters,
      *          a, T_3, T_1, and (optionally) T_2 of the Troe parameterization
      */
-    virtual void init(const vector_fp& c);
+    virtual void setData(const vector_fp& c);
+
+    virtual void getData(vector_fp& c) const;
 
     //! Update the temperature parameters in the representation
     /*!
@@ -148,7 +297,7 @@ public:
 
     virtual double F(double pr, const double* work) const;
 
-    virtual size_t workSize() {
+    virtual size_t workSize() const {
         return 1;
     }
 
@@ -160,10 +309,17 @@ public:
         return 4;
     }
 
+    virtual void setParameters(const AnyMap& node, const Units& rate_units);
+
     //! Sets params to contain, in order, \f[ (A, T_3, T_1, T_2) \f]
+    /**
+     * @todo  deprecate; superseded by getData
+     */
     virtual void getParameters(double* params) const;
 
     virtual void getParameters(AnyMap& reactionNode) const;
+
+    virtual void getParameters(AnyMap& rateNode, const Units& rate_units) const;
 
 protected:
     //! parameter a in the 4-parameter Troe falloff function. Dimensionless
@@ -204,15 +360,19 @@ class SRI : public Falloff
 {
 public:
     //! Constructor
-    SRI() : m_a(-1.0), m_b(-1.0), m_c(-1.0), m_d(-1.0), m_e(-1.0) {}
+    SRI() : Falloff(), m_a(NAN), m_b(-1.0), m_c(-1.0), m_d(-1.0), m_e(-1.0) {
+        m_work.resize(workSize());
+    }
 
-    //! Initialization of the object
+    //! Set coefficients used by parameterization
     /*!
      * @param c Vector of three or five doubles: The doubles are the parameters,
      *          a, b, c, d (optional; default 1.0), and e (optional; default
      *          0.0) of the SRI parameterization
      */
-    virtual void init(const vector_fp& c);
+    virtual void setData(const vector_fp& c);
+
+    virtual void getData(vector_fp& c) const;
 
     //! Update the temperature parameters in the representation
     /*!
@@ -224,7 +384,7 @@ public:
 
     virtual double F(double pr, const double* work) const;
 
-    virtual size_t workSize() {
+    virtual size_t workSize() const {
         return 2;
     }
 
@@ -236,10 +396,17 @@ public:
         return 5;
     }
 
+    virtual void setParameters(const AnyMap& node, const Units& rate_units);
+
     //! Sets params to contain, in order, \f[ (a, b, c, d, e) \f]
+    /**
+     * @todo  deprecate; superseded by getData
+     */
     virtual void getParameters(double* params) const;
 
     virtual void getParameters(AnyMap& reactionNode) const;
+
+    virtual void getParameters(AnyMap& rateNode, const Units& rate_units) const;
 
 protected:
     //! parameter a in the 5-parameter SRI falloff function. Dimensionless.
@@ -263,7 +430,7 @@ protected:
  *  The Tsang falloff model is adapted from that of Troe.
  *  It provides a constant or linear in temperature value for \f$ F_{cent} \f$:
  *  \f[ F_{cent} = A + B*T \f]
- *  
+ *
  *  The value of \f$ F_{cent} \f$ is then applied to Troe's model for the
  *  determination of the value of \f$ F \f$:
  * \f[ F = F_{cent}^{1/(1 + f_1^2)} \f]
@@ -287,14 +454,18 @@ class Tsang : public Falloff
 {
 public:
     //! Constructor
-    Tsang() : m_a(0.0), m_b(0.0) {}
+    Tsang() : Falloff(), m_a(NAN), m_b(0.0) {
+        m_work.resize(workSize());
+    }
 
-    //! Initialization of the object
+    //! Set coefficients used by parameterization
     /*!
      * @param c Vector of one or two doubles: The doubles are the parameters,
      *          a and (optionally) b of the Tsang F_cent parameterization
      */
-    virtual void init(const vector_fp& c);
+    virtual void setData(const vector_fp& c);
+
+    virtual void getData(vector_fp& c) const;
 
     //! Update the temperature parameters in the representation
     /*!
@@ -306,7 +477,7 @@ public:
 
     virtual double F(double pr, const double* work) const;
 
-    virtual size_t workSize() {
+    virtual size_t workSize() const {
         return 1;
     }
 
@@ -318,10 +489,17 @@ public:
         return 2;
     }
 
+    virtual void setParameters(const AnyMap& node, const Units& rate_units);
+
     //! Sets params to contain, in order, \f[ (A, B) \f]
+    /**
+     * @todo  deprecate; superseded by getData
+     */
     virtual void getParameters(double* params) const;
 
     virtual void getParameters(AnyMap& reactionNode) const;
+
+    virtual void getParameters(AnyMap& rateNode, const Units& rate_units) const;
 
 protected:
     //! parameter a in the Tsang F_cent formulation. Dimensionless
