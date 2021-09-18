@@ -200,6 +200,89 @@ cdef class ArrheniusRate(ReactionRate):
             self.cxx_object().allow_negative_pre_exponential_factor = allow
 
 
+cdef class BlowersMaselRate(ReactionRate):
+    r"""
+    A reaction rate coefficient which depends on temperature and enthalpy change
+    of the reaction follows the Blowers-Masel approximation and modified Arrhenius form
+    described in `ArrheniusRate`.
+    """
+    _reaction_rate_type = "Blowers-Masel"
+
+    def __cinit__(self, A=None, b=None, Ea0=None, w=None, input_data=None, init=True):
+
+        if init:
+            if isinstance(input_data, dict):
+                self._rate.reset(new CxxBlowersMaselRate(dict_to_anymap(input_data)))
+            elif all([arg is not None for arg in [A, b, Ea0, w]]):
+                self._rate.reset(new CxxBlowersMaselRate(A, b, Ea0, w))
+            elif all([arg is None for arg in [A, b, Ea0, w, input_data]]):
+                self._rate.reset(new CxxBlowersMaselRate(dict_to_anymap({})))
+            elif input_data:
+                raise TypeError("Invalid parameter 'input_data'")
+            else:
+                raise TypeError("Invalid parameters 'A', 'b', 'Ea0' or 'w'")
+            self.rate = self._rate.get()
+
+    cdef CxxBlowersMaselRate* cxx_object(self):
+        return <CxxBlowersMaselRate*>self.rate
+
+    property pre_exponential_factor:
+        """
+        The pre-exponential factor ``A`` in units of m, kmol, and s raised to
+        powers depending on the reaction order.
+        """
+        def __get__(self):
+            return self.cxx_object().preExponentialFactor()
+
+    property temperature_exponent:
+        """
+        The temperature exponent ``b``.
+        """
+        def __get__(self):
+            return self.cxx_object().temperatureExponent()
+
+    property activation_energy:
+        """
+        The activation energy ``E`` [J/kmol].
+        """
+        def __get__(self):
+            return self.cxx_object().activationEnergy()
+
+    property intrinsic_activation_energy:
+        """
+        The intrinsic activation energy ``E0`` [J/kmol].
+        """
+        def __get__(self):
+            return self.cxx_object().activationEnergy0()
+
+    property bond_energy:
+        """
+        Average bond dissociation energy of the bond being formed and broken
+        in the reaction ``E`` [J/kmol].
+        """
+        def __get__(self):
+            return self.cxx_object().bondEnergy()
+
+    property delta_enthalpy:
+        """
+        Enthalpy change of reaction used to adjust activation energy [J/kmol]
+        """
+        def __get__(self):
+            return self.cxx_object().deltaH()
+        def __set__(self, double delta):
+            self.cxx_object().setDeltaH(delta)
+
+    property allow_negative_pre_exponential_factor:
+        """
+        Get/Set whether the rate coefficient is allowed to have a negative
+        pre-exponential factor.
+        """
+        def __get__(self):
+            return self.cxx_object().allow_negative_pre_exponential_factor
+        def __set__(self, allow):
+            self.cxx_object().allow_negative_pre_exponential_factor = allow
+
+
 cdef class PlogRate(ReactionRate):
     r"""
     A pressure-dependent reaction rate parameterized by logarithmically

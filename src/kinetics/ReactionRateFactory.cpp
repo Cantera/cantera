@@ -27,6 +27,11 @@ ReactionRateFactory::ReactionRateFactory()
     addAlias("Arrhenius", "elementary");
     addAlias("Arrhenius", "three-body");
 
+    // BlowersMaselRate evaluator
+    reg("Blowers-Masel", [](const AnyMap& node, const Units& rate_units) {
+        return new BlowersMaselRate(node, rate_units);
+    });
+
     // PlogRate evaluator
     reg("pressure-dependent-Arrhenius", [](const AnyMap& node, const Units& rate_units) {
         return new PlogRate(node, rate_units);
