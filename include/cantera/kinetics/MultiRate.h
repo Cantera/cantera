@@ -29,6 +29,9 @@ class MultiRateBase
 public:
     virtual ~MultiRateBase() {}
 
+    //! Identifier of reaction rate type
+    virtual std::string type() = 0;
+
     //! Add reaction rate object to the evaluator
     //! @param rxn_index  index of reaction
     //! @param rate  reaction rate object
@@ -60,6 +63,14 @@ template <class RateType, class DataType>
 class MultiBulkRate final : public MultiRateBase
 {
 public:
+    virtual std::string type() override {
+        if (!m_rxn_rates.size()) {
+            throw CanteraError("MultiBulkRate::type",
+                 "Cannot determine type of empty rate handler.");
+        }
+        return m_rxn_rates.at(0).second.type();
+    }
+
     virtual void add(const size_t rxn_index, ReactionRateBase& rate) override {
         m_indices[rxn_index] = m_rxn_rates.size();
         m_rxn_rates.emplace_back(rxn_index, dynamic_cast<RateType&>(rate));
@@ -70,11 +81,11 @@ public:
             throw CanteraError("MultiBulkRate::replace",
                  "Invalid operation: cannot replace rate object "
                  "in empty rate handler.");
-        } else if (typeid(rate) != typeid(RateType)) {
+        }
+        if (rate.type() != type()) {
             throw CanteraError("MultiBulkRate::replace",
                  "Invalid operation: cannot replace rate object of type '{}' "
-                 "with a new rate of type '{}'.",
-                 m_rxn_rates.at(0).second.type(), rate.type());
+                 "with a new rate of type '{}'.", type(), rate.type());
         }
         if (m_indices.find(rxn_index) != m_indices.end()) {
             size_t j = m_indices[rxn_index];
