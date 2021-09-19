@@ -31,6 +31,8 @@ public:
     //! Default constructor.
     ArrheniusBase();
 
+    virtual ~ArrheniusBase() {}
+
     //! Constructor.
     /*!
      *  @param A  Pre-exponential factor. The unit system is (kmol, m, s); actual units
@@ -101,6 +103,7 @@ protected:
 class Arrhenius3 : public ArrheniusBase
 {
 public:
+    Arrhenius3() = default;
     using ArrheniusBase::ArrheniusBase; // inherit constructors
     using ArrheniusBase::setParameters;
 
@@ -110,8 +113,7 @@ public:
     }
 
     //! Identifier of reaction rate type
-    // const static std::string type()
-    virtual std::string type() const {
+    virtual const std::string type() const {
         return "Arrhenius";
     }
 
@@ -215,7 +217,7 @@ public:
     }
 
     //! Identifier of reaction rate type
-    virtual std::string type() const {
+    virtual const std::string type() const {
         return "Blowers-Masel";
     }
 
