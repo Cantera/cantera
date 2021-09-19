@@ -120,7 +120,7 @@ public:
     }
 
     //! Return a string representing the type of the Falloff parameterization.
-    virtual std::string type() const {
+    virtual const std::string type() const {
         return "Falloff";
     }
 
@@ -236,7 +236,7 @@ protected:
 class Lindemann : public Falloff
 {
 public:
-    virtual std::string type() const {
+    virtual const std::string type() const {
         return "Lindemann";
     }
 };
@@ -301,7 +301,7 @@ public:
         return 1;
     }
 
-    virtual std::string type() const {
+    virtual const std::string type() const {
         return "Troe";
     }
 
@@ -388,7 +388,7 @@ public:
         return 2;
     }
 
-    virtual std::string type() const {
+    virtual const std::string type() const {
         return "SRI";
     }
 
@@ -481,7 +481,7 @@ public:
         return 1;
     }
 
-    virtual std::string type() const {
+    virtual const std::string type() const {
         return "Tsang";
     }
 

@@ -36,6 +36,7 @@ class ReactionRate : public ReactionRateBase
 {
 public:
     ReactionRate() = default;
+    ~ReactionRate() {}
 
     //! Update information specific to reaction
     //! @param shared_data  data shared by all reactions of a given type
@@ -118,6 +119,8 @@ class RateTemplate : public ReactionRate<DataType>,  public RateType
 {
 public:
     RateTemplate() = default;
+    ~RateTemplate() {}
+
     using RateType::RateType; // Inherit constructors
 
     //! Constructor using AnyMap content
@@ -127,7 +130,7 @@ public:
         setParameters(node, rate_units);
     }
 
-    virtual std::string type() const override {
+    virtual const std::string type() const override {
         // need to be explicitly included due to multiple inheritance
         return RateType::type();
     }
@@ -164,6 +167,9 @@ public:
 class ArrheniusRate final : public RateTemplate<Arrhenius3, ArrheniusData>
 {
 public:
+    ArrheniusRate() = default;
+    ~ArrheniusRate() {}
+
     // inherit constructors
     using RateTemplate<Arrhenius3, ArrheniusData>::RateTemplate;
     using ArrheniusBase::setParameters;
@@ -174,6 +180,9 @@ public:
 class BlowersMaselRate final : public RateTemplate<BlowersMasel3, BlowersMaselData>
 {
 public:
+    BlowersMaselRate() = default;
+    ~BlowersMaselRate() {}
+
     using RateTemplate<BlowersMasel3, BlowersMaselData>::RateTemplate;
     using BlowersMasel3::setParameters;
 };
@@ -184,7 +193,16 @@ template <class FalloffType>
 class FalloffRate final : public RateTemplate<FalloffType, FalloffData>
 {
 public:
+    FalloffRate() = default;
+    ~FalloffRate() {}
+
     using RateTemplate<FalloffType, FalloffData>::RateTemplate;
+
+    using FalloffType::getData;
+    using FalloffType::setData;
+    using FalloffType::setLowRate;
+    using FalloffType::setHighRate;
+    using FalloffType::evalF;
 };
 
 
@@ -209,7 +227,8 @@ public:
 class PlogRate final : public ReactionRate<PlogData>, public Plog
 {
 public:
-    PlogRate() {}
+    PlogRate() = default;
+    ~PlogRate() {}
 
     //! Constructor from Arrhenius rate expressions at a set of pressures
     explicit PlogRate(const std::multimap<double, Arrhenius>& rates);
@@ -219,7 +238,7 @@ public:
     //! @param rate_units  unit definitions used for rate information
     PlogRate(const AnyMap& node, const Units& rate_units=Units(0.));
 
-    virtual std::string type() const override {
+    virtual const std::string type() const override {
         return "pressure-dependent-Arrhenius";
     }
 
@@ -282,7 +301,8 @@ class ChebyshevRate3 final : public ReactionRate<ChebyshevData>, public Chebyshe
 {
 public:
     //! Default constructor.
-    ChebyshevRate3() {}
+    ChebyshevRate3() = default;
+    ~ChebyshevRate3() {}
 
     //! Constructor using coefficient array
     /*
@@ -302,7 +322,7 @@ public:
     //! @param rate_units  unit definitions used for rate information
     ChebyshevRate3(const AnyMap& node, const Units& rate_units=Units(0.));
 
-    virtual std::string type() const override { return "Chebyshev"; }
+    virtual const std::string type() const override { return "Chebyshev"; }
 
     virtual unique_ptr<MultiRateBase> newMultiRate() const override;
 
@@ -337,13 +357,14 @@ class CustomFunc1Rate final : public ReactionRate<CustomFunc1Data>
 {
 public:
     CustomFunc1Rate();
+    ~CustomFunc1Rate() {}
 
     //! Constructor does nothing, as there is no formalized parameterization
     //! @param node  AnyMap object containing reaction rate specification
     //! @param rate_units  Description of units used for rate parameters
     CustomFunc1Rate(const AnyMap& rate, const Units& rate_units) {}
 
-    virtual std::string type() const override { return "custom-rate-function"; }
+    virtual const std::string type() const override { return "custom-rate-function"; }
 
     virtual unique_ptr<MultiRateBase> newMultiRate() const override;
 

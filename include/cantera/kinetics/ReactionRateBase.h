@@ -41,10 +41,7 @@ public:
 
 public:
     //! Identifier of reaction type
-    virtual std::string type() const {
-        throw NotImplementedError("ReactionRateBase::type",
-                                  "Not implemented by '{}' object.", type());
-    }
+    virtual const std::string type() const = 0;
 
     //! Create multi-rate evaluator
     virtual unique_ptr<MultiRateBase> newMultiRate() const = 0;
