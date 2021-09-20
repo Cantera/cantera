@@ -240,6 +240,22 @@ void Inlet1D::restore(const XML_Node& dom, double* soln, int loglevel)
     resize(0, 1);
 }
 
+AnyMap Inlet1D::serialize(const double* soln) const
+{
+    AnyMap state = Boundary1D::serialize(soln);
+    state["type"] = "inlet";
+    state["temperature"] = m_temp;
+    state["mass-flux"] = m_mdot;
+    AnyMap Y;
+    for (size_t k = 0; k < m_nsp; k++) {
+        if (m_yin[k] != 0.0) {
+            Y[m_flow->phase().speciesName(k)] = m_yin[k];
+        }
+    }
+    state["mass-fractions"] = std::move(Y);
+    return state;
+}
+
 // ------------- Empty1D -------------
 
 void Empty1D::init()
@@ -263,6 +279,13 @@ void Empty1D::restore(const XML_Node& dom, double* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
     resize(0, 1);
+}
+
+AnyMap Empty1D::serialize(const double* soln) const
+{
+    AnyMap state = Boundary1D::serialize(soln);
+    state["type"] = "empty";
+    return state;
 }
 
 // -------------- Symm1D --------------
@@ -322,6 +345,13 @@ void Symm1D::restore(const XML_Node& dom, double* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
     resize(0, 1);
+}
+
+AnyMap Symm1D::serialize(const double* soln) const
+{
+    AnyMap state = Boundary1D::serialize(soln);
+    state["type"] = "symmetry";
+    return state;
 }
 
 // -------- Outlet1D --------
@@ -406,6 +436,13 @@ void Outlet1D::restore(const XML_Node& dom, double* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
     resize(0, 1);
+}
+
+AnyMap Outlet1D::serialize(const double* soln) const
+{
+    AnyMap state = Boundary1D::serialize(soln);
+    state["type"] = "outlet";
+    return state;
 }
 
 // -------- OutletRes1D --------
@@ -537,6 +574,21 @@ void OutletRes1D::restore(const XML_Node& dom, double* soln, int loglevel)
     resize(0, 1);
 }
 
+AnyMap OutletRes1D::serialize(const double* soln) const
+{
+    AnyMap state = Boundary1D::serialize(soln);
+    state["type"] = "outlet-reservoir";
+    state["temperature"] = m_temp;
+    AnyMap Y;
+    for (size_t k = 0; k < m_nsp; k++) {
+        if (m_yres[k] != 0.0) {
+            Y[m_flow->phase().speciesName(k)] = m_yres[k];
+        }
+    }
+    state["mass-fractions"] = std::move(Y);
+    return state;
+}
+
 // -------- Surf1D --------
 
 void Surf1D::init()
@@ -582,6 +634,14 @@ void Surf1D::restore(const XML_Node& dom, double* soln, int loglevel)
     Domain1D::restore(dom, soln, loglevel);
     m_temp = getFloat(dom, "temperature");
     resize(0, 1);
+}
+
+AnyMap Surf1D::serialize(const double* soln) const
+{
+    AnyMap state = Boundary1D::serialize(soln);
+    state["type"] = "surface";
+    state["temperature"] = m_temp;
+    return state;
 }
 
 void Surf1D::showSolution_s(std::ostream& s, const double* x)
@@ -757,6 +817,19 @@ void ReactingSurf1D::restore(const XML_Node& dom, double* soln,
     m_sphase->setCoverages(&m_fixed_cov[0]);
 
     resize(m_nsp, 1);
+}
+
+AnyMap ReactingSurf1D::serialize(const double* soln) const
+{
+    AnyMap state = Boundary1D::serialize(soln);
+    state["type"] = "reacting-surface";
+    state["temperature"] = m_temp;
+    AnyMap cov;
+    for (size_t k = 0; k < m_nsp; k++) {
+        cov[m_sphase->speciesName(k)] = soln[k];
+    }
+    state["coverages"] = std::move(cov);
+    return state;
 }
 
 void ReactingSurf1D::showSolution(const double* x)

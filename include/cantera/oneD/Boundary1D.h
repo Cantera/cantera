@@ -133,6 +133,7 @@ public:
                       integer* diagg, double rdt);
     virtual XML_Node& save(XML_Node& o, const double* const soln);
     virtual void restore(const XML_Node& dom, double* soln, int loglevel);
+    virtual AnyMap serialize(const double* soln) const;
 
 protected:
     int m_ilr;
@@ -163,6 +164,7 @@ public:
 
     virtual XML_Node& save(XML_Node& o, const double* const soln);
     virtual void restore(const XML_Node& dom, double* soln, int loglevel);
+    virtual AnyMap serialize(const double* soln) const;
 };
 
 /**
@@ -184,6 +186,7 @@ public:
 
     virtual XML_Node& save(XML_Node& o, const double* const soln);
     virtual void restore(const XML_Node& dom, double* soln, int loglevel);
+    virtual AnyMap serialize(const double* soln) const;
 };
 
 
@@ -205,6 +208,7 @@ public:
 
     virtual XML_Node& save(XML_Node& o, const double* const soln);
     virtual void restore(const XML_Node& dom, double* soln, int loglevel);
+    virtual AnyMap serialize(const double* soln) const;
 };
 
 
@@ -233,6 +237,7 @@ public:
                       integer* diagg, double rdt);
     virtual XML_Node& save(XML_Node& o, const double* const soln);
     virtual void restore(const XML_Node& dom, double* soln, int loglevel);
+    virtual AnyMap serialize(const double* soln) const;
 
 protected:
     size_t m_nsp;
@@ -261,6 +266,7 @@ public:
 
     virtual XML_Node& save(XML_Node& o, const double* const soln);
     virtual void restore(const XML_Node& dom, double* soln, int loglevel);
+    virtual AnyMap serialize(const double* soln) const;
 
     virtual void showSolution_s(std::ostream& s, const double* x);
 
@@ -296,6 +302,7 @@ public:
 
     virtual XML_Node& save(XML_Node& o, const double* const soln);
     virtual void restore(const XML_Node& dom, double* soln, int loglevel);
+    virtual AnyMap serialize(const double* soln) const;
 
     virtual void _getInitialSoln(double* x) {
         m_sphase->getCoverages(x);
