@@ -1160,7 +1160,8 @@ class CounterflowDiffusionFlame(FlameBase):
         Yin_f = self.fuel_inlet.Y
         self.gas.TPY = self.fuel_inlet.T, self.P, Yin_f
         mdotf = self.fuel_inlet.mdot
-        u0f = mdotf / self.gas.density
+        rho0f = self.gas.density
+        u0f = mdotf / rho0f
         T0f = self.fuel_inlet.T
 
         sFuel = moles('O')
@@ -1172,7 +1173,8 @@ class CounterflowDiffusionFlame(FlameBase):
         Yin_o = self.oxidizer_inlet.Y
         self.gas.TPY = self.oxidizer_inlet.T, self.P, Yin_o
         mdoto = self.oxidizer_inlet.mdot
-        u0o = mdoto / self.gas.density
+        rho0o = self.gas.density
+        u0o = mdoto / rho0o
         T0o = self.oxidizer_inlet.T
 
         sOx = moles('O')
@@ -1198,6 +1200,7 @@ class CounterflowDiffusionFlame(FlameBase):
         kOx = (self.gas.species_index('O2') if 'O2' in self.gas.species_names else
                self.gas.species_index('o2'))
         f = np.sqrt(a / (2.0 * self.gas.mix_diff_coeffs[kOx]))
+        L = - 0.5 * (rho0o + rho0f) * a**2
 
         x0 = np.sqrt(mdotf*u0f) * dz / (np.sqrt(mdotf*u0f) + np.sqrt(mdoto*u0o))
         nz = len(zz)
@@ -1221,6 +1224,7 @@ class CounterflowDiffusionFlame(FlameBase):
 
         self.set_profile('velocity', [0.0, 1.0], [u0f, -u0o])
         self.set_profile('spread_rate', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
+        self.set_profile("lambda", [0.0, 1.0], [L, L])
         self.set_profile('T', zrel, T)
         for k,spec in enumerate(self.gas.species_names):
             self.set_profile(spec, zrel, Y[:,k])
@@ -1580,11 +1584,13 @@ class CounterflowPremixedFlame(FlameBase):
         zz = self.flame.grid
         dz = zz[-1] - zz[0]
         a = (uu + ub)/dz
+        L = - 0.5 * (rhou + rhob) * a**2
         # estimate stagnation point
         x0 = rhou*uu * dz / (rhou*uu + rhob*ub)
 
         self.set_profile('velocity', [0.0, 1.0], [uu, -ub])
         self.set_profile('spread_rate', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
+        self.set_profile("lambda", [0.0, 1.0], [L, L])
 
 
 class CounterflowTwinPremixedFlame(FlameBase):
@@ -1644,7 +1650,8 @@ class CounterflowTwinPremixedFlame(FlameBase):
         Yu = self.reactants.Y
         Tu = self.reactants.T
         self.gas.TPY = Tu, self.flame.P, Yu
-        uu = self.reactants.mdot / self.gas.density
+        rhou = self.gas.density
+        uu = self.reactants.mdot / rhou
 
         self.gas.equilibrate('HP')
         Tb = self.gas.T
@@ -1660,6 +1667,8 @@ class CounterflowTwinPremixedFlame(FlameBase):
         zz = self.flame.grid
         dz = zz[-1] - zz[0]
         a = 2 * uu / dz
+        L = - rhou * a**2
 
         self.set_profile('velocity', [0.0, 1.0], [uu, 0])
         self.set_profile('spread_rate', [0.0, 1.0], [0.0, a])
+        self.set_profile("lambda", [0.0, 1.0], [L, L])
