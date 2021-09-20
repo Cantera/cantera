@@ -170,26 +170,26 @@ void MultiNewton::step(doublereal* x, doublereal* step,
     try {
         jac.solve(step, step);
     } catch (CanteraError&) {
-        int iok = jac.info() - 1;
-        if (iok >= 0) {
-            size_t nd = r.nDomains();
-            size_t n;
-            for (n = nd-1; n != npos; n--) {
-                if (iok >= static_cast<int>(r.start(n))) {
-                    break;
+        if (jac.info() > 0) {
+            // Positive value for "info" indicates the row where factorization failed
+            size_t row = static_cast<size_t>(jac.info() - 1);
+            // Find the domain, grid point, and solution component corresponding
+            // to this row
+            for (size_t n = 0; n < r.nDomains(); n++) {
+                Domain1D& dom = r.domain(n);
+                size_t nComp = dom.nComponents();
+                if (row >= dom.loc() && row < dom.loc() + nComp * dom.nPoints()) {
+                    size_t offset = row - dom.loc();
+                    size_t pt = offset / nComp;
+                    size_t comp = offset - pt * nComp;
+                    throw CanteraError("MultiNewton::step",
+                        "Jacobian is singular for domain {}, component {} at point {}\n"
+                        "(Matrix row {})",
+                        dom.id(), dom.componentName(comp), pt, row);
                 }
             }
-            Domain1D& dom = r.domain(n);
-            size_t offset = iok - r.start(n);
-            size_t pt = offset/dom.nComponents();
-            size_t comp = offset - pt*dom.nComponents();
-            throw CanteraError("MultiNewton::step",
-                "Jacobian is singular for domain {}, component {} at point {}\n"
-                "(Matrix row {})",
-                dom.id(), dom.componentName(comp), pt, iok);
-        } else {
-            throw;
         }
+        throw;
     }
 }
 
