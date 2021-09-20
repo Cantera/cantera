@@ -15,6 +15,7 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/numerics/Func1.h"
 #include <limits>
+#include <fstream>
 
 using namespace std;
 
@@ -96,7 +97,35 @@ void Sim1D::setProfile(size_t dom, size_t comp,
 void Sim1D::save(const std::string& fname, const std::string& id,
                  const std::string& desc, int loglevel)
 {
-    OneDim::save(fname, id, desc, m_x.data(), loglevel);
+    size_t dot = fname.find_last_of(".");
+    string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
+    if (extension != "yml" && extension != "yaml") {
+        OneDim::save(fname, id, desc, m_x.data(), loglevel);
+        return;
+    }
+
+    // Check for an existing file and load it if present
+    AnyMap data;
+    if (ifstream(fname).good()) {
+        data = AnyMap::fromYamlFile(fname);
+    }
+    bool preexisting = data.hasKey(id);
+
+    // Add this simulation to the YAML
+    data[id] = serialize(m_x.data());
+
+    // If this is not replacing an existing solution, put it at the end
+    if (!preexisting) {
+        data[id].setLoc(INT_MAX, 0);
+    }
+
+    // Write the output file and remove the now-outdated cached file
+    std::ofstream out(fname);
+    out << data.toYamlString();
+    AnyMap::clearCachedFile(fname);
+    if (loglevel > 0) {
+        writelog("Solution saved to file {} as solution '{}'.\n", fname, id);
+    }
 }
 
 void Sim1D::saveResidual(const std::string& fname, const std::string& id,

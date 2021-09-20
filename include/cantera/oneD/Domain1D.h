@@ -27,6 +27,7 @@ const int cPorousType = 109;
 class MultiJac;
 class OneDim;
 class Refiner;
+class AnyMap;
 class XML_Node;
 
 /**
@@ -339,6 +340,12 @@ public:
      *     Cantera 3.0.
      */
     virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
+
+    //! Save the state of this domain as an AnyMap
+    /*!
+     * @param soln local solution vector for this domain
+     */
+    virtual AnyMap serialize(const double* soln) const;
 
     size_t size() const {
         return m_nv*m_points;

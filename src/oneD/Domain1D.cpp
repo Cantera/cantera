@@ -9,6 +9,7 @@
 #include "cantera/oneD/MultiJac.h"
 #include "cantera/oneD/refine.h"
 #include "cantera/base/ctml.h"
+#include "cantera/base/AnyMap.h"
 
 using namespace std;
 
@@ -164,6 +165,19 @@ void Domain1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                                "Got an unexpected array, '" + title + "'");
         }
     }
+}
+
+AnyMap Domain1D::serialize(const double* soln) const
+{
+    AnyMap state;
+    state["id"] = id();
+    if (nComponents()) {
+        state["tolerances"]["absolute"]["transient"] = m_atol_ts;
+        state["tolerances"]["absolute"]["steady"] = m_atol_ss;
+        state["tolerances"]["relative"]["transient"] = m_rtol_ts;
+        state["tolerances"]["relative"]["steady"] = m_rtol_ss;
+    }
+    return state;
 }
 
 void Domain1D::locate()
