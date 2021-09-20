@@ -16,6 +16,7 @@ namespace Cantera
 
 class Func1;
 class MultiNewton;
+class AnyMap;
 
 /**
  * Container class for multiple-domain 1D problems. Each domain is
@@ -226,6 +227,8 @@ public:
 
     void save(const std::string& fname, std::string id,
               const std::string& desc, doublereal* sol, int loglevel);
+
+    AnyMap serialize(const double* soln) const;
 
     // options
     void setMinTimeStep(doublereal tmin) {

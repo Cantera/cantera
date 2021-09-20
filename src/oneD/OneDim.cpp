@@ -7,6 +7,7 @@
 #include "cantera/numerics/Func1.h"
 #include "cantera/base/ctml.h"
 #include "cantera/oneD/MultiNewton.h"
+#include "cantera/base/AnyMap.h"
 
 #include <fstream>
 #include <ctime>
@@ -458,6 +459,17 @@ void OneDim::save(const std::string& fname, std::string id,
     root.write(s);
     s.close();
     debuglog("Solution saved to file "+fname+" as solution "+id+".\n", loglevel);
+}
+
+AnyMap OneDim::serialize(const double* soln) const
+{
+    vector<AnyMap> domains(m_dom.size());
+    for (size_t i = 0; i < m_dom.size(); i++) {
+        domains[i] = m_dom[i]->serialize(soln + start(i));
+    }
+    AnyMap state;
+    state["domains"] = std::move(domains);
+    return state;
 }
 
 }
