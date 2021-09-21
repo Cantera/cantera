@@ -205,10 +205,12 @@ class TestFreeFlame(utilities.CanteraTest):
                         width=0.1)
 
         self.sim.set_refine_criteria(ratio=4, slope=0.8, curve=0.8)
+        self.sim.flame.set_steady_tolerances(T=(2e-4, 1e-8))
         self.sim.solve(refine_grid=True, auto=True, loglevel=0)
+
         self.assertNear(self.sim.velocity[0], 17.02, 1e-1)
         self.assertLess(self.sim.grid[-1], 2.0) # grid should not be too wide
-
+        self.assertEqual(self.sim.flame.tolerances("T"), (2e-4, 1e-8))
 
     @utilities.slow_test
     def test_converge_adiabatic(self):
