@@ -175,7 +175,7 @@ public:
     //! Return the type of flow domain being represented, either "Free Flame" or
     //! "Axisymmetric Stagnation".
     //! @see setFreeFlow setAxisymmetricFlow
-    virtual std::string flowType() {
+    virtual std::string flowType() const {
         if (m_type == cFreeFlow) {
             return "Free Flame";
         } else if (m_type == cAxisymmetricStagnationFlow) {
