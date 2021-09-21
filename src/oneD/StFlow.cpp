@@ -792,9 +792,6 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
     XML_Node& flow = Domain1D::save(o, sol);
     flow.addAttribute("type",flowType());
 
-    if (m_desc != "") {
-        addString(flow,"description",m_desc);
-    }
     XML_Node& gv = flow.addChild("grid_data");
     addFloat(flow, "pressure", m_press, "Pa", "pressure");
 

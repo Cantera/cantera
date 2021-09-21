@@ -518,7 +518,6 @@ protected:
 
     //! Identity tag for the domain
     std::string m_id;
-    std::string m_desc;
     std::unique_ptr<Refiner> m_refiner;
     std::vector<std::string> m_name;
     int m_bw;
