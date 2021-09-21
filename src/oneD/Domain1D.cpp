@@ -11,6 +11,8 @@
 #include "cantera/base/ctml.h"
 #include "cantera/base/AnyMap.h"
 
+#include <set>
+
 using namespace std;
 
 namespace Cantera
@@ -169,13 +171,27 @@ void Domain1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 
 AnyMap Domain1D::serialize(const double* soln) const
 {
+    auto wrap_tols = [this](const vector_fp& tols) {
+        // If all tolerances are the same, just store the scalar value.
+        // Otherwise, store them by component name
+        std::set<double> unique_tols(tols.begin(), tols.end());
+        if (unique_tols.size() == 1) {
+            return AnyValue(tols[0]);
+        } else {
+            AnyMap out;
+            for (size_t i = 0; i < tols.size(); i++) {
+                out[componentName(i)] = tols[i];
+            }
+            return AnyValue(out);
+        }
+    };
     AnyMap state;
     state["id"] = id();
-    if (nComponents()) {
-        state["tolerances"]["absolute"]["transient"] = m_atol_ts;
-        state["tolerances"]["absolute"]["steady"] = m_atol_ss;
-        state["tolerances"]["relative"]["transient"] = m_rtol_ts;
-        state["tolerances"]["relative"]["steady"] = m_rtol_ss;
+    if (nComponents() && nPoints()) {
+        state["tolerances"]["absolute"]["transient"] = wrap_tols(m_atol_ts);
+        state["tolerances"]["absolute"]["steady"] = wrap_tols(m_atol_ss);
+        state["tolerances"]["relative"]["transient"] = wrap_tols(m_rtol_ts);
+        state["tolerances"]["relative"]["steady"] = wrap_tols(m_rtol_ss);
     }
     return state;
 }
