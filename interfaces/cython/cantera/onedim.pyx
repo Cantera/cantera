@@ -1137,6 +1137,7 @@ cdef class Sim1D:
                 if isinstance(dom, _FlowBase):
                     dom.set_transport(self.gas)
 
+        # Do initial solution steps with default tolerances
         have_user_tolerances = any(dom.have_user_tolerances for dom in self.domains)
         if have_user_tolerances:
             # Save the user-specified tolerances
@@ -1144,6 +1145,14 @@ cdef class Sim1D:
             rtol_ss_final = [dom.steady_reltol() for dom in self.domains]
             atol_ts_final = [dom.transient_abstol() for dom in self.domains]
             rtol_ts_final = [dom.transient_reltol() for dom in self.domains]
+
+        def restore_tolerances():
+            if have_user_tolerances:
+                for i in range(len(self.domains)):
+                    self.domains[i].set_steady_tolerances(abs=atol_ss_final[i],
+                                                        rel=rtol_ss_final[i])
+                    self.domains[i].set_transient_tolerances(abs=atol_ts_final[i],
+                                                            rel=rtol_ts_final[i])
 
         for dom in self.domains:
             dom.set_default_tolerances()
@@ -1203,6 +1212,7 @@ cdef class Sim1D:
                 # restore settings before re-raising exception
                 set_transport(transport)
                 set_soret(True)
+                restore_tolerances()
                 raise e
 
             # If initial solve using energy equation fails, fall back on the
@@ -1221,6 +1231,7 @@ cdef class Sim1D:
                     # restore settings before re-raising exception
                     set_transport(transport)
                     set_soret(True)
+                    restore_tolerances()
                     raise e
 
                 if solved:
@@ -1236,6 +1247,7 @@ cdef class Sim1D:
                         # restore settings before re-raising exception
                         set_transport(transport)
                         set_soret(True)
+                        restore_tolerances()
                         raise e
 
             if solved and not self.extinct() and refine_grid:
@@ -1251,6 +1263,7 @@ cdef class Sim1D:
                     # restore settings before re-raising exception
                     set_transport(transport)
                     set_soret(True)
+                    restore_tolerances()
                     raise e
 
                 if solved and not self.extinct():
@@ -1276,11 +1289,7 @@ cdef class Sim1D:
 
         if have_user_tolerances:
             log('Solving with user-specified tolerances')
-            for i in range(len(self.domains)):
-                self.domains[i].set_steady_tolerances(abs=atol_ss_final[i],
-                                                      rel=rtol_ss_final[i])
-                self.domains[i].set_transient_tolerances(abs=atol_ts_final[i],
-                                                         rel=rtol_ts_final[i])
+            restore_tolerances()
 
         # Final call with expensive options enabled
         if have_user_tolerances or solve_multi or soret_doms:
