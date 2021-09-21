@@ -10,6 +10,8 @@
 #include "cantera/numerics/funcs.h"
 #include "cantera/base/global.h"
 
+#include <set>
+
 using namespace std;
 
 namespace Cantera
@@ -845,6 +847,56 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
     }
     return flow;
 }
+
+AnyMap StFlow::serialize(const double* soln) const
+{
+    AnyMap state = Domain1D::serialize(soln);
+    state["type"] = flowType();
+    state["pressure"] = m_press;
+    state["grid"] = m_z;
+
+    vector_fp data(nPoints());
+    for (size_t i = 0; i < nComponents(); i++) {
+        for (size_t j = 0; j < nPoints(); j++) {
+            data[j] = soln[index(i,j)];
+        }
+        state[componentName(i)] = data;
+    }
+
+    if (m_do_radiation) {
+        state["radiative-heat-loss"] = m_qdotRadiation;
+    }
+
+    std::set<bool> energy_flags(m_do_energy.begin(), m_do_energy.end());
+    if (energy_flags.size() == 1) {
+        state["energy-enabled"] = m_do_energy[0];
+    } else {
+        state["energy-enabled"] = m_do_energy;
+    }
+
+    std::set<bool> species_flags(m_do_species.begin(), m_do_species.end());
+    if (species_flags.size() == 1) {
+        state["species-enabled"] = m_do_species[0];
+    } else {
+        for (size_t k = 0; k < m_nsp; k++) {
+            state["species-enabled"][m_thermo->speciesName(k)] = m_do_species[k];
+        }
+    }
+
+    state["refine-criteria"]["ratio"] = m_refiner->maxRatio();
+    state["refine-criteria"]["slope"] = m_refiner->maxDelta();
+    state["refine-criteria"]["curve"] = m_refiner->maxSlope();
+    state["refine-criteria"]["prune"] = m_refiner->prune();
+    state["refine-criteria"]["grid-min"] = m_refiner->gridMin();
+
+    if (m_zfixed != Undef) {
+        state["fixed-point"]["location"] = m_zfixed;
+        state["fixed-point"]["temperature"] = m_tfixed;
+    }
+
+    return state;
+}
+
 
 void StFlow::solveEnergyEqn(size_t j)
 {

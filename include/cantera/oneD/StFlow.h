@@ -155,6 +155,8 @@ public:
     virtual void restore(const XML_Node& dom, doublereal* soln,
                          int loglevel);
 
+    virtual AnyMap serialize(const double* soln) const;
+
     //! Set flow configuration for freely-propagating flames, using an internal
     //! point with a fixed temperature as the condition to determine the inlet
     //! mass flux.
