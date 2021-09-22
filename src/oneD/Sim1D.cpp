@@ -146,32 +146,55 @@ void Sim1D::saveResidual(const std::string& fname, const std::string& id,
 void Sim1D::restore(const std::string& fname, const std::string& id,
                     int loglevel)
 {
-    XML_Node root;
-    root.build(fname);
-
-    XML_Node* f = root.findID(id);
-    if (!f) {
-        throw CanteraError("Sim1D::restore","No solution with id = "+id);
-    }
-
-    vector<XML_Node*> xd = f->getChildren("domain");
-    if (xd.size() != nDomains()) {
-        throw CanteraError("Sim1D::restore", "Solution does not contain the "
-            " correct number of domains. Found {} expected {}.\n",
-            xd.size(), nDomains());
-    }
-    for (size_t m = 0; m < nDomains(); m++) {
-        Domain1D& dom = domain(m);
-        if (loglevel > 0 && xd[m]->attrib("id") != dom.id()) {
-            warn_user("Sim1D::restore", "Domain names do not match: "
-                "'{} and '{}'", (*xd[m])["id"], dom.id());
+    size_t dot = fname.find_last_of(".");
+    string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
+    if (extension == "yml" || extension == "yaml") {
+        AnyMap root = AnyMap::fromYamlFile(fname);
+        if (!root.hasKey(id)) {
+            throw CanteraError("Sim1D::restore", "No solution with id '{}'", id);
         }
-        dom.resize(domain(m).nComponents(), intValue((*xd[m])["points"]));
-    }
-    resize();
-    m_xlast_ts.clear();
-    for (size_t m = 0; m < nDomains(); m++) {
-        domain(m).restore(*xd[m], &m_x[start(m)], loglevel);
+        const auto& domains = root[id]["domains"].asMap("id");
+        for (auto dom : m_dom) {
+            if (!domains.count(dom->id())) {
+                throw CanteraError("Sim1D::restore", "Solution '{}' does not"
+                    " contain a domain named '{}'.", id, dom->id());
+            }
+            dom->resize(dom->nComponents(),
+                        domains.at(dom->id())->at("points").asDouble());
+        }
+        resize();
+        m_xlast_ts.clear();
+        for (auto dom : m_dom) {
+            dom->restore(*domains.at(dom->id()), m_x.data() + dom->loc(), loglevel);
+        }
+    } else {
+        XML_Node root;
+        root.build(fname);
+
+        XML_Node* f = root.findID(id);
+        if (!f) {
+            throw CanteraError("Sim1D::restore","No solution with id = "+id);
+        }
+
+        vector<XML_Node*> xd = f->getChildren("domain");
+        if (xd.size() != nDomains()) {
+            throw CanteraError("Sim1D::restore", "Solution does not contain the "
+                " correct number of domains. Found {} expected {}.\n",
+                xd.size(), nDomains());
+        }
+        for (size_t m = 0; m < nDomains(); m++) {
+            Domain1D& dom = domain(m);
+            if (loglevel > 0 && xd[m]->attrib("id") != dom.id()) {
+                warn_user("Sim1D::restore", "Domain names do not match: "
+                    "'{} and '{}'", (*xd[m])["id"], dom.id());
+            }
+            dom.resize(domain(m).nComponents(), intValue((*xd[m])["points"]));
+        }
+        resize();
+        m_xlast_ts.clear();
+        for (size_t m = 0; m < nDomains(); m++) {
+            domain(m).restore(*xd[m], &m_x[start(m)], loglevel);
+        }
     }
     finalize();
 }

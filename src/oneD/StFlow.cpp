@@ -894,6 +894,61 @@ AnyMap StFlow::serialize(const double* soln) const
     return state;
 }
 
+void StFlow::restore(const AnyMap& state, double* soln, int loglevel)
+{
+    Domain1D::restore(state, soln, loglevel);
+    m_press = state["pressure"].asDouble();
+    setupGrid(nPoints(), state["grid"].asVector<double>(nPoints()).data());
+
+    for (size_t i = 0; i < nComponents(); i++) {
+        std::string name = componentName(i);
+        if (state.hasKey(name)) {
+            const vector_fp& data = state[name].asVector<double>(nPoints());
+            for (size_t j = 0; j < nPoints(); j++) {
+                soln[index(i,j)] = data[j];
+            }
+        } else if (loglevel) {
+            warn_user("StFlow::restore", "Saved state does not contain values for "
+                "component '{}' in domain '{}'.", name, id());
+        }
+    }
+
+    if (state.hasKey("energy-enabled")) {
+        const AnyValue& ee = state["energy-enabled"];
+        if (ee.isScalar()) {
+            m_do_energy.assign(nPoints(), ee.asBool());
+        } else {
+            m_do_energy = ee.asVector<bool>(nPoints());
+        }
+    }
+
+    if (state.hasKey("species-enabled")) {
+        const AnyValue& se = state["species-enabled"];
+        if (se.isScalar()) {
+            m_do_species.assign(m_thermo->nSpecies(), se.asBool());
+        } else {
+            m_do_species = se.asVector<bool>(m_thermo->nSpecies());
+        }
+    }
+
+    if (state.hasKey("refine-criteria")) {
+        const AnyMap& criteria = state["refine-criteria"].as<AnyMap>();
+        double ratio = criteria.getDouble("ratio", m_refiner->maxRatio());
+        double slope = criteria.getDouble("slope", m_refiner->maxDelta());
+        double curve = criteria.getDouble("curve", m_refiner->maxSlope());
+        double prune = criteria.getDouble("prune", m_refiner->prune());
+        m_refiner->setCriteria(ratio, slope, curve, prune);
+
+        if (criteria.hasKey("grid-min")) {
+            m_refiner->setGridMin(criteria["grid-min"].asDouble());
+        }
+    }
+
+    if (state.hasKey("fixed-point")) {
+        m_zfixed = state["fixed-point"]["location"].asDouble();
+        m_tfixed = state["fixed-point"]["temperature"].asDouble();
+    }
+}
 
 void StFlow::solveEnergyEqn(size_t j)
 {
