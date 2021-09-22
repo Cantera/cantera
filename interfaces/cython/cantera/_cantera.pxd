@@ -1257,6 +1257,12 @@ cdef class ReactionRate:
     cdef CxxReactionRateBase* rate
     @staticmethod
     cdef wrap(shared_ptr[CxxReactionRateBase])
+    cdef set_cxx_object(self)
+
+cdef class FalloffRate(ReactionRate):
+    cdef CxxFalloffRate[CxxFalloff3]* falloff
+    cdef set_cxx_object(self)
+    cdef CxxFalloffRate[CxxFalloff3]* cxx_object(self)
 
 cdef class CustomRate(ReactionRate):
     cdef CxxCustomFunc1Rate* cxx_object(self)

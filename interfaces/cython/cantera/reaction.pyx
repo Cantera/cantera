@@ -64,8 +64,11 @@ cdef class ReactionRate:
         cdef ReactionRate rr
         rr = cls(init=False)
         rr._rate = rate
-        rr.rate = rr._rate.get()
+        rr.set_cxx_object()
         return rr
+
+    cdef set_cxx_object(self):
+        self.rate = self._rate.get()
 
     @classmethod
     def from_dict(cls, data):
@@ -162,7 +165,7 @@ cdef class ArrheniusRate(ReactionRate):
                 raise TypeError("Invalid parameter 'input_data'")
             else:
                 raise TypeError("Invalid parameters 'A', 'b' or 'Ea'")
-            self.rate = self._rate.get()
+            self.set_cxx_object()
 
     cdef CxxArrheniusRate* cxx_object(self):
         return <CxxArrheniusRate*>self.rate
@@ -221,7 +224,7 @@ cdef class BlowersMaselRate(ReactionRate):
                 raise TypeError("Invalid parameter 'input_data'")
             else:
                 raise TypeError("Invalid parameters 'A', 'b', 'Ea0' or 'w'")
-            self.rate = self._rate.get()
+            self.set_cxx_object()
 
     cdef CxxBlowersMaselRate* cxx_object(self):
         return <CxxBlowersMaselRate*>self.rate
@@ -310,7 +313,7 @@ cdef class FalloffRate(ReactionRate):
                 self._from_empty()
             else:
                 raise TypeError("Invalid input parameters")
-            self.rate = self._rate.get()
+            self.set_cxx_object()
 
             if (low is not None) and (high is not None):
                 self.low_rate = low
@@ -318,6 +321,10 @@ cdef class FalloffRate(ReactionRate):
                 if data is None:
                     data = ()
                 self.data = data
+
+    cdef set_cxx_object(self):
+        self.rate = self._rate.get()
+        self.falloff = <CxxFalloffRate[CxxFalloff3]*>self.rate
 
     cdef CxxFalloffRate[CxxFalloff3]* cxx_object(self):
         return <CxxFalloffRate[CxxFalloff3]*>self.rate
@@ -464,7 +471,7 @@ cdef class PlogRate(ReactionRate):
                 raise TypeError("Invalid parameter 'input_data'")
             else:
                 raise TypeError("Invalid parameter 'rates'")
-            self.rate = self._rate.get()
+            self.set_cxx_object()
 
     cdef CxxPlogRate* cxx_object(self):
         return <CxxPlogRate*>self.rate
@@ -524,7 +531,7 @@ cdef class ChebyshevRate(ReactionRate):
                 raise TypeError("Invalid parameter 'input_data'")
             else:
                 raise TypeError("Invalid parameters")
-            self.rate = self._rate.get()
+            self.set_cxx_object()
 
     cdef CxxArray2D _cxxarray2d(self, coeffs):
         """ Internal function to assign coefficient matrix values """
@@ -599,7 +606,7 @@ cdef class CustomRate(ReactionRate):
 
         if init:
             self._rate.reset(new CxxCustomFunc1Rate())
-            self.rate = self._rate.get()
+            self.set_cxx_object()
             try:
                 self.set_rate_function(k)
             except Exception:
