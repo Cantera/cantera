@@ -156,6 +156,7 @@ public:
                          int loglevel);
 
     virtual AnyMap serialize(const double* soln) const;
+    virtual void restore(const AnyMap& state, double* soln, int loglevel);
 
     //! Set flow configuration for freely-propagating flames, using an internal
     //! point with a fixed temperature as the condition to determine the inlet
