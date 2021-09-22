@@ -324,36 +324,34 @@ cdef class FalloffRate(ReactionRate):
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
-        self.falloff = <CxxFalloffRate[CxxFalloff3]*>self.rate
-
-    cdef CxxFalloffRate[CxxFalloff3]* cxx_object(self):
-        return <CxxFalloffRate[CxxFalloff3]*>self.rate
+        cdef CxxFalloffRate[CxxFalloff3]* tmp = <CxxFalloffRate[CxxFalloff3]*>self.rate
+        self.falloff = <CxxFalloff3*>tmp
 
     property low_rate:
         """ Get/Set the `Arrhenius` rate constant in the low-pressure limit """
         def __get__(self):
-            return wrapArrhenius(&(self.cxx_object().lowRate()), None)
+            return wrapArrhenius(&(self.falloff.lowRate()), None)
         def __set__(self, Arrhenius rate):
-            self.cxx_object().setLowRate(deref(rate.rate))
+            self.falloff.setLowRate(deref(rate.rate))
 
     property high_rate:
         """ Get/Set the `Arrhenius` rate constant in the high-pressure limit """
         def __get__(self):
-            return wrapArrhenius(&(self.cxx_object().highRate()), None)
+            return wrapArrhenius(&(self.falloff.highRate()), None)
         def __set__(self, Arrhenius rate):
-            self.cxx_object().setHighRate(deref(rate.rate))
+            self.falloff.setHighRate(deref(rate.rate))
 
     property data:
         """ The array of coefficients used to define this falloff function. """
         def __get__(self):
             cdef vector[double] cxxdata
-            self.cxx_object().getData(cxxdata)
+            self.falloff.getData(cxxdata)
             return np.fromiter(cxxdata, np.double)
         def __set__(self, data):
             cdef vector[double] cxxdata
             for c in data:
                 cxxdata.push_back(c)
-            self.cxx_object().setData(cxxdata)
+            self.falloff.setData(cxxdata)
 
     property allow_negative_pre_exponential_factor:
         """
@@ -361,16 +359,16 @@ cdef class FalloffRate(ReactionRate):
         pre-exponential factor.
         """
         def __get__(self):
-            return self.cxx_object().allow_negative_pre_exponential_factor
+            return self.falloff.allow_negative_pre_exponential_factor
         def __set__(self, cbool allow):
-            self.cxx_object().allow_negative_pre_exponential_factor = allow
+            self.falloff.allow_negative_pre_exponential_factor = allow
 
     property chemically_activated:
         """
         Get whether the object is a chemically-activated reaction rate.
         """
         def __get__(self):
-            return self.cxx_object().chemicallyActivated()
+            return self.falloff.chemicallyActivated()
 
     property third_body_concentration:
         """
@@ -378,9 +376,9 @@ cdef class FalloffRate(ReactionRate):
         rate calculation.
         """
         def __get__(self):
-            return self.cxx_object().third_body_concentration
+            return self.falloff.third_body_concentration
         def __set__(self, double conc):
-            self.cxx_object().third_body_concentration = conc
+            self.falloff.third_body_concentration = conc
 
     def falloff_function(self, double temperature, conc3b=None):
         """
@@ -388,7 +386,7 @@ cdef class FalloffRate(ReactionRate):
         """
         if conc3b is None:
             conc3b = self.third_body_concentration
-        return self.cxx_object().evalF(temperature, conc3b)
+        return self.falloff.evalF(temperature, conc3b)
 
 
 cdef class LindemannRate(FalloffRate):
@@ -403,6 +401,11 @@ cdef class LindemannRate(FalloffRate):
 
     def _from_dict(self, dict input_data):
         self._rate.reset(new CxxFalloffRate[CxxLindemann](dict_to_anymap(input_data)))
+
+    cdef set_cxx_object(self):
+        self.rate = self._rate.get()
+        cdef CxxFalloffRate[CxxLindemann]* tmp = <CxxFalloffRate[CxxLindemann]*>self.rate
+        self.falloff = <CxxFalloff3*>tmp
 
 
 cdef class TroeRate(FalloffRate):
@@ -420,6 +423,11 @@ cdef class TroeRate(FalloffRate):
     def _from_dict(self, dict input_data):
         self._rate.reset(new CxxFalloffRate[CxxTroe](dict_to_anymap(input_data)))
 
+    cdef set_cxx_object(self):
+        self.rate = self._rate.get()
+        cdef CxxFalloffRate[CxxTroe]* tmp = <CxxFalloffRate[CxxTroe]*>self.rate
+        self.falloff = <CxxFalloff3*>tmp
+
 
 cdef class SriRate(FalloffRate):
     r"""
@@ -436,6 +444,11 @@ cdef class SriRate(FalloffRate):
     def _from_dict(self, dict input_data):
         self._rate.reset(new CxxFalloffRate[CxxSri](dict_to_anymap(input_data)))
 
+    cdef set_cxx_object(self):
+        self.rate = self._rate.get()
+        cdef CxxFalloffRate[CxxSri]* tmp = <CxxFalloffRate[CxxSri]*>self.rate
+        self.falloff = <CxxFalloff3*>tmp
+
 
 cdef class TsangRate(FalloffRate):
     r"""
@@ -448,6 +461,11 @@ cdef class TsangRate(FalloffRate):
 
     def _from_dict(self, dict input_data):
         self._rate.reset(new CxxFalloffRate[CxxTsang](dict_to_anymap(input_data)))
+
+    cdef set_cxx_object(self):
+        self.rate = self._rate.get()
+        cdef CxxFalloffRate[CxxTsang]* tmp = <CxxFalloffRate[CxxTsang]*>self.rate
+        self.falloff = <CxxFalloff3*>tmp
 
 
 cdef class PlogRate(ReactionRate):
