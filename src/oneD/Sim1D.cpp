@@ -113,6 +113,13 @@ void Sim1D::save(const std::string& fname, const std::string& id,
 
     // Add this simulation to the YAML
     data[id] = serialize(m_x.data());
+    data[id]["description"] = desc;
+
+    // Add a timestamp indicating the current time
+    time_t aclock;
+    ::time(&aclock); // Get time in seconds
+    struct tm* newtime = localtime(&aclock); // Convert time to struct tm form
+    data[id]["timestamp"] = stripnonprint(asctime(newtime));
 
     // If this is not replacing an existing solution, put it at the end
     if (!preexisting) {
