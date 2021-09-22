@@ -503,7 +503,7 @@ class TestFreeFlame(utilities.CanteraTest):
         # TODO: check that the solution is actually correct (i.e. that the
         # residual satisfies the error tolerances) on the new grid.
 
-    def test_save_restore(self):
+    def test_save_restore_xml(self):
         reactants = 'H2:1.1, O2:1, AR:5'
         p = 2 * ct.one_atm
         Tin = 400
@@ -560,6 +560,66 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertArrayNear(u1, u3, 1e-3)
         self.assertArrayNear(V1, V3, 1e-3)
 
+    def test_save_restore_yaml(self):
+        reactants = "H2:1.1, O2:1, AR:5"
+        p = 2 * ct.one_atm
+        Tin = 400
+
+        self.create_sim(p, Tin, reactants)
+        self.solve_fixed_T()
+        filename = self.test_work_path / "onedim-fixed-T.yaml"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if filename.is_file():
+            filename.unlink()
+
+        Y1 = self.sim.Y
+        u1 = self.sim.velocity
+        V1 = self.sim.spread_rate
+        P1 = self.sim.P
+        T1 = self.sim.T
+
+        self.sim.save(filename, "test", loglevel=0)
+
+        # Save a second solution to the same file
+        self.sim.save(filename, "test2", loglevel=0)
+
+        # Create flame object with dummy initial grid
+        self.sim = ct.FreeFlame(self.gas)
+        self.sim.restore(filename, "test", loglevel=0)
+
+        # Sim is initially in "steady-state" mode, so this returns the
+        # steady-state tolerances
+        rtol, atol = self.sim.flame.tolerances("T")
+        self.assertNear(rtol, self.tol_ss[0])
+        self.assertNear(atol, self.tol_ss[1])
+        self.assertFalse(self.sim.energy_enabled)
+
+        P2a = self.sim.P
+
+        self.assertNear(p, P1)
+        self.assertNear(P1, P2a)
+
+        Y2 = self.sim.Y
+        u2 = self.sim.velocity
+        V2 = self.sim.spread_rate
+        T2 = self.sim.T
+
+        self.assertArrayNear(Y1, Y2)
+        self.assertArrayNear(u1, u2)
+        self.assertArrayNear(V1, V2)
+        self.assertArrayNear(T1, T2)
+
+        self.solve_fixed_T()
+        Y3 = self.sim.Y
+        u3 = self.sim.velocity
+        V3 = self.sim.spread_rate
+
+        # TODO: These tolerances seem too loose, but the tests fail on some
+        # systems with tighter tolerances.
+        self.assertArrayNear(Y1, Y3, 3e-3)
+        self.assertArrayNear(u1, u3, 1e-3)
+        self.assertArrayNear(V1, V3, 1e-3)
+
     def test_array_properties(self):
         self.create_sim(ct.one_atm, 300, 'H2:1.1, O2:1, AR:5')
 
@@ -573,7 +633,7 @@ class TestFreeFlame(utilities.CanteraTest):
                     getattr(self.sim, attr)
 
     @utilities.slow_test
-    def test_save_restore_add_species(self):
+    def test_save_restore_add_species_xml(self):
         reactants = 'H2:1.1, O2:1, AR:5'
         p = 2 * ct.one_atm
         Tin = 400
@@ -603,7 +663,37 @@ class TestFreeFlame(utilities.CanteraTest):
             self.assertArrayNear(Y1[k1], Y2[k2])
 
     @utilities.slow_test
-    def test_save_restore_remove_species(self):
+    def test_save_restore_add_species_yaml(self):
+        reactants = "H2:1.1, O2:1, AR:5"
+        p = 2 * ct.one_atm
+        Tin = 400
+
+        filename = self.test_work_path / "onedim-add-species.yaml"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if filename.is_file():
+            filename.unlink()
+
+        self.create_sim(p, Tin, reactants, mech="h2o2.yaml")
+        gas1 = self.gas
+        self.solve_fixed_T()
+        self.solve_mix(ratio=5, slope=0.5, curve=0.3)
+        self.sim.save(filename, "test", loglevel=0)
+        T1 = self.sim.T
+        Y1 = self.sim.Y
+
+        gas2 = ct.Solution("h2o2-plus.xml")
+        self.sim = ct.FreeFlame(gas2)
+        self.sim.restore(filename, "test", loglevel=0)
+        T2 = self.sim.T
+        Y2 = self.sim.Y
+
+        self.assertArrayNear(T1, T2)
+        for k1, species in enumerate(gas1.species_names):
+            k2 = gas2.species_index(species)
+            self.assertArrayNear(Y1[k1], Y2[k2])
+
+    @utilities.slow_test
+    def test_save_restore_remove_species_xml(self):
         reactants = 'H2:1.1, O2:1, AR:5'
         p = 2 * ct.one_atm
         Tin = 400
@@ -624,6 +714,36 @@ class TestFreeFlame(utilities.CanteraTest):
         gas2 = ct.Solution('h2o2.xml')
         self.sim = ct.FreeFlame(gas2)
         self.sim.restore(filename, 'test', loglevel=0)
+        T2 = self.sim.T
+        Y2 = self.sim.Y
+
+        self.assertArrayNear(T1, T2)
+        for k2, species in enumerate(gas2.species_names):
+            k1 = gas1.species_index(species)
+            self.assertArrayNear(Y1[k1], Y2[k2])
+
+    @utilities.slow_test
+    def test_save_restore_remove_species_yaml(self):
+        reactants = "H2:1.1, O2:1, AR:5"
+        p = 2 * ct.one_atm
+        Tin = 400
+
+        filename = self.test_work_path / "onedim-add-species.yaml"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if filename.is_file():
+            filename.unlink()
+
+        self.create_sim(p, Tin, reactants, mech="h2o2-plus.xml")
+        gas1 = self.gas
+        self.solve_fixed_T()
+        self.solve_mix(ratio=5, slope=0.5, curve=0.3)
+        self.sim.save(filename, "test", loglevel=0)
+        T1 = self.sim.T
+        Y1 = self.sim.Y
+
+        gas2 = ct.Solution("h2o2.yaml")
+        self.sim = ct.FreeFlame(gas2)
+        self.sim.restore(filename, "test", loglevel=0)
         T2 = self.sim.T
         Y2 = self.sim.Y
 
