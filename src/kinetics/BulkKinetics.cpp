@@ -140,6 +140,9 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
             m_bulk_rates.back()->resize(m_kk, nReactions());
         }
 
+        // Set index of rate to number of reaction within kinetics
+        rate->setRateIndex(nReactions() - 1);
+
         // Add reaction rate to evaluator
         size_t index = m_bulk_types[rate->type()];
         m_bulk_rates[index]->add(nReactions() - 1, *rate);
