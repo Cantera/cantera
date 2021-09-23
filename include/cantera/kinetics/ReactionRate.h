@@ -160,6 +160,11 @@ public:
     virtual void validate(const std::string& equation) override {
         RateType::validate(equation);
     }
+
+    virtual void setRateIndex(size_t idx) {
+        ReactionRateBase::setRateIndex(idx);
+        RateType::rate_index = idx;
+    }
 };
 
 
