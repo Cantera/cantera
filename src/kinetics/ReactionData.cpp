@@ -40,6 +40,7 @@ void FalloffData::update(double T)
 void FalloffData::update(const ThermoPhase& bulk, const Kinetics& kin)
 {
     update(bulk.temperature());
+    kin.getThirdBodyConcentrations(conc_3b.data());
 }
 
 void PlogData::update(double T)

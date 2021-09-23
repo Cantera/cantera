@@ -27,10 +27,25 @@ void GasKinetics::resizeReactions()
     BulkKinetics::resizeReactions();
 }
 
-void GasKinetics::getThirdBodyConcentrations(double* concm)
+void GasKinetics::getThirdBodyConcentrations(double* concm) const
 {
-    updateROP();
-    std::copy(m_concm_any.begin(), m_concm_any.end(), concm);
+    double ctot = thermo().molarDensity();
+    fill(concm, concm + nReactions(), NAN);
+
+    // 3-body reactions (legacy)
+    if (!concm_3b_values.empty()) {
+        m_3b_concm.update3(m_phys_conc, ctot, concm);
+    }
+
+    // Falloff reactions (legacy)
+    if (!concm_falloff_values.empty()) {
+        m_falloff_concm.update3(m_phys_conc, ctot, concm);
+    }
+
+    // Third-body objects interacting with MultiRate evaluator
+    if (!concm_multi_values.empty()) {
+        m_multi_concm.update3(m_phys_conc, ctot, concm);
+    }
 }
 
 void GasKinetics::update_rates_T()
