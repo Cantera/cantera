@@ -39,7 +39,7 @@ public:
     }
 
     virtual void resizeReactions();
-    virtual void getThirdBodyConcentrations(double* concm);
+    virtual void getThirdBodyConcentrations(double* concm) const;
 
     //! @}
     //! @name Reaction Rates Of Progress

@@ -55,6 +55,17 @@ public:
         }
     }
 
+    //! Function combining legacy update and copy
+    void update3(const vector_fp& conc, double ctot, double* concm) const {
+        for (size_t i = 0; i < m_true_index.size(); i++) {
+            double sum = 0.0;
+            for (size_t j = 0; j < m_species[i].size(); j++) {
+                sum += m_eff[i][j] * conc[m_species[i][j]];
+            }
+            concm[m_true_index[i]] = m_default[i] * ctot + sum;
+        }
+    }
+
     void multiply(double* output, const double* work) {
         for (size_t i = 0; i < m_reaction_index.size(); i++) {
             output[m_reaction_index[i]] *= work[i];

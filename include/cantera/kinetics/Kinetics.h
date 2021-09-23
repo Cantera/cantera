@@ -522,7 +522,7 @@ public:
      * @param concm  Output vector of effective third-body concentrations.
      *      Length: nReactions().
      */
-    virtual void getThirdBodyConcentrations(double* concm) {
+    virtual void getThirdBodyConcentrations(double* concm) const {
         throw NotImplementedError("Kinetics::getThirdBodyConcentrations",
             "Not applicable/implemented for Kinetics object of type '{}'",
             kineticsType());

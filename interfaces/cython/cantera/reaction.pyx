@@ -374,6 +374,8 @@ cdef class FalloffRate(ReactionRate):
         """
         Get/Set the effective third-body concentration used for the reaction
         rate calculation.
+
+        Note: this method does not update internal state
         """
         def __get__(self):
             return self.falloff.third_body_concentration
@@ -392,6 +394,7 @@ cdef class FalloffRate(ReactionRate):
 cdef class LindemannRate(FalloffRate):
     r"""
     The Lindemann falloff parameterization.
+
     This class implements the simple falloff function :math:`F(T,P_r) = 1.0`.
     """
     _reaction_rate_type = "Lindemann"
@@ -411,6 +414,7 @@ cdef class LindemannRate(FalloffRate):
 cdef class TroeRate(FalloffRate):
     r"""
     The 3- or 4-parameter Troe falloff function.
+
     :param data:
         An array of 3 or 4 parameters: :math:`[a, T^{***}, T^*, T^{**}]` where
         the final parameter is optional (with a default value of 0).
@@ -432,6 +436,7 @@ cdef class TroeRate(FalloffRate):
 cdef class SriRate(FalloffRate):
     r"""
     The 3- or 5-parameter SRI falloff function.
+
     :param data:
         An array of 3 or 5 parameters: :math:`[a, b, c, d, e]` where the last
         two parameters are optional (with default values of 1 and 0, respectively).
