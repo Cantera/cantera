@@ -585,36 +585,43 @@ public:
         throw NotImplementedError("Transport::getMixDiffCoeffsMass");
     }
 
-    //! Get/set the polynomial fits to the transport properties
+    //! Return the polynomial fits to the viscosity of species i
     virtual void getViscosityPolynomial(size_t i, double* coeffs) const{
         throw NotImplementedError("Transport::getViscosityPolynomial");
     }
 
+    //! Return the temperature fits of the heat conductivity of species i
     virtual void getConductivityPolynomial(size_t i, double* coeffs) const{
         throw NotImplementedError("Transport::getConductivityPolynomial");
     }
     
+    //! Return the polynomial fits to the binary diffusivity of species pair (i, j)
     virtual void getBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs) const{
         throw NotImplementedError("Transport::getBinDiffusivityPolynomial");
     }
     
+    //! Return the polynomial fits to the collision integral of species pair (i, j)
     virtual void getCollisionIntegralPolynomial(size_t i, size_t j, double* astar_coeffs, 
                                                 double* bstar_coeffs, double* cstar_coeffs) const{
         throw NotImplementedError("Transport::getCollisionIntegralPolynomial");
     }
     
+    //! Modify the polynomial fits to the viscosity of species i
     virtual void setViscosityPolynomial(size_t i, double* coeffs){
         throw NotImplementedError("Transport::setViscosityPolynomial");
     }
     
+    //! Modify the temperature fits of the heat conductivity of species i
     virtual void setConductivityPolynomial(size_t i, double* coeffs){
         throw NotImplementedError("Transport::setConductivityPolynomial");
     }
     
+    //! Modify the polynomial fits to the binary diffusivity of species pair (i, j)
     virtual void setBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs){
         throw NotImplementedError("Transport::setBinDiffusivityPolynomial");
     }
     
+    //! Modify the polynomial fits to the collision integral of species pair (i, j)
     virtual void setCollisionIntegralPolynomial(size_t i, size_t j, double* astar_coeffs, 
                                                 double* bstar_coeffs, double* cstar_coeffs, bool flag){
         throw NotImplementedError("Transport::setCollisionIntegralPolynomial");
