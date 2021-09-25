@@ -847,7 +847,7 @@ void GasTransport::getBinDiffusivityPolynomial(size_t i, size_t j, double* coeff
 void GasTransport::getCollisionIntegralPolynomial(size_t i, size_t j, double* astar_coeffs, 
                                                 double* bstar_coeffs, double* cstar_coeffs) const
 {   
-    for (size_t k = 0; k < (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE)+1; k++) {
+    for (size_t k = 0; k < (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE) + 1; k++) {
         astar_coeffs[k] = m_astar_poly[m_poly[i][j]][k];
         bstar_coeffs[k] = m_bstar_poly[m_poly[i][j]][k];
         cstar_coeffs[k] = m_cstar_poly[m_poly[i][j]][k];

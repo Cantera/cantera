@@ -151,6 +151,8 @@ public:
 
     virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
     
+    //! Boolean indicating the form of the transport properties polynomial fits.
+    //! Returns true if the Chemkin form is used.
     bool CKMode() const {
         return m_mode == CK_Mode;
     }
