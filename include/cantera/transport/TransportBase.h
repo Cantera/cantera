@@ -710,6 +710,8 @@ public:
     //! Set root Solution holding all phase information
     virtual void setRoot(std::shared_ptr<Solution> root);
     
+    //! Boolean indicating the form of the transport properties polynomial fits.
+    //! Returns true if the Chemkin form is used.
     virtual bool CKMode() const {
         throw NotImplementedError("Transport::CK_Mode");
     }
