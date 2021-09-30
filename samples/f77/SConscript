@@ -34,7 +34,7 @@ mak_path = pjoin(localenv['ct_incroot'], 'cantera', 'Cantera.mak')
 if ' ' in mak_path:
     # There is no reasonable way to handle spaces in Makefile 'include'
     # statement, so we fall back to using the relative path instead
-    mak_path = relpath(mak_path, pjoin(localenv['ct_sampledir'], 'f90'))
+    mak_path = relpath(mak_path, pjoin(localenv["ct_sampledir"], "f77"))
 localenv['tmpl_Cantera_dot_mak'] = mak_path
 
 localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
