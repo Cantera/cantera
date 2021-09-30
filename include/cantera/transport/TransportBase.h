@@ -601,8 +601,10 @@ public:
     }
     
     //! Return the polynomial fits to the collision integral of species pair (i, j)
-    virtual void getCollisionIntegralPolynomial(size_t i, size_t j, double* astar_coeffs, 
-                                                double* bstar_coeffs, double* cstar_coeffs) const{
+    virtual void getCollisionIntegralPolynomial(size_t i, size_t j, 
+                                                double* astar_coeffs, 
+                                                double* bstar_coeffs, 
+                                                double* cstar_coeffs) const{
         throw NotImplementedError("Transport::getCollisionIntegralPolynomial");
     }
     
@@ -622,8 +624,10 @@ public:
     }
     
     //! Modify the polynomial fits to the collision integral of species pair (i, j)
-    virtual void setCollisionIntegralPolynomial(size_t i, size_t j, double* astar_coeffs, 
-                                                double* bstar_coeffs, double* cstar_coeffs, bool flag){
+    virtual void setCollisionIntegralPolynomial(size_t i, size_t j, 
+                                                double* astar_coeffs, 
+                                                double* bstar_coeffs, 
+                                                double* cstar_coeffs, bool flag){
         throw NotImplementedError("Transport::setCollisionIntegralPolynomial");
     }
 

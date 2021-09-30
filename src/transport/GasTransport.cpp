@@ -844,8 +844,10 @@ void GasTransport::getBinDiffusivityPolynomial(size_t i, size_t j, double* coeff
     }
 }
 
-void GasTransport::getCollisionIntegralPolynomial(size_t i, size_t j, double* astar_coeffs, 
-                                                double* bstar_coeffs, double* cstar_coeffs) const
+void GasTransport::getCollisionIntegralPolynomial(size_t i, size_t j, 
+                                                double* astar_coeffs, 
+                                                double* bstar_coeffs, 
+                                                double* cstar_coeffs) const
 {   
     for (size_t k = 0; k < (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE) + 1; k++) {
         astar_coeffs[k] = m_astar_poly[m_poly[i][j]][k];
@@ -901,8 +903,10 @@ void GasTransport::setBinDiffusivityPolynomial(size_t i, size_t j, double* coeff
     m_temp = -1;
 }
 
-void GasTransport::setCollisionIntegralPolynomial(size_t i, size_t j, double* astar_coeffs, 
-                                                double* bstar_coeffs, double* cstar_coeffs, bool actualT)
+void GasTransport::setCollisionIntegralPolynomial(size_t i, size_t j, 
+                                                double* astar_coeffs, 
+                                                double* bstar_coeffs, 
+                                                double* cstar_coeffs, bool actualT)
 {
     int degree = (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE);
     vector_fp ca(degree+1), cb(degree+1), cc(degree+1);
