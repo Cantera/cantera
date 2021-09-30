@@ -26,7 +26,7 @@ elseif strcmp(flag, {'off'})
     iflag = 0;
 end
 if iflag >= 0
-    reactormethods(9, r.index, iflag)
+    reactormethods(9, r.index, iflag);
 else
     error('Input to setEnergy not understood.');
 end
