@@ -129,8 +129,10 @@ public:
 
     //! Return the polynomial fits to the collision integral of species pair (i, j)
     //! @see fitCollisionIntegrals()
-    virtual void getCollisionIntegralPolynomial(size_t i, size_t j, double* astar_coeffs, 
-                                                double* bstar_coeffs, double* cstar_coeffs) const;
+    virtual void getCollisionIntegralPolynomial(size_t i, size_t j, 
+                                                double* astar_coeffs, 
+                                                double* bstar_coeffs, 
+                                                double* cstar_coeffs) const;
 
     //! Modify the polynomial fits to the viscosity of species i
     //! @see fitProperties()
@@ -146,8 +148,10 @@ public:
 
     //! Modify the polynomial fits to the collision integral of species pair (i, j)
     //! @see fitCollisionIntegrals()
-    virtual void setCollisionIntegralPolynomial(size_t i, size_t j, double* astar_coeffs, 
-                                                double* bstar_coeffs, double* cstar_coeffs, bool actualT);
+    virtual void setCollisionIntegralPolynomial(size_t i, size_t j, 
+                                                double* astar_coeffs, 
+                                                double* bstar_coeffs, 
+                                                double* cstar_coeffs, bool actualT);
 
     virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
     
