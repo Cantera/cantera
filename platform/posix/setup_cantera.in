@@ -20,7 +20,7 @@ export PYTHON_CMD
 PATH=@ct_bindir@:$PATH
 export PATH
 
-if [ "@python_cmd@" != `which python` ]; then
+if [ "@python_cmd@" != "`which python`" ]; then
    alias ctpython=@python_cmd@
 fi
 
