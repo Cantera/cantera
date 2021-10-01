@@ -8,7 +8,7 @@ import sys
 
 import cantera as ct
 
-gas = ct.Solution('gri30.yaml')
+gas = ct.Solution('h2o2.yaml')
 gas.TPX = 1001.0, ct.one_atm, 'H2:2,O2:1,N2:4'
 r = ct.IdealGasConstPressureReactor(gas)
 
