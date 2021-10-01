@@ -25,8 +25,8 @@ int kinetics1(int np, void* p)
          << "hydrogen/oxygen/nitrogen"
          " mixture \nbeginning at T = 1001 K and P = 1 atm." << endl;
 
-    // create an ideal gas mixture that corresponds to GRI-Mech 3.0
-    auto sol = newSolution("gri30.yaml", "gri30", "None");
+    // create an ideal gas mixture that corresponds to OH submech from GRI-Mech 3.0
+    auto sol = newSolution("h2o2.yaml", "ohmech", "None");
     auto gas = sol->thermo();
 
     // set the state

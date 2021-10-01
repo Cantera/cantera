@@ -142,7 +142,7 @@ private:
 
 int main() {
     /* -------------------- CREATE GAS & SPECIFY STATE -------------------- */
-    auto sol = newSolution("gri30.yaml", "gri30", "None");
+    auto sol = newSolution("h2o2.yaml", "ohmech", "None");
     auto gas = sol->thermo();
     gas->setState_TPX(1001, OneAtm, "H2:2, O2:1, N2:4");
 
