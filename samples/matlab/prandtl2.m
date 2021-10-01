@@ -9,7 +9,7 @@ help prandtl2
 if nargin == 1
    gas = g;
 else
-   gas = GRI30('Multi');
+   gas = Solution('h2o2.yaml', 'gas', 'Multi');
 end
 
 pr = zeros(31,31);
