@@ -1,12 +1,11 @@
 /**
  * @file ct_defs.h
- * This file contains definitions of terms that are used in internal
- * routines and are unlikely to need modifying (text for module physConstants (see \ref physConstants) is found here).
- * This file is included
- * in every file that is in the Cantera Namespace.
+ * This file contains definitions of constants, types and terms that are used
+ * in internal routines and are unlikely to need modifying.
  *
- * All physical constants are stored here.
- * The module physConstants is defined here.
+ * All physical constants are stored here (see module \ref physConstants).
+ *
+ * This file is included in every file within the Cantera namespace.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
