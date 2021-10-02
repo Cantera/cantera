@@ -51,6 +51,9 @@ using std::isnan; // workaround for bug in libstdc++ 4.8
 //! Pi
 const double Pi = 3.14159265358979323846;
 
+//! Sqrt(2)
+const double Sqrt2 = 1.41421356237309504880;
+
 /*!
  * @name Defined Constants
  * These constants are defined by CODATA to have a particular value.
