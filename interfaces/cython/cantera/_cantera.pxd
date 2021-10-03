@@ -550,20 +550,15 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxChebyshevReaction2 "Cantera::ChebyshevReaction2" (CxxReaction):
         CxxChebyshev rate
 
-    cdef cppclass CxxBlowersMasel "Cantera::BlowersMasel":
-        CxxBlowersMasel()
-        CxxBlowersMasel(double, double, double, double)
+    cdef cppclass CxxBlowersMasel2 "Cantera::BlowersMasel2":
+        CxxBlowersMasel2()
+        CxxBlowersMasel2(double, double, double, double)
         double updateRC(double, double, double)
         double preExponentialFactor()
         double temperatureExponent()
         double activationEnergy_R(double)
         double activationEnergy_R0()
         double bondEnergy()
-
-    cdef cppclass CxxBlowersMaselReaction "Cantera::BlowersMaselReaction"(CxxReaction):
-        CxxBlowersMaselReaction()
-        CxxBlowersMasel rate
-        cbool allow_negative_pre_exponential_factor
 
     cdef cppclass CxxCoverageDependency "Cantera::CoverageDependency":
         CxxCoverageDependency(double, double, double)
@@ -577,7 +572,10 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool use_motz_wise_correction
         string sticking_species
 
-    cdef cppclass CxxBlowersMaselInterfaceReaction "Cantera::BlowersMaselInterfaceReaction" (CxxBlowersMaselReaction):
+    cdef cppclass CxxBlowersMaselInterfaceReaction "Cantera::BlowersMaselInterfaceReaction" (CxxReaction):
+        CxxBlowersMaselInterfaceReaction()
+        CxxBlowersMasel2 rate
+        cbool allow_negative_pre_exponential_factor
         stdmap[string, CxxCoverageDependency] coverage_deps
         cbool is_sticking_coefficient
         cbool use_motz_wise_correction
@@ -594,6 +592,9 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxThreeBodyReaction3 "Cantera::ThreeBodyReaction3" (CxxElementaryReaction3):
         CxxThreeBodyReaction3()
         shared_ptr[CxxThirdBody] thirdBody()
+
+    cdef cppclass CxxBlowersMaselReaction "Cantera::BlowersMaselReaction"(CxxReaction3):
+        CxxBlowersMaselReaction()
 
     cdef cppclass CxxPlogReaction3 "Cantera::PlogReaction3" (CxxReaction3):
         CxxPlogReaction3()
@@ -1283,7 +1284,7 @@ cdef class Arrhenius:
     cdef Reaction reaction # parent reaction, to prevent garbage collection
 
 cdef class BlowersMasel:
-    cdef CxxBlowersMasel* rate
+    cdef CxxBlowersMasel2* rate
     cdef cbool own_rate
     cdef Reaction reaction
 
