@@ -791,47 +791,9 @@ void ElectrochemicalReaction::getParameters(AnyMap& reactionNode) const
     }
 }
 
-BlowersMaselReaction2::BlowersMaselReaction2()
-    : allow_negative_pre_exponential_factor(false)
-{
-    reaction_type = BLOWERSMASEL_RXN;
-}
-
-void BlowersMaselReaction2::validate()
-{
-    Reaction::validate();
-    if (!allow_negative_pre_exponential_factor &&
-        rate.preExponentialFactor() < 0) {
-        throw InputFileError("BlowersMaselReaction2::validate", input,
-            "Undeclared negative pre-exponential factor found in reaction '"
-            + equation() + "'");
-    }
-}
-
-BlowersMaselReaction2::BlowersMaselReaction2(const Composition& reactants_,
-                                             const Composition& products_,
-                                             const BlowersMasel& rate_)
-    : Reaction(reactants_, products_)
-    , rate(rate_)
-    , allow_negative_pre_exponential_factor(false)
-{
-    reaction_type = BLOWERSMASEL_RXN;
-}
-
-void BlowersMaselReaction2::getParameters(AnyMap& reactionNode) const
-{
-    Reaction::getParameters(reactionNode);
-    reactionNode["type"] = "Blowers-Masel";
-    if (allow_negative_pre_exponential_factor) {
-        reactionNode["negative-A"] = true;
-    }
-    AnyMap rateNode;
-    rate.getParameters(rateNode, rate_units);
-    reactionNode["rate-constant"] = std::move(rateNode);
-}
-
 BlowersMaselInterfaceReaction::BlowersMaselInterfaceReaction()
-    : is_sticking_coefficient(false)
+    : allow_negative_pre_exponential_factor(false)
+    , is_sticking_coefficient(false)
     , use_motz_wise_correction(false)
 {
     reaction_type = BMINTERFACE_RXN;
@@ -841,7 +803,9 @@ BlowersMaselInterfaceReaction::BlowersMaselInterfaceReaction(const Composition& 
                                          const Composition& products_,
                                          const BlowersMasel& rate_,
                                          bool isStick)
-    : BlowersMaselReaction2(reactants_, products_, rate_)
+    : Reaction(reactants_, products_)
+    , rate(rate_)
+    , allow_negative_pre_exponential_factor(false)
     , is_sticking_coefficient(isStick)
     , use_motz_wise_correction(false)
 {
@@ -850,7 +814,7 @@ BlowersMaselInterfaceReaction::BlowersMaselInterfaceReaction(const Composition& 
 
 void BlowersMaselInterfaceReaction::calculateRateCoeffUnits(const Kinetics& kin)
 {
-    BlowersMaselReaction2::calculateRateCoeffUnits(kin);
+    Reaction::calculateRateCoeffUnits(kin);
     if (is_sticking_coefficient || input.hasKey("sticking-coefficient")) {
         rate_units = Units(1.0); // sticking coefficients are dimensionless
     }
@@ -858,8 +822,15 @@ void BlowersMaselInterfaceReaction::calculateRateCoeffUnits(const Kinetics& kin)
 
 void BlowersMaselInterfaceReaction::getParameters(AnyMap& reactionNode) const
 {
-    BlowersMaselReaction2::getParameters(reactionNode);
+    Reaction::getParameters(reactionNode);
     reactionNode["type"] = "Blowers-Masel";
+    if (allow_negative_pre_exponential_factor) {
+        reactionNode["negative-A"] = true;
+    }
+    AnyMap rateNode;
+    rate.getParameters(rateNode, rate_units);
+    reactionNode["rate-constant"] = std::move(rateNode);
+
     if (is_sticking_coefficient) {
         reactionNode["sticking-coefficient"] = std::move(reactionNode["rate-constant"]);
         reactionNode.erase("rate-constant");
@@ -880,6 +851,17 @@ void BlowersMaselInterfaceReaction::getParameters(AnyMap& reactionNode) const
             deps[d.first] = std::move(dep);
         }
         reactionNode["coverage-dependencies"] = std::move(deps);
+    }
+}
+
+void BlowersMaselInterfaceReaction::validate()
+{
+    Reaction::validate();
+    if (!allow_negative_pre_exponential_factor &&
+        rate.preExponentialFactor() < 0) {
+        throw InputFileError("BlowersMaselInterfaceReaction::validate", input,
+            "Undeclared negative pre-exponential factor found in reaction '"
+            + equation() + "'");
     }
 }
 
@@ -1047,12 +1029,12 @@ std::string ThreeBodyReaction3::productString() const
     }
 }
 
-BlowersMaselReaction3::BlowersMaselReaction3()
+BlowersMaselReaction::BlowersMaselReaction()
 {
     setRate(newReactionRate(type()));
 }
 
-BlowersMaselReaction3::BlowersMaselReaction3(
+BlowersMaselReaction::BlowersMaselReaction(
         const Composition& reactants, const Composition& products,
         const BlowersMaselRate& rate)
     : Reaction(reactants, products)
@@ -1060,7 +1042,7 @@ BlowersMaselReaction3::BlowersMaselReaction3(
     m_rate.reset(new BlowersMaselRate(rate));
 }
 
-BlowersMaselReaction3::BlowersMaselReaction3(const AnyMap& node, const Kinetics& kin)
+BlowersMaselReaction::BlowersMaselReaction(const AnyMap& node, const Kinetics& kin)
 {
     if (!node.empty()) {
         setParameters(node, kin);
