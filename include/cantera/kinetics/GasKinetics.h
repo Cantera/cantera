@@ -90,7 +90,6 @@ protected:
 
     Rate1<Plog> m_plog_rates;
     Rate1<Chebyshev> m_cheb_rates;
-    Rate1<BlowersMasel> m_blowersmasel_rates;
 
     //! @name Reaction rate data
     //!@{
@@ -120,7 +119,6 @@ protected:
     void addPlogReaction(PlogReaction2& r);
     //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
     void addChebyshevReaction(ChebyshevReaction2& r);
-    void addBlowersMaselReaction(BlowersMaselReaction& r);
 
     //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
     void modifyThreeBodyReaction(size_t i, ThreeBodyReaction2& r);
@@ -129,7 +127,6 @@ protected:
     void modifyPlogReaction(size_t i, PlogReaction2& r);
     //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
     void modifyChebyshevReaction(size_t i, ChebyshevReaction2& r);
-    void modifyBlowersMaselReaction(size_t i, BlowersMaselReaction& r);
 
     //! Update the equilibrium constants in molar units.
     void updateKc();

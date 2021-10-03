@@ -425,40 +425,26 @@ public:
 };
 
 
-//! A reaction with rate parameters for Blowers-Masel approximation
-class BlowersMaselReaction2: public Reaction
-{
-public:
-    BlowersMaselReaction2();
-    BlowersMaselReaction2(const Composition& reactants,
-                          const Composition& products, const BlowersMasel& rate);
-    virtual void getParameters(AnyMap& reactionNode) const;
-    virtual void validate();
-
-    virtual std::string type() const {
-        return "Blowers-Masel-legacy";
-    }
-
-    BlowersMasel rate;
-
-    bool allow_negative_pre_exponential_factor;
-};
-
-
 //! A reaction occurring on an interface (i.e. a SurfPhase or an EdgePhase)
 //! with the rate calculated with Blowers-Masel approximation.
-class BlowersMaselInterfaceReaction : public BlowersMaselReaction2
+class BlowersMaselInterfaceReaction : public Reaction
 {
 public:
     BlowersMaselInterfaceReaction();
     BlowersMaselInterfaceReaction(const Composition& reactants, const Composition& products,
                       const BlowersMasel& rate, bool isStick=false);
     virtual void getParameters(AnyMap& reactionNode) const;
+    virtual void validate();
     virtual void calculateRateCoeffUnits(const Kinetics& kin);
 
     virtual std::string type() const {
         return "surface-Blowers-Masel";
     }
+
+    BlowersMasel rate;
+
+    bool allow_negative_pre_exponential_factor;
+
     //! Adjustments to the Arrhenius rate expression dependent on surface
     //! species coverages. Three coverage parameters (a, E, m) are used for each
     //! species on which the rate depends. See SurfaceArrhenius for details on
@@ -527,14 +513,14 @@ public:
 
 //! A reaction with rate parameters for Blowers-Masel approximation
 //! @TODO remove version '3' after surface-Blowers-Masel is ported to new framework.
-class BlowersMaselReaction3: public Reaction
+class BlowersMaselReaction: public Reaction
 {
 public:
-    BlowersMaselReaction3();
-    BlowersMaselReaction3(const Composition& reactants, const Composition& products,
-                          const BlowersMaselRate& rate);
+    BlowersMaselReaction();
+    BlowersMaselReaction(const Composition& reactants, const Composition& products,
+                         const BlowersMaselRate& rate);
 
-    BlowersMaselReaction3(const AnyMap& node, const Kinetics& kin);
+    BlowersMaselReaction(const AnyMap& node, const Kinetics& kin);
 
     virtual std::string type() const {
         return "Blowers-Masel";
@@ -600,13 +586,11 @@ public:
 #ifdef CT_NO_LEGACY_REACTIONS_26
 typedef ElementaryReaction3 ElementaryReaction;
 typedef ThreeBodyReaction3 ThreeBodyReaction;
-typedef BlowersMaselReaction3 BlowersMaselReaction;
 typedef PlogReaction3 PlogReaction;
 typedef ChebyshevReaction3 ChebyshevReaction;
 #else
 typedef ElementaryReaction2 ElementaryReaction;
 typedef ThreeBodyReaction2 ThreeBodyReaction;
-typedef BlowersMaselReaction2 BlowersMaselReaction;
 typedef PlogReaction2 PlogReaction;
 typedef ChebyshevReaction2 ChebyshevReaction;
 #endif
