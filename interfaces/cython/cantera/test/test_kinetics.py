@@ -1259,7 +1259,7 @@ class TestReaction(utilities.CanteraTest):
 
     def test_BlowersMasel(self):
         r = ct.BlowersMaselReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
-        r.rate = ct.BlowersMasel(3.87e1, 2.7, 6260*1000*4.184, 1e9*1000*4.184)
+        r.rate = ct.BlowersMaselRate(3.87e1, 2.7, 6260*1000*4.184, 1e9*1000*4.184)
 
         gas1 = ct.Solution('BM_test.yaml')
 
@@ -1285,15 +1285,15 @@ class TestReaction(utilities.CanteraTest):
     def test_negative_A_blowersmasel(self):
         species = ct.Solution('BM_test.yaml').species()
         r = ct.BlowersMaselReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
-        r.rate = ct.BlowersMasel(-3.87e1, 2.7, 6260*1000*4.184, 1e9)
+        r.rate = ct.BlowersMaselRate(-3.87e1, 2.7, 6260*1000*4.184, 1e9)
 
-        self.assertFalse(r.allow_negative_pre_exponential_factor)
+        self.assertFalse(r.rate.allow_negative_pre_exponential_factor)
 
         with self.assertRaisesRegex(ct.CanteraError, 'negative pre-exponential'):
             gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                               species=species, reactions=[r])
 
-        r.allow_negative_pre_exponential_factor = True
+        r.rate.allow_negative_pre_exponential_factor = True
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                           species=species, reactions=[r])
 
@@ -1308,7 +1308,7 @@ class TestReaction(utilities.CanteraTest):
         deltaH = gas.delta_enthalpy[0]
         E = ((w + deltaH / 2) * (vp - 2 * w + deltaH) ** 2 /
             (vp ** 2 - 4 * w ** 2 + deltaH ** 2))
-        self.assertNear(E, gas.reaction(0).rate.activation_energy(deltaH))
+        self.assertNear(E, gas.reaction(0).rate.activation_energy)
 
         deltaH_high = 10 * gas.reaction(0).rate.intrinsic_activation_energy
         deltaH_low = -20 * gas.reaction(0).rate.intrinsic_activation_energy
@@ -1320,7 +1320,8 @@ class TestReaction(utilities.CanteraTest):
         species.thermo = ct.NasaPoly2(species.thermo.min_temp, species.thermo.max_temp,
                             species.thermo.reference_pressure, perturbed_coeffs)
         gas.modify_species(index, species)
-        self.assertEqual(deltaH_high, gas.reaction(0).rate.activation_energy(deltaH_high))
+        gas.reaction(0).rate.delta_enthalpy = deltaH_high
+        self.assertEqual(deltaH_high, gas.reaction(0).rate.activation_energy)
         self.assertNear(A*gas.T**b*np.exp(-deltaH_high/ct.gas_constant/gas.T), gas.forward_rate_constants[0])
 
         perturbed_coeffs = species.thermo.coeffs.copy()
@@ -1329,7 +1330,8 @@ class TestReaction(utilities.CanteraTest):
         species.thermo = ct.NasaPoly2(species.thermo.min_temp, species.thermo.max_temp,
                             species.thermo.reference_pressure, perturbed_coeffs)
         gas.modify_species(index, species)
-        self.assertEqual(0, gas.reaction(0).rate.activation_energy(deltaH_low))
+        gas.reaction(0).rate.delta_enthalpy = deltaH_low
+        self.assertEqual(0, gas.reaction(0).rate.activation_energy)
         self.assertNear(A*gas.T**b*np.exp(0/ct.gas_constant/gas.T), gas.forward_rate_constants[0])
 
     def test_interface(self):
@@ -1501,7 +1503,7 @@ class TestReaction(utilities.CanteraTest):
         R = gas.reaction(0)
         A1 = R.rate.pre_exponential_factor
         b1 = R.rate.temperature_exponent
-        Ta1 = R.rate.activation_energy(gas.delta_enthalpy[0]) / ct.gas_constant
+        Ta1 = R.rate.activation_energy
         T = gas.T
         self.assertNear(A1* T ** b1 * np.exp(- Ta1 / T),
                         gas.forward_rate_constants[0])
@@ -1511,8 +1513,8 @@ class TestReaction(utilities.CanteraTest):
         b2 = b1 + 0.1
         Ta_intrinsic = R.rate.intrinsic_activation_energy * 1.2
         w = R.rate.bond_energy * 0.8
-        R.rate = ct.BlowersMasel(A2, b2, Ta_intrinsic, w)
-        Ta2 = R.rate.activation_energy(gas.delta_enthalpy[0]) / ct.gas_constant
+        R.rate = ct.BlowersMaselRate(A2, b2, Ta_intrinsic, w)
+        Ta2 = R.rate.activation_energy
         gas.modify_reaction(0, R)
         self.assertNear(A2*T**b2*np.exp(-Ta2/T), gas.forward_rate_constants[0])
 

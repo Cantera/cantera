@@ -269,25 +269,25 @@ TEST(Reaction, BlowersMaselFromYaml)
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_EQ(R->reactants.at("H2"), 1);
     EXPECT_EQ(R->products.at("OH"), 1);
-    EXPECT_EQ(R->reaction_type, BLOWERSMASEL_RXN);
 
-    auto ER = dynamic_cast<BlowersMaselReaction&>(*R);
-    doublereal E_intrinsic = 6260 / GasConst_cal_mol_K * GasConstant; // J/kmol
-    doublereal H_big = 5 * E_intrinsic;
-    doublereal H_small = -5 * E_intrinsic;
-    doublereal H_mid = 4 * E_intrinsic;
-    doublereal w = 1e9 / GasConst_cal_mol_K * GasConstant; // J/kmol
-    doublereal vp = 2 * w * ((w + E_intrinsic) / (w - E_intrinsic));
-    doublereal Ea = (w + H_mid / 2) * (vp - 2 * w + H_mid) * (vp - 2 * w + H_mid)
-                    / (vp * vp - 4 * w * w + H_mid * H_mid );
-    EXPECT_DOUBLE_EQ(ER.rate.preExponentialFactor(), -38.7);
-    EXPECT_DOUBLE_EQ(ER.rate.activationEnergy_R0(), 6260 / GasConst_cal_mol_K);
-    EXPECT_DOUBLE_EQ(ER.rate.bondEnergy(), 1e9 / GasConst_cal_mol_K);
-    EXPECT_DOUBLE_EQ(ER.rate.activationEnergy_R(H_big), H_big / GasConstant);
-    EXPECT_DOUBLE_EQ(ER.rate.activationEnergy_R(H_small), 0);
-    EXPECT_NEAR(ER.rate.activationEnergy_R(H_mid), Ea / GasConstant, 1e-7);
-    EXPECT_TRUE(ER.allow_negative_pre_exponential_factor);
-    EXPECT_FALSE(ER.allow_negative_orders);
+    double E_intrinsic = 6260 / GasConst_cal_mol_K * GasConstant; // J/kmol
+    double H_big_R = 5 * E_intrinsic / GasConstant;
+    double H_small_R = -5 * E_intrinsic / GasConstant;
+    double H_mid = 4 * E_intrinsic;
+    double H_mid_R = H_mid / GasConstant;
+    double w = 1e9 / GasConst_cal_mol_K * GasConstant; // J/kmol
+    double vp = 2 * w * ((w + E_intrinsic) / (w - E_intrinsic));
+    double Ea = (w + H_mid / 2) * (vp - 2 * w + H_mid) * (vp - 2 * w + H_mid)
+        / (vp * vp - 4 * w * w + H_mid * H_mid );
+    const auto rate = std::dynamic_pointer_cast<BlowersMaselRate>(R->rate());
+    EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), -38.7);
+    EXPECT_DOUBLE_EQ(rate->activationEnergy0(), E_intrinsic);
+    EXPECT_DOUBLE_EQ(rate->bondEnergy(), w);
+    EXPECT_DOUBLE_EQ(rate->activationEnergy_R(H_big_R), H_big_R);
+    EXPECT_DOUBLE_EQ(rate->activationEnergy_R(H_small_R), 0);
+    EXPECT_NEAR(rate->activationEnergy_R(H_mid_R), Ea / GasConstant, 1e-7);
+    EXPECT_TRUE(rate->allow_negative_pre_exponential_factor);
+    EXPECT_FALSE(R->allow_negative_orders);
 }
 
 TEST(Kinetics, GasKineticsFromYaml1)

@@ -305,7 +305,7 @@ class TestBlowersMaselRate(ReactionRateTests, utilities.CanteraTest):
         # test reaction rate property
         rate = self.from_parts()
         rr = self.gas.reaction(self._index).rate
-        self.assertNear(rate.activation_energy, rr.activation_energy(rate.delta_enthalpy))
+        self.assertNear(rate.activation_energy, rr.activation_energy)
 
 
 class FalloffRateTests(ReactionRateTests):
@@ -651,25 +651,30 @@ class ReactionTests:
         if self._rate_obj is not None:
             self.check_rate(self._rate_obj)
 
-    def test_constructors(self):
-        # test constructors
-
+    def test_from_rate(self):
         # check instantiation from keywords / rate defined by dictionary
         self.check_rxn(self.from_rate(self._rate))
 
+    def test_from_rate_obj(self):
+        # check instantiation from keywords / rate provided as object
         if self._rate_obj is not None:
-            # check instantiation from keywords / rate provided as object
             self.check_rxn(self.from_rate(self._rate_obj))
 
-            # check instantiation from parts (reactants, products, rate expression)
+    def test_from_parts(self):
+        # check instantiation from parts (reactants, products, rate expression)
+        if self._rate_obj is not None:
             self.check_rxn(self.from_parts())
 
+    def test_from_yaml(self):
+        # check constructors (from yaml input)
         if self._yaml is not None:
             # check instantiation from yaml string
             self.check_rxn(self.from_yaml())
             self.check_rxn(self.from_yaml(deprecated=True))
 
-            # check instantiation from a yaml dictionary (input_data)
+    def test_from_dict(self):
+        # check instantiation from a yaml dictionary (input_data)
+        if self._yaml is not None:
             # cannot compare types as input_data does not recreate legacy objects
             self.check_rxn(self.from_dict(), check_legacy=False)
 
@@ -903,6 +908,38 @@ class TestImplicitThreeBody(TestThreeBody):
         rxn = self.from_rate(self._rate_obj)
         self.assertEqual(rxn.efficiencies, {"O2": 1.})
         self.assertEqual(rxn.default_efficiency, 0.)
+
+
+class TestBlowersMasel(ReactionTests, utilities.CanteraTest):
+    # test updated version of Blowers-Masel reaction
+
+    _cls = ct.BlowersMaselReaction
+    _type = "Blowers-Masel"
+    _equation = "O + H2 <=> H + OH"
+    _rate = {"A": 38700, "b": 2.7, "Ea0": 1.0958665856e8, "w": 1.7505856e13}
+    _index = 6
+    _yaml = """
+        equation: O + H2 <=> H + OH
+        type: Blowers-Masel
+        rate-constant: {A: 38700, b: 2.7, Ea0: 2.619184e4 cal/mol, w: 4.184e9 cal/mol}
+        """
+
+    @classmethod
+    def setUpClass(cls):
+        ReactionTests.setUpClass()
+        cls._rate_obj = ct.BlowersMaselRate(**cls._rate)
+
+    def setUp(self):
+        super().setUp()
+        # need to update deltaH manually as rate is not attached to Kinetics object
+        self._rate_obj.delta_enthalpy = self.gas.delta_enthalpy[self._index]
+
+    def test_enthalpy(self):
+        self.gas.forward_rate_constants
+        self.assertEqual(self._rate_obj.delta_enthalpy, self.gas.delta_enthalpy[self._index])
+
+        self._rate_obj.delta_enthalpy = np.nan
+        self.assertTrue(self._rate_obj(self.gas.T))
 
 
 class TestPlog2(ReactionTests, utilities.CanteraTest):
