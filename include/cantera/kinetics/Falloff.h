@@ -5,7 +5,7 @@
 #define CT_FALLOFF_H
 
 #include "cantera/base/ct_defs.h"
-#include "cantera/kinetics/RxnRates.h"
+#include "cantera/kinetics/Arrhenius.h"
 #include "cantera/kinetics/ReactionData.h"
 
 namespace Cantera
@@ -40,8 +40,6 @@ public:
         , m_rc_low(NAN)
         , m_rc_high(NAN)
     {
-        m_lowRate = Arrhenius(NAN, NAN, NAN);
-        m_highRate = Arrhenius(NAN, NAN, NAN);
         m_work.resize(workSize());
     }
 
@@ -161,8 +159,8 @@ public:
     //! @param shared_data  data shared by all reactions of a given type
     virtual void update(const FalloffData& shared_data) {
         updateTemp(shared_data.temperature, m_work.data());
-        m_rc_low = m_lowRate.updateRC(shared_data.logT, shared_data.recipT);
-        m_rc_high = m_highRate.updateRC(shared_data.logT, shared_data.recipT);
+        m_rc_low = m_lowRate.eval(shared_data.logT, shared_data.recipT);
+        m_rc_high = m_highRate.eval(shared_data.logT, shared_data.recipT);
         if (shared_data.finalized && rate_index != npos) {
             m_conc_3b = shared_data.conc_3b[rate_index];
         }
@@ -205,26 +203,26 @@ public:
     }
 
     //! Get reaction rate in the low-pressure limit
-    Arrhenius& lowRate() {
+    ArrheniusBase& lowRate() {
         return m_lowRate;
     }
 
     //! Set reaction rate in the low-pressure limit
-    void setLowRate(const Arrhenius& low);
+    void setLowRate(const ArrheniusBase& low);
 
     //! Get reaction rate in the high-pressure limit
-    Arrhenius& highRate() {
+    ArrheniusBase& highRate() {
         return m_highRate;
     }
 
     //! Set reaction rate in the high-pressure limit
-    void setHighRate(const Arrhenius& high);
+    void setHighRate(const ArrheniusBase& high);
 
     size_t rate_index; //!< Reaction rate index within kinetics evaluator
 
 protected:
-    Arrhenius m_lowRate; //!< The reaction rate in the low-pressure limit
-    Arrhenius m_highRate; //!< The reaction rate in the high-pressure limit
+    ArrheniusBase m_lowRate; //!< The reaction rate in the low-pressure limit
+    ArrheniusBase m_highRate; //!< The reaction rate in the high-pressure limit
 
     bool m_chemicallyActivated; //!< Flag indicating whether reaction is chemically activated
     double m_rc_low; //!< Evaluated reaction rate in the low-pressure limit

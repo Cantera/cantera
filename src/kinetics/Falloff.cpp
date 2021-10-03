@@ -21,7 +21,7 @@ void Falloff::init(const vector_fp& c)
         setData(c);
 }
 
-void Falloff::setLowRate(const Arrhenius& low)
+void Falloff::setLowRate(const ArrheniusBase& low)
 {
     if (low.preExponentialFactor() < 0 && !allow_negative_pre_exponential_factor) {
         throw CanteraError("Falloff::setLowRate",
@@ -32,7 +32,7 @@ void Falloff::setLowRate(const Arrhenius& low)
     m_lowRate = low;
 }
 
-void Falloff::setHighRate(const Arrhenius& high)
+void Falloff::setHighRate(const ArrheniusBase& high)
 {
     if (high.preExponentialFactor() < 0 && !allow_negative_pre_exponential_factor) {
         throw CanteraError("Falloff::setHighRate",
@@ -64,10 +64,10 @@ void Falloff::setParameters(const AnyMap& node, const Units& rate_units)
     }
     allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
     if (node.hasKey("low-P-rate-constant")) {
-        m_lowRate = Arrhenius(node["low-P-rate-constant"], node.units(), rate_units);
+        m_lowRate = ArrheniusBase(node["low-P-rate-constant"], node.units(), rate_units);
     }
     if (node.hasKey("high-P-rate-constant")) {
-        m_highRate = Arrhenius(node["high-P-rate-constant"], node.units(), rate_units);
+        m_highRate = ArrheniusBase(node["high-P-rate-constant"], node.units(), rate_units);
     }
 }
 

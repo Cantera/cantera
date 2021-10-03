@@ -2005,7 +2005,7 @@ cdef class BlowersMasel:
     """
     def __cinit__(self, A=0, b=0, E0=0, w=0, init=True):
         if init:
-            self.rate = new CxxBlowersMasel(A, b, E0 / gas_constant, w / gas_constant)
+            self.rate = new CxxBlowersMasel2(A, b, E0 / gas_constant, w / gas_constant)
             self.own_rate = True
             self.reaction = None
         else:
@@ -2064,7 +2064,7 @@ cdef class BlowersMasel:
         return self.rate.updateRC(logT, recipT, dH)
 
 
-cdef wrapBlowersMasel(CxxBlowersMasel* rate, Reaction reaction):
+cdef wrapBlowersMasel(CxxBlowersMasel2* rate, Reaction reaction):
     r = BlowersMasel(init=False)
     r.rate = rate
     r.reaction = reaction
@@ -2075,29 +2075,49 @@ cdef class BlowersMaselReaction(Reaction):
     """
     A reaction which follows mass-action kinetics with Blowers Masel
     reaction rate.
+
+    An example for the definition of an `BlowersMaselReaction` object is given as::
+        rxn = BlowersMaselReaction(
+            equation="O + H2 <=> H + OH",
+            rate={"A": 38.7, "b": 2.7, "Ea0": 1.0958665856e8, "w": 1.7505856e13},
+            kinetics=gas)
+    The YAML description corresponding to this reaction is::
+        equation: O + H2 <=> H + OH
+        type: Blowers-Masel
+        rate-constant: {A: 38700 cm^3/mol/s, b: 2.7, Ea0: 2.619184e4 cal/mol, w: 4.184e9 cal/mol}
     """
     _reaction_type = "Blowers-Masel"
 
-    property rate:
-        """ Get/Set the `Arrhenius` rate coefficient for this reaction. """
-        def __get__(self):
-            cdef CxxBlowersMaselReaction* r = <CxxBlowersMaselReaction*>self.reaction
-            return wrapBlowersMasel(&(r.rate), self)
-        def __set__(self, BlowersMasel rate):
-            cdef CxxBlowersMaselReaction* r = <CxxBlowersMaselReaction*>self.reaction
-            r.rate = deref(rate.rate)
+    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
+                 init=True, **kwargs):
 
-    property allow_negative_pre_exponential_factor:
-        """
-        Get/Set whether the rate coefficient is allowed to have a negative
-        pre-exponential factor.
-        """
+        if init and equation and kinetics:
+
+            rxn_type = self._reaction_type
+            spec = {"equation": equation, "type": rxn_type}
+            if isinstance(rate, dict):
+                spec["rate-constant"] = rate
+            elif rate is None or isinstance(rate, BlowersMaselRate):
+                pass
+            else:
+                raise TypeError("Invalid rate definition")
+
+            self._reaction = CxxNewReaction(dict_to_anymap(spec),
+                                            deref(kinetics.kinetics))
+            self.reaction = self._reaction.get()
+
+            if isinstance(rate, BlowersMaselRate):
+                self.rate = rate
+
+    property rate:
+        """ Get/Set the `BlowersMaselRate` rate coefficients for this reaction. """
         def __get__(self):
             cdef CxxBlowersMaselReaction* r = <CxxBlowersMaselReaction*>self.reaction
-            return r.allow_negative_pre_exponential_factor
-        def __set__(self, allow):
+            return BlowersMaselRate.wrap(r.rate())
+        def __set__(self, rate):
             cdef CxxBlowersMaselReaction* r = <CxxBlowersMaselReaction*>self.reaction
-            r.allow_negative_pre_exponential_factor = allow
+            cdef BlowersMaselRate rate_ = rate
+            r.setRate(rate_._rate)
 
 
 cdef class InterfaceReaction(ElementaryReaction):
@@ -2177,12 +2197,33 @@ cdef class InterfaceReaction(ElementaryReaction):
             r.sticking_species = stringify(species)
 
 
-cdef class BlowersMaselInterfaceReaction(BlowersMaselReaction):
+cdef class BlowersMaselInterfaceReaction(Reaction):
     """
     A reaction occurring on an `Interface` (i.e. a surface or an edge)
     with the rate parameterization of `BlowersMasel`.
     """
     _reaction_type = "surface-Blowers-Masel"
+
+    cdef CxxBlowersMaselInterfaceReaction* cxx_object2(self):
+        return <CxxBlowersMaselInterfaceReaction*>self.reaction
+
+    property rate:
+        """ Get/Set the `BlowersMaselRate` rate coefficients for this reaction. """
+        def __get__(self):
+            return wrapBlowersMasel(&(self.cxx_object2().rate), self)
+        def __set__(self, BlowersMasel rate):
+            cdef CxxBlowersMaselInterfaceReaction* r = self.cxx_object2()
+            r.rate = deref(rate.rate)
+
+    property allow_negative_pre_exponential_factor:
+        """
+        Get/Set whether the rate coefficient is allowed to have a negative
+        pre-exponential factor.
+        """
+        def __get__(self):
+            return self.cxx_object2().allow_negative_pre_exponential_factor
+        def __set__(self, allow):
+            self.cxx_object2().allow_negative_pre_exponential_factor = allow
 
     property coverage_deps:
         """
