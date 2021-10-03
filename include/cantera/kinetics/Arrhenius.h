@@ -65,6 +65,13 @@ public:
     //! Validate the reaction rate expression
     virtual void validate(const std::string& equation);
 
+    //! Evaluate reaction rate
+    //! @param logT  natural logarithm of temperature
+    //! @param recipT  inverse of temperature
+    double eval(double logT, double recipT) const {
+        return m_A * std::exp(m_b * logT - m_Ea_R * recipT);
+    }
+
     //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
     //! on the reaction order)
     double preExponentialFactor() const {
