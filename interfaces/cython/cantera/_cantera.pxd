@@ -385,12 +385,15 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (XML_Node&) except +translate_exception
     cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (CxxAnyValue&, CxxKinetics&) except +translate_exception
 
-    cdef cppclass CxxArrhenius "Cantera::Arrhenius":
-        CxxArrhenius()
-        CxxArrhenius(double, double, double)
-        double updateRC(double, double)
+    cdef cppclass CxxArrheniusBase "Cantera::ArrheniusBase":
+        CxxArrheniusBase()
+        CxxArrheniusBase(double, double, double)
+        double eval(double, double)
         double preExponentialFactor()
         double temperatureExponent()
+        double intrinsicActivationEnergy()
+
+    cdef cppclass CxxArrhenius2 "Cantera::Arrhenius2" (CxxArrheniusBase):
         double activationEnergy_R()
 
     cdef cppclass CxxReactionRateBase "Cantera::ReactionRateBase":
@@ -431,10 +434,10 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double third_body_concentration
         cbool chemicallyActivated()
         void chemicallyActivated(cbool)
-        CxxArrhenius& lowRate()
-        void setLowRate(CxxArrhenius&) except +translate_exception
-        CxxArrhenius& highRate()
-        void setHighRate(CxxArrhenius&) except +translate_exception
+        CxxArrheniusBase& lowRate()
+        void setLowRate(CxxArrheniusBase&) except +translate_exception
+        CxxArrheniusBase& highRate()
+        void setHighRate(CxxArrheniusBase&) except +translate_exception
         void getData(vector[double]&)
         void setData(vector[double]&) except +translate_exception
         double evalF(double, double) except +translate_exception
@@ -447,8 +450,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxPlogRate "Cantera::PlogRate" (CxxReactionRateBase):
         CxxPlogRate()
         CxxPlogRate(CxxAnyMap) except +translate_exception
-        CxxPlogRate(multimap[double, CxxArrhenius])
-        multimap[double, CxxArrhenius] getRates()
+        CxxPlogRate(multimap[double, CxxArrhenius2])
+        multimap[double, CxxArrhenius2] getRates()
 
     cdef cppclass CxxChebyshevRate3 "Cantera::ChebyshevRate3" (CxxReactionRateBase):
         CxxChebyshevRate3()
@@ -490,7 +493,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
 
     cdef cppclass CxxElementaryReaction2 "Cantera::ElementaryReaction2" (CxxReaction):
         CxxElementaryReaction2()
-        CxxArrhenius rate
+        CxxArrhenius2 rate
         cbool allow_negative_pre_exponential_factor
 
     cdef cppclass CxxThirdBody "Cantera::ThirdBody":
@@ -517,8 +520,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxFalloffReaction "Cantera::FalloffReaction" (CxxReaction):
         CxxFalloffReaction()
 
-        CxxArrhenius low_rate
-        CxxArrhenius high_rate
+        CxxArrhenius2 low_rate
+        CxxArrhenius2 high_rate
         CxxThirdBody third_body
         shared_ptr[CxxFalloff] falloff
         cbool allow_negative_pre_exponential_factor
@@ -527,8 +530,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxChemicallyActivatedReaction()
 
     cdef cppclass CxxPlog "Cantera::Plog":
-        CxxPlog(multimap[double,CxxArrhenius])
-        multimap[double, CxxArrhenius] getRates()
+        CxxPlog(multimap[double,CxxArrhenius2])
+        multimap[double, CxxArrhenius2] getRates()
         void update_C(double*)
         double updateRC(double, double)
 
@@ -1279,9 +1282,12 @@ cdef class CustomReaction(Reaction):
     cdef CustomRate _rate
 
 cdef class Arrhenius:
-    cdef CxxArrhenius* rate
+    cdef CxxArrhenius2* rate # used by legacy objects only
+    cdef CxxArrheniusBase* base
     cdef cbool own_rate
     cdef Reaction reaction # parent reaction, to prevent garbage collection
+    @staticmethod
+    cdef wrap(CxxArrheniusBase*)
 
 cdef class BlowersMasel:
     cdef CxxBlowersMasel2* rate

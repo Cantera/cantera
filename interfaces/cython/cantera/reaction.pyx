@@ -330,16 +330,16 @@ cdef class FalloffRate(ReactionRate):
     property low_rate:
         """ Get/Set the `Arrhenius` rate constant in the low-pressure limit """
         def __get__(self):
-            return wrapArrhenius(&(self.falloff.lowRate()), None)
+            return Arrhenius.wrap(&(self.falloff.lowRate()))
         def __set__(self, Arrhenius rate):
-            self.falloff.setLowRate(deref(rate.rate))
+            self.falloff.setLowRate(deref(rate.base))
 
     property high_rate:
         """ Get/Set the `Arrhenius` rate constant in the high-pressure limit """
         def __get__(self):
-            return wrapArrhenius(&(self.falloff.highRate()), None)
+            return Arrhenius.wrap(&(self.falloff.highRate()))
         def __set__(self, Arrhenius rate):
-            self.falloff.setHighRate(deref(rate.rate))
+            self.falloff.setHighRate(deref(rate.base))
 
     property data:
         """ The array of coefficients used to define this falloff function. """
@@ -506,17 +506,17 @@ cdef class PlogRate(ReactionRate):
         """
         def __get__(self):
             rates = []
-            cdef multimap[double, CxxArrhenius] cxxrates
-            cdef pair[double, CxxArrhenius] p_rate
+            cdef multimap[double, CxxArrhenius2] cxxrates
+            cdef pair[double, CxxArrhenius2] p_rate
             cxxrates = self.cxx_object().getRates()
             for p_rate in cxxrates:
                 rates.append((p_rate.first, copyArrhenius(&p_rate.second)))
             return rates
 
         def __set__(self, rates):
-            cdef multimap[double, CxxArrhenius] ratemap
+            cdef multimap[double, CxxArrhenius2] ratemap
             cdef Arrhenius rate
-            cdef pair[double, CxxArrhenius] item
+            cdef pair[double, CxxArrhenius2] item
             for p, rate in rates:
                 item.first = p
                 item.second = deref(rate.rate)
@@ -1129,7 +1129,8 @@ cdef class Arrhenius:
     """
     def __cinit__(self, A=0, b=0, E=0, init=True):
         if init:
-            self.rate = new CxxArrhenius(A, b, E / gas_constant)
+            self.base = new CxxArrheniusBase(A, b, E)
+            self.rate = <CxxArrhenius2*>self.base
             self.own_rate = True
             self.reaction = None
         else:
@@ -1137,7 +1138,15 @@ cdef class Arrhenius:
 
     def __dealloc__(self):
         if self.own_rate:
-            del self.rate
+            del self.base
+
+    @staticmethod
+    cdef wrap(CxxArrheniusBase* rate):
+        r = Arrhenius(init=False)
+        r.base = rate
+        r.rate = <CxxArrhenius2*>r.base
+        r.reaction = None
+        return r
 
     property pre_exponential_factor:
         """
@@ -1145,21 +1154,21 @@ cdef class Arrhenius:
         powers depending on the reaction order.
         """
         def __get__(self):
-            return self.rate.preExponentialFactor()
+            return self.base.preExponentialFactor()
 
     property temperature_exponent:
         """
         The temperature exponent ``b``.
         """
         def __get__(self):
-            return self.rate.temperatureExponent()
+            return self.base.temperatureExponent()
 
     property activation_energy:
         """
         The activation energy ``E`` [J/kmol].
         """
         def __get__(self):
-            return self.rate.activationEnergy_R() * gas_constant
+            return self.base.intrinsicActivationEnergy()
 
     def __repr__(self):
         return 'Arrhenius(A={:g}, b={:g}, E={:g})'.format(
@@ -1169,16 +1178,17 @@ cdef class Arrhenius:
     def __call__(self, float T):
         cdef double logT = np.log(T)
         cdef double recipT = 1/T
-        return self.rate.updateRC(logT, recipT)
+        return self.base.eval(logT, recipT)
 
 
-cdef wrapArrhenius(CxxArrhenius* rate, Reaction reaction):
+cdef wrapArrhenius(CxxArrheniusBase* rate, Reaction reaction):
     r = Arrhenius(init=False)
-    r.rate = rate
+    r.base = rate
+    r.rate = <CxxArrhenius2*>r.base
     r.reaction = reaction
     return r
 
-cdef copyArrhenius(CxxArrhenius* rate):
+cdef copyArrhenius(CxxArrhenius2* rate):
     r = Arrhenius(rate.preExponentialFactor(), rate.temperatureExponent(),
                   rate.activationEnergy_R() * gas_constant)
     return r
@@ -1661,17 +1671,17 @@ cdef class PlogReaction(Reaction):
 
     cdef list _legacy_get_rates(self):
         cdef CxxPlogReaction2* r = self.cxx_object2()
-        cdef multimap[double,CxxArrhenius] cxxrates = r.rate.getRates()
-        cdef pair[double,CxxArrhenius] p_rate
+        cdef multimap[double,CxxArrhenius2] cxxrates = r.rate.getRates()
+        cdef pair[double,CxxArrhenius2] p_rate
         rates = []
         for p_rate in cxxrates:
             rates.append((p_rate.first,copyArrhenius(&p_rate.second)))
         return rates
 
     cdef _legacy_set_rates(self, list rates):
-        cdef multimap[double,CxxArrhenius] ratemap
+        cdef multimap[double,CxxArrhenius2] ratemap
         cdef Arrhenius rate
-        cdef pair[double,CxxArrhenius] item
+        cdef pair[double,CxxArrhenius2] item
         for p, rate in rates:
             item.first = p
             item.second = deref(rate.rate)
