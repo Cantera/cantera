@@ -426,17 +426,17 @@ public:
 
 
 //! A reaction with rate parameters for Blowers-Masel approximation
-class BlowersMaselReaction: public Reaction
+class BlowersMaselReaction2: public Reaction
 {
 public:
-    BlowersMaselReaction();
-    BlowersMaselReaction(const Composition& reactants,
-                         const Composition& products, const BlowersMasel& rate);
+    BlowersMaselReaction2();
+    BlowersMaselReaction2(const Composition& reactants,
+                          const Composition& products, const BlowersMasel& rate);
     virtual void getParameters(AnyMap& reactionNode) const;
     virtual void validate();
 
     virtual std::string type() const {
-        return "Blowers-Masel";
+        return "Blowers-Masel-legacy";
     }
 
     BlowersMasel rate;
@@ -447,7 +447,7 @@ public:
 
 //! A reaction occurring on an interface (i.e. a SurfPhase or an EdgePhase)
 //! with the rate calculated with Blowers-Masel approximation.
-class BlowersMaselInterfaceReaction : public BlowersMaselReaction
+class BlowersMaselInterfaceReaction : public BlowersMaselReaction2
 {
 public:
     BlowersMaselInterfaceReaction();
@@ -525,6 +525,23 @@ public:
 };
 
 
+//! A reaction with rate parameters for Blowers-Masel approximation
+//! @TODO remove version '3' after surface-Blowers-Masel is ported to new framework.
+class BlowersMaselReaction3: public Reaction
+{
+public:
+    BlowersMaselReaction3();
+    BlowersMaselReaction3(const Composition& reactants, const Composition& products,
+                          const BlowersMaselRate& rate);
+
+    BlowersMaselReaction3(const AnyMap& node, const Kinetics& kin);
+
+    virtual std::string type() const {
+        return "Blowers-Masel";
+    }
+};
+
+
 //! A pressure-dependent reaction parameterized by logarithmically interpolating
 //! between Arrhenius rate expressions at various pressures.
 class PlogReaction3 : public Reaction
@@ -583,11 +600,13 @@ public:
 #ifdef CT_NO_LEGACY_REACTIONS_26
 typedef ElementaryReaction3 ElementaryReaction;
 typedef ThreeBodyReaction3 ThreeBodyReaction;
+typedef BlowersMaselReaction3 BlowersMaselReaction;
 typedef PlogReaction3 PlogReaction;
 typedef ChebyshevReaction3 ChebyshevReaction;
 #else
 typedef ElementaryReaction2 ElementaryReaction;
 typedef ThreeBodyReaction2 ThreeBodyReaction;
+typedef BlowersMaselReaction2 BlowersMaselReaction;
 typedef PlogReaction2 PlogReaction;
 typedef ChebyshevReaction2 ChebyshevReaction;
 #endif
@@ -667,9 +686,6 @@ void setupElectrochemicalReaction(ElectrochemicalReaction&,
 void setupElectrochemicalReaction(ElectrochemicalReaction&,
                                   const AnyMap&, const Kinetics&);
 
-//! @internal May be changed without notice in future versions
-void setupBlowersMaselReaction(BlowersMaselReaction&,
-                               const AnyMap&, const Kinetics&);
 //! @internal May be changed without notice in future versions
 void setupBlowersMaselInterfaceReaction(BlowersMaselInterfaceReaction&,
                                         const AnyMap&, const Kinetics&);
