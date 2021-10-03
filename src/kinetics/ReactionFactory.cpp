@@ -129,11 +129,7 @@ ReactionFactory::ReactionFactory()
 
     // register Blowers Masel reactions
     reg("Blowers-Masel", [](const AnyMap& node, const Kinetics& kin) {
-        BlowersMaselReaction* R = new BlowersMaselReaction();
-        if (!node.empty()) {
-            setupBlowersMaselReaction(*R, node, kin);
-        }
-        return R;
+        return new BlowersMaselReaction3(node, kin);
     });
 
     // register surface Blowers Masel reactions
