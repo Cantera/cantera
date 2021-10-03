@@ -34,11 +34,11 @@ class Units;
  *        k_f =  A T^b \exp (-E/RT)
  *   \f]
  */
-class Arrhenius : public ArrheniusBase
+class Arrhenius2 : public ArrheniusBase
 {
 public:
     //! Default constructor.
-    Arrhenius();
+    Arrhenius2();
 
     /// Constructor.
     /// @param A pre-exponential. The unit system is
@@ -46,11 +46,11 @@ public:
     ///     order and the dimensionality (surface or bulk).
     /// @param b Temperature exponent. Non-dimensional.
     /// @param E Activation energy in temperature units. Kelvin.
-    Arrhenius(doublereal A, doublereal b, doublereal E);
+    Arrhenius2(doublereal A, doublereal b, doublereal E);
 
     //! Constructor based on AnyMap content
-    Arrhenius(const AnyValue& rate,
-              const UnitSystem& units, const Units& rate_units);
+    Arrhenius2(const AnyValue& rate,
+               const UnitSystem& units, const Units& rate_units);
 
     void setParameters(const AnyValue& rate,
                        const UnitSystem& units, const Units& rate_units);
@@ -67,7 +67,7 @@ public:
      * Update the value of the natural logarithm of the rate constant.
      */
     doublereal updateLog(doublereal logT, doublereal recipT) const {
-        return m_logA + m_b*logT - m_E*recipT;
+        return m_logA + m_b*logT - m_Ea_R*recipT;
     }
 
     /**
@@ -77,17 +77,17 @@ public:
      * safely called for negative values of the pre-exponential factor.
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
-        return m_A * std::exp(m_b*logT - m_E*recipT);
+        return m_A * std::exp(m_b*logT - m_Ea_R*recipT);
     }
 
     //! Return the activation energy divided by the gas constant (i.e. the
     //! activation temperature) [K]
     doublereal activationEnergy_R() const {
-        return m_E;
+        return m_Ea_R;
     }
 
 protected:
-    doublereal m_logA, m_E;
+    doublereal m_logA;
 };
 
 //! Blowers Masel reaction rate type depends on the enthalpy of reaction
@@ -117,11 +117,11 @@ protected:
  *        k_f =  A T^b \exp (-E_a/RT)
  *   \f]
  */
-class BlowersMasel
+class BlowersMasel2
 {
 public:
     //! Default constructor.
-    BlowersMasel();
+    BlowersMasel2();
 
     /// Constructor.
     /// @param A pre-exponential. The unit system is
@@ -132,7 +132,7 @@ public:
     /// @param w average bond dissociation energy of the bond being formed and
     ///     broken in the reaction, in temperature units. Kelvin.
 
-    BlowersMasel(double A, double b, double E0, double w);
+    BlowersMasel2(double A, double b, double E0, double w);
 
     void getParameters(AnyMap& rateNode, const Units& rate_units) const;
 
@@ -290,6 +290,15 @@ protected:
     std::vector<size_t> m_sp, m_msp;
     vector_fp m_ac, m_ec, m_mc;
 };
+
+
+#ifdef CT_NO_LEGACY_REACTIONS_26
+typedef Arrhenius3 Arrhenius;
+typedef BlowersMasel3 BlowersMasel;
+#else
+typedef Arrhenius2 Arrhenius;
+typedef BlowersMasel2 BlowersMasel;
+#endif
 
 
 //! Pressure-dependent reaction rate expressed by logarithmically interpolating

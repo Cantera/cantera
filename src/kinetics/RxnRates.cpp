@@ -8,18 +8,16 @@
 
 namespace Cantera
 {
-Arrhenius::Arrhenius()
+Arrhenius2::Arrhenius2()
     : ArrheniusBase()
     , m_logA(-1.0E300)
-    , m_E(0.)
 {
     m_b = 0.0;
     m_A = 0.0;
 }
 
-Arrhenius::Arrhenius(doublereal A, doublereal b, doublereal E)
+Arrhenius2::Arrhenius2(doublereal A, doublereal b, doublereal E)
     : ArrheniusBase(A, b, E * GasConstant)
-    , m_E(E)
 {
     if (m_A  <= 0.0) {
         m_logA = -1.0E300;
@@ -28,17 +26,16 @@ Arrhenius::Arrhenius(doublereal A, doublereal b, doublereal E)
     }
 }
 
-Arrhenius::Arrhenius(const AnyValue& rate,
-                     const UnitSystem& units, const Units& rate_units)
+Arrhenius2::Arrhenius2(const AnyValue& rate,
+                       const UnitSystem& units, const Units& rate_units)
 {
     setParameters(rate, units, rate_units);
 }
 
-void Arrhenius::setParameters(const AnyValue& rate,
-                              const UnitSystem& units, const Units& rate_units)
+void Arrhenius2::setParameters(const AnyValue& rate,
+                               const UnitSystem& units, const Units& rate_units)
 {
     ArrheniusBase::setParameters(rate, units, rate_units);
-    m_E = m_Ea_R;
     if (m_A <= 0.0) {
         m_logA = -1.0E300;
     } else {
@@ -46,7 +43,7 @@ void Arrhenius::setParameters(const AnyValue& rate,
     }
 }
 
-BlowersMasel::BlowersMasel()
+BlowersMasel2::BlowersMasel2()
     : m_logA(-1.0E300)
     , m_b(0.0)
     , m_A(0.0)
@@ -55,7 +52,7 @@ BlowersMasel::BlowersMasel()
 {
 }
 
-BlowersMasel::BlowersMasel(double A, double b, double E0, double w)
+BlowersMasel2::BlowersMasel2(double A, double b, double E0, double w)
     : m_b(b)
     , m_A(A)
     , m_w(w)
@@ -68,7 +65,7 @@ BlowersMasel::BlowersMasel(double A, double b, double E0, double w)
     }
 }
 
-void BlowersMasel::getParameters(AnyMap& rateNode, const Units& rate_units) const
+void BlowersMasel2::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
     if (rate_units.factor() != 0.0) {
         rateNode["A"].setQuantity(preExponentialFactor(), rate_units);

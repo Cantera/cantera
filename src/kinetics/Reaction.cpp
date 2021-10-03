@@ -801,7 +801,7 @@ BlowersMaselInterfaceReaction::BlowersMaselInterfaceReaction()
 
 BlowersMaselInterfaceReaction::BlowersMaselInterfaceReaction(const Composition& reactants_,
                                          const Composition& products_,
-                                         const BlowersMasel& rate_,
+                                         const BlowersMasel2& rate_,
                                          bool isStick)
     : Reaction(reactants_, products_)
     , rate(rate_)
@@ -1253,7 +1253,7 @@ void readEfficiencies(ThirdBody& tbody, const AnyMap& node)
     tbody.setEfficiencies(node);
 }
 
-BlowersMasel readBlowersMasel(const Reaction& R, const AnyValue& rate,
+BlowersMasel2 readBlowersMasel(const Reaction& R, const AnyValue& rate,
                         const Kinetics& kin, const UnitSystem& units,
                         int pressure_dependence=0)
 {
@@ -1276,7 +1276,7 @@ BlowersMasel readBlowersMasel(const Reaction& R, const AnyValue& rate,
         Ta0 = units.convertActivationEnergy(rate_vec[2], "K");
         w = units.convertActivationEnergy(rate_vec[3], "K");
     }
-    return BlowersMasel(A, b, Ta0, w);
+    return BlowersMasel2(A, b, Ta0, w);
 }
 
 bool detectEfficiencies(ThreeBodyReaction2& R)
