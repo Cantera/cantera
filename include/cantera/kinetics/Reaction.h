@@ -255,13 +255,13 @@ protected:
 
 //! A reaction that is first-order in [M] at low pressure, like a third-body
 //! reaction, but zeroth-order in [M] as pressure increases.
-class FalloffReaction : public Reaction
+class FalloffReaction2 : public Reaction
 {
 public:
-    FalloffReaction();
-    FalloffReaction(const Composition& reactants, const Composition& products,
-                    const Arrhenius& low_rate, const Arrhenius& high_rate,
-                    const ThirdBody& tbody);
+    FalloffReaction2();
+    FalloffReaction2(const Composition& reactants, const Composition& products,
+                     const Arrhenius& low_rate, const Arrhenius& high_rate,
+                     const ThirdBody& tbody);
 
     virtual std::string type() const {
         return "falloff";
@@ -299,10 +299,10 @@ protected:
 
 
 //! A reaction where the rate decreases as pressure increases due to collisional
-//! stabilization of a reaction intermediate. Like a FalloffReaction, except
+//! stabilization of a reaction intermediate. Like a FalloffReaction2, except
 //! that the forward rate constant is written as being proportional to the low-
 //! pressure rate constant.
-class ChemicallyActivatedReaction : public FalloffReaction
+class ChemicallyActivatedReaction : public FalloffReaction2
 {
 public:
     ChemicallyActivatedReaction();
@@ -591,6 +591,7 @@ typedef ChebyshevReaction3 ChebyshevReaction;
 #else
 typedef ElementaryReaction2 ElementaryReaction;
 typedef ThreeBodyReaction2 ThreeBodyReaction;
+typedef FalloffReaction2 FalloffReaction;
 typedef PlogReaction2 PlogReaction;
 typedef ChebyshevReaction2 ChebyshevReaction;
 #endif
@@ -642,9 +643,9 @@ void setupThreeBodyReaction(ThreeBodyReaction2&, const XML_Node&);
 void setupThreeBodyReaction(ThreeBodyReaction2&, const AnyMap&,
                             const Kinetics&);
 
-void setupFalloffReaction(FalloffReaction&, const XML_Node&);
+void setupFalloffReaction(FalloffReaction2&, const XML_Node&);
 //! @internal May be changed without notice in future versions
-void setupFalloffReaction(FalloffReaction&, const AnyMap&,
+void setupFalloffReaction(FalloffReaction2&, const AnyMap&,
                           const Kinetics&);
 
 void setupChemicallyActivatedReaction(ChemicallyActivatedReaction&,

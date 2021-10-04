@@ -545,7 +545,7 @@ std::pair<std::vector<std::string>, bool> ThreeBodyReaction2::undeclaredThirdBod
     return std::make_pair(undeclared, specified_collision_partner);
 }
 
-FalloffReaction::FalloffReaction()
+FalloffReaction2::FalloffReaction2()
     : Reaction()
     , falloff(new Falloff())
     , allow_negative_pre_exponential_factor(false)
@@ -554,7 +554,7 @@ FalloffReaction::FalloffReaction()
     reaction_type = FALLOFF_RXN;
 }
 
-FalloffReaction::FalloffReaction(
+FalloffReaction2::FalloffReaction2(
         const Composition& reactants_, const Composition& products_,
         const Arrhenius& low_rate_, const Arrhenius& high_rate_,
         const ThirdBody& tbody)
@@ -569,7 +569,7 @@ FalloffReaction::FalloffReaction(
     reaction_type = FALLOFF_RXN;
 }
 
-std::string FalloffReaction::reactantString() const
+std::string FalloffReaction2::reactantString() const
 {
     if (third_body.default_efficiency == 0 &&
         third_body.efficiencies.size() == 1) {
@@ -580,7 +580,7 @@ std::string FalloffReaction::reactantString() const
     }
 }
 
-std::string FalloffReaction::productString() const
+std::string FalloffReaction2::productString() const
 {
     if (third_body.default_efficiency == 0 &&
         third_body.efficiencies.size() == 1) {
@@ -591,23 +591,23 @@ std::string FalloffReaction::productString() const
     }
 }
 
-void FalloffReaction::validate()
+void FalloffReaction2::validate()
 {
     Reaction::validate();
     if (!allow_negative_pre_exponential_factor &&
         (low_rate.preExponentialFactor() < 0 ||
          high_rate.preExponentialFactor() < 0)) {
-        throw InputFileError("FalloffReaction::validate", input, "Negative "
+        throw InputFileError("FalloffReaction2::validate", input, "Negative "
             "pre-exponential factor found for reaction '" + equation() + "'");
     }
     if (low_rate.preExponentialFactor() * high_rate.preExponentialFactor() < 0) {
-        throw InputFileError("FalloffReaction::validate", input, "High and "
+        throw InputFileError("FalloffReaction2::validate", input, "High and "
             "low rate pre-exponential factors must have the same sign."
             "Reaction: '{}'", equation());
     }
 }
 
-void FalloffReaction::calculateRateCoeffUnits(const Kinetics& kin)
+void FalloffReaction2::calculateRateCoeffUnits(const Kinetics& kin)
 {
     Reaction::calculateRateCoeffUnits(kin);
     const ThermoPhase& rxn_phase = kin.thermo(kin.reactionPhaseIndex());
@@ -615,7 +615,7 @@ void FalloffReaction::calculateRateCoeffUnits(const Kinetics& kin)
     low_rate_units *= rxn_phase.standardConcentrationUnits().pow(-1);
 }
 
-void FalloffReaction::getParameters(AnyMap& reactionNode) const
+void FalloffReaction2::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
     reactionNode["type"] = "falloff";
@@ -634,7 +634,7 @@ void FalloffReaction::getParameters(AnyMap& reactionNode) const
     }
 }
 
-std::pair<std::vector<std::string>, bool> FalloffReaction::undeclaredThirdBodies(
+std::pair<std::vector<std::string>, bool> FalloffReaction2::undeclaredThirdBodies(
         const Kinetics& kin) const
 {
     std::vector<std::string> undeclared;
@@ -651,14 +651,14 @@ ChemicallyActivatedReaction::ChemicallyActivatedReaction(
         const Composition& reactants_, const Composition& products_,
         const Arrhenius& low_rate_, const Arrhenius& high_rate_,
         const ThirdBody& tbody)
-    : FalloffReaction(reactants_, products_, low_rate_, high_rate_, tbody)
+    : FalloffReaction2(reactants_, products_, low_rate_, high_rate_, tbody)
 {
     reaction_type = CHEMACT_RXN;
 }
 
 void ChemicallyActivatedReaction::calculateRateCoeffUnits(const Kinetics& kin)
 {
-    Reaction::calculateRateCoeffUnits(kin); // Skip FalloffReaction
+    Reaction::calculateRateCoeffUnits(kin); // Skip FalloffReaction2
     const ThermoPhase& rxn_phase = kin.thermo(kin.reactionPhaseIndex());
     low_rate_units = rate_units;
     rate_units *= rxn_phase.standardConcentrationUnits();
@@ -666,7 +666,7 @@ void ChemicallyActivatedReaction::calculateRateCoeffUnits(const Kinetics& kin)
 
 void ChemicallyActivatedReaction::getParameters(AnyMap& reactionNode) const
 {
-    FalloffReaction::getParameters(reactionNode);
+    FalloffReaction2::getParameters(reactionNode);
     reactionNode["type"] = "chemically-activated";
 }
 
@@ -1157,7 +1157,7 @@ Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate,
  <falloff type="Troe"> 0.5 73.2 5000. 9999. </falloff>
  @endverbatim
 */
-void readFalloff(FalloffReaction& R, const XML_Node& rc_node)
+void readFalloff(FalloffReaction2& R, const XML_Node& rc_node)
 {
     XML_Node& falloff = rc_node.child("falloff");
     std::vector<std::string> p;
@@ -1198,7 +1198,7 @@ void readFalloff(FalloffReaction& R, const XML_Node& rc_node)
     }
 }
 
-void readFalloff(FalloffReaction& R, const AnyMap& node)
+void readFalloff(FalloffReaction2& R, const AnyMap& node)
 {
     if (node.hasKey("Troe")) {
         auto& f = node["Troe"].as<AnyMap>();
@@ -1482,7 +1482,7 @@ void setupThreeBodyReaction(ThreeBodyReaction2& R, const AnyMap& node,
     }
 }
 
-void setupFalloffReaction(FalloffReaction& R, const XML_Node& rxn_node)
+void setupFalloffReaction(FalloffReaction2& R, const XML_Node& rxn_node)
 {
     XML_Node& rc_node = rxn_node.child("rateCoeff");
     std::vector<XML_Node*> rates = rc_node.getChildren("Arrhenius");
@@ -1513,7 +1513,7 @@ void setupFalloffReaction(FalloffReaction& R, const XML_Node& rxn_node)
     setupReaction(R, rxn_node);
 }
 
-void setupFalloffReaction(FalloffReaction& R, const AnyMap& node,
+void setupFalloffReaction(FalloffReaction2& R, const AnyMap& node,
                           const Kinetics& kin)
 {
     setupReaction(R, node, kin);
