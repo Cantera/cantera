@@ -321,7 +321,8 @@ Includes the fields of an :ref:`sec-yaml-elementary` reaction plus:
         Power-law exponent of coverage dependence
 
     ``E``
-        Activation energy dependence on coverage
+        Activation energy dependence on coverage.
+        This is the negative of :math:`{\epsilon}_i` and the Detchem convention
 
 Example::
 
