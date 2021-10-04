@@ -942,6 +942,33 @@ class TestBlowersMasel(ReactionTests, utilities.CanteraTest):
         self.assertTrue(self._rate_obj(self.gas.T))
 
 
+class TestTroe2(ReactionTests, utilities.CanteraTest):
+    # test legacy version of Troe falloff reaction
+
+    _cls = ct.FalloffReaction
+    _equation = "2 OH (+ M) <=> H2O2 (+ M)"
+    _kwargs = {"efficiencies": {"H2": 2.4, "H2O": 15.4, "AR": 0.83}}
+    _index = 2
+    _type = "falloff-legacy"
+    _legacy = True
+    _yaml = """
+        equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 3
+        type: falloff-legacy
+        low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -1700.0 cal/mol}
+        high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0 cal/mol}
+        Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
+        efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+        """
+
+    def test_from_rate(self):
+        # do not port creation from legacy Fallout objects
+        pass
+
+    def test_from_yaml(self):
+        # check constructors (from yaml input)
+        self.check_rxn(self.from_yaml(), check_legacy=False)
+
+
 class TestPlog2(ReactionTests, utilities.CanteraTest):
     # test legacy version of Plog reaction
 
