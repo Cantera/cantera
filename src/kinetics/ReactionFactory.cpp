@@ -55,7 +55,16 @@ ReactionFactory::ReactionFactory()
 
     // register falloff reactions
     reg("falloff", [](const AnyMap& node, const Kinetics& kin) {
-        FalloffReaction* R = new FalloffReaction();
+        FalloffReaction2* R = new FalloffReaction2();
+        if (!node.empty()) {
+            setupFalloffReaction(*R, node, kin);
+        }
+        return R;
+    });
+
+    // register falloff reactions (old framework)
+    reg("falloff-legacy", [](const AnyMap& node, const Kinetics& kin) {
+        FalloffReaction2* R = new FalloffReaction2();
         if (!node.empty()) {
             setupFalloffReaction(*R, node, kin);
         }
@@ -64,7 +73,7 @@ ReactionFactory::ReactionFactory()
 
     // register falloff reactions
     reg("chemically-activated", [](const AnyMap& node, const Kinetics& kin) {
-        FalloffReaction* R = new ChemicallyActivatedReaction();
+        FalloffReaction2* R = new ChemicallyActivatedReaction();
         if (!node.empty()) {
             setupFalloffReaction(*R, node, kin);
         }
@@ -169,8 +178,8 @@ ReactionFactoryXML::ReactionFactoryXML()
 
     // register falloff reactions
     reg("falloff", [](const XML_Node& node) {
-        Reaction* R = new FalloffReaction();
-        setupFalloffReaction(*(FalloffReaction*)R, node);
+        Reaction* R = new FalloffReaction2();
+        setupFalloffReaction(*(FalloffReaction2*)R, node);
         return R;
     });
 
