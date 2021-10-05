@@ -517,8 +517,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         string type()
         void getParameters(double*)
 
-    cdef cppclass CxxFalloffReaction "Cantera::FalloffReaction" (CxxReaction):
-        CxxFalloffReaction()
+    cdef cppclass CxxFalloffReaction2 "Cantera::FalloffReaction2" (CxxReaction):
+        CxxFalloffReaction2()
 
         CxxArrhenius2 low_rate
         CxxArrhenius2 high_rate
@@ -526,7 +526,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         shared_ptr[CxxFalloff] falloff
         cbool allow_negative_pre_exponential_factor
 
-    cdef cppclass CxxChemicallyActivatedReaction "Cantera::ChemicallyActivatedReaction" (CxxFalloffReaction):
+    cdef cppclass CxxChemicallyActivatedReaction "Cantera::ChemicallyActivatedReaction" (CxxFalloffReaction2):
         CxxChemicallyActivatedReaction()
 
     cdef cppclass CxxPlog "Cantera::Plog":
