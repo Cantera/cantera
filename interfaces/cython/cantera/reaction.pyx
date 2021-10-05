@@ -1505,25 +1505,72 @@ cdef class FalloffReaction(Reaction):
     """
     A reaction that is first-order in [M] at low pressure, like a third-body
     reaction, but zeroth-order in [M] as pressure increases.
+
+    An example for the definition of a `FalloffReaction` object is given as::
+
+        rxn = FalloffReaction(
+            equation="2 OH (+ M) <=> H2O2 (+ M)",
+            type="falloff",
+            rate=ct.TroeRate(low=ct.Arrhenius(2.3e+12, -0.9, -7112800.0),
+                             high=ct.Arrhenius(7.4e+10, -0.37, 0),
+                             data=[0.7346, 94.0, 1756.0, 5182.0])
+            efficiencies={"AR": 0.7, "H2": 2.0, "H2O": 6.0},
+            kinetics=gas)
+
+    The YAML description corresponding to this reaction is::
+
+        equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 3
+        type: falloff-legacy
+        low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -1700.0 cal/mol}
+        high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0 cal/mol}
+        Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
+        efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
     """
     _reaction_type = "falloff"
+    _has_legacy = False
+    _hybrid = False
 
-    cdef CxxFalloffReaction* frxn(self):
-        return <CxxFalloffReaction*>self.reaction
+    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
+                 init=True, legacy=False, **kwargs):
+
+        if init and equation and kinetics:
+
+            rxn_type = self._reaction_type
+            if legacy:
+                rxn_type += "-legacy"
+            spec = {"equation": equation, "type": rxn_type}
+            if legacy and isinstance(rate, Falloff):
+                raise NotImplementedError("Not implemented for legacy rates")
+            elif not legacy and (isinstance(rate, FalloffRate) or rate is None):
+                pass
+            else:
+                raise TypeError("Invalid rate definition")
+
+            self._reaction = CxxNewReaction(dict_to_anymap(spec),
+                                            deref(kinetics.kinetics))
+            self.reaction = self._reaction.get()
+
+            if not legacy and isinstance(rate, FalloffRate):
+                self.rate = rate
+
+    cdef CxxFalloffReaction2* cxx_object2(self):
+        if not self.uses_legacy:
+            raise AttributeError("Incorrect accessor for legacy implementation")
+        return <CxxFalloffReaction2*>self.reaction
 
     property low_rate:
         """ Get/Set the `Arrhenius` rate constant in the low-pressure limit """
         def __get__(self):
-            return wrapArrhenius(&(self.frxn().low_rate), self)
+            return wrapArrhenius(&(self.cxx_object2().low_rate), self)
         def __set__(self, Arrhenius rate):
-            self.frxn().low_rate = deref(rate.rate)
+            self.cxx_object2().low_rate = deref(rate.rate)
 
     property high_rate:
         """ Get/Set the `Arrhenius` rate constant in the high-pressure limit """
         def __get__(self):
-            return wrapArrhenius(&(self.frxn().high_rate), self)
+            return wrapArrhenius(&(self.cxx_object2().high_rate), self)
         def __set__(self, Arrhenius rate):
-            self.frxn().high_rate = deref(rate.rate)
+            self.cxx_object2().high_rate = deref(rate.rate)
 
     property falloff:
         """
@@ -1531,9 +1578,9 @@ cdef class FalloffReaction(Reaction):
         rate coefficients
         """
         def __get__(self):
-            return wrapFalloff(self.frxn().falloff)
+            return wrapFalloff(self.cxx_object2().falloff)
         def __set__(self, Falloff f):
-            self.frxn().falloff = f._falloff
+            self.cxx_object2().falloff = f._falloff
 
     property efficiencies:
         """
@@ -1542,9 +1589,9 @@ cdef class FalloffReaction(Reaction):
         efficiencies.
         """
         def __get__(self):
-            return comp_map_to_dict(self.frxn().third_body.efficiencies)
+            return comp_map_to_dict(self.cxx_object2().third_body.efficiencies)
         def __set__(self, eff):
-            self.frxn().third_body.efficiencies = comp_map(eff)
+            self.cxx_object2().third_body.efficiencies = comp_map(eff)
 
     property default_efficiency:
         """
@@ -1552,9 +1599,9 @@ cdef class FalloffReaction(Reaction):
         species used for species not in `efficiencies`.
         """
         def __get__(self):
-            return self.frxn().third_body.default_efficiency
+            return self.cxx_object2().third_body.default_efficiency
         def __set__(self, default_eff):
-            self.frxn().third_body.default_efficiency = default_eff
+            self.cxx_object2().third_body.default_efficiency = default_eff
 
     property allow_negative_pre_exponential_factor:
         """
@@ -1562,10 +1609,10 @@ cdef class FalloffReaction(Reaction):
         pre-exponential factor.
         """
         def __get__(self):
-            cdef CxxFalloffReaction* r = <CxxFalloffReaction*>self.reaction
+            cdef CxxFalloffReaction2* r = <CxxFalloffReaction2*>self.reaction
             return r.allow_negative_pre_exponential_factor
         def __set__(self, allow):
-            cdef CxxFalloffReaction* r = <CxxFalloffReaction*>self.reaction
+            cdef CxxFalloffReaction2* r = <CxxFalloffReaction2*>self.reaction
             r.allow_negative_pre_exponential_factor = allow
 
     def efficiency(self, species):
@@ -1573,7 +1620,7 @@ cdef class FalloffReaction(Reaction):
         Get the efficiency of the third body named ``species`` considering both
         the default efficiency and species-specific efficiencies.
         """
-        return self.frxn().third_body.efficiency(stringify(species))
+        return self.cxx_object2().third_body.efficiency(stringify(species))
 
 
 cdef class ChemicallyActivatedReaction(FalloffReaction):
