@@ -528,6 +528,31 @@ public:
 };
 
 
+//! A reaction that is first-order in [M] at low pressure, like a third-body
+//! reaction, but zeroth-order in [M] as pressure increases.
+class FalloffReaction3 : public Reaction
+{
+public:
+    FalloffReaction3();
+    FalloffReaction3(const Composition& reactants, const Composition& products,
+                     const ReactionRateBase& rate, const ThirdBody& tbody);
+
+    FalloffReaction3(const AnyMap& node, const Kinetics& kin);
+
+    virtual std::string type() const {
+        return "falloff-new";
+    }
+
+    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
+    virtual void getParameters(AnyMap& reactionNode) const;
+
+    virtual std::string reactantString() const;
+    virtual std::string productString() const;
+
+    bool specified_collision_partner = false; //!< Input specifies collision partner
+};
+
+
 //! A pressure-dependent reaction parameterized by logarithmically interpolating
 //! between Arrhenius rate expressions at various pressures.
 class PlogReaction3 : public Reaction
@@ -590,6 +615,7 @@ public:
 #ifdef CT_NO_LEGACY_REACTIONS_26
 typedef ElementaryReaction3 ElementaryReaction;
 typedef ThreeBodyReaction3 ThreeBodyReaction;
+typedef FalloffReaction3 FalloffReaction;
 typedef PlogReaction3 PlogReaction;
 typedef ChebyshevReaction3 ChebyshevReaction;
 #else
