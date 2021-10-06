@@ -114,6 +114,8 @@ void Sim1D::save(const std::string& fname, const std::string& id,
     // Add this simulation to the YAML
     data[id] = serialize(m_x.data());
     data[id]["description"] = desc;
+    data[id]["generator"] = "Cantera Sim1D";
+    data[id]["cantera-version"] = CANTERA_VERSION;
 
     // Add a timestamp indicating the current time
     time_t aclock;
