@@ -92,7 +92,7 @@ solve(fl, loglevel, 0);
 enableEnergy(f);
 setRefineCriteria(fl, 2, 200.0, 0.1, 0.2);
 solve(fl, loglevel, refine_grid);
-saveSoln(fl,'c2h6.xml','energy',['solution with energy equation']);
+saveSoln(fl,'c2h6.yaml','energy',['solution with energy equation']);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Show statistics of solution and elapsed time.
 %
