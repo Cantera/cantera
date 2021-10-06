@@ -1048,6 +1048,115 @@ BlowersMaselReaction::BlowersMaselReaction(const AnyMap& node, const Kinetics& k
     }
 }
 
+FalloffReaction3::FalloffReaction3()
+    : Reaction()
+{
+    m_third_body.reset(new ThirdBody);
+    setRate(newReactionRate(type()));
+}
+
+FalloffReaction3::FalloffReaction3(const Composition& reactants,
+                                   const Composition& products,
+                                   const ReactionRateBase& rate,
+                                   const ThirdBody& tbody)
+    : Reaction(reactants, products)
+{
+    m_third_body = std::make_shared<ThirdBody>(tbody);
+    throw CanteraError("FalloffReaction3::FalloffReaction3", "not implemented");
+    //m_rate.reset(new CustomFunc1Rate(rate))
+}
+
+FalloffReaction3::FalloffReaction3(const AnyMap& node, const Kinetics& kin)
+{
+    m_third_body.reset(new ThirdBody);
+    if (!node.empty()) {
+        setParameters(node, kin);
+        setRate(newReactionRate(node, rate_units));
+    } else {
+        setRate(newReactionRate(type()));
+    }
+}
+
+std::string FalloffReaction3::reactantString() const
+{
+    if (specified_collision_partner) {
+        return Reaction::reactantString() + " (+" +
+            m_third_body->efficiencies.begin()->first + ")";
+    } else {
+        return Reaction::reactantString() + " (+M)";
+    }
+}
+
+std::string FalloffReaction3::productString() const
+{
+    if (specified_collision_partner) {
+        return Reaction::productString() + " (+" +
+            m_third_body->efficiencies.begin()->first + ")";
+    } else {
+        return Reaction::productString() + " (+M)";
+    }
+}
+
+void FalloffReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
+{
+    if (node.empty()) {
+        // empty node: used by newReaction() factory loader
+        return;
+    }
+    Reaction::setParameters(node, kin);
+
+    // Detect falloff third body based on partial setup;
+    // parseReactionEquation (called via Reaction::setParameters) sets the
+    // stoichiometric coefficient of the falloff species to -1.
+    std::string third_body_str;
+    std::string third_body;
+    for (auto& reactant : reactants) {
+        if (reactant.second == -1 && ba::starts_with(reactant.first, "(+")) {
+            third_body_str = reactant.first;
+            third_body = third_body_str.substr(2, third_body_str.size() - 3);
+            break;
+        }
+    }
+
+    // Equation must contain a third body, and it must appear on both sides
+    if (third_body_str == "") {
+        throw InputFileError("FalloffReaction3::setParameters", node["equation"],
+            "Reactants for reaction '{}' do not contain a pressure-dependent "
+            "third body", node["equation"].asString());
+    }
+    if (products.count(third_body_str) == 0) {
+        throw InputFileError("FalloffReaction3::setParameters", node["equation"],
+            "Unable to match third body '{}' in reactants and products of "
+            "reaction '{}'", third_body, node["equation"].asString());
+    }
+
+    // Remove the dummy species
+    reactants.erase(third_body_str);
+    products.erase(third_body_str);
+
+    if (third_body == "M") {
+        m_third_body->setEfficiencies(node);
+        specified_collision_partner = false;
+    } else {
+        // Specific species is listed as the third body
+        m_third_body->default_efficiency = 0;
+        m_third_body->efficiencies.emplace(third_body, 1.0);
+        specified_collision_partner = true;
+    }
+}
+
+void FalloffReaction3::getParameters(AnyMap& reactionNode) const
+{
+    Reaction::getParameters(reactionNode);
+    if (!specified_collision_partner) {
+        reactionNode["efficiencies"] = m_third_body->efficiencies;
+        reactionNode["efficiencies"].setFlowStyle();
+        if (m_third_body->default_efficiency != 1.0) {
+            reactionNode["default-efficiency"] = m_third_body->default_efficiency;
+        }
+    }
+}
+
 PlogReaction3::PlogReaction3()
 {
     setRate(newReactionRate(type()));

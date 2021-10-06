@@ -28,6 +28,12 @@ void Falloff::setLowRate(const ArrheniusBase& low)
             "Detected negative pre-exponential factor (A={}).\n"
             "Enable 'allow_negative_pre_exponential_factor' to suppress "
             "this message.", low.preExponentialFactor());
+    } else if (std::isnan(m_highRate.preExponentialFactor())) {
+        // pass
+    } else if (m_highRate.preExponentialFactor() * low.preExponentialFactor() < 0.) {
+        throw CanteraError("Falloff::setLowRate",
+            "Detected inconsistent rate definitions;\nhigh and low "
+            "rate pre-exponential factors must have the same sign.");
     }
     m_lowRate = low;
 }
@@ -39,6 +45,12 @@ void Falloff::setHighRate(const ArrheniusBase& high)
             "Detected negative pre-exponential factor (A={}).\n"
             "Enable 'allow_negative_pre_exponential_factor' to suppress "
             "this message.", high.preExponentialFactor());
+    } else if (std::isnan(m_lowRate.preExponentialFactor())) {
+        // pass
+    } else if (m_lowRate.preExponentialFactor() * high.preExponentialFactor() < 0.) {
+        throw CanteraError("Falloff::setHighRate",
+            "Detected inconsistent rate definitions;\nhigh and low "
+            "rate pre-exponential factors must have the same sign.");
     }
     m_highRate = high;
 }
@@ -101,6 +113,27 @@ void Falloff::validate(const std::string& equation)
         throw CanteraError("FalloffRate::validate",
             "Undeclared negative pre-exponential factor(s) found in reaction '{}'",
             equation);
+    }
+
+    double lowA = m_lowRate.preExponentialFactor();
+    double highA = m_highRate.preExponentialFactor();
+    if (std::isnan(lowA) || std::isnan(highA)) {
+        // arrhenius rates are not initialized
+        return;
+    }
+    if (!allow_negative_pre_exponential_factor && (lowA < 0 || highA < 0)) {
+        throw CanteraError("Falloff::validate",
+            "Negative pre-exponential factor(s) found in reaction '{}'", equation);
+        // throw InputFileError("Falloff::validate", input,
+        //     "Negative pre-exponential factor(s) found in reaction '{}'", equation);
+    }
+    if (lowA * highA < 0) {
+        // throw InputFileError("Falloff::validate", input,
+        //     "Inconsistent rate definitions found in reaction '{}';\nhigh and low "
+        //     "rate pre-exponential factors must have the same sign.", equation);
+        throw CanteraError("Falloff::validate",
+            "Inconsistent rate definitions found in reaction '{}';\nhigh and low "
+            "rate pre-exponential factors must have the same sign.", equation);
     }
 }
 
