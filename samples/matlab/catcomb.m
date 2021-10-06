@@ -177,7 +177,7 @@ solve(sim1D, loglevel, refine_grid);
 sim1D
 
 % save the solution
-saveSoln(sim1D,'catcomb.xml','energy',['solution with energy equation']);
+saveSoln(sim1D,'catcomb.yaml','energy',['solution with energy equation']);
 
 %%%%%%%%%% show statistics %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 writeStats(sim1D);
