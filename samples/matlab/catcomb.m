@@ -125,10 +125,11 @@ setTemperature(surf,tsurf);
 sim1D = Stack([inlt, flow, surf]);
 
 % set the initial profiles.
-setProfile(sim1D, 2, {'u', 'V', 'T'}, [0.0            1.0       % z/zmax
-                                       0.06           0.0       % u
-                                       0.0            0.0       % V
-                                       tinlet         tsurf]);  % T
+setProfile(sim1D, 2, {'velocity', 'spread_rate', 'T'}, ...
+           [0.0            1.0       % z/zmax
+            0.06           0.0       % velocity (u)
+            0.0            0.0       % spread rate (V)
+            tinlet         tsurf]);  % T
 names = speciesNames(gas);
 for k = 1:nSpecies(gas)
   y = massFraction(inlt, k);

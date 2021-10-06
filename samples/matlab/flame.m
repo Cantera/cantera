@@ -60,9 +60,10 @@ if flametype == 0
 else
   t1 = temperature(right);
 end
-setProfile(f, 2, {'u', 'V'}, [0.0            1.0
-                              mdot0/rho0     -mdot1/rho0
-                              0.0            0.0]);
+setProfile(f, 2, {'velocity', 'spread_rate'}, ...
+           [0.0            1.0
+            mdot0/rho0     -mdot1/rho0
+            0.0            0.0]);
 setProfile(f, 2, 'T', [0.0 z1 1.0; t0 2000.0 t1]);
 
 for n = 1:nSpecies(gas)
