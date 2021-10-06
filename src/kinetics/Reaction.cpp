@@ -181,10 +181,6 @@ void Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
         }
     }
 
-    // remove optional third body notation (used by ChebyshevReaction)
-    reactants.erase("(+M)");
-    products.erase("(+M)");
-
     // Flags
     id = node.getString("id", "");
     duplicate = node.getBool("duplicate", false);
@@ -1074,6 +1070,19 @@ PlogReaction3::PlogReaction3(const AnyMap& node, const Kinetics& kin)
     }
 }
 
+void PlogReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
+{
+    if (node.empty()) {
+        // empty node: used by newReaction() factory loader
+        return;
+    }
+    Reaction::setParameters(node, kin);
+
+    // remove optional third body notation
+    reactants.erase("(+M)");
+    products.erase("(+M)");
+}
+
 ChebyshevReaction3::ChebyshevReaction3()
 {
     setRate(newReactionRate(type()));
@@ -1095,6 +1104,19 @@ ChebyshevReaction3::ChebyshevReaction3(const AnyMap& node, const Kinetics& kin)
     } else {
         setRate(newReactionRate(type()));
     }
+}
+
+void ChebyshevReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
+{
+    if (node.empty()) {
+        // empty node: used by newReaction() factory loader
+        return;
+    }
+    Reaction::setParameters(node, kin);
+
+    // remove optional third body notation
+    reactants.erase("(+M)");
+    products.erase("(+M)");
 }
 
 CustomFunc1Reaction::CustomFunc1Reaction()
