@@ -542,6 +542,8 @@ public:
     virtual std::string type() const {
         return "pressure-dependent-Arrhenius";
     }
+
+    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
 };
 
 
@@ -559,6 +561,8 @@ public:
     virtual std::string type() const {
         return "Chebyshev";
     }
+
+    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
 };
 
 
