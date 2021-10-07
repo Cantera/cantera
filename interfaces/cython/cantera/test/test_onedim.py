@@ -566,6 +566,10 @@ class TestFreeFlame(utilities.CanteraTest):
         Tin = 400
 
         self.create_sim(p, Tin, reactants)
+        T_rtol = 1.1e-4
+        T_atol = 2e-6
+        self.sim.flame.set_steady_tolerances(T=(T_rtol, T_atol))
+
         self.solve_fixed_T()
         filename = self.test_work_path / "onedim-fixed-T.yaml"
         # In Python >= 3.8, this can be replaced by the missing_ok argument
@@ -590,8 +594,8 @@ class TestFreeFlame(utilities.CanteraTest):
         # Sim is initially in "steady-state" mode, so this returns the
         # steady-state tolerances
         rtol, atol = self.sim.flame.tolerances("T")
-        self.assertNear(rtol, self.tol_ss[0])
-        self.assertNear(atol, self.tol_ss[1])
+        self.assertNear(rtol, T_rtol)
+        self.assertNear(atol, T_atol)
         self.assertFalse(self.sim.energy_enabled)
 
         P2a = self.sim.P
@@ -1276,18 +1280,17 @@ class TestBurnerFlame(utilities.CanteraTest):
 
 class TestImpingingJet(utilities.CanteraTest):
     def create_reacting_surface(self, comp, tsurf, tinlet, width):
-        gas = ct.Solution('ptcombust-simple.cti', 'gas')
-        surf_phase = ct.Interface('ptcombust-simple.cti',
-                                  'Pt_surf', [gas])
+        self.gas = ct.Solution("ptcombust-simple.cti", "gas")
+        self.surf_phase = ct.Interface("ptcombust-simple.cti", "Pt_surf", [self.gas])
 
-        gas.TPX = tinlet, ct.one_atm, comp
-        surf_phase.TP = tsurf, ct.one_atm
+        self.gas.TPX = tinlet, ct.one_atm, comp
+        self.surf_phase.TP = tsurf, ct.one_atm
 
         # integrate the coverage equations holding the gas composition fixed
         # to generate a good starting estimate for the coverages.
-        surf_phase.advance_coverages(1.)
+        self.surf_phase.advance_coverages(1.)
 
-        return ct.ImpingingJet(gas=gas, width=width, surface=surf_phase)
+        return ct.ImpingingJet(gas=self.gas, width=width, surface=self.surf_phase)
 
     def run_reacting_surface(self, xch4, tsurf, mdot, width):
         # Simplified version of the example 'catalytic_combustion.py'
@@ -1345,6 +1348,32 @@ class TestImpingingJet(utilities.CanteraTest):
             self.assertIn(k, settings)
             if k != 'fixed_temperature':
                 self.assertEqual(settings[k], v)
+
+    def test_save_restore(self):
+        comp = {'CH4': 0.095, 'O2': 0.21, 'N2': 0.79}
+        self.sim = self.create_reacting_surface(comp, tsurf=900, tinlet=300, width=0.1)
+
+        self.sim.inlet.mdot = 0.06
+        self.sim.inlet.T = 300
+        self.sim.inlet.X = comp
+        self.sim.surface.T = 900
+
+        self.sim.solve(loglevel=0, auto=False)
+
+        filename = self.test_work_path / "impingingjet1.yaml"
+        self.sim.save(filename)
+
+        self.surf_phase.TPX = 300, ct.one_atm, "PT(S):1"
+        sim2 = ct.ImpingingJet(gas=self.gas, width=0.12, surface=self.surf_phase)
+        sim2.restore(filename)
+
+        self.assertArrayNear(self.sim.grid, sim2.grid)
+        self.assertArrayNear(self.sim.Y, sim2.Y)
+        for i in range(self.sim.surface.n_components):
+            self.assertNear(
+                self.sim.value("surface", i, 0),
+                sim2.value("surface", i, 0)
+            )
 
 
 class TestTwinFlame(utilities.CanteraTest):
