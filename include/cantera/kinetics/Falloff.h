@@ -157,7 +157,7 @@ public:
         m_rc_low = m_lowRate.eval(shared_data.logT, shared_data.recipT);
         m_rc_high = m_highRate.eval(shared_data.logT, shared_data.recipT);
         if (shared_data.finalized && rate_index != npos) {
-            m_conc_3b = shared_data.conc_3b[rate_index];
+            third_body_concentration = shared_data.conc_3b[rate_index];
         }
     }
 
@@ -195,6 +195,11 @@ public:
     //! Get flag indicating whether reaction is chemically activated
     const bool chemicallyActivated() const {
         return m_chemicallyActivated;
+    }
+
+    //! Set flag indicating whether reaction is chemically activated
+    void setChemicallyActivated(bool activated) {
+        m_chemicallyActivated = activated;
     }
 
     //! Get reaction rate in the low-pressure limit

@@ -188,7 +188,7 @@ void GasKinetics::processFalloffReactions()
     m_falloffn.pr_to_falloff(pr.data(), falloff_work.data());
 
     for (size_t i = 0; i < m_falloff_low_rates.nReactions(); i++) {
-        if (reactionTypeStr(m_fallindx[i]) == "falloff") {
+        if (reactionTypeStr(m_fallindx[i]) == "falloff-legacy") {
             pr[i] *= m_rfn_high[i];
         } else { // CHEMACT_RXN
             pr[i] *= m_rfn_low[i];
@@ -303,10 +303,10 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
         addElementaryReaction(dynamic_cast<ElementaryReaction2&>(*r));
     } else if (r->type() == "three-body-legacy") {
         addThreeBodyReaction(dynamic_cast<ThreeBodyReaction2&>(*r));
-    } else if (r->type() == "falloff") {
-        addFalloffReaction(dynamic_cast<FalloffReaction&>(*r));
-    } else if (r->type() == "chemically-activated") {
-        addFalloffReaction(dynamic_cast<FalloffReaction&>(*r));
+    } else if (r->type() == "falloff-legacy") {
+        addFalloffReaction(dynamic_cast<FalloffReaction2&>(*r));
+    } else if (r->type() == "chemically-activated-legacy") {
+        addFalloffReaction(dynamic_cast<FalloffReaction2&>(*r));
     } else if (r->type() == "pressure-dependent-Arrhenius-legacy") {
         addPlogReaction(dynamic_cast<PlogReaction2&>(*r));
     } else if (r->type() == "Chebyshev-legacy") {
@@ -389,10 +389,10 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
         modifyElementaryReaction(i, dynamic_cast<ElementaryReaction2&>(*rNew));
     } else if (rNew->type() == "three-body-legacy") {
         modifyThreeBodyReaction(i, dynamic_cast<ThreeBodyReaction2&>(*rNew));
-    } else if (rNew->type() == "falloff") {
-        modifyFalloffReaction(i, dynamic_cast<FalloffReaction&>(*rNew));
-    } else if (rNew->type() == "chemically-activated") {
-        modifyFalloffReaction(i, dynamic_cast<FalloffReaction&>(*rNew));
+    } else if (rNew->type() == "falloff-legacy") {
+        modifyFalloffReaction(i, dynamic_cast<FalloffReaction2&>(*rNew));
+    } else if (rNew->type() == "chemically-activated-legacy") {
+        modifyFalloffReaction(i, dynamic_cast<FalloffReaction2&>(*rNew));
     } else if (rNew->type() == "pressure-dependent-Arrhenius-legacy") {
         modifyPlogReaction(i, dynamic_cast<PlogReaction2&>(*rNew));
     } else if (rNew->type() == "Chebyshev-legacy") {

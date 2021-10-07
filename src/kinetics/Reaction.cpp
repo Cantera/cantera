@@ -673,12 +673,12 @@ std::pair<std::vector<std::string>, bool> FalloffReaction2::undeclaredThirdBodie
     return std::make_pair(undeclared, false);
 }
 
-ChemicallyActivatedReaction::ChemicallyActivatedReaction()
+ChemicallyActivatedReaction2::ChemicallyActivatedReaction2()
 {
     reaction_type = CHEMACT_RXN;
 }
 
-ChemicallyActivatedReaction::ChemicallyActivatedReaction(
+ChemicallyActivatedReaction2::ChemicallyActivatedReaction2(
         const Composition& reactants_, const Composition& products_,
         const Arrhenius& low_rate_, const Arrhenius& high_rate_,
         const ThirdBody& tbody)
@@ -687,7 +687,7 @@ ChemicallyActivatedReaction::ChemicallyActivatedReaction(
     reaction_type = CHEMACT_RXN;
 }
 
-void ChemicallyActivatedReaction::calculateRateCoeffUnits(const Kinetics& kin)
+void ChemicallyActivatedReaction2::calculateRateCoeffUnits(const Kinetics& kin)
 {
     Reaction::calculateRateCoeffUnits(kin); // Skip FalloffReaction2
     const ThermoPhase& rxn_phase = kin.thermo(kin.reactionPhaseIndex());
@@ -695,7 +695,7 @@ void ChemicallyActivatedReaction::calculateRateCoeffUnits(const Kinetics& kin)
     rate_units *= rxn_phase.standardConcentrationUnits();
 }
 
-void ChemicallyActivatedReaction::getParameters(AnyMap& reactionNode) const
+void ChemicallyActivatedReaction2::getParameters(AnyMap& reactionNode) const
 {
     FalloffReaction2::getParameters(reactionNode);
     reactionNode["type"] = "chemically-activated";
@@ -1162,7 +1162,9 @@ void FalloffReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 void FalloffReaction3::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
-    if (!m_third_body->specified_collision_partner) {
+    if (m_third_body->specified_collision_partner) {
+        // pass
+    } else if (m_third_body->efficiencies.size()) {
         reactionNode["efficiencies"] = m_third_body->efficiencies;
         reactionNode["efficiencies"].setFlowStyle();
         if (m_third_body->default_efficiency != 1.0) {
@@ -1704,7 +1706,7 @@ void setupFalloffReaction(FalloffReaction2& R, const AnyMap& node,
     readFalloff(R, node);
 }
 
-void setupChemicallyActivatedReaction(ChemicallyActivatedReaction& R,
+void setupChemicallyActivatedReaction(ChemicallyActivatedReaction2& R,
                                       const XML_Node& rxn_node)
 {
     XML_Node& rc_node = rxn_node.child("rateCoeff");

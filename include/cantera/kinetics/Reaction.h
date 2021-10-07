@@ -270,7 +270,7 @@ public:
                      const ThirdBody& tbody);
 
     virtual std::string type() const {
-        return "falloff";
+        return "falloff-legacy";
     }
 
     virtual std::string reactantString() const;
@@ -308,16 +308,16 @@ protected:
 //! stabilization of a reaction intermediate. Like a FalloffReaction2, except
 //! that the forward rate constant is written as being proportional to the low-
 //! pressure rate constant.
-class ChemicallyActivatedReaction : public FalloffReaction2
+class ChemicallyActivatedReaction2 : public FalloffReaction2
 {
 public:
-    ChemicallyActivatedReaction();
-    ChemicallyActivatedReaction(const Composition& reactants,
+    ChemicallyActivatedReaction2();
+    ChemicallyActivatedReaction2(const Composition& reactants,
         const Composition& products, const Arrhenius& low_rate,
         const Arrhenius& high_rate, const ThirdBody& tbody);
 
     virtual std::string type() const {
-        return "chemically-activated";
+        return "chemically-activated-legacy";
     }
 
     virtual void calculateRateCoeffUnits(const Kinetics& kin);
@@ -543,7 +543,7 @@ public:
     FalloffReaction3(const AnyMap& node, const Kinetics& kin);
 
     virtual std::string type() const {
-        return "falloff-new";
+        return "falloff";
     }
 
     virtual void setParameters(const AnyMap& node, const Kinetics& kin);
@@ -623,6 +623,7 @@ typedef ChebyshevReaction3 ChebyshevReaction;
 typedef ElementaryReaction2 ElementaryReaction;
 typedef ThreeBodyReaction2 ThreeBodyReaction;
 typedef FalloffReaction2 FalloffReaction;
+typedef ChemicallyActivatedReaction2 ChemicallyActivatedReaction;
 typedef PlogReaction2 PlogReaction;
 typedef ChebyshevReaction2 ChebyshevReaction;
 #endif
@@ -675,11 +676,12 @@ void setupThreeBodyReaction(ThreeBodyReaction2&, const AnyMap&,
                             const Kinetics&);
 
 void setupFalloffReaction(FalloffReaction2&, const XML_Node&);
-//! @internal May be changed without notice in future versions
+//! @deprecated Cantera 2.6 (replaced by setParameters)
 void setupFalloffReaction(FalloffReaction2&, const AnyMap&,
                           const Kinetics&);
 
-void setupChemicallyActivatedReaction(ChemicallyActivatedReaction&,
+//! @deprecated Cantera 2.6 (replaced by setParameters)
+void setupChemicallyActivatedReaction(ChemicallyActivatedReaction2&,
                                       const XML_Node&);
 
 void setupPlogReaction(PlogReaction2&, const XML_Node&);
