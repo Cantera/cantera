@@ -119,7 +119,7 @@ TEST_F(KineticsFromScratch, add_falloff_reaction)
     vector_fp falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
-    auto R = make_shared<FalloffReaction>(reac, prod, low_rate, high_rate, tbody);
+    auto R = make_shared<FalloffReaction2>(reac, prod, low_rate, high_rate, tbody);
     R->falloff = newFalloff("Troe", falloff_params);
     kin.addReaction(R);
     check_rates(2);
@@ -426,6 +426,9 @@ public:
         }
         p.setState_TPX(1200, 5*OneAtm, X);
         p_ref.setState_TPX(1200, 5*OneAtm, X);
+
+        // need to invalidate cache to force update
+        kin_ref->invalidateCache();
 
         vector_fp k(kin.nReactions()), k_ref(kin_ref->nReactions());
         vector_fp w(kin.nTotalSpecies()), w_ref(kin_ref->nTotalSpecies());
