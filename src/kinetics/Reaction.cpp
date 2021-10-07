@@ -291,9 +291,7 @@ std::pair<std::vector<std::string>, bool> Reaction::undeclaredThirdBodies(
     std::vector<std::string> undeclared;
     if (m_third_body) {
         updateUndeclared(undeclared, m_third_body->efficiencies, kin);
-        bool specified_collision_partner = dynamic_cast<const ThreeBodyReaction3*>(
-            this)->specified_collision_partner;
-        return std::make_pair(undeclared, specified_collision_partner);
+        return std::make_pair(undeclared, m_third_body->specified_collision_partner);
     }
     return std::make_pair(undeclared, false);
 }
@@ -443,6 +441,7 @@ void ElementaryReaction2::getParameters(AnyMap& reactionNode) const
 
 ThirdBody::ThirdBody(double default_eff)
     : default_efficiency(default_eff)
+    , specified_collision_partner(false)
 {
 }
 
@@ -481,7 +480,7 @@ ThreeBodyReaction2::ThreeBodyReaction2(const Composition& reactants_,
 
 std::string ThreeBodyReaction2::reactantString() const
 {
-    if (specified_collision_partner) {
+    if (third_body.specified_collision_partner) {
         return ElementaryReaction2::reactantString() + " + "
             + third_body.efficiencies.begin()->first;
     } else {
@@ -491,7 +490,7 @@ std::string ThreeBodyReaction2::reactantString() const
 
 std::string ThreeBodyReaction2::productString() const
 {
-    if (specified_collision_partner) {
+    if (third_body.specified_collision_partner) {
         return ElementaryReaction2::productString() + " + "
             + third_body.efficiencies.begin()->first;
     } else {
@@ -523,7 +522,7 @@ void ThreeBodyReaction2::calculateRateCoeffUnits(const Kinetics& kin)
 void ThreeBodyReaction2::getParameters(AnyMap& reactionNode) const
 {
     ElementaryReaction2::getParameters(reactionNode);
-    if (!specified_collision_partner) {
+    if (!third_body.specified_collision_partner) {
         reactionNode["type"] = "three-body";
         reactionNode["efficiencies"] = third_body.efficiencies;
         reactionNode["efficiencies"].setFlowStyle();
@@ -538,7 +537,7 @@ std::pair<std::vector<std::string>, bool> ThreeBodyReaction2::undeclaredThirdBod
 {
     std::vector<std::string> undeclared;
     updateUndeclared(undeclared, third_body.efficiencies, kin);
-    return std::make_pair(undeclared, specified_collision_partner);
+    return std::make_pair(undeclared, third_body.specified_collision_partner);
 }
 
 FalloffReaction2::FalloffReaction2()
@@ -928,7 +927,7 @@ bool ThreeBodyReaction3::detectEfficiencies()
     }
 
     m_third_body->default_efficiency = 0.;
-    specified_collision_partner = true;
+    m_third_body->specified_collision_partner = true;
     auto sp = m_third_body->efficiencies.begin();
 
     // adjust reactant coefficients
@@ -995,7 +994,7 @@ void ThreeBodyReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 void ThreeBodyReaction3::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
-    if (!specified_collision_partner) {
+    if (!m_third_body->specified_collision_partner) {
         reactionNode["type"] = "three-body";
         reactionNode["efficiencies"] = m_third_body->efficiencies;
         reactionNode["efficiencies"].setFlowStyle();
@@ -1007,7 +1006,7 @@ void ThreeBodyReaction3::getParameters(AnyMap& reactionNode) const
 
 std::string ThreeBodyReaction3::reactantString() const
 {
-    if (specified_collision_partner) {
+    if (m_third_body->specified_collision_partner) {
         return ElementaryReaction3::reactantString() + " + "
             + m_third_body->efficiencies.begin()->first;
     } else {
@@ -1017,7 +1016,7 @@ std::string ThreeBodyReaction3::reactantString() const
 
 std::string ThreeBodyReaction3::productString() const
 {
-    if (specified_collision_partner) {
+    if (m_third_body->specified_collision_partner) {
         return ElementaryReaction3::productString() + " + "
             + m_third_body->efficiencies.begin()->first;
     } else {
@@ -1079,7 +1078,7 @@ FalloffReaction3::FalloffReaction3(const AnyMap& node, const Kinetics& kin)
 
 std::string FalloffReaction3::reactantString() const
 {
-    if (specified_collision_partner) {
+    if (m_third_body->specified_collision_partner) {
         return Reaction::reactantString() + " (+" +
             m_third_body->efficiencies.begin()->first + ")";
     } else {
@@ -1089,7 +1088,7 @@ std::string FalloffReaction3::reactantString() const
 
 std::string FalloffReaction3::productString() const
 {
-    if (specified_collision_partner) {
+    if (m_third_body->specified_collision_partner) {
         return Reaction::productString() + " (+" +
             m_third_body->efficiencies.begin()->first + ")";
     } else {
@@ -1136,19 +1135,19 @@ void FalloffReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 
     if (third_body == "M") {
         m_third_body->setEfficiencies(node);
-        specified_collision_partner = false;
+        m_third_body->specified_collision_partner = false;
     } else {
         // Specific species is listed as the third body
         m_third_body->default_efficiency = 0;
         m_third_body->efficiencies.emplace(third_body, 1.0);
-        specified_collision_partner = true;
+        m_third_body->specified_collision_partner = true;
     }
 }
 
 void FalloffReaction3::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
-    if (!specified_collision_partner) {
+    if (!m_third_body->specified_collision_partner) {
         reactionNode["efficiencies"] = m_third_body->efficiencies;
         reactionNode["efficiencies"].setFlowStyle();
         if (m_third_body->default_efficiency != 1.0) {
@@ -1428,7 +1427,7 @@ bool detectEfficiencies(ThreeBodyReaction2& R)
     }
 
     R.third_body.default_efficiency = 0.;
-    R.specified_collision_partner = true;
+    R.third_body.specified_collision_partner = true;
     auto sp = R.third_body.efficiencies.begin();
 
     // adjust reactant coefficients
