@@ -129,9 +129,13 @@ TEST(Reaction, FalloffFromYaml1)
         " efficiencies: {AR: 0.625}}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    auto FR = dynamic_cast<FalloffReaction&>(*R);
-    EXPECT_DOUBLE_EQ(FR.third_body.efficiency("AR"), 0.625);
-    EXPECT_DOUBLE_EQ(FR.third_body.efficiency("N2"), 1.0);
+    auto FR = dynamic_cast<FalloffReaction3&>(*R);
+    EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("AR"), 0.625);
+    EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("N2"), 1.0);
+    const auto& rate = std::dynamic_pointer_cast<FalloffRate<SRI>>(R->rate());
+    EXPECT_DOUBLE_EQ(rate->highRate().preExponentialFactor(), 7.91E+10);
+    EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 6.37E+14);
+    EXPECT_DOUBLE_EQ(rate->lowRate().intrinsicActivationEnergy(), 56640);
 }
 
 TEST(Reaction, FalloffFromYaml2)
@@ -146,14 +150,15 @@ TEST(Reaction, FalloffFromYaml2)
         " source: somewhere}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    auto FR = dynamic_cast<FalloffReaction&>(*R);
-    EXPECT_DOUBLE_EQ(FR.third_body.efficiency("N2"), 1.0);
-    EXPECT_DOUBLE_EQ(FR.third_body.efficiency("H2O"), 0.0);
-    EXPECT_DOUBLE_EQ(FR.high_rate.preExponentialFactor(), 6e11);
-    EXPECT_DOUBLE_EQ(FR.low_rate.preExponentialFactor(), 1.04e20);
-    EXPECT_DOUBLE_EQ(FR.low_rate.activationEnergy_R(), 1600 / GasConstant);
+    auto FR = dynamic_cast<FalloffReaction3&>(*R);
+    EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("N2"), 1.0);
+    EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("H2O"), 0.0);
+    const auto& rate = std::dynamic_pointer_cast<FalloffRate<Troe>>(R->rate());
+    EXPECT_DOUBLE_EQ(rate->highRate().preExponentialFactor(), 6e11);
+    EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 1.04e20);
+    EXPECT_DOUBLE_EQ(rate->lowRate().intrinsicActivationEnergy(), 1600);
     vector_fp params(4);
-    FR.falloff->getParameters(params.data());
+    rate->getData(params);
     EXPECT_DOUBLE_EQ(params[0], 0.562);
     EXPECT_DOUBLE_EQ(params[1], 91.0);
     EXPECT_DOUBLE_EQ(params[3], 0.0);
@@ -173,15 +178,16 @@ TEST(Reaction, FalloffFromYaml3)
         " source: ARL-TR-5088}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    auto FR = dynamic_cast<FalloffReaction&>(*R);
-    EXPECT_DOUBLE_EQ(FR.third_body.efficiency("N2"), 1.0);
-    EXPECT_DOUBLE_EQ(FR.third_body.efficiency("H2O"), 5.0);
-    EXPECT_DOUBLE_EQ(FR.high_rate.preExponentialFactor(), 8.3e17);
-    EXPECT_DOUBLE_EQ(FR.low_rate.preExponentialFactor(), 3.57e26);
-    EXPECT_DOUBLE_EQ(FR.high_rate.activationEnergy_R(), 123800.0 / GasConstant);
-    EXPECT_DOUBLE_EQ(FR.low_rate.activationEnergy_R(), 124900.0 / GasConstant);
+    auto FR = dynamic_cast<FalloffReaction3&>(*R);
+    EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("N2"), 1.0);
+    EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("H2O"), 5.0);
+    const auto& rate = std::dynamic_pointer_cast<FalloffRate<Tsang>>(R->rate());
+    EXPECT_DOUBLE_EQ(rate->highRate().preExponentialFactor(), 8.3e17);
+    EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 3.57e26);
+    EXPECT_DOUBLE_EQ(rate->highRate().intrinsicActivationEnergy(), 123800.0);
+    EXPECT_DOUBLE_EQ(rate->lowRate().intrinsicActivationEnergy(), 124900.0);
     vector_fp params(2);
-    FR.falloff->getParameters(params.data());
+    rate->getData(params);
     EXPECT_DOUBLE_EQ(params[0], 0.95);
     EXPECT_DOUBLE_EQ(params[1], -0.0001);
     EXPECT_EQ(R->input["source"].asString(), "ARL-TR-5088");
@@ -198,10 +204,11 @@ TEST(Reaction, ChemicallyActivatedFromYaml)
         " low-P-rate-constant: [282320.078, 1.46878, -3270.56495]}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    auto CAR = dynamic_cast<ChemicallyActivatedReaction&>(*R);
-    EXPECT_DOUBLE_EQ(CAR.high_rate.preExponentialFactor(), 5.88e-14);
-    EXPECT_DOUBLE_EQ(CAR.low_rate.preExponentialFactor(), 2.82320078e2);
-    EXPECT_EQ(CAR.falloff->nParameters(), (size_t) 0);
+    auto CAR = dynamic_cast<FalloffReaction3&>(*R);
+    const auto& rate = std::dynamic_pointer_cast<FalloffRate<Lindemann>>(R->rate());
+    EXPECT_DOUBLE_EQ(rate->highRate().preExponentialFactor(), 5.88e-14);
+    EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 2.82320078e2);
+    EXPECT_EQ(rate->nParameters(), (size_t) 0);
 }
 
 TEST(Reaction, PlogFromYaml)
@@ -524,7 +531,7 @@ TEST_F(ReactionToYaml, TroeFalloff)
     soln = newSolution("h2o2.yaml", "", "None");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, H2O2:1e-8, OH:3e-8");
     duplicateReaction(21);
-    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction3>(duplicate));
     compareReactions();
 }
 
@@ -533,7 +540,7 @@ TEST_F(ReactionToYaml, SriFalloff)
     soln = newSolution("sri-falloff.yaml");
     soln->thermo()->setState_TPY(1000, 2e5, "R1A: 0.1, R1B:0.2, H: 0.2, R2:0.5");
     duplicateReaction(0);
-    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction3>(duplicate));
     compareReactions();
     duplicateReaction(1);
     compareReactions();
@@ -544,7 +551,7 @@ TEST_F(ReactionToYaml, TsangFalloff)
     soln = newSolution("tsang-falloff.yaml");
     soln->thermo()->setState_TPY(1000, 2e5, "NO:1.0, OH:1.0, H:1.0, CN:1.0");
     duplicateReaction(0);
-    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction3>(duplicate));
     compareReactions();
     duplicateReaction(1);
     compareReactions();
@@ -555,7 +562,7 @@ TEST_F(ReactionToYaml, chemicallyActivated)
     soln = newSolution("chemically-activated-reaction.yaml");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, ch2o:0.1, ch3:1e-8, oh:3e-6");
     duplicateReaction(0);
-    EXPECT_TRUE(std::dynamic_pointer_cast<ChemicallyActivatedReaction>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction3>(duplicate));
     compareReactions();
 }
 

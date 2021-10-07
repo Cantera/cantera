@@ -105,6 +105,27 @@ TEST_F(KineticsFromScratch3, skip_undefined_third_body)
     ASSERT_EQ((size_t) 1, kin.nReactions());
 }
 
+TEST_F(KineticsFromScratch3, add_falloff_reaction)
+{
+    // reaction 2:
+    // falloff_reaction('2 OH (+ M) <=> H2O2 (+ M)',
+    //                  kf=[7.400000e+10, -0.37, 0.0],
+    //                  kf0=[2.300000e+12, -0.9, -1700.0],
+    //                  efficiencies='AR:0.7 H2:2.0 H2O:6.0',
+    //                  falloff=Troe(A=0.7346, T3=94.0, T1=1756.0, T2=5182.0))
+    Composition reac = parseCompString("OH:2");
+    Composition prod = parseCompString("H2O2:1");
+    ArrheniusBase high_rate(7.4e10, -0.37, 0.0);
+    ArrheniusBase low_rate(2.3e12, -0.9, -7112800.0);
+    vector_fp falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
+    FalloffRate<Troe> rate(low_rate, high_rate, falloff_params);
+    ThirdBody tbody;
+    tbody.efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
+    auto R = make_shared<FalloffReaction3>(reac, prod, rate, tbody);
+    kin.addReaction(R);
+    check_rates(2);
+}
+
 TEST_F(KineticsFromScratch3, add_plog_reaction)
 {
     // reaction 3:
@@ -325,6 +346,9 @@ public:
         }
         p.setState_TPX(1200, 5*OneAtm, X);
         p_ref.setState_TPX(1200, 5*OneAtm, X);
+
+        // need to invalidate cache to force update
+        kin_ref->invalidateCache();
 
         vector_fp k(kin.nReactions()), k_ref(kin_ref->nReactions());
         vector_fp w(kin.nTotalSpecies()), w_ref(kin_ref->nTotalSpecies());
