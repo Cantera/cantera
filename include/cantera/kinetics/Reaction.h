@@ -220,6 +220,9 @@ public:
     //! The default third body efficiency for species not listed in
     //! #efficiencies.
     double default_efficiency;
+
+    //! Input explicitly specifies collision partner
+    bool specified_collision_partner;
 };
 
 
@@ -244,8 +247,6 @@ public:
     //! Relative efficiencies of third-body species in enhancing the reaction
     //! rate.
     ThirdBody third_body;
-
-    bool specified_collision_partner = false; //!< Input specifies collision partner
 
 protected:
     virtual std::pair<std::vector<std::string>, bool>
@@ -506,8 +507,6 @@ public:
 
     virtual std::string reactantString() const;
     virtual std::string productString() const;
-
-    bool specified_collision_partner = false; //!< Input specifies collision partner
 };
 
 
@@ -548,8 +547,6 @@ public:
 
     virtual std::string reactantString() const;
     virtual std::string productString() const;
-
-    bool specified_collision_partner = false; //!< Input specifies collision partner
 };
 
 
