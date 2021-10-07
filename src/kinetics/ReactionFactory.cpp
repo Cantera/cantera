@@ -55,12 +55,9 @@ ReactionFactory::ReactionFactory()
 
     // register falloff reactions
     reg("falloff", [](const AnyMap& node, const Kinetics& kin) {
-        FalloffReaction2* R = new FalloffReaction2();
-        if (!node.empty()) {
-            setupFalloffReaction(*R, node, kin);
-        }
-        return R;
+        return new FalloffReaction3(node, kin);
     });
+    addAlias("falloff", "chemically-activated");
 
     // register falloff reactions (old framework)
     reg("falloff-legacy", [](const AnyMap& node, const Kinetics& kin) {
@@ -72,15 +69,15 @@ ReactionFactory::ReactionFactory()
     });
 
     // register falloff reactions
-    reg("chemically-activated", [](const AnyMap& node, const Kinetics& kin) {
+    reg("chemically-activated-legacy", [](const AnyMap& node, const Kinetics& kin) {
         FalloffReaction2* R = new ChemicallyActivatedReaction();
         if (!node.empty()) {
             setupFalloffReaction(*R, node, kin);
         }
         return R;
     });
-    addAlias("chemically-activated", "chemact");
-    addAlias("chemically-activated", "chemically_activated");
+    addAlias("chemically-activated-legacy", "chemact");
+    addAlias("chemically-activated-legacy", "chemically_activated");
 
     // register pressure-dependent-Arrhenius reactions
     reg("pressure-dependent-Arrhenius", [](const AnyMap& node, const Kinetics& kin) {
@@ -177,20 +174,22 @@ ReactionFactoryXML::ReactionFactoryXML()
     addAlias("three-body-legacy", "three_body");
 
     // register falloff reactions
-    reg("falloff", [](const XML_Node& node) {
+    reg("falloff-legacy", [](const XML_Node& node) {
         Reaction* R = new FalloffReaction2();
         setupFalloffReaction(*(FalloffReaction2*)R, node);
         return R;
     });
+    addAlias("falloff-legacy", "falloff");
 
     // register falloff reactions
-    reg("chemically-activated", [](const XML_Node& node) {
+    reg("chemically-activated-legacy", [](const XML_Node& node) {
         Reaction* R = new ChemicallyActivatedReaction();
         setupChemicallyActivatedReaction(*(ChemicallyActivatedReaction*)R, node);
         return R;
     });
-    addAlias("chemically-activated", "chemact");
-    addAlias("chemically-activated", "chemically_activated");
+    addAlias("chemically-activated-legacy", "chemically-activated");
+    addAlias("chemically-activated-legacy", "chemact");
+    addAlias("chemically-activated-legacy", "chemically_activated");
 
     // register pressure-depdendent-Arrhenius reactions
     reg("pressure-dependent-Arrhenius-legacy", [](const XML_Node& node) {

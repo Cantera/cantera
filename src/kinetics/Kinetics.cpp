@@ -139,14 +139,30 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                 continue; // stoichiometries differ (not by a multiple)
             } else if (c < 0.0 && !R.reversible && !other.reversible) {
                 continue; // irreversible reactions in opposite directions
-            } else if (R.type() == "falloff" ||
-                       R.type() == "chemically-activated") {
-                ThirdBody& tb1 = dynamic_cast<FalloffReaction&>(R).third_body;
-                ThirdBody& tb2 = dynamic_cast<FalloffReaction&>(other).third_body;
+            } else if (R.type() == "falloff-legacy" ||
+                       R.type() == "chemically-activated-legacy") {
+                ThirdBody& tb1 = dynamic_cast<FalloffReaction2&>(R).third_body;
+                ThirdBody& tb2 = dynamic_cast<FalloffReaction2&>(other).third_body;
                 bool thirdBodyOk = true;
                 for (size_t k = 0; k < nTotalSpecies(); k++) {
                     string s = kineticsSpeciesName(k);
                     if (tb1.efficiency(s) * tb2.efficiency(s) != 0.0) {
+                        // non-zero third body efficiencies for species `s` in
+                        // both reactions
+                        thirdBodyOk = false;
+                        break;
+                    }
+                }
+                if (thirdBodyOk) {
+                    continue; // No overlap in third body efficiencies
+                }
+            } else if (R.type() == "falloff" || R.type() == "chemically-activated") {
+                auto tb1 = dynamic_cast<FalloffReaction3&>(R).thirdBody();
+                auto tb2 = dynamic_cast<FalloffReaction3&>(other).thirdBody();
+                bool thirdBodyOk = true;
+                for (size_t k = 0; k < nTotalSpecies(); k++) {
+                    string s = kineticsSpeciesName(k);
+                    if (tb1->efficiency(s) * tb2->efficiency(s) != 0.0) {
                         // non-zero third body efficiencies for species `s` in
                         // both reactions
                         thirdBodyOk = false;
