@@ -116,4 +116,10 @@ shared_ptr<ReactionRateBase> newReactionRate(const AnyMap& rate_node)
     return newReactionRate(node, Units(0.));
 }
 
+shared_ptr<ReactionRateBase> newReactionRate(
+    const AnyMap& rate_node, const std::vector<std::pair<Units, double>>& rate_units)
+{
+    return newReactionRate(rate_node, Units::product(rate_units));
+}
+
 }

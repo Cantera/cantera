@@ -84,5 +84,14 @@ shared_ptr<ReactionRateBase> newReactionRate(
  */
 shared_ptr<ReactionRateBase> newReactionRate(const AnyMap& rate_node);
 
+//! Create a new Rate object using the specified parameters
+/*!
+ * @param rate_node AnyMap node describing reaction rate.
+ * @param rate_units Vector describing unit system of the reaction rate; each element
+ *          specifies Unit and exponent applied to the unit.
+ */
+shared_ptr<ReactionRateBase> newReactionRate(
+    const AnyMap& rate_node, const std::vector<std::pair<Units, double>>& rate_units);
+
 }
 #endif
