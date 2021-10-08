@@ -59,6 +59,10 @@ public:
 
     bool operator==(const Units& other) const;
 
+    //! Calculate product of unit expressions
+    //! @param others  vector containing pairs of units and exponents
+    static Units product(const std::vector<std::pair<Units, double>>& others);
+
 private:
     //! Scale the unit by the factor `k`
     void scale(double k) { m_factor *= k; }
@@ -75,6 +79,10 @@ private:
 
     friend class UnitSystem;
 };
+
+
+//! Vector where elements specify unit and exponent applied to the unit
+typedef std::vector<std::pair<Units, double>> UnitsVector;
 
 
 //! Unit conversion utility
