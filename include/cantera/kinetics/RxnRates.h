@@ -34,7 +34,7 @@ class Units;
  *        k_f =  A T^b \exp (-E/RT)
  *   \f]
  */
-class Arrhenius2 : public ArrheniusBase
+class Arrhenius2 final : public ArrheniusBase
 {
 public:
     //! Default constructor.
@@ -335,7 +335,7 @@ public:
     void setParameters(const std::vector<AnyMap>& rates,
                        const UnitSystem& units, const Units& rate_units);
 
-    void getParameters(AnyMap& rateNode, const Units& rate_units) const;
+    void getParameters(AnyMap& rateNode, const Units& rate_units=Units(0.)) const;
 
     //! Set up Plog object
     /*!

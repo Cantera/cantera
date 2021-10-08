@@ -132,7 +132,7 @@ public:
     //! Perform object setup based on AnyMap node information
     //! @param node  AnyMap containing rate information
     //! @param rate_units  unit definitions specific to rate information
-    virtual void setParameters(const AnyMap& node, const Units& rate_units);
+    virtual void setParameters(const AnyMap& node, const UnitsVector& rate_units);
 
     //! Get the values of the parameters for this object. *params* must be an
     //! array of at least nParameters() elements.
@@ -141,14 +141,9 @@ public:
      */
     virtual void getParameters(double* params) const {}
 
-    /**
-     * @todo  deprecate; only used by legacy framework
-     */
-    virtual void getParameters(AnyMap& reactionNode) const {}
-
     //! Store the falloff-related parameters needed to reconstruct an identical
     //! Reaction using the newReaction(AnyMap&, Kinetics&) function.
-    virtual void getParameters(AnyMap& rateNode, const Units& rate_units) const;
+    virtual void getParameters(AnyMap& reactionNode) const;
 
     //! Flag indicating that information specific to reaction rate is required
     const static bool usesUpdate() {
@@ -315,7 +310,7 @@ public:
         return 4;
     }
 
-    virtual void setParameters(const AnyMap& node, const Units& rate_units);
+    virtual void setParameters(const AnyMap& node, const UnitsVector& rate_units);
 
     //! Sets params to contain, in order, \f[ (A, T_3, T_1, T_2) \f]
     /**
@@ -324,8 +319,6 @@ public:
     virtual void getParameters(double* params) const;
 
     virtual void getParameters(AnyMap& reactionNode) const;
-
-    virtual void getParameters(AnyMap& rateNode, const Units& rate_units) const;
 
 protected:
     //! parameter a in the 4-parameter Troe falloff function. Dimensionless
@@ -402,7 +395,7 @@ public:
         return 5;
     }
 
-    virtual void setParameters(const AnyMap& node, const Units& rate_units);
+    virtual void setParameters(const AnyMap& node, const UnitsVector& rate_units);
 
     //! Sets params to contain, in order, \f[ (a, b, c, d, e) \f]
     /**
@@ -411,8 +404,6 @@ public:
     virtual void getParameters(double* params) const;
 
     virtual void getParameters(AnyMap& reactionNode) const;
-
-    virtual void getParameters(AnyMap& rateNode, const Units& rate_units) const;
 
 protected:
     //! parameter a in the 5-parameter SRI falloff function. Dimensionless.
@@ -495,7 +486,7 @@ public:
         return 2;
     }
 
-    virtual void setParameters(const AnyMap& node, const Units& rate_units);
+    virtual void setParameters(const AnyMap& node, const UnitsVector& rate_units);
 
     //! Sets params to contain, in order, \f[ (A, B) \f]
     /**
@@ -504,8 +495,6 @@ public:
     virtual void getParameters(double* params) const;
 
     virtual void getParameters(AnyMap& reactionNode) const;
-
-    virtual void getParameters(AnyMap& rateNode, const Units& rate_units) const;
 
 protected:
     //! parameter a in the Tsang F_cent formulation. Dimensionless

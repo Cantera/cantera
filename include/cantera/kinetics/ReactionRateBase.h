@@ -36,7 +36,7 @@ class Kinetics;
 class ReactionRateBase
 {
 public:
-    ReactionRateBase() : units(0.), m_idx(npos) {}
+    ReactionRateBase() : m_idx(npos) {}
     virtual ~ReactionRateBase() {}
 
 public:
@@ -94,30 +94,16 @@ public:
     //! Return the parameters such that an identical Reaction could be reconstructed
     //! using the newReaction() function. Behavior specific to derived classes is
     //! handled by the getParameters() method.
-    //! @param rate_units  units used for rate parameters
-    AnyMap parameters(const Units& rate_units) const {
-        AnyMap out;
-        getParameters(out, rate_units);
-        return out;
-    }
-
-    //! Return parameters using original unit system
     AnyMap parameters() const {
-        return parameters(units);
+        AnyMap out;
+        getParameters(out);
+        return out;
     }
 
     //! Set parameters
     //! @param node  AnyMap object containing reaction rate specification
-    //! @param rate_units  Description of units used for rate parameters
-    virtual void setParameters(const AnyMap& node, const Units& rate_units) {
-        units = rate_units;
+    virtual void setParameters(const AnyMap& node, const UnitsVector& units) {
         input = node;
-    }
-
-    //! Set rate units
-    //! @param rate_units  Description of units used for rate parameters
-    virtual void setUnits(const Units& rate_units) {
-        units = rate_units;
     }
 
     //! Reaction rate index within kinetics evaluator
@@ -134,18 +120,13 @@ protected:
     //! Get parameters
     //! Store the parameters of a ReactionRate needed to reconstruct an identical
     //! object. Does not include user-defined fields available in the #input map.
-    virtual void getParameters(AnyMap& rateNode, const Units& rate_units) const {
+    virtual void getParameters(AnyMap& rateNode) const {
         throw NotImplementedError("ReactionRate::getParameters",
                                   "Not implemented by '{}' object.", type());
     }
 
     //! Input data used for specific models
     AnyMap input;
-
-    //! The units of the rate constant. These are determined by the units of the
-    //! standard concentration of the reactant species' phases of the phase
-    //! where the reaction occurs.
-    Units units;
 
     size_t m_idx; //!< Index of reaction rate within kinetics evaluator
 };

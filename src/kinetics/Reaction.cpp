@@ -159,7 +159,7 @@ void Reaction::getParameters(AnyMap& reactionNode) const
     }
 
     if (m_rate) {
-        reactionNode.update(m_rate->parameters(rate_units));
+        reactionNode.update(m_rate->parameters());
     }
 }
 
@@ -267,11 +267,6 @@ void Reaction::calculateRateCoeffUnits(const Kinetics& kin)
             const auto& phase = kin.speciesPhase(stoich.first);
             rate_units *= phase.standardConcentrationUnits().pow(-stoich.second);
         }
-    }
-
-    if (m_rate) {
-        // Ensure that reaction rate object is updated
-        m_rate->setUnits(rate_units);
     }
 }
 

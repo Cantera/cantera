@@ -15,6 +15,8 @@ ArrheniusBase::ArrheniusBase()
     , m_A(NAN)
     , m_b(NAN)
     , m_Ea_R(NAN)
+    , m_order(NAN)
+    , m_rate_units(Units(0.))
 {
 }
 
@@ -24,20 +26,28 @@ ArrheniusBase::ArrheniusBase(double A, double b, double Ea)
     , m_A(A)
     , m_b(b)
     , m_Ea_R(Ea / GasConstant)
+    , m_order(NAN)
+    , m_rate_units(Units(0.))
 {
 }
 
 void ArrheniusBase::setParameters(
-    const AnyValue& rate, const UnitSystem& units, const Units& rate_units)
+    const AnyValue& rate, const UnitSystem& units, const UnitsVector& rate_units)
 {
     if (rate.empty()) {
         m_A = NAN;
         m_b = NAN;
         m_Ea_R = NAN;
-    } else if (rate.is<AnyMap>()) {
+        m_order = NAN;
+        m_rate_units = Units(0.);
+        return;
+    }
+
+    setRateUnits(rate_units);
+    if (rate.is<AnyMap>()) {
 
         auto& rate_map = rate.as<AnyMap>();
-        if (rate_units.factor() == 0) {
+        if (m_rate_units.factor() == 0) {
             // A zero rate units factor is used as a sentinel to detect
             // stand-alone reaction rate objects
             if (rate_map["A"].is<std::string>()) {
@@ -47,7 +57,7 @@ void ArrheniusBase::setParameters(
             }
             m_A = rate_map["A"].asDouble();
         } else {
-            m_A = units.convert(rate_map["A"], rate_units);
+            m_A = units.convert(rate_map["A"], m_rate_units);
         }
         m_b = rate_map["b"].asDouble();
         if (rate_map.hasKey("Ea")) {
@@ -57,10 +67,15 @@ void ArrheniusBase::setParameters(
         }
     } else {
         auto& rate_vec = rate.asVector<AnyValue>(3);
-        m_A = units.convert(rate_vec[0], rate_units);
+        m_A = units.convert(rate_vec[0], m_rate_units);
         m_b = rate_vec[1].asDouble();
         m_Ea_R = units.convertActivationEnergy(rate_vec[2], "K");
     }
+}
+
+void ArrheniusBase::getParameters(AnyMap& node) const
+{
+    getParameters(node, m_rate_units);
 }
 
 void ArrheniusBase::getParameters(AnyMap& node, const Units& rate_units) const
@@ -92,7 +107,7 @@ void ArrheniusBase::validate(const std::string& equation)
     }
 }
 
-void Arrhenius3::setParameters(const AnyMap& node, const Units& rate_units)
+void Arrhenius3::setParameters(const AnyMap& node, const UnitsVector& rate_units)
 {
     allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
     if (!node.hasKey("rate-constant")) {
@@ -103,13 +118,13 @@ void Arrhenius3::setParameters(const AnyMap& node, const Units& rate_units)
     ArrheniusBase::setParameters(node["rate-constant"], node.units(), rate_units);
 }
 
-void Arrhenius3::getParameters(AnyMap& rateNode, const Units& rate_units) const
+void Arrhenius3::getParameters(AnyMap& rateNode) const
 {
     if (allow_negative_pre_exponential_factor) {
         rateNode["negative-A"] = true;
     }
     AnyMap node;
-    ArrheniusBase::getParameters(node, rate_units);
+    ArrheniusBase::getParameters(node);
     if (!node.empty()) {
         // Arrhenius object is configured
         rateNode["rate-constant"] = std::move(node);
@@ -131,28 +146,34 @@ BlowersMasel3::BlowersMasel3(double A, double b, double Ea0, double w)
 }
 
 void BlowersMasel3::setParameters(
-    const AnyValue& rate, const UnitSystem& units, const Units& rate_units)
+    const AnyValue& rate, const UnitSystem& units, const UnitsVector& rate_units)
 {
     if (rate.empty()) {
         m_A = NAN;
         m_b = NAN;
         m_Ea_R = NAN;
         m_w_R = NAN;
-    } else if (rate.is<AnyMap>()) {
+        m_order = NAN;
+        m_rate_units = Units(0.);
+        return;
+    }
+
+    if (rate.is<AnyMap>()) {
         ArrheniusBase::setParameters(rate, units, rate_units);
         auto& rate_map = rate.as<AnyMap>();
         m_Ea_R = units.convertActivationEnergy(rate_map["Ea0"], "K");
         m_w_R = units.convertActivationEnergy(rate_map["w"], "K");
     } else {
+        setRateUnits(rate_units);
         auto& rate_vec = rate.asVector<AnyValue>(4);
-        m_A = units.convert(rate_vec[0], rate_units);
+        m_A = units.convert(rate_vec[0], m_rate_units);
         m_b = rate_vec[1].asDouble();
         m_Ea_R = units.convertActivationEnergy(rate_vec[2], "K");
         m_w_R = units.convertActivationEnergy(rate_vec[3], "K");
     }
 }
 
-void BlowersMasel3::setParameters(const AnyMap& node, const Units& rate_units)
+void BlowersMasel3::setParameters(const AnyMap& node, const UnitsVector& rate_units)
 {
     allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
     if (!node.hasKey("rate-constant")) {
@@ -162,14 +183,13 @@ void BlowersMasel3::setParameters(const AnyMap& node, const Units& rate_units)
     BlowersMasel3::setParameters(node["rate-constant"], node.units(), rate_units);
 }
 
-void BlowersMasel3::getParameters(AnyMap& rateNode,
-                                     const Units& rate_units) const
+void BlowersMasel3::getParameters(AnyMap& rateNode) const
 {
     if (allow_negative_pre_exponential_factor) {
         rateNode["negative-A"] = true;
     }
     AnyMap node;
-    ArrheniusBase::getParameters(node, rate_units);
+    ArrheniusBase::getParameters(node);
     if (!node.empty()) {
         // object is configured
         node.erase("Ea");

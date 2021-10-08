@@ -69,21 +69,27 @@ void Falloff::getData(vector_fp& c) const
     c.clear();
 }
 
-void Falloff::setParameters(const AnyMap& node, const Units& rate_units)
+void Falloff::setParameters(const AnyMap& node, const UnitsVector& rate_units)
 {
     if (node["type"] == "chemically-activated") {
         m_chemicallyActivated = true;
     }
     allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
     if (node.hasKey("low-P-rate-constant")) {
-        m_lowRate = ArrheniusBase(node["low-P-rate-constant"], node.units(), rate_units);
+        m_lowRate = ArrheniusBase(
+            node["low-P-rate-constant"], node.units(), rate_units);
+    }
+    UnitsVector low_rate_units = rate_units;
+    if (low_rate_units.size()) {
+        low_rate_units.pop_back();
     }
     if (node.hasKey("high-P-rate-constant")) {
-        m_highRate = ArrheniusBase(node["high-P-rate-constant"], node.units(), rate_units);
+        m_highRate = ArrheniusBase(
+            node["high-P-rate-constant"], node.units(), low_rate_units);
     }
 }
 
-void Falloff::getParameters(AnyMap& rateNode, const Units& rate_units) const
+void Falloff::getParameters(AnyMap& rateNode) const
 {
     if (m_chemicallyActivated) {
         rateNode["type"] = "chemically-activated";
@@ -94,12 +100,12 @@ void Falloff::getParameters(AnyMap& rateNode, const Units& rate_units) const
         rateNode["negative-A"] = true;
     }
     AnyMap node;
-    m_lowRate.getParameters(node, rate_units);
+    m_lowRate.getParameters(node);
     if (!node.empty()) {
         rateNode["low-P-rate-constant"] = std::move(node);
     }
     node.clear();
-    m_highRate.getParameters(node, rate_units);
+    m_highRate.getParameters(node);
     if (!node.empty()) {
         rateNode["high-P-rate-constant"] = std::move(node);
     }
@@ -201,7 +207,7 @@ double Troe::F(double pr, const double* work) const
     return pow(10.0, lgf);
 }
 
-void Troe::setParameters(const AnyMap& node, const Units& rate_units)
+void Troe::setParameters(const AnyMap& node, const UnitsVector& rate_units)
 {
     Falloff::setParameters(node, rate_units);
     auto& f = node["Troe"].as<AnyMap>();
@@ -228,6 +234,7 @@ void Troe::getParameters(double* params) const {
 
 void Troe::getParameters(AnyMap& reactionNode) const
 {
+    Falloff::getParameters(reactionNode);
     AnyMap params;
     if (!std::isnan(m_a)) {
         params["A"] = m_a;
@@ -239,12 +246,6 @@ void Troe::getParameters(AnyMap& reactionNode) const
     }
     params.setFlowStyle();
     reactionNode["Troe"] = std::move(params);
-}
-
-void Troe::getParameters(AnyMap& rateNode, const Units& rate_units) const
-{
-    Falloff::getParameters(rateNode, rate_units);
-    getParameters(rateNode);
 }
 
 void SRI::setData(const vector_fp& c)
@@ -301,7 +302,7 @@ double SRI::F(double pr, const double* work) const
     return pow(*work, xx) * work[1];
 }
 
-void SRI::setParameters(const AnyMap& node, const Units& rate_units)
+void SRI::setParameters(const AnyMap& node, const UnitsVector& rate_units)
 {
     Falloff::setParameters(node, rate_units);
     auto& f = node["SRI"].as<AnyMap>();
@@ -333,6 +334,7 @@ void SRI::getParameters(double* params) const
 
 void SRI::getParameters(AnyMap& reactionNode) const
 {
+    Falloff::getParameters(reactionNode);
     AnyMap params;
     if (!std::isnan(m_a)) {
         params["A"] = m_a;
@@ -345,12 +347,6 @@ void SRI::getParameters(AnyMap& reactionNode) const
     }
     params.setFlowStyle();
     reactionNode["SRI"] = std::move(params);
-}
-
-void SRI::getParameters(AnyMap& rateNode, const Units& rate_units) const
-{
-    Falloff::getParameters(rateNode, rate_units);
-    getParameters(rateNode);
 }
 
 void Tsang::setData(const vector_fp& c)
@@ -395,7 +391,7 @@ double Tsang::F(double pr, const double* work) const
     return pow(10.0, lgf);
 }
 
-void Tsang::setParameters(const AnyMap& node, const Units& rate_units)
+void Tsang::setParameters(const AnyMap& node, const UnitsVector& rate_units)
 {
     Falloff::setParameters(node, rate_units);
     auto& f = node["Tsang"].as<AnyMap>();
@@ -416,6 +412,7 @@ void Tsang::getParameters(double* params) const {
 
 void Tsang::getParameters(AnyMap& reactionNode) const
 {
+    Falloff::getParameters(reactionNode);
     AnyMap params;
     if (!std::isnan(m_a)) {
         params["A"] = m_a;
@@ -423,12 +420,6 @@ void Tsang::getParameters(AnyMap& reactionNode) const
     }
     params.setFlowStyle();
     reactionNode["Tsang"] = std::move(params);
-}
-
-void Tsang::getParameters(AnyMap& rateNode, const Units& rate_units) const
-{
-    Falloff::getParameters(rateNode, rate_units);
-    getParameters(rateNode);
 }
 
 }
