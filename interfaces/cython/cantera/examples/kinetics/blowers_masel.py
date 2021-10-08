@@ -28,12 +28,12 @@ r1.rate = ct.ArrheniusRate(3.87e1, 2.7, 6260*1000*4.184)
 
 #Create a Blowers-Masel reaction O+H2<=>H+OH
 r2 = ct.BlowersMaselReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
-r2.rate = ct.BlowersMasel(3.87e1, 2.7, 6260*1000*4.184, 1e9)
+r2.rate = ct.BlowersMaselRate(3.87e1, 2.7, 6260*1000*4.184, 1e9)
 
 #Create a Blowers-Masel reaction with same parameters with r2
 #reaction equation is H+CH4<=>CH3+H2
 r3 = ct.BlowersMaselReaction({'H':1, 'CH4':1}, {'CH3':1, 'H2':1})
-r3.rate = ct.BlowersMasel(3.87e1, 2.7, 6260*1000*4.184, 1e9)
+r3.rate = ct.BlowersMaselRate(3.87e1, 2.7, 6260*1000*4.184, 1e9)
 
 gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                    species=ct.Solution('gri30.yaml').species(), reactions=[r1, r2, r3])
@@ -73,8 +73,7 @@ plt.legend()
 plt.savefig("kf_to_T.png")
 
 # This is the function to change the enthalpy of a species
-# so that the enthalpy change of reactions involving this
-#species can be changed
+# so that the enthalpy change of reactions involving this species can be changed
 def change_species_enthalpy(gas, species_name, dH):
     """
     Find the species by name and change it's enthalpy by dH (in J/kmol)
@@ -92,6 +91,7 @@ def change_species_enthalpy(gas, species_name, dH):
                             species.thermo.reference_pressure, perturbed_coeffs)
 
     gas.modify_species(index, species)
+    gas.reaction(1).rate.delta_enthalpy = gas.delta_enthalpy[1]
 
 # Plot the activation energy change of reaction 2 with respect to the
 # enthalpy change
@@ -103,7 +103,7 @@ Ea_list = []
 deltaH_list = np.linspace(lower_limit_enthalpy, upper_limit_enthalpy, 100)
 for deltaH in deltaH_list:
     change_species_enthalpy(gas, 'H', deltaH - gas.delta_enthalpy[1])
-    Ea_list.append(gas.reaction(1).rate.activation_energy(gas.delta_enthalpy[1]))
+    Ea_list.append(gas.reaction(1).rate.activation_energy)
 
 plt.figure()
 plt.plot(deltaH_list, Ea_list)
