@@ -20,7 +20,7 @@ std::mutex ReactionRateFactory::rate_mutex;
 ReactionRateFactory::ReactionRateFactory()
 {
     // ArrheniusRate evaluator
-    reg("Arrhenius", [](const AnyMap& node, const Units& rate_units) {
+    reg("Arrhenius", [](const AnyMap& node, const UnitsVector& rate_units) {
         return new ArrheniusRate(node, rate_units);
     });
     addAlias("Arrhenius", "");
@@ -28,54 +28,55 @@ ReactionRateFactory::ReactionRateFactory()
     addAlias("Arrhenius", "three-body");
 
     // BlowersMaselRate evaluator
-    reg("Blowers-Masel", [](const AnyMap& node, const Units& rate_units) {
+    reg("Blowers-Masel", [](const AnyMap& node, const UnitsVector& rate_units) {
         return new BlowersMaselRate(node, rate_units);
     });
 
     // Lindemann falloff evaluator
-    reg("Lindemann", [](const AnyMap& node, const Units& rate_units) {
+    reg("Lindemann", [](const AnyMap& node, const UnitsVector& rate_units) {
         return new FalloffRate<Lindemann>(node, rate_units);
     });
 
     // Troe falloff evaluator
-    reg("Troe", [](const AnyMap& node, const Units& rate_units) {
+    reg("Troe", [](const AnyMap& node, const UnitsVector& rate_units) {
         return new FalloffRate<Troe>(node, rate_units);
     });
 
     // SRI falloff evaluator
-    reg("SRI", [](const AnyMap& node, const Units& rate_units) {
+    reg("SRI", [](const AnyMap& node, const UnitsVector& rate_units) {
         return new FalloffRate<SRI>(node, rate_units);
     });
 
     // Tsang falloff evaluator
-    reg("Tsang", [](const AnyMap& node, const Units& rate_units) {
+    reg("Tsang", [](const AnyMap& node, const UnitsVector& rate_units) {
         return new FalloffRate<Tsang>(node, rate_units);
     });
 
     // PlogRate evaluator
-    reg("pressure-dependent-Arrhenius", [](const AnyMap& node, const Units& rate_units) {
+    reg("pressure-dependent-Arrhenius", [](const AnyMap& node, const UnitsVector& rate_units) {
         return new PlogRate(node, rate_units);
     });
 
     // ChebyshevRate evaluator
-    reg("Chebyshev", [](const AnyMap& node, const Units& rate_units) {
+    reg("Chebyshev", [](const AnyMap& node, const UnitsVector& rate_units) {
         return new ChebyshevRate3(node, rate_units);
     });
 
     // CustomFunc1Rate evaluator
-    reg("custom-rate-function", [](const AnyMap& node, const Units& rate_units) {
+    reg("custom-rate-function", [](const AnyMap& node, const UnitsVector& rate_units) {
         return new CustomFunc1Rate(node, rate_units);
     });
 }
 
 shared_ptr<ReactionRateBase> newReactionRate(const std::string& type)
 {
+    UnitsVector rate_units;
     return shared_ptr<ReactionRateBase> (
-        ReactionRateFactory::factory()->create(type, AnyMap(), Units(0.0)));
+        ReactionRateFactory::factory()->create(type, AnyMap(), rate_units));
 }
 
 shared_ptr<ReactionRateBase> newReactionRate(
-    const AnyMap& rate_node, const Units& rate_units)
+    const AnyMap& rate_node, const UnitsVector& rate_units)
 {
     std::string type = ""; // default is to create Arrhenius from empty
     if (rate_node.hasKey("type")) {
@@ -113,13 +114,8 @@ shared_ptr<ReactionRateBase> newReactionRate(const AnyMap& rate_node)
             "when creating\na standalone 'ReactionRate' object.");
     }
     AnyMap node(rate_node);
-    return newReactionRate(node, Units(0.));
-}
-
-shared_ptr<ReactionRateBase> newReactionRate(
-    const AnyMap& rate_node, const std::vector<std::pair<Units, double>>& rate_units)
-{
-    return newReactionRate(rate_node, Units::product(rate_units));
+    UnitsVector rate_units;
+    return newReactionRate(node, rate_units);
 }
 
 }
