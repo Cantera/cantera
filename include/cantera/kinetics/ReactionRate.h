@@ -126,8 +126,8 @@ public:
     //! Constructor using AnyMap content
     //! @param node  AnyMap containing rate information
     //! @param rate_units  unit definitions used for rate information
-    RateTemplate(const AnyMap& node, const Units& rate_units=Units(0.)) {
-        setParameters(node, rate_units);
+    RateTemplate(const AnyMap& node, const UnitsVector& units={}) {
+        setParameters(node, units);
     }
 
     virtual const std::string type() const override {
@@ -135,13 +135,13 @@ public:
         return RateType::type();
     }
 
-    virtual void setParameters(const AnyMap& node, const Units& rate_units) override {
-        ReactionRateBase::setParameters(node, rate_units);
-        RateType::setParameters(node, rate_units);
+    virtual void setParameters(const AnyMap& node, const UnitsVector& units) override {
+        ReactionRateBase::setParameters(node, units);
+        RateType::setParameters(node, units);
     }
 
-    virtual void getParameters(AnyMap& node, const Units& rate_units) const override {
-        RateType::getParameters(node, rate_units);
+    virtual void getParameters(AnyMap& node) const override {
+        RateType::getParameters(node);
     }
 
     virtual unique_ptr<MultiRateBase> newMultiRate() const override {
@@ -240,8 +240,8 @@ public:
 
     //! Constructor using AnyMap content
     //! @param node  AnyMap containing rate information
-    //! @param rate_units  unit definitions used for rate information
-    PlogRate(const AnyMap& node, const Units& rate_units=Units(0.));
+    //! @param units  Description of units used for rate parameters
+    PlogRate(const AnyMap& node, const UnitsVector& units={});
 
     virtual const std::string type() const override {
         return "pressure-dependent-Arrhenius";
@@ -249,9 +249,8 @@ public:
 
     virtual unique_ptr<MultiRateBase> newMultiRate() const override;
 
-    virtual void setParameters(const AnyMap& node, const Units& rate_units) override;
-    virtual void getParameters(AnyMap& rateNode,
-                               const Units& rate_units) const override;
+    virtual void setParameters(const AnyMap& node, const UnitsVector& units) override;
+    virtual void getParameters(AnyMap& rateNode) const override;
 
     //! Update information specific to reaction
     static bool usesUpdate() { return true; }
@@ -324,16 +323,15 @@ public:
 
     //! Constructor using AnyMap content
     //! @param node  AnyMap containing rate information
-    //! @param rate_units  unit definitions used for rate information
-    ChebyshevRate3(const AnyMap& node, const Units& rate_units=Units(0.));
+    //! @param units  Description of units used for rate parameters
+    ChebyshevRate3(const AnyMap& node, const UnitsVector& rate_units={});
 
     virtual const std::string type() const override { return "Chebyshev"; }
 
     virtual unique_ptr<MultiRateBase> newMultiRate() const override;
 
-    virtual void setParameters(const AnyMap& node, const Units& rate_units) override;
-    virtual void getParameters(AnyMap& rateNode,
-                               const Units& rate_units) const override;
+    virtual void setParameters(const AnyMap& node, const UnitsVector& units) override;
+    virtual void getParameters(AnyMap& rateNode) const override;
 
     //! Update information specific to reaction
     static bool usesUpdate() { return true; }
@@ -347,6 +345,9 @@ public:
     }
 
     virtual void validate(const std::string& equation) override;
+
+protected:
+    Units m_rate_units; //!< Reaction rate units
 };
 
 
@@ -366,15 +367,15 @@ public:
 
     //! Constructor does nothing, as there is no formalized parameterization
     //! @param node  AnyMap object containing reaction rate specification
-    //! @param rate_units  Description of units used for rate parameters
-    CustomFunc1Rate(const AnyMap& rate, const Units& rate_units) {}
+    //! @param units  Description of units used for rate parameters
+    CustomFunc1Rate(const AnyMap& rate, const UnitsVector& units) {}
 
     virtual const std::string type() const override { return "custom-rate-function"; }
 
     virtual unique_ptr<MultiRateBase> newMultiRate() const override;
 
-    virtual void setParameters(const AnyMap& node, const Units& rate_units) override {
-        units = rate_units;
+    virtual void setParameters(const AnyMap& node, const UnitsVector& units) override {
+        ReactionRateBase::setParameters(node, units);
     }
 
     //! Update information specific to reaction

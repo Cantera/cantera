@@ -44,7 +44,7 @@ public:
 
     //! Constructor based on AnyValue content
     ArrheniusBase(const AnyValue& rate,
-                  const UnitSystem& units, const Units& rate_units)
+                  const UnitSystem& units, const UnitsVector& rate_units)
     {
         setParameters(rate, units, rate_units);
     }
@@ -56,11 +56,17 @@ public:
      *  @param rate_units  Unit definitions specific to rate information
      */
     virtual void setParameters(const AnyValue& rate,
-                               const UnitSystem& units, const Units& rate_units);
+                               const UnitSystem& units, const UnitsVector& rate_units);
 
-    //! Get parameters
-    //! Store the parameters of a ReactionRate needed to reconstruct an identical
-    virtual void getParameters(AnyMap& node, const Units& units) const;
+    //! Return parameters
+    /*!
+     *  @param node  AnyValue containing rate information
+     */
+    virtual void getParameters(AnyMap& node) const;
+
+    //! Return parameters - required for legacy framework
+    //! @todo: merge with single-parameter version after removal of old framework
+    virtual void getParameters(AnyMap& node, const Units& rate_units) const;
 
     //! Validate the reaction rate expression
     virtual void validate(const std::string& equation);
@@ -87,10 +93,24 @@ public:
 
     size_t rate_index; //!< Reaction rate index within kinetics evaluator
 
+    void setRateUnits(const UnitsVector& rate_units) {
+        m_rate_units = Units::product(rate_units);
+        if (rate_units.size()>1) {
+            m_order = 0;
+            for (size_t i = 2; i < rate_units.size(); ++i) {
+                m_order -= rate_units[i].second;
+            }
+        } else {
+            m_order = NAN;
+        }
+    }
+
 protected:
     double m_A; //!< Pre-exponential factor
     double m_b; //!< Temperature exponent
     double m_Ea_R; //!< Activation energy (in temperature units)
+    double m_order; //!< Reaction order
+    Units m_rate_units; //!< Reaction rate units
 };
 
 
@@ -115,7 +135,7 @@ public:
     using ArrheniusBase::setParameters;
 
     //! Constructor based on AnyMap content
-    Arrhenius3(const AnyMap& node, const Units& rate_units) {
+    Arrhenius3(const AnyMap& node, const UnitsVector& rate_units) {
         setParameters(node, rate_units);
     }
 
@@ -129,9 +149,9 @@ public:
      *  @param node  AnyMap containing rate information
      *  @param rate_units  Unit definitions specific to rate information
      */
-    virtual void setParameters(const AnyMap& node, const Units& rate_units);
+    virtual void setParameters(const AnyMap& node, const UnitsVector& rate_units);
 
-    virtual void getParameters(AnyMap& node, const Units& units) const;
+    virtual void getParameters(AnyMap& node) const;
 
     //! Update information specific to reaction
     const static bool usesUpdate() {
@@ -219,7 +239,7 @@ public:
     BlowersMasel3(double A, double b, double Ea0, double w);
 
     //! Constructor based on AnyMap content
-    BlowersMasel3(const AnyMap& node, const Units& rate_units) {
+    BlowersMasel3(const AnyMap& node, const UnitsVector& rate_units) {
         setParameters(node, rate_units);
     }
 
@@ -229,16 +249,16 @@ public:
     }
 
     virtual void setParameters(const AnyValue& rate,
-                               const UnitSystem& units, const Units& rate_units);
+                               const UnitSystem& units, const UnitsVector& rate_units);
 
     //! Perform object setup based on AnyMap node information
     /*!
      *  @param node  AnyMap containing rate information
      *  @param rate_units  Unit definitions specific to rate information
      */
-    virtual void setParameters(const AnyMap& node, const Units& rate_units);
+    virtual void setParameters(const AnyMap& node, const UnitsVector& rate_units);
 
-    virtual void getParameters(AnyMap& node, const Units& units) const;
+    virtual void getParameters(AnyMap& node) const;
 
     //! Update information specific to reaction
     const static bool usesUpdate() {

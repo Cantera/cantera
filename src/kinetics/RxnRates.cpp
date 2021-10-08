@@ -35,7 +35,9 @@ Arrhenius2::Arrhenius2(const AnyValue& rate,
 void Arrhenius2::setParameters(const AnyValue& rate,
                                const UnitSystem& units, const Units& rate_units)
 {
-    ArrheniusBase::setParameters(rate, units, rate_units);
+    UnitsVector units_vector;
+    units_vector.emplace_back(rate_units, 1.);
+    ArrheniusBase::setParameters(rate, units, units_vector);
     if (m_A <= 0.0) {
         m_logA = -1.0E300;
     } else {
@@ -157,7 +159,7 @@ void Plog::getParameters(AnyMap& rateNode, const Units& rate_units) const
     for (const auto& r : getRates()) {
         AnyMap rateNode_;
         rateNode_["P"].setQuantity(r.first, "Pa");
-        r.second.getParameters(rateNode_, rate_units);
+        r.second.getParameters(rateNode_);
         rateList.push_back(std::move(rateNode_));
     }
     rateNode["rate-constants"] = std::move(rateList);

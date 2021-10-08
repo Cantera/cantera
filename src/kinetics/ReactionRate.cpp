@@ -16,9 +16,9 @@ PlogRate::PlogRate(const std::multimap<double, Arrhenius>& rates)
 {
 }
 
-PlogRate::PlogRate(const AnyMap& node, const Units& rate_units)
+PlogRate::PlogRate(const AnyMap& node, const UnitsVector& units)
 {
-    setParameters(node, rate_units);
+    setParameters(node, units);
 }
 
 unique_ptr<MultiRateBase> PlogRate::newMultiRate() const
@@ -26,11 +26,12 @@ unique_ptr<MultiRateBase> PlogRate::newMultiRate() const
     return unique_ptr<MultiRateBase>(new MultiBulkRate<PlogRate, PlogData>);
 }
 
-void PlogRate::setParameters(const AnyMap& node, const Units& rate_units)
+void PlogRate::setParameters(const AnyMap& node, const UnitsVector& units)
 {
     // @TODO  implementation of Plog::setParameters should be transferred here
     //     when the Plog class is removed from RxnRates.h after Cantera 2.6
-    ReactionRateBase::setParameters(node, rate_units);
+    ReactionRateBase::setParameters(node, units);
+    auto rate_units = Units::product(units);
     if (!node.hasKey("rate-constants")) {
         Plog::setParameters(std::vector<AnyMap> (), node.units(), rate_units);
         return;
@@ -40,11 +41,11 @@ void PlogRate::setParameters(const AnyMap& node, const Units& rate_units)
                         node.units(), rate_units);
 }
 
-void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
+void PlogRate::getParameters(AnyMap& rateNode) const
 {
     // @TODO  implementation of Plog::getParameters should be transferred here
     //     when the Plog class is removed from RxnRates.h after Cantera 2.6
-    Plog::getParameters(rateNode, rate_units);
+    Plog::getParameters(rateNode);
     rateNode["type"] = type();
 }
 
@@ -54,9 +55,9 @@ ChebyshevRate3::ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pma
 {
 }
 
-ChebyshevRate3::ChebyshevRate3(const AnyMap& node, const Units& rate_units)
+ChebyshevRate3::ChebyshevRate3(const AnyMap& node, const UnitsVector& units)
 {
-    setParameters(node, rate_units);
+    setParameters(node, units);
 }
 
 unique_ptr<MultiRateBase> ChebyshevRate3::newMultiRate() const
@@ -65,24 +66,24 @@ unique_ptr<MultiRateBase> ChebyshevRate3::newMultiRate() const
         new MultiBulkRate<ChebyshevRate3, ChebyshevData>);
 }
 
-void ChebyshevRate3::setParameters(const AnyMap& node, const Units& rate_units)
+void ChebyshevRate3::setParameters(const AnyMap& node, const UnitsVector& units)
 {
-    ReactionRateBase::setParameters(node, rate_units);
+    ReactionRateBase::setParameters(node, units);
+    m_rate_units = Units::product(units);
     if (!node.hasKey("data")) {
-        Chebyshev::setParameters(AnyMap(), node.units(), rate_units);
+        Chebyshev::setParameters(AnyMap(), node.units(), m_rate_units);
         return;
     }
     // @TODO  implementation of Chebyshev::setParameters should be transferred here
     //     when the Chebyshev class is removed from RxnRates.h after Cantera 2.6
-    Chebyshev::setParameters(node, node.units(), rate_units);
+    Chebyshev::setParameters(node, node.units(), m_rate_units);
 }
 
-void ChebyshevRate3::getParameters(AnyMap& rateNode,
-                                   const Units& rate_units) const
+void ChebyshevRate3::getParameters(AnyMap& rateNode) const
 {
     // @TODO  implementation of Chebyshev::getParameters should be transferred here
     //     when the Chebyshev class is removed from RxnRates.h after Cantera 2.6
-    Chebyshev::getParameters(rateNode, rate_units);
+    Chebyshev::getParameters(rateNode, m_rate_units);
     rateNode["type"] = type();
 }
 
