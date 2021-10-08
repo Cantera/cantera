@@ -311,6 +311,22 @@ bool Units::operator==(const Units& other) const
            && m_energy_dim == other.m_energy_dim;
 }
 
+Units Units::product(const UnitsVector& others)
+{
+    if (!others.size()) {
+        return Units(0.);
+    }
+    Units out = Units(1.);
+    for (auto& other : others) {
+        if (other.second == 1) {
+            out *= other.first;
+        } else {
+            out *= other.first.pow(other.second);
+        }
+    }
+    return out;
+}
+
 UnitSystem::UnitSystem(std::initializer_list<std::string> units)
     : m_mass_factor(1.0)
     , m_length_factor(1.0)
