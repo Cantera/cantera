@@ -275,6 +275,47 @@ void Reaction::calculateRateCoeffUnits(const Kinetics& kin)
     }
 }
 
+UnitsVector Reaction::calculateRateCoeffUnits3(const Kinetics& kin)
+{
+    UnitsVector rate_units;
+
+    if (!valid()) {
+        // If a reaction is invalid because of missing species in the Kinetics
+        // object, determining the units of the rate coefficient is impossible.
+        return rate_units;
+    }
+
+    rate_units.reserve(5); // covers memory requirements for most reactions
+
+    // Determine the units of the rate coefficient
+    const auto& rxn_phase = kin.thermo(kin.reactionPhaseIndex());
+    rate_units.emplace_back(Units(1.0, 0, 0, -1), 1.);
+    rate_units.emplace_back(rxn_phase.standardConcentrationUnits(), 1.);
+    for (const auto& order : orders) {
+        const auto& phase = kin.speciesPhase(order.first);
+        rate_units.emplace_back(phase.standardConcentrationUnits(), -order.second);
+    }
+    for (const auto& stoich : reactants) {
+        // Order for each reactant is the reactant stoichiometric coefficient,
+        // unless already overridden by user-specified orders
+        if (stoich.first == "M" || ba::starts_with(stoich.first, "(+")) {
+            // calculateRateCoeffUnits may be called before these pseudo-species
+            // have been stripped from the reactants
+            continue;
+        } else if (orders.find(stoich.first) == orders.end()) {
+            const auto& phase = kin.speciesPhase(stoich.first);
+            rate_units.emplace_back(phase.standardConcentrationUnits(), -stoich.second);
+        }
+    }
+
+    if (m_third_body) {
+        // Order for third body collistion partner is tied to the reaction phase
+        rate_units.emplace_back(rxn_phase.standardConcentrationUnits(), -1);
+    }
+
+    return rate_units;
+}
+
 void updateUndeclared(std::vector<std::string>& undeclared,
                       const Composition& comp, const Kinetics& kin)
 {
@@ -877,7 +918,7 @@ ElementaryReaction3::ElementaryReaction3(const AnyMap& node, const Kinetics& kin
 {
     if (!node.empty()) {
         setParameters(node, kin);
-        setRate(newReactionRate(node, rate_units));
+        setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
     } else {
         setRate(newReactionRate(type()));
     }
@@ -903,7 +944,7 @@ ThreeBodyReaction3::ThreeBodyReaction3(const AnyMap& node, const Kinetics& kin)
     m_third_body.reset(new ThirdBody);
     if (!node.empty()) {
         setParameters(node, kin);
-        setRate(newReactionRate(node, rate_units));
+        setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
     } else {
         setRate(newReactionRate(type()));
     }
@@ -947,27 +988,6 @@ bool ThreeBodyReaction3::detectEfficiencies()
     }
 
     return true;
-}
-
-void ThreeBodyReaction3::calculateRateCoeffUnits(const Kinetics& kin)
-{
-    ElementaryReaction3::calculateRateCoeffUnits(kin);
-    bool specified_collision_partner_ = false;
-    for (const auto& reac : reactants) {
-        // While this reaction was already identified as a three-body reaction in a
-        // pre-processing step, this method is often called before a three-body
-        // reaction is fully instantiated. For the determination of the correct units,
-        // it is necessary to check whether the reaction uses a generic 'M' or an
-        // explicitly specified collision partner that may not have been deleted yet.
-        if (reac.first != "M" && products.count(reac.first)) {
-            // detected specified third-body collision partner
-            specified_collision_partner_ = true;
-        }
-    }
-    if (!specified_collision_partner_) {
-        const ThermoPhase& rxn_phase = kin.thermo(kin.reactionPhaseIndex());
-        rate_units *= rxn_phase.standardConcentrationUnits().pow(-1);
-    }
 }
 
 void ThreeBodyReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
@@ -1041,7 +1061,7 @@ BlowersMaselReaction::BlowersMaselReaction(const AnyMap& node, const Kinetics& k
 {
     if (!node.empty()) {
         setParameters(node, kin);
-        setRate(newReactionRate(node, rate_units));
+        setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
     } else {
         setRate(newReactionRate(type()));
     }
@@ -1070,7 +1090,7 @@ FalloffReaction3::FalloffReaction3(const AnyMap& node, const Kinetics& kin)
     m_third_body.reset(new ThirdBody);
     if (!node.empty()) {
         setParameters(node, kin);
-        setRate(newReactionRate(node, rate_units));
+        setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
     } else {
         setRate(newReactionRate(type()));
     }
@@ -1172,7 +1192,7 @@ PlogReaction3::PlogReaction3(const AnyMap& node, const Kinetics& kin)
 {
     if (!node.empty()) {
         setParameters(node, kin);
-        setRate(newReactionRate(node, rate_units));
+        setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
     } else {
         setRate(newReactionRate(type()));
     }
@@ -1208,7 +1228,7 @@ ChebyshevReaction3::ChebyshevReaction3(const AnyMap& node, const Kinetics& kin)
 {
     if (!node.empty()) {
         setParameters(node, kin);
-        setRate(newReactionRate(node, rate_units));
+        setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
     } else {
         setRate(newReactionRate(type()));
     }
@@ -1244,7 +1264,7 @@ CustomFunc1Reaction::CustomFunc1Reaction(const AnyMap& node, const Kinetics& kin
 {
     if (!node.empty()) {
         setParameters(node, kin);
-        setRate(newReactionRate(node, rate_units));
+        setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
     } else {
         setRate(newReactionRate(type()));
     }
