@@ -54,6 +54,11 @@ public:
     //! where the reaction occurs. Sets the value of #rate_units.
     virtual void calculateRateCoeffUnits(const Kinetics& kin);
 
+    //! Calculate the units of the rate constant. These are determined by the units
+    //! of the standard concentration of the reactant species' phases and the phase
+    //! where the reaction occurs. Sets the value of #rate_units.
+    UnitsVector calculateRateCoeffUnits3(const Kinetics& kin);
+
     //! Ensure that the rate constant and other parameters for this reaction are
     //! valid.
     virtual void validate();
@@ -501,7 +506,6 @@ public:
     }
 
     bool detectEfficiencies();
-    virtual void calculateRateCoeffUnits(const Kinetics& kin);
     virtual void setParameters(const AnyMap& node, const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
 
