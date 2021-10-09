@@ -1062,21 +1062,22 @@ class TestReaction(utilities.CanteraTest):
     def test_negative_A_falloff(self):
         species = ct.Species.listFromFile('gri30.yaml')
         r = ct.FalloffReaction('NH:1, NO:1', 'N2O:1, H:1')
-        r.low_rate = ct.Arrhenius(2.16e13, -0.23, 0)
-        r.high_rate = ct.Arrhenius(-8.16e12, -0.5, 0)
-        self.assertFalse(r.allow_negative_pre_exponential_factor)
+        low_rate = ct.Arrhenius(2.16e13, -0.23, 0)
+        high_rate = ct.Arrhenius(-8.16e12, -0.5, 0)
 
         with self.assertRaisesRegex(ct.CanteraError, 'pre-exponential'):
-            gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
-                              species=species, reactions=[r])
+            ct.LindemannRate(low_rate, high_rate, ())
 
-        r.allow_negative_pre_exponential_factor = True
+        rate = ct.LindemannRate()
+        self.assertFalse(rate.allow_negative_pre_exponential_factor)
+        rate.allow_negative_pre_exponential_factor = True
+        rate.high_rate = high_rate
         # Should still fail because of mixed positive and negative A factors
         with self.assertRaisesRegex(ct.CanteraError, 'pre-exponential'):
-            gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
-                              species=species, reactions=[r])
+            rate.low_rate = low_rate
 
-        r.low_rate = ct.Arrhenius(-2.16e13, -0.23, 0)
+        rate.low_rate = ct.Arrhenius(-2.16e13, -0.23, 0)
+        r.rate = rate
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                           species=species, reactions=[r])
         self.assertLess(gas.forward_rate_constants, 0)
@@ -1099,11 +1100,11 @@ class TestReaction(utilities.CanteraTest):
 
     def test_falloff(self):
         r = ct.FalloffReaction('OH:2', 'H2O2:1')
-        r.high_rate = ct.Arrhenius(7.4e10, -0.37, 0.0)
-        r.low_rate = ct.Arrhenius(2.3e12, -0.9, -1700*1000*4.184)
-        r.falloff = ct.TroeFalloff((0.7346, 94, 1756, 5182))
+        high_rate = ct.Arrhenius(7.4e10, -0.37, 0.0)
+        low_rate = ct.Arrhenius(2.3e12, -0.9, -1700 * 1000 * 4.184)
+        r.rate = ct.TroeRate(low_rate, high_rate, [0.7346, 94, 1756, 5182])
         r.efficiencies = {'AR':0.7, 'H2':2.0, 'H2O':6.0}
-        self.assertEqual(r.falloff.type, "Troe")
+        self.assertEqual(r.rate.type, "Troe")
 
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                            species=self.species, reactions=[r])
@@ -1444,15 +1445,13 @@ class TestReaction(utilities.CanteraTest):
         gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 1100, 3 * ct.one_atm, 'CH4:1.0, O2:0.4, CO2:0.1, H2O:0.05'
         r0 = gas.reaction(11)
-        self.assertEqual(r0.falloff.type, "Lindemann")
+        self.assertEqual(r0.rate.type, "Lindemann")
         # these two reactions happen to have the same third-body efficiencies
         r1 = gas.reaction(49)
         r2 = gas.reaction(53)
-        self.assertEqual(r2.falloff.type, "Troe")
+        self.assertEqual(r2.rate.type, "Troe")
         self.assertEqual(r1.efficiencies, r2.efficiencies)
-        r2.high_rate = r1.high_rate
-        r2.low_rate = r1.low_rate
-        r2.falloff = r1.falloff
+        r2.rate = r1.rate
 
         gas.modify_reaction(53, r2)
         kf = gas.forward_rate_constants
