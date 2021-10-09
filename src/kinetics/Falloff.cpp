@@ -18,7 +18,7 @@ namespace Cantera
 
 void Falloff::init(const vector_fp& c)
 {
-        setData(c);
+    setData(c);
 }
 
 void Falloff::setLowRate(const ArrheniusBase& low)
@@ -71,21 +71,31 @@ void Falloff::getData(vector_fp& c) const
 
 void Falloff::setParameters(const AnyMap& node, const UnitsVector& rate_units)
 {
+    if (node.empty()) {
+        return;
+    }
+
+    allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
     if (node["type"] == "chemically-activated") {
         m_chemicallyActivated = true;
     }
-    allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
+
+    UnitsVector low_rate_units = rate_units;
+    UnitsVector high_rate_units = rate_units;
+    if (rate_units.size()) {
+        high_rate_units.pop_back();
+        if (m_chemicallyActivated) {
+            low_rate_units.pop_back();
+            high_rate_units.pop_back();
+        }
+    }
     if (node.hasKey("low-P-rate-constant")) {
         m_lowRate = ArrheniusBase(
-            node["low-P-rate-constant"], node.units(), rate_units);
-    }
-    UnitsVector low_rate_units = rate_units;
-    if (low_rate_units.size()) {
-        low_rate_units.pop_back();
+            node["low-P-rate-constant"], node.units(), low_rate_units);
     }
     if (node.hasKey("high-P-rate-constant")) {
         m_highRate = ArrheniusBase(
-            node["high-P-rate-constant"], node.units(), low_rate_units);
+            node["high-P-rate-constant"], node.units(), high_rate_units);
     }
 }
 
@@ -209,6 +219,10 @@ double Troe::F(double pr, const double* work) const
 
 void Troe::setParameters(const AnyMap& node, const UnitsVector& rate_units)
 {
+    if (node.empty()) {
+        return;
+    }
+
     Falloff::setParameters(node, rate_units);
     auto& f = node["Troe"].as<AnyMap>();
     if (f.empty()) {
@@ -232,20 +246,34 @@ void Troe::getParameters(double* params) const {
     params[3] = m_t2;
 }
 
-void Troe::getParameters(AnyMap& reactionNode) const
+void Troe::getParameters(AnyMap& rateNode) const
 {
-    Falloff::getParameters(reactionNode);
+    Falloff::getParameters(rateNode);
+
     AnyMap params;
-    if (!std::isnan(m_a)) {
+    if (std::isnan(m_a)) {
+        // pass
+    } else if (m_lowRate.rateUnits().factor() != 0.0) {
         params["A"] = m_a;
         params["T3"].setQuantity(1.0 / m_rt3, "K");
         params["T1"].setQuantity(1.0 / m_rt1, "K");
         if (std::abs(m_t2) > SmallNumber) {
             params["T2"].setQuantity(m_t2, "K");
         }
+    } else {
+        params["A"] = m_a;
+        params["T3"] = 1.0 / m_rt3;
+        params["T1"] = 1.0 / m_rt1;
+        if (std::abs(m_t2) > SmallNumber) {
+            params["T2"] = m_t2;
+        }
+        // This can't be converted to a different unit system because the dimensions of
+        // the rate constant were not set. Can occur if the reaction was created outside
+        // the context of a Kinetics object and never added to a Kinetics object.
+        rateNode["__unconvertible__"] = true;
     }
     params.setFlowStyle();
-    reactionNode["Troe"] = std::move(params);
+    rateNode["Troe"] = std::move(params);
 }
 
 void SRI::setData(const vector_fp& c)
@@ -304,6 +332,10 @@ double SRI::F(double pr, const double* work) const
 
 void SRI::setParameters(const AnyMap& node, const UnitsVector& rate_units)
 {
+    if (node.empty()) {
+        return;
+    }
+
     Falloff::setParameters(node, rate_units);
     auto& f = node["SRI"].as<AnyMap>();
     if (f.empty()) {
@@ -332,11 +364,14 @@ void SRI::getParameters(double* params) const
     params[4] = m_e;
 }
 
-void SRI::getParameters(AnyMap& reactionNode) const
+void SRI::getParameters(AnyMap& rateNode) const
 {
-    Falloff::getParameters(reactionNode);
+    Falloff::getParameters(rateNode);
+
     AnyMap params;
-    if (!std::isnan(m_a)) {
+    if (std::isnan(m_a)) {
+        // pass
+    } else if (m_lowRate.rateUnits().factor() != 0.0) {
         params["A"] = m_a;
         params["B"].setQuantity(m_b, "K");
         params["C"].setQuantity(m_c, "K");
@@ -344,9 +379,21 @@ void SRI::getParameters(AnyMap& reactionNode) const
             params["D"] = m_d;
             params["E"] = m_e;
         }
+    } else {
+        params["A"] = m_a;
+        params["B"] = m_b;
+        params["C"] = m_c;
+        if (m_d != 1.0 || m_e != 0.0) {
+            params["D"] = m_d;
+            params["E"] = m_e;
+        }
+        // This can't be converted to a different unit system because the dimensions of
+        // the rate constant were not set. Can occur if the reaction was created outside
+        // the context of a Kinetics object and never added to a Kinetics object.
+        rateNode["__unconvertible__"] = true;
     }
     params.setFlowStyle();
-    reactionNode["SRI"] = std::move(params);
+    rateNode["SRI"] = std::move(params);
 }
 
 void Tsang::setData(const vector_fp& c)
@@ -393,6 +440,10 @@ double Tsang::F(double pr, const double* work) const
 
 void Tsang::setParameters(const AnyMap& node, const UnitsVector& rate_units)
 {
+    if (node.empty()) {
+        return;
+    }
+
     Falloff::setParameters(node, rate_units);
     auto& f = node["Tsang"].as<AnyMap>();
     if (f.empty()) {
@@ -410,16 +461,20 @@ void Tsang::getParameters(double* params) const {
     params[1] = m_b;
 }
 
-void Tsang::getParameters(AnyMap& reactionNode) const
+void Tsang::getParameters(AnyMap& rateNode) const
 {
-    Falloff::getParameters(reactionNode);
+    Falloff::getParameters(rateNode);
+
     AnyMap params;
-    if (!std::isnan(m_a)) {
+    if (std::isnan(m_a)) {
+        // pass
+    } else {
+        // Parameters do not have unit system (yet)
         params["A"] = m_a;
         params["B"] = m_b;
     }
     params.setFlowStyle();
-    reactionNode["Tsang"] = std::move(params);
+    rateNode["Tsang"] = std::move(params);
 }
 
 }

@@ -89,9 +89,18 @@ public:
         return m_b;
     }
 
-    bool allow_negative_pre_exponential_factor; // Flag is directly accessible
+    //! Return the intrinsic activation energy *Ea* [J/kmol]
+    double intrinsicActivationEnergy() const {
+        return m_Ea_R * GasConstant;
+    }
 
-    size_t rate_index; //!< Reaction rate index within kinetics evaluator
+    const Units& rateUnits() const {
+        return m_rate_units;
+    }
+
+    double order() const {
+        return m_order;
+    }
 
     void setRateUnits(const UnitsVector& rate_units) {
         m_rate_units = Units::product(rate_units);
@@ -104,6 +113,10 @@ public:
             m_order = NAN;
         }
     }
+
+    bool allow_negative_pre_exponential_factor; // Flag is directly accessible
+
+    size_t rate_index; //!< Reaction rate index within kinetics evaluator
 
 protected:
     double m_A; //!< Pre-exponential factor

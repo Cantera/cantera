@@ -36,6 +36,7 @@ ReactionRateFactory::ReactionRateFactory()
     reg("Lindemann", [](const AnyMap& node, const UnitsVector& rate_units) {
         return new FalloffRate<Lindemann>(node, rate_units);
     });
+    addAlias("Lindemann", "falloff");
 
     // Troe falloff evaluator
     reg("Troe", [](const AnyMap& node, const UnitsVector& rate_units) {

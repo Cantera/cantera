@@ -187,7 +187,6 @@ void Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
     allow_negative_orders = node.getBool("negative-orders", false);
     allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
 
-    calculateRateCoeffUnits(kin);
     input = node;
 }
 
@@ -1076,8 +1075,14 @@ FalloffReaction3::FalloffReaction3(const Composition& reactants,
     : Reaction(reactants, products)
 {
     m_third_body = std::make_shared<ThirdBody>(tbody);
-    throw CanteraError("FalloffReaction3::FalloffReaction3", "not implemented");
-    //m_rate.reset(new CustomFunc1Rate(rate))
+    AnyMap node = rate.parameters();
+    std::string rate_type = node["type"].asString();
+    if (rate_type != "falloff" && rate_type != "chemically-activated") {
+        // use node information to determine whether rate is a falloff rate
+        throw CanteraError("FalloffReaction3::FalloffReaction3",
+            "Incompatible types: '{}' is not a falloff rate object.", rate.type());
+    }
+    setRate(newReactionRate(node));
 }
 
 FalloffReaction3::FalloffReaction3(const AnyMap& node, const Kinetics& kin)
