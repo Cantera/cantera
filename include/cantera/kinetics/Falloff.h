@@ -4,9 +4,7 @@
 #ifndef CT_FALLOFF_H
 #define CT_FALLOFF_H
 
-#include "cantera/base/ct_defs.h"
 #include "cantera/kinetics/Arrhenius.h"
-#include "cantera/kinetics/ReactionData.h"
 
 namespace Cantera
 {
@@ -143,7 +141,7 @@ public:
 
     //! Store the falloff-related parameters needed to reconstruct an identical
     //! Reaction using the newReaction(AnyMap&, Kinetics&) function.
-    virtual void getParameters(AnyMap& reactionNode) const;
+    virtual void getParameters(AnyMap& rateNode) const;
 
     //! Flag indicating that information specific to reaction rate is required
     const static bool usesUpdate() {
@@ -242,6 +240,18 @@ protected:
 class Lindemann : public Falloff
 {
 public:
+    Lindemann() : Falloff() {
+        m_work.resize(workSize());
+    }
+
+    Lindemann(const ArrheniusBase& low, const ArrheniusBase& high, const vector_fp& c)
+        : Falloff()
+    {
+        m_lowRate = low;
+        m_highRate = high;
+        setData(c);
+    }
+
     virtual const std::string type() const {
         return "Lindemann";
     }
@@ -284,6 +294,14 @@ public:
         m_work.resize(workSize());
     }
 
+    Troe(const ArrheniusBase& low, const ArrheniusBase& high, const vector_fp& c)
+        : Troe()
+    {
+        m_lowRate = low;
+        m_highRate = high;
+        setData(c);
+    }
+
     //! Set coefficients used by parameterization
     /*!
      * @param c Vector of three or four doubles: The doubles are the parameters,
@@ -323,7 +341,7 @@ public:
      */
     virtual void getParameters(double* params) const;
 
-    virtual void getParameters(AnyMap& reactionNode) const;
+    virtual void getParameters(AnyMap& rateNode) const;
 
 protected:
     //! parameter a in the 4-parameter Troe falloff function. Dimensionless
@@ -368,6 +386,14 @@ public:
         m_work.resize(workSize());
     }
 
+    SRI(const ArrheniusBase& low, const ArrheniusBase& high, const vector_fp& c)
+        : SRI()
+    {
+        m_lowRate = low;
+        m_highRate = high;
+        setData(c);
+    }
+
     //! Set coefficients used by parameterization
     /*!
      * @param c Vector of three or five doubles: The doubles are the parameters,
@@ -408,7 +434,7 @@ public:
      */
     virtual void getParameters(double* params) const;
 
-    virtual void getParameters(AnyMap& reactionNode) const;
+    virtual void getParameters(AnyMap& rateNode) const;
 
 protected:
     //! parameter a in the 5-parameter SRI falloff function. Dimensionless.
@@ -460,6 +486,14 @@ public:
         m_work.resize(workSize());
     }
 
+    Tsang(const ArrheniusBase& low, const ArrheniusBase& high, const vector_fp& c)
+        : Tsang()
+    {
+        m_lowRate = low;
+        m_highRate = high;
+        setData(c);
+    }
+
     //! Set coefficients used by parameterization
     /*!
      * @param c Vector of one or two doubles: The doubles are the parameters,
@@ -499,7 +533,7 @@ public:
      */
     virtual void getParameters(double* params) const;
 
-    virtual void getParameters(AnyMap& reactionNode) const;
+    virtual void getParameters(AnyMap& rateNode) const;
 
 protected:
     //! parameter a in the Tsang F_cent formulation. Dimensionless
