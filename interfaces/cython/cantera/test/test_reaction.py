@@ -180,7 +180,7 @@ class ReactionRateTests:
 
     def check_rate(self, rate):
         # check rates
-        self.assertEqual(self._type, rate._cpp_type)
+        self.assertEqual(self._type, rate.type)
         self.assertIn(self._cls.__name__, f"{rate}")
         value = self.eval(rate)
         self.assertIsFinite(value)
@@ -208,7 +208,7 @@ class ReactionRateTests:
         self.assertIsNaN(rate0(self.gas.T, self.gas.P))
         input_data = rate0.input_data
         rate1 = self.from_dict(input_data)
-        self.assertEqual(rate1._cpp_type, self._type)
+        self.assertEqual(rate1.type, self._type)
         self.assertIsNaN(rate1(self.gas.T, self.gas.P))
 
     def test_roundtrip(self):
@@ -947,7 +947,7 @@ class TestTroe2(ReactionTests, utilities.CanteraTest):
 
     _cls = ct.FalloffReaction
     _equation = "2 OH (+ M) <=> H2O2 (+ M)"
-    _kwargs = {"efficiencies": {"H2": 2.4, "H2O": 15.4, "AR": 0.83}}
+    _kwargs = {"efficiencies": {"AR": 0.7, "H2": 2.0, "H2O": 6.0}}
     _index = 2
     _type = "falloff-legacy"
     _legacy = True
@@ -960,6 +960,11 @@ class TestTroe2(ReactionTests, utilities.CanteraTest):
         efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
         """
 
+    def from_parts(self):
+        rxn = ReactionTests.from_parts(self)
+        rxn.efficiencies = self._kwargs["efficiencies"]
+        return rxn
+
     def test_from_rate(self):
         # do not port creation from legacy Fallout objects
         pass
@@ -967,6 +972,109 @@ class TestTroe2(ReactionTests, utilities.CanteraTest):
     def test_from_yaml(self):
         # check constructors (from yaml input)
         self.check_rxn(self.from_yaml(), check_legacy=False)
+
+
+class TestTroe(ReactionTests, utilities.CanteraTest):
+
+    _cls = ct.FalloffReaction
+    _equation = "2 OH (+ M) <=> H2O2 (+ M)"
+    _rate = {
+        "type": "falloff",
+        "low_P_rate_constant": {"A": 2.3e+12, "b": -0.9, "Ea": -7112800.0},
+        "high_P_rate_constant": {"A": 7.4e+10, "b": -0.37, "Ea": 0.0},
+        "Troe": {"A": 0.7346, "T3": 94.0, "T1": 1756.0, "T2": 5182.0}
+        }
+    _kwargs = {"efficiencies": {"AR": 0.7, "H2": 2.0, "H2O": 6.0}}
+    _index = 2
+    _type = "falloff"
+    _yaml = """
+        equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 3
+        type: falloff
+        low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -1700.0 cal/mol}
+        high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0 cal/mol}
+        Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
+        efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+        """
+
+    def from_parts(self):
+        rxn = ReactionTests.from_parts(self)
+        rxn.efficiencies = self._kwargs["efficiencies"]
+        return rxn
+
+
+class TestLindemann(ReactionTests, utilities.CanteraTest):
+    # test Lindemann falloff reaction
+
+    _cls = ct.FalloffReaction
+    _equation = "2 OH (+ M) <=> H2O2 (+ M)"
+    _rate = {
+        "type": "falloff",
+        "low_P_rate_constant": {"A": 2.3e+12, "b": -0.9, "Ea": -7112800.0},
+        "high_P_rate_constant": {"A": 7.4e+10, "b": -0.37, "Ea": 0.0}
+        }
+    _kwargs = {"efficiencies": {"AR": 0.7, "H2": 2.0, "H2O": 6.0}}
+    _index = 7
+    _type = "falloff"
+    _legacy = False
+    _yaml = """
+        equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 8
+        duplicate: true
+        type: falloff
+        low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -1700.0 cal/mol}
+        high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0 cal/mol}
+        efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+        """
+
+    def from_parts(self):
+        rxn = ReactionTests.from_parts(self)
+        rxn.efficiencies = self._kwargs["efficiencies"]
+        return rxn
+
+
+class TestChemicallyActivated2(ReactionTests, utilities.CanteraTest):
+    # test legacy version of Chemically Activated falloff reaction
+
+    _cls = ct.ChemicallyActivatedReaction
+    _equation = "H2O + OH (+M) <=> HO2 + H2 (+M)"
+    _index = 10
+    _type = "chemically-activated-legacy"
+    _legacy = True
+    _yaml = """
+        equation: H2O + OH (+M) <=> HO2 + H2 (+M)  # Reaction 11
+        units: {length: cm, quantity: mol, activation-energy: cal/mol}
+        type: chemically-activated-legacy
+        low-P-rate-constant: [282320.078, 1.46878, -3270.56495]
+        high-P-rate-constant: [5.88E-14, 6.721, -3022.227]
+        """
+
+    def test_from_rate(self):
+        # do not port creation from legacy Fallout objects
+        pass
+
+    def test_from_yaml(self):
+        # check constructors (from yaml input)
+        self.check_rxn(self.from_yaml(), check_legacy=False)
+
+
+class TestChemicallyActivated(ReactionTests, utilities.CanteraTest):
+    # test Chemically Activated falloff reaction
+
+    _cls = ct.FalloffReaction
+    _equation = "H2O + OH (+M) <=> HO2 + H2 (+M)"
+    _rate = {
+        "type": "chemically-activated",
+        "low_P_rate_constant": {"A": 282.320078, "b": 1.46878, "Ea": -13684043.7508},
+        "high_P_rate_constant": {"A": 5.88E-14, "b": 6.721, "Ea": -12644997.768}
+        }
+    _index = 10
+    _type = "falloff"
+    _yaml = """
+        equation: H2O + OH (+M) <=> HO2 + H2 (+M)  # Reaction 11
+        units: {length: cm, quantity: mol, activation-energy: cal/mol}
+        type: chemically-activated
+        low-P-rate-constant: [282320.078, 1.46878, -3270.56495]
+        high-P-rate-constant: [5.88E-14, 6.721, -3022.227]
+        """
 
 
 class TestPlog2(ReactionTests, utilities.CanteraTest):

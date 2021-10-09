@@ -851,7 +851,10 @@ class ctml2yamlTest(utilities.CanteraTest):
             self.assertEqual(C.composition, Y.composition)
 
         for C, Y in zip(ctmlPhase.reactions(), yamlPhase.reactions()):
-            self.assertEqual(C.__class__, Y.__class__)
+            if C.__class__.__name__ != "ChemicallyActivatedReaction":
+                self.assertEqual(C.__class__, Y.__class__)
+            else:
+                self.assertEqual(Y.__class__.__name__, "FalloffReaction")
             self.assertEqual(C.reactants, Y.reactants)
             self.assertEqual(C.products, Y.products)
             self.assertEqual(C.duplicate, Y.duplicate)
