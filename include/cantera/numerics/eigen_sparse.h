@@ -6,7 +6,11 @@
 
 #include "cantera/base/config.h"
 #if CT_USE_SYSTEM_EIGEN
-#include <Eigen/Sparse>
+    #if CT_USE_SYSTEM_EIGEN_PREFIXED
+    #include <eigen3/Eigen/Sparse>
+    #else
+    #include <Eigen/Sparse>
+    #endif
 #else
 #include "cantera/ext/Eigen/Sparse"
 #endif

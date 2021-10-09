@@ -6,7 +6,11 @@
 
 #include "cantera/base/config.h"
 #if CT_USE_SYSTEM_EIGEN
-#include <Eigen/Dense>
+    #if CT_USE_SYSTEM_EIGEN_PREFIXED
+    #include <eigen3/Eigen/Dense>
+    #else
+    #include <Eigen/Dense>
+    #endif
 #else
 #include "cantera/ext/Eigen/Dense"
 #endif
