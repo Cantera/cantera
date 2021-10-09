@@ -35,8 +35,8 @@ cdef class ReactionRate:
             self.rate.update(temperature)
             return self.rate.eval(temperature)
 
-    property _cpp_type:
-        """ Get the C++ ReactionRate type (used for debugging purposes) """
+    property type:
+        """ Get the C++ ReactionRate type """
         def __get__(self):
             return pystr(self.rate.type())
 
@@ -369,6 +369,8 @@ cdef class FalloffRate(ReactionRate):
         """
         def __get__(self):
             return self.falloff.chemicallyActivated()
+        def __set__(self, cbool activated):
+            self.falloff.setChemicallyActivated(activated)
 
     property third_body_concentration:
         """
@@ -1527,11 +1529,28 @@ cdef class FalloffReaction(Reaction):
         efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
     """
     _reaction_type = "falloff"
-    _has_legacy = False
-    _hybrid = False
+    _has_legacy = True
+    _hybrid = True
 
-    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
-                 init=True, legacy=False, **kwargs):
+    cdef CxxFalloffReaction3* cxx_object(self):
+        if self.uses_legacy:
+            raise AttributeError("Incorrect accessor for updated implementation")
+        return <CxxFalloffReaction3*>self.reaction
+
+    cdef CxxFalloffReaction2* cxx_object2(self):
+        if not self.uses_legacy:
+            raise AttributeError("Incorrect accessor for legacy implementation")
+        return <CxxFalloffReaction2*>self.reaction
+
+    cdef CxxThirdBody* thirdbody(self):
+        if self.uses_legacy:
+            return &(self.cxx_object2().third_body)
+        return <CxxThirdBody*>(self.cxx_object().thirdBody().get())
+
+    def __init__(
+            self, equation=None, rate=None, efficiencies=None,
+            Kinetics kinetics=None, init=True, legacy=False, **kwargs
+        ):
 
         if init and equation and kinetics:
 
@@ -1539,12 +1558,19 @@ cdef class FalloffReaction(Reaction):
             if legacy:
                 rxn_type += "-legacy"
             spec = {"equation": equation, "type": rxn_type}
-            if legacy and isinstance(rate, Falloff):
+            if isinstance(rate, dict):
+                for key, value in rate.items():
+                    spec[key.replace("_", "-")] = value
+            elif legacy and isinstance(rate, Falloff):
                 raise NotImplementedError("Not implemented for legacy rates")
             elif not legacy and (isinstance(rate, FalloffRate) or rate is None):
                 pass
             else:
-                raise TypeError("Invalid rate definition")
+                raise TypeError(
+                    f"Invalid rate definition; type is '{type(rate).__name__}'")
+
+            if isinstance(efficiencies, dict):
+                spec["efficiencies"] = efficiencies
 
             self._reaction = CxxNewReaction(dict_to_anymap(spec),
                                             deref(kinetics.kinetics))
@@ -1553,24 +1579,43 @@ cdef class FalloffReaction(Reaction):
             if not legacy and isinstance(rate, FalloffRate):
                 self.rate = rate
 
-    cdef CxxFalloffReaction2* cxx_object2(self):
-        if not self.uses_legacy:
-            raise AttributeError("Incorrect accessor for legacy implementation")
-        return <CxxFalloffReaction2*>self.reaction
+    property rate:
+        """ Get/Set the `FalloffRate` rate coefficients for this reaction. """
+        def __get__(self):
+            if not self.uses_legacy:
+                return FalloffRate.wrap(self.cxx_object().rate())
+            raise AttributeError("Legacy implementation does not use rate property.")
+        def __set__(self, FalloffRate rate):
+            if not self.uses_legacy:
+                self.cxx_object().setRate(rate._rate)
+                return
+            raise AttributeError("Legacy implementation does not use rate property.")
 
     property low_rate:
         """ Get/Set the `Arrhenius` rate constant in the low-pressure limit """
         def __get__(self):
-            return wrapArrhenius(&(self.cxx_object2().low_rate), self)
+            if self.uses_legacy:
+                return wrapArrhenius(&(self.cxx_object2().low_rate), self)
+            warnings.warn(self._deprecation_warning("low_rate"), DeprecationWarning)
+            return self.rate.low_rate
         def __set__(self, Arrhenius rate):
-            self.cxx_object2().low_rate = deref(rate.rate)
+            if self.uses_legacy:
+                self.cxx_object2().low_rate = deref(rate.rate)
+            warnings.warn(self._deprecation_warning("low_rate"), DeprecationWarning)
+            self.rate.low_rate = rate
 
     property high_rate:
         """ Get/Set the `Arrhenius` rate constant in the high-pressure limit """
         def __get__(self):
-            return wrapArrhenius(&(self.cxx_object2().high_rate), self)
+            if self.uses_legacy:
+                return wrapArrhenius(&(self.cxx_object2().high_rate), self)
+            warnings.warn(self._deprecation_warning("high_rate"), DeprecationWarning)
+            return self.rate.high_rate
         def __set__(self, Arrhenius rate):
-            self.cxx_object2().high_rate = deref(rate.rate)
+            if self.uses_legacy:
+                self.cxx_object2().high_rate = deref(rate.rate)
+            warnings.warn(self._deprecation_warning("high_rate"), DeprecationWarning)
+            self.rate.high_rate = rate
 
     property falloff:
         """
@@ -1578,9 +1623,15 @@ cdef class FalloffReaction(Reaction):
         rate coefficients
         """
         def __get__(self):
-            return wrapFalloff(self.cxx_object2().falloff)
+            if self.uses_legacy:
+                return wrapFalloff(self.cxx_object2().falloff)
+            raise AttributeError("New implementation uses 'FalloffRate' objects that "
+                "are retrieved using the 'rate' property.")
         def __set__(self, Falloff f):
-            self.cxx_object2().falloff = f._falloff
+            if self.uses_legacy:
+                self.cxx_object2().falloff = f._falloff
+            raise TypeError("New implementation requires 'FalloffRate' objects that "
+                "are set using the 'rate' property.")
 
     property efficiencies:
         """
@@ -1589,9 +1640,9 @@ cdef class FalloffReaction(Reaction):
         efficiencies.
         """
         def __get__(self):
-            return comp_map_to_dict(self.cxx_object2().third_body.efficiencies)
+            return comp_map_to_dict(self.thirdbody().efficiencies)
         def __set__(self, eff):
-            self.cxx_object2().third_body.efficiencies = comp_map(eff)
+            self.thirdbody().efficiencies = comp_map(eff)
 
     property default_efficiency:
         """
@@ -1599,28 +1650,41 @@ cdef class FalloffReaction(Reaction):
         species used for species not in `efficiencies`.
         """
         def __get__(self):
-            return self.cxx_object2().third_body.default_efficiency
+            return self.thirdbody().default_efficiency
         def __set__(self, default_eff):
-            self.cxx_object2().third_body.default_efficiency = default_eff
+            self.thirdbody().default_efficiency = default_eff
 
     property allow_negative_pre_exponential_factor:
         """
         Get/Set whether the rate coefficient is allowed to have a negative
         pre-exponential factor.
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by property `ArrheniusRate.allow_negative_pre_exponential_factor`.
         """
         def __get__(self):
-            cdef CxxFalloffReaction2* r = <CxxFalloffReaction2*>self.reaction
-            return r.allow_negative_pre_exponential_factor
+            if self.uses_legacy:
+                return self.cxx_object2().allow_negative_pre_exponential_factor
+
+            attr = "allow_negative_pre_exponential_factor"
+            warnings.warn(self._deprecation_warning(attr), DeprecationWarning)
+            return self.rate.allow_negative_pre_exponential_factor
         def __set__(self, allow):
-            cdef CxxFalloffReaction2* r = <CxxFalloffReaction2*>self.reaction
-            r.allow_negative_pre_exponential_factor = allow
+            if self.uses_legacy:
+                self.cxx_object2().allow_negative_pre_exponential_factor = allow
+                return
+
+            attr = "allow_negative_pre_exponential_factor"
+            warnings.warn(self._deprecation_warning(attr), DeprecationWarning)
+            self.rate.allow_negative_pre_exponential_factor = allow
 
     def efficiency(self, species):
         """
         Get the efficiency of the third body named ``species`` considering both
         the default efficiency and species-specific efficiencies.
         """
-        return self.cxx_object2().third_body.efficiency(stringify(species))
+        return self.thirdbody().efficiency(stringify(species))
 
 
 cdef class ChemicallyActivatedReaction(FalloffReaction):
