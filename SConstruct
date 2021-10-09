@@ -1000,37 +1000,44 @@ if env['googletest'] == 'none':
     print("""INFO: Not using Googletest -- unable to run complete test suite""")
 
 # Check for Eigen and checkout submodule if needed
-if env['system_eigen'] in ('y', 'default'):
-    if conf.CheckCXXHeader('Eigen/Dense', '<>'):
-        env['system_eigen'] = True
+if env["system_eigen"] in ("y", "default"):
+    if conf.CheckCXXHeader("eigen3/Eigen/Dense", "<>"):
+        env["system_eigen"] = True
+        env["system_eigen_prefixed"] = True
         print("""INFO: Using system installation of Eigen.""")
-    elif env['system_eigen'] == 'y':
-        config_error('Expected system installation of Eigen, but it '
-                     'could not be found.')
+        eigen_include = "<eigen3/Eigen/Core>"
+    elif conf.CheckCXXHeader("Eigen/Dense", "<>"):
+        env["system_eigen"] = True
+        env["system_eigen_prefixed"] = False
+        print("""INFO: Using system installation of Eigen.""")
+        eigen_include = "<Eigen/Core>"
+    elif env["system_eigen"] == "y":
+        config_error("Expected system installation of Eigen, but it "
+                     "could not be found.")
 
-if env['system_eigen'] in ('n', 'default'):
-    env['system_eigen'] = False
+if env["system_eigen"] in ("n", "default"):
+    env["system_eigen"] = False
     print("""INFO: Using private installation of Eigen.""")
-    if not os.path.exists('ext/eigen/Eigen/Dense'):
-        if not os.path.exists('.git'):
-            config_error('Eigen is missing. Install Eigen in ext/eigen.')
+    if not os.path.exists("ext/eigen/Eigen/Dense"):
+        if not os.path.exists(".git"):
+            config_error("Eigen is missing. Install Eigen in ext/eigen.")
 
         try:
-            code = subprocess.call(['git','submodule','update','--init',
-                                    '--recursive','ext/eigen'])
+            code = subprocess.call(["git","submodule","update","--init",
+                                    "--recursive","ext/eigen"])
         except Exception:
             code = -1
         if code:
-            config_error('Eigen not found and submodule checkout failed.\n'
-                         'Try manually checking out the submodule with:\n\n'
-                         '    git submodule update --init --recursive ext/eigen\n')
+            config_error("Eigen not found and submodule checkout failed.\n"
+                         "Try manually checking out the submodule with:\n\n"
+                         "    git submodule update --init --recursive ext/eigen\n")
+    eigen_include = "'../ext/eigen/Eigen/Core'"
 
-eigen_include = '<Eigen/Core>' if env['system_eigen'] else '"../ext/eigen/Eigen/Core"'
 eigen_versions = 'QUOTE(EIGEN_WORLD_VERSION) "." QUOTE(EIGEN_MAJOR_VERSION) "." QUOTE(EIGEN_MINOR_VERSION)'
 eigen_version_source = get_expression_value([eigen_include], eigen_versions)
-retcode, eigen_lib_version = conf.TryRun(eigen_version_source, '.cpp')
-env['EIGEN_LIB_VERSION'] = eigen_lib_version.strip()
-print('INFO: Found Eigen version {}'.format(env['EIGEN_LIB_VERSION']))
+retcode, eigen_lib_version = conf.TryRun(eigen_version_source, ".cpp")
+env["EIGEN_LIB_VERSION"] = eigen_lib_version.strip()
+print("INFO: Found Eigen version {}".format(env["EIGEN_LIB_VERSION"]))
 
 # Determine which standard library to link to when using Fortran to
 # compile code that links to Cantera
@@ -1590,7 +1597,8 @@ cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('LAPACK_NAMES_LOWERCASE', 'lapack_names', 'lower')
 cdefine('CT_USE_LAPACK', 'use_lapack')
-cdefine('CT_USE_SYSTEM_EIGEN', 'system_eigen')
+cdefine("CT_USE_SYSTEM_EIGEN", "system_eigen")
+cdefine("CT_USE_SYSTEM_EIGEN_PREFIXED", "system_eigen_prefixed")
 cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')
 cdefine('CT_USE_SYSTEM_YAMLCPP', 'system_yamlcpp')
 cdefine('CT_USE_DEMANGLE', 'has_demangle')

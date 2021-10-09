@@ -11,7 +11,7 @@ import enum
 from pathlib import Path
 import logging
 from typing import TYPE_CHECKING
-import collections
+from collections.abc import Mapping as MappingABC
 
 try:
     import numpy as np
@@ -73,7 +73,7 @@ class BraceLogRecord(logging.LogRecord):
     def getMessage(self) -> str:
         msg = str(self.msg)
         if self.args:
-            if isinstance(self.args, collections.Mapping):
+            if isinstance(self.args, MappingABC):
                 msg = msg.format_map(self.args)
             else:
                 msg = msg.format(*self.args)
