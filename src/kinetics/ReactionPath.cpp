@@ -10,6 +10,10 @@
 #include "cantera/kinetics/reaction_defs.h"
 #include "cantera/thermo/ThermoPhase.h"
 
+#include <boost/algorithm/string.hpp>
+
+namespace ba = boost::algorithm;
+
 using namespace std;
 
 namespace Cantera
@@ -680,9 +684,9 @@ string reactionLabel(size_t i, size_t kr, size_t nr,
             label += " + "+ s.kineticsSpeciesName(slist[j]);
         }
     }
-    if (s.reactionTypeStr(i) == "three-body") {
+    if (ba::starts_with(s.reactionTypeStr(i), "three-body")) {
         label += " + M ";
-    } else if (s.reactionTypeStr(i) == "falloff") {
+    } else if (ba::starts_with(s.reactionTypeStr(i), "falloff")) {
         label += " (+ M)";
     }
     return label;
@@ -735,9 +739,9 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
                             revlabel += " + "+ s.kineticsSpeciesName(m_prod[i][j]);
                         }
                     }
-                    if (s.reactionTypeStr(i) == "three-body") {
+                    if (ba::starts_with(s.reactionTypeStr(i), "three-body")) {
                         revlabel += " + M ";
-                    } else if (s.reactionTypeStr(i) == "falloff") {
+                    } else if (ba::starts_with(s.reactionTypeStr(i), "falloff")) {
                         revlabel += " (+ M)";
                     }
 
