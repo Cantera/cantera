@@ -68,8 +68,11 @@ public:
     //! @todo: merge with single-parameter version after removal of old framework
     virtual void getParameters(AnyMap& node, const Units& rate_units) const;
 
+    //! Check the reaction rate expression
+    void check(const std::string& equation, const AnyMap& node);
+
     //! Validate the reaction rate expression
-    virtual void validate(const std::string& equation);
+    void validate(const std::string& equation) {}
 
     //! Evaluate reaction rate
     //! @param logT  natural logarithm of temperature
