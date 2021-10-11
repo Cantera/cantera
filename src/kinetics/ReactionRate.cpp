@@ -87,10 +87,6 @@ void ChebyshevRate3::getParameters(AnyMap& rateNode) const
     rateNode["type"] = type();
 }
 
-void ChebyshevRate3::validate(const std::string& equation)
-{
-}
-
 CustomFunc1Rate::CustomFunc1Rate() : m_ratefunc(0) {}
 
 unique_ptr<MultiRateBase> CustomFunc1Rate::newMultiRate() const

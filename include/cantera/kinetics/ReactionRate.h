@@ -157,6 +157,10 @@ public:
         return RateType::eval(shared_data);
     }
 
+    virtual void check(const std::string& equation, const AnyMap& node) override {
+        RateType::check(equation, node);
+    }
+
     virtual void validate(const std::string& equation) override {
         RateType::validate(equation);
     }
@@ -344,8 +348,6 @@ public:
         return updateRC(0., shared_data.recipT);
     }
 
-    virtual void validate(const std::string& equation) override;
-
 protected:
     Units m_rate_units; //!< Reaction rate units
 };
@@ -389,8 +391,6 @@ public:
     void setRateFunction(shared_ptr<Func1> f);
 
     virtual double eval(const CustomFunc1Data& shared_data) const override;
-
-    virtual void validate(const std::string& equation) override {}
 
 protected:
     shared_ptr<Func1> m_ratefunc;

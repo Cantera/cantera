@@ -100,10 +100,11 @@ void ArrheniusBase::getParameters(AnyMap& node, const Units& rate_units) const
     node.setFlowStyle();
 }
 
-void ArrheniusBase::validate(const std::string& equation)
+void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
 {
     if (!allow_negative_pre_exponential_factor && m_A < 0) {
-        throw CanteraError("ArrheniusBase::validate",
+
+        throw InputFileError("ArrheniusBase::check", node,
             "Undeclared negative pre-exponential factor found in reaction '{}'",
             equation);
     }

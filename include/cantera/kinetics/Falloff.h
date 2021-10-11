@@ -184,8 +184,11 @@ public:
         return NAN; // @todo
     }
 
+    //! Check the reaction rate expression
+    void check(const std::string& equation, const AnyMap& node);
+
     //! Validate the reaction rate expression
-    virtual void validate(const std::string& equation);
+    void validate(const std::string& equation) {}
 
     bool allow_negative_pre_exponential_factor; // Flag is directly accessible
     double third_body_concentration; //!< Buffered third-body concentration

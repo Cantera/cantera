@@ -88,7 +88,11 @@ public:
     //! @param kin  object representing kinetics (not required for all rate types)
     virtual double ddT(const ThermoPhase& bulk, const Kinetics& kin) const = 0;
 
+    //! Check the reaction rate expression
+    virtual void check(const std::string& equation, const AnyMap& node) {};
+
     //! Validate the reaction rate expression
+    //! @todo add Kinetics object
     virtual void validate(const std::string& equation) {};
 
     //! Return the parameters such that an identical Reaction could be reconstructed

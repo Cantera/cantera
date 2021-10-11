@@ -121,12 +121,12 @@ void Falloff::getParameters(AnyMap& rateNode) const
     }
 }
 
-void Falloff::validate(const std::string& equation)
+void Falloff::check(const std::string& equation, const AnyMap& node)
 {
     if (!allow_negative_pre_exponential_factor &&
             (m_lowRate.preExponentialFactor() < 0 ||
              m_highRate.preExponentialFactor() < 0)) {
-        throw CanteraError("FalloffRate::validate",
+        throw InputFileError("Falloff::check", node,
             "Undeclared negative pre-exponential factor(s) found in reaction '{}'",
             equation);
     }
@@ -138,16 +138,11 @@ void Falloff::validate(const std::string& equation)
         return;
     }
     if (!allow_negative_pre_exponential_factor && (lowA < 0 || highA < 0)) {
-        throw CanteraError("Falloff::validate",
+        throw InputFileError("Falloff::check", node,
             "Negative pre-exponential factor(s) found in reaction '{}'", equation);
-        // throw InputFileError("Falloff::validate", input,
-        //     "Negative pre-exponential factor(s) found in reaction '{}'", equation);
     }
     if (lowA * highA < 0) {
-        // throw InputFileError("Falloff::validate", input,
-        //     "Inconsistent rate definitions found in reaction '{}';\nhigh and low "
-        //     "rate pre-exponential factors must have the same sign.", equation);
-        throw CanteraError("Falloff::validate",
+        throw InputFileError("Falloff::check", node,
             "Inconsistent rate definitions found in reaction '{}';\nhigh and low "
             "rate pre-exponential factors must have the same sign.", equation);
     }
