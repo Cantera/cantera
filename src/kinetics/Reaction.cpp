@@ -477,10 +477,13 @@ void ElementaryReaction2::getParameters(AnyMap& reactionNode) const
 ThirdBody::ThirdBody(double default_eff)
     : default_efficiency(default_eff)
     , specified_collision_partner(false)
+    , mass_action(true)
 {
 }
 
 ThirdBody::ThirdBody(const AnyMap& node)
+    : specified_collision_partner(false)
+    , mass_action(true)
 {
     setEfficiencies(node);
 }
@@ -648,7 +651,7 @@ void FalloffReaction2::calculateRateCoeffUnits(const Kinetics& kin)
 void FalloffReaction2::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
-    reactionNode["type"] = "falloff";
+    reactionNode["type"] = "falloff-legacy";
     AnyMap lowRateNode;
     low_rate.getParameters(lowRateNode, low_rate_units);
     reactionNode["low-P-rate-constant"] = std::move(lowRateNode);
@@ -1065,6 +1068,7 @@ FalloffReaction3::FalloffReaction3()
     : Reaction()
 {
     m_third_body.reset(new ThirdBody);
+    m_third_body->mass_action = false;
     setRate(newReactionRate(type()));
 }
 
@@ -1075,6 +1079,7 @@ FalloffReaction3::FalloffReaction3(const Composition& reactants,
     : Reaction(reactants, products)
 {
     m_third_body = std::make_shared<ThirdBody>(tbody);
+    m_third_body->mass_action = false;
     AnyMap node = rate.parameters();
     std::string rate_type = node["type"].asString();
     if (rate_type != "falloff" && rate_type != "chemically-activated") {
@@ -1088,6 +1093,7 @@ FalloffReaction3::FalloffReaction3(const Composition& reactants,
 FalloffReaction3::FalloffReaction3(const AnyMap& node, const Kinetics& kin)
 {
     m_third_body.reset(new ThirdBody);
+    m_third_body->mass_action = false;
     if (!node.empty()) {
         setParameters(node, kin);
         setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));

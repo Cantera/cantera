@@ -38,7 +38,6 @@ public:
         return "Gas";
     }
 
-    virtual void resizeReactions();
     virtual void getThirdBodyConcentrations(double* concm) const;
 
     //! @}
@@ -51,7 +50,6 @@ public:
     //! @}
     //! @name Reaction Mechanism Setup Routines
     //! @{
-    virtual void init();
     virtual bool addReaction(shared_ptr<Reaction> r, bool resize=true);
     virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
     virtual void invalidateCache();
@@ -71,39 +69,36 @@ public:
 
 protected:
     //! Reaction index of each falloff reaction
-    std::vector<size_t> m_fallindx;
+    std::vector<size_t> m_fallindx; //!< @deprecated (legacy only)
 
     //! Map of reaction index to falloff reaction index (i.e indices in
     //! #m_falloff_low_rates and #m_falloff_high_rates)
-    std::map<size_t, size_t> m_rfallindx;
+    std::map<size_t, size_t> m_rfallindx; //!< @deprecated (legacy only)
 
     //! Rate expressions for falloff reactions at the low-pressure limit
-    Rate1<Arrhenius> m_falloff_low_rates;
+    Rate1<Arrhenius> m_falloff_low_rates; //!< @deprecated (legacy only)
 
     //! Rate expressions for falloff reactions at the high-pressure limit
-    Rate1<Arrhenius> m_falloff_high_rates;
+    Rate1<Arrhenius> m_falloff_high_rates; //!< @deprecated (legacy only)
 
-    FalloffMgr m_falloffn;
+    FalloffMgr m_falloffn; //!< @deprecated (legacy only)
 
-    ThirdBodyCalc m_3b_concm;
-    ThirdBodyCalc m_falloff_concm;
+    ThirdBodyCalc m_3b_concm; //!< @deprecated (legacy only)
+    ThirdBodyCalc m_falloff_concm; //!< @deprecated (legacy only)
 
-    Rate1<Plog> m_plog_rates;
-    Rate1<Chebyshev> m_cheb_rates;
+    Rate1<Plog> m_plog_rates; //!< @deprecated (legacy only)
+    Rate1<Chebyshev> m_cheb_rates; //!< @deprecated (legacy only)
 
     //! @name Reaction rate data
     //!@{
-    doublereal m_logp_ref;
-    doublereal m_logc_ref;
     doublereal m_logStandConc;
-    vector_fp m_rfn_low;
-    vector_fp m_rfn_high;
+    vector_fp m_rfn_low; //!< @deprecated (legacy only)
+    vector_fp m_rfn_high; //!< @deprecated (legacy only)
 
     doublereal m_pres; //!< Last pressure at which rates were evaluated
-    vector_fp falloff_work;
-    vector_fp concm_3b_values;
-    vector_fp concm_falloff_values;
-    vector_fp m_concm_any; //!< Effective third-body concentrations for any reaction
+    vector_fp falloff_work; //!< @deprecated (legacy only)
+    vector_fp concm_3b_values; //!< @deprecated (legacy only)
+    vector_fp concm_falloff_values; //!< @deprecated (legacy only)
 
     //!@}
 
