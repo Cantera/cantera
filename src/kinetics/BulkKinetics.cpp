@@ -153,7 +153,7 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
         }
     }
 
-    m_concm.push_back(0.0);
+    m_concm.push_back(NAN);
 
     if (resize) {
         resizeReactions();
@@ -177,10 +177,9 @@ void BulkKinetics::addThirdBody(shared_ptr<Reaction> r)
                 "' while adding reaction '" + r->equation() + "'");
         }
     }
-    m_multi_concm.install(nReactions() - 1, efficiencies,
-                          r->thirdBody()->default_efficiency);
-    concm_multi_values.resize(m_multi_concm.workSize());
-    m_multi_indices.push_back(nReactions() - 1);
+    m_multi_concm.install3(nReactions() - 1, efficiencies,
+                           r->thirdBody()->default_efficiency,
+                           r->thirdBody()->mass_action);
 }
 
 void BulkKinetics::addElementaryReaction(ElementaryReaction2& r)

@@ -14,38 +14,14 @@ namespace Cantera
 {
 GasKinetics::GasKinetics(ThermoPhase* thermo) :
     BulkKinetics(thermo),
-    m_logp_ref(0.0),
-    m_logc_ref(0.0),
     m_logStandConc(0.0),
     m_pres(0.0)
 {
 }
 
-void GasKinetics::resizeReactions()
-{
-    m_concm_any.resize(nReactions(), NAN);
-    BulkKinetics::resizeReactions();
-}
-
 void GasKinetics::getThirdBodyConcentrations(double* concm) const
 {
-    double ctot = thermo().molarDensity();
-    fill(concm, concm + nReactions(), NAN);
-
-    // 3-body reactions (legacy)
-    if (!concm_3b_values.empty()) {
-        m_3b_concm.update3(m_phys_conc, ctot, concm);
-    }
-
-    // Falloff reactions (legacy)
-    if (!concm_falloff_values.empty()) {
-        m_falloff_concm.update3(m_phys_conc, ctot, concm);
-    }
-
-    // Third-body objects interacting with MultiRate evaluator
-    if (!concm_multi_values.empty()) {
-        m_multi_concm.update3(m_phys_conc, ctot, concm);
-    }
+    std::copy(m_concm.begin(), m_concm.end(), concm);
 }
 
 void GasKinetics::update_rates_T()
@@ -56,10 +32,12 @@ void GasKinetics::update_rates_T()
     double logT = log(T);
 
     if (T != m_temp) {
+        // Update forward rate constant for each reaction
         if (!m_rfn.empty()) {
             m_rates.update(T, logT, m_rfn.data());
         }
 
+        // Falloff reactions (legacy)
         if (!m_rfn_low.empty()) {
             m_falloff_low_rates.update(T, logT, m_rfn_low.data());
             m_falloff_high_rates.update(T, logT, m_rfn_high.data());
@@ -67,6 +45,7 @@ void GasKinetics::update_rates_T()
         if (!falloff_work.empty()) {
             m_falloffn.updateTemp(T, falloff_work.data());
         }
+
         updateKc();
         m_ROP_ok = false;
     }
@@ -79,11 +58,13 @@ void GasKinetics::update_rates_T()
             rates->getRateConstants(m_rfn.data());
         }
 
+        // P-log reactions (legacy)
         if (m_plog_rates.nReactions()) {
             m_plog_rates.update(T, logT, m_rfn.data());
             m_ROP_ok = false;
         }
 
+        // Chebyshev reactions (legacy)
         if (m_cheb_rates.nReactions()) {
             m_cheb_rates.update(T, logT, m_rfn.data());
             m_ROP_ok = false;
@@ -99,34 +80,27 @@ void GasKinetics::update_rates_C()
     thermo().getConcentrations(m_phys_conc.data());
     doublereal ctot = thermo().molarDensity();
 
-    // 3-body reactions
+    // Third-body objects interacting with MultiRate evaluator
+    m_multi_concm.update3(m_phys_conc, ctot, m_concm.data());
+
+    // 3-body reactions (legacy)
     if (!concm_3b_values.empty()) {
         m_3b_concm.update(m_phys_conc, ctot, concm_3b_values.data());
-        m_3b_concm.copy(concm_3b_values, m_concm_any.data());
+        m_3b_concm.copy(concm_3b_values, m_concm.data());
     }
 
-    // Falloff reactions
+    // Falloff reactions (legacy)
     if (!concm_falloff_values.empty()) {
         m_falloff_concm.update(m_phys_conc, ctot, concm_falloff_values.data());
-        m_falloff_concm.copy(concm_falloff_values, m_concm_any.data());    }
+        m_falloff_concm.copy(concm_falloff_values, m_concm.data());    }
 
-    // Third-body objects interacting with MultiRate evaluator
-    if (!concm_multi_values.empty()) {
-        // using pre-existing third-body handlers requires copying;
-        m_multi_concm.update(m_phys_conc, ctot, concm_multi_values.data());
-        m_multi_concm.copy(concm_multi_values, m_concm_any.data());
-        for (size_t i = 0; i < m_multi_indices.size(); i++) {
-            m_concm[m_multi_indices[i]] = concm_multi_values[i];
-        }
-    }
-
-    // P-log reactions
+    // P-log reactions (legacy)
     if (m_plog_rates.nReactions()) {
         double logP = log(thermo().pressure());
         m_plog_rates.update_C(&logP);
     }
 
-    // Chebyshev reactions
+    // Chebyshev reactions (legacy)
     if (m_cheb_rates.nReactions()) {
         double log10P = log10(thermo().pressure());
         m_cheb_rates.update_C(&log10P);
@@ -208,6 +182,9 @@ void GasKinetics::updateROP()
     // copy rate coefficients into ropf
     m_ropf = m_rfn;
 
+    // reactions involving third body
+    m_multi_concm.multiply3(m_ropf.data(), m_concm.data());
+
     // multiply ropf by enhanced 3b conc for all 3b rxns
     if (!concm_3b_values.empty()) {
         m_3b_concm.multiply(m_ropf.data(), concm_3b_values.data());
@@ -215,11 +192,6 @@ void GasKinetics::updateROP()
 
     if (m_falloff_high_rates.nReactions()) {
         processFalloffReactions();
-    }
-
-    // reactions involving third body
-    for (auto& index : m_multi_indices) {
-        m_ropf[index] *= m_concm[index];
     }
 
     for (size_t i = 0; i < nReactions(); i++) {
@@ -273,9 +245,7 @@ void GasKinetics::getFwdRateConstants(double* kfwd)
         }
 
         // reactions involving third body
-        for (auto& index : m_multi_indices) {
-            m_ropf[index] *= m_concm[index];
-        }
+        m_multi_concm.multiply3(m_ropf.data(), m_concm.data());
     }
 
     if (m_falloff_high_rates.nReactions()) {
@@ -380,6 +350,11 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     // operations common to all bulk reaction types
     BulkKinetics::modifyReaction(i, rNew);
 
+    // invalidate all cached data
+    m_ROP_ok = false;
+    m_temp += 0.1234;
+    m_pres += 0.1234;
+
     if (!(rNew->usesLegacy())) {
         // Rate object already modified in BulkKinetics::modifyReaction
         return;
@@ -401,11 +376,6 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
         throw CanteraError("GasKinetics::modifyReaction",
             "Unknown reaction type specified: '{}'", rNew->type());
     }
-
-    // invalidate all cached data
-    m_ROP_ok = false;
-    m_temp += 0.1234;
-    m_pres += 0.1234;
 }
 
 void GasKinetics::modifyThreeBodyReaction(size_t i, ThreeBodyReaction2& r)
@@ -429,12 +399,6 @@ void GasKinetics::modifyPlogReaction(size_t i, PlogReaction2& r)
 void GasKinetics::modifyChebyshevReaction(size_t i, ChebyshevReaction2& r)
 {
     m_cheb_rates.replace(i, r.rate);
-}
-
-void GasKinetics::init()
-{
-    BulkKinetics::init();
-    m_logp_ref = log(thermo().refPressure()) - log(GasConstant);
 }
 
 void GasKinetics::invalidateCache()

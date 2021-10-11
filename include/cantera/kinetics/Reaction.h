@@ -228,6 +228,9 @@ public:
 
     //! Input explicitly specifies collision partner
     bool specified_collision_partner;
+
+    //! Third body is used by law of mass action
+    bool mass_action;
 };
 
 

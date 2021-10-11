@@ -37,6 +37,25 @@ public:
         }
     }
 
+    void install3(size_t rxnNumber, const std::map<size_t, double>& efficiencies,
+                  double default_efficiency, bool mass_action) {
+        m_reaction_index.push_back(rxnNumber);
+        m_default.push_back(default_efficiency);
+
+        if (mass_action) {
+            m_mass_action_index.push_back(m_reaction_index.size() - 1);
+        }
+
+        m_species.emplace_back();
+        m_eff.emplace_back();
+        for (const auto& eff : efficiencies) {
+            assert(eff.first != npos);
+            m_species.back().push_back(eff.first);
+            m_eff.back().push_back(eff.second - default_efficiency);
+        }
+        m_true_index.push_back(rxnNumber);
+    }
+
     void update(const vector_fp& conc, double ctot, double* work) {
         for (size_t i = 0; i < m_species.size(); i++) {
             double sum = 0.0;
@@ -72,17 +91,28 @@ public:
         }
     }
 
+    void multiply3(double* output, const double* concm) {
+        for (size_t i = 0; i < m_mass_action_index.size(); i++) {
+            size_t ix = m_reaction_index[m_mass_action_index[i]];
+            output[ix] *= concm[ix];
+        }
+    }
+
     size_t workSize() {
         return m_reaction_index.size();
     }
 
 protected:
-    //! Indices of third-body reactions within vector of concentrations
+    //! Indices of reactions that use third-bodies within vector of concentrations
     //! (note that legacy Falloff rates use a reduced length vector)
     std::vector<size_t> m_reaction_index;
 
     //! Actual index of reaction within the full reaction array
     std::vector<size_t> m_true_index;
+
+    //! Indices of reactions that consider third body in law of mass action
+    //! within m_reaction_index
+    std::vector<size_t> m_mass_action_index;
 
     //! m_species[i][j] is the index of the j-th species in reaction i.
     std::vector<std::vector<size_t> > m_species;
