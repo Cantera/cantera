@@ -53,6 +53,10 @@ void GasKinetics::update_rates_T()
     if (T != m_temp || P != m_pres) {
 
         // loop over MultiBulkRates evaluators
+        // @todo ... address/reassess logic as this update can fail
+        //      (see tests/kinetics/KineticsFromScratch.cpp:
+        //      KineticsAddSpecies - add_species_sequential)
+        //      a work-around is to call GasKinetics::invalidateCache()
         for (auto& rates : m_bulk_rates) {
             rates->update(thermo(), *this);
             rates->getRateConstants(m_rfn.data());
