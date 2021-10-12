@@ -22,10 +22,7 @@ class AnyMap;
 
 /**
  * Base class for falloff function calculators. Each instance of a subclass of
- * Falloff computes one falloff function. This base class implements the
- * trivial falloff function F = 1.0.
- *
- * @todo remove Lindemann-specific portions to establish a 'true' base class
+ * Falloff computes one falloff function.
  */
 class Falloff
 {
