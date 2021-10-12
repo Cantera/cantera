@@ -5,6 +5,7 @@
 #define CT_ARRHENIUS_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/Units.h"
 #include "cantera/kinetics/ReactionData.h"
 
 namespace Cantera
@@ -12,8 +13,6 @@ namespace Cantera
 
 class AnyValue;
 class AnyMap;
-class Units;
-class UnitSystem;
 
 /**
  *  @defgroup arrheniusGroup  Arrhenius-type Parameterizations
