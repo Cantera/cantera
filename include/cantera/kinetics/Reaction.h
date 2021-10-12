@@ -518,7 +518,6 @@ public:
 
 
 //! A reaction with rate parameters for Blowers-Masel approximation
-//! @TODO remove version '3' after surface-Blowers-Masel is ported to new framework.
 class BlowersMaselReaction: public Reaction
 {
 public:
