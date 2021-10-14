@@ -14,7 +14,7 @@ Description: Common files needed for all Cantera interfaces
  involving chemical kinetics, thermodynamics, and/or transport processes.
  Cantera can be used for simulating time-dependent or steady reactor
  networks and one-dimensional reacting flows. Thermodynamic models for
- ideal gases, aqueeous electrolytes, plasmas, and multiphase substances
+ ideal gases, aqueous electrolytes, plasmas, and multiphase substances
  are provided.
  .
  This package includes programs for parsing and converting chemical
@@ -28,7 +28,7 @@ Description: Python 3 user interface for Cantera
  involving chemical kinetics, thermodynamics, and/or transport processes.
  Cantera can be used for simulating time-dependent or steady reactor
  networks and one-dimensional reacting flows. Thermodynamic models for
- ideal gases, aqueeous electrolytes, plasmas, and multiphase substances
+ ideal gases, aqueous electrolytes, plasmas, and multiphase substances
  are provided.
  .
  This package includes the Cantera Python 3 module
@@ -41,7 +41,7 @@ Description: Header files and static libraries for Cantera
  involving chemical kinetics, thermodynamics, and/or transport processes.
  Cantera can be used for simulating time-dependent or steady reactor
  networks and one-dimensional reacting flows. Thermodynamic models for
- ideal gases, aqueeous electrolytes, plasmas, and multiphase substances
+ ideal gases, aqueous electrolytes, plasmas, and multiphase substances
  are provided.
  .
  These files are used for developing applications that use Cantera's
@@ -55,7 +55,7 @@ Description: Tools for chemical kinetics, thermodynamics and transport propertie
  involving chemical kinetics, thermodynamics, and/or transport processes.
  Cantera can be used for simulating time-dependent or steady reactor
  networks and one-dimensional reacting flows. Thermodynamic models for
- ideal gases, aqueeous electrolytes, plasmas, and multiphase substances
+ ideal gases, aqueous electrolytes, plasmas, and multiphase substances
  are provided.
  .
  This metapackage installs the end-user portion of Cantera.
