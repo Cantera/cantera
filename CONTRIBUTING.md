@@ -55,6 +55,11 @@
 * Avoid introducing trailing whitespace
 * Limit line lengths to 88 characters when possible
 * Write comments to explain non-obvious operations
+* Use whitespaces to improve code readability (examples: after commas; before and
+  after mathematical operators (`+`/`-`/`*`/`/` except `^`), binary operators
+  (`&&`/`||`/...), and comparisons (`<`/`>`/`==`/...); before and after equality
+  signs `=` unless used for the assignment of a default parameter)
+* Do not go out of your way to change formatting in otherwise unmodified code
 
 ## C++
 
