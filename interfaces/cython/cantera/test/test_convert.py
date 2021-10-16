@@ -1150,6 +1150,7 @@ class ctml2yamlTest(utilities.CanteraTest):
         ctmlWater, yamlWater = self.checkConversion("liquid-water")
         self.checkThermo(ctmlWater, yamlWater, [300, 500, 1300, 2000], pressure=22064000.0)
         self.assertEqual(ctmlWater.transport_model, yamlWater.transport_model)
+        ctmlWater.TP = yamlWater.TP = 300, 22064000.0
         dens = ctmlWater.density
         for T in [298, 1001, 2400]:
             ctmlWater.TD = T, dens
