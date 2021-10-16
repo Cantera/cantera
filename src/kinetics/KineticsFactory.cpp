@@ -183,11 +183,15 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
         } else {
             // specified section is in the current file
             for (const auto& R : rootNode.at(sections[i]).asVector<AnyMap>()) {
-                try {
+                #ifdef NDEBUG
+                    try {
+                        kin.addReaction(newReaction(R, kin), false);
+                    } catch (CanteraError& err) {
+                        format_to(add_rxn_err, "{}", err.what());
+                    }
+                #else
                     kin.addReaction(newReaction(R, kin), false);
-                } catch (CanteraError& err) {
-                    format_to(add_rxn_err, "{}", err.what());
-                }
+                #endif
             }
         }
     }
