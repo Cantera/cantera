@@ -287,9 +287,9 @@ if 'gcc' in env.subst('$CC') or 'gnu-cc' in env.subst('$CC'):
     defaults.optimizeCcFlags += ' -Wno-inline'
     if env['OS'] == 'Cygwin':
         # See http://stackoverflow.com/questions/18784112
-        defaults.cxxFlags = '-std=gnu++0x'
+        defaults.cxxFlags = '-std=gnu++11'
     else:
-        defaults.cxxFlags = '-std=c++0x'
+        defaults.cxxFlags = '-std=c++11'
     defaults.buildPch = True
     env['pch_flags'] = ['-include', 'src/pch/system.h']
 
@@ -307,7 +307,7 @@ elif env['CC'] == 'cl': # Visual Studio
     env['openmp_flag'] = ['/openmp']
 
 elif 'icc' in env.subst('$CC'):
-    defaults.cxxFlags = '-std=c++0x'
+    defaults.cxxFlags = '-std=c++11'
     defaults.ccFlags = '-vec-report0 -diag-disable 1478'
     defaults.warningFlags = '-Wcheck'
     env['openmp_flag'] = ['-openmp']
