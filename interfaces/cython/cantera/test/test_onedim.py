@@ -687,6 +687,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.create_sim(p, Tin, reactants, mech="h2o2.yaml")
         gas1 = self.gas
+        self.sim.max_grid_points = 234
         self.solve_fixed_T()
         self.solve_mix(ratio=5, slope=0.5, curve=0.3)
         self.sim.save(filename, "test", loglevel=0)
@@ -699,6 +700,7 @@ class TestFreeFlame(utilities.CanteraTest):
         T2 = self.sim.T
         Y2 = self.sim.Y
 
+        self.assertEqual(self.sim.max_grid_points, 234)
         self.assertArrayNear(T1, T2)
         for k1, species in enumerate(gas1.species_names):
             k2 = gas2.species_index(species)
