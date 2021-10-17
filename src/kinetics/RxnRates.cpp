@@ -43,14 +43,19 @@ void Arrhenius::setParameters(const AnyValue& rate,
         m_E = NAN;
     } else if (rate.is<AnyMap>()) {
         auto& rate_map = rate.as<AnyMap>();
-        if (rate_units.factor() == 0 && rate_map["A"].is<std::string>()) {
+        if (rate_units.factor() == 0) {
             // A zero rate units factor is used as a sentinel to detect
             // stand-alone reaction rate objects
-            throw InputFileError("Arrhenius::setParameters", rate_map,
-                "Specification of units is not supported for pre-exponential factor "
-                "when\ncreating a standalone 'ReactionRate' object.");
+            if (rate_map["A"].is<std::string>()) {
+                throw InputFileError("Arrhenius::setParameters", rate_map,
+                    "Specification of units is not supported for pre-exponential "
+                    "factor when\ncreating a standalone 'ReactionRate' object.");
+            } else {
+                m_A = rate_map["A"].asDouble();
+            }
+        } else {
+            m_A = units.convert(rate_map["A"], rate_units);
         }
-        m_A = units.convert(rate_map["A"], rate_units);
         m_b = rate_map["b"].asDouble();
         m_E = units.convertActivationEnergy(rate_map["Ea"], "K");
     } else {
