@@ -113,15 +113,25 @@ void Sim1D::save(const std::string& fname, const std::string& id,
 
     // Add this simulation to the YAML
     data[id] = serialize(m_x.data());
+
+    // Add metadata
     data[id]["description"] = desc;
     data[id]["generator"] = "Cantera Sim1D";
     data[id]["cantera-version"] = CANTERA_VERSION;
+    data[id]["git-commit"] = gitCommit();
 
     // Add a timestamp indicating the current time
     time_t aclock;
     ::time(&aclock); // Get time in seconds
     struct tm* newtime = localtime(&aclock); // Convert time to struct tm form
-    data[id]["timestamp"] = stripnonprint(asctime(newtime));
+    data[id]["date"] = stripnonprint(asctime(newtime));
+
+    // Force metadata fields to the top of the file
+    data[id]["description"].setLoc(-5, 0);
+    data[id]["generator"].setLoc(-4, 0);
+    data[id]["cantera-version"].setLoc(-3, 0);
+    data[id]["git-commit"].setLoc(-2, 0);
+    data[id]["date"].setLoc(-1, 0);
 
     // If this is not replacing an existing solution, put it at the end
     if (!preexisting) {
