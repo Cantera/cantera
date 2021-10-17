@@ -627,6 +627,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertArrayNear(V1, V3, 1e-3)
 
         self.assertFalse(self.sim.radiation_enabled)
+        self.assertFalse(self.sim.soret_enabled)
 
         self.sim.restore(filename, "test2", loglevel=0)
         self.assertTrue(self.sim.radiation_enabled)
@@ -690,16 +691,19 @@ class TestFreeFlame(utilities.CanteraTest):
         self.sim.max_grid_points = 234
         self.solve_fixed_T()
         self.solve_mix(ratio=5, slope=0.5, curve=0.3)
+        self.sim.transport_model = "multicomponent"
+        self.sim.soret_enabled = True
         self.sim.save(filename, "test", loglevel=0)
         T1 = self.sim.T
         Y1 = self.sim.Y
 
-        gas2 = ct.Solution("h2o2-plus.xml")
+        gas2 = ct.Solution("h2o2-plus.xml", transport_model="multicomponent")
         self.sim = ct.FreeFlame(gas2)
         self.sim.restore(filename, "test", loglevel=0)
         T2 = self.sim.T
         Y2 = self.sim.Y
 
+        self.assertTrue(self.sim.soret_enabled)
         self.assertEqual(self.sim.max_grid_points, 234)
         self.assertArrayNear(T1, T2)
         for k1, species in enumerate(gas1.species_names):

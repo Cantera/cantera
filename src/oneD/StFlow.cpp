@@ -878,6 +878,8 @@ AnyMap StFlow::serialize(const double* soln) const
         state["energy-enabled"] = m_do_energy;
     }
 
+    state["Soret-enabled"] = m_do_soret;
+
     std::set<bool> species_flags(m_do_species.begin(), m_do_species.end());
     if (species_flags.size() == 1) {
         state["species-enabled"] = m_do_species[0];
@@ -929,6 +931,10 @@ void StFlow::restore(const AnyMap& state, double* soln, int loglevel)
         } else {
             m_do_energy = ee.asVector<bool>(nPoints());
         }
+    }
+
+    if (state.hasKey("Soret-enabled")) {
+        m_do_soret = state["Soret-enabled"].asBool();
     }
 
     if (state.hasKey("species-enabled")) {
