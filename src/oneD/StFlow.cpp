@@ -860,6 +860,10 @@ AnyMap StFlow::serialize(const double* soln) const
         state[componentName(i)] = data;
     }
 
+    state["phase"]["name"] = m_thermo->name();
+    AnyValue source = m_thermo->input().getMetadata("filename");
+    state["phase"]["source"] = source.empty() ? "<unknown>" : source.asString();
+
     state["radiation-enabled"] = m_do_radiation;
     if (m_do_radiation) {
         state["radiative-heat-loss"] = m_qdotRadiation;

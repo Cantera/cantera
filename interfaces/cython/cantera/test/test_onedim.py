@@ -742,7 +742,7 @@ class TestFreeFlame(utilities.CanteraTest):
         p = 2 * ct.one_atm
         Tin = 400
 
-        filename = self.test_work_path / "onedim-add-species.yaml"
+        filename = self.test_work_path / "onedim-remove-species.yaml"
         # In Python >= 3.8, this can be replaced by the missing_ok argument
         if filename.is_file():
             filename.unlink()
