@@ -51,7 +51,7 @@ public:
     void init(const vector_fp& c);
 
     /**
-     * Set coefficients of the falloff parametetrization.
+     * Set coefficients of the falloff parameterization.
      *
      * @param c Vector of coefficients of the parameterization. The number and
      *     meaning of these coefficients is subclass-dependent.
@@ -59,7 +59,7 @@ public:
     virtual void setData(const vector_fp& c);
 
     /**
-     * Retrieve coefficients of the falloff parametetrization.
+     * Retrieve coefficients of the falloff parameterization.
      *
      * @param c Vector of coefficients of the parameterization. The number and
      *     meaning of these coefficients is subclass-dependent.
@@ -160,7 +160,6 @@ public:
     //! @param shared_data  data shared by all reactions of a given type
     virtual double eval(const FalloffData& shared_data) const {
         double pr = third_body_concentration * m_rc_low / (m_rc_high + SmallNumber);
-        // AssertFinite(pr, "Falloff::eval", "pr is not finite.");
 
         // Apply falloff function
         if (m_chemicallyActivated) {
