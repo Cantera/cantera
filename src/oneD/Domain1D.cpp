@@ -186,7 +186,6 @@ AnyMap Domain1D::serialize(const double* soln) const
         }
     };
     AnyMap state;
-    state["id"] = id();
     state["points"] = static_cast<long int>(nPoints());
     if (nComponents() && nPoints()) {
         state["tolerances"]["absolute"]["transient"] = wrap_tols(m_atol_ts);

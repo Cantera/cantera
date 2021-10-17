@@ -463,12 +463,10 @@ void OneDim::save(const std::string& fname, std::string id,
 
 AnyMap OneDim::serialize(const double* soln) const
 {
-    vector<AnyMap> domains(m_dom.size());
-    for (size_t i = 0; i < m_dom.size(); i++) {
-        domains[i] = m_dom[i]->serialize(soln + start(i));
-    }
     AnyMap state;
-    state["domains"] = std::move(domains);
+    for (size_t i = 0; i < m_dom.size(); i++) {
+        state[m_dom[i]->id()] = m_dom[i]->serialize(soln + start(i));
+    }
     return state;
 }
 

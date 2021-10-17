@@ -153,21 +153,24 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
     if (extension == "yml" || extension == "yaml") {
         AnyMap root = AnyMap::fromYamlFile(fname);
         if (!root.hasKey(id)) {
-            throw CanteraError("Sim1D::restore", "No solution with id '{}'", id);
+            throw InputFileError("Sim1D::restore", root,
+                                 "No solution with id '{}'", id);
         }
-        const auto& domains = root[id]["domains"].asMap("id");
+        const auto& state = root[id];
         for (auto dom : m_dom) {
-            if (!domains.count(dom->id())) {
-                throw CanteraError("Sim1D::restore", "Solution '{}' does not"
-                    " contain a domain named '{}'.", id, dom->id());
+            if (!state.hasKey(dom->id())) {
+                throw InputFileError("Sim1D::restore", state,
+                    "Saved state '{}' does not contain a domain named '{}'.",
+                    id, dom->id());
             }
             dom->resize(dom->nComponents(),
-                        domains.at(dom->id())->at("points").asDouble());
+                        state[dom->id()]["points"].asDouble());
         }
         resize();
         m_xlast_ts.clear();
         for (auto dom : m_dom) {
-            dom->restore(*domains.at(dom->id()), m_x.data() + dom->loc(), loglevel);
+            dom->restore(state[dom->id()].as<AnyMap>(), m_x.data() + dom->loc(),
+                         loglevel);
         }
     } else {
         XML_Node root;
