@@ -860,8 +860,11 @@ AnyMap StFlow::serialize(const double* soln) const
         state[componentName(i)] = data;
     }
 
+    state["radiation-enabled"] = m_do_radiation;
     if (m_do_radiation) {
         state["radiative-heat-loss"] = m_qdotRadiation;
+        state["emissivity-left"] = m_epsilon_left;
+        state["emissivity-right"] = m_epsilon_right;
     }
 
     std::set<bool> energy_flags(m_do_energy.begin(), m_do_energy.end());
@@ -928,6 +931,14 @@ void StFlow::restore(const AnyMap& state, double* soln, int loglevel)
             m_do_species.assign(m_thermo->nSpecies(), se.asBool());
         } else {
             m_do_species = se.asVector<bool>(m_thermo->nSpecies());
+        }
+    }
+
+    if (state.hasKey("radiation-enabled")) {
+        m_do_radiation = state["radiation-enabled"].asBool();
+        if (m_do_radiation) {
+            m_epsilon_left = state["emissivity-left"].asDouble();
+            m_epsilon_right = state["emissivity-right"].asDouble();
         }
     }
 

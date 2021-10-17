@@ -585,6 +585,8 @@ class TestFreeFlame(utilities.CanteraTest):
         self.sim.save(filename, "test", loglevel=0)
 
         # Save a second solution to the same file
+        self.sim.radiation_enabled = True
+        self.sim.boundary_emissivities = 0.3, 0.8
         self.sim.save(filename, "test2", loglevel=0)
 
         # Create flame object with dummy initial grid
@@ -623,6 +625,12 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertArrayNear(Y1, Y3, 3e-3)
         self.assertArrayNear(u1, u3, 1e-3)
         self.assertArrayNear(V1, V3, 1e-3)
+
+        self.assertFalse(self.sim.radiation_enabled)
+
+        self.sim.restore(filename, "test2", loglevel=0)
+        self.assertTrue(self.sim.radiation_enabled)
+        self.assertEqual(self.sim.boundary_emissivities, (0.3, 0.8))
 
     def test_array_properties(self):
         self.create_sim(ct.one_atm, 300, 'H2:1.1, O2:1, AR:5')
