@@ -88,10 +88,10 @@ if hdf_output:
                 description=('Initial hydrogen-oxygen counterflow flame '
                              'at 1 bar and low strain rate'))
 else:
-    file_name = 'initial_solution.xml'
+    file_name = 'initial_solution.yaml'
     f.save(os.path.join(data_directory, file_name), name='solution',
-           description='Cantera version ' + ct.__version__ +
-           ', reaction mechanism ' + reaction_mechanism)
+           description='Initial hydrogen-oxygen counterflow flame '
+                       'at 1 bar and low strain rate')
 
 
 # PART 2: BATCH PRESSURE LOOP
@@ -142,10 +142,9 @@ for p in p_range:
             f.write_hdf(file_name, group=group, quiet=False,
                         description='pressure = {0} bar'.format(p))
         else:
-            file_name = 'pressure_loop_' + format(p, '05.1f') + '.xml'
+            file_name = 'pressure_loop_' + format(p, '05.1f') + '.yaml'
             f.save(os.path.join(data_directory, file_name), name='solution', loglevel=1,
-                   description='Cantera version ' + ct.__version__ +
-                   ', reaction mechanism ' + reaction_mechanism)
+                   description='pressure = {0} bar'.format(p))
         p_previous = p
     except ct.CanteraError as e:
         print('Error occurred while solving:', e, 'Try next pressure level')
@@ -176,7 +175,7 @@ exp_mdot_a = 1. / 2.
 if hdf_output:
     f.read_hdf(file_name, group='initial_solution')
 else:
-    file_name = 'initial_solution.xml'
+    file_name = 'initial_solution.yaml'
     f.restore(filename=os.path.join(data_directory, file_name), name='solution', loglevel=0)
 
 # Counter to identify the loop
@@ -207,10 +206,9 @@ while np.max(f.T) > temperature_limit_extinction:
             f.write_hdf(file_name, group=group, quiet=False,
                         description='strain rate iteration {}'.format(n))
         else:
-            file_name = 'strain_loop_' + format(n, '02d') + '.xml'
+            file_name = 'strain_loop_' + format(n, '02d') + '.yaml'
             f.save(os.path.join(data_directory, file_name), name='solution', loglevel=1,
-                   description='Cantera version ' + ct.__version__ +
-                   ', reaction mechanism ' + reaction_mechanism)
+                   description='strain rate iteration {}'.format(n))
     except FlameExtinguished:
         print('Flame extinguished')
         break
@@ -232,7 +230,7 @@ for p in p_selected:
         group = 'pressure_loop/{0:05.1f}'.format(p)
         f.read_hdf(file_name, group=group)
     else:
-        file_name = 'pressure_loop_{0:05.1f}.xml'.format(p)
+        file_name = 'pressure_loop_{0:05.1f}.yaml'.format(p)
         f.restore(filename=os.path.join(data_directory, file_name), name='solution', loglevel=0)
 
     # Plot the temperature profiles for selected pressures
@@ -263,7 +261,7 @@ for n in n_selected:
         group = 'strain_loop/{0:02d}'.format(n)
         f.read_hdf(file_name, group=group)
     else:
-        file_name = 'strain_loop_{0:02d}.xml'.format(n)
+        file_name = 'strain_loop_{0:02d}.yaml'.format(n)
         f.restore(filename=os.path.join(data_directory, file_name),
                   name='solution', loglevel=0)
     a_max = f.strain_rate('max')  # the maximum axial strain rate

@@ -54,7 +54,7 @@ try:
     # save to HDF container file if h5py is installed
     f.write_hdf('diffusion_flame.h5', mode='w')
 except ImportError:
-    f.save('diffusion_flame.xml')
+    f.save('diffusion_flame.yaml')
 
 # write the velocity, temperature, and mole fractions to a CSV file
 f.write_csv('diffusion_flame.csv', quiet=False)
