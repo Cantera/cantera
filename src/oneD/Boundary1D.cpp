@@ -881,6 +881,10 @@ AnyMap ReactingSurf1D::serialize(const double* soln) const
         cov[m_sphase->speciesName(k)] = soln[k];
     }
     state["coverages"] = std::move(cov);
+
+    state["phase"]["name"] = m_sphase->name();
+    AnyValue source =m_sphase->input().getMetadata("filename");
+    state["phase"]["source"] = source.empty() ? "<unknown>" : source.asString();
     return state;
 }
 
