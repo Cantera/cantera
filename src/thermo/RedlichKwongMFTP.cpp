@@ -933,9 +933,9 @@ void RedlichKwongMFTP::updateMixingExpressions()
         for (size_t k = 0; k < m_kk; k++) {
             if (isnan(b_vec_Curr_[k])) {
                 if (b.size() > 0) {
-                    format_to(b, ", {}", speciesName(k));
+                    fmt_append(b, ", {}", speciesName(k));
                 } else {
-                    format_to(b, "{}", speciesName(k));
+                    fmt_append(b, "{}", speciesName(k));
                 }
             }
         }

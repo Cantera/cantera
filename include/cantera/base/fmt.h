@@ -38,7 +38,18 @@ void format_to(fmt::memory_buffer& b, Args... args) {
 inline std::string to_string(fmt::memory_buffer& b) {
     return b.str();
 }
+#endif
 
+#if !defined(FMT_VERSION) ||  FMT_VERSION < 80000
+template <typename... Args>
+void fmt_append(fmt::memory_buffer& b, Args... args) {
+    format_to(b, args...);
+}
+#else
+template <typename... Args>
+void fmt_append(fmt::memory_buffer& b, Args... args) {
+    format_to(fmt::appender(b), args...);
+}
 #endif
 
 #endif

@@ -381,16 +381,16 @@ std::string MolalityVPSSTP::report(bool show_thermo, doublereal threshold) const
     fmt::memory_buffer b;
     try {
         if (name() != "") {
-            format_to(b, "\n  {}:\n", name());
+            fmt_append(b, "\n  {}:\n", name());
         }
-        format_to(b, "\n");
-        format_to(b, "       temperature    {:12.6g}  K\n", temperature());
-        format_to(b, "          pressure    {:12.6g}  Pa\n", pressure());
-        format_to(b, "           density    {:12.6g}  kg/m^3\n", density());
-        format_to(b, "  mean mol. weight    {:12.6g}  amu\n", meanMolecularWeight());
+        fmt_append(b, "\n");
+        fmt_append(b, "       temperature    {:12.6g}  K\n", temperature());
+        fmt_append(b, "          pressure    {:12.6g}  Pa\n", pressure());
+        fmt_append(b, "           density    {:12.6g}  kg/m^3\n", density());
+        fmt_append(b, "  mean mol. weight    {:12.6g}  amu\n", meanMolecularWeight());
 
         doublereal phi = electricPotential();
-        format_to(b, "         potential    {:12.6g}  V\n", phi);
+        fmt_append(b, "         potential    {:12.6g}  V\n", phi);
 
         vector_fp x(m_kk);
         vector_fp molal(m_kk);
@@ -408,49 +408,54 @@ std::string MolalityVPSSTP::report(bool show_thermo, doublereal threshold) const
         size_t iHp = speciesIndex("H+");
         if (iHp != npos) {
             double pH = -log(actMolal[iHp]) / log(10.0);
-            format_to(b, "                pH    {:12.4g}\n", pH);
+            fmt_append(b,
+                "                pH    {:12.4g}\n", pH);
         }
 
         if (show_thermo) {
-            format_to(b, "\n");
-            format_to(b, "                          1 kg            1 kmol\n");
-            format_to(b, "                       -----------      ------------\n");
-            format_to(b, "          enthalpy    {:12.6g}     {:12.4g}     J\n",
-                    enthalpy_mass(), enthalpy_mole());
-            format_to(b, "   internal energy    {:12.6g}     {:12.4g}     J\n",
-                    intEnergy_mass(), intEnergy_mole());
-            format_to(b, "           entropy    {:12.6g}     {:12.4g}     J/K\n",
-                    entropy_mass(), entropy_mole());
-            format_to(b, "    Gibbs function    {:12.6g}     {:12.4g}     J\n",
-                    gibbs_mass(), gibbs_mole());
-            format_to(b, " heat capacity c_p    {:12.6g}     {:12.4g}     J/K\n",
-                    cp_mass(), cp_mole());
+            fmt_append(b, "\n");
+            fmt_append(b, "                          1 kg            1 kmol\n");
+            fmt_append(b, "                       -----------      ------------\n");
+            fmt_append(b, "          enthalpy    {:12.6g}     {:12.4g}     J\n",
+                       enthalpy_mass(), enthalpy_mole());
+            fmt_append(b, "   internal energy    {:12.6g}     {:12.4g}     J\n",
+                       intEnergy_mass(), intEnergy_mole());
+            fmt_append(b, "           entropy    {:12.6g}     {:12.4g}     J/K\n",
+                       entropy_mass(), entropy_mole());
+            fmt_append(b, "    Gibbs function    {:12.6g}     {:12.4g}     J\n",
+                       gibbs_mass(), gibbs_mole());
+            fmt_append(b, " heat capacity c_p    {:12.6g}     {:12.4g}     J/K\n",
+                       cp_mass(), cp_mole());
             try {
-                format_to(b, " heat capacity c_v    {:12.6g}     {:12.4g}     J/K\n",
-                        cv_mass(), cv_mole());
+                fmt_append(b, " heat capacity c_v    {:12.6g}     {:12.4g}     J/K\n",
+                           cv_mass(), cv_mole());
             } catch (NotImplementedError&) {
-                format_to(b, " heat capacity c_v    <not implemented>\n");
+                fmt_append(b, " heat capacity c_v    <not implemented>\n");
             }
         }
 
-        format_to(b, "\n");
+        fmt_append(b, "\n");
         int nMinor = 0;
         doublereal xMinor = 0.0;
         if (show_thermo) {
-            format_to(b, "                           X        "
-                    "   Molalities         Chem.Pot.    ChemPotSS    ActCoeffMolal\n");
-            format_to(b, "                                    "
-                    "                      (J/kmol)      (J/kmol)\n");
-            format_to(b, "                     -------------  "
-                    "  ------------     ------------  ------------    ------------\n");
+            fmt_append(b, "                           X        "
+                "   Molalities         Chem.Pot.    ChemPotSS    ActCoeffMolal\n");
+            fmt_append(b, "                                    "
+                "                      (J/kmol)      (J/kmol)\n");
+            fmt_append(b, "                     -------------  "
+                "  ------------     ------------  ------------    ------------\n");
             for (size_t k = 0; k < m_kk; k++) {
                 if (x[k] > threshold) {
                     if (x[k] > SmallNumber) {
-                        format_to(b, "{:>18s}  {:12.6g}     {:12.6g}     {:12.6g}   {:12.6g}   {:12.6g}\n",
-                                speciesName(k), x[k], molal[k], mu[k], muss[k], acMolal[k]);
+                        fmt_append(b,
+                                   "{:>18s}  {:12.6g}     {:12.6g}     {:12.6g}   "
+                                   "{:12.6g}   {:12.6g}\n", speciesName(k),
+                                   x[k], molal[k], mu[k], muss[k], acMolal[k]);
                     } else {
-                        format_to(b, "{:>18s}  {:12.6g}     {:12.6g}          N/A      {:12.6g}   {:12.6g}\n",
-                                speciesName(k), x[k], molal[k], muss[k], acMolal[k]);
+                        fmt_append(b,
+                                   "{:>18s}  {:12.6g}     {:12.6g}          N/A      "
+                                   "{:12.6g}   {:12.6g}\n", speciesName(k),
+                                   x[k], molal[k], muss[k], acMolal[k]);
                     }
                 } else {
                     nMinor++;
@@ -458,13 +463,11 @@ std::string MolalityVPSSTP::report(bool show_thermo, doublereal threshold) const
                 }
             }
         } else {
-            format_to(b, "                           X"
-                    "Molalities\n");
-            format_to(b, "                     -------------"
-                    "     ------------\n");
+            fmt_append(b, "                           X            Molalities\n");
+            fmt_append(b, "                     -------------     ------------\n");
             for (size_t k = 0; k < m_kk; k++) {
                 if (x[k] > threshold) {
-                    format_to(b, "{:>18s}   {:12.6g}     {:12.6g}\n",
+                    fmt_append(b, "{:>18s}   {:12.6g}     {:12.6g}\n",
                             speciesName(k), x[k], molal[k]);
                 } else {
                     nMinor++;
@@ -473,7 +476,7 @@ std::string MolalityVPSSTP::report(bool show_thermo, doublereal threshold) const
             }
         }
         if (nMinor) {
-            format_to(b, "     [{:+5d} minor] {:12.6g}\n", nMinor, xMinor);
+            fmt_append(b, "     [{:+5d} minor] {:12.6g}\n", nMinor, xMinor);
         }
     } catch (CanteraError& err) {
         return to_string(b) + err.what();

@@ -1434,34 +1434,42 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
 
     try {
         if (name() != "") {
-            format_to(b, "\n  {}:\n", name());
+            fmt_append(b, "\n  {}:\n", name());
         }
-        format_to(b, "\n");
-        format_to(b, one_property, "temperature", name_width, temperature(), "K");
-        format_to(b, one_property, "pressure", name_width, pressure(), "Pa");
-        format_to(b, one_property, "density", name_width, density(), "kg/m^3");
-        format_to(b, one_property, "mean mol. weight", name_width, meanMolecularWeight(), "kg/kmol");
+        fmt_append(b, "\n");
+        fmt_append(b, one_property, "temperature", name_width, temperature(), "K");
+        fmt_append(b, one_property, "pressure", name_width, pressure(), "Pa");
+        fmt_append(b, one_property, "density", name_width, density(), "kg/m^3");
+        fmt_append(b, one_property, "mean mol. weight",
+            name_width, meanMolecularWeight(), "kg/kmol");
 
         double phi = electricPotential();
         if (phi != 0.0) {
-            format_to(b, one_property, "potential", name_width, phi, "V");
+            fmt_append(b, one_property, "potential", name_width, phi, "V");
         }
 
-        format_to(b, "{:>{}}   {}\n", "phase of matter", name_width, phaseOfMatter());
+        fmt_append(b, "{:>{}}   {}\n", "phase of matter", name_width, phaseOfMatter());
 
         if (show_thermo) {
-            format_to(b, "\n");
-            format_to(b, kg_kmol_header);
-            format_to(b, two_prop_sep);
-            format_to(b, two_property, "enthalpy", name_width, enthalpy_mass(), enthalpy_mole(), "J");
-            format_to(b, two_property, "internal energy", name_width, intEnergy_mass(), intEnergy_mole(), "J");
-            format_to(b, two_property, "entropy", name_width, entropy_mass(), entropy_mole(), "J/K");
-            format_to(b, two_property, "Gibbs function", name_width, gibbs_mass(), gibbs_mole(), "J");
-            format_to(b, two_property, "heat capacity c_p", name_width, cp_mass(), cp_mole(), "J/K");
+            fmt_append(b, "\n");
+            fmt_append(b, kg_kmol_header);
+            fmt_append(b, two_prop_sep);
+            fmt_append(b, two_property, "enthalpy", name_width,
+                       enthalpy_mass(), enthalpy_mole(), "J");
+            fmt_append(b, two_property, "internal energy", name_width,
+                       intEnergy_mass(), intEnergy_mole(), "J");
+            fmt_append(b, two_property, "entropy", name_width,
+                       entropy_mass(), entropy_mole(), "J/K");
+            fmt_append(b, two_property, "Gibbs function", name_width,
+                       gibbs_mass(), gibbs_mole(), "J");
+            fmt_append(b, two_property, "heat capacity c_p", name_width,
+                       cp_mass(), cp_mole(), "J/K");
             try {
-                format_to(b, two_property, "heat capacity c_v", name_width, cv_mass(), cv_mole(), "J/K");
+                fmt_append(b, two_property, "heat capacity c_v", name_width,
+                           cv_mass(), cv_mole(), "J/K");
             } catch (NotImplementedError&) {
-                format_to(b, "{:>{}}   <not implemented>       \n", "heat capacity c_v", name_width);
+                fmt_append(b, "{:>{}}   <not implemented>       \n",
+                           "heat capacity c_v", name_width);
             }
         }
 
@@ -1474,16 +1482,18 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
         int nMinor = 0;
         double xMinor = 0.0;
         double yMinor = 0.0;
-        format_to(b, "\n");
+        fmt_append(b, "\n");
         if (show_thermo) {
-            format_to(b, three_prop_header);
-            format_to(b, three_prop_sep);
+            fmt_append(b, three_prop_header);
+            fmt_append(b, three_prop_sep);
             for (size_t k = 0; k < m_kk; k++) {
                 if (abs(x[k]) >= threshold) {
                     if (abs(x[k]) > SmallNumber) {
-                        format_to(b, three_property, speciesName(k), name_width, y[k], x[k], mu[k]/RT());
+                        fmt_append(b, three_property, speciesName(k), name_width,
+                                   y[k], x[k], mu[k]/RT());
                     } else {
-                        format_to(b, two_property, speciesName(k), name_width, y[k], x[k], "");
+                        fmt_append(b, two_property, speciesName(k), name_width,
+                                   y[k], x[k], "");
                     }
                 } else {
                     nMinor++;
@@ -1492,11 +1502,12 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
                 }
             }
         } else {
-            format_to(b, Y_X_header);
-            format_to(b, two_prop_sep);
+            fmt_append(b, Y_X_header);
+            fmt_append(b, two_prop_sep);
             for (size_t k = 0; k < m_kk; k++) {
                 if (abs(x[k]) >= threshold) {
-                    format_to(b, two_property, speciesName(k), name_width, y[k], x[k], "");
+                    fmt_append(b, two_property, speciesName(k), name_width,
+                               y[k], x[k], "");
                 } else {
                     nMinor++;
                     xMinor += x[k];
@@ -1506,7 +1517,7 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
         }
         if (nMinor) {
             string minor = fmt::format("[{:+5d} minor]", nMinor);
-            format_to(b, two_property, minor, name_width, yMinor, xMinor, "");
+            fmt_append(b, two_property, minor, name_width, yMinor, xMinor, "");
         }
     } catch (CanteraError& err) {
         return to_string(b) + err.what();

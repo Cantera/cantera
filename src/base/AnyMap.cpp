@@ -1393,11 +1393,11 @@ std::string AnyMap::keys_str() const
     fmt::memory_buffer b;
     auto iter = this->begin();
     if (iter != this->end()) {
-        format_to(b, "{}", iter->first);
+        fmt_append(b, "{}", iter->first);
         ++iter;
     }
     while (iter != this->end()) {
-        format_to(b, ", {}", iter->first);
+        fmt_append(b, ", {}", iter->first);
         ++iter;
     }
     return to_string(b);
@@ -1756,7 +1756,7 @@ void formatInputFile(fmt::memory_buffer& b, const shared_ptr<AnyMap>& metadata,
         column2 = column;
     }
 
-    format_to(b, "|  Line |\n");
+    fmt_append(b, "|  Line |\n");
     if (!metadata->hasKey("file-contents")) {
         std::ifstream infile(findInputFile(filename));
         std::stringstream buffer;
@@ -1769,15 +1769,15 @@ void formatInputFile(fmt::memory_buffer& b, const shared_ptr<AnyMap>& metadata,
     std::stringstream contents((*metadata)["file-contents"].asString());
     while (std::getline(contents, line)) {
         if (i == lineno || i == lineno2) {
-            format_to(b, "> {: 5d} > {}\n", i+1, line);
-            format_to(b, "{:>{}}\n", "^", column + 11);
+            fmt_append(b, "> {: 5d} > {}\n", i+1, line);
+            fmt_append(b, "{:>{}}\n", "^", column + 11);
             lastShown = i;
         } else if ((lineno + 4 > i && lineno < i + 6) ||
                    (lineno2 + 4 > i && lineno2 < i + 6)) {
             if (lastShown >= 0 && i - lastShown > 1) {
-                format_to(b, "...\n");
+                fmt_append(b, "...\n");
             }
-            format_to(b, "| {: 5d} | {}\n", i+1, line);
+            fmt_append(b, "| {: 5d} | {}\n", i+1, line);
             lastShown = i;
         }
         i++;
@@ -1795,7 +1795,7 @@ std::string InputFileError::formatError(const std::string& message,
     std::string filename = metadata->getString("filename", "input string");
 
     fmt::memory_buffer b;
-    format_to(b, "Error on line {} of {}:\n{}\n", lineno+1, filename, message);
+    fmt_append(b, "Error on line {} of {}:\n{}\n", lineno+1, filename, message);
     formatInputFile(b, metadata, filename, lineno, column);
     return to_string(b);
 }
@@ -1814,16 +1814,15 @@ std::string InputFileError::formatError2(const std::string& message,
 
     fmt::memory_buffer b;
     if (filename1 == filename2) {
-        format_to(b, "Error on lines {} and {} of {}:\n",
-                  std::min(line1, line2) + 1, std::max(line1, line2) + 1,
-                  filename1);
-        format_to(b, "{}\n", message);
+        fmt_append(b, "Error on lines {} and {} of {}:\n",
+                   std::min(line1, line2) + 1, std::max(line1, line2) + 1, filename1);
+        fmt_append(b, "{}\n", message);
         formatInputFile(b, metadata1, filename1, line1, column1, line2, column2);
     } else {
-        format_to(b, "Error on line {} of {} and line {} of {}:\n{}\n",
-                  line1+1, filename1, line2+1, filename2, message);
+        fmt_append(b, "Error on line {} of {} and line {} of {}:\n{}\n",
+                   line1+1, filename1, line2+1, filename2, message);
         formatInputFile(b, metadata1, filename1, line1, column1);
-        format_to(b, "\n");
+        fmt_append(b, "\n");
         formatInputFile(b, metadata2, filename2, line2, column2);
     }
 
