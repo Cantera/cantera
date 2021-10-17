@@ -34,7 +34,7 @@ try:
     f.write_hdf('adiabatic_flame.h5', group='mix', mode='w',
                 description='solution with mixture-averaged transport')
 except ImportError:
-    f.save('adiabatic_flame.xml', 'mix',
+    f.save('adiabatic_flame.yaml', 'mix',
            'solution with mixture-averaged transport')
 
 f.show_solution()
@@ -49,7 +49,7 @@ try:
     f.write_hdf('adiabatic_flame.h5', group='multi',
                 description='solution with multicomponent transport')
 except ImportError:
-    f.save('adiabatic_flame.xml', 'multi',
+    f.save('adiabatic_flame.yaml', 'multi',
            'solution with multicomponent transport')
 
 # write the velocity, temperature, density, and mole fractions to a CSV file

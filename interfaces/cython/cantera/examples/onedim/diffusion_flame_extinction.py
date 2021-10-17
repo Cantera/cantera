@@ -65,10 +65,9 @@ if hdf_output:
                 description=('Initial solution'))
 else:
     # Save to data directory
-    file_name = 'initial_solution.xml'
+    file_name = 'initial_solution.yaml'
     f.save(os.path.join(data_directory, file_name), name='solution',
-           description='Cantera version ' + ct.__version__ +
-           ', reaction mechanism ' + reaction_mechanism)
+           description="Initial solution")
 
 
 # PART 2: COMPUTE EXTINCTION STRAIN
@@ -138,11 +137,10 @@ while True:
             group = 'extinction/{0:04d}'.format(n)
             f.write_hdf(file_name, group=group, quiet=True)
         else:
-            file_name = 'extinction_{0:04d}.xml'.format(n)
+            file_name = 'extinction_{0:04d}.yaml'.format(n)
             f.save(os.path.join(data_directory, file_name),
                    name='solution', loglevel=0,
-                   description='Cantera version ' + ct.__version__ +
-                   ', reaction mechanism ' + reaction_mechanism)
+                   description=f"Solution at alpha = {alpha[-1]}")
         T_max.append(np.max(f.T))
         a_max.append(np.max(np.abs(np.gradient(f.velocity) / np.gradient(f.grid))))
         print('Flame burning at alpha = {:8.4F}. Proceeding to the next iteration, '
@@ -157,7 +155,7 @@ while True:
             group = 'extinction/{0:04d}'.format(n)
             f.write_hdf(file_name, group=group, quiet=True)
         else:
-            file_name = 'extinction_{0:04d}.xml'.format(n)
+            file_name = 'extinction_{0:04d}.yaml'.format(n)
             f.save(os.path.join(data_directory, file_name), name='solution', loglevel=0)
         print('Flame extinguished at alpha = {0:8.4F}.'.format(alpha[-1]),
               'Abortion criterion satisfied.')
@@ -176,7 +174,7 @@ while True:
             group = 'extinction/{0:04d}'.format(n_last_burning)
             f.read_hdf(file_name, group=group)
         else:
-            file_name = 'extinction_{0:04d}.xml'.format(n_last_burning)
+            file_name = 'extinction_{0:04d}.yaml'.format(n_last_burning)
             f.restore(os.path.join(data_directory, file_name),
                       name='solution', loglevel=0)
 
@@ -187,7 +185,7 @@ if hdf_output:
     group = 'extinction/{0:04d}'.format(n_last_burning)
     f.read_hdf(file_name, group=group)
 else:
-    file_name = 'extinction_{0:04d}.xml'.format(n_last_burning)
+    file_name = 'extinction_{0:04d}.yaml'.format(n_last_burning)
     f.restore(os.path.join(data_directory, file_name),
               name='solution', loglevel=0)
 print('----------------------------------------------------------------------')

@@ -34,7 +34,7 @@ try:
     f.write_hdf('ion_free_flame.h5', group='ion', mode='w',
                 description='solution with ionized gas transport')
 except ImportError:
-    f.save('ion_free_flame.xml', 'ion', 'solution with ionized gas transport')
+    f.save('ion_free_flame.yaml', 'ion', 'solution with ionized gas transport')
 
 f.show_solution()
 print('mixture-averaged flamespeed = {0:7f} m/s'.format(f.velocity[0]))

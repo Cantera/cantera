@@ -111,13 +111,13 @@ sim.solve(loglevel)
 # show the solution
 sim.show_solution()
 
-# save the solution in XML format. The 'restore' method can be used to restart
+# save the full solution. The 'restore' method can be used to restart
 # a simulation from a solution stored in this form.
 try:
     sim.write_hdf('catalytic_combustion.h5', group='soln1', mode='w',
                   description='catalytic combustion example')
 except ImportError:
-    sim.save("catalytic_combustion.xml", "soln1")
+    sim.save("catalytic_combustion.yaml", "soln1")
 
 # save selected solution components in a CSV file for plotting in
 # Excel or MATLAB.

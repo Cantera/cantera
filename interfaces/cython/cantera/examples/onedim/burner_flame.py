@@ -28,7 +28,7 @@ try:
     f.write_hdf('burner_flame.h5', group='mix', mode='w',
                 description='solution with mixture-averaged transport')
 except ImportError:
-    f.save('burner_flame.xml', 'mix', 'solution with mixture-averaged transport')
+    f.save('burner_flame.yaml', 'mix', 'solution with mixture-averaged transport')
 
 f.transport_model = 'Multi'
 f.solve(loglevel)  # don't use 'auto' on subsequent solves
@@ -37,6 +37,6 @@ try:
     f.write_hdf('burner_flame.h5', group='multi',
                 description='solution with multicomponent transport')
 except ImportError:
-    f.save('burner_flame.xml', 'multi', 'solution with multicomponent transport')
+    f.save('burner_flame.yaml', 'multi', 'solution with multicomponent transport')
 
 f.write_csv('burner_flame.csv', quiet=False)
