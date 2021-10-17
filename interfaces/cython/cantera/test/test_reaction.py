@@ -477,17 +477,17 @@ class ReactionTests:
             return
         rxn = self._cls(equation=self._equation, kinetics=self.gas,
                         legacy=self._legacy, **self._kwargs)
-        if self._legacy:
-            self.assertNear(rxn.rate(self.gas.T), 0.)
-        else:
-            self.assertTrue(np.isnan(rxn.rate(self.gas.T, self.gas.P)))
-
         gas2 = ct.Solution(thermo="IdealGas", kinetics="GasKinetics",
                            species=self.species, reactions=[rxn])
         gas2.TPX = self.gas.TPX
 
-        self.assertNear(gas2.forward_rate_constants[0], 0.)
-        self.assertNear(gas2.net_rates_of_progress[0], 0.)
+        if self._legacy:
+            self.assertNear(rxn.rate(self.gas.T), 0.)
+            self.assertNear(gas2.forward_rate_constants[0], 0.)
+            self.assertNear(gas2.net_rates_of_progress[0], 0.)
+        else:
+            self.assertTrue(np.isnan(rxn.rate(self.gas.T, self.gas.P)))
+            self.assertTrue(np.isnan(gas2.forward_rate_constants[0]))
 
     def test_replace_rate(self):
         # check replacing reaction rate expression
