@@ -888,6 +888,8 @@ AnyMap StFlow::serialize(const double* soln) const
     state["refine-criteria"]["curve"] = m_refiner->maxSlope();
     state["refine-criteria"]["prune"] = m_refiner->prune();
     state["refine-criteria"]["grid-min"] = m_refiner->gridMin();
+    state["refine-criteria"]["max-points"] =
+        static_cast<long int>(m_refiner->maxPoints());
 
     if (m_zfixed != Undef) {
         state["fixed-point"]["location"] = m_zfixed;
@@ -952,6 +954,9 @@ void StFlow::restore(const AnyMap& state, double* soln, int loglevel)
 
         if (criteria.hasKey("grid-min")) {
             m_refiner->setGridMin(criteria["grid-min"].asDouble());
+        }
+        if (criteria.hasKey("max-points")) {
+            m_refiner->setMaxPoints(criteria["max-points"].asInt());
         }
     }
 
