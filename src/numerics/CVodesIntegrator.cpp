@@ -568,8 +568,8 @@ string CVodesIntegrator::getErrorInfo(int N)
     sort(weightedErrors.begin(), weightedErrors.end());
     fmt::memory_buffer s;
     for (int i=0; i<N; i++) {
-        format_to(s, "{}: {}\n",
-                get<2>(weightedErrors[i]), get<1>(weightedErrors[i]));
+        fmt_append(s, "{}: {}\n",
+                   get<2>(weightedErrors[i]), get<1>(weightedErrors[i]));
     }
     return to_string(s);
 }

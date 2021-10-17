@@ -259,10 +259,10 @@ void Plog::validate(const std::string& equation)
                 k += rates_.at(p).updateRC(log(T[i]), 1.0/T[i]);
             }
             if (k < 0) {
-                format_to(err_reactions,
-                          "\nInvalid rate coefficient for reaction '{}'\n"
-                          "at P = {:.5g}, T = {:.1f}\n",
-                          equation, std::exp(iter->first), T[i]);
+                fmt_append(err_reactions,
+                           "\nInvalid rate coefficient for reaction '{}'\n"
+                           "at P = {:.5g}, T = {:.1f}\n",
+                           equation, std::exp(iter->first), T[i]);
             }
         }
     }

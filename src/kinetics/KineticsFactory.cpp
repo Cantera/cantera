@@ -177,7 +177,7 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
                 try {
                     kin.addReaction(newReaction(R, kin), false);
                 } catch (CanteraError& err) {
-                    format_to(add_rxn_err, "{}", err.what());
+                    fmt_append(add_rxn_err, "{}", err.what());
                 }
             }
         } else {
@@ -187,7 +187,7 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
                     try {
                         kin.addReaction(newReaction(R, kin), false);
                     } catch (CanteraError& err) {
-                        format_to(add_rxn_err, "{}", err.what());
+                        fmt_append(add_rxn_err, "{}", err.what());
                     }
                 #else
                     kin.addReaction(newReaction(R, kin), false);
