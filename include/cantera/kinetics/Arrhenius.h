@@ -327,7 +327,7 @@ public:
     }
 
     //! Set enthalpy change without Kinetics object. In most cases, the enthalpy
-    //! change is set during the update method, which, howwever, requires the
+    //! change is set during the update method, which, however, requires the
     //! object to be linked to a Kinetics object.
     void setDeltaH(double dH) {
         m_deltaH_R = dH / GasConstant;

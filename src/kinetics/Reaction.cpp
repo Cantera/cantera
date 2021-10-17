@@ -304,7 +304,7 @@ UnitsVector Reaction::calculateRateCoeffUnits3(const Kinetics& kin)
     }
 
     if (m_third_body) {
-        // Order for third body collistion partner is tied to the reaction phase
+        // Order for third body collision partner is tied to the reaction phase
         rate_units.emplace_back(rxn_phase.standardConcentrationUnits(), -1);
     }
 
