@@ -68,6 +68,14 @@ class CanteraTest(unittest.TestCase):
             except FileNotFoundError:
                 pass
 
+    def assertIsFinite(self, value):
+        if not np.isfinite(value):
+            self.fail(f"Value '{value}' is not finite")
+
+    def assertIsNaN(self, value):
+        if not np.isnan(value):
+            self.fail(f"Value '{value}' is a number")
+
     def assertNear(self, a, b, rtol=1e-8, atol=1e-12, msg=None):
         cmp = 2 * abs(a - b)/(abs(a) + abs(b) + 2 * atol / rtol)
         if not cmp < rtol:
