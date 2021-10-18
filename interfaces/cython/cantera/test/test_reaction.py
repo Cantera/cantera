@@ -134,14 +134,6 @@ class ReactionRateTests:
         cls.gas.X = "H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5"
         cls.gas.TP = 900, 2*ct.one_atm
 
-    def assertIsFinite(self, value):
-        if not np.isfinite(value):
-            self.fail(f"Value '{value}' is not finite")
-
-    def assertIsNaN(self, value):
-        if not np.isnan(value):
-            self.fail(f"Value '{value}' is a number")
-
     def update(self, rate):
         # update (called by constructors)
         return rate
@@ -305,6 +297,7 @@ class TestBlowersMaselRate(ReactionRateTests, utilities.CanteraTest):
         # test reaction rate property
         rate = self.from_parts()
         rr = self.gas.reaction(self._index).rate
+        rr.delta_enthalpy = rate.delta_enthalpy
         self.assertNear(rate.activation_energy, rr.activation_energy)
 
 
@@ -587,29 +580,37 @@ class ReactionTests:
         self.gas.X = "H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5"
         self.gas.TP = 900, 2*ct.one_atm
 
+    def update(self, rxn):
+        # update (called by constructors)
+        return rxn
+
     def from_yaml(self, deprecated=False):
         # create reaction object from yaml
         if deprecated:
             with self.assertWarnsRegex(DeprecationWarning, "is renamed to 'from_yaml'"):
-                return ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
-        return ct.Reaction.from_yaml(self._yaml, kinetics=self.gas)
+                rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.gas)
+                return self.update(rxn)
+        rxn = ct.Reaction.from_yaml(self._yaml, kinetics=self.gas)
+        return self.update(rxn)
 
     def from_dict(self):
         # create reaction rate object from input data
         input_data = self.from_yaml().input_data
-        return ct.Reaction.from_dict(input_data, kinetics=self.gas)
+        rxn = ct.Reaction.from_dict(input_data, kinetics=self.gas)
+        return self.update(rxn)
 
     def from_rate(self, rate):
         # create reaction object from keywords / rate
-        return self._cls(equation=self._equation, rate=rate, kinetics=self.gas,
-                         legacy=self._legacy, **self._kwargs)
+        rxn = self._cls(equation=self._equation, rate=rate, kinetics=self.gas,
+                        legacy=self._legacy, **self._kwargs)
+        return self.update(rxn)
 
     def from_parts(self):
         # create reaction rate object from parts
         orig = self.gas.reaction(self._index)
         rxn = self._cls(orig.reactants, orig.products, legacy=self._legacy)
         rxn.rate = self._rate_obj
-        return rxn
+        return self.update(rxn)
 
     def check_rate(self, rate_obj):
         if self._legacy:
@@ -708,13 +709,17 @@ class ReactionTests:
         if self._legacy:
             self.assertNear(rxn.rate(self.gas.T), 0.)
         else:
-            self.assertTrue(np.isnan(rxn.rate(self.gas.T, self.gas.P)))
+            self.assertIsNaN(rxn.rate(self.gas.T, self.gas.P))
 
         gas2 = ct.Solution(thermo="IdealGas", kinetics="GasKinetics",
                            species=self.species, reactions=[rxn])
         gas2.TPX = self.gas.TPX
-        self.assertNear(gas2.forward_rate_constants[0], 0.)
-        self.assertNear(gas2.net_rates_of_progress[0], 0.)
+        if self._legacy:
+            self.assertNear(gas2.forward_rate_constants[0], 0.)
+            self.assertNear(gas2.net_rates_of_progress[0], 0.)
+        else:
+            self.assertIsNaN(gas2.forward_rate_constants[0])
+            self.assertIsNaN(gas2.net_rates_of_progress[0])
 
     def test_replace_rate(self):
         # check replacing reaction rate expression
@@ -934,6 +939,11 @@ class TestBlowersMasel(ReactionTests, utilities.CanteraTest):
         # need to update deltaH manually as rate is not attached to Kinetics object
         self._rate_obj.delta_enthalpy = self.gas.delta_enthalpy[self._index]
 
+    def update(self, rxn):
+        self.gas.forward_rate_constants # force update
+        rxn.rate.delta_enthalpy = self.gas.delta_enthalpy[self._index]
+        return rxn
+
     def test_enthalpy(self):
         self.gas.forward_rate_constants
         self.assertEqual(self._rate_obj.delta_enthalpy, self.gas.delta_enthalpy[self._index])
@@ -996,6 +1006,23 @@ class TestTroe(ReactionTests, utilities.CanteraTest):
         efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
         """
 
+    @classmethod
+    def setUpClass(cls):
+        ReactionTests.setUpClass()
+        param = cls._rate["low_P_rate_constant"]
+        low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+        param = cls._rate["high_P_rate_constant"]
+        high = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+        param = cls._rate["Troe"]
+        data = [param["A"], param["T3"], param["T1"], param["T2"]]
+        cls._rate_obj = ct.TroeRate(low=low, high=high, data=data)
+
+    def update(self, rxn):
+        self.gas.forward_rate_constants # force update of internal states
+        concm = self.gas.third_body_concentrations
+        rxn.rate.third_body_concentration = concm[self._index]
+        return rxn
+
     def from_parts(self):
         rxn = ReactionTests.from_parts(self)
         rxn.efficiencies = self._kwargs["efficiencies"]
@@ -1024,6 +1051,21 @@ class TestLindemann(ReactionTests, utilities.CanteraTest):
         high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0 cal/mol}
         efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
         """
+
+    @classmethod
+    def setUpClass(cls):
+        ReactionTests.setUpClass()
+        param = cls._rate["low_P_rate_constant"]
+        low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+        param = cls._rate["high_P_rate_constant"]
+        high = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+        cls._rate_obj = ct.LindemannRate(low=low, high=high, data=[])
+
+    def update(self, rxn):
+        self.gas.forward_rate_constants # force update of internal states
+        concm = self.gas.third_body_concentrations
+        rxn.rate.third_body_concentration = concm[self._index]
+        return rxn
 
     def from_parts(self):
         rxn = ReactionTests.from_parts(self)
@@ -1075,6 +1117,22 @@ class TestChemicallyActivated(ReactionTests, utilities.CanteraTest):
         low-P-rate-constant: [282320.078, 1.46878, -3270.56495]
         high-P-rate-constant: [5.88E-14, 6.721, -3022.227]
         """
+
+    @classmethod
+    def setUpClass(cls):
+        ReactionTests.setUpClass()
+        param = cls._rate["low_P_rate_constant"]
+        low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+        param = cls._rate["high_P_rate_constant"]
+        high = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+        cls._rate_obj = ct.LindemannRate(low=low, high=high, data=[])
+        cls._rate_obj.chemically_activated = True
+
+    def update(self, rxn):
+        self.gas.forward_rate_constants # force update of internal states
+        concm = self.gas.third_body_concentrations
+        rxn.rate.third_body_concentration = concm[self._index]
+        return rxn
 
 
 class TestPlog2(ReactionTests, utilities.CanteraTest):
