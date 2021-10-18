@@ -491,6 +491,9 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool usesLegacy()
         CxxUnits rate_units
 
+        shared_ptr[CxxReactionRateBase] rate()
+        void setRate(shared_ptr[CxxReactionRateBase])
+
     cdef cppclass CxxElementaryReaction2 "Cantera::ElementaryReaction2" (CxxReaction):
         CxxElementaryReaction2()
         CxxArrhenius2 rate
@@ -584,32 +587,27 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool use_motz_wise_correction
         string sticking_species
 
-    cdef cppclass CxxReaction3 "Cantera::Reaction3" (CxxReaction):
-        CxxReaction3()
-        shared_ptr[CxxReactionRateBase] rate()
-        void setRate(shared_ptr[CxxReactionRateBase])
-
-    cdef cppclass CxxElementaryReaction3 "Cantera::ElementaryReaction3" (CxxReaction3):
+    cdef cppclass CxxElementaryReaction3 "Cantera::ElementaryReaction3" (CxxReaction):
         CxxElementaryReaction3()
 
     cdef cppclass CxxThreeBodyReaction3 "Cantera::ThreeBodyReaction3" (CxxElementaryReaction3):
         CxxThreeBodyReaction3()
         shared_ptr[CxxThirdBody] thirdBody()
 
-    cdef cppclass CxxBlowersMaselReaction "Cantera::BlowersMaselReaction"(CxxReaction3):
+    cdef cppclass CxxBlowersMaselReaction "Cantera::BlowersMaselReaction"(CxxReaction):
         CxxBlowersMaselReaction()
 
-    cdef cppclass CxxFalloffReaction3 "Cantera::FalloffReaction3" (CxxReaction3):
+    cdef cppclass CxxFalloffReaction3 "Cantera::FalloffReaction3" (CxxReaction):
         CxxFalloffReaction3()
         shared_ptr[CxxThirdBody] thirdBody()
 
-    cdef cppclass CxxPlogReaction3 "Cantera::PlogReaction3" (CxxReaction3):
+    cdef cppclass CxxPlogReaction3 "Cantera::PlogReaction3" (CxxReaction):
         CxxPlogReaction3()
 
-    cdef cppclass CxxChebyshevReaction3 "Cantera::ChebyshevReaction3" (CxxReaction3):
+    cdef cppclass CxxChebyshevReaction3 "Cantera::ChebyshevReaction3" (CxxReaction):
         CxxChebyshevReaction3()
 
-    cdef cppclass CxxCustomFunc1Reaction "Cantera::CustomFunc1Reaction" (CxxReaction3):
+    cdef cppclass CxxCustomFunc1Reaction "Cantera::CustomFunc1Reaction" (CxxReaction):
         CxxCustomFunc1Reaction()
 
 cdef extern from "cantera/kinetics/FalloffFactory.h" namespace "Cantera":
