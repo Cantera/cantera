@@ -195,6 +195,8 @@ class Quantity:
         >>> q3.P
         101325.0
     """
+    __slots__ = ("state", "_phase", "_id", "mass", "constant")
+
     def __init__(self, phase, mass=None, moles=None, constant='UV'):
         self.state = phase.TDY
         self._phase = phase
