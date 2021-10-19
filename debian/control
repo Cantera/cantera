@@ -35,7 +35,7 @@ Description: Python 3 user interface for Cantera
 
 Package: cantera-dev
 Architecture: any
-Depends: cantera-common, libsundials-dev, liblapack-dev | liblapack.so, libblas-dev, libyaml-cpp-dev (>= 0.6.0), ${misc:Depends}
+Depends: cantera-common, libsundials-dev, liblapack-dev | liblapack.so, libeigen3-dev, libblas-dev, libboost-dev, libfmt-dev, libyaml-cpp-dev (>= 0.6.0), ${misc:Depends}
 Description: Header files and static libraries for Cantera
  Cantera is a suite of object-oriented software tools for solving problems
  involving chemical kinetics, thermodynamics, and/or transport processes.
