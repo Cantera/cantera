@@ -1445,6 +1445,11 @@ class TestQuantity(utilities.CanteraTest):
         q1.equilibrate('HP')
         self.assertNear(q1.T, T2)
 
+    def test_invalid_setter(self):
+        q1 = ct.Quantity(self.gas, mass =3)
+        with self.assertRaises(AttributeError):
+            q1.HPQ = self.gas.H, self.gas.P, 1
+
     def test_incompatible(self):
         gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         q1 = ct.Quantity(self.gas)
