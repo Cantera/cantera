@@ -22,7 +22,6 @@ namespace Cantera
 {
 
 class Func1;
-class MultiRateBase;
 class Kinetics;
 
 
@@ -109,27 +108,31 @@ public:
 };
 
 
-//! Class template for wrapped reaction rate definitions
+//! Class template for reaction rate evaluators with specialized RateType and DataType
 /**
  * This class template ensures that derived objects are aware of specialized
  * data types, which are passed by MultiRateBase evaluators.
  */
 template <class RateType, class DataType>
-class RateTemplate : public ReactionRate<DataType>,  public RateType
+class RateEvaluator : public ReactionRateBase, public RateType
 {
 public:
-    RateTemplate() = default;
-    ~RateTemplate() {}
-
-    using RateType::RateType; // Inherit constructors
+    RateEvaluator() = default;
+    ~RateEvaluator() {}
 
     //! Constructor using AnyMap content
     //! @param node  AnyMap containing rate information
     //! @param rate_units  unit definitions used for rate information
-    RateTemplate(const AnyMap& node, const UnitsVector& units={}) {
+    RateEvaluator(const AnyMap& node, const UnitsVector& units={}) {
         setParameters(node, units);
     }
 
+    using RateType::RateType;
+    using RateType::usesUpdate;
+    using RateType::update;
+    using RateType::eval;
+
+    // using RateType::type;
     virtual const std::string type() const override {
         // need to be explicitly included due to multiple inheritance
         return RateType::type();
@@ -140,21 +143,75 @@ public:
         RateType::setParameters(node, units);
     }
 
+    // using RateType::getParameters;
     virtual void getParameters(AnyMap& node) const override {
         RateType::getParameters(node);
     }
 
     virtual unique_ptr<MultiRateBase> newMultiRate() const override {
         return unique_ptr<MultiRateBase>(
-            new MultiBulkRate<RateTemplate<RateType, DataType>, DataType>);
+            new MultiBulkRate<RateEvaluator<RateType, DataType>, DataType>);
     }
 
-    virtual void update(const DataType& shared_data) override {
-        RateType::update(shared_data);
+    virtual void update(double T) override {
+        DataType data;
+        data.update(T);
+        update(data);
     }
 
-    virtual double eval(const DataType& shared_data) const override {
-        return RateType::eval(shared_data);
+    virtual void update(double T, double P) override {
+        DataType data;
+        data.update(T, P);
+        update(data);
+    }
+
+    virtual void update(const ThermoPhase& bulk, const Kinetics& kin) override {
+        DataType data;
+        data.update(bulk, kin);
+        update(data);
+    }
+
+    virtual double eval(double T) const override {
+        DataType data;
+        data.update(T);
+        return eval(data);
+    }
+
+    virtual double eval(double T, double P) const override {
+        DataType data;
+        data.update(T, P);
+        return eval(data);
+    }
+
+    virtual double eval(const ThermoPhase& bulk, const Kinetics& kin) const override {
+        DataType data;
+        data.update(bulk, kin);
+        return eval(data);
+    }
+
+    //! Evaluate derivative of reaction rate with respect to temperature
+    //! @param shared_data  data shared by all reactions of a given type
+    virtual double ddT(const DataType& shared_data) const {
+        throw NotImplementedError("RateEvaluator::ddT",
+                                  "Not implemented by '{}' object.", type());
+    }
+
+    virtual double ddT(double T) const override {
+        DataType data;
+        data.update(T);
+        return ddT(data);
+    }
+
+    virtual double ddT(double T, double P) const override {
+        DataType data;
+        data.update(T, P);
+        return ddT(data);
+    }
+
+    virtual double ddT(const ThermoPhase& bulk, const Kinetics& kin) const override {
+        DataType data;
+        data.update(bulk, kin);
+        return ddT(data);
     }
 
     virtual void check(const std::string& equation, const AnyMap& node) override {
@@ -173,45 +230,39 @@ public:
 
 
 //! Arrhenius reaction rate type; @see Arrhenius3
-class ArrheniusRate final : public RateTemplate<Arrhenius3, ArrheniusData>
+class ArrheniusRate final : public RateEvaluator<Arrhenius3, ArrheniusData>
 {
 public:
     ArrheniusRate() = default;
     ~ArrheniusRate() {}
 
     // inherit constructors
-    using RateTemplate<Arrhenius3, ArrheniusData>::RateTemplate;
-    using ArrheniusBase::setParameters;
+    using RateEvaluator<Arrhenius3, ArrheniusData>::RateEvaluator;
 };
 
 
 //! Blowers-Masel reaction rate type; @see BlowersMasel3
-class BlowersMaselRate final : public RateTemplate<BlowersMasel3, BlowersMaselData>
+class BlowersMaselRate final : public RateEvaluator<BlowersMasel3, BlowersMaselData>
 {
 public:
     BlowersMaselRate() = default;
     ~BlowersMaselRate() {}
 
-    using RateTemplate<BlowersMasel3, BlowersMaselData>::RateTemplate;
-    using BlowersMasel3::setParameters;
+    // inherit constructors
+    using RateEvaluator<BlowersMasel3, BlowersMaselData>::RateEvaluator;
 };
 
 
 //! Class template for falloff reaction rate definitions; @see Falloff
-template <class FalloffType>
-class FalloffRate final : public RateTemplate<FalloffType, FalloffData>
+template <class RateType=Lindemann>
+class FalloffRate final : public RateEvaluator<RateType, FalloffData>
 {
 public:
     FalloffRate() = default;
     ~FalloffRate() {}
 
-    using RateTemplate<FalloffType, FalloffData>::RateTemplate;
-
-    using FalloffType::getData;
-    using FalloffType::setData;
-    using FalloffType::setLowRate;
-    using FalloffType::setHighRate;
-    using FalloffType::evalF;
+    // inherit constructors
+    using RateEvaluator<RateType, FalloffData>::RateEvaluator;
 };
 
 
