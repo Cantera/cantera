@@ -1052,7 +1052,7 @@ if not env['BOOST_LIB_VERSION']:
                  " 'boost_inc_dir' to point to the boost headers.")
 else:
     print('INFO: Found Boost version {0}'.format(env['BOOST_LIB_VERSION']))
-# demangle is availble in Boost 1.55 or newer
+# demangle is available in Boost 1.56 or newer
 env['has_demangle'] = conf.CheckDeclaration("boost::core::demangle",
                                 '#include <boost/core/demangle.hpp>', 'C++')
 

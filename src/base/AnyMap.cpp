@@ -488,8 +488,10 @@ struct convert<Cantera::AnyValue> {
 namespace Cantera {
 
 std::map<std::string, std::string> AnyValue::s_typenames = {
+    {typeid(void).name(), "void"},
     {typeid(double).name(), "double"},
     {typeid(long int).name(), "long int"},
+    {typeid(bool).name(), "bool"},
     {typeid(std::string).name(), "string"},
     {typeid(vector<AnyValue>).name(), "vector<AnyValue>"},
     {typeid(vector<AnyMap>).name(), "vector<AnyMap>"},
