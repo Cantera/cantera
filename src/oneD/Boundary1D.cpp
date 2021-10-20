@@ -876,15 +876,15 @@ AnyMap ReactingSurf1D::serialize(const double* soln) const
     AnyMap state = Boundary1D::serialize(soln);
     state["type"] = "reacting-surface";
     state["temperature"] = m_temp;
+    state["phase"]["name"] = m_sphase->name();
+    AnyValue source =m_sphase->input().getMetadata("filename");
+    state["phase"]["source"] = source.empty() ? "<unknown>" : source.asString();
     AnyMap cov;
     for (size_t k = 0; k < m_nsp; k++) {
         cov[m_sphase->speciesName(k)] = soln[k];
     }
     state["coverages"] = std::move(cov);
 
-    state["phase"]["name"] = m_sphase->name();
-    AnyValue source =m_sphase->input().getMetadata("filename");
-    state["phase"]["source"] = source.empty() ? "<unknown>" : source.asString();
     return state;
 }
 

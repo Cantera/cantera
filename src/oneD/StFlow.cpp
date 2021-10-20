@@ -850,15 +850,6 @@ AnyMap StFlow::serialize(const double* soln) const
     AnyMap state = Domain1D::serialize(soln);
     state["type"] = flowType();
     state["pressure"] = m_press;
-    state["grid"] = m_z;
-
-    vector_fp data(nPoints());
-    for (size_t i = 0; i < nComponents(); i++) {
-        for (size_t j = 0; j < nPoints(); j++) {
-            data[j] = soln[index(i,j)];
-        }
-        state[componentName(i)] = data;
-    }
 
     state["phase"]["name"] = m_thermo->name();
     AnyValue source = m_thermo->input().getMetadata("filename");
@@ -900,6 +891,15 @@ AnyMap StFlow::serialize(const double* soln) const
     if (m_zfixed != Undef) {
         state["fixed-point"]["location"] = m_zfixed;
         state["fixed-point"]["temperature"] = m_tfixed;
+    }
+
+    state["grid"] = m_z;
+    vector_fp data(nPoints());
+    for (size_t i = 0; i < nComponents(); i++) {
+        for (size_t j = 0; j < nPoints(); j++) {
+            data[j] = soln[index(i,j)];
+        }
+        state[componentName(i)] = data;
     }
 
     return state;
