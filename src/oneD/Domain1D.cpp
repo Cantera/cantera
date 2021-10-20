@@ -188,38 +188,32 @@ AnyMap Domain1D::serialize(const double* soln) const
     AnyMap state;
     state["points"] = static_cast<long int>(nPoints());
     if (nComponents() && nPoints()) {
-        state["tolerances"]["absolute"]["transient"] = wrap_tols(m_atol_ts);
-        state["tolerances"]["absolute"]["steady"] = wrap_tols(m_atol_ss);
-        state["tolerances"]["relative"]["transient"] = wrap_tols(m_rtol_ts);
-        state["tolerances"]["relative"]["steady"] = wrap_tols(m_rtol_ss);
+        state["tolerances"]["transient-abstol"] = wrap_tols(m_atol_ts);
+        state["tolerances"]["steady-abstol"] = wrap_tols(m_atol_ss);
+        state["tolerances"]["transient-reltol"] = wrap_tols(m_rtol_ts);
+        state["tolerances"]["steady-reltol"] = wrap_tols(m_rtol_ss);
     }
     return state;
 }
 
 void Domain1D::restore(const AnyMap& state, double* soln, int loglevel)
 {
-    auto set_tols = [&](const AnyValue& tols, const string& how,
-                            const string& when, vector_fp& out)
+    auto set_tols = [&](const AnyValue& tols, const string& which, vector_fp& out)
     {
-        if (!tols.hasKey(how)) {
+        if (!tols.hasKey(which)) {
             return;
         }
-        const auto& htol = tols[how];
-        if (!htol.hasKey(when)) {
-            return;
-        }
-        const auto& wtol = htol[when];
-        if (wtol.isScalar()) {
-            out.assign(nComponents(), wtol.asDouble());
+        const auto& tol = tols[which];
+        if (tol.isScalar()) {
+            out.assign(nComponents(), tol.asDouble());
         } else {
             for (size_t i = 0; i < nComponents(); i++) {
                 std::string name = componentName(i);
-                if (wtol.hasKey(name)) {
-                    out[i] = wtol[name].asDouble();
+                if (tol.hasKey(name)) {
+                    out[i] = tol[name].asDouble();
                 } else if (loglevel) {
-                    warn_user("Domain1D::restore", "No {} {} tolerance found "
-                        " for component '{}'",
-                        how, when, name);
+                    warn_user("Domain1D::restore", "No {} found for component '{}'",
+                              which, name);
                 }
             }
         }
@@ -227,10 +221,10 @@ void Domain1D::restore(const AnyMap& state, double* soln, int loglevel)
 
     if (state.hasKey("tolerances")) {
         const auto& tols = state["tolerances"];
-        set_tols(tols, "absolute", "transient", m_atol_ts);
-        set_tols(tols, "relative", "transient", m_rtol_ts);
-        set_tols(tols, "absolute", "steady", m_atol_ss);
-        set_tols(tols, "relative", "steady", m_rtol_ss);
+        set_tols(tols, "transient-abstol", m_atol_ts);
+        set_tols(tols, "transient-reltol", m_rtol_ts);
+        set_tols(tols, "steady-abstol", m_atol_ss);
+        set_tols(tols, "steady-reltol", m_rtol_ss);
     }
 }
 
