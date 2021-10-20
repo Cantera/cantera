@@ -127,11 +127,11 @@ void Sim1D::save(const std::string& fname, const std::string& id,
     data[id]["date"] = stripnonprint(asctime(newtime));
 
     // Force metadata fields to the top of the file
-    data[id]["description"].setLoc(-5, 0);
-    data[id]["generator"].setLoc(-4, 0);
-    data[id]["cantera-version"].setLoc(-3, 0);
-    data[id]["git-commit"].setLoc(-2, 0);
-    data[id]["date"].setLoc(-1, 0);
+    data[id]["description"].setLoc(-6, 0);
+    data[id]["generator"].setLoc(-5, 0);
+    data[id]["cantera-version"].setLoc(-4, 0);
+    data[id]["git-commit"].setLoc(-3, 0);
+    data[id]["date"].setLoc(-2, 0);
 
     // If this is not replacing an existing solution, put it at the end
     if (!preexisting) {
