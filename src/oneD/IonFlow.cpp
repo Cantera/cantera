@@ -65,6 +65,15 @@ void IonFlow::resize(size_t components, size_t points){
     m_do_electric_field.resize(m_points,false);
 }
 
+bool IonFlow::componentActive(size_t n) const
+{
+    if (n == c_offset_E) {
+        return true;
+    } else {
+        return StFlow::componentActive(n);
+    }
+}
+
 void IonFlow::updateTransport(double* x, size_t j0, size_t j1)
 {
     StFlow::updateTransport(x,j0,j1);
