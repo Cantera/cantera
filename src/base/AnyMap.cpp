@@ -275,7 +275,7 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
             }
 
             if (foundType) {
-                if (width + name.size() + valueStr.size() + 4 > 79) {
+                if (width + name.size() + valueStr.size() + 4 > 87) {
                     out << YAML::Newline;
                     width = 15;
                 }
@@ -308,7 +308,7 @@ void emitFlowVector(YAML::Emitter& out, const vector<double>& v, long int precis
     size_t width = 15; // wild guess, but no better value is available
     for (auto& x : v) {
         string xstr = formatDouble(x, precision);
-        if (width + xstr.size() > 79) {
+        if (width + xstr.size() > 87) {
             out << YAML::Newline;
             width = 15;
         }
@@ -326,7 +326,7 @@ void emitFlowVector(YAML::Emitter& out, const vector<T>& v)
     size_t width = 15; // wild guess, but no better value is available
     for (const auto& x : v) {
         string xstr = fmt::format("{}", x);
-        if (width + xstr.size() > 79) {
+        if (width + xstr.size() > 87) {
             out << YAML::Newline;
             width = 15;
         }
