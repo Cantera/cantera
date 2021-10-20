@@ -619,6 +619,20 @@ size_t StFlow::componentIndex(const std::string& name) const
     }
 }
 
+bool StFlow::componentActive(size_t n) const
+{
+    switch (n) {
+    case c_offset_V: // spread_rate
+        return m_type != cFreeFlow;
+    case c_offset_L: // lambda
+        return m_type != cFreeFlow;
+    case c_offset_E: // eField
+        return false;
+    default:
+        return true;
+    }
+}
+
 void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
@@ -896,10 +910,12 @@ AnyMap StFlow::serialize(const double* soln) const
     state["grid"] = m_z;
     vector_fp data(nPoints());
     for (size_t i = 0; i < nComponents(); i++) {
-        for (size_t j = 0; j < nPoints(); j++) {
-            data[j] = soln[index(i,j)];
+        if (componentActive(i)) {
+            for (size_t j = 0; j < nPoints(); j++) {
+                data[j] = soln[index(i,j)];
+            }
+            state[componentName(i)] = data;
         }
-        state[componentName(i)] = data;
     }
 
     return state;
@@ -912,6 +928,9 @@ void StFlow::restore(const AnyMap& state, double* soln, int loglevel)
     setupGrid(nPoints(), state["grid"].asVector<double>(nPoints()).data());
 
     for (size_t i = 0; i < nComponents(); i++) {
+        if (!componentActive(i)) {
+            continue;
+        }
         std::string name = componentName(i);
         if (state.hasKey(name)) {
             const vector_fp& data = state[name].asVector<double>(nPoints());
