@@ -15,13 +15,13 @@
 #include "cantera/base/Units.h"
 #include "cantera/kinetics/MultiRate.h"
 #include "cantera/kinetics/RxnRates.h"
+#include "cantera/kinetics/Custom.h"
 #include "cantera/kinetics/Falloff.h"
 #include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {
 
-class Func1;
 class Kinetics;
 
 
@@ -292,47 +292,15 @@ public:
 };
 
 
-//! Custom reaction rate depending only on temperature
-/**
- * The rate expression is provided by a `Func1` object taking a single
- * argument (temperature) and does not use a formalized parameterization.
- *
- * @warning This class is an experimental part of the %Cantera API and
- *    may be changed or removed without notice.
- */
-class CustomFunc1Rate final : public ReactionRate<CustomFunc1Data>
+//! Custom reaction rate depending only on temperature; @see CustomFunc1
+class CustomFunc1Rate final : public RateEvaluator<CustomFunc1, CustomFunc1Data>
 {
 public:
-    CustomFunc1Rate();
+    CustomFunc1Rate() = default;
     ~CustomFunc1Rate() {}
 
-    //! Constructor does nothing, as there is no formalized parameterization
-    //! @param node  AnyMap object containing reaction rate specification
-    //! @param units  Description of units used for rate parameters
-    CustomFunc1Rate(const AnyMap& rate, const UnitsVector& units) {}
-
-    virtual const std::string type() const override { return "custom-rate-function"; }
-
-    virtual unique_ptr<MultiRateBase> newMultiRate() const override;
-
-    virtual void setParameters(const AnyMap& node, const UnitsVector& units) override {
-        ReactionRateBase::setParameters(node, units);
-    }
-
-    //! Update information specific to reaction
-    static bool usesUpdate() { return false; }
-
-    //! Set custom rate
-    /**
-     * The call to the Func1 object takes a single argument (temperature) and
-     * does not depend on parameters handled in C++.
-     */
-    void setRateFunction(shared_ptr<Func1> f);
-
-    virtual double eval(const CustomFunc1Data& shared_data) const override;
-
-protected:
-    shared_ptr<Func1> m_ratefunc;
+    // inherit constructors
+    using RateEvaluator<CustomFunc1, CustomFunc1Data>::RateEvaluator;
 };
 
 }
