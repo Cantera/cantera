@@ -191,7 +191,7 @@ void Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
     input = node;
 }
 
-void Reaction::setRate(shared_ptr<ReactionRateBase> rate)
+void Reaction::setRate(shared_ptr<ReactionRate> rate)
 {
     if (!rate) {
         // null pointer
@@ -1075,7 +1075,7 @@ FalloffReaction3::FalloffReaction3()
 
 FalloffReaction3::FalloffReaction3(const Composition& reactants,
                                    const Composition& products,
-                                   const ReactionRateBase& rate,
+                                   const ReactionRate& rate,
                                    const ThirdBody& tbody)
     : Reaction(reactants, products)
 {

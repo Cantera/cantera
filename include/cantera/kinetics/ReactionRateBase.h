@@ -22,10 +22,12 @@ class MultiRateBase;
 class ThermoPhase;
 class Kinetics;
 
-//! Header-only abstract base class for reaction rate definitions
+
+//! Header-only abstract base class for reaction rate definitions; this base
+//! class is used by user-facing API's to access reaction rate objects.
 /**
  * Because this class has no template parameters, derived objects can be
- * accessed via `shared_ptr<ReactionRateBase>`. For performance reasons
+ * accessed via `shared_ptr<ReactionRate>`. For performance reasons
  * it is essential that derived classes use the keyword `final` to
  * de-virtualize `virtual` methods.
  *
@@ -33,11 +35,11 @@ class Kinetics;
  * data handlers defined by the template class `ReactionRate<DataType>`
  * and thus can be exposed to the API.
  */
-class ReactionRateBase
+class ReactionRate
 {
 public:
-    ReactionRateBase() : m_idx(npos) {}
-    virtual ~ReactionRateBase() {}
+    ReactionRate() : m_idx(npos) {}
+    virtual ~ReactionRate() {}
 
 public:
     //! Identifier of reaction type

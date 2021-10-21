@@ -69,14 +69,14 @@ ReactionRateFactory::ReactionRateFactory()
     });
 }
 
-shared_ptr<ReactionRateBase> newReactionRate(const std::string& type)
+shared_ptr<ReactionRate> newReactionRate(const std::string& type)
 {
     UnitsVector rate_units;
-    return shared_ptr<ReactionRateBase> (
+    return shared_ptr<ReactionRate> (
         ReactionRateFactory::factory()->create(type, AnyMap(), rate_units));
 }
 
-shared_ptr<ReactionRateBase> newReactionRate(
+shared_ptr<ReactionRate> newReactionRate(
     const AnyMap& rate_node, const UnitsVector& rate_units)
 {
     std::string type = ""; // default is to create Arrhenius from empty
@@ -101,11 +101,11 @@ shared_ptr<ReactionRateBase> newReactionRate(
             "Unknown reaction rate type '{}'", type);
     }
 
-    return shared_ptr<ReactionRateBase> (
+    return shared_ptr<ReactionRate> (
         ReactionRateFactory::factory()->create(type, rate_node, rate_units));
 }
 
-shared_ptr<ReactionRateBase> newReactionRate(const AnyMap& rate_node)
+shared_ptr<ReactionRate> newReactionRate(const AnyMap& rate_node)
 {
     const UnitSystem& system = rate_node.units();
     if (system.convertTo(1., "m") != 1. || system.convertTo(1., "kmol") != 1.) {

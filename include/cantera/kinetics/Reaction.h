@@ -142,12 +142,12 @@ public:
     Units rate_units;
 
     //! Get reaction rate pointer
-    shared_ptr<ReactionRateBase> rate() {
+    shared_ptr<ReactionRate> rate() {
         return m_rate;
     }
 
     //! Set reaction rate pointer
-    void setRate(shared_ptr<ReactionRateBase> rate);
+    void setRate(shared_ptr<ReactionRate> rate);
 
     //! Get pointer to third-body
     shared_ptr<ThirdBody> thirdBody() {
@@ -177,7 +177,7 @@ protected:
         undeclaredThirdBodies(const Kinetics& kin) const;
 
     //! Reaction rate used by generic reactions
-    shared_ptr<ReactionRateBase> m_rate;
+    shared_ptr<ReactionRate> m_rate;
 
     //! Relative efficiencies of third-body species in enhancing the reaction
     //! rate (if applicable)
@@ -540,7 +540,7 @@ class FalloffReaction3 : public Reaction
 public:
     FalloffReaction3();
     FalloffReaction3(const Composition& reactants, const Composition& products,
-                     const ReactionRateBase& rate, const ThirdBody& tbody);
+                     const ReactionRate& rate, const ThirdBody& tbody);
 
     FalloffReaction3(const AnyMap& node, const Kinetics& kin);
 

@@ -41,7 +41,7 @@ cdef class ReactionRate:
             return pystr(self.rate.type())
 
     @staticmethod
-    cdef wrap(shared_ptr[CxxReactionRateBase] rate):
+    cdef wrap(shared_ptr[CxxReactionRate] rate):
         """
         Wrap a C++ Reaction object with a Python object of the correct derived type.
         """

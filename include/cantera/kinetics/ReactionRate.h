@@ -31,7 +31,7 @@ class Kinetics;
  * data types, which are passed by MultiRateBase evaluators.
  */
 template <class RateType, class DataType>
-class RateEvaluator : public ReactionRateBase, public RateType
+class RateEvaluator : public ReactionRate, public RateType
 {
 public:
     RateEvaluator() = default;
@@ -56,7 +56,7 @@ public:
     }
 
     virtual void setParameters(const AnyMap& node, const UnitsVector& units) override {
-        ReactionRateBase::setParameters(node, units);
+        ReactionRate::setParameters(node, units);
         RateType::setParameters(node, units);
     }
 
@@ -65,7 +65,8 @@ public:
         RateType::getParameters(node);
     }
 
-    virtual unique_ptr<MultiRateBase> newMultiRate() const override {
+    virtual unique_ptr<MultiRateBase> newMultiRate() const override
+    {
         return unique_ptr<MultiRateBase>(
             new MultiBulkRate<RateEvaluator<RateType, DataType>, DataType>);
     }
@@ -140,7 +141,7 @@ public:
     }
 
     virtual void setRateIndex(size_t idx) {
-        ReactionRateBase::setRateIndex(idx);
+        ReactionRate::setRateIndex(idx);
         RateType::rate_index = idx;
     }
 };
