@@ -260,17 +260,18 @@ std::multimap<double, Arrhenius> Plog::getRates() const
 }
 
 Chebyshev::Chebyshev(double Tmin, double Tmax, double Pmin, double Pmax,
-                     const Array2D& coeffs)
+                     const Array2D& coeffs) : Chebyshev()
 {
     setLimits(Tmin, Tmax, Pmin, Pmax);
     setData(coeffs);
 }
 
-void Chebyshev::setParameters(const AnyMap& node,
-                              const UnitSystem& units, const Units& rate_units)
+void Chebyshev::setParameters(const AnyMap& node, const UnitsVector& units)
 {
+    m_rate_units = Units::product(units);
+    UnitSystem unit_system = node.units();
     Array2D coeffs;
-    if (!node.empty()) {
+    if (node.hasKey("data")) {
         const auto& T_range = node["temperature-range"].asVector<AnyValue>(2);
         const auto& P_range = node["pressure-range"].asVector<AnyValue>(2);
         auto& vcoeffs = node["data"].asVector<vector_fp>();
@@ -284,12 +285,15 @@ void Chebyshev::setParameters(const AnyMap& node,
                 coeffs(i, j) = vcoeffs[i][j];
             }
         }
-        if (rate_units.factor()) {
-            coeffs(0, 0) += std::log10(units.convertTo(1.0, rate_units));
+        if (m_rate_units.factor()) {
+            coeffs(0, 0) += std::log10(unit_system.convertTo(1.0, m_rate_units));
         }
         setLimits(
-            units.convert(T_range[0], "K"), units.convert(T_range[1], "K"),
-            units.convert(P_range[0], "Pa"), units.convert(P_range[1], "Pa"));
+            unit_system.convert(T_range[0], "K"),
+            unit_system.convert(T_range[1], "K"),
+            unit_system.convert(P_range[0], "Pa"),
+            unit_system.convert(P_range[1], "Pa")
+        );
     } else {
         // ensure that reaction rate can be evaluated (but returns NaN)
         coeffs = Array2D(1, 1);
@@ -346,6 +350,7 @@ void Chebyshev::setData(const Array2D& coeffs)
 
 void Chebyshev::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
+    rateNode["type"] = type();
     if (std::isnan(m_coeffs(0, 0))) {
         // Return empty/unmodified AnyMap
         return;
@@ -362,7 +367,7 @@ void Chebyshev::getParameters(AnyMap& rateNode, const Units& rate_units) const
     }
     // Unit conversions must take place later, after the destination unit system
     // is known. A lambda function is used here to override the default behavior
-    Units rate_units2 = rate_units;
+    Units rate_units2 = m_rate_units;
     auto converter = [rate_units2](AnyValue& coeffs, const UnitSystem& units) {
         if (rate_units2.factor() != 0.0) {
             coeffs.asVector<vector_fp>()[0][0] += std::log10(units.convertFrom(1.0, rate_units2));

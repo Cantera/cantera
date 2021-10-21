@@ -509,7 +509,7 @@ class Chebyshev
 {
 public:
     //! Default constructor.
-    Chebyshev() {}
+    Chebyshev() : rate_index(npos), m_rate_units(Units(0.)) {}
 
     //! Constructor directly from coefficient array
     /*!
@@ -524,13 +524,39 @@ public:
     Chebyshev(double Tmin, double Tmax, double Pmin, double Pmax,
               const Array2D& coeffs);
 
+    const std::string type() const { return "Chebyshev"; }
+
     //! Perform object setup based on AnyMap node information
-    //! @param node  AnyMap containing rate information
-    //! @param units  unit system
-    //! @param rate_units  unit definitions specific to rate information
-    void setParameters(const AnyMap& node,
-                       const UnitSystem& units, const Units& rate_units);
-    void getParameters(AnyMap& rateNode, const Units& rate_units) const;
+    /*!
+     *  @param node  AnyMap containing rate information
+     *  @param rate_units  Unit definitions specific to rate information
+     */
+    void setParameters(const AnyMap& node, const UnitsVector& units);
+    void getParameters(AnyMap& rateNode, const Units& rate_units=Units(0.)) const;
+
+    //! Update information specific to reaction
+    static bool usesUpdate() { return true; }
+
+    //! Update information specific to reaction
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    void update(const ChebyshevData& shared_data) {
+        update_C(&shared_data.log10P);
+    }
+
+    //! Update information specific to reaction
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    double eval(const ChebyshevData& shared_data) const {
+        return updateRC(0., shared_data.recipT);
+    }
+
+    //! Check the reaction rate expression
+    void check(const std::string& equation, const AnyMap& node) {}
+
+    void validate(const std::string& equation) {}
 
     //! Set up Chebyshev object
     /*!
@@ -641,6 +667,8 @@ public:
     //! Set the Chebyshev coefficients as 2-dimensional array.
     void setData(const Array2D& coeffs);
 
+    size_t rate_index; //!< Reaction rate index within kinetics evaluator
+
 protected:
     double Tmin_, Tmax_; //!< valid temperature range
     double Pmin_, Pmax_; //!< valid pressure range
@@ -650,6 +678,8 @@ protected:
     Array2D m_coeffs; //!<< coefficient array
     vector_fp chebCoeffs_; //!< Chebyshev coefficients, length nP * nT
     vector_fp dotProd_; //!< dot product of chebCoeffs with the reduced pressure polynomial
+
+    Units m_rate_units; //!< Reaction rate units
 };
 
 /**
