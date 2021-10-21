@@ -35,12 +35,12 @@ public:
     //! Add reaction rate object to the evaluator
     //! @param rxn_index  index of reaction
     //! @param rate  reaction rate object
-    virtual void add(const size_t rxn_index, ReactionRateBase& rate) = 0;
+    virtual void add(const size_t rxn_index, ReactionRate& rate) = 0;
 
     //! Replace reaction rate object handled by the evaluator
     //! @param rxn_index  index of reaction
     //! @param rate  reaction rate object
-    virtual bool replace(const size_t rxn_index, ReactionRateBase& rate) = 0;
+    virtual bool replace(const size_t rxn_index, ReactionRate& rate) = 0;
 
     //! Update number of species and reactions
     //! @param n_species  number of species
@@ -71,12 +71,12 @@ public:
         return m_rxn_rates.at(0).second.type();
     }
 
-    virtual void add(const size_t rxn_index, ReactionRateBase& rate) override {
+    virtual void add(const size_t rxn_index, ReactionRate& rate) override {
         m_indices[rxn_index] = m_rxn_rates.size();
         m_rxn_rates.emplace_back(rxn_index, dynamic_cast<RateType&>(rate));
     }
 
-    virtual bool replace(const size_t rxn_index, ReactionRateBase& rate) override {
+    virtual bool replace(const size_t rxn_index, ReactionRate& rate) override {
         if (!m_rxn_rates.size()) {
             throw CanteraError("MultiBulkRate::replace",
                  "Invalid operation: cannot replace rate object "
