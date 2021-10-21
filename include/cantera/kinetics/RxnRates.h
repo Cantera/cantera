@@ -25,6 +25,7 @@ class AnyValue;
 class AnyMap;
 class UnitSystem;
 class Units;
+class Func1;
 
 //! Arrhenius reaction rate type depends only on temperature
 /**

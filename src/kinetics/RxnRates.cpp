@@ -430,5 +430,7 @@ ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
 {
     warn_deprecated("ChebyshevRate::ChebyshevRate",
                     "Renamed to Chebyshev. Behavior will change after Cantera 2.6. "
-                    "For future behavior, refer to ChebyshevRate3");}
+                    "For future behavior, refer to ChebyshevRate3");
+}
+
 }
