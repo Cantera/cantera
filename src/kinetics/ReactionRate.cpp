@@ -11,44 +11,6 @@
 namespace Cantera
 {
 
-PlogRate::PlogRate(const std::multimap<double, Arrhenius>& rates)
-    : Plog(rates)
-{
-}
-
-PlogRate::PlogRate(const AnyMap& node, const UnitsVector& units)
-{
-    setParameters(node, units);
-}
-
-unique_ptr<MultiRateBase> PlogRate::newMultiRate() const
-{
-    return unique_ptr<MultiRateBase>(new MultiBulkRate<PlogRate, PlogData>);
-}
-
-void PlogRate::setParameters(const AnyMap& node, const UnitsVector& units)
-{
-    // @TODO  implementation of Plog::setParameters should be transferred here
-    //     when the Plog class is removed from RxnRates.h after Cantera 2.6
-    ReactionRateBase::setParameters(node, units);
-    auto rate_units = Units::product(units);
-    if (!node.hasKey("rate-constants")) {
-        Plog::setParameters(std::vector<AnyMap> (), node.units(), rate_units);
-        return;
-    }
-
-    Plog::setParameters(node.at("rate-constants").asVector<AnyMap>(),
-                        node.units(), rate_units);
-}
-
-void PlogRate::getParameters(AnyMap& rateNode) const
-{
-    // @TODO  implementation of Plog::getParameters should be transferred here
-    //     when the Plog class is removed from RxnRates.h after Cantera 2.6
-    Plog::getParameters(rateNode);
-    rateNode["type"] = type();
-}
-
 ChebyshevRate3::ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pmax,
                                const Array2D& coeffs)
     : Chebyshev(Tmin, Tmax, Pmin, Pmax, coeffs)

@@ -328,14 +328,48 @@ public:
     //! Constructor from Arrhenius rate expressions at a set of pressures
     explicit Plog(const std::multimap<double, Arrhenius>& rates);
 
+    //! Identifier of reaction rate type
+    const std::string type() const { return "pressure-dependent-Arrhenius"; }
+
     //! Perform object setup based on AnyMap node information
-    //! @param rates  vector of AnyMap containing rate information
-    //! @param units  unit system
-    //! @param rate_units  unit definitions specific to rate information
+    /*!
+     *  @param node  AnyMap containing rate information
+     *  @param rate_units  Unit definitions specific to rate information
+     */
+    void setParameters(const AnyMap& node, const UnitsVector& units);
+
+    //! Perform object setup based on reaction rate information
+    /*!
+     *  @param rates  vector of AnyMap containing rate information
+     *  @param units  unit system
+     *  @param rate_units  unit definitions specific to rate information
+     */
     void setParameters(const std::vector<AnyMap>& rates,
                        const UnitSystem& units, const Units& rate_units);
 
     void getParameters(AnyMap& rateNode, const Units& rate_units=Units(0.)) const;
+
+    //! Update information specific to reaction
+    static bool usesUpdate() { return true; }
+
+    //! Update information specific to reaction
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    void update(const PlogData& shared_data) {
+        update_C(&shared_data.logP);
+    }
+
+    //! Evaluate reaction rate
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    double eval(const PlogData& shared_data) const {
+        return updateRC(shared_data.logT, shared_data.recipT);
+    }
+
+    //! Check the reaction rate expression
+    void check(const std::string& equation, const AnyMap& node) {}
 
     //! Set up Plog object
     /*!
@@ -420,6 +454,8 @@ public:
     //! Return the pressures and Arrhenius expressions which comprise this
     //! reaction.
     std::multimap<double, Arrhenius> getRates() const;
+
+    size_t rate_index; //!< Reaction rate index within kinetics evaluator
 
 protected:
     //! log(p) to (index range) in the rates_ vector
