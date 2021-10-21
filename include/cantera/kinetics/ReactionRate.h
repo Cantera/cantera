@@ -280,82 +280,15 @@ public:
 
 
 //! Pressure-dependent rate expression where the rate coefficient is expressed
-//! as a bivariate Chebyshev polynomial in temperature and pressure.
-/*!
- * The rate constant can be written as:
- * \f[
- *     \log k(T,P) = \sum_{t=1}^{N_T} \sum_{p=1}^{N_P} \alpha_{tp}
- *                       \phi_t(\tilde{T}) \phi_p(\tilde{P})
- * \f]
- * where \f$\alpha_{tp}\f$ are the constants defining the rate, \f$\phi_n(x)\f$
- * is the Chebyshev polynomial of the first kind of degree *n* evaluated at
- * *x*, and
- * \f[
- *  \tilde{T} \equiv \frac{2T^{-1} - T_\mathrm{min}^{-1} - T_\mathrm{max}^{-1}}
- *                        {T_\mathrm{max}^{-1} - T_\mathrm{min}^{-1}}
- * \f]
- * \f[
- *  \tilde{P} \equiv \frac{2 \log P - \log P_\mathrm{min} - \log P_\mathrm{max}}
- *                        {\log P_\mathrm{max} - \log P_\mathrm{min}}
- * \f]
- * are reduced temperature and reduced pressures which map the ranges
- * \f$ (T_\mathrm{min}, T_\mathrm{max}) \f$ and
- * \f$ (P_\mathrm{min}, P_\mathrm{max}) \f$ to (-1, 1).
- *
- * A Chebyshev rate expression is specified in terms of the coefficient matrix
- * \f$ \alpha \f$ and the temperature and pressure ranges. Note that the
- * Chebyshev polynomials are not defined outside the interval (-1,1), and
- * therefore extrapolation of rates outside the range of temperatures and
- * pressures for which they are defined is strongly discouraged.
- *
- * @TODO  rename to ChebyshevRate when the legacy ChebyshevRate class is removed
- *      from RxnRates.h after Cantera 2.6.
- */
-class ChebyshevRate3 final : public ReactionRate<ChebyshevData>, public Chebyshev
+//! as a bivariate Chebyshev polynomial in temperature and pressure; @see Chebyshev
+class ChebyshevRate3 final : public RateEvaluator<Chebyshev, ChebyshevData>
 {
 public:
-    //! Default constructor.
     ChebyshevRate3() = default;
     ~ChebyshevRate3() {}
 
-    //! Constructor using coefficient array
-    /*
-     *  @param Tmin    Minimum temperature [K]
-     *  @param Tmax    Maximum temperature [K]
-     *  @param Pmin    Minimum pressure [Pa]
-     *  @param Pmax    Maximum pressure [Pa]
-     *  @param coeffs  Coefficient array dimensioned `nT` by `nP` where `nT` and
-     *      `nP` are the number of temperatures and pressures used in the fit,
-     *      respectively.
-     */
-    ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pmax,
-                   const Array2D& coeffs);
-
-    //! Constructor using AnyMap content
-    //! @param node  AnyMap containing rate information
-    //! @param units  Description of units used for rate parameters
-    ChebyshevRate3(const AnyMap& node, const UnitsVector& rate_units={});
-
-    virtual const std::string type() const override { return "Chebyshev"; }
-
-    virtual unique_ptr<MultiRateBase> newMultiRate() const override;
-
-    virtual void setParameters(const AnyMap& node, const UnitsVector& units) override;
-    virtual void getParameters(AnyMap& rateNode) const override;
-
-    //! Update information specific to reaction
-    static bool usesUpdate() { return true; }
-
-    virtual void update(const ChebyshevData& shared_data) override {
-        update_C(&shared_data.log10P);
-    }
-
-    virtual double eval(const ChebyshevData& shared_data) const override {
-        return updateRC(0., shared_data.recipT);
-    }
-
-protected:
-    Units m_rate_units; //!< Reaction rate units
+    // inherit constructors
+    using RateEvaluator<Chebyshev, ChebyshevData>::RateEvaluator;
 };
 
 
