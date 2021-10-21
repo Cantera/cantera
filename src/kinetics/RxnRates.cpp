@@ -118,7 +118,8 @@ void SurfaceArrhenius::addCoverageDependence(size_t k, doublereal a,
 }
 
 Plog::Plog()
-    : logP_(-1000)
+    : rate_index(npos)
+    , logP_(-1000)
     , logP1_(1000)
     , logP2_(-1000)
     , rDeltaP_(-1.0)
@@ -129,6 +130,18 @@ Plog::Plog(const std::multimap<double, Arrhenius>& rates)
     : Plog()
 {
     setRates(rates);
+}
+
+void Plog::setParameters(const AnyMap& node, const UnitsVector& units)
+{
+    auto rate_units = Units::product(units);
+    if (!node.hasKey("rate-constants")) {
+        Plog::setParameters(std::vector<AnyMap> (), node.units(), rate_units);
+        return;
+    }
+
+    setParameters(node.at("rate-constants").asVector<AnyMap>(),
+                  node.units(), rate_units);
 }
 
 void Plog::setParameters(const std::vector<AnyMap>& rates,
@@ -152,8 +165,9 @@ void Plog::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
     std::vector<AnyMap> rateList;
     double A = rates_[1].preExponentialFactor();
+    rateNode["type"] = type();
     if (std::isnan(A)) {
-        // Return empty/unmodified AnyMap
+        // Return empty AnyMap
         return;
     }
     for (const auto& r : getRates()) {

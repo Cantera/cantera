@@ -267,60 +267,15 @@ public:
 
 
 //! Pressure-dependent reaction rate expressed by logarithmically interpolating
-//! between Arrhenius rate expressions at various pressures.
-/*!
- * Given two rate expressions at two specific pressures:
- *
- *   * \f$ P_1: k_1(T) = A_1 T^{b_1} e^{-E_1 / RT} \f$
- *   * \f$ P_2: k_2(T) = A_2 T^{b_2} e^{-E_2 / RT} \f$
- *
- * The rate at an intermediate pressure \f$ P_1 < P < P_2 \f$ is computed as
- * \f[
- *  \log k(T,P) = \log k_1(T) + \bigl(\log k_2(T) - \log k_1(T)\bigr)
- *      \frac{\log P - \log P_1}{\log P_2 - \log P_1}
- * \f]
- * Multiple rate expressions may be given at the same pressure, in which case
- * the rate used in the interpolation formula is the sum of all the rates given
- * at that pressure. For pressures outside the given range, the rate expression
- * at the nearest pressure is used.
- */
-class PlogRate final : public ReactionRate<PlogData>, public Plog
+//! between Arrhenius rate expressions at various pressures; @see Plog
+class PlogRate final : public RateEvaluator<Plog, PlogData>
 {
 public:
     PlogRate() = default;
     ~PlogRate() {}
 
-    //! Constructor from Arrhenius rate expressions at a set of pressures
-    explicit PlogRate(const std::multimap<double, Arrhenius>& rates);
-
-    //! Constructor using AnyMap content
-    //! @param node  AnyMap containing rate information
-    //! @param units  Description of units used for rate parameters
-    PlogRate(const AnyMap& node, const UnitsVector& units={});
-
-    virtual const std::string type() const override {
-        return "pressure-dependent-Arrhenius";
-    }
-
-    virtual unique_ptr<MultiRateBase> newMultiRate() const override;
-
-    virtual void setParameters(const AnyMap& node, const UnitsVector& units) override;
-    virtual void getParameters(AnyMap& rateNode) const override;
-
-    //! Update information specific to reaction
-    static bool usesUpdate() { return true; }
-
-    virtual void update(const PlogData& shared_data) override {
-        update_C(&shared_data.logP);
-    }
-
-    virtual double eval(const PlogData& shared_data) const override {
-        return updateRC(shared_data.logT, shared_data.recipT);
-    }
-
-    virtual void validate(const std::string& equation) override {
-        Plog::validate(equation);
-    }
+    // inherit constructors
+    using RateEvaluator<Plog, PlogData>::RateEvaluator;
 };
 
 
