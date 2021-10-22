@@ -208,7 +208,7 @@ def units(length = '', quantity = '', mass = '', time = '',
 
 def get_composition(atoms):
     if isinstance(atoms, dict): return atoms
-    a = atoms.replace(',',' ')
+    a = atoms.replace(",", " ").replace(": ", ":")
     toks = a.split()
     d = OrderedDict()
     for t in toks:
