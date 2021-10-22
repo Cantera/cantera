@@ -305,7 +305,7 @@ class species:
         else:
             self.thermo = const_cp()
 
-        self.transport = transport
+        self.transport = None if transport == "None" else transport
         self.standard_state = standardState
 
         self.rk_pure = {}
@@ -1155,7 +1155,7 @@ class phase:
             else:
                 out['reactions'] = [BlockMap([(r[0], r[1])]) for r in self.reactions]
 
-        if self.transport and self.transport != 'None':
+        if self.transport:
             out['transport'] = _newNames[self.transport]
 
         if self.comment:
@@ -1185,8 +1185,8 @@ class ideal_gas(phase):
 
         phase.__init__(self, name, elements, species, note, reactions,
                        initial_state, options)
-        self.kinetics = kinetics
-        self.transport = transport
+        self.kinetics = None if kinetics == "None" else kinetics
+        self.transport = None if transport == "None" else transport
         self.thermo_model = 'ideal-gas'
 
 
@@ -1209,7 +1209,7 @@ class stoichiometric_solid(phase):
         self.density = density
         if self.density is None:
             raise InputError('density must be specified.')
-        self.transport = None if transport == 'None' else transport
+        self.transport = None if transport == "None" else transport
 
     def get_yaml(self, out):
         super().get_yaml(out)
@@ -1304,8 +1304,8 @@ class RedlichKwongMFTP(phase):
         phase.__init__(self,name, elements, species, note, reactions,
                        initial_state,options)
         self.thermo_model = 'Redlich-Kwong'
-        self.kinetics = kinetics
-        self.transport = None if transport == 'None' else transport
+        self.kinetics = None if kinetics == "None" else kinetics
+        self.transport = None if transport == "None" else transport
         self.activity_coefficients = activity_coefficients
 
     def get_yaml(self, out):
@@ -1348,7 +1348,7 @@ class IdealSolidSolution(phase):
         self.standard_concentration = standard_concentration
         if self.standard_concentration is None:
             raise InputError('In phase {}: standard_concentration must be specified.', name)
-        self.transport = None if transport == 'None' else transport
+        self.transport = None if transport == "None" else transport
 
     def get_yaml(self, out):
         super().get_yaml(out)
@@ -1460,8 +1460,8 @@ class ideal_interface(phase):
         phase.__init__(self, name, elements, species, note, reactions,
                        initial_state, options)
         self.thermo_model = 'ideal-surface'
-        self.kinetics = kinetics
-        self.transport = None if transport == 'None' else transport
+        self.kinetics = None if kinetics == "None" else kinetics
+        self.transport = None if transport == "None" else transport
         self.site_density = site_density
 
     def get_yaml(self, out):
