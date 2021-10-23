@@ -13,6 +13,12 @@ class TestThermoPhase(utilities.CanteraTest):
     def test_source(self):
         self.assertEqual(self.phase.source, 'h2o2.yaml')
 
+    def test_input_header(self):
+        extra = self.phase.input_header
+        self.assertTrue(extra["description"].startswith("Hydrogen-Oxygen submechanism"))
+        self.assertEqual(extra["cantera-version"], "2.5.0")
+        self.assertEqual(extra["generator"], "ck2yaml")
+
     def test_missing_phases_key(self):
         yaml = '''
         species:
