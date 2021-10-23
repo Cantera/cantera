@@ -1087,15 +1087,11 @@ class phase:
                 rnum = 'declared-species'
             if rnum != 'none':
                 self.reactions.append([datasrc, rnum])
-            if rnum in ('all', 'declared-species', 'none'):
+            if rnum.lower() in ("all", "declared-species", "none"):
                 continue
-            if '*' in rnum:
-                if datasrc != 'reactions':
-                    _printerr("WARNING: Reaction id-pattern matching from remote"
-                        " files not supported ({}: {})".format(datasrc, rnum))
-            else:
-                _printerr("WARNING: Reaction specification"
-                          " '{}' not supported".format(rnum))
+            if datasrc != "reactions":
+                _printerr("WARNING: Reaction id-pattern matching from remote"
+                    " files not supported ({}: {})".format(datasrc, rnum))
 
         self.initial_state = initial_state
 
@@ -1129,19 +1125,31 @@ class phase:
         # Convert reaction pattern matching to use of multiple reaction sections
         for i in range(len(self.reactions)):
             spec = self.reactions[i][1]
-            name = self.name + '-reactions'
-            if '*' in spec and name not in _reactions:
-                pattern = re.compile(spec.replace('*', '.*'))
-                misses = []
-                hits = []
-                for reaction in _reactions['reactions']:
-                    if pattern.match(reaction.id):
-                        hits.append(reaction)
-                    else:
-                        misses.append(reaction)
-                _reactions[name] = hits
-                _reactions['reactions'] = misses
-                self.reactions[i] = [name, 'all']
+            name = self.name + "-reactions"
+
+            if name in _reactions:
+                continue
+            if spec.lower() in ("all", "declared-species", "none"):
+                continue
+
+            pattern = None
+            if "*" in spec:
+                pattern = re.compile(spec.replace("*", ".*"))
+
+            misses = []
+            hits = []
+            for reaction in _reactions['reactions']:
+                if reaction.id == spec:
+                    # exact match (single reaction is specified)
+                    hits.append(reaction)
+                elif pattern and pattern.match(reaction.id):
+                    # regex match (wildcard is specified)
+                    hits.append(reaction)
+                else:
+                    misses.append(reaction)
+            _reactions[name] = hits
+            _reactions["reactions"] = misses
+            self.reactions[i] = [name, "all"]
 
         if self.kinetics and self.reactions:
             out['kinetics'] = _newNames[self.kinetics]
