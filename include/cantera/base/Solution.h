@@ -7,6 +7,7 @@
 #define CT_SOLUTION_H
 
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
@@ -14,7 +15,6 @@ namespace Cantera
 class ThermoPhase;
 class Kinetics;
 class Transport;
-class AnyMap;
 
 //! A container class holding managers for all pieces defining a phase
 class Solution : public std::enable_shared_from_this<Solution>
@@ -64,10 +64,16 @@ public:
 
     AnyMap parameters(bool withInput=false) const;
 
+    //! Access input data associated with the species thermo definition
+    const AnyMap& input() const;
+    AnyMap& input();
+
 protected:
     shared_ptr<ThermoPhase> m_thermo;  //!< ThermoPhase manager
     shared_ptr<Kinetics> m_kinetics;  //!< Kinetics manager
     shared_ptr<Transport> m_transport;  //!< Transport manager
+
+    AnyMap m_input;  //!< Additional input fields; usually from a YAML input file
 };
 
 //! Create and initialize a new Solution manager from an input file
@@ -87,5 +93,24 @@ shared_ptr<Solution> newSolution(const std::string& infile,
                                  const std::string& transport="",
                                  const std::vector<shared_ptr<Solution>>& adjacent={});
 
+//! Create and initialize a new Solution manager from AnyMap objects
+/*!
+ * This constructor wraps newPhase(), newKinetics() and
+ * newTransportMgr() routines for initialization.
+ *
+ * @param phaseNode the node containing the phase definition (i.e. thermo model,
+ *     list of species, and initial state)
+ * @param rootNode the root node of the tree containing the phase definition, which
+ *     will be used as the default location from which to read species definitions.
+ * @param transport name of the transport model.
+ * @param adjacent vector containing adjacent solution objects.
+ * @returns an initialized Solution object.
+ */
+shared_ptr<Solution> newSolution(AnyMap& phaseNode,
+                                 const AnyMap& rootNode=AnyMap(),
+                                 const std::string& transport="",
+                                 const std::vector<shared_ptr<Solution>>& adjacent={});
+
 }
+
 #endif
