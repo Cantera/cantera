@@ -13,6 +13,7 @@
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/transport/TransportBase.h"
 #include "cantera/transport/TransportFactory.h"
+#include "cantera/base/stringUtils.h"
 
 namespace Cantera
 {
@@ -73,10 +74,35 @@ AnyMap Solution::parameters(bool withInput) const
     return out;
 }
 
+const AnyMap& Solution::input() const
+{
+    return m_input;
+}
+
+AnyMap& Solution::input()
+{
+    return m_input;
+}
+
 shared_ptr<Solution> newSolution(const std::string& infile,
                                  const std::string& name,
                                  const std::string& transport,
-                                 const std::vector<shared_ptr<Solution>>& adjacent) {
+                                 const std::vector<shared_ptr<Solution>>& adjacent)
+{
+    // get file extension
+    size_t dot = infile.find_last_of(".");
+    std::string extension;
+    if (dot != npos) {
+        extension = toLowerCopy(infile.substr(dot+1));
+    }
+
+    if (extension == "yml" || extension == "yaml") {
+        // load YAML file
+        auto rootNode = AnyMap::fromYamlFile(infile);
+        AnyMap& phaseNode = rootNode["phases"].getMapWhere("name", name);
+        auto sol = newSolution(phaseNode, rootNode, transport, adjacent);
+        return sol;
+    }
 
     // instantiate Solution object
     auto sol = Solution::create();
@@ -94,10 +120,59 @@ shared_ptr<Solution> newSolution(const std::string& infile,
 
     // transport
     if (transport == "") {
-        sol->setTransport(shared_ptr<Transport>(newDefaultTransportMgr(sol->thermo().get())));
+        sol->setTransport(shared_ptr<Transport>(
+            newDefaultTransportMgr(sol->thermo().get())));
     } else if (transport != "None") {
-        sol->setTransport(shared_ptr<Transport>(newTransportMgr(transport, sol->thermo().get())));
+        sol->setTransport(shared_ptr<Transport>(
+            newTransportMgr(transport, sol->thermo().get())));
     }
+
+    return sol;
+}
+
+shared_ptr<Solution> newSolution(AnyMap& phaseNode,
+                                 const AnyMap& rootNode,
+                                 const std::string& transport,
+                                 const std::vector<shared_ptr<Solution>>& adjacent)
+{
+    // instantiate Solution object
+    auto sol = Solution::create();
+
+    // thermo phase
+    sol->setThermo(shared_ptr<ThermoPhase>(newPhase(phaseNode, rootNode)));
+
+    // kinetics
+    std::vector<ThermoPhase*> phases;
+    phases.push_back(sol->thermo().get());
+    for (auto& adj : adjacent) {
+        phases.push_back(adj->thermo().get());
+    }
+    sol->setKinetics(newKinetics(phases, phaseNode, rootNode));
+
+    // transport
+    if (transport == "") {
+        sol->setTransport(shared_ptr<Transport>(
+            newDefaultTransportMgr(sol->thermo().get())));
+    } else if (transport != "None") {
+        sol->setTransport(shared_ptr<Transport>(
+            newTransportMgr(transport, sol->thermo().get())));
+    }
+
+    // find root-level fields that are not related to phases, species or reactions
+    std::vector<std::string> exclude;
+    exclude.push_back("phases");
+    exclude.push_back("species");
+    exclude.push_back("reactions");
+
+    // save root-level information (YAML header)
+    AnyMap header;
+    for (const auto& item : rootNode) {
+        std::string key = item.first;
+        if (find(exclude.begin(), exclude.end(), key) == exclude.end()) {
+            header[key] = item.second;
+        }
+    }
+    sol->input() = header;
 
     return sol;
 }
