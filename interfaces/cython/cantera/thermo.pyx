@@ -110,6 +110,20 @@ cdef class Species:
     def fromYaml(text):
         """
         Create a Species object from its YAML string representation.
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by `Reaction.from_yaml`.
+        """
+        warnings.warn("Class method 'fromYaml' is renamed to 'from_yaml' "
+            "and will be removed after Cantera 2.6.", DeprecationWarning)
+
+        return Species.from_yaml(text)
+
+    @staticmethod
+    def from_yaml(text):
+        """
+        Create a Species object from its YAML string representation.
         """
         cxx_species = CxxNewSpecies(AnyMapFromYamlString(stringify(text)))
         species = Species(init=False)
@@ -190,6 +204,19 @@ cdef class Species:
 
     @staticmethod
     def listFromYaml(text, section=None):
+        """
+        Create a list of Species objects from all the species defined in a YAML string.
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by `Reaction.list_from_yaml`.
+        """
+        warnings.warn("Class method 'listFromYaml' is renamed to 'list_from_yaml' "
+            "and will be removed after Cantera 2.6.", DeprecationWarning)
+        return Species.list_from_yaml(text, section)
+
+    @staticmethod
+    def list_from_yaml(text, section=None):
         """
         Create a list of Species objects from all the species defined in a YAML
         string. If ``text`` is a YAML mapping, the ``section`` name of the list
