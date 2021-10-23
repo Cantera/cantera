@@ -36,29 +36,33 @@ cdef class _SolutionBase:
             self.kinetics = other.kinetics
             self.transport = other.transport
             self._base = other._base
-            self._source = other._source
             self._thermo = other._thermo
             self._kinetics = other._kinetics
             self._transport = other._transport
+            self.base.setSource(other.base.source())
 
             self.thermo_basis = other.thermo_basis
             self._selected_species = other._selected_species.copy()
             return
 
+        if isinstance(infile, PurePath):
+            infile = str(infile)
+
+        # Parse YAML input
+        if infile.endswith('.yml') or infile.endswith('.yaml') or yaml:
+            self._init_yaml(infile, name, adjacent, yaml, **kwargs)
+            self._selected_species = np.ndarray(0, dtype=np.uint64)
+            return
+
         # Assign base and set managers to NULL
         self._base = CxxNewSolution()
-        self._source = None
         self.base = self._base.get()
         self.thermo = NULL
         self.kinetics = NULL
         self.transport = NULL
 
         # Parse inputs
-        if isinstance(infile, PurePath):
-            infile = str(infile)
-        if infile.endswith('.yml') or infile.endswith('.yaml') or yaml:
-            self._init_yaml(infile, name, adjacent, yaml)
-        elif infile or source:
+        if infile or source:
             self._init_cti_xml(infile, name, adjacent, source)
         elif thermo and species:
             self._init_parts(thermo, species, kinetics, adjacent, reactions)
@@ -95,7 +99,7 @@ cdef class _SolutionBase:
         The source of this object (such as a file name).
         """
         def __get__(self):
-            return self._source
+            return pystr(self.base.source())
 
     property composite:
         """
@@ -112,25 +116,39 @@ cdef class _SolutionBase:
 
             return thermo, kinetics, transport
 
-    def _init_yaml(self, infile, name, adjacent, source):
+    def _init_yaml(self, infile, name, adjacent, source, **kwargs):
         """
-        Instantiate a set of new Cantera C++ objects from a YAML
-        phase definition
+        Instantiate a set of new Cantera C++ objects from a YAML phase definition
         """
+
+        # Adjacent bulk phases for a surface phase
+        cdef vector[shared_ptr[CxxSolution]] cxx_adjacent
+        cdef _SolutionBase phase
+        for phase in adjacent:
+            cxx_adjacent.push_back(phase._base)
+
+        # Transport model: "" is a sentinel value to use the default model
+        transport = kwargs.get("transport_model", "")
+        transport = "None" if transport is None else transport
+        cdef string cxx_transport = stringify(transport)
+
+        # Parse input in C++
         cdef CxxAnyMap root
+        cdef CxxAnyMap phaseNode
         if infile:
-            root = AnyMapFromYamlFile(stringify(infile))
-            self._source = infile
+            self._base = newSolution(
+                stringify(infile), stringify(name), cxx_transport, cxx_adjacent)
         elif source:
             root = AnyMapFromYamlString(stringify(source))
-            self._source = 'custom YAML'
+            phaseNode = root[stringify("phases")].getMapWhere(
+                stringify("name"), stringify(name))
+            self._base = newSolution(phaseNode, root, cxx_transport, cxx_adjacent)
 
-        phaseNode = root[stringify("phases")].getMapWhere(stringify("name"),
-                                                          stringify(name))
+        self.base = self._base.get()
 
         # Thermo
         if isinstance(self, ThermoPhase):
-            self._thermo = newPhase(phaseNode, root)
+            self._thermo = self.base.thermo()
             self.thermo = self._thermo.get()
         else:
             msg = ("Cannot instantiate a standalone '{}' object; use "
@@ -138,18 +156,21 @@ cdef class _SolutionBase:
             raise NotImplementedError(msg)
 
         # Kinetics
-        cdef vector[CxxThermoPhase*] v
-        cdef _SolutionBase phase
-
         if isinstance(self, Kinetics):
-            v.push_back(self.thermo)
-            for phase in adjacent:
-                # adjacent bulk phases for a surface phase
-                v.push_back(phase.thermo)
-            self._kinetics = newKinetics(v, phaseNode, root)
+            self._kinetics = self.base.kinetics()
             self.kinetics = self._kinetics.get()
         else:
-            self.kinetics = NULL
+            self.kinetics = CxxNewKinetics(stringify("none"))
+            self._kinetics.reset(self.kinetics)
+            self.base.setKinetics(self._kinetics)
+
+        # Transport
+        if isinstance(self, Transport):
+            self._transport = self.base.transport()
+            self.transport = self._transport.get()
+        else:
+            self.transport = newTransportMgr(stringify("None"))
+            self._transport.reset(self.transport)
 
     def _init_cti_xml(self, infile, name, adjacent, source):
         """
@@ -158,10 +179,10 @@ cdef class _SolutionBase:
         """
         if infile:
             rootNode = CxxGetXmlFile(stringify(infile))
-            self._source = infile
+            self.base.setSource(stringify(infile))
         elif source:
             rootNode = CxxGetXmlFromString(stringify(source))
-            self._source = 'custom CTI/XML'
+            self.base.setSource(stringify("custom CTI/XML"))
 
         # Get XML data
         cdef XML_Node* phaseNode
@@ -200,7 +221,7 @@ cdef class _SolutionBase:
         Instantiate a set of new Cantera C++ objects based on a string defining
         the model type and a list of Species objects.
         """
-        self._source = 'custom parts'
+        self.base.setSource(stringify("custom parts"))
         self.thermo = newThermoPhase(stringify(thermo))
         self._thermo.reset(self.thermo)
         self.thermo.addUndefinedElements()

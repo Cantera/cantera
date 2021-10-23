@@ -195,13 +195,22 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
         CxxSolution()
         string name()
         void setName(string)
+        string source()
+        void setSource(string)
         CxxAnyMap input() except +translate_exception
+        shared_ptr[CxxThermoPhase] thermo()
         void setThermo(shared_ptr[CxxThermoPhase])
+        shared_ptr[CxxKinetics] kinetics()
         void setKinetics(shared_ptr[CxxKinetics])
+        shared_ptr[CxxTransport] transport()
         void setTransport(shared_ptr[CxxTransport])
         CxxAnyMap parameters(cbool) except +translate_exception
 
     cdef shared_ptr[CxxSolution] CxxNewSolution "Cantera::Solution::create" ()
+    cdef shared_ptr[CxxSolution] newSolution (
+        string, string, string, vector[shared_ptr[CxxSolution]]) except +translate_exception
+    cdef shared_ptr[CxxSolution] newSolution (
+        CxxAnyMap&, CxxAnyMap&, string, vector[shared_ptr[CxxSolution]]) except +translate_exception
 
 
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
@@ -877,6 +886,7 @@ cdef extern from "cantera/kinetics/KineticsFactory.h" namespace "Cantera":
 cdef extern from "cantera/transport/TransportFactory.h" namespace "Cantera":
     cdef CxxTransport* newDefaultTransportMgr(CxxThermoPhase*) except +translate_exception
     cdef CxxTransport* newTransportMgr(string, CxxThermoPhase*) except +translate_exception
+    cdef CxxTransport* newTransportMgr(string) except +translate_exception
 
 cdef extern from "cantera/oneD/Domain1D.h":
     cdef cppclass CxxDomain1D "Cantera::Domain1D":

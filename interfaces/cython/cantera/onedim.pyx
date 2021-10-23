@@ -444,8 +444,8 @@ cdef class _FlowBase(Domain1D):
     def __init__(self, *args, **kwargs):
         self.domain = <CxxDomain1D*>(self.flow)
         super().__init__(*args, **kwargs)
-        if self.gas.transport_model == 'Transport':
-            self.gas.transport_model = 'Mix'
+        if self.gas.transport_model == "None":
+            self.gas.transport_model = "Mix"
         self.flow.setKinetics(deref(self.gas.kinetics))
         self.flow.setTransport(deref(self.gas.transport))
         self.P = self.gas.P
