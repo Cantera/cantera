@@ -68,6 +68,12 @@ public:
     const AnyMap& input() const;
     AnyMap& input();
 
+    //! Retrieve source used for object creation
+    const std::string source() const;
+
+    //! Overwrite source (only required if object is not created using newSolution)
+    void setSource(std::string source);
+
 protected:
     shared_ptr<ThermoPhase> m_thermo;  //!< ThermoPhase manager
     shared_ptr<Kinetics> m_kinetics;  //!< Kinetics manager

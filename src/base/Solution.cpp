@@ -84,6 +84,16 @@ AnyMap& Solution::input()
     return m_input;
 }
 
+const std::string Solution::source() const {
+    AnyValue source = m_input.getMetadata("filename");
+    return source.empty() ? "<unknown>" : source.asString();
+}
+
+void Solution::setSource(std::string source) {
+    AnyValue filename(source);
+    m_input.setMetadata("filename", filename);
+}
+
 shared_ptr<Solution> newSolution(const std::string& infile,
                                  const std::string& name,
                                  const std::string& transport,
@@ -101,11 +111,13 @@ shared_ptr<Solution> newSolution(const std::string& infile,
         auto rootNode = AnyMap::fromYamlFile(infile);
         AnyMap& phaseNode = rootNode["phases"].getMapWhere("name", name);
         auto sol = newSolution(phaseNode, rootNode, transport, adjacent);
+        sol->setSource(infile);
         return sol;
     }
 
     // instantiate Solution object
     auto sol = Solution::create();
+    sol->setSource(infile);
 
     // thermo phase
     sol->setThermo(shared_ptr<ThermoPhase>(newPhase(infile, name)));
@@ -137,6 +149,7 @@ shared_ptr<Solution> newSolution(AnyMap& phaseNode,
 {
     // instantiate Solution object
     auto sol = Solution::create();
+    sol->setSource("custom YAML");
 
     // thermo phase
     sol->setThermo(shared_ptr<ThermoPhase>(newPhase(phaseNode, rootNode)));
@@ -172,6 +185,7 @@ shared_ptr<Solution> newSolution(AnyMap& phaseNode,
             header[key] = item.second;
         }
     }
+    header.setUnits(rootNode.units());
     sol->input() = header;
 
     return sol;
