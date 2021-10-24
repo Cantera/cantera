@@ -445,6 +445,10 @@ cdef class _FlowBase(Domain1D):
         self.domain = <CxxDomain1D*>(self.flow)
         super().__init__(*args, **kwargs)
         if self.gas.transport_model == "None":
+            warnings.warn(
+                "An appropriate transport model\nshould be set when instantiating the "
+                "Solution ('gas') object.\nImplicit setting of the transport model "
+                "may be deprecated in the future.", FutureWarning)
             self.gas.transport_model = "Mix"
         self.flow.setKinetics(deref(self.gas.kinetics))
         self.flow.setTransport(deref(self.gas.transport))
