@@ -134,7 +134,9 @@ shared_ptr<Solution> newSolution(const std::string& infile,
     if (transport == "") {
         sol->setTransport(shared_ptr<Transport>(
             newDefaultTransportMgr(sol->thermo().get())));
-    } else if (transport != "None") {
+    } else if (transport == "None") {
+        sol->setTransport(shared_ptr<Transport>(newTransportMgr("None")));
+    } else {
         sol->setTransport(shared_ptr<Transport>(
             newTransportMgr(transport, sol->thermo().get())));
     }
@@ -202,7 +204,9 @@ shared_ptr<Solution> newSolution(AnyMap& phaseNode,
     if (transport == "") {
         sol->setTransport(shared_ptr<Transport>(
             newDefaultTransportMgr(sol->thermo().get())));
-    } else if (transport != "None") {
+    } else if (transport == "None") {
+        sol->setTransport(shared_ptr<Transport>(newTransportMgr("None")));
+    } else {
         sol->setTransport(shared_ptr<Transport>(
             newTransportMgr(transport, sol->thermo().get())));
     }
