@@ -54,11 +54,13 @@ for R in all_reactions:
 print('\n')
 
 gas1 = ct.Solution(input_file)
-gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
+gas2 = ct.Solution(name="gri30-CO-H2-submech",
+                   thermo="ideal-gas", kinetics="gas", transport_model="Mix",
                    species=species, reactions=reactions)
 
 # Save the resulting mechanism for later use
-gas2.write_yaml("gri30-CO-H2-submech.yaml")
+gas2.update_user_header({"description": "CO-H2 submechanism extracted from GRI-Mech 3.0"})
+gas2.write_yaml("gri30-CO-H2-submech.yaml", header=True)
 
 def solve_flame(gas):
     gas.TPX = 373, 0.05*ct.one_atm, 'H2:0.4, CO:0.6, O2:1, N2:3.76'
