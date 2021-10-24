@@ -31,6 +31,7 @@ TransportFactory::TransportFactory()
 {
     reg("", []() { return new Transport(); });
     addAlias("", "None");
+    addAlias("", "none");
     addAlias("", "Transport");
     reg("unity-Lewis-number", []() { return new UnityLewisTransport(); });
     addAlias("unity-Lewis-number", "UnityLewis");
@@ -62,6 +63,15 @@ void TransportFactory::deleteFactory()
 Transport* TransportFactory::newTransport(const std::string& transportModel,
         ThermoPhase* phase, int log_level)
 {
+    if (canonicalize(transportModel) == "") {
+        return create(transportModel);
+    }
+    if (!phase) {
+        throw CanteraError("TransportFactory::newTransport",
+            "Valid phase definition required for initialization of "
+            "new '{}' object", transportModel);
+    }
+
     vector_fp state;
     Transport* tr = 0;
     phase->saveState(state);
