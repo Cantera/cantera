@@ -62,14 +62,28 @@ void Solution::setTransport(shared_ptr<Transport> transport) {
 AnyMap Solution::parameters(bool withInput) const
 {
     AnyMap out = m_thermo->parameters(false);
+    AnyValue empty("<NULL>");
     if (m_kinetics) {
         out.update(m_kinetics->parameters());
     }
-    if (m_transport) {
+    if (!m_transport) {
+        out["transport"] = empty;
+    } else if (m_transport->transportType() == "None") {
+        out["transport"] = empty;
+    } else {
         out.update(m_transport->parameters());
     }
     if (withInput) {
-        out.update(m_thermo->input());
+        auto transport = out["transport"];
+        AnyMap input = m_thermo->input();
+        out.update(input);
+        if (input.hasKey("transport")) {
+            // revert changes / ensure that correct model is referenced
+            out["transport"] = transport;
+        }
+    }
+    if (out["transport"] == empty) {
+        out.erase("transport");
     }
     return out;
 }
