@@ -47,12 +47,6 @@ void Transport::checkSpeciesArraySize(size_t kk) const
     }
 }
 
-void Transport::setParameters(const int type, const int k,
-                              const doublereal* const p)
-{
-    throw NotImplementedError("Transport::setParameters");
-}
-
 AnyMap Transport::parameters() const
 {
     AnyMap out;
@@ -102,12 +96,5 @@ void Transport::finalize()
         throw CanteraError("Transport::finalize",
                            "finalize has already been called.");
     }
-}
-
-void Transport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
-                                 size_t ldx, const doublereal* const grad_X,
-                                 size_t ldf, doublereal* const fluxes)
-{
-    throw NotImplementedError("Transport::getSpeciesFluxes");
 }
 }
