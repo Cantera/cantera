@@ -30,9 +30,10 @@ std::mutex TransportFactory::transport_mutex;
 TransportFactory::TransportFactory()
 {
     reg("", []() { return new Transport(); });
-    addAlias("", "None");
-    addAlias("", "none");
     addAlias("", "Transport");
+    reg("None", []() { return new NoTransport(); });
+    addAlias("None", "none");
+    addAlias("None", "NoTransport");
     reg("unity-Lewis-number", []() { return new UnityLewisTransport(); });
     addAlias("unity-Lewis-number", "UnityLewis");
     reg("mixture-averaged", []() { return new MixTransport(); });
@@ -63,7 +64,7 @@ void TransportFactory::deleteFactory()
 Transport* TransportFactory::newTransport(const std::string& transportModel,
         ThermoPhase* phase, int log_level)
 {
-    if (canonicalize(transportModel) == "") {
+    if (transportModel != "DustyGas" && canonicalize(transportModel) == "None") {
         return create(transportModel);
     }
     if (!phase) {
