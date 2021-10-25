@@ -268,7 +268,7 @@ jobs:
         # use boost-cpp rather than boost from conda-forge
         run: |
           conda install -q sundials=${{ matrix.sundials-ver }} scons numpy ruamel.yaml \
-          cython boost-cpp fmt eigen yaml-cpp h5py pandas libgomp openblas
+          cython boost-cpp fmt eigen yaml-cpp h5py pandas libgomp openblas pytest
       - name: Build Cantera
         run: |
           scons build extra_inc_dirs=$CONDA_PREFIX/include:$CONDA_PREFIX/include/eigen3 \
