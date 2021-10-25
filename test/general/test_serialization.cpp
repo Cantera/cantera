@@ -423,3 +423,24 @@ TEST(YamlWriter, sofc)
         EXPECT_NEAR(wdot1[i], wdot2[i], 1e-13 * fabs(wdot1[i])) << "for ox species i = " << i;
     }
 }
+
+TEST(YamlWriter, customHeader)
+{
+    auto original = newSolution("h2o2.yaml", "", "None");
+    AnyMap header;
+    header["description"] = "Copy of H2O2 mechanism";
+    header["spam"] = "eggs";
+
+    YamlWriter writer;
+    writer.addHeader(header);
+    writer.addPhase(original);
+    writer.toYamlFile("generated-custom-header.yaml");
+
+    auto soln = newSolution("generated-custom-header.yaml", "", "None");
+
+    ASSERT_EQ(soln->input()["cantera-version"].asString(), CANTERA_VERSION);
+    ASSERT_EQ(soln->input()["generator"].asString(), "YamlWriter");
+    ASSERT_EQ(soln->input()["description"].asString(),
+              "Copy of H2O2 mechanism");
+    ASSERT_EQ(soln->input()["spam"].asString(), "eggs");
+}
