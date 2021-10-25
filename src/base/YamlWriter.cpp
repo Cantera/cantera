@@ -22,6 +22,10 @@ YamlWriter::YamlWriter()
 {
 }
 
+void YamlWriter::addHeader(const AnyMap& header) {
+    m_header = header;
+}
+
 void YamlWriter::addPhase(shared_ptr<Solution> soln) {
     for (auto& phase : m_phases) {
         if (phase->name() == soln->name()) {
@@ -45,10 +49,32 @@ void YamlWriter::addPhase(shared_ptr<ThermoPhase> thermo,
 std::string YamlWriter::toYamlString() const
 {
     AnyMap output;
+    bool hasDescription = m_header.hasKey("description");
+    if (hasDescription) {
+        output["description"] = m_header["description"];
+    }
     output["generator"] = "YamlWriter";
     output["cantera-version"] = CANTERA_VERSION;
+    output["git-commit"] = gitCommit();
     time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     output["date"] = trimCopy(std::ctime(&now));
+    if (hasDescription) {
+        output["description"].setLoc(-6, 0);
+    }
+    output["generator"].setLoc(-5, 0);
+    output["cantera-version"].setLoc(-4, 0);
+    output["git-commit"].setLoc(-3, 0);
+    output["date"].setLoc(-2, 0);
+
+    // Add remaining header information, ignoring obsolete information
+    std::vector<std::string> exclude = {
+        "description", "generator", "cantera-version", "git-commit", "date"};
+    for (const auto& item : m_header) {
+        std::string key = item.first;
+        if (find(exclude.begin(), exclude.end(), key) == exclude.end()) {
+            output[key] = item.second;
+        }
+    }
 
     // Build phase definitions
     std::vector<AnyMap> phaseDefs(m_phases.size());
