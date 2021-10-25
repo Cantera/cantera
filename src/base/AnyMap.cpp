@@ -157,40 +157,56 @@ long int getPrecision(const Cantera::AnyValue& precisionSource)
 
 string formatDouble(double x, long int precision)
 {
-    int log10x = static_cast<int>(std::floor(std::log10(std::abs(x))));
     if (x == 0.0) {
         return "0.0";
-    } else if (log10x >= -2 && log10x <= 3) {
-        // Adjust precision to account for leading zeros or digits left of the
-        // decimal point
-        precision -= log10x;
-        string s = fmt::format("{:.{}f}", x, precision);
-        // Trim trailing zeros, keeping at least one digit to the right of
-        // the decimal point
-        size_t last = s.size() - 1;
-        for (; last != 0; last--) {
-            if (s[last] != '0' || s[last-1] == '.') {
-                break;
-            }
-        }
-        s.resize(last + 1);
-        return s;
-    } else {
-        string s = fmt::format("{:.{}e}", x, precision);
-        // Trim trailing zeros, keeping at least one digit to the right of
-        // the decimal point
-        size_t eloc = s.find('e');
-        size_t last = eloc - 1;
-        for (; last != 0; last--) {
-            if (s[last] != '0' || s[last-1] == '.') {
-                break;
-            }
-        }
-        if (last != eloc - 1) {
-            s = string(s, 0, last + 1) + string(s.begin() + eloc, s.end());
-        }
-        return s;
     }
+
+    // Build string with full precision
+    bool useExp = std::abs(x) < 1e-2 || std::abs(x) >= 1e4;
+    int log10x;
+    size_t last;
+    string s0;
+    if (useExp) {
+        s0 = fmt::format(fmt::format("{:.{}e}", x, precision));
+        last = s0.size() - 5; // last digit of significand
+    } else {
+        log10x = static_cast<int>(std::floor(std::log10(std::abs(x))));
+        s0 = fmt::format("{:.{}f}", x, precision - log10x);
+        last = s0.size() - 1; // last digit
+    }
+    if (s0[last - 2] == '0' && s0[last - 1] == '0' && s0[last] < '5') {
+        // Value ending in '00x' and should be rounded down
+    } else if (s0[last - 2] == '9' && s0[last - 1] == '9' && s0[last] > '4') {
+        // Value ending in '99y' and should be rounded up
+    } else {
+        // Value should not be rounded / do not round last digit
+        return s0;
+    }
+
+    // Remove trailing zeros
+    string s1;
+    if (s0[last - 1] == '0') {
+        s1 = s0; // Recycle original string
+    } else if (useExp) {
+        s1 = fmt::format(fmt::format("{:.{}e}", x, precision - 2));
+    } else {
+        s1 = fmt::format("{:.{}f}", x, precision - log10x - 2);
+    }
+    size_t digit = last - 2;
+    while (s1[digit] == '0' && s1[digit - 1] != '.') {
+        digit--;
+    }
+
+    // Assemble rounded value and return
+    if (useExp) {
+        size_t eloc = s1.find('e');
+        s0 = string(s1.begin() + eloc, s1.end());
+    }
+    s1 = string(s1.begin(), s1.begin() + digit + 1);
+    if (useExp) {
+        return s1 + s0;
+    }
+    return s1;
 }
 
 struct Quantity
@@ -263,8 +279,7 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
             string valueStr;
             bool foundType = true;
             if (value.is<double>()) {
-                valueStr = formatDouble(value.asDouble(),
-                                     getPrecision(value));
+                valueStr = formatDouble(value.asDouble(), getPrecision(value));
             } else if (value.is<string>()) {
                 valueStr = value.asString();
             } else if (value.is<long int>()) {
