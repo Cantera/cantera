@@ -7,6 +7,7 @@
 #define CT_YAMLWRITER_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/AnyMap.h"
 #include "cantera/base/Units.h"
 
 namespace Cantera
@@ -22,6 +23,9 @@ class YamlWriter
 {
 public:
     YamlWriter();
+
+    //! Include top-level information used in YAML header block
+    void addHeader(const AnyMap& header);
 
     //! Include a phase definition for the specified Solution object
     void addPhase(shared_ptr<Solution> soln);
@@ -66,6 +70,9 @@ public:
     void setUnitSystem(const UnitSystem& units=UnitSystem());
 
 protected:
+    //! Top-level information used in YAML header block
+    AnyMap m_header;
+
     std::vector<shared_ptr<Solution>> m_phases;
 
     //! @see setPrecision()
