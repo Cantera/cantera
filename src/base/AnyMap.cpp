@@ -213,6 +213,7 @@ Cantera::AnyValue Empty;
 namespace YAML { // YAML converters
 
 using namespace Cantera;
+static const int max_line_length = 87;
 
 template<>
 struct convert<Cantera::AnyMap> {
@@ -275,7 +276,9 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
             }
 
             if (foundType) {
-                if (width + name.size() + valueStr.size() + 4 > 87) {
+                // Check if this item will fit on the current line, including spaces
+                // for delimiters and whitespace. If not, wrap to the next line.
+                if (width + name.size() + valueStr.size() + 4 > max_line_length) {
                     out << YAML::Newline;
                     width = 15;
                 }
@@ -301,6 +304,10 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
     return out;
 }
 
+//! Write a vector in YAML "flow" style, wrapping lines to avoid exceeding the
+//! preferred maximum line length (set by `max_line_length`). Specialized for
+//! `vector<double>` to be able to use the custom `formatDouble` function with
+//! a given precision.
 void emitFlowVector(YAML::Emitter& out, const vector<double>& v, long int precision)
 {
     out << YAML::Flow;
@@ -308,16 +315,19 @@ void emitFlowVector(YAML::Emitter& out, const vector<double>& v, long int precis
     size_t width = 15; // wild guess, but no better value is available
     for (auto& x : v) {
         string xstr = formatDouble(x, precision);
-        if (width + xstr.size() > 87) {
+        // Wrap to the next line if this item would exceed the target line length
+        if (width + xstr.size() > max_line_length) {
             out << YAML::Newline;
             width = 15;
         }
         out << xstr;
-        width += xstr.size() + 2;
+        width += xstr.size() + 2; // Update width including comma and space
     }
     out << YAML::EndSeq;
 }
 
+//! Write a vector in YAML "flow" style, wrapping lines to avoid exceeding the
+//! preferred maximum line length (set by `max_line_length`).
 template <typename T>
 void emitFlowVector(YAML::Emitter& out, const vector<T>& v)
 {
@@ -326,7 +336,8 @@ void emitFlowVector(YAML::Emitter& out, const vector<T>& v)
     size_t width = 15; // wild guess, but no better value is available
     for (const auto& x : v) {
         string xstr = fmt::format("{}", x);
-        if (width + xstr.size() > 87) {
+        // Wrap to the next line if this item would exceed the target line length
+        if (width + xstr.size() > max_line_length) {
             out << YAML::Newline;
             width = 15;
         }
