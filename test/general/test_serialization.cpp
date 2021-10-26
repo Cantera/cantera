@@ -58,6 +58,26 @@ TEST(YamlWriter, userDefinedFields)
     EXPECT_FALSE(spec2->transport->input.hasKey("bogus-field"));
 }
 
+TEST(YamlWriter, literalStrings)
+{
+    auto original = newSolution("ideal-gas.yaml", "simple");
+    YamlWriter writer;
+    writer.addPhase(original);
+    writer.toYamlFile("generated-literal.yaml");
+    auto duplicate = newSolution("generated-literal.yaml");
+    auto thermo1 = original->thermo();
+    auto thermo2 = duplicate->thermo();
+
+    EXPECT_EQ(thermo1->input()["literal-string"].asString(),
+              thermo2->input()["literal-string"].asString());
+
+    auto spec1 = thermo1->species("O2");
+    auto spec2 = thermo2->species("O2");
+
+    EXPECT_EQ(spec1->input["another-literal-string"].asString(),
+              spec2->input["another-literal-string"].asString());
+}
+
 TEST(YamlWriter, sharedSpecies)
 {
     auto original1 = newSolution("ideal-gas.yaml", "simple");
