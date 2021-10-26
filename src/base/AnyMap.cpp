@@ -319,6 +319,41 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
     return out;
 }
 
+//! Emit YAML string. In case the input string includes a newline character `\n`,
+//! a YAML literal string is emitted; otherwise, the output is a regular string.
+void emitString(YAML::Emitter& out, const string str0) {
+    size_t endline = str0.rfind('\n');
+    if (endline == std::string::npos) {
+        out << str0;
+        return;
+    }
+
+    // Remove trailing line break
+    string str1 = str0;
+    if (endline == str1.size() - 1) {
+        str1.erase(endline, 1);
+        endline = str1.rfind('\n');
+    }
+
+    // Deblank lines (remove whitespace surrounding line breaks)
+    while (endline != std::string::npos) {
+        size_t len = 1;
+        while (str1[endline + len] == ' ') {
+            len++; // account for whitespace after line break
+        }
+        while (str1[endline - 1] == ' ') {
+            len++; // account for whitespace before line break
+            endline--;
+        }
+        if (len > 1) {
+            // remove surrounding whitespace
+            str1.replace(endline, len, "\n");
+        }
+        endline = str1.rfind('\n', endline - 1);
+    }
+    out << YAML::Literal << str1;
+}
+
 //! Write a vector in YAML "flow" style, wrapping lines to avoid exceeding the
 //! preferred maximum line length (set by `max_line_length`). Specialized for
 //! `vector<double>` to be able to use the custom `formatDouble` function with
@@ -366,7 +401,7 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyValue& rhs)
 {
     if (rhs.isScalar()) {
         if (rhs.is<string>()) {
-            out << rhs.asString();
+            emitString(out, rhs.asString());
         } else if (rhs.is<double>()) {
             out << formatDouble(rhs.asDouble(), getPrecision(rhs));
         } else if (rhs.is<long int>()) {
