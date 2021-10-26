@@ -542,12 +542,11 @@ class TestSolutionSerialization(utilities.CanteraTest):
             # Check that items are ordered as expected
             self.assertEqual(
                 list(data),
-                ['name', 'thermo', 'elements', 'species', 'state', 'custom-field']
+                ["name", "thermo", "elements", "species", "state",
+                 "custom-field", "literal-string"]
             )
-            self.assertEqual(
-                list(data['custom-field']),
-                ['first', 'second', 'last']
-            )
+            self.assertEqual(list(data["custom-field"]), ["first", "second", "last"])
+            self.assertEqual(data["literal-string"], "spam\nand\neggs\n")
 
     def test_input_data_debye_huckel(self):
         soln = ct.Solution('thermo-models.yaml', 'debye-huckel-B-dot-ak')

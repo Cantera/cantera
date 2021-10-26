@@ -8,6 +8,10 @@ phases:
     first: true
     second: [3.0, 5.0]
     last: [100, 200, 300]
+  literal-string: |
+    spam
+    and
+    eggs
   species: [O2, NO, N2]
   state: {T: 500.0, P: 10 atm, X: {O2: 0.21, N2: 0.79}}
 
@@ -94,6 +98,9 @@ species:
     - [3.282537840E+00, 1.483087540E-03, -7.579666690E-07, 2.094705550E-10,
        -2.167177940E-14, -1.088457720E+03, 5.453231290E+00]
     note: "TPIS89"
+  another-literal-string: |
+    foo
+    bar
 
 - name: NO
   composition: {N: 1, O: 1}
