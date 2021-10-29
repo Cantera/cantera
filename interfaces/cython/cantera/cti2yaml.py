@@ -1147,6 +1147,11 @@ class phase:
                     hits.append(reaction)
                 else:
                     misses.append(reaction)
+
+            if not hits:
+                _printerr("WARNING: Unable to generate field '{}'\nfrom reaction "
+                          "specification '{}' ".format(name, self.reactions[i][1]))
+
             _reactions[name] = hits
             _reactions["reactions"] = misses
             self.reactions[i] = [name, "all"]
