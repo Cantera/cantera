@@ -10,20 +10,22 @@ import shutil
 import enum
 from pathlib import Path
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union, List, Dict, Generator
 from collections.abc import Mapping as MappingABC
+from SCons.Variables import PathVariable, EnumVariable, BoolVariable
 
 try:
     import numpy as np
 except ImportError:
     np = None
 
-__all__ = ("logger", "remove_directory", "remove_file", "test_results",
+__all__ = ("Option", "PathOption", "BoolOption", "EnumOption", "Configuration",
+           "logger", "remove_directory", "remove_file", "test_results",
            "add_RegressionTest", "get_command_output", "listify", "which",
            "ConfigBuilder", "multi_glob", "get_spawn", "help", "quoted")
 
 if TYPE_CHECKING:
-    from typing import Iterable, Union, List, TypeVar, Dict
+    from typing import Iterable, TypeVar
     import SCons.Environment
     import SCons.Node.FS
     import SCons.Variables
@@ -32,6 +34,230 @@ if TYPE_CHECKING:
     LFSNode = List[Union[SCons.Node.FS.File, SCons.Node.FS.Dir]]
     SCVariables = SCons.Variables.Variables
     TPathLike = TypeVar("TPathLike", Path, str)
+
+
+class Option:
+    """Object corresponding to SCons configuration option"""
+
+    def __init__(self,
+            name: str,
+            description: str,
+            default: Union[bool, str],
+            choices: list=None):
+        self.variable = None
+        self.name = name
+        self.description = Option._deblank(description)
+        self.default = default
+        self.choices = choices
+
+    def __repr__(self):
+        if self.variable is None:
+            return f"{self.parameters}"
+        return f"{self.variable}{self.parameters}"
+
+    @property
+    def parameters(self) -> tuple:
+        """Parameters of the SCons configuration option"""
+        if self.choices is None:
+            return self.name, self.description, self.default
+        return self.name, self.description, self.default, self.choices
+
+    def to_scons(self, env: "SCEnvironment"=None) -> "SCVariables":
+        """Convert option to SCons variable"""
+        if isinstance(self.default, bool):
+            return self.parameters
+
+        if isinstance(self.default, str):
+            out = list(self.parameters)
+            if env is not None and "$" in out[2]:
+                out[2] = env.subst(out[2])
+            return tuple(out)
+
+        raise TypeError(f"Invalid defaults option with type '{type(self.default)}'")
+
+    @staticmethod
+    def _deblank(string: str) -> str:
+        """Remove whitespace before and after line breaks"""
+        out = [s.strip() for s in string.split("\n")]
+        if not len(out[-1]):
+            out = out[:-1]
+        out = "\n".join(out)
+        return out
+
+    def to_rest(self, defaults=True, dev=False, indent=3) -> str:
+        """Convert option to restructured text"""
+        tag = self.name.replace("_", "-").lower()
+        if dev:
+            tag += "-dev"
+
+        if self.variable == "PathVariable":
+            choices = f"``path/to/{self.name}``"
+        elif isinstance(self.choices, list):
+            choices = self.choices
+            for yes_no in ["n", "y"]:
+                if yes_no in choices:
+                    # ensure correct order
+                    choices.remove(yes_no)
+                    choices = [yes_no] + choices
+            choices = " | ".join([f"``'{c}'``" for c in choices])
+        elif self.variable == "BoolVariable" or isinstance(self.default, bool):
+            choices = "``'yes'`` | ``'no'``"
+        else:
+            choices = "``string``"
+
+        # formatting shortcuts
+        tab = " " * indent
+        bullet = "*"
+        bullet = f"{bullet:<{indent}}"
+        dash = "-"
+        dash = f"{dash:<{indent}}"
+
+        # assemble description
+        linebreak = "\n" + tab
+        description = linebreak.join(self.description.split("\n"))
+        pat = r'"([a-zA-Z0-9\-\+\*$_.,: =/\'\\]+)"'
+        double_quoted = []
+        for item in re.findall(pat, description):
+            # enclose double-quoted strings in '``'
+            found = f'"{item}"'
+            double_quoted += [found]
+            replacement = f"``{found}``"
+            description = description.replace(found, replacement)
+        pat = r"\'([a-zA-Z0-9\-\+\*$_.,:=/\\]+)\'"
+        for item in re.findall(pat, description):
+            # replace "'" for single-quoted words by '``'; do not replace "'" when
+            # whitespace is enclosed or if word is part of double-quoted string
+            if any([item in dq for dq in double_quoted]):
+                continue
+            found = f"'{item}'"
+            replacement = found.replace("'", "``")
+            description = description.replace(found, replacement)
+        pat = r"\*([^\*]+)"
+        asterisks = re.findall(pat, description)
+        if len(asterisks) == 1:
+            # catch unbalanced '*', for example in '*nix'
+            found = f"*{asterisks[0]}"
+            replacement = f"\{found}"
+            description = description.replace(found, replacement)
+
+        # assemble output
+        out = f".. _{tag}:\n\n"
+        out += f"{bullet}``{self.name}``: [ {choices} ]\n"
+        out += f"{tab}{description}\n\n"
+
+        # add information on default values
+        default = self.default if defaults else ""
+        if isinstance(default, dict):
+            comment, defaults = Option._parse_defaults(default)
+            out += f"{tab}{dash}default: {comment}\n\n"
+            for key, value in defaults.items():
+                if key == "default":
+                    out += f"{tab}{tab}{dash}Otherwise: ``'{value}'``\n"
+                else:
+                    out += f"{tab}{tab}{dash}{key}: ``'{value}'``\n"
+        else:
+            if isinstance(default, bool):
+                default = "yes" if default else "no"
+            out += f"{tab}{dash}default: ``'{default}'``\n"
+
+        return out
+
+    @staticmethod
+    def _parse_defaults(defaults: Dict[str, Union[str, bool]]) -> Union[str, str]:
+        """Assemble defaults from dictionary"""
+        compilers = {"cl": "MSVC", "gcc": "GCC", "icc": "ICC", "clang": "Clang"}
+        if not any([d in compilers for d in defaults]):
+            return "platform dependent", defaults
+
+        out = {}
+        for key, value in defaults.items():
+            if key in compilers:
+                key = f"If using {compilers[key]}"
+            elif key != "default":
+                key = f"If using {key}"
+            if isinstance(value, bool):
+                value = "yes" if value else "no"
+            out[key] = value
+        return "compiler dependent", out
+
+
+class PathOption(Option):
+    """Object corresponding to SCons PathVariable"""
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.variable = "PathVariable"
+
+    def to_scons(self, env: "SCEnvironment"=None) -> "SCVariables":
+        return PathVariable(*super().to_scons(env))
+
+
+class BoolOption(Option):
+    """Object corresponding to SCons BoolVariable"""
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.variable = "BoolVariable"
+
+    def to_scons(self, env: "SCEnvironment"=None) -> "SCVariables":
+        return BoolVariable(*super().to_scons(env))
+
+
+class EnumOption(Option):
+    """Object corresponding to SCons EnumVariable"""
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.variable = "EnumVariable"
+
+    def to_scons(self, env: "SCEnvironment"=None) -> "SCVariables":
+        return EnumVariable(*super().to_scons(env))
+
+
+class Configuration:
+    """
+    Class enabling selection of options based on attribute dictionary entries that
+    allow for differentiation between platform/compiler dependent options.
+    """
+
+    def __init__(self, options):
+        self.options = {}
+        for item in options:
+            if not isinstance(item, Option):
+                raise TypeError(f"Invalid option with type '{type(item)}'")
+            self.options[item.name] = item
+
+    def __getitem__(self, key: str) -> Union[str, bool, dict]:
+        """Make class subscriptable"""
+        return self.options[key]
+
+    def __len__(self) -> int:
+        """Length corresponds to number of keys"""
+        return len(self.options)
+
+    def __iter__(self) -> Generator:
+        """Returns itself as an iterator."""
+        for k in self.options.keys():
+            yield k
+
+    def select(self, key: str="default") -> None:
+        """Select attribute dictionary entries corresponding to *key*"""
+        for attr, item in self.options.items():
+
+            if isinstance(item.default, dict) and key in item.default:
+                self.options[attr].default = item.default[key]
+
+    def to_scons(
+            self,
+            keys: Union[str, List[str]]=None,
+            env: "SCEnvironment"=None) -> Union["SCVariables", List["SCVariables"]]:
+        """Convert options to SCons variables"""
+        if isinstance(keys, str):
+            return self.options[keys].to_scons(env)
+
+        if keys is None:
+            keys = list(self.options.keys())
+        return [self.options[key].to_scons(env) for key in keys]
 
 
 class LevelAdapter(logging.LoggerAdapter):
