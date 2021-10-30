@@ -156,11 +156,12 @@ if os.name == 'nt':
         defaultToolchain = 'msvc'
 
     windows_compiler_options.extend([
-        ('msvc_version',
-         """Version of Visual Studio to use. The default is the newest
-            installed version. Specify '12.0' for Visual Studio 2013 or '14.0'
-            for Visual Studio 2015.""",
-         ''),
+        (
+            "msvc_version",
+            """Version of Visual Studio to use. The default is the newest
+                installed version. Specify '12.0' for Visual Studio 2013 or '14.0'
+                for Visual Studio 2015.""",
+            ""),
         EnumVariable(
             'target_arch',
             """Target architecture. The default is the same architecture as the
@@ -356,28 +357,29 @@ config_options = [
     PathVariable(
         'libdirname',
         """Set this to the directory where Cantera libraries should be installed.
-           Some distributions (for example, Fedora/RHEL) use 'lib64' instead of 'lib' on 64-bit systems
-           or could use some other library directory name instead of 'lib' depends
-           on architecture and profile (for example, Gentoo 'libx32' on x32 profile).
-           If user didn't set 'libdirname' configuration variable set it to default value 'lib'""",
+           Some distributions (for example, Fedora/RHEL) use 'lib64' instead of 'lib'
+           on 64-bit systems or could use some other library directory name instead of
+           'lib' depends on architecture and profile (for example, Gentoo 'libx32' on
+           x32 profile). If the user didn't set the 'libdirname' configuration
+           variable, set it to the default value 'lib'""",
         'lib', PathVariable.PathAccept),
     EnumVariable(
         'python_package',
-        """If you plan to work in Python, then you need the ``full`` Cantera Python
+        """If you plan to work in Python, then you need the 'full' Cantera Python
            package. If, on the other hand, you will only use Cantera from some
            other language (for example, MATLAB or Fortran 90/95) and only need Python
-           to process CTI files, then you only need a ``minimal`` subset of the
-           package and Cython and NumPy are not necessary. The ``none`` option
+           to process YAML files, then you only need a 'minimal' subset of the
+           package and Cython and NumPy are not necessary. The 'none' option
            doesn't install any components of the Python interface. The default
            behavior is to build the full Python module for whichever version of
            Python is running SCons if the required prerequisites (NumPy and
-           Cython) are installed. Note: ``y`` is a synonym for ``full`` and ``n``
-           is a synonym for ``none``.""",
+           Cython) are installed. Note: 'y' is a synonym for 'full' and 'n'
+           is a synonym for 'none'.""",
         'default', ('full', 'minimal', 'none', 'n', 'y', 'default')),
     PathVariable(
         'python_cmd',
         """Cantera needs to know where to find the Python interpreter. If
-           PYTHON_CMD is not set, then the configuration process will use the
+           'PYTHON_CMD' is not set, then the configuration process will use the
            same Python interpreter being used by SCons.""",
         sys.executable, PathVariable.PathAccept),
     PathVariable(
@@ -418,9 +420,10 @@ config_options = [
            a compatible compiler (pgfortran, gfortran, ifort, g95) in the 'PATH' environment
            variable. Used only for compiling the Fortran 90 interface.""",
         '', PathVariable.PathAccept),
-    ('FORTRANFLAGS',
-     'Compilation options for the Fortran (90) compiler.',
-     '-O3'),
+    (
+        "FORTRANFLAGS",
+        """Compilation options for the Fortran (90) compiler.""",
+        "-O3"),
     BoolVariable(
         'coverage',
         """Enable collection of code coverage information with gcov.
@@ -506,13 +509,13 @@ config_options = [
         'blas_lapack_dir',
         """Directory containing the libraries specified by 'blas_lapack_libs'. Not
            needed if the libraries are installed in a standard location, for example,
-           ``/usr/lib``.""",
+           '/usr/lib'.""",
         '', PathVariable.PathAccept),
     EnumVariable(
         'lapack_names',
         """Set depending on whether the procedure names in the specified
            libraries are lowercase or uppercase. If you don't know, run 'nm' on
-           the library file (for example, 'nm libblas.a').""",
+           the library file (for example, "nm libblas.a").""",
         'lower', ('lower','upper')),
     BoolVariable(
         'lapack_ftn_trailing_underscore',
@@ -535,7 +538,7 @@ config_options = [
     (
         'env_vars',
         """Environment variables to propagate through to SCons. Either the
-           string "all" or a comma separated list of variable names, for example,
+           string 'all' or a comma separated list of variable names, for example,
            'LD_LIBRARY_PATH,HOME'.""",
         defaults.env_vars),
     BoolVariable(
@@ -655,7 +658,7 @@ config_options = [
         """The layout of the directory structure. 'standard' installs files to
            several subdirectories under 'prefix', for example, 'prefix/bin',
            'prefix/include/cantera', 'prefix/lib' etc. This layout is best used in
-           conjunction with "prefix'='/usr/local'". 'compact' puts all installed
+           conjunction with "prefix='/usr/local'". 'compact' puts all installed
            files in the subdirectory defined by 'prefix'. This layout is best
            with a prefix like '/opt/cantera'. 'debian' installs to the stage
            directory in a layout used for generating Debian packages.""",
