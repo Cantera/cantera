@@ -141,32 +141,61 @@ opts = Variables('cantera.conf')
 windows_compiler_options = []
 extraEnvArgs = {}
 
+
+class Defaults:
+    """Class enabling selection of options based on attribute dictionary entries"""
+
+    def apply(self, key="defaults"):
+        """Select attribute dictionary entries corresponding to *key*"""
+        for attr, val in self.__dict__.items():
+
+            if isinstance(val, dict) and key in val:
+                self.__dict__[attr] = val[key]
+
+
+def substitute(entries, env=None):
+    """Function substituting environment variables in configuration"""
+    out = []
+    for item in entries:
+        if env is not None and isinstance(item, tuple) and \
+                not isinstance(item[2], bool) and "$" in item[2]:
+            subst = list(item[:2]) + [env.subst(item[2])] + list(item[3:])
+            out.append(tuple(subst))
+        else:
+            out.append(item)
+
+    return out
+
+
+defaults = Defaults()
+
+defaults.toolchain = {"Windows": "msvc"}
+defaults.target_arch = {"Windows": "amd64"}
+
 if os.name == 'nt':
+    defaults.apply("Windows")
+
     # On Windows, target the same architecture as the current copy of Python,
     # unless the user specified another option.
-    if '64 bit' in sys.version:
-        target_arch = 'amd64'
-    else:
-        target_arch = 'x86'
+    if '64 bit' not in sys.version:
+        defaults.target_arch = "x86"
 
     # Make an educated guess about the right default compiler
     if which('g++') and not which('cl.exe'):
-        defaultToolchain = 'mingw'
-    else:
-        defaultToolchain = 'msvc'
+        defaults.toolchain = "mingw"
 
     windows_compiler_options.extend([
         (
             "msvc_version",
             """Version of Visual Studio to use. The default is the newest
                 installed version. Specify '12.0' for Visual Studio 2013 or '14.0'
-                for Visual Studio 2015.""",
+                for Visual Studio 2015. Windows MSVC only.""",
             ""),
         EnumVariable(
-            'target_arch',
+            "target_arch",
             """Target architecture. The default is the same architecture as the
-               installed version of Python.""",
-            target_arch, ('amd64', 'x86'))
+               installed version of Python. Windows only.""",
+            defaults.target_arch, ("amd64", "x86"))
     ])
     opts.AddVariables(*windows_compiler_options)
 
@@ -174,12 +203,14 @@ if os.name == 'nt':
     opts.Update(pickCompilerEnv)
 
     if pickCompilerEnv['msvc_version']:
-        defaultToolchain = 'msvc'
+        defaults.toolchain = "msvc"
 
-    windows_compiler_options.append(EnumVariable(
-        'toolchain',
-        """The preferred compiler toolchain.""",
-        defaultToolchain, ('msvc', 'mingw', 'intel')))
+    windows_compiler_options.append(
+        EnumVariable(
+            "toolchain",
+            """The preferred compiler toolchain. If MSVC is not on the path but
+            'g++' is on he path, 'mingw' is used as a backup. Windows only.""",
+            defaults.toolchain, ("msvc", "mingw", "intel")))
     opts.AddVariables(windows_compiler_options[-1])
     opts.Update(pickCompilerEnv)
 
@@ -238,41 +269,61 @@ if 'FRAMEWORKS' not in env:
 
 add_RegressionTest(env)
 
-class defaults: pass
+defaults.prefix = {"Windows": "$ProgramFiles\Cantera", "default": "/usr/local"}
+defaults.boostIncDir = ""
 
 if os.name == 'posix':
-    defaults.prefix = '/usr/local'
-    defaults.boostIncDir = ''
     env['INSTALL_MANPAGES'] = True
 elif os.name == 'nt':
     defaults.prefix = pjoin(os.environ['ProgramFiles'], 'Cantera')
-    defaults.boostIncDir = ''
     env['INSTALL_MANPAGES'] = False
 else:
     print("Error: Unrecognized operating system '%s'" % os.name)
     sys.exit(1)
 
+defaults.CXX = "${CXX}"
+defaults.CC = "${CC}"
+
 compiler_options = [
     ('CXX',
      """The C++ compiler to use.""",
-     env['CXX']),
+     defaults.CXX),
     ('CC',
      """The C compiler to use. This is only used to compile CVODE.""",
-     env['CC'])]
+     defaults.CC)]
+
+compiler_options = substitute(compiler_options, env=env)
 opts.AddVariables(*compiler_options)
 opts.Update(env)
 
-defaults.cxxFlags = ''
-defaults.ccFlags = ''
-defaults.noOptimizeCcFlags = '-O0'
-defaults.optimizeCcFlags = '-O3'
-defaults.debugCcFlags = '-g'
-defaults.noDebugCcFlags = ''
-defaults.debugLinkFlags = ''
-defaults.noDebugLinkFlags = ''
-defaults.warningFlags = '-Wall'
-defaults.buildPch = False
-defaults.sphinx_options = '-W --keep-going'
+defaults.cxxFlags = {"cl": "/EHsc", "Cygwin": "-std=gnu++11", "default": "-std=c++11"}
+defaults.ccFlags = {
+    "cl": "/MD /nologo /D_SCL_SECURE_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS",
+    "icc": "-vec-report0 -diag-disable 1478",
+    "clang": "-fcolor-diagnostics",
+    "default": "",
+}
+defaults.noOptimizeCcFlags = {"cl": "/Od /Ob0", "default": "-O0"}
+defaults.optimizeCcFlags = {
+    "cl": "/O2",
+    "gcc": "-O3 -Wno-inline",
+    "default": "-O3",
+}
+defaults.debugCcFlags = {"cl": "/Zi /Fd${TARGET}.pdb", "default": "-g"}
+defaults.noDebugCcFlags = ""
+defaults.debugLinkFlags = {"cl": "/DEBUG", "default": ""}
+defaults.noDebugLinkFlags = ""
+defaults.warningFlags = {"cl": "/W3", "icc": "-Wcheck", "default": "-Wall"}
+defaults.buildPch = {"icc": False, "default": True}
+
+defaults.threadFlags = {"Windows": "", "macOS": "", "default": "-pthread"}
+defaults.fsLayout = {"Windows": "compact", "default": "standard"}
+defaults.python_prefix = {"Windows": "", "default": "$prefix"}
+defaults.python_cmd = "${PYTHON_CMD}"
+defaults.env_vars = "PATH,LD_LIBRARY_PATH,PYTHONPATH"
+defaults.versionedSharedLibrary = {"mingw": False, "default": True}
+defaults.sphinx_options = "-W --keep-going"
+
 env['pch_flags'] = []
 env['openmp_flag'] = ['-fopenmp'] # used to generate sample build scripts
 
@@ -285,65 +336,41 @@ if env['OS'] == 'Darwin':
         env['openmp_flag'].insert(0, '-Xpreprocessor')
 
 if 'gcc' in env.subst('$CC') or 'gnu-cc' in env.subst('$CC'):
-    defaults.optimizeCcFlags += ' -Wno-inline'
+    defaults.apply("gcc")
     if env['OS'] == 'Cygwin':
         # See http://stackoverflow.com/questions/18784112
-        defaults.cxxFlags = '-std=gnu++11'
-    else:
-        defaults.cxxFlags = '-std=c++11'
-    defaults.buildPch = True
+        defaults.apply("Cygwin")
     env['pch_flags'] = ['-include', 'src/pch/system.h']
 
 elif env['CC'] == 'cl': # Visual Studio
-    defaults.cxxFlags = ['/EHsc']
-    defaults.ccFlags = ['/MD', '/nologo',
-                        '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS']
-    defaults.debugCcFlags = '/Zi /Fd${TARGET}.pdb'
-    defaults.noOptimizeCcFlags = '/Od /Ob0'
-    defaults.optimizeCcFlags = '/O2'
-    defaults.debugLinkFlags = '/DEBUG'
-    defaults.warningFlags = '/W3'
-    defaults.buildPch = True
+    defaults.apply("cl")
     env['pch_flags'] = ['/FIpch/system.h']
     env['openmp_flag'] = ['/openmp']
 
 elif 'icc' in env.subst('$CC'):
-    defaults.cxxFlags = '-std=c++11'
-    defaults.ccFlags = '-vec-report0 -diag-disable 1478'
-    defaults.warningFlags = '-Wcheck'
+    defaults.apply("icc")
     env['openmp_flag'] = ['-openmp']
 
 elif 'clang' in env.subst('$CC'):
-    defaults.ccFlags = '-fcolor-diagnostics'
-    defaults.cxxFlags = '-std=c++11'
-    defaults.buildPch = True
+    defaults.apply("clang")
     env['pch_flags'] = ['-include-pch', 'src/pch/system.h.gch']
 
 else:
     print("WARNING: Unrecognized C compiler '%s'" % env['CC'])
 
-if env['OS'] in ('Windows', 'Darwin'):
-    defaults.threadFlags = ''
-else:
-    defaults.threadFlags = '-pthread'
+if env['OS'] == 'Windows':
+    defaults.apply("Windows")
+elif env["OS"] == "Darwin":
+    defaults.apply("macOS")
 
 # InstallVersionedLib only fully functional in SCons >= 2.4.0
 # SHLIBVERSION fails with MinGW: http://scons.tigris.org/issues/show_bug.cgi?id=3035
 if (env['toolchain'] == 'mingw'
     or parse_version(SCons.__version__) < parse_version('2.4.0')):
-    defaults.versionedSharedLibrary = False
-else:
-    defaults.versionedSharedLibrary = True
+    defaults.apply("mingw")
 
-defaults.fsLayout = 'compact' if env['OS'] == 'Windows' else 'standard'
-defaults.env_vars = 'PATH,LD_LIBRARY_PATH,PYTHONPATH'
-
-defaults.python_prefix = '$prefix' if env['OS'] != 'Windows' else ''
-
-# Transform lists into strings to keep cantera.conf clean
-for key,value in defaults.__dict__.items():
-    if isinstance(value, (list, tuple)):
-        setattr(defaults, key, ' '.join(value))
+defaults.apply("default")
+defaults.python_cmd = sys.executable
 
 # **************************************
 # *** Read user-configurable options ***
@@ -351,8 +378,9 @@ for key,value in defaults.__dict__.items():
 
 config_options = [
     PathVariable(
-        'prefix',
-        'Set this to the directory where Cantera should be installed.',
+        "prefix",
+        """Set this to the directory where Cantera should be installed. On Windows
+           systems, '$ProgramFiles' typically refers to "C:\Program Files".""",
         defaults.prefix, PathVariable.PathAccept),
     PathVariable(
         'libdirname',
@@ -381,7 +409,7 @@ config_options = [
         """Cantera needs to know where to find the Python interpreter. If
            'PYTHON_CMD' is not set, then the configuration process will use the
            same Python interpreter being used by SCons.""",
-        sys.executable, PathVariable.PathAccept),
+        defaults.python_cmd, PathVariable.PathAccept),
     PathVariable(
         'python_prefix',
         """Use this option if you want to install the Cantera Python package to
@@ -404,7 +432,7 @@ config_options = [
         """Path to the MATLAB install directory. This should be the directory
            containing the 'extern', 'bin', etc. subdirectories. Typical values
            are: "C:/Program Files/MATLAB/R2011a" on Windows,
-           "/Applications/MATLAB_R2011a.app" on OS X, or
+           "/Applications/MATLAB_R2011a.app" on macOS, or
            "/opt/MATLAB/R2011a" on Linux.""",
         '', PathVariable.PathAccept),
     EnumVariable(
@@ -692,6 +720,8 @@ config_options = [
         Flow', Wiley Interscience, 2003).""",
         True),
 ]
+
+config_options = substitute(config_options, env=env)
 
 opts.AddVariables(*config_options)
 opts.Update(env)
