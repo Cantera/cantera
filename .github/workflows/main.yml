@@ -158,6 +158,15 @@ jobs:
           sphinxcontrib-katex sphinxcontrib-matlabdomain sphinxcontrib-doxylink
       - name: Build Cantera with documentation
         run: python3 `which scons` build -j2 doxygen_docs=y sphinx_docs=y debug=n optimize=n use_pch=n
+      - name: Create archive for docs output
+        run: |
+          cd build
+          tar -czf docs.tar.gz docs
+      - name: Store archive of docs output
+        uses: actions/upload-artifact@v2
+        with:
+          path: build/docs.tar.gz
+          retention-days: 2
       # The known_hosts key is generated with `ssh-keygen -F cantera.org` from a
       # machine that has previously logged in to cantera.org and trusts
       # that it logged in to the right machine
