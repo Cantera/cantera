@@ -21,7 +21,9 @@ def deblank(string):
     out = [s.strip() for s in string.split("\n")]
     if not len(out[-1]):
         out = out[:-1]
-    return "\n".join(out)
+    out = "\n".join(out)
+    # out = out.replace("\", "\").replace("$", "\$")
+    return out
 
 
 def convert(item):
@@ -91,7 +93,7 @@ class Option:
             return self.name, self.description, self.default
         return self.name, self.description, self.default, self.choices
 
-    def to_rest(self, dev=False, indent=3):
+    def to_rest(self, defaults=None, dev=False, indent=3):
         """
         Convert option to restructured text
         """
@@ -109,28 +111,43 @@ class Option:
                     # ensure correct order
                     choices.remove(yes_no)
                     choices = [yes_no] + choices
-            choices = " | ".join([f"``{c}``" for c in choices])
+            choices = " | ".join([f"``'{c}'``" for c in choices])
             default = self.default
         elif self.default in ["True", "False"]:
-            choices = "``yes`` | ``no``"
+            choices = "``'yes'`` | ``'no'``"
             default = "yes" if self.default == "True" else "no"
         elif self.func == "BoolVariable":
-            choices = "``yes`` | ``no``"
+            choices = "``'yes'`` | ``'no'``"
             default = self.default
         else:
             choices = "``string``"
             default = self.default
 
-        if default.startswith("defaults.") or default.startswith("sys."):
-            default = "''"
+        if default.startswith("defaults."):
+            if defaults is None:
+                default = ""
+            else:
+                attr = default.split('.')[1]
+                if attr in defaults:
+                    default = defaults[attr]
+                else:
+                    default = ""
+        elif default.startswith("sys."):
+            default = ""
         else:
-            default = f"'{default}'"
+            default = f"{default}"
+
+        # formatting shortcuts
+        tab = " " * indent
+        bullet = "*"
+        bullet = f"{bullet:<{indent}}"
+        dash = "-"
+        dash = f"{dash:<{indent}}"
 
         # assemble description
-        tab = " " * indent
         linebreak = "\n" + tab
         description = linebreak.join(self.description.split("\n"))
-        pat = r'"([a-zA-Z0-9\-\+_.,: =/\'\\]+)"'
+        pat = r'"([a-zA-Z0-9\-\+\*$_.,: =/\'\\]+)"'
         double_quoted = []
         for item in re.findall(pat, description):
             # enclose double-quoted strings in '``'
@@ -138,7 +155,7 @@ class Option:
             double_quoted += [found]
             replacement = f"``{found}``"
             description = description.replace(found, replacement)
-        pat = r"\'([a-zA-Z0-9\-\+_.,:=/\\]+)\'"
+        pat = r"\'([a-zA-Z0-9\-\+\*$_.,:=/\\]+)\'"
         for item in re.findall(pat, description):
             # replace "'" for single-quoted words by '``'; do not replace "'" when
             # whitespace is enclosed or if word is part of double-quoted string
@@ -147,7 +164,7 @@ class Option:
             found = f"'{item}'"
             replacement = found.replace("'", "``")
             description = description.replace(found, replacement)
-        pat = r"\*([a-zA-Z0-9\-\+_., :=/\'\\]+)"
+        pat = r"\*([^\*]+)"
         asterisks = re.findall(pat, description)
         if len(asterisks) == 1:
             # catch unbalanced '*', for example in '*nix'
@@ -157,11 +174,40 @@ class Option:
 
         # assemble output
         out = f".. _{tag}:\n\n"
-        out += f"*  ``{self.name}``: [ {choices} ]\n"
+        out += f"{bullet}``{self.name}``: [ {choices} ]\n"
         out += f"{tab}{description}\n\n"
-        out += f"{tab}- default: ``{default}``\n"
+
+        # add information on default values
+        if isinstance(default, dict):
+            comment, defaults = Option.parse_defaults(default)
+            out += f"{tab}{dash}default: {comment}\n\n"
+            for key, value in defaults.items():
+                if key == "default":
+                    out += f"{tab}{tab}{dash}Otherwise: ``'{value}'``\n"
+                else:
+                    out += f"{tab}{tab}{dash}{key}: ``'{value}'``\n"
+        else:
+            out += f"{tab}{dash}default: ``'{default}'``\n"
 
         return out
+
+    @staticmethod
+    def parse_defaults(defaults):
+        # check if this is a compiler option
+        compilers = {"cl": "MSVC", "gcc": "GCC", "icc": "ICC", "clang": "Clang"}
+        if not any([d in compilers for d in defaults]):
+            return "platform dependent", defaults
+
+        out = {}
+        for key, value in defaults.items():
+            if key in compilers:
+                key = f"If using {compilers[key]}"
+            elif key != "default":
+                key = f"If using {key}"
+            if isinstance(value, bool):
+                value = "yes" if value else "no"
+            out[key] = value
+        return "compiler dependent", out
 
     def __repr__(self):
         if self.func is None:
@@ -169,7 +215,7 @@ class Option:
         return f"{self.func}{self.args}"
 
 
-def parse(input_file, output_file, dev):
+def parse(input_file, output_file, dev, no_defaults):
     """Parse SConstruct and extract configuration"""
 
     with open(input_file, "r") as fid:
@@ -179,12 +225,14 @@ def parse(input_file, output_file, dev):
 
     names = ["windows_compiler_options", "compiler_options", "config_options"]
     options = {name: [] for name in names}
+    defaults = {}
 
     for node in ast.walk(tree):
 
         if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name) \
                 and len(node.targets) == 1:
-            # option is assigned as list
+
+            # configuration option is assigned as list
             name = node.targets[0].id
             if name not in names:
                 continue
@@ -199,9 +247,39 @@ def parse(input_file, output_file, dev):
 
             raise ValueError(f"Unable to process node {node.value} (name='{name}')")
 
+        elif isinstance(node, ast.Assign) \
+                and isinstance(node.targets[0], ast.Attribute) \
+                and len(node.targets) == 1:
+
+            # retrieve 'defaults' used for platform-dependent configurations
+            name = node.targets[0].value.id
+            if name == "defaults":
+                attr = node.targets[0].attr
+
+                if attr in defaults:
+                    # do not overwrite values
+                    continue
+
+                if isinstance(node.value, ast.Str):
+                    defaults[attr] = node.value.s
+                    continue
+
+                if isinstance(node.value, ast.Dict):
+                    items = {}
+                    for k, v in zip(node.value.keys, node.value.values):
+                        items[k.value] = v.value
+                    defaults[attr] = items
+                    continue
+
+                if isinstance(node.value, ast.Call):
+                    continue
+
+                raise ValueError(f"Unable to process node {node.value} (name='{name}')")
+
         elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) \
                 and isinstance(node.func.value, ast.Name):
-            # option is appended to list via 'append' or 'extend'
+
+            # configuration option is appended to list via 'append' or 'extend'
             if node.func.attr not in ["append", "extend"]:
                 continue
 
@@ -221,13 +299,17 @@ def parse(input_file, output_file, dev):
 
                 raise ValueError(f"Unable to process node {node}")
 
+    if no_defaults:
+        defaults = None
+
     with open(output_file, "w+") as fid:
         for config in names:
             for option in options[config]:
-                fid.write(option.to_rest(dev=dev))
+                fid.write(option.to_rest(defaults=defaults, dev=dev))
                 fid.write("\n")
 
     print(f"Done writing output to '{output_file}'.")
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -248,6 +330,11 @@ def main():
         action="store_true",
         default=False,
         help="Append '-dev' to filename and Sphinx references.")
+    parser.add_argument(
+        "--no-defaults",
+        action="store_true",
+        default=False,
+        help="Do not apply default values.")
 
     args = parser.parse_args()
     input_file = pathlib.Path(args.input)
@@ -256,7 +343,7 @@ def main():
         output_file += "-dev"
     output_file = pathlib.Path(output_file).with_suffix(".rst")
 
-    parse(input_file, output_file, args.dev)
+    parse(input_file, output_file, args.dev, args.no_defaults)
 
 
 if __name__ == "__main__":
