@@ -163,6 +163,15 @@ jobs:
           python3 site_scons/scons2rst.py --dev SConstruct config-options
           mkdir build/docs/scons
           mv config-options-dev.rst build/docs/scons/
+      - name: Create archive for docs output
+        run: |
+          cd build
+          tar -czf docs.tar.gz docs
+      - name: Store archive of docs output
+        uses: actions/upload-artifact@v2
+        with:
+          path: build/docs.tar.gz
+          retention-days: 2
       # The known_hosts key is generated with `ssh-keygen -F cantera.org` from a
       # machine that has previously logged in to cantera.org and trusts
       # that it logged in to the right machine
