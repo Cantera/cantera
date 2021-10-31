@@ -158,6 +158,11 @@ jobs:
           sphinxcontrib-katex sphinxcontrib-matlabdomain sphinxcontrib-doxylink
       - name: Build Cantera with documentation
         run: python3 `which scons` build -j2 doxygen_docs=y sphinx_docs=y debug=n optimize=n use_pch=n
+      - name: Capture configuration options from SConstruct
+        run: |
+          python3 site_scons/scons2rst.py --dev SConstruct config-options
+          mkdir build/docs/scons
+          mv config-options-dev.rst build/docs/scons/
       # The known_hosts key is generated with `ssh-keygen -F cantera.org` from a
       # machine that has previously logged in to cantera.org and trusts
       # that it logged in to the right machine
