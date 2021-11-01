@@ -195,8 +195,10 @@ if os.name == 'nt':
         (
             "msvc_version",
             """Version of Visual Studio to use. The default is the newest
-                installed version. Specify '12.0' for Visual Studio 2013 or '14.0'
-                for Visual Studio 2015. Windows MSVC only.""",
+               installed version. Specify '12.0' for Visual Studio 2013, '14.0' for
+               Visual Studio 2015, '14.1' ('14.1x') Visual Studio 2017, or '14.2'
+               ('14.2x') for Visual Studio 2019. For version numbers in parentheses,
+               'x' is a placeholder for a minor version number. Windows MSVC only.""",
             ""),
         EnumVariable(
             "target_arch",
@@ -216,7 +218,7 @@ if os.name == 'nt':
         EnumVariable(
             "toolchain",
             """The preferred compiler toolchain. If MSVC is not on the path but
-            'g++' is on he path, 'mingw' is used as a backup. Windows only.""",
+               'g++' is on the path, 'mingw' is used as a backup. Windows only.""",
             defaults.toolchain, ("msvc", "mingw", "intel")))
     opts.AddVariables(windows_compiler_options[-1])
     opts.Update(pickCompilerEnv)
@@ -444,7 +446,7 @@ config_options = [
         'matlab_path',
         """Path to the MATLAB install directory. This should be the directory
            containing the 'extern', 'bin', etc. subdirectories. Typical values
-           are: "C:/Program Files/MATLAB/R2011a" on Windows,
+           are: "C:\Program Files\MATLAB\R2021a" on Windows,
            "/Applications/MATLAB_R2011a.app" on macOS, or
            "/opt/MATLAB/R2011a" on Linux.""",
         '', PathVariable.PathAccept),
@@ -501,7 +503,7 @@ config_options = [
         'system_fmt',
         """Select whether to use the fmt library from a system installation
            ('y'), from a Git submodule ('n'), or to decide automatically
-           ('default').  If you do not want to use the Git submodule and fmt
+           ('default'). If you do not want to use the Git submodule and fmt
            is not installed directly into system include and library
            directories, then you will need to add those directories to
            'extra_inc_dirs' and 'extra_lib_dirs'. This installation of fmt
