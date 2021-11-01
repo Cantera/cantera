@@ -333,6 +333,12 @@ defaults.pch_flags = {
     "default": "",
 }
 defaults.thread_flags = {"Windows": "", "macOS": "", "default": "-pthread"}
+defaults.openmp_flag = {
+    "cl": "/openmp",
+    "icc": "openmp",
+    "apple-clang": "-Xpreprocessor -fopenmp",
+    "default": "-fopenmp",
+}
 defaults.fs_layout = {"Windows": "compact", "default": "standard"}
 defaults.python_prefix = {"Windows": "", "default": "$prefix"}
 defaults.python_cmd = "${PYTHON_CMD}"
@@ -340,15 +346,13 @@ defaults.env_vars = "PATH,LD_LIBRARY_PATH,PYTHONPATH"
 defaults.versioned_shared_library = {"mingw": False, "default": True}
 defaults.sphinx_options = "-W --keep-going"
 
-env['openmp_flag'] = ['-fopenmp'] # used to generate sample build scripts
-
-env['using_apple_clang'] = False
 # Check if this is actually Apple's clang on macOS
+env['using_apple_clang'] = False
 if env['OS'] == 'Darwin':
     result = subprocess.check_output([env.subst('$CC'), '--version']).decode('utf-8')
     if 'clang' in result.lower() and ('Xcode' in result or 'Apple' in result):
         env['using_apple_clang'] = True
-        env['openmp_flag'].insert(0, '-Xpreprocessor')
+        defaults.select("apple-clang")
 
 if 'gcc' in env.subst('$CC') or 'gnu-cc' in env.subst('$CC'):
     if env['OS'] == 'Cygwin':
@@ -357,11 +361,9 @@ if 'gcc' in env.subst('$CC') or 'gnu-cc' in env.subst('$CC'):
 
 elif env['CC'] == 'cl': # Visual Studio
     defaults.select("cl")
-    env['openmp_flag'] = ['/openmp']
 
 elif 'icc' in env.subst('$CC'):
     defaults.select("icc")
-    env['openmp_flag'] = ['-openmp']
 
 elif 'clang' in env.subst('$CC'):
     defaults.select("clang")
@@ -696,6 +698,11 @@ config_options = [
         """If enabled, link to all shared libraries using 'rpath', i.e., a fixed
            run-time search path for dynamic library loading.""",
         True),
+    (
+        "openmp_flag",
+        """Compiler flags used for multiprocessing (only used to generate sample build
+           scripts).""",
+        defaults.openmp_flag),
     EnumVariable(
         'layout',
         """The layout of the directory structure. 'standard' installs files to
@@ -892,6 +899,7 @@ env['CPPDEFINES'] = {}
 
 env['warning_flags'] = listify(env['warning_flags'])
 env["pch_flags"] = listify(env["pch_flags"])
+env["openmp_flag"] = listify(env["openmp_flag"])
 
 if env['optimize']:
     env['CCFLAGS'] += listify(env['optimize_flags'])
