@@ -143,9 +143,16 @@ extraEnvArgs = {}
 
 
 class Defaults:
-    """Class enabling selection of options based on attribute dictionary entries"""
+    """
+    Class enabling selection of options based on attribute dictionary entries that
+    allof for differentiation between platform/compiler dependent options.
 
-    def apply(self, key="defaults"):
+    Individual member variables are assigned explicitly after object instantiation, and
+    should contain strings specifying platform/compiler independent default options, or
+    dictionaries with platform/compiler dependent options.
+    """
+
+    def select(self, key="default"):
         """Select attribute dictionary entries corresponding to *key*"""
         for attr, val in self.__dict__.items():
 
@@ -173,11 +180,11 @@ defaults.toolchain = {"Windows": "msvc"}
 defaults.target_arch = {"Windows": "amd64"}
 
 if os.name == 'nt':
-    defaults.apply("Windows")
+    defaults.select("Windows")
 
     # On Windows, target the same architecture as the current copy of Python,
     # unless the user specified another option.
-    if '64 bit' not in sys.version:
+    if "64 bit" not in sys.version:
         defaults.target_arch = "x86"
 
     # Make an educated guess about the right default compiler
@@ -270,7 +277,7 @@ if 'FRAMEWORKS' not in env:
 add_RegressionTest(env)
 
 defaults.prefix = {"Windows": "$ProgramFiles\Cantera", "default": "/usr/local"}
-defaults.boostIncDir = ""
+defaults.boost_inc_dir = ""
 
 if os.name == 'posix':
     env['INSTALL_MANPAGES'] = True
@@ -281,47 +288,51 @@ else:
     print("Error: Unrecognized operating system '%s'" % os.name)
     sys.exit(1)
 
-defaults.CXX = "${CXX}"
-defaults.CC = "${CC}"
+defaults.cxx = "${CXX}"
+defaults.cc = "${CC}"
 
 compiler_options = [
     ('CXX',
      """The C++ compiler to use.""",
-     defaults.CXX),
+     defaults.cxx),
     ('CC',
      """The C compiler to use. This is only used to compile CVODE.""",
-     defaults.CC)]
+     defaults.cc)]
 
 compiler_options = substitute(compiler_options, env=env)
 opts.AddVariables(*compiler_options)
 opts.Update(env)
 
-defaults.cxxFlags = {"cl": "/EHsc", "Cygwin": "-std=gnu++11", "default": "-std=c++11"}
-defaults.ccFlags = {
+defaults.cxx_flags = {
+    "cl": "/EHsc",
+    "Cygwin": "-std=gnu++11", # See http://stackoverflow.com/questions/18784112
+    "default": "-std=c++11"
+}
+defaults.cc_flags = {
     "cl": "/MD /nologo /D_SCL_SECURE_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS",
     "icc": "-vec-report0 -diag-disable 1478",
     "clang": "-fcolor-diagnostics",
     "default": "",
 }
-defaults.noOptimizeCcFlags = {"cl": "/Od /Ob0", "default": "-O0"}
-defaults.optimizeCcFlags = {
+defaults.no_optimize_cc_flags = {"cl": "/Od /Ob0", "default": "-O0"}
+defaults.optimize_cc_flags = {
     "cl": "/O2",
     "gcc": "-O3 -Wno-inline",
     "default": "-O3",
 }
-defaults.debugCcFlags = {"cl": "/Zi /Fd${TARGET}.pdb", "default": "-g"}
-defaults.noDebugCcFlags = ""
-defaults.debugLinkFlags = {"cl": "/DEBUG", "default": ""}
-defaults.noDebugLinkFlags = ""
-defaults.warningFlags = {"cl": "/W3", "icc": "-Wcheck", "default": "-Wall"}
-defaults.buildPch = {"icc": False, "default": True}
+defaults.debug_cc_flags = {"cl": "/Zi /Fd${TARGET}.pdb", "default": "-g"}
+defaults.no_debug_cc_flags = ""
+defaults.debug_link_flags = {"cl": "/DEBUG", "default": ""}
+defaults.no_debug_link_flags = ""
+defaults.warning_flags = {"cl": "/W3", "icc": "-Wcheck", "default": "-Wall"}
+defaults.build_pch = {"icc": False, "default": True}
 
-defaults.threadFlags = {"Windows": "", "macOS": "", "default": "-pthread"}
-defaults.fsLayout = {"Windows": "compact", "default": "standard"}
+defaults.thread_flags = {"Windows": "", "macOS": "", "default": "-pthread"}
+defaults.fs_layout = {"Windows": "compact", "default": "standard"}
 defaults.python_prefix = {"Windows": "", "default": "$prefix"}
 defaults.python_cmd = "${PYTHON_CMD}"
 defaults.env_vars = "PATH,LD_LIBRARY_PATH,PYTHONPATH"
-defaults.versionedSharedLibrary = {"mingw": False, "default": True}
+defaults.versioned_shared_library = {"mingw": False, "default": True}
 defaults.sphinx_options = "-W --keep-going"
 
 env['pch_flags'] = []
@@ -336,40 +347,39 @@ if env['OS'] == 'Darwin':
         env['openmp_flag'].insert(0, '-Xpreprocessor')
 
 if 'gcc' in env.subst('$CC') or 'gnu-cc' in env.subst('$CC'):
-    defaults.apply("gcc")
     if env['OS'] == 'Cygwin':
-        # See http://stackoverflow.com/questions/18784112
-        defaults.apply("Cygwin")
+        defaults.select("Cygwin")
+    defaults.select("gcc")
     env['pch_flags'] = ['-include', 'src/pch/system.h']
 
 elif env['CC'] == 'cl': # Visual Studio
-    defaults.apply("cl")
+    defaults.select("cl")
     env['pch_flags'] = ['/FIpch/system.h']
     env['openmp_flag'] = ['/openmp']
 
 elif 'icc' in env.subst('$CC'):
-    defaults.apply("icc")
+    defaults.select("icc")
     env['openmp_flag'] = ['-openmp']
 
 elif 'clang' in env.subst('$CC'):
-    defaults.apply("clang")
+    defaults.select("clang")
     env['pch_flags'] = ['-include-pch', 'src/pch/system.h.gch']
 
 else:
     print("WARNING: Unrecognized C compiler '%s'" % env['CC'])
 
 if env['OS'] == 'Windows':
-    defaults.apply("Windows")
+    defaults.select("Windows")
 elif env["OS"] == "Darwin":
-    defaults.apply("macOS")
+    defaults.select("macOS")
 
 # InstallVersionedLib only fully functional in SCons >= 2.4.0
 # SHLIBVERSION fails with MinGW: http://scons.tigris.org/issues/show_bug.cgi?id=3035
 if (env['toolchain'] == 'mingw'
     or parse_version(SCons.__version__) < parse_version('2.4.0')):
-    defaults.apply("mingw")
+    defaults.select("mingw")
 
-defaults.apply("default")
+defaults.select("default")
 defaults.python_cmd = sys.executable
 
 # **************************************
@@ -572,21 +582,21 @@ config_options = [
     BoolVariable(
         'use_pch',
         """Use a precompiled-header to speed up compilation""",
-        defaults.buildPch),
+        defaults.build_pch),
     (
         'cxx_flags',
         """Compiler flags passed to the C++ compiler only. Separate multiple
            options with spaces, for example, "cxx_flags='-g -Wextra -O3 --std=c++11'"
            """,
-        defaults.cxxFlags),
+        defaults.cxx_flags),
     (
         'cc_flags',
         """Compiler flags passed to both the C and C++ compilers, regardless of optimization level.""",
-        defaults.ccFlags),
+        defaults.cc_flags),
     (
         'thread_flags',
         """Compiler and linker flags for POSIX multithreading support.""",
-        defaults.threadFlags),
+        defaults.thread_flags),
     BoolVariable(
         'optimize',
         """Enable extra compiler optimizations specified by the
@@ -596,11 +606,11 @@ config_options = [
     (
         'optimize_flags',
         """Additional compiler flags passed to the C/C++ compiler when 'optimize=yes'.""",
-        defaults.optimizeCcFlags),
+        defaults.optimize_cc_flags),
     (
         'no_optimize_flags',
         """Additional compiler flags passed to the C/C++ compiler when 'optimize=no'.""",
-        defaults.noOptimizeCcFlags),
+        defaults.no_optimize_cc_flags),
     BoolVariable(
         'debug',
         """Enable compiler debugging symbols.""",
@@ -608,25 +618,25 @@ config_options = [
     (
         'debug_flags',
         """Additional compiler flags passed to the C/C++ compiler when 'debug=yes'.""",
-        defaults.debugCcFlags),
+        defaults.debug_cc_flags),
     (
         'no_debug_flags',
         """Additional compiler flags passed to the C/C++ compiler when 'debug=no'.""",
-        defaults.noDebugCcFlags),
+        defaults.no_debug_cc_flags),
     (
         'debug_linker_flags',
         """Additional options passed to the linker when 'debug=yes'.""",
-        defaults.debugLinkFlags),
+        defaults.debug_link_flags),
     (
         'no_debug_linker_flags',
         """Additional options passed to the linker when 'debug=no'.""",
-        defaults.noDebugLinkFlags),
+        defaults.no_debug_link_flags),
     (
         'warning_flags',
         """Additional compiler flags passed to the C/C++ compiler to enable
            extra warnings. Used only when compiling source code that is part
            of Cantera (for example, excluding code in the 'ext' directory).""",
-        defaults.warningFlags),
+        defaults.warning_flags),
     (
         'extra_inc_dirs',
         """Additional directories to search for header files, with multiple
@@ -641,7 +651,7 @@ config_options = [
         'boost_inc_dir',
         """Location of the Boost header files. Not needed if the headers are
            installed in a standard location, for example, '/usr/include'.""",
-        defaults.boostIncDir, PathVariable.PathAccept),
+        defaults.boost_inc_dir, PathVariable.PathAccept),
     PathVariable(
         'stage_dir',
         """Directory relative to the Cantera source directory to be
@@ -675,7 +685,7 @@ config_options = [
            actual library and 'libcantera_shared.so' and 'libcantera_shared.so.2'
            as symlinks.
            """,
-        defaults.versionedSharedLibrary),
+        defaults.versioned_shared_library),
     BoolVariable(
         'use_rpath_linkage',
         """If enabled, link to all shared libraries using 'rpath', i.e., a fixed
@@ -690,7 +700,7 @@ config_options = [
            files in the subdirectory defined by 'prefix'. This layout is best
            with a prefix like '/opt/cantera'. 'debian' installs to the stage
            directory in a layout used for generating Debian packages.""",
-        defaults.fsLayout, ('standard','compact','debian')),
+        defaults.fs_layout, ('standard','compact','debian')),
     BoolVariable(
         "fast_fail_tests",
         """If enabled, tests will exit at the first failure.""",
