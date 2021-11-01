@@ -326,7 +326,12 @@ defaults.debug_link_flags = {"cl": "/DEBUG", "default": ""}
 defaults.no_debug_link_flags = ""
 defaults.warning_flags = {"cl": "/W3", "icc": "-Wcheck", "default": "-Wall"}
 defaults.build_pch = {"icc": False, "default": True}
-
+defaults.pch_flags = {
+    "cl": "/FIpch/system.h",
+    "gcc": "-include src/pch/system.h",
+    "clang": "-include-pch src/pch/system.h.gch",
+    "default": "",
+}
 defaults.thread_flags = {"Windows": "", "macOS": "", "default": "-pthread"}
 defaults.fs_layout = {"Windows": "compact", "default": "standard"}
 defaults.python_prefix = {"Windows": "", "default": "$prefix"}
@@ -335,7 +340,6 @@ defaults.env_vars = "PATH,LD_LIBRARY_PATH,PYTHONPATH"
 defaults.versioned_shared_library = {"mingw": False, "default": True}
 defaults.sphinx_options = "-W --keep-going"
 
-env['pch_flags'] = []
 env['openmp_flag'] = ['-fopenmp'] # used to generate sample build scripts
 
 env['using_apple_clang'] = False
@@ -350,11 +354,9 @@ if 'gcc' in env.subst('$CC') or 'gnu-cc' in env.subst('$CC'):
     if env['OS'] == 'Cygwin':
         defaults.select("Cygwin")
     defaults.select("gcc")
-    env['pch_flags'] = ['-include', 'src/pch/system.h']
 
 elif env['CC'] == 'cl': # Visual Studio
     defaults.select("cl")
-    env['pch_flags'] = ['/FIpch/system.h']
     env['openmp_flag'] = ['/openmp']
 
 elif 'icc' in env.subst('$CC'):
@@ -363,7 +365,6 @@ elif 'icc' in env.subst('$CC'):
 
 elif 'clang' in env.subst('$CC'):
     defaults.select("clang")
-    env['pch_flags'] = ['-include-pch', 'src/pch/system.h.gch']
 
 else:
     print("WARNING: Unrecognized C compiler '%s'" % env['CC'])
@@ -583,6 +584,10 @@ config_options = [
         'use_pch',
         """Use a precompiled-header to speed up compilation""",
         defaults.build_pch),
+    (
+        'pch_flags',
+        """Compiler flags when using precompiled-header.""",
+        defaults.pch_flags),
     (
         'cxx_flags',
         """Compiler flags passed to the C++ compiler only. Separate multiple
@@ -886,6 +891,7 @@ env['LINKFLAGS'] += listify(env['thread_flags'])
 env['CPPDEFINES'] = {}
 
 env['warning_flags'] = listify(env['warning_flags'])
+env["pch_flags"] = listify(env["pch_flags"])
 
 if env['optimize']:
     env['CCFLAGS'] += listify(env['optimize_flags'])
