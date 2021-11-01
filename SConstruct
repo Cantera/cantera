@@ -64,6 +64,11 @@ if not COMMAND_LINE_TARGETS:
     logger.info(__doc__, print_level=False)
     sys.exit(0)
 
+if parse_version(SCons.__version__) < parse_version("3.0.0"):
+    logger.info("Cantera requires SCons with a minimum version of 3.0.0. Exiting.",
+                print_level=False)
+    sys.exit(0)
+
 valid_commands = ("build", "clean", "install", "uninstall",
                   "help", "msi", "samples", "sphinx", "doxygen", "dump")
 
@@ -378,10 +383,8 @@ if env['OS'] == 'Windows':
 elif env["OS"] == "Darwin":
     defaults.select("macOS")
 
-# InstallVersionedLib only fully functional in SCons >= 2.4.0
 # SHLIBVERSION fails with MinGW: http://scons.tigris.org/issues/show_bug.cgi?id=3035
-if (env['toolchain'] == 'mingw'
-    or parse_version(SCons.__version__) < parse_version('2.4.0')):
+if (env["toolchain"] == "mingw"):
     defaults.select("mingw")
 
 defaults.select("default")
