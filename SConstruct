@@ -69,6 +69,10 @@ if parse_version(SCons.__version__) < parse_version("3.0.0"):
                 print_level=False)
     sys.exit(0)
 
+if os.name not in ["nt", "posix"]:
+    print(f"Error: Unrecognized operating system '{os.name}'")
+    sys.exit(1)
+
 valid_commands = ("build", "clean", "install", "uninstall",
                   "help", "msi", "samples", "sphinx", "doxygen", "dump", "get-options")
 
@@ -660,33 +664,29 @@ env["OS_BITS"] = int(platform.architecture()[0][:2])
 if "cygwin" in env["OS"].lower():
     env["OS"] = "Cygwin" # remove Windows version suffix
 
-# Fixes a linker error in Windows
-if os.name == "nt" and "TMP" in os.environ:
-    env["ENV"]["TMP"] = os.environ["TMP"]
-
-# Fixes issues with Python subprocesses. See http://bugs.python.org/issue13524
-if os.name == "nt":
-    env["ENV"]["SystemRoot"] = os.environ["SystemRoot"]
+if "FRAMEWORKS" not in env:
+    env["FRAMEWORKS"] = []
 
 # Needed for Matlab to source ~/.matlab7rc.sh
 if "HOME" in os.environ:
     env["ENV"]["HOME"] = os.environ["HOME"]
 
-# Fix an issue with Unicode sneaking into the environment on Windows
 if os.name == "nt":
+    env["INSTALL_MANPAGES"] = False
+
+    # Fixes a linker error in Windows
+    if "TMP" in os.environ:
+        env["ENV"]["TMP"] = os.environ["TMP"]
+
+    # Fixes issues with Python subprocesses. See http://bugs.python.org/issue13524
+    env["ENV"]["SystemRoot"] = os.environ["SystemRoot"]
+
+    # Fix an issue with Unicode sneaking into the environment on Windows
     for key,val in env["ENV"].items():
         env["ENV"][key] = str(val)
 
-if "FRAMEWORKS" not in env:
-    env["FRAMEWORKS"] = []
-
-if os.name == "posix":
-    env["INSTALL_MANPAGES"] = True
-elif os.name == "nt":
-    env["INSTALL_MANPAGES"] = False
 else:
-    print(f"Error: Unrecognized operating system '{os.name}'")
-    sys.exit(1)
+    env["INSTALL_MANPAGES"] = True
 
 add_RegressionTest(env)
 
