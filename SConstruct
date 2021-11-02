@@ -556,6 +556,10 @@ config_options = [
         True),
 ]
 
+windows_compiler_options = Configuration(windows_compiler_options)
+compiler_options = Configuration(compiler_options)
+config_options = Configuration(config_options)
+
 if "get-options" in COMMAND_LINE_TARGETS:
 
     invalid_args = set(ARGUMENTS.keys()) - {"dev", "output"}
@@ -566,11 +570,10 @@ if "get-options" in COMMAND_LINE_TARGETS:
         sys.exit(1)
 
     dev = ARGUMENTS.get("dev") in ["True", "y", "yes"]
-    message = []
-    for config in [windows_compiler_options, compiler_options, config_options]:
 
-        for option in config:
-            message.append(option.to_rest(dev=dev))
+    message = windows_compiler_options.to_rest(dev=dev, include_header=True)
+    message += compiler_options.to_rest(dev=dev)
+    message += config_options.to_rest(dev=dev)
 
     output = ARGUMENTS.get("output", None)
     if output:
@@ -591,9 +594,6 @@ if "get-options" in COMMAND_LINE_TARGETS:
 # *** Read user-configurable options ***
 # **************************************
 
-compiler_options = Configuration(compiler_options)
-config_options = Configuration(config_options)
-
 opts = Variables("cantera.conf")
 
 extraEnvArgs = {}
@@ -601,7 +601,6 @@ extraEnvArgs = {}
 if os.name == "nt":
     config_options["prefix"].default = pjoin(os.environ["ProgramFiles"], "Cantera")
 
-    windows_compiler_options = Configuration(windows_compiler_options)
     windows_compiler_options.select("Windows")
 
     # On Windows, target the same architecture as the current copy of Python,
@@ -747,7 +746,16 @@ for option in opts.keys():
             env[option] = modified
 
 if "help" in COMMAND_LINE_TARGETS:
-    help(env, opts)
+
+    if ARGUMENTS.get("old") in ["True", "y", "yes"]:
+        help(env, opts)
+        sys.exit(0)
+
+    message = windows_compiler_options.help(include_header=True, env=env)
+    message += compiler_options.help(env=env)
+    message += config_options.help(env=env)
+
+    logger.info("\n".join(message), print_level=False)
     sys.exit(0)
 
 if 'doxygen' in COMMAND_LINE_TARGETS:
