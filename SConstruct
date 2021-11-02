@@ -135,16 +135,11 @@ if "test-clean" in COMMAND_LINE_TARGETS:
     remove_directory("test/work")
     remove_directory("build/python_local")
 
-# ******************************************************
-# *** Set system-dependent defaults for some options ***
-# ******************************************************
-
 logger.info("SCons is using the following Python interpreter: {}", sys.executable)
 
-
-# *****************************************
-# *** Specify user-configurable options ***
-# *****************************************
+# ******************************************
+# *** Specify defaults for SCons options ***
+# ******************************************
 
 windows_compiler_options = [
     Option(
@@ -559,14 +554,32 @@ config_options = [
 
 if "get-options" in COMMAND_LINE_TARGETS:
 
-    dev = False
-    message = [];
+    invalid_args = set(ARGUMENTS.keys()) - {"dev", "output"}
+    if invalid_args:
+        logger.error(
+            f"Unrecognized command line options: {invalid_args};"
+            "valid options are 'dev' and 'output'.", print_level=False)
+        sys.exit(1)
+
+    dev = ARGUMENTS.get("dev") in ["True", "y", "yes"]
+    message = []
     for config in [windows_compiler_options, compiler_options, config_options]:
 
         for option in config:
             message.append(option.to_rest(dev=dev))
 
-    logger.info("\n".join(message), print_level=False)
+    output = ARGUMENTS.get("output", None)
+    if output:
+        output_file = Path(output).with_suffix(".rst")
+        with open(output_file, "w+") as fid:
+            fid.write("\n".join(message))
+
+        logger.info(f"Done writing output options to '{output_file}'.",
+                    print_level=False)
+
+    else:
+        logger.info("\n".join(message), print_level=False)
+
     sys.exit(0)
 
 
