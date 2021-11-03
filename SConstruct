@@ -556,32 +556,47 @@ config_options = [
 config = Configuration()
 
 if "help" in COMMAND_LINE_TARGETS:
+    AddOption(
+        "--restructured-text", dest="rest",
+        action="store_true", help="Format defaults as ReST")
+    AddOption(
+        "--option", dest="option", nargs=1, type="string",
+        action="store", help="Output help for specific option")
+    AddOption(
+        "--defaults", dest="defaults",
+        action="store_true", help="All defaults (CLI only)")
+    AddOption(
+        "--dev", dest="dev",
+        action="store_true", help="Append -dev (ReST only)")
+    AddOption(
+        "--output", dest="output", nargs=1, type="string",
+        action="store", help="Output file (ReST only)")
 
-    invalid_args = set(ARGUMENTS.keys()) - {"all", "dev", "rest", "option", "output"}
-    if invalid_args:
-        logger.error(
-            f"Unrecognized command line options: {invalid_args};"
-            "valid options are 'dev' and 'output'.", print_level=False)
-        sys.exit(1)
+    rest = GetOption("rest")
+    defaults = GetOption("defaults") is not None
 
-    yes = ["y", "yes", "true", "True"]
-    help = ARGUMENTS.get("all") in yes and ARGUMENTS.get("rest") not in yes
-    rest = ARGUMENTS.get("rest") in yes
-
-    if help or rest:
+    if defaults or rest:
 
         config.add(windows_options)
         config.add(config_options)
-        option = ARGUMENTS.get("option")
+        option = GetOption("option")
 
-        if help:
-            logger.info(config.help(option), print_level=False)
-            sys.exit(0)
+        if defaults:
+            try:
+                logger.info(config.help(option), print_level=False)
+                sys.exit(0)
+            except KeyError as err:
+                logger.error(f"{err}")
+                sys.exit(1)
 
-        dev = ARGUMENTS.get("dev") in yes
-        message = config.to_rest(option, dev=dev)
+        dev = GetOption("dev") is not None
+        try:
+            message = config.to_rest(option, dev=dev)
+        except KeyError as err:
+            logger.error(f"{err}")
+            sys.exit(1)
 
-        output = ARGUMENTS.get("output", None)
+        output = GetOption("output")
         if output:
             output_file = Path(output).with_suffix(".rst")
             with open(output_file, "w+") as fid:
@@ -747,10 +762,13 @@ for option in opts.keys():
             env[option] = modified
 
 if "help" in COMMAND_LINE_TARGETS:
-    option = ARGUMENTS.get("option")
-    message = config.help(option, env=env)
-    logger.info(message, print_level=False)
-    sys.exit(0)
+    option = GetOption("option")
+    try:
+        logger.info(config.help(option, env=env), print_level=False)
+        sys.exit(0)
+    except KeyError as err:
+        logger.error(f"{err}")
+        sys.exit(1)
 
 if 'doxygen' in COMMAND_LINE_TARGETS:
     env['doxygen_docs'] = True
