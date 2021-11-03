@@ -742,7 +742,8 @@ if "help" in COMMAND_LINE_TARGETS:
         help(env, opts)
         sys.exit(0)
 
-    message = config.help(include_header=True, env=env)
+    option = ARGUMENTS.get("option")
+    message = config.help(option, env=env)
     logger.info(message, print_level=False)
     sys.exit(0)
 

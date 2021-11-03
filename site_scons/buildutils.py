@@ -371,14 +371,18 @@ class Configuration:
 
         return "\n".join(message)
 
-    def help(self, env: "SCEnvironment"=None, include_header: bool=False) -> List[str]:
+    def help(self, option: str=None, env: "SCEnvironment"=None) -> List[str]:
         """Convert configuration help for command line interface (CLI) output"""
-        message = []
-        if include_header:
-            message.extend(self.header)
-            message.append(f"{'':->80}")
-            message.append("")
-            message = ["\n".join(message)]
+        if option is None:
+            pass
+        elif option in self.options:
+            return self.options[option].help(env=env)
+        else:
+            raise KeyError(f"Unknown option '{option}''.")
+
+        message = self.header
+        message.append(f"{'':->80}")
+        message.append("")
 
         for key in self:
             message.append(self.options[key].help(env=env))
