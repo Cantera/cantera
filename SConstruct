@@ -74,7 +74,7 @@ if os.name not in ["nt", "posix"]:
     sys.exit(1)
 
 valid_commands = ("build", "clean", "install", "uninstall",
-                  "help", "msi", "samples", "sphinx", "doxygen", "dump", "get-options")
+                  "help", "msi", "samples", "sphinx", "doxygen", "dump")
 
 for command in COMMAND_LINE_TARGETS:
     if command not in valid_commands and not command.startswith('test'):
@@ -557,6 +557,9 @@ config = Configuration()
 
 if "help" in COMMAND_LINE_TARGETS:
     AddOption(
+        "--list-options", dest="list",
+        action="store_true", help="List available options")
+    AddOption(
         "--restructured-text", dest="rest",
         action="store_true", help="Format defaults as ReST")
     AddOption(
@@ -572,28 +575,37 @@ if "help" in COMMAND_LINE_TARGETS:
         "--output", dest="output", nargs=1, type="string",
         action="store", help="Output file (ReST only)")
 
+    list = GetOption("list")
     rest = GetOption("rest")
     defaults = GetOption("defaults") is not None
 
-    if defaults or rest:
+    if defaults or rest or list:
 
         config.add(windows_options)
         config.add(config_options)
         option = GetOption("option")
+
+        if list:
+            # show formatted list of options
+            logger.info("\nConfiguration options for building Cantera:", print_level=False)
+            logger.info(config.list_options(), print_level=False)
+            sys.exit(0)
 
         if defaults:
             try:
                 logger.info(config.help(option), print_level=False)
                 sys.exit(0)
             except KeyError as err:
-                logger.error(f"{err}")
+                message = "Run 'scons help --list-options' to see available options."
+                logger.error(f"{err}.\n{message}")
                 sys.exit(1)
 
         dev = GetOption("dev") is not None
         try:
             message = config.to_rest(option, dev=dev)
         except KeyError as err:
-            logger.error(f"{err}")
+            message = "Run 'scons help --list-options' to see available options."
+            logger.error(f"{err}.\n{message}")
             sys.exit(1)
 
         output = GetOption("output")
@@ -767,7 +779,8 @@ if "help" in COMMAND_LINE_TARGETS:
         logger.info(config.help(option, env=env), print_level=False)
         sys.exit(0)
     except KeyError as err:
-        logger.error(f"{err}")
+        message = "Run 'scons help --list-options' to see available options."
+        logger.error(f"{err}.\n{message}")
         sys.exit(1)
 
 if 'doxygen' in COMMAND_LINE_TARGETS:
