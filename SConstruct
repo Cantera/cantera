@@ -737,11 +737,6 @@ for option in opts.keys():
             env[option] = modified
 
 if "help" in COMMAND_LINE_TARGETS:
-
-    if ARGUMENTS.get("old") in ["True", "y", "yes"]:
-        help(env, opts)
-        sys.exit(0)
-
     option = ARGUMENTS.get("option")
     message = config.help(option, env=env)
     logger.info(message, print_level=False)

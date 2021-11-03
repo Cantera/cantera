@@ -22,7 +22,7 @@ except ImportError:
 __all__ = ("Option", "PathOption", "BoolOption", "EnumOption", "Configuration",
            "logger", "remove_directory", "remove_file", "test_results",
            "add_RegressionTest", "get_command_output", "listify", "which",
-           "ConfigBuilder", "multi_glob", "get_spawn", "help", "quoted")
+           "ConfigBuilder", "multi_glob", "get_spawn", "quoted")
 
 if TYPE_CHECKING:
     from typing import Iterable, TypeVar
@@ -1047,92 +1047,6 @@ def which(program: str) -> bool:
             if exe_file.exists() and os.access(exe_file, os.X_OK):
                 return True
     return False
-
-
-def help(env: "SCEnvironment", options: "SCVariables") -> None:
-    """Print help about configuration options and exit.
-
-    Print a nicely formatted description of a SCons configuration
-    option, its permitted values, default value, and current value
-    if different from the default.
-    """
-
-    message = [
-        textwrap.dedent(
-            """
-                **************************************************
-                *   Configuration options for building Cantera   *
-                **************************************************
-
-        The following options can be passed to SCons to customize the Cantera
-        build process. They should be given in the form:
-
-            scons build option1=value1 option2=value2
-
-        Variables set in this way will be stored in the 'cantera.conf' file and reused
-        automatically on subsequent invocations of scons. Alternatively, the
-        configuration options can be entered directly into 'cantera.conf' before
-        running 'scons build'. The format of this file is:
-
-            option1 = 'value1'
-            option2 = 'value2'
-
-                **************************************************"""
-        )
-    ]
-
-    option_wrapper = textwrap.TextWrapper(
-        initial_indent=4 * " ",
-        subsequent_indent=4 * " ",
-        width=72,
-    )
-    for opt in options.options:
-        # Extract the help description from the permitted values. Original format
-        # is in the format: "Help text (value1|value2)" for EnumVariable and
-        # BoolVariable types or "Help text" for other Variables
-        if opt.help.endswith(")"):
-            help, values = opt.help.rsplit("(", maxsplit=1)
-            values = values.rstrip(")").strip().replace("|", " | ")
-            if not values:
-                values = "string"
-        else:
-            help = opt.help
-            values = "string"
-
-        # First line: "* option-name: [ choice1 | choice2 ]"
-        lines = [f"* {opt.key}: [ {values} ]"]
-
-        # Help text, wrapped and indented 4 spaces
-        lines.extend(option_wrapper.wrap(re.sub(r"\s+", " ", help)))
-
-        # Fix the representation of Boolean options, which are stored as
-        # Python bool types
-        default = opt.default
-        if default is True:
-            default = "yes"
-        elif default is False:
-            default = "no"
-
-        lines.append(f"    - default: {default!r}")
-
-        # Get the actual value in the current environment
-        if opt.key in env:
-            actual = env.subst(f"${opt.key!s}")
-        else:
-            actual = None
-
-        # Fix the representation of Boolean options to match the default values
-        if actual == "True":
-            actual = "yes"
-        elif actual == "False":
-            actual = "no"
-
-        # Print the value if it differs from the default
-        if actual != default:
-            lines.append(f"    - actual: {actual!r}")
-        message.append("\n".join(lines))
-
-    logger.info("\n\n".join(message), print_level=False)
 
 
 def listify(value: "Union[str, Iterable]") -> "List[str]":
