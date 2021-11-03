@@ -240,6 +240,9 @@ class Option:
         out += self._build_description(backticks=False, indent=4)
         out += self._build_defaults(self.default, backticks=False, indent=2, hanging=2)
 
+        if env is None:
+            return out
+
         # Get the actual value in the current environment
         actual = env.subst(f"${self.name!s}") if self.name in env else None
 
@@ -358,14 +361,18 @@ class Configuration:
 
         return out
 
-    def to_rest(self, dev: bool=False, include_header: bool=False) -> str:
+    def to_rest(self, option: str=None, dev: bool=False) -> str:
         """Convert description of configuration options to restructured text (ReST)"""
-        message = []
-        if include_header:
-            message.append("Options List")
-            message.append(f"{'':^<{len(message[-1])}}")
-            message.append("")
-            message = ["\n".join(message)]
+        if option is None:
+            pass
+        elif option in self.options:
+            return "\n" + self.options[option].to_rest(dev=dev)
+        else:
+            raise KeyError(f"Unknown option '{option}'.")
+
+        message = ["Options List"]
+        message.append(f"{'':^<{len(message[-1])}}")
+        message.append("")
         for key in self:
             message.append(self.options[key].to_rest(dev=dev))
 
@@ -376,9 +383,9 @@ class Configuration:
         if option is None:
             pass
         elif option in self.options:
-            return self.options[option].help(env=env)
+            return "\n" + self.options[option].help(env=env)
         else:
-            raise KeyError(f"Unknown option '{option}''.")
+            raise KeyError(f"Unknown option '{option}'.")
 
         message = self.header
         message.append(f"{'':->80}")
