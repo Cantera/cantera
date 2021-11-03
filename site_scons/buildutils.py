@@ -321,6 +321,35 @@ class Configuration:
                 raise TypeError(f"Invalid option with type '{type(item)}'")
             self.options[item.name] = item
 
+    def list_options(self):
+        """Create formatted list of available configuration options"""
+        options = list(self.options.keys())
+
+        # create alphabetically sorted list
+        options.sort()
+        n_columns = 3
+        n_rows = len(options) // n_columns
+        n_extra = len(options) % n_columns
+        if n_extra:
+            # add one additional row to fit all options
+            n_rows += 1
+            options.extend([""] * (n_columns - n_extra))
+
+        # get width of individual columns
+        max_len = [
+            max([len(options[row + col * n_rows]) + 3
+                for row in range(n_rows)])
+            for col in range(n_columns)]
+
+        # format options as alphabetically ordered columns
+        out = []
+        for row in range(n_rows):
+            line = []
+            for col in range(n_columns):
+                line.append(f"{options[row + col * n_rows]:{max_len[col]}}")
+            out.append("".join(line))
+        return "\n".join(out)
+
     def __getitem__(self, key: str) -> Union[str, bool, dict]:
         """Make class subscriptable"""
         return self.options[key]
@@ -368,7 +397,7 @@ class Configuration:
         elif option in self.options:
             return "\n" + self.options[option].to_rest(dev=dev)
         else:
-            raise KeyError(f"Unknown option '{option}'.")
+            raise KeyError(f"Unknown option '{option}'")
 
         message = ["Options List"]
         message.append(f"{'':^<{len(message[-1])}}")
@@ -385,7 +414,7 @@ class Configuration:
         elif option in self.options:
             return "\n" + self.options[option].help(env=env)
         else:
-            raise KeyError(f"Unknown option '{option}'.")
+            raise KeyError(f"Unknown option '{option}'")
 
         message = self.header
         message.append(f"{'':->80}")
