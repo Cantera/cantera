@@ -555,35 +555,45 @@ config_options = [
 
 config = Configuration()
 
-if "get-options" in COMMAND_LINE_TARGETS:
+if "help" in COMMAND_LINE_TARGETS:
 
-    invalid_args = set(ARGUMENTS.keys()) - {"dev", "output"}
+    invalid_args = set(ARGUMENTS.keys()) - {"all", "dev", "rest", "option", "output"}
     if invalid_args:
         logger.error(
             f"Unrecognized command line options: {invalid_args};"
             "valid options are 'dev' and 'output'.", print_level=False)
         sys.exit(1)
 
-    dev = ARGUMENTS.get("dev") in ["True", "y", "yes"]
+    yes = ["y", "yes", "true", "True"]
+    help = ARGUMENTS.get("all") in yes and ARGUMENTS.get("rest") not in yes
+    rest = ARGUMENTS.get("rest") in yes
 
-    config.add(windows_options)
-    config.add(config_options)
-    message = config.to_rest(dev=dev, include_header=True)
+    if help or rest:
 
-    output = ARGUMENTS.get("output", None)
-    if output:
-        output_file = Path(output).with_suffix(".rst")
-        with open(output_file, "w+") as fid:
-            fid.write(message)
+        config.add(windows_options)
+        config.add(config_options)
+        option = ARGUMENTS.get("option")
 
-        logger.info(f"Done writing output options to '{output_file}'.",
-                    print_level=False)
+        if help:
+            logger.info(config.help(option), print_level=False)
+            sys.exit(0)
 
-    else:
-        logger.info(message, print_level=False)
+        dev = ARGUMENTS.get("dev") in yes
+        message = config.to_rest(option, dev=dev)
 
-    sys.exit(0)
+        output = ARGUMENTS.get("output", None)
+        if output:
+            output_file = Path(output).with_suffix(".rst")
+            with open(output_file, "w+") as fid:
+                fid.write(message)
 
+            logger.info(f"Done writing output options to '{output_file}'.",
+                        print_level=False)
+
+        else:
+            logger.info(message, print_level=False)
+
+        sys.exit(0)
 
 # **************************************
 # *** Read user-configurable options ***
