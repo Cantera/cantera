@@ -145,7 +145,7 @@ logger.info("SCons is using the following Python interpreter: {}", sys.executabl
 # *** Specify defaults for SCons options ***
 # ******************************************
 
-windows_compiler_options = [
+windows_options = [
     Option(
         "msvc_version",
         """Version of Visual Studio to use. The default is the newest
@@ -168,18 +168,35 @@ windows_compiler_options = [
         ("msvc", "mingw", "intel")),
 ]
 
-compiler_options = [
+config_options = [
     Option(
         "CXX",
         """The C++ compiler to use.""",
         "${CXX}"),
     Option(
+        'cxx_flags',
+        """Compiler flags passed to the C++ compiler only. Separate multiple
+           options with spaces, for example, "cxx_flags='-g -Wextra -O3 --std=c++11'"
+           """,
+        {
+            "cl": "/EHsc",
+            "Cygwin": "-std=gnu++11", # See http://stackoverflow.com/questions/18784112
+            "default": "-std=c++11"
+        }),
+    Option(
         "CC",
         """The C compiler to use. This is only used to compile CVODE.""",
         "${CC}"),
-]
-
-config_options = [
+    Option(
+        "cc_flags",
+        """Compiler flags passed to both the C and C++ compilers, regardless of
+            optimization level.""",
+        {
+            "cl": "/MD /nologo /D_SCL_SECURE_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS",
+            "icc": "-vec-report0 -diag-disable 1478",
+            "clang": "-fcolor-diagnostics",
+            "default": "",
+        }),
     PathOption(
         "prefix",
         """Set this to the directory where Cantera should be installed. On Windows
@@ -388,26 +405,6 @@ config_options = [
             "default": "",
         }),
     Option(
-        'cxx_flags',
-        """Compiler flags passed to the C++ compiler only. Separate multiple
-           options with spaces, for example, "cxx_flags='-g -Wextra -O3 --std=c++11'"
-           """,
-        {
-            "cl": "/EHsc",
-            "Cygwin": "-std=gnu++11", # See http://stackoverflow.com/questions/18784112
-            "default": "-std=c++11"
-        }),
-    Option(
-        "cc_flags",
-        """Compiler flags passed to both the C and C++ compilers, regardless of
-            optimization level.""",
-        {
-            "cl": "/MD /nologo /D_SCL_SECURE_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS",
-            "icc": "-vec-report0 -diag-disable 1478",
-            "clang": "-fcolor-diagnostics",
-            "default": "",
-        }),
-    Option(
         'thread_flags',
         """Compiler and linker flags for POSIX multithreading support.""",
         {"Windows": "", "macOS": "", "default": "-pthread"}),
@@ -556,9 +553,7 @@ config_options = [
         True),
 ]
 
-windows_compiler_options = Configuration(windows_compiler_options)
-compiler_options = Configuration(compiler_options)
-config_options = Configuration(config_options)
+config = Configuration()
 
 if "get-options" in COMMAND_LINE_TARGETS:
 
@@ -571,21 +566,21 @@ if "get-options" in COMMAND_LINE_TARGETS:
 
     dev = ARGUMENTS.get("dev") in ["True", "y", "yes"]
 
-    message = windows_compiler_options.to_rest(dev=dev, include_header=True)
-    message += compiler_options.to_rest(dev=dev)
-    message += config_options.to_rest(dev=dev)
+    config.add(windows_options)
+    config.add(config_options)
+    message = config.to_rest(dev=dev, include_header=True)
 
     output = ARGUMENTS.get("output", None)
     if output:
         output_file = Path(output).with_suffix(".rst")
         with open(output_file, "w+") as fid:
-            fid.write("\n".join(message))
+            fid.write(message)
 
         logger.info(f"Done writing output options to '{output_file}'.",
                     print_level=False)
 
     else:
-        logger.info("\n".join(message), print_level=False)
+        logger.info(message, print_level=False)
 
     sys.exit(0)
 
@@ -599,30 +594,30 @@ opts = Variables("cantera.conf")
 extraEnvArgs = {}
 
 if os.name == "nt":
-    config_options["prefix"].default = pjoin(os.environ["ProgramFiles"], "Cantera")
+    config.add(windows_options)
+    config.add(config_options)
 
-    windows_compiler_options.select("Windows")
+    config["prefix"].default = pjoin(os.environ["ProgramFiles"], "Cantera")
+    config.select("Windows")
 
     # On Windows, target the same architecture as the current copy of Python,
     # unless the user specified another option.
     if "64 bit" not in sys.version:
-        windows_compiler_options["target_arch"].default = "x86"
+        config["target_arch"].default = "x86"
 
-    windows_compiler_variables = windows_compiler_options.to_scons(["msvc_version", "target_arch"])
-    opts.AddVariables(*windows_compiler_variables)
+    opts.AddVariables(*config.to_scons(["msvc_version", "target_arch"]))
 
     windows_compiler_env = Environment()
     opts.Update(windows_compiler_env)
 
     # Make an educated guess about the right default compiler
     if which("g++") and not which("cl.exe"):
-        windows_compiler_options["toolchain"].default = "mingw"
+        config["toolchain"].default = "mingw"
 
     if windows_compiler_env["msvc_version"]:
-        windows_compiler_options["toolchain"].default = "msvc"
+        config["toolchain"].default = "msvc"
 
-    windows_compiler_variables.append(windows_compiler_options.to_scons("toolchain"))
-    opts.AddVariables(windows_compiler_variables[-1])
+    opts.AddVariables(*config.to_scons("toolchain"))
     opts.Update(windows_compiler_env)
 
     if windows_compiler_env["toolchain"] == "msvc":
@@ -647,10 +642,8 @@ if os.name == "nt":
         print_level=False)
     logger.info(f"Compiling using the following toolchain(s): {repr(toolchain)}",
         print_level=False)
-
-    windows_compiler_variables = windows_compiler_options.to_scons()
 else:
-    windows_compiler_variables = []
+    config.add(config_options)
     toolchain = ["default"]
 
 env = Environment(tools=toolchain+["textfile", "subst", "recursiveInstall", "wix", "gch"],
@@ -689,8 +682,7 @@ else:
 
 add_RegressionTest(env)
 
-compiler_variables = compiler_options.to_scons(env=env)
-opts.AddVariables(*compiler_variables)
+opts.AddVariables(*config.to_scons(["CC", "CXX"], env=env))
 opts.Update(env)
 
 # Check if this is actually Apple's clang on macOS
@@ -699,39 +691,38 @@ if env["OS"] == "Darwin":
     result = subprocess.check_output([env.subst("$CC"), "--version"]).decode("utf-8")
     if "clang" in result.lower() and ("Xcode" in result or "Apple" in result):
         env["using_apple_clang"] = True
-        config_options.select("apple-clang")
+        config.select("apple-clang")
 
 if "gcc" in env.subst("$CC") or "gnu-cc" in env.subst("$CC"):
     if env["OS"] == "Cygwin":
-        config_options.select("Cygwin")
-    config_options.select("gcc")
+        config.select("Cygwin")
+    config.select("gcc")
 
 elif env["CC"] == "cl": # Visual Studio
-    config_options.select("cl")
+    config.select("cl")
 
 elif "icc" in env.subst("$CC"):
-    config_options.select("icc")
+    config.select("icc")
 
 elif "clang" in env.subst("$CC"):
-    config_options.select("clang")
+    config.select("clang")
 
 else:
     print(f"WARNING: Unrecognized C compiler '{env['CC']}'")
 
 if env["OS"] == "Windows":
-    config_options.select("Windows")
+    config.select("Windows")
 elif env["OS"] == "Darwin":
-    config_options.select("macOS")
+    config.select("macOS")
 
 # SHLIBVERSION fails with MinGW: http://scons.tigris.org/issues/show_bug.cgi?id=3035
 if (env["toolchain"] == "mingw"):
-    config_options.select("mingw")
+    config.select("mingw")
 
-config_options.select("default")
-config_options["python_cmd"].default = sys.executable
+config.select("default")
+config["python_cmd"].default = sys.executable
 
-config_variables = config_options.to_scons()
-opts.AddVariables(*config_variables)
+opts.AddVariables(*config.to_scons())
 opts.Update(env)
 opts.Save('cantera.conf', env)
 
@@ -751,11 +742,8 @@ if "help" in COMMAND_LINE_TARGETS:
         help(env, opts)
         sys.exit(0)
 
-    message = windows_compiler_options.help(include_header=True, env=env)
-    message += compiler_options.help(env=env)
-    message += config_options.help(env=env)
-
-    logger.info("\n".join(message), print_level=False)
+    message = config.help(include_header=True, env=env)
+    logger.info(message, print_level=False)
     sys.exit(0)
 
 if 'doxygen' in COMMAND_LINE_TARGETS:
@@ -763,11 +751,8 @@ if 'doxygen' in COMMAND_LINE_TARGETS:
 if 'sphinx' in COMMAND_LINE_TARGETS:
     env['sphinx_docs'] = True
 
-valid_arguments = (set(opt[0] for opt in windows_compiler_variables) |
-                   set(opt[0] for opt in compiler_variables) |
-                   set(opt[0] for opt in config_variables))
 for arg in ARGUMENTS:
-    if arg not in valid_arguments:
+    if arg not in config:
         print('Encountered unexpected command line argument: %r' % arg)
         sys.exit(1)
 
@@ -805,7 +790,7 @@ elif env['env_vars']:
                 env['ENV'][name] = os.environ[name]
             if env['VERBOSE']:
                 print('Propagating environment variable {0}={1}'.format(name, env['ENV'][name]))
-        elif name not in config_options["env_vars"].default.split(','):
+        elif name not in config["env_vars"].default.split(','):
             print('WARNING: failed to propagate environment variable', repr(name))
             print('         Edit cantera.conf or the build command line to fix this.')
 

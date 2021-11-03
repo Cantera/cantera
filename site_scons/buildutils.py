@@ -305,8 +305,14 @@ class Configuration:
         )
     ]
 
-    def __init__(self, options: List[Option]=[]):
+    def __init__(self):
         self.options = {}
+        self.exported = []
+
+    def add(self, options: Union[Option, List[Option]]=[]) -> None:
+        """Add new options"""
+        if isinstance(options, Option):
+            options = [options]
         for item in options:
             if not isinstance(item, Option):
                 raise TypeError(f"Invalid option with type '{type(item)}'")
@@ -336,15 +342,23 @@ class Configuration:
             self,
             keys: Union[str, List[str]]=None,
             env: "SCEnvironment"=None) -> Union["SCVariables", List["SCVariables"]]:
-        """Convert options to SCons variables"""
+        """
+        Convert options to SCons variables.
+
+        To avoid redundant SCons options, each variable is only exported once.
+        """
         if isinstance(keys, str):
-            return self.options[keys].to_scons(env)
-
-        if keys is None:
+            keys = [keys]
+        elif keys is None:
             keys = list(self.options.keys())
-        return [self.options[key].to_scons(env) for key in keys]
 
-    def to_rest(self, dev: bool=False, include_header: bool=False) -> List[str]:
+        keys = [key for key in keys if key not in self.exported]
+        out = [self.options[key].to_scons(env) for key in keys]
+        self.exported += keys
+
+        return out
+
+    def to_rest(self, dev: bool=False, include_header: bool=False) -> str:
         """Convert description of configuration options to restructured text (ReST)"""
         message = []
         if include_header:
@@ -355,13 +369,12 @@ class Configuration:
         for key in self:
             message.append(self.options[key].to_rest(dev=dev))
 
-        return message
+        return "\n".join(message)
 
     def help(self, env: "SCEnvironment"=None, include_header: bool=False) -> List[str]:
         """Convert configuration help for command line interface (CLI) output"""
         message = []
         if include_header:
-            message.append("")
             message.extend(self.header)
             message.append(f"{'':->80}")
             message.append("")
@@ -370,7 +383,7 @@ class Configuration:
         for key in self:
             message.append(self.options[key].help(env=env))
 
-        return message
+        return "\n".join(message)
 
 
 class LevelAdapter(logging.LoggerAdapter):
