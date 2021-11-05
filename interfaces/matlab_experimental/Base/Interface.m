@@ -13,6 +13,15 @@ classdef Interface < handle
         %% Interface class constructor
 
         function s = Interface(src, id, p1, p2, p3, p4)
+            % :param src:
+            %    CTI or CTML file containing the interface or edge phase.
+            % :param id:
+            %    Name of the interface or edge phase in the source file.
+            % :param p1/P2/P3/P4:
+            %    Adjoining phase to the interface;
+            % :return:
+            %    Instance of class 'Interface'.
+
             checklib;
             t = ThermoPhase(src, id);
             if nargin == 2

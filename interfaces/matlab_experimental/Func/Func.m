@@ -4,7 +4,7 @@ classdef Func < handle
         f1
         f2
         coeffs
-        index
+        id
         typ
     end
 
@@ -93,12 +93,12 @@ classdef Func < handle
 
             if itype > 0
                 x.coeffs = p;
-                x.index = new_func(itype, n, p);
+                x.id = new_func(itype, n, p);
             elseif strcmp(typ, 'periodic')
                 itype = 50;
                 x.f1 = n;
                 x.coeffs = p;
-                x.index = new_func(itype, n.index, p);
+                x.id = new_func(itype, n.id, p);
             else
                 if strcmp(typ, 'sum')
                     itype = 20;
@@ -113,7 +113,7 @@ classdef Func < handle
                 end
                 x.f1 = n;
                 x.f2 = p;
-                x.index = new_func(itype, n.index, p.index);
+                x.id = new_func(itype, n.id, p.id);
             end
 
             x.typ = typ;
@@ -121,10 +121,10 @@ classdef Func < handle
 
         %% Utility methods
 
-        function func_clear(f)
-            % Clear the specified flow device from memory.
+        function clear(f)
+            % Clear the functor from memory.
             checklib;
-            calllib(f.lib, 'func_del', f.index);
+            calllib(f.lib, 'func_del', f.id);
         end
 
         function display(a)
@@ -174,7 +174,7 @@ classdef Func < handle
                 ind= s.subs{:};
                  b = zeros(1, length(ind));
                  for k = 1:length(ind)
-                     b(k) = calllib(a.lib, 'func_value', a.index, ind(k));
+                     b(k) = calllib(a.lib, 'func_value', a.id, ind(k));
                  end
             else error('Specify value for x as p(x)');
             end

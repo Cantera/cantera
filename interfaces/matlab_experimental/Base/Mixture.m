@@ -66,7 +66,7 @@ classdef Mixture < handle
                     error('Cell array of phases should have each phase on a new row');
                 end
                 for n = 1:np
-                    addPhase(m, phases{n, 1}, phases{n, 2});
+                    m.addPhase(phases{n, 1}, phases{n, 2});
                 end
                 m.T = phases{n, 1}.T;
                 m.P = phases{n, 1}.P;
@@ -89,7 +89,7 @@ classdef Mixture < handle
             end
         end
 
-        function mix_clear(m)
+        function clear(m)
             % Delete the MultiPhase object.
 
             checklib;

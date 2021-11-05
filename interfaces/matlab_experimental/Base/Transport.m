@@ -39,7 +39,7 @@ classdef Transport < handle
 
         %% Utility methods
 
-        function tr_clear(tr)
+        function clear(tr)
             % Delete the kernel object.
 
             checklib;

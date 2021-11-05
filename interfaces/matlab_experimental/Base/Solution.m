@@ -28,10 +28,10 @@ classdef Solution < handle
         end
 
         % Delete the kernel objects associated with a solution
-        function Clear_Obj(s)
-            s.thermo.tp_clear;
-            s.kinetics.kin_clear;
-            s.transport.tr_clear;
+        function clear(s)
+            s.thermo.clear;
+            s.kinetics.clear;
+            s.transport.clear;
         end
     end
 end
