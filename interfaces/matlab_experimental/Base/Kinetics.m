@@ -1,7 +1,7 @@
 classdef Kinetics < handle
     properties
-        kin_owner
-        kin_id
+        owner
+        id
         Kc % equilibrium constant
         Kf % forward reaction rate
         Kr % reverse reaction rate
@@ -25,7 +25,7 @@ classdef Kinetics < handle
             if nargin == 2
                 id = '-';
             end
-            kin.kin_owner = 1;
+            kin.owner = 1;
             % get the integer indices used to find the stored objects
             % representing the phases participating in the mechanism
             iph = ph.tp_id;
@@ -41,17 +41,17 @@ classdef Kinetics < handle
                     end
                 end
             end
-            kin.kin_id = calllib(kin.lib, 'kin_newFromFile', src, id, ...
-                                 iph, inb1, inb2, inb3, inb4);
+            kin.id = calllib(kin.lib, 'kin_newFromFile', src, id, ...
+                             iph, inb1, inb2, inb3, inb4);
         end
 
         %% Utility methods
 
-        function kin_clear(kin)
+        function clear(kin)
             % Delete the kernel object
 
             checklib;
-            calllib(kin.lib, 'kin_del', kin.kin_id);
+            calllib(kin.lib, 'kin_del', kin.id);
         end
 
         %% Get scalar attributes
@@ -135,7 +135,7 @@ classdef Kinetics < handle
             else error('stoich_r requires 1 or 3 arguments.')
             end
 
-            for k = range
+            for k = krange
                 for i = irange
                     t = calllib(kin.lib, 'kin_reactantStoichCoeff', ...
                                 kin.id, k-1, i-1);
@@ -218,9 +218,9 @@ classdef Kinetics < handle
 
             checklib;
             if nargin == 1
-                nu = stoich_p(kin)-stoich_r(kin);
+                n = stoich_p(kin)-stoich_r(kin);
             elseif nargin == 3
-                nu = stoich_p(a, species, rxns) - stoich_r (a, species, rxns);
+                n = stoich_p(a, species, rxns) - stoich_r (a, species, rxns);
             else error('stoich_net requires 1 or 3 arguments.');
             end
         end

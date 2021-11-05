@@ -1,5 +1,5 @@
 function Load_Cantera
-    addpath('Class', 'Utility', 'PresetObjects');
+    addpath('Class', 'Utility', 'PresetObjects', 'Examples');
     if ~libisloaded('cantera_shared')
         load('Utility/cantera_root.mat');
         [~,warnings] = loadlibrary([cantera_root '/lib/cantera_shared.dll'], ...

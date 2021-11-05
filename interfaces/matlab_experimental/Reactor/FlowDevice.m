@@ -2,7 +2,7 @@ classdef FlowDevice < handle
 
     properties
         type
-        index
+        id
         upstream
         downstream
     end
@@ -36,8 +36,8 @@ classdef FlowDevice < handle
             end
 
             x.type = typ;
-            x.index = calllib(x.lib, 'flowdev_new2', typ);
-%             if x.index < 0
+            x.id = calllib(x.lib, 'flowdev_new2', typ);
+%             if x.id < 0
 %                 error(geterr);
 %             end
             x.upstream = -1;
@@ -46,10 +46,10 @@ classdef FlowDevice < handle
 
         %% Utility methods
 
-        function flow_clear(f)
+        function clear(f)
             % Clear the specified flow device from memory.
             checklib;
-            calllib(f.lib, 'flowdev_del', f.index);
+            calllib(f.lib, 'flowdev_del', f.id);
         end
 
         %% FlowDevice methods
@@ -70,7 +70,7 @@ classdef FlowDevice < handle
                 end
                 i = upstream.id;
                 j = downstream.id;
-                ok = calllib(f.lib, 'flowdev_install', f.index, i, j);
+                ok = calllib(f.lib, 'flowdev_install', f.id, i, j);
 %                 if ok < 0
 %                     error(geterr)
 %                 end
@@ -105,7 +105,7 @@ classdef FlowDevice < handle
 
             checklib;
             if strcmp(f.type, 'MassFlowController')
-                k = calllib(f.lib, 'flowdev_setTimeFunction', f.index, ...
+                k = calllib(f.lib, 'flowdev_setTimeFunction', f.id, ...
                             mf.id);
 %                 if k < 0
 %                     error(geterr);
@@ -123,7 +123,7 @@ classdef FlowDevice < handle
 
             checklib;
             if strcmp(f.type, 'MassFlowController')
-                k = calllib(f.lib, 'flowdev_setMassFlowCoeff', f.index, mdot);
+                k = calllib(f.lib, 'flowdev_setMassFlowCoeff', f.id, mdot);
 %                 if k < 0
 %                     error(geterr);
 %                 end
@@ -147,7 +147,7 @@ classdef FlowDevice < handle
             if ~strcmp(f.type, 'Valve')
                 error('Valve coefficient can only be set for valves.');
             end
-            ok = calllib(f.lib, 'flowdev_setValveCoeff', f.index, k);
+            ok = calllib(f.lib, 'flowdev_setValveCoeff', f.id, k);
 %            if k < 0
 %                error(geterr);
 %            end

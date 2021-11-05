@@ -69,7 +69,7 @@ classdef ThermoPhase < handle
             calllib(tp.lib, 'thermo_print', tp.tp_id, 1, threshold);
         end
 
-        function tp_clear(tp)
+        function clear(tp)
             % Delete the kernel object.
 
             checklib;
