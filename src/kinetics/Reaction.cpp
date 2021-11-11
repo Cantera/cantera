@@ -581,7 +581,7 @@ std::pair<std::vector<std::string>, bool> ThreeBodyReaction2::undeclaredThirdBod
 
 FalloffReaction2::FalloffReaction2()
     : Reaction()
-    , falloff(new Falloff())
+    , falloff(new Lindemann())
     , allow_negative_pre_exponential_factor(false)
     , low_rate_units(0.0)
 {
@@ -596,7 +596,7 @@ FalloffReaction2::FalloffReaction2(
     , low_rate(low_rate_)
     , high_rate(high_rate_)
     , third_body(tbody)
-    , falloff(new Falloff())
+    , falloff(new Lindemann())
     , allow_negative_pre_exponential_factor(false)
     , low_rate_units(0.0)
 {
@@ -1082,6 +1082,7 @@ FalloffReaction3::FalloffReaction3(const Composition& reactants,
     m_third_body = std::make_shared<ThirdBody>(tbody);
     m_third_body->mass_action = false;
     AnyMap node = rate.parameters();
+    node.applyUnits();
     std::string rate_type = node["type"].asString();
     if (rate_type != "falloff" && rate_type != "chemically-activated") {
         // use node information to determine whether rate is a falloff rate

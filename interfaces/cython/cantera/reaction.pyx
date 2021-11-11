@@ -324,22 +324,21 @@ cdef class FalloffRate(ReactionRate):
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
-        cdef CxxFalloffRate[CxxFalloff3]* tmp = <CxxFalloffRate[CxxFalloff3]*>self.rate
-        self.falloff = <CxxFalloff3*>tmp
+        self.falloff = <CxxFalloffRate*>self.rate
 
     property low_rate:
         """ Get/Set the `Arrhenius` rate constant in the low-pressure limit """
         def __get__(self):
             return Arrhenius.wrap(&(self.falloff.lowRate()))
         def __set__(self, Arrhenius rate):
-            self.falloff.setLowRate(deref(rate.base))
+            self.falloff.setLowRate(deref(rate.rate))
 
     property high_rate:
         """ Get/Set the `Arrhenius` rate constant in the high-pressure limit """
         def __get__(self):
             return Arrhenius.wrap(&(self.falloff.highRate()))
         def __set__(self, Arrhenius rate):
-            self.falloff.setHighRate(deref(rate.base))
+            self.falloff.setHighRate(deref(rate.rate))
 
     property data:
         """ The array of coefficients used to define this falloff function. """
@@ -402,15 +401,14 @@ cdef class LindemannRate(FalloffRate):
     _reaction_rate_type = "Lindemann"
 
     def _from_empty(self):
-        self._rate.reset(new CxxFalloffRate[CxxLindemann]())
+        self._rate.reset(new CxxLindemann())
 
     def _from_dict(self, dict input_data):
-        self._rate.reset(new CxxFalloffRate[CxxLindemann](dict_to_anymap(input_data)))
+        self._rate = CxxNewReactionRate(dict_to_anymap(input_data))
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
-        cdef CxxFalloffRate[CxxLindemann]* tmp = <CxxFalloffRate[CxxLindemann]*>self.rate
-        self.falloff = <CxxFalloff3*>tmp
+        self.falloff = <CxxFalloffRate*>self.rate
 
 
 cdef class TroeRate(FalloffRate):
@@ -424,15 +422,14 @@ cdef class TroeRate(FalloffRate):
     _reaction_rate_type = "Troe"
 
     def _from_empty(self):
-        self._rate.reset(new CxxFalloffRate[CxxTroe]())
+        self._rate.reset(new CxxTroe())
 
     def _from_dict(self, dict input_data):
-        self._rate.reset(new CxxFalloffRate[CxxTroe](dict_to_anymap(input_data)))
+        self._rate = CxxNewReactionRate(dict_to_anymap(input_data))
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
-        cdef CxxFalloffRate[CxxTroe]* tmp = <CxxFalloffRate[CxxTroe]*>self.rate
-        self.falloff = <CxxFalloff3*>tmp
+        self.falloff = <CxxFalloffRate*>self.rate
 
 
 cdef class SriRate(FalloffRate):
@@ -446,15 +443,14 @@ cdef class SriRate(FalloffRate):
     _reaction_rate_type = "SRI"
 
     def _from_empty(self):
-        self._rate.reset(new CxxFalloffRate[CxxSri]())
+        self._rate.reset(new CxxSri())
 
     def _from_dict(self, dict input_data):
-        self._rate.reset(new CxxFalloffRate[CxxSri](dict_to_anymap(input_data)))
+        self._rate = CxxNewReactionRate(dict_to_anymap(input_data))
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
-        cdef CxxFalloffRate[CxxSri]* tmp = <CxxFalloffRate[CxxSri]*>self.rate
-        self.falloff = <CxxFalloff3*>tmp
+        self.falloff = <CxxFalloffRate*>self.rate
 
 
 cdef class TsangRate(FalloffRate):
@@ -464,15 +460,14 @@ cdef class TsangRate(FalloffRate):
     _reaction_rate_type = "Tsang"
 
     def _from_empty(self):
-        self._rate.reset(new CxxFalloffRate[CxxTsang]())
+        self._rate.reset(new CxxTsang())
 
     def _from_dict(self, dict input_data):
-        self._rate.reset(new CxxFalloffRate[CxxTsang](dict_to_anymap(input_data)))
+        self._rate = CxxNewReactionRate(dict_to_anymap(input_data))
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
-        cdef CxxFalloffRate[CxxTsang]* tmp = <CxxFalloffRate[CxxTsang]*>self.rate
-        self.falloff = <CxxFalloff3*>tmp
+        self.falloff = <CxxFalloffRate*>self.rate
 
 
 cdef class PlogRate(ReactionRate):
@@ -521,7 +516,14 @@ cdef class PlogRate(ReactionRate):
             cdef pair[double, CxxArrhenius2] item
             for p, rate in rates:
                 item.first = p
-                item.second = deref(rate.rate)
+                if rate.legacy is not NULL:
+                    item.second = deref(rate.legacy)
+                else:
+                    item.second = CxxArrhenius2(
+                        rate.rate.preExponentialFactor(),
+                        rate.rate.temperatureExponent(),
+                        rate.rate.activationEnergy() / gas_constant
+                    )
                 ratemap.insert(item)
 
             self._rate.reset(new CxxPlogRate(ratemap))
@@ -1131,8 +1133,8 @@ cdef class Arrhenius:
     """
     def __cinit__(self, A=0, b=0, E=0, init=True):
         if init:
-            self.base = new CxxArrheniusBase(A, b, E)
-            self.rate = <CxxArrhenius2*>self.base
+            self.rate = new CxxArrheniusRate(A, b, E)
+            self.base = self.rate
             self.own_rate = True
             self.reaction = None
         else:
@@ -1143,10 +1145,10 @@ cdef class Arrhenius:
             del self.base
 
     @staticmethod
-    cdef wrap(CxxArrheniusBase* rate):
+    cdef wrap(CxxArrheniusRate* rate):
         r = Arrhenius(init=False)
+        r.rate = rate
         r.base = rate
-        r.rate = <CxxArrhenius2*>r.base
         r.reaction = None
         return r
 
@@ -1178,15 +1180,22 @@ cdef class Arrhenius:
             self.activation_energy)
 
     def __call__(self, float T):
-        cdef double logT = np.log(T)
-        cdef double recipT = 1/T
-        return self.base.eval(logT, recipT)
+        if self.rate != NULL:
+            return self.base.eval(T)
+        else:
+            return self.legacy.updateRC(np.log(T), 1/T)
 
 
 cdef wrapArrhenius(CxxArrheniusBase* rate, Reaction reaction):
     r = Arrhenius(init=False)
     r.base = rate
-    r.rate = <CxxArrhenius2*>r.base
+    if reaction.uses_legacy:
+        r.legacy = <CxxArrhenius2*>r.base
+        r.rate = NULL
+    else:
+        r.rate = <CxxArrheniusRate*>r.base
+        r.legacy = NULL
+
     r.reaction = reaction
     return r
 
@@ -1258,7 +1267,7 @@ cdef class ElementaryReaction(Reaction):
 
     cdef _legacy_set_rate(self, Arrhenius rate):
         cdef CxxElementaryReaction2* r = self.cxx_object2()
-        r.rate = deref(rate.rate)
+        r.rate = deref(<CxxArrhenius2*>rate.base)
 
     property rate:
         """ Get/Set the `ArrheniusRate` rate coefficient for this reaction. """
@@ -1600,7 +1609,7 @@ cdef class FalloffReaction(Reaction):
             return self.rate.low_rate
         def __set__(self, Arrhenius rate):
             if self.uses_legacy:
-                self.cxx_object2().low_rate = deref(rate.rate)
+                self.cxx_object2().low_rate = deref(rate.legacy)
             warnings.warn(self._deprecation_warning("low_rate"), DeprecationWarning)
             self.rate.low_rate = rate
 
@@ -1613,7 +1622,7 @@ cdef class FalloffReaction(Reaction):
             return self.rate.high_rate
         def __set__(self, Arrhenius rate):
             if self.uses_legacy:
-                self.cxx_object2().high_rate = deref(rate.rate)
+                self.cxx_object2().high_rate = deref(rate.legacy)
             warnings.warn(self._deprecation_warning("high_rate"), DeprecationWarning)
             self.rate.high_rate = rate
 
@@ -1795,7 +1804,14 @@ cdef class PlogReaction(Reaction):
         cdef pair[double,CxxArrhenius2] item
         for p, rate in rates:
             item.first = p
-            item.second = deref(rate.rate)
+            if rate.legacy is not NULL:
+                item.second = deref(rate.legacy)
+            else:
+                item.second = CxxArrhenius2(
+                    rate.rate.preExponentialFactor(),
+                    rate.rate.temperatureExponent(),
+                    rate.rate.activationEnergy() / gas_constant
+                )
             ratemap.insert(item)
 
         cdef CxxPlogReaction2* r = self.cxx_object2()

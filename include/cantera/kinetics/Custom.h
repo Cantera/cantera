@@ -7,6 +7,8 @@
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/Units.h"
 #include "cantera/kinetics/ReactionData.h"
+#include "ReactionRate.h"
+#include "MultiRate.h"
 
 namespace Cantera
 {
@@ -24,26 +26,27 @@ class Func1;
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
  */
-class CustomFunc1
+class CustomFunc1Rate final : public ReactionRate
 {
 public:
-    CustomFunc1();
-    ~CustomFunc1() {}
+    CustomFunc1Rate();
+    CustomFunc1Rate(const AnyMap& node, const UnitsVector& rate_units)
+        : CustomFunc1Rate()
+    {
+        setParameters(node, rate_units);
+    }
 
-    const std::string type() const { return "custom-rate-function"; }
+    unique_ptr<MultiRateBase> newMultiRate() const override {
+        return unique_ptr<MultiRateBase>(new MultiBulkRate<CustomFunc1Rate, CustomFunc1Data>);
+    }
 
-    void setParameters(const AnyMap& node, const UnitsVector& units) {}
+    const std::string type() const override { return "custom-rate-function"; }
 
     void getParameters(AnyMap& rateNode, const Units& rate_units=Units(0.)) const;
+    using ReactionRate::getParameters;
 
     //! Update information specific to reaction
-    static bool usesUpdate() { return false; }
-
-    //! Update information specific to reaction
-    /*!
-     *  @param shared_data  data shared by all reactions of a given type
-     */
-    void update(const CustomFunc1Data& shared_data) {}
+    bool usesUpdate() const override { return false; }
 
     //! Update information specific to reaction
     /*!
@@ -51,10 +54,11 @@ public:
      */
     double eval(const CustomFunc1Data& shared_data) const;
 
-    //! Check the reaction rate expression
-    void check(const std::string& equation, const AnyMap& node) {}
+    void update(const CustomFunc1Data& shared_data) {};
 
-    void validate(const std::string& equation) {}
+    double ddT(const CustomFunc1Data& shared_data) const {
+        throw NotImplementedError("CustomFunc1Rate::ddT");
+    }
 
     //! Set custom rate
     /**
@@ -63,11 +67,10 @@ public:
      */
     void setRateFunction(shared_ptr<Func1> f);
 
-    size_t rate_index; //!< Reaction rate index within kinetics evaluator
-
 protected:
     shared_ptr<Func1> m_ratefunc;
 };
+
 
 }
 

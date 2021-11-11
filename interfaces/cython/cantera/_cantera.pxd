@@ -389,13 +389,15 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxArrheniusBase "Cantera::ArrheniusBase":
         CxxArrheniusBase()
         CxxArrheniusBase(double, double, double)
-        double eval(double, double)
+        double eval(double) except +translate_exception
         double preExponentialFactor()
         double temperatureExponent()
         double intrinsicActivationEnergy()
 
     cdef cppclass CxxArrhenius2 "Cantera::Arrhenius2" (CxxArrheniusBase):
+        CxxArrhenius2(double, double, double)
         double activationEnergy_R()
+        double updateRC(double, double)
 
     cdef cppclass CxxReactionRate "Cantera::ReactionRate":
         CxxReactionRate()
@@ -408,12 +410,10 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double ddT(double, double) except +translate_exception
         CxxAnyMap parameters() except +translate_exception
 
-    cdef cppclass CxxArrheniusRate "Cantera::ArrheniusRate" (CxxReactionRate):
+    cdef cppclass CxxArrheniusRate "Cantera::ArrheniusRate" (CxxReactionRate, CxxArrheniusBase):
         CxxArrheniusRate()
         CxxArrheniusRate(CxxAnyMap) except +translate_exception
         CxxArrheniusRate(double, double, double)
-        double preExponentialFactor()
-        double temperatureExponent()
         double activationEnergy()
         cbool allow_negative_pre_exponential_factor
 
@@ -426,27 +426,32 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double deltaH()
         void setDeltaH(double)
 
-    cdef cppclass CxxFalloffRate "Cantera::FalloffRate" [T] (CxxReactionRate):
+    cdef cppclass CxxFalloffRate "Cantera::Falloff" (CxxReactionRate):
         CxxFalloffRate()
         CxxFalloffRate(CxxAnyMap) except +translate_exception
-
-    cdef cppclass CxxFalloff3 "Cantera::Falloff":
         cbool allow_negative_pre_exponential_factor
         double third_body_concentration
         cbool chemicallyActivated()
         void setChemicallyActivated(bool)
-        CxxArrheniusBase& lowRate()
-        void setLowRate(CxxArrheniusBase&) except +translate_exception
-        CxxArrheniusBase& highRate()
-        void setHighRate(CxxArrheniusBase&) except +translate_exception
+        CxxArrheniusRate& lowRate()
+        void setLowRate(CxxArrheniusRate&) except +translate_exception
+        CxxArrheniusRate& highRate()
+        void setHighRate(CxxArrheniusRate&) except +translate_exception
         void getData(vector[double]&)
         void setData(vector[double]&) except +translate_exception
         double evalF(double, double) except +translate_exception
 
-    cdef cppclass CxxLindemann "Cantera::Lindemann" (CxxFalloff3)
-    cdef cppclass CxxTroe "Cantera::Troe" (CxxFalloff3)
-    cdef cppclass CxxSri "Cantera::SRI" (CxxFalloff3)
-    cdef cppclass CxxTsang "Cantera::Tsang" (CxxFalloff3)
+    cdef cppclass CxxLindemann "Cantera::Lindemann" (CxxFalloffRate):
+        CxxLindemann()
+
+    cdef cppclass CxxTroe "Cantera::Troe" (CxxFalloffRate):
+        CxxTroe()
+
+    cdef cppclass CxxSri "Cantera::SRI" (CxxFalloffRate):
+        CxxSri()
+
+    cdef cppclass CxxTsang "Cantera::Tsang" (CxxFalloffRate):
+        CxxTsang()
 
     cdef cppclass CxxPlogRate "Cantera::PlogRate" (CxxReactionRate):
         CxxPlogRate()
@@ -1268,7 +1273,7 @@ cdef class ReactionRate:
     cdef set_cxx_object(self)
 
 cdef class FalloffRate(ReactionRate):
-    cdef CxxFalloff3* falloff
+    cdef CxxFalloffRate* falloff
     cdef set_cxx_object(self)
 
 cdef class CustomRate(ReactionRate):
@@ -1285,12 +1290,13 @@ cdef class CustomReaction(Reaction):
     cdef CustomRate _rate
 
 cdef class Arrhenius:
-    cdef CxxArrhenius2* rate # used by legacy objects only
+    cdef CxxArrhenius2* legacy # used by legacy objects only
+    cdef CxxArrheniusRate* rate # used by new objects only
     cdef CxxArrheniusBase* base
     cdef cbool own_rate
     cdef Reaction reaction # parent reaction, to prevent garbage collection
     @staticmethod
-    cdef wrap(CxxArrheniusBase*)
+    cdef wrap(CxxArrheniusRate*)
 
 cdef class BlowersMasel:
     cdef CxxBlowersMasel2* rate

@@ -11,7 +11,6 @@ namespace Cantera
 
 ArrheniusBase::ArrheniusBase()
     : allow_negative_pre_exponential_factor(false)
-    , rate_index(npos)
     , m_A(NAN)
     , m_b(NAN)
     , m_Ea_R(NAN)
@@ -22,7 +21,6 @@ ArrheniusBase::ArrheniusBase()
 
 ArrheniusBase::ArrheniusBase(double A, double b, double Ea)
     : allow_negative_pre_exponential_factor(false)
-    , rate_index(npos)
     , m_A(A)
     , m_b(b)
     , m_Ea_R(Ea / GasConstant)
@@ -85,17 +83,15 @@ void ArrheniusBase::getParameters(AnyMap& node, const Units& rate_units) const
         return;
     } else if (rate_units.factor() != 0.0) {
         node["A"].setQuantity(m_A, rate_units);
-        node["b"] = m_b;
-        node["Ea"].setQuantity(m_Ea_R, "K", true);
     } else {
         node["A"] = m_A;
-        node["b"] = m_b;
-        node["Ea"] = m_Ea_R * GasConstant;
         // This can't be converted to a different unit system because the dimensions of
         // the rate constant were not set. Can occur if the reaction was created outside
         // the context of a Kinetics object and never added to a Kinetics object.
         node["__unconvertible__"] = true;
     }
+    node["b"] = m_b;
+    node["Ea"].setQuantity(m_Ea_R, "K", true);
 
     node.setFlowStyle();
 }
@@ -110,7 +106,7 @@ void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
     }
 }
 
-void Arrhenius3::setParameters(const AnyMap& node, const UnitsVector& rate_units)
+void ArrheniusRate::setParameters(const AnyMap& node, const UnitsVector& rate_units)
 {
     allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
     if (!node.hasKey("rate-constant")) {
@@ -121,7 +117,7 @@ void Arrhenius3::setParameters(const AnyMap& node, const UnitsVector& rate_units
     ArrheniusBase::setParameters(node["rate-constant"], node.units(), rate_units);
 }
 
-void Arrhenius3::getParameters(AnyMap& rateNode) const
+void ArrheniusRate::getParameters(AnyMap& rateNode) const
 {
     if (allow_negative_pre_exponential_factor) {
         rateNode["negative-A"] = true;
