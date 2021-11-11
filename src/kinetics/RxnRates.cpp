@@ -118,8 +118,7 @@ void SurfaceArrhenius::addCoverageDependence(size_t k, doublereal a,
 }
 
 Plog::Plog()
-    : rate_index(npos)
-    , logP_(-1000)
+    : logP_(-1000)
     , logP1_(1000)
     , logP2_(-1000)
     , rDeltaP_(-1.0)
@@ -173,7 +172,11 @@ void Plog::getParameters(AnyMap& rateNode, const Units& rate_units) const
     for (const auto& r : getRates()) {
         AnyMap rateNode_;
         rateNode_["P"].setQuantity(r.first, "Pa");
-        r.second.getParameters(rateNode_);
+        if (rate_units.factor() == 0) {
+            r.second.getParameters(rateNode_);
+        } else {
+            r.second.getParameters(rateNode_, rate_units);
+        }
         rateList.push_back(std::move(rateNode_));
     }
     rateNode["rate-constants"] = std::move(rateList);
@@ -414,23 +417,6 @@ void BMSurfaceArrhenius::addCoverageDependence(size_t k, double a,
         m_msp.push_back(k);
         m_mc.push_back(m);
     }
-}
-
-ChebyshevRate::ChebyshevRate()
-    : Chebyshev()
-{
-    warn_deprecated("ChebyshevRate::ChebyshevRate",
-                    "Renamed to Chebyshev. Behavior will change after Cantera 2.6. "
-                    "For future behavior, refer to ChebyshevRate3");
-}
-
-ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
-                             const Array2D& coeffs)
-    : Chebyshev(Tmin, Tmax, Pmin, Pmax, coeffs)
-{
-    warn_deprecated("ChebyshevRate::ChebyshevRate",
-                    "Renamed to Chebyshev. Behavior will change after Cantera 2.6. "
-                    "For future behavior, refer to ChebyshevRate3");
 }
 
 }

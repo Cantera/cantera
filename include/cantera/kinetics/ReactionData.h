@@ -93,36 +93,19 @@ protected:
  * The data container `FalloffData` holds precalculated data common to
  * all Falloff related reaction rate classes.
  */
-struct FalloffData
+struct FalloffData : public ArrheniusData
 {
-    FalloffData()
-        : temperature(1.)
-        , logT(0.)
-        , recipT(1.)
-        , finalized(false)
-    {
-    }
-
-    //! Update data container based on temperature *T*
-    void update(double T);
-
-    //! Update data container based on temperature *T* and pressure *P*
-    void update(double T, double P) {
-        update(T);
-    }
+    FalloffData() : finalized(false) {}
 
     //! Update data container based on *bulk* phase state and *kin* kinetics
     void update(const ThermoPhase& bulk, const Kinetics& kin);
+    using ArrheniusData::update;
 
     //! Finalize setup
     void resize(size_t n_species, size_t n_reactions) {
         conc_3b.resize(n_reactions, NAN);
         finalized = true;
     }
-
-    double temperature; //!< temperature
-    double logT; //!< logarithm of temperature
-    double recipT; //!< inverse of temperature
 
     bool finalized; //!< boolean indicating whether vectors are accessible
     vector_fp conc_3b; //!< vector of effective third-body concentrations

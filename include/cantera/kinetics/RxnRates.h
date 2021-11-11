@@ -13,6 +13,7 @@
 
 #include "cantera/kinetics/reaction_defs.h"
 #include "cantera/kinetics/Arrhenius.h"
+#include "MultiRate.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/global.h"
@@ -35,7 +36,7 @@ class Func1;
  *        k_f =  A T^b \exp (-E/RT)
  *   \f]
  */
-class Arrhenius2 final : public ArrheniusBase
+class Arrhenius2 : public ArrheniusBase
 {
 public:
     //! Default constructor.
@@ -55,6 +56,7 @@ public:
 
     void setParameters(const AnyValue& rate,
                        const UnitSystem& units, const Units& rate_units);
+    using ArrheniusBase::setParameters;
 
     //! Update concentration-dependent parts of the rate coefficient.
     /*!
@@ -87,8 +89,17 @@ public:
         return m_Ea_R;
     }
 
+    const std::string type() const {
+        return "Arrhenius";
+    }
+
+    // The following methods are unused but required by the base class
+    unique_ptr<MultiRateBase> newMultiRate() const {
+        throw NotImplementedError("Arrhenius2::newMultiRate");
+    }
+
 protected:
-    doublereal m_logA;
+    double m_logA;
 };
 
 //! Blowers Masel reaction rate type depends on the enthalpy of reaction
@@ -134,6 +145,10 @@ public:
     ///     broken in the reaction, in temperature units. Kelvin.
 
     BlowersMasel2(double A, double b, double E0, double w);
+
+    unique_ptr<MultiRateBase> newMultiRate() const {
+        throw NotImplementedError("BlowersMasel2::newMultiRate");
+    }
 
     void getParameters(AnyMap& rateNode, const Units& rate_units) const;
 
@@ -320,7 +335,7 @@ typedef BlowersMasel2 BlowersMasel;
  * at that pressure. For pressures outside the given range, the rate expression
  * at the nearest pressure is used.
  */
-class Plog
+class Plog final : public ReactionRate
 {
 public:
     //! Default constructor.
@@ -328,6 +343,14 @@ public:
 
     //! Constructor from Arrhenius rate expressions at a set of pressures
     explicit Plog(const std::multimap<double, Arrhenius>& rates);
+
+    Plog(const AnyMap& node, const UnitsVector& rate_units={}) : Plog() {
+        setParameters(node, rate_units);
+    }
+
+    unique_ptr<MultiRateBase> newMultiRate() const {
+        return unique_ptr<MultiRateBase>(new MultiBulkRate<Plog, PlogData>);
+    }
 
     //! Identifier of reaction rate type
     const std::string type() const { return "pressure-dependent-Arrhenius"; }
@@ -348,10 +371,10 @@ public:
     void setParameters(const std::vector<AnyMap>& rates,
                        const UnitSystem& units, const Units& rate_units);
 
-    void getParameters(AnyMap& rateNode, const Units& rate_units=Units(0.)) const;
-
-    //! Update information specific to reaction
-    static bool usesUpdate() { return true; }
+    void getParameters(AnyMap& rateNode, const Units& rate_units) const;
+    void getParameters(AnyMap& rateNode) const {
+        return getParameters(rateNode, Units(0));
+    }
 
     //! Update information specific to reaction
     /*!
@@ -369,8 +392,9 @@ public:
         return updateRC(shared_data.logT, shared_data.recipT);
     }
 
-    //! Check the reaction rate expression
-    void check(const std::string& equation, const AnyMap& node) {}
+    double ddT(const PlogData& shared_data) const {
+        throw NotImplementedError("Plog::ddT");
+    }
 
     //! Set up Plog object
     /*!
@@ -456,8 +480,6 @@ public:
     //! reaction.
     std::multimap<double, Arrhenius> getRates() const;
 
-    size_t rate_index; //!< Reaction rate index within kinetics evaluator
-
 protected:
     //! log(p) to (index range) in the rates_ vector
     std::map<double, std::pair<size_t, size_t> > pressures_;
@@ -476,6 +498,8 @@ protected:
 
     double rDeltaP_; //!< reciprocal of (logP2 - logP1)
 };
+
+typedef Plog PlogRate;
 
 //! Pressure-dependent rate expression where the rate coefficient is expressed
 //! as a bivariate Chebyshev polynomial in temperature and pressure.
@@ -506,11 +530,11 @@ protected:
  * therefore extrapolation of rates outside the range of temperatures and
  * pressures for which they are defined is strongly discouraged.
  */
-class Chebyshev
+class Chebyshev final : public ReactionRate
 {
 public:
     //! Default constructor.
-    Chebyshev() : rate_index(npos), m_rate_units(Units(0.)) {}
+    Chebyshev() : m_rate_units(Units(0.)) {}
 
     //! Constructor directly from coefficient array
     /*!
@@ -525,6 +549,14 @@ public:
     Chebyshev(double Tmin, double Tmax, double Pmin, double Pmax,
               const Array2D& coeffs);
 
+    Chebyshev(const AnyMap& node, const UnitsVector& rate_units={}) : Chebyshev() {
+        setParameters(node, rate_units);
+    }
+
+    unique_ptr<MultiRateBase> newMultiRate() const {
+        return unique_ptr<MultiRateBase>(new MultiBulkRate<Chebyshev, ChebyshevData>);
+    }
+
     const std::string type() const { return "Chebyshev"; }
 
     //! Perform object setup based on AnyMap node information
@@ -533,10 +565,10 @@ public:
      *  @param rate_units  Unit definitions specific to rate information
      */
     void setParameters(const AnyMap& node, const UnitsVector& units);
-    void getParameters(AnyMap& rateNode, const Units& rate_units=Units(0.)) const;
-
-    //! Update information specific to reaction
-    static bool usesUpdate() { return true; }
+    void getParameters(AnyMap& rateNode, const Units& rate_units) const;
+    void getParameters(AnyMap& rateNode) const {
+        return getParameters(rateNode, Units(0));
+    };
 
     //! Update information specific to reaction
     /*!
@@ -554,10 +586,9 @@ public:
         return updateRC(0., shared_data.recipT);
     }
 
-    //! Check the reaction rate expression
-    void check(const std::string& equation, const AnyMap& node) {}
-
-    void validate(const std::string& equation) {}
+    double ddT(const ChebyshevData& shared_data) const {
+        throw NotImplementedError("Chebyshev::ddT");
+    }
 
     //! Set up Chebyshev object
     /*!
@@ -668,8 +699,6 @@ public:
     //! Set the Chebyshev coefficients as 2-dimensional array.
     void setData(const Array2D& coeffs);
 
-    size_t rate_index; //!< Reaction rate index within kinetics evaluator
-
 protected:
     double Tmin_, Tmax_; //!< valid temperature range
     double Pmin_, Pmax_; //!< valid pressure range
@@ -682,6 +711,8 @@ protected:
 
     Units m_rate_units; //!< Reaction rate units
 };
+
+typedef Chebyshev ChebyshevRate3;
 
 /**
  * A Blowers Masel rate with coverage-dependent terms.
@@ -818,35 +849,6 @@ protected:
     doublereal m_acov, m_ecov, m_mcov;
     std::vector<size_t> m_sp, m_msp;
     vector_fp m_ac, m_ec, m_mc;
-};
-
-
-
-//! Pressure-dependent rate expression where the rate coefficient is expressed
-//! as a bivariate Chebyshev polynomial in temperature and pressure.
-/*!
- * @deprecated  Renamed to Chebyshev. Behavior will change after Cantera 2.6.
- *     For future behavior, refer to ChebyshevRate3.
- */
-class ChebyshevRate : public Chebyshev
-{
-public:
-    //! Default constructor.
-    ChebyshevRate();
-
-    //! Constructor directly from coefficient array
-    /*
-     *  @param Tmin    Minimum temperature [K]
-     *  @param Tmax    Maximum temperature [K]
-     *  @param Pmin    Minimum pressure [Pa]
-     *  @param Pmax    Maximum pressure [Pa]
-     *  @param coeffs  Coefficient array dimensioned `nT` by `nP` where `nT` and
-     *      `nP` are the number of temperatures and pressures used in the fit,
-     *      respectively.
-     */
-    ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
-                  const Array2D& coeffs);
-
 };
 
 }

@@ -21,7 +21,7 @@ void Falloff::init(const vector_fp& c)
     setData(c);
 }
 
-void Falloff::setLowRate(const ArrheniusBase& low)
+void Falloff::setLowRate(const ArrheniusRate& low)
 {
     if (low.preExponentialFactor() < 0 && !allow_negative_pre_exponential_factor) {
         throw CanteraError("Falloff::setLowRate",
@@ -38,7 +38,7 @@ void Falloff::setLowRate(const ArrheniusBase& low)
     m_lowRate = low;
 }
 
-void Falloff::setHighRate(const ArrheniusBase& high)
+void Falloff::setHighRate(const ArrheniusRate& high)
 {
     if (high.preExponentialFactor() < 0 && !allow_negative_pre_exponential_factor) {
         throw CanteraError("Falloff::setHighRate",
@@ -90,11 +90,11 @@ void Falloff::setParameters(const AnyMap& node, const UnitsVector& rate_units)
         }
     }
     if (node.hasKey("low-P-rate-constant")) {
-        m_lowRate = ArrheniusBase(
+        m_lowRate = ArrheniusRate(
             node["low-P-rate-constant"], node.units(), low_rate_units);
     }
     if (node.hasKey("high-P-rate-constant")) {
-        m_highRate = ArrheniusBase(
+        m_highRate = ArrheniusRate(
             node["high-P-rate-constant"], node.units(), high_rate_units);
     }
 }
@@ -112,12 +112,12 @@ void Falloff::getParameters(AnyMap& rateNode) const
     AnyMap node;
     m_lowRate.getParameters(node);
     if (!node.empty()) {
-        rateNode["low-P-rate-constant"] = std::move(node);
+        rateNode["low-P-rate-constant"] = node["rate-constant"];
     }
     node.clear();
     m_highRate.getParameters(node);
     if (!node.empty()) {
-        rateNode["high-P-rate-constant"] = std::move(node);
+        rateNode["high-P-rate-constant"] = node["rate-constant"];
     }
 }
 

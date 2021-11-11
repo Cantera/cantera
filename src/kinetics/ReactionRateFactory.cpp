@@ -9,6 +9,7 @@
 #include "cantera/kinetics/MultiRate.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/kinetics/Falloff.h"
 #include "cantera/base/AnyMap.h"
 
 namespace Cantera
@@ -34,23 +35,23 @@ ReactionRateFactory::ReactionRateFactory()
 
     // Lindemann falloff evaluator
     reg("Lindemann", [](const AnyMap& node, const UnitsVector& rate_units) {
-        return new FalloffRate<Lindemann>(node, rate_units);
+        return new Lindemann(node, rate_units);
     });
     addAlias("Lindemann", "falloff");
 
     // Troe falloff evaluator
     reg("Troe", [](const AnyMap& node, const UnitsVector& rate_units) {
-        return new FalloffRate<Troe>(node, rate_units);
+        return new Troe(node, rate_units);
     });
 
     // SRI falloff evaluator
     reg("SRI", [](const AnyMap& node, const UnitsVector& rate_units) {
-        return new FalloffRate<SRI>(node, rate_units);
+        return new SRI(node, rate_units);
     });
 
     // Tsang falloff evaluator
     reg("Tsang", [](const AnyMap& node, const UnitsVector& rate_units) {
-        return new FalloffRate<Tsang>(node, rate_units);
+        return new Tsang(node, rate_units);
     });
 
     // PlogRate evaluator

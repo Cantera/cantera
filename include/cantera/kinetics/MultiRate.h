@@ -8,55 +8,11 @@
 #ifndef CT_MULTIRATE_H
 #define CT_MULTIRATE_H
 
-#include "cantera/kinetics/ReactionRateBase.h"
+#include "ReactionRate.h"
+#include "MultiRateBase.h"
 
 namespace Cantera
 {
-
-//! An abstract base class for evaluating all reactions of a particular type.
-/**
- * Because this class has no template parameters, the `Kinetics` object
- * can store all of these rate coefficient evaluators as a
- * `vector<shared_ptr<MultiRateBase>>`.
- *
- * @todo At the moment, implemented methods are specific to `BulkKinetics`,
- *     which can be updated using information of a single `ThermoPhase`.
- *     `InterfaceKinetics` will require access to an entire `Kinetics` object
- *     or the underlying `vector<ThermoPhase*>` vector (e.g. `m_thermo`).
- */
-class MultiRateBase
-{
-public:
-    virtual ~MultiRateBase() {}
-
-    //! Identifier of reaction rate type
-    virtual std::string type() = 0;
-
-    //! Add reaction rate object to the evaluator
-    //! @param rxn_index  index of reaction
-    //! @param rate  reaction rate object
-    virtual void add(const size_t rxn_index, ReactionRate& rate) = 0;
-
-    //! Replace reaction rate object handled by the evaluator
-    //! @param rxn_index  index of reaction
-    //! @param rate  reaction rate object
-    virtual bool replace(const size_t rxn_index, ReactionRate& rate) = 0;
-
-    //! Update number of species and reactions
-    //! @param n_species  number of species
-    //! @param n_reactions  number of reactions
-    virtual void resize(size_t n_species, size_t n_reactions) = 0;
-
-    //! Evaluate all rate constants handled by the evaluator
-    //! @param kf  array of rate constants
-    virtual void getRateConstants(double* kf) const = 0;
-
-    //! Update data common to reaction rates of a specific type
-    //! @param bulk  object representing bulk phase
-    //! @param kin  object representing kinetics
-    virtual void update(const ThermoPhase& bulk, const Kinetics& kin) = 0;
-};
-
 
 //! A class template handling all reaction rates specific to `BulkKinetics`.
 template <class RateType, class DataType>
@@ -99,16 +55,16 @@ public:
         m_shared.resize(n_species, n_reactions);
     }
 
-    virtual void getRateConstants(double* kf) const override {
-        for (const auto& rxn : m_rxn_rates) {
+    virtual void getRateConstants(double* kf) override {
+        for (auto& rxn : m_rxn_rates) {
             kf[rxn.first] = rxn.second.eval(m_shared);
         }
     }
 
-    virtual void update(const ThermoPhase& bulk, const Kinetics& kin) override {
+    virtual void update(double T) override {
         // update common data once for each reaction type
-        m_shared.update(bulk, kin);
-        if (RateType::usesUpdate()) {
+        m_shared.update(T);
+        if (!m_rxn_rates.empty() && m_rxn_rates[0].second.usesUpdate()) {
             // update reaction-specific data for each reaction. This loop
             // is efficient as all function calls are de-virtualized, and
             // all of the rate objects are contiguous in memory
@@ -116,6 +72,50 @@ public:
                 rxn.second.update(m_shared);
             }
         }
+    }
+
+    virtual void update(double T, double P) override {
+        // update common data once for each reaction type
+        m_shared.update(T, P);
+        if (!m_rxn_rates.empty() && m_rxn_rates[0].second.usesUpdate()) {
+            // update reaction-specific data for each reaction. This loop
+            // is efficient as all function calls are de-virtualized, and
+            // all of the rate objects are contiguous in memory
+            for (auto& rxn : m_rxn_rates) {
+                rxn.second.update(m_shared);
+            }
+        }
+    }
+
+    virtual void update(const ThermoPhase& bulk, const Kinetics& kin) override {
+        // update common data once for each reaction type
+        m_shared.update(bulk, kin);
+        if (!m_rxn_rates.empty() && m_rxn_rates[0].second.usesUpdate()) {
+            // update reaction-specific data for each reaction. This loop
+            // is efficient as all function calls are de-virtualized, and
+            // all of the rate objects are contiguous in memory
+            for (auto& rxn : m_rxn_rates) {
+                rxn.second.update(m_shared);
+            }
+        }
+    }
+
+    virtual double evalSingle(ReactionRate& rate) override
+    {
+        RateType& R = static_cast<RateType&>(rate);
+        if (R.usesUpdate()) {
+            R.update(m_shared);
+        }
+        return R.eval(m_shared);
+    }
+
+    virtual double ddTSingle(ReactionRate& rate) override
+    {
+        RateType& R = static_cast<RateType&>(rate);
+        if (R.usesUpdate()) {
+            R.update(m_shared);
+        }
+        return R.ddT(m_shared);
     }
 
 protected:

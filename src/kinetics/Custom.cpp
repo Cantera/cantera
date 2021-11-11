@@ -9,18 +9,17 @@
 namespace Cantera
 {
 
-CustomFunc1::CustomFunc1()
-    : rate_index(npos)
-    , m_ratefunc(0)
+CustomFunc1Rate::CustomFunc1Rate()
+    : m_ratefunc(0)
 {
 }
 
-void CustomFunc1::setRateFunction(shared_ptr<Func1> f)
+void CustomFunc1Rate::setRateFunction(shared_ptr<Func1> f)
 {
     m_ratefunc = f;
 }
 
-double CustomFunc1::eval(const CustomFunc1Data& shared_data) const
+double CustomFunc1Rate::eval(const CustomFunc1Data& shared_data) const
 {
     if (m_ratefunc) {
         return m_ratefunc->eval(shared_data.temperature);
@@ -28,9 +27,9 @@ double CustomFunc1::eval(const CustomFunc1Data& shared_data) const
     return NAN;
 }
 
-void CustomFunc1::getParameters(AnyMap& rateNode, const Units& rate_units) const
+void CustomFunc1Rate::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
-    throw NotImplementedError("CustomFunc1::getParameters",
+    throw NotImplementedError("CustomFunc1Rate::getParameters",
                               "Not implemented by '{}' object.", type());
 }
 

@@ -7,6 +7,8 @@
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/Units.h"
 #include "cantera/kinetics/ReactionData.h"
+#include "ReactionRate.h"
+#include "MultiRate.h"
 
 namespace Cantera
 {
@@ -24,13 +26,11 @@ class AnyMap;
  */
 
 //! Base class for Arrhenius-type Parameterizations
-class ArrheniusBase
+class ArrheniusBase : public ReactionRate
 {
 public:
     //! Default constructor.
     ArrheniusBase();
-
-    virtual ~ArrheniusBase() {}
 
     //! Constructor.
     /*!
@@ -56,6 +56,7 @@ public:
      */
     virtual void setParameters(const AnyValue& rate,
                                const UnitSystem& units, const UnitsVector& rate_units);
+    using ReactionRate::setParameters;
 
     //! Return parameters
     /*!
@@ -69,16 +70,6 @@ public:
 
     //! Check the reaction rate expression
     void check(const std::string& equation, const AnyMap& node);
-
-    //! Validate the reaction rate expression
-    void validate(const std::string& equation) {}
-
-    //! Evaluate reaction rate
-    //! @param logT  natural logarithm of temperature
-    //! @param recipT  inverse of temperature
-    double eval(double logT, double recipT) const {
-        return m_A * std::exp(m_b * logT - m_Ea_R * recipT);
-    }
 
     //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
     //! on the reaction order)
@@ -118,8 +109,6 @@ public:
 
     bool allow_negative_pre_exponential_factor; // Flag is directly accessible
 
-    size_t rate_index; //!< Reaction rate index within kinetics evaluator
-
 protected:
     double m_A; //!< Pre-exponential factor
     double m_b; //!< Temperature exponent
@@ -142,20 +131,24 @@ protected:
  *
  * @ingroup arrheniusGroup
  */
-class Arrhenius3 : public ArrheniusBase
+class ArrheniusRate final : public ArrheniusBase
 {
 public:
-    Arrhenius3() = default;
+    ArrheniusRate() = default;
     using ArrheniusBase::ArrheniusBase; // inherit constructors
     using ArrheniusBase::setParameters;
 
     //! Constructor based on AnyMap content
-    Arrhenius3(const AnyMap& node, const UnitsVector& rate_units) {
+    ArrheniusRate(const AnyMap& node, const UnitsVector& rate_units={}) {
         setParameters(node, rate_units);
     }
 
+    unique_ptr<MultiRateBase> newMultiRate() const override {
+        return unique_ptr<MultiRateBase>(new MultiBulkRate<ArrheniusRate, ArrheniusData>);
+    }
+
     //! Identifier of reaction rate type
-    virtual const std::string type() const {
+    virtual const std::string type() const override {
         return "Arrhenius";
     }
 
@@ -164,20 +157,16 @@ public:
      *  @param node  AnyMap containing rate information
      *  @param rate_units  Unit definitions specific to rate information
      */
-    virtual void setParameters(const AnyMap& node, const UnitsVector& rate_units);
+    virtual void setParameters(const AnyMap& node, const UnitsVector& rate_units) override;
 
-    virtual void getParameters(AnyMap& node) const;
+    virtual void getParameters(AnyMap& node) const override;
 
     //! Update information specific to reaction
-    const static bool usesUpdate() {
+    bool usesUpdate() const override {
         return false;
     }
 
-    //! Update information specific to reaction
-    /*!
-     *  @param shared_data  data shared by all reactions of a given type
-     */
-    void update(const ArrheniusData& shared_data) {}
+    void update(const ArrheniusData& shared_data) const {}
 
     //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
@@ -190,8 +179,9 @@ public:
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    virtual double ddTscaled(const ArrheniusData& shared_data) const {
-        return (m_b + m_Ea_R * shared_data.recipT) * shared_data.recipT;
+    virtual double ddT(const ArrheniusData& shared_data) const {
+        return m_A * (m_b + m_Ea_R * shared_data.recipT) *
+            std::exp((m_b - 1) * shared_data.logT - m_Ea_R * shared_data.recipT);
     }
 
     //! Return the activation energy *Ea* [J/kmol]
@@ -253,8 +243,12 @@ public:
      */
     BlowersMasel3(double A, double b, double Ea0, double w);
 
+    unique_ptr<MultiRateBase> newMultiRate() const {
+        return unique_ptr<MultiRateBase>(new MultiBulkRate<BlowersMasel3, BlowersMaselData>);
+    }
+
     //! Constructor based on AnyMap content
-    BlowersMasel3(const AnyMap& node, const UnitsVector& rate_units) {
+    BlowersMasel3(const AnyMap& node, const UnitsVector& rate_units={}) : BlowersMasel3() {
         setParameters(node, rate_units);
     }
 
@@ -275,20 +269,19 @@ public:
 
     virtual void getParameters(AnyMap& node) const;
 
-    //! Update information specific to reaction
-    const static bool usesUpdate() {
-        return true;
-    }
-
     void update(const BlowersMaselData& shared_data) {
-        if (shared_data.finalized && rate_index != npos) {
-            m_deltaH_R = shared_data.dH[rate_index] / GasConstant;
+        if (shared_data.finalized && m_rate_index != npos) {
+            m_deltaH_R = shared_data.dH[m_rate_index] / GasConstant;
         }
     }
 
-    double eval(const BlowersMaselData& shared_data) const {
+    double eval(const BlowersMaselData& shared_data) {
         double Ea_R = activationEnergy_R(m_deltaH_R);
         return m_A * std::exp(m_b * shared_data.logT - Ea_R * shared_data.recipT);
+    }
+
+    double ddT(const BlowersMaselData& shared_data) {
+        throw NotImplementedError("BlowersMasel3::ddT");
     }
 
     //! Return the actual activation energy (a function of the delta H of reaction)
@@ -339,6 +332,10 @@ protected:
     double m_deltaH_R; //!< Delta H of the reaction (in temperature units)
 };
 
+typedef BlowersMasel3 BlowersMaselRate;
+typedef ArrheniusRate Arrhenius3;
+
 }
+
 
 #endif

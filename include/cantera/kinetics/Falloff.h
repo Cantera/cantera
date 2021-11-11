@@ -5,6 +5,7 @@
 #define CT_FALLOFF_H
 
 #include "cantera/kinetics/Arrhenius.h"
+#include "MultiRate.h"
 
 namespace Cantera
 {
@@ -24,21 +25,21 @@ class AnyMap;
  * Base class for falloff function calculators. Each instance of a subclass of
  * Falloff computes one falloff function.
  */
-class Falloff
+class Falloff : public ReactionRate
 {
 public:
     Falloff()
         : allow_negative_pre_exponential_factor(false)
         , third_body_concentration(NAN)
-        , rate_index(npos)
         , m_chemicallyActivated(false)
         , m_rc_low(NAN)
         , m_rc_high(NAN)
     {
-        m_work.resize(workSize());
     }
 
-    virtual ~Falloff() {}
+    Falloff(const AnyMap& node, const UnitsVector& rate_units={}) : Falloff() {
+        setParameters(node, rate_units);
+    }
 
     /**
      * Initialize. Must be called before any other method is invoked.
@@ -140,19 +141,14 @@ public:
     //! Reaction using the newReaction(AnyMap&, Kinetics&) function.
     virtual void getParameters(AnyMap& rateNode) const;
 
-    //! Flag indicating that information specific to reaction rate is required
-    const static bool usesUpdate() {
-        return true;
-    }
-
     //! Update information specific to reaction
     //! @param shared_data  data shared by all reactions of a given type
     virtual void update(const FalloffData& shared_data) {
         updateTemp(shared_data.temperature, m_work.data());
-        m_rc_low = m_lowRate.eval(shared_data.logT, shared_data.recipT);
-        m_rc_high = m_highRate.eval(shared_data.logT, shared_data.recipT);
-        if (shared_data.finalized && rate_index != npos) {
-            third_body_concentration = shared_data.conc_3b[rate_index];
+        m_rc_low = m_lowRate.eval(shared_data);
+        m_rc_high = m_highRate.eval(shared_data);
+        if (shared_data.finalized && m_rate_index != npos) {
+            third_body_concentration = shared_data.conc_3b[m_rate_index];
         }
     }
 
@@ -173,18 +169,12 @@ public:
         return pr * m_rc_high;
     }
 
-    //! Evaluate derivative of reaction rate with respect to temperature
-    //! @param shared_data  data shared by all reactions of a given type
-    virtual double ddT(const FalloffData& shared_data) const
-    {
-        return NAN; // @todo
+    virtual double ddT(const FalloffData& shared_data) const {
+        throw NotImplementedError("Falloff::ddT");
     }
 
     //! Check the reaction rate expression
     void check(const std::string& equation, const AnyMap& node);
-
-    //! Validate the reaction rate expression
-    void validate(const std::string& equation) {}
 
     bool allow_negative_pre_exponential_factor; // Flag is directly accessible
     double third_body_concentration; //!< Buffered third-body concentration
@@ -200,26 +190,24 @@ public:
     }
 
     //! Get reaction rate in the low-pressure limit
-    ArrheniusBase& lowRate() {
+    ArrheniusRate& lowRate() {
         return m_lowRate;
     }
 
     //! Set reaction rate in the low-pressure limit
-    void setLowRate(const ArrheniusBase& low);
+    void setLowRate(const ArrheniusRate& low);
 
     //! Get reaction rate in the high-pressure limit
-    ArrheniusBase& highRate() {
+    ArrheniusRate& highRate() {
         return m_highRate;
     }
 
     //! Set reaction rate in the high-pressure limit
-    void setHighRate(const ArrheniusBase& high);
-
-    size_t rate_index; //!< Reaction rate index within kinetics evaluator
+    void setHighRate(const ArrheniusRate& high);
 
 protected:
-    ArrheniusBase m_lowRate; //!< The reaction rate in the low-pressure limit
-    ArrheniusBase m_highRate; //!< The reaction rate in the high-pressure limit
+    ArrheniusRate m_lowRate; //!< The reaction rate in the low-pressure limit
+    ArrheniusRate m_highRate; //!< The reaction rate in the high-pressure limit
 
     bool m_chemicallyActivated; //!< Flag indicating whether reaction is chemically activated
     double m_rc_low; //!< Evaluated reaction rate in the low-pressure limit
@@ -236,19 +224,25 @@ protected:
  *
  * @ingroup falloffGroup
  */
-class Lindemann : public Falloff
+class Lindemann final : public Falloff
 {
 public:
-    Lindemann() : Falloff() {
-        m_work.resize(workSize());
+    Lindemann() = default;
+
+    Lindemann(const AnyMap& node, const UnitsVector& rate_units={}) : Lindemann() {
+        setParameters(node, rate_units);
     }
 
-    Lindemann(const ArrheniusBase& low, const ArrheniusBase& high, const vector_fp& c)
-        : Falloff()
+    Lindemann(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
+        : Lindemann()
     {
         m_lowRate = low;
         m_highRate = high;
         setData(c);
+    }
+
+    unique_ptr<MultiRateBase> newMultiRate() const {
+        return unique_ptr<MultiRateBase>(new MultiBulkRate<Lindemann, FalloffData>);
     }
 
     virtual const std::string type() const {
@@ -285,20 +279,28 @@ public:
  *
  * @ingroup falloffGroup
  */
-class Troe : public Falloff
+class Troe final : public Falloff
 {
 public:
     //! Constructor
-    Troe() : Falloff(), m_a(NAN), m_rt3(0.0), m_rt1(0.0), m_t2(0.0) {
-        m_work.resize(workSize());
+    Troe() : m_a(NAN), m_rt3(0.0), m_rt1(0.0), m_t2(0.0) {
+        m_work.resize(1);
     }
 
-    Troe(const ArrheniusBase& low, const ArrheniusBase& high, const vector_fp& c)
+    Troe(const AnyMap& node, const UnitsVector& rate_units={}) : Troe() {
+        setParameters(node, rate_units);
+    }
+
+    Troe(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
         : Troe()
     {
         m_lowRate = low;
         m_highRate = high;
         setData(c);
+    }
+
+    unique_ptr<MultiRateBase> newMultiRate() const {
+        return unique_ptr<MultiRateBase>(new MultiBulkRate<Troe, FalloffData>);
     }
 
     //! Set coefficients used by parameterization
@@ -377,20 +379,28 @@ protected:
  *
  * @ingroup falloffGroup
  */
-class SRI : public Falloff
+class SRI final : public Falloff
 {
 public:
     //! Constructor
-    SRI() : Falloff(), m_a(NAN), m_b(-1.0), m_c(-1.0), m_d(-1.0), m_e(-1.0) {
-        m_work.resize(workSize());
+    SRI() : m_a(NAN), m_b(-1.0), m_c(-1.0), m_d(-1.0), m_e(-1.0) {
+        m_work.resize(2);
     }
 
-    SRI(const ArrheniusBase& low, const ArrheniusBase& high, const vector_fp& c)
+    SRI(const AnyMap& node, const UnitsVector& rate_units={}) : SRI() {
+        setParameters(node, rate_units);
+    }
+
+    SRI(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
         : SRI()
     {
         m_lowRate = low;
         m_highRate = high;
         setData(c);
+    }
+
+    unique_ptr<MultiRateBase> newMultiRate() const {
+        return unique_ptr<MultiRateBase>(new MultiBulkRate<SRI, FalloffData>);
     }
 
     //! Set coefficients used by parameterization
@@ -477,20 +487,28 @@ protected:
  *
  * @ingroup falloffGroup
  */
-class Tsang : public Falloff
+class Tsang final : public Falloff
 {
 public:
     //! Constructor
-    Tsang() : Falloff(), m_a(NAN), m_b(0.0) {
-        m_work.resize(workSize());
+    Tsang() : m_a(NAN), m_b(0.0) {
+        m_work.resize(1);
     }
 
-    Tsang(const ArrheniusBase& low, const ArrheniusBase& high, const vector_fp& c)
+    Tsang(const AnyMap& node, const UnitsVector& rate_units={}) : Tsang() {
+        setParameters(node, rate_units);
+    }
+
+    Tsang(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
         : Tsang()
     {
         m_lowRate = low;
         m_highRate = high;
         setData(c);
+    }
+
+    unique_ptr<MultiRateBase> newMultiRate() const {
+        return unique_ptr<MultiRateBase>(new MultiBulkRate<Tsang, FalloffData>);
     }
 
     //! Set coefficients used by parameterization
