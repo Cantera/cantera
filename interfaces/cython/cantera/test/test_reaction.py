@@ -717,9 +717,12 @@ class ReactionTests:
         if self._legacy:
             self.assertNear(gas2.forward_rate_constants[0], 0.)
             self.assertNear(gas2.net_rates_of_progress[0], 0.)
-        else:
+        elif not ct.debug_mode_enabled():
             self.assertIsNaN(gas2.forward_rate_constants[0])
             self.assertIsNaN(gas2.net_rates_of_progress[0])
+        else:
+            with self.assertRaisesRegex(ct.CanteraError, "not finite"):
+                gas2.net_rates_of_progress
 
     def test_replace_rate(self):
         # check replacing reaction rate expression
