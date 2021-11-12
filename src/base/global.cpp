@@ -183,6 +183,15 @@ string canteraRoot()
 
 }
 
+bool debugModeEnabled()
+{
+#ifdef NDEBUG
+    return false;
+#else
+    return true;
+#endif
+}
+
 //! split a string at a '#' sign. Used to separate a file name from an id string.
 /*!
  *   @param    src     Original string to be split up. This is unchanged.

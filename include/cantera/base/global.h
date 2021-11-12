@@ -119,6 +119,11 @@ std::string gitCommit();
  */
 std::string canteraRoot();
 
+//! Returns true if Cantera was compiled in debug mode. Used for handling some cases
+//! where behavior tested in the test suite changes depending on whether the `NDEBUG`
+//! preprocessor macro is defined.
+bool debugModeEnabled();
+
 /*!
  * @defgroup logs Diagnostic Output
  *

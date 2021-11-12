@@ -46,6 +46,9 @@ __git_commit__ = pystr(CxxGitCommit())
 
 __use_sparse__ = False
 
+def debug_mode_enabled():
+    return CxxDebugModeEnabled()
+
 def appdelete():
     """ Delete all global Cantera C++ objects """
     CxxAppdelete()

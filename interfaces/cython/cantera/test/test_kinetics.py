@@ -453,11 +453,15 @@ class KineticsRepeatability(utilities.CanteraTest):
                    "at P = 32019, T = 500.0",
                    "at P = 32019, T = 1000.0",
                    "at P = 1.0132e+05, T = 500.0",
-                   "at P = 1.0132e+05, T = 1000.0",
-                   "Invalid rate coefficient for reaction 'CH2CHOO <=> CH3 + CO2'",
-                   "at P = 1.0132e+05, T = 500.0",
-                   "InputFileError thrown by Reaction::checkBalance:",
-                   "The following reaction is unbalanced: H2O2 + OH <=> 2 H2O + HO2")
+                   "at P = 1.0132e+05, T = 1000.0")
+
+        if not ct.debug_mode_enabled():
+            err_msg += (
+                "Invalid rate coefficient for reaction 'CH2CHOO <=> CH3 + CO2'",
+                "at P = 1.0132e+05, T = 500.0",
+                "InputFileError thrown by Reaction::checkBalance:",
+                "The following reaction is unbalanced: H2O2 + OH <=> 2 H2O + HO2"
+            )
         try:
             ct.Solution('addReactions_err_test.yaml')
             self.fail('CanteraError not raised')
