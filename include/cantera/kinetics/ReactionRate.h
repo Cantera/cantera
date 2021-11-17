@@ -19,18 +19,29 @@
 namespace Cantera
 {
 
-
 //! Abstract base class for reaction rate definitions; this base class is used by
-//! user-facing APIs to access reaction rate objects.
+//! user-facing APIs to access reaction rate objects
+//!
+//! In addition to the pure virtual methods declared in this class, complete derived
+//! classes must implement the method `evalFromStruct(const DataType& shared_data)`,
+//! where `DataType` is a container for parameters needed to evaluate reactions of that
+//! type.
+//!
+//! Derived classes may also implement the methods
+//! `updateFromStruct(const DataType& shared_data)` and
+//! `ddTFromStruct(const DataType& shared_data)`.
 class ReactionRate
 {
 public:
     ReactionRate() : m_rate_index(npos) {}
 
+    // Copy constructor and assignment operator need to be defined because of the
+    // #m_evaluator member that can't (and shouldn't) be copied.
     ReactionRate(const ReactionRate& other)
         : m_input(other.m_input)
         , m_rate_index(other.m_rate_index)
     {}
+
     ReactionRate& operator=(const ReactionRate& other) {
         if (this == &other) {
             return *this;
@@ -42,6 +53,16 @@ public:
 
     virtual ~ReactionRate() = default;
 
+    //! Create a rate evaluator for reactions of a particular derived type.
+    //! Derived classes usually implement this as:
+    //!
+    //! ```.cpp
+    //! unique_ptr<MultiRateBase> newMultiRate() const override {
+    //!     return unique_ptr<MultiRateBase>(new MultiBulkRate<RateType, DataType>);
+    //! ```
+    //!
+    //! where `RateType` is the derived class name and `DataType` is the corresponding
+    //! container for parameters needed to evaluate reactions of that type.
     virtual unique_ptr<MultiRateBase> newMultiRate() const = 0;
 
     virtual const std::string type() const = 0;
@@ -139,6 +160,9 @@ protected:
     size_t m_rate_index;
 
 private:
+    //! Return an object that be used to evaluate the rate by converting general input
+    //! such as temperature and pressure into the `DataType` struct that is particular
+    //! to the rate model.
     MultiRateBase& _evaluator() {
         if (!m_evaluator) {
             m_evaluator = newMultiRate();

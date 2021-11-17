@@ -99,6 +99,7 @@ public:
     }
 
 protected:
+    //! Helper function to update rates that have an `updateFromStruct` method
     template <typename T=RateType, typename std::enable_if<has_update<T>::value, bool>::type = true>
     void _updateRates() {
         // Update reaction-specific data for each reaction. This loop is efficient as
@@ -108,26 +109,32 @@ protected:
         }
     }
 
+    //! Helper function to be called when rates do not have an `updateFromStruct`.
+    //! Does nothing, but exists to allow generic implementations of update().
     template <typename T=RateType, typename std::enable_if<!has_update<T>::value, bool>::type = true>
     void _updateRates() {
-        // Do nothing if the rate has no update method
     }
 
+    //! Helper function to update a single rate that has an `updateFromStruct method`
     template <typename T=RateType, typename std::enable_if<has_update<T>::value, bool>::type = true>
     void _updateRate(RateType& rate) {
         rate.updateFromStruct(m_shared);
     }
 
+    //! Helper function to be called when a rate does not have an `updateFromStruct`
+    //! method. Exists to allow generic implementations of `evalSingle` and `ddTSingle`.
     template <typename T=RateType, typename std::enable_if<!has_update<T>::value, bool>::type = true>
     void _updateRate(RateType& rate) {
-        // Do nothing if the rate has no update method
     }
 
+    //! Helper function to evaluate temperature derivative for rate types that implement
+    //! the `ddTFromStruct` method.
     template <typename T=RateType, typename std::enable_if<has_ddT<T>::value, bool>::type = true>
     double _get_ddT(RateType& rate) {
         return rate.ddTFromStruct(m_shared);
     }
 
+    //! Helper function for rate types that do not implement `ddTFromStruct`
     template <typename T=RateType, typename std::enable_if<!has_ddT<T>::value, bool>::type = true>
     double _get_ddT(RateType& rate) {
         throw NotImplementedError("ReactionRate::ddTFromStruct", "For rate of type {}", rate.type());

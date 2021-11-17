@@ -19,9 +19,9 @@ class Kinetics;
 
 //! An abstract base class for evaluating all reactions of a particular type.
 /**
- * Because this class has no template parameters, the `Kinetics` object
- * can store all of these rate coefficient evaluators as a
- * `vector<shared_ptr<MultiRateBase>>`.
+ * Because this class has no template parameters, the `Kinetics` object can store all of
+ * these rate coefficient evaluators as a `vector<shared_ptr<MultiRateBase>>`. All of
+ * the actual implementation for this capability is done in the MultiBulkRate class.
  *
  * @todo At the moment, implemented methods are specific to `BulkKinetics`,
  *     which can be updated using information of a single `ThermoPhase`.
@@ -69,7 +69,11 @@ public:
     //! @param kin  object representing kinetics
     virtual void update(const ThermoPhase& bulk, const Kinetics& kin) = 0;
 
+    //! Get the rate for a single reaction. Used to implement ReactionRate::eval.
     virtual double evalSingle(ReactionRate& rate) = 0;
+
+    //! Get the derivative of the rate with respect to temperature for a single
+    //! reaction. Used to implement ReactionRate::ddT.
     virtual double ddTSingle(ReactionRate& rate) = 0;
 };
 
