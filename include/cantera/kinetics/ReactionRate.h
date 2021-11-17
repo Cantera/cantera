@@ -46,8 +46,6 @@ public:
 
     virtual const std::string type() const = 0;
 
-    virtual bool usesUpdate() const { return true; };
-
     //! Set parameters
     //! @param node  AnyMap object containing reaction rate specification
     virtual void setParameters(const AnyMap& node, const UnitsVector& units) {

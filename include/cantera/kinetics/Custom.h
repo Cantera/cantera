@@ -46,19 +46,10 @@ public:
     using ReactionRate::getParameters;
 
     //! Update information specific to reaction
-    bool usesUpdate() const override { return false; }
-
-    //! Update information specific to reaction
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    double eval(const CustomFunc1Data& shared_data) const;
-
-    void update(const CustomFunc1Data& shared_data) {};
-
-    double ddT(const CustomFunc1Data& shared_data) const {
-        throw NotImplementedError("CustomFunc1Rate::ddT");
-    }
+    double evalFromStruct(const CustomFunc1Data& shared_data) const;
 
     //! Set custom rate
     /**

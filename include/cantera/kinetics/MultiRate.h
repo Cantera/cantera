@@ -10,14 +10,19 @@
 
 #include "ReactionRate.h"
 #include "MultiRateBase.h"
+#include "cantera/base/utilities.h"
 
 namespace Cantera
 {
+
 
 //! A class template handling all reaction rates specific to `BulkKinetics`.
 template <class RateType, class DataType>
 class MultiBulkRate final : public MultiRateBase
 {
+    CT_DEFINE_HAS_MEMBER(has_update, updateFromStruct)
+    CT_DEFINE_HAS_MEMBER(has_ddT, ddTFromStruct)
+
 public:
     virtual std::string type() override {
         if (!m_rxn_rates.size()) {
@@ -57,68 +62,77 @@ public:
 
     virtual void getRateConstants(double* kf) override {
         for (auto& rxn : m_rxn_rates) {
-            kf[rxn.first] = rxn.second.eval(m_shared);
+            kf[rxn.first] = rxn.second.evalFromStruct(m_shared);
         }
     }
 
     virtual void update(double T) override {
         // update common data once for each reaction type
         m_shared.update(T);
-        if (!m_rxn_rates.empty() && m_rxn_rates[0].second.usesUpdate()) {
-            // update reaction-specific data for each reaction. This loop
-            // is efficient as all function calls are de-virtualized, and
-            // all of the rate objects are contiguous in memory
-            for (auto& rxn : m_rxn_rates) {
-                rxn.second.update(m_shared);
-            }
-        }
+        _updateRates();
     }
 
     virtual void update(double T, double P) override {
         // update common data once for each reaction type
         m_shared.update(T, P);
-        if (!m_rxn_rates.empty() && m_rxn_rates[0].second.usesUpdate()) {
-            // update reaction-specific data for each reaction. This loop
-            // is efficient as all function calls are de-virtualized, and
-            // all of the rate objects are contiguous in memory
-            for (auto& rxn : m_rxn_rates) {
-                rxn.second.update(m_shared);
-            }
-        }
+        _updateRates();
     }
 
     virtual void update(const ThermoPhase& bulk, const Kinetics& kin) override {
         // update common data once for each reaction type
         m_shared.update(bulk, kin);
-        if (!m_rxn_rates.empty() && m_rxn_rates[0].second.usesUpdate()) {
-            // update reaction-specific data for each reaction. This loop
-            // is efficient as all function calls are de-virtualized, and
-            // all of the rate objects are contiguous in memory
-            for (auto& rxn : m_rxn_rates) {
-                rxn.second.update(m_shared);
-            }
-        }
+        _updateRates();
     }
 
     virtual double evalSingle(ReactionRate& rate) override
     {
         RateType& R = static_cast<RateType&>(rate);
-        if (R.usesUpdate()) {
-            R.update(m_shared);
-        }
-        return R.eval(m_shared);
+        _updateRate(R);
+        return R.evalFromStruct(m_shared);
     }
 
     virtual double ddTSingle(ReactionRate& rate) override
     {
         RateType& R = static_cast<RateType&>(rate);
-        if (R.usesUpdate()) {
-            R.update(m_shared);
-        }
-        return R.ddT(m_shared);
+        _updateRate(R);
+        return _get_ddT(R);
     }
 
 protected:
+    template <typename T=RateType, typename std::enable_if<has_update<T>::value, bool>::type = true>
+    void _updateRates() {
+        // Update reaction-specific data for each reaction. This loop is efficient as
+        // all calls are de-virtualized and all rate objects are contiguous in memory
+        for (auto& rxn : m_rxn_rates) {
+            rxn.second.updateFromStruct(m_shared);
+        }
+    }
+
+    template <typename T=RateType, typename std::enable_if<!has_update<T>::value, bool>::type = true>
+    void _updateRates() {
+        // Do nothing if the rate has no update method
+    }
+
+    template <typename T=RateType, typename std::enable_if<has_update<T>::value, bool>::type = true>
+    void _updateRate(RateType& rate) {
+        rate.updateFromStruct(m_shared);
+    }
+
+    template <typename T=RateType, typename std::enable_if<!has_update<T>::value, bool>::type = true>
+    void _updateRate(RateType& rate) {
+        // Do nothing if the rate has no update method
+    }
+
+    template <typename T=RateType, typename std::enable_if<has_ddT<T>::value, bool>::type = true>
+    double _get_ddT(RateType& rate) {
+        return rate.ddTFromStruct(m_shared);
+    }
+
+    template <typename T=RateType, typename std::enable_if<!has_ddT<T>::value, bool>::type = true>
+    double _get_ddT(RateType& rate) {
+        throw NotImplementedError("ReactionRate::ddTFromStruct", "For rate of type {}", rate.type());
+    }
+
     //! Vector of pairs of reaction rates indices and reaction rates
     std::vector<std::pair<size_t, RateType>> m_rxn_rates;
     std::map<size_t, size_t> m_indices; //! Mapping of indices
