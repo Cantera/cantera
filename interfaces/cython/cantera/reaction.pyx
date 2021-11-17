@@ -29,10 +29,8 @@ cdef class ReactionRate:
         will raise an exception.
         """
         if pressure:
-            self.rate.update(temperature, pressure)
             return self.rate.eval(temperature, pressure)
         else:
-            self.rate.update(temperature)
             return self.rate.eval(temperature)
 
     property type:
@@ -124,10 +122,8 @@ cdef class ReactionRate:
         Evaluate derivative of rate expression with respect to temperature.
         """
         if pressure:
-            self.rate.update(temperature, pressure)
             return self.rate.ddT(temperature, pressure)
         else:
-            self.rate.update(temperature)
             return self.rate.ddT(temperature)
 
     property input_data:
