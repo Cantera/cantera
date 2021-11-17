@@ -101,7 +101,7 @@ public:
     double evalF(double T, double conc3b) {
         FalloffData data;
         data.update(T);
-        update(data);
+        updateFromStruct(data);
         double pr = conc3b * m_rc_low / (m_rc_high + SmallNumber);
         return F(pr, m_work.data());
     }
@@ -143,10 +143,10 @@ public:
 
     //! Update information specific to reaction
     //! @param shared_data  data shared by all reactions of a given type
-    virtual void update(const FalloffData& shared_data) {
+    virtual void updateFromStruct(const FalloffData& shared_data) {
         updateTemp(shared_data.temperature, m_work.data());
-        m_rc_low = m_lowRate.eval(shared_data);
-        m_rc_high = m_highRate.eval(shared_data);
+        m_rc_low = m_lowRate.evalFromStruct(shared_data);
+        m_rc_high = m_highRate.evalFromStruct(shared_data);
         if (shared_data.finalized && m_rate_index != npos) {
             third_body_concentration = shared_data.conc_3b[m_rate_index];
         }
@@ -154,7 +154,7 @@ public:
 
     //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
-    virtual double eval(const FalloffData& shared_data) const {
+    virtual double evalFromStruct(const FalloffData& shared_data) const {
         double pr = third_body_concentration * m_rc_low / (m_rc_high + SmallNumber);
 
         // Apply falloff function
@@ -167,10 +167,6 @@ public:
         // Pr / (1 + Pr) * F
         pr *= F(pr, m_work.data()) / (1.0 + pr);
         return pr * m_rc_high;
-    }
-
-    virtual double ddT(const FalloffData& shared_data) const {
-        throw NotImplementedError("Falloff::ddT");
     }
 
     //! Check the reaction rate expression

@@ -161,25 +161,17 @@ public:
 
     virtual void getParameters(AnyMap& node) const override;
 
-    //! Update information specific to reaction
-    bool usesUpdate() const override {
-        return false;
-    }
-
-    void update(const ArrheniusData& shared_data) const {}
-
     //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
-    double eval(const ArrheniusData& shared_data) const {
+    double evalFromStruct(const ArrheniusData& shared_data) const {
         return m_A * std::exp(m_b * shared_data.logT - m_Ea_R * shared_data.recipT);
     }
 
     //! Evaluate derivative of reaction rate with respect to temperature
-    //! divided by reaction rate value
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    virtual double ddT(const ArrheniusData& shared_data) const {
+    virtual double ddTFromStruct(const ArrheniusData& shared_data) const {
         return m_A * (m_b + m_Ea_R * shared_data.recipT) *
             std::exp((m_b - 1) * shared_data.logT - m_Ea_R * shared_data.recipT);
     }
@@ -269,19 +261,15 @@ public:
 
     virtual void getParameters(AnyMap& node) const;
 
-    void update(const BlowersMaselData& shared_data) {
+    void updateFromStruct(const BlowersMaselData& shared_data) {
         if (shared_data.finalized && m_rate_index != npos) {
             m_deltaH_R = shared_data.dH[m_rate_index] / GasConstant;
         }
     }
 
-    double eval(const BlowersMaselData& shared_data) {
+    double evalFromStruct(const BlowersMaselData& shared_data) {
         double Ea_R = activationEnergy_R(m_deltaH_R);
         return m_A * std::exp(m_b * shared_data.logT - Ea_R * shared_data.recipT);
-    }
-
-    double ddT(const BlowersMaselData& shared_data) {
-        throw NotImplementedError("BlowersMasel3::ddT");
     }
 
     //! Return the actual activation energy (a function of the delta H of reaction)

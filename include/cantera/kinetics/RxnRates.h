@@ -380,7 +380,7 @@ public:
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    void update(const PlogData& shared_data) {
+    void updateFromStruct(const PlogData& shared_data) {
         update_C(&shared_data.logP);
     }
 
@@ -388,12 +388,8 @@ public:
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    double eval(const PlogData& shared_data) const {
+    double evalFromStruct(const PlogData& shared_data) const {
         return updateRC(shared_data.logT, shared_data.recipT);
-    }
-
-    double ddT(const PlogData& shared_data) const {
-        throw NotImplementedError("Plog::ddT");
     }
 
     //! Set up Plog object
@@ -574,7 +570,7 @@ public:
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    void update(const ChebyshevData& shared_data) {
+    void updateFromStruct(const ChebyshevData& shared_data) {
         update_C(&shared_data.log10P);
     }
 
@@ -582,12 +578,8 @@ public:
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    double eval(const ChebyshevData& shared_data) const {
+    double evalFromStruct(const ChebyshevData& shared_data) const {
         return updateRC(0., shared_data.recipT);
-    }
-
-    double ddT(const ChebyshevData& shared_data) const {
-        throw NotImplementedError("Chebyshev::ddT");
     }
 
     //! Set up Chebyshev object

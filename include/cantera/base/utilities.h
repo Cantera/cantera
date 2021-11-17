@@ -188,6 +188,19 @@ const U& getValue(const std::map<T, U>& m, const T& key, const U& default_val) {
     return (iter == m.end()) ? default_val : iter->second;
 }
 
+//! A macro for generating member function detectors, which can then be used in
+//! combination with `std::enable_if` to allow selection of a particular template
+//! specialization based on the presence of that member function. See MultiBulkRate for
+//! examples of use.
+#define CT_DEFINE_HAS_MEMBER(detector_name, func_name)                   \
+    template <typename T>                                                \
+    struct detector_name {                                               \
+        typedef char (& yes)[1], (& no)[2];                              \
+        template <typename C> static yes check(decltype(&C::func_name)); \
+        template <typename> static no check(...);                        \
+        static bool const value = sizeof(check<T>(0)) == sizeof(yes);    \
+    };
+
 }
 
 #endif
