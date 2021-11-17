@@ -100,26 +100,6 @@ public:
         return _evaluator().evalSingle(*this);
     }
 
-    //! Update reaction rate data based on temperature
-    //! @param T  temperature [K]
-    void update(double T) {
-        _evaluator().update(T);
-    }
-
-    //! Update reaction rate data based on temperature and pressure
-    //! @param T  temperature [K]
-    //! @param P  pressure [Pa]
-    void update(double T, double P) {
-        _evaluator().update(T, P);
-    }
-
-    //! Update reaction rate data based on bulk phase
-    //! @param bulk  object representing bulk phase
-    //! @param kin  object representing kinetics (not required for all rate types)
-    void update(const ThermoPhase& bulk, const Kinetics& kin) {
-        _evaluator().update(bulk, kin);
-    }
-
     //! Evaluate reaction rate derivative based on temperature
     //! @param T  temperature [K]
     double ddT(double T) {
