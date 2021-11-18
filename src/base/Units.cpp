@@ -144,7 +144,7 @@ Units::Units(const std::string& name, bool force_unity)
     size_t start = 0;
 
     // Determine factor
-    std::regex regexp("[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)");
+    static std::regex regexp("[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)");
     std::smatch matched;
     std::regex_search(name, matched, regexp);
     if (matched.size()) {
