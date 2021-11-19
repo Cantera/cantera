@@ -341,11 +341,11 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 }
 
                 if (loglevel > 6) {
-                    save("debug_sim1d.xml", "debug",
+                    save("debug_sim1d.yaml", "debug",
                          "After successful Newton solve");
                 }
                 if (loglevel > 7) {
-                    saveResidual("debug_sim1d.xml", "residual",
+                    saveResidual("debug_sim1d.yaml", "residual",
                                  "After successful Newton solve");
                 }
                 ok = true;
@@ -353,11 +353,11 @@ void Sim1D::solve(int loglevel, bool refine_grid)
             } else {
                 debuglog("    failure. \n", loglevel);
                 if (loglevel > 6) {
-                    save("debug_sim1d.xml", "debug",
+                    save("debug_sim1d.yaml", "debug",
                          "After unsuccessful Newton solve");
                 }
                 if (loglevel > 7) {
-                    saveResidual("debug_sim1d.xml", "residual",
+                    saveResidual("debug_sim1d.yaml", "residual",
                                  "After unsuccessful Newton solve");
                 }
                 if (loglevel > 0) {
@@ -367,10 +367,10 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                               loglevel-1);
                 m_xlast_ts = m_x;
                 if (loglevel > 6) {
-                    save("debug_sim1d.xml", "debug", "After timestepping");
+                    save("debug_sim1d.yaml", "debug", "After timestepping");
                 }
                 if (loglevel > 7) {
-                    saveResidual("debug_sim1d.xml", "residual",
+                    saveResidual("debug_sim1d.yaml", "residual",
                                  "After timestepping");
                 }
 
@@ -402,10 +402,10 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 dt = m_tstep;
             }
             if (new_points && loglevel > 6) {
-                save("debug_sim1d.xml", "debug", "After regridding");
+                save("debug_sim1d.yaml", "debug", "After regridding");
             }
             if (new_points && loglevel > 7) {
-                saveResidual("debug_sim1d.xml", "residual",
+                saveResidual("debug_sim1d.yaml", "residual",
                              "After regridding");
             }
         } else {
