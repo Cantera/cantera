@@ -349,7 +349,6 @@ protected:
     std::vector<size_t> m_loc;
     vector_int m_mask;
     size_t m_pts;
-    doublereal m_solve_time;
 
     // options
     int m_ss_jac_age, m_ts_jac_age;
