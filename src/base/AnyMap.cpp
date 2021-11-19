@@ -157,6 +157,9 @@ long int getPrecision(const Cantera::AnyValue& precisionSource)
 
 string formatDouble(double x, long int precision)
 {
+    // This function ensures that trailing zeros resulting from round-off error
+    // are removed. Values are only rounded if at least three digits are removed,
+    // or the displayed value has multiple trailing zeros.
     if (x == 0.0) {
         return "0.0";
     }
@@ -178,6 +181,8 @@ string formatDouble(double x, long int precision)
         // Value ending in '00x' and should be rounded down
     } else if (s0[last - 2] == '9' && s0[last - 1] == '9' && s0[last] > '4') {
         // Value ending in '99y' and should be rounded up
+    } else if (s0[last - 1] == '0' && s0[last] == '0') {
+        // Remove trailing zeros
     } else {
         // Value should not be rounded / do not round last digit
         return s0;
@@ -319,9 +324,8 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
     return out;
 }
 
-//! Emit YAML string. In case the input string includes a newline character `\n`,
-//! a YAML literal string is emitted; otherwise, the output is a regular string.
-void emitString(YAML::Emitter& out, const string str0) {
+//! Write YAML strings spanning multiple lines if input includes endline '\n'
+void emitString(YAML::Emitter& out, const string& str0) {
     size_t endline = str0.rfind('\n');
     if (endline == std::string::npos) {
         out << str0;
