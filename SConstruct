@@ -1300,11 +1300,11 @@ if env['python_package'] != 'none':
     if check_for_ruamel_yaml:
         ru_script = textwrap.dedent("""\
             try:
-                import ruamel_yaml as yaml
+                from ruamel import yaml
                 print(yaml.__version__)
             except ImportError as ru_err:
                 try:
-                    from ruamel import yaml
+                    import ruamel_yaml as yaml
                     print(yaml.__version__)
                 except ImportError as ru_err_2:
                     print('0.0.0')

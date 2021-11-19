@@ -20,9 +20,9 @@ from email.utils import formatdate
 import argparse
 
 try:
-    import ruamel_yaml as yaml
-except ImportError:
     from ruamel import yaml
+except ImportError:
+    import ruamel_yaml as yaml
 
 # yaml.version_info is a tuple with the three parts of the version
 yaml_version = yaml.version_info

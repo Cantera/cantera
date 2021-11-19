@@ -248,7 +248,7 @@ jobs:
         # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
         # use boost-cpp rather than boost from conda-forge
         run: |
-          conda install -q sundials=${{ matrix.sundials-ver }} scons numpy ruamel_yaml \
+          conda install -q sundials=${{ matrix.sundials-ver }} scons numpy ruamel.yaml \
           cython boost-cpp fmt eigen yaml-cpp h5py pandas libgomp openblas
       - name: Build Cantera
         run: |
