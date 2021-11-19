@@ -6,9 +6,9 @@ import unittest
 from pathlib import Path, PurePath
 
 try:
-    import ruamel_yaml as yaml
-except ImportError:
     from ruamel import yaml
+except ImportError:
+    import ruamel_yaml as yaml
 
 import cantera
 
