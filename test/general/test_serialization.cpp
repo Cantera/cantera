@@ -10,6 +10,63 @@
 #include "cantera/transport/TransportData.h"
 
 using namespace Cantera;
+using namespace YAML;
+
+TEST(YamlWriter, formatDouble)
+{
+    AnyMap m;
+    int count;
+    float delta;
+
+    // check least significant digit
+    // default precision is 15 (see AnyMap.cpp::getPrecicion)
+    delta = 1.e-15;
+    count = 0;
+    for (int i = -9; i < 10; i += 2) {
+        m["a"] = 4. + i * delta;
+        if (i < -5 || i > 4) {
+            // round away from 4.
+            EXPECT_NE(m.toYamlString(), "a: 4.0\n");
+        } else {
+            // round towards 4.
+            EXPECT_EQ(m.toYamlString(), "a: 4.0\n");
+            count++;
+        }
+    }
+    EXPECT_EQ(count, 5); // only checking even multiples of delta
+
+    // check edge cases
+    m["a"] = -1061.793215682400;
+    EXPECT_EQ(m.toYamlString(), "a: -1061.7932156824\n");
+}
+
+TEST(YamlWriter, formatDoubleExp)
+{
+    AnyMap m;
+    int count;
+    float delta;
+
+    // check least significant digit
+    // default precision is 15 (see AnyMap.cpp::getPrecicion)
+    delta = 1.e-5;
+    count = 0;
+    for (int i = -9; i < 10; i += 2) {
+        m["a"] = 4.e10 + i * delta;
+        if (i < -5 || i > 4) {
+            // round away from 4.
+            EXPECT_NE(m.toYamlString(), "a: 4.0e+10\n");
+        } else {
+            // round towards 4.
+            EXPECT_EQ(m.toYamlString(), "a: 4.0e+10\n");
+            count++;
+        }
+    }
+    EXPECT_EQ(count, 5); // only checking even multiples of delta
+
+    // check edge cases
+    m["a"] = 1.629771953878800e+13;
+    EXPECT_EQ(m.toYamlString(), "a: 1.6297719538788e+13\n");
+}
 
 TEST(YamlWriter, thermoDef)
 {
