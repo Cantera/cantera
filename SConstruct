@@ -76,7 +76,7 @@ from buildutils import *
 
 if not COMMAND_LINE_TARGETS:
     # Print usage help
-    logger.error("Missing command argument: type 'scons help' for information")
+    logger.error("Missing command argument: type 'scons help' for information.")
     sys.exit(1)
 
 if parse_version(SCons.__version__) < parse_version("3.0.0"):
