@@ -37,7 +37,13 @@ if TYPE_CHECKING:
 
 
 class Option:
-    """Object corresponding to SCons configuration option"""
+    """Object corresponding to SCons configuration option.
+
+    The purpose of this class is to collect system-dependent default parameters for
+    SCons configuration options, which are made available to both help text and
+    reST documentation. The class works in conjunction with the `Configuration` class
+    to select and convert system-dependent parameters to SCons configuration options.
+    """
 
     def __init__(self,
             name: str,
@@ -281,8 +287,11 @@ class EnumOption(Option):
 
 class Configuration:
     """
-    Class enabling selection of options based on attribute dictionary entries that
-    allow for differentiation between platform/compiler dependent options.
+    Class enabling selection of options based on a dictionary of `Option` objects
+    that allows for a differentiation between platform/compiler dependent options.
+
+    In addition, the class facilitiates the generation of formatted help text and
+    reST documentation.
     """
 
     header = [
