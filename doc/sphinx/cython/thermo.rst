@@ -49,9 +49,19 @@ ConstantCp
 .. autoclass:: ConstantCp(T_low, T_high, P_ref, coeffs)
     :no-undoc-members:
 
+Mu0Poly
+^^^^^^^
+.. autoclass:: Mu0Poly(T_low, T_high, P_ref, coeffs)
+    :no-undoc-members:
+
 NasaPoly2
 ^^^^^^^^^
 .. autoclass:: NasaPoly2(T_low, T_high, P_ref, coeffs)
+    :no-undoc-members:
+
+Nasa9PolyMultiTempRegion
+^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: Nasa9PolyMultiTempRegion(T_low, T_high, P_ref, coeffs)
     :no-undoc-members:
 
 ShomatePoly2
