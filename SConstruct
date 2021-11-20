@@ -25,7 +25,7 @@ Basic usage:
     'scons test-NAME' - Run the test named "NAME".
 
     'scons <command> dump' - Dump the state of the SCons environment to the
-                             screen instead of doing <command>, e.g.
+                             screen instead of doing <command>, for example
                              'scons build dump'. For debugging purposes.
 
     'scons samples' - Compile the C++ and Fortran samples.
@@ -35,7 +35,20 @@ Basic usage:
     'scons sphinx' - Build the Sphinx documentation
 
     'scons doxygen' - Build the Doxygen documentation
+
+Additional help command options:
+    'scons help --list-options' - List all available configuration options.
+
+    'scons help --option=<opt>' - Print the description of a specific option
+                                  with name <opt>, for example
+                                  'scons help --option=prefix'
 """
+# Note that 'scons help' supports additional command options that are intended for
+# internal use (debugging or reST parsing of options) and thus are not listed above:
+#  --defaults ... list default values for all supported platforms
+#  --restructured-text ... format configuration as reST
+#  --dev ... add '-dev' to reST output
+#  --output=<fname> ... send output to file (reST only)
 
 # This f-string is deliberately here to trigger a SyntaxError when
 # SConstruct is parsed by Python 2. This seems to be the most robust
@@ -561,7 +574,7 @@ if "help" in COMMAND_LINE_TARGETS:
         action="store_true", help="List available options")
     AddOption(
         "--restructured-text", dest="rest",
-        action="store_true", help="Format defaults as ReST")
+        action="store_true", help="Format defaults as reST")
     AddOption(
         "--option", dest="option", nargs=1, type="string",
         action="store", help="Output help for specific option")
@@ -573,7 +586,7 @@ if "help" in COMMAND_LINE_TARGETS:
         action="store_true", help="Append -dev (ReST only)")
     AddOption(
         "--output", dest="output", nargs=1, type="string",
-        action="store", help="Output file (ReST only)")
+        action="store", help="Output file (reST only)")
 
     list = GetOption("list")
     rest = GetOption("rest")
