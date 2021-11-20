@@ -147,7 +147,7 @@ doublereal fpValueCheck(const std::string& val)
     ch = str[0];
     if (ch == '+' || ch == '-') {
         if (str.size() == 1) {
-            throw CanteraError("fpValueCheck", "string ends in '{}'", ch);
+            throw CanteraError("fpValueCheck", "string '{}' ends in '{}'", val, ch);
         }
         istart = 1;
     }
@@ -158,33 +158,31 @@ doublereal fpValueCheck(const std::string& val)
             numDot++;
             if (numDot > 1) {
                 throw CanteraError("fpValueCheck",
-                                   "string has more than one .");
+                                   "string '{}' has more than one decimal point.", val);
             }
             if (numExp > 0) {
                 throw CanteraError("fpValueCheck",
-                                   "string has decimal point in exponent");
+                                   "string '{}' has decimal point in exponent", val);
             }
         } else if (ch == 'e' || ch == 'E' || ch == 'd' || ch == 'D') {
             numExp++;
             str[i] = 'E';
             if (numExp > 1) {
                 throw CanteraError("fpValueCheck",
-                                   "string has more than one exp char");
+                                   "string '{}' has more than one exp char", val);
             } else if (i == str.size() - 1) {
-                throw CanteraError("fpValueCheck",
-                                   "string ends in '{}'", ch);
+                throw CanteraError("fpValueCheck", "string '{}' ends in '{}'", val, ch);
             }
             ch = str[i+1];
             if (ch == '+' || ch == '-') {
                 if (i + 1 == str.size() - 1) {
                     throw CanteraError("fpValueCheck",
-                                       "string ends in '{}'", ch);
+                                       "string '{}' ends in '{}'", val, ch);
                 }
                 i++;
             }
         } else {
-            throw CanteraError("fpValueCheck",
-                               "Trouble processing string, " + str);
+            throw CanteraError("fpValueCheck", "Trouble processing string '{}'", str);
         }
     }
     return fpValue(str);
