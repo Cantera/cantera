@@ -13,7 +13,7 @@ from matplotlib import pyplot as plt
 
 w = ct.Water()
 
-# create colums
+# create columns
 columns = ['T', 'P',
            'vf', 'vfg', 'vg',
            'uf', 'ufg', 'ug',

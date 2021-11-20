@@ -160,7 +160,7 @@ public:
         return m_coeff;
     }
 
-    /// Compute the currrent mass flow rate, based on the pressure difference.
+    /// Compute the current mass flow rate, based on the pressure difference.
     virtual void updateMassFlowRate(double time);
 };
 

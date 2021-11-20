@@ -14,7 +14,7 @@ The fields common to all ``reaction`` entries are:
     must be separated by a space.
 
     Reversible reactions may be written using ``<=>`` or ``=`` to separate
-    reactants and products. Irreversible reacions are written using ``=>``.
+    reactants and products. Irreversible reactions are written using ``=>``.
 
 ``type``
     A string specifying the type of reaction or rate coefficient
@@ -292,7 +292,7 @@ Example::
 ``interface``
 -------------
 
-A reaction occuring on a surface between two bulk phases, or along an edge
+A reaction occurring on a surface between two bulk phases, or along an edge
 at the intersection of two surfaces, as
 `described here <https://cantera.org/science/reactions.html#sec-surface>`__.
 

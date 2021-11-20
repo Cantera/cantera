@@ -207,7 +207,7 @@ TEST_F(PengRobinson_Test, getPressure)
     *       b_coeff = 0.077796(RT_crit)/p_crit
     *  The temperature dependent parameter in P-R EoS is calculated as
     *       \alpha = [1 + \kappa(1 - sqrt{T/T_crit}]^2
-    *  kappa is a function calulated based on the accentric factor.
+    *  kappa is a function calculated based on the acentric factor.
     */
 
     double a_coeff = 3.958095109E+5;

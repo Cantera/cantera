@@ -7,7 +7,7 @@ premixed methane/air mixture enters at ~6 cm/s (0.06 kg/m2/s), and burns
 catalytically on the platinum surface. Gas-phase chemistry is included too,
 and has some effect very near the surface.
 
-The catalytic combustion mechanism is from Deutschman et al., 26th
+The catalytic combustion mechanism is from Deutschmann et al., 26th
 Symp. (Intl.) on Combustion,1996 pp. 1747-1754
 
 Requires: cantera >= 2.5.0

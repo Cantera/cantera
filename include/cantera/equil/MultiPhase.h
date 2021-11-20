@@ -687,7 +687,7 @@ std::ostream& operator<<(std::ostream& s, MultiPhase& x);
  * @param[in] orderVectorElements Order vector for the elements. The element
  *         rows in the formula matrix are rearranged according to this vector.
  * @param[in] orderVectorSpecies Order vector for the species. The species are
- *         rearranged according to this formula. The first nCompoments of this
+ *         rearranged according to this formula. The first nComponents of this
  *         vector contain the calculated species components on exit.
  * @param[in] doFormRxn  If true, the routine calculates the formation
  *         reaction matrix based on the calculated component species. If
@@ -748,7 +748,7 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                    std::vector<size_t>& orderVectorElements);
 
 //! External int that is used to turn on debug printing for the
-//! BasisOptimze program.
+//! BasisOptimize program.
 /*!
  *   Set this to 1 if you want debug printing from BasisOptimize.
  */

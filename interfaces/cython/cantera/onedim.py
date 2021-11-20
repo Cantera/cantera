@@ -499,7 +499,7 @@ class FlameBase(Sim1D):
         """
         Write the solution vector to a HDF container file.
 
-        The `write_hdf` method preserves the stucture of a `FlameBase`-derived
+        The `write_hdf` method preserves the structure of a `FlameBase`-derived
         object (such as `FreeFlame`). Each simulation is saved as a *group*,
         whereas individual domains are saved as subgroups. In addition to
         datasets, information on `Sim1D.settings` and `Domain1D.settings` is
@@ -1638,7 +1638,7 @@ class CounterflowTwinPremixedFlame(FlameBase):
 
     def set_initial_guess(self, data=None, group=None):
         """
-        Set the initial guess for the solution based on an equiibrium solution.
+        Set the initial guess for the solution based on an equilibrium solution.
         Alternatively, a previously calculated result can be supplied as an
         initial guess via 'data' and 'key' inputs (see
         `FlameBase.set_initial_guess`).

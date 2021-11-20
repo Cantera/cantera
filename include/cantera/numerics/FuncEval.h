@@ -92,7 +92,7 @@ protected:
     // If true, errors are accumulated in m_errors. Otherwise, they are printed
     bool m_suppress_errors;
 
-    //! Errors occuring during function evaluations
+    //! Errors occurring during function evaluations
     std::vector<std::string> m_errors;
 };
 

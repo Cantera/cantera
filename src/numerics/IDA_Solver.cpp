@@ -70,9 +70,9 @@ extern "C" {
      * residual routines:
      *
      * A IDAResFn res should return a value of 0 if successful, a positive value
-     * if a recoverable error occured (e.g. yy has an illegal value), or a
-     * negative value if a nonrecoverable error occured. In the latter case, the
-     * program halts. If a recoverable error occured, the integrator will
+     * if a recoverable error occurred (e.g. yy has an illegal value), or a
+     * negative value if a nonrecoverable error occurred. In the latter case, the
+     * program halts. If a recoverable error occurred, the integrator will
      * attempt to correct and retry.
      */
     static int ida_resid(realtype t, N_Vector y, N_Vector ydot, N_Vector r, void* f_data)

@@ -1241,7 +1241,7 @@ public:
      * @param element    either "Bilger" to compute the mixture fraction
      *                   in terms of the Bilger mixture fraction, or
      *                   an element name, to compute the mixture fraction
-     *                   bsaed on a single element (default: "Bilger")
+     *                   based on a single element (default: "Bilger")
      * @returns          mixture fraction (kg fuel / kg mixture)
      */
     double mixtureFraction(const double* fuelComp, const double* oxComp,
