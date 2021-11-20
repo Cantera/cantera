@@ -349,7 +349,7 @@ void Phase::setMoleFractions(const double* const x)
         sum += m_molwts[k] * xk;
     }
 
-    // Set m_ym_ to the normalized mole fractions divided by the normalized mean
+    // Set m_ym to the normalized mole fractions divided by the normalized mean
     // molecular weight:
     //     m_ym_k = X_k / (sum_k X_k M_k)
     const double invSum = 1.0/sum;

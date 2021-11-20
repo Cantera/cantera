@@ -192,7 +192,7 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
 
     } else {
         // right inlet
-        // Array elements corresponding to the flast point in the flow domain
+        // Array elements corresponding to the last point in the flow domain
         double* rb = rg + loc() - m_flow->nComponents();
         rb[c_offset_V] -= m_V0;
         if (m_flow->doEnergy(m_flow->nPoints() - 1)) {

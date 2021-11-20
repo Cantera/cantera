@@ -554,7 +554,7 @@ class TestFreeFlame(utilities.CanteraTest):
         u3 = self.sim.velocity
         V3 = self.sim.spread_rate
 
-        # TODO: These tolereances seem too loose, but the tests fail on some
+        # TODO: These tolerances seem too loose, but the tests fail on some
         # systems with tighter tolerances.
         self.assertArrayNear(Y1, Y3, 3e-3)
         self.assertArrayNear(u1, u3, 1e-3)

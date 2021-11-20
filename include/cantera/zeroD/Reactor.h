@@ -154,7 +154,7 @@ public:
     //! @returns           True if at least one limit is set, False otherwise
     bool getAdvanceLimits(double* limits);
 
-    //! Set individual step size limit for compoment name *nm*
+    //! Set individual step size limit for component name *nm*
     //! @param nm component name
     //! @param limit value for step size limit
     void setAdvanceLimit(const std::string& nm, const double limit);

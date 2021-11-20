@@ -353,7 +353,7 @@ class ReactionTests:
     _equation = None # reaction equation string
     _rate = None # parameters for reaction rate object constructor
     _rate_obj = None # reaction rate object
-    _kwargs = {} # additional parameters required by contructor
+    _kwargs = {} # additional parameters required by constructor
     _index = None # index of reaction in "kineticsfromscratch.yaml"
     _yaml = None # YAML parameterization
     _input = None # input parameters (dict corresponding to YAML)

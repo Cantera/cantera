@@ -680,7 +680,7 @@ public:
      *              concentrations (no change to legacy behavior). After Cantera 2.6,
      *              results will no longer include third-body concentrations and be
      *              consistent with conventional definitions (see Eq. 9.75 in
-     *              Kee, Coltrin and Glarborg, 'Chemically eacting Flow', Wiley
+     *              Kee, Coltrin and Glarborg, 'Chemically Reacting Flow', Wiley
      *              Interscience, 2003).
      *              For new behavior, set 'Cantera::use_legacy_rate_constants(false)'.
      */
@@ -706,7 +706,7 @@ public:
      *              concentrations (no change to legacy behavior). After Cantera 2.6,
      *              results will no longer include third-body concentrations and be
      *              consistent with conventional definitions (see Eq. 9.75 in
-     *              Kee, Coltrin and Glarborg, 'Chemically eacting Flow', Wiley
+     *              Kee, Coltrin and Glarborg, 'Chemically Reacting Flow', Wiley
      *              Interscience, 2003).
      *              For new behavior, set 'Cantera::use_legacy_rate_constants(false)'.
      */

@@ -124,7 +124,7 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 
     if (!(r->usesLegacy())) {
         shared_ptr<ReactionRateBase> rate = r->rate();
-        // If neccessary, add new MultiBulkRate evaluator
+        // If necessary, add new MultiBulkRate evaluator
         if (m_bulk_types.find(rate->type()) == m_bulk_types.end()) {
             m_bulk_types[rate->type()] = m_bulk_rates.size();
             m_bulk_rates.push_back(rate->newMultiRate());

@@ -13,7 +13,7 @@ gas = Solution('ptcombust.yaml','gas');
 set(gas,'T',t,'P',oneatm,'X','CH4:0.01, O2:0.21, N2:0.78');
 
 % The surface reaction mechanism describes catalytic combustion of
-% methane on platinum, and is from Deutschman et al., 26th
+% methane on platinum, and is from Deutschmann et al., 26th
 % Symp. (Intl.) on Combustion,1996, pp. 1747-1754
 surf = importInterface('ptcombust.yaml','Pt_surf', gas);
 setTemperature(surf, t);

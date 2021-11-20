@@ -932,7 +932,7 @@ cdef extern from "cantera/oneD/Boundary1D.h":
         CxxSurf1D()
 
     cdef cppclass CxxReactingSurf1D "Cantera::ReactingSurf1D":
-        CxxRreactingSurf1D()
+        CxxReactingSurf1D()
         void setKineticsMgr(CxxInterfaceKinetics*) except +translate_exception
         void enableCoverageEquations(cbool) except +translate_exception
         cbool coverageEnabled()

@@ -717,7 +717,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
             debuglog("lambda   ", loglevel >= 2);
             if (x.size() != np) {
                 throw CanteraError("StFlow::restore",
-                                   "lambda arary size error");
+                                   "lambda array size error");
             }
             for (size_t j = 0; j < np; j++) {
                 soln[index(c_offset_L,j)] = x[j];

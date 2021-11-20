@@ -55,7 +55,7 @@ public:
 
     //! Raise these Units to a power, changing both the conversion factor and
     //! the dimensions of these Units.
-    Units pow(double expoonent) const;
+    Units pow(double exponent) const;
 
     bool operator==(const Units& other) const;
 
