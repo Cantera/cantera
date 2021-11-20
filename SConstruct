@@ -80,12 +80,11 @@ if not COMMAND_LINE_TARGETS:
     sys.exit(1)
 
 if parse_version(SCons.__version__) < parse_version("3.0.0"):
-    logger.info("Cantera requires SCons with a minimum version of 3.0.0. Exiting.",
-                print_level=False)
-    sys.exit(0)
+    logger.error("Cantera requires SCons with a minimum version of 3.0.0. Exiting.")
+    sys.exit(1)
 
 if os.name not in ["nt", "posix"]:
-    print(f"Error: Unrecognized operating system '{os.name}'")
+    logger.error(f"Error: Unrecognized operating system '{os.name}'")
     sys.exit(1)
 
 valid_commands = ("build", "clean", "install", "uninstall",
@@ -164,21 +163,21 @@ windows_options = [
     Option(
         "msvc_version",
         """Version of Visual Studio to use. The default is the newest
-            installed version. Specify '12.0' for Visual Studio 2013, '14.0' for
-            Visual Studio 2015, '14.1' ('14.1x') Visual Studio 2017, or '14.2'
-            ('14.2x') for Visual Studio 2019. For version numbers in parentheses,
-            'x' is a placeholder for a minor version number. Windows MSVC only.""",
+           installed version. Specify '12.0' for Visual Studio 2013, '14.0' for
+           Visual Studio 2015, '14.1' ('14.1x') Visual Studio 2017, or '14.2'
+           ('14.2x') for Visual Studio 2019. For version numbers in parentheses,
+           'x' is a placeholder for a minor version number. Windows MSVC only.""",
         ""),
     EnumOption(
         "target_arch",
         """Target architecture. The default is the same architecture as the
-            installed version of Python. Windows only.""",
+           installed version of Python. Windows only.""",
         {"Windows": "amd64"},
         ("amd64", "x86")),
     EnumOption(
         "toolchain",
         """The preferred compiler toolchain. If MSVC is not on the path but
-            'g++' is on the path, 'mingw' is used as a backup. Windows only.""",
+           'g++' is on the path, 'mingw' is used as a backup. Windows only.""",
         {"Windows": "msvc"},
         ("msvc", "mingw", "intel")),
 ]
@@ -186,10 +185,10 @@ windows_options = [
 config_options = [
     Option(
         "CXX",
-        """The C++ compiler to use.""",
+        "The C++ compiler to use.",
         "${CXX}"),
     Option(
-        'cxx_flags',
+        "cxx_flags",
         """Compiler flags passed to the C++ compiler only. Separate multiple
            options with spaces, for example, "cxx_flags='-g -Wextra -O3 --std=c++11'"
            """,
@@ -200,12 +199,12 @@ config_options = [
         }),
     Option(
         "CC",
-        """The C compiler to use. This is only used to compile CVODE.""",
+        "The C compiler to use. This is only used to compile CVODE.",
         "${CC}"),
     Option(
         "cc_flags",
         """Compiler flags passed to both the C and C++ compilers, regardless of
-            optimization level.""",
+           optimization level.""",
         {
             "cl": "/MD /nologo /D_SCL_SECURE_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS",
             "icc": "-vec-report0 -diag-disable 1478",
@@ -219,16 +218,16 @@ config_options = [
         {"Windows": "$ProgramFiles\Cantera", "default": "/usr/local"},
         PathVariable.PathAccept),
     PathOption(
-        'libdirname',
+        "libdirname",
         """Set this to the directory where Cantera libraries should be installed.
            Some distributions (for example, Fedora/RHEL) use 'lib64' instead of 'lib'
            on 64-bit systems or could use some other library directory name instead of
-           'lib' depends on architecture and profile (for example, Gentoo 'libx32' on
+           'lib', depending on architecture and profile (for example, Gentoo 'libx32' on
            x32 profile). If the user didn't set the 'libdirname' configuration
            variable, set it to the default value 'lib'""",
-        'lib', PathVariable.PathAccept),
+        "lib", PathVariable.PathAccept),
     EnumOption(
-        'python_package',
+        "python_package",
         """If you plan to work in Python, then you need the 'full' Cantera Python
            package. If, on the other hand, you will only use Cantera from some
            other language (for example, MATLAB or Fortran 90/95) and only need Python
@@ -239,16 +238,16 @@ config_options = [
            Python is running SCons if the required prerequisites (NumPy and
            Cython) are installed. Note: 'y' is a synonym for 'full' and 'n'
            is a synonym for 'none'.""",
-        'default', ('full', 'minimal', 'none', 'n', 'y', 'default')),
+        "default", ("full", "minimal", "none", "n", "y", "default")),
     PathOption(
-        'python_cmd',
+        "python_cmd",
         """Cantera needs to know where to find the Python interpreter. If
            'PYTHON_CMD' is not set, then the configuration process will use the
            same Python interpreter being used by SCons.""",
         "${PYTHON_CMD}",
         PathVariable.PathAccept),
     PathOption(
-        'python_prefix',
+        "python_prefix",
         """Use this option if you want to install the Cantera Python package to
            an alternate location. On Unix-like systems, the default is the same
            as the 'prefix' option. If the 'python_prefix' option is set to
@@ -259,70 +258,70 @@ config_options = [
         {"Windows": "", "default": "$prefix"},
         PathVariable.PathAccept),
     EnumOption(
-        'matlab_toolbox',
+        "matlab_toolbox",
         """This variable controls whether the MATLAB toolbox will be built. If
            set to 'y', you will also need to set the value of the 'matlab_path'
            variable. If set to 'default', the MATLAB toolbox will be built if
            'matlab_path' is set.""",
-        'default', ('y', 'n', 'default')),
+        "default", ("y", "n", "default")),
     PathOption(
-        'matlab_path',
+        "matlab_path",
         """Path to the MATLAB install directory. This should be the directory
            containing the 'extern', 'bin', etc. subdirectories. Typical values
-           are: "C:\Program Files\MATLAB\R2021a" on Windows,
-           "/Applications/MATLAB_R2011a.app" on macOS, or
-           "/opt/MATLAB/R2011a" on Linux.""",
-        '', PathVariable.PathAccept),
+           are: "C:\\Program Files\\MATLAB\\R2021a" on Windows,
+           "/Applications/MATLAB_R2021a.app" on macOS, or
+           "/opt/MATLAB/R2021a" on Linux.""",
+        "", PathVariable.PathAccept),
     EnumOption(
-        'f90_interface',
+        "f90_interface",
         """This variable controls whether the Fortran 90/95 interface will be
            built. If set to 'default', the builder will look for a compatible
            Fortran compiler in the 'PATH' environment variable, and compile
            the Fortran 90 interface if one is found.""",
-        'default', ('y', 'n', 'default')),
+        "default", ("y", "n", "default")),
     PathOption(
-        'FORTRAN',
+        "FORTRAN",
         """The Fortran (90) compiler. If unspecified, the builder will look for
            a compatible compiler (pgfortran, gfortran, ifort, g95) in the 'PATH' environment
            variable. Used only for compiling the Fortran 90 interface.""",
-        '', PathVariable.PathAccept),
+        "", PathVariable.PathAccept),
     Option(
         "FORTRANFLAGS",
-        """Compilation options for the Fortran (90) compiler.""",
+        "Compilation options for the Fortran (90) compiler.",
         "-O3"),
     BoolOption(
-        'coverage',
+        "coverage",
         """Enable collection of code coverage information with gcov.
            Available only when compiling with gcc.""",
         False),
     BoolOption(
-        'doxygen_docs',
-        """Build HTML documentation for the C++ interface using Doxygen.""",
+        "doxygen_docs",
+        "Build HTML documentation for the C++ interface using Doxygen.",
         False),
     BoolOption(
-        'sphinx_docs',
-        """Build HTML documentation for Cantera using Sphinx.""",
+        "sphinx_docs",
+        "Build HTML documentation for Cantera using Sphinx.",
         False),
     PathOption(
-        'sphinx_cmd',
-        """Command to use for building the Sphinx documentation.""",
-        'sphinx-build', PathVariable.PathAccept),
+        "sphinx_cmd",
+        "Command to use for building the Sphinx documentation.",
+        "sphinx-build", PathVariable.PathAccept),
     Option(
         "sphinx_options",
         """Options passed to the 'sphinx_cmd' command line. Separate multiple
            options with spaces, for example, "-W --keep-going".""",
         "-W --keep-going"),
     EnumOption(
-        'system_eigen',
+        "system_eigen",
         """Select whether to use Eigen from a system installation ('y'), from a
            Git submodule ('n'), or to decide automatically ('default'). If Eigen
            is not installed directly into a system include directory, for example, it is
            installed in '/opt/include/eigen3/Eigen', then you will need to add
            '/opt/include/eigen3' to 'extra_inc_dirs'.
            """,
-        'default', ('default', 'y', 'n')),
+        "default", ("default", "y", "n")),
     EnumOption(
-        'system_fmt',
+        "system_fmt",
         """Select whether to use the fmt library from a system installation
            ('y'), from a Git submodule ('n'), or to decide automatically
            ('default'). If you do not want to use the Git submodule and fmt
@@ -331,37 +330,37 @@ config_options = [
            'extra_inc_dirs' and 'extra_lib_dirs'. This installation of fmt
            must include the shared version of the library, for example,
            'libfmt.so'.""",
-        'default', ('default', 'y', 'n')),
+        "default", ("default", "y", "n")),
     EnumOption(
-        'system_yamlcpp',
+        "system_yamlcpp",
         """Select whether to use the yaml-cpp library from a system installation
            ('y'), from a Git submodule ('n'), or to decide automatically
            ('default'). If yaml-cpp is not installed directly into system
            include and library directories, then you will need to add those
            directories to 'extra_inc_dirs' and 'extra_lib_dirs'.""",
-        'default', ('default', 'y', 'n')),
+        "default", ("default", "y", "n")),
     EnumOption(
-        'system_sundials',
+        "system_sundials",
         """Select whether to use SUNDIALS from a system installation ('y'), from
            a Git submodule ('n'), or to decide automatically ('default').
            Specifying 'sundials_include' or 'sundials_libdir' changes the
            default to 'y'.""",
-        'default', ('default', 'y', 'n')),
+        "default", ("default", "y", "n")),
     PathOption(
-        'sundials_include',
+        "sundials_include",
         """The directory where the SUNDIALS header files are installed. This
            should be the directory that contains the "cvodes", "nvector", etc.
            subdirectories. Not needed if the headers are installed in a
            standard location, for example, '/usr/include'.""",
-        '', PathVariable.PathAccept),
+        "", PathVariable.PathAccept),
     PathOption(
-        'sundials_libdir',
+        "sundials_libdir",
         """The directory where the SUNDIALS static libraries are installed.
            Not needed if the libraries are installed in a standard location,
            for example, '/usr/lib'.""",
-        '', PathVariable.PathAccept),
+        "", PathVariable.PathAccept),
     Option(
-        'blas_lapack_libs',
+        "blas_lapack_libs",
         """Cantera can use BLAS and LAPACK libraries available on your system if
            you have optimized versions available (for example, Intel MKL). Otherwise,
            Cantera will use Eigen for linear algebra support. To use BLAS
@@ -369,50 +368,50 @@ config_options = [
            that should be passed to the linker, separated by commas, for example,
            "lapack,blas" or "lapack,f77blas,cblas,atlas". Eigen is required
            whether or not BLAS/LAPACK are used.""",
-        ''),
+        ""),
     PathOption(
-        'blas_lapack_dir',
+        "blas_lapack_dir",
         """Directory containing the libraries specified by 'blas_lapack_libs'. Not
            needed if the libraries are installed in a standard location, for example,
            '/usr/lib'.""",
-        '', PathVariable.PathAccept),
+        "", PathVariable.PathAccept),
     EnumOption(
-        'lapack_names',
+        "lapack_names",
         """Set depending on whether the procedure names in the specified
            libraries are lowercase or uppercase. If you don't know, run 'nm' on
            the library file (for example, "nm libblas.a").""",
-        'lower', ('lower','upper')),
+        "lower", ("lower", "upper")),
     BoolOption(
-        'lapack_ftn_trailing_underscore',
+        "lapack_ftn_trailing_underscore",
         """Controls whether the LAPACK functions have a trailing underscore
            in the Fortran libraries.""",
         True),
     BoolOption(
-        'lapack_ftn_string_len_at_end',
+        "lapack_ftn_string_len_at_end",
         """Controls whether the LAPACK functions have the string length
            argument at the end of the argument list ('yes') or after
            each argument ('no') in the Fortran libraries.""",
         True),
     EnumOption(
-        'googletest',
+        "googletest",
         """Select whether to use gtest/gmock from system
            installation ('system'), from a Git submodule ('submodule'), to decide
            automatically ('default') or don't look for gtest/gmock ('none')
            and don't run tests that depend on gtest/gmock.""",
-        'default', ('default', 'system', 'submodule', 'none')),
+        "default", ("default", "system", "submodule", "none")),
     Option(
-        'env_vars',
+        "env_vars",
         """Environment variables to propagate through to SCons. Either the
            string 'all' or a comma separated list of variable names, for example,
            'LD_LIBRARY_PATH,HOME'.""",
         "PATH,LD_LIBRARY_PATH,PYTHONPATH"),
     BoolOption(
-        'use_pch',
-        """Use a precompiled-header to speed up compilation""",
+        "use_pch",
+        "Use a precompiled-header to speed up compilation",
         {"icc": False, "default": True}),
     Option(
-        'pch_flags',
-        """Compiler flags when using precompiled-header.""",
+        "pch_flags",
+        "Compiler flags when using precompiled-header.",
         {
             "cl": "/FIpch/system.h",
             "gcc": "-include src/pch/system.h",
@@ -420,84 +419,84 @@ config_options = [
             "default": "",
         }),
     Option(
-        'thread_flags',
-        """Compiler and linker flags for POSIX multithreading support.""",
+        "thread_flags",
+        "Compiler and linker flags for POSIX multithreading support.",
         {"Windows": "", "macOS": "", "default": "-pthread"}),
     BoolOption(
-        'optimize',
+        "optimize",
         """Enable extra compiler optimizations specified by the
            'optimize_flags' variable, instead of the flags specified by the
            'no_optimize_flags' variable.""",
         True),
     Option(
-        'optimize_flags',
-        """Additional compiler flags passed to the C/C++ compiler when 'optimize=yes'.""",
+        "optimize_flags",
+        "Additional compiler flags passed to the C/C++ compiler when 'optimize=yes'.",
         {"cl": "/O2", "gcc": "-O3 -Wno-inline", "default": "-O3"}),
     Option(
-        'no_optimize_flags',
-        """Additional compiler flags passed to the C/C++ compiler when 'optimize=no'.""",
+        "no_optimize_flags",
+        "Additional compiler flags passed to the C/C++ compiler when 'optimize=no'.",
         {"cl": "/Od /Ob0", "default": "-O0"}),
     BoolOption(
-        'debug',
-        """Enable compiler debugging symbols.""",
+        "debug",
+        "Enable compiler debugging symbols.",
         True),
     Option(
-        'debug_flags',
-        """Additional compiler flags passed to the C/C++ compiler when 'debug=yes'.""",
+        "debug_flags",
+        "Additional compiler flags passed to the C/C++ compiler when 'debug=yes'.",
         {"cl": "/Zi /Fd${TARGET}.pdb", "default": "-g"}),
     Option(
-        'no_debug_flags',
-        """Additional compiler flags passed to the C/C++ compiler when 'debug=no'.""",
+        "no_debug_flags",
+        "Additional compiler flags passed to the C/C++ compiler when 'debug=no'.",
         ""),
     Option(
-        'debug_linker_flags',
-        """Additional options passed to the linker when 'debug=yes'.""",
+        "debug_linker_flags",
+        "Additional options passed to the linker when 'debug=yes'.",
         {"cl": "/DEBUG", "default": ""}),
     Option(
-        'no_debug_linker_flags',
-        """Additional options passed to the linker when 'debug=no'.""",
+        "no_debug_linker_flags",
+        "Additional options passed to the linker when 'debug=no'.",
         ""),
     Option(
-        'warning_flags',
+        "warning_flags",
         """Additional compiler flags passed to the C/C++ compiler to enable
            extra warnings. Used only when compiling source code that is part
            of Cantera (for example, excluding code in the 'ext' directory).""",
         {"cl": "/W3", "icc": "-Wcheck", "default": "-Wall"}),
     Option(
-        'extra_inc_dirs',
+        "extra_inc_dirs",
         """Additional directories to search for header files, with multiple
-        directories separated by colons (*nix, macOS) or semicolons (Windows)""",
-        ''),
+           directories separated by colons (*nix, macOS) or semicolons (Windows)""",
+        ""),
     Option(
-        'extra_lib_dirs',
+        "extra_lib_dirs",
         """Additional directories to search for libraries, with multiple
-        directories separated by colons (*nix, macOS) or semicolons (Windows)""",
-        ''),
+           directories separated by colons (*nix, macOS) or semicolons (Windows)""",
+        ""),
     PathOption(
-        'boost_inc_dir',
+        "boost_inc_dir",
         """Location of the Boost header files. Not needed if the headers are
            installed in a standard location, for example, '/usr/include'.""",
         "",
         PathVariable.PathAccept),
     PathOption(
-        'stage_dir',
+        "stage_dir",
         """Directory relative to the Cantera source directory to be
            used as a staging area for building for example, a Debian
            package. If specified, 'scons install' will install files
            to 'stage_dir/prefix/...'.""",
-        '',
+        "",
         PathVariable.PathAccept),
     BoolOption(
-        'VERBOSE',
-        """Create verbose output about what SCons is doing.""",
+        "VERBOSE",
+        "Create verbose output about what SCons is doing.",
         False),
     Option(
-        'gtest_flags',
+        "gtest_flags",
         """Additional options passed to each GTest test suite, for example,
            '--gtest_filter=*pattern*'. Separate multiple options with spaces.""",
-        ''),
+        ""),
     BoolOption(
-        'renamed_shared_libraries',
+        "renamed_shared_libraries",
         """If this option is turned on, the shared libraries that are created
            will be renamed to have a '_shared' extension added to their base name.
            If not, the base names will be the same as the static libraries.
@@ -506,14 +505,14 @@ config_options = [
            the '-static' linking flag.""",
         True),
     BoolOption(
-        'versioned_shared_library',
+        "versioned_shared_library",
         """If enabled, create a versioned shared library, with symlinks to the
            more generic library name, for example, 'libcantera_shared.so.2.5.0' as the
            actual library and 'libcantera_shared.so' and 'libcantera_shared.so.2'
            as symlinks.""",
         {"mingw": False, "default": True}),
     BoolOption(
-        'use_rpath_linkage',
+        "use_rpath_linkage",
         """If enabled, link to all shared libraries using 'rpath', i.e., a fixed
            run-time search path for dynamic library loading.""",
         True),
@@ -528,7 +527,7 @@ config_options = [
             "default": "-fopenmp",
         }),
     EnumOption(
-        'layout',
+        "layout",
         """The layout of the directory structure. 'standard' installs files to
            several subdirectories under 'prefix', for example, 'prefix/bin',
            'prefix/include/cantera', 'prefix/lib' etc. This layout is best used in
@@ -537,10 +536,10 @@ config_options = [
            with a prefix like '/opt/cantera'. 'debian' installs to the stage
            directory in a layout used for generating Debian packages.""",
         {"Windows": "compact", "default": "standard"},
-        ('standard','compact','debian')),
+        ("standard", "compact", "debian")),
     BoolOption(
         "fast_fail_tests",
-        """If enabled, tests will exit at the first failure.""",
+        "If enabled, tests will exit at the first failure.",
         False),
     BoolOption(
         "skip_slow_tests",
@@ -550,21 +549,21 @@ config_options = [
         False),
     BoolOption(
         "show_long_tests",
-        """If enabled, duration of slowest tests will be shown.""",
+        "If enabled, duration of slowest tests will be shown.",
         False),
     BoolOption(
         "verbose_tests",
-        """If enabled, verbose test output will be shown.""",
+        "If enabled, verbose test output will be shown.",
         False),
     BoolOption(
         "legacy_rate_constants",
         """If enabled, rate constant calculations include third-body concentrations
-        for three-body reactions, which corresponds to the legacy implementation.
-        For Cantera 2.6, the option remains enabled (no change compared to past
-        behavior). After Cantera 2.6, the default will be to disable this option,
-        and rate constant calculations will be consistent with conventional
-        definitions (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically Reacting
-        Flow', Wiley Interscience, 2003).""",
+           for three-body reactions, which corresponds to the legacy implementation.
+           For Cantera 2.6, the option remains enabled (no change compared to past
+           behavior). After Cantera 2.6, the default will be to disable this option,
+           and rate constant calculations will be consistent with conventional
+           definitions (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically Reacting
+           Flow', Wiley Interscience, 2003).""",
         True),
 ]
 
@@ -588,7 +587,7 @@ if "help" in COMMAND_LINE_TARGETS:
         action="store_true", help="All defaults (CLI only)")
     AddOption(
         "--dev", dest="dev",
-        action="store_true", help="Append -dev (ReST only)")
+        action="store_true", help="Append -dev (reST only)")
     AddOption(
         "--output", dest="output", nargs=1, type="string",
         action="store", help="Output file (reST only)")
@@ -671,7 +670,7 @@ if os.name == "nt":
     if "64 bit" not in sys.version:
         config["target_arch"].default = "x86"
 
-    opts.AddVariables(*config.to_scons(["msvc_version", "target_arch"]))
+    opts.AddVariables(*config.to_scons(("msvc_version", "target_arch")))
 
     windows_compiler_env = Environment()
     opts.Update(windows_compiler_env)
@@ -697,7 +696,7 @@ if os.name == "nt":
     elif windows_compiler_env["toolchain"] == "mingw":
         toolchain = ["mingw", "f90"]
         extraEnvArgs["F77"] = None
-        # Next line fixes http://scons.tigris.org/issues/show_bug.cgi?id=2683
+        # Next line fixes https://github.com/SCons/scons/issues/2683
         extraEnvArgs["WINDOWS_INSERT_DEF"] = 1
 
     elif windows_compiler_env["toolchain"] == "intel":
@@ -821,7 +820,7 @@ if 'sphinx' in COMMAND_LINE_TARGETS:
 
 for arg in ARGUMENTS:
     if arg not in config:
-        print('Encountered unexpected command line argument: %r' % arg)
+        logger.error(f"Encountered unexpected command line option: '{arg}'")
         sys.exit(1)
 
 env["cantera_version"] = "2.6.0a3"
