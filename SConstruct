@@ -2,7 +2,7 @@
 SCons build script for Cantera
 
 Basic usage:
-    'scons help' - print a description of user-specifiable options.
+    'scons help' - Show this help message.
 
     'scons build' - Compile Cantera and the language interfaces using
                     default options.
@@ -37,7 +37,9 @@ Basic usage:
     'scons doxygen' - Build the Doxygen documentation
 
 Additional help command options:
-    'scons help --list-options' - List all available configuration options.
+    'scons help --options' - Print a description of user-specifiable options.
+
+    'scons help --list-options' - Print formatted list of available options.
 
     'scons help --option=<opt>' - Print the description of a specific option
                                   with name <opt>, for example
@@ -74,8 +76,8 @@ from buildutils import *
 
 if not COMMAND_LINE_TARGETS:
     # Print usage help
-    logger.info(__doc__, print_level=False)
-    sys.exit(0)
+    logger.error("Missing command argument: type 'scons help' for information")
+    sys.exit(1)
 
 if parse_version(SCons.__version__) < parse_version("3.0.0"):
     logger.info("Cantera requires SCons with a minimum version of 3.0.0. Exiting.",
@@ -570,6 +572,9 @@ config = Configuration()
 
 if "help" in COMMAND_LINE_TARGETS:
     AddOption(
+        "--options", dest="options",
+        action="store_true", help="Print description of available options")
+    AddOption(
         "--list-options", dest="list",
         action="store_true", help="List available options")
     AddOption(
@@ -591,12 +596,18 @@ if "help" in COMMAND_LINE_TARGETS:
     list = GetOption("list")
     rest = GetOption("rest")
     defaults = GetOption("defaults") is not None
+    options = GetOption("options")
+    option = GetOption("option")
+
+    if not (list or rest or defaults or options or option):
+        # show basic help information
+        logger.info(__doc__, print_level=False)
+        sys.exit(0)
 
     if defaults or rest or list:
 
         config.add(windows_options)
         config.add(config_options)
-        option = GetOption("option")
 
         if list:
             # show formatted list of options
@@ -606,6 +617,8 @@ if "help" in COMMAND_LINE_TARGETS:
 
         if defaults:
             try:
+                # print default values: if option is None, show description for all
+                # available options, otherwise show description for specified option
                 logger.info(config.help(option), print_level=False)
                 sys.exit(0)
             except KeyError as err:
@@ -615,6 +628,8 @@ if "help" in COMMAND_LINE_TARGETS:
 
         dev = GetOption("dev") is not None
         try:
+            # format default values as reST: if option is None, all descriptions are
+            # rendered, otherwise only the description of specified option is shown
             message = config.to_rest(option, dev=dev)
         except KeyError as err:
             message = "Run 'scons help --list-options' to see available options."
@@ -623,6 +638,7 @@ if "help" in COMMAND_LINE_TARGETS:
 
         output = GetOption("output")
         if output:
+            # write output to file
             output_file = Path(output).with_suffix(".rst")
             with open(output_file, "w+") as fid:
                 fid.write(message)
@@ -789,6 +805,8 @@ for option in opts.keys():
 if "help" in COMMAND_LINE_TARGETS:
     option = GetOption("option")
     try:
+        # print configuration: if option is None, description is shown for all
+        # options; otherwise description is shown for specified option
         logger.info(config.help(option, env=env), print_level=False)
         sys.exit(0)
     except KeyError as err:
