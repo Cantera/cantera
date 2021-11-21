@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/RedlichKwongMFTP.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/Species.h"
 
 
 namespace Cantera
@@ -188,4 +189,19 @@ TEST_F(RedlichKwongMFTP_Test, critPropLookup)
     EXPECT_NEAR(test_phase->critPressure(), 1347700, 100);
 
 }
+
+TEST_F(RedlichKwongMFTP_Test, localCritProperties)
+{
+    // Test calculation based on critical properties stored in the YAML species
+    // definition, in the "critical-parameters" field
+    test_phase.reset(newPhase("thermo-models.yaml", "CO2-RK-params"));
+    test_phase->setState_TPX(400, 1.2e6, "CO2: 1.0");
+    EXPECT_NEAR(test_phase->critTemperature(), 304.128, 1e-5);
+    EXPECT_NEAR(test_phase->critPressure(), 7.3773e6, 1e-4);
+
+    test_phase->setState_TPX(400, 1.2e6, "H2O: 1.0");
+    EXPECT_NEAR(test_phase->critTemperature(), 647.096, 1e-5);
+    EXPECT_NEAR(test_phase->critPressure(), 22.064e6, 1e-4);
+}
+
 };
