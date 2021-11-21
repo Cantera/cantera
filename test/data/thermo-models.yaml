@@ -198,6 +198,11 @@ phases:
   thermo: Peng-Robinson
   state: {T: 300, P: 200 atm, mole-fractions: {CO2: 0.9998, H2O: 0.0002}}
 
+- name: CO2-PR-params
+  species: [{species-with-critical-properties: [CO2, H2O, H2]}]
+  thermo: Peng-Robinson
+  state: {T: 300, P: 200 atm, mole-fractions: {CO2: 0.9998, H2O: 0.0002}}
+
 - name: nitrogen
   species: [N2]
   thermo: pure-fluid

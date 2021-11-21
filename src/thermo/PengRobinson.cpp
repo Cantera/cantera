@@ -423,44 +423,57 @@ vector<double> PengRobinson::getCoeff(const std::string& iName)
 void PengRobinson::initThermo()
 {
     for (auto& item : m_species) {
-        // Read a and b coefficients and acentric factor w_ac from species input
-        // information, specified in a YAML input file.
-        if (item.second->input.hasKey("equation-of-state")) {
-            auto eos = item.second->input["equation-of-state"].getMapWhere(
-                "model", "Peng-Robinson");
-            double a0 = 0;
-            if (eos["a"].isScalar()) {
-                a0 = eos.convert("a", "Pa*m^6/kmol^2");
-            }
-            double b = eos.convert("b", "m^3/kmol");
-            // unitless acentric factor:
-            double w = eos["acentric-factor"].asDouble();
+        auto& data = item.second->input;
+        size_t k = speciesIndex(item.first);
 
-            setSpeciesCoeffs(item.first, a0, b, w);
+        if (data.hasKey("equation-of-state") &&
+            data["equation-of-state"].hasMapWhere("model", "Peng-Robinson"))
+        {
+            // Read a and b coefficients and acentric factor w_ac from species input
+            // information, specified in a YAML input file.
+            auto eos = data["equation-of-state"].getMapWhere(
+                "model", "Peng-Robinson");
+            if (eos.hasKey("a") && eos.hasKey("b") && eos.hasKey("acentric-factor")) {
+                double a0 = eos.convert("a", "Pa*m^6/kmol^2");
+                double b = eos.convert("b", "m^3/kmol");
+                // unitless acentric factor:
+                double w = eos["acentric-factor"].asDouble();
+                setSpeciesCoeffs(item.first, a0, b, w);
+            }
+
             if (eos.hasKey("binary-a")) {
                 AnyMap& binary_a = eos["binary-a"].as<AnyMap>();
                 const UnitSystem& units = binary_a.units();
                 for (auto& item2 : binary_a) {
-                    double a0 = 0;
-                    if (item2.second.isScalar()) {
-                        a0 = units.convert(item2.second, "Pa*m^6/kmol^2");
-                    }
+                    double a0 = units.convert(item2.second, "Pa*m^6/kmol^2");
                     setBinaryCoeffs(item.first, item2.first, a0);
                 }
             }
-        } else {
-            // Check if a and b are already populated for this species (only the
-            // diagonal elements of a). If not, then search 'critProperties.xml'
-            // to find critical temperature and pressure to calculate a and b.
-            size_t k = speciesIndex(item.first);
-            if (m_a_coeffs(k, k) == 0.0) {
-                vector<double> coeffs = getCoeff(item.first);
+        }
 
-                // Check if species was found in the database of critical
-                // properties, and assign the results
-                if (!isnan(coeffs[0])) {
-                    setSpeciesCoeffs(item.first, coeffs[0], coeffs[1], coeffs[2]);
-                }
+        if (m_a_coeffs(k, k) == 0.0 && data.hasKey("critical-parameters")) {
+            // If coefficients are not populated from model-specific input, use critical
+            // state information stored in the species entry to calculate a, b, and the
+            // acentric factor.
+            auto& critProps = data["critical-parameters"].as<AnyMap>();
+            double Tc = critProps.convert("critical-temperature", "K");
+            double Pc = critProps.convert("critical-pressure", "Pa");
+            double omega_ac = critProps["acentric-factor"].asDouble();
+            double a = omega_a * std::pow(GasConstant * Tc, 2) / Pc;
+            double b = omega_b * GasConstant * Tc / Pc;
+            setSpeciesCoeffs(item.first, a, b, omega_ac);
+        }
+
+        // Check if a and b are already populated for this species (only the
+        // diagonal elements of a). If not, then search 'critProperties.xml'
+        // to find critical temperature and pressure to calculate a and b.
+        if (m_a_coeffs(k, k) == 0.0) {
+            vector<double> coeffs = getCoeff(item.first);
+
+            // Check if species was found in the database of critical
+            // properties, and assign the results
+            if (!isnan(coeffs[0])) {
+                setSpeciesCoeffs(item.first, coeffs[0], coeffs[1], coeffs[2]);
             }
         }
     }
