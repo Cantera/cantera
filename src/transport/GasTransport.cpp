@@ -423,7 +423,13 @@ void GasTransport::getTransportData()
         m_polar[k] = (sptran->dipole > 0);
         m_alpha[k] = sptran->polarizability;
         m_zrot[k] = sptran->rotational_relaxation;
-        m_w_ac[k] = sptran->acentric_factor;
+        if (s->input.hasKey("critical-parameters") &&
+            s->input["critical-parameters"].hasKey("acentric-factor"))
+        {
+            m_w_ac[k] = s->input["critical-parameters"]["acentric-factor"].asDouble();
+        } else {
+            m_w_ac[k] = sptran->acentric_factor;
+        }
         m_disp[k] = sptran->dispersion_coefficient;
         m_quad_polar[k] = sptran->quadrupole_polarizability;
     }
