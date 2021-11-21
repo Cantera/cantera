@@ -348,74 +348,24 @@ bool PengRobinson::addSpecies(shared_ptr<Species> spec)
 vector<double> PengRobinson::getCoeff(const std::string& iName)
 {
     vector_fp spCoeff{ NAN, NAN, NAN };
+    AnyMap data = AnyMap::fromYamlFile("critical-properties.yaml");
+    const auto& species = data["species"].asMap("name");
 
-    // Get number of species in the database
-    // open xml file critProperties.xml
-    XML_Node* doc = get_XML_File("critProperties.xml");
-    size_t nDatabase = doc->nChildren();
+    // All names in critical-properties.yaml are upper case
+    auto ucName = boost::algorithm::to_upper_copy(iName);
+    if (species.count(ucName)) {
+        auto& critProps = species.at(ucName)->at("critical-parameters").as<AnyMap>();
+        double Tc = critProps.convert("critical-temperature", "K");
+        double Pc = critProps.convert("critical-pressure", "Pa");
+        double omega_ac = critProps["acentric-factor"].asDouble();
 
-    // Loop through all species in the database and attempt to match supplied
-    // species to each. If present, calculate pureFluidParameters a_k and b_k
-    // based on crit properties T_c and P_c:
-    for (size_t isp = 0; isp < nDatabase; isp++) {
-        XML_Node& acNodeDoc = doc->child(isp);
-        std::string iNameLower = toLowerCopy(iName);
-        std::string dbName = toLowerCopy(acNodeDoc.attrib("name"));
-
-        // Attempt to match provided species iName to current database species
-        //  dbName:
-        if (iNameLower == dbName) {
-            // Read from database and calculate a and b coefficients
-            double vParams;
-            double T_crit = 0.0, P_crit = 0.0, w_ac = 0.0;
-
-            if (acNodeDoc.hasChild("Tc")) {
-                vParams = 0.0;
-                XML_Node& xmlChildCoeff = acNodeDoc.child("Tc");
-                if (xmlChildCoeff.hasAttrib("value")) {
-                    std::string critTemp = xmlChildCoeff.attrib("value");
-                    vParams = strSItoDbl(critTemp);
-                }
-                if (vParams <= 0.0) { //Assuming that Pc and Tc are non zero.
-                    throw CanteraError("PengRobinson::getCoeff",
-                        "Critical Temperature must be positive");
-                }
-                T_crit = vParams;
-            }
-            if (acNodeDoc.hasChild("Pc")) {
-                vParams = 0.0;
-                XML_Node& xmlChildCoeff = acNodeDoc.child("Pc");
-                if (xmlChildCoeff.hasAttrib("value")) {
-                    std::string critPressure = xmlChildCoeff.attrib("value");
-                    vParams = strSItoDbl(critPressure);
-                }
-                if (vParams <= 0.0) { //Assuming that Pc and Tc are non zero.
-                    throw CanteraError("PengRobinson::getCoeff",
-                        "Critical Pressure must be positive");
-                }
-                P_crit = vParams;
-            }
-            if (acNodeDoc.hasChild("omega")) {
-                vParams = 0.0;
-                XML_Node& xmlChildCoeff = acNodeDoc.child("omega");
-                if (xmlChildCoeff.hasChild("value")) {
-                    std::string acentric_factor = xmlChildCoeff.attrib("value");
-                    vParams = strSItoDbl(acentric_factor);
-                }
-                w_ac = vParams;
-            }
-
-            spCoeff[0] = omega_a * (GasConstant * GasConstant) * (T_crit * T_crit) / P_crit; //coeff a
-            spCoeff[1] = omega_b * GasConstant * T_crit / P_crit; // coeff b
-            spCoeff[2] = w_ac; // acentric factor
-            break;
-        }
-    }
-    // If the species is not present in the database, throw an error
-    if(isnan(spCoeff[0]))
-    {
+        // calculate pure fluid parameters a_k and b_k based on T_c and P_c
+        spCoeff[0] = omega_a * (GasConstant * GasConstant) * (Tc * Tc) / Pc; //coeff a
+        spCoeff[1] = omega_b * GasConstant * Tc / Pc; // coeff b
+        spCoeff[2] = omega_ac; // acentric factor
+    } else {
         throw CanteraError("PengRobinson::getCoeff",
-            "Species '{}' is not present in the database", iName);
+            "Species '{}' is not present in critical properties database", iName);
     }
     return spCoeff;
 }
@@ -465,7 +415,7 @@ void PengRobinson::initThermo()
         }
 
         // Check if a and b are already populated for this species (only the
-        // diagonal elements of a). If not, then search 'critProperties.xml'
+        // diagonal elements of a). If not, then search 'critical-properties.yaml'
         // to find critical temperature and pressure to calculate a and b.
         if (m_a_coeffs(k, k) == 0.0) {
             vector<double> coeffs = getCoeff(item.first);

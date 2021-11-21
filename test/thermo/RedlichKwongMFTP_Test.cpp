@@ -178,7 +178,7 @@ TEST_F(RedlichKwongMFTP_Test, critPropLookup)
     // those where the pureFluidParameters are calculated based on the tabulated critical properties
     // (i.e. co2):
 
-    // CO2 - should match tabulated values in critProperties.xml
+    // CO2 - should match tabulated values in critical-properties.yaml
     set_r(1.0);
     EXPECT_DOUBLE_EQ(test_phase->critTemperature(), 304.2);
     EXPECT_DOUBLE_EQ(test_phase->critPressure(), 7390000);
