@@ -479,7 +479,9 @@ The additional fields of a ``gas`` transport entry are:
     The rotational relaxation collision number at 298 K [-]. Default 0.0.
 
 ``acentric-factor``
-    Pitzer's acentric factor [-]. Default 0.0.
+    Pitzer's acentric factor [-]. Default 0.0. This value may also be specified as part
+    of the :ref:`critical-parameters <sec-yaml-species-crit-props>` field, in which case
+    the value provided there supersedes this one.
 
 ``dispersion-coefficient``
     The dispersion coefficient, normalized by :math:`e^2` [Å^5]. Default 0.0.
