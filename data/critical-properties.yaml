@@ -1,0 +1,6281 @@
+description: |-
+  These critical properties are used to calculate the a and b parameters for real gas
+  equations of state, such as Redlich-Kwong and Peng-Robinson.
+
+  The a and b parameters can be provided explicitly by the user in the input file.  In
+  the case that they are not provided for a species, and the critical state for the
+  species is not given in the 'critical-parameters' field of the species entry, Cantera
+  will search this database for critical properties. If critical properties are not
+  found and coefficients are not provided, then an error is thrown.
+
+  Critical pressures are given in Pa. Critical volumes are given in m^3/kmol.
+
+  These critical properties have been compiled from various sources by
+  C. Karakaya (https://orcid.org/0000-0001-5102-5476)
+
+input-files: critProperties.xml
+cantera-version: 2.6.0a3
+date: Sat, 20 Nov 2021 22:47:06 -0500
+
+species:
+- name: CCL4
+  descriptive-name: carbon-tetrachloride
+  molecular-weight: 153.823
+  critical-parameters:
+    critical-temperature: 556.5
+    critical-pressure: 4.56e+06
+    critical-molar-volume: 0.2759
+    critical-compressibility: 0.272
+    acentric-factor: 0.193
+- name: CCL3F
+  descriptive-name: trichlorofluoromethane
+  molecular-weight: 137.368
+  critical-parameters:
+    critical-temperature: 471.2
+    critical-pressure: 4.38e+06
+    critical-molar-volume: 0.248
+    critical-compressibility: 0.28
+    acentric-factor: 0.189
+- name: CCL2F2
+  descriptive-name: dichlorodifluoromethane
+  molecular-weight: 120.914
+  critical-parameters:
+    critical-temperature: 384.8
+    critical-pressure: 4.01e+06
+    critical-molar-volume: 0.2176
+    critical-compressibility: 0.273
+    acentric-factor: 0.204
+- name: CCLF3
+  descriptive-name: chlorotrifluoromethane
+  molecular-weight: 104.459
+  critical-parameters:
+    critical-temperature: 302
+    critical-pressure: 3.9e+06
+    critical-molar-volume: 0.1803
+    critical-compressibility: 0.278
+    acentric-factor: 0.198
+- name: CF4
+  descriptive-name: carbon-tetrafluoride
+  molecular-weight: 88.005
+  critical-parameters:
+    critical-temperature: 227.5
+    critical-pressure: 3.74e+06
+    critical-molar-volume: 0.1405
+    critical-compressibility: 0.276
+    acentric-factor: 0.177
+- name: CO
+  descriptive-name: carbon-monoxide
+  molecular-weight: 28.01
+  critical-parameters:
+    critical-temperature: 133.4
+    critical-pressure: 3.5e+06
+    critical-molar-volume: 0.0931
+    critical-compressibility: 0.294
+    acentric-factor: 0.066
+- name: CO2
+  descriptive-name: carbon-dioxide
+  molecular-weight: 44.01
+  critical-parameters:
+    critical-temperature: 304.2
+    critical-pressure: 7.39e+06
+    critical-molar-volume: 0.0948
+    critical-compressibility: 0.275
+    acentric-factor: 0.228
+    source: |-
+      The acentric factor is taken from Yaws, Carl L. (2001).
+      Matheson Gas Data Book. McGraw-Hill.
+- name: COS
+  descriptive-name: carbonyl-sulfide
+  molecular-weight: 60.07
+  critical-parameters:
+    critical-temperature: 378
+    critical-pressure: 6.18e+06
+    critical-molar-volume: 0.1417
+    critical-compressibility: 0.279
+    acentric-factor: 0.105
+- name: CS2
+  descriptive-name: carbon-disulfide
+  molecular-weight: 76.131
+  critical-parameters:
+    critical-temperature: 552
+    critical-pressure: 7.9e+06
+    critical-molar-volume: 0.160
+    critical-compressibility: 0.276
+    acentric-factor: 0.109
+- name: CHCL3
+  descriptive-name: chloroform
+  molecular-weight: 119.378
+  critical-parameters:
+    critical-temperature: 535.5
+    critical-pressure: 5.48e+06
+    critical-molar-volume: 0.2411
+    critical-compressibility: 0.293
+    acentric-factor: 0.218
+- name: CHCL2F
+  descriptive-name: dichlorofluoromethane
+  molecular-weight: 102.923
+  critical-parameters:
+    critical-temperature: 451.6
+    critical-pressure: 5.18e+06
+    critical-molar-volume: 0.1964
+    critical-compressibility: 0.271
+    acentric-factor: 0.21
+- name: CHCLF2
+  descriptive-name: chlorodifluoromethane
+  molecular-weight: 86.469
+  critical-parameters:
+    critical-temperature: 369.3
+    critical-pressure: 4.94e+06
+    critical-molar-volume: 0.1649
+    critical-compressibility: 0.266
+    acentric-factor: 0.221
+- name: CHF3
+  descriptive-name: trifluoromethane
+  molecular-weight: 70.014
+  critical-parameters:
+    critical-temperature: 299.1
+    critical-pressure: 4.82e+06
+    critical-molar-volume: 0.1334
+    critical-compressibility: 0.259
+    acentric-factor: 0.26
+- name: CHI3
+  descriptive-name: triiodomethane
+  molecular-weight: 393.732
+  critical-parameters:
+    critical-temperature: 794.55
+    critical-pressure: 5.312e+06
+    critical-molar-volume: 0.3495
+    critical-compressibility: 0.281
+    acentric-factor: 0.193
+- name: CH2CL2
+  descriptive-name: dichloromethane
+  molecular-weight: 84.933
+  critical-parameters:
+    critical-temperature: 508.3
+    critical-pressure: 6.08e+06
+    critical-molar-volume: 0.1895
+    critical-compressibility: 0.235
+    acentric-factor: 0.199
+- name: CH2CLF
+  descriptive-name: chlorofluoromethane
+  molecular-weight: 68.478
+  critical-parameters:
+    critical-temperature: 424.91
+    critical-pressure: 5.131e+06
+    critical-molar-volume: 0.1585
+    critical-compressibility: 0.23
+    acentric-factor: 0.199
+- name: CH2F2
+  descriptive-name: difluoromethane
+  molecular-weight: 52.024
+  critical-parameters:
+    critical-temperature: 351.5
+    critical-pressure: 5.82e+06
+    critical-molar-volume: 0.1211
+    critical-compressibility: 0.241
+    acentric-factor: 0.271
+- name: CH2I2
+  descriptive-name: diiodomethane
+  molecular-weight: 267.836
+  critical-parameters:
+    critical-temperature: 740.93
+    critical-pressure: 5.423e+06
+    critical-molar-volume: 0.2675
+    critical-compressibility: 0.235
+    acentric-factor: 0.18
+- name: CH2O
+  descriptive-name: formaldehyde
+  molecular-weight: 30.026
+  critical-parameters:
+    critical-temperature: 402.7
+    critical-pressure: 6.59e+06
+    critical-molar-volume: 0.0995
+    critical-compressibility: 0.197
+    acentric-factor: 0.253
+- name: CH2O2
+  descriptive-name: formic-acid
+  molecular-weight: 46.026
+  critical-parameters:
+    critical-temperature: 580
+    critical-pressure: 5.5e+06
+    critical-molar-volume: 0.1065
+    critical-compressibility: 0.152
+    acentric-factor: 0.349
+- name: CH3BR
+  descriptive-name: bromomethane
+  molecular-weight: 94.939
+  critical-parameters:
+    critical-temperature: 464
+    critical-pressure: 6.61e+06
+    critical-molar-volume: 0.1535
+    critical-compressibility: 0.262
+    acentric-factor: 0.157
+- name: CH3CL
+  descriptive-name: chloromethane
+  molecular-weight: 50.488
+  critical-parameters:
+    critical-temperature: 416.2
+    critical-pressure: 6.66e+06
+    critical-molar-volume: 0.1407
+    critical-compressibility: 0.268
+    acentric-factor: 0.153
+- name: CH3F
+  descriptive-name: fluoromethane
+  molecular-weight: 34.033
+  critical-parameters:
+    critical-temperature: 317.9
+    critical-pressure: 5.89e+06
+    critical-molar-volume: 0.113
+    critical-compressibility: 0.251
+    acentric-factor: 0.187
+- name: CH3I
+  descriptive-name: iodomethane
+  molecular-weight: 141.939
+  critical-parameters:
+    critical-temperature: 528
+    critical-pressure: 6.44e+06
+    critical-molar-volume: 0.1795
+    critical-compressibility: 0.231
+    acentric-factor: 0.148
+- name: CH3NO2
+  descriptive-name: nitromethane
+  molecular-weight: 61.04
+  critical-parameters:
+    critical-temperature: 588
+    critical-pressure: 6.31e+06
+    critical-molar-volume: 0.173
+    critical-compressibility: 0.224
+    acentric-factor: 0.31
+- name: CH4
+  descriptive-name: methane
+  molecular-weight: 16.043
+  critical-parameters:
+    critical-temperature: 190.7
+    critical-pressure: 4.63e+06
+    critical-molar-volume: 0.0989
+    critical-compressibility: 0.288
+    acentric-factor: 0.011
+- name: CH4O
+  descriptive-name: methanol
+  molecular-weight: 32.042
+  critical-parameters:
+    critical-temperature: 513
+    critical-pressure: 8.01e+06
+    critical-molar-volume: 0.1179
+    critical-compressibility: 0.224
+    acentric-factor: 0.556
+- name: CH4S
+  descriptive-name: methanethiol
+  molecular-weight: 48.103
+  critical-parameters:
+    critical-temperature: 469.7
+    critical-pressure: 7.19e+06
+    critical-molar-volume: 0.1464
+    critical-compressibility: 0.268
+    acentric-factor: 0.153
+- name: CH5N
+  descriptive-name: methylamine
+  molecular-weight: 31.057
+  critical-parameters:
+    critical-temperature: 429.6
+    critical-pressure: 7.44e+06
+    critical-molar-volume: 0.1205
+    critical-compressibility: 0.213
+    acentric-factor: 0.292
+- name: C2CL4
+  descriptive-name: tetrachloroethene
+  molecular-weight: 165.834
+  critical-parameters:
+    critical-temperature: 620.2
+    critical-pressure: 4.76e+06
+    critical-molar-volume: 0.2896
+    critical-compressibility: 0.25
+    acentric-factor: 0.25
+- name: C2CL6
+  descriptive-name: hexachloroethane
+  molecular-weight: 236.74
+  critical-parameters:
+    critical-temperature: 704.35
+    critical-pressure: 3.936e+06
+    critical-molar-volume: 0.4195
+    critical-compressibility: 0.282
+    acentric-factor: 0.275
+- name: C2CL3F3
+  descriptive-name: 112trichlorotrifluoroethane
+  molecular-weight: 187.376
+  critical-parameters:
+    critical-temperature: 487.3
+    critical-pressure: 3.41e+06
+    critical-molar-volume: 0.3253
+    critical-compressibility: 0.274
+    acentric-factor: 0.256
+- name: C2CL2F4
+  descriptive-name: 12dichlorotetrafluoroethane
+  molecular-weight: 170.922
+  critical-parameters:
+    critical-temperature: 418.9
+    critical-pressure: 3.26e+06
+    critical-molar-volume: 0.2936
+    critical-compressibility: 0.275
+    acentric-factor: 0.246
+- name: C2CLF5
+  descriptive-name: chloropentafluoroethane
+  molecular-weight: 154.467
+  critical-parameters:
+    critical-temperature: 353.2
+    critical-pressure: 3.16e+06
+    critical-molar-volume: 0.2596
+    critical-compressibility: 0.277
+    acentric-factor: 0.279
+- name: C2F4
+  descriptive-name: tetrafluoroethene
+  molecular-weight: 100.016
+  critical-parameters:
+    critical-temperature: 306.4
+    critical-pressure: 3.94e+06
+    critical-molar-volume: 0.172
+    critical-compressibility: 0.267
+    acentric-factor: 0.223
+- name: C2F6
+  descriptive-name: hexafluoroethane
+  molecular-weight: 138.012
+  critical-parameters:
+    critical-temperature: 292.9
+    critical-pressure: 3.14e+06
+    critical-molar-volume: 0.2234
+    critical-compressibility: 0.288
+    acentric-factor: 0.271
+- name: C2N2
+  descriptive-name: cyanogen
+  molecular-weight: 52.035
+  critical-parameters:
+    critical-temperature: 399.9
+    critical-pressure: 6.06e+06
+    critical-molar-volume: 0.2735
+    critical-compressibility: 0.431
+    acentric-factor: 0.278
+- name: C2HCL3
+  descriptive-name: trichloroethene
+  molecular-weight: 131.389
+  critical-parameters:
+    critical-temperature: 572
+    critical-pressure: 5.05e+06
+    critical-molar-volume: 0.256
+    critical-compressibility: 0.265
+    acentric-factor: 0.213
+- name: C2HCL5
+  descriptive-name: pentachloroethane
+  molecular-weight: 202.295
+  critical-parameters:
+    critical-temperature: 646
+    critical-pressure: 4.58e+06
+    critical-molar-volume: 0.3755
+    critical-compressibility: 0.276
+    acentric-factor: 0.447
+- name: C2HF3
+  descriptive-name: trifluoroethene
+  molecular-weight: 82.025
+  critical-parameters:
+    critical-temperature: 347.22
+    critical-pressure: 4.516e+06
+    critical-molar-volume: 0.1825
+    critical-compressibility: 0.286
+    acentric-factor: 0.238
+- name: C2H2
+  descriptive-name: acetylene(ethyne)
+  molecular-weight: 26.038
+  critical-parameters:
+    critical-temperature: 309.2
+    critical-pressure: 6.25e+06
+    critical-molar-volume: 0.1129
+    critical-compressibility: 0.274
+    acentric-factor: 0.19
+- name: C2H2CL2
+  descriptive-name: 1,1-dichloroethene
+  molecular-weight: 96.944
+  critical-parameters:
+    critical-temperature: 489
+    critical-pressure: 4.68e+06
+    critical-molar-volume: 0.219
+    critical-compressibility: 0.252
+    acentric-factor: 0.179
+- name: C2H2CL2-1
+  descriptive-name: cis-1,2-dichloroethene
+  molecular-weight: 96.944
+  critical-parameters:
+    critical-temperature: 537
+    critical-pressure: 5.87e+06
+    critical-molar-volume: 0.2255
+    critical-compressibility: 0.249
+    acentric-factor: 0.238
+- name: C2H2CL2-2
+  descriptive-name: trans-1,2-dichloroethene
+  molecular-weight: 96.944
+  critical-parameters:
+    critical-temperature: 513
+    critical-pressure: 4.58e+06
+    critical-molar-volume: 0.2255
+    critical-compressibility: 0.258
+    acentric-factor: 0.232
+- name: C2H2CL4-3
+  descriptive-name: 1,1,2,2-tetrachloroethane
+  molecular-weight: 167.850
+  critical-parameters:
+    critical-temperature: 661.2
+    critical-pressure: 5.12e+06
+    critical-molar-volume: 0.2155
+    critical-compressibility: 0.188
+    acentric-factor: 0.264
+- name: C2H2F2
+  descriptive-name: 1,1-difluoroethene
+  molecular-weight: 64.035
+  critical-parameters:
+    critical-temperature: 303
+    critical-pressure: 4.43e+06
+    critical-molar-volume: 0.154
+    critical-compressibility: 0.273
+    acentric-factor: 0.14
+- name: C2H2F2-1
+  descriptive-name: cis-1,2-difluoroethene
+  molecular-weight: 64.035
+  critical-parameters:
+    critical-temperature: 394.67
+    critical-pressure: 4.769e+06
+    critical-molar-volume: 0.1635
+    critical-compressibility: 0.238
+    acentric-factor: 0.21
+- name: C2H2F2-2
+  descriptive-name: trans-1,2-difluoroethene
+  molecular-weight: 64.035
+  critical-parameters:
+    critical-temperature: 394.67
+    critical-pressure: 4.769e+06
+    critical-molar-volume: 0.1635
+    critical-compressibility: 0.238
+    acentric-factor: 0.21
+- name: C2H2O
+  descriptive-name: ketene
+  molecular-weight: 42.037
+  critical-parameters:
+    critical-temperature: 380
+    critical-pressure: 6.5e+06
+    critical-molar-volume: 0.145
+    critical-compressibility: 0.3
+    acentric-factor: 0.21
+- name: C2H3BR
+  descriptive-name: bromoethylene
+  molecular-weight: 106.95
+  critical-parameters:
+    critical-temperature: 470.11
+    critical-pressure: 6.631e+06
+    critical-molar-volume: 0.1615
+    critical-compressibility: 0.274
+    acentric-factor: 0.241
+- name: C2H3CL
+  descriptive-name: chloroethene
+  molecular-weight: 62.499
+  critical-parameters:
+    critical-temperature: 425
+    critical-pressure: 5.15e+06
+    critical-molar-volume: 0.179
+    critical-compressibility: 0.261
+    acentric-factor: 0.122
+- name: C2H3CL3-1
+  descriptive-name: 1,1,2-trichloroethane
+  molecular-weight: 133.405
+  critical-parameters:
+    critical-temperature: 606
+    critical-pressure: 5.14e+06
+    critical-molar-volume: 0.2885
+    critical-compressibility: 0.253
+    acentric-factor: 0.287
+- name: C2H3CLO
+  descriptive-name: acetyl-chloride
+  molecular-weight: 78.498
+  critical-parameters:
+    critical-temperature: 508
+    critical-pressure: 5.87e+06
+    critical-molar-volume: 0.204
+    critical-compressibility: 0.28
+    acentric-factor: 0.344
+- name: C2H3F
+  descriptive-name: fluoroethene
+  molecular-weight: 46.044
+  critical-parameters:
+    critical-temperature: 327.8
+    critical-pressure: 5.22e+06
+    critical-molar-volume: 0.1439
+    critical-compressibility: 0.277
+    acentric-factor: 0.157
+- name: C2H3F3
+  descriptive-name: 1,1,1-trifluoroethane
+  molecular-weight: 84.041
+  critical-parameters:
+    critical-temperature: 346.2
+    critical-pressure: 3.74e+06
+    critical-molar-volume: 0.1938
+    critical-compressibility: 0.253
+    acentric-factor: 0.251
+- name: C2H3N
+  descriptive-name: acetonitrile
+  molecular-weight: 41.052
+  critical-parameters:
+    critical-temperature: 547.9
+    critical-pressure: 4.83e+06
+    critical-molar-volume: 0.173
+    critical-compressibility: 0.184
+    acentric-factor: 0.327
+- name: C2H4
+  descriptive-name: ethylene
+  molecular-weight: 28.054
+  critical-parameters:
+    critical-temperature: 282.8
+    critical-pressure: 5.11e+06
+    critical-molar-volume: 0.1272
+    critical-compressibility: 0.28
+    acentric-factor: 0.089
+- name: C2H4BR2
+  descriptive-name: 1,2-dibromoethane
+  molecular-weight: 187.862
+  critical-parameters:
+    critical-temperature: 646
+    critical-pressure: 5.35e+06
+    critical-molar-volume: 0.2715
+    critical-compressibility: 0.32
+    acentric-factor: 0.795
+- name: C2H4CL2
+  descriptive-name: 1,1-dichloroethane
+  molecular-weight: 98.96
+  critical-parameters:
+    critical-temperature: 523.2
+    critical-pressure: 5.07e+06
+    critical-molar-volume: 0.236
+    critical-compressibility: 0.275
+    acentric-factor: 0.24
+- name: C2H4CL2-1
+  descriptive-name: 1,2-dichloroethane
+  molecular-weight: 98.96
+  critical-parameters:
+    critical-temperature: 566.1
+    critical-pressure: 5.37e+06
+    critical-molar-volume: 0.225
+    critical-compressibility: 0.259
+    acentric-factor: 0.278
+- name: C2H4F2
+  descriptive-name: 1,1-difluoroethane
+  molecular-weight: 66.05
+  critical-parameters:
+    critical-temperature: 386.6
+    critical-pressure: 4.5e+06
+    critical-molar-volume: 0.181
+    critical-compressibility: 0.253
+    acentric-factor: 0.256
+- name: C2H4I2
+  descriptive-name: 1,2-diiodoethane
+  molecular-weight: 281.863
+  critical-parameters:
+    critical-temperature: 749.91
+    critical-pressure: 4.73e+06
+    critical-molar-volume: 0.3235
+    critical-compressibility: 0.245
+    acentric-factor: 0.223
+- name: C2H4O
+  descriptive-name: ethylene-oxide
+  molecular-weight: 44.053
+  critical-parameters:
+    critical-temperature: 468.9
+    critical-pressure: 7.19e+06
+    critical-molar-volume: 0.1392
+    critical-compressibility: 0.259
+    acentric-factor: 0.202
+- name: C2H4O-1
+  descriptive-name: acetaldehyde
+  molecular-weight: 44.053
+  critical-parameters:
+    critical-temperature: 461.1
+    critical-pressure: 5.57e+06
+    critical-molar-volume: 0.154
+    critical-compressibility: 0.22
+    acentric-factor: 0.303
+- name: C2H4O2
+  descriptive-name: acetic-acid
+  molecular-weight: 60.052
+  critical-parameters:
+    critical-temperature: 594.4
+    critical-pressure: 5.79e+06
+    critical-molar-volume: 0.1711
+    critical-compressibility: 0.201
+    acentric-factor: 0.447
+- name: C2H4O2-1
+  descriptive-name: methyl-formate
+  molecular-weight: 60.052
+  critical-parameters:
+    critical-temperature: 486.7
+    critical-pressure: 6.e+06
+    critical-molar-volume: 0.172
+    critical-compressibility: 0.255
+    acentric-factor: 0.257
+- name: C2H4OS
+  descriptive-name: thioacetic-acid
+  molecular-weight: 76.113
+  critical-parameters:
+    critical-temperature: 577.34
+    critical-pressure: 6.921e+06
+    critical-molar-volume: 0.2195
+    critical-compressibility: 0.317
+    acentric-factor: 0.304
+- name: C2H4S
+  descriptive-name: thiacyclopropane
+  molecular-weight: 60.114
+  critical-parameters:
+    critical-temperature: 555
+    critical-pressure: 7.38e+06
+    critical-molar-volume: 0.1515
+    critical-compressibility: 0.214
+    acentric-factor: 0.154
+- name: C2H5BR
+  descriptive-name: bromoethane
+  molecular-weight: 108.966
+  critical-parameters:
+    critical-temperature: 505.7
+    critical-pressure: 6.23e+06
+    critical-molar-volume: 0.2149
+    critical-compressibility: 0.32
+    acentric-factor: 0.229
+- name: C2H5CL
+  descriptive-name: chloroethane
+  molecular-weight: 64.514
+  critical-parameters:
+    critical-temperature: 460.4
+    critical-pressure: 5.27e+06
+    critical-molar-volume: 0.199
+    critical-compressibility: 0.274
+    acentric-factor: 0.191
+- name: C2H5F
+  descriptive-name: fluoroethane
+  molecular-weight: 48.06
+  critical-parameters:
+    critical-temperature: 375.3
+    critical-pressure: 5.03e+06
+    critical-molar-volume: 0.169
+    critical-compressibility: 0.272
+    acentric-factor: 0.215
+- name: C2H5I
+  descriptive-name: iodoethane
+  molecular-weight: 155.966
+  critical-parameters:
+    critical-temperature: 554
+    critical-pressure: 4.7e+06
+    critical-molar-volume: 0.2355
+    critical-compressibility: 0.248
+    acentric-factor: 0.184
+- name: C2H5N
+  descriptive-name: ethylenimine
+  molecular-weight: 43.068
+  critical-parameters:
+    critical-temperature: 524
+    critical-pressure: 9.95e+06
+    critical-molar-volume: 0.1425
+    critical-compressibility: 0.215
+    acentric-factor: 0.435
+- name: C2H5NO2
+  descriptive-name: nitroethane
+  molecular-weight: 75.067
+  critical-parameters:
+    critical-temperature: 595
+    critical-pressure: 4.85e+06
+    critical-molar-volume: 0.2295
+    critical-compressibility: 0.238
+    acentric-factor: 0.341
+- name: C2H6
+  descriptive-name: ethane
+  molecular-weight: 30.069
+  critical-parameters:
+    critical-temperature: 305.4
+    critical-pressure: 4.88e+06
+    critical-molar-volume: 0.1457
+    critical-compressibility: 0.285
+    acentric-factor: 0.099
+- name: C2H6O
+  descriptive-name: methyl-ether
+  molecular-weight: 46.069
+  critical-parameters:
+    critical-temperature: 400.1
+    critical-pressure: 5.33e+06
+    critical-molar-volume: 0.1869
+    critical-compressibility: 0.307
+    acentric-factor: 0.2
+- name: C2H6O-1
+  descriptive-name: ethyl-alcohol
+  molecular-weight: 46.069
+  critical-parameters:
+    critical-temperature: 515.8
+    critical-pressure: 6.36e+06
+    critical-molar-volume: 0.1671
+    critical-compressibility: 0.24
+    acentric-factor: 0.644
+- name: C2H6O2
+  descriptive-name: ethylene-glycol
+  molecular-weight: 62.068
+  critical-parameters:
+    critical-temperature: 790
+    critical-pressure: 6.653e+06
+    critical-molar-volume: 0.1855
+    critical-compressibility: 0.23
+    acentric-factor: 0.147
+- name: C2H6S
+  descriptive-name: methyl-sulfide
+  molecular-weight: 62.129
+  critical-parameters:
+    critical-temperature: 503.3
+    critical-pressure: 5.5e+06
+    critical-molar-volume: 0.2029
+    critical-compressibility: 0.266
+    acentric-factor: 0.191
+- name: C2H6S-1
+  descriptive-name: ethanethiol
+  molecular-weight: 62.129
+  critical-parameters:
+    critical-temperature: 498.6
+    critical-pressure: 5.46e+06
+    critical-molar-volume: 0.207
+    critical-compressibility: 0.274
+    acentric-factor: 0.191
+- name: C2H6S2
+  descriptive-name: methyl-disulfide
+  molecular-weight: 94.189
+  critical-parameters:
+    critical-temperature: 605
+    critical-pressure: 4.8e+06
+    critical-molar-volume: 0.2555
+    critical-compressibility: 0.268
+    acentric-factor: 0.238
+- name: C2H7N
+  descriptive-name: ethylamine
+  molecular-weight: 45.084
+  critical-parameters:
+    critical-temperature: 456.3
+    critical-pressure: 5.62e+06
+    critical-molar-volume: 0.1818
+    critical-compressibility: 0.27
+    acentric-factor: 0.289
+- name: C2H7N-1
+  descriptive-name: dimethylamine
+  molecular-weight: 45.084
+  critical-parameters:
+    critical-temperature: 437.8
+    critical-pressure: 5.24e+06
+    critical-molar-volume: 0.1825
+    critical-compressibility: 0.256
+    acentric-factor: 0.302
+- name: C3H3N
+  descriptive-name: acrylonitrile
+  molecular-weight: 53.063
+  critical-parameters:
+    critical-temperature: 536
+    critical-pressure: 4.56e+06
+    critical-molar-volume: 0.210
+    critical-compressibility: 0.21
+    acentric-factor: 0.35
+- name: C3H4
+  descriptive-name: allene(propadiene)
+  molecular-weight: 40.065
+  critical-parameters:
+    critical-temperature: 385.4
+    critical-pressure: 5.32e+06
+    critical-molar-volume: 0.162
+    critical-compressibility: 0.271
+    acentric-factor: 0.313
+- name: C3H4-1
+  descriptive-name: propyne(methylacetylene)
+  molecular-weight: 40.065
+  critical-parameters:
+    critical-temperature: 401
+    critical-pressure: 5.35e+06
+    critical-molar-volume: 0.1637
+    critical-compressibility: 0.275
+    acentric-factor: 0.215
+- name: C3H4O2
+  descriptive-name: acrylic-acid
+  molecular-weight: 72.063
+  critical-parameters:
+    critical-temperature: 615
+    critical-pressure: 5.67e+06
+    critical-molar-volume: 0.210
+    critical-compressibility: 0.23
+    acentric-factor: 0.56
+- name: C3H5BR
+  descriptive-name: 3-bromo-1-propene
+  molecular-weight: 120.977
+  critical-parameters:
+    critical-temperature: 540.2
+    critical-pressure: 5.139e+06
+    critical-molar-volume: 0.2465
+    critical-compressibility: 0.282
+    acentric-factor: 0.273
+- name: C3H5CL
+  descriptive-name: 3-chloro-1-propene
+  molecular-weight: 76.525
+  critical-parameters:
+    critical-temperature: 513.8
+    critical-pressure: 4.76e+06
+    critical-molar-volume: 0.234
+    critical-compressibility: 0.26
+    acentric-factor: 0.13
+- name: C3H5CL3
+  descriptive-name: 1,2,3-trichloropropane
+  molecular-weight: 147.431
+  critical-parameters:
+    critical-temperature: 651
+    critical-pressure: 3.95e+06
+    critical-molar-volume: 0.348
+    critical-compressibility: 0.25
+    acentric-factor: 0.31
+- name: C3H5I
+  descriptive-name: 3-iodo-1-propene
+  molecular-weight: 167.977
+  critical-parameters:
+    critical-temperature: 595.81
+    critical-pressure: 4.529e+06
+    critical-molar-volume: 0.2725
+    critical-compressibility: 0.249
+    acentric-factor: 0.202
+- name: C3H5N
+  descriptive-name: propionitrile
+  molecular-weight: 55.079
+  critical-parameters:
+    critical-temperature: 562.5
+    critical-pressure: 4.18e+06
+    critical-molar-volume: 0.230
+    critical-compressibility: 0.205
+    acentric-factor: 0.313
+- name: C3H6
+  descriptive-name: propene
+  molecular-weight: 42.08
+  critical-parameters:
+    critical-temperature: 365
+    critical-pressure: 4.61e+06
+    critical-molar-volume: 0.1813
+    critical-compressibility: 0.282
+    acentric-factor: 0.144
+- name: C3H6-1
+  descriptive-name: cyclopropane
+  molecular-weight: 42.08
+  critical-parameters:
+    critical-temperature: 398
+    critical-pressure: 5.55e+06
+    critical-molar-volume: 0.1628
+    critical-compressibility: 0.272
+    acentric-factor: 0.13
+- name: C3H6BR2
+  descriptive-name: 1,2-dibromopropane
+  molecular-weight: 201.888
+  critical-parameters:
+    critical-temperature: 634.11
+    critical-pressure: 5.407e+06
+    critical-molar-volume: 0.3215
+    critical-compressibility: 0.33
+    acentric-factor: 0.384
+- name: C3H6CL2
+  descriptive-name: 1,2-dichloropropane
+  molecular-weight: 112.986
+  critical-parameters:
+    critical-temperature: 577
+    critical-pressure: 4.45e+06
+    critical-molar-volume: 0.226
+    critical-compressibility: 0.21
+    acentric-factor: 0.24
+- name: C3H6CL2-1
+  descriptive-name: 1,3-dichloropropane
+  molecular-weight: 112.986
+  critical-parameters:
+    critical-temperature: 602.69
+    critical-pressure: 4.006e+06
+    critical-molar-volume: 0.3015
+    critical-compressibility: 0.241
+    acentric-factor: 0.288
+- name: C3H6CL2-2
+  descriptive-name: 2,2-dichloropropane
+  molecular-weight: 112.986
+  critical-parameters:
+    critical-temperature: 539.46
+    critical-pressure: 4.104e+06
+    critical-molar-volume: 0.2905
+    critical-compressibility: 0.266
+    acentric-factor: 0.198
+- name: C3H6I2
+  descriptive-name: 1,2-diiodopropane
+  molecular-weight: 295.889
+  critical-parameters:
+    critical-temperature: 780.49
+    critical-pressure: 4.206e+06
+    critical-molar-volume: 0.3735
+    critical-compressibility: 0.242
+    acentric-factor: 0.237
+- name: C3H6O
+  descriptive-name: propylene-oxide
+  molecular-weight: 58.08
+  critical-parameters:
+    critical-temperature: 482.2
+    critical-pressure: 4.92e+06
+    critical-molar-volume: 0.186
+    critical-compressibility: 0.229
+    acentric-factor: 0.269
+- name: C3H6O-1
+  descriptive-name: allyl-alcohol
+  molecular-weight: 58.08
+  critical-parameters:
+    critical-temperature: 545
+    critical-pressure: 5.312e+06
+    critical-molar-volume: 0.2035
+    critical-compressibility: 0.24
+    acentric-factor: 0.554
+- name: C3H6O-2
+  descriptive-name: propionaldehyde
+  molecular-weight: 58.08
+  critical-parameters:
+    critical-temperature: 515.3
+    critical-pressure: 6.33e+06
+    critical-molar-volume: 0.176
+    critical-compressibility: 0.26
+    acentric-factor: 0.313
+- name: C3H6O-3
+  descriptive-name: acetone
+  molecular-weight: 58.08
+  critical-parameters:
+    critical-temperature: 508.4
+    critical-pressure: 4.78e+06
+    critical-molar-volume: 0.2165
+    critical-compressibility: 0.232
+    acentric-factor: 0.304
+- name: C3H6S
+  descriptive-name: thiacyclobutane
+  molecular-weight: 74.14
+  critical-parameters:
+    critical-temperature: 603
+    critical-pressure: 6.1e+06
+    critical-molar-volume: 0.1995
+    critical-compressibility: 0.228
+    acentric-factor: 0.195
+- name: C3H7BR
+  descriptive-name: 1-bromopropane
+  molecular-weight: 122.992
+  critical-parameters:
+    critical-temperature: 535.52
+    critical-pressure: 4.843e+06
+    critical-molar-volume: 0.2655
+    critical-compressibility: 0.289
+    acentric-factor: 0.294
+- name: C3H7BR-1
+  descriptive-name: 2-bromopropane
+  molecular-weight: 122.992
+  critical-parameters:
+    critical-temperature: 522.47
+    critical-pressure: 4.897e+06
+    critical-molar-volume: 0.2595
+    critical-compressibility: 0.293
+    acentric-factor: 0.264
+- name: C3H7CL
+  descriptive-name: 1-chloropropane
+  molecular-weight: 78.541
+  critical-parameters:
+    critical-temperature: 503.1
+    critical-pressure: 4.58e+06
+    critical-molar-volume: 0.254
+    critical-compressibility: 0.278
+    acentric-factor: 0.235
+- name: C3H7CL-1
+  descriptive-name: 2-chloropropane
+  molecular-weight: 78.541
+  critical-parameters:
+    critical-temperature: 494.1
+    critical-pressure: 4.72e+06
+    critical-molar-volume: 0.230
+    critical-compressibility: 0.269
+    acentric-factor: 0.232
+- name: C3H7F
+  descriptive-name: 1-fluoropropane
+  molecular-weight: 62.087
+  critical-parameters:
+    critical-temperature: 422
+    critical-pressure: 4.157e+06
+    critical-molar-volume: 0.2215
+    critical-compressibility: 0.263
+    acentric-factor: 0.227
+- name: C3H7F-1
+  descriptive-name: 2-fluoropropane
+  molecular-weight: 62.087
+  critical-parameters:
+    critical-temperature: 415.68
+    critical-pressure: 4.2e+06
+    critical-molar-volume: 0.2155
+    critical-compressibility: 0.262
+    acentric-factor: 0.204
+- name: C3H7I
+  descriptive-name: 1-iodopropane
+  molecular-weight: 169.993
+  critical-parameters:
+    critical-temperature: 589.39
+    critical-pressure: 4.283e+06
+    critical-molar-volume: 0.2915
+    critical-compressibility: 0.255
+    acentric-factor: 0.224
+- name: C3H7I-1
+  descriptive-name: 2-iodopropane
+  molecular-weight: 169.993
+  critical-parameters:
+    critical-temperature: 574.62
+    critical-pressure: 4.328e+06
+    critical-molar-volume: 0.2855
+    critical-compressibility: 0.259
+    acentric-factor: 0.195
+- name: C3H7NO2
+  descriptive-name: 1-nitropropane
+  molecular-weight: 89.094
+  critical-parameters:
+    critical-temperature: 606
+    critical-pressure: 4.e+06
+    critical-molar-volume: 0.2855
+    critical-compressibility: 0.254
+    acentric-factor: 0.376
+- name: C3H7NO2-1
+  descriptive-name: 2-nitropropane
+  molecular-weight: 89.094
+  critical-parameters:
+    critical-temperature: 597
+    critical-pressure: 4.15e+06
+    critical-molar-volume: 0.2795
+    critical-compressibility: 0.256
+    acentric-factor: 0.334
+- name: C3H8
+  descriptive-name: propane
+  molecular-weight: 44.096
+  critical-parameters:
+    critical-temperature: 369.7
+    critical-pressure: 4.25e+06
+    critical-molar-volume: 0.1986
+    critical-compressibility: 0.279
+    acentric-factor: 0.153
+- name: C3H8O
+  descriptive-name: ethyl-methyl-ether
+  molecular-weight: 60.096
+  critical-parameters:
+    critical-temperature: 437.8
+    critical-pressure: 4.4e+06
+    critical-molar-volume: 0.2208
+    critical-compressibility: 0.267
+    acentric-factor: 0.244
+- name: C3H8O-1
+  descriptive-name: propyl-alcohol
+  molecular-weight: 60.096
+  critical-parameters:
+    critical-temperature: 536.9
+    critical-pressure: 5.12e+06
+    critical-molar-volume: 0.2189
+    critical-compressibility: 0.253
+    acentric-factor: 0.623
+- name: C3H8O-2
+  descriptive-name: isopropyl-alcohol
+  molecular-weight: 60.096
+  critical-parameters:
+    critical-temperature: 516.6
+    critical-pressure: 5.37e+06
+    critical-molar-volume: 0.2197
+    critical-compressibility: 0.248
+    acentric-factor: 0.665
+- name: C3H8S
+  descriptive-name: ethyl-methyl-sulfide
+  molecular-weight: 76.156
+  critical-parameters:
+    critical-temperature: 532.8
+    critical-pressure: 4.25e+06
+    critical-molar-volume: 0.2575
+    critical-compressibility: 0.262
+    acentric-factor: 0.216
+- name: C3H8S-1
+  descriptive-name: 1-propanethiol
+  molecular-weight: 76.156
+  critical-parameters:
+    critical-temperature: 536
+    critical-pressure: 4.52e+06
+    critical-molar-volume: 0.2575
+    critical-compressibility: 0.278
+    acentric-factor: 0.218
+- name: C3H8S-2
+  descriptive-name: 2-propanethiol
+  molecular-weight: 76.156
+  critical-parameters:
+    critical-temperature: 512
+    critical-pressure: 4.35e+06
+    critical-molar-volume: 0.2515
+    critical-compressibility: 0.284
+    acentric-factor: 0.223
+- name: C3H9N
+  descriptive-name: propylamine
+  molecular-weight: 59.111
+  critical-parameters:
+    critical-temperature: 496.1
+    critical-pressure: 4.72e+06
+    critical-molar-volume: 0.233
+    critical-compressibility: 0.271
+    acentric-factor: 0.303
+- name: C3H9N-1
+  descriptive-name: trimethylamine
+  molecular-weight: 59.111
+  critical-parameters:
+    critical-temperature: 433.4
+    critical-pressure: 4.1e+06
+    critical-molar-volume: 0.254
+    critical-compressibility: 0.288
+    acentric-factor: 0.205
+- name: C4F8
+  descriptive-name: octafluorocyclobutane
+  molecular-weight: 200.031
+  critical-parameters:
+    critical-temperature: 388.4
+    critical-pressure: 2.78e+06
+    critical-molar-volume: 0.3243
+    critical-compressibility: 0.278
+    acentric-factor: 0.356
+- name: C4H2
+  descriptive-name: butadiyne(biacetylene)
+  molecular-weight: 50.06
+  critical-parameters:
+    critical-temperature: 478.02
+    critical-pressure: 5.863e+06
+    critical-molar-volume: 0.1835
+    critical-compressibility: 0.271
+    acentric-factor: 0.1
+- name: C4H4
+  descriptive-name: 1buten3yne(vinylacetylene)
+  molecular-weight: 52.076
+  critical-parameters:
+    critical-temperature: 455
+    critical-pressure: 4.96e+06
+    critical-molar-volume: 0.202
+    critical-compressibility: 0.26
+    acentric-factor: 0.092
+- name: C4H4O
+  descriptive-name: furan
+  molecular-weight: 68.075
+  critical-parameters:
+    critical-temperature: 487
+    critical-pressure: 5.32e+06
+    critical-molar-volume: 0.218
+    critical-compressibility: 0.286
+    acentric-factor: 0.209
+- name: C4H4S
+  descriptive-name: thiophene
+  molecular-weight: 84.136
+  critical-parameters:
+    critical-temperature: 580
+    critical-pressure: 5.21e+06
+    critical-molar-volume: 0.219
+    critical-compressibility: 0.259
+    acentric-factor: 0.196
+- name: C4H6
+  descriptive-name: 1,2-butadiene
+  molecular-weight: 54.091
+  critical-parameters:
+    critical-temperature: 443.7
+    critical-pressure: 4.49e+06
+    critical-molar-volume: 0.219
+    critical-compressibility: 0.267
+    acentric-factor: 0.255
+- name: C4H6-1
+  descriptive-name: 1,3-butadiene
+  molecular-weight: 54.091
+  critical-parameters:
+    critical-temperature: 425.1
+    critical-pressure: 4.33e+06
+    critical-molar-volume: 0.2208
+    critical-compressibility: 0.27
+    acentric-factor: 0.195
+- name: C4H6-2
+  descriptive-name: 1-butyne(ethylacetylene)
+  molecular-weight: 54.091
+  critical-parameters:
+    critical-temperature: 463.7
+    critical-pressure: 4.86e+06
+    critical-molar-volume: 0.220
+    critical-compressibility: 0.27
+    acentric-factor: 0.11
+- name: C4H6-3
+  descriptive-name: 2-butyne(dimethylacetylene)
+  molecular-weight: 54.091
+  critical-parameters:
+    critical-temperature: 488.7
+    critical-pressure: 5.08e+06
+    critical-molar-volume: 0.221
+    critical-compressibility: 0.277
+    acentric-factor: 0.124
+- name: C4H6-4
+  descriptive-name: cyclobutene
+  molecular-weight: 54.091
+  critical-parameters:
+    critical-temperature: 446.33
+    critical-pressure: 5.266e+06
+    critical-molar-volume: 0.1955
+    critical-compressibility: 0.278
+    acentric-factor: 0.189
+- name: C4H6O3
+  descriptive-name: acetic-anhydride
+  molecular-weight: 102.09
+  critical-parameters:
+    critical-temperature: 569.1
+    critical-pressure: 4.66e+06
+    critical-molar-volume: 0.2895
+    critical-compressibility: 0.262
+    acentric-factor: 0.908
+- name: C4H7N
+  descriptive-name: butyronitrile
+  molecular-weight: 69.106
+  critical-parameters:
+    critical-temperature: 582.2
+    critical-pressure: 3.79e+06
+    critical-molar-volume: 0.2855
+    critical-compressibility: 0.223
+    acentric-factor: 0.373
+- name: C4H7N-1
+  descriptive-name: isobutyronitrile
+  molecular-weight: 69.106
+  critical-parameters:
+    critical-temperature: 565.98
+    critical-pressure: 3.815e+06
+    critical-molar-volume: 0.2795
+    critical-compressibility: 0.227
+    acentric-factor: 0.347
+- name: C4H8
+  descriptive-name: 1-butene
+  molecular-weight: 56.107
+  critical-parameters:
+    critical-temperature: 419.6
+    critical-pressure: 4.02e+06
+    critical-molar-volume: 0.240
+    critical-compressibility: 0.277
+    acentric-factor: 0.191
+- name: C4H8-1
+  descriptive-name: 2-butene,cis
+  molecular-weight: 56.107
+  critical-parameters:
+    critical-temperature: 433.1
+    critical-pressure: 4.16e+06
+    critical-molar-volume: 0.2347
+    critical-compressibility: 0.271
+    acentric-factor: 0.202
+- name: C4H8-2
+  descriptive-name: 2-butene,trans
+  molecular-weight: 56.107
+  critical-parameters:
+    critical-temperature: 428.6
+    critical-pressure: 4.12e+06
+    critical-molar-volume: 0.2379
+    critical-compressibility: 0.274
+    acentric-factor: 0.205
+- name: C4H8-3
+  descriptive-name: 2-methylpropene
+  molecular-weight: 56.107
+  critical-parameters:
+    critical-temperature: 417.9
+    critical-pressure: 4.e+06
+    critical-molar-volume: 0.2388
+    critical-compressibility: 0.275
+    acentric-factor: 0.194
+- name: C4H8-4
+  descriptive-name: cyclobutane
+  molecular-weight: 56.107
+  critical-parameters:
+    critical-temperature: 463.5
+    critical-pressure: 5.04e+06
+    critical-molar-volume: 0.218
+    critical-compressibility: 0.278
+    acentric-factor: 0.181
+- name: C4H8BR2
+  descriptive-name: 1,2-dibromobutane
+  molecular-weight: 215.915
+  critical-parameters:
+    critical-temperature: 659.28
+    critical-pressure: 4.717e+06
+    critical-molar-volume: 0.3775
+    critical-compressibility: 0.325
+    acentric-factor: 0.429
+- name: C4H8BR2-1
+  descriptive-name: 2,3-dibromobutane
+  molecular-weight: 215.915
+  critical-parameters:
+    critical-temperature: 656.96
+    critical-pressure: 4.769e+06
+    critical-molar-volume: 0.3715
+    critical-compressibility: 0.324
+    acentric-factor: 0.397
+- name: C4H8I2
+  descriptive-name: 1,2-diiodobutane
+  molecular-weight: 309.916
+  critical-parameters:
+    critical-temperature: 726.41
+    critical-pressure: 3.727e+06
+    critical-molar-volume: 0.4295
+    critical-compressibility: 0.265
+    acentric-factor: 0.281
+- name: C4H8O
+  descriptive-name: butyraldehyde
+  molecular-weight: 72.107
+  critical-parameters:
+    critical-temperature: 545.4
+    critical-pressure: 5.38e+06
+    critical-molar-volume: 0.2176
+    critical-compressibility: 0.258
+    acentric-factor: 0.352
+- name: C4H8O-1
+  descriptive-name: 2-butanone
+  molecular-weight: 72.107
+  critical-parameters:
+    critical-temperature: 535.6
+    critical-pressure: 4.15e+06
+    critical-molar-volume: 0.267
+    critical-compressibility: 0.252
+    acentric-factor: 0.32
+- name: C4H8O2
+  descriptive-name: p-dioxane
+  molecular-weight: 88.106
+  critical-parameters:
+    critical-temperature: 588
+    critical-pressure: 5.18e+06
+    critical-molar-volume: 0.2388
+    critical-compressibility: 0.254
+    acentric-factor: 0.281
+- name: C4H8O2-1
+  descriptive-name: ethyl-acetate
+  molecular-weight: 88.106
+  critical-parameters:
+    critical-temperature: 524.1
+    critical-pressure: 3.85e+06
+    critical-molar-volume: 0.2859
+    critical-compressibility: 0.252
+    acentric-factor: 0.362
+- name: C4H8S
+  descriptive-name: thiacyclopentane
+  molecular-weight: 88.167
+  critical-parameters:
+    critical-temperature: 632
+    critical-pressure: 5.3e+06
+    critical-molar-volume: 0.2475
+    critical-compressibility: 0.241
+    acentric-factor: 0.224
+- name: C4H9BR
+  descriptive-name: 1-bromobutane
+  molecular-weight: 137.019
+  critical-parameters:
+    critical-temperature: 569.47
+    critical-pressure: 4.255e+06
+    critical-molar-volume: 0.3215
+    critical-compressibility: 0.289
+    acentric-factor: 0.339
+- name: C4H9BR-1
+  descriptive-name: 2-bromobutane
+  molecular-weight: 137.019
+  critical-parameters:
+    critical-temperature: 558.65
+    critical-pressure: 4.3e+06
+    critical-molar-volume: 0.3155
+    critical-compressibility: 0.292
+    acentric-factor: 0.308
+- name: C4H9BR-2
+  descriptive-name: 2-bromo-2-methylpropane
+  molecular-weight: 137.019
+  critical-parameters:
+    critical-temperature: 541.06
+    critical-pressure: 4.363e+06
+    critical-molar-volume: 0.3105
+    critical-compressibility: 0.301
+    acentric-factor: 0.246
+- name: C4H9CL
+  descriptive-name: 1-chlorobutane
+  molecular-weight: 92.568
+  critical-parameters:
+    critical-temperature: 542
+    critical-pressure: 3.68e+06
+    critical-molar-volume: 0.312
+    critical-compressibility: 0.255
+    acentric-factor: 0.218
+- name: C4H9CL-1
+  descriptive-name: 2-chlorobutane
+  molecular-weight: 92.568
+  critical-parameters:
+    critical-temperature: 520.7
+    critical-pressure: 3.95e+06
+    critical-molar-volume: 0.305
+    critical-compressibility: 0.28
+    acentric-factor: 0.3
+- name: C4H9CL-2
+  descriptive-name: 1-chloro-2-methylpropane
+  molecular-weight: 92.568
+  critical-parameters:
+    critical-temperature: 526.45
+    critical-pressure: 3.759e+06
+    critical-molar-volume: 0.3025
+    critical-compressibility: 0.26
+    acentric-factor: 0.249
+- name: C4H9CL-3
+  descriptive-name: 2-chloro-2-methylpropane
+  molecular-weight: 92.568
+  critical-parameters:
+    critical-temperature: 507.79
+    critical-pressure: 3.81e+06
+    critical-molar-volume: 0.2975
+    critical-compressibility: 0.269
+    acentric-factor: 0.189
+- name: C4H9I
+  descriptive-name: 2-iodo-2-methylpropane
+  molecular-weight: 184.02
+  critical-parameters:
+    critical-temperature: 587.9
+    critical-pressure: 3.882e+06
+    critical-molar-volume: 0.3365
+    critical-compressibility: 0.267
+    acentric-factor: 0.179
+- name: C4H9N
+  descriptive-name: pyrrolidine
+  molecular-weight: 71.122
+  critical-parameters:
+    critical-temperature: 568.6
+    critical-pressure: 5.7e+06
+    critical-molar-volume: 0.249
+    critical-compressibility: 0.3
+    acentric-factor: 0.274
+- name: C4H9NO2
+  descriptive-name: 1-nitrobutane
+  molecular-weight: 103.121
+  critical-parameters:
+    critical-temperature: 624
+    critical-pressure: 3.8e+06
+    critical-molar-volume: 0.3415
+    critical-compressibility: 0.26
+    acentric-factor: 0.452
+- name: C4H9NO2-1
+  descriptive-name: 2-nitrobutane
+  molecular-weight: 103.121
+  critical-parameters:
+    critical-temperature: 615
+    critical-pressure: 3.6e+06
+    critical-molar-volume: 0.3355
+    critical-compressibility: 0.264
+    acentric-factor: 0.357
+- name: C4H10
+  descriptive-name: butane
+  molecular-weight: 58.123
+  critical-parameters:
+    critical-temperature: 425.6
+    critical-pressure: 3.76e+06
+    critical-molar-volume: 0.255
+    critical-compressibility: 0.274
+    acentric-factor: 0.199
+- name: C4H10-1
+  descriptive-name: 2-methylpropane(isobutane)
+  molecular-weight: 58.123
+  critical-parameters:
+    critical-temperature: 407.7
+    critical-pressure: 3.68e+06
+    critical-molar-volume: 0.2631
+    critical-compressibility: 0.283
+    acentric-factor: 0.183
+- name: C4H10O
+  descriptive-name: ethyl-ether
+  molecular-weight: 74.122
+  critical-parameters:
+    critical-temperature: 466.8
+    critical-pressure: 3.64e+06
+    critical-molar-volume: 0.2817
+    critical-compressibility: 0.262
+    acentric-factor: 0.281
+- name: C4H10O-1
+  descriptive-name: methyl-propyl-ether
+  molecular-weight: 74.122
+  critical-parameters:
+    critical-temperature: 476.2
+    critical-pressure: 3.8e+06
+    critical-molar-volume: 0.274
+    critical-compressibility: 0.263
+    acentric-factor: 0.271
+- name: C4H10O-2
+  descriptive-name: methyl-isopropyl-ether
+  molecular-weight: 74.122
+  critical-parameters:
+    critical-temperature: 464.5
+    critical-pressure: 3.76e+06
+    critical-molar-volume: 0.277
+    critical-compressibility: 0.27
+    acentric-factor: 0.266
+- name: C4H10O-3
+  descriptive-name: butyl-alcohol
+  molecular-weight: 74.122
+  critical-parameters:
+    critical-temperature: 561.4
+    critical-pressure: 4.42e+06
+    critical-molar-volume: 0.2751
+    critical-compressibility: 0.259
+    acentric-factor: 0.592
+- name: C4H10O-4
+  descriptive-name: sec-butyl-alcohol
+  molecular-weight: 74.122
+  critical-parameters:
+    critical-temperature: 538
+    critical-pressure: 4.18e+06
+    critical-molar-volume: 0.269
+    critical-compressibility: 0.252
+    acentric-factor: 0.577
+- name: C4H10O-5
+  descriptive-name: tert-butyl-alcohol
+  molecular-weight: 74.122
+  critical-parameters:
+    critical-temperature: 508
+    critical-pressure: 4.23e+06
+    critical-molar-volume: 0.275
+    critical-compressibility: 0.259
+    acentric-factor: 0.612
+- name: C4H10S
+  descriptive-name: ethylsulfide
+  molecular-weight: 90.183
+  critical-parameters:
+    critical-temperature: 557.5
+    critical-pressure: 3.93e+06
+    critical-molar-volume: 0.3173
+    critical-compressibility: 0.272
+    acentric-factor: 0.292
+- name: C4H10S-1
+  descriptive-name: isopropyl-methyl-sulfide
+  molecular-weight: 90.183
+  critical-parameters:
+    critical-temperature: 551
+    critical-pressure: 3.9e+06
+    critical-molar-volume: 0.3075
+    critical-compressibility: 0.269
+    acentric-factor: 0.259
+- name: C4H10S-2
+  descriptive-name: methyl-propyl-sulfide
+  molecular-weight: 90.183
+  critical-parameters:
+    critical-temperature: 563
+    critical-pressure: 3.85e+06
+    critical-molar-volume: 0.3135
+    critical-compressibility: 0.266
+    acentric-factor: 0.285
+- name: C4H10S-3
+  descriptive-name: 1-butanethiol
+  molecular-weight: 90.183
+  critical-parameters:
+    critical-temperature: 568
+    critical-pressure: 3.88e+06
+    critical-molar-volume: 0.3135
+    critical-compressibility: 0.279
+    acentric-factor: 0.284
+- name: C4H10S-4
+  descriptive-name: 2-butanethiol
+  molecular-weight: 90.183
+  critical-parameters:
+    critical-temperature: 551
+    critical-pressure: 3.85e+06
+    critical-molar-volume: 0.3075
+    critical-compressibility: 0.284
+    acentric-factor: 0.257
+- name: C4H10S-5
+  descriptive-name: 2-methyl-1-propanethiol
+  molecular-weight: 90.183
+  critical-parameters:
+    critical-temperature: 557
+    critical-pressure: 3.9e+06
+    critical-molar-volume: 0.3075
+    critical-compressibility: 0.281
+    acentric-factor: 0.258
+- name: C4H10S-6
+  descriptive-name: 2-methyl-2-propanethiol
+  molecular-weight: 90.183
+  critical-parameters:
+    critical-temperature: 521
+    critical-pressure: 3.7e+06
+    critical-molar-volume: 0.3025
+    critical-compressibility: 0.295
+    acentric-factor: 0.23
+- name: C4H10S2
+  descriptive-name: ethyl-disulfide
+  molecular-weight: 122.243
+  critical-parameters:
+    critical-temperature: 642.1
+    critical-pressure: 3.5e+06
+    critical-molar-volume: 0.3675
+    critical-compressibility: 0.279
+    acentric-factor: 0.306
+- name: C4H11N
+  descriptive-name: butylamine
+  molecular-weight: 73.138
+  critical-parameters:
+    critical-temperature: 524
+    critical-pressure: 3.98e+06
+    critical-molar-volume: 0.2885
+    critical-compressibility: 0.277
+    acentric-factor: 0.329
+- name: C4H11N-1
+  descriptive-name: sec-butylamine
+  molecular-weight: 73.138
+  critical-parameters:
+    critical-temperature: 511
+    critical-pressure: 3.97e+06
+    critical-molar-volume: 0.2825
+    critical-compressibility: 0.283
+    acentric-factor: 0.368
+- name: C4H11N-2
+  descriptive-name: tert-butylamine
+  molecular-weight: 73.138
+  critical-parameters:
+    critical-temperature: 483.9
+    critical-pressure: 3.85e+06
+    critical-molar-volume: 0.2926
+    critical-compressibility: 0.279
+    acentric-factor: 0.285
+- name: C4H11N-3
+  descriptive-name: diethylamine
+  molecular-weight: 73.138
+  critical-parameters:
+    critical-temperature: 496.2
+    critical-pressure: 3.92e+06
+    critical-molar-volume: 0.301
+    critical-compressibility: 0.27
+    acentric-factor: 0.291
+- name: C5H5N
+  descriptive-name: pyridine
+  molecular-weight: 79.101
+  critical-parameters:
+    critical-temperature: 618.7
+    critical-pressure: 5.88e+06
+    critical-molar-volume: 0.2528
+    critical-compressibility: 0.277
+    acentric-factor: 0.243
+- name: C5H6S
+  descriptive-name: 2-methylthiophene
+  molecular-weight: 98.162
+  critical-parameters:
+    critical-temperature: 610
+    critical-pressure: 4.85e+06
+    critical-molar-volume: 0.2755
+    critical-compressibility: 0.265
+    acentric-factor: 0.238
+- name: C5H6S-1
+  descriptive-name: 3-methylthiophene
+  molecular-weight: 98.162
+  critical-parameters:
+    critical-temperature: 615
+    critical-pressure: 4.95e+06
+    critical-molar-volume: 0.2755
+    critical-compressibility: 0.263
+    acentric-factor: 0.242
+- name: C5H8
+  descriptive-name: 1,2-pentadiene
+  molecular-weight: 68.118
+  critical-parameters:
+    critical-temperature: 503
+    critical-pressure: 4.07e+06
+    critical-molar-volume: 0.276
+    critical-compressibility: 0.269
+    acentric-factor: 0.173
+- name: C5H8-1
+  descriptive-name: 1,3-pentadiene,cis
+  molecular-weight: 68.118
+  critical-parameters:
+    critical-temperature: 496
+    critical-pressure: 3.99e+06
+    critical-molar-volume: 0.275
+    critical-compressibility: 0.266
+    acentric-factor: 0.175
+- name: C5H8-2
+  descriptive-name: 1,3-pentadiene,trans
+  molecular-weight: 68.118
+  critical-parameters:
+    critical-temperature: 494.31
+    critical-pressure: 3.887e+06
+    critical-molar-volume: 0.2765
+    critical-compressibility: 0.262
+    acentric-factor: 0.216
+- name: C5H8-3
+  descriptive-name: 1,4-pentadiene
+  molecular-weight: 68.118
+  critical-parameters:
+    critical-temperature: 478
+    critical-pressure: 3.79e+06
+    critical-molar-volume: 0.276
+    critical-compressibility: 0.263
+    acentric-factor: 0.127
+- name: C5H8-4
+  descriptive-name: 2,3-pentadiene
+  molecular-weight: 68.118
+  critical-parameters:
+    critical-temperature: 505.83
+    critical-pressure: 4.141e+06
+    critical-molar-volume: 0.2755
+    critical-compressibility: 0.271
+    acentric-factor: 0.204
+- name: C5H8-5
+  descriptive-name: 3-methyl-1,2-butadiene
+  molecular-weight: 68.118
+  critical-parameters:
+    critical-temperature: 496
+    critical-pressure: 4.11e+06
+    critical-molar-volume: 0.267
+    critical-compressibility: 0.266
+    acentric-factor: 0.16
+- name: C5H8-6
+  descriptive-name: 2-methyl-1,3-butadiene
+  molecular-weight: 68.118
+  critical-parameters:
+    critical-temperature: 483.3
+    critical-pressure: 3.74e+06
+    critical-molar-volume: 0.266
+    critical-compressibility: 0.248
+    acentric-factor: 0.164
+- name: C5H8-7
+  descriptive-name: 1-pentyne
+  molecular-weight: 68.118
+  critical-parameters:
+    critical-temperature: 493.5
+    critical-pressure: 4.05e+06
+    critical-molar-volume: 0.278
+    critical-compressibility: 0.275
+    acentric-factor: 0.164
+- name: C5H8-8
+  descriptive-name: 2-pentyne
+  molecular-weight: 68.118
+  critical-parameters:
+    critical-temperature: 521.99
+    critical-pressure: 4.228e+06
+    critical-molar-volume: 0.2775
+    critical-compressibility: 0.27
+    acentric-factor: 0.186
+- name: C5H8-9
+  descriptive-name: 3-methyl-1-butyne
+  molecular-weight: 68.118
+  critical-parameters:
+    critical-temperature: 476.04
+    critical-pressure: 4.206e+06
+    critical-molar-volume: 0.2715
+    critical-compressibility: 0.289
+    acentric-factor: 0.176
+- name: C5H8-10
+  descriptive-name: cyclopentene
+  molecular-weight: 68.118
+  critical-parameters:
+    critical-temperature: 506
+    critical-pressure: 4.763e+06
+    critical-molar-volume: 0.2435
+    critical-compressibility: 0.275
+    acentric-factor: 0.206
+- name: C5H8-11
+  descriptive-name: spiropentane
+  molecular-weight: 68.118
+  critical-parameters:
+    critical-temperature: 499.74
+    critical-pressure: 5.213e+06
+    critical-molar-volume: 0.2365
+    critical-compressibility: 0.297
+    acentric-factor: 0.221
+- name: C5H10
+  descriptive-name: 1-pentene
+  molecular-weight: 70.134
+  critical-parameters:
+    critical-temperature: 464.7
+    critical-pressure: 3.55e+06
+    critical-molar-volume: 0.3026
+    critical-compressibility: 0.278
+    acentric-factor: 0.233
+- name: C5H10-1
+  descriptive-name: 2-pentene,cis
+  molecular-weight: 70.134
+  critical-parameters:
+    critical-temperature: 474.9
+    critical-pressure: 3.64e+06
+    critical-molar-volume: 0.2955
+    critical-compressibility: 0.275
+    acentric-factor: 0.251
+- name: C5H10-2
+  descriptive-name: 2-pentene,trans
+  molecular-weight: 70.134
+  critical-parameters:
+    critical-temperature: 471
+    critical-pressure: 3.52e+06
+    critical-molar-volume: 0.2955
+    critical-compressibility: 0.275
+    acentric-factor: 0.259
+- name: C5H10-3
+  descriptive-name: 2-methyl-1-butene
+  molecular-weight: 70.134
+  critical-parameters:
+    critical-temperature: 464.8
+    critical-pressure: 3.43e+06
+    critical-molar-volume: 0.2975
+    critical-compressibility: 0.279
+    acentric-factor: 0.236
+- name: C5H10-4
+  descriptive-name: 3-methyl-1-butene
+  molecular-weight: 70.134
+  critical-parameters:
+    critical-temperature: 450
+    critical-pressure: 3.51e+06
+    critical-molar-volume: 0.2905
+    critical-compressibility: 0.283
+    acentric-factor: 0.209
+- name: C5H10-5
+  descriptive-name: 2-methyl-2-butene
+  molecular-weight: 70.134
+  critical-parameters:
+    critical-temperature: 470
+    critical-pressure: 3.45e+06
+    critical-molar-volume: 0.2965
+    critical-compressibility: 0.274
+    acentric-factor: 0.244
+- name: C5H10-6
+  descriptive-name: cyclopentane
+  molecular-weight: 70.134
+  critical-parameters:
+    critical-temperature: 511.8
+    critical-pressure: 4.52e+06
+    critical-molar-volume: 0.2599
+    critical-compressibility: 0.276
+    acentric-factor: 0.196
+- name: C5H10BR2
+  descriptive-name: 2,3-dibromo-2-methylbutane
+  molecular-weight: 229.942
+  critical-parameters:
+    critical-temperature: 668.37
+    critical-pressure: 4.255e+06
+    critical-molar-volume: 0.4225
+    critical-compressibility: 0.324
+    acentric-factor: 0.377
+- name: C5H10O
+  descriptive-name: valeraldehyde
+  molecular-weight: 86.133
+  critical-parameters:
+    critical-temperature: 554
+    critical-pressure: 3.54e+06
+    critical-molar-volume: 0.333
+    critical-compressibility: 0.26
+    acentric-factor: 0.4
+- name: C5H10O-1
+  descriptive-name: 2-pentanone
+  molecular-weight: 86.133
+  critical-parameters:
+    critical-temperature: 562.5
+    critical-pressure: 3.69e+06
+    critical-molar-volume: 0.3012
+    critical-compressibility: 0.238
+    acentric-factor: 0.346
+- name: C5H10S
+  descriptive-name: thiacyclohexane
+  molecular-weight: 102.194
+  critical-parameters:
+    critical-temperature: 657.12
+    critical-pressure: 4.653e+06
+    critical-molar-volume: 0.2955
+    critical-compressibility: 0.252
+    acentric-factor: 0.22
+- name: C5H10S-1
+  descriptive-name: cyclopentanethiol
+  molecular-weight: 102.194
+  critical-parameters:
+    critical-temperature: 629
+    critical-pressure: 4.27e+06
+    critical-molar-volume: 0.3105
+    critical-compressibility: 0.276
+    acentric-factor: 0.262
+- name: C5H11BR
+  descriptive-name: 1-bromopentane
+  molecular-weight: 151.046
+  critical-parameters:
+    critical-temperature: 564.76
+    critical-pressure: 3.768e+06
+    critical-molar-volume: 0.3775
+    critical-compressibility: 0.303
+    acentric-factor: 0.384
+- name: C5H11CL
+  descriptive-name: 1-chloropentane
+  molecular-weight: 106.595
+  critical-parameters:
+    critical-temperature: 552
+    critical-pressure: 3.322e+06
+    critical-molar-volume: 0.3645
+    critical-compressibility: 0.257
+    acentric-factor: 0.437
+- name: C5H11CL-1
+  descriptive-name: 1-chloro-3-methylbutane
+  molecular-weight: 106.595
+  critical-parameters:
+    critical-temperature: 558.87
+    critical-pressure: 3.353e+06
+    critical-molar-volume: 0.3585
+    critical-compressibility: 0.259
+    acentric-factor: 0.293
+- name: C5H11CL-2
+  descriptive-name: 2-chloro-2-methylbutane
+  molecular-weight: 106.595
+  critical-parameters:
+    critical-temperature: 548.97
+    critical-pressure: 3.396e+06
+    critical-molar-volume: 0.3535
+    critical-compressibility: 0.263
+    acentric-factor: 0.233
+- name: C5H12
+  descriptive-name: pentane
+  molecular-weight: 72.15
+  critical-parameters:
+    critical-temperature: 470
+    critical-pressure: 3.36e+06
+    critical-molar-volume: 0.3106
+    critical-compressibility: 0.267
+    acentric-factor: 0.251
+- name: C5H12-1
+  descriptive-name: 2-methylbutane(isopentane)
+  molecular-weight: 72.150
+  critical-parameters:
+    critical-temperature: 461.1
+    critical-pressure: 3.34e+06
+    critical-molar-volume: 0.3074
+    critical-compressibility: 0.27
+    acentric-factor: 0.227
+- name: C5H12-2
+  descriptive-name: 2,2-dimethypropane
+  molecular-weight: 72.15
+  critical-parameters:
+    critical-temperature: 433.8
+    critical-pressure: 3.2e+06
+    critical-molar-volume: 0.3031
+    critical-compressibility: 0.276
+    acentric-factor: 0.197
+- name: C5H12O
+  descriptive-name: methyl-tert-butyl-ether
+  molecular-weight: 88.149
+  critical-parameters:
+    critical-temperature: 497.1
+    critical-pressure: 3.43e+06
+    critical-molar-volume: 0.3225
+    critical-compressibility: 0.269
+    acentric-factor: 0.269
+- name: C5H12O-1
+  descriptive-name: pentyl-alcohol
+  molecular-weight: 88.149
+  critical-parameters:
+    critical-temperature: 585.9
+    critical-pressure: 3.89e+06
+    critical-molar-volume: 0.326
+    critical-compressibility: 0.261
+    acentric-factor: 0.579
+- name: C5H12O-2
+  descriptive-name: tert-pentyl-alcohol
+  molecular-weight: 88.149
+  critical-parameters:
+    critical-temperature: 549
+    critical-pressure: 3.971e+06
+    critical-molar-volume: 0.3235
+    critical-compressibility: 0.28
+    acentric-factor: 0.621
+- name: C5H12S
+  descriptive-name: butyl-methyl-sulfide
+  molecular-weight: 104.21
+  critical-parameters:
+    critical-temperature: 591
+    critical-pressure: 3.38e+06
+    critical-molar-volume: 0.3695
+    critical-compressibility: 0.265
+    acentric-factor: 0.332
+- name: C5H12S-1
+  descriptive-name: ethyl-propyl-sulfide
+  molecular-weight: 104.21
+  critical-parameters:
+    critical-temperature: 584
+    critical-pressure: 3.38e+06
+    critical-molar-volume: 0.3695
+    critical-compressibility: 0.268
+    acentric-factor: 0.329
+- name: C5H12S-2
+  descriptive-name: 2-methyl-2-butanethiol
+  molecular-weight: 104.21
+  critical-parameters:
+    critical-temperature: 566
+    critical-pressure: 3.27e+06
+    critical-molar-volume: 0.3585
+    critical-compressibility: 0.288
+    acentric-factor: 0.243
+- name: C5H12S-3
+  descriptive-name: 1-pentanethiol
+  molecular-weight: 104.21
+  critical-parameters:
+    critical-temperature: 601.26
+    critical-pressure: 3.745e+06
+    critical-molar-volume: 0.3695
+    critical-compressibility: 0.277
+    acentric-factor: 0.333
+- name: C6CL6
+  descriptive-name: hexachlorobenzene
+  molecular-weight: 284.784
+  critical-parameters:
+    critical-temperature: 825.78
+    critical-pressure: 3.228e+06
+    critical-molar-volume: 0.5575
+    critical-compressibility: 0.263
+    acentric-factor: 0.543
+- name: C6F6
+  descriptive-name: hexafluorobenzene
+  molecular-weight: 186.056
+  critical-parameters:
+    critical-temperature: 516.6
+    critical-pressure: 3.27e+06
+    critical-molar-volume: 0.3351
+    critical-compressibility: 0.255
+    acentric-factor: 0.396
+- name: C6H4CL2
+  descriptive-name: o-dichlorobenzene
+  molecular-weight: 147.004
+  critical-parameters:
+    critical-temperature: 729
+    critical-pressure: 4.1e+06
+    critical-molar-volume: 0.360
+    critical-compressibility: 0.244
+    acentric-factor: 0.272
+- name: C6H4CL2-1
+  descriptive-name: m-dichlorobenzene
+  molecular-weight: 147.004
+  critical-parameters:
+    critical-temperature: 679.37
+    critical-pressure: 4.152e+06
+    critical-molar-volume: 0.3615
+    critical-compressibility: 0.266
+    acentric-factor: 0.322
+- name: C6H4CL2-2
+  descriptive-name: p-dichlorobenzene
+  molecular-weight: 147.004
+  critical-parameters:
+    critical-temperature: 680.89
+    critical-pressure: 4.152e+06
+    critical-molar-volume: 0.3615
+    critical-compressibility: 0.265
+    acentric-factor: 0.322
+- name: C6H4F2
+  descriptive-name: m-difluorobenzene
+  molecular-weight: 114.094
+  critical-parameters:
+    critical-temperature: 552.94
+    critical-pressure: 4.067e+06
+    critical-molar-volume: 0.2995
+    critical-compressibility: 0.265
+    acentric-factor: 0.32
+- name: C6H4F2-1
+  descriptive-name: o-difluorobenzene
+  molecular-weight: 114.094
+  critical-parameters:
+    critical-temperature: 554.46
+    critical-pressure: 4.067e+06
+    critical-molar-volume: 0.2995
+    critical-compressibility: 0.264
+    acentric-factor: 0.32
+- name: C6H4F2-2
+  descriptive-name: p-difluorobenzene
+  molecular-weight: 114.094
+  critical-parameters:
+    critical-temperature: 556
+    critical-pressure: 4.4e+06
+    critical-molar-volume: 0.2995
+    critical-compressibility: 0.266
+    acentric-factor: 0.299
+- name: C6H5BR
+  descriptive-name: bromobenzene
+  molecular-weight: 157.01
+  critical-parameters:
+    critical-temperature: 670.1
+    critical-pressure: 4.52e+06
+    critical-molar-volume: 0.3235
+    critical-compressibility: 0.263
+    acentric-factor: 0.251
+- name: C6H5CL
+  descriptive-name: chlorobenzene
+  molecular-weight: 112.558
+  critical-parameters:
+    critical-temperature: 632.6
+    critical-pressure: 4.52e+06
+    critical-molar-volume: 0.3081
+    critical-compressibility: 0.265
+    acentric-factor: 0.249
+- name: C6H5F
+  descriptive-name: fluorobenzene
+  molecular-weight: 96.104
+  critical-parameters:
+    critical-temperature: 559.8
+    critical-pressure: 4.52e+06
+    critical-molar-volume: 0.2713
+    critical-compressibility: 0.263
+    acentric-factor: 0.244
+- name: C6H5I
+  descriptive-name: iodobenzene
+  molecular-weight: 204.01
+  critical-parameters:
+    critical-temperature: 721.1
+    critical-pressure: 4.52e+06
+    critical-molar-volume: 0.351
+    critical-compressibility: 0.265
+    acentric-factor: 0.249
+- name: C6H6
+  descriptive-name: benzene
+  molecular-weight: 78.113
+  critical-parameters:
+    critical-temperature: 562
+    critical-pressure: 4.89e+06
+    critical-molar-volume: 0.2578
+    critical-compressibility: 0.269
+    acentric-factor: 0.212
+- name: C6H6O
+  descriptive-name: phenol
+  molecular-weight: 94.113
+  critical-parameters:
+    critical-temperature: 692.9
+    critical-pressure: 6.13e+06
+    critical-molar-volume: 0.2293
+    critical-compressibility: 0.244
+    acentric-factor: 0.438
+- name: C6H6S
+  descriptive-name: benzenethiol
+  molecular-weight: 110.173
+  critical-parameters:
+    critical-temperature: 685
+    critical-pressure: 4.6e+06
+    critical-molar-volume: 0.3175
+    critical-compressibility: 0.281
+    acentric-factor: 0.294
+- name: C6H7N
+  descriptive-name: 2-picoline
+  molecular-weight: 93.128
+  critical-parameters:
+    critical-temperature: 621.1
+    critical-pressure: 4.6e+06
+    critical-molar-volume: 0.335
+    critical-compressibility: 0.297
+    acentric-factor: 0.299
+- name: C6H7N-1
+  descriptive-name: 3-picoline
+  molecular-weight: 93.128
+  critical-parameters:
+    critical-temperature: 644.8
+    critical-pressure: 4.65e+06
+    critical-molar-volume: 0.3125
+    critical-compressibility: 0.272
+    acentric-factor: 0.306
+- name: C6H7N-2
+  descriptive-name: aniline
+  molecular-weight: 93.128
+  critical-parameters:
+    critical-temperature: 698.9
+    critical-pressure: 5.3e+06
+    critical-molar-volume: 0.2739
+    critical-compressibility: 0.25
+    acentric-factor: 0.384
+- name: C6H10
+  descriptive-name: 1-hexyne
+  molecular-weight: 82.145
+  critical-parameters:
+    critical-temperature: 529.04
+    critical-pressure: 3.691e+06
+    critical-molar-volume: 0.3335
+    critical-compressibility: 0.28
+    acentric-factor: 0.249
+- name: C6H10-1
+  descriptive-name: cyclohexene
+  molecular-weight: 82.145
+  critical-parameters:
+    critical-temperature: 560.4
+    critical-pressure: 4.34e+06
+    critical-molar-volume: 0.2915
+    critical-compressibility: 0.271
+    acentric-factor: 0.21
+- name: C6H10-2
+  descriptive-name: 1-methylcyclopentene
+  molecular-weight: 82.145
+  critical-parameters:
+    critical-temperature: 541.99
+    critical-pressure: 3.79e+06
+    critical-molar-volume: 0.3112
+    critical-compressibility: 0.273
+    acentric-factor: 0.219
+- name: C6H10-3
+  descriptive-name: 3-methylcyclopentene
+  molecular-weight: 82.145
+  critical-parameters:
+    critical-temperature: 535.71
+    critical-pressure: 4.016e+06
+    critical-molar-volume: 0.2985
+    critical-compressibility: 0.269
+    acentric-factor: 0.221
+- name: C6H10-4
+  descriptive-name: 4-methylcyclopentene
+  molecular-weight: 82.145
+  critical-parameters:
+    critical-temperature: 543.75
+    critical-pressure: 4.016e+06
+    critical-molar-volume: 0.2985
+    critical-compressibility: 0.265
+    acentric-factor: 0.221
+- name: C6H10O
+  descriptive-name: cyclohexanone
+  molecular-weight: 98.144
+  critical-parameters:
+    critical-temperature: 629.1
+    critical-pressure: 3.85e+06
+    critical-molar-volume: 0.3125
+    critical-compressibility: 0.248
+    acentric-factor: 0.442
+- name: C6H12
+  descriptive-name: 1-hexene
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 508.5
+    critical-pressure: 3.16e+06
+    critical-molar-volume: 0.3619
+    critical-compressibility: 0.27
+    acentric-factor: 0.285
+- name: C6H12-1
+  descriptive-name: 2-hexene,cis
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 518
+    critical-pressure: 3.28e+06
+    critical-molar-volume: 0.351
+    critical-compressibility: 0.27
+    acentric-factor: 0.256
+- name: C6H12-2
+  descriptive-name: 2-hexene,trans
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 516
+    critical-pressure: 3.27e+06
+    critical-molar-volume: 0.351
+    critical-compressibility: 0.27
+    acentric-factor: 0.242
+- name: C6H12-3
+  descriptive-name: 3-hexene,cis
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 517
+    critical-pressure: 3.28e+06
+    critical-molar-volume: 0.350
+    critical-compressibility: 0.27
+    acentric-factor: 0.225
+- name: C6H12-4
+  descriptive-name: 3-hexene,trans
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 519.9
+    critical-pressure: 3.25e+06
+    critical-molar-volume: 0.350
+    critical-compressibility: 0.26
+    acentric-factor: 0.227
+- name: C6H12-5
+  descriptive-name: 2-methyl-1-pentene
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 506.48
+    critical-pressure: 3.277e+06
+    critical-molar-volume: 0.3535
+    critical-compressibility: 0.275
+    acentric-factor: 0.267
+- name: C6H12-6
+  descriptive-name: 3-methyl-1-pentene
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 495.26
+    critical-pressure: 3.288e+06
+    critical-molar-volume: 0.3465
+    critical-compressibility: 0.277
+    acentric-factor: 0.262
+- name: C6H12-7
+  descriptive-name: 4-methyl-1-pentene
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 494.8
+    critical-pressure: 3.288e+06
+    critical-molar-volume: 0.3465
+    critical-compressibility: 0.277
+    acentric-factor: 0.262
+- name: C6H12-8
+  descriptive-name: 2-methyl-2-pentene
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 518
+    critical-pressure: 3.28e+06
+    critical-molar-volume: 0.351
+    critical-compressibility: 0.27
+    acentric-factor: 0.229
+- name: C6H12-9
+  descriptive-name: 3-methyl-2-pentene,cis
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 518
+    critical-pressure: 3.28e+06
+    critical-molar-volume: 0.351
+    critical-compressibility: 0.27
+    acentric-factor: 0.269
+- name: C6H12-10
+  descriptive-name: 3-methyl-2-pentene,trans
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 521
+    critical-pressure: 3.29e+06
+    critical-molar-volume: 0.350
+    critical-compressibility: 0.27
+    acentric-factor: 0.207
+- name: C6H12-11
+  descriptive-name: 4-methyl-2-pentene,cis
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 490
+    critical-pressure: 3.04e+06
+    critical-molar-volume: 0.360
+    critical-compressibility: 0.27
+    acentric-factor: 0.29
+- name: C6H12-12
+  descriptive-name: 4-methyl-2-pentene,trans
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 493
+    critical-pressure: 3.04e+06
+    critical-molar-volume: 0.360
+    critical-compressibility: 0.27
+    acentric-factor: 0.29
+- name: C6H12-13
+  descriptive-name: 2-ethyl-1-butene
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 510.36
+    critical-pressure: 3.277e+06
+    critical-molar-volume: 0.3535
+    critical-compressibility: 0.273
+    acentric-factor: 0.267
+- name: C6H12-14
+  descriptive-name: 2,3-dimethyl-1-butene
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 501
+    critical-pressure: 3.24e+06
+    critical-molar-volume: 0.343
+    critical-compressibility: 0.27
+    acentric-factor: 0.221
+- name: C6H12-15
+  descriptive-name: 3,3-dimethyl-1-butene
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 490
+    critical-pressure: 3.25e+06
+    critical-molar-volume: 0.340
+    critical-compressibility: 0.27
+    acentric-factor: 0.156
+- name: C6H12-16
+  descriptive-name: 2,3-dimethyl-2-butene
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 524
+    critical-pressure: 3.36e+06
+    critical-molar-volume: 0.351
+    critical-compressibility: 0.27
+    acentric-factor: 0.239
+- name: C6H12-17
+  descriptive-name: cyclohexane
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 553.5
+    critical-pressure: 4.07e+06
+    critical-molar-volume: 0.3083
+    critical-compressibility: 0.273
+    acentric-factor: 0.212
+- name: C6H12-18
+  descriptive-name: methylcyclopentane
+  molecular-weight: 84.161
+  critical-parameters:
+    critical-temperature: 533.2
+    critical-pressure: 3.8e+06
+    critical-molar-volume: 0.319
+    critical-compressibility: 0.273
+    acentric-factor: 0.231
+- name: C6H12O
+  descriptive-name: cyclohexanol
+  molecular-weight: 100.16
+  critical-parameters:
+    critical-temperature: 625.1
+    critical-pressure: 3.73e+06
+    critical-molar-volume: 0.3235
+    critical-compressibility: 0.279
+    acentric-factor: 0.528
+- name: C6H12O-1
+  descriptive-name: hexanal
+  molecular-weight: 100.16
+  critical-parameters:
+    critical-temperature: 581.07
+    critical-pressure: 3.38e+06
+    critical-molar-volume: 0.3885
+    critical-compressibility: 0.256
+    acentric-factor: 0.459
+- name: C6H12S
+  descriptive-name: thiacycloheptane
+  molecular-weight: 116.221
+  critical-parameters:
+    critical-temperature: 640.07
+    critical-pressure: 4.374e+06
+    critical-molar-volume: 0.3915
+    critical-compressibility: 0.322
+    acentric-factor: 0.291
+- name: C6H14
+  descriptive-name: hexane
+  molecular-weight: 86.177
+  critical-parameters:
+    critical-temperature: 507.9
+    critical-pressure: 3.02e+06
+    critical-molar-volume: 0.3684
+    critical-compressibility: 0.264
+    acentric-factor: 0.299
+- name: C6H14-1
+  descriptive-name: 2-methylpentane
+  molecular-weight: 86.177
+  critical-parameters:
+    critical-temperature: 498.5
+    critical-pressure: 3.03e+06
+    critical-molar-volume: 0.3669
+    critical-compressibility: 0.267
+    acentric-factor: 0.278
+- name: C6H14-2
+  descriptive-name: 3-methylpentane
+  molecular-weight: 86.177
+  critical-parameters:
+    critical-temperature: 504.4
+    critical-pressure: 3.15e+06
+    critical-molar-volume: 0.3669
+    critical-compressibility: 0.273
+    acentric-factor: 0.272
+- name: C6H14-3
+  descriptive-name: 2,2-dimethylbutane
+  molecular-weight: 86.177
+  critical-parameters:
+    critical-temperature: 488.2
+    critical-pressure: 3.1e+06
+    critical-molar-volume: 0.359
+    critical-compressibility: 0.272
+    acentric-factor: 0.232
+- name: C6H14-4
+  descriptive-name: 2,3-dimethylbutane
+  molecular-weight: 86.177
+  critical-parameters:
+    critical-temperature: 500.3
+    critical-pressure: 3.13e+06
+    critical-molar-volume: 0.3574
+    critical-compressibility: 0.269
+    acentric-factor: 0.247
+- name: C6H14O
+  descriptive-name: propyl-ether
+  molecular-weight: 102.176
+  critical-parameters:
+    critical-temperature: 530.6
+    critical-pressure: 3.03e+06
+    critical-molar-volume: 0.3895
+    critical-compressibility: 0.27
+    acentric-factor: 0.369
+- name: C6H14O-1
+  descriptive-name: isopropyl-ether
+  molecular-weight: 102.176
+  critical-parameters:
+    critical-temperature: 500.2
+    critical-pressure: 2.85e+06
+    critical-molar-volume: 0.386
+    critical-compressibility: 0.262
+    acentric-factor: 0.331
+- name: C6H14O-2
+  descriptive-name: hexyl-alcohol
+  molecular-weight: 102.176
+  critical-parameters:
+    critical-temperature: 610
+    critical-pressure: 3.48e+06
+    critical-molar-volume: 0.381
+    critical-compressibility: 0.262
+    acentric-factor: 0.56
+- name: C6H14S
+  descriptive-name: butyl-ethyl-sulfide
+  molecular-weight: 118.237
+  critical-parameters:
+    critical-temperature: 609
+    critical-pressure: 3.e+06
+    critical-molar-volume: 0.4255
+    critical-compressibility: 0.265
+    acentric-factor: 0.374
+- name: C6H14S-1
+  descriptive-name: isopropyl-sulfide
+  molecular-weight: 118.237
+  critical-parameters:
+    critical-temperature: 585.71
+    critical-pressure: 3.225e+06
+    critical-molar-volume: 0.4135
+    critical-compressibility: 0.274
+    acentric-factor: 0.316
+- name: C6H14S-2
+  descriptive-name: methyl-pentyl-sulfide
+  molecular-weight: 118.237
+  critical-parameters:
+    critical-temperature: 587.98
+    critical-pressure: 3.167e+06
+    critical-molar-volume: 0.4255
+    critical-compressibility: 0.276
+    acentric-factor: 0.376
+- name: C6H14S-3
+  descriptive-name: propyl-sulfide
+  molecular-weight: 118.237
+  critical-parameters:
+    critical-temperature: 609.73
+    critical-pressure: 3.167e+06
+    critical-molar-volume: 0.4255
+    critical-compressibility: 0.266
+    acentric-factor: 0.376
+- name: C6H14S-4
+  descriptive-name: 1-hexanethiol
+  molecular-weight: 118.237
+  critical-parameters:
+    critical-temperature: 622
+    critical-pressure: 3.02e+06
+    critical-molar-volume: 0.4255
+    critical-compressibility: 0.273
+    acentric-factor: 0.372
+- name: C6H14S2
+  descriptive-name: propyl-disulfide
+  molecular-weight: 150.297
+  critical-parameters:
+    critical-temperature: 673
+    critical-pressure: 2.75e+06
+    critical-molar-volume: 0.4795
+    critical-compressibility: 0.277
+    acentric-factor: 0.37
+- name: C6H15N
+  descriptive-name: triethylamine
+  molecular-weight: 101.191
+  critical-parameters:
+    critical-temperature: 535.2
+    critical-pressure: 3.04e+06
+    critical-molar-volume: 0.3945
+    critical-compressibility: 0.269
+    acentric-factor: 0.32
+- name: C7H5F3
+  descriptive-name: a,a,a-trifluorotoluene
+  molecular-weight: 146.112
+  critical-parameters:
+    critical-temperature: 562.56
+    critical-pressure: 3.564e+06
+    critical-molar-volume: 0.3625
+    critical-compressibility: 0.276
+    acentric-factor: 0.327
+- name: C7H5N
+  descriptive-name: benzonitrile
+  molecular-weight: 103.123
+  critical-parameters:
+    critical-temperature: 699.4
+    critical-pressure: 4.22e+06
+    critical-molar-volume: 0.3455
+    critical-compressibility: 0.241
+    acentric-factor: 0.362
+- name: C7H6O2
+  descriptive-name: benzoic-acid
+  molecular-weight: 122.123
+  critical-parameters:
+    critical-temperature: 752
+    critical-pressure: 4.56e+06
+    critical-molar-volume: 0.341
+    critical-compressibility: 0.25
+    acentric-factor: 0.62
+- name: C7H7F
+  descriptive-name: p-fluorotoluene
+  molecular-weight: 110.131
+  critical-parameters:
+    critical-temperature: 590.48
+    critical-pressure: 3.815e+06
+    critical-molar-volume: 0.3375
+    critical-compressibility: 0.262
+    acentric-factor: 0.311
+- name: C7H8
+  descriptive-name: toluene
+  molecular-weight: 92.14
+  critical-parameters:
+    critical-temperature: 593.1
+    critical-pressure: 4.21e+06
+    critical-molar-volume: 0.3166
+    critical-compressibility: 0.265
+    acentric-factor: 0.263
+- name: C7H8-1
+  descriptive-name: 1,3,5-cycloheptatriene
+  molecular-weight: 92.14
+  critical-parameters:
+    critical-temperature: 593.9
+    critical-pressure: 4.334e+06
+    critical-molar-volume: 0.3115
+    critical-compressibility: 0.266
+    acentric-factor: 0.324
+- name: C7H8O
+  descriptive-name: m-cresol
+  molecular-weight: 108.14
+  critical-parameters:
+    critical-temperature: 705.4
+    critical-pressure: 4.56e+06
+    critical-molar-volume: 0.3125
+    critical-compressibility: 0.24
+    acentric-factor: 0.454
+- name: C7H8O-1
+  descriptive-name: o-cresol
+  molecular-weight: 108.14
+  critical-parameters:
+    critical-temperature: 695.3
+    critical-pressure: 5.01e+06
+    critical-molar-volume: 0.282
+    critical-compressibility: 0.244
+    acentric-factor: 0.433
+- name: C7H8O-2
+  descriptive-name: p-cresol
+  molecular-weight: 108.14
+  critical-parameters:
+    critical-temperature: 704.5
+    critical-pressure: 5.15e+06
+    critical-molar-volume: 0.277
+    critical-compressibility: 0.244
+    acentric-factor: 0.505
+- name: C7H12
+  descriptive-name: 1-heptyne
+  molecular-weight: 96.172
+  critical-parameters:
+    critical-temperature: 559.69
+    critical-pressure: 3.295e+06
+    critical-molar-volume: 0.3895
+    critical-compressibility: 0.276
+    acentric-factor: 0.293
+- name: C7H14
+  descriptive-name: 1-heptene
+  molecular-weight: 98.188
+  critical-parameters:
+    critical-temperature: 537.2
+    critical-pressure: 2.85e+06
+    critical-molar-volume: 0.4389
+    critical-compressibility: 0.28
+    acentric-factor: 0.358
+- name: C7H14-1
+  descriptive-name: cycloheptane
+  molecular-weight: 98.188
+  critical-parameters:
+    critical-temperature: 602
+    critical-pressure: 3.81e+06
+    critical-molar-volume: 0.353
+    critical-compressibility: 0.269
+    acentric-factor: 0.237
+- name: C7H14-2
+  descriptive-name: ethylcyclopentane
+  molecular-weight: 98.188
+  critical-parameters:
+    critical-temperature: 569.5
+    critical-pressure: 3.39e+06
+    critical-molar-volume: 0.375
+    critical-compressibility: 0.269
+    acentric-factor: 0.271
+- name: C7H14-3
+  descriptive-name: 1,1-dimethylcyclopentane
+  molecular-weight: 98.188
+  critical-parameters:
+    critical-temperature: 550
+    critical-pressure: 3.4e+06
+    critical-molar-volume: 0.3535
+    critical-compressibility: 0.27
+    acentric-factor: 0.273
+- name: C7H14-4
+  descriptive-name: c-1,2-dimethylcyclopentane
+  molecular-weight: 98.188
+  critical-parameters:
+    critical-temperature: 565
+    critical-pressure: 3.4e+06
+    critical-molar-volume: 0.3633
+    critical-compressibility: 0.27
+    acentric-factor: 0.269
+- name: C7H14-5
+  descriptive-name: t-1,2-dimethylcyclopentane
+  molecular-weight: 98.188
+  critical-parameters:
+    critical-temperature: 553
+    critical-pressure: 3.4e+06
+    critical-molar-volume: 0.3633
+    critical-compressibility: 0.27
+    acentric-factor: 0.269
+- name: C7H14-6
+  descriptive-name: c-1,3-dimethylcyclopentane
+  molecular-weight: 98.188
+  critical-parameters:
+    critical-temperature: 551
+    critical-pressure: 3.4e+06
+    critical-molar-volume: 0.3633
+    critical-compressibility: 0.27
+    acentric-factor: 0.272
+- name: C7H14-7
+  descriptive-name: t-1,3-dimethylcyclopentane
+  molecular-weight: 98.188
+  critical-parameters:
+    critical-temperature: 553
+    critical-pressure: 3.4e+06
+    critical-molar-volume: 0.3633
+    critical-compressibility: 0.27
+    acentric-factor: 0.268
+- name: C7H14-8
+  descriptive-name: methylcyclohexane
+  molecular-weight: 98.188
+  critical-parameters:
+    critical-temperature: 572.3
+    critical-pressure: 3.47e+06
+    critical-molar-volume: 0.3445
+    critical-compressibility: 0.263
+    acentric-factor: 0.236
+- name: C7H14O
+  descriptive-name: heptanal
+  molecular-weight: 114.187
+  critical-parameters:
+    critical-temperature: 638.5
+    critical-pressure: 3.032e+06
+    critical-molar-volume: 0.4445
+    critical-compressibility: 0.25
+    acentric-factor: 0.259
+- name: C7H16
+  descriptive-name: heptane
+  molecular-weight: 100.203
+  critical-parameters:
+    critical-temperature: 540.1
+    critical-pressure: 2.74e+06
+    critical-molar-volume: 0.4281
+    critical-compressibility: 0.262
+    acentric-factor: 0.349
+- name: C7H16-1
+  descriptive-name: 2-methylhexane
+  molecular-weight: 100.203
+  critical-parameters:
+    critical-temperature: 531
+    critical-pressure: 2.75e+06
+    critical-molar-volume: 0.421
+    critical-compressibility: 0.261
+    acentric-factor: 0.329
+- name: C7H16-2
+  descriptive-name: 3-methylhexane
+  molecular-weight: 100.203
+  critical-parameters:
+    critical-temperature: 535.4
+    critical-pressure: 2.82e+06
+    critical-molar-volume: 0.4108
+    critical-compressibility: 0.255
+    acentric-factor: 0.323
+- name: C7H16-3
+  descriptive-name: 3-ethylpentane
+  molecular-weight: 100.203
+  critical-parameters:
+    critical-temperature: 540.7
+    critical-pressure: 2.89e+06
+    critical-molar-volume: 0.416
+    critical-compressibility: 0.268
+    acentric-factor: 0.31
+- name: C7H16-4
+  descriptive-name: 2,2-dimethylpentane
+  molecular-weight: 100.203
+  critical-parameters:
+    critical-temperature: 520.4
+    critical-pressure: 2.82e+06
+    critical-molar-volume: 0.4158
+    critical-compressibility: 0.266
+    acentric-factor: 0.287
+- name: C7H16-5
+  descriptive-name: 2,3-dimethylpentane
+  molecular-weight: 100.203
+  critical-parameters:
+    critical-temperature: 537.6
+    critical-pressure: 2.93e+06
+    critical-molar-volume: 0.405
+    critical-compressibility: 0.256
+    acentric-factor: 0.296
+- name: C7H16-6
+  descriptive-name: 2,4-dimethylpentane
+  molecular-weight: 100.203
+  critical-parameters:
+    critical-temperature: 520.8
+    critical-pressure: 2.75e+06
+    critical-molar-volume: 0.4175
+    critical-compressibility: 0.264
+    acentric-factor: 0.302
+- name: C7H16-7
+  descriptive-name: 3,3-dimethylpentane
+  molecular-weight: 100.203
+  critical-parameters:
+    critical-temperature: 536.3
+    critical-pressure: 2.96e+06
+    critical-molar-volume: 0.414
+    critical-compressibility: 0.273
+    acentric-factor: 0.267
+- name: C7H16-8
+  descriptive-name: 2,2,3-trimethylbutane
+  molecular-weight: 100.203
+  critical-parameters:
+    critical-temperature: 530.4
+    critical-pressure: 3.e+06
+    critical-molar-volume: 0.3976
+    critical-compressibility: 0.266
+    acentric-factor: 0.25
+- name: C7H16O
+  descriptive-name: isopropyl-tert-butyl-ether
+  molecular-weight: 116.203
+  critical-parameters:
+    critical-temperature: 558.21
+    critical-pressure: 2.829e+06
+    critical-molar-volume: 0.4285
+    critical-compressibility: 0.261
+    acentric-factor: 0.307
+- name: C7H16O-1
+  descriptive-name: heptyl-alcohol
+  molecular-weight: 116.203
+  critical-parameters:
+    critical-temperature: 631.9
+    critical-pressure: 3.16e+06
+    critical-molar-volume: 0.4358
+    critical-compressibility: 0.262
+    acentric-factor: 0.56
+- name: C7H16S
+  descriptive-name: butyl-propyl-sulfide
+  molecular-weight: 132.263
+  critical-parameters:
+    critical-temperature: 653.5
+    critical-pressure: 2.851e+06
+    critical-molar-volume: 0.4815
+    critical-compressibility: 0.259
+    acentric-factor: 0.318
+- name: C7H16S-1
+  descriptive-name: ethyl-pentyl-sulfide
+  molecular-weight: 132.263
+  critical-parameters:
+    critical-temperature: 638.37
+    critical-pressure: 2.851e+06
+    critical-molar-volume: 0.4815
+    critical-compressibility: 0.259
+    acentric-factor: 0.42
+- name: C7H16S-2
+  descriptive-name: hexyl-methyl-sulfide
+  molecular-weight: 132.263
+  critical-parameters:
+    critical-temperature: 638.37
+    critical-pressure: 2.851e+06
+    critical-molar-volume: 0.4815
+    critical-compressibility: 0.259
+    acentric-factor: 0.42
+- name: C7H16S-3
+  descriptive-name: 1-heptanethiol
+  molecular-weight: 132.263
+  critical-parameters:
+    critical-temperature: 645
+    critical-pressure: 2.75e+06
+    critical-molar-volume: 0.4815
+    critical-compressibility: 0.267
+    acentric-factor: 0.419
+- name: C8H6
+  descriptive-name: ethynylbenzene
+  molecular-weight: 102.135
+  critical-parameters:
+    critical-temperature: 655.43
+    critical-pressure: 4.403e+06
+    critical-molar-volume: 0.3375
+    critical-compressibility: 0.273
+    acentric-factor: 0.239
+- name: C8H8
+  descriptive-name: styrene
+  molecular-weight: 104.151
+  critical-parameters:
+    critical-temperature: 617.1
+    critical-pressure: 3.69e+06
+    critical-molar-volume: 0.3697
+    critical-compressibility: 0.264
+    acentric-factor: 0.257
+- name: C8H8-1
+  descriptive-name: 1,3,5,7-cyclooctatetraene
+  molecular-weight: 104.151
+  critical-parameters:
+    critical-temperature: 642.55
+    critical-pressure: 4.141e+06
+    critical-molar-volume: 0.3455
+    critical-compressibility: 0.268
+    acentric-factor: 0.244
+- name: C8H10
+  descriptive-name: ethylbenzene
+  molecular-weight: 106.167
+  critical-parameters:
+    critical-temperature: 617.9
+    critical-pressure: 3.73e+06
+    critical-molar-volume: 0.374
+    critical-compressibility: 0.268
+    acentric-factor: 0.302
+- name: C8H10-1
+  descriptive-name: m-xylene
+  molecular-weight: 106.167
+  critical-parameters:
+    critical-temperature: 619
+    critical-pressure: 3.56e+06
+    critical-molar-volume: 0.3761
+    critical-compressibility: 0.259
+    acentric-factor: 0.325
+- name: C8H10-2
+  descriptive-name: o-xylene
+  molecular-weight: 106.167
+  critical-parameters:
+    critical-temperature: 631.1
+    critical-pressure: 3.74e+06
+    critical-molar-volume: 0.369
+    critical-compressibility: 0.262
+    acentric-factor: 0.31
+- name: C8H10-3
+  descriptive-name: p-xylene
+  molecular-weight: 106.167
+  critical-parameters:
+    critical-temperature: 617.4
+    critical-pressure: 3.53e+06
+    critical-molar-volume: 0.3786
+    critical-compressibility: 0.26
+    acentric-factor: 0.32
+- name: C8H14
+  descriptive-name: 1-octyne
+  molecular-weight: 110.199
+  critical-parameters:
+    critical-temperature: 586.86
+    critical-pressure: 2.96e+06
+    critical-molar-volume: 0.4455
+    critical-compressibility: 0.27
+    acentric-factor: 0.338
+- name: C8H16
+  descriptive-name: 1-octene
+  molecular-weight: 112.214
+  critical-parameters:
+    critical-temperature: 571.7
+    critical-pressure: 2.58e+06
+    critical-molar-volume: 0.5159
+    critical-compressibility: 0.28
+    acentric-factor: 0.386
+- name: C8H16-1
+  descriptive-name: cyclooctane
+  molecular-weight: 112.214
+  critical-parameters:
+    critical-temperature: 647.2
+    critical-pressure: 3.55e+06
+    critical-molar-volume: 0.410
+    critical-compressibility: 0.271
+    acentric-factor: 0.236
+- name: C8H16-2
+  descriptive-name: propylcyclopentane
+  molecular-weight: 112.214
+  critical-parameters:
+    critical-temperature: 603
+    critical-pressure: 3.e+06
+    critical-molar-volume: 0.425
+    critical-compressibility: 0.25
+    acentric-factor: 0.335
+- name: C8H16-3
+  descriptive-name: ethylcyclohexane
+  molecular-weight: 112.214
+  critical-parameters:
+    critical-temperature: 609
+    critical-pressure: 3.e+06
+    critical-molar-volume: 0.4558
+    critical-compressibility: 0.27
+    acentric-factor: 0.243
+- name: C8H16-4
+  descriptive-name: 1,1-dimethylcyclohexane
+  molecular-weight: 112.214
+  critical-parameters:
+    critical-temperature: 591
+    critical-pressure: 2.9e+06
+    critical-molar-volume: 0.4489
+    critical-compressibility: 0.27
+    acentric-factor: 0.238
+- name: C8H16-5
+  descriptive-name: c-1,2-dimethylcyclohexane
+  molecular-weight: 112.214
+  critical-parameters:
+    critical-temperature: 606
+    critical-pressure: 2.9e+06
+    critical-molar-volume: 0.4713
+    critical-compressibility: 0.27
+    acentric-factor: 0.236
+- name: C8H16-6
+  descriptive-name: t-1,2-dimethylcyclohexane
+  molecular-weight: 112.214
+  critical-parameters:
+    critical-temperature: 596
+    critical-pressure: 2.9e+06
+    critical-molar-volume: 0.4713
+    critical-compressibility: 0.27
+    acentric-factor: 0.242
+- name: C8H16-7
+  descriptive-name: c-1,3-dimethylcyclohexane
+  molecular-weight: 112.214
+  critical-parameters:
+    critical-temperature: 591
+    critical-pressure: 2.9e+06
+    critical-molar-volume: 0.4489
+    critical-compressibility: 0.27
+    acentric-factor: 0.224
+- name: C8H16-8
+  descriptive-name: t-1,3-dimethylcyclohexane
+  molecular-weight: 112.214
+  critical-parameters:
+    critical-temperature: 598
+    critical-pressure: 2.97e+06
+    critical-molar-volume: 0.4155
+    critical-compressibility: 0.254
+    acentric-factor: 0.189
+- name: C8H16-9
+  descriptive-name: c-1,4-dimethylcyclohexane
+  molecular-weight: 112.214
+  critical-parameters:
+    critical-temperature: 598
+    critical-pressure: 2.9e+06
+    critical-molar-volume: 0.4713
+    critical-compressibility: 0.27
+    acentric-factor: 0.234
+- name: C8H16-10
+  descriptive-name: t-1,4-dimethylcyclohexane
+  molecular-weight: 112.214
+  critical-parameters:
+    critical-temperature: 587.7
+    critical-pressure: 2.97e+06
+    critical-molar-volume: 0.4155
+    critical-compressibility: 0.27
+    acentric-factor: 0.242
+- name: C8H16O
+  descriptive-name: octanal
+  molecular-weight: 128.214
+  critical-parameters:
+    critical-temperature: 621.11
+    critical-pressure: 2.735e+06
+    critical-molar-volume: 0.5005
+    critical-compressibility: 0.256
+    acentric-factor: 0.548
+- name: C8H18
+  descriptive-name: octane
+  molecular-weight: 114.23
+  critical-parameters:
+    critical-temperature: 569.1
+    critical-pressure: 2.49e+06
+    critical-molar-volume: 0.4909
+    critical-compressibility: 0.259
+    acentric-factor: 0.398
+- name: C8H18-1
+  descriptive-name: 2-methylheptane
+  molecular-weight: 114.23
+  critical-parameters:
+    critical-temperature: 560.6
+    critical-pressure: 2.49e+06
+    critical-molar-volume: 0.4883
+    critical-compressibility: 0.261
+    acentric-factor: 0.378
+- name: C8H18-2
+  descriptive-name: 3-methylheptane
+  molecular-weight: 114.23
+  critical-parameters:
+    critical-temperature: 564.1
+    critical-pressure: 2.56e+06
+    critical-molar-volume: 0.4711
+    critical-compressibility: 0.252
+    acentric-factor: 0.37
+- name: C8H18-3
+  descriptive-name: 4-methylheptane
+  molecular-weight: 114.23
+  critical-parameters:
+    critical-temperature: 562.2
+    critical-pressure: 2.56e+06
+    critical-molar-volume: 0.476
+    critical-compressibility: 0.259
+    acentric-factor: 0.371
+- name: C8H18-4
+  descriptive-name: 3-ethylhexane
+  molecular-weight: 114.23
+  critical-parameters:
+    critical-temperature: 566.1
+    critical-pressure: 2.63e+06
+    critical-molar-volume: 0.4605
+    critical-compressibility: 0.252
+    acentric-factor: 0.361
+- name: C8H18-5
+  descriptive-name: 2,2-dimethylhexane
+  molecular-weight: 114.23
+  critical-parameters:
+    critical-temperature: 549.9
+    critical-pressure: 2.53e+06
+    critical-molar-volume: 0.478
+    critical-compressibility: 0.264
+    acentric-factor: 0.338
+- name: C8H18-6
+  descriptive-name: 2,3-dimethylhexane
+  molecular-weight: 114.23
+  critical-parameters:
+    critical-temperature: 564.5
+    critical-pressure: 2.65e+06
+    critical-molar-volume: 0.4682
+    critical-compressibility: 0.263
+    acentric-factor: 0.346
+- name: C8H18-7
+  descriptive-name: 2,4-dimethylhexane
+  molecular-weight: 114.23
+  critical-parameters:
+    critical-temperature: 554.1
+    critical-pressure: 2.57e+06
+    critical-molar-volume: 0.472
+    critical-compressibility: 0.262
+    acentric-factor: 0.343
+- name: C8H18-8
+  descriptive-name: 2,5-dimethylhexane
+  molecular-weight: 114.23
+  critical-parameters:
+    critical-temperature: 549.9
+    critical-pressure: 2.49e+06
+    critical-molar-volume: 0.4823
+    critical-compressibility: 0.262
+    acentric-factor: 0.356
+- name: C8H18-9
+  descriptive-name: 3,3-dimethylhexane
+  molecular-weight: 114.23
+  critical-parameters:
+    critical-temperature: 562.8
+    critical-pressure: 2.69e+06
+    critical-molar-volume: 0.443
+    critical-compressibility: 0.252
+    acentric-factor: 0.32
+- name: C8H18-10
+  descriptive-name: 3,4-dimethylhexane
+  molecular-weight: 114.23
+  critical-parameters:
+    critical-temperature: 569.7
+    critical-pressure: 2.72e+06
+    critical-molar-volume: 0.4588
+    critical-compressibility: 0.264
+    acentric-factor: 0.338
+- name: C8H18-11
+  descriptive-name: 3-ethyl-2-methylpentane
+  molecular-weight: 114.23
+  critical-parameters:
+    critical-temperature: 567
+    critical-pressure: 2.71e+06
+    critical-molar-volume: 0.4453
+    critical-compressibility: 0.254
+    acentric-factor: 0.361
+- name: C8H18-12
+  descriptive-name: 3-ethyl-3-methylpentane
+  molecular-weight: 114.23
+  critical-parameters:
+    critical-temperature: 576.5
+    critical-pressure: 2.83e+06
+    critical-molar-volume: 0.4551
+    critical-compressibility: 0.266
+    acentric-factor: 0.303
+- name: C8H18-13
+  descriptive-name: 2,2,3-trimethylpentane
+  molecular-weight: 114.23
+  critical-parameters:
+    critical-temperature: 563.5
+    critical-pressure: 2.72e+06
+    critical-molar-volume: 0.436
+    critical-compressibility: 0.254
+    acentric-factor: 0.297
+- name: C8H18-14
+  descriptive-name: 2,2,4-trimethylpentane
+  molecular-weight: 114.23
+  critical-parameters:
+    critical-temperature: 543.8
+    critical-pressure: 2.58e+06
+    critical-molar-volume: 0.4697
+    critical-compressibility: 0.266
+    acentric-factor: 0.303
+- name: C8H18-15
+  descriptive-name: 2,3,3-trimethylpentane
+  molecular-weight: 114.23
+  critical-parameters:
+    critical-temperature: 573.5
+    critical-pressure: 2.82e+06
+    critical-molar-volume: 0.4551
+    critical-compressibility: 0.269
+    acentric-factor: 0.29
+- name: C8H18-16
+  descriptive-name: 2,3,4-trimethylpentane
+  molecular-weight: 114.23
+  critical-parameters:
+    critical-temperature: 566.4
+    critical-pressure: 2.74e+06
+    critical-molar-volume: 0.4562
+    critical-compressibility: 0.265
+    acentric-factor: 0.315
+- name: C8H18-17
+  descriptive-name: 2,2,3,3-tetramethylbutane
+  molecular-weight: 114.230
+  critical-parameters:
+    critical-temperature: 567.8
+    critical-pressure: 2.87e+06
+    critical-molar-volume: 0.4618
+    critical-compressibility: 0.28
+    acentric-factor: 0.251
+- name: C8H18O
+  descriptive-name: butyl-ether
+  molecular-weight: 130.23
+  critical-parameters:
+    critical-temperature: 580
+    critical-pressure: 2.3e+06
+    critical-molar-volume: 0.5015
+    critical-compressibility: 0.259
+    acentric-factor: 0.502
+- name: C8H18O-1
+  descriptive-name: sec-butyl-ether
+  molecular-weight: 130.23
+  critical-parameters:
+    critical-temperature: 562
+    critical-pressure: 2.55e+06
+    critical-molar-volume: 0.4895
+    critical-compressibility: 0.266
+    acentric-factor: 0.41
+- name: C8H18O-2
+  descriptive-name: tert-butyl-ether
+  molecular-weight: 130.23
+  critical-parameters:
+    critical-temperature: 550
+    critical-pressure: 2.46e+06
+    critical-molar-volume: 0.4795
+    critical-compressibility: 0.268
+    acentric-factor: 0.331
+- name: C8H18O-3
+  descriptive-name: octyl-alcohol
+  molecular-weight: 130.23
+  critical-parameters:
+    critical-temperature: 652.5
+    critical-pressure: 2.86e+06
+    critical-molar-volume: 0.490
+    critical-compressibility: 0.258
+    acentric-factor: 0.587
+- name: C8H18S
+  descriptive-name: butyl-sulfide
+  molecular-weight: 146.29
+  critical-parameters:
+    critical-temperature: 650
+    critical-pressure: 2.5e+06
+    critical-molar-volume: 0.5375
+    critical-compressibility: 0.26
+    acentric-factor: 0.394
+- name: C8H18S-1
+  descriptive-name: ethyl-hexyl-sulfide
+  molecular-weight: 146.29
+  critical-parameters:
+    critical-temperature: 660.72
+    critical-pressure: 2.579e+06
+    critical-molar-volume: 0.5375
+    critical-compressibility: 0.252
+    acentric-factor: 0.465
+- name: C8H18S-2
+  descriptive-name: heptyl-methyl-sulfide
+  molecular-weight: 146.29
+  critical-parameters:
+    critical-temperature: 660.72
+    critical-pressure: 2.579e+06
+    critical-molar-volume: 0.5375
+    critical-compressibility: 0.252
+    acentric-factor: 0.465
+- name: C8H18S-3
+  descriptive-name: pentyl-propyl-sulfide
+  molecular-weight: 146.29
+  critical-parameters:
+    critical-temperature: 660.72
+    critical-pressure: 2.579e+06
+    critical-molar-volume: 0.5375
+    critical-compressibility: 0.252
+    acentric-factor: 0.465
+- name: C8H18S-4
+  descriptive-name: 1-octanethiol
+  molecular-weight: 146.29
+  critical-parameters:
+    critical-temperature: 665
+    critical-pressure: 2.5e+06
+    critical-molar-volume: 0.5375
+    critical-compressibility: 0.262
+    acentric-factor: 0.462
+- name: C8H18S2
+  descriptive-name: butyl-disulfide
+  molecular-weight: 178.35
+  critical-parameters:
+    critical-temperature: 704.16
+    critical-pressure: 2.624e+06
+    critical-molar-volume: 0.5915
+    critical-compressibility: 0.265
+    acentric-factor: 0.529
+- name: C9H10
+  descriptive-name: alpha-methylstyrene
+  molecular-weight: 118.178
+  critical-parameters:
+    critical-temperature: 654
+    critical-pressure: 3.4e+06
+    critical-molar-volume: 0.4135
+    critical-compressibility: 0.26
+    acentric-factor: 0.331
+- name: C9H10-1
+  descriptive-name: propenylbenzene,cis
+  molecular-weight: 118.178
+  critical-parameters:
+    critical-temperature: 664.6
+    critical-pressure: 3.464e+06
+    critical-molar-volume: 0.4115
+    critical-compressibility: 0.258
+    acentric-factor: 0.316
+- name: C9H10-2
+  descriptive-name: propenylbenzene,trans
+  molecular-weight: 118.178
+  critical-parameters:
+    critical-temperature: 664.6
+    critical-pressure: 3.464e+06
+    critical-molar-volume: 0.4115
+    critical-compressibility: 0.258
+    acentric-factor: 0.316
+- name: C9H10-3
+  descriptive-name: m-methylstyrene
+  molecular-weight: 118.178
+  critical-parameters:
+    critical-temperature: 658.18
+    critical-pressure: 3.365e+06
+    critical-molar-volume: 0.4125
+    critical-compressibility: 0.254
+    acentric-factor: 0.325
+- name: C9H10-4
+  descriptive-name: o-methylstyrene
+  molecular-weight: 118.178
+  critical-parameters:
+    critical-temperature: 662.66
+    critical-pressure: 3.365e+06
+    critical-molar-volume: 0.4125
+    critical-compressibility: 0.252
+    acentric-factor: 0.325
+- name: C9H10-5
+  descriptive-name: p-methylstyrene
+  molecular-weight: 118.178
+  critical-parameters:
+    critical-temperature: 659.67
+    critical-pressure: 3.365e+06
+    critical-molar-volume: 0.4125
+    critical-compressibility: 0.253
+    acentric-factor: 0.325
+- name: C9H12
+  descriptive-name: propylbenzene
+  molecular-weight: 120.194
+  critical-parameters:
+    critical-temperature: 638.6
+    critical-pressure: 3.21e+06
+    critical-molar-volume: 0.4374
+    critical-compressibility: 0.265
+    acentric-factor: 0.344
+- name: C9H12-1
+  descriptive-name: cumene
+  molecular-weight: 120.194
+  critical-parameters:
+    critical-temperature: 631.7
+    critical-pressure: 3.2e+06
+    critical-molar-volume: 0.4347
+    critical-compressibility: 0.263
+    acentric-factor: 0.326
+- name: C9H12-2
+  descriptive-name: m-ethyltoluene
+  molecular-weight: 120.194
+  critical-parameters:
+    critical-temperature: 637
+    critical-pressure: 2.84e+06
+    critical-molar-volume: 0.490
+    critical-compressibility: 0.26
+    acentric-factor: 0.36
+- name: C9H12-3
+  descriptive-name: o-ethyltoluene
+  molecular-weight: 120.194
+  critical-parameters:
+    critical-temperature: 651
+    critical-pressure: 3.04e+06
+    critical-molar-volume: 0.460
+    critical-compressibility: 0.26
+    acentric-factor: 0.294
+- name: C9H12-4
+  descriptive-name: p-ethyltoluene
+  molecular-weight: 120.194
+  critical-parameters:
+    critical-temperature: 640
+    critical-pressure: 2.94e+06
+    critical-molar-volume: 0.470
+    critical-compressibility: 0.26
+    acentric-factor: 0.322
+- name: C9H12-5
+  descriptive-name: 1,2,3-trimethylbenzene
+  molecular-weight: 120.194
+  critical-parameters:
+    critical-temperature: 664.5
+    critical-pressure: 3.27e+06
+    critical-molar-volume: 0.435
+    critical-compressibility: 0.26
+    acentric-factor: 0.366
+- name: C9H12-6
+  descriptive-name: 1,2,4-trimethylbenzene
+  molecular-weight: 120.194
+  critical-parameters:
+    critical-temperature: 649.2
+    critical-pressure: 3.23e+06
+    critical-molar-volume: 0.435
+    critical-compressibility: 0.256
+    acentric-factor: 0.376
+- name: C9H12-7
+  descriptive-name: mesitylene
+  molecular-weight: 120.194
+  critical-parameters:
+    critical-temperature: 640.1
+    critical-pressure: 3.24e+06
+    critical-molar-volume: 0.430
+    critical-compressibility: 0.262
+    acentric-factor: 0.399
+- name: C9H16
+  descriptive-name: 1-nonyne
+  molecular-weight: 124.225
+  critical-parameters:
+    critical-temperature: 610.81
+    critical-pressure: 2.674e+06
+    critical-molar-volume: 0.5015
+    critical-compressibility: 0.264
+    acentric-factor: 0.382
+- name: C9H18
+  descriptive-name: 1-nonene
+  molecular-weight: 126.241
+  critical-parameters:
+    critical-temperature: 592
+    critical-pressure: 2.34e+06
+    critical-molar-volume: 0.580
+    critical-compressibility: 0.28
+    acentric-factor: 0.43
+- name: C9H18-1
+  descriptive-name: butylcyclopentane
+  molecular-weight: 126.241
+  critical-parameters:
+    critical-temperature: 625.05
+    critical-pressure: 2.764e+06
+    critical-molar-volume: 0.4805
+    critical-compressibility: 0.256
+    acentric-factor: 0.354
+- name: C9H18-2
+  descriptive-name: propylcyclohexane
+  molecular-weight: 126.241
+  critical-parameters:
+    critical-temperature: 639
+    critical-pressure: 2.8e+06
+    critical-molar-volume: 0.4725
+    critical-compressibility: 0.256
+    acentric-factor: 0.258
+- name: C9H18-3
+  descriptive-name: c-c-135trimethylcyclohexane
+  molecular-weight: 126.241
+  critical-parameters:
+    critical-temperature: 607.86
+    critical-pressure: 2.649e+06
+    critical-molar-volume: 0.4705
+    critical-compressibility: 0.247
+    acentric-factor: 0.274
+- name: C9H18-4
+  descriptive-name: c-t-135trimethylcyclohexane
+  molecular-weight: 126.241
+  critical-parameters:
+    critical-temperature: 602.2
+    critical-pressure: 2.649e+06
+    critical-molar-volume: 0.4705
+    critical-compressibility: 0.245
+    acentric-factor: 0.333
+- name: C9H18O
+  descriptive-name: nonanal
+  molecular-weight: 142.241
+  critical-parameters:
+    critical-temperature: 640
+    critical-pressure: 2.48e+06
+    critical-molar-volume: 0.5565
+    critical-compressibility: 0.262
+    acentric-factor: 0.54
+- name: C9H20
+  descriptive-name: nonane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 594.8
+    critical-pressure: 2.3e+06
+    critical-molar-volume: 0.543
+    critical-compressibility: 0.253
+    acentric-factor: 0.445
+- name: C9H20-1
+  descriptive-name: 2-methyloctane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 587
+    critical-pressure: 2.31e+06
+    critical-molar-volume: 0.5335
+    critical-compressibility: 0.254
+    acentric-factor: 0.423
+- name: C9H20-2
+  descriptive-name: 3-methyloctane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 590
+    critical-pressure: 2.341e+06
+    critical-molar-volume: 0.529
+    critical-compressibility: 0.252
+    acentric-factor: 0.413
+- name: C9H20-3
+  descriptive-name: 4-methyloctane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 586.67
+    critical-pressure: 2.325e+06
+    critical-molar-volume: 0.5335
+    critical-compressibility: 0.254
+    acentric-factor: 0.416
+- name: C9H20-4
+  descriptive-name: 3-ethylheptane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 587.49
+    critical-pressure: 2.325e+06
+    critical-molar-volume: 0.5335
+    critical-compressibility: 0.254
+    acentric-factor: 0.416
+- name: C9H20-5
+  descriptive-name: 4-ethylheptane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 584.95
+    critical-pressure: 2.325e+06
+    critical-molar-volume: 0.5335
+    critical-compressibility: 0.255
+    acentric-factor: 0.416
+- name: C9H20-6
+  descriptive-name: 2,2-dimethylheptane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 576.8
+    critical-pressure: 2.35e+06
+    critical-molar-volume: 0.5285
+    critical-compressibility: 0.257
+    acentric-factor: 0.39
+- name: C9H20-7
+  descriptive-name: 2,3-dimethylheptane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 589.6
+    critical-pressure: 2.401e+06
+    critical-molar-volume: 0.515
+    critical-compressibility: 0.252
+    acentric-factor: 0.385
+- name: C9H20-8
+  descriptive-name: 2,4-dimethylheptane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 576.8
+    critical-pressure: 2.341e+06
+    critical-molar-volume: 0.517
+    critical-compressibility: 0.252
+    acentric-factor: 0.39
+- name: C9H20-9
+  descriptive-name: 2,5-dimethylheptane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 581.1
+    critical-pressure: 2.351e+06
+    critical-molar-volume: 0.522
+    critical-compressibility: 0.254
+    acentric-factor: 0.393
+- name: C9H20-10
+  descriptive-name: 2,6-dimethylheptane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 577.9
+    critical-pressure: 2.3e+06
+    critical-molar-volume: 0.535
+    critical-compressibility: 0.256
+    acentric-factor: 0.4
+- name: C9H20-11
+  descriptive-name: 3,3-dimethylheptane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 588.4
+    critical-pressure: 2.432e+06
+    critical-molar-volume: 0.506
+    critical-compressibility: 0.252
+    acentric-factor: 0.379
+- name: C9H20-12
+  descriptive-name: 3,4-dimethylheptane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 591.9
+    critical-pressure: 2.462e+06
+    critical-molar-volume: 0.503
+    critical-compressibility: 0.252
+    acentric-factor: 0.379
+- name: C9H20-13
+  descriptive-name: 3,5-dimethylheptane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 583.2
+    critical-pressure: 2.401e+06
+    critical-molar-volume: 0.510
+    critical-compressibility: 0.253
+    acentric-factor: 0.385
+- name: C9H20-14
+  descriptive-name: 4,4-dimethylheptane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 585.4
+    critical-pressure: 2.432e+06
+    critical-molar-volume: 0.501
+    critical-compressibility: 0.25
+    acentric-factor: 0.364
+- name: C9H20-15
+  descriptive-name: 3-ethyl-2-methylhexane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 588.1
+    critical-pressure: 2.452e+06
+    critical-molar-volume: 0.497
+    critical-compressibility: 0.249
+    acentric-factor: 0.378
+- name: C9H20-16
+  descriptive-name: 4-ethyl-2-methylhexane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 580
+    critical-pressure: 2.401e+06
+    critical-molar-volume: 0.504
+    critical-compressibility: 0.251
+    acentric-factor: 0.386
+- name: C9H20-17
+  descriptive-name: 3-ethyl-3-methylhexane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 597.5
+    critical-pressure: 2.553e+06
+    critical-molar-volume: 0.487
+    critical-compressibility: 0.25
+    acentric-factor: 0.352
+- name: C9H20-18
+  descriptive-name: 3-ethyl-4-methylhexane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 593.7
+    critical-pressure: 2.513e+06
+    critical-molar-volume: 0.490
+    critical-compressibility: 0.249
+    acentric-factor: 0.372
+- name: C9H20-19
+  descriptive-name: 2,2,3-trimethylhexane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 588
+    critical-pressure: 2.49e+06
+    critical-molar-volume: 0.4989
+    critical-compressibility: 0.254
+    acentric-factor: 0.332
+- name: C9H20-20
+  descriptive-name: 2,2,4-trimethylhexane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 573.5
+    critical-pressure: 2.38e+06
+    critical-molar-volume: 0.5066
+    critical-compressibility: 0.253
+    acentric-factor: 0.321
+- name: C9H20-21
+  descriptive-name: 2,2,5-trimethylhexane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 568
+    critical-pressure: 2.33e+06
+    critical-molar-volume: 0.519
+    critical-compressibility: 0.256
+    acentric-factor: 0.357
+- name: C9H20-22
+  descriptive-name: 2,3,3-trimethylhexane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 596
+    critical-pressure: 2.553e+06
+    critical-molar-volume: 0.491
+    critical-compressibility: 0.253
+    acentric-factor: 0.333
+- name: C9H20-23
+  descriptive-name: 2,3,4-trimethylhexane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 594.5
+    critical-pressure: 2.523e+06
+    critical-molar-volume: 0.494
+    critical-compressibility: 0.252
+    acentric-factor: 0.353
+- name: C9H20-24
+  descriptive-name: 2,3,5-trimethylhexane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 579.2
+    critical-pressure: 2.401e+06
+    critical-molar-volume: 0.509
+    critical-compressibility: 0.254
+    acentric-factor: 0.364
+- name: C9H20-25
+  descriptive-name: 2,4,4-trimethylhexane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 581.5
+    critical-pressure: 2.432e+06
+    critical-molar-volume: 0.500
+    critical-compressibility: 0.251
+    acentric-factor: 0.344
+- name: C9H20-26
+  descriptive-name: 3,3,4-trimethylhexane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 602.3
+    critical-pressure: 2.624e+06
+    critical-molar-volume: 0.484
+    critical-compressibility: 0.254
+    acentric-factor: 0.328
+- name: C9H20-27
+  descriptive-name: 3,3-diethylpentane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 610
+    critical-pressure: 2.67e+06
+    critical-molar-volume: 0.5285
+    critical-compressibility: 0.249
+    acentric-factor: 0.338
+- name: C9H20-28
+  descriptive-name: 3-ethyl-2,2-dimethylpentane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 590.4
+    critical-pressure: 2.553e+06
+    critical-molar-volume: 0.486
+    critical-compressibility: 0.253
+    acentric-factor: 0.333
+- name: C9H20-29
+  descriptive-name: 3-ethyl-2,3-dimethylpentane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 606.8
+    critical-pressure: 2.685e+06
+    critical-molar-volume: 0.477
+    critical-compressibility: 0.254
+    acentric-factor: 0.349
+- name: C9H20-30
+  descriptive-name: 3-ethyl-2,4-dimethylpentane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 591.2
+    critical-pressure: 2.523e+06
+    critical-molar-volume: 0.489
+    critical-compressibility: 0.251
+    acentric-factor: 0.352
+- name: C9H20-31
+  descriptive-name: 2,2,3,3-tetramethylpentane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 607.5
+    critical-pressure: 2.74e+06
+    critical-molar-volume: 0.5175
+    critical-compressibility: 0.246
+    acentric-factor: 0.303
+- name: C9H20-32
+  descriptive-name: 2,2,3,4-tetramethylpentane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 592.6
+    critical-pressure: 2.6e+06
+    critical-molar-volume: 0.5165
+    critical-compressibility: 0.251
+    acentric-factor: 0.313
+- name: C9H20-33
+  descriptive-name: 2,2,4,4-tetramethylpentane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 574.5
+    critical-pressure: 2.48e+06
+    critical-molar-volume: 0.5175
+    critical-compressibility: 0.257
+    acentric-factor: 0.312
+- name: C9H20-34
+  descriptive-name: 2,3,3,4-tetramethylpentane
+  molecular-weight: 128.257
+  critical-parameters:
+    critical-temperature: 607.5
+    critical-pressure: 2.72e+06
+    critical-molar-volume: 0.5165
+    critical-compressibility: 0.246
+    acentric-factor: 0.313
+- name: C9H20O
+  descriptive-name: nonyl-alcohol
+  molecular-weight: 144.256
+  critical-parameters:
+    critical-temperature: 671
+    critical-pressure: 2.65e+06
+    critical-molar-volume: 0.544
+    critical-compressibility: 0.259
+    acentric-factor: 0.603
+- name: C9H20S
+  descriptive-name: butyl-pentyl-sulfide
+  molecular-weight: 160.317
+  critical-parameters:
+    critical-temperature: 681.56
+    critical-pressure: 2.345e+06
+    critical-molar-volume: 0.5935
+    critical-compressibility: 0.246
+    acentric-factor: 0.508
+- name: C9H20S-1
+  descriptive-name: ethyl-heptyl-sulfide
+  molecular-weight: 160.317
+  critical-parameters:
+    critical-temperature: 681.56
+    critical-pressure: 2.345e+06
+    critical-molar-volume: 0.5935
+    critical-compressibility: 0.246
+    acentric-factor: 0.508
+- name: C9H20S-2
+  descriptive-name: hexyl-propyl-sulfide
+  molecular-weight: 160.317
+  critical-parameters:
+    critical-temperature: 681.56
+    critical-pressure: 2.345e+06
+    critical-molar-volume: 0.5935
+    critical-compressibility: 0.246
+    acentric-factor: 0.508
+- name: C9H20S-3
+  descriptive-name: methyl-octyl-sulfide
+  molecular-weight: 160.317
+  critical-parameters:
+    critical-temperature: 681.56
+    critical-pressure: 2.345e+06
+    critical-molar-volume: 0.5935
+    critical-compressibility: 0.246
+    acentric-factor: 0.508
+- name: C9H20S-4
+  descriptive-name: 1-nonanethiol
+  molecular-weight: 160.317
+  critical-parameters:
+    critical-temperature: 686.43
+    critical-pressure: 2.456e+06
+    critical-molar-volume: 0.5935
+    critical-compressibility: 0.255
+    acentric-factor: 0.512
+- name: C10H8
+  descriptive-name: naphthalene
+  molecular-weight: 128.173
+  critical-parameters:
+    critical-temperature: 747.8
+    critical-pressure: 4.04e+06
+    critical-molar-volume: 0.4085
+    critical-compressibility: 0.268
+    acentric-factor: 0.313
+- name: C10H8-1
+  descriptive-name: azulene
+  molecular-weight: 128.173
+  critical-parameters:
+    critical-temperature: 773.48
+    critical-pressure: 3.897e+06
+    critical-molar-volume: 0.4095
+    critical-compressibility: 0.248
+    acentric-factor: 0.355
+- name: C10H14
+  descriptive-name: butylbenzene
+  molecular-weight: 134.221
+  critical-parameters:
+    critical-temperature: 660.7
+    critical-pressure: 2.92e+06
+    critical-molar-volume: 0.4975
+    critical-compressibility: 0.261
+    acentric-factor: 0.393
+- name: C10H14-1
+  descriptive-name: m-diethylbenzene
+  molecular-weight: 134.221
+  critical-parameters:
+    critical-temperature: 663.6
+    critical-pressure: 2.93e+06
+    critical-molar-volume: 0.4875
+    critical-compressibility: 0.257
+    acentric-factor: 0.359
+- name: C10H14-2
+  descriptive-name: o-diethylbenzene
+  molecular-weight: 134.221
+  critical-parameters:
+    critical-temperature: 669.6
+    critical-pressure: 2.99e+06
+    critical-molar-volume: 0.4875
+    critical-compressibility: 0.256
+    acentric-factor: 0.354
+- name: C10H14-3
+  descriptive-name: p-diethylbenzene
+  molecular-weight: 134.221
+  critical-parameters:
+    critical-temperature: 657.9
+    critical-pressure: 2.81e+06
+    critical-molar-volume: 0.4805
+    critical-compressibility: 0.25
+    acentric-factor: 0.404
+- name: C10H14-4
+  descriptive-name: 1,2,3,4-tetramethylbenzene
+  molecular-weight: 134.221
+  critical-parameters:
+    critical-temperature: 695.1
+    critical-pressure: 2.84e+06
+    critical-molar-volume: 0.4875
+    critical-compressibility: 0.237
+    acentric-factor: 0.368
+- name: C10H14-5
+  descriptive-name: 1,2,3,5-tetramethylbenzene
+  molecular-weight: 134.221
+  critical-parameters:
+    critical-temperature: 679
+    critical-pressure: 2.87e+06
+    critical-molar-volume: 0.4875
+    critical-compressibility: 0.241
+    acentric-factor: 0.412
+- name: C10H14-6
+  descriptive-name: 1,2,4,5-tetramethylbenzene
+  molecular-weight: 134.221
+  critical-parameters:
+    critical-temperature: 675.6
+    critical-pressure: 2.9e+06
+    critical-molar-volume: 0.4875
+    critical-compressibility: 0.241
+    acentric-factor: 0.435
+- name: C10H18
+  descriptive-name: 1-decyne
+  molecular-weight: 138.252
+  critical-parameters:
+    critical-temperature: 632.49
+    critical-pressure: 2.427e+06
+    critical-molar-volume: 0.5575
+    critical-compressibility: 0.257
+    acentric-factor: 0.426
+- name: C10H18-1
+  descriptive-name: decahydronaphthalene,cis
+  molecular-weight: 138.252
+  critical-parameters:
+    critical-temperature: 702.2
+    critical-pressure: 3.2e+06
+    critical-molar-volume: 0.4775
+    critical-compressibility: 0.25
+    acentric-factor: 0.286
+- name: C10H18-2
+  descriptive-name: decahydronaphthalene,trans
+  molecular-weight: 138.252
+  critical-parameters:
+    critical-temperature: 687
+    critical-pressure: 2.08e+06
+    critical-molar-volume: 0.4775
+    critical-compressibility: 0.254
+    acentric-factor: 0.27
+- name: C10H20
+  descriptive-name: 1-decene
+  molecular-weight: 140.268
+  critical-parameters:
+    critical-temperature: 615
+    critical-pressure: 2.2e+06
+    critical-molar-volume: 0.650
+    critical-compressibility: 0.28
+    acentric-factor: 0.491
+- name: C10H20-1
+  descriptive-name: 1-cyclopentylpentane
+  molecular-weight: 140.268
+  critical-parameters:
+    critical-temperature: 647.49
+    critical-pressure: 2.505e+06
+    critical-molar-volume: 0.5365
+    critical-compressibility: 0.25
+    acentric-factor: 0.398
+- name: C10H20-2
+  descriptive-name: butylcyclohexane
+  molecular-weight: 140.268
+  critical-parameters:
+    critical-temperature: 667
+    critical-pressure: 3.15e+06
+    critical-molar-volume: 0.5285
+    critical-compressibility: 0.255
+    acentric-factor: 0.362
+- name: C10H20O
+  descriptive-name: decanal
+  molecular-weight: 156.267
+  critical-parameters:
+    critical-temperature: 651.95
+    critical-pressure: 2.259e+06
+    critical-molar-volume: 0.6125
+    critical-compressibility: 0.255
+    acentric-factor: 0.634
+- name: C10H22
+  descriptive-name: decane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 616.1
+    critical-pressure: 2.11e+06
+    critical-molar-volume: 0.602
+    critical-compressibility: 0.247
+    acentric-factor: 0.489
+- name: C10H22-1
+  descriptive-name: 2-methylnonane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 610.3
+    critical-pressure: 2.097e+06
+    critical-molar-volume: 0.596
+    critical-compressibility: 0.246
+    acentric-factor: 0.459
+- name: C10H22-2
+  descriptive-name: 3-methylnonane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 613.4
+    critical-pressure: 2.138e+06
+    critical-molar-volume: 0.582
+    critical-compressibility: 0.244
+    acentric-factor: 0.451
+- name: C10H22-3
+  descriptive-name: 4-methylnonane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 610.5
+    critical-pressure: 2.138e+06
+    critical-molar-volume: 0.575
+    critical-compressibility: 0.242
+    acentric-factor: 0.451
+- name: C10H22-4
+  descriptive-name: 5-methylnonane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 609.6
+    critical-pressure: 2.138e+06
+    critical-molar-volume: 0.573
+    critical-compressibility: 0.242
+    acentric-factor: 0.452
+- name: C10H22-5
+  descriptive-name: 3-ethyloctane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 613.6
+    critical-pressure: 2.189e+06
+    critical-molar-volume: 0.561
+    critical-compressibility: 0.241
+    acentric-factor: 0.446
+- name: C10H22-6
+  descriptive-name: 4-ethyloctane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 609.6
+    critical-pressure: 2.178e+06
+    critical-molar-volume: 0.552
+    critical-compressibility: 0.237
+    acentric-factor: 0.443
+- name: C10H22-7
+  descriptive-name: 2,2-dimethyloctane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 602
+    critical-pressure: 2.128e+06
+    critical-molar-volume: 0.580
+    critical-compressibility: 0.247
+    acentric-factor: 0.417
+- name: C10H22-8
+  descriptive-name: 2,3-dimethyloctane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 613.2
+    critical-pressure: 2.189e+06
+    critical-molar-volume: 0.567
+    critical-compressibility: 0.243
+    acentric-factor: 0.424
+- name: C10H22-9
+  descriptive-name: 2,4-dimethyloctane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 599.4
+    critical-pressure: 2.138e+06
+    critical-molar-volume: 0.566
+    critical-compressibility: 0.243
+    acentric-factor: 0.43
+- name: C10H22-10
+  descriptive-name: 2,5-dimethyloctane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 603
+    critical-pressure: 2.148e+06
+    critical-molar-volume: 0.569
+    critical-compressibility: 0.244
+    acentric-factor: 0.432
+- name: C10H22-11
+  descriptive-name: 2,6-dimethyloctane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 603.1
+    critical-pressure: 2.148e+06
+    critical-molar-volume: 0.576
+    critical-compressibility: 0.247
+    acentric-factor: 0.453
+- name: C10H22-12
+  descriptive-name: 2,7-dimethyloctane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 602.9
+    critical-pressure: 2.097e+06
+    critical-molar-volume: 0.590
+    critical-compressibility: 0.247
+    acentric-factor: 0.438
+- name: C10H22-13
+  descriptive-name: 3,3-dimethyloctane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 612.1
+    critical-pressure: 2.219e+06
+    critical-molar-volume: 0.557
+    critical-compressibility: 0.243
+    acentric-factor: 0.404
+- name: C10H22-14
+  descriptive-name: 3,4-dimethyloctane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 614
+    critical-pressure: 2.239e+06
+    critical-molar-volume: 0.551
+    critical-compressibility: 0.242
+    acentric-factor: 0.417
+- name: C10H22-15
+  descriptive-name: 3,5-dimethyloctane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 606.3
+    critical-pressure: 2.189e+06
+    critical-molar-volume: 0.555
+    critical-compressibility: 0.241
+    acentric-factor: 0.424
+- name: C10H22-16
+  descriptive-name: 3,6-dimethyloctane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 608.3
+    critical-pressure: 2.189e+06
+    critical-molar-volume: 0.562
+    critical-compressibility: 0.243
+    acentric-factor: 0.424
+- name: C10H22-17
+  descriptive-name: 4,4-dimethyloctane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 606.9
+    critical-pressure: 2.209e+06
+    critical-molar-volume: 0.548
+    critical-compressibility: 0.24
+    acentric-factor: 0.402
+- name: C10H22-18
+  descriptive-name: 4,5-dimethyloctane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 612.2
+    critical-pressure: 2.239e+06
+    critical-molar-volume: 0.546
+    critical-compressibility: 0.24
+    acentric-factor: 0.418
+- name: C10H22-19
+  descriptive-name: 4-propylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 601
+    critical-pressure: 2.178e+06
+    critical-molar-volume: 0.545
+    critical-compressibility: 0.238
+    acentric-factor: 0.444
+- name: C10H22-20
+  descriptive-name: 4-isopropylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 607.6
+    critical-pressure: 2.229e+06
+    critical-molar-volume: 0.537
+    critical-compressibility: 0.237
+    acentric-factor: 0.416
+- name: C10H22-21
+  descriptive-name: 3-ethyl-2-methylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 610.9
+    critical-pressure: 2.229e+06
+    critical-molar-volume: 0.544
+    critical-compressibility: 0.239
+    acentric-factor: 0.415
+- name: C10H22-22
+  descriptive-name: 4-ethyl-2-methylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 601.8
+    critical-pressure: 2.189e+06
+    critical-molar-volume: 0.545
+    critical-compressibility: 0.238
+    acentric-factor: 0.424
+- name: C10H22-23
+  descriptive-name: 5-ethyl-2-methylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 606.7
+    critical-pressure: 2.189e+06
+    critical-molar-volume: 0.555
+    critical-compressibility: 0.241
+    acentric-factor: 0.424
+- name: C10H22-24
+  descriptive-name: 3-ethyl-3-methylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 620
+    critical-pressure: 2.31e+06
+    critical-molar-volume: 0.532
+    critical-compressibility: 0.238
+    acentric-factor: 0.389
+- name: C10H22-25
+  descriptive-name: 4-ethyl-3-methylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 614.3
+    critical-pressure: 2.28e+06
+    critical-molar-volume: 0.530
+    critical-compressibility: 0.237
+    acentric-factor: 0.41
+- name: C10H22-26
+  descriptive-name: 3-ethyl-5-methylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 606.6
+    critical-pressure: 2.229e+06
+    critical-molar-volume: 0.541
+    critical-compressibility: 0.239
+    acentric-factor: 0.416
+- name: C10H22-27
+  descriptive-name: 3-ethyl-4-methylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 615.5
+    critical-pressure: 2.28e+06
+    critical-molar-volume: 0.533
+    critical-compressibility: 0.237
+    acentric-factor: 0.409
+- name: C10H22-28
+  descriptive-name: 4-ethyl-4-methylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 615.7
+    critical-pressure: 2.31e+06
+    critical-molar-volume: 0.525
+    critical-compressibility: 0.237
+    acentric-factor: 0.39
+- name: C10H22-29
+  descriptive-name: 2,2,3-trimethylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 611.7
+    critical-pressure: 2.27e+06
+    critical-molar-volume: 0.546
+    critical-compressibility: 0.244
+    acentric-factor: 0.378
+- name: C10H22-30
+  descriptive-name: 2,2,4-trimethylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 594.5
+    critical-pressure: 2.168e+06
+    critical-molar-volume: 0.552
+    critical-compressibility: 0.242
+    acentric-factor: 0.389
+- name: C10H22-31
+  descriptive-name: 2,2,5-trimethylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 598
+    critical-pressure: 2.168e+06
+    critical-molar-volume: 0.559
+    critical-compressibility: 0.244
+    acentric-factor: 0.389
+- name: C10H22-32
+  descriptive-name: 2,2,6-trimethylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 593.4
+    critical-pressure: 2.128e+06
+    critical-molar-volume: 0.573
+    critical-compressibility: 0.247
+    acentric-factor: 0.396
+- name: C10H22-33
+  descriptive-name: 2,3,3-trimethylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 617.5
+    critical-pressure: 2.32e+06
+    critical-molar-volume: 0.538
+    critical-compressibility: 0.243
+    acentric-factor: 0.371
+- name: C10H22-34
+  descriptive-name: 2,3,4-trimethylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 613.7
+    critical-pressure: 2.29e+06
+    critical-molar-volume: 0.538
+    critical-compressibility: 0.241
+    acentric-factor: 0.391
+- name: C10H22-35
+  descriptive-name: 2,3,5-trimethylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 612.8
+    critical-pressure: 2.239e+06
+    critical-molar-volume: 0.547
+    critical-compressibility: 0.24
+    acentric-factor: 0.397
+- name: C10H22-36
+  descriptive-name: 2,3,6-trimethylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 604.1
+    critical-pressure: 2.189e+06
+    critical-molar-volume: 0.560
+    critical-compressibility: 0.244
+    acentric-factor: 0.403
+- name: C10H22-37
+  descriptive-name: 2,4,4-trimethylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 600.3
+    critical-pressure: 2.219e+06
+    critical-molar-volume: 0.541
+    critical-compressibility: 0.241
+    acentric-factor: 0.383
+- name: C10H22-38
+  descriptive-name: 2,4,5-trimethylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 606.9
+    critical-pressure: 2.239e+06
+    critical-molar-volume: 0.544
+    critical-compressibility: 0.241
+    acentric-factor: 0.397
+- name: C10H22-39
+  descriptive-name: 2,4,6-trimethylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 590.3
+    critical-pressure: 2.148e+06
+    critical-molar-volume: 0.560
+    critical-compressibility: 0.245
+    acentric-factor: 0.411
+- name: C10H22-40
+  descriptive-name: 2,5,5-trimethylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 602.9
+    critical-pressure: 2.219e+06
+    critical-molar-volume: 0.550
+    critical-compressibility: 0.243
+    acentric-factor: 0.383
+- name: C10H22-41
+  descriptive-name: 3,3,4-trimethylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 622.1
+    critical-pressure: 2.371e+06
+    critical-molar-volume: 0.526
+    critical-compressibility: 0.241
+    acentric-factor: 0.365
+- name: C10H22-42
+  descriptive-name: 3,3,5-trimethylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 609.5
+    critical-pressure: 2.32e+06
+    critical-molar-volume: 0.5785
+    critical-compressibility: 0.248
+    acentric-factor: 0.382
+- name: C10H22-43
+  descriptive-name: 3,4,4-trimethylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 620.9
+    critical-pressure: 2.371e+06
+    critical-molar-volume: 0.524
+    critical-compressibility: 0.241
+    acentric-factor: 0.365
+- name: C10H22-44
+  descriptive-name: 3,4,5-trimethylheptane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 612.8
+    critical-pressure: 2.239e+06
+    critical-molar-volume: 0.547
+    critical-compressibility: 0.24
+    acentric-factor: 0.417
+- name: C10H22-45
+  descriptive-name: 3-isopropyl-2-methylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 623.4
+    critical-pressure: 2.29e+06
+    critical-molar-volume: 0.529
+    critical-compressibility: 0.234
+    acentric-factor: 0.391
+- name: C10H22-46
+  descriptive-name: 3,3-diethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 627.8
+    critical-pressure: 2.412e+06
+    critical-molar-volume: 0.510
+    critical-compressibility: 0.236
+    acentric-factor: 0.377
+- name: C10H22-47
+  descriptive-name: 3,4-diethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 618.8
+    critical-pressure: 2.33e+06
+    critical-molar-volume: 0.519
+    critical-compressibility: 0.235
+    acentric-factor: 0.403
+- name: C10H22-48
+  descriptive-name: 3-ethyl-2,2-dimethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 611.7
+    critical-pressure: 2.31e+06
+    critical-molar-volume: 0.526
+    critical-compressibility: 0.239
+    acentric-factor: 0.369
+- name: C10H22-49
+  descriptive-name: 4-ethyl-2,2-dimethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 594.6
+    critical-pressure: 2.219e+06
+    critical-molar-volume: 0.539
+    critical-compressibility: 0.242
+    acentric-factor: 0.384
+- name: C10H22-50
+  descriptive-name: 3-ethyl-2,3-dimethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 626.8
+    critical-pressure: 2.422e+06
+    critical-molar-volume: 0.516
+    critical-compressibility: 0.24
+    acentric-factor: 0.359
+- name: C10H22-51
+  descriptive-name: 4-ethyl-2,3-dimethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 617.3
+    critical-pressure: 2.341e+06
+    critical-molar-volume: 0.524
+    critical-compressibility: 0.239
+    acentric-factor: 0.384
+- name: C10H22-52
+  descriptive-name: 3-ethyl-2,4-dimethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 616.1
+    critical-pressure: 2.341e+06
+    critical-molar-volume: 0.522
+    critical-compressibility: 0.239
+    acentric-factor: 0.385
+- name: C10H22-53
+  descriptive-name: 4-ethyl-2,4-dimethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 620.9
+    critical-pressure: 2.471e+06
+    critical-molar-volume: 0.524
+    critical-compressibility: 0.241
+    acentric-factor: 0.383
+- name: C10H22-54
+  descriptive-name: 3-ethyl-2,5-dimethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 603.5
+    critical-pressure: 2.239e+06
+    critical-molar-volume: 0.537
+    critical-compressibility: 0.24
+    acentric-factor: 0.397
+- name: C10H22-55
+  descriptive-name: 4-ethyl-3,3-dimethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 625.7
+    critical-pressure: 2.422e+06
+    critical-molar-volume: 0.513
+    critical-compressibility: 0.239
+    acentric-factor: 0.358
+- name: C10H22-56
+  descriptive-name: 3-ethyl-3,4-dimethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 624.5
+    critical-pressure: 2.422e+06
+    critical-molar-volume: 0.511
+    critical-compressibility: 0.238
+    acentric-factor: 0.359
+- name: C10H22-57
+  descriptive-name: 2,2,3,3-tetramethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 623
+    critical-pressure: 2.51e+06
+    critical-molar-volume: 0.5735
+    critical-compressibility: 0.242
+    acentric-factor: 0.364
+- name: C10H22-58
+  descriptive-name: 2,2,3,4-tetramethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 620.4
+    critical-pressure: 2.371e+06
+    critical-molar-volume: 0.525
+    critical-compressibility: 0.241
+    acentric-factor: 0.345
+- name: C10H22-59
+  descriptive-name: 2,2,3,5-tetramethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 601.3
+    critical-pressure: 2.27e+06
+    critical-molar-volume: 0.540
+    critical-compressibility: 0.245
+    acentric-factor: 0.357
+- name: C10H22-60
+  descriptive-name: 2,2,4,4-tetramethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 610.2
+    critical-pressure: 2.249e+06
+    critical-molar-volume: 0.535
+    critical-compressibility: 0.237
+    acentric-factor: 0.344
+- name: C10H22-61
+  descriptive-name: 2,2,4,5-tetramethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 598.5
+    critical-pressure: 2.219e+06
+    critical-molar-volume: 0.544
+    critical-compressibility: 0.243
+    acentric-factor: 0.363
+- name: C10H22-62
+  descriptive-name: 2,2,5,5-tetramethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 581.4
+    critical-pressure: 2.19e+06
+    critical-molar-volume: 0.5735
+    critical-compressibility: 0.256
+    acentric-factor: 0.375
+- name: C10H22-63
+  descriptive-name: 2,3,3,4-tetramethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 633.1
+    critical-pressure: 2.482e+06
+    critical-molar-volume: 0.514
+    critical-compressibility: 0.242
+    acentric-factor: 0.334
+- name: C10H22-64
+  descriptive-name: 2,3,3,5-tetramethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 610.1
+    critical-pressure: 2.32e+06
+    critical-molar-volume: 0.531
+    critical-compressibility: 0.243
+    acentric-factor: 0.351
+- name: C10H22-65
+  descriptive-name: 2,3,4,4-tetramethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 626.6
+    critical-pressure: 2.422e+06
+    critical-molar-volume: 0.518
+    critical-compressibility: 0.241
+    acentric-factor: 0.339
+- name: C10H22-66
+  descriptive-name: 2,3,4,5-tetramethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 613.2
+    critical-pressure: 2.341e+06
+    critical-molar-volume: 0.530
+    critical-compressibility: 0.243
+    acentric-factor: 0.365
+- name: C10H22-67
+  descriptive-name: 3,3,4,4-tetramethylhexane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 646.7
+    critical-pressure: 2.574e+06
+    critical-molar-volume: 0.506
+    critical-compressibility: 0.242
+    acentric-factor: 0.311
+- name: C10H22-68
+  descriptive-name: 24dimethyl3isopropylpentane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 614.4
+    critical-pressure: 2.341e+06
+    critical-molar-volume: 0.521
+    critical-compressibility: 0.239
+    acentric-factor: 0.365
+- name: C10H22-69
+  descriptive-name: 33-diethyl-2-methylpentane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 639.9
+    critical-pressure: 2.533e+06
+    critical-molar-volume: 0.501
+    critical-compressibility: 0.239
+    acentric-factor: 0.346
+- name: C10H22-70
+  descriptive-name: 3ethyl-223trimethylpentane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 646
+    critical-pressure: 2.574e+06
+    critical-molar-volume: 0.503
+    critical-compressibility: 0.241
+    acentric-factor: 0.311
+- name: C10H22-71
+  descriptive-name: 3ethyl-224trimethylpentane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 615.3
+    critical-pressure: 2.371e+06
+    critical-molar-volume: 0.518
+    critical-compressibility: 0.24
+    acentric-factor: 0.346
+- name: C10H22-72
+  descriptive-name: 3ethyl-234trimethylpentane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 642.3
+    critical-pressure: 2.543e+06
+    critical-molar-volume: 0.506
+    critical-compressibility: 0.241
+    acentric-factor: 0.329
+- name: C10H22-73
+  descriptive-name: 22334-pentamethylpentane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 643.8
+    critical-pressure: 2.584e+06
+    critical-molar-volume: 0.508
+    critical-compressibility: 0.245
+    acentric-factor: 0.294
+- name: C10H22-74
+  descriptive-name: 22344-pentamethylpentane
+  molecular-weight: 142.284
+  critical-parameters:
+    critical-temperature: 627.3
+    critical-pressure: 2.401e+06
+    critical-molar-volume: 0.521
+    critical-compressibility: 0.24
+    acentric-factor: 0.308
+- name: C10H22O
+  descriptive-name: decyl-alcohol
+  molecular-weight: 158.283
+  critical-parameters:
+    critical-temperature: 687
+    critical-pressure: 2.4e+06
+    critical-molar-volume: 0.5999
+    critical-compressibility: 0.252
+    acentric-factor: 0.624
+- name: C10H22S
+  descriptive-name: butyl-hexyl-sulfide
+  molecular-weight: 174.344
+  critical-parameters:
+    critical-temperature: 701.03
+    critical-pressure: 2.141e+06
+    critical-molar-volume: 0.6495
+    critical-compressibility: 0.239
+    acentric-factor: 0.551
+- name: C10H22S-1
+  descriptive-name: ethyl-octyl-sulfide
+  molecular-weight: 174.344
+  critical-parameters:
+    critical-temperature: 701.03
+    critical-pressure: 2.141e+06
+    critical-molar-volume: 0.6495
+    critical-compressibility: 0.239
+    acentric-factor: 0.551
+- name: C10H22S-2
+  descriptive-name: heptyl-propyl-sulfide
+  molecular-weight: 174.344
+  critical-parameters:
+    critical-temperature: 701.03
+    critical-pressure: 2.141e+06
+    critical-molar-volume: 0.6495
+    critical-compressibility: 0.239
+    acentric-factor: 0.551
+- name: C10H22S-3
+  descriptive-name: methyl-nonyl-sulfide
+  molecular-weight: 174.344
+  critical-parameters:
+    critical-temperature: 701.03
+    critical-pressure: 2.141e+06
+    critical-molar-volume: 0.6495
+    critical-compressibility: 0.239
+    acentric-factor: 0.551
+- name: C10H22S-4
+  descriptive-name: pentyl-sulfide
+  molecular-weight: 174.344
+  critical-parameters:
+    critical-temperature: 701.03
+    critical-pressure: 2.141e+06
+    critical-molar-volume: 0.6495
+    critical-compressibility: 0.239
+    acentric-factor: 0.551
+- name: C10H22S-5
+  descriptive-name: 1-decanethiol
+  molecular-weight: 174.344
+  critical-parameters:
+    critical-temperature: 702.19
+    critical-pressure: 2.238e+06
+    critical-molar-volume: 0.6495
+    critical-compressibility: 0.249
+    acentric-factor: 0.555
+- name: C10H22S2
+  descriptive-name: pentyl-disulfide
+  molecular-weight: 206.404
+  critical-parameters:
+    critical-temperature: 726.94
+    critical-pressure: 2.175e+06
+    critical-molar-volume: 0.7035
+    critical-compressibility: 0.253
+    acentric-factor: 0.614
+- name: C11H10
+  descriptive-name: 1-methylnaphthalene
+  molecular-weight: 142.2
+  critical-parameters:
+    critical-temperature: 772
+    critical-pressure: 3.49e+06
+    critical-molar-volume: 0.462
+    critical-compressibility: 0.234
+    acentric-factor: 0.31
+- name: C11H10-1
+  descriptive-name: 2-methylnaphthalene
+  molecular-weight: 142.2
+  critical-parameters:
+    critical-temperature: 764.3
+    critical-pressure: 3.48e+06
+    critical-molar-volume: 0.462
+    critical-compressibility: 0.26
+    acentric-factor: 0.382
+- name: C11H16
+  descriptive-name: pentylbenzene
+  molecular-weight: 148.247
+  critical-parameters:
+    critical-temperature: 679.9
+    critical-pressure: 2.604e+06
+    critical-molar-volume: 0.550
+    critical-compressibility: 0.26
+    acentric-factor: 0.437
+- name: C11H16-1
+  descriptive-name: pentamethylbenzene
+  molecular-weight: 148.247
+  critical-parameters:
+    critical-temperature: 719
+    critical-pressure: 2.493e+06
+    critical-molar-volume: 0.5435
+    critical-compressibility: 0.228
+    acentric-factor: 0.407
+- name: C11H20
+  descriptive-name: 1-undecyne
+  molecular-weight: 152.279
+  critical-parameters:
+    critical-temperature: 650.99
+    critical-pressure: 2.212e+06
+    critical-molar-volume: 0.6135
+    critical-compressibility: 0.251
+    acentric-factor: 0.47
+- name: C11H22
+  descriptive-name: 1-undecene
+  molecular-weight: 154.295
+  critical-parameters:
+    critical-temperature: 637
+    critical-pressure: 1.99e+06
+    critical-molar-volume: 0.6325
+    critical-compressibility: 0.24
+    acentric-factor: 0.518
+- name: C11H22-1
+  descriptive-name: 1-cyclopentylhexane
+  molecular-weight: 154.295
+  critical-parameters:
+    critical-temperature: 667.67
+    critical-pressure: 2.281e+06
+    critical-molar-volume: 0.5925
+    critical-compressibility: 0.243
+    acentric-factor: 0.442
+- name: C11H22-2
+  descriptive-name: pentylcyclohexane
+  molecular-weight: 154.295
+  critical-parameters:
+    critical-temperature: 674.01
+    critical-pressure: 2.336e+06
+    critical-molar-volume: 0.5845
+    critical-compressibility: 0.244
+    acentric-factor: 0.413
+- name: C11H24
+  descriptive-name: undecane
+  molecular-weight: 156.311
+  critical-parameters:
+    critical-temperature: 640.1
+    critical-pressure: 1.97e+06
+    critical-molar-volume: 0.660
+    critical-compressibility: 0.241
+    acentric-factor: 0.535
+- name: C11H24O
+  descriptive-name: undecyl-alcohol
+  molecular-weight: 172.31
+  critical-parameters:
+    critical-temperature: 666.31
+    critical-pressure: 2.1e+06
+    critical-molar-volume: 0.6705
+    critical-compressibility: 0.254
+    acentric-factor: 0.94
+- name: C11H24S
+  descriptive-name: butyl-heptyl-sulfide
+  molecular-weight: 188.371
+  critical-parameters:
+    critical-temperature: 717.91
+    critical-pressure: 1.963e+06
+    critical-molar-volume: 0.7055
+    critical-compressibility: 0.232
+    acentric-factor: 0.592
+- name: C11H24S-1
+  descriptive-name: decyl-methyl-sulfide
+  molecular-weight: 188.371
+  critical-parameters:
+    critical-temperature: 717.91
+    critical-pressure: 1.963e+06
+    critical-molar-volume: 0.7055
+    critical-compressibility: 0.232
+    acentric-factor: 0.592
+- name: C11H24S-2
+  descriptive-name: ethyl-nonyl-sulfide
+  molecular-weight: 188.371
+  critical-parameters:
+    critical-temperature: 717.91
+    critical-pressure: 1.963e+06
+    critical-molar-volume: 0.7055
+    critical-compressibility: 0.232
+    acentric-factor: 0.592
+- name: C11H24S-3
+  descriptive-name: octyl-propyl-sulfide
+  molecular-weight: 188.371
+  critical-parameters:
+    critical-temperature: 717.91
+    critical-pressure: 1.963e+06
+    critical-molar-volume: 0.7055
+    critical-compressibility: 0.232
+    acentric-factor: 0.592
+- name: C11H24S-4
+  descriptive-name: 1-undecanethiol
+  molecular-weight: 188.371
+  critical-parameters:
+    critical-temperature: 716.52
+    critical-pressure: 2.047e+06
+    critical-molar-volume: 0.7055
+    critical-compressibility: 0.242
+    acentric-factor: 0.596
+- name: C12H10
+  descriptive-name: biphenyl
+  molecular-weight: 154.211
+  critical-parameters:
+    critical-temperature: 789.26
+    critical-pressure: 3.847e+06
+    critical-molar-volume: 0.5016
+    critical-compressibility: 0.294
+    acentric-factor: 0.372
+- name: C12H12
+  descriptive-name: 1-ethylnaphthalene
+  molecular-weight: 156.227
+  critical-parameters:
+    critical-temperature: 774.9
+    critical-pressure: 3.14e+06
+    critical-molar-volume: 0.5215
+    critical-compressibility: 0.253
+    acentric-factor: 0.395
+- name: C12H12-1
+  descriptive-name: 2-ethylnaphthalene
+  molecular-weight: 156.227
+  critical-parameters:
+    critical-temperature: 774.9
+    critical-pressure: 3.14e+06
+    critical-molar-volume: 0.5215
+    critical-compressibility: 0.254
+    acentric-factor: 0.392
+- name: C12H12-2
+  descriptive-name: 1,2-dimethylnaphthalene
+  molecular-weight: 156.227
+  critical-parameters:
+    critical-temperature: 775.34
+    critical-pressure: 3.006e+06
+    critical-molar-volume: 0.5215
+    critical-compressibility: 0.243
+    acentric-factor: 0.443
+- name: C12H12-3
+  descriptive-name: 1,3-dimethylnaphthalene
+  molecular-weight: 156.227
+  critical-parameters:
+    critical-temperature: 773.76
+    critical-pressure: 3.006e+06
+    critical-molar-volume: 0.5215
+    critical-compressibility: 0.244
+    acentric-factor: 0.443
+- name: C12H12-4
+  descriptive-name: 1,4-dimethylnaphthalene
+  molecular-weight: 156.227
+  critical-parameters:
+    critical-temperature: 776.78
+    critical-pressure: 3.006e+06
+    critical-molar-volume: 0.5215
+    critical-compressibility: 0.243
+    acentric-factor: 0.443
+- name: C12H12-5
+  descriptive-name: 1,5-dimethylnaphthalene
+  molecular-weight: 156.227
+  critical-parameters:
+    critical-temperature: 773.47
+    critical-pressure: 3.006e+06
+    critical-molar-volume: 0.5215
+    critical-compressibility: 0.244
+    acentric-factor: 0.443
+- name: C12H12-6
+  descriptive-name: 1,6-dimethylnaphthalene
+  molecular-weight: 156.227
+  critical-parameters:
+    critical-temperature: 770.6
+    critical-pressure: 3.006e+06
+    critical-molar-volume: 0.5215
+    critical-compressibility: 0.245
+    acentric-factor: 0.443
+- name: C12H12-7
+  descriptive-name: 1,7-dimethylnaphthalene
+  molecular-weight: 156.227
+  critical-parameters:
+    critical-temperature: 770.6
+    critical-pressure: 3.006e+06
+    critical-molar-volume: 0.5215
+    critical-compressibility: 0.245
+    acentric-factor: 0.443
+- name: C12H12-8
+  descriptive-name: 2,3-dimethylnaphthalene
+  molecular-weight: 156.227
+  critical-parameters:
+    critical-temperature: 777.78
+    critical-pressure: 3.006e+06
+    critical-molar-volume: 0.5215
+    critical-compressibility: 0.242
+    acentric-factor: 0.443
+- name: C12H12-9
+  descriptive-name: 2,6-dimethylnaphthalene
+  molecular-weight: 156.227
+  critical-parameters:
+    critical-temperature: 769.16
+    critical-pressure: 3.006e+06
+    critical-molar-volume: 0.5215
+    critical-compressibility: 0.245
+    acentric-factor: 0.443
+- name: C12H12-10
+  descriptive-name: 2,7-dimethylnaphthalene
+  molecular-weight: 156.227
+  critical-parameters:
+    critical-temperature: 770.6
+    critical-pressure: 3.006e+06
+    critical-molar-volume: 0.5215
+    critical-compressibility: 0.245
+    acentric-factor: 0.443
+- name: C12H18
+  descriptive-name: hexylbenzene
+  molecular-weight: 162.274
+  critical-parameters:
+    critical-temperature: 697.5
+    critical-pressure: 2.381e+06
+    critical-molar-volume: 0.620
+    critical-compressibility: 0.26
+    acentric-factor: 0.48
+- name: C12H18-1
+  descriptive-name: 1,2,3-triethylbenzene
+  molecular-weight: 162.274
+  critical-parameters:
+    critical-temperature: 684.37
+    critical-pressure: 2.336e+06
+    critical-molar-volume: 0.5995
+    critical-compressibility: 0.246
+    acentric-factor: 0.479
+- name: C12H18-2
+  descriptive-name: 1,2,4-triethylbenzene
+  molecular-weight: 162.274
+  critical-parameters:
+    critical-temperature: 684.37
+    critical-pressure: 2.336e+06
+    critical-molar-volume: 0.5995
+    critical-compressibility: 0.246
+    acentric-factor: 0.479
+- name: C12H18-3
+  descriptive-name: 1,3,5-triethylbenzene
+  molecular-weight: 162.274
+  critical-parameters:
+    critical-temperature: 682.28
+    critical-pressure: 2.336e+06
+    critical-molar-volume: 0.5995
+    critical-compressibility: 0.247
+    acentric-factor: 0.479
+- name: C12H18-4
+  descriptive-name: hexamethylbenzene
+  molecular-weight: 162.274
+  critical-parameters:
+    critical-temperature: 758
+    critical-pressure: 2.238e+06
+    critical-molar-volume: 0.5995
+    critical-compressibility: 0.216
+    acentric-factor: 0.396
+- name: C12H22
+  descriptive-name: 1-dodecyne
+  molecular-weight: 166.306
+  critical-parameters:
+    critical-temperature: 668.16
+    critical-pressure: 2.025e+06
+    critical-molar-volume: 0.6695
+    critical-compressibility: 0.244
+    acentric-factor: 0.512
+- name: C12H24
+  descriptive-name: 1-dodecene
+  molecular-weight: 168.322
+  critical-parameters:
+    critical-temperature: 657
+    critical-pressure: 1.85e+06
+    critical-molar-volume: 0.6885
+    critical-compressibility: 0.233
+    acentric-factor: 0.558
+- name: C12H24-1
+  descriptive-name: 1-cyclopentylheptane
+  molecular-weight: 168.322
+  critical-parameters:
+    critical-temperature: 679
+    critical-pressure: 1.94e+06
+    critical-molar-volume: 0.6485
+    critical-compressibility: 0.237
+    acentric-factor: 0.515
+- name: C12H24-2
+  descriptive-name: 1-cyclohexylhexane
+  molecular-weight: 168.322
+  critical-parameters:
+    critical-temperature: 691.81
+    critical-pressure: 2.133e+06
+    critical-molar-volume: 0.6405
+    critical-compressibility: 0.238
+    acentric-factor: 0.456
+- name: C12H26
+  descriptive-name: dodecane
+  molecular-weight: 170.337
+  critical-parameters:
+    critical-temperature: 659.5
+    critical-pressure: 1.83e+06
+    critical-molar-volume: 0.718
+    critical-compressibility: 0.238
+    acentric-factor: 0.575
+- name: C12H26O
+  descriptive-name: dodecyl-alcohol
+  molecular-weight: 186.337
+  critical-parameters:
+    critical-temperature: 679
+    critical-pressure: 1.92e+06
+    critical-molar-volume: 0.718
+    critical-compressibility: 0.24
+    acentric-factor: 1.001
+- name: C12H26S
+  descriptive-name: butyl-octyl-sulfide
+  molecular-weight: 202.397
+  critical-parameters:
+    critical-temperature: 733.68
+    critical-pressure: 1.806e+06
+    critical-molar-volume: 0.7615
+    critical-compressibility: 0.225
+    acentric-factor: 0.631
+- name: C12H26S-1
+  descriptive-name: decyl-ethyl-sulfide
+  molecular-weight: 202.397
+  critical-parameters:
+    critical-temperature: 733.68
+    critical-pressure: 1.806e+06
+    critical-molar-volume: 0.7615
+    critical-compressibility: 0.225
+    acentric-factor: 0.631
+- name: C12H26S-2
+  descriptive-name: hexyl-sulfide
+  molecular-weight: 202.397
+  critical-parameters:
+    critical-temperature: 733.68
+    critical-pressure: 1.806e+06
+    critical-molar-volume: 0.7615
+    critical-compressibility: 0.225
+    acentric-factor: 0.631
+- name: C12H26S-3
+  descriptive-name: methyl-undecyl-sulfide
+  molecular-weight: 202.397
+  critical-parameters:
+    critical-temperature: 733.68
+    critical-pressure: 1.806e+06
+    critical-molar-volume: 0.7615
+    critical-compressibility: 0.225
+    acentric-factor: 0.631
+- name: C12H26S-4
+  descriptive-name: nonyl-propyl-sulfide
+  molecular-weight: 202.397
+  critical-parameters:
+    critical-temperature: 733.68
+    critical-pressure: 1.806e+06
+    critical-molar-volume: 0.7615
+    critical-compressibility: 0.225
+    acentric-factor: 0.631
+- name: C12H26S-5
+  descriptive-name: 1-dodecanethiol
+  molecular-weight: 202.397
+  critical-parameters:
+    critical-temperature: 729.81
+    critical-pressure: 1.881e+06
+    critical-molar-volume: 0.7615
+    critical-compressibility: 0.236
+    acentric-factor: 0.636
+- name: C12H26S2
+  descriptive-name: hexyl-disulfide
+  molecular-weight: 234.457
+  critical-parameters:
+    critical-temperature: 747.1
+    critical-pressure: 1.833e+06
+    critical-molar-volume: 0.8155
+    critical-compressibility: 0.241
+    acentric-factor: 0.692
+- name: C13H14
+  descriptive-name: 1-propylnaphthalene
+  molecular-weight: 170.254
+  critical-parameters:
+    critical-temperature: 771.45
+    critical-pressure: 2.756e+06
+    critical-molar-volume: 0.5775
+    critical-compressibility: 0.248
+    acentric-factor: 0.488
+- name: C13H14-1
+  descriptive-name: 2-propylnaphthalene
+  molecular-weight: 170.254
+  critical-parameters:
+    critical-temperature: 772.44
+    critical-pressure: 2.756e+06
+    critical-molar-volume: 0.5775
+    critical-compressibility: 0.248
+    acentric-factor: 0.488
+- name: C13H14-2
+  descriptive-name: 2ethyl-3-methylnaphthalene
+  molecular-weight: 170.254
+  critical-parameters:
+    critical-temperature: 776.44
+    critical-pressure: 2.713e+06
+    critical-molar-volume: 0.5775
+    critical-compressibility: 0.243
+    acentric-factor: 0.488
+- name: C13H14-3
+  descriptive-name: 2ethyl-6-methylnaphthalene
+  molecular-weight: 170.254
+  critical-parameters:
+    critical-temperature: 766.56
+    critical-pressure: 2.713e+06
+    critical-molar-volume: 0.5775
+    critical-compressibility: 0.246
+    acentric-factor: 0.488
+- name: C13H14-4
+  descriptive-name: 2ethyl-7-methylnaphthalene
+  molecular-weight: 170.254
+  critical-parameters:
+    critical-temperature: 766.56
+    critical-pressure: 2.713e+06
+    critical-molar-volume: 0.5775
+    critical-compressibility: 0.246
+    acentric-factor: 0.488
+- name: C13H20
+  descriptive-name: 1-phenylheptane
+  molecular-weight: 176.301
+  critical-parameters:
+    critical-temperature: 713.5
+    critical-pressure: 2.199e+06
+    critical-molar-volume: 0.660
+    critical-compressibility: 0.25
+    acentric-factor: 0.53
+- name: C13H24
+  descriptive-name: 1-tridecyne
+  molecular-weight: 180.333
+  critical-parameters:
+    critical-temperature: 684.11
+    critical-pressure: 1.861e+06
+    critical-molar-volume: 0.7255
+    critical-compressibility: 0.237
+    acentric-factor: 0.553
+- name: C13H26
+  descriptive-name: 1-tridecene
+  molecular-weight: 182.348
+  critical-parameters:
+    critical-temperature: 674
+    critical-pressure: 1.7e+06
+    critical-molar-volume: 0.7445
+    critical-compressibility: 0.226
+    acentric-factor: 0.598
+- name: C13H26-1
+  descriptive-name: 1-cyclopentyloctane
+  molecular-weight: 182.348
+  critical-parameters:
+    critical-temperature: 702.06
+    critical-pressure: 1.914e+06
+    critical-molar-volume: 0.7045
+    critical-compressibility: 0.231
+    acentric-factor: 0.526
+- name: C13H26-2
+  descriptive-name: 1-cyclohexylheptane
+  molecular-weight: 182.348
+  critical-parameters:
+    critical-temperature: 708.63
+    critical-pressure: 1.956e+06
+    critical-molar-volume: 0.6965
+    critical-compressibility: 0.231
+    acentric-factor: 0.498
+- name: C13H28
+  descriptive-name: tridecane
+  molecular-weight: 184.364
+  critical-parameters:
+    critical-temperature: 678.4
+    critical-pressure: 1.73e+06
+    critical-molar-volume: 0.780
+    critical-compressibility: 0.239
+    acentric-factor: 0.619
+- name: C13H28O
+  descriptive-name: 1-tridecanol
+  molecular-weight: 200.364
+  critical-parameters:
+    critical-temperature: 693.71
+    critical-pressure: 1.774e+06
+    critical-molar-volume: 0.7825
+    critical-compressibility: 0.241
+    acentric-factor: 0.989
+- name: C13H28S
+  descriptive-name: butyl-nonyl-sulfide
+  molecular-weight: 216.424
+  critical-parameters:
+    critical-temperature: 748.42
+    critical-pressure: 1.667e+06
+    critical-molar-volume: 0.8175
+    critical-compressibility: 0.219
+    acentric-factor: 0.667
+- name: C13H28S-1
+  descriptive-name: decyl-propyl-sulfide
+  molecular-weight: 216.424
+  critical-parameters:
+    critical-temperature: 748.42
+    critical-pressure: 1.667e+06
+    critical-molar-volume: 0.8175
+    critical-compressibility: 0.219
+    acentric-factor: 0.667
+- name: C13H28S-2
+  descriptive-name: dodecyl-methyl-sulfide
+  molecular-weight: 216.424
+  critical-parameters:
+    critical-temperature: 748.42
+    critical-pressure: 1.667e+06
+    critical-molar-volume: 0.8175
+    critical-compressibility: 0.219
+    acentric-factor: 0.667
+- name: C13H28S-3
+  descriptive-name: ethyl-undecyl-sulfide
+  molecular-weight: 216.424
+  critical-parameters:
+    critical-temperature: 748.42
+    critical-pressure: 1.667e+06
+    critical-molar-volume: 0.8175
+    critical-compressibility: 0.219
+    acentric-factor: 0.667
+- name: C13H28S-4
+  descriptive-name: 1-tridecanethiol
+  molecular-weight: 216.424
+  critical-parameters:
+    critical-temperature: 742.13
+    critical-pressure: 1.733e+06
+    critical-molar-volume: 0.8175
+    critical-compressibility: 0.23
+    acentric-factor: 0.673
+- name: C14H16
+  descriptive-name: 1-butylnaphthalene
+  molecular-weight: 184.28
+  critical-parameters:
+    critical-temperature: 781.5
+    critical-pressure: 2.498e+06
+    critical-molar-volume: 0.6335
+    critical-compressibility: 0.244
+    acentric-factor: 0.533
+- name: C14H16-1
+  descriptive-name: 2-butylnaphthalene
+  molecular-weight: 184.28
+  critical-parameters:
+    critical-temperature: 780.96
+    critical-pressure: 2.498e+06
+    critical-molar-volume: 0.6335
+    critical-compressibility: 0.244
+    acentric-factor: 0.533
+- name: C14H22
+  descriptive-name: 1-phenyloctane
+  molecular-weight: 190.328
+  critical-parameters:
+    critical-temperature: 728
+    critical-pressure: 2.037e+06
+    critical-molar-volume: 0.720
+    critical-compressibility: 0.25
+    acentric-factor: 0.577
+- name: C14H22-1
+  descriptive-name: 1,2,3,4-tetraethylbenzene
+  molecular-weight: 190.328
+  critical-parameters:
+    critical-temperature: 708.2
+    critical-pressure: 1.93e+06
+    critical-molar-volume: 0.7115
+    critical-compressibility: 0.233
+    acentric-factor: 0.562
+- name: C14H22-2
+  descriptive-name: 1,2,3,5-tetraethylbenzene
+  molecular-weight: 190.328
+  critical-parameters:
+    critical-temperature: 707.52
+    critical-pressure: 1.93e+06
+    critical-molar-volume: 0.7115
+    critical-compressibility: 0.234
+    acentric-factor: 0.562
+- name: C14H22-3
+  descriptive-name: 1,2,4,5-tetraethylbenzene
+  molecular-weight: 190.328
+  critical-parameters:
+    critical-temperature: 706.85
+    critical-pressure: 1.93e+06
+    critical-molar-volume: 0.7115
+    critical-compressibility: 0.234
+    acentric-factor: 0.562
+- name: C14H26
+  descriptive-name: 1-tetradecyne
+  molecular-weight: 194.359
+  critical-parameters:
+    critical-temperature: 698.93
+    critical-pressure: 1.716e+06
+    critical-molar-volume: 0.7815
+    critical-compressibility: 0.231
+    acentric-factor: 0.591
+- name: C14H28
+  descriptive-name: 1-tetradecene
+  molecular-weight: 196.375
+  critical-parameters:
+    critical-temperature: 689
+    critical-pressure: 1.56e+06
+    critical-molar-volume: 0.8005
+    critical-compressibility: 0.22
+    acentric-factor: 0.644
+- name: C14H28-1
+  descriptive-name: 1-cyclopentylnonane
+  molecular-weight: 196.375
+  critical-parameters:
+    critical-temperature: 716.95
+    critical-pressure: 1.762e+06
+    critical-molar-volume: 0.7605
+    critical-compressibility: 0.225
+    acentric-factor: 0.566
+- name: C14H28-2
+  descriptive-name: 1-cyclohexyloctane
+  molecular-weight: 196.375
+  critical-parameters:
+    critical-temperature: 723.61
+    critical-pressure: 1.8e+06
+    critical-molar-volume: 0.7525
+    critical-compressibility: 0.225
+    acentric-factor: 0.538
+- name: C14H30
+  descriptive-name: tetradecane
+  molecular-weight: 198.391
+  critical-parameters:
+    critical-temperature: 696.8
+    critical-pressure: 1.6e+06
+    critical-molar-volume: 0.830
+    critical-compressibility: 0.233
+    acentric-factor: 0.583
+- name: C14H30O
+  descriptive-name: 1-tetradecanol
+  molecular-weight: 214.39
+  critical-parameters:
+    critical-temperature: 674.9
+    critical-pressure: 1.639e+06
+    critical-molar-volume: 0.8385
+    critical-compressibility: 0.245
+    acentric-factor: 1.006
+- name: C14H30S
+  descriptive-name: butyl-decyl-sulfide
+  molecular-weight: 230.451
+  critical-parameters:
+    critical-temperature: 762.23
+    critical-pressure: 1.544e+06
+    critical-molar-volume: 0.8735
+    critical-compressibility: 0.213
+    acentric-factor: 0.7
+- name: C14H30S-1
+  descriptive-name: dodecyl-ethyl-sulfide
+  molecular-weight: 230.451
+  critical-parameters:
+    critical-temperature: 762.23
+    critical-pressure: 1.544e+06
+    critical-molar-volume: 0.8735
+    critical-compressibility: 0.213
+    acentric-factor: 0.7
+- name: C14H30S-2
+  descriptive-name: heptyl-sulfide
+  molecular-weight: 230.451
+  critical-parameters:
+    critical-temperature: 762.23
+    critical-pressure: 1.544e+06
+    critical-molar-volume: 0.8735
+    critical-compressibility: 0.213
+    acentric-factor: 0.7
+- name: C14H30S-3
+  descriptive-name: methyl-tridecyl-sulfide
+  molecular-weight: 230.451
+  critical-parameters:
+    critical-temperature: 762.23
+    critical-pressure: 1.544e+06
+    critical-molar-volume: 0.8735
+    critical-compressibility: 0.213
+    acentric-factor: 0.7
+- name: C14H30S-4
+  descriptive-name: propyl-undecyl-sulfide
+  molecular-weight: 230.451
+  critical-parameters:
+    critical-temperature: 762.23
+    critical-pressure: 1.544e+06
+    critical-molar-volume: 0.8735
+    critical-compressibility: 0.213
+    acentric-factor: 0.7
+- name: C14H30S-5
+  descriptive-name: 1-tetradecanethiol
+  molecular-weight: 230.451
+  critical-parameters:
+    critical-temperature: 753.8
+    critical-pressure: 1.603e+06
+    critical-molar-volume: 0.8735
+    critical-compressibility: 0.223
+    acentric-factor: 0.707
+- name: C14H30S2
+  descriptive-name: heptyl-disulfide
+  molecular-weight: 262.511
+  critical-parameters:
+    critical-temperature: 765.96
+    critical-pressure: 1.565e+06
+    critical-molar-volume: 0.9275
+    critical-compressibility: 0.228
+    acentric-factor: 0.758
+- name: C15H18
+  descriptive-name: 1-pentylnaphthalene
+  molecular-weight: 198.307
+  critical-parameters:
+    critical-temperature: 793.32
+    critical-pressure: 2.274e+06
+    critical-molar-volume: 0.6895
+    critical-compressibility: 0.238
+    acentric-factor: 0.575
+- name: C15H18-1
+  descriptive-name: 2-pentylnaphthalene
+  molecular-weight: 198.307
+  critical-parameters:
+    critical-temperature: 797.48
+    critical-pressure: 2.274e+06
+    critical-molar-volume: 0.6895
+    critical-compressibility: 0.236
+    acentric-factor: 0.575
+- name: C15H24
+  descriptive-name: 1-phenylnonane
+  molecular-weight: 204.355
+  critical-parameters:
+    critical-temperature: 741
+    critical-pressure: 1.895e+06
+    critical-molar-volume: 0.790
+    critical-compressibility: 0.25
+    acentric-factor: 0.628
+- name: C15H28
+  descriptive-name: 1-pentadecyne
+  molecular-weight: 208.386
+  critical-parameters:
+    critical-temperature: 711.41
+    critical-pressure: 1.587e+06
+    critical-molar-volume: 0.8375
+    critical-compressibility: 0.225
+    acentric-factor: 0.628
+- name: C15H30
+  descriptive-name: 1-pentadecene
+  molecular-weight: 210.402
+  critical-parameters:
+    critical-temperature: 704
+    critical-pressure: 1.45e+06
+    critical-molar-volume: 0.8565
+    critical-compressibility: 0.214
+    acentric-factor: 0.682
+- name: C15H30-1
+  descriptive-name: 1-cyclopentyldecane
+  molecular-weight: 210.402
+  critical-parameters:
+    critical-temperature: 730.64
+    critical-pressure: 1.629e+06
+    critical-molar-volume: 0.8165
+    critical-compressibility: 0.219
+    acentric-factor: 0.604
+- name: C15H30-2
+  descriptive-name: 1-cyclohexylnonane
+  molecular-weight: 210.402
+  critical-parameters:
+    critical-temperature: 737.79
+    critical-pressure: 1.662e+06
+    critical-molar-volume: 0.8085
+    critical-compressibility: 0.219
+    acentric-factor: 0.577
+- name: C15H32
+  descriptive-name: pentadecane
+  molecular-weight: 212.418
+  critical-parameters:
+    critical-temperature: 717.6
+    critical-pressure: 1.6e+06
+    critical-molar-volume: 0.890
+    critical-compressibility: 0.229
+    acentric-factor: 0.604
+- name: C15H32O
+  descriptive-name: 1-pentadecanol
+  molecular-weight: 228.417
+  critical-parameters:
+    critical-temperature: 722.53
+    critical-pressure: 1.519e+06
+    critical-molar-volume: 0.8945
+    critical-compressibility: 0.226
+    acentric-factor: 1.015
+- name: C15H32S
+  descriptive-name: butyl-undecyl-sulfide
+  molecular-weight: 244.478
+  critical-parameters:
+    critical-temperature: 775.15
+    critical-pressure: 1.434e+06
+    critical-molar-volume: 0.9295
+    critical-compressibility: 0.207
+    acentric-factor: 0.729
+- name: C15H32S-1
+  descriptive-name: dodecyl-propyl-sulfide
+  molecular-weight: 244.478
+  critical-parameters:
+    critical-temperature: 775.15
+    critical-pressure: 1.434e+06
+    critical-molar-volume: 0.9295
+    critical-compressibility: 0.207
+    acentric-factor: 0.729
+- name: C15H32S-2
+  descriptive-name: ethyl-tridecyl-sulfide
+  molecular-weight: 244.478
+  critical-parameters:
+    critical-temperature: 775.15
+    critical-pressure: 1.434e+06
+    critical-molar-volume: 0.9295
+    critical-compressibility: 0.207
+    acentric-factor: 0.729
+- name: C15H32S-3
+  descriptive-name: methyl-tetradecyl-sulfide
+  molecular-weight: 244.478
+  critical-parameters:
+    critical-temperature: 775.15
+    critical-pressure: 1.434e+06
+    critical-molar-volume: 0.9295
+    critical-compressibility: 0.207
+    acentric-factor: 0.729
+- name: C15H32S-4
+  descriptive-name: 1-pentadecanethiol
+  molecular-weight: 244.478
+  critical-parameters:
+    critical-temperature: 764.77
+    critical-pressure: 1.486e+06
+    critical-molar-volume: 0.9295
+    critical-compressibility: 0.217
+    acentric-factor: 0.737
+- name: C16H26
+  descriptive-name: 1-phenyldecane
+  molecular-weight: 218.381
+  critical-parameters:
+    critical-temperature: 753
+    critical-pressure: 1.783e+06
+    critical-molar-volume: 0.850
+    critical-compressibility: 0.25
+    acentric-factor: 0.675
+- name: C16H26-1
+  descriptive-name: pentaethylbenzene
+  molecular-weight: 218.381
+  critical-parameters:
+    critical-temperature: 723.64
+    critical-pressure: 1.622e+06
+    critical-molar-volume: 0.8235
+    critical-compressibility: 0.222
+    acentric-factor: 0.637
+- name: C16H30
+  descriptive-name: 1-hexadecyne
+  molecular-weight: 222.413
+  critical-parameters:
+    critical-temperature: 724.26
+    critical-pressure: 1.472e+06
+    critical-molar-volume: 0.8935
+    critical-compressibility: 0.219
+    acentric-factor: 0.661
+- name: C16H32
+  descriptive-name: 1-hexadecene
+  molecular-weight: 224.429
+  critical-parameters:
+    critical-temperature: 717
+    critical-pressure: 1.33e+06
+    critical-molar-volume: 0.9125
+    critical-compressibility: 0.208
+    acentric-factor: 0.721
+- name: C16H32-1
+  descriptive-name: 1-cyclopentylundecane
+  molecular-weight: 224.429
+  critical-parameters:
+    critical-temperature: 743.3
+    critical-pressure: 1.509e+06
+    critical-molar-volume: 0.8725
+    critical-compressibility: 0.213
+    acentric-factor: 0.638
+- name: C16H32-2
+  descriptive-name: 1-cyclohexyldecane
+  molecular-weight: 224.429
+  critical-parameters:
+    critical-temperature: 750.03
+    critical-pressure: 1.539e+06
+    critical-molar-volume: 0.8645
+    critical-compressibility: 0.213
+    acentric-factor: 0.613
+- name: C16H34
+  descriptive-name: hexadecane
+  molecular-weight: 226.445
+  critical-parameters:
+    critical-temperature: 734.3
+    critical-pressure: 1.53e+06
+    critical-molar-volume: 0.950
+    critical-compressibility: 0.224
+    acentric-factor: 0.742
+- name: C16H34O
+  descriptive-name: 1-hexadecanol
+  molecular-weight: 242.444
+  critical-parameters:
+    critical-temperature: 767.11
+    critical-pressure: 1.411e+06
+    critical-molar-volume: 0.9505
+    critical-compressibility: 0.21
+    acentric-factor: 1.018
+- name: C16H34S
+  descriptive-name: butyl-dodecyl-sulfide
+  molecular-weight: 258.505
+  critical-parameters:
+    critical-temperature: 787.27
+    critical-pressure: 1.335e+06
+    critical-molar-volume: 0.9855
+    critical-compressibility: 0.201
+    acentric-factor: 0.754
+- name: C16H34S-1
+  descriptive-name: ethyl-tetradecyl-sulfide
+  molecular-weight: 258.505
+  critical-parameters:
+    critical-temperature: 791.68
+    critical-pressure: 1.288e+06
+    critical-molar-volume: 0.9315
+    critical-compressibility: 0.182
+    acentric-factor: 0.686
+- name: C16H34S-2
+  descriptive-name: methyl-pentadecyl-sulfide
+  molecular-weight: 258.505
+  critical-parameters:
+    critical-temperature: 787.27
+    critical-pressure: 1.335e+06
+    critical-molar-volume: 0.9855
+    critical-compressibility: 0.201
+    acentric-factor: 0.754
+- name: C16H34S-3
+  descriptive-name: octyl-sulfide
+  molecular-weight: 258.505
+  critical-parameters:
+    critical-temperature: 787.27
+    critical-pressure: 1.335e+06
+    critical-molar-volume: 0.9855
+    critical-compressibility: 0.201
+    acentric-factor: 0.754
+- name: C16H34S-4
+  descriptive-name: propyl-tridecyl-sulfide
+  molecular-weight: 258.505
+  critical-parameters:
+    critical-temperature: 787.27
+    critical-pressure: 1.335e+06
+    critical-molar-volume: 0.9855
+    critical-compressibility: 0.201
+    acentric-factor: 0.754
+- name: C16H34S-5
+  descriptive-name: 1-hexadecanethiol
+  molecular-weight: 258.505
+  critical-parameters:
+    critical-temperature: 774.68
+    critical-pressure: 1.382e+06
+    critical-molar-volume: 0.9855
+    critical-compressibility: 0.211
+    acentric-factor: 0.763
+- name: C16H34S2
+  descriptive-name: octyl-disulfide
+  molecular-weight: 290.565
+  critical-parameters:
+    critical-temperature: 784.46
+    critical-pressure: 1.352e+06
+    critical-molar-volume: 0.0395
+    critical-compressibility: 0.215
+    acentric-factor: 0.806
+- name: C17H28
+  descriptive-name: 1-phenylundecane
+  molecular-weight: 232.408
+  critical-parameters:
+    critical-temperature: 764
+    critical-pressure: 1.672e+06
+    critical-molar-volume: 0.910
+    critical-compressibility: 0.24
+    acentric-factor: 0.722
+- name: C17H32
+  descriptive-name: 1-heptadecyne
+  molecular-weight: 236.44
+  critical-parameters:
+    critical-temperature: 736.21
+    critical-pressure: 1.37e+06
+    critical-molar-volume: 0.9495
+    critical-compressibility: 0.212
+    acentric-factor: 0.69
+- name: C17H34
+  descriptive-name: 1-heptadecene
+  molecular-weight: 238.456
+  critical-parameters:
+    critical-temperature: 732.4
+    critical-pressure: 1.26e+06
+    critical-molar-volume: 0.9905
+    critical-compressibility: 0.205
+    acentric-factor: 0.689
+- name: C17H34-1
+  descriptive-name: 1-cyclopentyldodecane
+  molecular-weight: 238.456
+  critical-parameters:
+    critical-temperature: 755.17
+    critical-pressure: 1.403e+06
+    critical-molar-volume: 0.9285
+    critical-compressibility: 0.207
+    acentric-factor: 0.669
+- name: C17H34-2
+  descriptive-name: 1-cyclohexylundecane
+  molecular-weight: 238.456
+  critical-parameters:
+    critical-temperature: 761.74
+    critical-pressure: 1.429e+06
+    critical-molar-volume: 0.9205
+    critical-compressibility: 0.208
+    acentric-factor: 0.646
+- name: C17H36
+  descriptive-name: heptadecane
+  molecular-weight: 240.471
+  critical-parameters:
+    critical-temperature: 749.3
+    critical-pressure: 1.46e+06
+    critical-molar-volume: 0
+    critical-compressibility: 0.216
+    acentric-factor: 0.77
+- name: C17H36O
+  descriptive-name: 1-heptadecanol
+  molecular-weight: 256.471
+  critical-parameters:
+    critical-temperature: 736
+    critical-pressure: 1.41e+06
+    critical-molar-volume: 0.0065
+    critical-compressibility: 0.216
+    acentric-factor: 1.105
+- name: C17H36S
+  descriptive-name: butyl-tridecyl-sulfide
+  molecular-weight: 272.531
+  critical-parameters:
+    critical-temperature: 798.63
+    critical-pressure: 1.246e+06
+    critical-molar-volume: 0.0415
+    critical-compressibility: 0.195
+    acentric-factor: 0.774
+- name: C17H36S-1
+  descriptive-name: ethyl-pentadecyl-sulfide
+  molecular-weight: 272.531
+  critical-parameters:
+    critical-temperature: 798.63
+    critical-pressure: 1.246e+06
+    critical-molar-volume: 0.0415
+    critical-compressibility: 0.195
+    acentric-factor: 0.774
+- name: C17H36S-2
+  descriptive-name: hexadecyl-methyl-sulfide
+  molecular-weight: 272.531
+  critical-parameters:
+    critical-temperature: 798.63
+    critical-pressure: 1.246e+06
+    critical-molar-volume: 0.0415
+    critical-compressibility: 0.195
+    acentric-factor: 0.774
+- name: C17H36S-3
+  descriptive-name: propyl-tetradecyl-sulfide
+  molecular-weight: 272.531
+  critical-parameters:
+    critical-temperature: 798.63
+    critical-pressure: 1.246e+06
+    critical-molar-volume: 0.0415
+    critical-compressibility: 0.195
+    acentric-factor: 0.774
+- name: C17H36S-4
+  descriptive-name: 1-heptadecanethiol
+  molecular-weight: 272.531
+  critical-parameters:
+    critical-temperature: 786.01
+    critical-pressure: 1.288e+06
+    critical-molar-volume: 0.0415
+    critical-compressibility: 0.205
+    acentric-factor: 0.783
+- name: C18H30
+  descriptive-name: 1-phenyldodecane
+  molecular-weight: 246.435
+  critical-parameters:
+    critical-temperature: 774
+    critical-pressure: 1.581e+06
+    critical-molar-volume: 0.980
+    critical-compressibility: 0.24
+    acentric-factor: 0.773
+- name: C18H30-1
+  descriptive-name: hexaethylbenzene
+  molecular-weight: 246.435
+  critical-parameters:
+    critical-temperature: 734.78
+    critical-pressure: 1.382e+06
+    critical-molar-volume: 0.9355
+    critical-compressibility: 0.212
+    acentric-factor: 0.698
+- name: C18H34
+  descriptive-name: 1-octadecyne
+  molecular-weight: 250.467
+  critical-parameters:
+    critical-temperature: 747.33
+    critical-pressure: 1.277e+06
+    critical-molar-volume: 0.0055
+    critical-compressibility: 0.207
+    acentric-factor: 0.715
+- name: C18H36
+  descriptive-name: 1-octadecene
+  molecular-weight: 252.482
+  critical-parameters:
+    critical-temperature: 739
+    critical-pressure: 1.13e+06
+    critical-molar-volume: 0.0245
+    critical-compressibility: 0.197
+    acentric-factor: 0.807
+- name: C18H36-1
+  descriptive-name: 1-cycopentyltridecane
+  molecular-weight: 252.482
+  critical-parameters:
+    critical-temperature: 766.47
+    critical-pressure: 1.307e+06
+    critical-molar-volume: 0.9845
+    critical-compressibility: 0.202
+    acentric-factor: 0.697
+- name: C18H36-2
+  descriptive-name: 1-cyclohexyldodecane
+  molecular-weight: 252.482
+  critical-parameters:
+    critical-temperature: 772.83
+    critical-pressure: 1.331e+06
+    critical-molar-volume: 0.9765
+    critical-compressibility: 0.202
+    acentric-factor: 0.675
+- name: C18H38
+  descriptive-name: octadecane
+  molecular-weight: 254.498
+  critical-parameters:
+    critical-temperature: 748
+    critical-pressure: 1.2e+06
+    critical-molar-volume: 0.0435
+    critical-compressibility: 0.195
+    acentric-factor: 0.79
+- name: C18H38O
+  descriptive-name: 1-octadecanol
+  molecular-weight: 270.498
+  critical-parameters:
+    critical-temperature: 747
+    critical-pressure: 1.41e+06
+    critical-molar-volume: 0.0625
+    critical-compressibility: 0.209
+    acentric-factor: 1.144
+- name: C18H38S
+  descriptive-name: butyl-tetradecyl-sulfide
+  molecular-weight: 286.558
+  critical-parameters:
+    critical-temperature: 810.53
+    critical-pressure: 1.166e+06
+    critical-molar-volume: 0.0975
+    critical-compressibility: 0.19
+    acentric-factor: 0.787
+- name: C18H38S-1
+  descriptive-name: ethyl-hexadecyl-sulfide
+  molecular-weight: 286.558
+  critical-parameters:
+    critical-temperature: 810.53
+    critical-pressure: 1.166e+06
+    critical-molar-volume: 0.0975
+    critical-compressibility: 0.19
+    acentric-factor: 0.787
+- name: C18H38S-2
+  descriptive-name: heptadecyl-methyl-sulfide
+  molecular-weight: 286.558
+  critical-parameters:
+    critical-temperature: 810.53
+    critical-pressure: 1.166e+06
+    critical-molar-volume: 0.0975
+    critical-compressibility: 0.19
+    acentric-factor: 0.787
+- name: C18H38S-3
+  descriptive-name: nonyl-sulfide
+  molecular-weight: 286.558
+  critical-parameters:
+    critical-temperature: 810.53
+    critical-pressure: 1.166e+06
+    critical-molar-volume: 0.0975
+    critical-compressibility: 0.19
+    acentric-factor: 0.787
+- name: C18H38S-4
+  descriptive-name: pentadecyl-propyl-sulfide
+  molecular-weight: 286.558
+  critical-parameters:
+    critical-temperature: 810.53
+    critical-pressure: 1.166e+06
+    critical-molar-volume: 0.0975
+    critical-compressibility: 0.19
+    acentric-factor: 0.787
+- name: C18H38S-5
+  descriptive-name: 1-octadecanethiol
+  molecular-weight: 286.558
+  critical-parameters:
+    critical-temperature: 795.36
+    critical-pressure: 1.204e+06
+    critical-molar-volume: 0.0975
+    critical-compressibility: 0.2
+    acentric-factor: 0.798
+- name: C18H38S2
+  descriptive-name: nonyl-disulfide
+  molecular-weight: 318.618
+  critical-parameters:
+    critical-temperature: 802.3
+    critical-pressure: 1.179e+06
+    critical-molar-volume: 0.1515
+    critical-compressibility: 0.204
+    acentric-factor: 0.832
+- name: C19H32
+  descriptive-name: 1-phenyltridecane
+  molecular-weight: 260.462
+  critical-parameters:
+    critical-temperature: 784
+    critical-pressure: 1.5e+06
+    critical-molar-volume: 0.040
+    critical-compressibility: 0.24
+    acentric-factor: 0.816
+- name: C19H36
+  descriptive-name: 1-nonadecyne
+  molecular-weight: 264.493
+  critical-parameters:
+    critical-temperature: 758.94
+    critical-pressure: 1.194e+06
+    critical-molar-volume: 0.0615
+    critical-compressibility: 0.201
+    acentric-factor: 0.735
+- name: C19H38
+  descriptive-name: 1-nonadecene
+  molecular-weight: 266.509
+  critical-parameters:
+    critical-temperature: 755.1
+    critical-pressure: 1.11e+06
+    critical-molar-volume: 0.1065
+    critical-compressibility: 0.195
+    acentric-factor: 0.747
+- name: C19H38-1
+  descriptive-name: 1-cyclopentyltetradecane
+  molecular-weight: 266.509
+  critical-parameters:
+    critical-temperature: 772
+    critical-pressure: 1.12e+06
+    critical-molar-volume: 0.0405
+    critical-compressibility: 0.201
+    acentric-factor: 0.789
+- name: C19H38-2
+  descriptive-name: 1-cyclohexyltridecane
+  molecular-weight: 266.509
+  critical-parameters:
+    critical-temperature: 783.38
+    critical-pressure: 1.242e+06
+    critical-molar-volume: 0.0325
+    critical-compressibility: 0.197
+    acentric-factor: 0.7
+- name: C19H40
+  descriptive-name: nonadecane
+  molecular-weight: 268.525
+  critical-parameters:
+    critical-temperature: 776
+    critical-pressure: 1.36e+06
+    critical-molar-volume: 0.100
+    critical-compressibility: 0.212
+    acentric-factor: 0.827
+- name: C19H40O
+  descriptive-name: 1-nonadecanol
+  molecular-weight: 284.524
+  critical-parameters:
+    critical-temperature: 775.3
+    critical-pressure: 1.149e+06
+    critical-molar-volume: 0.1185
+    critical-compressibility: 0.199
+    acentric-factor: 0.976
+- name: C19H40S
+  descriptive-name: butyl-pentadecyl-sulfide
+  molecular-weight: 300.585
+  critical-parameters:
+    critical-temperature: 821.75
+    critical-pressure: 1.093e+06
+    critical-molar-volume: 0.1535
+    critical-compressibility: 0.185
+    acentric-factor: 0.794
+- name: C19H40S-1
+  descriptive-name: ethyl-heptadecyl-sulfide
+  molecular-weight: 300.585
+  critical-parameters:
+    critical-temperature: 821.75
+    critical-pressure: 1.093e+06
+    critical-molar-volume: 0.1535
+    critical-compressibility: 0.185
+    acentric-factor: 0.794
+- name: C19H40S-2
+  descriptive-name: hexadecyl-propyl-sulfide
+  molecular-weight: 300.585
+  critical-parameters:
+    critical-temperature: 821.75
+    critical-pressure: 1.093e+06
+    critical-molar-volume: 0.1535
+    critical-compressibility: 0.185
+    acentric-factor: 0.794
+- name: C19H40S-3
+  descriptive-name: methyl-octadecyl-sulfide
+  molecular-weight: 300.585
+  critical-parameters:
+    critical-temperature: 821.75
+    critical-pressure: 1.093e+06
+    critical-molar-volume: 0.1535
+    critical-compressibility: 0.185
+    acentric-factor: 0.794
+- name: C19H40S-4
+  descriptive-name: 1-nonadecanethiol
+  molecular-weight: 300.585
+  critical-parameters:
+    critical-temperature: 805.29
+    critical-pressure: 1.128e+06
+    critical-molar-volume: 0.1535
+    critical-compressibility: 0.194
+    acentric-factor: 0.807
+- name: C20H34
+  descriptive-name: 1-phenyltetradecane
+  molecular-weight: 274.489
+  critical-parameters:
+    critical-temperature: 792
+    critical-pressure: 1.419e+06
+    critical-molar-volume: 0.110
+    critical-compressibility: 0.24
+    acentric-factor: 0.869
+- name: C20H38
+  descriptive-name: 1-eicosyne
+  molecular-weight: 278.52
+  critical-parameters:
+    critical-temperature: 769.79
+    critical-pressure: 1.119e+06
+    critical-molar-volume: 0.1175
+    critical-compressibility: 0.195
+    acentric-factor: 0.75
+- name: C20H40
+  descriptive-name: 1-eicosene
+  molecular-weight: 280.536
+  critical-parameters:
+    critical-temperature: 765.4
+    critical-pressure: 1.04e+06
+    critical-molar-volume: 0.1645
+    critical-compressibility: 0.19
+    acentric-factor: 0.77
+- name: C20H40-1
+  descriptive-name: 1-cyclopentylpentadecane
+  molecular-weight: 280.536
+  critical-parameters:
+    critical-temperature: 780
+    critical-pressure: 1.02e+06
+    critical-molar-volume: 0.0965
+    critical-compressibility: 0.191
+    acentric-factor: 0.833
+- name: C20H40-2
+  descriptive-name: 1-cyclohexyltetradecane
+  molecular-weight: 280.536
+  critical-parameters:
+    critical-temperature: 792.82
+    critical-pressure: 1.162e+06
+    critical-molar-volume: 0.0885
+    critical-compressibility: 0.192
+    acentric-factor: 0.719
+- name: C20H42
+  descriptive-name: eicosane
+  molecular-weight: 282.552
+  critical-parameters:
+    critical-temperature: 767
+    critical-pressure: 1.11e+06
+    critical-molar-volume: 0.1555
+    critical-compressibility: 0.184
+    acentric-factor: 0.907
+- name: C20H42O
+  descriptive-name: 1-eicosanol
+  molecular-weight: 298.551
+  critical-parameters:
+    critical-temperature: 770
+    critical-pressure: 1.2e+06
+    critical-molar-volume: 0.1745
+    critical-compressibility: 0.197
+    acentric-factor: 1.052
+- name: C20H42S
+  descriptive-name: butyl-hexadecyl-sulfide
+  molecular-weight: 314.612
+  critical-parameters:
+    critical-temperature: 832.33
+    critical-pressure: 1.027e+06
+    critical-molar-volume: 0.2095
+    critical-compressibility: 0.179
+    acentric-factor: 0.795
+- name: C20H42S-1
+  descriptive-name: decyl-sulfide
+  molecular-weight: 314.612
+  critical-parameters:
+    critical-temperature: 832.33
+    critical-pressure: 1.027e+06
+    critical-molar-volume: 0.2095
+    critical-compressibility: 0.179
+    acentric-factor: 0.795
+- name: C20H42S-2
+  descriptive-name: ethyl-octadecyl-sulfide
+  molecular-weight: 314.612
+  critical-parameters:
+    critical-temperature: 832.33
+    critical-pressure: 1.027e+06
+    critical-molar-volume: 0.2095
+    critical-compressibility: 0.179
+    acentric-factor: 0.795
+- name: C20H42S-3
+  descriptive-name: heptadecyl-propyl-sulfide
+  molecular-weight: 314.612
+  critical-parameters:
+    critical-temperature: 832.33
+    critical-pressure: 1.027e+06
+    critical-molar-volume: 0.2095
+    critical-compressibility: 0.179
+    acentric-factor: 0.795
+- name: C20H42S-4
+  descriptive-name: methyl-nonadecyl-sulfide
+  molecular-weight: 314.612
+  critical-parameters:
+    critical-temperature: 832.33
+    critical-pressure: 1.027e+06
+    critical-molar-volume: 0.2095
+    critical-compressibility: 0.179
+    acentric-factor: 0.795
+- name: C20H42S-5
+  descriptive-name: 1-eicosanethiol
+  molecular-weight: 314.612
+  critical-parameters:
+    critical-temperature: 814.57
+    critical-pressure: 1.058e+06
+    critical-molar-volume: 0.2095
+    critical-compressibility: 0.189
+    acentric-factor: 0.809
+- name: C20H42S2
+  descriptive-name: decyl-disulfide
+  molecular-weight: 346.672
+  critical-parameters:
+    critical-temperature: 820.08
+    critical-pressure: 1.038e+06
+    critical-molar-volume: 0.2635
+    critical-compressibility: 0.192
+    acentric-factor: 0.83
+- name: C21H36
+  descriptive-name: 1-phenylpentadecane
+  molecular-weight: 288.515
+  critical-parameters:
+    critical-temperature: 800
+    critical-pressure: 1.348e+06
+    critical-molar-volume: 0.140
+    critical-compressibility: 0.23
+    acentric-factor: 0.914
+- name: C21H42
+  descriptive-name: 1-cyclopentylhexadecane
+  molecular-weight: 294.563
+  critical-parameters:
+    critical-temperature: 797.25
+    critical-pressure: 1.072e+06
+    critical-molar-volume: 0.1525
+    critical-compressibility: 0.186
+    acentric-factor: 0.748
+- name: C21H42-1
+  descriptive-name: 1-cyclohexylpentadecane
+  molecular-weight: 294.563
+  critical-parameters:
+    critical-temperature: 803.46
+    critical-pressure: 1.09e+06
+    critical-molar-volume: 0.1445
+    critical-compressibility: 0.187
+    acentric-factor: 0.733
+- name: C22H38
+  descriptive-name: 1-phenylhexadecane
+  molecular-weight: 302.542
+  critical-parameters:
+    critical-temperature: 808
+    critical-pressure: 1.287e+06
+    critical-molar-volume: 0.200
+    critical-compressibility: 0.23
+    acentric-factor: 0.964
+- name: C22H44
+  descriptive-name: 1-cyclohexylhexadecane
+  molecular-weight: 308.59
+  critical-parameters:
+    critical-temperature: 813.42
+    critical-pressure: 1.024e+06
+    critical-molar-volume: 0.2005
+    critical-compressibility: 0.182
+    acentric-factor: 0.741
+- name: O2
+  descriptive-name: oxygen
+  critical-parameters:
+    critical-temperature: 154.58
+    critical-pressure: 5.043e+06
+    acentric-factor: 0.741
+- name: N2
+  descriptive-name: nitrogen
+  critical-parameters:
+    critical-temperature: 126.2
+    critical-pressure: 3.39e+06
+    acentric-factor: 0.741

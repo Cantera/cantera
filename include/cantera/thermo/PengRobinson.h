@@ -153,8 +153,8 @@ public:
 
     //! Retrieve \f$a\f$ and \f$b\f$ coefficients by looking up tabulated critical parameters
     /*!
-    *  If `pureFluidParameters` are not provided for any species in the phase,
-    *  consult the critical properties tabulated in `data/inputs/critProperties.xml`.
+    *  If `pureFluidParameters` are not provided for any species in the phase, consult
+    *  the critical properties tabulated in `critical-properties.yaml`.
     *  If the species is found there, calculate pure fluid parameters \f$a_k\f$ and \f$b_k\f$ as:
     *  \f[ a_k = 0.4278 R^2 T_c^2 / P_c \f]
     *

@@ -410,7 +410,7 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
         }
 
         // Reset any coefficients which may have been set using values from
-        // 'critProperties.xml' as part of non-XML initialization, so that
+        // 'critical-properties.yaml' as part of non-XML initialization, so that
         // off-diagonal elements can be correctly initialized
         a_coeff_vec.data().assign(a_coeff_vec.data().size(), NAN);
 
@@ -433,7 +433,7 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
             }
         }
         // If any species exist which have undefined pureFluidParameters,
-        // search the database in 'critProperties.xml' to find critical
+        // search the database in 'critical-properties.yaml' to find critical
         // temperature and pressure to calculate a and b.
 
         // Loop through all species in the CTI file
@@ -529,8 +529,8 @@ void RedlichKwongMFTP::initThermo()
         }
 
         if (isnan(a_coeff_vec(0, k + m_kk * k))) {
-            // If a and b are not already populated, search 'critProperties.xml' to find
-            // critical temperature and pressure to calculate a and b.
+            // If a and b are not already populated, search 'crit-properties.yaml' to
+            // find critical temperature and pressure to calculate a and b.
 
             // coeffs[0] = a0, coeffs[1] = b;
             vector<double> coeffs = getCoeff(item.first);
@@ -591,70 +591,20 @@ void RedlichKwongMFTP::getSpeciesParameters(const std::string& name,
 vector<double> RedlichKwongMFTP::getCoeff(const std::string& iName)
 {
     vector_fp spCoeff{NAN, NAN};
+    AnyMap data = AnyMap::fromYamlFile("critical-properties.yaml");
+    const auto& species = data["species"].asMap("name");
 
-    // Get number of species in the database
-    // open xml file critProperties.xml
-    XML_Node* doc = get_XML_File("critProperties.xml");
-    size_t nDatabase = doc->nChildren();
+    // All names in critical-properties.yaml are upper case
+    auto ucName = boost::algorithm::to_upper_copy(iName);
+    if (species.count(ucName)) {
+        auto& critProps = species.at(ucName)->at("critical-parameters").as<AnyMap>();
+        double Tc = critProps.convert("critical-temperature", "K");
+        double Pc = critProps.convert("critical-pressure", "Pa");
 
-    // Loop through all species in the database and attempt to match supplied
-    // species to each. If present, calculate pureFluidParameters a_k and b_k
-    // based on crit  properties T_c and P_c:
-    for (size_t isp = 0; isp < nDatabase; isp++) {
-        XML_Node& acNodeDoc = doc->child(isp);
-        std::string iNameLower = toLowerCopy(iName);
-        std::string dbName = toLowerCopy(acNodeDoc.attrib("name"));
-
-        // Attempt to match provided specie iName to current database species
-        //  dbName:
-        if (iNameLower == dbName) {
-            // Read from database and calculate a and b coefficients
-            double vParams;
-            double T_crit=0.;
-            double P_crit=0.;
-
-            if (acNodeDoc.hasChild("Tc")) {
-                vParams = 0.0;
-                XML_Node& xmlChildCoeff = acNodeDoc.child("Tc");
-                if (xmlChildCoeff.hasAttrib("value"))
-                {
-                    std::string critTemp = xmlChildCoeff.attrib("value");
-                    vParams = strSItoDbl(critTemp);
-                }
-                if (vParams <= 0.0) //Assuming that Pc and Tc are non zero.
-                {
-                    throw CanteraError("RedlichKwongMFTP::getCoeff",
-                                       "Critical Temperature must be positive ");
-                }
-                T_crit = vParams;
-            } else {
-                throw CanteraError("RedlichKwongMFTP::getCoeff",
-                                   "Critical Temperature not in database ");
-            }
-            if (acNodeDoc.hasChild("Pc")) {
-                vParams = 0.0;
-                XML_Node& xmlChildCoeff = acNodeDoc.child("Pc");
-                if (xmlChildCoeff.hasAttrib("value"))
-                {
-                    std::string critPressure = xmlChildCoeff.attrib("value");
-                    vParams = strSItoDbl(critPressure);
-                }
-                if (vParams <= 0.0) //Assuming that Pc and Tc are non zero.
-                {
-                    throw CanteraError("RedlichKwongMFTP::getCoeff",
-                                       "Critical Pressure must be positive ");
-                }
-                P_crit = vParams;
-            } else {
-                throw CanteraError("RedlichKwongMFTP::getCoeff",
-                                   "Critical Pressure not in database ");
-            }
-
-            //Assuming no temperature dependence
-            spCoeff[0] = omega_a * pow(GasConstant, 2) * pow(T_crit, 2.5) / P_crit; //coeff a
-            spCoeff[1] = omega_b * GasConstant * T_crit / P_crit; // coeff b
-            break;
-        }
+        // calculate pure fluid parameters a_k and b_k based on T_c and P_c assuming
+        // no temperature dependence
+        spCoeff[0] = omega_a * pow(GasConstant, 2) * pow(Tc, 2.5) / Pc; //coeff a
+        spCoeff[1] = omega_b * GasConstant * Tc / Pc; // coeff b
     }
     return spCoeff;
 }
