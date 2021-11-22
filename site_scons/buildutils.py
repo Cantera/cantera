@@ -211,7 +211,7 @@ class Option:
             comment = "toolchain"
         else:
             comment = "platform"
-        out = [f"{level1}{title}: {comment} dependent"]
+        out = [f"{level1}{title}: {comment} dependent\n"]
 
         # Compiler/toolchain options
         if comment in ["compiler", "toolchain"]:
