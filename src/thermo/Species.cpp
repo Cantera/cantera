@@ -160,6 +160,7 @@ unique_ptr<Species> newSpecies(const AnyMap& node)
         }
     }
     s->input.applyUnits();
+    s->input.copyMetadata(node);
 
     return s;
 }

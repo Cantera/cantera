@@ -1490,6 +1490,28 @@ void AnyMap::setMetadata(const std::string& key, const AnyValue& value)
     propagateMetadata(m_metadata);
 }
 
+void AnyMap::copyMetadata(const AnyMap& other)
+{
+    m_line = other.m_line;
+    m_column = other.m_column;
+    if (!other.m_metadata) {
+        return;
+    }
+
+    if (m_metadata) {
+        // Fork the metadata tree at this point to avoid affecting parent nodes
+        m_metadata = make_shared<AnyMap>(*m_metadata);
+    } else {
+        m_metadata = make_shared<AnyMap>();
+    }
+
+    for (const auto& item : *other.m_metadata) {
+        (*m_metadata)[item.first] = item.second;
+    }
+
+    propagateMetadata(m_metadata);
+}
+
 bool AnyMap::getBool(const std::string& key, bool default_) const
 {
     return (hasKey(key)) ? m_data.at(key).asBool() : default_;

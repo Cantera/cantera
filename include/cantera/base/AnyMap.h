@@ -455,6 +455,9 @@ public:
     //! Mainly for internal use in reading or writing from files.
     void setMetadata(const std::string& key, const AnyValue& value);
 
+    //! Copy metadata including input line/column from an existing AnyMap
+    void copyMetadata(const AnyMap& other);
+
     //! Propagate metadata to any child elements
     void propagateMetadata(shared_ptr<AnyMap>& file);
 
