@@ -474,9 +474,17 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 
 void RedlichKwongMFTP::initThermo()
 {
+    // Contents of 'critical-properties.yaml', loaded later if needed
+    AnyMap critPropsDb;
+    std::unordered_map<std::string, AnyMap*> dbSpecies;
+
     for (auto& item : m_species) {
         auto& data = item.second->input;
         size_t k = speciesIndex(item.first);
+        if (!isnan(a_coeff_vec(0, k + m_kk * k))) {
+            continue;
+        }
+        bool foundCoeffs = false;
 
         if (data.hasKey("equation-of-state") &&
             data["equation-of-state"].hasMapWhere("model", "Redlich-Kwong"))
@@ -496,6 +504,7 @@ void RedlichKwongMFTP::initThermo()
                     a1 = eos.units().convert(avec[1], "Pa*m^6/kmol^2/K^0.5");
                 }
                 double b = eos.convert("b", "m^3/kmol");
+                foundCoeffs = true;
                 setSpeciesCoeffs(item.first, a0, a1, b);
                 m_coeffs_from_db[speciesIndex(item.first)] = false;
             }
@@ -515,34 +524,47 @@ void RedlichKwongMFTP::initThermo()
                     setBinaryCoeffs(item.first, item2.first, a0, a1);
                 }
             }
+
+            if (foundCoeffs) {
+                continue;
+            }
         }
 
-        if (isnan(a_coeff_vec(0, k + m_kk * k)) && data.hasKey("critical-parameters")) {
-            // If coefficients are not populated from model-specific input, use critical
-            // state information stored in the species entry to calculate a and b
+        // Coefficients have not been populated from model-specific input
+        double Tc = NAN, Pc = NAN;
+        if (data.hasKey("critical-parameters")) {
+            // Use critical state information stored in the species entry to
+            // calculate a and b
             auto& critProps = data["critical-parameters"].as<AnyMap>();
-            double Tc = critProps.convert("critical-temperature", "K");
-            double Pc = critProps.convert("critical-pressure", "Pa");
-            double a = omega_a * GasConstant * GasConstant * std::pow(Tc, 2.5) / Pc;
-            double b = omega_b * GasConstant * Tc / Pc;
-            setSpeciesCoeffs(item.first, a, 0.0, b);
-        }
+            Tc = critProps.convert("critical-temperature", "K");
+            Pc = critProps.convert("critical-pressure", "Pa");
+        } else {
+            // Search 'crit-properties.yaml' to find Tc and Pc. Load data if needed
+            if (critPropsDb.empty()) {
+                critPropsDb = AnyMap::fromYamlFile("critical-properties.yaml");
+                dbSpecies = critPropsDb["species"].asMap("name");
+            }
 
-        if (isnan(a_coeff_vec(0, k + m_kk * k))) {
-            // If a and b are not already populated, search 'crit-properties.yaml' to
-            // find critical temperature and pressure to calculate a and b.
-
-            // coeffs[0] = a0, coeffs[1] = b;
-            vector<double> coeffs = getCoeff(item.first);
-
-            // Check if species was found in the database of critical
-            // properties, and assign the results
-            if (!isnan(coeffs[0])) {
-                // Assuming no temperature dependence (i.e. a1 = 0)
-                setSpeciesCoeffs(item.first, coeffs[0], 0.0, coeffs[1]);
+            // All names in critical-properties.yaml are upper case
+            auto ucName = boost::algorithm::to_upper_copy(item.first);
+            if (dbSpecies.count(ucName)) {
+                auto& spec = *dbSpecies.at(ucName);
+                auto& critProps = spec["critical-parameters"].as<AnyMap>();
+                Tc = critProps.convert("critical-temperature", "K");
+                Pc = critProps.convert("critical-pressure", "Pa");
                 m_coeffs_from_db[k] = true;
             }
         }
+
+        // Check if critical properties were found in either location
+        if (!isnan(Tc)) {
+            // Assuming no temperature dependence (i.e. a1 = 0)
+            double a = omega_a * pow(GasConstant, 2) * pow(Tc, 2.5) / Pc;
+            double b = omega_b * GasConstant * Tc / Pc;
+            setSpeciesCoeffs(item.first, a, 0.0, b);
+        }
+        // @todo: After XML is removed, this can throw an InputFileError if neither
+        // R-K parameters or critical properties were found.
     }
 }
 
@@ -590,6 +612,9 @@ void RedlichKwongMFTP::getSpeciesParameters(const std::string& name,
 
 vector<double> RedlichKwongMFTP::getCoeff(const std::string& iName)
 {
+    warn_deprecated("RedlichKwongMFTP::getCoeff", "To be removed after Cantera 2.6. "
+                    "Use of critical-properties.yaml is integrated into initThermo() "
+                    "for YAML input files.");
     vector_fp spCoeff{NAN, NAN};
     AnyMap data = AnyMap::fromYamlFile("critical-properties.yaml");
     const auto& species = data["species"].asMap("name");

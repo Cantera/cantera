@@ -151,20 +151,6 @@ public:
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
 
-    //! Retrieve \f$a\f$ and \f$b\f$ coefficients by looking up tabulated critical parameters
-    /*!
-    *  If `pureFluidParameters` are not provided for any species in the phase, consult
-    *  the critical properties tabulated in `critical-properties.yaml`.
-    *  If the species is found there, calculate pure fluid parameters \f$a_k\f$ and \f$b_k\f$ as:
-    *  \f[ a_k = 0.4278 R^2 T_c^2 / P_c \f]
-    *
-    *  and:
-    *  \f[ b_k = 0.08664 R T_c/ P_c \f]
-    *
-    *  @param iName    Name of the species
-    */
-    virtual vector_fp getCoeff(const std::string& iName);
-
     //! Set the pure fluid interaction parameters for a species
     /*!
      *  @param species   Name of the species

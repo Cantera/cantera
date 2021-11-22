@@ -148,6 +148,9 @@ public:
      *  and:
      *  \f[ b_k = 0.08664*R*T_c/P_c \f]
      *
+     * @deprecated To be removed after Cantera 2.6. Use of critical-properties.yaml is
+     *     integrated into initThermo() for YAML input files.
+     *
      *  @param iName    Name of the species
      */
     virtual std::vector<double> getCoeff(const std::string& iName);

@@ -345,36 +345,19 @@ bool PengRobinson::addSpecies(shared_ptr<Species> spec)
     return added;
 }
 
-vector<double> PengRobinson::getCoeff(const std::string& iName)
-{
-    vector_fp spCoeff{ NAN, NAN, NAN };
-    AnyMap data = AnyMap::fromYamlFile("critical-properties.yaml");
-    const auto& species = data["species"].asMap("name");
-
-    // All names in critical-properties.yaml are upper case
-    auto ucName = boost::algorithm::to_upper_copy(iName);
-    if (species.count(ucName)) {
-        auto& critProps = species.at(ucName)->at("critical-parameters").as<AnyMap>();
-        double Tc = critProps.convert("critical-temperature", "K");
-        double Pc = critProps.convert("critical-pressure", "Pa");
-        double omega_ac = critProps["acentric-factor"].asDouble();
-
-        // calculate pure fluid parameters a_k and b_k based on T_c and P_c
-        spCoeff[0] = omega_a * (GasConstant * GasConstant) * (Tc * Tc) / Pc; //coeff a
-        spCoeff[1] = omega_b * GasConstant * Tc / Pc; // coeff b
-        spCoeff[2] = omega_ac; // acentric factor
-    } else {
-        throw CanteraError("PengRobinson::getCoeff",
-            "Species '{}' is not present in critical properties database", iName);
-    }
-    return spCoeff;
-}
-
 void PengRobinson::initThermo()
 {
+    // Contents of 'critical-properties.yaml', loaded later if needed
+    AnyMap critPropsDb;
+    std::unordered_map<std::string, AnyMap*> dbSpecies;
+
     for (auto& item : m_species) {
         auto& data = item.second->input;
         size_t k = speciesIndex(item.first);
+        if (m_a_coeffs(k, k) != 0.0) {
+            continue;
+        }
+        bool foundCoeffs = false;
 
         if (data.hasKey("equation-of-state") &&
             data["equation-of-state"].hasMapWhere("model", "Peng-Robinson"))
@@ -389,6 +372,7 @@ void PengRobinson::initThermo()
                 // unitless acentric factor:
                 double w = eos["acentric-factor"].asDouble();
                 setSpeciesCoeffs(item.first, a0, b, w);
+                foundCoeffs = true;
             }
 
             if (eos.hasKey("binary-a")) {
@@ -399,32 +383,47 @@ void PengRobinson::initThermo()
                     setBinaryCoeffs(item.first, item2.first, a0);
                 }
             }
+            if (foundCoeffs) {
+                continue;
+            }
         }
 
-        if (m_a_coeffs(k, k) == 0.0 && data.hasKey("critical-parameters")) {
-            // If coefficients are not populated from model-specific input, use critical
-            // state information stored in the species entry to calculate a, b, and the
-            // acentric factor.
+        // Coefficients have not been populated from model-specific input
+        double Tc = NAN, Pc = NAN, omega_ac = NAN;
+        if (data.hasKey("critical-parameters")) {
+            // Use critical state information stored in the species entry to
+            // calculate a, b, and the acentric factor.
             auto& critProps = data["critical-parameters"].as<AnyMap>();
-            double Tc = critProps.convert("critical-temperature", "K");
-            double Pc = critProps.convert("critical-pressure", "Pa");
-            double omega_ac = critProps["acentric-factor"].asDouble();
+            Tc = critProps.convert("critical-temperature", "K");
+            Pc = critProps.convert("critical-pressure", "Pa");
+            omega_ac = critProps["acentric-factor"].asDouble();
+        } else {
+            // Search 'crit-properties.yaml' to find Tc and Pc. Load data if needed.
+            if (critPropsDb.empty()) {
+                critPropsDb = AnyMap::fromYamlFile("critical-properties.yaml");
+                dbSpecies = critPropsDb["species"].asMap("name");
+            }
+
+            // All names in critical-properties.yaml are upper case
+            auto ucName = boost::algorithm::to_upper_copy(item.first);
+            if (dbSpecies.count(ucName)) {
+                auto& spec = *dbSpecies.at(ucName);
+                auto& critProps = spec["critical-parameters"].as<AnyMap>();
+                Tc = critProps.convert("critical-temperature", "K");
+                Pc = critProps.convert("critical-pressure", "Pa");
+                omega_ac = critProps["acentric-factor"].asDouble();
+            }
+        }
+
+        // Check if critical properties were found in either location
+        if (!isnan(Tc)) {
             double a = omega_a * std::pow(GasConstant * Tc, 2) / Pc;
             double b = omega_b * GasConstant * Tc / Pc;
             setSpeciesCoeffs(item.first, a, b, omega_ac);
-        }
-
-        // Check if a and b are already populated for this species (only the
-        // diagonal elements of a). If not, then search 'critical-properties.yaml'
-        // to find critical temperature and pressure to calculate a and b.
-        if (m_a_coeffs(k, k) == 0.0) {
-            vector<double> coeffs = getCoeff(item.first);
-
-            // Check if species was found in the database of critical
-            // properties, and assign the results
-            if (!isnan(coeffs[0])) {
-                setSpeciesCoeffs(item.first, coeffs[0], coeffs[1], coeffs[2]);
-            }
+        } else {
+            throw InputFileError("PengRobinson::initThermo", data,
+            "No Peng-Robinson model parameters or critical properties found for "
+            "species '{}'", item.first);
         }
     }
 }
