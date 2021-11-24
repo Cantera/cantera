@@ -32,6 +32,22 @@ public:
             m_eff.back().push_back(eff.second - dflt);
         }
     }
+    
+    void modifyEfficiencies(size_t rxnNumber, const std::map<size_t, double>& enhanced,
+                 double dflt=1.0) {
+        auto it = find(m_reaction_index.begin(), m_reaction_index.end(), rxnNumber);
+        if (it != m_reaction_index.end()) {
+            int index = it - m_reaction_index.begin();  
+            for (const auto& eff : enhanced) {
+                auto si = find(m_species[index].begin(), 
+                               m_species[index].end(), eff.first);   
+                if (it != m_reaction_index.end()) {
+                    int j = si - m_species[index].begin();
+                    m_eff[index][j] = (eff.second - m_default[index]);
+                }
+            }
+        }
+    }
 
     void update(const vector_fp& conc, double ctot, double* work) {
         for (size_t i = 0; i < m_species.size(); i++) {

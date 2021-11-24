@@ -395,6 +395,16 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
 void GasKinetics::modifyThreeBodyReaction(size_t i, ThreeBodyReaction2& r)
 {
     m_rates.replace(i, r.rate);
+    
+    map<size_t, double> efficiencies;
+    for (const auto& eff : r.third_body.efficiencies) {
+        size_t k = kineticsSpeciesIndex(eff.first);
+        if (k != npos) {
+            efficiencies[k] = eff.second;
+        }
+    }
+    m_3b_concm.modifyEfficiencies(i, efficiencies,
+                       r.third_body.default_efficiency);
 }
 
 void GasKinetics::modifyFalloffReaction(size_t i, FalloffReaction& r)
@@ -403,6 +413,16 @@ void GasKinetics::modifyFalloffReaction(size_t i, FalloffReaction& r)
     m_falloff_high_rates.replace(iFall, r.high_rate);
     m_falloff_low_rates.replace(iFall, r.low_rate);
     m_falloffn.replace(iFall, r.falloff);
+    
+    map<size_t, double> efficiencies;
+    for (const auto& eff : r.third_body.efficiencies) {
+        size_t k = kineticsSpeciesIndex(eff.first);
+        if (k != npos) {
+            efficiencies[k] = eff.second;
+        }
+    }
+    m_falloff_concm.modifyEfficiencies(iFall, efficiencies,
+                       r.third_body.default_efficiency);
 }
 
 void GasKinetics::modifyPlogReaction(size_t i, PlogReaction2& r)
