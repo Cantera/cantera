@@ -432,15 +432,15 @@ TEST(YamlWriter, customHeader)
     header["spam"] = "eggs";
 
     YamlWriter writer;
-    writer.addHeader(header);
+    writer.setHeader(header);
     writer.addPhase(original);
     writer.toYamlFile("generated-custom-header.yaml");
 
     auto soln = newSolution("generated-custom-header.yaml", "", "None");
 
-    ASSERT_EQ(soln->input()["cantera-version"].asString(), CANTERA_VERSION);
-    ASSERT_EQ(soln->input()["generator"].asString(), "YamlWriter");
-    ASSERT_EQ(soln->input()["description"].asString(),
+    ASSERT_EQ(soln->header()["cantera-version"].asString(), CANTERA_VERSION);
+    ASSERT_EQ(soln->header()["generator"].asString(), "YamlWriter");
+    ASSERT_EQ(soln->header()["description"].asString(),
               "Copy of H2O2 mechanism");
-    ASSERT_EQ(soln->input()["spam"].asString(), "eggs");
+    ASSERT_EQ(soln->header()["spam"].asString(), "eggs");
 }

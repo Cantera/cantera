@@ -11,6 +11,7 @@
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/transport/TransportBase.h"
 
+#include <set>
 #include <fstream>
 #include <chrono>
 
@@ -22,7 +23,7 @@ YamlWriter::YamlWriter()
 {
 }
 
-void YamlWriter::addHeader(const AnyMap& header) {
+void YamlWriter::setHeader(const AnyMap& header) {
     m_header = header;
 }
 
@@ -67,11 +68,11 @@ std::string YamlWriter::toYamlString() const
     output["date"].setLoc(-2, 0);
 
     // Add remaining header information, ignoring obsolete information
-    std::vector<std::string> exclude = {
+    std::set<std::string> exclude = {
         "description", "generator", "cantera-version", "git-commit", "date"};
     for (const auto& item : m_header) {
         std::string key = item.first;
-        if (find(exclude.begin(), exclude.end(), key) == exclude.end()) {
+        if (!exclude.count(key)) {
             output[key] = item.second;
         }
     }

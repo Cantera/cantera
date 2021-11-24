@@ -197,7 +197,7 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
         void setName(string)
         string source()
         void setSource(string)
-        CxxAnyMap& input() except +translate_exception
+        CxxAnyMap& header() except +translate_exception
         shared_ptr[CxxThermoPhase] thermo()
         void setThermo(shared_ptr[CxxThermoPhase])
         shared_ptr[CxxKinetics] kinetics()
@@ -668,7 +668,7 @@ cdef extern from "cantera/transport/TransportData.h" namespace "Cantera":
 cdef extern from "cantera/base/YamlWriter.h" namespace "Cantera":
     cdef cppclass CxxYamlWriter "Cantera::YamlWriter":
         CxxYamlWriter()
-        void addHeader(CxxAnyMap) except +translate_exception
+        void setHeader(CxxAnyMap) except +translate_exception
         void addPhase(shared_ptr[CxxSolution]) except +translate_exception
         string toYamlString() except +translate_exception
         void toYamlFile(string&) except +translate_exception

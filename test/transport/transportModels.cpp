@@ -135,7 +135,7 @@ TEST_F(DefaultTransportTest, check_scalar)
 {
     // scalar quantities
     auto tr = soln_->transport();
-    EXPECT_TRUE(tr->viscosity() >= 0);
-    EXPECT_TRUE(tr->thermalConductivity() >= 0);
+    EXPECT_GE(tr->viscosity(), 0.);
+    EXPECT_GE(tr->thermalConductivity(), 0.);
     EXPECT_FALSE(tr->CKMode());
 }
