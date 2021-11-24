@@ -25,7 +25,7 @@ public:
     YamlWriter();
 
     //! Include top-level information used in YAML header block
-    void addHeader(const AnyMap& header);
+    void setHeader(const AnyMap& header);
 
     //! Include a phase definition for the specified Solution object
     void addPhase(shared_ptr<Solution> soln);

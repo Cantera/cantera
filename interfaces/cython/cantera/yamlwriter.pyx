@@ -9,9 +9,9 @@ cdef class YamlWriter:
         self._writer.reset(new CxxYamlWriter())
         self.writer = self._writer.get()
 
-    def add_header(self, _SolutionBase soln):
+    def set_header(self, _SolutionBase soln):
         """ Include top-level information for the specified Solution object """
-        self.writer.addHeader(soln.base.input())
+        self.writer.setHeader(soln.base.header())
 
     def add_solution(self, _SolutionBase soln):
         """ Include a phase definition for the specified Solution object """

@@ -64,22 +64,22 @@ public:
 
     AnyMap parameters(bool withInput=false) const;
 
-    //! Access input data associated with the species thermo definition
-    const AnyMap& input() const;
-    AnyMap& input();
+    //! Access input data associated with header definition
+    const AnyMap& header() const;
+    AnyMap& header();
 
-    //! Retrieve source used for object creation
+    //! Retrieve source used for object creation; usually an input file name
     const std::string source() const;
 
     //! Overwrite source (only required if object is not created using newSolution)
-    void setSource(std::string source);
+    void setSource(const std::string& source);
 
 protected:
     shared_ptr<ThermoPhase> m_thermo;  //!< ThermoPhase manager
     shared_ptr<Kinetics> m_kinetics;  //!< Kinetics manager
     shared_ptr<Transport> m_transport;  //!< Transport manager
 
-    AnyMap m_input;  //!< Additional input fields; usually from a YAML input file
+    AnyMap m_header;  //!< Additional input fields; usually from a YAML input file
 };
 
 //! Create and initialize a new Solution manager from an input file

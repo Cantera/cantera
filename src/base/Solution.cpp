@@ -88,24 +88,24 @@ AnyMap Solution::parameters(bool withInput) const
     return out;
 }
 
-const AnyMap& Solution::input() const
+const AnyMap& Solution::header() const
 {
-    return m_input;
+    return m_header;
 }
 
-AnyMap& Solution::input()
+AnyMap& Solution::header()
 {
-    return m_input;
+    return m_header;
 }
 
 const std::string Solution::source() const {
-    AnyValue source = m_input.getMetadata("filename");
+    AnyValue source = m_header.getMetadata("filename");
     return source.empty() ? "<unknown>" : source.asString();
 }
 
-void Solution::setSource(std::string source) {
+void Solution::setSource(const std::string& source) {
     AnyValue filename(source);
-    m_input.setMetadata("filename", filename);
+    m_header.setMetadata("filename", filename);
 }
 
 shared_ptr<Solution> newSolution(const std::string& infile,
@@ -160,10 +160,7 @@ shared_ptr<Solution> newSolution(const std::string& infile,
 
 std::vector<std::string> getExcludes(const AnyValue& node)
 {
-    std::vector<std::string> exclude;
-    exclude.push_back("phases");
-    exclude.push_back("species");
-    exclude.push_back("reactions");
+    std::vector<std::string> exclude{"phases", "species", "reactions"};
 
     // retrieve alternate names of reactions sections from phases entries
     if (node.is<std::vector<AnyMap>>()) {
@@ -238,7 +235,7 @@ shared_ptr<Solution> newSolution(AnyMap& phaseNode,
         }
     }
     header.setUnits(rootNode.units());
-    sol->input() = header;
+    sol->header() = header;
 
     return sol;
 }
