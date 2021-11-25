@@ -158,39 +158,6 @@ shared_ptr<Solution> newSolution(const std::string& infile,
     return sol;
 }
 
-std::vector<std::string> getExcludes(const AnyValue& node)
-{
-    std::vector<std::string> exclude{"phases", "species", "reactions"};
-
-    // retrieve alternate names of reactions sections from phases entries
-    if (node.is<std::vector<AnyMap>>()) {
-
-        for (const auto& phaseNode : node.as<std::vector<AnyMap>>()) {
-
-            if (phaseNode.hasKey("reactions")) {
-                const auto& reactionsNode = phaseNode.at("reactions");
-                if (reactionsNode.is<std::string>()) {
-                    // this may include 'none', 'all', or similar
-                    exclude.push_back(reactionsNode.asString());
-                } else if (reactionsNode.is<std::vector<std::string>>()) {
-                    // List of sections from which all species should be added
-                    for (const auto& item : reactionsNode.as<std::vector<std::string>>()) {
-                        exclude.push_back(item);
-                    }
-                } else if (reactionsNode.is<std::vector<AnyMap>>()) {
-                    // Mapping of rules to apply for each specified section containing
-                    // reactions
-                    for (const auto& item : reactionsNode.as<std::vector<AnyMap>>()) {
-                        exclude.push_back(item.begin()->first);
-                    }
-                }
-            }
-        }
-    }
-
-    return exclude;
-}
-
 shared_ptr<Solution> newSolution(AnyMap& phaseNode,
                                  const AnyMap& rootNode,
                                  const std::string& transport,
@@ -222,19 +189,17 @@ shared_ptr<Solution> newSolution(AnyMap& phaseNode,
             newTransportMgr(transport, sol->thermo().get())));
     }
 
-    // find root-level fields that are not related to phases, species or reactions
-    const auto& phasesNode = rootNode.at("phases");
-    auto exclude = getExcludes(phasesNode);
-
     // save root-level information (YAML header)
     AnyMap header;
-    for (const auto& item : rootNode) {
+    for (const auto& item : rootNode.ordered()) {
         std::string key = item.first;
-        if (find(exclude.begin(), exclude.end(), key) == exclude.end()) {
+        if (key == "phases") {
+            // header ends with "phases" field
+            break;
+        } else if (key != "units") {
             header[key] = item.second;
         }
     }
-    header.setUnits(rootNode.units());
     sol->header() = header;
 
     return sol;
