@@ -96,6 +96,25 @@ private:
 Transport* newTransportMgr(const std::string& transportModel = "",
                            ThermoPhase* thermo = 0, int loglevel = 0);
 
+//!  Create a new Transport instance.
+/*!
+ *  @param model    name of transport model; if "default", the default
+ *                  transport model for the ThermoPhase object is created
+ *  @param thermo   the ThermoPhase object associated with the phase
+ *  @returns a Transport object for the phase
+ * @ingroup tranprops
+ */
+inline shared_ptr<Transport> newTransport(const std::string& model = "",
+                                          ThermoPhase* thermo = 0) {
+    Transport* tr;
+    if (model == "default") {
+        tr = TransportFactory::factory()->newTransport(thermo, 0);
+    } else {
+        tr = TransportFactory::factory()->newTransport(model, thermo, 0);
+    }
+    return shared_ptr<Transport> (tr);
+}
+
 //!  Create a new transport manager instance.
 /*!
  *  @param thermo     ThermoPhase object associated with the phase

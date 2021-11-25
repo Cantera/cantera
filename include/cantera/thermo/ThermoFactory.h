@@ -107,6 +107,17 @@ inline ThermoPhase* newThermoPhase(const std::string& model)
     return ThermoFactory::factory()->create(model);
 }
 
+//! Create a new ThermoPhase instance.
+/*!
+ * @param model   String to look up the model against
+ * @returns a shared pointer to a new ThermoPhase instance matching the model string.
+ */
+inline shared_ptr<ThermoPhase> newThermo(const std::string& model)
+{
+    ThermoPhase* tptr = ThermoFactory::factory()->create(model);
+    return shared_ptr<ThermoPhase> (tptr);
+}
+
 //! Create a new ThermoPhase object and initializes it according to the XML tree
 /*!
  * This routine first looks up the identity of the model for the solution
