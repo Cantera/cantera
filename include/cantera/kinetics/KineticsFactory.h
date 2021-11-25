@@ -102,6 +102,15 @@ inline Kinetics* newKineticsMgr(const std::string& model)
     return KineticsFactory::factory()->newKinetics(model);
 }
 
+/**
+ *  Create a new Kinetics instance.
+ */
+inline shared_ptr<Kinetics> newKinetics(const std::string& model)
+{
+    shared_ptr<Kinetics> kin(KineticsFactory::factory()->newKinetics(model));
+    return kin;
+}
+
 /*!
  * Create a new kinetics manager, initialize it, and add reactions
  *

@@ -878,16 +878,20 @@ cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef CxxThermoPhase* newPhase(XML_Node&) except +translate_exception
     cdef shared_ptr[CxxThermoPhase] newPhase(CxxAnyMap&, CxxAnyMap&) except +translate_exception
     cdef CxxThermoPhase* newThermoPhase(string) except +translate_exception
+    cdef shared_ptr[CxxThermoPhase] newThermo(string) except +translate_exception
 
 cdef extern from "cantera/kinetics/KineticsFactory.h" namespace "Cantera":
     cdef CxxKinetics* newKineticsMgr(XML_Node&, vector[CxxThermoPhase*]) except +translate_exception
     cdef shared_ptr[CxxKinetics] newKinetics(vector[CxxThermoPhase*], CxxAnyMap&, CxxAnyMap&) except +translate_exception
     cdef CxxKinetics* CxxNewKinetics "Cantera::newKineticsMgr" (string) except +translate_exception
+    cdef shared_ptr[CxxKinetics] newKinetics (string) except +translate_exception
 
 cdef extern from "cantera/transport/TransportFactory.h" namespace "Cantera":
     cdef CxxTransport* newDefaultTransportMgr(CxxThermoPhase*) except +translate_exception
     cdef CxxTransport* newTransportMgr(string, CxxThermoPhase*) except +translate_exception
     cdef CxxTransport* newTransportMgr(string) except +translate_exception
+    cdef shared_ptr[CxxTransport] newTransport(string) except +translate_exception
+    cdef shared_ptr[CxxTransport] newTransport(string, CxxThermoPhase*) except +translate_exception
 
 cdef extern from "cantera/oneD/Domain1D.h":
     cdef cppclass CxxDomain1D "Cantera::Domain1D":
@@ -1191,12 +1195,8 @@ cdef class GasTransportData:
 cdef class _SolutionBase:
     cdef shared_ptr[CxxSolution] _base
     cdef CxxSolution* base
-    cdef str _source
-    cdef shared_ptr[CxxThermoPhase] _thermo
     cdef CxxThermoPhase* thermo
-    cdef shared_ptr[CxxKinetics] _kinetics
     cdef CxxKinetics* kinetics
-    cdef shared_ptr[CxxTransport] _transport
     cdef CxxTransport* transport
     cdef int thermo_basis
     cdef np.ndarray _selected_species

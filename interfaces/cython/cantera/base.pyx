@@ -36,9 +36,6 @@ cdef class _SolutionBase:
             self.kinetics = other.kinetics
             self.transport = other.transport
             self._base = other._base
-            self._thermo = other._thermo
-            self._kinetics = other._kinetics
-            self._transport = other._transport
             self.base.setSource(other.base.source())
 
             self.thermo_basis = other.thermo_basis
@@ -49,8 +46,10 @@ cdef class _SolutionBase:
             infile = str(infile)
 
         # Parse YAML input
-        if infile.endswith('.yml') or infile.endswith('.yaml') or yaml:
-            self._init_yaml(infile, name, adjacent, yaml, **kwargs)
+        if infile.endswith(".yml") or infile.endswith(".yaml") or yaml:
+            # Transport model: "" is a sentinel value to use the default model
+            transport_model = kwargs.get("transport_model", "")
+            self._init_yaml(infile, name, adjacent, yaml, transport_model)
             self._selected_species = np.ndarray(0, dtype=np.uint64)
             return
 
@@ -68,10 +67,6 @@ cdef class _SolutionBase:
             self._init_parts(thermo, species, kinetics, adjacent, reactions)
         else:
             raise ValueError("Arguments are insufficient to define a phase")
-
-        # Initialization of transport is deferred to Transport.__init__
-        self.base.setThermo(self._thermo)
-        self.base.setKinetics(self._kinetics)
 
         self._selected_species = np.ndarray(0, dtype=np.uint64)
 
@@ -116,7 +111,7 @@ cdef class _SolutionBase:
 
             return thermo, kinetics, transport
 
-    def _init_yaml(self, infile, name, adjacent, source, **kwargs):
+    def _init_yaml(self, infile, name, adjacent, source, transport):
         """
         Instantiate a set of new Cantera C++ objects from a YAML phase definition
         """
@@ -127,9 +122,8 @@ cdef class _SolutionBase:
         for phase in adjacent:
             cxx_adjacent.push_back(phase._base)
 
-        # Transport model: "" is a sentinel value to use the default model
-        transport = kwargs.get("transport_model", "")
-        transport = "None" if transport is None else transport
+        if transport is None or not isinstance(self, Transport):
+            transport = "None"
         cdef string cxx_transport = stringify(transport)
 
         # Parse input in C++
@@ -147,30 +141,16 @@ cdef class _SolutionBase:
         self.base = self._base.get()
 
         # Thermo
-        if isinstance(self, ThermoPhase):
-            self._thermo = self.base.thermo()
-            self.thermo = self._thermo.get()
-        else:
+        if not isinstance(self, ThermoPhase):
             msg = ("Cannot instantiate a standalone '{}' object; use "
                    "'Solution' instead").format(type(self).__name__)
             raise NotImplementedError(msg)
+        self.thermo = self.base.thermo().get()
 
         # Kinetics
-        if isinstance(self, Kinetics):
-            self._kinetics = self.base.kinetics()
-            self.kinetics = self._kinetics.get()
-        else:
-            self.kinetics = CxxNewKinetics(stringify("none"))
-            self._kinetics.reset(self.kinetics)
-            self.base.setKinetics(self._kinetics)
-
-        # Transport
-        if isinstance(self, Transport):
-            self._transport = self.base.transport()
-            self.transport = self._transport.get()
-        else:
-            self.transport = newTransportMgr(stringify("None"))
-            self._transport.reset(self.transport)
+        if not isinstance(self, Kinetics):
+            self.base.setKinetics(newKinetics(stringify("none")))
+        self.kinetics = self.base.kinetics().get()
 
     def _init_cti_xml(self, infile, name, adjacent, source):
         """
@@ -194,9 +174,11 @@ cdef class _SolutionBase:
             raise ValueError("Couldn't read phase node from XML file")
 
         # Thermo
+        cdef shared_ptr[CxxThermoPhase] _thermo
         if isinstance(self, ThermoPhase):
-            self.thermo = newPhase(deref(phaseNode))
-            self._thermo.reset(self.thermo)
+            _thermo.reset(newPhase(deref(phaseNode)))
+            self.base.setThermo(_thermo)
+            self.thermo = self.base.thermo().get()
         else:
             msg = ("Cannot instantiate a standalone '{}' object; use "
                    "'Solution' instead").format(type(self).__name__)
@@ -206,15 +188,17 @@ cdef class _SolutionBase:
         cdef vector[CxxThermoPhase*] v
         cdef _SolutionBase phase
 
+        cdef shared_ptr[CxxKinetics] _kinetics
         if isinstance(self, Kinetics):
             v.push_back(self.thermo)
             for phase in adjacent:
                 # adjacent bulk phases for a surface phase
                 v.push_back(phase.thermo)
-            self.kinetics = newKineticsMgr(deref(phaseNode), v)
-            self._kinetics.reset(self.kinetics)
+            _kinetics.reset(newKineticsMgr(deref(phaseNode), v))
+            self.base.setKinetics(_kinetics)
         else:
-            self.kinetics = NULL
+            self.base.setKinetics(newKinetics(stringify("none")))
+        self.kinetics = self.base.kinetics().get()
 
     def _init_parts(self, thermo, species, kinetics, adjacent, reactions):
         """
@@ -222,8 +206,9 @@ cdef class _SolutionBase:
         the model type and a list of Species objects.
         """
         self.base.setSource(stringify("custom parts"))
-        self.thermo = newThermoPhase(stringify(thermo))
-        self._thermo.reset(self.thermo)
+        self.base.setThermo(newThermo(stringify(thermo)))
+        self.thermo = self.base.thermo().get()
+
         self.thermo.addUndefinedElements()
         cdef Species S
         for S in species:
@@ -236,8 +221,8 @@ cdef class _SolutionBase:
         cdef ThermoPhase phase
         cdef Reaction reaction
         if isinstance(self, Kinetics):
-            self.kinetics = CxxNewKinetics(stringify(kinetics))
-            self._kinetics.reset(self.kinetics)
+            self.base.setKinetics(newKinetics(stringify(kinetics)))
+            self.kinetics = self.base.kinetics().get()
             self.kinetics.addPhase(deref(self.thermo))
             for phase in adjacent:
                 # adjacent bulk phases for a surface phase

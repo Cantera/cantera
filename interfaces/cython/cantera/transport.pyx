@@ -169,16 +169,15 @@ cdef class Transport(_SolutionBase):
     def __init__(self, *args, **kwargs):
         if self.transport == NULL:
             if 'transport_model' not in kwargs:
-                self.transport = newDefaultTransportMgr(self.thermo)
+                self.base.setTransport(newTransport(stringify("default"), self.thermo))
             else:
                 model = kwargs['transport_model']
                 if not model:
                     model = 'None'
-                self.transport = newTransportMgr(stringify(model), self.thermo)
-            self._transport.reset(self.transport)
+                self.base.setTransport(newTransport(stringify(model), self.thermo))
+            self.transport = self.base.transport().get()
 
         super().__init__(*args, **kwargs)
-        self.base.setTransport(self._transport)
 
     property transport_model:
         """
@@ -191,9 +190,8 @@ cdef class Transport(_SolutionBase):
             return pystr(self.transport.transportType())
 
         def __set__(self, model):
-            self.transport = newTransportMgr(stringify(model), self.thermo)
-            self._transport.reset(self.transport)
-            self.base.setTransport(self._transport)
+            self.base.setTransport(newTransport(stringify(model), self.thermo))
+            self.transport = self.base.transport().get()
 
     property CK_mode:
         """Boolean to indicate if the chemkin interpretation is used."""
@@ -377,8 +375,8 @@ cdef class DustyGasTransport(Transport):
     """
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, **kwargs):
-        self.transport = newTransportMgr(stringify("DustyGas"), self.thermo)
-        self._transport.reset(self.transport)
+        self.base.setTransport(newTransport(stringify("DustyGas"), self.thermo))
+        self.transport = self.base.transport().get()
         super().__init__(*args, **kwargs)
 
     property porosity:
