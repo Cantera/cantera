@@ -212,7 +212,6 @@ config_options = [
            optimization level.""",
         {
             "cl": "/MD /nologo /D_SCL_SECURE_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS",
-            "icc": "-vec-report0 -diag-disable 1478",
             "clang": "-fcolor-diagnostics",
             "default": "",
         }),
@@ -443,6 +442,7 @@ config_options = [
         "Additional compiler flags passed to the C/C++ compiler when 'optimize=yes'.",
         {
             "cl": "/O2",
+            "icc": "-O3 -fp-model precise",
             "icx": "-O3 -fp-model precise", # cannot assume finite math
             "gcc": "-O3 -Wno-inline",
             "default": "-O3",
