@@ -158,7 +158,7 @@ public:
     //! Identifies the Transport object type. Each derived class should override
     //! this method to return a meaningful identifier.
     virtual std::string transportType() const {
-        return "Transport";
+        return "None";
     }
 
     /*!
@@ -786,15 +786,6 @@ protected:
 
     //! reference to Solution
     std::weak_ptr<Solution> m_root;
-};
-
-
-//! Empty transport object used for exception handling
-class NoTransport : public Transport
-{
-    virtual std::string transportType() const {
-        return "None";
-    }
 };
 
 }
