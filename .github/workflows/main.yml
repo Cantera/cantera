@@ -20,7 +20,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [ '3.6', '3.7', '3.8', '3.9' ]
+        python-version: [ '3.6', '3.9', '3.10' ]
         os: ['ubuntu-18.04', 'ubuntu-20.04']
       fail-fast: false
     steps:
@@ -36,7 +36,7 @@ jobs:
     - name: Install Apt dependencies
       run: |
         sudo apt update
-        sudo apt install libboost-dev gfortran
+        sudo apt install libboost-dev gfortran libopenmpi-dev
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
@@ -47,15 +47,13 @@ jobs:
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
-      env:
-        GITHUB_ACTIONS: "true"
 
   macos-multiple-pythons:
     name: macOS with Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [ '3.7', '3.8', '3.9' ]
+        python-version: [ '3.7', '3.9', '3.10' ]
         os: ['macos-10.15']
       fail-fast: false
     steps:
@@ -88,8 +86,6 @@ jobs:
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
-      env:
-        GITHUB_ACTIONS: "true"
 
   # Coverage is its own job because macOS builds of the samples
   # use Homebrew gfortran which is not compatible for coverage
@@ -203,7 +199,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9']
+        python-version: ['3.6', '3.9', '3.10']
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
@@ -315,7 +311,7 @@ jobs:
       matrix:
         os: ['windows-2019']
         vs-toolset: ['14.0', '14.2']
-        python-version: [ '3.6', '3.7', '3.8', '3.9' ]
+        python-version: [ '3.6', '3.9', '3.10' ]
         # Must use windows-2016 image because it installs VS2017 (MSVC 14.1)
         # Scons cannot find MSVC 14.1 when VS2019 is installed
         include:
@@ -370,8 +366,6 @@ jobs:
         shell: cmd
       - name: Test Cantera
         run: scons test show_long_tests=yes verbose_tests=yes --debug=time
-        env:
-          GITHUB_ACTIONS: "true"
 
   # Adapted from https://www.scivision.dev/intel-oneapi-github-actions/
   linux-intel-oneapi:
