@@ -70,6 +70,9 @@ if (
 if localenv["HAS_CLANG"] and py_version_short == parse_version("3.8"):
     localenv.Append(CXXFLAGS='-Wno-deprecated-declarations')
 
+if "icc" in localenv["CC"]:
+    localenv.Append(CPPDEFINES={"CYTHON_FALLTHROUGH":" __attribute__((fallthrough))"})
+
 if localenv['OS'] == 'Darwin':
     localenv.Append(LINKFLAGS='-undefined dynamic_lookup')
 elif localenv['OS'] == 'Windows':
