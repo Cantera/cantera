@@ -890,8 +890,7 @@ cdef extern from "cantera/transport/TransportFactory.h" namespace "Cantera":
     cdef CxxTransport* newDefaultTransportMgr(CxxThermoPhase*) except +translate_exception
     cdef CxxTransport* newTransportMgr(string, CxxThermoPhase*) except +translate_exception
     cdef CxxTransport* newTransportMgr(string) except +translate_exception
-    cdef shared_ptr[CxxTransport] newTransport(string) except +translate_exception
-    cdef shared_ptr[CxxTransport] newTransport(string, CxxThermoPhase*) except +translate_exception
+    cdef shared_ptr[CxxTransport] newTransport(CxxThermoPhase*, string) except +translate_exception
 
 cdef extern from "cantera/oneD/Domain1D.h":
     cdef cppclass CxxDomain1D "Cantera::Domain1D":
