@@ -112,20 +112,33 @@ jobs:
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas scipy pytest
-        pytest-github-actions-annotate-failures
+        pytest-github-actions-annotate-failures gcovr
     - name: Build Cantera
       run: |
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
-        optimize=n skip_slow_tests=y no_optimize_flags=-DNDEBUG env_vars=all -j2 --debug=time
+        optimize=n skip_slow_tests=y no_optimize_flags='-DNDEBUG -O0' \
+        FORTRANFLAGS='-O0' env_vars=all -j2 --debug=time
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
-      env:
-        GITHUB_ACTIONS: "true"
+    - name: Process coverage files
+      run: |
+        gcovr --root . --exclude-unreachable-branches --exclude-throw-branches \
+        --exclude-directories '\.sconf_temp' --exclude-directories 'build/ext$' \
+        --exclude '.*ext.*' --exclude '(.+/)?_cantera\.cpp$' --exclude '^test.*' \
+        --xml coverage.xml --html-details htmlcoverage.html --txt
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v2
+      with:
+        name: code-coverage-report
+        path: htmlcoverage*
+        retention-days: 5
     - name: Upload Coverage to Codecov
-      run: bash <(curl -s https://codecov.io/bash)
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      uses: codecov/codecov-action@v2
+      with:
+        verbose: true
+        files: ./coverage.xml
+        fail_ci_if_error: true
 
   docs:
     name: Build docs
