@@ -169,12 +169,12 @@ cdef class Transport(_SolutionBase):
     def __init__(self, *args, **kwargs):
         if self.transport == NULL:
             if 'transport_model' not in kwargs:
-                self.base.setTransport(newTransport(stringify("default"), self.thermo))
+                self.base.setTransport(newTransport(self.thermo, stringify("default")))
             else:
                 model = kwargs['transport_model']
                 if not model:
                     model = 'None'
-                self.base.setTransport(newTransport(stringify(model), self.thermo))
+                self.base.setTransport(newTransport(self.thermo, stringify(model)))
             self.transport = self.base.transport().get()
 
         super().__init__(*args, **kwargs)
@@ -190,7 +190,7 @@ cdef class Transport(_SolutionBase):
             return pystr(self.transport.transportType())
 
         def __set__(self, model):
-            self.base.setTransport(newTransport(stringify(model), self.thermo))
+            self.base.setTransport(newTransport(self.thermo, stringify(model)))
             self.transport = self.base.transport().get()
 
     property CK_mode:
@@ -375,7 +375,7 @@ cdef class DustyGasTransport(Transport):
     """
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, **kwargs):
-        self.base.setTransport(newTransport(stringify("DustyGas"), self.thermo))
+        self.base.setTransport(newTransport(self.thermo, stringify("DustyGas")))
         self.transport = self.base.transport().get()
         super().__init__(*args, **kwargs)
 

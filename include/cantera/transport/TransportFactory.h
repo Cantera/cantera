@@ -98,14 +98,14 @@ Transport* newTransportMgr(const std::string& transportModel = "",
 
 //!  Create a new Transport instance.
 /*!
+ *  @param thermo   the ThermoPhase object associated with the phase
  *  @param model    name of transport model; if "default", the default
  *                  transport model for the ThermoPhase object is created
- *  @param thermo   the ThermoPhase object associated with the phase
  *  @returns a Transport object for the phase
  * @ingroup tranprops
  */
-inline shared_ptr<Transport> newTransport(const std::string& model = "",
-                                          ThermoPhase* thermo = 0) {
+inline shared_ptr<Transport> newTransport(ThermoPhase* thermo,
+                                          const std::string& model = "default") {
     Transport* tr;
     if (model == "default") {
         tr = TransportFactory::factory()->newTransport(thermo, 0);
