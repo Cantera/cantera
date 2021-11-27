@@ -256,7 +256,7 @@ std::string Units::str(bool skip_unity) const
     std::string num = "";
     std::string den = "";
     for (auto const& dim : dims) {
-        int rounded = roundf(dim.second);
+        int rounded = round(dim.second);
         if (dim.second == 0.) {
             // skip
         } else if (dim.second == 1.) {
@@ -283,7 +283,7 @@ std::string Units::str(bool skip_unity) const
     }
 
     std::string factor;
-    if (m_factor == roundf(m_factor)) {
+    if (m_factor == round(m_factor)) {
         // ensure that fmt::format does not round to integer
         factor = fmt::format("{:.1f}", m_factor);
     } else {
