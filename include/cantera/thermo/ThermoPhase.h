@@ -111,7 +111,7 @@ public:
     //! @{
 
     virtual std::string type() const {
-        return "ThermoPhase";
+        return "None";
     }
 
     //! String indicating the mechanical phase of the matter in this Phase.
