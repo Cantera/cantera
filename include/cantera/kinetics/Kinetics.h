@@ -130,7 +130,7 @@ public:
     //! Each class derived from Kinetics should override this method to return
     //! a meaningful identifier.
     virtual std::string kineticsType() const {
-        return "Kinetics";
+        return "None";
     }
 
     //! Finalize Kinetics object and associated objects
