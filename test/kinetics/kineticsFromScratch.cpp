@@ -46,6 +46,24 @@ public:
         kin_ref->getRevRateConstants(&k_ref[0]);
         EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
     }
+    
+    void check_uneq_rates(int iRef) {
+        ASSERT_EQ((size_t) 1, kin.nReactions());
+
+        std::string X = "O:0.02 H2:0.2 O2:0.5 H:0.03 OH:0.05 H2O:0.1 HO2:0.01";
+        p.setState_TPX(1200, 5*OneAtm, X);
+        p_ref.setState_TPX(1200, 5*OneAtm, X);
+
+        vector_fp k(1), k_ref(kin_ref->nReactions());
+
+        kin.getFwdRateConstants(&k[0]);
+        kin_ref->getFwdRateConstants(&k_ref[0]);
+        ASSERT_NE(k_ref[iRef], k[0]);
+
+        kin.getRevRateConstants(&k[0]);
+        kin_ref->getRevRateConstants(&k_ref[0]);
+        ASSERT_NE(k_ref[iRef], k[0]);
+    }
 };
 
 TEST_F(KineticsFromScratch, add_elementary_reaction)
@@ -118,10 +136,18 @@ TEST_F(KineticsFromScratch, add_falloff_reaction)
     Arrhenius low_rate(2.3e12, -0.9, -1700.0 / GasConst_cal_mol_K);
     vector_fp falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
     ThirdBody tbody;
-    tbody.efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
+    tbody.efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:60.0");
     auto R = make_shared<FalloffReaction>(reac, prod, low_rate, high_rate, tbody);
     R->falloff = newFalloff("Troe", falloff_params);
+
+    ThirdBody tbody_correct;
+    tbody_correct.efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
+    auto R_correct = make_shared<FalloffReaction>(reac, prod, low_rate, high_rate, tbody_correct);
+    R_correct->falloff = newFalloff("Troe", falloff_params);
+
     kin.addReaction(R);
+    check_uneq_rates(2);
+    kin.modifyReaction(0, R_correct);
     check_rates(2);
 }
 
