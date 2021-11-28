@@ -77,10 +77,9 @@ public:
 
     //! Create a new thermodynamic property manager.
     /*!
-     * @param model  String to look up the model against
-     * @returns a pointer to a new ThermoPhase instance matching the model
-     *   string. Returns NULL if something went wrong. Throws an exception
-     *   if the string wasn't matched.
+     * @param model  The name of the thermo model
+     * @returns a pointer to a new ThermoPhase object of the type specified. Throws a
+     *     CanteraError if the named model isn't registered with ThermoFactory.
      */
     virtual ThermoPhase* newThermoPhase(const std::string& model);
 
@@ -95,13 +94,7 @@ private:
     static std::mutex thermo_mutex;
 };
 
-//! Create a new thermo manager instance.
-/*!
- * @param model   String to look up the model against
- * @returns a pointer to a new ThermoPhase instance matching the model string.
- *   Returns NULL if something went wrong. Throws an exception
- *   UnknownThermoPhaseModel if the string wasn't matched.
- */
+//! @copydoc ThermoFactory::newThermoPhase
 inline ThermoPhase* newThermoPhase(const std::string& model)
 {
     return ThermoFactory::factory()->create(model);
