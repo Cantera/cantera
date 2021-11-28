@@ -8,6 +8,8 @@ from ctypes import c_int
 # e.g. class Solution. [Cython 0.16]
 cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method):
     cdef np.ndarray[np.double_t, ndim=1] data = np.empty(kin.n_total_species)
+    if kin.n_total_species == 0:
+        return data
     method(kin.kinetics, &data[0])
     # @todo: Fix _selected_species to work with interface kinetics
     if kin._selected_species.size:
@@ -17,6 +19,8 @@ cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method):
 
 cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method):
     cdef np.ndarray[np.double_t, ndim=1] data = np.empty(kin.n_reactions)
+    if kin.n_reactions == 0:
+        return data
     method(kin.kinetics, &data[0])
     return data
 
