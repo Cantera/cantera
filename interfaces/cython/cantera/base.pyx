@@ -16,6 +16,19 @@ cdef class _SolutionBase:
                         origin=origin, source=source, yaml=yaml,
                         thermo=thermo, species=species, kinetics=kinetics,
                         reactions=reactions, **kwargs)
+            return
+
+        self._base = CxxNewSolution()
+        self.base = self._base.get()
+        self.base.setSource(stringify("none"))
+
+        self.base.setThermo(newThermo(stringify("none")))
+        self.thermo = self.base.thermo().get()
+        self.base.setKinetics(newKinetics(stringify("none")))
+        self.kinetics = self.base.kinetics().get()
+        self.base.setTransport(newTransport(NULL, stringify("none")))
+        self.transport = self.base.transport().get()
+        self._selected_species = np.ndarray(0, dtype=np.uint64)
 
     def _cinit(self, infile='', name='', adjacent=(), origin=None,
                   source=None, yaml=None, thermo=None, species=(),
