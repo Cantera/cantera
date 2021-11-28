@@ -283,14 +283,14 @@ cdef class _SolutionBase:
         """
         self.base.header().clear()
 
-    def write_yaml(self, filename, phases=None, units=None, precision=None,
+    def write_yaml(self, filename=None, phases=None, units=None, precision=None,
                    skip_user_defined=None, header=True):
         """
         Write the definition for this phase, any additional phases specified,
         and their species and reactions to the specified file.
 
         :param filename:
-            The name of the output file
+            The name of the output file; if ``None``, a YAML string is returned
         :param phases:
             Additional ThermoPhase / Solution objects to be included in the
             output file
@@ -328,6 +328,8 @@ cdef class _SolutionBase:
             Y.precision = precision
         if skip_user_defined is not None:
             Y.skip_user_defined = skip_user_defined
+        if filename is None:
+            return Y.to_string()
         Y.to_file(filename)
 
     def __getitem__(self, selection):
