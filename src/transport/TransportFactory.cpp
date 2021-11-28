@@ -104,10 +104,10 @@ Transport* TransportFactory::newTransport(ThermoPhase* phase, int log_level)
     return newTransport(transportModel, phase,log_level);
 }
 
-Transport* newTransportMgr(const std::string& transportModel, ThermoPhase* thermo, int loglevel)
+Transport* newTransportMgr(const std::string& model, ThermoPhase* thermo, int log_level)
 {
     TransportFactory* f = TransportFactory::factory();
-    return f->newTransport(transportModel, thermo, loglevel);
+    return f->newTransport(model, thermo, log_level);
 }
 
 Transport* newDefaultTransportMgr(ThermoPhase* thermo, int loglevel)

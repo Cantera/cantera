@@ -1286,8 +1286,6 @@ public:
      * @param k Optional parameter indicating the species. The default is to
      *         assume this refers to species 0.
      * @returns the standard Concentration in units of m^3/kmol.
-     *
-     * @param k Species index
      */
     virtual doublereal standardConcentration(size_t k=0) const;
 

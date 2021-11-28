@@ -405,7 +405,7 @@ inline static void _decrementReactions(InputIter begin,
     }
 }
 
-/*
+/*!
  * This class handles operations involving the stoichiometric coefficients on
  * one side of a reaction (reactant or product) for a set of reactions
  * comprising a reaction mechanism. This class is used by class Kinetics, which
@@ -439,7 +439,7 @@ inline static void _decrementReactions(InputIter begin,
  * \f[
  * S_k = R_{i1} + \dots + R_{iM}
  * \f]
- * where M is the number of molecules, and $\f i(m) \f$ is the
+ * where M is the number of molecules, and \f$ i(m) \f$ is the
  * See @ref Stoichiometry
  * @ingroup Stoichiometry
  */

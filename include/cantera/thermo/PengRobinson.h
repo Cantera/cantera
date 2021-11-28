@@ -165,8 +165,7 @@ public:
     /*!
      *  @param species_i   Name of one species
      *  @param species_j   Name of the other species
-     *  @param a           constant term in the \f$a\f$ expression [Pa-m^6/kmol^2]
-     *  @param alpha       dimensionless function of \f$T_r\f$ and \f$\omega\f$
+     *  @param a           \f$a\f$ parameter in the Peng-Robinson model [Pa-m^6/kmol^2]
      */
     void setBinaryCoeffs(const std::string& species_i,
                          const std::string& species_j, double a);
@@ -209,7 +208,7 @@ public:
     //! Update the \f$a\f$, \f$b\f$, and \f$\alpha\f$ parameters
     /*!
      *  The \f$a\f$ and the \f$b\f$ parameters depend on the mole fraction and the
-     *  parameter $\f\alpha\f$ depends on the temperature. This function updates
+     *  parameter \f$\alpha\f$ depends on the temperature. This function updates
      *  the internal numbers based on the state of the object.
      */
     virtual void updateMixingExpressions();

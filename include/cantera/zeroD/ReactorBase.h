@@ -249,10 +249,10 @@ protected:
     size_t m_nsp;
 
     ThermoPhase* m_thermo;
-    doublereal m_vol;
-    doublereal m_enthalpy;
-    doublereal m_intEnergy;
-    doublereal m_pressure;
+    double m_vol; //!< Current volume of the reactor [m^3]
+    double m_enthalpy; //!< Current specific enthalpy of the reactor [J/kg]
+    double m_intEnergy; //!< Current internal energy of the reactor [J/kg]
+    double m_pressure; //!< Current pressure in the reactor [Pa]
     vector_fp m_state;
     std::vector<FlowDevice*> m_inlet, m_outlet;
 

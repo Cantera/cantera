@@ -1715,8 +1715,8 @@ public:
     //! Get phase-specific parameters of a Species object such that an
     //! identical one could be reconstructed and added to this phase.
     /*!
-     * @param name     Name of the species
-     * @param eosNode  Mapping to be populated with parameters
+     * @param name         Name of the species
+     * @param speciesNode  Mapping to be populated with parameters
      */
     virtual void getSpeciesParameters(const std::string& name,
                                       AnyMap& speciesNode) const {}

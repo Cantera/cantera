@@ -92,9 +92,9 @@ private:
     std::map<std::string, bool> m_CK_mode;
 };
 
-//! @copydoc TransportFactory::newTransport(const std::string&, ThermoPhase*, int, int)
-Transport* newTransportMgr(const std::string& transportModel = "",
-                           ThermoPhase* thermo = 0, int loglevel = 0);
+//! @copydoc TransportFactory::newTransport(const std::string&, ThermoPhase*, int)
+Transport* newTransportMgr(const std::string& model="", ThermoPhase* thermo=0,
+                           int log_level=0);
 
 //!  Create a new Transport instance.
 /*!

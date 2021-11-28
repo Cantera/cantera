@@ -173,7 +173,7 @@ protected:
     //! Get parameters
     //! @param node  AnyMap containing rate information
     //! Store the parameters of a ReactionRate needed to reconstruct an identical
-    //! object. Does not include user-defined fields available in the #input map.
+    //! object. Does not include user-defined fields available in the #m_input map.
     virtual void getParameters(AnyMap& node) const {
         throw NotImplementedError("ReactionRate::getParameters",
                                   "Not implemented by '{}' object.", type());

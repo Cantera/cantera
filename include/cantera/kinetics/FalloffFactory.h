@@ -2,7 +2,7 @@
  *  @file FalloffFactory.h
  *  Parameterizations for reaction falloff functions. Used by classes
  *  that implement gas-phase kinetics (GasKinetics, GRI_30_Kinetics)
- *  (see \ref falloffGroup and class \link Cantera::Falloff Falloff\endlink).
+ *  (see \ref falloffGroup and class \link Cantera::FalloffRate FalloffRate\endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

@@ -1,7 +1,7 @@
 /**
  *  @file ReactionRateFactory.h
  *  Factory class for reaction rate objects. Used by classes that implement kinetics
- *  (see \ref reactionGroup and class \link Cantera::Rate Rate\endlink).
+ *  (see \ref reactionGroup and class \link Cantera::ReactionRate ReactionRate\endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

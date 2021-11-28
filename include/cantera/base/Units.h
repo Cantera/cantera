@@ -35,8 +35,10 @@ public:
                    double quantity=0);
 
     //! Create an object with the specified dimensions
+    //! @param units        A string representation of the units. See UnitSystem
+    //!                     for a description of the formatting options.
     //! @param force_unity  ensure that conversion factor is equal to one
-    explicit Units(const std::string& name, bool force_unity=false);
+    explicit Units(const std::string& units, bool force_unity=false);
 
     //! Returns `true` if the specified Units are dimensionally consistent
     bool convertible(const Units& other) const;

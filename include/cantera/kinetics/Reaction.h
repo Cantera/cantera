@@ -22,8 +22,11 @@ class FalloffRate;
 class XML_Node;
 class ThirdBody;
 
+//! @defgroup reactionGroup Reactions and reaction rates
+
 //! Abstract base class which stores data about a reaction and its rate
 //! parameterization so that it can be added to a Kinetics object.
+//! @ingroup reactionGroup
 class Reaction
 {
 public:
@@ -537,7 +540,7 @@ public:
 
 //! A falloff reaction that is first-order in [M] at low pressure, like a third-body
 //! reaction, but zeroth-order in [M] as pressure increases.
-//! In addition, the class supports checmically-acticated reactions where the rate
+//! In addition, the class supports chemically-activated reactions where the rate
 //! decreases as pressure increases due to collisional stabilization of a reaction
 //! intermediate; in this case, the forward rate constant is written as being
 //! proportional to the low-pressure rate constant.
