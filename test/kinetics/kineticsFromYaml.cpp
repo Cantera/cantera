@@ -404,7 +404,7 @@ TEST(KineticsFromYaml, NoKineticsModelOrReactionsField1)
 {
     auto soln = newSolution("phase-reaction-spec1.yaml",
                             "nokinetics-noreactions");
-    EXPECT_EQ(soln->kinetics()->kineticsType(), "Kinetics");
+    EXPECT_EQ(soln->kinetics()->kineticsType(), "None");
     EXPECT_EQ(soln->kinetics()->nReactions(), (size_t) 0);
 }
 
@@ -412,7 +412,7 @@ TEST(KineticsFromYaml, NoKineticsModelOrReactionsField2)
 {
     auto soln = newSolution("phase-reaction-spec2.yaml",
                             "nokinetics-noreactions");
-    EXPECT_EQ(soln->kinetics()->kineticsType(), "Kinetics");
+    EXPECT_EQ(soln->kinetics()->kineticsType(), "None");
     EXPECT_EQ(soln->kinetics()->nReactions(), (size_t) 0);
 }
 
