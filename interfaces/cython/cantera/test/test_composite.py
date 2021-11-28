@@ -2,6 +2,7 @@ import sys
 
 import numpy as np
 from collections import OrderedDict
+import pickle
 
 import cantera as ct
 from cantera.composite import _h5py, _pandas
@@ -114,6 +115,94 @@ class TestModels(utilities.CanteraTest):
                            "TPX = {}")
                     msg = msg.format(ph['name'], ph['thermo'], sol.TPX)
                     raise TypeError(msg) from inst
+
+
+class TestPickle(utilities.CanteraTest):
+
+    def test_pickle_gas(self):
+        gas = ct.Solution("h2o2.yaml", transport_model=None)
+        gas.TPX = 500, 500000, "H2:.75,O2:.25"
+        with open("gas.pkl", "wb") as pkl:
+            pickle.dump(gas, pkl)
+
+        with open("gas.pkl", "rb") as pkl:
+            gas2 = pickle.load(pkl)
+        self.assertNear(gas.T, gas2.T)
+        self.assertNear(gas.P, gas2.P)
+        self.assertArrayNear(gas.X, gas2.X)
+
+        self.assertEqual(gas2.transport_model, "None")
+
+    def test_pickle_gas_with_transport(self):
+        gas = ct.Solution("h2o2.yaml")
+        gas.TPX = 500, 500000, "H2:.75,O2:.25"
+        gas.transport_model = "Multi"
+        with open("gas.pkl", "wb") as pkl:
+            pickle.dump(gas, pkl)
+
+        with open("gas.pkl", "rb") as pkl:
+            gas2 = pickle.load(pkl)
+        self.assertNear(gas.T, gas2.T)
+        self.assertNear(gas.P, gas2.P)
+        self.assertArrayNear(gas.X, gas2.X)
+
+        self.assertEqual(gas2.transport_model, "Multi")
+
+    def test_pickle_interface(self):
+        gas = ct.Solution("diamond.yaml", "gas")
+        solid = ct.Solution("diamond.yaml", "diamond")
+        interface = ct.Interface("diamond.yaml", "diamond_100", (gas, solid))
+
+        with self.assertRaises(NotImplementedError):
+            with open("interface.pkl", "wb") as pkl:
+                pickle.dump(interface, pkl)
+
+
+class TestEmptyThermoPhase(utilities.CanteraTest):
+    """ Test empty Solution object """
+    @classmethod
+    def setUpClass(cls):
+        utilities.CanteraTest.setUpClass()
+        cls.gas = ct.ThermoPhase()
+
+    def test_empty_report(self):
+        with self.assertRaisesRegex(ct.CanteraError, "NotImplementedError"):
+            self.gas()
+
+    def test_empty_TP(self):
+        with self.assertRaisesRegex(ct.CanteraError, "NotImplementedError"):
+            self.gas.TP = 300, ct.one_atm
+
+    def test_empty_equilibrate(self):
+        with self.assertRaisesRegex(ct.CanteraError, "NotImplementedError"):
+            self.gas.equilibrate("TP")
+
+
+class TestEmptySolution(TestEmptyThermoPhase):
+    """ Test empty Solution object """
+    @classmethod
+    def setUpClass(cls):
+        utilities.CanteraTest.setUpClass()
+        cls.gas = ct.Solution()
+
+    def test_empty_composite(self):
+        self.assertEqual(self.gas.thermo_model, "None")
+        self.assertEqual(self.gas.composite, ("None", "None", "None"))
+
+
+class TestEmptyEdgeCases(utilities.CanteraTest):
+    """ Test for edge cases where constructors are not allowed """
+    def test_empty_phase(self):
+        with self.assertRaisesRegex(ValueError, "Arguments are insufficient to define a phase"):
+            ct.ThermoPhase(thermo="ideal-gas")
+
+    def test_empty_kinetics(self):
+        with self.assertRaisesRegex(ValueError, "Cannot instantiate"):
+            ct.Kinetics()
+
+    def test_empty_transport(self):
+        with self.assertRaisesRegex(ValueError, "Cannot instantiate"):
+            ct.Transport()
 
 
 class TestSolutionArrayIO(utilities.CanteraTest):
