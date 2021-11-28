@@ -17,7 +17,8 @@ namespace Cantera
 
 class ThermoPhase;
 
-//! @defgroup equilfunctions
+//! @defgroup equilfunctions Classes and functions used for calculating
+//!     chemical equilibrium.
 
 //! A class for multiphase mixtures. The mixture can contain any
 //! number of phases of any type.

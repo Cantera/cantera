@@ -50,7 +50,7 @@ public:
 
     //! Perform object setup based on AnyValue node information
     /*!
-     *  @param node  AnyValue containing rate information
+     *  @param rate  AnyValue containing rate information
      *  @param units  Unit system
      *  @param rate_units  Unit definitions specific to rate information
      */

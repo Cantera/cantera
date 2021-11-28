@@ -358,7 +358,7 @@ public:
     //! Perform object setup based on AnyMap node information
     /*!
      *  @param node  AnyMap containing rate information
-     *  @param rate_units  Unit definitions specific to rate information
+     *  @param units  Unit definitions specific to rate information
      */
     void setParameters(const AnyMap& node, const UnitStack& units);
 
@@ -565,7 +565,7 @@ public:
     //! Perform object setup based on AnyMap node information
     /*!
      *  @param node  AnyMap containing rate information
-     *  @param rate_units  Unit definitions specific to rate information
+     *  @param units  Unit definitions specific to rate information
      */
     void setParameters(const AnyMap& node, const UnitStack& units);
     void getParameters(AnyMap& rateNode, const Units& rate_units) const {

@@ -29,7 +29,7 @@ namespace Cantera
  * sublattice and the molar density within the LatticeSolidPhase have the same
  * values.
  *
- * The mole fraction vector is redefined witin the the LatticeSolidPhase object.
+ * The mole fraction vector is redefined within the LatticeSolidPhase object.
  * Each of the mole fractions sum to one on each of the sublattices.  The
  * routine getMoleFraction() and setMoleFraction() have been redefined to use
  * this convention.
