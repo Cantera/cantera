@@ -664,7 +664,8 @@ public:
      *  \rho, Y_1, \dots, Y_K) \f$. Alternatively, it returns a stored value.
      */
     virtual double pressure() const {
-        throw NotImplementedError("Phase::pressure");
+        throw NotImplementedError("Phase::pressure",
+            "Not implemented for thermo model '{}'", type());
     }
 
     //! Density (kg/m^3).
@@ -703,7 +704,8 @@ public:
      *  @param p input Pressure (Pa)
      */
     virtual void setPressure(double p) {
-        throw NotImplementedError("Phase::setPressure");
+        throw NotImplementedError("Phase::setPressure",
+            "Not implemented for thermo model '{}'", type());
     }
 
     //! Set the internally stored temperature of the phase (K).

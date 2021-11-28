@@ -1403,6 +1403,11 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
 
 std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
 {
+    if (type() == "None") {
+        throw NotImplementedError("ThermoPhase::report",
+            "Not implemented for thermo model 'None'");
+    }
+
     fmt::memory_buffer b;
     // This is the width of the first column of names in the report.
     int name_width = 18;
