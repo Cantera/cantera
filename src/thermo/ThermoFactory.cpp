@@ -48,6 +48,9 @@ std::mutex ThermoFactory::thermo_mutex;
 
 ThermoFactory::ThermoFactory()
 {
+    reg("none", []() { return new ThermoPhase(); });
+    addAlias("none", "ThermoPhase");
+    addAlias("none", "None");
     reg("ideal-gas", []() { return new IdealGasPhase(); });
     addAlias("ideal-gas", "IdealGas");
     reg("ideal-surface", []() { return new SurfPhase(); });
