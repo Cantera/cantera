@@ -69,6 +69,7 @@ public:
 
     //! Set parameters
     //! @param node  AnyMap object containing reaction rate specification
+    //! @param rate_units  unit definitions specific to rate information
     virtual void setParameters(const AnyMap& node, const UnitsVector& units) {
         m_input = node;
     }
@@ -82,11 +83,11 @@ public:
         return out;
     }
 
+    //! Check basic syntax and settings of reaction rate expression
     virtual void check(const std::string& equation, const AnyMap& node) {}
 
     //! Validate the reaction rate expression
-    //! @todo add Kinetics object
-    virtual void validate(const std::string& equation) {}
+    virtual void validate(const std::string& equation, const Kinetics* kin = 0) {}
 
     //! Reaction rate index within kinetics evaluator
     size_t rateIndex() const {
@@ -158,9 +159,10 @@ public:
 
 protected:
     //! Get parameters
+    //! @param node  AnyMap containing rate information
     //! Store the parameters of a ReactionRate needed to reconstruct an identical
     //! object. Does not include user-defined fields available in the #input map.
-    virtual void getParameters(AnyMap& rateNode) const {
+    virtual void getParameters(AnyMap& Node) const {
         throw NotImplementedError("ReactionRate::getParameters",
                                   "Not implemented by '{}' object.", type());
     }

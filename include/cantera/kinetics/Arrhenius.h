@@ -45,7 +45,7 @@ public:
     ArrheniusBase(const AnyValue& rate,
                   const UnitSystem& units, const UnitsVector& rate_units)
     {
-        setParameters(rate, units, rate_units);
+        setRateParameters(rate, units, rate_units);
     }
 
     //! Perform object setup based on AnyValue node information
@@ -54,21 +54,17 @@ public:
      *  @param units  Unit system
      *  @param rate_units  Unit definitions specific to rate information
      */
-    virtual void setParameters(const AnyValue& rate,
-                               const UnitSystem& units, const UnitsVector& rate_units);
+    virtual void setRateParameters(const AnyValue& rate,
+                                   const UnitSystem& units,
+                                   const UnitsVector& rate_units);
     using ReactionRate::setParameters;
 
-    //! Return parameters
-    /*!
-     *  @param node  AnyValue containing rate information
-     */
     virtual void getParameters(AnyMap& node) const;
 
     //! Return parameters - required for legacy framework
     //! @todo: merge with single-parameter version after removal of old framework
     virtual void getParameters(AnyMap& node, const Units& rate_units) const;
 
-    //! Check the reaction rate expression
     void check(const std::string& equation, const AnyMap& node);
 
     //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
@@ -83,6 +79,8 @@ public:
     }
 
     //! Return the intrinsic activation energy *Ea* [J/kmol]
+    //! The value corresponds to the constant specified by input parameters;
+    //! in the simplest case, this is equal to the activation energy itself
     double intrinsicActivationEnergy() const {
         return m_Ea_R * GasConstant;
     }
@@ -221,11 +219,11 @@ public:
  *
  * @ingroup arrheniusGroup
  */
-class BlowersMasel3 : public ArrheniusBase
+class BlowersMaselRate : public ArrheniusBase
 {
 public:
     //! Default constructor.
-    BlowersMasel3();
+    BlowersMaselRate();
 
     //! Constructor.
     /*!
@@ -236,14 +234,17 @@ public:
      *  @param w  Average bond dissociation energy of the bond being formed and
      *      broken in the reaction, in energy units [J/kmol]
      */
-    BlowersMasel3(double A, double b, double Ea0, double w);
+    BlowersMaselRate(double A, double b, double Ea0, double w);
 
     unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<BlowersMasel3, BlowersMaselData>);
+        return unique_ptr<MultiRateBase>(
+            new MultiBulkRate<BlowersMaselRate, BlowersMaselData>);
     }
 
     //! Constructor based on AnyMap content
-    BlowersMasel3(const AnyMap& node, const UnitsVector& rate_units={}) : BlowersMasel3() {
+    BlowersMaselRate(const AnyMap& node, const UnitsVector& rate_units={})
+        : BlowersMaselRate()
+    {
         setParameters(node, rate_units);
     }
 
@@ -252,8 +253,9 @@ public:
         return "Blowers-Masel";
     }
 
-    virtual void setParameters(const AnyValue& rate,
-                               const UnitSystem& units, const UnitsVector& rate_units);
+    virtual void setRateParameters(const AnyValue& rate,
+                                   const UnitSystem& units,
+                                   const UnitsVector& rate_units);
 
     //! Perform object setup based on AnyMap node information
     /*!
@@ -322,9 +324,6 @@ protected:
 
     double m_deltaH_R; //!< Delta H of the reaction (in temperature units)
 };
-
-typedef BlowersMasel3 BlowersMaselRate;
-typedef ArrheniusRate Arrhenius3;
 
 }
 
