@@ -29,9 +29,9 @@ class FalloffRate : public ReactionRate
 {
 public:
     FalloffRate()
-        : allow_negative_pre_exponential_factor(false)
-        , third_body_concentration(NAN)
-        , m_chemicallyActivated(false)
+        : m_chemicallyActivated(false)
+        , m_negativeA_ok(false)
+        , m_thirdBodyConcentration(NAN)
         , m_rc_low(NAN)
         , m_rc_high(NAN)
     {
@@ -144,14 +144,14 @@ public:
         m_rc_low = m_lowRate.evalFromStruct(shared_data);
         m_rc_high = m_highRate.evalFromStruct(shared_data);
         if (shared_data.finalized && m_rate_index != npos) {
-            third_body_concentration = shared_data.conc_3b[m_rate_index];
+            m_thirdBodyConcentration = shared_data.conc_3b[m_rate_index];
         }
     }
 
     //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
     virtual double evalFromStruct(const FalloffData& shared_data) const {
-        double pr = third_body_concentration * m_rc_low / (m_rc_high + SmallNumber);
+        double pr = m_thirdBodyConcentration * m_rc_low / (m_rc_high + SmallNumber);
 
         // Apply falloff function
         if (m_chemicallyActivated) {
@@ -167,8 +167,25 @@ public:
 
     void check(const std::string& equation, const AnyMap& node);
 
-    bool allow_negative_pre_exponential_factor; // Flag is directly accessible
-    double third_body_concentration; //!< Buffered third-body concentration
+    //! Get buffered value of third-body concentration
+    const bool allowNegativePreExponentialFactor() const {
+        return m_negativeA_ok;
+    }
+
+    //! Get buffered value of third-body concentration
+    void setAllowNegativePreExponentialFactor(bool value) {
+        m_negativeA_ok = value;
+    }
+
+    //! Get buffered value of third-body concentration
+    const double thirdBodyConcentration() const {
+        return m_thirdBodyConcentration;
+    }
+
+    //! Set buffered value of third-body concentration
+    void setThirdBodyConcentration(double value) {
+        m_thirdBodyConcentration = value;
+    }
 
     //! Get flag indicating whether reaction is chemically activated
     const bool chemicallyActivated() const {
@@ -200,7 +217,10 @@ protected:
     ArrheniusRate m_lowRate; //!< The reaction rate in the low-pressure limit
     ArrheniusRate m_highRate; //!< The reaction rate in the high-pressure limit
 
-    bool m_chemicallyActivated; //!< Flag indicating whether reaction is chemically activated
+    bool m_chemicallyActivated; //!< Flag labeling reaction as chemically activated
+    bool m_negativeA_ok; //!< Flag indicating whether negative A values are permitted
+    double m_thirdBodyConcentration; //!< third-body concentration
+
     double m_rc_low; //!< Evaluated reaction rate in the low-pressure limit
     double m_rc_high; //!< Evaluated reaction rate in the high-pressure limit
     vector_fp m_work; //!< Work vector

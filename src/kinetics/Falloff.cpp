@@ -23,36 +23,28 @@ void FalloffRate::init(const vector_fp& c)
 
 void FalloffRate::setLowRate(const ArrheniusRate& low)
 {
-    if (low.preExponentialFactor() < 0 && !allow_negative_pre_exponential_factor) {
-        throw CanteraError("FalloffRate::setLowRate",
-            "Detected negative pre-exponential factor (A={}).\n"
-            "Enable 'allow_negative_pre_exponential_factor' to suppress "
-            "this message.", low.preExponentialFactor());
-    } else if (std::isnan(m_highRate.preExponentialFactor())) {
-        // pass
-    } else if (m_highRate.preExponentialFactor() * low.preExponentialFactor() < 0.) {
+    ArrheniusRate _low = low;
+    _low.setAllowNegativePreExponentialFactor(m_negativeA_ok);
+    _low.check("", AnyMap());
+    if (_low.preExponentialFactor() * m_highRate.preExponentialFactor() < 0.) {
         throw CanteraError("FalloffRate::setLowRate",
             "Detected inconsistent rate definitions;\nhigh and low "
             "rate pre-exponential factors must have the same sign.");
     }
-    m_lowRate = low;
+    m_lowRate = std::move(_low);
 }
 
 void FalloffRate::setHighRate(const ArrheniusRate& high)
 {
-    if (high.preExponentialFactor() < 0 && !allow_negative_pre_exponential_factor) {
-        throw CanteraError("FalloffRate::setHighRate",
-            "Detected negative pre-exponential factor (A={}).\n"
-            "Enable 'allow_negative_pre_exponential_factor' to suppress "
-            "this message.", high.preExponentialFactor());
-    } else if (std::isnan(m_lowRate.preExponentialFactor())) {
-        // pass
-    } else if (m_lowRate.preExponentialFactor() * high.preExponentialFactor() < 0.) {
+    ArrheniusRate _high = high;
+    _high.setAllowNegativePreExponentialFactor(m_negativeA_ok);
+    _high.check("", AnyMap());
+    if (m_lowRate.preExponentialFactor() * _high.preExponentialFactor() < 0.) {
         throw CanteraError("FalloffRate::setHighRate",
             "Detected inconsistent rate definitions;\nhigh and low "
             "rate pre-exponential factors must have the same sign.");
     }
-    m_highRate = high;
+    m_highRate = std::move(_high);
 }
 
 void FalloffRate::setFalloffCoeffs(const vector_fp& c)
@@ -75,7 +67,7 @@ void FalloffRate::setParameters(const AnyMap& node, const UnitsVector& rate_unit
         return;
     }
 
-    allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
+    m_negativeA_ok = node.getBool("negative-A", false);
     if (node["type"] == "chemically-activated") {
         m_chemicallyActivated = true;
     }
@@ -92,10 +84,12 @@ void FalloffRate::setParameters(const AnyMap& node, const UnitsVector& rate_unit
     if (node.hasKey("low-P-rate-constant")) {
         m_lowRate = ArrheniusRate(
             node["low-P-rate-constant"], node.units(), low_rate_units);
+        m_lowRate.setAllowNegativePreExponentialFactor(m_negativeA_ok);
     }
     if (node.hasKey("high-P-rate-constant")) {
         m_highRate = ArrheniusRate(
             node["high-P-rate-constant"], node.units(), high_rate_units);
+        m_highRate.setAllowNegativePreExponentialFactor(m_negativeA_ok);
     }
 }
 
@@ -106,7 +100,7 @@ void FalloffRate::getParameters(AnyMap& node) const
     } else {
         node["type"] = "falloff";
     }
-    if (allow_negative_pre_exponential_factor) {
+    if (m_negativeA_ok) {
         node["negative-A"] = true;
     }
     AnyMap rNode;
@@ -123,23 +117,14 @@ void FalloffRate::getParameters(AnyMap& node) const
 
 void FalloffRate::check(const std::string& equation, const AnyMap& node)
 {
-    if (!allow_negative_pre_exponential_factor &&
-            (m_lowRate.preExponentialFactor() < 0 ||
-             m_highRate.preExponentialFactor() < 0)) {
-        throw InputFileError("FalloffRate::check", node,
-            "Undeclared negative pre-exponential factor(s) found in reaction '{}'",
-            equation);
-    }
+    m_lowRate.check(equation, node);
+    m_highRate.check(equation, node);
 
     double lowA = m_lowRate.preExponentialFactor();
     double highA = m_highRate.preExponentialFactor();
     if (std::isnan(lowA) || std::isnan(highA)) {
         // arrhenius rates are not initialized
         return;
-    }
-    if (!allow_negative_pre_exponential_factor && (lowA < 0 || highA < 0)) {
-        throw InputFileError("FalloffRate::check", node,
-            "Negative pre-exponential factor(s) found in reaction '{}'", equation);
     }
     if (lowA * highA < 0) {
         throw InputFileError("FalloffRate::check", node,
