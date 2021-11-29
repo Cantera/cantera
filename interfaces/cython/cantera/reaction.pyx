@@ -295,7 +295,7 @@ cdef class FalloffRate(ReactionRate):
 
     _reaction_rate_type = None
 
-    def __cinit__(self, low=None, high=None, data=None, input_data=None, init=True):
+    def __cinit__(self, low=None, high=None, falloff_coeffs=None, input_data=None, init=True):
 
         if self._reaction_rate_type is None:
             raise TypeError(
@@ -317,9 +317,9 @@ cdef class FalloffRate(ReactionRate):
             if (low is not None) and (high is not None):
                 self.low_rate = low
                 self.high_rate = high
-                if data is None:
-                    data = ()
-                self.data = data
+                if falloff_coeffs is None:
+                    falloff_coeffs = ()
+                self.falloff_coeffs = falloff_coeffs
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
@@ -339,17 +339,17 @@ cdef class FalloffRate(ReactionRate):
         def __set__(self, Arrhenius rate):
             self.falloff.setHighRate(deref(rate.rate))
 
-    property data:
+    property falloff_coeffs:
         """ The array of coefficients used to define this falloff function. """
         def __get__(self):
             cdef vector[double] cxxdata
-            self.falloff.getData(cxxdata)
+            self.falloff.getFalloffCoeffs(cxxdata)
             return np.fromiter(cxxdata, np.double)
         def __set__(self, data):
             cdef vector[double] cxxdata
             for c in data:
                 cxxdata.push_back(c)
-            self.falloff.setData(cxxdata)
+            self.falloff.setFalloffCoeffs(cxxdata)
 
     property allow_negative_pre_exponential_factor:
         """
@@ -400,7 +400,7 @@ cdef class LindemannRate(FalloffRate):
     _reaction_rate_type = "Lindemann"
 
     def _from_empty(self):
-        self._rate.reset(new CxxLindemann())
+        self._rate.reset(new CxxLindemannRate())
 
     def _from_dict(self, dict input_data):
         self._rate = CxxNewReactionRate(dict_to_anymap(input_data))
@@ -414,14 +414,14 @@ cdef class TroeRate(FalloffRate):
     r"""
     The 3- or 4-parameter Troe falloff function.
 
-    :param data:
+    :param falloff_coeffs:
         An array of 3 or 4 parameters: :math:`[a, T^{***}, T^*, T^{**}]` where
         the final parameter is optional (with a default value of 0).
     """
     _reaction_rate_type = "Troe"
 
     def _from_empty(self):
-        self._rate.reset(new CxxTroe())
+        self._rate.reset(new CxxTroeRate())
 
     def _from_dict(self, dict input_data):
         self._rate = CxxNewReactionRate(dict_to_anymap(input_data))
@@ -435,14 +435,14 @@ cdef class SriRate(FalloffRate):
     r"""
     The 3- or 5-parameter SRI falloff function.
 
-    :param data:
+    :param falloff_coeffs:
         An array of 3 or 5 parameters: :math:`[a, b, c, d, e]` where the last
         two parameters are optional (with default values of 1 and 0, respectively).
     """
     _reaction_rate_type = "SRI"
 
     def _from_empty(self):
-        self._rate.reset(new CxxSri())
+        self._rate.reset(new CxxSriRate())
 
     def _from_dict(self, dict input_data):
         self._rate = CxxNewReactionRate(dict_to_anymap(input_data))
@@ -459,7 +459,7 @@ cdef class TsangRate(FalloffRate):
     _reaction_rate_type = "Tsang"
 
     def _from_empty(self):
-        self._rate.reset(new CxxTsang())
+        self._rate.reset(new CxxTsangRate())
 
     def _from_dict(self, dict input_data):
         self._rate = CxxNewReactionRate(dict_to_anymap(input_data))

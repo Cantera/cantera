@@ -25,10 +25,10 @@ class AnyMap;
  * Base class for falloff function calculators. Each instance of a subclass of
  * Falloff computes one falloff function.
  */
-class Falloff : public ReactionRate
+class FalloffRate : public ReactionRate
 {
 public:
-    Falloff()
+    FalloffRate()
         : allow_negative_pre_exponential_factor(false)
         , third_body_concentration(NAN)
         , m_chemicallyActivated(false)
@@ -37,7 +37,9 @@ public:
     {
     }
 
-    Falloff(const AnyMap& node, const UnitsVector& rate_units={}) : Falloff() {
+    FalloffRate(const AnyMap& node, const UnitsVector& rate_units={})
+        : FalloffRate()
+    {
         setParameters(node, rate_units);
     }
 
@@ -47,7 +49,7 @@ public:
      * @param c Vector of coefficients of the parameterization. The number and
      *     meaning of these coefficients is subclass-dependent.
      *
-     * @todo  deprecate; superseded by setData
+     * @todo  deprecate; superseded by setFalloffCoeffs
      */
     void init(const vector_fp& c);
 
@@ -57,7 +59,7 @@ public:
      * @param c Vector of coefficients of the parameterization. The number and
      *     meaning of these coefficients is subclass-dependent.
      */
-    virtual void setData(const vector_fp& c);
+    virtual void setFalloffCoeffs(const vector_fp& c);
 
     /**
      * Retrieve coefficients of the falloff parameterization.
@@ -65,7 +67,7 @@ public:
      * @param c Vector of coefficients of the parameterization. The number and
      *     meaning of these coefficients is subclass-dependent.
      */
-    virtual void getData(vector_fp& c) const;
+    virtual void getFalloffCoeffs(vector_fp& c) const;
 
     /**
      * Update the temperature-dependent portions of the falloff function, if
@@ -133,13 +135,13 @@ public:
     //! Get the values of the parameters for this object. *params* must be an
     //! array of at least nParameters() elements.
     /**
-     * @todo  deprecate; superseded by getData
+     * @todo  deprecate; superseded by getFalloffCoeffs
      */
     virtual void getParameters(double* params) const {}
 
     //! Store the falloff-related parameters needed to reconstruct an identical
     //! Reaction using the newReaction(AnyMap&, Kinetics&) function.
-    virtual void getParameters(AnyMap& rateNode) const;
+    virtual void getParameters(AnyMap& node) const;
 
     //! Update information specific to reaction
     //! @param shared_data  data shared by all reactions of a given type
@@ -220,25 +222,29 @@ protected:
  *
  * @ingroup falloffGroup
  */
-class Lindemann final : public Falloff
+class LindemannRate final : public FalloffRate
 {
 public:
-    Lindemann() = default;
+    LindemannRate() = default;
 
-    Lindemann(const AnyMap& node, const UnitsVector& rate_units={}) : Lindemann() {
+    LindemannRate(const AnyMap& node, const UnitsVector& rate_units={})
+        : LindemannRate()
+    {
         setParameters(node, rate_units);
     }
 
-    Lindemann(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
-        : Lindemann()
+    LindemannRate(
+        const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
+        : LindemannRate()
     {
         m_lowRate = low;
         m_highRate = high;
-        setData(c);
+        setFalloffCoeffs(c);
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<Lindemann, FalloffData>);
+        return unique_ptr<MultiRateBase>(
+            new MultiBulkRate<LindemannRate, FalloffData>);
     }
 
     virtual const std::string type() const {
@@ -275,28 +281,30 @@ public:
  *
  * @ingroup falloffGroup
  */
-class Troe final : public Falloff
+class TroeRate final : public FalloffRate
 {
 public:
     //! Constructor
-    Troe() : m_a(NAN), m_rt3(0.0), m_rt1(0.0), m_t2(0.0) {
+    TroeRate() : m_a(NAN), m_rt3(0.0), m_rt1(0.0), m_t2(0.0) {
         m_work.resize(1);
     }
 
-    Troe(const AnyMap& node, const UnitsVector& rate_units={}) : Troe() {
+    TroeRate(const AnyMap& node, const UnitsVector& rate_units={})
+        : TroeRate()
+    {
         setParameters(node, rate_units);
     }
 
-    Troe(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
-        : Troe()
+    TroeRate(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
+        : TroeRate()
     {
         m_lowRate = low;
         m_highRate = high;
-        setData(c);
+        setFalloffCoeffs(c);
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<Troe, FalloffData>);
+        return unique_ptr<MultiRateBase>(new MultiBulkRate<TroeRate, FalloffData>);
     }
 
     //! Set coefficients used by parameterization
@@ -304,9 +312,9 @@ public:
      * @param c Vector of three or four doubles: The doubles are the parameters,
      *          a, T_3, T_1, and (optionally) T_2 of the Troe parameterization
      */
-    virtual void setData(const vector_fp& c);
+    virtual void setFalloffCoeffs(const vector_fp& c);
 
-    virtual void getData(vector_fp& c) const;
+    virtual void getFalloffCoeffs(vector_fp& c) const;
 
     //! Update the temperature parameters in the representation
     /*!
@@ -334,11 +342,11 @@ public:
 
     //! Sets params to contain, in order, \f[ (A, T_3, T_1, T_2) \f]
     /**
-     * @todo  deprecate; superseded by getData
+     * @todo  deprecate; superseded by getFalloffCoeffs
      */
     virtual void getParameters(double* params) const;
 
-    virtual void getParameters(AnyMap& rateNode) const;
+    virtual void getParameters(AnyMap& node) const;
 
 protected:
     //! parameter a in the 4-parameter Troe falloff function. Dimensionless
@@ -375,28 +383,30 @@ protected:
  *
  * @ingroup falloffGroup
  */
-class SRI final : public Falloff
+class SriRate final : public FalloffRate
 {
 public:
     //! Constructor
-    SRI() : m_a(NAN), m_b(-1.0), m_c(-1.0), m_d(-1.0), m_e(-1.0) {
+    SriRate() : m_a(NAN), m_b(-1.0), m_c(-1.0), m_d(-1.0), m_e(-1.0) {
         m_work.resize(2);
     }
 
-    SRI(const AnyMap& node, const UnitsVector& rate_units={}) : SRI() {
+    SriRate(const AnyMap& node, const UnitsVector& rate_units={})
+        : SriRate()
+    {
         setParameters(node, rate_units);
     }
 
-    SRI(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
-        : SRI()
+    SriRate(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
+        : SriRate()
     {
         m_lowRate = low;
         m_highRate = high;
-        setData(c);
+        setFalloffCoeffs(c);
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<SRI, FalloffData>);
+        return unique_ptr<MultiRateBase>(new MultiBulkRate<SriRate, FalloffData>);
     }
 
     //! Set coefficients used by parameterization
@@ -405,9 +415,9 @@ public:
      *          a, b, c, d (optional; default 1.0), and e (optional; default
      *          0.0) of the SRI parameterization
      */
-    virtual void setData(const vector_fp& c);
+    virtual void setFalloffCoeffs(const vector_fp& c);
 
-    virtual void getData(vector_fp& c) const;
+    virtual void getFalloffCoeffs(vector_fp& c) const;
 
     //! Update the temperature parameters in the representation
     /*!
@@ -435,11 +445,11 @@ public:
 
     //! Sets params to contain, in order, \f[ (a, b, c, d, e) \f]
     /**
-     * @todo  deprecate; superseded by getData
+     * @todo  deprecate; superseded by getFalloffCoeffs
      */
     virtual void getParameters(double* params) const;
 
-    virtual void getParameters(AnyMap& rateNode) const;
+    virtual void getParameters(AnyMap& node) const;
 
 protected:
     //! parameter a in the 5-parameter SRI falloff function. Dimensionless.
@@ -483,28 +493,30 @@ protected:
  *
  * @ingroup falloffGroup
  */
-class Tsang final : public Falloff
+class TsangRate final : public FalloffRate
 {
 public:
     //! Constructor
-    Tsang() : m_a(NAN), m_b(0.0) {
+    TsangRate() : m_a(NAN), m_b(0.0) {
         m_work.resize(1);
     }
 
-    Tsang(const AnyMap& node, const UnitsVector& rate_units={}) : Tsang() {
+    TsangRate(const AnyMap& node, const UnitsVector& rate_units={})
+        : TsangRate()
+    {
         setParameters(node, rate_units);
     }
 
-    Tsang(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
-        : Tsang()
+    TsangRate(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
+        : TsangRate()
     {
         m_lowRate = low;
         m_highRate = high;
-        setData(c);
+        setFalloffCoeffs(c);
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<Tsang, FalloffData>);
+        return unique_ptr<MultiRateBase>(new MultiBulkRate<TsangRate, FalloffData>);
     }
 
     //! Set coefficients used by parameterization
@@ -512,9 +524,9 @@ public:
      * @param c Vector of one or two doubles: The doubles are the parameters,
      *          a and (optionally) b of the Tsang F_cent parameterization
      */
-    virtual void setData(const vector_fp& c);
+    virtual void setFalloffCoeffs(const vector_fp& c);
 
-    virtual void getData(vector_fp& c) const;
+    virtual void getFalloffCoeffs(vector_fp& c) const;
 
     //! Update the temperature parameters in the representation
     /*!
@@ -542,11 +554,11 @@ public:
 
     //! Sets params to contain, in order, \f[ (A, B) \f]
     /**
-     * @todo  deprecate; superseded by getData
+     * @todo  deprecate; superseded by getFalloffCoeffs
      */
     virtual void getParameters(double* params) const;
 
-    virtual void getParameters(AnyMap& rateNode) const;
+    virtual void getParameters(AnyMap& node) const;
 
 protected:
     //! parameter a in the Tsang F_cent formulation. Dimensionless
@@ -555,6 +567,12 @@ protected:
     //! parameter b in the Tsang F_cent formulation. [K^-1]
     double m_b;
 };
+
+typedef FalloffRate Falloff;
+typedef LindemannRate Lindemann;
+typedef TroeRate Troe;
+typedef SriRate SRI;
+typedef TsangRate Tsang;
 
 }
 

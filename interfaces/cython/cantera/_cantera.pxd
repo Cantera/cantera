@@ -435,21 +435,21 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         void setLowRate(CxxArrheniusRate&) except +translate_exception
         CxxArrheniusRate& highRate()
         void setHighRate(CxxArrheniusRate&) except +translate_exception
-        void getData(vector[double]&)
-        void setData(vector[double]&) except +translate_exception
+        void getFalloffCoeffs(vector[double]&)
+        void setFalloffCoeffs(vector[double]&) except +translate_exception
         double evalF(double, double) except +translate_exception
 
-    cdef cppclass CxxLindemann "Cantera::Lindemann" (CxxFalloffRate):
-        CxxLindemann()
+    cdef cppclass CxxLindemannRate "Cantera::LindemannRate" (CxxFalloffRate):
+        CxxLindemannRate()
 
-    cdef cppclass CxxTroe "Cantera::Troe" (CxxFalloffRate):
-        CxxTroe()
+    cdef cppclass CxxTroeRate "Cantera::TroeRate" (CxxFalloffRate):
+        CxxTroeRate()
 
-    cdef cppclass CxxSri "Cantera::SRI" (CxxFalloffRate):
-        CxxSri()
+    cdef cppclass CxxSriRate "Cantera::SriRate" (CxxFalloffRate):
+        CxxSriRate()
 
-    cdef cppclass CxxTsang "Cantera::Tsang" (CxxFalloffRate):
-        CxxTsang()
+    cdef cppclass CxxTsangRate "Cantera::TsangRate" (CxxFalloffRate):
+        CxxTsangRate()
 
     cdef cppclass CxxPlogRate "Cantera::PlogRate" (CxxReactionRate):
         CxxPlogRate()

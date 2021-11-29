@@ -35,23 +35,23 @@ ReactionRateFactory::ReactionRateFactory()
 
     // Lindemann falloff evaluator
     reg("Lindemann", [](const AnyMap& node, const UnitsVector& rate_units) {
-        return new Lindemann(node, rate_units);
+        return new LindemannRate(node, rate_units);
     });
     addAlias("Lindemann", "falloff");
 
     // Troe falloff evaluator
     reg("Troe", [](const AnyMap& node, const UnitsVector& rate_units) {
-        return new Troe(node, rate_units);
+        return new TroeRate(node, rate_units);
     });
 
     // SRI falloff evaluator
     reg("SRI", [](const AnyMap& node, const UnitsVector& rate_units) {
-        return new SRI(node, rate_units);
+        return new SriRate(node, rate_units);
     });
 
     // Tsang falloff evaluator
     reg("Tsang", [](const AnyMap& node, const UnitsVector& rate_units) {
-        return new Tsang(node, rate_units);
+        return new TsangRate(node, rate_units);
     });
 
     // PlogRate evaluator
