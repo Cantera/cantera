@@ -109,15 +109,15 @@ void FalloffRate::getParameters(AnyMap& node) const
     if (allow_negative_pre_exponential_factor) {
         node["negative-A"] = true;
     }
-    AnyMap node;
-    m_lowRate.getParameters(node);
-    if (!node.empty()) {
-        node["low-P-rate-constant"] = node["rate-constant"];
+    AnyMap rNode;
+    m_lowRate.getParameters(rNode);
+    if (!rNode.empty()) {
+        node["low-P-rate-constant"] = rNode["rate-constant"];
     }
-    node.clear();
-    m_highRate.getParameters(node);
-    if (!node.empty()) {
-        node["high-P-rate-constant"] = node["rate-constant"];
+    rNode.clear();
+    m_highRate.getParameters(rNode);
+    if (!rNode.empty()) {
+        node["high-P-rate-constant"] = rNode["rate-constant"];
     }
 }
 

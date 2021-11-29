@@ -29,15 +29,15 @@ Arrhenius2::Arrhenius2(doublereal A, doublereal b, doublereal E)
 Arrhenius2::Arrhenius2(const AnyValue& rate,
                        const UnitSystem& units, const Units& rate_units)
 {
-    setParameters(rate, units, rate_units);
+    setRateParameters(rate, units, rate_units);
 }
 
-void Arrhenius2::setParameters(const AnyValue& rate,
-                               const UnitSystem& units, const Units& rate_units)
+void Arrhenius2::setRateParameters(const AnyValue& rate,
+                                   const UnitSystem& units, const Units& rate_units)
 {
     UnitsVector units_vector;
     units_vector.emplace_back(rate_units, 1.);
-    ArrheniusBase::setParameters(rate, units, units_vector);
+    ArrheniusBase::setRateParameters(rate, units, units_vector);
     if (m_A <= 0.0) {
         m_logA = -1.0E300;
     } else {
@@ -117,7 +117,7 @@ void SurfaceArrhenius::addCoverageDependence(size_t k, doublereal a,
     }
 }
 
-Plog::Plog()
+PlogRate::PlogRate()
     : logP_(-1000)
     , logP1_(1000)
     , logP2_(-1000)
@@ -125,26 +125,26 @@ Plog::Plog()
 {
 }
 
-Plog::Plog(const std::multimap<double, Arrhenius>& rates)
-    : Plog()
+PlogRate::PlogRate(const std::multimap<double, Arrhenius>& rates)
+    : PlogRate()
 {
     setRates(rates);
 }
 
-void Plog::setParameters(const AnyMap& node, const UnitsVector& units)
+void PlogRate::setParameters(const AnyMap& node, const UnitsVector& units)
 {
     auto rate_units = Units::product(units);
     if (!node.hasKey("rate-constants")) {
-        Plog::setParameters(std::vector<AnyMap> (), node.units(), rate_units);
+        PlogRate::setRateParameters(std::vector<AnyMap> (), node.units(), rate_units);
         return;
     }
 
-    setParameters(node.at("rate-constants").asVector<AnyMap>(),
-                  node.units(), rate_units);
+    setRateParameters(node.at("rate-constants").asVector<AnyMap>(),
+                      node.units(), rate_units);
 }
 
-void Plog::setParameters(const std::vector<AnyMap>& rates,
-                         const UnitSystem& units, const Units& rate_units)
+void PlogRate::setRateParameters(const std::vector<AnyMap>& rates,
+                                 const UnitSystem& units, const Units& rate_units)
 {
     std::multimap<double, Arrhenius> multi_rates;
     if (rates.size()) {
@@ -160,7 +160,7 @@ void Plog::setParameters(const std::vector<AnyMap>& rates,
     setRates(multi_rates);
 }
 
-void Plog::getParameters(AnyMap& rateNode, const Units& rate_units) const
+void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
     std::vector<AnyMap> rateList;
     double A = rates_[1].preExponentialFactor();
@@ -182,14 +182,14 @@ void Plog::getParameters(AnyMap& rateNode, const Units& rate_units) const
     rateNode["rate-constants"] = std::move(rateList);
 }
 
-void Plog::setup(const std::multimap<double, Arrhenius>& rates)
+void PlogRate::setup(const std::multimap<double, Arrhenius>& rates)
 {
-    warn_deprecated("Plog::setup", "Deprecated in Cantera 2.6; "
+    warn_deprecated("PlogRate::setup", "Deprecated in Cantera 2.6; "
         "renamed to setRates.");
     setRates(rates);
 }
 
-void Plog::setRates(const std::multimap<double, Arrhenius>& rates)
+void PlogRate::setRates(const std::multimap<double, Arrhenius>& rates)
 {
     size_t j = 0;
     rates_.clear();
@@ -215,7 +215,7 @@ void Plog::setRates(const std::multimap<double, Arrhenius>& rates)
     pressures_.insert({1000.0, pressures_.rbegin()->second});
 }
 
-void Plog::validate(const std::string& equation)
+void PlogRate::validate(const std::string& equation, const Kinetics* kin)
 {
     fmt::memory_buffer err_reactions;
     double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
@@ -236,19 +236,19 @@ void Plog::validate(const std::string& equation)
         }
     }
     if (err_reactions.size()) {
-        throw CanteraError("Plog::validate", to_string(err_reactions));
+        throw CanteraError("PlogRate::validate", to_string(err_reactions));
     }
 }
 
-std::vector<std::pair<double, Arrhenius> > Plog::rates() const
+std::vector<std::pair<double, Arrhenius> > PlogRate::rates() const
 {
-    warn_deprecated("Plog::rates", "Behavior to change after Cantera 2.6; "
+    warn_deprecated("PlogRate::rates", "Behavior to change after Cantera 2.6; "
         "see getRates() for new behavior.");
     auto rateMap = getRates();
     return std::vector<std::pair<double, Arrhenius>>(rateMap.begin(), rateMap.end());
 }
 
-std::multimap<double, Arrhenius> Plog::getRates() const
+std::multimap<double, Arrhenius> PlogRate::getRates() const
 {
     std::multimap<double, Arrhenius> rateMap;
     // initial preincrement to skip rate for P --> 0
@@ -262,14 +262,14 @@ std::multimap<double, Arrhenius> Plog::getRates() const
     return rateMap;
 }
 
-Chebyshev::Chebyshev(double Tmin, double Tmax, double Pmin, double Pmax,
-                     const Array2D& coeffs) : Chebyshev()
+ChebyshevRate3::ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pmax,
+                               const Array2D& coeffs) : ChebyshevRate3()
 {
     setLimits(Tmin, Tmax, Pmin, Pmax);
     setData(coeffs);
 }
 
-void Chebyshev::setParameters(const AnyMap& node, const UnitsVector& units)
+void ChebyshevRate3::setParameters(const AnyMap& node, const UnitsVector& units)
 {
     m_rate_units = Units::product(units);
     const UnitSystem& unit_system = node.units();
@@ -281,7 +281,7 @@ void Chebyshev::setParameters(const AnyMap& node, const UnitsVector& units)
         coeffs = Array2D(vcoeffs.size(), vcoeffs[0].size());
         for (size_t i = 0; i < coeffs.nRows(); i++) {
             if (vcoeffs[i].size() != vcoeffs[0].size()) {
-                throw InputFileError("Chebyshev::setParameters", node["data"],
+                throw InputFileError("ChebyshevRate3::setParameters", node["data"],
                     "Inconsistent number of coefficients in row {} of matrix", i + 1);
             }
             for (size_t j = 0; j < coeffs.nColumns(); j++) {
@@ -307,16 +307,16 @@ void Chebyshev::setParameters(const AnyMap& node, const UnitsVector& units)
     setData(coeffs);
 }
 
-void Chebyshev::setup(double Tmin, double Tmax, double Pmin, double Pmax,
+void ChebyshevRate3::setup(double Tmin, double Tmax, double Pmin, double Pmax,
                       const Array2D& coeffs)
 {
-    warn_deprecated("Chebyshev::setup", "Deprecated in Cantera 2.6; "
+    warn_deprecated("ChebyshevRate3::setup", "Deprecated in Cantera 2.6; "
         "replaceable with setLimits() and setData().");
     setLimits(Tmin, Tmax, Pmin, Pmax);
     setData(coeffs);
 }
 
-void Chebyshev::setLimits(double Tmin, double Tmax, double Pmin, double Pmax)
+void ChebyshevRate3::setLimits(double Tmin, double Tmax, double Pmin, double Pmax)
 {
     double logPmin = std::log10(Pmin);
     double logPmax = std::log10(Pmax);
@@ -334,7 +334,7 @@ void Chebyshev::setLimits(double Tmin, double Tmax, double Pmin, double Pmax)
     Pmax_ = Pmax;
 }
 
-void Chebyshev::setData(const Array2D& coeffs)
+void ChebyshevRate3::setData(const Array2D& coeffs)
 {
     m_coeffs = coeffs;
     dotProd_.resize(coeffs.nRows());
@@ -351,7 +351,7 @@ void Chebyshev::setData(const Array2D& coeffs)
     }
 }
 
-void Chebyshev::getParameters(AnyMap& rateNode, const Units& rate_units) const
+void ChebyshevRate3::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
     rateNode["type"] = type();
     if (std::isnan(m_coeffs(0, 0))) {
@@ -373,9 +373,10 @@ void Chebyshev::getParameters(AnyMap& rateNode, const Units& rate_units) const
     Units rate_units2 = m_rate_units;
     auto converter = [rate_units2](AnyValue& coeffs, const UnitSystem& units) {
         if (rate_units2.factor() != 0.0) {
-            coeffs.asVector<vector_fp>()[0][0] += std::log10(units.convertFrom(1.0, rate_units2));
+            coeffs.asVector<vector_fp>()[0][0] += \
+                std::log10(units.convertFrom(1.0, rate_units2));
         } else if (units.getDelta(UnitSystem()).size()) {
-            throw CanteraError("Chebyshev::getParameters lambda",
+            throw CanteraError("ChebyshevRate3::getParameters lambda",
                 "Cannot convert rate constant with unknown dimensions to a "
                 "non-default unit system");
         }

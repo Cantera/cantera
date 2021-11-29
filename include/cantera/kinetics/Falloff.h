@@ -116,7 +116,6 @@ public:
         return 0;
     }
 
-    //! Return a string representing the type of the Falloff parameterization.
     virtual const std::string type() const {
         return "Falloff";
     }
@@ -127,9 +126,6 @@ public:
         return 0;
     }
 
-    //! Perform object setup based on AnyMap node information
-    //! @param node  AnyMap containing rate information
-    //! @param rate_units  unit definitions specific to rate information
     virtual void setParameters(const AnyMap& node, const UnitsVector& rate_units);
 
     //! Get the values of the parameters for this object. *params* must be an
@@ -139,8 +135,6 @@ public:
      */
     virtual void getParameters(double* params) const {}
 
-    //! Store the falloff-related parameters needed to reconstruct an identical
-    //! Reaction using the newReaction(AnyMap&, Kinetics&) function.
     virtual void getParameters(AnyMap& node) const;
 
     //! Update information specific to reaction
@@ -171,7 +165,6 @@ public:
         return pr * m_rc_high;
     }
 
-    //! Check the reaction rate expression
     void check(const std::string& equation, const AnyMap& node);
 
     bool allow_negative_pre_exponential_factor; // Flag is directly accessible

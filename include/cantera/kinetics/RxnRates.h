@@ -54,9 +54,9 @@ public:
     Arrhenius2(const AnyValue& rate,
                const UnitSystem& units, const Units& rate_units);
 
-    void setParameters(const AnyValue& rate,
-                       const UnitSystem& units, const Units& rate_units);
-    using ArrheniusBase::setParameters;
+    void setRateParameters(const AnyValue& rate,
+                           const UnitSystem& units, const Units& rate_units);
+    using ArrheniusBase::setRateParameters;
 
     //! Update concentration-dependent parts of the rate coefficient.
     /*!
@@ -309,8 +309,8 @@ protected:
 
 
 #ifdef CT_NO_LEGACY_REACTIONS_26
-typedef Arrhenius3 Arrhenius;
-typedef BlowersMasel3 BlowersMasel;
+typedef ArrheniusRate Arrhenius;
+typedef BlowersMaselRate BlowersMasel;
 #else
 typedef Arrhenius2 Arrhenius;
 typedef BlowersMasel2 BlowersMasel;
@@ -335,21 +335,21 @@ typedef BlowersMasel2 BlowersMasel;
  * at that pressure. For pressures outside the given range, the rate expression
  * at the nearest pressure is used.
  */
-class Plog final : public ReactionRate
+class PlogRate final : public ReactionRate
 {
 public:
     //! Default constructor.
-    Plog();
+    PlogRate();
 
     //! Constructor from Arrhenius rate expressions at a set of pressures
-    explicit Plog(const std::multimap<double, Arrhenius>& rates);
+    explicit PlogRate(const std::multimap<double, Arrhenius>& rates);
 
-    Plog(const AnyMap& node, const UnitsVector& rate_units={}) : Plog() {
+    PlogRate(const AnyMap& node, const UnitsVector& rate_units={}) : PlogRate() {
         setParameters(node, rate_units);
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<Plog, PlogData>);
+        return unique_ptr<MultiRateBase>(new MultiBulkRate<PlogRate, PlogData>);
     }
 
     //! Identifier of reaction rate type
@@ -368,8 +368,8 @@ public:
      *  @param units  unit system
      *  @param rate_units  unit definitions specific to rate information
      */
-    void setParameters(const std::vector<AnyMap>& rates,
-                       const UnitSystem& units, const Units& rate_units);
+    void setRateParameters(const std::vector<AnyMap>& rates,
+                           const UnitSystem& units, const Units& rate_units);
 
     void getParameters(AnyMap& rateNode, const Units& rate_units) const;
     void getParameters(AnyMap& rateNode) const {
@@ -410,9 +410,9 @@ public:
         }
 
         auto iter = pressures_.upper_bound(c[0]);
-        AssertThrowMsg(iter != pressures_.end(), "Plog::update_C",
+        AssertThrowMsg(iter != pressures_.end(), "PlogRate::update_C",
                        "Pressure out of range: {}", logP_);
-        AssertThrowMsg(iter != pressures_.begin(), "Plog::update_C",
+        AssertThrowMsg(iter != pressures_.begin(), "PlogRate::update_C",
                        "Pressure out of range: {}", logP_);
 
         // upper interpolation pressure
@@ -462,7 +462,7 @@ public:
     //! temperatures at each interpolation pressure. This is potentially an
     //! issue when one of the Arrhenius expressions at a particular pressure
     //! has a negative pre-exponential factor.
-    void validate(const std::string& equation);
+    void validate(const std::string& equation, const Kinetics* kin = 0);
 
     //! Return the pressures and Arrhenius expressions which comprise this
     //! reaction.
@@ -495,7 +495,7 @@ protected:
     double rDeltaP_; //!< reciprocal of (logP2 - logP1)
 };
 
-typedef Plog PlogRate;
+typedef PlogRate Plog;
 
 //! Pressure-dependent rate expression where the rate coefficient is expressed
 //! as a bivariate Chebyshev polynomial in temperature and pressure.
@@ -520,17 +520,17 @@ typedef Plog PlogRate;
  * \f$ (T_\mathrm{min}, T_\mathrm{max}) \f$ and
  * \f$ (P_\mathrm{min}, P_\mathrm{max}) \f$ to (-1, 1).
  *
- * A Chebyshev rate expression is specified in terms of the coefficient matrix
+ * A ChebyshevRate3 rate expression is specified in terms of the coefficient matrix
  * \f$ \alpha \f$ and the temperature and pressure ranges. Note that the
  * Chebyshev polynomials are not defined outside the interval (-1,1), and
  * therefore extrapolation of rates outside the range of temperatures and
  * pressures for which they are defined is strongly discouraged.
  */
-class Chebyshev final : public ReactionRate
+class ChebyshevRate3 final : public ReactionRate
 {
 public:
     //! Default constructor.
-    Chebyshev() : m_rate_units(Units(0.)) {}
+    ChebyshevRate3() : m_rate_units(Units(0.)) {}
 
     //! Constructor directly from coefficient array
     /*!
@@ -542,15 +542,18 @@ public:
      *      `nP` are the number of temperatures and pressures used in the fit,
      *      respectively.
      */
-    Chebyshev(double Tmin, double Tmax, double Pmin, double Pmax,
-              const Array2D& coeffs);
+    ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pmax,
+                   const Array2D& coeffs);
 
-    Chebyshev(const AnyMap& node, const UnitsVector& rate_units={}) : Chebyshev() {
+    ChebyshevRate3(const AnyMap& node, const UnitsVector& rate_units={})
+        : ChebyshevRate3()
+    {
         setParameters(node, rate_units);
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<Chebyshev, ChebyshevData>);
+        return unique_ptr<MultiRateBase>(
+            new MultiBulkRate<ChebyshevRate3, ChebyshevData>);
     }
 
     const std::string type() const { return "Chebyshev"; }
@@ -582,7 +585,7 @@ public:
         return updateRC(0., shared_data.recipT);
     }
 
-    //! Set up Chebyshev object
+    //! Set up ChebyshevRate3 object
     /*!
      * @deprecated   Deprecated in Cantera 2.6. Replaceable with
      *               @see setLimits() and @see setCoeffs().
@@ -590,7 +593,7 @@ public:
     void setup(double Tmin, double Tmax, double Pmin, double Pmax,
                   const Array2D& coeffs);
 
-    //! Set limits for Chebyshev object
+    //! Set limits for ChebyshevRate3 object
     /*!
      *  @param Tmin    Minimum temperature [K]
      *  @param Tmax    Maximum temperature [K]
@@ -669,7 +672,7 @@ public:
         return m_coeffs.nRows();
     }
 
-    //! Access the Chebyshev coefficients.
+    //! Access the ChebyshevRate3 coefficients.
     /*!
      *  \f$ \alpha_{t,p} = \mathrm{coeffs}[N_P*t + p] \f$ where
      *  \f$ 0 <= t < N_T \f$ and \f$ 0 <= p < N_P \f$.
@@ -677,7 +680,7 @@ public:
      * @deprecated   To be removed after Cantera 2.6. Replaceable by @see data().
      */
     const vector_fp& coeffs() const {
-        warn_deprecated("Chebyshev::coeffs", "Deprecated in Cantera 2.6 "
+        warn_deprecated("ChebyshevRate3::coeffs", "Deprecated in Cantera 2.6 "
             "and to be removed thereafter; replaceable by data().");
         return chebCoeffs_;
     }
@@ -704,7 +707,7 @@ protected:
     Units m_rate_units; //!< Reaction rate units
 };
 
-typedef Chebyshev ChebyshevRate3;
+typedef ChebyshevRate3 Chebyshev;
 
 /**
  * A Blowers Masel rate with coverage-dependent terms.

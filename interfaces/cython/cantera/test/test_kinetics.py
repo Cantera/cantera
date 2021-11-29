@@ -448,7 +448,7 @@ class KineticsRepeatability(utilities.CanteraTest):
                 self.assertAlmostEqual(w2[i] / w1[i], 1.0)
 
     def test_pdep_err(self):
-        err_msg = ("CanteraError thrown by Plog::validate:",
+        err_msg = ("CanteraError thrown by PlogRate::validate:",
                    "Invalid rate coefficient for reaction 'CH2CHOO <=> CH3O + CO'",
                    "at P = 32019, T = 500.0",
                    "at P = 32019, T = 1000.0",
