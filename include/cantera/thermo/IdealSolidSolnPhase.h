@@ -171,7 +171,7 @@ public:
         return cp_mole();
     }
 
-    //@}
+    //! @}
     /** @name Mechanical Equation of State Properties
      *
      * In this equation of state implementation, the density is a function only
@@ -180,7 +180,7 @@ public:
      * which try to set the thermodynamic state by calling setDensity() will
      * cause an exception to be thrown.
      */
-    //@{
+    //! @{
 
     /**
      * Pressure. Units: Pa. For this incompressible system, we return the
@@ -219,7 +219,7 @@ public:
      */
     void calcDensity();
 
-    //@}
+    //! @}
 
     /**
      * @name Chemical Potentials and Activities
@@ -343,9 +343,9 @@ public:
      */
     virtual void getChemPotentials_RT(doublereal* mu) const;
 
-    //@}
+    //! @}
     /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @{
 
     //! Returns an array of partial molar enthalpies for the species in the
     //! mixture.
@@ -405,9 +405,9 @@ public:
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
-    //@}
+    //! @}
     /// @name  Properties of the Standard State of the Species in the Solution
-    //@{
+    //! @{
 
     /**
      * Get the standard state chemical potentials of the species. This is the
@@ -503,9 +503,9 @@ public:
 
     virtual void getStandardVolumes(doublereal* vol) const;
 
-    //@}
+    //! @}
     /// @name Thermodynamic Values for the Species Reference States
-    //@{
+    //! @{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
     virtual void getGibbs_RT_ref(doublereal* grt) const;
@@ -552,9 +552,9 @@ public:
         return m_cp0_R;
     }
 
-    //@}
-    /// @name Utility Functions
-    //@{
+    //! @}
+    //! @name Utility Functions
+    //! @{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
@@ -599,7 +599,7 @@ public:
      */
     void getSpeciesMolarVolumes(doublereal* smv) const;
 
-    //@}
+    //! @}
 
 protected:
     virtual void compositionChanged();
@@ -655,8 +655,8 @@ protected:
     mutable vector_fp m_pp;
 
 private:
-    /// @name Utility Functions
-    //@{
+    //! @name Utility Functions
+    //! @{
     /**
      * This function gets called for every call to functions in this class. It
      * checks to see whether the temperature has changed and thus the reference
@@ -666,7 +666,7 @@ private:
      */
     virtual void _updateThermo() const;
 
-    //@}
+    //! @}
 };
 }
 

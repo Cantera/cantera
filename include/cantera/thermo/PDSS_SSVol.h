@@ -178,7 +178,7 @@ public:
     virtual void setParametersFromXML(const XML_Node& speciesNode);
     virtual void getParameters(AnyMap& eosNode) const;
 
-    //@}
+    //! @}
 
 private:
     //! Does the internal calculation of the volume

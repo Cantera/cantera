@@ -53,7 +53,7 @@ public:
     virtual bool addReaction(shared_ptr<Reaction> r, bool resize=true);
     virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
     virtual void invalidateCache();
-    //@}
+    //! @}
 
     void updateROP();
 

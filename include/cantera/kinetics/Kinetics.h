@@ -114,10 +114,8 @@ class AnyMap;
 class Kinetics
 {
 public:
-    /**
-     * @name Constructors and General Information about Mechanism
-     */
-    //@{
+    //! @name Constructors and General Information about Mechanism
+    //! @{
 
     /// Default constructor.
     Kinetics();
@@ -161,9 +159,9 @@ public:
     //! which take an array pointer.
     void checkSpeciesArraySize(size_t mm) const;
 
-    //@}
+    //! @}
     //! @name Information/Lookup Functions about Phases and Species
-    //@{
+    //! @{
 
     /**
      * The number of phases participating in the reaction mechanism. For a
@@ -823,7 +821,7 @@ public:
         return m_skipUndeclaredThirdBodies;
     }
 
-    //@}
+    //! @}
     //! @name Altering Reaction Rates
     /*!
      * These methods alter reaction rates. They are designed primarily for
@@ -832,8 +830,8 @@ public:
      * real-valued multiplier may be defined that multiplies the reaction rate
      * coefficient. The multiplier may be set to zero to completely remove a
      * reaction from the mechanism.
+     * @{
      */
-    //@{
 
     //! The current value of the multiplier for reaction i.
     /*!
@@ -854,8 +852,7 @@ public:
 
     virtual void invalidateCache() {};
 
-    //@}
-
+    //! @}
     //! Check for unmarked duplicate reactions and unmatched marked duplicates
     /**
      * If `throw_err` is true, then an exception will be thrown if either any
@@ -925,8 +922,8 @@ protected:
      *  These objects and functions handle turning reaction extents into species
      *  production rates and also handle turning thermo properties into reaction
      *  thermo properties.
+     *  @{
      */
-    //@{
 
     //! Stoichiometry manager for the reactants for each reaction
     StoichManagerN m_reactantStoich;
@@ -936,7 +933,7 @@ protected:
 
     //! Stoichiometry manager for the products of reversible reactions
     StoichManagerN m_revProductStoich;
-    //@}
+    //! @}
 
     //! Boolean indicating whether Kinetics object is fully configured
     bool m_ready;

@@ -92,7 +92,7 @@ public:
      */
     IonsFromNeutralVPSSTP(XML_Node& phaseRoot, const std::string& id = "");
 
-    // @}
+    //! @}
     //! @name  Utilities
     //! @{
 
@@ -129,9 +129,9 @@ public:
 
     virtual void getActivityCoefficients(doublereal* ac) const;
 
-    //@}
-    /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @}
+    //! @name  Partial Molar Properties of the Solution
+    //! @{
 
     virtual void getChemPotentials(doublereal* mu) const;
 
@@ -263,7 +263,7 @@ public:
      */
     virtual void calcNeutralMoleculeMoleFractions() const;
 
-    //@}
+    //! @}
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     void setNeutralMoleculePhase(shared_ptr<ThermoPhase> neutral);

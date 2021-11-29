@@ -136,7 +136,7 @@ public:
     virtual void reportParams(size_t& kindex, int& type, doublereal* const c,
                               doublereal& minTemp, doublereal& maxTemp,
                               doublereal& refPressure) const;
-    //@}
+    //! @}
 
 private:
     VPStandardStateTP* m_tp; //!< Parent VPStandardStateTP (ThermoPhase) object

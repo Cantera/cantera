@@ -93,7 +93,7 @@ void addDirectory(const std::string& dir);
 
 //! @copydoc Application::getDataDirectories
 std::string getDataDirectories(const std::string& sep);
-//@}
+//! @}
 
 //! Delete and free all memory associated with the application
 /*!

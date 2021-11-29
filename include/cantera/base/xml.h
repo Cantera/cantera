@@ -13,9 +13,9 @@
 
 #include "ct_defs.h"
 
-//@{
+//! @{
 #define XML_INDENT 4
-//@}
+//! @}
 
 namespace Cantera
 {

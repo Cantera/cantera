@@ -64,7 +64,7 @@ typedef int VelocityBasis;
 /*!
  * \addtogroup tranprops
  */
-//@{
+//! @{
 //! Diffusion velocities are based on the mass averaged velocity
 const VelocityBasis VB_MASSAVG = -1;
 //! Diffusion velocities are based on the mole averaged velocities
@@ -77,7 +77,7 @@ const VelocityBasis VB_SPECIES_1 = 1;
 const VelocityBasis VB_SPECIES_2 = 2;
 //! Diffusion velocities are based on the relative motion wrt species 3
 const VelocityBasis VB_SPECIES_3 = 3;
-//@}
+//! @}
 
 //! Base class for transport property managers.
 /*!
@@ -199,7 +199,7 @@ public:
     /**
      * @name Transport Properties
      */
-    //@{
+    //! @{
 
     /*!
      * The viscosity in Pa-s.
@@ -339,7 +339,7 @@ public:
             "Not implemented for transport model '{}'.", transportType());
     }
 
-    //@}
+    //! @}
 
     //! Compute the mixture electrical conductivity (S m-1) at the current
     //! conditions of the phase (Siemens m-1)
@@ -766,7 +766,7 @@ protected:
      */
     void finalize();
 
-    //@}
+    //! @}
 
     //! pointer to the object representing the phase
     ThermoPhase* m_thermo;

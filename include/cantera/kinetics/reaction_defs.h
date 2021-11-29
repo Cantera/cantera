@@ -21,7 +21,7 @@ const int NONE = 0;
 
 /// @name Reaction Types
 
-//@{
+//! @{
 
 //! A reaction with a rate coefficient that depends only on temperature and voltage
 //! that also obeys mass-action kinetics.
@@ -91,7 +91,7 @@ const int BMINTERFACE_RXN =21;
  */
 const int EDGE_RXN = 22;
 
-//@}
+//! @}
 }
 
 #endif

@@ -22,24 +22,24 @@ namespace Cantera
 /*!
  * @name CONSTANTS - Specification of the Molality convention
  */
-//@{
+//! @{
 //! Standard state uses the molar convention
 const int cAC_CONVENTION_MOLAR = 0;
 //! Standard state uses the molality convention
 const int cAC_CONVENTION_MOLALITY = 1;
-//@}
+//! @}
 
 /*!
  * @name CONSTANTS - Specification of the SS convention
  */
-//@{
+//! @{
 //! Standard state uses the molar convention
 const int cSS_CONVENTION_TEMPERATURE = 0;
 //! Standard state uses the molality convention
 const int cSS_CONVENTION_VPSS = 1;
 //! Standard state thermodynamics is obtained from slave ThermoPhase objects
 const int cSS_CONVENTION_SLAVE = 2;
-//@}
+//! @}
 
 //! Differentiate between mole fractions and mass fractions for input mixture composition
 enum class ThermoBasis
@@ -47,7 +47,6 @@ enum class ThermoBasis
     mass,
     molar
 };
-//@}
 
 //! Base class for a phase with thermodynamic properties.
 /*!
@@ -298,7 +297,7 @@ public:
      * The phase may be at some non-zero electrical potential. These methods
      * set or get the value of the electric potential.
      */
-    //@{
+    //! @{
 
     //! Set the electric potential of this phase (V).
     /*!
@@ -461,9 +460,9 @@ public:
      */
     virtual void getLnActivityCoefficients(doublereal* lnac) const;
 
-    //@}
-    /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @}
+    //! @name  Partial Molar Properties of the Solution
+    //! @{
 
     /**
      * Get the array of non-dimensional species chemical potentials
@@ -558,9 +557,9 @@ public:
         throw NotImplementedError("ThermoPhase::getPartialMolarVolumes");
     }
 
-    //@}
-    /// @name Properties of the Standard State of the Species in the Solution
-    //@{
+    //! @}
+    //! @name Properties of the Standard State of the Species in the Solution
+    //! @{
 
     //! Get the array of chemical potentials at unit activity for the species at
     //! their standard states at the current *T* and *P* of the solution.
@@ -650,9 +649,9 @@ public:
         throw NotImplementedError("ThermoPhase::getStandardVolumes");
     }
 
-    //@}
-    /// @name Thermodynamic Values for the Species Reference States
-    //@{
+    //! @}
+    //! @name Thermodynamic Values for the Species Reference States
+    //! @{
 
     //! Returns the vector of nondimensional enthalpies of the reference state
     //! at the current temperature of the solution and the reference pressure
@@ -735,9 +734,9 @@ public:
 
     // The methods below are not virtual, and should not be overloaded.
 
-    //@}
+    //! @}
     //! @name Specific Properties
-    //@{
+    //! @{
 
     //! Specific enthalpy. Units: J/kg.
     doublereal enthalpy_mass() const {
@@ -768,7 +767,7 @@ public:
     doublereal cv_mass() const {
         return cv_mole()/meanMolecularWeight();
     }
-    //@}
+    //! @}
 
     //! Return the Gas Constant multiplied by the current temperature
     /*!
@@ -1179,8 +1178,7 @@ public:
      */
     virtual void setState(const AnyMap& state);
 
-    //@}
-
+    //! @}
     //! @name Set Mixture Composition by Mixture Fraction
     //! @{
 
@@ -1207,8 +1205,7 @@ public:
     //! @copydoc ThermoPhase::setMixtureFraction
     void setMixtureFraction(double mixFrac, const compositionMap& fuelComp, const compositionMap& oxComp,
                             ThermoBasis basis = ThermoBasis::molar);
-    //@}
-
+    //! @}
     //! @name Compute Mixture Fraction
     //! @{
 
@@ -1252,8 +1249,7 @@ public:
     //! @copydoc ThermoPhase::mixtureFraction
     double mixtureFraction(const compositionMap& fuelComp, const compositionMap& oxComp,
                               ThermoBasis basis = ThermoBasis::molar, const std::string& element = "Bilger") const;
-    //@}
-
+    //! @}
     //! @name Set Mixture Composition by Equivalence Ratio
     //! @{
 
@@ -1276,7 +1272,7 @@ public:
     void setEquivalenceRatio(double phi, const std::string& fuelComp, const std::string& oxComp, ThermoBasis basis = ThermoBasis::molar);
     //! @copydoc ThermoPhase::setEquivalenceRatio
     void setEquivalenceRatio(double phi, const compositionMap& fuelComp, const compositionMap& oxComp, ThermoBasis basis = ThermoBasis::molar);
-    //@}
+    //! @}
 
     //! @name Compute Equivalence Ratio
     //! @{
@@ -1310,7 +1306,7 @@ public:
     double equivalenceRatio(const std::string& fuelComp, const std::string& oxComp, ThermoBasis basis = ThermoBasis::molar) const;
     //! @copydoc ThermoPhase::equivalenceRatio
     double equivalenceRatio(const compositionMap& fuelComp, const compositionMap& oxComp, ThermoBasis basis = ThermoBasis::molar) const;
-    //@}
+    //! @}
 
     //! Compute the equivalence ratio for the current mixture
     //! from available oxygen and required oxygen
@@ -1361,7 +1357,7 @@ public:
     double stoichAirFuelRatio(const std::string& fuelComp, const std::string& oxComp, ThermoBasis basis = ThermoBasis::molar) const;
     //! @copydoc ThermoPhase::stoichAirFuelRatio
     double stoichAirFuelRatio(const compositionMap& fuelComp, const compositionMap& oxComp, ThermoBasis basis = ThermoBasis::molar) const;
-    //@}
+    //! @}
 
 private:
 
@@ -1472,11 +1468,11 @@ public:
         return true;
     }
 
-    //@}
+    //! @}
     /// @name Critical State Properties.
     /// These methods are only implemented by subclasses that implement
     /// liquid-vapor equations of state.
-    //@{
+    //! @{
 
     /// Critical temperature (K).
     virtual doublereal critTemperature() const {
@@ -1503,14 +1499,14 @@ public:
         throw NotImplementedError("ThermoPhase::critDensity");
     }
 
-    //@}
+    //! @}
 
     /** @name Saturation Properties.
      *
      *  These methods are only implemented by subclasses that implement full
      *  liquid-vapor equations of state.
      */
-    //@{
+    //! @{
 
     //! Return the saturation temperature given the pressure
     /*!
@@ -1569,7 +1565,7 @@ public:
      */
     void setState_TPQ(double T, double P, double Q);
 
-    //@}
+    //! @}
 
     //! @name Initialization Methods - For Internal Use (ThermoPhase)
     /*!
@@ -1578,7 +1574,7 @@ public:
      * input file. They are not normally used in application programs.
      * To see how they are used, see importPhase().
      */
-    //@{
+    //! @{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
 
@@ -1871,7 +1867,7 @@ public:
      */
     virtual void reportCSV(std::ofstream& csvFile) const;
 
-    //@}
+    //! @}
 
 protected:
     //! Store the parameters of a ThermoPhase object such that an identical

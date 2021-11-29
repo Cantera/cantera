@@ -41,11 +41,6 @@ public:
     virtual void setTemperature(doublereal temp);
     virtual void setState_TP(doublereal temp, doublereal pres);
     virtual void setState_TR(doublereal temp, doublereal rho);
-
-    //! @}
-    //!  @name  Miscellaneous properties of the standard state
-    //! @{
-
     virtual doublereal satPressure(doublereal t);
 
     //! @}
@@ -62,7 +57,7 @@ public:
         m_constMolarVolume = v;
     }
 
-    //@}
+    //! @}
 
 private:
     //! Value of the constant molar volume for the species

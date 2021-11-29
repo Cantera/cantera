@@ -50,14 +50,12 @@ public:
 
     virtual ~VPStandardStateTP();
 
-    //@}
-
     virtual bool isCompressible() const {
         return false;
     }
 
     //! @name  Utilities (VPStandardStateTP)
-    //@{
+    //! @{
 
     virtual int standardStateConvention() const;
 
@@ -65,9 +63,9 @@ public:
         throw NotImplementedError("VPStandardStateTP::getdlnActCoeffdlnN_diag");
     }
 
-    //@}
-    /// @name  Partial Molar Properties of the Solution (VPStandardStateTP)
-    //@{
+    //! @}
+    //! @name  Partial Molar Properties of the Solution (VPStandardStateTP)
+    //! @{
 
     //! Get the array of non-dimensional species chemical potentials.
     /*!
@@ -81,8 +79,7 @@ public:
      */
     virtual void getChemPotentials_RT(doublereal* mu) const;
 
-    //@}
-
+    //! @}
     /*!
      * @name  Properties of the Standard State of the Species in the Solution
      *
@@ -91,7 +88,7 @@ public:
      *  inherited objects. The values are cached within this object, and are not
      *  recalculated unless the temperature or pressure changes.
      */
-    //@{
+    //! @{
 
     virtual void getStandardChemPotentials(doublereal* mu) const;
     virtual void getEnthalpy_RT(doublereal* hrt) const;
@@ -102,6 +99,7 @@ public:
     virtual void getCp_R(doublereal* cpr) const;
     virtual void getStandardVolumes(doublereal* vol) const;
     virtual const vector_fp& getStandardVolumes() const;
+    //! @}
 
     //! Set the temperature of the phase
     /*!
@@ -167,7 +165,6 @@ public:
     virtual double minTemp(size_t k=npos) const;
     virtual double maxTemp(size_t k=npos) const;
 
-    //@}
 
 protected:
     /**
@@ -225,7 +222,7 @@ public:
      * made using the previous temperature. All calculations are done within the
      * routine _updateRefStateThermo().
      */
-    //@{
+    //! @{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
     virtual void getGibbs_RT_ref(doublereal* grt) const;
@@ -238,7 +235,7 @@ public:
     virtual void getEntropy_R_ref(doublereal* er) const;
     virtual void getCp_R_ref(doublereal* cprt) const;
     virtual void getStandardVolumes_ref(doublereal* vol) const;
-    //@}
+    //! @}
 
     //! @name Initialization Methods - For Internal use
     /*!
@@ -247,7 +244,7 @@ public:
      * input file. They are not normally used in application programs.
      * To see how they are used, see importPhase().
      */
-    //@{
+    //! @{
 
     virtual void initThermo();
     virtual void getSpeciesParameters(const std::string& name,
@@ -258,6 +255,7 @@ public:
 
     //! Install a PDSS object for species *k*
     void installPDSS(size_t k, std::unique_ptr<PDSS>&& pdss);
+    //! @}
 
     PDSS* providePDSS(size_t k);
     const PDSS* providePDSS(size_t k) const;

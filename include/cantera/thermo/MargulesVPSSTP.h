@@ -261,9 +261,9 @@ public:
 
     virtual void getLnActivityCoefficients(doublereal* lnac) const;
 
-    //@}
+    //! @}
     /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @{
 
     virtual void getChemPotentials(doublereal* mu) const;
 
@@ -378,7 +378,7 @@ public:
     virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const;
     virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN);
 
-    //@}
+    //! @}
 
 private:
     //! Process an XML node called "binaryNeutralSpeciesParameters"

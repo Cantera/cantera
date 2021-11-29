@@ -71,7 +71,7 @@ public:
     }
 
     //! @name Methods to set up a simulation.
-    //@{
+    //! @{
 
     //! Set the initial reactor volume. By default, the volume is 1.0 m^3.
     void setInitialVolume(doublereal vol) {
@@ -152,7 +152,7 @@ public:
         throw NotImplementedError("ReactorBase::initialize");
     }
 
-    //@}
+    //! @}
 
     //! Set the state of the Phase object associated with this reactor to the
     //! reactor's current state.
@@ -189,7 +189,7 @@ public:
      * The values returned are those after the last call to ReactorNet::advance
      * or ReactorNet::step.
      */
-    //@{
+    //! @{
 
     //! Returns the current volume (m^3) of the reactor.
     doublereal volume() const {
@@ -236,7 +236,7 @@ public:
         return m_state[k+2];
     }
 
-    //@}
+    //! @}
 
     //! The ReactorNet that this reactor belongs to.
     ReactorNet& network();

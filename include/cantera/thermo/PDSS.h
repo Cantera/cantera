@@ -158,10 +158,6 @@ public:
     PDSS& operator=(const PDSS& b) = delete;
     virtual ~PDSS() {}
 
-    //! @}
-    //! @name  Utilities
-    //! @{
-
      //! @}
      //! @name Molar Thermodynamic Properties of the Species Standard State in
      //!     the Solution
@@ -344,10 +340,7 @@ public:
      * \f]
      */
     virtual doublereal thermalExpansionCoeff() const;
-
-    //@}
-    /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @}
 
     //! Set the internal temperature
     /*!
@@ -371,10 +364,6 @@ public:
      * @param  rho      Density (kg m-3)
      */
     virtual void setState_TR(doublereal temp, doublereal rho);
-
-    //! @}
-    //! @name  Miscellaneous properties of the standard state
-    //! @{
 
     //! critical temperature
     virtual doublereal critTemperature() const;
@@ -401,7 +390,6 @@ public:
      */
     void setMolecularWeight(doublereal mw);
 
-    //! @}
     //! @name Initialization of the Object
     //! @{
 
@@ -460,7 +448,7 @@ public:
                               doublereal& minTemp, doublereal& maxTemp,
                               doublereal& refPressure) const;
 
-    //@}
+    //! @}
 
 protected:
     //! Current temperature used by the PDSS object

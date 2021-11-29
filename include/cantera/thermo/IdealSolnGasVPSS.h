@@ -30,9 +30,8 @@ public:
     /// Create an object from an input file
     explicit IdealSolnGasVPSS(const std::string& infile="", std::string id="");
 
-    //@}
     //! @name  Utilities (IdealSolnGasVPSS)
-    //@{
+    //! @{
 
     virtual std::string type() const {
         return "ideal-solution-VPSS";
@@ -107,8 +106,8 @@ public:
     virtual void getActivityCoefficients(doublereal* ac) const;
 
 
-    /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @name  Partial Molar Properties of the Solution
+    //! @{
 
     virtual void getChemPotentials(doublereal* mu) const;
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
@@ -116,7 +115,7 @@ public:
     virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
     virtual void getPartialMolarCp(doublereal* cpbar) const;
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
-    //@}
+    //! @}
 
 public:
     //! @name Initialization Methods - For Internal use
@@ -126,7 +125,7 @@ public:
      * are not normally used in application programs. To see how they are used,
      * see importPhase().
      */
-    //@{
+    //! @{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
@@ -134,7 +133,7 @@ public:
     virtual void setToEquilState(const doublereal* lambda_RT);
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
-    //@}
+    //! @}
 
 protected:
     //! form of the generalized concentrations

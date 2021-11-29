@@ -469,8 +469,8 @@ public:
     //!     @param charges Output array of species charges (elem. charge)
     void getCharges(double* charges) const;
 
-    /// @name Composition
-    //@{
+    //! @name Composition
+    //! @{
 
     //! Get the mole fractions by name.
     //!     @param threshold   Exclude species with mole fractions less than or
@@ -578,6 +578,7 @@ public:
 
     //! Set the concentrations without ignoring negative concentrations
     virtual void setConcentrationsNoNorm(const double* const conc);
+    //! @}
 
     //! Elemental mass fraction of element m
     /*!
@@ -623,8 +624,6 @@ public:
     //! molecular weight.
     const double* moleFractdivMMW() const;
 
-    //@}
-
     //! Dimensionless electrical charge of a single molecule of species k
     //! The charge is normalized by the the magnitude of the electron charge
     //!     @param k species index
@@ -648,7 +647,7 @@ public:
     }
 
     //! @name Thermodynamic Properties
-    //!@{
+    //! @{
 
     //! Temperature (K).
     //!     @return The temperature of the phase
@@ -717,10 +716,10 @@ public:
                                "temperature must be positive. T = {}", temp);
         }
     }
-    //@}
+    //! @}
 
     //! @name Mean Properties
-    //!@{
+    //! @{
 
     //! Evaluate the mole-fraction-weighted mean of an array Q.
     //! \f[ \sum_k X_k Q_k. \f]
@@ -741,8 +740,7 @@ public:
     //! @return The indicated sum. Dimensionless.
     doublereal sum_xlogx() const;
 
-    //@}
-
+    //! @}
     //! @name Adding Elements and Species
     //! These methods are used to add new elements or species. These are not
     //! usually called by user programs.
@@ -750,7 +748,7 @@ public:
     //! Since species are checked to insure that they are only composed of
     //! declared elements, it is necessary to first add all elements before
     //! adding any species.
-    //!@{
+    //! @{
 
     //! Add an element.
     //!     @param symbol Atomic symbol std::string.

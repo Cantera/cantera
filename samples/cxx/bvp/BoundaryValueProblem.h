@@ -228,8 +228,7 @@ protected:
      * for use in writing overloaded versions of method 'residual'
      * in derived classes.
      */
-
-    //@{
+    //! @{
 
     /**
      * This method is provided for use in method residual when
@@ -294,7 +293,7 @@ protected:
         return c1/(z(j+1) - z(j-1));
     }
 
-    //@}
+    //! @}
 };
 }
 #endif

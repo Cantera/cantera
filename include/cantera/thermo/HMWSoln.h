@@ -43,21 +43,21 @@ namespace Cantera
  *       beta0 = q0 + q3(1/T - 1/Tr) + q4(ln(T/Tr)) +
  *               q1(T - Tr) + q2(T**2 - Tr**2)
  */
-//@{
+//! @{
 #define PITZER_TEMP_CONSTANT 0
 #define PITZER_TEMP_LINEAR 1
 #define PITZER_TEMP_COMPLEX1 2
-//@}
+//! @}
 
-/*
+/*!
  * @name ways to calculate the value of A_Debye
  *
  * These defines determine the way A_Debye is calculated
  */
-//@{
+//! @{
 #define A_DEBYE_CONST 0
 #define A_DEBYE_WATER 1
-//@}
+//! @}
 
 class WaterProps;
 
@@ -1416,7 +1416,7 @@ public:
     virtual void getPartialMolarCp(doublereal* cpbar) const;
 
 public:
-    //@}
+    //! @}
 
     //! Get the saturation pressure for a given temperature.
     /*!
@@ -1674,8 +1674,6 @@ private:
      *  We assume here that the m_IionicMolality variable is up to date.
      */
     doublereal s_NBS_CLM_dlnMolalityActCoeff_dP() const;
-
-    //@}
 
 private:
     /**

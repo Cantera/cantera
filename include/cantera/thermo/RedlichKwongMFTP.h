@@ -65,7 +65,7 @@ public:
      */
     virtual doublereal pressure() const;
 
-    // @}
+    //! @}
 
 public:
 
@@ -97,7 +97,7 @@ public:
     virtual void getActivityCoefficients(doublereal* ac) const;
 
     /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @{
 
     //! Get the array of non-dimensional species chemical potentials.
     //! These are partial molar Gibbs free energies.
@@ -119,9 +119,9 @@ public:
     virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
     virtual void getPartialMolarCp(doublereal* cpbar) const;
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    //! @}
 
 public:
-    //@}
     //! @name Initialization Methods - For Internal use
     /*!
      * The following methods are used in the process of constructing
@@ -129,7 +129,7 @@ public:
      * input file. They are not normally used in application programs.
      * To see how they are used, see importPhase().
      */
-    //@{
+    //! @{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void setParametersFromXML(const XML_Node& thermoNode);
@@ -202,7 +202,7 @@ private:
      */
     void readXMLCrossFluid(XML_Node& pureFluidParam);
 
-    // @}
+    //! @}
 
 protected:
     // Special functions inherited from MixtureFugacityTP

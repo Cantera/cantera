@@ -30,7 +30,7 @@ public:
     ReactorNet& operator=(const ReactorNet&) = delete;
 
     //! @name Methods to set up a simulation.
-    //@{
+    //! @{
 
     //! Set initial time. Default = 0.0 s. Restarts integration from this time
     //! using the current mixture state as the initial condition.
@@ -54,6 +54,8 @@ public:
     //! Set the relative and absolute tolerances for integrating the
     //! sensitivity equations.
     void setSensitivityTolerances(double rtol, double atol);
+
+    //! @}
 
     //! Current value of the simulation time.
     doublereal time() {
@@ -100,8 +102,6 @@ public:
 
     //! Advance the state of all reactors in time.
     double step();
-
-    //@}
 
     //! Add the reactor *r* to this reactor network.
     void addReactor(Reactor& r);

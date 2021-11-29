@@ -119,16 +119,16 @@ public:
         throw NotImplementedError("MixtureFugacityTP::getdlnActCoeffdlnN_diag");
     }
 
-
+    //! @}
     //! @name Molar Thermodynamic properties
     //! @{
 
     virtual double enthalpy_mole() const;
     virtual double entropy_mole() const;
 
-    //@}
-    /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @}
+    //! @name  Partial Molar Properties of the Solution
+    //! @{
 
     //! Get the array of non-dimensional species chemical potentials
     //! These are partial molar Gibbs free energies.
@@ -144,7 +144,7 @@ public:
      */
     virtual void getChemPotentials_RT(doublereal* mu) const;
 
-    //@}
+    //! @}
     /*!
      * @name  Properties of the Standard State of the Species in the Solution
      *
@@ -153,7 +153,7 @@ public:
      * inherited objects. The values are cached within this object, and are not
      * recalculated unless the temperature or pressure changes.
      */
-    //@{
+    //! @{
 
     //! Get the array of chemical potentials at unit activity.
     /*!
@@ -258,7 +258,7 @@ public:
      *            units =  m^3 / kmol
      */
     virtual void getStandardVolumes(doublereal* vol) const;
-    // @}
+    //! @}
 
     //! Set the temperature of the phase
     /*!
@@ -310,7 +310,7 @@ public:
      * made using the previous temperature. All calculations are done within the
      * routine _updateRefStateThermo().
      */
-    //@{
+    //! @{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
     virtual void getGibbs_RT_ref(doublereal* grt) const;
@@ -332,7 +332,7 @@ public:
     virtual void getCp_R_ref(doublereal* cprt) const;
     virtual void getStandardVolumes_ref(doublereal* vol) const;
 
-    //@}
+    //! @}
     //! @name Initialization Methods - For Internal use
     /*!
      * The following methods are used in the process of constructing
@@ -340,10 +340,10 @@ public:
      * input file. They are not normally used in application programs.
      * To see how they are used, see importPhase().
      */
-    //@{
-
+    //! @{
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void setStateFromXML(const XML_Node& state);
+    //! @}
 
 protected:
     //! @name Special Functions for fugacity classes
@@ -514,9 +514,9 @@ protected:
 
     virtual void updateMixingExpressions();
 
-    //@}
-    /// @name Critical State Properties.
-    //@{
+    //! @}
+    //! @name Critical State Properties.
+    //! @{
 
     virtual double critTemperature() const;
     virtual double critPressure() const;
@@ -554,7 +554,7 @@ protected:
                    double aAlpha, double Vroot[3], double an,
                    double bn, double cn, double dn, double tc, double vc) const;
 
-    //@}
+    //! @}
 
     //! Storage for the current values of the mole fractions of the species
     /*!
