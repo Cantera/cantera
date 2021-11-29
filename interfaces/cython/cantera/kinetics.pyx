@@ -9,7 +9,7 @@ from ctypes import c_int
 cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method):
     cdef np.ndarray[np.double_t, ndim=1] data = np.empty(kin.n_total_species)
     method(kin.kinetics, &data[0])
-    # @TODO: Fix _selected_species to work with interface kinetics
+    # @todo: Fix _selected_species to work with interface kinetics
     if kin._selected_species.size:
         return data[kin._selected_species]
     else:

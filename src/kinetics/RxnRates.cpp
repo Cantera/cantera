@@ -340,7 +340,7 @@ void ChebyshevRate3::setData(const Array2D& coeffs)
     dotProd_.resize(coeffs.nRows());
 
     // convert to row major for legacy output
-    // note: chebCoeffs_ is not used internally (@TODO: remove after Cantera 2.6)
+    // note: chebCoeffs_ is not used internally (@todo: remove after Cantera 2.6)
     size_t rows = m_coeffs.nRows();
     size_t cols = m_coeffs.nColumns();
     chebCoeffs_.resize(rows * cols);

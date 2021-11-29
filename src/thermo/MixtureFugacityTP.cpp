@@ -589,7 +589,7 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
     //
     //      - (Gliq  - Ggas) = (Vliq - Vgas) (deltaP)
     //
-    // @TODO Suggestions for the future would be to switch it to an algorithm
+    // @todo Suggestions for the future would be to switch it to an algorithm
     //       that uses the gas molar volume and the liquid molar volumes as the
     //       fundamental unknowns.
 

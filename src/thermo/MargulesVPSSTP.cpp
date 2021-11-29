@@ -573,7 +573,7 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         //           excessVolume_Enthalpy
         //           excessVolume_Entropy
         // Other blocks are currently ignored.
-        // @TODO determine a policy about ignoring blocks that should or shouldn't be there.
+        // @todo determine a policy about ignoring blocks that should or shouldn't be there.
         if (nodeName == "excessenthalpy") {
             // Get the string containing all of the values
             getFloatArray(xmlChild, vParams, true, "toSI", "excessEnthalpy");

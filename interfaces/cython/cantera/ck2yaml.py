@@ -1426,7 +1426,7 @@ class Parser:
                 else:
                     return None, None
 
-            # @TODO: This loop is a bit of a mess, and could probably be cleaned
+            # @todo: This loop is a bit of a mess, and could probably be cleaned
             # up by refactoring it into a set of methods for processing each
             # input file section.
             line, comment = readline()
