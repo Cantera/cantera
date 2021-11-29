@@ -19,13 +19,13 @@ class Kinetics;
 
 //! An abstract base class for evaluating all reactions of a particular type.
 /**
- * Because this class has no template parameters, the `Kinetics` object can store all of
+ * Because this class has no template parameters, the Kinetics object can store all of
  * these rate coefficient evaluators as a `vector<shared_ptr<MultiRateBase>>`. All of
  * the actual implementation for this capability is done in the MultiBulkRate class.
  *
- * @todo At the moment, implemented methods are specific to `BulkKinetics`,
- *     which can be updated using information of a single `ThermoPhase`.
- *     `InterfaceKinetics` will require access to an entire `Kinetics` object
+ * @todo At the moment, implemented methods are specific to BulkKinetics,
+ *     which can be updated using information of a single ThermoPhase.
+ *     InterfaceKinetics will require access to an entire Kinetics object
  *     or the underlying `vector<ThermoPhase*>` vector (e.g. `m_thermo`).
  */
 class MultiRateBase
@@ -39,12 +39,12 @@ public:
     //! Add reaction rate object to the evaluator
     //! @param rxn_index  index of reaction
     //! @param rate  reaction rate object
-    virtual void add(const size_t rxn_index, ReactionRate& rate) = 0;
+    virtual void add(size_t rxn_index, ReactionRate& rate) = 0;
 
     //! Replace reaction rate object handled by the evaluator
     //! @param rxn_index  index of reaction
     //! @param rate  reaction rate object
-    virtual bool replace(const size_t rxn_index, ReactionRate& rate) = 0;
+    virtual bool replace(size_t rxn_index, ReactionRate& rate) = 0;
 
     //! Update number of species and reactions
     //! @param n_species  number of species

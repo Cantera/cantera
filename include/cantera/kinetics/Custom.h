@@ -1,3 +1,10 @@
+/**
+ * @file Custom.h
+ *
+ * @warning This file is an experimental part of the %Cantera API and
+ *    may be changed or removed without notice.
+ */
+
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
@@ -20,7 +27,7 @@ class Func1;
 
 //! Custom reaction rate depending only on temperature
 /**
- * The rate expression is provided by a `Func1` object taking a single
+ * The rate expression is provided by a Func1 object taking a single
  * argument (temperature) and does not use a formalized parameterization.
  *
  * @warning This class is an experimental part of the %Cantera API and

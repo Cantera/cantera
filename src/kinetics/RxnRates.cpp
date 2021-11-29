@@ -272,7 +272,7 @@ Chebyshev::Chebyshev(double Tmin, double Tmax, double Pmin, double Pmax,
 void Chebyshev::setParameters(const AnyMap& node, const UnitsVector& units)
 {
     m_rate_units = Units::product(units);
-    UnitSystem unit_system = node.units();
+    const UnitSystem& unit_system = node.units();
     Array2D coeffs;
     if (node.hasKey("data")) {
         const auto& T_range = node["temperature-range"].asVector<AnyValue>(2);

@@ -99,7 +99,6 @@ void ArrheniusBase::getParameters(AnyMap& node, const Units& rate_units) const
 void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
 {
     if (!allow_negative_pre_exponential_factor && m_A < 0) {
-
         throw InputFileError("ArrheniusBase::check", node,
             "Undeclared negative pre-exponential factor found in reaction '{}'",
             equation);
@@ -131,8 +130,7 @@ void ArrheniusRate::getParameters(AnyMap& rateNode) const
 }
 
 BlowersMasel3::BlowersMasel3()
-    : ArrheniusBase()
-    , m_w_R(NAN)
+    : m_w_R(NAN)
     , m_deltaH_R(NAN)
 {
 }

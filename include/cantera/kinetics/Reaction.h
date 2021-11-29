@@ -231,6 +231,7 @@ public:
     bool specified_collision_partner;
 
     //! Third body is used by law of mass action
+    //! (`true` for three-body reactions, `false` for falloff reactions)
     bool mass_action;
 };
 

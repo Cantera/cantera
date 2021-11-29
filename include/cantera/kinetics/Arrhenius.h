@@ -87,14 +87,17 @@ public:
         return m_Ea_R * GasConstant;
     }
 
+    // Return units of the reaction rate expression
     const Units& rateUnits() const {
         return m_rate_units;
     }
 
+    //! Return reaction order associated with the reaction rate
     double order() const {
         return m_order;
     }
 
+    //! Set units of the reaction rate expression
     void setRateUnits(const UnitsVector& rate_units) {
         m_rate_units = Units::product(rate_units);
         if (rate_units.size()>1) {

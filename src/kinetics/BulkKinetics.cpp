@@ -110,7 +110,7 @@ void BulkKinetics::getRevRateConstants(double* krev, bool doIrreversible)
 
 bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 {
-    bool added = Kinetics::addReaction(r, false);
+    bool added = Kinetics::addReaction(r, resize);
     if (!added) {
         // undeclared species, etc.
         return false;
@@ -133,7 +133,7 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 
     if (!(r->usesLegacy())) {
         shared_ptr<ReactionRate> rate = r->rate();
-        // If neccessary, add new MultiBulkRate evaluator
+        // If necessary, add new MultiBulkRate evaluator
         if (m_bulk_types.find(rate->type()) == m_bulk_types.end()) {
             m_bulk_types[rate->type()] = m_bulk_rates.size();
             m_bulk_rates.push_back(rate->newMultiRate());
@@ -155,11 +155,11 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 
     m_concm.push_back(NAN);
 
-    if (resize) {
-        resizeReactions();
-    } else {
-        m_ready = false;
-    }
+    // if (resize) {
+    //     resizeReactions();
+    // } else {
+    m_ready = resize;
+    // }
 
     return true;
 }

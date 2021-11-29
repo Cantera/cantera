@@ -96,7 +96,8 @@ void GasKinetics::update_rates_C()
     // Falloff reactions (legacy)
     if (!concm_falloff_values.empty()) {
         m_falloff_concm.update(m_phys_conc, ctot, concm_falloff_values.data());
-        m_falloff_concm.copy(concm_falloff_values, m_concm.data());    }
+        m_falloff_concm.copy(concm_falloff_values, m_concm.data());
+    }
 
     // P-log reactions (legacy)
     if (m_plog_rates.nReactions()) {
@@ -355,9 +356,7 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     BulkKinetics::modifyReaction(i, rNew);
 
     // invalidate all cached data
-    m_ROP_ok = false;
-    m_temp += 0.1234;
-    m_pres += 0.1234;
+    invalidateCache();
 
     if (!(rNew->usesLegacy())) {
         // Rate object already modified in BulkKinetics::modifyReaction

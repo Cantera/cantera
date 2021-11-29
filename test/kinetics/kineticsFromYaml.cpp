@@ -19,9 +19,9 @@ TEST(ReactionRate, ModifyArrheniusRate)
         " negative-A: true}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    auto ER = dynamic_cast<ElementaryReaction3&>(*R);
+    auto& ER = dynamic_cast<ElementaryReaction3&>(*R);
 
-    auto rr = std::dynamic_pointer_cast<ArrheniusRate>(ER.rate());
+    const auto& rr = std::dynamic_pointer_cast<ArrheniusRate>(ER.rate());
     EXPECT_TRUE(rr->allow_negative_pre_exponential_factor);
     rr->allow_negative_pre_exponential_factor = false;
     EXPECT_FALSE(rr->allow_negative_pre_exponential_factor);
@@ -61,7 +61,7 @@ TEST(Reaction, ElementaryFromYaml2)
     EXPECT_EQ(R->products.at("N2"), 1);
     EXPECT_EQ(R->type(), "elementary-legacy");
 
-    auto ER = dynamic_cast<ElementaryReaction2&>(*R);
+    auto& ER = dynamic_cast<ElementaryReaction2&>(*R);
     EXPECT_DOUBLE_EQ(ER.rate.preExponentialFactor(), -2.7e10);
     EXPECT_DOUBLE_EQ(ER.rate.activationEnergy_R(), 355 / GasConst_cal_mol_K);
     EXPECT_TRUE(ER.allow_negative_pre_exponential_factor);
@@ -111,7 +111,7 @@ TEST(Reaction, ThreeBodyFromYaml2)
     EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
     EXPECT_EQ(R->type(), "three-body-legacy");
 
-    auto TBR = dynamic_cast<ThreeBodyReaction2&>(*R);
+    auto& TBR = dynamic_cast<ThreeBodyReaction2&>(*R);
     EXPECT_DOUBLE_EQ(TBR.rate.preExponentialFactor(), 1.2e11);
     EXPECT_DOUBLE_EQ(TBR.third_body.efficiencies["H2O"], 5.0);
     EXPECT_DOUBLE_EQ(TBR.third_body.default_efficiency, 1.0);
@@ -129,7 +129,7 @@ TEST(Reaction, FalloffFromYaml1)
         " efficiencies: {AR: 0.625}}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    auto FR = dynamic_cast<FalloffReaction3&>(*R);
+    auto& FR = dynamic_cast<FalloffReaction3&>(*R);
     EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("AR"), 0.625);
     EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("N2"), 1.0);
     const auto rate = std::dynamic_pointer_cast<SRI>(R->rate());
@@ -150,7 +150,7 @@ TEST(Reaction, FalloffFromYaml2)
         " source: somewhere}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    auto FR = dynamic_cast<FalloffReaction3&>(*R);
+    auto& FR = dynamic_cast<FalloffReaction3&>(*R);
     EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("N2"), 1.0);
     EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("H2O"), 0.0);
     const auto rate = std::dynamic_pointer_cast<Troe>(R->rate());
@@ -178,7 +178,7 @@ TEST(Reaction, FalloffFromYaml3)
         " source: ARL-TR-5088}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    auto FR = dynamic_cast<FalloffReaction3&>(*R);
+    auto& FR = dynamic_cast<FalloffReaction3&>(*R);
     EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("N2"), 1.0);
     EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("H2O"), 5.0);
     const auto rate = std::dynamic_pointer_cast<Tsang>(R->rate());
@@ -204,8 +204,7 @@ TEST(Reaction, ChemicallyActivatedFromYaml)
         " low-P-rate-constant: [282320.078, 1.46878, -3270.56495]}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    auto CAR = dynamic_cast<FalloffReaction3&>(*R);
-    const auto rate = std::dynamic_pointer_cast<Lindemann>(R->rate());
+    const auto& rate = std::dynamic_pointer_cast<Lindemann>(R->rate());
     EXPECT_DOUBLE_EQ(rate->highRate().preExponentialFactor(), 5.88e-14);
     EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 2.82320078e2);
     EXPECT_EQ(rate->nParameters(), (size_t) 0);
@@ -253,7 +252,7 @@ TEST(Reaction, ChebyshevFromYaml)
 
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_EQ(R->reactants.size(), (size_t) 1);
-    const auto rate = std::dynamic_pointer_cast<ChebyshevRate3>(R->rate());
+    const auto& rate = std::dynamic_pointer_cast<ChebyshevRate3>(R->rate());
     double logP = std::log10(2e6);
     double T = 1800;
     rate->update_C(&logP);
@@ -286,7 +285,7 @@ TEST(Reaction, BlowersMaselFromYaml)
     double vp = 2 * w * ((w + E_intrinsic) / (w - E_intrinsic));
     double Ea = (w + H_mid / 2) * (vp - 2 * w + H_mid) * (vp - 2 * w + H_mid)
         / (vp * vp - 4 * w * w + H_mid * H_mid );
-    const auto rate = std::dynamic_pointer_cast<BlowersMaselRate>(R->rate());
+    const auto& rate = std::dynamic_pointer_cast<BlowersMaselRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), -38.7);
     EXPECT_DOUBLE_EQ(rate->activationEnergy0(), E_intrinsic);
     EXPECT_DOUBLE_EQ(rate->bondEnergy(), w);

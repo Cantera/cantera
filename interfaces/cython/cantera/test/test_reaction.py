@@ -303,7 +303,7 @@ class TestBlowersMaselRate(ReactionRateTests, utilities.CanteraTest):
 
 class FalloffRateTests(ReactionRateTests):
     # test Falloff rate expressions
-    _n_data = [0]
+    _n_data = [0] # list of valid falloff coefficient array lengths
 
     @classmethod
     def setUpClass(cls):
@@ -445,7 +445,7 @@ class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
             }
 
     def eval(self, rate):
-        # check evaluation as a function of temperature only
+        # check evaluation as a function of temperature and pressure
         return rate(self.gas.T, self.gas.P)
 
     def test_raises(self):
@@ -535,7 +535,7 @@ class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
         }
 
     def eval(self, rate):
-        # check evaluation as a function of temperature only
+        # check evaluation as a function of temperature and pressure
         return rate(self.gas.T, self.gas.P)
 
     def test_raises(self):
