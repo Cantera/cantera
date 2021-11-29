@@ -16,60 +16,60 @@
 namespace Cantera
 {
 
-void Falloff::init(const vector_fp& c)
+void FalloffRate::init(const vector_fp& c)
 {
-    setData(c);
+    setFalloffCoeffs(c);
 }
 
-void Falloff::setLowRate(const ArrheniusRate& low)
+void FalloffRate::setLowRate(const ArrheniusRate& low)
 {
     if (low.preExponentialFactor() < 0 && !allow_negative_pre_exponential_factor) {
-        throw CanteraError("Falloff::setLowRate",
+        throw CanteraError("FalloffRate::setLowRate",
             "Detected negative pre-exponential factor (A={}).\n"
             "Enable 'allow_negative_pre_exponential_factor' to suppress "
             "this message.", low.preExponentialFactor());
     } else if (std::isnan(m_highRate.preExponentialFactor())) {
         // pass
     } else if (m_highRate.preExponentialFactor() * low.preExponentialFactor() < 0.) {
-        throw CanteraError("Falloff::setLowRate",
+        throw CanteraError("FalloffRate::setLowRate",
             "Detected inconsistent rate definitions;\nhigh and low "
             "rate pre-exponential factors must have the same sign.");
     }
     m_lowRate = low;
 }
 
-void Falloff::setHighRate(const ArrheniusRate& high)
+void FalloffRate::setHighRate(const ArrheniusRate& high)
 {
     if (high.preExponentialFactor() < 0 && !allow_negative_pre_exponential_factor) {
-        throw CanteraError("Falloff::setHighRate",
+        throw CanteraError("FalloffRate::setHighRate",
             "Detected negative pre-exponential factor (A={}).\n"
             "Enable 'allow_negative_pre_exponential_factor' to suppress "
             "this message.", high.preExponentialFactor());
     } else if (std::isnan(m_lowRate.preExponentialFactor())) {
         // pass
     } else if (m_lowRate.preExponentialFactor() * high.preExponentialFactor() < 0.) {
-        throw CanteraError("Falloff::setHighRate",
+        throw CanteraError("FalloffRate::setHighRate",
             "Detected inconsistent rate definitions;\nhigh and low "
             "rate pre-exponential factors must have the same sign.");
     }
     m_highRate = high;
 }
 
-void Falloff::setData(const vector_fp& c)
+void FalloffRate::setFalloffCoeffs(const vector_fp& c)
 {
     if (c.size() != 0) {
-        throw CanteraError("Falloff::setData",
+        throw CanteraError("FalloffRate::setFalloffCoeffs",
             "Incorrect number of parameters. 0 required. Received {}.",
             c.size());
     }
 }
 
-void Falloff::getData(vector_fp& c) const
+void FalloffRate::getFalloffCoeffs(vector_fp& c) const
 {
     c.clear();
 }
 
-void Falloff::setParameters(const AnyMap& node, const UnitsVector& rate_units)
+void FalloffRate::setParameters(const AnyMap& node, const UnitsVector& rate_units)
 {
     if (node.empty()) {
         return;
@@ -99,34 +99,34 @@ void Falloff::setParameters(const AnyMap& node, const UnitsVector& rate_units)
     }
 }
 
-void Falloff::getParameters(AnyMap& rateNode) const
+void FalloffRate::getParameters(AnyMap& node) const
 {
     if (m_chemicallyActivated) {
-        rateNode["type"] = "chemically-activated";
+        node["type"] = "chemically-activated";
     } else {
-        rateNode["type"] = "falloff";
+        node["type"] = "falloff";
     }
     if (allow_negative_pre_exponential_factor) {
-        rateNode["negative-A"] = true;
+        node["negative-A"] = true;
     }
     AnyMap node;
     m_lowRate.getParameters(node);
     if (!node.empty()) {
-        rateNode["low-P-rate-constant"] = node["rate-constant"];
+        node["low-P-rate-constant"] = node["rate-constant"];
     }
     node.clear();
     m_highRate.getParameters(node);
     if (!node.empty()) {
-        rateNode["high-P-rate-constant"] = node["rate-constant"];
+        node["high-P-rate-constant"] = node["rate-constant"];
     }
 }
 
-void Falloff::check(const std::string& equation, const AnyMap& node)
+void FalloffRate::check(const std::string& equation, const AnyMap& node)
 {
     if (!allow_negative_pre_exponential_factor &&
             (m_lowRate.preExponentialFactor() < 0 ||
              m_highRate.preExponentialFactor() < 0)) {
-        throw InputFileError("Falloff::check", node,
+        throw InputFileError("FalloffRate::check", node,
             "Undeclared negative pre-exponential factor(s) found in reaction '{}'",
             equation);
     }
@@ -138,20 +138,20 @@ void Falloff::check(const std::string& equation, const AnyMap& node)
         return;
     }
     if (!allow_negative_pre_exponential_factor && (lowA < 0 || highA < 0)) {
-        throw InputFileError("Falloff::check", node,
+        throw InputFileError("FalloffRate::check", node,
             "Negative pre-exponential factor(s) found in reaction '{}'", equation);
     }
     if (lowA * highA < 0) {
-        throw InputFileError("Falloff::check", node,
+        throw InputFileError("FalloffRate::check", node,
             "Inconsistent rate definitions found in reaction '{}';\nhigh and low "
             "rate pre-exponential factors must have the same sign.", equation);
     }
 }
 
-void Troe::setData(const vector_fp& c)
+void TroeRate::setFalloffCoeffs(const vector_fp& c)
 {
     if (c.size() != 3 && c.size() != 4) {
-        throw CanteraError("Troe::setData",
+        throw CanteraError("TroeRate::setFalloffCoeffs",
             "Incorrect number of coefficients. 3 or 4 required. Received {}.",
             c.size());
     }
@@ -170,7 +170,7 @@ void Troe::setData(const vector_fp& c)
 
     if (c.size() == 4) {
         if (std::abs(c[3]) < SmallNumber) {
-            warn_user("Troe::setData",
+            warn_user("TroeRate::setFalloffCoeffs",
                 "Unexpected parameter value T2=0. Omitting exp(T2/T) term from "
                 "falloff expression. To suppress this warning, remove value "
                 "for T2 from the input file. In the unlikely case that the "
@@ -184,7 +184,7 @@ void Troe::setData(const vector_fp& c)
     }
 }
 
-void Troe::getData(vector_fp& c) const
+void TroeRate::getFalloffCoeffs(vector_fp& c) const
 {
     c.resize(4, 0.);
     getParameters(c.data());
@@ -193,7 +193,7 @@ void Troe::getData(vector_fp& c) const
     }
 }
 
-void Troe::updateTemp(double T, double* work) const
+void TroeRate::updateTemp(double T, double* work) const
 {
     double Fcent = (1.0 - m_a) * exp(-T*m_rt3) + m_a * exp(-T*m_rt1);
     if (m_t2) {
@@ -202,7 +202,7 @@ void Troe::updateTemp(double T, double* work) const
     *work = log10(std::max(Fcent, SmallNumber));
 }
 
-double Troe::F(double pr, const double* work) const
+double TroeRate::F(double pr, const double* work) const
 {
     double lpr = log10(std::max(pr,SmallNumber));
     double cc = -0.4 - 0.67 * (*work);
@@ -212,13 +212,13 @@ double Troe::F(double pr, const double* work) const
     return pow(10.0, lgf);
 }
 
-void Troe::setParameters(const AnyMap& node, const UnitsVector& rate_units)
+void TroeRate::setParameters(const AnyMap& node, const UnitsVector& rate_units)
 {
     if (node.empty()) {
         return;
     }
 
-    Falloff::setParameters(node, rate_units);
+    FalloffRate::setParameters(node, rate_units);
     auto& f = node["Troe"].as<AnyMap>();
     if (f.empty()) {
         return;
@@ -231,19 +231,19 @@ void Troe::setParameters(const AnyMap& node, const UnitsVector& rate_units)
     if (f.hasKey("T2")) {
         params.push_back(f["T2"].asDouble());
     }
-    setData(params);
+    setFalloffCoeffs(params);
 }
 
-void Troe::getParameters(double* params) const {
+void TroeRate::getParameters(double* params) const {
     params[0] = m_a;
     params[1] = 1.0/m_rt3;
     params[2] = 1.0/m_rt1;
     params[3] = m_t2;
 }
 
-void Troe::getParameters(AnyMap& rateNode) const
+void TroeRate::getParameters(AnyMap& node) const
 {
-    Falloff::getParameters(rateNode);
+    FalloffRate::getParameters(node);
 
     AnyMap params;
     if (std::isnan(m_a)) {
@@ -265,22 +265,22 @@ void Troe::getParameters(AnyMap& rateNode) const
         // This can't be converted to a different unit system because the dimensions of
         // the rate constant were not set. Can occur if the reaction was created outside
         // the context of a Kinetics object and never added to a Kinetics object.
-        rateNode["__unconvertible__"] = true;
+        node["__unconvertible__"] = true;
     }
     params.setFlowStyle();
-    rateNode["Troe"] = std::move(params);
+    node["Troe"] = std::move(params);
 }
 
-void SRI::setData(const vector_fp& c)
+void SriRate::setFalloffCoeffs(const vector_fp& c)
 {
     if (c.size() != 3 && c.size() != 5) {
-        throw CanteraError("SRI::setData",
+        throw CanteraError("SriRate::setFalloffCoeffs",
             "Incorrect number of coefficients. 3 or 5 required. Received {}.",
             c.size());
     }
 
     if (c[2] < 0.0) {
-        throw CanteraError("SRI::setData()",
+        throw CanteraError("SriRate::setFalloffCoeffs()",
                            "m_c parameter is less than zero: {}", c[2]);
     }
     m_a = c[0];
@@ -289,7 +289,7 @@ void SRI::setData(const vector_fp& c)
 
     if (c.size() == 5) {
         if (c[3] < 0.0) {
-            throw CanteraError("SRI::setData()",
+            throw CanteraError("SriRate::setFalloffCoeffs()",
                                "m_d parameter is less than zero: {}", c[3]);
         }
         m_d = c[3];
@@ -300,7 +300,7 @@ void SRI::setData(const vector_fp& c)
     }
 }
 
-void SRI::getData(vector_fp& c) const
+void SriRate::getFalloffCoeffs(vector_fp& c) const
 {
     c.resize(5, 0.);
     getParameters(c.data());
@@ -309,7 +309,7 @@ void SRI::getData(vector_fp& c) const
     }
 }
 
-void SRI::updateTemp(double T, double* work) const
+void SriRate::updateTemp(double T, double* work) const
 {
     *work = m_a * exp(- m_b / T);
     if (m_c != 0.0) {
@@ -318,20 +318,20 @@ void SRI::updateTemp(double T, double* work) const
     work[1] = m_d * pow(T,m_e);
 }
 
-double SRI::F(double pr, const double* work) const
+double SriRate::F(double pr, const double* work) const
 {
     double lpr = log10(std::max(pr,SmallNumber));
     double xx = 1.0/(1.0 + lpr*lpr);
     return pow(*work, xx) * work[1];
 }
 
-void SRI::setParameters(const AnyMap& node, const UnitsVector& rate_units)
+void SriRate::setParameters(const AnyMap& node, const UnitsVector& rate_units)
 {
     if (node.empty()) {
         return;
     }
 
-    Falloff::setParameters(node, rate_units);
+    FalloffRate::setParameters(node, rate_units);
     auto& f = node["SRI"].as<AnyMap>();
     if (f.empty()) {
         return;
@@ -347,10 +347,10 @@ void SRI::setParameters(const AnyMap& node, const UnitsVector& rate_units)
     if (f.hasKey("E")) {
         params.push_back(f["E"].asDouble());
     }
-    setData(params);
+    setFalloffCoeffs(params);
 }
 
-void SRI::getParameters(double* params) const
+void SriRate::getParameters(double* params) const
 {
     params[0] = m_a;
     params[1] = m_b;
@@ -359,9 +359,9 @@ void SRI::getParameters(double* params) const
     params[4] = m_e;
 }
 
-void SRI::getParameters(AnyMap& rateNode) const
+void SriRate::getParameters(AnyMap& node) const
 {
-    Falloff::getParameters(rateNode);
+    FalloffRate::getParameters(node);
 
     AnyMap params;
     if (std::isnan(m_a)) {
@@ -385,16 +385,16 @@ void SRI::getParameters(AnyMap& rateNode) const
         // This can't be converted to a different unit system because the dimensions of
         // the rate constant were not set. Can occur if the reaction was created outside
         // the context of a Kinetics object and never added to a Kinetics object.
-        rateNode["__unconvertible__"] = true;
+        node["__unconvertible__"] = true;
     }
     params.setFlowStyle();
-    rateNode["SRI"] = std::move(params);
+    node["SRI"] = std::move(params);
 }
 
-void Tsang::setData(const vector_fp& c)
+void TsangRate::setFalloffCoeffs(const vector_fp& c)
 {
     if (c.size() != 1 && c.size() != 2) {
-        throw CanteraError("Tsang::init",
+        throw CanteraError("TsangRate::init",
             "Incorrect number of coefficients. 1 or 2 required. Received {}.",
             c.size());
     }
@@ -408,7 +408,7 @@ void Tsang::setData(const vector_fp& c)
     }
 }
 
-void Tsang::getData(vector_fp& c) const
+void TsangRate::getFalloffCoeffs(vector_fp& c) const
 {
     c.resize(2, 0.);
     getParameters(c.data());
@@ -417,14 +417,14 @@ void Tsang::getData(vector_fp& c) const
     }
 }
 
-void Tsang::updateTemp(double T, double* work) const
+void TsangRate::updateTemp(double T, double* work) const
 {
     double Fcent = m_a + (m_b * T);
     *work = log10(std::max(Fcent, SmallNumber));
 }
 
-double Tsang::F(double pr, const double* work) const
-{   //identical to Troe::F
+double TsangRate::F(double pr, const double* work) const
+{   //identical to TroeRate::F
     double lpr = log10(std::max(pr,SmallNumber));
     double cc = -0.4 - 0.67 * (*work);
     double nn = 0.75 - 1.27 * (*work);
@@ -433,13 +433,13 @@ double Tsang::F(double pr, const double* work) const
     return pow(10.0, lgf);
 }
 
-void Tsang::setParameters(const AnyMap& node, const UnitsVector& rate_units)
+void TsangRate::setParameters(const AnyMap& node, const UnitsVector& rate_units)
 {
     if (node.empty()) {
         return;
     }
 
-    Falloff::setParameters(node, rate_units);
+    FalloffRate::setParameters(node, rate_units);
     auto& f = node["Tsang"].as<AnyMap>();
     if (f.empty()) {
         return;
@@ -448,17 +448,17 @@ void Tsang::setParameters(const AnyMap& node, const UnitsVector& rate_units)
         f["A"].asDouble(),
         f["B"].asDouble()
     };
-    setData(params);
+    setFalloffCoeffs(params);
 }
 
-void Tsang::getParameters(double* params) const {
+void TsangRate::getParameters(double* params) const {
     params[0] = m_a;
     params[1] = m_b;
 }
 
-void Tsang::getParameters(AnyMap& rateNode) const
+void TsangRate::getParameters(AnyMap& node) const
 {
-    Falloff::getParameters(rateNode);
+    FalloffRate::getParameters(node);
 
     AnyMap params;
     if (std::isnan(m_a)) {
@@ -469,7 +469,7 @@ void Tsang::getParameters(AnyMap& rateNode) const
         params["B"] = m_b;
     }
     params.setFlowStyle();
-    rateNode["Tsang"] = std::move(params);
+    node["Tsang"] = std::move(params);
 }
 
 }

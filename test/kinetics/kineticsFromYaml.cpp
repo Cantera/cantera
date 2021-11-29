@@ -132,7 +132,7 @@ TEST(Reaction, FalloffFromYaml1)
     auto& FR = dynamic_cast<FalloffReaction3&>(*R);
     EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("AR"), 0.625);
     EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("N2"), 1.0);
-    const auto rate = std::dynamic_pointer_cast<SRI>(R->rate());
+    const auto rate = std::dynamic_pointer_cast<SriRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->highRate().preExponentialFactor(), 7.91E+10);
     EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 6.37E+14);
     EXPECT_DOUBLE_EQ(rate->lowRate().intrinsicActivationEnergy(), 56640);
@@ -153,12 +153,12 @@ TEST(Reaction, FalloffFromYaml2)
     auto& FR = dynamic_cast<FalloffReaction3&>(*R);
     EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("N2"), 1.0);
     EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("H2O"), 0.0);
-    const auto rate = std::dynamic_pointer_cast<Troe>(R->rate());
+    const auto rate = std::dynamic_pointer_cast<TroeRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->highRate().preExponentialFactor(), 6e11);
     EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 1.04e20);
     EXPECT_DOUBLE_EQ(rate->lowRate().intrinsicActivationEnergy(), 1600);
     vector_fp params(4);
-    rate->getData(params);
+    rate->getFalloffCoeffs(params);
     EXPECT_DOUBLE_EQ(params[0], 0.562);
     EXPECT_DOUBLE_EQ(params[1], 91.0);
     EXPECT_DOUBLE_EQ(params[3], 0.0);
@@ -181,13 +181,13 @@ TEST(Reaction, FalloffFromYaml3)
     auto& FR = dynamic_cast<FalloffReaction3&>(*R);
     EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("N2"), 1.0);
     EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("H2O"), 5.0);
-    const auto rate = std::dynamic_pointer_cast<Tsang>(R->rate());
+    const auto rate = std::dynamic_pointer_cast<TsangRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->highRate().preExponentialFactor(), 8.3e17);
     EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 3.57e26);
     EXPECT_DOUBLE_EQ(rate->highRate().intrinsicActivationEnergy(), 123800.0);
     EXPECT_DOUBLE_EQ(rate->lowRate().intrinsicActivationEnergy(), 124900.0);
     vector_fp params(2);
-    rate->getData(params);
+    rate->getFalloffCoeffs(params);
     EXPECT_DOUBLE_EQ(params[0], 0.95);
     EXPECT_DOUBLE_EQ(params[1], -0.0001);
     EXPECT_EQ(R->input["source"].asString(), "ARL-TR-5088");
@@ -204,7 +204,7 @@ TEST(Reaction, ChemicallyActivatedFromYaml)
         " low-P-rate-constant: [282320.078, 1.46878, -3270.56495]}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    const auto& rate = std::dynamic_pointer_cast<Lindemann>(R->rate());
+    const auto& rate = std::dynamic_pointer_cast<LindemannRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->highRate().preExponentialFactor(), 5.88e-14);
     EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 2.82320078e2);
     EXPECT_EQ(rate->nParameters(), (size_t) 0);

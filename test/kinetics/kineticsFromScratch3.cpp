@@ -118,7 +118,7 @@ TEST_F(KineticsFromScratch3, add_falloff_reaction)
     ArrheniusRate high_rate(7.4e10, -0.37, 0.0);
     ArrheniusRate low_rate(2.3e12, -0.9, -7112800.0);
     vector_fp falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
-    Troe rate(low_rate, high_rate, falloff_params);
+    TroeRate rate(low_rate, high_rate, falloff_params);
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
     auto R = make_shared<FalloffReaction3>(reac, prod, rate, tbody);

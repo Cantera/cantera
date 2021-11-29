@@ -18,7 +18,7 @@ namespace Cantera
 {
 
 class Kinetics;
-class Falloff;
+class FalloffRate;
 class XML_Node;
 class ThirdBody;
 
@@ -295,7 +295,7 @@ public:
 
     //! Falloff function which determines how low_rate and high_rate are
     //! combined to determine the rate constant for the reaction.
-    shared_ptr<Falloff> falloff;
+    shared_ptr<FalloffRate> falloff;
 
     bool allow_negative_pre_exponential_factor;
 

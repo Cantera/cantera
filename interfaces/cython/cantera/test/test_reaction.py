@@ -322,7 +322,7 @@ class FalloffRateTests(ReactionRateTests):
     def test_data(self):
         rate = self.from_parts()
         for n in self._n_data:
-            rate.data = np.random.rand(n)
+            rate.falloff_coeffs = np.random.rand(n)
 
     def test_third_body(self):
         concm = self.gas.third_body_concentrations
@@ -336,7 +336,7 @@ class TestLindemannRate(FalloffRateTests, utilities.CanteraTest):
     _type = "Lindemann"
     _index = 7
     _parts = {
-        "data": [],
+        "falloff_coeffs": [],
         }
     _input = {
         "type": "falloff",
@@ -356,7 +356,7 @@ class TestTroeRate(FalloffRateTests, utilities.CanteraTest):
     _cls = ct.TroeRate
     _type = "Troe"
     _index = 2
-    _parts = {"data": [0.7346, 94.0, 1756.0, 5182.0]}
+    _parts = {"falloff_coeffs": [0.7346, 94.0, 1756.0, 5182.0]}
     _input = {
         "type": "falloff",
         "low-P-rate-constant": {"A": 2.3e+12, "b": -0.9, "Ea": -7112800.0},
@@ -378,7 +378,7 @@ class TestSriRate(FalloffRateTests, utilities.CanteraTest):
     _cls = ct.SriRate
     _type = "SRI"
     _index = 8
-    _parts = {"data": [1.1, 700.0, 1234.0, 56.0, 0.7]}
+    _parts = {"falloff_coeffs": [1.1, 700.0, 1234.0, 56.0, 0.7]}
     _input = {
         "type": "falloff",
         "high-P-rate-constant": {"A": 4.0e+15, "b": -0.5, "Ea": 418400.0},
@@ -400,7 +400,7 @@ class TestTsangRate(FalloffRateTests, utilities.CanteraTest):
     _cls = ct.TsangRate
     _type = "Tsang"
     _index = 9
-    _parts = {"data": [0.95, -1.0e-04]}
+    _parts = {"falloff_coeffs": [0.95, -1.0e-04]}
     _input = {
         "type": "falloff",
         "high-P-rate-constant": {"A": 4.0e+15, "b": -0.5, "Ea": 418400.0},
@@ -1018,7 +1018,7 @@ class TestTroe(ReactionTests, utilities.CanteraTest):
         high = ct.Arrhenius(param["A"], param["b"], param["Ea"])
         param = cls._rate["Troe"]
         data = [param["A"], param["T3"], param["T1"], param["T2"]]
-        cls._rate_obj = ct.TroeRate(low=low, high=high, data=data)
+        cls._rate_obj = ct.TroeRate(low=low, high=high, falloff_coeffs=data)
 
     def update(self, rxn):
         self.gas.forward_rate_constants # force update of internal states
@@ -1062,7 +1062,7 @@ class TestLindemann(ReactionTests, utilities.CanteraTest):
         low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
         param = cls._rate["high_P_rate_constant"]
         high = ct.Arrhenius(param["A"], param["b"], param["Ea"])
-        cls._rate_obj = ct.LindemannRate(low=low, high=high, data=[])
+        cls._rate_obj = ct.LindemannRate(low=low, high=high, falloff_coeffs=[])
 
     def update(self, rxn):
         self.gas.forward_rate_constants # force update of internal states
@@ -1128,7 +1128,7 @@ class TestChemicallyActivated(ReactionTests, utilities.CanteraTest):
         low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
         param = cls._rate["high_P_rate_constant"]
         high = ct.Arrhenius(param["A"], param["b"], param["Ea"])
-        cls._rate_obj = ct.LindemannRate(low=low, high=high, data=[])
+        cls._rate_obj = ct.LindemannRate(low=low, high=high, falloff_coeffs=[])
         cls._rate_obj.chemically_activated = True
 
     def update(self, rxn):
