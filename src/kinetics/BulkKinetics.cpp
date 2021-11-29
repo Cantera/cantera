@@ -177,9 +177,9 @@ void BulkKinetics::addThirdBody(shared_ptr<Reaction> r)
                 "' while adding reaction '" + r->equation() + "'");
         }
     }
-    m_multi_concm.install3(nReactions() - 1, efficiencies,
-                           r->thirdBody()->default_efficiency,
-                           r->thirdBody()->mass_action);
+    m_multi_concm.install(nReactions() - 1, efficiencies,
+                          r->thirdBody()->default_efficiency,
+                          r->thirdBody()->mass_action);
 }
 
 void BulkKinetics::addElementaryReaction(ElementaryReaction2& r)

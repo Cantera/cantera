@@ -21,6 +21,8 @@ GasKinetics::GasKinetics(ThermoPhase* thermo) :
 
 void GasKinetics::getThirdBodyConcentrations(double* concm) const
 {
+    // @todo ... address/reassess, as correctness of values is subject to
+    //      update_rates_C having been called with the current thermo state.
     std::copy(m_concm.begin(), m_concm.end(), concm);
 }
 
@@ -85,7 +87,7 @@ void GasKinetics::update_rates_C()
     doublereal ctot = thermo().molarDensity();
 
     // Third-body objects interacting with MultiRate evaluator
-    m_multi_concm.update3(m_phys_conc, ctot, m_concm.data());
+    m_multi_concm.update(m_phys_conc, ctot, m_concm.data());
 
     // 3-body reactions (legacy)
     if (!concm_3b_values.empty()) {
@@ -188,7 +190,7 @@ void GasKinetics::updateROP()
     m_ropf = m_rfn;
 
     // reactions involving third body
-    m_multi_concm.multiply3(m_ropf.data(), m_concm.data());
+    m_multi_concm.multiply(m_ropf.data(), m_concm.data());
 
     // multiply ropf by enhanced 3b conc for all 3b rxns
     if (!concm_3b_values.empty()) {
@@ -250,7 +252,7 @@ void GasKinetics::getFwdRateConstants(double* kfwd)
         }
 
         // reactions involving third body
-        m_multi_concm.multiply3(m_ropf.data(), m_concm.data());
+        m_multi_concm.multiply(m_ropf.data(), m_concm.data());
     }
 
     if (m_falloff_high_rates.nReactions()) {
