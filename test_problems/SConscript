@@ -202,9 +202,9 @@ diamond = CompileAndTest('diamondSurf-yaml', 'diamondSurf', 'diamondSurf',
     'runDiamond_blessed.out', options='diamond.yaml')
 if env["python_package"] != "none":
     Test('diamondSurf-cti', 'diamondSurf', diamond.program, 'runDiamond_blessed.out',
-        options='diamond.cti')  # @TODO: remove after Cantera 2.6
+        options='diamond.cti')  # @todo: remove after Cantera 2.6
 Test('diamondSurf-xml', 'diamondSurf', diamond.program, 'runDiamond_blessed.out',
-     options='diamond.xml')  # @TODO: remove after Cantera 2.6
+     options='diamond.xml')  # @todo: remove after Cantera 2.6
 
 CompileAndTest('dustyGasTransport', slow=True)
 CompileAndTest('mixGasTransport')

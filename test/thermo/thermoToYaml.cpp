@@ -435,7 +435,7 @@ TEST_F(ThermoYamlRoundTrip, LatticeSolid)
 TEST_F(ThermoYamlRoundTrip, HMWSoln)
 {
     roundtrip("thermo-models.yaml", "HMW-NaCl-electrolyte");
-    rtol = 1e-10; // @TODO: Determine why more stringent tolerances can't be met
+    rtol = 1e-10; // @todo: Determine why more stringent tolerances can't be met
     compareThermo(350.15, 101325,
                   "H2O(L): 0.8198, Na+:0.09, Cl-:0.09, H+:4.4e-6, OH-:4.4e-6");
 }

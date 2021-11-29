@@ -16,7 +16,7 @@ namespace Cantera
 
 void IdealGasConstPressureReactor::setThermoMgr(ThermoPhase& thermo)
 {
-    //! @TODO: Add a method to ThermoPhase that indicates whether a given
+    //! @todo: Add a method to ThermoPhase that indicates whether a given
     //! subclass is compatible with this reactor model
     if (thermo.type() != "IdealGas") {
         throw CanteraError("IdealGasConstPressureReactor::setThermoMgr",
