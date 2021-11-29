@@ -67,7 +67,7 @@ protected:
     //! valued stoichiometries.
     vector_fp m_dn;
 
-    ThirdBodyCalc m_multi_concm; //!< used with MultiRate evaluator
+    ThirdBodyCalc3 m_multi_concm; //!< used with MultiRate evaluator
 
     //! Third body concentrations
     vector_fp m_concm;
