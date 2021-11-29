@@ -27,6 +27,9 @@ cdef class ReactionRate:
         Evaluate rate expression based on temperature and pressure. For rate
         expressions that are dependent of pressure, an omission of pressure
         will raise an exception.
+
+        Warning: this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
         """
         if pressure:
             return self.rate.eval(temperature, pressure)
@@ -296,7 +299,7 @@ cdef class FalloffRate(ReactionRate):
 
         if self._reaction_rate_type is None:
             raise TypeError(
-                f"Base class '{type(self).__class__}' cannot be instantiated "
+                f"Base class '{self.__class__.__name__}' cannot be instantiated "
                 "by itself; use specialized fall-off rate instead.")
 
         if init:
@@ -1666,7 +1669,7 @@ cdef class FalloffReaction(Reaction):
 
         .. deprecated:: 2.6
              To be deprecated with version 2.6, and removed thereafter.
-             Replaced by property `ArrheniusRate.allow_negative_pre_exponential_factor`.
+             Replaced by property `FalloffRate.allow_negative_pre_exponential_factor`.
         """
         def __get__(self):
             if self.uses_legacy:

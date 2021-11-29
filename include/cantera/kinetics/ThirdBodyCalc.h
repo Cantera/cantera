@@ -26,7 +26,7 @@ public:
         m_species.emplace_back();
         m_eff.emplace_back();
         for (const auto& eff : enhanced) {
-            assert(eff.first != npos);
+            AssertTrace(eff.first != npos);
             m_species.back().push_back(eff.first);
             m_eff.back().push_back(eff.second - dflt);
         }
@@ -49,7 +49,7 @@ public:
         m_species.emplace_back();
         m_eff.emplace_back();
         for (const auto& eff : efficiencies) {
-            assert(eff.first != npos);
+            AssertTrace(eff.first != npos);
             m_species.back().push_back(eff.first);
             m_eff.back().push_back(eff.second - default_efficiency);
         }
