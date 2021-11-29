@@ -148,9 +148,9 @@ public:
 
     virtual doublereal cv_mole() const;
 
-    //@}
-    /// @name Mechanical Equation of State Properties
-    //@{
+    //! @}
+    //! @name Mechanical Equation of State Properties
+    //! @{
 
     virtual doublereal pressure() const;
     virtual void setPressure(doublereal p);
@@ -172,14 +172,14 @@ public:
     virtual void getCp_R(doublereal* cpr) const;
     virtual void getIntEnergy_RT(doublereal* urt) const;
 
-    //@}
+    //! @}
     //! @name Thermodynamic Values for the Species Reference State
     /*!
      *  All functions in this group need to be overridden, because the
      *  m_spthermo MultiSpeciesThermo function is not adequate for the real
      *  equation of state.
      */
-    //@{
+    //! @{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
     virtual void getGibbs_RT_ref(doublereal* grt) const;

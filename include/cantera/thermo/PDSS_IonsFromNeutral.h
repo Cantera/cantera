@@ -92,7 +92,7 @@ public:
     void setParametersFromXML(const XML_Node& speciesNode);
     virtual void getParameters(AnyMap& eosNode) const;
     virtual void initThermo();
-    //@}
+    //! @}
 
 protected:
     //! Pointer to the Neutral Molecule ThermoPhase object

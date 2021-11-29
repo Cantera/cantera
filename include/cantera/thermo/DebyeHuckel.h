@@ -25,20 +25,20 @@ namespace Cantera
  *
  *   These are possible formats for the molality-based activity coefficients.
  */
-//@{
+//! @{
 #define DHFORM_DILUTE_LIMIT 0
 #define DHFORM_BDOT_AK 1
 #define DHFORM_BDOT_ACOMMON 2
 #define DHFORM_BETAIJ 3
 #define DHFORM_PITZER_BETAIJ 4
-//@}
+//! @}
 /*!
  *  @name  Acceptable ways to calculate the value of A_Debye
  */
-//@{
+//! @{
 #define A_DEBYE_CONST 0
 #define A_DEBYE_WATER 1
-//@}
+//! @}
 
 class WaterProps;
 class PDSS_Water;
@@ -612,14 +612,14 @@ public:
     virtual doublereal gibbs_mole() const;
     virtual doublereal cp_mole() const;
 
-    //@}
+    //! @}
     /** @name Mechanical Equation of State Properties
-     //@{
      * In this equation of state implementation, the density is a function only
      * of the mole fractions. Therefore, it can't be an independent variable.
      * Instead, the pressure is used as the independent variable. Functions
      * which try to set the thermodynamic state by calling setDensity() will
      * cause an exception to be thrown.
+     * @{
      */
 
 protected:
@@ -678,9 +678,9 @@ public:
      */
     virtual void getMolalityActivityCoefficients(doublereal* acMolality) const;
 
-    //@}
-    /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @}
+    //! @name  Partial Molar Properties of the Solution
+    //! @{
 
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
@@ -770,7 +770,7 @@ public:
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
-    //@}
+    //! @}
 
     /*
      *  -------------- Utilities -------------------------------
@@ -936,7 +936,6 @@ private:
      *  used with extreme caution.
      */
     double _lnactivityWaterHelgesonFixedForm() const;
-    //@}
 
 protected:
     //! form of the Debye-Huckel parameterization used in the model.

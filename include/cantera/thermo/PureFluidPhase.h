@@ -121,7 +121,6 @@ public:
     //! Returns a reference to the substance object
     tpx::Substance& TPX_Substance();
 
-    //@}
     /// @name Properties of the Standard State of the Species in the Solution
     /*!
      *  The standard state of the pure fluid is defined as the real properties
@@ -129,27 +128,27 @@ public:
      *  temperature and pressure of the solution. With this definition, the
      *  activity of the fluid is always then defined to be equal to one.
      */
-    //@{
+    //! @{
 
     virtual void getStandardChemPotentials(doublereal* mu) const;
     virtual void getEnthalpy_RT(doublereal* hrt) const;
     virtual void getEntropy_R(doublereal* sr) const;
     virtual void getGibbs_RT(doublereal* grt) const;
 
-    //@}
-
+    //! @}
     /// @name Thermodynamic Values for the Species Reference States
     /*!
      * The species reference state for pure fluids is defined as an ideal gas at
      * the reference pressure and current temperature of the fluid.
      */
-    //@{
+    //! @{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
     virtual void getGibbs_RT_ref(doublereal* grt) const;
     virtual void getGibbs_ref(doublereal* g) const;
     virtual void getEntropy_R_ref(doublereal* er) const;
 
+    //! @}
     /**
      * @name Setting the State
      *
@@ -168,19 +167,17 @@ public:
     virtual void setState_VH(double v, double h, double tol=1e-9);
     virtual void setState_TH(double t, double h, double tol=1e-9);
     virtual void setState_SH(double s, double h, double tol=1e-9);
-    //@}
-
+    //! @}
     //! @name Critical State Properties
-    //@{
+    //! @{
 
     virtual doublereal critTemperature() const;
     virtual doublereal critPressure() const;
     virtual doublereal critDensity() const;
 
-    //@}
-
+    //! @}
     //! @name Saturation properties.
-    //@{
+    //! @{
 
     virtual doublereal satTemperature(doublereal p) const;
     virtual doublereal satPressure(doublereal t);
@@ -188,7 +185,7 @@ public:
 
     virtual void setState_Tsat(doublereal t, doublereal x);
     virtual void setState_Psat(doublereal p, doublereal x);
-    //@}
+    //! @}
 
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;

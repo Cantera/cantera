@@ -44,7 +44,7 @@ public:
     virtual doublereal enthalpy_mole() const;
     virtual doublereal entropy_mole() const;
 
-    //@}
+    //! @}
     /** @name Mechanical Equation of State Properties
      *
      * In this equation of state implementation, the density is a function only
@@ -53,7 +53,7 @@ public:
      * which try to set the thermodynamic state by calling setDensity() will
      * cause an exception to be thrown.
      */
-    //@{
+    //! @{
 
     /**
      * Pressure. Units: Pa.
@@ -75,20 +75,17 @@ public:
 
     virtual void calcDensity();
 
-    //@}
-
-    /**
-     * @name Chemical Potentials and Activities
-     * @{
-     */
+    //! @}
+    //! @name Chemical Potentials and Activities
+    //! @{
 
     virtual void getActivityCoefficients(doublereal* ac) const;
     virtual void getChemPotentials(doublereal* mu) const;
     virtual void getChemPotentials_RT(doublereal* mu) const;
 
-    //@}
-    /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @}
+    //! @name  Partial Molar Properties of the Solution
+    //! @{
 
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
@@ -97,9 +94,9 @@ public:
     virtual void getPureGibbs(doublereal* gpure) const;
     virtual void getStandardChemPotentials(doublereal* mu) const;
 
-    //@}
-    /// @name Utility Functions
-    //@{
+    //! @}
+    //! @name Utility Functions
+    //! @{
 
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
@@ -109,7 +106,7 @@ public:
 
     //! Set the product Species. Must be called after species have been added.
     void setProductSpecies(const std::string& name);
-    //@}
+    //! @}
 
 private:
     /**

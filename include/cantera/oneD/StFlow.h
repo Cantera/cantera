@@ -131,7 +131,7 @@ public:
         return m_fixedtemp[j];
     }
 
-    // @}
+    //! @}
 
     virtual std::string componentName(size_t n) const;
 

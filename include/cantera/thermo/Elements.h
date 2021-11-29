@@ -80,7 +80,7 @@ namespace Cantera
  * currently there are none
  */
 #define CT_ELEM_TYPE_OTHERCONSTRAINT 6
-//@}
+//! @}
 
 //! Number indicating we don't know the entropy of the element in its most
 //! stable state at 298.15 K and 1 bar.

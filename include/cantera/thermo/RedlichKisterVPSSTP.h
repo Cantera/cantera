@@ -264,9 +264,9 @@ public:
 
     virtual void getLnActivityCoefficients(doublereal* lnac) const;
 
-    //@}
-    /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @}
+    //! @name  Partial Molar Properties of the Solution
+    //! @{
 
     virtual void getChemPotentials(doublereal* mu) const;
 
@@ -331,6 +331,7 @@ public:
     virtual void getPartialMolarCp(doublereal* cpbar) const;
 
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    //! @}
 
     //! Get the array of temperature second derivatives of the log activity
     //! coefficients
@@ -344,7 +345,6 @@ public:
 
     virtual void getdlnActCoeffdT(doublereal* dlnActCoeffdT) const;
 
-    /// @}
     /// @name Initialization
     /// The following methods are used in the process of constructing
     /// the phase and setting its parameters from a specification in an
@@ -368,7 +368,6 @@ public:
         const double* excess_enthalpy, size_t n_enthalpy,
         const double* excess_entropy, size_t n_entropy);
 
-    //! @}
     //! @name  Derivatives of Thermodynamic Variables needed for Applications
     //! @{
 
@@ -376,8 +375,7 @@ public:
     virtual void getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const;
     virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const;
     virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN);
-
-    //@}
+    //! @}
 
 private:
     //! Process an XML node called "binaryNeutralSpeciesParameters"

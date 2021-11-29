@@ -84,7 +84,7 @@ public:
      */
     virtual double pressure() const;
 
-    // @}
+    //! @}
 
     //! Returns the standard concentration \f$ C^0_k \f$, which is used to
     //! normalize the generalized concentration.
@@ -113,8 +113,8 @@ public:
      */
     virtual void getActivityCoefficients(double* ac) const;
 
-    /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @name  Partial Molar Properties of the Solution
+    //! @{
 
     virtual void getChemPotentials(double* mu) const;
     virtual void getPartialMolarEnthalpies(double* hbar) const;
@@ -126,6 +126,7 @@ public:
      */
     virtual void getPartialMolarCp(double* cpbar) const;
     virtual void getPartialMolarVolumes(double* vbar) const;
+    //! @}
 
     //! Calculate species-specific critical temperature
     /*!
@@ -138,7 +139,6 @@ public:
      */
     virtual double speciesCritTemperature(double a, double b) const;
 
-    //@}
     //! @name Initialization Methods - For Internal use
     /*!
      * The following methods are used in the process of constructing
@@ -146,7 +146,7 @@ public:
      * input file. They are not normally used in application programs.
      * To see how they are used, see importPhase().
      */
-    //@{
+    //! @{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
@@ -170,6 +170,7 @@ public:
      */
     void setBinaryCoeffs(const std::string& species_i,
                          const std::string& species_j, double a);
+    //! @}
 
 protected:
     // Special functions inherited from MixtureFugacityTP

@@ -446,7 +446,7 @@ public:
         return 1.0 / temperature();
     }
 
-    //@}
+    //! @}
 
     /**
      * @name Chemical Potentials and Activities
@@ -516,9 +516,9 @@ public:
      */
     virtual void getActivityCoefficients(doublereal* ac) const;
 
-    //@}
+    //! @}
     /// @name Partial Molar Properties of the Solution
-    //@{
+    //! @{
 
     virtual void getChemPotentials(doublereal* mu) const;
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
@@ -527,9 +527,9 @@ public:
     virtual void getPartialMolarCp(doublereal* cpbar) const;
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
-    //@}
+    //! @}
     /// @name  Properties of the Standard State of the Species in the Solution
-    //@{
+    //! @{
 
     virtual void getStandardChemPotentials(doublereal* mu) const;
     virtual void getEnthalpy_RT(doublereal* hrt) const;
@@ -540,9 +540,9 @@ public:
     virtual void getCp_R(doublereal* cpr) const;
     virtual void getStandardVolumes(doublereal* vol) const;
 
-    //@}
+    //! @}
     /// @name Thermodynamic Values for the Species Reference States
-    //@{
+    //! @{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
     virtual void getGibbs_RT_ref(doublereal* grt) const;
@@ -552,9 +552,9 @@ public:
     virtual void getCp_R_ref(doublereal* cprt) const;
     virtual void getStandardVolumes_ref(doublereal* vol) const;
 
-    //@}
+    //! @}
     /// @name NonVirtual Internal methods to Return References to Reference State Thermo
-    //@{
+    //! @{
 
     //! Returns a reference to the dimensionless reference state enthalpy vector.
     /*!
@@ -596,7 +596,7 @@ public:
         return m_cp0_R;
     }
 
-    //@}
+    //! @}
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void setToEquilState(const doublereal* mu_RT);

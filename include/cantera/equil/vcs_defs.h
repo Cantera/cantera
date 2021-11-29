@@ -14,7 +14,7 @@ namespace Cantera
 /*!
  *      ERROR CODES
  */
-//@{
+//! @{
 #define VCS_SUCCESS 0
 #define VCS_NOMEMORY 1
 #define VCS_FAILED_CONVERGENCE -1
@@ -23,7 +23,7 @@ namespace Cantera
 #define VCS_THERMO_OUTOFRANGE -4
 #define VCS_FAILED_LOOKUP -5
 #define VCS_MP_FAIL -6
-//@}
+//! @}
 
 //! Models for the standard state volume of each species
 #define VCS_SSVOL_IDEALGAS 0
@@ -79,13 +79,13 @@ namespace Cantera
 #define VCS_MAXSTEPS 50000
 #endif
 
-//@}
+//! @}
 
 //! @name  Species Categories used during the iteration
 /*!
  * These defines are valid values for spStatus()
  */
-//@{
+//! @{
 
 //! Species is a component which can never be nonzero because of a
 //! stoichiometric constraint
@@ -178,13 +178,13 @@ namespace Cantera
  */
 #define VCS_SPECIES_STOICHZERO -8
 
-//@}
+//! @}
 
 //! @name  Phase Categories used during the iteration
 /*!
  * These defines are valid values for the phase existence flag
  */
-//@{
+//! @{
 //! Always exists because it contains inerts which can't exist in any other phase
 #define VCS_PHASE_EXIST_ALWAYS 3
 
@@ -207,7 +207,7 @@ namespace Cantera
  */
 #define VCS_PHASE_EXIST_ZEROEDPHASE -6
 
-//@}
+//! @}
 
 /*!
  * @name Types of Element Constraint Equations
@@ -215,7 +215,7 @@ namespace Cantera
  * There may be several different types of element constraints handled by the
  * equilibrium program.  These defines are used to assign each constraint to one
  * category.
- *   @{
+ * @{
  */
 
 
@@ -275,7 +275,7 @@ namespace Cantera
  * currently there are none
  */
 #define VCS_ELEM_TYPE_OTHERCONSTRAINT 6
-//@}
+//! @}
 
 /*!
  * @name  Types of Species Unknowns in the problem
@@ -291,7 +291,7 @@ namespace Cantera
  * for example if the open circuit voltage is sought after.
  */
 #define VCS_SPECIES_TYPE_INTERFACIALVOLTAGE -5
-//@}
+//! @}
 
 /*!
  * @name  Types of State Calculations within VCS. These values determine where
@@ -313,7 +313,7 @@ namespace Cantera
 
 //! State Calculation based on a temporary set of mole numbers
 #define VCS_STATECALC_TMP 3
-//@}
+//! @}
 
 }
 

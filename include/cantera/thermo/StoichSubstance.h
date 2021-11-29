@@ -261,9 +261,9 @@ public:
      */
     virtual void getStandardChemPotentials(doublereal* mu0) const;
 
-    //@}
-    /// @name  Properties of the Standard State of the Species in the Solution
-    //@{
+    //! @}
+    //! @name  Properties of the Standard State of the Species in the Solution
+    //! @{
 
     virtual void getEnthalpy_RT(doublereal* hrt) const;
     virtual void getEntropy_R(doublereal* sr) const;
@@ -284,9 +284,9 @@ public:
      */
     virtual void getIntEnergy_RT(doublereal* urt) const;
 
-    //@}
-    /// @name Thermodynamic Values for the Species Reference States
-    //@{
+    //! @}
+    //! @name Thermodynamic Values for the Species Reference States
+    //! @{
 
     //! Returns the vector of nondimensional internal Energies of the reference
     //! state at the current temperature of the solution and the reference
@@ -296,7 +296,7 @@ public:
      *               energies of the species. Length: m_kk
      */
     virtual void getIntEnergy_RT_ref(doublereal* urt) const;
-    // @}
+    //! @}
 
     virtual void initThermo();
     virtual void getSpeciesParameters(const std::string& name,

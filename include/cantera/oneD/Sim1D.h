@@ -42,7 +42,7 @@ public:
      *
      * These methods are used to set the initial values of solution components.
      */
-    //@{
+    //! @{
 
     /// Set initial guess for one component for all domains
     /**
@@ -96,7 +96,7 @@ public:
     /// Set component 'comp' of domain 'dom' to value 'v' at all points.
     void setFlatProfile(size_t dom, size_t comp, doublereal v);
 
-    //@}
+    //! @}
 
     void save(const std::string& fname, const std::string& id,
               const std::string& desc, int loglevel=1);
