@@ -22,9 +22,9 @@ TEST(ReactionRate, ModifyArrheniusRate)
     auto& ER = dynamic_cast<ElementaryReaction3&>(*R);
 
     const auto& rr = std::dynamic_pointer_cast<ArrheniusRate>(ER.rate());
-    EXPECT_TRUE(rr->allow_negative_pre_exponential_factor);
-    rr->allow_negative_pre_exponential_factor = false;
-    EXPECT_FALSE(rr->allow_negative_pre_exponential_factor);
+    EXPECT_TRUE(rr->allowNegativePreExponentialFactor());
+    rr->setAllowNegativePreExponentialFactor(false);
+    EXPECT_FALSE(rr->allowNegativePreExponentialFactor());
 }
 
 TEST(Reaction, ElementaryFromYaml3)
@@ -42,7 +42,7 @@ TEST(Reaction, ElementaryFromYaml3)
     EXPECT_FALSE(R->allow_negative_orders);
 
     const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
-    EXPECT_TRUE(rate->allow_negative_pre_exponential_factor);
+    EXPECT_TRUE(rate->allowNegativePreExponentialFactor());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), -2.7e10);
     EXPECT_DOUBLE_EQ(rate->activationEnergy_R(), 355 / GasConst_cal_mol_K);
 }
@@ -292,7 +292,7 @@ TEST(Reaction, BlowersMaselFromYaml)
     EXPECT_DOUBLE_EQ(rate->activationEnergy_R(H_big_R), H_big_R);
     EXPECT_DOUBLE_EQ(rate->activationEnergy_R(H_small_R), 0);
     EXPECT_NEAR(rate->activationEnergy_R(H_mid_R), Ea / GasConstant, 1e-7);
-    EXPECT_TRUE(rate->allow_negative_pre_exponential_factor);
+    EXPECT_TRUE(rate->allowNegativePreExponentialFactor());
     EXPECT_FALSE(R->allow_negative_orders);
 }
 

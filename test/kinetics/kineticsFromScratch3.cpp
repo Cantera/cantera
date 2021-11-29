@@ -236,7 +236,7 @@ TEST_F(KineticsFromScratch3, allow_negative_A)
     ArrheniusRate rate(-3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
     auto R = make_shared<ElementaryReaction3>(reac, prod, rate);
     auto rr = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
-    rr->allow_negative_pre_exponential_factor = true;
+    rr->setAllowNegativePreExponentialFactor(true);
 
     kin.addReaction(R);
     ASSERT_EQ((size_t) 1, kin.nReactions());

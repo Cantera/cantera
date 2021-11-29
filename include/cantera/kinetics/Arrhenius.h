@@ -108,9 +108,19 @@ public:
         }
     }
 
-    bool allow_negative_pre_exponential_factor; // Flag is directly accessible
+    //! Get buffered value of third-body concentration
+    const bool allowNegativePreExponentialFactor() const {
+        return m_negativeA_ok;
+    }
+
+    //! Get buffered value of third-body concentration
+    void setAllowNegativePreExponentialFactor(bool value) {
+        m_negativeA_ok = value;
+    }
+
 
 protected:
+    bool m_negativeA_ok; //!< Flag indicating whether negative A values are permitted
     double m_A; //!< Pre-exponential factor
     double m_b; //!< Temperature exponent
     double m_Ea_R; //!< Activation energy (in temperature units)

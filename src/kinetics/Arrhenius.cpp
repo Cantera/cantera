@@ -10,7 +10,7 @@ namespace Cantera
 {
 
 ArrheniusBase::ArrheniusBase()
-    : allow_negative_pre_exponential_factor(false)
+    : m_negativeA_ok(false)
     , m_A(NAN)
     , m_b(NAN)
     , m_Ea_R(NAN)
@@ -20,7 +20,7 @@ ArrheniusBase::ArrheniusBase()
 }
 
 ArrheniusBase::ArrheniusBase(double A, double b, double Ea)
-    : allow_negative_pre_exponential_factor(false)
+    : m_negativeA_ok(false)
     , m_A(A)
     , m_b(b)
     , m_Ea_R(Ea / GasConstant)
@@ -98,7 +98,14 @@ void ArrheniusBase::getParameters(AnyMap& node, const Units& rate_units) const
 
 void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
 {
-    if (!allow_negative_pre_exponential_factor && m_A < 0) {
+    if (!m_negativeA_ok && m_A < 0) {
+        if (equation == "") {
+            //
+            throw CanteraError("ArrheniusBase::check",
+                "Detected negative pre-exponential factor (A={}).\n"
+                "Enable 'allowNegativePreExponentialFactor' to suppress "
+                "this message.", m_A);
+        }
         throw InputFileError("ArrheniusBase::check", node,
             "Undeclared negative pre-exponential factor found in reaction '{}'",
             equation);
@@ -107,7 +114,7 @@ void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
 
 void ArrheniusRate::setParameters(const AnyMap& node, const UnitsVector& rate_units)
 {
-    allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
+    m_negativeA_ok = node.getBool("negative-A", false);
     if (!node.hasKey("rate-constant")) {
         ArrheniusBase::setRateParameters(AnyValue(), node.units(), rate_units);
         return;
@@ -118,7 +125,7 @@ void ArrheniusRate::setParameters(const AnyMap& node, const UnitsVector& rate_un
 
 void ArrheniusRate::getParameters(AnyMap& rateNode) const
 {
-    if (allow_negative_pre_exponential_factor) {
+    if (m_negativeA_ok) {
         rateNode["negative-A"] = true;
     }
     AnyMap node;
@@ -172,7 +179,7 @@ void BlowersMaselRate::setRateParameters(
 
 void BlowersMaselRate::setParameters(const AnyMap& node, const UnitsVector& rate_units)
 {
-    allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
+    m_negativeA_ok = node.getBool("negative-A", false);
     if (!node.hasKey("rate-constant")) {
         BlowersMaselRate::setRateParameters(AnyValue(), node.units(), rate_units);
         return;
@@ -182,7 +189,7 @@ void BlowersMaselRate::setParameters(const AnyMap& node, const UnitsVector& rate
 
 void BlowersMaselRate::getParameters(AnyMap& rateNode) const
 {
-    if (allow_negative_pre_exponential_factor) {
+    if (m_negativeA_ok) {
         rateNode["negative-A"] = true;
     }
     AnyMap node;

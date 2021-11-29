@@ -197,9 +197,9 @@ cdef class ArrheniusRate(ReactionRate):
         pre-exponential factor.
         """
         def __get__(self):
-            return self.cxx_object().allow_negative_pre_exponential_factor
-        def __set__(self, allow):
-            self.cxx_object().allow_negative_pre_exponential_factor = allow
+            return self.cxx_object().allowNegativePreExponentialFactor()
+        def __set__(self, cbool allow):
+            self.cxx_object().setAllowNegativePreExponentialFactor(allow)
 
 
 cdef class BlowersMaselRate(ReactionRate):
@@ -280,9 +280,9 @@ cdef class BlowersMaselRate(ReactionRate):
         pre-exponential factor.
         """
         def __get__(self):
-            return self.cxx_object().allow_negative_pre_exponential_factor
-        def __set__(self, allow):
-            self.cxx_object().allow_negative_pre_exponential_factor = allow
+            return self.cxx_object().allowNegativePreExponentialFactor()
+        def __set__(self, cbool allow):
+            self.cxx_object().setAllowNegativePreExponentialFactor(allow)
 
 
 cdef class FalloffRate(ReactionRate):
@@ -357,9 +357,9 @@ cdef class FalloffRate(ReactionRate):
         pre-exponential factor.
         """
         def __get__(self):
-            return self.falloff.allow_negative_pre_exponential_factor
+            return self.falloff.allowNegativePreExponentialFactor()
         def __set__(self, cbool allow):
-            self.falloff.allow_negative_pre_exponential_factor = allow
+            self.falloff.setAllowNegativePreExponentialFactor(allow)
 
     property chemically_activated:
         """
@@ -378,9 +378,9 @@ cdef class FalloffRate(ReactionRate):
         Note: this method does not update internal state
         """
         def __get__(self):
-            return self.falloff.third_body_concentration
+            return self.falloff.thirdBodyConcentration()
         def __set__(self, double conc):
-            self.falloff.third_body_concentration = conc
+            self.falloff.setThirdBodyConcentration(conc)
 
     def falloff_function(self, double temperature, conc3b=None):
         """
