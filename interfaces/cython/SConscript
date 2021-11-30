@@ -136,7 +136,7 @@ elif localenv['python_prefix']:
         # 64-bit RHEL / Fedora etc. or e.g. x32 Gentoo profile
         extra = localenv.subst(
             ' --prefix=${{python_prefix}}'
-            ' --install-lib=${{python_prefix}}/${{libdirname}}/python{}/site-packages'.format(py_version))
+            ' --install-lib=${{python_prefix}}/${{libdirname}}/python{}/site-packages'.format(py_version_short))
     else:
         extra = '--user'
         localenv.AppendENVPath(
@@ -178,4 +178,4 @@ elif localenv['PYTHON_INSTALLER'] == 'debian':
 elif localenv['PYTHON_INSTALLER'] == 'binary':
     install(localenv.Command, 'dummy', mod,
             build_cmd + ' bdist_msi --dist-dir=../..' +
-            ' --target-version=' + py_version)
+            ' --target-version=' + py_version_short)
