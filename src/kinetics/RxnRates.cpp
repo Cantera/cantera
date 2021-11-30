@@ -350,7 +350,7 @@ void ChebyshevRate3::setData(const Array2D& coeffs)
     }
 }
 
-void ChebyshevRate3::getParameters(AnyMap& rateNode, const Units& rate_units) const
+void ChebyshevRate3::getParameters(AnyMap& rateNode) const
 {
     rateNode["type"] = type();
     if (std::isnan(m_coeffs(0, 0))) {
@@ -384,7 +384,6 @@ void ChebyshevRate3::getParameters(AnyMap& rateNode, const Units& rate_units) co
     coeffs = std::move(coeffs2d);
     rateNode["data"].setQuantity(coeffs, converter);
 }
-
 BMSurfaceArrhenius::BMSurfaceArrhenius()
     : m_b(0.0)
     , m_A(0.0)

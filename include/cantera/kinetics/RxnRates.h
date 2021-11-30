@@ -564,10 +564,11 @@ public:
      *  @param rate_units  Unit definitions specific to rate information
      */
     void setParameters(const AnyMap& node, const UnitStack& units);
-    void getParameters(AnyMap& rateNode, const Units& rate_units) const;
-    void getParameters(AnyMap& rateNode) const {
-        return getParameters(rateNode, Units(0));
-    };
+    void getParameters(AnyMap& rateNode, const Units& rate_units) const {
+        // @todo: deprecate, as second argument is no longer needed
+        return getParameters(rateNode);
+    }
+    void getParameters(AnyMap& rateNode) const;
 
     //! Update information specific to reaction
     /*!
