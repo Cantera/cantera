@@ -1104,6 +1104,15 @@ FalloffReaction3::FalloffReaction3(const AnyMap& node, const Kinetics& kin)
     }
 }
 
+std::string FalloffReaction3::type() const
+{
+    if (m_rate && \
+            std::dynamic_pointer_cast<FalloffRate>(m_rate)->chemicallyActivated()) {
+        return "chemically-activated";
+    }
+    return "falloff";
+}
+
 std::string FalloffReaction3::reactantString() const
 {
     if (m_third_body->specified_collision_partner) {
