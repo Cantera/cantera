@@ -37,7 +37,7 @@ public:
     {
     }
 
-    FalloffRate(const AnyMap& node, const UnitsVector& rate_units={})
+    FalloffRate(const AnyMap& node, const UnitStack& rate_units={})
         : FalloffRate()
     {
         setParameters(node, rate_units);
@@ -126,7 +126,7 @@ public:
         return 0;
     }
 
-    virtual void setParameters(const AnyMap& node, const UnitsVector& rate_units);
+    virtual void setParameters(const AnyMap& node, const UnitStack& rate_units);
 
     //! Get the values of the parameters for this object. *params* must be an
     //! array of at least nParameters() elements.
@@ -240,7 +240,7 @@ class LindemannRate final : public FalloffRate
 public:
     LindemannRate() = default;
 
-    LindemannRate(const AnyMap& node, const UnitsVector& rate_units={})
+    LindemannRate(const AnyMap& node, const UnitStack& rate_units={})
         : LindemannRate()
     {
         setParameters(node, rate_units);
@@ -302,7 +302,7 @@ public:
         m_work.resize(1);
     }
 
-    TroeRate(const AnyMap& node, const UnitsVector& rate_units={})
+    TroeRate(const AnyMap& node, const UnitStack& rate_units={})
         : TroeRate()
     {
         setParameters(node, rate_units);
@@ -351,7 +351,7 @@ public:
         return 4;
     }
 
-    virtual void setParameters(const AnyMap& node, const UnitsVector& rate_units);
+    virtual void setParameters(const AnyMap& node, const UnitStack& rate_units);
 
     //! Sets params to contain, in order, \f[ (A, T_3, T_1, T_2) \f]
     /**
@@ -404,7 +404,7 @@ public:
         m_work.resize(2);
     }
 
-    SriRate(const AnyMap& node, const UnitsVector& rate_units={})
+    SriRate(const AnyMap& node, const UnitStack& rate_units={})
         : SriRate()
     {
         setParameters(node, rate_units);
@@ -454,7 +454,7 @@ public:
         return 5;
     }
 
-    virtual void setParameters(const AnyMap& node, const UnitsVector& rate_units);
+    virtual void setParameters(const AnyMap& node, const UnitStack& rate_units);
 
     //! Sets params to contain, in order, \f[ (a, b, c, d, e) \f]
     /**
@@ -514,7 +514,7 @@ public:
         m_work.resize(1);
     }
 
-    TsangRate(const AnyMap& node, const UnitsVector& rate_units={})
+    TsangRate(const AnyMap& node, const UnitStack& rate_units={})
         : TsangRate()
     {
         setParameters(node, rate_units);
@@ -563,7 +563,7 @@ public:
         return 2;
     }
 
-    virtual void setParameters(const AnyMap& node, const UnitsVector& rate_units);
+    virtual void setParameters(const AnyMap& node, const UnitStack& rate_units);
 
     //! Sets params to contain, in order, \f[ (A, B) \f]
     /**

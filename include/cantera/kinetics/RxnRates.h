@@ -344,7 +344,7 @@ public:
     //! Constructor from Arrhenius rate expressions at a set of pressures
     explicit PlogRate(const std::multimap<double, Arrhenius>& rates);
 
-    PlogRate(const AnyMap& node, const UnitsVector& rate_units={}) : PlogRate() {
+    PlogRate(const AnyMap& node, const UnitStack& rate_units={}) : PlogRate() {
         setParameters(node, rate_units);
     }
 
@@ -360,7 +360,7 @@ public:
      *  @param node  AnyMap containing rate information
      *  @param rate_units  Unit definitions specific to rate information
      */
-    void setParameters(const AnyMap& node, const UnitsVector& units);
+    void setParameters(const AnyMap& node, const UnitStack& units);
 
     //! Perform object setup based on reaction rate information
     /*!
@@ -545,7 +545,7 @@ public:
     ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pmax,
                    const Array2D& coeffs);
 
-    ChebyshevRate3(const AnyMap& node, const UnitsVector& rate_units={})
+    ChebyshevRate3(const AnyMap& node, const UnitStack& rate_units={})
         : ChebyshevRate3()
     {
         setParameters(node, rate_units);
@@ -563,7 +563,7 @@ public:
      *  @param node  AnyMap containing rate information
      *  @param rate_units  Unit definitions specific to rate information
      */
-    void setParameters(const AnyMap& node, const UnitsVector& units);
+    void setParameters(const AnyMap& node, const UnitStack& units);
     void getParameters(AnyMap& rateNode, const Units& rate_units) const;
     void getParameters(AnyMap& rateNode) const {
         return getParameters(rateNode, Units(0));

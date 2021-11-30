@@ -311,17 +311,91 @@ bool Units::operator==(const Units& other) const
            && m_energy_dim == other.m_energy_dim;
 }
 
-Units Units::product(const UnitsVector& others)
+double Units::dimension(const std::string& primary) const
 {
-    if (!others.size()) {
+    if (primary == "mass") {
+        return m_mass_dim;
+    } else if (primary == "length") {
+        return m_length_dim;
+    } else if (primary == "time") {
+        return m_time_dim;
+    } else if (primary == "temperature") {
+        return m_temperature_dim;
+    } else if (primary == "current") {
+        return m_current_dim;
+    } else if (primary == "quantity") {
+        return m_quantity_dim;
+    } else {
+        throw CanteraError("Units::dimension",
+            "Unknown primary unit '{}'.", primary);
+    }
+}
+
+Units UnitStack::standardUnits() const
+{
+    if (!stack.size()) {
+        return Units(0);
+    }
+    return stack[0].first;
+}
+
+void UnitStack::setStandardUnits(Units& standardUnits)
+{
+    if (!stack.size()) {
+        stack.emplace_back(standardUnits, 0.);
+        return;
+    }
+    if (stack[0].second != 0.) {
+        throw CanteraError("UnitStack::setStandardUnit",
+            "Standard unit is already defined.");
+    }
+    stack[0].first = standardUnits;
+}
+
+double UnitStack::standardExponent() const
+{
+    if (!stack.size()) {
+        return NAN;
+    }
+    return stack[0].second;
+}
+
+void UnitStack::join(double exponent)
+{
+    if (!stack.size()) {
+        throw CanteraError("UnitStack::join",
+            "Standard unit is not defined.");
+    }
+    stack[0].second += exponent;
+
+}
+
+void UnitStack::update(const Units& units, double exponent)
+{
+    bool found = false;
+    for (auto& item : stack) {
+        if (item.first == units) {
+            item.second += exponent;
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        stack.emplace_back(units, exponent);
+    }
+}
+
+Units UnitStack::product() const
+{
+    if (!stack.size()) {
         return Units(0.);
     }
     Units out = Units(1.);
-    for (auto& other : others) {
-        if (other.second == 1) {
-            out *= other.first;
+    for (auto& item : stack) {
+        if (item.second == 1) {
+            out *= item.first;
         } else {
-            out *= other.first.pow(other.second);
+            out *= item.first.pow(item.second);
         }
     }
     return out;

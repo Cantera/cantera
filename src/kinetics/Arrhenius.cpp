@@ -30,7 +30,7 @@ ArrheniusBase::ArrheniusBase(double A, double b, double Ea)
 }
 
 void ArrheniusBase::setRateParameters(
-    const AnyValue& rate, const UnitSystem& units, const UnitsVector& rate_units)
+    const AnyValue& rate, const UnitSystem& units, const UnitStack& rate_units)
 {
     if (rate.empty()) {
         m_A = NAN;
@@ -112,7 +112,7 @@ void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
     }
 }
 
-void ArrheniusRate::setParameters(const AnyMap& node, const UnitsVector& rate_units)
+void ArrheniusRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
     m_negativeA_ok = node.getBool("negative-A", false);
     if (!node.hasKey("rate-constant")) {
@@ -150,7 +150,7 @@ BlowersMaselRate::BlowersMaselRate(double A, double b, double Ea0, double w)
 }
 
 void BlowersMaselRate::setRateParameters(
-    const AnyValue& rate, const UnitSystem& units, const UnitsVector& rate_units)
+    const AnyValue& rate, const UnitSystem& units, const UnitStack& rate_units)
 {
     if (rate.empty()) {
         m_A = NAN;
@@ -177,7 +177,7 @@ void BlowersMaselRate::setRateParameters(
     }
 }
 
-void BlowersMaselRate::setParameters(const AnyMap& node, const UnitsVector& rate_units)
+void BlowersMaselRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
     m_negativeA_ok = node.getBool("negative-A", false);
     if (!node.hasKey("rate-constant")) {

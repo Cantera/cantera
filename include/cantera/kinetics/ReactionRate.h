@@ -70,7 +70,7 @@ public:
     //! Set parameters
     //! @param node  AnyMap object containing reaction rate specification
     //! @param rate_units  unit definitions specific to rate information
-    virtual void setParameters(const AnyMap& node, const UnitsVector& units) {
+    virtual void setParameters(const AnyMap& node, const UnitStack& units) {
         m_input = node;
     }
 

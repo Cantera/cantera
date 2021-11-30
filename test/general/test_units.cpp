@@ -308,3 +308,46 @@ TEST(Units, act_energy_from_yaml) {
     EXPECT_DOUBLE_EQ(foo[0].convert("bar", "J/mol"), 0.0006);
     EXPECT_DOUBLE_EQ(foo[1].convert("baz", "J/mol"), 0.2);
 }
+
+TEST(UnitStack, aggregate) {
+    Units stdUnits = Units("m");
+    UnitStack ustack(stdUnits);
+    EXPECT_EQ(ustack.size(), 1);
+    EXPECT_TRUE(ustack.standardUnits() == stdUnits);
+    EXPECT_DOUBLE_EQ(ustack.standardExponent(), 0.);
+    EXPECT_DOUBLE_EQ(ustack.standardExponent(), 0.);
+    ustack.join(1.);
+    EXPECT_DOUBLE_EQ(ustack.standardExponent(), 1.);
+    ustack.update(stdUnits, 1.); // same effect as join
+    EXPECT_EQ(ustack.size(), 1);
+    EXPECT_DOUBLE_EQ(ustack.standardExponent(), 2.);
+    EXPECT_EQ(ustack.product().str(), "m^2");
+
+    ustack.update(Units("s"), -1);
+    EXPECT_EQ(ustack.size(), 2);
+    EXPECT_EQ(ustack.product().str(), "m^2 / s");
+
+    Units net = ustack.product();
+    EXPECT_DOUBLE_EQ(net.dimension("length"), 2.);
+    EXPECT_DOUBLE_EQ(net.dimension("time"), -1);
+    EXPECT_DOUBLE_EQ(net.dimension("mass"), 0);
+    EXPECT_DOUBLE_EQ(net.dimension("quantity"), 0);
+    EXPECT_DOUBLE_EQ(net.dimension("temperature"), 0);
+    EXPECT_DOUBLE_EQ(net.dimension("current"), 0);
+}
+
+TEST(UnitStack, empty) {
+    UnitStack ustack({});
+    EXPECT_EQ(ustack.size(), 0);
+    EXPECT_TRUE(ustack.standardUnits() == Units(0));
+    EXPECT_TRUE(std::isnan(ustack.standardExponent()));
+}
+
+TEST(UnitStack, from_list) {
+    Units stdUnits = Units("m");
+    UnitStack ustack({std::make_pair(stdUnits, 2), std::make_pair(Units("s"), -1)});
+    EXPECT_EQ(ustack.size(), 2);
+    EXPECT_TRUE(ustack.standardUnits() == stdUnits);
+    EXPECT_DOUBLE_EQ(ustack.standardExponent(), 2.);
+    EXPECT_EQ(ustack.product().str(), "m^2 / s");
+}

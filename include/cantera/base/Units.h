@@ -59,9 +59,9 @@ public:
 
     bool operator==(const Units& other) const;
 
-    //! Calculate product of unit expressions
-    //! @param others  vector containing pairs of units and exponents
-    static Units product(const std::vector<std::pair<Units, double>>& others);
+    //! Return dimension of primary unit component
+    //! ("mass", "length", "time", "temperature", "current" or "quantity")
+    double dimension(const std::string& primary) const;
 
 private:
     //! Scale the unit by the factor `k`
@@ -81,8 +81,48 @@ private:
 };
 
 
-//! Vector where elements specify unit and exponent applied to the unit
-typedef std::vector<std::pair<Units, double>> UnitsVector;
+//! Unit aggregation utility
+/*!
+ *  Provides functions for updating and calculating effective units from a stack
+ *  of unit-exponent pairs. Matching units are aggregated, where a standard unit
+ *  simplifies access when joining exponents. The utility is used in the context
+ *  of effective reaction rate units.
+ */
+struct UnitStack
+{
+    UnitStack(const Units& standardUnits) {
+        stack.reserve(2); // covers memory requirements for most applications
+        stack.emplace_back(standardUnits, 0.);
+    }
+
+    //! Alternative constructor allows for direct assignment of vector
+    UnitStack(std::initializer_list<std::pair<Units, double>> units)
+        : stack(units) {}
+
+    //! Size of UnitStack
+    int size() const { return stack.size(); }
+
+    //! Get standard unit used by UnitStack
+    Units standardUnits() const;
+
+    //! Set standard units
+    void setStandardUnits(Units& standardUnits);
+
+    //! Effective exponent of standard unit
+    double standardExponent() const;
+
+    //! Join exponent of standard units
+    void join(double exponent);
+
+    //! Update exponent of item with matching units; if it does not exist,
+    //! add unit-exponent pair at end of stack
+    void update(const Units& units, double exponent);
+
+    //! Calculate product of units-exponent stack
+    Units product() const;
+
+    std::vector<std::pair<Units, double>> stack; //!< Stack uses vector of pairs
+};
 
 
 //! Unit conversion utility

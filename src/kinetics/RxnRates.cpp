@@ -35,9 +35,8 @@ Arrhenius2::Arrhenius2(const AnyValue& rate,
 void Arrhenius2::setRateParameters(const AnyValue& rate,
                                    const UnitSystem& units, const Units& rate_units)
 {
-    UnitsVector units_vector;
-    units_vector.emplace_back(rate_units, 1.);
-    ArrheniusBase::setRateParameters(rate, units, units_vector);
+    UnitStack units_stack(rate_units);
+    ArrheniusBase::setRateParameters(rate, units, units_stack);
     if (m_A <= 0.0) {
         m_logA = -1.0E300;
     } else {
@@ -131,9 +130,9 @@ PlogRate::PlogRate(const std::multimap<double, Arrhenius>& rates)
     setRates(rates);
 }
 
-void PlogRate::setParameters(const AnyMap& node, const UnitsVector& units)
+void PlogRate::setParameters(const AnyMap& node, const UnitStack& units)
 {
-    auto rate_units = Units::product(units);
+    auto rate_units = units.product();
     if (!node.hasKey("rate-constants")) {
         PlogRate::setRateParameters(std::vector<AnyMap> (), node.units(), rate_units);
         return;
@@ -269,9 +268,9 @@ ChebyshevRate3::ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pma
     setData(coeffs);
 }
 
-void ChebyshevRate3::setParameters(const AnyMap& node, const UnitsVector& units)
+void ChebyshevRate3::setParameters(const AnyMap& node, const UnitStack& units)
 {
-    m_rate_units = Units::product(units);
+    m_rate_units = units.product();
     const UnitSystem& unit_system = node.units();
     Array2D coeffs;
     if (node.hasKey("data")) {
