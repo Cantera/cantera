@@ -61,7 +61,7 @@ void FalloffRate::getFalloffCoeffs(vector_fp& c) const
     c.clear();
 }
 
-void FalloffRate::setParameters(const AnyMap& node, const UnitsVector& rate_units)
+void FalloffRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
     if (node.empty()) {
         return;
@@ -72,13 +72,14 @@ void FalloffRate::setParameters(const AnyMap& node, const UnitsVector& rate_unit
         m_chemicallyActivated = true;
     }
 
-    UnitsVector low_rate_units = rate_units;
-    UnitsVector high_rate_units = rate_units;
+    UnitStack low_rate_units = rate_units;
+    UnitStack high_rate_units = rate_units;
     if (rate_units.size()) {
-        high_rate_units.pop_back();
         if (m_chemicallyActivated) {
-            low_rate_units.pop_back();
-            high_rate_units.pop_back();
+            low_rate_units.join(1);
+            high_rate_units.join(2);
+        } else {
+            high_rate_units.join(1);
         }
     }
     if (node.hasKey("low-P-rate-constant")) {
@@ -197,7 +198,7 @@ double TroeRate::F(double pr, const double* work) const
     return pow(10.0, lgf);
 }
 
-void TroeRate::setParameters(const AnyMap& node, const UnitsVector& rate_units)
+void TroeRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
     if (node.empty()) {
         return;
@@ -310,7 +311,7 @@ double SriRate::F(double pr, const double* work) const
     return pow(*work, xx) * work[1];
 }
 
-void SriRate::setParameters(const AnyMap& node, const UnitsVector& rate_units)
+void SriRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
     if (node.empty()) {
         return;
@@ -418,7 +419,7 @@ double TsangRate::F(double pr, const double* work) const
     return pow(10.0, lgf);
 }
 
-void TsangRate::setParameters(const AnyMap& node, const UnitsVector& rate_units)
+void TsangRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
     if (node.empty()) {
         return;

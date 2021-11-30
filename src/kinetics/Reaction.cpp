@@ -270,25 +270,26 @@ void Reaction::calculateRateCoeffUnits(const Kinetics& kin)
     }
 }
 
-UnitsVector Reaction::calculateRateCoeffUnits3(const Kinetics& kin)
+UnitStack Reaction::calculateRateCoeffUnits3(const Kinetics& kin)
 {
-    UnitsVector rate_units;
-
     if (!valid()) {
         // If a reaction is invalid because of missing species in the Kinetics
         // object, determining the units of the rate coefficient is impossible.
-        return rate_units;
+        return UnitStack({});
     }
-
-    rate_units.reserve(5); // covers memory requirements for most reactions
 
     // Determine the units of the rate coefficient
     const auto& rxn_phase = kin.thermo(kin.reactionPhaseIndex());
-    rate_units.emplace_back(Units(1.0, 0, 0, -1), 1.);
-    rate_units.emplace_back(rxn_phase.standardConcentrationUnits(), 1.);
+    UnitStack rate_units(rxn_phase.standardConcentrationUnits());
+
+    // Set output units to standardConcentrationUnits per second
+    rate_units.join(1.);
+    rate_units.update(Units(1.0, 0, 0, -1), 1.);
+
     for (const auto& order : orders) {
         const auto& phase = kin.speciesPhase(order.first);
-        rate_units.emplace_back(phase.standardConcentrationUnits(), -order.second);
+        // Account for specified reaction orders
+        rate_units.update(phase.standardConcentrationUnits(), -order.second);
     }
     for (const auto& stoich : reactants) {
         // Order for each reactant is the reactant stoichiometric coefficient,
@@ -299,13 +300,14 @@ UnitsVector Reaction::calculateRateCoeffUnits3(const Kinetics& kin)
             continue;
         } else if (orders.find(stoich.first) == orders.end()) {
             const auto& phase = kin.speciesPhase(stoich.first);
-            rate_units.emplace_back(phase.standardConcentrationUnits(), -stoich.second);
+            // Account for each reactant species
+            rate_units.update(phase.standardConcentrationUnits(), -stoich.second);
         }
     }
 
     if (m_third_body) {
-        // Order for third body collision partner is tied to the reaction phase
-        rate_units.emplace_back(rxn_phase.standardConcentrationUnits(), -1);
+        // Account for third-body collision partner as the last entry
+        rate_units.join(-1);
     }
 
     return rate_units;

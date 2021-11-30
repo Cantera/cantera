@@ -37,7 +37,7 @@ class CustomFunc1Rate final : public ReactionRate
 {
 public:
     CustomFunc1Rate();
-    CustomFunc1Rate(const AnyMap& node, const UnitsVector& rate_units)
+    CustomFunc1Rate(const AnyMap& node, const UnitStack& rate_units)
         : CustomFunc1Rate()
     {
         setParameters(node, rate_units);

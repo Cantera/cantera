@@ -43,7 +43,7 @@ public:
 
     //! Constructor based on AnyValue content
     ArrheniusBase(const AnyValue& rate,
-                  const UnitSystem& units, const UnitsVector& rate_units)
+                  const UnitSystem& units, const UnitStack& rate_units)
     {
         setRateParameters(rate, units, rate_units);
     }
@@ -56,7 +56,7 @@ public:
      */
     virtual void setRateParameters(const AnyValue& rate,
                                    const UnitSystem& units,
-                                   const UnitsVector& rate_units);
+                                   const UnitStack& rate_units);
     using ReactionRate::setParameters;
 
     virtual void getParameters(AnyMap& node) const;
@@ -96,15 +96,13 @@ public:
     }
 
     //! Set units of the reaction rate expression
-    void setRateUnits(const UnitsVector& rate_units) {
-        m_rate_units = Units::product(rate_units);
-        if (rate_units.size()>1) {
-            m_order = 0;
-            for (size_t i = 2; i < rate_units.size(); ++i) {
-                m_order -= rate_units[i].second;
-            }
+    void setRateUnits(const UnitStack& rate_units) {
+        if (rate_units.size() > 1) {
+            m_rate_units = rate_units.product();
+            m_order = 1 - m_rate_units.dimension("quantity");
         } else {
             m_order = NAN;
+            m_rate_units = rate_units.standardUnits();
         }
     }
 
@@ -150,7 +148,7 @@ public:
     using ArrheniusBase::setParameters;
 
     //! Constructor based on AnyMap content
-    ArrheniusRate(const AnyMap& node, const UnitsVector& rate_units={}) {
+    ArrheniusRate(const AnyMap& node, const UnitStack& rate_units={}) {
         setParameters(node, rate_units);
     }
 
@@ -168,7 +166,7 @@ public:
      *  @param node  AnyMap containing rate information
      *  @param rate_units  Unit definitions specific to rate information
      */
-    virtual void setParameters(const AnyMap& node, const UnitsVector& rate_units) override;
+    virtual void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
     virtual void getParameters(AnyMap& node) const override;
 
@@ -252,7 +250,7 @@ public:
     }
 
     //! Constructor based on AnyMap content
-    BlowersMaselRate(const AnyMap& node, const UnitsVector& rate_units={})
+    BlowersMaselRate(const AnyMap& node, const UnitStack& rate_units={})
         : BlowersMaselRate()
     {
         setParameters(node, rate_units);
@@ -265,14 +263,14 @@ public:
 
     virtual void setRateParameters(const AnyValue& rate,
                                    const UnitSystem& units,
-                                   const UnitsVector& rate_units);
+                                   const UnitStack& rate_units);
 
     //! Perform object setup based on AnyMap node information
     /*!
      *  @param node  AnyMap containing rate information
      *  @param rate_units  Unit definitions specific to rate information
      */
-    virtual void setParameters(const AnyMap& node, const UnitsVector& rate_units);
+    virtual void setParameters(const AnyMap& node, const UnitStack& rate_units);
 
     virtual void getParameters(AnyMap& node) const;
 

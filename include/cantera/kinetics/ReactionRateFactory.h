@@ -30,7 +30,7 @@ class Units;
  * @ingroup reactionGroup
  */
 class ReactionRateFactory
-    : public Factory<ReactionRate, const AnyMap&, const UnitsVector&>
+    : public Factory<ReactionRate, const AnyMap&, const UnitStack&>
 {
 public:
     /**
@@ -77,7 +77,7 @@ shared_ptr<ReactionRate> newReactionRate(const std::string& type);
  *          specifies Unit and exponent applied to the unit.
  */
 shared_ptr<ReactionRate> newReactionRate(
-    const AnyMap& rate_node, const UnitsVector& rate_units);
+    const AnyMap& rate_node, const UnitStack& rate_units);
 
 //! Create a new Rate object using the specified parameters
 /*!
