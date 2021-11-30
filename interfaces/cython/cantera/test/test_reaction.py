@@ -1112,7 +1112,7 @@ class TestChemicallyActivated(ReactionTests, utilities.CanteraTest):
         "high_P_rate_constant": {"A": 5.88E-14, "b": 6.721, "Ea": -12644997.768}
         }
     _index = 10
-    _type = "falloff"
+    _type = "chemically-activated"
     _yaml = """
         equation: H2O + OH (+M) <=> HO2 + H2 (+M)  # Reaction 11
         units: {length: cm, quantity: mol, activation-energy: cal/mol}

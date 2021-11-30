@@ -535,8 +535,12 @@ public:
 };
 
 
-//! A reaction that is first-order in [M] at low pressure, like a third-body
+//! A falloff reaction that is first-order in [M] at low pressure, like a third-body
 //! reaction, but zeroth-order in [M] as pressure increases.
+//! In addition, the class supports checmically-acticated reactions where the rate
+//! decreases as pressure increases due to collisional stabilization of a reaction
+//! intermediate; in this case, the forward rate constant is written as being
+//! proportional to the low-pressure rate constant.
 class FalloffReaction3 : public Reaction
 {
 public:
@@ -546,9 +550,7 @@ public:
 
     FalloffReaction3(const AnyMap& node, const Kinetics& kin);
 
-    virtual std::string type() const {
-        return "falloff";
-    }
+    virtual std::string type() const;
 
     virtual void setParameters(const AnyMap& node, const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
