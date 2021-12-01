@@ -1108,8 +1108,9 @@ FalloffReaction3::FalloffReaction3(const AnyMap& node, const Kinetics& kin)
 
 std::string FalloffReaction3::type() const
 {
-    if (m_rate && \
-            std::dynamic_pointer_cast<FalloffRate>(m_rate)->chemicallyActivated()) {
+    if (m_rate &&
+        std::dynamic_pointer_cast<FalloffRate>(m_rate)->chemicallyActivated())
+    {
         return "chemically-activated";
     }
     return "falloff";

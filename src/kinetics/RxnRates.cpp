@@ -162,10 +162,11 @@ void PlogRate::setRateParameters(const std::vector<AnyMap>& rates,
 void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
     std::vector<AnyMap> rateList;
-    double A = rates_[1].preExponentialFactor();
     rateNode["type"] = type();
-    if (std::isnan(A)) {
-        // Return empty AnyMap
+    if (!rates_.size()
+        || (rates_.size() > 1 && std::isnan(rates_[1].preExponentialFactor())))
+    {
+        // object not fully set up
         return;
     }
     for (const auto& r : getRates()) {
@@ -214,7 +215,7 @@ void PlogRate::setRates(const std::multimap<double, Arrhenius>& rates)
     pressures_.insert({1000.0, pressures_.rbegin()->second});
 }
 
-void PlogRate::validate(const std::string& equation, const Kinetics* kin)
+void PlogRate::validate(const std::string& equation)
 {
     fmt::memory_buffer err_reactions;
     double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
@@ -353,8 +354,8 @@ void ChebyshevRate3::setData(const Array2D& coeffs)
 void ChebyshevRate3::getParameters(AnyMap& rateNode) const
 {
     rateNode["type"] = type();
-    if (std::isnan(m_coeffs(0, 0))) {
-        // Return empty/unmodified AnyMap
+    if (!m_coeffs.data().size() || std::isnan(m_coeffs(0, 0))) {
+        // object not fully set up
         return;
     }
     rateNode["temperature-range"].setQuantity({Tmin(), Tmax()}, "K");

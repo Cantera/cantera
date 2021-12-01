@@ -22,8 +22,9 @@ class AnyMap;
  */
 
 /**
- * Base class for falloff function calculators. Each instance of a subclass of
- * Falloff computes one falloff function.
+ * Base class for falloff rate calculators. Each instance of a subclass of FalloffRate
+ * calculates the falloff reaction rate based on specific implementations of the
+ * falloff function.
  */
 class FalloffRate : public ReactionRate
 {
@@ -167,18 +168,18 @@ public:
 
     void check(const std::string& equation, const AnyMap& node);
 
-    //! Get buffered value of third-body concentration
-    const bool allowNegativePreExponentialFactor() const {
+    //! Get flag indicating whether negative A values are permitted
+    bool allowNegativePreExponentialFactor() const {
         return m_negativeA_ok;
     }
 
-    //! Get buffered value of third-body concentration
+    //! Set flag indicating whether negative A values are permitted
     void setAllowNegativePreExponentialFactor(bool value) {
         m_negativeA_ok = value;
     }
 
     //! Get buffered value of third-body concentration
-    const double thirdBodyConcentration() const {
+    double thirdBodyConcentration() const {
         return m_thirdBodyConcentration;
     }
 
@@ -188,7 +189,7 @@ public:
     }
 
     //! Get flag indicating whether reaction is chemically activated
-    const bool chemicallyActivated() const {
+    bool chemicallyActivated() const {
         return m_chemicallyActivated;
     }
 

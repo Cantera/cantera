@@ -425,7 +425,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double deltaH()
         void setDeltaH(double)
 
-    cdef cppclass CxxFalloffRate "Cantera::Falloff" (CxxReactionRate):
+    cdef cppclass CxxFalloffRate "Cantera::FalloffRate" (CxxReactionRate):
         CxxFalloffRate()
         CxxFalloffRate(CxxAnyMap) except +translate_exception
         cbool allowNegativePreExponentialFactor()
@@ -517,7 +517,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxThreeBodyReaction2()
         CxxThirdBody third_body
 
-    cdef cppclass CxxFalloff "Cantera::Falloff":
+    cdef cppclass CxxFalloff "Cantera::FalloffRate":
         CxxFalloff()
         void updateTemp(double, double*)
         double F(double, double*)
@@ -548,7 +548,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxPlogReaction2 "Cantera::PlogReaction2" (CxxReaction):
         CxxPlog rate
 
-    cdef cppclass CxxChebyshev "Cantera::Chebyshev":
+    cdef cppclass CxxChebyshev "Cantera::ChebyshevRate3":
         CxxChebyshev(double, double, double, double, CxxArray2D)
         double Tmin()
         double Tmax()

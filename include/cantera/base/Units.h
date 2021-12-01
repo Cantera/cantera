@@ -87,6 +87,11 @@ private:
  *  of unit-exponent pairs. Matching units are aggregated, where a standard unit
  *  simplifies access when joining exponents. The utility is used in the context
  *  of effective reaction rate units.
+ *
+ * @internal Helper utility class.
+ *
+ * @warning This class is an experimental part of the %Cantera API and
+ *    may be changed or removed without notice.
  */
 struct UnitStack
 {
@@ -111,7 +116,8 @@ struct UnitStack
     //! Effective exponent of standard unit
     double standardExponent() const;
 
-    //! Join exponent of standard units
+    //! Join (update) exponent of standard units, where the updated exponent is
+    //! the sum of the pre-existing exponent and the exponent passed as the argument.
     void join(double exponent);
 
     //! Update exponent of item with matching units; if it does not exist,
