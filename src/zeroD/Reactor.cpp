@@ -199,10 +199,10 @@ void Reactor::updateConnected(bool updatePressure) {
     }
 }
 
-void Reactor::eval(double time, double* LHS, double* RHS) //argument will be pointing at start of info for nth reactor in reactor network
+void Reactor::eval(double time, double* LHS, double* RHS)
 {
-    double& dmdt = RHS[0]; // dm/dt (gas phase)
-    double* dYdt = RHS + 3; //dYdt is a pointer to a double, pointing to the 3rd element in the m_RHS vector
+    double& dmdt = RHS[0];
+    double* dYdt = RHS + 3;
 
     dmdt = 0.0;
 

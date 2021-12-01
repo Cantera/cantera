@@ -1881,18 +1881,25 @@ class DelegatedReactorTest(utilities.CanteraTest):
             self.assertArrayNear(r.get_state(), np.exp(- net.time / tau))
 
     def test_RHS_LHS(self):
+        #create gas object
         gas = ct.Solution('h2o2.yaml')
-        gas0 = ct.Solution('h2o2.yaml')
         gas.TPX = 500, ct.one_atm, 'H2:2,O2:1,N2:4'
-        gas0.TPX = 500, ct.one_atm, 'H2:2,O2:1,N2:4'
+        gas_initial_enthalpy = gas.enthalpy_mass
+
+        #define properties of gas and solid
         mass_gas = 20 #[kg]
         Q = 100 #[J/s]
         mass_lump = 10 #[kg]
         cp_lump = 1.0 #[J/kgK]
+
+        #initialize time at zero
         time = 0 #[s]
         n_steps = 300
 
+        #define a class representing reactor with a solid mass and
+        #gas inside of it
         class DummyReactor(ct.DelegatedIdealGasConstPressureReactor):
+            #modify energy equation to include solid mass in reactor
             def after_eval(self,t,LHS,RHS):
                 self.m_mass = mass_gas
                 LHS[1] = mass_lump*cp_lump+self.m_mass*self.thermo.cp_mass
@@ -1905,6 +1912,8 @@ class DelegatedReactorTest(utilities.CanteraTest):
             time += 4.e-4
             r1_net.advance(time)
 
-        r1_heat = mass_lump*cp_lump*(r1.thermo.T-500) + mass_gas*(gas.enthalpy_mass - gas0.enthalpy_mass)
+        #compare heat added (add_heat) to the equivalent energy
+        #contained by the solid and gaseous mass in the reactor
+        r1_heat = mass_lump*cp_lump*(r1.thermo.T-500) + mass_gas*(gas.enthalpy_mass - gas_initial_enthalpy)
         add_heat = Q*time
-        self.assertTrue(np.isclose(add_heat,r1_heat,atol=1e-5))
+        self.assertNear(add_heat,r1_heat,atol=1e-5)
