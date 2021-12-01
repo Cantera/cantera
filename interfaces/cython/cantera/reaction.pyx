@@ -1434,7 +1434,7 @@ cdef class Falloff:
     :param params:
         Not used for the "simple" falloff parameterization.
     :param init:
-        Used internally when wrapping :ct:`Falloff` objects returned from C++.
+        Used internally when wrapping :ct:`FalloffRate` objects returned from C++.
     """
     falloff_type = "Lindemann"
 
