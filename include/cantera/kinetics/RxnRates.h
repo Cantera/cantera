@@ -462,7 +462,11 @@ public:
     //! temperatures at each interpolation pressure. This is potentially an
     //! issue when one of the Arrhenius expressions at a particular pressure
     //! has a negative pre-exponential factor.
-    void validate(const std::string& equation, const Kinetics* kin = 0);
+    void validate(const std::string& equation, const Kinetics& kin) {
+        validate(equation);
+    }
+
+    void validate(const std::string& equation);
 
     //! Return the pressures and Arrhenius expressions which comprise this
     //! reaction.

@@ -57,7 +57,6 @@ public:
     virtual void setRateParameters(const AnyValue& rate,
                                    const UnitSystem& units,
                                    const UnitStack& rate_units);
-    using ReactionRate::setParameters;
 
     virtual void getParameters(AnyMap& node) const;
 
@@ -106,16 +105,15 @@ public:
         }
     }
 
-    //! Get buffered value of third-body concentration
-    const bool allowNegativePreExponentialFactor() const {
+    //! Get flag indicating whether negative A values are permitted
+    bool allowNegativePreExponentialFactor() const {
         return m_negativeA_ok;
     }
 
-    //! Get buffered value of third-body concentration
+    //! Set flag indicating whether negative A values are permitted
     void setAllowNegativePreExponentialFactor(bool value) {
         m_negativeA_ok = value;
     }
-
 
 protected:
     bool m_negativeA_ok; //!< Flag indicating whether negative A values are permitted
@@ -145,7 +143,6 @@ class ArrheniusRate final : public ArrheniusBase
 public:
     ArrheniusRate() = default;
     using ArrheniusBase::ArrheniusBase; // inherit constructors
-    using ArrheniusBase::setParameters;
 
     //! Constructor based on AnyMap content
     ArrheniusRate(const AnyMap& node, const UnitStack& rate_units={}) {

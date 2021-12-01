@@ -69,7 +69,7 @@ public:
 
     //! Set parameters
     //! @param node  AnyMap object containing reaction rate specification
-    //! @param rate_units  unit definitions specific to rate information
+    //! @param units  unit definitions specific to rate information
     virtual void setParameters(const AnyMap& node, const UnitStack& units) {
         m_input = node;
     }
@@ -87,7 +87,11 @@ public:
     virtual void check(const std::string& equation, const AnyMap& node) {}
 
     //! Validate the reaction rate expression
-    virtual void validate(const std::string& equation, const Kinetics* kin = 0) {}
+    virtual void validate(const std::string& equation, const Kinetics& kin) {}
+
+    //! Validate the reaction rate expression (legacy call)
+    //! @todo deprecate in favor of two-parameter version
+    virtual void validate(const std::string& equation) {}
 
     //! Reaction rate index within kinetics evaluator
     size_t rateIndex() const {
@@ -101,6 +105,10 @@ public:
 
     //! Evaluate reaction rate based on temperature
     //! @param T  temperature [K]
+    /**
+     * @warning This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
+     * */
     double eval(double T) {
         _evaluator().update(T);
         return _evaluator().evalSingle(*this);
@@ -109,6 +117,10 @@ public:
     //! Evaluate reaction rate based on temperature and pressure
     //! @param T  temperature [K]
     //! @param P  pressure [Pa]
+    /**
+     * @warning This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
+     * */
     double eval(double T, double P) {
         _evaluator().update(T, P);
         return _evaluator().evalSingle(*this);
@@ -162,7 +174,7 @@ protected:
     //! @param node  AnyMap containing rate information
     //! Store the parameters of a ReactionRate needed to reconstruct an identical
     //! object. Does not include user-defined fields available in the #input map.
-    virtual void getParameters(AnyMap& Node) const {
+    virtual void getParameters(AnyMap& node) const {
         throw NotImplementedError("ReactionRate::getParameters",
                                   "Not implemented by '{}' object.", type());
     }
