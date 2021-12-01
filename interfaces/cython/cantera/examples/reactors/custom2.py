@@ -38,14 +38,14 @@ class InertialWallReactor(ct.DelegatedIdealGasReactor):
         # state vector
         self.i_wall = self.n_vars - 1
 
-    def after_get_state(self, y):
+    def after_get_state(self, LHS, RHS):
         # This method is used to set the initial condition used by the ODE solver
-        y[self.i_wall] = self.v_wall
+        RHS[self.i_wall] = self.v_wall
 
-    def after_update_state(self, y):
+    def after_update_state(self, LHS, RHS):
         # This method is used to set the state of the Reactor and Wall objects
         # based on the new values for the state vector provided by the ODE solver
-        self.v_wall = y[self.i_wall]
+        self.v_wall = RHS[self.i_wall]
         self.walls[0].set_velocity(self.v_wall)
 
     def after_eval(self, t, ydot):

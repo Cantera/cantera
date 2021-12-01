@@ -94,8 +94,8 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
 
     for (size_t n = 0; n < m_nsp; n++) {
         // heat release from gas phase and surface reactions
-        mcpdTdt -= (m_wdot[n] * m_hk[n] * m_vol);
-        mcpdTdt -= (m_sdot[n] * m_hk[n]);
+        mcpdTdt -= m_wdot[n] * m_hk[n] * m_vol;
+        mcpdTdt -= m_sdot[n] * m_hk[n];
         // production in gas phase and from surfaces
         dYdt[n] = (m_wdot[n] * m_vol + m_sdot[n]) * mw[n];
         // dilution by net surface mass flux

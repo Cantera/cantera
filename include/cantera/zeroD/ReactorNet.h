@@ -289,6 +289,8 @@ protected:
     vector_fp m_ydot;
     vector_fp m_yest;
     vector_fp m_advancelimits;
+    //! m_LHS is a vector representing the coeffcicients on the 
+    //! "left hand side" of each governing equation
     vector_fp m_LHS;
     vector_fp m_RHS;
     bool m_checked_eval_deprecation; //!< @todo Remove after Cantera 2.6

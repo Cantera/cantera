@@ -124,7 +124,6 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
             // In combination with h_in*mdot_in, flow work plus thermal
             // energy carried with the species
             mcvdTdt -= m_uk[n] / mw[n] * mdot_spec;
-
         }
     }
 

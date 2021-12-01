@@ -22,7 +22,6 @@ ReactorNet::ReactorNet() :
     m_atols(1.0e-15), m_atolsens(1.0e-6),
     m_maxstep(0.0), m_maxErrTestFails(0),
     m_verbose(false), m_checked_eval_deprecation(false)
-    
 {
     suppressErrors(true);
 
@@ -254,9 +253,9 @@ void ReactorNet::addReactor(Reactor& r)
 void ReactorNet::eval(doublereal t, doublereal* y,
                       doublereal* ydot, doublereal* p)
 {
-    m_time = t; 
+    m_time = t;
     updateState(y);
-    m_LHS.assign(m_nv, 1); //m_LHS is a vector representing the coeffcicients on the "left hand side" of each governing equation 
+    m_LHS.assign(m_nv, 1);
     m_RHS.assign(m_nv, 0);
     if (!m_checked_eval_deprecation) {
         m_have_deprecated_eval.assign(m_reactors.size(), false);
@@ -292,13 +291,13 @@ void ReactorNet::eval(doublereal t, doublereal* y,
             } else {
                 m_reactors[n]->eval(t, m_LHS.data() + m_start[n], m_RHS.data() + m_start[n]);
                     int yEnd = 0;
-                if(n == m_reactors.size()-1){
+                if (n == m_reactors.size()-1) {
                     yEnd = m_RHS.size();
                 } else {
                     yEnd = m_start[n+1];
                 }
                     for (int i = m_start[n]; i < yEnd; i++) {
-                     ydot[i] = m_RHS[i]/m_LHS[i];
+                        ydot[i] = m_RHS[i]/m_LHS[i];
                     }
             }
             m_reactors[n]->resetSensitivity(p);
