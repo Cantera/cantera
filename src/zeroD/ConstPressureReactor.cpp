@@ -61,8 +61,8 @@ void ConstPressureReactor::updateState(doublereal* y)
 
 void ConstPressureReactor::eval(double time, double* LHS, double* RHS)
 {
-    double& dmdt = RHS[0]; // dm/dt (gas phase)
-    double* dYdt = RHS + 2; //RHS[2]
+    double& dmdt = RHS[0];
+    double* dYdt = RHS + 2;
 
     dmdt = 0.0;
 
@@ -110,7 +110,6 @@ void ConstPressureReactor::eval(double time, double* LHS, double* RHS)
         dHdt += mdot * inlet->enthalpy_mass();
     }
 
-    RHS[0] = dmdt; //redundant?
     if (m_energy) {
         RHS[1] = dHdt;
     } else {
