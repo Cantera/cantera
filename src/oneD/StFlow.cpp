@@ -79,6 +79,7 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     setBounds(1, -1e20, 1e20); // V
     setBounds(2, 200.0, 2*m_thermo->maxTemp()); // temperature bounds
     setBounds(3, -1e20, 1e20); // lambda should be negative
+    setBounds(c_offset_E, -1e20, 1e20); // no bounds for inactive component
 
     // mass fraction bounds
     for (size_t k = 0; k < m_nsp; k++) {
