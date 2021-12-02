@@ -171,7 +171,15 @@ string formatDouble(double x, long int precision)
     string s0;
     if (useExp) {
         s0 = fmt::format(fmt::format("{:.{}e}", x, precision));
-        last = s0.size() - 5; // last digit of significand
+        // last digit of significand
+        last = s0.size() - 5;
+        if (s0[last + 1] == 'e') {
+            // pass - most values use four letter exponent (examples: e+05, e-03)
+        } else if (s0[last] == 'e') {
+            last--; // exponents larger than e+99 or smaller than e-99 (example: e+100)
+        } else {
+            last = s0.find('e') - 1; // backstop; slower, but will always work
+        }
     } else {
         log10x = static_cast<int>(std::floor(std::log10(std::abs(x))));
         s0 = fmt::format("{:.{}f}", x, precision - log10x);

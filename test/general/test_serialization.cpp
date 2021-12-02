@@ -38,6 +38,9 @@ TEST(YamlWriter, formatDouble)
     // check edge cases
     m["a"] = -1061.793215682400;
     EXPECT_EQ(m.toYamlString(), "a: -1061.7932156824\n");
+
+    m["a"] = 7.820059054328200e-111;
+    EXPECT_EQ(m.toYamlString(), "a: 7.8200590543282e-111\n");
 }
 
 TEST(YamlWriter, formatDoubleExp)
