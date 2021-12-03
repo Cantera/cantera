@@ -21,6 +21,7 @@ void BulkKinetics::resizeReactions()
 {
     Kinetics::resizeReactions();
 
+    m_multi_concm.resizeCoeffs(nTotalSpecies(), nReactions());
     for (auto& rates : m_bulk_rates) {
         rates->resize(nTotalSpecies(), nReactions());
     }
