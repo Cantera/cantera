@@ -866,6 +866,7 @@ private:
      * @param[out] do_delete:  BOOLEAN which if true on return, then we
      *                         branch to the section that deletes a species
      *                         from the current set of active species.
+     * @param[out] ANOTE  Buffer used for debug annotations
      */
     double vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete,
                               char* ANOTE=0) const;

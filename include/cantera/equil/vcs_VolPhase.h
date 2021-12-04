@@ -88,6 +88,7 @@ public:
     /*!
      * @param phaseNum    index of the phase in the vcs problem
      * @param numSpecies  Number of species in the phase
+     * @param numElem     Number of elements in the phase
      * @param phaseName   String name for the phase
      * @param molesInert  kmoles of inert in the phase (defaults to zero)
      */
@@ -112,6 +113,8 @@ public:
      * updates this object with their values. This is essentially a gather
      * routine.
      *
+     * @param stateCalc  Flag indicating which mole numbers to update. Either
+     *     `VCS_STATECALC_OLD` or `VCS_STATECALC_NEW`.
      * @param molesSpeciesVCS  Array of mole numbers. Note, the indices for
      *     species in this array may not be contiguous. IndSpecies[] is needed
      *     to gather the species into the local contiguous vector format.
@@ -157,6 +160,8 @@ public:
      * phase, and fill in the corresponding entries in the VCS activity
      * coefficients vector.
      *
+     * @param stateCalc  Flag indicating which mole numbers to update. Either
+     *     `VCS_STATECALC_OLD` or `VCS_STATECALC_NEW`.
      * @param AC  vector of activity coefficients for all of the species in all
      *     of the phases in a VCS problem. Only the entries for the current
      *     phase are filled in.
@@ -209,23 +214,21 @@ public:
      * phase (if needed), and fill in the corresponding entries in the VCS
      * partial molar volumes vector.
      *
-     * @param VolPM  vector of partial molar volumes for all of the species in
+     * @param[out] VolPM  vector of partial molar volumes for all of the species in
      *     all of the phases in a VCS problem. Only the entries for the current
      *     phase are filled in.
      */
     double sendToVCS_VolPM(double* const VolPM) const;
 
-    //! Fill in the partial molar volume vector for VCS
+    //! Fill in the standard state Gibbs free energy vector for VCS
     /*!
-     * This routine will calculate the partial molar volumes for the
+     * This routine will calculate the standard state Gibbs free energies for the
      * current phase (if needed), and fill in the corresponding entries in the
-     * VCS partial molar volumes vector.
+     * VCS standard state gibbs free energy vector.
      *
-     * @param VolPM  vector of partial molar volumes for all of the species in
-     *     all of the phases in a VCS problem. Only the entries for the current
-     *     phase are filled in.
-     *
-     * @todo This function's documentation is incorrect.
+     * @param[out] gstar  vector of standard state Gibbs free energies for all of the
+     *     species in all of the phases in a VCS problem. Only the entries for the
+     *     current phase are filled in.
      */
     void sendToVCS_GStar(double* const gstar) const;
 
@@ -319,7 +322,7 @@ public:
 
     //! Sets the creationMoleNum's within the phase object
     /*!
-     * @param F_k Pointer to a vector of n_k's
+     * @param n_k Pointer to a vector of n_k's
      */
     void setCreationMoleNumbers(const double* const n_k, const std::vector<size_t> &creationGlobalRxnNumbers);
 
@@ -391,6 +394,7 @@ public:
     /*!
      * @param spIndex local species index (0 to the number of species
      *                in the phase)
+     * @param spGlobalIndex  Global species index (across all phases)
      *
      * @returns the VCS_SOLVE species index of the that species This changes as
      *         rearrangements are carried out.
