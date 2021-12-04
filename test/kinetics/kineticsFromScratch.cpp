@@ -427,9 +427,6 @@ public:
         p.setState_TPX(1200, 5*OneAtm, X);
         p_ref.setState_TPX(1200, 5*OneAtm, X);
 
-        // need to invalidate cache to force update
-        kin_ref->invalidateCache();
-
         vector_fp k(kin.nReactions()), k_ref(kin_ref->nReactions());
         vector_fp w(kin.nTotalSpecies()), w_ref(kin_ref->nTotalSpecies());
 
