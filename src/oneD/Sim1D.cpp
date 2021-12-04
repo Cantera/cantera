@@ -152,7 +152,11 @@ void Sim1D::saveResidual(const std::string& fname, const std::string& id,
 {
     vector_fp res(m_x.size(), -999);
     OneDim::eval(npos, &m_x[0], &res[0], 0.0);
-    OneDim::save(fname, id, desc, &res[0], loglevel);
+    // Temporarily put the residual into m_x, since this is the vector that the save()
+    // function reads.
+    std::swap(res, m_x);
+    save(fname, id, desc, loglevel);
+    std::swap(res, m_x);
 }
 
 void Sim1D::restore(const std::string& fname, const std::string& id,
