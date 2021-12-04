@@ -52,20 +52,15 @@ void GasKinetics::update_rates_T()
         m_ROP_ok = false;
     }
 
-    if (T != m_temp || P != m_pres) {
-
-        // loop over MultiBulkRates evaluators
-        // @todo ... address/reassess logic as this update can fail
-        //      (see tests/kinetics/KineticsFromScratch.cpp:
-        //      KineticsAddSpecies - add_species_sequential)
-        //      a work-around is to call GasKinetics::invalidateCache()
-        for (auto& rates : m_bulk_rates) {
-            bool changed = rates->update(thermo(), *this);
-            if (changed) {
-                rates->getRateConstants(m_rfn.data());
-            }
+    // loop over MultiBulkRate evaluators for each reaction type
+    for (auto& rates : m_bulk_rates) {
+        bool changed = rates->update(thermo(), *this);
+        if (changed) {
+            rates->getRateConstants(m_rfn.data());
+            m_ROP_ok = false;
         }
-
+    }
+    if (T != m_temp || P != m_pres) {
         // P-log reactions (legacy)
         if (m_plog_rates.nReactions()) {
             m_plog_rates.update(T, logT, m_rfn.data());
