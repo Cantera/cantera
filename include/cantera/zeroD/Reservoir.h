@@ -12,6 +12,8 @@
 namespace Cantera
 {
 
+//! A source or sink whose state remains constant regardless of any flows or other
+//! interactions with other Reactor objects.
 class Reservoir : public ReactorBase
 {
 public:

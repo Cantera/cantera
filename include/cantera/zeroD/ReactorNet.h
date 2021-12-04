@@ -20,6 +20,8 @@ class Integrator;
  *  This class is used to integrate the time-dependent governing equations for
  *  a network of reactors (Reactor, ConstPressureReactor) connected by various
  *  means, e.g. Wall, MassFlowController, Valve, PressureController.
+ *
+ * @ingroup ZeroD
  */
 class ReactorNet : public FuncEval
 {
