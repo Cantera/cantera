@@ -60,8 +60,10 @@ void GasKinetics::update_rates_T()
         //      KineticsAddSpecies - add_species_sequential)
         //      a work-around is to call GasKinetics::invalidateCache()
         for (auto& rates : m_bulk_rates) {
-            rates->update(thermo(), *this);
-            rates->getRateConstants(m_rfn.data());
+            bool changed = rates->update(thermo(), *this);
+            if (changed) {
+                rates->getRateConstants(m_rfn.data());
+            }
         }
 
         // P-log reactions (legacy)
