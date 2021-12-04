@@ -67,6 +67,13 @@ public:
         }
     }
 
+    virtual void processRateConstants_ddTscaled(double* dkf) override
+    {
+        // call helper function: implementation of derivative depends on whether
+        // ReactionRate::ddTScaledFromStruct is defined
+        _process_ddTScaled(dkf);
+    }
+
     virtual void update(double T) override {
         m_shared.update(T);
     }
@@ -86,6 +93,36 @@ public:
     }
 
 protected:
+    //! Helper function to process temperature derivatives for rate types that
+    //! implement the `ddTScaledFromStruct` method.
+    template <typename T=RateType, typename std::enable_if<has_ddT<T>::value, bool>::type = true>
+    void _process_ddTScaled(double* dkf) {
+        for (const auto& rxn : m_rxn_rates) {
+            dkf[rxn.first] *= rxn.second.ddTScaledFromStruct(m_shared);;
+        }
+    }
+
+    //! Helper function for rate types that do not implement `ddTScaledFromStruct`
+    template <typename T=RateType, typename std::enable_if<!has_ddT<T>::value, bool>::type = true>
+    void _process_ddTScaled(double* dkf) {
+        double m_jac_atol_deltaT = 1e-3;
+
+        // perturb conditions
+        double dTinv = 1. / m_jac_atol_deltaT;
+        m_shared.perturbT(deltaT);
+
+        // apply numerical derivative
+        for (auto& rxn : m_rxn_rates) {
+            if (dkf[rxn.first] != 0.) {
+                double k1 = rxn.second.evalFromStruct(m_shared);
+                dkf[rxn.first] *= dTinv * (k1 / dkf[rxn.first] - 1.);
+            } // else not needed: derivative is already zero
+        }
+
+        // revert changes
+        m_shared.restore();
+    }
+
     //! Vector of pairs of reaction rates indices and reaction rates
     std::vector<std::pair<size_t, RateType>> m_rxn_rates;
     std::map<size_t, size_t> m_indices; //! Mapping of indices

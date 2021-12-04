@@ -20,10 +20,10 @@ void ReactionData::update(double T, double extra)
 bool ReactionData::perturbT(double deltaT)
 {
     // only perturb if there is no buffered value
-    if (temperature_buf > 0.) {
+    if (m_temperature_buf > 0.) {
         return false;
     }
-    temperature_buf = temperature;
+    m_temperature_buf = temperature;
     ReactionData::update(temperature + deltaT);
     return true;
 }
@@ -31,11 +31,11 @@ bool ReactionData::perturbT(double deltaT)
 bool ReactionData::restore()
 {
     // only restore if there is a valid buffered value
-    if (temperature_buf < 0.) {
+    if (m_temperature_buf < 0.) {
         return false;
     }
-    ReactionData::update(temperature_buf);
-    temperature_buf = -1.;
+    ReactionData::update(m_temperature_buf);
+    m_temperature_buf = -1.;
     return true;
 }
 
