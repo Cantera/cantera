@@ -29,7 +29,7 @@ namespace Cantera
 //!
 //! Derived classes may also implement the methods
 //! `updateFromStruct(const DataType& shared_data)` and
-//! `ddTFromStruct(const DataType& shared_data)`.
+//! `ddTScaledFromStruct(const DataType& shared_data)`.
 class ReactionRate
 {
 public:

@@ -21,7 +21,7 @@ template <class RateType, class DataType>
 class MultiBulkRate final : public MultiRateBase
 {
     CT_DEFINE_HAS_MEMBER(has_update, updateFromStruct)
-    CT_DEFINE_HAS_MEMBER(has_ddT, ddTFromStruct)
+    CT_DEFINE_HAS_MEMBER(has_ddT, ddTScaledFromStruct)
 
 public:
     virtual std::string type() override {
@@ -101,7 +101,7 @@ public:
     {
         RateType& R = static_cast<RateType&>(rate);
         _updateRate(R);
-        return _get_ddT(R);
+        return R.evalFromStruct(m_shared) * _get_ddTScaled(R);
     }
 
 protected:
@@ -133,17 +133,18 @@ protected:
     void _updateRate(RateType& rate) {
     }
 
-    //! Helper function to evaluate temperature derivative for rate types that implement
-    //! the `ddTFromStruct` method.
+    //! Helper function to evaluate temperature derivative for rate types that
+    //! implement the `ddTScaledFromStruct` method.
     template <typename T=RateType, typename std::enable_if<has_ddT<T>::value, bool>::type = true>
-    double _get_ddT(RateType& rate) {
-        return rate.ddTFromStruct(m_shared);
+    double _get_ddTScaled(RateType& rate) {
+        return rate.ddTScaledFromStruct(m_shared);
     }
 
-    //! Helper function for rate types that do not implement `ddTFromStruct`
+    //! Helper function for rate types that do not implement `ddTScaledFromStruct`
     template <typename T=RateType, typename std::enable_if<!has_ddT<T>::value, bool>::type = true>
-    double _get_ddT(RateType& rate) {
-        throw NotImplementedError("ReactionRate::ddTFromStruct", "For rate of type {}", rate.type());
+    double _get_ddTScaled(RateType& rate) {
+        throw NotImplementedError("ReactionRate::ddTScaledFromStruct",
+            "For rate of type {}", rate.type());
     }
 
     //! Vector of pairs of reaction rates indices and reaction rates

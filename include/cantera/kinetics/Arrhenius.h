@@ -174,12 +174,12 @@ public:
     }
 
     //! Evaluate derivative of reaction rate with respect to temperature
+    //! divided by reaction rate
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    virtual double ddTFromStruct(const ArrheniusData& shared_data) const {
-        return m_A * (m_b + m_Ea_R * shared_data.recipT) *
-            std::exp((m_b - 1) * shared_data.logT - m_Ea_R * shared_data.recipT);
+    virtual double ddTScaledFromStruct(const ArrheniusData& shared_data) const {
+        return (m_Ea_R * shared_data.recipT + m_b) * shared_data.recipT;
     }
 
     //! Return the activation energy *Ea* [J/kmol]
