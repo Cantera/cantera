@@ -19,7 +19,7 @@ class Func1;
 
 /**
  * Base class for 'walls' (walls, pistons, etc.) connecting reactors.
- * @ingroup reactor0
+ * @ingroup ZeroD
  */
 class WallBase
 {

@@ -14,6 +14,9 @@ namespace Cantera
 class Kinetics;
 class SurfPhase;
 
+//! A surface where reactions can occur that is in contact with the bulk fluid of a
+//! Reactor.
+//! @ingroup ZeroD
 class ReactorSurface
 {
 public:

@@ -12,6 +12,15 @@
 namespace Cantera
 {
 
+//! Factory class to create FlowDevice objects.
+//!
+//! This class is mainly used via the newFlowDevice() function, for example:
+//!
+//! ```cpp
+//!     unique_ptr<FlowDevice> mfc(newFlowDevice("MassFlowController"));
+//! ```
+//!
+//! @ingroup ZeroD
 class FlowDeviceFactory : public Factory<FlowDevice>
 {
 public:
@@ -42,6 +51,7 @@ private:
 };
 
 //! Create a FlowDevice object of the specified type
+//! @ingroup ZeroD
 inline FlowDevice* newFlowDevice(const std::string& model)
 {
     return FlowDeviceFactory::factory()->newFlowDevice(model);

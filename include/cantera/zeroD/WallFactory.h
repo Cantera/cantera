@@ -12,6 +12,15 @@
 namespace Cantera
 {
 
+//! Factory class to create WallBase objects
+//!
+//! This class is mainly used via the newWall() function, for example:
+//!
+//! ```cpp
+//!     unique_ptr<WallBase> piston(newWall("Wall"));
+//! ```
+//!
+//! @ingroup ZeroD
 class WallFactory : public Factory<WallBase>
 {
 public:
@@ -41,7 +50,8 @@ private:
     WallFactory();
 };
 
-//! Create a Wall object of the specified type
+//! Create a WallBase object of the specified type
+//! @ingroup ZeroD
 inline WallBase* newWall(const std::string& model)
 {
     return WallFactory::factory()->newWall(model);

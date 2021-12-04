@@ -12,6 +12,15 @@
 namespace Cantera
 {
 
+//! Factory class to create reactor objects
+//!
+//! This class is mainly used via the newReactor() function, for example:
+//!
+//! ```cpp
+//!     unique_ptr<ReactorBase> r1(newReactor("IdealGasReactor"));
+//! ```
+//!
+//! @ingroup ZeroD
 class ReactorFactory : public Factory<ReactorBase>
 {
 public:
@@ -42,6 +51,7 @@ private:
 };
 
 //! Create a Reactor object of the specified type
+//! @ingroup ZeroD
 inline ReactorBase* newReactor(const std::string& model)
 {
     return ReactorFactory::factory()->newReactor(model);
