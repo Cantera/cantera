@@ -983,6 +983,7 @@ bool Phase::ready() const
 }
 
 void Phase::invalidateCache() {
+    m_stateNum++;
     m_cache.clear();
 }
 

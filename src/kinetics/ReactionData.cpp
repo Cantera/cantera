@@ -11,9 +11,13 @@
 namespace Cantera
 {
 
-void ArrheniusData::update(const ThermoPhase& bulk, const Kinetics& kin)
+std::pair<bool, bool> ArrheniusData::update(const ThermoPhase& bulk,
+                                            const Kinetics& kin)
 {
-    update(bulk.temperature());
+    double T = bulk.temperature();
+    std::pair<bool, bool> changed{ false, T != temperature };
+    update(T);
+    return changed;
 }
 
 void BlowersMaselData::update(double T)
@@ -23,17 +27,48 @@ void BlowersMaselData::update(double T)
     recipT = 1./T;
 }
 
-void BlowersMaselData::update(const ThermoPhase& bulk, const Kinetics& kin)
+BlowersMaselData::BlowersMaselData()
+    : temperature(1.)
+    , logT(0.)
+    , recipT(1.)
+    , density(NAN)
+    , state_mf_number(-1)
+    , finalized(false)
 {
-    update(bulk.temperature());
-    bulk.getPartialMolarEnthalpies(m_grt.data());
-    kin.getReactionDelta(m_grt.data(), dH.data());
 }
 
-void FalloffData::update(const ThermoPhase& bulk, const Kinetics& kin)
+std::pair<bool, bool> BlowersMaselData::update(const ThermoPhase& bulk,
+                                               const Kinetics& kin)
 {
-    update(bulk.temperature());
-    kin.getThirdBodyConcentrations(conc_3b.data());
+    double rho = bulk.density();
+    int mf = bulk.stateMFNumber();
+    double T = bulk.temperature();
+    std::pair<bool, bool> changed { false, T != temperature };
+    if (T != temperature || rho != density || mf != state_mf_number) {
+        density = rho;
+        state_mf_number = mf;
+        bulk.getPartialMolarEnthalpies(m_grt.data());
+        kin.getReactionDelta(m_grt.data(), dH.data());
+        changed.first = changed.second = true;
+    }
+    update(T);
+    return changed;
+}
+
+std::pair<bool, bool> FalloffData::update(const ThermoPhase& bulk, const Kinetics& kin)
+{
+    double rho_m = bulk.molarDensity();
+    int mf = bulk.stateMFNumber();
+    double T = bulk.temperature();
+    std::pair<bool, bool> changed { false, T != temperature };
+    if (rho_m != molar_density || mf != state_mf_number) {
+        molar_density = rho_m;
+        state_mf_number = mf;
+        kin.getThirdBodyConcentrations(conc_3b.data());
+        changed.first = changed.second = true;
+    }
+    update(T);
+    return changed;
 }
 
 void PlogData::update(double T)
@@ -42,9 +77,13 @@ void PlogData::update(double T)
         "Missing state information: reaction type requires pressure.");
 }
 
-void PlogData::update(const ThermoPhase& bulk, const Kinetics& kin)
+std::pair<bool, bool> PlogData::update(const ThermoPhase& bulk, const Kinetics& kin)
 {
-    update(bulk.temperature(), bulk.pressure());
+    double T = bulk.temperature();
+    double P = bulk.pressure();
+    std::pair<bool, bool> changed{ P != pressure, P != pressure || T != temperature };
+    update(T, P);
+    return changed;
 }
 
 void ChebyshevData::update(double T)
@@ -53,14 +92,21 @@ void ChebyshevData::update(double T)
         "Missing state information: reaction type requires pressure.");
 }
 
-void ChebyshevData::update(const ThermoPhase& bulk, const Kinetics& kin)
+std::pair<bool, bool> ChebyshevData::update(const ThermoPhase& bulk, const Kinetics& kin)
 {
-    update(bulk.temperature(), bulk.pressure());
+    double T = bulk.temperature();
+    double P = bulk.pressure();
+    std::pair<bool, bool> changed{ P != pressure, P != pressure || T != temperature };
+    update(T, P);
+    return changed;
 }
 
-void CustomFunc1Data::update(const ThermoPhase& bulk, const Kinetics& kin)
+std::pair<bool, bool> CustomFunc1Data::update(const ThermoPhase& bulk, const Kinetics& kin)
 {
-    temperature = bulk.temperature();
+    double T = bulk.temperature();
+    std::pair<bool, bool> changed { false, T != temperature };
+    temperature = T;
+    return changed;
 }
 
 }

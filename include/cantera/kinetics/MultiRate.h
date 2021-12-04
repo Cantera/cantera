@@ -35,6 +35,7 @@ public:
     virtual void add(const size_t rxn_index, ReactionRate& rate) override {
         m_indices[rxn_index] = m_rxn_rates.size();
         m_rxn_rates.emplace_back(rxn_index, dynamic_cast<RateType&>(rate));
+        m_shared.invalidateCache();
     }
 
     virtual bool replace(const size_t rxn_index, ReactionRate& rate) override {
@@ -48,6 +49,7 @@ public:
                  "Invalid operation: cannot replace rate object of type '{}' "
                  "with a new rate of type '{}'.", type(), rate.type());
         }
+        m_shared.invalidateCache();
         if (m_indices.find(rxn_index) != m_indices.end()) {
             size_t j = m_indices[rxn_index];
             m_rxn_rates.at(j).second = dynamic_cast<RateType&>(rate);
@@ -58,6 +60,7 @@ public:
 
     virtual void resize(size_t n_species, size_t n_reactions) override {
         m_shared.resize(n_species, n_reactions);
+        m_shared.invalidateCache();
     }
 
     virtual void getRateConstants(double* kf) override {
@@ -78,10 +81,13 @@ public:
         _updateRates();
     }
 
-    virtual void update(const ThermoPhase& bulk, const Kinetics& kin) override {
+    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override {
         // update common data once for each reaction type
-        m_shared.update(bulk, kin);
-        _updateRates();
+        std::pair<bool, bool> changed = m_shared.update(bulk, kin);
+        if (changed.first) {
+            _updateRates();
+        }
+        return changed.second;
     }
 
     virtual double evalSingle(ReactionRate& rate) override

@@ -67,7 +67,8 @@ public:
     //! Update data common to reaction rates of a specific type
     //! @param bulk  object representing bulk phase
     //! @param kin  object representing kinetics
-    virtual void update(const ThermoPhase& bulk, const Kinetics& kin) = 0;
+    //! @returns flag indicating reaction rates need to be re-evaluated
+    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) = 0;
 
     //! Get the rate for a single reaction. Used to implement ReactionRate::eval.
     virtual double evalSingle(ReactionRate& rate) = 0;
