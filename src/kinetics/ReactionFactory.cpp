@@ -133,6 +133,11 @@ ReactionFactory::ReactionFactory()
         return R;
     });
 
+    // register electron-temprature reactions
+    reg("two-temperature-plasma", [](const AnyMap& node, const Kinetics& kin) {
+        return new TwoTempPlasmaReaction(node, kin);
+    });
+
     // register Blowers Masel reactions
     reg("Blowers-Masel", [](const AnyMap& node, const Kinetics& kin) {
         return new BlowersMaselReaction(node, kin);

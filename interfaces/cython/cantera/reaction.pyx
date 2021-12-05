@@ -2322,6 +2322,54 @@ cdef class BlowersMaselReaction(Reaction):
             r.setRate(rate_._rate)
 
 
+cdef class TwoTempPlasmaReaction(Reaction):
+    """
+    A reaction which rate coefficient depends on both gas and electron temperature
+
+    An example for the definition of an `TwoTempPlasmaReaction` object is given as::
+        rxn = TwoTempPlasmaReaction(
+            equation="O2 + E <=> O2-",
+            rate={"A": 17283, "b": -3.1, "Ea_T": -5820088, "Ea_Te": 10808733},
+            kinetics=gas)
+    The YAML description corresponding to this reaction is::
+        equation: O2 + E <=> O2-
+        type: two-temperature-plasma
+        rate-constant: {A: 17283, b: -3.1, Ea_T: -700 K, Ea_Te: 1300 K}
+    """
+    _reaction_type = "two-temperature-plasma"
+
+    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
+                 init=True, **kwargs):
+
+        if init and equation and kinetics:
+
+            rxn_type = self._reaction_type
+            spec = {"equation": equation, "type": rxn_type}
+            if isinstance(rate, dict):
+                spec["rate-constant"] = rate
+            elif rate is None or isinstance(rate, TwoTempPlasmaRate):
+                pass
+            else:
+                raise TypeError("Invalid rate definition")
+
+            self._reaction = CxxNewReaction(dict_to_anymap(spec),
+                                            deref(kinetics.kinetics))
+            self.reaction = self._reaction.get()
+
+            if isinstance(rate, TwoTempPlasmaRate):
+                self.rate = rate
+
+    property rate:
+        """ Get/Set the `TwoTempPlasmaRate` rate coefficients for this reaction. """
+        def __get__(self):
+            cdef CxxTwoTempPlasmaReaction* r = <CxxTwoTempPlasmaReaction*>self.reaction
+            return TwoTempPlasmaRate.wrap(r.rate())
+        def __set__(self, rate):
+            cdef CxxTwoTempPlasmaReaction* r = <CxxTwoTempPlasmaReaction*>self.reaction
+            cdef TwoTempPlasmaRate rate_ = rate
+            r.setRate(rate_._rate)
+
+
 cdef class InterfaceReaction(ElementaryReaction):
     """ A reaction occurring on an `Interface` (i.e. a surface or an edge) """
     _reaction_type = "interface"
