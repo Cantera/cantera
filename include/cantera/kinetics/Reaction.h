@@ -536,6 +536,22 @@ public:
 };
 
 
+//! A reaction for two-temperature-plasma reaction rate
+class TwoTempPlasmaReaction: public Reaction
+{
+public:
+    TwoTempPlasmaReaction();
+    TwoTempPlasmaReaction(const Composition& reactants, const Composition& products,
+                  const TwoTempPlasmaRate& rate);
+
+    TwoTempPlasmaReaction(const AnyMap& node, const Kinetics& kin);
+
+    virtual std::string type() const {
+        return "two-temperature-plasma";
+    }
+};
+
+
 //! A reaction with rate parameters for Blowers-Masel approximation
 class BlowersMaselReaction: public Reaction
 {

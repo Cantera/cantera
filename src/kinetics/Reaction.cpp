@@ -1120,6 +1120,29 @@ std::string ThreeBodyReaction3::productString() const
     }
 }
 
+TwoTempPlasmaReaction::TwoTempPlasmaReaction()
+{
+    setRate(newReactionRate(type()));
+}
+
+TwoTempPlasmaReaction::TwoTempPlasmaReaction(
+        const Composition& reactants, const Composition& products,
+        const TwoTempPlasmaRate& rate)
+    : Reaction(reactants, products)
+{
+    m_rate.reset(new TwoTempPlasmaRate(rate));
+}
+
+TwoTempPlasmaReaction::TwoTempPlasmaReaction(const AnyMap& node, const Kinetics& kin)
+{
+    if (!node.empty()) {
+        setParameters(node, kin);
+        setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
+    } else {
+        setRate(newReactionRate(type()));
+    }
+}
+
 BlowersMaselReaction::BlowersMaselReaction()
 {
     setRate(newReactionRate(type()));
