@@ -144,7 +144,7 @@ public:
         updateTemp(shared_data.temperature, m_work.data());
         m_rc_low = m_lowRate.evalFromStruct(shared_data);
         m_rc_high = m_highRate.evalFromStruct(shared_data);
-        if (shared_data.finalized && m_rate_index != npos) {
+        if (shared_data.ready && m_rate_index != npos) {
             m_thirdBodyConcentration = shared_data.conc_3b[m_rate_index];
         }
     }
