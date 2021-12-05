@@ -19,7 +19,7 @@
 # .. deprecated:: 2.5
 #
 #    The CTI and XML input file formats are deprecated and will be removed in
-#    Cantera 3.0. Use `cti2yaml.py` to convert CTI input files to the YAML
+#    Cantera 3.0. Use 'cti2yaml.py' to convert CTI input files to the YAML
 #    format.
 #
 
@@ -2756,6 +2756,11 @@ def convert(filename=None, outName=None, text=None):
 def main():
     if len(sys.argv) not in (2,3):
         raise ValueError('Incorrect number of command line arguments.')
+    print("WARNING: The CTI and XML input file formats are deprecated and will be\n"
+          "removed in Cantera 3.0. Use 'cti2yaml.py' to convert CTI input files to\n"
+          "the YAML format. See https://cantera.org/tutorials/legacy2yaml.html for\n"
+          "more information.")
+
     convert(*sys.argv[1:])
 
 if __name__ == "__main__":
