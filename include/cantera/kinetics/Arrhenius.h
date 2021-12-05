@@ -169,7 +169,7 @@ public:
 
     //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
-    double evalFromStruct(const ArrheniusData& shared_data) const {
+    double evalFromStruct(const ReactionData& shared_data) const {
         return m_A * std::exp(m_b * shared_data.logT - m_Ea_R * shared_data.recipT);
     }
 
@@ -178,7 +178,7 @@ public:
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    virtual double ddTScaledFromStruct(const ArrheniusData& shared_data) const {
+    virtual double ddTScaledFromStruct(const ReactionData& shared_data) const {
         return (m_Ea_R * shared_data.recipT + m_b) * shared_data.recipT;
     }
 
@@ -272,7 +272,7 @@ public:
     virtual void getParameters(AnyMap& node) const;
 
     void updateFromStruct(const BlowersMaselData& shared_data) {
-        if (shared_data.finalized && m_rate_index != npos) {
+        if (shared_data.ready && m_rate_index != npos) {
             m_deltaH_R = shared_data.dH[m_rate_index] / GasConstant;
         }
     }
