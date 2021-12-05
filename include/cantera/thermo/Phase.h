@@ -655,6 +655,12 @@ public:
         return m_temp;
     }
 
+    //! Electron Temperature (K)
+    //!     @return The electron temperature of the phase
+    double electronTemperature() const {
+        return m_elec_temp;
+    }
+
     //! Return the thermodynamic pressure (Pa).
     /*!
      *  This method must be overloaded in derived classes. Within %Cantera, the
@@ -718,6 +724,18 @@ public:
                                "temperature must be positive. T = {}", temp);
         }
     }
+
+    //! Set the internally stored electron temperature of the phase (K).
+    //!     @param etemp Electron temperature in Kelvin
+    virtual void setElectronTemperature(const double etemp) {
+        if (etemp > 0) {
+            m_elec_temp = etemp;
+        } else {
+            throw CanteraError("Phase::setElectronTemperature",
+                               "electron temperature must be positive. Te = {}", etemp);
+        }
+    }
+
     //! @}
 
     //! @name Mean Properties
@@ -965,6 +983,9 @@ private:
     std::string m_name;
 
     doublereal m_temp; //!< Temperature (K). This is an independent variable
+
+    //! Electron Temperature (K).
+    double m_elec_temp;
 
     //! Density (kg m-3). This is an independent variable except in the case
     //! of incompressible phases, where it has to be changed using the
