@@ -32,7 +32,7 @@ Cantera input files (CTI).
 .. deprecated:: 2.5
 
     The CTI input file format is deprecated and will be removed in Cantera 3.0.
-    Use `ck2yaml.py` to convert Chemkin-format input files to the YAML format.
+    Use 'ck2yaml.py' to convert Chemkin-format input files to the YAML format.
 """
 
 from __future__ import print_function
@@ -2334,6 +2334,12 @@ def main(argv):
     surfaces = Parser.convertMech(inputFile, thermoFile, transportFile,
                                   surfaceFile, phaseName, outName,
                                   permissive=permissive)
+
+    logging.warning(
+        "The CTI input file format is deprecated and will be removed in Cantera 3.0.\n"
+        "Use 'ck2yaml.py' to convert Chemkin-format input files to the YAML format.\n"
+        "See https://cantera.org/tutorials/ck2yaml-tutorial.html for more information."
+        )
 
     # Do full validation by importing the resulting mechanism
     if not inputFile:
