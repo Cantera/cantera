@@ -183,7 +183,9 @@ public:
         return m_thirdBodyConcentration;
     }
 
-    //! Set buffered value of third-body concentration
+    //! Set third-body concentration without a Kinetics object (for testing purposes).
+    //! Once the object is linked to a Kinetics object, the third-body concentration
+    //! is set during the update method, which will overwrite this value.
     void setThirdBodyConcentration(double value) {
         m_thirdBodyConcentration = value;
     }

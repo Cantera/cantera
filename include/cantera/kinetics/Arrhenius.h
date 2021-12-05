@@ -317,9 +317,9 @@ public:
         return m_deltaH_R * GasConstant;
     }
 
-    //! Set enthalpy change without Kinetics object. In most cases, the enthalpy
-    //! change is set during the update method, which, however, requires the
-    //! object to be linked to a Kinetics object.
+    //! Set enthalpy change without a Kinetics object (for testing purposes).
+    //! Once the object is linked to a Kinetics object, the enthalpy change
+    //! is set during the update method, which will overwrite this value.
     void setDeltaH(double dH) {
         m_deltaH_R = dH / GasConstant;
     }
