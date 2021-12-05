@@ -268,6 +268,10 @@ cdef class BlowersMaselRate(ReactionRate):
     property delta_enthalpy:
         """
         Enthalpy change of reaction used to adjust activation energy [J/kmol]
+
+        Note: this method does not update the internal state; once a `BlowersMaselRate`
+        evaluator is linked to a `Kinetics` object, the enthalpy change is updated
+        automatically, which will overwrite a value assigned by the setter.
         """
         def __get__(self):
             return self.cxx_object().deltaH()
@@ -375,7 +379,9 @@ cdef class FalloffRate(ReactionRate):
         Get/Set the effective third-body concentration used for the reaction
         rate calculation.
 
-        Note: this method does not update internal state
+        Note: this method does not update the internal state; once a `FalloffRate`
+        evaluator is linked to a `Kinetics` object, the third-body concentration is
+        updated automatically, which will overwrite a value assigned by the setter.
         """
         def __get__(self):
             return self.falloff.thirdBodyConcentration()
