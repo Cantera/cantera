@@ -1467,6 +1467,14 @@ cdef class ThermoPhase(_SolutionBase):
             self.thermo.setState_SV(S / self._mass_factor(),
                                     V / self._mass_factor())
 
+    property Te:
+        """Get/Set electron Temperature [K]."""
+        def __get__(self):
+            return self.thermo.electronTemperature()
+        def __set__(self, value):
+            Te = value if value is not None else self.Te
+            self.thermo.setElectronTemperature(Te)
+
     # partial molar / non-dimensional properties
     property partial_molar_enthalpies:
         """Array of species partial molar enthalpies [J/kmol]."""
