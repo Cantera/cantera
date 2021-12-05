@@ -751,11 +751,10 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
     // Try to look up the standard entropy if not given. Fail silently.
     if (entropy298 == ENTROPY298_UNKNOWN) {
         try {
-            XML_Node* db = get_XML_File("elements.xml");
-            XML_Node* elnode = db->findByAttr("name", symbol);
-            if (elnode && elnode->hasChild("entropy298")) {
-                entropy298 = fpValueCheck(elnode->child("entropy298")["value"]);
-            }
+            const static AnyMap db = AnyMap::fromYamlFile(
+                "element-standard-entropies.yaml");
+            const AnyMap& elem = db["elements"].getMapWhere("symbol", symbol);
+            entropy298 = elem.convert("entropy298", "J/kmol/K", ENTROPY298_UNKNOWN);
         } catch (CanteraError&) {
         }
     }

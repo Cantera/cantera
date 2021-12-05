@@ -1,0 +1,283 @@
+description: |-
+  Standard entropies of the elements in their standard states. Used by the
+  `compound-lattice` ThermoPhase model and the `HKFT` pressure dependent standard state
+  (PDSS) model.
+
+  All values are in J/kmol/K.
+
+source: |-
+  Chase, M W, Jr. (1998). NIST-JANAF Thermochemical Tables, Fourth Edition, J.
+      Phys. Chem. Ref. Data, Monograph 9, pp. 1-1951. Data also available from
+      https://janaf.nist.gov/periodic_table.html.
+
+  Robie, R A, and Hemingway, B S (1995). Thermodynamic Properties of Minerals and
+      Related Substances, USGS Bulletin 2131. doi:10.3133/b2131.
+
+  Robie, R A, and Hemingway, B S (1979), Thermodynamic Properties of Minerals and
+      Related Substances at 298.15 K and 1 bar (10^5 Pascals) Pressure and at Higher
+      Temperatures, USGS Bulletin 1452. doi:10.3133/b1452
+
+  Guillaumont, R; Fanghänel, T; Neck, V; Fuger, J; Palmer, D A; Grenthe, I; Rand, M H
+      (2003). Update on the Chemical Thermodynamics of Uranium, Neptunium, Plutonium,
+      Americium and Technetium. OECD Nuclear Energy Agency.
+
+elements:
+- symbol: H
+  entropy298: 65.340e+03
+  source: 1/2 H2 gas from Chase (1998), p. 1310.
+- symbol: D
+  entropy298: 72.480e+03
+  source: 1/2 D2 gas from Chase (1998), p. 1040.
+- symbol: Tr
+  source: No reference state data found for Tr.
+- symbol: He
+  entropy298: 126.152e+03
+  source: Chase (1998), p. 1361.
+- symbol: Li
+  entropy298: 29.085e+03
+  source: Chase (1998), p. 1493.
+- symbol: Be
+  entropy298: 9.440e+03
+  source: Chase (1998), p. 361.
+- symbol: B
+  entropy298: 5.834e+03
+  source: Chase (1998), p. 177.
+- symbol: C
+  entropy298: 5.740e+03
+  source: Chase (1998), p. 550.
+- symbol: N
+  entropy298: 95.8045e+03
+  source: 1/2 N2 gas from Chase (1998), p. 1621.
+- symbol: O
+  entropy298: 102.5735e+03
+  source: 1/2 O2 gas from Chase (1998), p. 1745.
+- symbol: F
+  entropy298: 101.3945e+03
+  source: Chase (1998), p. 1099.
+- symbol: Ne
+  entropy298: 146.327e+03
+  source: Chase (1998), p. 1695.
+- symbol: Na
+  entropy298: 51.455e+03
+  source: Chase (1998), p. 1637.
+- symbol: Mg
+  entropy298: 32.671e+03
+  source: Chase (1998), p. 1529.
+- symbol: Al
+  entropy298: 28.275e+03
+  source: Chase (1998), p. 59.
+- symbol: Si
+  entropy298: 18.820e+03
+  source: Chase (1998), p. 1881.
+- symbol: P
+  entropy298: 41.077e+03
+  source: Chase (1998), p. 1817.
+- symbol: S
+  entropy298: 32.056e+03
+  source: Chase (1998), p. 1859.
+- symbol: Cl
+  entropy298: 111.535e+03
+  source: 1/2 Cl2 gas from Chase (1998), p. 811.
+- symbol: Ar
+  entropy298: 154.845e+03
+  source: Chase (1998), p. 175.
+- symbol: K
+  entropy298: 64.670e+03
+  source: Chase (1998), p. 1465.
+- symbol: Ca
+  entropy298: 41.588e+03
+  source: Chase (1998), p. 703.
+- symbol: Sc
+  source: No reference state data for this element.
+- symbol: Ti
+  entropy298: 30.759e+03
+  source: Chase (1998), p. 1907.
+- symbol: V
+  entropy298: 28.936e+03
+  source: Chase (1998), p. 1917.
+- symbol: Cr
+  entropy298: 23.618e+03
+  source: Chase (1998), p. 959.
+- symbol: Mn
+  entropy298: 32.010e+03
+  source: Chase (1998), p. 1571.
+- symbol: Fe
+  entropy298: 27.321e+03
+  source: Chase (1998), p. 1221.
+- symbol: Co
+  entropy298: 30.067e+03
+  source: Chase (1998), p. 943.
+- symbol: Ni
+  entropy298: 29.870e+03
+  source: Chase (1998), p. 1697.
+- symbol: Cu
+  entropy298: 33.164e+03
+  source: Chase (1998), p. 1005.
+- symbol: Zn
+  entropy298: 41.717e+03
+  source: Chase (1998), p. 1935.
+- symbol: Ga
+  entropy298: 40.838e+03
+  source: Chase (1998), p. 1253.
+- symbol: Ge
+  entropy298: 31.09e+03
+  source: Robie and Hemingway (1995), p. 88.
+- symbol: As
+  entropy298: 35.69e+03
+  source: Robie and Hemingway (1995), p. 69.
+- symbol: Se
+  entropy298: 42.27e+03
+  source: Robie and Hemingway (1995), p. 107
+- symbol: Br
+  entropy298: 76.103e+03
+  source: 1/2 Br2 gas from Chase (1998), p. 470.
+- symbol: Kr
+  entropy298: 164.084e+03
+  source: Chase (1998), p. 1491.
+- symbol: Rb
+  entropy298: 76.778e+03
+  source: Chase (1998), p. 1849.
+- symbol: Sr
+  entropy298: 55.694e+03
+  source: Chase (1998), p. 1891.
+- symbol: Y
+  source: No reference state data found for Y.
+- symbol: Zr
+  entropy298: 38.869e+03
+  source: Chase (1998), p. 1943.
+- symbol: Nb
+  entropy298: 36.464e+03
+  source: Chase (1998), p. 1675.
+- symbol: Mo
+  entropy298: 28.605e+03
+  source: Chase (1998), p. 1577.
+- symbol: Ru
+  entropy298: 28.53e+03
+  source: Robie and Hemingway (1979), p. 92.
+- symbol: Rh
+  entropy298: 31.54e+03
+  source: Robie and Hemingway (1979), p. 90.
+- symbol: Pd
+  entropy298: 37.82e+03
+  source: Robie and Hemingway (1979), p. 84.
+- symbol: Ag
+  entropy298: 42.55e+03
+  source: Robie and Hemingway (1995), p. 67.
+- symbol: Cd
+  entropy298: 51.80e+03
+  source: Robie and Hemingway (1995), p. 79.
+- symbol: In
+  entropy298: 57.84e+03
+  source: Robie and Hemingway (1979), p. 64.
+- symbol: Sn
+  entropy298: 51.18e+03
+  source: Robie and Hemingway (1995), p. 109.
+- symbol: Sb
+  entropy298: 45.52e+03
+  source: Robie and Hemingway (1995), p. 106.
+- symbol: Te
+  entropy298: 49.71e+03
+  source: Robie and Hemingway (1995), p. 111.
+- symbol: I
+  entropy298: 58.071e+03
+  source: 1/2 I2 liquid from Chase (1998), p. 1413.
+- symbol: Xe
+  entropy298: 169.684e+03
+  source: Chase (1998), p. 1933.
+- symbol: Cs
+  entropy298: 85.147e+03
+  source: Chase (1998), p. 977.
+- symbol: Ba
+  entropy298: 62.475e+03
+  source: Chase (1998), p. 319.
+- symbol: La
+  entropy298: 56.90e+03
+  source: Robie and Hemingway (1979), p. 68.
+- symbol: Ce
+  entropy298: 72.00e+03
+  source: Robie and Hemingway (1995), p. 80.
+- symbol: Pr
+  entropy298: 73.93e+03
+  source: Robie and Hemingway (1979), p. 85.
+- symbol: Nd
+  entropy298: 71.09e+03
+  source: Robie and Hemingway (1979), p. 77.
+- symbol: Sm
+  entropy298: 69.50e+03
+  source: Robie and Hemingway (1979), p. 100.
+- symbol: Eu
+  entropy298: 80.79e+03
+  source: Robie and Hemingway (1979), p. 52.
+- symbol: Gd
+  entropy298: 40.83e+03
+  source: Robie and Hemingway (1979), p. 55.
+- symbol: Tb
+  entropy298: 73.30e+03
+  source: Robie and Hemingway (1979), p. 104.
+- symbol: Dy
+  entropy298: 74.89e+03
+  source: Robie and Hemingway (1979), p. 50.
+- symbol: Ho
+  entropy298: 75.02e+03
+  source: Robie and Hemingway (1979), p. 62.
+- symbol: Er
+  entropy298: 73.18e+03
+  source: Robie and Hemingway (1979), p. 51.
+- symbol: Tm
+  entropy298: 74.01e+03
+  source: Robie and Hemingway (1979), p. 109.
+- symbol: Yb
+  entropy298: 59.83e+03
+  source: Robie and Hemingway (1979), p. 115.
+- symbol: Lu
+  entropy298: 50.96e+03
+  source: Robie and Hemingway (1979), p. 70.
+- symbol: Hf
+  entropy298: 43.560e+03
+  source: Chase (1998), p. 1363.
+- symbol: Ta
+  entropy298: 41.471e+03
+  source: Chase (1998), p. 1899.
+- symbol: W
+  entropy298: 32.660e+03
+  source: Chase (1998), p. 1925.
+- symbol: Re
+  entropy298: 36.53e+03
+  source: Robie and Hemingway (1979), p. 89.
+- symbol: Os
+  entropy298: 32.64e+03
+  source: Robie and Hemingway (1979), p. 81.
+- symbol: Ir
+  entropy298: 35.48e+03
+  source: Robie and Hemingway (1979), p. 65.
+- symbol: Pt
+  entropy298: 41.63e+03
+  source: Robie and Hemingway (1995), p. 103.
+- symbol: Au
+  entropy298: 47.49e+03
+  source: Robie and Hemingway (1995), p. 70.
+- symbol: Hg
+  entropy298: 76.028e+03
+  source: Chase (1998), p. 1373.
+- symbol: Tl
+  entropy298: 64.18e+03
+  source: Robie and Hemingway (1979), p. 108.
+- symbol: Pb
+  entropy298: 64.785e+03
+  source: Chase (1998), p. 1835.
+- symbol: Bi
+  entropy298: 56.74e+03
+  source: Robie and Hemingway (1995), p. 74.
+- symbol: Th
+  entropy298: 51.080e+03
+  source: Guillaumont et al., (2003), Table 8-1, p. 145.
+- symbol: Pa
+  source: No standard state thermodynamic data for this element.
+- symbol: U
+  entropy298: 50.20e+03
+  source: Guillaumont et al. (2003), Table 3-1, p. 45.
+- symbol: E
+  entropy298: 0.0e+03
+  source: |-
+    The entropy is zero so as not to overcount. The 1/2 H2(g) entropy is
+    handled elsewhere.
