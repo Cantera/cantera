@@ -437,11 +437,16 @@ config_options = [
         """Enable extra compiler optimizations specified by the
            'optimize_flags' variable, instead of the flags specified by the
            'no_optimize_flags' variable.""",
-        {"icx": False, "default": True}),
+        True),
     Option(
         "optimize_flags",
         "Additional compiler flags passed to the C/C++ compiler when 'optimize=yes'.",
-        {"cl": "/O2", "gcc": "-O3 -Wno-inline", "default": "-O3"}),
+        {
+            "cl": "/O2",
+            "icx": "-O3 -fp-model precise", # cannot assume finite math
+            "gcc": "-O3 -Wno-inline",
+            "default": "-O3",
+        }),
     Option(
         "no_optimize_flags",
         "Additional compiler flags passed to the C/C++ compiler when 'optimize=no'.",
@@ -473,7 +478,6 @@ config_options = [
            of Cantera (for example, excluding code in the 'ext' directory).""",
         {
             "cl": "/W3",
-            "icx": "-Wall -Wno-tautological-constant-compare",
             "default": "-Wall",
         }),
     Option(
