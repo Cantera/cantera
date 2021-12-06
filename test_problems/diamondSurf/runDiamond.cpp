@@ -31,6 +31,11 @@ int main(int argc, char** argv)
     }
     std::string infile(argv[1]);
     int i, k;
+    if (boost::algorithm::ends_with(infile, "xml") ||
+        boost::algorithm::ends_with(infile, "cti"))
+    {
+        suppress_deprecation_warnings();
+    }
 
     try {
         shared_ptr<ThermoPhase> gas(newPhase(infile, "gas"));

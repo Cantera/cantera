@@ -772,6 +772,11 @@ void XML_Node::build(const std::string& filename)
 
 void XML_Node::build(std::istream& f, const std::string& filename)
 {
+    warn_deprecated("XML_Node::build",
+        "\nThe CTI and XML input file formats are deprecated and will be removed in\n"
+        "Cantera 3.0. Use 'cti2yaml.py' or 'ctml2yaml.py' to convert CTI or XML input\n"
+        "files to the YAML format. See https://cantera.org/tutorials/legacy2yaml.html\n"
+        "for more information.");
     m_filename = filename;
     XML_Reader r(f);
     XML_Node* node = this;
@@ -1032,6 +1037,11 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
 
 void XML_Node::write(std::ostream& s, const int level, int numRecursivesAllowed) const
 {
+    warn_deprecated("XML_Node::write",
+        "\nThe CTI and XML input file formats are deprecated and will be removed in\n"
+        "Cantera 3.0. Use 'cti2yaml.py' or 'ctml2yaml.py' to convert CTI or XML input\n"
+        "files to the YAML format. See https://cantera.org/tutorials/legacy2yaml.html\n"
+        "for more information.");
     write_int(s, level, numRecursivesAllowed);
     s << endl;
 }

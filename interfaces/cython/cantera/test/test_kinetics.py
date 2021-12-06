@@ -955,6 +955,7 @@ class TestReaction(utilities.CanteraTest):
         self.gas.TP = 900, 2*ct.one_atm
         self.species = ct.Species.listFromFile('h2o2.yaml')
 
+    @utilities.allow_deprecated
     def test_fromCti(self):
         r = ct.Reaction.fromCti('''three_body_reaction('2 O + M <=> O2 + M',
             [1.200000e+11, -1.0, 0.0], efficiencies='AR:0.83 H2:2.4 H2O:15.4')''')
@@ -968,6 +969,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertIn('O2', r)
         self.assertNotIn('H2O', r)
 
+    @utilities.allow_deprecated
     def test_fromXml(self):
         import xml.etree.ElementTree as ET
         root = ET.parse(self.cantera_data_path / "h2o2.xml").getroot()
@@ -1003,6 +1005,7 @@ class TestReaction(utilities.CanteraTest):
         eq2 = [r.equation for r in self.gas.reactions()]
         self.assertEqual(eq1, eq2)
 
+    @utilities.allow_deprecated
     def test_listFromCti(self):
         gas = ct.Solution("h2o2.xml", transport_model=None)
         R = ct.Reaction.listFromCti((self.cantera_data_path / "h2o2.cti").read_text())
@@ -1010,6 +1013,7 @@ class TestReaction(utilities.CanteraTest):
         eq2 = [r.equation for r in gas.reactions()]
         self.assertEqual(eq1, eq2)
 
+    @utilities.allow_deprecated
     def test_listFromXml(self):
         gas = ct.Solution("h2o2.xml", transport_model=None)
         R = ct.Reaction.listFromXml((self.cantera_data_path / "h2o2.xml").read_text())
