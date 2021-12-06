@@ -48,10 +48,10 @@ class InertialWallReactor(ct.DelegatedIdealGasReactor):
         self.v_wall = y[self.i_wall]
         self.walls[0].set_velocity(self.v_wall)
 
-    def after_eval(self, t, ydot):
+    def after_eval(self, t, LHS, RHS):
         # Calculate the time derivative for the additional equation
         a = self.k_wall * (self.thermo.P - self.neighbor.thermo.P)
-        ydot[self.i_wall] = a
+        RHS[self.i_wall] = a
 
     def before_component_index(self, name):
         # Other components are handled by the method from the base Reactor class
