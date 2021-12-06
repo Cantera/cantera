@@ -1,0 +1,83 @@
+description: Totally made up data just to test the CTML->YAML converter
+generator: ctml2yaml
+cantera-version: 2.6.0a3
+date: Sat, 18 Dec 2021 14:14:41 -0500
+input-files: [test/data/IdealMolalSolnPhaseExample.xml]
+
+phases:
+- name: NaCl_electrolyte
+  elements: [O, H, C, E, Fe, Si, N, Na, Cl]
+  species:
+  - species_waterSolution: [H2O(L), Cl-, H+, Na+, OH-]
+  thermo: ideal-molal-solution
+  cutoff:
+    model: none
+    gamma_o: 1.0
+    gamma_k: 1.0
+    X_o: 1.0
+    c_0: 1.0
+    slope_f: 1.0
+    slope_g: 1.0
+  state: {T: 298.15 K, P: 1.01325e+05 Pa, molalities: {Na+: 6.0954, Cl-: 6.0954, H+: 2.1628e-09,
+      OH-: 1.3977e-06}}
+
+species_waterSolution:
+- name: H2O(L)
+  composition: {H: 2.0, O: 1.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [273.15, 600.0]
+    data:
+    - [72.5575005, -0.662445402, 2.56198746e-03, -4.36591923e-06, 2.78178981e-09,
+      -4.18865499e+04, -288.280137]
+  equation-of-state:
+    model: liquid-water-IAPWS95
+- name: Na+
+  composition: {Na: 1.0, E: -1.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [293.15, 593.15]
+    data:
+    - [-5.799347558e+04, 3.05112604e+05, -5.922221591e+05, 4.019779827e+05, 804.419598,
+      1.062524901e+04, -1.337962298e+05]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 8.34e-03
+- name: Cl-
+  composition: {Cl: 1.0, E: 1.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [298.0, 623.15]
+    data:
+    - [5.66962042e+04, -2.97835978e+05, 5.81426549e+05, -4.01759991e+05, -804.301136,
+      -1.08738257e+04, 1.30650697e+05]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 8.34e-03
+- name: H+
+  composition: {H: 1.0, E: -1.0}
+  thermo:
+    model: piecewise-Gibbs
+    reference-pressure: 1.0e+05
+    h0: 0.0 cal/mol
+    T-min: 273.15
+    T-max: 625.15
+    dimensionless: true
+    data:
+      273.15: 0.0
+      298.15: 0.0
+      623.15: 0.0
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.0
+- name: OH-
+  composition: {O: 1.0, H: 1.0, E: 1.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [298.0, 623.15]
+    data:
+    - [4.467499961e+04, -2.349430414e+05, 4.60522826e+05, -3.206951836e+05, -638.5044716,
+      -8683.955813, 1.028742667e+05]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 8.34e-03

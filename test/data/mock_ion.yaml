@@ -1,0 +1,38 @@
+generator: ctml2yaml
+cantera-version: 2.6.0a3
+date: Sat, 18 Dec 2021 15:40:33 -0500
+input-files: [test/data/mock_ion.xml]
+
+phases:
+- name: mock_ion_phase
+  elements: [K, Cl, E]
+  species: [K+, Cl-]
+  thermo: ions-from-neutral-molecule
+  neutral-phase: mock_neutral
+- name: mock_neutral
+  elements: [K, Cl]
+  species: [KCl(L)]
+  thermo: Margules
+
+species:
+- name: K+
+  composition: {K: 1.0, E: -1.0}
+  equation-of-state:
+    model: ions-from-neutral-molecule
+    multipliers: {KCl(L): 1.2}
+- name: Cl-
+  composition: {Cl: 1.0, E: 1.0}
+  equation-of-state:
+    model: ions-from-neutral-molecule
+    multipliers: {KCl(L): 1.5}
+    special-species: true
+- name: KCl(L)
+  composition: {K: 1.0, Cl: 1.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [700.0, 2000.0]
+    data:
+    - [73.59698, 0.0, 0.0, 0.0, 0.0, -443.7341, 175.7209]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 37.57 cm^3/gmol

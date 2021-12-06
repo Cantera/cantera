@@ -812,11 +812,19 @@ class cti2yamlTest(utilities.CanteraTest):
         self.checkTransport(ctiGas, yamlGas, [298, 1001, 2400])
 
 class ctml2yamlTest(utilities.CanteraTest):
+    def convert(self, basename, src_dir=None):
+        if src_dir is None:
+            src_dir = self.test_data_path
+
+        ctml2yaml.convert(
+            Path(src_dir) / f"{basename}.xml",
+            self.test_work_path / f"{basename}-from-xml.yaml",
+        )
 
     def checkConversion(self, basename, cls=ct.Solution, ctmlphases=(),
                         yamlphases=(), **kwargs):
-        ctmlPhase = cls(basename + '.xml', adjacent=ctmlphases, **kwargs)
-        yamlPhase = cls(basename + '.yaml', adjacent=yamlphases, **kwargs)
+        ctmlPhase = cls(f"{basename}-from-xml.yaml", adjacent=ctmlphases, **kwargs)
+        yamlPhase = cls(f"{basename}.yaml", adjacent=yamlphases, **kwargs)
 
         self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
         self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
@@ -884,10 +892,7 @@ class ctml2yamlTest(utilities.CanteraTest):
 
     @utilities.slow_test
     def test_gri30(self):
-        ctml2yaml.convert(
-            self.cantera_data_path / "gri30.xml",
-            self.test_work_path / "gri30.yaml",
-        )
+        self.convert("gri30", self.cantera_data_path)
         ctmlPhase, yamlPhase = self.checkConversion('gri30')
         X = {'O2': 0.3, 'H2': 0.1, 'CH4': 0.2, 'CO2': 0.4}
         ctmlPhase.X = X
@@ -897,19 +902,14 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.checkTransport(ctmlPhase, yamlPhase, [298, 1001, 2400])
 
     def test_pdep(self):
-        ctml2yaml.convert(
-            self.test_data_path / "pdep-test.xml",
-            self.test_work_path / "pdep-test.yaml",
-        )
+        self.convert("pdep-test")
         ctmlPhase, yamlPhase = self.checkConversion('pdep-test')
+        # Chebyshev coefficients in XML are truncated to 6 digits, limiting accuracy
         self.checkKinetics(ctmlPhase, yamlPhase, [300, 1000, 2200],
-                           [100, ct.one_atm, 2e5, 2e6, 9.9e6])
+                           [100, ct.one_atm, 2e5, 2e6, 9.9e6], tol=2e-4)
 
     def test_ptcombust(self):
-        ctml2yaml.convert(
-            self.cantera_data_path / "ptcombust.xml",
-            self.test_work_path / "ptcombust.yaml",
-        )
+        self.convert("ptcombust", self.cantera_data_path)
         ctmlGas, yamlGas = self.checkConversion('ptcombust')
         ctmlSurf, yamlSurf = self.checkConversion('ptcombust', ct.Interface,
             name='Pt_surf', ctmlphases=[ctmlGas], yamlphases=[yamlGas])
@@ -919,10 +919,7 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.checkKinetics(ctmlSurf, yamlSurf, [500, 1200], [1e4, 3e5])
 
     def test_ptcombust_motzwise(self):
-        ctml2yaml.convert(
-            self.test_data_path / "ptcombust-motzwise.xml",
-            self.test_work_path / "ptcombust-motzwise.yaml",
-        )
+        self.convert("ptcombust-motzwise")
         ctmlGas, yamlGas = self.checkConversion('ptcombust-motzwise')
         ctmlSurf, yamlSurf = self.checkConversion('ptcombust-motzwise', ct.Interface,
             name='Pt_surf', ctmlphases=[ctmlGas], yamlphases=[yamlGas])
@@ -932,10 +929,7 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.checkKinetics(ctmlSurf, yamlSurf, [500, 1200], [1e4, 3e5])
 
     def test_sofc(self):
-        ctml2yaml.convert(
-            self.cantera_data_path / "sofc.xml",
-            self.test_work_path / "sofc.yaml",
-        )
+        self.convert("sofc", self.cantera_data_path)
         ctmlGas, yamlGas = self.checkConversion('sofc')
         ctmlMetal, yamlMetal = self.checkConversion('sofc', name='metal')
         ctmlOxide, yamlOxide = self.checkConversion('sofc', name='oxide_bulk')
@@ -957,24 +951,14 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.checkKinetics(ctml_tpb, yaml_tpb, [900, 1000, 1100], [1e5])
 
     def test_liquidvapor(self):
-        output_file = self.test_work_path / "liquidvapor.yaml"
-        ctml2yaml.convert(
-            self.cantera_data_path / "liquidvapor.xml", output_file,
-        )
-        for name in ['water', 'nitrogen', 'methane', 'hydrogen', 'oxygen',
-                     'hfc134a', 'carbondioxide', 'heptane']:
+        self.convert("liquidvapor", self.cantera_data_path)
+        for name in ['water', 'nitrogen', 'methane', 'hydrogen', 'oxygen', 'heptane']:
             ctmlPhase, yamlPhase = self.checkConversion('liquidvapor', name=name)
             self.checkThermo(ctmlPhase, yamlPhase,
                              [1.3 * ctmlPhase.min_temp, 0.7 * ctmlPhase.max_temp])
-        # The output file must be removed after this test because it shadows
-        # a file distributed with Cantera that is used in other tests.
-        output_file.unlink()
 
     def test_Redlich_Kwong_CO2(self):
-        ctml2yaml.convert(
-            self.test_data_path / "co2_RK_example.xml",
-            self.test_work_path / "co2_RK_example.yaml",
-        )
+        self.convert("co2_RK_example")
         ctmlGas, yamlGas = self.checkConversion('co2_RK_example')
         for P in [1e5, 2e6, 1.3e7]:
             yamlGas.TP = ctmlGas.TP = 300, P
@@ -982,20 +966,14 @@ class ctml2yamlTest(utilities.CanteraTest):
 
     @utilities.slow_test
     def test_Redlich_Kwong_ndodecane(self):
-        ctml2yaml.convert(
-            self.cantera_data_path / "nDodecane_Reitz.xml",
-            self.test_work_path / "nDodecane_Reitz.yaml",
-        )
+        self.convert("nDodecane_Reitz", self.cantera_data_path)
         ctmlGas, yamlGas = self.checkConversion('nDodecane_Reitz')
         self.checkThermo(ctmlGas, yamlGas, [300, 400, 500])
         self.checkKinetics(ctmlGas, yamlGas, [300, 500, 1300], [1e5, 2e6, 1.4e7],
                            1e-6)
 
     def test_diamond(self):
-        ctml2yaml.convert(
-            self.cantera_data_path / "diamond.xml",
-            self.test_work_path / "diamond.yaml",
-        )
+        self.convert("diamond", self.cantera_data_path)
         ctmlGas, yamlGas = self.checkConversion('diamond', name='gas')
         ctmlSolid, yamlSolid = self.checkConversion('diamond', name='diamond')
         ctmlSurf, yamlSurf = self.checkConversion('diamond',
@@ -1007,10 +985,7 @@ class ctml2yamlTest(utilities.CanteraTest):
 
     def test_lithium_ion_battery(self):
         name = 'lithium_ion_battery'
-        ctml2yaml.convert(
-            self.cantera_data_path / (name + ".xml"),
-            self.test_work_path / (name + ".yaml"),
-        )
+        self.convert(name, self.cantera_data_path)
         ctmlAnode, yamlAnode = self.checkConversion(name, name='anode')
         ctmlCathode, yamlCathode = self.checkConversion(name, name='cathode')
         ctmlMetal, yamlMetal = self.checkConversion(name, name='electron')
@@ -1045,82 +1020,56 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.checkKinetics(ctmlCathodeInt, yamlCathodeInt, [300], [1e5])
 
     def test_noxNeg(self):
-        ctml2yaml.convert(
-            self.test_data_path / "noxNeg.xml",
-            self.test_work_path / "noxNeg.yaml",
-        )
+        self.convert("noxNeg")
         ctmlGas, yamlGas = self.checkConversion('noxNeg')
         self.checkThermo(ctmlGas, yamlGas, [300, 1000])
         self.checkKinetics(ctmlGas, yamlGas, [300, 1000], [1e5])
 
     def test_ch4_ion(self):
-        ctml2yaml.convert(
-            self.test_data_path / "ch4_ion.xml",
-            self.test_work_path / "ch4_ion.yaml",
-        )
+        self.convert("ch4_ion")
         ctmlGas, yamlGas = self.checkConversion("ch4_ion")
         self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
         self.checkKinetics(ctmlGas, yamlGas, [900, 1800], [2e5, 20e5])
         self.checkTransport(ctmlGas, yamlGas, [298, 1001, 2400])
 
     def test_nasa9(self):
-        ctml2yaml.convert(
-            self.test_data_path / "nasa9-test.xml",
-            self.test_work_path / "nasa9-test.yaml",
-        )
+        self.convert("nasa9-test")
         ctmlGas, yamlGas = self.checkConversion("nasa9-test")
         self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
 
     def test_chemically_activated(self):
-        ctml2yaml.convert(
-            self.test_data_path / "chemically-activated-reaction.xml",
-            self.test_work_path / "chemically-activated-reaction.yaml",
-        )
+        self.convert("chemically-activated-reaction")
         ctmlGas, yamlGas = self.checkConversion("chemically-activated-reaction")
         self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
         self.checkKinetics(ctmlGas, yamlGas, [900, 1800], [2e5, 20e5])
 
     def test_explicit_forward_order(self):
-        ctml2yaml.convert(
-            self.test_data_path / "explicit-forward-order.xml",
-            self.test_work_path / "explicit-forward-order.yaml",
-        )
+        self.convert("explicit-forward-order")
         ctmlGas, yamlGas = self.checkConversion("explicit-forward-order")
         self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
-        self.checkKinetics(ctmlGas, yamlGas, [900, 1800], [2e5, 20e5])
+        # Accuracy limited by precision of ck2cti
+        self.checkKinetics(ctmlGas, yamlGas, [900, 1800], [2e5, 20e5], tol=2e-7)
 
     def test_explicit_reverse_rate(self):
-        ctml2yaml.convert(
-            self.test_data_path / "explicit-reverse-rate.xml",
-            self.test_work_path / "explicit-reverse-rate.yaml",
-        )
+        self.convert("explicit-reverse-rate")
         ctmlGas, yamlGas = self.checkConversion("explicit-reverse-rate")
         self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
         self.checkKinetics(ctmlGas, yamlGas, [900, 1800], [2e5, 20e5])
 
     def test_explicit_third_bodies(self):
-        ctml2yaml.convert(
-            self.test_data_path / "explicit-third-bodies.xml",
-            self.test_work_path / "explicit-third-bodies.yaml",
-        )
+        self.convert("explicit-third-bodies")
         ctmlGas, yamlGas = self.checkConversion("explicit-third-bodies")
         self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
         self.checkKinetics(ctmlGas, yamlGas, [900, 1800], [2e5, 20e5])
 
     def test_fractional_stoich_coeffs(self):
-        ctml2yaml.convert(
-            self.test_data_path / "frac.xml",
-            self.test_work_path / "frac.yaml",
-        )
+        self.convert("frac")
         ctmlGas, yamlGas = self.checkConversion("frac")
         self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
         self.checkKinetics(ctmlGas, yamlGas, [900, 1800], [2e5, 20e5])
 
     def test_water_IAPWS95_thermo(self):
-        ctml2yaml.convert(
-            self.test_data_path / "liquid-water.xml",
-            self.test_work_path / "liquid-water.yaml",
-        )
+        self.convert("liquid-water")
         ctmlWater, yamlWater = self.checkConversion("liquid-water")
         self.checkThermo(ctmlWater, yamlWater, [300, 500, 1300, 2000], pressure=22064000.0)
         self.assertEqual(ctmlWater.transport_model, yamlWater.transport_model)
@@ -1135,9 +1084,9 @@ class ctml2yamlTest(utilities.CanteraTest):
 
     def test_hmw_nacl_phase(self):
         basename = "HMW_NaCl_sp1977_alt"
-        xml_file = self.test_data_path / (basename + ".xml")
+        self.convert(basename)
+        xml_file = self.test_work_path / (basename + "-from-xml.yaml")
         yaml_file = self.test_data_path / (basename + ".yaml")
-        ctml2yaml.convert(xml_file, yaml_file)
 
         # Can only be loaded by ThermoPhase due to a bug in TransportFactory
         # ThermoPhase does not have reactions (neither does the input file)
@@ -1149,18 +1098,12 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
     def test_NaCl_solid_phase(self):
-        ctml2yaml.convert(
-            self.test_data_path / "NaCl_Solid.xml",
-            self.test_work_path / "NaCl_Solid.yaml",
-        )
+        self.convert("NaCl_Solid")
         ctmlPhase, yamlPhase = self.checkConversion("NaCl_Solid")
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500, 1300, 2000])
 
     def test_DH_NaCl_phase(self):
-        ctml2yaml.convert(
-            self.test_data_path / "debye-huckel-all.xml",
-            self.test_work_path / "debye-huckel-all.yaml",
-        )
+        self.convert("debye-huckel-all")
         for name in [
             "debye-huckel-dilute",
             "debye-huckel-B-dot-ak",
@@ -1171,18 +1114,14 @@ class ctml2yamlTest(utilities.CanteraTest):
             # Can only be loaded by ThermoPhase due to a bug in TransportFactory
             # ThermoPhase does not have reactions (neither does the input file)
             # so we can't use checkConversion
-            ctmlPhase = ct.ThermoPhase("debye-huckel-all.xml", name=name)
+            ctmlPhase = ct.ThermoPhase("debye-huckel-all-from-xml.yaml", name=name)
             yamlPhase = ct.ThermoPhase("debye-huckel-all.yaml", name=name)
             self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
             self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
             self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
     def test_Maskell_solid_soln(self):
-        ctml2yaml.convert(
-            self.test_data_path / "MaskellSolidSolnPhase_valid.xml",
-            self.test_work_path / "MaskellSolidSolnPhase_valid.yaml",
-        )
-
+        self.convert("MaskellSolidSolnPhase_valid")
         ctmlPhase, yamlPhase = self.checkConversion("MaskellSolidSolnPhase_valid")
         # Maskell phase doesn't support partial molar properties, so just check density
         for T in [300, 500, 1300, 2000]:
@@ -1191,11 +1130,8 @@ class ctml2yamlTest(utilities.CanteraTest):
             self.assertNear(ctmlPhase.density, yamlPhase.density)
 
     def test_mock_ion(self):
-        ctml2yaml.convert(
-            self.test_data_path / "mock_ion.xml",
-            self.test_work_path / "mock_ion.yaml",
-        )
-        ctmlPhase = ct.ThermoPhase("mock_ion.xml")
+        self.convert("mock_ion")
+        ctmlPhase = ct.ThermoPhase("mock_ion-from-xml.yaml")
         yamlPhase = ct.ThermoPhase("mock_ion.yaml")
         # Due to changes in how the species elements are specified, the composition
         # of the species differs from XML to YAML (electrons are used to specify charge
@@ -1212,37 +1148,24 @@ class ctml2yamlTest(utilities.CanteraTest):
             self.assertNear(ctmlPhase.density, yamlPhase.density)
 
     def test_Redlich_Kister(self):
-        ctml2yaml.convert(
-            self.test_data_path / "RedlichKisterVPSSTP_valid.xml",
-            self.test_work_path / "RedlichKisterVPSSTP_valid.yaml",
-        )
-
+        self.convert("RedlichKisterVPSSTP_valid")
         ctmlPhase, yamlPhase = self.checkConversion("RedlichKisterVPSSTP_valid")
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
     def test_species_names(self):
-        ctml2yaml.convert(
-            self.test_data_path / "species-names.xml",
-            self.test_work_path / "species-names.yaml",
-        )
+        self.convert("species-names")
         ctmlGas, yamlGas = self.checkConversion('species-names')
         self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
 
     def test_sri_falloff_reaction(self):
-        ctml2yaml.convert(
-            self.test_data_path / "sri-falloff.xml",
-            self.test_work_path / "sri-falloff.yaml",
-        )
+        self.convert("sri-falloff")
         ctmlGas, yamlGas = self.checkConversion("sri-falloff")
         self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
         self.checkKinetics(ctmlGas, yamlGas, [900, 1800], [2e5, 20e5])
 
     def test_vpss_and_hkft(self):
-        ctml2yaml.convert(
-            self.test_data_path / "pdss_hkft.xml",
-            self.test_work_path / "pdss_hkft.yaml",
-        )
-        ctmlPhase = ct.ThermoPhase("pdss_hkft.xml")
+        self.convert("pdss_hkft")
+        ctmlPhase = ct.ThermoPhase("pdss_hkft-from-xml.yaml")
         yamlPhase = ct.ThermoPhase("pdss_hkft.yaml")
         # Due to changes in how the species elements are specified, the
         # composition of the species differs from XML to YAML (electrons are used
@@ -1255,38 +1178,29 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
     def test_lattice_solid(self):
-        ctml2yaml.convert(
-            self.test_data_path / "Li7Si3_ls.xml",
-            self.test_work_path / "Li7Si3_ls.yaml",
-        )
+        self.convert("Li7Si3_ls")
         # Use ThermoPhase to avoid constructing a default Transport object which
         # throws an error for the LatticeSolidPhase
         basename = "Li7Si3_ls"
         name = "Li7Si3_and_Interstitials(S)"
-        ctmlPhase = ct.ThermoPhase(basename + ".xml", name=name)
+        ctmlPhase = ct.ThermoPhase(basename + "-from-xml.yaml", name=name)
         yamlPhase = ct.ThermoPhase(basename + ".yaml", name=name)
         self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
         self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
     def test_margules(self):
-        ctml2yaml.convert(
-            self.test_data_path / "LiKCl_liquid.xml",
-            self.test_work_path / "LiKCl_liquid.yaml",
-        )
+        self.convert("LiKCl_liquid")
         ctmlPhase, yamlPhase = self.checkConversion("LiKCl_liquid")
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
     def test_idealsolidsoln(self):
         with self.assertWarnsRegex(UserWarning, "SolidKinetics type is not implemented"):
-            ctml2yaml.convert(
-                self.test_data_path / "IdealSolidSolnPhaseExample.xml",
-                self.test_work_path / "IdealSolidSolnPhaseExample.yaml",
-            )
+            self.convert("IdealSolidSolnPhaseExample")
 
         # SolidKinetics is not implemented, so can't create a Kinetics class instance.
         basename = "IdealSolidSolnPhaseExample"
-        ctmlPhase = ct.ThermoPhase(basename + ".xml")
+        ctmlPhase = ct.ThermoPhase(basename + "-from-xml.yaml")
         yamlPhase = ct.ThermoPhase(basename + ".yaml")
 
         self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
@@ -1294,50 +1208,29 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
     def test_idealmolalsoln(self):
-        ctml2yaml.convert(
-            self.test_data_path / "IdealMolalSolnPhaseExample.xml",
-            self.test_work_path / "IdealMolalSolnPhaseExample.yaml",
-        )
-
+        self.convert("IdealMolalSolnPhaseExample")
         ctmlPhase, yamlPhase = self.checkConversion("IdealMolalSolnPhaseExample")
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
     def test_transport_models(self):
-        ctml2yaml.convert(
-            self.test_data_path / "transport_models_test.xml",
-            self.test_work_path / "transport_models_test.yaml",
-        )
+        self.convert("transport_models_test")
         for name in ["UnityLewis", "CK_Mix", "CK_Multi", "HighP"]:
             ctmlPhase, yamlPhase = self.checkConversion("transport_models_test", name=name)
             self.checkTransport(ctmlPhase, yamlPhase, [298, 1001, 2500])
 
     def test_nonreactant_orders(self):
-        ctml2yaml.convert(
-            self.test_data_path / "reaction-orders.xml",
-            self.test_work_path / "reaction-orders.yaml",
-        )
-
+        self.convert("reaction-orders")
         ctmlPhase, yamlPhase = self.checkConversion("reaction-orders")
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
         self.checkKinetics(ctmlPhase, yamlPhase, [300, 1001, 2500], [1e5, 10e5])
 
     def test_species_ss_temperature_polynomials(self):
-        ctml2yaml.convert(
-            self.test_data_path / "Li_Liquid.xml",
-            self.test_work_path / "Li_Liquid.yaml",
-        )
-
+        self.convert("Li_Liquid")
         ctmlPhase, yamlPhase = self.checkConversion("Li_Liquid")
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
     def test_duplicate_section_ids(self):
         with self.assertWarnsRegex(UserWarning, "Duplicate 'speciesData' id"):
-                ctml2yaml.convert(
-                    self.test_data_path / "duplicate-speciesData-ids.xml",
-                    self.test_work_path / "duplicate-speciesData-ids.yaml",
-                )
+            self.convert("duplicate-speciesData-ids")
         with self.assertWarnsRegex(UserWarning, "Duplicate 'reactionData' id"):
-                ctml2yaml.convert(
-                    self.test_data_path / "duplicate-reactionData-ids.xml",
-                    self.test_work_path / "duplicate-reactionData-ids.yaml",
-                )
+            self.convert("duplicate-reactionData-ids")

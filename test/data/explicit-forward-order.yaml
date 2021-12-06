@@ -1,0 +1,79 @@
+generator: ck2yaml
+input-files: [explicit-forward-order.inp, dummy-thermo.dat]
+cantera-version: 2.6.0a3
+date: Sun, 05 Dec 2021 22:01:27 -0500
+
+units: {length: cm, time: s, quantity: mol, activation-energy: cal/mol}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [H, C, Ar]
+  species: [H, AR, R1A, R1B, P1]
+  kinetics: gas
+  state: {T: 300.0, P: 1 atm}
+
+species:
+- name: H
+  composition: {H: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.5, 7.05332819e-13, -1.99591964e-15, 2.30081632e-18, -9.27732332e-22,
+      2.54736599e+04, -0.446682853]
+    - [2.50000001, -2.30842973e-11, 1.61561948e-14, -4.73515235e-18, 4.98197357e-22,
+      2.54736599e+04, -0.446682914]
+    note: 'NOTE: All of this thermo data is bogus'
+- name: AR
+  composition: {Ar: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [2.5, 0.0, 0.0, 0.0, 0.0, -745.375, 4.366]
+    - [2.5, 0.0, 0.0, 0.0, 0.0, -745.375, 4.366]
+    note: '120186'
+- name: R1A
+  composition: {C: 1, H: 4}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [5.14987613, -0.0136709788, 4.91800599e-05, -4.84743026e-08, 1.66693956e-11,
+      -1.02466476e+04, -4.64130376]
+    - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09, -1.0181523e-13,
+      -9468.34459, 18.437318]
+- name: R1B
+  composition: {C: 1, H: 4}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [5.14987613, -0.0136709788, 4.91800599e-05, -4.84743026e-08, 1.66693956e-11,
+      -1.02466476e+04, -4.64130376]
+    - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09, -1.0181523e-13,
+      -9468.34459, 18.437318]
+- name: P1
+  composition: {C: 2, H: 7}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [5.14987613, -0.0136709788, 4.91800599e-05, -4.84743026e-08, 1.66693956e-11,
+      -1.02466476e+04, -4.64130376]
+    - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09, -1.0181523e-13,
+      -9468.34459, 18.437318]
+
+reactions:
+- equation: R1A + R1B => H + P1  # Reaction 1
+  duplicate: true
+  rate-constant: {A: 1.0e+12, b: 0.0, Ea: 2.0e+04}
+  orders: {R1A: 1.5, R1B: 0.5}
+- equation: H + P1 => R1A + R1B  # Reaction 2
+  rate-constant: {A: 5.0e+13, b: -2.0, Ea: 5000.0}
+  orders: {P1: 0.2}
+- equation: R1A + R1B => H + P1  # Reaction 3
+  duplicate: true
+  rate-constant: {A: 1.0e+12, b: 0.0, Ea: 2.0e+04}
+  orders: {R1A: 3.0, R1B: 0.0}

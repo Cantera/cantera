@@ -1,0 +1,61 @@
+generator: ctml2yaml
+cantera-version: 2.6.0a3
+date: Sat, 18 Dec 2021 15:33:13 -0500
+input-files: [test/data/Li7Si3_ls.xml]
+
+phases:
+- name: Li7Si3_and_Interstitials(S)
+  elements: [Li, Si]
+  thermo: compound-lattice
+  composition:
+    Li7Si3(S): 1.0
+    Li7Si3_Interstitial: 1.0
+- name: Li7Si3(S)
+  elements: [Li, Si]
+  species:
+  - species_LiSi(S): [Li7Si3(S)]
+  thermo: fixed-stoichiometry
+- name: Li7Si3_Interstitial
+  elements: [Li, Si]
+  species:
+  - species_LiSi(S): [Li(i), V(i)]
+  thermo: lattice
+  site-density: 0.01046344 gmol/cm^3
+  state: {T: 725.0 K, P: 1.0 atm, X: {Li(i): 0.01, V(i): 0.99}}
+
+species_LiSi(S):
+- name: Li7Si3(S)
+  composition: {Li: 7.0, Si: 3.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [250.0, 700.0, 2700.0]
+    data:
+    - [295.73961, -6.753295, -44.538551, 29.738846, -1.022387, -348.88919, 554.35647]
+    - [250.51429, 51.125155, -28.341244, 6.242135, 1.346861, -328.46578, 498.84106]
+  equation-of-state:
+    model: constant-volume
+    density: 1.39 g/cm^3
+- name: Li7d3Si(S)
+  composition: {Li: 2.3333333333333, Si: 1.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [250.0, 700.0, 2700.0]
+    data:
+    - [98.57987, -2.2510983, -14.846184, 9.9129487, -0.34079567, -116.2964, 184.78549]
+    - [83.504763, 17.041718, -9.4470813, 2.0807117, 0.44895367, -109.48859, 166.28035]
+- name: Li(i)
+  composition: {Li: 1.0}
+  thermo:
+    model: constant-cp
+    T0: 298.15 K
+    h0: 0.0 J/gmol
+    s0: 20.0 J/mol/K
+    cp0: 20.0 J/mol/K
+- name: V(i)
+  composition: {}
+  thermo:
+    model: constant-cp
+    T0: 298.15 K
+    h0: 89.8 J/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
