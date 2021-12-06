@@ -15,6 +15,7 @@
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/ctml.h"
+#include "cantera/base/NoExitLogger.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/kinetics/importKinetics.h"
 #include "clib/Cabinet.h"
@@ -86,6 +87,12 @@ extern "C" {
         std::string smsg = f2string(msg, msglen);
         throw CanteraError(sproc, smsg);
         return -1;
+    }
+
+    status_t ctturnoffexitonerror_(integer* buflen) {
+      Cantera::Logger* noexitlog = new Cantera::NoExitLogger;
+      setLogger(noexitlog);
+      return 0;
     }
 
     //--------------- Phase ---------------------//
@@ -614,6 +621,17 @@ extern "C" {
         return 0;
     }
 
+    status_t th_getgibbs_rt_(const integer* n,
+                             doublereal* grt) {
+      try {
+        thermo_t* thrm = _fth(n);
+        thrm->getGibbs_RT(grt);
+      } catch(...) {
+        return handleAllExceptions(-1, ERR);
+      }
+      return 0;
+    }
+
     status_t th_getentropies_r_(const integer* n, doublereal* s_r)
     {
         try {
@@ -645,6 +663,28 @@ extern "C" {
             return handleAllExceptions(-1, ERR);
         }
         return 0;
+    }
+
+    status_t th_getpartialmolarenthalpies_(const integer* n,
+                                           doublereal* hbar) {
+      try {
+        thermo_t* thrm = _fth(n);
+        thrm->getPartialMolarEnthalpies(hbar);
+      } catch(...) {
+        return handleAllExceptions(-1, ERR);
+      }
+      return 0;
+    }
+
+    status_t th_getpartialmolarcp_(const integer* n,
+                                   doublereal* cpbar) {
+      try {
+        thermo_t* thrm = _fth(n);
+        thrm->getPartialMolarCp(cpbar);
+      } catch(...) {
+        return handleAllExceptions(-1, ERR);
+      }
+      return 0;
     }
 
     //-------------- Kinetics ------------------//
