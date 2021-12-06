@@ -85,13 +85,4 @@ std::pair<bool, bool> ChebyshevData::update(const ThermoPhase& bulk,
     return changed;
 }
 
-std::pair<bool, bool> CustomFunc1Data::update(const ThermoPhase& bulk,
-                                              const Kinetics& kin)
-{
-    double T = bulk.temperature();
-    std::pair<bool, bool> changed { false, T != temperature };
-    temperature = T;
-    return changed;
-}
-
 }
