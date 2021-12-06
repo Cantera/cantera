@@ -17,6 +17,15 @@ slow_test = unittest.skipIf(environ.get("CT_SKIP_SLOW", "0") == "1", "slow test"
 TEST_DATA_PATH = Path(__file__).parent / "data"
 CANTERA_DATA_PATH = Path(__file__).parents[1] / "data"
 
+def allow_deprecated(test):
+    def wrapper(*args, **kwargs):
+        cantera.suppress_deprecation_warnings()
+        try:
+            test(*args, **kwargs)
+        finally:
+            cantera.make_deprecation_warnings_fatal()
+
+    return wrapper
 
 def load_yaml(yml_file):
     # Load YAML data from file using the "safe" loading option.

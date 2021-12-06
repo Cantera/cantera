@@ -12,6 +12,7 @@ namespace Cantera
 #ifndef CT_NO_PYTHON
 TEST(FracCoeff, ConvertFracCoeff)
 {
+    suppress_deprecation_warnings();
     IdealGasPhase thermo1("../data/frac.cti", "gas");
     std::vector<ThermoPhase*> phases1 { &thermo1 };
     GasKinetics kinetics1;
@@ -21,6 +22,7 @@ TEST(FracCoeff, ConvertFracCoeff)
     std::vector<ThermoPhase*> phases2 { &thermo2 };
     GasKinetics kinetics2;
     importKinetics(thermo2.xml(), phases2, &kinetics2);
+    make_deprecation_warnings_fatal();
 
     ASSERT_EQ(thermo2.nSpecies(), thermo1.nSpecies());
     ASSERT_EQ(kinetics2.nReactions(), kinetics1.nReactions());
@@ -186,7 +188,9 @@ public:
 #ifndef CT_NO_PYTHON
 TEST_F(NegativePreexponentialFactor, fromCti)
 {
+    suppress_deprecation_warnings();
     setup("../data/noxNeg.cti");
+    make_deprecation_warnings_fatal();
     testNetProductionRates();
 }
 #endif

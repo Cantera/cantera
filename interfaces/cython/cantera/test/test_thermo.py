@@ -968,6 +968,7 @@ class ImportTest(utilities.CanteraTest):
         self.assertEqual(gas.n_species, nSpec)
         self.assertEqual(gas.n_elements, nElem)
 
+    @utilities.allow_deprecated
     def test_import_phase_cti(self):
         gas1 = ct.Solution('air-no-reactions.cti', 'air')
         self.check(gas1, 'air', 300, 101325, 8, 3)
@@ -975,11 +976,13 @@ class ImportTest(utilities.CanteraTest):
         gas2 = ct.Solution('air-no-reactions.cti', 'notair')
         self.check(gas2, 'notair', 900, 5*101325, 7, 2)
 
+    @utilities.allow_deprecated
     def test_import_phase_cti2(self):
         # This should import the first phase, i.e. 'air'
         gas = ct.Solution('air-no-reactions.cti')
         self.check(gas, 'air', 300, 101325, 8, 3)
 
+    @utilities.allow_deprecated
     def test_import_phase_xml(self):
         gas1 = ct.Solution('air-no-reactions.xml', 'air')
         self.check(gas1, 'air', 300, 101325, 8, 3)
@@ -987,6 +990,7 @@ class ImportTest(utilities.CanteraTest):
         gas2 = ct.Solution('air-no-reactions.xml', 'notair')
         self.check(gas2, 'notair', 900, 5*101325, 7, 2)
 
+    @utilities.allow_deprecated
     def test_import_phase_cti_text(self):
         cti_def = """
 ideal_gas(name='spam', elements='O H',
@@ -997,6 +1001,7 @@ ideal_gas(name='spam', elements='O H',
         gas = ct.Solution(source=cti_def)
         self.check(gas, 'spam', 350, 2e6, 8, 2)
 
+    @utilities.allow_deprecated
     def test_import_phase_xml_text(self):
         xml_def = """
 <?xml version="1.0"?>
@@ -1033,6 +1038,7 @@ ideal_gas(name='spam', elements='O H',
         self.assertNear(gas1.T, gas2.T)
         self.assertArrayNear(gas1.X, gas2.X)
 
+    @utilities.allow_deprecated
     def test_checkReactionBalance(self):
         with self.assertRaisesRegex(ct.CanteraError, 'reaction is unbalanced'):
             ct.Solution('h2o2_unbalancedReaction.xml')
@@ -1088,6 +1094,7 @@ class TestSpecies(utilities.CanteraTest):
             s = self.gas.species(name)
             self.assertEqual(s.name, name)
 
+    @utilities.allow_deprecated
     def test_fromCti(self):
         h2_cti = """
             species(
@@ -1116,6 +1123,7 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual(s1.composition, s2.composition)
         self.assertEqual(s1.thermo.cp(350), s2.thermo.cp(350))
 
+    @utilities.allow_deprecated
     def test_fromXml(self):
         import xml.etree.ElementTree as ET
         root = ET.parse(self.cantera_data_path / "h2o2.xml").getroot()
@@ -1129,10 +1137,12 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual(s1.composition, s2.composition)
         self.assertEqual(s1.thermo.cp(350), s2.thermo.cp(350))
 
+    @utilities.allow_deprecated
     def test_listFromFile_cti(self):
         S = ct.Species.listFromFile('h2o2.cti')
         self.assertEqual(S[3].name, self.gas.species_name(3))
 
+    @utilities.allow_deprecated
     def test_listFromFile_xml(self):
         S = ct.Species.listFromFile('h2o2.xml')
         self.assertEqual(S[3].name, self.gas.species_name(3))
@@ -1141,6 +1151,7 @@ class TestSpecies(utilities.CanteraTest):
         S = ct.Species.listFromFile('h2o2.yaml')
         self.assertEqual({sp.name for sp in S}, set(self.gas.species_names))
 
+    @utilities.allow_deprecated
     def test_listFromCti(self):
         S = ct.Species.listFromCti((self.cantera_data_path / "h2o2.cti").read_text())
         self.assertEqual(S[3].name, self.gas.species_name(3))
@@ -1167,6 +1178,7 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual(species[0].name, 'O2')
         self.assertEqual(species[1].composition, {'N': 1, 'O': 1})
 
+    @utilities.allow_deprecated
     def test_listFromXml(self):
         S = ct.Species.listFromXml((self.cantera_data_path / "h2o2.xml").read_text())
         self.assertEqual(S[4].name, self.gas.species_name(4))

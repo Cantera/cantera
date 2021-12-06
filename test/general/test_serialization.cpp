@@ -219,7 +219,9 @@ TEST(YamlWriter, reaction_units_from_Yaml)
 
 TEST(YamlWriter, reaction_units_from_Xml)
 {
+    suppress_deprecation_warnings();
     auto original = newSolution("h2o2.xml", "", "None");
+    make_deprecation_warnings_fatal();
     YamlWriter writer;
     writer.addPhase(original);
     writer.setPrecision(14);

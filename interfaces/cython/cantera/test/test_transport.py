@@ -206,6 +206,7 @@ class TestTransport(utilities.CanteraTest):
         self.assertEqual(D23, D23new)
 
 class TestIonTransport(utilities.CanteraTest):
+    @utilities.allow_deprecated
     def setUp(self):
         self.p = ct.one_atm
         self.T = 2237
