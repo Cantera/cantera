@@ -44,7 +44,7 @@ public:
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<CustomFunc1Rate, CustomFunc1Data>);
+        return unique_ptr<MultiRateBase>(new MultiBulkRate<CustomFunc1Rate, ArrheniusData>);
     }
 
     const std::string type() const override { return "custom-rate-function"; }
@@ -56,7 +56,7 @@ public:
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    double evalFromStruct(const CustomFunc1Data& shared_data) const;
+    double evalFromStruct(const ArrheniusData& shared_data) const;
 
     //! Set custom rate
     /**

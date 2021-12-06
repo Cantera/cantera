@@ -195,15 +195,6 @@ struct ChebyshevData final : public ReactionData
     double log10P; //!< base 10 logarithm of pressure
 };
 
-
-//! Data container holding shared data specific to CustomFunc1Rate
-struct CustomFunc1Data final : public ReactionData
-{
-    virtual std::pair<bool, bool> update(const ThermoPhase& bulk,
-                                  const Kinetics& kin) override;
-    using ReactionData::update;
-};
-
 }
 
 #endif
