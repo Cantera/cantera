@@ -1,0 +1,60 @@
+generator: ctml2yaml
+cantera-version: 2.6.0a3
+date: Sat, 18 Dec 2021 16:00:33 -0500
+input-files: [test/data/pdss_hkft.xml]
+
+phases:
+- name: vpss_soln_pdss_hkft_phase
+  elements: [Na, Cl, H, O, E]
+  species: [H2O(L), Na+, Cl-, H+, OH-]
+  thermo: ideal-solution-VPSS
+  standard-concentration-basis: solvent_volume
+
+species:
+- name: H2O(L)
+  composition: {H: 2.0, O: 1.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [273.15, 600.0]
+    data:
+    - [72.5575005, -0.662445402, 2.56198746e-03, -4.36591923e-06, 2.78178981e-09,
+      -4.18865499e+04, -288.280137]
+  equation-of-state:
+    model: liquid-water-IAPWS95
+- name: Na+
+  composition: {Na: 1.0, E: -1.0}
+  equation-of-state:
+    model: HKFT
+    h0: -5.7433e+04 cal/gmol
+    s0: 13.96 cal/gmol/K
+    a: [0.1839 cal/gmol/bar, -228.5 cal/gmol, 3.256 cal*K/gmol/bar, -2.726e+04 cal*K/gmol]
+    c: [18.18 cal/gmol/K, -2.981e+04 cal*K/gmol]
+    omega: 3.306e+04 cal/gmol
+- name: Cl-
+  composition: {Cl: 1.0, E: 1.0}
+  equation-of-state:
+    model: HKFT
+    g0: -3.1379e+04 cal/gmol
+    s0: 13.56 cal/gmol/K
+    a: [0.4032 cal/gmol/bar, 480.1 cal/gmol, 5.563 cal*K/gmol/bar, -2.847e+04 cal*K/gmol]
+    c: [-4.4 cal/gmol/K, -5.714e+04 cal*K/gmol]
+    omega: 1.456e+05 cal/gmol
+- name: H+
+  composition: {H: 1.0, E: -1.0}
+  equation-of-state:
+    model: HKFT
+    g0: 0.0 cal/gmol
+    s0: 0.0 cal/gmol/K
+    a: [0.0 cal/gmol/bar, 0.0 cal/gmol, 0.0 cal*K/gmol/bar, 0.0 cal*K/gmol]
+    c: [0.0 cal/gmol/K, 0.0 cal*K/gmol]
+    omega: 0.0 cal/gmol
+- name: OH-
+  composition: {O: 1.0, H: 1.0, E: 1.0}
+  equation-of-state:
+    model: HKFT
+    g0: -3.7595e+04 cal/gmol
+    h0: -5.4977e+04 cal/gmol
+    s0: -2.56 cal/gmol/K
+    a: [0.12527 cal/gmol/bar, 7.38 cal/gmol, 1.8423 cal*K/gmol/bar, -2.7821e+04 cal*K/gmol]
+    c: [4.15 cal/gmol/K, -1.0346e+05 cal*K/gmol]
+    omega: 1.7246e+05 cal/gmol

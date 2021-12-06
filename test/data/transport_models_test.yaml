@@ -1,0 +1,54 @@
+generator: ctml2yaml
+cantera-version: 2.6.0a3
+date: Sat, 18 Dec 2021 15:56:48 -0500
+input-files: [test/data/transport_models_test.xml]
+
+phases:
+- name: UnityLewis
+  elements: [H, C]
+  species:
+  - gri30.yaml/species: [H, H2, CH3, CH4]
+  thermo: ideal-gas
+  transport: unity-Lewis-number
+  skip-undeclared-third-bodies: true
+  kinetics: gas
+  reactions:
+  - gri30.yaml/reactions: declared-species
+  state: {T: 1200.0 K, P: 2666.4473684210525 Pa, X: {H: 2.0e-03, H2: 0.988, CH3: 2.0e-04,
+      CH4: 0.01}}
+- name: CK_Mix
+  elements: [H, C]
+  species:
+  - gri30.yaml/species: [H, H2, CH3, CH4]
+  thermo: ideal-gas
+  transport: mixture-averaged-CK
+  skip-undeclared-third-bodies: true
+  kinetics: gas
+  reactions:
+  - gri30.yaml/reactions: declared-species
+  state: {T: 1200.0 K, P: 2666.4473684210525 Pa, X: {H: 2.0e-03, H2: 0.988, CH3: 2.0e-04,
+      CH4: 0.01}}
+- name: CK_Multi
+  elements: [H, C]
+  species:
+  - gri30.yaml/species: [H, H2, CH3, CH4]
+  thermo: ideal-gas
+  transport: multicomponent-CK
+  skip-undeclared-third-bodies: true
+  kinetics: gas
+  reactions:
+  - gri30.yaml/reactions: declared-species
+  state: {T: 1200.0 K, P: 2666.4473684210525 Pa, X: {H: 2.0e-03, H2: 0.988, CH3: 2.0e-04,
+      CH4: 0.01}}
+- name: HighP
+  elements: [H, C]
+  species:
+  - gri30.yaml/species: [H, H2, CH3, CH4]
+  thermo: ideal-gas
+  transport: high-pressure
+  skip-undeclared-third-bodies: true
+  kinetics: gas
+  reactions:
+  - gri30.yaml/reactions: declared-species
+  state: {T: 1200.0 K, P: 2666.4473684210525 Pa, X: {H: 2.0e-03, H2: 0.988, CH3: 2.0e-04,
+      CH4: 0.01}}
