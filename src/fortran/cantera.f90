@@ -111,6 +111,10 @@ MODULE CANTERA
      MODULE PROCEDURE ctfunc_getCanteraError
   END INTERFACE getCanteraError
 
+  INTERFACE turnOffExitOnError
+     MODULE PROCEDURE ctfunc_TurnOffExitOnError
+  END INTERFACE turnOffExitOnError
+
   INTERFACE getCp_R
      MODULE PROCEDURE ctthermo_getCp_R
   END INTERFACE getCp_R
@@ -130,6 +134,10 @@ MODULE CANTERA
   INTERFACE getEnthalpies_RT
      MODULE PROCEDURE ctthermo_getEnthalpies_RT
   END INTERFACE getEnthalpies_RT
+
+  INTERFACE getGibbs_RT
+     MODULE PROCEDURE ctthermo_getGibbs_RT
+  END INTERFACE getGibbs_RT
 
   INTERFACE getEntropies_R
      MODULE PROCEDURE ctthermo_getEntropies_R
@@ -182,6 +190,14 @@ MODULE CANTERA
   INTERFACE getPartialMolarIntEnergies
      MODULE PROCEDURE ctthermo_getPartialMolarIntEnerg_R
   END INTERFACE getPartialMolarIntEnergies
+
+  INTERFACE getPartialMolarCp
+     MODULE PROCEDURE ctthermo_getPartialMolarCp
+  END INTERFACE getPartialMolarCp
+
+  INTERFACE getPartialMolarEnthalpies
+     MODULE PROCEDURE ctthermo_getPartialMolarEnthalpies
+  END INTERFACE getPartialMolarEnthalpies
 
   INTERFACE getReactionString
      MODULE PROCEDURE ctkin_getReactionString
@@ -342,6 +358,10 @@ MODULE CANTERA
   INTERFACE setMassFractionsByName
      MODULE PROCEDURE ctthermo_setMassFractionsByName
   END INTERFACE setMassFractionsByName
+
+  INTERFACE setMassFractions_NoNorm
+     MODULE PROCEDURE ctthermo_setMassFractions_NoNorm
+  END INTERFACE setMassFractions_NoNorm
 
   INTERFACE setMoleFractions
      MODULE PROCEDURE ctthermo_setMoleFractions
