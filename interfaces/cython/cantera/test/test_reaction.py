@@ -221,6 +221,13 @@ class ReactionRateTests:
         concm = self.gas.third_body_concentrations
         self.assertIsNaN(concm[self._index])
 
+    def test_derivative(self):
+        # check exact derivative against numerical derivative
+        rate = self.from_parts()
+        temp = 1000.
+        with self.assertRaisesRegex(ct.CanteraError, "ddTScaledFromStruct"):
+            rate.ddT(temp)
+
 
 class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
     # test Arrhenius rate expressions
@@ -251,9 +258,30 @@ class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
         self.assertTrue(rate.allow_negative_pre_exponential_factor)
 
     def test_standalone(self):
+        # test creation with unsupported alternative units
         yaml = "rate-constant: {A: 4.0e+21 cm^6/mol^2/s, b: 0.0, Ea: 1207.72688}"
         with self.assertRaisesRegex(Exception, "not supported"):
             ct.ReactionRate.from_yaml(yaml)
+
+    def test_derivative(self):
+        # check exact derivative against analytical and numerical derivatives
+        rate = self.from_parts()
+        T = 1000.
+
+        R = ct.gas_constant
+        Ea = rate.activation_energy
+        b =  rate.temperature_exponent
+        A = rate.pre_exponential_factor
+        k0 = rate(T)
+        self.assertNear(k0, A * T**b * np.exp(-Ea/R/T))
+
+        scaled_ddT = (Ea / R / T + b) / T
+        dkdT = rate.ddT(T)
+        self.assertNear(dkdT, k0 * scaled_ddT) # exact
+
+        dT = 1.e-6
+        dkdT_numeric = (rate(T + dT) - rate(T)) / dT
+        self.assertNear(dkdT, dkdT_numeric, 1.e-6)
 
 
 class TestBlowersMaselRate(ReactionRateTests, utilities.CanteraTest):
@@ -503,6 +531,9 @@ class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
         with self.assertRaisesRegex(Exception, "not supported"):
             ct.ReactionRate.from_yaml(yaml)
 
+    def test_derivative(self):
+        pass
+
 
 class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
     # test Chebyshev rate expressions
@@ -552,6 +583,9 @@ class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
         self.assertEqual(pressure_range[0], rate.pressure_range[0])
         self.assertEqual(pressure_range[1], rate.pressure_range[1])
         self.assertTrue(np.all(self._parts["data"] == rate.data))
+
+    def test_derivative(self):
+        pass
 
 
 class ReactionTests:
