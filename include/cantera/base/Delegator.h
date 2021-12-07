@@ -42,53 +42,63 @@ namespace Cantera
 class Delegator
 {
 public:
-    //! A method overridden in derived classes to set delegates for member
-    //! functions with the signature `void()`.
-    virtual void setDelegate(const std::string& name,
-                             const std::function<void()>& func,
-                             const std::string& when)
+    //! Set delegates for member functions with the signature `void()`.
+    void setDelegate(const std::string& name, const std::function<void()>& func,
+                     const std::string& when)
     {
-        throw NotImplementedError("Delegator::setDelegate for void(double)");
+        if (!m_funcs_v.count(name)) {
+            throw NotImplementedError("Delegator::setDelegate",
+                "for function named '{}' with signature 'void()'.", name);
+        }
+        *m_funcs_v[name] = makeDelegate(func, when, *m_funcs_v[name]);
     }
 
-    //! A method overridden in derived classes to set delegates for member
-    //! functions with the signature `void(bool)`
-    virtual void setDelegate(const std::string& name,
-                             const std::function<void(bool)>& func,
-                             const std::string& when)
+    //! set delegates for member functions with the signature `void(bool)`
+    void setDelegate(const std::string& name, const std::function<void(bool)>& func,
+                     const std::string& when)
     {
-        throw NotImplementedError("Delegator::setDelegate for void(bool)");
+        if (!m_funcs_v_b.count(name)) {
+            throw NotImplementedError("Delegator::setDelegate",
+                "for function named '{}' with signature 'void(bool)'.", name);
+        }
+        *m_funcs_v_b[name] = makeDelegate(func, when, *m_funcs_v_b[name]);
     }
 
-    //! A method overridden in derived classes to set delegates for member
-    //! functions with the signature `void(double)`
-    virtual void setDelegate(const std::string& name,
-                             const std::function<void(double)>& func,
-                             const std::string& when)
+    //! set delegates for member functions with the signature `void(double)`
+    void setDelegate(const std::string& name, const std::function<void(double)>& func,
+                     const std::string& when)
     {
-        throw NotImplementedError("Delegator::setDelegate for void(double)");
+        if (!m_funcs_v_d.count(name)) {
+            throw NotImplementedError("Delegator::setDelegate",
+                "for function named '{}' with signature 'void(double)'.", name);
+        }
+        *m_funcs_v_d[name] = makeDelegate(func, when, *m_funcs_v_d[name]);
     }
 
-    //! A method overridden in derived classes to set delegates for member
-    //! functions with the signature `void(double*)`
-    virtual void setDelegate(
-        const std::string& name,
-        const std::function<void(std::array<size_t, 1>, double*)>& func,
-        const std::string& when)
+    //! Set delegates for member functions with the signature `void(double*)`
+    void setDelegate(const std::string& name,
+                     const std::function<void(std::array<size_t, 1>, double*)>& func,
+                     const std::string& when)
     {
-        throw NotImplementedError("Delegator::setDelegate"
-            " for void(array<size_t, 1>, double*)");
+        if (!m_funcs_v_dp.count(name)) {
+            throw NotImplementedError("Delegator::setDelegate",
+                "for function named '{}' with signature 'void(double*)'.", name);
+        }
+        *m_funcs_v_dp[name] = makeDelegate(func, when, *m_funcs_v_dp[name]);
     }
 
-    //! A method overridden in derived classes to set delegates for member
-    //! functions with the signature `void(double, double*)`
-    virtual void setDelegate(
+    //! Set delegates for member functions with the signature `void(double, double*)`
+    void setDelegate(
         const std::string& name,
         const std::function<void(std::array<size_t, 1>, double, double*)>& func,
         const std::string& when)
     {
-        throw NotImplementedError("Delegator::setDelegate"
-            " for void(array<size_t, 1>, double, double*)");
+        if (!m_funcs_v_d_dp.count(name)) {
+            throw NotImplementedError("Delegator::setDelegate",
+                "for function named '{}' with signature 'void(double, double*)'.",
+                name);
+        }
+        *m_funcs_v_d_dp[name] = makeDelegate(func, when, *m_funcs_v_d_dp[name]);
     }
 
     //! A method overridden in derived classes to set delegates for member
@@ -98,8 +108,12 @@ public:
         const std::function<void(std::array <size_t, 2>, double, double*, double*)>& func,
         const std::string& when)
     {
-        throw NotImplementedError("Delegator::setDelegate"
-            " for void(array<size_t, 2>, double, double*, double*)");
+        if (!m_funcs_v_d_dp_dp.count(name)) {
+            throw NotImplementedError("Delegator::setDelegate",
+                "for function named '{}' with signature "
+                "'void(double, double*, double*)'.", name);
+        }
+        *m_funcs_v_d_dp_dp[name] = makeDelegate(func, when, *m_funcs_v_d_dp_dp[name]);
     }
 
     //! A method overridden in derived classes to set delegates for member
@@ -136,8 +150,59 @@ public:
     }
 
 protected:
-    //! Create a delegate for a function with no return value and no array
-    //! arguments
+    //! Install a function with the signature `void()` as being delegatable
+    void install(const std::string& name, std::function<void()>& target,
+                 const std::function<void()>& func)
+    {
+        target = func;
+        m_funcs_v[name] = &target;
+    }
+
+    //! Install a function with the signature `void(bool)` as being delegatable
+    void install(const std::string& name, std::function<void(bool)>& target,
+                 const std::function<void(bool)>& func)
+    {
+        target = func;
+        m_funcs_v_b[name] = &target;
+    }
+
+    //! Install a function with the signature `void(double)` as being delegatable
+    void install(const std::string& name, std::function<void(double)>& target,
+                 const std::function<void(double)>& func)
+    {
+        target = func;
+        m_funcs_v_d[name] = &target;
+    }
+
+    //! Install a function with the signature `void(double*)` as being delegatable
+    void install(const std::string& name,
+                 std::function<void(std::array<size_t, 1>, double*)>& target,
+                 const std::function<void(std::array<size_t, 1>, double*)>& func)
+    {
+        target = func;
+        m_funcs_v_dp[name] = &target;
+    }
+
+    //! Install a function with the signature `void(double, double*)` as being delegatable
+    void install(const std::string& name,
+                 std::function<void(std::array<size_t, 1>, double, double*)>& target,
+                 const std::function<void(std::array<size_t, 1>, double, double*)>& func)
+    {
+        target = func;
+        m_funcs_v_d_dp[name] = &target;
+    }
+
+    //! Install a function with the signature `void(double, double*, double*)` as being
+    //! delegatable
+    void install(const std::string& name,
+                 std::function<void(std::array<size_t, 2>, double, double*, double*)>& target,
+                 const std::function<void(std::array<size_t, 2>, double, double*, double*)>& func)
+    {
+        target = func;
+        m_funcs_v_d_dp_dp[name] = &target;
+    }
+
+    //! Create a delegate for a function with no return value
     template <typename BaseFunc, class ... Args>
     std::function<void(Args ...)> makeDelegate(
         const std::function<void(Args ...)>& func,
@@ -155,35 +220,8 @@ protected:
                 func(args ...);
             };
         } else if (when == "replace") {
-            return func;
-        } else {
-            throw CanteraError("Delegator::makeDelegate",
-                "'when' must be one of 'before', 'after', or 'replace';"
-                " not '{}", when);
-        }
-    }
-
-    //! Create a delegate for a function with array arguments and no return
-    //! value
-    template <int nArrays, typename BaseFunc, class ... Args>
-    std::function<void(std::array<size_t, nArrays>, Args ...)> makeDelegate(
-        const std::function<void(std::array<size_t, nArrays>, Args ...)>& func,
-        const std::string& when,
-        BaseFunc base)
-    {
-        if (when == "before") {
-            return [base, func](std::array<size_t, nArrays> sizes, Args ... args) {
-                func(sizes, args ...);
-                base(args ...);
-            };
-        } else if (when == "after") {
-            return [base, func](std::array<size_t, nArrays> sizes, Args ... args) {
-                base(args ...);
-                func(sizes, args ...);
-            };
-        } else if (when == "replace") {
-            return [func](std::array<size_t, nArrays> sizes, Args ... args) {
-                func(sizes, args ...);
+            return [func](Args ... args) {
+                func(args ...);
             };
         } else {
             throw CanteraError("Delegator::makeDelegate",
@@ -285,6 +323,17 @@ protected:
                 " not '{}", when);
         }
     }
+
+    // Delegates with no return value
+    std::map<std::string, std::function<void()>*> m_funcs_v;
+    std::map<std::string, std::function<void(bool)>*> m_funcs_v_b;
+    std::map<std::string, std::function<void(double)>*> m_funcs_v_d;
+    std::map<std::string,
+        std::function<void(std::array<size_t, 1>, double*)>*> m_funcs_v_dp;
+    std::map<std::string,
+        std::function<void(std::array<size_t, 1>, double, double*)>*> m_funcs_v_d_dp;
+    std::map<std::string,
+        std::function<void(std::array<size_t, 2>, double, double*, double*)>*> m_funcs_v_d_dp_dp;
 };
 
 }
