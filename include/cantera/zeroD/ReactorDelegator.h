@@ -56,18 +56,18 @@ public:
     ReactorDelegator() {
         m_initialize = [this](double t0) { R::initialize(t0); };
         m_syncState = [this]() { R::syncState(); };
-        m_getState = [this](double* y) { R::getState(y); };
-        m_updateState = [this](double* y) { R::updateState(y); };
-        m_updateSurfaceState = [this](double* y) { R::updateSurfaceState(y); };
-        m_getSurfaceInitialConditions = [this](double* y) {
+        m_getState = [this](std::array<size_t, 1> sizes, double* y) { R::getState(y); };
+        m_updateState = [this](std::array<size_t, 1> sizes, double* y) { R::updateState(y); };
+        m_updateSurfaceState = [this](std::array<size_t, 1> sizes, double* y) { R::updateSurfaceState(y); };
+        m_getSurfaceInitialConditions = [this](std::array<size_t, 1> sizes, double* y) {
             R::getSurfaceInitialConditions(y);
         };
         m_updateConnected = [this](bool updatePressure) {
             R::updateConnected(updatePressure);
         };
-        m_eval = [this](double t, double* LHS, double* RHS) { R::eval(t, LHS, RHS); };
+        m_eval = [this](std::array<size_t, 2> sizes, double t, double* LHS, double* RHS) { R::eval(t, LHS, RHS); };
         m_evalWalls = [this](double t) { R::evalWalls(t); };
-        m_evalSurfaces = [this](double t, double* ydot) {
+        m_evalSurfaces = [this](std::array<size_t, 1> sizes, double t, double* ydot) {
             return R::evalSurfaces(t, ydot);
         };
         m_componentName = [this](size_t k) { return R::componentName(k); };
@@ -138,9 +138,6 @@ public:
     {
         if (name == "getState") {
             m_getState = makeDelegate<1>(func,
-                [this]() {
-                    return std::array<size_t, 1>{R::neq()};
-                },
                 when,
                 [this](double* y) {
                     R::getState(y);
@@ -148,9 +145,6 @@ public:
             );
         } else if (name == "updateState") {
             m_updateState = makeDelegate<1>(func,
-                [this]() {
-                    return std::array<size_t, 1>{R::neq()};
-                },
                 when,
                 [this](double* y) {
                     R::updateState(y);
@@ -158,9 +152,6 @@ public:
             );
         } else if (name == "updateSurfaceState") {
             m_updateSurfaceState = makeDelegate<1>(func,
-                [this]() {
-                    return std::array<size_t, 1>{R::m_nv_surf};
-                },
                 when,
                 [this](double* y) {
                     R::updateSurfaceState(y);
@@ -168,9 +159,6 @@ public:
             );
         } else if (name == "getSurfaceInitialConditions") {
             m_getSurfaceInitialConditions = makeDelegate<1>(func,
-                [this]() {
-                    return std::array<size_t, 1>{R::m_nv_surf};
-                },
                 when,
                 [this](double* y) {
                     R::getSurfaceInitialConditions(y);
@@ -192,9 +180,6 @@ public:
         if (name == "evalSurfaces") {
             m_evalSurfaces = makeDelegate<1>(
                 func,
-                [this]() {
-                    return std::array<size_t, 1>{R::m_nv_surf};
-                },
                 when,
                 [this](double t, double* ydot) {
                     return R::evalSurfaces(t, ydot);
@@ -260,9 +245,6 @@ public:
     {
         if (name == "eval") {
             m_eval = makeDelegate<2>(func,
-                [this]() {
-                    return std::array<size_t, 2>{R::neq(), R::neq()};
-                },
                 when,
                 [this](double t, double* LHS, double* RHS) {
                     R::eval(t, LHS, RHS);
@@ -286,19 +268,23 @@ public:
     }
 
     virtual void getState(double* y)  override{
-        m_getState(y);
+        std::array<size_t, 1> sizes{R::neq()};
+        m_getState(sizes, y);
     }
 
     virtual void updateState(double* y)  override{
-        m_updateState(y);
+        std::array<size_t, 1> sizes{R::neq()};
+        m_updateState(sizes, y);
     }
 
     virtual void updateSurfaceState(double* y) override {
-        m_updateSurfaceState(y);
+        std::array<size_t, 1> sizes{R::m_nv_surf};
+        m_updateSurfaceState(sizes, y);
     }
 
     virtual void getSurfaceInitialConditions(double* y) override {
-        m_getSurfaceInitialConditions(y);
+        std::array<size_t, 1> sizes{R::m_nv_surf};
+        m_getSurfaceInitialConditions(sizes, y);
     }
 
     virtual void updateConnected(bool updatePressure) override{
@@ -306,7 +292,8 @@ public:
     }
 
     virtual void eval(double t, double* LHS, double* RHS) override {
-        m_eval(t, LHS, RHS);
+        std::array<size_t, 2> sizes{R::neq(), R::neq()};
+        m_eval(sizes, t, LHS, RHS);
     }
 
     virtual void evalWalls(double t) override {
@@ -314,7 +301,8 @@ public:
     }
 
     virtual double evalSurfaces(double t, double* ydot) override {
-        return m_evalSurfaces(t, ydot);
+        std::array<size_t, 1> sizes{R::m_nv_surf};
+        return m_evalSurfaces(sizes, t, ydot);
     }
 
     virtual std::string componentName(size_t k) override {
@@ -364,14 +352,14 @@ public:
 private:
     std::function<void(double)> m_initialize;
     std::function<void()> m_syncState;
-    std::function<void(double*)> m_getState;
-    std::function<void(double*)> m_updateState;
-    std::function<void(double*)> m_updateSurfaceState;
-    std::function<void(double*)> m_getSurfaceInitialConditions;
+    std::function<void(std::array<size_t, 1>, double*)> m_getState;
+    std::function<void(std::array<size_t, 1>, double*)> m_updateState;
+    std::function<void(std::array<size_t, 1>, double*)> m_updateSurfaceState;
+    std::function<void(std::array<size_t, 1>, double*)> m_getSurfaceInitialConditions;
     std::function<void(bool)> m_updateConnected;
-    std::function<void(double, double*, double*)> m_eval;
+    std::function<void(std::array<size_t, 2>, double, double*, double*)> m_eval;
     std::function<void(double)> m_evalWalls;
-    std::function<double(double, double*)> m_evalSurfaces;
+    std::function<double(std::array<size_t, 1>, double, double*)> m_evalSurfaces;
     std::function<std::string(size_t)> m_componentName;
     std::function<size_t(const std::string&)> m_componentIndex;
     std::function<size_t(const std::string&)> m_speciesIndex;

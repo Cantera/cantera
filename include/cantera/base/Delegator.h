@@ -166,25 +166,24 @@ protected:
     //! Create a delegate for a function with array arguments and no return
     //! value
     template <int nArrays, typename BaseFunc, class ... Args>
-    std::function<void(Args ...)> makeDelegate(
+    std::function<void(std::array<size_t, nArrays>, Args ...)> makeDelegate(
         const std::function<void(std::array<size_t, nArrays>, Args ...)>& func,
-        const std::function<std::array<size_t, nArrays>()>& sizeGetter,
         const std::string& when,
         BaseFunc base)
     {
         if (when == "before") {
-            return [base, func, sizeGetter](Args ... args) {
-                func(sizeGetter(), args ...);
+            return [base, func](std::array<size_t, nArrays> sizes, Args ... args) {
+                func(sizes, args ...);
                 base(args ...);
             };
         } else if (when == "after") {
-            return [base, func, sizeGetter](Args ... args) {
+            return [base, func](std::array<size_t, nArrays> sizes, Args ... args) {
                 base(args ...);
-                func(sizeGetter(), args ...);
+                func(sizes, args ...);
             };
         } else if (when == "replace") {
-            return [func, sizeGetter](Args ... args) {
-                func(sizeGetter(), args ...);
+            return [func](std::array<size_t, nArrays> sizes, Args ... args) {
+                func(sizes, args ...);
             };
         } else {
             throw CanteraError("Delegator::makeDelegate",
@@ -242,19 +241,19 @@ protected:
 
     //! Create a delegate for a function with a return value and array arguments
     template <int nArrays, typename ReturnType, typename BaseFunc, class ... Args>
-    std::function<ReturnType(Args ...)> makeDelegate(
-        const std::function<int(ReturnType&, std::array<size_t, nArrays>, Args ...)>& func,
-        const std::function<std::array<size_t, nArrays>()>& sizeGetter,
+    std::function<ReturnType(std::array<size_t, nArrays>, Args ...)> makeDelegate(
+        const std::function<
+            int(ReturnType&, std::array<size_t, nArrays>, Args ...)>& func,
         const std::string& when,
         BaseFunc base)
     {
         if (when == "before") {
-            return [base, func, sizeGetter](Args ... args) {
+            return [base, func](std::array<size_t, nArrays> sizes, Args ... args) {
                 // Call the provided delegate first. If it sets the return
                 // value, return that, otherwise return the value from the
                 // original method.
                 ReturnType ret;
-                int done = func(ret, sizeGetter(), args ...);
+                int done = func(ret, sizes, args ...);
                 if (done) {
                     return ret;
                 } else {
@@ -262,12 +261,12 @@ protected:
                 }
             };
         } else if (when == "after") {
-            return [base, func, sizeGetter](Args ... args) {
+            return [base, func](std::array<size_t, nArrays> sizes, Args ... args) {
                 // Add the value returned by the original method and the
                 // provided delegate.
                 ReturnType ret1 = base(args ...);
                 ReturnType ret2;
-                int done = func(ret2, sizeGetter(), args ...);
+                int done = func(ret2, sizes, args ...);
                 if (done) {
                     return ret1 + ret2;
                 } else {
@@ -275,9 +274,9 @@ protected:
                 }
             };
         } else if (when == "replace") {
-            return [func, sizeGetter](Args ... args) {
+            return [func](std::array<size_t, nArrays> sizes, Args ... args) {
                 ReturnType ret;
-                func(ret, sizeGetter(), args ...);
+                func(ret, sizes, args ...);
                 return ret;
             };
         } else {
