@@ -185,6 +185,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           path: build/docs.tar.gz
+          name: docs
           retention-days: 2
       # The known_hosts key is generated with `ssh-keygen -F cantera.org` from a
       # machine that has previously logged in to cantera.org and trusts
@@ -247,6 +248,8 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           path: results.txt
+          retention-days: 2
+          name: example-results
         # Run this step if the job was successful or failed, but not if it was cancelled
         # Using always() would run this step if the job was cancelled as well.
         if: failure() || success()
