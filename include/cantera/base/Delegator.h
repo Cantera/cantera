@@ -101,9 +101,9 @@ public:
         *m_funcs_v_d_dp[name] = makeDelegate(func, when, *m_funcs_v_d_dp[name]);
     }
 
-    //! A method overridden in derived classes to set delegates for member
-    //! functions with the signature `void(double, double*, double*)`
-    virtual void setDelegate(
+    //! Set delegates for member functions with the signature
+    //! `void(double, double*, double*)`
+    void setDelegate(
         const std::string& name,
         const std::function<void(std::array <size_t, 2>, double, double*, double*)>& func,
         const std::string& when)
@@ -116,37 +116,44 @@ public:
         *m_funcs_v_d_dp_dp[name] = makeDelegate(func, when, *m_funcs_v_d_dp_dp[name]);
     }
 
-    //! A method overridden in derived classes to set delegates for member
-    //! functions with the signature `double(double, double*)`
-    virtual void setDelegate(
+    //! Set delegates for member functions with the signature `double(double, double*)`
+    void setDelegate(
         const std::string& name,
         const std::function<int(double&, std::array<size_t, 1>, double, double*)>& func,
         const std::string& when)
     {
-        throw NotImplementedError("Delegator::setDelegate"
-            " for void(double&, array<size_t, 1>, double, double*)");
+        if (!m_funcs_d_d_dp.count(name)) {
+            throw NotImplementedError("Delegator::setDelegate",
+                "for function named '{}' with signature "
+                "'double(double, double*)'.", name);
+        }
+        *m_funcs_d_d_dp[name] = makeDelegate(func, when, m_base_d_d_dp[name]);
     }
 
-    //! A method overridden in derived classes to set delegates for member
-    //! functions with the signature `string(size_t)`
-    virtual void setDelegate(
-        const std::string& name,
-        const std::function<int(std::string&, size_t)>& func,
-        const std::string& when)
+    //! Set delegates for member functions with the signature `string(size_t)`
+    void setDelegate(const std::string& name,
+                     const std::function<int(std::string&, size_t)>& func,
+                     const std::string& when)
     {
-        throw NotImplementedError("Delegator::setDelegate"
-            " for void(string&, size_t)");
+        if (!m_funcs_s_sz.count(name)) {
+            throw NotImplementedError("Delegator::setDelegate",
+                "for function named '{}' with signature "
+                "'string(size_t)'.", name);
+        }
+        *m_funcs_s_sz[name] = makeDelegate(func, when, m_base_s_sz[name]);
     }
 
-    //! A method overridden in derived classes to set delegates for member
-    //! functions with the signature `size_t(string)`
-    virtual void setDelegate(
-        const std::string& name,
-        const std::function<int(size_t&, const std::string&)>& func,
-        const std::string& when)
+    //! Set delegates for member functions with the signature `size_t(string)`
+    void setDelegate(const std::string& name,
+                     const std::function<int(size_t&, const std::string&)>& func,
+                     const std::string& when)
     {
-        throw NotImplementedError("Delegator::setDelegate"
-            " for void(size_t&, string)");
+        if (!m_funcs_sz_csr.count(name)) {
+            throw NotImplementedError("Delegator::setDelegate",
+                "for function named '{}' with signature "
+                "'size_t(const string&)'.", name);
+        }
+        *m_funcs_sz_csr[name] = makeDelegate(func, when, m_base_sz_csr[name]);
     }
 
 protected:
@@ -202,6 +209,36 @@ protected:
         m_funcs_v_d_dp_dp[name] = &target;
     }
 
+    //! Install a function with the signature `double(double, double*)` as being delegatable
+    void install(const std::string& name,
+                 std::function<double(std::array<size_t, 1>, double, double*)>& target,
+                 const std::function<double(std::array<size_t, 1>, double, double*)>& base)
+    {
+        target = base;
+        m_funcs_d_d_dp[name] = &target;
+        m_base_d_d_dp[name] = base;
+    }
+
+    //! Install a function with the signature `string(size_t)` as being delegatable
+    void install(const std::string& name,
+                 std::function<std::string(size_t)>& target,
+                 const std::function<std::string(size_t)>& base)
+    {
+        target = base;
+        m_funcs_s_sz[name] = &target;
+        m_base_s_sz[name] = base;
+    }
+
+    //! Install a function with the signature `size_t(string)` as being delegatable
+    void install(const std::string& name,
+                 std::function<size_t(const std::string&)>& target,
+                 const std::function<size_t(const std::string&)>& base)
+    {
+        target = base;
+        m_funcs_sz_csr[name] = &target;
+        m_base_sz_csr[name] = base;
+    }
+
     //! Create a delegate for a function with no return value
     template <typename BaseFunc, class ... Args>
     std::function<void(Args ...)> makeDelegate(
@@ -230,13 +267,12 @@ protected:
         }
     }
 
-    //! Create a delegate for a function with a return value and no array
-    //! arguments
-    template <typename ReturnType, typename BaseFunc, class ... Args>
+    //! Create a delegate for a function with a return value
+    template <typename ReturnType, class ... Args>
     std::function<ReturnType(Args ...)> makeDelegate(
         const std::function<int(ReturnType&, Args ...)>& func,
         const std::string& when,
-        const BaseFunc& base)
+        const std::function<ReturnType(Args ...)>& base)
     {
         if (when == "before") {
             return [base, func](Args ... args) {
@@ -277,53 +313,6 @@ protected:
         }
     }
 
-    //! Create a delegate for a function with a return value and array arguments
-    template <int nArrays, typename ReturnType, typename BaseFunc, class ... Args>
-    std::function<ReturnType(std::array<size_t, nArrays>, Args ...)> makeDelegate(
-        const std::function<
-            int(ReturnType&, std::array<size_t, nArrays>, Args ...)>& func,
-        const std::string& when,
-        BaseFunc base)
-    {
-        if (when == "before") {
-            return [base, func](std::array<size_t, nArrays> sizes, Args ... args) {
-                // Call the provided delegate first. If it sets the return
-                // value, return that, otherwise return the value from the
-                // original method.
-                ReturnType ret;
-                int done = func(ret, sizes, args ...);
-                if (done) {
-                    return ret;
-                } else {
-                    return base(args ...);
-                }
-            };
-        } else if (when == "after") {
-            return [base, func](std::array<size_t, nArrays> sizes, Args ... args) {
-                // Add the value returned by the original method and the
-                // provided delegate.
-                ReturnType ret1 = base(args ...);
-                ReturnType ret2;
-                int done = func(ret2, sizes, args ...);
-                if (done) {
-                    return ret1 + ret2;
-                } else {
-                    return ret1;
-                }
-            };
-        } else if (when == "replace") {
-            return [func](std::array<size_t, nArrays> sizes, Args ... args) {
-                ReturnType ret;
-                func(ret, sizes, args ...);
-                return ret;
-            };
-        } else {
-            throw CanteraError("Delegator::makeDelegate",
-                "'when' must be one of 'before', 'after', or 'replace';"
-                " not '{}", when);
-        }
-    }
-
     // Delegates with no return value
     std::map<std::string, std::function<void()>*> m_funcs_v;
     std::map<std::string, std::function<void(bool)>*> m_funcs_v_b;
@@ -334,6 +323,22 @@ protected:
         std::function<void(std::array<size_t, 1>, double, double*)>*> m_funcs_v_d_dp;
     std::map<std::string,
         std::function<void(std::array<size_t, 2>, double, double*, double*)>*> m_funcs_v_d_dp_dp;
+
+    // Delegates with a return value
+    std::map<std::string,
+        std::function<double(std::array<size_t, 1>, double, double*)>> m_base_d_d_dp;
+    std::map<std::string,
+        std::function<double(std::array<size_t, 1>, double, double*)>*> m_funcs_d_d_dp;
+
+    std::map<std::string,
+        std::function<std::string(size_t)>> m_base_s_sz;
+    std::map<std::string,
+        std::function<std::string(size_t)>*> m_funcs_s_sz;
+
+    std::map<std::string,
+        std::function<size_t(const std::string&)>> m_base_sz_csr;
+    std::map<std::string,
+        std::function<size_t(const std::string&)>*> m_funcs_sz_csr;
 };
 
 }

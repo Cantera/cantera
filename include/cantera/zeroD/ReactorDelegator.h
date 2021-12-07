@@ -75,82 +75,17 @@ public:
             }
         );
         install("evalWalls", m_evalWalls, [this](double t) { R::evalWalls(t); });
-        m_evalSurfaces = [this](std::array<size_t, 1> sizes, double t, double* ydot) {
-            return R::evalSurfaces(t, ydot);
-        };
-        m_componentName = [this](size_t k) { return R::componentName(k); };
-        m_componentIndex = [this](const std::string& nm) {
-            return R::componentIndex(nm);
-        };
-        m_speciesIndex = [this](const std::string& nm) {
-            return R::speciesIndex(nm);
-        };
-    }
-
-    // For functions with the signature double(double, double*)
-    virtual void setDelegate(
-        const std::string& name,
-        const std::function<int(double&, std::array<size_t, 1>, double, double*)>& func,
-        const std::string& when) override
-    {
-        if (name == "evalSurfaces") {
-            m_evalSurfaces = makeDelegate<1>(
-                func,
-                when,
-                [this](double t, double* ydot) {
-                    return R::evalSurfaces(t, ydot);
-                }
-            );
-        } else {
-            throw NotImplementedError("ReactorDelegator::setDelegate",
-                "For function named '{}' with signature"
-                " void(double&, array<size_t, 1>, double, double*)", name);
-        }
-    }
-
-    // For functions with the signature string(size_t)
-    virtual void setDelegate(
-        const std::string& name,
-        const std::function<int(std::string&, size_t)>& func,
-        const std::string& when) override
-    {
-        if (name == "componentName") {
-            m_componentName = makeDelegate(func, when,
-                [this](size_t k) {
-                    return R::componentName(k);
-                }
-            );
-        } else {
-            throw NotImplementedError("ReactorDelegator::setDelegate",
-                "For function named '{}' with signature"
-                " void(string&, size_t)", name);
-        }
-    }
-
-    // For functions with the signature size_t(string)
-    virtual void setDelegate(
-        const std::string& name,
-        const std::function<int(size_t&, const std::string&)>& func,
-        const std::string& when) override
-    {
-        if (name == "componentIndex") {
-            m_componentIndex = makeDelegate(func, when,
-                [this](const std::string& nm) {
-                    return R::componentIndex(nm);
-                }
-            );
-        } else if (name == "speciesIndex") {
-            m_speciesIndex = makeDelegate(
-                func, when,
-                [this](const std::string& nm) {
-                    return R::speciesIndex(nm);
-                }
-            );
-        } else {
-            throw NotImplementedError("ReactorDelegator::setDelegate",
-                "For function named '{}' with signature"
-                " void(size_t&, string)", name);
-        }
+        install("evalSurfaces", m_evalSurfaces,
+            [this](std::array<size_t, 1> sizes, double t, double* ydot) {
+                return R::evalSurfaces(t, ydot);
+            }
+        );
+        install("componentName", m_componentName,
+            [this](size_t k) { return R::componentName(k); });
+        install("componentIndex", m_componentIndex,
+            [this](const std::string& nm) { return R::componentIndex(nm); });
+        install("speciesIndex", m_speciesIndex,
+            [this](const std::string& nm) { return R::speciesIndex(nm); });
     }
 
     // Overrides of Reactor methods
