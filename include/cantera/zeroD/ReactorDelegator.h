@@ -54,19 +54,27 @@ class ReactorDelegator : public Delegator, public R, public ReactorAccessor
 {
 public:
     ReactorDelegator() {
-        m_initialize = [this](double t0) { R::initialize(t0); };
-        m_syncState = [this]() { R::syncState(); };
-        m_getState = [this](std::array<size_t, 1> sizes, double* y) { R::getState(y); };
-        m_updateState = [this](std::array<size_t, 1> sizes, double* y) { R::updateState(y); };
-        m_updateSurfaceState = [this](std::array<size_t, 1> sizes, double* y) { R::updateSurfaceState(y); };
-        m_getSurfaceInitialConditions = [this](std::array<size_t, 1> sizes, double* y) {
-            R::getSurfaceInitialConditions(y);
-        };
-        m_updateConnected = [this](bool updatePressure) {
-            R::updateConnected(updatePressure);
-        };
-        m_eval = [this](std::array<size_t, 2> sizes, double t, double* LHS, double* RHS) { R::eval(t, LHS, RHS); };
-        m_evalWalls = [this](double t) { R::evalWalls(t); };
+        install("initialize", m_initialize, [this](double t0) { R::initialize(t0); });
+        install("syncState", m_syncState, [this]() { R::syncState(); });
+        install("getState", m_getState,
+            [this](std::array<size_t, 1> sizes, double* y) { R::getState(y); });
+        install("updateState", m_updateState,
+            [this](std::array<size_t, 1> sizes, double* y) { R::updateState(y); });
+        install("updateSurfaceState", m_updateSurfaceState,
+            [this](std::array<size_t, 1> sizes, double* y) { R::updateSurfaceState(y); });
+        install("getSurfaceInitialConditions", m_getSurfaceInitialConditions,
+            [this](std::array<size_t, 1> sizes, double* y) {
+                R::getSurfaceInitialConditions(y);
+            }
+        );
+        install("updateConnected", m_updateConnected,
+            [this](bool updatePressure) { R::updateConnected(updatePressure); });
+        install("eval", m_eval,
+            [this](std::array<size_t, 2> sizes, double t, double* LHS, double* RHS) {
+                R::eval(t, LHS, RHS);
+            }
+        );
+        install("evalWalls", m_evalWalls, [this](double t) { R::evalWalls(t); });
         m_evalSurfaces = [this](std::array<size_t, 1> sizes, double t, double* ydot) {
             return R::evalSurfaces(t, ydot);
         };
@@ -77,98 +85,6 @@ public:
         m_speciesIndex = [this](const std::string& nm) {
             return R::speciesIndex(nm);
         };
-    }
-
-    virtual void setDelegate(const std::string& name,
-                             const std::function<void()>& func,
-                             const std::string& when) override
-    {
-        if (name == "syncState") {
-            m_syncState = makeDelegate(func, when,
-                [this]() { R::syncState(); }
-            );
-        } else {
-            throw NotImplementedError("ReactorDelegator::setDelegate",
-                "For function named '{}' with signature void(double)", name);
-        }
-    }
-
-    virtual void setDelegate(const std::string& name,
-                             const std::function<void(bool)>& func,
-                             const std::string& when) override
-    {
-        if (name == "updateConnected") {
-            m_updateConnected = makeDelegate(
-                func, when,
-                [this](bool updatePressure) {
-                    R::updateConnected(updatePressure);
-                }
-            );
-        } else {
-            throw NotImplementedError("ReactorDelegator::setDelegate",
-                "For function named '{}' with signature void(bool)", name);
-        }
-    }
-
-    virtual void setDelegate(const std::string& name,
-                             const std::function<void(double)>& func,
-                             const std::string& when) override
-    {
-        if (name == "initialize") {
-            m_initialize = makeDelegate(func, when,
-                [this](double t0) { R::initialize(t0); }
-            );
-        } else if (name == "evalWalls") {
-            m_evalWalls = makeDelegate(func, when,
-                [this](double t) {
-                    R::evalWalls(t);
-                }
-            );
-        } else {
-            throw NotImplementedError("ReactorDelegator::setDelegate",
-                "For function named '{}' with signature void(double)", name);
-        }
-    }
-
-    // For functions with the signature void(double*)
-    virtual void setDelegate(
-        const std::string& name,
-        const std::function<void(std::array<size_t, 1>, double*)>& func,
-        const std::string& when) override
-    {
-        if (name == "getState") {
-            m_getState = makeDelegate<1>(func,
-                when,
-                [this](double* y) {
-                    R::getState(y);
-                }
-            );
-        } else if (name == "updateState") {
-            m_updateState = makeDelegate<1>(func,
-                when,
-                [this](double* y) {
-                    R::updateState(y);
-                }
-            );
-        } else if (name == "updateSurfaceState") {
-            m_updateSurfaceState = makeDelegate<1>(func,
-                when,
-                [this](double* y) {
-                    R::updateSurfaceState(y);
-                }
-            );
-        } else if (name == "getSurfaceInitialConditions") {
-            m_getSurfaceInitialConditions = makeDelegate<1>(func,
-                when,
-                [this](double* y) {
-                    R::getSurfaceInitialConditions(y);
-                }
-            );
-        } else {
-            throw NotImplementedError("ReactorDelegator::setDelegate",
-                "For function named '{}' with signature"
-                " void(array<size_t, 1>, double*)", name);
-        }
     }
 
     // For functions with the signature double(double, double*)
@@ -234,26 +150,6 @@ public:
             throw NotImplementedError("ReactorDelegator::setDelegate",
                 "For function named '{}' with signature"
                 " void(size_t&, string)", name);
-        }
-    }
-
-    // For functions with the signature void(double, double*, double*)
-    virtual void setDelegate(
-        const std::string& name,
-        const std::function<void(std::array<size_t, 2>, double, double*, double*)>& func,
-        const std::string& when) override
-    {
-        if (name == "eval") {
-            m_eval = makeDelegate<2>(func,
-                when,
-                [this](double t, double* LHS, double* RHS) {
-                    R::eval(t, LHS, RHS);
-                }
-            );
-        } else {
-            throw NotImplementedError("ReactorDelegator::setDelegate",
-                "For function named '{}' with signature"
-                "void(array<size_t, 2>, double, double*, double*)", name);
         }
     }
 
