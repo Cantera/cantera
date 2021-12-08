@@ -92,7 +92,7 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
     dmdt += mdot_surf;
 
     // compression work and external heat transfer
-    mcvdTdt += - m_pressure * m_vdot - m_Q;
+    mcvdTdt += - m_pressure * m_vdot + m_Qdot;
 
     for (size_t n = 0; n < m_nsp; n++) {
         // heat release from gas phase and surface reactions

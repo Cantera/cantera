@@ -204,7 +204,14 @@ protected:
     Kinetics* m_kin;
 
     doublereal m_vdot; //!< net rate of volume change from moving walls [m^3/s]
-    doublereal m_Q; //!< net heat transfer through walls [W]
+
+    //! net heat transfer out of the reactor, through walls [W]
+    //! @deprecated To be removed after Cantera 2.6. Replaced with #m_Qdot, which
+    //!     has the opposite sign convention.
+    double m_Q;
+
+    double m_Qdot; //!< net heat transfer into the reactor, through walls [W]
+
     doublereal m_mass; //!< total mass
     vector_fp m_work;
 

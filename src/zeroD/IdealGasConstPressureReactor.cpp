@@ -89,7 +89,7 @@ void IdealGasConstPressureReactor::evalEqs(doublereal time, doublereal* y,
     }
 
     // external heat transfer
-    mcpdTdt -= m_Q;
+    mcpdTdt += m_Qdot;
 
     for (size_t n = 0; n < m_nsp; n++) {
         // heat release from gas phase and surface reactions

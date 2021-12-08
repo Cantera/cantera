@@ -23,6 +23,7 @@ Reactor::Reactor() :
     m_kin(0),
     m_vdot(0.0),
     m_Q(0.0),
+    m_Qdot(0.0),
     m_mass(0.0),
     m_chem(false),
     m_energy(true),
@@ -230,7 +231,7 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
     //     \dot U = -P\dot V + A \dot q + \dot m_{in} h_{in} - \dot m_{out} h.
     // \f]
     if (m_energy) {
-        ydot[2] = - m_thermo->pressure() * m_vdot - m_Q;
+        ydot[2] = - m_thermo->pressure() * m_vdot + m_Qdot;
     } else {
         ydot[2] = 0.0;
     }
@@ -265,12 +266,13 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
 void Reactor::evalWalls(double t)
 {
     m_vdot = 0.0;
-    m_Q = 0.0;
+    m_Qdot = 0.0;
     for (size_t i = 0; i < m_wall.size(); i++) {
-        int lr = 1 - 2*m_lr[i];
-        m_vdot += lr*m_wall[i]->vdot(t);
-        m_Q += lr*m_wall[i]->Q(t);
+        int f = 2 * m_lr[i] - 1;
+        m_vdot -= f * m_wall[i]->vdot(t);
+        m_Qdot += f * m_wall[i]->Q(t);
     }
+    m_Q = -m_Qdot;
 }
 
 double Reactor::evalSurfaces(double t, double* ydot)

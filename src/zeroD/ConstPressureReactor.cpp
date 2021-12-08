@@ -87,7 +87,7 @@ void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,
     }
 
     // external heat transfer
-    double dHdt = - m_Q;
+    double dHdt = m_Qdot;
 
     // add terms for outlets
     for (auto outlet : m_outlet) {
