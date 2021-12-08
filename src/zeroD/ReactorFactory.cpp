@@ -29,12 +29,12 @@ ReactorFactory::ReactorFactory()
     reg("FlowReactor", []() { return new FlowReactor(); });
     reg("IdealGasReactor", []() { return new IdealGasReactor(); });
     reg("IdealGasConstPressureReactor", []() { return new IdealGasConstPressureReactor(); });
-    reg("DelegatedReactor", []() { return new ReactorDelegator<Reactor>(); });
-    reg("DelegatedIdealGasReactor",
+    reg("ExtensibleReactor", []() { return new ReactorDelegator<Reactor>(); });
+    reg("ExtensibleIdealGasReactor",
         []() { return new ReactorDelegator<IdealGasReactor>(); });
-    reg("DelegatedConstPressureReactor",
+    reg("ExtensibleConstPressureReactor",
         []() { return new ReactorDelegator<ConstPressureReactor>(); });
-    reg("DelegatedIdealGasConstPressureReactor",
+    reg("ExtensibleIdealGasConstPressureReactor",
         []() { return new ReactorDelegator<IdealGasConstPressureReactor>(); });
 }
 

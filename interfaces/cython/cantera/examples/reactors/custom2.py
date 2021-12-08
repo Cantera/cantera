@@ -6,7 +6,7 @@ This demonstrates an approach for solving problems where Cantera's built-in
 reactor models are not sufficient for describing the system in question. Unlike
 the 'custom.py' example, in this example Cantera's existing Reactor and
 ReactorNet code is still used, with only the modifications to the standard
-equations implemented in Python by extending the DelegatedReactor class.
+equations implemented in Python by extending the ExtensibleReactor class.
 
 Wall objects in Cantera are normally massless, with the velocity either imposed
 or proportional to the pressure difference. Here, we simulate a wall where the
@@ -20,7 +20,7 @@ Requires: cantera >= 2.6.0, matplotlib >= 2.0
 import cantera as ct
 import numpy as np
 
-class InertialWallReactor(ct.DelegatedIdealGasReactor):
+class InertialWallReactor(ct.ExtensibleIdealGasReactor):
     def __init__(self, *args, neighbor, **kwargs):
         super().__init__(*args, **kwargs)
         self.v_wall = 0  # initial wall velocity

@@ -1438,7 +1438,7 @@ cdef class IdealGasConstPressureReactor(Reactor):
 cdef class FlowReactor(Reactor):
     pass
 
-cdef class DelegatedReactor(Reactor):
+cdef class ExtensibleReactor(Reactor):
     cdef CxxReactorAccessor* accessor
 
 cdef class ReactorSurface:
