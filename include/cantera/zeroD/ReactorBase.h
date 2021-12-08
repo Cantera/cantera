@@ -266,6 +266,9 @@ protected:
 
     std::vector<WallBase*> m_wall;
     std::vector<ReactorSurface*> m_surfaces;
+
+    //! Vector of length nWalls(), indicating whether this reactor is on the left (0)
+    //! or right (1) of each wall.
     vector_int m_lr;
     std::string m_name;
 
