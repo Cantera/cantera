@@ -90,20 +90,20 @@ public:
 
     // Overrides of Reactor methods
 
-    virtual void initialize(double t0)  override{
+    virtual void initialize(double t0) override {
         m_initialize(t0);
     }
 
-    virtual void syncState()  override{
+    virtual void syncState() override {
         m_syncState();
     }
 
-    virtual void getState(double* y)  override{
+    virtual void getState(double* y) override {
         std::array<size_t, 1> sizes{R::neq()};
         m_getState(sizes, y);
     }
 
-    virtual void updateState(double* y)  override{
+    virtual void updateState(double* y) override {
         std::array<size_t, 1> sizes{R::neq()};
         m_updateState(sizes, y);
     }
@@ -118,7 +118,7 @@ public:
         m_getSurfaceInitialConditions(sizes, y);
     }
 
-    virtual void updateConnected(bool updatePressure) override{
+    virtual void updateConnected(bool updatePressure) override {
         m_updateConnected(updatePressure);
     }
 
