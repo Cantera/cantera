@@ -440,9 +440,11 @@ cdef class ExtensibleReactor(Reactor):
         reactors, and for updating the mass flow rates of connected flow devices.
 
     ``eval(self, t : double, LHS : double[:], RHS : double[:]) -> None``
-        Responsible for calculating the time derivative of the state ``ydot``
-        (length `n_vars`) at time ``t`` based on the current state of the
-        reactor.
+        Responsible for calculating the time derivative of the state at time ``t``
+        based on the current state of the reactor. For each component ``i`` of the
+        state vector, the time derivative ``dy[i]/dt`` is calculated as
+        ``LHS[i] * dy[i]/dt = RHS[i]``. ``LHS`` and ``RHS`` are arrays of length
+        `n_vars`.
 
     ``eval_walls(self, t : double) -> None``
         Responsible for calculating the net rate of volume change `vdot`

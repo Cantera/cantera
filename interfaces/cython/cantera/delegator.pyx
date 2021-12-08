@@ -1,6 +1,23 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+# The following functions are used along with the `pyOverride` function to wrap a Python
+# function inside a C++ `std::function` object that can be used with the C++ `Delegator`
+# class (see `Delegator.h`). The functions here are responsible for the following
+# behaviors:
+# - Mapping array arguments from C pointers to Cython "memoryviewslice" objects
+# - Catching and stashing any exceptions that might be thrown by the wrapped Python
+#   function. These will be translated to C++ exceptions and be re-thrown by the
+#   `pyOverride`-generated wrapper
+# - Translating the return value semantics of the Python function into the form
+#   required by the `Delegator` class, where the Python function's return value is
+#   an "output" argument of the function, and the actual return value (int) is used
+#   to indicate whether the Python function returned a value or None.
+# - Converting between C++ and Python strings
+#
+# See `funcWrapper.h` for the definition of the `PyFuncInfo` class and the `pyOverride`
+# function.
+
 # Wrapper for functions of type void()
 cdef void callback_v(PyFuncInfo& funcInfo):
     try:
