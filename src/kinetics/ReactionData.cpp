@@ -17,6 +17,7 @@ std::pair<bool, bool> ArrheniusData::update(const ThermoPhase& bulk,
     double T = bulk.temperature();
     std::pair<bool, bool> changed{ false, T != temperature };
     update(T);
+    pressure = bulk.pressure();
     return changed;
 }
 
@@ -35,6 +36,7 @@ std::pair<bool, bool> BlowersMaselData::update(const ThermoPhase& bulk,
         changed.first = changed.second = true;
     }
     update(T);
+    pressure = bulk.pressure();
     return changed;
 }
 
@@ -51,6 +53,7 @@ std::pair<bool, bool> FalloffData::update(const ThermoPhase& bulk, const Kinetic
         changed.first = changed.second = true;
     }
     update(T);
+    pressure = bulk.pressure();
     return changed;
 }
 

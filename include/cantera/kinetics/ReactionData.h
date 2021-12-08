@@ -23,7 +23,7 @@ class Kinetics;
  */
 struct ReactionData
 {
-    ReactionData() : temperature(1.), logT(0.), recipT(1.) {}
+    ReactionData() : temperature(1.), pressure(NAN), logT(0.), recipT(1.) {}
 
     //! Update data container based on temperature *T*
     virtual void update(double T) {
@@ -35,6 +35,7 @@ struct ReactionData
     //! Update data container based on temperature *T* and pressure *P*
     virtual void update(double T, double P) {
         update(T);
+        pressure = P;
     }
 
     //! Update data container based on *bulk* phase state
@@ -57,6 +58,7 @@ struct ReactionData
     }
 
     double temperature; //!< temperature
+    double pressure; //!< pressure
     double logT; //!< logarithm of temperature
     double recipT; //!< inverse of temperature
 };
@@ -143,7 +145,7 @@ protected:
  */
 struct PlogData final : public ReactionData
 {
-    PlogData() : pressure(NAN), logP(0.) {}
+    PlogData() : logP(0.) {}
 
     virtual void update(double T) override;
 
@@ -161,7 +163,6 @@ struct PlogData final : public ReactionData
         pressure = NAN;
     }
 
-    double pressure; //!< Pressure [Pa]
     double logP; //!< logarithm of pressure
 };
 
@@ -173,7 +174,7 @@ struct PlogData final : public ReactionData
  */
 struct ChebyshevData final : public ReactionData
 {
-    ChebyshevData() : pressure(NAN), log10P(0.) {}
+    ChebyshevData() : log10P(0.) {}
 
     virtual void update(double T) override;
 
@@ -191,7 +192,6 @@ struct ChebyshevData final : public ReactionData
         pressure = NAN;
     }
 
-    double pressure; //!< Pressure [Pa]
     double log10P; //!< base 10 logarithm of pressure
 };
 
