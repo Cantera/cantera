@@ -388,7 +388,7 @@ cdef class FlowReactor(Reactor):
             return (<CxxFlowReactor*>self.reactor).distance()
 
 
-cdef class DelegatedReactor(Reactor):
+cdef class ExtensibleReactor(Reactor):
     """
     A base class for a reactor with delegated methods where the base
     functionality corresponds to the `Reactor` class.
@@ -467,7 +467,7 @@ cdef class DelegatedReactor(Reactor):
         the state vector.
     """
 
-    reactor_type = "DelegatedReactor"
+    reactor_type = "ExtensibleReactor"
 
     delegatable_methods = {
         'initialize': ('initialize', 'void(double)'),
@@ -534,28 +534,28 @@ cdef class DelegatedReactor(Reactor):
         self.accessor.restoreSurfaceState(n)
 
 
-cdef class DelegatedIdealGasReactor(DelegatedReactor):
+cdef class ExtensibleIdealGasReactor(ExtensibleReactor):
     """
-    A variant of `DelegatedReactor` where the base behavior corresponds to the
+    A variant of `ExtensibleReactor` where the base behavior corresponds to the
     `IdealGasReactor` class.
     """
-    reactor_type = "DelegatedIdealGasReactor"
+    reactor_type = "ExtensibleIdealGasReactor"
 
 
-cdef class DelegatedConstPressureReactor(DelegatedReactor):
+cdef class ExtensibleConstPressureReactor(ExtensibleReactor):
     """
-    A variant of `DelegatedReactor` where the base behavior corresponds to the
+    A variant of `ExtensibleReactor` where the base behavior corresponds to the
     `ConstPressureReactor` class.
     """
-    reactor_type = "DelegatedConstPressureReactor"
+    reactor_type = "ExtensibleConstPressureReactor"
 
 
-cdef class DelegatedIdealGasConstPressureReactor(DelegatedReactor):
+cdef class ExtensibleIdealGasConstPressureReactor(ExtensibleReactor):
     """
-    A variant of `DelegatedReactor` where the base behavior corresponds to the
+    A variant of `ExtensibleReactor` where the base behavior corresponds to the
     `IdealGasConstPressureReactor` class.
     """
-    reactor_type = "DelegatedIdealGasConstPressureReactor"
+    reactor_type = "ExtensibleIdealGasConstPressureReactor"
 
 
 cdef class ReactorSurface:

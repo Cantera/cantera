@@ -1801,9 +1801,9 @@ class AdvanceCoveragesTest(utilities.CanteraTest):
         self.assertTrue(any(cov != self.surf.coverages))
 
 
-class DelegatedReactorTest(utilities.CanteraTest):
+class ExtensibleReactorTest(utilities.CanteraTest):
     def test_extra_variable(self):
-        class InertialWallReactor(ct.DelegatedIdealGasReactor):
+        class InertialWallReactor(ct.ExtensibleIdealGasReactor):
             def __init__(self, *args, neighbor, **kwargs):
                 super().__init__(*args, **kwargs)
                 self.v_wall = 0
@@ -1858,7 +1858,7 @@ class DelegatedReactorTest(utilities.CanteraTest):
     def test_replace_equations(self):
         gas = ct.Solution('h2o2.yaml')
         tau = np.linspace(0.5, 2, gas.n_species + 3)
-        class DummyReactor(ct.DelegatedReactor):
+        class DummyReactor(ct.ExtensibleReactor):
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
                 self.y = np.ones(gas.n_species + 3)
@@ -1898,7 +1898,7 @@ class DelegatedReactorTest(utilities.CanteraTest):
 
         #define a class representing reactor with a solid mass and
         #gas inside of it
-        class DummyReactor(ct.DelegatedIdealGasConstPressureReactor):
+        class DummyReactor(ct.ExtensibleIdealGasConstPressureReactor):
             #modify energy equation to include solid mass in reactor
             def after_eval(self,t,LHS,RHS):
                 self.m_mass = mass_gas
