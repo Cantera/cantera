@@ -34,10 +34,15 @@ public:
     //! Set the net rate of volume change (for example, from moving walls) [m^3/s]
     virtual void setVdot(double v) = 0;
 
-    //! Get the net heat transfer rate (for example, through walls) into the reactor [W]
+    //! Get the net heat transfer rate (for example, through walls) into the
+    //! reactor [W]. This value is initialized and calculated as part of
+    //! Reactor::evalWalls().
     virtual double qdot() const = 0;
 
-    //! Set the net heat transfer rate (for example, through walls) into the reactor [W]
+    //! Set the net heat transfer rate (for example, through walls) into the
+    //! reactor [W]. For a value set using this method to affect the calculations done
+    //! by Reactor::eval, this method should be called in either a "replace" or "after"
+    //! delegate for Reactor::evalWalls().
     virtual void setQdot(double q) = 0;
 
     //! Set the state of the thermo object to correspond to the state of the reactor

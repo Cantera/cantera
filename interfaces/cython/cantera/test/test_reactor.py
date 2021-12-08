@@ -1802,6 +1802,9 @@ class AdvanceCoveragesTest(utilities.CanteraTest):
 
 
 class ExtensibleReactorTest(utilities.CanteraTest):
+    def setUp(self):
+        self.gas = ct.Solution("h2o2.yaml")
+
     def test_extra_variable(self):
         class InertialWallReactor(ct.ExtensibleIdealGasReactor):
             def __init__(self, *args, neighbor, **kwargs):
@@ -1834,11 +1837,10 @@ class ExtensibleReactorTest(utilities.CanteraTest):
                 if i == self.i_wall:
                     return 'v_wall'
 
-        gas = ct.Solution('h2o2.yaml')
-        gas.TP = 300, ct.one_atm
-        res = ct.Reservoir(gas)
-        gas.TP = 300, 2 * ct.one_atm
-        r = InertialWallReactor(gas, neighbor=res)
+        self.gas.TP = 300, ct.one_atm
+        res = ct.Reservoir(self.gas)
+        self.gas.TP = 300, 2 * ct.one_atm
+        r = InertialWallReactor(self.gas, neighbor=res)
         w = ct.Wall(r, res)
         net = ct.ReactorNet([r])
 
@@ -1850,18 +1852,18 @@ class ExtensibleReactorTest(utilities.CanteraTest):
         # Wall is accelerating
         self.assertTrue((np.diff(V, 2) > 0).all())
 
-        self.assertIn('v_wall', net.component_name(gas.n_species + 3))
+        self.assertIn('v_wall', net.component_name(self.gas.n_species + 3))
         self.assertEqual(r.component_index('volume'), 1)
-        self.assertEqual(r.component_name(gas.n_species + 3), 'v_wall')
+        self.assertEqual(r.component_name(self.gas.n_species + 3), 'v_wall')
         self.assertEqual(r.component_name(2), 'temperature')
 
     def test_replace_equations(self):
-        gas = ct.Solution('h2o2.yaml')
-        tau = np.linspace(0.5, 2, gas.n_species + 3)
+        nsp = self.gas.n_species
+        tau = np.linspace(0.5, 2, nsp + 3)
         class DummyReactor(ct.ExtensibleReactor):
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
-                self.y = np.ones(gas.n_species + 3)
+                self.y = np.ones(nsp + 3)
 
             def replace_get_state(self, y):
                 y[:] = self.y
@@ -1872,7 +1874,7 @@ class ExtensibleReactorTest(utilities.CanteraTest):
             def replace_eval(self, t, LHS, RHS):
                 RHS[:] = - self.y / tau
 
-        r = DummyReactor(gas)
+        r = DummyReactor(self.gas)
         net = ct.ReactorNet([r])
         net.rtol *= 0.1
 
@@ -1881,10 +1883,9 @@ class ExtensibleReactorTest(utilities.CanteraTest):
             self.assertArrayNear(r.get_state(), np.exp(- net.time / tau))
 
     def test_RHS_LHS(self):
-        #create gas object
-        gas = ct.Solution('h2o2.yaml')
-        gas.TPX = 500, ct.one_atm, 'H2:2,O2:1,N2:4'
-        gas_initial_enthalpy = gas.enthalpy_mass
+        # set initial state
+        self.gas.TPX = 500, ct.one_atm, 'H2:2,O2:1,N2:4'
+        gas_initial_enthalpy = self.gas.enthalpy_mass
 
         #define properties of gas and solid
         mass_gas = 20 #[kg]
@@ -1905,7 +1906,7 @@ class ExtensibleReactorTest(utilities.CanteraTest):
                 LHS[1] = mass_lump*cp_lump+self.m_mass*self.thermo.cp_mass
                 RHS[1] = Q
 
-        r1 = DummyReactor(gas)
+        r1 = DummyReactor(self.gas)
         r1_net = ct.ReactorNet([r1])
 
         for n in range(n_steps):
@@ -1914,6 +1915,27 @@ class ExtensibleReactorTest(utilities.CanteraTest):
 
         #compare heat added (add_heat) to the equivalent energy
         #contained by the solid and gaseous mass in the reactor
-        r1_heat = mass_lump*cp_lump*(r1.thermo.T-500) + mass_gas*(gas.enthalpy_mass - gas_initial_enthalpy)
+        r1_heat = (mass_lump * cp_lump * (r1.thermo.T - 500) +
+                   mass_gas * (self.gas.enthalpy_mass - gas_initial_enthalpy))
         add_heat = Q*time
         self.assertNear(add_heat,r1_heat,atol=1e-5)
+
+    def test_heat_addition(self):
+        # Applying heat via 'qdot' property should be equivalent to adding it via a wall
+        Qext = 100
+        Qwall = -66
+        class HeatedReactor(ct.ExtensibleReactor):
+            def after_eval_walls(self, y):
+                self.qdot += Qext
+
+        self.gas.TPX = 300, ct.one_atm, "N2:1.0"
+        r1 = HeatedReactor(self.gas)
+        res = ct.Reservoir(self.gas)
+        wall = ct.Wall(res, r1, Q=Qwall, A=1)
+        net = ct.ReactorNet([r1])
+        U0 = r1.thermo.int_energy_mass * r1.mass
+        for t in np.linspace(0.1, 5, 10):
+            net.advance(t)
+            U = r1.thermo.int_energy_mass * r1.mass
+            self.assertNear(U - U0, (Qext + Qwall) * t)
+            self.assertNear(r1.qdot, Qext + Qwall)
