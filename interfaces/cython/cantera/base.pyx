@@ -177,6 +177,9 @@ cdef class _SolutionBase:
             self.base.setKinetics(newKinetics(stringify("none")))
         self.kinetics = self.base.kinetics().get()
 
+        # Transport
+        self.transport = self.base.transport().get()
+
     def _init_cti_xml(self, infile, name, adjacent, source):
         """
         Instantiate a set of new Cantera C++ objects from a CTI or XML
@@ -381,12 +384,14 @@ cdef class _SolutionBase:
         if self.kinetics.nTotalSpecies() > self.thermo.nSpecies():
             raise NotImplementedError(
                 "Pickling of Interface objects is not implemented.")
-        return self.write_yaml(), self.state
+        transport_model = pystr(self.transport.transportType())
+        return self.write_yaml(), self.state, transport_model
 
     def __setstate__(self, pkl):
         """Restore Solution from pickled information."""
-        yml, state = pkl
-        self._cinit(yaml=yml)
+        yml, state, transport_model = pkl
+        self._cinit(yaml=yml, transport_model=transport_model)
+
         self.state = state
 
     def __copy__(self):
