@@ -1,0 +1,37 @@
+description: |-
+  Input file to test edge cases for derivatives (Jacobians).
+  Most reaction rate definitions use arbitrary input data.
+units: {activation-energy: cal/mol}
+
+phases:
+- name: ohmech
+  thermo: ideal-gas
+  elements: [O, H, Ar]
+  species:
+  - h2o2.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]
+  kinetics: gas
+  reactions: all
+  state:
+    T: 300.0
+    P: 1.01325e+05
+
+reactions:
+- equation: O + HO2 => OH + O2  # Reaction 1
+  rate-constant: {A: 2.0e+13, b: 0.0, Ea: 9.252008e+04}
+  note: Irreversible reaction
+- equation: H2 <=> H + H  # Reaction 2
+  rate-constant: {A: 1.968e+4, b: 0.0, Ea: 9.252008e+04}
+  note: Single reactant
+- equation: 2 H + O <=> H2O  # Reaction 3
+  rate-constant: {A: 2.08e+5, b: -1.24, Ea: 0.0}
+  note: Three reactants
+- equation: 0.7 H2 + 0.6 OH + 0.2 O2 => H2O  # Reaction 4
+  rate-constant: {A: 3.981072e+04, b: 0.0, Ea: 9.252008e+04}
+  orders: {H2: 0.8, O2: 1.0, OH: 2.0}
+  note: Fractional reaction order
+- equation: O + H + M <=> OH + M  # Reaction 5
+  type: three-body
+  rate-constant: {A: 5.0e+5, b: -1.0, Ea: 0.0}
+  default-efficiency: 0.
+  efficiencies: {H2: 2.0, H2O: 6.0, AR: 0.7}
+  note: Zero default efficiency
