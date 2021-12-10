@@ -39,12 +39,10 @@ struct ReactionData
     }
 
     //! Update data container based on *bulk* phase state
-    //! @returns A pair where the first element indicates whether the
-    //!      `updateFromStruct` function for individual reactions needs to be called,
-    //!      and the second element indicates whether the `evalFromStruct` method
+    //! @returns A boolean element indicating whether the `evalFromStruct` method
     //!      needs to be called (assuming previously-calculated values were cached)
-    virtual std::pair<bool, bool> update(const ThermoPhase& bulk,
-                                         const Kinetics& kin) = 0;
+    virtual bool update(const ThermoPhase& bulk,
+                        const Kinetics& kin) = 0;
 
     //! Update number of species and reactions
     virtual void resize(size_t n_species, size_t n_reactions) {}
@@ -71,8 +69,8 @@ struct ReactionData
  */
 struct ArrheniusData final : public ReactionData
 {
-    virtual std::pair<bool, bool> update(const ThermoPhase& bulk,
-                                         const Kinetics& kin);
+    virtual bool update(const ThermoPhase& bulk,
+                        const Kinetics& kin);
     using ReactionData::update;
 };
 
@@ -86,8 +84,8 @@ struct BlowersMaselData final : public ReactionData
 {
     BlowersMaselData() : ready(false), density(NAN), m_state_mf_number(-1) {}
 
-    virtual std::pair<bool, bool> update(const ThermoPhase& bulk,
-                                         const Kinetics& kin) override;
+    virtual bool update(const ThermoPhase& bulk,
+                        const Kinetics& kin) override;
     using ReactionData::update;
 
     virtual void resize(size_t n_species, size_t n_reactions) override {
@@ -115,8 +113,8 @@ struct FalloffData final : public ReactionData
 {
     FalloffData() : ready(false), molar_density(NAN), m_state_mf_number(-1) {}
 
-    virtual std::pair<bool, bool> update(const ThermoPhase& bulk,
-                                         const Kinetics& kin) override;
+    virtual bool update(const ThermoPhase& bulk,
+                        const Kinetics& kin) override;
     using ReactionData::update;
 
     virtual void resize(size_t n_species, size_t n_reactions) override {
@@ -155,8 +153,8 @@ struct PlogData final : public ReactionData
         logP = std::log(P);
     }
 
-    virtual std::pair<bool, bool> update(const ThermoPhase& bulk,
-                                         const Kinetics& kin) override;
+    virtual bool update(const ThermoPhase& bulk,
+                        const Kinetics& kin) override;
 
     virtual void invalidateCache() override {
         ReactionData::invalidateCache();
@@ -184,8 +182,8 @@ struct ChebyshevData final : public ReactionData
         log10P = std::log10(P);
     }
 
-    virtual std::pair<bool, bool> update(const ThermoPhase& bulk,
-                                         const Kinetics& kin) override;
+    virtual bool update(const ThermoPhase& bulk,
+                        const Kinetics& kin) override;
 
     virtual void invalidateCache() override {
         ReactionData::invalidateCache();
