@@ -271,13 +271,10 @@ public:
 
     virtual void getParameters(AnyMap& node) const;
 
-    void updateFromStruct(const BlowersMaselData& shared_data) {
+    double evalFromStruct(const BlowersMaselData& shared_data) {
         if (shared_data.ready && m_rate_index != npos) {
             m_deltaH_R = shared_data.dH[m_rate_index] / GasConstant;
         }
-    }
-
-    double evalFromStruct(const BlowersMaselData& shared_data) {
         double Ea_R = activationEnergy_R(m_deltaH_R);
         return m_A * std::exp(m_b * shared_data.logT - Ea_R * shared_data.recipT);
     }

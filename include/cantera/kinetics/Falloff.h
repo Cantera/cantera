@@ -102,9 +102,11 @@ public:
 
     //! Evaluate falloff function at current conditions
     double evalF(double T, double conc3b) {
+        updateTemp(T, m_work.data());
         FalloffData data;
         data.update(T);
-        updateFromStruct(data);
+        m_rc_low = m_lowRate.evalFromStruct(data);
+        m_rc_high = m_highRate.evalFromStruct(data);
         double pr = conc3b * m_rc_low / (m_rc_high + SmallNumber);
         return F(pr, m_work.data());
     }
@@ -138,20 +140,15 @@ public:
 
     virtual void getParameters(AnyMap& node) const;
 
-    //! Update information specific to reaction
+    //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
-    virtual void updateFromStruct(const FalloffData& shared_data) {
+    virtual double evalFromStruct(const FalloffData& shared_data) {
         updateTemp(shared_data.temperature, m_work.data());
         m_rc_low = m_lowRate.evalFromStruct(shared_data);
         m_rc_high = m_highRate.evalFromStruct(shared_data);
         if (shared_data.ready && m_rate_index != npos) {
             m_thirdBodyConcentration = shared_data.conc_3b[m_rate_index];
         }
-    }
-
-    //! Evaluate reaction rate
-    //! @param shared_data  data shared by all reactions of a given type
-    virtual double evalFromStruct(const FalloffData& shared_data) const {
         double pr = m_thirdBodyConcentration * m_rc_low / (m_rc_high + SmallNumber);
 
         // Apply falloff function
