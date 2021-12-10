@@ -376,19 +376,14 @@ public:
         return getParameters(rateNode, Units(0));
     }
 
-    //! Update information specific to reaction
-    /*!
-     *  @param shared_data  data shared by all reactions of a given type
-     */
-    void updateFromStruct(const PlogData& shared_data) {
-        update_C(&shared_data.logP);
-    }
-
     //! Evaluate reaction rate
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    double evalFromStruct(const PlogData& shared_data) const {
+    double evalFromStruct(const PlogData& shared_data) {
+        if (shared_data.logP != logP_) {
+            update_C(&shared_data.logP);
+        }
         return updateRC(shared_data.logT, shared_data.recipT);
     }
 
@@ -534,7 +529,7 @@ class ChebyshevRate3 final : public ReactionRate
 {
 public:
     //! Default constructor.
-    ChebyshevRate3() : m_rate_units(Units(0.)) {}
+    ChebyshevRate3() : m_log10P(NAN), m_rate_units(Units(0.)) {}
 
     //! Constructor directly from coefficient array
     /*!
@@ -578,15 +573,10 @@ public:
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    void updateFromStruct(const ChebyshevData& shared_data) {
-        update_C(&shared_data.log10P);
-    }
-
-    //! Update information specific to reaction
-    /*!
-     *  @param shared_data  data shared by all reactions of a given type
-     */
-    double evalFromStruct(const ChebyshevData& shared_data) const {
+    double evalFromStruct(const ChebyshevData& shared_data) {
+        if (shared_data.log10P != m_log10P) {
+            update_C(&shared_data.log10P);
+        }
         return updateRC(0., shared_data.recipT);
     }
 
@@ -610,6 +600,7 @@ public:
     //! Update concentration-dependent parts of the rate coefficient.
     //! @param c base-10 logarithm of the pressure in Pa
     void update_C(const double* c) {
+        m_log10P = c[0];
         double Pr = (2 * c[0] + PrNum_) * PrDen_;
         double Cnm1 = Pr;
         double Cn = 1;
@@ -700,6 +691,7 @@ public:
     void setData(const Array2D& coeffs);
 
 protected:
+    double m_log10P; //!< value detecting updates
     double Tmin_, Tmax_; //!< valid temperature range
     double Pmin_, Pmax_; //!< valid pressure range
     double TrNum_, TrDen_; //!< terms appearing in the reduced temperature
