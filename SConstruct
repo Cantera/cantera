@@ -540,7 +540,7 @@ config_options = [
            scripts).""",
         {
             "cl": "/openmp",
-            "icc": "openmp",
+            "icc": "-qopenmp",
             "icx": "-qopenmp",
             "apple-clang": "-Xpreprocessor -fopenmp",
             "default": "-fopenmp",
@@ -1177,7 +1177,17 @@ else:
     env['cxx_stdlib'] = []
 
 env['HAS_CLANG'] = conf.CheckDeclaration('__clang__', '', 'C++')
-env['HAS_OPENMP'] = conf.CheckLibWithHeader("omp", "omp.h", language="C++")
+if not env["using_apple_clang"]:
+    # This checks for these three libraries in order and stops when it finds the
+    # first success. Intel = iomp5, LLVM/clang = omp, GCC = gomp. Since gomp is
+    # likely to be installed on the system even if other compilers are installed
+    # or in use, it needs to go last in the check.
+    env['HAS_OPENMP'] = conf.CheckLibWithHeader(
+        ["iomp5", "omp", "gomp"], "omp.h", language="C++"
+    )
+else:
+    env["HAS_OPENMP"] = False
+    logger.info("Not checking for OpenMP support due to using XCode compiler.")
 
 boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
 retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
