@@ -79,8 +79,7 @@ public:
 
     virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override {
         // update common data once for each reaction type
-        std::pair<bool, bool> changed = m_shared.update(bulk, kin);
-        return changed.second;
+        return m_shared.update(bulk, kin);
     }
 
     virtual double evalSingle(ReactionRate& rate) override

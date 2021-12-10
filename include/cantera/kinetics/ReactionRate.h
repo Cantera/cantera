@@ -27,8 +27,7 @@ namespace Cantera
 //! where `DataType` is a container for parameters needed to evaluate reactions of that
 //! type.
 //!
-//! Derived classes may also implement the methods
-//! `updateFromStruct(const DataType& shared_data)` and
+//! Derived classes may also implement the method
 //! `ddTScaledFromStruct(const DataType& shared_data)`.
 class ReactionRate
 {
