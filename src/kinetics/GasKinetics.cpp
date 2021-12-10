@@ -276,7 +276,7 @@ void GasKinetics::getJacobianSettings(AnyMap& settings) const
     settings["mole-fractions"] = m_jac_mole_fractions;
     settings["skip-third-bodies"] = m_jac_skip_third_bodies;
     settings["skip-falloff"] = m_jac_skip_falloff;
-    settings["rtol-delta-T"] = m_jac_atol_deltaT;
+    settings["rtol-delta-T"] = m_jac_rtol_deltaT;
 }
 
 void GasKinetics::setJacobianSettings(const AnyMap& settings)
@@ -334,8 +334,8 @@ Eigen::VectorXd GasKinetics::fwdRateConstants_ddT()
     // reaction rates that depend on third-body colliders
     if (m_jac_const_pressure) {
         for (auto& rates : m_bulk_rates) {
-            rates->processRateConstants_ddMscaled(
-                dFwdKcM.data(), m_rfn.data(), m_jac_atol_deltaM);
+            rates->processRateConstants_ddM(
+                dFwdKcM.data(), m_rfn.data(), m_jac_rtol_deltaT);
         }
         processConcentrations_ddT(dFwdKcM.data());
         dFwdKc += dFwdKcM;
@@ -404,13 +404,17 @@ Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddT()
         dFwdRopC.fill(0.);
         m_reactantStoich.scale(m_ropf.data(), dFwdRopC.data());
 
-        // reactions involving third body
-        if (!m_concm.empty()) {
-            Eigen::Map<Eigen::VectorXd> dFwdRopM(m_rbuf2.data(), nReactions());
-            dFwdRopM.fill(0.);
-            m_multi_concm.scale(m_ropf.data(), dFwdRopM.data());
-            dFwdRopC += dFwdRopM;
+        // reaction rates that depend on third-body colliders
+        Eigen::Map<Eigen::VectorXd> dFwdRopM(m_rbuf2.data(), nReactions());
+        copy(m_ropf.begin(), m_ropf.end(), &dFwdRopM[0]);
+        for (auto& rates : m_bulk_rates) {
+            rates->processRateConstants_ddM(
+                dFwdRopM.data(), m_rfn.data(), m_jac_atol_deltaT);
         }
+
+        // reactions involving third body in law of mass action
+        m_multi_concm.scaleOrder(m_ropf.data(), dFwdRopM.data());
+        dFwdRopC += dFwdRopM;
 
         // add term to account for changes of concentrations
         processConcentrations_ddT(dFwdRopC.data());
@@ -444,13 +448,16 @@ Eigen::VectorXd GasKinetics::revRatesOfProgress_ddT()
         dRevRopC.fill(0.);
         m_revProductStoich.scale(m_ropr.data(), dRevRopC.data());
 
-        // reactions involving third body
-        if (!m_concm.empty()) {
-            Eigen::Map<Eigen::VectorXd> dRevRopM(m_rbuf2.data(), nReactions());
-            dRevRopM.fill(0.);
-            m_multi_concm.scale(m_ropr.data(), dRevRopM.data());
-            dRevRopC += dRevRopM;
+        // reaction rates that depend on third-body colliders
+        Eigen::Map<Eigen::VectorXd> dRevRopM(m_rbuf2.data(), nReactions());
+        copy(m_ropr.begin(), m_ropr.end(), &dRevRopM[0]);
+        for (auto& rates : m_bulk_rates) {
+            rates->processRateConstants_ddM(
+                dRevRopM.data(), m_rfn.data(), m_jac_atol_deltaT);
         }
+
+        // reactions involving third body in law of mass action
+        m_multi_concm.scaleOrder(m_ropr.data(), dRevRopM.data());
 
         // add term to account for changes of concentrations
         processConcentrations_ddT(dRevRopC.data());

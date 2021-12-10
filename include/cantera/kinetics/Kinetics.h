@@ -626,6 +626,19 @@ public:
     }
 
     /**
+     * Calculate Jacobian for forward rate constants with respect to species
+     * temperature.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::VectorXd fwdRateConstants_ddT()
+    {
+        throw NotImplementedError("Kinetics::fwdRateConstants_ddT",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
+
+    /**
      * Calculate Jacobian for forward rates-of-progress with respect to species
      * concentrations.
      *

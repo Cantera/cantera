@@ -21,6 +21,7 @@ template <class RateType, class DataType>
 class MultiBulkRate final : public MultiRateBase
 {
     CT_DEFINE_HAS_MEMBER(has_ddT, ddTScaledFromStruct)
+    CT_DEFINE_HAS_MEMBER(has_ddM, perturbM)
 
 public:
     virtual std::string type() override {
@@ -77,6 +78,15 @@ public:
         _process_ddT(rop, kf, deltaT);
     }
 
+    virtual void processRateConstants_ddM(double* rop,
+                                          const double* kf,
+                                          double deltaM) override
+    {
+        // call helper function: implementation of derivative depends on whether
+        // ReactionRate::thirdBodyConcentration is defined
+        _process_ddM(rop, kf, deltaM);
+    }
+
     virtual void update(double T) override {
         m_shared.update(T);
     }
@@ -125,6 +135,37 @@ protected:
 
         // revert changes
         m_shared.restore();
+    }
+
+    //! Helper function to process third-body derivatives for rate data that
+    //! implement the `perturbM` method.
+    template <typename T=RateType, typename D=DataType,
+        typename std::enable_if<has_ddM<D>::value, bool>::type = true>
+    void _process_ddM(double* rop, const double* kf, double deltaM) {
+        double dMinv = 1. / deltaM;
+        m_shared.perturbM(deltaM);
+
+        for (auto& rxn : m_rxn_rates) {
+            if (kf[rxn.first] != 0. && m_shared.conc_3b[rxn.first] > 0.) {
+                double k1 = rxn.second.evalFromStruct(m_shared);
+                rop[rxn.first] *= dMinv * (k1 / kf[rxn.first] - 1.);
+                rop[rxn.first] /= m_shared.conc_3b[rxn.first];
+            } else {
+                rop[rxn.first] = 0.;
+            }
+        }
+
+        // revert changes
+        m_shared.restore();
+    }
+
+    //! Helper function for rate data that do not implement `perturbM`
+    template <typename T=RateType, typename D=DataType,
+        typename std::enable_if<!has_ddM<D>::value, bool>::type = true>
+    void _process_ddM(double* rop, const double* kf, double deltaM) {
+        for (const auto& rxn : m_rxn_rates) {
+            rop[rxn.first] = 0.;
+        }
     }
 
     //! Vector of pairs of reaction rates indices and reaction rates
