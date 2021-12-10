@@ -168,14 +168,12 @@ public:
     }
 
     //! Scale input by reaction order with respect to third-body concentrations
-    void scale(const double* in, double* out) const
+    void scaleOrder(const double* in, double* out) const
     {
         for (const auto& ix : m_reaction_index) {
             if (m_mass_action[ix]) {
                 out[ix] = in[ix];
-             } else {
-                out[ix] = 0.;
-             }
+            }
         }
     }
 

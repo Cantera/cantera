@@ -63,6 +63,7 @@ public:
 
     virtual void getJacobianSettings(AnyMap& settings) const;
     virtual void setJacobianSettings(const AnyMap& settings);
+    virtual Eigen::VectorXd fwdRateConstants_ddT();
     virtual Eigen::VectorXd fwdRatesOfProgress_ddT();
     virtual Eigen::VectorXd revRatesOfProgress_ddT();
     virtual Eigen::VectorXd netRatesOfProgress_ddT();

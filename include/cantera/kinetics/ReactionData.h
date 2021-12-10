@@ -169,8 +169,19 @@ struct FalloffData : public ReactionData
 
     virtual void update(double T, double M) override;
 
+    //! Perturb third-body concentration vector of data container
+    /**
+     * The method is used for the evaluation of numerical derivatives.
+     * @param deltaM  relative third-body perturbation
+     */
+    virtual bool perturbM(double deltaM);
+
+    //! Restore data container after a perturbation
+    virtual bool restore();
+
     virtual void resize(size_t n_species, size_t n_reactions) override {
         conc_3b.resize(n_reactions, NAN);
+        m_conc_3b_buf.resize(n_reactions, NAN);
         ready = true;
     }
 
@@ -185,6 +196,8 @@ struct FalloffData : public ReactionData
 
 protected:
     int m_state_mf_number; //!< integer that is incremented when composition changes
+    bool m_perturbed; //!< boolean indicating whether perturbed values are used
+    vector_fp m_conc_3b_buf; //!< buffered third-body concentrations
 };
 
 

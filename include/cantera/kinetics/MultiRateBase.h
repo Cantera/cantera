@@ -66,6 +66,15 @@ public:
                                           const double* kf,
                                           double deltaT) = 0;
 
+    //! Evaluate all rate constant third-body derivatives handled by the evaluator;
+    //! which are multiplied with the array of rate-of-progress variables.
+    //! @param rop  array of rop, which is modified by the method
+    //! @param kf  array of forward rate constants
+    //! @param deltaM  relative perturbation of third-body concentrations
+    virtual void processRateConstants_ddM(double* rop,
+                                          const double* kf,
+                                          double deltaM) = 0;
+
     //! Update common reaction rate data based on temperature.
     //! Only used in conjunction with evalSingle and ReactionRate::eval
     //! @param T  temperature [K]

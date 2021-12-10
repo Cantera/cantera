@@ -128,8 +128,10 @@ FalloffData::FalloffData()
     : ready(false)
     , molar_density(NAN)
     , m_state_mf_number(-1)
+    , m_perturbed(false)
 {
     conc_3b.resize(1, NAN);
+    m_conc_3b_buf.resize(1, NAN);
 }
 
 void FalloffData::update(double T)
@@ -162,6 +164,32 @@ bool FalloffData::update(const ThermoPhase& bulk, const Kinetics& kin)
         changed = true;
     }
     return changed;
+}
+
+bool FalloffData::perturbM(double deltaM)
+{
+    // only perturb if there is no buffered value
+    if (m_perturbed) {
+        return false;
+    }
+    std::copy(conc_3b.begin(), conc_3b.end(), m_conc_3b_buf.begin());
+    for (auto& c3b : conc_3b) {
+        c3b *= 1. + deltaM;
+    }
+    m_perturbed = true;
+    return true;
+}
+
+bool FalloffData::restore()
+{
+    bool ret = ReactionData::restore();
+    // only restore if there is a valid buffered value
+    if (!m_perturbed) {
+        return ret;
+    }
+    std::copy(m_conc_3b_buf.begin(), m_conc_3b_buf.end(), conc_3b.begin());
+    m_perturbed = false;
+    return true;
 }
 
 void PlogData::update(double T)
