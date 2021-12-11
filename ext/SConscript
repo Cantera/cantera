@@ -167,12 +167,12 @@ def generate_license(target, source, env):
 
 
 localenv["license_files"] = license_files
-license = build(localenv.Command("LICENSE.txt", license_files.values(),
+license = build(localenv.Command("LICENSE.txt", list(license_files.values()),
                                  generate_license))
 env["license_target"] = license
 install('$inst_docdir', license)
 
 if env['OS'] == 'Windows':
     # RTF version is required for Windows installer
-    build(localenv.Command("LICENSE.rtf", license_files.values(),
+    build(localenv.Command("LICENSE.rtf", list(license_files.values()),
                            generate_license))
