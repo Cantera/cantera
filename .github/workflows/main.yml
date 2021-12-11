@@ -48,6 +48,36 @@ jobs:
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
 
+  clang-compiler:
+    name: LLVM/Clang with Python 3.8
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+        architecture: x64
+    - name: Install Apt dependencies
+      run: |
+        sudo apt update
+        sudo apt install libboost-dev gfortran libomp-dev libomp5
+    - name: Upgrade pip
+      run: python3 -m pip install -U pip setuptools wheel
+    - name: Install Python dependencies
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
+        pytest-github-actions-annotate-failures
+    - name: Build Cantera
+      run: python3 `which scons` build env_vars=all
+        CXX=clang++-12 CC=clang-12 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
+        -j2 debug=n --debug=time
+    - name: Test Cantera
+      run:
+        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
+
   macos-multiple-pythons:
     name: macOS with Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
