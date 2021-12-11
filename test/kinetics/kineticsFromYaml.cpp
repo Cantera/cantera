@@ -296,6 +296,27 @@ TEST(Reaction, BlowersMaselFromYaml)
     EXPECT_FALSE(R->allow_negative_orders);
 }
 
+TEST(Reaction, TwoTempPlasmaFromYaml)
+{
+    auto sol = newSolution("ET_test.yaml");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: E + O2 + O2 => O2^- + O2,"
+        " type: two-temperature-plasma,"
+        " rate-constant: [1.523e+27 cm^6/mol^2/s, -1.0, -100 K, 700 K]}");
+
+    auto R = newReaction(rxn, *(sol->kinetics()));
+    EXPECT_EQ(R->reactants.at("O2"), 2);
+    EXPECT_EQ(R->reactants.at("E"), 1);
+    EXPECT_EQ(R->products.at("O2^-"), 1);
+    EXPECT_EQ(R->products.at("O2"), 1);
+
+    const auto rate = std::dynamic_pointer_cast<TwoTempPlasmaRate>(R->rate());
+    EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 1.523e21);
+    EXPECT_DOUBLE_EQ(rate->temperatureExponent(), -1.0);
+    EXPECT_DOUBLE_EQ(rate->activationEnergy_R(), -100);
+    EXPECT_DOUBLE_EQ(rate->activationElectronEnergy_R(), 700);
+}
+
 TEST(Kinetics, GasKineticsFromYaml1)
 {
     AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
