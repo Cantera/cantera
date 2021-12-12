@@ -431,8 +431,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxFalloffRate(CxxAnyMap) except +translate_exception
         cbool allowNegativePreExponentialFactor()
         void setAllowNegativePreExponentialFactor(bool)
-        double thirdBodyConcentration()
-        void setThirdBodyConcentration(double)
         cbool chemicallyActivated()
         void setChemicallyActivated(bool)
         CxxArrheniusRate& lowRate()

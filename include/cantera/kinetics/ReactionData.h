@@ -34,7 +34,7 @@ struct ReactionData
 
     //! Update data container based on temperature *T* and pressure *P*
     virtual void update(double T, double P) {
-        update(T);
+        ReactionData::update(T);
         pressure = P;
     }
 
@@ -115,11 +115,16 @@ protected:
  */
 struct FalloffData final : public ReactionData
 {
-    FalloffData() : ready(false), molar_density(NAN), m_state_mf_number(-1) {}
+    FalloffData();
 
     virtual bool update(const ThermoPhase& bulk,
                         const Kinetics& kin) override;
-    using ReactionData::update;
+
+    virtual void update(double T) override;
+
+    virtual void update(double T, double P) override;
+
+    virtual void update(double T, double P, double M) override;
 
     virtual void resize(size_t n_species, size_t n_reactions) override {
         conc_3b.resize(n_reactions, NAN);
