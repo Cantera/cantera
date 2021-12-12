@@ -59,16 +59,10 @@ public:
     //! @param T  temperature [K]
     virtual void update(double T) = 0;
 
-    //! Update common reaction rate data based on temperature and pressure
+    //! Update common reaction rate data based on temperature and extra parameter
     //! @param T  temperature [K]
-    //! @param P  pressure [Pa]
-    virtual void update(double T, double P) = 0;
-
-    //! Update common reaction rate data based on temperature and pressure
-    //! @param T  temperature [K]
-    //! @param P  pressure [Pa]
     //! @param extra  extra parameter (depends on parameterization)
-    virtual void update(double T, double P, double extra) = 0;
+    virtual void update(double T, double extra) = 0;
 
     //! Update data common to reaction rates of a specific type
     //! @param bulk  object representing bulk phase
