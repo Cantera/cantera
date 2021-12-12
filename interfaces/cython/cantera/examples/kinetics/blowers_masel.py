@@ -91,7 +91,7 @@ def change_species_enthalpy(gas, species_name, dH):
                             species.thermo.reference_pressure, perturbed_coeffs)
 
     gas.modify_species(index, species)
-    gas.reaction(1).rate.delta_enthalpy = gas.delta_enthalpy[1]
+    return gas.delta_enthalpy[1]
 
 # Plot the activation energy change of reaction 2 with respect to the
 # enthalpy change
@@ -102,8 +102,8 @@ lower_limit_enthalpy = -5 * E0
 Ea_list = []
 deltaH_list = np.linspace(lower_limit_enthalpy, upper_limit_enthalpy, 100)
 for deltaH in deltaH_list:
-    change_species_enthalpy(gas, 'H', deltaH - gas.delta_enthalpy[1])
-    Ea_list.append(gas.reaction(1).rate.activation_energy)
+    delta_enthalpy = change_species_enthalpy(gas, "H", deltaH - gas.delta_enthalpy[1])
+    Ea_list.append(gas.reaction(1).rate.activation_energy(delta_enthalpy))
 
 plt.figure()
 plt.plot(deltaH_list, Ea_list)
