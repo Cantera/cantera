@@ -1417,6 +1417,7 @@ cdef class ReactorBase:
     cdef list _inlets
     cdef list _outlets
     cdef list _walls
+    cdef list _surfaces
     cdef object _weakref_proxy
 
 cdef class Reactor(ReactorBase):
