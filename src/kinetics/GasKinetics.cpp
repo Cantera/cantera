@@ -19,10 +19,9 @@ GasKinetics::GasKinetics(ThermoPhase* thermo) :
 {
 }
 
-void GasKinetics::getThirdBodyConcentrations(double* concm) const
+void GasKinetics::getThirdBodyConcentrations(double* concm)
 {
-    // @todo ... address/reassess, as correctness of values is subject to
-    //      update_rates_C having been called with the current thermo state.
+    updateROP();
     std::copy(m_concm.begin(), m_concm.end(), concm);
 }
 

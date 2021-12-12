@@ -118,7 +118,8 @@ bool FalloffData::update(const ThermoPhase& bulk, const Kinetics& kin)
     if (rho_m != molar_density || mf != m_state_mf_number) {
         molar_density = rho_m;
         m_state_mf_number = mf;
-        kin.getThirdBodyConcentrations(conc_3b.data());
+        auto& concm = kin.thirdBodyConcentrations();
+        std::copy(concm.begin(), concm.end(), conc_3b.begin());
         changed = true;
     }
     pressure = bulk.pressure();
