@@ -405,8 +405,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double eval(double) except +translate_exception
         double eval(double, double) except +translate_exception
         double eval(double, double, double) except +translate_exception
-        double ddT(double) except +translate_exception
-        double ddT(double, double) except +translate_exception
         CxxAnyMap parameters() except +translate_exception
 
     cdef cppclass CxxArrheniusRate "Cantera::ArrheniusRate" (CxxReactionRate, CxxArrheniusBase):

@@ -93,27 +93,7 @@ public:
         return R.evalFromStruct(m_shared);
     }
 
-    virtual double ddTSingle(ReactionRate& rate) override
-    {
-        RateType& R = static_cast<RateType&>(rate);
-        return R.evalFromStruct(m_shared) * _get_ddTScaled(R);
-    }
-
 protected:
-    //! Helper function to evaluate temperature derivative for rate types that
-    //! implement the `ddTScaledFromStruct` method.
-    template <typename T=RateType, typename std::enable_if<has_ddT<T>::value, bool>::type = true>
-    double _get_ddTScaled(RateType& rate) {
-        return rate.ddTScaledFromStruct(m_shared);
-    }
-
-    //! Helper function for rate types that do not implement `ddTScaledFromStruct`
-    template <typename T=RateType, typename std::enable_if<!has_ddT<T>::value, bool>::type = true>
-    double _get_ddTScaled(RateType& rate) {
-        throw NotImplementedError("ReactionRate::ddTScaledFromStruct",
-            "For rate of type {}", rate.type());
-    }
-
     //! Vector of pairs of reaction rates indices and reaction rates
     std::vector<std::pair<size_t, RateType>> m_rxn_rates;
     std::map<size_t, size_t> m_indices; //! Mapping of indices

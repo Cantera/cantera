@@ -1,8 +1,5 @@
 /**
  * @file ReactionRate.h
- *
- * @warning This file is an experimental part of the %Cantera API and
- *    may be changed or removed without notice.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -104,10 +101,6 @@ public:
 
     //! Evaluate reaction rate based on temperature
     //! @param T  temperature [K]
-    /**
-     * @warning This method is an experimental part of the %Cantera API and
-     *      may be changed or removed without notice.
-     * */
     double eval(double T) {
         _evaluator().update(T);
         return _evaluator().evalSingle(*this);
@@ -116,69 +109,18 @@ public:
     //! Evaluate reaction rate based on temperature and pressure
     //! @param T  temperature [K]
     //! @param P  pressure [Pa]
-    /**
-     * @warning This method is an experimental part of the %Cantera API and
-     *      may be changed or removed without notice.
-     * */
     double eval(double T, double P) {
         _evaluator().update(T, P);
         return _evaluator().evalSingle(*this);
     }
 
-    //! Evaluate reaction rate based on temperature and pressure
+    //! Evaluate reaction rate based on temperature, pressure and extra parameter
     //! @param T  temperature [K]
     //! @param P  pressure [Pa]
-    //! @param extra  extra parameter
-    /**
-     * @warning This method is an experimental part of the %Cantera API and
-     *      may be changed or removed without notice.
-     * */
+    //! @param extra  extra parameter (used by some parameterizations)
     double eval(double T, double P, double extra) {
         _evaluator().update(T, P, extra);
         return _evaluator().evalSingle(*this);
-    }
-
-    //! Evaluate reaction rate based on bulk phase
-    //! @param bulk  object representing bulk phase
-    //! @param kin  object representing kinetics (not required for all rate types)
-    double eval(const ThermoPhase& bulk, const Kinetics& kin) {
-        _evaluator().update(bulk, kin);
-        return _evaluator().evalSingle(*this);
-    }
-
-    //! Evaluate reaction rate derivative based on temperature
-    //! @param T  temperature [K]
-    /**
-     * @warning This method is an experimental part of the %Cantera API and
-     *      may be changed or removed without notice.
-     * */
-    double ddT(double T) {
-        _evaluator().update(T);
-        return _evaluator().ddTSingle(*this);
-    }
-
-    //! Evaluate reaction rate derivative based on temperature and pressure
-    //! @param T  temperature [K]
-    //! @param P  pressure [Pa]
-    /**
-     * @warning This method is an experimental part of the %Cantera API and
-     *      may be changed or removed without notice.
-     * */
-    double ddT(double T, double P) {
-        _evaluator().update(T, P);
-        return _evaluator().ddTSingle(*this);
-    }
-
-    //! Evaluate reaction rate derivative based on bulk phase
-    //! @param bulk  object representing bulk phase
-    //! @param kin  object representing kinetics (not required for all rate types)
-    /**
-     * @warning This method is an experimental part of the %Cantera API and
-     *      may be changed or removed without notice.
-     * */
-    double ddT(const ThermoPhase& bulk, const Kinetics& kin) {
-        _evaluator().update(bulk, kin);
-        return _evaluator().ddTSingle(*this);
     }
 
 protected:

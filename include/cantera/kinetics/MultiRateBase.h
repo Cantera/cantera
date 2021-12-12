@@ -78,10 +78,6 @@ public:
 
     //! Get the rate for a single reaction. Used to implement ReactionRate::eval.
     virtual double evalSingle(ReactionRate& rate) = 0;
-
-    //! Get the derivative of the rate with respect to temperature for a single
-    //! reaction. Used to implement ReactionRate::ddT.
-    virtual double ddTSingle(ReactionRate& rate) = 0;
 };
 
 } // end namespace Cantera
