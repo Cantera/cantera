@@ -38,7 +38,10 @@ public:
         return "Gas";
     }
 
-    virtual void getThirdBodyConcentrations(double* concm) const;
+    virtual void getThirdBodyConcentrations(double* concm);
+    virtual const vector_fp& thirdBodyConcentrations() const {
+        return m_concm;
+    }
 
     //! @}
     //! @name Reaction Rates Of Progress

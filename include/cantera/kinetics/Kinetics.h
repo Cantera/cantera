@@ -513,15 +513,25 @@ public:
     }
 
     /**
-     * Return the vector of values of effective concentrations of third-body
+     * Return a vector of values of effective concentrations of third-body
      * collision partners of any reaction. Entries for reactions not involving
      * third-body collision parters are not defined and set to not-a-number.
      *
      * @param concm  Output vector of effective third-body concentrations.
      *      Length: nReactions().
      */
-    virtual void getThirdBodyConcentrations(double* concm) const {
+    virtual void getThirdBodyConcentrations(double* concm) {
         throw NotImplementedError("Kinetics::getThirdBodyConcentrations",
+            "Not applicable/implemented for Kinetics object of type '{}'",
+            kineticsType());
+    }
+
+    /**
+     * Provide direct access to current third-body concentration values.
+     * @see getThirdBodyConcentrations.
+     */
+    virtual const vector_fp& thirdBodyConcentrations() const {
+        throw NotImplementedError("Kinetics::thirdBodyConcentrations",
             "Not applicable/implemented for Kinetics object of type '{}'",
             kineticsType());
     }
