@@ -197,6 +197,7 @@ void BulkKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
 
         // Replace reaction rate to evaluator
         size_t index = m_bulk_types[rate->type()];
+        rNew->rate()->setRateIndex(i);
         m_bulk_rates[index]->replace(i, *rate);
     }
 }
