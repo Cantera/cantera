@@ -273,10 +273,10 @@ public:
 
     double evalFromStruct(const BlowersMaselData& shared_data) {
         double deltaH_R;
-        if (!shared_data.ready || m_rate_index == npos) {
-            deltaH_R = shared_data.dH[0] / GasConstant;
-        } else {
+        if (shared_data.ready) {
             deltaH_R = shared_data.dH[m_rate_index] / GasConstant;
+        } else {
+            deltaH_R = shared_data.dH[0] / GasConstant;
         }
         double Ea_R = activationEnergy_R(deltaH_R);
         return m_A * std::exp(m_b * shared_data.logT - Ea_R * shared_data.recipT);

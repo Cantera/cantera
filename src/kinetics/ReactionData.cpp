@@ -52,9 +52,6 @@ void BlowersMaselData::update(double T, double P)
 
 void BlowersMaselData::update(double T, double P, double deltaH)
 {
-    if (ready) {
-        throw CanteraError("BlowersMaselData::update", "This should not be reachable.");
-    }
     ReactionData::update(T, P);
     dH[0] = deltaH;
 }
@@ -104,9 +101,6 @@ void FalloffData::update(double T, double P)
 
 void FalloffData::update(double T, double P, double M)
 {
-    if (ready) {
-        throw CanteraError("FalloffData::update", "This should not be reachable.");
-    }
     ReactionData::update(T, P);
     conc_3b[0] = M;
 }

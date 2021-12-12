@@ -146,10 +146,10 @@ public:
         m_rc_low = m_lowRate.evalFromStruct(shared_data);
         m_rc_high = m_highRate.evalFromStruct(shared_data);
         double thirdBodyConcentration;
-        if (!shared_data.ready || m_rate_index == npos) {
-            thirdBodyConcentration = shared_data.conc_3b[0];
-        } else {
+        if (shared_data.ready) {
             thirdBodyConcentration = shared_data.conc_3b[m_rate_index];
+        } else {
+            thirdBodyConcentration = shared_data.conc_3b[0];
         }
         double pr = thirdBodyConcentration * m_rc_low / (m_rc_high + SmallNumber);
 
