@@ -11,6 +11,12 @@
 namespace Cantera
 {
 
+void ReactionData::update(double T, double P, double extra)
+{
+    throw NotImplementedError("ReactionData::update",
+        "Update with extra argument not implemented.");
+}
+
 bool ArrheniusData::update(const ThermoPhase& bulk, const Kinetics& kin)
 {
     double T = bulk.temperature();

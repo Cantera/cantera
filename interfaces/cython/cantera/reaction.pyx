@@ -22,17 +22,25 @@ cdef class ReactionRate:
     def __repr__(self):
         return f"<{type(self).__name__} at {id(self):0x}>"
 
-    def __call__(self, double temperature, pressure=None):
+    def __call__(self, double temperature, pressure=None, extra=None):
         """
-        Evaluate rate expression based on temperature and pressure. For rate
-        expressions that are dependent of pressure, an omission of pressure
-        will raise an exception.
+        Evaluate rate expression based on temperature, pressure, and an optional
+        extra parameter that is required for some ReactionRate parameterizations
+        (examples: `FalloffRate`, `BlowersMaselRate`).
+
+        For rate expressions that are dependent of pressure, an omission of pressure
+        will raise an exception. Rate expressions that require an extra parameter
+        require specification of all three parameters.
 
         Warning: this method is an experimental part of the Cantera API and
             may be changed or removed without notice.
         """
-        if pressure:
+        if pressure and extra:
+            return self.rate.eval(temperature, pressure, extra)
+        elif pressure:
             return self.rate.eval(temperature, pressure)
+        elif extra:
+            raise ValueError("Required argument 'pressure' is missing.")
         else:
             return self.rate.eval(temperature)
 
