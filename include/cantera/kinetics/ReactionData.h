@@ -38,6 +38,10 @@ struct ReactionData
         pressure = P;
     }
 
+    //! Update data container based on temperature *T*, pressure *P* and an
+    //! *extra* parameter
+    virtual void update(double T, double P, double extra);
+
     //! Update data container based on *bulk* phase state
     //! @returns A boolean element indicating whether the `evalFromStruct` method
     //!      needs to be called (assuming previously-calculated values were cached)
@@ -144,6 +148,7 @@ protected:
 struct PlogData final : public ReactionData
 {
     PlogData() : logP(0.) {}
+    using ReactionData::update;
 
     virtual void update(double T) override;
 
@@ -173,6 +178,7 @@ struct PlogData final : public ReactionData
 struct ChebyshevData final : public ReactionData
 {
     ChebyshevData() : log10P(0.) {}
+    using ReactionData::update;
 
     virtual void update(double T) override;
 

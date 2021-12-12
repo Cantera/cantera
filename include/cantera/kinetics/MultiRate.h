@@ -77,6 +77,11 @@ public:
         m_shared.update(T, P);
     }
 
+    virtual void update(double T, double P, double extra) override {
+        // update common data once for each reaction type
+        m_shared.update(T, P, extra);
+    }
+
     virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override {
         // update common data once for each reaction type
         return m_shared.update(bulk, kin);

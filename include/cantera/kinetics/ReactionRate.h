@@ -125,6 +125,19 @@ public:
         return _evaluator().evalSingle(*this);
     }
 
+    //! Evaluate reaction rate based on temperature and pressure
+    //! @param T  temperature [K]
+    //! @param P  pressure [Pa]
+    //! @param extra  extra parameter
+    /**
+     * @warning This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
+     * */
+    double eval(double T, double P, double extra) {
+        _evaluator().update(T, P, extra);
+        return _evaluator().evalSingle(*this);
+    }
+
     //! Evaluate reaction rate based on bulk phase
     //! @param bulk  object representing bulk phase
     //! @param kin  object representing kinetics (not required for all rate types)
