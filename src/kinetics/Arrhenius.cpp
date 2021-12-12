@@ -48,18 +48,18 @@ void ArrheniusBase::setRateParameters(
         if (m_rate_units.factor() == 0) {
             // A zero rate units factor is used as a sentinel to detect
             // stand-alone reaction rate objects
-            if (rate_map["A"].is<std::string>()) {
+            if (rate_map[m_A_str].is<std::string>()) {
                 throw InputFileError("Arrhenius::setRateParameters", rate_map,
                     "Specification of units is not supported for pre-exponential "
                     "factor when\ncreating a standalone 'ReactionRate' object.");
             }
-            m_A = rate_map["A"].asDouble();
+            m_A = rate_map[m_A_str].asDouble();
         } else {
-            m_A = units.convert(rate_map["A"], m_rate_units);
+            m_A = units.convert(rate_map[m_A_str], m_rate_units);
         }
-        m_b = rate_map["b"].asDouble();
-        if (rate_map.hasKey("Ea")) {
-            m_Ea_R = units.convertActivationEnergy(rate_map["Ea"], "K");
+        m_b = rate_map[m_b_str].asDouble();
+        if (rate_map.hasKey(m_Ea_str)) {
+            m_Ea_R = units.convertActivationEnergy(rate_map[m_Ea_str], "K");
         } else {
             m_Ea_R = NAN;
         }
@@ -82,16 +82,16 @@ void ArrheniusBase::getParameters(AnyMap& node, const Units& rate_units) const
         // Return empty/unmodified AnyMap
         return;
     } else if (rate_units.factor() != 0.0) {
-        node["A"].setQuantity(m_A, rate_units);
+        node[m_A_str].setQuantity(m_A, rate_units);
     } else {
-        node["A"] = m_A;
+        node[m_A_str] = m_A;
         // This can't be converted to a different unit system because the dimensions of
         // the rate constant were not set. Can occur if the reaction was created outside
         // the context of a Kinetics object and never added to a Kinetics object.
         node["__unconvertible__"] = true;
     }
-    node["b"] = m_b;
-    node["Ea"].setQuantity(m_Ea_R, "K", true);
+    node[m_b_str] = m_b;
+    node[m_Ea_str].setQuantity(m_Ea_R, "K", true);
 
     node.setFlowStyle();
 }
@@ -137,15 +137,17 @@ void ArrheniusRate::getParameters(AnyMap& rateNode) const
 }
 
 TwoTempPlasmaRate::TwoTempPlasmaRate()
-    : m_EE_R(NAN)
+    : ArrheniusBase()
+    , m_EE_R(NAN)
 {
+    m_Ea_str = "Ea_T";
 }
 
 TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE)
     : ArrheniusBase(A, b, Ea)
     , m_EE_R(EE  / GasConstant)
 {
-    
+    m_Ea_str = "Ea_T";
 }
 
 void TwoTempPlasmaRate::setRateParameters(
@@ -164,7 +166,6 @@ void TwoTempPlasmaRate::setRateParameters(
     if (rate.is<AnyMap>()) {
         ArrheniusBase::setRateParameters(rate, units, rate_units);
         auto& rate_map = rate.as<AnyMap>();
-        m_Ea_R = units.convertActivationEnergy(rate_map["Ea_T"], "K");
         m_EE_R = units.convertActivationEnergy(rate_map["Ea_Te"], "K");
     } else {
         setRateUnits(rate_units);
@@ -204,12 +205,14 @@ void TwoTempPlasmaRate::getParameters(AnyMap& rateNode) const
 BlowersMaselRate::BlowersMaselRate()
     : m_w_R(NAN)
 {
+    m_Ea_str = "Ea0";
 }
 
 BlowersMaselRate::BlowersMaselRate(double A, double b, double Ea0, double w)
     : ArrheniusBase(A, b, Ea0)
     , m_w_R(w / GasConstant)
 {
+    m_Ea_str = "Ea0";
 }
 
 void BlowersMaselRate::setRateParameters(
@@ -228,7 +231,6 @@ void BlowersMaselRate::setRateParameters(
     if (rate.is<AnyMap>()) {
         ArrheniusBase::setRateParameters(rate, units, rate_units);
         auto& rate_map = rate.as<AnyMap>();
-        m_Ea_R = units.convertActivationEnergy(rate_map["Ea0"], "K");
         m_w_R = units.convertActivationEnergy(rate_map["w"], "K");
     } else {
         setRateUnits(rate_units);
@@ -259,8 +261,6 @@ void BlowersMaselRate::getParameters(AnyMap& rateNode) const
     ArrheniusBase::getParameters(node);
     if (!node.empty()) {
         // object is configured
-        node.erase("Ea");
-        node["Ea0"].setQuantity(m_Ea_R, "K", true);
         node["w"].setQuantity(m_w_R, "K", true);
         rateNode["rate-constant"] = std::move(node);
     }

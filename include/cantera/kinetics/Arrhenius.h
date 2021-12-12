@@ -121,6 +121,9 @@ protected:
     double m_b; //!< Temperature exponent
     double m_Ea_R; //!< Activation energy (in temperature units)
     double m_order; //!< Reaction order
+    std::string m_A_str = "A"; //!< The string for temperature exponent
+    std::string m_b_str = "b"; //!< The string for temperature exponent
+    std::string m_Ea_str = "Ea"; //!< The string for activation energy
     Units m_rate_units; //!< Reaction rate units
 };
 
