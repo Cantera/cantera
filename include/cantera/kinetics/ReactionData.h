@@ -23,7 +23,7 @@ class Kinetics;
  */
 struct ReactionData
 {
-    ReactionData() : temperature(1.), pressure(NAN), logT(0.), recipT(1.) {}
+    ReactionData() : temperature(1.), logT(0.), recipT(1.) {}
 
     //! Update data container based on temperature *T*
     virtual void update(double T) {
@@ -32,15 +32,8 @@ struct ReactionData
         recipT = 1./T;
     }
 
-    //! Update data container based on temperature *T* and pressure *P*
-    virtual void update(double T, double P) {
-        ReactionData::update(T);
-        pressure = P;
-    }
-
-    //! Update data container based on temperature *T*, pressure *P* and an
-    //! *extra* parameter
-    virtual void update(double T, double P, double extra);
+    //! Update data container based on temperature *T* and an *extra* parameter
+    virtual void update(double T, double extra);
 
     //! Update data container based on *bulk* phase state
     //! @returns A boolean element indicating whether the `evalFromStruct` method
@@ -60,7 +53,6 @@ struct ReactionData
     }
 
     double temperature; //!< temperature
-    double pressure; //!< pressure
     double logT; //!< logarithm of temperature
     double recipT; //!< inverse of temperature
 };
@@ -93,9 +85,7 @@ struct BlowersMaselData final : public ReactionData
 
     virtual void update(double T) override;
 
-    virtual void update(double T, double P) override;
-
-    virtual void update(double T, double P, double deltaH) override;
+    virtual void update(double T, double deltaH) override;
 
     virtual void resize(size_t n_species, size_t n_reactions) override {
         m_grt.resize(n_species, 0.);
@@ -127,9 +117,7 @@ struct FalloffData final : public ReactionData
 
     virtual void update(double T) override;
 
-    virtual void update(double T, double P) override;
-
-    virtual void update(double T, double P, double M) override;
+    virtual void update(double T, double M) override;
 
     virtual void resize(size_t n_species, size_t n_reactions) override {
         conc_3b.resize(n_reactions, NAN);
@@ -157,7 +145,7 @@ protected:
  */
 struct PlogData final : public ReactionData
 {
-    PlogData() : logP(0.) {}
+    PlogData() : pressure(NAN), logP(0.) {}
     using ReactionData::update;
 
     virtual void update(double T) override;
@@ -176,6 +164,7 @@ struct PlogData final : public ReactionData
         pressure = NAN;
     }
 
+    double pressure; //!< pressure
     double logP; //!< logarithm of pressure
 };
 
@@ -187,7 +176,7 @@ struct PlogData final : public ReactionData
  */
 struct ChebyshevData final : public ReactionData
 {
-    ChebyshevData() : log10P(0.) {}
+    ChebyshevData() : pressure(NAN), log10P(0.) {}
     using ReactionData::update;
 
     virtual void update(double T) override;
@@ -206,6 +195,7 @@ struct ChebyshevData final : public ReactionData
         pressure = NAN;
     }
 
+    double pressure; //!< pressure
     double log10P; //!< base 10 logarithm of pressure
 };
 

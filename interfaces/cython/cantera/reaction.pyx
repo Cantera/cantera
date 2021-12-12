@@ -22,24 +22,11 @@ cdef class ReactionRate:
     def __repr__(self):
         return f"<{type(self).__name__} at {id(self):0x}>"
 
-    def __call__(self, double temperature, pressure=None, extra=None):
+    def __call__(self, double temperature):
         """
-        Evaluate rate expression based on temperature, pressure, and an optional
-        extra parameter that is required for some ReactionRate parameterizations
-        (examples: `FalloffRate`, `BlowersMaselRate`).
-
-        For rate expressions that are dependent of pressure, an omission of pressure
-        will raise an exception. Rate expressions that require an extra parameter
-        require specification of all three parameters.
+        Evaluate rate expression based on temperature.
         """
-        if pressure and extra:
-            return self.rate.eval(temperature, pressure, extra)
-        elif pressure:
-            return self.rate.eval(temperature, pressure)
-        elif extra:
-            raise ValueError("Required argument 'pressure' is missing.")
-        else:
-            return self.rate.eval(temperature)
+        return self.rate.eval(temperature)
 
     property type:
         """ Get the C++ ReactionRate type """
@@ -221,6 +208,12 @@ cdef class BlowersMaselRate(ReactionRate):
                 raise TypeError("Invalid parameters 'A', 'b', 'Ea0' or 'w'")
             self.set_cxx_object()
 
+    def __call__(self, double temperature, double deltaH):
+        """
+        Evaluate rate expression based on temperature and enthalpy change of reaction.
+        """
+        return self.rate.eval(temperature, deltaH)
+
     cdef CxxBlowersMaselRate* cxx_object(self):
         return <CxxBlowersMaselRate*>self.rate
 
@@ -307,6 +300,12 @@ cdef class FalloffRate(ReactionRate):
                 if falloff_coeffs is None:
                     falloff_coeffs = ()
                 self.falloff_coeffs = falloff_coeffs
+
+    def __call__(self, double temperature, double concm):
+        """
+        Evaluate rate expression based on temperature and third-body concentration.
+        """
+        return self.rate.eval(temperature, concm)
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
@@ -467,6 +466,12 @@ cdef class PlogRate(ReactionRate):
                 raise TypeError("Invalid parameter 'rates'")
             self.set_cxx_object()
 
+    def __call__(self, double temperature, double pressure):
+        """
+        Evaluate rate expression based on temperature and pressure.
+        """
+        return self.rate.eval(temperature, pressure)
+
     cdef CxxPlogRate* cxx_object(self):
         return <CxxPlogRate*>self.rate
 
@@ -533,6 +538,12 @@ cdef class ChebyshevRate(ReactionRate):
             else:
                 raise TypeError("Invalid parameters")
             self.set_cxx_object()
+
+    def __call__(self, double temperature, double pressure):
+        """
+        Evaluate rate expression based on temperature and pressure.
+        """
+        return self.rate.eval(temperature, pressure)
 
     cdef CxxArray2D _cxxarray2d(self, coeffs):
         """ Internal function to assign coefficient matrix values """

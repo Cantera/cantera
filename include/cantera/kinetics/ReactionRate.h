@@ -106,20 +106,13 @@ public:
         return _evaluator().evalSingle(*this);
     }
 
-    //! Evaluate reaction rate based on temperature and pressure
+    //! Evaluate reaction rate based on temperature and an extra parameter.
+    //! Specific rate parameterizations may require an additional parameter, which
+    //! is specific to the derived ReactionRate object.
     //! @param T  temperature [K]
-    //! @param P  pressure [Pa]
-    double eval(double T, double P) {
-        _evaluator().update(T, P);
-        return _evaluator().evalSingle(*this);
-    }
-
-    //! Evaluate reaction rate based on temperature, pressure and extra parameter
-    //! @param T  temperature [K]
-    //! @param P  pressure [Pa]
-    //! @param extra  extra parameter (used by some parameterizations)
-    double eval(double T, double P, double extra) {
-        _evaluator().update(T, P, extra);
+    //! @param extra  extra parameter used by parameterization
+    double eval(double T, double extra) {
+        _evaluator().update(T, extra);
         return _evaluator().evalSingle(*this);
     }
 

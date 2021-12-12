@@ -11,16 +11,15 @@
 namespace Cantera
 {
 
-void ReactionData::update(double T, double P, double extra)
+void ReactionData::update(double T, double extra)
 {
     throw NotImplementedError("ReactionData::update",
-        "Update with extra argument not implemented.");
+        "ReactionData type does not use extra argument.");
 }
 
 bool ArrheniusData::update(const ThermoPhase& bulk, const Kinetics& kin)
 {
     double T = bulk.temperature();
-    pressure = bulk.pressure();
     if (T == temperature) {
         return false;
     }
@@ -39,20 +38,12 @@ BlowersMaselData::BlowersMaselData()
 void BlowersMaselData::update(double T)
 {
     throw CanteraError("BlowersMaselData::update",
-        "Missing state information: reaction type requires temperature, "
-        "pressure\nand enthalpy change.");
+        "Missing state information: 'BlowersMaselData' requires enthalpy change.");
 }
 
-void BlowersMaselData::update(double T, double P)
+void BlowersMaselData::update(double T, double deltaH)
 {
-    throw CanteraError("BlowersMaselData::update",
-        "Missing state information: reaction type requires temperature, "
-        "pressure\nand enthalpy change.");
-}
-
-void BlowersMaselData::update(double T, double P, double deltaH)
-{
-    ReactionData::update(T, P);
+    ReactionData::update(T);
     dH[0] = deltaH;
 }
 
@@ -73,7 +64,6 @@ bool BlowersMaselData::update(const ThermoPhase& bulk, const Kinetics& kin)
         kin.getReactionDelta(m_grt.data(), dH.data());
         changed = true;
     }
-    pressure = bulk.pressure();
     return changed;
 }
 
@@ -88,20 +78,12 @@ FalloffData::FalloffData()
 void FalloffData::update(double T)
 {
     throw CanteraError("FalloffData::update",
-        "Missing state information: reaction type requires temperature, "
-        "pressure\nand third-body concentration.");
+        "Missing state information: 'FalloffData' requires third-body concentration.");
 }
 
-void FalloffData::update(double T, double P)
+void FalloffData::update(double T, double M)
 {
-    throw CanteraError("FalloffData::update",
-        "Missing state information: reaction type requires temperature, "
-        "pressure\nand third-body concentration.");
-}
-
-void FalloffData::update(double T, double P, double M)
-{
-    ReactionData::update(T, P);
+    ReactionData::update(T);
     conc_3b[0] = M;
 }
 
@@ -122,14 +104,13 @@ bool FalloffData::update(const ThermoPhase& bulk, const Kinetics& kin)
         std::copy(concm.begin(), concm.end(), conc_3b.begin());
         changed = true;
     }
-    pressure = bulk.pressure();
     return changed;
 }
 
 void PlogData::update(double T)
 {
     throw CanteraError("PlogData::update",
-        "Missing state information: reaction type requires pressure.");
+        "Missing state information: 'PlogData' requires pressure.");
 }
 
 bool PlogData::update(const ThermoPhase& bulk, const Kinetics& kin)
@@ -146,7 +127,7 @@ bool PlogData::update(const ThermoPhase& bulk, const Kinetics& kin)
 void ChebyshevData::update(double T)
 {
     throw CanteraError("ChebyshevData::update",
-        "Missing state information: reaction type requires pressure.");
+        "Missing state information: 'ChebyshevData' requires pressure.");
 }
 
 bool ChebyshevData::update(const ThermoPhase& bulk, const Kinetics& kin)
