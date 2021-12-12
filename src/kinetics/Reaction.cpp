@@ -11,6 +11,7 @@
 #include "cantera/kinetics/FalloffFactory.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/AnyMap.h"
@@ -820,6 +821,34 @@ void InterfaceReaction::validate(Kinetics& kin)
         }
     }
 }
+
+void InterfaceReaction::checkBalance(const Kinetics& kin) const
+{
+    Reaction::checkBalance(kin);
+
+    // Check that the number of surface sites is balanced
+    double reac_sites = 0.0;
+    double prod_sites = 0.0;
+    auto& surf = dynamic_cast<const SurfPhase&>(kin.thermo(kin.surfacePhaseIndex()));
+    for (const auto& reactant : reactants) {
+        size_t k = surf.speciesIndex(reactant.first);
+        if (k != npos) {
+            reac_sites += reactant.second * surf.size(k);
+        }
+    }
+    for (const auto& product : products) {
+        size_t k = surf.speciesIndex(product.first);
+        if (k != npos) {
+            prod_sites += product.second * surf.size(k);
+        }
+    }
+    if (fabs(reac_sites - prod_sites) > 1e-5 * (reac_sites + prod_sites)) {
+        throw InputFileError("InterfaceReaction::checkBalance", input,
+            "Number of surface sites not balanced in reaction {}.\n"
+            "Reactant sites: {}\nProduct sites: {}",
+            equation(), reac_sites, prod_sites);
+    }
+};
 
 ElectrochemicalReaction::ElectrochemicalReaction()
     : beta(0.5)

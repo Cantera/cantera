@@ -96,7 +96,7 @@ public:
     //! each element in the reactants and products). Raises an exception if the
     //! reaction is not balanced. Used by checkSpecies.
     //! @param kin  Kinetics object
-    void checkBalance(const Kinetics& kin) const;
+    virtual void checkBalance(const Kinetics& kin) const;
 
     //! Verify that all species involved in the reaction are defined in the Kinetics
     //! object. The function returns true if all species are found, and raises an
@@ -405,6 +405,7 @@ public:
                       const Arrhenius& rate, bool isStick=false);
     virtual void calculateRateCoeffUnits(const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
+    virtual void checkBalance(const Kinetics& kin) const;
 
     virtual void validate(Kinetics& kin);
     using Reaction::validate;
