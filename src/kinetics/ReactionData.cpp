@@ -49,6 +49,37 @@ bool BlowersMaselData::update(const ThermoPhase& bulk, const Kinetics& kin)
     return changed;
 }
 
+FalloffData::FalloffData()
+    : ready(false)
+    , molar_density(NAN)
+    , m_state_mf_number(-1)
+{
+    conc_3b.resize(1, NAN);
+}
+
+void FalloffData::update(double T)
+{
+    throw CanteraError("FalloffData::update",
+        "Missing state information: reaction type requires temperature, "
+        "pressure\nand third-body concentration.");
+}
+
+void FalloffData::update(double T, double P)
+{
+    throw CanteraError("FalloffData::update",
+        "Missing state information: reaction type requires temperature, "
+        "pressure\nand third-body concentration.");
+}
+
+void FalloffData::update(double T, double P, double M)
+{
+    if (ready) {
+        throw CanteraError("FalloffData::update", "This should not be reachable.");
+    }
+    ReactionData::update(T, P);
+    conc_3b[0] = M;
+}
+
 bool FalloffData::update(const ThermoPhase& bulk, const Kinetics& kin)
 {
     double rho_m = bulk.molarDensity();
@@ -56,7 +87,7 @@ bool FalloffData::update(const ThermoPhase& bulk, const Kinetics& kin)
     double T = bulk.temperature();
     bool changed = false;
     if (T != temperature) {
-        update(T);
+        ReactionData::update(T);
         changed = true;
     }
     if (rho_m != molar_density || mf != m_state_mf_number) {

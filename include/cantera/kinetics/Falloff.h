@@ -32,7 +32,6 @@ public:
     FalloffRate()
         : m_chemicallyActivated(false)
         , m_negativeA_ok(false)
-        , m_thirdBodyConcentration(NAN)
         , m_rc_low(NAN)
         , m_rc_high(NAN)
     {
@@ -146,10 +145,13 @@ public:
         updateTemp(shared_data.temperature, m_work.data());
         m_rc_low = m_lowRate.evalFromStruct(shared_data);
         m_rc_high = m_highRate.evalFromStruct(shared_data);
-        if (shared_data.ready && m_rate_index != npos) {
-            m_thirdBodyConcentration = shared_data.conc_3b[m_rate_index];
+        double thirdBodyConcentration;
+        if (!shared_data.ready || m_rate_index == npos) {
+            thirdBodyConcentration = shared_data.conc_3b[0];
+        } else {
+            thirdBodyConcentration = shared_data.conc_3b[m_rate_index];
         }
-        double pr = m_thirdBodyConcentration * m_rc_low / (m_rc_high + SmallNumber);
+        double pr = thirdBodyConcentration * m_rc_low / (m_rc_high + SmallNumber);
 
         // Apply falloff function
         if (m_chemicallyActivated) {
@@ -173,18 +175,6 @@ public:
     //! Set flag indicating whether negative A values are permitted
     void setAllowNegativePreExponentialFactor(bool value) {
         m_negativeA_ok = value;
-    }
-
-    //! Get buffered value of third-body concentration
-    double thirdBodyConcentration() const {
-        return m_thirdBodyConcentration;
-    }
-
-    //! Set third-body concentration without a Kinetics object (for testing purposes).
-    //! Once the object is linked to a Kinetics object, the third-body concentration
-    //! is set during the update method, which will overwrite this value.
-    void setThirdBodyConcentration(double value) {
-        m_thirdBodyConcentration = value;
     }
 
     //! Get flag indicating whether reaction is chemically activated
@@ -219,13 +209,10 @@ protected:
 
     bool m_chemicallyActivated; //!< Flag labeling reaction as chemically activated
     bool m_negativeA_ok; //!< Flag indicating whether negative A values are permitted
-    double m_thirdBodyConcentration; //!< third-body concentration
 
     double m_rc_low; //!< Evaluated reaction rate in the low-pressure limit
     double m_rc_high; //!< Evaluated reaction rate in the high-pressure limit
     vector_fp m_work; //!< Work vector
-
-    double m_conc_3b; //!< Third body concentration
 };
 
 

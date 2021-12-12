@@ -382,20 +382,6 @@ cdef class FalloffRate(ReactionRate):
         def __set__(self, cbool activated):
             self.falloff.setChemicallyActivated(activated)
 
-    property third_body_concentration:
-        """
-        Get/Set the effective third-body concentration used for the reaction
-        rate calculation.
-
-        Note: this method does not update the internal state; once a `FalloffRate`
-        evaluator is linked to a `Kinetics` object, the third-body concentration is
-        updated automatically, which will overwrite a value assigned by the setter.
-        """
-        def __get__(self):
-            return self.falloff.thirdBodyConcentration()
-        def __set__(self, double conc):
-            self.falloff.setThirdBodyConcentration(conc)
-
     def falloff_function(self, double temperature, conc3b=None):
         """
         Evaluate the falloff function
