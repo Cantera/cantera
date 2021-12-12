@@ -25,6 +25,7 @@ cdef class ReactorBase:
         self._inlets = []
         self._outlets = []
         self._walls = []
+        self._surfaces = []
         if isinstance(contents, ThermoPhase):
             self.insert(contents)
 
@@ -120,6 +121,11 @@ cdef class ReactorBase:
         """List of walls installed on this reactor"""
         def __get__(self):
             return self._walls
+
+    property surfaces:
+        """List of reacting surfaces installed on this reactor"""
+        def __get__(self):
+            return self._surfaces
 
     def _add_inlet(self, inlet):
         """
@@ -587,6 +593,7 @@ cdef class ReactorSurface:
             self.area = A
 
     def install(self, Reactor r):
+        r._surfaces.append(self)
         r.reactor.addSurface(self.surface)
 
     property area:
