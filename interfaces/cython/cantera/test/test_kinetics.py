@@ -594,6 +594,26 @@ class TestUndeclared(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, "reaction orders for undeclared"):
             ct.Solution(yaml=gas_def)
 
+    def test_skip_undeclared_surf_species(self):
+        phase_defs = """
+            phases:
+            - name: gas
+              thermo: ideal-gas
+              species:
+              - gri30.yaml/species: [H2, H, O, OH, H2O, CO2]
+            - name: Pt_surf
+              thermo: ideal-surface
+              species:
+              - ptcombust.yaml/species: [PT(S), H(S), H2O(S), OH(S), CO2(S), CH2(S)s,
+                  CH(S), C(S), O(S)]
+              kinetics: surface
+              reactions: [ptcombust.yaml/reactions: declared-species]
+              site-density: 2.7063e-09
+            """
+        gas = ct.Solution(yaml=phase_defs, name="gas")
+        surf = ct.Interface(yaml=phase_defs, name="Pt_surf", adjacent=[gas])
+        self.assertEqual(surf.n_reactions, 14)
+
 
 class TestEmptyKinetics(utilities.CanteraTest):
     def test_empty(self):
