@@ -1955,3 +1955,84 @@ class ExtensibleReactorTest(utilities.CanteraTest):
             U = r1.thermo.int_energy_mass * r1.mass
             self.assertNear(U - U0, (Qext + Qwall) * t)
             self.assertNear(r1.qdot, Qext + Qwall)
+
+    def test_with_surface(self):
+        phase_defs = """
+            units: {length: cm, quantity: mol, activation-energy: J/mol}
+            phases:
+            - name: gas
+              thermo: ideal-gas
+              species:
+              - gri30.yaml/species: [H2, H2O, H2O2, O2]
+              kinetics: gas
+              reactions:
+              - gri30.yaml/reactions: declared-species
+              skip-undeclared-third-bodies: true
+            - name: Pt_surf
+              thermo: ideal-surface
+              species:
+              - ptcombust.yaml/species: [PT(S), H(S), H2O(S), OH(S), O(S)]
+              kinetics: surface
+              reactions: [ptcombust.yaml/reactions: declared-species]
+              site-density: 3e-09
+        """
+
+        gas = ct.Solution(yaml=phase_defs, name="gas")
+        surf = ct.Interface(yaml=phase_defs, name="Pt_surf", adjacent=[gas])
+        gas.TPX = 800, 0.01*ct.one_atm, "H2:2.0, O2:1.0"
+        surf.TP = 800, 0.01*ct.one_atm
+        surf.coverages = {"H(S)": 1.0}  # dummy values to be replaced by delegate
+
+        kHs = surf.species_index("H(S)")
+        kPts = surf.species_index("PT(S)")
+        kH2 = gas.species_index("H2")
+        kO2 = gas.species_index("O2")
+        class SurfReactor(ct.ExtensibleIdealGasReactor):
+            def replace_eval_surfaces(self, LHS, RHS, sdot):
+                site_density = self.surfaces[0].kinetics.site_density
+                sdot[:] = 0.0
+                LHS[:] = 1.0
+                RHS[:] = 0.0
+                C = self.thermo.concentrations
+                theta = self.surfaces[0].coverages
+
+                # Replace actual reactions with simple absorption of H2 -> H(S)
+                rop = 1e-4 * C[kH2] * theta[kPts]
+                RHS[kHs] = 2 * rop / site_density
+                RHS[kPts] = - 2 * rop / site_density
+                sdot[kH2] = - rop * self.surfaces[0].area
+
+            def replace_get_surface_initial_conditions(self, y):
+                y[:] = 0
+                y[kPts] = 1
+
+        r1 = SurfReactor(gas)
+        r1.volume = 1e-6 # 1 cm^3
+        r1.energy_enabled = False
+        rsurf = ct.ReactorSurface(surf, A=0.01)
+        rsurf.install(r1)
+        net = ct.ReactorNet([r1])
+
+        Hweight = ct.Element("H").weight
+        total_sites = rsurf.area * surf.site_density
+        def masses():
+            mass_H = (gas.elemental_mass_fraction("H") * r1.mass +
+                      total_sites * r1.surfaces[0].kinetics["H(s)"].X * Hweight)
+            mass_O = gas.elemental_mass_fraction("O") * r1.mass
+            return mass_H, mass_O
+
+        net.step()
+        mH0, mO0 = masses()
+
+        for t in np.linspace(0.1, 1, 12):
+            net.advance(t)
+            mH, mO = masses()
+            self.assertNear(mH, mH0)
+            self.assertNear(mO, mO0)
+
+        # Regression test values
+        self.assertNear(r1.thermo.P, 647.56016304)
+        self.assertNear(r1.thermo.X[kH2], 0.4784268406)
+        self.assertNear(r1.thermo.X[kO2], 0.5215731594)
+        self.assertNear(r1.surfaces[0].kinetics.X[kHs], 0.3665198138)
+        self.assertNear(r1.surfaces[0].kinetics.X[kPts], 0.6334801862)
