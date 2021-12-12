@@ -251,12 +251,12 @@ cdef class BlowersMaselRate(ReactionRate):
         def __get__(self):
             return self.cxx_object().temperatureExponent()
 
-    property activation_energy:
+    def activation_energy(self, double deltaH):
         """
-        The activation energy ``E`` [J/kmol].
+        The activation energy ``E`` [J/kmol], based on enthalpy change of reaction
+        ``deltaH`` (in [J/kmol])
         """
-        def __get__(self):
-            return self.cxx_object().activationEnergy()
+        return self.cxx_object().activationEnergy(deltaH)
 
     property intrinsic_activation_energy:
         """
@@ -272,19 +272,6 @@ cdef class BlowersMaselRate(ReactionRate):
         """
         def __get__(self):
             return self.cxx_object().bondEnergy()
-
-    property delta_enthalpy:
-        """
-        Enthalpy change of reaction used to adjust activation energy [J/kmol]
-
-        Note: this method does not update the internal state; once a `BlowersMaselRate`
-        evaluator is linked to a `Kinetics` object, the enthalpy change is updated
-        automatically, which will overwrite a value assigned by the setter.
-        """
-        def __get__(self):
-            return self.cxx_object().deltaH()
-        def __set__(self, double delta):
-            self.cxx_object().setDeltaH(delta)
 
     property allow_negative_pre_exponential_factor:
         """

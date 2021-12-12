@@ -138,14 +138,12 @@ void ArrheniusRate::getParameters(AnyMap& rateNode) const
 
 BlowersMaselRate::BlowersMaselRate()
     : m_w_R(NAN)
-    , m_deltaH_R(NAN)
 {
 }
 
 BlowersMaselRate::BlowersMaselRate(double A, double b, double Ea0, double w)
     : ArrheniusBase(A, b, Ea0)
     , m_w_R(w / GasConstant)
-    , m_deltaH_R(NAN)
 {
 }
 
