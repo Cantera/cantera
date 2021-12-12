@@ -31,9 +31,6 @@ cdef class ReactionRate:
         For rate expressions that are dependent of pressure, an omission of pressure
         will raise an exception. Rate expressions that require an extra parameter
         require specification of all three parameters.
-
-        Warning: this method is an experimental part of the Cantera API and
-            may be changed or removed without notice.
         """
         if pressure and extra:
             return self.rate.eval(temperature, pressure, extra)
@@ -127,15 +124,6 @@ cdef class ReactionRate:
         any_map = AnyMapFromYamlString(stringify(text))
         cxx_rate = CxxNewReactionRate(any_map)
         return ReactionRate.wrap(cxx_rate)
-
-    def ddT(self, double temperature, pressure=None):
-        """
-        Evaluate derivative of rate expression with respect to temperature.
-        """
-        if pressure:
-            return self.rate.ddT(temperature, pressure)
-        else:
-            return self.rate.ddT(temperature)
 
     property input_data:
         """
