@@ -28,6 +28,37 @@ bool ArrheniusData::update(const ThermoPhase& bulk, const Kinetics& kin)
     return true;
 }
 
+BlowersMaselData::BlowersMaselData()
+    : ready(false)
+    , density(NAN)
+    , m_state_mf_number(-1)
+{
+    dH.resize(1, NAN);
+}
+
+void BlowersMaselData::update(double T)
+{
+    throw CanteraError("BlowersMaselData::update",
+        "Missing state information: reaction type requires temperature, "
+        "pressure\nand enthalpy change.");
+}
+
+void BlowersMaselData::update(double T, double P)
+{
+    throw CanteraError("BlowersMaselData::update",
+        "Missing state information: reaction type requires temperature, "
+        "pressure\nand enthalpy change.");
+}
+
+void BlowersMaselData::update(double T, double P, double deltaH)
+{
+    if (ready) {
+        throw CanteraError("BlowersMaselData::update", "This should not be reachable.");
+    }
+    ReactionData::update(T, P);
+    dH[0] = deltaH;
+}
+
 bool BlowersMaselData::update(const ThermoPhase& bulk, const Kinetics& kin)
 {
     double rho = bulk.density();
@@ -35,7 +66,7 @@ bool BlowersMaselData::update(const ThermoPhase& bulk, const Kinetics& kin)
     double T = bulk.temperature();
     bool changed = false;
     if (T != temperature) {
-        update(T);
+        ReactionData::update(T);
         changed = true;
     }
     if (changed || rho != density || mf != m_state_mf_number) {

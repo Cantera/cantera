@@ -272,10 +272,13 @@ public:
     virtual void getParameters(AnyMap& node) const;
 
     double evalFromStruct(const BlowersMaselData& shared_data) {
-        if (shared_data.ready && m_rate_index != npos) {
-            m_deltaH_R = shared_data.dH[m_rate_index] / GasConstant;
+        double deltaH_R;
+        if (!shared_data.ready || m_rate_index == npos) {
+            deltaH_R = shared_data.dH[0] / GasConstant;
+        } else {
+            deltaH_R = shared_data.dH[m_rate_index] / GasConstant;
         }
-        double Ea_R = activationEnergy_R(m_deltaH_R);
+        double Ea_R = activationEnergy_R(deltaH_R);
         return m_A * std::exp(m_b * shared_data.logT - Ea_R * shared_data.recipT);
     }
 
@@ -295,8 +298,11 @@ public:
     }
 
     //! Return the actual activation energy [J/kmol]
-    double activationEnergy() const {
-        return activationEnergy_R(m_deltaH_R) * GasConstant;
+    /*!
+     *  @param deltaH  Enthalpy change of reaction [J/kmol]
+     */
+    double activationEnergy(double deltaH) const {
+        return activationEnergy_R(deltaH / GasConstant) * GasConstant;
     }
 
     //! Return the intrinsic activation energy [J/kmol]
@@ -309,22 +315,8 @@ public:
         return m_w_R * GasConstant;
     }
 
-    //! Enthalpy change of reaction used to adjust activation energy [J/kmol]
-    double deltaH() const {
-        return m_deltaH_R * GasConstant;
-    }
-
-    //! Set enthalpy change without a Kinetics object (for testing purposes).
-    //! Once the object is linked to a Kinetics object, the enthalpy change
-    //! is set during the update method, which will overwrite this value.
-    void setDeltaH(double dH) {
-        m_deltaH_R = dH / GasConstant;
-    }
-
 protected:
     double m_w_R; //!< Bond dissociation energy (in temperature units)
-
-    double m_deltaH_R; //!< Delta H of the reaction (in temperature units)
 };
 
 }

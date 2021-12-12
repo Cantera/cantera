@@ -86,11 +86,16 @@ struct ArrheniusData final : public ReactionData
  */
 struct BlowersMaselData final : public ReactionData
 {
-    BlowersMaselData() : ready(false), density(NAN), m_state_mf_number(-1) {}
+    BlowersMaselData();
 
     virtual bool update(const ThermoPhase& bulk,
                         const Kinetics& kin) override;
-    using ReactionData::update;
+
+    virtual void update(double T) override;
+
+    virtual void update(double T, double P) override;
+
+    virtual void update(double T, double P, double deltaH) override;
 
     virtual void resize(size_t n_species, size_t n_reactions) override {
         m_grt.resize(n_species, 0.);
