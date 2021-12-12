@@ -130,10 +130,13 @@ class ReactionRateTests:
     @classmethod
     def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
+        ct.use_legacy_rate_constants(False)
         cls.gas = ct.Solution("kineticsfromscratch.yaml")
-        cls.gas.X = "H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5"
-        cls.gas.TP = 900, 2*ct.one_atm
-        cls.gas.Te = 2300
+
+    def setUp(self):
+        self.gas.X = "H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5, H2O2:1e-7"
+        self.gas.TP = 900, 2 * ct.one_atm
+        self.gas.Te = 2300
 
     def from_parts(self):
         # create reaction rate object from parts
@@ -204,14 +207,38 @@ class ReactionRateTests:
         self.assertNear(self.eval(rate0), self.eval(rate1))
 
     def test_with_units(self):
+        # test custom units
         units = "units: {length: cm, quantity: mol}"
         yaml = f"{textwrap.dedent(self._yaml)}\n{units}"
         with self.assertRaisesRegex(Exception, "not supported"):
             ct.ReactionRate.from_yaml(yaml)
 
-    def test_third_body(self):
-        concm = self.gas.third_body_concentrations
-        self.assertIsNaN(concm[self._index])
+    def test_temperature_derivative(self):
+        # check temperature derivative against numerical derivative
+        deltaT = self.gas.jacobian_settings["rtol-delta"]
+        deltaT *= self.gas.T
+        rate = self.from_yaml()
+        k0 = self.eval(rate)
+
+        # derivative at constant pressure
+        dcdt = - self.gas.density_mole / self.gas.T
+        drate = self.gas.forward_rate_constants_temperature_derivatives
+        drate += self.gas.forward_rate_constants_density_derivatives * dcdt
+        self.gas.TP = self.gas.T + deltaT, self.gas.P
+        k1 = self.eval(rate)
+        self.assertNear((k1 - k0) / deltaT, drate[self._index], 1e-6)
+
+    def test_pressure_derivative(self):
+        # check pressure derivative against numerical derivative
+        deltaP = self.gas.jacobian_settings["rtol-delta"]
+        deltaP *= self.gas.P
+        rate = self.from_yaml()
+        k0 = self.eval(rate)
+
+        drate = self.gas.forward_rate_constants_pressure_derivatives
+        self.gas.TP = self.gas.T, self.gas.P + deltaP
+        k1 = self.eval(rate)
+        self.assertNear((k1 - k0) / deltaP, drate[self._index], 1e-6)
 
 
 class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
@@ -247,6 +274,28 @@ class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
         yaml = "rate-constant: {A: 4.0e+21 cm^6/mol^2/s, b: 0.0, Ea: 1207.72688}"
         with self.assertRaisesRegex(Exception, "not supported"):
             ct.ReactionRate.from_yaml(yaml)
+
+    def test_temperature_derivative_exact(self):
+        # check exact derivative against analytical and numerical derivatives
+        rate = self.from_parts()
+        T = 1000.
+        self.gas.TP = T, self.gas.P
+
+        R = ct.gas_constant
+        Ea = rate.activation_energy
+        b =  rate.temperature_exponent
+        A = rate.pre_exponential_factor
+        k0 = self.eval(rate)
+        self.assertNear(k0, A * T**b * np.exp(-Ea/R/T))
+
+        scaled_ddT = (Ea / R / T + b) / T
+
+        dkdT = self.gas.forward_rate_constants_temperature_derivatives[self._index]
+        self.assertNear(dkdT, k0 * scaled_ddT) # exact
+
+        dT = 1.e-6
+        dkdT_numeric = (rate(T + dT) - rate(T)) / dT
+        self.assertNear(dkdT, dkdT_numeric, 1.e-6)
 
 
 class TestBlowersMaselRate(ReactionRateTests, utilities.CanteraTest):
@@ -284,6 +333,10 @@ class TestBlowersMaselRate(ReactionRateTests, utilities.CanteraTest):
         self.assertFalse(rate.allow_negative_pre_exponential_factor)
         rate.allow_negative_pre_exponential_factor = True
         self.assertTrue(rate.allow_negative_pre_exponential_factor)
+
+    @utilities.unittest.skip("change of reaction enthalpy is not considered")
+    def test_temperature_derivative(self):
+        super().test_temperature_derivative()
 
 
 class TestTwoTempPlasmaRate(ReactionRateTests, utilities.CanteraTest):
@@ -344,9 +397,40 @@ class FalloffRateTests(ReactionRateTests):
         for n in self._n_data:
             rate.falloff_coeffs = np.random.rand(n)
 
-    def test_third_body(self):
-        concm = self.gas.third_body_concentrations
-        self.assertIsFinite(concm[self._index])
+    def test_temperature_derivative(self):
+        pert = self.gas.jacobian_settings["rtol-delta"]
+        deltaT = self.gas.T * pert
+        TP = self.gas.TP
+        rate = self.from_yaml()
+        k0 = self.eval(rate)
+
+        # derivative at constant volume
+        drate = self.gas.forward_rate_constants_temperature_derivatives
+        self.gas.TP = self.gas.T * (1 + pert), self.gas.P * (1 + pert)
+        k1 = self.eval(rate)
+        self.assertNear((k1 - k0) / deltaT, drate[self._index], 1e-6)
+
+        # derivative at constant pressure
+        self.gas.TP = TP
+        dcdt = - self.gas.density_mole / self.gas.T
+        drate += self.gas.forward_rate_constants_density_derivatives * dcdt
+        self.gas.TP = self.gas.T * (1 + pert), self.gas.P
+        k1 = self.eval(rate)
+        self.assertNear((k1 - k0) / deltaT, drate[self._index], 1e-6)
+
+    def test_pressure_derivative(self):
+        pert = self.gas.jacobian_settings["rtol-delta"]
+        deltaP = self.gas.P * pert
+        rate = self.from_yaml()
+        k0 = self.eval(rate)
+
+        # derivative at constant temperature
+        drate = self.gas.forward_rate_constants_pressure_derivatives
+        dcdp = self.gas.density_mole / self.gas.P
+        drate += self.gas.forward_rate_constants_density_derivatives * dcdp
+        self.gas.TP = self.gas.T, self.gas.P + deltaP
+        k1 = self.eval(rate)
+        self.assertNear((k1 - k0) / deltaP, drate[self._index], 1e-6)
 
 
 class TestLindemannRate(FalloffRateTests, utilities.CanteraTest):
