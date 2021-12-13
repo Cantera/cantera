@@ -68,17 +68,14 @@ public:
     }
 
     virtual void update(double T) override {
-        // update common data once for each reaction type
         m_shared.update(T);
     }
 
     virtual void update(double T, double extra) override {
-        // update common data once for each reaction type
         m_shared.update(T, extra);
     }
 
     virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override {
-        // update common data once for each reaction type
         return m_shared.update(bulk, kin);
     }
 

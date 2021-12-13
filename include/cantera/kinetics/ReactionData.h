@@ -26,6 +26,11 @@ struct ReactionData
     ReactionData() : temperature(1.), logT(0.), recipT(1.) {}
 
     //! Update data container based on temperature *T*
+    /**
+     * Only used in conjunction with MultiRateBase::evalSingle / ReactionRate::eval.
+     * This method allows for testing of a reaction rate expression outside of
+     * Kinetics reaction rate evaluators. Mainly used for testing purposes.
+     */
     virtual void update(double T) {
         temperature = T;
         logT = std::log(T);
@@ -33,11 +38,19 @@ struct ReactionData
     }
 
     //! Update data container based on temperature *T* and an *extra* parameter
+    /**
+     * Only used in conjunction with MultiRateBase::evalSingle / ReactionRate::eval.
+     * This method allows for testing of a reaction rate expression outside of
+     * Kinetics reaction rate evaluators. Mainly used for testing purposes.
+     */
     virtual void update(double T, double extra);
 
     //! Update data container based on *bulk* phase state
-    //! @returns A boolean element indicating whether the `evalFromStruct` method
-    //!      needs to be called (assuming previously-calculated values were cached)
+    /**
+     * This update mechanism is used by Kinetics reaction rate evaluators.
+     * @returns A boolean element indicating whether the `evalFromStruct` method
+     *      needs to be called (assuming previously-calculated values were cached)
+     */
     virtual bool update(const ThermoPhase& bulk,
                         const Kinetics& kin) = 0;
 
