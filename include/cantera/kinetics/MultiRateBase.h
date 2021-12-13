@@ -55,22 +55,27 @@ public:
     //! @param kf  array of rate constants
     virtual void getRateConstants(double* kf) = 0;
 
-    //! Update common reaction rate data based on temperature
+    //! Update common reaction rate data based on temperature.
+    //! Only used in conjunction with evalSingle and ReactionRate::eval
     //! @param T  temperature [K]
     virtual void update(double T) = 0;
 
-    //! Update common reaction rate data based on temperature and extra parameter
+    //! Update common reaction rate data based on temperature and extra parameter.
+    //! Only used in conjunction with evalSingle and ReactionRate::eval
     //! @param T  temperature [K]
     //! @param extra  extra parameter (depends on parameterization)
     virtual void update(double T, double extra) = 0;
 
-    //! Update data common to reaction rates of a specific type
+    //! Update data common to reaction rates of a specific type.
+    //! This update mechanism is used by Kinetics reaction rate evaluators.
     //! @param bulk  object representing bulk phase
     //! @param kin  object representing kinetics
     //! @returns flag indicating reaction rates need to be re-evaluated
     virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) = 0;
 
-    //! Get the rate for a single reaction. Used to implement ReactionRate::eval.
+    //! Get the rate for a single reaction. Used to implement ReactionRate::eval,
+    //! which allows for the evaluation of a reaction rate expression outside of
+    //! Kinetics reaction rate evaluators. Mainly used for testing purposes.
     virtual double evalSingle(ReactionRate& rate) = 0;
 };
 

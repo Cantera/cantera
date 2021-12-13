@@ -101,6 +101,9 @@ public:
 
     //! Evaluate reaction rate based on temperature
     //! @param T  temperature [K]
+    //! Used in conjunction with MultiRateBase::evalSingle / ReactionRate::eval.
+    //! This method allows for testing of a reaction rate expression outside of
+    //! Kinetics reaction rate evaluators. Mainly used for testing purposes.
     double eval(double T) {
         _evaluator().update(T);
         return _evaluator().evalSingle(*this);
@@ -111,6 +114,9 @@ public:
     //! is specific to the derived ReactionRate object.
     //! @param T  temperature [K]
     //! @param extra  extra parameter used by parameterization
+    //! Used in conjunction with MultiRateBase::evalSingle / ReactionRate::eval.
+    //! This method allows for testing of a reaction rate expression outside of
+    //! Kinetics reaction rate evaluators. Mainly used for testing purposes.
     double eval(double T, double extra) {
         _evaluator().update(T, extra);
         return _evaluator().evalSingle(*this);
