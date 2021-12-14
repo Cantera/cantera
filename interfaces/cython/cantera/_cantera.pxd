@@ -850,10 +850,10 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         cbool chemistryEnabled()
         void setEnergy(int)
         cbool energyEnabled()
-        size_t componentIndex(string&)
+        size_t componentIndex(string&) except +translate_exception
         string componentName(size_t) except +translate_exception
         size_t neq()
-        void getState(double*)
+        void getState(double*) except +translate_exception
         void addSurface(CxxReactorSurface*)
         void setAdvanceLimit(string&, double) except +translate_exception
         void addSensitivityReaction(size_t) except +translate_exception
