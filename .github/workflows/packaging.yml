@@ -1,0 +1,48 @@
+name: Packaging Tests
+on:
+  workflow_dispatch:  # allow manual triggering of this workflow
+    inputs:
+      outgoing_ref:
+        description: "The ref to be built. Can be a tag, commit hash, or branch name"
+        required: true
+        default: "main"
+      upload_to_pypi:
+        description: "Try to upload wheels and sdist to PyPI after building"
+        required: false
+        default: false
+  push:
+    # Run on tags that look like releases
+    tags:
+      - v*
+    # Run when main is pushed to
+    branches:
+      - main
+      - add-package-workflow
+
+jobs:
+  build-packages:
+    name: Trigger building packages from external repos
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Set up the job
+        run: |
+          if [ -n "${{ github.event.inputs.outgoing_ref }}" ]; then
+            echo "REF=${{ github.event.inputs.outgoing_ref }}" >> $GITHUB_ENV
+          else
+            echo "REF=${{ github.ref }}" >> $GITHUB_ENV
+          fi
+          if [ -n "${{ github.event.inputs.upload }}" ]; then
+            echo "UPLOAD=${{ github.event.inputs.upload}}" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == refs/tags* ]]; then
+            echo "UPLOAD=true" >> $GITHUB_ENV
+          else
+            echo "UPLOAD=false" >> $GITHUB_ENV
+          fi
+      - name: Trigger PyPI/Wheel builds
+        run: >
+          gh workflow run -R cantera/pypi-packages
+          python-package.yml
+          -f incoming_ref=${{ env.REF }}
+          -f upload=${{ env.UPLOAD }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.PYPI_PACKAGE_PAT }}
