@@ -7,6 +7,10 @@
 #include "cantera/base/xml.h"
 #include "application.h"
 #include "units.h"
+#include "cantera/base/AnyMap.h"
+#ifdef CT_USE_DEMANGLE
+  #include <boost/core/demangle.hpp>
+#endif
 
 using namespace std;
 
@@ -278,5 +282,37 @@ XML_Node* get_XML_NameID(const std::string& nameTarget,
 }
 
 std::vector<FactoryBase*> FactoryBase::s_vFactoryRegistry;
+
+std::string demangle(const std::type_info& type)
+{
+    static std::map<std::string, std::string> typenames = {
+        {typeid(void).name(), "void"},
+        {typeid(double).name(), "double"},
+        {typeid(long int).name(), "long int"},
+        {typeid(bool).name(), "bool"},
+        {typeid(std::string).name(), "string"},
+        {typeid(vector<AnyValue>).name(), "vector<AnyValue>"},
+        {typeid(vector<AnyMap>).name(), "vector<AnyMap>"},
+        {typeid(vector<double>).name(), "vector<double>"},
+        {typeid(vector<long int>).name(), "vector<long int>"},
+        {typeid(vector<bool>).name(), "vector<bool>"},
+        {typeid(vector<string>).name(), "vector<string>"},
+        {typeid(vector<vector<double>>).name(), "vector<vector<double>>"},
+        {typeid(vector<vector<long int>>).name(), "vector<vector<long int>>"},
+        {typeid(vector<vector<bool>>).name(), "vector<vector<bool>>"},
+        {typeid(vector<vector<string>>).name(), "vector<vector<string>>"},
+        {typeid(AnyMap).name(), "AnyMap"},
+    };
+
+    if (typenames.count(type.name())) {
+        return typenames[type.name()];
+    } else {
+        #ifdef CT_USE_DEMANGLE
+            return boost::core::demangle(type.name());
+        #else
+            return type.name();
+        #endif
+    }
+}
 
 }

@@ -266,8 +266,6 @@ public:
     void setFlowStyle(bool flow=true);
 
 private:
-    std::string demangle(const std::type_info& type) const;
-
     template<class T>
     void checkSize(const std::vector<T>& v, size_t nMin, size_t nMax) const;
 
@@ -276,10 +274,6 @@ private:
 
     //! The held value
     std::unique_ptr<boost::any> m_value;
-
-    //! Human-readable names for some common types, for use when
-    //! `boost::demangle` is not available.
-    static std::map<std::string, std::string> s_typenames;
 
     typedef bool (*Comparer)(const boost::any&, const boost::any&);
 

@@ -9,10 +9,6 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/global.h"
 #include "cantera/base/utilities.h"
-#ifdef CT_USE_DEMANGLE
-  #include <boost/core/demangle.hpp>
-#endif
-
 #include <boost/algorithm/string.hpp>
 #include <fstream>
 #include <mutex>
@@ -559,25 +555,6 @@ struct convert<Cantera::AnyValue> {
 }
 
 namespace Cantera {
-
-std::map<std::string, std::string> AnyValue::s_typenames = {
-    {typeid(void).name(), "void"},
-    {typeid(double).name(), "double"},
-    {typeid(long int).name(), "long int"},
-    {typeid(bool).name(), "bool"},
-    {typeid(std::string).name(), "string"},
-    {typeid(vector<AnyValue>).name(), "vector<AnyValue>"},
-    {typeid(vector<AnyMap>).name(), "vector<AnyMap>"},
-    {typeid(vector<double>).name(), "vector<double>"},
-    {typeid(vector<long int>).name(), "vector<long int>"},
-    {typeid(vector<bool>).name(), "vector<bool>"},
-    {typeid(vector<string>).name(), "vector<string>"},
-    {typeid(vector<vector<double>>).name(), "vector<vector<double>>"},
-    {typeid(vector<vector<long int>>).name(), "vector<vector<long int>>"},
-    {typeid(vector<vector<bool>>).name(), "vector<vector<bool>>"},
-    {typeid(vector<vector<string>>).name(), "vector<vector<string>>"},
-    {typeid(AnyMap).name(), "AnyMap"},
-};
 
 std::unordered_map<std::string, std::pair<AnyMap, int>> AnyMap::s_cache;
 
@@ -1211,19 +1188,6 @@ void AnyValue::applyUnits(shared_ptr<UnitSystem>& units)
 void AnyValue::setFlowStyle(bool flow)
 {
     as<AnyMap>().setFlowStyle();
-}
-
-std::string AnyValue::demangle(const std::type_info& type) const
-{
-    if (s_typenames.find(type.name()) != s_typenames.end()) {
-        return s_typenames[type.name()];
-    } else {
-        #ifdef CT_USE_DEMANGLE
-            return boost::core::demangle(type.name());
-        #else
-            return type.name();
-        #endif
-    }
 }
 
 // Explicit template specializations to allow certain conversions
