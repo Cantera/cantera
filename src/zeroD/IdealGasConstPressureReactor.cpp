@@ -78,12 +78,14 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
     evalWalls(time);
 
     m_thermo->restoreState(m_state);
-    double mdot_surf = evalSurfaces(time, RHS + m_nsp + 2);
+    const vector_fp& mw = m_thermo->molecularWeights();
+    const doublereal* Y = m_thermo->massFractions();
+
+    evalSurfaces(LHS + m_nsp + 2, RHS + m_nsp + 2, m_sdot.data());
+    double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());
     dmdt += mdot_surf;
 
     m_thermo->getPartialMolarEnthalpies(&m_hk[0]);
-    const vector_fp& mw = m_thermo->molecularWeights();
-    const doublereal* Y = m_thermo->massFractions();
 
     if (m_chem) {
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"

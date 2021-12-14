@@ -68,22 +68,19 @@ cdef void callback_v_d_dp(PyFuncInfo& funcInfo, size_array1 sizes, double arg1,
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
-# Wrapper for functions of type double(double, double*)
-cdef int callback_i_dr_d_dp(PyFuncInfo& funcInfo, double& out,
-                            size_array1 sizes, double arg1, double* arg2):
-    cdef double[:] view = <double[:sizes[0]]>arg2 if sizes[0] else None
+# Wrapper for functions of type void(double*, double*, double*)
+cdef void callback_v_dp_dp_dp(PyFuncInfo& funcInfo,
+        size_array3 sizes, double* arg1, double* arg2, double* arg3):
+
+    cdef double[:] view1 = <double[:sizes[0]]>arg1 if sizes[0] else None
+    cdef double[:] view2 = <double[:sizes[1]]>arg2 if sizes[1] else None
+    cdef double[:] view3 = <double[:sizes[2]]>arg3 if sizes[2] else None
     try:
-        ret = (<object>funcInfo.func())(arg1, view)
-        if ret is None:
-            return 0
-        else:
-            (&out)[0] = ret
-            return 1
+        (<object>funcInfo.func())(view1, view2, view3)
     except BaseException as e:
         exc_type, exc_value = sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
-    return -1
 
 # Wrapper for functions of type string(size_t)
 cdef int callback_i_sr_z(PyFuncInfo& funcInfo, string& out, size_t arg):
@@ -196,9 +193,9 @@ cdef void assign_delegates(obj, CxxDelegator* delegator):
         if callback == 'void(double,double*)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_d_dp), cxx_when)
-        if callback == 'double(double,double*)':
+        if callback == 'void(double*,double*,double*)':
             delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_i_dr_d_dp), cxx_when)
+                pyOverride(<PyObject*>method, callback_v_dp_dp_dp), cxx_when)
         if callback == 'string(size_t)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_i_sr_z), cxx_when)
