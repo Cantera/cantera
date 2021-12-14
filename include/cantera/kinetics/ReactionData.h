@@ -29,7 +29,7 @@ struct ReactionData
     /**
      * Only used in conjunction with MultiRateBase::evalSingle / ReactionRate::eval.
      * This method allows for testing of a reaction rate expression outside of
-     * Kinetics reaction rate evaluators. Mainly used for testing purposes.
+     * Kinetics reaction rate evaluators.
      */
     virtual void update(double T) {
         temperature = T;
@@ -41,7 +41,7 @@ struct ReactionData
     /**
      * Only used in conjunction with MultiRateBase::evalSingle / ReactionRate::eval.
      * This method allows for testing of a reaction rate expression outside of
-     * Kinetics reaction rate evaluators. Mainly used for testing purposes.
+     * Kinetics reaction rate evaluators.
      */
     virtual void update(double T, double extra);
 
@@ -51,8 +51,7 @@ struct ReactionData
      * @returns A boolean element indicating whether the `evalFromStruct` method
      *      needs to be called (assuming previously-calculated values were cached)
      */
-    virtual bool update(const ThermoPhase& bulk,
-                        const Kinetics& kin) = 0;
+    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) = 0;
 
     //! Update number of species and reactions
     virtual void resize(size_t n_species, size_t n_reactions) {}
@@ -76,10 +75,9 @@ struct ReactionData
  * The data container `ArrheniusData` holds precalculated data common to
  * all `ArrheniusRate` objects.
  */
-struct ArrheniusData final : public ReactionData
+struct ArrheniusData : public ReactionData
 {
-    virtual bool update(const ThermoPhase& bulk,
-                        const Kinetics& kin);
+    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin);
     using ReactionData::update;
 };
 
@@ -89,12 +87,11 @@ struct ArrheniusData final : public ReactionData
  * The data container `BlowersMaselData` holds precalculated data common to
  * all `BlowersMaselRate` objects.
  */
-struct BlowersMaselData final : public ReactionData
+struct BlowersMaselData : public ReactionData
 {
     BlowersMaselData();
 
-    virtual bool update(const ThermoPhase& bulk,
-                        const Kinetics& kin) override;
+    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
 
     virtual void update(double T) override;
 
@@ -121,12 +118,11 @@ protected:
  * The data container `FalloffData` holds precalculated data common to
  * all Falloff related reaction rate classes.
  */
-struct FalloffData final : public ReactionData
+struct FalloffData : public ReactionData
 {
     FalloffData();
 
-    virtual bool update(const ThermoPhase& bulk,
-                        const Kinetics& kin) override;
+    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
 
     virtual void update(double T) override;
 
@@ -156,10 +152,9 @@ protected:
  * The data container `PlogData` holds precalculated data common to
  * all `PlogRate` objects.
  */
-struct PlogData final : public ReactionData
+struct PlogData : public ReactionData
 {
     PlogData() : pressure(NAN), logP(0.) {}
-    using ReactionData::update;
 
     virtual void update(double T) override;
 
@@ -169,8 +164,7 @@ struct PlogData final : public ReactionData
         logP = std::log(P);
     }
 
-    virtual bool update(const ThermoPhase& bulk,
-                        const Kinetics& kin) override;
+    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
 
     virtual void invalidateCache() override {
         ReactionData::invalidateCache();
@@ -187,10 +181,9 @@ struct PlogData final : public ReactionData
  * The data container `ChebyshevData` holds precalculated data common to
  * all `ChebyshevRate3` objects.
  */
-struct ChebyshevData final : public ReactionData
+struct ChebyshevData : public ReactionData
 {
     ChebyshevData() : pressure(NAN), log10P(0.) {}
-    using ReactionData::update;
 
     virtual void update(double T) override;
 
@@ -200,8 +193,7 @@ struct ChebyshevData final : public ReactionData
         log10P = std::log10(P);
     }
 
-    virtual bool update(const ThermoPhase& bulk,
-                        const Kinetics& kin) override;
+    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
 
     virtual void invalidateCache() override {
         ReactionData::invalidateCache();

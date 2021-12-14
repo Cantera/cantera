@@ -132,6 +132,46 @@ void GasKinetics::updateKc()
     }
 }
 
+void GasKinetics::processFwdRateCoefficients(double* ropf)
+{
+    update_rates_C();
+    update_rates_T();
+
+    // copy rate coefficients into ropf
+    copy(m_rfn.begin(), m_rfn.end(), ropf);
+
+    if (m_falloff_high_rates.nReactions()) {
+        processFalloffReactions(ropf);
+    }
+
+    // Scale the forward rate coefficient by the perturbation factor
+    for (size_t i = 0; i < nReactions(); ++i) {
+        ropf[i] *= m_perturb[i];
+    }
+}
+
+void GasKinetics::processThirdBodies(double* rop)
+{
+    // multiply rop by enhanced 3b conc for all 3b rxns
+    if (!concm_3b_values.empty()) {
+        m_3b_concm.multiply(rop, concm_3b_values.data());
+    }
+
+    // reactions involving third body
+    if (!m_concm.empty()) {
+        m_multi_concm.multiply(rop, m_concm.data());
+    }
+}
+
+void GasKinetics::processEquilibriumConstants(double* rop)
+{
+    // For reverse rates computed from thermochemistry, multiply the forward
+    // rate coefficients by the reciprocals of the equilibrium constants
+    for (size_t i = 0; i < nReactions(); ++i) {
+        rop[i] *= m_rkcn[i];
+    }
+}
+
 void GasKinetics::getEquilibriumConstants(doublereal* kc)
 {
     update_rates_T();
