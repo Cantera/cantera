@@ -10,6 +10,7 @@ cdef class _SolutionBase:
                   kinetics=None, reactions=(), **kwargs):
 
         # run instantiation only if valid sources are specified
+        self._references = None
         if origin or infile or source or yaml or (thermo and species):
 
             self._cinit(infile=infile, name=name, adjacent=adjacent,

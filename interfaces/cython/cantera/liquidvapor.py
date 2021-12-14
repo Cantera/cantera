@@ -41,7 +41,7 @@ def Water(backend='Reynolds'):
     :ct:WaterSSTP and :ct:WaterTransport in the Cantera C++ source
     code documentation.
     """
-    class WaterWithTransport(PureFluid, _cantera.Transport):
+    class WaterWithTransport(_cantera.Transport, PureFluid):
         __slots__ = ()
 
     if backend == 'Reynolds':

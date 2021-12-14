@@ -25,7 +25,7 @@ else:
     import pandas as _pandas
 
 
-class Solution(ThermoPhase, Kinetics, Transport):
+class Solution(Transport, Kinetics, ThermoPhase):
     """
     A class for chemically-reacting solutions. Instances can be created to
     represent any type of solution -- a mixture of gases, a liquid solution, or
@@ -101,7 +101,7 @@ class Solution(ThermoPhase, Kinetics, Transport):
     __slots__ = ()
 
 
-class Interface(InterfacePhase, InterfaceKinetics):
+class Interface(InterfaceKinetics, InterfacePhase):
     """
     Two-dimensional interfaces.
 
@@ -121,7 +121,7 @@ class Interface(InterfacePhase, InterfaceKinetics):
     __slots__ = ('_phase_indices',)
 
 
-class DustyGas(ThermoPhase, Kinetics, DustyGasTransport):
+class DustyGas(DustyGasTransport, Kinetics, ThermoPhase):
     """
     A composite class which models a gas in a stationary, solid, porous medium.
 

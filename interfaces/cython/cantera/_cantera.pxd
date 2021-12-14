@@ -1243,6 +1243,7 @@ cdef class _SolutionBase:
     cdef int thermo_basis
     cdef np.ndarray _selected_species
     cdef object parent
+    cdef public object _references
 
 cdef class Species:
     cdef shared_ptr[CxxSpecies] _species
@@ -1258,7 +1259,6 @@ cdef class ThermoPhase(_SolutionBase):
     cpdef int species_index(self, species) except *
     cdef np.ndarray _getArray1(self, thermoMethod1d method)
     cdef void _setArray1(self, thermoMethod1d method, values) except *
-    cdef public object _references
 
 cdef class InterfacePhase(ThermoPhase):
     cdef CxxSurfPhase* surf
