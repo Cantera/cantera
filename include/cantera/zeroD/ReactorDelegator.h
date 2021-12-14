@@ -81,8 +81,8 @@ public:
         );
         install("evalWalls", m_evalWalls, [this](double t) { R::evalWalls(t); });
         install("evalSurfaces", m_evalSurfaces,
-            [this](std::array<size_t, 1> sizes, double t, double* ydot) {
-                return R::evalSurfaces(t, ydot);
+            [this](std::array<size_t, 3> sizes, double* LHS, double* RHS, double* sdot) {
+                R::evalSurfaces(LHS, RHS, sdot);
             }
         );
         install("componentName", m_componentName,
@@ -136,9 +136,10 @@ public:
         m_evalWalls(t);
     }
 
-    virtual double evalSurfaces(double t, double* ydot) override {
-        std::array<size_t, 1> sizes{R::m_nv_surf};
-        return m_evalSurfaces(sizes, t, ydot);
+    virtual void evalSurfaces(double* LHS, double* RHS, double* sdot) override
+    {
+        std::array<size_t, 3> sizes{R::m_nv_surf, R::m_nv_surf, R::m_nsp};
+        m_evalSurfaces(sizes, LHS, RHS, sdot);
     }
 
     virtual std::string componentName(size_t k) override {
@@ -195,7 +196,7 @@ private:
     std::function<void(bool)> m_updateConnected;
     std::function<void(std::array<size_t, 2>, double, double*, double*)> m_eval;
     std::function<void(double)> m_evalWalls;
-    std::function<double(std::array<size_t, 1>, double, double*)> m_evalSurfaces;
+    std::function<void(std::array<size_t, 3>, double*, double*, double*)> m_evalSurfaces;
     std::function<std::string(size_t)> m_componentName;
     std::function<size_t(const std::string&)> m_componentIndex;
     std::function<size_t(const std::string&)> m_speciesIndex;

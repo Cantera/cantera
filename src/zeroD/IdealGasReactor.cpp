@@ -86,7 +86,8 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
     }
 
-    double mdot_surf = evalSurfaces(time, RHS + m_nsp + 3);
+    evalSurfaces(LHS + m_nsp + 3, RHS + m_nsp + 3, m_sdot.data());
+    double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());
     dmdt += mdot_surf;
 
     // compression work and external heat transfer

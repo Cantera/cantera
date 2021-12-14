@@ -457,11 +457,11 @@ cdef class ExtensibleReactor(Reactor):
         and the net rate of heat transfer `qdot` caused by walls connected
         to this reactor.
 
-    ``eval_surfaces(t : double, ydot : double[:]) -> double``
-        Responsible for calculating the time derivative of the surface species
-        ``ydot`` (length: total number of surface species in all surfaces) and
-        the net rate of production of bulk phase species on surfaces. Returns
-        the net mass flux from surfaces into the bulk phase.
+    ``eval_surfaces(LHS : double[:], RHS : double[:], sdot : double[:]) -> None``
+        Responsible for calculating the ``LHS`` and ``RHS`` (length: total number of
+        surface species in all surfaces) of the ODEs for surface species coverages,
+        and the molar production rate of bulk phase species ``sdot`` (length: number
+        of bulk phase species).
 
     ``component_name(i : int) -> string``
         Returns the name of the state vector component with index ``i``
@@ -487,7 +487,7 @@ cdef class ExtensibleReactor(Reactor):
         'update_connected': ('updateConnected', 'void(bool)'),
         'eval': ('eval', 'void(double, double*, double*)'),
         'eval_walls': ('evalWalls', 'void(double)'),
-        'eval_surfaces': ('evalSurfaces', 'double(double,double*)'),
+        'eval_surfaces': ('evalSurfaces', 'void(double*,double*,double*)'),
         'component_name': ('componentName', 'string(size_t)'),
         'component_index': ('componentIndex', 'size_t(string)'),
         'species_index': ('speciesIndex', 'size_t(string)')

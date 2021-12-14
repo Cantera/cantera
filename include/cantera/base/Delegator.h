@@ -116,18 +116,19 @@ public:
         *m_funcs_v_d_dp_dp[name] = makeDelegate(func, when, *m_funcs_v_d_dp_dp[name]);
     }
 
-    //! Set delegates for member functions with the signature `double(double, double*)`
+    //! Set delegates for member functions with the signature
+    //! `void(double*, double*, double*)`
     void setDelegate(
         const std::string& name,
-        const std::function<int(double&, std::array<size_t, 1>, double, double*)>& func,
+        const std::function<void(std::array<size_t, 3>, double*, double*, double*)>& func,
         const std::string& when)
     {
-        if (!m_funcs_d_d_dp.count(name)) {
+        if (!m_funcs_v_dp_dp_dp.count(name)) {
             throw NotImplementedError("Delegator::setDelegate",
                 "for function named '{}' with signature "
-                "'double(double, double*)'.", name);
+                "'void(double*, double*, double*)'.", name);
         }
-        *m_funcs_d_d_dp[name] = makeDelegate(func, when, m_base_d_d_dp[name]);
+        *m_funcs_v_dp_dp_dp[name] = makeDelegate(func, when, *m_funcs_v_dp_dp_dp[name]);
     }
 
     //! Set delegates for member functions with the signature `string(size_t)`
@@ -209,14 +210,14 @@ protected:
         m_funcs_v_d_dp_dp[name] = &target;
     }
 
-    //! Install a function with the signature `double(double, double*)` as being delegatable
+    //! Install a function with the signature
+    //! `void(double*, double*, double*)` as being delegatable
     void install(const std::string& name,
-                 std::function<double(std::array<size_t, 1>, double, double*)>& target,
-                 const std::function<double(std::array<size_t, 1>, double, double*)>& base)
+                 std::function<void(std::array<size_t, 3>, double*, double*, double*)>& target,
+                 const std::function<void(std::array<size_t, 3>, double*, double*, double*)>& base)
     {
         target = base;
-        m_funcs_d_d_dp[name] = &target;
-        m_base_d_d_dp[name] = base;
+        m_funcs_v_dp_dp_dp[name] = &target;
     }
 
     //! Install a function with the signature `string(size_t)` as being delegatable
@@ -323,13 +324,10 @@ protected:
         std::function<void(std::array<size_t, 1>, double, double*)>*> m_funcs_v_d_dp;
     std::map<std::string,
         std::function<void(std::array<size_t, 2>, double, double*, double*)>*> m_funcs_v_d_dp_dp;
+    std::map<std::string,
+        std::function<void(std::array<size_t, 3>, double*, double*, double*)>*> m_funcs_v_dp_dp_dp;
 
     // Delegates with a return value
-    std::map<std::string,
-        std::function<double(std::array<size_t, 1>, double, double*)>> m_base_d_d_dp;
-    std::map<std::string,
-        std::function<double(std::array<size_t, 1>, double, double*)>*> m_funcs_d_d_dp;
-
     std::map<std::string,
         std::function<std::string(size_t)>> m_base_s_sz;
     std::map<std::string,

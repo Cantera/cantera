@@ -204,18 +204,18 @@ void Reactor::eval(double time, double* LHS, double* RHS)
     double& dmdt = RHS[0];
     double* dYdt = RHS + 3;
 
-    dmdt = 0.0;
-
     evalWalls(time);
     m_thermo->restoreState(m_state);
-    double mdot_surf = evalSurfaces(time, RHS + m_nsp + 3);
-    dmdt += mdot_surf; // mass added to gas phase from surface reactions
+    const vector_fp& mw = m_thermo->molecularWeights();
+    const doublereal* Y = m_thermo->massFractions();
+
+    evalSurfaces(LHS + m_nsp + 3, RHS + m_nsp + 3, m_sdot.data());
+     // mass added to gas phase from surface reactions
+    double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());
+    dmdt = mdot_surf;
 
     // volume equation
     RHS[1] = m_vdot;
-
-    const vector_fp& mw = m_thermo->molecularWeights();
-    const doublereal* Y = m_thermo->massFractions();
 
     if (m_chem) {
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
@@ -275,12 +275,10 @@ void Reactor::evalWalls(double t)
     m_Q = -m_Qdot;
 }
 
-double Reactor::evalSurfaces(double t, double* ydot)
+void Reactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
 {
-    const vector_fp& mw = m_thermo->molecularWeights();
-    fill(m_sdot.begin(), m_sdot.end(), 0.0);
+    fill(sdot, sdot + m_nsp, 0.0);
     size_t loc = 0; // offset into ydot
-    double mdot_surf = 0.0; // net mass flux from surface
 
     for (auto S : m_surfaces) {
         Kinetics* kin = S->kinetics();
@@ -295,20 +293,20 @@ double Reactor::evalSurfaces(double t, double* ydot)
         size_t ns = kin->surfacePhaseIndex();
         size_t surfloc = kin->kineticsSpeciesIndex(0,ns);
         for (size_t k = 1; k < nk; k++) {
-            ydot[loc + k] = m_work[surfloc+k]*rs0*surf->size(k);
-            sum -= ydot[loc + k];
+            LHS[loc] = 1.0;
+            RHS[loc + k] = m_work[surfloc+k]*rs0*surf->size(k);
+            sum -= RHS[loc + k];
         }
-        ydot[loc] = sum;
+        LHS[loc] = 1.0;
+        RHS[loc] = sum;
         loc += nk;
 
         size_t bulkloc = kin->kineticsSpeciesIndex(m_thermo->speciesName(0));
         double wallarea = S->area();
         for (size_t k = 0; k < m_nsp; k++) {
-            m_sdot[k] += m_work[bulkloc + k] * wallarea;
-            mdot_surf += m_sdot[k] * mw[k];
+            sdot[k] += m_work[bulkloc + k] * wallarea;
         }
     }
-    return mdot_surf;
 }
 
 void Reactor::addSensitivityReaction(size_t rxn)

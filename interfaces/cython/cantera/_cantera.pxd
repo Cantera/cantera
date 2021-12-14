@@ -74,8 +74,8 @@ cdef extern from "cantera/cython/funcWrapper.h":
         PyObject*, void(PyFuncInfo&, size_array1, double, double*))
     cdef function[void(size_array2, double, double*, double*)] pyOverride(
         PyObject*, void(PyFuncInfo&, size_array2, double, double*, double*))
-    cdef function[int(double&, size_array1, double, double*)] pyOverride(
-        PyObject*, int(PyFuncInfo&, double&, size_array1, double, double*))
+    cdef function[void(size_array3, double*, double*, double*)] pyOverride(
+        PyObject*, void(PyFuncInfo&, size_array3, double*, double*, double*))
     cdef function[int(string&, size_t)] pyOverride(PyObject*, int(PyFuncInfo&, string&, size_t))
     cdef function[int(size_t&, const string&)] pyOverride(
         PyObject*, int(PyFuncInfo&, size_t&, const string&))
@@ -205,7 +205,7 @@ cdef extern from "cantera/base/Delegator.h" namespace "Cantera":
         void setDelegate(string&, function[void(size_array1, double*)], string&) except +translate_exception
         void setDelegate(string&, function[void(size_array1, double, double*)], string&) except +translate_exception
         void setDelegate(string&, function[void(size_array2, double, double*, double*)], string&) except +translate_exception
-        void setDelegate(string&, function[int(double&, size_array1, double, double*)], string&) except +translate_exception
+        void setDelegate(string&, function[void(size_array3, double*, double*, double*)], string&) except +translate_exception
         void setDelegate(string&, function[int(string&, size_t)], string&) except +translate_exception
         void setDelegate(string&, function[int(size_t&, string&)], string&) except +translate_exception
 
