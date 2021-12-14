@@ -1882,6 +1882,22 @@ class ExtensibleReactorTest(utilities.CanteraTest):
             net.step()
             self.assertArrayNear(r.get_state(), np.exp(- net.time / tau))
 
+    def test_error_handling(self):
+        class DummyReactor1(ct.ExtensibleReactor):
+            def replace_eval(self, t): # wrong number of arguments
+                pass
+
+        with self.assertRaisesRegex(ValueError, "right number of arguments"):
+            DummyReactor1(self.gas)
+
+        class DummyReactor2(ct.ExtensibleReactor):
+            def replace_component_index(self, name):
+                pass # does not return a value
+
+        r2 = DummyReactor2(self.gas)
+        with self.assertRaisesRegex(ct.CanteraError, "did not return a value"):
+            r2.component_index("H2")
+
     def test_RHS_LHS(self):
         # set initial state
         self.gas.TPX = 500, ct.one_atm, 'H2:2,O2:1,N2:4'
