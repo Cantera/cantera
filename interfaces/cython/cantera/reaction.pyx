@@ -265,6 +265,86 @@ cdef class BlowersMaselRate(ReactionRate):
             self.cxx_object().setAllowNegativePreExponentialFactor(allow)
 
 
+cdef class TwoTempPlasmaRate(ReactionRate):
+    r"""
+    A reaction rate coefficient which depends on both gas and electron temperature
+    with the form similar to the modified Arrhenius form. Specifically, the temperature
+    exponent (b) is applied to the electron temperature instead. In addition, the
+    exponential term with activation energy for electron is included.
+
+    .. math::
+
+        k_f = A T_e^b \exp{-\tfrac{Ea_T}{RT}} \exp{-\tfrac{Ea_{T_e}}{RT_e}}
+
+    where ``A`` is the `pre_exponential_factor`, ``b`` is the `temperature_exponent`,
+    ``Ea_T`` is the `activation_energy`, and ``Ea_{T_e}`` is the `activation_electron_energy`.
+    """
+    _reaction_rate_type = "two-temperature-plasma"
+
+    def __cinit__(self, A=None, b=None, Ea_T=None, Ea_Te=None, input_data=None, init=True):
+
+        if init:
+            if isinstance(input_data, dict):
+                self._rate.reset(new CxxTwoTempPlasmaRate(dict_to_anymap(input_data)))
+            elif all([arg is not None for arg in [A, b, Ea_T, Ea_Te]]):
+                self._rate.reset(new CxxTwoTempPlasmaRate(A, b, Ea_T, Ea_Te))
+            elif all([arg is None for arg in [A, b, Ea_T, Ea_Te, input_data]]):
+                self._rate.reset(new CxxTwoTempPlasmaRate(dict_to_anymap({})))
+            elif input_data:
+                raise TypeError("Invalid parameter 'input_data'")
+            else:
+                raise TypeError("Invalid parameters 'A', 'b', 'Ea_T' or 'Ea_Te'")
+            self.set_cxx_object()
+
+    def __call__(self, double temperature, double elec_temp):
+        """
+        Evaluate rate expression based on temperature and enthalpy change of reaction.
+        """
+        return self.rate.eval(temperature, elec_temp)
+
+    cdef CxxTwoTempPlasmaRate* cxx_object(self):
+        return <CxxTwoTempPlasmaRate*>self.rate
+
+    property pre_exponential_factor:
+        """
+        The pre-exponential factor ``A`` in units of m, kmol, and s raised to
+        powers depending on the reaction order.
+        """
+        def __get__(self):
+            return self.cxx_object().preExponentialFactor()
+
+    property temperature_exponent:
+        """
+        The temperature exponent ``b``.
+        """
+        def __get__(self):
+            return self.cxx_object().temperatureExponent()
+
+    property activation_energy:
+        """
+        The activation energy ``Ea_T`` [J/kmol].
+        """
+        def __get__(self):
+            return self.cxx_object().activationEnergy()
+
+    property activation_electron_energy:
+        """
+        The activation electron energy ``Ea_{T_e}`` [J/kmol].
+        """
+        def __get__(self):
+            return self.cxx_object().activationElectronEnergy()
+
+    property allow_negative_pre_exponential_factor:
+        """
+        Get/Set whether the rate coefficient is allowed to have a negative
+        pre-exponential factor.
+        """
+        def __get__(self):
+            return self.cxx_object().allowNegativePreExponentialFactor()
+        def __set__(self, cbool allow):
+            self.cxx_object().setAllowNegativePreExponentialFactor(allow)
+
+
 cdef class FalloffRate(ReactionRate):
     """
     Base class for parameterizations used to describe the fall-off in reaction rates

@@ -136,6 +136,71 @@ void ArrheniusRate::getParameters(AnyMap& rateNode) const
     }
 }
 
+TwoTempPlasmaRate::TwoTempPlasmaRate()
+    : m_EE_R(NAN)
+{
+}
+
+TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE)
+    : ArrheniusBase(A, b, Ea)
+    , m_EE_R(EE  / GasConstant)
+{
+    
+}
+
+void TwoTempPlasmaRate::setRateParameters(
+    const AnyValue& rate, const UnitSystem& units, const UnitStack& rate_units)
+{
+    if (rate.empty()) {
+        m_A = NAN;
+        m_b = NAN;
+        m_Ea_R = NAN;
+        m_EE_R = NAN;
+        m_order = NAN;
+        m_rate_units = Units(0.);
+        return;
+    }
+
+    if (rate.is<AnyMap>()) {
+        ArrheniusBase::setRateParameters(rate, units, rate_units);
+        auto& rate_map = rate.as<AnyMap>();
+        m_Ea_R = units.convertActivationEnergy(rate_map["Ea_T"], "K");
+        m_EE_R = units.convertActivationEnergy(rate_map["Ea_Te"], "K");
+    } else {
+        setRateUnits(rate_units);
+        auto& rate_vec = rate.asVector<AnyValue>(4);
+        m_A = units.convert(rate_vec[0], m_rate_units);
+        m_b = rate_vec[1].asDouble();
+        m_Ea_R = units.convertActivationEnergy(rate_vec[2], "K");
+        m_EE_R = units.convertActivationEnergy(rate_vec[3], "K");
+    }
+}
+
+void TwoTempPlasmaRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
+{
+    m_negativeA_ok = node.getBool("negative-A", false);
+    if (!node.hasKey("rate-constant")) {
+        TwoTempPlasmaRate::setRateParameters(AnyValue(), node.units(), rate_units);
+        return;
+    }
+    TwoTempPlasmaRate::setRateParameters(node["rate-constant"], node.units(), rate_units);
+}
+
+void TwoTempPlasmaRate::getParameters(AnyMap& rateNode) const
+{
+    if (m_negativeA_ok) {
+        rateNode["negative-A"] = true;
+    }
+    AnyMap node;
+    ArrheniusBase::getParameters(node);
+    if (!node.empty()) {
+        // object is configured
+        node["Ea_Te"].setQuantity(m_EE_R, "K", true);
+        rateNode["rate-constant"] = std::move(node);
+    }
+    rateNode["type"] = type();
+}
+
 BlowersMaselRate::BlowersMaselRate()
     : m_w_R(NAN)
 {

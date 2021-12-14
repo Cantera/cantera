@@ -82,6 +82,34 @@ struct ArrheniusData : public ReactionData
 };
 
 
+//! Data container holding shared data specific to TwoTempPlasmaRate
+/**
+ * The data container `TwoTempPlasmaData` holds precalculated data common to
+ * all `TwoTempPlasmaRate` objects.
+ */
+struct TwoTempPlasmaData : public ReactionData
+{
+    TwoTempPlasmaData() : elec_temp(1.), logTe(0.), recipTe(1.) {}
+
+    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
+
+    virtual void update(double T) override;
+
+    virtual void update(double T, double Te) override;
+
+    virtual void updateTe(double Te);
+
+    virtual void invalidateCache() override {
+        ReactionData::invalidateCache();
+        elec_temp = NAN;
+    }
+
+    double elec_temp; //!< electron temperature
+    double logTe; //!< logarithm of electron temperature
+    double recipTe; //!< inverse of electron temperature
+};
+
+
 //! Data container holding shared data specific to BlowersMaselRate
 /**
  * The data container `BlowersMaselData` holds precalculated data common to

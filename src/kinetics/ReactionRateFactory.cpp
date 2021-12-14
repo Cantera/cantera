@@ -28,6 +28,11 @@ ReactionRateFactory::ReactionRateFactory()
     addAlias("Arrhenius", "elementary");
     addAlias("Arrhenius", "three-body");
 
+    // TwoTempPlasmaRate evaluator
+    reg("two-temperature-plasma", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new TwoTempPlasmaRate(node, rate_units);
+    });
+
     // BlowersMaselRate evaluator
     reg("Blowers-Masel", [](const AnyMap& node, const UnitStack& rate_units) {
         return new BlowersMaselRate(node, rate_units);
