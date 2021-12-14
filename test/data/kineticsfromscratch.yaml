@@ -80,3 +80,6 @@ reactions:
   type: chemically-activated
   high-P-rate-constant: [5.88E-14, 6.721, -3022.227]
   low-P-rate-constant: [282320.078, 1.46878, -3270.56495]
+- equation: O + H <=> O + H  # Reaction 12
+  type: two-temperature-plasma
+  rate-constant: {A: 17283, b: -3.1, Ea_T: -5820 J/mol, Ea_Te: 1081 J/mol}

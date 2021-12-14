@@ -133,6 +133,7 @@ class ReactionRateTests:
         cls.gas = ct.Solution("kineticsfromscratch.yaml")
         cls.gas.X = "H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5"
         cls.gas.TP = 900, 2*ct.one_atm
+        cls.gas.Te = 2300
 
     def from_parts(self):
         # create reaction rate object from parts
@@ -275,6 +276,43 @@ class TestBlowersMaselRate(ReactionRateTests, utilities.CanteraTest):
         self.assertEqual(self._parts["b"], rate.temperature_exponent)
         self.assertEqual(self._parts["Ea0"], rate.intrinsic_activation_energy)
         self.assertEqual(self._parts["w"], rate.bond_energy)
+        self.check_rate(rate)
+
+    def test_negative_A(self):
+        # test reaction rate property
+        rate = self.from_parts()
+        self.assertFalse(rate.allow_negative_pre_exponential_factor)
+        rate.allow_negative_pre_exponential_factor = True
+        self.assertTrue(rate.allow_negative_pre_exponential_factor)
+
+
+class TestTwoTempPlasmaRate(ReactionRateTests, utilities.CanteraTest):
+    # test TwoTempPlasma rate expressions
+
+    _cls = ct.TwoTempPlasmaRate
+    _type = "two-temperature-plasma"
+    _index = 11
+    _input = {"rate-constant": {"A": 17283, "b": -3.1, "Ea_T": -5820000, "Ea_Te": 1081000}}
+    _yaml = """
+        type: two-temperature-plasma
+        rate-constant: {A: 17283, b: -3.1, Ea_T: -5820 J/mol, Ea_Te: 1081 J/mol}
+        """
+
+    @classmethod
+    def setUpClass(cls):
+        ReactionRateTests.setUpClass()
+        cls._parts = cls._input["rate-constant"]
+
+    def eval(self, rate):
+        # check evaluation as a function of temperature and electron temperature
+        return rate(self.gas.T, self.gas.Te)
+
+    def test_from_parts(self):
+        rate = self.from_parts()
+        self.assertEqual(self._parts["A"], rate.pre_exponential_factor)
+        self.assertEqual(self._parts["b"], rate.temperature_exponent)
+        self.assertAlmostEqual(self._parts["Ea_T"], rate.activation_energy)
+        self.assertAlmostEqual(self._parts["Ea_Te"], rate.activation_electron_energy)
         self.check_rate(rate)
 
     def test_negative_A(self):
@@ -884,6 +922,29 @@ class TestImplicitThreeBody(TestThreeBody):
         rxn = self.from_rate(self._rate_obj)
         self.assertEqual(rxn.efficiencies, {"O2": 1.})
         self.assertEqual(rxn.default_efficiency, 0.)
+
+
+class TestTwoTempPlasma(ReactionTests, utilities.CanteraTest):
+    # test two-temperature plasma reaction
+
+    _cls = ct.TwoTempPlasmaReaction
+    _type = "two-temperature-plasma"
+    _equation = "O + H <=> O + H"
+    _rate = {"A": 17283, "b": -3.1, "Ea_T": -5820000, "Ea_Te": 1081000}
+    _index = 11
+    _yaml = """
+        equation: O + H <=> O + H
+        type: two-temperature-plasma
+        rate-constant: {A: 17283, b: -3.1, Ea_T: -5820 J/mol, Ea_Te: 1081 J/mol}
+        """
+
+    @classmethod
+    def setUpClass(cls):
+        ReactionTests.setUpClass()
+        cls._rate_obj = ct.TwoTempPlasmaRate(**cls._rate)
+
+    def eval_rate(self, rate):
+        return rate(self.gas.T, self.gas.Te)
 
 
 class TestBlowersMasel(ReactionTests, utilities.CanteraTest):
