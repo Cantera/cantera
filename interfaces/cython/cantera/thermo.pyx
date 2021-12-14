@@ -330,6 +330,9 @@ cdef class ThermoPhase(_SolutionBase):
         super().__init__(*args, **kwargs)
         if 'source' not in kwargs:
             self.thermo_basis = mass_basis
+        # In composite objects, the ThermoPhase constructor needs to be called first
+        # to prevent instantiation of stand-alone 'Kinetics' or 'Transport' objects.
+        # The following is used as a sentinel.
         self._references = weakref.WeakKeyDictionary()
 
     property thermo_model:
