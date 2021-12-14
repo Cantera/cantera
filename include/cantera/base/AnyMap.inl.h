@@ -10,6 +10,8 @@
 
 namespace Cantera
 {
+// re-declared to avoid needing to include global.h here
+std::string demangle(const std::type_info& type);
 
 // Definitions for AnyValue templated functions
 
