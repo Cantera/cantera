@@ -27,6 +27,41 @@ bool ArrheniusData::update(const ThermoPhase& bulk, const Kinetics& kin)
     return true;
 }
 
+bool TwoTempPlasmaData::update(const ThermoPhase& bulk, const Kinetics& kin)
+{
+    double T = bulk.temperature();
+    double Te = bulk.electronTemperature();
+    bool changed = false;
+    if (T != temperature) {
+        ReactionData::update(T);
+        changed = true;
+    }
+    if (Te != elec_temp) {
+        updateTe(Te);
+        changed = true;
+    }
+    return changed;
+}
+
+void TwoTempPlasmaData::update(double T)
+{
+    throw CanteraError("TwoTempPlasmaData::update",
+        "Missing state information: 'TwoTempPlasmaData' requires electron temperature.");
+}
+
+void TwoTempPlasmaData::update(double T, double Te)
+{
+    ReactionData::update(T);
+    updateTe(Te);
+}
+
+void TwoTempPlasmaData::updateTe(double Te)
+{
+    elec_temp = Te;
+    logTe = std::log(Te);
+    recipTe = 1./Te;
+}
+
 BlowersMaselData::BlowersMaselData()
     : ready(false)
     , density(NAN)

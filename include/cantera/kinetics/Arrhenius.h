@@ -195,6 +195,97 @@ public:
 };
 
 
+//! Two temperature plasma reaction rate type depends on both
+//! gas temperature and electron temperature.
+/*!
+ * The form of the two temperature plasma reaction rate coefficient is similar to an
+ * Arrhenius reaction rate coefficient. The temperature exponent (b) is applied to
+ * the electron temperature instead. In addition, the exponential term with
+ * activation energy for electron is included.
+ *
+ *   \f[
+ *        k_f =  A T_e^b \exp (-Ea_T/RT) \exp (-Ea_{T_e}/RT_e)
+ *   \f]
+ *
+ * @ingroup arrheniusGroup
+ */
+class TwoTempPlasmaRate final : public ArrheniusBase
+{
+public:
+    TwoTempPlasmaRate();
+
+    //! Constructor.
+    /*!
+     *  @param A  Pre-exponential factor. The unit system is (kmol, m, s); actual units
+     *      depend on the reaction order and the dimensionality (surface or bulk).
+     *  @param b  Temperature exponent (non-dimensional)
+     *  @param Ea  Activation energy in energy units [J/kmol]
+     *  @param EE  Activation electron energy in energy units [J/kmol]
+     */
+    TwoTempPlasmaRate(double A, double b, double Ea, double EE);
+
+    unique_ptr<MultiRateBase> newMultiRate() const override {
+        return unique_ptr<MultiRateBase>(
+            new MultiBulkRate<TwoTempPlasmaRate, TwoTempPlasmaData>);
+    }
+
+    //! Constructor based on AnyMap content
+    TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_units={})
+        : TwoTempPlasmaRate()
+    {
+        setParameters(node, rate_units);
+    }
+
+    //! Identifier of reaction rate type
+    virtual const std::string type() const override {
+        return "two-temperature-plasma";
+    }
+
+    virtual void setRateParameters(const AnyValue& rate,
+                                   const UnitSystem& units,
+                                   const UnitStack& rate_units) override;
+
+    //! Perform object setup based on AnyMap node information
+    /*!
+     *  @param node  AnyMap containing rate information
+     *  @param rate_units  Unit definitions specific to rate information
+     */
+    virtual void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
+
+    virtual void getParameters(AnyMap& node) const override;
+
+    double evalFromStruct(const TwoTempPlasmaData& shared_data) {
+        return m_A * std::exp(m_b * shared_data.logTe -
+                              m_Ea_R * shared_data.recipT -
+                              m_EE_R * shared_data.recipTe);
+    }
+
+    //! Return the activation energy *Ea* [J/kmol]
+    double activationEnergy() const {
+        return m_Ea_R * GasConstant;
+    }
+
+    //! Return the activation energy divided by the gas constant (i.e. the
+    //! activation temperature) [K]
+    double activationEnergy_R() const {
+        return m_Ea_R;
+    }
+
+    //! Return the activation energy *Ea* [J/kmol]
+    double activationElectronEnergy() const {
+        return m_EE_R * GasConstant;
+    }
+
+    //! Return the activation energy divided by the gas constant (i.e. the
+    //! activation temperature) [K]
+    double activationElectronEnergy_R() const {
+        return m_EE_R;
+    }
+protected:
+    double m_EE_R; //!< Activation electron energy (in temperature units)
+};
+
+
 //! Blowers Masel reaction rate type depends on the enthalpy of reaction
 /**
  * The Blowers Masel approximation is written by Paul Blowers,
