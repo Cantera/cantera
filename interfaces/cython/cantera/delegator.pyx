@@ -125,7 +125,7 @@ cdef void callback_v_d_dp_dp(PyFuncInfo& funcInfo, size_array2 sizes, double arg
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
-cdef void assign_delegates(obj, CxxDelegator* delegator):
+cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
     """
     Use methods defined in the Python class ``obj`` as delegates for the C++
     object ``delegator``. This function should be called in the ``__init__``
@@ -181,27 +181,32 @@ cdef void assign_delegates(obj, CxxDelegator* delegator):
         if callback == 'void()':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v), cxx_when)
-        if callback == 'void(double)':
+        elif callback == 'void(double)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_d), cxx_when)
-        if callback == 'void(double*)':
+        elif callback == 'void(double*)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_dp), cxx_when)
-        if callback == 'void(bool)':
+        elif callback == 'void(bool)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_b), cxx_when)
-        if callback == 'void(double,double*)':
+        elif callback == 'void(double,double*)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_d_dp), cxx_when)
-        if callback == 'void(double*,double*,double*)':
+        elif callback == 'void(double*,double*,double*)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_dp_dp_dp), cxx_when)
-        if callback == 'string(size_t)':
+        elif callback == 'string(size_t)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_i_sr_z), cxx_when)
-        if callback == 'size_t(string)':
+        elif callback == 'size_t(string)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_i_zr_csr), cxx_when)
-        if callback == 'void(double,double*,double*)':
+        elif callback == 'void(double,double*,double*)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_d_dp_dp), cxx_when)
+        else:
+            raise ValueError("Don't know how to set delegates for functions "
+                f"with signature '{callback}'")
+
+    return 0
