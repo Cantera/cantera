@@ -9,10 +9,10 @@ on:
     branches:
       - main
       - testing
-  pull_request:
-    # Build when a pull request targets main
-    branches:
-      - main
+  # pull_request:
+  #   # Build when a pull request targets main
+  #   branches:
+  #     - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
