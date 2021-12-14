@@ -64,6 +64,13 @@ cdef class Kinetics(_SolutionBase):
     of progress, species production rates, and other quantities pertaining to
     a reaction mechanism.
     """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self._references is None:
+            raise ValueError(
+                "Cannot instantiate stand-alone 'Kinetics' object as it requires an "
+                "associated thermo phase.\nAll 'Kinetics' methods should be accessed "
+                "from a 'Solution' object.")
 
     property kinetics_model:
         """

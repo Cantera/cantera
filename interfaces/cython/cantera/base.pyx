@@ -18,6 +18,9 @@ cdef class _SolutionBase:
                         thermo=thermo, species=species, kinetics=kinetics,
                         reactions=reactions, **kwargs)
             return
+        elif any([infile, source, adjacent, origin, source, yaml,
+                  thermo, species, kinetics, reactions, kwargs]):
+            raise ValueError("Arguments are insufficient to define a phase")
 
         self._base = CxxNewSolution()
         self.base = self._base.get()
@@ -89,10 +92,8 @@ cdef class _SolutionBase:
         # Parse inputs
         if infile or source:
             self._init_cti_xml(infile, name, adjacent, source)
-        elif thermo and species:
-            self._init_parts(thermo, species, kinetics, adjacent, reactions)
         else:
-            raise ValueError("Arguments are insufficient to define a phase")
+            self._init_parts(thermo, species, kinetics, adjacent, reactions)
 
         self._selected_species = np.ndarray(0, dtype=np.uint64)
 

@@ -179,6 +179,11 @@ cdef class Transport(_SolutionBase):
             self.transport = self.base.transport().get()
 
         super().__init__(*args, **kwargs)
+        if self._references is None:
+            raise ValueError(
+                "Cannot instantiate stand-alone 'Transport' object as it requires an "
+                "associated thermo phase.\nAll 'Transport' methods should be accessed "
+                "from a 'Solution' object.")
 
     property transport_model:
         """
