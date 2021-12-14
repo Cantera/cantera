@@ -1560,7 +1560,7 @@ cdef np.ndarray get_transport_polynomial(Transport tran, transportPolyMethod1i m
 cdef np.ndarray get_binary_transport_polynomial(Transport tran, transportPolyMethod2i method, int indexi, int indexj, int n_coeffs)
 cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *
 cdef wrapSpeciesThermo(shared_ptr[CxxSpeciesThermo] spthermo)
-cdef void assign_delegates(object, CxxDelegator*)
+cdef int assign_delegates(object, CxxDelegator*) except -1
 
 cdef extern from "cantera/thermo/Elements.h" namespace "Cantera":
     double getElementWeight(string ename) except +translate_exception
