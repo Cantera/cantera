@@ -1,6 +1,8 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+import inspect
+
 # The following functions are used along with the `pyOverride` function to wrap a Python
 # function inside a C++ `std::function` object that can be used with the C++ `Delegator`
 # class (see `Delegator.h`). The functions here are responsible for the following
@@ -177,6 +179,24 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
 
         cxx_name = stringify(obj.delegatable_methods[name][0])
         callback = obj.delegatable_methods[name][1].replace(' ', '')
+
+        # Make sure that the number of arguments needed by the C++ function
+        # corresponds to the number of arguments accepted by the Python delegate
+        if callback.endswith("()"):
+            callback_args = 0
+        else:
+            callback_args = callback.count(",") + 1
+
+        signature = inspect.signature(method)
+        params = signature.parameters.values()
+        min_args = len([p for p in params if p.default is p.empty])
+        max_args = len([p for p in params if p.kind is not p.KEYWORD_ONLY])
+
+        if not (min_args <= callback_args <= max_args):
+            raise ValueError(f"Function with signature {name}{signature}\n"
+                "does not have the right number of arguments to be used as a delegate "
+                f"for a function with the signature\n{callback}")
+
         cxx_when = stringify(when)
         if callback == 'void()':
             delegator.setDelegate(cxx_name,
