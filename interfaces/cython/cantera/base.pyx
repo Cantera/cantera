@@ -384,15 +384,12 @@ cdef class _SolutionBase:
         if self.kinetics.nTotalSpecies() > self.thermo.nSpecies():
             raise NotImplementedError(
                 "Pickling of Interface objects is not implemented.")
-        transport_model = pystr(self.transport.transportType())
-        return self.write_yaml(), self.state, transport_model
+        return self.write_yaml()
 
     def __setstate__(self, pkl):
         """Restore Solution from pickled information."""
-        yml, state, transport_model = pkl
-        self._cinit(yaml=yml, transport_model=transport_model)
-
-        self.state = state
+        yml = pkl
+        self._cinit(yaml=yml)
 
     def __copy__(self):
         raise NotImplementedError('Solution object is not copyable')
