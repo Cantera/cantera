@@ -609,6 +609,7 @@ cdef class ReactorSurface:
         this surface.
         """
         def __get__(self):
+            self.surface.syncCoverages()
             return self._kinetics
         def __set__(self, Kinetics k):
             self._kinetics = k
