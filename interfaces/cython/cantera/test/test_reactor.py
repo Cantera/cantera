@@ -2062,3 +2062,63 @@ class ExtensibleReactorTest(utilities.CanteraTest):
         self.assertNear(r1.thermo.X[kO2], 0.5215731594)
         self.assertNear(r1.surfaces[0].kinetics.X[kHs], 0.3665198138)
         self.assertNear(r1.surfaces[0].kinetics.X[kPts], 0.6334801862)
+
+    def test_interactions(self):
+        # Reactors connected by a movable, H2-permeable surface
+        kH2 = self.gas.species_index("H2")
+        class TestReactor(ct.ExtensibleIdealGasReactor):
+            def __init__(self, gas):
+                super().__init__(gas)
+                self.neighbor = None
+                self.h2coeff = 12  # mass transfer coeff
+                self.p_coeff = 5 # expansion coeff
+
+            def after_update_connected(self, do_pressure):
+                self.conc_H2 = self.thermo.concentrations[kH2]
+                self.P = self.thermo.P
+
+            def replace_eval_walls(self, t):
+                if self.neighbor:
+                    self.vdot = np.clip(self.p_coeff * (self.P - self.neighbor.P),
+                                        -1.7, 1.7)
+
+            def after_eval(self, t, LHS, RHS):
+                if self.neighbor:
+                    mdot_H2 = self.h2coeff * (self.neighbor.conc_H2 - self.conc_H2)
+                    RHS[kH2+3] += mdot_H2
+                    RHS[3:] -= self.thermo.Y * mdot_H2
+                    RHS[0] += mdot_H2
+                    # enthalpy flux is neglected, so energy isn't properly conserved
+
+        self.gas.TPX = 300, 2*101325, "H2:0.8, N2:0.2"
+        r1 = TestReactor(self.gas)
+        self.gas.TPX = 300, 101325, "H2:0.1, O2:0.9"
+        r2 = TestReactor(self.gas)
+        r1.neighbor = r2
+        r2.neighbor = r1
+        net = ct.ReactorNet([r1, r2])
+        states1 = ct.SolutionArray(self.gas, extra=["t", "mass", "vdot"])
+        states2 = ct.SolutionArray(self.gas, extra=["t", "mass", "vdot"])
+        net.step()
+        M0 = r1.mass * r1.thermo.Y + r2.mass * r2.thermo.Y
+
+        def deltaC():
+            return r1.thermo["H2"].concentrations[0] - r2.thermo["H2"].concentrations[0]
+        deltaCprev = deltaC()
+
+        V0 = r1.volume + r2.volume
+        for t in np.linspace(0.01, 0.2, 50):
+            net.advance(t)
+            self.assertNear(r1.vdot, -r2.vdot)
+            self.assertNear(V0, r1.volume + r2.volume)
+            deltaCnow = deltaC()
+            self.assertLess(deltaCnow, deltaCprev) # difference is always decreasing
+            deltaCprev = deltaCnow
+            self.assertArrayNear(M0, r1.mass * r1.thermo.Y + r2.mass * r2.thermo.Y)
+            states1.append(r1.thermo.state, t=net.time, mass=r1.mass, vdot=r1.vdot)
+            states2.append(r2.thermo.state, t=net.time, mass=r2.mass, vdot=r2.vdot)
+
+        # Regression test values
+        self.assertNear(r1.thermo.P, 151561.15, rtol=1e-6)
+        self.assertNear(r1.thermo["H2"].Y[0], 0.13765976, rtol=1e-6)
+        self.assertNear(r2.thermo["O2"].Y[0], 0.94617029, rtol=1e-6)
