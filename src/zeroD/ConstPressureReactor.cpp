@@ -62,7 +62,7 @@ void ConstPressureReactor::updateState(doublereal* y)
 void ConstPressureReactor::eval(double time, double* LHS, double* RHS)
 {
     double& dmdt = RHS[0];
-    double* dYdt = RHS + 2;
+    double* mdYdt = RHS + 2; // mass * dY/dt
 
     dmdt = 0.0;
 
@@ -82,9 +82,9 @@ void ConstPressureReactor::eval(double time, double* LHS, double* RHS)
 
     for (size_t k = 0; k < m_nsp; k++) {
         // production in gas phase and from surfaces
-        dYdt[k] = (m_wdot[k] * m_vol + m_sdot[k]) * mw[k];
+        mdYdt[k] = (m_wdot[k] * m_vol + m_sdot[k]) * mw[k];
         // dilution by net surface mass flux
-        dYdt[k] -= Y[k] * mdot_surf;
+        mdYdt[k] -= Y[k] * mdot_surf;
         //Assign left-hand side of dYdt ODE as total mass
         LHS[k+2] = m_mass;
     }
@@ -106,7 +106,7 @@ void ConstPressureReactor::eval(double time, double* LHS, double* RHS)
         for (size_t n = 0; n < m_nsp; n++) {
             double mdot_spec = inlet->outletSpeciesMassFlowRate(n);
             // flow of species into system and dilution by other species
-            dYdt[n] += mdot_spec - mdot * Y[n];
+            mdYdt[n] += mdot_spec - mdot * Y[n];
         }
         dHdt += mdot * inlet->enthalpy_mass();
     }

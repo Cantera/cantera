@@ -70,7 +70,7 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
 {
     double& dmdt = RHS[0]; // dm/dt (gas phase)
     double& mcpdTdt = RHS[1]; // m * c_p * dT/dt
-    double* dYdt = RHS + 2;
+    double* mdYdt = RHS + 2; // mass * dY/dt
 
     dmdt = 0.0;
     mcpdTdt = 0.0;
@@ -99,9 +99,9 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
         mcpdTdt -= m_wdot[n] * m_hk[n] * m_vol;
         mcpdTdt -= m_sdot[n] * m_hk[n];
         // production in gas phase and from surfaces
-        dYdt[n] = (m_wdot[n] * m_vol + m_sdot[n]) * mw[n];
+        mdYdt[n] = (m_wdot[n] * m_vol + m_sdot[n]) * mw[n];
         // dilution by net surface mass flux
-        dYdt[n] -= Y[n] * mdot_surf;
+        mdYdt[n] -= Y[n] * mdot_surf;
         //Assign left-hand side of dYdt ODE as total mass
         LHS[n+2] = m_mass;
     }
@@ -119,7 +119,7 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
         for (size_t n = 0; n < m_nsp; n++) {
             double mdot_spec = inlet->outletSpeciesMassFlowRate(n);
             // flow of species into system and dilution by other species
-            dYdt[n] += mdot_spec - mdot * Y[n];
+            mdYdt[n] += mdot_spec - mdot * Y[n];
             mcpdTdt -= (m_hk[n] / mw[n] * mdot_spec);
         }
     }
