@@ -74,7 +74,7 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
 {
     double& dmdt = RHS[0]; // dm/dt (gas phase)
     double& mcvdTdt = RHS[2]; // m * c_v * dT/dt
-    double* dYdt = RHS + 3;
+    double* mdYdt = RHS + 3; // mass * dY/dt
 
     evalWalls(time);
     m_thermo->restoreState(m_state);
@@ -98,9 +98,9 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
         mcvdTdt -= m_wdot[n] * m_uk[n] * m_vol;
         mcvdTdt -= m_sdot[n] * m_uk[n];
         // production in gas phase and from surfaces
-        dYdt[n] = (m_wdot[n] * m_vol + m_sdot[n]) * mw[n];
+        mdYdt[n] = (m_wdot[n] * m_vol + m_sdot[n]) * mw[n];
         // dilution by net surface mass flux
-        dYdt[n] -= Y[n] * mdot_surf;
+        mdYdt[n] -= Y[n] * mdot_surf;
         //Assign left-hand side of dYdt ODE as total mass
         LHS[n+3] = m_mass;
     }
@@ -120,7 +120,7 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
         for (size_t n = 0; n < m_nsp; n++) {
             double mdot_spec = inlet->outletSpeciesMassFlowRate(n);
             // flow of species into system and dilution by other species
-            dYdt[n] += mdot_spec - mdot * Y[n];
+            mdYdt[n] += mdot_spec - mdot * Y[n];
 
             // In combination with h_in*mdot_in, flow work plus thermal
             // energy carried with the species
