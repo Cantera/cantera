@@ -1898,6 +1898,32 @@ class ExtensibleReactorTest(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, "did not return a value"):
             r2.component_index("H2")
 
+    def test_delegate_throws(self):
+        class TestException(Exception):
+            pass
+
+        class DummyReactor(ct.ExtensibleConstPressureReactor):
+            def before_eval(self, t, LHS, RHS):
+                if t > 0.1:
+                    raise TestException()
+
+            def before_component_index(self, name):
+                if name == "fail":
+                    raise TestException()
+
+        r = DummyReactor(self.gas)
+        net = ct.ReactorNet([r])
+
+        # Because the TestException is raised inside code called by CVODES, the actual
+        # error raised will be a CanteraError
+        with self.assertRaises(ct.CanteraError):
+            net.advance(0.2)
+
+        self.assertEqual(r.component_index("enthalpy"), 1)
+        with self.assertRaises(TestException):
+            r.component_index("fail")
+
+
     def test_RHS_LHS(self):
         # set initial state
         self.gas.TPX = 500, ct.one_atm, 'H2:2,O2:1,N2:4'
