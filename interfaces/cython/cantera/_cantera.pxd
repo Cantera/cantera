@@ -905,7 +905,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setKinetics(CxxKinetics*)
         void setCoverages(double*)
         void setCoverages(Composition&) except +translate_exception
-        void syncCoverages()
+        void syncState()
         void addSensitivityReaction(size_t) except +translate_exception
         size_t nSensParams()
 

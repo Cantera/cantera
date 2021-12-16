@@ -55,8 +55,8 @@ void ConstPressureReactor::updateState(doublereal* y)
         m_thermo->setPressure(m_pressure);
     }
     m_vol = m_mass / m_thermo->density();
-    updateSurfaceState(y + m_nsp + 2);
     updateConnected(false);
+    updateSurfaceState(y + m_nsp + 2);
 }
 
 void ConstPressureReactor::eval(double time, double* LHS, double* RHS)

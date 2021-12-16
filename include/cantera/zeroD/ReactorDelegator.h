@@ -181,9 +181,7 @@ public:
     }
 
     virtual void restoreSurfaceState(size_t n) override {
-        ReactorSurface* surf = R::m_surfaces.at(n);
-        surf->thermo()->setTemperature(R::m_state[0]);
-        surf->syncCoverages();
+        R::m_surfaces.at(n)->syncState();
     }
 
 private:

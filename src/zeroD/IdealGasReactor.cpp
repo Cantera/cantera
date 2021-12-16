@@ -66,8 +66,8 @@ void IdealGasReactor::updateState(doublereal* y)
     m_vol = y[1];
     m_thermo->setMassFractions_NoNorm(y+3);
     m_thermo->setState_TR(y[2], m_mass / m_vol);
-    updateSurfaceState(y + m_nsp + 3);
     updateConnected(true);
+    updateSurfaceState(y + m_nsp + 3);
 }
 
 void IdealGasReactor::eval(double time, double* LHS, double* RHS)
