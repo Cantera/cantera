@@ -1923,6 +1923,27 @@ class ExtensibleReactorTest(utilities.CanteraTest):
         with self.assertRaises(TestException):
             r.component_index("fail")
 
+    def test_misc(self):
+        class DummyReactor(ct.ExtensibleReactor):
+            def __init__(self, gas):
+                super().__init__(gas)
+                self.sync_calls = 0
+
+            def after_species_index(self, name):
+                # This will cause returned species indices to be higher by 5 than they
+                # would be otherwise
+                return 5
+
+            def before_sync_state(self):
+                self.sync_calls += 1
+
+        r = DummyReactor(self.gas)
+        net = ct.ReactorNet([r])
+        self.assertEqual(r.component_index("H2"), 5 + 3 + self.gas.species_index("H2"))
+        r.syncState()
+        net.advance(1)
+        r.syncState()
+        self.assertEqual(r.sync_calls, 2)
 
     def test_RHS_LHS(self):
         # set initial state
@@ -2031,6 +2052,10 @@ class ExtensibleReactorTest(utilities.CanteraTest):
             def replace_get_surface_initial_conditions(self, y):
                 y[:] = 0
                 y[kPts] = 1
+
+            def replace_update_surface_state(self, y):
+                # this is the same thing the original method does
+                self.surfaces[0].coverages = y
 
         r1 = SurfReactor(gas)
         r1.volume = 1e-6 # 1 cm^3
