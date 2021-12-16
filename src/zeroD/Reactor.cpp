@@ -167,8 +167,8 @@ void Reactor::updateState(doublereal* y)
         m_thermo->setDensity(m_mass/m_vol);
     }
 
-    updateSurfaceState(y + m_nsp + 3);
     updateConnected(true);
+    updateSurfaceState(y + m_nsp + 3);
 }
 
 void Reactor::updateSurfaceState(double* y)
@@ -287,8 +287,7 @@ void Reactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
         double rs0 = 1.0/surf->siteDensity();
         size_t nk = surf->nSpecies();
         double sum = 0.0;
-        surf->setTemperature(m_state[0]);
-        S->syncCoverages();
+        S->syncState();
         kin->getNetProductionRates(&m_work[0]);
         size_t ns = kin->surfacePhaseIndex();
         size_t surfloc = kin->kineticsSpeciesIndex(0,ns);

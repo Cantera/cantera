@@ -62,8 +62,8 @@ void IdealGasConstPressureReactor::updateState(doublereal* y)
     m_thermo->setMassFractions_NoNorm(y+2);
     m_thermo->setState_TP(y[1], m_pressure);
     m_vol = m_mass / m_thermo->density();
-    updateSurfaceState(y + m_nsp + 2);
     updateConnected(false);
+    updateSurfaceState(y + m_nsp + 2);
 }
 
 void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)

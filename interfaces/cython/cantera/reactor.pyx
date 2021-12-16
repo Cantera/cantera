@@ -609,7 +609,7 @@ cdef class ReactorSurface:
         this surface.
         """
         def __get__(self):
-            self.surface.syncCoverages()
+            self.surface.syncState()
             return self._kinetics
         def __set__(self, Kinetics k):
             self._kinetics = k
@@ -622,7 +622,7 @@ cdef class ReactorSurface:
         def __get__(self):
             if self._kinetics is None:
                 raise CanteraError('No kinetics manager present')
-            self.surface.syncCoverages()
+            self.surface.syncState()
             return self._kinetics.coverages
         def __set__(self, coverages):
             if self._kinetics is None:
