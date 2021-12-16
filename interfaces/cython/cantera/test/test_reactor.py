@@ -1892,11 +1892,21 @@ class ExtensibleReactorTest(utilities.CanteraTest):
 
         class DummyReactor2(ct.ExtensibleReactor):
             def replace_component_index(self, name):
-                pass # does not return a value
+                if name == "succeed":
+                    return 0
+                elif name == "wrong-type":
+                    return "spam"
+                # Otherwise, does not return a value
 
         r2 = DummyReactor2(self.gas)
+        self.assertEqual(r2.component_index("succeed"), 0)
+        with self.assertRaises(TypeError):
+            r2.component_index("wrong-type")
+        # Error information should have been reset
+        self.assertEqual(r2.component_index("succeed"), 0)
         with self.assertRaisesRegex(ct.CanteraError, "did not return a value"):
             r2.component_index("H2")
+        self.assertEqual(r2.component_index("succeed"), 0)
 
     def test_delegate_throws(self):
         class TestException(Exception):
