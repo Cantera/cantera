@@ -17,6 +17,28 @@ void ReactionData::update(double T, double extra)
         "ReactionData type does not use extra argument.");
 }
 
+bool ReactionData::perturbT(double deltaT)
+{
+    // only perturb if there is no buffered value
+    if (temperature_buf > 0.) {
+        return false;
+    }
+    temperature_buf = temperature;
+    ReactionData::update(temperature + deltaT);
+    return true;
+}
+
+bool ReactionData::restore()
+{
+    // only restore if there is a valid buffered value
+    if (temperature_buf < 0.) {
+        return false;
+    }
+    ReactionData::update(temperature_buf);
+    temperature_buf = -1.;
+    return true;
+}
+
 bool ArrheniusData::update(const ThermoPhase& bulk, const Kinetics& kin)
 {
     double T = bulk.temperature();
