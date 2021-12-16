@@ -23,7 +23,7 @@ class Kinetics;
  */
 struct ReactionData
 {
-    ReactionData() : temperature(1.), logT(0.), recipT(1.) {}
+    ReactionData() : temperature(1.), logT(0.), recipT(1.), temperature_buf(-1.) {}
 
     //! Update data container based on temperature *T*
     /**
@@ -53,6 +53,15 @@ struct ReactionData
      */
     virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) = 0;
 
+    //! Perturb temperature of data container
+    /**
+     * The method is used for the evaluation of numerical derivatives.
+     */
+    virtual bool perturbT(double deltaT);
+
+    //! Restore data container after a perturbation
+    virtual bool restore();
+
     //! Update number of species and reactions
     virtual void resize(size_t n_species, size_t n_reactions) {}
 
@@ -67,6 +76,7 @@ struct ReactionData
     double temperature; //!< temperature
     double logT; //!< logarithm of temperature
     double recipT; //!< inverse of temperature
+    double temperature_buf; //!< buffered temperature
 };
 
 
