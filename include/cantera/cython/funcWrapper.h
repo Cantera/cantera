@@ -30,13 +30,11 @@ public:
         , m_exception_type(other.m_exception_type)
         , m_exception_value(other.m_exception_value)
     {
-        Py_XINCREF(m_func);
         Py_XINCREF(m_exception_type);
         Py_XINCREF(m_exception_value);
     }
 
     ~PyFuncInfo() {
-        Py_XDECREF(m_func);
         Py_XDECREF(m_exception_type);
         Py_XDECREF(m_exception_value);
     }
@@ -45,8 +43,6 @@ public:
         return m_func;
     }
     void setFunc(PyObject* f) {
-        Py_XDECREF(m_func);
-        Py_XINCREF(f);
         m_func = f;
     }
 
@@ -182,6 +178,10 @@ extern "C" {
 //! The inner function is responsible for catching Python exceptions and
 //! stashing their details in the PyFuncInfo object. The wrapper function
 //! generated here examines the stashed exception and throws a C++ exception
+//!
+//! The caller of pyOverride must continue holding a reference to pyFunc for the
+//! lifetime of the pyOverride object to prevent it from being prematurely garbage
+//! collected.
 template <class ... Args>
 std::function<void(Args ...)> pyOverride(PyObject* pyFunc, void func(PyFuncInfo&, Args ... args)) {
     PyFuncInfo func_info;
