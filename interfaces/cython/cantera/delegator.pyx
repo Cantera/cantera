@@ -151,6 +151,7 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
     # conflicting implementations
     cdef string cxx_name
     cdef string cxx_when
+    obj._delegates = []
     for name in obj.delegatable_methods:
         when = None
         replace = 'replace_{}'.format(name)
@@ -228,5 +229,10 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
         else:
             raise ValueError("Don't know how to set delegates for functions "
                 f"with signature '{callback}'")
+
+        # A Python object needs to hold references to the bound methods to prevent them
+        # from being deleted, while still being eventually reachable by the garbage
+        # collector
+        obj._delegates.append(method)
 
     return 0
