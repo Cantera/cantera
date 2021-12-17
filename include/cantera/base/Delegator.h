@@ -37,7 +37,17 @@ namespace Cantera
  *
  * Delegated methods can be specified to either "replace" the original class's
  * method, or to run "before" or "after" the original method, using the `when`
- * parameter of the `setDelegate` method.
+ * parameter of the `setDelegate` method. There are two special cases for delegates of
+ * methods with return values:
+ * - If the "before" delegate specifies a value for the return parameter (and then
+ *   returns with a non-zero status value), this value will be returned and the original
+ *   method will not be called. Otherwise, the original method will be called and its
+ *   value will be returned.
+ * - If an "after" delegate specifies a return value (and returns with a non-zero
+ *   status value), this value will be added to the value returned by the original
+ *   method, and this combined result will be then be returned. The meaning of "added"
+ *   is determined by the `+` operator for the return type, for example addition for
+ *   numeric types or concatenation for strings.
  */
 class Delegator
 {
