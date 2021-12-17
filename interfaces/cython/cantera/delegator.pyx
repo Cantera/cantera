@@ -3,6 +3,42 @@
 
 import inspect
 
+# ## Implementation for each delegated function type
+#
+# Besides the C++ functions implemented in the `Delegator` class, each delegated
+# function type requires several additional components in Cython:
+# - A delcaration for the overload of `Delegator::setDelegate` in `_cantera.pxd`.
+# - A declaration of the `pyOverride` function in `_cantera.pxd`. Although the
+#   `pyOverride` function is templated and does not need to be modified for each type,
+#   each version of this function must be separately declared because Cython doesn't
+#   understand variadic templates. The signature that needs to be declared has:
+#   - as its return value, a `std::function` object where the function type matches the
+#     function type needed by `Delegator::setDelegate` (which is different from the
+#     original member function for functions that take array arguments or have return
+#     values)
+#   - as its first argument, a `PyObject*`
+#   - as its second argument, a function pointer corresponding to the return value but
+#     with a `PyFuncInfo&` added as the first argument
+# - A `cdef ` "callback" wrapper function implemented in `delegator.pyx`, whose
+#   signature matches the second argument to `pyOverride` as described above, and
+#   implements the behavior described below.
+# - A case in the `elif callback == ...` tree in the `assign_delegates` function, which
+#   creates the C++ function object wrapper for a Python method and calls
+#   `Delegator::setDelegate`
+#
+# ## Implementation for specific delegated functions
+#
+# Beyond the C++ implementation required in a class derived from `Delegator`, each
+# delegated function needs only to have an entry in the corresponding Python class's
+# `delegatable_methods` class variable. This variable is a mapping where the keys are
+# the base names (without the `before_` / `replace_` / `after_` prefixes) of the
+# delegate functions, using Python naming conventions, and the values are tuples of the
+# corresponding C++ member function names and the matching signature of the C++ member
+# function. These signatures should match the ones checked in the `assign_delegates`
+# method.
+
+# ## Wrapper functions for calling Python functions from C++
+#
 # The following functions are used along with the `pyOverride` function to wrap a Python
 # function inside a C++ `std::function` object that can be used with the C++ `Delegator`
 # class (see `Delegator.h`). The functions here are responsible for the following

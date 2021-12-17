@@ -14,26 +14,26 @@ namespace Cantera
 {
 
 //! Delegate member functions of a C++ class to externally-specified functions
-/*
+/*!
  * This base class provides functions for setting delegates for the member
  * functions of a C++ class at runtime. The purpose of this capability is to
  * allow the class to be extended using functions defined in any programming
  * language that provides a C API for calling functions in that language.
  *
- * Delegates are specified as std::function objects that are responsible for
+ * Delegates are specified as `std::function` objects that are responsible for
  * encapsulating the data specific to the target language and calling the
- * appropriate function in the target language. The std::function has a
+ * appropriate function in the target language. The `std::function` has a
  * modified function signature compared to the method that it is replacing or
  * augmenting:
  * - Methods with no return value and scalar arguments are treated the same
  * - Methods with a return value have that value as the first reference argument
- *   of their delegate function, and return an int. The delegate should return
+ *   of their delegate function, and return an `int`. The delegate should return
  *   zero if it does not set the arguments value, and a non-zero value if it
  *   does.
  * - Methods with pointers to arrays as arguments have an additional argument
  *   introduced to indicate the length of each array argument. This argument
  *   occurs either first, or after the return value reference, and is a
- *   std::array<size_t, N> where N is the number of array arguments.
+ *   `std::array<size_t, N>` where N is the number of array arguments.
  *
  * Delegated methods can be specified to either "replace" the original class's
  * method, or to run "before" or "after" the original method, using the `when`
@@ -48,6 +48,54 @@ namespace Cantera
  *   method, and this combined result will be then be returned. The meaning of "added"
  *   is determined by the `+` operator for the return type, for example addition for
  *   numeric types or concatenation for strings.
+ *
+ * ## Implementation for each delegated function type
+ *
+ * Several functions and member variables are defined in this base class for each
+ * distinct function signature that can be delegated by a derived class such as
+ * ReactorDelegator. These are:
+ * - The `install` function stores the address of a function that will be called by
+ *   a derived delegator class in the corresponding `m_funcs_...` map, and sets the
+ *   default implementation of this method (which should be to call the base class
+ *   implementation). For delegates with a return type, a copy of this default
+ *   implementation is also stored in the corresponding `m_base_...` map
+ * - The `setDelegate` function wraps the user-provided delegate in a function that
+ *   handles whether the delegate is to be called before, after, or instead of the base
+ *   class's implementation. This function is then stored at the address specified in
+ *   the corresponding `m_funcs_...` map.
+ * - `m_funcs_...` is a mapping between member function names and the addresses
+ *   of the functions that will be called to implement these functions in the derived
+ *   delegator class.
+ * - `m_base_...` is a mapping between member function names and the default
+ *   implementations of these member functions, for delegates with return values
+ *
+ * Additional implementation for each function type is specific to the programming
+ * language that the delegate is written in. For the Python delegates, see additional
+ * documentation in `delegator.pyx`.
+ *
+ * ## Implementation for specific delegated functions
+ *
+ * Beyond the implementation of particular function signatures, there are no elements
+ * of the Delegator class that are specific to individual delegated functions, which
+ * are handled by derived classes such as ReactorDelegator, which will also inherit from
+ * another base class such as Reactor.
+ *
+ * Delegation of a member function (for example, `Reactor::eval`) is handled by several
+ * elements:
+ * - A `std::function` member variable to hold a delegate function, or its default
+ *   implementation. This function type includes the additional `std::array` argument
+ *   of array sizes for functions with array arguments.
+ * - An override of the member function whose implementation calls the stored delegate.
+ *   For delegates that need an array of array sizes, this function first calculates the
+ *   necessary values and passes them as an additional argument to the delegate.
+ * - A call to `install` from the constructor of the derived delegator class, which
+ *   takes the member function name, a reference to the `std::function` member variable
+ *   described above, and a lambda function that implements the default behavior, that
+ *   is, calling the equivalent base class method.
+ *
+ * Additional implementation for each function is specific to the programming language
+ * that the delegate is written in. For Python delegates, see additional documentation
+ * in `delegator.pyx`.
  */
 class Delegator
 {
