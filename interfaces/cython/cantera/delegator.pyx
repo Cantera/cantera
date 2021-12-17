@@ -17,6 +17,20 @@ import inspect
 #   to indicate whether the Python function returned a value or None.
 # - Converting between C++ and Python strings
 #
+# The callback function names use a naming scheme based on the function signature of
+# the corresponding C++ member function. After the prefix `callback_` is a notation
+# of the C++ member function's return type, followed by an underscore, then the
+# notations for each argument, separated by underscores. The following shorthand is
+# used for different return / argument types:
+# - `v` for `void`
+# - `b` for `bool`
+# - `d` for `double`
+# - `s` for `std::string`
+# - `sz` for `size_t`
+# - prefix `c` for `const` arguments
+# - suffix `r` for reference arguments
+# - suffix `p` for pointer arguments
+#
 # See `funcWrapper.h` for the definition of the `PyFuncInfo` class and the `pyOverride`
 # function.
 
@@ -85,7 +99,7 @@ cdef void callback_v_dp_dp_dp(PyFuncInfo& funcInfo,
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
 # Wrapper for functions of type string(size_t)
-cdef int callback_i_sr_z(PyFuncInfo& funcInfo, string& out, size_t arg):
+cdef int callback_s_sz(PyFuncInfo& funcInfo, string& out, size_t arg):
     try:
         ret = (<object>funcInfo.func())(arg)
         if ret is None:
@@ -100,7 +114,7 @@ cdef int callback_i_sr_z(PyFuncInfo& funcInfo, string& out, size_t arg):
     return -1
 
 # Wrapper for functions of type size_t(string&)
-cdef int callback_i_zr_csr(PyFuncInfo& funcInfo, size_t& out, const string& arg):
+cdef int callback_sz_csr(PyFuncInfo& funcInfo, size_t& out, const string& arg):
     try:
         ret = (<object>funcInfo.func())(pystr(arg))
         if ret is None:
@@ -219,10 +233,10 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
                 pyOverride(<PyObject*>method, callback_v_dp_dp_dp), cxx_when)
         elif callback == 'string(size_t)':
             delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_i_sr_z), cxx_when)
+                pyOverride(<PyObject*>method, callback_s_sz), cxx_when)
         elif callback == 'size_t(string)':
             delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_i_zr_csr), cxx_when)
+                pyOverride(<PyObject*>method, callback_sz_csr), cxx_when)
         elif callback == 'void(double,double*,double*)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_d_dp_dp), cxx_when)

@@ -319,6 +319,28 @@ protected:
         }
     }
 
+    //! @name Containers for delegates and base class implementations.
+    //!
+    //! Maps named `m_funcs_*` hold the current delegate. For functions with a return
+    //! value, `m_base_*` holds a pointer to the base class's implementation of the
+    //! function.
+    //!
+    //! These containers use a naming scheme based on the signature of the corresponding
+    //! member functions. Following the prefix `_m_funcs_` is a notation of the return
+    //! type, followed by an underscore, then the notations for each argument, separated
+    //! by underscores. The following shorthand is used for different return / argument
+    //! types:
+    //!
+    //! - `v` for `void`
+    //! - `b` for `bool`
+    //! - `d` for `double`
+    //! - `s` for `std::string`
+    //! - `sz` for `size_t`
+    //! - prefix `c` for `const` arguments
+    //! - suffix `r` for reference arguments
+    //! - suffix `p` for pointer arguments
+    //! @{
+
     // Delegates with no return value
     std::map<std::string, std::function<void()>*> m_funcs_v;
     std::map<std::string, std::function<void(bool)>*> m_funcs_v_b;
@@ -342,6 +364,7 @@ protected:
         std::function<size_t(const std::string&)>> m_base_sz_csr;
     std::map<std::string,
         std::function<size_t(const std::string&)>*> m_funcs_sz_csr;
+    //! @}
 };
 
 }
