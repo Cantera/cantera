@@ -1,0 +1,11 @@
+phases:
+- name: augmented-mech
+  thermo: ideal-gas
+  species:
+  - gri30.yaml/species: [H2, H, O, O2, OH, CH4, H2O, HO2, H2O2, HCN, AR, N2]
+  kinetics: gas
+  reactions:
+  - gri30.yaml/reactions: declared-species
+  skip-undeclared-third-bodies: true
+  transport: mixture-averaged
+  state: {T: 300.0, P: 1 atm}
