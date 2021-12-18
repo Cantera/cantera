@@ -1156,17 +1156,21 @@ class phase:
             _reactions["reactions"] = misses
             self.reactions[i] = [name, "all"]
 
-        if self.kinetics and self.reactions:
+        if self.kinetics:
             out['kinetics'] = _newNames[self.kinetics]
-            if len(self.reactions) == 1 and self.reactions[0][0] == 'reactions':
-                if _reactions['reactions']:
-                    out['reactions'] = self.reactions[0][1]
+            if self.reactions:
+                if len(self.reactions) == 1 and self.reactions[0][0] == 'reactions':
+                    if _reactions['reactions']:
+                        out['reactions'] = self.reactions[0][1]
+                    else:
+                        out['reactions'] = 'none'
+                elif all(r[1] == 'all' for r in self.reactions):
+                    out['reactions'] = FlowList(r[0] for r in self.reactions)
                 else:
-                    out['reactions'] = 'none'
-            elif all(r[1] == 'all' for r in self.reactions):
-                out['reactions'] = FlowList(r[0] for r in self.reactions)
+                    out['reactions'] = [BlockMap([(r[0], r[1])])
+                                        for r in self.reactions]
             else:
-                out['reactions'] = [BlockMap([(r[0], r[1])]) for r in self.reactions]
+                out["reactions"] = "none"
 
         if self.transport:
             out['transport'] = _newNames[self.transport]
