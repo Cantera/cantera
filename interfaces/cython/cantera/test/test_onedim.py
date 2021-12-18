@@ -867,12 +867,17 @@ class TestFreeFlame(utilities.CanteraTest):
 
 
 class TestDiffusionFlame(utilities.CanteraTest):
-    # Note: to re-create the reference file:
+    # Note: to re-create the reference files:
     # (1) set PYTHONPATH to build/python.
-    # (2) Start Python in the test/work directory and run:
+    # (2) Start Python and run:
     #     >>> import cantera.test
-    #     >>> t = cantera.test.test_onedim.TestDiffusionFlame("test_mixture_averaged")
+    #     >>> t = cantera.test.test_onedim.TestDiffusionFlame()
+    #     >>> t.setUpClass()
     #     >>> t.test_mixture_averaged(True)
+    #     >>> t.test_auto(True)
+    #     >>> t.test_mixture_averaged_rad(True)
+    # (3) Compare the reference files created in the current working directory with
+    #     the ones in test/data and replace them if needed.
 
     def create_sim(self, p, fuel='H2:1.0, AR:1.0', T_fuel=300, mdot_fuel=0.24,
                    oxidizer='O2:0.2, AR:0.8', T_ox=300, mdot_ox=0.72, width=0.02):
@@ -914,7 +919,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
 
     @utilities.slow_test
     def test_mixture_averaged(self, saveReference=False):
-        referenceFile = self.test_data_path / "DiffusionFlameTest-h2-mix.csv"
+        referenceFile = "DiffusionFlameTest-h2-mix.csv"
         self.create_sim(p=ct.one_atm)
 
         nPoints = len(self.sim.grid)
@@ -934,12 +939,12 @@ class TestDiffusionFlame(utilities.CanteraTest):
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = utilities.compareProfiles(referenceFile, data,
+            bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             self.assertFalse(bad, bad)
 
     def test_auto(self, saveReference=False):
-        referenceFile = self.test_data_path / "DiffusionFlameTest-h2-auto.csv"
+        referenceFile = "DiffusionFlameTest-h2-auto.csv"
         self.create_sim(p=ct.one_atm, mdot_fuel=2, mdot_ox=3)
 
         nPoints = []
@@ -973,7 +978,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = utilities.compareProfiles(referenceFile, data,
+            bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             self.assertFalse(bad, bad)
 
@@ -1028,7 +1033,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.assertNear(mdot[-1], -self.sim.oxidizer_inlet.mdot, 1e-4)
 
     def test_mixture_averaged_rad(self, saveReference=False):
-        referenceFile = self.test_data_path / "DiffusionFlameTest-h2-mix-rad.csv"
+        referenceFile = "DiffusionFlameTest-h2-mix-rad.csv"
         self.create_sim(p=ct.one_atm)
 
         nPoints = len(self.sim.grid)
@@ -1055,7 +1060,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = utilities.compareProfiles(referenceFile, data,
+            bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             self.assertFalse(bad, bad)
 
@@ -1112,10 +1117,13 @@ class TestDiffusionFlame(utilities.CanteraTest):
 class TestCounterflowPremixedFlame(utilities.CanteraTest):
     # Note: to re-create the reference file:
     # (1) set PYTHONPATH to build/python.
-    # (2) Start Python in the test/work directory and run:
+    # (2) Start Python and run:
     #     >>> import cantera.test
-    #     >>> t = cantera.test.test_onedim.TestCounterflowPremixedFlame("test_mixture_averaged")
+    #     >>> t = cantera.test.test_onedim.TestCounterflowPremixedFlame()
+    #     >>> t.setUpClass()
     #     >>> t.test_mixture_averaged(True)
+    # (3) Compare the reference files created in the current working directory with
+    #     the ones in test/data and replace them if needed.
 
     def test_mixture_averaged(self, saveReference=False):
         T_in = 373.0  # inlet temperature
@@ -1152,11 +1160,11 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
         data[:,3] = sim.T
         data[:,4:] = sim.Y.T
 
-        referenceFile = self.test_data_path / "CounterflowPremixedFlame-h2-mix.csv"
+        referenceFile = "CounterflowPremixedFlame-h2-mix.csv"
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = utilities.compareProfiles(referenceFile, data,
+            bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             self.assertFalse(bad, bad)
 
