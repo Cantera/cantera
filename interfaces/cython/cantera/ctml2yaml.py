@@ -636,7 +636,12 @@ class Phase:
 
         std_conc_node = phase.find("standardConc")
         if std_conc_node is not None:
-            self.attribs["standard-concentration-basis"] = std_conc_node.get("model")
+            model = std_conc_node.get("model")
+            if model == "solvent_volume":
+                model = "solvent-molar-volume"
+            elif model == "molar_volume":
+                model = "species-molar-volume"
+            self.attribs["standard-concentration-basis"] = model
 
         self.check_elements(species, species_data)
 
