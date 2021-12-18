@@ -199,10 +199,10 @@ class KineticsFromReactions(utilities.CanteraTest):
     objects instead of from input files.
     """
     def test_idealgas(self):
-        gas1 = ct.Solution('h2o2.xml')
+        gas1 = ct.Solution("h2o2.yaml")
 
-        S = ct.Species.listFromFile('h2o2.xml')
-        R = ct.Reaction.listFromFile('h2o2.xml')
+        S = ct.Species.listFromFile("h2o2.yaml")
+        R = ct.Reaction.listFromFile("h2o2.yaml", gas1)
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                            species=S, reactions=R)
 
@@ -223,12 +223,10 @@ class KineticsFromReactions(utilities.CanteraTest):
                              gas2.net_production_rates)
 
     def test_surface(self):
-        gas_species = ct.Species.listFromFile('gri30.xml')
-        surf_species = ct.Species.listFromFile('ptcombust.xml')
-        reactions = ct.Reaction.listFromFile('ptcombust.xml')
-
-        gas = ct.Solution('ptcombust.xml', 'gas')
-        surf1 = ct.Interface('ptcombust.xml', 'Pt_surf', [gas])
+        gas = ct.Solution("ptcombust.yaml", "gas")
+        surf1 = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
+        surf_species = ct.Species.listFromFile("ptcombust.yaml")
+        reactions = ct.Reaction.listFromFile("ptcombust.yaml", surf1)
 
         surf2 = ct.Interface(thermo='Surface', kinetics='interface',
                              species=surf_species, reactions=reactions,
@@ -391,24 +389,24 @@ class KineticsRepeatability(utilities.CanteraTest):
         self.assertArrayNear(w1, w4)
 
     def test_gri30_composition(self):
-        self.check_rates_composition('gri30.xml')
+        self.check_rates_composition("gri30.yaml")
 
     def test_gri30_temperature(self):
-        self.check_rates_temperature1('gri30.xml')
-        self.check_rates_temperature2('gri30.xml')
+        self.check_rates_temperature1("gri30.yaml")
+        self.check_rates_temperature2("gri30.yaml")
 
     def test_gri30_pressure(self):
-        self.check_rates_pressure('gri30.xml')
+        self.check_rates_pressure("gri30.yaml")
 
     def test_h2o2_composition(self):
-        self.check_rates_composition('h2o2.xml')
+        self.check_rates_composition("h2o2.yaml")
 
     def test_h2o2_temperature(self):
-        self.check_rates_temperature1('h2o2.xml')
-        self.check_rates_temperature2('h2o2.xml')
+        self.check_rates_temperature1("h2o2.yaml")
+        self.check_rates_temperature2("h2o2.yaml")
 
     def test_h2o2_pressure(self):
-        self.check_rates_pressure('h2o2.xml')
+        self.check_rates_pressure("h2o2.yaml")
 
     def test_pdep_composition(self):
         self.check_rates_composition('pdep-test.yaml')
@@ -425,12 +423,12 @@ class KineticsRepeatability(utilities.CanteraTest):
 
         # Set a gas state that is near enough to equilibrium that changes in the
         # reverse rate always show up in the net rate
-        gas = self.setup_gas('gri30.xml')
+        gas = self.setup_gas("gri30.yaml")
         gas.TPX = self.T0, self.P0, self.X0
         gas.equilibrate('TP')
         gas.TP = gas.T + 20, None
 
-        S = {sp.name: sp for sp in ct.Species.listFromFile('gri30.xml')}
+        S = {sp.name: sp for sp in ct.Species.listFromFile("gri30.yaml")}
         w1 = gas.net_rates_of_progress
 
         OH = gas.species('OH')
@@ -617,7 +615,7 @@ class TestUndeclared(utilities.CanteraTest):
 
 class TestEmptyKinetics(utilities.CanteraTest):
     def test_empty(self):
-        gas = ct.Solution('air-no-reactions.xml')
+        gas = ct.Solution("air-no-reactions.yaml")
 
         self.assertEqual(gas.n_reactions, 0)
         self.assertArrayNear(gas.creation_rates, np.zeros(gas.n_species))
@@ -751,7 +749,7 @@ class TestReactionPath(utilities.CanteraTest):
 
 class TestChemicallyActivated(utilities.CanteraTest):
     def test_rate_evaluation(self):
-        gas = ct.Solution('chemically-activated-reaction.xml')
+        gas = ct.Solution("chemically-activated-reaction.yaml")
         P = [2026.5, 202650.0, 10132500.0] # pressure
 
         # forward rate of progress, computed using Chemkin
@@ -764,7 +762,7 @@ class TestChemicallyActivated(utilities.CanteraTest):
 
 class ExplicitForwardOrderTest(utilities.CanteraTest):
     def setUp(self):
-        self.gas = ct.Solution('explicit-forward-order.xml')
+        self.gas = ct.Solution("explicit-forward-order.yaml")
         self.gas.TPX = 800, 101325, [0.01, 0.90, 0.02, 0.03, 0.04]
 
     def test_irreversibility(self):
@@ -1085,7 +1083,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(R.rate(self.gas.T), self.gas.forward_rate_constants[2])
 
     def test_negative_A(self):
-        species = ct.Species.listFromFile('gri30.cti')
+        species = ct.Species.listFromFile("gri30.yaml")
         r = ct.ElementaryReaction('NH:1, NO:1', 'N2O:1, H:1')
         r.rate = ct.ArrheniusRate(-2.16e13, -0.23, 0)
 
@@ -1374,9 +1372,9 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(A*gas.T**b*np.exp(0/ct.gas_constant/gas.T), gas.forward_rate_constants[0])
 
     def test_interface(self):
-        surf_species = ct.Species.listFromFile('ptcombust.xml')
-        gas = ct.Solution('ptcombust.xml', 'gas')
-        surf1 = ct.Interface('ptcombust.xml', 'Pt_surf', [gas])
+        surf_species = ct.Species.listFromFile("ptcombust.yaml")
+        gas = ct.Solution("ptcombust.yaml", "gas")
+        surf1 = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
         r1 = ct.InterfaceReaction()
         r1.reactants = 'H(S):2'
         r1.products = 'H2:1, PT(S):2'
@@ -1557,8 +1555,8 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(A2 * T**b2 * np.exp(-Ta2 / T), gas.forward_rate_constants[0])
 
     def test_modify_interface(self):
-        gas = ct.Solution('ptcombust.xml', 'gas')
-        surf = ct.Interface('ptcombust.xml', 'Pt_surf', [gas])
+        gas = ct.Solution("ptcombust.yaml", "gas")
+        surf = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
         surf.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
         gas.TP = surf.TP
 
@@ -1577,8 +1575,8 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(k2, k3)
 
     def test_modify_sticking(self):
-        gas = ct.Solution('ptcombust.xml', 'gas')
-        surf = ct.Interface('ptcombust.xml', 'Pt_surf', [gas])
+        gas = ct.Solution("ptcombust.yaml", "gas")
+        surf = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
         surf.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
         gas.TP = surf.TP
 
@@ -1592,14 +1590,14 @@ class TestReaction(utilities.CanteraTest):
 
     def test_motz_wise(self):
         # Motz & Wise off for all reactions
-        gas1 = ct.Solution('ptcombust.xml', 'gas')
-        surf1 = ct.Interface('ptcombust.xml', 'Pt_surf', [gas1])
+        gas1 = ct.Solution("ptcombust.yaml", "gas")
+        surf1 = ct.Interface("ptcombust.yaml", "Pt_surf", [gas1])
         surf1.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
         gas1.TP = surf1.TP
 
         # Motz & Wise correction on for some reactions
-        gas2 = ct.Solution('ptcombust-motzwise.cti', 'gas')
-        surf2 = ct.Interface('ptcombust-motzwise.cti', 'Pt_surf', [gas2])
+        gas2 = ct.Solution("ptcombust-motzwise.yaml", "gas")
+        surf2 = ct.Interface("ptcombust-motzwise.yaml", "Pt_surf", [gas2])
         surf2.TPY = surf1.TPY
 
         k1 = surf1.forward_rate_constants
