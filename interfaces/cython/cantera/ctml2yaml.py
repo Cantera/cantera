@@ -1598,7 +1598,7 @@ class SpeciesThermo:
         if tmin is not None and tmin != '100.0':
             thermo_attribs['T-min'] = float(tmin)
         tmax = const_cp_node.get('Tmax')
-        if tmax is not None and tmin != '5000.0':
+        if tmax is not None and tmax != '5000.0':
             thermo_attribs['T-max'] = float(tmax)
 
         return thermo_attribs
