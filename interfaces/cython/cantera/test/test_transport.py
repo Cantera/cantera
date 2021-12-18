@@ -486,7 +486,7 @@ class TestTransportData(utilities.CanteraTest):
 
 class TestIonGasTransportData(utilities.CanteraTest):
     def setUp(self):
-        self.gas = ct.Solution('ch4_ion.cti')
+        self.gas = ct.Solution("ch4_ion.yaml")
 
     def test_read_ion(self):
         tr = self.gas.species('N2').transport

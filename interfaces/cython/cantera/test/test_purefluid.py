@@ -393,7 +393,7 @@ class PureFluidTestCases:
 
     def __init__(self, name, refState, tolerances=Tolerances()):
         if name not in self.fluids:
-            self.fluids[name] = ct.PureFluid('liquidvapor.xml', name)
+            self.fluids[name] = ct.PureFluid("liquidvapor.yaml", name)
 
         self.fluid = self.fluids[name]
 
@@ -512,7 +512,7 @@ class HFC134a(PureFluidTestCases, utilities.CanteraTest):
     def __init__(self, *args, **kwargs):
         refState = StateData('critical', 374.21, 4.05928,
                              rho=511.900, u=381.70937, s=1.5620991)
-        PureFluidTestCases.__init__(self, 'hfc134a', refState)
+        PureFluidTestCases.__init__(self, "HFC-134a", refState)
         utilities.CanteraTest.__init__(self, *args, **kwargs)
 
 
@@ -539,7 +539,7 @@ class CarbonDioxide(PureFluidTestCases, utilities.CanteraTest):
         refState = StateData('critical', 304.21, 7.3834,
                              rho=464.0, h=257.31, s=0.9312)
         tols = Tolerances(2e-3, 2e-3, 2e-3)
-        PureFluidTestCases.__init__(self, 'carbondioxide', refState, tols)
+        PureFluidTestCases.__init__(self, "carbon-dioxide", refState, tols)
         utilities.CanteraTest.__init__(self, *args, **kwargs)
 
 

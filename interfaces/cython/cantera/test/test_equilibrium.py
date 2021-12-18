@@ -19,7 +19,7 @@ class EquilTestCases:
         """
         Equilibrium should correspond to complete combustion
         """
-        gas = ct.Solution('equilibrium.cti', 'complete')
+        gas = ct.Solution("equilibrium.yaml", "complete")
         gas.TPX = 298, 100000, 'CH4:1.0, O2:2.0'
         gas.equilibrate('TP', self.solver)
         self.check(gas, CH4=0, O2=0, H2O=2, CO2=1)
@@ -29,19 +29,19 @@ class EquilTestCases:
         Equilibrium should correspond to complete combustion (with excess O2)
         CH4 + 3 O2 -> CO2 + 2 H2O + O2
         """
-        gas = ct.Solution('equilibrium.cti', 'complete')
+        gas = ct.Solution("equilibrium.yaml", "complete")
         gas.TPX = 298, 100000, 'CH4:1.0, O2:3.0'
         gas.equilibrate('TP', self.solver)
         self.check(gas, CH4=0, O2=1, H2O=2, CO2=1)
 
     def test_equil_incomplete_stoichiometric(self):
-        gas = ct.Solution('equilibrium.cti', 'incomplete')
+        gas = ct.Solution("equilibrium.yaml", "incomplete")
         gas.TPX = 301, 100000, 'CH4:1.0, O2:2.0'
         gas.equilibrate('TP', self.solver)
         self.check(gas, CH4=0, O2=0, H2O=2, CO2=1)
 
     def test_equil_incomplete_lean(self):
-        gas = ct.Solution('equilibrium.cti', 'incomplete')
+        gas = ct.Solution("equilibrium.yaml", "incomplete")
         gas.TPX = 301, 100000, 'CH4:1.0, O2:3.0'
         gas.equilibrate('TP', self.solver)
         self.check(gas, CH4=0, O2=1, H2O=2, CO2=1)
@@ -59,13 +59,13 @@ class EquilTestCases:
         self.check(gas, CH4=0, O2=1, H2O=2, CO2=1)
 
     def test_equil_overconstrained1(self):
-        gas = ct.Solution('equilibrium.cti', 'overconstrained-1')
+        gas = ct.Solution("equilibrium.yaml", "overconstrained-1")
         gas.TPX = 301, 100000, 'CH4:1.0, O2:1.0'
         gas.equilibrate('TP', self.solver)
         self.check(gas, CH4=1, O2=1)
 
     def test_equil_overconstrained2(self):
-        gas = ct.Solution('equilibrium.cti', 'overconstrained-2')
+        gas = ct.Solution("equilibrium.yaml", "overconstrained-2")
         gas.TPX = 301, 100000, 'CH4:1.0, O2:1.0'
         gas.equilibrate('TP', self.solver)
         self.check(gas, CH4=1, O2=1)
@@ -99,9 +99,14 @@ class MultiphaseEquilTest(EquilTestCases, utilities.CanteraTest):
 
 class EquilExtraElements(utilities.CanteraTest):
     def setUp(self):
-        s = """ideal_gas(elements='H Ar C O Cl N',
-                         species='gri30: AR N2 CH4 O2 CO2 H2O CO H2 OH')"""
-        self.gas = ct.Solution(source=s)
+        s = """
+        phases:
+        - name: gas
+          thermo: ideal-gas
+          elements: [H, Ar, C, O, Cl, N]
+          species: [{gri30.yaml/species: [AR, N2, CH4, O2, CO2, H2O, CO, H2, OH]}]
+        """
+        self.gas = ct.Solution(yaml=s)
         self.gas.TP = 300, 101325
         self.gas.set_equivalence_ratio(0.8, 'CH4', 'O2:1.0, N2:3.76')
 
@@ -133,7 +138,7 @@ class VCS_EquilTest(EquilTestCases, utilities.CanteraTest):
 class TestKOH_Equil(utilities.CanteraTest):
     "Test roughly based on examples/multiphase/plasma_equilibrium.py"
     def setUp(self):
-        self.phases = ct.import_phases('KOH.xml',
+        self.phases = ct.import_phases("KOH.yaml",
                 ['K_solid', 'K_liquid', 'KOH_a', 'KOH_b', 'KOH_liquid',
                  'K2O2_solid', 'K2O_solid', 'KO2_solid', 'ice', 'liquid_water',
                  'KOH_plasma'])
@@ -183,7 +188,7 @@ class TestEquil_GasCarbon(utilities.CanteraTest):
     "Test rougly based on examples/multiphase/adiabatic.py"
     def setUp(self):
         self.gas = ct.Solution('gri30.yaml', transport_model=None)
-        self.carbon = ct.Solution('graphite.xml')
+        self.carbon = ct.Solution("graphite.yaml")
         self.fuel = 'CH4'
         self.mix_phases = [(self.gas, 1.0), (self.carbon, 0.0)]
         self.n_species = self.gas.n_species + self.carbon.n_species
@@ -222,7 +227,7 @@ class TestEquil_GasCarbon(utilities.CanteraTest):
 
 class Test_IdealSolidSolnPhase_Equil(utilities.CanteraTest):
     def test_equil(self):
-        gas = ct.ThermoPhase('IdealSolidSolnPhaseExample.xml')
+        gas = ct.ThermoPhase("IdealSolidSolnPhaseExample.yaml")
         gas.TPX = 500, ct.one_atm, 'C2H2-graph: 1.0'
 
         gas.equilibrate('TP', solver='element_potential')

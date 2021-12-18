@@ -1202,10 +1202,9 @@ class TestReactorSensitivities(utilities.CanteraTest):
     def test_sensitivities2(self):
         net = ct.ReactorNet()
 
-        gas1 = ct.Solution('diamond.xml', 'gas')
-        solid = ct.Solution('diamond.xml', 'diamond')
-        interface = ct.Interface('diamond.xml', 'diamond_100',
-                                 (gas1, solid))
+        gas1 = ct.Solution("diamond.yaml", "gas")
+        solid = ct.Solution("diamond.yaml", "diamond")
+        interface = ct.Interface("diamond.yaml", "diamond_100", (gas1, solid))
         r1 = ct.IdealGasReactor(gas1)
         net.add_reactor(r1)
         net.atol_sensitivity = 1e-10
@@ -1365,10 +1364,9 @@ class TestReactorSensitivities(utilities.CanteraTest):
     @utilities.slow_test
     def test_parameter_order3(self):
         # Test including reacting surfaces
-        gas1 = ct.Solution('diamond.xml', 'gas')
-        solid = ct.Solution('diamond.xml', 'diamond')
-        interface = ct.Interface('diamond.xml', 'diamond_100',
-                                 (gas1, solid))
+        gas1 = ct.Solution("diamond.yaml", "gas")
+        solid = ct.Solution("diamond.yaml", "diamond")
+        interface = ct.Interface("diamond.yaml", "diamond_100", (gas1, solid))
 
         gas2 = ct.Solution('h2o2.yaml', transport_model=None)
 
@@ -1619,12 +1617,12 @@ class WallTestImplementation:
     def setUp(self):
         self.referenceFile = utilities.TEST_DATA_PATH / "WallTest-integrateWithAdvance.csv"
         # reservoir to represent the environment
-        self.gas0 = ct.Solution('air.xml')
+        self.gas0 = ct.Solution("air.yaml")
         self.gas0.TP = 300, ct.one_atm
         self.env = ct.Reservoir(self.gas0)
 
         # reactor to represent the side filled with Argon
-        self.gas1 = ct.Solution('air.xml')
+        self.gas1 = ct.Solution("air.yaml")
         self.gas1.TPX = 1000.0, 30*ct.one_atm, 'AR:1.0'
         self.r1 = ct.Reactor(self.gas1)
 
@@ -1683,8 +1681,8 @@ class WallTest(WallTestImplementation, unittest.TestCase): pass
 
 class PureFluidReactorTest(utilities.CanteraTest):
     def test_Reactor(self):
-        phase = ct.PureFluid('liquidvapor.xml', 'oxygen')
-        air = ct.Solution('air.xml')
+        phase = ct.PureFluid("liquidvapor.yaml", "oxygen")
+        air = ct.Solution("air.yaml")
 
         phase.TP = 93, 4e5
         r1 = ct.Reactor(phase)
@@ -1714,8 +1712,8 @@ class PureFluidReactorTest(utilities.CanteraTest):
         self.assertNear(states.Q[30], 0.54806, 1e-4)
 
     def test_Reactor_2(self):
-        phase = ct.PureFluid('liquidvapor.xml', 'carbondioxide')
-        air = ct.Solution('air.xml')
+        phase = ct.PureFluid("liquidvapor.yaml", "carbon-dioxide")
+        air = ct.Solution("air.yaml")
 
         phase.TP = 218, 5e6
         r1 = ct.Reactor(phase)
@@ -1741,7 +1739,7 @@ class PureFluidReactorTest(utilities.CanteraTest):
 
     def test_ConstPressureReactor(self):
         phase = ct.Nitrogen()
-        air = ct.Solution('air.xml')
+        air = ct.Solution("air.yaml")
 
         phase.TP = 75, 4e5
         r1 = ct.ConstPressureReactor(phase)
@@ -1765,11 +1763,10 @@ class PureFluidReactorTest(utilities.CanteraTest):
 
 
 class AdvanceCoveragesTest(utilities.CanteraTest):
-    def setup(self, model='ptcombust.xml', gas_phase='gas',
-              interface_phase='Pt_surf'):
+    def setup(self, model="ptcombust.yaml", gas_phase="gas", interface_phase="Pt_surf"):
         # create gas and interface
-        self.gas = ct.Solution('ptcombust.xml', 'gas')
-        self.surf = ct.Interface('ptcombust.xml', 'Pt_surf', [self.gas])
+        self.gas = ct.Solution(model, gas_phase)
+        self.surf = ct.Interface(model, interface_phase, [self.gas])
 
     def test_advance_coverages_parameters(self):
         # create gas and interface

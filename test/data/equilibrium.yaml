@@ -1,0 +1,46 @@
+generator: cti2yaml
+cantera-version: 2.6.0a3
+date: Sat, 18 Dec 2021 12:44:14 -0500
+input-files: [equilibrium.cti]
+
+phases:
+- name: complete
+  thermo: ideal-gas
+  elements: [C, H, O]
+  species:
+  - gri30.yaml/species: [O2, CH4, H2O, CO2]
+  kinetics: gas
+  reactions: none
+  state:
+    T: 298.0
+    P: 1.0e+05
+- name: incomplete
+  thermo: ideal-gas
+  elements: [C, H, O]
+  species:
+  - gri30.yaml/species: [O2, CH4, H2O, CO2, CO, H2, OH]
+  kinetics: gas
+  reactions: none
+  state:
+    T: 298.0
+    P: 1.0e+05
+- name: overconstrained-1
+  thermo: ideal-gas
+  elements: [C, H, O]
+  species:
+  - gri30.yaml/species: [O2, CH4]
+  kinetics: gas
+  reactions: none
+  state:
+    T: 298.0
+    P: 1.0e+05
+- name: overconstrained-2
+  thermo: ideal-gas
+  elements: [C, H, O, N, Ar]
+  species:
+  - gri30.yaml/species: [O2, CH4, AR]
+  kinetics: gas
+  reactions: none
+  state:
+    T: 298.0
+    P: 1.0e+05
