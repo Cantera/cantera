@@ -47,7 +47,7 @@
       <order species="OH">0.15</order>
       <rateCoeff>
         <Arrhenius>
-           <A>5.623413E+13</A>
+           <A>1.9952623145E+13</A>
            <b>0.0</b>
            <E units="kJ/mol">0.000000</E>
         </Arrhenius>
