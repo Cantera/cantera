@@ -475,31 +475,6 @@ class PDSS_Water;
  *
  * Note, this treatment may be modified in the future, as events dictate.
  *
- * ## Instantiation of the Class
- *
- * The constructor for this phase is NOT located in the default ThermoFactory
- * for %Cantera. However, a new DebyeHuckel object may be created by
- * the following code snippets:
- *
- * @code
- *      DebyeHuckel *DH = new DebyeHuckel("DH_NaCl.xml", "NaCl_electrolyte");
- * @endcode
- *
- * or
- *
- * @code
- *    XML_Node *xm = get_XML_NameID("phase", "DH_NaCl.xml#NaCl_electrolyte", 0);
- *    DebyeHuckel *dh = new DebyeHuckel(*xm);
- * @endcode
- *
- * or by the following call to importPhase():
- *
- * @code
- *    XML_Node *xm = get_XML_NameID("phase", "DH_NaCl.xml#NaCl_electrolyte", 0);
- *    DebyeHuckel dhphase;
- *    importPhase(*xm, &dhphase);
- * @endcode
- *
  * ## XML Example
  *
  * The phase model name for this is called StoichSubstance. It must be supplied

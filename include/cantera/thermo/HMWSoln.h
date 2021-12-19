@@ -912,37 +912,6 @@ class WaterProps;
  *
  * Note, this treatment may be modified in the future, as events dictate.
  *
- * ## Instantiation of the Class
- *
- * The constructor for this phase is now located in the default ThermoFactory
- * for %Cantera. The following code snippet may be used to initialize the phase
- * using the default construction technique within %Cantera.
- *
- * @code
- *      ThermoPhase *HMW = newPhase("HMW_NaCl.xml", "NaCl_electrolyte");
- * @endcode
- *
- * A new HMWSoln object may be created by the following code snippets:
- *
- * @code
- *      HMWSoln *HMW = new HMWSoln("HMW_NaCl.xml", "NaCl_electrolyte");
- * @endcode
- *
- * or
- *
- * @code
- *    XML_Node *xm = get_XML_NameID("phase", "HMW_NaCl.xml#NaCl_electrolyte", 0);
- *    HMWSoln *dh = new HMWSoln(*xm);
- * @endcode
- *
- * or by the following call to importPhase():
- *
- * @code
- *    XML_Node *xm = get_XML_NameID("phase", "HMW_NaCl.xml#NaCl_electrolyte", 0);
- *    HMWSoln dhphase;
- *    importPhase(*xm, &dhphase);
- * @endcode
- *
  * ## XML Example
  *
  * The phase model name for this is called StoichSubstance. It must be supplied

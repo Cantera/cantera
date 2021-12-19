@@ -239,26 +239,6 @@ namespace Cantera
  *
  * \f$k^{-1} \f$ has units of s-1.
  *
- * ## Instantiation of the Class
- *
- * The constructor for this phase is located in the default ThermoFactory for
- * %Cantera. A new IdealGasPhase may be created by the following code snippet:
- *
- * @code
- *    XML_Node *xc = get_XML_File("silane.xml");
- *    XML_Node * const xs = xc->findNameID("phase", "silane");
- *    ThermoPhase *silane_tp = newPhase(*xs);
- *    IdealGasPhase *silaneGas = dynamic_cast <IdealGasPhase *>(silane_tp);
- * @endcode
- *
- * or by the following constructor:
- *
- * @code
- *    XML_Node *xc = get_XML_File("silane.xml");
- *    XML_Node * const xs = xc->findNameID("phase", "silane");
- *    IdealGasPhase *silaneGas = new IdealGasPhase(*xs);
- * @endcode
- *
  * ## XML Example
  *
  *   An example of an XML Element named phase setting up a IdealGasPhase

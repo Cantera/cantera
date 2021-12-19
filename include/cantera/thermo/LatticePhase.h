@@ -178,29 +178,6 @@ namespace Cantera
  * K_c \f$, using the second and third part of the above expression as a
  * definition for the concentration equilibrium constant.
  *
- * ## Instantiation of the Class
- *
- * The constructor for this phase is located in the default ThermoFactory for
- * %Cantera. A new LatticePhase object may be created by the following code
- * snippet:
- *
- * @code
- *    XML_Node *xc = get_XML_File("O_lattice_SiO2.xml");
- *    XML_Node * const xs = xc->findNameID("phase", "O_lattice_SiO2");
- *    ThermoPhase *tp = newPhase(*xs);
- *    LatticePhase *o_lattice = dynamic_cast <LatticPhase *>(tp);
- * @endcode
- *
- * or by the following constructor:
- *
- * @code
- *    XML_Node *xc = get_XML_File("O_lattice_SiO2.xml");
- *    XML_Node * const xs = xc->findNameID("phase", "O_lattice_SiO2");
- *    LatticePhase *o_lattice = new LatticePhase(*xs);
- * @endcode
- *
- * The XML file used in this example is listed in the next section
- *
  * ## XML Example
  *
  * An example of an XML Element named phase setting up a LatticePhase object
