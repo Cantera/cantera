@@ -24,7 +24,7 @@ class converterTestCommon:
             surface = self.test_data_path / surface
         if extra is not None:
             extra = self.test_data_path / extra
-        output = self.test_work_path / (output + self.ext)
+        output = self.test_work_path / (output + "-from-ck" + self.ext)
         # In Python >= 3.8, this can be replaced by the missing_ok argument
         if output.is_file():
             output.unlink()
@@ -86,12 +86,12 @@ class converterTestCommon:
         output = self.convert('gri30.inp', thermo='gri30_thermo.dat',
                               transport='gri30_tran.dat', output='gri30_test')
 
-        ref, gas = self.checkConversion('gri30.xml', output)
+        ref, gas = self.checkConversion("gri30.yaml", output)
         self.checkKinetics(ref, gas, [300, 1500], [5e3, 1e5, 2e6])
 
     def test_soot(self):
-        output = self.convert('soot.inp', thermo='soot-therm.dat', output='soot_test')
-        ref, gas = self.checkConversion('soot.xml', output)
+        output = self.convert("soot.inp", thermo="soot-therm.dat", output="soot_test")
+        ref, gas = self.checkConversion("soot.yaml", output)
         self.checkThermo(ref, gas, [300, 1100])
         self.checkKinetics(ref, gas, [300, 1100], [5e3, 1e5, 2e6])
 
@@ -105,11 +105,11 @@ class converterTestCommon:
     def test_species_only(self):
         self.convert(None, thermo='dummy-thermo.dat', output='dummy-thermo')
         if self.ext == ".cti":
-            cti = "ideal_gas(elements='C H', species='dummy-thermo:R1A R1B P1')"
+            cti = "ideal_gas(elements='C H', species='dummy-thermo-from-ck:R1A R1B P1')"
             gas = ct.Solution(source=cti)
         elif self.ext == ".yaml":
             yaml = ("{phases: [{name: gas, species: "
-                    "[{dummy-thermo.yaml/species: [R1A, R1B, P1]}], "
+                    "[{dummy-thermo-from-ck.yaml/species: [R1A, R1B, P1]}], "
                     "thermo: ideal-gas}]}")
             gas = ct.Solution(yaml=yaml)
         self.assertEqual(gas.n_species, 3)
@@ -194,36 +194,36 @@ class converterTestCommon:
                          permissive=True)
 
     def test_nasa9(self):
-        output = self.convert('nasa9-test.inp', thermo='nasa9-test-therm.dat')
-        ref, gas = self.checkConversion('nasa9-test.xml', output)
+        output = self.convert("nasa9-test.inp", thermo="nasa9-test-therm.dat")
+        ref, gas = self.checkConversion("nasa9-test.yaml", output)
         self.checkThermo(ref, gas, [300, 500, 1200, 5000])
 
     def test_nasa9_subset(self):
-        output = self.convert('nasa9-test-subset.inp', thermo='nasa9-test-therm.dat')
-        ref, gas = self.checkConversion('nasa9-test-subset.xml', output)
+        output = self.convert("nasa9-test-subset.inp", thermo="nasa9-test-therm.dat")
+        ref, gas = self.checkConversion("nasa9-test-subset.yaml", output)
         self.checkThermo(ref, gas, [300, 500, 1200, 5000])
 
     def test_sri_falloff(self):
-        output = self.convert('sri-falloff.inp', thermo='dummy-thermo.dat')
-        ref, gas = self.checkConversion('sri-falloff.xml', output)
+        output = self.convert("sri-falloff.inp", thermo="dummy-thermo.dat")
+        ref, gas = self.checkConversion("sri-falloff.yaml", output)
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
     def test_chemically_activated(self):
-        output = self.convert('chemically-activated-reaction.inp')
-        ref, gas = self.checkConversion('chemically-activated-reaction.xml',
+        output = self.convert("chemically-activated-reaction.inp")
+        ref, gas = self.checkConversion("chemically-activated-reaction.yaml",
                                         output)
         # pre-exponential factor in XML is truncated to 7 sig figs, limiting accuracy
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6, 1e7],
                            tol=1e-7)
 
     def test_explicit_third_bodies(self):
-        output = self.convert('explicit-third-bodies.inp', thermo='dummy-thermo.dat')
-        ref, gas = self.checkConversion('explicit-third-bodies.xml', output)
+        output = self.convert("explicit-third-bodies.inp", thermo="dummy-thermo.dat")
+        ref, gas = self.checkConversion("explicit-third-bodies.yaml", output)
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
     def test_explicit_reverse_rate(self):
-        output = self.convert('explicit-reverse-rate.inp', thermo='dummy-thermo.dat')
-        ref, gas = self.checkConversion('explicit-reverse-rate.xml', output)
+        output = self.convert("explicit-reverse-rate.inp", thermo="dummy-thermo.dat")
+        ref, gas = self.checkConversion("explicit-reverse-rate.yaml", output)
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
         # Reactions with explicit reverse rate constants are transformed into
@@ -245,8 +245,8 @@ class converterTestCommon:
         self.assertEqual(gas.n_reactions, 5)
 
     def test_explicit_forward_order(self):
-        output = self.convert('explicit-forward-order.inp', thermo='dummy-thermo.dat')
-        ref, gas = self.checkConversion('explicit-forward-order.xml', output)
+        output = self.convert("explicit-forward-order.inp", thermo="dummy-thermo.dat")
+        ref, gas = self.checkConversion("explicit-forward-order.yaml", output)
         # pre-exponential factor in XML is truncated to 7 sig figs, limiting accuracy
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6],
                            tol=2e-7)
@@ -258,7 +258,7 @@ class converterTestCommon:
     def test_negative_order_permissive(self):
         output = self.convert('negative-order.inp', thermo='dummy-thermo.dat',
                               permissive=True)
-        ref, gas = self.checkConversion('negative-order.cti', output)
+        ref, gas = self.checkConversion("negative-order.yaml", output)
         # pre-exponential factor in XML is truncated to 7 sig figs, limiting accuracy
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6],
                            tol=2e-7)
@@ -302,7 +302,7 @@ class converterTestCommon:
         output = self.convert('photo-reaction.inp', thermo='dummy-thermo.dat',
                               permissive=True)
 
-        ref, gas = self.checkConversion('photo-reaction.xml', output)
+        ref, gas = self.checkConversion("photo-reaction.yaml", output)
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
     def test_transport_normal(self):
@@ -432,13 +432,13 @@ class converterTestCommon:
         self.assertNear(covdeps['H_Pt'][2], -6e6)
 
     def test_third_body_plus_falloff_reactions(self):
-        self.convert('third_body_plus_falloff_reaction.inp')
-        gas = ct.Solution('third_body_plus_falloff_reaction' + self.ext)
+        output = self.convert("third_body_plus_falloff_reaction.inp")
+        gas = ct.Solution(output)
         self.assertEqual(gas.n_reactions, 2)
 
     def test_blank_line_in_header(self):
-        self.convert('blank_line_in_header.inp')
-        gas = ct.Solution('blank_line_in_header' + self.ext)
+        output = self.convert("blank_line_in_header.inp")
+        gas = ct.Solution(output)
         self.assertEqual(gas.n_reactions, 1)
 
 
@@ -469,11 +469,10 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
 
     @utilities.slow_test
     def test_extra(self):
-        self.convert('gri30.inp', thermo='gri30_thermo.dat',
-                     transport='gri30_tran.dat', output='gri30_extra',
-                     extra='extra.yaml')
+        output = self.convert("gri30.inp", thermo="gri30_thermo.dat",
+                              transport="gri30_tran.dat", output="gri30_extra",
+                              extra="extra.yaml")
 
-        output = self.test_work_path / ("gri30_extra" + self.ext)
         yml = utilities.load_yaml(output)
 
         desc = yml['description'].split('\n')[-1]
@@ -483,8 +482,7 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
 
     def test_sri_zero(self):
         # This test tests it can convert the SRI parameters when D or E equal to 0
-        self.convert('sri_convert_test.txt')
-        output = self.test_work_path / ("sri_convert_test" + self.ext)
+        output = self.convert('sri_convert_test.txt')
         mech = utilities.load_yaml(output)
         D = mech['reactions'][0]['SRI']['D']
         E = mech['reactions'][0]['SRI']['E']
@@ -737,8 +735,8 @@ class cti2yamlTest(utilities.CanteraTest):
     @utilities.slow_test
     def test_liquidvapor(self):
         self.convert("liquidvapor", self.cantera_data_path)
-        for name in ['water', 'nitrogen', 'methane', 'hydrogen', 'oxygen', 'heptane']:
-            ctiPhase, yamlPhase = self.checkConversion('liquidvapor', name=name)
+        for name in ["water", "nitrogen", "methane", "hydrogen", "oxygen", "heptane"]:
+            ctiPhase, yamlPhase = self.checkConversion("liquidvapor", name=name)
             self.checkThermo(ctiPhase, yamlPhase,
                              [1.3 * ctiPhase.min_temp, 0.7 * ctiPhase.max_temp])
 
@@ -952,8 +950,8 @@ class ctml2yamlTest(utilities.CanteraTest):
 
     def test_liquidvapor(self):
         self.convert("liquidvapor", self.cantera_data_path)
-        for name in ['water', 'nitrogen', 'methane', 'hydrogen', 'oxygen', 'heptane']:
-            ctmlPhase, yamlPhase = self.checkConversion('liquidvapor', name=name)
+        for name in ["water", "nitrogen", "methane", "hydrogen", "oxygen", "heptane"]:
+            ctmlPhase, yamlPhase = self.checkConversion("liquidvapor", name=name)
             self.checkThermo(ctmlPhase, yamlPhase,
                              [1.3 * ctmlPhase.min_temp, 0.7 * ctmlPhase.max_temp])
 
