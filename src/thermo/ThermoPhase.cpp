@@ -1184,6 +1184,19 @@ const std::vector<const XML_Node*> & ThermoPhase::speciesData() const
     return m_speciesData;
 }
 
+void ThermoPhase::setParameters(int n, doublereal* const c)
+{
+    warn_deprecated("ThermoPhase::setParamters(int, double*)",
+        "To be removed after Cantera 2.6.");
+}
+
+void ThermoPhase::getParameters(int& n, doublereal* const c) const
+{
+    warn_deprecated("ThermoPhase::getParamters(int&, double*)",
+        "To be removed after Cantera 2.6.");
+}
+
+
 void ThermoPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
 {
     m_input = phaseNode;
