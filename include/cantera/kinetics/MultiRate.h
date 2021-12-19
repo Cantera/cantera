@@ -21,6 +21,7 @@ template <class RateType, class DataType>
 class MultiBulkRate final : public MultiRateBase
 {
     CT_DEFINE_HAS_MEMBER(has_ddT, ddTScaledFromStruct)
+    CT_DEFINE_HAS_MEMBER(has_ddP, perturbP)
     CT_DEFINE_HAS_MEMBER(has_ddM, perturbM)
 
 public:
@@ -76,6 +77,15 @@ public:
         // call helper function: implementation of derivative depends on whether
         // ReactionRate::ddTFromStruct is defined
         _process_ddT(rop, kf, deltaT);
+    }
+
+    virtual void processRateConstants_ddP(double* rop,
+                                          const double* kf,
+                                          double deltaM) override
+    {
+        // call helper function: implementation of derivative depends on whether
+        // ReactionData::perturbP is defined
+        _process_ddP(rop, kf, deltaM);
     }
 
     virtual void processRateConstants_ddM(double* rop,
@@ -163,6 +173,34 @@ protected:
     template <typename T=RateType, typename D=DataType,
         typename std::enable_if<!has_ddM<D>::value, bool>::type = true>
     void _process_ddM(double* rop, const double* kf, double deltaM) {
+        for (const auto& rxn : m_rxn_rates) {
+            rop[rxn.first] = 0.;
+        }
+    }
+
+    //! Helper function to process pressure derivatives for rate data that
+    //! implement the `perturbP` method.
+    template <typename T=RateType, typename D=DataType,
+        typename std::enable_if<has_ddP<D>::value, bool>::type = true>
+    void _process_ddP(double* rop, const double* kf, double deltaP) {
+        double dPinv = 1. / (m_shared.pressure * deltaP);
+        m_shared.perturbP(deltaP);
+
+        for (auto& rxn : m_rxn_rates) {
+            if (kf[rxn.first] != 0.) {
+                double k1 = rxn.second.evalFromStruct(m_shared);
+                rop[rxn.first] *= dPinv * (k1 / kf[rxn.first] - 1.);
+            } // else not needed: derivative is already zero
+        }
+
+        // revert changes
+        m_shared.restore();
+    }
+
+    //! Helper function for rate data that do not implement `perturbM`
+    template <typename T=RateType, typename D=DataType,
+        typename std::enable_if<!has_ddP<D>::value, bool>::type = true>
+    void _process_ddP(double* rop, const double* kf, double deltaP) {
         for (const auto& rxn : m_rxn_rates) {
             rop[rxn.first] = 0.;
         }

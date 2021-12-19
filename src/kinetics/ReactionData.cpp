@@ -209,6 +209,29 @@ bool PlogData::update(const ThermoPhase& bulk, const Kinetics& kin)
     return false;
 }
 
+bool PlogData::perturbP(double deltaP)
+{
+    // only perturb if there is no buffered value
+    if (m_pressure_buf > 0.) {
+        return false;
+    }
+    m_pressure_buf = pressure;
+    update(temperature, pressure * (1. + deltaP));
+    return true;
+}
+
+bool PlogData::restore()
+{
+    bool ret = ReactionData::restore();
+    // only restore if there is a valid buffered value
+    if (m_pressure_buf < 0.) {
+        return ret;
+    }
+    update(temperature, m_pressure_buf);
+    m_pressure_buf = -1.;
+    return true;
+}
+
 void ChebyshevData::update(double T)
 {
     throw CanteraError("ChebyshevData::update",
@@ -224,6 +247,29 @@ bool ChebyshevData::update(const ThermoPhase& bulk, const Kinetics& kin)
         return true;
     }
     return false;
+}
+
+bool ChebyshevData::perturbP(double deltaP)
+{
+    // only perturb if there is no buffered value
+    if (m_pressure_buf > 0.) {
+        return false;
+    }
+    m_pressure_buf = pressure;
+    update(temperature, pressure * (1. + deltaP));
+    return true;
+}
+
+bool ChebyshevData::restore()
+{
+    bool ret = ReactionData::restore();
+    // only restore if there is a valid buffered value
+    if (m_pressure_buf < 0.) {
+        return ret;
+    }
+    update(temperature, m_pressure_buf);
+    m_pressure_buf = -1.;
+    return true;
 }
 
 }

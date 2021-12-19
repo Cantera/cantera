@@ -64,6 +64,7 @@ public:
     virtual void getJacobianSettings(AnyMap& settings) const;
     virtual void setJacobianSettings(const AnyMap& settings);
     virtual Eigen::VectorXd fwdRateConstants_ddT();
+    virtual Eigen::VectorXd fwdRateConstants_ddP();
     virtual Eigen::VectorXd fwdRatesOfProgress_ddT();
     virtual Eigen::VectorXd revRatesOfProgress_ddT();
     virtual Eigen::VectorXd netRatesOfProgress_ddT();
@@ -109,6 +110,10 @@ protected:
     //! Apply derivative of species concentrations with respect to temperature
     //! (at constant pressure)
     void processConcentrations_ddT(double* rop);
+
+    //! Apply derivative of species concentrations with respect to pressure
+    //! (at constant temperature)
+    void processConcentrations_ddP(double* rop);
 
     //! Multiply rate with concentration
     void scaleConcentrations(double *rates);
@@ -165,7 +170,7 @@ protected:
     bool m_jac_mole_fractions;
     bool m_jac_skip_third_bodies;
     bool m_jac_skip_falloff;
-    double m_jac_rtol_deltaT;
+    double m_jac_rtol_delta;
 
     // functions marked as deprecated below are only used for XML import and
     // transitional reaction types that are marked as '-legacy'
