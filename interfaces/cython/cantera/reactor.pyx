@@ -185,7 +185,7 @@ cdef class Reactor(ReactorBase):
         Some examples showing how to create :class:`Reactor` objects are
         shown below.
 
-        >>> gas = Solution('gri30.xml')
+        >>> gas = Solution('gri30.yaml')
         >>> r1 = Reactor(gas)
 
         This is equivalent to:

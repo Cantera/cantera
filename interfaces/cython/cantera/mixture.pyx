@@ -14,10 +14,10 @@ cdef class Mixture:
     construct a mixture, supply a list of phases to the constructor, each
     paired with the number of moles for that phase::
 
-        >>> gas = cantera.Solution('gas.cti')
+        >>> gas = cantera.Solution("gas.yaml")
         >>> gas.species_names
         ['H2', 'H', 'O2', 'O', 'OH']
-        >>> graphite = cantera.Solution('graphite.cti')
+        >>> graphite = cantera.Solution("graphite.yaml")
         >>> graphite.species_names
         ['C(g)']
         >>> mix = cantera.Mixture([(gas, 1.0), (graphite, 0.1)])

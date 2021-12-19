@@ -1408,10 +1408,13 @@ cdef class Sim1D:
         def __get__(self):
             return self.sim.fixedTemperatureLocation()
 
-    def save(self, filename='soln.xml', name='solution', description='none',
+    def save(self, filename='soln.yaml', name='solution', description='none',
              loglevel=1):
         """
-        Save the solution in XML format.
+        Save the solution in YAML or XML format.
+
+        .. deprecated:: 2.6
+           XML-based output is deprecated and will be removed in Cantera 3.0.
 
         :param filename:
             solution file
@@ -1420,15 +1423,18 @@ cdef class Sim1D:
         :param description:
             custom description text
 
-        >>> s.save(filename='save.xml', name='energy_off',
+        >>> s.save(filename='save.yaml', name='energy_off',
         ...        description='solution with energy eqn. disabled')
 
         """
         self.sim.save(stringify(str(filename)), stringify(name),
                       stringify(description), loglevel)
 
-    def restore(self, filename='soln.xml', name='solution', loglevel=2):
+    def restore(self, filename='soln.yaml', name='solution', loglevel=2):
         """Set the solution vector to a previously-saved solution.
+
+        .. deprecated:: 2.6
+           XML-based input is deprecated and will be removed in Cantera 3.0.
 
         :param filename:
             solution file
@@ -1438,7 +1444,7 @@ cdef class Sim1D:
             Amount of logging information to display while restoring,
             from 0 (disabled) to 2 (most verbose).
 
-        >>> s.restore(filename='save.xml', name='energy_off')
+        >>> s.restore(filename='save.yaml', name='energy_off')
         """
         self.sim.restore(stringify(str(filename)), stringify(name), loglevel)
         self._initialized = True

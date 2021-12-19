@@ -86,17 +86,24 @@ class Solution(Transport, Kinetics, ThermoPhase):
     and `mechanism_reduction.py <https://cantera.org/examples/python/kinetics/mechanism_reduction.py.html>`_.
 
     In addition, `Solution` objects can be constructed by passing the text of
-    the CTI or XML phase definition in directly, using the ``source`` keyword
+    the YAML phase definition in directly, using the ``yaml`` keyword
     argument::
 
-        cti_def = '''
-            ideal_gas(name='gas', elements='O H Ar',
-                      species='gri30: all',
-                      reactions='gri30: all',
-                      options=['skip_undeclared_elements', 'skip_undeclared_species',
-                               'skip_undeclared_third_bodies'],
-                      initial_state=state(temperature=300, pressure=101325))'''
-        gas = ct.Solution(source=cti_def)
+        yaml_def = '''
+        phases:
+        - name: gas
+          thermo: ideal-gas
+          kinetics: gas
+          elements: [O, H, Ar]
+          species:
+          - gri30.yaml/species: all
+          reactions:
+          - gri30.yaml/reactions: declared-species
+          skip-undeclared-elements: true
+          skip-undeclared-third-bodies: true
+          state: {T: 300, P: 1 atm}
+        '''
+        gas = ct.Solution(yaml=yaml_def)
     """
     __slots__ = ()
 
@@ -138,7 +145,7 @@ class Quantity:
     provides several additional capabilities. A `Quantity` object is created
     from a `Solution` with either the mass or number of moles specified::
 
-        >>> gas = ct.Solution('gri30.xml')
+        >>> gas = ct.Solution('gri30.yaml')
         >>> gas.TPX = 300, 5e5, 'O2:1.0, N2:3.76'
         >>> q1 = ct.Quantity(gas, mass=5) # 5 kg of air
 
