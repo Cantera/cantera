@@ -185,7 +185,7 @@ public:
     /*!
      * This doesn't do much more than initialize constants with default values
      * for water at 25C. Water molecular weight comes from the default
-     * elements.xml file. It actually differs slightly from the IAPWS95 value of
+     * elements definitions. It actually differs slightly from the IAPWS95 value of
      * 18.015268. However, density conservation and therefore element
      * conservation is the more important principle to follow.
      */

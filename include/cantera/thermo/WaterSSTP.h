@@ -63,36 +63,6 @@ class WaterProps;
  *
  * This is unimplemented.
  *
- * ## Instantiation of the Class
- *
- * A new WaterSSTP object may be created by the following code snippets,
- * combined with an XML file given in the XML example section.
- *
- * @code
- *      ThermoPhase* w = newPhase("waterSSTPphase.xml");
- * @endcode
- *
- * or
- *
- * @code
- *      WaterSSTP *w = new WaterSSTP("waterSSTPphase.xml","");
- * @endcode
- *
- * or
- *
- * @code
- *    XML_Node *xm = get_XML_NameID("phase", "waterSSTPphase.xml#water", 0);
- *    WaterSSTP *w = new WaterSSTP(*xm);
- * @endcode
- *
- * or by the following call to importPhase():
- *
- * @code
- *    XML_Node *xm = get_XML_NameID("phase", "waterSSTPphase.xml#water", 0);
- *    WaterSSTP water;
- *    importPhase(*xm, &water);
- * @endcode
- *
  * ## XML Example
  *
  * An example of an XML Element named phase setting up a WaterSSTP object with
