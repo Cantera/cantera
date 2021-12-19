@@ -63,6 +63,7 @@ compositionMap parseCompString(const std::string& ss,
  *
  * @param val   String value of the integer
  * @returns     an integer
+ * @deprecated To be removed after Cantera 2.6. Use std::stoi instead.
  */
 int intValue(const std::string& val);
 
@@ -110,6 +111,7 @@ doublereal fpValueCheck(const std::string& val);
  * @param[out] phaseName Name of the phase, if specified. If not specified, a
  *                       blank string is returned.
  * @returns species name. If nameStr is blank an empty string is returned.
+ * @deprecated To be removed after Cantera 2.6.
  */
 std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName);
 
@@ -122,6 +124,7 @@ std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
  *
  * @param strSI string to be converted. One or two tokens
  * @returns a converted double
+ * @deprecated To be removed after Cantera 2.6.
  */
 doublereal strSItoDbl(const std::string& strSI);
 

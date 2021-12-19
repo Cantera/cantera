@@ -21,6 +21,7 @@ namespace Cantera
 //! Unit conversion utility
 /*!
  * @ingroup inputfiles
+ * @deprecated To be removed after Cantera 2.6. Used only with XML input.
  */
 class Unit
 {

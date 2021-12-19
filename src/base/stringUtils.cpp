@@ -190,6 +190,7 @@ doublereal fpValueCheck(const std::string& val)
 
 std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
 {
+    warn_deprecated("parseSpeciesName", "To be removed after Cantera 2.6");
     std::string s = ba::trim_copy(nameStr);
     phaseName = "";
     size_t ibegin = s.find_first_not_of(" ;\n\t");
