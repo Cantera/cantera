@@ -26,6 +26,11 @@ function f = ck2cti(infile, thermo, transport)
 %     String with CTML output filename.
 %
 
+warning(['The CTI input file format is deprecated and will be removed in ' ...
+         'Cantera 3.0. Use ''ck2yaml.py'' to convert Chemkin-format input files to ' ...
+         'the YAML format. See https://cantera.org/tutorials/ck2yaml-tutorial.html ' ...
+         'for more information.']);
+
 if nargin == 0
     error('input file name must be supplied')
 elseif nargin == 1
