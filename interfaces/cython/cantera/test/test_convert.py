@@ -1097,16 +1097,7 @@ class ctml2yamlTest(utilities.CanteraTest):
     def test_hmw_nacl_phase(self):
         basename = "HMW_NaCl_sp1977_alt"
         self.convert(basename)
-        xml_file = self.test_work_path / (basename + "-from-xml.yaml")
-        yaml_file = self.test_data_path / (basename + ".yaml")
-
-        # Can only be loaded by ThermoPhase due to a bug in TransportFactory
-        # ThermoPhase does not have reactions (neither does the input file)
-        # so we can't use checkConversion
-        ctmlPhase = ct.ThermoPhase(str(xml_file))
-        yamlPhase = ct.ThermoPhase(str(yaml_file))
-        self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
-        self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
+        ctmlPhase, yamlPhase = self.checkConversion(basename)
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
     def test_NaCl_solid_phase(self):
@@ -1123,13 +1114,7 @@ class ctml2yamlTest(utilities.CanteraTest):
             "debye-huckel-pitzer-beta_ij",
             "debye-huckel-beta_ij",
         ]:
-            # Can only be loaded by ThermoPhase due to a bug in TransportFactory
-            # ThermoPhase does not have reactions (neither does the input file)
-            # so we can't use checkConversion
-            ctmlPhase = ct.ThermoPhase("debye-huckel-all-from-xml.yaml", name=name)
-            yamlPhase = ct.ThermoPhase("debye-huckel-all.yaml", name=name)
-            self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
-            self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
+            ctmlPhase, yamlPhase = self.checkConversion("debye-huckel-all", name=name)
             self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
     def test_Maskell_solid_soln(self):
@@ -1143,15 +1128,7 @@ class ctml2yamlTest(utilities.CanteraTest):
 
     def test_mock_ion(self):
         self.convert("mock_ion")
-        ctmlPhase = ct.ThermoPhase("mock_ion-from-xml.yaml")
-        yamlPhase = ct.ThermoPhase("mock_ion.yaml")
-        # Due to changes in how the species elements are specified, the composition
-        # of the species differs from XML to YAML (electrons are used to specify charge
-        # in YAML while the charge node is used in XML). Therefore, checkConversion
-        # won't work and we have to check a few things manually. There are also no
-        # reactions specified for these phases so don't need to do any checks for that.
-        self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
-        self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
+        ctmlPhase, yamlPhase = self.checkConversion("mock_ion")
         # ions-from-neutral-molecule phase doesn't support partial molar properties,
         # so just check density
         for T in [300, 500, 1300, 2000]:
@@ -1177,28 +1154,13 @@ class ctml2yamlTest(utilities.CanteraTest):
 
     def test_vpss_and_hkft(self):
         self.convert("pdss_hkft")
-        ctmlPhase = ct.ThermoPhase("pdss_hkft-from-xml.yaml")
-        yamlPhase = ct.ThermoPhase("pdss_hkft.yaml")
-        # Due to changes in how the species elements are specified, the
-        # composition of the species differs from XML to YAML (electrons are used
-        # to specify charge in YAML while the charge node is used in XML).
-        # Therefore, checkConversion won't work and we have to check a few things
-        # manually. There are also no reactions specified for these phases so don't
-        # need to do any checks for that.
-        self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
-        self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
+        ctmlPhase, yamlPhase = self.checkConversion("pdss_hkft")
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
     def test_lattice_solid(self):
         self.convert("Li7Si3_ls")
-        # Use ThermoPhase to avoid constructing a default Transport object which
-        # throws an error for the LatticeSolidPhase
-        basename = "Li7Si3_ls"
-        name = "Li7Si3_and_Interstitials(S)"
-        ctmlPhase = ct.ThermoPhase(basename + "-from-xml.yaml", name=name)
-        yamlPhase = ct.ThermoPhase(basename + ".yaml", name=name)
-        self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
-        self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
+        ctmlPhase, yamlPhase = self.checkConversion("Li7Si3_ls",
+                                                    name="Li7Si3_and_Interstitials(S)")
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
     def test_margules(self):
