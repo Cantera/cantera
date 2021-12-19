@@ -66,6 +66,15 @@ public:
                                           const double* kf,
                                           double deltaT) = 0;
 
+    //! Evaluate all rate constant pressure derivatives handled by the evaluator;
+    //! which are multiplied with the array of rate-of-progress variables.
+    //! @param rop  array of rop, which is modified by the method
+    //! @param kf  array of forward rate constants
+    //! @param deltaP  relative pressure perturbation
+    virtual void processRateConstants_ddP(double* rop,
+                                          const double* kf,
+                                          double deltaP) = 0;
+
     //! Evaluate all rate constant third-body derivatives handled by the evaluator;
     //! which are multiplied with the array of rate-of-progress variables.
     //! @param rop  array of rop, which is modified by the method

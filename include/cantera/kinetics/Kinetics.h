@@ -589,7 +589,7 @@ public:
      *    concentrations are considered for the evaluation of jacobians
      *  - 'skip-falloff' (boolean) ... if 'true' (default), third-body effects
      *    on reaction rates are not considered.
-     *  - 'rtol-delta-T' (double) ... tolerance used to perturb temperature
+     *  - 'rtol-delta' (double) ... relative tolerance used to perturb properties
      *    when calculating numerical derivatives.
      *
      * @warning Methods used for the evaluation of Jacobians are an experimental
@@ -635,6 +635,18 @@ public:
     virtual Eigen::VectorXd fwdRateConstants_ddT()
     {
         throw NotImplementedError("Kinetics::fwdRateConstants_ddT",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
+
+    /**
+     * Calculate Jacobian for forward rate constants with respect to pressure.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::VectorXd fwdRateConstants_ddP()
+    {
+        throw NotImplementedError("Kinetics::fwdRateConstants_ddP",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 

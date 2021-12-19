@@ -208,7 +208,7 @@ protected:
  */
 struct PlogData : public ReactionData
 {
-    PlogData() : pressure(NAN), logP(0.) {}
+    PlogData() : pressure(NAN), logP(0.), m_pressure_buf(-1.) {}
 
     virtual void update(double T) override;
 
@@ -220,6 +220,16 @@ struct PlogData : public ReactionData
 
     virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
 
+    //! Perturb pressure of data container
+    /**
+     * The method is used for the evaluation of numerical derivatives.
+     * @param  deltaP  relative pressure perturbation
+     */
+    virtual bool perturbP(double deltaP);
+
+    //! Restore data container after a perturbation
+    virtual bool restore();
+
     virtual void invalidateCache() override {
         ReactionData::invalidateCache();
         pressure = NAN;
@@ -227,6 +237,9 @@ struct PlogData : public ReactionData
 
     double pressure; //!< pressure
     double logP; //!< logarithm of pressure
+
+protected:
+    double m_pressure_buf; //!< buffered pressure
 };
 
 
@@ -237,7 +250,7 @@ struct PlogData : public ReactionData
  */
 struct ChebyshevData : public ReactionData
 {
-    ChebyshevData() : pressure(NAN), log10P(0.) {}
+    ChebyshevData() : pressure(NAN), log10P(0.), m_pressure_buf(-1.) {}
 
     virtual void update(double T) override;
 
@@ -249,6 +262,16 @@ struct ChebyshevData : public ReactionData
 
     virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
 
+    //! Perturb pressure of data container
+    /**
+     * The method is used for the evaluation of numerical derivatives.
+     * @param  deltaP  relative pressure perturbation
+     */
+    virtual bool perturbP(double deltaP);
+
+    //! Restore data container after a perturbation
+    virtual bool restore();
+
     virtual void invalidateCache() override {
         ReactionData::invalidateCache();
         pressure = NAN;
@@ -256,6 +279,9 @@ struct ChebyshevData : public ReactionData
 
     double pressure; //!< pressure
     double log10P; //!< base 10 logarithm of pressure
+
+protected:
+    double m_pressure_buf; //!< buffered pressure
 };
 
 }
