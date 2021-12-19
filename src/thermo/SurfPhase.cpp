@@ -153,6 +153,8 @@ doublereal SurfPhase::logStandardConc(size_t k) const
 
 void SurfPhase::setParameters(int n, doublereal* const c)
 {
+    warn_deprecated("SurfPhase::setParamters(int, double*)",
+        "To be removed after Cantera 2.6.");
     if (n != 1) {
         throw CanteraError("SurfPhase::setParameters",
                            "Bad value for number of parameter");

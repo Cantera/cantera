@@ -1685,9 +1685,9 @@ public:
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
+     * @deprecated To be removed after Cantera 2.6
      */
-    virtual void setParameters(int n, doublereal* const c) {
-    }
+    virtual void setParameters(int n, doublereal* const c);
 
     //! Get the equation of state parameters in a vector
     /*!
@@ -1695,9 +1695,9 @@ public:
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
+     * @deprecated To be removed after Cantera 2.6
      */
-    virtual void getParameters(int& n, doublereal* const c) const {
-    }
+    virtual void getParameters(int& n, doublereal* const c) const;
 
     //! Set equation of state parameters from an AnyMap phase description.
     //! Phases that need additional parameters from the root node should

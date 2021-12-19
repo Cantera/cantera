@@ -320,11 +320,8 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
                 ts_ptr->SSStar_Vol_Model = VCS_SSVOL_IDEALGAS;
                 ts_ptr->SSStar_Vol0 = 82.05 * 273.15 / 1.0;
             } else {
-                vector_fp phaseTermCoeff(nSpPhase, 0.0);
-                int nCoeff;
-                tPhase->getParameters(nCoeff, &phaseTermCoeff[0]);
                 ts_ptr->SSStar_Vol_Model = VCS_SSVOL_CONSTANT;
-                ts_ptr->SSStar_Vol0 = phaseTermCoeff[k];
+                ts_ptr->SSStar_Vol0 = 0.0;
             }
             kT++;
         }
