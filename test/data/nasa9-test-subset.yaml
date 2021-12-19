@@ -1,0 +1,32 @@
+generator: ctml2yaml
+cantera-version: 2.6.0a3
+date: Sat, 18 Dec 2021 23:10:57 -0500
+input-files: [test/data/nasa9-test-subset.xml]
+
+phases:
+- name: gas
+  elements: [O, H, Al, Cl, E, Ar]
+  species: [ALCL3, AR]
+  thermo: ideal-gas
+  state: {T: 300.0 K, P: 1.01325e+05 Pa}
+
+species:
+- name: ALCL3
+  composition: {Al: 1.0, Cl: 3.0}
+  note: Gurvich,1996a pt1 p173 pt2 p134. [tpis96]
+  thermo:
+    model: NASA9
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [7.75060097e+04, -1440.779717, 14.01744141, -6.38163124e-03, 5.87167472e-06,
+      -2.908872278e-09, 5.99405089e-13, -6.57934318e+04, -44.94017799]
+    - [-1.378630916e+05, -55.7920729, 10.04190387, -1.682165339e-05, 3.72466466e-09,
+      -4.27552678e-13, 1.982341329e-17, -7.34340747e+04, -20.45130429]
+- name: AR
+  composition: {Ar: 1.0}
+  note: Ref-Elm. Moore,1971. Gordon,1999.. [g 3/98]
+  thermo:
+    model: NASA9
+    temperature-ranges: [200.0, 1000.0]
+    data:
+    - [0.0, 0.0, 2.5, 0.0, 0.0, 0.0, 0.0, -745.375, 4.37967491]

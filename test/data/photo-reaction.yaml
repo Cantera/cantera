@@ -1,0 +1,29 @@
+generator: ctml2yaml
+cantera-version: 2.6.0a3
+date: Sat, 18 Dec 2021 23:12:14 -0500
+input-files: [test/data/photo-reaction.xml]
+
+phases:
+- name: gas
+  elements: [H, C]
+  species: [R1A]
+  thermo: ideal-gas
+  kinetics: gas
+  reactions: all
+  state: {T: 300.0 K, P: 1.01325e+05 Pa}
+
+species:
+- name: R1A
+  composition: {H: 4.0, C: 1.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [5.14987613, -0.0136709788, 4.91800599e-05, -4.84743026e-08, 1.66693956e-11,
+      -1.02466476e+04, -4.64130376]
+    - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09, -1.0181523e-13,
+      -9468.34459, 18.437318]
+
+reactions:
+- equation: R1A => R1A
+  rate-constant: {A: 1.0e+18, b: -2.0, Ea: 1000.0 cal/mol}
