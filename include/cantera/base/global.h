@@ -243,6 +243,7 @@ void setLogger(Logger* logwriter);
 //! to SI units.
 /*!
  * @param unit String containing the units
+ * @deprecated To be removed after Cantera 2.6. Used only with XML input.
  */
 doublereal toSI(const std::string& unit);
 
@@ -250,6 +251,7 @@ doublereal toSI(const std::string& unit);
 /// std::string 'unit' to Kelvin.
 /*!
  * @param unit  String containing the activation energy units
+ * @deprecated To be removed after Cantera 2.6. Used only with XML input.
  */
 doublereal actEnergyToSI(const std::string& unit);
 

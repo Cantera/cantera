@@ -204,10 +204,10 @@ int main(int argc, char** argv)
         std::cin >> phi;
     }
     if (argc >= 3) {
-        refine_grid = bool(intValue(argv[2]));
+        refine_grid = bool(std::stoi(argv[2]));
     }
     if (argc >= 4) {
-        loglevel = intValue(argv[3]);
+        loglevel = std::stoi(argv[3]);
     }
     return flamespeed(phi, refine_grid, loglevel);
 }
