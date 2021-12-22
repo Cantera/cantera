@@ -107,16 +107,16 @@ protected:
      */
     void processEquilibriumConstants_ddT(double* drkcn);
 
-    //! Apply derivative of species concentrations with respect to temperature
+    //! Scaled derivative of species concentrations with respect to temperature
     //! (at constant pressure)
-    void processConcentrations_ddT(double* rop);
+    double concentration_ddTscaled();
 
-    //! Apply derivative of species concentrations with respect to pressure
+    //! Scaled derivative of species concentrations with respect to pressure
     //! (at constant temperature)
-    void processConcentrations_ddP(double* rop);
+    double concentration_ddPscaled();
 
     //! Multiply rate with concentration
-    void scaleConcentrations(double *rates);
+    void scaleConcentrations(double *rates, double factor=1.);
 
     //! Calculate rate coefficients
     void checkLegacyRates(const std::string& name);

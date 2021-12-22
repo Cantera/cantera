@@ -95,10 +95,9 @@ public:
         m_default.push_back(default_efficiency);
 
         if (mass_action) {
-            m_mass_action.push_back(true);
             m_mass_action_index.push_back(m_reaction_index.size() - 1);
         } else {
-            m_mass_action.push_back(false);
+            m_no_mass_action_index.push_back(m_reaction_index.size() - 1);
         }
 
         m_species.emplace_back();
@@ -168,12 +167,19 @@ public:
     }
 
     //! Scale input by reaction order with respect to third-body concentrations
-    void scaleOrder(const double* in, double* out) const
+    void scaleDerivative(const double* in, double* out, double factor) const
+    {
+        for (size_t i = 0; i < m_mass_action_index.size(); i++) {
+            size_t ix = m_reaction_index[m_mass_action_index[i]];
+            out[ix] = factor * in[ix];
+        }
+    }
+
+    //! Scale output by third-body-concentration factor
+    void scaleThirdBody(double* output, const double* concm, double factor) const
     {
         for (const auto& ix : m_reaction_index) {
-            if (m_mass_action[ix]) {
-                out[ix] = in[ix];
-            }
+            output[ix] *= factor * concm[ix];
         }
     }
 
@@ -181,12 +187,13 @@ protected:
     //! Indices of reactions that use third-bodies within vector of concentrations
     std::vector<size_t> m_reaction_index;
 
-    //! Vector of flags indicating whether reactions consider third-body effects
-    std::vector<bool> m_mass_action;
-
     //! Indices within m_reaction_index of reactions that consider third-body effects
     //! in the law of mass action
     std::vector<size_t> m_mass_action_index;
+
+    //! Indices within m_reaction_index of reactions that consider third-body effects
+    //! in the rate expression
+    std::vector<size_t> m_no_mass_action_index;
 
     //! m_species[i][j] is the index of the j-th species in reaction i.
     std::vector<std::vector<size_t> > m_species;
