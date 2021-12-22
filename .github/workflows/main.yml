@@ -315,7 +315,8 @@ jobs:
         run: |
           scons build extra_inc_dirs=$CONDA_PREFIX/include:$CONDA_PREFIX/include/eigen3 \
           extra_lib_dirs=$CONDA_PREFIX/lib system_fmt=y system_eigen=y system_yamlcpp=y \
-          system_sundials=y blas_lapack_libs='lapack,blas' -j2 VERBOSE=True debug=n
+          system_sundials=y blas_lapack_libs='lapack,blas' -j2 VERBOSE=True debug=n \
+          optimize_flags='-O3 -ffast-math -fno-finite-math-only'
       - name: Test Cantera
         run: scons test show_long_tests=yes verbose_tests=yes
 
