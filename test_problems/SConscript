@@ -253,7 +253,7 @@ Test('cxx-flamespeed', 'cxx_samples', '#build/samples/cxx/flamespeed/flamespeed'
      options='0.9 0 0')
 Test('cxx-kinetics1', 'cxx_samples', '#build/samples/cxx/kinetics1/kinetics1', None,
      comparisons=[('kin1_blessed.csv', 'kin1.csv')],
-     artifacts=['kin1.dat'], slow=True)
+     artifacts=['kin1.dat'], slow=True, tolerance=2e-4)
 Test('cxx-gas-transport', 'cxx_samples',
      '#build/samples/cxx/gas_transport/gas_transport', None, slow=True,
      comparisons=[('transport_mix_blessed.csv', 'transport_mix.csv'),
