@@ -255,8 +255,7 @@ class KineticsFromReactions(utilities.CanteraTest):
                              r2.rate.pre_exponential_factor)
             self.assertEqual(r1.rate.temperature_exponent,
                              r2.rate.temperature_exponent)
-            self.assertEqual(r1.rate.activation_energy,
-                             r2.rate.activation_energy)
+            self.assertNear(r1.rate.activation_energy, r2.rate.activation_energy)
 
         self.assertArrayNear(surf1.delta_enthalpy,
                              surf2.delta_enthalpy)
@@ -1342,7 +1341,7 @@ class TestReaction(utilities.CanteraTest):
         species.thermo = ct.NasaPoly2(species.thermo.min_temp, species.thermo.max_temp,
                             species.thermo.reference_pressure, perturbed_coeffs)
         gas.modify_species(index, species)
-        self.assertEqual(deltaH_high, gas.reaction(0).rate.activation_energy(deltaH_high))
+        self.assertNear(deltaH_high, gas.reaction(0).rate.activation_energy(deltaH_high))
         self.assertNear(A*gas.T**b*np.exp(-deltaH_high/ct.gas_constant/gas.T), gas.forward_rate_constants[0])
 
         perturbed_coeffs = species.thermo.coeffs.copy()
