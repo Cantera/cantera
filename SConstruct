@@ -960,8 +960,6 @@ int main(int argc, char** argv) {
     context.Result(result)
     return result
 
-conf = Configure(env, custom_tests={'CheckStatement': CheckStatement})
-
 # Set up compiler options before running configuration tests
 env['CXXFLAGS'] = listify(env['cxx_flags'])
 env['CCFLAGS'] = listify(env['cc_flags']) + listify(env['thread_flags'])
@@ -1006,6 +1004,8 @@ def config_error(message):
     else:
         print("See 'config.log' for details.")
     sys.exit(1)
+
+conf = Configure(env, custom_tests={'CheckStatement': CheckStatement})
 
 # First, a sanity check:
 if not conf.CheckCXXHeader('cmath', '<>'):
