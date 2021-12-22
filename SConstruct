@@ -1027,6 +1027,16 @@ def get_expression_value(includes, expression, defines=()):
               '}\n'))
     return '\n'.join(s)
 
+# Check that NaN is treated correctly
+nan_check_source = get_expression_value(["<cmath>"], 'std::isnan(NAN + argc)')
+retcode, nan_works = conf.TryRun(nan_check_source, ".cpp")
+if nan_works.strip() != "1":
+    config_error(
+        "Cantera requires a working implementation of 'std::isnan'.\n"
+        "If you have specified '-ffast-math' or equivalent as an optimization option,\n"
+        "either remove this option or add the '-fno-finite-math-only option'."
+    )
+
 # Check for fmt library and checkout submodule if needed
 # Test for 'ostream.h' to ensure that version >= 3.0.0 is available
 if env['system_fmt'] in ('y', 'default'):
