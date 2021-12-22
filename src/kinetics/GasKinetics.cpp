@@ -422,6 +422,15 @@ double GasKinetics::concentration_ddPscaled()
     return (ctot1/ctot0 - 1.) / (P * m_jac_rtol_delta);
 }
 
+double GasKinetics::pressure_ddT()
+{
+    if (thermo().type() == "IdealGas") {
+        return thermo().pressure() / thermo().temperature();
+    }
+    throw NotImplementedError("GasKinetics::pressure_ddTscaled",
+        "Not supported for phases other than ideal gas.");
+}
+
 Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddT()
 {
     checkLegacyRates("GasKinetics::fwdRatesOfProgress_ddT");
@@ -435,6 +444,7 @@ Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddT()
     }
 
     if (m_jac_const_pressure) {
+        // account for concentration changes due to temperature change
         double dcdT = concentration_ddTscaled();
 
         // add term to account for changes of concentrations
@@ -457,6 +467,16 @@ Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddT()
         }
         m_multi_concm.scaleThirdBody(dFwdRopM.data(), m_concm.data(), dcdT);
         dFwdRop += dFwdRopM;
+
+    } else {
+        // account for pressure change due to temperature change at constant volume
+        Eigen::Map<Eigen::VectorXd> dFwdRopP(m_rbuf1.data(), nReactions());
+        copy(m_ropf.begin(), m_ropf.end(), &dFwdRopP[0]);
+        for (auto& rates : m_bulk_rates) {
+            rates->processRateConstants_ddP(
+                dFwdRopP.data(), m_rfn.data(), m_jac_rtol_delta);
+        }
+        dFwdRop += pressure_ddT() * dFwdRopP;
     }
 
     return dFwdRop;
@@ -483,6 +503,7 @@ Eigen::VectorXd GasKinetics::revRatesOfProgress_ddT()
     dRevRop += dRevRop2;
 
     if (m_jac_const_pressure) {
+        // account for concentration changes due to temperature change
         double dcdT = concentration_ddTscaled();
 
         // add term to account for changes of concentrations
@@ -505,6 +526,16 @@ Eigen::VectorXd GasKinetics::revRatesOfProgress_ddT()
         }
         m_multi_concm.scaleThirdBody(dRevRopM.data(), m_concm.data(), dcdT);
         dRevRop += dRevRopM;
+
+    } else {
+        // account for pressure change due to temperature change at constant volume
+        Eigen::Map<Eigen::VectorXd> dRevRopP(m_rbuf1.data(), nReactions());
+        copy(m_ropr.begin(), m_ropr.end(), &dRevRopP[0]);
+        for (auto& rates : m_bulk_rates) {
+            rates->processRateConstants_ddP(
+                dRevRopP.data(), m_rfn.data(), m_jac_rtol_delta);
+        }
+        dRevRop += pressure_ddT() * dRevRopP;
     }
 
     return dRevRop;

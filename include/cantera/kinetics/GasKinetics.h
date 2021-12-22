@@ -115,6 +115,9 @@ protected:
     //! (at constant temperature)
     double concentration_ddPscaled();
 
+    //! Derivative of pressure with respect to temperature (at constant volume)
+    double pressure_ddT();
+
     //! Multiply rate with concentration
     void scaleConcentrations(double *rates, double factor=1.);
 
