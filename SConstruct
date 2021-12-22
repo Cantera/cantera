@@ -1006,6 +1006,7 @@ def config_error(message):
     sys.exit(1)
 
 conf = Configure(env, custom_tests={'CheckStatement': CheckStatement})
+env = conf.env  # Retain updates to `env` after the end of the `Configure` context
 
 # First, a sanity check:
 if not conf.CheckCXXHeader('cmath', '<>'):
