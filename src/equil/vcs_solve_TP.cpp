@@ -1943,20 +1943,8 @@ bool VCS_SOLVE::vcs_globStepDamp()
         plogf("   --- subroutine FORCE: End Slope       = %g\n", s2);
     }
 
-    if (s1 > 0.0) {
-        if (m_debug_print_lvl >= 2) {
-            plogf("   --- subroutine FORCE produced no adjustments,");
-            if (s1 < 1.0E-40) {
-                plogf(" s1 positive but really small\n");
-            } else {
-                plogf(" failed s1 test\n");
-            }
-        }
-        return false;
-    }
-
-    if (s2 <= 0.0) {
-        debuglog("   --- subroutine FORCE produced no adjustments, s2 < 0\n", m_debug_print_lvl >= 2);
+    if (s1 > 0.0 || s2 <= 0.0) {
+        debuglog("   --- subroutine FORCE produced no adjustments\n", m_debug_print_lvl >= 2);
         return false;
     }
 
@@ -1966,9 +1954,7 @@ bool VCS_SOLVE::vcs_globStepDamp()
         al = s1 / (s1 - s2);
     }
     if (al >= 0.95 || al < 0.0) {
-        if (m_debug_print_lvl >= 2) {
-            plogf("   --- subroutine FORCE produced no adjustments (al = %g)\n", al);
-        }
+        debuglog("   --- subroutine FORCE produced no adjustments\n", m_debug_print_lvl >= 2);
         return false;
     }
     if (m_debug_print_lvl >= 2) {

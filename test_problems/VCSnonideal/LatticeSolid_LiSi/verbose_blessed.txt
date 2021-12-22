@@ -227,7 +227,7 @@ VCS CALCULATION METHOD
    --- Total tentative Dimensionless Gibbs Free Energy = -4.1206752525561E+03
    --- subroutine FORCE: Beginning Slope = -0.109397
    --- subroutine FORCE: End Slope       = -0.0989949
-   --- subroutine FORCE produced no adjustments, s2 < 0
+   --- subroutine FORCE produced no adjustments
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (all species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
@@ -285,7 +285,7 @@ VCS CALCULATION METHOD
    --- Total tentative Dimensionless Gibbs Free Energy = -4.1206857517346E+03
    --- subroutine FORCE: Beginning Slope = -0.0109994
    --- subroutine FORCE: End Slope       = 5.0022e-07
-   --- subroutine FORCE produced no adjustments (al = 0.999955)
+   --- subroutine FORCE produced no adjustments
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (all species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
@@ -342,7 +342,7 @@ VCS CALCULATION METHOD
    --- Total tentative Dimensionless Gibbs Free Energy = -4.1206857517346E+03
    --- subroutine FORCE: Beginning Slope = -1.39826e-19
    --- subroutine FORCE: End Slope       = 9.31017e-32
-   --- subroutine FORCE produced no adjustments, s2 < 0
+   --- subroutine FORCE produced no adjustments
    -------------------------------------------------------------------------------------------------------
    --- Summary of the Update  (all species):
    ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT     Mu/RT     Init_Del_G/RT   Delta_G/RT
