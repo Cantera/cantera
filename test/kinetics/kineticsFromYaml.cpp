@@ -494,10 +494,10 @@ public:
         kin->getRevRateConstants(kr.data());
         kin->getFwdRatesOfProgress(ropf.data());
         kin->getRevRatesOfProgress(ropr.data());
-        EXPECT_NEAR(kf[iOld], kf[iNew], 1e-13*kf[iOld]);
-        EXPECT_NEAR(kr[iOld], kr[iNew], 1e-13*kr[iOld]);
-        EXPECT_NEAR(ropf[iOld], ropf[iNew], 1e-13*ropf[iOld]);
-        EXPECT_NEAR(ropr[iOld], ropr[iNew], 1e-13*ropr[iOld]);
+        EXPECT_NEAR(kf[iOld], kf[iNew], 1e-13 * kf[iOld]);
+        EXPECT_NEAR(kr[iOld], kr[iNew], 1e-13 * kr[iOld]);
+        EXPECT_NEAR(ropf[iOld], ropf[iNew], 1e-13 * ropf[iOld]);
+        EXPECT_NEAR(ropr[iOld], ropr[iNew], 1e-13 * ropr[iOld]);
     }
 
     shared_ptr<Solution> soln;

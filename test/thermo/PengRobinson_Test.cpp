@@ -186,13 +186,13 @@ TEST_F(PengRobinson_Test, setTP)
         const double temp = 294 + i*2;
         set_r(0.999);
         test_phase->setState_TP(temp, 5542027.5);
-        EXPECT_NEAR(test_phase->density(),rho1[i],1.e-8);
+        EXPECT_NEAR(test_phase->density(), rho1[i], 1.e-8);
 
         test_phase->setState_TP(temp, 7388370.);
-        EXPECT_NEAR(test_phase->density(),rho2[i],1.e-8);
+        EXPECT_NEAR(test_phase->density(), rho2[i], 1.e-7);
 
         test_phase->setState_TP(temp, 9236712.5);
-        EXPECT_NEAR(test_phase->density(),rho3[i],1.e-8);
+        EXPECT_NEAR(test_phase->density(), rho3[i], 1.e-8);
     }
 }
 
