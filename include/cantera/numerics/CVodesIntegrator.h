@@ -9,6 +9,7 @@
 #define CT_CVODESWRAPPER_H
 
 #include "cantera/numerics/Integrator.h"
+#include "cantera/numerics/SundialsContext.h"
 #include "cantera/base/ctexceptions.h"
 
 #include "sundials/sundials_nvector.h"
@@ -84,6 +85,7 @@ private:
 
     size_t m_neq;
     void* m_cvode_mem;
+    SundialsContext m_sundials_ctx; //!< SUNContext object for Sundials>=6.0
     void* m_linsol; //!< Sundials linear solver object
     void* m_linsol_matrix; //!< matrix used by Sundials
     FuncEval* m_func;

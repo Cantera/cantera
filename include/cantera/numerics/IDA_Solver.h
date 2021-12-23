@@ -10,6 +10,7 @@
 #define CT_IDA_SOLVER_H
 
 #include "DAE_Solver.h"
+#include "SundialsContext.h"
 
 #include "sundials/sundials_nvector.h"
 
@@ -225,6 +226,7 @@ protected:
     void* m_ida_mem;
     void* m_linsol; //!< Sundials linear solver object
     void* m_linsol_matrix; //!< matrix used by Sundials
+    SundialsContext m_sundials_ctx; //!< SUNContext object for Sundials>=6.0
 
     //! Initial value of the time
     doublereal m_t0;
