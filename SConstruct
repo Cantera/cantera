@@ -1215,8 +1215,12 @@ env['has_demangle'] = conf.CheckDeclaration("boost::core::demangle",
 import SCons.Conftest, SCons.SConf
 context = SCons.SConf.CheckContext(conf)
 
-# Check initially for Sundials<=3.2 and then for Sundials>=4.0
-for cvode_call in ['CVodeCreate(CV_BDF, CV_NEWTON);','CVodeCreate(CV_BDF);']:
+cvode_checks = [
+    "CVodeCreate(CV_BDF, CV_NEWTON);",  # Sundials <= 3.2
+    "CVodeCreate(CV_BDF);",  # Sundials>=4.0,<6.0
+    "SUNContext ctx; SUNContext_Create(0, &ctx);"  # Sundials>=6.0
+]
+for cvode_call in cvode_checks:
     ret = SCons.Conftest.CheckLib(context,
                                   ['sundials_cvodes'],
                                   header='#include "cvodes/cvodes.h"',
@@ -1274,10 +1278,10 @@ if env['system_sundials'] == 'y':
     # Ignore the minor version, e.g. 2.4.x -> 2.4
     env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
     sundials_ver = parse_version(env['sundials_version'])
-    if sundials_ver < parse_version('2.4') or sundials_ver >= parse_version('6.0'):
+    if sundials_ver < parse_version("2.4") or sundials_ver >= parse_version("7.0"):
         print("""ERROR: Sundials version %r is not supported.""" % env['sundials_version'])
         sys.exit(1)
-    elif sundials_ver > parse_version('5.7'):
+    elif sundials_ver > parse_version("6.0"):
         print("WARNING: Sundials version %r has not been tested." % env['sundials_version'])
 
     print("""INFO: Using system installation of Sundials version %s.""" % sundials_version)
