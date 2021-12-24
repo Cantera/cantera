@@ -677,6 +677,19 @@ public:
     }
 
     /**
+     * Calculate Jacobian for forward rates-of-progress with respect to species
+     * pressure.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::VectorXd fwdRatesOfProgress_ddP()
+    {
+        throw NotImplementedError("Kinetics::fwdRatesOfProgress_ddP",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
+
+    /**
      * Calculate Jacobian for reverse rates-of-progress with respect to species
      * concentrations.
      *
@@ -699,6 +712,19 @@ public:
     virtual Eigen::VectorXd revRatesOfProgress_ddT()
     {
         throw NotImplementedError("Kinetics::revRatesOfProgress_ddT",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
+
+    /**
+     * Calculate Jacobian for reverse rates-of-progress with respect to species
+     * pressure.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::VectorXd revRatesOfProgress_ddP()
+    {
+        throw NotImplementedError("Kinetics::revRatesOfProgress_ddP",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
@@ -729,6 +755,19 @@ public:
     }
 
     /**
+     * Calculate Jacobian for net rates-of-progress with respect to species
+     * pressure.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::VectorXd netRatesOfProgress_ddP()
+    {
+        throw NotImplementedError("Kinetics::netRatesOfProgress_ddP",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
+
+    /**
      * Calculate Jacobian for species creation rates with respect to species
      * concentrations.
      *
@@ -744,6 +783,14 @@ public:
      *    may be changed or removed without notice.
      */
     virtual Eigen::VectorXd creationRates_ddT();
+
+    /**
+     * Calculate Jacobian for species creation rates with respect to pressure.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::VectorXd creationRates_ddP();
 
     /**
      * Calculate Jacobian for species destruction rates with respect to species
@@ -763,6 +810,14 @@ public:
     virtual Eigen::VectorXd destructionRates_ddT();
 
     /**
+     * Calculate Jacobian for species destruction rates with respect to pressure.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::VectorXd destructionRates_ddP();
+
+    /**
      * Calculate Jacobian for species net production rates with respect to species
      * concentrations.
      *
@@ -778,6 +833,14 @@ public:
      *    may be changed or removed without notice.
      */
     virtual Eigen::VectorXd netProductionRates_ddT();
+
+    /**
+     * Calculate Jacobian for species net production rates with respect to pressure.
+     *
+     * @warning This method is an experimental part of the %Cantera API and
+     *    may be changed or removed without notice.
+     */
+    virtual Eigen::VectorXd netProductionRates_ddP();
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines

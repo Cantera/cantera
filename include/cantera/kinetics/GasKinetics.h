@@ -68,6 +68,9 @@ public:
     virtual Eigen::VectorXd fwdRatesOfProgress_ddT();
     virtual Eigen::VectorXd revRatesOfProgress_ddT();
     virtual Eigen::VectorXd netRatesOfProgress_ddT();
+    virtual Eigen::VectorXd fwdRatesOfProgress_ddP();
+    virtual Eigen::VectorXd revRatesOfProgress_ddP();
+    virtual Eigen::VectorXd netRatesOfProgress_ddP();
     virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddC();
     virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddC();
     virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddC();
