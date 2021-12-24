@@ -571,21 +571,21 @@ public:
     //! @}
     //! @name Routines to Calculate Jacobians / Derivatives
     /*!
-     * Jacobians are calculated with respect to species concentrations and
-     * temperature for forward/reverse/net rates of progress as well as
-     * creation/destruction and net prodcution of species.
+     * Jacobians are calculated with respect to temperature, pressure, molar density
+     * and species concentration for forward/reverse/net rates of progress as well as
+     * creation/destruction and net production of species.
      *
      * Jacobian evaluation is set by keyword/value pairs using the methods
      * @see getJacobianSettings and @see setJacobianSettings.
      *
      * For GasKinetics, the following keyword/value pairs are supported:
-     *  - 'mole-fractions' (boolean) ... if 'true' (default), Jacobians are
-     *    calculated with respect to mole fractions; if 'false' they are calculated
-     *    with respect to species concentrations.
+     *
      *  - 'skip-third-bodies' (boolean) ... if 'false' (default), third body
      *    concentrations are considered for the evaluation of jacobians
+     *
      *  - 'skip-falloff' (boolean) ... if 'true' (default), third-body effects
      *    on reaction rates are not considered.
+     *
      *  - 'rtol-delta' (double) ... relative tolerance used to perturb properties
      *    when calculating numerical derivatives.
      *

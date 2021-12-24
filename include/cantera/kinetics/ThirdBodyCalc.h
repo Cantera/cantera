@@ -111,8 +111,8 @@ public:
         }
     }
 
-    void resizeCoeffs(size_t nSpc, size_t nRxn)
-    {
+    //! Resize the sparse coefficient matrix
+    void resizeCoeffs(size_t nSpc, size_t nRxn) {
         // Sparse Efficiency coefficient matrix
         Eigen::SparseMatrix<double> efficiencies;
         efficiencies.setZero();
@@ -160,27 +160,33 @@ public:
     /*!
      *  @param product   Product of law of mass action and rate terms.
      */
-    Eigen::SparseMatrix<double> jacobian(const double* product)
-    {
+    Eigen::SparseMatrix<double> jacobian(const double* product) {
         Eigen::Map<const Eigen::VectorXd> mapped(product, m_multipliers.rows());
         return mapped.asDiagonal() * m_multipliers;
     }
 
-    //! Scale input by reaction order with respect to third-body concentrations
-    void scaleDerivative(const double* in, double* out, double factor) const
-    {
+    //! Scale entries involving third-body collider in law of mass action by factor
+    void scale(const double* in, double* out, double factor) const {
         for (size_t i = 0; i < m_mass_action_index.size(); i++) {
             size_t ix = m_reaction_index[m_mass_action_index[i]];
             out[ix] = factor * in[ix];
         }
     }
 
-    //! Scale output by third-body-concentration factor
-    void scaleThirdBody(double* output, const double* concm, double factor) const
+    //! Scale entries involving third-body collider in rate expression
+    //! by third-body concentration and factor
+    void scaleM(const double* in, double* out,
+                const double* concm, double factor) const
     {
-        for (const auto& ix : m_reaction_index) {
-            output[ix] *= factor * concm[ix];
+        for (size_t i = 0; i < m_no_mass_action_index.size(); i++) {
+            size_t ix = m_reaction_index[m_no_mass_action_index[i]];
+            out[ix] = factor * concm[ix] * in[ix];
         }
+    }
+
+    //! Return boolean indicating whether ThirdBodyCalc3 is empty
+    bool empty() const {
+        return m_reaction_index.empty();
     }
 
 protected:

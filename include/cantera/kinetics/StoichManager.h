@@ -172,9 +172,9 @@ public:
     }
 
 
-    void scale(const double* R, double* out) const
+    void scale(const double* R, double* out, double factor) const
     {
-        out[m_rxn] = R[m_rxn];
+        out[m_rxn] = R[m_rxn] * factor;
     }
 
 private:
@@ -260,9 +260,9 @@ public:
         }
     }
 
-    void scale(const double* R, double* out) const
+    void scale(const double* R, double* out, double factor) const
     {
-        out[m_rxn] = 2 * R[m_rxn];
+        out[m_rxn] = 2 * R[m_rxn] * factor;
     }
 
 private:
@@ -359,9 +359,9 @@ public:
         }
     }
 
-    void scale(const double* R, double* out) const
+    void scale(const double* R, double* out, double factor) const
     {
-        out[m_rxn] = 3 * R[m_rxn];
+        out[m_rxn] = 3 * R[m_rxn] * factor;
     }
 
 private:
@@ -501,9 +501,9 @@ void jacobian(const double* S, const double* R, vector_fp& jac) const
         }
     }
 
-    void scale(const double* R, double* out) const
+    void scale(const double* R, double* out, double factor) const
     {
-        out[m_rxn] = m_sum_order * R[m_rxn];
+        out[m_rxn] = m_sum_order * R[m_rxn] * factor;
     }
 
 private:
@@ -613,11 +613,12 @@ inline static void _jacobian(InputIter begin, InputIter end,
     }
 }
 
-    template<class InputIter, class Vec1, class Vec2>
-inline static void _scale(InputIter begin, InputIter end, const Vec1& in, Vec2& out)
+template<class InputIter, class Vec1, class Vec2>
+inline static void _scale(InputIter begin, InputIter end,
+                          const Vec1& in, Vec2& out, double factor)
 {
     for (; begin != end; ++begin) {
-        begin->scale(in, out);
+        begin->scale(in, out, factor);
     }
 }
 
@@ -680,7 +681,7 @@ public:
         m_stoichCoeffs.resize(0, 0);
     }
 
-    //! Resize the sparse coefficient matrix)
+    //! Resize the sparse coefficient matrix
     void resizeCoeffs(size_t nSpc, size_t nRxn)
     {
         size_t nCoeffs = m_coeffList.size();
@@ -870,13 +871,13 @@ public:
             m_outerIndices.data(), m_innerIndices.data(), m_values.data());
     }
 
-    //! Scale input by overall reaction order
-    void scale(const double* in, double* out) const
+    //! Scale input by reaction order and factor
+    void scale(const double* in, double* out, double factor) const
     {
-        _scale(m_c1_list.begin(), m_c1_list.end(), in, out);
-        _scale(m_c2_list.begin(), m_c2_list.end(), in, out);
-        _scale(m_c3_list.begin(), m_c3_list.end(), in, out);
-        _scale(m_cn_list.begin(), m_cn_list.end(), in, out);
+        _scale(m_c1_list.begin(), m_c1_list.end(), in, out, factor);
+        _scale(m_c2_list.begin(), m_c2_list.end(), in, out, factor);
+        _scale(m_c3_list.begin(), m_c3_list.end(), in, out, factor);
+        _scale(m_cn_list.begin(), m_cn_list.end(), in, out, factor);
     }
 
 private:
