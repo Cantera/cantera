@@ -497,6 +497,39 @@ Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddP()
     return dFwdRop;
 }
 
+Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddD()
+{
+    checkLegacyRates("GasKinetics::fwdRatesOfProgress_ddD");
+    updateROP();
+
+    double ctot_inv = 1. / thermo().molarDensity();
+    Eigen::VectorXd dFwdRop(nReactions());
+
+    // add term to account for changes of concentrations
+    dFwdRop.fill(0.);
+    m_reactantStoich.scale(m_ropf.data(), dFwdRop.data());
+    dFwdRop *= ctot_inv;
+
+    if (!m_jac_skip_third_bodies) {
+        // reactions involving third body in law of mass action
+        Eigen::Map<Eigen::VectorXd> dFwdRopM(m_rbuf2.data(), nReactions());
+        dFwdRopM.fill(0.);
+        m_multi_concm.scaleDerivative(m_ropf.data(), dFwdRopM.data(), ctot_inv);
+        dFwdRop += dFwdRopM;
+
+        // reaction rates that depend on third-body colliders
+        copy(m_ropf.begin(), m_ropf.end(), &dFwdRopM[0]);
+        for (auto& rates : m_bulk_rates) {
+            rates->processRateConstants_ddM(
+                dFwdRopM.data(), m_rfn.data(), m_jac_rtol_delta);
+        }
+        m_multi_concm.scaleThirdBody(dFwdRopM.data(), m_concm.data(), ctot_inv);
+        dFwdRop += dFwdRopM;
+    }
+
+    return dFwdRop;
+}
+
 Eigen::VectorXd GasKinetics::revRatesOfProgress_ddT()
 {
     checkLegacyRates("GasKinetics::revRatesOfProgress_ddT");
@@ -572,6 +605,39 @@ Eigen::VectorXd GasKinetics::revRatesOfProgress_ddP()
     return dRevRop;
 }
 
+Eigen::VectorXd GasKinetics::revRatesOfProgress_ddD()
+{
+    checkLegacyRates("GasKinetics::revRatesOfProgress_ddD");
+    updateROP();
+
+    double ctot_inv = 1. / thermo().molarDensity();
+    Eigen::VectorXd dRevRop(nReactions());
+
+    // add term to account for changes of concentrations
+    dRevRop.fill(0.);
+    m_revProductStoich.scale(m_ropr.data(), dRevRop.data());
+    dRevRop *= ctot_inv;
+
+    if (!m_jac_skip_third_bodies) {
+        // reactions involving third body in law of mass action
+        Eigen::Map<Eigen::VectorXd> dRevRopM(m_rbuf2.data(), nReactions());
+        dRevRopM.fill(0.);
+        m_multi_concm.scaleDerivative(m_ropr.data(), dRevRopM.data(), ctot_inv);
+        dRevRop += dRevRopM;
+
+        // reaction rates that depend on third-body colliders
+        copy(m_ropr.begin(), m_ropr.end(), &dRevRopM[0]);
+        for (auto& rates : m_bulk_rates) {
+            rates->processRateConstants_ddM(
+                dRevRopM.data(), m_rfn.data(), m_jac_rtol_delta);
+        }
+        m_multi_concm.scaleThirdBody(dRevRopM.data(), m_concm.data(), ctot_inv);
+        dRevRop += dRevRopM;
+    }
+
+    return dRevRop;
+}
+
 Eigen::VectorXd GasKinetics::netRatesOfProgress_ddT()
 {
     checkLegacyRates("GasKinetics::netRatesOfProgress_ddT");
@@ -584,6 +650,13 @@ Eigen::VectorXd GasKinetics::netRatesOfProgress_ddP()
     checkLegacyRates("GasKinetics::netRatesOfProgress_ddP");
 
     return fwdRatesOfProgress_ddP() - revRatesOfProgress_ddP();
+}
+
+Eigen::VectorXd GasKinetics::netRatesOfProgress_ddD()
+{
+    checkLegacyRates("GasKinetics::netRatesOfProgress_ddD");
+
+    return fwdRatesOfProgress_ddD() - revRatesOfProgress_ddD();
 }
 
 void GasKinetics::scaleConcentrations(double *rates, double factor)
