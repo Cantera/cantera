@@ -114,8 +114,20 @@ protected:
      */
     void processEquilibriumConstants_ddT(double* drkcn);
 
-    //! Multiply rate with concentration
-    void scaleConcentrations(double *rates, double factor=1.);
+    //! Apply temperature derivative
+    Eigen::VectorXd ddT(const vector_fp& in);
+
+    //! Apply pressure derivative
+    Eigen::VectorXd ddP(const vector_fp& in);
+
+    //! Apply density derivative
+    Eigen::VectorXd ddD(StoichManagerN& stoich,
+                        const vector_fp& in,
+                        bool mass_action=true);
+
+    //! Apply concentration derivative
+    Eigen::SparseMatrix<double> ddC(StoichManagerN& stoich,
+                                    const vector_fp& in);
 
     //! Calculate rate coefficients
     void checkLegacyRates(const std::string& name);
@@ -165,7 +177,6 @@ protected:
     vector_fp m_rbuf2;
 
     //! Jacobian settings
-    bool m_jac_mole_fractions;
     bool m_jac_skip_third_bodies;
     bool m_jac_skip_falloff;
     double m_jac_rtol_delta;
