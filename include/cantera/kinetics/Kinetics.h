@@ -579,9 +579,6 @@ public:
      * @see getJacobianSettings and @see setJacobianSettings.
      *
      * For GasKinetics, the following keyword/value pairs are supported:
-     *  - 'constant-pressure' (boolean) ... if 'true' (default), constant pressure
-     *    is assumed, wheareas constant volume is assumed otherwise. For constant
-     *    pressure, species concentrations are a function of temperature.
      *  - 'mole-fractions' (boolean) ... if 'true' (default), Jacobians are
      *    calculated with respect to mole fractions; if 'false' they are calculated
      *    with respect to species concentrations.
@@ -626,8 +623,8 @@ public:
     }
 
     /**
-     * Calculate Jacobian for forward rate constants with respect to species
-     * temperature.
+     * Calculate Jacobian for forward rate constants with respect to temperature
+     * at constant temperature and molar density
      *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
@@ -639,7 +636,8 @@ public:
     }
 
     /**
-     * Calculate Jacobian for forward rate constants with respect to pressure.
+     * Calculate Jacobian for forward rate constants with respect to pressure
+     * at constant temperature and molar density.
      *
      * @warning This method is an experimental part of the %Cantera API and
      *    may be changed or removed without notice.
