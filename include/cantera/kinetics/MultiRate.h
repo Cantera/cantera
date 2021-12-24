@@ -152,8 +152,9 @@ protected:
     template <typename T=RateType, typename D=DataType,
         typename std::enable_if<has_ddM<D>::value, bool>::type = true>
     void _process_ddM(double* rop, const double* kf, double deltaM) {
-        double dMinv = 1. / deltaM;
-        m_shared.perturbM(deltaM);
+        double deltaM_ = std::abs(deltaM);
+        double dMinv = 1. / deltaM_;
+        m_shared.perturbM(deltaM_);
 
         for (auto& rxn : m_rxn_rates) {
             if (kf[rxn.first] != 0. && m_shared.conc_3b[rxn.first] > 0.) {
@@ -173,6 +174,9 @@ protected:
     template <typename T=RateType, typename D=DataType,
         typename std::enable_if<!has_ddM<D>::value, bool>::type = true>
     void _process_ddM(double* rop, const double* kf, double deltaM) {
+        if (deltaM < 0.) {
+            return;
+        }
         for (const auto& rxn : m_rxn_rates) {
             rop[rxn.first] = 0.;
         }

@@ -79,7 +79,8 @@ public:
     //! which are multiplied with the array of rate-of-progress variables.
     //! @param rop  array of rop, which is modified by the method
     //! @param kf  array of forward rate constants
-    //! @param deltaM  relative perturbation of third-body concentrations
+    //! @param deltaM  relative perturbation of third-body concentrations;
+    //!     if deltaM < 0, rop entries not affected by M are not set to zero
     virtual void processRateConstants_ddM(double* rop,
                                           const double* kf,
                                           double deltaM) = 0;
