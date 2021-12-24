@@ -383,8 +383,8 @@ void GasKinetics::processEquilibriumConstants_ddT(double* drkcn)
     getEquilibriumConstants(kc0.data());
 
     for (size_t i = 0; i < nReactions(); ++i) {
-        drkcn[i] *= (kc0[i] - kc1[i]) * dTinv;
-        drkcn[i] /= kc0[i]; // divide once as this is a scaled derivative
+        // apply scaling for derivative of inverse equilibrium constant
+        drkcn[i] *= (1. - kc1[i] / kc0[i]) * dTinv;
     }
 
     for (size_t i = 0; i < m_irrev.size(); ++i) {
@@ -482,6 +482,21 @@ Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddT()
     return dFwdRop;
 }
 
+Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddP()
+{
+    checkLegacyRates("GasKinetics::fwdRatesOfProgress_ddP");
+    updateROP();
+
+    Eigen::VectorXd dFwdRop(nReactions());
+    copy(m_ropf.begin(), m_ropf.end(), &dFwdRop[0]);
+    for (auto& rates : m_bulk_rates) {
+        rates->processRateConstants_ddP(
+            dFwdRop.data(), m_rfn.data(), m_jac_rtol_delta);
+    }
+
+    return dFwdRop;
+}
+
 Eigen::VectorXd GasKinetics::revRatesOfProgress_ddT()
 {
     checkLegacyRates("GasKinetics::revRatesOfProgress_ddT");
@@ -541,11 +556,34 @@ Eigen::VectorXd GasKinetics::revRatesOfProgress_ddT()
     return dRevRop;
 }
 
+Eigen::VectorXd GasKinetics::revRatesOfProgress_ddP()
+{
+    checkLegacyRates("GasKinetics::revRatesOfProgress_ddP");
+    updateROP();
+
+    // reverse rop times scaled rate constant derivative
+    Eigen::VectorXd dRevRop(nReactions());
+    copy(m_ropr.begin(), m_ropr.end(), &dRevRop[0]);
+    for (auto& rates : m_bulk_rates) {
+        rates->processRateConstants_ddP(
+            dRevRop.data(), m_rfn.data(), m_jac_rtol_delta);
+    }
+
+    return dRevRop;
+}
+
 Eigen::VectorXd GasKinetics::netRatesOfProgress_ddT()
 {
     checkLegacyRates("GasKinetics::netRatesOfProgress_ddT");
 
     return fwdRatesOfProgress_ddT() - revRatesOfProgress_ddT();
+}
+
+Eigen::VectorXd GasKinetics::netRatesOfProgress_ddP()
+{
+    checkLegacyRates("GasKinetics::netRatesOfProgress_ddP");
+
+    return fwdRatesOfProgress_ddP() - revRatesOfProgress_ddP();
 }
 
 void GasKinetics::scaleConcentrations(double *rates, double factor)
