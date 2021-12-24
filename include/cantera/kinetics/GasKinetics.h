@@ -65,6 +65,7 @@ public:
     virtual void setJacobianSettings(const AnyMap& settings);
     virtual Eigen::VectorXd fwdRateConstants_ddT();
     virtual Eigen::VectorXd fwdRateConstants_ddP();
+    virtual Eigen::VectorXd fwdRateConstants_ddD();
     virtual Eigen::VectorXd fwdRatesOfProgress_ddT();
     virtual Eigen::VectorXd revRatesOfProgress_ddT();
     virtual Eigen::VectorXd netRatesOfProgress_ddT();
@@ -112,17 +113,6 @@ protected:
      *  This (scaled) derivative is handled by a finite difference.
      */
     void processEquilibriumConstants_ddT(double* drkcn);
-
-    //! Scaled derivative of species concentrations with respect to temperature
-    //! (at constant pressure)
-    double concentration_ddTscaled();
-
-    //! Scaled derivative of species concentrations with respect to pressure
-    //! (at constant temperature)
-    double concentration_ddPscaled();
-
-    //! Derivative of pressure with respect to temperature (at constant volume)
-    double pressure_ddT();
 
     //! Multiply rate with concentration
     void scaleConcentrations(double *rates, double factor=1.);
@@ -175,7 +165,6 @@ protected:
     vector_fp m_rbuf2;
 
     //! Jacobian settings
-    bool m_jac_const_pressure;
     bool m_jac_mole_fractions;
     bool m_jac_skip_third_bodies;
     bool m_jac_skip_falloff;

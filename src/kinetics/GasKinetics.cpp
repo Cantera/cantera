@@ -272,7 +272,6 @@ void GasKinetics::getFwdRateConstants(double* kfwd)
 
 void GasKinetics::getJacobianSettings(AnyMap& settings) const
 {
-    settings["constant-pressure"] = m_jac_const_pressure;
     settings["mole-fractions"] = m_jac_mole_fractions;
     settings["skip-third-bodies"] = m_jac_skip_third_bodies;
     settings["skip-falloff"] = m_jac_skip_falloff;
@@ -282,9 +281,6 @@ void GasKinetics::getJacobianSettings(AnyMap& settings) const
 void GasKinetics::setJacobianSettings(const AnyMap& settings)
 {
     bool force = settings.empty();
-    if (force || settings.hasKey("constant-pressure")) {
-        m_jac_const_pressure = settings.getBool("constant-pressure", true);
-    }
     if (force || settings.hasKey("mole-fractions")) {
         m_jac_mole_fractions = settings.getBool("mole-fractions", true);
     }
@@ -326,18 +322,6 @@ Eigen::VectorXd GasKinetics::fwdRateConstants_ddT()
             dFwdKc.data(), m_rfn.data(), m_jac_rtol_delta);
     }
 
-    // temperature dependence of third-body collider concentrations
-    if (m_jac_const_pressure) {
-        Eigen::Map<Eigen::VectorXd> dFwdKcM(m_rbuf2.data(), nReactions());
-        copy(m_rfn.begin(), m_rfn.end(), &dFwdKcM[0]);
-        for (auto& rates : m_bulk_rates) {
-            rates->processRateConstants_ddM(
-                dFwdKcM.data(), m_rfn.data(), m_jac_rtol_delta);
-        }
-        double dcdT = concentration_ddTscaled();
-        m_multi_concm.scaleThirdBody(dFwdKcM.data(), m_concm.data(), dcdT);
-        dFwdKc += dFwdKcM;
-    }
     return dFwdKc;
 }
 
@@ -354,16 +338,23 @@ Eigen::VectorXd GasKinetics::fwdRateConstants_ddP()
             dFwdKc.data(), m_rfn.data(), m_jac_rtol_delta);
     }
 
-    // pressure dependence of third-body collider concentrations
-    Eigen::Map<Eigen::VectorXd> dFwdKcM(m_rbuf2.data(), nReactions());
-    copy(m_rfn.begin(), m_rfn.end(), &dFwdKcM[0]);
+    return dFwdKc;
+}
+
+Eigen::VectorXd GasKinetics::fwdRateConstants_ddD()
+{
+    checkLegacyRates("GasKinetics::fwdRateConstants_ddD");
+    updateROP();
+
+    // molar density affects third-body collider concentration
+    Eigen::VectorXd dFwdKc(nReactions());
+    copy(m_rfn.begin(), m_rfn.end(), &dFwdKc[0]);
     for (auto& rates : m_bulk_rates) {
         rates->processRateConstants_ddM(
-            dFwdKcM.data(), m_rfn.data(), m_jac_rtol_delta);
+            dFwdKc.data(), m_rfn.data(), m_jac_rtol_delta);
     }
-    double dcdP = concentration_ddPscaled();
-    m_multi_concm.scaleThirdBody(dFwdKcM.data(), m_concm.data(), dcdP);
-    dFwdKc += dFwdKcM;
+    double ctot = thermo().molarDensity();
+    m_multi_concm.scaleThirdBody(dFwdKc.data(), m_concm.data(), 1. / ctot);
 
     return dFwdKc;
 }
@@ -392,45 +383,6 @@ void GasKinetics::processEquilibriumConstants_ddT(double* drkcn)
     }
 }
 
-double GasKinetics::concentration_ddTscaled()
-{
-    if (thermo().type() == "IdealGas") {
-        return -1.0 / thermo().temperature();
-    }
-
-    double T = thermo().temperature();
-    double P = thermo().pressure();
-    thermo().setState_TP(T * (1. + m_jac_rtol_delta), P);
-    double ctot1 = thermo().molarDensity();
-    thermo().setState_TP(T, P);
-    double ctot0 = thermo().molarDensity();
-    return (ctot1/ctot0 - 1.) / (T * m_jac_rtol_delta);
-}
-
-double GasKinetics::concentration_ddPscaled()
-{
-    if (thermo().type() == "IdealGas") {
-        return 1. / thermo().pressure();
-    }
-
-    double T = thermo().temperature();
-    double P = thermo().pressure();
-    thermo().setState_TP(T, P * (1. + m_jac_rtol_delta));
-    double ctot1 = thermo().molarDensity();
-    thermo().setState_TP(T, P);
-    double ctot0 = thermo().molarDensity();
-    return (ctot1/ctot0 - 1.) / (P * m_jac_rtol_delta);
-}
-
-double GasKinetics::pressure_ddT()
-{
-    if (thermo().type() == "IdealGas") {
-        return thermo().pressure() / thermo().temperature();
-    }
-    throw NotImplementedError("GasKinetics::pressure_ddTscaled",
-        "Not supported for phases other than ideal gas.");
-}
-
 Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddT()
 {
     checkLegacyRates("GasKinetics::fwdRatesOfProgress_ddT");
@@ -442,43 +394,6 @@ Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddT()
         rates->processRateConstants_ddT(
             dFwdRop.data(), m_rfn.data(), m_jac_rtol_delta);
     }
-
-    if (m_jac_const_pressure) {
-        // account for concentration changes due to temperature change
-        double dcdT = concentration_ddTscaled();
-
-        // add term to account for changes of concentrations
-        Eigen::Map<Eigen::VectorXd> dFwdRopC(m_rbuf1.data(), nReactions());
-        dFwdRopC.fill(0.);
-        m_reactantStoich.scale(m_ropf.data(), dFwdRopC.data());
-        dFwdRop += dcdT * dFwdRopC;
-
-        // reactions involving third body in law of mass action
-        Eigen::Map<Eigen::VectorXd> dFwdRopM(m_rbuf2.data(), nReactions());
-        dFwdRopM.fill(0.);
-        m_multi_concm.scaleDerivative(m_ropf.data(), dFwdRopM.data(), dcdT);
-        dFwdRop += dFwdRopM;
-
-        // reaction rates that depend on third-body colliders
-        copy(m_ropf.begin(), m_ropf.end(), &dFwdRopM[0]);
-        for (auto& rates : m_bulk_rates) {
-            rates->processRateConstants_ddM(
-                dFwdRopM.data(), m_rfn.data(), m_jac_rtol_delta);
-        }
-        m_multi_concm.scaleThirdBody(dFwdRopM.data(), m_concm.data(), dcdT);
-        dFwdRop += dFwdRopM;
-
-    } else {
-        // account for pressure change due to temperature change at constant volume
-        Eigen::Map<Eigen::VectorXd> dFwdRopP(m_rbuf1.data(), nReactions());
-        copy(m_ropf.begin(), m_ropf.end(), &dFwdRopP[0]);
-        for (auto& rates : m_bulk_rates) {
-            rates->processRateConstants_ddP(
-                dFwdRopP.data(), m_rfn.data(), m_jac_rtol_delta);
-        }
-        dFwdRop += pressure_ddT() * dFwdRopP;
-    }
-
     return dFwdRop;
 }
 
@@ -493,7 +408,6 @@ Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddP()
         rates->processRateConstants_ddP(
             dFwdRop.data(), m_rfn.data(), m_jac_rtol_delta);
     }
-
     return dFwdRop;
 }
 
@@ -526,7 +440,6 @@ Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddD()
         m_multi_concm.scaleThirdBody(dFwdRopM.data(), m_concm.data(), ctot_inv);
         dFwdRop += dFwdRopM;
     }
-
     return dFwdRop;
 }
 
@@ -547,44 +460,7 @@ Eigen::VectorXd GasKinetics::revRatesOfProgress_ddT()
     Eigen::Map<Eigen::VectorXd> dRevRop2(m_rbuf2.data(), nReactions());
     copy(m_ropr.begin(), m_ropr.end(), m_rbuf2.begin());
     processEquilibriumConstants_ddT(dRevRop2.data());
-
     dRevRop += dRevRop2;
-
-    if (m_jac_const_pressure) {
-        // account for concentration changes due to temperature change
-        double dcdT = concentration_ddTscaled();
-
-        // add term to account for changes of concentrations
-        Eigen::Map<Eigen::VectorXd> dRevRopC(m_rbuf1.data(), nReactions());
-        dRevRopC.fill(0.);
-        m_revProductStoich.scale(m_ropr.data(), dRevRopC.data());
-        dRevRop += dcdT * dRevRopC;
-
-        // reactions involving third body in law of mass action
-        Eigen::Map<Eigen::VectorXd> dRevRopM(m_rbuf2.data(), nReactions());
-        dRevRopM.fill(0.);
-        m_multi_concm.scaleDerivative(m_ropr.data(), dRevRopM.data(), dcdT);
-        dRevRop += dRevRopM;
-
-        // reaction rates that depend on third-body colliders
-        copy(m_ropr.begin(), m_ropr.end(), &dRevRopM[0]);
-        for (auto& rates : m_bulk_rates) {
-            rates->processRateConstants_ddM(
-                dRevRopM.data(), m_rfn.data(), m_jac_rtol_delta);
-        }
-        m_multi_concm.scaleThirdBody(dRevRopM.data(), m_concm.data(), dcdT);
-        dRevRop += dRevRopM;
-
-    } else {
-        // account for pressure change due to temperature change at constant volume
-        Eigen::Map<Eigen::VectorXd> dRevRopP(m_rbuf1.data(), nReactions());
-        copy(m_ropr.begin(), m_ropr.end(), &dRevRopP[0]);
-        for (auto& rates : m_bulk_rates) {
-            rates->processRateConstants_ddP(
-                dRevRopP.data(), m_rfn.data(), m_jac_rtol_delta);
-        }
-        dRevRop += pressure_ddT() * dRevRopP;
-    }
 
     return dRevRop;
 }
@@ -601,7 +477,6 @@ Eigen::VectorXd GasKinetics::revRatesOfProgress_ddP()
         rates->processRateConstants_ddP(
             dRevRop.data(), m_rfn.data(), m_jac_rtol_delta);
     }
-
     return dRevRop;
 }
 
@@ -634,7 +509,6 @@ Eigen::VectorXd GasKinetics::revRatesOfProgress_ddD()
         m_multi_concm.scaleThirdBody(dRevRopM.data(), m_concm.data(), ctot_inv);
         dRevRop += dRevRopM;
     }
-
     return dRevRop;
 }
 
