@@ -1255,7 +1255,7 @@ cdef extern from "cantera/cython/wrappers.h":
 
     cdef void kin_fwdRateConstants_ddT(CxxKinetics*, double*, size_t) except +translate_exception
     cdef void kin_fwdRateConstants_ddP(CxxKinetics*, double*, size_t) except +translate_exception
-    cdef void kin_fwdRateConstants_ddD(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_fwdRateConstants_ddC(CxxKinetics*, double*, size_t) except +translate_exception
 
     cdef void kin_fwdRatesOfProgress_ddT(CxxKinetics*, double*, size_t) except +translate_exception
     cdef void kin_revRatesOfProgress_ddT(CxxKinetics*, double*, size_t) except +translate_exception
@@ -1265,9 +1265,9 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void kin_revRatesOfProgress_ddP(CxxKinetics*, double*, size_t) except +translate_exception
     cdef void kin_netRatesOfProgress_ddP(CxxKinetics*, double*, size_t) except +translate_exception
 
-    cdef void kin_fwdRatesOfProgress_ddD(CxxKinetics*, double*, size_t) except +translate_exception
-    cdef void kin_revRatesOfProgress_ddD(CxxKinetics*, double*, size_t) except +translate_exception
-    cdef void kin_netRatesOfProgress_ddD(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_fwdRatesOfProgress_ddC(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_revRatesOfProgress_ddC(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_netRatesOfProgress_ddC(CxxKinetics*, double*, size_t) except +translate_exception
 
     cdef void kin_getEquilibriumConstants(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getFwdRateConstants(CxxKinetics*, double*) except +translate_exception
@@ -1295,22 +1295,22 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void kin_destructionRates_ddP(CxxKinetics*, double*, size_t) except +translate_exception
     cdef void kin_netProductionRates_ddP(CxxKinetics*, double*, size_t) except +translate_exception
 
-    cdef void kin_creationRates_ddD(CxxKinetics*, double*, size_t) except +translate_exception
-    cdef void kin_destructionRates_ddD(CxxKinetics*, double*, size_t) except +translate_exception
-    cdef void kin_netProductionRates_ddD(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_creationRates_ddC(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_destructionRates_ddC(CxxKinetics*, double*, size_t) except +translate_exception
+    cdef void kin_netProductionRates_ddC(CxxKinetics*, double*, size_t) except +translate_exception
 
     # Kinetics sparse matrices
     cdef CxxSparseMatrix kin_reactantStoichCoeffs(CxxKinetics*) except +translate_exception
     cdef CxxSparseMatrix kin_productStoichCoeffs(CxxKinetics*) except +translate_exception
     cdef CxxSparseMatrix kin_revProductStoichCoeffs(CxxKinetics*) except +translate_exception
 
-    cdef CxxSparseMatrix kin_fwdRatesOfProgress_ddC(CxxKinetics*) except +translate_exception
-    cdef CxxSparseMatrix kin_revRatesOfProgress_ddC(CxxKinetics*) except +translate_exception
-    cdef CxxSparseMatrix kin_netRatesOfProgress_ddC(CxxKinetics*) except +translate_exception
+    cdef CxxSparseMatrix kin_fwdRatesOfProgress_ddX(CxxKinetics*) except +translate_exception
+    cdef CxxSparseMatrix kin_revRatesOfProgress_ddX(CxxKinetics*) except +translate_exception
+    cdef CxxSparseMatrix kin_netRatesOfProgress_ddX(CxxKinetics*) except +translate_exception
 
-    cdef CxxSparseMatrix kin_creationRates_ddC(CxxKinetics*) except +translate_exception
-    cdef CxxSparseMatrix kin_destructionRates_ddC(CxxKinetics*) except +translate_exception
-    cdef CxxSparseMatrix kin_netProductionRates_ddC(CxxKinetics*) except +translate_exception
+    cdef CxxSparseMatrix kin_creationRates_ddX(CxxKinetics*) except +translate_exception
+    cdef CxxSparseMatrix kin_destructionRates_ddX(CxxKinetics*) except +translate_exception
+    cdef CxxSparseMatrix kin_netProductionRates_ddX(CxxKinetics*) except +translate_exception
 
     # Transport properties
     cdef void tran_getMixDiffCoeffs(CxxTransport*, double*) except +translate_exception

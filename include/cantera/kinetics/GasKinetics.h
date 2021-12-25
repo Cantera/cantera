@@ -65,19 +65,19 @@ public:
     virtual void setJacobianSettings(const AnyMap& settings);
     virtual Eigen::VectorXd fwdRateConstants_ddT();
     virtual Eigen::VectorXd fwdRateConstants_ddP();
-    virtual Eigen::VectorXd fwdRateConstants_ddD();
+    virtual Eigen::VectorXd fwdRateConstants_ddC();
     virtual Eigen::VectorXd fwdRatesOfProgress_ddT();
     virtual Eigen::VectorXd revRatesOfProgress_ddT();
     virtual Eigen::VectorXd netRatesOfProgress_ddT();
     virtual Eigen::VectorXd fwdRatesOfProgress_ddP();
     virtual Eigen::VectorXd revRatesOfProgress_ddP();
     virtual Eigen::VectorXd netRatesOfProgress_ddP();
-    virtual Eigen::VectorXd fwdRatesOfProgress_ddD();
-    virtual Eigen::VectorXd revRatesOfProgress_ddD();
-    virtual Eigen::VectorXd netRatesOfProgress_ddD();
-    virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddC();
-    virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddC();
-    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddC();
+    virtual Eigen::VectorXd fwdRatesOfProgress_ddC();
+    virtual Eigen::VectorXd revRatesOfProgress_ddC();
+    virtual Eigen::VectorXd netRatesOfProgress_ddC();
+    virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddX();
+    virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddX();
+    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddX();
 
     //! Update temperature-dependent portions of reaction rates and falloff
     //! functions.
@@ -120,13 +120,13 @@ protected:
     //! Apply pressure derivative
     Eigen::VectorXd ddP(const vector_fp& in);
 
-    //! Apply density derivative
-    Eigen::VectorXd ddD(StoichManagerN& stoich,
+    //! Apply concentration (molar density) derivative
+    Eigen::VectorXd ddC(StoichManagerN& stoich,
                         const vector_fp& in,
                         bool mass_action=true);
 
-    //! Apply concentration derivative
-    Eigen::SparseMatrix<double> ddC(StoichManagerN& stoich,
+    //! Apply mole fraction derivative
+    Eigen::SparseMatrix<double> ddX(StoichManagerN& stoich,
                                     const vector_fp& in);
 
     //! Calculate rate coefficients

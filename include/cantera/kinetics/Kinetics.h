@@ -588,9 +588,6 @@ public:
      *
      *  - 'rtol-delta' (double) ... relative tolerance used to perturb properties
      *    when calculating numerical derivatives.
-     *
-     * @warning Methods used for the evaluation of Jacobians are an experimental
-     *    feature of the %Cantera API and may be changed or removed without notice.
      */
     //! @{
 
@@ -598,9 +595,6 @@ public:
      * Retrieve Jacobian settings.
      *
      * @param settings  AnyMap containing settings determining Jacobian evaluation.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
      */
     virtual void getJacobianSettings(AnyMap& settings) const
     {
@@ -612,9 +606,6 @@ public:
      * Set/modify Jacobian settings.
      *
      * @param settings  AnyMap containing settings determining Jacobian evaluation.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
      */
     virtual void setJacobianSettings(const AnyMap& settings)
     {
@@ -624,10 +615,7 @@ public:
 
     /**
      * Calculate Jacobian for forward rate constants with respect to temperature
-     * at constant temperature and molar density
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant temperature, molar density and mole fractions
      */
     virtual Eigen::VectorXd fwdRateConstants_ddT()
     {
@@ -637,10 +625,7 @@ public:
 
     /**
      * Calculate Jacobian for forward rate constants with respect to pressure
-     * at constant temperature and molar density.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant temperature, molar density and mole fractions.
      */
     virtual Eigen::VectorXd fwdRateConstants_ddP()
     {
@@ -650,23 +635,17 @@ public:
 
     /**
      * Calculate Jacobian for forward rate constants with respect to molar density
-     * at constant temperature and pressure.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant temperature, pressure and mole fractions.
      */
-    virtual Eigen::VectorXd fwdRateConstants_ddD()
+    virtual Eigen::VectorXd fwdRateConstants_ddC()
     {
-        throw NotImplementedError("Kinetics::fwdRateConstants_ddD",
+        throw NotImplementedError("Kinetics::fwdRateConstants_ddC",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
     /**
      * Calculate Jacobian for forward rates-of-progress with respect to temperature
-     * at constant pressure and molar density.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant pressure, molar density and mole fractions.
      */
     virtual Eigen::VectorXd fwdRatesOfProgress_ddT()
     {
@@ -676,10 +655,7 @@ public:
 
     /**
      * Calculate Jacobian for forward rates-of-progress with respect to pressure
-     * at constant temperature and molar density.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant temperature, molar density and mole fractions.
      */
     virtual Eigen::VectorXd fwdRatesOfProgress_ddP()
     {
@@ -689,36 +665,27 @@ public:
 
     /**
      * Calculate Jacobian for forward rates-of-progress with respect to molar density
-     * at constant temperature and pressure.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant temperature, pressure and mole fractions.
      */
-    virtual Eigen::VectorXd fwdRatesOfProgress_ddD()
-    {
-        throw NotImplementedError("Kinetics::fwdRatesOfProgress_ddD",
-            "Not implemented for kinetics type '{}'.", kineticsType());
-    }
-
-    /**
-     * Calculate Jacobian for forward rates-of-progress with respect to species
-     * concentrations at constant temperature and pressure.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
-     */
-    virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddC()
+    virtual Eigen::VectorXd fwdRatesOfProgress_ddC()
     {
         throw NotImplementedError("Kinetics::fwdRatesOfProgress_ddC",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
     /**
+     * Calculate Jacobian for forward rates-of-progress with respect to species
+     * mole fractions at constant temperature, pressure and molar density.
+     */
+    virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddX()
+    {
+        throw NotImplementedError("Kinetics::fwdRatesOfProgress_ddX",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
+
+    /**
      * Calculate Jacobian for reverse rates-of-progress with respect to temperature
-     * at constant pressure and molar density.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant pressure, molar density and mole fractions.
      */
     virtual Eigen::VectorXd revRatesOfProgress_ddT()
     {
@@ -728,10 +695,7 @@ public:
 
     /**
      * Calculate Jacobian for reverse rates-of-progress with respect to pressure
-     * at constant temperature and molar density.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant temperature, molar density and mole fractions.
      */
     virtual Eigen::VectorXd revRatesOfProgress_ddP()
     {
@@ -741,36 +705,27 @@ public:
 
     /**
      * Calculate Jacobian for reverse rates-of-progress with respect to molar density
-     * at constant temperature and pressure.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant temperature, pressure and mole fractions.
      */
-    virtual Eigen::VectorXd revRatesOfProgress_ddD()
-    {
-        throw NotImplementedError("Kinetics::revRatesOfProgress_ddD",
-            "Not implemented for kinetics type '{}'.", kineticsType());
-    }
-
-    /**
-     * Calculate Jacobian for reverse rates-of-progress with respect to species
-     * concentrations at constant temperature and pressure.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
-     */
-    virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddC()
+    virtual Eigen::VectorXd revRatesOfProgress_ddC()
     {
         throw NotImplementedError("Kinetics::revRatesOfProgress_ddC",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
     /**
+     * Calculate Jacobian for reverse rates-of-progress with respect to species
+     * mole fractions at constant temperature, pressure and molar density.
+     */
+    virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddX()
+    {
+        throw NotImplementedError("Kinetics::revRatesOfProgress_ddX",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
+
+    /**
      * Calculate Jacobian for net rates-of-progress with respect to temperature
-     * at constant pressure and molar density.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant pressure, molar density and mole fractions.
      */
     virtual Eigen::VectorXd netRatesOfProgress_ddT()
     {
@@ -780,10 +735,7 @@ public:
 
     /**
      * Calculate Jacobian for net rates-of-progress with respect to pressure
-     * at constant temperature and molar density.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant temperature, molar density and mole fractions.
      */
     virtual Eigen::VectorXd netRatesOfProgress_ddP()
     {
@@ -793,137 +745,95 @@ public:
 
     /**
      * Calculate Jacobian for net rates-of-progress with respect to molar density
-     * at constant temperature and pressure.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant temperature, pressure and mole fractions.
      */
-    virtual Eigen::VectorXd netRatesOfProgress_ddD()
-    {
-        throw NotImplementedError("Kinetics::netRatesOfProgress_ddD",
-            "Not implemented for kinetics type '{}'.", kineticsType());
-    }
-
-    /**
-     * Calculate Jacobian for net rates-of-progress with respect to species
-     * concentrations at constant temperature and pressure.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
-     */
-    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddC()
+    virtual Eigen::VectorXd netRatesOfProgress_ddC()
     {
         throw NotImplementedError("Kinetics::netRatesOfProgress_ddC",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
     /**
+     * Calculate Jacobian for net rates-of-progress with respect to species
+     * mole fractions at constant temperature, pressure and molar density.
+     */
+    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddX()
+    {
+        throw NotImplementedError("Kinetics::netRatesOfProgress_ddX",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
+
+    /**
      * Calculate Jacobian for species creation rates with respect to temperature
-     * at constant pressure and molar density.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant pressure, molar density and mole fractions.
      */
     Eigen::VectorXd creationRates_ddT();
 
     /**
      * Calculate Jacobian for species creation rates with respect to pressure
-     * at constant temperature and molar density.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant temperature, molar density and mole fractions.
      */
     Eigen::VectorXd creationRates_ddP();
 
     /**
      * Calculate Jacobian for species creation rates with respect to molar density
-     * at constant temperature and pressure.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant temperature, pressure and mole fractions.
      */
-    Eigen::VectorXd creationRates_ddD();
+    Eigen::VectorXd creationRates_ddC();
 
     /**
      * Calculate Jacobian for species creation rates with respect to species
-     * concentrations at constant temperature and pressure.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * mole fractions at constant temperature, pressure and molar density.
      */
-    Eigen::SparseMatrix<double> creationRates_ddC();
+    Eigen::SparseMatrix<double> creationRates_ddX();
 
     /**
      * Calculate Jacobian for species destruction rates with respect to temperature
-     * at constant pressure and molar density.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant pressure, molar density and mole fractions.
      */
     Eigen::VectorXd destructionRates_ddT();
 
     /**
      * Calculate Jacobian for species destruction rates with respect to pressure
-     * at constant temperature and molar density.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant temperature, molar density and mole fractions.
      */
     Eigen::VectorXd destructionRates_ddP();
 
     /**
      * Calculate Jacobian for species destruction rates with respect to molar density
-     * at constant temperature and pressure.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant temperature, pressure and mole fractions.
      */
-    Eigen::VectorXd destructionRates_ddD();
+    Eigen::VectorXd destructionRates_ddC();
 
     /**
      * Calculate Jacobian for species destruction rates with respect to species
-     * concentrations at constant temperature and pressure.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * mole fractions at constant temperature, pressure and molar density.
      */
-    Eigen::SparseMatrix<double> destructionRates_ddC();
+    Eigen::SparseMatrix<double> destructionRates_ddX();
 
     /**
      * Calculate Jacobian for species net production rates with respect to temperature
-     * at constant pressure and molar density.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant pressure, molar density and mole fractions.
      */
     Eigen::VectorXd netProductionRates_ddT();
 
     /**
      * Calculate Jacobian for species net production rates with respect to pressure
-     * at constant temperature and molar density.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant temperature, molar density and mole fractions.
      */
     Eigen::VectorXd netProductionRates_ddP();
 
     /**
      * Calculate Jacobian for species net production rates with respect to molar density
-     * at constant temperature and pressure.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * at constant temperature, pressure and mole fractions.
      */
-    Eigen::VectorXd netProductionRates_ddD();
+    Eigen::VectorXd netProductionRates_ddC();
 
     /**
      * Calculate Jacobian for species net production rates with respect to species
-     * concentrations at constant temperature and pressure.
-     *
-     * @warning This method is an experimental part of the %Cantera API and
-     *    may be changed or removed without notice.
+     * mole fractions at constant temperature, pressure and molar density.
      */
-    Eigen::SparseMatrix<double> netProductionRates_ddC();
+    Eigen::SparseMatrix<double> netProductionRates_ddX();
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines
