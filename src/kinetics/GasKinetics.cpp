@@ -125,16 +125,17 @@ void GasKinetics::update_rates_C()
 void GasKinetics::updateKc()
 {
     thermo().getStandardChemPotentials(m_grt.data());
-    fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
+    fill(m_delta_gibbs0_RT.begin(), m_delta_gibbs0_RT.end(), 0.0);
 
     // compute Delta G^0 for all reversible reactions
-    getRevReactionDelta(m_grt.data(), m_rkcn.data());
+    getRevReactionDelta(m_grt.data(), m_delta_gibbs0_RT.data());
 
-    doublereal rrt = 1.0 / thermo().RT();
+    double rrt = 1.0 / thermo().RT();
     for (size_t i = 0; i < m_revindex.size(); i++) {
         size_t irxn = m_revindex[i];
-        m_rkcn[irxn] = std::min(exp(m_rkcn[irxn]*rrt - m_dn[irxn]*m_logStandConc),
-                                BigNumber);
+        m_rkcn[irxn] = std::min(
+            exp(m_delta_gibbs0_RT[irxn] * rrt - m_dn[irxn] * m_logStandConc),
+            BigNumber);
     }
 
     for (size_t i = 0; i != m_irrev.size(); ++i) {
@@ -184,21 +185,18 @@ void GasKinetics::processEquilibriumConstants(double* rop)
 
 void GasKinetics::getEquilibriumConstants(doublereal* kc)
 {
-    update_rates_T();
-    thermo().getStandardChemPotentials(m_grt.data());
-    fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
+    update_rates_T(); // this step ensures that m_grt is updated
+
+    vector_fp& delta_gibbs0 = m_rbuf0;
+    fill(delta_gibbs0.begin(), delta_gibbs0.end(), 0.0);
 
     // compute Delta G^0 for all reactions
-    getReactionDelta(m_grt.data(), m_rkcn.data());
+    getReactionDelta(m_grt.data(), delta_gibbs0.data());
 
-    doublereal rrt = 1.0 / thermo().RT();
+    double rrt = 1.0 / thermo().RT();
     for (size_t i = 0; i < nReactions(); i++) {
-        kc[i] = exp(-m_rkcn[i]*rrt + m_dn[i]*m_logStandConc);
+        kc[i] = exp(-delta_gibbs0[i] * rrt + m_dn[i] * m_logStandConc);
     }
-
-    // force an update of T-dependent properties, so that m_rkcn will
-    // be updated before it is used next.
-    m_temp = 0.0;
 }
 
 void GasKinetics::processFalloffReactions(double* ropf)
