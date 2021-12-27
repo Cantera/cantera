@@ -58,6 +58,7 @@ subroutine demo(gas, MAXSP, MAXRXNS)
 
   double precision q(MAXRXNS), qf(MAXRXNS), qr(MAXRXNS)
   double precision diff(MAXSP)
+  double precision molar_cp(MAXSP), molar_h(MAXSP), g_rt(MAXSP)
 
   character*80 eq
   character*20 name
@@ -117,6 +118,18 @@ subroutine demo(gas, MAXSP, MAXRXNS)
      call getSpeciesName(gas, k, name)
      write(*,40) name, diff(k)
 40   format(' ',a20,e14.5,' m2/s')
+  end do
+
+  ! Thermodynamic properties
+  CALL getPartialMolarCp(gas, molar_cp)
+  CALL getPartialMolarEnthalpies(gas, molar_h)
+  CALL getGibbs_RT(gas, g_rt)
+
+  write(*,*) 'Species molar cp, molar enthalpy, normalized Gibbs free energy'
+  do k = 1, nsp
+     call getSpeciesName(gas, k, name)
+     write(*,50) name, molar_cp(k), molar_h(k), g_rt(k)
+50   format(' ',a20,g14.5,' J/kmol-K',g14.5,' J/kmol',g14.5,'-')
   end do
 
   return

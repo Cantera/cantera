@@ -217,13 +217,6 @@ contains
       self%err = phase_setmassfractionsbyname(self%thermo_id, y)
     end subroutine ctthermo_setmassfractionsbyname
 
-    subroutine ctthermo_setMassFractions_NoNorm(self, x)
-      implicit none
-      type(phase_t), intent(inout) :: self
-      double precision, intent(in) :: x(self%nsp)
-      self%err = phase_setMassFractions(self%thermo_id, x, 0)
-    end subroutine ctthermo_setMassFractions_NoNorm
-
     subroutine ctthermo_getAtomicWeights(self, atw)
       implicit none
       type(phase_t), intent(inout) :: self
@@ -556,7 +549,7 @@ contains
       implicit none
       type(phase_t), intent(inout) :: self
       double precision, intent(out) :: grt(self%nsp)
-      self%err = th_getpartialmolarenthalpies(self%thermo_id, grt)
+      self%err = th_getgibbs_rt(self%thermo_id, grt)
     end subroutine ctthermo_getGibbs_RT
 
     subroutine ctthermo_getEntropies_R(self, s_r)

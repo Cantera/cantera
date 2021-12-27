@@ -4,14 +4,14 @@
 module fct
 interface
 
-   subroutine cantera_error(proc, msg)
-     character*(*), intent(in) :: proc
-     character*(*), intent(in) :: msg
-   end subroutine cantera_error
+    subroutine cantera_error(proc, msg)
+        character*(*), intent(in) :: proc
+        character*(*), intent(in) :: msg
+    end subroutine cantera_error
 
-   integer function phase_nelements(n)
-     integer, intent(in) :: n
-   end function phase_nelements
+    integer function phase_nelements(n)
+        integer, intent(in) :: n
+    end function phase_nelements
 
     integer function phase_nspecies(n)
         integer, intent(in) :: n
@@ -254,8 +254,8 @@ interface
     end function th_getenthalpies_rt
 
     integer function th_getgibbs_rt(n, grt)
-      integer, intent(in) :: n
-      double precision, intent(out) :: grt(*)
+        integer, intent(in) :: n
+        double precision, intent(out) :: grt(*)
     end function th_getgibbs_rt
 
     integer function th_getentropies_r(n, s_r)
@@ -275,13 +275,13 @@ interface
     end function th_getpartialmolarintenergies_r
 
     integer function th_getpartialmolarcp(n, cpbar)
-      integer, intent(in) :: n
-      double precision, intent(out) :: cpbar(*)
+        integer, intent(in) :: n
+        double precision, intent(out) :: cpbar(*)
     end function th_getpartialmolarcp
 
     integer function th_getpartialmolarenthalpies(n, hbar)
-      integer, intent(in) :: n
-      double precision, intent(out) :: hbar(*)
+        integer, intent(in) :: n
+        double precision, intent(out) :: hbar(*)
     end function th_getpartialmolarenthalpies
 
     integer function kin_newfromfile(filename, id, reactingPhase, neighbor1, neighbor2, neighbor3, neighbor4)
@@ -487,9 +487,8 @@ interface
         character*(*), intent(out) :: buf
     end function ctgetCanteraError
 
-    integer function ctturnOffExitOnError(id)
-      integer, intent(in) :: id
-    end function ctturnOffExitOnError
+    subroutine ctturnOffExitOnError()
+    end subroutine ctturnOffExitOnError
 
     integer function ctaddCanteraDirectory(buflen, buf)
         integer, intent(in) :: buflen
