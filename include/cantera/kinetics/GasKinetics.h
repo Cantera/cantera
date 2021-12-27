@@ -175,6 +175,7 @@ protected:
     vector_fp m_rbuf0;
     vector_fp m_rbuf1;
     vector_fp m_rbuf2;
+    vector_fp m_sbuf0;
 
     //! Jacobian settings
     bool m_jac_skip_third_bodies;
