@@ -25,6 +25,7 @@ void GasKinetics::resizeReactions()
     m_rbuf0.resize(nReactions());
     m_rbuf1.resize(nReactions());
     m_rbuf2.resize(nReactions());
+    m_sbuf0.resize(nTotalSpecies());
 
     BulkKinetics::resizeReactions();
 }
@@ -299,26 +300,36 @@ void GasKinetics::checkLegacyRates(const std::string& name)
 
 void GasKinetics::processEquilibriumConstants_ddT(double* drkcn)
 {
-    vector_fp& kc0 = m_rbuf0;
-    vector_fp& kc1 = m_rbuf1;
-
     double T = thermo().temperature();
     double P = thermo().pressure();
-    double dTinv = 1. / (m_jac_rtol_delta * T);
+    double rrt = 1. / thermo().RT();
+
+    vector_fp& grt = m_sbuf0;
+    vector_fp& delta_gibbs0_RT = m_rbuf1;
+    fill(delta_gibbs0_RT.begin(), delta_gibbs0_RT.end(), 0.0);
+
+    // compute perturbed Delta G^0 for all reversible reactions
     thermo().setState_TP(T * (1. + m_jac_rtol_delta), P);
-    getEquilibriumConstants(kc1.data());
+    thermo().getStandardChemPotentials(grt.data());
+    getRevReactionDelta(grt.data(), delta_gibbs0_RT.data());
 
-    thermo().setState_TP(T, P);
-    getEquilibriumConstants(kc0.data());
-
-    for (size_t i = 0; i < nReactions(); ++i) {
-        // apply scaling for derivative of inverse equilibrium constant
-        drkcn[i] *= (1. - kc1[i] / kc0[i]) * dTinv;
+    // apply scaling for derivative of inverse equilibrium constant
+    double Tinv = 1. / T;
+    double rrt_dTinv = rrt * Tinv / m_jac_rtol_delta;
+    double rrtt = rrt * Tinv;
+    for (size_t i = 0; i < m_revindex.size(); i++) {
+        size_t irxn = m_revindex[i];
+        double factor = delta_gibbs0_RT[irxn] - m_delta_gibbs0_RT[irxn];
+        factor *= rrt_dTinv;
+        factor += m_dn[irxn] * Tinv - m_delta_gibbs0_RT[irxn] * rrtt;
+        drkcn[irxn] *= factor;
     }
 
     for (size_t i = 0; i < m_irrev.size(); ++i) {
         drkcn[m_irrev[i]] = 0.0;
     }
+
+    thermo().setState_TP(T, P);
 }
 
 Eigen::VectorXd GasKinetics::ddT(const vector_fp& in)
