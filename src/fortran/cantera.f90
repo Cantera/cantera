@@ -359,10 +359,6 @@ MODULE CANTERA
      MODULE PROCEDURE ctthermo_setMassFractionsByName
   END INTERFACE setMassFractionsByName
 
-  INTERFACE setMassFractions_NoNorm
-     MODULE PROCEDURE ctthermo_setMassFractions_NoNorm
-  END INTERFACE setMassFractions_NoNorm
-
   INTERFACE setMoleFractions
      MODULE PROCEDURE ctthermo_setMoleFractions
   END INTERFACE setMoleFractions

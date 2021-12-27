@@ -9,23 +9,18 @@
 #include <string>
 #include "cantera/base/logger.h"
 
-using namespace std;
-
-static std::string ss = "print \"\"\" ";
-
 namespace Cantera {
-
-  /// Logger that doesn't exit when an error is thrown.
-  /// @ingroup textlogs
-  class NoExitLogger : public Logger {
-  public:
+/// Logger that doesn't exit when an error is thrown.
+/// @ingroup textlogs
+class NoExitLogger : public Logger {
+public:
     NoExitLogger() {}
     virtual ~NoExitLogger() {}
 
     virtual void error(const std::string& msg)
     {
-      std::cerr << msg << std::endl;
+       std::cerr << msg << std::endl;
     }
-  };
+};
 }
 #endif

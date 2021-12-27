@@ -86,10 +86,9 @@ module cantera_funcs
       ierr = ctgetCanteraError(buf)
     end subroutine ctfunc_getCanteraError
 
-    subroutine ctfunc_turnOffExitOnError(self)
+    subroutine ctfunc_turnOffExitOnError()
       implicit none
-      type(phase_t), intent(inout) :: self
-      self%err = ctturnOffExitOnError(self%thermo_id)
+      call ctturnOffExitOnError()
     end subroutine ctfunc_turnOffExitOnError
 
     subroutine ctfunc_addCanteraDirectory(self, buf)
