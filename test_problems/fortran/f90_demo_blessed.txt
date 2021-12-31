@@ -67,3 +67,14 @@ Thermal conductivity:     0.16396      W/m/K
  H2O2                   0.97012E-03 m2/s
  AR                     0.75972E-03 m2/s
  N2                     0.97802E-03 m2/s
+ Species molar cp, molar enthalpy, normalized Gibbs free energy
+ H2                      36617.     J/kmol-K   0.81393E+08 J/kmol   -20.604    -
+ H                       20786.     J/kmol-K   0.27002E+09 J/kmol   -7.8028    -
+ O                       20896.     J/kmol-K   0.30159E+09 J/kmol   -12.099    -
+ O2                      39570.     J/kmol-K   0.90189E+08 J/kmol   -30.018    -
+ OH                      36680.     J/kmol-K   0.12182E+09 J/kmol   -25.365    -
+ H2O                     56098.     J/kmol-K  -0.12540E+09 J/kmol   -39.436    -
+ HO2                     59581.     J/kmol-K   0.14047E+09 J/kmol   -34.100    -
+ H2O2                    77993.     J/kmol-K   0.32003E+08 J/kmol   -43.168    -
+ AR                      20786.     J/kmol-K   0.52023E+08 J/kmol   -21.976    -
+ N2                      36896.     J/kmol-K   0.85374E+08 J/kmol   -28.119    -
