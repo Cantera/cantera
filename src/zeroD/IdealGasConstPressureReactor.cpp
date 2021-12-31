@@ -79,7 +79,7 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
 
     m_thermo->restoreState(m_state);
     const vector_fp& mw = m_thermo->molecularWeights();
-    const doublereal* Y = m_thermo->massFractions();
+    const double* Y = m_thermo->massFractions();
 
     evalSurfaces(LHS + m_nsp + 2, RHS + m_nsp + 2, m_sdot.data());
     double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());
@@ -115,18 +115,16 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
     for (auto inlet : m_inlet) {
         double mdot = inlet->massFlowRate();
         dmdt += mdot; // mass flow into system
-        mcpdTdt += (inlet->enthalpy_mass() * mdot);
+        mcpdTdt += inlet->enthalpy_mass() * mdot;
         for (size_t n = 0; n < m_nsp; n++) {
             double mdot_spec = inlet->outletSpeciesMassFlowRate(n);
             // flow of species into system and dilution by other species
             mdYdt[n] += mdot_spec - mdot * Y[n];
-            mcpdTdt -= (m_hk[n] / mw[n] * mdot_spec);
+            mcpdTdt -= m_hk[n] / mw[n] * mdot_spec;
         }
     }
 
-    RHS[0] = dmdt;
     if (m_energy) {
-        RHS[1] = mcpdTdt;
         LHS[1] = m_mass * m_thermo->cp_mass();
     } else {
         RHS[1] = 0.0;

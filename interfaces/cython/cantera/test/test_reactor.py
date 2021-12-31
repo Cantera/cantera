@@ -1960,23 +1960,22 @@ class ExtensibleReactorTest(utilities.CanteraTest):
         self.gas.TPX = 500, ct.one_atm, 'H2:2,O2:1,N2:4'
         gas_initial_enthalpy = self.gas.enthalpy_mass
 
-        #define properties of gas and solid
-        mass_gas = 20 #[kg]
-        Q = 100 #[J/s]
-        mass_lump = 10 #[kg]
-        cp_lump = 1.0 #[J/kgK]
+        # define properties of gas and solid
+        mass_gas = 20  # [kg]
+        Q = 100  # [J/s]
+        mass_lump = 10  # [kg]
+        cp_lump = 1.0  # [J/kg/K]
 
-        #initialize time at zero
-        time = 0 #[s]
+        # initialize time at zero
+        time = 0  # [s]
         n_steps = 300
 
-        #define a class representing reactor with a solid mass and
-        #gas inside of it
+        # define a class representing reactor with a solid mass and gas inside of it
         class DummyReactor(ct.ExtensibleIdealGasConstPressureReactor):
-            #modify energy equation to include solid mass in reactor
+            # modify energy equation to include solid mass in reactor
             def after_eval(self,t,LHS,RHS):
                 self.m_mass = mass_gas
-                LHS[1] = mass_lump*cp_lump+self.m_mass*self.thermo.cp_mass
+                LHS[1] = mass_lump * cp_lump + self.m_mass * self.thermo.cp_mass
                 RHS[1] = Q
 
         r1 = DummyReactor(self.gas)
@@ -1986,12 +1985,12 @@ class ExtensibleReactorTest(utilities.CanteraTest):
             time += 4.e-4
             r1_net.advance(time)
 
-        #compare heat added (add_heat) to the equivalent energy
-        #contained by the solid and gaseous mass in the reactor
+        # compare heat added (add_heat) to the equivalent energy contained by the solid
+        # and gaseous mass in the reactor
         r1_heat = (mass_lump * cp_lump * (r1.thermo.T - 500) +
                    mass_gas * (self.gas.enthalpy_mass - gas_initial_enthalpy))
-        add_heat = Q*time
-        self.assertNear(add_heat,r1_heat,atol=1e-5)
+        add_heat = Q * time
+        self.assertNear(add_heat, r1_heat, atol=1e-5)
 
     def test_heat_addition(self):
         # Applying heat via 'qdot' property should be equivalent to adding it via a wall

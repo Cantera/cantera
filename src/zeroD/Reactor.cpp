@@ -293,7 +293,7 @@ void Reactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
         size_t surfloc = kin->kineticsSpeciesIndex(0,ns);
         for (size_t k = 1; k < nk; k++) {
             LHS[loc] = 1.0;
-            RHS[loc + k] = m_work[surfloc+k]*rs0*surf->size(k);
+            RHS[loc + k] = m_work[surfloc + k] * rs0 * surf->size(k);
             sum -= RHS[loc + k];
         }
         LHS[loc] = 1.0;

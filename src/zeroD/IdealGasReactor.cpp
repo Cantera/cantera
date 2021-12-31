@@ -128,10 +128,8 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
         }
     }
 
-    RHS[0] = dmdt; //redundant?
     RHS[1] = m_vdot;
     if (m_energy) {
-        RHS[2] = mcvdTdt;
         LHS[2] = m_mass * m_thermo->cv_mass();
     } else {
         RHS[2] = 0;
