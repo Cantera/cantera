@@ -306,6 +306,45 @@ class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
         dkdT_numeric = (rate(T + dT) - rate(T)) / dT
         self.assertNear(dkdT, dkdT_numeric, 1.e-6)
 
+    def test_pre_exponential_factor(self):
+        # modify value in rate expression
+        rate = self.from_yaml()
+        A = rate.pre_exponential_factor
+        rc = rate(self.gas.T)
+        rate.pre_exponential_factor = 2 * A
+        self.assertNear(rate(self.gas.T), 2 * rc, 1.e-6)
+
+    def test_pre_exponential_factor_in_memory(self):
+        # modify value in memory
+        A = self.gas.reaction(self._index).rate.pre_exponential_factor
+        sol = ct.Solution('kineticsfromscratch.yaml')
+        sol.TPX = self.gas.TPX
+        sol.reaction(self._index).rate.pre_exponential_factor = 2 * A
+        self.assertNear(sol.reaction(self._index).rate.pre_exponential_factor, 2 * A, 1.e-6)
+        sol.TP = 1000, ct.one_atm
+        self.gas.TP = 1000, ct.one_atm
+        self.assertNear(sol.forward_rate_constants[self._index],
+                        2 * self.gas.forward_rate_constants[self._index], 1.e-6)
+
+    def test_temperature_exponent(self):
+        # modify value in rate expression
+        rate = self.from_yaml()
+        rc = rate(self.gas.T)
+        rate.temperature_exponent += 1
+        self.assertNear(rate(self.gas.T), rc * self.gas.T, 1.e-6)
+
+    def test_temperature_exponent_in_memory(self):
+        # modify value in memory
+        b = self.gas.reaction(self._index).rate.temperature_exponent
+        sol = ct.Solution('kineticsfromscratch.yaml')
+        sol.TPX = self.gas.TPX
+        sol.reaction(self._index).rate.temperature_exponent += 1
+        self.assertNear(sol.reaction(self._index).rate.temperature_exponent, b + 1, 1.e-6)
+        sol.TP = 1000, ct.one_atm
+        self.gas.TP = 1000, ct.one_atm
+        self.assertNear(sol.forward_rate_constants[self._index],
+                        self.gas.forward_rate_constants[self._index] * self.gas.T, 1.e-6)
+
 
 class TestBlowersMaselRate(ReactionRateTests, utilities.CanteraTest):
     # test Blowers-Masel rate expressions
@@ -914,14 +953,12 @@ class TestElementary2(ReactionTests, utilities.CanteraTest):
     _deprecated_getters = {"allow_negative_pre_exponential_factor": False}
     _deprecated_setters = {"allow_negative_pre_exponential_factor": True}
 
-    @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
-        if cls._legacy:
-            args = list(cls._rate.values())
-            cls._rate_obj = ct.Arrhenius(*args)
+    def setUp(self):
+        if self._legacy:
+            args = list(self._rate.values())
+            self._rate_obj = ct.Arrhenius(*args)
         else:
-            cls._rate_obj = ct.ArrheniusRate(**cls._rate)
+            self._rate_obj = ct.ArrheniusRate(**self._rate)
 
     def test_arrhenius(self):
         # test assigning Arrhenius rate
@@ -1054,10 +1091,8 @@ class TestBlowersMasel(ReactionTests, utilities.CanteraTest):
         rate-constant: {A: 38700, b: 2.7, Ea0: 2.619184e4 cal/mol, w: 4.184e9 cal/mol}
         """
 
-    @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
-        cls._rate_obj = ct.BlowersMaselRate(**cls._rate)
+    def setUp(self):
+        self._rate_obj = ct.BlowersMaselRate(**self._rate)
 
     def eval_rate(self, rate):
         delta_enthalpy = self.gas.delta_enthalpy[self._index]
@@ -1118,16 +1153,14 @@ class TestTroe(ReactionTests, utilities.CanteraTest):
         efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
         """
 
-    @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
-        param = cls._rate["low_P_rate_constant"]
+    def setUp(self):
+        param = self._rate["low_P_rate_constant"]
         low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
-        param = cls._rate["high_P_rate_constant"]
+        param = self._rate["high_P_rate_constant"]
         high = ct.Arrhenius(param["A"], param["b"], param["Ea"])
-        param = cls._rate["Troe"]
+        param = self._rate["Troe"]
         data = [param["A"], param["T3"], param["T1"], param["T2"]]
-        cls._rate_obj = ct.TroeRate(low=low, high=high, falloff_coeffs=data)
+        self._rate_obj = ct.TroeRate(low=low, high=high, falloff_coeffs=data)
 
     def eval_rate(self, rate):
         concm = self.gas.third_body_concentrations[self._index]
@@ -1162,14 +1195,12 @@ class TestLindemann(ReactionTests, utilities.CanteraTest):
         efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
         """
 
-    @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
-        param = cls._rate["low_P_rate_constant"]
+    def setUp(self):
+        param = self._rate["low_P_rate_constant"]
         low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
-        param = cls._rate["high_P_rate_constant"]
+        param = self._rate["high_P_rate_constant"]
         high = ct.Arrhenius(param["A"], param["b"], param["Ea"])
-        cls._rate_obj = ct.LindemannRate(low=low, high=high, falloff_coeffs=[])
+        self._rate_obj = ct.LindemannRate(low=low, high=high, falloff_coeffs=[])
 
     def eval_rate(self, rate):
         concm = self.gas.third_body_concentrations[self._index]
@@ -1226,15 +1257,13 @@ class TestChemicallyActivated(ReactionTests, utilities.CanteraTest):
         high-P-rate-constant: [5.88E-14, 6.721, -3022.227]
         """
 
-    @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
-        param = cls._rate["low_P_rate_constant"]
+    def setUp(self):
+        param = self._rate["low_P_rate_constant"]
         low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
-        param = cls._rate["high_P_rate_constant"]
+        param = self._rate["high_P_rate_constant"]
         high = ct.Arrhenius(param["A"], param["b"], param["Ea"])
-        cls._rate_obj = ct.LindemannRate(low=low, high=high, falloff_coeffs=[])
-        cls._rate_obj.chemically_activated = True
+        self._rate_obj = ct.LindemannRate(low=low, high=high, falloff_coeffs=[])
+        self._rate_obj.chemically_activated = True
 
     def eval_rate(self, rate):
         concm = self.gas.third_body_concentrations[self._index]
@@ -1264,11 +1293,9 @@ class TestPlog2(ReactionTests, utilities.CanteraTest):
         """
     _deprecated_callers = {(1000., ct.one_atm): 530968934612.9017}
 
-    @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
-        if not cls._legacy:
-            cls._rate_obj = ct.PlogRate(cls._rate)
+    def setUp(self):
+        if not self._legacy:
+            self._rate_obj = ct.PlogRate(self._rate)
 
     def check_rates(self, rates, other):
         # helper function used by deprecation tests
@@ -1349,14 +1376,12 @@ class TestChebyshev2(ReactionTests, utilities.CanteraTest):
     _deprecated_getters = {"nPressure": 4, "nTemperature": 3}
     _deprecated_callers = {(1000., ct.one_atm): 2858762454.1119065}
 
-    @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
-        if not cls._legacy:
-            cls._rate_obj = ct.ChebyshevRate(**cls._rate)
-        cls._deprecated_getters.update({"coeffs": np.array(cls._rate["data"])})
-        cls._deprecated_getters.update(
-            {k: v for k, v in cls._rate.items()
+    def setUp(self):
+        if not self._legacy:
+            self._rate_obj = ct.ChebyshevRate(**self._rate)
+        self._deprecated_getters.update({"coeffs": np.array(self._rate["data"])})
+        self._deprecated_getters.update(
+            {k: v for k, v in self._rate.items()
                 if k not in ["data", "temperature_range", "pressure_range"]})
 
 
@@ -1386,7 +1411,6 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
     # probe O + H2 <=> H + OH
     _cls = ct.CustomReaction
     _equation = "H2 + O <=> H + OH"
-    _rate_obj = ct.CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
     _index = 0
     _type = "custom-rate-function"
     _legacy = False
@@ -1396,6 +1420,7 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
         # need to overwrite rate to ensure correct type ("method" is not compatible with Func1)
         super().setUp()
         self._rate = lambda T: 38.7 * T**2.7 * exp(-3150.15428/T)
+        self._rate_obj = ct.CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
 
     def test_roundtrip(self):
         # overload default tester for round trip

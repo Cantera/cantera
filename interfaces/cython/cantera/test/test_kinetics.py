@@ -1491,7 +1491,7 @@ class TestReaction(utilities.CanteraTest):
         r2 = gas.reaction(53)
         self.assertEqual(r2.rate.type, "Troe")
         self.assertEqual(r1.efficiencies, r2.efficiencies)
-        r2.rate = r1.rate
+        r2.rate = ct.ReactionRate.from_dict(r1.rate.input_data)
 
         gas.modify_reaction(53, r2)
         kf = gas.forward_rate_constants
