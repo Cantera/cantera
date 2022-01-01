@@ -157,6 +157,8 @@ cdef class ArrheniusRate(ReactionRate):
         The pre-exponential factor ``A`` in units of m, kmol, and s raised to
         powers depending on the reaction order.
         """
+        def __set__(self, float A):
+            self.cxx_object().setPreExponentialFactor(A)
         def __get__(self):
             return self.cxx_object().preExponentialFactor()
 
@@ -164,13 +166,17 @@ cdef class ArrheniusRate(ReactionRate):
         """
         The temperature exponent ``b``.
         """
+        def __set__(self, float b):
+            self.cxx_object().setTemperatureExponent(b)
         def __get__(self):
             return self.cxx_object().temperatureExponent()
 
     property activation_energy:
         """
-        The activation energy ``E`` [J/kmol].
+        The activation energy ``Ea`` [J/kmol].
         """
+        def __set__(self, float Ea):
+            self.cxx_object().setActivationEnergy(Ea)
         def __get__(self):
             return self.cxx_object().activationEnergy()
 

@@ -72,10 +72,17 @@ public:
         return m_A;
     }
 
+    //! Set the pre-exponential factor *A* (in m, kmol, s to powers depending
+    //! on the reaction order)
+    void setPreExponentialFactor(double A);
+
     //! Return the temperature exponent *b*
     double temperatureExponent() const {
         return m_b;
     }
+
+    //! Set the temperature exponent *b*
+    void setTemperatureExponent(double b);
 
     //! Return the intrinsic activation energy *Ea* [J/kmol]
     //! The value corresponds to the constant specified by input parameters;
@@ -83,6 +90,9 @@ public:
     double intrinsicActivationEnergy() const {
         return m_Ea_R * GasConstant;
     }
+
+    //! Set the activation energy *Ea* [J/kmol]
+    void setIntrinsicActivationEnergy(double Ea);
 
     // Return units of the reaction rate expression
     const Units& rateUnits() const {
@@ -188,6 +198,11 @@ public:
     //! Return the activation energy *Ea* [J/kmol]
     double activationEnergy() const {
         return m_Ea_R * GasConstant;
+    }
+
+    //! Set the activation energy *Ea* [J/kmol]
+    void setActivationEnergy(double Ea) {
+        setIntrinsicActivationEnergy(Ea);
     }
 
     //! Return the activation energy divided by the gas constant (i.e. the

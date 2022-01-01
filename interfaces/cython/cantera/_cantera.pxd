@@ -454,8 +454,11 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxArrheniusBase(double, double, double)
         double eval(double) except +translate_exception
         double preExponentialFactor()
+        void setPreExponentialFactor(double)
         double temperatureExponent()
+        void setTemperatureExponent(double)
         double intrinsicActivationEnergy()
+        void setIntrinsicActivationEnergy(double)
 
     cdef cppclass CxxArrhenius2 "Cantera::Arrhenius2" (CxxArrheniusBase):
         CxxArrhenius2(double, double, double)
@@ -476,6 +479,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double activationEnergy()
         cbool allowNegativePreExponentialFactor()
         void setAllowNegativePreExponentialFactor(bool)
+        void setActivationEnergy(double)
 
     cdef cppclass CxxTwoTempPlasmaRate "Cantera::TwoTempPlasmaRate" (CxxReactionRate, CxxArrheniusBase):
         CxxTwoTempPlasmaRate()

@@ -116,6 +116,40 @@ void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
     }
 }
 
+void ArrheniusBase::setPreExponentialFactor(double A)
+{
+    m_A = A;
+    if (!m_evaluator || !linked()) {
+        return;
+    }
+    dynamic_cast<ArrheniusBase&>(
+        m_evaluator->rate(m_rate_index)).setPreExponentialFactor(A);
+    m_evaluator->invalidateCache();
+}
+
+void ArrheniusBase::setTemperatureExponent(double b)
+{
+    m_b = b;
+    if (!m_evaluator || !linked()) {
+        return;
+    }
+    dynamic_cast<ArrheniusBase&>(
+        m_evaluator->rate(m_rate_index)).setTemperatureExponent(b);
+    m_evaluator->invalidateCache();
+}
+
+void ArrheniusBase::setIntrinsicActivationEnergy(double Ea)
+{
+    m_Ea_R = Ea / GasConstant;
+    if (!m_evaluator || !linked()) {
+        return;
+    }
+    dynamic_cast<ArrheniusBase&>(
+        m_evaluator->rate(m_rate_index)).setIntrinsicActivationEnergy(Ea);
+    m_evaluator->invalidateCache();
+}
+
+
 void ArrheniusRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
     m_negativeA_ok = node.getBool("negative-A", false);
