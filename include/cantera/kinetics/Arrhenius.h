@@ -152,8 +152,8 @@ public:
         setParameters(node, rate_units);
     }
 
-    unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<ArrheniusRate, ArrheniusData>);
+    shared_ptr<MultiRateBase> newMultiRate() const override {
+        return shared_ptr<MultiRateBase>(new MultiBulkRate<ArrheniusRate, ArrheniusData>);
     }
 
     //! Identifier of reaction rate type
@@ -231,8 +231,8 @@ public:
      */
     TwoTempPlasmaRate(double A, double b, double Ea, double EE);
 
-    unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(
+    shared_ptr<MultiRateBase> newMultiRate() const override {
+        return shared_ptr<MultiRateBase>(
             new MultiBulkRate<TwoTempPlasmaRate, TwoTempPlasmaData>);
     }
 
@@ -340,8 +340,8 @@ public:
      */
     BlowersMaselRate(double A, double b, double Ea0, double w);
 
-    unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(
+    shared_ptr<MultiRateBase> newMultiRate() const {
+        return shared_ptr<MultiRateBase>(
             new MultiBulkRate<BlowersMaselRate, BlowersMaselData>);
     }
 

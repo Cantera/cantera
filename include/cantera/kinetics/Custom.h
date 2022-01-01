@@ -43,8 +43,8 @@ public:
         setParameters(node, rate_units);
     }
 
-    unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<CustomFunc1Rate, ArrheniusData>);
+    shared_ptr<MultiRateBase> newMultiRate() const override {
+        return shared_ptr<MultiRateBase>(new MultiBulkRate<CustomFunc1Rate, ArrheniusData>);
     }
 
     const std::string type() const override { return "custom-rate-function"; }

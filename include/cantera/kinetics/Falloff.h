@@ -242,8 +242,8 @@ public:
         setFalloffCoeffs(c);
     }
 
-    unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(
+    shared_ptr<MultiRateBase> newMultiRate() const {
+        return shared_ptr<MultiRateBase>(
             new MultiBulkRate<LindemannRate, FalloffData>);
     }
 
@@ -303,8 +303,8 @@ public:
         setFalloffCoeffs(c);
     }
 
-    unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<TroeRate, FalloffData>);
+    shared_ptr<MultiRateBase> newMultiRate() const {
+        return shared_ptr<MultiRateBase>(new MultiBulkRate<TroeRate, FalloffData>);
     }
 
     //! Set coefficients used by parameterization
@@ -405,8 +405,8 @@ public:
         setFalloffCoeffs(c);
     }
 
-    unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<SriRate, FalloffData>);
+    shared_ptr<MultiRateBase> newMultiRate() const {
+        return shared_ptr<MultiRateBase>(new MultiBulkRate<SriRate, FalloffData>);
     }
 
     //! Set coefficients used by parameterization
@@ -515,8 +515,8 @@ public:
         setFalloffCoeffs(c);
     }
 
-    unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<TsangRate, FalloffData>);
+    shared_ptr<MultiRateBase> newMultiRate() const {
+        return shared_ptr<MultiRateBase>(new MultiBulkRate<TsangRate, FalloffData>);
     }
 
     //! Set coefficients used by parameterization

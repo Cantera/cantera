@@ -94,7 +94,7 @@ public:
     }
 
     // The following methods are unused but required by the base class
-    unique_ptr<MultiRateBase> newMultiRate() const {
+    shared_ptr<MultiRateBase> newMultiRate() const {
         throw NotImplementedError("Arrhenius2::newMultiRate");
     }
 
@@ -146,7 +146,7 @@ public:
 
     BlowersMasel2(double A, double b, double E0, double w);
 
-    unique_ptr<MultiRateBase> newMultiRate() const {
+    shared_ptr<MultiRateBase> newMultiRate() const {
         throw NotImplementedError("BlowersMasel2::newMultiRate");
     }
 
@@ -348,8 +348,8 @@ public:
         setParameters(node, rate_units);
     }
 
-    unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<PlogRate, PlogData>);
+    shared_ptr<MultiRateBase> newMultiRate() const {
+        return shared_ptr<MultiRateBase>(new MultiBulkRate<PlogRate, PlogData>);
     }
 
     //! Identifier of reaction rate type
@@ -550,8 +550,8 @@ public:
         setParameters(node, rate_units);
     }
 
-    unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(
+    shared_ptr<MultiRateBase> newMultiRate() const {
+        return shared_ptr<MultiRateBase>(
             new MultiBulkRate<ChebyshevRate3, ChebyshevData>);
     }
 

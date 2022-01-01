@@ -63,13 +63,13 @@ public:
     //! Derived classes usually implement this as:
     //!
     //! ```.cpp
-    //! unique_ptr<MultiRateBase> newMultiRate() const override {
-    //!     return unique_ptr<MultiRateBase>(new MultiBulkRate<RateType, DataType>);
+    //! shared_ptr<MultiRateBase> newMultiRate() const override {
+    //!     return shared_ptr<MultiRateBase>(new MultiBulkRate<RateType, DataType>);
     //! ```
     //!
     //! where `RateType` is the derived class name and `DataType` is the corresponding
     //! container for parameters needed to evaluate reactions of that type.
-    virtual unique_ptr<MultiRateBase> newMultiRate() const = 0;
+    virtual shared_ptr<MultiRateBase> newMultiRate() const = 0;
 
     virtual const std::string type() const = 0;
 
@@ -159,7 +159,7 @@ private:
         return *m_evaluator;
     }
 
-    unique_ptr<MultiRateBase> m_evaluator;
+    shared_ptr<MultiRateBase> m_evaluator;
 };
 
 }
