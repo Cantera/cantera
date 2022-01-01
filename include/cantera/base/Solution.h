@@ -17,7 +17,7 @@ class Kinetics;
 class Transport;
 
 //! A container class holding managers for all pieces defining a phase
-class Solution : public std::enable_shared_from_this<Solution>
+class Solution
 {
 private:
     Solution();

@@ -40,23 +40,14 @@ void Solution::setName(const std::string& name) {
 
 void Solution::setThermo(shared_ptr<ThermoPhase> thermo) {
     m_thermo = thermo;
-    if (m_thermo) {
-        m_thermo->setRoot(shared_from_this());
-    }
 }
 
 void Solution::setKinetics(shared_ptr<Kinetics> kinetics) {
     m_kinetics = kinetics;
-    if (m_kinetics) {
-        m_kinetics->setRoot(shared_from_this());
-    }
 }
 
 void Solution::setTransport(shared_ptr<Transport> transport) {
     m_transport = transport;
-    if (m_transport) {
-        m_transport->setRoot(shared_from_this());
-    }
 }
 
 AnyMap Solution::parameters(bool withInput) const
