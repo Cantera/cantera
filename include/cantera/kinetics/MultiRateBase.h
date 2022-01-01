@@ -39,17 +39,21 @@ public:
     //! Add reaction rate object to the evaluator
     //! @param rxn_index  index of reaction
     //! @param rate  reaction rate object
-    virtual void add(size_t rxn_index, ReactionRate& rate) = 0;
+    virtual void add(size_t rxn_index, shared_ptr<ReactionRate>& rate) = 0;
 
     //! Replace reaction rate object handled by the evaluator
     //! @param rxn_index  index of reaction
     //! @param rate  reaction rate object
-    virtual bool replace(size_t rxn_index, ReactionRate& rate) = 0;
+    virtual bool replace(size_t rxn_index, shared_ptr<ReactionRate>& rate) = 0;
 
     //! Update number of species and reactions
     //! @param n_species  number of species
     //! @param n_reactions  number of reactions
     virtual void resize(size_t n_species, size_t n_reactions) = 0;
+
+    //! Access reaction rate object handled by evaluator
+    //! @param rxn_index  index of reaction
+    virtual ReactionRate& rate(size_t rxn_index) = 0;
 
     //! Evaluate all rate constants handled by the evaluator
     //! @param kf  array of rate constants

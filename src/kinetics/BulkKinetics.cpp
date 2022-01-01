@@ -141,12 +141,13 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
             m_bulk_rates.back()->resize(m_kk, nReactions());
         }
 
-        // Set index of rate to number of reaction within kinetics
-        rate->setRateIndex(nReactions() - 1);
-
         // Add reaction rate to evaluator
+        size_t rxn_index = nReactions() - 1;
         size_t index = m_bulk_types[rate->type()];
-        m_bulk_rates[index]->add(nReactions() - 1, *rate);
+        m_bulk_rates[index]->add(rxn_index, rate);
+
+        // Set index of rate to number of reaction within kinetics
+        rate->linkEvaluator(rxn_index, m_bulk_rates[index]);
 
         // Add reaction to third-body evaluator
         if (r->thirdBody() != nullptr) {
@@ -193,13 +194,13 @@ void BulkKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
         // Ensure that MultiBulkRate evaluator is available
         if (m_bulk_types.find(rate->type()) == m_bulk_types.end()) {
             throw CanteraError("BulkKinetics::modifyReaction",
-                 "Evaluator not available for type '{}'.", rate->type());
+                "Evaluator not available for type '{}'.", rate->type());
         }
 
         // Replace reaction rate to evaluator
         size_t index = m_bulk_types[rate->type()];
-        rNew->rate()->setRateIndex(i);
-        m_bulk_rates[index]->replace(i, *rate);
+        m_bulk_rates[index]->replace(i, rate);
+        rate->linkEvaluator(i, m_bulk_rates[index]);
     }
 }
 

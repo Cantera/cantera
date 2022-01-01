@@ -109,6 +109,24 @@ public:
         m_rate_index = idx;
     }
 
+    //! Return boolean indicating whether reaction rate object is linked to
+    //! a MultiRateBase evaluator
+    bool linked() {
+        return m_rate_index != npos;
+    }
+
+    //! Link reaction to MultiRateBase evaluator
+    void linkEvaluator(size_t index, const shared_ptr<MultiRateBase> evaluator) {
+        m_rate_index = index;
+        m_evaluator = evaluator;
+    }
+
+    //! Release (unlink) reaction from MultiRateBase evaluator
+    void releaseEvaluator() {
+        m_rate_index = npos;
+        m_evaluator.reset();
+    }
+
     //! Evaluate reaction rate based on temperature
     //! @param T  temperature [K]
     //! Used in conjunction with MultiRateBase::evalSingle / ReactionRate::eval.
@@ -159,6 +177,7 @@ private:
         return *m_evaluator;
     }
 
+protected:
     shared_ptr<MultiRateBase> m_evaluator;
 };
 
