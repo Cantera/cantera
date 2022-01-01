@@ -17,7 +17,7 @@ phases:
     SI3H8, SI2, SI3]
   kinetics: gas
   state: {T: 300.0, P: 1 atm}
-  deprecated: >|
+  deprecated: >-
     The input file 'silane.yaml' is deprecated and will be removed after Cantera 2.6.
     The source of the data is unknown, and the NASA polynomials for several species
     contain discontinuities.
