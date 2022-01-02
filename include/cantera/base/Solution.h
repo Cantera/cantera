@@ -112,7 +112,7 @@ shared_ptr<Solution> newSolution(const std::string& infile,
  * @param adjacent vector containing adjacent solution objects.
  * @returns an initialized Solution object.
  */
-shared_ptr<Solution> newSolution(AnyMap& phaseNode,
+shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
                                  const AnyMap& rootNode=AnyMap(),
                                  const std::string& transport="",
                                  const std::vector<shared_ptr<Solution>>& adjacent={});
