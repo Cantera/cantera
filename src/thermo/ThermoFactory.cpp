@@ -117,7 +117,7 @@ ThermoPhase* newPhase(XML_Node& xmlphase)
     return t.release();
 }
 
-unique_ptr<ThermoPhase> newPhase(AnyMap& phaseNode, const AnyMap& rootNode)
+unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode, const AnyMap& rootNode)
 {
     unique_ptr<ThermoPhase> t(newThermoPhase(phaseNode["thermo"].asString()));
     setupPhase(*t, phaseNode, rootNode);
@@ -452,16 +452,14 @@ void addSpecies(ThermoPhase& thermo, const AnyValue& names, const AnyValue& spec
     }
 }
 
-void setupPhase(ThermoPhase& thermo, AnyMap& phaseNode, const AnyMap& rootNode)
+void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode, const AnyMap& rootNode)
 {
     thermo.setName(phaseNode["name"].asString());
-    if (rootNode.hasKey("__file__")) {
-        phaseNode["__file__"] = rootNode["__file__"];
-    }
 
     if (phaseNode.hasKey("deprecated")) {
         string msg = phaseNode["deprecated"].asString();
-        string filename = phaseNode.getString("__file__", "unknown file");
+        string filename = phaseNode.getString("__file__",
+            rootNode.getString("__file__", "unknown file"));
         string method = fmt::format("{}/{}", filename, phaseNode["name"].asString());
         warn_deprecated(method, msg);
     }

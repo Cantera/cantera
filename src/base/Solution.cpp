@@ -149,7 +149,7 @@ shared_ptr<Solution> newSolution(const std::string& infile,
     return sol;
 }
 
-shared_ptr<Solution> newSolution(AnyMap& phaseNode,
+shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
                                  const AnyMap& rootNode,
                                  const std::string& transport,
                                  const std::vector<shared_ptr<Solution>>& adjacent)
