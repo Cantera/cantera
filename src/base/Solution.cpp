@@ -7,6 +7,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/Solution.h"
+#include "cantera/base/Interface.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/kinetics/Kinetics.h"
@@ -193,12 +194,20 @@ shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
                                  const std::string& transport,
                                  const std::vector<shared_ptr<Solution>>& adjacent)
 {
-    // instantiate Solution object
-    auto sol = Solution::create();
-    sol->setSource("custom YAML");
-
     // thermo phase
-    sol->setThermo(shared_ptr<ThermoPhase>(newPhase(phaseNode, rootNode)));
+    auto thermo = shared_ptr<ThermoPhase>(newPhase(phaseNode, rootNode));
+
+    // instantiate Solution object of the correct derived type
+    shared_ptr<Solution> sol;
+    switch (thermo->nDim()) {
+    case 2:
+        sol = Interface::create();
+        break;
+    default:
+        sol = Solution::create();
+    }
+    sol->setSource("custom YAML");
+    sol->setThermo(thermo);
 
     // Add explicitly-specified adjacent phases
     for (auto& adj : adjacent) {

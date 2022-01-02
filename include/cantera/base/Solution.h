@@ -19,11 +19,11 @@ class Transport;
 //! A container class holding managers for all pieces defining a phase
 class Solution
 {
-private:
+protected:
     Solution();
 
 public:
-    ~Solution() {}
+    virtual ~Solution() {}
     Solution(const Solution&) = delete;
     Solution& operator=(const Solution&) = delete;
 
@@ -39,13 +39,13 @@ public:
     void setName(const std::string& name);
 
     //! Set the ThermoPhase object
-    void setThermo(shared_ptr<ThermoPhase> thermo);
+    virtual void setThermo(shared_ptr<ThermoPhase> thermo);
 
     //! Set the Kinetics object
-    void setKinetics(shared_ptr<Kinetics> kinetics);
+    virtual void setKinetics(shared_ptr<Kinetics> kinetics);
 
     //! Set the Transport object
-    void setTransport(shared_ptr<Transport> transport);
+    virtual void setTransport(shared_ptr<Transport> transport);
 
     //! Accessor for the ThermoPhase pointer
     shared_ptr<ThermoPhase> thermo() {

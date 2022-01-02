@@ -1,6 +1,6 @@
 Gas Temperature = 1.4e+03
 Gas Pressure    = 1.01e+05
-Gas Phase:  gas   (0)
+Gas Phase:  gas   (2)
                        Name           Conc              MoleF       SrcRate 
                                     (kmol/m^3)                   (kmol/m^2/s) 
    0                        H          8.7e-05        0.00999      -2.366e-03
@@ -15,7 +15,7 @@ Gas Phase:  gas   (0)
    9                       O2          8.7e-06       0.000999      -9.061e-07
 Sum of gas mole fractions= 1
 
-Bulk Phase:  soot   (10)
+Bulk Phase:  soot   (12)
 Bulk Temperature = 1.4e+03
 Bulk Pressure    = 1.01e+05
                        Name           Conc              MoleF       SrcRate 
@@ -28,7 +28,7 @@ Density of bulk phase = 3.52e+03 kg / m^3
                       = 3.52 gm / cm^3 
 Sum of bulk mole fractions= 1
 
-Surface Phase:  soot_interface (11)
+Surface Phase:  soot_interface (0)
 Surface Temperature = 1.4e+03
 Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
@@ -37,7 +37,7 @@ Surface Pressure    = 1.01e+05
 Sum of coverages = 1
 Gas Temperature = 1.4e+03
 Gas Pressure    = 1.01e+05
-Gas Phase:  gas   (0)
+Gas Phase:  gas   (2)
                        Name           Conc              MoleF       SrcRate 
                                     (kmol/m^3)                   (kmol/m^2/s) 
    0                        H         0.000113          0.013      -3.122e-03
@@ -52,7 +52,7 @@ Gas Phase:  gas   (0)
    9                       O2          8.7e-06       0.000999      -9.129e-07
 Sum of gas mole fractions= 1
 
-Bulk Phase:  soot   (10)
+Bulk Phase:  soot   (12)
 Bulk Temperature = 1.4e+03
 Bulk Pressure    = 1.01e+05
                        Name           Conc              MoleF       SrcRate 
@@ -65,7 +65,7 @@ Density of bulk phase = 3.52e+03 kg / m^3
                       = 3.52 gm / cm^3 
 Sum of bulk mole fractions= 1
 
-Surface Phase:  soot_interface (11)
+Surface Phase:  soot_interface (0)
 Surface Temperature = 1.4e+03
 Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
@@ -74,7 +74,7 @@ Surface Pressure    = 1.01e+05
 Sum of coverages = 1
 Gas Temperature = 1.5e+03
 Gas Pressure    = 1.01e+05
-Gas Phase:  gas   (0)
+Gas Phase:  gas   (2)
                        Name           Conc              MoleF       SrcRate 
                                     (kmol/m^3)                   (kmol/m^2/s) 
    0                        H         0.000106          0.013      -3.833e-03
@@ -89,7 +89,7 @@ Gas Phase:  gas   (0)
    9                       O2         8.14e-06       0.000999      -1.324e-06
 Sum of gas mole fractions= 1
 
-Bulk Phase:  soot   (10)
+Bulk Phase:  soot   (12)
 Bulk Temperature = 1.5e+03
 Bulk Pressure    = 1.01e+05
                        Name           Conc              MoleF       SrcRate 
@@ -102,7 +102,7 @@ Density of bulk phase = 3.52e+03 kg / m^3
                       = 3.52 gm / cm^3 
 Sum of bulk mole fractions= 1
 
-Surface Phase:  soot_interface (11)
+Surface Phase:  soot_interface (0)
 Surface Temperature = 1.5e+03
 Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
@@ -111,7 +111,7 @@ Surface Pressure    = 1.01e+05
 Sum of coverages = 1
 Gas Temperature = 1.5e+03
 Gas Pressure    = 1.01e+05
-Gas Phase:  gas   (0)
+Gas Phase:  gas   (2)
                        Name           Conc              MoleF       SrcRate 
                                     (kmol/m^3)                   (kmol/m^2/s) 
    0                        H         0.000106          0.013      -3.833e-03
@@ -126,7 +126,7 @@ Gas Phase:  gas   (0)
    9                       O2         8.14e-06       0.000999      -1.324e-06
 Sum of gas mole fractions= 1
 
-Bulk Phase:  soot   (10)
+Bulk Phase:  soot   (12)
 Bulk Temperature = 1.5e+03
 Bulk Pressure    = 1.01e+05
                        Name           Conc              MoleF       SrcRate 
@@ -139,7 +139,7 @@ Density of bulk phase = 3.52e+03 kg / m^3
                       = 3.52 gm / cm^3 
 Sum of bulk mole fractions= 1
 
-Surface Phase:  soot_interface (11)
+Surface Phase:  soot_interface (0)
 Surface Temperature = 1.5e+03
 Surface Pressure    = 1.01e+05
                        Name         Coverage         SrcRate 
