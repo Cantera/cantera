@@ -50,6 +50,16 @@ void Solution::setTransport(shared_ptr<Transport> transport) {
     m_transport = transport;
 }
 
+void Solution::addAdjacent(shared_ptr<Solution> adjacent) {
+    if (m_adjacentByName.count(adjacent->name())) {
+        throw CanteraError("Solution::addAdjacent",
+            "Solution '{}' already contains an adjacent phase named '{}'.",
+            name(), adjacent->name());
+    }
+    m_adjacent.push_back(adjacent);
+    m_adjacentByName[adjacent->name()] = adjacent;
+}
+
 AnyMap Solution::parameters(bool withInput) const
 {
     AnyMap out = m_thermo->parameters(false);
@@ -149,6 +159,35 @@ shared_ptr<Solution> newSolution(const std::string& infile,
     return sol;
 }
 
+shared_ptr<Solution> newSolution(const std::string& infile, const std::string& name,
+    const std::string& transport, const std::vector<std::string>& adjacent)
+{
+    // @todo Remove file extension check after Cantera 2.6
+    // get file extension
+    size_t dot = infile.find_last_of(".");
+    std::string extension;
+    if (dot != npos) {
+        extension = toLowerCopy(infile.substr(dot+1));
+    }
+
+    if (extension == "xml" || extension == "cti") {
+        throw CanteraError("newSolution(string infile, string name, string transport, "
+            "vector<string> adjacent)",
+            "This constructor is only compatible with YAML input files");
+    }
+
+    auto rootNode = AnyMap::fromYamlFile(infile);
+    AnyMap& phaseNode = rootNode["phases"].getMapWhere("name", name);
+
+    std::vector<shared_ptr<Solution>> adjPhases;
+    // Create explicitly-specified adjacent bulk phases
+    for (auto& name : adjacent) {
+        auto& adjNode = rootNode["phases"].getMapWhere("name", name);
+        adjPhases.push_back(newSolution(adjNode, rootNode));
+    }
+    return newSolution(phaseNode, rootNode, transport, adjPhases);
+}
+
 shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
                                  const AnyMap& rootNode,
                                  const std::string& transport,
@@ -161,11 +200,64 @@ shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
     // thermo phase
     sol->setThermo(shared_ptr<ThermoPhase>(newPhase(phaseNode, rootNode)));
 
+    // Add explicitly-specified adjacent phases
+    for (auto& adj : adjacent) {
+        sol->addAdjacent(adj);
+    }
+
+    // If no adjacent phases were explicitly specified, look for them in the interface
+    // phase definition
+    if (adjacent.empty() && phaseNode.hasKey("adjacent-phases")) {
+        auto& adjPhases = phaseNode["adjacent-phases"];
+        if (adjPhases.is<std::vector<std::string>>()) {
+            // 'adjacent' is a list of bulk phases from the current input file
+            for (auto& phase : adjPhases.as<std::vector<std::string>>()) {
+                sol->addAdjacent(
+                    newSolution(rootNode["phases"].getMapWhere("name", phase), rootNode));
+            }
+        } else if (adjPhases.is<std::vector<AnyMap>>()) {
+            // Each element of 'adjacent' is a map with one item, where the key is
+            // a section in this file or another YAML file, and the value is a list of
+            // phase names to read from that section
+            for (auto& item : adjPhases.asVector<AnyMap>()) {
+                const std::string& source = item.begin()->first;
+                const auto& names = item.begin()->second.asVector<std::string>();
+                const auto& slash = boost::ifind_last(source, "/");
+                if (slash) {
+                    // source is a different input file
+                    std::string fileName(source.begin(), slash.begin());
+                    std::string node(slash.end(), source.end());
+                    AnyMap phaseSource = AnyMap::fromYamlFile(fileName,
+                        rootNode.getString("__file__", ""));
+                    for (auto& phase : names) {
+                        sol->addAdjacent(
+                            newSolution(phaseSource[node].getMapWhere("name", phase),
+                                        phaseSource));
+                    }
+                } else if (rootNode.hasKey(source)) {
+                    // source is in the current file
+                    for (auto& phase : names) {
+                        sol->addAdjacent(
+                            newSolution(rootNode[source].getMapWhere("name", phase),
+                                        rootNode));
+                    }
+                } else {
+                    throw InputFileError("newSolution", adjPhases,
+                        "Could not find a phases section named '{}'.", source);
+                }
+            }
+        } else {
+            throw InputFileError("addAdjacentPhases", adjPhases,
+                "Could not parse adjacent phase declaration of type '{}'",
+                adjPhases.type_str());
+        }
+    }
+
     // kinetics
     std::vector<ThermoPhase*> phases;
     phases.push_back(sol->thermo().get());
-    for (auto& adj : adjacent) {
-        phases.push_back(adj->thermo().get());
+    for (size_t i = 0; i < sol->nAdjacent(); i++) {
+        phases.push_back(sol->adjacent(i)->thermo().get());
     }
     sol->setKinetics(newKinetics(phases, phaseNode, rootNode));
 
