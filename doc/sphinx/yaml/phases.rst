@@ -56,6 +56,17 @@ and optionally reactions that can take place in that phase. The fields of a
     A mapping specifying the thermodynamic state. See
     :ref:`sec-yaml-setting-state`.
 
+``adjacent-phases``
+    For interface phases, specification of adjacent phases that participate in reactions
+    on the interface. This can be:
+
+    - a list of phase names that appear in the ``phases`` section of the file.
+    - A list of single-key mappings of section names to a list of phase names. These
+      sections can be in the same file as the current phase definition, or from another
+      file if written as ``file-path/section-name``. If a relative path is specified,
+      the directory containing the current file is searched first, followed by the
+      Cantera data path.
+
 ``thermo``
     String specifying the phase thermodynamic model to be used. Supported model
     strings are:
