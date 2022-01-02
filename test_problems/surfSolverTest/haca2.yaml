@@ -22,6 +22,7 @@ phases:
   species: [CB-CB3]
 - name: soot_interface
   thermo: ideal-surface
+  adjacent-phases: [gas, soot]
   elements: [H, C]
   species: [Csoot-*, Csoot-H]
   kinetics: surface

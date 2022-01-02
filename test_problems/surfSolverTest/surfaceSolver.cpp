@@ -6,7 +6,8 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/thermo/ThermoFactory.h"
+#include "cantera/base/Interface.h"
+#include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics.h"
 #include "cantera/kinetics/ImplicitSurfChem.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
@@ -141,27 +142,22 @@ int main(int argc, char** argv)
     int ioflag = 1;
 
     try {
-        /*************************************************************/
-
-
-        /************************************************************/
-        ThermoPhase* gasTP = newPhase(infile, gasPhaseName);
+        auto iface = newInterface(infile, surfParticlePhaseName);
+        ThermoPhase* gasTP = iface->adjacent(gasPhaseName)->thermo().get();
         size_t nspGas = gasTP->nSpecies();
         cout << "Number of species = " << nspGas << endl;
 
-        ThermoPhase* bulkPhaseTP = newPhase(infile, bulkParticlePhaseName);
+        ThermoPhase* bulkPhaseTP = iface->adjacent(bulkParticlePhaseName)->thermo().get();
         size_t nspBulk = bulkPhaseTP->nSpecies();
         cout << "Number of species in bulk phase named " <<
              bulkParticlePhaseName << " = " << nspBulk << endl;
 
-        ThermoPhase* surfPhaseTP = newPhase(infile, surfParticlePhaseName);
+        ThermoPhase* surfPhaseTP = iface->thermo().get();
         size_t nsp_d100 = surfPhaseTP->nSpecies();
         cout << "Number of species in surface phase, " << surfParticlePhaseName
              << " = " << nsp_d100 << endl;
 
-        auto kin = newKinetics({gasTP, bulkPhaseTP, surfPhaseTP},
-                               infile, surfParticlePhaseName);
-        InterfaceKinetics* iKin_ptr = dynamic_cast<InterfaceKinetics*>(kin.get());
+        InterfaceKinetics* iKin_ptr = iface->kinetics().get();
         size_t nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
@@ -248,13 +244,6 @@ int main(int argc, char** argv)
         printGas(ofile, gasTP, iKin_ptr, src);
         printBulk(ofile, bulkPhaseTP, iKin_ptr, src);
         printSurf(ofile, surfPhaseTP, iKin_ptr, src) ;
-
-        delete gasTP;
-        gasTP = 0;
-        delete bulkPhaseTP;
-        bulkPhaseTP = 0;
-        delete surfPhaseTP;
-        surfPhaseTP = 0;
         appdelete();
     } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;
