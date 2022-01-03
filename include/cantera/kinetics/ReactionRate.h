@@ -134,7 +134,9 @@ public:
     //! Kinetics reaction rate evaluators.
     double eval(double T) {
         _evaluator().update(T);
-        return _evaluator().evalSingle(*this);
+        double ret = _evaluator().evalSingle(*this);
+        _evaluator().invalidateCache();
+        return ret;
     }
 
     //! Evaluate reaction rate based on temperature and an extra parameter.
@@ -147,7 +149,9 @@ public:
     //! Kinetics reaction rate evaluators.
     double eval(double T, double extra) {
         _evaluator().update(T, extra);
-        return _evaluator().evalSingle(*this);
+        double ret = _evaluator().evalSingle(*this);
+        _evaluator().invalidateCache();
+        return ret;
     }
 
 protected:

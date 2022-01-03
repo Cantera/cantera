@@ -51,6 +51,9 @@ public:
     //! @param n_reactions  number of reactions
     virtual void resize(size_t n_species, size_t n_reactions) = 0;
 
+    //! Force shared data and reaction rates to be updated next time
+    virtual void invalidateCache() = 0;
+
     //! Access reaction rate object handled by evaluator
     //! @param rxn_index  index of reaction
     virtual ReactionRate& rate(size_t rxn_index) = 0;

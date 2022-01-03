@@ -96,6 +96,10 @@ public:
         m_shared.invalidateCache();
     }
 
+    virtual void invalidateCache() override {
+        m_shared.invalidateCache();
+    }
+
     virtual ReactionRate& rate(size_t rxn_index) override {
         size_t j = m_indices[rxn_index];
         return dynamic_cast<ReactionRate&>(m_rxn_rates.at(j).second);
