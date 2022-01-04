@@ -621,14 +621,14 @@ TEST_F(ReactionToYaml, surface)
 
 TEST_F(ReactionToYaml, electrochemical)
 {
-    auto gas = newSolution("sofc.yaml", "gas");
-    auto metal = newSolution("sofc.yaml", "metal");
-    auto oxide_bulk = newSolution("sofc.yaml", "oxide_bulk");
-    auto metal_surf = newSolution("sofc.yaml", "metal_surface", "None", {gas});
-    auto oxide_surf = newSolution("sofc.yaml", "oxide_surface", "None",
-                                  {gas, oxide_bulk});
-    soln = newSolution("sofc.yaml", "tpb", "None",
-                       {metal, metal_surf, oxide_surf});
+    soln = newSolution("sofc.yaml", "tpb");
+    auto oxide_surf = soln->adjacent("oxide_surface");
+    auto oxide_bulk = oxide_surf->adjacent("oxide_bulk");
+
+    // There should be only one underlying 'gas' object
+    ASSERT_EQ(oxide_surf->adjacent("gas").get(),
+              soln->adjacent("metal_surface")->adjacent("gas").get());
+
     auto ox_surf = std::dynamic_pointer_cast<SurfPhase>(oxide_surf->thermo());
     oxide_bulk->thermo()->setElectricPotential(-3.4);
     oxide_surf->thermo()->setElectricPotential(-3.4);

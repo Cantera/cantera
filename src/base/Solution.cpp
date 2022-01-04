@@ -57,6 +57,15 @@ void Solution::addAdjacent(shared_ptr<Solution> adjacent) {
             "Solution '{}' already contains an adjacent phase named '{}'.",
             name(), adjacent->name());
     }
+    if (m_thermo && adjacent->thermo()
+        && adjacent->thermo()->nDim() <= m_thermo->nDim())
+    {
+        throw CanteraError("Solution::addAdjacent",
+            "Adjacent phases should have higher dimensionality than the reacting ",
+            "phase.\n'{}' is {}-dimensional while '{}' is {}-dimensional",
+            adjacent->thermo()->name(), adjacent->thermo()->nDim(),
+            m_thermo->name(), m_thermo->nDim());
+    }
     m_adjacent.push_back(adjacent);
     m_adjacentByName[adjacent->name()] = adjacent;
 }
@@ -192,7 +201,8 @@ shared_ptr<Solution> newSolution(const std::string& infile, const std::string& n
 shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
                                  const AnyMap& rootNode,
                                  const std::string& transport,
-                                 const std::vector<shared_ptr<Solution>>& adjacent)
+                                 const std::vector<shared_ptr<Solution>>& adjacent,
+                                 const std::map<std::string, shared_ptr<Solution>>& related)
 {
     // thermo phase
     auto thermo = shared_ptr<ThermoPhase>(newPhase(phaseNode, rootNode));
@@ -217,12 +227,32 @@ shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
     // If no adjacent phases were explicitly specified, look for them in the interface
     // phase definition
     if (adjacent.empty() && phaseNode.hasKey("adjacent-phases")) {
+        auto all_related = related;
+        for (auto& phase : adjacent) {
+            all_related[phase->name()] = phase;
+        }
+
+        // Helper function for adding individual phases
+        auto addPhase = [&](const AnyValue& phases, const AnyMap& root,
+                            const std::string& name)
+        {
+            if (!all_related.count(name)) {
+                // Create a new phase only if there isn't already one with the same name
+                auto adj = newSolution(phases.getMapWhere("name", name), root,
+                                    "", {}, all_related);
+                all_related[name] = adj;
+                for (size_t i = 0; i < adj->nAdjacent(); i++) {
+                    all_related[adj->adjacent(i)->name()] = adj->adjacent(i);
+                }
+            }
+            sol->addAdjacent(all_related[name]);
+        };
+
         auto& adjPhases = phaseNode["adjacent-phases"];
         if (adjPhases.is<std::vector<std::string>>()) {
             // 'adjacent' is a list of bulk phases from the current input file
             for (auto& phase : adjPhases.as<std::vector<std::string>>()) {
-                sol->addAdjacent(
-                    newSolution(rootNode["phases"].getMapWhere("name", phase), rootNode));
+                addPhase(rootNode["phases"], rootNode, phase);
             }
         } else if (adjPhases.is<std::vector<AnyMap>>()) {
             // Each element of 'adjacent' is a map with one item, where the key is
@@ -239,16 +269,12 @@ shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
                     AnyMap phaseSource = AnyMap::fromYamlFile(fileName,
                         rootNode.getString("__file__", ""));
                     for (auto& phase : names) {
-                        sol->addAdjacent(
-                            newSolution(phaseSource[node].getMapWhere("name", phase),
-                                        phaseSource));
+                        addPhase(phaseSource[node], phaseSource, phase);
                     }
                 } else if (rootNode.hasKey(source)) {
                     // source is in the current file
                     for (auto& phase : names) {
-                        sol->addAdjacent(
-                            newSolution(rootNode[source].getMapWhere("name", phase),
-                                        rootNode));
+                        addPhase(rootNode[source], rootNode, phase);
                     }
                 } else {
                     throw InputFileError("newSolution", adjPhases,
