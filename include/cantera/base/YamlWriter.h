@@ -28,7 +28,7 @@ public:
     void setHeader(const AnyMap& header);
 
     //! Include a phase definition for the specified Solution object
-    void addPhase(shared_ptr<Solution> soln);
+    void addPhase(shared_ptr<Solution> soln, bool includeAdjacent=true);
 
     //! Include a phase definition using the specified ThermoPhase, (optional)
     //! Kinetics, and (optional) Transport objects

@@ -27,14 +27,26 @@ void YamlWriter::setHeader(const AnyMap& header) {
     m_header = header;
 }
 
-void YamlWriter::addPhase(shared_ptr<Solution> soln) {
+void YamlWriter::addPhase(shared_ptr<Solution> soln, bool includeAdjacent) {
     for (auto& phase : m_phases) {
         if (phase->name() == soln->name()) {
-            throw CanteraError("YamlWriter::addPhase",
-                "Duplicate phase name '{}'", soln->name());
+            if (phase.get() == soln.get()) {
+                // This phase has already been added, so nothing needs to be done. This
+                // is expected in cases such as bulk phases adjacent to multiple
+                // surface phases.
+                return;
+            } else {
+                throw CanteraError("YamlWriter::addPhase",
+                    "Duplicate phase name '{}'", soln->name());
+            }
         }
     }
     m_phases.push_back(soln);
+    if (includeAdjacent) {
+        for (size_t i = 0; i < soln->nAdjacent(); i++) {
+            addPhase(soln->adjacent(i));
+        }
+    }
 }
 
 void YamlWriter::addPhase(shared_ptr<ThermoPhase> thermo,
@@ -82,6 +94,13 @@ std::string YamlWriter::toYamlString() const
     size_t nspecies_total = 0;
     for (size_t i = 0; i < m_phases.size(); i++) {
         phaseDefs[i] = m_phases[i]->parameters(!m_skip_user_defined);
+        if (m_phases[i]->nAdjacent()) {
+            std::vector<std::string> adj_names;
+            for (size_t j = 0; j < m_phases[i]->nAdjacent(); j++) {
+                adj_names.push_back(m_phases[i]->adjacent(j)->name());
+            }
+            phaseDefs[i]["adjacent-phases"] = adj_names;
+        }
         nspecies_total += m_phases[i]->thermo()->nSpecies();
     }
     output["phases"] = phaseDefs;
