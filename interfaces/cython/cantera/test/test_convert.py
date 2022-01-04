@@ -386,8 +386,12 @@ class converterTestCommon:
         output = self.convert('surface1-gas.inp', surface='surface1.inp',
                               output='surface1')
 
-        gas = ct.Solution(output, 'gas')
-        surf = ct.Interface(output, 'PT_SURFACE', [gas])
+        if self.ext == ".cti":
+            gas = ct.Solution(output, 'gas')
+            surf = ct.Interface(output, 'PT_SURFACE', [gas])
+        else:
+            surf = ct.Interface(output, 'PT_SURFACE')
+            gas = surf.adjacent["gas"]
 
         self.assertEqual(gas.n_reactions, 11)
         self.assertEqual(surf.n_reactions, 15)
@@ -704,9 +708,10 @@ class cti2yamlTest(utilities.CanteraTest):
 
     def test_ptcombust(self):
         self.convert("ptcombust", self.cantera_data_path)
-        ctiGas, yamlGas = self.checkConversion('ptcombust')
-        ctiSurf, yamlSurf = self.checkConversion('ptcombust', ct.Interface,
-            name='Pt_surf', ctiphases=[ctiGas], yamlphases=[yamlGas])
+        ctiSurf, yamlSurf = self.checkConversion("ptcombust", ct.Interface,
+            name="Pt_surf")
+        yamlGas = yamlSurf.adjacent["gas"]
+        ctiGas = ctiSurf.adjacent["gas"]
 
         self.checkKinetics(ctiGas, yamlGas, [500, 1200], [1e4, 3e5])
         self.checkThermo(ctiSurf, yamlSurf, [400, 800, 1600])
@@ -715,10 +720,10 @@ class cti2yamlTest(utilities.CanteraTest):
     @utilities.slow_test
     def test_ptcombust_motzwise(self):
         self.convert("ptcombust-motzwise")
-        ctiGas, yamlGas = self.checkConversion('ptcombust-motzwise')
-        ctiSurf, yamlSurf = self.checkConversion('ptcombust-motzwise', ct.Interface,
-            name='Pt_surf', ctiphases=[ctiGas], yamlphases=[yamlGas])
-
+        ctiSurf, yamlSurf = self.checkConversion("ptcombust-motzwise", ct.Interface,
+            name="Pt_surf")
+        yamlGas = yamlSurf.adjacent["gas"]
+        ctiGas = ctiSurf.adjacent["gas"]
 
         self.checkKinetics(ctiGas, yamlGas, [500, 1200], [1e4, 3e5])
         self.checkThermo(ctiSurf, yamlSurf, [400, 800, 1600])
@@ -726,18 +731,12 @@ class cti2yamlTest(utilities.CanteraTest):
 
     def test_sofc(self):
         self.convert("sofc", self.cantera_data_path)
-        ctiGas, yamlGas = self.checkConversion('sofc')
-        ctiMetal, yamlMetal = self.checkConversion('sofc', name='metal')
-        ctiOxide, yamlOxide = self.checkConversion('sofc', name='oxide_bulk')
-        ctiMSurf, yamlMSurf = self.checkConversion('sofc', ct.Interface,
-            name='metal_surface', ctiphases=[ctiGas, ctiMetal],
-            yamlphases=[yamlGas, yamlMetal])
-        ctiOSurf, yamlOSurf = self.checkConversion('sofc', ct.Interface,
-            name='oxide_surface', ctiphases=[ctiGas, ctiOxide],
-            yamlphases=[yamlGas, yamlOxide])
-        cti_tpb, yaml_tpb = self.checkConversion('sofc', ct.Interface,
-            name='tpb', ctiphases=[ctiMetal, ctiMSurf, ctiOSurf],
-            yamlphases=[yamlMetal, yamlMSurf, yamlOSurf])
+        cti_tpb, yaml_tpb = self.checkConversion("sofc", ct.Interface, name="tpb")
+        ctiMetal, ctiMSurf, ctiOSurf = cti_tpb.adjacent.values()
+        yamlMetal, yamlMSurf, yamlOSurf = yaml_tpb.adjacent.values()
+
+        self.assertIn("oxide_bulk", ctiOSurf.adjacent)
+        self.assertIn("gas", ctiOSurf.adjacent)
 
         self.checkThermo(ctiMSurf, yamlMSurf, [900, 1000, 1100])
         self.checkThermo(ctiOSurf, yamlOSurf, [900, 1000, 1100])
@@ -771,11 +770,10 @@ class cti2yamlTest(utilities.CanteraTest):
 
     def test_diamond(self):
         self.convert("diamond", self.cantera_data_path)
-        ctiGas, yamlGas = self.checkConversion('diamond', name='gas')
-        ctiSolid, yamlSolid = self.checkConversion('diamond', name='diamond')
-        ctiSurf, yamlSurf = self.checkConversion('diamond',
-            ct.Interface, name='diamond_100', ctiphases=[ctiGas, ctiSolid],
-            yamlphases=[yamlGas, yamlSolid])
+        ctiSurf, yamlSurf = self.checkConversion("diamond", ct.Interface,
+            name="diamond_100")
+        ctiSolid = ctiSurf.adjacent["diamond"]
+        yamlSolid = yamlSurf.adjacent["diamond"]
         self.checkThermo(ctiSolid, yamlSolid, [300, 500])
         self.checkThermo(ctiSurf, yamlSurf, [330, 490])
         self.checkKinetics(ctiSurf, yamlSurf, [400, 800], [2e5])
@@ -922,9 +920,10 @@ class ctml2yamlTest(utilities.CanteraTest):
 
     def test_ptcombust(self):
         self.convert("ptcombust", self.cantera_data_path)
-        ctmlGas, yamlGas = self.checkConversion('ptcombust')
-        ctmlSurf, yamlSurf = self.checkConversion('ptcombust', ct.Interface,
-            name='Pt_surf', ctmlphases=[ctmlGas], yamlphases=[yamlGas])
+        ctmlSurf, yamlSurf = self.checkConversion("ptcombust", ct.Interface,
+            name="Pt_surf")
+        ctmlGas = ctmlSurf.adjacent["gas"]
+        yamlGas = yamlSurf.adjacent["gas"]
 
         self.checkKinetics(ctmlGas, yamlGas, [500, 1200], [1e4, 3e5])
         self.checkThermo(ctmlSurf, yamlSurf, [400, 800, 1600])
@@ -942,18 +941,12 @@ class ctml2yamlTest(utilities.CanteraTest):
 
     def test_sofc(self):
         self.convert("sofc", self.cantera_data_path)
-        ctmlGas, yamlGas = self.checkConversion('sofc')
-        ctmlMetal, yamlMetal = self.checkConversion('sofc', name='metal')
-        ctmlOxide, yamlOxide = self.checkConversion('sofc', name='oxide_bulk')
-        ctmlMSurf, yamlMSurf = self.checkConversion('sofc', ct.Interface,
-            name='metal_surface', ctmlphases=[ctmlGas, ctmlMetal],
-            yamlphases=[yamlGas, yamlMetal])
-        ctmlOSurf, yamlOSurf = self.checkConversion('sofc', ct.Interface,
-            name='oxide_surface', ctmlphases=[ctmlGas, ctmlOxide],
-            yamlphases=[yamlGas, yamlOxide])
-        ctml_tpb, yaml_tpb = self.checkConversion('sofc', ct.Interface,
-            name='tpb', ctmlphases=[ctmlMetal, ctmlMSurf, ctmlOSurf],
-            yamlphases=[yamlMetal, yamlMSurf, yamlOSurf])
+        ctml_tpb, yaml_tpb = self.checkConversion("sofc", ct.Interface, name="tpb")
+        ctmlMetal, ctmlMSurf, ctmlOSurf = ctml_tpb.adjacent.values()
+        yamlMetal, yamlMSurf, yamlOSurf = yaml_tpb.adjacent.values()
+
+        self.assertIn("oxide_bulk", ctmlOSurf.adjacent)
+        self.assertIn("gas", ctmlOSurf.adjacent)
 
         self.checkThermo(ctmlMSurf, yamlMSurf, [900, 1000, 1100])
         self.checkThermo(ctmlOSurf, yamlOSurf, [900, 1000, 1100])

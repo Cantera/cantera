@@ -155,12 +155,17 @@ shared_ptr<Solution> newSolution(const std::string& infile,
  * @param transport name of the transport model.
  * @param adjacent vector containing adjacent Solution objects. If empty, adjacent
  *                 phases will be instantiated based on the phase definition.
+ * @param related  vector of phases related to the same root Solution object. Used
+ *                 internally by newSolution() when creating complex interfaces where
+ *                 a phase may be adjacent to multiple other phases but should be
+ *                 instantiated only once.
  * @returns an initialized Solution object.
  */
-shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
-                                 const AnyMap& rootNode=AnyMap(),
-                                 const std::string& transport="",
-                                 const std::vector<shared_ptr<Solution>>& adjacent={});
+shared_ptr<Solution> newSolution(
+    const AnyMap& phaseNode, const AnyMap& rootNode=AnyMap(),
+    const std::string& transport="",
+    const std::vector<shared_ptr<Solution>>& adjacent={},
+    const std::map<std::string, shared_ptr<Solution>>& related={});
 
 }
 

@@ -355,31 +355,23 @@ TEST(YamlWriter, Interface)
 
 TEST(YamlWriter, sofc)
 {
-    shared_ptr<ThermoPhase> gas1(newPhase("sofc.yaml", "gas"));
-    shared_ptr<ThermoPhase> metal1(newPhase("sofc.yaml", "metal"));
-    shared_ptr<ThermoPhase> ox_bulk1(newPhase("sofc.yaml", "oxide_bulk"));
-    shared_ptr<ThermoPhase> metal_surf1(newPhase("sofc.yaml", "metal_surface"));
-    shared_ptr<ThermoPhase> oxide_surf1(newPhase("sofc.yaml", "oxide_surface"));
-    shared_ptr<ThermoPhase> tpb1(newPhase("sofc.yaml", "tpb"));
-
-    std::vector<ThermoPhase*> tpb_phases1{tpb1.get(), metal_surf1.get(), oxide_surf1.get(), metal1.get()};
-    std::vector<ThermoPhase*> ox_phases1{oxide_surf1.get(), ox_bulk1.get(), gas1.get()};
-
-    shared_ptr<Kinetics> tpb_kin1 = newKinetics(tpb_phases1, "sofc.yaml", "tpb");
-    shared_ptr<Kinetics> ox_kin1 = newKinetics(ox_phases1, "sofc.yaml", "oxide_surface");
+    auto tpb1 = newSolution("sofc.yaml", "tpb");
+    auto tpb_kin1 = tpb1->kinetics();
+    auto ox_kin1 = tpb1->adjacent("oxide_surface")->kinetics();
 
     YamlWriter writer;
-    writer.addPhase(tpb1, tpb_kin1);
-    writer.addPhase(metal_surf1);
-    writer.addPhase(oxide_surf1, ox_kin1);
-    writer.addPhase(metal1);
-    writer.addPhase(gas1);
-    writer.addPhase(ox_bulk1);
+    writer.addPhase(tpb1->thermo(), tpb_kin1);
+    writer.addPhase(tpb1->adjacent("metal_surface")->thermo());
+    writer.addPhase(tpb1->adjacent("oxide_surface")->thermo(), ox_kin1);
+    writer.addPhase(tpb1->adjacent("metal")->thermo());
+    writer.addPhase(tpb1->adjacent("metal_surface")->adjacent("gas")->thermo());
+    writer.addPhase(tpb1->adjacent("oxide_surface")->adjacent("oxide_bulk")->thermo());
     writer.setUnits({
         {"length", "cm"},
         {"pressure", "atm"},
         {"activation-energy", "eV"}
     });
+    writer.skipUserDefined();
     writer.toYamlFile("generated-sofc.yaml");
 
     shared_ptr<ThermoPhase> gas2(newPhase("generated-sofc.yaml", "gas"));
