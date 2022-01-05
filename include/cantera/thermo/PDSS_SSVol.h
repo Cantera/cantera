@@ -103,6 +103,8 @@ namespace Cantera
  *
  * ## XML Example
  *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ *
  * An example of the specification of a standard state for the LiCl molten salt
  * which has a temperature dependent standard state volume.
  *

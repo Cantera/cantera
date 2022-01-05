@@ -170,6 +170,8 @@ class PDSS_Water;
  * input file via the `stoichIsMods` XML block, where the charge for k1 is also
  * specified. An example is given below:
  *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ *
  * @code
  *          <stoichIsMods>
  *                NaCl(aq):-1.0
@@ -200,6 +202,8 @@ class PDSS_Water;
  * Note, this is not considered a part of the specification of the standard
  * state for the species, at this time. Therefore, this information is put under
  * the `activityCoefficient` XML block. An example is given below
+ *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
  *
  * @code
  *         <electrolyteSpeciesType>
@@ -327,6 +331,8 @@ class PDSS_Water;
  * An example `activityCoefficients` XML block for this formulation is supplied
  * below
  *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ *
  * @code
  *  <activityCoefficients model="Beta_ij">
  *         <!-- A_Debye units = sqrt(kg/gmol) -->
@@ -407,6 +413,9 @@ class PDSS_Water;
  *   - B_Debye = 3.28640E9 (kg/gmol)^(1/2) / m
  *
  * An example of a fixed value implementation is given below.
+ *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ *
  * @code
  *   <activityCoefficients model="Beta_ij">
  *         <!-- A_Debye units = sqrt(kg/gmol)  -->
@@ -476,6 +485,8 @@ class PDSS_Water;
  * Note, this treatment may be modified in the future, as events dictate.
  *
  * ## XML Example
+ *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
  *
  * The phase model name for this is called StoichSubstance. It must be supplied
  * as the model attribute of the thermo XML element entry. Within the phase XML
