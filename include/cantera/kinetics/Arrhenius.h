@@ -207,7 +207,7 @@ public:
  * activation energy for electron is included.
  *
  *   \f[
- *        k_f =  A T_e^b \exp (-Ea_T/RT) \exp (-Ea_{T_e}/RT_e)
+ *        k_f =  A T_e^b \exp (-E_a/RT) \exp (-E_{a,e}/RT_e)
  *   \f]
  *
  * @ingroup arrheniusGroup
@@ -274,12 +274,12 @@ public:
         return m_Ea_R;
     }
 
-    //! Return the activation energy *Ea* [J/kmol]
+    //! Return the electron activation energy *Ea* [J/kmol]
     double activationElectronEnergy() const {
         return m_EE_R * GasConstant;
     }
 
-    //! Return the activation energy divided by the gas constant (i.e. the
+    //! Return the electron activation energy divided by the gas constant (i.e. the
     //! activation temperature) [K]
     double activationElectronEnergy_R() const {
         return m_EE_R;
