@@ -515,6 +515,8 @@ class WaterProps;
  * document. An example of the `beta0` block that fits the `COMPLEX1`
  * temperature dependence given above is
  *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ *
  * @code
  *  <binarySaltParameters cation="Na+" anion="OH-">
  *    <beta0> q0, q1, q2, q3, q4  </beta0>
@@ -589,6 +591,8 @@ class WaterProps;
  * temperature or pressure dependence of this parameter is currently allowed. An
  * example of the block is presented below.
  *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ *
  * @code
  *   <thetaCation cation1="Na+" cation2="H+">
  *              <Theta> 0.036 </Theta>
@@ -614,6 +618,8 @@ class WaterProps;
  * different information about thetaAnion (or thetaCation) in different blocks.
  * It's ok to specify duplicate but consistent information in multiple blocks.
  *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ *
  * @code
  * <psiCommonCation cation="Na+" anion1="Cl-" anion2="OH-">
  *     <Theta> -0.05 </Theta>
@@ -633,6 +639,8 @@ class WaterProps;
  * symmetrical; `species1` and `species2` may be reversed and the term will be
  * the same. An example is given below.
  *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ *
  * @code
  * <lambdaNeutral species1="CO2" species2="CH4">
  *     <lambda> 0.05 </lambda>
@@ -645,6 +653,8 @@ class WaterProps;
  *
  * An example `activityCoefficients` XML block for this formulation is supplied
  * below
+ *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
  *
  * @code
  * <activityCoefficients model="Pitzer" TempModel="complex1">
@@ -747,6 +757,9 @@ class WaterProps;
  *  - B_Debye = 3.28640E9 (kg/gmol)^(1/2) / m
  *
  * An example of a fixed value implementation is given below.
+ *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ *
  * @code
  *   <activityCoefficients model="Pitzer">
  *         <!-- A_Debye units = sqrt(kg/gmol)  -->
@@ -757,6 +770,8 @@ class WaterProps;
  *
  * An example of a variable value implementation within the HMWSoln object is
  * given below. The model attribute, "water", triggers the full implementation.
+ *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
  *
  * @code
  *   <activityCoefficients model="Pitzer">
@@ -913,6 +928,8 @@ class WaterProps;
  * Note, this treatment may be modified in the future, as events dictate.
  *
  * ## XML Example
+ *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
  *
  * The phase model name for this is called StoichSubstance. It must be supplied
  * as the model attribute of the thermo XML element entry. Within the phase XML

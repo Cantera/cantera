@@ -180,6 +180,8 @@ namespace Cantera
  *
  * ## XML Example
  *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ *
  * An example of an XML Element named phase setting up a LatticePhase object
  * named "O_lattice_SiO2" is given below.
  *

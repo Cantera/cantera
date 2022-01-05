@@ -104,6 +104,8 @@ namespace Cantera
  *
  * ## XML Example
  *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ *
  * The phase model name for this is called StoichSubstance. It must be supplied
  * as the model attribute of the thermo XML element entry. Within the phase XML
  * block, the density of the phase must be specified. An example of an XML file

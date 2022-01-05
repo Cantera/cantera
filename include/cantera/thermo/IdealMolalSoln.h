@@ -58,6 +58,8 @@ namespace Cantera
  * The value and form of the activity concentration will affect reaction rate
  * constants involving species in this phase.
  *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ *
  *      <thermo model="IdealMolalSoln">
  *         <standardConc model="solvent_volume" />
  *         <solvent> H2O(l) </solvent>
