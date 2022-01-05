@@ -82,4 +82,4 @@ reactions:
   low-P-rate-constant: [282320.078, 1.46878, -3270.56495]
 - equation: O + H <=> O + H  # Reaction 12
   type: two-temperature-plasma
-  rate-constant: {A: 17283, b: -3.1, Ea_T: -5820 J/mol, Ea_Te: 1081 J/mol}
+  rate-constant: {A: 17283, b: -3.1, Ea: -5820 J/mol, EE: 1081 J/mol}

@@ -274,26 +274,26 @@ cdef class TwoTempPlasmaRate(ReactionRate):
 
     .. math::
 
-        k_f = A T_e^b \exp{-\tfrac{Ea_T}{RT}} \exp{-\tfrac{Ea_{T_e}}{RT_e}}
+        k_f = A T_e^b \exp{-\tfrac{E_a}{RT}} \exp{-\tfrac{E_{a,e}}{RT_e}}
 
     where ``A`` is the `pre_exponential_factor`, ``b`` is the `temperature_exponent`,
-    ``Ea_T`` is the `activation_energy`, and ``Ea_{T_e}`` is the `activation_electron_energy`.
+    ``E_a`` is the `activation_energy`, and ``E_{a,e}`` is the `activation_electron_energy`.
     """
     _reaction_rate_type = "two-temperature-plasma"
 
-    def __cinit__(self, A=None, b=None, Ea_T=None, Ea_Te=None, input_data=None, init=True):
+    def __cinit__(self, A=None, b=None, Ea=None, EE=None, input_data=None, init=True):
 
         if init:
             if isinstance(input_data, dict):
                 self._rate.reset(new CxxTwoTempPlasmaRate(dict_to_anymap(input_data)))
-            elif all([arg is not None for arg in [A, b, Ea_T, Ea_Te]]):
-                self._rate.reset(new CxxTwoTempPlasmaRate(A, b, Ea_T, Ea_Te))
-            elif all([arg is None for arg in [A, b, Ea_T, Ea_Te, input_data]]):
+            elif all([arg is not None for arg in [A, b, Ea, EE]]):
+                self._rate.reset(new CxxTwoTempPlasmaRate(A, b, Ea, EE))
+            elif all([arg is None for arg in [A, b, Ea, EE, input_data]]):
                 self._rate.reset(new CxxTwoTempPlasmaRate(dict_to_anymap({})))
             elif input_data:
                 raise TypeError("Invalid parameter 'input_data'")
             else:
-                raise TypeError("Invalid parameters 'A', 'b', 'Ea_T' or 'Ea_Te'")
+                raise TypeError("Invalid parameters 'A', 'b', 'Ea' or 'EE'")
             self.set_cxx_object()
 
     def __call__(self, double temperature, double elec_temp):
@@ -322,14 +322,14 @@ cdef class TwoTempPlasmaRate(ReactionRate):
 
     property activation_energy:
         """
-        The activation energy ``Ea_T`` [J/kmol].
+        The activation energy ``E_a`` [J/kmol].
         """
         def __get__(self):
             return self.cxx_object().activationEnergy()
 
     property activation_electron_energy:
         """
-        The activation electron energy ``Ea_{T_e}`` [J/kmol].
+        The activation electron energy ``E_{a,e}`` [J/kmol].
         """
         def __get__(self):
             return self.cxx_object().activationElectronEnergy()
@@ -2329,12 +2329,12 @@ cdef class TwoTempPlasmaReaction(Reaction):
     An example for the definition of an `TwoTempPlasmaReaction` object is given as::
         rxn = TwoTempPlasmaReaction(
             equation="O2 + E <=> O2-",
-            rate={"A": 17283, "b": -3.1, "Ea_T": -5820088, "Ea_Te": 10808733},
+            rate={"A": 17283, "b": -3.1, "Ea": -5820088, "EE": 10808733},
             kinetics=gas)
     The YAML description corresponding to this reaction is::
         equation: O2 + E <=> O2-
         type: two-temperature-plasma
-        rate-constant: {A: 17283, b: -3.1, Ea_T: -700 K, Ea_Te: 1300 K}
+        rate-constant: {A: 17283, b: -3.1, Ea: -700 K, EE: 1300 K}
     """
     _reaction_type = "two-temperature-plasma"
 
