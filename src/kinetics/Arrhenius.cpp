@@ -140,12 +140,14 @@ TwoTempPlasmaRate::TwoTempPlasmaRate()
     : ArrheniusBase()
     , m_EE_R(NAN)
 {
+    m_Ea_str = "Ea-gas";
 }
 
 TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE)
     : ArrheniusBase(A, b, Ea)
     , m_EE_R(EE  / GasConstant)
 {
+    m_Ea_str = "Ea-gas";
 }
 
 void TwoTempPlasmaRate::setRateParameters(
@@ -164,7 +166,7 @@ void TwoTempPlasmaRate::setRateParameters(
     if (rate.is<AnyMap>()) {
         ArrheniusBase::setRateParameters(rate, units, rate_units);
         auto& rate_map = rate.as<AnyMap>();
-        m_EE_R = units.convertActivationEnergy(rate_map["EE"], "K");
+        m_EE_R = units.convertActivationEnergy(rate_map["Ea-electron"], "K");
     } else {
         setRateUnits(rate_units);
         auto& rate_vec = rate.asVector<AnyValue>(4);
@@ -194,7 +196,7 @@ void TwoTempPlasmaRate::getParameters(AnyMap& rateNode) const
     ArrheniusBase::getParameters(node);
     if (!node.empty()) {
         // object is configured
-        node["EE"].setQuantity(m_EE_R, "K", true);
+        node["Ea-electron"].setQuantity(m_EE_R, "K", true);
         rateNode["rate-constant"] = std::move(node);
     }
     rateNode["type"] = type();
