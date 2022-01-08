@@ -292,16 +292,16 @@ class TestTwoTempPlasmaRate(ReactionRateTests, utilities.CanteraTest):
     _cls = ct.TwoTempPlasmaRate
     _type = "two-temperature-plasma"
     _index = 11
-    _input = {"rate-constant": {"A": 17283, "b": -3.1, "Ea": -5820000, "EE": 1081000}}
+    _input = {"rate-constant": {"A": 17283, "b": -3.1, "Ea-gas": -5820000, "Ea-electron": 1081000}}
     _yaml = """
         type: two-temperature-plasma
-        rate-constant: {A: 17283, b: -3.1, Ea: -5820 J/mol, EE: 1081 J/mol}
+        rate-constant: {A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol}
         """
 
     @classmethod
     def setUpClass(cls):
         ReactionRateTests.setUpClass()
-        cls._parts = cls._input["rate-constant"]
+        cls._parts = {key.replace("-", "_"): value for key, value in cls._input["rate-constant"].items()}
 
     def eval(self, rate):
         # check evaluation as a function of temperature and electron temperature
@@ -311,8 +311,8 @@ class TestTwoTempPlasmaRate(ReactionRateTests, utilities.CanteraTest):
         rate = self.from_parts()
         self.assertEqual(self._parts["A"], rate.pre_exponential_factor)
         self.assertEqual(self._parts["b"], rate.temperature_exponent)
-        self.assertAlmostEqual(self._parts["Ea"], rate.activation_energy)
-        self.assertAlmostEqual(self._parts["EE"], rate.activation_electron_energy)
+        self.assertAlmostEqual(self._parts["Ea_gas"], rate.activation_energy)
+        self.assertAlmostEqual(self._parts["Ea_electron"], rate.activation_electron_energy)
         self.check_rate(rate)
 
     def test_negative_A(self):
@@ -930,12 +930,12 @@ class TestTwoTempPlasma(ReactionTests, utilities.CanteraTest):
     _cls = ct.TwoTempPlasmaReaction
     _type = "two-temperature-plasma"
     _equation = "O + H <=> O + H"
-    _rate = {"A": 17283, "b": -3.1, "Ea": -5820000, "EE": 1081000}
+    _rate = {"A": 17283, "b": -3.1, "Ea_gas": -5820000, "Ea_electron": 1081000}
     _index = 11
     _yaml = """
         equation: O + H <=> O + H
         type: two-temperature-plasma
-        rate-constant: {A: 17283, b: -3.1, Ea: -5820 J/mol, EE: 1081 J/mol}
+        rate-constant: {A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol}
         """
 
     @classmethod

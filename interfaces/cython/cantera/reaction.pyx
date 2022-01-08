@@ -274,26 +274,28 @@ cdef class TwoTempPlasmaRate(ReactionRate):
 
     .. math::
 
-        k_f = A T_e^b \exp{-\tfrac{E_a}{RT}} \exp{-\tfrac{E_{a,e}}{RT_e}}
+        k_f = A T_e^b \exp{-\tfrac{E_{a,g}}{RT}} \exp{-\tfrac{E_{a,e}}{RT_e}}
 
-    where ``A`` is the `pre_exponential_factor`, ``b`` is the `temperature_exponent`,
-    ``E_a`` is the `activation_energy`, and ``E_{a,e}`` is the `activation_electron_energy`.
+    where :math:`A` is the `pre_exponential_factor`, :math:`b` is the
+    `temperature_exponent`, :math:`E_{a,g}` is the `activation_energy`, and
+    :math:`E_{a,e}` is the `activation_electron_energy`.
     """
     _reaction_rate_type = "two-temperature-plasma"
 
-    def __cinit__(self, A=None, b=None, Ea=None, EE=None, input_data=None, init=True):
-
+    def __cinit__(self, A=None, b=None, Ea_gas=None, Ea_electron=None,
+            input_data=None, init=True):
         if init:
             if isinstance(input_data, dict):
                 self._rate.reset(new CxxTwoTempPlasmaRate(dict_to_anymap(input_data)))
-            elif all([arg is not None for arg in [A, b, Ea, EE]]):
-                self._rate.reset(new CxxTwoTempPlasmaRate(A, b, Ea, EE))
-            elif all([arg is None for arg in [A, b, Ea, EE, input_data]]):
+            elif all([arg is not None for arg in [A, b, Ea_gas, Ea_electron]]):
+                self._rate.reset(new CxxTwoTempPlasmaRate(A, b, Ea_gas, Ea_electron))
+            elif all([arg is None for arg in [A, b, Ea_gas, Ea_electron, input_data]]):
                 self._rate.reset(new CxxTwoTempPlasmaRate(dict_to_anymap({})))
             elif input_data:
                 raise TypeError("Invalid parameter 'input_data'")
             else:
-                raise TypeError("Invalid parameters 'A', 'b', 'Ea' or 'EE'")
+                raise TypeError(
+                    "Invalid parameters 'A', 'b', 'Ea_gas' or 'Ea_electron'")
             self.set_cxx_object()
 
     def __call__(self, double temperature, double elec_temp):
@@ -322,14 +324,14 @@ cdef class TwoTempPlasmaRate(ReactionRate):
 
     property activation_energy:
         """
-        The activation energy ``E_a`` [J/kmol].
+        The activation energy :math:`E_{a,g}` [J/kmol].
         """
         def __get__(self):
             return self.cxx_object().activationEnergy()
 
     property activation_electron_energy:
         """
-        The activation electron energy ``E_{a,e}`` [J/kmol].
+        The activation electron energy :math:`E_{a,e}` [J/kmol].
         """
         def __get__(self):
             return self.cxx_object().activationElectronEnergy()
@@ -2279,11 +2281,14 @@ cdef class BlowersMaselReaction(Reaction):
     reaction rate.
 
     An example for the definition of an `BlowersMaselReaction` object is given as::
+
         rxn = BlowersMaselReaction(
             equation="O + H2 <=> H + OH",
             rate={"A": 38.7, "b": 2.7, "Ea0": 1.0958665856e8, "w": 1.7505856e13},
             kinetics=gas)
+
     The YAML description corresponding to this reaction is::
+
         equation: O + H2 <=> H + OH
         type: Blowers-Masel
         rate-constant: {A: 38700 cm^3/mol/s, b: 2.7, Ea0: 2.619184e4 cal/mol, w: 4.184e9 cal/mol}
@@ -2327,14 +2332,17 @@ cdef class TwoTempPlasmaReaction(Reaction):
     A reaction which rate coefficient depends on both gas and electron temperature
 
     An example for the definition of an `TwoTempPlasmaReaction` object is given as::
+
         rxn = TwoTempPlasmaReaction(
             equation="O2 + E <=> O2-",
-            rate={"A": 17283, "b": -3.1, "Ea": -5820088, "EE": 10808733},
+            rate={"A": 17283, "b": -3.1, "Ea-gas": -5820088, "Ea-electron": 10808733},
             kinetics=gas)
+
     The YAML description corresponding to this reaction is::
+
         equation: O2 + E <=> O2-
         type: two-temperature-plasma
-        rate-constant: {A: 17283, b: -3.1, Ea: -700 K, EE: 1300 K}
+        rate-constant: {A: 17283, b: -3.1, Ea-gas: -700 K, Ea-electron: 1300 K}
     """
     _reaction_type = "two-temperature-plasma"
 
@@ -2346,7 +2354,10 @@ cdef class TwoTempPlasmaReaction(Reaction):
             rxn_type = self._reaction_type
             spec = {"equation": equation, "type": rxn_type}
             if isinstance(rate, dict):
-                spec["rate-constant"] = rate
+                replaced_rate = {}
+                for key, value in rate.items():
+                    replaced_rate[key.replace("_", "-")] = value
+                spec["rate-constant"] = replaced_rate
             elif rate is None or isinstance(rate, TwoTempPlasmaRate):
                 pass
             else:
