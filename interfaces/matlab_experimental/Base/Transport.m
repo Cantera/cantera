@@ -1,11 +1,8 @@
 classdef Transport < handle
+
     properties
         th
         tr_id
-    end
-
-    properties(Constant = true)
-        lib = 'cantera_shared'
     end
 
     methods
@@ -28,22 +25,23 @@ classdef Transport < handle
             else
                 tr.th = tp;
                 if strcmp(model, 'default')
-                    tr.tr_id = calllib(tr.lib, 'trans_newDefault', ...
+                    tr.tr_id = calllib(ct, 'trans_newDefault', ...
                                        tp.tp_id, loglevel);
                 else
-                    tr.tr_id = calllib(tr.lib, 'trans_new', model, ...
+                    tr.tr_id = calllib(ct, 'trans_new', model, ...
                                        tp.tp_id, loglevel);
                 end
             end
+            tr.tp_id = tp.tp_id;
         end
 
         %% Utility methods
 
-        function clear(tr)
+        function tr_clear(tr)
             % Delete the kernel object.
 
             checklib;
-            calllib(tr.lib, 'trans_del', tr.tr_id);
+            calllib(ct, 'trans_del', tr.tr_id);
         end
 
         %% Transport Methods
@@ -51,11 +49,11 @@ classdef Transport < handle
         function v = viscosity(tr)
             % Get the dynamic viscosity.
             %
-            % :return:
+            % return:
             %    Double dynamic viscosity. Unit: Pa*s.
 
             checklib;
-            v = calllib(tr.lib, 'trans_viscosity', tr.tr_id);
+            v = calllib(ct, 'trans_viscosity', tr.tr_id);
             if v == -1.0
                 error(geterr);
             elseif v < 0.0
@@ -63,14 +61,14 @@ classdef Transport < handle
             end
         end
 
-        function v = thermaoConductivity(tr)
+        function v = thermalConductivity(tr)
             % Get the thermal conductivity.
             %
-            % :return:
+            % return:
             %    Double thermal conductivity. Unit: W/m-K.
 
             checklib;
-            v = calllib(tr.lib, 'trans_thermalConductivity', tr.tr_id);
+            v = calllib(ct, 'trans_thermalConductivity', tr.tr_id);
             if v == -1.0
                 error(geterr);
             elseif v < 0.0
@@ -81,11 +79,11 @@ classdef Transport < handle
         function v = electricalConductivity(tr)
             % Get the electrical conductivity.
             %
-            % :return:
+            % return:
             %    Double electrical conductivity. Unit: S/m.
 
             checklib;
-            v = calllib(tr.lib, 'trans_electricalConductivity', tr.tr_id);
+            v = calllib(ct, 'trans_electricalConductivity', tr.tr_id);
             if v == -1.0
                 error(geterr);
             elseif v < 0.0
@@ -96,7 +94,7 @@ classdef Transport < handle
         function v = mixDiffCoeffs(tr)
             % Get the mixture-averaged diffusion coefficients.
             %
-            % :return:
+            % return:
             %    Vector of length nSpecies with the mixture-averaged
             %    diffusion coefficients. Unit: m^2/s.
 
@@ -104,14 +102,14 @@ classdef Transport < handle
             nsp = tr.th.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(tr.lib, 'trans_getMixDiffCoeffs', tr.tr_id, nsp, pt);
+            calllib(ct, 'trans_getMixDiffCoeffs', tr.tr_id, nsp, pt);
             v = pt.Value;
         end
 
         function v = thermalDiffCoeffs(tr)
             % Get the thermal diffusion coefficients.
             %
-            % :return:
+            % return:
             %    Vector of length nSpecies with the thermal diffusion
             %    coefficients.
 
@@ -119,14 +117,14 @@ classdef Transport < handle
             nsp = tr.th.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(tr.lib, 'trans_getThermalDiffCoeffs', tr.tr_id, nsp, pt);
+            calllib(ct, 'trans_getThermalDiffCoeffs', tr.tr_id, nsp, pt);
             v = pt.Value;
         end
 
         function v = binDiffCoeffs(tr)
             % Get the binary diffusion coefficients.
             %
-            % :return:
+            % return:
             %    A matrix of binary diffusion coefficients. The matrix is
             %    symmetric: d(i, j) = d(j, i). Unit: m^2/s.
 
@@ -134,14 +132,14 @@ classdef Transport < handle
             nsp = tr.th.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(tr.lib, 'trans_getBinDiffCoeffs', tr.tr_id, nsp, pt);
+            calllib(ct, 'trans_getBinDiffCoeffs', tr.tr_id, nsp, pt);
             v = pt.Value;
         end
 
         function v = multiDiffCoeffs(tr)
             % Get the multicomponent diffusion coefficients.
             %
-            % :return:
+            % return:
             %    Vector of length nSpecies with the multicomponent
             %    diffusion coefficients. Unit: m^2/s.
 
@@ -149,29 +147,29 @@ classdef Transport < handle
             nsp = tr.th.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(tr.lib, 'trans_getMultiDiffCoeffs', tr.tr_id, nsp, pt);
+            calllib(ct, 'trans_getMultiDiffCoeffs', tr.tr_id, nsp, pt);
             v = pt.Value;
         end
 
         function setParameters(tr, type, k, p)
             % Set the parameters.
             %
-            % :param type:
-            % :param k:
-            % :param p:
+            % parameter type:
+            % parameter k:
+            % parameter p:
 
             checklib;
-            calllib(tr.lib, 'trans_setParameters', tr.tr_id, type, k, p);
+            calllib(ct, 'trans_setParameters', tr.tr_id, type, k, p);
         end
 
         function setThermalConductivity(tr, lam)
             % Set the thermal conductivity.
             %
-            % :param lam:
+            % parameter lam:
             %    Thermal conductivity in W/(m-K).
 
             checklib;
-            setParameters(tr, 1, 0, lam);
+            tr.setParameters(1, 0, lam);
         end
 
     end

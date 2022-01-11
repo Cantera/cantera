@@ -1,8 +1,6 @@
-classdef Solution < handle
+classdef Solution < handle & ThermoPhase & Kinetics & Transport
     properties
-        thermo
-        kinetics
-        transport
+        tp
     end
     methods
         % Solution class constructor
@@ -11,27 +9,26 @@ classdef Solution < handle
                 id = '-';
             end
             tp = ThermoPhase(src, id);
-            kin = Kinetics(tp, src, id);
-            s.kinetics = kin;
-            s.thermo = tp;
+            s@ThermoPhase(src, id);
+            s@Kinetics(tp, src, id);
             if nargin == 3
-                if (strcmp(trans, 'default') || strcmp(trans, 'None')...
+                if ~(strcmp(trans, 'default') || strcmp(trans, 'None')...
                     || strcmp(trans, 'Mix') || strcmp(trans, 'Multi'))
-                    tr = Transport(tp, trans, 0);
-                else
                     error('Unknown transport modelling specified.');
                 end
             else
-                tr = Transport(tp, 'default', 0);
+                trans = 'default';
             end
-            s.transport = tr;
+            s@Transport(tp, trans, 0);
+            s.tp_id = tp.tp_id;
         end
 
         % Delete the kernel objects associated with a solution
         function clear(s)
-            s.thermo.clear;
-            s.kinetics.clear;
-            s.transport.clear;
+            s.tp_clear;
+            s.kin_clear;
+            s.tr_clear;
         end
+
     end
 end

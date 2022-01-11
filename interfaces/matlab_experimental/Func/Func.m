@@ -8,10 +8,6 @@ classdef Func < handle
         typ
     end
 
-    properties(Constant = true)
-        lib = 'cantera_shared'
-    end
-
     methods
         %% Functor class constructor
 
@@ -44,7 +40,7 @@ classdef Func < handle
             % class 'Func1'. See the Cantera C++ documentation for more
             % details.
             %
-            % :param typ:
+            % parameter typ:
             %    String indicating type of functor to create. Possible
             %    values are:
             %    * 'polynomial'
@@ -57,11 +53,11 @@ classdef Func < handle
             %    * 'composite'
             %    * 'periodic'
             %
-            % :param n:
+            % parameter n:
             %    Number of parameters required for the functor
-            % :param p:
+            % parameter p:
             %    Vector of parameters
-            % :return:
+            % return:
             %    Instance of class :mat:func:`Func`
 
             checklib;
@@ -81,13 +77,13 @@ classdef Func < handle
                     ptr = libpointer('doublePtr', p);
                     [m, n] = size(p);
                     lenp = m * n;
-                    nn = calllib(x.lib, 'func_new', type, n, lenp, ptr);
+                    nn = calllib(ct, 'func_new', type, n, lenp, ptr);
                 elseif itype < 45
                     m = n;
-                    nn = calllib(x.lib, 'func_new', type, n, m, 0);
+                    nn = calllib(ct, 'func_new', type, n, m, 0);
                 else
                     ptr = libpointer('doublePtr', p);
-                    nn = calllib(x.lib, 'func_new', type, n, 0, ptr);
+                    nn = calllib(ct, 'func_new', type, n, 0, ptr);
                 end
             end
 
@@ -124,13 +120,13 @@ classdef Func < handle
         function clear(f)
             % Clear the functor from memory.
             checklib;
-            calllib(f.lib, 'func_del', f.id);
+            calllib(ct, 'func_del', f.id);
         end
 
         function display(a)
             % Display the equation of the input function on the terminal.
             %
-            % :param a:
+            % parameter a:
             %    Instance of class 'Func'
 
             disp(' ');
@@ -162,11 +158,11 @@ classdef Func < handle
         function b = subsref(a, s)
             % Redefine subscripted references for functors.
             %
-            % :param a:
+            % parameter a:
             %    Instance of class 'Func'
-            % :param s:
+            % parameter s:
             %    Value at which the function should be evaluated.
-            % :return:
+            % return:
             %    The value of the function evaluated at 's'.
 
             checklib;
@@ -174,7 +170,7 @@ classdef Func < handle
                 ind= s.subs{:};
                  b = zeros(1, length(ind));
                  for k = 1:length(ind)
-                     b(k) = calllib(a.lib, 'func_value', a.id, ind(k));
+                     b(k) = calllib(ct, 'func_value', a.id, ind(k));
                  end
             else error('Specify value for x as p(x)');
             end

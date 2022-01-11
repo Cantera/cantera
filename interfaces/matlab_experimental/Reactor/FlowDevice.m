@@ -7,17 +7,13 @@ classdef FlowDevice < handle
         downstream
     end
 
-    properties(Constant = true)
-        lib = 'cantera_shared'
-    end
-
     methods
         %% FlowDevice class constructor
 
         function x = FlowDevice(typ)
             % Flow Device class constructor.
             %
-            % :param typ:
+            % parameter typ:
             %    Type of flow device to be created. Type =
             %    'MassFlowController', 'PressureController' or 'Valve'.
 
@@ -36,7 +32,7 @@ classdef FlowDevice < handle
             end
 
             x.type = typ;
-            x.id = calllib(x.lib, 'flowdev_new2', typ);
+            x.id = calllib(ct, 'flowdev_new', typ);
 %             if x.id < 0
 %                 error(geterr);
 %             end
@@ -49,7 +45,7 @@ classdef FlowDevice < handle
         function clear(f)
             % Clear the specified flow device from memory.
             checklib;
-            calllib(f.lib, 'flowdev_del', f.id);
+            calllib(ct, 'flowdev_del', f.id);
         end
 
         %% FlowDevice methods
@@ -57,9 +53,9 @@ classdef FlowDevice < handle
         function install(f, upstream, downstream)
             % Install a flow device between reactors or reservoirs.
             %
-            % :param upstream:
+            % parameter upstream:
             %    Upsteram 'Reactor' or 'Reservoir'.
-            % :param downstream:
+            % parameter downstream:
             %    Downstream 'Reactor' or 'Reservoir'.
 
             checklib;
@@ -70,7 +66,7 @@ classdef FlowDevice < handle
                 end
                 i = upstream.id;
                 j = downstream.id;
-                ok = calllib(f.lib, 'flowdev_install', f.id, i, j);
+                ok = calllib(ct, 'flowdev_install', f.id, i, j);
 %                 if ok < 0
 %                     error(geterr)
 %                 end
@@ -81,31 +77,31 @@ classdef FlowDevice < handle
         function mdot = massFlowRate(f, time)
             % Get the mass flow rate at a given time.
             %
-            % :param time:
+            % parameter time:
             %    Time at which the mass flow rate is desired.
-            % :return:
+            % return:
             %    The mass flow rate through the flow device at the given
             %    time.
 
             checklib;
             if nargin == 1
-                mdot = calllib(f.lib, 'flowdev_massFlowRate2', f.id);
+                mdot = calllib(ct, 'flowdev_massFlowRate2', f.id);
             else
                 warning(['"Time" argument to massFlowRate is deprecated', ...
                          'and will be removed after Cantera 2.5.']);
-                mdot = calllib(f.lib, 'flowdev_massFlowRate', f.id, time);
+                mdot = calllib(ct, 'flowdev_massFlowRate', f.id, time);
             end
         end
 
         function setFunction(f, mf)
             % Set the time function with class 'func'.
             %
-            % :param mf:
+            % parameter mf:
             %    Instance of class 'func'.
 
             checklib;
             if strcmp(f.type, 'MassFlowController')
-                k = calllib(f.lib, 'flowdev_setTimeFunction', f.id, ...
+                k = calllib(ct, 'flowdev_setTimeFunction', f.id, ...
                             mf.id);
 %                 if k < 0
 %                     error(geterr);
@@ -118,12 +114,12 @@ classdef FlowDevice < handle
         function setMassFlowRate(f, mdot)
             % Set the mass flow rate to a constant value.
             %
-            % :param mdot:
+            % parameter mdot:
             %    Mass flow rate
 
             checklib;
             if strcmp(f.type, 'MassFlowController')
-                k = calllib(f.lib, 'flowdev_setMassFlowCoeff', f.id, mdot);
+                k = calllib(ct, 'flowdev_setMassFlowCoeff', f.id, mdot);
 %                 if k < 0
 %                     error(geterr);
 %                 end
@@ -140,14 +136,14 @@ classdef FlowDevice < handle
             % as long as this produces a positive value. If thsi expression
             % is negative, zero is returned.
             %
-            % :param k:
+            % parameter k:
             %    Value fo the valve coefficient. Unit: kg/Pa-s.
 
             checklib;
             if ~strcmp(f.type, 'Valve')
                 error('Valve coefficient can only be set for valves.');
             end
-            ok = calllib(f.lib, 'flowdev_setValveCoeff', f.id, k);
+            ok = calllib(ct, 'flowdev_setValveCoeff', f.id, k);
 %            if k < 0
 %                error(geterr);
 %            end

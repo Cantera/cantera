@@ -1,61 +1,55 @@
-classdef Interface < handle
+classdef Interface < handle & ThermoPhase & Kinetics
 
     properties
-        th
-        kin
-    end
-
-    properties(Constant = true)
-        lib = 'cantera_shared'
+        coverages
     end
 
     methods
         %% Interface class constructor
 
         function s = Interface(src, id, p1, p2, p3, p4)
-            % :param src:
+            % parameter src:
             %    CTI or CTML file containing the interface or edge phase.
-            % :param id:
+            % parameter id:
             %    Name of the interface or edge phase in the source file.
-            % :param p1/P2/P3/P4:
+            % parameter p1/p2/p3/p4:
             %    Adjoining phase to the interface;
-            % :return:
+            % return:
             %    Instance of class 'Interface'.
 
             checklib;
             t = ThermoPhase(src, id);
+            s@ThermoPhase(src, id);
             if nargin == 2
-                k = Kinetics(t, src, id);
+                args = {};
             elseif nargin == 3
-                k = Kinetics(t, src, id, p1);
+                args = {p1};
             elseif nargin == 4
-                k = Kinetics(t, src, id, p1, p2);
+                args = {p1, p2};
             elseif nargin == 5
-                k = Kinetics(t, src, id, p1, p2, p3);
+                args = {p1, p2, p3};
             elseif nargin == 6
-                k = Kinetics(t, src, id, p1, p2, p3, p4);
+                args = {p1, p2, p3, p4};
             end
-
-            s.kin = k;
-            s.th = t;
+            s@Kinetics(t, src, id, args{:});
         end
 
         %% Interface methods
 
-        function c = coverages(s)
+        function c = get.coverages(s)
             % Get the surface coverages of the species on an interface.
             %
-            % :return:
+            % return:
             %    If no output value is assigned, a bar graph will be
             %    plotted. Otherwise, a vector of length "n_surf_species"
             %    will be returned.
 
             checklib;
-            surf_id = s.th.tr_id;
-            nsp = s.th.nSpecies;
+            surf_id = s.tr_id;
+            nsp = s.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(s.lib, 'surf_getCoverages', surf_id, xx);
+            calllib(ct, 'surf_getCoverages', surf_id, xx);
             c = pt.Value;
 
             if nargout == 0
@@ -63,7 +57,7 @@ classdef Interface < handle
                 set(gcf, 'Name', 'Coverages')
                 bar(c);
                 colormap(summer);
-                nm = speciesNames(s);
+                nm = s.speciesNames;
                 set(gca, 'XTickLabel', nm);
                 xlabel('Species Name');
                 ylabel('Coverage');
@@ -74,17 +68,17 @@ classdef Interface < handle
         function c = concentrations(s)
             % Get the concentrations of the species on an interface.
             %
-            % :return:
+            % return:
             %    If no output value is assigned, a bar graph will be
             %    plotted. Otherwise, a vector of length "n_surf_species"
             %    will be returned.
 
             checklib;
-            surf_id = s.th.tr_id;
-            nsp = s.th.nSpecies;
+            surf_id = s.tr_id;
+            nsp = s.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(s.lib, 'surf_getConcentrations', surf_id, xx);
+            calllib(ct, 'surf_getConcentrations', surf_id, xx);
             c = pt.Value;
 
             if nargout == 0
@@ -100,10 +94,10 @@ classdef Interface < handle
             end
         end
 
-        function setCoverages(s, cov, norm)
+        function set.coverages(s, cov, norm)
             % Set surface coverages of the species on an interface.
             %
-            % :param cov:
+            % parameter cov:
             %    Coverage of the species. "Cov" can be either a vector of
             %    length "n_surf_species", or a string in the format
             %    "Species:Coverage, Species:Coverage".
@@ -116,22 +110,22 @@ classdef Interface < handle
                 norm_flag = 1;
             end
 
-            surf_id = s.th.tr_id;
-            nsp = s.th.nSpecies;
+            surf_id = s.tr_id;
+            nsp = s.nSpecies;
             [m, n] = size(cov);
 
             if isa(cov, 'double')
                 sz = length(cov);
                 if sz == nsp
                     if ((m == nsp && n == 1) || (m == 1 & n == nsp))
-                        calllib(s.lib, 'surf_setCoverages', surf_id, cov, norm_flag);
+                        calllib(ct, 'surf_setCoverages', surf_id, cov, norm_flag);
                     else error('wrong size for coverage array');
                     end
                 else
                     error('wrong size for coverage array');
                 end
             elseif isa(cov, 'char')
-                calllib(s.lib, 'surf_setCoveragesByName', surf_id, cov);
+                calllib(ct, 'surf_setCoveragesByName', surf_id, cov);
             end
         end
 
