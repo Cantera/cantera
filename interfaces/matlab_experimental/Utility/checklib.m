@@ -1,3 +1,3 @@
-if ~libisloaded('cantera_shared')
+if ~libisloaded(ct)
     error('Cantera is not loaded');
 end

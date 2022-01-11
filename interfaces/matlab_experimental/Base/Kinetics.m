@@ -1,7 +1,8 @@
 classdef Kinetics < handle
+
     properties
         owner
-        id
+        kin_id
         Kc % equilibrium constant
         Kf % forward reaction rate
         Kr % reverse reaction rate
@@ -9,9 +10,7 @@ classdef Kinetics < handle
         dS % entropy of reaction
         dG % gibbs free energy of reaction
     end
-    properties(Constant = true)
-        lib = 'cantera_shared'
-    end
+
     methods
         %% Kinetics class constructor
 
@@ -41,78 +40,78 @@ classdef Kinetics < handle
                     end
                 end
             end
-            kin.id = calllib(kin.lib, 'kin_newFromFile', src, id, ...
+            kin.kin_id = calllib(ct, 'kin_newFromFile', src, id, ...
                              iph, inb1, inb2, inb3, inb4);
         end
 
         %% Utility methods
 
-        function clear(kin)
+        function kin_clear(kin)
             % Delete the kernel object
 
             checklib;
-            calllib(kin.lib, 'kin_del', kin.id);
+            calllib(ct, 'kin_del', kin.kin_id);
         end
 
         %% Get scalar attributes
 
-        function n = nReactions(kin)
-            % Get the number of reactions.
+        function n = isReversible(kin, i)
+            % Get an array of flags indicating reversibility of a reaction.
             %
-            % :return:
-            %    Integer number of reactions
+            % parameter i:
+            %    Integer reaction number.
+            % return:
+            %    1 if reaction number i is reversible. 0 if irreversible.
 
             checklib;
-            n = calllib(kin.lib, 'kin_nReactions', kin.id);
+            n = calllib(ct, 'kin_isReversible', kin.kin_id, i);
         end
 
         function n = multiplier(kin, irxn)
             % Get the multiplier for reaction rate of progress.
             %
-            % :param irxn:
+            % parameter irxn:
             %    Integer reaction number for which the multiplier is
             %    desired.
-            % :return:
+            % return:
             %    Multiplier of the rate of progress of reaction irxn.
 
             checklib;
-            n = calllib(kin.lib, 'kin_multiplier', kin.id, irxn-1);
+            n = calllib(ct, 'kin_multiplier', kin.kin_id, irxn-1);
         end
 
-        function n = nSpecies(kin)
+        function n = nReactions(kin)
+            % Get the number of reactions.
+            %
+            % return:
+            %    Integer number of reactions
+
+            checklib;
+            n = calllib(ct, 'kin_nReactions', kin.kin_id);
+        end
+
+        function n = nSpecies2(kin)
             % Get the total number of species.
             %
-            % :return:
+            % return:
             %    Integer total number of species.
 
             checklib;
-            n = calllib(kin.lib, 'kin_nSpecies', kin.id);
-        end
-
-        function n = isReversible(kin, i)
-            % Get an array of flags indicating reversibility of a reaction.
-            %
-            % :param i:
-            %    Integer reaction number.
-            % :return:
-            %    1 if reaction number i is reversible. 0 if irreversible.
-
-            checklib;
-            n = calllib(kin.lib, 'kin_isReversible', kin.id, i);
+            n = calllib(ct, 'kin_nSpecies', kin.kin_id);
         end
 
         function n = stoich_r(kin, species, rxns)
             % Get the reactant stoichiometric coefficients.
             %
-            % :param species:
+            % parameter species:
             %    Species indices for which reactant stoichiometric
             %    coefficients should be retrieved. Optional argument; if
             %    specified, "rxns" must be specified as well.
-            % :param rxns:
+            % parameter rxns:
             %    Reaction indicies for which reactant stoichiometric
             %    coefficients should be retrieved. Optional argument; if
             %    specified, "species" must be specified as well.
-            % :return:
+            % return:
             %    Returns a sparse matrix of all reactant stoichiometric
             %    coefficients. The matrix elements "nu(k, i)" is the
             %    stoichiometric coefficient of species k as a reactant in
@@ -137,8 +136,8 @@ classdef Kinetics < handle
 
             for k = krange
                 for i = irange
-                    t = calllib(kin.lib, 'kin_reactantStoichCoeff', ...
-                                kin.id, k-1, i-1);
+                    t = calllib(ct, 'kin_reactantStoichCoeff', ...
+                                kin.kin_id, k-1, i-1);
                     if t ~= 0.0
                         temp(k, i) = t;
                     end
@@ -151,15 +150,15 @@ classdef Kinetics < handle
         function n = stoich_p(kin, species, rxns)
             % Get the product stoichiometric coefficients.
             %
-            % :param species:
+            % parameter species:
             %    Species indices for which product stoichiometric
             %    coefficients should be retrieved. Optional argument; if
             %    specified, "rxns" must be specified as well.
-            % :param rxns:
+            % parameter rxns:
             %    Reaction indicies for which product stoichiometric
             %    coefficients should be retrieved. Optional argument; if
             %    specified, "species" must be specified as well.
-            % :return:
+            % return:
             %    Returns a sparse matrix of all product stoichiometric
             %    coefficients. The matrix elements "nu(k, i)" is the
             %    stoichiometric coefficient of species k as a product in
@@ -184,8 +183,8 @@ classdef Kinetics < handle
 
             for k = krange
                 for i = irange
-                    t = calllib(kin.lib, 'kin_productStoichCoeff', ...
-                                kin.id, k-1, i-1);
+                    t = calllib(ct, 'kin_productStoichCoeff', ...
+                                kin.kin_id, k-1, i-1);
                     if t ~= 0.0
                         temp(k, i) = t;
                     end
@@ -198,15 +197,15 @@ classdef Kinetics < handle
         function n = stoich_net(kin, species, rxns)
             % Get the net stoichiometric coefficients.
             %
-            % :param species:
+            % parameter species:
             %    Species indices for which net stoichiometric coefficients
             %    should be retrieved. Optional argument; if specified,
             %    "rxns" must be specified as well.
-            % :param rxns:
+            % parameter rxns:
             %    Reaction indicies for which net stoichiometric
             %    coefficients should be retrieved. Optional argument; if
             %    specified, "species" must be specified as well.
-            % :return:
+            % return:
             %    Returns a sparse matrix of all net stoichiometric
             %    coefficients. The matrix elements "nu(k, i)" is the
             %    stoichiometric coefficient of species k as a net in
@@ -227,10 +226,82 @@ classdef Kinetics < handle
 
         %% Get reaction array attributes
 
+        function cdot = creationRates(kin)
+            % Get the chemical reaction rates.
+            %
+            % return:
+            %    Returns a vector of the creation rates of all species. If
+            %    the output is not assigned to a variable, a bar graph is
+            %    produced. Unit: kmol/m^3-s.
+
+            checklib;
+            nsp = kin.nSpecies;
+            xx = zeros(1, nsp);
+            pt = libpointer('doublePtr', xx);
+            calllib(ct, 'kin_getCreationRates', kin.kin_id, nsp, pt);
+            cdot = pt.Value;
+            if nargout == 0
+                figure
+                set(gcf, 'Name', 'Creation Rates')
+                bar(q)
+                xlabel('Species Number')
+                ylabel('Creation Rate [kmol/m^3-s]')
+                title('Species Chemical Reaction Rates')
+            end
+        end
+
+        function ddot = destructionRates(kin)
+            % Get the chemical destruction rates.
+            %
+            % return:
+            %    Returns a vector of the destruction rates of all species.
+            %    If the output is not assigned to a variable, a bar graph
+            %    is produced. Unit: kmol/m^3-s.
+
+            checklib;
+            nsp = kin.nSpecies;
+            xx = zeros(1, nsp);
+            pt = libpointer('doublePtr', xx);
+            calllib(ct, 'kin_getDestructionRates', kin.kin_id, nsp, pt);
+            ddot = pt.Value;
+            if nargout == 0
+                figure
+                set(gcf, 'Name', 'Destruction Rates')
+                bar(q)
+                xlabel('Species Number')
+                ylabel('Destruction Rate [kmol/m^3-s]')
+                title('Species Chemical Reaction Rates')
+            end
+        end
+
+        function wdot = netProdRates(kin)
+            % Get the net chemical production rates for all species.
+            %
+            % return:
+            %    Returns a vector of the net production (creation-destruction)
+            %    rates of all species. If the output is not assigned to a
+            %    variable, a bar graph is produced. Unit: kmol/m^3-s.
+
+            checklib;
+            nsp = kin.nSpecies;
+            xx = zeros(1, nsp);
+            pt = libpointer('doublePtr', xx);
+            calllib(ct, 'kin_getNetProductionRates', kin.kin_id, nsp, pt);
+            wdot = pt.Value;
+            if nargout == 0
+                figure
+                set(gcf, 'Name', 'Production Rates')
+                bar(q)
+                xlabel('Species Number')
+                ylabel('Net Production Rate [kmol/m^3-s]')
+                title('Species Net Chemical Reaction Rates')
+            end
+        end
+
         function q = rop_f(kin)
             % Get the forward rates of progress for all reactions.
             %
-            % :return:
+            % return:
             %    Returns a column vector of the forward rates of progress
             %    for all reactions. If this function is called without
             %    argument, a bar graph is produced.
@@ -239,7 +310,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            calllib(kin.lib, 'kin_getFwdRateOfProgress', kin.id, nr, pt);
+            calllib(ct, 'kin_getFwdRateOfProgress', kin.kin_id, nr, pt);
             q = pt.Value;
             if nargout == 0
                 figure
@@ -254,7 +325,7 @@ classdef Kinetics < handle
         function q = rop_r(kin)
             % Get the reverse rates of progress for all reactions.
             %
-            % :return:
+            % return:
             %    Returns a column vector of the reverse rates of progress
             %    for all reactions. If this function is called without
             %    argument, a bar graph is produced.
@@ -263,7 +334,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            calllib(kin.lib, 'kin_getRevRateOfProgress', kin.id, nr, pt);
+            calllib(ct, 'kin_getRevRateOfProgress', kin.kin_id, nr, pt);
             q = pt.Value;
             if nargout == 0
                 figure
@@ -278,7 +349,7 @@ classdef Kinetics < handle
         function q = rop(kin)
             % Get the forward and reverse rates of progress.
             %
-            % :return:
+            % return:
             %    Returns an I x 2 array of reaction rates of progress,
             %    where I is the number of reactions. The first column
             %    contains the forward rates of progress, and the second
@@ -303,7 +374,7 @@ classdef Kinetics < handle
         function q = rop_net(kin)
             % Get the net rates of progress for all reactions.
             %
-            % :return:
+            % return:
             %    Returns a column vector of the net rates of progress
             %    for all reactions. If this function is called without
             %    argument, a bar graph is produced.
@@ -312,7 +383,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            calllib(kin.lib, 'kin_getNetRateOfProgress', kin.id, nr, pt);
+            calllib(ct, 'kin_getNetRatesOfProgress', kin.kin_id, nr, pt);
             q = pt.Value;
             if nargout == 0
                 figure
@@ -324,10 +395,91 @@ classdef Kinetics < handle
             end
         end
 
+        function rxn = reactionEqn(kin, irxn)
+            % Get the reaction equation of a reaction
+            %
+            % parameter irxn:
+            %    Optional. Integer or vector of reaction numbers.
+            % return:
+            %    String or cell arrray of strings of the reaction
+            %    equations.
+
+            if nargin == 1
+                m = kin.nReactions;
+                n = 1
+                irxn = (n:m)';
+            elseif nargin == 2
+                if isa(irxn, 'double')
+                    [m, n] = size(irxn);
+                else
+                    error('reaction numbers must be numeric');
+                end
+            end
+
+            rxn = cell(m, n);
+            for i = 1:m
+                for j = 1:n
+                    buflen = calllib(ct, 'kin_getReactionString', kin.kin_id, ...
+                                     irxn - 1, 0, '');
+                    if buflen > 0
+                            aa = char(zeros(1, buflen));
+                            [~, aa] = calllib(ct, 'kin_getReactionString', ...
+                                              kin.kin_id, irxn - 1, buflen, aa);
+                            rxn{i, j} = aa;
+                    end
+                end
+            end
+        end
+
+        function enthalpy = get.dH(kin)
+            % Get the enthalpy of reaction for each reaction.
+            %
+            % return:
+            %    Returns a vector of the enthalpy of reaction for each
+            %    reaction. Unit: J/kmol.
+
+            checklib;
+            nr = kin.nReactions;
+            xx = zeros(1, nr);
+            pt = libpointer('doublePtr', xx);
+            calllib(ct, 'kin_getDelta', kin.kin_id, 0, nr, pt);
+            enthalpy = pt.Value;
+        end
+
+        function entropy = get.dS(kin)
+            % Get the entropy of reaction for each reaction.
+            %
+            % return:
+            %    Returns a vector of the entropy of reaction for each
+            %    reaction. Unit: J/kmol-K.
+
+            checklib;
+            nr = kin.nReactions;
+            xx = zeros(1, nr);
+            pt = libpointer('doublePtr', xx);
+            calllib(ct, 'kin_getDelta', kin.kin_id, 2, nr, pt);
+            entropy = pt.Value;
+        end
+
+        function gibbs = get.dG(kin)
+            % Get the Gibbs free energy of reaction for each reaction.
+            %
+            % return:
+            %    Returns a vector of the Gibbs free energy of reaction for
+            %    each reaction. Unit: J/kmol.
+
+            checklib;
+            nr = kin.nReactions;
+            xx = zeros(1, nr);
+            pt = libpointer('doublePtr', xx);
+            calllib(ct, 'kin_getDelta', kin.kin_id, 1, nr, pt);
+            gibbs = pt.Value;
+        end
+
         function k = get.Kc(kin)
             % Get the equilibrium constants for all reactions.
             %
-            % :return:
+            % return:
             %    Returns a column vector of the equilibrium constants for
             %    all reactions. The vector has an entry for every reaction,
             %    whether reversible or not, but non-zero values occur only
@@ -338,12 +490,12 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            calllib(kin.lib, 'kin_getEquilibriumConstants', kin.id, nr, pt);
+            calllib(ct, 'kin_getEquilibriumConstants', kin.kin_id, nr, pt);
             k = pt.Value;
             if nargout == 0
                 figure
                 set(gcf, 'Name', 'Equilibrium Constants')
-                bar(q)
+                bar(k)
                 xlabel('Reaction Number')
                 ylabel('log_{10} Kc [kmol,m, s]')
                 title('Equilibrium Constants')
@@ -353,7 +505,7 @@ classdef Kinetics < handle
         function k = get.Kf(kin)
             % Get the forward reaction rate constants for all reactions.
             %
-            % :return:
+            % return:
             %    Returns a column vector of the forward rates constants of
             %    all of the reactions.
 
@@ -361,14 +513,14 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            calllib(kin.lib, 'kin_getFwdRateConstants', kin.id, nr, pt);
+            calllib(ct, 'kin_getFwdRateConstants', kin.kin_id, nr, pt);
             k = pt.Value;
         end
 
         function k = get.Kr(kin)
             % Get the reverse reaction rate constants for all reactions.
             %
-            % :return:
+            % return:
             %    Returns a column vector of the reverse rates constants of
             %    all of the reactions.
 
@@ -376,172 +528,33 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            calllib(kin.lib, 'kin_getRevRateConstants', kin.id, 1, nr, pt);
+            calllib(ct, 'kin_getRevRateConstants', kin.kin_id, 1, nr, pt);
             k = pt.Value;
         end
 
-        function enthalpy = get.dH(kin)
-            % Get the enthalpy of reaction for each reaction.
-            %
-            % :return:
-            %    Returns a vector of the enthalpy of reaction for each
-            %    reaction. Unit: J/kmol.
-
-            checklib;
-            nr = kin.nReactions;
-            xx = zeros(1, nr);
-            pt = libpointer('doublePtr', xx);
-            calllib(kin.lib, 'kin_getDelta', kin.id, 0, nr, pt);
-            enthalpy = pt.Value;
-        end
-
-        function entropy = get.dS(kin)
-            % Get the entropy of reaction for each reaction.
-            %
-            % :return:
-            %    Returns a vector of the entropy of reaction for each
-            %    reaction. Unit: J/kmol-K.
-
-            checklib;
-            nr = kin.nReactions;
-            xx = zeros(1, nr);
-            pt = libpointer('doublePtr', xx);
-            calllib(kin.lib, 'kin_getDelta', kin.id, 2, nr, pt);
-            entropy = pt.Value;
-        end
-
-        function gibbs = get.dG(kin)
-            % Get the Gibbs free energy of reaction for each reaction.
-            %
-            % :return:
-            %    Returns a vector of the Gibbs free energy of reaction for
-            %    each reaction. Unit: J/kmol.
-
-            checklib;
-            nr = kin.nReactions;
-            xx = zeros(1, nr);
-            pt = libpointer('doublePtr', xx);
-            calllib(kin.lib, 'kin_getDelta', kin.id, 1, nr, pt);
-            gibbs = pt.Value;
-        end
-
-        function cdot = creationRates(kin)
-            % Get the chemical reaction rates.
-            %
-            % :return:
-            %    Returns a vector of the creation rates of all species. If
-            %    the output is not assigned to a variable, a bar graph is
-            %    produced. Unit: kmol/m^3-s.
-
-            checklib;
-            nsp = kin.nSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            calllib(kin.lib, 'kin_getCreationRates', kin.id, nsp, pt);
-            cdot = pt.Value;
-            if nargout == 0
-                figure
-                set(gcf, 'Name', 'Creation Rates')
-                bar(q)
-                xlabel('Species Number')
-                ylabel('Creation Rate [kmol/m^3-s]')
-                title('Species Chemical Reaction Rates')
-            end
-        end
-
-        function ddot = destructionRates(kin)
-            % Get the chemical destruction rates.
-            %
-            % :return:
-            %    Returns a vector of the destruction rates of all species.
-            %    If the output is not assigned to a variable, a bar graph
-            %    is produced. Unit: kmol/m^3-s.
-
-            checklib;
-            nsp = kin.nSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            calllib(kin.lib, 'kin_getDestructionRates', kin.id, nsp, pt);
-            ddot = pt.Value;
-            if nargout == 0
-                figure
-                set(gcf, 'Name', 'Destruction Rates')
-                bar(q)
-                xlabel('Species Number')
-                ylabel('Destruction Rate [kmol/m^3-s]')
-                title('Species Chemical Reaction Rates')
-            end
-        end
-
-        function wdot = netProdRates(kin)
-            % Get the net chemical production rates for all species.
-            %
-            % :return:
-            %    Returns a vector of the net production (creation-destruction)
-            %    rates of all species. If the output is not assigned to a
-            %    variable, a bar graph is produced. Unit: kmol/m^3-s.
-
-            checklib;
-            nsp = kin.nSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            calllib(kin.lib, 'kin_getNetProductionRates', kin.id, nsp, pt);
-            wdot = pt.Value;
-            if nargout == 0
-                figure
-                set(gcf, 'Name', 'Production Rates')
-                bar(q)
-                xlabel('Species Number')
-                ylabel('Net Production Rate [kmol/m^3-s]')
-                title('Species Net Chemical Reaction Rates')
-            end
-        end
-
-        function ydot = massProdRates(kin)
+        function massProdRate = ydot(kin)
             % Get the mass production rates of the species.
             %
-            % :return:
+            % return:
             %    Returns a vector of the mass production rates.
 
             checklib;
             nsp = kin.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(kin.lib, 'kin_getSourceTerms', kin.id, nsp, pt);
-            ydot = pt.Value;
+            calllib(ct, 'kin_getSourceTerms', kin.kin_id, nsp, pt);
+            massProdRate = pt.Value;
         end
-
-%         function e = reactionEqn(kin, irxn)
-%             % Get the reaction equation of a reaction
-%             %
-%             % :param irxn:
-%             %    Optional. Integer or vector of reaction numbers.
-%             % :return:
-%             %    String or cell arrray of strings of the reaction
-%             %    equations.
-%             Need to resolve string printing issues first!
-%
-%             if nargin == 1
-%                 nr = kin.nReactions;
-%                 irxn = (1:m)';
-%             elseif nargin == 2
-%                 if isa(irxn, 'double')
-%                     [m, n] = size(irxn);
-%                 else
-%                     error('reaction numbers must be numeric');
-%                 end
-%             end
-%         end
 
         %% Set attributes
 
         function n = setMultiplier(kin, irxn, v)
             % Set the multiplier for the reaction rate of progress.
             %
-            % :param irxn:
+            % parameter irxn:
             %    Integer of vector reaction numbers for which the
             %    multiplier should be set. Optional.
-            % :param v:
+            % parameter v:
             %    Value by which the reaction rate of progress should be
             %    multiplied.
 
@@ -558,7 +571,7 @@ classdef Kinetics < handle
 
             for i = 1:nr
                 for j = 1:n
-                    calllib(kin.lib, 'kin_setMultiplier', kin.id, ...
+                    calllib(ct, 'kin_setMultiplier', kin.kin_id, ...
                             irxn(i, j)-1, v);
                 end
             end
@@ -567,10 +580,10 @@ classdef Kinetics < handle
         function advanceCoeverages(kin, dt)
             % Advance the surface coveages forward in time
             %
-            % :param dt:
+            % parameter dt:
             %    Time interval by which the coverages should be advanced.
 
-            calllib(kin.lib, 'kin_advanceCoverages', kin.id, dt);
+            calllib(ct, 'kin_advanceCoverages', kin.kin_id, dt);
         end
 
     end

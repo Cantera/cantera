@@ -17,10 +17,6 @@ classdef Reactor < handle
         EnergyFlag
     end
 
-    properties(Constant = true)
-        lib = 'cantera_shared'
-    end
-
     methods
         %% Reactor class constructor
 
@@ -30,10 +26,10 @@ classdef Reactor < handle
             % reactors through flow lines or through walls that may expand
             % or contract and/orconduct heat.
             %
-            % :param contents:
+            % parameter contents:
             %    Instance of class 'Solution' representing the contents of
             %    the reactor.
-            % :param typ:
+            % parameter typ:
             %    Character array of reactor type. Options are:
             %    'Reservoir'
             %    'Reactor'
@@ -41,7 +37,7 @@ classdef Reactor < handle
             %    'ConstPressureReactor'
             %    'IdealGasReactor'
             %    'IdealGasConstPressureReactor'
-            % :return:
+            % return:
             %    Instance of class 'Reactor'.
 
             checklib;
@@ -56,7 +52,7 @@ classdef Reactor < handle
             end
 
             r.type = char(typ);
-            r.id = calllib(r.lib, 'reactor_new2', typ);
+            r.id = calllib(ct, 'reactor_new', typ);
 
 %             if r.id < 0
 %                 error(geterr);
@@ -75,15 +71,15 @@ classdef Reactor < handle
         function clear(r)
             % Clear the reactor from memory.
             checklib;
-            calllib(r.lib, 'reactor_del', r.id);
+            calllib(ct, 'reactor_del', r.id);
         end
 
         function insert(r, gas)
             % Insert a solution or mixture into a reactor.
             %
-            % :param r:
+            % parameter r:
             %    Instance of class 'Reactor'.
-            % :param gas:
+            % parameter gas:
             %    Instance of class 'Solution'.
 
             r.contents = gas;
@@ -99,9 +95,9 @@ classdef Reactor < handle
             % This method is used internally during Reactor initialization,
             % but is usually not called by users.
             %
-            % :param r:
+            % parameter r:
             %    Instance of class 'Reactor'.
-            % :param t:
+            % parameter t:
             %    Instance of class 'ThermoPhase' or another object
             %    containing an instance of that class.
             checklib;
@@ -110,7 +106,7 @@ classdef Reactor < handle
                 error('Wrong object type');
             end
 
-            calllib(r.lib, 'reactor_setThermoMgr', r.id, t.tp_id);
+            calllib(ct, 'reactor_setThermoMgr', r.id, t.tp_id);
         end
 
         function setKineticsMgr(r, k)
@@ -119,9 +115,9 @@ classdef Reactor < handle
             % This method is used internally during Reactor initialization,
             % but is usually not called by users.
             %
-            % :param r:
+            % parameter r:
             %    Instance of class 'Reactor'.
-            % :param t:
+            % parameter t:
             %    Instance of class 'Kinetics' or another object
             %    containing an instance of that class.
             checklib;
@@ -130,7 +126,7 @@ classdef Reactor < handle
                 error('Wrong object type');
             end
 
-            calllib(r.lib, 'reactor_setKineticsMgr', r.id, k.kin_id);
+            calllib(ct, 'reactor_setKineticsMgr', r.id, k.kin_id);
         end
 
         %% Reactor get methods
@@ -138,103 +134,103 @@ classdef Reactor < handle
         function temperature = get.T(r)
             % Get the temperature of the reactor.
             %
-            % :return:
+            % return:
             %    The temperature of the reactor contents at the end of the
             %    last call to 'advance' or 'step'. Unit: K.
 
             checklib;
-            temperature = calllib(r.lib, 'reactor_temperature', r.id);
+            temperature = calllib(ct, 'reactor_temperature', r.id);
         end
 
         function pressure = get.P(r)
             % Get the pressure of the reactor.
             %
-            % :return:
+            % return:
             %    The pressure of the reactor contents at the end of the
             %    last call to 'advance' or 'step'. Unit: Pa.
 
             checklib;
-            pressure = calllib(r.lib, 'reactor_pressure', r.id);
+            pressure = calllib(ct, 'reactor_pressure', r.id);
         end
 
         function rho = get.D(r)
             % Get the density of the reactor.
             %
-            % :return:
+            % return:
             %    Density of the phase in the input. Unit: kg/m^3.
 
             checklib;
-            rho = calllib(r.lib, 'reactor_density', r.id);
+            rho = calllib(ct, 'reactor_density', r.id);
         end
 
         function mass = get.M(r)
             % Get the mass of the reactor.
             %
-            % :return:
+            % return:
             %    The mass of the reactor contents at the end of the
             %    last call to 'advance' or 'step'. The mass is retrieved
             %    from the solution vector. Unit: kg.
 
             checklib;
-            mass = calllib(r.lib, 'reactor_mass', r.id);
+            mass = calllib(ct, 'reactor_mass', r.id);
         end
 
         function volume = get.V(r)
             % Get the volume of the reactor.
             %
-            % :return:
+            % return:
             %    The volume of the reactor contents at the end of the
             %    last call to 'advance' or 'step'. Unit: m^3.
 
             checklib;
-            volume = calllib(r.lib, 'reactor_volume', r.id);
+            volume = calllib(ct, 'reactor_volume', r.id);
         end
 
         function enthalpy_mass = get.H(r)
             % Get the mass specific enthalpy of the reactor.
             %
-            % :return:
+            % return:
             %    The mass specific enthalpy of the reactor contents at the
             %    end of the last call to 'advance' or 'step'. The enthalpy
             %    is retrieved from the solution vector. Unit: J/kg.
 
             checklib;
-            enthalpy_mass = calllib(r.lib, 'reactor_enthalpy_mass', r.id);
+            enthalpy_mass = calllib(ct, 'reactor_enthalpy_mass', r.id);
         end
 
         function intEnergy_mass = get.U(r)
             % Get the mass specific internal energy of the reactor.
             %
-            % :return:
+            % return:
             %    The mass specific internal energy of the reactor contents
             %    at the end of the last call to 'advance' or 'step'. The
             %    internal energy is retrieved from the solution vector.
             %    Unit: J/kg.
 
             checklib;
-            intEnergy_mass = calllib(r.lib, 'reactor_intEnergy_mass', r.id);
+            intEnergy_mass = calllib(ct, 'reactor_intEnergy_mass', r.id);
         end
 
         function yi = massFraction(r, species)
             % Get the mass fraction of a species.
             %
-            % :param species:
+            % parameter species:
             %    String or one-based integer id of the species.
 
             checklib;
 
             if ischar(species)
-                k = r.contents.thermo.speciesIndex(species) - 1;
+                k = r.contents.speciesIndex(species) - 1;
             else k = species - 1;
             end
 
-            yi = calllib(r.lib, 'reactor_massFraction', r.id, k);
+            yi = calllib(ct, 'reactor_massFraction', r.id, k);
         end
 
         function massFractions = get.Y(r)
             % Get the mass fractions of the reactor.
             %
-            % :return:
+            % return:
             %    The mass fractions of the reactor contents at the end of
             %    the last call to 'advance' or 'step'.
 
@@ -252,21 +248,21 @@ classdef Reactor < handle
         function setInitialVolume(r, v0)
             % Set the initial reactor volume.
             %
-            % :param v0:
+            % parameter v0:
             %    Initial volume in m^3.
 
             checklib;
-            calllib(r.lib, 'reactor_setInitialVolume', r.id, v0);
+            calllib(ct, 'reactor_setInitialVolume', r.id, v0);
         end
 
         function r = set.Mdot(r, MFR)
             % Set the mass flow rate.
             %
-            % :param MFR:
+            % parameter MFR:
             %    Mass flow rate in kg/s.
 
             checklib;
-            calllib(r.lib, 'reactor_setMassFlowRate', r.id, MFR);
+            calllib(ct, 'reactor_setMassFlowRate', r.id, MFR);
             r.Mdot = MFR;
         end
 
@@ -281,9 +277,9 @@ classdef Reactor < handle
             % equations enabled if there are reactions present in the
             % mechanism file, and disabled otherwise.
             %
-            % :param r:
+            % parameter r:
             %    Instance of class 'Reactor'.
-            % :param flag:
+            % parameter flag:
             %    String, either "on" or "off" to enable or disable chemical
             %    reactions, respectively.
 
@@ -296,7 +292,7 @@ classdef Reactor < handle
             else error('Input must be "on" or "off"');
             end
 
-            calllib(r.lib, 'reactor_setChemistry', r.id, iflag);
+            calllib(ct, 'reactor_setChemistry', r.id, iflag);
             r.ChemistryFlag = flag;
         end
 
@@ -310,9 +306,9 @@ classdef Reactor < handle
             % By default, Reactor objects are created with the energy
             % equation enabled, so usually this method
             %
-            % :param r:
+            % parameter r:
             %    Instance of class 'Reactor'.
-            % :param flag:
+            % parameter flag:
             %    String, either "on" or "off" to enable or disable chemical
             %    reactions, respectively.
 
@@ -326,7 +322,7 @@ classdef Reactor < handle
             end
 
             if iflag >= 0
-                calllib(r.lib, 'reactor_setEnergy', r.id, iflag);
+                calllib(ct, 'reactor_setEnergy', r.id, iflag);
             else error('Input must be "on" or "off".');
             end
 
