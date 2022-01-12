@@ -89,7 +89,7 @@ struct ArrheniusData : public ReactionData
  */
 struct TwoTempPlasmaData : public ReactionData
 {
-    TwoTempPlasmaData() : elec_temp(1.), logTe(0.), recipTe(1.) {}
+    TwoTempPlasmaData() : electronTemp(1.), logTe(0.), recipTe(1.) {}
 
     virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
 
@@ -101,10 +101,10 @@ struct TwoTempPlasmaData : public ReactionData
 
     virtual void invalidateCache() override {
         ReactionData::invalidateCache();
-        elec_temp = NAN;
+        electronTemp = NAN;
     }
 
-    double elec_temp; //!< electron temperature
+    double electronTemp; //!< electron temperature
     double logTe; //!< logarithm of electron temperature
     double recipTe; //!< inverse of electron temperature
 };

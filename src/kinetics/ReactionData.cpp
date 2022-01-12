@@ -36,7 +36,7 @@ bool TwoTempPlasmaData::update(const ThermoPhase& bulk, const Kinetics& kin)
         ReactionData::update(T);
         changed = true;
     }
-    if (Te != elec_temp) {
+    if (Te != electronTemp) {
         updateTe(Te);
         changed = true;
     }
@@ -57,7 +57,7 @@ void TwoTempPlasmaData::update(double T, double Te)
 
 void TwoTempPlasmaData::updateTe(double Te)
 {
-    elec_temp = Te;
+    electronTemp = Te;
     logTe = std::log(Te);
     recipTe = 1./Te;
 }
