@@ -56,7 +56,8 @@ void timeit_base(void (Kinetics::*function)(double*),
         }
         auto t2 = std::chrono::high_resolution_clock::now();
         times.push_back(
-            std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / loops);
+            std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() /
+            loops);
     }
     gas.setState_TP(T, pressure);
     statistics(times, loops, runs);
@@ -84,7 +85,8 @@ void timeit_vector(Eigen::VectorXd (Kinetics::*function)(),
         }
         auto t2 = std::chrono::high_resolution_clock::now();
         times.push_back(
-            std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / loops);
+            std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() /
+            loops);
     }
     gas.setState_TP(T, pressure);
     statistics(times, loops, runs);
@@ -112,27 +114,29 @@ void timeit_matrix(Eigen::SparseMatrix<double> (Kinetics::*function)(),
         }
         auto t2 = std::chrono::high_resolution_clock::now();
         times.push_back(
-            std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / loops);
+            std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() /
+            loops);
     }
     gas.setState_TP(T, pressure);
     statistics(times, loops, runs);
 }
 
-int main()
+void benchmark(const std::string& mech, const std::string& phase,
+    const std::string& fuel)
 {
-    std::cout << "Benchmark tests for jacobian evaluations." << std::endl;
-
-    auto sol = newSolution("gri30.yaml", "gri30", "None");
+    auto sol = newSolution(mech, phase, "None");
     auto& gas = *(sol->thermo());
     auto& kin = *(sol->kinetics());
 
     auto nSpecies = gas.nSpecies();
     auto nReactions = kin.nReactions();
+    std::cout << mech << ": "
+        << nSpecies << " species, " << nReactions << " reactions." << std::endl;
 
     double Tu = 300.0;
     double pressure = 101325.0;
     gas.setState_TP(Tu, pressure);
-    gas.setEquivalenceRatio(1.0, "CH4", "O2:1, N2:3.76");
+    gas.setEquivalenceRatio(1.0, fuel, "O2:1, N2:3.76");
     gas.equilibrate("HP");
 
     std::cout << std::endl;
@@ -230,4 +234,16 @@ int main()
 
     std::cout << "netProductionRates_ddX: ";
     timeit_matrix(&Kinetics::netProductionRates_ddX, &kin, gas);
+}
+
+int main()
+{
+    std::cout << "Benchmark tests for jacobian evaluations." << std::endl;
+    std::cout << std::endl;
+    benchmark("h2o2.yaml", "ohmech", "H2");
+    std::cout << std::endl;
+    benchmark("gri30.yaml", "gri30", "CH4");
+    std::cout << std::endl;
+    benchmark("nDodecane_Reitz.yaml", "nDodecane_IG", "c12h26");
+    return 0;
 }
