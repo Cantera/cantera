@@ -210,6 +210,10 @@ public:
  *        k_f =  A T_e^b \exp (-E_a/RT) \exp (-E_{a,e}/RT_e)
  *   \f]
  *
+ * Ref.: Kossyi, I. A., Kostinsky, A. Y., Matveyev, A. A., & Silakov, V. P. (1992).
+ * Kinetic scheme of the non-equilibrium discharge in nitrogen-oxygen mixtures.
+ * Plasma Sources Science and Technology, 1(3), 207.
+ * doi: 10.1088/0963-0252/1/3/011
  * @ingroup arrheniusGroup
  */
 class TwoTempPlasmaRate final : public ArrheniusBase
@@ -259,8 +263,9 @@ public:
 
     double evalFromStruct(const TwoTempPlasmaData& shared_data) {
         return m_A * std::exp(m_b * shared_data.logTe -
-                              m_Ea_R * shared_data.recipT -
-                              m_EE_R * shared_data.recipTe);
+                              m_Ea_R * shared_data.recipT +
+                              m_EE_R * (shared_data.electronTemp - shared_data.temperature)
+                              * shared_data.recipTe * shared_data.recipT);
     }
 
     //! Return the activation energy *Ea* [J/kmol]
