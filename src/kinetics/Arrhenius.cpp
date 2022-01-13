@@ -5,6 +5,7 @@
 
 #include "cantera/kinetics/Arrhenius.h"
 #include "cantera/base/AnyMap.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -104,7 +105,6 @@ void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
 {
     if (!m_negativeA_ok && m_A < 0) {
         if (equation == "") {
-            //
             throw CanteraError("ArrheniusBase::check",
                 "Detected negative pre-exponential factor (A={}).\n"
                 "Enable 'allowNegativePreExponentialFactor' to suppress "
@@ -261,6 +261,20 @@ void BlowersMaselRate::setRateParameters(
         m_Ea_R = units.convertActivationEnergy(rate_vec[2], "K");
         m_w_R = units.convertActivationEnergy(rate_vec[3], "K");
     }
+}
+
+double BlowersMaselRate::ddTScaledFromStruct(const BlowersMaselData& shared_data) const
+{
+    warn_user("BlowersMaselRate::ddTScaledFromStruct",
+        "Temperature derivative does not consider changes of reaction enthalpy.");
+    double deltaH_R;
+    if (shared_data.ready) {
+        deltaH_R = shared_data.dH[m_rate_index] / GasConstant;
+    } else {
+        deltaH_R = shared_data.dH[0] / GasConstant;
+    }
+    double Ea_R = activationEnergy_R(deltaH_R);
+    return m_A * std::exp(m_b * shared_data.logT - Ea_R * shared_data.recipT);
 }
 
 void BlowersMaselRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
