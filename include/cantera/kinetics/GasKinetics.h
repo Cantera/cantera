@@ -63,18 +63,18 @@ public:
 
     virtual void getDerivativeSettings(AnyMap& settings) const;
     virtual void setDerivativeSettings(const AnyMap& settings);
-    virtual Eigen::VectorXd fwdRateConstants_ddT();
-    virtual Eigen::VectorXd fwdRateConstants_ddP();
-    virtual Eigen::VectorXd fwdRateConstants_ddC();
-    virtual Eigen::VectorXd fwdRatesOfProgress_ddT();
-    virtual Eigen::VectorXd revRatesOfProgress_ddT();
-    virtual Eigen::VectorXd netRatesOfProgress_ddT();
-    virtual Eigen::VectorXd fwdRatesOfProgress_ddP();
-    virtual Eigen::VectorXd revRatesOfProgress_ddP();
-    virtual Eigen::VectorXd netRatesOfProgress_ddP();
-    virtual Eigen::VectorXd fwdRatesOfProgress_ddC();
-    virtual Eigen::VectorXd revRatesOfProgress_ddC();
-    virtual Eigen::VectorXd netRatesOfProgress_ddC();
+    virtual void getFwdRateConstants_ddT(double* dkfwd);
+    virtual void getFwdRatesOfProgress_ddT(double* drop);
+    virtual void getRevRatesOfProgress_ddT(double* drop);
+    virtual void getNetRatesOfProgress_ddT(double* drop);
+    virtual void getFwdRateConstants_ddP(double* dkfwd);
+    virtual void getFwdRatesOfProgress_ddP(double* drop);
+    virtual void getRevRatesOfProgress_ddP(double* drop);
+    virtual void getNetRatesOfProgress_ddP(double* drop);
+    virtual void getFwdRateConstants_ddC(double* dkfwd);
+    virtual void getFwdRatesOfProgress_ddC(double* drop);
+    virtual void getRevRatesOfProgress_ddC(double* drop);
+    virtual void getNetRatesOfProgress_ddC(double* drop);
     virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddX();
     virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddX();
     virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddX();
@@ -116,19 +116,21 @@ protected:
 
     //! Process temperature derivative
     //! @param in  rate expression used for the derivative calculation
-    Eigen::VectorXd process_ddT(const vector_fp& in);
+    //! @param drop  pointer to output buffer
+    void process_ddT(const vector_fp& in, double* drop);
 
     //! Process pressure derivative
     //! @param in  rate expression used for the derivative calculation
-    Eigen::VectorXd process_ddP(const vector_fp& in);
+    //! @param drop  pointer to output buffer
+    void process_ddP(const vector_fp& in, double* drop);
 
     //! Process concentration (molar density) derivative
     //! @param stoich  stoichiometry manager
     //! @param in  rate expression used for the derivative calculation
+    //! @param drop  pointer to output buffer
     //! @param mass_action  boolean indicating whether law of mass action applies
-    Eigen::VectorXd process_ddC(StoichManagerN& stoich,
-                                const vector_fp& in,
-                                bool mass_action=true);
+    void process_ddC(StoichManagerN& stoich, const vector_fp& in,
+                     double* drop, bool mass_action=true);
 
     //! Process mole fraction derivative
     //! @param stoich  stoichiometry manager

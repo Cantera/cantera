@@ -619,60 +619,66 @@ public:
     /**
      * Calculate derivatives for forward rate constants with respect to temperature
      * at constant pressure, molar concentration and mole fractions
+     * @param dkfwd[out]  Output vector of derivatives. Length: nReactions().
      */
-    virtual Eigen::VectorXd fwdRateConstants_ddT()
+    virtual void getFwdRateConstants_ddT(double* dkfwd)
     {
-        throw NotImplementedError("Kinetics::fwdRateConstants_ddT",
+        throw NotImplementedError("Kinetics::getFwdRateConstants_ddT",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
     /**
      * Calculate derivatives for forward rate constants with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
+     * @param dkfwd[out]  Output vector of derivatives. Length: nReactions().
      */
-    virtual Eigen::VectorXd fwdRateConstants_ddP()
+    virtual void getFwdRateConstants_ddP(double* dkfwd)
     {
-        throw NotImplementedError("Kinetics::fwdRateConstants_ddP",
+        throw NotImplementedError("Kinetics::getFwdRateConstants_ddP",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
     /**
      * Calculate derivatives for forward rate constants with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
+     * @param dkfwd[out]  Output vector of derivatives. Length: nReactions().
      */
-    virtual Eigen::VectorXd fwdRateConstants_ddC()
+    virtual void getFwdRateConstants_ddC(double* dkfwd)
     {
-        throw NotImplementedError("Kinetics::fwdRateConstants_ddC",
+        throw NotImplementedError("Kinetics::getFwdRateConstants_ddC",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
     /**
      * Calculate derivatives for forward rates-of-progress with respect to temperature
      * at constant pressure, molar concentration and mole fractions.
+     * @param drop[out]  Output vector of derivatives. Length: nReactions().
      */
-    virtual Eigen::VectorXd fwdRatesOfProgress_ddT()
+    virtual void getFwdRatesOfProgress_ddT(double* drop)
     {
-        throw NotImplementedError("Kinetics::fwdRatesOfProgress_ddT",
+        throw NotImplementedError("Kinetics::getFwdRatesOfProgress_ddT",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
     /**
      * Calculate derivatives for forward rates-of-progress with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
+     * @param drop[out]  Output vector of derivatives. Length: nReactions().
      */
-    virtual Eigen::VectorXd fwdRatesOfProgress_ddP()
+    virtual void getFwdRatesOfProgress_ddP(double* drop)
     {
-        throw NotImplementedError("Kinetics::fwdRatesOfProgress_ddP",
+        throw NotImplementedError("Kinetics::getFwdRatesOfProgress_ddP",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
     /**
      * Calculate derivatives for forward rates-of-progress with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
+     * @param drop[out]  Output vector of derivatives. Length: nReactions().
      */
-    virtual Eigen::VectorXd fwdRatesOfProgress_ddC()
+    virtual void getFwdRatesOfProgress_ddC(double* drop)
     {
-        throw NotImplementedError("Kinetics::fwdRatesOfProgress_ddC",
+        throw NotImplementedError("Kinetics::getFwdRatesOfProgress_ddC",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
@@ -693,30 +699,33 @@ public:
     /**
      * Calculate derivatives for reverse rates-of-progress with respect to temperature
      * at constant pressure, molar concentration and mole fractions.
+     * @param drop[out]  Output vector of derivatives. Length: nReactions().
      */
-    virtual Eigen::VectorXd revRatesOfProgress_ddT()
+    virtual void getRevRatesOfProgress_ddT(double* drop)
     {
-        throw NotImplementedError("Kinetics::revRatesOfProgress_ddT",
+        throw NotImplementedError("Kinetics::getRevRatesOfProgress_ddT",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
     /**
      * Calculate derivatives for reverse rates-of-progress with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
+     * @param drop[out]  Output vector of derivatives. Length: nReactions().
      */
-    virtual Eigen::VectorXd revRatesOfProgress_ddP()
+    virtual void getRevRatesOfProgress_ddP(double* drop)
     {
-        throw NotImplementedError("Kinetics::revRatesOfProgress_ddP",
+        throw NotImplementedError("Kinetics::getRevRatesOfProgress_ddP",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
     /**
      * Calculate derivatives for reverse rates-of-progress with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
+     * @param drop[out]  Output vector of derivatives. Length: nReactions().
      */
-    virtual Eigen::VectorXd revRatesOfProgress_ddC()
+    virtual void getRevRatesOfProgress_ddC(double* drop)
     {
-        throw NotImplementedError("Kinetics::revRatesOfProgress_ddC",
+        throw NotImplementedError("Kinetics::getRevRatesOfProgress_ddC",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
@@ -737,30 +746,33 @@ public:
     /**
      * Calculate derivatives for net rates-of-progress with respect to temperature
      * at constant pressure, molar concentration and mole fractions.
+     * @param drop[out]  Output vector of derivatives. Length: nReactions().
      */
-    virtual Eigen::VectorXd netRatesOfProgress_ddT()
+    virtual void getNetRatesOfProgress_ddT(double* drop)
     {
-        throw NotImplementedError("Kinetics::netRatesOfProgress_ddT",
+        throw NotImplementedError("Kinetics::getNetRatesOfProgress_ddT",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
     /**
      * Calculate derivatives for net rates-of-progress with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
+     * @param drop[out]  Output vector of derivatives. Length: nReactions().
      */
-    virtual Eigen::VectorXd netRatesOfProgress_ddP()
+    virtual void getNetRatesOfProgress_ddP(double* drop)
     {
-        throw NotImplementedError("Kinetics::netRatesOfProgress_ddP",
+        throw NotImplementedError("Kinetics::getNetRatesOfProgress_ddP",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
     /**
      * Calculate derivatives for net rates-of-progress with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
+     * @param drop[out]  Output vector of derivatives. Length: nReactions().
      */
-    virtual Eigen::VectorXd netRatesOfProgress_ddC()
+    virtual void getNetRatesOfProgress_ddC(double* drop)
     {
-        throw NotImplementedError("Kinetics::netRatesOfProgress_ddC",
+        throw NotImplementedError("Kinetics::getNetRatesOfProgress_ddC",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
@@ -781,20 +793,23 @@ public:
     /**
      * Calculate derivatives for species creation rates with respect to temperature
      * at constant pressure, molar concentration and mole fractions.
+     * @param dwdot[out]  Output vector of derivatives. Length: m_kk.
      */
-    Eigen::VectorXd creationRates_ddT();
+    void getCreationRates_ddT(double* dwdot);
 
     /**
      * Calculate derivatives for species creation rates with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
+     * @param dwdot[out]  Output vector of derivatives. Length: m_kk.
      */
-    Eigen::VectorXd creationRates_ddP();
+    void getCreationRates_ddP(double* dwdot);
 
     /**
      * Calculate derivatives for species creation rates with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
+     * @param dwdot[out]  Output vector of derivatives. Length: m_kk.
      */
-    Eigen::VectorXd creationRates_ddC();
+    void getCreationRates_ddC(double* dwdot);
 
     /**
      * Calculate derivatives for species creation rates with respect to species
@@ -809,20 +824,23 @@ public:
     /**
      * Calculate derivatives for species destruction rates with respect to temperature
      * at constant pressure, molar concentration and mole fractions.
+     * @param dwdot[out]  Output vector of derivatives. Length: m_kk.
      */
-    Eigen::VectorXd destructionRates_ddT();
+    void getDestructionRates_ddT(double* dwdot);
 
     /**
      * Calculate derivatives for species destruction rates with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
+     * @param dwdot[out]  Output vector of derivatives. Length: m_kk.
      */
-    Eigen::VectorXd destructionRates_ddP();
+    void getDestructionRates_ddP(double* dwdot);
 
     /**
      * Calculate derivatives for species destruction rates with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
+     * @param dwdot[out]  Output vector of derivatives. Length: m_kk.
      */
-    Eigen::VectorXd destructionRates_ddC();
+    void getDestructionRates_ddC(double* dwdot);
 
     /**
      * Calculate derivatives for species destruction rates with respect to species
@@ -837,20 +855,23 @@ public:
     /**
      * Calculate derivatives for species net production rates with respect to
      * temperature at constant pressure, molar concentration and mole fractions.
+     * @param dwdot[out]  Output vector of derivatives. Length: m_kk.
      */
-    Eigen::VectorXd netProductionRates_ddT();
+    void getNetProductionRates_ddT(double* dwdot);
 
     /**
      * Calculate derivatives for species net production rates with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
+     * @param dwdot[out]  Output vector of derivatives. Length: m_kk.
      */
-    Eigen::VectorXd netProductionRates_ddP();
+    void getNetProductionRates_ddP(double* dwdot);
 
     /**
      * Calculate derivatives for species net production rates with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
+     * @param dwdot[out]  Output vector of derivatives. Length: m_kk.
      */
-    Eigen::VectorXd netProductionRates_ddC();
+    void getNetProductionRates_ddC(double* dwdot);
 
     /**
      * Calculate derivatives for species net production rates with respect to species
@@ -1323,6 +1344,9 @@ protected:
 
     //! The enthalpy change for each reaction to calculate Blowers-Masel rates
     vector_fp m_dH;
+
+    //! Buffer used for storage of intermediate reaction-specific results
+    vector_fp m_rbuf;
 
     //! @see skipUndeclaredSpecies()
     bool m_skipUndeclaredSpecies;

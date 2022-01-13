@@ -54,6 +54,8 @@ void Kinetics::resizeReactions()
     m_productStoich.resizeCoeffs(m_kk, nRxn);
     m_revProductStoich.resizeCoeffs(m_kk, nRxn);
 
+    m_rbuf.resize(nRxn);
+
     // products are created for positive net rate of progress
     m_stoichMatrix = m_productStoich.stoichCoeffs();
     // reactants are destroyed for positive net rate of progress
@@ -486,34 +488,40 @@ void Kinetics::getNetProductionRates(doublereal* net)
     m_reactantStoich.decrementSpecies(m_ropnet.data(), net);
 }
 
-Eigen::VectorXd Kinetics::creationRates_ddT()
+void Kinetics::getCreationRates_ddT(double* dwdot)
 {
-    Eigen::VectorXd out(m_kk);
+    Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
+    Eigen::Map<Eigen::VectorXd> buf(m_rbuf.data(), nReactions());
     // the forward direction creates product species
-    out = m_productStoich.stoichCoeffs() * fwdRatesOfProgress_ddT();
+    getFwdRatesOfProgress_ddT(buf.data());
+    out = m_productStoich.stoichCoeffs() * buf;
     // the reverse direction creates reactant species
-    out += m_reactantStoich.stoichCoeffs() * revRatesOfProgress_ddT();
-    return out;
+    getRevRatesOfProgress_ddT(buf.data());
+    out += m_reactantStoich.stoichCoeffs() * buf;
 }
 
-Eigen::VectorXd Kinetics::creationRates_ddP()
+void Kinetics::getCreationRates_ddP(double* dwdot)
 {
-    Eigen::VectorXd out(m_kk);
+    Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
+    Eigen::Map<Eigen::VectorXd> buf(m_rbuf.data(), nReactions());
     // the forward direction creates product species
-    out = m_productStoich.stoichCoeffs() * fwdRatesOfProgress_ddP();
+    getFwdRatesOfProgress_ddP(buf.data());
+    out = m_productStoich.stoichCoeffs() * buf;
     // the reverse direction creates reactant species
-    out += m_reactantStoich.stoichCoeffs() * revRatesOfProgress_ddP();
-    return out;
+    getRevRatesOfProgress_ddP(buf.data());
+    out += m_reactantStoich.stoichCoeffs() * buf;
 }
 
-Eigen::VectorXd Kinetics::creationRates_ddC()
+void Kinetics::getCreationRates_ddC(double* dwdot)
 {
-    Eigen::VectorXd out(m_kk);
+    Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
+    Eigen::Map<Eigen::VectorXd> buf(m_rbuf.data(), nReactions());
     // the forward direction creates product species
-    out = m_productStoich.stoichCoeffs() * fwdRatesOfProgress_ddC();
+    getFwdRatesOfProgress_ddC(buf.data());
+    out = m_productStoich.stoichCoeffs() * buf;
     // the reverse direction creates reactant species
-    out += m_reactantStoich.stoichCoeffs() * revRatesOfProgress_ddC();
-    return out;
+    getRevRatesOfProgress_ddC(buf.data());
+    out += m_reactantStoich.stoichCoeffs() * buf;
 }
 
 Eigen::SparseMatrix<double> Kinetics::creationRates_ddX()
@@ -526,34 +534,40 @@ Eigen::SparseMatrix<double> Kinetics::creationRates_ddX()
     return jac;
 }
 
-Eigen::VectorXd Kinetics::destructionRates_ddT()
+void Kinetics::getDestructionRates_ddT(double* dwdot)
 {
-    Eigen::VectorXd out(m_kk);
+    Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
+    Eigen::Map<Eigen::VectorXd> buf(m_rbuf.data(), nReactions());
     // the reverse direction destroys products in reversible reactions
-    out = m_revProductStoich.stoichCoeffs() * revRatesOfProgress_ddT();
+    getRevRatesOfProgress_ddT(buf.data());
+    out = m_revProductStoich.stoichCoeffs() * buf;
     // the forward direction destroys reactants
-    out += m_reactantStoich.stoichCoeffs() * fwdRatesOfProgress_ddT();
-    return out;
+    getFwdRatesOfProgress_ddT(buf.data());
+    out += m_reactantStoich.stoichCoeffs() * buf;
 }
 
-Eigen::VectorXd Kinetics::destructionRates_ddP()
+void Kinetics::getDestructionRates_ddP(double* dwdot)
 {
-    Eigen::VectorXd out(m_kk);
+    Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
+    Eigen::Map<Eigen::VectorXd> buf(m_rbuf.data(), nReactions());
     // the reverse direction destroys products in reversible reactions
-    out = m_revProductStoich.stoichCoeffs() * revRatesOfProgress_ddP();
+    getRevRatesOfProgress_ddP(buf.data());
+    out = m_revProductStoich.stoichCoeffs() * buf;
     // the forward direction destroys reactants
-    out += m_reactantStoich.stoichCoeffs() * fwdRatesOfProgress_ddP();
-    return out;
+    getFwdRatesOfProgress_ddP(buf.data());
+    out += m_reactantStoich.stoichCoeffs() * buf;
 }
 
-Eigen::VectorXd Kinetics::destructionRates_ddC()
+void Kinetics::getDestructionRates_ddC(double* dwdot)
 {
-    Eigen::VectorXd out(m_kk);
+    Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
+    Eigen::Map<Eigen::VectorXd> buf(m_rbuf.data(), nReactions());
     // the reverse direction destroys products in reversible reactions
-    out = m_revProductStoich.stoichCoeffs() * revRatesOfProgress_ddC();
+    getRevRatesOfProgress_ddC(buf.data());
+    out = m_revProductStoich.stoichCoeffs() * buf;
     // the forward direction destroys reactants
-    out += m_reactantStoich.stoichCoeffs() * fwdRatesOfProgress_ddC();
-    return out;
+    getFwdRatesOfProgress_ddC(buf.data());
+    out += m_reactantStoich.stoichCoeffs() * buf;
 }
 
 Eigen::SparseMatrix<double> Kinetics::destructionRates_ddX()
@@ -566,19 +580,28 @@ Eigen::SparseMatrix<double> Kinetics::destructionRates_ddX()
     return jac;
 }
 
-Eigen::VectorXd Kinetics::netProductionRates_ddT()
+void Kinetics::getNetProductionRates_ddT(double* dwdot)
 {
-    return m_stoichMatrix * netRatesOfProgress_ddT();
+    Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
+    Eigen::Map<Eigen::VectorXd> buf(m_rbuf.data(), nReactions());
+    getNetRatesOfProgress_ddT(buf.data());
+    out = m_stoichMatrix * buf;
 }
 
-Eigen::VectorXd Kinetics::netProductionRates_ddP()
+void Kinetics::getNetProductionRates_ddP(double* dwdot)
 {
-    return m_stoichMatrix * netRatesOfProgress_ddP();
+    Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
+    Eigen::Map<Eigen::VectorXd> buf(m_rbuf.data(), nReactions());
+    getNetRatesOfProgress_ddP(buf.data());
+    out = m_stoichMatrix * buf;
 }
 
-Eigen::VectorXd Kinetics::netProductionRates_ddC()
+void Kinetics::getNetProductionRates_ddC(double* dwdot)
 {
-    return m_stoichMatrix * netRatesOfProgress_ddC();
+    Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
+    Eigen::Map<Eigen::VectorXd> buf(m_rbuf.data(), nReactions());
+    getNetRatesOfProgress_ddC(buf.data());
+    out = m_stoichMatrix * buf;
 }
 
 Eigen::SparseMatrix<double> Kinetics::netProductionRates_ddX()
