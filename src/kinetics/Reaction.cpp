@@ -1143,6 +1143,18 @@ TwoTempPlasmaReaction::TwoTempPlasmaReaction(const AnyMap& node, const Kinetics&
     }
 }
 
+void TwoTempPlasmaReaction::validate()
+{
+    Reaction::validate();
+    // TwoTempPlasmaReaction is for a non-equilirium plasma, and the reverse rate
+    // cannot be calculated from the conventional thermochemistry.
+    // @todo implement the reversible rate for non-equilibrium plasma
+    if (reversible) {
+        throw InputFileError("Reaction::validate", input,
+            "TwoTempPlasmaReaction may only be given for irreversible reactions");
+    }
+}
+
 BlowersMaselReaction::BlowersMaselReaction()
 {
     setRate(newReactionRate(type()));
