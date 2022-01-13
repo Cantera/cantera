@@ -34,12 +34,12 @@ void statistics(vector_fp times, size_t loops, size_t runs)
 }
 
 //! timer for standard getters
-void timeit_base(void (Kinetics::*function)(double*),
-                 Kinetics* kin,
-                 ThermoPhase& gas,
-                 size_t siz,
-                 size_t loops=10000,
-                 size_t runs=7)
+void timeit_array(void (Kinetics::*function)(double*),
+                  Kinetics* kin,
+                  ThermoPhase& gas,
+                  size_t siz,
+                  size_t loops=10000,
+                  size_t runs=7)
 {
     vector_fp out(siz);
 
@@ -53,35 +53,6 @@ void timeit_base(void (Kinetics::*function)(double*),
         for (size_t i = 0.; i < loops; ++i) {
             gas.setState_TP(T + i * deltaT, pressure);
             (kin->*function)(out.data());
-        }
-        auto t2 = std::chrono::high_resolution_clock::now();
-        times.push_back(
-            std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() /
-            loops);
-    }
-    gas.setState_TP(T, pressure);
-    statistics(times, loops, runs);
-}
-
-//! timer for Eigen::VectorXd getters
-void timeit_vector(Eigen::VectorXd (Kinetics::*function)(),
-                   Kinetics* kin,
-                   ThermoPhase& gas,
-                   size_t loops=10000,
-                   size_t runs=7)
-{
-    Eigen::VectorXd out;
-
-    double T = gas.temperature();
-    double pressure = gas.pressure();
-    double deltaT = 1e-5;
-
-    vector_fp times;
-    for (size_t run = 0; run < runs; ++run) {
-        auto t1 = std::chrono::high_resolution_clock::now();
-        for (size_t i = 0.; i < loops; ++i) {
-            gas.setState_TP(T + i * deltaT, pressure);
-            out = (kin->*function)();
         }
         auto t2 = std::chrono::high_resolution_clock::now();
         times.push_back(
@@ -140,99 +111,99 @@ void benchmark(const std::string& mech, const std::string& phase,
     gas.equilibrate("HP");
 
     std::cout << std::endl;
-    std::cout << "getFwdRatesOfProgress:  ";
-    timeit_base(&Kinetics::getFwdRatesOfProgress, &kin, gas, nReactions);
+    std::cout << "getFwdRatesOfProgress:     ";
+    timeit_array(&Kinetics::getFwdRatesOfProgress, &kin, gas, nReactions);
 
-    std::cout << "fwdRatesOfProgress_ddT: ";
-    timeit_vector(&Kinetics::fwdRatesOfProgress_ddT, &kin, gas);
+    std::cout << "getFwdRatesOfProgress_ddT: ";
+    timeit_array(&Kinetics::getFwdRatesOfProgress_ddT, &kin, gas, nReactions);
 
-    std::cout << "fwdRatesOfProgress_ddP: ";
-    timeit_vector(&Kinetics::fwdRatesOfProgress_ddP, &kin, gas);
+    std::cout << "getFwdRatesOfProgress_ddP: ";
+    timeit_array(&Kinetics::getFwdRatesOfProgress_ddP, &kin, gas, nReactions);
 
-    std::cout << "fwdRatesOfProgress_ddC: ";
-    timeit_vector(&Kinetics::fwdRatesOfProgress_ddC, &kin, gas);
+    std::cout << "getFwdRatesOfProgress_ddC: ";
+    timeit_array(&Kinetics::getFwdRatesOfProgress_ddC, &kin, gas, nReactions);
 
-    std::cout << "fwdRatesOfProgress_ddX: ";
+    std::cout << "fwdRatesOfProgress_ddX:    ";
     timeit_matrix(&Kinetics::fwdRatesOfProgress_ddX, &kin, gas);
 
     std::cout << std::endl;
-    std::cout << "getRevRatesOfProgress:  ";
-    timeit_base(&Kinetics::getRevRatesOfProgress, &kin, gas, nReactions);
+    std::cout << "getRevRatesOfProgress:     ";
+    timeit_array(&Kinetics::getRevRatesOfProgress, &kin, gas, nReactions);
 
-    std::cout << "revRatesOfProgress_ddT: ";
-    timeit_vector(&Kinetics::revRatesOfProgress_ddT, &kin, gas);
+    std::cout << "getRevRatesOfProgress_ddT: ";
+    timeit_array(&Kinetics::getRevRatesOfProgress_ddT, &kin, gas, nReactions);
 
-    std::cout << "revRatesOfProgress_ddP: ";
-    timeit_vector(&Kinetics::revRatesOfProgress_ddP, &kin, gas);
+    std::cout << "getRevRatesOfProgress_ddP: ";
+    timeit_array(&Kinetics::getRevRatesOfProgress_ddP, &kin, gas, nReactions);
 
-    std::cout << "revRatesOfProgress_ddC: ";
-    timeit_vector(&Kinetics::revRatesOfProgress_ddC, &kin, gas);
+    std::cout << "getRevRatesOfProgress_ddC: ";
+    timeit_array(&Kinetics::getRevRatesOfProgress_ddC, &kin, gas, nReactions);
 
-    std::cout << "revRatesOfProgress_ddX: ";
+    std::cout << "revRatesOfProgress_ddX:    ";
     timeit_matrix(&Kinetics::revRatesOfProgress_ddX, &kin, gas);
 
     std::cout << std::endl;
-    std::cout << "getNetRatesOfProgress:  ";
-    timeit_base(&Kinetics::getNetRatesOfProgress, &kin, gas, nReactions);
+    std::cout << "getNetRatesOfProgress:     ";
+    timeit_array(&Kinetics::getNetRatesOfProgress, &kin, gas, nReactions);
 
-    std::cout << "netRatesOfProgress_ddT: ";
-    timeit_vector(&Kinetics::netRatesOfProgress_ddT, &kin, gas);
+    std::cout << "getNetRatesOfProgress_ddT: ";
+    timeit_array(&Kinetics::getNetRatesOfProgress_ddT, &kin, gas, nReactions);
 
-    std::cout << "netRatesOfProgress_ddP: ";
-    timeit_vector(&Kinetics::netRatesOfProgress_ddP, &kin, gas);
+    std::cout << "getNetRatesOfProgress_ddP: ";
+    timeit_array(&Kinetics::getNetRatesOfProgress_ddP, &kin, gas, nReactions);
 
-    std::cout << "netRatesOfProgress_ddC: ";
-    timeit_vector(&Kinetics::netRatesOfProgress_ddC, &kin, gas);
+    std::cout << "getNetRatesOfProgress_ddC: ";
+    timeit_array(&Kinetics::getNetRatesOfProgress_ddC, &kin, gas, nReactions);
 
-    std::cout << "netRatesOfProgress_ddX: ";
+    std::cout << "netRatesOfProgress_ddX:    ";
     timeit_matrix(&Kinetics::netRatesOfProgress_ddX, &kin, gas);
 
     std::cout << std::endl;
-    std::cout << "getCreationRates:       ";
-    timeit_base(&Kinetics::getCreationRates, &kin, gas, nSpecies);
+    std::cout << "getCreationRates:          ";
+    timeit_array(&Kinetics::getCreationRates, &kin, gas, nSpecies);
 
-    std::cout << "creationRates_ddT:      ";
-    timeit_vector(&Kinetics::creationRates_ddT, &kin, gas);
+    std::cout << "getCreationRates_ddT:      ";
+    timeit_array(&Kinetics::getCreationRates_ddT, &kin, gas, nSpecies);
 
-    std::cout << "creationRates_ddP:      ";
-    timeit_vector(&Kinetics::creationRates_ddP, &kin, gas);
+    std::cout << "getCreationRates_ddP:      ";
+    timeit_array(&Kinetics::getCreationRates_ddP, &kin, gas, nSpecies);
 
-    std::cout << "creationRates_ddC:      ";
-    timeit_vector(&Kinetics::creationRates_ddC, &kin, gas);
+    std::cout << "getCreationRates_ddC:      ";
+    timeit_array(&Kinetics::getCreationRates_ddC, &kin, gas, nSpecies);
 
-    std::cout << "creationRates_ddX:      ";
+    std::cout << "creationRates_ddX:         ";
     timeit_matrix(&Kinetics::creationRates_ddX, &kin, gas);
 
     std::cout << std::endl;
-    std::cout << "getDestructionRates:    ";
-    timeit_base(&Kinetics::getDestructionRates, &kin, gas, nSpecies);
+    std::cout << "getDestructionRates:       ";
+    timeit_array(&Kinetics::getDestructionRates, &kin, gas, nSpecies);
 
-    std::cout << "destructionRates_ddT:   ";
-    timeit_vector(&Kinetics::destructionRates_ddT, &kin, gas);
+    std::cout << "getDestructionRates_ddT:   ";
+    timeit_array(&Kinetics::getDestructionRates_ddT, &kin, gas, nSpecies);
 
-    std::cout << "destructionRates_ddP:   ";
-    timeit_vector(&Kinetics::destructionRates_ddP, &kin, gas);
+    std::cout << "getDestructionRates_ddP:   ";
+    timeit_array(&Kinetics::getDestructionRates_ddP, &kin, gas, nSpecies);
 
-    std::cout << "destructionRates_ddC:   ";
-    timeit_vector(&Kinetics::destructionRates_ddC, &kin, gas);
+    std::cout << "getDestructionRates_ddC:   ";
+    timeit_array(&Kinetics::getDestructionRates_ddC, &kin, gas, nSpecies);
 
-    std::cout << "destructionRates_ddX:   ";
+    std::cout << "destructionRates_ddX:      ";
     timeit_matrix(&Kinetics::destructionRates_ddX, &kin, gas);
 
     std::cout << std::endl;
-    std::cout << "getNetProductionRates:  ";
-    timeit_base(&Kinetics::getNetProductionRates, &kin, gas, nSpecies);
+    std::cout << "getNetProductionRates:     ";
+    timeit_array(&Kinetics::getNetProductionRates, &kin, gas, nSpecies);
 
-    std::cout << "netProductionRates_ddT: ";
-    timeit_vector(&Kinetics::netProductionRates_ddT, &kin, gas);
+    std::cout << "getNetProductionRates_ddT: ";
+    timeit_array(&Kinetics::getNetProductionRates_ddT, &kin, gas, nSpecies);
 
-    std::cout << "netProductionRates_ddP: ";
-    timeit_vector(&Kinetics::netProductionRates_ddP, &kin, gas);
+    std::cout << "getNetProductionRates_ddP: ";
+    timeit_array(&Kinetics::getNetProductionRates_ddP, &kin, gas, nSpecies);
 
-    std::cout << "netProductionRates_ddC: ";
-    timeit_vector(&Kinetics::netProductionRates_ddC, &kin, gas);
+    std::cout << "getNetProductionRates_ddC: ";
+    timeit_array(&Kinetics::getNetProductionRates_ddC, &kin, gas, nSpecies);
 
-    std::cout << "netProductionRates_ddX: ";
+    std::cout << "netProductionRates_ddX:    ";
     timeit_matrix(&Kinetics::netProductionRates_ddX, &kin, gas);
 }
 

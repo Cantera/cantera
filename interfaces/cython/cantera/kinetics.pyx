@@ -24,11 +24,6 @@ cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method):
     method(kin.kinetics, &data[0])
     return data
 
-cdef np.ndarray get_mapped(Kinetics kin, kineticsMethodMapped method, size_t dim):
-    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(dim)
-    method(kin.kinetics, &data[0], dim)
-    return data
-
 cdef np.ndarray get_dense(Kinetics kin, kineticsMethodSparse method):
     cdef CxxSparseMatrix smat = method(kin.kinetics)
     cdef size_t length = smat.nonZeros()
@@ -490,7 +485,7 @@ cdef class Kinetics(_SolutionBase):
         at constant pressure, molar concentration and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_fwdRateConstants_ddT, self.n_reactions)
+            return get_reaction_array(self, kin_getFwdRateConstants_ddT)
 
     property forward_rate_constants_pressure_derivatives:
         """
@@ -498,7 +493,7 @@ cdef class Kinetics(_SolutionBase):
         at constant temperature, molar concentration and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_fwdRateConstants_ddP, self.n_reactions)
+            return get_reaction_array(self, kin_getFwdRateConstants_ddP)
 
     property forward_rate_constants_concentration_derivatives:
         """
@@ -506,7 +501,7 @@ cdef class Kinetics(_SolutionBase):
         concentration at constant temperature, pressure and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_fwdRateConstants_ddC, self.n_reactions)
+            return get_reaction_array(self, kin_getFwdRateConstants_ddC)
 
     property forward_rop_temperature_derivatives:
         """
@@ -514,7 +509,7 @@ cdef class Kinetics(_SolutionBase):
         at constant pressure, molar concentration and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_fwdRatesOfProgress_ddT, self.n_reactions)
+            return get_reaction_array(self, kin_getFwdRatesOfProgress_ddT)
 
     property forward_rop_pressure_derivatives:
         """
@@ -522,7 +517,7 @@ cdef class Kinetics(_SolutionBase):
         at constant temperature, molar concentration and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_fwdRatesOfProgress_ddP, self.n_reactions)
+            return get_reaction_array(self, kin_getFwdRatesOfProgress_ddP)
 
     property forward_rop_concentration_derivatives:
         """
@@ -530,7 +525,7 @@ cdef class Kinetics(_SolutionBase):
         concentration at constant temperature, pressure and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_fwdRatesOfProgress_ddC, self.n_reactions)
+            return get_reaction_array(self, kin_getFwdRatesOfProgress_ddC)
 
     property forward_rop_species_derivatives:
         """
@@ -554,7 +549,7 @@ cdef class Kinetics(_SolutionBase):
         at constant pressure, molar concentration and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_revRatesOfProgress_ddT, self.n_reactions)
+            return get_reaction_array(self, kin_getRevRatesOfProgress_ddT)
 
     property reverse_rop_pressure_derivatives:
         """
@@ -562,7 +557,7 @@ cdef class Kinetics(_SolutionBase):
         at constant temperature, molar concentration and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_revRatesOfProgress_ddP, self.n_reactions)
+            return get_reaction_array(self, kin_getRevRatesOfProgress_ddP)
 
     property reverse_rop_concentration_derivatives:
         """
@@ -570,7 +565,7 @@ cdef class Kinetics(_SolutionBase):
         concentration at constant temperature, pressure and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_revRatesOfProgress_ddC, self.n_reactions)
+            return get_reaction_array(self, kin_getRevRatesOfProgress_ddC)
 
     property reverse_rop_species_derivatives:
         """
@@ -594,7 +589,7 @@ cdef class Kinetics(_SolutionBase):
         at constant pressure, molar concentration and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_netRatesOfProgress_ddT, self.n_reactions)
+            return get_reaction_array(self, kin_getNetRatesOfProgress_ddT)
 
     property net_rop_pressure_derivatives:
         """
@@ -602,7 +597,7 @@ cdef class Kinetics(_SolutionBase):
         at constant temperature, molar concentration and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_netRatesOfProgress_ddP, self.n_reactions)
+            return get_reaction_array(self, kin_getNetRatesOfProgress_ddP)
 
     property net_rop_concentration_derivatives:
         """
@@ -610,7 +605,7 @@ cdef class Kinetics(_SolutionBase):
         concentration at constant temperature, pressure and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_netRatesOfProgress_ddC, self.n_reactions)
+            return get_reaction_array(self, kin_getNetRatesOfProgress_ddC)
 
     property net_rop_species_derivatives:
         """
@@ -634,7 +629,7 @@ cdef class Kinetics(_SolutionBase):
         at constant pressure, molar concentration and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_creationRates_ddT, self.n_total_species)
+            return get_species_array(self, kin_getCreationRates_ddT)
 
     property creation_rate_pressure_derivatives:
         """
@@ -642,7 +637,7 @@ cdef class Kinetics(_SolutionBase):
         at constant temperature, molar concentration and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_creationRates_ddP, self.n_total_species)
+            return get_species_array(self, kin_getCreationRates_ddP)
 
     property creation_rate_concentration_derivatives:
         """
@@ -650,7 +645,7 @@ cdef class Kinetics(_SolutionBase):
         concentration at constant temperature, pressure and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_creationRates_ddC, self.n_total_species)
+            return get_species_array(self, kin_getCreationRates_ddC)
 
     property creation_rate_species_derivatives:
         """
@@ -674,7 +669,7 @@ cdef class Kinetics(_SolutionBase):
         at constant pressure, molar concentration and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_destructionRates_ddT, self.n_total_species)
+            return get_species_array(self, kin_getDestructionRates_ddT)
 
     property destruction_rate_pressure_derivatives:
         """
@@ -682,7 +677,7 @@ cdef class Kinetics(_SolutionBase):
         at constant temperature, molar concentration and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_destructionRates_ddP, self.n_total_species)
+            return get_species_array(self, kin_getDestructionRates_ddP)
 
     property destruction_rate_concentration_derivatives:
         """
@@ -690,7 +685,7 @@ cdef class Kinetics(_SolutionBase):
         concentration at constant temperature, pressure and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_destructionRates_ddC, self.n_total_species)
+            return get_species_array(self, kin_getDestructionRates_ddC)
 
     property destruction_rate_species_derivatives:
         """
@@ -714,7 +709,7 @@ cdef class Kinetics(_SolutionBase):
         temperature at constant pressure, molar concentration and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_netProductionRates_ddT, self.n_total_species)
+            return get_species_array(self, kin_getNetProductionRates_ddT)
 
     property net_production_rate_pressure_derivatives:
         """
@@ -722,7 +717,7 @@ cdef class Kinetics(_SolutionBase):
         at constant temperature, molar concentration and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_netProductionRates_ddP, self.n_total_species)
+            return get_species_array(self, kin_getNetProductionRates_ddP)
 
     property net_production_rate_concentration_derivatives:
         """
@@ -730,7 +725,7 @@ cdef class Kinetics(_SolutionBase):
         density at constant temperature, pressure and mole fractions.
         """
         def __get__(self):
-            return get_mapped(self, kin_netProductionRates_ddC, self.n_total_species)
+            return get_species_array(self, kin_getNetProductionRates_ddC)
 
     property net_production_rate_species_derivatives:
         """

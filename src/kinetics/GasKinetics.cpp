@@ -339,104 +339,100 @@ void GasKinetics::processEquilibriumConstants_ddT(double* drkcn)
     thermo().restoreState(m_state);
 }
 
-Eigen::VectorXd GasKinetics::process_ddT(const vector_fp& in)
+void GasKinetics::process_ddT(const vector_fp& in, double* drop)
 {
     // apply temperature derivative
-    Eigen::VectorXd out(nReactions());
-    copy(in.begin(), in.end(), out.data());
+    copy(in.begin(), in.end(), drop);
     for (auto& rates : m_bulk_rates) {
-        rates->processRateConstants_ddT(
-            out.data(), m_rfn.data(), m_jac_rtol_delta);
+        rates->processRateConstants_ddT(drop, m_rfn.data(), m_jac_rtol_delta);
     }
-    return out;
 }
 
-Eigen::VectorXd GasKinetics::fwdRateConstants_ddT()
+void GasKinetics::getFwdRateConstants_ddT(double* dkfwd)
 {
-    assertDerivativesValid("GasKinetics::fwdRateConstants_ddT");
+    assertDerivativesValid("GasKinetics::getFwdRateConstants_ddT");
     updateROP();
-    return process_ddT(m_rfn);
+    process_ddT(m_rfn, dkfwd);
 }
 
-Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddT()
+void GasKinetics::getFwdRatesOfProgress_ddT(double* drop)
 {
-    assertDerivativesValid("GasKinetics::fwdRatesOfProgress_ddT");
+    assertDerivativesValid("GasKinetics::getFwdRatesOfProgress_ddT");
     updateROP();
-    return process_ddT(m_ropf);
+    process_ddT(m_ropf, drop);
 }
 
-Eigen::VectorXd GasKinetics::revRatesOfProgress_ddT()
+void GasKinetics::getRevRatesOfProgress_ddT(double* drop)
 {
-    assertDerivativesValid("GasKinetics::revRatesOfProgress_ddT");
+    assertDerivativesValid("GasKinetics::getRevRatesOfProgress_ddT");
     updateROP();
-    Eigen::VectorXd dRevRop = process_ddT(m_ropr);
+    process_ddT(m_ropr, drop);
+    Eigen::Map<Eigen::VectorXd> dRevRop(drop, nReactions());
 
     // reverse rop times scaled inverse equilibrium constant derivatives
     Eigen::Map<Eigen::VectorXd> dRevRop2(m_rbuf2.data(), nReactions());
     copy(m_ropr.begin(), m_ropr.end(), m_rbuf2.begin());
     processEquilibriumConstants_ddT(dRevRop2.data());
-
-    return dRevRop + dRevRop2;
+    dRevRop += dRevRop2;
 }
 
-Eigen::VectorXd GasKinetics::netRatesOfProgress_ddT()
+void GasKinetics::getNetRatesOfProgress_ddT(double* drop)
 {
-    assertDerivativesValid("GasKinetics::netRatesOfProgress_ddT");
+    assertDerivativesValid("GasKinetics::getNetRatesOfProgress_ddT");
     updateROP();
-    Eigen::VectorXd dFwdRop = process_ddT(m_ropnet);
+    process_ddT(m_ropnet, drop);
+    Eigen::Map<Eigen::VectorXd> dNetRop(drop, nReactions());
 
     // reverse rop times scaled inverse equilibrium constant derivatives
-    Eigen::Map<Eigen::VectorXd> dRevRop2(m_rbuf2.data(), nReactions());
+    Eigen::Map<Eigen::VectorXd> dNetRop2(m_rbuf2.data(), nReactions());
     copy(m_ropr.begin(), m_ropr.end(), m_rbuf2.begin());
-    processEquilibriumConstants_ddT(dRevRop2.data());
-
-    return dFwdRop - dRevRop2;
+    processEquilibriumConstants_ddT(dNetRop2.data());
+    dNetRop -= dNetRop2;
 }
 
-Eigen::VectorXd GasKinetics::process_ddP(const vector_fp& in)
+void GasKinetics::process_ddP(const vector_fp& in, double* drop)
 {
     // apply pressure derivative
-    Eigen::VectorXd out(nReactions());
-    copy(in.begin(), in.end(), &out[0]);
+    copy(in.begin(), in.end(), drop);
     for (auto& rates : m_bulk_rates) {
-        rates->processRateConstants_ddP(
-            out.data(), m_rfn.data(), m_jac_rtol_delta);
+        rates->processRateConstants_ddP(drop, m_rfn.data(), m_jac_rtol_delta);
     }
-    return out;
 }
 
-Eigen::VectorXd GasKinetics::fwdRateConstants_ddP()
+void GasKinetics::getFwdRateConstants_ddP(double* dkfwd)
 {
-    assertDerivativesValid("GasKinetics::fwdRateConstants_ddP");
+    assertDerivativesValid("GasKinetics::getFwdRateConstants_ddP");
     updateROP();
-    return process_ddP(m_rfn);
+    process_ddP(m_rfn, dkfwd);
 }
 
-Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddP()
+void GasKinetics::getFwdRatesOfProgress_ddP(double* drop)
 {
-    assertDerivativesValid("GasKinetics::fwdRatesOfProgress_ddP");
+    assertDerivativesValid("GasKinetics::getFwdRatesOfProgress_ddP");
     updateROP();
-    return process_ddP(m_ropf);
+    process_ddP(m_ropf, drop);
 }
 
-Eigen::VectorXd GasKinetics::revRatesOfProgress_ddP()
+void GasKinetics::getRevRatesOfProgress_ddP(double* drop)
 {
-    assertDerivativesValid("GasKinetics::revRatesOfProgress_ddP");
+    assertDerivativesValid("GasKinetics::getRevRatesOfProgress_ddP");
     updateROP();
-    return process_ddP(m_ropr);
+    process_ddP(m_ropr, drop);
 }
 
-Eigen::VectorXd GasKinetics::netRatesOfProgress_ddP()
+void GasKinetics::getNetRatesOfProgress_ddP(double* drop)
 {
-    assertDerivativesValid("GasKinetics::netRatesOfProgress_ddP");
+    assertDerivativesValid("GasKinetics::getNetRatesOfProgress_ddP");
     updateROP();
-    return process_ddP(m_ropnet);
+    process_ddP(m_ropnet, drop);
 }
 
-Eigen::VectorXd GasKinetics::process_ddC(
-    StoichManagerN& stoich, const vector_fp& in, bool mass_action)
+void GasKinetics::process_ddC(
+    StoichManagerN& stoich, const vector_fp& in,
+    double* drop, bool mass_action)
 {
-    Eigen::VectorXd out = Eigen::VectorXd::Zero(nReactions());
+    Eigen::Map<Eigen::VectorXd> out(drop, nReactions());
+    out.setZero();
     double ctot_inv = 1. / thermo().molarDensity();
 
     // derivatives due to concentrations in law of mass action
@@ -444,7 +440,7 @@ Eigen::VectorXd GasKinetics::process_ddC(
         stoich.scale(in.data(), out.data(), ctot_inv);
     }
     if (m_jac_skip_third_bodies || m_multi_concm.empty()) {
-        return out;
+        return;
     }
 
     // derivatives due to third-body colliders in law of mass action
@@ -465,37 +461,39 @@ Eigen::VectorXd GasKinetics::process_ddC(
         }
         out += outM;
     }
-
-    return out;
 }
 
-Eigen::VectorXd GasKinetics::fwdRateConstants_ddC()
+void GasKinetics::getFwdRateConstants_ddC(double* dkfwd)
 {
-    assertDerivativesValid("GasKinetics::fwdRateConstants_ddC");
+    assertDerivativesValid("GasKinetics::getFwdRateConstants_ddC");
     updateROP();
-    return process_ddC(m_reactantStoich, m_rfn, false);
+    process_ddC(m_reactantStoich, m_rfn, dkfwd, false);
 }
 
-Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddC()
+void GasKinetics::getFwdRatesOfProgress_ddC(double* drop)
 {
-    assertDerivativesValid("GasKinetics::fwdRatesOfProgress_ddC");
+    assertDerivativesValid("GasKinetics::getFwdRatesOfProgress_ddC");
     updateROP();
-    return process_ddC(m_reactantStoich, m_ropf);
+    process_ddC(m_reactantStoich, m_ropf, drop);
 }
 
-Eigen::VectorXd GasKinetics::revRatesOfProgress_ddC()
+void GasKinetics::getRevRatesOfProgress_ddC(double* drop)
 {
-    assertDerivativesValid("GasKinetics::revRatesOfProgress_ddC");
+    assertDerivativesValid("GasKinetics::getRevRatesOfProgress_ddC");
     updateROP();
-    return process_ddC(m_revProductStoich, m_ropr);
+    return process_ddC(m_revProductStoich, m_ropr, drop);
 }
 
-Eigen::VectorXd GasKinetics::netRatesOfProgress_ddC()
+void GasKinetics::getNetRatesOfProgress_ddC(double* drop)
 {
-    assertDerivativesValid("GasKinetics::netRatesOfProgress_ddC");
+    assertDerivativesValid("GasKinetics::getNetRatesOfProgress_ddC");
     updateROP();
-    return process_ddC(m_reactantStoich, m_ropf)
-        - process_ddC(m_revProductStoich, m_ropr);
+    process_ddC(m_reactantStoich, m_ropf, drop);
+    Eigen::Map<Eigen::VectorXd> dNetRop(drop, nReactions());
+
+    process_ddC(m_revProductStoich, m_ropr, m_rbuf2.data());
+    Eigen::Map<Eigen::VectorXd> dNetRop2(m_rbuf2.data(), nReactions());
+    dNetRop -= dNetRop2;
 }
 
 Eigen::SparseMatrix<double> GasKinetics::process_ddX(
