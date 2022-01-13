@@ -94,6 +94,10 @@ public:
         return "IdealSolidSoln";
     }
 
+    virtual bool isIdeal() const {
+        return true;
+    }
+
     virtual bool isCompressible() const {
         return false;
     }

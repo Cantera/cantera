@@ -114,6 +114,11 @@ public:
         return "None";
     }
 
+    //! Boolean indicating whether phase is ideal
+    virtual bool isIdeal() const {
+        return false;
+    }
+
     //! String indicating the mechanical phase of the matter in this Phase.
     /*!
      * Options for the string are:
