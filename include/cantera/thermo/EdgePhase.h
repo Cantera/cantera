@@ -30,6 +30,14 @@ namespace Cantera
 class EdgePhase : public SurfPhase
 {
 public:
+    //! Construct and initialize an EdgePhase directly from an input file
+    /*!
+     * @param infile name of the input file
+     * @param id     name of the phase id in the file.
+     *               If this is blank, the first phase in the file is used.
+     */
+    explicit EdgePhase(const std::string& infile, const std::string& id="");
+
     //! Constructor
     /*!
      * @param n0  Surface site density (kmol m-1).
