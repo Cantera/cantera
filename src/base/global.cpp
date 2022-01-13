@@ -75,6 +75,16 @@ void make_deprecation_warnings_fatal()
     app()->make_deprecation_warnings_fatal();
 }
 
+void suppress_warnings()
+{
+    app()->suppress_warnings();
+}
+
+bool warnings_suppressed()
+{
+    return app()->warnings_suppressed();
+}
+
 void make_warnings_fatal()
 {
     app()->make_warnings_fatal();

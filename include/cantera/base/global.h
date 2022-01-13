@@ -230,6 +230,12 @@ void suppress_thermo_warnings(bool suppress=true);
 //! @copydoc Application::thermo_warnings_suppressed
 bool thermo_warnings_suppressed();
 
+//! @copydoc Application::suppress_user_warnings
+void suppress_warnings();
+
+//! @copydoc Application::warnings_suppressed
+bool warnings_suppressed();
+
 //! @copydoc Application::use_legacy_rate_constants
 void use_legacy_rate_constants(bool legacy=true);
 

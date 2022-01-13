@@ -127,6 +127,7 @@ Application::Application() :
     m_suppress_deprecation_warnings(false),
     m_fatal_deprecation_warnings(false),
     m_suppress_thermo_warnings(false),
+    m_suppress_warnings(false),
     m_fatal_warnings(false),
 #if CT_LEGACY_RATE_CONSTANTS
     m_use_legacy_rate_constants(true)
@@ -185,6 +186,8 @@ void Application::warn_user(const std::string& method,
 {
     if (m_fatal_warnings) {
         throw CanteraError(method, extra);
+    } else if (m_suppress_warnings) {
+        return;
     }
     writelog(fmt::format("CanteraWarning: {}: {}", method, extra));
     writelogendl();
