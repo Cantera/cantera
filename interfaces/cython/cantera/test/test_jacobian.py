@@ -5,7 +5,7 @@ from . import utilities
 
 
 class RateExpressionTests:
-    # Generic test class to check Jacobians evaluated for a single reaction within
+    # Generic test class to check derivatives evaluated for a single reaction within
     # a reaction mechanism
 
     rxn_idx = None # index of reaction to be tested
@@ -32,7 +32,7 @@ class RateExpressionTests:
         self.gas.TPX = self.tpx
         self.gas.set_multiplier(0.)
         self.gas.set_multiplier(1., self.rxn_idx)
-        self.gas.jacobian_settings = {} # reset defaults
+        self.gas.derivative_settings = {} # reset defaults
 
         # check stoichiometric coefficient output
         for k, v in self.rxn.reactants.items():
@@ -84,7 +84,7 @@ class RateExpressionTests:
         dropm = self.gas.forward_rop_species_derivatives
         dropp = self.gas.forward_rop_pressure_derivatives
 
-        self.gas.jacobian_settings = {"skip-third-bodies": True}
+        self.gas.derivative_settings = {"skip-third-bodies": True}
         drop = self.gas.forward_rop_species_derivatives
         rop = self.gas.forward_rates_of_progress
         for spc_ix in self.rix:
@@ -113,7 +113,7 @@ class RateExpressionTests:
         dropm = self.gas.reverse_rop_species_derivatives
         dropp = self.gas.reverse_rop_pressure_derivatives
 
-        self.gas.jacobian_settings = {"skip-third-bodies": True}
+        self.gas.derivative_settings = {"skip-third-bodies": True}
         drop = self.gas.reverse_rop_species_derivatives
         rop = self.gas.reverse_rates_of_progress
         for spc_ix in self.pix:
@@ -404,7 +404,7 @@ class TestThreeBody(HydrogenOxygen, utilities.CanteraTest):
 
     def test_thirdbodies_forward(self):
         drop = self.gas.forward_rop_species_derivatives
-        self.gas.jacobian_settings = {"skip-third-bodies": True}
+        self.gas.derivative_settings = {"skip-third-bodies": True}
         drops = self.gas.forward_rop_species_derivatives
         dropm = drop - drops
         rop = self.gas.forward_rates_of_progress
@@ -412,7 +412,7 @@ class TestThreeBody(HydrogenOxygen, utilities.CanteraTest):
 
     def test_thirdbodies_reverse(self):
         drop = self.gas.reverse_rop_species_derivatives
-        self.gas.jacobian_settings = {"skip-third-bodies": True}
+        self.gas.derivative_settings = {"skip-third-bodies": True}
         drops = self.gas.reverse_rop_species_derivatives
         dropm = drop - drops
         rop = self.gas.reverse_rates_of_progress
@@ -517,7 +517,7 @@ class TestBlowersMasel(FromScratchCases, utilities.CanteraTest):
 
 
 class FullTests:
-    # Generic test class to check Jacobians evaluated for an entire reaction mechanisms
+    # Generic test class to check derivatives evaluated for an entire reaction mechanisms
     rtol = 1e-4
 
     @classmethod
@@ -527,7 +527,7 @@ class FullTests:
 
     def setUp(self):
         self.gas.TPX = self.tpx
-        self.gas.jacobian_settings = {} # reset
+        self.gas.derivative_settings = {} # reset
 
     def rop_ddX(self, mode, rtol_deltac=1e-9, atol_deltac=1e-20):
         # numerical derivative for rates-of-progress with respect to mole fractions
@@ -559,7 +559,7 @@ class FullTests:
         return drop * self.gas.density_mole
 
     def test_forward_rop_ddX(self):
-        # check forward rop against numerical jacobian with respect to mole fractions
+        # check forward rop against numerical derivative with respect to mole fractions
         drop = self.gas.forward_rop_species_derivatives
         dropp = self.gas.forward_rop_pressure_derivatives
         drop_num = self.rop_ddX(mode="forward")
@@ -577,7 +577,7 @@ class FullTests:
                 raise err
 
     def test_reverse_rop_ddX(self):
-        # check reverse rop against numerical jacobian with respect to mole fractions
+        # check reverse rop against numerical derivative with respect to mole fractions
         drop = self.gas.reverse_rop_species_derivatives
         dropp = self.gas.reverse_rop_pressure_derivatives
         drop_num = self.rop_ddX(mode="reverse")
@@ -595,7 +595,7 @@ class FullTests:
                 raise err
 
     def test_net_rop_ddX(self):
-        # check net rop against numerical jacobian with respect to mole fractions
+        # check net rop against numerical derivative with respect to mole fractions
         drop = self.gas.net_rop_species_derivatives
         dropp = self.gas.net_rop_pressure_derivatives
         drop_num = self.rop_ddX(mode="net")
@@ -631,7 +631,7 @@ class FullTests:
         return (rop1 - rop0) / dt
 
     def test_forward_rop_ddT(self):
-        # check forward rop against numerical jacobian with respect to temperature
+        # check forward rop against numerical derivative with respect to temperature
         dcdt = - self.gas.density_mole / self.gas.T
         drop = self.gas.forward_rop_temperature_derivatives
         drop += self.gas.forward_rop_concentration_derivatives * dcdt
@@ -639,7 +639,7 @@ class FullTests:
         self.assertArrayNear(drop, drop_num, self.rtol)
 
     def test_reverse_rop_ddT(self):
-        # check reverse rop against numerical jacobian with respect to temperature
+        # check reverse rop against numerical derivative with respect to temperature
         dcdt = - self.gas.density_mole / self.gas.T
         drop = self.gas.reverse_rop_temperature_derivatives
         drop += self.gas.reverse_rop_concentration_derivatives * dcdt
@@ -647,7 +647,7 @@ class FullTests:
         self.assertArrayNear(drop, drop_num, self.rtol)
 
     def test_net_rop_ddT(self):
-        # check net rop against numerical jacobian with respect to temperature
+        # check net rop against numerical derivative with respect to temperature
         dcdt = - self.gas.density_mole / self.gas.T
         drop = self.gas.net_rop_temperature_derivatives
         drop += self.gas.net_rop_concentration_derivatives * dcdt

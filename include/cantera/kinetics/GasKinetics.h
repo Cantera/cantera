@@ -61,8 +61,8 @@ public:
     virtual void resizeReactions();
     void updateROP();
 
-    virtual void getJacobianSettings(AnyMap& settings) const;
-    virtual void setJacobianSettings(const AnyMap& settings);
+    virtual void getDerivativeSettings(AnyMap& settings) const;
+    virtual void setDerivativeSettings(const AnyMap& settings);
     virtual Eigen::VectorXd fwdRateConstants_ddT();
     virtual Eigen::VectorXd fwdRateConstants_ddP();
     virtual Eigen::VectorXd fwdRateConstants_ddC();
@@ -187,7 +187,7 @@ protected:
     vector_fp m_sbuf0;
     vector_fp m_state;
 
-    //! Jacobian settings
+    //! Derivative settings
     bool m_jac_skip_third_bodies;
     bool m_jac_skip_falloff;
     double m_jac_rtol_delta;

@@ -729,8 +729,8 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         double multiplier(int)
         void setMultiplier(int, double)
 
-        void getJacobianSettings(CxxAnyMap&) except +translate_exception
-        void setJacobianSettings(CxxAnyMap&) except +translate_exception
+        void getDerivativeSettings(CxxAnyMap&) except +translate_exception
+        void setDerivativeSettings(CxxAnyMap&) except +translate_exception
 
 
 cdef extern from "cantera/kinetics/InterfaceKinetics.h":

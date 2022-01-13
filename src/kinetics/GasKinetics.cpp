@@ -17,7 +17,7 @@ GasKinetics::GasKinetics(ThermoPhase* thermo) :
     m_logStandConc(0.0),
     m_pres(0.0)
 {
-    setJacobianSettings(AnyMap()); // use default settings
+    setDerivativeSettings(AnyMap()); // use default settings
 }
 
 void GasKinetics::resizeReactions()
@@ -270,14 +270,14 @@ void GasKinetics::getFwdRateConstants(double* kfwd)
     copy(m_ropf.begin(), m_ropf.end(), kfwd);
 }
 
-void GasKinetics::getJacobianSettings(AnyMap& settings) const
+void GasKinetics::getDerivativeSettings(AnyMap& settings) const
 {
     settings["skip-third-bodies"] = m_jac_skip_third_bodies;
     settings["skip-falloff"] = m_jac_skip_falloff;
     settings["rtol-delta"] = m_jac_rtol_delta;
 }
 
-void GasKinetics::setJacobianSettings(const AnyMap& settings)
+void GasKinetics::setDerivativeSettings(const AnyMap& settings)
 {
     bool force = settings.empty();
     if (force || settings.hasKey("skip-third-bodies")) {
@@ -514,7 +514,7 @@ Eigen::SparseMatrix<double> GasKinetics::process_ddX(
     // derivatives handled by StoichManagerN
     copy(scaled.begin(), scaled.end(), outV.begin());
     processThirdBodies(outV.data());
-    out = stoich.jacobian(m_act_conc.data(), outV.data());
+    out = stoich.derivatives(m_act_conc.data(), outV.data());
     if (m_jac_skip_third_bodies || m_multi_concm.empty()) {
         return out;
     }
@@ -533,7 +533,7 @@ Eigen::SparseMatrix<double> GasKinetics::process_ddX(
     }
 
     // derivatives handled by ThirdBodyCalc
-    out += m_multi_concm.jacobian(outV.data());
+    out += m_multi_concm.derivatives(outV.data());
 
     return out;
 }

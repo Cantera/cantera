@@ -11,7 +11,7 @@ samples = [
     ('demo', 'demo', ['cpp'], False),
     ('flamespeed', 'flamespeed', ['cpp'], False),
     ('kinetics1', 'kinetics1', ['cpp'], False),
-    ('jacobian', 'jacobian_speed', ['cpp'], False),
+    ('jacobian', 'derivative_speed', ['cpp'], False),
     ('gas_transport', 'gas_transport', ['cpp'], False),
     ('rankine', 'rankine', ['cpp'], False),
     ('LiC6_electrode', 'LiC6_electrode', ['cpp'], False),
