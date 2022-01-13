@@ -48,7 +48,7 @@ struct ReactionData
     //! Update data container based on *bulk* phase state
     /**
      * This update mechanism is used by Kinetics reaction rate evaluators.
-     * @returns A boolean element indicating whether the `evalFromStruct` method
+     * @returns  A boolean element indicating whether the `evalFromStruct` method
      *      needs to be called (assuming previously-calculated values were cached)
      */
     virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) = 0;
@@ -58,9 +58,12 @@ struct ReactionData
      * The method is used for the evaluation of numerical derivatives.
      * @param  deltaT  relative temperature perturbation
      */
-    virtual bool perturbT(double deltaT);
+    void perturbTemperature(double deltaT);
 
     //! Restore data container after a perturbation
+    /*
+     * @returns  A boolean indicating whether value was restored after a perturbation.
+     */
     virtual bool restore();
 
     //! Update number of species and reactions
@@ -174,10 +177,10 @@ struct FalloffData : public ReactionData
      * The method is used for the evaluation of numerical derivatives.
      * @param deltaM  relative third-body perturbation
      */
-    virtual bool perturbM(double deltaM);
+    void perturbThirdBodies(double deltaM);
 
     //! Restore data container after a perturbation
-    virtual bool restore();
+    virtual bool restore() override;
 
     virtual void resize(size_t n_species, size_t n_reactions) override {
         conc_3b.resize(n_reactions, NAN);
@@ -225,10 +228,10 @@ struct PlogData : public ReactionData
      * The method is used for the evaluation of numerical derivatives.
      * @param  deltaP  relative pressure perturbation
      */
-    virtual bool perturbP(double deltaP);
+    void perturbPressure(double deltaP);
 
     //! Restore data container after a perturbation
-    virtual bool restore();
+    virtual bool restore() override;
 
     virtual void invalidateCache() override {
         ReactionData::invalidateCache();
@@ -267,10 +270,10 @@ struct ChebyshevData : public ReactionData
      * The method is used for the evaluation of numerical derivatives.
      * @param  deltaP  relative pressure perturbation
      */
-    virtual bool perturbP(double deltaP);
+    void perturbPressure(double deltaP);
 
     //! Restore data container after a perturbation
-    virtual bool restore();
+    virtual bool restore() override;
 
     virtual void invalidateCache() override {
         ReactionData::invalidateCache();

@@ -17,15 +17,14 @@ void ReactionData::update(double T, double extra)
         "ReactionData type does not use extra argument.");
 }
 
-bool ReactionData::perturbT(double deltaT)
+void ReactionData::perturbTemperature(double deltaT)
 {
-    // only perturb if there is no buffered value
     if (m_temperature_buf > 0.) {
-        return false;
+        throw CanteraError("ReactionData::perturbTemperature",
+            "Cannot apply another perturbation as state is already perturbed.");
     }
     m_temperature_buf = temperature;
     ReactionData::update(temperature * (1. + deltaT));
-    return true;
 }
 
 bool ReactionData::restore()
@@ -165,18 +164,17 @@ bool FalloffData::update(const ThermoPhase& bulk, const Kinetics& kin)
     return changed;
 }
 
-bool FalloffData::perturbM(double deltaM)
+void FalloffData::perturbThirdBodies(double deltaM)
 {
-    // only perturb if there is no buffered value
     if (m_perturbed) {
-        return false;
+        throw CanteraError("FalloffData::perturbThirdBodies",
+            "Cannot apply another perturbation as state is already perturbed.");
     }
     m_conc_3b_buf = conc_3b;
     for (auto& c3b : conc_3b) {
         c3b *= 1. + deltaM;
     }
     m_perturbed = true;
-    return true;
 }
 
 bool FalloffData::restore()
@@ -208,15 +206,14 @@ bool PlogData::update(const ThermoPhase& bulk, const Kinetics& kin)
     return false;
 }
 
-bool PlogData::perturbP(double deltaP)
+void PlogData::perturbPressure(double deltaP)
 {
-    // only perturb if there is no buffered value
     if (m_pressure_buf > 0.) {
-        return false;
+        throw CanteraError("PlogData::perturbPressure",
+            "Cannot apply another perturbation as state is already perturbed.");
     }
     m_pressure_buf = pressure;
     update(temperature, pressure * (1. + deltaP));
-    return true;
 }
 
 bool PlogData::restore()
@@ -248,15 +245,14 @@ bool ChebyshevData::update(const ThermoPhase& bulk, const Kinetics& kin)
     return false;
 }
 
-bool ChebyshevData::perturbP(double deltaP)
+void ChebyshevData::perturbPressure(double deltaP)
 {
-    // only perturb if there is no buffered value
     if (m_pressure_buf > 0.) {
-        return false;
+        throw CanteraError("ChebyshevData::perturbPressure",
+            "Cannot apply another perturbation as state is already perturbed.");
     }
     m_pressure_buf = pressure;
     update(temperature, pressure * (1. + deltaP));
-    return true;
 }
 
 bool ChebyshevData::restore()

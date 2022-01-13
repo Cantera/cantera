@@ -24,8 +24,18 @@ namespace Cantera
 //! where `DataType` is a container for parameters needed to evaluate reactions of that
 //! type.
 //!
-//! Derived classes may also implement the method
-//! `ddTScaledFromStruct(const DataType& shared_data)`.
+//! The calculation of derivatives (or Jacobians) relies on the following methods:
+//!  -  Derived classes may implement the method
+//!     `ddTScaledFromStruct(const DataType& shared_data)` for an analytical derivative
+//!     with respect to temperature.
+//!  -  Associated `DataType` containers may overload the method
+//!     `perturbTemperature(double deltaT)`, which is used for the calculation of
+//!     numerical derivatives with respect to temperature if an analytic implementation
+//!     is not available.
+//!  -  For reaction rate constants that depend on pressure or third-body collision
+//!     partners, associated `DataType` containers should implement the methods
+//!     `perturbPressure(double deltaP)` and/or `perturbThirdBodies(double deltaM)`,
+//!     which allow for the calculation of numerical derivatives.
 class ReactionRate
 {
 public:
