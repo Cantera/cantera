@@ -114,23 +114,30 @@ protected:
      */
     void processEquilibriumConstants_ddT(double* drkcn);
 
-    //! Apply temperature derivative
-    Eigen::VectorXd ddT(const vector_fp& in);
+    //! Process temperature derivative
+    //! @param in  rate expression used for the derivative calculation
+    Eigen::VectorXd process_ddT(const vector_fp& in);
 
-    //! Apply pressure derivative
-    Eigen::VectorXd ddP(const vector_fp& in);
+    //! Process pressure derivative
+    //! @param in  rate expression used for the derivative calculation
+    Eigen::VectorXd process_ddP(const vector_fp& in);
 
-    //! Apply concentration (molar density) derivative
-    Eigen::VectorXd ddC(StoichManagerN& stoich,
-                        const vector_fp& in,
-                        bool mass_action=true);
+    //! Process concentration (molar density) derivative
+    //! @param stoich  stoichiometry manager
+    //! @param in  rate expression used for the derivative calculation
+    //! @param mass_action  boolean indicating whether law of mass action applies
+    Eigen::VectorXd process_ddC(StoichManagerN& stoich,
+                                const vector_fp& in,
+                                bool mass_action=true);
 
-    //! Apply mole fraction derivative
-    Eigen::SparseMatrix<double> ddX(StoichManagerN& stoich,
-                                    const vector_fp& in);
+    //! Process mole fraction derivative
+    //! @param stoich  stoichiometry manager
+    //! @param in  rate expression used for the derivative calculation
+    Eigen::SparseMatrix<double> process_ddX(StoichManagerN& stoich,
+                                            const vector_fp& in);
 
     //! Helper function ensuring that all rate derivatives can be calculated
-    //! @param  method name used for error output
+    //! @param name  method name used for error output
     //! @throw  CanteraError if legacy rates are present
     void checkLegacyRates(const std::string& name);
 

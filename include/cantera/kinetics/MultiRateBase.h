@@ -82,11 +82,12 @@ public:
     //! @param[in,out] rop  array of rop, which is modified by the method;
     //!     contains rop on input, and d(rop)/dM on output
     //! @param kf  array of forward rate constants
-    //! @param deltaM  relative perturbation of third-body concentrations;
-    //!     if deltaM < 0, rop entries not affected by M are not set to zero
+    //! @param deltaM  relative perturbation of third-body concentrations
+    //! @param overwrite  if `true`, rop entries not affected by M are set to zero
     virtual void processRateConstants_ddM(double* rop,
                                           const double* kf,
-                                          double deltaM) = 0;
+                                          double deltaM,
+                                          bool overwrite=true) = 0;
 
     //! Update common reaction rate data based on temperature.
     //! Only used in conjunction with evalSingle and ReactionRate::eval

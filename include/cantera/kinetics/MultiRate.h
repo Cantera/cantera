@@ -21,8 +21,8 @@ template <class RateType, class DataType>
 class MultiBulkRate final : public MultiRateBase
 {
     CT_DEFINE_HAS_MEMBER(has_ddT, ddTScaledFromStruct)
-    CT_DEFINE_HAS_MEMBER(has_ddP, perturbP)
-    CT_DEFINE_HAS_MEMBER(has_ddM, perturbM)
+    CT_DEFINE_HAS_MEMBER(has_ddP, perturbPressure)
+    CT_DEFINE_HAS_MEMBER(has_ddM, perturbThirdBodies)
 
 public:
     virtual std::string type() override {
@@ -81,20 +81,21 @@ public:
 
     virtual void processRateConstants_ddP(double* rop,
                                           const double* kf,
-                                          double deltaM) override
+                                          double deltaP) override
     {
         // call helper function: implementation of derivative depends on whether
-        // ReactionData::perturbP is defined
-        _process_ddP(rop, kf, deltaM);
+        // ReactionData::perturbPressure is defined
+        _process_ddP(rop, kf, deltaP);
     }
 
     virtual void processRateConstants_ddM(double* rop,
                                           const double* kf,
-                                          double deltaM) override
+                                          double deltaM,
+                                          bool overwrite=true) override
     {
         // call helper function: implementation of derivative depends on whether
         // ReactionRate::thirdBodyConcentration is defined
-        _process_ddM(rop, kf, deltaM);
+        _process_ddM(rop, kf, deltaM, overwrite);
     }
 
     virtual void update(double T) override {
@@ -133,7 +134,7 @@ protected:
 
         // perturb conditions
         double dTinv = 1. / (m_shared.temperature * deltaT);
-        m_shared.perturbT(deltaT);
+        m_shared.perturbTemperature(deltaT);
 
         // apply numerical derivative
         for (auto& rxn : m_rxn_rates) {
@@ -148,13 +149,12 @@ protected:
     }
 
     //! Helper function to process third-body derivatives for rate data that
-    //! implement the `perturbM` method.
+    //! implement the `perturbThirdBodies` method.
     template <typename T=RateType, typename D=DataType,
         typename std::enable_if<has_ddM<D>::value, bool>::type = true>
-    void _process_ddM(double* rop, const double* kf, double deltaM) {
-        double deltaM_ = std::abs(deltaM);
-        double dMinv = 1. / deltaM_;
-        m_shared.perturbM(deltaM_);
+    void _process_ddM(double* rop, const double* kf, double deltaM, bool overwrite) {
+        double dMinv = 1. / deltaM;
+        m_shared.perturbThirdBodies(deltaM);
 
         for (auto& rxn : m_rxn_rates) {
             if (kf[rxn.first] != 0. && m_shared.conc_3b[rxn.first] > 0.) {
@@ -170,11 +170,12 @@ protected:
         m_shared.restore();
     }
 
-    //! Helper function for rate data that do not implement `perturbM`
+    //! Helper function for rate data that do not implement `perturbThirdBodies`
     template <typename T=RateType, typename D=DataType,
         typename std::enable_if<!has_ddM<D>::value, bool>::type = true>
-    void _process_ddM(double* rop, const double* kf, double deltaM) {
-        if (deltaM < 0.) {
+    void _process_ddM(double* rop, const double* kf, double deltaM, bool overwrite) {
+        if (!overwrite) {
+            // do not overwrite existing entries
             return;
         }
         for (const auto& rxn : m_rxn_rates) {
@@ -183,12 +184,12 @@ protected:
     }
 
     //! Helper function to process pressure derivatives for rate data that
-    //! implement the `perturbP` method.
+    //! implement the `perturbPressure` method.
     template <typename T=RateType, typename D=DataType,
         typename std::enable_if<has_ddP<D>::value, bool>::type = true>
     void _process_ddP(double* rop, const double* kf, double deltaP) {
         double dPinv = 1. / (m_shared.pressure * deltaP);
-        m_shared.perturbP(deltaP);
+        m_shared.perturbPressure(deltaP);
 
         for (auto& rxn : m_rxn_rates) {
             if (kf[rxn.first] != 0.) {
@@ -201,7 +202,7 @@ protected:
         m_shared.restore();
     }
 
-    //! Helper function for rate data that do not implement `perturbP`
+    //! Helper function for rate data that do not implement `perturbPressure`
     template <typename T=RateType, typename D=DataType,
         typename std::enable_if<!has_ddP<D>::value, bool>::type = true>
     void _process_ddP(double* rop, const double* kf, double deltaP) {
