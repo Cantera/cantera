@@ -323,7 +323,7 @@ protected:
  *
  * @ingroup arrheniusGroup
  */
-class BlowersMaselRate : public ArrheniusBase
+class BlowersMaselRate final : public ArrheniusBase
 {
 public:
     //! Default constructor.
@@ -380,6 +380,16 @@ public:
         double Ea_R = activationEnergy_R(deltaH_R);
         return m_A * std::exp(m_b * shared_data.logT - Ea_R * shared_data.recipT);
     }
+
+    //! Evaluate derivative of reaction rate with respect to temperature
+    //! divided by reaction rate
+    /*!
+     *  This method is used to override the numerical derivative, which does not
+     *  consider potential changes due to a changed reaction enthalpy. A corresponding
+     *  warning is raised.
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    virtual double ddTScaledFromStruct(const BlowersMaselData& shared_data) const;
 
     //! Return the actual activation energy (a function of the delta H of reaction)
     //! divided by the gas constant (i.e. the activation temperature) [K]
