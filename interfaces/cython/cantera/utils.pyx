@@ -44,7 +44,7 @@ __version__ = pystr(get_cantera_version())
 
 __git_commit__ = pystr(CxxGitCommit())
 
-__use_sparse__ = False
+_USE_SPARSE = False
 
 def debug_mode_enabled():
     return CxxDebugModeEnabled()
@@ -58,10 +58,10 @@ def use_sparse(sparse=True):
     Enable sparse output using `scipy.sparse`. Sparse output requires a working
     `scipy` installation. Use pip or conda to install `scipy` to enable this method.
     """
-    global __use_sparse__
+    global _USE_SPARSE
     if sparse and isinstance(_scipy_sparse, ImportError):
         raise _scipy_sparse
-    __use_sparse__ = sparse
+    _USE_SPARSE = sparse
 
 def make_deprecation_warnings_fatal():
     warnings.filterwarnings('error', category=DeprecationWarning,

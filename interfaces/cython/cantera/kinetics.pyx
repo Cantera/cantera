@@ -312,7 +312,7 @@ cdef class Kinetics(_SolutionBase):
         For sparse output, set ``ct.use_sparse(True)``.
         """
         def __get__(self):
-            if __use_sparse__:
+            if _USE_SPARSE:
                 tup = get_sparse(self, kin_reactantStoichCoeffs)
                 shape = self.n_total_species, self.n_reactions
                 return _scipy_sparse.csc_matrix(tup, shape=shape)
@@ -342,7 +342,7 @@ cdef class Kinetics(_SolutionBase):
         For sparse output, set ``ct.use_sparse(True)``.
         """
         def __get__(self):
-            if __use_sparse__:
+            if _USE_SPARSE:
                 tup = get_sparse(self, kin_productStoichCoeffs)
                 shape = self.n_total_species, self.n_reactions
                 return _scipy_sparse.csc_matrix(tup, shape=shape)
@@ -357,7 +357,7 @@ cdef class Kinetics(_SolutionBase):
         For sparse output, set ``ct.use_sparse(True)``.
         """
         def __get__(self):
-            if __use_sparse__:
+            if _USE_SPARSE:
                 tup = get_sparse(self, kin_revProductStoichCoeffs)
                 shape = self.n_total_species, self.n_reactions
                 return _scipy_sparse.csc_matrix(tup, shape=shape)
@@ -543,7 +543,7 @@ cdef class Kinetics(_SolutionBase):
         are held constant, rather than enforcing :math:`\sum X_j = 1`.
         """
         def __get__(self):
-            if __use_sparse__:
+            if _USE_SPARSE:
                 tup = get_sparse(self, kin_fwdRatesOfProgress_ddX)
                 shape = self.n_reactions, self.n_total_species
                 return _scipy_sparse.csc_matrix(tup, shape=shape)
@@ -583,7 +583,7 @@ cdef class Kinetics(_SolutionBase):
         are held constant, rather than enforcing :math:`\sum X_j = 1`.
         """
         def __get__(self):
-            if __use_sparse__:
+            if _USE_SPARSE:
                 tup = get_sparse(self, kin_revRatesOfProgress_ddX)
                 shape = self.n_reactions, self.n_total_species
                 return _scipy_sparse.csc_matrix(tup, shape=shape)
@@ -623,7 +623,7 @@ cdef class Kinetics(_SolutionBase):
         are held constant, rather than enforcing :math:`\sum X_j = 1`.
         """
         def __get__(self):
-            if __use_sparse__:
+            if _USE_SPARSE:
                 tup = get_sparse(self, kin_netRatesOfProgress_ddX)
                 shape = self.n_reactions, self.n_total_species
                 return _scipy_sparse.csc_matrix(tup, shape=shape)
@@ -663,7 +663,7 @@ cdef class Kinetics(_SolutionBase):
         are held constant, rather than enforcing :math:`\sum X_j = 1`.
         """
         def __get__(self):
-            if __use_sparse__:
+            if _USE_SPARSE:
                 tup = get_sparse(self, kin_creationRates_ddX)
                 shape = self.n_total_species, self.n_total_species
                 return _scipy_sparse.csc_matrix(tup, shape=shape)
@@ -703,7 +703,7 @@ cdef class Kinetics(_SolutionBase):
         are held constant, rather than enforcing :math:`\sum X_j = 1`.
         """
         def __get__(self):
-            if __use_sparse__:
+            if _USE_SPARSE:
                 tup = get_sparse(self, kin_destructionRates_ddX)
                 shape = self.n_total_species, self.n_total_species
                 return _scipy_sparse.csc_matrix(tup, shape=shape)
@@ -743,7 +743,7 @@ cdef class Kinetics(_SolutionBase):
         are held constant, rather than enforcing :math:`\sum X_j = 1`.
         """
         def __get__(self):
-            if __use_sparse__:
+            if _USE_SPARSE:
                 tup = get_sparse(self, kin_netProductionRates_ddX)
                 shape = self.n_total_species, self.n_total_species
                 return _scipy_sparse.csc_matrix(tup, shape=shape)
