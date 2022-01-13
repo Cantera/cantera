@@ -129,7 +129,9 @@ protected:
     Eigen::SparseMatrix<double> ddX(StoichManagerN& stoich,
                                     const vector_fp& in);
 
-    //! Calculate rate coefficients
+    //! Helper function ensuring that all rate derivatives can be calculated
+    //! @param  method name used for error output
+    //! @throw  CanteraError if legacy rates are present
     void checkLegacyRates(const std::string& name);
 
     //! @}
@@ -176,6 +178,7 @@ protected:
     vector_fp m_rbuf1;
     vector_fp m_rbuf2;
     vector_fp m_sbuf0;
+    vector_fp m_state;
 
     //! Jacobian settings
     bool m_jac_skip_third_bodies;

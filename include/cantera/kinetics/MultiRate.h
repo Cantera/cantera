@@ -201,7 +201,7 @@ protected:
         m_shared.restore();
     }
 
-    //! Helper function for rate data that do not implement `perturbM`
+    //! Helper function for rate data that do not implement `perturbP`
     template <typename T=RateType, typename D=DataType,
         typename std::enable_if<!has_ddP<D>::value, bool>::type = true>
     void _process_ddP(double* rop, const double* kf, double deltaP) {

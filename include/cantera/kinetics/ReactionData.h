@@ -196,7 +196,7 @@ struct FalloffData : public ReactionData
 
 protected:
     int m_state_mf_number; //!< integer that is incremented when composition changes
-    bool m_perturbed; //!< boolean indicating whether perturbed values are used
+    bool m_perturbed; //!< boolean indicating whether 3-rd body values are perturbed
     vector_fp m_conc_3b_buf; //!< buffered third-body concentrations
 };
 

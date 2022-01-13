@@ -458,7 +458,7 @@ cdef class Kinetics(_SolutionBase):
 
     property jacobian_settings:
         """
-        Property setting behavior of Jacobian evaluation.
+        Property setting behavior of derivative (Jacobian) evaluation.
 
         For ``GasKinetics``, the following keyword/value pairs are supported:
 
@@ -469,13 +469,13 @@ cdef class Kinetics(_SolutionBase):
            on reaction rates are not considered.
 
         -  ``rtol-delta`` (double) ... relative tolerance used to perturb properties
-           when calculating numerical derivatives.
+           when calculating numerical derivatives. The default value is 1e-8.
 
         The Jacobian settings are updated using a dictionary::
 
             >>> gas.jacobian_settings = {"skip-falloff": True}
 
-        which updates settings used for the evaluation of Jacobians. Passing an empty
+        which updates settings used for the evaluation of derivatives. Passing an empty
         dictionary will reset all values to their defaults.
         """
         def __get__(self):
@@ -487,57 +487,60 @@ cdef class Kinetics(_SolutionBase):
 
     property forward_rate_constants_temperature_derivatives:
         """
-        Calculate Jacobian for forward rate constants with respect to temperature
-        at constant pressure, molar density and mole fractions.
+        Calculate derivatives for forward rate constants with respect to temperature
+        at constant pressure, molar concentration and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_fwdRateConstants_ddT, self.n_reactions)
 
     property forward_rate_constants_pressure_derivatives:
         """
-        Calculate Jacobian for forward rate constants with respect to pressure
-        at constant temperature, molar density and mole fractions.
+        Calculate derivatives for forward rate constants with respect to pressure
+        at constant temperature, molar concentration and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_fwdRateConstants_ddP, self.n_reactions)
 
-    property forward_rate_constants_density_derivatives:
+    property forward_rate_constants_concentration_derivatives:
         """
-        Calculate Jacobian for forward rate constants with respect to molar density
-        at constant temperature, pressure and mole fractions.
+        Calculate derivatives for forward rate constants with respect to molar
+        concentration at constant temperature, pressure and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_fwdRateConstants_ddC, self.n_reactions)
 
     property forward_rop_temperature_derivatives:
         """
-        Calculate Jacobian for forward rates-of-progress with respect to temperature
-        at constant pressure, molar density and mole fractions.
+        Calculate derivatives for forward rates-of-progress with respect to temperature
+        at constant pressure, molar concentration and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_fwdRatesOfProgress_ddT, self.n_reactions)
 
     property forward_rop_pressure_derivatives:
         """
-        Calculate Jacobian for forward rates-of-progress with respect to pressure
-        at constant temperature, molar density and mole fractions.
+        Calculate derivatives for forward rates-of-progress with respect to pressure
+        at constant temperature, molar concentration and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_fwdRatesOfProgress_ddP, self.n_reactions)
 
-    property forward_rop_density_derivatives:
+    property forward_rop_concentration_derivatives:
         """
-        Calculate Jacobian for forward rates-of-progress with respect to molar density
-        at constant temperature, pressure and mole fractions.
+        Calculate derivatives for forward rates-of-progress with respect to molar
+        concentration at constant temperature, pressure and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_fwdRatesOfProgress_ddC, self.n_reactions)
 
     property forward_rop_species_derivatives:
         """
-        Calculate Jacobian for forward rates-of-progress with respect to species
-        concentrations at constant temperature, pressure and molar density.
+        Calculate derivatives for forward rates-of-progress with respect to species
+        concentrations at constant temperature, pressure and molar concentration.
         For sparse output, set ``ct.use_sparse(True)``.
+
+        Note that for derivatives with respect to :math:`X_i`, all other :math:`X_j`
+        are held constant, rather than enforcing :math:`\sum X_j = 1`.
         """
         def __get__(self):
             if __use_sparse__:
@@ -548,33 +551,36 @@ cdef class Kinetics(_SolutionBase):
 
     property reverse_rop_temperature_derivatives:
         """
-        Calculate Jacobian for reverse rates-of-progress with respect to temperature
-        at constant pressure, molar density and mole fractions.
+        Calculate derivatives for reverse rates-of-progress with respect to temperature
+        at constant pressure, molar concentration and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_revRatesOfProgress_ddT, self.n_reactions)
 
     property reverse_rop_pressure_derivatives:
         """
-        Calculate Jacobian for reverse rates-of-progress with respect to pressure
-        at constant temperature, molar density and mole fractions.
+        Calculate derivatives for reverse rates-of-progress with respect to pressure
+        at constant temperature, molar concentration and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_revRatesOfProgress_ddP, self.n_reactions)
 
-    property reverse_rop_density_derivatives:
+    property reverse_rop_concentration_derivatives:
         """
-        Calculate Jacobian for reverse rates-of-progress with respect to molar density
-        at constant temperature, pressure and mole fractions.
+        Calculate derivatives for reverse rates-of-progress with respect to molar
+        concentration at constant temperature, pressure and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_revRatesOfProgress_ddC, self.n_reactions)
 
     property reverse_rop_species_derivatives:
         """
-        Calculate Jacobian for reverse rates-of-progress with respect to species
-        concentrations at constant temperature, pressure and molar density.
+        Calculate derivatives for reverse rates-of-progress with respect to species
+        concentrations at constant temperature, pressure and molar concentration.
         For sparse output, set ``ct.use_sparse(True)``.
+
+        Note that for derivatives with respect to :math:`X_i`, all other :math:`X_j`
+        are held constant, rather than enforcing :math:`\sum X_j = 1`.
         """
         def __get__(self):
             if __use_sparse__:
@@ -585,33 +591,36 @@ cdef class Kinetics(_SolutionBase):
 
     property net_rop_temperature_derivatives:
         """
-        Calculate Jacobian for net rates-of-progress with respect to temperature
-        at constant pressure, molar density and mole fractions.
+        Calculate derivatives for net rates-of-progress with respect to temperature
+        at constant pressure, molar concentration and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_netRatesOfProgress_ddT, self.n_reactions)
 
     property net_rop_pressure_derivatives:
         """
-        Calculate Jacobian for net rates-of-progress with respect to pressure
-        at constant temperature, molar density and mole fractions.
+        Calculate derivatives for net rates-of-progress with respect to pressure
+        at constant temperature, molar concentration and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_netRatesOfProgress_ddP, self.n_reactions)
 
-    property net_rop_density_derivatives:
+    property net_rop_concentration_derivatives:
         """
-        Calculate Jacobian for net rates-of-progress with respect to molar density
-        at constant temperature, pressure and mole fractions.
+        Calculate derivatives for net rates-of-progress with respect to molar
+        concentration at constant temperature, pressure and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_netRatesOfProgress_ddC, self.n_reactions)
 
     property net_rop_species_derivatives:
         """
-        Calculate Jacobian for net rates-of-progress with respect to species
-        concentrations at constant temperature, pressure and molar density.
+        Calculate derivatives for net rates-of-progress with respect to species
+        concentrations at constant temperature, pressure and molar concentration.
         For sparse output, set ``ct.use_sparse(True)``.
+
+        Note that for derivatives with respect to :math:`X_i`, all other :math:`X_j`
+        are held constant, rather than enforcing :math:`\sum X_j = 1`.
         """
         def __get__(self):
             if __use_sparse__:
@@ -622,33 +631,36 @@ cdef class Kinetics(_SolutionBase):
 
     property creation_rate_temperature_derivatives:
         """
-        Calculate Jacobian of species creation rates with respect to temperature
-        at constant pressure, molar density and mole fractions.
+        Calculate derivatives of species creation rates with respect to temperature
+        at constant pressure, molar concentration and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_creationRates_ddT, self.n_total_species)
 
     property creation_rate_pressure_derivatives:
         """
-        Calculate Jacobian of species creation rates with respect to pressure
-        at constant temperature, molar density and mole fractions.
+        Calculate derivatives of species creation rates with respect to pressure
+        at constant temperature, molar concentration and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_creationRates_ddP, self.n_total_species)
 
-    property creation_rate_density_derivatives:
+    property creation_rate_concentration_derivatives:
         """
-        Calculate Jacobian of species creation rates with respect to molar density
-        at constant temperature, pressure and mole fractions.
+        Calculate derivatives of species creation rates with respect to molar
+        concentration at constant temperature, pressure and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_creationRates_ddC, self.n_total_species)
 
     property creation_rate_species_derivatives:
         """
-        Calculate Jacobian for species creation rates with respect to species
-        concentrations at constant temperature, pressure and molar density.
+        Calculate derivatives for species creation rates with respect to species
+        concentrations at constant temperature, pressure and molar concentration.
         For sparse output, set ``ct.use_sparse(True)``.
+
+        Note that for derivatives with respect to :math:`X_i`, all other :math:`X_j`
+        are held constant, rather than enforcing :math:`\sum X_j = 1`.
         """
         def __get__(self):
             if __use_sparse__:
@@ -659,33 +671,36 @@ cdef class Kinetics(_SolutionBase):
 
     property destruction_rate_temperature_derivatives:
         """
-        Calculate Jacobian of species destruction rates with respect to temperature
-        at constant pressure, molar density and mole fractions.
+        Calculate derivatives of species destruction rates with respect to temperature
+        at constant pressure, molar concentration and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_destructionRates_ddT, self.n_total_species)
 
     property destruction_rate_pressure_derivatives:
         """
-        Calculate Jacobian of species destruction rates with respect to pressure
-        at constant temperature, molar density and mole fractions.
+        Calculate derivatives of species destruction rates with respect to pressure
+        at constant temperature, molar concentration and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_destructionRates_ddP, self.n_total_species)
 
-    property destruction_rate_density_derivatives:
+    property destruction_rate_concentration_derivatives:
         """
-        Calculate Jacobian of species destruction rates with respect to molar density
-        at constant temperature, pressure and mole fractions.
+        Calculate derivatives of species destruction rates with respect to molar
+        concentration at constant temperature, pressure and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_destructionRates_ddC, self.n_total_species)
 
     property destruction_rate_species_derivatives:
         """
-        Calculate Jacobian for species destruction rates with respect to species
-        concentrations at constant temperature, pressure and molar density.
+        Calculate derivatives for species destruction rates with respect to species
+        concentrations at constant temperature, pressure and molar concentration.
         For sparse output, set ``ct.use_sparse(True)``.
+
+        Note that for derivatives with respect to :math:`X_i`, all other :math:`X_j`
+        are held constant, rather than enforcing :math:`\sum X_j = 1`.
         """
         def __get__(self):
             if __use_sparse__:
@@ -696,23 +711,23 @@ cdef class Kinetics(_SolutionBase):
 
     property net_production_rate_temperature_derivatives:
         """
-        Calculate Jacobian of species net production rates with respect to temperature
-        at constant pressure, molar density and mole fractions.
+        Calculate derivatives of species net production rates with respect to
+        temperature at constant pressure, molar concentration and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_netProductionRates_ddT, self.n_total_species)
 
     property net_production_rate_pressure_derivatives:
         """
-        Calculate Jacobian of species net production rates with respect to pressure
-        at constant temperature, molar density and mole fractions.
+        Calculate derivatives of species net production rates with respect to pressure
+        at constant temperature, molar concentration and mole fractions.
         """
         def __get__(self):
             return get_mapped(self, kin_netProductionRates_ddP, self.n_total_species)
 
-    property net_production_rate_density_derivatives:
+    property net_production_rate_concentration_derivatives:
         """
-        Calculate Jacobian of species net production rates with respect to molar
+        Calculate derivatives of species net production rates with respect to molar
         density at constant temperature, pressure and mole fractions.
         """
         def __get__(self):
@@ -720,9 +735,12 @@ cdef class Kinetics(_SolutionBase):
 
     property net_production_rate_species_derivatives:
         """
-        Calculate Jacobian for species net production rates with respect to species
-        concentrations at constant temperature, pressure and molar density.
+        Calculate derivatives for species net production rates with respect to species
+        concentrations at constant temperature, pressure and molar concentration.
         For sparse output, set ``ct.use_sparse(True)``.
+
+        Note that for derivatives with respect to :math:`X_i`, all other :math:`X_j`
+        are held constant, rather than enforcing :math:`\sum X_j = 1`.
         """
         def __get__(self):
             if __use_sparse__:

@@ -26,6 +26,7 @@ void GasKinetics::resizeReactions()
     m_rbuf1.resize(nReactions());
     m_rbuf2.resize(nReactions());
     m_sbuf0.resize(nTotalSpecies());
+    m_state.resize(thermo().stateSize());
 
     BulkKinetics::resizeReactions();
 }
@@ -309,6 +310,7 @@ void GasKinetics::processEquilibriumConstants_ddT(double* drkcn)
     fill(delta_gibbs0_RT.begin(), delta_gibbs0_RT.end(), 0.0);
 
     // compute perturbed Delta G^0 for all reversible reactions
+    thermo().saveState(m_state);
     thermo().setState_TP(T * (1. + m_jac_rtol_delta), P);
     thermo().getStandardChemPotentials(grt.data());
     getRevReactionDelta(grt.data(), delta_gibbs0_RT.data());
@@ -329,14 +331,14 @@ void GasKinetics::processEquilibriumConstants_ddT(double* drkcn)
         drkcn[m_irrev[i]] = 0.0;
     }
 
-    thermo().setState_TP(T, P);
+    thermo().restoreState(m_state);
 }
 
 Eigen::VectorXd GasKinetics::ddT(const vector_fp& in)
 {
     // apply temperature derivative
     Eigen::VectorXd out(nReactions());
-    copy(in.begin(), in.end(), &out[0]);
+    copy(in.begin(), in.end(), out.data());
     for (auto& rates : m_bulk_rates) {
         rates->processRateConstants_ddT(
             out.data(), m_rfn.data(), m_jac_rtol_delta);
