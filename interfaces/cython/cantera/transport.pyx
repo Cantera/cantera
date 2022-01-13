@@ -167,7 +167,7 @@ cdef class Transport(_SolutionBase):
     """
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, **kwargs):
-        if self.transport == NULL:
+        if self.transport == NULL and kwargs.get("init", True):
             # @todo ... after removal of CTI/XML, this should be handled by base.pyx
             if 'transport_model' not in kwargs:
                 self.base.setTransport(newTransport(self.thermo, stringify("default")))

@@ -718,27 +718,36 @@ class TestSolutionSerialization(utilities.CanteraTest):
                              gas2.forward_rate_constants)
         self.assertArrayNear(gas.mix_diff_coeffs, gas2.mix_diff_coeffs)
 
-    def test_yaml_surface(self):
-        gas = ct.Solution('ptcombust.yaml', 'gas')
-        surf = ct.Interface('ptcombust.yaml', 'Pt_surf', [gas])
-        gas.TPY = 900, ct.one_atm, np.ones(gas.n_species)
-        surf.coverages = np.ones(surf.n_species)
-        surf.write_yaml('ptcombust-generated.yaml')
-
+    def check_ptcombust(self, gas, surf):
         generated = utilities.load_yaml("ptcombust-generated.yaml")
-        for key in ('phases', 'species', 'gas-reactions', 'Pt_surf-reactions'):
+        for key in ("phases", "species", "gas-reactions", "Pt_surf-reactions"):
             self.assertIn(key, generated)
-        self.assertEqual(len(generated['gas-reactions']), gas.n_reactions)
-        self.assertEqual(len(generated['Pt_surf-reactions']), surf.n_reactions)
-        self.assertEqual(len(generated['species']), surf.n_total_species)
+        self.assertEqual(len(generated["gas-reactions"]), gas.n_reactions)
+        self.assertEqual(len(generated["Pt_surf-reactions"]), surf.n_reactions)
+        self.assertEqual(len(generated["species"]), surf.n_total_species)
 
-        gas2 = ct.Solution('ptcombust-generated.yaml', 'gas')
-        surf2 = ct.Solution('ptcombust-generated.yaml', 'Pt_surf', [gas2])
+        surf2 = ct.Solution("ptcombust-generated.yaml", "Pt_surf")
         self.assertArrayNear(surf.concentrations, surf2.concentrations)
         self.assertArrayNear(surf.partial_molar_enthalpies,
                              surf2.partial_molar_enthalpies)
         self.assertArrayNear(surf.forward_rate_constants,
                              surf2.forward_rate_constants)
+
+    def test_yaml_surface_explicit(self):
+        gas = ct.Solution("ptcombust.yaml", "gas")
+        surf = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
+        gas.TPY = 900, ct.one_atm, np.ones(gas.n_species)
+        surf.coverages = np.ones(surf.n_species)
+        surf.write_yaml("ptcombust-generated.yaml")
+        self.check_ptcombust(gas, surf)
+
+    def test_yaml_surface_adjacent(self):
+        surf = ct.Interface("ptcombust.yaml", "Pt_surf")
+        gas = surf.adjacent["gas"]
+        gas.TPY = 900, ct.one_atm, np.ones(gas.n_species)
+        surf.coverages = np.ones(surf.n_species)
+        surf.write_yaml("ptcombust-generated.yaml")
+        self.check_ptcombust(gas, surf)
 
     def test_yaml_eos(self):
         ice = ct.Solution('water.yaml', 'ice')
@@ -806,3 +815,51 @@ class TestSpeciesSerialization(utilities.CanteraTest):
         self.assertEqual(data['model'], 'gas')
         self.assertEqual(data['geometry'], 'nonlinear')
         self.assertNear(data['dipole'], 1.844)
+
+
+class TestInterfaceAdjacent(utilities.CanteraTest):
+    def test_surface(self):
+        surf = ct.Interface("ptcombust.yaml", "Pt_surf")
+        self.assertEqual(list(surf.adjacent), ["gas"])
+        self.assertEqual(surf.phase_index(surf), 0)
+        self.assertEqual(surf.phase_index("gas"), 1)
+        self.assertEqual(surf.phase_index(surf.adjacent["gas"]), 1)
+
+    def test_named_adjacent(self):
+        # override the adjacent-phases to change the order
+        surf = ct.Interface("surface-phases.yaml", "anode-surface",
+                            adjacent=["electrolyte", "graphite"])
+        self.assertEqual(list(surf.adjacent), ["electrolyte", "graphite"])
+
+    def test_edge(self):
+        tpb = ct.Interface("sofc.yaml", "tpb")
+        self.assertEqual(set(tpb.adjacent), {"metal_surface", "oxide_surface", "metal"})
+        self.assertIsInstance(tpb.adjacent["metal_surface"], ct.Interface)
+        self.assertNotIsInstance(tpb.adjacent["metal"], ct.Interface)
+        gas1 = tpb.adjacent["metal_surface"].adjacent["gas"]
+        gas2 = tpb.adjacent["oxide_surface"].adjacent["gas"]
+        gas1.X = [0.1, 0.4, 0.3, 0.2]
+        self.assertArrayNear(gas1.X, gas2.X)
+
+    def test_invalid(self):
+        with self.assertRaisesRegex(ct.CanteraError, "does not contain"):
+            surf = ct.Interface("ptcombust.yaml", "Pt_surf", ["foo"])
+
+        with self.assertRaises(TypeError):
+            surf = ct.Interface("ptcombust.yaml", "Pt_surf", [2])
+
+    def test_remote_file(self):
+        yaml = """
+        phases:
+        - name: Pt_surf
+          thermo: ideal-surface
+          adjacent-phases: [{ptcombust.yaml/phases: [gas]}]
+          species: [{ptcombust.yaml/species: all}]
+          kinetics: surface
+          reactions: [{ptcombust.yaml/reactions: all}]
+          site-density: 2.7063e-09
+        """
+
+        surf = ct.Interface(yaml=yaml)
+        self.assertEqual(surf.adjacent["gas"].n_species, 32)
+        self.assertEqual(surf.n_reactions, 24)

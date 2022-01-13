@@ -116,13 +116,21 @@ class Interface(InterfaceKinetics, InterfacePhase):
     3D phases. Class `Interface` defines no methods of its own. All of its
     methods derive from either `InterfacePhase` or `InterfaceKinetics`.
 
-    To construct an `Interface` object, adjacent bulk phases which participate
-    in reactions need to be created and then passed in as a list in the
-    ``adjacent`` argument to the constructor::
+    Constructing an `Interface` object also involves constructing adjacent bulk phases
+    that participate in reactions. This is done automatically if the adjacent phases
+    are specified as part of the 'adjacent-phases' entry in the YAML phase definition::
 
-        gas = ct.Solution('diamond.yaml', name='gas')
-        diamond = ct.Solution('diamond.yaml', name='diamond')
-        diamond_surf = ct.Interface('diamond.yaml', name='diamond_100',
+        diamond_surf = ct.Interface("diamond.yaml", name="diamond_100")
+        gas = diamond_surf.adjacent["gas"]
+        diamond = diamond_surf.adjacent["diamond"]
+
+    This behavior can be overridden by specifying the adjacent phases explicitly,
+    either using their name in the input file, or by constructing corresponding
+    `Solution` objects::
+
+        gas = ct.Solution("diamond.yaml", name="gas")
+        diamond = ct.Solution("diamond.yaml", name="diamond")
+        diamond_surf = ct.Interface("diamond.yaml", name="diamond_100",
                                     adjacent=[gas, diamond])
     """
     __slots__ = ('_phase_indices',)
