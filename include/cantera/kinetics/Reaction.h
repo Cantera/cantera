@@ -549,6 +549,8 @@ public:
     virtual std::string type() const {
         return "two-temperature-plasma";
     }
+
+    virtual void validate();
 };
 
 

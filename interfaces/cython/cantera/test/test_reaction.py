@@ -1022,11 +1022,11 @@ class TestTwoTempPlasma(ReactionTests, utilities.CanteraTest):
 
     _cls = ct.TwoTempPlasmaReaction
     _type = "two-temperature-plasma"
-    _equation = "O + H <=> O + H"
+    _equation = "O + H => O + H"
     _rate = {"A": 17283, "b": -3.1, "Ea_gas": -5820000, "Ea_electron": 1081000}
     _index = 11
     _yaml = """
-        equation: O + H <=> O + H
+        equation: O + H => O + H
         type: two-temperature-plasma
         rate-constant: {A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol}
         """
@@ -1035,6 +1035,14 @@ class TestTwoTempPlasma(ReactionTests, utilities.CanteraTest):
     def setUpClass(cls):
         ReactionTests.setUpClass()
         cls._rate_obj = ct.TwoTempPlasmaRate(**cls._rate)
+
+    def from_parts(self):
+        # create reaction rate object from parts
+        orig = self.gas.reaction(self._index)
+        rxn = self._cls(orig.reactants, orig.products, legacy=self._legacy)
+        rxn.rate = self._rate_obj
+        rxn.reversible = False
+        return rxn
 
     def eval_rate(self, rate):
         return rate(self.gas.T, self.gas.Te)
