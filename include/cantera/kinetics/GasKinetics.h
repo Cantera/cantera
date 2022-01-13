@@ -139,7 +139,7 @@ protected:
     //! Helper function ensuring that all rate derivatives can be calculated
     //! @param name  method name used for error output
     //! @throw  CanteraError if legacy rates are present
-    void checkLegacyRates(const std::string& name);
+    void assertDerivativesValid(const std::string& name);
 
     //! @}
 

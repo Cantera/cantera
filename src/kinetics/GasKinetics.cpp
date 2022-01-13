@@ -291,11 +291,16 @@ void GasKinetics::setJacobianSettings(const AnyMap& settings)
     }
 }
 
-void GasKinetics::checkLegacyRates(const std::string& name)
+void GasKinetics::assertDerivativesValid(const std::string& name)
 {
     if (m_legacy.size()) {
         // Do not support legacy CTI/XML-based reaction rate evaluators
         throw CanteraError(name, "Not supported for legacy (CTI/XML) input format.");
+    }
+
+    if (!thermo().isIdeal()) {
+        throw NotImplementedError(name,
+            "Not supported for non-ideal ThermoPhase models.");
     }
 }
 
@@ -348,21 +353,21 @@ Eigen::VectorXd GasKinetics::process_ddT(const vector_fp& in)
 
 Eigen::VectorXd GasKinetics::fwdRateConstants_ddT()
 {
-    checkLegacyRates("GasKinetics::fwdRateConstants_ddT");
+    assertDerivativesValid("GasKinetics::fwdRateConstants_ddT");
     updateROP();
     return process_ddT(m_rfn);
 }
 
 Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddT()
 {
-    checkLegacyRates("GasKinetics::fwdRatesOfProgress_ddT");
+    assertDerivativesValid("GasKinetics::fwdRatesOfProgress_ddT");
     updateROP();
     return process_ddT(m_ropf);
 }
 
 Eigen::VectorXd GasKinetics::revRatesOfProgress_ddT()
 {
-    checkLegacyRates("GasKinetics::revRatesOfProgress_ddT");
+    assertDerivativesValid("GasKinetics::revRatesOfProgress_ddT");
     updateROP();
     Eigen::VectorXd dRevRop = process_ddT(m_ropr);
 
@@ -376,7 +381,7 @@ Eigen::VectorXd GasKinetics::revRatesOfProgress_ddT()
 
 Eigen::VectorXd GasKinetics::netRatesOfProgress_ddT()
 {
-    checkLegacyRates("GasKinetics::netRatesOfProgress_ddT");
+    assertDerivativesValid("GasKinetics::netRatesOfProgress_ddT");
     updateROP();
     Eigen::VectorXd dFwdRop = process_ddT(m_ropnet);
 
@@ -402,28 +407,28 @@ Eigen::VectorXd GasKinetics::process_ddP(const vector_fp& in)
 
 Eigen::VectorXd GasKinetics::fwdRateConstants_ddP()
 {
-    checkLegacyRates("GasKinetics::fwdRateConstants_ddP");
+    assertDerivativesValid("GasKinetics::fwdRateConstants_ddP");
     updateROP();
     return process_ddP(m_rfn);
 }
 
 Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddP()
 {
-    checkLegacyRates("GasKinetics::fwdRatesOfProgress_ddP");
+    assertDerivativesValid("GasKinetics::fwdRatesOfProgress_ddP");
     updateROP();
     return process_ddP(m_ropf);
 }
 
 Eigen::VectorXd GasKinetics::revRatesOfProgress_ddP()
 {
-    checkLegacyRates("GasKinetics::revRatesOfProgress_ddP");
+    assertDerivativesValid("GasKinetics::revRatesOfProgress_ddP");
     updateROP();
     return process_ddP(m_ropr);
 }
 
 Eigen::VectorXd GasKinetics::netRatesOfProgress_ddP()
 {
-    checkLegacyRates("GasKinetics::netRatesOfProgress_ddP");
+    assertDerivativesValid("GasKinetics::netRatesOfProgress_ddP");
     updateROP();
     return process_ddP(m_ropnet);
 }
@@ -466,28 +471,28 @@ Eigen::VectorXd GasKinetics::process_ddC(
 
 Eigen::VectorXd GasKinetics::fwdRateConstants_ddC()
 {
-    checkLegacyRates("GasKinetics::fwdRateConstants_ddC");
+    assertDerivativesValid("GasKinetics::fwdRateConstants_ddC");
     updateROP();
     return process_ddC(m_reactantStoich, m_rfn, false);
 }
 
 Eigen::VectorXd GasKinetics::fwdRatesOfProgress_ddC()
 {
-    checkLegacyRates("GasKinetics::fwdRatesOfProgress_ddC");
+    assertDerivativesValid("GasKinetics::fwdRatesOfProgress_ddC");
     updateROP();
     return process_ddC(m_reactantStoich, m_ropf);
 }
 
 Eigen::VectorXd GasKinetics::revRatesOfProgress_ddC()
 {
-    checkLegacyRates("GasKinetics::revRatesOfProgress_ddC");
+    assertDerivativesValid("GasKinetics::revRatesOfProgress_ddC");
     updateROP();
     return process_ddC(m_revProductStoich, m_ropr);
 }
 
 Eigen::VectorXd GasKinetics::netRatesOfProgress_ddC()
 {
-    checkLegacyRates("GasKinetics::netRatesOfProgress_ddC");
+    assertDerivativesValid("GasKinetics::netRatesOfProgress_ddC");
     updateROP();
     return process_ddC(m_reactantStoich, m_ropf)
         - process_ddC(m_revProductStoich, m_ropr);
@@ -535,7 +540,7 @@ Eigen::SparseMatrix<double> GasKinetics::process_ddX(
 
 Eigen::SparseMatrix<double> GasKinetics::fwdRatesOfProgress_ddX()
 {
-    checkLegacyRates("GasKinetics::fwdRatesOfProgress_ddX");
+    assertDerivativesValid("GasKinetics::fwdRatesOfProgress_ddX");
 
     // forward reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
@@ -545,7 +550,7 @@ Eigen::SparseMatrix<double> GasKinetics::fwdRatesOfProgress_ddX()
 
 Eigen::SparseMatrix<double> GasKinetics::revRatesOfProgress_ddX()
 {
-    checkLegacyRates("GasKinetics::revRatesOfProgress_ddX");
+    assertDerivativesValid("GasKinetics::revRatesOfProgress_ddX");
 
     // reverse reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
@@ -556,7 +561,7 @@ Eigen::SparseMatrix<double> GasKinetics::revRatesOfProgress_ddX()
 
 Eigen::SparseMatrix<double> GasKinetics::netRatesOfProgress_ddX()
 {
-    checkLegacyRates("GasKinetics::netRatesOfProgress_ddX");
+    assertDerivativesValid("GasKinetics::netRatesOfProgress_ddX");
 
     // forward reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
