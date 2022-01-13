@@ -5,6 +5,7 @@
 #include "cantera/thermo/MolalityVPSSTP.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/SurfPhase.h"
+#include "cantera/thermo/EdgePhase.h"
 #include <fstream>
 
 using namespace Cantera;
@@ -109,6 +110,13 @@ TEST(ThermoFromYaml, EdgePhase)
     EXPECT_EQ(thermo->nSpecies(), (size_t) 1);
     auto edge = std::dynamic_pointer_cast<SurfPhase>(thermo);
     EXPECT_DOUBLE_EQ(edge->siteDensity(), 5e-18);
+}
+
+TEST(ThermoFromYaml, EdgePhase_direct)
+{
+    EdgePhase tpb("surface-phases.yaml", "TPB");
+    EXPECT_EQ(tpb.nSpecies(), (size_t) 1);
+    EXPECT_DOUBLE_EQ(tpb.siteDensity(), 5e-18);
 }
 
 TEST(ThermoFromYaml, WaterSSTP)

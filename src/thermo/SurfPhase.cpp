@@ -381,6 +381,12 @@ EdgePhase::EdgePhase(doublereal n0)
     setNDim(1);
 }
 
+EdgePhase::EdgePhase(const std::string& infile, const std::string& id_)
+{
+    setNDim(1);
+    initThermoFile(infile, id_);
+}
+
 void EdgePhase::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model","Edge");
