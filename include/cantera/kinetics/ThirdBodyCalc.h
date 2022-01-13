@@ -211,6 +211,7 @@ protected:
     vector_fp m_default;
 
     //! Sparse efficiency matrix (compensated for defaults)
+    //! Each triplet corresponds to (reaction index, species index, efficiency)
     std::vector<Eigen::Triplet<double>> m_efficiencyList;
 
     //! Sparse Jacobian multiplier matrix

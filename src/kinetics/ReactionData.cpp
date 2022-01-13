@@ -159,8 +159,7 @@ bool FalloffData::update(const ThermoPhase& bulk, const Kinetics& kin)
     if (rho_m != molar_density || mf != m_state_mf_number) {
         molar_density = rho_m;
         m_state_mf_number = mf;
-        auto& concm = kin.thirdBodyConcentrations();
-        std::copy(concm.begin(), concm.end(), conc_3b.begin());
+        conc_3b = kin.thirdBodyConcentrations();
         changed = true;
     }
     return changed;
@@ -172,7 +171,7 @@ bool FalloffData::perturbM(double deltaM)
     if (m_perturbed) {
         return false;
     }
-    std::copy(conc_3b.begin(), conc_3b.end(), m_conc_3b_buf.begin());
+    m_conc_3b_buf = conc_3b;
     for (auto& c3b : conc_3b) {
         c3b *= 1. + deltaM;
     }
@@ -187,7 +186,7 @@ bool FalloffData::restore()
     if (!m_perturbed) {
         return ret;
     }
-    std::copy(m_conc_3b_buf.begin(), m_conc_3b_buf.end(), conc_3b.begin());
+    conc_3b = m_conc_3b_buf;
     m_perturbed = false;
     return true;
 }

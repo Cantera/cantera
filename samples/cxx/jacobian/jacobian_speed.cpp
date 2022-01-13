@@ -99,7 +99,7 @@ void timeit_matrix(Eigen::SparseMatrix<double> (Kinetics::*function)(),
                    size_t loops=1000,
                    size_t runs=7)
 {
-    Eigen::VectorXd out;
+    Eigen::SparseMatrix<double> out;
 
     double T = gas.temperature();
     double pressure = gas.pressure();

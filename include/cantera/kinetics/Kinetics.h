@@ -569,25 +569,28 @@ public:
     virtual void getNetProductionRates(doublereal* wdot);
 
     //! @}
-    //! @name Routines to Calculate Jacobians / Derivatives
+    //! @name Routines to Calculate Derivatives / Jacobians
     /*!
-     * Jacobians are calculated with respect to temperature, pressure, molar density
-     * and species concentration for forward/reverse/net rates of progress as well as
-     * creation/destruction and net production of species.
+     * Derivatives are calculated with respect to temperature, pressure, molar
+     * concentrations and species mole fractions for forward/reverse/net rates of
+     * progress as well as creation/destruction and net production of species.
      *
-     * Jacobian evaluation is set by keyword/value pairs using the methods
-     * @see getJacobianSettings and @see setJacobianSettings.
+     * The following suffixes are used to indicate derivatives:
+     *  - `_ddT`: derivative with respect to temperature (a vector)
+     *  - `_ddP`: derivative with respect to pressure (a vector)
+     *  - `_ddC`: derivative with respect to molar concentration (a vector)
+     *  - `_ddX`: derivative with respect to species mole fractions (a matrix)
+     *
+     * Settings for derivative / Jacobian evaluation are set by keyword/value pairs
+     * using the methods @see getJacobianSettings and @see setJacobianSettings.
      *
      * For GasKinetics, the following keyword/value pairs are supported:
-     *
-     *  - 'skip-third-bodies' (boolean) ... if 'false' (default), third body
+     *  - `skip-third-bodies` (boolean) ... if `false` (default), third body
      *    concentrations are considered for the evaluation of jacobians
-     *
-     *  - 'skip-falloff' (boolean) ... if 'true' (default), third-body effects
-     *    on reaction rates are not considered.
-     *
-     *  - 'rtol-delta' (double) ... relative tolerance used to perturb properties
-     *    when calculating numerical derivatives.
+     *  - `skip-falloff` (boolean) ... if `false` (default), third-body effects
+     *    on rate constants are considered for the evaluation of derivatives.
+     *  - `rtol-delta` (double) ... relative tolerance used to perturb properties
+     *    when calculating numerical derivatives. The default value is 1e-8.
      */
     //! @{
 
@@ -614,8 +617,8 @@ public:
     }
 
     /**
-     * Calculate Jacobian for forward rate constants with respect to temperature
-     * at constant temperature, molar density and mole fractions
+     * Calculate derivatives for forward rate constants with respect to temperature
+     * at constant pressure, molar concentration and mole fractions
      */
     virtual Eigen::VectorXd fwdRateConstants_ddT()
     {
@@ -624,8 +627,8 @@ public:
     }
 
     /**
-     * Calculate Jacobian for forward rate constants with respect to pressure
-     * at constant temperature, molar density and mole fractions.
+     * Calculate derivatives for forward rate constants with respect to pressure
+     * at constant temperature, molar concentration and mole fractions.
      */
     virtual Eigen::VectorXd fwdRateConstants_ddP()
     {
@@ -634,8 +637,8 @@ public:
     }
 
     /**
-     * Calculate Jacobian for forward rate constants with respect to molar density
-     * at constant temperature, pressure and mole fractions.
+     * Calculate derivatives for forward rate constants with respect to molar
+     * concentration at constant temperature, pressure and mole fractions.
      */
     virtual Eigen::VectorXd fwdRateConstants_ddC()
     {
@@ -644,8 +647,8 @@ public:
     }
 
     /**
-     * Calculate Jacobian for forward rates-of-progress with respect to temperature
-     * at constant pressure, molar density and mole fractions.
+     * Calculate derivatives for forward rates-of-progress with respect to temperature
+     * at constant pressure, molar concentration and mole fractions.
      */
     virtual Eigen::VectorXd fwdRatesOfProgress_ddT()
     {
@@ -654,8 +657,8 @@ public:
     }
 
     /**
-     * Calculate Jacobian for forward rates-of-progress with respect to pressure
-     * at constant temperature, molar density and mole fractions.
+     * Calculate derivatives for forward rates-of-progress with respect to pressure
+     * at constant temperature, molar concentration and mole fractions.
      */
     virtual Eigen::VectorXd fwdRatesOfProgress_ddP()
     {
@@ -664,8 +667,8 @@ public:
     }
 
     /**
-     * Calculate Jacobian for forward rates-of-progress with respect to molar density
-     * at constant temperature, pressure and mole fractions.
+     * Calculate derivatives for forward rates-of-progress with respect to molar
+     * concentration at constant temperature, pressure and mole fractions.
      */
     virtual Eigen::VectorXd fwdRatesOfProgress_ddC()
     {
@@ -674,8 +677,12 @@ public:
     }
 
     /**
-     * Calculate Jacobian for forward rates-of-progress with respect to species
-     * mole fractions at constant temperature, pressure and molar density.
+     * Calculate derivatives for forward rates-of-progress with respect to species
+     * mole fractions at constant temperature, pressure and molar concentration.
+     *
+     * The method returns a matrix with nReactions rows and nTotalSpecies columns.
+     * For a derivative with respect to \f$X_i$, all other \f$X_j$ are held constant,
+     * rather than enforcing \f$\sum X_j = 1$.
      */
     virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddX()
     {
@@ -684,8 +691,8 @@ public:
     }
 
     /**
-     * Calculate Jacobian for reverse rates-of-progress with respect to temperature
-     * at constant pressure, molar density and mole fractions.
+     * Calculate derivatives for reverse rates-of-progress with respect to temperature
+     * at constant pressure, molar concentration and mole fractions.
      */
     virtual Eigen::VectorXd revRatesOfProgress_ddT()
     {
@@ -694,8 +701,8 @@ public:
     }
 
     /**
-     * Calculate Jacobian for reverse rates-of-progress with respect to pressure
-     * at constant temperature, molar density and mole fractions.
+     * Calculate derivatives for reverse rates-of-progress with respect to pressure
+     * at constant temperature, molar concentration and mole fractions.
      */
     virtual Eigen::VectorXd revRatesOfProgress_ddP()
     {
@@ -704,8 +711,8 @@ public:
     }
 
     /**
-     * Calculate Jacobian for reverse rates-of-progress with respect to molar density
-     * at constant temperature, pressure and mole fractions.
+     * Calculate derivatives for reverse rates-of-progress with respect to molar
+     * concentration at constant temperature, pressure and mole fractions.
      */
     virtual Eigen::VectorXd revRatesOfProgress_ddC()
     {
@@ -714,8 +721,12 @@ public:
     }
 
     /**
-     * Calculate Jacobian for reverse rates-of-progress with respect to species
-     * mole fractions at constant temperature, pressure and molar density.
+     * Calculate derivatives for reverse rates-of-progress with respect to species
+     * mole fractions at constant temperature, pressure and molar concentration.
+     *
+     * The method returns a matrix with nReactions rows and nTotalSpecies columns.
+     * For a derivative with respect to \f$X_i$, all other \f$X_j$ are held constant,
+     * rather than enforcing \f$\sum X_j = 1$.
      */
     virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddX()
     {
@@ -724,8 +735,8 @@ public:
     }
 
     /**
-     * Calculate Jacobian for net rates-of-progress with respect to temperature
-     * at constant pressure, molar density and mole fractions.
+     * Calculate derivatives for net rates-of-progress with respect to temperature
+     * at constant pressure, molar concentration and mole fractions.
      */
     virtual Eigen::VectorXd netRatesOfProgress_ddT()
     {
@@ -734,8 +745,8 @@ public:
     }
 
     /**
-     * Calculate Jacobian for net rates-of-progress with respect to pressure
-     * at constant temperature, molar density and mole fractions.
+     * Calculate derivatives for net rates-of-progress with respect to pressure
+     * at constant temperature, molar concentration and mole fractions.
      */
     virtual Eigen::VectorXd netRatesOfProgress_ddP()
     {
@@ -744,8 +755,8 @@ public:
     }
 
     /**
-     * Calculate Jacobian for net rates-of-progress with respect to molar density
-     * at constant temperature, pressure and mole fractions.
+     * Calculate derivatives for net rates-of-progress with respect to molar
+     * concentration at constant temperature, pressure and mole fractions.
      */
     virtual Eigen::VectorXd netRatesOfProgress_ddC()
     {
@@ -754,8 +765,12 @@ public:
     }
 
     /**
-     * Calculate Jacobian for net rates-of-progress with respect to species
-     * mole fractions at constant temperature, pressure and molar density.
+     * Calculate derivatives for net rates-of-progress with respect to species
+     * mole fractions at constant temperature, pressure and molar concentration.
+     *
+     * The method returns a matrix with nReactions rows and nTotalSpecies columns.
+     * For a derivative with respect to \f$X_i$, all other \f$X_j$ are held constant,
+     * rather than enforcing \f$\sum X_j = 1$.
      */
     virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddX()
     {
@@ -764,74 +779,86 @@ public:
     }
 
     /**
-     * Calculate Jacobian for species creation rates with respect to temperature
-     * at constant pressure, molar density and mole fractions.
+     * Calculate derivatives for species creation rates with respect to temperature
+     * at constant pressure, molar concentration and mole fractions.
      */
     Eigen::VectorXd creationRates_ddT();
 
     /**
-     * Calculate Jacobian for species creation rates with respect to pressure
-     * at constant temperature, molar density and mole fractions.
+     * Calculate derivatives for species creation rates with respect to pressure
+     * at constant temperature, molar concentration and mole fractions.
      */
     Eigen::VectorXd creationRates_ddP();
 
     /**
-     * Calculate Jacobian for species creation rates with respect to molar density
-     * at constant temperature, pressure and mole fractions.
+     * Calculate derivatives for species creation rates with respect to molar
+     * concentration at constant temperature, pressure and mole fractions.
      */
     Eigen::VectorXd creationRates_ddC();
 
     /**
-     * Calculate Jacobian for species creation rates with respect to species
-     * mole fractions at constant temperature, pressure and molar density.
+     * Calculate derivatives for species creation rates with respect to species
+     * mole fractions at constant temperature, pressure and molar concentration.
+     *
+     * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
+     * For a derivative with respect to \f$X_i$, all other \f$X_j$ are held constant,
+     * rather than enforcing \f$\sum X_j = 1$.
      */
     Eigen::SparseMatrix<double> creationRates_ddX();
 
     /**
-     * Calculate Jacobian for species destruction rates with respect to temperature
-     * at constant pressure, molar density and mole fractions.
+     * Calculate derivatives for species destruction rates with respect to temperature
+     * at constant pressure, molar concentration and mole fractions.
      */
     Eigen::VectorXd destructionRates_ddT();
 
     /**
-     * Calculate Jacobian for species destruction rates with respect to pressure
-     * at constant temperature, molar density and mole fractions.
+     * Calculate derivatives for species destruction rates with respect to pressure
+     * at constant temperature, molar concentration and mole fractions.
      */
     Eigen::VectorXd destructionRates_ddP();
 
     /**
-     * Calculate Jacobian for species destruction rates with respect to molar density
-     * at constant temperature, pressure and mole fractions.
+     * Calculate derivatives for species destruction rates with respect to molar
+     * concentration at constant temperature, pressure and mole fractions.
      */
     Eigen::VectorXd destructionRates_ddC();
 
     /**
-     * Calculate Jacobian for species destruction rates with respect to species
-     * mole fractions at constant temperature, pressure and molar density.
+     * Calculate derivatives for species destruction rates with respect to species
+     * mole fractions at constant temperature, pressure and molar concentration.
+     *
+     * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
+     * For a derivative with respect to \f$X_i$, all other \f$X_j$ are held constant,
+     * rather than enforcing \f$\sum X_j = 1$.
      */
     Eigen::SparseMatrix<double> destructionRates_ddX();
 
     /**
-     * Calculate Jacobian for species net production rates with respect to temperature
-     * at constant pressure, molar density and mole fractions.
+     * Calculate derivatives for species net production rates with respect to
+     * temperature at constant pressure, molar concentration and mole fractions.
      */
     Eigen::VectorXd netProductionRates_ddT();
 
     /**
-     * Calculate Jacobian for species net production rates with respect to pressure
-     * at constant temperature, molar density and mole fractions.
+     * Calculate derivatives for species net production rates with respect to pressure
+     * at constant temperature, molar concentration and mole fractions.
      */
     Eigen::VectorXd netProductionRates_ddP();
 
     /**
-     * Calculate Jacobian for species net production rates with respect to molar density
-     * at constant temperature, pressure and mole fractions.
+     * Calculate derivatives for species net production rates with respect to molar
+     * concentration at constant temperature, pressure and mole fractions.
      */
     Eigen::VectorXd netProductionRates_ddC();
 
     /**
-     * Calculate Jacobian for species net production rates with respect to species
-     * mole fractions at constant temperature, pressure and molar density.
+     * Calculate derivatives for species net production rates with respect to species
+     * mole fractions at constant temperature, pressure and molar concentration.
+     *
+     * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
+     * For a derivative with respect to \f$X_i$, all other \f$X_j$ are held constant,
+     * rather than enforcing \f$\sum X_j = 1$.
      */
     Eigen::SparseMatrix<double> netProductionRates_ddX();
 
@@ -1216,7 +1243,7 @@ protected:
     //! Stoichiometry manager for the products of reversible reactions
     StoichManagerN m_revProductStoich;
 
-    //! Effective stoichiometry (products - reactants)
+    //! Net stoichiometry (products - reactants)
     Eigen::SparseMatrix<double> m_stoichMatrix;
     //! @}
 

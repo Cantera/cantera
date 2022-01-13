@@ -42,7 +42,7 @@ class RateExpressionTests:
 
     def rop_ddX(self, spc_ix, mode, const_t=True, rtol_deltac=1e-5, atol_deltac=1e-20):
         # numerical derivative for rates-of-progress with respect to mole fractions
-        def calc(fwd):
+        def calc():
             if mode == "forward":
                 return self.gas.forward_rates_of_progress
             if mode == "reverse":
@@ -51,7 +51,7 @@ class RateExpressionTests:
                 return self.gas.net_rates_of_progress
 
         self.gas.TPX = self.tpx
-        rop0 = calc(mode)
+        rop0 = calc()
         conc = self.gas.concentrations
         ctot0 = conc.sum()
 
@@ -67,7 +67,7 @@ class RateExpressionTests:
             # adjust temperature to compensate for concentration change
             tnew = self.gas.T * ctot1 / ctot0
             self.gas.TPX = tnew, self.gas.P, conc / ctot1
-        drop = (calc(mode) - rop0) / dconc
+        drop = (calc() - rop0) / dconc
         self.gas.TPX = self.tpx
         return drop * self.gas.density_mole
 
@@ -149,7 +149,7 @@ class RateExpressionTests:
 
     def rop_ddT(self, mode=None, const_p=False, rtol=1e-6):
         # numerical derivative for rates-of-progress at constant pressure
-        def calc(fwd):
+        def calc():
             if mode == "forward":
                 return self.gas.forward_rates_of_progress
             if mode == "reverse":
@@ -161,9 +161,9 @@ class RateExpressionTests:
         dt = self.tpx[0] * rtol
         dp = 0 if const_p else self.tpx[1] * rtol
         self.gas.TP = self.tpx[0] + dt, self.tpx[1] + dp
-        rop1 = calc(mode)
+        rop1 = calc()
         self.gas.TP = self.tpx[:2]
-        rop0 = calc(mode)
+        rop0 = calc()
         return (rop1[self.rxn_idx] - rop0[self.rxn_idx]) / dt
 
     def test_forward_rop_ddT(self):
@@ -172,7 +172,7 @@ class RateExpressionTests:
         # constant pressure - need to account for density change
         dcdt = - self.gas.density_mole / self.gas.T
         drop = self.gas.forward_rop_temperature_derivatives
-        drop += self.gas.forward_rop_density_derivatives * dcdt
+        drop += self.gas.forward_rop_concentration_derivatives * dcdt
         drop_num = self.rop_ddT(mode="forward", const_p=True)
         self.assertNear(drop[self.rxn_idx], drop_num, self.rtol)
 
@@ -197,7 +197,7 @@ class RateExpressionTests:
         # constant pressure - need to account for density change
         dcdt = - self.gas.density_mole / self.gas.T
         drop = self.gas.reverse_rop_temperature_derivatives
-        drop += self.gas.reverse_rop_density_derivatives * dcdt
+        drop += self.gas.reverse_rop_concentration_derivatives * dcdt
         drop_num = self.rop_ddT(mode="reverse", const_p=True)
         self.assertNear(drop[self.rxn_idx], drop_num, self.rtol)
 
@@ -222,7 +222,7 @@ class RateExpressionTests:
         # constant pressure - need to account for density change
         dcdt = - self.gas.density_mole / self.gas.T
         drop = self.gas.net_rop_temperature_derivatives
-        drop += self.gas.net_rop_density_derivatives * dcdt
+        drop += self.gas.net_rop_concentration_derivatives * dcdt
         drop_num = self.rop_ddT(mode="net", const_p=True)
         self.assertNear(drop[self.rxn_idx], drop_num, self.rtol)
 
@@ -243,7 +243,7 @@ class RateExpressionTests:
 
     def rop_ddP(self, mode=None, rtol=1e-6):
         # numerical derivative for rates-of-progress at constant pressure
-        def calc(fwd):
+        def calc():
             if mode == "forward":
                 return self.gas.forward_rates_of_progress
             if mode == "reverse":
@@ -254,9 +254,9 @@ class RateExpressionTests:
 
         dp = self.tpx[1] * rtol
         self.gas.TP = self.tpx[0], self.tpx[1] + dp
-        rop1 = calc(mode)
+        rop1 = calc()
         self.gas.TP = self.tpx[:2]
-        rop0 = calc(mode)
+        rop0 = calc()
         return (rop1[self.rxn_idx] - rop0[self.rxn_idx]) / dp
 
     def test_forward_rop_ddP(self):
@@ -265,7 +265,7 @@ class RateExpressionTests:
         # constant temperature - need to account for density change
         dcdp = self.gas.density_mole / self.gas.P
         drop = self.gas.forward_rop_pressure_derivatives
-        drop += self.gas.forward_rop_density_derivatives * dcdp
+        drop += self.gas.forward_rop_concentration_derivatives * dcdp
         drop_num = self.rop_ddP(mode="forward") #, const_p=True)
         self.assertNear(drop[self.rxn_idx], drop_num, self.rtol)
 
@@ -275,7 +275,7 @@ class RateExpressionTests:
         # constant temperature - need to account for density change
         dcdp = self.gas.density_mole / self.gas.P
         drop = self.gas.reverse_rop_pressure_derivatives
-        drop += self.gas.reverse_rop_density_derivatives * dcdp
+        drop += self.gas.reverse_rop_concentration_derivatives * dcdp
         drop_num = self.rop_ddP(mode="reverse") #, const_p=True)
         self.assertNear(drop[self.rxn_idx], drop_num, self.rtol)
 
@@ -285,7 +285,7 @@ class RateExpressionTests:
         # constant temperature - need to account for density change
         dcdp = self.gas.density_mole / self.gas.P
         drop = self.gas.net_rop_pressure_derivatives
-        drop += self.gas.net_rop_density_derivatives * dcdp
+        drop += self.gas.net_rop_concentration_derivatives * dcdp
         drop_num = self.rop_ddP(mode="net") #, const_p=True)
         self.assertNear(drop[self.rxn_idx], drop_num, self.rtol)
 
@@ -531,7 +531,7 @@ class TestBlowersMasel(FromScratchCases, utilities.CanteraTest):
 
 
 class FullTests:
-    # Generic test class to check Jacobians evaluated for an entire reaction mechanims
+    # Generic test class to check Jacobians evaluated for an entire reaction mechanisms
     rtol = 1e-4
 
     @classmethod
@@ -545,7 +545,7 @@ class FullTests:
 
     def rop_ddX(self, mode, rtol_deltac=1e-9, atol_deltac=1e-20):
         # numerical derivative for rates-of-progress with respect to mole fractions
-        def calc(fwd):
+        def calc():
             if mode == "forward":
                 return self.gas.forward_rates_of_progress
             if mode == "reverse":
@@ -557,7 +557,7 @@ class FullTests:
         drop = np.zeros((n_rxn, n_spc))
 
         self.gas.TPX = self.tpx
-        rop0 = calc(mode)
+        rop0 = calc()
         ctot0 = self.gas.density_mole
         ctot0 = self.gas.concentrations.sum()
 
@@ -567,7 +567,7 @@ class FullTests:
             conc[spc_ix] += dconc
             ctot1 = conc.sum()
             self.gas.TPX = self.tpx[0], self.tpx[1] * ctot1 / ctot0, conc / ctot1
-            drop[:, spc_ix] = (calc(mode) - rop0) / dconc
+            drop[:, spc_ix] = (calc() - rop0) / dconc
             self.gas.TPX = self.tpx
 
         return drop * self.gas.density_mole
@@ -629,7 +629,7 @@ class FullTests:
 
     def rop_ddT(self, mode=None, dt=1e-6):
         # numerical derivative for rates-of-progress at constant pressure
-        def calc(fwd):
+        def calc():
             if mode == "forward":
                 return self.gas.forward_rates_of_progress
             if mode == "reverse":
@@ -639,16 +639,16 @@ class FullTests:
             return None
 
         self.gas.TP = self.tpx[0] + dt, self.tpx[1]
-        rop1 = calc(mode)
+        rop1 = calc()
         self.gas.TP = self.tpx[:2]
-        rop0 = calc(mode)
+        rop0 = calc()
         return (rop1 - rop0) / dt
 
     def test_forward_rop_ddT(self):
         # check forward rop against numerical jacobian with respect to temperature
         dcdt = - self.gas.density_mole / self.gas.T
         drop = self.gas.forward_rop_temperature_derivatives
-        drop += self.gas.forward_rop_density_derivatives * dcdt
+        drop += self.gas.forward_rop_concentration_derivatives * dcdt
         drop_num = self.rop_ddT(mode="forward")
         self.assertArrayNear(drop, drop_num, self.rtol)
 
@@ -656,7 +656,7 @@ class FullTests:
         # check reverse rop against numerical jacobian with respect to temperature
         dcdt = - self.gas.density_mole / self.gas.T
         drop = self.gas.reverse_rop_temperature_derivatives
-        drop += self.gas.reverse_rop_density_derivatives * dcdt
+        drop += self.gas.reverse_rop_concentration_derivatives * dcdt
         drop_num = self.rop_ddT(mode="reverse")
         self.assertArrayNear(drop, drop_num, self.rtol)
 
@@ -664,7 +664,7 @@ class FullTests:
         # check net rop against numerical jacobian with respect to temperature
         dcdt = - self.gas.density_mole / self.gas.T
         drop = self.gas.net_rop_temperature_derivatives
-        drop += self.gas.net_rop_density_derivatives * dcdt
+        drop += self.gas.net_rop_concentration_derivatives * dcdt
         drop_num = self.rop_ddT(mode="net")
         try:
             self.assertArrayNear(drop, drop_num, self.rtol)

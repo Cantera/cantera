@@ -112,6 +112,13 @@ namespace Cantera
  * by always assuming it is equal to one and then treating reactants and
  * products for a reaction separately. Bimolecular reactions involving the
  * identical species are treated as involving separate species.
+ *
+ * The methods resizeCoeffs(), jacobian() and scale() are used for the calculation
+ * of derivatives with respect to species mole fractions. In this context,
+ * resizeCoeffs() is used to establish a mapping between a reaction and corresponding
+ * non-zero entries of the sparse derivative matrix of the reaction rate-of-progress
+ * vector, which itself is evaluated by the jacobian() method. The scale() method is
+ * used to multiply rop entries by reaction order and a user-supplied factor.
  */
 
 /**
@@ -148,7 +155,7 @@ public:
         R[m_rxn] -= S[m_ic0];
     }
 
-    void updateSetup(const std::vector<std::pair<int, int>>& indices)
+    void resizeCoeffs(const std::vector<std::pair<int, int>>& indices)
     {
         size_t count = 0;
         for (size_t n = 0; n < indices.size(); n++) {
@@ -161,7 +168,7 @@ public:
             }
         }
         if (count < 1) {
-            throw CanteraError("C1::updateSetup",
+            throw CanteraError("C1::resizeCoeffs",
                 "Found no entries in Jacobian setup for reaction ({}).", m_rxn);
         }
     }
@@ -223,7 +230,7 @@ public:
         R[m_rxn] -= (S[m_ic0] + S[m_ic1]);
     }
 
-    void updateSetup(const std::vector<std::pair<int, int>>& indices)
+    void resizeCoeffs(const std::vector<std::pair<int, int>>& indices)
     {
         size_t count = 0;
         for (size_t n = 0; n < indices.size(); n++) {
@@ -244,7 +251,7 @@ public:
             }
         }
         if (count < 2) {
-            throw CanteraError("C2::updateSetup",
+            throw CanteraError("C2::resizeCoeffs",
                 "Found less than 2 entries in Jacobian setup for reaction ({}): {}",
                 m_rxn, count);
         }
@@ -315,7 +322,7 @@ public:
         R[m_rxn] -= (S[m_ic0] + S[m_ic1] + S[m_ic2]);
     }
 
-    void updateSetup(const std::vector<std::pair<int, int>>& indices)
+    void resizeCoeffs(const std::vector<std::pair<int, int>>& indices)
     {
         size_t count = 0;
         for (size_t n = 0; n < indices.size(); n++) {
@@ -340,7 +347,7 @@ public:
             }
         }
         if (count < 3) {
-            throw CanteraError("C3::updateSetup",
+            throw CanteraError("C3::resizeCoeffs",
                 "Found less than 3 entries in Jacobian setup for reaction ({}): {}",
                 m_rxn, count);
         }
@@ -446,7 +453,7 @@ public:
         }
     }
 
-    void updateSetup(const std::vector<std::pair<int, int>>& indices)
+    void resizeCoeffs(const std::vector<std::pair<int, int>>& indices)
     {
         size_t count = 0;
         for (size_t n = 0; n < indices.size(); n++) {
@@ -465,7 +472,7 @@ public:
             }
         }
         if (count < m_n) {
-            throw CanteraError("C_AnyN::updateSetup",
+            throw CanteraError("C_AnyN::resizeCoeffs",
                 "Found less than {} entries in Jacobian setup for reaction ({}): {}",
                 m_n, m_rxn, count);
         }
@@ -476,7 +483,7 @@ public:
         }
     }
 
-void jacobian(const double* S, const double* R, vector_fp& jac) const
+    void jacobian(const double* S, const double* R, vector_fp& jac) const
     {
         for (size_t i = 0; i < m_n; i++) {
             // calculate derivative
@@ -597,10 +604,10 @@ inline static void _decrementReactions(InputIter begin,
 }
 
 template<class InputIter, class Indices>
-inline static void _update(InputIter begin, InputIter end, Indices& ix)
+inline static void _resizeCoeffs(InputIter begin, InputIter end, Indices& ix)
 {
     for (; begin != end; ++begin) {
-        begin->updateSetup(ix);
+        begin->resizeCoeffs(ix);
     }
 }
 
@@ -711,10 +718,10 @@ public:
             }
         }
         // update reaction setup
-        _update(m_c1_list.begin(), m_c1_list.end(), indices);
-        _update(m_c2_list.begin(), m_c2_list.end(), indices);
-        _update(m_c3_list.begin(), m_c3_list.end(), indices);
-        _update(m_cn_list.begin(), m_cn_list.end(), indices);
+        _resizeCoeffs(m_c1_list.begin(), m_c1_list.end(), indices);
+        _resizeCoeffs(m_c2_list.begin(), m_c2_list.end(), indices);
+        _resizeCoeffs(m_c3_list.begin(), m_c3_list.end(), indices);
+        _resizeCoeffs(m_cn_list.begin(), m_cn_list.end(), indices);
 
         m_ready = true;
     }

@@ -59,7 +59,8 @@ public:
     //! which are multiplied with the array of rate-of-progress variables.
     //! Depending on the implementation of a rate object, either an exact derivative or
     //! a numerical approximation may be used.
-    //! @param rop  array of rop, which is modified by the method
+    //! @param[in,out] rop  array of rop, which is modified by the method;
+    //!     contains rop on input, and d(rop)/dT on output
     //! @param kf  array of forward rate constants (numerical derivative only)
     //! @param deltaT  relative temperature perturbation (numerical derivative only)
     virtual void processRateConstants_ddT(double* rop,
@@ -68,7 +69,8 @@ public:
 
     //! Evaluate all rate constant pressure derivatives handled by the evaluator;
     //! which are multiplied with the array of rate-of-progress variables.
-    //! @param rop  array of rop, which is modified by the method
+    //! @param[in,out] rop  array of rop, which is modified by the method;
+    //!     contains rop on input, and d(rop)/dP on output
     //! @param kf  array of forward rate constants
     //! @param deltaP  relative pressure perturbation
     virtual void processRateConstants_ddP(double* rop,
@@ -77,7 +79,8 @@ public:
 
     //! Evaluate all rate constant third-body derivatives handled by the evaluator;
     //! which are multiplied with the array of rate-of-progress variables.
-    //! @param rop  array of rop, which is modified by the method
+    //! @param[in,out] rop  array of rop, which is modified by the method;
+    //!     contains rop on input, and d(rop)/dM on output
     //! @param kf  array of forward rate constants
     //! @param deltaM  relative perturbation of third-body concentrations;
     //!     if deltaM < 0, rop entries not affected by M are not set to zero
