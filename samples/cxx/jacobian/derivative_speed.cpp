@@ -1,7 +1,7 @@
 /*!
- * @file jacobian_speed.cpp
+ * @file derivative_speed.cpp
  *
- * Benchmark tests for jacobian evaluations
+ * Benchmark tests for derivative evaluations
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -238,7 +238,7 @@ void benchmark(const std::string& mech, const std::string& phase,
 
 int main()
 {
-    std::cout << "Benchmark tests for jacobian evaluations." << std::endl;
+    std::cout << "Benchmark tests for derivative evaluations." << std::endl;
     std::cout << std::endl;
     benchmark("h2o2.yaml", "ohmech", "H2");
     std::cout << std::endl;

@@ -218,7 +218,7 @@ class ReactionRateTests:
         warnings_suppressed = ct.warnings_suppressed()
         ct.suppress_warnings()
 
-        deltaT = self.gas.jacobian_settings["rtol-delta"]
+        deltaT = self.gas.derivative_settings["rtol-delta"]
         deltaT *= self.gas.T
         rate = self.from_yaml()
         k0 = self.eval(rate)
@@ -236,7 +236,7 @@ class ReactionRateTests:
 
     def test_pressure_derivative(self):
         # check pressure derivative against numerical derivative
-        deltaP = self.gas.jacobian_settings["rtol-delta"]
+        deltaP = self.gas.derivative_settings["rtol-delta"]
         deltaP *= self.gas.P
         rate = self.from_yaml()
         k0 = self.eval(rate)
@@ -407,7 +407,7 @@ class FalloffRateTests(ReactionRateTests):
         warnings_suppressed = ct.warnings_suppressed()
         ct.suppress_warnings()
 
-        pert = self.gas.jacobian_settings["rtol-delta"]
+        pert = self.gas.derivative_settings["rtol-delta"]
         deltaT = self.gas.T * pert
         TP = self.gas.TP
         rate = self.from_yaml()
@@ -431,7 +431,7 @@ class FalloffRateTests(ReactionRateTests):
             ct.make_warnings_fatal()
 
     def test_pressure_derivative(self):
-        pert = self.gas.jacobian_settings["rtol-delta"]
+        pert = self.gas.derivative_settings["rtol-delta"]
         deltaP = self.gas.P * pert
         rate = self.from_yaml()
         k0 = self.eval(rate)

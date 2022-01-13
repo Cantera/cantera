@@ -569,7 +569,7 @@ public:
     virtual void getNetProductionRates(doublereal* wdot);
 
     //! @}
-    //! @name Routines to Calculate Derivatives / Jacobians
+    //! @name Routines to Calculate Derivatives (Jacobians)
     /*!
      * Derivatives are calculated with respect to temperature, pressure, molar
      * concentrations and species mole fractions for forward/reverse/net rates of
@@ -581,8 +581,8 @@ public:
      *  - `_ddC`: derivative with respect to molar concentration (a vector)
      *  - `_ddX`: derivative with respect to species mole fractions (a matrix)
      *
-     * Settings for derivative / Jacobian evaluation are set by keyword/value pairs
-     * using the methods @see getJacobianSettings and @see setJacobianSettings.
+     * Settings for derivative evaluation are set by keyword/value pairs using
+     * the methods @see getDerivativeSettings and @see setDerivativeSettings.
      *
      * For GasKinetics, the following keyword/value pairs are supported:
      *  - `skip-third-bodies` (boolean) ... if `false` (default), third body
@@ -595,24 +595,24 @@ public:
     //! @{
 
     /**
-     * Retrieve Jacobian settings.
+     * Retrieve derivative settings.
      *
-     * @param settings  AnyMap containing settings determining Jacobian evaluation.
+     * @param settings  AnyMap containing settings determining derivative evaluation.
      */
-    virtual void getJacobianSettings(AnyMap& settings) const
+    virtual void getDerivativeSettings(AnyMap& settings) const
     {
-        throw NotImplementedError("Kinetics::getJacobianSettings",
+        throw NotImplementedError("Kinetics::getDerivativeSettings",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 
     /**
-     * Set/modify Jacobian settings.
+     * Set/modify derivative settings.
      *
-     * @param settings  AnyMap containing settings determining Jacobian evaluation.
+     * @param settings  AnyMap containing settings determining derivative evaluation.
      */
-    virtual void setJacobianSettings(const AnyMap& settings)
+    virtual void setDerivativeSettings(const AnyMap& settings)
     {
-        throw NotImplementedError("Kinetics::setJacobianSettings",
+        throw NotImplementedError("Kinetics::setDerivativeSettings",
             "Not implemented for kinetics type '{}'.", kineticsType());
     }
 

@@ -113,11 +113,11 @@ namespace Cantera
  * products for a reaction separately. Bimolecular reactions involving the
  * identical species are treated as involving separate species.
  *
- * The methods resizeCoeffs(), jacobian() and scale() are used for the calculation
+ * The methods resizeCoeffs(), derivatives() and scale() are used for the calculation
  * of derivatives with respect to species mole fractions. In this context,
  * resizeCoeffs() is used to establish a mapping between a reaction and corresponding
  * non-zero entries of the sparse derivative matrix of the reaction rate-of-progress
- * vector, which itself is evaluated by the jacobian() method. The scale() method is
+ * vector, which itself is evaluated by the derivatives() method. The scale() method is
  * used to multiply rop entries by reaction order and a user-supplied factor.
  */
 
@@ -169,11 +169,11 @@ public:
         }
         if (count < 1) {
             throw CanteraError("C1::resizeCoeffs",
-                "Found no entries in Jacobian setup for reaction ({}).", m_rxn);
+                "Found no entries in derivative setup for reaction ({}).", m_rxn);
         }
     }
 
-    void jacobian(const double* S, const double* R, vector_fp& jac) const
+    void derivatives(const double* S, const double* R, vector_fp& jac) const
     {
         jac[m_jc0] += R[m_rxn]; // index (m_ic0, m_rxn)
     }
@@ -190,7 +190,7 @@ private:
     //! Species number
     size_t m_ic0;
 
-    size_t m_jc0; //!< Index in jacobian triplet vector
+    size_t m_jc0; //!< Index in derivative triplet vector
 };
 
 /**
@@ -252,12 +252,12 @@ public:
         }
         if (count < 2) {
             throw CanteraError("C2::resizeCoeffs",
-                "Found less than 2 entries in Jacobian setup for reaction ({}): {}",
+                "Found less than 2 entries in derivative setup for reaction ({}): {}",
                 m_rxn, count);
         }
     }
 
-    void jacobian(const double* S, const double* R, vector_fp& jac) const
+    void derivatives(const double* S, const double* R, vector_fp& jac) const
     {
         if (S[m_ic1] > 0) {
             jac[m_jc0] += R[m_rxn] * S[m_ic1]; // index (m_ic0, m_rxn)
@@ -279,7 +279,7 @@ private:
     //! Species index -> index into the species vector for the two species.
     size_t m_ic0, m_ic1;
 
-    size_t m_jc0, m_jc1; //!< Indices in jacobian triplet vector
+    size_t m_jc0, m_jc1; //!< Indices in derivative triplet vector
 };
 
 /**
@@ -348,12 +348,12 @@ public:
         }
         if (count < 3) {
             throw CanteraError("C3::resizeCoeffs",
-                "Found less than 3 entries in Jacobian setup for reaction ({}): {}",
+                "Found less than 3 entries in derivative setup for reaction ({}): {}",
                 m_rxn, count);
         }
     }
 
-    void jacobian(const double* S, const double* R, vector_fp& jac) const
+    void derivatives(const double* S, const double* R, vector_fp& jac) const
     {
         if (S[m_ic1] > 0 && S[m_ic2] > 0) {
             jac[m_jc0] += R[m_rxn] * S[m_ic1] * S[m_ic2];; // index (m_ic0, m_rxn)
@@ -377,7 +377,7 @@ private:
     size_t m_ic1;
     size_t m_ic2;
 
-    size_t m_jc0, m_jc1, m_jc2; //!< Indices in jacobian triplet vector
+    size_t m_jc0, m_jc1, m_jc2; //!< Indices in derivative triplet vector
 };
 
 /**
@@ -473,7 +473,7 @@ public:
         }
         if (count < m_n) {
             throw CanteraError("C_AnyN::resizeCoeffs",
-                "Found less than {} entries in Jacobian setup for reaction ({}): {}",
+                "Found less than {} entries in derivative setup for reaction ({}): {}",
                 m_n, m_rxn, count);
         }
 
@@ -483,7 +483,7 @@ public:
         }
     }
 
-    void jacobian(const double* S, const double* R, vector_fp& jac) const
+    void derivatives(const double* S, const double* R, vector_fp& jac) const
     {
         for (size_t i = 0; i < m_n; i++) {
             // calculate derivative
@@ -553,7 +553,7 @@ private:
      */
     vector_fp m_stoich;
 
-    vector_int m_jc; //!< Indices in jacobian triplet vector
+    vector_int m_jc; //!< Indices in derivative triplet vector
 
     double m_sum_order; //!< Sum of reaction order vector
 };
@@ -612,11 +612,11 @@ inline static void _resizeCoeffs(InputIter begin, InputIter end, Indices& ix)
 }
 
 template<class InputIter, class Vec1, class Vec2, class Vec3>
-inline static void _jacobian(InputIter begin, InputIter end,
+inline static void _derivatives(InputIter begin, InputIter end,
                              const Vec1& S, const Vec2& R, Vec3& jac)
 {
     for (; begin != end; ++begin) {
-        begin->jacobian(S, R, jac);
+        begin->derivatives(S, R, jac);
     }
 }
 
@@ -698,7 +698,7 @@ public:
         m_stoichCoeffs.reserve(nCoeffs);
         m_stoichCoeffs.setFromTriplets(m_coeffList.begin(), m_coeffList.end());
 
-        // Set up outer/inner indices for mapped jacobian output
+        // Set up outer/inner indices for mapped derivative output
         Eigen::SparseMatrix<double> tmp = m_stoichCoeffs.transpose();
         m_outerIndices.resize(nSpc + 1); // number of columns + 1
         for (int i = 0; i < tmp.outerSize() + 1; i++) {
@@ -710,7 +710,7 @@ public:
         }
         m_values.resize(nCoeffs, 0.);
 
-        // Set up index pairs for jacobians
+        // Set up index pairs for derivatives
         std::vector<std::pair<int, int>> indices;
         for (int i = 0; i < tmp.outerSize(); i++) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(tmp, i); it; ++it) {
@@ -854,7 +854,7 @@ public:
         return m_stoichCoeffs;
     }
 
-    //! Calculate jacobian with respect to species concentrations.
+    //! Calculate derivatives with respect to species concentrations.
     /*!
      * The species derivative is the term of the Jacobian that accounts for
      * species products in the law of mass action. As StoichManagerN does not account
@@ -864,14 +864,14 @@ public:
      *  @param conc    Species concentration.
      *  @param rates   Rates-of-progress.
      */
-    Eigen::SparseMatrix<double> jacobian(const double* conc, const double* rates)
+    Eigen::SparseMatrix<double> derivatives(const double* conc, const double* rates)
     {
-        // calculate jacobian entries using known sparse storage order
+        // calculate derivative entries using known sparse storage order
         std::fill(m_values.begin(), m_values.end(), 0.);
-        _jacobian(m_c1_list.begin(), m_c1_list.end(), conc, rates, m_values);
-        _jacobian(m_c2_list.begin(), m_c2_list.end(), conc, rates, m_values);
-        _jacobian(m_c3_list.begin(), m_c3_list.end(), conc, rates, m_values);
-        _jacobian(m_cn_list.begin(), m_cn_list.end(), conc, rates, m_values);
+        _derivatives(m_c1_list.begin(), m_c1_list.end(), conc, rates, m_values);
+        _derivatives(m_c2_list.begin(), m_c2_list.end(), conc, rates, m_values);
+        _derivatives(m_c3_list.begin(), m_c3_list.end(), conc, rates, m_values);
+        _derivatives(m_cn_list.begin(), m_cn_list.end(), conc, rates, m_values);
 
         return Eigen::Map<Eigen::SparseMatrix<double>>(
             m_stoichCoeffs.cols(), m_stoichCoeffs.rows(), m_values.size(),
@@ -899,7 +899,7 @@ private:
     SparseTriplets m_coeffList;
     Eigen::SparseMatrix<double> m_stoichCoeffs;
 
-    //! Storage indicies used to build Jacobians
+    //! Storage indicies used to build derivatives
     std::vector<int> m_outerIndices;
     std::vector<int> m_innerIndices;
     vector_fp m_values;
