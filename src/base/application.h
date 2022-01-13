@@ -354,6 +354,18 @@ public:
     //! information can be specified in *extra*.
     void warn_user(const std::string& method, const std::string& extra="");
 
+    //! Globally disable printing of (user) warnings. Used primarily to
+    //! prevent certain tests from failing.
+    void suppress_warnings() {
+        m_suppress_warnings = true;
+        m_fatal_warnings = false;
+    }
+
+    //! Returns `true` if warnings should be suppressed.
+    bool warnings_suppressed() {
+        return m_suppress_warnings;
+    }
+
     //! Turns Cantera warnings into exceptions. Activated within the test
     //! suite to make sure that your warning message are being raised.
     void make_warnings_fatal() {
@@ -459,6 +471,7 @@ protected:
     bool m_suppress_deprecation_warnings;
     bool m_fatal_deprecation_warnings;
     bool m_suppress_thermo_warnings;
+    bool m_suppress_warnings;
     bool m_fatal_warnings;
     bool m_use_legacy_rate_constants;
 
