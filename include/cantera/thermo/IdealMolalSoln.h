@@ -110,6 +110,10 @@ public:
         return "IdealMolalSoln";
     }
 
+    virtual bool isIdeal() const {
+        return true;
+    }
+
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
 

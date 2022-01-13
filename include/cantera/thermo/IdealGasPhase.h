@@ -297,6 +297,10 @@ public:
         return "IdealGas";
     }
 
+    virtual bool isIdeal() const {
+        return true;
+    }
+
     //! String indicating the mechanical phase of the matter in this Phase.
     /*!
      * For the `IdealGasPhase`, this string is always `gas`.
