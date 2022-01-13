@@ -818,15 +818,19 @@ cdef class InterfaceKinetics(Kinetics):
     reactions are assumed to occur at an interface between bulk phases.
     """
     def __init__(self, infile='', name='', adjacent=(), *args, **kwargs):
-        super().__init__(infile, name, adjacent, *args, **kwargs)
+        super().__init__(infile, name, *args, **kwargs)
+        if not kwargs.get("init", True):
+            return
         if pystr(self.kinetics.kineticsType()) not in ("Surf", "Edge"):
             raise TypeError("Underlying Kinetics class is not of the correct type.")
+        self._setup_phase_indices()
 
+    def _setup_phase_indices(self):
         self._phase_indices = {}
-        for phase in [self] + list(adjacent):
-            i = self.kinetics.phaseIndex(stringify(phase.name))
+        for name, phase in list(self.adjacent.items()) + [(self.name, self)]:
+            i = self.kinetics.phaseIndex(stringify(name))
             self._phase_indices[phase] = i
-            self._phase_indices[phase.name] = i
+            self._phase_indices[name] = i
             self._phase_indices[i] = i
 
     def advance_coverages(self, double dt, double rtol=1e-7, double atol=1e-14,

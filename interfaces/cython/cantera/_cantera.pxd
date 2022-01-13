@@ -267,12 +267,20 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
         shared_ptr[CxxTransport] transport()
         void setTransport(shared_ptr[CxxTransport])
         CxxAnyMap parameters(cbool) except +translate_exception
+        size_t nAdjacent()
+        shared_ptr[CxxSolution] adjacent(size_t)
 
     cdef shared_ptr[CxxSolution] CxxNewSolution "Cantera::Solution::create" ()
     cdef shared_ptr[CxxSolution] newSolution (
         string, string, string, vector[shared_ptr[CxxSolution]]) except +translate_exception
     cdef shared_ptr[CxxSolution] newSolution (
         CxxAnyMap&, CxxAnyMap&, string, vector[shared_ptr[CxxSolution]]) except +translate_exception
+
+
+cdef extern from "cantera/base/Interface.h" namespace "Cantera":
+    cdef shared_ptr[CxxSolution] newInterface(string, string) except +translate_exception
+    cdef shared_ptr[CxxSolution] newInterface(
+        string, string, vector[string]) except +translate_exception
 
 
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
@@ -1370,6 +1378,7 @@ cdef class _SolutionBase:
     cdef int thermo_basis
     cdef np.ndarray _selected_species
     cdef object parent
+    cdef object _adjacent
     cdef public object _references
 
 cdef class Species:

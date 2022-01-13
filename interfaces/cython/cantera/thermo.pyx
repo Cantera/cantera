@@ -1618,9 +1618,19 @@ cdef class ThermoPhase(_SolutionBase):
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface or edge phase"""
     def __cinit__(self, *args, **kwargs):
+        if not kwargs.get("init", True):
+            return
         if pystr(self.thermo.type()) not in ("Surf", "Edge"):
             raise TypeError('Underlying ThermoPhase object is of the wrong type.')
         self.surf = <CxxSurfPhase*>(self.thermo)
+
+    property adjacent:
+        """
+        A dictionary containing higher-dimensional phases adjacent to this interface,
+        for example bulk phases adjacent to a surface.
+        """
+        def __get__(self):
+            return self._adjacent
 
     property site_density:
         """

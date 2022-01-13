@@ -4,10 +4,57 @@
 from collections import defaultdict as _defaultdict
 from pathlib import PurePath
 
+ctypedef CxxSurfPhase* CxxSurfPhasePtr
+
+# These cdef functions are declared as free functions to avoid creating layout
+# conflicts with types derived from _SolutionBase
+cdef _assign_Solution(_SolutionBase soln, shared_ptr[CxxSolution] cxx_soln,
+                      pybool reset_adjacent):
+    soln._base = cxx_soln
+    soln.base = cxx_soln.get()
+    soln.thermo = soln.base.thermo().get()
+    soln.kinetics = soln.base.kinetics().get()
+    soln.transport = soln.base.transport().get()
+
+    cdef shared_ptr[CxxSolution] adj_soln
+    if reset_adjacent:
+        soln._adjacent = {}
+        for i in range(soln.base.nAdjacent()):
+            adj_soln = soln.base.adjacent(i)
+            name = pystr(adj_soln.get().name())
+            soln._adjacent[name] = _wrap_Solution(adj_soln)
+
+
+cdef object _wrap_Solution(shared_ptr[CxxSolution] cxx_soln):
+    """
+    Wrap an existing Solution object with a Python object of the correct
+    derived type.
+    """
+    # Need to explicitly import these classes from the non-compiled Python module to
+    # make them available inside Cython
+    from cantera import Solution, Interface
+
+    if dynamic_cast[CxxSurfPhasePtr](cxx_soln.get().thermo().get()):
+        cls = Interface
+    else:
+        cls = Solution
+
+    cdef _SolutionBase soln = cls(init=False)
+    _assign_Solution(soln, cxx_soln, True)
+    soln._selected_species = np.ndarray(0, dtype=np.uint64)
+
+    cdef InterfacePhase iface
+    if isinstance(soln, Interface):
+        iface = soln
+        iface.surf = <CxxSurfPhase*>(soln.thermo)
+        <InterfaceKinetics>(iface)._setup_phase_indices()
+    return soln
+
+
 cdef class _SolutionBase:
     def __cinit__(self, infile='', name='', adjacent=(), origin=None,
                   source=None, yaml=None, thermo=None, species=(),
-                  kinetics=None, reactions=(), **kwargs):
+                  kinetics=None, reactions=(), init=True, **kwargs):
 
         # run instantiation only if valid sources are specified
         self._references = None
@@ -18,20 +65,18 @@ cdef class _SolutionBase:
                         thermo=thermo, species=species, kinetics=kinetics,
                         reactions=reactions, **kwargs)
             return
+        elif not init:
+            return
         elif any([infile, source, adjacent, origin, source, yaml,
                   thermo, species, kinetics, reactions, kwargs]):
             raise ValueError("Arguments are insufficient to define a phase")
 
-        self._base = CxxNewSolution()
-        self.base = self._base.get()
-        self.base.setSource(stringify("none"))
-
-        self.base.setThermo(newThermo(stringify("none")))
-        self.thermo = self.base.thermo().get()
-        self.base.setKinetics(newKinetics(stringify("none")))
-        self.kinetics = self.base.kinetics().get()
-        self.base.setTransport(newTransport(NULL, stringify("none")))
-        self.transport = self.base.transport().get()
+        cdef shared_ptr[CxxSolution] cxx_soln = CxxNewSolution()
+        cxx_soln.get().setSource(stringify("none"))
+        cxx_soln.get().setThermo(newThermo(stringify("none")))
+        cxx_soln.get().setKinetics(newKinetics(stringify("none")))
+        cxx_soln.get().setTransport(newTransport(NULL, stringify("none")))
+        _assign_Solution(self, cxx_soln, True)
         self._selected_species = np.ndarray(0, dtype=np.uint64)
 
     def _cinit(self, infile='', name='', adjacent=(), origin=None,
@@ -59,16 +104,10 @@ cdef class _SolutionBase:
         cdef _SolutionBase other
         if origin is not None:
             other = <_SolutionBase?>origin
-
-            self.base = other.base
-            self.thermo = other.thermo
-            self.kinetics = other.kinetics
-            self.transport = other.transport
-            self._base = other._base
-            self.base.setSource(other.base.source())
-
+            _assign_Solution(self, other._base, False)
             self.thermo_basis = other.thermo_basis
             self._selected_species = other._selected_species.copy()
+            self._adjacent = other._adjacent
             return
 
         if isinstance(infile, PurePath):
@@ -83,11 +122,7 @@ cdef class _SolutionBase:
             return
 
         # Assign base and set managers to NULL
-        self._base = CxxNewSolution()
-        self.base = self._base.get()
-        self.thermo = NULL
-        self.kinetics = NULL
-        self.transport = NULL
+        _assign_Solution(self, CxxNewSolution(), True)
 
         # Parse inputs
         if infile or source:
@@ -98,7 +133,7 @@ cdef class _SolutionBase:
         self._selected_species = np.ndarray(0, dtype=np.uint64)
 
     def __init__(self, *args, **kwargs):
-        if isinstance(self, Transport):
+        if isinstance(self, Transport) and kwargs.get("init", True):
             assert self.transport is not NULL
 
         name = kwargs.get('name')
@@ -144,10 +179,18 @@ cdef class _SolutionBase:
         """
 
         # Adjacent bulk phases for a surface phase
-        cdef vector[shared_ptr[CxxSolution]] cxx_adjacent
-        cdef _SolutionBase phase
+        cdef vector[shared_ptr[CxxSolution]] adjacent_solns
+        cdef vector[string] adjacent_names
         for phase in adjacent:
-            cxx_adjacent.push_back(phase._base)
+            if isinstance(phase, ThermoPhase):
+                adjacent_solns.push_back((<_SolutionBase>phase)._base)
+            elif isinstance(phase, str):
+                adjacent_names.push_back(stringify(phase))
+            else:
+                raise TypeError("Adjacent phases must be specified as either "
+                                "ThermoPhase objects or as string names")
+        if adjacent_solns.size() and adjacent_names.size():
+            raise TypeError("Cannot mix ThermoPhase objects and phase names")
 
         if transport is None or not isinstance(self, Transport):
             transport = "None"
@@ -156,31 +199,45 @@ cdef class _SolutionBase:
         # Parse input in C++
         cdef CxxAnyMap root
         cdef CxxAnyMap phaseNode
+        cdef shared_ptr[CxxSolution] soln
         if infile:
-            self._base = newSolution(
-                stringify(infile), stringify(name), cxx_transport, cxx_adjacent)
+            if isinstance(self, InterfacePhase) and adjacent_names.size():
+                soln = newInterface(stringify(infile), stringify(name), adjacent_names)
+            else:
+                soln = newSolution(
+                    stringify(infile), stringify(name), cxx_transport, adjacent_solns)
         elif source:
             root = AnyMapFromYamlString(stringify(source))
             phaseNode = root[stringify("phases")].getMapWhere(
                 stringify("name"), stringify(name))
-            self._base = newSolution(phaseNode, root, cxx_transport, cxx_adjacent)
+            if isinstance(self, InterfacePhase) and adjacent_names.size():
+                raise NotImplementedError(
+                    "When defining a phase from a YAML string definition, use the "
+                    "'adjacent-phases' key to declare the adjacent phases instead of "
+                    "the 'adjacent' argument to 'Interface'."
+                )
+            else:
+                soln = newSolution(phaseNode, root, cxx_transport, adjacent_solns)
 
-        self.base = self._base.get()
+        if adjacent_solns.size():
+            self._adjacent = {}
+            for phase in adjacent:
+                self._adjacent[phase.name] = phase
+            reset_adjacent = False
+        else:
+            reset_adjacent = True
 
         # Thermo
         if not isinstance(self, ThermoPhase):
             msg = ("Cannot instantiate a standalone '{}' object; use "
                    "'Solution' instead").format(type(self).__name__)
             raise NotImplementedError(msg)
-        self.thermo = self.base.thermo().get()
 
         # Kinetics
         if not isinstance(self, Kinetics):
-            self.base.setKinetics(newKinetics(stringify("none")))
-        self.kinetics = self.base.kinetics().get()
+            soln.get().setKinetics(newKinetics(stringify("none")))
 
-        # Transport
-        self.transport = self.base.transport().get()
+        _assign_Solution(self, soln, reset_adjacent)
 
     def _init_cti_xml(self, infile, name, adjacent, source):
         """
