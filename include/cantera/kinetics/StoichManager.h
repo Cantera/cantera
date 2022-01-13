@@ -155,22 +155,9 @@ public:
         R[m_rxn] -= S[m_ic0];
     }
 
-    void resizeCoeffs(const std::vector<std::pair<int, int>>& indices)
+    void resizeCoeffs(const std::map<std::pair<int, int>, size_t>& indices)
     {
-        size_t count = 0;
-        for (size_t n = 0; n < indices.size(); n++) {
-            size_t row = indices[n].first;
-            size_t col = indices[n].second;
-            if (row == m_rxn && col == m_ic0) {
-                m_jc0 = n;
-                count++;
-                break;
-            }
-        }
-        if (count < 1) {
-            throw CanteraError("C1::resizeCoeffs",
-                "Found no entries in derivative setup for reaction ({}).", m_rxn);
-        }
+        m_jc0 = indices.at({m_rxn, m_ic0});
     }
 
     void derivatives(const double* S, const double* R, vector_fp& jac) const
@@ -230,31 +217,10 @@ public:
         R[m_rxn] -= (S[m_ic0] + S[m_ic1]);
     }
 
-    void resizeCoeffs(const std::vector<std::pair<int, int>>& indices)
+    void resizeCoeffs(const std::map<std::pair<int, int>, size_t>& indices)
     {
-        size_t count = 0;
-        for (size_t n = 0; n < indices.size(); n++) {
-            size_t row = indices[n].first;
-            if (row == m_rxn) {
-                size_t col = indices[n].second;
-                if (col == m_ic0) {
-                    m_jc0 = n;
-                    count++;
-                }
-                if (col == m_ic1) {
-                    m_jc1 = n;
-                    count++;
-                }
-            }
-            if (count == 2) {
-                break;
-            }
-        }
-        if (count < 2) {
-            throw CanteraError("C2::resizeCoeffs",
-                "Found less than 2 entries in derivative setup for reaction ({}): {}",
-                m_rxn, count);
-        }
+        m_jc0 = indices.at({m_rxn, m_ic0});
+        m_jc1 = indices.at({m_rxn, m_ic1});
     }
 
     void derivatives(const double* S, const double* R, vector_fp& jac) const
@@ -322,35 +288,11 @@ public:
         R[m_rxn] -= (S[m_ic0] + S[m_ic1] + S[m_ic2]);
     }
 
-    void resizeCoeffs(const std::vector<std::pair<int, int>>& indices)
+    void resizeCoeffs(const std::map<std::pair<int, int>, size_t>& indices)
     {
-        size_t count = 0;
-        for (size_t n = 0; n < indices.size(); n++) {
-            size_t row = indices[n].first;
-            if (row == m_rxn) {
-                size_t col = indices[n].second;
-                if (col == m_ic0) {
-                    m_jc0 = n;
-                    count++;
-                }
-                if (col == m_ic1) {
-                    m_jc1 = n;
-                    count++;
-                }
-                if (col == m_ic2) {
-                    m_jc2 = n;
-                    count++;
-                }
-            }
-            if (count == 3) {
-                break;
-            }
-        }
-        if (count < 3) {
-            throw CanteraError("C3::resizeCoeffs",
-                "Found less than 3 entries in derivative setup for reaction ({}): {}",
-                m_rxn, count);
-        }
+        m_jc0 = indices.at({m_rxn, m_ic0});
+        m_jc1 = indices.at({m_rxn, m_ic1});
+        m_jc2 = indices.at({m_rxn, m_ic2});
     }
 
     void derivatives(const double* S, const double* R, vector_fp& jac) const
@@ -453,28 +395,10 @@ public:
         }
     }
 
-    void resizeCoeffs(const std::vector<std::pair<int, int>>& indices)
+    void resizeCoeffs(const std::map<std::pair<int, int>, size_t>& indices)
     {
-        size_t count = 0;
-        for (size_t n = 0; n < indices.size(); n++) {
-            size_t row = indices[n].first;
-            if (row == m_rxn) {
-                size_t col = indices[n].second;
-                for (size_t i = 0; i < m_n; i++) {
-                    if (m_ic[i] == col) {
-                        m_jc[i] = n;
-                        count++;
-                    }
-                }
-            }
-            if (count == m_n) {
-                break;
-            }
-        }
-        if (count < m_n) {
-            throw CanteraError("C_AnyN::resizeCoeffs",
-                "Found less than {} entries in derivative setup for reaction ({}): {}",
-                m_n, m_rxn, count);
+        for (size_t i = 0; i < m_n; i++) {
+            m_jc[i] = indices.at({m_rxn, m_ic[i]});
         }
 
         m_sum_order = 0.;
@@ -711,10 +635,11 @@ public:
         m_values.resize(nCoeffs, 0.);
 
         // Set up index pairs for derivatives
-        std::vector<std::pair<int, int>> indices;
+        std::map<std::pair<int, int>, size_t> indices;
+        size_t n = 0;
         for (int i = 0; i < tmp.outerSize(); i++) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(tmp, i); it; ++it) {
-                indices.emplace_back(it.row(), it.col());
+                indices[{it.row(), it.col()}] = n++;
             }
         }
         // update reaction setup
