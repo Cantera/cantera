@@ -127,16 +127,16 @@ void GasKinetics::update_rates_C()
 void GasKinetics::updateKc()
 {
     thermo().getStandardChemPotentials(m_grt.data());
-    fill(m_delta_gibbs0_RT.begin(), m_delta_gibbs0_RT.end(), 0.0);
+    fill(m_delta_gibbs0.begin(), m_delta_gibbs0.end(), 0.0);
 
     // compute Delta G^0 for all reversible reactions
-    getRevReactionDelta(m_grt.data(), m_delta_gibbs0_RT.data());
+    getRevReactionDelta(m_grt.data(), m_delta_gibbs0.data());
 
     double rrt = 1.0 / thermo().RT();
     for (size_t i = 0; i < m_revindex.size(); i++) {
         size_t irxn = m_revindex[i];
         m_rkcn[irxn] = std::min(
-            exp(m_delta_gibbs0_RT[irxn] * rrt - m_dn[irxn] * m_logStandConc),
+            exp(m_delta_gibbs0[irxn] * rrt - m_dn[irxn] * m_logStandConc),
             BigNumber);
     }
 
@@ -311,14 +311,14 @@ void GasKinetics::processEquilibriumConstants_ddT(double* drkcn)
     double rrt = 1. / thermo().RT();
 
     vector_fp& grt = m_sbuf0;
-    vector_fp& delta_gibbs0_RT = m_rbuf1;
-    fill(delta_gibbs0_RT.begin(), delta_gibbs0_RT.end(), 0.0);
+    vector_fp& delta_gibbs0 = m_rbuf1;
+    fill(delta_gibbs0.begin(), delta_gibbs0.end(), 0.0);
 
     // compute perturbed Delta G^0 for all reversible reactions
     thermo().saveState(m_state);
     thermo().setState_TP(T * (1. + m_jac_rtol_delta), P);
     thermo().getStandardChemPotentials(grt.data());
-    getRevReactionDelta(grt.data(), delta_gibbs0_RT.data());
+    getRevReactionDelta(grt.data(), delta_gibbs0.data());
 
     // apply scaling for derivative of inverse equilibrium constant
     double Tinv = 1. / T;
@@ -326,9 +326,9 @@ void GasKinetics::processEquilibriumConstants_ddT(double* drkcn)
     double rrtt = rrt * Tinv;
     for (size_t i = 0; i < m_revindex.size(); i++) {
         size_t irxn = m_revindex[i];
-        double factor = delta_gibbs0_RT[irxn] - m_delta_gibbs0_RT[irxn];
+        double factor = delta_gibbs0[irxn] - m_delta_gibbs0[irxn];
         factor *= rrt_dTinv;
-        factor += m_dn[irxn] * Tinv - m_delta_gibbs0_RT[irxn] * rrtt;
+        factor += m_dn[irxn] * Tinv - m_delta_gibbs0[irxn] * rrtt;
         drkcn[irxn] *= factor;
     }
 
