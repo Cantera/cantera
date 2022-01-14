@@ -27,15 +27,14 @@ void ReactionData::perturbTemperature(double deltaT)
     ReactionData::update(temperature * (1. + deltaT));
 }
 
-bool ReactionData::restore()
+void ReactionData::restore()
 {
     // only restore if there is a valid buffered value
     if (m_temperature_buf < 0.) {
-        return false;
+        return;
     }
     ReactionData::update(m_temperature_buf);
     m_temperature_buf = -1.;
-    return true;
 }
 
 bool ArrheniusData::update(const ThermoPhase& bulk, const Kinetics& kin)
@@ -177,16 +176,15 @@ void FalloffData::perturbThirdBodies(double deltaM)
     m_perturbed = true;
 }
 
-bool FalloffData::restore()
+void FalloffData::restore()
 {
-    bool ret = ReactionData::restore();
+    ReactionData::restore();
     // only restore if there is a valid buffered value
     if (!m_perturbed) {
-        return ret;
+        return;
     }
     conc_3b = m_conc_3b_buf;
     m_perturbed = false;
-    return true;
 }
 
 void PlogData::update(double T)
@@ -216,16 +214,15 @@ void PlogData::perturbPressure(double deltaP)
     update(temperature, pressure * (1. + deltaP));
 }
 
-bool PlogData::restore()
+void PlogData::restore()
 {
-    bool ret = ReactionData::restore();
+    ReactionData::restore();
     // only restore if there is a valid buffered value
     if (m_pressure_buf < 0.) {
-        return ret;
+        return;
     }
     update(temperature, m_pressure_buf);
     m_pressure_buf = -1.;
-    return true;
 }
 
 void ChebyshevData::update(double T)
@@ -255,16 +252,15 @@ void ChebyshevData::perturbPressure(double deltaP)
     update(temperature, pressure * (1. + deltaP));
 }
 
-bool ChebyshevData::restore()
+void ChebyshevData::restore()
 {
-    bool ret = ReactionData::restore();
+    ReactionData::restore();
     // only restore if there is a valid buffered value
     if (m_pressure_buf < 0.) {
-        return ret;
+        return;
     }
     update(temperature, m_pressure_buf);
     m_pressure_buf = -1.;
-    return true;
 }
 
 }
