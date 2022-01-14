@@ -22,19 +22,19 @@ import sys
 import os
 from pathlib import Path
 
-cantera_root = os.path.relpath(__file__).split(os.sep)[:-1] + ['..', '..']
-os.chdir(os.sep.join(cantera_root + ['test', 'work']))
+CANTERA_ROOT = Path(__file__).parents[2]
+os.chdir(str(CANTERA_ROOT / "test" / "work"))
 
 import pytest
 import cantera
 import cantera.test
 
 
-if __name__ == '__main__':
-    print('\n* INFO: using Cantera module found at this location:')
-    print('*     ', repr(cantera.__file__))
-    print('* INFO: Cantera version:', cantera.__version__)
-    print('* INFO: Git commit:', cantera.__git_commit__, '\n')
+if __name__ == "__main__":
+    print("\n* INFO: using Cantera module found at this location:")
+    print(f"*       '{cantera.__file__}'")
+    print(f"* INFO: Cantera version: {cantera.__version__}")
+    print(f"* INFO: Git commit: {cantera.__git_commit__}\n")
     sys.stdout.flush()
 
     subset_start = 1
@@ -51,7 +51,7 @@ if __name__ == '__main__':
         verbose = True
         subset_start += 1
 
-    base = Path(cantera.__file__).parent.joinpath('test')
+    base = Path(cantera.__file__).parent.joinpath("test")
     subsets = []
     for name in sys.argv[subset_start:]:
         subsets.append(str(base.joinpath(f"test_{name}.py")))
