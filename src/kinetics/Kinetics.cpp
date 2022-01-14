@@ -724,7 +724,7 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 
     m_reactions.push_back(r);
     m_rfn.push_back(0.0);
-    m_delta_gibbs0_RT.push_back(0.0);
+    m_delta_gibbs0.push_back(0.0);
     m_rkcn.push_back(0.0);
     m_ropf.push_back(0.0);
     m_ropr.push_back(0.0);

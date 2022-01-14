@@ -1327,8 +1327,8 @@ protected:
     //! Forward rate constant for each reaction
     vector_fp m_rfn;
 
-    //! Delta G^0 times gas constant and temperature for all reactions
-    vector_fp m_delta_gibbs0_RT;
+    //! Delta G^0 for all reactions
+    vector_fp m_delta_gibbs0;
 
     //! Reciprocal of the equilibrium constant in concentration units
     vector_fp m_rkcn;
