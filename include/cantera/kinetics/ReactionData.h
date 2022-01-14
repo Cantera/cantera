@@ -61,10 +61,7 @@ struct ReactionData
     void perturbTemperature(double deltaT);
 
     //! Restore data container after a perturbation
-    /*
-     * @returns  A boolean indicating whether value was restored after a perturbation.
-     */
-    virtual bool restore();
+    virtual void restore();
 
     //! Update number of species and reactions
     virtual void resize(size_t n_species, size_t n_reactions) {}
@@ -179,8 +176,7 @@ struct FalloffData : public ReactionData
      */
     void perturbThirdBodies(double deltaM);
 
-    //! Restore data container after a perturbation
-    virtual bool restore() override;
+    virtual void restore() override;
 
     virtual void resize(size_t n_species, size_t n_reactions) override {
         conc_3b.resize(n_reactions, NAN);
@@ -230,8 +226,7 @@ struct PlogData : public ReactionData
      */
     void perturbPressure(double deltaP);
 
-    //! Restore data container after a perturbation
-    virtual bool restore() override;
+    virtual void restore() override;
 
     virtual void invalidateCache() override {
         ReactionData::invalidateCache();
@@ -272,8 +267,7 @@ struct ChebyshevData : public ReactionData
      */
     void perturbPressure(double deltaP);
 
-    //! Restore data container after a perturbation
-    virtual bool restore() override;
+    virtual void restore() override;
 
     virtual void invalidateCache() override {
         ReactionData::invalidateCache();
