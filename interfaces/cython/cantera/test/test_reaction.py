@@ -133,6 +133,15 @@ class ReactionRateTests:
         ct.use_legacy_rate_constants(False)
         cls.gas = ct.Solution("kineticsfromscratch.yaml")
 
+        # suppress user warning (e.g. temperature derivative of Blowers-Masel)
+        cls.warnings_suppressed = ct.warnings_suppressed()
+        ct.suppress_warnings()
+
+    @classmethod
+    def tearDownClass(cls):
+        if not cls.warnings_suppressed:
+            ct.make_warnings_fatal()
+
     def setUp(self):
         self.gas.X = "H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5, H2O2:1e-7"
         self.gas.TP = 900, 2 * ct.one_atm
@@ -215,9 +224,6 @@ class ReactionRateTests:
 
     def test_temperature_derivative(self):
         # check temperature derivative against numerical derivative
-        warnings_suppressed = ct.warnings_suppressed()
-        ct.suppress_warnings()
-
         deltaT = self.gas.derivative_settings["rtol-delta"]
         deltaT *= self.gas.T
         rate = self.from_yaml()
@@ -225,14 +231,11 @@ class ReactionRateTests:
 
         # derivative at constant pressure
         dcdt = - self.gas.density_mole / self.gas.T
-        drate = self.gas.forward_rate_constants_temperature_derivatives
-        drate += self.gas.forward_rate_constants_concentration_derivatives * dcdt
+        drate = self.gas.forward_rate_constants_ddT
+        drate += self.gas.forward_rate_constants_ddC * dcdt
         self.gas.TP = self.gas.T + deltaT, self.gas.P
         k1 = self.eval(rate)
         self.assertNear((k1 - k0) / deltaT, drate[self._index], 1e-6)
-
-        if warnings_suppressed:
-            ct.make_warnings_fatal()
 
     def test_pressure_derivative(self):
         # check pressure derivative against numerical derivative
@@ -241,7 +244,7 @@ class ReactionRateTests:
         rate = self.from_yaml()
         k0 = self.eval(rate)
 
-        drate = self.gas.forward_rate_constants_pressure_derivatives
+        drate = self.gas.forward_rate_constants_ddP
         self.gas.TP = self.gas.T, self.gas.P + deltaP
         k1 = self.eval(rate)
         self.assertNear((k1 - k0) / deltaP, drate[self._index], 1e-6)
@@ -296,7 +299,7 @@ class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
 
         scaled_ddT = (Ea / R / T + b) / T
 
-        dkdT = self.gas.forward_rate_constants_temperature_derivatives[self._index]
+        dkdT = self.gas.forward_rate_constants_ddT[self._index]
         self.assertNear(dkdT, k0 * scaled_ddT) # exact
 
         dT = 1.e-6
@@ -404,9 +407,6 @@ class FalloffRateTests(ReactionRateTests):
             rate.falloff_coeffs = np.random.rand(n)
 
     def test_temperature_derivative(self):
-        warnings_suppressed = ct.warnings_suppressed()
-        ct.suppress_warnings()
-
         pert = self.gas.derivative_settings["rtol-delta"]
         deltaT = self.gas.T * pert
         TP = self.gas.TP
@@ -414,7 +414,7 @@ class FalloffRateTests(ReactionRateTests):
         k0 = self.eval(rate)
 
         # derivative at constant volume
-        drate = self.gas.forward_rate_constants_temperature_derivatives
+        drate = self.gas.forward_rate_constants_ddT
         self.gas.TP = self.gas.T * (1 + pert), self.gas.P * (1 + pert)
         k1 = self.eval(rate)
         self.assertNear((k1 - k0) / deltaT, drate[self._index], 1e-6)
@@ -422,13 +422,10 @@ class FalloffRateTests(ReactionRateTests):
         # derivative at constant pressure
         self.gas.TP = TP
         dcdt = - self.gas.density_mole / self.gas.T
-        drate += self.gas.forward_rate_constants_concentration_derivatives * dcdt
+        drate += self.gas.forward_rate_constants_ddC * dcdt
         self.gas.TP = self.gas.T * (1 + pert), self.gas.P
         k1 = self.eval(rate)
         self.assertNear((k1 - k0) / deltaT, drate[self._index], 1e-6)
-
-        if warnings_suppressed:
-            ct.make_warnings_fatal()
 
     def test_pressure_derivative(self):
         pert = self.gas.derivative_settings["rtol-delta"]
@@ -437,9 +434,9 @@ class FalloffRateTests(ReactionRateTests):
         k0 = self.eval(rate)
 
         # derivative at constant temperature
-        drate = self.gas.forward_rate_constants_pressure_derivatives
+        drate = self.gas.forward_rate_constants_ddP
         dcdp = self.gas.density_mole / self.gas.P
-        drate += self.gas.forward_rate_constants_concentration_derivatives * dcdp
+        drate += self.gas.forward_rate_constants_ddC * dcdp
         self.gas.TP = self.gas.T, self.gas.P + deltaP
         k1 = self.eval(rate)
         self.assertNear((k1 - k0) / deltaP, drate[self._index], 1e-6)
