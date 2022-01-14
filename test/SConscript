@@ -117,13 +117,12 @@ def addTestProgram(subdir, progName, env_vars={}):
                                             [], [Delete(passedFile.abspath)]))
 
 
-def addPythonTest(testname, subdir, script, interpreter, outfile,
-                  args='', dependencies=(), env_vars={}, optional=False):
+def addPythonTest(testname, subdir, script, interpreter,
+                  args="", dependencies=(), env_vars={}, optional=False):
     """
     Create targets for running and resetting a test script.
     """
     def scriptRunner(target, source, env):
-        unittest_outfile = File("#test/work/python-results.txt").abspath
         pytest_outfile = File("#test/work/pytest.xml").abspath
         """Scons Action to run a test script using the specified interpreter"""
         workDir = Dir('#test/work').abspath
@@ -131,8 +130,6 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
         test_results.tests.pop(passedFile.name, None)
         if not os.path.isdir(workDir):
             os.mkdir(workDir)
-        if os.path.exists(unittest_outfile):
-            os.remove(unittest_outfile)
         if os.path.exists(pytest_outfile):
             os.remove(pytest_outfile)
 
@@ -163,16 +160,7 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
             sys.exit(1)
 
         failures = 0
-        if os.path.exists(unittest_outfile):
-            # Determine individual test status
-            for line in open(outfile):
-                status, name = line.strip().split(': ', 1)
-                if status == 'PASS':
-                    test_results.passed[':'.join((testname,name))] = 1
-                elif status in ('FAIL', 'ERROR'):
-                    test_results.failed[':'.join((testname,name))] = 1
-                    failures += 1
-        elif os.path.exists(pytest_outfile):
+        if os.path.exists(pytest_outfile):
             results = ElementTree.parse(pytest_outfile)
             for test in results.findall('.//testcase'):
                 class_name = test.get('classname')
@@ -309,7 +297,6 @@ if localenv['python_package'] == 'full':
             name, 'python', 'runCythonTests.py',
             args=subset,
             interpreter='$python_cmd',
-            outfile=File('#test/work/python-results.txt').abspath,
             dependencies=(localenv['python_module'] + localenv['python_extension'] +
                           multi_glob(localenv, test_root, 'py')),
             optional=bool(subset))
