@@ -155,7 +155,7 @@ public:
         R[m_rxn] -= S[m_ic0];
     }
 
-    void resizeCoeffs(const std::map<std::pair<int, int>, size_t>& indices)
+    void resizeCoeffs(const std::map<std::pair<size_t, size_t>, size_t>& indices)
     {
         m_jc0 = indices.at({m_rxn, m_ic0});
     }
@@ -217,7 +217,7 @@ public:
         R[m_rxn] -= (S[m_ic0] + S[m_ic1]);
     }
 
-    void resizeCoeffs(const std::map<std::pair<int, int>, size_t>& indices)
+    void resizeCoeffs(const std::map<std::pair<size_t, size_t>, size_t>& indices)
     {
         m_jc0 = indices.at({m_rxn, m_ic0});
         m_jc1 = indices.at({m_rxn, m_ic1});
@@ -288,7 +288,7 @@ public:
         R[m_rxn] -= (S[m_ic0] + S[m_ic1] + S[m_ic2]);
     }
 
-    void resizeCoeffs(const std::map<std::pair<int, int>, size_t>& indices)
+    void resizeCoeffs(const std::map<std::pair<size_t, size_t>, size_t>& indices)
     {
         m_jc0 = indices.at({m_rxn, m_ic0});
         m_jc1 = indices.at({m_rxn, m_ic1});
@@ -395,7 +395,7 @@ public:
         }
     }
 
-    void resizeCoeffs(const std::map<std::pair<int, int>, size_t>& indices)
+    void resizeCoeffs(const std::map<std::pair<size_t, size_t>, size_t>& indices)
     {
         for (size_t i = 0; i < m_n; i++) {
             m_jc[i] = indices.at({m_rxn, m_ic[i]});
@@ -477,7 +477,7 @@ private:
      */
     vector_fp m_stoich;
 
-    vector_int m_jc; //!< Indices in derivative triplet vector
+    std::vector<size_t> m_jc; //!< Indices in derivative triplet vector
 
     double m_sum_order; //!< Sum of reaction order vector
 };
@@ -635,11 +635,12 @@ public:
         m_values.resize(nCoeffs, 0.);
 
         // Set up index pairs for derivatives
-        std::map<std::pair<int, int>, size_t> indices;
+        std::map<std::pair<size_t, size_t>, size_t> indices;
         size_t n = 0;
         for (int i = 0; i < tmp.outerSize(); i++) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(tmp, i); it; ++it) {
-                indices[{it.row(), it.col()}] = n++;
+                indices[{static_cast<size_t>(it.row()),
+                    static_cast<size_t>(it.col())}] = n++;
             }
         }
         // update reaction setup
@@ -695,7 +696,8 @@ public:
         }
         bool frac = false;
         for (size_t n = 0; n < stoich.size(); n++) {
-            m_coeffList.emplace_back(k[n], rxn, stoich[n]);
+            m_coeffList.emplace_back(
+                static_cast<int>(k[n]), static_cast<int>(rxn), stoich[n]);
             if (fmod(stoich[n], 1.0) || stoich[n] != order[n]) {
                 frac = true;
             }
