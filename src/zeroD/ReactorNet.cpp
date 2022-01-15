@@ -268,17 +268,17 @@ void ReactorNet::eval(doublereal t, doublereal* y,
                     "Reactor time derivative evaluation now uses signature "
                     "eval(double t, double* ydot)");
                 m_have_deprecated_eval[n] = true;
-            } catch (NotImplementedError& err) {
+            } catch (NotImplementedError&) {
                 m_reactors[n]->eval(t, m_LHS.data() + m_start[n], m_RHS.data() + m_start[n]);
-                int yEnd = 0;
-                if(n == m_reactors.size()-1){
+                size_t yEnd = 0;
+                if (n == m_reactors.size() - 1) {
                     yEnd = m_RHS.size();
                 } else {
-                    yEnd = m_start[n+1];
+                    yEnd = m_start[n + 1];
                 }
-                    for (int i = m_start[n]; i < yEnd; i++) {
-                     ydot[i] = m_RHS[i]/m_LHS[i];
-                    }
+                for (size_t i = m_start[n]; i < yEnd; i++) {
+                    ydot[i] = m_RHS[i] / m_LHS[i];
+                }
             }
             m_reactors[n]->resetSensitivity(p);
         }
@@ -290,15 +290,15 @@ void ReactorNet::eval(doublereal t, doublereal* y,
                 m_reactors[n]->evalEqs(t, y + m_start[n], ydot + m_start[n], p);
             } else {
                 m_reactors[n]->eval(t, m_LHS.data() + m_start[n], m_RHS.data() + m_start[n]);
-                    int yEnd = 0;
-                if (n == m_reactors.size()-1) {
+                size_t yEnd = 0;
+                if (n == m_reactors.size() - 1) {
                     yEnd = m_RHS.size();
                 } else {
-                    yEnd = m_start[n+1];
+                    yEnd = m_start[n + 1];
                 }
-                    for (int i = m_start[n]; i < yEnd; i++) {
-                        ydot[i] = m_RHS[i]/m_LHS[i];
-                    }
+                for (size_t i = m_start[n]; i < yEnd; i++) {
+                    ydot[i] = m_RHS[i] / m_LHS[i];
+                }
             }
             m_reactors[n]->resetSensitivity(p);
         }
