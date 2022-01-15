@@ -327,8 +327,8 @@ class RateExpressionTests:
 
     def test_creation_ddX(self):
         # check derivatives of creation rates with respect to mole fractions
-        drate = self.gas.creation_rate_ddX
-        dratep = self.gas.creation_rate_ddP
+        drate = self.gas.creation_rates_ddX
+        dratep = self.gas.creation_rates_ddP
         for spc_ix in self.rix + self.pix:
             drate_num = self.rate_ddX(spc_ix, "creation")
             ix = drate[:, spc_ix] != 0
@@ -337,8 +337,8 @@ class RateExpressionTests:
 
     def test_destruction_ddX(self):
         # check derivatives of destruction rates with respect to mole fractions
-        drate = self.gas.destruction_rate_ddX
-        dratep = self.gas.destruction_rate_ddP
+        drate = self.gas.destruction_rates_ddX
+        dratep = self.gas.destruction_rates_ddP
         for spc_ix in self.rix + self.pix:
             drate_num = self.rate_ddX(spc_ix, "destruction")
             ix = drate[:, spc_ix] != 0
@@ -347,8 +347,8 @@ class RateExpressionTests:
 
     def test_net_production_ddX(self):
         # check derivatives of destruction rates with respect to mole fractions
-        drate = self.gas.net_production_rate_ddX
-        dratep = self.gas.net_production_rate_ddP
+        drate = self.gas.net_production_rates_ddX
+        dratep = self.gas.net_production_rates_ddP
         for spc_ix in self.rix + self.pix:
             drate_num = self.rate_ddX(spc_ix, "net")
             ix = drate[:, spc_ix] != 0
