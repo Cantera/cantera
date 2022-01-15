@@ -623,7 +623,7 @@ cdef class Kinetics(_SolutionBase):
                 return _scipy_sparse.csc_matrix(tup, shape=shape)
             return get_dense(self, kin_netRatesOfProgress_ddX)
 
-    property creation_rate_ddT:
+    property creation_rates_ddT:
         """
         Calculate derivatives of species creation rates with respect to temperature
         at constant pressure, molar concentration and mole fractions.
@@ -631,7 +631,7 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_species_array(self, kin_getCreationRates_ddT)
 
-    property creation_rate_ddP:
+    property creation_rates_ddP:
         """
         Calculate derivatives of species creation rates with respect to pressure
         at constant temperature, molar concentration and mole fractions.
@@ -639,7 +639,7 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_species_array(self, kin_getCreationRates_ddP)
 
-    property creation_rate_ddC:
+    property creation_rates_ddC:
         """
         Calculate derivatives of species creation rates with respect to molar
         concentration at constant temperature, pressure and mole fractions.
@@ -647,7 +647,7 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_species_array(self, kin_getCreationRates_ddC)
 
-    property creation_rate_ddX:
+    property creation_rates_ddX:
         """
         Calculate derivatives for species creation rates with respect to species
         concentrations at constant temperature, pressure and molar concentration.
@@ -663,7 +663,7 @@ cdef class Kinetics(_SolutionBase):
                 return _scipy_sparse.csc_matrix(tup, shape=shape)
             return get_dense(self, kin_creationRates_ddX)
 
-    property destruction_rate_ddT:
+    property destruction_rates_ddT:
         """
         Calculate derivatives of species destruction rates with respect to temperature
         at constant pressure, molar concentration and mole fractions.
@@ -671,7 +671,7 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_species_array(self, kin_getDestructionRates_ddT)
 
-    property destruction_rate_ddP:
+    property destruction_rates_ddP:
         """
         Calculate derivatives of species destruction rates with respect to pressure
         at constant temperature, molar concentration and mole fractions.
@@ -679,7 +679,7 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_species_array(self, kin_getDestructionRates_ddP)
 
-    property destruction_rate_ddC:
+    property destruction_rates_ddC:
         """
         Calculate derivatives of species destruction rates with respect to molar
         concentration at constant temperature, pressure and mole fractions.
@@ -687,7 +687,7 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_species_array(self, kin_getDestructionRates_ddC)
 
-    property destruction_rate_ddX:
+    property destruction_rates_ddX:
         """
         Calculate derivatives for species destruction rates with respect to species
         concentrations at constant temperature, pressure and molar concentration.
@@ -703,7 +703,7 @@ cdef class Kinetics(_SolutionBase):
                 return _scipy_sparse.csc_matrix(tup, shape=shape)
             return get_dense(self, kin_destructionRates_ddX)
 
-    property net_production_rate_ddT:
+    property net_production_rates_ddT:
         """
         Calculate derivatives of species net production rates with respect to
         temperature at constant pressure, molar concentration and mole fractions.
@@ -711,7 +711,7 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_species_array(self, kin_getNetProductionRates_ddT)
 
-    property net_production_rate_ddP:
+    property net_production_rates_ddP:
         """
         Calculate derivatives of species net production rates with respect to pressure
         at constant temperature, molar concentration and mole fractions.
@@ -719,7 +719,7 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_species_array(self, kin_getNetProductionRates_ddP)
 
-    property net_production_rate_ddC:
+    property net_production_rates_ddC:
         """
         Calculate derivatives of species net production rates with respect to molar
         density at constant temperature, pressure and mole fractions.
@@ -727,7 +727,7 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_species_array(self, kin_getNetProductionRates_ddC)
 
-    property net_production_rate_ddX:
+    property net_production_rates_ddX:
         """
         Calculate derivatives for species net production rates with respect to species
         concentrations at constant temperature, pressure and molar concentration.
