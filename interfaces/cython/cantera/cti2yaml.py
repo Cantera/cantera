@@ -1480,9 +1480,12 @@ class ideal_interface(phase):
         self.kinetics = None if kinetics == "None" else kinetics
         self.transport = None if transport == "None" else transport
         self.site_density = site_density
+        self.adjacent_phases = phases.split()
 
     def get_yaml(self, out):
         super().get_yaml(out)
+        if self.adjacent_phases:
+            out['adjacent-phases'] = FlowList(self.adjacent_phases)
         out['site-density'] = applyUnits(self.site_density)
         if _motz_wise is not None:
             out['Motz-Wise'] = _motz_wise

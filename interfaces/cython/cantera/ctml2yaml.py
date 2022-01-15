@@ -457,6 +457,12 @@ class Phase:
             )
         self.attribs["thermo"] = self.thermo_model_mapping[phase_thermo_model]
 
+        phases_text = phase.findtext("phaseArray")
+        if phases_text is not None:
+            adjacent_phases = phases_text.replace("\n", " ").strip().split()
+            if adjacent_phases:
+                self.attribs["adjacent-phases"] = FlowList(adjacent_phases)
+
         if phase_thermo_model == "PureFluid":
             pure_fluid_type = phase_thermo.get("fluid_type")
             if pure_fluid_type is None:
