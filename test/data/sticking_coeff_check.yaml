@@ -13,6 +13,7 @@ phases:
   transport: mixture-averaged
 - name: Pt_surf
   thermo: ideal-surface
+  adjacent-phases: [gas]
   elements: [Pt, H, O, C]
   species: [{Pt-surf-species: all}]
   kinetics: surface

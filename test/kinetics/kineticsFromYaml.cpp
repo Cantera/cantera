@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "cantera/base/Units.h"
 #include "cantera/base/Solution.h"
+#include "cantera/base/Interface.h"
 #include "cantera/kinetics/GasKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/KineticsFactory.h"
@@ -358,11 +359,8 @@ TEST(Kinetics, EfficienciesFromYaml)
 
 TEST(Kinetics, InterfaceKineticsFromYaml)
 {
-    shared_ptr<ThermoPhase> gas(newPhase("surface-phases.yaml", "gas"));
-    shared_ptr<ThermoPhase> surf_tp(newPhase("surface-phases.yaml", "Pt-surf"));
-    shared_ptr<SurfPhase> surf = std::dynamic_pointer_cast<SurfPhase>(surf_tp);
-    auto kin = newKinetics({surf_tp.get(), gas.get()},
-                           "surface-phases.yaml", "Pt-surf");
+    auto soln = newInterface("surface-phases.yaml", "Pt-surf");
+    auto kin = soln->kinetics();
     EXPECT_EQ(kin->nReactions(), (size_t) 3);
     EXPECT_EQ(kin->nTotalSpecies(), (size_t) 6);
     auto R1 = kin->reaction(0);
@@ -383,10 +381,8 @@ TEST(Kinetics, InterfaceKineticsFromYaml)
 
 TEST(Kinetics, BMInterfaceKineticsFromYaml)
 {
-    shared_ptr<ThermoPhase> gas(newPhase("BM_test.yaml", "gas"));
-    shared_ptr<ThermoPhase> surf_tp(newPhase("BM_test.yaml", "Pt_surf"));
-    shared_ptr<SurfPhase> surf = std::dynamic_pointer_cast<SurfPhase>(surf_tp);
-    auto kin = newKinetics({surf_tp.get(), gas.get()}, "BM_test.yaml", "Pt_surf");
+    auto soln = newInterface("BM_test.yaml", "Pt_surf");
+    auto kin = soln->kinetics();
     EXPECT_EQ(kin->nReactions(), (size_t) 6);
     EXPECT_EQ(kin->nTotalSpecies(), (size_t) 14);
     auto R1 = kin->reaction(5);
@@ -407,12 +403,9 @@ TEST(Kinetics, BMInterfaceKineticsFromYaml)
 
 TEST(Kinetics, ElectrochemFromYaml)
 {
-    shared_ptr<ThermoPhase> graphite(newPhase("surface-phases.yaml", "graphite"));
-    shared_ptr<ThermoPhase> electrolyte(newPhase("surface-phases.yaml", "electrolyte"));
-    shared_ptr<ThermoPhase> anode(newPhase("surface-phases.yaml", "anode-surface"));
-    auto kin = newKinetics({anode.get(), graphite.get(), electrolyte.get()},
-                           "surface-phases.yaml", "anode-surface");
-    graphite->setElectricPotential(0.4);
+    auto soln = newInterface("surface-phases.yaml", "anode-surface");
+    auto kin = soln->kinetics();
+    soln->adjacent("graphite")->thermo()->setElectricPotential(0.4);
     vector_fp ropf(kin->nReactions()), ropr(kin->nReactions());
     kin->getFwdRatesOfProgress(ropf.data());
     kin->getRevRatesOfProgress(ropr.data());

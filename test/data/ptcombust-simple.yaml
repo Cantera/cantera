@@ -22,6 +22,7 @@ phases:
     X: {CH4: 0.095, O2: 0.21, N2: 0.79}
 - name: Pt_surf
   thermo: ideal-surface
+  adjacent-phases: [gas]
   elements: [Pt, H, O, C]
   species:
   - ptcombust.yaml/species: all

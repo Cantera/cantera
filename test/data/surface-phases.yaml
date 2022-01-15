@@ -6,6 +6,7 @@ phases:
 
 - name: Pt-surf
   thermo: ideal-surface
+  adjacent-phases: [gas]
   kinetics: surface
   reactions: [Pt-reactions]
   species: [{Pt-surf-species: all}]
@@ -35,6 +36,7 @@ phases:
 
 - name: anode-surface
   thermo: ideal-surface
+  adjacent-phases: [graphite, electrolyte]
   kinetics: surface
   reactions: [graphite-anode-reactions]
   species: [{graphite-anode-species: [(int)]}]

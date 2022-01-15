@@ -28,6 +28,7 @@ phases:
     P: 1.01325e+05
 - name: Pt_surf
   thermo: ideal-surface
+  adjacent-phases: [gas]
   elements: [Pt, H, O, C]
   species: [{Pt-surf-species: all}]
   kinetics: surface
