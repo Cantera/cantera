@@ -177,8 +177,7 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
                     "Saved state '{}' does not contain a domain named '{}'.",
                     id, dom->id());
             }
-            dom->resize(dom->nComponents(),
-                        state[dom->id()]["points"].asDouble());
+            dom->resize(dom->nComponents(), state[dom->id()]["points"].asInt());
         }
         resize();
         m_xlast_ts.clear();
