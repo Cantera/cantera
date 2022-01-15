@@ -9,7 +9,7 @@ surface, see catalytic_combustion.py.) Atomic hydrogen plays an important
 role in diamond CVD, and this example computes the growth rate and surface
 coverages as a function of [H] at the surface for fixed temperature and [CH3].
 
-Requires: cantera >= 2.5.0, pandas >= 0.25.0, matplotlib >= 2.0
+Requires: cantera >= 2.6.0, pandas >= 0.25.0, matplotlib >= 2.0
 """
 
 import csv
@@ -17,11 +17,10 @@ import cantera as ct
 
 print('\n******  CVD Diamond Example  ******\n')
 
-# import the models for the gas and bulk diamond
-g, dbulk = ct.import_phases('diamond.yaml', ['gas', 'diamond'])
-
-# import the model for the diamond (100) surface
-d = ct.Interface('diamond.yaml', 'diamond_100', [g, dbulk])
+# import the model for the diamond (100) surface and the adjacent bulk phases
+d = ct.Interface("diamond.yaml", "diamond_100")
+g = d.adjacent["gas"]
+dbulk = d.adjacent["diamond"]
 
 mw = dbulk.molecular_weights[0]
 

@@ -17,7 +17,7 @@ results.
 It is recommended that you read input file sofc.yaml before reading or running
 this script!
 
-Requires: cantera >= 2.5.0
+Requires: cantera >= 2.6.0
 """
 
 import cantera as ct
@@ -89,20 +89,16 @@ def NewtonSolver(f, xstart, C=0.0):
 # Anode-side phases
 #####################################################################
 
-# import the anode-side bulk phases
-gas_a, anode_bulk, oxide_a = ct.import_phases(
-    'sofc.yaml', ['gas', 'metal', 'oxide_bulk'])
-
-# import the surfaces on the anode side
-anode_surf = ct.Interface('sofc.yaml', 'metal_surface', [gas_a])
-oxide_surf_a = ct.Interface('sofc.yaml', 'oxide_surface', [gas_a, oxide_a])
-
-# import the anode-side triple phase boundary
-tpb_a = ct.Interface('sofc.yaml', 'tpb', [anode_bulk, anode_surf, oxide_surf_a])
+# import the anode-side triple phase boundary and adjacent phases
+tpb_a = ct.Interface("sofc.yaml", "tpb")
+anode_surf = tpb_a.adjacent["metal_surface"]
+oxide_surf_a = tpb_a.adjacent["oxide_surface"]
+anode_bulk = tpb_a.adjacent["metal"]
+oxide_a = oxide_surf_a.adjacent["oxide_bulk"]
+gas_a = oxide_surf_a.adjacent["gas"]
 
 anode_surf.name = 'anode surface'
 oxide_surf_a.name = 'anode-side oxide surface'
-
 
 # this function is defined to use with NewtonSolver to invert the current-
 # voltage function. NewtonSolver requires a function of one variable, so the
@@ -140,16 +136,13 @@ def anode_curr(E):
 # cathode as we used for the anode. In a more realistic simulation, separate
 # models would be used for the cathode, with a different reaction mechanism.
 
-# import the cathode-side bulk phases
-gas_c, cathode_bulk, oxide_c = ct.import_phases(
-    'sofc.yaml', ['gas', 'metal', 'oxide_bulk'])
-
-# import the surfaces on the cathode side
-cathode_surf = ct.Interface('sofc.yaml', 'metal_surface', [gas_c])
-oxide_surf_c = ct.Interface('sofc.yaml', 'oxide_surface', [gas_c, oxide_c])
-
-# import the cathode-side triple phase boundary
-tpb_c = ct.Interface('sofc.yaml', 'tpb', [cathode_bulk, cathode_surf, oxide_surf_c])
+# import the cathode-side triple phase boundary and adjacent phases
+tpb_c = ct.Interface("sofc.yaml", "tpb")
+cathode_surf = tpb_c.adjacent["metal_surface"]
+oxide_surf_c = tpb_c.adjacent["oxide_surface"]
+cathode_bulk = tpb_c.adjacent["metal"]
+oxide_c = oxide_surf_c.adjacent["oxide_bulk"]
+gas_c = oxide_surf_c.adjacent["gas"]
 
 cathode_surf.name = 'cathode surface'
 oxide_surf_c.name = 'cathode-side oxide surface'
