@@ -1952,6 +1952,7 @@ class Parser:
                 phase = BlockMap()
                 phase['name'] = surf.name
                 phase['thermo'] = 'ideal-surface'
+                phase['adjacent-phases'] = FlowList([name])
                 phase['elements'] = FlowList(self.elements)
                 phase['species'] = FlowList(S.label for S in surf.species_list)
                 phase['site-density'] = surf.site_density
