@@ -107,7 +107,8 @@ public:
             m_species.back().push_back(eff.first);
             m_eff.back().push_back(eff.second - default_efficiency);
             m_efficiencyList.emplace_back(
-                rxnNumber, eff.first, eff.second - default_efficiency);
+                static_cast<int>(rxnNumber),
+                static_cast<int>(eff.first), eff.second - default_efficiency);
         }
     }
 
@@ -127,7 +128,9 @@ public:
         for (size_t i = 0; i < m_default.size(); i++) {
             if (m_default[i] != 0) {
                 for (size_t j = 0; j < nSpc; j++) {
-                    triplets.emplace_back(m_reaction_index[i], j, m_default[i]);
+                    triplets.emplace_back(
+                        static_cast<int>(m_reaction_index[i]),
+                        static_cast<int>(j), m_default[i]);
                 }
             }
         }
