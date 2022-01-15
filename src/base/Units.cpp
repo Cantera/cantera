@@ -256,7 +256,7 @@ std::string Units::str(bool skip_unity) const
     std::string num = "";
     std::string den = "";
     for (auto const& dim : dims) {
-        int rounded = round(dim.second);
+        int rounded = (int)round(dim.second);
         if (dim.second == 0.) {
             // skip
         } else if (dim.second == 1.) {

@@ -107,7 +107,7 @@ struct UnitStack
         : stack(units) {}
 
     //! Size of UnitStack
-    int size() const { return stack.size(); }
+    size_t size() const { return stack.size(); }
 
     //! Get standard unit used by UnitStack
     Units standardUnits() const;
