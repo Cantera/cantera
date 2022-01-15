@@ -1,6 +1,7 @@
 #include "cantera/thermo.h"
 #include "cantera/kinetics.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
+#include "cantera/base/Interface.h"
 
 #include <iomanip>
 #include <sstream>
@@ -40,42 +41,28 @@ void printRates(InterfaceKinetics& iKin)
 
 void testProblem()
 {
-    string mech = "stoichSolidKinetics.yaml";
     ss << std::scientific << std::setprecision(3) << std::uppercase;
-    unique_ptr<ThermoPhase> surfTP(newPhase(mech, "reaction_surface"));
-    unique_ptr<ThermoPhase> gasTP(newPhase(mech, "air"));
 
-    unique_ptr<ThermoPhase> cao_s(newPhase(mech, "CaO(S)"));
-    unique_ptr<ThermoPhase> caco3_s(newPhase(mech, "CaCO3(S)"));
-    unique_ptr<ThermoPhase> c_s(newPhase(mech, "C(S)"));
-    unique_ptr<ThermoPhase> fe3o4_s(newPhase(mech, "Fe3O4(S)"));
-    unique_ptr<ThermoPhase> feo_s(newPhase(mech, "FeO(S)"));
-    unique_ptr<ThermoPhase> fe_s(newPhase(mech, "Fe(S)"));
+    shared_ptr<Interface> soln = newInterface("stoichSolidKinetics.yaml",
+                                              "reaction_surface");
 
-    vector<ThermoPhase*> phaseList {
-        gasTP.get(), cao_s.get(), caco3_s.get(), c_s.get(), fe3o4_s.get(),
-        feo_s.get(), fe_s.get(), surfTP.get()
-    };
-    auto kin = newKinetics(phaseList, mech, "reaction_surface");
-    auto& iKin = dynamic_cast<InterfaceKinetics&>(*kin);
-
-    vector_fp mll(gasTP->nSpecies(), 0.0);
-    size_t igco2 = gasTP->speciesIndex("CO2");
-    size_t igo2  = gasTP->speciesIndex("O2");
-    size_t ign2  = gasTP->speciesIndex("N2");
-
-    mll[igco2] = 0.2;
-    mll[igo2] = 0.1;
-    mll[ign2] = 0.7;
+    auto gasTP = soln->adjacent("air")->thermo();
+    auto& iKin = *soln->kinetics();
+    auto cao_s = soln->adjacent("CaO(S)")->thermo();
+    auto caco3_s = soln->adjacent("CaCO3(S)")->thermo();
+    auto c_s = soln->adjacent("C(S)")->thermo();
+    auto fe3o4_s = soln->adjacent("Fe3O4(S)")->thermo();
 
     // Set the bath gas of 1000 K and 1 atm
     double Temp = 1000.;
-    gasTP->setState_TPX(Temp, OneAtm, &mll[0]);
+    gasTP->setState_TPX(Temp, OneAtm, "CO2: 0.2, O2: 0.1, N2: 0.7");
     cao_s->setState_TP(Temp, OneAtm);
     caco3_s->setState_TP(Temp, OneAtm);
     c_s->setState_TP(Temp, OneAtm);
     fe3o4_s->setState_TP(Temp, OneAtm);
-    surfTP->setState_TP(Temp, OneAtm);
+    soln->thermo()->setState_TP(Temp, OneAtm);
+
+    size_t igco2 = gasTP->speciesIndex("CO2");
 
     vector_fp work(gasTP->nSpecies(), 0.0);
 
@@ -150,10 +137,7 @@ void testProblem()
 
         if (ktrials == 0) {
             cout << "*** Setting so that forward rate if faster:" << endl;
-            mll[igco2] = 0.002;
-            mll[igo2] =  0.1;
-            mll[ign2] =  0.898;
-            gasTP->setState_TPX(Temp, OneAtm, &mll[0]);
+            gasTP->setState_TPX(Temp, OneAtm, "CO2: 0.002, O2: 0.1, N2: 0.898");
         }
     }
 }

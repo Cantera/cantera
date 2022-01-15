@@ -11,6 +11,7 @@ phases:
   species:
   - species_ReactingSurf: [empty_site]
   thermo: ideal-surface
+  adjacent-phases: [air, CaO(S), CaCO3(S), C(S), Fe3O4(S), FeO(S), Fe(S)]
   site-density: 3.0e-09 mol/cm^2
   kinetics: surface
   reactions: all
