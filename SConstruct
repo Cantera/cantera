@@ -1080,13 +1080,14 @@ except ValueError:
 
 # Check for yaml-cpp library and checkout submodule if needed
 if env['system_yamlcpp'] in ('y', 'default'):
-    if conf.CheckCXXHeader('yaml-cpp/yaml.h', '""'):
+    # We need the Mark() function, which was added in version 0.5.3
+    if conf.CheckStatement('YAML::Node().Mark()', '#include "yaml-cpp/yaml.h"'):
         env['system_yamlcpp'] = True
         print("""INFO: Using system installation of yaml-cpp library.""")
 
     elif env['system_yamlcpp'] == 'y':
-        config_error('Expected system installation of yaml-cpp library, but it '
-            'could not be found.')
+        config_error("Expected system installation of yaml-cpp library, but it "
+            "could not be found or it is too old (0.6 or newer is required).")
 
 if env['system_yamlcpp'] in ('n', 'default'):
     env['system_yamlcpp'] = False
