@@ -253,7 +253,7 @@ bool isThreeBody(const Reaction& R)
        if (trunc(reac.second) != reac.second) {
            return false;
        }
-       nreac += (size_t)reac.second;
+       nreac += static_cast<size_t>(reac.second);
     }
 
     // ensure that all products have integer stoichiometric coefficients
@@ -262,7 +262,7 @@ bool isThreeBody(const Reaction& R)
        if (trunc(prod.second) != prod.second) {
            return false;
        }
-       nprod += (size_t)prod.second;
+       nprod += static_cast<size_t>(prod.second);
     }
 
     // either reactant or product side involves exactly three species
