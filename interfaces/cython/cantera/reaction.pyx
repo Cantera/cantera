@@ -282,14 +282,14 @@ cdef class TwoTempPlasmaRate(ReactionRate):
     """
     _reaction_rate_type = "two-temperature-plasma"
 
-    def __cinit__(self, A=None, b=None, Ea_gas=None, Ea_electron=None,
+    def __cinit__(self, A=None, b=None, Ea_gas=0.0, Ea_electron=0.0,
             input_data=None, init=True):
         if init:
             if isinstance(input_data, dict):
                 self._rate.reset(new CxxTwoTempPlasmaRate(dict_to_anymap(input_data)))
             elif all([arg is not None for arg in [A, b, Ea_gas, Ea_electron]]):
                 self._rate.reset(new CxxTwoTempPlasmaRate(A, b, Ea_gas, Ea_electron))
-            elif all([arg is None for arg in [A, b, Ea_gas, Ea_electron, input_data]]):
+            elif all([arg is None for arg in [A, b, input_data]]):
                 self._rate.reset(new CxxTwoTempPlasmaRate(dict_to_anymap({})))
             elif input_data:
                 raise TypeError("Invalid parameter 'input_data'")

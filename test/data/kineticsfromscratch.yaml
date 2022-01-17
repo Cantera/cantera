@@ -83,3 +83,6 @@ reactions:
 - equation: O + H => O + H  # Reaction 12
   type: two-temperature-plasma
   rate-constant: {A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol}
+- equation: O + OH => O + OH  # Reaction 13
+  type: two-temperature-plasma
+  rate-constant: {A: 17283, b: -3.1}
