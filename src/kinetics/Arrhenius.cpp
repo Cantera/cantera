@@ -142,8 +142,9 @@ void ArrheniusRate::getParameters(AnyMap& rateNode) const
 
 TwoTempPlasmaRate::TwoTempPlasmaRate()
     : ArrheniusBase()
-    , m_EE_R(NAN)
+    , m_EE_R(0.0)
 {
+    m_Ea_R = 0.0;
     m_Ea_str = "Ea-gas";
 }
 
@@ -151,6 +152,9 @@ TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE)
     : ArrheniusBase(A, b, Ea)
     , m_EE_R(EE  / GasConstant)
 {
+    if (m_Ea_R == NAN) {
+        m_Ea_R = 0.0;
+    }
     m_Ea_str = "Ea-gas";
 }
 
@@ -171,7 +175,7 @@ void TwoTempPlasmaRate::setRateParameters(
         ArrheniusBase::setRateParameters(rate, units, rate_units);
         auto& rate_map = rate.as<AnyMap>();
         // check Ea-gas value. Set to zero in the case of absent.
-        if (m_Ea_R == NAN) {
+        if (isnan(m_Ea_R)) {
             m_Ea_R = 0.0;
         }
         // Get Ea-electron value. If not set it to zero.
@@ -182,14 +186,14 @@ void TwoTempPlasmaRate::setRateParameters(
         }
     } else {
         setRateUnits(rate_units);
-        auto& rate_vec = rate.asVector<AnyValue>(4);
+        auto& rate_vec = rate.asVector<AnyValue>(2,4);
         m_A = units.convert(rate_vec[0], m_rate_units);
         m_b = rate_vec[1].asDouble();
         if (rate_vec.size() == 4) {
             m_EE_R = units.convertActivationEnergy(rate_vec[3], "K");
             m_Ea_R = units.convertActivationEnergy(rate_vec[2], "K");
         } else if (rate_vec.size() == 3) {
-            m_Ea_R = 0.0;
+            m_EE_R = 0.0;
             m_Ea_R = units.convertActivationEnergy(rate_vec[2], "K");
         } else {
             m_Ea_R = 0.0;

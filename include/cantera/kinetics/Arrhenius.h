@@ -229,7 +229,7 @@ public:
      *  @param Ea  Activation energy in energy units [J/kmol]
      *  @param EE  Activation electron energy in energy units [J/kmol]
      */
-    TwoTempPlasmaRate(double A, double b, double Ea, double EE);
+    TwoTempPlasmaRate(double A, double b, double Ea=0.0, double EE=0.0);
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
         return unique_ptr<MultiRateBase>(

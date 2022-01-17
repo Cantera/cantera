@@ -385,6 +385,43 @@ class TestTwoTempPlasmaRate(ReactionRateTests, utilities.CanteraTest):
         self.assertTrue(rate.allow_negative_pre_exponential_factor)
 
 
+class TestTwoTempPlasmaRateShort(ReactionRateTests, utilities.CanteraTest):
+    # test TwoTempPlasma rate expressions
+
+    _cls = ct.TwoTempPlasmaRate
+    _type = "two-temperature-plasma"
+    _index = 12
+    _input = {"rate-constant": {"A": 17283, "b": -3.1, "Ea-gas": 0.0, "Ea-electron": 0.0}}
+    _yaml = """
+        type: two-temperature-plasma
+        rate-constant: {A: 17283, b: -3.1, Ea-gas: 0.0 J/mol, Ea-electron: 0.0 J/mol}
+        """
+
+    @classmethod
+    def setUpClass(cls):
+        ReactionRateTests.setUpClass()
+        cls._parts = {key.replace("-", "_"): value for key, value in cls._input["rate-constant"].items()}
+
+    def eval(self, rate):
+        # check evaluation as a function of temperature and electron temperature
+        return rate(self.gas.T, self.gas.Te)
+
+    def test_from_parts(self):
+        rate = self.from_parts()
+        self.assertEqual(self._parts["A"], rate.pre_exponential_factor)
+        self.assertEqual(self._parts["b"], rate.temperature_exponent)
+        self.assertAlmostEqual(self._parts["Ea_gas"], rate.activation_energy)
+        self.assertAlmostEqual(self._parts["Ea_electron"], rate.activation_electron_energy)
+        self.check_rate(rate)
+
+    def test_negative_A(self):
+        # test reaction rate property
+        rate = self.from_parts()
+        self.assertFalse(rate.allow_negative_pre_exponential_factor)
+        rate.allow_negative_pre_exponential_factor = True
+        self.assertTrue(rate.allow_negative_pre_exponential_factor)
+
+
 class FalloffRateTests(ReactionRateTests):
     # test Falloff rate expressions
     _n_data = [0] # list of valid falloff coefficient array lengths
