@@ -126,8 +126,6 @@ for f in (multi_glob(localenv, 'cantera', 'py') +
 if localenv['python_prefix'] == 'USER':
     # Install to the OS-dependent user site-packages directory
     extra = '--user'
-    if localenv['OS'] == 'Darwin':
-        extra += ' --prefix=""'
 elif localenv['python_prefix']:
     # A specific location for the Cantera python module has been given
     if localenv['debian'] and localenv.subst('${python_prefix}') == '/usr/local':
