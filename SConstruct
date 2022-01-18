@@ -854,6 +854,7 @@ env['cantera_short_version'] = re.match(r'(\d+\.\d+)', env['cantera_version']).g
 
 try:
     env["git_commit"] = get_command_output("git", "rev-parse", "--short", "HEAD")
+    logger.info(f"Building Cantera from git commit '{env['git_commit']}'")
 except subprocess.CalledProcessError:
     env["git_commit"] = "unknown"
 
