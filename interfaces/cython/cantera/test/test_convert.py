@@ -544,7 +544,8 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
         with self.assertRaises(SystemExit):
             ck2yaml.main([
                 f"--input={self.test_data_path}/undeclared-duplicate-reactions.inp",
-                f"--thermo={self.test_data_path}/dummy-thermo.dat"])
+                f"--thermo={self.test_data_path}/dummy-thermo.dat",
+                f"--output={self.test_work_path}/undeclared-duplicate-reactions.yaml"])
 
         # Put the original logger back in place
         logger.handlers.clear()
