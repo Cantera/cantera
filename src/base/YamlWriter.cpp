@@ -56,7 +56,7 @@ std::string YamlWriter::toYamlString() const
     }
     output["generator"] = "YamlWriter";
     output["cantera-version"] = CANTERA_VERSION;
-    output["git-commit"] = gitCommit();
+    output["git-commit"] = CANTERA_GIT_COMMIT;
     time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     output["date"] = trimCopy(std::ctime(&now));
     if (hasDescription) {

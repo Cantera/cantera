@@ -1478,7 +1478,7 @@ extern "C" {
     int ct_getGitCommit(int buflen, char* buf)
     {
         try {
-            return static_cast<int>(copyString(gitCommit(), buf, buflen));
+            return static_cast<int>(copyString(CANTERA_GIT_COMMIT, buf, buflen));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

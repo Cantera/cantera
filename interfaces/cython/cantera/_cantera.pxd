@@ -179,7 +179,6 @@ cdef extern from "cantera/base/global.h" namespace "Cantera":
     cdef void Cxx_suppress_deprecation_warnings "Cantera::suppress_deprecation_warnings" ()
     cdef void Cxx_suppress_thermo_warnings "Cantera::suppress_thermo_warnings" (cbool)
     cdef void Cxx_use_legacy_rate_constants "Cantera::use_legacy_rate_constants" (cbool)
-    cdef string CxxGitCommit "Cantera::gitCommit" ()
     cdef cbool CxxDebugModeEnabled "Cantera::debugModeEnabled" ()
 
 cdef extern from "<memory>":
@@ -1207,6 +1206,7 @@ cdef extern from "cantera/kinetics/ReactionPath.h":
 cdef extern from "cantera/cython/wrappers.h":
     # config definitions
     cdef string get_cantera_version()
+    cdef string get_cantera_git_commit()
     cdef int get_sundials_version()
 
     cdef cppclass CxxPythonLogger "PythonLogger":

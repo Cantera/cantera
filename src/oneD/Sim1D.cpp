@@ -118,7 +118,7 @@ void Sim1D::save(const std::string& fname, const std::string& id,
     data[id]["description"] = desc;
     data[id]["generator"] = "Cantera Sim1D";
     data[id]["cantera-version"] = CANTERA_VERSION;
-    data[id]["git-commit"] = gitCommit();
+    data[id]["git-commit"] = CANTERA_GIT_COMMIT;
 
     // Add a timestamp indicating the current time
     time_t aclock;

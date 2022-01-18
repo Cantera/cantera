@@ -129,6 +129,8 @@ void thread_complete()
 
 std::string gitCommit()
 {
+    warn_deprecated("gitCommit",
+        "Replaced by 'CANTERA_GIT_COMMIT'. To be removed after Cantera 2.6.");
     return CANTERA_GIT_COMMIT;
 }
 

@@ -15,6 +15,11 @@ std::string get_cantera_version()
     return std::string(CANTERA_VERSION);
 }
 
+std::string get_cantera_git_commit()
+{
+    return std::string(CANTERA_GIT_COMMIT);
+}
+
 int get_sundials_version()
 {
     return CT_SUNDIALS_VERSION;

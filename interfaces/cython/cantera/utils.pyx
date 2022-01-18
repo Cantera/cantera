@@ -42,7 +42,7 @@ __sundials_version__ = '.'.join(str(get_sundials_version()))
 
 __version__ = pystr(get_cantera_version())
 
-__git_commit__ = pystr(CxxGitCommit())
+__git_commit__ = pystr(get_cantera_git_commit())
 
 _USE_SPARSE = False
 

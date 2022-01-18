@@ -106,6 +106,7 @@ void appdelete();
 void thread_complete();
 
 //! Returns the hash of the git commit from which Cantera was compiled, if known
+//! @deprecated Replaced by CANTERA_GIT_COMMIT. To be removed after Cantera 2.6.
 std::string gitCommit();
 
 //! Returns root directory where %Cantera is installed
