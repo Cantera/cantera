@@ -1745,7 +1745,6 @@ if 'msi' in COMMAND_LINE_TARGETS:
     COMMAND_LINE_TARGETS.append('install')
     env['stage_dir'] = 'stage'
     env['prefix'] = '.'
-    env['PYTHON_INSTALLER'] = 'binary'
 elif env['layout'] == 'debian':
     COMMAND_LINE_TARGETS.append('install')
     env['stage_dir'] = 'stage/cantera'
