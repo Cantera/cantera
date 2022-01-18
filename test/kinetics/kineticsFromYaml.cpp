@@ -261,7 +261,7 @@ TEST(Reaction, ChebyshevFromYaml)
     EXPECT_EQ(rate->data().nColumns(), (size_t) 4);
     EXPECT_DOUBLE_EQ(rate->Tmax(), 3000);
     EXPECT_DOUBLE_EQ(rate->Pmin(), 1000);
-    EXPECT_NEAR(rate->updateRC(std::log(T), 1.0/T), 130512.2773948636, 1e-9);
+    EXPECT_NEAR(rate->updateRC(std::log(T), 1.0/T), 130512.2773948636, 2e-9);
 }
 
 TEST(Reaction, BlowersMaselFromYaml)
