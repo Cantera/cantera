@@ -1994,7 +1994,8 @@ VariantDir('build/src', 'src', duplicate=0)
 SConscript('build/src/SConscript')
 
 if env['python_package'] == 'full':
-    SConscript('interfaces/cython/SConscript')
+    VariantDir("build/python", "interfaces/cython", duplicate=True)
+    SConscript('build/python/SConscript')
 elif env['python_package'] == 'minimal':
     SConscript('interfaces/python_minimal/SConscript')
 
