@@ -368,20 +368,20 @@ public:
         kin.getRevRateConstants(k.data());
         kin_ref->getRevRateConstants(k_ref.data());
         for (size_t i = 0; i < kin.nReactions(); i++) {
-            EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
+            EXPECT_NEAR(k_ref[i], k[i], k_ref[i]*1e-12) << "i = " << i << "; N = " << N;
         }
 
         kin.getRevRatesOfProgress(k.data());
         kin_ref->getRevRatesOfProgress(k_ref.data());
         for (size_t i = 0; i < kin.nReactions(); i++) {
-            EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
+            EXPECT_NEAR(k_ref[i], k[i], k_ref[i]*1e-12) << "i = " << i << "; N = " << N;
         }
 
         kin.getCreationRates(w.data());
         kin_ref->getCreationRates(w_ref.data());
         for (size_t i = 0; i < kin.nTotalSpecies(); i++) {
             size_t iref = p_ref.speciesIndex(p.speciesName(i));
-            EXPECT_DOUBLE_EQ(w_ref[iref], w[i]) << "sp = " << p.speciesName(i) << "; N = " << N;
+            EXPECT_NEAR(w_ref[iref], w[i], w_ref[i]*1e-12) << "sp = " << p.speciesName(i) << "; N = " << N;
         }
     }
 };
