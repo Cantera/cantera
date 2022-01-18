@@ -35,6 +35,17 @@ class TestThermoPhase(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, "Key 'phases' not found"):
             _ = ct.Solution(yaml=yaml)
 
+    def test_deprecated_phase(self):
+        yaml = """
+        phases:
+        - name: phasename
+          thermo: ideal-gas
+          species: [{h2o2.yaml/species: all}]
+          deprecated: This phase is deprecated because I said so.
+        """
+        with self.assertRaisesRegex(ct.CanteraError, "(?s)phasename.*said so"):
+            ct.Solution(yaml=yaml)
+
     def test_base_attributes(self):
         self.assertIsInstance(self.phase.name, str)
         self.assertIsInstance(self.phase.phase_of_matter, str)
