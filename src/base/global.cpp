@@ -129,11 +129,7 @@ void thread_complete()
 
 std::string gitCommit()
 {
-#ifdef GIT_COMMIT
-    return GIT_COMMIT;
-#else
-    return "unknown";
-#endif
+    return CANTERA_GIT_COMMIT;
 }
 
 XML_Node* get_XML_File(const std::string& file, int debug)

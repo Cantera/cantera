@@ -8,6 +8,9 @@
 // Just the major + minor version (i.e. 2.2 instead of 2.2.0)
 {CANTERA_SHORT_VERSION!s}
 
+// Cantera git commit hash from which Cantera was compiled
+{CANTERA_GIT_COMMIT!s}
+
 //------------------------ Fortran settings -------------------//
 
 // define types doublereal, integer, and ftnlen to match the
