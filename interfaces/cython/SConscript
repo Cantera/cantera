@@ -127,12 +127,10 @@ if localenv['python_prefix'] == 'USER':
     # Install to the OS-dependent user site-packages directory
     extra = '--user'
 elif localenv['python_prefix']:
-    # A specific location for the Cantera python module has been given
+    # A specific location for the Cantera Python module has been given
     if localenv['debian'] and localenv.subst('${python_prefix}') == '/usr/local':
         # Installation to /usr/local is the default on Debian-based distributions
         extra = ''
-    elif localenv['OS'] == 'Darwin':
-        extra = localenv.subst(' --prefix=${python_prefix}')
     elif localenv['libdirname'] != 'lib':
         # 64-bit RHEL / Fedora etc. or e.g. x32 Gentoo profile
         extra = localenv.subst(
