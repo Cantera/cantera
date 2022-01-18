@@ -174,7 +174,3 @@ elif localenv['PYTHON_INSTALLER'] == 'debian':
     extra = localenv.subst(' --root=${python_prefix}')
     install(localenv.Command, 'dummy', mod,
             build_cmd + ' install --install-layout=deb --no-compile ' + extra)
-elif localenv['PYTHON_INSTALLER'] == 'binary':
-    install(localenv.Command, 'dummy', mod,
-            build_cmd + ' bdist_msi --dist-dir=../..' +
-            ' --target-version=' + py_version_short)
