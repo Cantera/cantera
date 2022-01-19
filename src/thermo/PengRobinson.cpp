@@ -11,7 +11,6 @@
 
 #include <boost/math/tools/roots.hpp>
 
-using namespace std;
 namespace bmt = boost::math::tools;
 
 namespace Cantera
@@ -29,11 +28,12 @@ PengRobinson::PengRobinson(const std::string& infile, const std::string& id_) :
     m_dpdV(0.0),
     m_dpdT(0.0)
 {
-    fill_n(m_Vroot, 3, 0.0);
+    std::fill_n(m_Vroot, 3, 0.0);
     initThermoFile(infile, id_);
 }
 
-void PengRobinson::setSpeciesCoeffs(const std::string& species, double a, double b, double w)
+void PengRobinson::setSpeciesCoeffs(const std::string& species, double a, double b,
+                                    double w)
 {
     size_t k = speciesIndex(species);
     if (k == npos) {
@@ -49,8 +49,8 @@ void PengRobinson::setSpeciesCoeffs(const std::string& species, double a, double
         m_kappa[k] = 0.374642 + 1.487503*w - 0.164423*w*w + 0.016666*w*w*w;
     }
 
-    //Calculate alpha (temperature dependent interaction parameter)
-    double critTemp = speciesCritTemperature(a, b); // critical temperature of individual species
+    // Calculate alpha (temperature dependent interaction parameter)
+    double critTemp = speciesCritTemperature(a, b);
     double sqt_T_r = sqrt(temperature() / critTemp);
     double sqt_alpha = 1 + m_kappa[k] * (1 - sqt_T_r);
     m_alpha[k] = sqt_alpha*sqt_alpha;
@@ -124,12 +124,11 @@ double PengRobinson::cv_mole() const
 double PengRobinson::pressure() const
 {
     _updateReferenceStateThermo();
-    //  Get a copy of the private variables stored in the State object
+    // Get a copy of the private variables stored in the State object
     double T = temperature();
     double mv = molarVolume();
     double denom = mv * mv + 2 * mv * m_b - m_b * m_b;
-    double pp = GasConstant * T / (mv - m_b) - m_aAlpha_mix / denom;
-    return pp;
+    return GasConstant * T / (mv - m_b) - m_aAlpha_mix / denom;
 }
 
 double PengRobinson::standardConcentration(size_t k) const
@@ -155,17 +154,17 @@ void PengRobinson::getActivityCoefficients(double* ac) const
     double num = 0;
     double denom = 2 * Sqrt2 * m_b * m_b;
     double denom2 = m_b * (mv * mv + 2 * mv * m_b - m_b * m_b);
-    double RTkelvin = RT();
+    double RT_ = RT();
     for (size_t k = 0; k < m_kk; k++) {
         num = 2 * m_b * m_pp[k] - m_aAlpha_mix * m_b_coeffs[k];
-        ac[k] = (-RTkelvin * log(pres * mv/ RTkelvin) + RTkelvin * log(mv / vmb)
-                 + RTkelvin * m_b_coeffs[k] / vmb
+        ac[k] = (-RT_ * log(pres * mv/ RT_) + RT_ * log(mv / vmb)
+                 + RT_ * m_b_coeffs[k] / vmb
                  - (num /denom) * log(vpb2/vmb2)
                  - m_aAlpha_mix * m_b_coeffs[k] * mv/denom2
                 );
     }
     for (size_t k = 0; k < m_kk; k++) {
-        ac[k] = exp(ac[k]/ RTkelvin);
+        ac[k] = exp(ac[k]/ RT_);
     }
 }
 
@@ -174,10 +173,10 @@ void PengRobinson::getActivityCoefficients(double* ac) const
 void PengRobinson::getChemPotentials(double* mu) const
 {
     getGibbs_ref(mu);
-    double RTkelvin = RT();
+    double RT_ = RT();
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
-        mu[k] += RTkelvin * (log(xx));
+        mu[k] += RT_ * (log(xx));
     }
 
     double mv = molarVolume();
@@ -199,12 +198,10 @@ void PengRobinson::getChemPotentials(double* mu) const
     for (size_t k = 0; k < m_kk; k++) {
         double num = 2 * m_b * m_pp[k] - m_aAlpha_mix * m_b_coeffs[k];
 
-        mu[k] += (RTkelvin * log(pres/refP) - RTkelvin * log(pres * mv / RTkelvin)
-                  + RTkelvin * log(mv / vmb)
-                  + RTkelvin * m_b_coeffs[k] / vmb
-                  - (num /denom) * log(vpb2/vmb2)
-                  - m_aAlpha_mix * m_b_coeffs[k] * mv/denom2
-                 );
+        mu[k] += RT_ * log(pres/refP) - RT_ * log(pres * mv / RT_)
+                 + RT_ * log(mv / vmb) + RT_ * m_b_coeffs[k] / vmb
+                 - (num /denom) * log(vpb2/vmb2)
+                 - m_aAlpha_mix * m_b_coeffs[k] * mv/denom2;
     }
 }
 
@@ -236,10 +233,10 @@ void PengRobinson::getPartialMolarEnthalpies(double* hbar) const
 
     double denom = mv * mv + 2 * mv * m_b - m_b * m_b;
     double denom2 = denom * denom;
-    double RTkelvin = RT();
+    double RT_ = RT();
     for (size_t k = 0; k < m_kk; k++) {
-        m_dpdni[k] = RTkelvin / vmb + RTkelvin * m_b_coeffs[k] / (vmb * vmb) - 2.0 * m_pp[k] / denom
-                    + 2 * vmb * m_aAlpha_mix * m_b_coeffs[k] / denom2;
+        m_dpdni[k] = RT_ / vmb + RT_ * m_b_coeffs[k] / (vmb * vmb)
+            - 2.0 * m_pp[k] / denom + 2 * vmb * m_aAlpha_mix * m_b_coeffs[k] / denom2;
     }
 
     double fac = T * daAlphadT - m_aAlpha_mix;
@@ -249,9 +246,10 @@ void PengRobinson::getPartialMolarEnthalpies(double* hbar) const
     double fac4 = 0;
     for (size_t k = 0; k < m_kk; k++) {
         fac4 = T*tmp[k] -2 * m_pp[k];
-        double hE_v = mv * m_dpdni[k] - RTkelvin - m_b_coeffs[k] / fac3  * log(vpb2 / vmb2) * fac
-                     + (mv * m_b_coeffs[k]) /(m_b * denom) * fac
-                     + 1/(2 * Sqrt2 * m_b) * log(vpb2 / vmb2) * fac4;
+        double hE_v = mv * m_dpdni[k] - RT_
+                     - m_b_coeffs[k] / fac3 * log(vpb2 / vmb2) * fac
+                     + (mv * m_b_coeffs[k]) / (m_b * denom) * fac
+                     + 1 / (2 * Sqrt2 * m_b) * log(vpb2 / vmb2) * fac4;
         hbar[k] = hbar[k] + hE_v;
         hbar[k] -= fac2 * m_dpdni[k];
     }
@@ -298,18 +296,14 @@ void PengRobinson::getPartialMolarVolumes(double* vbar) const
     double vpb = mv + m_b;
     double fac = mv * mv + 2 * mv * m_b - m_b * m_b;
     double fac2 = fac * fac;
-    double RTkelvin = RT();
+    double RT_ = RT();
 
     for (size_t k = 0; k < m_kk; k++) {
-        double num = (RTkelvin + RTkelvin * m_b/ vmb + RTkelvin * m_b_coeffs[k] / vmb
-                      + RTkelvin * m_b * m_b_coeffs[k] /(vmb * vmb)
-                      - 2 * mv * m_pp[k] / fac
-                      + 2 * mv * vmb * m_aAlpha_mix * m_b_coeffs[k] / fac2
-                     );
-        double denom = (pressure() + RTkelvin * m_b / (vmb * vmb)
-                        + m_aAlpha_mix/fac
-                        - 2 * mv* vpb * m_aAlpha_mix / fac2
-                       );
+        double num = RT_ + RT_ * m_b/ vmb + RT_ * m_b_coeffs[k] / vmb
+                     + RT_ * m_b * m_b_coeffs[k] /(vmb * vmb) - 2 * mv * m_pp[k] / fac
+                     + 2 * mv * vmb * m_aAlpha_mix * m_b_coeffs[k] / fac2;
+        double denom = pressure() + RT_ * m_b / (vmb * vmb) + m_aAlpha_mix/fac
+                       - 2 * mv* vpb * m_aAlpha_mix / fac2;
         vbar[k] = num / denom;
     }
 }
@@ -333,11 +327,9 @@ bool PengRobinson::addSpecies(shared_ptr<Species> spec)
         m_b_coeffs.push_back(0.0);
         m_aAlpha_binary.resize(m_kk, m_kk, 0.0);
         m_kappa.push_back(0.0);
-
         m_alpha.push_back(0.0);
         m_dalphadT.push_back(0.0);
         m_d2alphadT2.push_back(0.0);
-
         m_pp.push_back(0.0);
         m_partialMolarVolumes.push_back(0.0);
         m_dpdni.push_back(0.0);
@@ -450,15 +442,14 @@ double PengRobinson::hresid() const
     double vpb = molarV + (1 + Sqrt2) * m_b;
     double vmb = molarV + (1 - Sqrt2) * m_b;
     double fac = 1 / (2.0 * Sqrt2 * m_b);
-    return GasConstant * T * (zz - 1.0) + fac * log(vpb / vmb) * (T * aAlpha_1 - m_aAlpha_mix);
+    return GasConstant * T * (zz - 1.0)
+        + fac * log(vpb / vmb) * (T * aAlpha_1 - m_aAlpha_mix);
 }
 
 double PengRobinson::liquidVolEst(double T, double& presGuess) const
 {
     double v = m_b * 1.1;
-    double atmp;
-    double btmp;
-    double aAlphatmp;
+    double atmp, btmp, aAlphatmp;
     calculateAB(atmp, btmp, aAlphatmp);
     double pres = std::max(psatEst(T), presGuess);
     double Vroot[3];
@@ -486,7 +477,8 @@ double PengRobinson::liquidVolEst(double T, double& presGuess) const
     return v;
 }
 
-double PengRobinson::densityCalc(double T, double presPa, int phaseRequested, double rhoGuess)
+double PengRobinson::densityCalc(double T, double presPa, int phaseRequested,
+                                 double rhoGuess)
 {
     // It's necessary to set the temperature so that m_aAlpha_mix is set correctly.
     setTemperature(T);
@@ -519,13 +511,17 @@ double PengRobinson::densityCalc(double T, double presPa, int phaseRequested, do
             }
         }
     } else if (m_NSolns == 1) {
-        if (phaseRequested == FLUID_GAS || phaseRequested == FLUID_SUPERCRIT || phaseRequested == FLUID_UNDEFINED) {
+        if (phaseRequested == FLUID_GAS || phaseRequested == FLUID_SUPERCRIT
+            || phaseRequested == FLUID_UNDEFINED)
+        {
             molarVolLast = m_Vroot[0];
         } else {
             return -2.0;
         }
     } else if (m_NSolns == -1) {
-        if (phaseRequested >= FLUID_LIQUID_0 || phaseRequested == FLUID_UNDEFINED || phaseRequested == FLUID_SUPERCRIT) {
+        if (phaseRequested >= FLUID_LIQUID_0 || phaseRequested == FLUID_UNDEFINED
+            || phaseRequested == FLUID_SUPERCRIT)
+        {
             molarVolLast = m_Vroot[0];
         } else if (T > tcrit) {
             molarVolLast = m_Vroot[0];
@@ -588,8 +584,7 @@ double PengRobinson::dpdVCalc(double T, double molarVol, double& presCalc) const
     double denom = molarVol * molarVol + 2 * molarVol * m_b - m_b * m_b;
     double vpb = molarVol + m_b;
     double vmb = molarVol - m_b;
-    double dpdv = -GasConstant * T / (vmb * vmb) + 2 * m_aAlpha_mix * vpb / (denom*denom);
-    return dpdv;
+    return -GasConstant * T / (vmb * vmb) + 2 * m_aAlpha_mix * vpb / (denom*denom);
 }
 
 void PengRobinson::calculatePressureDerivatives() const
@@ -615,7 +610,7 @@ void PengRobinson::updateMixingExpressions()
         m_alpha[j] = sqt_alpha*sqt_alpha;
     }
 
-    //Update aAlpha_i, j
+    // Update aAlpha_i, j
     for (size_t i = 0; i < m_kk; i++) {
         for (size_t j = 0; j < m_kk; j++) {
             m_aAlpha_binary(i, j) = sqrt(m_alpha[i] * m_alpha[j]) * m_a_coeffs(i,j);
@@ -644,17 +639,18 @@ double PengRobinson::daAlpha_dT() const
     for (size_t i = 0; i < m_kk; i++) {
         // Calculate first derivative of alpha for individual species
         Tc = speciesCritTemperature(m_a_coeffs(i,i), m_b_coeffs[i]);
-        sqtTr = sqrt(temperature() / Tc); //we need species critical temperature
+        sqtTr = sqrt(temperature() / Tc);
         coeff1 = 1 / (Tc*sqtTr);
         coeff2 = sqtTr - 1;
         k = m_kappa[i];
         m_dalphadT[i] = coeff1 * (k*k*coeff2 - k);
     }
-    //Calculate mixture derivative
+    // Calculate mixture derivative
     for (size_t i = 0; i < m_kk; i++) {
         for (size_t j = 0; j < m_kk; j++) {
-            daAlphadT += moleFractions_[i] * moleFractions_[j] * 0.5 * m_aAlpha_binary(i, j)
-                                             * (m_dalphadT[i] / m_alpha[i] + m_dalphadT[j] / m_alpha[j]);
+            daAlphadT += moleFractions_[i] * moleFractions_[j] * 0.5
+                         * m_aAlpha_binary(i, j)
+                         * (m_dalphadT[i] / m_alpha[i] + m_dalphadT[j] / m_alpha[j]);
         }
     }
     return daAlphadT;
@@ -664,16 +660,16 @@ double PengRobinson::d2aAlpha_dT2() const
 {
     for (size_t i = 0; i < m_kk; i++) {
         double Tcrit_i = speciesCritTemperature(m_a_coeffs(i, i), m_b_coeffs[i]);
-        double sqt_Tr = sqrt(temperature() / Tcrit_i); //we need species critical temperature
+        double sqt_Tr = sqrt(temperature() / Tcrit_i);
         double coeff1 = 1 / (Tcrit_i*sqt_Tr);
         double coeff2 = sqt_Tr - 1;
-        //  Calculate first and second derivatives of alpha for individual species
+        // Calculate first and second derivatives of alpha for individual species
         double k = m_kappa[i];
         m_dalphadT[i] = coeff1 * (k*k*coeff2 - k);
         m_d2alphadT2[i] = (k*k + k) * coeff1 / (2*sqt_Tr*sqt_Tr*Tcrit_i);
     }
 
-    //Calculate mixture derivative
+    // Calculate mixture derivative
     double d2aAlphadT2 = 0.0;
     for (size_t i = 0; i < m_kk; i++) {
         double alphai = m_alpha[i];
@@ -683,8 +679,9 @@ double PengRobinson::d2aAlpha_dT2() const
             double term1 = m_d2alphadT2[i] / alphai + m_d2alphadT2[j] / alphaj;
             double term2 = 2 * m_dalphadT[i] * m_dalphadT[j] / alphaij;
             double term3 = m_dalphadT[i] / alphai + m_dalphadT[j] / alphaj;
-            d2aAlphadT2 += 0.5 * moleFractions_[i] * moleFractions_[j] * m_aAlpha_binary(i, j)
-                                       * (term1 + term2 - 0.5 * term3 * term3);
+            d2aAlphadT2 += 0.5 * moleFractions_[i] * moleFractions_[j]
+                           * m_aAlpha_binary(i, j)
+                           * (term1 + term2 - 0.5 * term3 * term3);
         }
     }
     return d2aAlphadT2;
@@ -709,9 +706,10 @@ void PengRobinson::calcCriticalConditions(double& pc, double& tc, double& vc) co
     vc = omega_vc * GasConstant * tc / pc;
 }
 
-int PengRobinson::solveCubic(double T, double pres, double a, double b, double aAlpha, double Vroot[3]) const
+int PengRobinson::solveCubic(double T, double pres, double a, double b, double aAlpha,
+                             double Vroot[3]) const
 {
-    // Derive the coefficients of the cubic polynomial (in terms of molar volume v) to solve.
+    // Derive the coefficients of the cubic polynomial (in terms of molar volume v)
     double bsqr = b * b;
     double RT_p = GasConstant * T / pres;
     double aAlpha_p = aAlpha / pres;
@@ -724,9 +722,8 @@ int PengRobinson::solveCubic(double T, double pres, double a, double b, double a
     double pc = omega_b * GasConstant * tc / b;
     double vc = omega_vc * GasConstant * tc / pc;
 
-    int nSolnValues = MixtureFugacityTP::solveCubic(T, pres, a, b, aAlpha, Vroot, an, bn, cn, dn, tc, vc);
-
-    return nSolnValues;
+    return MixtureFugacityTP::solveCubic(T, pres, a, b, aAlpha, Vroot,
+                                         an, bn, cn, dn, tc, vc);
 }
 
 }

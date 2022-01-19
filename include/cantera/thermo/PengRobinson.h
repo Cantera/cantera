@@ -52,7 +52,8 @@ public:
      * mechanical equation of state \f$ P(T, \rho, Y_1, \dots, Y_K) \f$.
      *
      * \f[
-     *    P = \frac{RT}{v-b_{mix}} - \frac{\left(\alpha a\right)_{mix}}{v^2 + 2b_{mix}v - b_{mix}^2}
+     *    P = \frac{RT}{v-b_{mix}}
+     *        - \frac{\left(\alpha a\right)_{mix}}{v^2 + 2b_{mix}v - b_{mix}^2}
      * \f]
      *
      * where:
@@ -64,8 +65,11 @@ public:
      *  and
      *
      * \f[
-     *    \kappa = \left(0.37464 + 1.54226\omega - 0.26992\omega^2\right), \qquad \qquad \text{For } \omega <= 0.491 \\
-     *    \kappa = \left(0.379642 + 1.487503\omega - 0.164423\omega^2 +  0.016667\omega^3 \right), \qquad \text{For } \omega > 0.491
+     *    \kappa = \left(0.37464 + 1.54226\omega - 0.26992\omega^2\right),
+     *        \qquad \qquad \text{For } \omega <= 0.491 \\
+     *
+     *    \kappa = \left(0.379642 + 1.487503\omega - 0.164423\omega^2 + 0.016667\omega^3 \right),
+     *        \qquad \text{For } \omega > 0.491
      * \f]
      *
      * Coefficients \f$ a_{mix}, b_{mix} \f$ and \f$(a \alpha)_{mix}\f$ are calculated as
@@ -79,7 +83,8 @@ public:
      * \f]
      *
      * \f[
-     *   {a \alpha}_{mix} = \sum_i \sum_j X_i X_j {a \alpha}_{i, j} = \sum_i \sum_j X_i X_j \sqrt{a_i a_j} \sqrt{\alpha_i \alpha_j}
+     *   {a \alpha}_{mix} = \sum_i \sum_j X_i X_j {a \alpha}_{i, j}
+     *       = \sum_i \sum_j X_i X_j \sqrt{a_i a_j} \sqrt{\alpha_i \alpha_j}
      * \f]
      */
     virtual double pressure() const;
@@ -176,12 +181,12 @@ protected:
     virtual double sresid() const;
     virtual double hresid() const;
 
-    virtual double liquidVolEst(double TKelvin, double& pres) const;
-    virtual double densityCalc(double TKelvin, double pressure, int phase, double rhoguess);
+    virtual double liquidVolEst(double T, double& pres) const;
+    virtual double densityCalc(double T, double pressure, int phase, double rhoguess);
 
     virtual double densSpinodalLiquid() const;
     virtual double densSpinodalGas() const;
-    virtual double dpdVCalc(double TKelvin, double molarVol, double& presCalc) const;
+    virtual double dpdVCalc(double T, double molarVol, double& presCalc) const;
 
     // Special functions not inherited from MixtureFugacityTP
 
@@ -248,16 +253,16 @@ protected:
      */
     double m_aAlpha_mix;
 
-    // Vectors required to store species-specific a_coeff, b_coeff, alpha, kappa and other derivatives.
-    // Length = m_kk
+    // Vectors required to store species-specific a_coeff, b_coeff, alpha, kappa
+    // and other derivatives. Length = m_kk.
     vector_fp m_b_coeffs;
     vector_fp m_kappa;
     mutable vector_fp m_dalphadT;
     mutable vector_fp m_d2alphadT2;
     vector_fp m_alpha;
 
-    // Matrices for Binary coefficients a_{i,j} and {a*alpha}_{i.j} are saved in an Array form.
-    // Length =  (m_kk, m_kk)
+    // Matrices for Binary coefficients a_{i,j} and {a*alpha}_{i.j} are saved in an
+    // array form. Size = (m_kk, m_kk).
     Array2D m_a_coeffs;
     Array2D m_aAlpha_binary;
 
