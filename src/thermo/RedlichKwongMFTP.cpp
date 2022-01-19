@@ -392,7 +392,7 @@ bool RedlichKwongMFTP::addSpecies(shared_ptr<Species> spec)
         a_coeff_vec.resize(2, m_kk * m_kk, NAN);
 
         m_pp.push_back(0.0);
-        m_coeffs_from_db.push_back(false);
+        m_coeffSource.push_back(CoeffSource::EoS);
         m_partialMolarVolumes.push_back(0.0);
         dpdni_.push_back(0.0);
     }
@@ -463,7 +463,7 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
                 if (!isnan(coeffArray[0])) {
                     //Assuming no temperature dependence (i,e a1 = 0)
                     setSpeciesCoeffs(iName, coeffArray[0], 0.0, coeffArray[1]);
-                    m_coeffs_from_db[i] = true;
+                    m_coeffSource[i] = CoeffSource::EoS;
                 }
             }
         }
@@ -506,7 +506,7 @@ void RedlichKwongMFTP::initThermo()
                 double b = eos.convert("b", "m^3/kmol");
                 foundCoeffs = true;
                 setSpeciesCoeffs(item.first, a0, a1, b);
-                m_coeffs_from_db[speciesIndex(item.first)] = false;
+                m_coeffSource[k] = CoeffSource::EoS;
             }
 
             if (eos.hasKey("binary-a")) {
@@ -538,6 +538,7 @@ void RedlichKwongMFTP::initThermo()
             auto& critProps = data["critical-parameters"].as<AnyMap>();
             Tc = critProps.convert("critical-temperature", "K");
             Pc = critProps.convert("critical-pressure", "Pa");
+            m_coeffSource[k] = CoeffSource::CritProps;
         } else {
             // Search 'crit-properties.yaml' to find Tc and Pc. Load data if needed
             if (critPropsDb.empty()) {
@@ -552,7 +553,7 @@ void RedlichKwongMFTP::initThermo()
                 auto& critProps = spec["critical-parameters"].as<AnyMap>();
                 Tc = critProps.convert("critical-temperature", "K");
                 Pc = critProps.convert("critical-pressure", "Pa");
-                m_coeffs_from_db[k] = true;
+                m_coeffSource[k] = CoeffSource::Database;
             }
         }
 
@@ -574,27 +575,34 @@ void RedlichKwongMFTP::getSpeciesParameters(const std::string& name,
     MixtureFugacityTP::getSpeciesParameters(name, speciesNode);
     size_t k = speciesIndex(name);
     checkSpeciesIndex(k);
-    if (m_coeffs_from_db[k]) {
-        // No equation-of-state node is needed, since the coefficients will be
-        // determined from the critical properties database
-        return;
+    if (m_coeffSource[k] == CoeffSource::EoS) {
+        auto& eosNode = speciesNode["equation-of-state"].getMapWhere(
+            "model", "Redlich-Kwong", true);
+
+        size_t counter = k + m_kk * k;
+        if (a_coeff_vec(1, counter) != 0.0) {
+            vector<AnyValue> coeffs(2);
+            coeffs[0].setQuantity(a_coeff_vec(0, counter), "Pa*m^6/kmol^2*K^0.5");
+            coeffs[1].setQuantity(a_coeff_vec(1, counter), "Pa*m^6/kmol^2/K^0.5");
+            eosNode["a"] = std::move(coeffs);
+        } else {
+            eosNode["a"].setQuantity(a_coeff_vec(0, counter),
+                                    "Pa*m^6/kmol^2*K^0.5");
+        }
+        eosNode["b"].setQuantity(b_vec_Curr_[k], "m^3/kmol");
+    } else if (m_coeffSource[k] == CoeffSource::CritProps) {
+        auto& critProps = speciesNode["critical-parameters"];
+        double a = a_coeff_vec(0, k + m_kk * k);
+        double b = b_vec_Curr_[k];
+        double Tc = pow(a * omega_b / (b * omega_a * GasConstant), 2.0/3.0);
+        double Pc = omega_b * GasConstant * Tc / b;
+        critProps["critical-temperature"].setQuantity(Tc, "K");
+        critProps["critical-pressure"].setQuantity(Pc, "Pa");
     }
 
-    auto& eosNode = speciesNode["equation-of-state"].getMapWhere(
-        "model", "Redlich-Kwong", true);
-
-    size_t counter = k + m_kk * k;
-    if (a_coeff_vec(1, counter) != 0.0) {
-        vector<AnyValue> coeffs(2);
-        coeffs[0].setQuantity(a_coeff_vec(0, counter), "Pa*m^6/kmol^2*K^0.5");
-        coeffs[1].setQuantity(a_coeff_vec(1, counter), "Pa*m^6/kmol^2/K^0.5");
-        eosNode["a"] = std::move(coeffs);
-    } else {
-        eosNode["a"].setQuantity(a_coeff_vec(0, counter),
-                                 "Pa*m^6/kmol^2*K^0.5");
-    }
-    eosNode["b"].setQuantity(b_vec_Curr_[k], "m^3/kmol");
     if (m_binaryParameters.count(name)) {
+        auto& eosNode = speciesNode["equation-of-state"].getMapWhere(
+            "model", "Redlich-Kwong", true);
         AnyMap bin_a;
         for (const auto& item : m_binaryParameters.at(name)) {
             if (item.second.second == 0) {
@@ -670,7 +678,7 @@ void RedlichKwongMFTP::readXMLPureFluid(XML_Node& pureFluidParam)
         }
     }
     setSpeciesCoeffs(pureFluidParam.attrib("species"), a0, a1, b);
-    m_coeffs_from_db[speciesIndex(pureFluidParam.attrib("species"))] = false;
+    m_coeffSource[speciesIndex(pureFluidParam.attrib("species"))] = CoeffSource::EoS;
 }
 
 void RedlichKwongMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)

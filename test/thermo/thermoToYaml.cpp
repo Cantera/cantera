@@ -388,6 +388,16 @@ TEST_F(ThermoYamlRoundTrip, RedlichKwong)
     compareThermo(500, 6e5, "c12h26: 0.2, o2: 0.1, co2: 0.4, c2h2: 0.3");
 }
 
+TEST_F(ThermoYamlRoundTrip, RedlichKwong_crit_props)
+{
+    roundtrip("thermo-models.yaml", "CO2-RK-params");
+    compareThermo(400, 1e6, "CO2:0.8, H2O:0.1, H2:0.1");
+    auto params = duplicate->species("CO2")->parameters(duplicate.get());
+    params.applyUnits();
+    double Tc = params["critical-parameters"]["critical-temperature"].asDouble();
+    EXPECT_NEAR(Tc, 304.128, 1e-3);
+}
+
 TEST_F(ThermoYamlRoundTrip, PengRobinson)
 {
     roundtrip("co2_PR_example.yaml");
