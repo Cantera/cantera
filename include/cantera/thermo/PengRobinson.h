@@ -32,7 +32,7 @@ public:
                           const std::string& id="");
 
     virtual std::string type() const {
-        return "PengRobinson";
+        return "Peng-Robinson";
     }
 
     //! @name Molar Thermodynamic properties
@@ -155,6 +155,8 @@ public:
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
+    virtual void getSpeciesParameters(const std::string& name,
+                                      AnyMap& speciesNode) const;
 
     //! Set the pure fluid interaction parameters for a species
     /*!
@@ -257,6 +259,7 @@ protected:
     // and other derivatives. Length = m_kk.
     vector_fp m_b_coeffs;
     vector_fp m_kappa;
+    vector_fp m_acentric; //!< acentric factor for each species, length #m_kk
     mutable vector_fp m_dalphadT;
     mutable vector_fp m_d2alphadT2;
     vector_fp m_alpha;
@@ -265,6 +268,9 @@ protected:
     // array form. Size = (m_kk, m_kk).
     Array2D m_a_coeffs;
     Array2D m_aAlpha_binary;
+
+    //! Explicitly-specified binary interaction parameters, to enable serialization
+    std::map<std::string, std::map<std::string, double>> m_binaryParameters;
 
     int m_NSolns;
 
@@ -296,6 +302,10 @@ protected:
      *  other mole number kept constant
      */
     mutable vector_fp m_dpdni;
+
+    enum class CoeffSource { EoS, CritProps, Database };
+    //! For each species, specifies the source of the a, b, and omega coefficients
+    std::vector<CoeffSource> m_coeffSource;
 
 private:
     //! Omega constant: a0 (= omega_a) used in Peng-Robinson equation of state

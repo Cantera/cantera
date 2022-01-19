@@ -48,6 +48,7 @@ void PengRobinson::setSpeciesCoeffs(const std::string& species, double a, double
     } else {
         m_kappa[k] = 0.374642 + 1.487503*w - 0.164423*w*w + 0.016666*w*w*w;
     }
+    m_acentric[k] = w; // store the original acentric factor to enable serialization
 
     // Calculate alpha (temperature dependent interaction parameter)
     double critTemp = speciesCritTemperature(a, b);
@@ -92,6 +93,8 @@ void PengRobinson::setBinaryCoeffs(const std::string& species_i,
     }
 
     m_a_coeffs(ki, kj) = m_a_coeffs(kj, ki) = a0;
+    m_binaryParameters[species_i][species_j] = a0;
+    m_binaryParameters[species_j][species_i] = a0;
     // Calculate alpha_ij
     double alpha_ij = m_alpha[ki] * m_alpha[kj];
     m_aAlpha_binary(ki, kj) = m_aAlpha_binary(kj, ki) = a0*alpha_ij;
@@ -327,12 +330,14 @@ bool PengRobinson::addSpecies(shared_ptr<Species> spec)
         m_b_coeffs.push_back(0.0);
         m_aAlpha_binary.resize(m_kk, m_kk, 0.0);
         m_kappa.push_back(0.0);
+        m_acentric.push_back(0.0);
         m_alpha.push_back(0.0);
         m_dalphadT.push_back(0.0);
         m_d2alphadT2.push_back(0.0);
         m_pp.push_back(0.0);
         m_partialMolarVolumes.push_back(0.0);
         m_dpdni.push_back(0.0);
+        m_coeffSource.push_back(CoeffSource::EoS);
     }
     return added;
 }
@@ -350,7 +355,6 @@ void PengRobinson::initThermo()
             continue;
         }
         bool foundCoeffs = false;
-
         if (data.hasKey("equation-of-state") &&
             data["equation-of-state"].hasMapWhere("model", "Peng-Robinson"))
         {
@@ -376,6 +380,7 @@ void PengRobinson::initThermo()
                 }
             }
             if (foundCoeffs) {
+                m_coeffSource[k] = CoeffSource::EoS;
                 continue;
             }
         }
@@ -389,6 +394,7 @@ void PengRobinson::initThermo()
             Tc = critProps.convert("critical-temperature", "K");
             Pc = critProps.convert("critical-pressure", "Pa");
             omega_ac = critProps["acentric-factor"].asDouble();
+            m_coeffSource[k] = CoeffSource::CritProps;
         } else {
             // Search 'crit-properties.yaml' to find Tc and Pc. Load data if needed.
             if (critPropsDb.empty()) {
@@ -404,6 +410,7 @@ void PengRobinson::initThermo()
                 Tc = critProps.convert("critical-temperature", "K");
                 Pc = critProps.convert("critical-pressure", "Pa");
                 omega_ac = critProps["acentric-factor"].asDouble();
+                m_coeffSource[k] = CoeffSource::Database;
             }
         }
 
@@ -417,6 +424,43 @@ void PengRobinson::initThermo()
             "No Peng-Robinson model parameters or critical properties found for "
             "species '{}'", item.first);
         }
+    }
+}
+
+void PengRobinson::getSpeciesParameters(const std::string& name,
+                                        AnyMap& speciesNode) const
+{
+    MixtureFugacityTP::getSpeciesParameters(name, speciesNode);
+    size_t k = speciesIndex(name);
+    checkSpeciesIndex(k);
+
+    // Pure species parameters
+    if (m_coeffSource[k] == CoeffSource::EoS) {
+        auto& eosNode = speciesNode["equation-of-state"].getMapWhere(
+            "model", "Peng-Robinson", true);
+        eosNode["a"].setQuantity(m_a_coeffs(k, k), "Pa*m^6/kmol^2");
+        eosNode["b"].setQuantity(m_b_coeffs[k], "m^3/kmol");
+        eosNode["acentric-factor"] = m_acentric[k];
+    } else if (m_coeffSource[k] == CoeffSource::CritProps) {
+        auto& critProps = speciesNode["critical-parameters"];
+        double Tc = speciesCritTemperature(m_a_coeffs(k, k), m_b_coeffs[k]);
+        double Pc = omega_b * GasConstant * Tc / m_b_coeffs[k];
+        critProps["critical-temperature"].setQuantity(Tc, "K");
+        critProps["critical-pressure"].setQuantity(Pc, "Pa");
+        critProps["acentric-factor"] = m_acentric[k];
+    }
+    // Nothing to do in the case where the parameters are from the database
+
+    if (m_binaryParameters.count(name)) {
+        // Include binary parameters regardless of where the pure species parameters
+        // were found
+        auto& eosNode = speciesNode["equation-of-state"].getMapWhere(
+            "model", "Peng-Robinson", true);
+        AnyMap bin_a;
+        for (const auto& item : m_binaryParameters.at(name)) {
+            bin_a[item.first].setQuantity(item.second, "Pa*m^6/kmol^2");
+        }
+        eosNode["binary-a"] = std::move(bin_a);
     }
 }
 

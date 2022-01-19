@@ -2,6 +2,7 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/YamlWriter.h"
+#include "cantera/thermo/Species.h"
 
 using namespace Cantera;
 typedef std::vector<std::string> strvec;
@@ -385,6 +386,23 @@ TEST_F(ThermoYamlRoundTrip, RedlichKwong)
 {
     roundtrip("nDodecane_Reitz.yaml", "nDodecane_RK");
     compareThermo(500, 6e5, "c12h26: 0.2, o2: 0.1, co2: 0.4, c2h2: 0.3");
+}
+
+TEST_F(ThermoYamlRoundTrip, PengRobinson)
+{
+    roundtrip("co2_PR_example.yaml");
+    compareThermo(400, 20e5, "CO2:0.9, H2O:0.07, CH4:0.03");
+}
+
+TEST_F(ThermoYamlRoundTrip, PengRobinson_crit_props)
+{
+    roundtrip("thermo-models.yaml", "CO2-PR-params");
+    // rtol = 1e-13;
+    compareThermo(400, 1e6, "CO2:0.8, H2O:0.1, H2:0.1");
+    auto params = duplicate->species("CO2")->parameters(duplicate.get());
+    params.applyUnits();
+    double Tc = params["critical-parameters"]["critical-temperature"].asDouble();
+    EXPECT_NEAR(Tc, 304.128, 1e-3);
 }
 
 TEST_F(ThermoYamlRoundTrip, BinarySolutionTabulated)
