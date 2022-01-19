@@ -1630,8 +1630,7 @@ public:
      * @param id  Optional parameter identifying the name of the phase. If
      *            blank, the first phase definition encountered will be used.
      */
-    virtual void initThermoFile(const std::string& inputFile,
-                                const std::string& id);
+    void initThermoFile(const std::string& inputFile, const std::string& id);
 
     //!Import and initialize a ThermoPhase object using an XML tree.
     /*!
