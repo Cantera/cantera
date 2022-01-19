@@ -238,6 +238,34 @@ jobs:
           --exclude='/doxygen/xml' --delete --delete-excluded \
           "${DOCS_OUTPUT_DIR}" ${RSYNC_USER}@${RSYNC_SERVER}:${RSYNC_DEST}
 
+  copy-samples-folder:
+    name: Copy samples to cantera-samples
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout the repository
+      - name: Collect samples
+        run: |
+          mkdir -p build/output/python
+          cp -r samples/* build/output/
+          rm build/output/README.txt
+          cp -r interfaces/cython/cantera/examples/* build/output/python/
+          rm build/output/python/__init__.py
+          mv build/output/cantera_samples/cantera_samples.md build/output/README.md
+          rm -rf build/output/cantera_samples
+      - name: Push samples to cantera-samples
+        # if: env.DEPLOY == 'true'
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          source-directory: "build/output"
+          destination-github-username: "ischoegl"
+          destination-repository-name: "cantera-samples"
+          user-email: ischoegl@gmail.com
+          commit-message: See ORIGIN_COMMIT from $GITHUB_REF
+          target-branch: main
+
   run-examples:
     name: Run the Python examples using bash
     runs-on: ubuntu-18.04
