@@ -1172,7 +1172,7 @@ class TestSpecies(utilities.CanteraTest):
         S = ct.Species.listFromCti((self.cantera_data_path / "h2o2.cti").read_text())
         self.assertEqual(S[3].name, self.gas.species_name(3))
 
-    def test_listFomYaml(self):
+    def test_list_from_yaml(self):
         yaml = '''
         - name: H2O
           composition: {H: 2, O: 1}
@@ -1186,13 +1186,35 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual(species[1].composition, {'H': 1, 'O': 2})
         self.assertNear(species[0].thermo.h(300), 100)
 
-    def test_listFromYaml_section(self):
+    def test_list_from_yaml_section(self):
         species = ct.Species.list_from_yaml(
             (self.test_data_path / "ideal-gas.yaml").read_text(),
             'species')
 
         self.assertEqual(species[0].name, 'O2')
         self.assertEqual(species[1].composition, {'N': 1, 'O': 1})
+
+    def test_from_yaml(self):
+        yaml = """
+        name: H2O
+        composition: {H: 2, O: 1}
+        thermo: {model: constant-cp, h0: 100}
+        """
+        species = ct.Species.from_yaml(yaml)
+        self.assertEqual(species.name, 'H2O')
+        self.assertEqual(species.composition, {'H': 2, 'O': 1})
+        self.assertNear(species.thermo.h(300), 100)
+
+    def test_from_dict(self):
+        data = {
+            "name": "H2O",
+            "composition": {"H": 2, "O": 1},
+            "thermo": {"model": "constant-cp", "h0": 100},
+        }
+        species = ct.Species.from_dict(data)
+        self.assertEqual(species.name, 'H2O')
+        self.assertEqual(species.composition, {'H': 2, 'O': 1})
+        self.assertNear(species.thermo.h(300), 100)
 
     @utilities.allow_deprecated
     def test_listFromXml(self):

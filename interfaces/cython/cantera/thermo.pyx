@@ -123,9 +123,24 @@ cdef class Species:
     @staticmethod
     def from_yaml(text):
         """
-        Create a Species object from its YAML string representation.
+        Create a `Species` object from its YAML string representation.
         """
         cxx_species = CxxNewSpecies(AnyMapFromYamlString(stringify(text)))
+        species = Species(init=False)
+        species._assign(cxx_species)
+        return species
+
+    @staticmethod
+    def from_dict(data):
+        """
+        Create a `Species` object from a dictionary corresponding to its YAML
+        representation.
+
+        :param data:
+            A dictionary corresponding to the YAML representation.
+        """
+        cdef CxxAnyMap any_map = dict_to_anymap(data)
+        cxx_species = CxxNewSpecies(any_map)
         species = Species(init=False)
         species._assign(cxx_species)
         return species
