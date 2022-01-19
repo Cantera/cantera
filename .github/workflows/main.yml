@@ -254,15 +254,15 @@ jobs:
           mv build/output/cantera_samples/cantera_samples.md build/output/README.md
           rm -rf build/output/cantera_samples
       - name: Push samples to cantera-samples
-        # if: env.DEPLOY == 'true'
+        if: env.DEPLOY == 'true'
         uses: cpina/github-action-push-to-another-repository@main
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         with:
           source-directory: "build/output"
-          destination-github-username: "ischoegl"
+          destination-github-username: "Cantera"
           destination-repository-name: "cantera-samples"
-          user-email: ischoegl@gmail.com
+          user-email: developers@cantera.org
           commit-message: See ORIGIN_COMMIT from $GITHUB_REF
           target-branch: main
 
