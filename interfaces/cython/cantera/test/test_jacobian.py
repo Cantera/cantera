@@ -14,7 +14,7 @@ class RateExpressionTests:
     orders = None
     ix3b = [] # three-body indices
     equation = None
-    reaction_type = None
+    rate_type = None
 
     @classmethod
     def setUpClass(cls):
@@ -45,7 +45,7 @@ class RateExpressionTests:
     def test_input(self):
         # ensure that correct equation is referenced
         self.assertEqual(self.equation, self.rxn.equation)
-        self.assertEqual(self.reaction_type, self.rxn.reaction_type)
+        self.assertEqual(self.rate_type, self.rxn.rate.type)
 
     def rop_ddX(self, spc_ix, mode, const_t=True, rtol_deltac=1e-5, atol_deltac=1e-20):
         # numerical derivative for rates-of-progress with respect to mole fractions
@@ -371,21 +371,21 @@ class TestElementaryRev(HydrogenOxygen, utilities.CanteraTest):
     # Standard elementary reaction with two reactants
     rxn_idx = 2
     equation = "H2 + O <=> H + OH"
-    reaction_type = "elementary"
+    rate_type = "Arrhenius"
 
 
 class TestElementarySelf(HydrogenOxygen, utilities.CanteraTest):
     # Elementary reaction with reactant reacting with itself
     rxn_idx = 27
     equation = "2 HO2 <=> H2O2 + O2"
-    reaction_type = "elementary"
+    rate_type = "Arrhenius"
 
 
 class TestFalloff(HydrogenOxygen, utilities.CanteraTest):
     # Fall-off reaction
     rxn_idx = 21
     equation = "2 OH (+M) <=> H2O2 (+M)"
-    reaction_type = "falloff"
+    rate_type = "Troe"
     rtol = 1e-4
 
 
@@ -393,7 +393,7 @@ class TestThreeBody(HydrogenOxygen, utilities.CanteraTest):
     # Three body reaction with default efficiency
     rxn_idx = 1
     equation = "H + O + M <=> OH + M"
-    reaction_type = "three-body"
+    rate_type = "Arrhenius"
 
     @classmethod
     def setUpClass(cls):
@@ -432,21 +432,21 @@ class TestElementaryIrr(EdgeCases, utilities.CanteraTest):
     # Irreversible elementary reaction with two reactants
     rxn_idx = 0
     equation = "HO2 + O => O2 + OH"
-    reaction_type = "elementary"
+    rate_type = "Arrhenius"
 
 
 class TestElementaryOne(EdgeCases, utilities.CanteraTest):
     # Three-body reaction with single reactant species
     rxn_idx = 1
     equation = "H2 <=> 2 H"
-    reaction_type = "elementary"
+    rate_type = "Arrhenius"
 
 
 class TestElementaryThree(EdgeCases, utilities.CanteraTest):
     # Elementary reaction with three reactants
     rxn_idx = 2
     equation = "2 H + O <=> H2O"
-    reaction_type = "elementary"
+    rate_type = "Arrhenius"
 
 
 class TestElementaryFrac(EdgeCases, utilities.CanteraTest):
@@ -454,14 +454,14 @@ class TestElementaryFrac(EdgeCases, utilities.CanteraTest):
     rxn_idx = 3
     orders = {"H2": 0.8, "O2": 1.0, "OH": 2.0}
     equation = "0.7 H2 + 0.2 O2 + 0.6 OH => H2O"
-    reaction_type = "elementary"
+    rate_type = "Arrhenius"
 
 
 class TestThreeBodyNoDefault(EdgeCases, utilities.CanteraTest):
     # Three body reaction without default efficiency
     rxn_idx = 4
     equation = "H + O + M <=> OH + M"
-    reaction_type = "three-body"
+    rate_type = "Arrhenius"
 
     @classmethod
     def setUpClass(cls):
@@ -494,21 +494,21 @@ class TestPlog(FromScratchCases, utilities.CanteraTest):
     # Plog reaction
     rxn_idx = 3
     equation = "H2 + O2 <=> 2 OH"
-    reaction_type = "pressure-dependent-Arrhenius"
+    rate_type = "pressure-dependent-Arrhenius"
 
 
 class TestChebyshev(FromScratchCases, utilities.CanteraTest):
     # Chebyshev reaction
     rxn_idx = 4
     equation = "HO2 <=> O + OH"
-    reaction_type = "Chebyshev"
+    rate_type = "Chebyshev"
 
 
 class TestBlowersMasel(FromScratchCases, utilities.CanteraTest):
     # Blowers-Masel
     rxn_idx = 6
     equation = "H2 + O <=> H + OH"
-    reaction_type = "Blowers-Masel"
+    rate_type = "Blowers-Masel"
 
     @utilities.unittest.skip("change of reaction enthalpy is not considered")
     def test_forward_rop_ddT(self):

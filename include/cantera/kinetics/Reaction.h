@@ -31,8 +31,8 @@ class Reaction
 {
 public:
     Reaction();
-    Reaction(const Composition& reactants,
-             const Composition& products);
+    Reaction(const Composition& reactants, const Composition& products,
+             shared_ptr<ReactionRate> rate={});
 
     //! @deprecated To be removed after Cantera 2.6.
     explicit Reaction(int type);
@@ -51,7 +51,7 @@ public:
     std::string equation() const;
 
     //! The type of reaction
-    virtual std::string type() const = 0; // pure virtual function
+    virtual std::string type() const;
 
     //! Calculate the units of the rate constant. These are determined by the units
     //! of the standard concentration of the reactant species' phases and the phase
@@ -495,26 +495,9 @@ public:
 };
 
 
-//! A reaction which follows mass-action kinetics with a modified Arrhenius
-//! reaction rate.
-class ElementaryReaction3 : public Reaction
-{
-public:
-    ElementaryReaction3();
-    ElementaryReaction3(const Composition& reactants, const Composition& products,
-                        const ArrheniusRate& rate);
-
-    ElementaryReaction3(const AnyMap& node, const Kinetics& kin);
-
-    virtual std::string type() const {
-        return "elementary";
-    }
-};
-
-
 //! A reaction with a non-reacting third body "M" that acts to add or remove
 //! energy from the reacting species
-class ThreeBodyReaction3 : public ElementaryReaction3
+class ThreeBodyReaction3 : public Reaction
 {
 public:
     ThreeBodyReaction3();
@@ -655,7 +638,6 @@ public:
 
 
 #ifdef CT_NO_LEGACY_REACTIONS_26
-typedef ElementaryReaction3 ElementaryReaction;
 typedef ThreeBodyReaction3 ThreeBodyReaction;
 typedef FalloffReaction3 FalloffReaction;
 typedef PlogReaction3 PlogReaction;

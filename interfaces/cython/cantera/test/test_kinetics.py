@@ -77,7 +77,7 @@ class TestKinetics(utilities.CanteraTest):
 
     def test_reaction_type(self):
         self.assertIn(self.phase.reaction_type_str(0), ["three-body", "three-body-legacy"])
-        self.assertIn(self.phase.reaction_type_str(2), ["elementary", "elementary-legacy"])
+        self.assertIn(self.phase.reaction_type_str(2), ["reaction", "elementary-legacy"])
         self.assertEqual(self.phase.reaction_type_str(21), "falloff")
 
         with self.assertRaisesRegex(ValueError, 'out of range'):
@@ -1061,7 +1061,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertEqual(data['equation'], R.equation)
 
     def test_input_data_from_scratch(self):
-        r = ct.ElementaryReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
+        r = ct.Reaction({"O":1, "H2":1}, {"H":1, "OH":1})
         r.rate = ct.ArrheniusRate(3.87e1, 2.7, 2.6e7)
         data = r.input_data
         self.assertNear(data['rate-constant']['A'], 3.87e1)
@@ -1072,7 +1072,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertIn('OH', terms)
 
     def test_elementary(self):
-        r = ct.ElementaryReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
+        r = ct.Reaction({"O":1, "H2":1}, {"H":1, "OH":1})
         r.rate = ct.ArrheniusRate(3.87e1, 2.7, 6260*1000*4.184)
 
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
@@ -1090,7 +1090,7 @@ class TestReaction(utilities.CanteraTest):
 
     def test_negative_A(self):
         species = ct.Species.listFromFile("gri30.yaml")
-        r = ct.ElementaryReaction('NH:1, NO:1', 'N2O:1, H:1')
+        r = ct.Reaction("NH:1, NO:1", "N2O:1, H:1")
         r.rate = ct.ArrheniusRate(-2.16e13, -0.23, 0)
 
         self.assertFalse(r.rate.allow_negative_pre_exponential_factor)
@@ -1435,7 +1435,7 @@ class TestReaction(utilities.CanteraTest):
     def test_modify_invalid(self):
         # different reaction type
         tbr = self.gas.reaction(0)
-        R2 = ct.ElementaryReaction(tbr.reactants, tbr.products)
+        R2 = ct.Reaction(tbr.reactants, tbr.products)
         R2.rate = tbr.rate
         with self.assertRaisesRegex(ct.CanteraError, 'types are different'):
             self.gas.modify_reaction(0, R2)
