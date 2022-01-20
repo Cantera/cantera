@@ -2443,7 +2443,19 @@ cdef wrapBlowersMasel(CxxBlowersMasel2* rate, Reaction reaction):
 
 
 cdef class InterfaceReaction(ElementaryReaction):
-    """ A reaction occurring on an `Interface` (i.e. a surface or an edge) """
+    """
+    A reaction occurring on an `Interface` (i.e. a surface or an edge)
+
+        rxn = InterfaceReaction(
+            equation="H(S) + O(S) <=> OH(S) + PT(S)",
+            rate={"A": 3.7e+20, "b": 0, "Ea": 1.15e7},
+            kinetics=surf)
+
+    The YAML description corresponding to this reaction is::
+
+        equation: H(S) + O(S) <=> OH(S) + PT(S)
+        rate-constant: {A: 3.7e+20, b: 0, Ea: 11500 J/mol}
+    """
     _reaction_type = "interface"
     _has_legacy = False
     _hybrid = False
@@ -2452,6 +2464,35 @@ cdef class InterfaceReaction(ElementaryReaction):
         # legacy framework is implicitly used
         def __get__(self):
             return True
+
+    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
+                 init=True, legacy=False, **kwargs):
+
+        if init and equation and kinetics:
+
+            rxn_type = self._reaction_type
+            # if legacy:
+            #     rxn_type += "-legacy"
+            spec = {"equation": equation, "type": rxn_type}
+            if isinstance(rate, dict):
+                spec["rate-constant"] = rate
+            elif legacy and (isinstance(rate, Arrhenius) or rate is None):
+                spec["rate-constant"] = dict.fromkeys(["A", "b", "Ea"], 0.)
+            elif rate is None:
+                pass
+            # elif not legacy and isinstance(rate, (Arrhenius, ArrheniusRate)):
+            #     pass
+            else:
+                raise TypeError("Invalid rate definition")
+
+            self._reaction = CxxNewReaction(dict_to_anymap(spec),
+                                            deref(kinetics.kinetics))
+            self.reaction = self._reaction.get()
+
+            if legacy and isinstance(rate, Arrhenius):
+                self.rate = rate
+            # elif not legacy and isinstance(rate, (ArrheniusRate, Arrhenius)):
+            #     self.rate = rate
 
     property coverage_deps:
         """
