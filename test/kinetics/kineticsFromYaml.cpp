@@ -20,9 +20,7 @@ TEST(ReactionRate, ModifyArrheniusRate)
         " negative-A: true}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    auto& ER = dynamic_cast<ElementaryReaction3&>(*R);
-
-    const auto& rr = std::dynamic_pointer_cast<ArrheniusRate>(ER.rate());
+    const auto& rr = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
     EXPECT_TRUE(rr->allowNegativePreExponentialFactor());
     rr->setAllowNegativePreExponentialFactor(false);
     EXPECT_FALSE(rr->allowNegativePreExponentialFactor());
@@ -329,8 +327,7 @@ TEST(Kinetics, GasKineticsFromYaml1)
     EXPECT_EQ(R->reactants.at("NO"), 1);
     EXPECT_EQ(R->products.at("N2"), 1);
     EXPECT_EQ(R->id, "NOx-R1");
-    const auto& ER = std::dynamic_pointer_cast<ElementaryReaction3>(R);
-    const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(ER->rate());
+    const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 2.7e10);
 }
 
@@ -526,7 +523,7 @@ TEST_F(ReactionToYaml, elementary)
     soln = newSolution("h2o2.yaml", "", "None");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, O:1e-8, OH:3e-8");
     duplicateReaction(2);
-    EXPECT_TRUE(std::dynamic_pointer_cast<ElementaryReaction3>(duplicate));
+    EXPECT_EQ(duplicate->type(), "elementary");
     compareReactions();
 }
 

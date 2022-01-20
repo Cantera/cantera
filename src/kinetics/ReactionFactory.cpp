@@ -8,6 +8,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/kinetics/ReactionFactory.h"
+#include "cantera/kinetics/ReactionRateFactory.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/AnyMap.h"
@@ -23,7 +24,14 @@ ReactionFactory::ReactionFactory()
 {
     // register elementary reactions
     reg("elementary", [](const AnyMap& node, const Kinetics& kin) {
-        return new ElementaryReaction3(node, kin);
+        unique_ptr<Reaction> R(new Reaction());
+        R->setParameters(node, kin);
+        if (kin.nPhases()) {
+            R->setRate(newReactionRate(node, R->calculateRateCoeffUnits3(kin)));
+        } else {
+            R->setRate(newReactionRate(node));
+        }
+        return R.release();
     });
     addAlias("elementary", "arrhenius");
     addAlias("elementary", "");

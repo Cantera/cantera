@@ -39,7 +39,8 @@ Reaction::Reaction()
 }
 
 Reaction::Reaction(const Composition& reactants_,
-                   const Composition& products_)
+                   const Composition& products_,
+                   shared_ptr<ReactionRate> rate_)
     : reaction_type(NONE)
     , reactants(reactants_)
     , products(products_)
@@ -49,6 +50,7 @@ Reaction::Reaction(const Composition& reactants_,
     , allow_negative_orders(false)
     , rate_units(0.0)
     , m_valid(true)
+    , m_rate(rate_)
 {
 }
 
@@ -238,6 +240,19 @@ std::string Reaction::equation() const
         return reactantString() + " <=> " + productString();
     } else {
         return reactantString() + " => " + productString();
+    }
+}
+
+std::string Reaction::type() const
+{
+    if (m_rate) {
+        if (m_rate->type() == "Arrhenius") {
+            return "elementary"; // @todo: Find a fix for this special case
+        } else {
+            return m_rate->type();
+        }
+    } else {
+        return "undefined";
     }
 }
 
@@ -977,29 +992,6 @@ void BlowersMaselInterfaceReaction::validate(Kinetics& kin)
     }
 }
 
-ElementaryReaction3::ElementaryReaction3()
-{
-    setRate(newReactionRate(type()));
-}
-
-ElementaryReaction3::ElementaryReaction3(const Composition& reactants,
-                                         const Composition& products,
-                                         const ArrheniusRate& rate)
-    : Reaction(reactants, products)
-{
-    m_rate.reset(new ArrheniusRate(rate));
-}
-
-ElementaryReaction3::ElementaryReaction3(const AnyMap& node, const Kinetics& kin)
-{
-    if (!node.empty()) {
-        setParameters(node, kin);
-        setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
-    } else {
-        setRate(newReactionRate(type()));
-    }
-}
-
 ThreeBodyReaction3::ThreeBodyReaction3()
 {
     m_third_body.reset(new ThirdBody);
@@ -1010,7 +1002,7 @@ ThreeBodyReaction3::ThreeBodyReaction3(const Composition& reactants,
                                        const Composition& products,
                                        const ArrheniusRate& rate,
                                        const ThirdBody& tbody)
-    : ElementaryReaction3(reactants, products, rate)
+    : Reaction(reactants, products, make_shared<ArrheniusRate>(rate))
 {
     m_third_body = std::make_shared<ThirdBody>(tbody);
 }
@@ -1103,20 +1095,20 @@ void ThreeBodyReaction3::getParameters(AnyMap& reactionNode) const
 std::string ThreeBodyReaction3::reactantString() const
 {
     if (m_third_body->specified_collision_partner) {
-        return ElementaryReaction3::reactantString() + " + "
+        return Reaction::reactantString() + " + "
             + m_third_body->efficiencies.begin()->first;
     } else {
-        return ElementaryReaction3::reactantString() + " + M";
+        return Reaction::reactantString() + " + M";
     }
 }
 
 std::string ThreeBodyReaction3::productString() const
 {
     if (m_third_body->specified_collision_partner) {
-        return ElementaryReaction3::productString() + " + "
+        return Reaction::productString() + " + "
             + m_third_body->efficiencies.begin()->first;
     } else {
-        return ElementaryReaction3::productString() + " + M";
+        return Reaction::productString() + " + M";
     }
 }
 

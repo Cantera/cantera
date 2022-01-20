@@ -23,7 +23,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #Create an elementary reaction O+H2<=>H+OH
-r1 = ct.ElementaryReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
+r1 = ct.Reaction({"O":1, "H2":1}, {"H":1, "OH":1})
 r1.rate = ct.ArrheniusRate(3.87e1, 2.7, 6260*1000*4.184)
 
 #Create a Blowers-Masel reaction O+H2<=>H+OH

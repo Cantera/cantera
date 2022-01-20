@@ -975,6 +975,7 @@ class TestElementary2(ReactionTests, utilities.CanteraTest):
 class TestElementary(TestElementary2):
     # test updated version of elementary reaction
 
+    _cls = ct.Reaction
     _type = "elementary"
     _legacy = False
     _yaml = """

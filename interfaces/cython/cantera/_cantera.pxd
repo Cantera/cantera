@@ -671,10 +671,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool use_motz_wise_correction
         string sticking_species
 
-    cdef cppclass CxxElementaryReaction3 "Cantera::ElementaryReaction3" (CxxReaction):
-        CxxElementaryReaction3()
-
-    cdef cppclass CxxThreeBodyReaction3 "Cantera::ThreeBodyReaction3" (CxxElementaryReaction3):
+    cdef cppclass CxxThreeBodyReaction3 "Cantera::ThreeBodyReaction3" (CxxReaction):
         CxxThreeBodyReaction3()
         shared_ptr[CxxThirdBody] thirdBody()
 

@@ -795,6 +795,29 @@ cdef class Reaction:
             if products:
                 self.products = products
 
+    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
+                 init=True, legacy=False, **kwargs):
+
+        if legacy:
+            return
+
+        if init and equation and kinetics:
+            rxn_type = self._reaction_type
+            spec = {"equation": equation, "type": rxn_type}
+            if isinstance(rate, dict):
+                spec["rate-constant"] = rate
+            elif rate is None or isinstance(rate, ReactionRate):
+                pass
+            else:
+                raise TypeError("Invalid rate definition")
+
+            self._reaction = CxxNewReaction(dict_to_anymap(spec),
+                                            deref(kinetics.kinetics))
+            self.reaction = self._reaction.get()
+
+            if isinstance(rate, ReactionRate):
+                self.rate = rate
+
     @staticmethod
     cdef wrap(shared_ptr[CxxReaction] reaction):
         """
@@ -1094,6 +1117,33 @@ cdef class Reaction:
         def __get__(self):
             return pystr(self.reaction.type())
 
+    property rate:
+        """ Get/Set the `ArrheniusRate` rate coefficient for this reaction. """
+        def __get__(self):
+            if self.uses_legacy:
+                raise CanteraError(
+                    f"Not implemented for legacy reaction of type {self.reaction_type}")
+            return ReactionRate.wrap(self.reaction.rate())
+
+        def __set__(self, rate):
+            if self.uses_legacy:
+                raise CanteraError(
+                    f"Not implemented for legacy reaction of type {self.reaction_type}")
+
+            cdef ReactionRate rate3
+            if isinstance(rate, ReactionRate):
+                rate3 = rate
+            elif isinstance(rate, Arrhenius):
+                warnings.warn("Setting the rate using an 'Arrhenius' object is "
+                    "deprecated and will be removed after Cantera 2.6. The argument "
+                    "type is replaceable by 'ArrheniusRate'.", DeprecationWarning)
+                rate3 = ArrheniusRate(rate.pre_exponential_factor,
+                                      rate.temperature_exponent,
+                                      rate.activation_energy)
+            else:
+                raise TypeError("Invalid rate definition")
+            self.reaction.setRate(rate3._rate)
+
     property reversible:
         """
         Get/Set a flag which is `True` if this reaction is reversible or `False`
@@ -1133,6 +1183,32 @@ cdef class Reaction:
             return self.reaction.allow_negative_orders
         def __set__(self, allow):
             self.reaction.allow_negative_orders = allow
+
+    property allow_negative_pre_exponential_factor:
+        """
+        Get/Set whether the rate coefficient is allowed to have a negative
+        pre-exponential factor.
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by property `ArrheniusRate.allow_negative_pre_exponential_factor`.
+        """
+        def __get__(self):
+            if self.uses_legacy:
+                raise CanteraError(
+                    f"Not implemented for legacy reaction of type {self.reaction_type}")
+
+            attr = "allow_negative_pre_exponential_factor"
+            warnings.warn(self._deprecation_warning(attr), DeprecationWarning)
+            return self.rate.allow_negative_pre_exponential_factor
+        def __set__(self, allow):
+            if self.uses_legacy:
+                raise CanteraError(
+                    f"Not implemented for legacy reaction of type {self.reaction_type}")
+
+            attr = "allow_negative_pre_exponential_factor"
+            warnings.warn(self._deprecation_warning(attr), DeprecationWarning)
+            self.rate.allow_negative_pre_exponential_factor = allow
 
     property input_data:
         """
@@ -1288,15 +1364,14 @@ cdef class ElementaryReaction(Reaction):
 
         equation: O + H2 <=> H + OH
         rate-constant: {A: 3.87e+04 cm^3/mol/s, b: 2.7, Ea: 6260.0 cal/mol}
+
+    .. deprecated:: 2.6
+        To be removed after Cantera 2.6. Capabilities merged directly into the base
+        `Reaction` class.
     """
     _reaction_type = "elementary"
     _has_legacy = True
-    _hybrid = True
-
-    cdef CxxElementaryReaction3* cxx_object(self):
-        if self.uses_legacy:
-            raise AttributeError("Incorrect accessor for updated implementation")
-        return <CxxElementaryReaction3*>self.reaction
+    _hybrid = False
 
     cdef CxxElementaryReaction2* cxx_object2(self):
         if not self.uses_legacy:
@@ -1304,21 +1379,16 @@ cdef class ElementaryReaction(Reaction):
         return <CxxElementaryReaction2*>self.reaction
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
-                 init=True, legacy=False, **kwargs):
+                 init=True, **kwargs):
 
         if init and equation and kinetics:
-
-            rxn_type = self._reaction_type
-            if legacy:
-                rxn_type += "-legacy"
+            rxn_type = self._reaction_type + "-legacy"
             spec = {"equation": equation, "type": rxn_type}
             if isinstance(rate, dict):
                 spec["rate-constant"] = rate
-            elif legacy and (isinstance(rate, Arrhenius) or rate is None):
+            elif isinstance(rate, Arrhenius) or rate is None:
                 spec["rate-constant"] = dict.fromkeys(["A", "b", "Ea"], 0.)
             elif rate is None:
-                pass
-            elif not legacy and isinstance(rate, (Arrhenius, ArrheniusRate)):
                 pass
             else:
                 raise TypeError("Invalid rate definition")
@@ -1327,9 +1397,7 @@ cdef class ElementaryReaction(Reaction):
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
 
-            if legacy and isinstance(rate, Arrhenius):
-                self.rate = rate
-            elif not legacy and isinstance(rate, (ArrheniusRate, Arrhenius)):
+            if isinstance(rate, Arrhenius):
                 self.rate = rate
 
     cdef _legacy_set_rate(self, Arrhenius rate):
@@ -1341,13 +1409,16 @@ cdef class ElementaryReaction(Reaction):
         def __get__(self):
             if self.uses_legacy:
                 return wrapArrhenius(&(self.cxx_object2().rate), self)
+            else:
+                # Used by non-legacy ThreeBodyReaction
+                return super().rate
 
-            return ArrheniusRate.wrap(self.cxx_object().rate())
         def __set__(self, rate):
             if self.uses_legacy:
                 self._legacy_set_rate(rate)
                 return
 
+            # Used by non-legacy ThreeBodyReaction
             cdef ArrheniusRate rate3
             if isinstance(rate, ArrheniusRate):
                 rate3 = rate
@@ -1360,7 +1431,7 @@ cdef class ElementaryReaction(Reaction):
                                       rate.activation_energy)
             else:
                 raise TypeError("Invalid rate definition")
-            self.cxx_object().setRate(rate3._rate)
+            self.reaction.setRate(rate3._rate)
 
     property allow_negative_pre_exponential_factor:
         """
