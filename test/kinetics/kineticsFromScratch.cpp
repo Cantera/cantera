@@ -361,7 +361,7 @@ TEST_F(InterfaceKineticsFromScratch, add_surface_reaction)
     Composition prod = parseCompString("OH(m):1 (m):1");
     Arrhenius2 rate(5e21, 0, 100.0e6 / GasConstant); // kJ/mol -> J/kmol
 
-    auto R = make_shared<InterfaceReaction>(reac, prod, rate);
+    auto R = make_shared<InterfaceReaction2>(reac, prod, rate);
     kin.addReaction(R);
     check_rates(3);
 }
@@ -375,7 +375,7 @@ TEST_F(InterfaceKineticsFromScratch, add_sticking_reaction)
     Composition prod = parseCompString("H(m):2");
     Arrhenius2 rate(0.1, 0, 0.0);
 
-    auto R = make_shared<InterfaceReaction>(reac, prod, rate, true);
+    auto R = make_shared<InterfaceReaction2>(reac, prod, rate, true);
     kin.addReaction(R);
     check_rates(0);
 }
@@ -386,7 +386,7 @@ TEST_F(InterfaceKineticsFromScratch, unbalanced_sites)
     Composition prod = parseCompString("OH(m):1");
     Arrhenius2 rate(5e21, 0, 100.0e6 / GasConstant);
 
-    auto R = make_shared<InterfaceReaction>(reac, prod, rate);
+    auto R = make_shared<InterfaceReaction2>(reac, prod, rate);
     ASSERT_THROW(kin.addReaction(R), CanteraError);
 }
 

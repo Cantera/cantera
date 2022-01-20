@@ -113,7 +113,7 @@ ReactionFactory::ReactionFactory()
 
     // register interface reactions
     reg("interface", [](const AnyMap& node, const Kinetics& kin) {
-        InterfaceReaction* R = new InterfaceReaction();
+        InterfaceReaction2* R = new InterfaceReaction2();
         if (!node.empty()) {
             setupInterfaceReaction(*R, node, kin);
         }
@@ -124,7 +124,7 @@ ReactionFactory::ReactionFactory()
 
     // register electrochemical reactions
     reg("electrochemical", [](const AnyMap& node, const Kinetics& kin) {
-        ElectrochemicalReaction* R = new ElectrochemicalReaction();
+        ElectrochemicalReaction2* R = new ElectrochemicalReaction2();
         if (!node.empty()) {
             setupElectrochemicalReaction(*R, node, kin);
         }
@@ -137,7 +137,7 @@ ReactionFactory::ReactionFactory()
 
     // register surface Blowers Masel reactions
     reg("surface-Blowers-Masel", [](const AnyMap& node, const Kinetics& kin) {
-        BlowersMaselInterfaceReaction* R = new BlowersMaselInterfaceReaction();
+        BlowersMaselInterfaceReaction2* R = new BlowersMaselInterfaceReaction2();
         if (!node.empty()) {
             setupBlowersMaselInterfaceReaction(*R, node, kin);
         }
@@ -208,8 +208,8 @@ ReactionFactoryXML::ReactionFactoryXML()
 
     // register interface reactions
     reg("interface", [](const XML_Node& node) {
-        Reaction* R = new InterfaceReaction();
-        setupInterfaceReaction(*(InterfaceReaction*)R, node);
+        Reaction* R = new InterfaceReaction2();
+        setupInterfaceReaction(*(InterfaceReaction2*)R, node);
         return R;
     });
     addAlias("interface", "surface");
@@ -217,8 +217,8 @@ ReactionFactoryXML::ReactionFactoryXML()
 
     // register electrochemical reactions
     reg("electrochemical", [](const XML_Node& node) {
-        Reaction* R = new ElectrochemicalReaction();
-        setupElectrochemicalReaction(*(ElectrochemicalReaction*)R, node);
+        Reaction* R = new ElectrochemicalReaction2();
+        setupElectrochemicalReaction(*(ElectrochemicalReaction2*)R, node);
         return R;
     });
 }

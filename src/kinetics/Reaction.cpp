@@ -783,17 +783,17 @@ void ChebyshevReaction2::getParameters(AnyMap& reactionNode) const
     rate.getParameters(reactionNode, rate_units);
 }
 
-InterfaceReaction::InterfaceReaction()
+InterfaceReaction2::InterfaceReaction2()
     : is_sticking_coefficient(false)
     , use_motz_wise_correction(false)
 {
     reaction_type = INTERFACE_RXN;
 }
 
-InterfaceReaction::InterfaceReaction(const Composition& reactants_,
-                                     const Composition& products_,
-                                     const Arrhenius2& rate_,
-                                     bool isStick)
+InterfaceReaction2::InterfaceReaction2(const Composition& reactants_,
+                                       const Composition& products_,
+                                       const Arrhenius2& rate_,
+                                       bool isStick)
     : ElementaryReaction2(reactants_, products_, rate_)
     , is_sticking_coefficient(isStick)
     , use_motz_wise_correction(false)
@@ -801,7 +801,7 @@ InterfaceReaction::InterfaceReaction(const Composition& reactants_,
     reaction_type = INTERFACE_RXN;
 }
 
-void InterfaceReaction::calculateRateCoeffUnits(const Kinetics& kin)
+void InterfaceReaction2::calculateRateCoeffUnits(const Kinetics& kin)
 {
     ElementaryReaction2::calculateRateCoeffUnits(kin);
     if (is_sticking_coefficient || input.hasKey("sticking-coefficient")) {
@@ -809,7 +809,7 @@ void InterfaceReaction::calculateRateCoeffUnits(const Kinetics& kin)
     }
 }
 
-void InterfaceReaction::getParameters(AnyMap& reactionNode) const
+void InterfaceReaction2::getParameters(AnyMap& reactionNode) const
 {
     ElementaryReaction2::getParameters(reactionNode);
     if (is_sticking_coefficient) {
@@ -835,7 +835,7 @@ void InterfaceReaction::getParameters(AnyMap& reactionNode) const
     }
 }
 
-void InterfaceReaction::validate(Kinetics& kin)
+void InterfaceReaction2::validate(Kinetics& kin)
 {
     if (is_sticking_coefficient) {
         fmt::memory_buffer err_reactions;
@@ -850,12 +850,12 @@ void InterfaceReaction::validate(Kinetics& kin)
             }
         }
         if (err_reactions.size()) {
-            warn_user("InterfaceReaction::validate", to_string(err_reactions));
+            warn_user("InterfaceReaction2::validate", to_string(err_reactions));
         }
     }
 }
 
-void InterfaceReaction::checkBalance(const Kinetics& kin) const
+void InterfaceReaction2::checkBalance(const Kinetics& kin) const
 {
     Reaction::checkBalance(kin);
 
@@ -876,31 +876,31 @@ void InterfaceReaction::checkBalance(const Kinetics& kin) const
         }
     }
     if (fabs(reac_sites - prod_sites) > 1e-5 * (reac_sites + prod_sites)) {
-        throw InputFileError("InterfaceReaction::checkBalance", input,
+        throw InputFileError("InterfaceReaction2::checkBalance", input,
             "Number of surface sites not balanced in reaction {}.\n"
             "Reactant sites: {}\nProduct sites: {}",
             equation(), reac_sites, prod_sites);
     }
 };
 
-ElectrochemicalReaction::ElectrochemicalReaction()
+ElectrochemicalReaction2::ElectrochemicalReaction2()
     : beta(0.5)
     , exchange_current_density_formulation(false)
 {
 }
 
-ElectrochemicalReaction::ElectrochemicalReaction(const Composition& reactants_,
-                                                 const Composition& products_,
-                                                 const Arrhenius2& rate_)
-    : InterfaceReaction(reactants_, products_, rate_)
+ElectrochemicalReaction2::ElectrochemicalReaction2(const Composition& reactants_,
+                                                   const Composition& products_,
+                                                   const Arrhenius2& rate_)
+    : InterfaceReaction2(reactants_, products_, rate_)
     , beta(0.5)
     , exchange_current_density_formulation(false)
 {
 }
 
-void ElectrochemicalReaction::getParameters(AnyMap& reactionNode) const
+void ElectrochemicalReaction2::getParameters(AnyMap& reactionNode) const
 {
-    InterfaceReaction::getParameters(reactionNode);
+    InterfaceReaction2::getParameters(reactionNode);
     if (beta != 0.5) {
         reactionNode["beta"] = beta;
     }
@@ -909,7 +909,7 @@ void ElectrochemicalReaction::getParameters(AnyMap& reactionNode) const
     }
 }
 
-BlowersMaselInterfaceReaction::BlowersMaselInterfaceReaction()
+BlowersMaselInterfaceReaction2::BlowersMaselInterfaceReaction2()
     : allow_negative_pre_exponential_factor(false)
     , is_sticking_coefficient(false)
     , use_motz_wise_correction(false)
@@ -917,7 +917,7 @@ BlowersMaselInterfaceReaction::BlowersMaselInterfaceReaction()
     reaction_type = BMINTERFACE_RXN;
 }
 
-BlowersMaselInterfaceReaction::BlowersMaselInterfaceReaction(
+BlowersMaselInterfaceReaction2::BlowersMaselInterfaceReaction2(
     const Composition& reactants_,
     const Composition& products_,
     const BMSurfaceArrhenius& rate_,
@@ -931,7 +931,7 @@ BlowersMaselInterfaceReaction::BlowersMaselInterfaceReaction(
     reaction_type = BMINTERFACE_RXN;
 }
 
-void BlowersMaselInterfaceReaction::calculateRateCoeffUnits(const Kinetics& kin)
+void BlowersMaselInterfaceReaction2::calculateRateCoeffUnits(const Kinetics& kin)
 {
     Reaction::calculateRateCoeffUnits(kin);
     if (is_sticking_coefficient || input.hasKey("sticking-coefficient")) {
@@ -939,7 +939,7 @@ void BlowersMaselInterfaceReaction::calculateRateCoeffUnits(const Kinetics& kin)
     }
 }
 
-void BlowersMaselInterfaceReaction::getParameters(AnyMap& reactionNode) const
+void BlowersMaselInterfaceReaction2::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
     reactionNode["type"] = "Blowers-Masel";
@@ -973,18 +973,18 @@ void BlowersMaselInterfaceReaction::getParameters(AnyMap& reactionNode) const
     }
 }
 
-void BlowersMaselInterfaceReaction::validate()
+void BlowersMaselInterfaceReaction2::validate()
 {
     Reaction::validate();
     if (!allow_negative_pre_exponential_factor &&
         rate.preExponentialFactor() < 0) {
-        throw InputFileError("BlowersMaselInterfaceReaction::validate", input,
+        throw InputFileError("BlowersMaselInterfaceReaction2::validate", input,
             "Undeclared negative pre-exponential factor found in reaction '"
             + equation() + "'");
         }
 }
 
-void BlowersMaselInterfaceReaction::validate(Kinetics& kin)
+void BlowersMaselInterfaceReaction2::validate(Kinetics& kin)
 {
     if (is_sticking_coefficient) {
         double original_T = kin.thermo().temperature();
@@ -1006,7 +1006,7 @@ void BlowersMaselInterfaceReaction::validate(Kinetics& kin)
         }
         kin.thermo().setState_TP(original_T, original_P);
         if (err_reactions.size()) {
-            warn_user("BlowersMaselInterfaceReaction::validate", to_string(err_reactions));
+            warn_user("BlowersMaselInterfaceReaction2::validate", to_string(err_reactions));
         }
     }
 }
@@ -1850,7 +1850,7 @@ void setupChebyshevReaction(ChebyshevReaction2&R, const AnyMap& node,
                            coeffs);
 }
 
-void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)
+void setupInterfaceReaction(InterfaceReaction2& R, const XML_Node& rxn_node)
 {
     XML_Node& arr = rxn_node.child("rateCoeff").child("Arrhenius");
     if (caseInsensitiveEquals(arr["type"], "stick")) {
@@ -1880,7 +1880,7 @@ void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)
     setupElementaryReaction(R, rxn_node);
 }
 
-void setupInterfaceReaction(InterfaceReaction& R, const AnyMap& node,
+void setupInterfaceReaction(InterfaceReaction2& R, const AnyMap& node,
                             const Kinetics& kin)
 {
     setupReaction(R, node, kin);
@@ -1919,7 +1919,7 @@ void setupInterfaceReaction(InterfaceReaction& R, const AnyMap& node,
     }
 }
 
-void setupElectrochemicalReaction(ElectrochemicalReaction& R,
+void setupElectrochemicalReaction(ElectrochemicalReaction2& R,
                                   const XML_Node& rxn_node)
 {
     XML_Node& rc = rxn_node.child("rateCoeff");
@@ -1949,7 +1949,7 @@ void setupElectrochemicalReaction(ElectrochemicalReaction& R,
     }
 }
 
-void setupElectrochemicalReaction(ElectrochemicalReaction& R,
+void setupElectrochemicalReaction(ElectrochemicalReaction2& R,
                                   const AnyMap& node, const Kinetics& kin)
 {
     setupInterfaceReaction(R, node, kin);
@@ -1958,7 +1958,7 @@ void setupElectrochemicalReaction(ElectrochemicalReaction& R,
         "exchange-current-density-formulation", false);
 }
 
-void setupBlowersMaselInterfaceReaction(BlowersMaselInterfaceReaction& R, const AnyMap& node,
+void setupBlowersMaselInterfaceReaction(BlowersMaselInterfaceReaction2& R, const AnyMap& node,
                             const Kinetics& kin)
 {
     setupReaction(R, node, kin);
