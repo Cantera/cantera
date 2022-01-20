@@ -645,14 +645,14 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double E
         double m
 
-    cdef cppclass CxxInterfaceReaction "Cantera::InterfaceReaction" (CxxElementaryReaction2):
+    cdef cppclass CxxInterfaceReaction2 "Cantera::InterfaceReaction2" (CxxElementaryReaction2):
         stdmap[string, CxxCoverageDependency] coverage_deps
         cbool is_sticking_coefficient
         cbool use_motz_wise_correction
         string sticking_species
 
-    cdef cppclass CxxBlowersMaselInterfaceReaction "Cantera::BlowersMaselInterfaceReaction" (CxxReaction):
-        CxxBlowersMaselInterfaceReaction()
+    cdef cppclass CxxBlowersMaselInterfaceReaction2 "Cantera::BlowersMaselInterfaceReaction2" (CxxReaction):
+        CxxBlowersMaselInterfaceReaction2()
         CxxBlowersMasel2 rate
         cbool allow_negative_pre_exponential_factor
         stdmap[string, CxxCoverageDependency] coverage_deps

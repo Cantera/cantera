@@ -388,7 +388,7 @@ public:
 };
 
 
-//! Modifications to an InterfaceReaction rate based on a surface species
+//! Modifications to an InterfaceReaction2 rate based on a surface species
 //! coverage.
 struct CoverageDependency
 {
@@ -405,12 +405,12 @@ struct CoverageDependency
 
 
 //! A reaction occurring on an interface (i.e. a SurfPhase or an EdgePhase)
-class InterfaceReaction : public ElementaryReaction2
+class InterfaceReaction2 : public ElementaryReaction2
 {
 public:
-    InterfaceReaction();
-    InterfaceReaction(const Composition& reactants, const Composition& products,
-                      const Arrhenius2& rate, bool isStick=false);
+    InterfaceReaction2();
+    InterfaceReaction2(const Composition& reactants, const Composition& products,
+                       const Arrhenius2& rate, bool isStick=false);
     virtual void calculateRateCoeffUnits(const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
     virtual void checkBalance(const Kinetics& kin) const;
@@ -445,12 +445,12 @@ public:
 
 
 //! An interface reaction which involves charged species
-class ElectrochemicalReaction : public InterfaceReaction
+class ElectrochemicalReaction2 : public InterfaceReaction2
 {
 public:
-    ElectrochemicalReaction();
-    ElectrochemicalReaction(const Composition& reactants,
-                            const Composition& products, const Arrhenius2& rate);
+    ElectrochemicalReaction2();
+    ElectrochemicalReaction2(const Composition& reactants,
+                             const Composition& products, const Arrhenius2& rate);
     virtual void getParameters(AnyMap& reactionNode) const;
 
     //! Forward value of the apparent Electrochemical transfer coefficient
@@ -462,11 +462,11 @@ public:
 
 //! A reaction occurring on an interface (i.e. a SurfPhase or an EdgePhase)
 //! with the rate calculated with Blowers-Masel approximation.
-class BlowersMaselInterfaceReaction : public Reaction
+class BlowersMaselInterfaceReaction2 : public Reaction
 {
 public:
-    BlowersMaselInterfaceReaction();
-    BlowersMaselInterfaceReaction(const Composition& reactants, const Composition& products,
+    BlowersMaselInterfaceReaction2();
+    BlowersMaselInterfaceReaction2(const Composition& reactants, const Composition& products,
                       const BMSurfaceArrhenius& rate, bool isStick=false);
     virtual void getParameters(AnyMap& reactionNode) const;
     virtual void validate();
@@ -585,6 +585,8 @@ typedef FalloffReaction2 FalloffReaction;
 typedef ChemicallyActivatedReaction2 ChemicallyActivatedReaction;
 typedef PlogReaction2 PlogReaction;
 typedef ChebyshevReaction2 ChebyshevReaction;
+typedef InterfaceReaction2 InterfaceReaction;
+typedef ElectrochemicalReaction2 ElectrochemicalReaction;
 #endif
 
 
@@ -652,19 +654,19 @@ void setupChebyshevReaction(ChebyshevReaction2&, const XML_Node&);
 void setupChebyshevReaction(ChebyshevReaction2&, const AnyMap&,
                             const Kinetics&);
 
-void setupInterfaceReaction(InterfaceReaction&, const XML_Node&);
+void setupInterfaceReaction(InterfaceReaction2&, const XML_Node&);
 //! @internal May be changed without notice in future versions
-void setupInterfaceReaction(InterfaceReaction&, const AnyMap&,
+void setupInterfaceReaction(InterfaceReaction2&, const AnyMap&,
                             const Kinetics&);
 
-void setupElectrochemicalReaction(ElectrochemicalReaction&,
+void setupElectrochemicalReaction(ElectrochemicalReaction2&,
                                   const XML_Node&);
 //! @internal May be changed without notice in future versions
-void setupElectrochemicalReaction(ElectrochemicalReaction&,
+void setupElectrochemicalReaction(ElectrochemicalReaction2&,
                                   const AnyMap&, const Kinetics&);
 
 //! @internal May be changed without notice in future versions
-void setupBlowersMaselInterfaceReaction(BlowersMaselInterfaceReaction&,
+void setupBlowersMaselInterfaceReaction(BlowersMaselInterfaceReaction2&,
                                         const AnyMap&, const Kinetics&);
 }
 #endif

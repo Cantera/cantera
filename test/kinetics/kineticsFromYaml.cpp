@@ -362,18 +362,18 @@ TEST(Kinetics, InterfaceKineticsFromYaml)
     EXPECT_EQ(kin->nReactions(), (size_t) 3);
     EXPECT_EQ(kin->nTotalSpecies(), (size_t) 6);
     auto R1 = kin->reaction(0);
-    auto IR1 = std::dynamic_pointer_cast<InterfaceReaction>(R1);
+    auto IR1 = std::dynamic_pointer_cast<InterfaceReaction2>(R1);
     EXPECT_DOUBLE_EQ(R1->orders["Pt(s)"], 1.0);
     EXPECT_DOUBLE_EQ(IR1->rate.preExponentialFactor(), 4.4579e7);
 
     auto R2 = kin->reaction(1);
-    auto IR2 = std::dynamic_pointer_cast<InterfaceReaction>(R2);
+    auto IR2 = std::dynamic_pointer_cast<InterfaceReaction2>(R2);
     EXPECT_DOUBLE_EQ(IR2->rate.preExponentialFactor(), 3.7e20);
     EXPECT_DOUBLE_EQ(IR2->coverage_deps["H(s)"].E, -6e6 / GasConstant);
     EXPECT_FALSE(IR2->is_sticking_coefficient);
 
     auto R3 = kin->reaction(2);
-    auto IR3 = std::dynamic_pointer_cast<InterfaceReaction>(R3);
+    auto IR3 = std::dynamic_pointer_cast<InterfaceReaction2>(R3);
     EXPECT_TRUE(IR3->is_sticking_coefficient);
 }
 
@@ -384,18 +384,18 @@ TEST(Kinetics, BMInterfaceKineticsFromYaml)
     EXPECT_EQ(kin->nReactions(), (size_t) 6);
     EXPECT_EQ(kin->nTotalSpecies(), (size_t) 14);
     auto R1 = kin->reaction(5);
-    auto IR1 = std::dynamic_pointer_cast<BlowersMaselInterfaceReaction>(R1);
+    auto IR1 = std::dynamic_pointer_cast<BlowersMaselInterfaceReaction2>(R1);
     EXPECT_DOUBLE_EQ(R1->orders["PT(s)"], 1.0);
     EXPECT_DOUBLE_EQ(IR1->rate.preExponentialFactor(), 4.4579e7);
 
     auto R2 = kin->reaction(0);
-    auto IR2 = std::dynamic_pointer_cast<BlowersMaselInterfaceReaction>(R2);
+    auto IR2 = std::dynamic_pointer_cast<BlowersMaselInterfaceReaction2>(R2);
     EXPECT_DOUBLE_EQ(IR2->rate.preExponentialFactor(), 3.7e20);
     EXPECT_DOUBLE_EQ(IR2->coverage_deps["H(S)"].E, -6e6 / GasConstant);
     EXPECT_FALSE(IR2->is_sticking_coefficient);
 
     auto R3 = kin->reaction(1);
-    auto IR3 = std::dynamic_pointer_cast<BlowersMaselInterfaceReaction>(R3);
+    auto IR3 = std::dynamic_pointer_cast<BlowersMaselInterfaceReaction2>(R3);
     EXPECT_TRUE(IR3->is_sticking_coefficient);
 }
 
@@ -607,7 +607,7 @@ TEST_F(ReactionToYaml, surface)
     surf->setCoveragesByName("c6HH:0.1, c6H*:0.6, c6**:0.1");
     gas->thermo()->setMassFractionsByName("H2:0.7, CH4:0.3");
     duplicateReaction(0);
-    EXPECT_TRUE(std::dynamic_pointer_cast<InterfaceReaction>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<InterfaceReaction2>(duplicate));
     compareReactions();
 }
 
@@ -626,7 +626,7 @@ TEST_F(ReactionToYaml, electrochemical)
     oxide_surf->thermo()->setElectricPotential(-3.4);
     ox_surf->setCoveragesByName("O''(ox):0.2, OH'(ox):0.3, H2O(ox):0.5");
     duplicateReaction(0);
-    EXPECT_TRUE(std::dynamic_pointer_cast<ElectrochemicalReaction>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<ElectrochemicalReaction2>(duplicate));
     compareReactions();
     compareReactions();
 }
@@ -672,6 +672,6 @@ TEST_F(ReactionToYaml, BlowersMaselInterface)
     auto surf = std::dynamic_pointer_cast<SurfPhase>(soln->thermo());
     surf->setCoveragesByName("H(S):0.1, PT(S):0.8, H2O(S):0.1");
     duplicateReaction(0);
-    EXPECT_TRUE(std::dynamic_pointer_cast<BlowersMaselInterfaceReaction>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<BlowersMaselInterfaceReaction2>(duplicate));
     compareReactions();
 }
