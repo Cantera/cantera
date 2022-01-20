@@ -492,14 +492,6 @@ public:
     virtual void getActivityConcentrations(double* c) const;
 
 protected:
-    //! Calculate the pressure given the temperature and the molar volume
-    /*!
-     * @param   TKelvin   temperature in kelvin
-     * @param   molarVol  molar volume ( m3/kmol)
-     * @returns the pressure.
-     */
-    virtual doublereal pressureCalc(doublereal TKelvin, doublereal molarVol) const;
-
     //! Calculate the pressure and the pressure derivative given the temperature
     //! and the molar volume
     /*!
