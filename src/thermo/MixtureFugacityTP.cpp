@@ -762,11 +762,6 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
     return pres;
 }
 
-doublereal MixtureFugacityTP::pressureCalc(doublereal TKelvin, doublereal molarVol) const
-{
-    throw NotImplementedError("MixtureFugacityTP::pressureCalc");
-}
-
 doublereal MixtureFugacityTP::dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const
 {
     throw NotImplementedError("MixtureFugacityTP::dpdVCalc");
