@@ -1081,7 +1081,7 @@ classdef ThermoPhase < handle
                 calllib(ct, 'thermo_setMassFractions', tp.tp_id, ...
                         nsp, yy, norm);
             elseif isa(yy, 'char')
-                calllib(ct, 'thermo_setMassFracitonsByName', tp.tp_id, yy);
+                calllib(ct, 'thermo_setMassFractionsByName', tp.tp_id, yy);
             end
         end
 

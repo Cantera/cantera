@@ -20,7 +20,7 @@ classdef Stack < handle
 
             checklib;
 
-            s.st_id = 1;
+            s.st_id = -1;
             s.domains = domains;
             if nargin == 1
                 nd = length(domains);
@@ -378,7 +378,7 @@ classdef Stack < handle
                     n - 1, comp -  1, localPoints - 1, v);
         end
 
-        function solution(s, domain, component)
+        function x = solution(s, domain, component)
             % Get a solution component in one domain.
             %
             % parameter s:
@@ -402,7 +402,7 @@ classdef Stack < handle
                 icomp = d.componentIndex(component);
                 x = zeros(1, np);
                 for n = 1:np
-                    x(n) = calllib(ct, 'sim1D_Value', s.st_id, ...
+                    x(n) = calllib(ct, 'sim1D_value', s.st_id, ...
                                    idom - 1, icomp - 1, n - 1);
                 end
             else
@@ -410,7 +410,7 @@ classdef Stack < handle
                 x = zeros(nc, np);
                 for m = 1:nc
                     for n = 1:np
-                        x(m, n) = calllib(ct, 'sim1D_Value', s.st_id, ...
+                        x(m, n) = calllib(ct, 'sim1D_value', s.st_id, ...
                                           idom - 1, m - 1, n - 1);
                     end
                 end
@@ -432,18 +432,18 @@ classdef Stack < handle
             calllib(ct, 'sim1D_solve', s.st_id, loglevel, refine_grid);
         end
 
-        function b = subsref(s, index)
-            % Redefine subscripted references.
-            switch index.type
-                case '()'
-                    b = s.domains(index.subs{:});
-                case '.'
-                    n = s.domainIndex(index.subs);
-                    b = s.domains(n);
-                otherwise
-                    error('syntax error');
-            end
-        end
+%         function b = subsref(s, index)
+%             % Redefine subscripted references.
+%             switch index.type
+%                 case '()'
+%                     b = s.domains(index.subs{:});
+%                 case '.'
+%                     n = s.domainIndex(index.subs);
+%                     b = s.domains(n);
+%                 otherwise
+%                     error('syntax error');
+%             end
+%         end
 
         function writeStats(s)
             % Print statistics for the current solution.
@@ -451,7 +451,7 @@ classdef Stack < handle
             % evaluations for each grid, and the CPU time spent on each
             % one.
             checklib;
-            calllib(ct, 'sim1D_writeStats', s.st_id);
+            calllib(ct, 'sim1D_writeStats', s.st_id, 1);
         end
 
     end

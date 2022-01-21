@@ -32,6 +32,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
                 args = {p1, p2, p3, p4};
             end
             s@Kinetics(t, src, id, args{:});
+            s.tp_id = t.tp_id;
         end
 
         %% Interface methods
@@ -45,7 +46,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
             %    will be returned.
 
             checklib;
-            surf_id = s.tr_id;
+            surf_id = s.tp_id;
             nsp = s.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
