@@ -1,7 +1,7 @@
 classdef ReactorSurface < handle
 
     properties
-        id
+        surf_id
         area
         reactor
     end
@@ -36,7 +36,7 @@ classdef ReactorSurface < handle
 
             checklib;
 
-            s.id = calllib(ct, 'reactorsurface_new', 0);
+            s.surf_id = calllib(ct, 'reactorsurface_new', 0);
             s.reactor = -1;
 %             if r.id < 0
 %                 error(geterr);
@@ -69,14 +69,14 @@ classdef ReactorSurface < handle
         function clear(s)
             % Clear the ReactorSurface object from the memory.
             checklib;
-            calllib(ct, 'reactorsurface_del', s.id);
+            calllib(ct, 'reactorsurface_del', s.surf_id);
         end
 
         function install(s, r)
             % Install a ReactorSurface in a Reactor.
             checklib;
             s.reactor = r;
-            calllib(ct, 'reactorsurface_install', s.id, r.id);
+            calllib(ct, 'reactorsurface_install', s.surf_id, r.id);
         end
 
         %% ReactorSurface get methods
@@ -84,15 +84,15 @@ classdef ReactorSurface < handle
         function a = get.area(s)
             % Get the areaof the reactor surface in m^2.
             checklib;
-            a = calllib(ct, 'reactorsurface_area', s.id);
+            a = calllib(ct, 'reactorsurface_area', s.surf_id);
         end
 
         %% ReactorSurface set methods
 
-        function s = set.area(s, a)
+        function set.area(s, a)
             % Set the area of a reactor surface
             checklib;
-            calllib(ct, 'reactorsurface_setArea', s.id, a);
+            calllib(ct, 'reactorsurface_setArea', s.surf_id, a);
         end
 
         function setKinetics(s, kin)
@@ -106,10 +106,10 @@ classdef ReactorSurface < handle
 
             ikin = 0;
             if isa(kin, 'Kinetics')
-                ikin = kin.id;
+                ikin = kin.kin_id;
             end
 
-            calllib(ct, 'reactorsurface_setkinetics', s.id, ikin);
+            calllib(ct, 'reactorsurface_setkinetics', s.surf_id, ikin);
         end
 
     end

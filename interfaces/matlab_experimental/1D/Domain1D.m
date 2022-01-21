@@ -31,19 +31,19 @@ classdef Domain1D < handle
             %    specified, defaults to 1. Ignored if a!= 1.
 
             checklib;
-            d.dom_id = 1;
+            d.dom_id = -1;
 
             if nargin == 1
                 if a == 2
-                    calllib(ct, 'inlet_new');
+                    d.dom_id = calllib(ct, 'inlet_new');
                 elseif a == 3
-                    calllib(ct, 'surf_new');
+                    d.dom_id = calllib(ct, 'surf_new');
                 elseif a == 4
-                    calllib(ct, 'symm_new');
+                    d.dom_id = calllib(ct, 'symm_new');
                 elseif a == 5
-                    calllib(ct, 'outlet_new');
+                    d.dom_id = calllib(ct, 'outlet_new');
                 elseif a == -2
-                    calllib(ct, 'outletres_new');
+                    d.dom_id = calllib(ct, 'outletres_new');
                 else
                     error('Not enough arguments for that job number');
                 end
@@ -191,7 +191,7 @@ classdef Domain1D < handle
             checklib;
             disp(' ');
             disp('Enabling the energy equation...');
-            calllib(ctm 'stflow_solveEnergyEqn', d.dom_id, 1);
+            calllib(ct, 'stflow_solveEnergyEqn', d.dom_id, 1);
         end
 
         function zz = gridPoints(d, n)
@@ -206,15 +206,15 @@ classdef Domain1D < handle
             checklib;
             if nargin == 1
                 np = d.nPoints;
-                zz = zeros(1, d.np);
+                zz = zeros(1, np);
                 for i = 1:np
-                    zz(i) = calllib(ct, 'domain_grid', dom_id, i-1);
+                    zz(i) = calllib(ct, 'domain_grid', d.dom_id, i-1);
                 end
             else
                 m = length(n);
                 zz = zeros(1, m);
                 for i = 1:m
-                    zz(i) = calllib(ct, 'domain_grid', dom_id, n(i)-1);
+                    zz(i) = calllib(ct, 'domain_grid', d.dom_id, n(i)-1);
                 end
             end
         end
@@ -372,11 +372,13 @@ classdef Domain1D < handle
             checklib;
             sz = size(profile);
             if sz(1) == 2
-                l = length(1, :);
-                calllib(ct, '', d.dom_id, l, profile(1, :), l, profile(2, :));
+                l = length(profile(1, :));
+                calllib(ct, 'stflow_setFixedTempProfile', d.dom_id, ...
+                        l, profile(1, :), l, profile(2, :));
             elseif sz(2) == 2
-                l = length(:, 1);
-                calllib(ct, '', d.dom_id, l, profile(:, 1); l, profile(:, 2));
+                l = length(profile(:, 1));
+                calllib(ct, 'stflow_setFixedTempProfile', d.dom_id, ...
+                        l, profile(:, 1), l, profile(:, 2));
             else error('Wrong temperature profile array shape.');
             end
         end
@@ -394,7 +396,7 @@ classdef Domain1D < handle
             % parameter mdot:
             %    Mass flow rate.
             checklib;
-            calllib(ct, 'bdry_setTemperature', d.dom_id, mdot);
+            calllib(ct, 'bdry_setMdot', d.dom_id, mdot);
         end
 
         function setMoleFractions(d, x)
@@ -411,7 +413,7 @@ classdef Domain1D < handle
             % parameter p:
             %    Pressure to be set. Unit: Pa.
             checklib;
-            calllib(ct, 'bdry_setPressure', d.dom_id, p);
+            calllib(ct, 'stflow_setPressure', d.dom_id, p);
         end
 
         function setProfileD(d, n, p)
@@ -515,7 +517,7 @@ classdef Domain1D < handle
         function set.T(d, t)
             % Set the temperature (K).
             checklib;
-            if temperature <= 0
+            if t <= 0
                 error('The temperature must be positive');
             end
             calllib(ct, 'bdry_setTemperature', d.dom_id, t);

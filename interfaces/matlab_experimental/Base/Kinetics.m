@@ -577,7 +577,7 @@ classdef Kinetics < handle
             end
         end
 
-        function advanceCoeverages(kin, dt)
+        function advanceCoverages(kin, dt)
             % Advance the surface coveages forward in time
             %
             % parameter dt:

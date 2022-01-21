@@ -66,7 +66,7 @@ classdef FlowDevice < handle
                 end
                 i = upstream.id;
                 j = downstream.id;
-                ok = calllib(ct, 'flowdev_install', f.id, i, j);
+                calllib(ct, 'flowdev_install', f.id, i, j);
 %                 if ok < 0
 %                     error(geterr)
 %                 end
