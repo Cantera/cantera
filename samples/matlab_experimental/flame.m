@@ -6,20 +6,20 @@ function f = flame(gas, left, flow, right)
       error('wrong number of input arguments.');
     end
 
-    if ~gas.thermo.isIdealGas
+    if ~gas.isIdealGas
       error('gas object must represent an ideal gas mixture.');
     end
-    if ~isInlet(left)
+    if ~left.isInlet
       error('burner object of wrong type.');
     end
-    if ~isFlow(flow)
+    if ~flow.isFlow
       error('flow object of wrong type.');
     end
 
     flametype = 0;
-    if isSurface(right)
+    if right.isSurface
       flametype = 1;
-    elseif isInlet(right)
+    elseif right.isInlet
       flametype = 3;
     end
 

@@ -16,20 +16,21 @@ function plotdata = ignite(g)
 
     % set the initial conditions
 
-    gas.TPX = {1001.0, oneatm, 'X','H2:2,O2:1,N2:4'};
+    gas.TPX = {1001.0, oneatm, 'H2:2,O2:1,N2:4'};
     gas.basis = 'mass';
     y0 = [gas.U
           1.0/gas.D
           gas.Y'];
 
     time_interval = [0 0.001];
-    options = odeset('RelTol',1.e-5,'AbsTol',1.e-12,'Stats','on');
+    options = odeset('RelTol', 1.e-5, 'AbsTol', 1.e-12, 'Stats', 'on');
 
     t0 = cputime;
-    out = ode15s(@reactor_ode,time_interval,y0,options,gas,@vdot,@area,@heatflux);
+    out = ode15s(@reactor_ode, time_interval, y0, options, gas, ...
+                 @vdot, @area, @heatflux);
     disp(['CPU time = ' num2str(cputime - t0)]);
 
-    plotdata = output(out,gas);
+    plotdata = output(out, gas);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % the functions below may be defined arbitrarily to set the reactor
@@ -71,7 +72,7 @@ function plotdata = ignite(g)
         gas.TP = {1001.0, oneatm};
 
         for j = 1:n
-          ss = soln(:,j);
+          ss = soln(:, j);
           y = ss(3:end);
           mass = sum(y);
           u_mass = ss(1)/mass;
@@ -79,11 +80,11 @@ function plotdata = ignite(g)
           gas.Y = y;
           gas.UV = {u_mass, v_mass};
 
-          pv(1,j) = times(j);
-          pv(2,j) = gas.T;
-          pv(3,j) = gas.D;
-          pv(4,j) = gas.P;
-          pv(5:end,j) = y;
+          pv(1, j) = times(j);
+          pv(2, j) = gas.T;
+          pv(3, j) = gas.D;
+          pv(4, j) = gas.P;
+          pv(5:end, j) = y;
         end
 
         % plot the temperature and OH mass fractions.
@@ -95,7 +96,7 @@ function plotdata = ignite(g)
 
         figure(2);
         ioh = gas.speciesIndex('OH');
-        plot(pv(1,:),pv(4+ioh,:));
+        plot(pv(1, :), pv(4+ioh, :));
         xlabel('time');
         ylabel('Mass Fraction');
         title('OH Mass Fraction');

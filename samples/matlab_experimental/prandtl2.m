@@ -6,6 +6,11 @@ function prandtl2(g)
     %
     help prandtl2
 
+    clear all
+    close all
+    cleanup
+    clc
+
     if nargin == 1
        gas = g;
     else

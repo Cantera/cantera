@@ -21,10 +21,10 @@ gas.TPX = {t, oneatm, 'CH4:0.01, O2:0.21, N2:0.78'};
 % methane on platinum, and is from Deutschman et al., 26th
 % Symp. (Intl.) on Combustion,1996, pp. 1747-1754
 surf = importInterface('ptcombust.yaml','Pt_surf', gas);
-surf.th.T = t;
+surf.T = t;
 
 nsp = gas.nSpecies;
-nSurfSp = surf.th.nSpecies;
+nSurfSp = surf.nSpecies;
 
 % create a reactor, and insert the gas
 r = IdealGasReactor(gas);
@@ -60,9 +60,9 @@ nSteps = 100;
 p0 = r.P;
 names = {'CH4','CO','CO2','H2O'};
 x = zeros([nSteps 4]);
-tim = zeros(nSteps);
-temp = zeros(nSteps);
-pres = zeros(nSteps);
+tim = zeros(nSteps, 1);
+temp = zeros(nSteps, 1);
+pres = zeros(nSteps, 1);
 cov = zeros([nSteps nSurfSp]);
 t = 0;
 dt = 0.1;
