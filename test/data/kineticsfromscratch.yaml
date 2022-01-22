@@ -16,10 +16,22 @@ phases:
   species:
   - h2o2.yaml/species: [AR, O, H2, H, OH, O2, H2O, H2O2, HO2]
   kinetics: gas
-  reactions: all
+  reactions: [reactions]
   state:
     T: 300.0
     P: 1.01325e+05
+- name: Pt_surf
+  thermo: ideal-surface
+  adjacent-phases: [ohmech]
+  elements: [Pt, H, O]
+  species:
+  - ptcombust.yaml/species: [PT(S), H(S), H2O(S), OH(S), O(S)]
+  kinetics: surface
+  reactions: [surface]
+  state:
+    T: 900.0
+    coverages: {PT(S): 0.35, H(S): 0.35, H2O(S): .1, OH(S): 0.1, O(S): 0.1}
+  site-density: 2.7063e-09
 
 reactions:
 - equation: O + H2 <=> H + OH  # Reaction 1
@@ -86,3 +98,42 @@ reactions:
 - equation: O + OH => O + OH  # Reaction 13
   type: two-temperature-plasma
   rate-constant: {A: 17283, b: -3.1}
+
+surface:
+- units: {length: cm, quantity: mol, activation-energy: J/mol}
+- equation: H(S) + O(S) <=> OH(S) + PT(S)
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 11500}
+  note: Reaction 12 from ptcombust.yaml
+- equation: 2 O(S) => O2 + 2 PT(S)
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 213200}
+  coverage-dependencies:
+    O(S): {a: 0.0, m: 0.0, E: -6.0e+04}
+  note: Reaction 6 from ptcombust.yaml
+- equation: H + PT(S) => H(S)
+  sticking-coefficient: {A: 1.0, b: 0, Ea: 0}
+  note: Reaction 3 from ptcombust.yaml
+- equation: H2 + 2 PT(S) => 2 H(S)
+  sticking-coefficient: {A: 0.046, b: 0, Ea: 0}
+  coverage-dependencies:
+    PT(S): {a: 0.0, m: -1.0, E: 0.0}
+  note: Reaction 1 from methane_pox_on_pt.yaml
+- equation: OH + PT(S) => OH(S)
+  sticking-coefficient: {A: 1.0, b: 0, Ea: 0}
+  Motz-Wise: true
+  note: Reaction 10 from ptcombust-motzwise.yaml
+- equation: 2 H(S) => H2 + 2 PT(S)
+  type: Blowers-Masel
+  duplicate: true
+  rate-constant: {A: 3.7e+21, b: 0, Ea0: 67400, w: 1000000}
+- equation: 2 H(S) => H2 + 2 PT(S)
+  type: Blowers-Masel
+  duplicate: true
+  rate-constant: {A: 3.7e+21, b: 0, Ea0: 67400, w: 1000000}
+  coverage-dependencies:
+    H(S): {a: 0.0, m: 0.0, E: -6000.0}
+  note: Reaction 1 from blowers-masel.yaml
+- equation: OH + PT(S) => OH(S)
+  type: Blowers-Masel
+  sticking-coefficient: {A: 1.0, b: 0, Ea0: 0, w: 100000}
+  Motz-Wise: true
+  note: Reaction 5 from blowers-masel.yaml
