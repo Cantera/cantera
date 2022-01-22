@@ -11,7 +11,6 @@
 #include "ReactionRate.h"
 #include "MultiRateBase.h"
 #include "cantera/base/utilities.h"
-#include <iostream>
 
 namespace Cantera
 {
@@ -20,6 +19,7 @@ namespace Cantera
 template <class RateType, class DataType>
 class MultiBulkRate final : public MultiRateBase
 {
+    CT_DEFINE_HAS_MEMBER(has_update, updateFromStruct)
     CT_DEFINE_HAS_MEMBER(has_ddT, ddTScaledFromStruct)
     CT_DEFINE_HAS_MEMBER(has_ddP, perturbPressure)
     CT_DEFINE_HAS_MEMBER(has_ddM, perturbThirdBodies)
@@ -100,30 +100,69 @@ public:
 
     virtual void update(double T) override {
         m_shared.update(T);
+        _update();
     }
 
     virtual void update(double T, double extra) override {
         m_shared.update(T, extra);
+        _update();
     }
 
     virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override {
-        return m_shared.update(bulk, kin);
+        bool changed = m_shared.update(bulk, kin);
+        if (changed) {
+            // call helper function only if needed: implementation depends on whether
+            // ReactionRate::updateFromStruct is defined
+            _update();
+        }
+        return changed;
     }
 
-    virtual double evalSingle(ReactionRate& rate) override
-    {
+    virtual double evalSingle(ReactionRate& rate) override {
         RateType& R = static_cast<RateType&>(rate);
+        _updateRate(R);
         return R.evalFromStruct(m_shared);
     }
 
 protected:
+    //! Helper function to process updates for rate types that implement the
+    //! `updateFromStruct` method.
+    template <typename T=RateType,
+        typename std::enable_if<has_update<T>::value, bool>::type = true>
+    void _update() {
+        for (auto& rxn : m_rxn_rates) {
+            rxn.second.updateFromStruct(m_shared);
+        }
+    }
+
+    //! Helper function for rate types that do not implement `updateFromStruct`.
+    //! Does nothing, but exists to allow generic implementations of update().
+    template <typename T=RateType,
+        typename std::enable_if<!has_update<T>::value, bool>::type = true>
+    void _update() {
+    }
+
+    //! Helper function to update a single rate that has an `updateFromStruct method`.
+    template <typename T=RateType,
+        typename std::enable_if<has_update<T>::value, bool>::type = true>
+    void _updateRate(RateType& rate) {
+        rate.updateFromStruct(m_shared);
+    }
+
+    //! Helper function for single rate that does not implement `updateFromStruct`.
+    //! Exists to allow generic implementations of `evalSingle` and `ddTSingle`.
+    template <typename T=RateType,
+        typename std::enable_if<!has_update<T>::value, bool>::type = true>
+    void _updateRate(RateType& rate) {
+    }
+
     //! Helper function to process temperature derivatives for rate types that
     //! implement the `ddTScaledFromStruct` method.
     template <typename T=RateType,
         typename std::enable_if<has_ddT<T>::value, bool>::type = true>
     void _process_ddT(double* rop, const double* kf, double deltaT) {
         for (const auto& rxn : m_rxn_rates) {
-            rop[rxn.first] *= rxn.second.ddTScaledFromStruct(m_shared);;
+            rop[rxn.first] *= rxn.second.ddTScaledFromStruct(m_shared);
         }
     }
 
