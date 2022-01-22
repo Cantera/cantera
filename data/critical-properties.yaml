@@ -10,8 +10,19 @@ description: |-
 
   Critical pressures are given in Pa. Critical volumes are given in m^3/kmol.
 
-  These critical properties have been compiled from various sources by
+source: |-
+  Initial database of critical properties compiled from various sources by
   C. Karakaya (https://orcid.org/0000-0001-5102-5476)
+
+  Additional data sources:
+
+  Lemmon, E W; Bell, I H; Huber, M L; and McLinden, M O. (2022). "Thermophysical
+      Properties of Fluid Systems" in NIST Chemistry WebBook, NIST Standard Reference
+      Database Number 69, Eds. P J  Linstrom and W G Mallard, National Institute of
+      Standards and Technology, Gaithersburg MD, 20899, https://doi.org/10.18434/T4D303.
+
+  Yaws, C L. (2001). Matheson Gas Data Book. 7th Edition McGraw-Hill.
+      ISBN 978-0-07-135854-5.
 
 input-files: critProperties.xml
 cantera-version: 2.6.0a3
@@ -82,8 +93,7 @@ species:
     critical-compressibility: 0.275
     acentric-factor: 0.228
     source: |-
-      The acentric factor is taken from Yaws, Carl L. (2001).
-      Matheson Gas Data Book. McGraw-Hill.
+      The acentric factor is taken from Yaws (2001).
 - name: COS
   descriptive-name: carbonyl-sulfide
   molecular-weight: 60.07
@@ -6272,10 +6282,16 @@ species:
   critical-parameters:
     critical-temperature: 154.58
     critical-pressure: 5.043e+06
-    acentric-factor: 0.741
+    acentric-factor: 0.022
+    source: |-
+      The acentric factor is calculated using the pure fluid saturation data from
+      Lemmon et al. (2022).
 - name: N2
   descriptive-name: nitrogen
   critical-parameters:
     critical-temperature: 126.2
     critical-pressure: 3.39e+06
-    acentric-factor: 0.741
+    acentric-factor: 0.038
+    source: |-
+      The acentric factor is calculated using the pure fluid saturation data from
+      Lemmon et al. (2022).
