@@ -805,11 +805,9 @@ cdef class Reaction:
             rxn_type = self._reaction_type
             spec = {"equation": equation, "type": rxn_type}
             if isinstance(rate, dict):
+                # Arrhenius-like rates
                 spec["rate-constant"] = rate
-            elif rate is None or isinstance(rate, ReactionRate):
-                pass
-            else:
-                raise TypeError("Invalid rate definition")
+                rate = None
 
             self._reaction = CxxNewReaction(dict_to_anymap(spec),
                                             deref(kinetics.kinetics))
@@ -817,6 +815,18 @@ cdef class Reaction:
 
             if isinstance(rate, ReactionRate):
                 self.rate = rate
+                rate = None
+            elif rate is not None:
+                try:
+                    if isinstance(rate[0][1], Arrhenius):
+                        self.rate = PlogRate(rate)
+                        rate = None
+                except (IndexError, TypeError, KeyError):
+                    pass
+
+            if rate is not None:
+                raise TypeError("Invalid rate definition")
+
 
     @staticmethod
     cdef wrap(shared_ptr[CxxReaction] reaction):
@@ -1209,6 +1219,44 @@ cdef class Reaction:
             attr = "allow_negative_pre_exponential_factor"
             warnings.warn(self._deprecation_warning(attr), DeprecationWarning)
             self.rate.allow_negative_pre_exponential_factor = allow
+
+    property rates:
+        """
+        For reactions with Plog rates, get/set the rate coefficients for this reaction
+        as a list of (pressure, rate) tuples.
+
+        .. deprecated:: 2.6
+             This property is for temporary backwards-compatibility with the deprecated
+             `PlogReaction` class. Replaced by `Reaction.rate.rates` for reactions where
+             the rate is a `PlogRate`.
+        """
+        def __get__(self):
+            if isinstance(self.rate, PlogRate):
+                warnings.warn(self._deprecation_warning("rates"), DeprecationWarning)
+                return self.rate.rates
+            else:
+                raise TypeError("only valid for reactions with PlogRate rates")
+
+        def __set__(self, rates):
+            if isinstance(self.rate, PlogRate):
+                warnings.warn("Property 'rates' to be removed after Cantera 2.6. "
+                    "Setter is replaceable by assigning a new 'PlogRate' object created "
+                    "from rates to the rate property.", DeprecationWarning)
+                self.rate.rates = rates
+            else:
+                raise TypeError("only valid for reactions with PlogRate rates")
+
+    def __call__(self, T, extra=None):
+        """
+        .. deprecated:: 2.6
+            To be removed after Cantera 2.6.
+            Replaced by `Reaction.rate(T)` or `Reaction.rate(T, P)`
+        """
+        warnings.warn(self._deprecation_warning("__call__", "method"), DeprecationWarning)
+        if extra is None:
+            return self.rate(T)
+        else:
+            return self.rate(T, extra)
 
     property input_data:
         """
@@ -1868,15 +1916,14 @@ cdef class PlogReaction(Reaction):
         - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04 cal/mol}
         - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
         - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}or.
+
+    .. deprecated:: 2.6
+            To be deprecated with version 2.6, and removed thereafter.
+            Implemented by the `Reaction` class with a `PlogRate` reaction rate.
     """
     _reaction_type = "pressure-dependent-Arrhenius"
     _has_legacy = True
-    _hybrid = True
-
-    cdef CxxPlogReaction3* cxx_object(self):
-        if self.uses_legacy:
-            raise AttributeError("Incorrect accessor for updated implementation")
-        return <CxxPlogReaction3*>self.reaction
+    _hybrid = False
 
     cdef CxxPlogReaction2* cxx_object2(self):
         if not self.uses_legacy:
@@ -1884,15 +1931,12 @@ cdef class PlogReaction(Reaction):
         return <CxxPlogReaction2*>self.reaction
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
-                 init=True, legacy=False, **kwargs):
+                 init=True, **kwargs):
 
         if init and equation and kinetics:
-
-            rxn_type = self._reaction_type
-            if legacy:
-                rxn_type += "-legacy"
+            rxn_type = self._reaction_type + "-legacy"
             spec = {"equation": equation, "type": rxn_type}
-            if legacy and isinstance(rate, list):
+            if isinstance(rate, list):
                 rates = []
                 for r in rate:
                     rates.append({
@@ -1902,30 +1946,12 @@ cdef class PlogReaction(Reaction):
                         "Ea": r[1].activation_energy,
                     })
                 spec.update({'rate-constants': rates})
-            elif not legacy and (isinstance(rate, (PlogRate, list)) or rate is None):
-                pass
             else:
                 raise TypeError("Invalid rate definition")
 
             self._reaction = CxxNewReaction(dict_to_anymap(spec),
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
-
-            if not legacy and isinstance(rate, PlogRate):
-                self.rate = rate
-            elif not legacy and isinstance(rate, list):
-                self.rate = PlogRate(rate)
-
-    property rate:
-        """ Get/Set the `PlogRate` rate coefficients for this reaction. """
-        def __get__(self):
-            if self.uses_legacy:
-                raise AttributeError("Legacy implementation does not use rate property.")
-            return PlogRate.wrap(self.cxx_object().rate())
-        def __set__(self, PlogRate rate):
-            if self.uses_legacy:
-                raise AttributeError("Legacy implementation does not use rate property.")
-            self.cxx_object().setRate(rate._rate)
 
     cdef list _legacy_get_rates(self):
         cdef CxxPlogReaction2* r = self.cxx_object2()
@@ -1960,28 +1986,12 @@ cdef class PlogReaction(Reaction):
         Get/Set the rate coefficients for this reaction, which are given as a
         list of (pressure, `Arrhenius`) tuples.
 
-        .. deprecated:: 2.6
-             To be deprecated with version 2.6, and removed thereafter.
-             Replaced by property `PlogRate.rates`.
         """
         def __get__(self):
-            if self.uses_legacy:
-                return self._legacy_get_rates()
-
-            warnings.warn(self._deprecation_warning("rates"), DeprecationWarning)
-            return self.rate.rates
+            return self._legacy_get_rates()
 
         def __set__(self, rates):
-            if self.uses_legacy:
-                self._legacy_set_rates(rates)
-                return
-
-            warnings.warn("Property 'rates' to be removed after Cantera 2.6. "
-                "Setter is replaceable by assigning a new 'PlogRate' object created "
-                "from rates to the rate property.", DeprecationWarning)
-            rate_ = self.rate
-            rate_.rates = rates
-            self.rate = rate_
+            self._legacy_set_rates(rates)
 
     cdef _legacy_call(self, float T, float P):
         cdef CxxPlogReaction2* r = self.cxx_object2()
@@ -1993,17 +2003,7 @@ cdef class PlogReaction(Reaction):
         return r.rate.updateRC(logT, recipT)
 
     def __call__(self, float T, float P):
-        """
-        .. deprecated:: 2.6
-             To be deprecated with version 2.6, and removed thereafter.
-             Replaceable by call to `rate` property.
-        """
-        if self.uses_legacy:
-            return self._legacy_call(T, P)
-
-        warnings.warn(
-            self._deprecation_warning("__call__", "method"), DeprecationWarning)
-        return self.rate(T, P)
+        return self._legacy_call(T, P)
 
 
 cdef class ChebyshevReaction(Reaction):

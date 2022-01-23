@@ -698,6 +698,7 @@ class ReactionTests:
     # test suite for reaction expressions
 
     _cls = None # reaction object to be tested
+    _rate_cls = None # corresponding reaction rate type
     _equation = None # reaction equation string
     _rate = None # parameters for reaction rate object constructor
     _rate_obj = None # reaction rate object
@@ -841,7 +842,7 @@ class ReactionTests:
         # check behavior for instantiation from keywords / no rate
         if self._rate_obj is None:
             return
-        rxn = self.from_rate(None)
+        rxn = self.from_rate(self._rate_cls() if self._rate_cls else None)
         if self._legacy:
             self.assertNear(rxn.rate(self.gas.T), 0.)
         else:
@@ -1354,6 +1355,8 @@ class TestPlog2(ReactionTests, utilities.CanteraTest):
 class TestPlog(TestPlog2):
     # test updated version of Plog reaction
 
+    _cls = ct.Reaction
+    _rate_cls = ct.PlogRate
     _type = "pressure-dependent-Arrhenius"
     _legacy = False
     _yaml = """
