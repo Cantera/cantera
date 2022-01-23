@@ -143,7 +143,7 @@ TEST_F(KineticsFromScratch3, add_plog_reaction)
         { 100.0*101325, Arrhenius(5.963200e+56, -11.529, 52599.6 / GasConst_cal_mol_K) }
     };
 
-    auto R = make_shared<PlogReaction3>(reac, prod, PlogRate(rates));
+    auto R = make_shared<Reaction>(reac, prod, make_shared<PlogRate>(rates));
     kin.addReaction(R);
     check_rates(3);
 }
@@ -159,7 +159,7 @@ TEST_F(KineticsFromScratch3, plog_invalid_rate)
         { 100.0*101325, Arrhenius(5.9632e+56, -11.529, 52599.6 / GasConst_cal_mol_K) }
     };
 
-    auto R = make_shared<PlogReaction3>(reac, prod, PlogRate(rates));
+    auto R = make_shared<Reaction>(reac, prod, make_shared<PlogRate>(rates));
     ASSERT_THROW(kin.addReaction(R), CanteraError);
 }
 

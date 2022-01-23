@@ -1301,41 +1301,6 @@ void FalloffReaction3::getParameters(AnyMap& reactionNode) const
     }
 }
 
-PlogReaction3::PlogReaction3()
-{
-    setRate(newReactionRate(type()));
-}
-
-PlogReaction3::PlogReaction3(const Composition& reactants,
-                             const Composition& products, const PlogRate& rate)
-    : Reaction(reactants, products)
-{
-    m_rate.reset(new PlogRate(rate));
-}
-
-PlogReaction3::PlogReaction3(const AnyMap& node, const Kinetics& kin)
-{
-    if (!node.empty()) {
-        setParameters(node, kin);
-        setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
-    } else {
-        setRate(newReactionRate(type()));
-    }
-}
-
-void PlogReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
-{
-    if (node.empty()) {
-        // empty node: used by newReaction() factory loader
-        return;
-    }
-    Reaction::setParameters(node, kin);
-
-    // remove optional third body notation
-    reactants.erase("(+M)");
-    products.erase("(+M)");
-}
-
 ChebyshevReaction3::ChebyshevReaction3()
 {
     setRate(newReactionRate(type()));

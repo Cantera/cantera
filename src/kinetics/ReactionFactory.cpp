@@ -23,7 +23,7 @@ std::mutex ReactionFactory::reaction_mutex;
 ReactionFactory::ReactionFactory()
 {
     // register elementary reactions
-    reg("elementary", [](const AnyMap& node, const Kinetics& kin) {
+    reg("reaction", [](const AnyMap& node, const Kinetics& kin) {
         unique_ptr<Reaction> R(new Reaction());
         R->setParameters(node, kin);
         if (kin.nPhases()) {
@@ -33,8 +33,9 @@ ReactionFactory::ReactionFactory()
         }
         return R.release();
     });
-    addAlias("elementary", "arrhenius");
-    addAlias("elementary", "");
+    addAlias("reaction", "elementary");
+    addAlias("reaction", "arrhenius");
+    addAlias("reaction", "");
 
     // register elementary reactions (old framework)
     reg("elementary-legacy", [](const AnyMap& node, const Kinetics& kin) {
@@ -87,12 +88,9 @@ ReactionFactory::ReactionFactory()
     addAlias("chemically-activated-legacy", "chemact");
     addAlias("chemically-activated-legacy", "chemically_activated");
 
-    // register pressure-dependent-Arrhenius reactions
-    reg("pressure-dependent-Arrhenius", [](const AnyMap& node, const Kinetics& kin) {
-        return new PlogReaction3(node, kin);
-    });
-    addAlias("pressure-dependent-Arrhenius", "plog");
-    addAlias("pressure-dependent-Arrhenius", "pdep_arrhenius");
+    addAlias("reaction", "pressure-dependent-Arrhenius");
+    addAlias("reaction", "plog");
+    addAlias("reaction", "pdep_arrhenius");
 
     // register pressure-dependent-Arrhenius reactions (old framework)
     reg("pressure-dependent-Arrhenius-legacy", [](const AnyMap& node, const Kinetics& kin) {

@@ -1163,18 +1163,15 @@ class TestReaction(utilities.CanteraTest):
         gas1 = ct.Solution('pdep-test.yaml')
         species = ct.Species.listFromFile('pdep-test.yaml')
 
-        r = ct.PlogReaction()
+        r = ct.Reaction()
         r.reactants = {'R1A':1, 'R1B':1}
         r.products = {'P1':1, 'H':1}
-        # @todo: Fix so chained setter works, i.e. r.rate.rates = ...
-        rate = r.rate
-        rate.rates = [
+        r.rate = ct.PlogRate([
             (0.01*ct.one_atm, ct.Arrhenius(1.2124e13, -0.5779, 10872.7*4184)),
             (1.0*ct.one_atm, ct.Arrhenius(4.9108e28, -4.8507, 24772.8*4184)),
             (10.0*ct.one_atm, ct.Arrhenius(1.2866e44, -9.0246, 39796.5*4184)),
             (100.0*ct.one_atm, ct.Arrhenius(5.9632e53, -11.529, 52599.6*4184))
-        ]
-        r.rate = rate
+        ])
 
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                            species=species, reactions=[r])

@@ -578,25 +578,6 @@ public:
 };
 
 
-//! A pressure-dependent reaction parameterized by logarithmically interpolating
-//! between Arrhenius rate expressions at various pressures.
-class PlogReaction3 : public Reaction
-{
-public:
-    PlogReaction3();
-    PlogReaction3(const Composition& reactants, const Composition& products,
-                  const PlogRate& rate);
-
-    PlogReaction3(const AnyMap& node, const Kinetics& kin);
-
-    virtual std::string type() const {
-        return "pressure-dependent-Arrhenius";
-    }
-
-    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
-};
-
-
 //! A pressure-dependent reaction parameterized by a bi-variate Chebyshev
 //! polynomial in temperature and pressure
 class ChebyshevReaction3 : public Reaction
@@ -640,7 +621,6 @@ public:
 #ifdef CT_NO_LEGACY_REACTIONS_26
 typedef ThreeBodyReaction3 ThreeBodyReaction;
 typedef FalloffReaction3 FalloffReaction;
-typedef PlogReaction3 PlogReaction;
 typedef ChebyshevReaction3 ChebyshevReaction;
 #else
 typedef ElementaryReaction2 ElementaryReaction;
