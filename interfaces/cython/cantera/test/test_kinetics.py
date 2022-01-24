@@ -1196,7 +1196,7 @@ class TestReaction(utilities.CanteraTest):
         gas1 = ct.Solution('pdep-test.yaml')
         species = ct.Species.listFromFile('pdep-test.yaml')
 
-        r = ct.ChebyshevReaction()
+        r = ct.Reaction()
         r.reactants = 'R5:1, H:1'
         r.products = 'P5A:1, P5B:1'
         r.rate = ct.ChebyshevRate(
@@ -1221,7 +1221,7 @@ class TestReaction(utilities.CanteraTest):
 
     def test_chebyshev_single_P(self):
         species = ct.Species.listFromFile('pdep-test.yaml')
-        r = ct.ChebyshevReaction()
+        r = ct.Reaction()
         r.reactants = 'R5:1, H:1'
         r.products = 'P5A:1, P5B:1'
         r.rate = ct.ChebyshevRate(
@@ -1245,7 +1245,7 @@ class TestReaction(utilities.CanteraTest):
 
     def test_chebyshev_single_T(self):
         species = ct.Species.listFromFile('pdep-test.yaml')
-        r = ct.ChebyshevReaction()
+        r = ct.Reaction()
         r.reactants = 'R5:1, H:1'
         r.products = 'P5A:1, P5B:1'
         r.rate = ct.ChebyshevRate(

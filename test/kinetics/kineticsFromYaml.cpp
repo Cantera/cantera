@@ -594,7 +594,7 @@ TEST_F(ReactionToYaml, Chebyshev)
     soln = newSolution("pdep-test.yaml");
     soln->thermo()->setState_TPY(1000, 2e5, "R6:1, P6A:2, P6B:0.3");
     duplicateReaction(5);
-    EXPECT_TRUE(std::dynamic_pointer_cast<ChebyshevReaction3>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<ChebyshevRate3>(duplicate->rate()));
     compareReactions();
 }
 

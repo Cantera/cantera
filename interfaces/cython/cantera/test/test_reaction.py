@@ -748,7 +748,11 @@ class ReactionTests:
     def from_parts(self):
         # create reaction rate object from parts
         orig = self.gas.reaction(self._index)
-        rxn = self._cls(orig.reactants, orig.products, legacy=self._legacy)
+        if self._rate_cls:
+            rxn = self._cls(orig.reactants, orig.products, rate=self._rate_cls(),
+                            legacy=self._legacy)
+        else:
+            rxn = self._cls(orig.reactants, orig.products, legacy=self._legacy)
         rxn.rate = self._rate_obj
         return rxn
 
@@ -1411,19 +1415,25 @@ class TestChebyshev2(ReactionTests, utilities.CanteraTest):
     @classmethod
     def setUpClass(cls):
         ReactionTests.setUpClass()
-        if not cls._legacy:
-            cls._rate_obj = ct.ChebyshevRate(**cls._rate)
-        cls._deprecated_getters.update({"coeffs": np.array(cls._rate["data"])})
+        cls._deprecated_getters.update({"coeffs": np.array(TestChebyshev2._rate["data"])})
         cls._deprecated_getters.update(
-            {k: v for k, v in cls._rate.items()
+            {k: v for k, v in TestChebyshev2._rate.items()
                 if k not in ["data", "temperature_range", "pressure_range"]})
 
 
 class TestChebyshev(TestChebyshev2):
     # test updated version of Chebyshev reaction
 
-    _rxn_type = "Chebyshev"
+    _cls = ct.Reaction
+    _rate_cls = ct.ChebyshevRate
+    _rxn_type = "reaction"
     _rate_type = "Chebyshev"
+    _rate = None
+    _rate_obj = ct.ChebyshevRate(
+        temperature_range=(290., 3000.), pressure_range=(1000., 10000000.0),
+        data=[[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
+              [ 1.9764e+00,  1.0037e+00,  7.2865e-03, -3.0432e-02],
+              [ 3.1770e-01,  2.6889e-01,  9.4806e-02, -7.6385e-03]])
     _legacy = False
     _yaml = """
         equation: HO2 <=> OH + O
