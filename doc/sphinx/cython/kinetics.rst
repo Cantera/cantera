@@ -60,11 +60,6 @@ ChebyshevReaction
 .. autoclass:: ChebyshevReaction(reactants='', products='')
    :no-undoc-members:
 
-BlowersMaselReaction
-^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: BlowersMaselReaction(reactants='', products='')
-   :no-undoc-members:
-
 InterfaceReaction
 ^^^^^^^^^^^^^^^^^
 .. autoclass:: InterfaceReaction(reactants='', products='')

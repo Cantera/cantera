@@ -27,12 +27,12 @@ r1 = ct.Reaction({"O":1, "H2":1}, {"H":1, "OH":1})
 r1.rate = ct.ArrheniusRate(3.87e1, 2.7, 6260*1000*4.184)
 
 #Create a Blowers-Masel reaction O+H2<=>H+OH
-r2 = ct.BlowersMaselReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
+r2 = ct.Reaction({"O":1, "H2":1}, {"H":1, "OH":1})
 r2.rate = ct.BlowersMaselRate(3.87e1, 2.7, 6260*1000*4.184, 1e9)
 
 #Create a Blowers-Masel reaction with same parameters with r2
 #reaction equation is H+CH4<=>CH3+H2
-r3 = ct.BlowersMaselReaction({'H':1, 'CH4':1}, {'CH3':1, 'H2':1})
+r3 = ct.Reaction({"H":1, "CH4":1}, {"CH3":1, "H2":1})
 r3.rate = ct.BlowersMaselRate(3.87e1, 2.7, 6260*1000*4.184, 1e9)
 
 gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',

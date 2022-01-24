@@ -95,7 +95,7 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
             """
         rxn = ct.Reaction.from_yaml(yaml, self.gas)
-        self.assertEqual(rxn.reaction_type, "elementary")
+        self.assertEqual(rxn.reaction_type, "reaction")
 
     def test_not_three_body(self):
         # check that insufficient reactants prevent automatic conversion
@@ -104,7 +104,7 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             rate-constant: {A: 2.1e+15, b: -0.69, Ea: 2850.0}
             """
         rxn = ct.Reaction.from_yaml(yaml, self.gas)
-        self.assertEqual(rxn.reaction_type, "elementary")
+        self.assertEqual(rxn.reaction_type, "reaction")
 
     def test_user_override(self):
         # check that type specification prevents automatic conversion
@@ -114,7 +114,7 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             type: elementary
             """
         rxn = ct.Reaction.from_yaml(yaml, self.gas)
-        self.assertEqual(rxn.reaction_type, "elementary")
+        self.assertEqual(rxn.reaction_type, "reaction")
 
 
 class ReactionRateTests:
@@ -704,7 +704,8 @@ class ReactionTests:
     _rate_obj = None # reaction rate object
     _kwargs = {} # additional parameters required by constructor
     _index = None # index of reaction in "kineticsfromscratch.yaml"
-    _type = None # name of reaction rate
+    _rxn_type = None # name of reaction type
+    _rate_type = None # name of reaction rate type
     _legacy = False # object uses legacy framework
     _yaml = None # YAML parameterization
     _deprecated_getters = {} # test legacy getters (old framework)
@@ -762,9 +763,11 @@ class ReactionTests:
         self.assertEqual(rxn.reactants, self.gas.reaction(ix).reactants)
         self.assertEqual(rxn.products, self.gas.reaction(ix).products)
         if check_legacy:
-            self.assertEqual(rxn.reaction_type, self._type)
-            self.assertEqual(rxn.uses_legacy, self._type.endswith("-legacy"))
+            self.assertEqual(rxn.uses_legacy, self._rxn_type.endswith("-legacy"))
             self.assertEqual(rxn.uses_legacy, self._legacy)
+            self.assertEqual(rxn.reaction_type, self._rxn_type)
+            if not rxn.uses_legacy:
+                self.assertEqual(rxn.rate.type, self._rate_type)
 
         if not self._legacy:
             # legacy rate evaluation is not consistent
@@ -778,7 +781,7 @@ class ReactionTests:
         # helper function that checks evaluation of reaction rates
         ix = self._index
         if check_legacy:
-            self.assertEqual(gas2.reaction_type_str(0), self._type)
+            self.assertEqual(gas2.reaction_type_str(0), self._rxn_type)
         self.assertNear(gas2.forward_rate_constants[0],
                         self.gas.forward_rate_constants[ix])
         self.assertNear(gas2.net_rates_of_progress[0],
@@ -791,7 +794,8 @@ class ReactionTests:
 
     def test_from_rate(self):
         # check instantiation from keywords / rate defined by dictionary
-        self.check_rxn(self.from_rate(self._rate))
+        if self._rate is not None:
+            self.check_rxn(self.from_rate(self._rate))
 
     def test_from_rate_obj(self):
         # check instantiation from keywords / rate provided as object
@@ -942,7 +946,7 @@ class TestElementary2(ReactionTests, utilities.CanteraTest):
     _equation = "H2 + O <=> H + OH"
     _rate = {"A": 38.7, "b": 2.7, "Ea": 2.619184e+07}
     _index = 0
-    _type = "elementary-legacy"
+    _rxn_type = "elementary-legacy"
     _legacy = True
     _yaml = """
         equation: O + H2 <=> H + OH
@@ -977,7 +981,8 @@ class TestElementary(TestElementary2):
     # test updated version of elementary reaction
 
     _cls = ct.Reaction
-    _type = "elementary"
+    _rxn_type = "reaction"
+    _rate_type = "Arrhenius"
     _legacy = False
     _yaml = """
         equation: O + H2 <=> H + OH
@@ -993,7 +998,7 @@ class TestThreeBody2(TestElementary2):
     _rate = {"A": 1.2e11, "b": -1.0, "Ea": 0.0}
     _kwargs = {"efficiencies": {"H2": 2.4, "H2O": 15.4, "AR": 0.83}}
     _index = 1
-    _type = "three-body-legacy"
+    _rxn_type = "three-body-legacy"
     _legacy = True
     _yaml = """
         equation: 2 O + M <=> O2 + M
@@ -1023,7 +1028,8 @@ class TestThreeBody(TestThreeBody2):
     # test updated version of three-body reaction
 
     _legacy = False
-    _type = "three-body"
+    _rxn_type = "three-body"
+    _rate_type = "Arrhenius"
     _yaml = """
         equation: 2 O + M <=> O2 + M
         type: three-body
@@ -1060,7 +1066,8 @@ class TestTwoTempPlasma(ReactionTests, utilities.CanteraTest):
     # test two-temperature plasma reaction
 
     _cls = ct.TwoTempPlasmaReaction
-    _type = "two-temperature-plasma"
+    _rxn_type = "two-temperature-plasma"
+    _rate_type = "two-temperature-plasma"
     _equation = "O + H => O + H"
     _rate = {"A": 17283, "b": -3.1, "Ea_gas": -5820000, "Ea_electron": 1081000}
     _index = 11
@@ -1090,21 +1097,18 @@ class TestTwoTempPlasma(ReactionTests, utilities.CanteraTest):
 class TestBlowersMasel(ReactionTests, utilities.CanteraTest):
     # test updated version of Blowers-Masel reaction
 
-    _cls = ct.BlowersMaselReaction
-    _type = "Blowers-Masel"
+    _cls = ct.Reaction
+    _rate_cls = ct.BlowersMaselRate
+    _rxn_type = "reaction"
+    _rate_type = "Blowers-Masel"
     _equation = "O + H2 <=> H + OH"
-    _rate = {"A": 38700, "b": 2.7, "Ea0": 1.0958665856e8, "w": 1.7505856e13}
+    _rate_obj = ct.BlowersMaselRate(A=38700, b=2.7, Ea0=1.0958665856e8, w=1.7505856e13)
     _index = 6
     _yaml = """
         equation: O + H2 <=> H + OH
         type: Blowers-Masel
         rate-constant: {A: 38700, b: 2.7, Ea0: 2.619184e4 cal/mol, w: 4.184e9 cal/mol}
         """
-
-    @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
-        cls._rate_obj = ct.BlowersMaselRate(**cls._rate)
 
     def eval_rate(self, rate):
         delta_enthalpy = self.gas.delta_enthalpy[self._index]
@@ -1118,7 +1122,7 @@ class TestTroe2(ReactionTests, utilities.CanteraTest):
     _equation = "2 OH (+ M) <=> H2O2 (+ M)"
     _kwargs = {"efficiencies": {"AR": 0.7, "H2": 2.0, "H2O": 6.0}}
     _index = 2
-    _type = "falloff-legacy"
+    _rxn_type = "falloff-legacy"
     _legacy = True
     _yaml = """
         equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 3
@@ -1155,7 +1159,8 @@ class TestTroe(ReactionTests, utilities.CanteraTest):
         }
     _kwargs = {"efficiencies": {"AR": 0.7, "H2": 2.0, "H2O": 6.0}}
     _index = 2
-    _type = "falloff"
+    _rxn_type = "falloff"
+    _rate_type = "Troe"
     _yaml = """
         equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 3
         type: falloff
@@ -1198,7 +1203,8 @@ class TestLindemann(ReactionTests, utilities.CanteraTest):
         }
     _kwargs = {"efficiencies": {"AR": 0.7, "H2": 2.0, "H2O": 6.0}}
     _index = 7
-    _type = "falloff"
+    _rxn_type = "falloff"
+    _rate_type = "Lindemann"
     _legacy = False
     _yaml = """
         equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 8
@@ -1234,7 +1240,7 @@ class TestChemicallyActivated2(ReactionTests, utilities.CanteraTest):
     _cls = ct.ChemicallyActivatedReaction
     _equation = "H2O + OH (+M) <=> HO2 + H2 (+M)"
     _index = 10
-    _type = "chemically-activated-legacy"
+    _rxn_type = "chemically-activated-legacy"
     _legacy = True
     _yaml = """
         equation: H2O + OH (+M) <=> HO2 + H2 (+M)  # Reaction 11
@@ -1264,7 +1270,8 @@ class TestChemicallyActivated(ReactionTests, utilities.CanteraTest):
         "high_P_rate_constant": {"A": 5.88E-14, "b": 6.721, "Ea": -12644997.768}
         }
     _index = 10
-    _type = "chemically-activated"
+    _rxn_type = "chemically-activated"
+    _rate_type = "Lindemann"
     _yaml = """
         equation: H2O + OH (+M) <=> HO2 + H2 (+M)  # Reaction 11
         units: {length: cm, quantity: mol, activation-energy: cal/mol}
@@ -1298,7 +1305,7 @@ class TestPlog2(ReactionTests, utilities.CanteraTest):
              (1013250., ct.Arrhenius(1.2866e+47, -9.0246, 166508556.0)),
              (10132500., ct.Arrhenius(5.9632e+56, -11.529, 220076726.4))]
     _index = 3
-    _type = "pressure-dependent-Arrhenius-legacy"
+    _rxn_type = "pressure-dependent-Arrhenius-legacy"
     _legacy = True
     _yaml = """
         equation: H2 + O2 <=> 2 OH
@@ -1357,7 +1364,8 @@ class TestPlog(TestPlog2):
 
     _cls = ct.Reaction
     _rate_cls = ct.PlogRate
-    _type = "pressure-dependent-Arrhenius"
+    _rxn_type = "reaction"
+    _rate_type = "pressure-dependent-Arrhenius"
     _legacy = False
     _yaml = """
         equation: H2 + O2 <=> 2 OH
@@ -1383,7 +1391,7 @@ class TestChebyshev2(ReactionTests, utilities.CanteraTest):
                       [ 1.9764e+00,  1.0037e+00,  7.2865e-03, -3.0432e-02],
                       [ 3.1770e-01,  2.6889e-01,  9.4806e-02, -7.6385e-03]]}
     _index = 4
-    _type = "Chebyshev-legacy"
+    _rxn_type = "Chebyshev-legacy"
     _legacy = True
     _yaml = """
         equation: HO2 <=> OH + O
@@ -1412,7 +1420,8 @@ class TestChebyshev2(ReactionTests, utilities.CanteraTest):
 class TestChebyshev(TestChebyshev2):
     # test updated version of Chebyshev reaction
 
-    _type = "Chebyshev"
+    _rxn_type = "Chebyshev"
+    _rate_type = "Chebyshev"
     _legacy = False
     _yaml = """
         equation: HO2 <=> OH + O
@@ -1437,7 +1446,8 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
     _equation = "H2 + O <=> H + OH"
     _rate_obj = ct.CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
     _index = 0
-    _type = "custom-rate-function"
+    _rxn_type = "custom-rate-function"
+    _rate_type = "custom-rate-function"
     _legacy = False
     _yaml = None
 

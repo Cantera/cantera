@@ -144,10 +144,7 @@ ReactionFactory::ReactionFactory()
         return new TwoTempPlasmaReaction(node, kin);
     });
 
-    // register Blowers Masel reactions
-    reg("Blowers-Masel", [](const AnyMap& node, const Kinetics& kin) {
-        return new BlowersMaselReaction(node, kin);
-    });
+    addAlias("reaction", "Blowers-Masel");
 
     // register surface Blowers Masel reactions
     reg("surface-Blowers-Masel", [](const AnyMap& node, const Kinetics& kin) {

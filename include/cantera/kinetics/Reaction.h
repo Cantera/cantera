@@ -537,22 +537,6 @@ public:
 };
 
 
-//! A reaction with rate parameters for Blowers-Masel approximation
-class BlowersMaselReaction: public Reaction
-{
-public:
-    BlowersMaselReaction();
-    BlowersMaselReaction(const Composition& reactants, const Composition& products,
-                         const BlowersMaselRate& rate);
-
-    BlowersMaselReaction(const AnyMap& node, const Kinetics& kin);
-
-    virtual std::string type() const {
-        return "Blowers-Masel";
-    }
-};
-
-
 //! A falloff reaction that is first-order in [M] at low pressure, like a third-body
 //! reaction, but zeroth-order in [M] as pressure increases.
 //! In addition, the class supports chemically-activated reactions where the rate

@@ -37,7 +37,8 @@ TEST(Reaction, ElementaryFromYaml3)
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_EQ(R->reactants.at("NO"), 1);
     EXPECT_EQ(R->products.at("N2"), 1);
-    EXPECT_EQ(R->type(), "elementary");
+    EXPECT_EQ(R->type(), "reaction");
+    EXPECT_EQ(R->rate()->type(), "Arrhenius");
     EXPECT_FALSE(R->allow_negative_orders);
 
     const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
@@ -523,7 +524,8 @@ TEST_F(ReactionToYaml, elementary)
     soln = newSolution("h2o2.yaml", "", "None");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, O:1e-8, OH:3e-8");
     duplicateReaction(2);
-    EXPECT_EQ(duplicate->type(), "elementary");
+    EXPECT_EQ(duplicate->type(), "reaction");
+    EXPECT_EQ(duplicate->rate()->type(), "Arrhenius");
     compareReactions();
 }
 
@@ -657,7 +659,7 @@ TEST_F(ReactionToYaml, BlowersMasel)
     soln = newSolution("BM_test.yaml", "gas");
     soln->thermo()->setState_TPY(1100, 0.1 * OneAtm, "O:0.01, H2:0.8, O2:0.19");
     duplicateReaction(0);
-    EXPECT_TRUE(std::dynamic_pointer_cast<BlowersMaselReaction>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<BlowersMaselRate>(duplicate->rate()));
     compareReactions();
 }
 
