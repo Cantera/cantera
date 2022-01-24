@@ -245,15 +245,7 @@ std::string Reaction::equation() const
 
 std::string Reaction::type() const
 {
-    if (m_rate) {
-        if (m_rate->type() == "Arrhenius") {
-            return "elementary"; // @todo: Find a fix for this special case
-        } else {
-            return m_rate->type();
-        }
-    } else {
-        return "undefined";
-    }
+    return "reaction";
 }
 
 void Reaction::calculateRateCoeffUnits(const Kinetics& kin)
@@ -1144,29 +1136,6 @@ void TwoTempPlasmaReaction::validate()
     if (reversible) {
         throw InputFileError("Reaction::validate", input,
             "TwoTempPlasmaReaction may only be given for irreversible reactions");
-    }
-}
-
-BlowersMaselReaction::BlowersMaselReaction()
-{
-    setRate(newReactionRate(type()));
-}
-
-BlowersMaselReaction::BlowersMaselReaction(
-        const Composition& reactants, const Composition& products,
-        const BlowersMaselRate& rate)
-    : Reaction(reactants, products)
-{
-    m_rate.reset(new BlowersMaselRate(rate));
-}
-
-BlowersMaselReaction::BlowersMaselReaction(const AnyMap& node, const Kinetics& kin)
-{
-    if (!node.empty()) {
-        setParameters(node, kin);
-        setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
-    } else {
-        setRate(newReactionRate(type()));
     }
 }
 

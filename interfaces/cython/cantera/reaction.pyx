@@ -2276,7 +2276,7 @@ cdef class BlowersMasel:
     A reaction rate coefficient which depends on temperature and enthalpy change
     of the reaction follows Blowers-Masel approximation and modified Arrhenius form
     described in `Arrhenius`. The functions are used by reactions defined using
-    `BlowersMaselReaction` and `BlowersMaselInterfaceReaction`.
+    `BlowersMaselInterfaceReaction`.
     """
     def __cinit__(self, A=0, b=0, E0=0, w=0, init=True):
         if init:
@@ -2344,58 +2344,6 @@ cdef wrapBlowersMasel(CxxBlowersMasel2* rate, Reaction reaction):
     r.rate = rate
     r.reaction = reaction
     return r
-
-
-cdef class BlowersMaselReaction(Reaction):
-    """
-    A reaction which follows mass-action kinetics with Blowers Masel
-    reaction rate.
-
-    An example for the definition of an `BlowersMaselReaction` object is given as::
-
-        rxn = BlowersMaselReaction(
-            equation="O + H2 <=> H + OH",
-            rate={"A": 38.7, "b": 2.7, "Ea0": 1.0958665856e8, "w": 1.7505856e13},
-            kinetics=gas)
-
-    The YAML description corresponding to this reaction is::
-
-        equation: O + H2 <=> H + OH
-        type: Blowers-Masel
-        rate-constant: {A: 38700 cm^3/mol/s, b: 2.7, Ea0: 2.619184e4 cal/mol, w: 4.184e9 cal/mol}
-    """
-    _reaction_type = "Blowers-Masel"
-
-    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
-                 init=True, **kwargs):
-
-        if init and equation and kinetics:
-
-            rxn_type = self._reaction_type
-            spec = {"equation": equation, "type": rxn_type}
-            if isinstance(rate, dict):
-                spec["rate-constant"] = rate
-            elif rate is None or isinstance(rate, BlowersMaselRate):
-                pass
-            else:
-                raise TypeError("Invalid rate definition")
-
-            self._reaction = CxxNewReaction(dict_to_anymap(spec),
-                                            deref(kinetics.kinetics))
-            self.reaction = self._reaction.get()
-
-            if isinstance(rate, BlowersMaselRate):
-                self.rate = rate
-
-    property rate:
-        """ Get/Set the `BlowersMaselRate` rate coefficients for this reaction. """
-        def __get__(self):
-            cdef CxxBlowersMaselReaction* r = <CxxBlowersMaselReaction*>self.reaction
-            return BlowersMaselRate.wrap(r.rate())
-        def __set__(self, rate):
-            cdef CxxBlowersMaselReaction* r = <CxxBlowersMaselReaction*>self.reaction
-            cdef BlowersMaselRate rate_ = rate
-            r.setRate(rate_._rate)
 
 
 cdef class TwoTempPlasmaReaction(Reaction):

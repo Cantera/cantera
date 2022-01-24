@@ -1300,7 +1300,7 @@ class TestReaction(utilities.CanteraTest):
                 - [-0.031285, -0.039412, 0.044375, 0.014458]''', gas)
 
     def test_BlowersMasel(self):
-        r = ct.BlowersMaselReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
+        r = ct.Reaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
         r.rate = ct.BlowersMaselRate(3.87e1, 2.7, 6260*1000*4.184, 1e9*1000*4.184)
 
         gas1 = ct.Solution('BM_test.yaml')
@@ -1326,7 +1326,7 @@ class TestReaction(utilities.CanteraTest):
 
     def test_negative_A_blowersmasel(self):
         species = ct.Solution('BM_test.yaml').species()
-        r = ct.BlowersMaselReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
+        r = ct.Reaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
         r.rate = ct.BlowersMaselRate(-3.87e1, 2.7, 6260*1000*4.184, 1e9)
 
         self.assertFalse(r.rate.allow_negative_pre_exponential_factor)
