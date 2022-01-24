@@ -202,6 +202,14 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
     } else {
         m_rate = rate;
     }
+
+    if (reactants.count("(+M)") && std::dynamic_pointer_cast<ChebyshevRate3>(m_rate)) {
+        warn_deprecated("Chebyshev reaction equation", input, "Specifying '(+M)' "
+            "in the reaction equation for Chebyshev reactions is deprecated.");
+        // remove optional third body notation
+        reactants.erase("(+M)");
+        products.erase("(+M)");
+    }
 }
 
 std::string Reaction::reactantString() const
@@ -1267,46 +1275,6 @@ void FalloffReaction3::getParameters(AnyMap& reactionNode) const
         if (m_third_body->default_efficiency != 1.0) {
             reactionNode["default-efficiency"] = m_third_body->default_efficiency;
         }
-    }
-}
-
-ChebyshevReaction3::ChebyshevReaction3()
-{
-    setRate(newReactionRate(type()));
-}
-
-ChebyshevReaction3::ChebyshevReaction3(const Composition& reactants,
-                                       const Composition& products,
-                                       const ChebyshevRate3& rate)
-    : Reaction(reactants, products)
-{
-    m_rate.reset(new ChebyshevRate3(rate));
-}
-
-ChebyshevReaction3::ChebyshevReaction3(const AnyMap& node, const Kinetics& kin)
-{
-    if (!node.empty()) {
-        setParameters(node, kin);
-        setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
-    } else {
-        setRate(newReactionRate(type()));
-    }
-}
-
-void ChebyshevReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
-{
-    if (node.empty()) {
-        // empty node: used by newReaction() factory loader
-        return;
-    }
-    Reaction::setParameters(node, kin);
-
-    if (reactants.count("(+M)")) {
-        warn_deprecated("Chebyshev reaction equation", input, "Specifying '(+M)' "
-            "in the reaction equation for Chebyshev reactions is deprecated.");
-        // remove optional third body notation
-        reactants.erase("(+M)");
-        products.erase("(+M)");
     }
 }
 

@@ -562,25 +562,6 @@ public:
 };
 
 
-//! A pressure-dependent reaction parameterized by a bi-variate Chebyshev
-//! polynomial in temperature and pressure
-class ChebyshevReaction3 : public Reaction
-{
-public:
-    ChebyshevReaction3();
-    ChebyshevReaction3(const Composition& reactants, const Composition& products,
-                       const ChebyshevRate3& rate);
-
-    ChebyshevReaction3(const AnyMap& node, const Kinetics& kin);
-
-    virtual std::string type() const {
-        return "Chebyshev";
-    }
-
-    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
-};
-
-
 //! A reaction which follows mass-action kinetics with a custom reaction rate
 //! defined in Python.
 /**
@@ -605,7 +586,6 @@ public:
 #ifdef CT_NO_LEGACY_REACTIONS_26
 typedef ThreeBodyReaction3 ThreeBodyReaction;
 typedef FalloffReaction3 FalloffReaction;
-typedef ChebyshevReaction3 ChebyshevReaction;
 #else
 typedef ElementaryReaction2 ElementaryReaction;
 typedef ThreeBodyReaction2 ThreeBodyReaction;

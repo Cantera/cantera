@@ -35,6 +35,7 @@ ReactionFactory::ReactionFactory()
     });
     addAlias("reaction", "elementary");
     addAlias("reaction", "arrhenius");
+    addAlias("reaction", "Arrhenius");
     addAlias("reaction", "");
 
     // register elementary reactions (old framework)
@@ -102,10 +103,8 @@ ReactionFactory::ReactionFactory()
     });
 
     // register Chebyshev reactions
-    reg("Chebyshev", [](const AnyMap& node, const Kinetics& kin) {
-        return new ChebyshevReaction3(node, kin);
-    });
-    addAlias("Chebyshev", "chebyshev");
+    addAlias("reaction", "Chebyshev");
+    addAlias("reaction", "chebyshev");
     reg("Chebyshev-legacy", [](const AnyMap& node, const Kinetics& kin) {
         ChebyshevReaction* R = new ChebyshevReaction2();
         if (!node.empty()) {
