@@ -17,6 +17,12 @@ phases:
     P5B, R6, P6A, P6B, R7, P7A, P7B]
   kinetics: gas
   state: {T: 300.0, P: 1 atm}
+- name: chebyshev-deprecated
+  thermo: ideal-gas
+  species: all
+  kinetics: gas
+  reactions: [chebyshev-deprecated-rxns]
+  state: {T: 300.0, P: 1 atm}
 
 species:
 - name: H
@@ -269,7 +275,7 @@ reactions:
   - {P: 10.0 atm, A: 2.889338e-17 cm^3/molec/s, b: 1.98, Ea: 4521.0}
   note: Degenerate PLOG with a single rate expression and custom quantity
     units
-- equation: R5 + H (+M) <=> P5A + P5B (+M)  # Reaction 5
+- equation: R5 + H <=> P5A + P5B  # Reaction 5
   type: Chebyshev
   temperature-range: [300.0, 2000.0]
   pressure-range: [0.009869232667160128 atm, 98.69232667160128 atm]
@@ -279,7 +285,7 @@ reactions:
   - [0.3177, 0.26889, 0.094806, -7.6385e-03]
   - [-0.031285, -0.039412, 0.044375, 0.014458]
   note: Bimolecular CHEB
-- equation: R6 (+M) <=> P6A + P6B (+M)  # Reaction 6
+- equation: R6 <=> P6A + P6B  # Reaction 6
   type: Chebyshev
   temperature-range: [290.0, 3000.0]
   pressure-range: [0.009869232667160128 atm, 98.69232667160128 atm]
@@ -291,7 +297,7 @@ reactions:
   - [-0.22621, 0.16919, 4.8581e-03, -2.3803e-03]
   - [-0.14322, 0.077111, 0.012708, -6.4154e-04]
   note: Unimolecular decomposition CHEB
-- equation: R7 + H (+M) <=> P7A + P7B (+M)  # Reaction 7
+- equation: R7 + H <=> P7A + P7B  # Reaction 7
   type: Chebyshev
   temperature-range: [300.0, 2000.0]
   pressure-range: [0.009869232667160128 atm, 98.69232667160128 atm]
@@ -302,3 +308,16 @@ reactions:
   - [0.3177, 0.26889, 0.094806, -7.6385e-03]
   - [-0.031285, -0.039412, 0.044375, 0.014458]
   note: Bimolecular CHEB with local quantity units
+
+chebyshev-deprecated-rxns:
+- equation: R7 + H (+M) <=> P7A + P7B (+M)
+  type: Chebyshev
+  temperature-range: [300.0, 2000.0]
+  pressure-range: [0.009869232667160128 atm, 98.69232667160128 atm]
+  units: {quantity: molec}
+  data:
+  - [8.2883, -1.1397, -0.12059, 0.016034]
+  - [1.9764, 1.0037, 7.2865e-03, -0.030432]
+  - [0.3177, 0.26889, 0.094806, -7.6385e-03]
+  - [-0.031285, -0.039412, 0.044375, 0.014458]
+  note: Chebyshev reaction written with the deprecated "(+M)" notation

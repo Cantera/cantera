@@ -1289,7 +1289,7 @@ class TestReaction(utilities.CanteraTest):
 
         with self.assertRaisesRegex(ct.CanteraError, "Inconsistent"):
             r = ct.Reaction.from_yaml('''
-                equation: R5 + H (+ M) <=> P5A + P5B (+M)
+                equation: R5 + H <=> P5A + P5B
                 type: Chebyshev
                 temperature-range: [300.0, 2000.0]
                 pressure-range: [9.86e-03 atm, 98.6 atm]
@@ -1298,6 +1298,10 @@ class TestReaction(utilities.CanteraTest):
                 - [1.9764, 1.0037, 7.2865e-03]
                 - [0.3177, 0.26889, 0.094806, -7.6385e-03]
                 - [-0.031285, -0.039412, 0.044375, 0.014458]''', gas)
+
+    def test_chebyshev_deprecated_third_body(self):
+        with self.assertRaisesRegex(ct.CanteraError, "in the reaction equation"):
+            gas = ct.Solution("pdep-test.yaml", "chebyshev-deprecated")
 
     def test_BlowersMasel(self):
         r = ct.Reaction({'O':1, 'H2':1}, {'H':1, 'OH':1})

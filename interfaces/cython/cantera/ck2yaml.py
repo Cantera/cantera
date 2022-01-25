@@ -528,9 +528,6 @@ class Chebyshev(KineticsModel):
         self.coeffs = coeffs
         self.quantity_units = quantity_units
 
-    def reaction_string_suffix(self, species):
-        return ' (+{})'.format(species if species else 'M')
-
     def reduce(self, output):
         output['type'] = 'Chebyshev'
         output['temperature-range'] = FlowList([self.Tmin, self.Tmax])
