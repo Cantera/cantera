@@ -58,6 +58,8 @@ protected:
     shared_ptr<AnyMap> m_metadata;
 
     friend class InputFileError;
+    friend void warn_deprecated(const std::string& source, const AnyBase& node,
+                                const std::string& message);
 };
 
 class AnyMap;
@@ -739,6 +741,10 @@ protected:
         int line1, int column1, const shared_ptr<AnyMap>& metadata1,
         int line2, int column2, const shared_ptr<AnyMap>& metadata2);
 };
+
+//! A deprecation warning for syntax in an input file
+void warn_deprecated(const std::string& source, const AnyBase& node,
+                     const std::string& message);
 
 }
 

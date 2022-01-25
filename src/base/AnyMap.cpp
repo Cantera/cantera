@@ -1898,4 +1898,21 @@ std::string InputFileError::formatError2(const std::string& message,
     return to_string(b);
 }
 
+void warn_deprecated(const std::string& source, const AnyBase& node,
+                     const std::string& message)
+{
+    if (!node.m_metadata) {
+        warn_deprecated(source, message);
+        return;
+    }
+
+    std::string filename = node.m_metadata->getString("filename", "input string");
+    fmt::memory_buffer b;
+    fmt_append(b, message);
+    fmt_append(b, "\n");
+    fmt_append(b, "On line {} of {}:\n", node.m_line+1, filename);
+    formatInputFile(b, node.m_metadata, filename, node.m_line, node.m_column);
+    warn_deprecated(source, to_string(b));
+}
+
 }

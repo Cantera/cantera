@@ -461,7 +461,7 @@ void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode, const AnyMap& root
         string filename = phaseNode.getString("__file__",
             rootNode.getString("__file__", "unknown file"));
         string method = fmt::format("{}/{}", filename, phaseNode["name"].asString());
-        warn_deprecated(method, msg);
+        warn_deprecated(method, phaseNode, msg);
     }
 
     // Add elements
