@@ -1301,9 +1301,13 @@ void ChebyshevReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
     }
     Reaction::setParameters(node, kin);
 
-    // remove optional third body notation
-    reactants.erase("(+M)");
-    products.erase("(+M)");
+    if (reactants.count("(+M)")) {
+        warn_deprecated("Chebyshev reaction equation", input, "Specifying '(+M)' "
+            "in the reaction equation for Chebyshev reactions is deprecated.");
+        // remove optional third body notation
+        reactants.erase("(+M)");
+        products.erase("(+M)");
+    }
 }
 
 CustomFunc1Reaction::CustomFunc1Reaction()

@@ -2054,10 +2054,11 @@ class Reaction:
         elif reaction_type in ["plog", "pdep_arrhenius"]:
             reaction_type = "plog"
         elif reaction_type == "chebyshev":
-            # There's only one way to spell Chebyshev, so no need to change anything
-            # However, we need to catch this case so it doesn't raise the TypeError
-            # in the else clause
-            pass
+            # Remove deprecated '(+M)' third body notation
+            self.attribs["equation"] = re.sub(r" *\( *\+ *M *\)", "",
+                                              self.attribs["equation"])
+            # There's only one way to spell Chebyshev, so no need to change the
+            # reaction_type.
         elif reaction_type in [
             "interface",
             "edge",

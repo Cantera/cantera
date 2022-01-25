@@ -867,6 +867,8 @@ class chebyshev_reaction(reaction):
             ``id``, ``order``, and ``options`` may be specified as keyword
             arguments, with the same meanings as for class `reaction`.
         """
+        # Remove deprecated '(+M)' third body notation
+        equation = re.sub(r" *\( *\+ *M *\)", "", equation)
         super().__init__(equation, None, **kwargs)
         self.type = 'Chebyshev'
         self.Pmin = Pmin
