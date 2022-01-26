@@ -692,6 +692,8 @@ class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
         self.assertEqual(pressure_range[0], rate.pressure_range[0])
         self.assertEqual(pressure_range[1], rate.pressure_range[1])
         self.assertTrue(np.all(self._parts["data"] == rate.data))
+        self.assertEqual(rate.n_pressure, rate.data.shape[1])
+        self.assertEqual(rate.n_temperature, rate.data.shape[0])
 
 
 class ReactionTests:

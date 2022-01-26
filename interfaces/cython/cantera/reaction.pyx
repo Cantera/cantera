@@ -661,7 +661,7 @@ cdef class ChebyshevRate(ReactionRate):
         (same as number of rows of `data` property).
         """
         def __get__(self):
-            return self.cxx_object().Pmin(), self.cxx_object().nTemperature()
+            return self.cxx_object().nTemperature()
 
     property n_pressure:
         """
@@ -669,7 +669,7 @@ cdef class ChebyshevRate(ReactionRate):
         (same as number of columns of `data` property).
         """
         def __get__(self):
-            return self.cxx_object().Pmin(), self.cxx_object().nPressure()
+            return self.cxx_object().nPressure()
 
     property data:
         """
