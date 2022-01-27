@@ -152,9 +152,6 @@ TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE)
     : ArrheniusBase(A, b, Ea)
     , m_EE_R(EE  / GasConstant)
 {
-    if (m_Ea_R == NAN) {
-        m_Ea_R = 0.0;
-    }
     m_Ea_str = "Ea-gas";
 }
 
