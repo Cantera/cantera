@@ -62,7 +62,7 @@ class Solution(Transport, Kinetics, ThermoPhase):
     objects which can themselves either be imported from input files or defined
     directly in Python::
 
-        spec = ct.Species.listFromFile('gri30.yaml')
+        spec = ct.Species.list_from_file("gri30.yaml")
         spec_gas = ct.Solution(thermo='IdealGas', species=spec)
         rxns = ct.Reaction.list_from_file("gri30.yaml", spec_gas)
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',

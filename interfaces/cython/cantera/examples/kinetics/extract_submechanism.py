@@ -15,7 +15,7 @@ import cantera as ct
 import matplotlib.pyplot as plt
 
 input_file = 'gri30.yaml'
-all_species = ct.Species.listFromFile(input_file)
+all_species = ct.Species.list_from_file(input_file)
 species = []
 
 # Filter species

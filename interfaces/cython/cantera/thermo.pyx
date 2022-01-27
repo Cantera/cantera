@@ -43,7 +43,7 @@ cdef class Species:
     Either of the following will produce a list of 53 `Species` objects
     containing the species defined in the GRI 3.0 mechanism::
 
-        S = ct.Species.listFromFile('gri30.yaml')
+        S = ct.Species.list_from_file("gri30.yaml")
 
         import pathlib
         S = ct.Species.listFromYaml(
@@ -148,7 +148,14 @@ cdef class Species:
 
             The CTI and XML input formats are deprecated and will be removed in
             Cantera 3.0.
+
+        .. deprecated:: 2.6
+
+            To be removed after Cantera 2.6. Replaced by 'Species.list_from_file'.
         """
+        warnings.warn("Static method 'listFromFile' is renamed to 'list_from_file'."
+            " The old name will be removed after Cantera 2.6.", DeprecationWarning)
+
         if filename.lower().split('.')[-1] in ('yml', 'yaml'):
             root = AnyMapFromYamlFile(stringify(filename))
             cxx_species = CxxGetSpecies(root[stringify(section)])
@@ -157,6 +164,21 @@ cdef class Species:
 
         species = []
         for a in cxx_species:
+            b = Species(init=False)
+            b._assign(a)
+            species.append(b)
+        return species
+
+    @staticmethod
+    def list_from_file(filename, section="species"):
+        """
+        Create a list of Species objects from all of the species defined in the section
+        *section* of a YAML file. Directories on Cantera's input file path will be
+        searched for the specified file.
+        """
+        root = AnyMapFromYamlFile(stringify(filename))
+        species = []
+        for a in CxxGetSpecies(root[stringify(section)]):
             b = Species(init=False)
             b._assign(a)
             species.append(b)
