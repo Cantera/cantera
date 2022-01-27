@@ -202,7 +202,7 @@ class KineticsFromReactions(utilities.CanteraTest):
         gas1 = ct.Solution("h2o2.yaml")
 
         S = ct.Species.listFromFile("h2o2.yaml")
-        R = ct.Reaction.listFromFile("h2o2.yaml", gas1)
+        R = ct.Reaction.list_from_file("h2o2.yaml", gas1)
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                            species=S, reactions=R)
 
@@ -226,7 +226,7 @@ class KineticsFromReactions(utilities.CanteraTest):
         gas = ct.Solution("ptcombust.yaml", "gas")
         surf1 = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
         surf_species = ct.Species.listFromFile("ptcombust.yaml")
-        reactions = ct.Reaction.listFromFile("ptcombust.yaml", surf1)
+        reactions = ct.Reaction.list_from_file("ptcombust.yaml", surf1)
 
         surf2 = ct.Interface(thermo='Surface', kinetics='interface',
                              species=surf_species, reactions=reactions,
@@ -273,7 +273,7 @@ class KineticsFromReactions(utilities.CanteraTest):
         gas1 = ct.Solution('h2o2.yaml', transport_model=None)
 
         S = ct.Species.listFromFile('h2o2.yaml')
-        R = ct.Reaction.listFromFile('h2o2.yaml', gas1)
+        R = ct.Reaction.list_from_file("h2o2.yaml", gas1)
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                            species=S, reactions=R[:5])
 
@@ -1002,7 +1002,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertNotIn('H2O', r)
 
     def test_listFromFile(self):
-        R = ct.Reaction.listFromFile('h2o2.yaml', self.gas)
+        R = ct.Reaction.list_from_file("h2o2.yaml", self.gas)
         eq1 = [r.equation for r in R]
         eq2 = [r.equation for r in self.gas.reactions()]
         self.assertEqual(eq1, eq2)
