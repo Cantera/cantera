@@ -38,7 +38,7 @@ print('Species: {0}'.format(', '.join(S.name for S in species)))
 
 # Filter reactions, keeping only those that only involve the selected species
 ref_phase = ct.Solution(thermo='ideal-gas', kinetics='gas', species=all_species)
-all_reactions = ct.Reaction.listFromFile(input_file, ref_phase)
+all_reactions = ct.Reaction.list_from_file(input_file, ref_phase)
 reactions = []
 
 print('\nReactions:')

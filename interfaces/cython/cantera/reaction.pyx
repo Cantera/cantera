@@ -738,13 +738,13 @@ cdef class Reaction:
     :param products:
         Value used to set `products`
 
-    The static methods `listFromFile`, `list_from_yaml`, `listFromCti`, and
+    The static methods `list_from_file`, `list_from_yaml`, `listFromCti`, and
     `listFromXml` can be used to create lists of `Reaction` objects from
     existing definitions in the YAML, CTI, or XML formats. All of the following
     will produce a list of the 325 reactions which make up the GRI 3.0
     mechanism::
 
-        R = ct.Reaction.listFromFile("gri30.yaml", gas)
+        R = ct.Reaction.list_from_file("gri30.yaml", gas)
         R = ct.Reaction.listFromCti(open("path/to/gri30.cti").read())
         R = ct.Reaction.listFromXml(open("path/to/gri30.xml").read())
 
@@ -984,7 +984,14 @@ cdef class Reaction:
 
             The CTI and XML input formats are deprecated and will be removed in
             Cantera 3.0.
+
+        .. deprecated:: 2.6
+
+            To be removed after Cantera 2.6. Replaced by 'Reaction.list_from_file'.
         """
+        warnings.warn("Static method 'listFromFile' is renamed to 'list_from_file'."
+            " The old name will be removed after Cantera 2.6.", DeprecationWarning)
+
         if filename.lower().split('.')[-1] in ('yml', 'yaml'):
             if kinetics is None:
                 raise ValueError("A Kinetics object is required.")
@@ -993,6 +1000,20 @@ cdef class Reaction:
                                             deref(kinetics.kinetics))
         else:
             cxx_reactions = CxxGetReactions(deref(CxxGetXmlFile(stringify(filename))))
+        return [Reaction.wrap(r) for r in cxx_reactions]
+
+    @staticmethod
+    def list_from_file(filename, Kinetics kinetics, section="reactions"):
+        """
+        Create a list of Reaction objects from all of the reactions defined in a
+        YAML file. Reactions from the section ``section`` will be returned.
+
+        Directories on Cantera's input file path will be searched for the
+        specified file.
+        """
+        root = AnyMapFromYamlFile(stringify(filename))
+        cxx_reactions = CxxGetReactions(root[stringify(section)],
+                                        deref(kinetics.kinetics))
         return [Reaction.wrap(r) for r in cxx_reactions]
 
     @staticmethod
