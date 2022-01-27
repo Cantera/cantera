@@ -320,10 +320,10 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(sum(gas['O2','N2'].X), 1.0)
 
     def test_set_equivalence_ratio_sulfur(self):
-        sulfur_species = [k for k in ct.Species.listFromFile("nasa_gas.yaml")
+        sulfur_species = [k for k in ct.Species.list_from_file("nasa_gas.yaml")
                           if k.name in ("SO", "SO2")]
         gas = ct.Solution(thermo="ideal-gas",
-                          species=ct.Species.listFromFile("gri30.yaml") + sulfur_species)
+                          species=ct.Species.list_from_file("gri30.yaml") + sulfur_species)
         fuel = "CH3:0.5, SO:0.25, OH:0.125, N2:0.125"
         ox = "O2:0.5, SO2:0.25, CO2:0.125, CH:0.125"
 
@@ -356,10 +356,10 @@ class TestThermoPhase(utilities.CanteraTest):
             gas.set_equivalence_ratio(phi, 'CH4:0.8, CH3OH:0.2', 'O2:1.0, N2:3.76')
             self.assertNear(phi, gas.equivalence_ratio('CH4:0.8, CH3OH:0.2', 'O2:1.0, N2:3.76'))
         # Check sulfur species
-        sulfur_species = [k for k in ct.Species.listFromFile("nasa_gas.yaml")
+        sulfur_species = [k for k in ct.Species.list_from_file("nasa_gas.yaml")
                           if k.name in ("SO", "SO2")]
         gas = ct.Solution(thermo="ideal-gas", kinetics="gas",
-                          species=ct.Species.listFromFile("gri30.yaml") + sulfur_species)
+                          species=ct.Species.list_from_file("gri30.yaml") + sulfur_species)
         for phi in np.linspace(0.5, 2.0, 5):
             gas.set_equivalence_ratio(phi, 'CH3:0.5, SO:0.25, OH:0.125, N2:0.125', 'O2:0.5, SO2:0.25, CO2:0.125')
             self.assertNear(phi, gas.equivalence_ratio('CH3:0.5, SO:0.25, OH:0.125, N2:0.125', 'O2:0.5, SO2:0.25, CO2:0.125'))
@@ -1045,7 +1045,7 @@ ideal_gas(name='spam', elements='O H',
         gas1.TPX = 350, 101325, 'H2:0.3, O2:0.7'
         gas1.equilibrate('HP')
 
-        species = ct.Species.listFromFile('h2o2.yaml')
+        species = ct.Species.list_from_file("h2o2.yaml")
         gas2 = ct.ThermoPhase(thermo='IdealGas', species=species)
         gas2.TPX = 350, 101325, 'H2:0.3, O2:0.7'
         gas2.equilibrate('HP')
@@ -1164,7 +1164,7 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual(S[3].name, self.gas.species_name(3))
 
     def test_listfromFile_yaml(self):
-        S = ct.Species.listFromFile('h2o2.yaml')
+        S = ct.Species.list_from_file("h2o2.yaml")
         self.assertEqual({sp.name for sp in S}, set(self.gas.species_names))
 
     @utilities.allow_deprecated
@@ -1200,7 +1200,7 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual(S[4].name, self.gas.species_name(4))
 
     def test_modify_thermo(self):
-        S = {sp.name: sp for sp in ct.Species.listFromFile("h2o2.yaml")}
+        S = {sp.name: sp for sp in ct.Species.list_from_file("h2o2.yaml")}
         self.gas.TPX = 400, 2*ct.one_atm, 'H2:1.0'
         g0 = self.gas.gibbs_mole
 
@@ -1212,7 +1212,7 @@ class TestSpecies(utilities.CanteraTest):
         self.assertNear(g0, self.gas.gibbs_mole)
 
     def test_modify_thermo_invalid(self):
-        S = {sp.name: sp for sp in ct.Species.listFromFile("h2o2.yaml")}
+        S = {sp.name: sp for sp in ct.Species.list_from_file("h2o2.yaml")}
 
         orig = S['H2']
         thermo = orig.thermo

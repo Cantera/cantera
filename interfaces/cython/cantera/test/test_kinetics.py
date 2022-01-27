@@ -201,7 +201,7 @@ class KineticsFromReactions(utilities.CanteraTest):
     def test_idealgas(self):
         gas1 = ct.Solution("h2o2.yaml")
 
-        S = ct.Species.listFromFile("h2o2.yaml")
+        S = ct.Species.list_from_file("h2o2.yaml")
         R = ct.Reaction.list_from_file("h2o2.yaml", gas1)
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                            species=S, reactions=R)
@@ -225,7 +225,7 @@ class KineticsFromReactions(utilities.CanteraTest):
     def test_surface(self):
         gas = ct.Solution("ptcombust.yaml", "gas")
         surf1 = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
-        surf_species = ct.Species.listFromFile("ptcombust.yaml")
+        surf_species = ct.Species.list_from_file("ptcombust.yaml")
         reactions = ct.Reaction.list_from_file("ptcombust.yaml", surf1)
 
         surf2 = ct.Interface(thermo='Surface', kinetics='interface',
@@ -272,7 +272,7 @@ class KineticsFromReactions(utilities.CanteraTest):
     def test_add_reaction(self):
         gas1 = ct.Solution('h2o2.yaml', transport_model=None)
 
-        S = ct.Species.listFromFile('h2o2.yaml')
+        S = ct.Species.list_from_file("h2o2.yaml")
         R = ct.Reaction.list_from_file("h2o2.yaml", gas1)
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                            species=S, reactions=R[:5])
@@ -428,7 +428,7 @@ class KineticsRepeatability(utilities.CanteraTest):
         gas.equilibrate('TP')
         gas.TP = gas.T + 20, None
 
-        S = {sp.name: sp for sp in ct.Species.listFromFile("gri30.yaml")}
+        S = {sp.name: sp for sp in ct.Species.list_from_file("gri30.yaml")}
         w1 = gas.net_rates_of_progress
 
         OH = gas.species('OH')
@@ -955,7 +955,7 @@ class TestReaction(utilities.CanteraTest):
         self.gas = ct.Solution('h2o2.yaml', transport_model=None)
         self.gas.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
         self.gas.TP = 900, 2*ct.one_atm
-        self.species = ct.Species.listFromFile('h2o2.yaml')
+        self.species = ct.Species.list_from_file("h2o2.yaml")
 
     @utilities.allow_deprecated
     def test_fromCti(self):
@@ -1089,7 +1089,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(R.rate(self.gas.T), self.gas.forward_rate_constants[2])
 
     def test_negative_A(self):
-        species = ct.Species.listFromFile("gri30.yaml")
+        species = ct.Species.list_from_file("gri30.yaml")
         r = ct.Reaction("NH:1, NO:1", "N2O:1, H:1")
         r.rate = ct.ArrheniusRate(-2.16e13, -0.23, 0)
 
@@ -1104,7 +1104,7 @@ class TestReaction(utilities.CanteraTest):
                           species=species, reactions=[r])
 
     def test_negative_A_falloff(self):
-        species = ct.Species.listFromFile('gri30.yaml')
+        species = ct.Species.list_from_file("gri30.yaml")
         r = ct.FalloffReaction('NH:1, NO:1', 'N2O:1, H:1')
         low_rate = ct.Arrhenius(2.16e13, -0.23, 0)
         high_rate = ct.Arrhenius(-8.16e12, -0.5, 0)
@@ -1161,7 +1161,7 @@ class TestReaction(utilities.CanteraTest):
 
     def test_plog(self):
         gas1 = ct.Solution('pdep-test.yaml')
-        species = ct.Species.listFromFile('pdep-test.yaml')
+        species = ct.Species.list_from_file("pdep-test.yaml")
 
         r = ct.Reaction()
         r.reactants = {'R1A':1, 'R1B':1}
@@ -1194,7 +1194,7 @@ class TestReaction(utilities.CanteraTest):
 
     def test_chebyshev(self):
         gas1 = ct.Solution('pdep-test.yaml')
-        species = ct.Species.listFromFile('pdep-test.yaml')
+        species = ct.Species.list_from_file("pdep-test.yaml")
 
         r = ct.Reaction()
         r.reactants = 'R5:1, H:1'
@@ -1220,7 +1220,7 @@ class TestReaction(utilities.CanteraTest):
                             gas1.net_rates_of_progress[4])
 
     def test_chebyshev_single_P(self):
-        species = ct.Species.listFromFile('pdep-test.yaml')
+        species = ct.Species.list_from_file("pdep-test.yaml")
         r = ct.Reaction()
         r.reactants = 'R5:1, H:1'
         r.products = 'P5A:1, P5B:1'
@@ -1244,7 +1244,7 @@ class TestReaction(utilities.CanteraTest):
             self.assertNear(k1, k2)
 
     def test_chebyshev_single_T(self):
-        species = ct.Species.listFromFile('pdep-test.yaml')
+        species = ct.Species.list_from_file("pdep-test.yaml")
         r = ct.Reaction()
         r.reactants = 'R5:1, H:1'
         r.products = 'P5A:1, P5B:1'
@@ -1283,7 +1283,7 @@ class TestReaction(utilities.CanteraTest):
                            [-3.12850e-02, -3.94120e-02,  4.43750e-02,  1.44580e-02]])''')
 
     def test_chebyshev_bad_shape_yaml(self):
-        species = ct.Species.listFromFile('pdep-test.yaml')
+        species = ct.Species.list_from_file("pdep-test.yaml")
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                           species=species, reactions=[])
 
@@ -1379,7 +1379,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(A*gas.T**b*np.exp(0/ct.gas_constant/gas.T), gas.forward_rate_constants[0])
 
     def test_interface(self):
-        surf_species = ct.Species.listFromFile("ptcombust.yaml")
+        surf_species = ct.Species.list_from_file("ptcombust.yaml")
         gas = ct.Solution("ptcombust.yaml", "gas")
         surf1 = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
         r1 = ct.InterfaceReaction()
