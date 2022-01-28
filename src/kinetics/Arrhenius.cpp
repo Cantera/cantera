@@ -83,7 +83,7 @@ void ArrheniusBase::setRateParameters(
     }
 }
 
-void ArrheniusBase::getParameters(AnyMap& node) const
+void ArrheniusBase::getRateParameters(AnyMap& node) const
 {
     getParameters(node, m_rate_units);
 }
@@ -108,16 +108,16 @@ void ArrheniusBase::getParameters(AnyMap& node, const Units& rate_units) const
     node.setFlowStyle();
 }
 
-void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
+void ArrheniusBase::checkRate(const std::string& equation, const AnyMap& node)
 {
     if (!m_negativeA_ok && m_A < 0) {
         if (equation == "") {
-            throw CanteraError("ArrheniusBase::check",
+            throw CanteraError("ArrheniusBase::checkRate",
                 "Detected negative pre-exponential factor (A={}).\n"
                 "Enable 'allowNegativePreExponentialFactor' to suppress "
                 "this message.", m_A);
         }
-        throw InputFileError("ArrheniusBase::check", node,
+        throw InputFileError("ArrheniusBase::checkRate", node,
             "Undeclared negative pre-exponential factor found in reaction '{}'",
             equation);
     }
@@ -140,7 +140,7 @@ void ArrheniusRate::getParameters(AnyMap& rateNode) const
         rateNode["negative-A"] = true;
     }
     AnyMap node;
-    ArrheniusBase::getParameters(node);
+    ArrheniusBase::getRateParameters(node);
     if (!node.empty()) {
         // Arrhenius object is configured
         rateNode["rate-constant"] = std::move(node);
@@ -222,7 +222,7 @@ void TwoTempPlasmaRate::getParameters(AnyMap& rateNode) const
         rateNode["negative-A"] = true;
     }
     AnyMap node;
-    ArrheniusBase::getParameters(node);
+    ArrheniusBase::getRateParameters(node);
     if (!node.empty()) {
         // object is configured
         node["Ea-electron"].setQuantity(m_EE_R, "K", true);
@@ -301,7 +301,7 @@ void BlowersMaselRate::getParameters(AnyMap& rateNode) const
         rateNode["negative-A"] = true;
     }
     AnyMap node;
-    ArrheniusBase::getParameters(node);
+    ArrheniusBase::getRateParameters(node);
     if (!node.empty()) {
         // object is configured
         node["w"].setQuantity(m_w_R, "K", true);

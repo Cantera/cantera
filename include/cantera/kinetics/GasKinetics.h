@@ -156,10 +156,10 @@ protected:
     std::map<size_t, size_t> m_rfallindx; //!< @deprecated (legacy only)
 
     //! Rate expressions for falloff reactions at the low-pressure limit
-    Rate1<Arrhenius> m_falloff_low_rates; //!< @deprecated (legacy only)
+    Rate1<Arrhenius2> m_falloff_low_rates; //!< @deprecated (legacy only)
 
     //! Rate expressions for falloff reactions at the high-pressure limit
-    Rate1<Arrhenius> m_falloff_high_rates; //!< @deprecated (legacy only)
+    Rate1<Arrhenius2> m_falloff_high_rates; //!< @deprecated (legacy only)
 
     FalloffMgr m_falloffn; //!< @deprecated (legacy only)
 

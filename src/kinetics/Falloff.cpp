@@ -25,7 +25,7 @@ void FalloffRate::setLowRate(const ArrheniusRate& low)
 {
     ArrheniusRate _low = low;
     _low.setAllowNegativePreExponentialFactor(m_negativeA_ok);
-    _low.check("", AnyMap());
+    _low.checkRate("", AnyMap());
     if (_low.preExponentialFactor() * m_highRate.preExponentialFactor() < 0.) {
         throw CanteraError("FalloffRate::setLowRate",
             "Detected inconsistent rate definitions;\nhigh and low "
@@ -38,7 +38,7 @@ void FalloffRate::setHighRate(const ArrheniusRate& high)
 {
     ArrheniusRate _high = high;
     _high.setAllowNegativePreExponentialFactor(m_negativeA_ok);
-    _high.check("", AnyMap());
+    _high.checkRate("", AnyMap());
     if (m_lowRate.preExponentialFactor() * _high.preExponentialFactor() < 0.) {
         throw CanteraError("FalloffRate::setHighRate",
             "Detected inconsistent rate definitions;\nhigh and low "
@@ -105,21 +105,21 @@ void FalloffRate::getParameters(AnyMap& node) const
         node["negative-A"] = true;
     }
     AnyMap rNode;
-    m_lowRate.getParameters(rNode);
+    m_lowRate.getRateParameters(rNode);
     if (!rNode.empty()) {
-        node["low-P-rate-constant"] = rNode["rate-constant"];
+        node["low-P-rate-constant"] = std::move(rNode);
     }
     rNode.clear();
-    m_highRate.getParameters(rNode);
+    m_highRate.getRateParameters(rNode);
     if (!rNode.empty()) {
-        node["high-P-rate-constant"] = rNode["rate-constant"];
+        node["high-P-rate-constant"] = std::move(rNode);
     }
 }
 
 void FalloffRate::check(const std::string& equation, const AnyMap& node)
 {
-    m_lowRate.check(equation, node);
-    m_highRate.check(equation, node);
+    m_lowRate.checkRate(equation, node);
+    m_highRate.checkRate(equation, node);
 
     double lowA = m_lowRate.preExponentialFactor();
     double highA = m_highRate.preExponentialFactor();

@@ -26,7 +26,7 @@ class AnyMap;
  */
 
 //! Base class for Arrhenius-type Parameterizations
-class ArrheniusBase : public ReactionRate
+class ArrheniusBase
 {
 public:
     //! Default constructor.
@@ -58,13 +58,15 @@ public:
                                    const UnitSystem& units,
                                    const UnitStack& rate_units);
 
-    virtual void getParameters(AnyMap& node) const;
+    //! Return parameters
+    virtual void getRateParameters(AnyMap& node) const;
 
     //! Return parameters - required for legacy framework
     //! @todo: merge with single-parameter version after removal of old framework
     virtual void getParameters(AnyMap& node, const Units& rate_units) const;
 
-    void check(const std::string& equation, const AnyMap& node);
+    //! Check rate expression
+    void checkRate(const std::string& equation, const AnyMap& node);
 
     //! Evaluate reaction rate
     double evalRate(double logT, double recipT) const {
@@ -139,6 +141,16 @@ protected:
 };
 
 
+/*!
+ * @todo supersedes Arrhenius2: replace existing instances with this class, rename,
+ *      and deprecate Arrhenius3.
+ */
+class Arrhenius3 final : public ArrheniusBase
+{
+    using ArrheniusBase::ArrheniusBase; // inherit constructors
+};
+
+
 //! Arrhenius reaction rate type depends only on temperature
 /*!
  * A reaction rate coefficient of the following form.
@@ -147,12 +159,9 @@ protected:
  *        k_f =  A T^b \exp (-Ea/RT)
  *   \f]
  *
- * @todo supersedes Arrhenius: replace existing instances with this class, rename,
- *      and deprecate Arrhenius3.
- *
  * @ingroup arrheniusGroup
  */
-class ArrheniusRate final : public ArrheniusBase
+class ArrheniusRate final : public ArrheniusBase, public ReactionRate
 {
 public:
     ArrheniusRate() = default;
@@ -180,6 +189,10 @@ public:
     virtual void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
     virtual void getParameters(AnyMap& node) const override;
+
+    void check(const std::string& equation, const AnyMap& node) {
+        checkRate(equation, node);
+    }
 
     //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
@@ -227,7 +240,7 @@ public:
  * doi: 10.1088/0963-0252/1/3/011
  * @ingroup arrheniusGroup
  */
-class TwoTempPlasmaRate final : public ArrheniusBase
+class TwoTempPlasmaRate final : public ArrheniusBase, public ReactionRate
 {
 public:
     TwoTempPlasmaRate();
@@ -271,6 +284,10 @@ public:
     virtual void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
     virtual void getParameters(AnyMap& node) const override;
+
+    void check(const std::string& equation, const AnyMap& node) {
+        checkRate(equation, node);
+    }
 
     double evalFromStruct(const TwoTempPlasmaData& shared_data) {
         return m_A * std::exp(m_b * shared_data.logTe -
@@ -334,7 +351,7 @@ protected:
  *
  * @ingroup arrheniusGroup
  */
-class BlowersMaselRate final : public ArrheniusBase
+class BlowersMaselRate final : public ArrheniusBase, public ReactionRate
 {
 public:
     //! Default constructor.
@@ -380,6 +397,10 @@ public:
     virtual void setParameters(const AnyMap& node, const UnitStack& rate_units);
 
     virtual void getParameters(AnyMap& node) const;
+
+    void check(const std::string& equation, const AnyMap& node) {
+        checkRate(equation, node);
+    }
 
     double evalFromStruct(const BlowersMaselData& shared_data) {
         double deltaH_R;
