@@ -169,7 +169,7 @@ void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
         AnyMap rateNode_;
         rateNode_["P"].setQuantity(r.first, "Pa");
         if (rate_units.factor() == 0) {
-            r.second.getParameters(rateNode_);
+            r.second.getRateParameters(rateNode_);
         } else {
             r.second.getParameters(rateNode_, rate_units);
         }

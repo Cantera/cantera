@@ -460,7 +460,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxArrheniusBase "Cantera::ArrheniusBase":
         CxxArrheniusBase()
         CxxArrheniusBase(double, double, double)
-        double eval(double) except +translate_exception
+        double evalRate(double, double)
         double preExponentialFactor()
         double temperatureExponent()
         double intrinsicActivationEnergy()

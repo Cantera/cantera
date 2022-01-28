@@ -306,7 +306,7 @@ protected:
 
 
 #ifdef CT_NO_LEGACY_REACTIONS_26
-typedef ArrheniusRate Arrhenius;
+typedef Arrhenius3 Arrhenius;
 typedef BlowersMaselRate BlowersMasel;
 #else
 typedef Arrhenius2 Arrhenius;

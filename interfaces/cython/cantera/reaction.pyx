@@ -583,7 +583,7 @@ cdef class PlogRate(ReactionRate):
                     item.second = CxxArrhenius2(
                         rate.rate.preExponentialFactor(),
                         rate.rate.temperatureExponent(),
-                        rate.rate.activationEnergy() / gas_constant
+                        rate.rate.intrinsicActivationEnergy() / gas_constant
                     )
                 ratemap.insert(item)
 
@@ -1550,7 +1550,7 @@ cdef class Arrhenius:
 
     def __call__(self, float T):
         if self.rate != NULL:
-            return self.base.eval(T)
+            return self.base.evalRate(np.log(T), 1/T)
         else:
             return self.legacy.updateRC(np.log(T), 1/T)
 
@@ -1570,7 +1570,7 @@ cdef wrapArrhenius(CxxArrheniusBase* rate, Reaction reaction):
 
 cdef copyArrhenius(CxxArrhenius2* rate):
     r = Arrhenius(rate.preExponentialFactor(), rate.temperatureExponent(),
-                  rate.activationEnergy_R() * gas_constant)
+                  rate.intrinsicActivationEnergy())
     return r
 
 
@@ -2186,7 +2186,7 @@ cdef class PlogReaction(Reaction):
                 item.second = CxxArrhenius2(
                     rate.rate.preExponentialFactor(),
                     rate.rate.temperatureExponent(),
-                    rate.rate.activationEnergy() / gas_constant
+                    rate.rate.intrinsicActivationEnergy() / gas_constant
                 )
             ratemap.insert(item)
 

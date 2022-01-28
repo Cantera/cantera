@@ -58,7 +58,7 @@ protected:
     std::vector<unique_ptr<MultiRateBase>> m_bulk_rates;
     std::map<std::string, size_t> m_bulk_types; //!< Mapping of rate handlers
 
-    Rate1<Arrhenius> m_rates; //!< @deprecated (legacy only)
+    Rate1<Arrhenius2> m_rates; //!< @deprecated (legacy only)
     std::vector<size_t> m_revindex; //!< Indices of reversible reactions
     std::vector<size_t> m_irrev; //!< Indices of irreversible reactions
 
