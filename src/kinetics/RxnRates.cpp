@@ -10,10 +10,10 @@ namespace Cantera
 {
 Arrhenius2::Arrhenius2()
     : ArrheniusBase()
-    , m_logA(-1.0E300)
 {
     m_b = 0.0;
     m_A = 0.0;
+    m_logA = -1.0E300;
 }
 
 Arrhenius2::Arrhenius2(doublereal A, doublereal b, doublereal E)
@@ -21,8 +21,6 @@ Arrhenius2::Arrhenius2(doublereal A, doublereal b, doublereal E)
 {
     if (m_A  <= 0.0) {
         m_logA = -1.0E300;
-    } else {
-        m_logA = std::log(m_A);
     }
 }
 
@@ -39,8 +37,6 @@ void Arrhenius2::setRateParameters(const AnyValue& rate,
     ArrheniusBase::setRateParameters(rate, units, units_stack);
     if (m_A <= 0.0) {
         m_logA = -1.0E300;
-    } else {
-        m_logA = std::log(m_A);
     }
 }
 

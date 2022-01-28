@@ -15,6 +15,7 @@ ArrheniusBase::ArrheniusBase()
     , m_A(NAN)
     , m_b(NAN)
     , m_Ea_R(NAN)
+    , m_logA(NAN)
     , m_order(NAN)
     , m_rate_units(Units(0.))
 {
@@ -28,6 +29,9 @@ ArrheniusBase::ArrheniusBase(double A, double b, double Ea)
     , m_order(NAN)
     , m_rate_units(Units(0.))
 {
+    if (m_A > 0.0) {
+        m_logA = std::log(m_A);
+    }
 }
 
 void ArrheniusBase::setRateParameters(
@@ -73,6 +77,9 @@ void ArrheniusBase::setRateParameters(
         } else {
             m_Ea_R = NAN;
         }
+    }
+    if (m_A > 0.0) {
+        m_logA = std::log(m_A);
     }
 }
 

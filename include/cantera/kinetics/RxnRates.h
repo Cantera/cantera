@@ -97,9 +97,6 @@ public:
     unique_ptr<MultiRateBase> newMultiRate() const {
         throw NotImplementedError("Arrhenius2::newMultiRate");
     }
-
-protected:
-    double m_logA;
 };
 
 //! Blowers Masel reaction rate type depends on the enthalpy of reaction
@@ -431,21 +428,21 @@ public:
     doublereal updateRC(doublereal logT, doublereal recipT) const {
         double log_k1, log_k2;
         if (ilow1_ == ilow2_) {
-            log_k1 = rates_[ilow1_].updateLog(logT, recipT);
+            log_k1 = rates_[ilow1_].evalLog(logT, recipT);
         } else {
             double k = 1e-300; // non-zero to make log(k) finite
             for (size_t i = ilow1_; i < ilow2_; i++) {
-                k += rates_[i].updateRC(logT, recipT);
+                k += rates_[i].evalRate(logT, recipT);
             }
             log_k1 = std::log(k);
         }
 
         if (ihigh1_ == ihigh2_) {
-            log_k2 = rates_[ihigh1_].updateLog(logT, recipT);
+            log_k2 = rates_[ihigh1_].evalLog(logT, recipT);
         } else {
             double k = 1e-300; // non-zero to make log(k) finite
             for (size_t i = ihigh1_; i < ihigh2_; i++) {
-                k += rates_[i].updateRC(logT, recipT);
+                k += rates_[i].evalRate(logT, recipT);
             }
             log_k2 = std::log(k);
         }
