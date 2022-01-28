@@ -66,6 +66,16 @@ public:
 
     void check(const std::string& equation, const AnyMap& node);
 
+    //! Evaluate reaction rate
+    double evalRate(double logT, double recipT) const {
+        return m_A * std::exp(m_b * logT - m_Ea_R * recipT);
+    }
+
+    //! Evaluate natural logarithm of the rate constant.
+    double evalLog(double logT, double recipT) const {
+        return m_logA + m_b * logT - m_Ea_R * recipT;
+    }
+
     //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
     //! on the reaction order)
     double preExponentialFactor() const {
@@ -120,6 +130,7 @@ protected:
     double m_A; //!< Pre-exponential factor
     double m_b; //!< Temperature exponent
     double m_Ea_R; //!< Activation energy (in temperature units)
+    double m_logA; //!< Logarithm of pre-exponential factor
     double m_order; //!< Reaction order
     std::string m_A_str = "A"; //!< The string for temperature exponent
     std::string m_b_str = "b"; //!< The string for temperature exponent
