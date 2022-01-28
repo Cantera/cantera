@@ -140,6 +140,10 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                 continue;
             } else if (R.type() != other.type()) {
                 continue; // different reaction types
+            } else if (R.rate() && other.rate()
+                       && R.rate()->type() != other.rate()->type())
+            {
+                continue; // different rate parameterizations
             }
             doublereal c = checkDuplicateStoich(net_stoich[i], net_stoich[m]);
             if (c == 0) {

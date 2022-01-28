@@ -24,7 +24,6 @@ phases:
 reactions:
 - equation: O + H2 <=> H + OH  # Reaction 1
   rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0}
-  duplicate: true  # duplicate of Reaction 7
 - equation: 2 O + M <=> O2 + M  # Reaction 2
   type: three-body
   rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0}
@@ -56,7 +55,6 @@ reactions:
 - equation: O + H2 <=> H + OH  # Reaction 7
   type: Blowers-Masel
   rate-constant: {A: 38700, b: 2.7, Ea0: 2.619184e4, w: 4.184e9}
-  duplicate: true  # duplicate of Reaction 1
 - equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 8
   duplicate: true
   type: falloff
