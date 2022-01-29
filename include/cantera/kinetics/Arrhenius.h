@@ -173,7 +173,7 @@ public:
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<ArrheniusRate, ArrheniusData>);
+        return unique_ptr<MultiRateBase>(new MultiRate<ArrheniusRate, ArrheniusData>);
     }
 
     //! Identifier of reaction rate type
@@ -257,7 +257,7 @@ public:
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
         return unique_ptr<MultiRateBase>(
-            new MultiBulkRate<TwoTempPlasmaRate, TwoTempPlasmaData>);
+            new MultiRate<TwoTempPlasmaRate, TwoTempPlasmaData>);
     }
 
     //! Constructor based on AnyMap content
@@ -370,7 +370,7 @@ public:
 
     unique_ptr<MultiRateBase> newMultiRate() const {
         return unique_ptr<MultiRateBase>(
-            new MultiBulkRate<BlowersMaselRate, BlowersMaselData>);
+            new MultiRate<BlowersMaselRate, BlowersMaselData>);
     }
 
     //! Constructor based on AnyMap content

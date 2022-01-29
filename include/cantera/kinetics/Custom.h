@@ -44,7 +44,7 @@ public:
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<CustomFunc1Rate, ArrheniusData>);
+        return unique_ptr<MultiRateBase>(new MultiRate<CustomFunc1Rate, ArrheniusData>);
     }
 
     const std::string type() const override { return "custom-rate-function"; }

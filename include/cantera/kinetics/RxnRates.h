@@ -346,7 +346,7 @@ public:
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<PlogRate, PlogData>);
+        return unique_ptr<MultiRateBase>(new MultiRate<PlogRate, PlogData>);
     }
 
     //! Identifier of reaction rate type
@@ -549,7 +549,7 @@ public:
 
     unique_ptr<MultiRateBase> newMultiRate() const {
         return unique_ptr<MultiRateBase>(
-            new MultiBulkRate<ChebyshevRate3, ChebyshevData>);
+            new MultiRate<ChebyshevRate3, ChebyshevData>);
     }
 
     const std::string type() const { return "Chebyshev"; }
