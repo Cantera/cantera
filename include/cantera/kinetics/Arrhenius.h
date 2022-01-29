@@ -26,6 +26,16 @@ class AnyMap;
  */
 
 //! Base class for Arrhenius-type Parameterizations
+/*!
+ * This base class provides a minimally functional interface that allows for parameter
+ * access from derived classes as well as classes that use Arrhenius-type expressions
+ * internally, for example FalloffRate and PlogRate.
+ *
+ * @todo supersedes Arrhenius2 and will replace Arrhenius(2) after Cantera 2.6,
+ *      The class should be renamed to Arrhenius after removal of Arrhenius2. The new
+ *      behavior can be forced in self-compiled Cantera installations by defining
+ *      CT_NO_LEGACY_REACTIONS_26 via the 'no_legacy_reactions' option in SCons.
+ */
 class ArrheniusBase
 {
 public:
@@ -138,16 +148,6 @@ protected:
     std::string m_b_str = "b"; //!< The string for temperature exponent
     std::string m_Ea_str = "Ea"; //!< The string for activation energy
     Units m_rate_units; //!< Reaction rate units
-};
-
-
-/*!
- * @todo supersedes Arrhenius2: replace existing instances with this class, rename,
- *      and deprecate Arrhenius3.
- */
-class Arrhenius3 final : public ArrheniusBase
-{
-    using ArrheniusBase::ArrheniusBase; // inherit constructors
 };
 
 

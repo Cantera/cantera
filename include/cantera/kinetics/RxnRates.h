@@ -193,7 +193,7 @@ protected:
 
 
 #ifdef CT_NO_LEGACY_REACTIONS_26
-typedef Arrhenius3 Arrhenius;
+typedef ArrheniusBase Arrhenius;
 #else
 typedef Arrhenius2 Arrhenius;
 #endif
