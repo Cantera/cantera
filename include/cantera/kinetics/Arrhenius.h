@@ -64,12 +64,12 @@ public:
      *  @param units  Unit system
      *  @param rate_units  Unit definitions specific to rate information
      */
-    virtual void setRateParameters(const AnyValue& rate,
-                                   const UnitSystem& units,
-                                   const UnitStack& rate_units);
+    void setRateParameters(const AnyValue& rate,
+                           const UnitSystem& units,
+                           const UnitStack& rate_units);
 
     //! Return parameters
-    virtual void getRateParameters(AnyMap& node) const;
+    void getRateParameters(AnyMap& node) const;
 
     //! Return parameters - required for legacy framework
     //! @todo: merge with single-parameter version after removal of old framework
@@ -143,11 +143,13 @@ protected:
     double m_A; //!< Pre-exponential factor
     double m_b; //!< Temperature exponent
     double m_Ea_R; //!< Activation energy (in temperature units)
+    double m_E4_R; //!< Optional 4th energy parameter (in temperature units)
     double m_logA; //!< Logarithm of pre-exponential factor
     double m_order; //!< Reaction order
     std::string m_A_str = "A"; //!< The string for temperature exponent
     std::string m_b_str = "b"; //!< The string for temperature exponent
     std::string m_Ea_str = "Ea"; //!< The string for activation energy
+    std::string m_E4_str = ""; //!< The string for an optional 4th parameter
     Units m_rate_units; //!< Reaction rate units
 };
 
@@ -273,10 +275,6 @@ public:
         return "two-temperature-plasma";
     }
 
-    virtual void setRateParameters(const AnyValue& rate,
-                                   const UnitSystem& units,
-                                   const UnitStack& rate_units) override;
-
     //! Perform object setup based on AnyMap node information
     /*!
      *  @param node  AnyMap containing rate information
@@ -291,15 +289,11 @@ public:
     }
 
     double evalFromStruct(const TwoTempPlasmaData& shared_data) {
+        // m_E4_R is the electron activation (in temperature units)
         return m_A * std::exp(m_b * shared_data.logTe -
                               m_Ea_R * shared_data.recipT +
-                              m_EE_R * (shared_data.electronTemp - shared_data.temperature)
+                              m_E4_R * (shared_data.electronTemp - shared_data.temperature)
                               * shared_data.recipTe * shared_data.recipT);
-    }
-
-    //! Return the activation energy *Ea* [J/kmol]
-    double activationEnergy() const {
-        return m_Ea_R * GasConstant;
     }
 
     //! Return the activation energy divided by the gas constant (i.e. the
@@ -310,16 +304,14 @@ public:
 
     //! Return the electron activation energy *Ea* [J/kmol]
     double activationElectronEnergy() const {
-        return m_EE_R * GasConstant;
+        return m_E4_R * GasConstant;
     }
 
     //! Return the electron activation energy divided by the gas constant (i.e. the
     //! activation temperature) [K]
     double activationElectronEnergy_R() const {
-        return m_EE_R;
+        return m_E4_R;
     }
-protected:
-    double m_EE_R; //!< Activation electron energy (in temperature units)
 };
 
 
@@ -386,10 +378,6 @@ public:
         return "Blowers-Masel";
     }
 
-    virtual void setRateParameters(const AnyValue& rate,
-                                   const UnitSystem& units,
-                                   const UnitStack& rate_units);
-
     //! Perform object setup based on AnyMap node information
     /*!
      *  @param node  AnyMap containing rate information
@@ -433,10 +421,11 @@ public:
         if (deltaH_R > 4 * m_Ea_R) {
             return deltaH_R;
         }
-        double vp = 2 * m_w_R * ((m_w_R + m_Ea_R) / (m_w_R - m_Ea_R)); // in Kelvin
-        double vp_2w_dH = (vp - 2 * m_w_R + deltaH_R); // (Vp - 2 w + dH)
-        return (m_w_R + deltaH_R / 2) * (vp_2w_dH * vp_2w_dH) /
-            (vp * vp - 4 * m_w_R * m_w_R + deltaH_R * deltaH_R); // in Kelvin
+        // m_E4_R is the bond dissociation energy "w" (in temperature units)
+        double vp = 2 * m_E4_R * ((m_E4_R + m_Ea_R) / (m_E4_R - m_Ea_R)); // in Kelvin
+        double vp_2w_dH = (vp - 2 * m_E4_R + deltaH_R); // (Vp - 2 w + dH)
+        return (m_E4_R + deltaH_R / 2) * (vp_2w_dH * vp_2w_dH) /
+            (vp * vp - 4 * m_E4_R * m_E4_R + deltaH_R * deltaH_R); // in Kelvin
     }
 
     //! Return the effective activation energy [J/kmol]
@@ -449,11 +438,8 @@ public:
 
     //! Return the bond dissociation energy *w* [J/kmol]
     double bondEnergy() const {
-        return m_w_R * GasConstant;
+        return m_E4_R * GasConstant;
     }
-
-protected:
-    double m_w_R; //!< Bond dissociation energy (in temperature units)
 };
 
 }
