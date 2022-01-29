@@ -99,10 +99,11 @@ public:
         return m_b;
     }
 
-    //! Return the intrinsic activation energy *Ea* [J/kmol]
+    //! Return the activation energy *Ea* [J/kmol]
     //! The value corresponds to the constant specified by input parameters;
-    //! in the simplest case, this is equal to the activation energy itself
-    double intrinsicActivationEnergy() const {
+    //! class specializations may provide alternate definitions that describe
+    //! an effective activation energy that depends on the thermodynamic state.
+    double activationEnergy() const {
         return m_Ea_R * GasConstant;
     }
 
@@ -423,7 +424,7 @@ public:
      */
     virtual double ddTScaledFromStruct(const BlowersMaselData& shared_data) const;
 
-    //! Return the actual activation energy (a function of the delta H of reaction)
+    //! Return the effective activation energy (a function of the delta H of reaction)
     //! divided by the gas constant (i.e. the activation temperature) [K]
     double activationEnergy_R(double deltaH_R) const {
         if (deltaH_R < -4 * m_Ea_R) {
@@ -438,17 +439,12 @@ public:
             (vp * vp - 4 * m_w_R * m_w_R + deltaH_R * deltaH_R); // in Kelvin
     }
 
-    //! Return the actual activation energy [J/kmol]
+    //! Return the effective activation energy [J/kmol]
     /*!
      *  @param deltaH  Enthalpy change of reaction [J/kmol]
      */
-    double activationEnergy(double deltaH) const {
+    double effectiveActivationEnergy(double deltaH) const {
         return activationEnergy_R(deltaH / GasConstant) * GasConstant;
-    }
-
-    //! Return the intrinsic activation energy [J/kmol]
-    double activationEnergy0() const {
-        return m_Ea_R * GasConstant;
     }
 
     //! Return the bond dissociation energy *w* [J/kmol]

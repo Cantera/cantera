@@ -163,6 +163,13 @@ cdef class _ArrheniusTypeRate(ReactionRate):
         def __get__(self):
             return self.base.temperatureExponent()
 
+    property activation_energy:
+        """
+        The activation energy ``E`` [J/kmol].
+        """
+        def __get__(self):
+            return self.base.activationEnergy()
+
     property allow_negative_pre_exponential_factor:
         """
         Get/Set whether the rate coefficient is allowed to have a negative
@@ -207,13 +214,6 @@ cdef class ArrheniusRate(_ArrheniusTypeRate):
     cdef CxxArrheniusRate* cxx_object(self):
         return <CxxArrheniusRate*>self.rate
 
-    property activation_energy:
-        """
-        The activation energy ``E`` [J/kmol].
-        """
-        def __get__(self):
-            return self.cxx_object().activationEnergy()
-
 
 cdef class BlowersMaselRate(_ArrheniusTypeRate):
     r"""
@@ -248,19 +248,12 @@ cdef class BlowersMaselRate(_ArrheniusTypeRate):
     cdef CxxBlowersMaselRate* cxx_object(self):
         return <CxxBlowersMaselRate*>self.rate
 
-    def activation_energy(self, double deltaH):
+    def effective_activation_energy(self, double deltaH):
         """
-        The activation energy ``E`` [J/kmol], based on enthalpy change of reaction
-        ``deltaH`` (in [J/kmol])
+        The effective activation energy ``E`` [J/kmol], based on enthalpy change of
+        reaction ``deltaH`` (in [J/kmol])
         """
-        return self.cxx_object().activationEnergy(deltaH)
-
-    property intrinsic_activation_energy:
-        """
-        The intrinsic activation energy ``E0`` [J/kmol].
-        """
-        def __get__(self):
-            return self.cxx_object().activationEnergy0()
+        return self.cxx_object().effectiveActivationEnergy(deltaH)
 
     property bond_energy:
         """
@@ -312,13 +305,6 @@ cdef class TwoTempPlasmaRate(_ArrheniusTypeRate):
 
     cdef CxxTwoTempPlasmaRate* cxx_object(self):
         return <CxxTwoTempPlasmaRate*>self.rate
-
-    property activation_energy:
-        """
-        The activation energy :math:`E_{a,g}` [J/kmol].
-        """
-        def __get__(self):
-            return self.cxx_object().activationEnergy()
 
     property activation_electron_energy:
         """
@@ -549,7 +535,7 @@ cdef class PlogRate(ReactionRate):
                     item.second = CxxArrhenius2(
                         rate.base.preExponentialFactor(),
                         rate.base.temperatureExponent(),
-                        rate.base.intrinsicActivationEnergy() / gas_constant
+                        rate.base.activationEnergy() / gas_constant
                     )
                 ratemap.insert(item)
 
@@ -1505,7 +1491,7 @@ cdef class Arrhenius:
         The activation energy ``E`` [J/kmol].
         """
         def __get__(self):
-            return self.base.intrinsicActivationEnergy()
+            return self.base.activationEnergy()
 
     def __repr__(self):
         return 'Arrhenius(A={:g}, b={:g}, E={:g})'.format(
@@ -1527,7 +1513,7 @@ cdef wrapArrhenius(CxxArrheniusBase* rate, Reaction reaction):
 
 cdef copyArrhenius(CxxArrhenius2* rate):
     r = Arrhenius(rate.preExponentialFactor(), rate.temperatureExponent(),
-                  rate.intrinsicActivationEnergy())
+                  rate.activationEnergy())
     return r
 
 
@@ -2143,7 +2129,7 @@ cdef class PlogReaction(Reaction):
                 item.second = CxxArrhenius2(
                     rate.base.preExponentialFactor(),
                     rate.base.temperatureExponent(),
-                    rate.base.intrinsicActivationEnergy() / gas_constant
+                    rate.base.activationEnergy() / gas_constant
                 )
             ratemap.insert(item)
 
@@ -2383,9 +2369,9 @@ cdef class BlowersMasel:
         def __get__(self):
             return self.rate.temperatureExponent()
 
-    def activation_energy(self, float dH):
+    def effective_activation_energy(self, float dH):
         """
-        The activation energy ``E`` [J/kmol]
+        The effective activation energy ``E`` [J/kmol]
 
         :param dH: The enthalpy of reaction [J/kmol] at the current temperature
         """

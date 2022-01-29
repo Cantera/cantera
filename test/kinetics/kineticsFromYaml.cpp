@@ -135,7 +135,7 @@ TEST(Reaction, FalloffFromYaml1)
     const auto rate = std::dynamic_pointer_cast<SriRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->highRate().preExponentialFactor(), 7.91E+10);
     EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 6.37E+14);
-    EXPECT_DOUBLE_EQ(rate->lowRate().intrinsicActivationEnergy(), 56640);
+    EXPECT_DOUBLE_EQ(rate->lowRate().activationEnergy(), 56640);
 }
 
 TEST(Reaction, FalloffFromYaml2)
@@ -156,7 +156,7 @@ TEST(Reaction, FalloffFromYaml2)
     const auto rate = std::dynamic_pointer_cast<TroeRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->highRate().preExponentialFactor(), 6e11);
     EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 1.04e20);
-    EXPECT_DOUBLE_EQ(rate->lowRate().intrinsicActivationEnergy(), 1600);
+    EXPECT_DOUBLE_EQ(rate->lowRate().activationEnergy(), 1600);
     vector_fp params(4);
     rate->getFalloffCoeffs(params);
     EXPECT_DOUBLE_EQ(params[0], 0.562);
@@ -184,8 +184,8 @@ TEST(Reaction, FalloffFromYaml3)
     const auto rate = std::dynamic_pointer_cast<TsangRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->highRate().preExponentialFactor(), 8.3e17);
     EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 3.57e26);
-    EXPECT_DOUBLE_EQ(rate->highRate().intrinsicActivationEnergy(), 123800.0);
-    EXPECT_DOUBLE_EQ(rate->lowRate().intrinsicActivationEnergy(), 124900.0);
+    EXPECT_DOUBLE_EQ(rate->highRate().activationEnergy(), 123800.0);
+    EXPECT_DOUBLE_EQ(rate->lowRate().activationEnergy(), 124900.0);
     vector_fp params(2);
     rate->getFalloffCoeffs(params);
     EXPECT_DOUBLE_EQ(params[0], 0.95);
@@ -287,7 +287,7 @@ TEST(Reaction, BlowersMaselFromYaml)
         / (vp * vp - 4 * w * w + H_mid * H_mid );
     const auto& rate = std::dynamic_pointer_cast<BlowersMaselRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), -38.7);
-    EXPECT_DOUBLE_EQ(rate->activationEnergy0(), E_intrinsic);
+    EXPECT_DOUBLE_EQ(rate->activationEnergy(), E_intrinsic);
     EXPECT_DOUBLE_EQ(rate->bondEnergy(), w);
     EXPECT_DOUBLE_EQ(rate->activationEnergy_R(H_big_R), H_big_R);
     EXPECT_DOUBLE_EQ(rate->activationEnergy_R(H_small_R), 0);

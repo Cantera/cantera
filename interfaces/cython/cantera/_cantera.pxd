@@ -463,14 +463,12 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double evalRate(double, double)
         double preExponentialFactor()
         double temperatureExponent()
-        double intrinsicActivationEnergy()
+        double activationEnergy()
         cbool allowNegativePreExponentialFactor()
         void setAllowNegativePreExponentialFactor(bool)
 
     cdef cppclass CxxArrhenius2 "Cantera::Arrhenius2" (CxxArrheniusBase):
         CxxArrhenius2(double, double, double)
-        double activationEnergy_R()
-        double updateRC(double, double)
 
     cdef cppclass CxxReactionRate "Cantera::ReactionRate":
         CxxReactionRate()
@@ -480,24 +478,18 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxAnyMap parameters() except +translate_exception
 
     cdef cppclass CxxArrheniusRate "Cantera::ArrheniusRate" (CxxReactionRate, CxxArrheniusBase):
-        CxxArrheniusRate()
         CxxArrheniusRate(CxxAnyMap) except +translate_exception
         CxxArrheniusRate(double, double, double)
-        double activationEnergy()
 
     cdef cppclass CxxTwoTempPlasmaRate "Cantera::TwoTempPlasmaRate" (CxxReactionRate, CxxArrheniusBase):
-        CxxTwoTempPlasmaRate()
         CxxTwoTempPlasmaRate(CxxAnyMap) except +translate_exception
         CxxTwoTempPlasmaRate(double, double, double, double)
-        double activationEnergy()
         double activationElectronEnergy()
 
     cdef cppclass CxxBlowersMaselRate "Cantera::BlowersMaselRate" (CxxReactionRate, CxxArrheniusBase):
-        CxxBlowersMaselRate()
         CxxBlowersMaselRate(CxxAnyMap) except +translate_exception
         CxxBlowersMaselRate(double, double, double, double)
-        double activationEnergy(double)
-        double activationEnergy0()
+        double effectiveActivationEnergy(double)
         double bondEnergy()
 
     cdef cppclass CxxFalloffRate "Cantera::FalloffRate" (CxxReactionRate):
