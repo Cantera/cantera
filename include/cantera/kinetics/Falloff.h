@@ -244,7 +244,7 @@ public:
 
     unique_ptr<MultiRateBase> newMultiRate() const {
         return unique_ptr<MultiRateBase>(
-            new MultiBulkRate<LindemannRate, FalloffData>);
+            new MultiRate<LindemannRate, FalloffData>);
     }
 
     virtual const std::string type() const {
@@ -304,7 +304,7 @@ public:
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<TroeRate, FalloffData>);
+        return unique_ptr<MultiRateBase>(new MultiRate<TroeRate, FalloffData>);
     }
 
     //! Set coefficients used by parameterization
@@ -406,7 +406,7 @@ public:
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<SriRate, FalloffData>);
+        return unique_ptr<MultiRateBase>(new MultiRate<SriRate, FalloffData>);
     }
 
     //! Set coefficients used by parameterization
@@ -516,7 +516,7 @@ public:
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(new MultiBulkRate<TsangRate, FalloffData>);
+        return unique_ptr<MultiRateBase>(new MultiRate<TsangRate, FalloffData>);
     }
 
     //! Set coefficients used by parameterization

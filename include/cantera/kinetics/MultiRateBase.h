@@ -21,12 +21,7 @@ class Kinetics;
 /**
  * Because this class has no template parameters, the Kinetics object can store all of
  * these rate coefficient evaluators as a `vector<shared_ptr<MultiRateBase>>`. All of
- * the actual implementation for this capability is done in the MultiBulkRate class.
- *
- * @todo At the moment, implemented methods are specific to BulkKinetics,
- *     which can be updated using information of a single ThermoPhase.
- *     InterfaceKinetics will require access to an entire Kinetics object
- *     or the underlying `vector<ThermoPhase*>` vector (e.g. `m_thermo`).
+ * the actual implementation for this capability is done in the MultiRate class.
  */
 class MultiRateBase
 {

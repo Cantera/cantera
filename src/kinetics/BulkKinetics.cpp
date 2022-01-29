@@ -134,7 +134,7 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 
     if (!(r->usesLegacy())) {
         shared_ptr<ReactionRate> rate = r->rate();
-        // If necessary, add new MultiBulkRate evaluator
+        // If necessary, add new MultiRate evaluator
         if (m_bulk_types.find(rate->type()) == m_bulk_types.end()) {
             m_bulk_types[rate->type()] = m_bulk_rates.size();
             m_bulk_rates.push_back(rate->newMultiRate());
@@ -190,7 +190,7 @@ void BulkKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
 
     if (!(rNew->usesLegacy())) {
         shared_ptr<ReactionRate> rate = rNew->rate();
-        // Ensure that MultiBulkRate evaluator is available
+        // Ensure that MultiRate evaluator is available
         if (m_bulk_types.find(rate->type()) == m_bulk_types.end()) {
             throw CanteraError("BulkKinetics::modifyReaction",
                  "Evaluator not available for type '{}'.", rate->type());

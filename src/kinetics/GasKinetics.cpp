@@ -63,7 +63,7 @@ void GasKinetics::update_rates_T()
         m_ROP_ok = false;
     }
 
-    // loop over MultiBulkRate evaluators for each reaction type
+    // loop over MultiRate evaluators for each reaction type
     for (auto& rates : m_bulk_rates) {
         bool changed = rates->update(thermo(), *this);
         if (changed) {
