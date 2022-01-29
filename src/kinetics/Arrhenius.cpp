@@ -14,7 +14,8 @@ ArrheniusBase::ArrheniusBase()
     : m_negativeA_ok(false)
     , m_A(NAN)
     , m_b(NAN)
-    , m_Ea_R(NAN)
+    , m_Ea_R(0.)
+    , m_E4_R(0.)
     , m_logA(NAN)
     , m_order(NAN)
     , m_rate_units(Units(0.))
@@ -26,6 +27,7 @@ ArrheniusBase::ArrheniusBase(double A, double b, double Ea)
     , m_A(A)
     , m_b(b)
     , m_Ea_R(Ea / GasConstant)
+    , m_E4_R(0.)
     , m_order(NAN)
     , m_rate_units(Units(0.))
 {
@@ -37,10 +39,12 @@ ArrheniusBase::ArrheniusBase(double A, double b, double Ea)
 void ArrheniusBase::setRateParameters(
     const AnyValue& rate, const UnitSystem& units, const UnitStack& rate_units)
 {
+    m_Ea_R = 0.; // assume zero if not provided
+    m_E4_R = 0.; // assume zero if not provided
     if (rate.empty()) {
         m_A = NAN;
         m_b = NAN;
-        m_Ea_R = NAN;
+        m_logA = NAN;
         m_order = NAN;
         m_rate_units = Units(0.);
         return;
@@ -65,17 +69,19 @@ void ArrheniusBase::setRateParameters(
         m_b = rate_map[m_b_str].asDouble();
         if (rate_map.hasKey(m_Ea_str)) {
             m_Ea_R = units.convertActivationEnergy(rate_map[m_Ea_str], "K");
-        } else {
-            m_Ea_R = NAN;
+        }
+        if (rate_map.hasKey(m_E4_str)) {
+            m_E4_R = units.convertActivationEnergy(rate_map[m_E4_str], "K");
         }
     } else {
-        auto& rate_vec = rate.asVector<AnyValue>(2, 3);
+        auto& rate_vec = rate.asVector<AnyValue>(2, 4);
         m_A = units.convert(rate_vec[0], m_rate_units);
         m_b = rate_vec[1].asDouble();
-        if (rate_vec.size() == 3) {
+        if (rate_vec.size() > 2) {
             m_Ea_R = units.convertActivationEnergy(rate_vec[2], "K");
-        } else {
-            m_Ea_R = NAN;
+        }
+        if (rate_vec.size() > 3) {
+            m_E4_R = units.convertActivationEnergy(rate_vec[3], "K");
         }
     }
     if (m_A > 0.0) {
@@ -104,7 +110,9 @@ void ArrheniusBase::getParameters(AnyMap& node, const Units& rate_units) const
     }
     node[m_b_str] = m_b;
     node[m_Ea_str].setQuantity(m_Ea_R, "K", true);
-
+    if (m_E4_str != "") {
+        node[m_E4_str].setQuantity(m_E4_R, "K", true);
+    }
     node.setFlowStyle();
 }
 
@@ -149,71 +157,27 @@ void ArrheniusRate::getParameters(AnyMap& rateNode) const
 
 TwoTempPlasmaRate::TwoTempPlasmaRate()
     : ArrheniusBase()
-    , m_EE_R(0.0)
 {
-    m_Ea_R = 0.0;
     m_Ea_str = "Ea-gas";
+    m_E4_str = "Ea-electron";
 }
 
 TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE)
     : ArrheniusBase(A, b, Ea)
-    , m_EE_R(EE  / GasConstant)
 {
     m_Ea_str = "Ea-gas";
-}
-
-void TwoTempPlasmaRate::setRateParameters(
-    const AnyValue& rate, const UnitSystem& units, const UnitStack& rate_units)
-{
-    if (rate.empty()) {
-        m_A = NAN;
-        m_b = NAN;
-        m_Ea_R = NAN;
-        m_EE_R = NAN;
-        m_order = NAN;
-        m_rate_units = Units(0.);
-        return;
-    }
-
-    if (rate.is<AnyMap>()) {
-        ArrheniusBase::setRateParameters(rate, units, rate_units);
-        auto& rate_map = rate.as<AnyMap>();
-        // check Ea-gas value. Set to zero in the case of absent.
-        if (isnan(m_Ea_R)) {
-            m_Ea_R = 0.0;
-        }
-        // Get Ea-electron value. If not set it to zero.
-        if (rate_map.hasKey("Ea-electron")) {
-            m_EE_R = units.convertActivationEnergy(rate_map["Ea-electron"], "K");
-        } else {
-            m_EE_R = 0.0;
-        }
-    } else {
-        setRateUnits(rate_units);
-        auto& rate_vec = rate.asVector<AnyValue>(2,4);
-        m_A = units.convert(rate_vec[0], m_rate_units);
-        m_b = rate_vec[1].asDouble();
-        if (rate_vec.size() == 4) {
-            m_EE_R = units.convertActivationEnergy(rate_vec[3], "K");
-            m_Ea_R = units.convertActivationEnergy(rate_vec[2], "K");
-        } else if (rate_vec.size() == 3) {
-            m_EE_R = 0.0;
-            m_Ea_R = units.convertActivationEnergy(rate_vec[2], "K");
-        } else {
-            m_Ea_R = 0.0;
-            m_EE_R = 0.0;
-        }
-    }
+    m_E4_str = "Ea-electron";
+    m_E4_R = EE / GasConstant;
 }
 
 void TwoTempPlasmaRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
     m_negativeA_ok = node.getBool("negative-A", false);
     if (!node.hasKey("rate-constant")) {
-        TwoTempPlasmaRate::setRateParameters(AnyValue(), node.units(), rate_units);
+        setRateParameters(AnyValue(), node.units(), rate_units);
         return;
     }
-    TwoTempPlasmaRate::setRateParameters(node["rate-constant"], node.units(), rate_units);
+    setRateParameters(node["rate-constant"], node.units(), rate_units);
 }
 
 void TwoTempPlasmaRate::getParameters(AnyMap& rateNode) const
@@ -225,50 +189,23 @@ void TwoTempPlasmaRate::getParameters(AnyMap& rateNode) const
     ArrheniusBase::getRateParameters(node);
     if (!node.empty()) {
         // object is configured
-        node["Ea-electron"].setQuantity(m_EE_R, "K", true);
         rateNode["rate-constant"] = std::move(node);
     }
     rateNode["type"] = type();
 }
 
 BlowersMaselRate::BlowersMaselRate()
-    : m_w_R(NAN)
 {
     m_Ea_str = "Ea0";
+    m_E4_str = "w";
 }
 
 BlowersMaselRate::BlowersMaselRate(double A, double b, double Ea0, double w)
     : ArrheniusBase(A, b, Ea0)
-    , m_w_R(w / GasConstant)
 {
     m_Ea_str = "Ea0";
-}
-
-void BlowersMaselRate::setRateParameters(
-    const AnyValue& rate, const UnitSystem& units, const UnitStack& rate_units)
-{
-    if (rate.empty()) {
-        m_A = NAN;
-        m_b = NAN;
-        m_Ea_R = NAN;
-        m_w_R = NAN;
-        m_order = NAN;
-        m_rate_units = Units(0.);
-        return;
-    }
-
-    if (rate.is<AnyMap>()) {
-        ArrheniusBase::setRateParameters(rate, units, rate_units);
-        auto& rate_map = rate.as<AnyMap>();
-        m_w_R = units.convertActivationEnergy(rate_map["w"], "K");
-    } else {
-        setRateUnits(rate_units);
-        auto& rate_vec = rate.asVector<AnyValue>(4);
-        m_A = units.convert(rate_vec[0], m_rate_units);
-        m_b = rate_vec[1].asDouble();
-        m_Ea_R = units.convertActivationEnergy(rate_vec[2], "K");
-        m_w_R = units.convertActivationEnergy(rate_vec[3], "K");
-    }
+    m_E4_str = "w";
+    m_E4_R = w / GasConstant;
 }
 
 double BlowersMaselRate::ddTScaledFromStruct(const BlowersMaselData& shared_data) const
@@ -289,10 +226,10 @@ void BlowersMaselRate::setParameters(const AnyMap& node, const UnitStack& rate_u
 {
     m_negativeA_ok = node.getBool("negative-A", false);
     if (!node.hasKey("rate-constant")) {
-        BlowersMaselRate::setRateParameters(AnyValue(), node.units(), rate_units);
+        setRateParameters(AnyValue(), node.units(), rate_units);
         return;
     }
-    BlowersMaselRate::setRateParameters(node["rate-constant"], node.units(), rate_units);
+    setRateParameters(node["rate-constant"], node.units(), rate_units);
 }
 
 void BlowersMaselRate::getParameters(AnyMap& rateNode) const
@@ -304,7 +241,6 @@ void BlowersMaselRate::getParameters(AnyMap& rateNode) const
     ArrheniusBase::getRateParameters(node);
     if (!node.empty()) {
         // object is configured
-        node["w"].setQuantity(m_w_R, "K", true);
         rateNode["rate-constant"] = std::move(node);
     }
     rateNode["type"] = type();
