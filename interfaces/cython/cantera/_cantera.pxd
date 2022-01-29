@@ -638,7 +638,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxChebyshevReaction2 "Cantera::ChebyshevReaction2" (CxxReaction):
         CxxChebyshev rate
 
-    cdef cppclass CxxBlowersMasel2 "Cantera::BlowersMasel2":
+    cdef cppclass CxxBlowersMasel2 "Cantera::BMSurfaceArrhenius":
         CxxBlowersMasel2()
         CxxBlowersMasel2(double, double, double, double)
         double updateRC(double, double, double)

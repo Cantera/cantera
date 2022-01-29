@@ -467,7 +467,7 @@ class BlowersMaselInterfaceReaction : public Reaction
 public:
     BlowersMaselInterfaceReaction();
     BlowersMaselInterfaceReaction(const Composition& reactants, const Composition& products,
-                      const BlowersMasel2& rate, bool isStick=false);
+                      const BMSurfaceArrhenius& rate, bool isStick=false);
     virtual void getParameters(AnyMap& reactionNode) const;
     virtual void validate();
     virtual void calculateRateCoeffUnits(const Kinetics& kin);
@@ -477,7 +477,7 @@ public:
         return "surface-Blowers-Masel";
     }
 
-    BlowersMasel2 rate;
+    BMSurfaceArrhenius rate;
 
     bool allow_negative_pre_exponential_factor;
 
