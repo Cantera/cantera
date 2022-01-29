@@ -464,6 +464,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double preExponentialFactor()
         double temperatureExponent()
         double intrinsicActivationEnergy()
+        cbool allowNegativePreExponentialFactor()
+        void setAllowNegativePreExponentialFactor(bool)
 
     cdef cppclass CxxArrhenius2 "Cantera::Arrhenius2" (CxxArrheniusBase):
         CxxArrhenius2(double, double, double)
@@ -482,8 +484,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxArrheniusRate(CxxAnyMap) except +translate_exception
         CxxArrheniusRate(double, double, double)
         double activationEnergy()
-        cbool allowNegativePreExponentialFactor()
-        void setAllowNegativePreExponentialFactor(bool)
 
     cdef cppclass CxxTwoTempPlasmaRate "Cantera::TwoTempPlasmaRate" (CxxReactionRate, CxxArrheniusBase):
         CxxTwoTempPlasmaRate()
@@ -491,8 +491,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxTwoTempPlasmaRate(double, double, double, double)
         double activationEnergy()
         double activationElectronEnergy()
-        cbool allowNegativePreExponentialFactor()
-        void setAllowNegativePreExponentialFactor(bool)
 
     cdef cppclass CxxBlowersMaselRate "Cantera::BlowersMaselRate" (CxxReactionRate, CxxArrheniusBase):
         CxxBlowersMaselRate()
@@ -501,8 +499,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double activationEnergy(double)
         double activationEnergy0()
         double bondEnergy()
-        cbool allowNegativePreExponentialFactor()
-        void setAllowNegativePreExponentialFactor(bool)
 
     cdef cppclass CxxFalloffRate "Cantera::FalloffRate" (CxxReactionRate):
         CxxFalloffRate()
@@ -520,16 +516,16 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double evalF(double, double) except +translate_exception
 
     cdef cppclass CxxLindemannRate "Cantera::LindemannRate" (CxxFalloffRate):
-        CxxLindemannRate()
+        CxxLindemannRate(CxxAnyMap) except +translate_exception
 
     cdef cppclass CxxTroeRate "Cantera::TroeRate" (CxxFalloffRate):
-        CxxTroeRate()
+        CxxTroeRate(CxxAnyMap) except +translate_exception
 
     cdef cppclass CxxSriRate "Cantera::SriRate" (CxxFalloffRate):
-        CxxSriRate()
+        CxxSriRate(CxxAnyMap) except +translate_exception
 
     cdef cppclass CxxTsangRate "Cantera::TsangRate" (CxxFalloffRate):
-        CxxTsangRate()
+        CxxTsangRate(CxxAnyMap) except +translate_exception
 
     cdef cppclass CxxPlogRate "Cantera::PlogRate" (CxxReactionRate):
         CxxPlogRate()
@@ -1393,6 +1389,9 @@ cdef class ReactionRate:
     @staticmethod
     cdef wrap(shared_ptr[CxxReactionRate])
     cdef set_cxx_object(self)
+
+cdef class _ArrheniusTypeRate(ReactionRate):
+    cdef CxxArrheniusBase* base
 
 cdef class FalloffRate(ReactionRate):
     cdef CxxFalloffRate* falloff

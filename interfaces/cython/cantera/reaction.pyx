@@ -120,7 +120,61 @@ cdef class ReactionRate:
             return anymap_to_dict(self.rate.parameters())
 
 
-cdef class ArrheniusRate(ReactionRate):
+cdef class _ArrheniusTypeRate(ReactionRate):
+    """
+    Base class collecting commonly used features of Arrhenius-type rate objects.
+    """
+    _reaction_rate_type = None
+
+    def _cinit(self, input_data, **kwargs):
+        """Helper function called by __cinit__"""
+        if self._reaction_rate_type is None:
+            raise TypeError(
+                f"Base class '{self.__class__.__name__}' cannot be instantiated "
+                "by itself; use specialized rate constructors instead.")
+
+        if isinstance(input_data, dict):
+            self._from_dict(input_data)
+        elif all([kwargs[k] is not None for k in kwargs]):
+            self._from_parameters(*[kwargs[k] for k in kwargs])
+        elif all([kwargs[k] is None for k in kwargs]) and input_data is None:
+            self._from_dict({})
+        elif input_data:
+            raise TypeError("Invalid parameter 'input_data'")
+        else:
+            par_list = [f"'{k}'" for k in kwargs]
+            par_string = ", ".join([par_list[:-1]])
+            par_string += f" or {par_list[-1]}"
+            raise TypeError(f"Invalid parameters {par_string}")
+        self.set_cxx_object()
+
+    property pre_exponential_factor:
+        """
+        The pre-exponential factor ``A`` in units of m, kmol, and s raised to
+        powers depending on the reaction order.
+        """
+        def __get__(self):
+            return self.base.preExponentialFactor()
+
+    property temperature_exponent:
+        """
+        The temperature exponent ``b``.
+        """
+        def __get__(self):
+            return self.base.temperatureExponent()
+
+    property allow_negative_pre_exponential_factor:
+        """
+        Get/Set whether the rate coefficient is allowed to have a negative
+        pre-exponential factor.
+        """
+        def __get__(self):
+            return self.base.allowNegativePreExponentialFactor()
+        def __set__(self, cbool allow):
+            self.base.setAllowNegativePreExponentialFactor(allow)
+
+
+cdef class ArrheniusRate(_ArrheniusTypeRate):
     r"""
     A reaction rate coefficient which depends on temperature only and follows
     the modified Arrhenius form:
@@ -137,35 +191,21 @@ cdef class ArrheniusRate(ReactionRate):
     def __cinit__(self, A=None, b=None, Ea=None, input_data=None, init=True):
 
         if init:
-            if isinstance(input_data, dict):
-                self._rate.reset(new CxxArrheniusRate(dict_to_anymap(input_data)))
-            elif all([arg is not None for arg in [A, b, Ea]]):
-                self._rate.reset(new CxxArrheniusRate(A, b, Ea))
-            elif all([arg is None for arg in [A, b, Ea, input_data]]):
-                self._rate.reset(new CxxArrheniusRate(dict_to_anymap({})))
-            elif input_data:
-                raise TypeError("Invalid parameter 'input_data'")
-            else:
-                raise TypeError("Invalid parameters 'A', 'b' or 'Ea'")
-            self.set_cxx_object()
+            self._cinit(input_data, A=A, b=b, Ea=Ea)
+
+    def _from_dict(self, dict input_data):
+        self._rate.reset(new CxxArrheniusRate(dict_to_anymap(input_data)))
+
+    def _from_parameters(self, A, b, Ea):
+        self._rate.reset(new CxxArrheniusRate(A, b, Ea))
+
+    cdef set_cxx_object(self):
+        self.rate = self._rate.get()
+        # CxxArrheniusBase does not have a common base with CxxReactionRate
+        self.base = <CxxArrheniusBase*>self.cxx_object()
 
     cdef CxxArrheniusRate* cxx_object(self):
         return <CxxArrheniusRate*>self.rate
-
-    property pre_exponential_factor:
-        """
-        The pre-exponential factor ``A`` in units of m, kmol, and s raised to
-        powers depending on the reaction order.
-        """
-        def __get__(self):
-            return self.cxx_object().preExponentialFactor()
-
-    property temperature_exponent:
-        """
-        The temperature exponent ``b``.
-        """
-        def __get__(self):
-            return self.cxx_object().temperatureExponent()
 
     property activation_energy:
         """
@@ -174,18 +214,8 @@ cdef class ArrheniusRate(ReactionRate):
         def __get__(self):
             return self.cxx_object().activationEnergy()
 
-    property allow_negative_pre_exponential_factor:
-        """
-        Get/Set whether the rate coefficient is allowed to have a negative
-        pre-exponential factor.
-        """
-        def __get__(self):
-            return self.cxx_object().allowNegativePreExponentialFactor()
-        def __set__(self, cbool allow):
-            self.cxx_object().setAllowNegativePreExponentialFactor(allow)
 
-
-cdef class BlowersMaselRate(ReactionRate):
+cdef class BlowersMaselRate(_ArrheniusTypeRate):
     r"""
     A reaction rate coefficient which depends on temperature and enthalpy change
     of the reaction follows the Blowers-Masel approximation and modified Arrhenius form
@@ -196,17 +226,7 @@ cdef class BlowersMaselRate(ReactionRate):
     def __cinit__(self, A=None, b=None, Ea0=None, w=None, input_data=None, init=True):
 
         if init:
-            if isinstance(input_data, dict):
-                self._rate.reset(new CxxBlowersMaselRate(dict_to_anymap(input_data)))
-            elif all([arg is not None for arg in [A, b, Ea0, w]]):
-                self._rate.reset(new CxxBlowersMaselRate(A, b, Ea0, w))
-            elif all([arg is None for arg in [A, b, Ea0, w, input_data]]):
-                self._rate.reset(new CxxBlowersMaselRate(dict_to_anymap({})))
-            elif input_data:
-                raise TypeError("Invalid parameter 'input_data'")
-            else:
-                raise TypeError("Invalid parameters 'A', 'b', 'Ea0' or 'w'")
-            self.set_cxx_object()
+            self._cinit(input_data, A=A, b=b, Ea0=Ea0, w=w)
 
     def __call__(self, double temperature, double deltaH):
         """
@@ -214,23 +234,19 @@ cdef class BlowersMaselRate(ReactionRate):
         """
         return self.rate.eval(temperature, deltaH)
 
+    def _from_dict(self, dict input_data):
+        self._rate.reset(new CxxBlowersMaselRate(dict_to_anymap(input_data)))
+
+    def _from_parameters(self, A, b, Ea0, w):
+        self._rate.reset(new CxxBlowersMaselRate(A, b, Ea0, w))
+
+    cdef set_cxx_object(self):
+        self.rate = self._rate.get()
+        # CxxArrheniusBase does not have a common base with CxxReactionRate
+        self.base = <CxxArrheniusBase*>self.cxx_object()
+
     cdef CxxBlowersMaselRate* cxx_object(self):
         return <CxxBlowersMaselRate*>self.rate
-
-    property pre_exponential_factor:
-        """
-        The pre-exponential factor ``A`` in units of m, kmol, and s raised to
-        powers depending on the reaction order.
-        """
-        def __get__(self):
-            return self.cxx_object().preExponentialFactor()
-
-    property temperature_exponent:
-        """
-        The temperature exponent ``b``.
-        """
-        def __get__(self):
-            return self.cxx_object().temperatureExponent()
 
     def activation_energy(self, double deltaH):
         """
@@ -254,18 +270,8 @@ cdef class BlowersMaselRate(ReactionRate):
         def __get__(self):
             return self.cxx_object().bondEnergy()
 
-    property allow_negative_pre_exponential_factor:
-        """
-        Get/Set whether the rate coefficient is allowed to have a negative
-        pre-exponential factor.
-        """
-        def __get__(self):
-            return self.cxx_object().allowNegativePreExponentialFactor()
-        def __set__(self, cbool allow):
-            self.cxx_object().setAllowNegativePreExponentialFactor(allow)
 
-
-cdef class TwoTempPlasmaRate(ReactionRate):
+cdef class TwoTempPlasmaRate(_ArrheniusTypeRate):
     r"""
     A reaction rate coefficient which depends on both gas and electron temperature
     with the form similar to the modified Arrhenius form. Specifically, the temperature
@@ -285,18 +291,7 @@ cdef class TwoTempPlasmaRate(ReactionRate):
     def __cinit__(self, A=None, b=None, Ea_gas=0.0, Ea_electron=0.0,
             input_data=None, init=True):
         if init:
-            if isinstance(input_data, dict):
-                self._rate.reset(new CxxTwoTempPlasmaRate(dict_to_anymap(input_data)))
-            elif all([arg is not None for arg in [A, b, Ea_gas, Ea_electron]]):
-                self._rate.reset(new CxxTwoTempPlasmaRate(A, b, Ea_gas, Ea_electron))
-            elif all([arg is None for arg in [A, b, input_data]]):
-                self._rate.reset(new CxxTwoTempPlasmaRate(dict_to_anymap({})))
-            elif input_data:
-                raise TypeError("Invalid parameter 'input_data'")
-            else:
-                raise TypeError(
-                    "Invalid parameters 'A', 'b', 'Ea_gas' or 'Ea_electron'")
-            self.set_cxx_object()
+            self._cinit(input_data, A=A, b=b, Ea_gas=Ea_gas, Ea_electron=Ea_electron)
 
     def __call__(self, double temperature, double elec_temp):
         """
@@ -304,23 +299,19 @@ cdef class TwoTempPlasmaRate(ReactionRate):
         """
         return self.rate.eval(temperature, elec_temp)
 
+    def _from_dict(self, dict input_data):
+        self._rate.reset(new CxxTwoTempPlasmaRate(dict_to_anymap(input_data)))
+
+    def _from_parameters(self, A, b, Ea_gas, Ea_electron):
+        self._rate.reset(new CxxTwoTempPlasmaRate(A, b, Ea_gas, Ea_electron))
+
+    cdef set_cxx_object(self):
+        self.rate = self._rate.get()
+        # CxxArrheniusBase does not have a common base with CxxReactionRate
+        self.base = <CxxArrheniusBase*>self.cxx_object()
+
     cdef CxxTwoTempPlasmaRate* cxx_object(self):
         return <CxxTwoTempPlasmaRate*>self.rate
-
-    property pre_exponential_factor:
-        """
-        The pre-exponential factor ``A`` in units of m, kmol, and s raised to
-        powers depending on the reaction order.
-        """
-        def __get__(self):
-            return self.cxx_object().preExponentialFactor()
-
-    property temperature_exponent:
-        """
-        The temperature exponent ``b``.
-        """
-        def __get__(self):
-            return self.cxx_object().temperatureExponent()
 
     property activation_energy:
         """
@@ -335,16 +326,6 @@ cdef class TwoTempPlasmaRate(ReactionRate):
         """
         def __get__(self):
             return self.cxx_object().activationElectronEnergy()
-
-    property allow_negative_pre_exponential_factor:
-        """
-        Get/Set whether the rate coefficient is allowed to have a negative
-        pre-exponential factor.
-        """
-        def __get__(self):
-            return self.cxx_object().allowNegativePreExponentialFactor()
-        def __set__(self, cbool allow):
-            self.cxx_object().setAllowNegativePreExponentialFactor(allow)
 
 
 cdef class FalloffRate(ReactionRate):
@@ -366,12 +347,9 @@ cdef class FalloffRate(ReactionRate):
 
         if init:
             if isinstance(input_data, dict):
-                if input_data:
-                    self._from_dict(input_data)
-                else:
-                    self._from_empty()
+                self._from_dict(input_data)
             elif input_data is None:
-                self._from_empty()
+                self._from_dict({})
             else:
                 raise TypeError("Invalid input parameters")
             self.set_cxx_object()
@@ -455,11 +433,8 @@ cdef class LindemannRate(FalloffRate):
     """
     _reaction_rate_type = "Lindemann"
 
-    def _from_empty(self):
-        self._rate.reset(new CxxLindemannRate())
-
     def _from_dict(self, dict input_data):
-        self._rate = CxxNewReactionRate(dict_to_anymap(input_data))
+        self._rate.reset(new CxxLindemannRate(dict_to_anymap(input_data)))
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
@@ -476,11 +451,8 @@ cdef class TroeRate(FalloffRate):
     """
     _reaction_rate_type = "Troe"
 
-    def _from_empty(self):
-        self._rate.reset(new CxxTroeRate())
-
     def _from_dict(self, dict input_data):
-        self._rate = CxxNewReactionRate(dict_to_anymap(input_data))
+        self._rate.reset(new CxxTroeRate(dict_to_anymap(input_data)))
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
@@ -497,11 +469,8 @@ cdef class SriRate(FalloffRate):
     """
     _reaction_rate_type = "SRI"
 
-    def _from_empty(self):
-        self._rate.reset(new CxxSriRate())
-
     def _from_dict(self, dict input_data):
-        self._rate = CxxNewReactionRate(dict_to_anymap(input_data))
+        self._rate.reset(new CxxSriRate(dict_to_anymap(input_data)))
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
@@ -514,11 +483,8 @@ cdef class TsangRate(FalloffRate):
     """
     _reaction_rate_type = "Tsang"
 
-    def _from_empty(self):
-        self._rate.reset(new CxxTsangRate())
-
     def _from_dict(self, dict input_data):
-        self._rate = CxxNewReactionRate(dict_to_anymap(input_data))
+        self._rate.reset(new CxxTsangRate(dict_to_anymap(input_data)))
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
@@ -2262,7 +2228,7 @@ cdef class ChebyshevReaction(Reaction):
 
         if init and equation and kinetics:
             warnings.warn("Class 'ChebyshevReaction' to be removed after Cantera 2.6.\n"
-                "These reactions can be constructed by passing a 'ChebyshevRate' object"
+                "These reactions can be constructed by passing a 'ChebyshevRate' object "
                 "as the 'rate' argument to the 'Reaction' class.")
             rxn_type = self._reaction_type + "-legacy"
             spec = {"equation": equation, "type": rxn_type}
