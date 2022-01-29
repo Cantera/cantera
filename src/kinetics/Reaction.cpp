@@ -54,6 +54,18 @@ Reaction::Reaction(const Composition& reactants_,
 {
 }
 
+Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
+    : Reaction()
+{
+    setParameters(node, kin);
+    if (kin.nPhases()) {
+        setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
+    } else {
+        // @deprecated This route is only used for legacy reaction types.
+        setRate(newReactionRate(node));
+    }
+}
+
 Reaction::Reaction(int type)
     : reaction_type(type)
     , reversible(true)
