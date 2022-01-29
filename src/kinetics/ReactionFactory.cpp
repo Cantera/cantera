@@ -24,14 +24,7 @@ ReactionFactory::ReactionFactory()
 {
     // register elementary reactions
     reg("reaction", [](const AnyMap& node, const Kinetics& kin) {
-        unique_ptr<Reaction> R(new Reaction());
-        R->setParameters(node, kin);
-        if (kin.nPhases()) {
-            R->setRate(newReactionRate(node, R->calculateRateCoeffUnits3(kin)));
-        } else {
-            R->setRate(newReactionRate(node));
-        }
-        return R.release();
+        return new Reaction(node, kin);
     });
     addAlias("reaction", "elementary");
     addAlias("reaction", "arrhenius");

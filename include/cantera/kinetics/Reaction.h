@@ -34,6 +34,10 @@ public:
     Reaction(const Composition& reactants, const Composition& products,
              shared_ptr<ReactionRate> rate={});
 
+    //! Construct a Reaction and it's corresponding ReactionRate based on AnyMap (YAML)
+    //! input.
+    Reaction(const AnyMap& node, const Kinetics& kin);
+
     //! @deprecated To be removed after Cantera 2.6.
     explicit Reaction(int type);
     //! @deprecated To be removed after Cantera 2.6.
