@@ -332,7 +332,7 @@ class TestBlowersMaselRate(ReactionRateTests, utilities.CanteraTest):
         rate = self.from_parts()
         self.assertEqual(self._parts["A"], rate.pre_exponential_factor)
         self.assertEqual(self._parts["b"], rate.temperature_exponent)
-        self.assertNear(self._parts["Ea0"], rate.intrinsic_activation_energy)
+        self.assertNear(self._parts["Ea0"], rate.activation_energy)
         self.assertNear(self._parts["w"], rate.bond_energy)
         self.check_rate(rate)
 
