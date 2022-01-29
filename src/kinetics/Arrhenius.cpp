@@ -91,16 +91,11 @@ void ArrheniusBase::setRateParameters(
 
 void ArrheniusBase::getRateParameters(AnyMap& node) const
 {
-    getParameters(node, m_rate_units);
-}
-
-void ArrheniusBase::getParameters(AnyMap& node, const Units& rate_units) const
-{
     if (std::isnan(m_A)) {
         // Return empty/unmodified AnyMap
         return;
-    } else if (rate_units.factor() != 0.0) {
-        node[m_A_str].setQuantity(m_A, rate_units);
+    } else if (m_rate_units.factor() != 0.0) {
+        node[m_A_str].setQuantity(m_A, m_rate_units);
     } else {
         node[m_A_str] = m_A;
         // This can't be converted to a different unit system because the dimensions of
@@ -114,6 +109,7 @@ void ArrheniusBase::getParameters(AnyMap& node, const Units& rate_units) const
         node[m_E4_str].setQuantity(m_E4_R, "K", true);
     }
     node.setFlowStyle();
+
 }
 
 void ArrheniusBase::checkRate(const std::string& equation, const AnyMap& node)
