@@ -104,8 +104,8 @@ public:
         updateTemp(T, m_work.data());
         FalloffData data;
         data.update(T);
-        m_rc_low = m_lowRate.evalFromStruct(data);
-        m_rc_high = m_highRate.evalFromStruct(data);
+        m_rc_low = m_lowRate.evalRate(data.logT, data.recipT);
+        m_rc_high = m_highRate.evalRate(data.logT, data.recipT);
         double pr = conc3b * m_rc_low / (m_rc_high + SmallNumber);
         return F(pr, m_work.data());
     }
@@ -143,8 +143,8 @@ public:
     //! @param shared_data  data shared by all reactions of a given type
     virtual double evalFromStruct(const FalloffData& shared_data) {
         updateTemp(shared_data.temperature, m_work.data());
-        m_rc_low = m_lowRate.evalFromStruct(shared_data);
-        m_rc_high = m_highRate.evalFromStruct(shared_data);
+        m_rc_low = m_lowRate.evalRate(shared_data.logT, shared_data.recipT);
+        m_rc_high = m_highRate.evalRate(shared_data.logT, shared_data.recipT);
         double thirdBodyConcentration;
         if (shared_data.ready) {
             thirdBodyConcentration = shared_data.conc_3b[m_rate_index];
@@ -188,24 +188,24 @@ public:
     }
 
     //! Get reaction rate in the low-pressure limit
-    ArrheniusRate& lowRate() {
+    ArrheniusBase& lowRate() {
         return m_lowRate;
     }
 
     //! Set reaction rate in the low-pressure limit
-    void setLowRate(const ArrheniusRate& low);
+    void setLowRate(const ArrheniusBase& low);
 
     //! Get reaction rate in the high-pressure limit
-    ArrheniusRate& highRate() {
+    ArrheniusBase& highRate() {
         return m_highRate;
     }
 
     //! Set reaction rate in the high-pressure limit
-    void setHighRate(const ArrheniusRate& high);
+    void setHighRate(const ArrheniusBase& high);
 
 protected:
-    ArrheniusRate m_lowRate; //!< The reaction rate in the low-pressure limit
-    ArrheniusRate m_highRate; //!< The reaction rate in the high-pressure limit
+    ArrheniusBase m_lowRate; //!< The reaction rate in the low-pressure limit
+    ArrheniusBase m_highRate; //!< The reaction rate in the high-pressure limit
 
     bool m_chemicallyActivated; //!< Flag labeling reaction as chemically activated
     bool m_negativeA_ok; //!< Flag indicating whether negative A values are permitted
@@ -234,7 +234,7 @@ public:
     }
 
     LindemannRate(
-        const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
+        const ArrheniusBase& low, const ArrheniusBase& high, const vector_fp& c)
         : LindemannRate()
     {
         m_lowRate = low;
@@ -295,7 +295,7 @@ public:
         setParameters(node, rate_units);
     }
 
-    TroeRate(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
+    TroeRate(const ArrheniusBase& low, const ArrheniusBase& high, const vector_fp& c)
         : TroeRate()
     {
         m_lowRate = low;
@@ -397,7 +397,7 @@ public:
         setParameters(node, rate_units);
     }
 
-    SriRate(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
+    SriRate(const ArrheniusBase& low, const ArrheniusBase& high, const vector_fp& c)
         : SriRate()
     {
         m_lowRate = low;
@@ -507,7 +507,7 @@ public:
         setParameters(node, rate_units);
     }
 
-    TsangRate(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
+    TsangRate(const ArrheniusBase& low, const ArrheniusBase& high, const vector_fp& c)
         : TsangRate()
     {
         m_lowRate = low;

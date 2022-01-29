@@ -507,10 +507,10 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         void setAllowNegativePreExponentialFactor(bool)
         cbool chemicallyActivated()
         void setChemicallyActivated(bool)
-        CxxArrheniusRate& lowRate()
-        void setLowRate(CxxArrheniusRate&) except +translate_exception
-        CxxArrheniusRate& highRate()
-        void setHighRate(CxxArrheniusRate&) except +translate_exception
+        CxxArrheniusBase& lowRate()
+        void setLowRate(CxxArrheniusBase&) except +translate_exception
+        CxxArrheniusBase& highRate()
+        void setHighRate(CxxArrheniusBase&) except +translate_exception
         void getFalloffCoeffs(vector[double]&)
         void setFalloffCoeffs(vector[double]&) except +translate_exception
         double evalF(double, double) except +translate_exception
@@ -1412,12 +1412,11 @@ cdef class CustomReaction(Reaction):
 
 cdef class Arrhenius:
     cdef CxxArrhenius2* legacy # used by legacy objects only
-    cdef CxxArrheniusRate* rate # used by new objects only
     cdef CxxArrheniusBase* base
     cdef cbool own_rate
     cdef Reaction reaction # parent reaction, to prevent garbage collection
     @staticmethod
-    cdef wrap(CxxArrheniusRate*)
+    cdef wrap(CxxArrheniusBase*)
 
 cdef class BlowersMasel:
     cdef CxxBlowersMasel2* rate
