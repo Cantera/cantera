@@ -16,6 +16,9 @@
 namespace Cantera
 {
 
+
+class Reaction;
+
 //! Abstract base class for reaction rate definitions; this base class is used by
 //! user-facing APIs to access reaction rate objects
 //!
@@ -107,6 +110,14 @@ public:
     //! Set reaction rate index within kinetics evaluator
     void setRateIndex(size_t idx) {
         m_rate_index = idx;
+    }
+
+    //! Set context of reaction rate evaluation
+    //! @param rxn  Reaction object associated with rate
+    //! @param kin  Kinetics object used for rate evaluation
+    //! This method allows for passing of information when a ReactionRate is added
+    //! to Kinetics a MultiRate reaction evaluator.
+    virtual void setContext(const Reaction& rxn, const Kinetics& kin) {
     }
 
     //! Evaluate reaction rate based on temperature
