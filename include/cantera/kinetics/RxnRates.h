@@ -99,119 +99,6 @@ public:
     }
 };
 
-//! Blowers Masel reaction rate type depends on the enthalpy of reaction
-/**
- * The Blowers Masel approximation is written by Paul Blowers,
- * Rich Masel (DOI: https://doi.org/10.1002/aic.690461015) to
- * adjust the activation energy based on enthalpy change of a reaction:
- *
- *   \f{eqnarray*}{
- *        E_a &=& 0\; \text{if }\Delta H < -4E_0 \\
- *        E_a &=& \Delta H\; \text{if }\Delta H > 4E_0 \\
- *        E_a &=& \frac{(w + \Delta H / 2)(V_P - 2w +
- *               \Delta H)^2}{(V_P^2 - 4w^2 + (\Delta H)^2)}\; \text{Otherwise}
- *   \f}
- * where
- *   \f[
- *        V_P = \frac{2w (w + E_0)}{w - E_0},
- *   \f]
- * \f$ w \f$ is the average bond dissociation energy of the bond breaking
- * and that being formed in the reaction. Since the expression is
- * very insensitive to \f$ w \f$ for \f$ w >= 2 E_0 \f$, \f$ w \f$
- * can be approximated to an arbitrary high value like 1000 kJ/mol.
- *
- * After the activation energy is determined by Blowers-Masel approximation,
- * it can be plugged into Arrhenius function to calculate the rate constant.
- *   \f[
- *        k_f =  A T^b \exp (-E_a/RT)
- *   \f]
- */
-class BlowersMasel2
-{
-public:
-    //! Default constructor.
-    BlowersMasel2();
-
-    /// Constructor.
-    /// @param A pre-exponential. The unit system is
-    ///     (kmol, m, s). The actual units depend on the reaction
-    ///     order and the dimensionality (surface or bulk).
-    /// @param b Temperature exponent. Non-dimensional.
-    /// @param E0 Intrinsic activation energy in temperature units. Kelvin.
-    /// @param w average bond dissociation energy of the bond being formed and
-    ///     broken in the reaction, in temperature units. Kelvin.
-
-    BlowersMasel2(double A, double b, double E0, double w);
-
-    unique_ptr<MultiRateBase> newMultiRate() const {
-        throw NotImplementedError("BlowersMasel2::newMultiRate");
-    }
-
-    void getParameters(AnyMap& rateNode, const Units& rate_units) const;
-
-    //! Update concentration-dependent parts of the rate coefficient.
-    /*!
-     *   For this class, there are no concentration-dependent parts, so this
-     *   method does nothing.
-     */
-    void update_C(const doublereal* c) {
-    }
-
-    /**
-     * Update the value the rate constant.
-     *
-     * This function returns the actual value of the rate constant. It can be
-     * safely called for negative values of the pre-exponential factor.
-     */
-    doublereal updateRC(doublereal logT, doublereal recipT, doublereal deltaH) {
-        double m_E = activationEnergy_R(deltaH);
-        return m_A * std::exp(m_b * logT - m_E * recipT);
-    }
-
-    //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
-    //! on the reaction order)
-    double preExponentialFactor() const {
-        return m_A;
-    }
-
-    //! Return the temperature exponent *b*
-    double temperatureExponent() const {
-        return m_b;
-    }
-
-    //! Return the actual activation energy (a function of the delta H of reaction)
-    //! divided by the gas constant (i.e. the activation temperature) [K]
-    doublereal activationEnergy_R(doublereal deltaH) {
-        double Ea; // will be in temperature units (Kelvin)
-        double deltaH_R = deltaH / GasConstant; // deltaH in temperature units (Kelvin)
-        if (deltaH_R < -4 * m_E0) {
-            Ea = 0;
-        } else if (deltaH_R > 4 * m_E0) {
-            Ea = deltaH_R;
-        } else {
-            // m_w is in Kelvin
-            // vp is in Kelvin
-            double vp = 2 * m_w * ((m_w + m_E0) / (m_w - m_E0));
-            double vp_2w_dH = (vp - 2 * m_w + deltaH_R); // (Vp - 2 w + dH)
-            Ea = (m_w + deltaH_R / 2) * (vp_2w_dH * vp_2w_dH) /
-                 (vp * vp - 4 * m_w * m_w + deltaH_R * deltaH_R); // in Kelvin
-        }
-        return Ea;
-    }
-
-    //! Return the intrinsic activation energy divided by the gas constant (i.e. the
-    //! intrinsic activation temperature) [K]
-    doublereal activationEnergy_R0() const {
-        return m_E0;
-    }
-    //! Return the bond dissociation energy *w* divided by the gas constant[K]
-    doublereal bondEnergy() const {
-        return m_w;
-    }
-
-protected:
-    doublereal m_logA, m_b, m_A, m_w, m_E0;
-};
 
 /**
  * An Arrhenius rate with coverage-dependent terms.
@@ -307,10 +194,8 @@ protected:
 
 #ifdef CT_NO_LEGACY_REACTIONS_26
 typedef Arrhenius3 Arrhenius;
-typedef BlowersMaselRate BlowersMasel;
 #else
 typedef Arrhenius2 Arrhenius;
-typedef BlowersMasel2 BlowersMasel;
 #endif
 
 
@@ -750,6 +635,8 @@ class BMSurfaceArrhenius
 public:
     BMSurfaceArrhenius();
     explicit BMSurfaceArrhenius(double A, double b, double Ta, double w);
+
+    void getParameters(AnyMap& rateNode, const Units& rate_units) const;
 
     //! Add a coverage dependency for species *k*, with exponential dependence
     //! *a*, power-law exponent *m*, and activation energy dependence *e*,
