@@ -71,10 +71,6 @@ public:
     //! Return parameters
     void getRateParameters(AnyMap& node) const;
 
-    //! Return parameters - required for legacy framework
-    //! @todo: merge with single-parameter version after removal of old framework
-    virtual void getParameters(AnyMap& node, const Units& rate_units) const;
-
     //! Check rate expression
     void checkRate(const std::string& equation, const AnyMap& node);
 

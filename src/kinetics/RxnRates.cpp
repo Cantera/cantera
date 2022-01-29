@@ -40,6 +40,22 @@ void Arrhenius2::setRateParameters(const AnyValue& rate,
     }
 }
 
+void Arrhenius2::getParameters(AnyMap& node, const Units& rate_units) const
+{
+    if (rate_units.factor() != 0.0) {
+        node["A"].setQuantity(m_A, rate_units);
+    } else {
+        node["A"] = m_A;
+        // This can't be converted to a different unit system because the dimensions of
+        // the rate constant were not set. Can occur if the reaction was created outside
+        // the context of a Kinetics object and never added to a Kinetics object.
+        node["__unconvertible__"] = true;
+    }
+    node["b"] = m_b;
+    node["Ea"].setQuantity(m_Ea_R, "K", true);
+    node.setFlowStyle();
+}
+
 SurfaceArrhenius::SurfaceArrhenius()
     : m_b(0.0)
     , m_E(0.0)

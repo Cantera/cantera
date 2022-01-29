@@ -58,6 +58,9 @@ public:
                            const UnitSystem& units, const Units& rate_units);
     using ArrheniusBase::setRateParameters;
 
+    //! Return parameters - two-parameter version
+    void getParameters(AnyMap& node, const Units& rate_units) const;
+
     //! Update concentration-dependent parts of the rate coefficient.
     /*!
      *   For this class, there are no concentration-dependent parts, so this
@@ -87,15 +90,6 @@ public:
     //! activation temperature) [K]
     doublereal activationEnergy_R() const {
         return m_Ea_R;
-    }
-
-    const std::string type() const {
-        return "Arrhenius";
-    }
-
-    // The following methods are unused but required by the base class
-    unique_ptr<MultiRateBase> newMultiRate() const {
-        throw NotImplementedError("Arrhenius2::newMultiRate");
     }
 };
 
