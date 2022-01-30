@@ -1,5 +1,8 @@
 /**
  *  @file FalloffMgr.h
+ *
+ *  @deprecated  Deprecated in Cantera 2.6 and removed thereafter. Replaced by
+ *      FalloffRate objects managed by MultiRate evaluators.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
