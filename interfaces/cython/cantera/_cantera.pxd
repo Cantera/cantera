@@ -522,8 +522,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxPlogRate "Cantera::PlogRate" (CxxReactionRate):
         CxxPlogRate()
         CxxPlogRate(CxxAnyMap) except +translate_exception
-        CxxPlogRate(multimap[double, CxxArrhenius2])
-        multimap[double, CxxArrhenius2] getRates()
+        CxxPlogRate(multimap[double, CxxArrheniusBase])
+        multimap[double, CxxArrheniusBase] getRates()
 
     cdef cppclass CxxChebyshevRate3 "Cantera::ChebyshevRate3" (CxxReactionRate):
         CxxChebyshevRate3()
@@ -608,7 +608,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
 
     cdef cppclass CxxPlog "Cantera::Plog":
         CxxPlog(multimap[double,CxxArrhenius2])
-        multimap[double, CxxArrhenius2] getRates()
+        vector[pair[double, CxxArrhenius2]] rates()
         void update_C(double*)
         double updateRC(double, double)
 

@@ -208,7 +208,7 @@ class ElementaryReaction2 : public Reaction
 public:
     ElementaryReaction2();
     ElementaryReaction2(const Composition& reactants, const Composition products,
-                        const Arrhenius& rate);
+                        const Arrhenius2& rate);
 
     virtual void validate();
     using Reaction::validate;
@@ -218,7 +218,7 @@ public:
         return "elementary-legacy";
     }
 
-    Arrhenius rate;
+    Arrhenius2 rate;
     bool allow_negative_pre_exponential_factor;
 };
 
@@ -260,7 +260,7 @@ class ThreeBodyReaction2 : public ElementaryReaction2
 public:
     ThreeBodyReaction2();
     ThreeBodyReaction2(const Composition& reactants, const Composition& products,
-                       const Arrhenius& rate, const ThirdBody& tbody);
+                       const Arrhenius2& rate, const ThirdBody& tbody);
 
     virtual std::string type() const {
         return "three-body-legacy";
@@ -288,7 +288,7 @@ class FalloffReaction2 : public Reaction
 public:
     FalloffReaction2();
     FalloffReaction2(const Composition& reactants, const Composition& products,
-                     const Arrhenius& low_rate, const Arrhenius& high_rate,
+                     const Arrhenius2& low_rate, const Arrhenius2& high_rate,
                      const ThirdBody& tbody);
 
     virtual std::string type() const {
@@ -304,10 +304,10 @@ public:
     virtual void getParameters(AnyMap& reactionNode) const;
 
     //! The rate constant in the low-pressure limit
-    Arrhenius low_rate;
+    Arrhenius2 low_rate;
 
     //! The rate constant in the high-pressure limit
-    Arrhenius high_rate;
+    Arrhenius2 high_rate;
 
     //! Relative efficiencies of third-body species in enhancing the reaction rate
     ThirdBody third_body;
@@ -337,8 +337,8 @@ class ChemicallyActivatedReaction2 : public FalloffReaction2
 public:
     ChemicallyActivatedReaction2();
     ChemicallyActivatedReaction2(const Composition& reactants,
-        const Composition& products, const Arrhenius& low_rate,
-        const Arrhenius& high_rate, const ThirdBody& tbody);
+        const Composition& products, const Arrhenius2& low_rate,
+        const Arrhenius2& high_rate, const ThirdBody& tbody);
 
     virtual std::string type() const {
         return "chemically-activated-legacy";
@@ -410,7 +410,7 @@ class InterfaceReaction : public ElementaryReaction2
 public:
     InterfaceReaction();
     InterfaceReaction(const Composition& reactants, const Composition& products,
-                      const Arrhenius& rate, bool isStick=false);
+                      const Arrhenius2& rate, bool isStick=false);
     virtual void calculateRateCoeffUnits(const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
     virtual void checkBalance(const Kinetics& kin) const;
@@ -450,7 +450,7 @@ class ElectrochemicalReaction : public InterfaceReaction
 public:
     ElectrochemicalReaction();
     ElectrochemicalReaction(const Composition& reactants,
-                            const Composition& products, const Arrhenius& rate);
+                            const Composition& products, const Arrhenius2& rate);
     virtual void getParameters(AnyMap& reactionNode) const;
 
     //! Forward value of the apparent Electrochemical transfer coefficient

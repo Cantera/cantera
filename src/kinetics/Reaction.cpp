@@ -474,7 +474,7 @@ bool Reaction::checkSpecies(const Kinetics& kin) const
 
 ElementaryReaction2::ElementaryReaction2(const Composition& reactants_,
                                          const Composition products_,
-                                         const Arrhenius& rate_)
+                                         const Arrhenius2& rate_)
     : Reaction(reactants_, products_)
     , rate(rate_)
     , allow_negative_pre_exponential_factor(false)
@@ -545,7 +545,7 @@ ThreeBodyReaction2::ThreeBodyReaction2()
 
 ThreeBodyReaction2::ThreeBodyReaction2(const Composition& reactants_,
                                        const Composition& products_,
-                                       const Arrhenius& rate_,
+                                       const Arrhenius2& rate_,
                                        const ThirdBody& tbody)
     : ElementaryReaction2(reactants_, products_, rate_)
     , third_body(tbody)
@@ -626,7 +626,7 @@ FalloffReaction2::FalloffReaction2()
 
 FalloffReaction2::FalloffReaction2(
         const Composition& reactants_, const Composition& products_,
-        const Arrhenius& low_rate_, const Arrhenius& high_rate_,
+        const Arrhenius2& low_rate_, const Arrhenius2& high_rate_,
         const ThirdBody& tbody)
     : Reaction(reactants_, products_)
     , low_rate(low_rate_)
@@ -719,7 +719,7 @@ ChemicallyActivatedReaction2::ChemicallyActivatedReaction2()
 
 ChemicallyActivatedReaction2::ChemicallyActivatedReaction2(
         const Composition& reactants_, const Composition& products_,
-        const Arrhenius& low_rate_, const Arrhenius& high_rate_,
+        const Arrhenius2& low_rate_, const Arrhenius2& high_rate_,
         const ThirdBody& tbody)
     : FalloffReaction2(reactants_, products_, low_rate_, high_rate_, tbody)
 {
@@ -792,7 +792,7 @@ InterfaceReaction::InterfaceReaction()
 
 InterfaceReaction::InterfaceReaction(const Composition& reactants_,
                                      const Composition& products_,
-                                     const Arrhenius& rate_,
+                                     const Arrhenius2& rate_,
                                      bool isStick)
     : ElementaryReaction2(reactants_, products_, rate_)
     , is_sticking_coefficient(isStick)
@@ -891,7 +891,7 @@ ElectrochemicalReaction::ElectrochemicalReaction()
 
 ElectrochemicalReaction::ElectrochemicalReaction(const Composition& reactants_,
                                                  const Composition& products_,
-                                                 const Arrhenius& rate_)
+                                                 const Arrhenius2& rate_)
     : InterfaceReaction(reactants_, products_, rate_)
     , beta(0.5)
     , exchange_current_density_formulation(false)
@@ -1335,16 +1335,16 @@ CustomFunc1Reaction::CustomFunc1Reaction(const AnyMap& node, const Kinetics& kin
     }
 }
 
-Arrhenius readArrhenius(const XML_Node& arrhenius_node)
+Arrhenius2 readArrhenius(const XML_Node& arrhenius_node)
 {
-    return Arrhenius(getFloat(arrhenius_node, "A", "toSI"),
-                     getFloat(arrhenius_node, "b"),
-                     getFloat(arrhenius_node, "E", "actEnergy") / GasConstant);
+    return Arrhenius2(getFloat(arrhenius_node, "A", "toSI"),
+                      getFloat(arrhenius_node, "b"),
+                      getFloat(arrhenius_node, "E", "actEnergy") / GasConstant);
 }
 
-Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate,
-                        const Kinetics& kin, const UnitSystem& units,
-                        int pressure_dependence=0)
+Arrhenius2 readArrhenius(const Reaction& R, const AnyValue& rate,
+                         const Kinetics& kin, const UnitSystem& units,
+                         int pressure_dependence=0)
 {
     double A, b, Ta;
     Units rc_units = R.rate_units;
@@ -1363,7 +1363,7 @@ Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate,
         b = rate_vec[1].asDouble();
         Ta = units.convertActivationEnergy(rate_vec[2], "K");
     }
-    return Arrhenius(A, b, Ta);
+    return Arrhenius2(A, b, Ta);
 }
 
 //! Parse falloff parameters, given a rateCoeff node
@@ -1808,7 +1808,7 @@ void setupChemicallyActivatedReaction(ChemicallyActivatedReaction2& R,
 void setupPlogReaction(PlogReaction2& R, const XML_Node& rxn_node)
 {
     XML_Node& rc = rxn_node.child("rateCoeff");
-    std::multimap<double, Arrhenius> rates;
+    std::multimap<double, Arrhenius2> rates;
     for (size_t m = 0; m < rc.nChildren(); m++) {
         const XML_Node& node = rc.child(m);
         rates.insert({getFloat(node, "P", "toSI"), readArrhenius(node)});
@@ -1820,7 +1820,7 @@ void setupPlogReaction(PlogReaction2& R, const XML_Node& rxn_node)
 void setupPlogReaction(PlogReaction2& R, const AnyMap& node, const Kinetics& kin)
 {
     setupReaction(R, node, kin);
-    std::multimap<double, Arrhenius> rates;
+    std::multimap<double, Arrhenius2> rates;
     for (const auto& rate : node.at("rate-constants").asVector<AnyMap>()) {
         rates.insert({rate.convert("P", "Pa"),
                       readArrhenius(R, AnyValue(rate), kin, node.units())});

@@ -54,6 +54,8 @@ public:
     Arrhenius2(const AnyValue& rate,
                const UnitSystem& units, const Units& rate_units);
 
+    Arrhenius2(const ArrheniusBase& other);
+
     void setRateParameters(const AnyValue& rate,
                            const UnitSystem& units, const Units& rate_units);
     using ArrheniusBase::setRateParameters;
@@ -218,7 +220,10 @@ public:
     PlogRate();
 
     //! Constructor from Arrhenius rate expressions at a set of pressures
-    explicit PlogRate(const std::multimap<double, Arrhenius>& rates);
+    explicit PlogRate(const std::multimap<double, ArrheniusBase>& rates);
+
+    //! Constructor using legacy Arrhenius2 framework
+    PlogRate(const std::multimap<double, Arrhenius2>& rates);
 
     PlogRate(const AnyMap& node, const UnitStack& rate_units={}) : PlogRate() {
         setParameters(node, rate_units);
@@ -265,12 +270,12 @@ public:
 
     //! Set up Plog object
     /*!
-     * @deprecated   Deprecated in Cantera 2.6. Renamed to setRates.
+     * @deprecated   Deprecated in Cantera 2.6. Replaced by setRates.
      */
-    void setup(const std::multimap<double, Arrhenius>& rates);
+    void setup(const std::multimap<double, Arrhenius2>& rates);
 
     //! Set up Plog object
-    void setRates(const std::multimap<double, Arrhenius>& rates);
+    void setRates(const std::multimap<double, ArrheniusBase>& rates);
 
     //! Update concentration-dependent parts of the rate coefficient.
     //! @param c natural log of the pressure in Pa
@@ -345,18 +350,18 @@ public:
      * @deprecated  Behavior to change after Cantera 2.6.
      *              @see getRates for new behavior.
      */
-    std::vector<std::pair<double, Arrhenius> > rates() const;
+    std::vector<std::pair<double, Arrhenius2> > rates() const;
 
     //! Return the pressures and Arrhenius expressions which comprise this
     //! reaction.
-    std::multimap<double, Arrhenius> getRates() const;
+    std::multimap<double, ArrheniusBase> getRates() const;
 
 protected:
     //! log(p) to (index range) in the rates_ vector
     std::map<double, std::pair<size_t, size_t> > pressures_;
 
     // Rate expressions which are referenced by the indices stored in pressures_
-    std::vector<Arrhenius> rates_;
+    std::vector<ArrheniusBase> rates_;
 
     double logP_; //!< log(p) at the current state
     double logP1_, logP2_; //!< log(p) at the lower / upper pressure reference

@@ -30,6 +30,13 @@ Arrhenius2::Arrhenius2(const AnyValue& rate,
     setRateParameters(rate, units, rate_units);
 }
 
+Arrhenius2::Arrhenius2(const ArrheniusBase& other)
+    : ArrheniusBase(other.preExponentialFactor(),
+                    other.temperatureExponent(),
+                    other.activationEnergy())
+{
+}
+
 void Arrhenius2::setRateParameters(const AnyValue& rate,
                                    const UnitSystem& units, const Units& rate_units)
 {
@@ -96,10 +103,16 @@ PlogRate::PlogRate()
 {
 }
 
-PlogRate::PlogRate(const std::multimap<double, Arrhenius>& rates)
+PlogRate::PlogRate(const std::multimap<double, ArrheniusBase>& rates)
     : PlogRate()
 {
     setRates(rates);
+}
+
+PlogRate::PlogRate(const std::multimap<double, Arrhenius2>& rates)
+    : PlogRate()
+{
+    setup(rates);
 }
 
 void PlogRate::setParameters(const AnyMap& node, const UnitStack& units)
@@ -117,16 +130,16 @@ void PlogRate::setParameters(const AnyMap& node, const UnitStack& units)
 void PlogRate::setRateParameters(const std::vector<AnyMap>& rates,
                                  const UnitSystem& units, const Units& rate_units)
 {
-    std::multimap<double, Arrhenius> multi_rates;
+    std::multimap<double, ArrheniusBase> multi_rates;
     if (rates.size()) {
         for (const auto& rate : rates) {
             multi_rates.insert({rate.convert("P", "Pa"),
-                Arrhenius(AnyValue(rate), units, rate_units)});
+                ArrheniusBase(AnyValue(rate), units, rate_units)});
         }
     } else {
         // ensure that reaction rate can be evaluated (but returns NaN)
-        multi_rates.insert({1.e-7, Arrhenius(NAN, NAN, NAN)});
-        multi_rates.insert({1.e14, Arrhenius(NAN, NAN, NAN)});
+        multi_rates.insert({1.e-7, ArrheniusBase(NAN, NAN, NAN)});
+        multi_rates.insert({1.e14, ArrheniusBase(NAN, NAN, NAN)});
     }
     setRates(multi_rates);
 }
@@ -147,21 +160,24 @@ void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
         if (rate_units.factor() == 0) {
             r.second.getRateParameters(rateNode_);
         } else {
-            r.second.getParameters(rateNode_, rate_units);
+            // legacy rate
+            Arrhenius2(r.second).getParameters(rateNode_, rate_units);
         }
         rateList.push_back(std::move(rateNode_));
     }
     rateNode["rate-constants"] = std::move(rateList);
 }
 
-void PlogRate::setup(const std::multimap<double, Arrhenius>& rates)
+void PlogRate::setup(const std::multimap<double, Arrhenius2>& rates)
 {
-    warn_deprecated("PlogRate::setup", "Deprecated in Cantera 2.6; "
-        "renamed to setRates.");
-    setRates(rates);
+    std::multimap<double, ArrheniusBase> rates2;
+    for (const auto& item : rates) {
+        rates2.emplace(item.first, item.second);
+    }
+    setRates(rates2);
 }
 
-void PlogRate::setRates(const std::multimap<double, Arrhenius>& rates)
+void PlogRate::setRates(const std::multimap<double, ArrheniusBase>& rates)
 {
     size_t j = 0;
     rates_.clear();
@@ -197,7 +213,7 @@ void PlogRate::validate(const std::string& equation)
         for (size_t i=0; i < 6; i++) {
             double k = 0;
             for (size_t p = ilow1_; p < ilow2_; p++) {
-                k += rates_.at(p).updateRC(log(T[i]), 1.0/T[i]);
+                k += rates_.at(p).evalRate(log(T[i]), 1.0 / T[i]);
             }
             if (k < 0) {
                 fmt_append(err_reactions,
@@ -212,17 +228,19 @@ void PlogRate::validate(const std::string& equation)
     }
 }
 
-std::vector<std::pair<double, Arrhenius> > PlogRate::rates() const
+std::vector<std::pair<double, Arrhenius2> > PlogRate::rates() const
 {
-    warn_deprecated("PlogRate::rates", "Behavior to change after Cantera 2.6; "
-        "see getRates() for new behavior.");
     auto rateMap = getRates();
-    return std::vector<std::pair<double, Arrhenius>>(rateMap.begin(), rateMap.end());
+    std::vector<std::pair<double, Arrhenius2>> out;
+    for (const auto& item : rateMap) {
+        out.emplace_back(item.first, Arrhenius2(item.second));
+    }
+    return out;
 }
 
-std::multimap<double, Arrhenius> PlogRate::getRates() const
+std::multimap<double, ArrheniusBase> PlogRate::getRates() const
 {
-    std::multimap<double, Arrhenius> rateMap;
+    std::multimap<double, ArrheniusBase> rateMap;
     // initial preincrement to skip rate for P --> 0
     for (auto iter = ++pressures_.begin();
             iter->first < 1000; // skip rates for (P --> infinity)
