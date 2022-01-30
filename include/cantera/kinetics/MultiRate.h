@@ -15,7 +15,7 @@
 namespace Cantera
 {
 
-//! A class template handling all reaction rates specific to `BulkKinetics`.
+//! A class template handling ReactionRate specializations.
 template <class RateType, class DataType>
 class MultiRate final : public MultiRateBase
 {
@@ -108,8 +108,8 @@ public:
         _update();
     }
 
-    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override {
-        bool changed = m_shared.update(bulk, kin);
+    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override {
+        bool changed = m_shared.update(phase, kin);
         if (changed) {
             // call helper function only if needed: implementation depends on whether
             // ReactionRate::updateFromStruct is defined

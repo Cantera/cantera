@@ -37,9 +37,9 @@ void ReactionData::restore()
     m_temperature_buf = -1.;
 }
 
-bool ArrheniusData::update(const ThermoPhase& bulk, const Kinetics& kin)
+bool ArrheniusData::update(const ThermoPhase& phase, const Kinetics& kin)
 {
-    double T = bulk.temperature();
+    double T = phase.temperature();
     if (T == temperature) {
         return false;
     }
@@ -47,10 +47,10 @@ bool ArrheniusData::update(const ThermoPhase& bulk, const Kinetics& kin)
     return true;
 }
 
-bool TwoTempPlasmaData::update(const ThermoPhase& bulk, const Kinetics& kin)
+bool TwoTempPlasmaData::update(const ThermoPhase& phase, const Kinetics& kin)
 {
-    double T = bulk.temperature();
-    double Te = bulk.electronTemperature();
+    double T = phase.temperature();
+    double Te = phase.electronTemperature();
     bool changed = false;
     if (T != temperature) {
         ReactionData::update(T);
@@ -107,11 +107,11 @@ void BlowersMaselData::update(double T, double deltaH)
     dH_direct = deltaH;
 }
 
-bool BlowersMaselData::update(const ThermoPhase& bulk, const Kinetics& kin)
+bool BlowersMaselData::update(const ThermoPhase& phase, const Kinetics& kin)
 {
-    double rho = bulk.density();
-    int mf = bulk.stateMFNumber();
-    double T = bulk.temperature();
+    double rho = phase.density();
+    int mf = phase.stateMFNumber();
+    double T = phase.temperature();
     bool changed = false;
     if (T != temperature) {
         ReactionData::update(T);
@@ -120,7 +120,7 @@ bool BlowersMaselData::update(const ThermoPhase& bulk, const Kinetics& kin)
     if (changed || rho != density || mf != m_state_mf_number) {
         density = rho;
         m_state_mf_number = mf;
-        bulk.getPartialMolarEnthalpies(grt.data());
+        phase.getPartialMolarEnthalpies(grt.data());
         changed = true;
     }
     return changed;
@@ -148,11 +148,11 @@ void FalloffData::update(double T, double M)
     conc_3b[0] = M;
 }
 
-bool FalloffData::update(const ThermoPhase& bulk, const Kinetics& kin)
+bool FalloffData::update(const ThermoPhase& phase, const Kinetics& kin)
 {
-    double rho_m = bulk.molarDensity();
-    int mf = bulk.stateMFNumber();
-    double T = bulk.temperature();
+    double rho_m = phase.molarDensity();
+    int mf = phase.stateMFNumber();
+    double T = phase.temperature();
     bool changed = false;
     if (T != temperature) {
         ReactionData::update(T);
@@ -197,10 +197,10 @@ void PlogData::update(double T)
         "Missing state information: 'PlogData' requires pressure.");
 }
 
-bool PlogData::update(const ThermoPhase& bulk, const Kinetics& kin)
+bool PlogData::update(const ThermoPhase& phase, const Kinetics& kin)
 {
-    double T = bulk.temperature();
-    double P = bulk.pressure();
+    double T = phase.temperature();
+    double P = phase.pressure();
     if (P != pressure || T != temperature) {
         update(T, P);
         return true;
@@ -235,10 +235,10 @@ void ChebyshevData::update(double T)
         "Missing state information: 'ChebyshevData' requires pressure.");
 }
 
-bool ChebyshevData::update(const ThermoPhase& bulk, const Kinetics& kin)
+bool ChebyshevData::update(const ThermoPhase& phase, const Kinetics& kin)
 {
-    double T = bulk.temperature();
-    double P = bulk.pressure();
+    double T = phase.temperature();
+    double P = phase.pressure();
     if (P != pressure || T != temperature) {
         update(T, P);
         return true;
