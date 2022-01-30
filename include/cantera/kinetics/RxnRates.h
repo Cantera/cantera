@@ -400,17 +400,17 @@ typedef PlogRate Plog;
  * \f$ (T_\mathrm{min}, T_\mathrm{max}) \f$ and
  * \f$ (P_\mathrm{min}, P_\mathrm{max}) \f$ to (-1, 1).
  *
- * A ChebyshevRate3 rate expression is specified in terms of the coefficient matrix
+ * A ChebyshevRate rate expression is specified in terms of the coefficient matrix
  * \f$ \alpha \f$ and the temperature and pressure ranges. Note that the
  * Chebyshev polynomials are not defined outside the interval (-1,1), and
  * therefore extrapolation of rates outside the range of temperatures and
  * pressures for which they are defined is strongly discouraged.
  */
-class ChebyshevRate3 final : public ReactionRate
+class ChebyshevRate final : public ReactionRate
 {
 public:
     //! Default constructor.
-    ChebyshevRate3() : m_log10P(NAN), m_rate_units(Units(0.)) {}
+    ChebyshevRate() : m_log10P(NAN), m_rate_units(Units(0.)) {}
 
     //! Constructor directly from coefficient array
     /*!
@@ -422,18 +422,18 @@ public:
      *      `nP` are the number of temperatures and pressures used in the fit,
      *      respectively.
      */
-    ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pmax,
-                   const Array2D& coeffs);
+    ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
+                  const Array2D& coeffs);
 
-    ChebyshevRate3(const AnyMap& node, const UnitStack& rate_units={})
-        : ChebyshevRate3()
+    ChebyshevRate(const AnyMap& node, const UnitStack& rate_units={})
+        : ChebyshevRate()
     {
         setParameters(node, rate_units);
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const {
         return unique_ptr<MultiRateBase>(
-            new MultiRate<ChebyshevRate3, ChebyshevData>);
+            new MultiRate<ChebyshevRate, ChebyshevData>);
     }
 
     const std::string type() const { return "Chebyshev"; }
@@ -461,7 +461,7 @@ public:
         return updateRC(0., shared_data.recipT);
     }
 
-    //! Set up ChebyshevRate3 object
+    //! Set up ChebyshevRate object
     /*!
      * @deprecated   Deprecated in Cantera 2.6. Replaceable with
      *               @see setLimits() and @see setCoeffs().
@@ -469,7 +469,7 @@ public:
     void setup(double Tmin, double Tmax, double Pmin, double Pmax,
                   const Array2D& coeffs);
 
-    //! Set limits for ChebyshevRate3 object
+    //! Set limits for ChebyshevRate object
     /*!
      *  @param Tmin    Minimum temperature [K]
      *  @param Tmax    Maximum temperature [K]
@@ -549,7 +549,7 @@ public:
         return m_coeffs.nRows();
     }
 
-    //! Access the ChebyshevRate3 coefficients.
+    //! Access the ChebyshevRate coefficients.
     /*!
      *  \f$ \alpha_{t,p} = \mathrm{coeffs}[N_P*t + p] \f$ where
      *  \f$ 0 <= t < N_T \f$ and \f$ 0 <= p < N_P \f$.
@@ -557,7 +557,7 @@ public:
      * @deprecated   To be removed after Cantera 2.6. Replaceable by @see data().
      */
     const vector_fp& coeffs() const {
-        warn_deprecated("ChebyshevRate3::coeffs", "Deprecated in Cantera 2.6 "
+        warn_deprecated("ChebyshevRate::coeffs", "Deprecated in Cantera 2.6 "
             "and to be removed thereafter; replaceable by data().");
         return chebCoeffs_;
     }
@@ -585,7 +585,6 @@ protected:
     Units m_rate_units; //!< Reaction rate units
 };
 
-typedef ChebyshevRate3 Chebyshev;
 
 /**
  * A Blowers Masel rate with coverage-dependent terms.

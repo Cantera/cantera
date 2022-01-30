@@ -548,7 +548,7 @@ cdef class ChebyshevRate(ReactionRate):
 
         if init:
             if isinstance(input_data, dict):
-                self._rate.reset(new CxxChebyshevRate3(dict_to_anymap(input_data)))
+                self._rate.reset(new CxxChebyshevRate(dict_to_anymap(input_data)))
             elif all([arg is not None
                     for arg in [temperature_range, pressure_range, data]]):
                 Tmin = temperature_range[0]
@@ -556,10 +556,10 @@ cdef class ChebyshevRate(ReactionRate):
                 Pmin = pressure_range[0]
                 Pmax = pressure_range[1]
                 self._rate.reset(
-                    new CxxChebyshevRate3(Tmin, Tmax, Pmin, Pmax, self._cxxarray2d(data)))
+                    new CxxChebyshevRate(Tmin, Tmax, Pmin, Pmax, self._cxxarray2d(data)))
             elif all([arg is None
                     for arg in [temperature_range, pressure_range, data, input_data]]):
-                self._rate.reset(new CxxChebyshevRate3(dict_to_anymap({})))
+                self._rate.reset(new CxxChebyshevRate(dict_to_anymap({})))
             elif input_data:
                 raise TypeError("Invalid parameter 'input_data'")
             else:
@@ -587,8 +587,8 @@ cdef class ChebyshevRate(ReactionRate):
 
         return data
 
-    cdef CxxChebyshevRate3* cxx_object(self):
-        return <CxxChebyshevRate3*>self.rate
+    cdef CxxChebyshevRate* cxx_object(self):
+        return <CxxChebyshevRate*>self.rate
 
     property temperature_range:
         """ Valid temperature range [K] for the Chebyshev fit """

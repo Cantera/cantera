@@ -167,7 +167,7 @@ protected:
     ThirdBodyCalc m_falloff_concm; //!< @deprecated (legacy only)
 
     Rate1<Plog> m_plog_rates; //!< @deprecated (legacy only)
-    Rate1<Chebyshev> m_cheb_rates; //!< @deprecated (legacy only)
+    Rate1<ChebyshevRate> m_cheb_rates; //!< @deprecated (legacy only)
 
     //! @name Reaction rate data
     //!@{

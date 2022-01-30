@@ -377,14 +377,14 @@ class ChebyshevReaction2 : public Reaction
 public:
     ChebyshevReaction2();
     ChebyshevReaction2(const Composition& reactants, const Composition& products,
-                       const Chebyshev& rate);
+                       const ChebyshevRate& rate);
     virtual void getParameters(AnyMap& reactionNode) const;
 
     virtual std::string type() const {
         return "Chebyshev-legacy";
     }
 
-    Chebyshev rate;
+    ChebyshevRate rate;
 };
 
 

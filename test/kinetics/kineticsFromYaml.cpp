@@ -252,7 +252,7 @@ TEST(Reaction, ChebyshevFromYaml)
 
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_EQ(R->reactants.size(), (size_t) 1);
-    const auto& rate = std::dynamic_pointer_cast<ChebyshevRate3>(R->rate());
+    const auto& rate = std::dynamic_pointer_cast<ChebyshevRate>(R->rate());
     double logP = std::log10(2e6);
     double T = 1800;
     rate->update_C(&logP);
@@ -594,7 +594,7 @@ TEST_F(ReactionToYaml, Chebyshev)
     soln = newSolution("pdep-test.yaml");
     soln->thermo()->setState_TPY(1000, 2e5, "R6:1, P6A:2, P6B:0.3");
     duplicateReaction(5);
-    EXPECT_TRUE(std::dynamic_pointer_cast<ChebyshevRate3>(duplicate->rate()));
+    EXPECT_TRUE(std::dynamic_pointer_cast<ChebyshevRate>(duplicate->rate()));
     compareReactions();
 }
 
@@ -647,7 +647,7 @@ TEST_F(ReactionToYaml, unconvertible2)
     Array2D coeffs(2, 2, 1.0);
     ChebyshevReaction2 R({{"H2", 1}, {"OH", 1}},
                          {{"H2O", 1}, {"H", 1}},
-                         Chebyshev(273., 3000., 1.e2, 1.e7, coeffs));
+                         ChebyshevRate(273., 3000., 1.e2, 1.e7, coeffs));
     UnitSystem U{"g", "cm", "mol"};
     AnyMap params = R.parameters();
     params.setUnits(U);
