@@ -516,27 +516,20 @@ cdef class PlogRate(ReactionRate):
         """
         def __get__(self):
             rates = []
-            cdef multimap[double, CxxArrhenius2] cxxrates
-            cdef pair[double, CxxArrhenius2] p_rate
+            cdef multimap[double, CxxArrheniusBase] cxxrates
+            cdef pair[double, CxxArrheniusBase] p_rate
             cxxrates = self.cxx_object().getRates()
             for p_rate in cxxrates:
-                rates.append((p_rate.first, copyArrhenius(&p_rate.second)))
+                rates.append((p_rate.first, copyArrheniusBase(&p_rate.second)))
             return rates
 
         def __set__(self, rates):
-            cdef multimap[double, CxxArrhenius2] ratemap
+            cdef multimap[double, CxxArrheniusBase] ratemap
             cdef Arrhenius rate
-            cdef pair[double, CxxArrhenius2] item
+            cdef pair[double, CxxArrheniusBase] item
             for p, rate in rates:
                 item.first = p
-                if rate.legacy is not NULL:
-                    item.second = deref(rate.legacy)
-                else:
-                    item.second = CxxArrhenius2(
-                        rate.base.preExponentialFactor(),
-                        rate.base.temperatureExponent(),
-                        rate.base.activationEnergy() / gas_constant
-                    )
+                item.second = deref(rate.base)
                 ratemap.insert(item)
 
             self._rate.reset(new CxxPlogRate(ratemap))
@@ -1516,6 +1509,11 @@ cdef copyArrhenius(CxxArrhenius2* rate):
                   rate.activationEnergy())
     return r
 
+cdef copyArrheniusBase(CxxArrheniusBase* rate):
+    r = Arrhenius(rate.preExponentialFactor(), rate.temperatureExponent(),
+                  rate.activationEnergy())
+    return r
+
 
 cdef class ElementaryReaction(Reaction):
     """
@@ -2110,7 +2108,7 @@ cdef class PlogReaction(Reaction):
 
     cdef list _legacy_get_rates(self):
         cdef CxxPlogReaction2* r = self.cxx_object2()
-        cdef multimap[double,CxxArrhenius2] cxxrates = r.rate.getRates()
+        cdef vector[pair[double,CxxArrhenius2]] cxxrates = r.rate.rates()
         cdef pair[double,CxxArrhenius2] p_rate
         rates = []
         for p_rate in cxxrates:
