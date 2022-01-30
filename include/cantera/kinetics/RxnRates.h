@@ -257,14 +257,21 @@ public:
         return getParameters(rateNode, Units(0));
     }
 
+    //! Update information specific to reaction
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    void updateFromStruct(const PlogData& shared_data) {
+        if (shared_data.logP != logP_) {
+            update_C(&shared_data.logP);
+        }
+    }
+
     //! Evaluate reaction rate
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
     double evalFromStruct(const PlogData& shared_data) {
-        if (shared_data.logP != logP_) {
-            update_C(&shared_data.logP);
-        }
         return updateRC(shared_data.logT, shared_data.recipT);
     }
 
@@ -454,10 +461,17 @@ public:
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    double evalFromStruct(const ChebyshevData& shared_data) {
+    void updateFromStruct(const ChebyshevData& shared_data) {
         if (shared_data.log10P != m_log10P) {
             update_C(&shared_data.log10P);
         }
+    }
+
+    //! Evaluate reaction rate
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    double evalFromStruct(const ChebyshevData& shared_data) {
         return updateRC(0., shared_data.recipT);
     }
 
