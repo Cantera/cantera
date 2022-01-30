@@ -97,10 +97,12 @@ public:
 
     //! Update data common to reaction rates of a specific type.
     //! This update mechanism is used by Kinetics reaction rate evaluators.
-    //! @param bulk  object representing bulk phase
+    //! @param phase  object representing reacting phase
     //! @param kin  object representing kinetics
-    //! @returns flag indicating reaction rates need to be re-evaluated
-    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) = 0;
+    //! @returns  flag indicating whether reaction rates need to be re-evaluated
+    //!
+    //! @todo remove Kinetics argument (which is no longer necessary)
+    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) = 0;
 
     //! Get the rate for a single reaction. Used to implement ReactionRate::eval,
     //! which allows for the evaluation of a reaction rate expression outside of

@@ -45,13 +45,15 @@ struct ReactionData
      */
     virtual void update(double T, double extra);
 
-    //! Update data container based on *bulk* phase state
+    //! Update data container based on thermodynamic phase state
     /**
      * This update mechanism is used by Kinetics reaction rate evaluators.
      * @returns  A boolean element indicating whether the `evalFromStruct` method
      *      needs to be called (assuming previously-calculated values were cached)
+     *
+     * @todo  Remove Kinetics argument
      */
-    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) = 0;
+    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) = 0;
 
     //! Perturb temperature of data container
     /**
@@ -90,7 +92,7 @@ protected:
  */
 struct ArrheniusData : public ReactionData
 {
-    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin);
+    virtual bool update(const ThermoPhase& phase, const Kinetics& kin);
     using ReactionData::update;
 };
 
@@ -104,7 +106,7 @@ struct TwoTempPlasmaData : public ReactionData
 {
     TwoTempPlasmaData() : electronTemp(1.), logTe(0.), recipTe(1.) {}
 
-    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
+    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
 
     virtual void update(double T) override;
 
@@ -132,7 +134,7 @@ struct BlowersMaselData : public ReactionData
 {
     BlowersMaselData();
 
-    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
+    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
 
     virtual void update(double T) override;
 
@@ -162,7 +164,7 @@ struct FalloffData : public ReactionData
 {
     FalloffData();
 
-    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
+    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
 
     virtual void update(double T) override;
 
@@ -216,7 +218,7 @@ struct PlogData : public ReactionData
         logP = std::log(P);
     }
 
-    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
+    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
 
     //! Perturb pressure of data container
     /**
@@ -257,7 +259,7 @@ struct ChebyshevData : public ReactionData
         log10P = std::log10(P);
     }
 
-    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
+    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
 
     //! Perturb pressure of data container
     /**
