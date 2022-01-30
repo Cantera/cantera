@@ -244,7 +244,7 @@ protected:
 //! Data container holding shared data specific to ChebyshevRate
 /**
  * The data container `ChebyshevData` holds precalculated data common to
- * all `ChebyshevRate3` objects.
+ * all `ChebyshevRate` objects.
  */
 struct ChebyshevData : public ReactionData
 {

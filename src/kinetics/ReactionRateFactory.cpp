@@ -66,7 +66,7 @@ ReactionRateFactory::ReactionRateFactory()
 
     // ChebyshevRate evaluator
     reg("Chebyshev", [](const AnyMap& node, const UnitStack& rate_units) {
-        return new ChebyshevRate3(node, rate_units);
+        return new ChebyshevRate(node, rate_units);
     });
 
     // CustomFunc1Rate evaluator

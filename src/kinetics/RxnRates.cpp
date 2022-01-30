@@ -252,14 +252,14 @@ std::multimap<double, ArrheniusBase> PlogRate::getRates() const
     return rateMap;
 }
 
-ChebyshevRate3::ChebyshevRate3(double Tmin, double Tmax, double Pmin, double Pmax,
-                               const Array2D& coeffs) : ChebyshevRate3()
+ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
+                             const Array2D& coeffs) : ChebyshevRate()
 {
     setLimits(Tmin, Tmax, Pmin, Pmax);
     setData(coeffs);
 }
 
-void ChebyshevRate3::setParameters(const AnyMap& node, const UnitStack& units)
+void ChebyshevRate::setParameters(const AnyMap& node, const UnitStack& units)
 {
     m_rate_units = units.product();
     const UnitSystem& unit_system = node.units();
@@ -271,7 +271,7 @@ void ChebyshevRate3::setParameters(const AnyMap& node, const UnitStack& units)
         coeffs = Array2D(vcoeffs.size(), vcoeffs[0].size());
         for (size_t i = 0; i < coeffs.nRows(); i++) {
             if (vcoeffs[i].size() != vcoeffs[0].size()) {
-                throw InputFileError("ChebyshevRate3::setParameters", node["data"],
+                throw InputFileError("ChebyshevRate::setParameters", node["data"],
                     "Inconsistent number of coefficients in row {} of matrix", i + 1);
             }
             for (size_t j = 0; j < coeffs.nColumns(); j++) {
@@ -297,16 +297,16 @@ void ChebyshevRate3::setParameters(const AnyMap& node, const UnitStack& units)
     setData(coeffs);
 }
 
-void ChebyshevRate3::setup(double Tmin, double Tmax, double Pmin, double Pmax,
-                      const Array2D& coeffs)
+void ChebyshevRate::setup(double Tmin, double Tmax, double Pmin, double Pmax,
+                          const Array2D& coeffs)
 {
-    warn_deprecated("ChebyshevRate3::setup", "Deprecated in Cantera 2.6; "
+    warn_deprecated("ChebyshevRate::setup", "Deprecated in Cantera 2.6; "
         "replaceable with setLimits() and setData().");
     setLimits(Tmin, Tmax, Pmin, Pmax);
     setData(coeffs);
 }
 
-void ChebyshevRate3::setLimits(double Tmin, double Tmax, double Pmin, double Pmax)
+void ChebyshevRate::setLimits(double Tmin, double Tmax, double Pmin, double Pmax)
 {
     double logPmin = std::log10(Pmin);
     double logPmax = std::log10(Pmax);
@@ -324,7 +324,7 @@ void ChebyshevRate3::setLimits(double Tmin, double Tmax, double Pmin, double Pma
     Pmax_ = Pmax;
 }
 
-void ChebyshevRate3::setData(const Array2D& coeffs)
+void ChebyshevRate::setData(const Array2D& coeffs)
 {
     m_coeffs = coeffs;
     dotProd_.resize(coeffs.nRows());
@@ -341,7 +341,7 @@ void ChebyshevRate3::setData(const Array2D& coeffs)
     }
 }
 
-void ChebyshevRate3::getParameters(AnyMap& rateNode) const
+void ChebyshevRate::getParameters(AnyMap& rateNode) const
 {
     rateNode["type"] = type();
     if (!m_coeffs.data().size() || std::isnan(m_coeffs(0, 0))) {
@@ -366,7 +366,7 @@ void ChebyshevRate3::getParameters(AnyMap& rateNode) const
             coeffs.asVector<vector_fp>()[0][0] += \
                 std::log10(units.convertFrom(1.0, rate_units2));
         } else if (units.getDelta(UnitSystem()).size()) {
-            throw CanteraError("ChebyshevRate3::getParameters lambda",
+            throw CanteraError("ChebyshevRate::getParameters lambda",
                 "Cannot convert rate constant with unknown dimensions to a "
                 "non-default unit system");
         }

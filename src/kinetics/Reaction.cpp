@@ -216,7 +216,7 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
         m_rate = rate;
     }
 
-    if (reactants.count("(+M)") && std::dynamic_pointer_cast<ChebyshevRate3>(m_rate)) {
+    if (reactants.count("(+M)") && std::dynamic_pointer_cast<ChebyshevRate>(m_rate)) {
         warn_deprecated("Chebyshev reaction equation", input, "Specifying '(+M)' "
             "in the reaction equation for Chebyshev reactions is deprecated.");
         // remove optional third body notation
@@ -769,7 +769,7 @@ ChebyshevReaction2::ChebyshevReaction2()
 
 ChebyshevReaction2::ChebyshevReaction2(const Composition& reactants_,
                                        const Composition& products_,
-                                       const Chebyshev& rate_)
+                                       const ChebyshevRate& rate_)
     : Reaction(reactants_, products_)
     , rate(rate_)
 {
@@ -1849,11 +1849,11 @@ void setupChebyshevReaction(ChebyshevReaction2& R, const XML_Node& rxn_node)
             coeffs(t,p) = coeffs_flat[nP*t + p];
         }
     }
-    R.rate = Chebyshev(getFloat(rc, "Tmin", "toSI"),
-                       getFloat(rc, "Tmax", "toSI"),
-                       getFloat(rc, "Pmin", "toSI"),
-                       getFloat(rc, "Pmax", "toSI"),
-                       coeffs);
+    R.rate = ChebyshevRate(getFloat(rc, "Tmin", "toSI"),
+                           getFloat(rc, "Tmax", "toSI"),
+                           getFloat(rc, "Pmin", "toSI"),
+                           getFloat(rc, "Pmax", "toSI"),
+                           coeffs);
     setupReaction(R, rxn_node);
 }
 
@@ -1878,11 +1878,11 @@ void setupChebyshevReaction(ChebyshevReaction2&R, const AnyMap& node,
     }
     const UnitSystem& units = node.units();
     coeffs(0, 0) += std::log10(units.convertTo(1.0, R.rate_units));
-    R.rate = Chebyshev(units.convert(T_range[0], "K"),
-                       units.convert(T_range[1], "K"),
-                       units.convert(P_range[0], "Pa"),
-                       units.convert(P_range[1], "Pa"),
-                       coeffs);
+    R.rate = ChebyshevRate(units.convert(T_range[0], "K"),
+                           units.convert(T_range[1], "K"),
+                           units.convert(P_range[0], "Pa"),
+                           units.convert(P_range[1], "Pa"),
+                           coeffs);
 }
 
 void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)

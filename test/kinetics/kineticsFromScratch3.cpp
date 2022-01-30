@@ -188,7 +188,7 @@ TEST_F(KineticsFromScratch3, add_chebyshev_reaction)
     coeffs(2,1) = 2.6889e-01;
     coeffs(2,2) = 9.4806e-02;
     coeffs(2,3) = -7.6385e-03;
-    auto rate = make_shared<ChebyshevRate3>(290., 3000., 1000.0, 10000000.0, coeffs);
+    auto rate = make_shared<ChebyshevRate>(290., 3000., 1000.0, 10000000.0, coeffs);
 
     auto R = make_shared<Reaction>(reac, prod, rate);
     kin.addReaction(R);
