@@ -174,6 +174,7 @@ protected:
         // perturb conditions
         double dTinv = 1. / (m_shared.temperature * deltaT);
         m_shared.perturbTemperature(deltaT);
+        _update();
 
         // apply numerical derivative
         for (auto& rxn : m_rxn_rates) {
@@ -185,6 +186,7 @@ protected:
 
         // revert changes
         m_shared.restore();
+        _update();
     }
 
     //! Helper function to process third-body derivatives for rate data that
@@ -194,6 +196,7 @@ protected:
     void _process_ddM(double* rop, const double* kf, double deltaM, bool overwrite) {
         double dMinv = 1. / deltaM;
         m_shared.perturbThirdBodies(deltaM);
+        _update();
 
         for (auto& rxn : m_rxn_rates) {
             if (kf[rxn.first] != 0. && m_shared.conc_3b[rxn.first] > 0.) {
@@ -207,6 +210,7 @@ protected:
 
         // revert changes
         m_shared.restore();
+        _update();
     }
 
     //! Helper function for rate data that do not implement `perturbThirdBodies`
@@ -229,6 +233,7 @@ protected:
     void _process_ddP(double* rop, const double* kf, double deltaP) {
         double dPinv = 1. / (m_shared.pressure * deltaP);
         m_shared.perturbPressure(deltaP);
+        _update();
 
         for (auto& rxn : m_rxn_rates) {
             if (kf[rxn.first] != 0.) {
@@ -239,6 +244,7 @@ protected:
 
         // revert changes
         m_shared.restore();
+        _update();
     }
 
     //! Helper function for rate data that do not implement `perturbPressure`

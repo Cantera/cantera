@@ -25,7 +25,9 @@ class Reaction;
 //! In addition to the pure virtual methods declared in this class, complete derived
 //! classes must implement the method `evalFromStruct(const DataType& shared_data)`,
 //! where `DataType` is a container for parameters needed to evaluate reactions of that
-//! type.
+//! type. In addition, derived classes may also implement the method
+//! `updateFromStruct(const DataType& shared_data)` to update buffered data that
+//! is specific to a given reaction rate.
 //!
 //! The calculation of derivatives (or Jacobians) relies on the following methods:
 //!  -  Derived classes may implement the method
