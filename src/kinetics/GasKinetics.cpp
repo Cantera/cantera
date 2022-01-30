@@ -602,7 +602,7 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
     return true;
 }
 
-void GasKinetics::addFalloffReaction(FalloffReaction& r)
+void GasKinetics::addFalloffReaction(FalloffReaction2& r)
 {
     // install high and low rate coeff calculators and extend the high and low
     // rate coeff value vectors
@@ -695,7 +695,7 @@ void GasKinetics::modifyThreeBodyReaction(size_t i, ThreeBodyReaction2& r)
     m_rates.replace(i, r.rate);
 }
 
-void GasKinetics::modifyFalloffReaction(size_t i, FalloffReaction& r)
+void GasKinetics::modifyFalloffReaction(size_t i, FalloffReaction2& r)
 {
     size_t iFall = m_rfallindx[i];
     m_falloff_high_rates.replace(iFall, r.high_rate);

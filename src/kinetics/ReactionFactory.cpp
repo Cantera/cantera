@@ -33,7 +33,7 @@ ReactionFactory::ReactionFactory()
 
     // register elementary reactions (old framework)
     reg("elementary-legacy", [](const AnyMap& node, const Kinetics& kin) {
-        ElementaryReaction* R = new ElementaryReaction2();
+        ElementaryReaction2* R = new ElementaryReaction2();
         if (!node.empty()) {
             setupElementaryReaction(*R, node, kin);
         }
@@ -49,7 +49,7 @@ ReactionFactory::ReactionFactory()
 
     // register three-body reactions (old framework)
     reg("three-body-legacy", [](const AnyMap& node, const Kinetics& kin) {
-        ThreeBodyReaction* R = new ThreeBodyReaction2();
+        ThreeBodyReaction2* R = new ThreeBodyReaction2();
         if (!node.empty()) {
             setupThreeBodyReaction(*R, node, kin);
         }
@@ -73,7 +73,7 @@ ReactionFactory::ReactionFactory()
 
     // register falloff reactions
     reg("chemically-activated-legacy", [](const AnyMap& node, const Kinetics& kin) {
-        FalloffReaction2* R = new ChemicallyActivatedReaction();
+        FalloffReaction2* R = new ChemicallyActivatedReaction2();
         if (!node.empty()) {
             setupFalloffReaction(*R, node, kin);
         }
@@ -88,7 +88,7 @@ ReactionFactory::ReactionFactory()
 
     // register pressure-dependent-Arrhenius reactions (old framework)
     reg("pressure-dependent-Arrhenius-legacy", [](const AnyMap& node, const Kinetics& kin) {
-        PlogReaction* R = new PlogReaction2();
+        PlogReaction2* R = new PlogReaction2();
         if (!node.empty()) {
             setupPlogReaction(*R, node, kin);
         }
@@ -99,7 +99,7 @@ ReactionFactory::ReactionFactory()
     addAlias("reaction", "Chebyshev");
     addAlias("reaction", "chebyshev");
     reg("Chebyshev-legacy", [](const AnyMap& node, const Kinetics& kin) {
-        ChebyshevReaction* R = new ChebyshevReaction2();
+        ChebyshevReaction2* R = new ChebyshevReaction2();
         if (!node.empty()) {
             setupChebyshevReaction(*R, node, kin);
         }
@@ -183,8 +183,8 @@ ReactionFactoryXML::ReactionFactoryXML()
 
     // register falloff reactions
     reg("chemically-activated-legacy", [](const XML_Node& node) {
-        Reaction* R = new ChemicallyActivatedReaction();
-        setupChemicallyActivatedReaction(*(ChemicallyActivatedReaction*)R, node);
+        Reaction* R = new ChemicallyActivatedReaction2();
+        setupChemicallyActivatedReaction(*(ChemicallyActivatedReaction2*)R, node);
         return R;
     });
     addAlias("chemically-activated-legacy", "chemically-activated");

@@ -203,7 +203,7 @@ protected:
     //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
     void addThreeBodyReaction(ThreeBodyReaction2& r);
     //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
-    void addFalloffReaction(FalloffReaction& r);
+    void addFalloffReaction(FalloffReaction2& r);
     //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
     void addPlogReaction(PlogReaction2& r);
     //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
@@ -212,7 +212,7 @@ protected:
     //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
     void modifyThreeBodyReaction(size_t i, ThreeBodyReaction2& r);
     //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
-    void modifyFalloffReaction(size_t i, FalloffReaction& r);
+    void modifyFalloffReaction(size_t i, FalloffReaction2& r);
     //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
     void modifyPlogReaction(size_t i, PlogReaction2& r);
     //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
