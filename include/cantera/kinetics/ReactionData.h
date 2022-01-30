@@ -139,18 +139,17 @@ struct BlowersMaselData : public ReactionData
     virtual void update(double T, double deltaH) override;
 
     virtual void resize(size_t n_species, size_t n_reactions) override {
-        m_grt.resize(n_species, 0.);
-        dH.resize(n_reactions, 0.);
+        grt.resize(n_species, 0.);
         ready = true;
     }
 
     bool ready; //!< boolean indicating whether vectors are accessible
     double density; //!< used to determine if updates are needed
-    vector_fp dH; //!< enthalpy change for each reaction
+    double dH_direct; //!< enthalpy change for each reaction (for testing)
+    vector_fp grt; //!< partial molar enthalpies
 
 protected:
     int m_state_mf_number; //!< integer that is incremented when composition changes
-    vector_fp m_grt; //!< work vector holding partial molar enthalpies
 };
 
 

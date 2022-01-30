@@ -85,9 +85,9 @@ void TwoTempPlasmaData::updateTe(double Te)
 BlowersMaselData::BlowersMaselData()
     : ready(false)
     , density(NAN)
+    , dH_direct(NAN)
     , m_state_mf_number(-1)
 {
-    dH.resize(1, NAN);
 }
 
 void BlowersMaselData::update(double T)
@@ -98,8 +98,13 @@ void BlowersMaselData::update(double T)
 
 void BlowersMaselData::update(double T, double deltaH)
 {
+    if (ready) {
+        throw CanteraError("BlowersMaselData::update",
+            "Direct setting of enthalpy change is only possible while rate object\n"
+            "and associated reaction are not added to a Kinetics object.");
+    }
     ReactionData::update(T);
-    dH[0] = deltaH;
+    dH_direct = deltaH;
 }
 
 bool BlowersMaselData::update(const ThermoPhase& bulk, const Kinetics& kin)
@@ -115,8 +120,7 @@ bool BlowersMaselData::update(const ThermoPhase& bulk, const Kinetics& kin)
     if (changed || rho != density || mf != m_state_mf_number) {
         density = rho;
         m_state_mf_number = mf;
-        bulk.getPartialMolarEnthalpies(m_grt.data());
-        kin.getReactionDelta(m_grt.data(), dH.data());
+        bulk.getPartialMolarEnthalpies(grt.data());
         changed = true;
     }
     return changed;
