@@ -4,8 +4,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/Arrhenius.h"
-#include "cantera/base/AnyMap.h"
-#include "cantera/base/global.h"
+#include "cantera/kinetics/Kinetics.h"
 
 namespace Cantera
 {
@@ -191,6 +190,7 @@ void TwoTempPlasmaRate::getParameters(AnyMap& rateNode) const
 }
 
 BlowersMaselRate::BlowersMaselRate()
+    : m_deltaH_R(0.)
 {
     m_Ea_str = "Ea0";
     m_E4_str = "w";
@@ -198,6 +198,7 @@ BlowersMaselRate::BlowersMaselRate()
 
 BlowersMaselRate::BlowersMaselRate(double A, double b, double Ea0, double w)
     : ArrheniusBase(A, b, Ea0)
+    , m_deltaH_R(0.)
 {
     m_Ea_str = "Ea0";
     m_E4_str = "w";
@@ -208,13 +209,7 @@ double BlowersMaselRate::ddTScaledFromStruct(const BlowersMaselData& shared_data
 {
     warn_user("BlowersMaselRate::ddTScaledFromStruct",
         "Temperature derivative does not consider changes of reaction enthalpy.");
-    double deltaH_R;
-    if (shared_data.ready) {
-        deltaH_R = shared_data.dH[m_rate_index] / GasConstant;
-    } else {
-        deltaH_R = shared_data.dH[0] / GasConstant;
-    }
-    double Ea_R = activationEnergy_R(deltaH_R);
+    double Ea_R = activationEnergy_R(m_deltaH_R);
     return m_A * std::exp(m_b * shared_data.logT - Ea_R * shared_data.recipT);
 }
 
@@ -240,6 +235,17 @@ void BlowersMaselRate::getParameters(AnyMap& rateNode) const
         rateNode["rate-constant"] = std::move(node);
     }
     rateNode["type"] = type();
+}
+
+void BlowersMaselRate::setContext(const Reaction& rxn, const Kinetics& kin)
+{
+    m_multipliers.clear();
+    for (const auto& sp : rxn.reactants) {
+        m_multipliers.emplace_back(kin.kineticsSpeciesIndex(sp.first), -sp.second);
+    }
+    for (const auto& sp : rxn.products) {
+        m_multipliers.emplace_back(kin.kineticsSpeciesIndex(sp.first), sp.second);
+    }
 }
 
 }

@@ -194,7 +194,9 @@ public:
     }
 
     //! Evaluate reaction rate
-    //! @param shared_data  data shared by all reactions of a given type
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
     double evalFromStruct(const ReactionData& shared_data) const {
         return m_A * std::exp(m_b * shared_data.logT - m_Ea_R * shared_data.recipT);
     }
@@ -284,6 +286,10 @@ public:
         checkRate(equation, node);
     }
 
+    //! Evaluate reaction rate
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
     double evalFromStruct(const TwoTempPlasmaData& shared_data) {
         // m_E4_R is the electron activation (in temperature units)
         return m_A * std::exp(m_b * shared_data.logTe -
@@ -387,14 +393,30 @@ public:
         checkRate(equation, node);
     }
 
-    double evalFromStruct(const BlowersMaselData& shared_data) {
-        double deltaH_R;
+    virtual void setContext(const Reaction& rxn, const Kinetics& kin) override;
+
+    //! Update information specific to reaction
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    void updateFromStruct(const BlowersMaselData& shared_data) {
         if (shared_data.ready) {
-            deltaH_R = shared_data.dH[m_rate_index] / GasConstant;
+            m_deltaH_R = 0.;
+            for (const auto& item : m_multipliers) {
+                m_deltaH_R += shared_data.grt[item.first] * item.second;
+            }
+            m_deltaH_R /= GasConstant;
         } else {
-            deltaH_R = shared_data.dH[0] / GasConstant;
+            m_deltaH_R = shared_data.dH_direct / GasConstant;
         }
-        double Ea_R = activationEnergy_R(deltaH_R);
+    }
+
+    //! Evaluate reaction rate
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    double evalFromStruct(const BlowersMaselData& shared_data) {
+        double Ea_R = activationEnergy_R(m_deltaH_R);
         return m_A * std::exp(m_b * shared_data.logT - Ea_R * shared_data.recipT);
     }
 
@@ -436,6 +458,12 @@ public:
     double bondEnergy() const {
         return m_E4_R * GasConstant;
     }
+
+protected:
+    //! Pairs of species indices and multiplers to calculate enthalpy change
+    std::vector<std::pair<size_t, double>> m_multipliers;
+
+    double m_deltaH_R; //!< enthalpy change of reaction (in temperature units)
 };
 
 }
