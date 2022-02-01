@@ -6,7 +6,7 @@ import pytest
 
 from . import utilities
 import cantera as ct
-from cantera import ck2yaml, cti2yaml, ctml2yaml
+from cantera import ck2yaml, cti2yaml, ctml2yaml, yaml2ck
 
 class ck2yamlTest(utilities.CanteraTest):
     def convert(self, inputFile, thermo=None, transport=None,
@@ -511,6 +511,174 @@ class ck2yamlTest(utilities.CanteraTest):
         with self.assertRaisesRegex(ck2yaml.InputError,
                                     'Element amounts can have no more than 3 digits.'):
             self.convert('big_element_num_err.inp')
+
+
+class yaml2ckTest(utilities.CanteraTest):
+    def convert(self, inputFile, mech=None, thermo=None, transport=None,
+                surface=None, output=None, extra=None,
+                quiet=True, permissive=None):
+        if inputFile is not None:
+            inputStem = Path(inputFile).stem  # strip '.inp'
+            inputFile = self.test_data_path / (inputStem + ".yaml")
+        if mech is None:
+            mech = self.test_work_path / (inputStem + "-from-yaml2ck.ck")
+        else:
+            mech = self.test_work_path / mech
+        if thermo is None:
+            thermo = self.test_work_path / (inputStem + "-from-yaml2ck.therm")
+        else:
+            thermo = self.test_work_path / thermo
+        if transport is None:
+            transport = self.test_work_path / (inputStem + "-from-yaml2ck.tran")
+        else:
+            transport = self.test_work_path / transport
+        if surface is not None:
+            surface = self.test_data_path / surface
+        if output is None:
+            output = self.test_work_path / (inputStem + "-from-yaml2ck.yaml")
+        if extra is not None:
+            extra = self.test_data_path / extra
+
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        for item in [mech, thermo, transport, output]:
+            if item is not None and item.is_file():
+                item.unlink()
+        self._convert(inputFile, mech=mech, thermo=thermo, transport=transport,
+            surface=surface, output=output, extra=extra,
+            quiet=quiet, permissive=permissive)
+        return output
+
+    def _convert(self, inputFile, *, mech, thermo, transport, surface, output, extra,
+                 quiet, permissive):
+
+        # convert yaml to Chemkin
+        mech, thermo, transport = yaml2ck.convert(inputFile, mech_path=mech,
+            thermo_path=thermo, tran_path=transport, overwrite=False,
+            sort_elements=False, sort_species=False, sort_reaction_equations=False)
+
+        # convert Chemkin back to yaml
+        ck2yaml.convert_mech(mech, thermo_file=thermo,
+            transport_file=transport, surface_file=surface, out_name=output,
+            extra_file=extra, quiet=quiet, permissive=permissive)
+
+    def checkConversion(self, basename, cls=ct.Solution, ckphases=(),
+                        yamlphases=(), **kwargs):
+        ckPhase = cls(f"{basename}-from-yaml2ck.yaml", adjacent=ckphases, **kwargs)
+        yamlPhase = cls(f"{basename}.yaml", adjacent=yamlphases, **kwargs)
+
+        self.assertEqual(set(ckPhase.element_names), set(yamlPhase.element_names))
+        self.assertEqual(set(ckPhase.species_names), set(yamlPhase.species_names))
+
+        yamlSpecies = [yamlPhase.species(s) for s in ckPhase.species_names]
+        for C, Y in zip(ckPhase.species(), yamlSpecies):
+            self.assertEqual(C.composition, Y.composition)
+
+        self.assertEqual(ckPhase.n_reactions, yamlPhase.n_reactions)
+        for C, Y in zip(ckPhase.reactions(), yamlPhase.reactions()):
+            self.assertEqual(C.__class__, Y.__class__)
+            self.assertEqual(C.reactants, Y.reactants)
+            self.assertEqual(C.products, Y.products)
+            self.assertEqual(C.duplicate, Y.duplicate)
+
+        for i, sp in zip(range(ckPhase.n_reactions), ckPhase.kinetics_species_names):
+            self.assertEqual(ckPhase.reactant_stoich_coeff(sp, i),
+                             yamlPhase.reactant_stoich_coeff(sp, i))
+
+        return ckPhase, yamlPhase
+
+    def checkThermo(self, ckPhase, yamlPhase, temperatures, tol=1e-7):
+        yaml_idx = {ckPhase.species_index(s): yamlPhase.species_index(s) for s in ckPhase.species_names}
+
+        for T in temperatures:
+            ckPhase.TP = T, ct.one_atm
+            yamlPhase.TP = T, ct.one_atm
+            cp_ck = ckPhase.partial_molar_cp
+            cp_yaml = yamlPhase.partial_molar_cp
+            h_ck = ckPhase.partial_molar_enthalpies
+            h_yaml = yamlPhase.partial_molar_enthalpies
+            s_ck = ckPhase.partial_molar_entropies
+            s_yaml = yamlPhase.partial_molar_entropies
+            self.assertNear(ckPhase.density, yamlPhase.density)
+            for i in range(ckPhase.n_species):
+                message = ' for species {0} at T = {1}'.format(i, T)
+                self.assertNear(cp_ck[i], cp_yaml[yaml_idx[i]], tol, msg='cp'+message)
+                self.assertNear(h_ck[i], h_yaml[yaml_idx[i]], tol, msg='h'+message)
+                self.assertNear(s_ck[i], s_yaml[yaml_idx[i]], tol, msg='s'+message)
+
+    def checkKinetics(self, ckPhase, yamlPhase, temperatures, pressures, tol=1e-7):
+        for T,P in itertools.product(temperatures, pressures):
+            ckPhase.TP = T, P
+            yamlPhase.TP = T, P
+            kf_ck = ckPhase.forward_rate_constants
+            kr_ck = ckPhase.reverse_rate_constants
+            kf_yaml = yamlPhase.forward_rate_constants
+            kr_yaml = yamlPhase.reverse_rate_constants
+            for i in range(yamlPhase.n_reactions):
+                message = f"for reaction {i+1}: {yamlPhase.reaction(i)} at T = {T}, P = {P}"
+                self.assertNear(kf_ck[i], kf_yaml[i], rtol=tol, msg="kf " + message)
+                self.assertNear(kr_ck[i], kr_yaml[i], rtol=tol, msg="kr " + message)
+
+    def checkTransport(self, ckPhase, yamlPhase, temperatures,
+                       model='mixture-averaged'):
+        yaml_idx = {ckPhase.species_index(s): yamlPhase.species_index(s) for s in ckPhase.species_names}
+        ckPhase.transport_model = model
+        yamlPhase.transport_model = model
+        for T in temperatures:
+            ckPhase.TP = T, ct.one_atm
+            yamlPhase.TP = T, ct.one_atm
+            self.assertNear(ckPhase.viscosity, yamlPhase.viscosity)
+            self.assertNear(ckPhase.thermal_conductivity,
+                            yamlPhase.thermal_conductivity)
+            Dkm_ck = ckPhase.mix_diff_coeffs
+            Dkm_yaml = yamlPhase.mix_diff_coeffs
+            for i in range(ckPhase.n_species):
+                message = 'dkm for species {0} at T = {1}'.format(i, T)
+                self.assertNear(Dkm_ck[i], Dkm_yaml[yaml_idx[i]], msg=message)
+
+    # @utilities.slow_test
+    # def test_gri30(self):
+    #     self.convert("gri30", self.cantera_data_path)
+    #     ckPhase, yamlPhase = self.checkConversion('gri30')
+    #     X = {'O2': 0.3, 'H2': 0.1, 'CH4': 0.2, 'CO2': 0.4}
+    #     ckPhase.X = X
+    #     yamlPhase.X = X
+    #     self.checkThermo(ckPhase, yamlPhase, [300, 500, 1300, 2000])
+    #     self.checkKinetics(ckPhase, yamlPhase, [900, 1800], [2e5, 20e5])
+    #     self.checkTransport(ckPhase, yamlPhase, [298, 1001, 2400])
+
+    def test_third_body_reactions(self):
+        self.convert("explicit-third-bodies")
+        ckPhase, yamlPhase = self.checkConversion('explicit-third-bodies')
+        self.checkKinetics(ckPhase, yamlPhase, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
+
+    def test_pdep(self):
+        self.convert("pdep-test")
+        ckPhase, yamlPhase = self.checkConversion('pdep-test')
+        # Chebyshev coefficients in XML are truncated to 6 digits, limiting accuracy
+        self.checkKinetics(ckPhase, yamlPhase, [300, 1000, 2200],
+                           [100, ct.one_atm, 2e5, 2e6, 9.9e6], tol=2e-4)
+
+    def test_sri_falloff(self):
+        self.convert("sri-falloff")
+        ckPhase, yamlPhase = self.checkConversion("sri-falloff")
+        self.checkKinetics(ckPhase, yamlPhase, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
+
+    def test_chemically_activated(self):
+        self.convert("chemically-activated-reaction")
+        ckPhase, yamlPhase = self.checkConversion("chemically-activated-reaction")
+        # pre-exponential factor in XML is truncated to 7 sig figs, limiting accuracy
+        self.checkKinetics(ckPhase, yamlPhase, [300, 800, 1450, 2800], [5e3, 1e5, 2e6, 1e7],
+                           tol=1e-7)
+
+    def test_yaml_2_ck_reactions(self):
+        self.convert("yaml-ck-reactions")
+        ckPhase, yamlPhase = self.checkConversion('yaml-ck-reactions')
+        X = {'O2': 0.3, 'H': 0.1, 'H2': 0.2, 'AR': 0.4}
+        ckPhase.X = X
+        yamlPhase.X = X
+        self.checkThermo(ckPhase, yamlPhase, [300, 500, 1300, 2000])
+        self.checkKinetics(ckPhase, yamlPhase, [900, 1800], [2e5, 20e5])
+        self.checkTransport(ckPhase, yamlPhase, [298, 1001, 2400])
 
 
 class cti2yamlTest(utilities.CanteraTest):
