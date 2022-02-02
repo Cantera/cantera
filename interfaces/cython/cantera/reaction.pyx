@@ -782,8 +782,8 @@ cdef class Reaction:
     _has_legacy = False
     _hybrid = False # indicate whether legacy implementations are separate or merged
 
-    def __cinit__(self, reactants="", products="", init=True, legacy=False, **kwargs):
-
+    def __cinit__(self, reactants="", products="", rate=None, *, legacy=False,
+                  init=True, **kwargs):
         if init:
             rxn_type = self._reaction_type
             if (not self._hybrid and self._has_legacy) or (self._hybrid and legacy):
@@ -795,16 +795,28 @@ cdef class Reaction:
             if products:
                 self.products = products
 
-    def __init__(self, reactants=None, products=None, *, equation=None, rate=None,
+    def __init__(self, reactants=None, products=None, rate=None, *, equation=None,
                  Kinetics kinetics=None, init=True, legacy=False, **kwargs):
 
-        if legacy:
+        if legacy or not init:
+            return
+
+        if not rate:
+            raise TypeError("No *rate* argument provided")
+
+        if isinstance(rate, ReactionRate):
+            if reactants and products:
+                self.reactants = reactants
+                self.products = products
+            else:
+                self.reaction.setEquation(stringify(equation))
+            self.reaction.setRate((<ReactionRate>rate)._rate)
             return
 
         if reactants and products and not equation:
             equation = self.equation
 
-        if init and equation and kinetics:
+        if equation and kinetics:
             rxn_type = self._reaction_type
             spec = {"equation": equation, "type": rxn_type}
             if isinstance(rate, dict):
@@ -818,10 +830,7 @@ cdef class Reaction:
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
 
-            if isinstance(rate, ReactionRate):
-                self.rate = rate
-                rate = None
-            elif rate is not None:
+            if rate is not None:
                 try:
                     if isinstance(rate[0][1], Arrhenius):
                         self.rate = PlogRate(rate)
@@ -1606,8 +1615,11 @@ cdef class ElementaryReaction(Reaction):
             raise AttributeError("Incorrect accessor for legacy implementation")
         return <CxxElementaryReaction2*>self.reaction
 
-    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
-                 init=True, **kwargs):
+    def __init__(self, reactants=None, products=None, rate=None, *, equation=None,
+                 Kinetics kinetics=None, init=True, **kwargs):
+
+        if reactants and products and not equation:
+            equation = self.equation
 
         if init and equation and kinetics:
             rxn_type = self._reaction_type + "-legacy"
@@ -1625,8 +1637,8 @@ cdef class ElementaryReaction(Reaction):
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
 
-            if isinstance(rate, Arrhenius):
-                self.rate = rate
+        if isinstance(rate, (Arrhenius, ArrheniusRate)):
+            self.rate = rate
 
     cdef _legacy_set_rate(self, Arrhenius rate):
         cdef CxxElementaryReaction2* r = self.cxx_object2()
@@ -1727,11 +1739,27 @@ cdef class ThreeBodyReaction(ElementaryReaction):
             return &(self.cxx_threebody2().third_body)
         return <CxxThirdBody*>(self.cxx_threebody().thirdBody().get())
 
-    def __init__(self, equation=None, rate=None, efficiencies=None,
-                 Kinetics kinetics=None, legacy=False, init=True, **kwargs):
+    def __init__(self, reactants="", products="", rate=None, *, equation=None,
+                 efficiencies=None, Kinetics kinetics=None, legacy=False, init=True,
+                 **kwargs):
+
+        if reactants and products and not equation:
+            equation = self.equation
+
+        if isinstance(rate, ArrheniusRate):
+            self._reaction.reset(new CxxThreeBodyReaction3())
+            self.reaction = self._reaction.get()
+            if reactants and products:
+                self.reactants = reactants
+                self.products = products
+            else:
+                self.reaction.setEquation(stringify(equation))
+            self.reaction.setRate((<ReactionRate>rate)._rate)
+            if efficiencies:
+                self.efficiencies = efficiencies
+            return
 
         if init and equation and kinetics:
-
             rxn_type = self._reaction_type
             if legacy:
                 rxn_type += "-legacy"
@@ -1922,10 +1950,25 @@ cdef class FalloffReaction(Reaction):
             return &(self.cxx_object2().third_body)
         return <CxxThirdBody*>(self.cxx_object().thirdBody().get())
 
-    def __init__(
-            self, equation=None, rate=None, efficiencies=None,
-            Kinetics kinetics=None, init=True, legacy=False, **kwargs
-        ):
+    def __init__(self, reactants="", products="", rate=None, *, equation=None,
+                 efficiencies=None, Kinetics kinetics=None, init=True, legacy=False,
+                 **kwargs):
+
+        if reactants and products and not equation:
+            equation = self.equation
+
+        if isinstance(rate, FalloffRate):
+            self._reaction.reset(new CxxFalloffReaction3())
+            self.reaction = self._reaction.get()
+            if reactants and products:
+                self.reactants = reactants
+                self.products = products
+            else:
+                self.reaction.setEquation(stringify(equation))
+            self.reaction.setRate((<ReactionRate>rate)._rate)
+            if efficiencies:
+                self.efficiencies = efficiencies
+            return
 
         if init and equation and kinetics:
 
@@ -2454,11 +2497,13 @@ cdef class TwoTempPlasmaReaction(Reaction):
     """
     _reaction_type = "two-temperature-plasma"
 
-    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
-                 init=True, **kwargs):
+    def __init__(self, reactants=None, products=None, rate=None, *, equation=None,
+                 Kinetics kinetics=None, init=True, **kwargs):
+
+        if reactants and products and not equation:
+            equation = self.equation
 
         if init and equation and kinetics:
-
             rxn_type = self._reaction_type
             spec = {"equation": equation, "type": rxn_type}
             if isinstance(rate, dict):
@@ -2475,8 +2520,8 @@ cdef class TwoTempPlasmaReaction(Reaction):
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
 
-            if isinstance(rate, TwoTempPlasmaRate):
-                self.rate = rate
+        if isinstance(rate, TwoTempPlasmaRate):
+            self.rate = rate
 
     property rate:
         """ Get/Set the `TwoTempPlasmaRate` rate coefficients for this reaction. """
@@ -2572,6 +2617,17 @@ cdef class BlowersMaselInterfaceReaction(Reaction):
     with the rate parameterization of `BlowersMasel`.
     """
     _reaction_type = "surface-Blowers-Masel"
+
+    def __init__(self, reactants=None, products=None, *, equation=None,
+                 Kinetics kinetics=None, init=True, legacy=False, **kwargs):
+        if not init:
+            return
+
+        if reactants and products:
+            self.reactants = reactants
+            self.products = products
+        elif equation:
+            self.reaction.setEquation(stringify(equation))
 
     cdef CxxBlowersMaselInterfaceReaction* cxx_object2(self):
         return <CxxBlowersMaselInterfaceReaction*>self.reaction
@@ -2676,8 +2732,11 @@ cdef class CustomReaction(Reaction):
     """
     _reaction_type = "custom-rate-function"
 
-    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
-                 init=True, **kwargs):
+    def __init__(self, reactants=None, products=None, rate=None, *, equation=None,
+                 Kinetics kinetics=None, init=True, **kwargs):
+
+        if reactants and products and not equation:
+            equation = self.equation
 
         if init and equation and kinetics:
 
@@ -2686,7 +2745,11 @@ cdef class CustomReaction(Reaction):
             self._reaction = CxxNewReaction(dict_to_anymap(spec),
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
-            self.rate = CustomRate(rate)
+            if not isinstance(rate, CustomRate):
+                rate = CustomRate(rate)
+
+        if rate is not None:
+            self.rate = rate
 
     property rate:
         """ Get/Set the `CustomRate` object for this reaction. """

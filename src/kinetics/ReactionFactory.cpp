@@ -339,7 +339,8 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin)
         // Reaction type is not specified
         // See if this is a three-body reaction with a specified collision partner
         ElementaryReaction2 testReaction;
-        parseReactionEquation(testReaction, rxn_node["equation"], kin);
+        parseReactionEquation(testReaction, rxn_node["equation"].asString(),
+                              rxn_node, &kin);
         if (isThreeBody(testReaction)) {
             type = "three-body";
         }
@@ -349,7 +350,8 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin)
         // See if this is an electrochemical reaction: type of
         // receiving reaction object is unimportant in this case
         ElementaryReaction2 testReaction;
-        parseReactionEquation(testReaction, rxn_node["equation"], kin);
+        parseReactionEquation(testReaction, rxn_node["equation"].asString(),
+                              rxn_node, &kin);
         if (isElectrochemicalReaction(testReaction, kin)) {
             type = "electrochemical";
         } else {

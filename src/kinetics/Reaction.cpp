@@ -186,7 +186,9 @@ void Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
         return;
     }
 
-    parseReactionEquation(*this, node["equation"], kin);
+    input = node;
+    input.copyMetadata(node);
+    setEquation(node["equation"].asString(), &kin);
     // Non-stoichiometric reaction orders
     if (node.hasKey("orders")) {
         for (const auto& order : node["orders"].asMap<double>()) {
@@ -203,7 +205,6 @@ void Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
     allow_negative_orders = node.getBool("negative-orders", false);
     allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
 
-    input = node;
 }
 
 void Reaction::setRate(shared_ptr<ReactionRate> rate)
@@ -261,6 +262,11 @@ std::string Reaction::equation() const
     } else {
         return reactantString() + " => " + productString();
     }
+}
+
+void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
+{
+    parseReactionEquation(*this, equation, input, kin);
 }
 
 std::string Reaction::type() const
@@ -1070,6 +1076,22 @@ bool ThreeBodyReaction3::detectEfficiencies()
     return true;
 }
 
+void ThreeBodyReaction3::setEquation(const std::string& equation, const Kinetics* kin)
+{
+    Reaction::setEquation(equation, kin);
+    if (reactants.count("M") != 1 || products.count("M") != 1) {
+        if (!detectEfficiencies()) {
+            throw InputFileError("ThreeBodyReaction3::setParameters", input,
+                "Reaction equation '{}' does not contain third body 'M'",
+                equation);
+        }
+        return;
+    }
+
+    reactants.erase("M");
+    products.erase("M");
+}
+
 void ThreeBodyReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 {
     if (node.empty()) {
@@ -1077,18 +1099,9 @@ void ThreeBodyReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
         return;
     }
     Reaction::setParameters(node, kin);
-    if (reactants.count("M") != 1 || products.count("M") != 1) {
-        if (!detectEfficiencies()) {
-            throw InputFileError("ThreeBodyReaction3::setParameters", node["equation"],
-                "Reaction equation '{}' does not contain third body 'M'",
-                node["equation"].asString());
-        }
-        return;
+    if (!m_third_body->specified_collision_partner) {
+        m_third_body->setEfficiencies(node);
     }
-
-    reactants.erase("M");
-    products.erase("M");
-    m_third_body->setEfficiencies(node);
 }
 
 void ThreeBodyReaction3::getParameters(AnyMap& reactionNode) const
@@ -1236,8 +1249,17 @@ void FalloffReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
     }
     Reaction::setParameters(node, kin);
 
+    if (!m_third_body->specified_collision_partner) {
+        m_third_body->setEfficiencies(node);
+    }
+}
+
+void FalloffReaction3::setEquation(const std::string& equation, const Kinetics* kin)
+{
+    Reaction::setEquation(equation, kin);
+
     // Detect falloff third body based on partial setup;
-    // parseReactionEquation (called via Reaction::setParameters) sets the
+    // parseReactionEquation (called via Reaction::setEquation) sets the
     // stoichiometric coefficient of the falloff species to -1.
     std::string third_body_str;
     std::string third_body;
@@ -1251,14 +1273,14 @@ void FalloffReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
 
     // Equation must contain a third body, and it must appear on both sides
     if (third_body_str == "") {
-        throw InputFileError("FalloffReaction3::setParameters", node["equation"],
+        throw InputFileError("FalloffReaction3::setParameters", input,
             "Reactants for reaction '{}' do not contain a pressure-dependent "
-            "third body", node["equation"].asString());
+            "third body", equation);
     }
     if (products.count(third_body_str) == 0) {
-        throw InputFileError("FalloffReaction3::setParameters", node["equation"],
+        throw InputFileError("FalloffReaction3::setParameters", input,
             "Unable to match third body '{}' in reactants and products of "
-            "reaction '{}'", third_body, node["equation"].asString());
+            "reaction '{}'", third_body, equation);
     }
 
     // Remove the dummy species
@@ -1266,7 +1288,6 @@ void FalloffReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
     products.erase(third_body_str);
 
     if (third_body == "M") {
-        m_third_body->setEfficiencies(node);
         m_third_body->specified_collision_partner = false;
     } else {
         // Specific species is listed as the third body
@@ -1531,12 +1552,13 @@ void setupReaction(Reaction& R, const XML_Node& rxn_node)
     R.reversible = (rev == "true" || rev == "yes");
 }
 
-void parseReactionEquation(Reaction& R, const AnyValue& equation,
-                           const Kinetics& kin) {
+void parseReactionEquation(Reaction& R, const std::string& equation,
+                           const AnyBase& reactionNode, const Kinetics* kin)
+{
     // Parse the reaction equation to determine participating species and
     // stoichiometric coefficients
     std::vector<std::string> tokens;
-    tokenizeString(equation.asString(), tokens);
+    tokenizeString(equation, tokens);
     tokens.push_back("+"); // makes parsing last species not a special case
 
     size_t last_used = npos; // index of last-used token
@@ -1561,18 +1583,19 @@ void parseReactionEquation(Reaction& R, const AnyValue& equation,
                 try {
                     stoich = fpValueCheck(tokens[i-2]);
                 } catch (CanteraError& err) {
-                    throw InputFileError("parseReactionEquation", equation,
+                    throw InputFileError("parseReactionEquation", reactionNode,
                         err.getMessage());
                 }
             } else {
-                throw InputFileError("parseReactionEquation", equation,
+                throw InputFileError("parseReactionEquation", reactionNode,
                     "Error parsing reaction string '{}'.\n"
                     "Current token: '{}'\nlast_used: '{}'",
-                    equation.asString(), tokens[i],
+                    equation, tokens[i],
                     (last_used == npos) ? "n/a" : tokens[last_used]);
             }
-            if (kin.kineticsSpeciesIndex(species) == npos
-                && stoich != -1 && species != "M") {
+            if (!kin || (kin->kineticsSpeciesIndex(species) == npos
+                         && stoich != -1 && species != "M"))
+            {
                 R.setValid(false);
             }
 
@@ -1598,7 +1621,7 @@ void parseReactionEquation(Reaction& R, const AnyValue& equation,
 
 void setupReaction(Reaction& R, const AnyMap& node, const Kinetics& kin)
 {
-    parseReactionEquation(R, node["equation"], kin);
+    parseReactionEquation(R, node["equation"].asString(), node, &kin);
     // Non-stoichiometric reaction orders
     if (node.hasKey("orders")) {
         for (const auto& order : node["orders"].asMap<double>()) {
