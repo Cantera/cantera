@@ -54,6 +54,10 @@ public:
     //! The chemical equation for this reaction
     std::string equation() const;
 
+    //! Set the reactants and products based on the reaction equation. If a Kinetics
+    //! object is provided, it is used to check that all reactants and products exist.
+    virtual void setEquation(const std::string& equation, const Kinetics* kin=0);
+
     //! The type of reaction
     virtual std::string type() const;
 
@@ -514,6 +518,7 @@ public:
         return "three-body";
     }
 
+    virtual void setEquation(const std::string& equation, const Kinetics* kin=0);
     bool detectEfficiencies();
     virtual void setParameters(const AnyMap& node, const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
@@ -558,6 +563,7 @@ public:
 
     virtual std::string type() const;
 
+    virtual void setEquation(const std::string& equation, const Kinetics* kin);
     virtual void setParameters(const AnyMap& node, const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
 
@@ -630,8 +636,8 @@ std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
                                                Kinetics& kinetics);
 
 //! Parse reaction equation
-void parseReactionEquation(Reaction& R, const AnyValue& equation,
-                           const Kinetics& kin);
+void parseReactionEquation(Reaction& R, const std::string& equation,
+                           const AnyBase& reactionNode, const Kinetics* kin);
 
 // declarations of setup functions
 void setupReaction(Reaction& R, const XML_Node& rxn_node);

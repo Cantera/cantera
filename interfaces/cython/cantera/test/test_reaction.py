@@ -741,20 +741,24 @@ class ReactionTests:
         return ct.Reaction.from_dict(input_data, kinetics=self.gas)
 
     def from_rate(self, rate):
+        if rate is None and self._rate_cls is not None:
+            # Create an "empty" rate of the correct type for merged reaction types where
+            # the only way they are distinguished is by the rate type
+            rate = self._rate_cls()
         # create reaction object from keywords / rate
         return self._cls(equation=self._equation, rate=rate, kinetics=self.gas,
-                        legacy=self._legacy, **self._kwargs)
+                         legacy=self._legacy, **self._kwargs)
 
     def from_parts(self):
         # create reaction rate object from parts
         orig = self.gas.reaction(self._index)
-        if self._rate_cls:
-            rxn = self._cls(orig.reactants, orig.products, rate=self._rate_cls(),
-                            legacy=self._legacy)
-        else:
+        if self._legacy:
             rxn = self._cls(orig.reactants, orig.products, legacy=self._legacy)
-        rxn.rate = self._rate_obj
-        return rxn
+            rxn.rate = self._rate_obj
+            return rxn
+        else:
+            return self._cls(orig.reactants, orig.products, rate=self._rate_obj,
+                            legacy=self._legacy)
 
     def check_rate(self, rate_obj):
         if self._legacy:
@@ -852,7 +856,7 @@ class ReactionTests:
         # check behavior for instantiation from keywords / no rate
         if self._rate_obj is None:
             return
-        rxn = self.from_rate(self._rate_cls() if self._rate_cls else None)
+        rxn = self.from_rate(None)
         if self._legacy:
             self.assertNear(rxn.rate(self.gas.T), 0.)
         else:
@@ -989,6 +993,7 @@ class TestElementary(TestElementary2):
     _cls = ct.Reaction
     _rxn_type = "reaction"
     _rate_type = "Arrhenius"
+    _rate_cls = ct.ArrheniusRate
     _legacy = False
     _yaml = """
         equation: O + H2 <=> H + OH
@@ -1049,6 +1054,7 @@ class TestImplicitThreeBody(TestThreeBody):
 
     _equation = "H + 2 O2 <=> HO2 + O2"
     _rate = {"A": 2.08e+19, "b": -1.24, "Ea": 0.0}
+    _kwargs = {}
     _index = 5
     _yaml = """
         equation: H + 2 O2 <=> HO2 + O2
