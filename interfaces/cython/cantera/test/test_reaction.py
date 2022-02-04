@@ -1330,12 +1330,6 @@ class TestPlog2(ReactionTests, utilities.CanteraTest):
         """
     _deprecated_callers = {(1000., ct.one_atm): 530968934612.9017}
 
-    @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
-        if not cls._legacy:
-            cls._rate_obj = ct.PlogRate(cls._rate)
-
     def check_rates(self, rates, other):
         # helper function used by deprecation tests
         self.assertEqual(len(rates), len(other))
@@ -1353,11 +1347,11 @@ class TestPlog2(ReactionTests, utilities.CanteraTest):
             self.check_rates(rxn.rates, self._rate)
         else:
             with self.assertWarnsRegex(DeprecationWarning, "property is moved"):
-                self.check_rates(rxn.rates, self._rate)
+                self.check_rates(rxn.rates, TestPlog2._rate)
 
     def test_deprecated_setters(self):
         # overload default tester for deprecated property setters
-        rate = ct.PlogRate(self._rate)
+        rate = ct.PlogRate(TestPlog2._rate)
         rates = rate.rates
 
         rxn = self.from_yaml()
@@ -1368,7 +1362,7 @@ class TestPlog2(ReactionTests, utilities.CanteraTest):
             with self.assertWarnsRegex(DeprecationWarning, "Setter is replaceable"):
                 rxn.rates = rates
             with self.assertWarnsRegex(DeprecationWarning, "property is moved"):
-                self.check_rates(rxn.rates, self._rate)
+                self.check_rates(rxn.rates, TestPlog2._rate)
 
 
 class TestPlog(TestPlog2):
@@ -1376,6 +1370,13 @@ class TestPlog(TestPlog2):
 
     _cls = ct.Reaction
     _rate_cls = ct.PlogRate
+    _rate = {
+        "type": "pressure-dependent-Arrhenius",
+        "rate-constants":
+             [{"P": 1013.25, "A": 1.2124e+16, "b": -0.5779, "Ea": 45491376.8},
+              {"P": 101325., "A": 4.9108e+31, "b": -4.8507, "Ea": 103649395.2},
+              {"P": 1013250., "A": 1.2866e+47, "b": -9.0246, "Ea": 166508556.0},
+              {"P": 10132500., "A": 5.9632e+56, "b": -11.529, "Ea": 220076726.4}]}
     _rxn_type = "reaction"
     _rate_type = "pressure-dependent-Arrhenius"
     _legacy = False
@@ -1388,6 +1389,11 @@ class TestPlog(TestPlog2):
         - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
         - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
         """
+
+    @classmethod
+    def setUpClass(cls):
+        ReactionTests.setUpClass()
+        cls._rate_obj = ct.ReactionRate.from_dict(cls._rate)
 
     def eval_rate(self, rate):
         return rate(self.gas.T, self.gas.P)
