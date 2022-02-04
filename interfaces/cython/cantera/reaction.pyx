@@ -796,51 +796,22 @@ cdef class Reaction:
                 self.products = products
 
     def __init__(self, reactants=None, products=None, rate=None, *, equation=None,
-                 Kinetics kinetics=None, init=True, legacy=False, **kwargs):
+                 init=True, legacy=False, **kwargs):
 
         if legacy or not init:
             return
 
-        if not rate:
-            raise TypeError("No *rate* argument provided")
+        if equation:
+            self.reaction.setEquation(stringify(equation))
 
-        if isinstance(rate, ReactionRate):
-            if reactants and products:
-                self.reactants = reactants
-                self.products = products
+        if isinstance(rate, dict):
+            if set(rate) == {"A", "b", "Ea"}:
+                # Allow simple syntax for Arrhenius rates
+                rate = ReactionRate.from_dict({"rate-constant": rate})
             else:
-                self.reaction.setEquation(stringify(equation))
-            self.reaction.setRate((<ReactionRate>rate)._rate)
-            return
+                rate = ReactionRate.from_dict(rate)
 
-        if reactants and products and not equation:
-            equation = self.equation
-
-        if equation and kinetics:
-            rxn_type = self._reaction_type
-            spec = {"equation": equation, "type": rxn_type}
-            if isinstance(rate, dict):
-                # Arrhenius-like rates
-                spec["rate-constant"] = rate
-                rate = None
-            elif isinstance(rate, ReactionRate):
-                spec["type"] = rate.type
-
-            self._reaction = CxxNewReaction(dict_to_anymap(spec),
-                                            deref(kinetics.kinetics))
-            self.reaction = self._reaction.get()
-
-            if rate is not None:
-                try:
-                    if isinstance(rate[0][1], Arrhenius):
-                        self.rate = PlogRate(rate)
-                        rate = None
-                except (IndexError, TypeError, KeyError):
-                    pass
-
-            if rate is not None:
-                raise TypeError("Invalid rate definition")
-
+        self.reaction.setRate((<ReactionRate?>rate)._rate)
 
     @staticmethod
     cdef wrap(shared_ptr[CxxReaction] reaction):
