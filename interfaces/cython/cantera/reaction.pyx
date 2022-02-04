@@ -737,6 +737,24 @@ cdef class Reaction:
         Value used to set `reactants`
     :param products:
         Value used to set `products`
+    :param rate:
+        The rate parameterization for the reaction, given as one of the following:
+
+           - a `ReactionRate` object
+           - a `dict` containing the parameters needed to construct a `ReactionRate`
+             object, with keys corresponding to the YAML format
+           - a `dict` containing Arrhenius parameters (``A``, ``b``, and ``Ea``)
+    :param equation:
+        The reaction equation, used to set the reactants and products if values for
+        those arguments are not provided.
+
+    Examples::
+
+        R = ct.Reaction({"O": 1, "H2": 1}, {"H": 1, "OH": 1},
+                        ct.ArrheniusRate(38.7, 2.7, 26191840.0))
+        R = ct.Reaction(equation="O + H2 <=> H + OH",
+                        rate={"A": 38.7, "b", 2.7, "Ea": 26191840.0})
+        R = ct.Reaction(equation="HO2 <=> OH + O", rate=ChebyshevRate(...))
 
     The static methods `list_from_file`, `list_from_yaml`, `listFromCti`, and
     `listFromXml` can be used to create lists of `Reaction` objects from
