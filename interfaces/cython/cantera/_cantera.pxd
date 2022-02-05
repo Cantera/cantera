@@ -440,6 +440,12 @@ cdef extern from "cantera/thermo/SurfPhase.h":
         void setCoveragesNoNorm(double*) except +translate_exception
         void getCoverages(double*) except +translate_exception
 
+cdef extern from "cantera/thermo/PlasmaPhase.h":
+    cdef cppclass CxxPlasmaPhase "Cantera::PlasmaPhase":
+        CxxPlasmaPhase()
+        void setElectronEnergyGrid(vector[double]&) except +translate_exception
+        void getElectronEnergyGrid(vector[double]&)
+
 cdef extern from "cantera/kinetics/ReactionRateFactory.h" namespace "Cantera":
     cdef shared_ptr[CxxReactionRate] CxxNewReactionRate "newReactionRate" (string) except +translate_exception
     cdef shared_ptr[CxxReactionRate] CxxNewReactionRate "newReactionRate" (CxxAnyMap&) except +translate_exception
@@ -1387,6 +1393,9 @@ cdef class ThermoPhase(_SolutionBase):
 
 cdef class InterfacePhase(ThermoPhase):
     cdef CxxSurfPhase* surf
+
+cdef class PlasmaPhase(ThermoPhase):
+    cdef CxxPlasmaPhase* plasma
 
 cdef class ReactionRate:
     cdef shared_ptr[CxxReactionRate] _rate
