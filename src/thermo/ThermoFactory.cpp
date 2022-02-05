@@ -15,6 +15,7 @@
 #include "cantera/thermo/PDSSFactory.h"
 #include "cantera/thermo/MultiSpeciesThermo.h"
 #include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/thermo/PlasmaPhase.h"
 
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/MaskellSolidSolnPhase.h"
@@ -53,6 +54,7 @@ ThermoFactory::ThermoFactory()
     addAlias("none", "None");
     reg("ideal-gas", []() { return new IdealGasPhase(); });
     addAlias("ideal-gas", "IdealGas");
+    reg("plasma", []() { return new PlasmaPhase(); });
     reg("ideal-surface", []() { return new SurfPhase(); });
     addAlias("ideal-surface", "Surface");
     addAlias("ideal-surface", "Surf");
