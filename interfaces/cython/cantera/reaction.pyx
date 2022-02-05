@@ -120,18 +120,19 @@ cdef class ReactionRate:
             return anymap_to_dict(self.rate.parameters())
 
 
-cdef class _ArrheniusTypeRate(ReactionRate):
+cdef class ArrheniusTypeRate(ReactionRate):
     """
     Base class collecting commonly used features of Arrhenius-type rate objects.
+    Objects should be instantiated by specialized classes, for example `ArrheniusRate`,
+    `BlowersMaselRate` and `TwoTempPlasmaRate`.
     """
     _reaction_rate_type = None
 
     def _cinit(self, input_data, **kwargs):
-        """Helper function called by __cinit__
-
-        The method is used as a uniform interface for object construction.
-        A separate method is necessary as Cython does not support overloading
-        of special methods such as __cinit__.
+        """
+        Helper function called by __cinit__. The method is used as a uniform interface
+        for object construction. A separate method is necessary as Cython does not
+        support overloading of special methods such as __cinit__.
         """
         if self._reaction_rate_type is None:
             raise TypeError(
@@ -186,7 +187,7 @@ cdef class _ArrheniusTypeRate(ReactionRate):
             self.base.setAllowNegativePreExponentialFactor(allow)
 
 
-cdef class ArrheniusRate(_ArrheniusTypeRate):
+cdef class ArrheniusRate(ArrheniusTypeRate):
     r"""
     A reaction rate coefficient which depends on temperature only and follows
     the modified Arrhenius form:
@@ -220,7 +221,7 @@ cdef class ArrheniusRate(_ArrheniusTypeRate):
         return <CxxArrheniusRate*>self.rate
 
 
-cdef class BlowersMaselRate(_ArrheniusTypeRate):
+cdef class BlowersMaselRate(ArrheniusTypeRate):
     r"""
     A reaction rate coefficient which depends on temperature and enthalpy change
     of the reaction follows the Blowers-Masel approximation and modified Arrhenius form
@@ -269,7 +270,7 @@ cdef class BlowersMaselRate(_ArrheniusTypeRate):
             return self.cxx_object().bondEnergy()
 
 
-cdef class TwoTempPlasmaRate(_ArrheniusTypeRate):
+cdef class TwoTempPlasmaRate(ArrheniusTypeRate):
     r"""
     A reaction rate coefficient which depends on both gas and electron temperature
     with the form similar to the modified Arrhenius form. Specifically, the temperature

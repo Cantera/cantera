@@ -1382,7 +1382,7 @@ cdef class ReactionRate:
     cdef wrap(shared_ptr[CxxReactionRate])
     cdef set_cxx_object(self)
 
-cdef class _ArrheniusTypeRate(ReactionRate):
+cdef class ArrheniusTypeRate(ReactionRate):
     cdef CxxArrheniusBase* base
 
 cdef class FalloffRate(ReactionRate):

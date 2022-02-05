@@ -71,11 +71,16 @@ BlowersMaselInterfaceReaction
    :no-undoc-members:
 
 Reaction Rates
----------------------------------------
+--------------
 
 ReactionRate
 ^^^^^^^^^^^^
 .. autoclass:: ReactionRate()
+
+ArrheniusTypeRate
+^^^^^^^^^^^^^^^^^
+.. autoclass:: ArrheniusTypeRate(input_data)
+   :no-undoc-members:
 
 ArrheniusRate
 ^^^^^^^^^^^^^
@@ -85,6 +90,11 @@ ArrheniusRate
 BlowersMaselRate
 ^^^^^^^^^^^^^^^^
 .. autoclass:: BlowersMaselRate(A, b, Ea, w)
+   :no-undoc-members:
+
+TwoTempPlasmaRate
+^^^^^^^^^^^^^^^^^
+.. autoclass:: TwoTempPlasmaRate(A, b, Ea_gas, Ea_electron)
    :no-undoc-members:
 
 FalloffRate
