@@ -19,6 +19,9 @@ namespace Cantera
 /**
  * This rate coefficient manager supports one parameterization of
  * the rate constant of any type.
+ *
+ *  @deprecated  Deprecated in Cantera 2.6 and removed thereafter. Replaced by
+ *      ReactionRate objects managed by MultiRate evaluators.
  */
 template<class R>
 class Rate1

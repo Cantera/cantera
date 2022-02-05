@@ -239,12 +239,12 @@ void BlowersMaselRate::getParameters(AnyMap& rateNode) const
 
 void BlowersMaselRate::setContext(const Reaction& rxn, const Kinetics& kin)
 {
-    m_multipliers.clear();
+    m_stoich_coeffs.clear();
     for (const auto& sp : rxn.reactants) {
-        m_multipliers.emplace_back(kin.kineticsSpeciesIndex(sp.first), -sp.second);
+        m_stoich_coeffs.emplace_back(kin.kineticsSpeciesIndex(sp.first), -sp.second);
     }
     for (const auto& sp : rxn.products) {
-        m_multipliers.emplace_back(kin.kineticsSpeciesIndex(sp.first), sp.second);
+        m_stoich_coeffs.emplace_back(kin.kineticsSpeciesIndex(sp.first), sp.second);
     }
 }
 

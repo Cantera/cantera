@@ -29,6 +29,9 @@ namespace Cantera
  * @endcode
  *
  * @ingroup falloffGroup
+ *
+ * @deprecated  Deprecated in Cantera 2.6 and removed thereafter. Replaced by
+ *      FalloffRate objects managed by MultiRate evaluators.
  */
 class FalloffFactory : public Factory<Falloff>
 {

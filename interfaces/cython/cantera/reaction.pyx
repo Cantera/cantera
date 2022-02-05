@@ -127,7 +127,12 @@ cdef class _ArrheniusTypeRate(ReactionRate):
     _reaction_rate_type = None
 
     def _cinit(self, input_data, **kwargs):
-        """Helper function called by __cinit__"""
+        """Helper function called by __cinit__
+
+        The method is used as a uniform interface for object construction.
+        A separate method is necessary as Cython does not support overloading
+        of special methods such as __cinit__.
+        """
         if self._reaction_rate_type is None:
             raise TypeError(
                 f"Base class '{self.__class__.__name__}' cannot be instantiated "
@@ -143,7 +148,7 @@ cdef class _ArrheniusTypeRate(ReactionRate):
             raise TypeError("Invalid parameter 'input_data'")
         else:
             par_list = [f"'{k}'" for k in kwargs]
-            par_string = ", ".join([par_list[:-1]])
+            par_string = ", ".join(par_list[:-1])
             par_string += f" or {par_list[-1]}"
             raise TypeError(f"Invalid parameters {par_string}")
         self.set_cxx_object()
