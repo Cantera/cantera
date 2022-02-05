@@ -102,10 +102,10 @@ public:
     //! Evaluate falloff function at current conditions
     double evalF(double T, double conc3b) {
         updateTemp(T, m_work.data());
-        FalloffData data;
-        data.update(T);
-        m_rc_low = m_lowRate.evalRate(data.logT, data.recipT);
-        m_rc_high = m_highRate.evalRate(data.logT, data.recipT);
+        double logT = std::log(T);
+        double recipT = 1. / T;
+        m_rc_low = m_lowRate.evalRate(logT, recipT);
+        m_rc_high = m_highRate.evalRate(logT, recipT);
         double pr = conc3b * m_rc_low / (m_rc_high + SmallNumber);
         return F(pr, m_work.data());
     }

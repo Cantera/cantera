@@ -21,6 +21,9 @@ namespace Cantera
 /**
  *  A falloff manager that implements any set of falloff functions.
  *  @ingroup falloffGroup
+ *
+ *  @deprecated  Deprecated in Cantera 2.6 and removed thereafter. Replaced by
+ *      FalloffRate objects managed by MultiRate evaluators.
  */
 class FalloffMgr
 {

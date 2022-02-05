@@ -75,11 +75,17 @@ public:
     void checkRate(const std::string& equation, const AnyMap& node);
 
     //! Evaluate reaction rate
+    /*!
+     *  @internal  Non-virtual method that should not be overloaded
+     */
     double evalRate(double logT, double recipT) const {
         return m_A * std::exp(m_b * logT - m_Ea_R * recipT);
     }
 
     //! Evaluate natural logarithm of the rate constant.
+    /*!
+     *  @internal  Non-virtual method that should not be overloaded
+     */
     double evalLog(double logT, double recipT) const {
         return m_logA + m_b * logT - m_Ea_R * recipT;
     }
@@ -189,7 +195,7 @@ public:
 
     virtual void getParameters(AnyMap& node) const override;
 
-    void check(const std::string& equation, const AnyMap& node) {
+    void check(const std::string& equation, const AnyMap& node) override {
         checkRate(equation, node);
     }
 
@@ -208,11 +214,6 @@ public:
      */
     virtual double ddTScaledFromStruct(const ReactionData& shared_data) const {
         return (m_Ea_R * shared_data.recipT + m_b) * shared_data.recipT;
-    }
-
-    //! Return the activation energy *Ea* [J/kmol]
-    double activationEnergy() const {
-        return m_Ea_R * GasConstant;
     }
 
     //! Return the activation energy divided by the gas constant (i.e. the
@@ -282,7 +283,7 @@ public:
 
     virtual void getParameters(AnyMap& node) const override;
 
-    void check(const std::string& equation, const AnyMap& node) {
+    void check(const std::string& equation, const AnyMap& node) override {
         checkRate(equation, node);
     }
 
@@ -389,7 +390,7 @@ public:
 
     virtual void getParameters(AnyMap& node) const;
 
-    void check(const std::string& equation, const AnyMap& node) {
+    void check(const std::string& equation, const AnyMap& node) override {
         checkRate(equation, node);
     }
 
@@ -402,7 +403,7 @@ public:
     void updateFromStruct(const BlowersMaselData& shared_data) {
         if (shared_data.ready) {
             m_deltaH_R = 0.;
-            for (const auto& item : m_multipliers) {
+            for (const auto& item : m_stoich_coeffs) {
                 m_deltaH_R += shared_data.grt[item.first] * item.second;
             }
             m_deltaH_R /= GasConstant;
@@ -461,7 +462,7 @@ public:
 
 protected:
     //! Pairs of species indices and multiplers to calculate enthalpy change
-    std::vector<std::pair<size_t, double>> m_multipliers;
+    std::vector<std::pair<size_t, double>> m_stoich_coeffs;
 
     double m_deltaH_R; //!< enthalpy change of reaction (in temperature units)
 };

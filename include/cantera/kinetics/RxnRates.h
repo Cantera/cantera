@@ -223,7 +223,7 @@ public:
     explicit PlogRate(const std::multimap<double, ArrheniusBase>& rates);
 
     //! Constructor using legacy Arrhenius2 framework
-    PlogRate(const std::multimap<double, Arrhenius2>& rates);
+    explicit PlogRate(const std::multimap<double, Arrhenius2>& rates);
 
     PlogRate(const AnyMap& node, const UnitStack& rate_units={}) : PlogRate() {
         setParameters(node, rate_units);
@@ -357,7 +357,7 @@ public:
      * @deprecated  Behavior to change after Cantera 2.6.
      *              @see getRates for new behavior.
      */
-    std::vector<std::pair<double, Arrhenius2> > rates() const;
+    std::vector<std::pair<double, Arrhenius2>> rates() const;
 
     //! Return the pressures and Arrhenius expressions which comprise this
     //! reaction.
@@ -365,7 +365,7 @@ public:
 
 protected:
     //! log(p) to (index range) in the rates_ vector
-    std::map<double, std::pair<size_t, size_t> > pressures_;
+    std::map<double, std::pair<size_t, size_t>> pressures_;
 
     // Rate expressions which are referenced by the indices stored in pressures_
     std::vector<ArrheniusBase> rates_;
