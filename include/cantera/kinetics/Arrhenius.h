@@ -30,11 +30,6 @@ class AnyMap;
  * This base class provides a minimally functional interface that allows for parameter
  * access from derived classes as well as classes that use Arrhenius-type expressions
  * internally, for example FalloffRate and PlogRate.
- *
- * @todo supersedes Arrhenius2 and will replace Arrhenius(2) after Cantera 2.6,
- *      The class should be renamed to Arrhenius after removal of Arrhenius2. The new
- *      behavior can be forced in self-compiled Cantera installations by defining
- *      CT_NO_LEGACY_REACTIONS_26 via the 'no_legacy_reactions' option in SCons.
  */
 class ArrheniusBase
 {
@@ -165,12 +160,53 @@ protected:
  *   \f]
  *
  * @ingroup arrheniusGroup
+ *
+ * @todo supersedes Arrhenius2 and will replace Arrhenius(2) after Cantera 2.6,
+ *      The class should be renamed to Arrhenius after removal of Arrhenius2. The new
+ *      behavior can be forced in self-compiled Cantera installations by defining
+ *      CT_NO_LEGACY_REACTIONS_26 via the 'no_legacy_reactions' option in SCons.
  */
-class ArrheniusRate final : public ArrheniusBase, public ReactionRate
+class Arrhenius3 : public ArrheniusBase
+{
+public:
+    using ArrheniusBase::ArrheniusBase; // inherit constructors
+
+    const std::string rateType() const {
+        return "Arrhenius";
+    }
+
+    //! Evaluate derivative of reaction rate with respect to temperature
+    //! divided by reaction rate
+    /*!
+     *  @internal  Non-virtual method that should not be overloaded
+     */
+    double ddTScaled(double logT, double recipT) const {
+        return (m_Ea_R * recipT + m_b) * recipT;
+    }
+
+    //! Return the activation energy divided by the gas constant (i.e. the
+    //! activation temperature) [K]
+    double activationEnergy_R() const {
+        return m_Ea_R;
+    }
+};
+
+
+//! Arrhenius reaction rate type depends only on temperature
+/*!
+ * A reaction rate coefficient of the following form.
+ *
+ *   \f[
+ *        k_f =  A T^b \exp (-Ea/RT)
+ *   \f]
+ *
+ * @ingroup arrheniusGroup
+ */
+class ArrheniusRate final : public Arrhenius3, public ReactionRate
 {
 public:
     ArrheniusRate() = default;
-    using ArrheniusBase::ArrheniusBase; // inherit constructors
+    using Arrhenius3::Arrhenius3; // inherit constructors
 
     //! Constructor based on AnyMap content
     ArrheniusRate(const AnyMap& node, const UnitStack& rate_units={}) {
@@ -183,7 +219,7 @@ public:
 
     //! Identifier of reaction rate type
     virtual const std::string type() const override {
-        return "Arrhenius";
+        return Arrhenius3::rateType();
     }
 
     //! Perform object setup based on AnyMap node information
@@ -204,7 +240,7 @@ public:
      *  @param shared_data  data shared by all reactions of a given type
      */
     double evalFromStruct(const ReactionData& shared_data) const {
-        return m_A * std::exp(m_b * shared_data.logT - m_Ea_R * shared_data.recipT);
+        return evalRate(shared_data.logT, shared_data.recipT);
     }
 
     //! Evaluate derivative of reaction rate with respect to temperature
@@ -213,13 +249,7 @@ public:
      *  @param shared_data  data shared by all reactions of a given type
      */
     virtual double ddTScaledFromStruct(const ReactionData& shared_data) const {
-        return (m_Ea_R * shared_data.recipT + m_b) * shared_data.recipT;
-    }
-
-    //! Return the activation energy divided by the gas constant (i.e. the
-    //! activation temperature) [K]
-    double activationEnergy_R() const {
-        return m_Ea_R;
+        return ddTScaled(shared_data.logT, shared_data.recipT);
     }
 };
 
