@@ -9,7 +9,7 @@
 namespace Cantera
 {
 Arrhenius2::Arrhenius2()
-    : ArrheniusBase()
+    : Arrhenius3()
 {
     m_b = 0.0;
     m_A = 0.0;
@@ -17,7 +17,7 @@ Arrhenius2::Arrhenius2()
 }
 
 Arrhenius2::Arrhenius2(doublereal A, doublereal b, doublereal E)
-    : ArrheniusBase(A, b, E * GasConstant)
+    : Arrhenius3(A, b, E * GasConstant)
 {
     if (m_A  <= 0.0) {
         m_logA = -1.0E300;
@@ -30,10 +30,10 @@ Arrhenius2::Arrhenius2(const AnyValue& rate,
     setRateParameters(rate, units, rate_units);
 }
 
-Arrhenius2::Arrhenius2(const ArrheniusBase& other)
-    : ArrheniusBase(other.preExponentialFactor(),
-                    other.temperatureExponent(),
-                    other.activationEnergy())
+Arrhenius2::Arrhenius2(const Arrhenius3& other)
+    : Arrhenius3(other.preExponentialFactor(),
+                 other.temperatureExponent(),
+                 other.activationEnergy())
 {
 }
 
@@ -41,7 +41,7 @@ void Arrhenius2::setRateParameters(const AnyValue& rate,
                                    const UnitSystem& units, const Units& rate_units)
 {
     UnitStack units_stack(rate_units);
-    ArrheniusBase::setRateParameters(rate, units, units_stack);
+    Arrhenius3::setRateParameters(rate, units, units_stack);
     if (m_A <= 0.0) {
         m_logA = -1.0E300;
     }
@@ -103,7 +103,7 @@ PlogRate::PlogRate()
 {
 }
 
-PlogRate::PlogRate(const std::multimap<double, ArrheniusBase>& rates)
+PlogRate::PlogRate(const std::multimap<double, Arrhenius3>& rates)
     : PlogRate()
 {
     setRates(rates);
@@ -130,16 +130,16 @@ void PlogRate::setParameters(const AnyMap& node, const UnitStack& units)
 void PlogRate::setRateParameters(const std::vector<AnyMap>& rates,
                                  const UnitSystem& units, const Units& rate_units)
 {
-    std::multimap<double, ArrheniusBase> multi_rates;
+    std::multimap<double, Arrhenius3> multi_rates;
     if (rates.size()) {
         for (const auto& rate : rates) {
             multi_rates.insert({rate.convert("P", "Pa"),
-                ArrheniusBase(AnyValue(rate), units, rate_units)});
+                Arrhenius3(AnyValue(rate), units, rate_units)});
         }
     } else {
         // ensure that reaction rate can be evaluated (but returns NaN)
-        multi_rates.insert({1.e-7, ArrheniusBase(NAN, NAN, NAN)});
-        multi_rates.insert({1.e14, ArrheniusBase(NAN, NAN, NAN)});
+        multi_rates.insert({1.e-7, Arrhenius3(NAN, NAN, NAN)});
+        multi_rates.insert({1.e14, Arrhenius3(NAN, NAN, NAN)});
     }
     setRates(multi_rates);
 }
@@ -170,14 +170,14 @@ void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
 
 void PlogRate::setup(const std::multimap<double, Arrhenius2>& rates)
 {
-    std::multimap<double, ArrheniusBase> rates2;
+    std::multimap<double, Arrhenius3> rates2;
     for (const auto& item : rates) {
         rates2.emplace(item.first, item.second);
     }
     setRates(rates2);
 }
 
-void PlogRate::setRates(const std::multimap<double, ArrheniusBase>& rates)
+void PlogRate::setRates(const std::multimap<double, Arrhenius3>& rates)
 {
     size_t j = 0;
     rates_.clear();
@@ -238,9 +238,9 @@ std::vector<std::pair<double, Arrhenius2> > PlogRate::rates() const
     return out;
 }
 
-std::multimap<double, ArrheniusBase> PlogRate::getRates() const
+std::multimap<double, Arrhenius3> PlogRate::getRates() const
 {
-    std::multimap<double, ArrheniusBase> rateMap;
+    std::multimap<double, Arrhenius3> rateMap;
     // initial preincrement to skip rate for P --> 0
     for (auto iter = ++pressures_.begin();
             iter->first < 1000; // skip rates for (P --> infinity)

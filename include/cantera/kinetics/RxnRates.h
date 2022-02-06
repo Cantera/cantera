@@ -36,7 +36,7 @@ class Func1;
  *        k_f =  A T^b \exp (-E/RT)
  *   \f]
  */
-class Arrhenius2 : public ArrheniusBase
+class Arrhenius2 : public Arrhenius3
 {
 public:
     //! Default constructor.
@@ -57,11 +57,12 @@ public:
     Arrhenius2(const AnyValue& rate,
                const UnitSystem& units, const Units& rate_units);
 
-    Arrhenius2(const ArrheniusBase& other);
+    //! Converting constructor (to facilitate back-ward compatibility)
+    Arrhenius2(const Arrhenius3& other);
 
     void setRateParameters(const AnyValue& rate,
                            const UnitSystem& units, const Units& rate_units);
-    using ArrheniusBase::setRateParameters;
+    using Arrhenius3::setRateParameters;
 
     //! Return parameters - two-parameter version
     void getParameters(AnyMap& node, const Units& rate_units) const;
@@ -89,12 +90,6 @@ public:
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
         return m_A * std::exp(m_b*logT - m_Ea_R*recipT);
-    }
-
-    //! Return the activation energy divided by the gas constant (i.e. the
-    //! activation temperature) [K]
-    doublereal activationEnergy_R() const {
-        return m_Ea_R;
     }
 };
 
@@ -192,7 +187,7 @@ protected:
 
 
 #ifdef CT_NO_LEGACY_REACTIONS_26
-typedef ArrheniusBase Arrhenius;
+typedef Arrhenius3 Arrhenius;
 #else
 typedef Arrhenius2 Arrhenius;
 #endif
@@ -223,7 +218,7 @@ public:
     PlogRate();
 
     //! Constructor from Arrhenius rate expressions at a set of pressures
-    explicit PlogRate(const std::multimap<double, ArrheniusBase>& rates);
+    explicit PlogRate(const std::multimap<double, Arrhenius3>& rates);
 
     //! Constructor using legacy Arrhenius2 framework
     explicit PlogRate(const std::multimap<double, Arrhenius2>& rates);
@@ -285,7 +280,7 @@ public:
     void setup(const std::multimap<double, Arrhenius2>& rates);
 
     //! Set up Plog object
-    void setRates(const std::multimap<double, ArrheniusBase>& rates);
+    void setRates(const std::multimap<double, Arrhenius3>& rates);
 
     //! Update concentration-dependent parts of the rate coefficient.
     //! @param c natural log of the pressure in Pa
@@ -364,14 +359,14 @@ public:
 
     //! Return the pressures and Arrhenius expressions which comprise this
     //! reaction.
-    std::multimap<double, ArrheniusBase> getRates() const;
+    std::multimap<double, Arrhenius3> getRates() const;
 
 protected:
     //! log(p) to (index range) in the rates_ vector
     std::map<double, std::pair<size_t, size_t>> pressures_;
 
     // Rate expressions which are referenced by the indices stored in pressures_
-    std::vector<ArrheniusBase> rates_;
+    std::vector<Arrhenius3> rates_;
 
     double logP_; //!< log(p) at the current state
     double logP1_, logP2_; //!< log(p) at the lower / upper pressure reference

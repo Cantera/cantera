@@ -21,9 +21,9 @@ void FalloffRate::init(const vector_fp& c)
     setFalloffCoeffs(c);
 }
 
-void FalloffRate::setLowRate(const ArrheniusBase& low)
+void FalloffRate::setLowRate(const Arrhenius3& low)
 {
-    ArrheniusBase _low = low;
+    Arrhenius3 _low = low;
     _low.setAllowNegativePreExponentialFactor(m_negativeA_ok);
     _low.checkRate("", AnyMap());
     if (_low.preExponentialFactor() * m_highRate.preExponentialFactor() < 0.) {
@@ -34,9 +34,9 @@ void FalloffRate::setLowRate(const ArrheniusBase& low)
     m_lowRate = std::move(_low);
 }
 
-void FalloffRate::setHighRate(const ArrheniusBase& high)
+void FalloffRate::setHighRate(const Arrhenius3& high)
 {
-    ArrheniusBase _high = high;
+    Arrhenius3 _high = high;
     _high.setAllowNegativePreExponentialFactor(m_negativeA_ok);
     _high.checkRate("", AnyMap());
     if (m_lowRate.preExponentialFactor() * _high.preExponentialFactor() < 0.) {
@@ -83,12 +83,12 @@ void FalloffRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
         }
     }
     if (node.hasKey("low-P-rate-constant")) {
-        m_lowRate = ArrheniusBase(
+        m_lowRate = Arrhenius3(
             node["low-P-rate-constant"], node.units(), low_rate_units);
         m_lowRate.setAllowNegativePreExponentialFactor(m_negativeA_ok);
     }
     if (node.hasKey("high-P-rate-constant")) {
-        m_highRate = ArrheniusBase(
+        m_highRate = Arrhenius3(
             node["high-P-rate-constant"], node.units(), high_rate_units);
         m_highRate.setAllowNegativePreExponentialFactor(m_negativeA_ok);
     }

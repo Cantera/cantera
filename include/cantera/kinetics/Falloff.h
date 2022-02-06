@@ -188,24 +188,24 @@ public:
     }
 
     //! Get reaction rate in the low-pressure limit
-    ArrheniusBase& lowRate() {
+    Arrhenius3& lowRate() {
         return m_lowRate;
     }
 
     //! Set reaction rate in the low-pressure limit
-    void setLowRate(const ArrheniusBase& low);
+    void setLowRate(const Arrhenius3& low);
 
     //! Get reaction rate in the high-pressure limit
-    ArrheniusBase& highRate() {
+    Arrhenius3& highRate() {
         return m_highRate;
     }
 
     //! Set reaction rate in the high-pressure limit
-    void setHighRate(const ArrheniusBase& high);
+    void setHighRate(const Arrhenius3& high);
 
 protected:
-    ArrheniusBase m_lowRate; //!< The reaction rate in the low-pressure limit
-    ArrheniusBase m_highRate; //!< The reaction rate in the high-pressure limit
+    Arrhenius3 m_lowRate; //!< The reaction rate in the low-pressure limit
+    Arrhenius3 m_highRate; //!< The reaction rate in the high-pressure limit
 
     bool m_chemicallyActivated; //!< Flag labeling reaction as chemically activated
     bool m_negativeA_ok; //!< Flag indicating whether negative A values are permitted
@@ -234,7 +234,7 @@ public:
     }
 
     LindemannRate(
-        const ArrheniusBase& low, const ArrheniusBase& high, const vector_fp& c)
+        const Arrhenius3& low, const Arrhenius3& high, const vector_fp& c)
         : LindemannRate()
     {
         m_lowRate = low;
@@ -295,7 +295,7 @@ public:
         setParameters(node, rate_units);
     }
 
-    TroeRate(const ArrheniusBase& low, const ArrheniusBase& high, const vector_fp& c)
+    TroeRate(const Arrhenius3& low, const Arrhenius3& high, const vector_fp& c)
         : TroeRate()
     {
         m_lowRate = low;
@@ -397,7 +397,7 @@ public:
         setParameters(node, rate_units);
     }
 
-    SriRate(const ArrheniusBase& low, const ArrheniusBase& high, const vector_fp& c)
+    SriRate(const Arrhenius3& low, const Arrhenius3& high, const vector_fp& c)
         : SriRate()
     {
         m_lowRate = low;
@@ -507,7 +507,7 @@ public:
         setParameters(node, rate_units);
     }
 
-    TsangRate(const ArrheniusBase& low, const ArrheniusBase& high, const vector_fp& c)
+    TsangRate(const Arrhenius3& low, const Arrhenius3& high, const vector_fp& c)
         : TsangRate()
     {
         m_lowRate = low;
