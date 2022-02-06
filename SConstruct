@@ -268,7 +268,7 @@ config_options = [
            will be installed to the system default 'site-packages' directory.
            To install to the current user's 'site-packages' directory, use
            'python_prefix=USER'.""",
-        {"Windows": "", "default": "$prefix"},
+        {"default": ""},
         PathVariable.PathAccept),
     EnumOption(
         "matlab_toolbox",
