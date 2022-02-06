@@ -117,8 +117,8 @@ public:
     //! Set context of reaction rate evaluation
     //! @param rxn  Reaction object associated with rate
     //! @param kin  Kinetics object used for rate evaluation
-    //! This method allows for passing of information when a ReactionRate is added
-    //! to Kinetics a MultiRate reaction evaluator.
+    //! This method allows for passing of information specific to the associated
+    //! reaction when a ReactionRate object is added a MultiRate reaction evaluator.
     virtual void setContext(const Reaction& rxn, const Kinetics& kin) {
     }
 

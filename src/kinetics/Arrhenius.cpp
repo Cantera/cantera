@@ -181,36 +181,12 @@ BlowersMasel::BlowersMasel(double A, double b, double Ea0, double w)
     m_E4_R = w / GasConstant;
 }
 
-double BlowersMasel::ddTScaled(double logT, double recipT) const
+double BlowersMasel::ddTScaled(const BlowersMaselData& shared_data) const
 {
-    warn_user("BlowersMaselRate::ddTScaledFromStruct",
+    warn_user("BlowersMasel::ddTScaledFromStruct",
         "Temperature derivative does not consider changes of reaction enthalpy.");
-    double Ea_R = activationEnergy_R(m_deltaH_R);
-    return m_A * std::exp(m_b * logT - Ea_R * recipT);
-}
-
-void BlowersMaselRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
-{
-    m_negativeA_ok = node.getBool("negative-A", false);
-    if (!node.hasKey("rate-constant")) {
-        setRateParameters(AnyValue(), node.units(), rate_units);
-        return;
-    }
-    setRateParameters(node["rate-constant"], node.units(), rate_units);
-}
-
-void BlowersMaselRate::getParameters(AnyMap& rateNode) const
-{
-    if (m_negativeA_ok) {
-        rateNode["negative-A"] = true;
-    }
-    AnyMap node;
-    ArrheniusBase::getRateParameters(node);
-    if (!node.empty()) {
-        // object is configured
-        rateNode["rate-constant"] = std::move(node);
-    }
-    rateNode["type"] = type();
+    double Ea_R = effectiveActivationEnergy_R(m_deltaH_R);
+    return (Ea_R * shared_data.recipT + m_b) * shared_data.recipT;
 }
 
 void BlowersMasel::setRateContext(const Reaction& rxn, const Kinetics& kin)
