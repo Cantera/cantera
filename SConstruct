@@ -586,10 +586,10 @@ config_options = [
         True),
     BoolOption(
         "no_legacy_reactions",
-        """If disabled (default), legacy 'Reaction' and associated rate objects that
-           are deprecated in Cantera 2.6 are used. If disabled, internal objects will
-           use new objects introduced in Cantera 2.6. The flag is used for testing
-           purposes only and has no effect on results.""",
+        """If disabled ('no'/default), legacy 'Reaction' and associated rate objects
+           that are deprecated in Cantera 2.6 are used. If enabled ('yes'), internal
+           objects will use new objects introduced in Cantera 2.6. The flag is used
+           for testing purposes only and has no effect on results.""",
         False),
 ]
 
