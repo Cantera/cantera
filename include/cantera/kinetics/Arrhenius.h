@@ -160,91 +160,32 @@ public:
     }
 
     //! Evaluate reaction rate
-    /*!
-     *  @internal  Non-virtual method that should not be overloaded
-     */
+    //! @internal  Non-virtual method that should not be overloaded
     double evalRate(double logT, double recipT) const {
         return m_A * std::exp(m_b * logT - m_Ea_R * recipT);
     }
 
     //! Evaluate natural logarithm of the rate constant.
-    /*!
-     *  @internal  Non-virtual method that should not be overloaded
-     */
+    //! @internal  Non-virtual method that should not be overloaded
     double evalLog(double logT, double recipT) const {
         return m_logA + m_b * logT - m_Ea_R * recipT;
     }
 
+    //! Evaluate reaction rate
+    double evalRate(const ArrheniusData& shared_data) const {
+        return m_A * std::exp(m_b * shared_data.logT - m_Ea_R * shared_data.recipT);
+    }
+
     //! Evaluate derivative of reaction rate with respect to temperature
     //! divided by reaction rate
-    /*!
-     *  @internal  Non-virtual method that should not be overloaded
-     */
-    double ddTScaled(double logT, double recipT) const {
-        return (m_Ea_R * recipT + m_b) * recipT;
+    double ddTScaled(const ArrheniusData& shared_data) const {
+        return (m_Ea_R * shared_data.recipT + m_b) * shared_data.recipT;
     }
 
     //! Return the activation energy divided by the gas constant (i.e. the
     //! activation temperature) [K]
     double activationEnergy_R() const {
         return m_Ea_R;
-    }
-};
-
-
-//! Arrhenius reaction rate type depends only on temperature
-/*!
- * A reaction rate coefficient of the following form.
- *
- *   \f[
- *        k_f =  A T^b \exp (-Ea/RT)
- *   \f]
- *
- * @ingroup arrheniusGroup
- */
-class ArrheniusRate final : public Arrhenius3, public ReactionRate
-{
-public:
-    ArrheniusRate() = default;
-    using Arrhenius3::Arrhenius3; // inherit constructors
-
-    //! Constructor based on AnyMap content
-    ArrheniusRate(const AnyMap& node, const UnitStack& rate_units={}) {
-        setParameters(node, rate_units);
-    }
-
-    unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(new MultiRate<ArrheniusRate, ArrheniusData>);
-    }
-
-    //! Identifier of reaction rate type
-    virtual const std::string type() const override {
-        return Arrhenius3::rateType();
-    }
-
-    virtual void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
-
-    virtual void getParameters(AnyMap& node) const override;
-
-    void check(const std::string& equation, const AnyMap& node) override {
-        checkRate(equation, node);
-    }
-
-    //! Evaluate reaction rate
-    /*!
-     *  @param shared_data  data shared by all reactions of a given type
-     */
-    double evalFromStruct(const ReactionData& shared_data) const {
-        return evalRate(shared_data.logT, shared_data.recipT);
-    }
-
-    //! Evaluate derivative of reaction rate with respect to temperature
-    //! divided by reaction rate
-    /*!
-     *  @param shared_data  data shared by all reactions of a given type
-     */
-    virtual double ddTScaledFromStruct(const ReactionData& shared_data) const {
-        return ddTScaled(shared_data.logT, shared_data.recipT);
     }
 };
 
@@ -534,6 +475,76 @@ public:
         return ddTScaled(shared_data.logT, shared_data.recipT);
     }
 };
+
+
+//! Template for bulk phase reaction rate specifications
+template <class RateType, class DataType>
+class BulkRate final : public RateType, public ReactionRate
+{
+public:
+    BulkRate() = default;
+    using RateType::RateType; // inherit constructors
+
+    //! Constructor based on AnyMap content
+    BulkRate(const AnyMap& node, const UnitStack& rate_units={}) {
+        setParameters(node, rate_units);
+    }
+
+    unique_ptr<MultiRateBase> newMultiRate() const override {
+        return unique_ptr<MultiRateBase>(
+            new MultiRate<BulkRate<RateType, DataType>, DataType>);
+    }
+
+    virtual const std::string type() const override {
+        return RateType::rateType();
+    }
+
+    virtual void setParameters(
+        const AnyMap& node, const UnitStack& rate_units) override
+    {
+        RateType::m_negativeA_ok = node.getBool("negative-A", false);
+        if (!node.hasKey("rate-constant")) {
+            RateType::setRateParameters(AnyValue(), node.units(), rate_units);
+            return;
+        }
+        RateType::setRateParameters(node["rate-constant"], node.units(), rate_units);
+    }
+
+    virtual void getParameters(AnyMap& node) const override {
+        if (RateType::m_negativeA_ok) {
+            node["negative-A"] = true;
+        }
+        AnyMap rateNode;
+        RateType::getRateParameters(rateNode);
+        if (!rateNode.empty()) {
+            // RateType object is configured
+            node["rate-constant"] = std::move(rateNode);
+        }
+    }
+
+    void check(const std::string& equation, const AnyMap& node) override {
+        checkRate(equation, node);
+    }
+
+    //! Evaluate reaction rate
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    double evalFromStruct(const DataType& shared_data) const {
+        return evalRate(shared_data);
+    }
+
+    //! Evaluate derivative of reaction rate with respect to temperature
+    //! divided by reaction rate
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    double ddTScaledFromStruct(const DataType& shared_data) const {
+        return ddTScaled(shared_data);
+    }
+};
+
+typedef BulkRate<Arrhenius3, ArrheniusData> ArrheniusRate;
 
 }
 
