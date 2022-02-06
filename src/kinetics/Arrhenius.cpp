@@ -126,30 +126,6 @@ void ArrheniusBase::checkRate(const std::string& equation, const AnyMap& node)
     }
 }
 
-void ArrheniusRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
-{
-    m_negativeA_ok = node.getBool("negative-A", false);
-    if (!node.hasKey("rate-constant")) {
-        ArrheniusBase::setRateParameters(AnyValue(), node.units(), rate_units);
-        return;
-    }
-
-    ArrheniusBase::setRateParameters(node["rate-constant"], node.units(), rate_units);
-}
-
-void ArrheniusRate::getParameters(AnyMap& rateNode) const
-{
-    if (m_negativeA_ok) {
-        rateNode["negative-A"] = true;
-    }
-    AnyMap node;
-    ArrheniusBase::getRateParameters(node);
-    if (!node.empty()) {
-        // Arrhenius object is configured
-        rateNode["rate-constant"] = std::move(node);
-    }
-}
-
 TwoTempPlasmaRate::TwoTempPlasmaRate()
     : ArrheniusBase()
 {
