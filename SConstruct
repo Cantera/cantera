@@ -876,7 +876,7 @@ env['cantera_short_version'] = re.match(r'(\d+\.\d+)', env['cantera_version']).g
 try:
     env["git_commit"] = get_command_output("git", "rev-parse", "--short", "HEAD")
     logger.info(f"Building Cantera from git commit '{env['git_commit']}'")
-except subprocess.CalledProcessError:
+except (subprocess.CalledProcessError, FileNotFoundError):
     env["git_commit"] = "unknown"
 
 # Print values of all build options:
@@ -2135,23 +2135,6 @@ def getParentDirs(path, top=True):
 # Files installed by SCons
 allfiles = FindInstalledFiles()
 
-# Files installed by the Python installer
-if os.path.exists('build/python-installed-files.txt'):
-    with open('build/python-installed-files.txt', 'r') as f:
-        file_list = f.readlines()
-
-    install_base = os.path.dirname(file_list[0].strip())
-    if os.path.exists(install_base):
-        not_listed_files = [s for s in os.listdir(install_base) if not any(s in j for j in file_list)]
-        for f in not_listed_files:
-            f = pjoin(install_base, f)
-            if not os.path.isdir(f) and os.path.exists(f):
-                allfiles.append(File(f))
-    for f in file_list:
-        f = f.strip()
-        if not os.path.isdir(f) and os.path.exists(f):
-            allfiles.append(File(f))
-
 # After removing files (which SCons keeps track of),
 # remove any empty directories (which SCons doesn't track)
 def removeDirectories(target, source, env):
@@ -2177,6 +2160,8 @@ def removeDirectories(target, source, env):
 
 uninstall = env.Command("uninstall", None, Delete(allfiles))
 env.AddPostAction(uninstall, Action(removeDirectories))
+if env["python_package"] == "full":
+    env.AddPostAction(uninstall, Action("$python_cmd_esc -m pip uninstall Cantera"))
 
 ### Windows MSI Installer ###
 if 'msi' in COMMAND_LINE_TARGETS:
