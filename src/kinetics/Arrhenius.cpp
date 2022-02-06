@@ -189,14 +189,14 @@ void TwoTempPlasmaRate::getParameters(AnyMap& rateNode) const
     rateNode["type"] = type();
 }
 
-BlowersMaselRate::BlowersMaselRate()
+BlowersMasel::BlowersMasel()
     : m_deltaH_R(0.)
 {
     m_Ea_str = "Ea0";
     m_E4_str = "w";
 }
 
-BlowersMaselRate::BlowersMaselRate(double A, double b, double Ea0, double w)
+BlowersMasel::BlowersMasel(double A, double b, double Ea0, double w)
     : ArrheniusBase(A, b, Ea0)
     , m_deltaH_R(0.)
 {
@@ -205,12 +205,12 @@ BlowersMaselRate::BlowersMaselRate(double A, double b, double Ea0, double w)
     m_E4_R = w / GasConstant;
 }
 
-double BlowersMaselRate::ddTScaledFromStruct(const BlowersMaselData& shared_data) const
+double BlowersMasel::ddTScaled(double logT, double recipT) const
 {
     warn_user("BlowersMaselRate::ddTScaledFromStruct",
         "Temperature derivative does not consider changes of reaction enthalpy.");
     double Ea_R = activationEnergy_R(m_deltaH_R);
-    return m_A * std::exp(m_b * shared_data.logT - Ea_R * shared_data.recipT);
+    return m_A * std::exp(m_b * logT - Ea_R * recipT);
 }
 
 void BlowersMaselRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
@@ -237,7 +237,7 @@ void BlowersMaselRate::getParameters(AnyMap& rateNode) const
     rateNode["type"] = type();
 }
 
-void BlowersMaselRate::setContext(const Reaction& rxn, const Kinetics& kin)
+void BlowersMasel::setRateContext(const Reaction& rxn, const Kinetics& kin)
 {
     m_stoich_coeffs.clear();
     for (const auto& sp : rxn.reactants) {

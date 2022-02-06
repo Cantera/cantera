@@ -372,11 +372,11 @@ public:
  *
  * @ingroup arrheniusGroup
  */
-class BlowersMaselRate final : public ArrheniusBase, public ReactionRate
+class BlowersMasel : public ArrheniusBase
 {
 public:
     //! Default constructor.
-    BlowersMaselRate();
+    BlowersMasel();
 
     //! Constructor.
     /*!
@@ -387,46 +387,19 @@ public:
      *  @param w  Average bond dissociation energy of the bond being formed and
      *      broken in the reaction, in energy units [J/kmol]
      */
-    BlowersMaselRate(double A, double b, double Ea0, double w);
+    BlowersMasel(double A, double b, double Ea0, double w);
 
-    unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(
-            new MultiRate<BlowersMaselRate, BlowersMaselData>);
-    }
-
-    //! Constructor based on AnyMap content
-    BlowersMaselRate(const AnyMap& node, const UnitStack& rate_units={})
-        : BlowersMaselRate()
-    {
-        setParameters(node, rate_units);
-    }
-
-    //! Identifier of reaction rate type
-    virtual const std::string type() const override {
+    const std::string rateType() const {
         return "Blowers-Masel";
     }
 
-    //! Perform object setup based on AnyMap node information
-    /*!
-     *  @param node  AnyMap containing rate information
-     *  @param rate_units  Unit definitions specific to rate information
-     */
-    virtual void setParameters(
-        const AnyMap& node, const UnitStack& rate_units) override;
-
-    virtual void getParameters(AnyMap& node) const override;
-
-    void check(const std::string& equation, const AnyMap& node) override {
-        checkRate(equation, node);
-    }
-
-    virtual void setContext(const Reaction& rxn, const Kinetics& kin) override;
+    virtual void setRateContext(const Reaction& rxn, const Kinetics& kin);
 
     //! Update information specific to reaction
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    void updateFromStruct(const BlowersMaselData& shared_data) {
+    void updateRate(const BlowersMaselData& shared_data) {
         if (shared_data.ready) {
             m_deltaH_R = 0.;
             for (const auto& item : m_stoich_coeffs) {
@@ -440,22 +413,22 @@ public:
 
     //! Evaluate reaction rate
     /*!
-     *  @param shared_data  data shared by all reactions of a given type
+     *  @internal  Non-virtual method that should not be overloaded
      */
-    double evalFromStruct(const BlowersMaselData& shared_data) {
+    double evalRate(double logT, double recipT) const {
         double Ea_R = activationEnergy_R(m_deltaH_R);
-        return m_A * std::exp(m_b * shared_data.logT - Ea_R * shared_data.recipT);
+        return m_A * std::exp(m_b * logT - Ea_R * recipT);
     }
 
     //! Evaluate derivative of reaction rate with respect to temperature
     //! divided by reaction rate
     /*!
-     *  This method is used to override the numerical derivative, which does not
-     *  consider potential changes due to a changed reaction enthalpy. A corresponding
-     *  warning is raised.
-     *  @param shared_data  data shared by all reactions of a given type
+     *  This method does not consider potential changes due to a changed reaction
+     *  enthalpy. A corresponding warning is raised.
+     *
+     *  @internal  Non-virtual method that should not be overloaded
      */
-    virtual double ddTScaledFromStruct(const BlowersMaselData& shared_data) const;
+    double ddTScaled(double logT, double recipT) const;
 
     //! Return the effective activation energy (a function of the delta H of reaction)
     //! divided by the gas constant (i.e. the activation temperature) [K]
@@ -493,7 +466,75 @@ protected:
     double m_deltaH_R; //!< enthalpy change of reaction (in temperature units)
 };
 
-}
 
+class BlowersMaselRate final : public BlowersMasel, public ReactionRate
+{
+public:
+    using BlowersMasel::BlowersMasel; // inherit constructors
+
+    unique_ptr<MultiRateBase> newMultiRate() const {
+        return unique_ptr<MultiRateBase>(
+            new MultiRate<BlowersMaselRate, BlowersMaselData>);
+    }
+
+    //! Constructor based on AnyMap content
+    BlowersMaselRate(const AnyMap& node, const UnitStack& rate_units={})
+        : BlowersMasel()
+    {
+        setParameters(node, rate_units);
+    }
+
+    //! Identifier of reaction rate type
+    virtual const std::string type() const {
+        return BlowersMasel::rateType();
+    }
+
+    //! Perform object setup based on AnyMap node information
+    /*!
+     *  @param node  AnyMap containing rate information
+     *  @param rate_units  Unit definitions specific to rate information
+     */
+    virtual void setParameters(const AnyMap& node, const UnitStack& rate_units);
+
+    virtual void getParameters(AnyMap& node) const;
+
+    void check(const std::string& equation, const AnyMap& node) override {
+        checkRate(equation, node);
+    }
+
+    virtual void setContext(const Reaction& rxn, const Kinetics& kin) override {
+        setRateContext(rxn, kin);
+    }
+
+    //! Update information specific to reaction
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    void updateFromStruct(const BlowersMaselData& shared_data) {
+        updateRate(shared_data);
+    }
+
+    //! Evaluate reaction rate
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    double evalFromStruct(const BlowersMaselData& shared_data) {
+        return evalRate(shared_data.logT, shared_data.recipT);
+    }
+
+    //! Evaluate derivative of reaction rate with respect to temperature
+    //! divided by reaction rate
+    /*!
+     *  This method is used to override the numerical derivative, which does not
+     *  consider potential changes due to a changed reaction enthalpy. A corresponding
+     *  warning is raised.
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    virtual double ddTScaledFromStruct(const BlowersMaselData& shared_data) const {
+        return ddTScaled(shared_data.logT, shared_data.recipT);
+    }
+};
+
+}
 
 #endif
