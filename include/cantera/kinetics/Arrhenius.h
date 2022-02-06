@@ -364,7 +364,7 @@ public:
      */
     BlowersMaselRate(double A, double b, double Ea0, double w);
 
-    unique_ptr<MultiRateBase> newMultiRate() const {
+    unique_ptr<MultiRateBase> newMultiRate() const override {
         return unique_ptr<MultiRateBase>(
             new MultiRate<BlowersMaselRate, BlowersMaselData>);
     }
@@ -377,7 +377,7 @@ public:
     }
 
     //! Identifier of reaction rate type
-    virtual const std::string type() const {
+    virtual const std::string type() const override {
         return "Blowers-Masel";
     }
 
@@ -386,9 +386,10 @@ public:
      *  @param node  AnyMap containing rate information
      *  @param rate_units  Unit definitions specific to rate information
      */
-    virtual void setParameters(const AnyMap& node, const UnitStack& rate_units);
+    virtual void setParameters(
+        const AnyMap& node, const UnitStack& rate_units) override;
 
-    virtual void getParameters(AnyMap& node) const;
+    virtual void getParameters(AnyMap& node) const override;
 
     void check(const std::string& equation, const AnyMap& node) override {
         checkRate(equation, node);
