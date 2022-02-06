@@ -88,6 +88,12 @@ public:
         return m_Ea_R * GasConstant;
     }
 
+    //! Return the activation energy divided by the gas constant (i.e. the
+    //! activation temperature) [K]
+    double activationEnergy_R() const {
+        return m_Ea_R;
+    }
+
     // Return units of the reaction rate expression
     const Units& rateUnits() const {
         return m_rate_units;
@@ -159,6 +165,10 @@ public:
         return "Arrhenius";
     }
 
+    //! Context (unused)
+    void setRateContext(const Reaction& rxn, const Kinetics& kin) {
+    }
+
     //! Evaluate reaction rate
     //! @internal  Non-virtual method that should not be overloaded
     double evalRate(double logT, double recipT) const {
@@ -180,12 +190,6 @@ public:
     //! divided by reaction rate
     double ddTScaled(const ArrheniusData& shared_data) const {
         return (m_Ea_R * shared_data.recipT + m_b) * shared_data.recipT;
-    }
-
-    //! Return the activation energy divided by the gas constant (i.e. the
-    //! activation temperature) [K]
-    double activationEnergy_R() const {
-        return m_Ea_R;
     }
 };
 
@@ -334,13 +338,11 @@ public:
         return "Blowers-Masel";
     }
 
-    virtual void setRateContext(const Reaction& rxn, const Kinetics& kin);
+    void setRateContext(const Reaction& rxn, const Kinetics& kin);
 
     //! Update information specific to reaction
-    /*!
-     *  @param shared_data  data shared by all reactions of a given type
-     */
-    void updateRate(const BlowersMaselData& shared_data) {
+    //! @todo  Move to BulkRate (as template function via std::enable_if)
+    void updateFromStruct(const BlowersMaselData& shared_data) {
         if (shared_data.ready) {
             m_deltaH_R = 0.;
             for (const auto& item : m_stoich_coeffs) {
@@ -353,12 +355,10 @@ public:
     }
 
     //! Evaluate reaction rate
-    /*!
-     *  @internal  Non-virtual method that should not be overloaded
-     */
-    double evalRate(double logT, double recipT) const {
-        double Ea_R = activationEnergy_R(m_deltaH_R);
-        return m_A * std::exp(m_b * logT - Ea_R * recipT);
+    //! @internal  Non-virtual method that should not be overloaded
+    double evalRate(const BlowersMaselData& shared_data) const {
+        double Ea_R = effectiveActivationEnergy_R(m_deltaH_R);
+        return m_A * std::exp(m_b * shared_data.logT - Ea_R * shared_data.recipT);
     }
 
     //! Evaluate derivative of reaction rate with respect to temperature
@@ -366,14 +366,13 @@ public:
     /*!
      *  This method does not consider potential changes due to a changed reaction
      *  enthalpy. A corresponding warning is raised.
-     *
      *  @internal  Non-virtual method that should not be overloaded
      */
-    double ddTScaled(double logT, double recipT) const;
+    double ddTScaled(const BlowersMaselData& shared_data) const;
 
     //! Return the effective activation energy (a function of the delta H of reaction)
     //! divided by the gas constant (i.e. the activation temperature) [K]
-    double activationEnergy_R(double deltaH_R) const {
+    double effectiveActivationEnergy_R(double deltaH_R) const {
         if (deltaH_R < -4 * m_Ea_R) {
             return 0.;
         }
@@ -392,7 +391,7 @@ public:
      *  @param deltaH  Enthalpy change of reaction [J/kmol]
      */
     double effectiveActivationEnergy(double deltaH) const {
-        return activationEnergy_R(deltaH / GasConstant) * GasConstant;
+        return effectiveActivationEnergy_R(deltaH / GasConstant) * GasConstant;
     }
 
     //! Return the bond dissociation energy *w* [J/kmol]
@@ -408,76 +407,7 @@ protected:
 };
 
 
-class BlowersMaselRate final : public BlowersMasel, public ReactionRate
-{
-public:
-    using BlowersMasel::BlowersMasel; // inherit constructors
-
-    unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(
-            new MultiRate<BlowersMaselRate, BlowersMaselData>);
-    }
-
-    //! Constructor based on AnyMap content
-    BlowersMaselRate(const AnyMap& node, const UnitStack& rate_units={})
-        : BlowersMasel()
-    {
-        setParameters(node, rate_units);
-    }
-
-    //! Identifier of reaction rate type
-    virtual const std::string type() const {
-        return BlowersMasel::rateType();
-    }
-
-    //! Perform object setup based on AnyMap node information
-    /*!
-     *  @param node  AnyMap containing rate information
-     *  @param rate_units  Unit definitions specific to rate information
-     */
-    virtual void setParameters(const AnyMap& node, const UnitStack& rate_units);
-
-    virtual void getParameters(AnyMap& node) const;
-
-    void check(const std::string& equation, const AnyMap& node) override {
-        checkRate(equation, node);
-    }
-
-    virtual void setContext(const Reaction& rxn, const Kinetics& kin) override {
-        setRateContext(rxn, kin);
-    }
-
-    //! Update information specific to reaction
-    /*!
-     *  @param shared_data  data shared by all reactions of a given type
-     */
-    void updateFromStruct(const BlowersMaselData& shared_data) {
-        updateRate(shared_data);
-    }
-
-    //! Evaluate reaction rate
-    /*!
-     *  @param shared_data  data shared by all reactions of a given type
-     */
-    double evalFromStruct(const BlowersMaselData& shared_data) {
-        return evalRate(shared_data.logT, shared_data.recipT);
-    }
-
-    //! Evaluate derivative of reaction rate with respect to temperature
-    //! divided by reaction rate
-    /*!
-     *  This method is used to override the numerical derivative, which does not
-     *  consider potential changes due to a changed reaction enthalpy. A corresponding
-     *  warning is raised.
-     *  @param shared_data  data shared by all reactions of a given type
-     */
-    virtual double ddTScaledFromStruct(const BlowersMaselData& shared_data) const {
-        return ddTScaled(shared_data.logT, shared_data.recipT);
-    }
-};
-
-
-//! Template for bulk phase reaction rate specifications
+//! A class template for bulk phase reaction rate specifications
 template <class RateType, class DataType>
 class BulkRate final : public RateType, public ReactionRate
 {
@@ -520,10 +450,18 @@ public:
             // RateType object is configured
             node["rate-constant"] = std::move(rateNode);
         }
+        if (RateType::rateType() != "Arrhenius") {
+            node["type"] = type();
+        }
     }
 
     void check(const std::string& equation, const AnyMap& node) override {
         checkRate(equation, node);
+    }
+
+    virtual void setContext(const Reaction& rxn, const Kinetics& kin) override {
+        // as this method is virtual, it cannot be templated
+        setRateContext(rxn, kin);
     }
 
     //! Evaluate reaction rate
@@ -545,6 +483,7 @@ public:
 };
 
 typedef BulkRate<Arrhenius3, ArrheniusData> ArrheniusRate;
+typedef BulkRate<BlowersMasel, BlowersMaselData> BlowersMaselRate;
 
 }
 

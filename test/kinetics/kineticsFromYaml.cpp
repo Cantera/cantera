@@ -289,9 +289,9 @@ TEST(Reaction, BlowersMaselFromYaml)
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), -38.7);
     EXPECT_DOUBLE_EQ(rate->activationEnergy(), E_intrinsic);
     EXPECT_DOUBLE_EQ(rate->bondEnergy(), w);
-    EXPECT_DOUBLE_EQ(rate->activationEnergy_R(H_big_R), H_big_R);
-    EXPECT_DOUBLE_EQ(rate->activationEnergy_R(H_small_R), 0);
-    EXPECT_NEAR(rate->activationEnergy_R(H_mid_R), Ea / GasConstant, 1e-7);
+    EXPECT_DOUBLE_EQ(rate->effectiveActivationEnergy_R(H_big_R), H_big_R);
+    EXPECT_DOUBLE_EQ(rate->effectiveActivationEnergy_R(H_small_R), 0);
+    EXPECT_NEAR(rate->effectiveActivationEnergy_R(H_mid_R), Ea / GasConstant, 1e-7);
     EXPECT_TRUE(rate->allowNegativePreExponentialFactor());
     EXPECT_FALSE(R->allow_negative_orders);
 }
