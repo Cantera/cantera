@@ -210,12 +210,13 @@ public:
  * Kinetic scheme of the non-equilibrium discharge in nitrogen-oxygen mixtures.
  * Plasma Sources Science and Technology, 1(3), 207.
  * doi: 10.1088/0963-0252/1/3/011
+ *
  * @ingroup arrheniusGroup
  */
-class TwoTempPlasmaRate final : public ArrheniusBase, public ReactionRate
+class TwoTempPlasma : public ArrheniusBase
 {
 public:
-    TwoTempPlasmaRate();
+    TwoTempPlasma();
 
     //! Constructor.
     /*!
@@ -225,43 +226,19 @@ public:
      *  @param Ea  Activation energy in energy units [J/kmol]
      *  @param EE  Activation electron energy in energy units [J/kmol]
      */
-    TwoTempPlasmaRate(double A, double b, double Ea=0.0, double EE=0.0);
+    TwoTempPlasma(double A, double b, double Ea=0.0, double EE=0.0);
 
-    unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(
-            new MultiRate<TwoTempPlasmaRate, TwoTempPlasmaData>);
-    }
-
-    //! Constructor based on AnyMap content
-    TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_units={})
-        : TwoTempPlasmaRate()
-    {
-        setParameters(node, rate_units);
-    }
-
-    //! Identifier of reaction rate type
-    virtual const std::string type() const override {
+    const std::string rateType() const {
         return "two-temperature-plasma";
     }
 
-    //! Perform object setup based on AnyMap node information
-    /*!
-     *  @param node  AnyMap containing rate information
-     *  @param rate_units  Unit definitions specific to rate information
-     */
-    virtual void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
-
-    virtual void getParameters(AnyMap& node) const override;
-
-    void check(const std::string& equation, const AnyMap& node) override {
-        checkRate(equation, node);
+    //! Context (unused)
+    void setRateContext(const Reaction& rxn, const Kinetics& kin) {
     }
 
     //! Evaluate reaction rate
-    /*!
-     *  @param shared_data  data shared by all reactions of a given type
-     */
-    double evalFromStruct(const TwoTempPlasmaData& shared_data) {
+    //! @internal  Non-virtual method that should not be overloaded
+    double evalRate(const TwoTempPlasmaData& shared_data) const {
         // m_E4_R is the electron activation (in temperature units)
         return m_A * std::exp(m_b * shared_data.logTe -
                               m_Ea_R * shared_data.recipT +
@@ -269,11 +246,14 @@ public:
                               * shared_data.recipTe * shared_data.recipT);
     }
 
-    //! Return the activation energy divided by the gas constant (i.e. the
-    //! activation temperature) [K]
-    double activationEnergy_R() const {
-        return m_Ea_R;
-    }
+    //! Evaluate derivative of reaction rate with respect to temperature
+    //! divided by reaction rate
+    /*!
+     *  This method does not consider changes of electron temperature.
+     *  A corresponding warning is raised.
+     *  @internal  Non-virtual method that should not be overloaded
+     */
+    double ddTScaled(const TwoTempPlasmaData& shared_data) const;
 
     //! Return the electron activation energy *Ea* [J/kmol]
     double activationElectronEnergy() const {
@@ -338,6 +318,7 @@ public:
         return "Blowers-Masel";
     }
 
+    //! Set context
     void setRateContext(const Reaction& rxn, const Kinetics& kin);
 
     //! Update information specific to reaction
@@ -456,12 +437,12 @@ public:
     }
 
     void check(const std::string& equation, const AnyMap& node) override {
-        checkRate(equation, node);
+        RateType::checkRate(equation, node);
     }
 
     virtual void setContext(const Reaction& rxn, const Kinetics& kin) override {
         // as this method is virtual, it cannot be templated
-        setRateContext(rxn, kin);
+        RateType::setRateContext(rxn, kin);
     }
 
     //! Evaluate reaction rate
@@ -469,7 +450,7 @@ public:
      *  @param shared_data  data shared by all reactions of a given type
      */
     double evalFromStruct(const DataType& shared_data) const {
-        return evalRate(shared_data);
+        return RateType::evalRate(shared_data);
     }
 
     //! Evaluate derivative of reaction rate with respect to temperature
@@ -478,11 +459,12 @@ public:
      *  @param shared_data  data shared by all reactions of a given type
      */
     double ddTScaledFromStruct(const DataType& shared_data) const {
-        return ddTScaled(shared_data);
+        return RateType::ddTScaled(shared_data);
     }
 };
 
 typedef BulkRate<Arrhenius3, ArrheniusData> ArrheniusRate;
+typedef BulkRate<TwoTempPlasma, TwoTempPlasmaData> TwoTempPlasmaRate;
 typedef BulkRate<BlowersMasel, BlowersMaselData> BlowersMaselRate;
 
 }

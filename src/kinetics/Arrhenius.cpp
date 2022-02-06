@@ -126,14 +126,14 @@ void ArrheniusBase::checkRate(const std::string& equation, const AnyMap& node)
     }
 }
 
-TwoTempPlasmaRate::TwoTempPlasmaRate()
+TwoTempPlasma::TwoTempPlasma()
     : ArrheniusBase()
 {
     m_Ea_str = "Ea-gas";
     m_E4_str = "Ea-electron";
 }
 
-TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE)
+TwoTempPlasma::TwoTempPlasma(double A, double b, double Ea, double EE)
     : ArrheniusBase(A, b, Ea)
 {
     m_Ea_str = "Ea-gas";
@@ -141,28 +141,11 @@ TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE)
     m_E4_R = EE / GasConstant;
 }
 
-void TwoTempPlasmaRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
+double TwoTempPlasma::ddTScaled(const TwoTempPlasmaData& shared_data) const
 {
-    m_negativeA_ok = node.getBool("negative-A", false);
-    if (!node.hasKey("rate-constant")) {
-        setRateParameters(AnyValue(), node.units(), rate_units);
-        return;
-    }
-    setRateParameters(node["rate-constant"], node.units(), rate_units);
-}
-
-void TwoTempPlasmaRate::getParameters(AnyMap& rateNode) const
-{
-    if (m_negativeA_ok) {
-        rateNode["negative-A"] = true;
-    }
-    AnyMap node;
-    ArrheniusBase::getRateParameters(node);
-    if (!node.empty()) {
-        // object is configured
-        rateNode["rate-constant"] = std::move(node);
-    }
-    rateNode["type"] = type();
+    warn_user("TwoTempPlasma::ddTScaled",
+        "Temperature derivative does not consider changes of electron temperature.");
+    return (m_Ea_R - m_E4_R) * shared_data.recipT * shared_data.recipT;
 }
 
 BlowersMasel::BlowersMasel()
