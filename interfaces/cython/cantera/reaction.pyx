@@ -214,8 +214,8 @@ cdef class ArrheniusRate(ArrheniusTypeRate):
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
-        # CxxArrheniusBase does not have a common base with CxxReactionRate
-        self.base = <CxxArrheniusBase*>self.cxx_object()
+        # CxxArrhenius does not have a common base with CxxReactionRate
+        self.base = <CxxArrhenius*>self.cxx_object()
 
     cdef CxxArrheniusRate* cxx_object(self):
         return <CxxArrheniusRate*>self.rate
@@ -522,17 +522,17 @@ cdef class PlogRate(ReactionRate):
         """
         def __get__(self):
             rates = []
-            cdef multimap[double, CxxArrheniusBase] cxxrates
-            cdef pair[double, CxxArrheniusBase] p_rate
+            cdef multimap[double, CxxArrhenius] cxxrates
+            cdef pair[double, CxxArrhenius] p_rate
             cxxrates = self.cxx_object().getRates()
             for p_rate in cxxrates:
-                rates.append((p_rate.first, copyArrheniusBase(&p_rate.second)))
+                rates.append((p_rate.first, copyArrhenius(&p_rate.second)))
             return rates
 
         def __set__(self, rates):
-            cdef multimap[double, CxxArrheniusBase] ratemap
+            cdef multimap[double, CxxArrhenius] ratemap
             cdef Arrhenius rate
-            cdef pair[double, CxxArrheniusBase] item
+            cdef pair[double, CxxArrhenius] item
             for p, rate in rates:
                 item.first = p
                 item.second = deref(rate.base)
@@ -1453,7 +1453,7 @@ cdef class Arrhenius:
     """
     def __cinit__(self, A=0, b=0, E=0, init=True):
         if init:
-            self.base = new CxxArrheniusBase(A, b, E)
+            self.base = new CxxArrhenius(A, b, E)
             self.own_rate = True
             self.reaction = None
         else:
@@ -1464,7 +1464,7 @@ cdef class Arrhenius:
             del self.base
 
     @staticmethod
-    cdef wrap(CxxArrheniusBase* rate):
+    cdef wrap(CxxArrhenius* rate):
         r = Arrhenius(init=False)
         r.base = rate
         r.reaction = None
@@ -1501,7 +1501,7 @@ cdef class Arrhenius:
         return self.base.evalRate(np.log(T), 1/T)
 
 
-cdef wrapArrhenius(CxxArrheniusBase* rate, Reaction reaction):
+cdef wrapArrhenius(CxxArrhenius* rate, Reaction reaction):
     r = Arrhenius(init=False)
     r.base = rate
     if reaction.uses_legacy:
@@ -1510,12 +1510,12 @@ cdef wrapArrhenius(CxxArrheniusBase* rate, Reaction reaction):
     r.reaction = reaction
     return r
 
-cdef copyArrhenius(CxxArrhenius2* rate):
+cdef copyArrhenius2(CxxArrhenius2* rate):
     r = Arrhenius(rate.preExponentialFactor(), rate.temperatureExponent(),
                   rate.activationEnergy())
     return r
 
-cdef copyArrheniusBase(CxxArrheniusBase* rate):
+cdef copyArrhenius(CxxArrhenius* rate):
     r = Arrhenius(rate.preExponentialFactor(), rate.temperatureExponent(),
                   rate.activationEnergy())
     return r
@@ -2118,7 +2118,7 @@ cdef class PlogReaction(Reaction):
         cdef pair[double,CxxArrhenius2] p_rate
         rates = []
         for p_rate in cxxrates:
-            rates.append((p_rate.first,copyArrhenius(&p_rate.second)))
+            rates.append((p_rate.first,copyArrhenius2(&p_rate.second)))
         return rates
 
     cdef _legacy_set_rates(self, list rates):

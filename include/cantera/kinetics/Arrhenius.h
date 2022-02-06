@@ -69,22 +69,6 @@ public:
     //! Check rate expression
     void checkRate(const std::string& equation, const AnyMap& node);
 
-    //! Evaluate reaction rate
-    /*!
-     *  @internal  Non-virtual method that should not be overloaded
-     */
-    double evalRate(double logT, double recipT) const {
-        return m_A * std::exp(m_b * logT - m_Ea_R * recipT);
-    }
-
-    //! Evaluate natural logarithm of the rate constant.
-    /*!
-     *  @internal  Non-virtual method that should not be overloaded
-     */
-    double evalLog(double logT, double recipT) const {
-        return m_logA + m_b * logT - m_Ea_R * recipT;
-    }
-
     //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
     //! on the reaction order)
     double preExponentialFactor() const {
@@ -175,6 +159,22 @@ public:
         return "Arrhenius";
     }
 
+    //! Evaluate reaction rate
+    /*!
+     *  @internal  Non-virtual method that should not be overloaded
+     */
+    double evalRate(double logT, double recipT) const {
+        return m_A * std::exp(m_b * logT - m_Ea_R * recipT);
+    }
+
+    //! Evaluate natural logarithm of the rate constant.
+    /*!
+     *  @internal  Non-virtual method that should not be overloaded
+     */
+    double evalLog(double logT, double recipT) const {
+        return m_logA + m_b * logT - m_Ea_R * recipT;
+    }
+
     //! Evaluate derivative of reaction rate with respect to temperature
     //! divided by reaction rate
     /*!
@@ -222,11 +222,6 @@ public:
         return Arrhenius3::rateType();
     }
 
-    //! Perform object setup based on AnyMap node information
-    /*!
-     *  @param node  AnyMap containing rate information
-     *  @param rate_units  Unit definitions specific to rate information
-     */
     virtual void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
     virtual void getParameters(AnyMap& node) const override;
