@@ -17,17 +17,18 @@ cythonized = localenv.Command(
 for f in multi_glob(localenv, 'cantera', 'pyx', 'pxd'):
     localenv.Depends(cythonized, f)
 
-for line in Path(File('#interfaces/cython/cantera/_cantera.pxd').abspath).read_text().splitlines():
+# This must be the path to the real pxd file, not a file node pointing at the
+# possibly non-existent file in the build directory
+pxd_file = File("#interfaces/cython/cantera/_cantera.pxd").abspath
+for line in Path(pxd_file).read_text().splitlines():
     m = re.search(r'from "(cantera.*?)"', line)
     if m:
         localenv.Depends('cantera/_cantera.cpp', '#include/' + m.group(1))
 
-dataFiles = localenv.RecursiveInstall('cantera/data',
-                                      '#build/data')
+dataFiles = localenv.RecursiveInstall("cantera/data", "#build/data")
 build(dataFiles)
 
-testFiles = localenv.RecursiveInstall('cantera/test/data',
-                                      '#test/data')
+testFiles = localenv.RecursiveInstall("cantera/test/data", "#test/data")
 build(testFiles)
 
 # Get information needed to build the Python module
@@ -47,7 +48,7 @@ pylib = info.get("LDLIBRARY")
 prefix = info["prefix"]
 py_version_short = parse_version(info["py_version_short"])
 py_version_full = parse_version(info["py_version"])
-py_version_nodot = info['py_version_nodot']
+py_version_nodot = info["py_version_nodot"]
 numpy_include = info["numpy_include"]
 localenv.Prepend(CPPPATH=[Dir('#include'), inc, numpy_include])
 localenv.Prepend(LIBS=localenv['cantera_libs'])
@@ -70,12 +71,12 @@ if localenv["HAS_CLANG"] and py_version_short == parse_version("3.8"):
     localenv.Append(CXXFLAGS='-Wno-deprecated-declarations')
 
 if "icc" in localenv["CC"]:
-    localenv.Append(CPPDEFINES={"CYTHON_FALLTHROUGH":" __attribute__((fallthrough))"})
+    localenv.Append(CPPDEFINES={"CYTHON_FALLTHROUGH": " __attribute__((fallthrough))"})
 
 if localenv['OS'] == 'Darwin':
     localenv.Append(LINKFLAGS='-undefined dynamic_lookup')
 elif localenv['OS'] == 'Windows':
-    localenv.Append(LIBPATH=prefix+'/libs')
+    localenv.Append(LIBPATH=prefix + '/libs')
     if localenv['toolchain'] == 'mingw':
         localenv.Append(LIBS=f"python{py_version_nodot}")
         if localenv['OS_BITS'] == 64:
@@ -105,7 +106,8 @@ build_cmd = ("$python_cmd_esc -m pip wheel --no-build-isolation --no-deps "
              "--wheel-dir=build/python/dist build/python")
 wheel_name = (f"Cantera-{env['cantera_version']}-cp{py_version_nodot}"
               f"-cp{py_version_nodot}-{info['plat'].replace('-', '_')}.whl")
-mod = build(localenv.Command(f"#build/python/dist/{wheel_name}", "setup.cfg", build_cmd))
+mod = build(localenv.Command(f"#build/python/dist/{wheel_name}", "setup.cfg",
+                             build_cmd))
 env['python_module'] = mod
 env['python_extension'] = ext
 
@@ -126,7 +128,8 @@ if localenv['python_prefix'] == 'USER':
     # Install to the OS-dependent user site-packages directory
     install_cmd.append("--user")
     user_install = True
-elif localenv['python_prefix']:
+elif localenv["python_prefix"]:
+    # A specific location for the Cantera python module has been given
     install_cmd.append(f"--prefix={localenv.subst('python_prefix')}")
     python_prefix = localenv.subst("python_prefix")
 
@@ -139,7 +142,8 @@ if env["stage_dir"]:
 
     install_cmd.append(f"--root={stage_dir.resolve()}")
 
-install_cmd.extend(("--no-build-isolation", "--no-deps", "-v", "--force-reinstall", "build/python"))
+install_cmd.extend(("--no-build-isolation", "--no-deps", "-v", "--force-reinstall",
+                    "build/python"))
 if localenv['PYTHON_INSTALLER'] == 'direct':
     mod_inst = install(localenv.Command, 'dummy', mod,
                        " ".join(install_cmd))
