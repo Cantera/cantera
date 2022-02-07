@@ -111,16 +111,16 @@ void ArrheniusBase::getRateParameters(AnyMap& node) const
 
 }
 
-void ArrheniusBase::checkRate(const std::string& equation, const AnyMap& node)
+void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
 {
     if (!m_negativeA_ok && m_A < 0) {
         if (equation == "") {
-            throw CanteraError("ArrheniusBase::checkRate",
+            throw CanteraError("ArrheniusBase::check",
                 "Detected negative pre-exponential factor (A={}).\n"
                 "Enable 'allowNegativePreExponentialFactor' to suppress "
                 "this message.", m_A);
         }
-        throw InputFileError("ArrheniusBase::checkRate", node,
+        throw InputFileError("ArrheniusBase::check", node,
             "Undeclared negative pre-exponential factor found in reaction '{}'",
             equation);
     }
@@ -148,13 +148,13 @@ double TwoTempPlasma::ddTScaled(const TwoTempPlasmaData& shared_data) const
     return (m_Ea_R - m_E4_R) * shared_data.recipT * shared_data.recipT;
 }
 
-void TwoTempPlasma::setRateContext(const Reaction& rxn, const Kinetics& kin)
+void TwoTempPlasma::setContext(const Reaction& rxn, const Kinetics& kin)
 {
     // TwoTempPlasmaReaction is for a non-equilirium plasma, and the reverse rate
     // cannot be calculated from the conventional thermochemistry.
     // @todo implement the reversible rate for non-equilibrium plasma
     if (rxn.reversible) {
-        throw InputFileError("TwoTempPlasma::setRateContext", rxn.input,
+        throw InputFileError("TwoTempPlasma::setContext", rxn.input,
             "TwoTempPlasmaRate does not support reversible reactions");
     }
 }
@@ -183,7 +183,7 @@ double BlowersMasel::ddTScaled(const BlowersMaselData& shared_data) const
     return (Ea_R * shared_data.recipT + m_b) * shared_data.recipT;
 }
 
-void BlowersMasel::setRateContext(const Reaction& rxn, const Kinetics& kin)
+void BlowersMasel::setContext(const Reaction& rxn, const Kinetics& kin)
 {
     m_stoich_coeffs.clear();
     for (const auto& sp : rxn.reactants) {

@@ -31,7 +31,7 @@ class AnyMap;
  * access from derived classes as well as classes that use Arrhenius-type expressions
  * internally, for example FalloffRate and PlogRate.
  */
-class ArrheniusBase
+class ArrheniusBase : public ReactionRate
 {
 public:
     //! Default constructor.
@@ -67,7 +67,7 @@ public:
     void getRateParameters(AnyMap& node) const;
 
     //! Check rate expression
-    void checkRate(const std::string& equation, const AnyMap& node);
+    virtual void check(const std::string& equation, const AnyMap& node) override;
 
     //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
     //! on the reaction order)
@@ -161,12 +161,8 @@ class Arrhenius3 : public ArrheniusBase
 public:
     using ArrheniusBase::ArrheniusBase; // inherit constructors
 
-    const std::string rateType() const {
+    virtual const std::string type() const override {
         return "Arrhenius";
-    }
-
-    //! Context (unused)
-    void setRateContext(const Reaction& rxn, const Kinetics& kin) {
     }
 
     //! Evaluate reaction rate
@@ -228,12 +224,12 @@ public:
      */
     TwoTempPlasma(double A, double b, double Ea=0.0, double EE=0.0);
 
-    const std::string rateType() const {
+    virtual const std::string type() const override {
         return "two-temperature-plasma";
     }
 
     //! Context
-    void setRateContext(const Reaction& rxn, const Kinetics& kin);
+    virtual void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
     //! Evaluate reaction rate
     //! @internal  Non-virtual method that should not be overloaded
@@ -313,15 +309,14 @@ public:
      */
     BlowersMasel(double A, double b, double Ea0, double w);
 
-    const std::string rateType() const {
+    virtual const std::string type() const override {
         return "Blowers-Masel";
     }
 
     //! Set context
-    void setRateContext(const Reaction& rxn, const Kinetics& kin);
+    virtual void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
     //! Update information specific to reaction
-    //! @todo  Move to BulkRate (as template function via std::enable_if)
     void updateFromStruct(const BlowersMaselData& shared_data) {
         if (shared_data.ready) {
             m_deltaH_R = 0.;
@@ -389,7 +384,7 @@ protected:
 
 //! A class template for bulk phase reaction rate specifications
 template <class RateType, class DataType>
-class BulkRate final : public RateType, public ReactionRate
+class BulkRate final : public RateType
 {
 public:
     BulkRate() = default;
@@ -403,10 +398,6 @@ public:
     unique_ptr<MultiRateBase> newMultiRate() const override {
         return unique_ptr<MultiRateBase>(
             new MultiRate<BulkRate<RateType, DataType>, DataType>);
-    }
-
-    virtual const std::string type() const override {
-        return RateType::rateType();
     }
 
     virtual void setParameters(
@@ -430,18 +421,9 @@ public:
             // RateType object is configured
             node["rate-constant"] = std::move(rateNode);
         }
-        if (RateType::rateType() != "Arrhenius") {
-            node["type"] = type();
+        if (RateType::type() != "Arrhenius") {
+            node["type"] = RateType::type();
         }
-    }
-
-    void check(const std::string& equation, const AnyMap& node) override {
-        RateType::checkRate(equation, node);
-    }
-
-    virtual void setContext(const Reaction& rxn, const Kinetics& kin) override {
-        // as this method is virtual, it cannot be templated
-        RateType::setRateContext(rxn, kin);
     }
 
     //! Evaluate reaction rate

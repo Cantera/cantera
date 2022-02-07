@@ -36,7 +36,7 @@ class Func1;
  *        k_f =  A T^b \exp (-E/RT)
  *   \f]
  */
-class Arrhenius2 : public Arrhenius3
+class Arrhenius2 final : public Arrhenius3
 {
 public:
     //! Default constructor.
@@ -90,6 +90,10 @@ public:
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
         return m_A * std::exp(m_b*logT - m_Ea_R*recipT);
+    }
+
+    virtual const std::string type() const override {
+        return "Arrhenius2";
     }
 };
 
