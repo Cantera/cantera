@@ -666,9 +666,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxThreeBodyReaction3 "Cantera::ThreeBodyReaction3" (CxxReaction):
         CxxThreeBodyReaction3()
 
-    cdef cppclass CxxTwoTempPlasmaReaction "Cantera::TwoTempPlasmaReaction"(CxxReaction):
-        CxxTwoTempPlasmaReaction()
-
     cdef cppclass CxxFalloffReaction3 "Cantera::FalloffReaction3" (CxxReaction):
         CxxFalloffReaction3()
 

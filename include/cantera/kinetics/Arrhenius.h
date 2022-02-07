@@ -232,9 +232,8 @@ public:
         return "two-temperature-plasma";
     }
 
-    //! Context (unused)
-    void setRateContext(const Reaction& rxn, const Kinetics& kin) {
-    }
+    //! Context
+    void setRateContext(const Reaction& rxn, const Kinetics& kin);
 
     //! Evaluate reaction rate
     //! @internal  Non-virtual method that should not be overloaded

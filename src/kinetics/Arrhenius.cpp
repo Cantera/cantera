@@ -148,6 +148,17 @@ double TwoTempPlasma::ddTScaled(const TwoTempPlasmaData& shared_data) const
     return (m_Ea_R - m_E4_R) * shared_data.recipT * shared_data.recipT;
 }
 
+void TwoTempPlasma::setRateContext(const Reaction& rxn, const Kinetics& kin)
+{
+    // TwoTempPlasmaReaction is for a non-equilirium plasma, and the reverse rate
+    // cannot be calculated from the conventional thermochemistry.
+    // @todo implement the reversible rate for non-equilibrium plasma
+    if (rxn.reversible) {
+        throw InputFileError("TwoTempPlasma::setRateContext", rxn.input,
+            "TwoTempPlasmaRate does not support reversible reactions");
+    }
+}
+
 BlowersMasel::BlowersMasel()
     : m_deltaH_R(0.)
 {
