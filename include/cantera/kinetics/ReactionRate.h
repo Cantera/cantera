@@ -74,8 +74,12 @@ public:
     //!
     //! where `RateType` is the derived class name and `DataType` is the corresponding
     //! container for parameters needed to evaluate reactions of that type.
-    virtual unique_ptr<MultiRateBase> newMultiRate() const = 0;
+    virtual unique_ptr<MultiRateBase> newMultiRate() const {
+        throw NotImplementedError("ReactionRate::newMultiRate",
+            "Not implemented by '{}' object.", type());
+    }
 
+    //! String identifying reaction rate specialization
     virtual const std::string type() const = 0;
 
     //! Set parameters

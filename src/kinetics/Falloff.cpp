@@ -25,7 +25,7 @@ void FalloffRate::setLowRate(const Arrhenius3& low)
 {
     Arrhenius3 _low = low;
     _low.setAllowNegativePreExponentialFactor(m_negativeA_ok);
-    _low.checkRate("", AnyMap());
+    _low.check("", AnyMap());
     if (_low.preExponentialFactor() * m_highRate.preExponentialFactor() < 0.) {
         throw CanteraError("FalloffRate::setLowRate",
             "Detected inconsistent rate definitions;\nhigh and low "
@@ -38,7 +38,7 @@ void FalloffRate::setHighRate(const Arrhenius3& high)
 {
     Arrhenius3 _high = high;
     _high.setAllowNegativePreExponentialFactor(m_negativeA_ok);
-    _high.checkRate("", AnyMap());
+    _high.check("", AnyMap());
     if (m_lowRate.preExponentialFactor() * _high.preExponentialFactor() < 0.) {
         throw CanteraError("FalloffRate::setHighRate",
             "Detected inconsistent rate definitions;\nhigh and low "
@@ -118,8 +118,8 @@ void FalloffRate::getParameters(AnyMap& node) const
 
 void FalloffRate::check(const std::string& equation, const AnyMap& node)
 {
-    m_lowRate.checkRate(equation, node);
-    m_highRate.checkRate(equation, node);
+    m_lowRate.check(equation, node);
+    m_highRate.check(equation, node);
 
     double lowA = m_lowRate.preExponentialFactor();
     double highA = m_highRate.preExponentialFactor();

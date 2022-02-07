@@ -214,8 +214,7 @@ cdef class ArrheniusRate(ArrheniusTypeRate):
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
-        # CxxArrhenius does not have a common base with CxxReactionRate
-        self.base = <CxxArrhenius*>self.cxx_object()
+        self.base = <CxxArrhenius*>self.rate
 
     cdef CxxArrheniusRate* cxx_object(self):
         return <CxxArrheniusRate*>self.rate
@@ -248,8 +247,7 @@ cdef class BlowersMaselRate(ArrheniusTypeRate):
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
-        # CxxArrheniusBase does not have a common base with CxxReactionRate
-        self.base = <CxxArrheniusBase*>self.cxx_object()
+        self.base = <CxxArrheniusBase*>self.rate
 
     cdef CxxBlowersMaselRate* cxx_object(self):
         return <CxxBlowersMaselRate*>self.rate
@@ -309,8 +307,7 @@ cdef class TwoTempPlasmaRate(ArrheniusTypeRate):
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
-        # CxxArrheniusBase does not have a common base with CxxReactionRate
-        self.base = <CxxArrheniusBase*>self.cxx_object()
+        self.base = <CxxArrheniusBase*>self.rate
 
     cdef CxxTwoTempPlasmaRate* cxx_object(self):
         return <CxxTwoTempPlasmaRate*>self.rate

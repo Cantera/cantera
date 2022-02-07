@@ -457,7 +457,14 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (XML_Node&) except +translate_exception
     cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (CxxAnyValue&, CxxKinetics&) except +translate_exception
 
-    cdef cppclass CxxArrheniusBase "Cantera::ArrheniusBase":
+    cdef cppclass CxxReactionRate "Cantera::ReactionRate":
+        CxxReactionRate()
+        string type()
+        double eval(double) except +translate_exception
+        double eval(double, double) except +translate_exception
+        CxxAnyMap parameters() except +translate_exception
+
+    cdef cppclass CxxArrheniusBase "Cantera::ArrheniusBase" (CxxReactionRate):
         CxxArrheniusBase()
         double preExponentialFactor()
         double temperatureExponent()
@@ -472,23 +479,16 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxArrhenius2 "Cantera::Arrhenius2" (CxxArrhenius):
         CxxArrhenius2(double, double, double)
 
-    cdef cppclass CxxReactionRate "Cantera::ReactionRate":
-        CxxReactionRate()
-        string type()
-        double eval(double) except +translate_exception
-        double eval(double, double) except +translate_exception
-        CxxAnyMap parameters() except +translate_exception
-
-    cdef cppclass CxxArrheniusRate "Cantera::ArrheniusRate" (CxxReactionRate, CxxArrhenius):
+    cdef cppclass CxxArrheniusRate "Cantera::ArrheniusRate" (CxxArrhenius):
         CxxArrheniusRate(CxxAnyMap) except +translate_exception
         CxxArrheniusRate(double, double, double)
 
-    cdef cppclass CxxTwoTempPlasmaRate "Cantera::TwoTempPlasmaRate" (CxxReactionRate, CxxArrheniusBase):
+    cdef cppclass CxxTwoTempPlasmaRate "Cantera::TwoTempPlasmaRate" (CxxArrheniusBase):
         CxxTwoTempPlasmaRate(CxxAnyMap) except +translate_exception
         CxxTwoTempPlasmaRate(double, double, double, double)
         double activationElectronEnergy()
 
-    cdef cppclass CxxBlowersMaselRate "Cantera::BlowersMaselRate" (CxxReactionRate, CxxArrheniusBase):
+    cdef cppclass CxxBlowersMaselRate "Cantera::BlowersMaselRate" (CxxArrheniusBase):
         CxxBlowersMaselRate(CxxAnyMap) except +translate_exception
         CxxBlowersMaselRate(double, double, double, double)
         double effectiveActivationEnergy(double)
