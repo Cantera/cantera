@@ -45,3 +45,8 @@ cdef class PlasmaPhase(ThermoPhase):
             cdef vector[double] cxxdata
             self.plasma.getElectronEnergyDistrb(cxxdata)
             return np.fromiter(cxxdata, np.double)
+
+    property mean_electron_energy:
+        """ Mean electron energy [eV] """
+        def __get__(self):
+            return self.plasma.meanElectronEnergy()

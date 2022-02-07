@@ -10,6 +10,7 @@
 #define CT_FUNCS_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/numerics/eigen_sparse.h"
 
 namespace Cantera
 {
@@ -28,6 +29,17 @@ namespace Cantera
  */
 doublereal linearInterp(doublereal x, const vector_fp& xpts,
                         const vector_fp& fpts);
+
+//! Numerical integration of a function using the trapezoidal rule.
+/*!
+ * Vector x contanins a monotonic sequence of grid points, and
+ * Vector f contains function values defined at these points.
+ * The size of x and f must be the same.
+ *
+ * @param  f vector of function value
+ * @param  x vector of function coordinate
+ */
+double trapezoidal(const Eigen::ArrayXd& f, const Eigen::ArrayXd& x);
 }
 
 #endif
