@@ -88,6 +88,11 @@ public:
     //! Set the method to calculate electron energy distribution
     void setElectronEnergyDistrbMethod(std::string method);
 
+    //! Mean electron energy [eV]
+    double meanElectronEnergy() {
+        return m_meanElectronEnergy;
+    }
+
 protected:
     // Method to get electron energy distribution function
     std::string m_electronEnergyDistrbMethod;
