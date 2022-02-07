@@ -76,6 +76,9 @@ public:
     //!     @param Te Electron temperature in Kelvin
     virtual void setElectronTemperature(const double Te);
 
+    //! Set the method to calculate electron energy distribution
+    void setElectronEnergyDistrbMethod(std::string method);
+
 protected:
     // Method to get electron energy distribution function
     std::string m_electronEnergyDistrbMethod;

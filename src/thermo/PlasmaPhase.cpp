@@ -5,6 +5,7 @@
 
 #include "cantera/thermo/PlasmaPhase.h"
 #include <boost/math/special_functions/gamma.hpp>
+#include "cantera/base/global.h"
 
 namespace Cantera {
 
@@ -40,6 +41,22 @@ void PlasmaPhase::setElectronTemperature(const double Te) {
     Phase::setElectronTemperature(Te);
     if (m_electronEnergyDistrbMethod == "isotropic-velocity") {
         updateIsotropicElectronEnergyDistrb();
+    } else if (m_electronEnergyDistrbMethod == "user-specified") {
+        warn_user("PlasmaPhase::setElectronTemperature",
+            "The electron temperature is calculated automatically when"
+            "electron energy distribution is user-specified.");
+    }
+}
+
+void PlasmaPhase::setElectronEnergyDistrbMethod(std::string method)
+{
+    if (method == "isotropic-velocity" || method == "user-specified") {
+        m_electronEnergyDistrbMethod = method;
+    } else {
+        throw CanteraError("PlasmaPhase::setElectronEnergyDistrbMethod",
+                           "Invalid method for electron energy distribution."
+                           "Please use below method, 'isotropic-velocity' or"
+                           "'user-specified'.");
     }
 }
 
