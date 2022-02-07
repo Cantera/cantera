@@ -1,4 +1,8 @@
 #!/bin/csh
+printf "%s\n" \
+    "The setup_cantera script is deprecated and will be removed after Cantera 2.6." \
+    "If you use this script, please leave a comment at:" \
+    "https://github.com/Cantera/enhancements/issues/135"
 
 if (! $?LD_LIBRARY_PATH) then
     setenv LD_LIBRARY_PATH @ct_libdir@
