@@ -69,6 +69,15 @@ public:
     //!     @param grid The vector of electron energy grid. [eV]
     void getElectronEnergyGrid(vector_fp& grid) const;
 
+    //! Set electron energy distribution.
+    //!     @param grid The vector of electron energy grid. [eV]
+    //!     @param distrb The vector of electron energy distribution.
+    void setElectronEnergyDistrb(const vector_fp& grid, const vector_fp& distrb);
+
+    //! Get electron energy distribution.
+    //!     @param distrb The vector of electron energy distribution.
+    void getElectronEnergyDistrb(vector_fp& distrb) const;
+
     //! Update electron energy distribution.
     void updateIsotropicElectronEnergyDistrb();
 
@@ -89,14 +98,14 @@ protected:
     //! Number of points of electron energy grid
     size_t m_nPoints;
 
-    //! electron energy distribution vector
-    Eigen::VectorXd m_EE_grid;
+    //! electron energy grid
+    Eigen::VectorXd m_electronEnergyGrid;
 
     //! Normalized electron energy distribution vector
-    Eigen::VectorXd m_EE_distrb_vec;
+    Eigen::VectorXd m_electronEnergyDistrb;
 
     //! Mean electron energy
-    double m_EE_mean;
+    double m_meanElectronEnergy;
 };
 
 }
