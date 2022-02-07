@@ -528,24 +528,6 @@ public:
 };
 
 
-//! A reaction for two-temperature-plasma reaction rate
-class TwoTempPlasmaReaction: public Reaction
-{
-public:
-    TwoTempPlasmaReaction();
-    TwoTempPlasmaReaction(const Composition& reactants, const Composition& products,
-                  const TwoTempPlasmaRate& rate);
-
-    TwoTempPlasmaReaction(const AnyMap& node, const Kinetics& kin);
-
-    virtual std::string type() const {
-        return "two-temperature-plasma";
-    }
-
-    virtual void validate();
-};
-
-
 //! A falloff reaction that is first-order in [M] at low pressure, like a third-body
 //! reaction, but zeroth-order in [M] as pressure increases.
 //! In addition, the class supports chemically-activated reactions where the rate
