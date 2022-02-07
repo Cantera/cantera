@@ -11,7 +11,15 @@ class TestPlasmaPhase(utilities.CanteraTest):
         self.phase.electron_energy_grid = grid
         self.assertArrayNear(grid, self.phase.electron_energy_grid)
 
-    def test_set_electron_energy_distribution(self):
+    def test_isotropic_velocity_electron_energy_distribution(self):
+        grid = np.linspace(0.01, 10, num=9)
+        self.phase.electron_energy_grid = grid
+        self.phase.Te = 2e5
+        mean_electron_energy = 3.0 / 2.0 * (self.phase.Te * ct.gas_constant /
+                               (ct.avogadro * ct.electron_charge))
+        self.assertNear(mean_electron_energy , self.phase.mean_electron_energy)
+
+    def test_user_specified_electron_energy_distribution(self):
         grid = np.linspace(0, 1, num=2)
         distrb = np.linspace(0, 1, num=2)
         self.phase.set_electron_energy_distribution(grid, distrb)
