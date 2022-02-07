@@ -10,3 +10,10 @@ class TestPlasmaPhase(utilities.CanteraTest):
         grid = np.linspace(0.01, 10, num=9)
         self.phase.electron_energy_grid = grid
         self.assertArrayNear(grid, self.phase.electron_energy_grid)
+
+    def test_set_electron_energy_distribution(self):
+        grid = np.linspace(0.01, 10, num=9)
+        distrb = np.linspace(10, 0.01, num=9)
+        self.phase.set_electron_energy_distribution(grid, distrb)
+        self.assertArrayNear(grid, self.phase.electron_energy_grid)
+        self.assertArrayNear(distrb, self.phase.electron_energy_distribution)
