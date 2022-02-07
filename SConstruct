@@ -1996,9 +1996,9 @@ SConscript('build/src/SConscript')
 
 if env['python_package'] == 'full':
     VariantDir("build/python", "interfaces/cython", duplicate=True)
-    SConscript('build/python/SConscript')
-elif env['python_package'] == 'minimal':
-    SConscript('interfaces/python_minimal/SConscript')
+elif env["python_package"] == "minimal":
+    VariantDir("build/python_minimal", "interfaces/python_minimal", duplicate=True)
+    SConscript("build/python_minimal/SConscript")
 
 if env['CC'] != 'cl':
     VariantDir('build/platform', 'platform/posix', duplicate=0)
@@ -2080,9 +2080,6 @@ def postInstallMessage(target, source, env):
         install_message += indent(textwrap.dedent("""
             Python package              {python_module_loc!s}
             Python samples              {python_example_loc!s}""".format(**env_dict)), '  ')
-    elif env['python_package'] == 'minimal':
-        install_message += indent(textwrap.dedent("""
-            minimal Python module       {python_module_loc!s}""".format(**env_dict)), '  ')
 
     if env['matlab_toolbox'] == 'y':
         env['matlab_sample_loc'] = pjoin(env['ct_sampledir'], 'matlab')
@@ -2164,6 +2161,8 @@ uninstall = env.Command("uninstall", None, Delete(allfiles))
 env.AddPostAction(uninstall, Action(removeDirectories))
 if env["python_package"] == "full":
     env.AddPostAction(uninstall, Action("$python_cmd_esc -m pip uninstall Cantera"))
+elif env["python_package"] == "minimal":
+    env.AddPostAction(uninstall, Action("$python_cmd_esc -m pip uninstall Cantera_minimal"))
 
 ### Windows MSI Installer ###
 if 'msi' in COMMAND_LINE_TARGETS:

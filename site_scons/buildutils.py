@@ -1,3 +1,5 @@
+from __future__ import annotations
+import json
 import os
 import sys
 import platform
@@ -22,7 +24,8 @@ except ImportError:
 __all__ = ("Option", "PathOption", "BoolOption", "EnumOption", "Configuration",
            "logger", "remove_directory", "remove_file", "test_results",
            "add_RegressionTest", "get_command_output", "listify", "which",
-           "ConfigBuilder", "multi_glob", "get_spawn", "quoted")
+           "ConfigBuilder", "multi_glob", "get_spawn", "quoted",
+           "get_pip_install_location")
 
 if TYPE_CHECKING:
     from typing import Iterable, TypeVar, Union, List, Dict, Tuple, Optional, \
@@ -1201,6 +1204,45 @@ def get_command_output(cmd: str, *args: str):
         check=True,
     )
     return data.stdout.strip()
+
+
+def get_pip_install_location(
+    python_cmd: str,
+    user: bool = False,
+    prefix: str | None = None,
+    root: str | None = None
+) -> dict[str, str]:
+    """Determine the location where pip will install files.
+
+    This relies on pip's internal API so it may break in future versions.
+    Unfortunately, I don't really see another way to determine this information
+    reliably.
+    """
+    # These need to be quoted if they're not None, even if they're a falsey value
+    # like the empty string. Otherwise, we want the literal None value.
+    prefix = quoted(prefix) if prefix is not None else None
+    root = quoted(root) if root is not None else None
+    install_script = textwrap.dedent(f"""
+        from pip import __version__ as pip_version
+        from pkg_resources import parse_version
+        import pip
+        import json
+        pip_version = parse_version(pip_version)
+        if pip_version < parse_version("10.0.0"):
+            from pip.locations import distutils_scheme
+            scheme = distutils_scheme("Cantera", user={user}, root={root},
+                                      prefix={prefix})
+        else:
+            from pip._internal.locations import get_scheme
+            scheme = get_scheme("Cantera", user={user}, root={root},
+                                prefix={prefix})
+
+        if not isinstance(scheme, dict):
+            scheme = {{k: getattr(scheme, k) for k in dir(scheme)
+                       if not k.startswith("_")}}
+        print(json.dumps(scheme))
+    """)
+    return json.loads(get_command_output(python_cmd, "-c", install_script))
 
 
 # Monkey patch for SCons Cygwin bug
