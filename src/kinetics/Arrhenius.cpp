@@ -141,16 +141,16 @@ TwoTempPlasma::TwoTempPlasma(double A, double b, double Ea, double EE)
     m_E4_R = EE / GasConstant;
 }
 
-double TwoTempPlasma::ddTScaled(const TwoTempPlasmaData& shared_data) const
+double TwoTempPlasma::ddTScaledFromStruct(const TwoTempPlasmaData& shared_data) const
 {
-    warn_user("TwoTempPlasma::ddTScaled",
+    warn_user("TwoTempPlasma::ddTScaledFromStruct",
         "Temperature derivative does not consider changes of electron temperature.");
     return (m_Ea_R - m_E4_R) * shared_data.recipT * shared_data.recipT;
 }
 
 void TwoTempPlasma::setContext(const Reaction& rxn, const Kinetics& kin)
 {
-    // TwoTempPlasmaReaction is for a non-equilirium plasma, and the reverse rate
+    // TwoTempPlasmaReaction is for a non-equilibrium plasma, and the reverse rate
     // cannot be calculated from the conventional thermochemistry.
     // @todo implement the reversible rate for non-equilibrium plasma
     if (rxn.reversible) {
@@ -175,7 +175,7 @@ BlowersMasel::BlowersMasel(double A, double b, double Ea0, double w)
     m_E4_R = w / GasConstant;
 }
 
-double BlowersMasel::ddTScaled(const BlowersMaselData& shared_data) const
+double BlowersMasel::ddTScaledFromStruct(const BlowersMaselData& shared_data) const
 {
     warn_user("BlowersMasel::ddTScaledFromStruct",
         "Temperature derivative does not consider changes of reaction enthalpy.");
