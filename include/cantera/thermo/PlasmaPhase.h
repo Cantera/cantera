@@ -27,16 +27,42 @@ namespace Cantera
  *   \f]
  * where \f$ x = 1 \f$ and \f$ x = 2 \f$ correspond to the Maxwellian and
  * Druyvesteyn (default) electron energy distribution, respectively.
- * Refereces:
+ * \f$ \epsilon_m = 3/2 * Te \f$ [eV]. For non-isotropic-velocity electron
+ * energy distribution, the mean electron energy \f$ \epsilon_m \f$ is
+ * calculated as [3],
+ *   \f[
+ *          \epsilon_m = \int_0^{\infty} \epsilon^{3/2} f(\epsilon) d\epsilon,
+ *   \f]
+ * which can be calculated using trapezoidal rule,
+ *   \f[
+ *          \epsilon_m = \sum_i (\epsilon^{5/2}_{i+1} - \epsilon^{5/2}_i)
+ *                       (f(\epsilon_{i+1}) + f(\epsilon_i)) / 2,
+ *   \f]
+ * References:
+ *
  * [1] J. T. Gudmundsson. On the effect of the electron energy distribution on the
  * plasma parameters of an argon discharge: a global (volume-averaged) model study.
  * Plasma Sources Science and Technology, 10.1 (2001): 76.
  * doi: https://doi.org/10.1088/0963-0252/10/1/310
+ *
  * [2] H. Khalilpour and G. Foroutan. The effects of electron energy distribution
  * function on the plasma sheath structure in the presence of charged nanoparticles
  * Journal of Plasma Physics 86.2 (2020).
  * doi: https://doi.org/10.1017/S0022377820000161
+ *
+ * [3] G. J. M. Hagelaar and L. C. Pitchford
+ * "Solving the Boltzmann equation to obtain electron transport
+ * coefficients and rate coefficients for fluid models."
+ * Plasma Sources Science and Technology 14.4 (2005): 722.
+ * doi: https://doi.org/10.1088/0963-0252/14/4/011
+ *
+ * [4] A. Luque, "BOLOS: An open source solver for the Boltzmann equation,"
+ * https://github.com/aluque/bolos.
+ *
+ * @warning  This class is an experimental part of %Cantera and may be
+ *           changed or removed without notice.
  * @todo Implement electron Boltzmann equation solver to solve EEDF.
+ *       https://github.com/Cantera/enhancements/issues/127
  * @ingroup phase
  */
 class PlasmaPhase: public IdealGasPhase
