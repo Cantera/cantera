@@ -1,7 +1,7 @@
 #!/bin/sh
 printf "%s\n" \
     "The setup_cantera script is deprecated and will be removed after Cantera 2.6." \
-    "If you use this script, please leave a comment at:" \
+    "If you use this script, migration information is available from:" \
     "https://github.com/Cantera/enhancements/issues/135"
 
 if [ -z $LD_LIBRARY_PATH ]; then
