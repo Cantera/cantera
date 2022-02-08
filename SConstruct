@@ -217,8 +217,10 @@ config_options = [
         }),
     PathOption(
         "prefix",
-        """Set this to the directory where Cantera should be installed. On Windows
-           systems, '$ProgramFiles' typically refers to "C:\Program Files".""",
+        """Set this to the directory where Cantera should be installed. If the Python
+           executable found during compilation is managed by 'conda', the
+           installation 'prefix' will default to the corresponding environment. On
+           Windows systems, '$ProgramFiles' typically refers to "C:\Program Files".""",
         {"Windows": "$ProgramFiles\Cantera", "default": "/usr/local"},
         PathVariable.PathAccept),
     PathOption(
@@ -553,9 +555,11 @@ config_options = [
            conjunction with "prefix='/usr/local'". 'compact' puts all installed
            files in the subdirectory defined by 'prefix'. This layout is best
            with a prefix like '/opt/cantera'. 'debian' installs to the stage
-           directory in a layout used for generating Debian packages.""",
+           directory in a layout used for generating Debian packages. If the Python
+           executable found during compilation is managed by 'conda', the layout
+           will default to 'conda' irrespective of operating system.""",
         {"Windows": "compact", "default": "standard"},
-        ("standard", "compact", "debian")),
+        ("standard", "compact", "debian", "conda")),
     BoolOption(
         "fast_fail_tests",
         "If enabled, tests will exit at the first failure.",
@@ -819,6 +823,9 @@ config["python_cmd"].default = sys.executable
 opts.AddVariables(*config.to_scons())
 opts.Update(env)
 opts.Save('cantera.conf', env)
+cantera_conf = []
+for line in open('cantera.conf'):
+    cantera_conf.append(line.strip())
 
 # Expand ~/ and environment variables used in cantera.conf (variables used on
 # the command line will be expanded by the shell)
@@ -866,10 +873,10 @@ except subprocess.CalledProcessError:
     env["git_commit"] = "unknown"
 
 # Print values of all build options:
-print("Configuration variables read from 'cantera.conf' and command line:")
-for line in open('cantera.conf'):
-    print('   ', line.strip())
-print()
+msg = ["Configuration variables read from 'cantera.conf' and command line:"]
+for line in cantera_conf:
+    msg.append(f"    {line}")
+logger.info("\n".join(msg))
 
 # ********************************************
 # *** Configure system-specific properties ***
@@ -904,6 +911,19 @@ if os.pathsep == ';':
 
 env['extra_inc_dirs'] = [d for d in env['extra_inc_dirs'].split(os.pathsep) if d]
 env['extra_lib_dirs'] = [d for d in env['extra_lib_dirs'].split(os.pathsep) if d]
+
+# Add conda library/include paths (if applicable) to extra
+conda_prefix = os.environ.get("CONDA_PREFIX")
+if conda_prefix is not None:
+    if os.name == "nt":
+        conda_inc_dir = pjoin(conda_prefix, "Library", "include")
+        conda_lib_dir = pjoin(conda_prefix, "Library", env["libdirname"])
+    else:
+        conda_inc_dir = pjoin(conda_prefix, "include")
+        conda_lib_dir = pjoin(conda_prefix, env["libdirname"])
+    env["extra_inc_dirs"] = env["extra_inc_dirs"] + [conda_inc_dir]
+    env["extra_lib_dirs"] = env["extra_lib_dirs"] + [conda_lib_dir]
+    logger.info("Adding conda include and library paths.")
 
 env.Append(CPPPATH=env['extra_inc_dirs'],
            LIBPATH=env['extra_lib_dirs'])
@@ -1626,26 +1646,59 @@ if env['matlab_toolbox'] == 'y':
 # /usr/local because of dist-packages vs site-packages
 env['debian'] = any(name.endswith('dist-packages') for name in sys.path)
 
+# Check whether Cantera should be installed into a conda environment
+if conda_prefix is not None:
+    if env["layout"] != "conda":
+        # identify options selected either on command line or in cantera.conf
+        selected_options = set(line.split("=")[0].strip() for line in cantera_conf)
+        use_conda = not selected_options & \
+            {"layout", "prefix", "python_prefix", "python_cmd"}
+        use_conda &= sys.executable.startswith(conda_prefix)
+        if use_conda:
+            env["layout"] = "conda"
+            logger.info(
+                f"Using conda environment as default 'prefix': {conda_prefix}")
+elif env["layout"] == "conda":
+    logger.error("Layout option 'conda' requires a conda environment.")
+    sys.exit(1)
+
 # Directories where things will be after actually being installed. These
 # variables are the ones that are used to populate header files, scripts, etc.
-env['prefix'] = os.path.normpath(env['prefix'])
-env['ct_installroot'] = env['prefix']
-env['ct_libdir'] = pjoin(env['prefix'], env['libdirname'])
-env['ct_bindir'] = pjoin(env['prefix'], 'bin')
-env['ct_incdir'] = pjoin(env['prefix'], 'include', 'cantera')
-env['ct_incroot'] = pjoin(env['prefix'], 'include')
+if env["layout"] == "conda":
+    env["prefix"] = os.path.normpath(conda_prefix)
+
+if env["layout"] == "conda" and os.name == "nt":
+    env["ct_libdir"] = pjoin(env["prefix"], "Library", env["libdirname"])
+    env["ct_bindir"] = pjoin(env["prefix"], "Scripts")
+    env["ct_python_bindir"] = pjoin(env["prefix"], "Scripts")
+    env["ct_incdir"] = pjoin(env["prefix"], "Library", "include", "cantera")
+    env["ct_incroot"] = pjoin(env["prefix"], "Library", "include")
+else:
+    env["prefix"] = os.path.normpath(env["prefix"])
+    env["ct_libdir"] = pjoin(env["prefix"], env["libdirname"])
+    env["ct_bindir"] = pjoin(env["prefix"], "bin")
+    env["ct_python_bindir"] = pjoin(env["prefix"], "bin")
+    env["ct_incdir"] = pjoin(env["prefix"], "include", "cantera")
+    env["ct_incroot"] = pjoin(env["prefix"], "include")
+env["ct_installroot"] = env["prefix"]
 
 if env['layout'] == 'compact':
     env['ct_datadir'] = pjoin(env['prefix'], 'data')
     env['ct_sampledir'] = pjoin(env['prefix'], 'samples')
+    env["ct_docdir"] = pjoin(env["prefix"], "doc")
     env['ct_mandir'] = pjoin(env['prefix'], 'man1')
     env['ct_matlab_dir'] = pjoin(env['prefix'], 'matlab', 'toolbox')
 else:
     env['ct_datadir'] = pjoin(env['prefix'], 'share', 'cantera', 'data')
     env['ct_sampledir'] = pjoin(env['prefix'], 'share', 'cantera', 'samples')
+    env["ct_docdir"] = pjoin(env["prefix"], "share", "cantera", "doc")
     env['ct_mandir'] = pjoin(env['prefix'], 'share', 'man', 'man1')
-    env['ct_matlab_dir'] = pjoin(env['prefix'], env['libdirname'],
-                                 'cantera', 'matlab', 'toolbox')
+    if env["layout"] == "conda":
+        env["ct_matlab_dir"] = pjoin(
+            env["prefix"], "share", "cantera", "matlab", "toolbox")
+    else:
+        env["ct_matlab_dir"] = pjoin(
+            env["prefix"], env["libdirname"], "cantera", "matlab", "toolbox")
 
 # Always set the stage directory before building an MSI installer
 if 'msi' in COMMAND_LINE_TARGETS:
@@ -1701,25 +1754,10 @@ if env['layout'] == 'debian':
     env['inst_python_bindir'] = pjoin(base, 'cantera-python', 'usr', 'bin')
     env['python_prefix'] = pjoin(base, 'cantera-python3')
 else:
-    env['inst_libdir'] = pjoin(instRoot, env['libdirname'])
-    env['inst_bindir'] = pjoin(instRoot, 'bin')
-    env['inst_python_bindir'] = pjoin(instRoot, 'bin')
-    env['inst_incdir'] = pjoin(instRoot, 'include', 'cantera')
-    env['inst_incroot'] = pjoin(instRoot, 'include')
-
-    if env['layout'] == 'compact':
-        env['inst_matlab_dir'] = pjoin(instRoot, 'matlab', 'toolbox')
-        env['inst_datadir'] = pjoin(instRoot, 'data')
-        env['inst_sampledir'] = pjoin(instRoot, 'samples')
-        env['inst_docdir'] = pjoin(instRoot, 'doc')
-        env['inst_mandir'] = pjoin(instRoot, 'man1')
-    else: # env['layout'] == 'standard'
-        env['inst_matlab_dir'] = pjoin(instRoot, env['libdirname'], 'cantera',
-                                       'matlab', 'toolbox')
-        env['inst_datadir'] = pjoin(instRoot, 'share', 'cantera', 'data')
-        env['inst_sampledir'] = pjoin(instRoot, 'share', 'cantera', 'samples')
-        env['inst_docdir'] = pjoin(instRoot, 'share', 'cantera', 'doc')
-        env['inst_mandir'] = pjoin(instRoot, 'share', 'man', 'man1')
+    locations = ["libdir", "bindir", "python_bindir", "incdir", "incroot",
+        "matlab_dir", "datadir", "sampledir", "docdir", "mandir"]
+    for loc in locations:
+        env[f"inst_{loc}"] = env[f"ct_{loc}"].replace(env["ct_installroot"], instRoot)
 
 # **************************************
 # *** Set options needed in config.h ***
@@ -2014,12 +2052,13 @@ def postInstallMessage(target, source, env):
 
               {matlab_ctpath_loc!s}
         """.format(**env_dict))
+    else:
+        install_message += "\n"
 
     if os.name != 'nt':
         env['setup_cantera'] = pjoin(env['ct_bindir'], 'setup_cantera')
         env['setup_cantera_csh'] = pjoin(env['ct_bindir'], 'setup_cantera.csh')
         install_message += textwrap.dedent("""
-
             Setup scripts to configure the environment for Cantera are at:
 
               setup script (bash)         {setup_cantera!s}
