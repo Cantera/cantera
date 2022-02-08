@@ -166,25 +166,29 @@ public:
     }
 
     //! Evaluate reaction rate
-    //! @internal  Non-virtual method that should not be overloaded
     double evalRate(double logT, double recipT) const {
         return m_A * std::exp(m_b * logT - m_Ea_R * recipT);
     }
 
     //! Evaluate natural logarithm of the rate constant.
-    //! @internal  Non-virtual method that should not be overloaded
     double evalLog(double logT, double recipT) const {
         return m_logA + m_b * logT - m_Ea_R * recipT;
     }
 
     //! Evaluate reaction rate
-    double evalRate(const ArrheniusData& shared_data) const {
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    double evalFromStruct(const ArrheniusData& shared_data) const {
         return m_A * std::exp(m_b * shared_data.logT - m_Ea_R * shared_data.recipT);
     }
 
     //! Evaluate derivative of reaction rate with respect to temperature
     //! divided by reaction rate
-    double ddTScaled(const ArrheniusData& shared_data) const {
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    double ddTScaledFromStruct(const ArrheniusData& shared_data) const {
         return (m_Ea_R * shared_data.recipT + m_b) * shared_data.recipT;
     }
 };
@@ -228,12 +232,13 @@ public:
         return "two-temperature-plasma";
     }
 
-    //! Context
     virtual void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
     //! Evaluate reaction rate
-    //! @internal  Non-virtual method that should not be overloaded
-    double evalRate(const TwoTempPlasmaData& shared_data) const {
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    double evalFromStruct(const TwoTempPlasmaData& shared_data) const {
         // m_E4_R is the electron activation (in temperature units)
         return m_A * std::exp(m_b * shared_data.logTe -
                               m_Ea_R * shared_data.recipT +
@@ -246,9 +251,9 @@ public:
     /*!
      *  This method does not consider changes of electron temperature.
      *  A corresponding warning is raised.
-     *  @internal  Non-virtual method that should not be overloaded
+     *  @param shared_data  data shared by all reactions of a given type
      */
-    double ddTScaled(const TwoTempPlasmaData& shared_data) const;
+    double ddTScaledFromStruct(const TwoTempPlasmaData& shared_data) const;
 
     //! Return the electron activation energy *Ea* [J/kmol]
     double activationElectronEnergy() const {
@@ -313,7 +318,6 @@ public:
         return "Blowers-Masel";
     }
 
-    //! Set context
     virtual void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
     //! Update information specific to reaction
@@ -330,20 +334,21 @@ public:
     }
 
     //! Evaluate reaction rate
-    //! @internal  Non-virtual method that should not be overloaded
-    double evalRate(const BlowersMaselData& shared_data) const {
+    /*!
+     *  @param shared_data  data shared by all reactions of a given type
+     */
+    double evalFromStruct(const BlowersMaselData& shared_data) const {
         double Ea_R = effectiveActivationEnergy_R(m_deltaH_R);
         return m_A * std::exp(m_b * shared_data.logT - Ea_R * shared_data.recipT);
     }
 
-    //! Evaluate derivative of reaction rate with respect to temperature
     //! divided by reaction rate
     /*!
      *  This method does not consider potential changes due to a changed reaction
      *  enthalpy. A corresponding warning is raised.
-     *  @internal  Non-virtual method that should not be overloaded
+     *  @param shared_data  data shared by all reactions of a given type
      */
-    double ddTScaled(const BlowersMaselData& shared_data) const;
+    double ddTScaledFromStruct(const BlowersMaselData& shared_data) const;
 
     //! Return the effective activation energy (a function of the delta H of reaction)
     //! divided by the gas constant (i.e. the activation temperature) [K]
@@ -384,7 +389,7 @@ protected:
 
 //! A class template for bulk phase reaction rate specifications
 template <class RateType, class DataType>
-class BulkRate final : public RateType
+class BulkRate : public RateType
 {
 public:
     BulkRate() = default;
@@ -424,23 +429,6 @@ public:
         if (RateType::type() != "Arrhenius") {
             node["type"] = RateType::type();
         }
-    }
-
-    //! Evaluate reaction rate
-    /*!
-     *  @param shared_data  data shared by all reactions of a given type
-     */
-    double evalFromStruct(const DataType& shared_data) const {
-        return RateType::evalRate(shared_data);
-    }
-
-    //! Evaluate derivative of reaction rate with respect to temperature
-    //! divided by reaction rate
-    /*!
-     *  @param shared_data  data shared by all reactions of a given type
-     */
-    double ddTScaledFromStruct(const DataType& shared_data) const {
-        return RateType::ddTScaled(shared_data);
     }
 };
 
