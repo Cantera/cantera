@@ -110,11 +110,10 @@ class Solution(Transport, Kinetics, ThermoPhase):
 
 class Interface(InterfaceKinetics, InterfacePhase):
     """
-    Two-dimensional interfaces.
-
-    Instances of class `Interface` represent reacting 2D interfaces between bulk
-    3D phases. Class `Interface` defines no methods of its own. All of its
-    methods derive from either `InterfacePhase` or `InterfaceKinetics`.
+    Instances of class `Interface` represent reacting 2D surfaces between bulk 3D
+    phases, or 1D edges where multiple surfaces (and bulk phases) meet. Class
+    `Interface` defines no methods of its own. All of its methods derive from either
+    `InterfacePhase` or `InterfaceKinetics`.
 
     Constructing an `Interface` object also involves constructing adjacent bulk phases
     that participate in reactions. This is done automatically if the adjacent phases
