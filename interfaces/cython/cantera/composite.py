@@ -334,11 +334,21 @@ def _prop(attr):
 
     return property(getter, setter, doc=getattr(Solution, attr).__doc__)
 
+def _method(orig):
+    def f(self, *args, **kwargs):
+        return orig(self.phase, *args, **kwargs)
+    f.__doc__ = orig.__doc__
+    return f
+
 for _attr in dir(Solution):
     if _attr.startswith('_') or _attr in Quantity.__dict__ or _attr == 'state':
         continue
     else:
-        setattr(Quantity, _attr, _prop(_attr))
+        _orig = getattr(Solution, _attr)
+        if hasattr(_orig, "__call__"):
+            setattr(Quantity, _attr, _method(_orig))
+        else:
+            setattr(Quantity, _attr, _prop(_attr))
 
 
 class SolutionArray:
@@ -1566,10 +1576,24 @@ def _make_functions():
 
         return property(getter, setter, doc=getattr(doc_source, name).__doc__)
 
+    def passthrough_method(orig):
+        def f(self, *args, **kwargs):
+            return orig(self._phase, *args, **kwargs)
+        f.__doc__ = orig.__doc__
+        return f
+
     for name in SolutionArray._passthrough:
-        setattr(SolutionArray, name, passthrough_prop(name, Solution))
+        orig = getattr(Solution, name)
+        if hasattr(orig, "__call__"):
+            setattr(SolutionArray, name, passthrough_method(orig))
+        else:
+            setattr(SolutionArray, name, passthrough_prop(name, Solution))
 
     for name in SolutionArray._interface_passthrough:
-        setattr(SolutionArray, name, passthrough_prop(name, Interface))
+        orig = getattr(Interface, name)
+        if hasattr(orig, "__call__"):
+            setattr(SolutionArray, name, passthrough_method(orig))
+        else:
+            setattr(SolutionArray, name, passthrough_prop(name, Interface))
 
 _make_functions()
