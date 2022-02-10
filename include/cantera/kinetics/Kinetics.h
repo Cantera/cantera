@@ -173,6 +173,14 @@ public:
         return m_thermo.size();
     }
 
+    /**
+     * Return index specifying the beginning position for the species vector for
+     * the n-th phase in the kinetics class.
+     */
+    size_t startIndex(size_t n) const {
+        return m_start.at(n);
+    }
+
     //! Check that the specified phase index is in range
     //! Throws an exception if m is greater than nPhases()
     void checkPhaseIndex(size_t m) const;
