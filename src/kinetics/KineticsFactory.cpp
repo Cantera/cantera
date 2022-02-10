@@ -49,6 +49,7 @@ KineticsFactory::KineticsFactory() {
     reg("surface", []() { return new InterfaceKinetics(); });
     addAlias("surface", "interface");
     addAlias("surface", "Surf");
+    addAlias("surface", "surf");
     reg("edge", []() { return new EdgeKinetics(); });
     addAlias("edge", "Edge");
 }

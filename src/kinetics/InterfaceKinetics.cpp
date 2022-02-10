@@ -84,9 +84,22 @@ void InterfaceKinetics::_update_rates_T()
             applyVoltageKfwdCorrection(m_rfn.data());
         }
         m_temp = T;
-        updateKc();
         m_ROP_ok = false;
         m_redo_rates = false;
+    }
+
+    // loop over MultiRate evaluators for each reaction type
+    for (auto& rates : m_interface_rates) {
+        bool changed = rates->update(thermo(), *this);
+        if (changed) {
+            rates->getRateConstants(m_rfn.data());
+            m_ROP_ok = false;
+            m_redo_rates = true;
+        }
+    }
+
+    if (!m_ROP_ok) {
+        updateKc();
     }
 }
 
@@ -488,7 +501,45 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
     if (!added) {
         return false;
     }
-    if (r_base->reaction_type == BMINTERFACE_RXN) {
+
+    if (r_base->reversible) {
+        m_revindex.push_back(i);
+    } else {
+        m_irrev.push_back(i);
+    }
+
+    m_rxnPhaseIsReactant.emplace_back(nPhases(), false);
+    m_rxnPhaseIsProduct.emplace_back(nPhases(), false);
+
+    for (const auto& sp : r_base->reactants) {
+        size_t k = kineticsSpeciesIndex(sp.first);
+        size_t p = speciesPhaseIndex(k);
+        m_rxnPhaseIsReactant[i][p] = true;
+    }
+    for (const auto& sp : r_base->products) {
+        size_t k = kineticsSpeciesIndex(sp.first);
+        size_t p = speciesPhaseIndex(k);
+        m_rxnPhaseIsProduct[i][p] = true;
+    }
+
+    if (!(r_base->usesLegacy())) {
+        shared_ptr<ReactionRate> rate = r_base->rate();
+        // If necessary, add new MultiRate evaluator
+        if (m_interface_types.find(rate->type()) == m_interface_types.end()) {
+            m_interface_types[rate->type()] = m_interface_rates.size();
+            m_interface_rates.push_back(rate->newMultiRate());
+            m_interface_rates.back()->resize(m_kk, nReactions());
+        }
+
+        // Set index of rate to number of reaction within kinetics
+        rate->setRateIndex(nReactions() - 1);
+        rate->setContext(*r_base.get(), *this);
+
+        // Add reaction rate to evaluator
+        size_t index = m_interface_types[rate->type()];
+        m_interface_rates[index]->add(nReactions() - 1, *rate);
+
+    } else if (r_base->reaction_type == BMINTERFACE_RXN) {
         BlowersMaselInterfaceReaction2& r = dynamic_cast<BlowersMaselInterfaceReaction2&>(*r_base);
         BMSurfaceArrhenius rate = buildBMSurfaceArrhenius(i, r, false);
         m_blowers_masel_rates.install(i, rate);
@@ -497,26 +548,6 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
         if (!r.coverage_deps.empty()) {
             m_has_coverage_dependence = true;
         }
-        if (r.reversible) {
-            m_revindex.push_back(i);
-        } else {
-            m_irrev.push_back(i);
-        }
-
-        m_rxnPhaseIsReactant.emplace_back(nPhases(), false);
-        m_rxnPhaseIsProduct.emplace_back(nPhases(), false);
-
-        for (const auto& sp : r.reactants) {
-            size_t k = kineticsSpeciesIndex(sp.first);
-            size_t p = speciesPhaseIndex(k);
-            m_rxnPhaseIsReactant[i][p] = true;
-        }
-        for (const auto& sp : r.products) {
-            size_t k = kineticsSpeciesIndex(sp.first);
-            size_t p = speciesPhaseIndex(k);
-            m_rxnPhaseIsProduct[i][p] = true;
-        }
-
     } else {
         InterfaceReaction2& r = dynamic_cast<InterfaceReaction2&>(*r_base);
         SurfaceArrhenius rate = buildSurfaceArrhenius(i, r, false);
@@ -538,25 +569,6 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
                 m_ctrxn_ecdf.push_back(0);
             }
         }
-        if (r.reversible) {
-            m_revindex.push_back(i);
-        } else {
-            m_irrev.push_back(i);
-        }
-
-        m_rxnPhaseIsReactant.emplace_back(nPhases(), false);
-        m_rxnPhaseIsProduct.emplace_back(nPhases(), false);
-
-        for (const auto& sp : r.reactants) {
-            size_t k = kineticsSpeciesIndex(sp.first);
-            size_t p = speciesPhaseIndex(k);
-            m_rxnPhaseIsReactant[i][p] = true;
-        }
-        for (const auto& sp : r.products) {
-            size_t k = kineticsSpeciesIndex(sp.first);
-            size_t p = speciesPhaseIndex(k);
-            m_rxnPhaseIsProduct[i][p] = true;
-        }
     }
     deltaElectricEnergy_.push_back(0.0);
     m_deltaG0.push_back(0.0);
@@ -569,7 +581,20 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
 void InterfaceKinetics::modifyReaction(size_t i, shared_ptr<Reaction> r_base)
 {
     Kinetics::modifyReaction(i, r_base);
-    if (r_base->reaction_type == BMINTERFACE_RXN) {
+    if (!(r_base->usesLegacy())) {
+        shared_ptr<ReactionRate> rate = r_base->rate();
+        // Ensure that MultiBulkRate evaluator is available
+        if (m_interface_types.find(rate->type()) == m_interface_types.end()) {
+            throw CanteraError("InterfaceKinetics::modifyReaction",
+                 "Evaluator not available for type '{}'.", rate->type());
+        }
+
+        // Replace reaction rate to evaluator
+        size_t index = m_interface_types[rate->type()];
+        rate->setRateIndex(i);
+        rate->setContext(*r_base.get(), *this);
+        m_interface_rates[index]->replace(i, *rate);
+    } else if (r_base->reaction_type == BMINTERFACE_RXN) {
         BlowersMaselInterfaceReaction2& r = dynamic_cast<BlowersMaselInterfaceReaction2&>(*r_base);
         BMSurfaceArrhenius rate = buildBMSurfaceArrhenius(i, r, true);
         m_blowers_masel_rates.replace(i, rate);
