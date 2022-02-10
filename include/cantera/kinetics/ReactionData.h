@@ -300,6 +300,45 @@ protected:
     double m_pressure_buf; //!< buffered pressure
 };
 
+
+//! Data container holding shared data for reaction rate specification with interfaces
+/**
+ * The data container CoverageData holds precalculated data common to
+ * InterfaceRate and StickingRate objects.
+ */
+struct CoverageData : virtual public ReactionData
+{
+    CoverageData();
+
+    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
+
+    virtual void update(double T) override;
+
+    virtual void update(double T, const vector_fp& values) override;
+
+    using ReactionData::update;
+
+    virtual void perturbTemperature(double deltaT);
+
+    virtual void resize(size_t n_species, size_t n_reactions) override {
+        coverages.resize(n_species, 0.);
+        logCoverages.resize(n_species, 0.);
+        grt.resize(n_species, 0.);
+        ready = true;
+    }
+
+    bool ready; //!< boolean indicating whether vectors are accessible
+    double siteDensity; //!< site density
+    double sqrtT; //!< square root of temperature
+
+    vector_fp coverages; //!< vector holding surface coverages
+    vector_fp logCoverages; //!< vector holding logarithm of surface coverages
+    vector_fp grt; //!< partial molar enthalpies
+
+protected:
+    int m_state_mf_number; //!< integer that is incremented when composition changes
+};
+
 }
 
 #endif

@@ -6,6 +6,7 @@
 #include "cantera/kinetics/ReactionData.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/ctexceptions.h"
 
 namespace Cantera
@@ -271,6 +272,78 @@ void ChebyshevData::restore()
     }
     update(temperature, m_pressure_buf);
     m_pressure_buf = -1.;
+}
+
+CoverageData::CoverageData()
+    : ready(false)
+    , siteDensity(NAN)
+    , sqrtT(NAN)
+    , m_state_mf_number(-1)
+{
+}
+
+void CoverageData::update(double T)
+{
+    throw CanteraError("CoverageData::update",
+        "Missing state information: 'CoverageData' requires species coverages.");
+}
+
+void CoverageData::update(double T, const vector_fp& values)
+{
+    warn_user("CoverageData::update",
+        "This method does not update the site density.");
+    ReactionData::update(T);
+    sqrtT = sqrt(T);
+    if (coverages.size() == 0) {
+        coverages = values;
+        logCoverages.resize(values.size());
+    } else if (values.size() == coverages.size()) {
+        std::copy(values.begin(), values.end(), coverages.begin());
+    } else {
+        throw CanteraError("CoverageData::update",
+            "Incompatible lengths of coverage arrays: received {} elements while "
+            "{} are required.", values.size(), coverages.size());
+    }
+    for (size_t n = 0; n < coverages.size(); n++) {
+        logCoverages[n] = std::log(std::max(coverages[n], Tiny));
+    }
+}
+
+bool CoverageData::update(const ThermoPhase& phase, const Kinetics& kin)
+{
+    int mf = phase.stateMFNumber();
+    double T = phase.temperature();
+    bool changed = false;
+    const auto& surf = dynamic_cast<const SurfPhase&>(
+        kin.thermo(kin.surfacePhaseIndex()));
+    double site_density = surf.siteDensity();
+    if (siteDensity != site_density) {
+        siteDensity = surf.siteDensity();
+        changed = true;
+    }
+    if (T != temperature) {
+        ReactionData::update(T);
+        sqrtT = sqrt(T);
+        changed = true;
+    }
+    if (changed || mf != m_state_mf_number) {
+        phase.getActivityConcentrations(coverages.data());
+        surf.getCoverages(coverages.data());
+        for (size_t n = 0; n < coverages.size(); n++) {
+            logCoverages[n] = std::log(std::max(coverages[n], Tiny));
+        }
+        for (size_t n = 0; n < kin.nPhases(); n++) {
+            kin.thermo(n).getPartialMolarEnthalpies(grt.data() + kin.startIndex(n));
+        }
+        m_state_mf_number = mf;
+        changed = true;
+    }
+    return changed;
+}
+
+void CoverageData::perturbTemperature(double deltaT)
+{
+    throw NotImplementedError("CoverageData::perturbTemperature");
 }
 
 }

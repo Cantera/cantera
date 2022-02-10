@@ -305,7 +305,7 @@ public:
     /*!
      * Site density kmol m-2
      */
-    doublereal siteDensity() {
+    double siteDensity() const {
         return m_n0;
     }
 
