@@ -52,7 +52,7 @@ cdef object _wrap_Solution(shared_ptr[CxxSolution] cxx_soln):
 
 
 cdef class _SolutionBase:
-    def __cinit__(self, infile='', name='', adjacent=(), origin=None,
+    def __cinit__(self, infile='', name='', adjacent=(), *, origin=None,
                   source=None, yaml=None, thermo=None, species=(),
                   kinetics=None, reactions=(), init=True, **kwargs):
 
