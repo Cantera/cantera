@@ -108,6 +108,11 @@ public:
         _update();
     }
 
+    virtual void update(double T, const vector_fp& extra) override {
+        m_shared.update(T, extra);
+        _update();
+    }
+
     virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override {
         bool changed = m_shared.update(phase, kin);
         if (changed) {

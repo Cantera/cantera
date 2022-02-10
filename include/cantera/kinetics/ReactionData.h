@@ -45,6 +45,14 @@ struct ReactionData
      */
     virtual void update(double T, double extra);
 
+    //! Update data container based on temperature *T* and a vector parameter *extra*
+    /**
+     * Only used in conjunction with MultiRateBase::evalSingle / ReactionRate::eval.
+     * This method allows for testing of a reaction rate expression outside of
+     * Kinetics reaction rate evaluators.
+     */
+    virtual void update(double T, const vector_fp& extra);
+
     //! Update data container based on thermodynamic phase state
     /**
      * This update mechanism is used by Kinetics reaction rate evaluators.
@@ -112,6 +120,8 @@ struct TwoTempPlasmaData : public ReactionData
 
     virtual void update(double T, double Te) override;
 
+    using ReactionData::update;
+
     virtual void updateTe(double Te);
 
     virtual void invalidateCache() override {
@@ -139,6 +149,8 @@ struct BlowersMaselData : public ReactionData
     virtual void update(double T) override;
 
     virtual void update(double T, double deltaH) override;
+
+    using ReactionData::update;
 
     virtual void resize(size_t n_species, size_t n_reactions) override {
         grt.resize(n_species, 0.);
@@ -169,6 +181,8 @@ struct FalloffData : public ReactionData
     virtual void update(double T) override;
 
     virtual void update(double T, double M) override;
+
+    using ReactionData::update;
 
     //! Perturb third-body concentration vector of data container
     /**
@@ -220,6 +234,8 @@ struct PlogData : public ReactionData
 
     virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
 
+    using ReactionData::update;
+
     //! Perturb pressure of data container
     /**
      * The method is used for the evaluation of numerical derivatives.
@@ -260,6 +276,8 @@ struct ChebyshevData : public ReactionData
     }
 
     virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
+
+    using ReactionData::update;
 
     //! Perturb pressure of data container
     /**

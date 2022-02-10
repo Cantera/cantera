@@ -149,6 +149,19 @@ public:
         return _evaluator().evalSingle(*this);
     }
 
+    //! Evaluate reaction rate based on temperature and an extra vector parameter.
+    //! Specific rate parameterizations may require additional parameters, which
+    //! are specific to the derived ReactionRate object.
+    //! @param T  temperature [K]
+    //! @param extra  extra vector parameter used by parameterization
+    //! Used in conjunction with MultiRateBase::evalSingle / ReactionRate::eval.
+    //! This method allows for testing of a reaction rate expression outside of
+    //! Kinetics reaction rate evaluators.
+    double eval(double T, const std::vector<double>& extra) {
+        _evaluator().update(T, extra);
+        return _evaluator().evalSingle(*this);
+    }
+
 protected:
     //! Get parameters
     //! @param node  AnyMap containing rate information
