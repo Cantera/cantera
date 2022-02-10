@@ -362,7 +362,6 @@ cdef class ThermoPhase(_SolutionBase):
     as a base class for classes `Solution` and `Interface`.
     """
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if 'source' not in kwargs:

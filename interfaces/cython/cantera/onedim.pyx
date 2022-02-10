@@ -13,7 +13,6 @@ cdef class Domain1D:
     def __cinit__(self, *args, **kwargs):
         self.domain = NULL
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, _SolutionBase phase, *args, name=None, **kwargs):
         self._weakref_proxy = _WeakrefProxy()
         if self.domain is NULL:
@@ -280,7 +279,6 @@ cdef class Boundary1D(Domain1D):
     def __cinit__(self, *args, **kwargs):
         self.boundary = NULL
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, **kwargs):
         if self.boundary is NULL:
             raise TypeError("Can't instantiate abstract class Boundary1D.")
@@ -708,7 +706,6 @@ cdef class Sim1D:
     def __cinit__(self, *args, **kwargs):
         self.sim = NULL
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, domains, *args, **kwargs):
         cdef vector[CxxDomain1D*] D
         cdef Domain1D d

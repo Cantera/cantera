@@ -19,7 +19,6 @@ cdef class ReactorBase:
     def __cinit__(self, *args, **kwargs):
         self.rbase = newReactor(stringify(self.reactor_type))
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, ThermoPhase contents=None, name=None, *, volume=None):
         self._weakref_proxy = _WeakrefProxy()
         self._inlets = []
@@ -167,7 +166,6 @@ cdef class Reactor(ReactorBase):
     def __cinit__(self, *args, **kwargs):
         self.reactor = <CxxReactor*>(self.rbase)
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, contents=None, *, name=None, energy='on', **kwargs):
         """
         :param contents:
@@ -655,7 +653,6 @@ cdef class WallBase:
     def __cinit__(self, *args, **kwargs):
         self.wall = newWall(stringify(self.wall_type))
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, left, right, *, name=None, A=None, K=None, U=None,
                  Q=None, velocity=None):
         """
@@ -853,7 +850,6 @@ cdef class FlowDevice:
     def __cinit__(self, *args, **kwargs):
         self.dev = newFlowDevice(stringify(self.flowdevice_type))
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None):
         assert self.dev != NULL
         self._rate_func = None
@@ -959,7 +955,6 @@ cdef class MassFlowController(FlowDevice):
     """
     flowdevice_type = "MassFlowController"
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None, mdot=1.):
         super().__init__(upstream, downstream, name=name)
         self.mass_flow_rate = mdot
@@ -1034,7 +1029,6 @@ cdef class Valve(FlowDevice):
     """
     flowdevice_type = "Valve"
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None, K=1.):
         super().__init__(upstream, downstream, name=name)
         if isinstance(K, _numbers.Real):
@@ -1078,7 +1072,6 @@ cdef class PressureController(FlowDevice):
     """
     flowdevice_type = "PressureController"
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None, master=None, K=1.):
         super().__init__(upstream, downstream, name=name)
         if master is not None:
