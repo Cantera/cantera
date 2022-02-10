@@ -95,6 +95,12 @@ public:
     //! @param extra  extra parameter (depends on parameterization)
     virtual void update(double T, double extra) = 0;
 
+    //! Update common reaction rate data based on temperature and extra parameter.
+    //! Only used in conjunction with evalSingle and ReactionRate::eval
+    //! @param T  temperature [K]
+    //! @param extra  extra vector parameter (depends on parameterization)
+    virtual void update(double T, const vector_fp& extra) = 0;
+
     //! Update data common to reaction rates of a specific type.
     //! This update mechanism is used by Kinetics reaction rate evaluators.
     //! @param phase  object representing reacting phase

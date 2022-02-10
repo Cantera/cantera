@@ -14,7 +14,13 @@ namespace Cantera
 void ReactionData::update(double T, double extra)
 {
     throw NotImplementedError("ReactionData::update",
-        "ReactionData type does not use extra argument.");
+        "ReactionData type does not use extra scalar argument.");
+}
+
+void ReactionData::update(double T, const vector_fp& extra)
+{
+    throw NotImplementedError("ReactionData::update",
+        "ReactionData type does not use extra vector argument.");
 }
 
 void ReactionData::perturbTemperature(double deltaT)
