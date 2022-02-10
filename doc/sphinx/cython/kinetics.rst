@@ -27,47 +27,47 @@ evaluation is handled by dedicated `ReactionRate` objects.
 
 Reaction
 ^^^^^^^^
-.. autoclass:: Reaction(reactants='', products='')
+.. autoclass:: Reaction
    :no-undoc-members:
 
 ElementaryReaction
 ^^^^^^^^^^^^^^^^^^
-.. autoclass:: ElementaryReaction(reactants='', products='')
+.. autoclass:: ElementaryReaction
    :no-undoc-members:
 
 ThreeBodyReaction
 ^^^^^^^^^^^^^^^^^
-.. autoclass:: ThreeBodyReaction(reactants='', products='')
+.. autoclass:: ThreeBodyReaction
    :no-undoc-members:
 
 FalloffReaction
 ^^^^^^^^^^^^^^^
-.. autoclass:: FalloffReaction(reactants='', products='')
+.. autoclass:: FalloffReaction
    :no-undoc-members:
 
 ChemicallyActivatedReaction
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: ChemicallyActivatedReaction(reactants='', products='')
+.. autoclass:: ChemicallyActivatedReaction
    :no-undoc-members:
 
 PlogReaction
 ^^^^^^^^^^^^
-.. autoclass:: PlogReaction(reactants='', products='')
+.. autoclass:: PlogReaction
    :no-undoc-members:
 
 ChebyshevReaction
 ^^^^^^^^^^^^^^^^^
-.. autoclass:: ChebyshevReaction(reactants='', products='')
+.. autoclass:: ChebyshevReaction
    :no-undoc-members:
 
 InterfaceReaction
 ^^^^^^^^^^^^^^^^^
-.. autoclass:: InterfaceReaction(reactants='', products='')
+.. autoclass:: InterfaceReaction
    :no-undoc-members:
 
 BlowersMaselInterfaceReaction
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: BlowersMaselInterfaceReaction(reactants='', products='')
+.. autoclass:: BlowersMaselInterfaceReaction
    :no-undoc-members:
 
 Reaction Rates
@@ -137,8 +137,8 @@ CustomRate
 .. autoclass:: CustomRate(k)
    :no-undoc-members:
 
-Auxilliary Reaction Data (legacy only)
---------------------------------------
+Auxiliary Reaction Data (legacy only)
+-------------------------------------
 
 Arrhenius
 ^^^^^^^^^
