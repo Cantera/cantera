@@ -1487,16 +1487,8 @@ cdef class ReactorSurface:
     cdef CxxReactorSurface* surface
     cdef Kinetics _kinetics
 
-cdef class WallSurface:
-    cdef CxxWallBase* cxxwall
-    cdef object wall
-    cdef int side
-    cdef Kinetics _kinetics
-
 cdef class WallBase:
     cdef CxxWallBase* wall
-    cdef WallSurface left_surface
-    cdef WallSurface right_surface
     cdef object _velocity_func
     cdef object _heat_flux_func
     cdef ReactorBase _left_reactor
