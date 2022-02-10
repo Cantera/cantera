@@ -11,7 +11,7 @@ Kinetics Managers
 
 Kinetics
 ^^^^^^^^
-.. autoclass:: Kinetics(infile='', phaseid='', phases=())
+.. autoclass:: Kinetics
 
 InterfaceKinetics
 ^^^^^^^^^^^^^^^^^

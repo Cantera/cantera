@@ -18,16 +18,16 @@ Base Classes
 
 ReactorBase
 ^^^^^^^^^^^
-.. autoclass:: ReactorBase(contents=None, name=None)
+.. autoclass:: ReactorBase
 
 FlowDevice
 ^^^^^^^^^^
-.. autoclass:: FlowDevice(upstream, downstream, *, name=None)
+.. autoclass:: FlowDevice
 
 Reactor Networks
 ----------------
 
-.. autoclass:: ReactorNet(reactors=())
+.. autoclass:: ReactorNet
 
 Reactors
 --------
@@ -38,7 +38,7 @@ Reservoir
 
 Reactor
 ^^^^^^^
-.. autoclass:: Reactor(contents=None, *, name=None, energy='on')
+.. autoclass:: Reactor
 
 IdealGasReactor
 ^^^^^^^^^^^^^^^
@@ -58,7 +58,7 @@ FlowReactor
 
 ExtensibleReactor
 ^^^^^^^^^^^^^^^^^
-.. autoclass:: ExtensibleReactor
+.. autoclass:: ExtensibleReactor(contents=None, *, name=None, energy='on')
 
 ExtensibleIdealGasReactor
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -95,15 +95,15 @@ Flow Controllers
 
 MassFlowController
 ^^^^^^^^^^^^^^^^^^
-.. autoclass:: MassFlowController(upstream, downstream, *, name=None, mdot=None)
+.. autoclass:: MassFlowController
    :inherited-members:
 
 Valve
 ^^^^^
-.. autoclass:: Valve(upstream, downstream, *, name=None, K=None)
+.. autoclass:: Valve
    :inherited-members:
 
 PressureController
 ^^^^^^^^^^^^^^^^^^
-.. autoclass:: PressureController(upstream, downstream, *, name=None, master=None, K=None)
+.. autoclass:: PressureController
    :inherited-members:
