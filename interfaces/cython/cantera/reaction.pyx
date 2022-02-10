@@ -751,7 +751,7 @@ cdef class Reaction:
     _has_legacy = False
     _hybrid = False # indicate whether legacy implementations are separate or merged
 
-    def __cinit__(self, reactants="", products="", rate=None, *, legacy=False,
+    def __cinit__(self, reactants=None, products=None, rate=None, *, legacy=False,
                   init=True, **kwargs):
         if init:
             rxn_type = self._reaction_type
@@ -1674,7 +1674,7 @@ cdef class ThreeBodyReaction(ElementaryReaction):
             return &(self.cxx_threebody2().third_body)
         return <CxxThirdBody*>(self.cxx_threebody().thirdBody().get())
 
-    def __init__(self, reactants="", products="", rate=None, *, equation=None,
+    def __init__(self, reactants=None, products=None, rate=None, *, equation=None,
                  efficiencies=None, Kinetics kinetics=None, legacy=False, init=True,
                  **kwargs):
 
@@ -1884,7 +1884,7 @@ cdef class FalloffReaction(Reaction):
             return &(self.cxx_object2().third_body)
         return <CxxThirdBody*>(self.cxx_object().thirdBody().get())
 
-    def __init__(self, reactants="", products="", rate=None, *, equation=None,
+    def __init__(self, reactants=None, products=None, rate=None, *, equation=None,
                  efficiencies=None, Kinetics kinetics=None, init=True, legacy=False,
                  **kwargs):
 
@@ -2087,8 +2087,8 @@ cdef class PlogReaction(Reaction):
             raise AttributeError("Incorrect accessor for legacy implementation")
         return <CxxPlogReaction2*>self.reaction
 
-    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
-                 init=True, **kwargs):
+    def __init__(self, reactants=None, products=None, rate=None, *, equation=None,
+                 Kinetics kinetics=None, init=True, **kwargs):
 
         if init and equation and kinetics:
             rxn_type = self._reaction_type + "-legacy"
@@ -2202,8 +2202,8 @@ cdef class ChebyshevReaction(Reaction):
     cdef CxxChebyshevReaction2* cxx_object2(self):
         return <CxxChebyshevReaction2*>self.reaction
 
-    def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
-                 init=True, **kwargs):
+    def __init__(self, reactants=None, products=None, rate=None, *, equation=None,
+                 Kinetics kinetics=None, init=True, **kwargs):
 
         if init and equation and kinetics:
             warnings.warn("Class 'ChebyshevReaction' to be removed after Cantera 2.6.\n"
