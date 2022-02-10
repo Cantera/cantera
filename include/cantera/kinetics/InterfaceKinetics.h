@@ -422,6 +422,10 @@ protected:
 
     bool m_redo_rates;
 
+    //! Vector of rate handlers
+    std::vector<unique_ptr<MultiRateBase>> m_interface_rates;
+    std::map<std::string, size_t> m_interface_types; //!< Mapping of rate handlers
+
     //! Vector of irreversible reaction numbers
     /*!
      * vector containing the reaction numbers of irreversible reactions.
