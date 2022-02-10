@@ -77,11 +77,7 @@ Walls
 
 Wall
 ^^^^
-.. autoclass:: Wall(left, right, *, name=None, A=None, K=None, U=None, Q=None, velocity=None, kinetics=(None,None))
-
-WallSurface
-^^^^^^^^^^^
-.. autoclass:: WallSurface(wall, side)
+.. autoclass:: Wall(left, right, *, name=None, A=None, K=None, U=None, Q=None, velocity=None)
 
 Surfaces
 --------

@@ -677,9 +677,6 @@ cdef class WallBase:
             Wall velocity function :math:`v_0(t)` [m/s].
             Default: :math:`v_0(t) = 0.0`.
         """
-        self.left_surface = WallSurface(self, 0)
-        self.right_surface = WallSurface(self, 1)
-
         self._velocity_func = None
         self._heat_flux_func = None
 
@@ -718,16 +715,6 @@ cdef class WallBase:
         """The type of the wall."""
         def __get__(self):
             return pystr(self.wall.type())
-
-    property left:
-        """ The left surface of this wall. """
-        def __get__(self):
-            return self.left_surface
-
-    property right:
-        """ The right surface of this wall. """
-        def __get__(self):
-            return self.right_surface
 
     property area:
         """ The wall area [m^2]. """
