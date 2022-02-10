@@ -1099,7 +1099,7 @@ void AnyValue::applyUnits(shared_ptr<UnitSystem>& units)
                 || delta.hasKey("time"))
             {
                 throw CanteraError("AnyValue::applyUnits", "AnyMap contains values"
-                    " that cannot be converted to non-default unit systems (probably"
+                    " that cannot be converted to non-default unit systems\n(probably"
                     " reaction rates not associated with a Kinetics object)");
             }
         }
