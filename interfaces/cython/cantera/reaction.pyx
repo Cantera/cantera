@@ -1644,7 +1644,6 @@ cdef class ThreeBodyReaction(ElementaryReaction):
 
         rxn = ThreeBodyReaction(
             equation="2 O + M <=> O2 + M",
-            type="three-body",
             rate={"A": 1.2e+17, "b": -1.0, "Ea": 0.0},
             efficiencies={"H2": 2.4, "H2O": 15.4, "AR": 0.83},
             kinetics=gas)
@@ -1851,17 +1850,16 @@ cdef class FalloffReaction(Reaction):
 
         rxn = FalloffReaction(
             equation="2 OH (+ M) <=> H2O2 (+ M)",
-            type="falloff",
             rate=ct.TroeRate(low=ct.Arrhenius(2.3e+12, -0.9, -7112800.0),
                              high=ct.Arrhenius(7.4e+10, -0.37, 0),
-                             data=[0.7346, 94.0, 1756.0, 5182.0])
+                             falloff_coeffs=[0.7346, 94.0, 1756.0, 5182.0]),
             efficiencies={"AR": 0.7, "H2": 2.0, "H2O": 6.0},
             kinetics=gas)
 
     The YAML description corresponding to this reaction is::
 
         equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 3
-        type: falloff-legacy
+        type: falloff
         low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -1700.0 cal/mol}
         high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0 cal/mol}
         Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
