@@ -870,6 +870,7 @@ except subprocess.CalledProcessError:
     env["git_commit"] = "unknown"
 
 # Print values of all build options:
+# the (updated) "cantera.conf" combines all options that were specified by the user
 cantera_conf = Path("cantera.conf").read_text()
 logger.info("Configuration variables read from 'cantera.conf' and command line:")
 logger.info(textwrap.indent(cantera_conf, "    "), print_level=False)
@@ -1642,17 +1643,16 @@ if env['matlab_toolbox'] == 'y':
 # /usr/local because of dist-packages vs site-packages
 env['debian'] = any(name.endswith('dist-packages') for name in sys.path)
 
+# Identify options selected either on command line or in cantera.conf
+selected_options = set(line.split("=")[0].strip()
+    for line in cantera_conf.splitlines())
+
 # Check whether Cantera should be installed into a conda environment
 if conda_prefix is not None:
-    if env["layout"] != "conda":
-        # identify options selected either on command line or in cantera.conf
-        selected_options = set(line.split("=")[0].strip()
-            for line in cantera_conf.splitlines())
-        use_conda = (
-            not selected_options &
-            {"layout", "prefix", "python_prefix", "python_cmd"})
-        use_conda &= sys.executable.startswith(conda_prefix)
-        if use_conda:
+    if env["layout"] != "conda" and sys.executable.startswith(conda_prefix):
+        # use conda layout unless any 'blocking' options were specified
+        blocking_options = {"layout", "prefix", "python_prefix", "python_cmd"}
+        if not selected_options & blocking_options:
             env["layout"] = "conda"
             logger.info(
                 f"Using conda environment as default 'prefix': {conda_prefix}")
@@ -1663,7 +1663,11 @@ elif env["layout"] == "conda":
 # Directories where things will be after actually being installed. These
 # variables are the ones that are used to populate header files, scripts, etc.
 if env["layout"] == "conda":
-    env["prefix"] = os.path.normpath(conda_prefix)
+    if "stage_dir" in selected_options:
+        conda_prefix = Path(conda_prefix)
+        env["prefix"] = str(conda_prefix.relative_to(conda_prefix.parents[2]))
+    else:
+        env["prefix"] = os.path.normpath(conda_prefix)
 
 if env["layout"] == "conda" and os.name == "nt":
     env["ct_libdir"] = pjoin(env["prefix"], "Library", env["libdirname"])
@@ -1725,7 +1729,7 @@ if env["stage_dir"]:
     if stage_prefix.is_absolute():
         stage_prefix = Path(*stage_prefix.parts[1:])
 
-    instRoot = Path.cwd().joinpath(env["stage_dir"], stage_prefix)
+    instRoot = str(Path.cwd().joinpath(env["stage_dir"], stage_prefix))
 else:
     instRoot = env["prefix"]
 
@@ -1736,6 +1740,7 @@ if os.path.abspath(instRoot) == Dir('.').abspath:
 
 if env['layout'] == 'debian':
     base = pjoin(os.getcwd(), 'debian')
+    env["inst_root"] = base
 
     env['inst_libdir'] = pjoin(base, 'cantera-dev', 'usr', env['libdirname'])
     env['inst_incdir'] = pjoin(base, 'cantera-dev', 'usr', 'include', 'cantera')
@@ -1753,6 +1758,7 @@ if env['layout'] == 'debian':
     env['inst_python_bindir'] = pjoin(base, 'cantera-python', 'usr', 'bin')
     env['python_prefix'] = pjoin(base, 'cantera-python3')
 else:
+    env["inst_root"] = instRoot
     locations = ["libdir", "bindir", "python_bindir", "incdir", "incroot",
         "matlab_dir", "datadir", "sampledir", "docdir", "mandir"]
     for loc in locations:
@@ -2051,13 +2057,12 @@ def postInstallMessage(target, source, env):
 
               {matlab_ctpath_loc!s}
         """.format(**env_dict))
-    else:
-        install_message += "\n"
 
     if os.name != 'nt':
         env['setup_cantera'] = pjoin(env['ct_bindir'], 'setup_cantera')
         env['setup_cantera_csh'] = pjoin(env['ct_bindir'], 'setup_cantera.csh')
         install_message += textwrap.dedent("""
+
             Setup scripts to configure the environment for Cantera are at:
 
               setup script (bash)         {setup_cantera!s}
