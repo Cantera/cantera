@@ -10,6 +10,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/Falloff.h"
+#include "cantera/kinetics/Coverage.h"
 #include "cantera/base/AnyMap.h"
 
 namespace Cantera
@@ -72,6 +73,11 @@ ReactionRateFactory::ReactionRateFactory()
     // CustomFunc1Rate evaluator
     reg("custom-rate-function", [](const AnyMap& node, const UnitStack& rate_units) {
         return new CustomFunc1Rate(node, rate_units);
+    });
+
+    // ArrheniusInterfaceRate evaluator
+    reg("Arrhenius-interface", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new ArrheniusInterfaceRate(node, rate_units);
     });
 }
 
