@@ -406,20 +406,36 @@ class converterTestCommon:
         self.assertNear(surf.reaction(1).rate.activation_energy, 6.74e7)
 
         # Sticking coefficients
-        self.assertFalse(surf.reaction(1).is_sticking_coefficient)
-        self.assertTrue(surf.reaction(2).is_sticking_coefficient)
-        self.assertTrue(surf.reaction(2).use_motz_wise_correction)
-        self.assertTrue(surf.reaction(4).is_sticking_coefficient)
-        self.assertFalse(surf.reaction(4).use_motz_wise_correction)
         self.assertTrue(surf.reaction(4).duplicate)
-        self.assertTrue(surf.reaction(6).use_motz_wise_correction)
+        if self.ext == ".yaml":
+            self.assertNotIsInstance(surf.reaction(1).rate, ct.StickingArrheniusRate)
+            self.assertIsInstance(surf.reaction(2).rate, ct.StickingArrheniusRate)
+            self.assertTrue(surf.reaction(2).rate.motz_wise_correction)
+            self.assertIsInstance(surf.reaction(4).rate, ct.StickingArrheniusRate)
+            self.assertFalse(surf.reaction(4).rate.motz_wise_correction)
+            self.assertTrue(surf.reaction(6).rate.motz_wise_correction)
 
-        # Coverage dependencies
-        covdeps = surf.reaction(1).coverage_deps
-        self.assertEqual(len(covdeps), 2)
-        self.assertIn('H_Pt', covdeps)
-        self.assertEqual(covdeps['OH_Pt'][1], 1.0)
-        self.assertNear(covdeps['H_Pt'][2], -6e6) # 6000 J/gmol = 6e6 J/kmol
+            # Coverage dependencies
+            covdeps = surf.reaction(1).rate.coverage_dependencies
+            self.assertEqual(len(covdeps), 2)
+            self.assertIn("H_Pt", covdeps)
+            self.assertEqual(covdeps["OH_Pt"]["m"], 1.0)
+            self.assertNear(covdeps["H_Pt"]["E"], -6e6) # 6000 J/gmol = 6e6 J/kmol
+
+        else:
+            self.assertFalse(surf.reaction(1).is_sticking_coefficient)
+            self.assertTrue(surf.reaction(2).is_sticking_coefficient)
+            self.assertTrue(surf.reaction(2).use_motz_wise_correction)
+            self.assertTrue(surf.reaction(4).is_sticking_coefficient)
+            self.assertFalse(surf.reaction(4).use_motz_wise_correction)
+            self.assertTrue(surf.reaction(6).use_motz_wise_correction)
+
+            # Coverage dependencies
+            covdeps = surf.reaction(1).coverage_deps
+            self.assertEqual(len(covdeps), 2)
+            self.assertIn("H_Pt", covdeps)
+            self.assertEqual(covdeps["OH_Pt"][1], 1.0)
+            self.assertNear(covdeps["H_Pt"][2], -6e6) # 6000 J/gmol = 6e6 J/kmol
 
     def test_surface_mech2(self):
         output = self.convert('surface1-gas-noreac.inp', surface='surface1.inp',
@@ -432,10 +448,16 @@ class converterTestCommon:
         self.assertEqual(surf.n_reactions, 15)
 
         # Coverage dependencies
-        covdeps = surf.reaction(1).coverage_deps
-        self.assertIn('H_Pt', covdeps)
-        self.assertEqual(covdeps['OH_Pt'][1], 1.0)
-        self.assertNear(covdeps['H_Pt'][2], -6e6)
+        if self.ext == ".yaml":
+            covdeps = surf.reaction(1).rate.coverage_dependencies
+            self.assertIn("H_Pt", covdeps)
+            self.assertEqual(covdeps["OH_Pt"]["m"], 1.0)
+            self.assertNear(covdeps["H_Pt"]["E"], -6e6)
+        else:
+            covdeps = surf.reaction(1).coverage_deps
+            self.assertIn("H_Pt", covdeps)
+            self.assertEqual(covdeps["OH_Pt"][1], 1.0)
+            self.assertNear(covdeps["H_Pt"][2], -6e6)
 
     def test_third_body_plus_falloff_reactions(self):
         output = self.convert("third_body_plus_falloff_reaction.inp")
