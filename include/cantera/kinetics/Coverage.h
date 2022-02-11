@@ -100,6 +100,71 @@ protected:
 };
 
 
+class StickCoverage : public Coverage
+{
+public:
+    StickCoverage();
+
+    void setStickParameters(const AnyMap& node);
+
+    void getStickParameters(AnyMap& node) const;
+
+    //! Get flag indicating whether sticking rate uses the correction factor developed
+    //! by Motz & Wise for reactions with high (near-unity) sticking coefficients.
+    //! Defaults to 'false'.
+    bool motzWiseCorrection() const {
+        return m_motz_wise;
+    }
+
+    //! Set flag for by Motz & Wise correction factor
+    void setMotzWiseCorrection(bool motz_wise) {
+        m_motz_wise = motz_wise;
+    }
+
+    //! Get sticking species.
+    std::string stickingSpecies() const {
+        return m_stickingSpecies;
+    }
+
+    //! Set sticking species. For reactions with multiple non-surface species, the
+    //! sticking species needs to be explicitly identified.
+    void setStickingSpecies(const std::string& stickingSpecies) {
+        m_stickingSpecies = stickingSpecies;
+        m_explicitSpecies = true;
+    }
+
+    void buildStickCoefficients(const Reaction& rxn, const Kinetics& kin);
+
+    //! Return sticking coefficients
+    //! @param order  exponent applied to site density term
+    //! @param multiplier  multiplicative factor in rate expression
+    //! @param species  sticking species
+    void getStickCoefficients(double& order, double& multiplier,
+                              std::string& species) const {
+        order = m_surfaceOrder;
+        multiplier = m_multiplier;
+        species = m_stickingSpecies;
+    }
+
+    //! Specify sticking coefficients, @see getStickCoefficients
+    void setStickCoefficients(double order, double multiplier,
+                              const std::string& species, bool specified=false) {
+        m_surfaceOrder = order;
+        m_multiplier = multiplier;
+        m_stickingSpecies = species;
+        m_explicitSpecies = specified;
+    }
+
+protected:
+    bool m_motz_wise; //!< boolean indicating whether Motz & Wise correction is used
+    std::string m_stickingSpecies; //!< string identifying sticking species
+    bool m_explicitSpecies; //!< Boolean flag
+    double m_surfaceOrder; //!< exponent applied to site density term
+    double m_multiplier; //!< multiplicative factor in rate expression
+    double m_factor; //!< cached factor
+};
+
+
 //! A class template for interface reaction rate specifications
 template <class RateType, class DataType>
 class InterfaceRate : public RateType, public Coverage
