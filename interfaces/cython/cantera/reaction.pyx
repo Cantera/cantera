@@ -258,14 +258,15 @@ cdef class BlowersMaselRate(ArrheniusTypeRate):
         """
         Enthalpy change of reaction ``deltaH`` [J/kmol]
 
-        The enthalpy change of reaction is a function of temperature and thus not an
-        independent property. Accordingly, the setter should only be used for testing
-        purposes, as any value will be overwritten by a state update.
+        The enthalpy change of reaction is a function of temperature and thus not
+        an independent property. Accordingly, the setter should be only used for
+        testing purposes, as any value will be overwritten by an update of the
+        thermodynamic state.
         """
         def __get__(self):
             return self.cxx_object().deltaH()
-        def __set__(self, double deltaH):
-            self.cxx_object().setDeltaH(deltaH)
+        def __set__(self, double delta_H):
+            self.cxx_object().setDeltaH(delta_H)
 
 
 cdef class TwoTempPlasmaRate(ArrheniusTypeRate):
@@ -677,6 +678,263 @@ cdef class CustomRate(ReactionRate):
             self._rate_func = Func1(k)
 
         self.cxx_object().setRateFunction(self._rate_func._func)
+
+
+cdef class InterfaceTypeRate(ArrheniusTypeRate):
+    """
+    Base class collecting commonly used features of Arrhenius-type rate objects
+    that include coverage dependencies.
+    """
+
+    def __call__(self, double temperature, np.ndarray coverages):
+        """
+        Evaluate rate expression based on temperature and surface coverages.
+        """
+        cdef vector[double] cxxdata
+        for c in coverages:
+            cxxdata.push_back(c)
+        return self.rate.eval(temperature, cxxdata)
+
+    property coverage_dependencies:
+        """
+        Get/set a dictionary containing adjustments to the Arrhenius rate expression
+        dependent on surface species coverages. The keys of the dictionary are species
+        names, and the values are dictionaries specifying the three coverage
+        parameters ``a``, ``m`` and ``E`` which are the modifiers for the pre-exponential
+        factor [m, kmol, s units], the temperature exponent [nondimensional],
+        and the activation energy [J/kmol], respectively.
+        """
+        def __get__(self):
+            cdef CxxAnyMap cxx_deps
+            self.coverage.getCoverageDependencies(cxx_deps)
+            return anymap_to_dict(cxx_deps)
+        def __set__(self, dict deps):
+            cdef CxxAnyMap cxx_deps = dict_to_anymap(deps)
+
+            self.coverage.setCoverageDependencies(cxx_deps)
+
+    def set_species(self, species):
+        """
+        Set association with species
+        """
+        cdef vector[string] cxxvector
+        for s in species:
+            cxxvector.push_back(stringify(s))
+        self.coverage.setSpecies(cxxvector)
+
+    property site_density:
+        """
+        Site density [kmol/m^2]
+
+        The site density is not an independent property. Accordingly, the setter
+        should be only used for testing purposes, as the value will be overwritten
+        by an update of the thermodynamic state.
+        """
+        def __get__(self):
+            return self.coverage.siteDensity()
+        def __set__(self, double site_density):
+            self.coverage.setSiteDensity(site_density)
+
+
+cdef class ArrheniusInterfaceRate(InterfaceTypeRate):
+    r"""
+    A reaction rate coefficient which depends on temperature and interface coverage
+    """
+    _reaction_rate_type = "Arrhenius-interface"
+
+    def __cinit__(self, A=None, b=None, Ea=None, input_data=None, init=True):
+
+        if init:
+            self._cinit(input_data, A=A, b=b, Ea=Ea)
+
+    def _from_dict(self, dict input_data):
+        self._rate.reset(new CxxArrheniusInterfaceRate(dict_to_anymap(input_data)))
+
+    def _from_parameters(self, A, b, Ea):
+        self._rate.reset(new CxxArrheniusInterfaceRate(A, b, Ea))
+
+    cdef set_cxx_object(self):
+        self.rate = self._rate.get()
+        self.base = <CxxArrhenius*>self.rate
+        self.coverage = <CxxCoverage*>self.cxx_object()
+
+    cdef CxxArrheniusInterfaceRate* cxx_object(self):
+        return <CxxArrheniusInterfaceRate*>self.rate
+
+
+cdef class BlowersMaselInterfaceRate(InterfaceTypeRate):
+    r"""
+    A reaction rate coefficient which depends on temperature and enthalpy change
+    of the reaction follows the Blowers-Masel approximation and modified Arrhenius form
+    described in `ArrheniusRate`.
+    """
+    _reaction_rate_type = "Blowers-Masel-interface"
+
+    def __cinit__(self, A=None, b=None, Ea0=None, w=None, input_data=None, init=True):
+
+        if init:
+            self._cinit(input_data, A=A, b=b, Ea0=Ea0, w=w)
+
+    def _from_dict(self, dict input_data):
+        self._rate.reset(new CxxBlowersMaselInterfaceRate(dict_to_anymap(input_data)))
+
+    def _from_parameters(self, A, b, Ea0, w):
+        self._rate.reset(new CxxBlowersMaselInterfaceRate(A, b, Ea0, w))
+
+    cdef set_cxx_object(self):
+        self.rate = self._rate.get()
+        self.base = <CxxArrhenius*>self.rate
+        self.coverage = <CxxCoverage*>self.cxx_object()
+
+    cdef CxxBlowersMaselInterfaceRate* cxx_object(self):
+        return <CxxBlowersMaselInterfaceRate*>self.rate
+
+    property bond_energy:
+        """
+        Average bond dissociation energy of the bond being formed and broken
+        in the reaction ``E`` [J/kmol].
+        """
+        def __get__(self):
+            return self.cxx_object().bondEnergy()
+
+    property delta_enthalpy:
+        """
+        Enthalpy change of reaction ``deltaH`` [J/kmol]
+
+        The enthalpy change of reaction is a function of temperature and thus not
+        an independent property. Accordingly, the setter should be only used for
+        testing purposes, as any value will be overwritten by an update of the
+        thermodynamic state.
+        """
+        def __get__(self):
+            return self.cxx_object().deltaH()
+        def __set__(self, double delta_H):
+            self.cxx_object().setDeltaH(delta_H)
+
+
+cdef class StickTypeRate(InterfaceTypeRate):
+    """
+    Base class collecting commonly used features of Arrhenius-type sticking rate
+    objects that include coverage dependencies.
+    """
+    property stick_parameters:
+        """
+        Calculated/detected parameters held by the object that do not need to be
+        specified by the user, but are used for the sticking coefficient calculation
+        internally. Only used for testing purposes.
+        """
+        def __get__(self):
+            cdef double order = 0.
+            cdef double multiplier = 0.
+            cdef string species = stringify("")
+            self.stick.getStickParameters(order, multiplier, species)
+            return order, multiplier, pystr(species)
+        def __set__(self, tuple pars):
+            cdef cbool explicit = False
+            if len(pars) == 4:
+                order, multiplier, species, explicit = pars
+            else:
+                order, multiplier, species = pars
+            self.stick.setStickParameters(
+                order, multiplier, stringify(species), explicit)
+
+    property motz_wise_correction:
+        """
+        Get/Set a boolean indicating whether to use the correction factor developed by
+        Motz & Wise for reactions with high (near-unity) sticking coefficients when
+        converting the sticking coefficient to a rate coefficient.
+        """
+        def __get__(self):
+            return self.stick.motzWiseCorrection()
+        def __set__(self, cbool motz_wise):
+            self.stick.setMotzWiseCorrection(motz_wise)
+
+    property sticking_species:
+        """
+        The name of the sticking species. Needed only for reactions with
+        multiple non-surface reactant species, where the sticking species is
+        ambiguous.
+        """
+        def __get__(self):
+            return pystr(self.stick.stickingSpecies())
+        def __set__(self, species):
+            self.stick.setStickingSpecies(stringify(species))
+
+
+cdef class ArrheniusStickRate(StickTypeRate):
+    r"""
+    A surface sticking rate expression
+    """
+    _reaction_rate_type = "Arrhenius-stick"
+
+    def __cinit__(self, A=None, b=None, Ea=None, input_data=None, init=True):
+
+        if init:
+            self._cinit(input_data, A=A, b=b, Ea=Ea)
+
+    def _from_dict(self, dict input_data):
+        self._rate.reset(new CxxArrheniusStickRate(dict_to_anymap(input_data)))
+
+    def _from_parameters(self, A, b, Ea):
+        self._rate.reset(new CxxArrheniusStickRate(A, b, Ea))
+
+    cdef set_cxx_object(self):
+        self.rate = self._rate.get()
+        self.base = <CxxArrhenius*>self.rate
+        self.stick = <CxxStickCoverage*>self.cxx_object()
+        self.coverage = <CxxCoverage*>self.stick
+
+    cdef CxxArrheniusStickRate* cxx_object(self):
+        return <CxxArrheniusStickRate*>self.rate
+
+
+cdef class BlowersMaselStickRate(StickTypeRate):
+    r"""
+    A surface sticking rate expression
+    """
+    _reaction_rate_type = "Blowers-Masel-stick"
+
+    def __cinit__(self, A=None, b=None, Ea0=None, w=None, input_data=None, init=True):
+
+        if init:
+            self._cinit(input_data, A=A, b=b, Ea0=Ea0, w=w)
+
+    def _from_dict(self, dict input_data):
+        self._rate.reset(new CxxBlowersMaselStickRate(dict_to_anymap(input_data)))
+
+    def _from_parameters(self, A, b, Ea0, w):
+        self._rate.reset(new CxxBlowersMaselStickRate(A, b, Ea0, w))
+
+    cdef set_cxx_object(self):
+        self.rate = self._rate.get()
+        self.base = <CxxArrhenius*>self.rate
+        self.stick = <CxxStickCoverage*>self.cxx_object()
+        self.coverage = <CxxCoverage*>self.stick
+
+    cdef CxxBlowersMaselStickRate* cxx_object(self):
+        return <CxxBlowersMaselStickRate*>self.rate
+
+    property bond_energy:
+        """
+        Average bond dissociation energy of the bond being formed and broken
+        in the reaction ``E`` [J/kmol].
+        """
+        def __get__(self):
+            return self.cxx_object().bondEnergy()
+
+    property delta_enthalpy:
+        """
+        Enthalpy change of reaction ``deltaH`` [J/kmol]
+
+        The enthalpy change of reaction is a function of temperature and thus not
+        an independent property. Accordingly, the setter should be only used for
+        testing purposes, as any value will be overwritten by an update of the
+        thermodynamic state.
+        """
+        def __get__(self):
+            return self.cxx_object().deltaH()
+        def __set__(self, double delta_H):
+            self.cxx_object().setDeltaH(delta_H)
 
 
 cdef class Reaction:
@@ -1386,6 +1644,150 @@ cdef class Reaction:
             self.rate = ChebyshevRate(Trange, Prange, coeffs)
         else:
             raise TypeError("only valid for reactions with ChebyshevRate rates")
+
+    property coverage_deps:
+        """
+        Get/Set a dict containing adjustments to the Arrhenius rate expression
+        dependent on surface species coverages. The keys of the dict are species
+        names, and the values are tuples specifying the three coverage
+        parameters ``(a, m, E)`` which are the modifiers for the pre-exponential
+        factor [m, kmol, s units], the temperature exponent [nondimensional],
+        and the activation energy [J/kmol], respectively.
+
+        .. deprecated:: 2.6
+             This property is for temporary backwards-compatibility with the deprecated
+             `InterfaceReaction` class. Replaced by
+             `Reaction.rate.coverage_dependencies` for reactions where the rate is a
+             `ArrheniusInterfaceRate` or `ArrheniusStickRate`.
+        """
+        def __get__(self):
+            if isinstance(self.rate, (ArrheniusInterfaceRate, ArrheniusStickRate)):
+                warnings.warn(
+                    self._deprecation_warning(
+                        "coverage_deps",
+                        new="InterfaceTypeRate.coverage_dependencies"),
+                    DeprecationWarning)
+                return self.rate.coverage_dependencies
+            else:
+                raise TypeError(
+                    "only valid for reactions with ArrheniusInterfaceRate or "
+                    "ArrheniusStickRate rates")
+        def __set__(self, coverage_deps):
+            if isinstance(self.rate, (ArrheniusInterfaceRate, ArrheniusStickRate)):
+                warnings.warn(
+                    self._deprecation_warning(
+                        "coverage_deps",
+                        new="InterfaceTypeRate.coverage_dependencies"),
+                    DeprecationWarning)
+                self.rate.coverage_dependencies = coverage_deps
+            else:
+                raise TypeError(
+                    "only valid for reactions with ArrheniusInterfaceRate or "
+                    "ArrheniusStickRate rates")
+
+    property is_sticking_coefficient:
+        """
+        Get/Set a boolean indicating if the rate coefficient for this reaction
+        is expressed as a sticking coefficient rather than the forward rate
+        constant.
+
+        .. deprecated:: 2.6
+             This property is for temporary backwards-compatibility with the deprecated
+             `InterfaceReaction` class. Replaced by dedicated rate objects
+             `ArrheniusInterfaceRate` and `ArrheniusStickRate`.
+        """
+        def __get__(self):
+            if isinstance(self.rate, (ArrheniusInterfaceRate, ArrheniusStickRate)):
+                warnings.warn("Property 'is_sticking_coefficient' to be removed after "
+                    "Cantera 2.6. This property is no longer required as sticking "
+                    "coefficients use dedicated classes of type 'ArrheniusStickRate',"
+                    "while rate expressions use 'ArrheniusInterfaceRate'.",
+                    DeprecationWarning)
+                return isinstance(self.rate, StickTypeRate)
+            else:
+                raise TypeError(
+                    "only valid for reactions with ArrheniusInterfaceRate or "
+                    "ArrheniusStickRate rates")
+        def __set__(self, stick):
+            if isinstance(self.rate, (ArrheniusInterfaceRate, ArrheniusStickRate)):
+                raise NotImplementedError(
+                    "Property 'is_sticking_coefficient' to be removed after "
+                    "Cantera 2.6. This property can no longer be set as sticking "
+                    "coefficients use dedicated classes of type 'ArrheniusStickRate',"
+                    "while rate expressions use 'ArrheniusInterfaceRate'.")
+            else:
+                raise TypeError(
+                    "only valid for reactions with ArrheniusInterfaceRate or "
+                    "ArrheniusStickRate rates")
+
+    property use_motz_wise_correction:
+        """
+        Get/Set a boolean indicating whether to use the correction factor
+        developed by Motz & Wise for reactions with high (near-unity) sticking
+        coefficients when converting the sticking coefficient to a rate
+        coefficient.
+
+        .. deprecated:: 2.6
+             This property is for temporary backwards-compatibility with the deprecated
+             `InterfaceReaction` class. Replaced by
+             `Reaction.rate.motz_wise_correction` for reactions where the rate is a
+             `ArrheniusStickRate`.
+        """
+        def __get__(self):
+            if isinstance(self.rate, ArrheniusStickRate):
+                warnings.warn(
+                    self._deprecation_warning(
+                        "use_motz_wise_correction",
+                        new="ArrheniusStickRate.motz_wise_correction"),
+                    DeprecationWarning)
+                return self.rate.motz_wise_correction
+            else:
+                raise TypeError(
+                    "only valid for reactions with ArrheniusStickRate rates")
+        def __set__(self, motz_wise):
+            if isinstance(self.rate, ArrheniusStickRate):
+                warnings.warn(
+                    self._deprecation_warning(
+                        "use_motz_wise_correction",
+                        new="ArrheniusStickRate.motz_wise_correction"),
+                    DeprecationWarning)
+                self.rate.motz_wise_correction = motz_wise
+            else:
+                raise TypeError(
+                    "only valid for reactions with ArrheniusStickRate rates")
+
+    property sticking_species:
+        """
+        The name of the sticking species. Needed only for reactions with
+        multiple non-surface reactant species, where the sticking species is
+        ambiguous.
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by property `ArrheniusStickRate.sticking_species`.
+        """
+        def __get__(self):
+            if isinstance(self.rate, ArrheniusStickRate):
+                warnings.warn(
+                    self._deprecation_warning(
+                        "sticking_species",
+                        new="ArrheniusStickRate.sticking_species"),
+                    DeprecationWarning)
+                return self.rate.sticking_species
+            else:
+                raise TypeError(
+                    "only valid for reactions with ArrheniusStickRate rates")
+        def __set__(self, sticking_species):
+            if isinstance(self.rate, ArrheniusStickRate):
+                warnings.warn(
+                    self._deprecation_warning(
+                        "sticking_species",
+                        new="ArrheniusStickRate.sticking_species"),
+                    DeprecationWarning)
+                self.rate.sticking_species = sticking_species
+            else:
+                raise TypeError(
+                    "only valid for reactions with ArrheniusStickRate rates")
 
     def __call__(self, T, extra=None):
         """
@@ -2394,6 +2796,9 @@ cdef class InterfaceReaction(ElementaryReaction):
                  init=True, legacy=False, **kwargs):
 
         if init and equation and kinetics:
+            # warnings.warn("Class 'InterfaceReaction' to be removed after Cantera 2.6.\n"
+            #     "These reactions can be constructed by passing a 'InterfaceTypeRate' object "
+            #     "as the 'rate' argument to the 'Reaction' class.")
 
             rxn_type = self._reaction_type
             # if legacy:
@@ -2427,6 +2832,10 @@ cdef class InterfaceReaction(ElementaryReaction):
         parameters ``(a, m, E)`` which are the modifiers for the pre-exponential
         factor [m, kmol, s units], the temperature exponent [nondimensional],
         and the activation energy [J/kmol], respectively.
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by property `InterfaceTypeRate.coverage_dependencies`.
         """
         def __get__(self):
             cdef CxxInterfaceReaction2* r = <CxxInterfaceReaction2*>self.reaction
@@ -2449,6 +2858,10 @@ cdef class InterfaceReaction(ElementaryReaction):
         Get/Set a boolean indicating if the rate coefficient for this reaction
         is expressed as a sticking coefficient rather than the forward rate
         constant.
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by dedicated classes `StickTypeRate`.
         """
         def __get__(self):
             cdef CxxInterfaceReaction2* r = <CxxInterfaceReaction2*>self.reaction
@@ -2463,6 +2876,10 @@ cdef class InterfaceReaction(ElementaryReaction):
         developed by Motz & Wise for reactions with high (near-unity) sticking
         coefficients when converting the sticking coefficient to a rate
         coefficient.
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by property `stickTypeRate.mote_wise_correction`.
         """
         def __get__(self):
             cdef CxxInterfaceReaction2* r = <CxxInterfaceReaction2*>self.reaction
@@ -2476,6 +2893,10 @@ cdef class InterfaceReaction(ElementaryReaction):
         The name of the sticking species. Needed only for reactions with
         multiple non-surface reactant species, where the sticking species is
         ambiguous.
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by property `stickTypeRate.sticking_species`.
         """
         def __get__(self):
             cdef CxxInterfaceReaction2* r = <CxxInterfaceReaction2*>self.reaction
