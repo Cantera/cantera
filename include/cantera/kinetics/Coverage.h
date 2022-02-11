@@ -113,12 +113,13 @@ public:
     //! by Motz & Wise for reactions with high (near-unity) sticking coefficients.
     //! Defaults to 'false'.
     bool motzWiseCorrection() const {
-        return m_motz_wise;
+        return m_motzWise;
     }
 
     //! Set flag for by Motz & Wise correction factor
     void setMotzWiseCorrection(bool motz_wise) {
-        m_motz_wise = motz_wise;
+        m_motzWise = motz_wise;
+        m_explicitMotzWise = true;
     }
 
     //! Get sticking species.
@@ -156,7 +157,8 @@ public:
     }
 
 protected:
-    bool m_motz_wise; //!< boolean indicating whether Motz & Wise correction is used
+    bool m_motzWise; //!< boolean indicating whether Motz & Wise correction is used
+    bool m_explicitMotzWise; //!< Correction cannot be overriden by default
     std::string m_stickingSpecies; //!< string identifying sticking species
     bool m_explicitSpecies; //!< Boolean flag
     double m_surfaceOrder; //!< exponent applied to site density term
@@ -260,6 +262,120 @@ public:
 };
 
 using ArrheniusInterfaceRate = InterfaceRate<Arrhenius3, CoverageData>;
+
+
+//! A class template for interface sticking rate specifications
+template <class RateType, class DataType>
+class StickRate : public RateType, public StickCoverage
+{
+public:
+    StickRate() = default;
+    using RateType::RateType; // inherit constructors
+
+    //! Constructor based on AnyMap content
+    StickRate(const AnyMap& node, const UnitStack& rate_units={}) {
+        // sticking coefficients are dimensionless
+        setParameters(node, Units(1.0));
+    }
+
+    unique_ptr<MultiRateBase> newMultiRate() const override {
+        return unique_ptr<MultiRateBase>(
+            new MultiRate<StickRate<RateType, DataType>, DataType>);
+    }
+
+    //! Identifier of reaction rate type
+    virtual const std::string type() const override {
+        return RateType::type() + "-stick";
+    }
+
+    virtual void setParameters(
+        const AnyMap& node, const UnitStack& rate_units) override
+    {
+        if (node.hasKey("coverage-dependencies")) {
+            setCoverageDependencies(
+                node["coverage-dependencies"].as<AnyMap>(), node.units());
+        }
+        RateType::m_negativeA_ok = node.getBool("negative-A", false);
+        setStickParameters(node);
+        if (!node.hasKey("sticking-coefficient")) {
+            RateType::setRateParameters(AnyValue(), node.units(), rate_units);
+            return;
+        }
+        RateType::setRateParameters(
+            node["sticking-coefficient"], node.units(), rate_units);
+    }
+
+    virtual void getParameters(AnyMap& node) const override {
+        node["type"] = type();
+        if (RateType::m_negativeA_ok) {
+            node["negative-A"] = true;
+        }
+        AnyMap rateNode;
+        RateType::getRateParameters(rateNode);
+        getStickParameters(node);
+        if (!rateNode.empty()) {
+            // RateType object is configured
+            node["sticking-coefficient"] = std::move(rateNode);
+        }
+        if (!m_cov.empty()) {
+            AnyMap deps;
+            getCoverageDependencies(deps);
+            node["coverage-dependencies"] = std::move(deps);
+        }
+    }
+
+    virtual void setContext(const Reaction& rxn, const Kinetics& kin) override {
+        RateType::setContext(rxn, kin);
+        setSpecies(kin);
+        buildStickCoefficients(rxn, kin);
+    }
+
+    //! Update reaction rate parameters
+    //! @param shared_data  data shared by all reactions of a given type
+    void updateFromStruct(const CoverageData& shared_data) {
+        Coverage::updateFromStruct(shared_data);
+        m_factor = pow(m_siteDensity, -m_surfaceOrder);
+    }
+
+    //! Evaluate reaction rate
+    //! @param shared_data  data shared by all reactions of a given type
+    double evalFromStruct(const DataType& shared_data) const {
+        double out = RateType::evalRate(shared_data.logT, shared_data.recipT) *
+            std::exp(std::log(10.0) * m_acov - m_ecov * shared_data.recipT + m_mcov);
+
+        if (m_motzWise) {
+            out /= 1 - 0.5 * out;
+        }
+        return out * m_factor * shared_data.sqrtT * m_multiplier;
+    }
+
+    //! Evaluate derivative of reaction rate with respect to temperature
+    //! divided by reaction rate
+    //! @param shared_data  data shared by all reactions of a given type
+    double ddTScaledFromStruct(const DataType& shared_data) const {
+        throw NotImplementedError("StickRate<>::ddTScaledFromStruct");
+    }
+
+    //! Return the effective pre-exponential factor *A* (in m, kmol, s to powers
+    //! depending on the reaction order) accounting for coverage dependent terms.
+    double effectivePreExponentialFactor() const {
+        return RateType::preExponentialFactor() *
+            std::exp(std::log(10.0) * m_acov + m_mcov);
+    }
+
+    //! Return the effective activation energy *Ea* [J/kmol]
+    double effectiveActivationEnergy() const {
+        return RateType::activationEnergy() + m_ecov * GasConstant;
+    }
+
+    //! Return the effective activation temperature (energy divided by the gas
+    //! constant) [K]
+    double effectiveActivationEnergy_R() const {
+        return RateType::activationEnergy_R() + m_ecov;
+    }
+};
+
+using ArrheniusStickRate = StickRate<Arrhenius3, CoverageData>;
 
 }
 #endif
