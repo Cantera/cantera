@@ -612,7 +612,6 @@ protected:
     //! Temporary array containing internally calculated partial pressures
     mutable vector_fp m_pp;
 
-private:
     //! Update the species reference state thermodynamic functions
     /*!
      *  This method is called each time a thermodynamic property is requested,
@@ -625,7 +624,7 @@ private:
      *  concentration dependent information at the time the setMoleFractions()
      *  (or equivalent) call is made.
      */
-    void _updateThermo() const;
+    virtual void _updateThermo() const;
 };
 
 }

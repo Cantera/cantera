@@ -14,6 +14,7 @@ PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
     : m_electronEnergyDistrbMethod("isotropic-velocity")
     , m_x(2.0)
     , m_nPoints(1000)
+    , m_electronName("E")
 {
     initThermoFile(inputFile, id_);
 
@@ -105,6 +106,26 @@ void PlasmaPhase::getElectronEnergyDistrb(vector_fp& distrb) const
     for (size_t i = 0; i < m_nPoints; i++) {
         distrb[i] = m_electronEnergyDistrb(i);
     }
+}
+
+void PlasmaPhase::_updateThermo() const
+{
+    IdealGasPhase::_updateThermo();
+    static const int cacheId = m_cache.getId();
+    CachedScalar cached = m_cache.getScalar(cacheId);
+    double tempNow = temperature();
+    double electronTempNow = electronTemperature();
+    size_t k = speciesIndex(m_electronName);
+    // If the electron temperature has changed since the last time these
+    // properties were computed, recompute them.
+    if (cached.state1 != tempNow && cached.state2 != electronTempNow) {
+        m_spthermo.update_single(k, electronTemperature(),
+                &m_cp0_R[k], &m_h0_RT[k], &m_s0_R[k]);
+        cached.state1 = tempNow;
+        cached.state2 = electronTempNow;
+    }
+    // update the species Gibbs functions
+    m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
 }
 
 }
