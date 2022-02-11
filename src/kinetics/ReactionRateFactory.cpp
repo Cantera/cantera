@@ -79,6 +79,11 @@ ReactionRateFactory::ReactionRateFactory()
     reg("Arrhenius-interface", [](const AnyMap& node, const UnitStack& rate_units) {
         return new ArrheniusInterfaceRate(node, rate_units);
     });
+
+    // ArrheniusStickRate evaluator
+    reg("Arrhenius-stick", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new ArrheniusStickRate(node, rate_units);
+    });
 }
 
 shared_ptr<ReactionRate> newReactionRate(const std::string& type)

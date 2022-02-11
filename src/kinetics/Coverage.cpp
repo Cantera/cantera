@@ -96,7 +96,8 @@ void Coverage::setSpecies(const Kinetics& kin) {
 }
 
 StickCoverage::StickCoverage()
-    : m_motz_wise(false)
+    : m_motzWise(false)
+    , m_explicitMotzWise(false)
     , m_stickingSpecies("")
     , m_explicitSpecies(false)
     , m_surfaceOrder(NAN)
@@ -107,15 +108,16 @@ StickCoverage::StickCoverage()
 
 void StickCoverage::setStickParameters(const AnyMap& node)
 {
-    m_motz_wise = node.getBool("Motz-Wise", false);
-    m_explicitSpecies = node.hasKey("sticking-species");
+    m_motzWise = node.getBool("Motz-Wise", false);
+    m_explicitMotzWise = node.hasKey("Motz-Wise");
     m_stickingSpecies = node.getString("sticking-species", "");
+    m_explicitSpecies = node.hasKey("sticking-species");
 }
 
 void StickCoverage::getStickParameters(AnyMap& node) const
 {
-    if (m_motz_wise) {
-        node["Motz-Wise"] = true;
+    if (m_explicitMotzWise) {
+        node["Motz-Wise"] = m_motzWise;
     }
     if (m_explicitSpecies) {
         node["sticking-species"] = m_stickingSpecies;
@@ -124,6 +126,14 @@ void StickCoverage::getStickParameters(AnyMap& node) const
 
 void StickCoverage::buildStickCoefficients(const Reaction& rxn, const Kinetics& kin)
 {
+    // Ensure that site density is initialized
+    const ThermoPhase& phase = kin.thermo(kin.surfacePhaseIndex());
+    const auto& surf = dynamic_cast<const SurfPhase&>(phase);
+    m_siteDensity = surf.siteDensity();
+    if (!m_explicitMotzWise) {
+        m_motzWise = kin.thermo().input().getBool("Motz-Wise", false);
+    }
+
     // Identify the interface phase
     size_t iInterface = npos;
     size_t min_dim = 4;
@@ -178,7 +188,6 @@ void StickCoverage::buildStickCoefficients(const Reaction& rxn, const Kinetics& 
             // rate constant is evaluated, since we don't assume that the
             // site density is known at this time.
             double order = getValue(rxn.orders, sp.first, sp.second);
-            const auto& surf = dynamic_cast<const SurfPhase&>(kin.thermo());
             if (&p == &surf) {
                 multiplier *= pow(surf.size(k), order);
                 surface_order += order;
