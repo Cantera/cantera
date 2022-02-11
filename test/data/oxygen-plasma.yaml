@@ -8,7 +8,8 @@ phases:
   thermo: plasma
   elements: [O, E]
   species:
-  - nasa_gas.yaml/species: [Electron, O2, O2-]
+  - species: [E]
+  - nasa_gas.yaml/species: [O2, O2-]
 
   kinetics: gas
   reactions: all
@@ -17,7 +18,17 @@ phases:
     T: 300.0
     P: 1.01325e+05
 
+species:
+- name: E
+  composition: {E: 1}
+  thermo:
+    model: constant-cp
+    T0: 200 K
+    h0: -2.04 kJ/mol
+    s0: 12.679 J/mol/K
+    cp0: 20.786 J/mol/K
+
 reactions:
-- equation: Electron + O2 + O2 => O2- + O2
+- equation: E + O2 + O2 => O2- + O2
   type: two-temperature-plasma
   rate-constant: {A: 4.2e-27, b: -1.0, Ea-gas: 600, Ea-electron: 700}
