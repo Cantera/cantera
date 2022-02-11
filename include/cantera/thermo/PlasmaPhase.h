@@ -137,6 +137,12 @@ protected:
 
     //! Mean electron energy
     double m_meanElectronEnergy;
+
+    //! Name of electron
+    std::string m_electronName;
+
+    //! Update species thermo
+    virtual void _updateThermo() const;
 };
 
 }
