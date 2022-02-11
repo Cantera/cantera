@@ -823,9 +823,6 @@ config["python_cmd"].default = sys.executable
 opts.AddVariables(*config.to_scons())
 opts.Update(env)
 opts.Save('cantera.conf', env)
-cantera_conf = []
-for line in open('cantera.conf'):
-    cantera_conf.append(line.strip())
 
 # Expand ~/ and environment variables used in cantera.conf (variables used on
 # the command line will be expanded by the shell)
@@ -873,10 +870,9 @@ except subprocess.CalledProcessError:
     env["git_commit"] = "unknown"
 
 # Print values of all build options:
-msg = ["Configuration variables read from 'cantera.conf' and command line:"]
-for line in cantera_conf:
-    msg.append(f"    {line}")
-logger.info("\n".join(msg))
+cantera_conf = Path("cantera.conf").read_text()
+logger.info("Configuration variables read from 'cantera.conf' and command line:")
+logger.info(textwrap.indent(cantera_conf, "    "), print_level=False)
 
 # ********************************************
 # *** Configure system-specific properties ***
@@ -921,9 +917,9 @@ if conda_prefix is not None:
     else:
         conda_inc_dir = pjoin(conda_prefix, "include")
         conda_lib_dir = pjoin(conda_prefix, env["libdirname"])
-    env["extra_inc_dirs"] = env["extra_inc_dirs"] + [conda_inc_dir]
-    env["extra_lib_dirs"] = env["extra_lib_dirs"] + [conda_lib_dir]
-    logger.info("Adding conda include and library paths.")
+    env["extra_inc_dirs"].append(conda_inc_dir)
+    env["extra_lib_dirs"].append(conda_lib_dir)
+    logger.info(f"Adding conda include and library paths: {conda_prefix}")
 
 env.Append(CPPPATH=env['extra_inc_dirs'],
            LIBPATH=env['extra_lib_dirs'])
@@ -1650,9 +1646,11 @@ env['debian'] = any(name.endswith('dist-packages') for name in sys.path)
 if conda_prefix is not None:
     if env["layout"] != "conda":
         # identify options selected either on command line or in cantera.conf
-        selected_options = set(line.split("=")[0].strip() for line in cantera_conf)
-        use_conda = not selected_options & \
-            {"layout", "prefix", "python_prefix", "python_cmd"}
+        selected_options = set(line.split("=")[0].strip()
+            for line in cantera_conf.splitlines())
+        use_conda = (
+            not selected_options &
+            {"layout", "prefix", "python_prefix", "python_cmd"})
         use_conda &= sys.executable.startswith(conda_prefix)
         if use_conda:
             env["layout"] = "conda"
@@ -1680,6 +1678,7 @@ else:
     env["ct_python_bindir"] = pjoin(env["prefix"], "bin")
     env["ct_incdir"] = pjoin(env["prefix"], "include", "cantera")
     env["ct_incroot"] = pjoin(env["prefix"], "include")
+
 env["ct_installroot"] = env["prefix"]
 
 if env['layout'] == 'compact':
