@@ -194,7 +194,7 @@ cdef class ArrheniusRate(ArrheniusTypeRate):
 
     .. math::
 
-        k_f = A T^b \exp{-\tfrac{E}{RT}}
+        k_f = A T^b \exp(-\tfrac{E}{RT})
 
     where ``A`` is the `pre_exponential_factor`, ``b`` is the `temperature_exponent`,
     and ``Ea`` is the `activation_energy`.
@@ -277,7 +277,7 @@ cdef class TwoTempPlasmaRate(ArrheniusTypeRate):
 
     .. math::
 
-        k_f = A T_e^b \exp{-\tfrac{E_{a,g}}{RT}} \exp{-\tfrac{E_{a,e}}{RT_e}}
+        k_f = A T_e^b \exp(-\tfrac{E_{a,g}}{RT}) \exp(-\tfrac{E_{a,e}}{RT_e})
 
     where :math:`A` is the `pre_exponential_factor`, :math:`b` is the
     `temperature_exponent`, :math:`E_{a,g}` is the `activation_energy`, and
@@ -1446,7 +1446,7 @@ cdef class Arrhenius:
 
     .. math::
 
-        k_f = A T^b \exp{-\tfrac{E}{RT}}
+        k_f = A T^b \exp(-\tfrac{E}{RT})
 
     where ``A`` is the `pre_exponential_factor`, ``b`` is the `temperature_exponent`,
     and ``E`` is the `activation_energy`.
