@@ -27,12 +27,18 @@ def copy_ext_src(target, source, env):
     if target_ext.is_dir():
         shutil.rmtree(target_ext)
 
+    error_message = ("Please run 'git submodule update --init --recursive' to clone "
+                     "these files.")
+
     # fmt library
     FMT_ROOT = target_ext / "fmt"
     FMT_ROOT.mkdir(parents=True)  # Needed to be able to use copy2
-    for cc_file in (source_ext / "fmt" / "src").glob("*.cc"):
+    FMT_SOURCE = source_ext / "fmt"
+    if not FMT_SOURCE.is_dir():
+        raise ValueError("Missing fmt submodule. " + error_message)
+    for cc_file in (FMT_SOURCE / "src").glob("*.cc"):
         shutil.copy2(cc_file, FMT_ROOT)
-    shutil.copytree(source_ext / "fmt" / "include" / "fmt", FMT_ROOT / "fmt")
+    shutil.copytree(FMT_SOURCE / "include" / "fmt", FMT_ROOT / "fmt")
 
     # libexecstream
     EXECSTREAM_ROOT = target_ext / "libexecstream"
@@ -44,19 +50,24 @@ def copy_ext_src(target, source, env):
 
     # yaml-cpp library
     YAML_ROOT = target_ext / "yaml-cpp"
-    shutil.copytree(source_ext / "yaml-cpp" / "src", YAML_ROOT)
-    shutil.copytree(source_ext / "yaml-cpp" / "include" / "yaml-cpp",
-                    YAML_ROOT / "yaml-cpp")
+    YAML_SOURCE = source_ext / "yaml-cpp"
+    if not YAML_SOURCE.is_dir():
+        raise ValueError("Missing yaml-cpp submodule. " + error_message)
+    shutil.copytree(YAML_SOURCE / "src", YAML_ROOT)
+    shutil.copytree(YAML_SOURCE / "include" / "yaml-cpp", YAML_ROOT / "yaml-cpp")
 
     # SUNDIALS library
     SUNDIALS_ROOT = target_ext / "sundials"
+    SUNDIALS_SOURCE = source_ext / "sundials"
+    if not SUNDIALS_SOURCE.is_dir():
+        raise ValueError("Missing sundials submodule. " + error_message)
     subdirs = ["sundials", "nvector/serial", "cvodes", "ida", "sunmatrix/band",
                "sunmatrix/dense", "sunmatrix/sparse", "sunlinsol/dense",
                "sunlinsol/band", "sunlinsol/spgmr", "sunnonlinsol/newton"]
     ignores = shutil.ignore_patterns("fsun*", "CMake*", "fmod", "fcmix")
     for subdir in subdirs:
         shutil.copytree(
-            source_ext / "sundials" / "src" / subdir,
+            SUNDIALS_SOURCE / "src" / subdir,
             SUNDIALS_ROOT / subdir,
             ignore=ignores,
         )
