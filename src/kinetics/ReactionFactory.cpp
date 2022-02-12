@@ -122,6 +122,9 @@ ReactionFactory::ReactionFactory()
     addAlias("interface", "surface");
     addAlias("interface", "edge");
 
+    addAlias("reaction", "Arrhenius-interface");
+    addAlias("reaction", "Arrhenius-stick");
+
     // register electrochemical reactions
     reg("electrochemical", [](const AnyMap& node, const Kinetics& kin) {
         ElectrochemicalReaction2* R = new ElectrochemicalReaction2();
@@ -134,6 +137,8 @@ ReactionFactory::ReactionFactory()
     addAlias("reaction", "two-temperature-plasma");
 
     addAlias("reaction", "Blowers-Masel");
+    addAlias("reaction", "Blowers-Masel-interface");
+    addAlias("reaction", "Blowers-Masel-stick");
 
     // register surface Blowers Masel reactions
     reg("surface-Blowers-Masel", [](const AnyMap& node, const Kinetics& kin) {

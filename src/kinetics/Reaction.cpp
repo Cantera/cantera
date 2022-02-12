@@ -17,6 +17,7 @@
 #include "cantera/base/AnyMap.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/stringUtils.h"
+#include <boost/algorithm/string/predicate.hpp>
 #include <sstream>
 #include <set>
 
@@ -59,7 +60,35 @@ Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
 {
     setParameters(node, kin);
     if (kin.nPhases()) {
-        setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
+        size_t nDim = kin.thermo(kin.reactionPhaseIndex()).nDim();
+        if (nDim == 3) {
+            setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
+        } else {
+            // Reaction type is not specified
+            AnyMap rateNode = node;
+            if (!rateNode.hasKey("type")) {
+                rateNode["type"] = "Arrhenius";
+            }
+            std::string type = rateNode["type"].asString();
+            if (rateNode.hasKey("rate-constant")) {
+                if (!boost::algorithm::ends_with(type, "-interface")) {
+                    rateNode["type"] = type + "-interface";
+                }
+            } else if (node.hasKey("sticking-coefficient")) {
+                if (!boost::algorithm::ends_with(type, "-stick")) {
+                    rateNode["type"] = type + "-stick";
+                }
+            } else {
+                throw InputFileError("Reaction::Reaction", input,
+                    "Unable to infer interface reaction type.");
+            }
+            if (boost::algorithm::ends_with(type, "-stick")) {
+                // sticking coefficients are dimensionless
+                setRate(newReactionRate(rateNode, Units(1.0)));
+            } else {
+                setRate(newReactionRate(rateNode, calculateRateCoeffUnits3(kin)));
+            }
+        }
     } else {
         // @deprecated This route is only used for legacy reaction types.
         setRate(newReactionRate(node));
@@ -204,7 +233,6 @@ void Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
     duplicate = node.getBool("duplicate", false);
     allow_negative_orders = node.getBool("negative-orders", false);
     allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
-
 }
 
 void Reaction::setRate(shared_ptr<ReactionRate> rate)
