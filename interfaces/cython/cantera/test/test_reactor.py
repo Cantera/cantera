@@ -2152,7 +2152,7 @@ class ExtensibleReactorTest(utilities.CanteraTest):
             deltaCnow = deltaC()
             self.assertLess(deltaCnow, deltaCprev) # difference is always decreasing
             deltaCprev = deltaCnow
-            self.assertArrayNear(M0, r1.mass * r1.thermo.Y + r2.mass * r2.thermo.Y)
+            self.assertArrayNear(M0, r1.mass * r1.thermo.Y + r2.mass * r2.thermo.Y, rtol=2e-8)
             states1.append(r1.thermo.state, t=net.time, mass=r1.mass, vdot=r1.vdot)
             states2.append(r2.thermo.state, t=net.time, mass=r2.mass, vdot=r2.vdot)
 
