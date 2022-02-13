@@ -242,21 +242,16 @@ public:
         throw NotImplementedError("InterfaceRate<>::ddTScaledFromStruct");
     }
 
-    //! Return the effective pre-exponential factor *A* (in m, kmol, s to powers
-    //! depending on the reaction order) accounting for coverage dependent terms.
-    double effectivePreExponentialFactor() const {
+    virtual double preExponentialFactor() const override {
         return RateType::preExponentialFactor() *
             std::exp(std::log(10.0) * m_acov + m_mcov);
     }
 
-    //! Return the effective activation energy *Ea* [J/kmol]
-    double effectiveActivationEnergy() const {
+    virtual double activationEnergy() const override {
         return RateType::activationEnergy() + m_ecov * GasConstant;
     }
 
-    //! Return the effective activation temperature (energy divided by the gas
-    //! constant) [K]
-    double effectiveActivationEnergy_R() const {
+    virtual double activationEnergy_R() const override {
         return RateType::activationEnergy_R() + m_ecov;
     }
 };
@@ -356,21 +351,16 @@ public:
         throw NotImplementedError("StickRate<>::ddTScaledFromStruct");
     }
 
-    //! Return the effective pre-exponential factor *A* (in m, kmol, s to powers
-    //! depending on the reaction order) accounting for coverage dependent terms.
-    double effectivePreExponentialFactor() const {
+    virtual double preExponentialFactor() const override {
         return RateType::preExponentialFactor() *
             std::exp(std::log(10.0) * m_acov + m_mcov);
     }
 
-    //! Return the effective activation energy *Ea* [J/kmol]
-    double effectiveActivationEnergy() const {
+    virtual double activationEnergy() const override {
         return RateType::activationEnergy() + m_ecov * GasConstant;
     }
 
-    //! Return the effective activation temperature (energy divided by the gas
-    //! constant) [K]
-    double effectiveActivationEnergy_R() const {
+    virtual double activationEnergy_R() const override {
         return RateType::activationEnergy_R() + m_ecov;
     }
 };
