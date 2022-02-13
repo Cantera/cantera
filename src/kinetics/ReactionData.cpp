@@ -263,10 +263,7 @@ void ChebyshevData::restore()
 }
 
 CoverageData::CoverageData()
-    : ready(false)
-    , siteDensity(NAN)
-    , sqrtT(NAN)
-    , m_state_mf_number(-1)
+    : sqrtT(NAN)
 {
 }
 
@@ -305,8 +302,8 @@ bool CoverageData::update(const ThermoPhase& phase, const Kinetics& kin)
     const auto& surf = dynamic_cast<const SurfPhase&>(
         kin.thermo(kin.surfacePhaseIndex()));
     double site_density = surf.siteDensity();
-    if (siteDensity != site_density) {
-        siteDensity = surf.siteDensity();
+    if (density != site_density) {
+        density = surf.siteDensity();
         changed = true;
     }
     if (T != temperature) {

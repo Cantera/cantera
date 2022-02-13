@@ -302,8 +302,11 @@ protected:
 /**
  * The data container CoverageData holds precalculated data common to
  * InterfaceRate and StickingRate objects.
+ *
+ * The data container inherits from BlowersMaselData, where density is used to
+ * hold the site density [kmol/m^2].
  */
-struct CoverageData : virtual public ReactionData
+struct CoverageData : public BlowersMaselData
 {
     CoverageData();
 
@@ -313,7 +316,7 @@ struct CoverageData : virtual public ReactionData
 
     virtual void update(double T, const vector_fp& values) override;
 
-    using ReactionData::update;
+    using BlowersMaselData::update;
 
     virtual void perturbTemperature(double deltaT);
 
@@ -324,16 +327,10 @@ struct CoverageData : virtual public ReactionData
         ready = true;
     }
 
-    bool ready; //!< boolean indicating whether vectors are accessible
-    double siteDensity; //!< site density
     double sqrtT; //!< square root of temperature
 
     vector_fp coverages; //!< vector holding surface coverages
     vector_fp logCoverages; //!< vector holding logarithm of surface coverages
-    vector_fp grt; //!< partial molar enthalpies
-
-protected:
-    int m_state_mf_number; //!< integer that is incremented when composition changes
 };
 
 }

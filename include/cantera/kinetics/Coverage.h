@@ -55,7 +55,7 @@ public:
     //! @param shared_data  data shared by all reactions of a given type
     void updateFromStruct(const CoverageData& shared_data) {
         if (shared_data.ready) {
-            m_siteDensity = shared_data.siteDensity;
+            m_siteDensity = shared_data.density;
         }
         if (m_indices.size() != m_cov.size()) {
             // object is not set up correctly (setSpecies needs to be run)
@@ -228,6 +228,13 @@ public:
         setSpecies(kin);
     }
 
+    //! Update reaction rate parameters
+    //! @param shared_data  data shared by all reactions of a given type
+    void updateFromStruct(const CoverageData& shared_data) {
+        RateType::update(shared_data);
+        Coverage::updateFromStruct(shared_data);
+    }
+
     //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
     double evalFromStruct(const DataType& shared_data) const {
@@ -257,6 +264,7 @@ public:
 };
 
 using ArrheniusInterfaceRate = InterfaceRate<Arrhenius3, CoverageData>;
+using BlowersMaselInterfaceRate = InterfaceRate<BlowersMasel, CoverageData>;
 
 
 //! A class template for interface sticking rate specifications
@@ -328,6 +336,7 @@ public:
     //! Update reaction rate parameters
     //! @param shared_data  data shared by all reactions of a given type
     void updateFromStruct(const CoverageData& shared_data) {
+        RateType::update(shared_data);
         Coverage::updateFromStruct(shared_data);
         m_factor = pow(m_siteDensity, -m_surfaceOrder);
     }
@@ -366,6 +375,7 @@ public:
 };
 
 using ArrheniusStickRate = StickRate<Arrhenius3, CoverageData>;
+using BlowersMaselStickRate = StickRate<BlowersMasel, CoverageData>;
 
 }
 #endif

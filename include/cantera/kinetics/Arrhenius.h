@@ -177,6 +177,10 @@ public:
         return m_logA + m_b * logT - m_Ea_R * recipT;
     }
 
+    //! Update information - used for InterfaceRate<> and BulkRate<>
+    void update(const BlowersMaselData& shared_data) {
+    }
+
     //! Evaluate reaction rate
     /*!
      *  @param shared_data  data shared by all reactions of a given type
@@ -326,6 +330,11 @@ public:
     double evalRate(double logT, double recipT) const {
         double Ea_R = effectiveActivationEnergy_R(m_deltaH_R);
         return m_A * std::exp(m_b * logT - Ea_R * recipT);
+    }
+
+    //! Update information - used for InterfaceRate<> and BulkRate<>
+    void update(const BlowersMaselData& shared_data) {
+        updateFromStruct(shared_data);
     }
 
     //! Update information specific to reaction

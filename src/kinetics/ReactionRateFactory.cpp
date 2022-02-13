@@ -84,6 +84,16 @@ ReactionRateFactory::ReactionRateFactory()
     reg("Arrhenius-stick", [](const AnyMap& node, const UnitStack& rate_units) {
         return new ArrheniusStickRate(node, rate_units);
     });
+
+    // BlowersMaselInterfaceRate evaluator
+    reg("Blowers-Masel-interface", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new BlowersMaselInterfaceRate(node, rate_units);
+    });
+
+    // BlowersMaselStickRate evaluator
+    reg("Blowers-Masel-stick", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new BlowersMaselStickRate(node, rate_units);
+    });
 }
 
 shared_ptr<ReactionRate> newReactionRate(const std::string& type)
