@@ -6,6 +6,12 @@ class TestPlasmaPhase(utilities.CanteraTest):
     def setUp(self):
         self.phase = ct.Plasma('oxygen-plasma.yaml', transport_model=None)
 
+    def test_mean_electron_energy(self):
+        self.phase.Te = 60000
+        h = self.phase.species(k=0).thermo.h(self.phase.Te)
+        epi = self.phase.mean_electron_energy * ct.avogadro * ct.electron_charge
+        self.assertNear(epi, h - ct.gas_constant * self.phase.Te, 1e-2)
+
     def test_set_get_electron_energy_grid(self):
         grid = np.linspace(0.01, 10, num=9)
         self.phase.electron_energy_grid = grid
