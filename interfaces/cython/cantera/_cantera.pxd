@@ -488,8 +488,9 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxBlowersMaselRate "Cantera::BlowersMaselRate" (CxxArrheniusBase):
         CxxBlowersMaselRate(CxxAnyMap) except +translate_exception
         CxxBlowersMaselRate(double, double, double, double)
-        double effectiveActivationEnergy(double)
         double bondEnergy()
+        double deltaH()
+        void setDeltaH(double)
 
     cdef cppclass CxxFalloffRate "Cantera::FalloffRate" (CxxReactionRate):
         CxxFalloffRate()

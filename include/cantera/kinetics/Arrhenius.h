@@ -322,6 +322,12 @@ public:
 
     virtual void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
+    //! Evaluate reaction rate
+    double evalRate(double logT, double recipT) const {
+        double Ea_R = effectiveActivationEnergy_R(m_deltaH_R);
+        return m_A * std::exp(m_b * logT - Ea_R * recipT);
+    }
+
     //! Update information specific to reaction
     void updateFromStruct(const BlowersMaselData& shared_data) {
         if (shared_data.ready) {
@@ -330,8 +336,6 @@ public:
                 m_deltaH_R += shared_data.grt[item.first] * item.second;
             }
             m_deltaH_R /= GasConstant;
-        } else {
-            m_deltaH_R = shared_data.dH_direct / GasConstant;
         }
     }
 
@@ -354,6 +358,7 @@ public:
 
     //! Return the effective activation energy (a function of the delta H of reaction)
     //! divided by the gas constant (i.e. the activation temperature) [K]
+    //! @internal  The enthalpy change of reaction is not an independent parameter
     double effectiveActivationEnergy_R(double deltaH_R) const {
         if (deltaH_R < -4 * m_Ea_R) {
             return 0.;
@@ -368,14 +373,6 @@ public:
             (vp * vp - 4 * m_E4_R * m_E4_R + deltaH_R * deltaH_R); // in Kelvin
     }
 
-    //! Return the effective activation energy [J/kmol]
-    /*!
-     *  @param deltaH  Enthalpy change of reaction [J/kmol]
-     */
-    double effectiveActivationEnergy(double deltaH) const {
-        return effectiveActivationEnergy_R(deltaH / GasConstant) * GasConstant;
-    }
-
     virtual double activationEnergy() const override {
         return effectiveActivationEnergy_R(m_deltaH_R) * GasConstant;
     }
@@ -383,6 +380,19 @@ public:
     //! Return the bond dissociation energy *w* [J/kmol]
     double bondEnergy() const {
         return m_E4_R * GasConstant;
+    }
+
+    //! Return current enthalpy change of reaction [J/kmol]
+    double deltaH() const {
+        return m_deltaH_R * GasConstant;
+    }
+
+    //! Set current enthalpy change of reaction [J/kmol]
+    //! @internal  used for testing purposes only
+    //! Note that this quantity is not an independent variable and will be
+    //! overwritten during an update of the state.
+    void setDeltaH(double deltaH) {
+        m_deltaH_R = deltaH / GasConstant;
     }
 
 protected:

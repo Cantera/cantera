@@ -233,12 +233,6 @@ cdef class BlowersMaselRate(ArrheniusTypeRate):
         if init:
             self._cinit(input_data, A=A, b=b, Ea0=Ea0, w=w)
 
-    def __call__(self, double temperature, double deltaH):
-        """
-        Evaluate rate expression based on temperature and enthalpy change of reaction.
-        """
-        return self.rate.eval(temperature, deltaH)
-
     def _from_dict(self, dict input_data):
         self._rate.reset(new CxxBlowersMaselRate(dict_to_anymap(input_data)))
 
@@ -252,13 +246,6 @@ cdef class BlowersMaselRate(ArrheniusTypeRate):
     cdef CxxBlowersMaselRate* cxx_object(self):
         return <CxxBlowersMaselRate*>self.rate
 
-    def effective_activation_energy(self, double deltaH):
-        """
-        The effective activation energy ``E`` [J/kmol], based on enthalpy change of
-        reaction ``deltaH`` (in [J/kmol])
-        """
-        return self.cxx_object().effectiveActivationEnergy(deltaH)
-
     property bond_energy:
         """
         Average bond dissociation energy of the bond being formed and broken
@@ -266,6 +253,19 @@ cdef class BlowersMaselRate(ArrheniusTypeRate):
         """
         def __get__(self):
             return self.cxx_object().bondEnergy()
+
+    property delta_enthalpy:
+        """
+        Enthalpy change of reaction ``deltaH`` [J/kmol]
+
+        The enthalpy change of reaction is a function of temperature and thus not an
+        independent property. Accordingly, the setter should only be used for testing
+        purposes, as any value will be overwritten by a state update.
+        """
+        def __get__(self):
+            return self.cxx_object().deltaH()
+        def __set__(self, double deltaH):
+            self.cxx_object().setDeltaH(deltaH)
 
 
 cdef class TwoTempPlasmaRate(ArrheniusTypeRate):

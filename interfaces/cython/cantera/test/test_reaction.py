@@ -312,8 +312,8 @@ class TestBlowersMaselRate(ReactionRateTests, utilities.CanteraTest):
         """
 
     def eval(self, rate):
-        delta_enthalpy = self.soln.delta_enthalpy[self._index]
-        return rate(self.soln.T, delta_enthalpy)
+        rate.delta_enthalpy = self.soln.delta_enthalpy[self._index]
+        return rate(self.soln.T)
 
     def test_from_parts(self):
         rate = self.from_parts()
@@ -1109,8 +1109,8 @@ class TestBlowersMasel(ReactionTests, utilities.CanteraTest):
         """
 
     def eval_rate(self, rate):
-        delta_enthalpy = self.soln.delta_enthalpy[self._index]
-        return rate(self.soln.T, delta_enthalpy)
+        rate.delta_enthalpy = self.soln.delta_enthalpy[self._index]
+        return rate(self.soln.T)
 
 
 class TestTroe2(ReactionTests, utilities.CanteraTest):
