@@ -36,7 +36,7 @@ r3 = ct.Reaction({"H":1, "CH4":1}, {"CH3":1, "H2":1},
                  ct.BlowersMaselRate(3.87e1, 2.7, 6260*1000*4.184, 1e9))
 
 gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
-                   species=ct.Solution('gri30.yaml').species(), reactions=[r1, r2, r3])
+                  species=ct.Solution('gri30.yaml').species(), reactions=[r1, r2, r3])
 
 gas.TP = 300, ct.one_atm
 
@@ -88,7 +88,7 @@ def change_species_enthalpy(gas, species_name, dH):
     perturbed_coeffs[13] += dx
 
     species.thermo = ct.NasaPoly2(species.thermo.min_temp, species.thermo.max_temp,
-                            species.thermo.reference_pressure, perturbed_coeffs)
+                                  species.thermo.reference_pressure, perturbed_coeffs)
 
     gas.modify_species(index, species)
     return gas.delta_enthalpy[1]
@@ -103,7 +103,8 @@ Ea_list = []
 deltaH_list = np.linspace(lower_limit_enthalpy, upper_limit_enthalpy, 100)
 for deltaH in deltaH_list:
     delta_enthalpy = change_species_enthalpy(gas, "H", deltaH - gas.delta_enthalpy[1])
-    Ea_list.append(gas.reaction(1).rate.effective_activation_energy(delta_enthalpy))
+    gas.reaction(1).rate.delta_enthalpy = delta_enthalpy
+    Ea_list.append(gas.reaction(1).rate.activation_energy)
 
 plt.figure()
 plt.plot(deltaH_list, Ea_list)

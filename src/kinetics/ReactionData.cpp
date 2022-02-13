@@ -92,26 +92,14 @@ void TwoTempPlasmaData::updateTe(double Te)
 BlowersMaselData::BlowersMaselData()
     : ready(false)
     , density(NAN)
-    , dH_direct(NAN)
     , m_state_mf_number(-1)
 {
 }
 
-void BlowersMaselData::update(double T)
-{
-    throw CanteraError("BlowersMaselData::update",
-        "Missing state information: 'BlowersMaselData' requires enthalpy change.");
-}
-
-void BlowersMaselData::update(double T, double deltaH)
-{
-    if (ready) {
-        throw CanteraError("BlowersMaselData::update",
-            "Direct setting of enthalpy change is only possible while rate object\n"
-            "and associated reaction are not added to a Kinetics object.");
-    }
+void BlowersMaselData::update(double T) {
+    warn_user("BlowersMaselData::update",
+        "This method does not update the change of reaction enthalpy.");
     ReactionData::update(T);
-    dH_direct = deltaH;
 }
 
 bool BlowersMaselData::update(const ThermoPhase& phase, const Kinetics& kin)

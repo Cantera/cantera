@@ -144,11 +144,9 @@ struct BlowersMaselData : public ReactionData
 {
     BlowersMaselData();
 
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
-
     virtual void update(double T) override;
 
-    virtual void update(double T, double deltaH) override;
+    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
 
     using ReactionData::update;
 
@@ -159,7 +157,6 @@ struct BlowersMaselData : public ReactionData
 
     bool ready; //!< boolean indicating whether vectors are accessible
     double density; //!< used to determine if updates are needed
-    double dH_direct; //!< enthalpy change for each reaction (for testing)
     vector_fp grt; //!< partial molar enthalpies
 
 protected:
