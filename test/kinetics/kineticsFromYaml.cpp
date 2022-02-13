@@ -287,7 +287,6 @@ TEST(Reaction, BlowersMaselFromYaml)
         / (vp * vp - 4 * w * w + H_mid * H_mid );
     const auto& rate = std::dynamic_pointer_cast<BlowersMaselRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), -38.7);
-    EXPECT_DOUBLE_EQ(rate->activationEnergy(), E_intrinsic);
     EXPECT_DOUBLE_EQ(rate->bondEnergy(), w);
     EXPECT_DOUBLE_EQ(rate->effectiveActivationEnergy_R(H_big_R), H_big_R);
     EXPECT_DOUBLE_EQ(rate->effectiveActivationEnergy_R(H_small_R), 0);

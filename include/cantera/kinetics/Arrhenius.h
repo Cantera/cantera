@@ -71,12 +71,14 @@ public:
 
     //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
     //! on the reaction order)
-    double preExponentialFactor() const {
+    //! class specializations may provide alternate definitions that describe
+    //! an effective activation energy that depends on the thermodynamic state.
+    virtual double preExponentialFactor() const {
         return m_A;
     }
 
     //! Return the temperature exponent *b*
-    double temperatureExponent() const {
+    virtual double temperatureExponent() const {
         return m_b;
     }
 
@@ -84,13 +86,13 @@ public:
     //! The value corresponds to the constant specified by input parameters;
     //! class specializations may provide alternate definitions that describe
     //! an effective activation energy that depends on the thermodynamic state.
-    double activationEnergy() const {
+    virtual double activationEnergy() const {
         return m_Ea_R * GasConstant;
     }
 
     //! Return the activation energy divided by the gas constant (i.e. the
     //! activation temperature) [K]
-    double activationEnergy_R() const {
+    virtual double activationEnergy_R() const {
         return m_Ea_R;
     }
 
@@ -372,6 +374,10 @@ public:
      */
     double effectiveActivationEnergy(double deltaH) const {
         return effectiveActivationEnergy_R(deltaH / GasConstant) * GasConstant;
+    }
+
+    virtual double activationEnergy() const override {
+        return effectiveActivationEnergy_R(m_deltaH_R) * GasConstant;
     }
 
     //! Return the bond dissociation energy *w* [J/kmol]
