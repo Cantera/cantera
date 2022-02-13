@@ -1823,6 +1823,7 @@ configh['DARWIN'] = 1 if env['OS'] == 'Darwin' else None
 
 if env['OS'] == 'Solaris' or env['HAS_CLANG']:
     configh['NEEDS_GENERIC_TEMPL_STATIC_DECL'] = 1
+    env["RPATHPREFIX"] = "-rpath,"
 
 configh['CT_SUNDIALS_VERSION'] = env['sundials_version'].replace('.','')
 
