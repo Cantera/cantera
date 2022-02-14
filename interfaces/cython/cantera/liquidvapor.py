@@ -10,7 +10,7 @@ def Water(backend='Reynolds'):
     `WaterTransport` class for viscosity and thermal conductivity.
 
     The object returned by this method implements an accurate equation of state
-    for water, where implementations are selected using the *backend* switch.
+    for water, where implementations are selected using the ``backend`` switch.
 
     For the ``Reynolds`` backend, the equation of state is taken from
 

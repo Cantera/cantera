@@ -1202,8 +1202,8 @@ cdef class Reaction:
 
         .. deprecated:: 2.6
              This property is for temporary backwards-compatibility with the deprecated
-             `PlogReaction` class. Replaced by `Reaction.rate.rates` for reactions where
-             the rate is a `PlogRate`.
+             `PlogReaction` class. Replaced by ``Reaction.rate.rates`` for reactions
+              where the rate is a `PlogRate`.
         """
         def __get__(self):
             if isinstance(self.rate, PlogRate):
@@ -1227,7 +1227,7 @@ cdef class Reaction:
 
         .. deprecated:: 2.6
              This property is for temporary backwards-compatibility with the deprecated
-             `ChebyshevReaction` class. Replaced by `Reaction.rate.temperature_range[0]`
+             `ChebyshevReaction` class. Replaced by ``Reaction.rate.temperature_range[0]``
              for reactions where the rate is a a `ChebyshevRate`.
         """
         def __get__(self):
@@ -1246,7 +1246,7 @@ cdef class Reaction:
 
         .. deprecated:: 2.6
              This property is for temporary backwards-compatibility with the deprecated
-             `ChebyshevReaction` class. Replaced by `Reaction.rate.temperature_range[1]`
+             `ChebyshevReaction` class. Replaced by ``Reaction.rate.temperature_range[1]``
              for reactions where the rate is a a `ChebyshevRate`.
         """
         def __get__(self):
@@ -1265,7 +1265,7 @@ cdef class Reaction:
 
         .. deprecated:: 2.6
              This property is for temporary backwards-compatibility with the deprecated
-             `ChebyshevReaction` class. Replaced by `Reaction.rate.pressure_range[0]`
+             `ChebyshevReaction` class. Replaced by ``Reaction.rate.pressure_range[0]``
              for reactions where the rate is a a `ChebyshevRate`.
         """
         def __get__(self):
@@ -1284,7 +1284,7 @@ cdef class Reaction:
 
         .. deprecated:: 2.6
              This property is for temporary backwards-compatibility with the deprecated
-             `ChebyshevReaction` class. Replaced by `Reaction.rate.pressure_range[1]`
+             `ChebyshevReaction` class. Replaced by ``Reaction.rate.pressure_range[1]``
              for reactions where the rate is a a `ChebyshevRate`.
         """
         def __get__(self):
@@ -1322,7 +1322,7 @@ cdef class Reaction:
 
         .. deprecated:: 2.6
              This property is for temporary backwards-compatibility with the deprecated
-             `ChebyshevReaction` class. Replaced by `Reaction.rate.n_temperature`
+             `ChebyshevReaction` class. Replaced by ``Reaction.rate.n_temperature``
              for reactions where the rate is a a `ChebyshevRate`.
         """
         def __get__(self):
@@ -1337,11 +1337,11 @@ cdef class Reaction:
 
     property coeffs:
         """
-        2D array of Chebyshev coefficients of size `(n_temperature, n_pressure)`.
+        2D array of Chebyshev coefficients of size ``(n_temperature, n_pressure)``.
 
         .. deprecated:: 2.6
              This property is for temporary backwards-compatibility with the deprecated
-             `ChebyshevReaction` class. Replaced by `Reaction.rate.data`
+             `ChebyshevReaction` class. Replaced by ``Reaction.rate.data``
              for reactions where the rate is a a `ChebyshevRate`.
         """
         def __get__(self):

@@ -150,7 +150,7 @@ cdef class Species:
         """
         Create a list of Species objects from all of the species defined in a
         YAML, CTI or XML file. For YAML files, return species from the section
-        *section*.
+        ``section``.
 
         Directories on Cantera's input file path will be searched for the
         specified file.
@@ -188,7 +188,7 @@ cdef class Species:
     def list_from_file(filename, section="species"):
         """
         Create a list of Species objects from all of the species defined in the section
-        *section* of a YAML file. Directories on Cantera's input file path will be
+        ``section`` of a YAML file. Directories on Cantera's input file path will be
         searched for the specified file.
         """
         root = AnyMapFromYamlFile(stringify(filename))
@@ -490,7 +490,7 @@ cdef class ThermoPhase(_SolutionBase):
                     int log_level=0):
         """
         Set to a state of chemical equilibrium holding property pair
-        *XY* constant.
+        ``XY`` constant.
 
         :param XY:
             A two-letter string, which must be one of the set::
@@ -537,7 +537,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     cpdef int element_index(self, element) except *:
         """
-        The index of element *element*, which may be specified as a string or
+        The index of element ``element``, which may be specified as a string or
         an integer. In the latter case, the index is checked for validity and
         returned. If no such element is present, an exception is thrown.
         """
@@ -555,7 +555,7 @@ cdef class ThermoPhase(_SolutionBase):
         return index
 
     def element_name(self, m):
-        """Name of the element with index *m*."""
+        """Name of the element with index ``m``."""
         return pystr(self.thermo.elementName(m))
 
     property element_names:
@@ -564,7 +564,7 @@ cdef class ThermoPhase(_SolutionBase):
             return [self.element_name(m) for m in range(self.n_elements)]
 
     def atomic_weight(self, m):
-        """Atomic weight [kg/kmol] of element *m*"""
+        """Atomic weight [kg/kmol] of element ``m``"""
         return self.thermo.atomicWeight(self.element_index(m))
 
     property atomic_weights:
@@ -585,7 +585,7 @@ cdef class ThermoPhase(_SolutionBase):
             return self._selected_species.size or self.n_species
 
     def species_name(self, k):
-        """Name of the species with index *k*."""
+        """Name of the species with index ``k``."""
         return pystr(self.thermo.speciesName(k))
 
     property species_names:
@@ -599,7 +599,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     cpdef int species_index(self, species) except *:
         """
-        The index of species *species*, which may be specified as a string or
+        The index of species ``species``, which may be specified as a string or
         an integer. In the latter case, the index is checked for validity and
         returned. If no such species is present, an exception is thrown.
         """
@@ -625,8 +625,8 @@ cdef class ThermoPhase(_SolutionBase):
 
     def species(self, k=None):
         """
-        Return the `Species` object for species *k*, where *k* is either the
-        species index or the species name. If *k* is not specified, a list of
+        Return the `Species` object for species ``k``, where ``k`` is either the
+        species index or the species name. If ``k`` is not specified, a list of
         all species objects is returned. Changes to this object do not affect
         the `ThermoPhase` or `Solution` object until the `modify_species`
         function is called.
@@ -667,13 +667,13 @@ cdef class ThermoPhase(_SolutionBase):
 
     def add_species_alias(self, name, alias):
         """
-        Add the alternate species name *alias* for an original species *name*.
+        Add the alternate species name ``alias`` for an original species ``name``.
         """
         self.thermo.addSpeciesAlias(stringify(name), stringify(alias))
 
     def find_isomers(self, comp):
         """
-        Find species/isomers matching a composition specified by *comp*.
+        Find species/isomers matching a composition specified by ``comp``.
         """
 
         if isinstance(comp, dict):
@@ -687,7 +687,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     def n_atoms(self, species, element):
         """
-        Number of atoms of element *element* in species *species*. The element
+        Number of atoms of element ``element`` in species ``species``. The element
         and species may be specified by name or by index.
 
         >>> phase.n_atoms('CH4','H')
@@ -847,7 +847,7 @@ cdef class ThermoPhase(_SolutionBase):
     def set_mixture_fraction(self, mixture_fraction, fuel, oxidizer, basis='mole'):
         """
         Set the composition to a mixture of ``fuel`` and ``oxidizer`` at the
-        specified mixture fraction *mixture_fraction* (kg fuel / kg mixture), holding
+        specified mixture fraction ``mixture_fraction`` (kg fuel / kg mixture), holding
         temperature and pressure constant. Considers the oxidation of C to CO2,
         H to H2O and S to SO2. Other elements are assumed not to participate in
         oxidation (that is, N ends up as N2). The ``basis`` determines the composition
@@ -1025,8 +1025,8 @@ cdef class ThermoPhase(_SolutionBase):
 
     def set_unnormalized_mass_fractions(self, Y):
         """
-        Set the mass fractions without normalizing to force sum(Y) == 1.0.
-        Useful primarily when calculating derivatives with respect to Y[k] by
+        Set the mass fractions without normalizing to force ``sum(Y) == 1.0``.
+        Useful primarily when calculating derivatives with respect to ``Y[k]`` by
         finite difference.
         """
         cdef np.ndarray[np.double_t, ndim=1] data
@@ -1039,8 +1039,8 @@ cdef class ThermoPhase(_SolutionBase):
 
     def set_unnormalized_mole_fractions(self, X):
         """
-        Set the mole fractions without normalizing to force sum(X) == 1.0.
-        Useful primarily when calculating derivatives with respect to X[k]
+        Set the mole fractions without normalizing to force ``sum(X) == 1.0``.
+        Useful primarily when calculating derivatives with respect to ``X[k]``
         by finite difference.
         """
         cdef np.ndarray[np.double_t, ndim=1] data

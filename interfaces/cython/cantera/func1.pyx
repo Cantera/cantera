@@ -5,10 +5,10 @@ import sys
 
 cdef double func_callback(double t, void* obj, void** err):
     """
-    This function is called from C/C++ to evaluate a `Func1` object *obj*,
-    returning the value of the function at *t*. If an exception occurs while
+    This function is called from C/C++ to evaluate a `Func1` object ``obj``,
+    returning the value of the function at ``t``. If an exception occurs while
     evaluating the function, the Python exception info is saved in the
-    two-element array *err*.
+    two-element array ``err``.
     """
     try:
         return (<Func1>obj).callable(t)

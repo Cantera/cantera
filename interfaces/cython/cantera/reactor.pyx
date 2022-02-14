@@ -43,7 +43,7 @@ cdef class ReactorBase:
 
     def insert(self, _SolutionBase solution):
         """
-        Set *solution* to be the object used to compute thermodynamic
+        Set ``solution`` to be the object used to compute thermodynamic
         properties and kinetic rates for this reactor.
         """
         self._thermo = solution
@@ -128,21 +128,21 @@ cdef class ReactorBase:
 
     def _add_inlet(self, inlet):
         """
-        Store a reference to *inlet* to prevent it from being prematurely
+        Store a reference to ``inlet`` to prevent it from being prematurely
         garbage collected.
         """
         self._inlets.append(inlet)
 
     def _add_outlet(self, outlet):
         """
-        Store a reference to *outlet* to prevent it from being prematurely
+        Store a reference to ``outlet`` to prevent it from being prematurely
         garbage collected.
         """
         self._outlets.append(outlet)
 
     def _add_wall(self, wall):
         """
-        Store a reference to *wall* to prevent it from being prematurely
+        Store a reference to ``wall`` to prevent it from being prematurely
         garbage collected.
         """
         self._walls.append(wall)
@@ -222,8 +222,8 @@ cdef class Reactor(ReactorBase):
 
     property chemistry_enabled:
         """
-        *True* when the reactor composition is allowed to change due to
-        chemical reactions in this reactor. When this is *False*, the
+        `True` when the reactor composition is allowed to change due to
+        chemical reactions in this reactor. When this is `False`, the
         reactor composition is held constant.
         """
         def __get__(self):
@@ -234,8 +234,8 @@ cdef class Reactor(ReactorBase):
 
     property energy_enabled:
         """
-        *True* when the energy equation is being solved for this reactor.
-        When this is *False*, the reactor temperature is held constant.
+        `True` when the energy equation is being solved for this reactor.
+        When this is `False`, the reactor temperature is held constant.
         """
         def __get__(self):
             return self.reactor.energyEnabled()
@@ -246,7 +246,7 @@ cdef class Reactor(ReactorBase):
     def add_sensitivity_reaction(self, m):
         """
         Specifies that the sensitivity of the state variables with respect to
-        reaction *m* should be computed. *m* is the 0-based reaction index.
+        reaction ``m`` should be computed. ``m`` is the 0-based reaction index.
         The reactor must be part of a network first. Specifying the same
         reaction more than one time raises an exception.
         """
@@ -255,16 +255,16 @@ cdef class Reactor(ReactorBase):
     def add_sensitivity_species_enthalpy(self, k):
         """
         Specifies that the sensitivity of the state variables with respect to
-        species *k* should be computed. The reactor must be part of a network
+        species ``k`` should be computed. The reactor must be part of a network
         first.
         """
         self.reactor.addSensitivitySpeciesEnthalpy(self.thermo.species_index(k))
 
     def component_index(self, name):
         """
-        Returns the index of the component named *name* in the system. This
+        Returns the index of the component named ``name`` in the system. This
         determines the (relative) index of the component in the vector of
-        sensitivity coefficients. *name* is either a species name or the name of
+        sensitivity coefficients. ``name`` is either a species name or the name of
         a reactor state variable, e.g. 'int_energy', 'temperature', depending on
         the reactor's equations.
         """
@@ -276,7 +276,7 @@ cdef class Reactor(ReactorBase):
 
     def component_name(self, int i):
         """
-        Returns the name of the component with index *i* within the array of
+        Returns the name of the component with index ``i`` within the array of
         variables returned by `get_state`. This is the inverse of
         `component_index`.
         """
@@ -327,8 +327,8 @@ cdef class Reactor(ReactorBase):
 
     def set_advance_limit(self, name, limit):
         """
-        Limit absolute change of component *name* during `ReactorNet.advance`.
-        (positive *limit* values are considered; negative values disable a
+        Limit absolute change of component ``name`` during `ReactorNet.advance`.
+        (positive ``limit`` values are considered; negative values disable a
         previously set advance limit for a solution component). Note that
         limits are disabled by default (with individual values set to -1.).
         """
@@ -534,7 +534,7 @@ cdef class ExtensibleReactor(Reactor):
 
     def restore_surface_state(self, n):
         """
-        Set the state of the thermo object for surface *n* to correspond to the
+        Set the state of the thermo object for surface ``n`` to correspond to the
         state of that surface
         """
         self.accessor.restoreSurfaceState(n)
@@ -639,7 +639,7 @@ cdef class ReactorSurface:
     def add_sensitivity_reaction(self, int m):
         """
         Specifies that the sensitivity of the state variables with respect to
-        reaction *m* should be computed. *m* is the 0-based reaction index.
+        reaction ``m`` should be computed. ``m`` is the 0-based reaction index.
         The Surface must be installed on a reactor and part of a network first.
         """
         self.surface.addSensitivityReaction(m)
@@ -726,14 +726,14 @@ cdef class WallBase:
     def vdot(self, double t):
         """
         The rate of volumetric change [m^3/s] associated with the wall
-        at time *t*. A positive value corresponds to the left-hand reactor
+        at time ``t``. A positive value corresponds to the left-hand reactor
         volume increasing, and the right-hand reactor volume decreasing.
         """
         return self.wall.vdot(t)
 
     def qdot(self, double t):
         """
-        Total heat flux [W] through the wall at time *t*. A positive value
+        Total heat flux [W] through the wall at time ``t``. A positive value
         corresponds to heat flowing from the left-hand reactor to the
         right-hand one.
         """
@@ -860,7 +860,7 @@ cdef class FlowDevice:
 
     def _install(self, ReactorBase upstream, ReactorBase downstream):
         """
-        Install the device between the *upstream* (source) and *downstream*
+        Install the device between the ``upstream`` (source) and ``downstream``
         (destination) reactors or reservoirs.
         """
         upstream._add_outlet(self)
@@ -1115,7 +1115,7 @@ cdef class ReactorNet:
         """
         Advance the state of the reactor network in time from the current time
         towards time *t* [s], taking as many integrator timesteps as necessary.
-        If *apply_limit* is true and an advance limit is specified, the reactor
+        If ``apply_limit`` is true and an advance limit is specified, the reactor
         state at the end of the timestep is estimated prior to advancing. If
         the difference exceed limits, the end time is reduced by half until
         the projected end state remains within specified limits.
@@ -1226,8 +1226,8 @@ cdef class ReactorNet:
 
     property verbose:
         """
-        If *True*, verbose debug information will be printed during
-        integration. The default is *False*.
+        If `True`, verbose debug information will be printed during
+        integration. The default is `False`.
         """
         def __get__(self):
             return pybool(self.net.verbose())
@@ -1236,10 +1236,10 @@ cdef class ReactorNet:
 
     def global_component_index(self, name, int reactor):
         """
-        Returns the index of a component named *name* of a reactor with index
-        *reactor* within the global state vector. I.e. this determines the
-        (absolute) index of the component, where *reactor* is the index of the
-        reactor that holds the component. *name* is either a species name or the
+        Returns the index of a component named ``name`` of a reactor with index
+        ``reactor`` within the global state vector. I.e. this determines the
+        (absolute) index of the component, where ``reactor`` is the index of the
+        reactor that holds the component. ``name`` is either a species name or the
         name of a reactor state variable, e.g. 'int_energy', 'temperature', etc.
         depending on the reactor's equations.
         """
@@ -1255,11 +1255,11 @@ cdef class ReactorNet:
 
     def sensitivity(self, component, int p, int r=0):
         """
-        Returns the sensitivity of the solution variable *component* in
-        reactor *r* with respect to the parameter *p*. *component* can be a
+        Returns the sensitivity of the solution variable ``component`` in
+        reactor ``r`` with respect to the parameter ``p``. ``component`` can be a
         string or an integer. See `component_index` and `sensitivities` to
         determine the integer index for the variables and the definition of the
-        resulting sensitivity coefficient. If it is not given, *r* defaults to
+        resulting sensitivity coefficient. If it is not given, ``r`` defaults to
         the first reactor. Returns an empty array until the first time step is
         taken.
         """
@@ -1309,7 +1309,7 @@ cdef class ReactorNet:
 
     def sensitivity_parameter_name(self, int p):
         """
-        Name of the sensitivity parameter with index *p*.
+        Name of the sensitivity parameter with index ``p``.
         """
         return pystr(self.net.sensitivityParameterName(p))
 

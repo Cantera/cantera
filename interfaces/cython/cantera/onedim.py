@@ -33,7 +33,7 @@ class FlameBase(Sim1D):
     def other_components(self, domain=None):
         """
         The method returns simulation components that are specific to a class
-        derived from `FlameBase` or a specific *domain* within the `FlameBase`
+        derived from `FlameBase` or a specific ``domain`` within the `FlameBase`
         simulation object. Entries may include:
 
         * ``grid``: grid point positions along the flame [m]
@@ -190,7 +190,7 @@ class FlameBase(Sim1D):
         :param positions:
             sequence of relative positions, from 0 on the left to 1 on the right
         :param values:
-            sequence of values at the relative positions specified in *positions*
+            sequence of values at the relative positions specified in ``positions``
 
         >>> f.set_profile('T', [0.0, 0.2, 1.0], [400.0, 800.0, 1500.0])
         """
@@ -357,7 +357,7 @@ class FlameBase(Sim1D):
     def solution(self, component, point=None):
         """
         Get the solution at one point or for the full flame domain (if
-        `point=None`) for the specified *component*. The *component* can be
+        ``point=None``) for the specified ``component``. The ``component`` can be
         specified by name or index.
         """
         if point is None:
@@ -369,7 +369,7 @@ class FlameBase(Sim1D):
         """
         Set the state of the the Solution object used for calculations,
         `self.gas`, to the temperature and composition at the point with index
-        *point*.
+        ``point``.
         """
         k0 = self.flame.component_index(self.gas.species_name(0))
         Y = [self.solution(k, point)
@@ -560,7 +560,7 @@ class FlameBase(Sim1D):
             Boolean flag to indicate whether the mole/mass fractions should
             be normalized (default is ``True``)
 
-        Additional arguments (i.e. *args* and *kwargs*) are passed on to
+        Additional arguments (i.e. ``*args`` and ``**kwargs``) are passed on to
         `SolutionArray.collect_data`. The method exports data using
         `SolutionArray.write_hdf` via `to_solution_array` and requires a working
         installation of h5py (`h5py` can be installed using pip or conda).
@@ -1286,15 +1286,15 @@ class CounterflowDiffusionFlame(FlameBase):
             The definition of the strain rate to be calculated. Options are:
             ``mean``, ``max``, ``stoichiometric``, ``potential_flow_fuel``, and
             ``potential_flow_oxidizer``.
-        :param fuel: The fuel species. Used only if *definition* is
+        :param fuel: The fuel species. Used only if ``definition`` is
             ``stoichiometric``.
         :param oxidizer: The oxidizer species, default ``O2``. Used only if
-            *definition* is ``stoichiometric``.
+            ``definition`` is ``stoichiometric``.
         :param stoich: The molar stoichiometric oxidizer-to-fuel ratio.
-            Can be omitted if the oxidizer is ``O2``. Used only if *definition*
+            Can be omitted if the oxidizer is ``O2``. Used only if ``definition``
             is ``stoichiometric``.
 
-        The parameter *definition* sets the method to compute the strain rate.
+        The parameter ``definition`` sets the method to compute the strain rate.
         Possible options are:
 
         ``mean``:
@@ -1315,8 +1315,8 @@ class CounterflowDiffusionFlame(FlameBase):
                 a_{stoichiometric} = \left| \left. \frac{du}{dz}
                 \right|_{\phi=1} \right|
 
-            This method uses the additional keyword arguments *fuel*,
-            *oxidizer*, and *stoich*.
+            This method uses the additional keyword arguments ``fuel``,
+            ``oxidizer``, and ``stoich``.
 
             >>> f.strain_rate('stoichiometric', fuel='H2', oxidizer='O2',
                               stoich=0.5)
@@ -1370,11 +1370,11 @@ class CounterflowDiffusionFlame(FlameBase):
 
     def mixture_fraction(self, m):
         r"""
-        Compute the mixture fraction based on element *m* or from the
+        Compute the mixture fraction based on element ``m`` or from the
         Bilger mixture fraction (m="Bilger")
 
         The mixture fraction is computed from the elemental mass fraction of
-        element *m*, normalized by its values on the fuel and oxidizer
+        element ``m``, normalized by its values on the fuel and oxidizer
         inlets:
 
         .. math:: Z = \frac{Z_{\mathrm{mass},m}(z) -
