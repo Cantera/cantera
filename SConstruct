@@ -218,8 +218,10 @@ config_options = [
     PathOption(
         "prefix",
         """Set this to the directory where Cantera should be installed. If the Python
-           executable found during compilation is managed by 'conda', the
-           installation 'prefix' will default to the corresponding environment. On
+           executable found during compilation is managed by 'conda', the installation
+           'prefix' defaults to the corresponding environment and the 'conda' layout
+           will be used for installation (specifying any of the options 'prefix',
+           'python_prefix', 'python_cmd' or 'layout' will override this default). On
            Windows systems, '$ProgramFiles' typically refers to "C:\Program Files".""",
         {"Windows": "$ProgramFiles\Cantera", "default": "/usr/local"},
         PathVariable.PathAccept),
@@ -485,12 +487,16 @@ config_options = [
     Option(
         "extra_inc_dirs",
         """Additional directories to search for header files, with multiple
-           directories separated by colons (*nix, macOS) or semicolons (Windows)""",
+           directories separated by colons (*nix, macOS) or semicolons (Windows).
+           If an active 'conda' environment is detected, the corresponding include
+           path is automatically added.""",
         ""),
     Option(
         "extra_lib_dirs",
         """Additional directories to search for libraries, with multiple
-           directories separated by colons (*nix, macOS) or semicolons (Windows)""",
+           directories separated by colons (*nix, macOS) or semicolons (Windows).
+           If an active 'conda' environment is detected, the corresponding library
+           path is automatically added.""",
         ""),
     PathOption(
         "boost_inc_dir",
@@ -552,12 +558,15 @@ config_options = [
         """The layout of the directory structure. 'standard' installs files to
            several subdirectories under 'prefix', for example, 'prefix/bin',
            'prefix/include/cantera', 'prefix/lib' etc. This layout is best used in
-           conjunction with "prefix='/usr/local'". 'compact' puts all installed
-           files in the subdirectory defined by 'prefix'. This layout is best
-           with a prefix like '/opt/cantera'. 'debian' installs to the stage
-           directory in a layout used for generating Debian packages. If the Python
-           executable found during compilation is managed by 'conda', the layout
-           will default to 'conda' irrespective of operating system.""",
+           conjunction with "prefix='/usr/local'". 'compact' puts all installed files
+           in the subdirectory defined by 'prefix'. This layout is best with a prefix
+           like '/opt/cantera'. 'debian' installs to the stage directory in a layout
+           used for generating Debian packages. If the Python executable found during
+           compilation is managed by 'conda', the layout will default to 'conda'
+           irrespective of operating system. For the 'conda' layout, the Python package
+           as well as all libraries and header files are installed into the active
+           'conda' environment. Input data, samples, and other files are installed in
+           the 'shared/cantera' subdirectory of the active 'conda' environment.""",
         {"Windows": "compact", "default": "standard"},
         ("standard", "compact", "debian", "conda")),
     BoolOption(
