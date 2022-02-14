@@ -121,6 +121,7 @@ ReactionFactory::ReactionFactory()
     });
     addAlias("interface", "surface");
     addAlias("interface", "edge");
+    addAlias("interface", "interface-legacy");
 
     addAlias("reaction", "Arrhenius-interface");
     addAlias("reaction", "Arrhenius-stick");
@@ -356,11 +357,11 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin)
                               rxn_node, &kin);
         if (isElectrochemicalReaction(testReaction, kin)) {
             type = "electrochemical";
-        } else {
+        } else if (rxn_node.hasKey("sticking-coefficient")) {
             type = "interface";
         }
     }
-    if (nDim < 3 && type == "Blowers-Masel") {
+    if (nDim < 3 && type == "Blowers-Masel" && rxn_node.hasKey("sticking-coefficient")) {
         // Allow yaml file to specify "Blowers-Masel" for surface reactions
         type = "surface-Blowers-Masel";
     }
