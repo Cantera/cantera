@@ -308,6 +308,87 @@ TEST_F(KineticsFromScratch3, invalid_nonreactant_order)
     ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
+class InterfaceKineticsFromScratch3 : public testing::Test
+{
+public:
+    InterfaceKineticsFromScratch3()
+        : gas("sofc.yaml", "gas")
+        , gas_ref("sofc.yaml", "gas")
+        , surf("sofc.yaml", "metal_surface")
+        , surf_ref("sofc.yaml", "metal_surface")
+    {
+        kin_ref = newKinetics({&surf_ref, &gas_ref}, "sofc.yaml", "metal_surface");
+        kin.addPhase(surf);
+        kin.addPhase(gas);
+    }
+
+    IdealGasPhase gas;
+    IdealGasPhase gas_ref;
+    SurfPhase surf;
+    SurfPhase surf_ref;
+    InterfaceKinetics kin;
+    unique_ptr<Kinetics> kin_ref;
+
+    //! iRef is the index of the corresponding reaction in the reference mech
+    void check_rates(int iRef) {
+        ASSERT_EQ((size_t) 1, kin.nReactions());
+
+        std::string X = "H2:0.2 O2:0.5 H2O:0.1 N2:0.2";
+        std::string Xs = "H(m):0.1 O(m):0.2 OH(m):0.3 (m):0.4";
+        gas.setState_TPX(1200, 5*OneAtm, X);
+        gas_ref.setState_TPX(1200, 5*OneAtm, X);
+        surf.setState_TP(1200, 5*OneAtm);
+        surf_ref.setState_TP(1200, 5*OneAtm);
+        surf.setCoveragesByName(Xs);
+        surf_ref.setCoveragesByName(Xs);
+
+        vector_fp k(1), k_ref(kin_ref->nReactions());
+
+        kin.getFwdRateConstants(&k[0]);
+        kin_ref->getFwdRateConstants(&k_ref[0]);
+        EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
+
+        kin.getRevRateConstants(&k[0]);
+        kin_ref->getRevRateConstants(&k_ref[0]);
+        EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
+    }
+};
+
+TEST_F(InterfaceKineticsFromScratch3, add_surface_reaction)
+{
+    // Reaction 3 on the metal surface
+    // surface_reaction( "H(m) + O(m) <=> OH(m) + (m)",
+    //                   [5.00000E+22, 0, 100.0], id = 'metal-rxn4')
+    Composition reac = parseCompString("H(m):1 O(m):1");
+    Composition prod = parseCompString("OH(m):1 (m):1");
+    auto rate = make_shared<ArrheniusInterfaceRate>(5e21, 0, 100.0e6);
+    auto R = make_shared<Reaction>(reac, prod, rate);
+    kin.addReaction(R);
+    check_rates(3);
+}
+
+TEST_F(InterfaceKineticsFromScratch3, add_sticking_reaction)
+{
+    // Reaction 0 on the metal surface
+    // surface_reaction( "H2 + (m) + (m) <=> H(m) + H(m)",
+    //                   stick(0.1, 0, 0), id = 'metal-rxn1')
+    Composition reac = parseCompString("H2:1 (m):2");
+    Composition prod = parseCompString("H(m):2");
+    auto rate = make_shared<ArrheniusStickingRate>(0.1, 0, 0.0);
+    auto R = make_shared<Reaction>(reac, prod, rate);
+    kin.addReaction(R);
+    check_rates(0);
+}
+
+TEST_F(InterfaceKineticsFromScratch3, unbalanced_sites)
+{
+    Composition reac = parseCompString("H(m):1 O(m):1");
+    Composition prod = parseCompString("OH(m):1");
+    auto rate = make_shared<ArrheniusInterfaceRate>(5e21, 0, 100.0e6);
+    auto R = make_shared<Reaction>(reac, prod, rate);
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
+}
+
 class KineticsAddSpecies3 : public testing::Test
 {
 public:
