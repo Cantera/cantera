@@ -27,6 +27,7 @@ interfaces/matlab/Contents.m
 stage/
 .sconsign.dblite
 .sconf_temp
+.vscode
 cantera.conf*
 config.log
 *.lib
