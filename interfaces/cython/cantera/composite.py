@@ -45,7 +45,7 @@ class Solution(Transport, Kinetics, ThermoPhase):
         gas = ct.Solution('gri30.yaml')
 
     If an input file defines multiple phases, the corresponding key in the
-    *phases* map (in YAML), *name* (in CTI), or *id* (in XML) can be used
+    ``phases`` map (in YAML), ``name`` (in CTI), or ``id`` (in XML) can be used
     to specify the desired phase via the ``name`` keyword argument of
     the constructor::
 
@@ -53,7 +53,7 @@ class Solution(Transport, Kinetics, ThermoPhase):
         diamond = ct.Solution('diamond.yaml', name='diamond')
 
     The name of the `Solution` object defaults to the *phase* identifier
-    specified in the input file. Upon initialization of a 'Solution' object,
+    specified in the input file. Upon initialization of a `Solution` object,
     a custom name can assigned via::
 
         gas.name = 'my_custom_name'
@@ -117,7 +117,7 @@ class Interface(InterfaceKinetics, InterfacePhase):
 
     Constructing an `Interface` object also involves constructing adjacent bulk phases
     that participate in reactions. This is done automatically if the adjacent phases
-    are specified as part of the 'adjacent-phases' entry in the YAML phase definition::
+    are specified as part of the ``adjacent-phases`` entry in the YAML phase definition::
 
         diamond_surf = ct.Interface("diamond.yaml", name="diamond_100")
         gas = diamond_surf.adjacent["gas"]
@@ -447,7 +447,7 @@ class SolutionArray:
         >>> states = ct.SolutionArray(gas)
         >>> states.read_hdf('somefile.h5', key='some_key')
 
-    For HDF export and import, the (optional) keyword argument *group* allows
+    For HDF export and import, the (optional) keyword argument ``group`` allows
     for saving and accessing of multiple solutions in a single container file.
     Note that `write_hdf` and `read_hdf` require a working installation of h5py.
     The package `h5py` can be installed using pip or conda.
@@ -775,7 +775,7 @@ class SolutionArray:
 
     def sort(self, col, reverse=False):
         """
-        Sort SolutionArray by column *col*.
+        Sort SolutionArray by column ``col``.
 
         :param col: Column that is used to sort the SolutionArray.
         :param reverse: If True, the sorted list is reversed (descending order).
@@ -799,7 +799,7 @@ class SolutionArray:
 
     def restore_data(self, data, normalize=True):
         """
-        Restores a `SolutionArray` based on *data* specified in an ordered
+        Restores a `SolutionArray` based on ``data`` specified in an ordered
         dictionary. Thus, this method allows to restore data exported by
         `collect_data`.
 
@@ -987,7 +987,7 @@ class SolutionArray:
         """
         See `ThermoPhase.set_equivalence_ratio`
 
-        Note that *phi* either needs to be a scalar value or dimensions have
+        Note that ``phi`` either needs to be a scalar value or dimensions have
         to be matched to the SolutionArray.
         """
 
@@ -1002,13 +1002,13 @@ class SolutionArray:
 
     def collect_data(self, cols=None, tabular=False, threshold=0, species=None):
         """
-        Returns the data specified by *cols* in an ordered dictionary, where
+        Returns the data specified by ``cols`` in an ordered dictionary, where
         keys correspond to SolutionArray attributes to be exported.
 
         :param cols: A list of any properties of the solution that are scalars
             or which have a value for each species or reaction. If species names
             are specified, then either the mass or mole fraction of that species
-            will be taken, depending on the value of *species*. *cols* may also
+            will be taken, depending on the value of ``species``. ``cols`` may also
             include any arrays which were specified as 'extra' variables when
             defining the `SolutionArray` object. The special value 'extra' can
             be used to include all 'extra' variables.
@@ -1097,8 +1097,8 @@ class SolutionArray:
 
     def write_csv(self, filename, cols=None, *args, **kwargs):
         """
-        Write a CSV file named *filename* containing the data specified by
-        *cols*. The first row of the CSV file will contain column labels.
+        Write a CSV file named ``filename`` containing the data specified by
+        ``cols``. The first row of the CSV file will contain column labels.
 
         Additional arguments are passed on to `collect_data`. This method works
         only with 1D `SolutionArray` objects.
@@ -1114,7 +1114,7 @@ class SolutionArray:
 
     def read_csv(self, filename, normalize=True):
         """
-        Read a CSV file named *filename* and restore data to the `SolutionArray`
+        Read a CSV file named ``filename`` and restore data to the `SolutionArray`
         using `restore_data`. This method allows for recreation of data
         previously exported by `write_csv`.
 
@@ -1141,7 +1141,7 @@ class SolutionArray:
 
     def to_pandas(self, cols=None, *args, **kwargs):
         """
-        Returns the data specified by *cols* in a single pandas DataFrame.
+        Returns the data specified by ``cols`` in a single pandas DataFrame.
 
         Additional arguments are passed on to `collect_data`. This method works
         only with 1D `SolutionArray` objects and requires a working pandas
@@ -1158,7 +1158,7 @@ class SolutionArray:
 
     def from_pandas(self, df, normalize=True):
         """
-        Restores `SolutionArray` data from a pandas DataFrame *df*.
+        Restores `SolutionArray` data from a pandas DataFrame ``df``.
 
         This method is intendend for loading of data that were previously
         exported by `to_pandas`. The method requires a working pandas
@@ -1180,9 +1180,9 @@ class SolutionArray:
                   attrs={}, mode='a', append=False,
                   compression=None, compression_opts=None, **kwargs):
         """
-        Write data specified by *cols* to a HDF container file named *filename*.
+        Write data specified by ``cols`` to a HDF container file named ``filename``.
         Note that it is possible to write multiple data entries to a single HDF
-        container file, where *group* is used to differentiate data.
+        container file, where ``group`` is used to differentiate data.
 
         An example for the default HDF file structure is:::
 
@@ -1199,7 +1199,7 @@ class SolutionArray:
         where ``group0`` is the default name for the top level HDF entry. In
         addition to datasets, information stored in `SolutionArray.meta` is
         saved in form of HDF attributes. An additional intermediate layer may
-        be created using the *subgroup* argument.
+        be created using the ``subgroup`` argument.
 
         :param filename:
             Name of the HDF container file; typical file extensions are
@@ -1235,11 +1235,11 @@ class SolutionArray:
         :return:
             Group identifier used for storing HDF data.
 
-        Arguments *compression*, and *compression_opts* are mapped to parameters
+        Arguments ``compression``, and ``compression_opts`` are mapped to parameters
         for `h5py.create_dataset`; in both cases, the choices of `None` results
         in default values set by h5py.
 
-        Additional arguments (i.e. *args* and *kwargs*) are passed on to
+        Additional arguments (i.e. ``*args`` and ``**kwargs``) are passed on to
         `collect_data`; see `collect_data` for further information. This method
         requires a working installation of h5py (`h5py` can be installed using
         pip or conda).

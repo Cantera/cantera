@@ -279,27 +279,27 @@ cdef class Transport(_SolutionBase):
 
     def get_viscosity_polynomial(self, i):
         """Get the polynomial fit to the logarithm of temperature for
-        the viscosity of species i."""
+        the viscosity of species ``i``."""
         n_values = 4 if self.transport.CKMode() else 5
         return get_transport_polynomial(self, tran_getViscosityPolynomial, i, n_values)
 
     def get_thermal_conductivity_polynomial(self, i):
         """Get the polynomial fit to the logarithm of temperature for
-        the thermal conductivity of species i."""
+        the thermal conductivity of species ``i``."""
         n_values = 4 if self.transport.CKMode() else 5
         return get_transport_polynomial(self, tran_getConductivityPolynomial, i,
                                         n_values)
 
     def get_binary_diff_coeffs_polynomial(self, i, j):
         """Get the polynomial fit to the logarithm of temperature for
-        the binary diffusion coefficient of species i and j."""
+        the binary diffusion coefficient of species ``i`` and ``j``."""
         n_values = 4 if self.transport.CKMode() else 5
         return get_binary_transport_polynomial(self, tran_getBinDiffusivityPolynomial,
                                                i, j, n_values)
 
     def get_collision_integral_polynomials(self, i, j):
         """Get the polynomial fit to the logarithm of temperature for
-        the collision integral of species i and j."""
+        the collision integral of species ``i`` and ``j``."""
         n_values = 7 if self.transport.CKMode() else 9
         cdef np.ndarray[np.double_t, ndim=1] adata = np.empty(n_values)
         cdef np.ndarray[np.double_t, ndim=1] bdata = np.empty(n_values)
@@ -310,7 +310,7 @@ cdef class Transport(_SolutionBase):
 
     def set_viscosity_polynomial(self, i, values):
         """Set the polynomial fit to the logarithm of temperature for
-        the viscosity of species i."""
+        the viscosity of species ``i``."""
         n_values = 4 if self.transport.CKMode() else 5
         if len(values) != n_values:
             raise ValueError(
@@ -322,7 +322,7 @@ cdef class Transport(_SolutionBase):
 
     def set_thermal_conductivity_polynomial(self, i, values):
         """Set the polynomial fit to the logarithm of temperature for
-        the thermal conductivity of species i."""
+        the thermal conductivity of species ``i``."""
         n_values = 4 if self.transport.CKMode() else 5
         if len(values) != n_values:
             raise ValueError(
@@ -334,7 +334,7 @@ cdef class Transport(_SolutionBase):
 
     def set_binary_diff_coeffs_polynomial(self, i, j, values):
         """Set the polynomial fit to the logarithm of temperature for
-        the binary diffusion coefficient of species i and j."""
+        the binary diffusion coefficient of species ``i`` and ``j``."""
         n_values = 4 if self.transport.CKMode() else 5
         if len(values) != n_values:
             raise ValueError(
@@ -347,7 +347,7 @@ cdef class Transport(_SolutionBase):
     def set_collision_integral_polynomial(self, i, j, avalues, bvalues, cvalues,
                                           actualT=True):
         """Get the polynomial fit to the logarithm of temperature for
-        the collision integral of species i and j."""
+        the collision integral of species ``i`` and ``j``."""
         n_values = 7 if self.transport.CKMode() else 9
         if len(avalues) != n_values:
             raise ValueError(

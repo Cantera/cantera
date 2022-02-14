@@ -12,9 +12,9 @@ cdef class ReactionPathDiagram:
 
     def __init__(self, Kinetics kin, str element):
         """
-        Create a reaction path diagram for the fluxes of the element *element*
+        Create a reaction path diagram for the fluxes of the element ``element``
         according the the net reaction rates determined by the Kinetics object
-        *kin*.
+        ``kin``.
         """
         self.kinetics = kin
         self.builder.init(deref(self._log), deref(kin.kinetics))
@@ -158,7 +158,7 @@ cdef class ReactionPathDiagram:
     def write_dot(self, filename):
         """
         Write the reaction path diagram formatted for use by Graphviz's 'dot'
-        program to the file named *filename*.
+        program to the file named ``filename``.
         """
         Path(filename).write_text(self.get_dot())
 

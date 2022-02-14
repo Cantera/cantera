@@ -115,8 +115,8 @@ cdef class Kinetics(_SolutionBase):
 
     def kinetics_species_index(self, species, int phase=0):
         """
-        The index of species *species* of phase *phase* within arrays returned
-        by methods of class `Kinetics`. If *species* is a string, the *phase*
+        The index of species ``species`` of phase ``phase`` within arrays returned
+        by methods of class `Kinetics`. If ``species`` is a string, the ``phase``
         argument is unused.
         """
         cdef int k
@@ -130,7 +130,7 @@ cdef class Kinetics(_SolutionBase):
 
     def kinetics_species_name(self, k):
         """
-        Name of the species with index *k* in the arrays returned by methods
+        Name of the species with index ``k`` in the arrays returned by methods
         of class `Kinetics`.
         """
         return pystr(self.kinetics.kineticsSpeciesName(k))
@@ -176,14 +176,14 @@ cdef class Kinetics(_SolutionBase):
         self.kinetics.addReaction(rxn._reaction)
 
     def is_reversible(self, int i_reaction):
-        """True if reaction `i_reaction` is reversible."""
+        """True if reaction ``i_reaction`` is reversible."""
         self._check_reaction_index(i_reaction)
         return self.kinetics.isReversible(i_reaction)
 
     def multiplier(self, int i_reaction):
         """
         A scaling factor applied to the rate coefficient for reaction
-        *i_reaction*. Can be used to carry out sensitivity analysis or to
+        ``i_reaction``. Can be used to carry out sensitivity analysis or to
         selectively disable a particular reaction. See `set_multiplier`.
         """
         self._check_reaction_index(i_reaction)
@@ -191,9 +191,9 @@ cdef class Kinetics(_SolutionBase):
 
     def set_multiplier(self, double value, int i_reaction=-1):
         """
-        Set the multiplier for for reaction *i_reaction* to *value*.
-        If *i_reaction* is not specified, then the multiplier for all reactions
-        is set to *value*. See `multiplier`.
+        Set the multiplier for for reaction ``i_reaction`` to ``value``.
+        If ``i_reaction`` is not specified, then the multiplier for all reactions
+        is set to ``value``. See `multiplier`.
         """
         if i_reaction == -1:
             for i_reaction in range(self.n_reactions):
@@ -204,7 +204,7 @@ cdef class Kinetics(_SolutionBase):
 
     def reaction_type(self, int i_reaction):
         """
-        Type code of reaction *i_reaction*.
+        Type code of reaction ``i_reaction``.
 
         .. deprecated:: 2.6
         """
@@ -216,7 +216,7 @@ cdef class Kinetics(_SolutionBase):
         return self.kinetics.reactionType(i_reaction)
 
     def reaction_type_str(self, int i_reaction):
-        """Type of reaction *i_reaction*."""
+        """Type of reaction ``i_reaction``."""
         self._check_reaction_index(i_reaction)
         return pystr(self.kinetics.reactionTypeStr(i_reaction))
 
@@ -238,8 +238,8 @@ cdef class Kinetics(_SolutionBase):
     def reaction_equations(self, indices=None):
         """
         Returns a list containing the reaction equation for all reactions in the
-        mechanism (if *indices* is unspecified) or the equations for each
-        reaction in the sequence *indices*. For example::
+        mechanism (if ``indices`` is unspecified) or the equations for each
+        reaction in the sequence ``indices``. For example::
 
             >>> gas.reaction_equations()
             ['2 O + M <=> O2 + M', 'O + H + M <=> OH + M', 'O + H2 <=> H + OH', ...]
@@ -400,9 +400,9 @@ cdef class Kinetics(_SolutionBase):
             three-body reactions are multiplied with third-body concentrations
             (no change to legacy behavior). After Cantera 2.6, results will no longer
             include third-body concentrations and be consistent with conventional
-            definitions (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically
-            Reacting Flow', Wiley Interscience, 2003).
-            To switch to new behavior, run 'cantera.use_legacy_rate_constants(False)'.
+            definitions (see Eq. 9.75 in Kee, Coltrin and Glarborg, *Chemically
+            Reacting Flow*, Wiley Interscience, 2003).
+            To switch to new behavior, run ``ct.use_legacy_rate_constants(False)``.
         """
         def __get__(self):
             return get_reaction_array(self, kin_getFwdRateConstants)
@@ -420,9 +420,9 @@ cdef class Kinetics(_SolutionBase):
             three-body reactions are multiplied with third-body concentrations
             (no change to legacy behavior). After Cantera 2.6, results will no longer
             include third-body concentrations and be consistent with conventional
-            definitions (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically
-            Reacting Flow', Wiley Interscience, 2003).
-            To switch to new behavior, run 'cantera.use_legacy_rate_constants(False)'.
+            definitions (see Eq. 9.75 in Kee, Coltrin and Glarborg, *Chemically
+            Reacting Flow*, Wiley Interscience, 2003).
+            To switch to new behavior, run ``ct.use_legacy_rate_constants(False)``.
         """
         def __get__(self):
             return get_reaction_array(self, kin_getRevRateConstants)
@@ -851,7 +851,7 @@ cdef class InterfaceKinetics(Kinetics):
 
     def phase_index(self, phase):
         """
-        Get the index of the phase *phase*, where *phase* may specified using
+        Get the index of the phase ``phase``, where ``phase`` may specified using
         the phase object, the name, or the index itself.
         """
         return self._phase_indices[phase]
@@ -869,7 +869,7 @@ cdef class InterfaceKinetics(Kinetics):
 
     def get_creation_rates(self, phase):
         """
-        Creation rates for each species in phase *phase*. Use the
+        Creation rates for each species in phase ``phase``. Use the
         `creation_rates` property to get the creation rates for species in all
         phases.
         """
@@ -877,7 +877,7 @@ cdef class InterfaceKinetics(Kinetics):
 
     def get_destruction_rates(self, phase):
         """
-        Destruction rates for each species in phase *phase*. Use the
+        Destruction rates for each species in phase ``phase``. Use the
         `destruction_rates` property to get the destruction rates for species
         in all phases.
         """
@@ -885,7 +885,7 @@ cdef class InterfaceKinetics(Kinetics):
 
     def get_net_production_rates(self, phase):
         """
-        Net production rates for each species in phase *phase*. Use the
+        Net production rates for each species in phase ``phase``. Use the
         `net_production_rates` property to get the net_production rates for
         species in all phases.
         """

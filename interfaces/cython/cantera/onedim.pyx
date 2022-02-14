@@ -69,8 +69,8 @@ cdef class Domain1D:
 
         The argument list should consist of keyword/value pairs, with
         component names as keywords and (lower_bound, upper_bound) tuples as
-        the values.  The keyword *default* may be used to specify default
-        bounds for all unspecified components. The keyword *Y* can be used to
+        the values.  The keyword ``default`` may be used to specify default
+        bounds for all unspecified components. The keyword ``Y`` can be used to
         stand for all species mass fractions in flow domains.
 
         >>> d.set_bounds(default=(0, 1), Y=(-1.0e-5, 2.0))
@@ -94,10 +94,10 @@ cdef class Domain1D:
 
         The argument list should consist of keyword/value pairs, with
         component names as keywords and (rtol, atol) tuples as the values.
-        The keyword *default* may be used to specify default bounds for all
-        unspecified components. The keyword *Y* can be used to stand for all
+        The keyword ``default`` may be used to specify default bounds for all
+        unspecified components. The keyword ``Y`` can be used to stand for all
         species mass fractions in flow domains. Alternatively, the keywords
-        *abs* and *rel* can be used to specify arrays for the absolute and
+        ``abs`` and ``rel`` can be used to specify arrays for the absolute and
         relative tolerances for each solution component.
         """
         self.have_user_tolerances = True
@@ -129,10 +129,10 @@ cdef class Domain1D:
 
         The argument list should consist of keyword/value pairs, with
         component names as keywords and (rtol, atol) tuples as the values.
-        The keyword *default* may be used to specify default bounds for all
-        unspecified components. The keyword *Y* can be used to stand for all
+        The keyword ``default`` may be used to specify default bounds for all
+        unspecified components. The keyword ``Y`` can be used to stand for all
         species mass fractions in flow domains. Alternatively, the keywords
-        *abs* and *rel* can be used to specify arrays for the absolute and
+        ``abs`` and ``rel`` can be used to specify arrays for the absolute and
         relative tolerances for each solution component.
         """
         self.have_user_tolerances = True
@@ -735,7 +735,7 @@ cdef class Sim1D:
     def set_interrupt(self, f):
         """
         Set an interrupt function to be called each time that OneDim::eval is
-        called. The signature of *f* is `float f(float)`. The default
+        called. The signature of ``f`` is `float f(float)`. The default
         interrupt function is used to trap KeyboardInterrupt exceptions so
         that `ctrl-c` can be used to break out of the C++ solver loop.
         """
@@ -752,7 +752,7 @@ cdef class Sim1D:
     def set_time_step_callback(self, f):
         """
         Set a callback function to be called after each successful timestep.
-        The signature of *f* is `float f(float)`. The argument passed to *f* is
+        The signature of ``f`` is `float f(float)`. The argument passed to ``f`` is
         the size of the timestep. The output is ignored.
         """
         if f is None:
@@ -768,8 +768,8 @@ cdef class Sim1D:
     def set_steady_callback(self, f):
         """
         Set a callback function to be called after each successful steady-state
-        solve, before regridding. The signature of *f* is `float f(float)`. The
-        argument passed to *f* is "0" and the output is ignored.
+        solve, before regridding. The signature of ``f`` is `float f(float)`. The
+        argument passed to ``f`` is "0" and the output is ignored.
         """
         if f is None:
             self.sim.setSteadyCallback(NULL)
@@ -823,7 +823,7 @@ cdef class Sim1D:
         :param component:
             component name or index
         :param point:
-            grid point number within *domain* starting with 0 on the left
+            grid point number within ``domain`` starting with 0 on the left
 
         >>> t = s.value('flow', 'T', 6)
         """
@@ -839,7 +839,7 @@ cdef class Sim1D:
         :param component:
             component name or index
         :param point:
-            grid point number within *domain* starting with 0 on the left
+            grid point number within ``domain`` starting with 0 on the left
         :param value:
             numerical value
 
@@ -908,7 +908,7 @@ cdef class Sim1D:
         :param positions:
             sequence of relative positions, from 0 on the left to 1 on the right
         :param values:
-            sequence of values at the relative positions specified in *positions*
+            sequence of values at the relative positions specified in ``positions``
 
         >>> s.set_profile(d, 'T', [0.0, 0.2, 1.0], [400.0, 800.0, 1500.0])
         """
@@ -939,12 +939,12 @@ cdef class Sim1D:
 
     def collect_data(self, domain, other):
         """
-        Return underlying data specifying a *domain*. Method is used as
+        Return underlying data specifying a ``domain``. Method is used as
         a service function for export via `FlameBase.to_solution_array`.
 
-        Derived classes set default values for *domain* and *other*, where
+        Derived classes set default values for ``domain`` and ``other``, where
         defaults describe flow domain and essential non-thermodynamic solution
-        components of the configuration, respectively. An alternative *domain*
+        components of the configuration, respectively. An alternative ``domain``
         (e.g. inlet, outlet, etc.), can be specified either by name or the
         corresponding `Domain1D` object itself.
         """
@@ -995,12 +995,12 @@ cdef class Sim1D:
 
     def restore_data(self, domain, states, other_cols, meta):
         """
-        Restore a *domain* from underlying data. Method is used as
+        Restore a ``domain`` from underlying data. Method is used as
         a service function for import via `FlameBase.from_solution_array`.
 
-        Derived classes set default values for *domain* and *other*, where
+        Derived classes set default values for ``domain`` and *other*, where
         defaults describe flow domain and essential non-thermodynamic solution
-        components of the configuration, respectively. An alternative *domain*
+        components of the configuration, respectively. An alternative ``domain``
         (e.g. inlet, outlet, etc.), can be specified either by name or the
         corresponding Domain1D object itself.
         """
@@ -1351,7 +1351,7 @@ cdef class Sim1D:
 
     def set_grid_min(self, dz, domain=None):
         """
-        Set the minimum grid spacing on *domain*. If *domain* is None, then
+        Set the minimum grid spacing on ``domain``. If ``domain`` is None, then
         set the grid spacing for all domains.
         """
         if domain is None:
