@@ -82,12 +82,7 @@ Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
                 throw InputFileError("Reaction::Reaction", input,
                     "Unable to infer interface reaction type.");
             }
-            if (boost::algorithm::ends_with(type, "-stick")) {
-                // sticking coefficients are dimensionless
-                setRate(newReactionRate(rateNode, Units(1.0)));
-            } else {
-                setRate(newReactionRate(rateNode, calculateRateCoeffUnits3(kin)));
-            }
+            setRate(newReactionRate(rateNode, calculateRateCoeffUnits3(kin)));
         }
     } else {
         // @deprecated This route is only used for legacy reaction types.
