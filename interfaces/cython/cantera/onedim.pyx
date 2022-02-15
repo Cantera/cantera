@@ -942,11 +942,10 @@ cdef class Sim1D:
         Return the underlying data specifying a ``domain``. This method is used as
         a service function for export via `FlameBase.to_solution_array`.
 
-        Derived classes set default values for ``domain`` and ``other``, where
-        defaults describe flow domain and essential non-thermodynamic solution
-        components of the configuration, respectively. An alternative ``domain``
-        (for example, ``inlet``, ``outlet``, etc.), can be specified either by name or the
-        corresponding `Domain1D` object itself.
+        Derived classes call this function with the flow domain as the ``domain`` and a
+        list of essential non-thermodynamic solution components of the configuration as
+        the ``components``. A different domain (for example, inlet or outlet) can be
+        specified either by name or as the corresponding Domain1D object itself.
         """
         idom = self.domain_index(domain)
         dom = self.domains[idom]
