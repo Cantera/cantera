@@ -262,13 +262,11 @@ cdef class Reactor(ReactorBase):
 
     def component_index(self, name):
         """
-        Returns the index of the component named ``name`` in the system. This
-        determines the (relative) index of the component in the vector of
-        sensitivity coefficients. ``name`` is either a species name or the name of
-        a reactor state variable, e.g. 'int_energy', 'temperature', depending on
-        the reactor's equations.
+        Returns the index of the component named ``name`` in the system. This determines
+        the index of the component in the vector of sensitivity coefficients. ``name``
+        is either a species name or the name of a reactor state variable, for example
+        ``'int_energy'`` or ``'temperature'``, depending on the reactor's equations.
         """
-
         k = self.reactor.componentIndex(stringify(name))
         if k == CxxNpos:
             raise IndexError('No such component: {!r}'.format(name))
@@ -1114,7 +1112,7 @@ cdef class ReactorNet:
     def advance(self, double t, pybool apply_limit=True):
         """
         Advance the state of the reactor network in time from the current time
-        towards time *t* [s], taking as many integrator timesteps as necessary.
+        towards time ``t`` in seconds, taking as many integrator time steps as necessary.
         If ``apply_limit`` is true and an advance limit is specified, the reactor
         state at the end of the timestep is estimated prior to advancing. If
         the difference exceed limits, the end time is reduced by half until
@@ -1237,10 +1235,10 @@ cdef class ReactorNet:
     def global_component_index(self, name, int reactor):
         """
         Returns the index of a component named ``name`` of a reactor with index
-        ``reactor`` within the global state vector. I.e. this determines the
-        (absolute) index of the component, where ``reactor`` is the index of the
+        ``reactor`` within the global state vector. That is, this determines the
+        absolute index of the component, where ``reactor`` is the index of the
         reactor that holds the component. ``name`` is either a species name or the
-        name of a reactor state variable, e.g. 'int_energy', 'temperature', etc.
+        name of a reactor state variable, for example, ``'int_energy'``, ``'temperature'``, etc.
         depending on the reactor's equations.
         """
         return self.net.globalComponentIndex(stringify(name), reactor)

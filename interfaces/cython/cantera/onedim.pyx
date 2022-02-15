@@ -68,7 +68,7 @@ cdef class Domain1D:
         Set the lower and upper bounds on the solution.
 
         The argument list should consist of keyword/value pairs, with
-        component names as keywords and (lower_bound, upper_bound) tuples as
+        component names as keywords and (lower bound, upper bound) tuples as
         the values.  The keyword ``default`` may be used to specify default
         bounds for all unspecified components. The keyword ``Y`` can be used to
         stand for all species mass fractions in flow domains.
@@ -92,8 +92,8 @@ cdef class Domain1D:
         """
         Set the error tolerances for the steady-state problem.
 
-        The argument list should consist of keyword/value pairs, with
-        component names as keywords and (rtol, atol) tuples as the values.
+        The argument list should consist of keyword/value pairs, with component names as
+        keywords and (relative tolerance, absolute tolerance) tuples as the values.
         The keyword ``default`` may be used to specify default bounds for all
         unspecified components. The keyword ``Y`` can be used to stand for all
         species mass fractions in flow domains. Alternatively, the keywords
@@ -127,8 +127,8 @@ cdef class Domain1D:
         """
         Set the error tolerances for the steady-state problem.
 
-        The argument list should consist of keyword/value pairs, with
-        component names as keywords and (rtol, atol) tuples as the values.
+        The argument list should consist of keyword/value pairs, with component names as
+        keywords and (relative tolerance, absolute tolerance) tuples as the values.
         The keyword ``default`` may be used to specify default bounds for all
         unspecified components. The keyword ``Y`` can be used to stand for all
         species mass fractions in flow domains. Alternatively, the keywords
@@ -734,10 +734,10 @@ cdef class Sim1D:
 
     def set_interrupt(self, f):
         """
-        Set an interrupt function to be called each time that OneDim::eval is
-        called. The signature of ``f`` is `float f(float)`. The default
-        interrupt function is used to trap KeyboardInterrupt exceptions so
-        that `ctrl-c` can be used to break out of the C++ solver loop.
+        Set an interrupt function to be called each time that :ct:`OneDim::eval` is
+        called. The signature of ``f`` is ``float f(float)``. The default
+        interrupt function is used to trap `KeyboardInterrupt` exceptions so
+        that ``ctrl-c`` can be used to break out of the C++ solver loop.
         """
         if f is None:
             self.sim.setInterrupt(NULL)
@@ -752,7 +752,7 @@ cdef class Sim1D:
     def set_time_step_callback(self, f):
         """
         Set a callback function to be called after each successful timestep.
-        The signature of ``f`` is `float f(float)`. The argument passed to ``f`` is
+        The signature of ``f`` is ``float f(float)``. The argument passed to ``f`` is
         the size of the timestep. The output is ignored.
         """
         if f is None:
@@ -768,8 +768,8 @@ cdef class Sim1D:
     def set_steady_callback(self, f):
         """
         Set a callback function to be called after each successful steady-state
-        solve, before regridding. The signature of ``f`` is `float f(float)`. The
-        argument passed to ``f`` is "0" and the output is ignored.
+        solve, before regridding. The signature of ``f`` is ``float f(float)``. The
+        argument passed to ``f`` is 0.0 and the output is ignored.
         """
         if f is None:
             self.sim.setSteadyCallback(NULL)
@@ -939,13 +939,13 @@ cdef class Sim1D:
 
     def collect_data(self, domain, other):
         """
-        Return underlying data specifying a ``domain``. Method is used as
+        Return the underlying data specifying a ``domain``. This method is used as
         a service function for export via `FlameBase.to_solution_array`.
 
         Derived classes set default values for ``domain`` and ``other``, where
         defaults describe flow domain and essential non-thermodynamic solution
         components of the configuration, respectively. An alternative ``domain``
-        (e.g. inlet, outlet, etc.), can be specified either by name or the
+        (for example, ``inlet``, ``outlet``, etc.), can be specified either by name or the
         corresponding `Domain1D` object itself.
         """
         idom = self.domain_index(domain)
@@ -995,10 +995,10 @@ cdef class Sim1D:
 
     def restore_data(self, domain, states, other_cols, meta):
         """
-        Restore a ``domain`` from underlying data. Method is used as
+        Restore a ``domain`` from underlying data. This method is used as
         a service function for import via `FlameBase.from_solution_array`.
 
-        Derived classes set default values for ``domain`` and *other*, where
+        Derived classes set default values for ``domain`` and ``other``, where
         defaults describe flow domain and essential non-thermodynamic solution
         components of the configuration, respectively. An alternative ``domain``
         (e.g. inlet, outlet, etc.), can be specified either by name or the
@@ -1351,7 +1351,7 @@ cdef class Sim1D:
 
     def set_grid_min(self, dz, domain=None):
         """
-        Set the minimum grid spacing on ``domain``. If ``domain`` is None, then
+        Set the minimum grid spacing on ``domain``. If ``domain`` is `None`, then
         set the grid spacing for all domains.
         """
         if domain is None:

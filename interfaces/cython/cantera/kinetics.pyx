@@ -238,7 +238,7 @@ cdef class Kinetics(_SolutionBase):
     def reaction_equations(self, indices=None):
         """
         Returns a list containing the reaction equation for all reactions in the
-        mechanism (if ``indices`` is unspecified) or the equations for each
+        mechanism if ``indices`` is unspecified, or the equations for each
         reaction in the sequence ``indices``. For example::
 
             >>> gas.reaction_equations()
@@ -400,7 +400,7 @@ cdef class Kinetics(_SolutionBase):
             three-body reactions are multiplied with third-body concentrations
             (no change to legacy behavior). After Cantera 2.6, results will no longer
             include third-body concentrations and be consistent with conventional
-            definitions (see Eq. 9.75 in Kee, Coltrin and Glarborg, *Chemically
+            definitions (see Eq. 9.75 in Kee, Coltrin, and Glarborg, *Chemically
             Reacting Flow*, Wiley Interscience, 2003).
             To switch to new behavior, run ``ct.use_legacy_rate_constants(False)``.
         """
@@ -886,7 +886,7 @@ cdef class InterfaceKinetics(Kinetics):
     def get_net_production_rates(self, phase):
         """
         Net production rates for each species in phase ``phase``. Use the
-        `net_production_rates` property to get the net_production rates for
+        `net_production_rates` property to get the net production rates for
         species in all phases.
         """
         return self.net_production_rates[self._phase_slice(phase)]

@@ -13,7 +13,7 @@ cdef class ReactionPathDiagram:
     def __init__(self, Kinetics kin, str element):
         """
         Create a reaction path diagram for the fluxes of the element ``element``
-        according the the net reaction rates determined by the Kinetics object
+        according the the net reaction rates determined by the `Kinetics` object
         ``kin``.
         """
         self.kinetics = kin
