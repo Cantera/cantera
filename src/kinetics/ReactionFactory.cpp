@@ -357,13 +357,7 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin)
                               rxn_node, &kin);
         if (isElectrochemicalReaction(testReaction, kin)) {
             type = "electrochemical";
-        } else if (rxn_node.hasKey("sticking-coefficient")) {
-            type = "interface";
         }
-    }
-    if (nDim < 3 && type == "Blowers-Masel" && rxn_node.hasKey("sticking-coefficient")) {
-        // Allow yaml file to specify "Blowers-Masel" for surface reactions
-        type = "surface-Blowers-Masel";
     }
 
     if (!(ReactionFactory::factory()->exists(type))) {
