@@ -54,7 +54,6 @@ void InterfaceKinetics::_update_rates_T()
     if (m_has_coverage_dependence) {
         m_surf->getCoverages(m_actConc.data());
         m_rates.update_C(m_actConc.data());
-        m_blowers_masel_rates.update_C(m_actConc.data());
         m_redo_rates = true;
     }
 
@@ -72,7 +71,6 @@ void InterfaceKinetics::_update_rates_T()
 
         // Use the stoichiometric manager to find deltaH for each reaction.
         getReactionDelta(m_grt.data(), m_dH.data());
-        m_blowers_masel_rates.updateBlowersMasel(T, m_logtemp, m_rfn.data(), m_dH.data());
         applyStickingCorrection(T, m_rfn.data());
 
         // If we need to do conversions between exchange current density
@@ -540,14 +538,7 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
         m_interface_rates[index]->add(nReactions() - 1, *rate);
 
     } else if (r_base->reaction_type == BMINTERFACE_RXN) {
-        BlowersMaselInterfaceReaction2& r = dynamic_cast<BlowersMaselInterfaceReaction2&>(*r_base);
-        BMSurfaceArrhenius rate = buildBMSurfaceArrhenius(i, r, false);
-        m_blowers_masel_rates.install(i, rate);
-
-        // Turn on the global flag indicating surface coverage dependence
-        if (!r.coverage_deps.empty()) {
-            m_has_coverage_dependence = true;
-        }
+        throw NotImplementedError("InterfaceKinetics::addReaction");
     } else {
         InterfaceReaction2& r = dynamic_cast<InterfaceReaction2&>(*r_base);
         SurfaceArrhenius rate = buildSurfaceArrhenius(i, r, false);
@@ -595,9 +586,7 @@ void InterfaceKinetics::modifyReaction(size_t i, shared_ptr<Reaction> r_base)
         rate->setContext(*r_base.get(), *this);
         m_interface_rates[index]->replace(i, *rate);
     } else if (r_base->reaction_type == BMINTERFACE_RXN) {
-        BlowersMaselInterfaceReaction2& r = dynamic_cast<BlowersMaselInterfaceReaction2&>(*r_base);
-        BMSurfaceArrhenius rate = buildBMSurfaceArrhenius(i, r, true);
-        m_blowers_masel_rates.replace(i, rate);
+        throw NotImplementedError("InterfaceKinetics::modifyReaction");
     } else {
         InterfaceReaction2& r = dynamic_cast<InterfaceReaction2&>(*r_base);
         SurfaceArrhenius rate = buildSurfaceArrhenius(i, r, true);
@@ -693,101 +682,6 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
     SurfaceArrhenius rate(r.rate.preExponentialFactor(),
                           r.rate.temperatureExponent(),
                           r.rate.activationEnergy_R());
-
-    // Set up coverage dependencies
-    for (const auto& sp : r.coverage_deps) {
-        size_t k = thermo(reactionPhaseIndex()).speciesIndex(sp.first);
-        rate.addCoverageDependence(k, sp.second.a, sp.second.m, sp.second.E);
-    }
-    return rate;
-}
-
-BMSurfaceArrhenius InterfaceKinetics::buildBMSurfaceArrhenius(
-    size_t i, BlowersMaselInterfaceReaction2& r, bool replace)
-{
-    if (r.is_sticking_coefficient) {
-        // Identify the interface phase
-        size_t iInterface = npos;
-        size_t min_dim = 4;
-        for (size_t n = 0; n < nPhases(); n++) {
-            if (thermo(n).nDim() < min_dim) {
-                iInterface = n;
-                min_dim = thermo(n).nDim();
-            }
-        }
-
-        std::string sticking_species = r.sticking_species;
-        if (sticking_species == "") {
-            // Identify the sticking species if not explicitly given
-            bool foundStick = false;
-            for (const auto& sp : r.reactants) {
-                size_t iPhase = speciesPhaseIndex(kineticsSpeciesIndex(sp.first));
-                if (iPhase != iInterface) {
-                    // Non-interface species. There should be exactly one of these
-                    if (foundStick) {
-                        throw InputFileError("InterfaceKinetics::buildBMSurfaceArrhenius",
-                            r.input, "Multiple non-interface species ('{}' and '{}')\n"
-                            "found in sticking reaction: '{}'.\nSticking species "
-                            "must be explicitly specified.",
-                            sticking_species, sp.first, r.equation());
-                    }
-                    foundStick = true;
-                    sticking_species = sp.first;
-                }
-            }
-            if (!foundStick) {
-                throw InputFileError("InterfaceKinetics::buildBMSurfaceArrhenius",
-                    r.input, "No non-interface species found "
-                    "in sticking reaction: '{}'", r.equation());
-            }
-        }
-
-        double surface_order = 0.0;
-        double multiplier = 1.0;
-        // Adjust the A-factor
-        for (const auto& sp : r.reactants) {
-            size_t iPhase = speciesPhaseIndex(kineticsSpeciesIndex(sp.first));
-            const ThermoPhase& p = thermo(iPhase);
-            size_t k = p.speciesIndex(sp.first);
-            if (sp.first == sticking_species) {
-                multiplier *= sqrt(GasConstant/(2*Pi*p.molecularWeight(k)));
-            } else {
-                // Non-sticking species. Convert from coverages used in the
-                // sticking probability expression to the concentration units
-                // used in the mass action rate expression. For surface phases,
-                // the dependence on the site density is incorporated when the
-                // rate constant is evaluated, since we don't assume that the
-                // site density is known at this time.
-                double order = getValue(r.orders, sp.first, sp.second);
-                if (&p == m_surf) {
-                    multiplier *= pow(m_surf->size(k), order);
-                    surface_order += order;
-                } else {
-                    multiplier *= pow(p.standardConcentration(k), -order);
-                }
-            }
-        }
-
-        if (!replace) {
-            m_stickingData.emplace_back(StickData{i, surface_order, multiplier,
-                                                  r.use_motz_wise_correction});
-        } else {
-            // Modifying an existing sticking reaction.
-            for (auto& item : m_stickingData) {
-                if (item.index == i) {
-                    item.order = surface_order;
-                    item.multiplier = multiplier;
-                    item.use_motz_wise = r.use_motz_wise_correction;
-                    break;
-                }
-            }
-        }
-    }
-
-    BMSurfaceArrhenius rate(r.rate.preExponentialFactor(),
-                            r.rate.temperatureExponent(),
-                            r.rate.activationEnergy_R0(),
-                            r.rate.bondEnergy());
 
     // Set up coverage dependencies
     for (const auto& sp : r.coverage_deps) {
