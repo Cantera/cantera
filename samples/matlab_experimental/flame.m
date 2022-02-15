@@ -48,7 +48,8 @@ function f = flame(gas, left, flow, right)
     f.setProfile(2, {'u', 'V'}, [0.0            1.0
                                  mdot0/rho0     -mdot1/rho0
                                  0.0            0.0]);
-    f.setProfile(2, 'T', [0.0 z1 1.0; t0 2000.0 t1]);
+    f.setProfile(2, 'T', [0.0, 1.0
+                          t0, t1]);
 
     for n = 1:gas.nSpecies
       nm = gas.speciesName(n);
@@ -63,11 +64,11 @@ function f = flame(gas, left, flow, right)
       else
         y1 = yeq(n);
       end
-      f.setProfile(2, nm, [0, z1, 1
-                           left.massFraction(n), yint, y1]);
+      f.setProfile(2, nm, [0, 1.0
+                           left.massFraction(n), y1]);
     end
 
     % set minimal grid refinement criteria
     f.setRefineCriteria(2, 10.0, 0.8, 0.8);
-
 end
+

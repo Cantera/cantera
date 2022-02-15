@@ -23,7 +23,7 @@ function periodic_cstr
     help periodic_cstr
 
     % create the gas mixture
-    gas = Solution('h2o2.yaml');
+    gas = Solution('h2o2.yaml','ohmech');
 
     % pressure = 60 Torr, T = 770 K
     p = 60.0 * 133.3;
