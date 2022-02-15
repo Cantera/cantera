@@ -19,10 +19,8 @@ PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
     initThermoFile(inputFile, id_);
 
     // initial grid
-    m_electronEnergyGrid.resize(m_nPoints);
-    for (size_t i = 0; i <= m_nPoints - 1; i++) {
-        m_electronEnergyGrid(i) = 0.001 + 0.001 * i;
-    }
+    m_electronEnergyGrid = Eigen::VectorXd::LinSpaced(m_nPoints, 0.001, 1.0);
+
     // initial electron temperature
     setElectronTemperature(temperature());
 }
