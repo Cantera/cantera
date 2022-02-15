@@ -988,7 +988,7 @@ class SolutionArray:
         See `ThermoPhase.set_equivalence_ratio`
 
         Note that ``phi`` either needs to be a scalar value or dimensions have
-        to be matched to the SolutionArray.
+        to be matched to the `SolutionArray`.
         """
 
         # broadcast argument shape
@@ -1003,13 +1003,13 @@ class SolutionArray:
     def collect_data(self, cols=None, tabular=False, threshold=0, species=None):
         """
         Returns the data specified by ``cols`` in an ordered dictionary, where
-        keys correspond to SolutionArray attributes to be exported.
+        keys correspond to `SolutionArray` attributes to be exported.
 
         :param cols: A list of any properties of the solution that are scalars
             or which have a value for each species or reaction. If species names
             are specified, then either the mass or mole fraction of that species
             will be taken, depending on the value of ``species``. ``cols`` may also
-            include any arrays which were specified as 'extra' variables when
+            include any arrays which were specified as ``extra`` variables when
             defining the `SolutionArray` object. The special value 'extra' can
             be used to include all 'extra' variables.
         :param tabular: Split 2D data into separate 1D columns for each
@@ -1180,7 +1180,7 @@ class SolutionArray:
                   attrs={}, mode='a', append=False,
                   compression=None, compression_opts=None, **kwargs):
         """
-        Write data specified by ``cols`` to a HDF container file named ``filename``.
+        Write data specified by ``cols`` to an HDF container file named ``filename``.
         Note that it is possible to write multiple data entries to a single HDF
         container file, where ``group`` is used to differentiate data.
 
@@ -1198,7 +1198,7 @@ class SolutionArray:
 
         where ``group0`` is the default name for the top level HDF entry. In
         addition to datasets, information stored in `SolutionArray.meta` is
-        saved in form of HDF attributes. An additional intermediate layer may
+        saved in the form of HDF attributes. An additional intermediate layer may
         be created using the ``subgroup`` argument.
 
         :param filename:
@@ -1235,11 +1235,11 @@ class SolutionArray:
         :return:
             Group identifier used for storing HDF data.
 
-        Arguments ``compression``, and ``compression_opts`` are mapped to parameters
-        for `h5py.create_dataset`; in both cases, the choices of `None` results
+        Arguments ``compression`` and ``compression_opts`` are mapped to parameters
+        for `h5py.create_dataset`; in both cases, the choices of ``None`` results
         in default values set by h5py.
 
-        Additional arguments (i.e. ``*args`` and ``**kwargs``) are passed on to
+        Additional arguments (that is, ``*args`` and ``**kwargs``) are passed on to
         `collect_data`; see `collect_data` for further information. This method
         requires a working installation of h5py (`h5py` can be installed using
         pip or conda).

@@ -367,8 +367,8 @@ class FlameBase(Sim1D):
 
     def set_gas_state(self, point):
         """
-        Set the state of the the Solution object used for calculations,
-        `self.gas`, to the temperature and composition at the point with index
+        Set the state of the the `Solution` object used for calculations
+        to the temperature and composition at the point with index
         ``point``.
         """
         k0 = self.flame.component_index(self.gas.species_name(0))
@@ -560,7 +560,7 @@ class FlameBase(Sim1D):
             Boolean flag to indicate whether the mole/mass fractions should
             be normalized (default is ``True``)
 
-        Additional arguments (i.e. ``*args`` and ``**kwargs``) are passed on to
+        Additional arguments (that is, ``*args`` and ``**kwargs``) are passed on to
         `SolutionArray.collect_data`. The method exports data using
         `SolutionArray.write_hdf` via `to_solution_array` and requires a working
         installation of h5py (`h5py` can be installed using pip or conda).
@@ -1371,7 +1371,7 @@ class CounterflowDiffusionFlame(FlameBase):
     def mixture_fraction(self, m):
         r"""
         Compute the mixture fraction based on element ``m`` or from the
-        Bilger mixture fraction (m="Bilger")
+        Bilger mixture fraction by setting ``m="Bilger"``
 
         The mixture fraction is computed from the elemental mass fraction of
         element ``m``, normalized by its values on the fuel and oxidizer
