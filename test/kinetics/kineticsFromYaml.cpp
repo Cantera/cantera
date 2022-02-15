@@ -379,7 +379,7 @@ TEST(Kinetics, InterfaceKineticsFromYaml)
 
 TEST(Kinetics, BMInterfaceKineticsFromYaml)
 {
-    auto soln = newInterface("BM_test.yaml", "Pt_surf");
+    auto soln = newInterface("blowers-masel.yaml", "Pt_surf");
     auto kin = soln->kinetics();
     EXPECT_EQ(kin->nReactions(), (size_t) 6);
     EXPECT_EQ(kin->nTotalSpecies(), (size_t) 14);
@@ -656,7 +656,7 @@ TEST_F(ReactionToYaml, unconvertible2)
 
 TEST_F(ReactionToYaml, BlowersMasel)
 {
-    soln = newSolution("BM_test.yaml", "gas");
+    soln = newSolution("blowers-masel.yaml", "gas");
     soln->thermo()->setState_TPY(1100, 0.1 * OneAtm, "O:0.01, H2:0.8, O2:0.19");
     duplicateReaction(0);
     EXPECT_TRUE(std::dynamic_pointer_cast<BlowersMaselRate>(duplicate->rate()));
@@ -665,8 +665,8 @@ TEST_F(ReactionToYaml, BlowersMasel)
 
 TEST_F(ReactionToYaml, BlowersMaselInterface)
 {
-    auto gas = newSolution("BM_test.yaml", "gas");
-    soln = newSolution("BM_test.yaml", "Pt_surf", "None", {gas});
+    auto gas = newSolution("blowers-masel.yaml", "gas");
+    soln = newSolution("blowers-masel.yaml", "Pt_surf", "None", {gas});
     gas->thermo()->setState_TPY(1100, 0.1 * OneAtm, "O:0.01, H2:0.8, O2:0.19");
     soln->thermo()->setState_TP(1100, 0.1 * OneAtm);
     auto surf = std::dynamic_pointer_cast<SurfPhase>(soln->thermo());
