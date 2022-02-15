@@ -460,49 +460,6 @@ public:
 };
 
 
-//! A reaction occurring on an interface (i.e. a SurfPhase or an EdgePhase)
-//! with the rate calculated with Blowers-Masel approximation.
-class BlowersMaselInterfaceReaction2 : public Reaction
-{
-public:
-    BlowersMaselInterfaceReaction2();
-    BlowersMaselInterfaceReaction2(const Composition& reactants, const Composition& products,
-                      const BMSurfaceArrhenius& rate, bool isStick=false);
-    virtual void getParameters(AnyMap& reactionNode) const;
-    virtual void validate();
-    virtual void calculateRateCoeffUnits(const Kinetics& kin);
-    virtual void validate(Kinetics& kin);
-
-    virtual std::string type() const {
-        return "surface-Blowers-Masel";
-    }
-
-    BMSurfaceArrhenius rate;
-
-    bool allow_negative_pre_exponential_factor;
-
-    //! Adjustments to the Arrhenius rate expression dependent on surface
-    //! species coverages. Three coverage parameters (a, E, m) are used for each
-    //! species on which the rate depends. See SurfaceArrhenius for details on
-    //! the parameterization.
-    std::map<std::string, CoverageDependency> coverage_deps;
-
-    //! Set to true if `rate` is a parameterization of the sticking coefficient
-    //! rather than the forward rate constant
-    bool is_sticking_coefficient;
-
-    //! Set to true if `rate` is a sticking coefficient which should be
-    //! translated into a rate coefficient using the correction factor developed
-    //! by Motz & Wise for reactions with high (near-unity) sticking
-    //! coefficients. Defaults to 'false'.
-    bool use_motz_wise_correction;
-
-    //! For reactions with multiple non-surface species, the sticking species
-    //! needs to be explicitly identified.
-    std::string sticking_species;
-};
-
-
 //! A reaction with a non-reacting third body "M" that acts to add or remove
 //! energy from the reacting species
 class ThreeBodyReaction3 : public Reaction
@@ -664,9 +621,5 @@ void setupElectrochemicalReaction(ElectrochemicalReaction2&,
 //! @internal May be changed without notice in future versions
 void setupElectrochemicalReaction(ElectrochemicalReaction2&,
                                   const AnyMap&, const Kinetics&);
-
-//! @internal May be changed without notice in future versions
-void setupBlowersMaselInterfaceReaction(BlowersMaselInterfaceReaction2&,
-                                        const AnyMap&, const Kinetics&);
 }
 #endif

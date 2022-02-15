@@ -140,15 +140,6 @@ ReactionFactory::ReactionFactory()
     addAlias("reaction", "Blowers-Masel");
     addAlias("reaction", "Blowers-Masel-interface");
     addAlias("reaction", "Blowers-Masel-stick");
-
-    // register surface Blowers Masel reactions
-    reg("surface-Blowers-Masel", [](const AnyMap& node, const Kinetics& kin) {
-        BlowersMaselInterfaceReaction2* R = new BlowersMaselInterfaceReaction2();
-        if (!node.empty()) {
-            setupBlowersMaselInterfaceReaction(*R, node, kin);
-        }
-        return R;
-    });
 }
 
 ReactionFactoryXML* ReactionFactoryXML::s_factory = 0;

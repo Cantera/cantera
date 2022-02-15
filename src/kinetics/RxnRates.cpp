@@ -375,56 +375,5 @@ void ChebyshevRate::getParameters(AnyMap& rateNode) const
     coeffs = std::move(coeffs2d);
     rateNode["data"].setQuantity(coeffs, converter);
 }
-BMSurfaceArrhenius::BMSurfaceArrhenius()
-    : m_b(0.0)
-    , m_A(0.0)
-    , m_E0(0.0)
-    , m_w(0.0)
-    , m_acov(0.0)
-    , m_ecov(0.0)
-    , m_mcov(0.0)
-{
-}
-
-BMSurfaceArrhenius::BMSurfaceArrhenius(double A, double b, double Ta, double w)
-    : m_b(b)
-    , m_A(A)
-    , m_E0(Ta)
-    , m_w(w)
-    , m_acov(0.0)
-    , m_ecov(0.0)
-    , m_mcov(0.0)
-{
-}
-
-void BMSurfaceArrhenius::getParameters(AnyMap& rateNode, const Units& rate_units) const
-{
-    if (rate_units.factor() != 0.0) {
-        rateNode["A"].setQuantity(preExponentialFactor(), rate_units);
-    } else {
-        rateNode["A"] = preExponentialFactor();
-        // This can't be converted to a different unit system because the dimensions of
-        // the rate constant were not set. Can occur if the reaction was created outside
-        // the context of a Kinetics object and never added to a Kinetics object.
-        rateNode["__unconvertible__"] = true;
-    }
-
-    rateNode["b"] = temperatureExponent();
-    rateNode["Ea0"].setQuantity(activationEnergy_R0(), "K", true);
-    rateNode["w"].setQuantity(bondEnergy(), "K", true);
-    rateNode.setFlowStyle();
-}
-
-void BMSurfaceArrhenius::addCoverageDependence(size_t k, double a,
-                               double m, double e)
-{
-    m_sp.push_back(k);
-    m_ac.push_back(a);
-    m_ec.push_back(e);
-    if (m != 0.0) {
-        m_msp.push_back(k);
-        m_mc.push_back(m);
-    }
-}
 
 }
