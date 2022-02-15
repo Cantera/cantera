@@ -65,11 +65,6 @@ InterfaceReaction
 .. autoclass:: InterfaceReaction
    :no-undoc-members:
 
-BlowersMaselInterfaceReaction
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: BlowersMaselInterfaceReaction
-   :no-undoc-members:
-
 Reaction Rates
 --------------
 
@@ -77,9 +72,9 @@ ReactionRate
 ^^^^^^^^^^^^
 .. autoclass:: ReactionRate()
 
-ArrheniusTypeRate
+ArrheniusRateBase
 ^^^^^^^^^^^^^^^^^
-.. autoclass:: ArrheniusTypeRate(input_data)
+.. autoclass:: ArrheniusRateBase(input_data)
    :no-undoc-members:
 
 ArrheniusRate
@@ -137,6 +132,36 @@ CustomRate
 .. autoclass:: CustomRate(k)
    :no-undoc-members:
 
+InterfaceRateBase
+^^^^^^^^^^^^^^^^^
+.. autoclass:: InterfaceRateBase
+   :no-undoc-members:
+
+ArrheniusInterfaceRate
+^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: ArrheniusInterfaceRate(A, b, Ea)
+   :no-undoc-members:
+
+BlowersMaselInterfaceRate
+^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: BlowersMaselInterfaceRate(A, b, Ea0, w)
+   :no-undoc-members:
+
+StickRateBase
+^^^^^^^^^^^^^
+.. autoclass:: StickRateBase
+   :no-undoc-members:
+
+ArrheniusStickingRate
+^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: ArrheniusStickingRate(A, b, Ea)
+   :no-undoc-members:
+
+BlowersMaselStickingRate
+^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: BlowersMaselStickingRate(A, b, Ea0, w)
+   :no-undoc-members:
+
 Auxiliary Reaction Data (legacy only)
 -------------------------------------
 
@@ -158,10 +183,6 @@ SriFalloff
 ^^^^^^^^^^
 .. autoclass:: SriFalloff(params=(), init=True)
    :no-undoc-members:
-
-BlowersMasel
-^^^^^^^^^^^^
-.. autoclass:: BlowersMasel(A, b, E0, w)
 
 Reaction Path Analysis
 ----------------------
