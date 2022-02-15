@@ -73,7 +73,7 @@ for n = 1:nSteps
   tim(n) = t;
   temp(n) = r.T;
   pres(n) = r.P - p0;
-  cov(n,:) = surf.coverages';
+  cov(n,:) = surf.X';
   x(n,:) = gas.moleFraction(names);
 end
 disp(['CPU time = ' num2str(cputime - t0)]);
