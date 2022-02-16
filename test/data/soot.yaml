@@ -1,4 +1,11 @@
-generator: ctml2yaml
+description: |-
+  This artificial reaction mechanism is extracted from the MIT soot
+  mechanism of Prof. Jack Howard. This is used to test Cantera's
+  ability to handle the extensions to the Chemkin format used to
+  specify very large molecules, and also to test the parsing of
+  non-integral stoichiometric coefficients.
+
+generator: ctml2yaml + manual additions
 cantera-version: 2.6.0a3
 date: Sat, 18 Dec 2021 23:08:59 -0500
 input-files: [test/data/soot.xml]
