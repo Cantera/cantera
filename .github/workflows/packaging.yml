@@ -9,7 +9,11 @@ on:
       upload_to_pypi:
         description: "Try to upload wheels and sdist to PyPI after building"
         required: false
-        default: false
+        default: "false"
+      upload_to_anaconda:
+        description: "Try to upload package to Anaconda after building"
+        required: false
+        default: "false"
   push:
     # Run on tags that look like releases
     tags:
@@ -31,18 +35,33 @@ jobs:
           else
             echo "REF=${{ github.ref }}" >> $GITHUB_ENV
           fi
-          if [ -n "${{ github.event.inputs.upload }}" ]; then
-            echo "UPLOAD=${{ github.event.inputs.upload}}" >> $GITHUB_ENV
+          if [ -n "${{ github.event.inputs.upload_to_pypi }}" ]; then
+            echo "UPLOAD_TO_PYPI=${{ github.event.inputs.upload_to_pypi }}" >> $GITHUB_ENV
           elif [[ "${{ github.ref }}" == refs/tags* ]]; then
-            echo "UPLOAD=true" >> $GITHUB_ENV
+            echo "UPLOAD_TO_PYPI=true" >> $GITHUB_ENV
           else
-            echo "UPLOAD=false" >> $GITHUB_ENV
+            echo "UPLOAD_TO_PYPI=false" >> $GITHUB_ENV
+          fi
+          if [ -n "${{ github.event.inputs.upload_to_anaconda }}" ]; then
+            echo "UPLOAD_TO_ANACONDA=${{ github.event.inputs.upload_to_anaconda }}" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == refs/tags* ]]; then
+            echo "UPLOAD_TO_ANACONDA=true" >> $GITHUB_ENV
+          else
+            echo "UPLOAD_TO_ANACONDA=false" >> $GITHUB_ENV
           fi
       - name: Trigger PyPI/Wheel builds
         run: >
           gh workflow run -R cantera/pypi-packages
           python-package.yml
           -f incoming_ref=${{ env.REF }}
-          -f upload=${{ env.UPLOAD }}
+          -f upload=${{ env.UPLOAD_TO_PYPI }}
         env:
           GITHUB_TOKEN: ${{ secrets.PYPI_PACKAGE_PAT }}
+      - name: Trigger Conda builds
+        run: >
+          gh workflow run -R cantera/conda-recipes
+          main.yml
+          -f incoming_ref=${{ env.REF }}
+          -f upload=${{ env.UPLOAD_TO_ANACONDA }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.CONDA_PACKAGE_PAT }}
