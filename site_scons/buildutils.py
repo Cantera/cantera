@@ -719,6 +719,11 @@ def regression_test(target: "LFSNode", source: "LFSNode", env: "SCEnvironment"):
         comparisons.append((Path(blessed_name), output_name))
 
     for blessed, output in comparisons:
+        if not dir.joinpath(output).is_file():
+            logger.info(f"Output file '{output}' not found", print_level=False)
+            logger.error("FAILED", print_level=False)
+            diff |= TestResult.FAIL
+            continue
         logger.info(f"Comparing '{blessed}' with '{output}'", print_level=False)
         d = compare_files(env, dir.joinpath(blessed), dir.joinpath(output))
         if d:
@@ -726,6 +731,11 @@ def regression_test(target: "LFSNode", source: "LFSNode", env: "SCEnvironment"):
         diff |= d
 
     for blessed, output in env["test_profiles"]:
+        if not dir.joinpath(output).is_file():
+            logger.info(f"Output file '{output}' not found", print_level=False)
+            logger.error("FAILED", print_level=False)
+            diff |= TestResult.FAIL
+            continue
         logger.info(f"Comparing '{blessed}' with '{output}'", print_level=False)
         d = compare_profiles(env, dir.joinpath(blessed), dir.joinpath(output))
         if d:
