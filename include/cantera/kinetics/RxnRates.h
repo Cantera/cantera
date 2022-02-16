@@ -66,6 +66,7 @@ public:
 
     //! Return parameters - two-parameter version
     void getParameters(AnyMap& node, const Units& rate_units) const;
+    using Arrhenius3::getParameters;
 
     //! Update concentration-dependent parts of the rate coefficient.
     /*!
