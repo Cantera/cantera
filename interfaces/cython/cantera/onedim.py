@@ -104,11 +104,11 @@ class FlameBase(Sim1D):
         :param data:
             Restart data, which are typically based on an earlier simulation
             result. Restart data may be specified using a `SolutionArray`,
-            pandas' DataFrame, or previously saved CSV or HDF container files.
+            `pandas.DataFrame`, or previously saved CSV or HDF container files.
             Note that restart data do not overwrite boundary conditions.
-            DataFrame input requires a working installation of pandas, whereas
-            HDF input requires an installation of h5py. These packages can be
-            installed using pip or conda (`pandas` and `h5py`, respectively).
+            DataFrame input requires a working installation of *pandas*, whereas
+            HDF input requires an installation of *h5py*. These packages can be
+            installed using pip or conda (``pandas`` and ``h5py``, respectively).
         :param key:
             Group identifier within a HDF container file (only used in
             combination with HDF restart data).
@@ -463,8 +463,8 @@ class FlameBase(Sim1D):
             Boolean flag to indicate whether the mole/mass fractions should
             be normalized (default is ``True``)
 
-        This method uses `to_solution_array` and requires a working pandas
-        installation. Use pip or conda to install `pandas` to enable this
+        This method uses `to_solution_array` and requires a working *pandas*
+        installation. Use pip or conda to install ``pandas`` to enable this
         method.
         """
         cols = ('extra', 'T', 'D', species)
@@ -485,7 +485,7 @@ class FlameBase(Sim1D):
 
         This method is intendend for loading of data that were previously
         exported by `to_pandas`. The method uses `from_solution_array` and
-        requires a working pandas installation. The package 'pandas' can be
+        requires a working *pandas* installation. The package ``pandas`` can be
         installed using pip or conda.
         """
         arr = SolutionArray(self.gas, extra=self.other_components())
@@ -543,16 +543,16 @@ class FlameBase(Sim1D):
             Attribute to use obtaining species profiles, e.g. ``X`` for
             mole fractions or ``Y`` for mass fractions.
         :param mode:
-            Mode h5py uses to open the output file {'a' to read/write if file
+            Mode *h5py* uses to open the output file {'a' to read/write if file
             exists, create otherwise (default); 'w' to create file, truncate if
             exists; 'r+' to read/write, file must exist}.
         :param description:
             Custom comment describing the dataset to be stored.
         :param compression:
-            Pre-defined h5py compression filters {None, 'gzip', 'lzf', 'szip'}
+            Pre-defined *h5py* compression filters {None, 'gzip', 'lzf', 'szip'}
             used for data compression.
         :param compression_opts:
-            Options for the h5py compression filter; for 'gzip', this
+            Options for the *h5py* compression filter; for 'gzip', this
             corresponds to the compression level {None, 0-9}.
         :param quiet:
             Suppress message confirming successful file output.
@@ -563,7 +563,7 @@ class FlameBase(Sim1D):
         Additional arguments (that is, ``*args`` and ``**kwargs``) are passed on to
         `SolutionArray.collect_data`. The method exports data using
         `SolutionArray.write_hdf` via `to_solution_array` and requires a working
-        installation of h5py (`h5py` can be installed using pip or conda).
+        installation of *h5py* (``h5py`` can be installed using pip or conda).
         """
         cols = ('extra', 'T', 'D', species)
         meta = self.settings
@@ -603,8 +603,8 @@ class FlameBase(Sim1D):
             be normalized (default is ``True``)
 
         The method imports data using `SolutionArray.read_hdf` via
-        `from_solution_array` and requires a working installation of h5py
-        (`h5py` can be installed using pip or conda).
+        `from_solution_array` and requires a working installation of *h5py*
+        (``h5py`` can be installed using pip or conda).
         """
         if restore_boundaries:
             domains = range(3)

@@ -172,11 +172,11 @@ def float2string(data: float) -> str:
 
     :param data: The floating point data to be formatted.
 
-    Uses NumPy's ``format_float_positional()`` and ``format_float_scientific()`` if they
-    are is available, requires NumPy >= 1.14. In that case, values with magnitude
-    between 0.01 and 10000 are formatted using ``format_float_positional ()`` and other
-    values are formatted using ``format_float_scientific()``. If those NumPy functions
-    are not available, returns the ``repr`` of the input.
+    Uses *NumPy*'s ``format_float_positional()`` and ``format_float_scientific()`` if
+    they are is available, requires ``numpy >= 1.14``. In that case, values with
+    magnitude between 0.01 and 10000 are formatted using ``format_float_positional ()``
+    and other values are formatted using ``format_float_scientific()``. If those *NumPy*
+    functions are not available, returns the ``repr`` of the input.
     """
     if not HAS_FMT_FLT_POS:
         return repr(data)

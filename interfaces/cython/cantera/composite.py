@@ -357,7 +357,7 @@ class SolutionArray:
     array of states.
 
     `SolutionArray` can represent both 1D and multi-dimensional arrays of states,
-    with shapes described in the same way as Numpy arrays. All of the states
+    with shapes described in the same way as *NumPy* arrays. All of the states
     can be set in a single call::
 
         >>> gas = ct.Solution('gri30.yaml')
@@ -367,13 +367,13 @@ class SolutionArray:
         >>> X = 'CH4:1.0, O2:1.0, N2:3.76'
         >>> states.TPX = T, P, X
 
-    Similar to Numpy arrays, input with fewer non-singleton dimensions than the
+    Similar to *NumPy* arrays, input with fewer non-singleton dimensions than the
     `SolutionArray` is 'broadcast' to generate input of the appropriate shape. In
     the above example, the single value for the mole fraction input is applied
     to each input, while each row has a constant temperature and each column has
     a constant pressure.
 
-    Computed properties are returned as Numpy arrays with the same shape as the
+    Computed properties are returned as *NumPy* arrays with the same shape as the
     array of states, with additional dimensions appended as necessary for non-
     scalar output (e.g. per-species or per-reaction properties)::
 
@@ -394,7 +394,7 @@ class SolutionArray:
         >>> states.equilibrate('HP')
         >>> states.T # -> adiabatic flame temperature at various equivalence ratios
 
-    `SolutionArray` objects can also be 'sliced' like Numpy arrays, which can be
+    `SolutionArray` objects can also be 'sliced' like *NumPy* arrays, which can be
     used both for accessing and setting properties::
 
         >>> states = ct.SolutionArray(gas, (6, 10))
@@ -449,8 +449,8 @@ class SolutionArray:
 
     For HDF export and import, the (optional) keyword argument ``group`` allows
     for saving and accessing of multiple solutions in a single container file.
-    Note that `write_hdf` and `read_hdf` require a working installation of h5py.
-    The package `h5py` can be installed using pip or conda.
+    Note that `write_hdf` and `read_hdf` require a working installation of *h5py*.
+    The package *h5py* can be installed using pip or conda.
 
     :param phase: The `Solution` object used to compute the thermodynamic,
         kinetic, and transport properties
@@ -1141,11 +1141,11 @@ class SolutionArray:
 
     def to_pandas(self, cols=None, *args, **kwargs):
         """
-        Returns the data specified by ``cols`` in a single pandas DataFrame.
+        Returns the data specified by ``cols`` in a single `pandas.DataFrame`.
 
         Additional arguments are passed on to `collect_data`. This method works
-        only with 1D `SolutionArray` objects and requires a working pandas
-        installation. Use pip or conda to install `pandas` to enable this method.
+        only with 1D `SolutionArray` objects and requires a working *pandas*
+        installation. Use pip or conda to install ``pandas`` to enable this method.
         """
 
         if isinstance(_pandas, ImportError):
@@ -1158,11 +1158,11 @@ class SolutionArray:
 
     def from_pandas(self, df, normalize=True):
         """
-        Restores `SolutionArray` data from a pandas DataFrame ``df``.
+        Restores `SolutionArray` data from a `pandas.DataFrame` ``df``.
 
         This method is intendend for loading of data that were previously
-        exported by `to_pandas`. The method requires a working pandas
-        installation. The package 'pandas' can be installed using pip or conda.
+        exported by `to_pandas`. The method requires a working *pandas*
+        installation. The package ``pandas`` can be installed using pip or conda.
 
         The ``normalize`` argument is passed on to `restore_data` to normalize
         mole or mass fractions. By default, ``normalize`` is ``True``.
@@ -1219,7 +1219,7 @@ class SolutionArray:
             Dictionary of user-defined attributes added at the group level
             (typically used in conjunction with a subgroup argument).
         :param mode:
-            Mode h5py uses to open the output file {'a' to read/write if file
+            Mode *h5py* uses to open the output file {'a' to read/write if file
             exists, create otherwise (default); 'w' to create file, truncate if
             exists; 'r+' to read/write, file must exist}.
         :param append:
@@ -1227,21 +1227,21 @@ class SolutionArray:
             writing the `SolutionArray` in the first position. If True, the
             current `SolutionArray` objects is appended to the group.
         :param compression:
-            Pre-defined h5py compression filters {None, 'gzip', 'lzf', 'szip'}
+            Pre-defined *h5py* compression filters {None, 'gzip', 'lzf', 'szip'}
             used for data compression.
         :param compression_opts:
-            Options for the h5py compression filter; for 'gzip', this
+            Options for the *h5py* compression filter; for 'gzip', this
             corresponds to the compression level {None, 0-9}.
         :return:
             Group identifier used for storing HDF data.
 
         Arguments ``compression`` and ``compression_opts`` are mapped to parameters
         for `h5py.create_dataset`; in both cases, the choices of ``None`` results
-        in default values set by h5py.
+        in default values set by *h5py*.
 
         Additional arguments (that is, ``*args`` and ``**kwargs``) are passed on to
         `collect_data`; see `collect_data` for further information. This method
-        requires a working installation of h5py (`h5py` can be installed using
+        requires a working installation of *h5py* (``h5py`` can be installed using
         pip or conda).
         """
         if isinstance(_h5py, ImportError):
@@ -1326,7 +1326,7 @@ class SolutionArray:
             the `SolutionArray` information.
 
         The method imports data using `restore_data` and requires a working
-        installation of h5py (`h5py` can be installed using pip or conda).
+        installation of *h5py* (``h5py`` can be installed using pip or conda).
         """
         if isinstance(_h5py, ImportError):
             raise _h5py

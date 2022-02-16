@@ -56,7 +56,7 @@ def appdelete():
 def use_sparse(sparse=True):
     """
     Enable sparse output using `scipy.sparse`. Sparse output requires a working
-    `scipy` installation. Use pip or conda to install `scipy` to enable this method.
+    *SciPy* installation. Use pip or conda to install ``scipy`` to enable this method.
     """
     global _USE_SPARSE
     if sparse and isinstance(_scipy_sparse, ImportError):
