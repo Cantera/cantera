@@ -78,7 +78,11 @@ public:
 
     //! Perform validation checks that need access to a complete Kinetics objects, for
     // example to retrieve information about reactant / product species.
-    virtual void validate(Kinetics& kin) {}
+    virtual void validate(Kinetics& kin) {
+        if (m_rate) {
+            m_rate->validate(equation(), kin);
+        }
+    }
 
     //! Return the parameters such that an identical Reaction could be reconstructed
     //! using the newReaction() function. Behavior specific to derived classes is
