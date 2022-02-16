@@ -1,4 +1,12 @@
-generator: ctml2yaml
+description: |-
+  NaCl modeling Based on the Silvester&Pitzer 1977 treatment:
+
+  (L. F. Silvester, K. S. Pitzer, "Thermodynamics of Electrolytes:
+    8. High-Temperature Properties, including Enthalpy and Heat
+    Capacity, with application to sodium chloride",
+    J. Phys. Chem., 81, 19 1822 - 1828 (1977)
+
+generator: ctml2yaml + manual additions
 cantera-version: 2.6.0a2
 date: Sat, 15 May 2021 16:41:14 -0400
 input-files: [test_problems/cathermo/HMW_graph_GvI/HMW_NaCl.xml]

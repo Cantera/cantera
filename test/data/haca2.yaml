@@ -1,4 +1,14 @@
-generator: cti2yaml
+description: |-
+  HACA Mechanism - very rough prototype
+  Reference:
+  (1) M. Frenklach, H. Wang,
+      "Detailed Mechanism and Modeling of Soot Particle Formation"
+      in Soot Formation in Combustion: Mechanisms and Models"
+      J. Bockhorn Ed., Springer Verlag, Heidelberg (1994).
+
+  For additional comments, see original CTI input
+
+generator: cti2yaml + manual additions
 cantera-version: 2.6.0a2
 date: Wed, 12 May 2021 13:19:43 -0400
 input-files: [haca2.cti]
