@@ -9,6 +9,7 @@
 #ifndef CT_COVERAGE_H
 #define CT_COVERAGE_H
 
+#include "cantera/base/global.h"
 #include "cantera/kinetics/Arrhenius.h"
 #include "MultiRate.h"
 
@@ -331,6 +332,23 @@ public:
         RateType::setContext(rxn, kin);
         setSpecies(kin);
         buildStickCoefficients(rxn, kin);
+    }
+
+    virtual void validate(const std::string &equation, const Kinetics& kin) override {
+        ReactionRate::validate(equation, kin);
+        fmt::memory_buffer err_reactions;
+        double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
+        for (size_t i=0; i < 6; i++) {
+            double k = RateType::evalRate(log(T[i]), 1 / T[i]);
+            if (k > 1) {
+                fmt_append(err_reactions,
+                    "\n Sticking coefficient is greater than 1 for reaction '{}'\n"
+                    " at T = {:.1f}\n", equation, T[i]);
+            }
+        }
+        if (err_reactions.size()) {
+            warn_user("StickRate::validate", to_string(err_reactions));
+        }
     }
 
     //! Update reaction rate parameters
