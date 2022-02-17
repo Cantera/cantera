@@ -124,7 +124,7 @@ void StickCoverage::getStickParameters(AnyMap& node) const
     }
 }
 
-void StickCoverage::buildStickCoefficients(const Reaction& rxn, const Kinetics& kin)
+void StickCoverage::buildStickParameters(const Reaction& rxn, const Kinetics& kin)
 {
     // Ensure that site density is initialized
     const ThermoPhase& phase = kin.thermo(kin.surfacePhaseIndex());
@@ -153,7 +153,7 @@ void StickCoverage::buildStickCoefficients(const Reaction& rxn, const Kinetics& 
             if (iPhase != iInterface) {
                 // Non-interface species. There should be exactly one of these
                 if (foundStick) {
-                    throw InputFileError("StickCoverage::buildStickCoefficients",
+                    throw InputFileError("StickCoverage::buildStickParameters",
                         rxn.input, "Multiple non-interface species ('{}' and '{}')\n"
                         "found in sticking reaction: '{}'.\nSticking species "
                         "must be explicitly specified.",
@@ -164,7 +164,7 @@ void StickCoverage::buildStickCoefficients(const Reaction& rxn, const Kinetics& 
             }
         }
         if (!foundStick) {
-            throw InputFileError("StickCoverage::buildStickCoefficients",
+            throw InputFileError("StickCoverage::buildStickParameters",
                 rxn.input, "No non-interface species found "
                 "in sticking reaction: '{}'", rxn.equation());
         }
