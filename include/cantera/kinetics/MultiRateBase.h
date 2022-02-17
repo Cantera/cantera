@@ -106,8 +106,6 @@ public:
     //! @param phase  object representing reacting phase
     //! @param kin  object representing kinetics
     //! @returns  flag indicating whether reaction rates need to be re-evaluated
-    //!
-    //! @todo remove Kinetics argument (which is no longer necessary)
     virtual bool update(const ThermoPhase& phase, const Kinetics& kin) = 0;
 
     //! Get the rate for a single reaction. Used to implement ReactionRate::eval,

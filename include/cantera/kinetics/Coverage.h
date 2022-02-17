@@ -27,20 +27,45 @@ class AnyMap;
  *  @ingroup chemkinetics
  */
 
-//! Base class for reaction rate parameterizations that involve interfaces
+//! Base class for rate parameterizations that involve interfaces
+/**
+ * Rate expressions defined for interfaces may include coverage dependent terms,
+ * where an example is given by [Kee, R. J., Coltrin, M. E., & Glarborg, P.(2005).
+ * Chemically reacting flow: theory and practice. John Wiley & Sons. Eq 11.113]:
+ *  \f[
+ *      k_f = A T^b \exp \left(
+ *          \ln 10 \sum a_k \theta_k
+ *          - \frac{1}{RT} \left( E_a + \sum E_k\theta_k \right)
+ *          + \sum m_k \ln \theta_k
+ *          \right)
+ *  \f]
+ * As the expression can be rewritten as
+ *  \f[
+ *      k_f = A T^b \exp \left( - \frac{E_a}{RT} \right)
+ *          \prod_k 10^{a_k \theta_k} \theta_k^{m_k}
+ *          \exp \left( \frac{- E_k \theta_k}{RT} \right)
+ *  \f]
+ * it is evident that this expression combines a regular modified Arrhenius rate
+ * expression \f$ A T^b \exp \left( - \frac{E_a}{RT} \right) \f$ with coverage-related
+ * terms, where the parameters \f$ (a_k, E_k, m_k) \f$ describe the dependency on the
+ * surface coverage of species \f$ k, \theta_k \f$. The Coverage class implements terms
+ * related to coverage only, which allows for combinations with arbitrary rate
+ * parameterizations (for example Arrhenius and BlowersMasel).
+ */
 class Coverage
 {
 public:
     Coverage();
 
     //! Perform object setup based on AnyMap node information
-    /*!
-     *  @param dependencies  Coverage dependencies
-     *  @param units  Unit system
-     */
+    //! @param dependencies  Coverage dependencies
+    //! @param units  Unit system
     void setCoverageDependencies(const AnyMap& dependencies,
                                  const UnitSystem& units=UnitSystem());
 
+    //! Store parameters needed to reconstruct an identical object
+    //! @param dependencies  AnyMap receiving coverage information
+    //! @param asVector  Optional boolean flag to override map output
     void getCoverageDependencies(AnyMap& dependencies, bool asVector=false) const;
 
     //! Add a coverage dependency for species *sp*, with exponential dependence
@@ -101,13 +126,21 @@ protected:
 };
 
 
+//! Base class for rate parameterizations that implement sticking coefficients
+/**
+ * The StickCoverage class enhances Coverage to accommodate sticking coefficients.
+ */
 class StickCoverage : public Coverage
 {
 public:
     StickCoverage();
 
+    //! Perform object setup based on AnyMap node information
+    //! @param node  Sticking coefficient parameters
     void setStickParameters(const AnyMap& node);
 
+    //! Store parameters needed to reconstruct an identical object
+    //! @param node  Sticking coefficient parameters
     void getStickParameters(AnyMap& node) const;
 
     //! Get flag indicating whether sticking rate uses the correction factor developed
@@ -135,22 +168,27 @@ public:
         m_explicitSpecies = true;
     }
 
-    void buildStickCoefficients(const Reaction& rxn, const Kinetics& kin);
+    //! Build rate-specific parameters based on Reaction and Kinetics context
+    //! @param rxn  Reaction associated with the sticking coefficient
+    //! @param kin  Kinetics object associated with the sticking coefficient
+    //! Parameters can be accessed using the method getStickParameters
+    void buildStickParameters(const Reaction& rxn, const Kinetics& kin);
 
     //! Return sticking coefficients
     //! @param order  exponent applied to site density term
     //! @param multiplier  multiplicative factor in rate expression
     //! @param species  sticking species
-    void getStickCoefficients(double& order, double& multiplier,
-                              std::string& species) const {
+    void getStickParameters(double& order, double& multiplier,
+                            std::string& species) const {
         order = m_surfaceOrder;
         multiplier = m_multiplier;
         species = m_stickingSpecies;
     }
 
-    //! Specify sticking coefficients, @see getStickCoefficients
-    void setStickCoefficients(double order, double multiplier,
-                              const std::string& species, bool specified=false) {
+    //! Specify sticking coefficients, @see getStickParameters
+    //! @internal This method is used for testing purposes only
+    void setStickParameters(double order, double multiplier,
+                            const std::string& species, bool specified=false) {
         m_surfaceOrder = order;
         m_multiplier = multiplier;
         m_stickingSpecies = species;
@@ -331,7 +369,7 @@ public:
     virtual void setContext(const Reaction& rxn, const Kinetics& kin) override {
         RateType::setContext(rxn, kin);
         setSpecies(kin);
-        buildStickCoefficients(rxn, kin);
+        buildStickParameters(rxn, kin);
     }
 
     virtual void validate(const std::string &equation, const Kinetics& kin) override {
