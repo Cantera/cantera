@@ -1043,9 +1043,10 @@ conf = Configure(env, custom_tests={'CheckStatement': CheckStatement})
 env = conf.env  # Retain updates to `env` after the end of the `Configure` context
 
 # First, a sanity check:
-if not conf.CheckCXXHeader('cmath', '<>'):
-    config_error('The C++ compiler is not correctly configured.')
-
+if not conf.CheckCXXHeader("cmath", "<>"):
+    config_error(
+        "The C++ compiler is not correctly configured (incomplete include paths)."
+    )
 
 def get_expression_value(includes, expression, defines=()):
     s = ['#define ' + d for d in defines]
@@ -1062,8 +1063,16 @@ def get_expression_value(includes, expression, defines=()):
               '}\n'))
     return '\n'.join(s)
 
+# Check that libraries link correctly
+cmath_check_source = get_expression_value(["<cmath>"], "cos(0. * argc)")
+retcode, cmath_works = conf.TryRun(cmath_check_source, ".cpp")
+if cmath_works.strip() != "1":
+    config_error(
+        "The C++ compiler is not correctly configured (failed at linking stage)."
+    )
+
 # Check that NaN is treated correctly
-nan_check_source = get_expression_value(["<cmath>"], 'std::isnan(NAN + argc)')
+nan_check_source = get_expression_value(["<cmath>"], "std::isnan(NAN + argc)")
 retcode, nan_works = conf.TryRun(nan_check_source, ".cpp")
 if nan_works.strip() != "1":
     config_error(
