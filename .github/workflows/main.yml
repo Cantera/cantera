@@ -14,6 +14,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ubuntu-multiple-pythons:
     name: ${{ matrix.os }} with Python ${{ matrix.python-version }}
