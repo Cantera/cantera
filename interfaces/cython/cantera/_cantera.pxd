@@ -700,12 +700,6 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         void resizeReactions()
 
         shared_ptr[CxxReaction] reaction(size_t) except +translate_exception
-        cbool isReversible(int) except +translate_exception
-        int reactionType(int) except +translate_exception
-        string reactionTypeStr(int) except +translate_exception
-        string reactionString(int) except +translate_exception
-        string reactantString(int) except +translate_exception
-        string productString(int) except +translate_exception
         double reactantStoichCoeff(int, int) except +translate_exception
         double productStoichCoeff(int, int) except +translate_exception
 
