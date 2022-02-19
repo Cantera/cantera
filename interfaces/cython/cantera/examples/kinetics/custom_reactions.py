@@ -9,6 +9,7 @@ Requires: cantera >= 2.6.0
 from timeit import default_timer
 import numpy as np
 from math import exp
+import warnings
 
 import cantera as ct
 
@@ -29,9 +30,12 @@ custom_reactions[2] = ct.CustomReaction(
 gas1 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                    species=species, reactions=custom_reactions)
 
-# old framework - use xml input
+# old framework - use xml input (to be removed after Cantera 2.6)
 
-gas2 = ct.Solution(mech.replace('.yaml', '.xml'))
+with warnings.catch_warnings():
+    # suppress warning: XML input is deprecated
+    warnings.simplefilter("ignore")
+    gas2 = ct.Solution(mech.replace(".yaml", ".xml"))
 
 # construct test case - simulate ignition
 
