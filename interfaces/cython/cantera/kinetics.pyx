@@ -207,18 +207,18 @@ cdef class Kinetics(_SolutionBase):
         Type code of reaction ``i_reaction``.
 
         .. deprecated:: 2.6
-        """
-        warnings.warn("Behavior changes after Cantera 2.6, "
-                      "when function will return a type string. "
-                      "Use method 'reaction_type_str' during "
-                      "transition instead.", DeprecationWarning)
-        self._check_reaction_index(i_reaction)
-        return self.kinetics.reactionType(i_reaction)
 
-    def reaction_type_str(self, int i_reaction):
-        """Type of reaction ``i_reaction``."""
-        self._check_reaction_index(i_reaction)
-        return pystr(self.kinetics.reactionTypeStr(i_reaction))
+            Replaced by properties ``Reaction.type`` and/or ``Reaction.rate.type``.
+            Example: ``gas.reaction_type(0)`` is replaced by
+            ``gas.reaction(0).reaction_type``
+        """
+        rxn = self.reaction(i_reaction)
+        if not rxn.uses_legacy:
+            warnings.warn(
+                "Class method 'reaction_type' is deprecated and will be "
+                "removed after Cantera 2.6.\nReplaceable by property 'reaction_type' "
+                "of the corresponding reaction object.", DeprecationWarning)
+        return rxn.type
 
     def reaction_equation(self, int i_reaction):
         """The equation for the specified reaction. See also `reaction_equations`."""
