@@ -137,6 +137,17 @@ protected:
         //! Write an end of line character to the screen and flush output
         void writelogendl();
 
+        //!  Write a warning message to the screen.
+        /*!
+         * @param warning  String specifying type of warning; @see Logger::warn
+         * @param msg  String to be written to the screen
+         * @ingroup textlogs
+         */
+        void warnlog(const std::string& warning, const std::string& msg);
+
+        //! Write an end of line character to the screen and flush output
+        void warnlogendl();
+
         //! Install a logger.
         /*!
          * Called by the language interfaces to install an appropriate logger.
@@ -331,6 +342,16 @@ public:
         pMessenger->writelogendl();
     }
 
+    //! @copydoc Messages::warnlog
+    void warnlog(const std::string& warning, const std::string& msg) {
+        pMessenger->warnlog(warning, msg);
+    }
+
+    //! Write an endl to the screen and flush output
+    void warnlogendl() {
+        pMessenger->warnlogendl();
+    }
+
     //! Print a warning indicating that *method* is deprecated. Additional
     //! information (removal version, alternatives) can be specified in
     //! *extra*. Deprecation warnings are printed once per method per
@@ -350,9 +371,12 @@ public:
         m_fatal_deprecation_warnings = true;
     }
 
-    //! Print a user warning arising during usage of *method*. Additional
-    //! information can be specified in *extra*.
-    void warn_user(const std::string& method, const std::string& extra="");
+    //! Generate a general purpose warning; repeated warnings are not suppressed
+    //! @param warning  Warning type; @see Logger::warn
+    //! @param method  Name of method triggering the warning
+    //! @param extra  Additional information printed for the warning
+    void warn(const std::string& warning,
+              const std::string& method, const std::string& extra="");
 
     //! Globally disable printing of (user) warnings. Used primarily to
     //! prevent certain tests from failing.

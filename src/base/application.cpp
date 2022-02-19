@@ -97,6 +97,16 @@ void Application::Messages::writelogendl()
     logwriter->writeendl();
 }
 
+void Application::Messages::warnlog(const std::string& warning, const std::string& msg)
+{
+    logwriter->warn(warning, msg);
+}
+
+void Application::Messages::warnlogendl()
+{
+    logwriter->warnendl();
+}
+
 //! Mutex for access to string messages
 static std::mutex msg_mutex;
 
@@ -177,20 +187,21 @@ void Application::warn_deprecated(const std::string& method,
         return;
     }
     warnings.insert(method);
-    writelog(fmt::format("DeprecationWarning: {}: {}", method, extra));
-    writelogendl();
+    warnlog("Deprecation", fmt::format("{}: {}", method, extra));
+    warnlogendl();
 }
 
-void Application::warn_user(const std::string& method,
-                            const std::string& extra)
+void Application::warn(const std::string& warning,
+                       const std::string& method,
+                       const std::string& extra)
 {
     if (m_fatal_warnings) {
         throw CanteraError(method, extra);
     } else if (m_suppress_warnings) {
         return;
     }
-    writelog(fmt::format("CanteraWarning: {}: {}", method, extra));
-    writelogendl();
+    warnlog(warning, fmt::format("{}: {}", method, extra));
+    warnlogendl();
 }
 
 void Application::thread_complete()
