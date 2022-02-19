@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 import cantera as ct
 from . import utilities
@@ -478,17 +479,20 @@ class FromScratchCases(RateExpressionTests):
         #   species: [AR, O, H2, H, OH, O2, H2O, H2O2, HO2]
         cls.gas.X = [0.1, 3e-4, 5e-5, 6e-6, 3e-3, 0.6, 0.25, 1e-6, 2e-5]
         cls.gas.TP = 2000, 5 * ct.one_atm
-
-        # suppress user warning (e.g. temperature derivative of Blowers-Masel)
-        cls.warnings_suppressed = ct.warnings_suppressed()
-        ct.suppress_warnings()
-
         super().setUpClass()
 
-    @classmethod
-    def tearDownClass(cls):
-        if not cls.warnings_suppressed:
-            ct.make_warnings_fatal()
+    @utilities.has_temperature_derivative_warnings
+    def test_forward_rop_ddT(self):
+        super().test_forward_rop_ddT()
+
+    @utilities.has_temperature_derivative_warnings
+    def test_reverse_rop_ddT(self):
+        super().test_reverse_rop_ddT()
+
+    @utilities.has_temperature_derivative_warnings
+    def test_net_rop_ddT(self):
+        super().test_net_rop_ddT()
+
 
 class TestPlog(FromScratchCases, utilities.CanteraTest):
     # Plog reaction
@@ -510,15 +514,15 @@ class TestBlowersMasel(FromScratchCases, utilities.CanteraTest):
     equation = "H2 + O <=> H + OH"
     rate_type = "Blowers-Masel"
 
-    @utilities.unittest.skip("change of reaction enthalpy is not considered")
+    @pytest.mark.xfail(reason="Change of reaction enthalpy is not considered")
     def test_forward_rop_ddT(self):
         super().test_forward_rop_ddT()
 
-    @utilities.unittest.skip("change of reaction enthalpy is not considered")
+    @pytest.mark.xfail(reason="Change of reaction enthalpy is not considered")
     def test_reverse_rop_ddT(self):
         super().test_reverse_rop_ddT()
 
-    @utilities.unittest.skip("change of reaction enthalpy is not considered")
+    @pytest.mark.xfail(reason="Change of reaction enthalpy is not considered")
     def test_net_rop_ddT(self):
         super().test_net_rop_ddT()
 

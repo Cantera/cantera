@@ -4,6 +4,7 @@ import warnings
 import tempfile
 import unittest
 from pathlib import Path, PurePath
+import pytest
 
 try:
     from ruamel import yaml
@@ -24,6 +25,14 @@ def allow_deprecated(test):
             test(*args, **kwargs)
         finally:
             cantera.make_deprecation_warnings_fatal()
+
+    return wrapper
+
+def has_temperature_derivative_warnings(test):
+    def wrapper(*args, **kwargs):
+        with pytest.warns(UserWarning, match="ddTScaledFromStruct"):
+            # test warning raised for BlowersMasel and TwoTempPlasma derivatives
+            test(*args, **kwargs)
 
     return wrapper
 

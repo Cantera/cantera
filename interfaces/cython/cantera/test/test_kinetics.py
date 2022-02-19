@@ -2,6 +2,7 @@ import numpy as np
 import re
 import itertools
 import pkg_resources
+import pytest
 
 import cantera as ct
 from . import utilities
@@ -476,14 +477,11 @@ class KineticsRepeatability(utilities.CanteraTest):
                    "at T = 5000.0",
                    "at T = 10000.0",
                    "Sticking coefficient is greater than 1 for reaction",
-                   "CanteraError thrown by InterfaceReaction::validate:",
+                   "InterfaceReaction::validate:",
                    )
-        if not ct.debug_mode_enabled():
-            err_msg += ("CanteraError thrown by BlowersMaselInterfaceReaction::validate:",)
 
-        ct.make_warnings_fatal()
         for err in err_msg:
-            with self.assertRaisesRegex(ct.CanteraError, err):
+            with pytest.warns(UserWarning, match=err):
                 gas = ct.Solution('sticking_coeff_check.yaml')
                 surface = ct.Interface('sticking_coeff_check.yaml', 'Pt_surf', [gas])
 

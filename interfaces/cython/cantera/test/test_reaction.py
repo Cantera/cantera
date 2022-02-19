@@ -134,15 +134,6 @@ class ReactionRateTests:
         ct.use_legacy_rate_constants(False)
         cls.gas = ct.Solution("kineticsfromscratch.yaml")
 
-        # suppress user warning (e.g. temperature derivative of Blowers-Masel)
-        cls.warnings_suppressed = ct.warnings_suppressed()
-        ct.suppress_warnings()
-
-    @classmethod
-    def tearDownClass(cls):
-        if not cls.warnings_suppressed:
-            ct.make_warnings_fatal()
-
     def setUp(self):
         self.gas.X = "H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5, H2O2:1e-7"
         self.gas.TP = 900, 2 * ct.one_atm
@@ -223,6 +214,7 @@ class ReactionRateTests:
         with self.assertRaisesRegex(Exception, "not supported"):
             ct.ReactionRate.from_yaml(yaml)
 
+    @utilities.has_temperature_derivative_warnings
     def test_derivative_ddT(self):
         # check temperature derivative against numerical derivative
         deltaT = self.gas.derivative_settings["rtol-delta"]
@@ -281,6 +273,7 @@ class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
         with self.assertRaisesRegex(Exception, "not supported"):
             ct.ReactionRate.from_yaml(yaml)
 
+    @utilities.has_temperature_derivative_warnings
     def test_derivative_ddT_exact(self):
         # check exact derivative against analytical and numerical derivatives
         rate = self.from_parts()
@@ -336,7 +329,7 @@ class TestBlowersMaselRate(ReactionRateTests, utilities.CanteraTest):
         rate.allow_negative_pre_exponential_factor = True
         self.assertTrue(rate.allow_negative_pre_exponential_factor)
 
-    @pytest.mark.skip("Change of reaction enthalpy is not considered")
+    @pytest.mark.xfail(reason="Change of reaction enthalpy is not considered")
     def test_derivative_ddT(self):
         super().test_derivative_ddT()
 
@@ -421,6 +414,7 @@ class FalloffRateTests(ReactionRateTests):
         for n in self._n_data:
             rate.falloff_coeffs = np.random.rand(n)
 
+    @utilities.has_temperature_derivative_warnings
     def test_derivative_ddT(self):
         pert = self.gas.derivative_settings["rtol-delta"]
         deltaT = self.gas.T * pert
@@ -498,6 +492,17 @@ class TestTroeRate(FalloffRateTests, utilities.CanteraTest):
         Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
         """
     _n_data = [3, 4]
+
+    def test_unexpected_parameter(self):
+        yaml = """
+            type: falloff
+            low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -7112800.0}
+            high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0}
+            Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 0.}
+            """
+
+        with pytest.warns(UserWarning, match="Unexpected parameter value T2=0"):
+            ct.ReactionRate.from_yaml(yaml)
 
 
 class TestSriRate(FalloffRateTests, utilities.CanteraTest):
