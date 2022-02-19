@@ -11,8 +11,7 @@
 namespace Cantera {
 
 PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
-    : m_electronEnergyDistrbMethod("isotropic-velocity")
-    , m_x(2.0)
+    : m_x(2.0)
     , m_nPoints(1000)
     , m_electronName("E")
 {
@@ -39,25 +38,7 @@ void PlasmaPhase::updateIsotropicElectronEnergyDistrb()
 void PlasmaPhase::setElectronTemperature(const double Te) {
     Phase::setElectronTemperature(Te);
     m_meanElectronEnergy = 3.0 / 2.0 * electronTemperature() * GasConstant / (Avogadro * ElectronCharge);
-    if (m_electronEnergyDistrbMethod == "isotropic-velocity") {
-        updateIsotropicElectronEnergyDistrb();
-    } else if (m_electronEnergyDistrbMethod == "user-specified") {
-        warn_user("PlasmaPhase::setElectronTemperature",
-            "The electron temperature is calculated automatically when"
-            "electron energy distribution is user-specified.");
-    }
-}
-
-void PlasmaPhase::setElectronEnergyDistrbMethod(std::string method)
-{
-    if (method == "isotropic-velocity" || method == "user-specified") {
-        m_electronEnergyDistrbMethod = method;
-    } else {
-        throw CanteraError("PlasmaPhase::setElectronEnergyDistrbMethod",
-                           "Invalid method for electron energy distribution."
-                           "Please use below method, 'isotropic-velocity' or"
-                           "'user-specified'.");
-    }
+    updateIsotropicElectronEnergyDistrb();
 }
 
 void PlasmaPhase::setElectronEnergyGrid(const vector_fp& grid)
@@ -80,7 +61,6 @@ void PlasmaPhase::getElectronEnergyGrid(vector_fp& grid) const
 void PlasmaPhase::setElectronEnergyDistrb(const vector_fp& grid,
                                           const vector_fp& distrb)
 {
-    m_electronEnergyDistrbMethod = "user-specified";
     if (grid.size() != distrb.size()) {
         throw CanteraError("PlasmaPhase::setElectronEnergyDistrb",
                            "Vector lengths need to be the same.");
