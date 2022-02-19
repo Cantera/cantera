@@ -19,8 +19,9 @@ namespace Cantera
 /**
  * Base class for a phase with plasma properties. This class manages the
  * plasma properties such as electron energy distribution function (EEDF).
- * For isotropic velocity space such as Maxweillian and Druyvesteyn, a
- * generalized electron energy distribution can be expressed as [1,2],
+ * When using setElectronTemperature, the electron is assumed to have
+ * isotropic velocity. The generalized electron energy distribution can be
+ * expressed as [1,2],
  *   \f[
  *          f(\epsilon) = c_1 * \frac{\sqrt{epsilon}}{\epsilon_m^{3/2}}
  *          exp(-c_2 * (\frac{\epsilon}{\epsilon_m})^x),
@@ -111,18 +112,12 @@ public:
     //!     @param Te Electron temperature in Kelvin
     virtual void setElectronTemperature(const double Te);
 
-    //! Set the method to calculate electron energy distribution
-    void setElectronEnergyDistrbMethod(std::string method);
-
     //! Mean electron energy [eV]
     double meanElectronEnergy() {
         return m_meanElectronEnergy;
     }
 
 protected:
-    // Method to get electron energy distribution function
-    std::string m_electronEnergyDistrbMethod;
-
     // Electron energy order in the exponential term
     double m_x;
 
