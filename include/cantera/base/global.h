@@ -219,7 +219,7 @@ void warn(const std::string& warning, const std::string& method,
     }
 }
 
-//! Print a user warning raised from *method*.
+//! Print a user warning raised from *method* as `CanteraWarning`.
 /*!
  * @param method  method name
  * @param msg  Python-style format string with the following arguments
@@ -229,9 +229,9 @@ template <typename... Args>
 void warn_user(const std::string& method, const std::string& msg,
                const Args&... args) {
     if (sizeof...(args) == 0) {
-        _warn("User", method, msg);
+        _warn("Cantera", method, msg);
     } else {
-        _warn("User", method, fmt::format(msg, args...));
+        _warn("Cantera", method, fmt::format(msg, args...));
     }
 }
 

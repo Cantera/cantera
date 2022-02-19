@@ -9,6 +9,23 @@
 
 #include "Python.h"
 
+// Warning types supported by the Python C-API.
+// See https://docs.python.org/3/c-api/exceptions.html#issuing-warnings
+std::map<std::string, PyObject*> mapped_PyWarnings = {
+    {"", PyExc_Warning},
+    {"Bytes", PyExc_BytesWarning},
+    {"Cantera", PyExc_UserWarning}, // pre-existing warning
+    {"Deprecation", PyExc_DeprecationWarning},
+    {"Future", PyExc_FutureWarning},
+    {"Import", PyExc_ImportWarning},
+    {"PendingDeprecation", PyExc_PendingDeprecationWarning},
+    {"Resource", PyExc_ResourceWarning},
+    {"Runtime", PyExc_RuntimeWarning},
+    {"Syntax", PyExc_SyntaxWarning},
+    {"Unicode", PyExc_UnicodeWarning},
+    {"User", PyExc_UserWarning}
+};
+
 // Wrappers for preprocessor defines
 std::string get_cantera_version()
 {
@@ -37,9 +54,19 @@ public:
         std::cout.flush();
     }
 
+    virtual void warn(const std::string& warning, const std::string& msg) {
+        if (mapped_PyWarnings.find(warning) != mapped_PyWarnings.end()) {
+            PyErr_WarnEx(mapped_PyWarnings[warning], msg.c_str(), 1);
+        } else {
+            // issue generic warning
+            PyErr_WarnEx(PyExc_Warning, msg.c_str(), 1);
+        }
+    }
+
+    virtual void warnendl() {}
+
     virtual void error(const std::string& msg) {
-        std::string err = "raise Exception('''"+msg+"''')";
-        PyRun_SimpleString(err.c_str());
+        PyErr_SetString(PyExc_RuntimeError, msg.c_str());
     }
 };
 
