@@ -55,14 +55,15 @@ void writeline(char repeat, size_t count, bool endl_after, bool endl_before)
     }
 }
 
-void warn_deprecated(const std::string& method, const std::string& extra)
+void _warn_deprecated(const std::string& method, const std::string& extra)
 {
     app()->warn_deprecated(method, extra);
 }
 
-void _warn_user(const std::string& method, const std::string& extra)
+void _warn(const std::string& warning,
+           const std::string& method, const std::string& extra)
 {
-    app()->warn_user(method, extra);
+    app()->warn(warning, method, extra);
 }
 
 void suppress_deprecation_warnings()
