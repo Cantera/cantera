@@ -176,9 +176,22 @@ cdef class Kinetics(_SolutionBase):
         self.kinetics.addReaction(rxn._reaction)
 
     def is_reversible(self, int i_reaction):
-        """True if reaction ``i_reaction`` is reversible."""
-        self._check_reaction_index(i_reaction)
-        return self.kinetics.isReversible(i_reaction)
+        """
+        True if reaction ``i_reaction`` is reversible.
+
+        .. deprecated:: 2.6
+
+            Replaced by property ``Reaction.reversible``.
+            Example: ``gas.is_reversible(0)`` is replaced by
+            ``gas.reaction(0).reversible``
+        """
+        rxn = self.reaction(i_reaction)
+        if not rxn.uses_legacy:
+            warnings.warn(
+                "Class method 'is_reversible' is deprecated and will be removed "
+                "after Cantera 2.6.\nReplaceable by property 'reversible' of the "
+                "corresponding\nreaction object.", DeprecationWarning)
+        return rxn.reversible
 
     def multiplier(self, int i_reaction):
         """
@@ -221,19 +234,56 @@ cdef class Kinetics(_SolutionBase):
         return rxn.type
 
     def reaction_equation(self, int i_reaction):
-        """The equation for the specified reaction. See also `reaction_equations`."""
-        self._check_reaction_index(i_reaction)
-        return pystr(self.kinetics.reactionString(i_reaction))
+        """
+        The equation for the specified reaction. See also `reaction_equations`.
+
+        .. deprecated:: 2.6
+
+            Replaced by property ``Reaction.equation``.
+            Example: ``gas.reaction_equation(0)`` is replaced by
+            ``gas.reaction(0).equation``
+        """
+        rxn = self.reaction(i_reaction)
+        if not rxn.uses_legacy:
+            warnings.warn(
+                "Class method 'reaction_equation' is deprecated and will be "
+                "removed after Cantera 2.6.\nReplaceable by property 'equation' of the "
+                "corresponding reaction object.", DeprecationWarning)
+        return rxn.equation
 
     def reactants(self, int i_reaction):
-        """The reactants portion of the reaction equation"""
-        self._check_reaction_index(i_reaction)
-        return pystr(self.kinetics.reactantString(i_reaction))
+        """
+        The reactants portion of the reaction equation
+
+        .. deprecated:: 2.6
+
+            Replaced by property ``Reaction.reactants``.
+            Example: ``gas.reactants(0)`` is replaced by ``gas.reaction(0).reactants``
+        """
+        rxn = self.reaction(i_reaction)
+        if not rxn.uses_legacy:
+            warnings.warn(
+                "Class method 'reactants' is deprecated and will be removed "
+                "after Cantera 2.6.\nReplaceable by property 'reactant_string' of "
+                "the corresponding reaction object.", DeprecationWarning)
+        return rxn.reactant_string
 
     def products(self, int i_reaction):
-        """The products portion of the reaction equation"""
-        self._check_reaction_index(i_reaction)
-        return pystr(self.kinetics.productString(i_reaction))
+        """
+        The products portion of the reaction equation
+
+        .. deprecated:: 2.6
+
+            Replaced by property ``Reaction.products``.
+            Example: ``gas.products(0)`` is replaced by ``gas.reaction(0).products``
+        """
+        rxn = self.reaction(i_reaction)
+        if not rxn.uses_legacy:
+            warnings.warn(
+                "Class method 'products' is deprecated and will be removed "
+                "after Cantera 2.6.\nReplaceable by property 'product_string' of "
+                "the corresponding reaction object.", DeprecationWarning)
+        return rxn.product_string
 
     def reaction_equations(self, indices=None):
         """
@@ -249,9 +299,9 @@ cdef class Kinetics(_SolutionBase):
         See also `reaction_equation`.
         """
         if indices is None:
-            return [self.reaction_equation(i) for i in range(self.n_reactions)]
+            return [self.reaction(i).equation for i in range(self.n_reactions)]
         else:
-            return [self.reaction_equation(i) for i in indices]
+            return [self.reaction(i).equation for i in indices]
 
     def reactant_stoich_coeff(self, k_spec, int i_reaction):
         """
