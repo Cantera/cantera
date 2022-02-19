@@ -1426,7 +1426,10 @@ cdef class Reaction:
         self.reaction.input.clear()
 
     def __repr__(self):
-        return f"<{self.__class__.__name__}: {self.equation}>"
+        if self.uses_legacy:
+            return f"<{self.__class__.__name__}: {self.equation}>"
+        else:
+            return f"{self.equation}    <{self.__class__.__name__}({self.rate.type})>"
 
     def __str__(self):
         return self.equation
