@@ -283,11 +283,15 @@ cdef class TwoTempPlasmaRate(ArrheniusRateBase):
 
     .. math::
 
-        k_f = A T_e^b \exp(-\tfrac{E_{a,g}}{RT}) \exp(-\tfrac{E_{a,e}}{RT_e})
+        k_f = A T_e^b \exp(-\tfrac{E_{a,g}}{RT}) \exp(\tfrac{E_{a,e}(T_e - T)}{R T T_e})
 
-    where :math:`A` is the `pre_exponential_factor`, :math:`b` is the
-    `temperature_exponent`, :math:`E_{a,g}` is the `activation_energy`, and
-    :math:`E_{a,e}` is the `activation_electron_energy`.
+    where :math:`A` is the
+    `pre_exponential_factor <ArrheniusTypeRate.pre_exponential_factor>`,
+    :math:`b` is the `temperature_exponent <ArrheniusTypeRate.temperature_exponent>`,
+    :math:`E_{a,g}` (``Ea_gas``) is the
+    `activation_energy <ArrheniusTypeRate.activation_energy>`, and
+    :math:`E_{a,e}` (``Ea_electron``) is the
+    `activation_electron_energy <ArrheniusTypeRate.activation_electron_energy>`.
     """
     _reaction_rate_type = "two-temperature-plasma"
 
