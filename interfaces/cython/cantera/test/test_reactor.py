@@ -1273,7 +1273,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
                 rname, comp = net.sensitivity_parameter_name(i).split(': ')
                 self.assertEqual(reactor.name, rname)
                 if kind == 'r':
-                    self.assertEqual(gas.reaction_equation(p), comp)
+                    self.assertEqual(gas.reaction(p).equation, comp)
                 elif kind == 's':
                     self.assertEqual(p + ' enthalpy', comp)
 
@@ -1335,7 +1335,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
                 r.add_sensitivity_reaction(p)
             S.append(integrate(rA1, net1))
 
-            pname = lambda r,i: '%s: %s' % (r.name, gas.reaction_equation(i))
+            pname = lambda r,i: '%s: %s' % (r.name, gas.reaction(i).equation)
             for i,(r,p) in enumerate(params1):
                 self.assertEqual(pname(r,p), net1.sensitivity_parameter_name(i))
 
