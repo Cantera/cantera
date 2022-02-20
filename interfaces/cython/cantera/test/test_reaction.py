@@ -790,7 +790,7 @@ class ReactionTests:
         # helper function that checks evaluation of reaction rates
         ix = self._index
         if check_legacy:
-            self.assertEqual(gas2.reaction_type_str(0), self._rxn_type)
+            self.assertEqual(gas2.reaction(0).reaction_type, self._rxn_type)
         self.assertNear(gas2.forward_rate_constants[0],
                         self.gas.forward_rate_constants[ix])
         self.assertNear(gas2.net_rates_of_progress[0],

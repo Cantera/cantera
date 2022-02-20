@@ -31,7 +31,7 @@ class TestKinetics(utilities.CanteraTest):
 
     def test_is_reversible(self):
         for i in range(self.phase.n_reactions):
-            self.assertTrue(self.phase.is_reversible(i))
+            self.assertTrue(self.phase.reaction(i).reversible)
 
     def test_multiplier(self):
         fwd_rates0 = self.phase.forward_rates_of_progress
@@ -70,7 +70,7 @@ class TestKinetics(utilities.CanteraTest):
         ct.make_deprecation_warnings_fatal() # re-enable fatal deprecation warnings
 
         fwd_rates = self.phase.forward_rate_constants
-        ix_3b = np.array([self.phase.reaction_type_str(i) == "three-body"
+        ix_3b = np.array([self.phase.reaction(i).reaction_type == "three-body"
             for i in range(self.phase.n_reactions)])
         ix_other = ix_3b == False
 
@@ -78,19 +78,20 @@ class TestKinetics(utilities.CanteraTest):
         self.assertFalse((fwd_rates_legacy[ix_3b] == fwd_rates[ix_3b]).any())
 
     def test_reaction_type(self):
-        self.assertIn(self.phase.reaction_type_str(0), ["three-body", "three-body-legacy"])
-        self.assertIn(self.phase.reaction_type_str(2), ["reaction", "elementary-legacy"])
-        self.assertEqual(self.phase.reaction_type_str(21), "falloff")
+        self.assertIn(self.phase.reaction(0).reaction_type, "three-body")
+        self.assertIn(self.phase.reaction(2).reaction_type, "reaction")
+        self.assertIn(self.phase.reaction(2).rate.type, "Arrhenius")
+        self.assertEqual(self.phase.reaction(21).reaction_type, "falloff")
 
-        with self.assertRaisesRegex(ValueError, 'out of range'):
-            self.phase.reaction_type_str(33)
-        with self.assertRaisesRegex(ValueError, 'out of range'):
-            self.phase.reaction_type_str(-2)
+        with self.assertRaisesRegex(ct.CanteraError, "outside valid range"):
+            self.phase.reaction(33).reaction_type
+        with self.assertRaisesRegex(ct.CanteraError, "outside valid range"):
+            self.phase.reaction(-2).reaction_type
 
     def test_reaction_equations(self):
         self.assertEqual(self.phase.n_reactions,
                          len(self.phase.reaction_equations()))
-        r,p = [x.split() for x in self.phase.reaction_equation(18).split('<=>')]
+        r,p = [x.split() for x in self.phase.reaction(18).equation.split('<=>')]
         self.assertIn('H', r)
         self.assertIn('H2O2', r)
         self.assertIn('HO2', p)
@@ -98,10 +99,10 @@ class TestKinetics(utilities.CanteraTest):
 
     def test_reactants_products(self):
         for i in range(self.phase.n_reactions):
-            R = self.phase.reactants(i)
-            P = self.phase.products(i)
-            self.assertTrue(self.phase.reaction_equation(i).startswith(R))
-            self.assertTrue(self.phase.reaction_equation(i).endswith(P))
+            R = self.phase.reaction(i).reactant_string
+            P = self.phase.reaction(i).product_string
+            self.assertTrue(self.phase.reaction(i).equation.startswith(R))
+            self.assertTrue(self.phase.reaction(i).equation.endswith(P))
             for k in range(self.phase.n_species):
                 if self.phase.reactant_stoich_coeff(k,i) != 0:
                     self.assertIn(self.phase.species_name(k), R)

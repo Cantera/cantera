@@ -1803,8 +1803,8 @@ class TestSolutionArray(utilities.CanteraTest):
     def test_passthrough(self):
         states = ct.SolutionArray(self.gas, 3)
         self.assertEqual(states.n_species, self.gas.n_species)
-        self.assertEqual(states.reaction_equation(10),
-                         self.gas.reaction_equation(10))
+        self.assertEqual(states.reaction(10).equation,
+                         self.gas.reaction(10).equation)
 
     def test_meta(self):
         meta = {'foo': 'bar', 'spam': 'eggs'}

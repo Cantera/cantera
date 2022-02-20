@@ -583,7 +583,7 @@ class FullTests:
                 drop_ = drop[i, ix] + dropp[i] * self.gas.P
                 self.assertArrayNear(drop_, drop_num[i, ix], self.rtol)
             except AssertionError as err:
-                print(i, self.gas.reaction(i).reaction_type)
+                print(i, self.gas.reaction(i).rate.type)
                 print(self.gas.reaction(i))
                 print(np.vstack([drop[i, ix], drop_num[i, ix]]).T)
                 raise err
@@ -601,7 +601,7 @@ class FullTests:
                 drop_ = drop[i, ix] + dropp[i] * self.gas.P
                 self.assertArrayNear(drop_, drop_num[i, ix], self.rtol)
             except AssertionError as err:
-                print(i, self.gas.reaction(i).reaction_type)
+                print(i, self.gas.reaction(i).rate.type)
                 print(self.gas.reaction(i))
                 print(np.vstack([drop[i, ix], drop_num[i, ix]]).T)
                 raise err
@@ -620,7 +620,7 @@ class FullTests:
                 self.assertArrayNear(drop_, drop_num[i, ix], self.rtol)
             except AssertionError as err:
                 if self.gas.reaction(i).reversible:
-                    print(i, self.gas.reaction(i).reaction_type)
+                    print(i, self.gas.reaction(i).rate.type)
                     print(self.gas.reaction(i))
                     print(np.vstack([drop[i, ix], drop_num[i, ix]]).T)
                     raise err
@@ -668,7 +668,7 @@ class FullTests:
             self.assertArrayNear(drop, drop_num, self.rtol)
         except AssertionError as err:
             i = np.argmax(2 * (drop - drop_num) / (drop + drop_num + 2e-4))
-            print(i, self.gas.reaction(i).reaction_type)
+            print(i, self.gas.reaction(i).rate.type)
             print(self.gas.reaction(i))
             print(drop[i])
             print(drop_num[i])
