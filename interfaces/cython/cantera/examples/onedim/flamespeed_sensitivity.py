@@ -34,4 +34,4 @@ print('Rxn #   k/S*dS/dk    Reaction Equation')
 print('-----   ----------   ----------------------------------')
 for m in range(gas.n_reactions):
     print('{: 5d}   {: 10.3e}   {}'.format(
-          m, sens[m], gas.reaction_equation(m)))
+          m, sens[m], gas.reaction(m).equation))
