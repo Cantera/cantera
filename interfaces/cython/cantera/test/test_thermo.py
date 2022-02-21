@@ -635,7 +635,6 @@ class TestThermoPhase(utilities.CanteraTest):
         s1 = self.phase.s
         u1 = self.phase.u
         v1 = self.phase.v
-        self.phase.Te = T1
 
         def check_state(T, rho, Y):
             self.assertNear(self.phase.T, T)
