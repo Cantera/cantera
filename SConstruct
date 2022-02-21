@@ -169,8 +169,9 @@ windows_options = [
         "msvc_version",
         """Version of Visual Studio to use. The default is the newest
            installed version. Specify '12.0' for Visual Studio 2013, '14.0' for
-           Visual Studio 2015, '14.1' ('14.1x') Visual Studio 2017, or '14.2'
-           ('14.2x') for Visual Studio 2019. For version numbers in parentheses,
+           Visual Studio 2015, '14.1' ('14.1x') Visual Studio 2017, '14.2'
+           ('14.2x') for Visual Studio 2019, or '14.3' ('14.3x') for
+           Visual Studio 2022. For version numbers in parentheses,
            'x' is a placeholder for a minor version number. Windows MSVC only.""",
         ""),
     EnumOption(
