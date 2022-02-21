@@ -111,11 +111,19 @@ public:
 
     //! Set the internally stored electron temperature of the phase (K).
     //! @param  Te Electron temperature in Kelvin
-    virtual void setElectronTemperature(const double Te);
+    virtual void setElectronTemperature(double Te);
 
     //! Mean electron energy [eV]
     double meanElectronEnergy() {
         return m_meanElectronEnergy;
+    }
+
+    virtual bool addSpecies(shared_ptr<Species> spec);
+
+    //! Electron Temperature (K)
+    //!     @return The electron temperature of the phase
+    virtual double electronTemperature() const {
+        return m_electronTemp;
     }
 
 protected:
@@ -134,10 +142,13 @@ protected:
     //! Mean electron energy
     double m_meanElectronEnergy;
 
-    //! Name of electron
-    std::string m_electronName;
+    //! Index of electron species
+    size_t m_electronSpeciesIndex;
 
     virtual void _updateThermo() const;
+
+    //! Electron temperature [K]
+    double m_electronTemp;
 };
 
 }

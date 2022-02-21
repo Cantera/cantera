@@ -1639,14 +1639,6 @@ cdef class ThermoPhase(_SolutionBase):
             self.thermo.setState_SV(S / self._mass_factor(),
                                     V / self._mass_factor())
 
-    property Te:
-        """Get/Set electron Temperature [K]."""
-        def __get__(self):
-            return self.thermo.electronTemperature()
-        def __set__(self, value):
-            Te = value if value is not None else self.Te
-            self.thermo.setElectronTemperature(Te)
-
     # partial molar / non-dimensional properties
     property partial_molar_enthalpies:
         """Array of species partial molar enthalpies [J/kmol]."""
@@ -1786,6 +1778,17 @@ cdef class ThermoPhase(_SolutionBase):
             cdef CxxUnits units = self.thermo.standardConcentrationUnits()
             return Units.copy(units)
 
+    # methods for plasma
+    property Te:
+        """Get/Set electron Temperature [K]."""
+        def __get__(self):
+                return self.thermo.electronTemperature()
+
+        def __set__(self, value):
+            if not self._enable_plasma:
+                raise TypeError('This method is invalid for '
+                                f'thermo model: {self.thermo_model}.')
+            self.plasma.setElectronTemperature(value)
 
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface or edge phase"""
