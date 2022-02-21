@@ -224,6 +224,14 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         self.assertIn('X', collected)
         self.assertEqual(collected['X'].shape, (0, self.gas.n_species))
 
+    def test_getitem(self):
+        states = ct.SolutionArray(self.gas, 10, extra={"index": range(10)})
+        for ix, state in enumerate(states):
+            assert state.index == ix
+
+        assert list(states[:2].index) == [0, 1]
+        assert list(states[100:102].index) == [] # outside of range
+
     def test_append_state(self):
         gas = ct.Solution("h2o2.yaml")
         gas.TPX = 300, ct.one_atm, 'H2:0.5, O2:0.4'
