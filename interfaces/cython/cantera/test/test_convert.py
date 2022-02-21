@@ -610,13 +610,14 @@ class CtmlConverterTest(utilities.CanteraTest):
 
 
 class cti2yamlTest(utilities.CanteraTest):
-    def convert(self, basename, src_dir=None):
+    def convert(self, basename, src_dir=None, encoding=None):
         if src_dir is None:
             src_dir = self.test_data_path
 
         cti2yaml.convert(
-            Path(src_dir) / f"{basename}.cti",
-            self.test_work_path / f"{basename}-from-cti.yaml",
+            filename=Path(src_dir) / f"{basename}.cti",
+            output_name=self.test_work_path / f"{basename}-from-cti.yaml",
+            encoding=encoding,
         )
 
     def checkConversion(self, basename, cls=ct.Solution, ctiphases=(),
@@ -780,7 +781,7 @@ class cti2yamlTest(utilities.CanteraTest):
 
     def test_lithium_ion_battery(self):
         name = 'lithium_ion_battery'
-        self.convert(name, self.cantera_data_path)
+        self.convert(name, self.cantera_data_path, encoding="utf-8")
         ctiAnode, yamlAnode = self.checkConversion(name, name='anode')
         ctiCathode, yamlCathode = self.checkConversion(name, name='cathode')
         ctiMetal, yamlMetal = self.checkConversion(name, name='electron')
@@ -820,6 +821,20 @@ class cti2yamlTest(utilities.CanteraTest):
         self.checkThermo(ctiGas, yamlGas, [300, 500, 1300, 2000])
         self.checkKinetics(ctiGas, yamlGas, [900, 1800], [2e5, 20e5])
         self.checkTransport(ctiGas, yamlGas, [298, 1001, 2400])
+
+    def test_description(self):
+        self.convert("haca2")
+        ctiGas, yamlGas = self.checkConversion("haca2")
+        assert ctiGas.input_header["description"].startswith("HACA Mechanism")
+        assert yamlGas.input_header["description"].startswith("HACA Mechanism")
+
+    def test_nonreactant_orders(self):
+        self.convert("reaction-orders")
+        ctiGas, yamlGas = self.checkConversion("reaction-orders")
+        assert ctiGas.input_header["description"].startswith("Input file to test")
+        self.checkThermo(ctiGas, yamlGas, [300, 500])
+        self.checkKinetics(ctiGas, yamlGas, [300, 1001, 2500], [1e5, 10e5])
+
 
 class ctml2yamlTest(utilities.CanteraTest):
     def convert(self, basename, src_dir=None):
