@@ -617,14 +617,15 @@ class SolutionArray:
 
     def __getitem__(self, index):
         states = self._states[index]
+        extra = OrderedDict({key: val[index] for key, val in self._extra.items()})
         if(isinstance(states, list)):
             num_rows = len(states)
             if num_rows == 0:
                 states = None
-            return SolutionArray(self._phase, num_rows, states)
+            return SolutionArray(self._phase, num_rows, states, extra=extra)
         else:
             shape = states.shape[:-1]
-            return SolutionArray(self._phase, shape, states)
+            return SolutionArray(self._phase, shape, states, extra=extra)
 
     def __getattr__(self, name):
         if name in self._extra:
