@@ -138,7 +138,6 @@ class ReactionRateTests:
     def setUp(self):
         self.soln.X = "H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5, H2O2:1e-7"
         self.soln.TP = 900, 2 * ct.one_atm
-        self.soln.Te = 2300
 
     def finalize(self, rate):
         # perform additional setup after construction (whenever applicable)
@@ -372,12 +371,26 @@ class TestTwoTempPlasmaRate(ReactionRateTests, utilities.CanteraTest):
         rate.allow_negative_pre_exponential_factor = True
         self.assertTrue(rate.allow_negative_pre_exponential_factor)
 
+    def test_derivative_ddT(self):
+        # check temperature derivative against numerical derivative
+        deltaT = self.soln.derivative_settings["rtol-delta"]
+        deltaT *= self.soln.T
+        rate = self.from_yaml()
+        k0 = self.eval(rate)
 
-class TestTwoTempPlasmaRateShort(ReactionRateTests, utilities.CanteraTest):
+        # derivative at constant pressure and constant electron temperature
+        dcdt = - self.soln.density_mole / self.soln.T
+        drate = self.soln.forward_rate_constants_ddT
+        drate += self.soln.forward_rate_constants_ddC * dcdt
+        self.soln.TP = self.soln.T + deltaT, self.soln.P
+        # Due to Te changes automatically with T, the initial value is used instead.
+        k1 = rate(self.soln.T, self.soln.Te - deltaT)
+        self.assertNear((k1 - k0) / deltaT, drate[self._index], 1e-6)
+
+
+class TestTwoTempPlasmaRateShort(TestTwoTempPlasmaRate, utilities.CanteraTest):
     # test TwoTempPlasma rate expressions
 
-    _cls = ct.TwoTempPlasmaRate
-    _type = "two-temperature-plasma"
     _index = 12
     _input = {"rate-constant": {"A": 17283, "b": -3.1}}
     _parts = {"A": 17283, "b": -3.1}
@@ -385,10 +398,6 @@ class TestTwoTempPlasmaRateShort(ReactionRateTests, utilities.CanteraTest):
         type: two-temperature-plasma
         rate-constant: {A: 17283, b: -3.1, Ea-gas: 0.0 J/mol, Ea-electron: 0.0 J/mol}
         """
-
-    def eval(self, rate):
-        # check evaluation as a function of temperature and electron temperature
-        return rate(self.soln.T, self.soln.Te)
 
     def test_from_parts(self):
         rate = self.from_parts()
