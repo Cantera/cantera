@@ -388,7 +388,6 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         void setState_VH(double, double) except +translate_exception
         void setState_TH(double, double) except +translate_exception
         void setState_SH(double, double) except +translate_exception
-        void setElectronTemperature(double) except +translate_exception
 
         # molar thermodynamic properties:
         double enthalpy_mole() except +translate_exception
@@ -447,6 +446,8 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
         void getElectronEnergyGrid(vector[double]&)
         void setElectronEnergyDistribution(vector[double]&, vector[double]&) except +translate_exception
         void getElectronEnergyDistribution(vector[double]&)
+        double electronTemperature() except +translate_exception
+        void setElectronTemperature(double) except +translate_exception
         double meanElectronEnergy()
 
 cdef extern from "cantera/kinetics/ReactionRateFactory.h" namespace "Cantera":

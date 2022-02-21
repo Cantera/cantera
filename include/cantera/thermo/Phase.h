@@ -657,8 +657,8 @@ public:
 
     //! Electron Temperature (K)
     //!     @return The electron temperature of the phase
-    double electronTemperature() const {
-        return m_electronTemp;
+    virtual double electronTemperature() const {
+        return m_temp;
     }
 
     //! Return the thermodynamic pressure (Pa).
@@ -716,7 +716,7 @@ public:
 
     //! Set the internally stored temperature of the phase (K).
     //!     @param temp Temperature in Kelvin
-    virtual void setTemperature(const doublereal temp) {
+    virtual void setTemperature(double temp) {
         if (temp > 0) {
             m_temp = temp;
         } else {
@@ -727,13 +727,9 @@ public:
 
     //! Set the internally stored electron temperature of the phase (K).
     //!     @param etemp Electron temperature in Kelvin
-    virtual void setElectronTemperature(const double etemp) {
-        if (etemp > 0) {
-            m_electronTemp = etemp;
-        } else {
-            throw CanteraError("Phase::setElectronTemperature",
-                               "electron temperature must be positive. Te = {}", etemp);
-        }
+    virtual void setElectronTemperature(double etemp) {
+        throw NotImplementedError("Phase::setElectronTemperature",
+            "Not implemented for thermo model '{}'", type());
     }
 
     //! @}
@@ -984,9 +980,6 @@ private:
     std::string m_name;
 
     doublereal m_temp; //!< Temperature (K). This is an independent variable
-
-    //! Electron Temperature (K).
-    double m_electronTemp;
 
     //! Density (kg m-3). This is an independent variable except in the case
     //! of incompressible phases, where it has to be changed using the
