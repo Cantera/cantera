@@ -14,6 +14,7 @@ content.
 import sys
 import re
 import pathlib
+import textwrap
 from collections import OrderedDict
 import numpy as np
 from email.utils import formatdate
@@ -1553,7 +1554,7 @@ class Lindemann:
         pass
 
 
-def convert(filename=None, output_name=None, text=None):
+def convert(filename=None, output_name=None, text=None, encoding=None):
     # Reset global state, in case cti2yaml is being used as a module and convert
     # is being called multiple times.
     units('m', 'kmol', 'kg', 's', 'J/kmol', 'J', 'Pa')
@@ -1585,16 +1586,18 @@ def convert(filename=None, output_name=None, text=None):
 
     try:
         if filename is not None:
-            with filename.open('r', encoding='latin-1') as f:
-                code = compile(f.read(), str(filename), 'exec')
+            with filename.open("r", encoding=encoding) as f:
+                text = f.read()
         else:
-            code = compile(text, '<string>', 'exec')
+            filename = "<string>"
+        code = compile(text, str(filename), "exec")
         exec(code)
+    except FileNotFoundError as err:
+        _printerr(f"Input file '{filename}' does not exist.")
+        sys.exit(2)
     except SyntaxError as err:
         # Show more context than the default SyntaxError message
         # to help see problems in multi-line statements
-        if filename:
-            text = pathlib.Path(filename).read_text()
         text = text.split('\n')
         _printerr('{} in "{}" on line {}:\n'.format(
             err.__class__.__name__, err.filename, err.lineno))
@@ -1609,10 +1612,6 @@ def convert(filename=None, output_name=None, text=None):
     except Exception as err:
         import traceback
 
-        if filename:
-            text = pathlib.Path(filename).read_text()
-        else:
-            filename = '<string>'
         text = text.split('\n')
         tb = traceback.extract_tb(sys.exc_info()[2])
         lineno = tb[-1][1]
@@ -1632,8 +1631,18 @@ def convert(filename=None, output_name=None, text=None):
         else:
             # Error in cti2yaml or elsewhere
             traceback.print_exc()
-
         sys.exit(4)
+
+    # get file description from header block
+    description = []
+    for line in text.splitlines():
+        # only consider comments in the initial contiguous comment block
+        # comments start with '#'; there may be empty leading lines
+        if line.startswith("#") or not description:
+            description.append(line[1:].rstrip())
+        else:
+            break
+    description = textwrap.dedent("\n".join(description).strip("\n"))
 
     # write the YAML file
     emitter = yaml.YAML()
@@ -1644,14 +1653,22 @@ def convert(filename=None, output_name=None, text=None):
             emitter.register_class(cls)
 
     with output_name.open('w') as dest:
+        if description:
+            emitter.dump(
+                BlockMap([
+                    ("description", yaml.scalarstring.LiteralScalarString(description))
+                ]), dest)
+
         # information regarding conversion
         metadata = BlockMap([
             ('generator', 'cti2yaml'),
             ('cantera-version', '2.6.0a4'),
             ('date', formatdate(localtime=True)),
         ])
-        if filename is not None:
+        if filename != "<string>":
             metadata['input-files'] = FlowList([base])
+        if description:
+            metadata.yaml_set_comment_before_after_key("generator", before="\n")
         emitter.dump(metadata, dest)
 
         out_units = FlowMap([])
@@ -1700,13 +1717,20 @@ def convert(filename=None, output_name=None, text=None):
 def main():
     """Parse command line arguments and pass them to `convert`."""
     parser = argparse.ArgumentParser(
-        description="Convert legacy CTI input files to YAML format",
-        epilog=("The 'output' argument is optional. If it is not given, an output "
-                "file with the same name as the input file is used, with the extension "
-                "changed to '.yaml'.")
+        description=(
+            "Convert legacy CTI input files to YAML format, where the first contiguous "
+            "comment block is used as file description"),
+        epilog=(
+            "The 'output' argument is optional. If it is not given, an output "
+            "file with the same name as the input file is used, with the extension "
+            "changed to '.yaml'.")
     )
     parser.add_argument("input", help="The input CTI filename. Must be specified.")
     parser.add_argument("output", nargs="?", help="The output YAML filename. Optional.")
+    parser.add_argument(
+        "--input-encoding", default="latin-1", metavar="",
+        help="Character encoding of the file. Default is 'latin-1'.")
+
     if len(sys.argv) not in [2, 3]:
         if len(sys.argv) > 3:
             print(
@@ -1723,7 +1747,7 @@ def main():
     else:
         output_file = pathlib.Path(args.output)
 
-    convert(input_file, output_file)
+    convert(input_file, output_file, encoding=args.input_encoding)
 
 
 if __name__ == "__main__":
