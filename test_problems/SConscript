@@ -22,6 +22,7 @@ else:
     cantera_libs = localenv['cantera_libs']
 
 localenv['ENV']['CANTERA_DATA'] = (Dir('#build/data').abspath + os.pathsep +
+                                   Dir('#samples/data').abspath + os.pathsep +
                                    Dir('#test/data').abspath)
 
 # Add build/lib in order to find Cantera shared library
