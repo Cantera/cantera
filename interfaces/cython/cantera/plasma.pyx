@@ -5,7 +5,14 @@ import warnings
 import weakref
 
 cdef class PlasmaPhase(ThermoPhase):
-    """ A class representing a plasma phase"""
+    """
+    A class representing a plasma phase. There are two ways to define the electron
+    energy distribution and electron temperature. The first method uses
+    attribute `Te` to set the electron temperature which is used to calculate
+    the electron energy distribution with isotropic-velocity model. The second
+    method uses `set_electron_energy_distribution` to manually set electron energy
+    distribution and calculate electron temperature from mean electron energy.
+    """
     def __cinit__(self, *args, **kwargs):
         if pystr(self.thermo.type()) != "Plasma":
             raise TypeError('Underlying ThermoPhase object is of the wrong type.')
