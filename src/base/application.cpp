@@ -102,11 +102,6 @@ void Application::Messages::warnlog(const std::string& warning, const std::strin
     logwriter->warn(warning, msg);
 }
 
-void Application::Messages::warnlogendl()
-{
-    logwriter->warnendl();
-}
-
 //! Mutex for access to string messages
 static std::mutex msg_mutex;
 
@@ -188,7 +183,6 @@ void Application::warn_deprecated(const std::string& method,
     }
     warnings.insert(method);
     warnlog("Deprecation", fmt::format("{}: {}", method, extra));
-    warnlogendl();
 }
 
 void Application::warn(const std::string& warning,
@@ -201,7 +195,6 @@ void Application::warn(const std::string& warning,
         return;
     }
     warnlog(warning, fmt::format("{}: {}", method, extra));
-    warnlogendl();
 }
 
 void Application::thread_complete()

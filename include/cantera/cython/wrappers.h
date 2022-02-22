@@ -63,8 +63,6 @@ public:
         }
     }
 
-    virtual void warnendl() {}
-
     virtual void error(const std::string& msg) {
         PyErr_SetString(PyExc_RuntimeError, msg.c_str());
     }
