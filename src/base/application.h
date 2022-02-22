@@ -145,9 +145,6 @@ protected:
          */
         void warnlog(const std::string& warning, const std::string& msg);
 
-        //! Write an end of line character to the screen and flush output
-        void warnlogendl();
-
         //! Install a logger.
         /*!
          * Called by the language interfaces to install an appropriate logger.
@@ -345,11 +342,6 @@ public:
     //! @copydoc Messages::warnlog
     void warnlog(const std::string& warning, const std::string& msg) {
         pMessenger->warnlog(warning, msg);
-    }
-
-    //! Write an endl to the screen and flush output
-    void warnlogendl() {
-        pMessenger->warnlogendl();
     }
 
     //! Print a warning indicating that *method* is deprecated. Additional

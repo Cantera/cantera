@@ -195,6 +195,22 @@ void writeline(char repeat, size_t count,
 //! helper function passing deprecation warning to global handler
 void _warn_deprecated(const std::string& method, const std::string& extra="");
 
+//! Print a deprecation warning raised from *method*. @see Application::warn_deprecated
+/*!
+ * @param method  method name
+ * @param msg  Python-style format string with the following arguments
+ * @param args  arguments for the format string
+ */
+template <typename... Args>
+void warn_deprecated(const std::string& method, const std::string& msg,
+                     const Args&... args) {
+    if (sizeof...(args) == 0) {
+        _warn_deprecated(method, msg);
+    } else {
+        _warn_deprecated(method, fmt::format(msg, args...));
+    }
+}
+
 //! @copydoc Application::suppress_deprecation_warnings
 void suppress_deprecation_warnings();
 
@@ -232,22 +248,6 @@ void warn_user(const std::string& method, const std::string& msg,
         _warn("Cantera", method, msg);
     } else {
         _warn("Cantera", method, fmt::format(msg, args...));
-    }
-}
-
-//! Print a deprecation warning raised from *method*. @see Application::warn_deprecated
-/*!
- * @param method  method name
- * @param msg  Python-style format string with the following arguments
- * @param args  arguments for the format string
- */
-template <typename... Args>
-void warn_deprecated(const std::string& method, const std::string& msg,
-                     const Args&... args) {
-    if (sizeof...(args) == 0) {
-        _warn_deprecated(method, msg);
-    } else {
-        _warn_deprecated(method, fmt::format(msg, args...));
     }
 }
 
