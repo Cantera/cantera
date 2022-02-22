@@ -809,7 +809,7 @@ cdef class ThermoPhase(_SolutionBase):
         self.state = original_state
         return arr
 
-    def set_equivalence_ratio(self, phi, fuel, oxidizer, basis='mole'):
+    def set_equivalence_ratio(self, phi, fuel, oxidizer, basis='mole', fraction=None, diluent=None):
         """
         Set the composition to a mixture of ``fuel`` and ``oxidizer`` at the
         specified equivalence ratio ``phi``, holding temperature and pressure
@@ -817,7 +817,11 @@ cdef class ThermoPhase(_SolutionBase):
         Other elements are assumed not to participate in oxidation (that is,
         N ends up as N2). The ``basis`` determines the fuel and oxidizer
         compositions: ``basis='mole'`` means mole fractions (default),
-        ``basis='mass'`` means mass fractions::
+        ``basis='mass'`` means mass fractions. After a mixture given a
+        ``phi`` from ``fuel`` and ``oxidizer`` is  created, it can further
+        be diluted by a ``diluent`` based on a mixing ``fraction``. See also
+        interfaces/cython/cantera/examples/thermo/equivalenceRatio.py for more
+        examples::
 
             >>> gas.set_equivalence_ratio(0.5, 'CH4', 'O2:1.0, N2:3.76', basis='mole')
             >>> gas.mass_fraction_dict()
@@ -836,6 +840,18 @@ cdef class ThermoPhase(_SolutionBase):
         :param basis:
             Determines if ``fuel`` and ``oxidizer`` are given in mole
             fractions (``basis='mole'``) or mass fractions (``basis='mass'``)
+        :param: fraction:
+            Dilute the mixture with equivalence ratio ``phi`` according to
+            ``fraction``. Fraction can refer to the fraction of diluent in the
+            final mixture (e.g. ``fraction="diluent:0.7``), the fraction of fuel
+            in the final mixture (e.g. ``fraction="fuel:0.7") or fraction of
+            oxidizer in the final mixture (e.g. ``fraction="oxidizer:0.7"). The
+            fraction itself is interpreted as mole or mass fraction based on ``basis``.
+            Default is no dilution or ``fraction=None``. May be given as string
+            or dictionary (e.g. ``fraction={"fuel":0.7})``
+        :param: diluent:
+            Composition of the diluent in mole/mass fractions as a string, array
+            or dict
         """
         cdef np.ndarray[np.double_t, ndim=1] f = \
                 np.ascontiguousarray(self.__composition_to_array(fuel, basis), dtype=np.double)
@@ -843,6 +859,85 @@ cdef class ThermoPhase(_SolutionBase):
                 np.ascontiguousarray(self.__composition_to_array(oxidizer, basis), dtype=np.double)
 
         self.thermo.setEquivalenceRatio(phi, &f[0], &o[0], ThermoBasis.mass if basis == 'mass' else ThermoBasis.molar)
+
+        if fraction is not None and diluent is not None:
+
+            # parse the fraction argument
+            if isinstance(fraction,str):
+                if ':' not in fraction:
+                    raise ValueError("The fraction argument requires a value in the"
+                        " form of e.g. fraction='fuel:0.7'")
+                colon_pos = fraction.rfind(":")
+                fraction_type  = fraction[:colon_pos]
+                fraction_value = float(fraction[colon_pos+1:])
+            elif isinstance(fraction,dict):
+                fraction_type  = list(fraction.keys())[0]
+                fraction_value = float(list(fraction.values())[0])
+            else:
+                raise ValueError("fraction argument must be given as string or dictionary.")
+
+            if isinstance(diluent, str) and ':' not in diluent:
+                diluent += ':1'
+            if isinstance(fuel, str) and ':' not in fuel:
+                fuel += ':1'
+            if isinstance(oxidizer, str) and ':' not in oxidizer:
+                oxidizer += ':1'
+
+            # if 'fraction' is specified for diluent, just scale the mass or mole fractions
+            # of the fuel/oxidizer mixture accordingly
+            if fraction_type == 'diluent':
+                if basis == 'mole':
+                    X_fuelox = self.X
+                    self.X = diluent
+                    self.X = (1.0-fraction_value)*X_fuelox + fraction_value*self.X
+                else:
+                    Y_fuelox = self.Y
+                    self.Y = diluent
+                    self.Y = (1.0-fraction_value)*Y_fuelox + fraction_value*self.Y
+                return
+
+            if not fraction_type == 'fuel' and not fraction_type == 'oxidizer':
+                raise ValueError(fraction_type+" is unknown. Fraction must specify"
+                        " 'diluent', 'fuel' or 'oxidizer'.")
+
+            # get the mixture fraction before scaling / diluent addition
+            Z_fuel = self.mixture_fraction(fuel,oxidizer,basis)
+
+            if (Z_fuel == 0.0 and fraction_type == "fuel") or (Z_fuel == 1.0 and fraction_type == "oxidzer"):
+                raise ValueError("Invalid fuel/oxidizer mixture")
+
+            if basis == 'mass': # for mass basis, it is straight forward
+                if fraction_type == 'fuel':
+                    Z = Z_fuel
+                else:  # oxidizer
+                    Z = 1.0-Z_fuel
+                if fraction_value > Z:
+                    raise ValueError("fuel or oxidizer fraction after dilution"
+                        " cannot be higher than fuel fraction in the original mixture.")
+                Y_mix = self.Y
+                self.Y = diluent
+                factor = fraction_value / Z
+                self.Y = factor*Y_mix + (1.0-factor)*self.Y
+            else:
+                # convert mass based mixture fraction to molar one, Z = kg fuel / kg mixture
+                X_mix = self.X
+                M_mix = self.mean_molecular_weight
+                self.X = fuel
+                M_fuel = self.mean_molecular_weight
+                Z_fuel_mole = Z_fuel * M_mix / M_fuel          # mol fuel / mol mixture
+                if fraction_type == 'fuel':
+                    Z = Z_fuel_mole
+                else: # oxidizer
+                    Z = 1.0-Z_fuel_mole
+                if fraction_value > Z:
+                    raise ValueError("fuel or oxidizer fraction after dilution cannot be higher"
+                            " than fuel fraction in the original mixture.")
+                self.X = diluent
+                factor = fraction_value / Z
+                self.X = factor*X_mix + (1.0-factor)*self.X
+
+        if (fraction is None and diluent is not None) or (fraction is not None and diluent is None):
+                raise ValueError("if dilution is used, both fraction and diluent parameters are required.")
 
     def set_mixture_fraction(self, mixture_fraction, fuel, oxidizer, basis='mole'):
         """
@@ -878,7 +973,7 @@ cdef class ThermoPhase(_SolutionBase):
 
         self.thermo.setMixtureFraction(mixture_fraction, &f[0], &o[0], ThermoBasis.mass if basis == 'mass' else ThermoBasis.molar)
 
-    def equivalence_ratio(self, fuel=None, oxidizer=None, basis='mole'):
+    def equivalence_ratio(self, fuel=None, oxidizer=None, basis='mole', include_species=None):
         """
         Get the equivalence ratio of the current mixture, which is a
         conserved quantity. Considers the oxidation of C to CO2, H to H2O
@@ -887,10 +982,14 @@ cdef class ThermoPhase(_SolutionBase):
         equivalence ratio is computed from the available oxygen and the
         required oxygen for complete oxidation. The ``basis`` determines the
         composition of fuel and oxidizer: ``basis='mole'`` (default) means mole
-        fractions, ``basis='mass'`` means mass fractions::
+        fractions, ``basis='mass'`` means mass fractions. Additionally, a
+        list of species cnd be provided with ``include_species``. This means that
+        only these species are considered for the computation of the equivalence
+        ratio. See also interfaces/cython/cantera/examples/thermo/equivalenceRatio.py
+        for more examples::
 
-            >>> gas.set_equivalence_ratio(0.5, 'CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
-            >>> gas.equivalence_ratio('CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
+            >>> gas.set_equivalence_ratio(0.5, fuel='CH3:0.5, CH3OH:.5, N2:0.125', oxidizer='O2:0.21, N2:0.79, NO:0.01')
+            >>> gas.equivalence_ratio(fuel='CH3:0.5, CH3OH:.5, N2:0.125', oxidizer='O2:0.21, N2:0.79, NO:0.01')
             0.5
 
         :param fuel:
@@ -900,17 +999,35 @@ cdef class ThermoPhase(_SolutionBase):
         :param basis:
             Determines if ``fuel`` and ``oxidizer`` are given in mole fractions
             (``basis='mole'``) or mass fractions (``basis='mass'``)
+        :param include_species:
+            List of species names. Only these species are considered for the
+            computation of the equivalence ratio. The default ``None`` means all
+            species are considered
         """
+        if include_species is not None:
+            # remove unwanted species temporarily
+            Y = np.zeros(self.n_species)
+            indices = [self.species_index(s) for s in include_species]
+            for k in indices:
+                Y[k] = self.Y[k]
+            original_state = self.state
+            self.TPY = None, None, Y
+
         if fuel is None and oxidizer is None:
-            return self.thermo.equivalenceRatio()
+            phi = self.thermo.equivalenceRatio()
+            if include_species is not None:
+                self.state = original_state
+            return phi
 
         cdef np.ndarray[np.double_t, ndim=1] f = \
                 np.ascontiguousarray(self.__composition_to_array(fuel, basis), dtype=np.double)
         cdef np.ndarray[np.double_t, ndim=1] o = \
                 np.ascontiguousarray(self.__composition_to_array(oxidizer, basis), dtype=np.double)
 
-        return self.thermo.equivalenceRatio(&f[0], &o[0], ThermoBasis.mass if basis=='mass' else ThermoBasis.molar)
-
+        phi = self.thermo.equivalenceRatio(&f[0], &o[0], ThermoBasis.mass if basis=='mass' else ThermoBasis.molar)
+        if include_species is not None:
+            self.state = original_state
+        return phi
 
     def mixture_fraction(self, fuel, oxidizer, basis='mole', element="Bilger"):
         """
