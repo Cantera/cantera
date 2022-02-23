@@ -99,6 +99,8 @@ public:
     //! Only used in conjunction with evalSingle and ReactionRate::eval
     //! @param T  temperature [K]
     //! @param extra  extra vector parameter (depends on parameterization)
+    //! @warning  This method is an experimental part of the %Cantera API and
+    //!     may be changed or removed without notice.
     virtual void update(double T, const vector_fp& extra) = 0;
 
     //! Update data common to reaction rates of a specific type.
