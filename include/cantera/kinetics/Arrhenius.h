@@ -98,12 +98,6 @@ public:
         return m_Ea_R * GasConstant;
     }
 
-    //! Return the activation energy divided by the gas constant (i.e. the
-    //! activation temperature) [K]
-    virtual double activationEnergy_R() const {
-        return m_Ea_R;
-    }
-
     // Return units of the reaction rate expression
     const Units& rateUnits() const {
         return m_rate_units;
@@ -273,12 +267,6 @@ public:
     double activationElectronEnergy() const {
         return m_E4_R * GasConstant;
     }
-
-    //! Return the electron activation energy divided by the gas constant (i.e. the
-    //! activation temperature) [K]
-    double activationElectronEnergy_R() const {
-        return m_E4_R;
-    }
 };
 
 
@@ -373,6 +361,7 @@ public:
      */
     double ddTScaledFromStruct(const BlowersMaselData& shared_data) const;
 
+protected:
     //! Return the effective activation energy (a function of the delta H of reaction)
     //! divided by the gas constant (i.e. the activation temperature) [K]
     //! @internal  The enthalpy change of reaction is not an independent parameter
@@ -390,6 +379,7 @@ public:
             (vp * vp - 4 * m_E4_R * m_E4_R + deltaH_R * deltaH_R); // in Kelvin
     }
 
+public:
     virtual double activationEnergy() const override {
         return effectiveActivationEnergy_R(m_deltaH_R) * GasConstant;
     }
