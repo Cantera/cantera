@@ -148,8 +148,15 @@ public:
      *
      *  @param irxn Reaction number in the kinetics mechanism
      *  @return Effective preexponent
+     *
+     *  @deprecated To be removed after Cantera 2.6.
      */
     double effectivePreExponentialFactor(size_t irxn) {
+        if (m_interface_rates.size()) {
+            throw NotImplementedError(
+                "InterfaceKinetics::effectivePreExponentialFactor",
+                "Only implemented for legacy CTI/XML framework.");
+        }
         return m_rates.effectivePreExponentialFactor(irxn);
     }
 
@@ -160,8 +167,15 @@ public:
      *
      *  @param irxn Reaction number in the kinetics mechanism
      *  @return Effective activation energy divided by the gas constant
+     *
+     *  @deprecated To be removed after Cantera 2.6.
      */
     double effectiveActivationEnergy_R(size_t irxn) {
+        if (m_interface_rates.size()) {
+            throw NotImplementedError(
+                "InterfaceKinetics::effectiveActivationEnergy_R",
+                "Only implemented for legacy CTI/XML framework.");
+        }
        return m_rates.effectiveActivationEnergy_R(irxn);
     }
 
@@ -173,8 +187,15 @@ public:
      *
      *  @param irxn Reaction number in the kinetics mechanism
      *  @return Effective temperature exponent
+     *
+     *  @deprecated To be removed after Cantera 2.6.
      */
     double effectiveTemperatureExponent(size_t irxn) {
+        if (m_interface_rates.size()) {
+            throw NotImplementedError(
+                "InterfaceKinetics::effectiveTemperatureExponent",
+                "Only implemented for legacy CTI/XML framework.");
+        }
        return m_rates.effectiveTemperatureExponent(irxn);
     }
 

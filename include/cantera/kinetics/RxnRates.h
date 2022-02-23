@@ -96,6 +96,12 @@ public:
     virtual const std::string type() const override {
         return "Arrhenius2";
     }
+
+    //! Return the activation energy divided by the gas constant (i.e. the
+    //! activation temperature) [K]
+    double activationEnergy_R() const {
+        return m_Ea_R;
+    }
 };
 
 

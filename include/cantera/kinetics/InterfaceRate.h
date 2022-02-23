@@ -296,10 +296,6 @@ public:
     virtual double activationEnergy() const override {
         return RateType::activationEnergy() + m_ecov * GasConstant;
     }
-
-    virtual double activationEnergy_R() const override {
-        return RateType::activationEnergy_R() + m_ecov;
-    }
 };
 
 using ArrheniusInterfaceRate = InterfaceRate<Arrhenius3, CoverageData>;
@@ -423,10 +419,6 @@ public:
 
     virtual double activationEnergy() const override {
         return RateType::activationEnergy() + m_ecov * GasConstant;
-    }
-
-    virtual double activationEnergy_R() const override {
-        return RateType::activationEnergy_R() + m_ecov;
     }
 };
 

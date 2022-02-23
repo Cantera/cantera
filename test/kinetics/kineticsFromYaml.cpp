@@ -44,7 +44,7 @@ TEST(Reaction, ElementaryFromYaml3)
     const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
     EXPECT_TRUE(rate->allowNegativePreExponentialFactor());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), -2.7e10);
-    EXPECT_DOUBLE_EQ(rate->activationEnergy_R(), 355 / GasConst_cal_mol_K);
+    EXPECT_DOUBLE_EQ(rate->activationEnergy(), 355 * 4184.0);
 }
 
 TEST(Reaction, ElementaryFromYaml2)
@@ -63,7 +63,7 @@ TEST(Reaction, ElementaryFromYaml2)
 
     auto& ER = dynamic_cast<ElementaryReaction2&>(*R);
     EXPECT_DOUBLE_EQ(ER.rate.preExponentialFactor(), -2.7e10);
-    EXPECT_DOUBLE_EQ(ER.rate.activationEnergy_R(), 355 / GasConst_cal_mol_K);
+    EXPECT_DOUBLE_EQ(ER.rate.activationEnergy(), 355 * 4184.0);
     EXPECT_TRUE(ER.allow_negative_pre_exponential_factor);
     EXPECT_FALSE(ER.allow_negative_orders);
 }
@@ -276,21 +276,23 @@ TEST(Reaction, BlowersMaselFromYaml)
     EXPECT_EQ(R->reactants.at("H2"), 1);
     EXPECT_EQ(R->products.at("OH"), 1);
 
-    double E_intrinsic = 6260 / GasConst_cal_mol_K * GasConstant; // J/kmol
-    double H_big_R = 5 * E_intrinsic / GasConstant;
-    double H_small_R = -5 * E_intrinsic / GasConstant;
+    double E_intrinsic = 6260 * 4184.0; // J/kmol
+    double H_big = 5 * E_intrinsic;
+    double H_small = -5 * E_intrinsic;
     double H_mid = 4 * E_intrinsic;
-    double H_mid_R = H_mid / GasConstant;
-    double w = 1e9 / GasConst_cal_mol_K * GasConstant; // J/kmol
+    double w = 1e9 * 4184.0; // J/kmol
     double vp = 2 * w * ((w + E_intrinsic) / (w - E_intrinsic));
     double Ea = (w + H_mid / 2) * (vp - 2 * w + H_mid) * (vp - 2 * w + H_mid)
         / (vp * vp - 4 * w * w + H_mid * H_mid );
     const auto& rate = std::dynamic_pointer_cast<BlowersMaselRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), -38.7);
     EXPECT_DOUBLE_EQ(rate->bondEnergy(), w);
-    EXPECT_DOUBLE_EQ(rate->effectiveActivationEnergy_R(H_big_R), H_big_R);
-    EXPECT_DOUBLE_EQ(rate->effectiveActivationEnergy_R(H_small_R), 0);
-    EXPECT_NEAR(rate->effectiveActivationEnergy_R(H_mid_R), Ea / GasConstant, 1e-7);
+    rate->setDeltaH(H_big);
+    EXPECT_DOUBLE_EQ(rate->activationEnergy(), H_big);
+    rate->setDeltaH(H_small);
+    EXPECT_DOUBLE_EQ(rate->activationEnergy(), 0);
+    rate->setDeltaH(H_mid);
+    EXPECT_NEAR(rate->activationEnergy(), Ea, 2e-4);
     EXPECT_TRUE(rate->allowNegativePreExponentialFactor());
     EXPECT_FALSE(R->allow_negative_orders);
 }
@@ -312,8 +314,8 @@ TEST(Reaction, TwoTempPlasmaFromYaml)
     const auto rate = std::dynamic_pointer_cast<TwoTempPlasmaRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 1.523e21);
     EXPECT_DOUBLE_EQ(rate->temperatureExponent(), -1.0);
-    EXPECT_DOUBLE_EQ(rate->activationEnergy_R(), -100);
-    EXPECT_DOUBLE_EQ(rate->activationElectronEnergy_R(), 700);
+    EXPECT_DOUBLE_EQ(rate->activationEnergy(), -100 * GasConstant);
+    EXPECT_DOUBLE_EQ(rate->activationElectronEnergy(), 700 * GasConstant);
 }
 
 TEST(Kinetics, GasKineticsFromYaml1)
