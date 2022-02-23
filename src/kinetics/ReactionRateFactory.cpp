@@ -10,7 +10,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/Falloff.h"
-#include "cantera/kinetics/Coverage.h"
+#include "cantera/kinetics/InterfaceRate.h"
 #include "cantera/base/AnyMap.h"
 
 namespace Cantera
@@ -80,9 +80,9 @@ ReactionRateFactory::ReactionRateFactory()
         return new ArrheniusInterfaceRate(node, rate_units);
     });
 
-    // ArrheniusStickRate evaluator
+    // ArrheniusStickingRate evaluator
     reg("Arrhenius-stick", [](const AnyMap& node, const UnitStack& rate_units) {
-        return new ArrheniusStickRate(node, rate_units);
+        return new ArrheniusStickingRate(node, rate_units);
     });
 
     // BlowersMaselInterfaceRate evaluator
@@ -90,9 +90,9 @@ ReactionRateFactory::ReactionRateFactory()
         return new BlowersMaselInterfaceRate(node, rate_units);
     });
 
-    // BlowersMaselStickRate evaluator
+    // BlowersMaselStickingRate evaluator
     reg("Blowers-Masel-stick", [](const AnyMap& node, const UnitStack& rate_units) {
-        return new BlowersMaselStickRate(node, rate_units);
+        return new BlowersMaselStickingRate(node, rate_units);
     });
 }
 

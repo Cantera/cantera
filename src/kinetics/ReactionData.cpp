@@ -318,7 +318,8 @@ bool CoverageData::update(const ThermoPhase& phase, const Kinetics& kin)
             logCoverages[n] = std::log(std::max(coverages[n], Tiny));
         }
         for (size_t n = 0; n < kin.nPhases(); n++) {
-            kin.thermo(n).getPartialMolarEnthalpies(grt.data() + kin.startIndex(n));
+            kin.thermo(n).getPartialMolarEnthalpies(
+                grt.data() + kin.kineticsSpeciesIndex(0, n));
         }
         m_state_mf_number = mf;
         changed = true;

@@ -575,15 +575,15 @@ void InterfaceKinetics::modifyReaction(size_t i, shared_ptr<Reaction> r_base)
     if (!(r_base->usesLegacy())) {
         shared_ptr<ReactionRate> rate = r_base->rate();
         // Ensure that MultiBulkRate evaluator is available
-        if (m_interface_types.find(rate->type()) == m_interface_types.end()) {
+        if (!m_interface_types.count(rate->type())) {
             throw CanteraError("InterfaceKinetics::modifyReaction",
                  "Evaluator not available for type '{}'.", rate->type());
         }
 
-        // Replace reaction rate to evaluator
+        // Replace reaction rate evaluator
         size_t index = m_interface_types[rate->type()];
         rate->setRateIndex(i);
-        rate->setContext(*r_base.get(), *this);
+        rate->setContext(*r_base, *this);
         m_interface_rates[index]->replace(i, *rate);
     } else if (r_base->reaction_type == BMINTERFACE_RXN) {
         throw NotImplementedError("InterfaceKinetics::modifyReaction");

@@ -71,21 +71,29 @@ public:
 
     //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
     //! on the reaction order)
-    //! class specializations may provide alternate definitions that describe
-    //! an effective activation energy that depends on the thermodynamic state.
+    /*!
+     * Class specializations may provide alternate definitions that describe
+     * an effective pre-exponential factor that depends on the thermodynamic state.
+     */
     virtual double preExponentialFactor() const {
         return m_A;
     }
 
     //! Return the temperature exponent *b*
+    /*!
+     * Class specializations may provide alternate definitions that describe
+     * an effective temperature exponent that depends on the thermodynamic state.
+     */
     virtual double temperatureExponent() const {
         return m_b;
     }
 
     //! Return the activation energy *Ea* [J/kmol]
     //! The value corresponds to the constant specified by input parameters;
-    //! class specializations may provide alternate definitions that describe
-    //! an effective activation energy that depends on the thermodynamic state.
+    /*!
+     * Class specializations may provide alternate definitions that describe
+     * an effective activation energy that depends on the thermodynamic state.
+     */
     virtual double activationEnergy() const {
         return m_Ea_R * GasConstant;
     }

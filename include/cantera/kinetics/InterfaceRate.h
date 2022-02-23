@@ -1,13 +1,13 @@
 /**
- * @file Coverage.h
+ * @file InterfaceRate.h
  * Header for reaction rates that occur at interfaces.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#ifndef CT_COVERAGE_H
-#define CT_COVERAGE_H
+#ifndef CT_INTERFACERATE_H
+#define CT_INTERFACERATE_H
 
 #include "cantera/base/global.h"
 #include "cantera/kinetics/Arrhenius.h"
@@ -52,10 +52,10 @@ class AnyMap;
  * related to coverage only, which allows for combinations with arbitrary rate
  * parameterizations (for example Arrhenius and BlowersMasel).
  */
-class Coverage
+class CoverageBase
 {
 public:
-    Coverage();
+    CoverageBase();
 
     //! Perform object setup based on AnyMap node information
     //! @param dependencies  Coverage dependencies
@@ -71,7 +71,7 @@ public:
     //! Add a coverage dependency for species *sp*, with exponential dependence
     //! *a*, power-law exponent *m*, and activation energy dependence *e*,
     //! where *e* is in Kelvin, i.e. energy divided by the molar gas constant.
-    void addCoverageDependence(std::string sp, double a, double m, double e);
+    void addCoverageDependence(const std::string& sp, double a, double m, double e);
 
     //! Set species indices within coverage array
     void setSpecies(const Kinetics& kin);
@@ -128,20 +128,20 @@ protected:
 
 //! Base class for rate parameterizations that implement sticking coefficients
 /**
- * The StickCoverage class enhances Coverage to accommodate sticking coefficients.
+ * The StickingCoverage class enhances Coverage to accommodate sticking coefficients.
  */
-class StickCoverage : public Coverage
+class StickingCoverage : public CoverageBase
 {
 public:
-    StickCoverage();
+    StickingCoverage();
 
     //! Perform object setup based on AnyMap node information
     //! @param node  Sticking coefficient parameters
-    void setStickParameters(const AnyMap& node);
+    void setStickingParameters(const AnyMap& node);
 
     //! Store parameters needed to reconstruct an identical object
     //! @param node  Sticking coefficient parameters
-    void getStickParameters(AnyMap& node) const;
+    void getStickingParameters(AnyMap& node) const;
 
     //! Get flag indicating whether sticking rate uses the correction factor developed
     //! by Motz & Wise for reactions with high (near-unity) sticking coefficients.
@@ -150,7 +150,7 @@ public:
         return m_motzWise;
     }
 
-    //! Set flag for by Motz & Wise correction factor
+    //! Set flag for Motz & Wise correction factor
     void setMotzWiseCorrection(bool motz_wise) {
         m_motzWise = motz_wise;
         m_explicitMotzWise = true;
@@ -171,24 +171,24 @@ public:
     //! Build rate-specific parameters based on Reaction and Kinetics context
     //! @param rxn  Reaction associated with the sticking coefficient
     //! @param kin  Kinetics object associated with the sticking coefficient
-    //! Parameters can be accessed using the method getStickParameters
-    void buildStickParameters(const Reaction& rxn, const Kinetics& kin);
+    //! Parameters can be accessed using the method getStickingParameters
+    void setContext(const Reaction& rxn, const Kinetics& kin);
 
     //! Return sticking coefficients
     //! @param order  exponent applied to site density term
     //! @param multiplier  multiplicative factor in rate expression
     //! @param species  sticking species
-    void getStickParameters(double& order, double& multiplier,
-                            std::string& species) const {
+    void getStickingParameters(double& order, double& multiplier,
+                               std::string& species) const {
         order = m_surfaceOrder;
         multiplier = m_multiplier;
         species = m_stickingSpecies;
     }
 
-    //! Specify sticking coefficients, @see getStickParameters
+    //! Specify sticking coefficients, @see getStickingParameters
     //! @internal This method is used for testing purposes only
-    void setStickParameters(double order, double multiplier,
-                            const std::string& species, bool specified=false) {
+    void setStickingParameters(double order, double multiplier,
+                               const std::string& species, bool specified=false) {
         m_surfaceOrder = order;
         m_multiplier = multiplier;
         m_stickingSpecies = species;
@@ -208,7 +208,7 @@ protected:
 
 //! A class template for interface reaction rate specifications
 template <class RateType, class DataType>
-class InterfaceRate : public RateType, public Coverage
+class InterfaceRate : public RateType, public CoverageBase
 {
 public:
     InterfaceRate() = default;
@@ -271,7 +271,7 @@ public:
     //! @param shared_data  data shared by all reactions of a given type
     void updateFromStruct(const CoverageData& shared_data) {
         RateType::update(shared_data);
-        Coverage::updateFromStruct(shared_data);
+        CoverageBase::updateFromStruct(shared_data);
     }
 
     //! Evaluate reaction rate
@@ -308,21 +308,21 @@ using BlowersMaselInterfaceRate = InterfaceRate<BlowersMasel, CoverageData>;
 
 //! A class template for interface sticking rate specifications
 template <class RateType, class DataType>
-class StickRate : public RateType, public StickCoverage
+class StickingRate : public RateType, public StickingCoverage
 {
 public:
-    StickRate() = default;
+    StickingRate() = default;
     using RateType::RateType; // inherit constructors
 
     //! Constructor based on AnyMap content
-    StickRate(const AnyMap& node, const UnitStack& rate_units={}) {
+    StickingRate(const AnyMap& node, const UnitStack& rate_units={}) {
         // sticking coefficients are dimensionless
         setParameters(node, Units(1.0));
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
         return unique_ptr<MultiRateBase>(
-            new MultiRate<StickRate<RateType, DataType>, DataType>);
+            new MultiRate<StickingRate<RateType, DataType>, DataType>);
     }
 
     //! Identifier of reaction rate type
@@ -338,7 +338,7 @@ public:
                 node["coverage-dependencies"].as<AnyMap>(), node.units());
         }
         RateType::m_negativeA_ok = node.getBool("negative-A", false);
-        setStickParameters(node);
+        setStickingParameters(node);
         if (!node.hasKey("sticking-coefficient")) {
             RateType::setRateParameters(AnyValue(), node.units(), rate_units);
             return;
@@ -354,7 +354,7 @@ public:
         }
         AnyMap rateNode;
         RateType::getRateParameters(rateNode);
-        getStickParameters(node);
+        getStickingParameters(node);
         if (!rateNode.empty()) {
             // RateType object is configured
             node["sticking-coefficient"] = std::move(rateNode);
@@ -369,7 +369,7 @@ public:
     virtual void setContext(const Reaction& rxn, const Kinetics& kin) override {
         RateType::setContext(rxn, kin);
         setSpecies(kin);
-        buildStickParameters(rxn, kin);
+        StickingCoverage::setContext(rxn, kin);
     }
 
     virtual void validate(const std::string &equation, const Kinetics& kin) override {
@@ -385,7 +385,7 @@ public:
             }
         }
         if (err_reactions.size()) {
-            warn_user("StickRate::validate", to_string(err_reactions));
+            warn_user("StickingRate::validate", to_string(err_reactions));
         }
     }
 
@@ -393,7 +393,7 @@ public:
     //! @param shared_data  data shared by all reactions of a given type
     void updateFromStruct(const CoverageData& shared_data) {
         RateType::update(shared_data);
-        Coverage::updateFromStruct(shared_data);
+        CoverageBase::updateFromStruct(shared_data);
         m_factor = pow(m_siteDensity, -m_surfaceOrder);
     }
 
@@ -413,7 +413,7 @@ public:
     //! divided by reaction rate
     //! @param shared_data  data shared by all reactions of a given type
     double ddTScaledFromStruct(const DataType& shared_data) const {
-        throw NotImplementedError("StickRate<>::ddTScaledFromStruct");
+        throw NotImplementedError("StickingRate<>::ddTScaledFromStruct");
     }
 
     virtual double preExponentialFactor() const override {
@@ -430,8 +430,8 @@ public:
     }
 };
 
-using ArrheniusStickRate = StickRate<Arrhenius3, CoverageData>;
-using BlowersMaselStickRate = StickRate<BlowersMasel, CoverageData>;
+using ArrheniusStickingRate = StickingRate<Arrhenius3, CoverageData>;
+using BlowersMaselStickingRate = StickingRate<BlowersMasel, CoverageData>;
 
 }
 #endif
