@@ -224,6 +224,8 @@ protected:
 template <class RateType, class DataType>
 class InterfaceRate : public RateType, public CoverageBase
 {
+    CT_DEFINE_HAS_MEMBER(has_update, updateFromStruct)
+
 public:
     InterfaceRate() = default;
     using RateType::RateType; // inherit constructors
@@ -283,8 +285,8 @@ public:
 
     //! Update reaction rate parameters
     //! @param shared_data  data shared by all reactions of a given type
-    void updateFromStruct(const CoverageData& shared_data) {
-        RateType::update(shared_data);
+    void updateFromStruct(const DataType& shared_data) {
+        _update(shared_data);
         CoverageBase::updateFromStruct(shared_data);
     }
 
@@ -310,6 +312,22 @@ public:
     virtual double activationEnergy() const override {
         return RateType::activationEnergy() + m_ecov * GasConstant;
     }
+
+protected:
+    //! Helper function to process updates for rate types that implement the
+    //! `updateFromStruct` method.
+    template <typename T=RateType,
+        typename std::enable_if<has_update<T>::value, bool>::type = true>
+    void _update(const DataType& shared_data) {
+        T::updateFromStruct(shared_data);
+    }
+
+    //! Helper function for rate types that do not implement `updateFromStruct`.
+    //! Does nothing, but exists to allow generic implementations of update().
+    template <typename T=RateType,
+        typename std::enable_if<!has_update<T>::value, bool>::type = true>
+    void _update(const DataType& shared_data) {
+    }
 };
 
 using ArrheniusInterfaceRate = InterfaceRate<Arrhenius3, CoverageData>;
@@ -320,6 +338,8 @@ using BlowersMaselInterfaceRate = InterfaceRate<BlowersMasel, CoverageData>;
 template <class RateType, class DataType>
 class StickingRate : public RateType, public StickingCoverage
 {
+    CT_DEFINE_HAS_MEMBER(has_update, updateFromStruct)
+
 public:
     StickingRate() = default;
     using RateType::RateType; // inherit constructors
@@ -401,8 +421,8 @@ public:
 
     //! Update reaction rate parameters
     //! @param shared_data  data shared by all reactions of a given type
-    void updateFromStruct(const CoverageData& shared_data) {
-        RateType::update(shared_data);
+    void updateFromStruct(const DataType& shared_data) {
+        _update(shared_data);
         CoverageBase::updateFromStruct(shared_data);
         m_factor = pow(m_siteDensity, -m_surfaceOrder);
     }
@@ -433,6 +453,22 @@ public:
 
     virtual double activationEnergy() const override {
         return RateType::activationEnergy() + m_ecov * GasConstant;
+    }
+
+protected:
+    //! Helper function to process updates for rate types that implement the
+    //! `updateFromStruct` method.
+    template <typename T=RateType,
+        typename std::enable_if<has_update<T>::value, bool>::type = true>
+    void _update(const DataType& shared_data) {
+        T::updateFromStruct(shared_data);
+    }
+
+    //! Helper function for rate types that do not implement `updateFromStruct`.
+    //! Does nothing, but exists to allow generic implementations of update().
+    template <typename T=RateType,
+        typename std::enable_if<!has_update<T>::value, bool>::type = true>
+    void _update(const DataType& shared_data) {
     }
 };
 
