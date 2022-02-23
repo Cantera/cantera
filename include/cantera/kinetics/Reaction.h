@@ -12,7 +12,7 @@
 #include "cantera/kinetics/ReactionRate.h"
 #include "cantera/kinetics/RxnRates.h"
 #include "cantera/base/Units.h"
-#include "Coverage.h"
+#include "InterfaceRate.h"
 #include "Custom.h"
 
 namespace Cantera

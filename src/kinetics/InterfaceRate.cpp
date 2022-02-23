@@ -3,7 +3,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/kinetics/Coverage.h"
+#include "cantera/kinetics/InterfaceRate.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"
@@ -11,7 +11,7 @@
 
 namespace Cantera
 {
-Coverage::Coverage()
+CoverageBase::CoverageBase()
     : m_siteDensity(NAN)
     , m_acov(0.)
     , m_ecov(0.)
@@ -19,8 +19,8 @@ Coverage::Coverage()
 {
 }
 
-void Coverage::setCoverageDependencies(const AnyMap& dependencies,
-                                       const UnitSystem& units)
+void CoverageBase::setCoverageDependencies(const AnyMap& dependencies,
+                                           const UnitSystem& units)
 {
     m_cov.clear();
     m_ac.clear();
@@ -43,7 +43,7 @@ void Coverage::setCoverageDependencies(const AnyMap& dependencies,
     }
 }
 
-void Coverage::getCoverageDependencies(AnyMap& dependencies, bool asVector) const
+void CoverageBase::getCoverageDependencies(AnyMap& dependencies, bool asVector) const
 {
     for (size_t k = 0; k < m_cov.size(); k++) {
         if (asVector) {
@@ -63,7 +63,8 @@ void Coverage::getCoverageDependencies(AnyMap& dependencies, bool asVector) cons
     }
 }
 
-void Coverage::addCoverageDependence(std::string sp, double a, double m, double e)
+void CoverageBase::addCoverageDependence(const std::string& sp,
+                                         double a, double m, double e)
 {
     if (std::find(m_cov.begin(), m_cov.end(), sp) == m_cov.end()) {
         m_cov.push_back(sp);
@@ -72,12 +73,12 @@ void Coverage::addCoverageDependence(std::string sp, double a, double m, double 
         m_mc.push_back(m);
         m_indices.clear();
     } else {
-        throw CanteraError("Coverage::addCoverageDependence",
+        throw CanteraError("CoverageBase::addCoverageDependence",
             "Coverage for species '{}' is already specified.", sp);
     }
 }
 
-void Coverage::setSpecies(const std::vector<std::string>& species)
+void CoverageBase::setSpecies(const std::vector<std::string>& species)
 {
     m_indices.clear();
     for (size_t k = 0; k < m_cov.size(); k++) {
@@ -85,17 +86,18 @@ void Coverage::setSpecies(const std::vector<std::string>& species)
         if (it != species.end()) {
             m_indices.emplace(k, it - species.begin());
         } else {
-            throw CanteraError("Coverage:setSpeciesIndices",
+            throw CanteraError("CoverageBase:setSpeciesIndices",
                 "Species list does not contain '{}'.", m_cov[k]);
         }
     }
 }
 
-void Coverage::setSpecies(const Kinetics& kin) {
+void CoverageBase::setSpecies(const Kinetics& kin)
+{
     setSpecies(kin.thermo().speciesNames());
 }
 
-StickCoverage::StickCoverage()
+StickingCoverage::StickingCoverage()
     : m_motzWise(false)
     , m_explicitMotzWise(false)
     , m_stickingSpecies("")
@@ -106,7 +108,7 @@ StickCoverage::StickCoverage()
 {
 }
 
-void StickCoverage::setStickParameters(const AnyMap& node)
+void StickingCoverage::setStickingParameters(const AnyMap& node)
 {
     m_motzWise = node.getBool("Motz-Wise", false);
     m_explicitMotzWise = node.hasKey("Motz-Wise");
@@ -114,7 +116,7 @@ void StickCoverage::setStickParameters(const AnyMap& node)
     m_explicitSpecies = node.hasKey("sticking-species");
 }
 
-void StickCoverage::getStickParameters(AnyMap& node) const
+void StickingCoverage::getStickingParameters(AnyMap& node) const
 {
     if (m_explicitMotzWise) {
         node["Motz-Wise"] = m_motzWise;
@@ -124,7 +126,7 @@ void StickCoverage::getStickParameters(AnyMap& node) const
     }
 }
 
-void StickCoverage::buildStickParameters(const Reaction& rxn, const Kinetics& kin)
+void StickingCoverage::setContext(const Reaction& rxn, const Kinetics& kin)
 {
     // Ensure that site density is initialized
     const ThermoPhase& phase = kin.thermo(kin.surfacePhaseIndex());
@@ -135,14 +137,7 @@ void StickCoverage::buildStickParameters(const Reaction& rxn, const Kinetics& ki
     }
 
     // Identify the interface phase
-    size_t iInterface = npos;
-    size_t min_dim = 4;
-    for (size_t n = 0; n < kin.nPhases(); n++) {
-        if (kin.thermo(n).nDim() < min_dim) {
-            iInterface = n;
-            min_dim = kin.thermo(n).nDim();
-        }
-    }
+    size_t iInterface = kin.reactionPhaseIndex();
 
     std::string sticking_species = m_stickingSpecies;
     if (sticking_species == "") {
@@ -153,7 +148,7 @@ void StickCoverage::buildStickParameters(const Reaction& rxn, const Kinetics& ki
             if (iPhase != iInterface) {
                 // Non-interface species. There should be exactly one of these
                 if (foundStick) {
-                    throw InputFileError("StickCoverage::buildStickParameters",
+                    throw InputFileError("StickingCoverage::setContext",
                         rxn.input, "Multiple non-interface species ('{}' and '{}')\n"
                         "found in sticking reaction: '{}'.\nSticking species "
                         "must be explicitly specified.",
@@ -164,7 +159,7 @@ void StickCoverage::buildStickParameters(const Reaction& rxn, const Kinetics& ki
             }
         }
         if (!foundStick) {
-            throw InputFileError("StickCoverage::buildStickParameters",
+            throw InputFileError("StickingCoverage::setContext",
                 rxn.input, "No non-interface species found "
                 "in sticking reaction: '{}'", rxn.equation());
         }
