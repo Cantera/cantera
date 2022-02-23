@@ -200,6 +200,16 @@ void Reaction::getParameters(AnyMap& reactionNode) const
 
     if (m_rate) {
         reactionNode.update(m_rate->parameters());
+
+        // strip information not needed for reconstruction
+        if (reactionNode.hasKey("type")) {
+            std::string type = reactionNode["type"].asString();
+            if (boost::algorithm::starts_with(type, "Arrhenius")) {
+                reactionNode.erase("type");
+            } else if (boost::algorithm::starts_with(type, "Blowers-Masel")) {
+                reactionNode["type"] = "Blowers-Masel";
+            }
+        }
     }
 }
 
