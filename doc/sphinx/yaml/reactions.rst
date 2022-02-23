@@ -321,7 +321,13 @@ Includes the fields of an :ref:`sec-yaml-elementary` reaction plus:
         Power-law exponent of coverage dependence
 
     ``E``
-        Activation energy dependence on coverage
+        Activation energy dependence on coverage, which uses the same sign convention
+        as the leading-order activation energy term
+
+    Note that parameters ``a``, ``m`` and ``E`` correspond to parameters
+    :math:`\eta_{ki}`, :math:`\mu_{ki}` and :math:`\epsilon_{ki}` in Eq 11.113 of
+    [Kee, R. J., Coltrin, M. E., & Glarborg, P.(2003). Chemically reacting flow:
+    theory and practice. John Wiley & Sons], respectively.
 
 Example::
 
