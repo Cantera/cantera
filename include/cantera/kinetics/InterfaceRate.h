@@ -106,9 +106,11 @@ public:
     }
 
     //! Set site density [kmol/m^2]
-    //! @internal  used for testing purposes only
-    //! Note that this quantity is not an independent variable and will be
-    //! overwritten during an update of the thermodynamic state.
+    /*!
+     *  @internal  This method is used for testing purposes only as the site density
+     *      is a property of InterfaceKinetics and will be overwritten during an update
+     *      of the thermodynamic state.
+     */
     void setSiteDensity(double siteDensity) {
         m_siteDensity = siteDensity;
     }
@@ -161,39 +163,51 @@ public:
         return m_stickingSpecies;
     }
 
-    //! Set sticking species. For reactions with multiple non-surface species, the
-    //! sticking species needs to be explicitly identified.
+    //! Set sticking species
+    /*!
+     *  For reactions with multiple non-surface species, the sticking species needs
+     *  to be explicitly identified. Note that species have to be specified prior
+     *  to adding a reaction to a Kinetics object.
+     */
     void setStickingSpecies(const std::string& stickingSpecies) {
         m_stickingSpecies = stickingSpecies;
         m_explicitSpecies = true;
     }
 
+    //! Get exponent applied to site density (sticking order)
+    double stickingOrder() {
+        return m_surfaceOrder;
+    }
+
+    //! Set exponent applied to site density (sticking order)
+    /*!
+     *  @internal  This method is used for testing purposes only as the value is
+     *      determined automatically by setContext.
+     */
+    void setStickingOrder(double order) {
+        m_surfaceOrder = order;
+    }
+
+    //! Get the molecular weight of the sticking species
+    double stickingWeight() {
+        return GasConstant / (2 * Pi * m_multiplier * m_multiplier);
+    }
+
+    //! Set the molecular weight of the sticking species
+    /*!
+     *  @internal  This method is used for testing purposes only as the value is
+     *      determined automatically by setContext.
+     */
+    void setStickingWeight(double weight) {
+        m_multiplier = sqrt(GasConstant / (2 * Pi * weight));
+    }
+
     //! Build rate-specific parameters based on Reaction and Kinetics context
     //! @param rxn  Reaction associated with the sticking coefficient
     //! @param kin  Kinetics object associated with the sticking coefficient
-    //! Parameters can be accessed using the method getStickingParameters
+    //! Parameters can be accessed using the method stickingSpecies, stickingOrder
+    //! and stickingWeight.
     void setContext(const Reaction& rxn, const Kinetics& kin);
-
-    //! Return sticking coefficients
-    //! @param order  exponent applied to site density term
-    //! @param multiplier  multiplicative factor in rate expression
-    //! @param species  sticking species
-    void getStickingParameters(double& order, double& multiplier,
-                               std::string& species) const {
-        order = m_surfaceOrder;
-        multiplier = m_multiplier;
-        species = m_stickingSpecies;
-    }
-
-    //! Specify sticking coefficients, @see getStickingParameters
-    //! @internal This method is used for testing purposes only
-    void setStickingParameters(double order, double multiplier,
-                               const std::string& species, bool specified=false) {
-        m_surfaceOrder = order;
-        m_multiplier = multiplier;
-        m_stickingSpecies = species;
-        m_explicitSpecies = specified;
-    }
 
 protected:
     bool m_motzWise; //!< boolean indicating whether Motz & Wise correction is used
