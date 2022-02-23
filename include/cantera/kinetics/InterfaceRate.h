@@ -30,22 +30,15 @@ class AnyMap;
 //! Base class for rate parameterizations that involve interfaces
 /**
  * Rate expressions defined for interfaces may include coverage dependent terms,
- * where an example is given by [Kee, R. J., Coltrin, M. E., & Glarborg, P.(2005).
- * Chemically reacting flow: theory and practice. John Wiley & Sons. Eq 11.113]:
- *  \f[
- *      k_f = A T^b \exp \left(
- *          \ln 10 \sum a_k \theta_k
- *          - \frac{1}{RT} \left( E_a + \sum E_k\theta_k \right)
- *          + \sum m_k \ln \theta_k
- *          \right)
- *  \f]
- * As the expression can be rewritten as
+ * where an example is given by [Kee, R. J., Coltrin, M. E., & Glarborg, P.(2003).
+ * Chemically reacting flow: theory and practice. John Wiley & Sons. Eq 11.113].
+ * Using Cantera nomenclature, this expression can be rewritten as
  *  \f[
  *      k_f = A T^b \exp \left( - \frac{E_a}{RT} \right)
  *          \prod_k 10^{a_k \theta_k} \theta_k^{m_k}
  *          \exp \left( \frac{- E_k \theta_k}{RT} \right)
  *  \f]
- * it is evident that this expression combines a regular modified Arrhenius rate
+ * It is evident that this expression combines a regular modified Arrhenius rate
  * expression \f$ A T^b \exp \left( - \frac{E_a}{RT} \right) \f$ with coverage-related
  * terms, where the parameters \f$ (a_k, E_k, m_k) \f$ describe the dependency on the
  * surface coverage of species \f$ k, \theta_k \f$. The Coverage class implements terms
@@ -66,6 +59,7 @@ public:
     //! Store parameters needed to reconstruct an identical object
     //! @param dependencies  AnyMap receiving coverage information
     //! @param asVector  Optional boolean flag to override map output
+    //! @todo  Remove vector version (which currently only serves testing purposes)
     void getCoverageDependencies(AnyMap& dependencies, bool asVector=false) const;
 
     //! Add a coverage dependency for species *sp*, with exponential dependence
@@ -73,7 +67,8 @@ public:
     //! where *e* is in Kelvin, i.e. energy divided by the molar gas constant.
     void addCoverageDependence(const std::string& sp, double a, double m, double e);
 
-    //! Set species indices within coverage array
+    //! Set association with an ordered list of all species associated with a given
+    //! `Kinetics` object.
     void setSpecies(const Kinetics& kin);
     void setSpecies(const std::vector<std::string>& species);
 
@@ -101,6 +96,10 @@ public:
     }
 
     //! Return site density [kmol/m^2]
+    /*!
+     *  @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
+     */
     double siteDensity() const {
         return m_siteDensity;
     }
@@ -110,6 +109,9 @@ public:
      *  @internal  This method is used for testing purposes only as the site density
      *      is a property of InterfaceKinetics and will be overwritten during an update
      *      of the thermodynamic state.
+     *
+     *  @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
      */
     void setSiteDensity(double siteDensity) {
         m_siteDensity = siteDensity;
@@ -183,6 +185,9 @@ public:
     /*!
      *  @internal  This method is used for testing purposes only as the value is
      *      determined automatically by setContext.
+     *
+     *  @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
      */
     void setStickingOrder(double order) {
         m_surfaceOrder = order;
@@ -197,6 +202,9 @@ public:
     /*!
      *  @internal  This method is used for testing purposes only as the value is
      *      determined automatically by setContext.
+     *
+     *  @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
      */
     void setStickingWeight(double weight) {
         m_multiplier = sqrt(GasConstant / (2 * Pi * weight));

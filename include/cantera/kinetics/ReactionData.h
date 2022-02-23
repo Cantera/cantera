@@ -50,6 +50,9 @@ struct ReactionData
      * Only used in conjunction with MultiRateBase::evalSingle / ReactionRate::eval.
      * This method allows for testing of a reaction rate expression outside of
      * Kinetics reaction rate evaluators.
+     *
+     * @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
      */
     virtual void update(double T, const vector_fp& extra);
 
