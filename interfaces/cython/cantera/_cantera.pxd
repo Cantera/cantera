@@ -460,8 +460,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double eval(double) except +translate_exception
         double eval(double, double) except +translate_exception
         double eval(double, vector[double]&) except +translate_exception
-        double eval(double, double, vector[double]&) except +translate_exception
-        double eval(double, double, double, vector[double]&) except +translate_exception
         CxxAnyMap parameters() except +translate_exception
 
     cdef cppclass CxxArrheniusBase "Cantera::ArrheniusBase" (CxxReactionRate):
@@ -548,40 +546,42 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxCustomFunc1Rate()
         void setRateFunction(shared_ptr[CxxFunc1]) except +translate_exception
 
-    cdef cppclass CxxCoverage "Cantera::Coverage":
+    cdef cppclass CxxCoverageBase "Cantera::CoverageBase":
         void getCoverageDependencies(CxxAnyMap)
         void setCoverageDependencies(CxxAnyMap) except +translate_exception
         void setSpecies(vector[string]&) except +translate_exception
         double siteDensity()
         void setSiteDensity(double)
 
-    cdef cppclass CxxStickCoverage "Cantera::StickCoverage" (CxxCoverage):
-        void getStickParameters(double&, double&, string&)
-        void setStickParameters(double, double, string&, cbool)
+    cdef cppclass CxxStickingCoverage "Cantera::StickingCoverage" (CxxCoverageBase):
         cbool motzWiseCorrection()
         void setMotzWiseCorrection(cbool)
         string stickingSpecies()
         void setStickingSpecies(string)
+        double stickingOrder()
+        void setStickingOrder(double)
+        double stickingWeight()
+        void setStickingWeight(double)
 
-    cdef cppclass CxxArrheniusInterfaceRate "Cantera::ArrheniusInterfaceRate" (CxxReactionRate, CxxArrhenius, CxxCoverage):
+    cdef cppclass CxxArrheniusInterfaceRate "Cantera::ArrheniusInterfaceRate" (CxxReactionRate, CxxArrhenius, CxxCoverageBase):
         CxxArrheniusInterfaceRate()
         CxxArrheniusInterfaceRate(CxxAnyMap) except +translate_exception
         CxxArrheniusInterfaceRate(double, double, double)
 
-    cdef cppclass CxxArrheniusStickRate "Cantera::ArrheniusStickRate" (CxxReactionRate, CxxArrhenius, CxxStickCoverage):
-        CxxArrheniusStickRate()
-        CxxArrheniusStickRate(CxxAnyMap) except +translate_exception
-        CxxArrheniusStickRate(double, double, double)
+    cdef cppclass CxxArrheniusStickingRate "Cantera::ArrheniusStickingRate" (CxxReactionRate, CxxArrhenius, CxxStickingCoverage):
+        CxxArrheniusStickingRate()
+        CxxArrheniusStickingRate(CxxAnyMap) except +translate_exception
+        CxxArrheniusStickingRate(double, double, double)
 
-    cdef cppclass CxxBlowersMaselInterfaceRate "Cantera::BlowersMaselInterfaceRate" (CxxReactionRate, CxxBlowersMasel, CxxCoverage):
+    cdef cppclass CxxBlowersMaselInterfaceRate "Cantera::BlowersMaselInterfaceRate" (CxxReactionRate, CxxBlowersMasel, CxxCoverageBase):
         CxxBlowersMaselInterfaceRate()
         CxxBlowersMaselInterfaceRate(CxxAnyMap) except +translate_exception
         CxxBlowersMaselInterfaceRate(double, double, double, double)
 
-    cdef cppclass CxxBlowersMaselStickRate "Cantera::BlowersMaselStickRate" (CxxReactionRate, CxxBlowersMasel, CxxStickCoverage):
-        CxxBlowersMaselStickRate()
-        CxxBlowersMaselStickRate(CxxAnyMap) except +translate_exception
-        CxxBlowersMaselStickRate(double, double, double, double)
+    cdef cppclass CxxBlowersMaselStickingRate "Cantera::BlowersMaselStickingRate" (CxxReactionRate, CxxBlowersMasel, CxxStickingCoverage):
+        CxxBlowersMaselStickingRate()
+        CxxBlowersMaselStickingRate(CxxAnyMap) except +translate_exception
+        CxxBlowersMaselStickingRate(double, double, double, double)
 
     cdef cppclass CxxThirdBody "Cantera::ThirdBody":
         CxxThirdBody()
@@ -1396,7 +1396,7 @@ cdef class ReactionRate:
     cdef wrap(shared_ptr[CxxReactionRate])
     cdef set_cxx_object(self)
 
-cdef class ArrheniusTypeRate(ReactionRate):
+cdef class ArrheniusRateBase(ReactionRate):
     cdef CxxArrheniusBase* base
 
 cdef class FalloffRate(ReactionRate):
@@ -1407,11 +1407,11 @@ cdef class CustomRate(ReactionRate):
     cdef CxxCustomFunc1Rate* cxx_object(self)
     cdef Func1 _rate_func
 
-cdef class InterfaceTypeRate(ArrheniusTypeRate):
-    cdef CxxCoverage* coverage
+cdef class InterfaceRateBase(ArrheniusRateBase):
+    cdef CxxCoverageBase* coverage
 
-cdef class StickTypeRate(InterfaceTypeRate):
-    cdef CxxStickCoverage* stick
+cdef class StickRateBase(InterfaceRateBase):
+    cdef CxxStickingCoverage* stick
 
 cdef class Reaction:
     cdef shared_ptr[CxxReaction] _reaction
