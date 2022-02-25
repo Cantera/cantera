@@ -402,41 +402,32 @@ jobs:
         python-version: [ "3.7", "3.8", "3.9", "3.10" ]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v2
-        name: Checkout the repository
-        with:
-          submodules: recursive
-      - name: Cache conda
-        uses: actions/cache@v2
-        env:
-          CACHE_NUMBER: 0
-        with:
-          path: ~/conda_pkgs_dir
-          key:
-            ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}
-      - uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-update-conda: true
-          python-version: ${{ matrix.python-version }}
-          activate-environment: test
-          miniforge-version: latest
-          channels: conda-forge,defaults
-          channel-priority: strict
-          use-only-tar-bz2: true
-        name: Set up conda
-      - name: Install conda dependencies
-        # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
-        # use boost-cpp rather than boost from conda-forge
-        run: |
-          conda install -q scons numpy cython ruamel_yaml boost-cpp eigen yaml-cpp h5py pandas pytest
-        shell: pwsh
-      - name: Build Cantera
-        run: scons build CXX=cl CC=cl system_eigen=y system_yamlcpp=y VERBOSE=True
-          msvc_version=${{ matrix.vs-toolset }} f90_interface=n debug=n --debug=time -j2
-        shell: cmd /C CALL {0}
-      - name: Test Cantera
-        run: scons test show_long_tests=yes verbose_tests=yes --debug=time
-        shell: cmd /C CALL {0}
+    - uses: actions/checkout@v2
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    - name: Set up conda
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        auto-update-conda: true
+        python-version: ${{ matrix.python-version }}
+        mamba-version: "*"
+        activate-environment: test
+        channels: conda-forge,defaults
+        channel-priority: true
+    - name: Install conda dependencies
+      # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
+      # use boost-cpp rather than boost from conda-forge
+      run: |
+        mamba install -q scons numpy cython ruamel_yaml boost-cpp eigen yaml-cpp h5py pandas pytest
+      shell: pwsh
+    - name: Build Cantera
+      run: scons build CXX=cl CC=cl system_eigen=y system_yamlcpp=y VERBOSE=True
+        msvc_version=${{ matrix.vs-toolset }} f90_interface=n debug=n --debug=time -j2
+      shell: pwsh
+    - name: Test Cantera
+      run: scons test show_long_tests=yes verbose_tests=yes --debug=time
+      shell: pwsh
 
   windows:
     name: ${{ matrix.os }}, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}
