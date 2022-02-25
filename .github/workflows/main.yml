@@ -315,6 +315,7 @@ jobs:
           auto-update-conda: true
           python-version: 3.8
           miniforge-version: latest
+          activate-environment: test
         name: Set up conda
       - name: Install conda dependencies
         # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
@@ -329,6 +330,12 @@ jobs:
           optimize_flags='-O3 -ffast-math -fno-finite-math-only'
       - name: Test Cantera
         run: scons test show_long_tests=yes verbose_tests=yes
+      - name: Test Install
+        run: |
+          scons install
+          python -c 'import cantera as ct; print(ct.__version__)'
+          ck2yaml --input=test/data/h2o2.inp --output=h2o2-test.yaml
+          cti2yaml test/data/air-no-reactions.cti air-no-reaction-test.yaml
 
   cython-latest:
     name: Test pre-release version of Cython
@@ -427,6 +434,11 @@ jobs:
       shell: pwsh
     - name: Test Cantera
       run: scons test show_long_tests=yes verbose_tests=yes --debug=time
+      shell: pwsh
+    - name: Test Install
+      run: |
+        scons install
+        python -c 'import cantera as ct; print(ct.__version__)'
       shell: pwsh
 
   windows:
