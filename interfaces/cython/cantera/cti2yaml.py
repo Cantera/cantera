@@ -1554,7 +1554,7 @@ class Lindemann:
         pass
 
 
-def convert(filename=None, output_name=None, text=None, encoding=None):
+def convert(filename=None, output_name=None, text=None, encoding="latin-1"):
     # Reset global state, in case cti2yaml is being used as a module and convert
     # is being called multiple times.
     units('m', 'kmol', 'kg', 's', 'J/kmol', 'J', 'Pa')
@@ -1586,8 +1586,7 @@ def convert(filename=None, output_name=None, text=None, encoding=None):
 
     try:
         if filename is not None:
-            with filename.open("r", encoding=encoding) as f:
-                text = f.read()
+            text = filename.read_text(encoding=encoding)
         else:
             filename = "<string>"
         code = compile(text, str(filename), "exec")
@@ -1638,10 +1637,10 @@ def convert(filename=None, output_name=None, text=None, encoding=None):
     for line in text.splitlines():
         # only consider comments in the initial contiguous comment block
         # comments start with '#'; there may be empty leading lines
-        if line.startswith("#") or not description:
-            description.append(line[1:].rstrip())
-        else:
+        if description and not line.startswith("#"):
             break
+        elif line.strip():
+            description.append(line[1:].rstrip())
     description = textwrap.dedent("\n".join(description).strip("\n"))
 
     # write the YAML file
@@ -1713,6 +1712,13 @@ def convert(filename=None, output_name=None, text=None, encoding=None):
                 reactions_map.yaml_set_comment_before_after_key(name, before='\n')
                 emitter.dump(reactions_map, dest)
 
+    surfaces = []
+    for phase in _phases:
+        if isinstance(phase, ideal_interface):
+            surfaces.append(phase.name)
+
+    return len(_species), len(_reactions), surfaces, output_name
+
 
 def main():
     """Parse command line arguments and pass them to `convert`."""
@@ -1730,12 +1736,18 @@ def main():
     parser.add_argument(
         "--input-encoding", default="latin-1", metavar="",
         help="Character encoding of the file. Default is 'latin-1'.")
+    parser.add_argument(
+        "--quiet", action="store_true", default=False,
+        help="Do not produce output.")
+    parser.add_argument(
+        "--no-validate", action="store_true", default=False,
+        help="Skip validation step.")
 
-    if len(sys.argv) not in [2, 3]:
-        if len(sys.argv) > 3:
+    if len(sys.argv) not in [2, 3, 4, 5]:
+        if len(sys.argv) > 5:
             print(
                 "cti2yaml.py: error: unrecognized arguments:",
-                ' '.join(sys.argv[3:]),
+                ' '.join(sys.argv[5:]),
                 file=sys.stderr,
             )
         parser.print_help(sys.stderr)
@@ -1747,7 +1759,34 @@ def main():
     else:
         output_file = pathlib.Path(args.output)
 
-    convert(input_file, output_file, encoding=args.input_encoding)
+    n_spc, n_rxn, surfaces, output_name = convert(
+        input_file, output_file, encoding=args.input_encoding)
+
+    if not args.quiet:
+        print(f"Wrote YAML mechanism file to '{output_name}'.")
+        print(f"Mechanism contains {n_spc} species and {n_rxn} reactions.")
+
+    if args.no_validate:
+        return
+
+    # Do full validation by importing the resulting mechanism
+    try:
+        import cantera as ct
+    except ImportError:
+        print("WARNING: Unable to import Cantera Python module. "
+            "Output mechanism has not been validated")
+        sys.exit(0)
+
+    try:
+        print("Validating mechanism...")
+        gas = ct.Solution(output_name)
+        for surf_name in surfaces:
+            phase = ct.Interface(output_name, surf_name)
+        print("PASSED")
+    except RuntimeError as e:
+        print("FAILED")
+        _printerr(str(e))
+        sys.exit(1)
 
 
 if __name__ == "__main__":
