@@ -31,7 +31,7 @@ gas.set_equivalence_ratio(1.0, "CH4", "O2:0.233,N2:0.767", basis='mass')
 # Note that for all functions shown here, the compositions are normalized
 # internally so the species fractions do not have to sum to unity
 phi = gas.equivalence_ratio(fuel="CH4", oxidizer="O2:233,N2:767", basis='mass')
-print("phi = {:1.3f}".format(phi))
+print(f"phi = {phi:1.3f}")
 
 # If the compositions of fuel and oxidizer are unknown, the function can
 # be called without arguments. This assumes that all C, H and S atoms come from
@@ -39,14 +39,14 @@ print("phi = {:1.3f}".format(phi))
 # to be pre CH4 and the oxidizer O2:0.233,N2:0.767 so that the assumption is true
 # and the same equivalence ratio as above is computed
 phi = gas.equivalence_ratio()
-print("phi = {:1.3f}".format(phi))
+print(f"phi = {phi:1.3f}")
 
 # Instead of working with equivalence ratio, mixture fraction can be used.
 # The mixture fraction is always kg fuel / (kg fuel + kg oxidizer), independent
 # of the basis argument. For example, the mixture fraction Z can be computed as
 # follows. Again, the compositions by default are interpreted as mole fractions
 Z = gas.mixture_fraction(fuel="CH4", oxidizer="O2:0.21,N2:0.79")
-print("Z = {:1.3f}".format(Z))
+print(f"Z = {Z:1.3f}")
 # By default, the mixture fraction is the Bilger mixture fraction. Instead,
 # a mixture fraction based on a single element can be used. In this example,
 # the following two ways of computing Z are the same:
@@ -55,13 +55,13 @@ Z = gas.mixture_fraction(fuel="CH4", oxidizer="O2:0.21,N2:0.79", element="C")
 
 # Since the fuel in this example is pure methane and the oxidizer is air,
 # the mixture fraction is the same as the mass fraction of methane in the mixture
-print("mass fraction of CH4 = {:1.3f}".format(gas["CH4"].Y[0]))
+print(f"mass fraction of CH4 = {gas['CH4'].Y[0]:1.3f}")
 
 # To set a mixture according to the mixture fraction, the following function
 # can be used. In this example, the final fuel/oxidizer mixture
 # contains 5.5 mass-% CH4:
 Z = gas.set_mixture_fraction(0.055, fuel="CH4", oxidizer="O2:0.21,N2:0.79")
-print("mass fraction of CH4 = {:1.3f}".format(gas["CH4"].Y[0]))
+print(f"mass fraction of CH4 = {gas['CH4'].Y[0]:1.3f}")
 
 # Mixture fraction and equivalence ratio are invariant to the reaction progress.
 # For example, they stay constant if the mixture composition changes to the burnt
@@ -72,45 +72,46 @@ gas.set_equivalence_ratio(1, fuel, oxidizer)
 gas.equilibrate('HP')
 phi_burnt = gas.equivalence_ratio(fuel, oxidizer)
 Z_burnt = gas.mixture_fraction(fuel, oxidizer)
-print("phi(burnt) = {:1.3f}".format(phi_burnt))
-print("Z(burnt) = {:1.3f}".format(Z_burnt))
+print(f"phi(burnt) = {phi_burnt:1.3f}")
+print(f"Z(burnt) = {Z_burnt:1.3f}")
 
 # If fuel and oxidizer compositions are specified consistently, then
 # equivalence_ratio and set_equivalence_ratio are consistent as well, as
 # shown in the following example
-gas.set_equivalence_ratio(2.5,fuel="CH4:1,O2:0.01,CO:0.05,N2:0.1",
-        oxidizer="O2:0.2,N2:0.8,CO2:0.05,CH4:0.01")
+gas.set_equivalence_ratio(2.5, fuel="CH4:1,O2:0.01,CO:0.05,N2:0.1",
+                          oxidizer="O2:0.2,N2:0.8,CO2:0.05,CH4:0.01")
 
 phi = gas.equivalence_ratio(fuel="CH4:1,O2:0.01,CO:0.05,N2:0.1",
-        oxidizer="O2:0.2,N2:0.8,CO2:0.05,CH4:0.01")
-print("phi = {:1.3f}".format(phi)) # prints 2.5
+                            oxidizer="O2:0.2,N2:0.8,CO2:0.05,CH4:0.01")
+print(f"phi = {phi:1.3f}") # prints 2.5
 
 # Without specifying the fuel and oxidizer compositions, it is assumed that
 # all C, H and S atoms come from the fuel and all O atoms from the oxidizer,
 # which is not true for this example. Therefore, the following call gives a
 # different equivalence ratio based on that assumption
 phi = gas.equivalence_ratio()
-print("phi = {:1.3f}".format(phi))
+print(f"phi = {phi:1.3f}")
 
 # After computing the mixture composition for a certain equivalence ratio given
 # a fuel and mixture composition, the mixture can optionally be diluted. The
 # following function will first create a mixture with equivalence ratio 2 from pure
 # hydrogen and oxygen and then dilute it with H2O. In this example, the final mixture
 # consists of 30 mol-% H2O and 70 mol-% of the H2/O2 mixture at phi=2
-gas.set_equivalence_ratio(2.0, "H2:1", "O2:1", fraction={"diluent":0.3}, diluent="H2O")
-print("mole fraction of H2O = {:1.3f}".format(gas["H2O"].X[0])) # final mixture contains 30 mol-% H2O
-print("ratio of H2/O2: {:1.3f}".format(gas["H2"].X[0]/gas["O2"].X[0])) # according to phi=2
+gas.set_equivalence_ratio(2.0, "H2:1", "O2:1", diluent="H2O", fraction={"diluent":0.3})
+print(f"mole fraction of H2O = {gas['H2O'].X[0]:1.3f}") # final mixture contains 30 mol-% H2O
+print(f"ratio of H2/O2: {gas['H2'].X[0] / gas['O2'].X[0]:1.3f}") # according to phi=2
 
 # Another option is to specify the fuel or oxidizer fraction in the final mixture.
 # The following example creates a mixture with equivalence ratio 2 from pure
 # hydrogen and oxygen (same as above) and then dilutes it with a mixture of 50 mass-%
 # CO2 and 50 mass-% H2O so that the mass fraction of the fuel in the final mixture is 0.1
-gas.set_equivalence_ratio(2.0, "H2", "O2", fraction={"fuel":0.1}, diluent="CO2:0.5,H2O:0.5", basis="mass")
-print("mole fraction of H2O = {:1.3f}".format(gas["H2"].Y[0])) # final mixture contains 10 mass-% fuel
+gas.set_equivalence_ratio(2.0, "H2", "O2", diluent="CO2:0.5,H2O:0.5",
+                          fraction={"fuel":0.1}, basis="mass")
+print(f"mole fraction of H2O = {gas['H2'].Y[0]:1.3f}") # final mixture contains 10 mass-% fuel
 
 # To compute the equivalence ratio given a diluted mixture, a list of
 # species names can be provided which will be considered for computing phi.
 # In this example, the diluents H2O and CO2 are ignored and only H2 and O2 are
 # considered to get the equivalence ratio
-phi = gas.equivalence_ratio(fuel="H2", oxidizer="O2", include_species=["H2","O2"])
-print("phi = {:1.3f}".format(phi)) # prints 2
+phi = gas.equivalence_ratio(fuel="H2", oxidizer="O2", include_species=["H2", "O2"])
+print(f"phi = {phi:1.3f}") # prints 2
