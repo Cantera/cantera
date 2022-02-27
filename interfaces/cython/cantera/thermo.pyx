@@ -885,7 +885,7 @@ cdef class ThermoPhase(_SolutionBase):
 
         if len(fraction_dict) != 1:
             raise ValueError("Invalid format for the fraction. Must be provided for "
-                             "as fraction='fuel:0.1'")
+                             "example as fraction='fuel:0.1'")
 
         fraction_type  = list(fraction_dict.keys())[0]
         fraction_value = float(list(fraction_dict.values())[0])
