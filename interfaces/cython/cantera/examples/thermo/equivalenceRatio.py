@@ -19,7 +19,7 @@ air = "O2:0.21,N2:0.79"
 # and pressure constant
 gas.set_equivalence_ratio(phi=1.0, fuel="CH4:1", oxidizer=air)
 
-# if fuel or oxidizer consist of a single species, a short hand notation can be
+# If fuel or oxidizer consist of a single species, a short hand notation can be
 # used, for example fuel="CH4" is equivalent to fuel="CH4:1".
 # By default, the compositions of fuel and oxidizer are interpreted as mole
 # fractions. If the compositions are given in mass fractions, an
@@ -67,11 +67,11 @@ print(f"mass fraction of CH4 = {gas['CH4'].Y[0]:1.3f}")
 # can be used. In this example, the final fuel/oxidizer mixture
 # contains 5.5 mass-% CH4:
 gas.set_mixture_fraction(0.055, fuel="CH4:1", oxidizer=air)
-print(f"Z = {gas['CH4'].Y[0]:1.3f}")
+print(f"mass fraction of CH4 = {gas['CH4'].Y[0]:1.3f}")
 
 # Mixture fraction and equivalence ratio are invariant to the reaction progress.
 # For example, they stay constant if the mixture composition changes to the burnt
-# state or for any intermediate state. Fuel and oxidizer composition for all functions
+# state or for any intermediate state. Fuel and oxidizer compositions for all functions
 # shown in this example can be given as string, dictionary or numpy array
 fuel = {"CH4":1} # provide the fuel composition as dictionary instead of string
 gas.set_equivalence_ratio(1, fuel, air)

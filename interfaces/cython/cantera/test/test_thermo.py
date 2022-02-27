@@ -542,13 +542,13 @@ class TestThermoPhase(utilities.CanteraTest):
         AFR = gas.stoich_air_fuel_ratio(fuel, oxidizer, basis="mass") / phi
         gas.set_equivalence_ratio(phi, fuel, oxidizer, fraction={"fuel": fraction},
                                   diluent=diluent, basis="mass")
-        Y_expected = Y_expected = fraction * (Y_fuel + AFR * Y_oxidizer) \
+        Y_expected = fraction * (Y_fuel + AFR * Y_oxidizer) \
                      + (1 - fraction * (1 + AFR)) * Y_diluent
         self.assertArrayNear(gas.Y, Y_expected)
 
         gas.set_equivalence_ratio(phi, fuel, oxidizer, fraction={"oxidizer": fraction},
                                   diluent=diluent, basis="mass")
-        Y_expected = Y_expected = fraction * (Y_fuel / AFR + Y_oxidizer) \
+        Y_expected = fraction * (Y_fuel / AFR + Y_oxidizer) \
                      + (1 - fraction * (1 + 1 / AFR)) * Y_diluent
         self.assertArrayNear(gas.Y, Y_expected)
 
