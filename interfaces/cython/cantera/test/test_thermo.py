@@ -425,64 +425,81 @@ class TestThermoPhase(utilities.CanteraTest):
     def test_equivalence_ratio_simple_dilution(self):
         gas = ct.Solution("gri30.yaml")
 
-        gas.X = "H2:4,O2:1,CO:3,CO2:4,N2:5,CH4:6"
-        state = gas.state
+        X = "H2:4,O2:1,CO:3,CO2:4,N2:5,CH4:6"
+        T, P = 300, 1e5
+        gas.TPX = T, P, X
+        original_X = gas.X
         self.assertNear(gas.equivalence_ratio(include_species=["H2", "O2"]), 2)
-        self.assertNear(gas.equivalence_ratio("H2", "O2", include_species=["H2", "O2"]), 2)
-        self.assertArrayNear(state, gas.state)
+        self.assertNear(gas.equivalence_ratio("H2", "O2",
+                                              include_species=["H2", "O2"]), 2)
+        self.assertNear(gas.T, T)
+        self.assertNear(gas.P, P)
+        self.assertArrayNear(gas.X, original_X)
 
-        def test_simple_dilution(fraction,basis):
+        def test_simple_dilution(fraction, basis):
             if isinstance(fraction, str):
-                fraction_type = fraction[:fraction.find(":")]
+                fraction_dict = {fraction[:fraction.find(":")]:
+                                 float(fraction[fraction.find(":")+1:])}
             else:
-                fraction_type = list(fraction.keys())[0]
+                fraction_dict = fraction
+
+            fraction_type  = list(fraction_dict.keys())[0]
+            fraction_value = float(list(fraction_dict.values())[0])
 
             M_H2 = gas.molecular_weights[gas.species_index("H2")]
             M_O2 = gas.molecular_weights[gas.species_index("O2")]
 
-            gas.set_equivalence_ratio(2, "H2", "O2", fraction=fraction, diluent="CO2", basis=basis)
+            phi = 2
+            gas.TP = T, P
+            gas.set_equivalence_ratio(phi, "H2", "O2", fraction=fraction,
+                                      diluent="CO2", basis=basis)
             if basis == "mole" and fraction_type == "diluent":
-                self.assertNear(gas["H2"].X[0], (1 - 0.3) * 0.8)
-                self.assertNear(gas["O2"].X[0], (1 - 0.3) * 0.2)
-                self.assertNear(gas["CO2"].X[0], 0.3)
+                self.assertNear(gas["H2"].X[0], (1 - fraction_value) * 0.8)
+                self.assertNear(gas["O2"].X[0], (1 - fraction_value) * 0.2)
+                self.assertNear(gas["CO2"].X[0], fraction_value)
             elif basis == "mass" and fraction_type == "diluent":
                 self.assertNear(gas["H2"].Y[0] / gas["O2"].Y[0], 4 * M_H2 / M_O2)
-                self.assertNear(gas["CO2"].Y[0], 0.3)
+                self.assertNear(gas["CO2"].Y[0], fraction_value)
             elif basis == "mole" and fraction_type == "fuel":
-                self.assertNear(gas["H2"].X[0], 0.1)
-                self.assertNear(gas["O2"].X[0], 0.1 / 4)
-                self.assertNear(gas["CO2"].X[0], 1 - 0.1 - 0.1 / 4)
+                self.assertNear(gas["H2"].X[0], fraction_value)
+                self.assertNear(gas["O2"].X[0], fraction_value / 4)
+                self.assertNear(gas["CO2"].X[0], 1 - fraction_value * (1 + 1.0 / 4))
             elif basis == "mass" and fraction_type == "fuel":
-                self.assertNear(gas["H2"].Y[0], 0.1)
+                self.assertNear(gas["H2"].Y[0], fraction_value)
                 self.assertNear(gas["H2"].Y[0] / gas["O2"].Y[0], 4 * M_H2 / M_O2)
             elif basis == "mole" and fraction_type == "oxidizer":
-                self.assertNear(gas["H2"].X[0], 0.1 * 4)
-                self.assertNear(gas["O2"].X[0], 0.1)
-                self.assertNear(gas["CO2"].X[0], 1 - 0.1 - 0.1 * 4)
+                self.assertNear(gas["H2"].X[0], fraction_value * 4)
+                self.assertNear(gas["O2"].X[0], fraction_value)
+                self.assertNear(gas["CO2"].X[0], 1 - fraction_value * (1 + 4))
             elif basis == "mass" and fraction_type == "oxidizer":
-                self.assertNear(gas["O2"].Y[0], 0.1)
+                self.assertNear(gas["O2"].Y[0], fraction_value)
                 self.assertNear(gas["H2"].Y[0] / gas["O2"].Y[0], 4 * M_H2 / M_O2)
 
-            state = gas.state
-            self.assertNear(gas.equivalence_ratio("H2", "O2", include_species=["H2", "O2"], basis=basis), 2)
-            self.assertNear(gas.equivalence_ratio(include_species=["H2", "O2"], basis=basis), 2)
-            self.assertArrayNear(state, gas.state)
+            Y = gas.Y
+            self.assertNear(gas.equivalence_ratio("H2", "O2",
+                                                  include_species=["H2", "O2"],
+                                                  basis=basis), phi)
+            self.assertNear(gas.equivalence_ratio(include_species=["H2", "O2"],
+                                                  basis=basis), phi)
+            self.assertArrayNear(Y, gas.Y)
+            self.assertNear(gas.T, T)
+            self.assertNear(gas.P, P)
 
         # brute force all possible input combinations
-        test_simple_dilution("diluent:0.3",   "mole")
-        test_simple_dilution({"diluent":0.3}, "mole")
-        test_simple_dilution("diluent:0.3",   "mass")
-        test_simple_dilution({"diluent":0.3}, "mass")
+        test_simple_dilution("diluent:0.3", "mole")
+        test_simple_dilution({"diluent": 0.3}, "mole")
+        test_simple_dilution("diluent:0.3", "mass")
+        test_simple_dilution({"diluent": 0.3}, "mass")
 
-        test_simple_dilution("fuel:0.1",   "mole")
-        test_simple_dilution({"fuel":0.1}, "mole")
-        test_simple_dilution("fuel:0.1",   "mass")
-        test_simple_dilution({"fuel":0.1}, "mass")
+        test_simple_dilution("fuel:0.1", "mole")
+        test_simple_dilution({"fuel": 0.1}, "mole")
+        test_simple_dilution("fuel:0.1", "mass")
+        test_simple_dilution({"fuel": 0.1}, "mass")
 
-        test_simple_dilution("oxidizer:0.1",    "mole")
-        test_simple_dilution({"oxidizer":0.1}, "mole")
-        test_simple_dilution("oxidizer:0.1",   "mass")
-        test_simple_dilution({"oxidizer":0.1}, "mass")
+        test_simple_dilution("oxidizer:0.1", "mole")
+        test_simple_dilution({"oxidizer": 0.1}, "mole")
+        test_simple_dilution("oxidizer:0.1", "mass")
+        test_simple_dilution({"oxidizer": 0.1}, "mass")
 
     def test_equivalence_ratio_arbitrary_dilution(self):
         fuel = "CH4:1,O2:0.01,N2:0.1,CO:0.05,CO2:0.02"
@@ -503,26 +520,36 @@ class TestThermoPhase(utilities.CanteraTest):
         gas.Y = diluent
         Y_diluent = gas.Y
 
-        gas.set_equivalence_ratio(2, fuel, oxidizer)
+        phi = 2
+        fraction = 0.6
+        gas.set_equivalence_ratio(phi, fuel, oxidizer)
         X_Mix = gas.X
-        gas.set_equivalence_ratio(2, fuel,oxidizer, fraction="diluent:0.6", diluent=diluent)
-        X_expected = X_Mix * 0.4 + 0.6 * X_diluent
+        gas.set_equivalence_ratio(phi, fuel, oxidizer, fraction={"diluent": fraction},
+                                  diluent=diluent)
+        X_expected = X_Mix * (1 - fraction) + fraction * X_diluent
         self.assertArrayNear(gas.X, X_expected)
 
-        gas.set_equivalence_ratio(2, fuel, oxidizer, basis="mass")
+        gas.set_equivalence_ratio(phi, fuel, oxidizer, basis="mass")
         Y_Mix = gas.Y
-        gas.set_equivalence_ratio(2, fuel, oxidizer, fraction="diluent:0.6", diluent=diluent, basis="mass")
-        Y_expected = Y_Mix * 0.4 + 0.6 * Y_diluent
+        gas.set_equivalence_ratio(phi, fuel, oxidizer, fraction={"diluent": fraction},
+                                  diluent=diluent, basis="mass")
+        Y_expected = Y_Mix * (1 - fraction) + fraction * Y_diluent
         self.assertArrayNear(gas.Y, Y_expected)
 
-        gas.set_equivalence_ratio(0.8, fuel, oxidizer, basis="mass")
-        AFR = gas.stoich_air_fuel_ratio(fuel, oxidizer, basis="mass") / 0.8
-        gas.set_equivalence_ratio(0.8, fuel, oxidizer, fraction="fuel:0.05", diluent=diluent, basis="mass")
-        Y_expected = 0.05 * (Y_fuel + Y_oxidizer*AFR) + Y_diluent * (1 - (0.05 + 0.05 * AFR))
+        phi = 0.8
+        fraction = 0.05
+        gas.set_equivalence_ratio(phi, fuel, oxidizer, basis="mass")
+        AFR = gas.stoich_air_fuel_ratio(fuel, oxidizer, basis="mass") / phi
+        gas.set_equivalence_ratio(phi, fuel, oxidizer, fraction={"fuel": fraction},
+                                  diluent=diluent, basis="mass")
+        Y_expected = Y_expected = fraction * (Y_fuel + AFR * Y_oxidizer) \
+                     + (1 - fraction * (1 + AFR)) * Y_diluent
         self.assertArrayNear(gas.Y, Y_expected)
 
-        gas.set_equivalence_ratio(0.8, fuel, oxidizer, fraction="oxidizer:0.05", diluent=diluent, basis="mass")
-        Y_expected = 0.05 / AFR * (Y_fuel + Y_oxidizer * AFR) + Y_diluent * (1 - 0.05 / AFR * (1 + AFR))
+        gas.set_equivalence_ratio(phi, fuel, oxidizer, fraction={"oxidizer": fraction},
+                                  diluent=diluent, basis="mass")
+        Y_expected = Y_expected = fraction * (Y_fuel / AFR + Y_oxidizer) \
+                     + (1 - fraction * (1 + 1 / AFR)) * Y_diluent
         self.assertArrayNear(gas.Y, Y_expected)
 
         gas.X = fuel
@@ -530,15 +557,19 @@ class TestThermoPhase(utilities.CanteraTest):
         gas.X = oxidizer
         M_oxidizer = gas.mean_molecular_weight
 
-        gas.set_equivalence_ratio(0.8, fuel, oxidizer)
-        AFR = M_fuel / M_oxidizer * gas.stoich_air_fuel_ratio(fuel, oxidizer) / 0.8
+        gas.set_equivalence_ratio(phi, fuel, oxidizer)
+        AFR = M_fuel / M_oxidizer * gas.stoich_air_fuel_ratio(fuel, oxidizer) / phi
 
-        gas.set_equivalence_ratio(0.8, fuel, oxidizer, fraction="fuel:0.05", diluent=diluent)
-        X_expected = 0.05 * (X_fuel + X_oxidizer * AFR) + X_diluent * (1 - (0.05 + 0.05 * AFR))
+        gas.set_equivalence_ratio(phi, fuel, oxidizer, fraction={"fuel": fraction},
+                                  diluent=diluent)
+        X_expected = fraction * (X_fuel + AFR * X_oxidizer) \
+                     + (1 - fraction * (1 + AFR)) * X_diluent
         self.assertArrayNear(gas.X, X_expected)
 
-        gas.set_equivalence_ratio(0.8, fuel, oxidizer, fraction="oxidizer:0.05", diluent=diluent)
-        X_expected = 0.05 / AFR * (X_fuel + X_oxidizer * AFR) + X_diluent * (1 - 0.05 / AFR * (1 + AFR))
+        gas.set_equivalence_ratio(phi, fuel, oxidizer, fraction={"oxidizer": fraction},
+                                  diluent=diluent)
+        X_expected = fraction * (X_fuel / AFR + X_oxidizer) \
+                     + (1 - fraction * (1 + 1 / AFR)) * X_diluent
         self.assertArrayNear(gas.X, X_expected)
 
     def test_full_report(self):
