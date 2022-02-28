@@ -819,9 +819,9 @@ cdef class ThermoPhase(_SolutionBase):
         N ends up as N2). The ``basis`` determines the fuel and oxidizer
         compositions: ``basis='mole'`` means mole fractions (default),
         ``basis='mass'`` means mass fractions. The fuel/oxidizer mixture can be
-        be diluted by a ``diluent`` based on a mixing ``fraction``, specifying
-        the amount of diluent, fuel or oxidizer in the mixture. For more
-        information, see `Python example
+        be diluted by a ``diluent`` based on a mixing ``fraction``. The amount of
+        diluent is quantified as a fraction of fuel, oxidizer or the fuel/oxidizer
+        mixture. For more information, see `Python example
         <https://cantera.org/examples/python/thermo/equivalenceRatio.py.html>`_ ::
 
             >>> gas.set_equivalence_ratio(0.5, 'CH4', 'O2:1.0, N2:3.76', basis='mole')
@@ -857,12 +857,10 @@ cdef class ThermoPhase(_SolutionBase):
             dilution or ``fraction=None``. May be given as string or dictionary (for
             example ``fraction={"fuel":0.7})``
         """
-        cdef np.ndarray[np.double_t, ndim=1] fuel_comp = \
-                np.ascontiguousarray(self.__composition_to_array(fuel, basis),
-                                     dtype=np.double)
-        cdef np.ndarray[np.double_t, ndim=1] ox_comp = \
-                np.ascontiguousarray(self.__composition_to_array(oxidizer, basis),
-                                     dtype=np.double)
+        cdef np.ndarray[np.double_t, ndim=1] fuel_comp = np.ascontiguousarray(
+                self.__composition_to_array(fuel, basis), dtype=np.double)
+        cdef np.ndarray[np.double_t, ndim=1] ox_comp = np.ascontiguousarray(
+                self.__composition_to_array(oxidizer, basis), dtype=np.double)
 
         self.thermo.setEquivalenceRatio(phi, &fuel_comp[0], &ox_comp[0],
                                         ThermoBasis.mass if basis == "mass"
@@ -897,9 +895,8 @@ cdef class ThermoPhase(_SolutionBase):
             raise ValueError("The fraction must specify 'fuel', 'oxidizer' or "
                              "'diluent'")
 
-        cdef np.ndarray[np.double_t, ndim=1] diluent_comp = \
-                np.ascontiguousarray(self.__composition_to_array(diluent, basis),
-                                     dtype=np.double)
+        cdef np.ndarray[np.double_t, ndim=1] diluent_comp = np.ascontiguousarray(
+                self.__composition_to_array(diluent, basis), dtype=np.double)
 
         # this function changes the composition and fixes temperature and pressure
         T, P = self.T, self.P
@@ -1039,12 +1036,10 @@ cdef class ThermoPhase(_SolutionBase):
                 self.TPY = T_orig, P_orig, Y_orig
             return phi
 
-        cdef np.ndarray[np.double_t, ndim=1] f = \
-                np.ascontiguousarray(self.__composition_to_array(fuel, basis),
-                                     dtype=np.double)
-        cdef np.ndarray[np.double_t, ndim=1] o = \
-                np.ascontiguousarray(self.__composition_to_array(oxidizer, basis),
-                                     dtype=np.double)
+        cdef np.ndarray[np.double_t, ndim=1] f = np.ascontiguousarray(
+                self.__composition_to_array(fuel, basis), dtype=np.double)
+        cdef np.ndarray[np.double_t, ndim=1] o = np.ascontiguousarray(
+                self.__composition_to_array(oxidizer, basis), dtype=np.double)
 
         phi = self.thermo.equivalenceRatio(&f[0], &o[0],
                                            ThermoBasis.mass if basis=="mass"

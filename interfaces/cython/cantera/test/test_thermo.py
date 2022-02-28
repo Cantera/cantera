@@ -425,6 +425,8 @@ class TestThermoPhase(utilities.CanteraTest):
     def test_equivalence_ratio_simple_dilution(self):
         gas = ct.Solution("gri30.yaml")
 
+        phi = 2
+        inv_afr = 2 * phi # inverse molar AFR for H2/O2
         X = "H2:4,O2:1,CO:3,CO2:4,N2:5,CH4:6"
         T, P = 300, 1e5
         gas.TPX = T, P, X
@@ -449,31 +451,31 @@ class TestThermoPhase(utilities.CanteraTest):
             M_H2 = gas.molecular_weights[gas.species_index("H2")]
             M_O2 = gas.molecular_weights[gas.species_index("O2")]
 
-            phi = 2
             gas.TP = T, P
             gas.set_equivalence_ratio(phi, "H2", "O2", fraction=fraction,
                                       diluent="CO2", basis=basis)
             if basis == "mole" and fraction_type == "diluent":
-                self.assertNear(gas["H2"].X[0], (1 - fraction_value) * 0.8)
-                self.assertNear(gas["O2"].X[0], (1 - fraction_value) * 0.2)
+                self.assertNear(gas["H2"].X[0], (1 - fraction_value)
+                                * inv_afr / (inv_afr + 1))
+                self.assertNear(gas["O2"].X[0], (1 - fraction_value) / (inv_afr + 1))
                 self.assertNear(gas["CO2"].X[0], fraction_value)
             elif basis == "mass" and fraction_type == "diluent":
-                self.assertNear(gas["H2"].Y[0] / gas["O2"].Y[0], 4 * M_H2 / M_O2)
+                self.assertNear(gas["H2"].Y[0] / gas["O2"].Y[0], inv_afr * M_H2 / M_O2)
                 self.assertNear(gas["CO2"].Y[0], fraction_value)
             elif basis == "mole" and fraction_type == "fuel":
                 self.assertNear(gas["H2"].X[0], fraction_value)
-                self.assertNear(gas["O2"].X[0], fraction_value / 4)
-                self.assertNear(gas["CO2"].X[0], 1 - fraction_value * (1 + 1.0 / 4))
+                self.assertNear(gas["O2"].X[0], fraction_value / inv_afr)
+                self.assertNear(gas["CO2"].X[0], 1 - fraction_value * (1 + 1 / inv_afr))
             elif basis == "mass" and fraction_type == "fuel":
                 self.assertNear(gas["H2"].Y[0], fraction_value)
-                self.assertNear(gas["H2"].Y[0] / gas["O2"].Y[0], 4 * M_H2 / M_O2)
+                self.assertNear(gas["H2"].Y[0] / gas["O2"].Y[0], inv_afr * M_H2 / M_O2)
             elif basis == "mole" and fraction_type == "oxidizer":
-                self.assertNear(gas["H2"].X[0], fraction_value * 4)
+                self.assertNear(gas["H2"].X[0], fraction_value * inv_afr)
                 self.assertNear(gas["O2"].X[0], fraction_value)
-                self.assertNear(gas["CO2"].X[0], 1 - fraction_value * (1 + 4))
+                self.assertNear(gas["CO2"].X[0], 1 - fraction_value * (1 + inv_afr))
             elif basis == "mass" and fraction_type == "oxidizer":
                 self.assertNear(gas["O2"].Y[0], fraction_value)
-                self.assertNear(gas["H2"].Y[0] / gas["O2"].Y[0], 4 * M_H2 / M_O2)
+                self.assertNear(gas["H2"].Y[0] / gas["O2"].Y[0], inv_afr * M_H2 / M_O2)
 
             Y = gas.Y
             self.assertNear(gas.equivalence_ratio("H2", "O2",
