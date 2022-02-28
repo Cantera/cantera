@@ -1,4 +1,3 @@
-
 /**
  * @file PlasmaPhase.h
  * Header file for class PlasmaPhase.
@@ -39,6 +38,8 @@ namespace Cantera
  *          \epsilon_m = \sum_i (\epsilon^{5/2}_{i+1} - \epsilon^{5/2}_i)
  *                       (f(\epsilon_{i+1}) + f(\epsilon_i)) / 2,
  *   \f]
+ * where i is the index of energy levels.
+ *
  * References:
  *
  * [1] J. T. Gudmundsson. On the effect of the electron energy distribution on the
@@ -75,11 +76,11 @@ public:
     //! electron energy grid is set to a linear space which starts at 0.01 eV and ends
     //! at 1 eV with 1000 points.
     /*!
-     * @param inputFile Name of the input file containing the phase definition
-     *                  to set up the object. If blank, an empty phase will be
-     *                  created.
-     * @param id        ID of the phase in the input file. Defaults to the
-     *                  empty string.
+     * @param  inputFile Name of the input file containing the phase definition
+     *                   to set up the object. If blank, an empty phase will be
+     *                   created.
+     * @param  id        ID of the phase in the input file. Defaults to the
+     *                   empty string.
      */
     explicit PlasmaPhase(const std::string& inputFile="",
                          const std::string& id="");
@@ -89,27 +90,27 @@ public:
     }
 
     //! Set electron energy grid.
-    //!     @param grid The vector of electron energy grid. [eV]
+    //! @param  grid The vector of electron energy grid. [eV]
     void setElectronEnergyGrid(const vector_fp& grid);
 
     //! Get electron energy grid.
-    //!     @param grid The vector of electron energy grid. [eV]
+    //! @param  grid The vector of electron energy grid. [eV]
     void getElectronEnergyGrid(vector_fp& grid) const;
 
     //! Set electron energy distribution.
-    //!     @param grid The vector of electron energy grid. [eV]
-    //!     @param distrb The vector of electron energy distribution.
-    void setElectronEnergyDistrb(const vector_fp& grid, const vector_fp& distrb);
+    //! @param  grid The vector of electron energy grid. [eV]
+    //! @param  distrb The vector of electron energy distribution.
+    void setElectronEnergyDistribution(const vector_fp& grid, const vector_fp& distrb);
 
     //! Get electron energy distribution.
-    //!     @param distrb The vector of electron energy distribution.
-    void getElectronEnergyDistrb(vector_fp& distrb) const;
+    //! @param  distrb The vector of electron energy distribution.
+    void getElectronEnergyDistribution(vector_fp& distrb) const;
 
     //! Update electron energy distribution.
-    void updateIsotropicElectronEnergyDistrb();
+    void updateIsotropicElectronEnergyDistribution();
 
     //! Set the internally stored electron temperature of the phase (K).
-    //!     @param Te Electron temperature in Kelvin
+    //! @param  Te Electron temperature in Kelvin
     virtual void setElectronTemperature(const double Te);
 
     //! Mean electron energy [eV]
@@ -136,7 +137,6 @@ protected:
     //! Name of electron
     std::string m_electronName;
 
-    //! Update species thermo
     virtual void _updateThermo() const;
 };
 

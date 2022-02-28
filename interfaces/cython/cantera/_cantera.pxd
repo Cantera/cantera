@@ -445,8 +445,8 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
         CxxPlasmaPhase()
         void setElectronEnergyGrid(vector[double]&) except +translate_exception
         void getElectronEnergyGrid(vector[double]&)
-        void setElectronEnergyDistrb(vector[double]&, vector[double]&) except +translate_exception
-        void getElectronEnergyDistrb(vector[double]&)
+        void setElectronEnergyDistribution(vector[double]&, vector[double]&) except +translate_exception
+        void getElectronEnergyDistribution(vector[double]&)
         double meanElectronEnergy()
 
 cdef extern from "cantera/kinetics/ReactionRateFactory.h" namespace "Cantera":

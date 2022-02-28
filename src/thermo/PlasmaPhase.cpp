@@ -24,21 +24,25 @@ PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
     setElectronTemperature(temperature());
 }
 
-void PlasmaPhase::updateIsotropicElectronEnergyDistrb()
+void PlasmaPhase::updateIsotropicElectronEnergyDistribution()
 {
     m_electronEnergyDistrb.resize(m_nPoints);
     double gamma1 = boost::math::tgamma(3.0 / 2.0 * m_x);
     double gamma2 = boost::math::tgamma(5.0 / 2.0 * m_x);
     double c1 = m_x * std::pow(gamma2, 1.5) / std::pow(gamma1, 2.5);
     double c2 = m_x * std::pow(gamma2 / gamma1, m_x);
-    m_electronEnergyDistrb = c1 * m_electronEnergyGrid.array().sqrt() / std::pow(m_meanElectronEnergy, 1.5) *
-                      (-c2 * (m_electronEnergyGrid.array() / m_meanElectronEnergy).pow(m_x)).exp();
+    m_electronEnergyDistrb =
+        c1 * m_electronEnergyGrid.array().sqrt() /
+        std::pow(m_meanElectronEnergy, 1.5) *
+        (-c2 * (m_electronEnergyGrid.array() /
+        m_meanElectronEnergy).pow(m_x)).exp();
 }
 
 void PlasmaPhase::setElectronTemperature(const double Te) {
     Phase::setElectronTemperature(Te);
-    m_meanElectronEnergy = 3.0 / 2.0 * electronTemperature() * GasConstant / (Avogadro * ElectronCharge);
-    updateIsotropicElectronEnergyDistrb();
+    m_meanElectronEnergy = 3.0 / 2.0 * electronTemperature() *
+                           GasConstant / (Avogadro * ElectronCharge);
+    updateIsotropicElectronEnergyDistribution();
 }
 
 void PlasmaPhase::setElectronEnergyGrid(const vector_fp& grid)
@@ -58,11 +62,11 @@ void PlasmaPhase::getElectronEnergyGrid(vector_fp& grid) const
     }
 }
 
-void PlasmaPhase::setElectronEnergyDistrb(const vector_fp& grid,
-                                          const vector_fp& distrb)
+void PlasmaPhase::setElectronEnergyDistribution(const vector_fp& grid,
+                                                const vector_fp& distrb)
 {
-    if (grid.size() != distrb.size()) {
-        throw CanteraError("PlasmaPhase::setElectronEnergyDistrb",
+    if (levels.size() != distrb.size()) {
+        throw CanteraError("PlasmaPhase::setElectronEnergyDistribution",
                            "Vector lengths need to be the same.");
     }
     setElectronEnergyGrid(grid);
@@ -73,12 +77,14 @@ void PlasmaPhase::setElectronEnergyDistrb(const vector_fp& grid,
     }
     // calculate mean electron energy and electron temperature
     Eigen::VectorXd eps52 = m_electronEnergyGrid.array().pow(5./2.);
-    m_meanElectronEnergy = 2.0 / 5.0 * trapezoidal(m_electronEnergyDistrb, eps52);
-    Phase::setElectronTemperature(2.0 / 3.0 * m_meanElectronEnergy * Avogadro *
-                                  ElectronCharge / GasConstant);
+    m_meanElectronEnergy =
+        2.0 / 5.0 * trapezoidal(m_electronEnergyDistrb, eps52);
+    Phase::setElectronTemperature(
+        2.0 / 3.0 * m_meanElectronEnergy * Avogadro *
+        ElectronCharge / GasConstant);
 }
 
-void PlasmaPhase::getElectronEnergyDistrb(vector_fp& distrb) const
+void PlasmaPhase::getElectronEnergyDistribution(vector_fp& distrb) const
 {
     distrb.resize(m_nPoints);
     for (size_t i = 0; i < m_nPoints; i++) {

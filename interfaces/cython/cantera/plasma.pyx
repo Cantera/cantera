@@ -32,7 +32,7 @@ cdef class PlasmaPhase(ThermoPhase):
             cxxdata_grid.push_back(value)
         for value in distrb:
             cxxdata_distrb.push_back(value)
-        self.plasma.setElectronEnergyDistrb(cxxdata_grid, cxxdata_distrb)
+        self.plasma.setElectronEnergyDistribution(cxxdata_grid, cxxdata_distrb)
 
     property electron_energy_grid:
         """ Electron energy grid [eV]"""
@@ -50,7 +50,7 @@ cdef class PlasmaPhase(ThermoPhase):
         """ Electron energy distribution """
         def __get__(self):
             cdef vector[double] cxxdata
-            self.plasma.getElectronEnergyDistrb(cxxdata)
+            self.plasma.getElectronEnergyDistribution(cxxdata)
             return np.fromiter(cxxdata, np.double)
 
     property mean_electron_energy:
