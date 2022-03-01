@@ -18,7 +18,7 @@ PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
     initThermoFile(inputFile, id_);
 
     // initial grid
-    m_electronEnergyGrid = Eigen::VectorXd::LinSpaced(m_nPoints, 0.001, 1.0);
+    m_electronEnergyLevels = Eigen::VectorXd::LinSpaced(m_nPoints, 0.001, 1.0);
 
     // initial electron temperature
     setElectronTemperature(temperature());
@@ -32,9 +32,9 @@ void PlasmaPhase::updateIsotropicElectronEnergyDistribution()
     double c1 = m_x * std::pow(gamma2, 1.5) / std::pow(gamma1, 2.5);
     double c2 = m_x * std::pow(gamma2 / gamma1, m_x);
     m_electronEnergyDistrb =
-        c1 * m_electronEnergyGrid.array().sqrt() /
+        c1 * m_electronEnergyLevels.array().sqrt() /
         std::pow(m_meanElectronEnergy, 1.5) *
-        (-c2 * (m_electronEnergyGrid.array() /
+        (-c2 * (m_electronEnergyLevels.array() /
         m_meanElectronEnergy).pow(m_x)).exp();
 }
 
@@ -45,38 +45,38 @@ void PlasmaPhase::setElectronTemperature(const double Te) {
     updateIsotropicElectronEnergyDistribution();
 }
 
-void PlasmaPhase::setElectronEnergyGrid(const vector_fp& grid)
+void PlasmaPhase::setElectronEnergyLevels(const vector_fp& levels)
 {
-    m_nPoints = grid.size();
-    m_electronEnergyGrid.resize(m_nPoints);
+    m_nPoints = levels.size();
+    m_electronEnergyLevels.resize(m_nPoints);
     for (size_t i = 0; i < m_nPoints; i++) {
-        m_electronEnergyGrid(i) = grid[i];
+        m_electronEnergyLevels(i) = levels[i];
     }
 }
 
-void PlasmaPhase::getElectronEnergyGrid(vector_fp& grid) const
+void PlasmaPhase::getElectronEnergyLevels(vector_fp& levels) const
 {
-    grid.resize(m_nPoints);
+    levels.resize(m_nPoints);
     for (size_t i = 0; i < m_nPoints; i++) {
-        grid[i] = m_electronEnergyGrid(i);
+        levels[i] = m_electronEnergyLevels(i);
     }
 }
 
-void PlasmaPhase::setElectronEnergyDistribution(const vector_fp& grid,
+void PlasmaPhase::setElectronEnergyDistribution(const vector_fp& levels,
                                                 const vector_fp& distrb)
 {
     if (levels.size() != distrb.size()) {
         throw CanteraError("PlasmaPhase::setElectronEnergyDistribution",
                            "Vector lengths need to be the same.");
     }
-    setElectronEnergyGrid(grid);
-    m_nPoints = grid.size();
+    setElectronEnergyLevels(levels);
+    m_nPoints = levels.size();
     m_electronEnergyDistrb.resize(m_nPoints);
     for (size_t i = 0; i < m_nPoints; i++) {
         m_electronEnergyDistrb(i) = distrb[i];
     }
     // calculate mean electron energy and electron temperature
-    Eigen::VectorXd eps52 = m_electronEnergyGrid.array().pow(5./2.);
+    Eigen::VectorXd eps52 = m_electronEnergyLevels.array().pow(5./2.);
     m_meanElectronEnergy =
         2.0 / 5.0 * trapezoidal(m_electronEnergyDistrb, eps52);
     Phase::setElectronTemperature(

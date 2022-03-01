@@ -89,21 +89,24 @@ public:
         return "plasma";
     }
 
-    //! Set electron energy grid.
-    //! @param  grid The vector of electron energy grid. [eV]
-    void setElectronEnergyGrid(const vector_fp& grid);
+    //! Set electron energy levels.
+    //! @param  levels The vector of electron energy levels (eV).
+    //!                Length: #m_nPoints.
+    void setElectronEnergyLevels(const vector_fp& levels);
 
-    //! Get electron energy grid.
-    //! @param  grid The vector of electron energy grid. [eV]
-    void getElectronEnergyGrid(vector_fp& grid) const;
+    //! Get electron energy levels.
+    //! @param  levels The vector of electron energy levels (eV). Length: #m_nPoints
+    void getElectronEnergyLevels(vector_fp& levels) const;
 
     //! Set electron energy distribution.
-    //! @param  grid The vector of electron energy grid. [eV]
+    //! @param  levels The vector of electron energy levels (eV).
+    //!                Length: #m_nPoints.
     //! @param  distrb The vector of electron energy distribution.
-    void setElectronEnergyDistribution(const vector_fp& grid, const vector_fp& distrb);
+    void setElectronEnergyDistribution(const vector_fp& levels, const vector_fp& distrb);
 
     //! Get electron energy distribution.
     //! @param  distrb The vector of electron energy distribution.
+    //!                Length: #m_nPoints.
     void getElectronEnergyDistribution(vector_fp& distrb) const;
 
     //! Update electron energy distribution.
@@ -132,11 +135,11 @@ protected:
     // Electron energy order in the exponential term
     double m_x;
 
-    //! Number of points of electron energy grid
+    //! Number of points of electron energy levels
     size_t m_nPoints;
 
     //! electron energy grid
-    Eigen::VectorXd m_electronEnergyGrid;
+    Eigen::VectorXd m_electronEnergyLevels;
 
     //! Normalized electron energy distribution vector
     Eigen::VectorXd m_electronEnergyDistrb;
