@@ -270,7 +270,7 @@ void IdealGasPhase::setToEquilState(const doublereal* mu_RT)
     setState_PX(pres, &m_pp[0]);
 }
 
-void IdealGasPhase::_updateThermo() const
+void IdealGasPhase::updateThermo() const
 {
     static const int cacheId = m_cache.getId();
     CachedScalar cached = m_cache.getScalar(cacheId);

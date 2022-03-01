@@ -92,9 +92,9 @@ void PlasmaPhase::getElectronEnergyDistribution(vector_fp& distrb) const
     }
 }
 
-void PlasmaPhase::_updateThermo() const
+void PlasmaPhase::updateThermo() const
 {
-    IdealGasPhase::_updateThermo();
+    IdealGasPhase::updateThermo();
     static const int cacheId = m_cache.getId();
     CachedScalar cached = m_cache.getScalar(cacheId);
     double tempNow = temperature();
