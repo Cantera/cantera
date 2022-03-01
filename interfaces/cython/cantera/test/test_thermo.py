@@ -1126,6 +1126,47 @@ class TestInterfacePhase(utilities.CanteraTest):
         self.assertNear(C[self.interface.species_index('c6*M')], 0.75)
 
 
+class TestPlasmaPhase(utilities.CanteraTest):
+    def setUp(self):
+        self.phase = ct.Plasma('oxygen-plasma.yaml', transport_model=None)
+
+    def test_mean_electron_energy(self):
+        self.phase.Te = 60000
+        h = self.phase.standard_enthalpies_RT[0]
+        epi = (self.phase.mean_electron_energy * ct.avogadro * ct.electron_charge /
+                (ct.gas_constant * self.phase.Te))
+        self.assertNear(epi, h - 1.0, 1e-2)
+
+    def test_set_get_electron_energy_levels(self):
+        levels = np.linspace(0.01, 10, num=9)
+        self.phase.electron_energy_levels = levels
+        self.assertArrayNear(levels, self.phase.electron_energy_levels)
+
+    def test_isotropic_velocity_electron_energy_distribution(self):
+        levels = np.linspace(0.01, 10, num=9)
+        self.phase.electron_energy_levels = levels
+        self.phase.Te = 2e5
+        mean_electron_energy = 3.0 / 2.0 * (self.phase.Te * ct.gas_constant /
+                               (ct.avogadro * ct.electron_charge))
+        self.assertNear(mean_electron_energy , self.phase.mean_electron_energy)
+
+    def test_user_specified_electron_energy_distribution(self):
+        levels = np.linspace(0, 1, num=2)
+        distrb = np.linspace(0, 1, num=2)
+        self.phase.set_electron_energy_distribution(levels, distrb)
+        self.assertArrayNear(levels, self.phase.electron_energy_levels)
+        self.assertArrayNear(distrb, self.phase.electron_energy_distribution)
+        self.assertNear(self.phase.mean_electron_energy, 0.2)
+        electron_temp = 2.0 / 3.0 * (self.phase.mean_electron_energy *
+                        ct.avogadro * ct.electron_charge / ct.gas_constant)
+        self.assertNear(self.phase.Te, electron_temp)
+
+    def test_electron_thermodynamic_properties(self):
+        self.assertNear(self.phase.standard_gibbs_RT[0],
+                        self.phase.standard_enthalpies_RT[0] -
+                        self.phase.standard_entropies_R[0])
+
+
 class ImportTest(utilities.CanteraTest):
     """
     Test the various ways of creating a Solution object
