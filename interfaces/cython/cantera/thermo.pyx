@@ -2099,33 +2099,33 @@ cdef class PlasmaPhase(ThermoPhase):
             raise TypeError('Underlying ThermoPhase object is of the wrong type.')
         self.plasma = <CxxPlasmaPhase*>(self.thermo)
 
-    def set_electron_energy_distribution(self, grid, distrb):
+    def set_electron_energy_distribution(self, levels, distrb):
         """ Set electron energy distribution. When this method is used, electron
         temperature is calculated from the distribution.
-        :param grid:
-            vector of electron energy grid [eV]
+        :param levels:
+            vector of electron energy levels [eV]
         :param distrb:
             vector of distribution
         """
-        cdef vector[double] cxxdata_grid
+        cdef vector[double] cxxdata_levels
         cdef vector[double] cxxdata_distrb
-        for value in grid:
-            cxxdata_grid.push_back(value)
+        for value in levels:
+            cxxdata_levels.push_back(value)
         for value in distrb:
             cxxdata_distrb.push_back(value)
-        self.plasma.setElectronEnergyDistribution(cxxdata_grid, cxxdata_distrb)
+        self.plasma.setElectronEnergyDistribution(cxxdata_levels, cxxdata_distrb)
 
-    property electron_energy_grid:
-        """ Electron energy grid [eV]"""
+    property electron_energy_levels:
+        """ Electron energy levels [eV]"""
         def __get__(self):
             cdef vector[double] cxxdata
-            self.plasma.getElectronEnergyGrid(cxxdata)
+            self.plasma.getElectronEnergyLevels(cxxdata)
             return np.fromiter(cxxdata, np.double)
-        def __set__(self, grid):
+        def __set__(self, levels):
             cdef vector[double] cxxdata
-            for value in grid:
+            for value in levels:
                 cxxdata.push_back(value)
-            self.plasma.setElectronEnergyGrid(cxxdata)
+            self.plasma.setElectronEnergyLevels(cxxdata)
 
     property electron_energy_distribution:
         """ Electron energy distribution """

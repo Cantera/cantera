@@ -442,8 +442,8 @@ cdef extern from "cantera/thermo/SurfPhase.h":
 cdef extern from "cantera/thermo/PlasmaPhase.h":
     cdef cppclass CxxPlasmaPhase "Cantera::PlasmaPhase":
         CxxPlasmaPhase()
-        void setElectronEnergyGrid(vector[double]&) except +translate_exception
-        void getElectronEnergyGrid(vector[double]&)
+        void setElectronEnergyLevels(vector[double]&) except +translate_exception
+        void getElectronEnergyLevels(vector[double]&)
         void setElectronEnergyDistribution(vector[double]&, vector[double]&) except +translate_exception
         void getElectronEnergyDistribution(vector[double]&)
         double electronTemperature() except +translate_exception
