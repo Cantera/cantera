@@ -127,6 +127,8 @@ public:
     }
 
 protected:
+    virtual void updateThermo() const;
+
     // Electron energy order in the exponential term
     double m_x;
 
@@ -144,8 +146,6 @@ protected:
 
     //! Index of electron species
     size_t m_electronSpeciesIndex;
-
-    virtual void _updateThermo() const;
 
     //! Electron temperature [K]
     double m_electronTemp;
