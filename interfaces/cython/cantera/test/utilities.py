@@ -18,23 +18,20 @@ slow_test = unittest.skipIf(environ.get("CT_SKIP_SLOW", "0") == "1", "slow test"
 TEST_DATA_PATH = Path(__file__).parent / "data"
 CANTERA_DATA_PATH = Path(__file__).parents[1] / "data"
 
-def allow_deprecated(test):
-    def wrapper(*args, **kwargs):
-        cantera.suppress_deprecation_warnings()
-        try:
-            test(*args, **kwargs)
-        finally:
-            cantera.make_deprecation_warnings_fatal()
 
-    return wrapper
+@pytest.fixture
+def allow_deprecated():
+    cantera.suppress_deprecation_warnings()
+    yield
+    cantera.make_deprecation_warnings_fatal()
 
-def has_temperature_derivative_warnings(test):
-    def wrapper(*args, **kwargs):
-        with pytest.warns(UserWarning, match="ddTScaledFromStruct"):
-            # test warning raised for BlowersMasel and TwoTempPlasma derivatives
-            test(*args, **kwargs)
 
-    return wrapper
+@pytest.fixture
+def has_temperature_derivative_warnings():
+    with pytest.warns(UserWarning, match="ddTScaledFromStruct"):
+        # test warning raised for BlowersMasel and TwoTempPlasma derivatives
+        yield
+
 
 def load_yaml(yml_file):
     # Load YAML data from file using the "safe" loading option.
@@ -47,6 +44,7 @@ def load_yaml(yml_file):
             # Ensure that  the loader remains backward-compatible with legacy
             # ruamel.yaml versions (prior to 0.17.0).
             return yaml.safe_load(stream)
+
 
 class CanteraTest(unittest.TestCase):
     @classmethod

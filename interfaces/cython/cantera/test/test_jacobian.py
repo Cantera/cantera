@@ -3,6 +3,7 @@ import pytest
 
 import cantera as ct
 from . import utilities
+from .utilities import has_temperature_derivative_warnings
 
 
 class RateExpressionTests:
@@ -481,15 +482,15 @@ class FromScratchCases(RateExpressionTests):
         cls.gas.TP = 2000, 5 * ct.one_atm
         super().setUpClass()
 
-    @utilities.has_temperature_derivative_warnings
+    @pytest.mark.usefixtures("has_temperature_derivative_warnings")
     def test_forward_rop_ddT(self):
         super().test_forward_rop_ddT()
 
-    @utilities.has_temperature_derivative_warnings
+    @pytest.mark.usefixtures("has_temperature_derivative_warnings")
     def test_reverse_rop_ddT(self):
         super().test_reverse_rop_ddT()
 
-    @utilities.has_temperature_derivative_warnings
+    @pytest.mark.usefixtures("has_temperature_derivative_warnings")
     def test_net_rop_ddT(self):
         super().test_net_rop_ddT()
 

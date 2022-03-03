@@ -1,6 +1,8 @@
 import cantera as ct
 from . import utilities
 import numpy as np
+from .utilities import allow_deprecated
+import pytest
 
 from cantera.composite import _h5py
 
@@ -503,7 +505,7 @@ class TestFreeFlame(utilities.CanteraTest):
         # TODO: check that the solution is actually correct (i.e. that the
         # residual satisfies the error tolerances) on the new grid.
 
-    @utilities.allow_deprecated
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_save_restore_xml(self):
         reactants = 'H2:1.1, O2:1, AR:5'
         p = 2 * ct.one_atm
@@ -647,7 +649,7 @@ class TestFreeFlame(utilities.CanteraTest):
                     getattr(self.sim, attr)
 
     @utilities.slow_test
-    @utilities.allow_deprecated
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_save_restore_add_species_xml(self):
         reactants = 'H2:1.1, O2:1, AR:5'
         p = 2 * ct.one_atm
@@ -713,7 +715,7 @@ class TestFreeFlame(utilities.CanteraTest):
             self.assertArrayNear(Y1[k1], Y2[k2])
 
     @utilities.slow_test
-    @utilities.allow_deprecated
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_save_restore_remove_species_xml(self):
         reactants = 'H2:1.1, O2:1, AR:5'
         p = 2 * ct.one_atm

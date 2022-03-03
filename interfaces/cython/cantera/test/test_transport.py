@@ -2,7 +2,9 @@ import numpy as np
 
 import cantera as ct
 from . import utilities
+from .utilities import allow_deprecated
 import copy
+import pytest
 
 
 class TestTransport(utilities.CanteraTest):
@@ -205,8 +207,10 @@ class TestTransport(utilities.CanteraTest):
         self.assertEqual(D12, D12new)
         self.assertEqual(D23, D23new)
 
+
+@pytest.mark.usefixtures("allow_deprecated")
 class TestIonTransport(utilities.CanteraTest):
-    @utilities.allow_deprecated
+
     def setUp(self):
         self.p = ct.one_atm
         self.T = 2237
