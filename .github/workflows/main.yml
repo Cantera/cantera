@@ -298,6 +298,8 @@ jobs:
     name: Sundials ${{ matrix.sundials-ver }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      PYTHON_VERSION: 3.8
     defaults:
       run:
         shell: bash -l {0}
@@ -313,7 +315,7 @@ jobs:
       - uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
-          python-version: 3.8
+          python-version: ${{ env.PYTHON_VERSION }}
           miniforge-version: latest
           activate-environment: test
         name: Set up conda
@@ -331,11 +333,23 @@ jobs:
       - name: Test Cantera
         run: scons test show_long_tests=yes verbose_tests=yes
       - name: Test Install
+        # spot-check installation locations
         run: |
           scons install
-          python -c 'import cantera as ct; print(ct.__version__)'
+          test -f ${CONDA_PREFIX}/lib/libcantera_shared.so
+          test -f ${CONDA_PREFIX}/include/cantera/base/Solution.h
+          test -f ${CONDA_PREFIX}/bin/ck2yaml
+          test -f ${CONDA_PREFIX}/share/cantera/data/gri30.yaml
+          test -d ${CONDA_PREFIX}/share/cantera/samples
+          test -d ${CONDA_PREFIX}/lib/python${{ env.PYTHON_VERSION }}/site-packages/cantera
+      - name: Test Essentials
+        # ensure that Python package loads and converter scripts work
+        run: |
+          python -c 'import cantera as ct; import sys; sys.exit(0) if ct.__version__.startswith("2.6.0") else sys.exit(1)'
           ck2yaml --input=test/data/h2o2.inp --output=h2o2-test.yaml
+          test -f h2o2-test.yaml
           cti2yaml test/data/air-no-reactions.cti air-no-reaction-test.yaml
+          test -f air-no-reaction-test.yaml
 
   cython-latest:
     name: Test pre-release version of Cython
@@ -406,7 +420,7 @@ jobs:
       matrix:
         os: ["windows-2022"]
         vs-toolset: ["14.3"] # 'cl' is not recognized for earlier toolsets
-        python-version: [ "3.7", "3.8", "3.9", "3.10" ]
+        python-version: [ "3.7", "3.9", "3.10" ]
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
@@ -426,20 +440,33 @@ jobs:
       # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
       # use boost-cpp rather than boost from conda-forge
       run: |
-        mamba install -q scons numpy cython ruamel_yaml boost-cpp eigen yaml-cpp h5py pandas pytest
+        mamba install -q scons numpy cython ruamel.yaml boost-cpp eigen yaml-cpp h5py pandas pytest
       shell: pwsh
     - name: Build Cantera
-      run: scons build CXX=cl CC=cl system_eigen=y system_yamlcpp=y VERBOSE=True
+      run: scons build system_eigen=y system_yamlcpp=y VERBOSE=True
         msvc_version=${{ matrix.vs-toolset }} f90_interface=n debug=n --debug=time -j2
       shell: pwsh
     - name: Test Cantera
       run: scons test show_long_tests=yes verbose_tests=yes --debug=time
       shell: pwsh
     - name: Test Install
+      # spot-check installation locations
       run: |
         scons install
-        python -c 'import cantera as ct; print(ct.__version__)'
-      shell: pwsh
+        test -f ${CONDA_PREFIX}/Library/lib/cantera_shared.dll
+        test -f ${CONDA_PREFIX}/Library/include/cantera/base/Solution.h
+        test -f ${CONDA_PREFIX}/Scripts/ck2yaml
+        test -f ${CONDA_PREFIX}/share/cantera/data/gri30.yaml
+        test -d ${CONDA_PREFIX}/share/cantera/samples
+        test -d ${CONDA_PREFIX}/Lib/site-packages/cantera
+    - name: Test Essentials
+      # ensure that Python package loads and converter scripts work
+      run: |
+        python -c 'import cantera as ct; import sys; sys.exit(0) if ct.__version__.startswith("2.6.0") else sys.exit(1)'
+        ck2yaml --input=test/data/h2o2.inp --output=h2o2-test.yaml
+        test -f h2o2-test.yaml
+        cti2yaml test/data/air-no-reactions.cti air-no-reaction-test.yaml
+        test -f air-no-reaction-test.yaml
 
   windows:
     name: ${{ matrix.os }}, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}
@@ -452,7 +479,7 @@ jobs:
       matrix:
         os: ['windows-2019']
         vs-toolset: ['14.0', '14.2']
-        python-version: [ '3.6', '3.9', '3.10' ]
+        python-version: [ "3.7", "3.9", "3.10" ]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
