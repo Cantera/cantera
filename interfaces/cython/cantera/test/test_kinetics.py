@@ -6,6 +6,7 @@ import pytest
 
 import cantera as ct
 from . import utilities
+from .utilities import allow_deprecated
 
 # avoid explicit dependence of cantera on scipy
 try:
@@ -948,14 +949,14 @@ class TestDuplicateReactions(utilities.CanteraTest):
 
 class TestReaction(utilities.CanteraTest):
     @classmethod
-    def setUpClass(self):
+    def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
-        self.gas = ct.Solution('h2o2.yaml', transport_model=None)
-        self.gas.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
-        self.gas.TP = 900, 2*ct.one_atm
-        self.species = ct.Species.list_from_file("h2o2.yaml")
+        cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
+        cls.gas.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
+        cls.gas.TP = 900, 2*ct.one_atm
+        cls.species = ct.Species.list_from_file("h2o2.yaml")
 
-    @utilities.allow_deprecated
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_fromCti(self):
         r = ct.Reaction.fromCti('''three_body_reaction('2 O + M <=> O2 + M',
             [1.200000e+11, -1.0, 0.0], efficiencies='AR:0.83 H2:2.4 H2O:15.4')''')
@@ -969,7 +970,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertIn('O2', r)
         self.assertNotIn('H2O', r)
 
-    @utilities.allow_deprecated
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_fromXml(self):
         import xml.etree.ElementTree as ET
         root = ET.parse(self.cantera_data_path / "h2o2.xml").getroot()
@@ -1005,7 +1006,7 @@ class TestReaction(utilities.CanteraTest):
         eq2 = [r.equation for r in self.gas.reactions()]
         self.assertEqual(eq1, eq2)
 
-    @utilities.allow_deprecated
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_listFromCti(self):
         gas = ct.Solution("h2o2.xml", transport_model=None)
         R = ct.Reaction.listFromCti((self.cantera_data_path / "h2o2.cti").read_text())
@@ -1013,7 +1014,7 @@ class TestReaction(utilities.CanteraTest):
         eq2 = [r.equation for r in gas.reactions()]
         self.assertEqual(eq1, eq2)
 
-    @utilities.allow_deprecated
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_listFromXml(self):
         gas = ct.Solution("h2o2.xml", transport_model=None)
         R = ct.Reaction.listFromXml((self.cantera_data_path / "h2o2.xml").read_text())

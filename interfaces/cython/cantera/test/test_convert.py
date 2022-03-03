@@ -2,8 +2,10 @@ import itertools
 from pathlib import Path
 import logging
 import io
+import pytest
 
 from . import utilities
+from .utilities import allow_deprecated
 import cantera as ct
 from cantera import ck2cti, ck2yaml, cti2yaml, ctml2yaml
 
@@ -534,8 +536,10 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
         with self.assertRaisesRegex(self.InputError, 'Element amounts can have no more than 3 digits.'):
             self.convert('big_element_num_err.inp')
 
+
+@pytest.mark.usefixtures("allow_deprecated")
 class CtmlConverterTest(utilities.CanteraTest):
-    @utilities.allow_deprecated
+
     def test_sofc(self):
         gas_a, anode_bulk, oxide_a = ct.import_phases(
             'sofc.cti',
@@ -546,14 +550,12 @@ class CtmlConverterTest(utilities.CanteraTest):
         self.assertNear(oxide_a.density_mole, 17.6)
 
     @utilities.slow_test
-    @utilities.allow_deprecated
     def test_diamond(self):
         gas, solid = ct.import_phases('diamond.cti', ['gas','diamond'])
         face = ct.Interface('diamond.cti', 'diamond_100', [gas, solid])
 
         self.assertNear(face.site_density, 3e-8)
 
-    @utilities.allow_deprecated
     def test_invalid(self):
         try:
             gas = ct.Solution('invalid.cti')
@@ -562,13 +564,11 @@ class CtmlConverterTest(utilities.CanteraTest):
 
         self.assertIn('already contains', err.args[0])
 
-    @utilities.allow_deprecated
     def test_noninteger_atomicity(self):
         gas = ct.Solution('noninteger-atomicity.cti')
         self.assertNear(gas.molecular_weights[gas.species_index('CnHm')],
                         10.65*gas.atomic_weight('C') + 21.8*gas.atomic_weight('H'))
 
-    @utilities.allow_deprecated
     def test_reaction_orders(self):
         gas = ct.Solution('reaction-orders.cti')
         self.assertEqual(gas.n_reactions, 1)
@@ -578,7 +578,6 @@ class CtmlConverterTest(utilities.CanteraTest):
         self.assertTrue(R.allow_negative_orders)
         self.assertNear(R.orders.get('H2'), -0.25)
 
-    @utilities.allow_deprecated
     def test_long_source_input(self):
         """
         Here we are testing if passing a very long string will result in a
@@ -593,7 +592,6 @@ class CtmlConverterTest(utilities.CanteraTest):
 
         self.assertEqual(gas.n_reactions, gas2.n_reactions)
 
-    @utilities.allow_deprecated
     def test_short_source_input(self):
         """
         Here we are testing if passing a short string will result in a Solution

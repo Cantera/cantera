@@ -5,6 +5,7 @@ import textwrap
 import cantera as ct
 import numpy as np
 from . import utilities
+from .utilities import has_temperature_derivative_warnings
 import pytest
 
 
@@ -214,7 +215,7 @@ class ReactionRateTests:
         with self.assertRaisesRegex(Exception, "not supported"):
             ct.ReactionRate.from_yaml(yaml)
 
-    @utilities.has_temperature_derivative_warnings
+    @pytest.mark.usefixtures("has_temperature_derivative_warnings")
     def test_derivative_ddT(self):
         # check temperature derivative against numerical derivative
         deltaT = self.gas.derivative_settings["rtol-delta"]
@@ -273,7 +274,7 @@ class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
         with self.assertRaisesRegex(Exception, "not supported"):
             ct.ReactionRate.from_yaml(yaml)
 
-    @utilities.has_temperature_derivative_warnings
+    @pytest.mark.usefixtures("has_temperature_derivative_warnings")
     def test_derivative_ddT_exact(self):
         # check exact derivative against analytical and numerical derivatives
         rate = self.from_parts()
@@ -414,7 +415,7 @@ class FalloffRateTests(ReactionRateTests):
         for n in self._n_data:
             rate.falloff_coeffs = np.random.rand(n)
 
-    @utilities.has_temperature_derivative_warnings
+    @pytest.mark.usefixtures("has_temperature_derivative_warnings")
     def test_derivative_ddT(self):
         pert = self.gas.derivative_settings["rtol-delta"]
         deltaT = self.gas.T * pert
