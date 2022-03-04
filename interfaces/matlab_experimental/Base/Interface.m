@@ -53,17 +53,17 @@ classdef Interface < handle & ThermoPhase & Kinetics
             calllib(ct, 'surf_getCoverages', surf_id, xx);
             c = pt.Value;
 
-            if nargout == 0
-                figure
-                set(gcf, 'Name', 'Coverages')
-                bar(c);
-                colormap(summer);
-                nm = s.speciesNames;
-                set(gca, 'XTickLabel', nm);
-                xlabel('Species Name');
-                ylabel('Coverage');
-                title('Surface Species Coverages');
-            end
+%             if nargout == 0
+%                 figure
+%                 set(gcf, 'Name', 'Coverages')
+%                 bar(c);
+%                 colormap(summer);
+%                 nm = s.speciesNames;
+%                 set(gca, 'XTickLabel', nm);
+%                 xlabel('Species Name');
+%                 ylabel('Coverage');
+%                 title('Surface Species Coverages');
+%             end
         end
 
         function c = concentrations(s)
@@ -82,17 +82,17 @@ classdef Interface < handle & ThermoPhase & Kinetics
             calllib(ct, 'surf_getConcentrations', surf_id, xx);
             c = pt.Value;
 
-            if nargout == 0
-                figure
-                set(gcf, 'Name', 'Concentrations')
-                bar(c);
-                colormap(summer);
-                nm = speciesNames(s);
-                set(gca, 'XTickLabel', nm);
-                xlabel('Species Name');
-                ylabel('Concentration [kmol/m^2]');
-                title('Surface Species Concentrations');
-            end
+%             if nargout == 0
+%                 figure
+%                 set(gcf, 'Name', 'Concentrations')
+%                 bar(c);
+%                 colormap(summer);
+%                 nm = speciesNames(s);
+%                 set(gca, 'XTickLabel', nm);
+%                 xlabel('Species Name');
+%                 ylabel('Concentration [kmol/m^2]');
+%                 title('Surface Species Concentrations');
+%             end
         end
 
         function set.coverages(s, cov, norm)

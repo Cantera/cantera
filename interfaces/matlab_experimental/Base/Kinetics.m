@@ -41,7 +41,7 @@ classdef Kinetics < handle
                 end
             end
             kin.kin_id = calllib(ct, 'kin_newFromFile', src, id, ...
-                             iph, inb1, inb2, inb3, inb4);
+                                 iph, inb1, inb2, inb3, inb4);
         end
 
         %% Utility methods
@@ -187,7 +187,7 @@ classdef Kinetics < handle
                                 kin.kin_id, k-1, i-1);
                     if t ~= 0.0
                         temp(k, i) = t;
-                    end
+                                            end
                 end
             end
 
@@ -240,14 +240,14 @@ classdef Kinetics < handle
             pt = libpointer('doublePtr', xx);
             calllib(ct, 'kin_getCreationRates', kin.kin_id, nsp, pt);
             cdot = pt.Value;
-            if nargout == 0
-                figure
-                set(gcf, 'Name', 'Creation Rates')
-                bar(q)
-                xlabel('Species Number')
-                ylabel('Creation Rate [kmol/m^3-s]')
-                title('Species Chemical Reaction Rates')
-            end
+%             if nargout == 0
+%                 figure
+%                 set(gcf, 'Name', 'Creation Rates')
+%                 bar(q)
+%                 xlabel('Species Number')
+%                 ylabel('Creation Rate [kmol/m^3-s]')
+%                 title('Species Chemical Reaction Rates')
+%             end
         end
 
         function ddot = destructionRates(kin)
@@ -264,14 +264,14 @@ classdef Kinetics < handle
             pt = libpointer('doublePtr', xx);
             calllib(ct, 'kin_getDestructionRates', kin.kin_id, nsp, pt);
             ddot = pt.Value;
-            if nargout == 0
-                figure
-                set(gcf, 'Name', 'Destruction Rates')
-                bar(q)
-                xlabel('Species Number')
-                ylabel('Destruction Rate [kmol/m^3-s]')
-                title('Species Chemical Reaction Rates')
-            end
+%             if nargout == 0
+%                 figure
+%                 set(gcf, 'Name', 'Destruction Rates')
+%                 bar(q)
+%                 xlabel('Species Number')
+%                 ylabel('Destruction Rate [kmol/m^3-s]')
+%                 title('Species Chemical Reaction Rates')
+%             end
         end
 
         function wdot = netProdRates(kin)
@@ -288,14 +288,14 @@ classdef Kinetics < handle
             pt = libpointer('doublePtr', xx);
             calllib(ct, 'kin_getNetProductionRates', kin.kin_id, nsp, pt);
             wdot = pt.Value;
-            if nargout == 0
-                figure
-                set(gcf, 'Name', 'Production Rates')
-                bar(q)
-                xlabel('Species Number')
-                ylabel('Net Production Rate [kmol/m^3-s]')
-                title('Species Net Chemical Reaction Rates')
-            end
+%             if nargout == 0
+%                 figure
+%                 set(gcf, 'Name', 'Production Rates')
+%                 bar(q)
+%                 xlabel('Species Number')
+%                 ylabel('Net Production Rate [kmol/m^3-s]')
+%                 title('Species Net Chemical Reaction Rates')
+%             end
         end
 
         function q = rop_f(kin)
@@ -312,14 +312,14 @@ classdef Kinetics < handle
             pt = libpointer('doublePtr', xx);
             calllib(ct, 'kin_getFwdRateOfProgress', kin.kin_id, nr, pt);
             q = pt.Value;
-            if nargout == 0
-                figure
-                set(gcf, 'Name', 'Rates of Progress')
-                bar(q)
-                xlabel('Reaction Number')
-                ylabel('Forward Rate of Progress [kmol/m^3]')
-                title('Forward Rates of Progress')
-            end
+%             if nargout == 0
+%                 figure
+%                 set(gcf, 'Name', 'Rates of Progress')
+%                 bar(q)
+%                 xlabel('Reaction Number')
+%                 ylabel('Forward Rate of Progress [kmol/m^3]')
+%                 title('Forward Rates of Progress')
+%             end
         end
 
         function q = rop_r(kin)
@@ -336,14 +336,14 @@ classdef Kinetics < handle
             pt = libpointer('doublePtr', xx);
             calllib(ct, 'kin_getRevRateOfProgress', kin.kin_id, nr, pt);
             q = pt.Value;
-            if nargout == 0
-                figure
-                set(gcf, 'Name', 'Rates of Progress')
-                bar(q)
-                xlabel('Reaction Number')
-                ylabel('Reverse Rate of Progress [kmol/m^3]')
-                title('Reverse Rates of Progress')
-            end
+%             if nargout == 0
+%                 figure
+%                 set(gcf, 'Name', 'Rates of Progress')
+%                 bar(q)
+%                 xlabel('Reaction Number')
+%                 ylabel('Reverse Rate of Progress [kmol/m^3]')
+%                 title('Reverse Rates of Progress')
+%             end
         end
 
         function q = rop(kin)
@@ -360,15 +360,15 @@ classdef Kinetics < handle
             f = rop_f(kin);
             r = rop_r(kin);
             q = [f, r];
-            if nargout == 0
-                figure
-                set(gcf, 'Name', 'Rates of Progress')
-                bar(q)
-                xlabel('Reaction Number')
-                ylabel('Rate of Progress [kmol/m^3]')
-                title('Rates of Progress')
-                legend('Forward', 'Reverse')
-            end
+%             if nargout == 0
+%                 figure
+%                 set(gcf, 'Name', 'Rates of Progress')
+%                 bar(q)
+%                 xlabel('Reaction Number')
+%                 ylabel('Rate of Progress [kmol/m^3]')
+%                 title('Rates of Progress')
+%                 legend('Forward', 'Reverse')
+%             end
         end
 
         function q = rop_net(kin)
@@ -385,14 +385,14 @@ classdef Kinetics < handle
             pt = libpointer('doublePtr', xx);
             calllib(ct, 'kin_getNetRatesOfProgress', kin.kin_id, nr, pt);
             q = pt.Value;
-            if nargout == 0
-                figure
-                set(gcf, 'Name', 'Rates of Progress')
-                bar(q)
-                xlabel('Reaction Number')
-                ylabel('Net Rate of Progress [kmol/m^3]')
-                title('Net Rates of Progress')
-            end
+%             if nargout == 0
+%                 figure
+%                 set(gcf, 'Name', 'Rates of Progress')
+%                 bar(q)
+%                 xlabel('Reaction Number')
+%                 ylabel('Net Rate of Progress [kmol/m^3]')
+%                 title('Net Rates of Progress')
+%             end
         end
 
         function rxn = reactionEqn(kin, irxn)
@@ -492,14 +492,14 @@ classdef Kinetics < handle
             pt = libpointer('doublePtr', xx);
             calllib(ct, 'kin_getEquilibriumConstants', kin.kin_id, nr, pt);
             k = pt.Value;
-            if nargout == 0
-                figure
-                set(gcf, 'Name', 'Equilibrium Constants')
-                bar(k)
-                xlabel('Reaction Number')
-                ylabel('log_{10} Kc [kmol,m, s]')
-                title('Equilibrium Constants')
-            end
+%             if nargout == 0
+%                 figure
+%                 set(gcf, 'Name', 'Equilibrium Constants')
+%                 bar(k)
+%                 xlabel('Reaction Number')
+%                 ylabel('log_{10} Kc [kmol,m, s]')
+%                 title('Equilibrium Constants')
+%             end
         end
 
         function k = get.Kf(kin)

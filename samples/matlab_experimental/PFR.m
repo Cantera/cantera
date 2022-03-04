@@ -115,7 +115,7 @@ for i = 2:length(x_calc)
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
     % These values are passed onto the ode15s solver
-    [~,y] = ode15s(@PFR_Solver, limits, inlet_soln, options,...,
+    [~,y] = ode15s(@PFR_Solver, limits, inlet_soln, options, ...
                     gas_calc, mdot_calc, A_in, dAdx, k);
 
     T_calc(i) = y(end, 2);

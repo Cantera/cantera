@@ -174,7 +174,7 @@ classdef ThermoPhase < handle
                             tp.tp_id, name) + 1;
                 if k > 1e3
                     warning(['Element ', name, ...
-                           ' does not exist in the phase']);
+                             ' does not exist in the phase']);
                     k = -1;
                 end
             else
@@ -365,7 +365,7 @@ classdef ThermoPhase < handle
                     if buflen > 0
                         aa = char(zeros(1, buflen));
                         [~, aa] = calllib(ct, 'thermo_getSpeciesName', ...
-                                                tp.tp_id, ksp, buflen, aa);
+                                          tp.tp_id, ksp, buflen, aa);
                         nm{i, j} = aa;
                     end
                 end
