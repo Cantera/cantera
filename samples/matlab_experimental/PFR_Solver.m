@@ -40,11 +40,11 @@ function F = PFR_Solver(x, soln_vector, gas, mdot, A_in, dAdx, k)
     %-------------------------reactor------------------------------------------
     %--------------------------------------------------------------------------
     F(1) = ((1-R/Cp)*((rho*vx)^2)*(1/A)*(dAdx)...
-        + rho*R*sum(MW.*w.*(h-MW_mix*Cp*T./MW))/(vx*Cp) )...
-        / (P*(1+vx^2/(Cp*T)) - rho*vx^2);
+            + rho*R*sum(MW.*w.*(h-MW_mix*Cp*T./MW))/(vx*Cp) )...
+            / (P*(1+vx^2/(Cp*T)) - rho*vx^2);
 
     F(2) = (vx*vx/(rho*Cp))*F(1) + vx*vx*(1/A)*(dAdx)/Cp...
-        - (1/(vx*rho*Cp))*sum(h.*w.*MW);
+            - (1/(vx*rho*Cp))*sum(h.*w.*MW);
 
     F(3:nsp+2) = w(1:nsp).*MW(1:nsp)./(rho*vx);
 

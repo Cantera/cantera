@@ -346,7 +346,7 @@ classdef Stack < handle
             %    step to be taken first time the steady-state solution
             %    attempted. If this failed, two time steps would be taken.
             checklib;
-            calllib(ct, 'sim1D_', s.st_id, ...
+            calllib(ct, 'sim1D_TimeStep', s.st_id, ...
                     stepsize, length(steps), steps);
         end
 

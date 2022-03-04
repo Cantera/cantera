@@ -13,7 +13,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
             s@Kinetics(tp, src, id);
             if nargin == 3
                 if ~(strcmp(trans, 'default') || strcmp(trans, 'None')...
-                    || strcmp(trans, 'Mix') || strcmp(trans, 'Multi'))
+                     || strcmp(trans, 'Mix') || strcmp(trans, 'Multi'))
                     error('Unknown transport modelling specified.');
                 end
             else

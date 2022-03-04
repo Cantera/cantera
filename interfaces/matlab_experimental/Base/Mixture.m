@@ -79,7 +79,7 @@ classdef Mixture < handle
             for n = 1:np
                 s = [sprintf('\n*******************    Phase %d', n) ...
                     sprintf('    ******************************\n\n Moles: %12.6g', ...
-                    phaseMoles(m, n))];
+                            phaseMoles(m, n))];
                 disp(s);
                 display(m.phases{n, 1});
             end
