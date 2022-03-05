@@ -41,8 +41,8 @@ class AnyMap;
  * It is evident that this expression combines a regular modified Arrhenius rate
  * expression \f$ A T^b \exp \left( - \frac{E_a}{RT} \right) \f$ with coverage-related
  * terms, where the parameters \f$ (a_k, E_k, m_k) \f$ describe the dependency on the
- * surface coverage of species \f$ k, \theta_k \f$. The Coverage class implements terms
- * related to coverage only, which allows for combinations with arbitrary rate
+ * surface coverage of species \f$ k, \theta_k \f$. The CoverageBase class implements
+ * terms related to coverage only, which allows for combinations with arbitrary rate
  * parameterizations (for example Arrhenius and BlowersMasel).
  */
 class CoverageBase
@@ -250,7 +250,7 @@ public:
 
     //! Identifier of reaction rate type
     virtual const std::string type() const override {
-        return RateType::type() + "-interface";
+        return "interface-" + RateType::type();
     }
 
     virtual void setParameters(
@@ -338,8 +338,8 @@ protected:
     }
 };
 
-using ArrheniusInterfaceRate = InterfaceRate<Arrhenius3, CoverageData>;
-using BlowersMaselInterfaceRate = InterfaceRate<BlowersMasel, CoverageData>;
+using InterfaceArrheniusRate = InterfaceRate<Arrhenius3, CoverageData>;
+using InterfaceBlowersMaselRate = InterfaceRate<BlowersMasel, CoverageData>;
 
 
 //! A class template for interface sticking rate specifications
@@ -365,7 +365,7 @@ public:
 
     //! Identifier of reaction rate type
     virtual const std::string type() const override {
-        return RateType::type() + "-stick";
+        return "sticking-" + RateType::type();
     }
 
     virtual void setParameters(
@@ -480,8 +480,8 @@ protected:
     }
 };
 
-using ArrheniusStickingRate = StickingRate<Arrhenius3, CoverageData>;
-using BlowersMaselStickingRate = StickingRate<BlowersMasel, CoverageData>;
+using StickingArrheniusRate = StickingRate<Arrhenius3, CoverageData>;
+using StickingBlowersMaselRate = StickingRate<BlowersMasel, CoverageData>;
 
 }
 #endif

@@ -75,24 +75,24 @@ ReactionRateFactory::ReactionRateFactory()
         return new CustomFunc1Rate(node, rate_units);
     });
 
-    // ArrheniusInterfaceRate evaluator
-    reg("Arrhenius-interface", [](const AnyMap& node, const UnitStack& rate_units) {
-        return new ArrheniusInterfaceRate(node, rate_units);
+    // InterfaceArrheniusRate evaluator
+    reg("interface-Arrhenius", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new InterfaceArrheniusRate(node, rate_units);
     });
 
-    // ArrheniusStickingRate evaluator
-    reg("Arrhenius-stick", [](const AnyMap& node, const UnitStack& rate_units) {
-        return new ArrheniusStickingRate(node, rate_units);
+    // StickingArrheniusRate evaluator
+    reg("sticking-Arrhenius", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new StickingArrheniusRate(node, rate_units);
     });
 
-    // BlowersMaselInterfaceRate evaluator
-    reg("Blowers-Masel-interface", [](const AnyMap& node, const UnitStack& rate_units) {
-        return new BlowersMaselInterfaceRate(node, rate_units);
+    // InterfaceBlowersMaselRate evaluator
+    reg("interface-Blowers-Masel", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new InterfaceBlowersMaselRate(node, rate_units);
     });
 
-    // BlowersMaselStickingRate evaluator
-    reg("Blowers-Masel-stick", [](const AnyMap& node, const UnitStack& rate_units) {
-        return new BlowersMaselStickingRate(node, rate_units);
+    // StickingBlowersMaselRate evaluator
+    reg("sticking-Blowers-Masel", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new StickingBlowersMaselRate(node, rate_units);
     });
 }
 

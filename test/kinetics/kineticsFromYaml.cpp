@@ -365,11 +365,11 @@ TEST(Kinetics, InterfaceKineticsFromYaml)
 
     auto R1 = kin->reaction(0);
     EXPECT_DOUBLE_EQ(R1->orders["Pt(s)"], 1.0);
-    const auto rate1 = std::dynamic_pointer_cast<ArrheniusInterfaceRate>(R1->rate());
+    const auto rate1 = std::dynamic_pointer_cast<InterfaceArrheniusRate>(R1->rate());
     EXPECT_DOUBLE_EQ(rate1->preExponentialFactor(), 4.4579e7);
 
     auto R2 = kin->reaction(1);
-    const auto rate2 = std::dynamic_pointer_cast<ArrheniusInterfaceRate>(R2->rate());
+    const auto rate2 = std::dynamic_pointer_cast<InterfaceArrheniusRate>(R2->rate());
     EXPECT_DOUBLE_EQ(rate2->preExponentialFactor(), 3.7e20);
     Cantera::AnyMap coverage_deps;
     rate2->getCoverageDependencies(coverage_deps, true);
@@ -377,7 +377,7 @@ TEST(Kinetics, InterfaceKineticsFromYaml)
     EXPECT_DOUBLE_EQ(cov_map[2].asDouble(), -6e6 / GasConstant);
 
     auto R3 = kin->reaction(2);
-    EXPECT_TRUE(std::dynamic_pointer_cast<ArrheniusStickingRate>(R3->rate()));
+    EXPECT_TRUE(std::dynamic_pointer_cast<StickingArrheniusRate>(R3->rate()));
 }
 
 TEST(Kinetics, BMInterfaceKineticsFromYaml)
@@ -389,11 +389,11 @@ TEST(Kinetics, BMInterfaceKineticsFromYaml)
 
     auto R1 = kin->reaction(5);
     EXPECT_DOUBLE_EQ(R1->orders["PT(s)"], 1.0);
-    const auto rate = std::dynamic_pointer_cast<BlowersMaselInterfaceRate>(R1->rate());
+    const auto rate = std::dynamic_pointer_cast<InterfaceBlowersMaselRate>(R1->rate());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 4.4579e7);
 
     auto R2 = kin->reaction(0);
-    const auto rate2 = std::dynamic_pointer_cast<BlowersMaselInterfaceRate>(R2->rate());
+    const auto rate2 = std::dynamic_pointer_cast<InterfaceBlowersMaselRate>(R2->rate());
     EXPECT_DOUBLE_EQ(rate2->preExponentialFactor(), 3.7e20);
     Cantera::AnyMap coverage_deps;
     rate2->getCoverageDependencies(coverage_deps, true);
@@ -401,7 +401,7 @@ TEST(Kinetics, BMInterfaceKineticsFromYaml)
     EXPECT_DOUBLE_EQ(cov_map[2].asDouble(), -6e6 / GasConstant);
 
     auto R3 = kin->reaction(1);
-    EXPECT_TRUE(std::dynamic_pointer_cast<BlowersMaselStickingRate>(R3->rate()));
+    EXPECT_TRUE(std::dynamic_pointer_cast<StickingBlowersMaselRate>(R3->rate()));
 }
 
 TEST(Kinetics, ElectrochemFromYaml)
@@ -612,7 +612,7 @@ TEST_F(ReactionToYaml, surface)
     surf->setCoveragesByName("c6HH:0.1, c6H*:0.6, c6**:0.1");
     gas->thermo()->setMassFractionsByName("H2:0.7, CH4:0.3");
     duplicateReaction(0);
-    EXPECT_TRUE(std::dynamic_pointer_cast<ArrheniusInterfaceRate>(duplicate->rate()));
+    EXPECT_TRUE(std::dynamic_pointer_cast<InterfaceArrheniusRate>(duplicate->rate()));
     compareReactions();
 }
 
@@ -677,6 +677,6 @@ TEST_F(ReactionToYaml, BlowersMaselInterface)
     auto surf = std::dynamic_pointer_cast<SurfPhase>(soln->thermo());
     surf->setCoveragesByName("H(S):0.1, PT(S):0.8, H2O(S):0.1");
     duplicateReaction(0);
-    EXPECT_TRUE(std::dynamic_pointer_cast<BlowersMaselInterfaceRate>(duplicate->rate()));
+    EXPECT_TRUE(std::dynamic_pointer_cast<InterfaceBlowersMaselRate>(duplicate->rate()));
     compareReactions();
 }

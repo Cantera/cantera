@@ -154,13 +154,13 @@ struct BlowersMaselData : public ReactionData
     using ReactionData::update;
 
     virtual void resize(size_t n_species, size_t n_reactions) override {
-        grt.resize(n_species, 0.);
+        partial_molar_enthalpies.resize(n_species, 0.);
         ready = true;
     }
 
     bool ready; //!< boolean indicating whether vectors are accessible
     double density; //!< used to determine if updates are needed
-    vector_fp grt; //!< partial molar enthalpies
+    vector_fp partial_molar_enthalpies; //!< partial molar enthalpies
 
 protected:
     int m_state_mf_number; //!< integer that is incremented when composition changes
@@ -326,7 +326,7 @@ struct CoverageData : public BlowersMaselData
     virtual void resize(size_t n_species, size_t n_reactions) override {
         coverages.resize(n_species, 0.);
         logCoverages.resize(n_species, 0.);
-        grt.resize(n_species, 0.);
+        partial_molar_enthalpies.resize(n_species, 0.);
         ready = true;
     }
 

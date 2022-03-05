@@ -123,8 +123,8 @@ ReactionFactory::ReactionFactory()
     addAlias("interface", "edge");
     addAlias("interface", "interface-legacy");
 
-    addAlias("reaction", "Arrhenius-interface");
-    addAlias("reaction", "Arrhenius-stick");
+    addAlias("reaction", "interface-Arrhenius");
+    addAlias("reaction", "sticking-Arrhenius");
 
     // register electrochemical reactions
     reg("electrochemical", [](const AnyMap& node, const Kinetics& kin) {
@@ -138,8 +138,8 @@ ReactionFactory::ReactionFactory()
     addAlias("reaction", "two-temperature-plasma");
 
     addAlias("reaction", "Blowers-Masel");
-    addAlias("reaction", "Blowers-Masel-interface");
-    addAlias("reaction", "Blowers-Masel-stick");
+    addAlias("reaction", "interface-Blowers-Masel");
+    addAlias("reaction", "sticking-Blowers-Masel");
 }
 
 ReactionFactoryXML* ReactionFactoryXML::s_factory = 0;

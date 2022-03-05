@@ -137,14 +137,14 @@ InterfaceRateBase
 .. autoclass:: InterfaceRateBase
    :no-undoc-members:
 
-ArrheniusInterfaceRate
+InterfaceArrheniusRate
 ^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: ArrheniusInterfaceRate(A, b, Ea)
+.. autoclass:: InterfaceArrheniusRate(A, b, Ea)
    :no-undoc-members:
 
-BlowersMaselInterfaceRate
+InterfaceBlowersMaselRate
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: BlowersMaselInterfaceRate(A, b, Ea0, w)
+.. autoclass:: InterfaceBlowersMaselRate(A, b, Ea0, w)
    :no-undoc-members:
 
 StickRateBase
@@ -152,14 +152,14 @@ StickRateBase
 .. autoclass:: StickRateBase
    :no-undoc-members:
 
-ArrheniusStickingRate
+StickingArrheniusRate
 ^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: ArrheniusStickingRate(A, b, Ea)
+.. autoclass:: StickingArrheniusRate(A, b, Ea)
    :no-undoc-members:
 
-BlowersMaselStickingRate
+StickingBlowersMaselRate
 ^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: BlowersMaselStickingRate(A, b, Ea0, w)
+.. autoclass:: StickingBlowersMaselRate(A, b, Ea0, w)
    :no-undoc-members:
 
 Auxiliary Reaction Data (legacy only)

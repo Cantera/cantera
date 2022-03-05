@@ -749,11 +749,11 @@ cdef class InterfaceRateBase(ArrheniusRateBase):
             self.coverage.setSiteDensity(site_density)
 
 
-cdef class ArrheniusInterfaceRate(InterfaceRateBase):
+cdef class InterfaceArrheniusRate(InterfaceRateBase):
     r"""
     A reaction rate coefficient which depends on temperature and interface coverage
     """
-    _reaction_rate_type = "Arrhenius-interface"
+    _reaction_rate_type = "interface-Arrhenius"
 
     def __cinit__(self, A=None, b=None, Ea=None, input_data=None, init=True):
 
@@ -761,27 +761,27 @@ cdef class ArrheniusInterfaceRate(InterfaceRateBase):
             self._cinit(input_data, A=A, b=b, Ea=Ea)
 
     def _from_dict(self, dict input_data):
-        self._rate.reset(new CxxArrheniusInterfaceRate(dict_to_anymap(input_data)))
+        self._rate.reset(new CxxInterfaceArrheniusRate(dict_to_anymap(input_data)))
 
     def _from_parameters(self, A, b, Ea):
-        self._rate.reset(new CxxArrheniusInterfaceRate(A, b, Ea))
+        self._rate.reset(new CxxInterfaceArrheniusRate(A, b, Ea))
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
         self.base = <CxxArrhenius*>self.rate
         self.coverage = <CxxCoverageBase*>self.cxx_object()
 
-    cdef CxxArrheniusInterfaceRate* cxx_object(self):
-        return <CxxArrheniusInterfaceRate*>self.rate
+    cdef CxxInterfaceArrheniusRate* cxx_object(self):
+        return <CxxInterfaceArrheniusRate*>self.rate
 
 
-cdef class BlowersMaselInterfaceRate(InterfaceRateBase):
+cdef class InterfaceBlowersMaselRate(InterfaceRateBase):
     r"""
     A reaction rate coefficient which depends on temperature and enthalpy change
     of the reaction follows the Blowers-Masel approximation and modified Arrhenius form
     described in `ArrheniusRate`.
     """
-    _reaction_rate_type = "Blowers-Masel-interface"
+    _reaction_rate_type = "interface-Blowers-Masel"
 
     def __cinit__(self, A=None, b=None, Ea0=None, w=None, input_data=None, init=True):
 
@@ -789,18 +789,18 @@ cdef class BlowersMaselInterfaceRate(InterfaceRateBase):
             self._cinit(input_data, A=A, b=b, Ea0=Ea0, w=w)
 
     def _from_dict(self, dict input_data):
-        self._rate.reset(new CxxBlowersMaselInterfaceRate(dict_to_anymap(input_data)))
+        self._rate.reset(new CxxInterfaceBlowersMaselRate(dict_to_anymap(input_data)))
 
     def _from_parameters(self, A, b, Ea0, w):
-        self._rate.reset(new CxxBlowersMaselInterfaceRate(A, b, Ea0, w))
+        self._rate.reset(new CxxInterfaceBlowersMaselRate(A, b, Ea0, w))
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
         self.base = <CxxArrhenius*>self.rate
         self.coverage = <CxxCoverageBase*>self.cxx_object()
 
-    cdef CxxBlowersMaselInterfaceRate* cxx_object(self):
-        return <CxxBlowersMaselInterfaceRate*>self.rate
+    cdef CxxInterfaceBlowersMaselRate* cxx_object(self):
+        return <CxxInterfaceBlowersMaselRate*>self.rate
 
     property bond_energy:
         """
@@ -887,11 +887,11 @@ cdef class StickRateBase(InterfaceRateBase):
             self.stick.setStickingWeight(weight)
 
 
-cdef class ArrheniusStickingRate(StickRateBase):
+cdef class StickingArrheniusRate(StickRateBase):
     r"""
     A surface sticking rate expression based on the Arrhenius parameterization
     """
-    _reaction_rate_type = "Arrhenius-stick"
+    _reaction_rate_type = "sticking-Arrhenius"
 
     def __cinit__(self, A=None, b=None, Ea=None, input_data=None, init=True):
 
@@ -899,10 +899,10 @@ cdef class ArrheniusStickingRate(StickRateBase):
             self._cinit(input_data, A=A, b=b, Ea=Ea)
 
     def _from_dict(self, dict input_data):
-        self._rate.reset(new CxxArrheniusStickingRate(dict_to_anymap(input_data)))
+        self._rate.reset(new CxxStickingArrheniusRate(dict_to_anymap(input_data)))
 
     def _from_parameters(self, A, b, Ea):
-        self._rate.reset(new CxxArrheniusStickingRate(A, b, Ea))
+        self._rate.reset(new CxxStickingArrheniusRate(A, b, Ea))
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
@@ -910,15 +910,15 @@ cdef class ArrheniusStickingRate(StickRateBase):
         self.stick = <CxxStickingCoverage*>self.cxx_object()
         self.coverage = <CxxCoverageBase*>self.stick
 
-    cdef CxxArrheniusStickingRate* cxx_object(self):
-        return <CxxArrheniusStickingRate*>self.rate
+    cdef CxxStickingArrheniusRate* cxx_object(self):
+        return <CxxStickingArrheniusRate*>self.rate
 
 
-cdef class BlowersMaselStickingRate(StickRateBase):
+cdef class StickingBlowersMaselRate(StickRateBase):
     r"""
     A surface sticking rate expression based on the Blowers-Masel parameterization
     """
-    _reaction_rate_type = "Blowers-Masel-stick"
+    _reaction_rate_type = "sticking-Blowers-Masel"
 
     def __cinit__(self, A=None, b=None, Ea0=None, w=None, input_data=None, init=True):
 
@@ -926,10 +926,10 @@ cdef class BlowersMaselStickingRate(StickRateBase):
             self._cinit(input_data, A=A, b=b, Ea0=Ea0, w=w)
 
     def _from_dict(self, dict input_data):
-        self._rate.reset(new CxxBlowersMaselStickingRate(dict_to_anymap(input_data)))
+        self._rate.reset(new CxxStickingBlowersMaselRate(dict_to_anymap(input_data)))
 
     def _from_parameters(self, A, b, Ea0, w):
-        self._rate.reset(new CxxBlowersMaselStickingRate(A, b, Ea0, w))
+        self._rate.reset(new CxxStickingBlowersMaselRate(A, b, Ea0, w))
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
@@ -937,8 +937,8 @@ cdef class BlowersMaselStickingRate(StickRateBase):
         self.stick = <CxxStickingCoverage*>self.cxx_object()
         self.coverage = <CxxCoverageBase*>self.stick
 
-    cdef CxxBlowersMaselStickingRate* cxx_object(self):
-        return <CxxBlowersMaselStickingRate*>self.rate
+    cdef CxxStickingBlowersMaselRate* cxx_object(self):
+        return <CxxStickingBlowersMaselRate*>self.rate
 
     property bond_energy:
         """
@@ -1688,10 +1688,10 @@ cdef class Reaction:
             This property is for temporary backwards-compatibility with the deprecated
             `InterfaceReaction` class. Replaced by
             ``Reaction.rate.coverage_dependencies`` for reactions where the rate is a
-            `ArrheniusInterfaceRate` or `ArrheniusStickingRate`.
+            `InterfaceArrheniusRate` or `StickingArrheniusRate`.
         """
         def __get__(self):
-            if isinstance(self.rate, (ArrheniusInterfaceRate, ArrheniusStickingRate)):
+            if isinstance(self.rate, (InterfaceArrheniusRate, StickingArrheniusRate)):
                 warnings.warn(
                     self._deprecation_warning(
                         "coverage_deps",
@@ -1700,10 +1700,10 @@ cdef class Reaction:
                 return self.rate.coverage_dependencies
             else:
                 raise TypeError(
-                    "only valid for reactions with ArrheniusInterfaceRate or "
-                    "ArrheniusStickingRate rates")
+                    "only valid for reactions with InterfaceArrheniusRate or "
+                    "StickingArrheniusRate rates")
         def __set__(self, coverage_deps):
-            if isinstance(self.rate, (ArrheniusInterfaceRate, ArrheniusStickingRate)):
+            if isinstance(self.rate, (InterfaceArrheniusRate, StickingArrheniusRate)):
                 warnings.warn(
                     self._deprecation_warning(
                         "coverage_deps",
@@ -1712,8 +1712,8 @@ cdef class Reaction:
                 self.rate.coverage_dependencies = coverage_deps
             else:
                 raise TypeError(
-                    "only valid for reactions with ArrheniusInterfaceRate or "
-                    "ArrheniusStickingRate rates")
+                    "only valid for reactions with InterfaceArrheniusRate or "
+                    "StickingArrheniusRate rates")
 
     property is_sticking_coefficient:
         """
@@ -1725,32 +1725,32 @@ cdef class Reaction:
 
             This property is for temporary backwards-compatibility with the deprecated
             `InterfaceReaction` class. Replaced by dedicated rate objects
-            `ArrheniusInterfaceRate` and `ArrheniusStickingRate`.
+            `InterfaceArrheniusRate` and `StickingArrheniusRate`.
         """
         def __get__(self):
-            if isinstance(self.rate, (ArrheniusInterfaceRate, ArrheniusStickingRate)):
+            if isinstance(self.rate, (InterfaceArrheniusRate, StickingArrheniusRate)):
                 warnings.warn("Property 'is_sticking_coefficient' to be removed "
                     "after Cantera 2.6. This property is no longer required as "
                     "sticking coefficients use dedicated classes of type "
-                    "'ArrheniusStickingRate', while rate expressions use "
-                    "'ArrheniusInterfaceRate'.", DeprecationWarning)
+                    "'StickingArrheniusRate', while rate expressions use "
+                    "'InterfaceArrheniusRate'.", DeprecationWarning)
                 return isinstance(self.rate, StickRateBase)
             else:
                 raise TypeError(
-                    "only valid for reactions with ArrheniusInterfaceRate or "
-                    "ArrheniusStickingRate rates")
+                    "only valid for reactions with InterfaceArrheniusRate or "
+                    "StickingArrheniusRate rates")
         def __set__(self, stick):
-            if isinstance(self.rate, (ArrheniusInterfaceRate, ArrheniusStickingRate)):
+            if isinstance(self.rate, (InterfaceArrheniusRate, StickingArrheniusRate)):
                 raise NotImplementedError(
                     "Property 'is_sticking_coefficient' to be removed after "
                     "Cantera 2.6. This property can no longer be set as "
                     "sticking coefficients use dedicated classes of type "
-                    "'ArrheniusStickingRate', while rate expressions use "
-                    "'ArrheniusInterfaceRate'.")
+                    "'StickingArrheniusRate', while rate expressions use "
+                    "'InterfaceArrheniusRate'.")
             else:
                 raise TypeError(
-                    "only valid for reactions with ArrheniusInterfaceRate or "
-                    "ArrheniusStickingRate rates")
+                    "only valid for reactions with InterfaceArrheniusRate or "
+                    "StickingArrheniusRate rates")
 
     property use_motz_wise_correction:
         """
@@ -1764,30 +1764,30 @@ cdef class Reaction:
             This property is for temporary backwards-compatibility with the deprecated
             `InterfaceReaction` class. Replaced by
             ``Reaction.rate.motz_wise_correction`` for reactions where the rate is a
-            `ArrheniusStickingRate`.
+            `StickingArrheniusRate`.
         """
         def __get__(self):
-            if isinstance(self.rate, ArrheniusStickingRate):
+            if isinstance(self.rate, StickingArrheniusRate):
                 warnings.warn(
                     self._deprecation_warning(
                         "use_motz_wise_correction",
-                        new="ArrheniusStickingRate.motz_wise_correction"),
+                        new="StickingArrheniusRate.motz_wise_correction"),
                     DeprecationWarning)
                 return self.rate.motz_wise_correction
             else:
                 raise TypeError(
-                    "only valid for reactions with ArrheniusStickingRate rates")
+                    "only valid for reactions with StickingArrheniusRate rates")
         def __set__(self, motz_wise):
-            if isinstance(self.rate, ArrheniusStickingRate):
+            if isinstance(self.rate, StickingArrheniusRate):
                 warnings.warn(
                     self._deprecation_warning(
                         "use_motz_wise_correction",
-                        new="ArrheniusStickingRate.motz_wise_correction"),
+                        new="StickingArrheniusRate.motz_wise_correction"),
                     DeprecationWarning)
                 self.rate.motz_wise_correction = motz_wise
             else:
                 raise TypeError(
-                    "only valid for reactions with ArrheniusStickingRate rates")
+                    "only valid for reactions with StickingArrheniusRate rates")
 
     property sticking_species:
         """
@@ -1798,30 +1798,30 @@ cdef class Reaction:
         .. deprecated:: 2.6
 
             To be deprecated with version 2.6, and removed thereafter.
-            Replaced by property ``ArrheniusStickingRate.sticking_species``.
+            Replaced by property ``StickingArrheniusRate.sticking_species``.
         """
         def __get__(self):
-            if isinstance(self.rate, ArrheniusStickingRate):
+            if isinstance(self.rate, StickingArrheniusRate):
                 warnings.warn(
                     self._deprecation_warning(
                         "sticking_species",
-                        new="ArrheniusStickingRate.sticking_species"),
+                        new="StickingArrheniusRate.sticking_species"),
                     DeprecationWarning)
                 return self.rate.sticking_species
             else:
                 raise TypeError(
-                    "only valid for reactions with ArrheniusStickingRate rates")
+                    "only valid for reactions with StickingArrheniusRate rates")
         def __set__(self, sticking_species):
-            if isinstance(self.rate, ArrheniusStickingRate):
+            if isinstance(self.rate, StickingArrheniusRate):
                 warnings.warn(
                     self._deprecation_warning(
                         "sticking_species",
-                        new="ArrheniusStickingRate.sticking_species"),
+                        new="StickingArrheniusRate.sticking_species"),
                     DeprecationWarning)
                 self.rate.sticking_species = sticking_species
             else:
                 raise TypeError(
-                    "only valid for reactions with ArrheniusStickingRate rates")
+                    "only valid for reactions with StickingArrheniusRate rates")
 
     def __call__(self, T, extra=None):
         """
@@ -2834,8 +2834,8 @@ cdef class InterfaceReaction(ElementaryReaction):
     .. deprecated:: 2.6
 
         To be deprecated with version 2.6, and removed thereafter.
-        Implemented by the `Reaction` class with either `ArrheniusInterfaceRate` or
-        `ArrheniusStickingRate` reaction rate.
+        Implemented by the `Reaction` class with either `InterfaceArrheniusRate` or
+        `StickingArrheniusRate` reaction rate.
     """
     _reaction_type = "interface"
     _has_legacy = False
