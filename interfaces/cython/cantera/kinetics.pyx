@@ -186,11 +186,10 @@ cdef class Kinetics(_SolutionBase):
             ``gas.reaction(0).reversible``
         """
         rxn = self.reaction(i_reaction)
-        if not rxn.uses_legacy:
-            warnings.warn(
-                "Class method 'is_reversible' is deprecated and will be removed "
-                "after Cantera 2.6.\nReplaceable by property 'reversible' of the "
-                "corresponding\nreaction object.", DeprecationWarning)
+        warnings.warn(
+            "Class method 'is_reversible' is deprecated and will be removed "
+            "after Cantera 2.6.\nReplaceable by property 'reversible' of the "
+            "corresponding\nreaction object.", DeprecationWarning)
         return rxn.reversible
 
     def multiplier(self, int i_reaction):
@@ -221,16 +220,17 @@ cdef class Kinetics(_SolutionBase):
 
         .. deprecated:: 2.6
 
-            Replaced by properties ``Reaction.type`` and/or ``Reaction.rate.type``.
+            Replaced by properties ``Reaction.type`` and/ ``Reaction.rate.type``.
             Example: ``gas.reaction_type(0)`` is replaced by
-            ``gas.reaction(0).reaction_type``
+            ``gas.reaction(0).reaction_type`` and ``gas.reaction(0).rate.type``
         """
         rxn = self.reaction(i_reaction)
         if not rxn.uses_legacy:
             warnings.warn(
                 "Class method 'reaction_type' is deprecated and will be "
                 "removed after Cantera 2.6.\nReplaceable by property 'reaction_type' "
-                "of the corresponding reaction object.", DeprecationWarning)
+                "of the corresponding reaction object (or property 'type' of the\n"
+                "associated 'rate').", DeprecationWarning)
         return rxn.type
 
     def reaction_equation(self, int i_reaction):
@@ -244,11 +244,10 @@ cdef class Kinetics(_SolutionBase):
             ``gas.reaction(0).equation``
         """
         rxn = self.reaction(i_reaction)
-        if not rxn.uses_legacy:
-            warnings.warn(
-                "Class method 'reaction_equation' is deprecated and will be "
-                "removed after Cantera 2.6.\nReplaceable by property 'equation' of the "
-                "corresponding reaction object.", DeprecationWarning)
+        warnings.warn(
+            "Class method 'reaction_equation' is deprecated and will be "
+            "removed after Cantera 2.6.\nReplaceable by property 'equation' of the "
+            "corresponding reaction object.", DeprecationWarning)
         return rxn.equation
 
     def reactants(self, int i_reaction):
@@ -261,11 +260,10 @@ cdef class Kinetics(_SolutionBase):
             Example: ``gas.reactants(0)`` is replaced by ``gas.reaction(0).reactants``
         """
         rxn = self.reaction(i_reaction)
-        if not rxn.uses_legacy:
-            warnings.warn(
-                "Class method 'reactants' is deprecated and will be removed "
-                "after Cantera 2.6.\nReplaceable by property 'reactant_string' of "
-                "the corresponding reaction object.", DeprecationWarning)
+        warnings.warn(
+            "Class method 'reactants' is deprecated and will be removed "
+            "after Cantera 2.6.\nReplaceable by property 'reactant_string' of "
+            "the corresponding reaction object.", DeprecationWarning)
         return rxn.reactant_string
 
     def products(self, int i_reaction):
@@ -278,11 +276,10 @@ cdef class Kinetics(_SolutionBase):
             Example: ``gas.products(0)`` is replaced by ``gas.reaction(0).products``
         """
         rxn = self.reaction(i_reaction)
-        if not rxn.uses_legacy:
-            warnings.warn(
-                "Class method 'products' is deprecated and will be removed "
-                "after Cantera 2.6.\nReplaceable by property 'product_string' of "
-                "the corresponding reaction object.", DeprecationWarning)
+        warnings.warn(
+            "Class method 'products' is deprecated and will be removed "
+            "after Cantera 2.6.\nReplaceable by property 'product_string' of "
+            "the corresponding reaction object.", DeprecationWarning)
         return rxn.product_string
 
     def reaction_equations(self, indices=None):
