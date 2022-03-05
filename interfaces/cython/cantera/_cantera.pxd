@@ -1394,12 +1394,11 @@ cdef class ThermoPhase(_SolutionBase):
     cpdef int species_index(self, species) except *
     cdef np.ndarray _getArray1(self, thermoMethod1d method)
     cdef void _setArray1(self, thermoMethod1d method, values) except *
+    cdef CxxPlasmaPhase* plasma
+    cdef public object _enable_plasma
 
 cdef class InterfacePhase(ThermoPhase):
     cdef CxxSurfPhase* surf
-
-cdef class PlasmaPhase(ThermoPhase):
-    cdef CxxPlasmaPhase* plasma
 
 cdef class ReactionRate:
     cdef shared_ptr[CxxReactionRate] _rate

@@ -9,6 +9,8 @@ cdef enum ThermoBasisType:
     mass_basis = 0
     molar_basis = 1
 
+ctypedef CxxPlasmaPhase* CxxPlasmaPhasePtr
+
 cdef class Species:
     """
     A class which stores data about a single chemical species that may be
@@ -370,6 +372,11 @@ cdef class ThermoPhase(_SolutionBase):
         # to prevent instantiation of stand-alone 'Kinetics' or 'Transport' objects.
         # The following is used as a sentinel.
         self._references = weakref.WeakKeyDictionary()
+        # validate plasma phase
+        self._enable_plasma = False
+        if dynamic_cast[CxxPlasmaPhasePtr](self.thermo):
+            self._enable_plasma = True
+            self.plasma = <CxxPlasmaPhase*>self.thermo
 
     property thermo_model:
         """
@@ -1800,47 +1807,53 @@ cdef class ThermoPhase(_SolutionBase):
         :param distribution:
             vector of distribution
         """
-        if self.thermo_model != "Plasma":
-            raise TypeError("Only valid for PlasmaPhase (thermo_model='Plasma').")
+        if not self._enable_plasma:
+            raise TypeError('This method is invalid for '
+                            f'thermo model: {self.thermo_model}.')
         cdef vector[double] cxxdata_levels
         cdef vector[double] cxxdata_distribution
         for value in levels:
             cxxdata_levels.push_back(value)
         for value in distribution:
             cxxdata_distribution.push_back(value)
-        (<CxxPlasmaPhase*>self.thermo).setElectronEnergyDistribution(cxxdata_levels, cxxdata_distribution)
+        self.plasma.setElectronEnergyDistribution(cxxdata_levels,
+                                                cxxdata_distribution)
 
     property electron_energy_levels:
         """ Electron energy levels [eV]"""
         def __get__(self):
-            if self.thermo_model != "Plasma":
-                raise TypeError("Only valid for PlasmaPhase (thermo_model='Plasma').")
+            if not self._enable_plasma:
+                raise TypeError('This method is invalid for '
+                                f'thermo model: {self.thermo_model}.')
             cdef vector[double] cxxdata
-            (<CxxPlasmaPhase*>self.thermo).getElectronEnergyLevels(cxxdata)
+            self.plasma.getElectronEnergyLevels(cxxdata)
             return np.fromiter(cxxdata, np.double)
         def __set__(self, levels):
-            if self.thermo_model != "Plasma":
-                raise TypeError("Only valid for PlasmaPhase (thermo_model='Plasma').")
+            if not self._enable_plasma:
+                raise TypeError('This method is invalid for '
+                                f'thermo model: {self.thermo_model}.')
             cdef vector[double] cxxdata
             for value in levels:
                 cxxdata.push_back(value)
-            (<CxxPlasmaPhase*>self.thermo).setElectronEnergyLevels(cxxdata)
+            self.plasma.setElectronEnergyLevels(cxxdata)
 
     property electron_energy_distribution:
         """ Electron energy distribution """
         def __get__(self):
-            if self.thermo_model != "Plasma":
-                raise TypeError("Only valid for PlasmaPhase (thermo_model='Plasma').")
+            if not self._enable_plasma:
+                raise TypeError('This method is invalid for '
+                                f'thermo model: {self.thermo_model}.')
             cdef vector[double] cxxdata
-            (<CxxPlasmaPhase*>self.thermo).getElectronEnergyDistribution(cxxdata)
+            self.plasma.getElectronEnergyDistribution(cxxdata)
             return np.fromiter(cxxdata, np.double)
 
     property mean_electron_energy:
         """ Mean electron energy [eV] """
         def __get__(self):
-            if self.thermo_model != "Plasma":
-                raise TypeError("Only valid for PlasmaPhase (thermo_model='Plasma').")
-            return (<CxxPlasmaPhase*>self.thermo).meanElectronEnergy()
+            if not self._enable_plasma:
+                raise TypeError('This method is invalid for '
+                                f'thermo model: {self.thermo_model}.')
+            return self.plasma.meanElectronEnergy()
 
 
 cdef class InterfacePhase(ThermoPhase):
@@ -2083,61 +2096,6 @@ cdef class PureFluid(ThermoPhase):
         """
         def __get__(self):
             return self.s, self.v, self.Q
-
-
-cdef class PlasmaPhase(ThermoPhase):
-    """
-    A class representing a plasma phase. There are two ways to define the electron
-    energy distribution and electron temperature. The first method uses
-    attribute `Te` to set the electron temperature which is used to calculate
-    the electron energy distribution with isotropic-velocity model. The second
-    method uses `set_electron_energy_distribution` to manually set electron energy
-    distribution and calculate electron temperature from mean electron energy.
-    """
-    def __cinit__(self, *args, **kwargs):
-        if pystr(self.thermo.type()) != "Plasma":
-            raise TypeError('Underlying ThermoPhase object is of the wrong type.')
-        self.plasma = <CxxPlasmaPhase*>(self.thermo)
-
-    def set_electron_energy_distribution(self, levels, distrb):
-        """ Set electron energy distribution. When this method is used, electron
-        temperature is calculated from the distribution.
-        :param levels:
-            vector of electron energy levels [eV]
-        :param distrb:
-            vector of distribution
-        """
-        cdef vector[double] cxxdata_levels
-        cdef vector[double] cxxdata_distrb
-        for value in levels:
-            cxxdata_levels.push_back(value)
-        for value in distrb:
-            cxxdata_distrb.push_back(value)
-        self.plasma.setElectronEnergyDistribution(cxxdata_levels, cxxdata_distrb)
-
-    property electron_energy_levels:
-        """ Electron energy levels [eV]"""
-        def __get__(self):
-            cdef vector[double] cxxdata
-            self.plasma.getElectronEnergyLevels(cxxdata)
-            return np.fromiter(cxxdata, np.double)
-        def __set__(self, levels):
-            cdef vector[double] cxxdata
-            for value in levels:
-                cxxdata.push_back(value)
-            self.plasma.setElectronEnergyLevels(cxxdata)
-
-    property electron_energy_distribution:
-        """ Electron energy distribution """
-        def __get__(self):
-            cdef vector[double] cxxdata
-            self.plasma.getElectronEnergyDistribution(cxxdata)
-            return np.fromiter(cxxdata, np.double)
-
-    property mean_electron_energy:
-        """ Mean electron energy [eV] """
-        def __get__(self):
-            return self.plasma.meanElectronEnergy()
 
 
 class Element:
