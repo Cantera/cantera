@@ -68,8 +68,7 @@ class TestKinetics(utilities.CanteraTest):
         ct.make_deprecation_warnings_fatal() # re-enable fatal deprecation warnings
 
         fwd_rates = self.phase.forward_rate_constants
-        ix_3b = np.array([self.phase.reaction(i).reaction_type == "three-body"
-            for i in range(self.phase.n_reactions)])
+        ix_3b = np.array([r.reaction_type == "three-body" for r in self.phase.reactions()])
         ix_other = ix_3b == False
 
         self.assertArrayNear(fwd_rates_legacy[ix_other], fwd_rates[ix_other])

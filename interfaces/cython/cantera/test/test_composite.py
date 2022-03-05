@@ -659,8 +659,8 @@ class TestSolutionSerialization(utilities.CanteraTest):
         self.assertEqual(generated['phases'][0]['transport'], 'mixture-averaged')
         for i, species in enumerate(generated['species']):
             self.assertEqual(species['composition'], gas.species(i).composition)
-        for i, reaction in enumerate(generated['reactions']):
-            self.assertEqual(reaction['equation'], gas.reaction(i).equation)
+        for blessed, generated in zip(gas.reactions(), generated["reactions"]):
+            assert blessed.equation == generated["equation"]
 
         gas2 = ct.Solution("h2o2-generated.yaml")
         self.assertArrayNear(gas.concentrations, gas2.concentrations)
