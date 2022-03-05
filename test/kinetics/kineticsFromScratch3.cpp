@@ -53,7 +53,8 @@ public:
 TEST_F(KineticsFromScratch3, add_elementary_reaction)
 {
     // reaction 0:
-    // reaction('O + H2 <=> H + OH', [3.870000e+01, 2.7, 6260.0])
+    //     equation: O + H2 <=> H + OH  # Reaction 1
+    //     rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0}
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     auto rate = make_shared<ArrheniusRate>(3.87e1, 2.7, 2.619184e+07);
@@ -66,8 +67,10 @@ TEST_F(KineticsFromScratch3, add_elementary_reaction)
 TEST_F(KineticsFromScratch3, add_three_body_reaction)
 {
     // reaction 1:
-    // three_body_reaction('2 O + M <=> O2 + M', [1.200000e+11, -1.0, 0.0],
-    //                     efficiencies='AR:0.83 H2:2.4 H2O:15.4')
+    //     equation: 2 O + M <=> O2 + M  # Reaction 2
+    //     type: three-body
+    //     rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0}
+    //     efficiencies: {AR: 0.83, H2: 2.4, H2O: 15.4}
     Composition reac = parseCompString("O:2");
     Composition prod = parseCompString("O2:1");
     ArrheniusRate rate(1.2e11, -1.0, 0.0);
@@ -108,11 +111,13 @@ TEST_F(KineticsFromScratch3, skip_undefined_third_body)
 TEST_F(KineticsFromScratch3, add_falloff_reaction)
 {
     // reaction 2:
-    // falloff_reaction('2 OH (+ M) <=> H2O2 (+ M)',
-    //                  kf=[7.400000e+10, -0.37, 0.0],
-    //                  kf0=[2.300000e+12, -0.9, -1700.0],
-    //                  efficiencies='AR:0.7 H2:2.0 H2O:6.0',
-    //                  falloff=Troe(A=0.7346, T3=94.0, T1=1756.0, T2=5182.0))
+    //     equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 3
+    //     duplicate: true
+    //     type: falloff
+    //     low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -1700.0}
+    //     high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0}
+    //     Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
+    //     efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
     Composition reac = parseCompString("OH:2");
     Composition prod = parseCompString("H2O2:1");
     ArrheniusRate high_rate(7.4e10, -0.37, 0.0);
@@ -129,11 +134,13 @@ TEST_F(KineticsFromScratch3, add_falloff_reaction)
 TEST_F(KineticsFromScratch3, add_plog_reaction)
 {
     // reaction 3:
-    // pdep_arrhenius('H2 + O2 <=> 2 OH',
-    //                [(0.01, 'atm'), 1.212400e+16, -0.5779, 10872.7],
-    //                [(1.0, 'atm'), 4.910800e+31, -4.8507, 24772.8],
-    //                [(10.0, 'atm'), 1.286600e+47, -9.0246, 39796.5],
-    //                [(100.0, 'atm'), 5.963200e+56, -11.529, 52599.6])
+    //     equation: H2 + O2 <=> 2 OH  # Reaction 4
+    //     type: pressure-dependent-Arrhenius
+    //     rate-constants:
+    //     - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04}
+    //     - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04}
+    //     - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04}
+    //     - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04}
     Composition reac = parseCompString("H2:1, O2:1");
     Composition prod = parseCompString("OH:2");
     std::multimap<double, Arrhenius3> rates {
@@ -166,13 +173,14 @@ TEST_F(KineticsFromScratch3, plog_invalid_rate)
 TEST_F(KineticsFromScratch3, add_chebyshev_reaction)
 {
     // reaction 4:
-    // chebyshev_reaction(
-    //     'HO2 <=> OH + O',
-    //     Tmin=290.0, Tmax=3000.0,
-    //     Pmin=(0.0098692326671601278, 'atm'), Pmax=(98.692326671601279, 'atm'),
-    //     coeffs=[[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
-    //             [ 1.9764e+00,  1.0037e+00,  7.2865e-03, -3.0432e-02],
-    //             [ 3.1770e-01,  2.6889e-01,  9.4806e-02, -7.6385e-03]])
+    //     equation: HO2 <=> OH + O  # Reaction 5
+    //     type: Chebyshev
+    //     temperature-range: [290.0, 3000.0]
+    //     pressure-range: [9.869232667160128e-03 atm, 98.69232667160128 atm]
+    //     data:
+    //     - [8.2883, -1.1397, -0.12059, 0.016034]
+    //     - [1.9764, 1.0037, 7.2865e-03, -0.030432]
+    //     - [0.3177, 0.26889, 0.094806, -7.6385e-03]
     Composition reac = parseCompString("HO2:1");
     Composition prod = parseCompString("OH:1 O:1");
     Array2D coeffs(3, 4);
@@ -357,8 +365,9 @@ public:
 TEST_F(InterfaceKineticsFromScratch3, add_surface_reaction)
 {
     // Reaction 3 on the metal surface
-    // surface_reaction( "H(m) + O(m) <=> OH(m) + (m)",
-    //                   [5.00000E+22, 0, 100.0], id = 'metal-rxn4')
+    //     equation: H(m) + O(m) <=> OH(m) + (m)  # Reaction 4
+    //     id: metal-rxn4
+    //     rate-constant: {A: 5.0e+22, b: 0, Ea: 100.0}
     Composition reac = parseCompString("H(m):1 O(m):1");
     Composition prod = parseCompString("OH(m):1 (m):1");
     auto rate = make_shared<InterfaceArrheniusRate>(5e21, 0, 100.0e6);
@@ -370,8 +379,9 @@ TEST_F(InterfaceKineticsFromScratch3, add_surface_reaction)
 TEST_F(InterfaceKineticsFromScratch3, add_sticking_reaction)
 {
     // Reaction 0 on the metal surface
-    // surface_reaction( "H2 + (m) + (m) <=> H(m) + H(m)",
-    //                   stick(0.1, 0, 0), id = 'metal-rxn1')
+    //     equation: H2 + (m) + (m) <=> H(m) + H(m)  # Reaction 1
+    //     sticking-coefficient: {A: 0.1, b: 0, Ea: 0}
+    //     id: metal-rxn1
     Composition reac = parseCompString("H2:1 (m):2");
     Composition prod = parseCompString("H(m):2");
     auto rate = make_shared<StickingArrheniusRate>(0.1, 0, 0.0);
