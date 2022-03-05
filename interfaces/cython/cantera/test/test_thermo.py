@@ -1128,7 +1128,7 @@ class TestInterfacePhase(utilities.CanteraTest):
 
 class TestPlasmaPhase(utilities.CanteraTest):
     def setUp(self):
-        self.phase = ct.Plasma('oxygen-plasma.yaml', transport_model=None)
+        self.phase = ct.Solution('oxygen-plasma.yaml', transport_model=None)
 
     def test_mean_electron_energy(self):
         self.phase.Te = 60000

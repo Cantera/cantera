@@ -108,19 +108,6 @@ class Solution(Transport, Kinetics, ThermoPhase):
     __slots__ = ()
 
 
-class Plasma(Transport, Kinetics, PlasmaPhase):
-    """
-    A class for plasma-reacting solutions. Class `Plasma` derives from classes `PlasmaPhase`, `Kinetics`, and
-    `Transport`.
-
-    The most common way to instantiate `Plasma` objects is by using a phase
-    definition, species and reactions defined in an input file::
-
-        gas = ct.Plasma('oxygen-plasma.yaml')
-    """
-    __slots__ = ()
-
-
 class Interface(InterfaceKinetics, InterfacePhase):
     """
     Instances of class `Interface` represent reacting 2D surfaces between bulk 3D

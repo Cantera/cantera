@@ -26,12 +26,12 @@ PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
 
 void PlasmaPhase::updateIsotropicElectronEnergyDistribution()
 {
-    m_electronEnergyDistrb.resize(m_nPoints);
+    m_electronEnergyDist.resize(m_nPoints);
     double gamma1 = boost::math::tgamma(3.0 / 2.0 * m_x);
     double gamma2 = boost::math::tgamma(5.0 / 2.0 * m_x);
     double c1 = m_x * std::pow(gamma2, 1.5) / std::pow(gamma1, 2.5);
     double c2 = m_x * std::pow(gamma2 / gamma1, m_x);
-    m_electronEnergyDistrb =
+    m_electronEnergyDist =
         c1 * m_electronEnergyLevels.array().sqrt() /
         std::pow(m_meanElectronEnergy, 1.5) *
         (-c2 * (m_electronEnergyLevels.array() /
@@ -78,7 +78,7 @@ void PlasmaPhase::setElectronEnergyDistribution(const vector_fp& levels,
     // calculate mean electron energy and electron temperature
     Eigen::VectorXd eps52 = m_electronEnergyLevels.array().pow(5./2.);
     m_meanElectronEnergy =
-        2.0 / 5.0 * trapezoidal(m_electronEnergyDistrb, eps52);
+        2.0 / 5.0 * trapezoidal(m_electronEnergyDist, eps52);
     Phase::setElectronTemperature(
         2.0 / 3.0 * m_meanElectronEnergy * Avogadro *
         ElectronCharge / GasConstant);

@@ -1,5 +1,5 @@
 description: |-
-  This file is for testing purpose. We use constant Cp for electron withnot Tmax.
+  This file is for testing purpose. We use constant Cp for electron with no Tmax.
 
 units: {length: cm, quantity: molec, activation-energy: K}
 

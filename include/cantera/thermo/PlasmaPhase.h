@@ -18,18 +18,22 @@ namespace Cantera
 /**
  * Base class for a phase with plasma properties. This class manages the
  * plasma properties such as electron energy distribution function (EEDF).
- * When using setElectronTemperature, the electron is assumed to have
- * isotropic velocity. The generalized electron energy distribution can be
+ * There are two ways to define the electron distribution and electron
+ * temperature. The first method uses setElectronTemperature() to set
+ * the electron temperature which is used to calculate the electron energy
+ * distribution with isotropic-velocity model. The generalized electron
+ * energy distribution for isotropic-velocity distribution can be
  * expressed as [1,2],
  *   \f[
- *          f(\epsilon) = c_1 * \frac{\sqrt{epsilon}}{\epsilon_m^{3/2}}
- *          exp(-c_2 * (\frac{\epsilon}{\epsilon_m})^x),
+ *          f(\epsilon) = c_1 \frac{\sqrt{\epsilon}}{\epsilon_m^{3/2}}
+ *          \exp(-c_2 (\frac{\epsilon}{\epsilon_m})^x),
  *   \f]
  * where \f$ x = 1 \f$ and \f$ x = 2 \f$ correspond to the Maxwellian and
  * Druyvesteyn (default) electron energy distribution, respectively.
- * \f$ \epsilon_m = 3/2 * Te \f$ [eV]. For non-isotropic-velocity electron
- * energy distribution, the mean electron energy \f$ \epsilon_m \f$ is
- * calculated as [3],
+ * \f$ \epsilon_m = 3/2 T_e \f$ [eV] (mean electron energy). The second
+ * method uses setElectronEnergyDistribution() to manually set electron
+ * energy distribution and calculate electron temperature from mean electron
+ * energy, which is calculated as [3],
  *   \f[
  *          \epsilon_m = \int_0^{\infty} \epsilon^{3/2} f(\epsilon) d\epsilon,
  *   \f]
@@ -38,7 +42,7 @@ namespace Cantera
  *          \epsilon_m = \sum_i (\epsilon^{5/2}_{i+1} - \epsilon^{5/2}_i)
  *                       (f(\epsilon_{i+1}) + f(\epsilon_i)) / 2,
  *   \f]
- * where i is the index of energy levels.
+ * where \f$ i \f$ is the index of energy levels.
  *
  * References:
  *
@@ -70,8 +74,8 @@ namespace Cantera
 class PlasmaPhase: public IdealGasPhase
 {
 public:
-    //! Construct and initialize an PlasmaPhase ThermoPhase object
-    //! directly from an ASCII input file. The constructor initializes the electron
+    //! Construct and initialize a PlasmaPhase object
+    //! directly from an input file. The constructor initializes the electron
     //! energy distribution to be Druyvesteyn distribution (m_x = 2.0). The initial
     //! electron energy grid is set to a linear space which starts at 0.01 eV and ends
     //! at 1 eV with 1000 points.
@@ -138,11 +142,12 @@ protected:
     //! Number of points of electron energy levels
     size_t m_nPoints;
 
-    //! electron energy grid
+    //! electron energy levels [ev]. Length: #m_nPoints
     Eigen::VectorXd m_electronEnergyLevels;
 
-    //! Normalized electron energy distribution vector
-    Eigen::VectorXd m_electronEnergyDistrb;
+    //! Normalized electron energy distribution vector [-]
+    //! Length: #m_nPoints
+    Eigen::VectorXd m_electronEnergyDist;
 
     //! Mean electron energy
     double m_meanElectronEnergy;
