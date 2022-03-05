@@ -142,26 +142,34 @@ void StickingCoverage::setContext(const Reaction& rxn, const Kinetics& kin)
     std::string sticking_species = m_stickingSpecies;
     if (sticking_species == "") {
         // Identify the sticking species if not explicitly given
-        bool foundStick = false;
+        std::vector<std::string> gasSpecies;
+        std::vector<std::string> anySpecies;
         for (const auto& sp : rxn.reactants) {
             size_t iPhase = kin.speciesPhaseIndex(kin.kineticsSpeciesIndex(sp.first));
             if (iPhase != iInterface) {
                 // Non-interface species. There should be exactly one of these
-                if (foundStick) {
-                    throw InputFileError("StickingCoverage::setContext",
-                        rxn.input, "Multiple non-interface species ('{}' and '{}')\n"
-                        "found in sticking reaction: '{}'.\nSticking species "
-                        "must be explicitly specified.",
-                        sticking_species, sp.first, rxn.equation());
+                // (either in gas phase or other phase)
+                if (kin.thermo(iPhase).phaseOfMatter() == "gas") {
+                    gasSpecies.push_back(sp.first);
                 }
-                foundStick = true;
-                sticking_species = sp.first;
+                anySpecies.push_back(sp.first);
             }
         }
-        if (!foundStick) {
+        if (gasSpecies.size() == 1) {
+            // single sticking species in gas phase
+            sticking_species = gasSpecies[0];
+        } else if (anySpecies.size() == 1) {
+            // single sticking species in any phase
+            sticking_species = anySpecies[0];
+        } else if (anySpecies.size() == 0) {
             throw InputFileError("StickingCoverage::setContext",
                 rxn.input, "No non-interface species found "
                 "in sticking reaction: '{}'", rxn.equation());
+        } else {
+            throw InputFileError("StickingCoverage::setContext",
+                rxn.input, "Multiple non-interface species ({})\nfound in sticking "
+                "reaction: '{}'.\nSticking species must be explicitly specified.",
+                fmt::format("'{}'", fmt::join(anySpecies, "', '")), rxn.equation());
         }
     }
     m_stickingSpecies = sticking_species;

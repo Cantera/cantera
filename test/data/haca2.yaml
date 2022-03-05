@@ -88,4 +88,3 @@ reactions:
   rate-constant: {A: 2.2e+12, b: 0.0, Ea: 7.5}
 - equation: OH + Csoot-H + CB-CB3 => Csoot-* + CO + H2  # Reaction 8
   sticking-coefficient: {A: 0.13, b: 0.0, Ea: 0.0}
-  sticking-species: OH
