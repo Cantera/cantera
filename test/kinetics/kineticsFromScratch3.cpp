@@ -361,7 +361,7 @@ TEST_F(InterfaceKineticsFromScratch3, add_surface_reaction)
     //                   [5.00000E+22, 0, 100.0], id = 'metal-rxn4')
     Composition reac = parseCompString("H(m):1 O(m):1");
     Composition prod = parseCompString("OH(m):1 (m):1");
-    auto rate = make_shared<ArrheniusInterfaceRate>(5e21, 0, 100.0e6);
+    auto rate = make_shared<InterfaceArrheniusRate>(5e21, 0, 100.0e6);
     auto R = make_shared<Reaction>(reac, prod, rate);
     kin.addReaction(R);
     check_rates(3);
@@ -374,7 +374,7 @@ TEST_F(InterfaceKineticsFromScratch3, add_sticking_reaction)
     //                   stick(0.1, 0, 0), id = 'metal-rxn1')
     Composition reac = parseCompString("H2:1 (m):2");
     Composition prod = parseCompString("H(m):2");
-    auto rate = make_shared<ArrheniusStickingRate>(0.1, 0, 0.0);
+    auto rate = make_shared<StickingArrheniusRate>(0.1, 0, 0.0);
     auto R = make_shared<Reaction>(reac, prod, rate);
     kin.addReaction(R);
     check_rates(0);
@@ -384,7 +384,7 @@ TEST_F(InterfaceKineticsFromScratch3, unbalanced_sites)
 {
     Composition reac = parseCompString("H(m):1 O(m):1");
     Composition prod = parseCompString("OH(m):1");
-    auto rate = make_shared<ArrheniusInterfaceRate>(5e21, 0, 100.0e6);
+    auto rate = make_shared<InterfaceArrheniusRate>(5e21, 0, 100.0e6);
     auto R = make_shared<Reaction>(reac, prod, rate);
     ASSERT_THROW(kin.addReaction(R), CanteraError);
 }

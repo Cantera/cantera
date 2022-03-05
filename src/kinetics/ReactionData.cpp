@@ -115,7 +115,7 @@ bool BlowersMaselData::update(const ThermoPhase& phase, const Kinetics& kin)
     if (changed || rho != density || mf != m_state_mf_number) {
         density = rho;
         m_state_mf_number = mf;
-        phase.getPartialMolarEnthalpies(grt.data());
+        phase.getPartialMolarEnthalpies(partial_molar_enthalpies.data());
         changed = true;
     }
     return changed;
@@ -312,14 +312,13 @@ bool CoverageData::update(const ThermoPhase& phase, const Kinetics& kin)
         changed = true;
     }
     if (changed || mf != m_state_mf_number) {
-        phase.getActivityConcentrations(coverages.data());
         surf.getCoverages(coverages.data());
         for (size_t n = 0; n < coverages.size(); n++) {
             logCoverages[n] = std::log(std::max(coverages[n], Tiny));
         }
         for (size_t n = 0; n < kin.nPhases(); n++) {
             kin.thermo(n).getPartialMolarEnthalpies(
-                grt.data() + kin.kineticsSpeciesIndex(0, n));
+                partial_molar_enthalpies.data() + kin.kineticsSpeciesIndex(0, n));
         }
         m_state_mf_number = mf;
         changed = true;

@@ -563,25 +563,25 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double stickingWeight()
         void setStickingWeight(double)
 
-    cdef cppclass CxxArrheniusInterfaceRate "Cantera::ArrheniusInterfaceRate" (CxxReactionRate, CxxArrhenius, CxxCoverageBase):
-        CxxArrheniusInterfaceRate()
-        CxxArrheniusInterfaceRate(CxxAnyMap) except +translate_exception
-        CxxArrheniusInterfaceRate(double, double, double)
+    cdef cppclass CxxInterfaceArrheniusRate "Cantera::InterfaceArrheniusRate" (CxxReactionRate, CxxArrhenius, CxxCoverageBase):
+        CxxInterfaceArrheniusRate()
+        CxxInterfaceArrheniusRate(CxxAnyMap) except +translate_exception
+        CxxInterfaceArrheniusRate(double, double, double)
 
-    cdef cppclass CxxArrheniusStickingRate "Cantera::ArrheniusStickingRate" (CxxReactionRate, CxxArrhenius, CxxStickingCoverage):
-        CxxArrheniusStickingRate()
-        CxxArrheniusStickingRate(CxxAnyMap) except +translate_exception
-        CxxArrheniusStickingRate(double, double, double)
+    cdef cppclass CxxStickingArrheniusRate "Cantera::StickingArrheniusRate" (CxxReactionRate, CxxArrhenius, CxxStickingCoverage):
+        CxxStickingArrheniusRate()
+        CxxStickingArrheniusRate(CxxAnyMap) except +translate_exception
+        CxxStickingArrheniusRate(double, double, double)
 
-    cdef cppclass CxxBlowersMaselInterfaceRate "Cantera::BlowersMaselInterfaceRate" (CxxReactionRate, CxxBlowersMasel, CxxCoverageBase):
-        CxxBlowersMaselInterfaceRate()
-        CxxBlowersMaselInterfaceRate(CxxAnyMap) except +translate_exception
-        CxxBlowersMaselInterfaceRate(double, double, double, double)
+    cdef cppclass CxxInterfaceBlowersMaselRate "Cantera::InterfaceBlowersMaselRate" (CxxReactionRate, CxxBlowersMasel, CxxCoverageBase):
+        CxxInterfaceBlowersMaselRate()
+        CxxInterfaceBlowersMaselRate(CxxAnyMap) except +translate_exception
+        CxxInterfaceBlowersMaselRate(double, double, double, double)
 
-    cdef cppclass CxxBlowersMaselStickingRate "Cantera::BlowersMaselStickingRate" (CxxReactionRate, CxxBlowersMasel, CxxStickingCoverage):
-        CxxBlowersMaselStickingRate()
-        CxxBlowersMaselStickingRate(CxxAnyMap) except +translate_exception
-        CxxBlowersMaselStickingRate(double, double, double, double)
+    cdef cppclass CxxStickingBlowersMaselRate "Cantera::StickingBlowersMaselRate" (CxxReactionRate, CxxBlowersMasel, CxxStickingCoverage):
+        CxxStickingBlowersMaselRate()
+        CxxStickingBlowersMaselRate(CxxAnyMap) except +translate_exception
+        CxxStickingBlowersMaselRate(double, double, double, double)
 
     cdef cppclass CxxThirdBody "Cantera::ThirdBody":
         CxxThirdBody()

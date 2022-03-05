@@ -71,12 +71,12 @@ Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
             }
             std::string type = rateNode["type"].asString();
             if (rateNode.hasKey("rate-constant")) {
-                if (!boost::algorithm::ends_with(type, "-interface")) {
-                    rateNode["type"] = type + "-interface";
+                if (!boost::algorithm::starts_with(type, "interface-")) {
+                    rateNode["type"] = "interface-" + type;
                 }
             } else if (node.hasKey("sticking-coefficient")) {
-                if (!boost::algorithm::ends_with(type, "-stick")) {
-                    rateNode["type"] = type + "-stick";
+                if (!boost::algorithm::starts_with(type, "sticking-")) {
+                    rateNode["type"] = "sticking-" + type;
                 }
             } else {
                 throw InputFileError("Reaction::Reaction", input,

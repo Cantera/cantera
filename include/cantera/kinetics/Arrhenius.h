@@ -329,7 +329,7 @@ public:
         if (shared_data.ready) {
             m_deltaH_R = 0.;
             for (const auto& item : m_stoich_coeffs) {
-                m_deltaH_R += shared_data.grt[item.first] * item.second;
+                m_deltaH_R += shared_data.partial_molar_enthalpies[item.first] * item.second;
             }
             m_deltaH_R /= GasConstant;
         }
