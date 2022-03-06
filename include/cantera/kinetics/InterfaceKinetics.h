@@ -69,6 +69,8 @@ public:
 
     virtual ~InterfaceKinetics();
 
+    virtual void resizeReactions();
+
     virtual std::string kineticsType() const {
         return "Surf";
     }

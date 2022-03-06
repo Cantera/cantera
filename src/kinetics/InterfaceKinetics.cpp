@@ -41,6 +41,18 @@ InterfaceKinetics::~InterfaceKinetics()
     delete m_integrator;
 }
 
+void InterfaceKinetics::resizeReactions()
+{
+    Kinetics::resizeReactions();
+
+    for (auto& rates : m_interface_rates) {
+        rates->resize(nTotalSpecies(), nReactions());
+        // @todo ensure that ReactionData are updated; calling rates->update
+        //      blocks correct behavior in InterfaceKinetics::_update_rates_T
+        //      and running updateROP() is premature
+    }
+}
+
 void InterfaceKinetics::setElectricPotential(int n, doublereal V)
 {
     thermo(n).setElectricPotential(V);
