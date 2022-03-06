@@ -24,6 +24,9 @@ void BulkKinetics::resizeReactions()
     m_multi_concm.resizeCoeffs(nTotalSpecies(), nReactions());
     for (auto& rates : m_bulk_rates) {
         rates->resize(nTotalSpecies(), nReactions());
+        // @todo ensure that ReactionData are updated; calling rates->update
+        //      blocks correct behavior in GasKinetics::update_rates_T
+        //      and running updateROP() is premature
     }
 }
 
@@ -204,6 +207,8 @@ void BulkKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
 
         m_bulk_rates[index]->replace(i, *rate);
     }
+
+    invalidateCache();
 }
 
 void BulkKinetics::modifyElementaryReaction(size_t i, ElementaryReaction2& rNew)
