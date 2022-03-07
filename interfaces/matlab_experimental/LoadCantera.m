@@ -1,6 +1,6 @@
 function LoadCantera
     addpath('Class', 'Utility', 'PresetMixtures', 'PresetReactors', ...
-            'PresetObjects', '1D', 'Examples');
+            'PresetObjects', '1D');
     if ispc
         ctname = 'cantera_shared.dll';
     elseif ismac
@@ -22,6 +22,8 @@ function LoadCantera
                                    'ctonedim','addheader','ctreactor', ...
                                    'addheader','ctrpath','addheader','ctsurf', ...
                                    'addheader','ctxml');
+        example_dir = [cantera_root, '/samples/matlab_new'];
+        addpath(example_dir);
     end
     disp('Cantera is ready for use');
 end
