@@ -13,15 +13,17 @@ function dydt = conhp(t, y, gas, mw) %#ok<INUSL>
 
     % energy equation
     wdot = gas.netProdRates;
+    H = gas.enthalpies_RT';
     gas.basis = 'mass';
-    tdot = - gas.T * gasconstant * gas.enthalpies_RT .* wdot / (gas.D * gas.cp);
+    tdot = - gas.T * gasconstant /(gas.D * gas.cp).* wdot * H;
 
     % set up column vector for dydt
-    dydt = [tdot'
+    dydt = [tdot
             zeros(nsp, 1)];
 
     % species equations
     rrho = 1.0/gas.D;
     for i = 1:nsp
         dydt(i+1) = rrho * mw(i) * wdot(i);
+    end
 end
