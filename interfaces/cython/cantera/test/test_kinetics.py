@@ -1573,6 +1573,15 @@ class TestReaction(utilities.CanteraTest):
         self.assertNotAlmostEqual(k1, k2)
         self.assertNear(k2, k3)
 
+    def test_invalid_sticking(self):
+        yaml = """
+        equation: OH + Csoot-H + CB-CB3 + CO => Csoot-* + 2 CO + H2
+        sticking-coefficient: {A: 0.13, b: 0.0, Ea: 0.0}"""
+        surf = ct.Interface("haca2.yaml", "soot_interface")
+        rxn = ct.Reaction.from_yaml(yaml, surf)
+        with pytest.raises(ct.CanteraError, match="non-interface species"):
+            surf.add_reaction(rxn)
+
     def test_modify_sticking(self):
         gas = ct.Solution("ptcombust.yaml", "gas")
         surf = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
